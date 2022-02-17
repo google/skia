@@ -222,6 +222,9 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
         SkFontArguments args;
         args.setCollectionIndex(desc.getCollectionIndex());
         args.setVariationDesignPosition({desc.getVariation(), desc.getVariationCoordinateCount()});
+        args.setPalette({desc.getPaletteIndex(),
+                         desc.getPaletteEntryOverrides(),
+                         desc.getPaletteEntryOverrideCount()});
         sk_sp<SkFontMgr> defaultFm = SkFontMgr::RefDefault();
         sk_sp<SkTypeface> typeface = defaultFm->makeFromStream(desc.detachStream(), args);
         if (typeface) {

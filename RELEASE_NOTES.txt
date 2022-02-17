@@ -34,6 +34,8 @@ Milestone 99
     https://review.skia.org/481416
   * Added a new variant of SkImageFilters::RuntimeShader that supports multiple child nodes.
     https://review.skia.org/489536
+  * Add the ability to specifiy palette overrides in SkFontArguments. Implemented
+    for the FreeType-backed SkFontMgrs.
 
 * * *
 

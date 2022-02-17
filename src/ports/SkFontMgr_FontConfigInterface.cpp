@@ -39,7 +39,7 @@ std::unique_ptr<SkFontData> SkTypeface_FCI::onMakeFontData() const {
 
     const SkFontConfigInterface::FontIdentity& id = this->getIdentity();
     return std::make_unique<SkFontData>(std::unique_ptr<SkStreamAsset>(fFCI->openStream(id)),
-                                          id.fTTCIndex, nullptr, 0);
+                                        id.fTTCIndex, 0, nullptr, 0, nullptr, 0);
 }
 
 void SkTypeface_FCI::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocalStream) const {
@@ -47,6 +47,9 @@ void SkTypeface_FCI::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocalSt
     this->getFamilyName(&name);
     desc->setFamilyName(name.c_str());
     desc->setStyle(this->fontStyle());
+    if (fFontData) {
+        SkTypeface_FreeType::FontDataPaletteToDescriptorPalette(*fFontData, desc);
+    }
     *isLocalStream = SkToBool(fFontData);
 }
 
@@ -239,7 +242,8 @@ protected:
             return nullptr;
         }
 
-        auto fontData = std::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
+        auto fontData = std::make_unique<SkFontData>(std::move(stream), ttcIndex, 0,
+                                                     nullptr, 0, nullptr, 0);
         return sk_sp<SkTypeface>(SkTypeface_FCI::Create(std::move(fontData), std::move(name),
                                                         style, isFixedPitch));
     }
@@ -271,8 +275,11 @@ protected:
 
         auto fontData = std::make_unique<SkFontData>(std::move(stream),
                                                      args.getCollectionIndex(),
+                                                     args.getPalette().index,
                                                      axisValues.get(),
-                                                     axisDefinitions.count());
+                                                     axisDefinitions.count(),
+                                                     args.getPalette().overrides,
+                                                     args.getPalette().overrideCount);
         return sk_sp<SkTypeface>(SkTypeface_FCI::Create(std::move(fontData), std::move(name),
                                                         style, isFixedPitch));
     }

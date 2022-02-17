@@ -8,6 +8,7 @@
 #ifndef SkFontArguments_DEFINED
 #define SkFontArguments_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 
@@ -22,7 +23,27 @@ struct SkFontArguments {
         int coordinateCount;
     };
 
-    SkFontArguments() : fCollectionIndex(0), fVariationDesignPosition{nullptr, 0} {}
+    /** Specify a palette to use and overrides for palette entries.
+     *
+     *  `overrides` is a list of pairs of palette entry index and color.
+     *  The overriden palette entries will use the associated color.
+     *  Override pairs with palette entry indices out of range will not be applied.
+     *  Later override entries override earlier ones.
+     */
+    struct Palette {
+        struct Override {
+            int index;
+            SkColor color;
+        };
+        int index;
+        const Override* overrides;
+        int overrideCount;
+    };
+
+    SkFontArguments()
+            : fCollectionIndex(0)
+            , fVariationDesignPosition{nullptr, 0}
+            , fPalette{0, nullptr, 0} {}
 
     /** Specify the index of the desired font.
      *
@@ -54,9 +75,20 @@ struct SkFontArguments {
     VariationPosition getVariationDesignPosition() const {
         return fVariationDesignPosition;
     }
+
+    SkFontArguments& setPalette(Palette palette) {
+        fPalette.index = palette.index;
+        fPalette.overrides = palette.overrides;
+        fPalette.overrideCount = palette.overrideCount;
+        return *this;
+    }
+
+    Palette getPalette() const { return fPalette; }
+
 private:
     int fCollectionIndex;
     VariationPosition fVariationDesignPosition;
+    Palette fPalette;
 };
 
 #endif

@@ -410,6 +410,7 @@ public:
     }
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
+        SkTypeface_FreeType::FontDataPaletteToDescriptorPalette(*fData, desc);
         *serialize = true;
     }
 
@@ -541,7 +542,7 @@ public:
             return nullptr;
         }
         // TODO: FC_VARIABLE and FC_FONT_VARIATIONS
-        return std::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
+        return std::make_unique<SkFontData>(std::move(stream), index, 0, nullptr, 0, nullptr, 0);
     }
 
     ~SkTypeface_fontconfig() override {
@@ -966,7 +967,8 @@ protected:
             return nullptr;
         }
 
-        auto data = std::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
+        auto data = std::make_unique<SkFontData>(std::move(stream), ttcIndex, 0,
+                                                 nullptr, 0, nullptr, 0);
         return sk_sp<SkTypeface>(new SkTypeface_stream(std::move(data), std::move(name),
                                                        style, isFixedWidth));
     }
@@ -988,8 +990,10 @@ protected:
         Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
                                    axisValues, name);
 
-        auto data = std::make_unique<SkFontData>(std::move(stream), args.getCollectionIndex(),
-                                                   axisValues.get(), axisDefinitions.count());
+        auto data = std::make_unique<SkFontData>(
+            std::move(stream), args.getCollectionIndex(), args.getPalette().index,
+            axisValues.get(), axisDefinitions.count(),
+            args.getPalette().overrides, args.getPalette().overrideCount);
         return sk_sp<SkTypeface>(new SkTypeface_stream(std::move(data), std::move(name),
                                                        style, isFixedPitch));
     }

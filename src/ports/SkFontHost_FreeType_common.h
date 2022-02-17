@@ -47,11 +47,14 @@ protected:
         : INHERITED(std::move(typeface), effects, desc)
     {}
 
-    bool drawColorGlyph(SkCanvas*, FT_Face, const SkGlyph&);
-    void generateGlyphImage(FT_Face face, const SkGlyph& glyph, const SkMatrix& bitmapTransform);
+    bool drawColorGlyph(SkCanvas*, FT_Face, SkSpan<SkColor> palette, const SkGlyph&);
+    void generateGlyphImage(FT_Face face,
+                            SkSpan<SkColor> palette,
+                            const SkGlyph& glyph,
+                            const SkMatrix& bitmapTransform);
     bool generateGlyphPath(FT_Face face, SkPath* path);
     bool generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path);
-    sk_sp<SkDrawable> generateGlyphDrawable(FT_Face face, const SkGlyph&);
+    sk_sp<SkDrawable> generateGlyphDrawable(FT_Face face, SkSpan<SkColor> palette, const SkGlyph&);
 
     // Computes a bounding box for a COLRv1 glyph id in FT_BBox 26.6 format and FreeType's y-up
     // coordinate space.
@@ -93,7 +96,6 @@ public:
             const SkString& name,
             const SkFontArguments::VariationPosition::Coordinate* currentPosition = nullptr);
         static bool GetAxes(FT_Face face, AxisDefinitions* axes);
-
     private:
         FT_Face openFace(SkStreamAsset* stream, int ttcIndex, FT_Stream ftStream) const;
         FT_Library fLibrary;
@@ -103,9 +105,7 @@ public:
     /** Fetch units/EM from "head" table if needed (ie for bitmap fonts) */
     static int GetUnitsPerEm(FT_Face face);
 
-    /**
-     *  Return the font data, or nullptr on failure.
-     */
+    /** Return the font data, or nullptr on failure. */
     std::unique_ptr<SkFontData> makeFontData() const;
     class FaceRec;
     FaceRec* getFaceRec() const;
@@ -141,6 +141,8 @@ protected:
     sk_sp<SkData> onCopyTableData(SkFontTableTag) const override;
 
     virtual std::unique_ptr<SkFontData> onMakeFontData() const = 0;
+    /** Utility to fill out the SkFontDescriptor palette information from the SkFontData. */
+    static void FontDataPaletteToDescriptorPalette(const SkFontData&, SkFontDescriptor*);
 
 private:
     mutable SkOnce fFTFaceOnce;

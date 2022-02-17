@@ -22,6 +22,8 @@ enum {
     kItalic         = 0x13, // scalar (0 is Roman, 1 is fully Italic)
 
     // Related to font data. Can also be used with a requested font.
+    kPaletteIndex   = 0xF8, // int
+    kPaletteEntryOverrides = 0xF9, // int count, (int, u32)[count]
     kFontVariation  = 0xFA, // int count, (u32, scalar)[count]
 
     // Related to font data.
@@ -80,6 +82,15 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     size_t index;
     using CollectionIndexType = decltype(result->fCollectionIndex);
 
+    size_t paletteIndex;
+    using PaletteIndexType = decltype(result->fPaletteIndex);
+
+    size_t paletteEntryOverrideCount;
+    using PaletteEntryOverrideCountType = decltype(result->fPaletteEntryOverrideCount);
+
+    size_t paletteEntryOverrideIndex;
+    using PaletteEntryOverrideIndexType = decltype(result->fPaletteEntryOverrides[0].index);
+
     SkScalar weight = SkFontStyle::kNormal_Weight;
     SkScalar width = SkFontStyle::kNormal_Width;
     SkScalar slant = 0;
@@ -131,6 +142,32 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
                 if (!SkTFitsIn<CollectionIndexType>(index)) { return false; }
                 result->fCollectionIndex = SkTo<CollectionIndexType>(index);
                 break;
+            case kPaletteIndex:
+                if (!stream->readPackedUInt(&paletteIndex)) { return false; }
+                if (!SkTFitsIn<PaletteIndexType>(paletteIndex)) { return false; }
+                result->fPaletteIndex = SkTo<PaletteIndexType>(paletteIndex);
+                break;
+            case kPaletteEntryOverrides:
+                if (!stream->readPackedUInt(&paletteEntryOverrideCount)) { return false; }
+                if (!SkTFitsIn<PaletteEntryOverrideCountType>(paletteEntryOverrideCount)) {
+                    return false;
+                }
+                result->fPaletteEntryOverrideCount =
+                        SkTo<PaletteEntryOverrideCountType>(paletteEntryOverrideCount);
+
+                result->fPaletteEntryOverrides.reset(paletteEntryOverrideCount);
+                for (size_t i = 0; i < paletteEntryOverrideCount; ++i) {
+                    if (!stream->readPackedUInt(&paletteEntryOverrideIndex)) { return false; }
+                    if (!SkTFitsIn<PaletteEntryOverrideIndexType>(paletteEntryOverrideIndex)) {
+                        return false;
+                    }
+                    result->fPaletteEntryOverrides[i].index =
+                            SkTo<PaletteEntryOverrideIndexType>(paletteEntryOverrideIndex);
+                    if (!stream->readU32(&result->fPaletteEntryOverrides[i].color)) {
+                        return false;
+                    }
+                }
+                break;
             default:
                 SkDEBUGFAIL("Unknown id used by a font descriptor");
                 return false;
@@ -172,11 +209,21 @@ void SkFontDescriptor::serialize(SkWStream* stream) const {
     if (fCollectionIndex) {
         write_uint(stream, fCollectionIndex, kFontIndex);
     }
+    if (fPaletteIndex) {
+        write_uint(stream, fPaletteIndex, kPaletteIndex);
+    }
     if (fCoordinateCount) {
         write_uint(stream, fCoordinateCount, kFontVariation);
         for (int i = 0; i < fCoordinateCount; ++i) {
             stream->write32(fVariation[i].axis);
             stream->writeScalar(fVariation[i].value);
+        }
+    }
+    if (fPaletteEntryOverrideCount) {
+        write_uint(stream, fPaletteEntryOverrideCount, kPaletteEntryOverrides);
+        for (int i = 0; i < fPaletteEntryOverrideCount; ++i) {
+            stream->writePackedUInt(fPaletteEntryOverrides[i].index);
+            stream->write32(fPaletteEntryOverrides[i].color);
         }
     }
 

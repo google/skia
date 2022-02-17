@@ -279,6 +279,7 @@ gm_sources = [
   "$_gm/overdrawcolorfilter.cpp",
   "$_gm/overstroke.cpp",
   "$_gm/p3.cpp",
+  "$_gm/palette.cpp",
   "$_gm/particles.cpp",
   "$_gm/patch.cpp",
   "$_gm/path_stroke_with_zero_length.cpp",
