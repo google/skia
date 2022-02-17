@@ -20,7 +20,6 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     args.fVaryingHandler->emitAttributes(shader);
 
     args.fVertBuilder->defineConstant("float", "PI", "3.141592653589793238");
-    args.fVertBuilder->defineConstant("PRECISION", skgpu::kTessellationPrecision);
 
     // Helper functions.
     if (shader.hasDynamicStroke()) {
@@ -33,27 +32,27 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
 
     // Tessellation control uniforms and/or dynamic attributes.
     if (!shader.hasDynamicStroke()) {
-        // [MAX_SCALE, NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
+        // [PARAMETRIC_PRECISION, NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
         const char* tessArgsName;
         fTessControlArgsUniform = args.fUniformHandler->addUniform(
                 nullptr, kVertex_GrShaderFlag, SkSLType::kFloat4, "tessControlArgs",
                 &tessArgsName);
         args.fVertBuilder->codeAppendf(R"(
-        float MAX_SCALE = %s.x;
+        float PARAMETRIC_PRECISION = %s.x;
         float NUM_RADIAL_SEGMENTS_PER_RADIAN = %s.y;
         float JOIN_TYPE = %s.z;
         float STROKE_RADIUS = %s.w;)", tessArgsName, tessArgsName, tessArgsName, tessArgsName);
     } else {
-        const char* maxScaleName;
+        const char* parametricPrecisionName;
         fTessControlArgsUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, SkSLType::kFloat, "maxScale",
-                &maxScaleName);
+                nullptr, kVertex_GrShaderFlag, SkSLType::kFloat, "parametricPrecision",
+                &parametricPrecisionName);
         args.fVertBuilder->codeAppendf(R"(
-        float MAX_SCALE = %s;
+        float PARAMETRIC_PRECISION = %s;
         float STROKE_RADIUS = dynamicStrokeAttr.x;
         float NUM_RADIAL_SEGMENTS_PER_RADIAN = num_radial_segments_per_radian(
-                MAX_SCALE, STROKE_RADIUS);
-        float JOIN_TYPE = dynamicStrokeAttr.y;)", maxScaleName);
+                PARAMETRIC_PRECISION, STROKE_RADIUS);
+        float JOIN_TYPE = dynamicStrokeAttr.y;)", parametricPrecisionName);
     }
 
     if (shader.hasDynamicColor()) {
@@ -105,22 +104,6 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
         w = p3.x;
         p3 = p2;  // Setting p3 equal to p2 works for the remaining rotational logic.
     })");
-
-    // Emit code to call Wang's formula to determine parametric segments. We do this before
-    // transform points for hairlines so that it is consistent with how the CPU tested the control
-    // points for chopping.
-    args.fVertBuilder->codeAppend(R"(
-    // Find how many parametric segments this stroke requires.
-    float numParametricSegments;
-    if (w < 0) {
-        numParametricSegments = wangs_formula_cubic(PRECISION, p0, p1, p2, p3, AFFINE_MATRIX);
-    } else {
-        numParametricSegments = wangs_formula_conic(PRECISION,
-                                                    AFFINE_MATRIX * p0,
-                                                    AFFINE_MATRIX * p1,
-                                                    AFFINE_MATRIX * p2, w);
-    })");
-
     if (shader.stroke().isHairlineStyle()) {
         // Hairline case. Transform the points before tessellation. We can still hold off on the
         // translate until the end; we just need to perform the scale and skew right now.
@@ -133,6 +116,15 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     }
 
     args.fVertBuilder->codeAppend(R"(
+    // Find how many parametric segments this stroke requires.
+    float numParametricSegments;
+    if (w < 0) {
+        numParametricSegments = wangs_formula_cubic(PARAMETRIC_PRECISION, p0, p1, p2, p3,
+                                                    float2x2(1));
+    } else {
+        numParametricSegments = wangs_formula_conic(PARAMETRIC_PRECISION, p0, p1, p2, w);
+    }
+
     // Find the starting and ending tangents.
     float2 tan0 = ((p0 == p1) ? (p1 == p2) ? p3 : p2 : p1) - p0;
     float2 tan1 = p3 - ((p3 == p2) ? (p2 == p1) ? p0 : p1 : p2);

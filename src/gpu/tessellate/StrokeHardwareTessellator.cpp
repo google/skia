@@ -69,7 +69,7 @@ public:
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
             , fMaxTessellationSegments(std::max(maxTessellationSegments - 2, 1))
-            , fParametricPrecision(matrixMaxScale * kTessellationPrecision) {
+            , fParametricPrecision(StrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
         SkASSERT(fPatchWriter.attribs() & PatchAttribs::kJoinControlPoint);
         SkASSERT(!fPatchWriter.hasJoinControlPoint());
     }
@@ -672,8 +672,7 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
                                             PathStrokeList* pathStrokeList) {
     using JoinType = HwPatchWriter::JoinType;
 
-    float matrixMaxScale = matrixMinMaxScales[1];
-    HwPatchWriter hwPatchWriter(patchWriter, fMaxTessellationSegments, matrixMaxScale);
+    HwPatchWriter hwPatchWriter(patchWriter, fMaxTessellationSegments, matrixMinMaxScales[1]);
 
     if (!(fAttribs & PatchAttribs::kStrokeParams)) {
         // Strokes are static. Calculate tolerances once.
@@ -681,13 +680,13 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
         float localStrokeWidth = StrokeTolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
                                                                        stroke.getWidth());
         float numRadialSegmentsPerRadian = StrokeTolerances::CalcNumRadialSegmentsPerRadian(
-                matrixMaxScale, localStrokeWidth);
+                hwPatchWriter.parametricPrecision(), localStrokeWidth);
         hwPatchWriter.updateTolerances(numRadialSegmentsPerRadian, stroke.getJoin());
     }
 
     // Fast SIMD queue that buffers up values for "numRadialSegmentsPerRadian". Only used when we
     // have dynamic strokes.
-    StrokeToleranceBuffer toleranceBuffer(matrixMaxScale);
+    StrokeToleranceBuffer toleranceBuffer(hwPatchWriter.parametricPrecision());
 
     for (PathStrokeList* pathStroke = pathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
         const SkStrokeRec& stroke = pathStroke->fStroke;

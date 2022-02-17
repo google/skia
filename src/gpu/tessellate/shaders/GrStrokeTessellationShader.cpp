@@ -123,10 +123,10 @@ float miter_extent(float cosTheta, float miterLimit) {
 })";
 
 // Returns the number of radial segments required for each radian of rotation, in order for the
-// curve to appear "smooth" as defined by the max scale.
+// curve to appear "smooth" as defined by the parametricPrecision.
 const char* GrStrokeTessellationShader::Impl::kNumRadialSegmentsPerRadianFn = R"(
-float num_radial_segments_per_radian(float maxScale, float strokeRadius) {
-    return .5 / acos(max(1.0 - (1.0 / PRECISION) / (maxScale * strokeRadius), -1.0));
+float num_radial_segments_per_radian(float parametricPrecision, float strokeRadius) {
+    return .5 / acos(max(1.0 - 1.0/(parametricPrecision * strokeRadius), -1.0));
 })";
 
 // Unlike mix(), this does not return b when t==1. But it otherwise seems to get better
@@ -359,24 +359,28 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
     const auto& shader = geomProc.cast<GrStrokeTessellationShader>();
     const auto& stroke = shader.stroke();
 
-    const float maxScale = shader.viewMatrix().getMaxScale();
     if (!shader.hasDynamicStroke()) {
-        // Set up the tessellation control uniforms. In the hairline case we transform prior to
-        // tessellation, so it uses an identity viewMatrix and a strokeWidth of 1.
-        const float effectiveMaxScale    = stroke.isHairlineStyle() ? 1.f : maxScale;
-        const float effectiveStrokeWidth = stroke.isHairlineStyle() ? 1.f : stroke.getWidth();
-        float numRadialSegmentsPerRadian =
-                skgpu::StrokeTolerances::CalcNumRadialSegmentsPerRadian(effectiveMaxScale,
-                                                                        effectiveStrokeWidth);
-
+        // Set up the tessellation control uniforms.
+        skgpu::StrokeTolerances tolerances;
+        if (!stroke.isHairlineStyle()) {
+            tolerances = skgpu::StrokeTolerances::MakeNonHairline(shader.viewMatrix().getMaxScale(),
+                                                                  stroke.getWidth());
+        } else {
+            // In the hairline case we transform prior to tessellation. Set up tolerances for an
+            // identity viewMatrix and a strokeWidth of 1.
+            tolerances = skgpu::StrokeTolerances::MakeNonHairline(1, 1);
+        }
+        float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
         pdman.set4f(fTessControlArgsUniform,
-                    maxScale,  // MAX_SCALE
-                    numRadialSegmentsPerRadian,  // NUM_RADIAL_SEGMENTS_PER_RADIAN
+                    tolerances.fParametricPrecision,  // PARAMETRIC_PRECISION
+                    tolerances.fNumRadialSegmentsPerRadian,  // NUM_RADIAL_SEGMENTS_PER_RADIAN
                     skgpu::GetJoinType(stroke),  // JOIN_TYPE
-                    0.5f * effectiveStrokeWidth);  // STROKE_RADIUS
+                    strokeRadius);  // STROKE_RADIUS
     } else {
         SkASSERT(!stroke.isHairlineStyle());
-        pdman.set1f(fTessControlArgsUniform, maxScale);
+        float maxScale = shader.viewMatrix().getMaxScale();
+        pdman.set1f(fTessControlArgsUniform,
+                    skgpu::StrokeTolerances::CalcParametricPrecision(maxScale));
     }
 
     if (shader.mode() == GrStrokeTessellationShader::Mode::kFixedCount) {

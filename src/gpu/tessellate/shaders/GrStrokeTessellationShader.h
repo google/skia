@@ -100,10 +100,10 @@ protected:
     // miter limit and need to revert to a bevel join.
     static const char* kMiterExtentFn;
 
-    // float num_radial_segments_per_radian(float maxScale, float strokeRadius) { ...
+    // float num_radial_segments_per_radian(float parametricPrecision, float strokeRadius) { ...
     //
     // Returns the number of radial segments required for each radian of rotation, in order for the
-    // curve to appear "smooth" as defined by the max scale factor.
+    // curve to appear "smooth" as defined by the parametricPrecision.
     static const char* kNumRadialSegmentsPerRadianFn;
 
     // float<N> unchecked_mix(float<N> a, float<N> b, float<N> T) { ...

@@ -28,26 +28,28 @@ namespace {
 class InstanceWriter {
     using VectorXform = wangs_formula::VectorXform;
 public:
-    InstanceWriter(PatchWriter& patchWriter, const SkMatrix& shaderMatrix)
+    InstanceWriter(PatchWriter& patchWriter, float matrixMaxScale)
             : fPatchWriter(patchWriter)
-            , fShaderXform(shaderMatrix) {
+            , fParametricPrecision(StrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
         SkASSERT(fPatchWriter.attribs() & PatchAttribs::kJoinControlPoint);
     }
+
+    float parametricPrecision() const { return fParametricPrecision; }
 
     SK_ALWAYS_INLINE void lineTo(SkPoint start, SkPoint end) {
         fPatchWriter.writeLine(start, end);
     }
 
     SK_ALWAYS_INLINE void quadraticTo(const SkPoint p[3]) {
-        fPatchWriter.writeQuadratic(p, fShaderXform);
+        fPatchWriter.writeQuadratic(p, VectorXform(), fParametricPrecision);
     }
 
     SK_ALWAYS_INLINE void conicTo(const SkPoint p[3], float w) {
-        fPatchWriter.writeConic(p, w, fShaderXform);
+        fPatchWriter.writeConic(p, w, VectorXform(), fParametricPrecision);
     }
 
     SK_ALWAYS_INLINE void cubicConvex180To(const SkPoint p[4]) {
-        fPatchWriter.writeCubic(p, fShaderXform);
+        fPatchWriter.writeCubic(p, VectorXform(), fParametricPrecision);
     }
 
     // Called when we encounter the verb "kMoveWithinContour". Moves invalidate the previous control
@@ -68,7 +70,7 @@ public:
 
 private:
     PatchWriter& fPatchWriter;
-    wangs_formula::VectorXform fShaderXform;
+    const float fParametricPrecision;
 };
 
 // Returns the worst-case number of edges we will need in order to draw a join of the given type.
@@ -101,8 +103,7 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
     int maxEdgesInJoin = 0;
     float maxRadialSegmentsPerRadian = 0;
 
-    float matrixMaxScale = matrixMinMaxScales[1];
-    InstanceWriter instanceWriter(patchWriter, shaderMatrix);
+    InstanceWriter instanceWriter(patchWriter, matrixMinMaxScales[1]);
 
     if (!(fAttribs & PatchAttribs::kStrokeParams)) {
         // Strokes are static. Calculate tolerances once.
@@ -110,14 +111,14 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
         float localStrokeWidth = StrokeTolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
                                                                        stroke.getWidth());
         float numRadialSegmentsPerRadian = StrokeTolerances::CalcNumRadialSegmentsPerRadian(
-                matrixMaxScale, localStrokeWidth);
+                instanceWriter.parametricPrecision(), localStrokeWidth);
         maxEdgesInJoin = worst_case_edges_in_join(stroke.getJoin(), numRadialSegmentsPerRadian);
         maxRadialSegmentsPerRadian = numRadialSegmentsPerRadian;
     }
 
     // Fast SIMD queue that buffers up values for "numRadialSegmentsPerRadian". Only used when we
     // have dynamic stroke.
-    StrokeToleranceBuffer toleranceBuffer(matrixMaxScale);
+    StrokeToleranceBuffer toleranceBuffer(instanceWriter.parametricPrecision());
 
     for (PathStrokeList* pathStroke = pathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
         const SkStrokeRec& stroke = pathStroke->fStroke;
