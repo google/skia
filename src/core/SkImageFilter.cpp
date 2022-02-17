@@ -589,6 +589,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* rContex
                                                      SkColorType colorType,
                                                      const SkColorSpace* colorSpace,
                                                      const SkSurfaceProps& surfaceProps,
+                                                     GrSurfaceOrigin surfaceOrigin,
                                                      GrProtected isProtected) {
     GrImageInfo info(SkColorTypeToGrColorType(colorType),
                      kPremul_SkAlphaType,
@@ -600,7 +601,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* rContex
                                         1,
                                         GrMipmapped::kNo,
                                         isProtected,
-                                        kBottomLeft_GrSurfaceOrigin);
+                                        surfaceOrigin);
     if (!sfc) {
         return nullptr;
     }

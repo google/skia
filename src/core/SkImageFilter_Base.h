@@ -310,6 +310,7 @@ protected:
                                             SkColorType colorType,
                                             const SkColorSpace* colorSpace,
                                             const SkSurfaceProps&,
+                                            GrSurfaceOrigin surfaceOrigin,
                                             GrProtected isProtected = GrProtected::kNo);
 
     /**
