@@ -30,6 +30,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     using TypeModifier = GrShaderVar::TypeModifier;
     v->defineConstantf("float", "kParametricEpsilon", "1.0 / (%i * 128)",
                        args.fShaderCaps->maxTessellationSegments());  // 1/128 of a segment.
+    v->defineConstant("PRECISION", skgpu::kTessellationPrecision);
 
     // [numSegmentsInJoin, innerJoinRadiusMultiplier, prevJoinTangent.xy]
     v->declareGlobal(GrShaderVar("vsJoinArgs0", SkSLType::kFloat4, TypeModifier::Out));
@@ -61,7 +62,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     }
 
     if (!shader.hasDynamicStroke()) {
-        // [PARAMETRIC_PRECISION, NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
+        // [MAX_SCALE, NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
         const char* tessArgsName;
         fTessControlArgsUniform = uniHandler->addUniform(nullptr,
                                                          kVertex_GrShaderFlag |
@@ -73,17 +74,17 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
         float NUM_RADIAL_SEGMENTS_PER_RADIAN = %s.y;
         float JOIN_TYPE = %s.z;)", tessArgsName, tessArgsName);
     } else {
-        const char* parametricPrecisionName;
+        const char* maxScaleName;
         fTessControlArgsUniform = uniHandler->addUniform(nullptr,
                                                          kVertex_GrShaderFlag |
                                                          kTessControl_GrShaderFlag |
                                                          kTessEvaluation_GrShaderFlag,
-                                                         SkSLType::kFloat, "parametricPrecision",
-                                                         &parametricPrecisionName);
+                                                         SkSLType::kFloat, "maxScale",
+                                                         &maxScaleName);
         v->codeAppendf(R"(
         float STROKE_RADIUS = dynamicStrokeAttr.x;
         float NUM_RADIAL_SEGMENTS_PER_RADIAN = num_radial_segments_per_radian(%s,STROKE_RADIUS);
-        float JOIN_TYPE = dynamicStrokeAttr.y;)", parametricPrecisionName);
+        float JOIN_TYPE = dynamicStrokeAttr.y;)", maxScaleName);
     }
 
     fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
@@ -336,15 +337,16 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
     code.appendf("#define PI 3.141592653589793238\n");
     code.appendf("#define MAX_TESSELLATION_SEGMENTS %i.0\n", shaderCaps.maxTessellationSegments());
     code.appendf("#define cross cross2d\n");  // GLSL already has a function named "cross".
+    code.appendf("#define PRECISION %f\n", skgpu::kTessellationPrecision);
 
     const char* tessArgsName = uniformHandler.getUniformCStr(fTessControlArgsUniform);
     if (!shader.hasDynamicStroke()) {
         code.appendf("uniform vec4 %s;\n", tessArgsName);
-        code.appendf("#define PARAMETRIC_PRECISION %s.x\n", tessArgsName);
+        code.appendf("#define MAX_SCALE %s.x\n", tessArgsName);
         code.appendf("#define NUM_RADIAL_SEGMENTS_PER_RADIAN %s.y\n", tessArgsName);
     } else {
         code.appendf("uniform float %s;\n", tessArgsName);
-        code.appendf("#define PARAMETRIC_PRECISION %s\n", tessArgsName);
+        code.appendf("#define MAX_SCALE %s\n", tessArgsName);
         code.appendf("#define NUM_RADIAL_SEGMENTS_PER_RADIAN vsStrokeArgs[0].x\n");
     }
 
@@ -429,10 +431,10 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
         float w = isinf(P[3].y) ? P[3].x : -1.0; // w<0 means the curve is an integral cubic.
         float numParametricSegments;
         if (w < 0.0) {
-            numParametricSegments = wangs_formula_cubic(PARAMETRIC_PRECISION, P[0], P[1], P[2],
+            numParametricSegments = wangs_formula_cubic(MAX_SCALE * PRECISION, P[0], P[1], P[2],
                                                         P[3], mat2(1));
         } else {
-            numParametricSegments = wangs_formula_conic(PARAMETRIC_PRECISION, P[0], P[1], P[2], w);
+            numParametricSegments = wangs_formula_conic(MAX_SCALE * PRECISION, P[0], P[1], P[2], w);
         }
         if (P[0] == P[1] && P[2] == P[3]) {
             // This is how the patch builder articulates lineTos but Wang's formula returns
