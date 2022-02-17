@@ -193,6 +193,8 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
     int currIndex = 0;
     int nextIndex = 1;
     SkVector v0 = polygonVerts[currIndex] - polygonVerts[prevIndex];
+    SkScalar lastVx = v0.fX;
+    SkScalar lastVy = v0.fY;
     SkVector v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
     for (int i = 0; i < polygonSize; ++i) {
         if (!polygonVerts[i].isFinite()) {
@@ -209,10 +211,10 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
         }
 
         // Check that the signs of the edge vectors don't change more than twice per coordinate
-        if (v0.fX*v1.fX < 0) {
+        if (lastVx*v1.fX < 0) {
             xSignChangeCount++;
         }
-        if (v0.fY*v1.fY < 0) {
+        if (lastVy*v1.fY < 0) {
             ySignChangeCount++;
         }
         if (xSignChangeCount > 2 || ySignChangeCount > 2) {
@@ -221,6 +223,12 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
         prevIndex = currIndex;
         currIndex = nextIndex;
         nextIndex = (currIndex + 1) % polygonSize;
+        if (v1.fX != 0) {
+            lastVx = v1.fX;
+        }
+        if (v1.fY != 0) {
+            lastVy = v1.fY;
+        }
         v0 = v1;
         v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
     }
@@ -729,9 +737,17 @@ public:
                 curr->fAbove = pred;
                 curr->fBelow = succ;
                 if (pred) {
+                    if (pred->fSegment.fP0 == curr->fSegment.fP0 &&
+                        pred->fSegment.fV == curr->fSegment.fV) {
+                        return false;
+                    }
                     pred->fBelow = curr;
                 }
                 if (succ) {
+                    if (succ->fSegment.fP0 == curr->fSegment.fP0 &&
+                        succ->fSegment.fV == curr->fSegment.fV) {
+                        return false;
+                    }
                     succ->fAbove = curr;
                 }
                 if (IsRed(parent)) {
