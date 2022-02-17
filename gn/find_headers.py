@@ -39,6 +39,14 @@ except subprocess.CalledProcessError as e:
   print(e.output.decode('utf-8'))
   raise
 
+if desc_json_txt.startswith('WARNING'):
+   print('\ngn generated a warning when we asked for JSON output.',
+         'To see the warning, run this command from the out_dir:',
+         '(you may need to quote the * argument)\n',
+         ' '.join(gn_desc_cmd),
+         '\n', sep='\n')
+   sys.exit(-1)
+
 desc_json = {}
 try:
   desc_json = json.loads(desc_json_txt)
