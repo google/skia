@@ -529,9 +529,9 @@ public:
 
 protected:
     SubRunType subRunType() const override { return kPath; }
-    void doFlatten(SkWriteBuffer& buffer) const override {
-        SK_ABORT("Not implemented.");
-    }
+
+    // TODO: implement
+    void doFlatten(SkWriteBuffer& buffer) const override { }
 
 private:
     PathOpSubmitter fPathDrawing;
@@ -670,9 +670,8 @@ public:
 
 protected:
     SubRunType subRunType() const override { return kDrawable; }
-    void doFlatten(SkWriteBuffer& buffer) const override {
-        SK_ABORT("Not implemented.");
-    }
+    // TODO: implement
+    void doFlatten(SkWriteBuffer& buffer) const override { }
 
 private:
     DrawableOpSubmitter fDrawingDrawing;
@@ -748,9 +747,9 @@ public:
 
 protected:
     SubRunType subRunType() const override { return kDirectMask; }
-    void doFlatten(SkWriteBuffer& buffer) const override {
-        SK_ABORT("Not implemented.");
-    }
+
+    // TODO: implement
+    void doFlatten(SkWriteBuffer& buffer) const override { }
 
 private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
@@ -1167,9 +1166,9 @@ public:
 
 protected:
     SubRunType subRunType() const override { return kTransformMask; }
-    void doFlatten(SkWriteBuffer& buffer) const override {
-        SK_ABORT("Not implemented.");
-    }
+
+    // TODO: implement
+    void doFlatten(SkWriteBuffer& buffer) const override { }
 
 private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
@@ -1391,9 +1390,9 @@ public:
 
 protected:
     SubRunType subRunType() const override { return kSDFT; }
-    void doFlatten(SkWriteBuffer& buffer) const override {
-        SK_ABORT("Not implemented.");
-    }
+
+    // TODO: implement
+    void doFlatten(SkWriteBuffer& buffer) const override { }
 
 private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
@@ -2760,6 +2759,7 @@ void Slug::flatten(SkWriteBuffer& buffer) const {
 
 sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
     SkRect sourceBounds = buffer.readRect();
+    SkASSERT(!sourceBounds.isEmpty());
     if (!buffer.validate(!sourceBounds.isEmpty())) { return nullptr; }
 
     SkPaint paint = buffer.readPaint();
@@ -2767,6 +2767,7 @@ sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* c
     buffer.readMatrix(&positionMatrix);
     SkPoint origin = buffer.readPoint();
     int subRunCount = buffer.readInt();
+    SkASSERT(subRunCount != 0);
     if (!buffer.validate(subRunCount != 0)) { return nullptr; }
     int subRunsUnflattenSizeHint = buffer.readInt();
 
@@ -2778,11 +2779,15 @@ sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* c
                                   subRunsUnflattenSizeHint)};
     for (int i = 0; i < subRunCount; ++i) {
         auto subRun = GrSubRun::MakeFromBuffer(slug.get(), buffer, &slug->fAlloc, client);
-        if (!buffer.validate(subRun != nullptr)) { return nullptr; }
-        slug->fSubRuns.append(std::move(subRun));
+        // TODO: uncomment when all the sub runs serialize.
+        // if (!buffer.validate(subRun != nullptr)) { return nullptr; }
+        if (subRun != nullptr) {
+            slug->fSubRuns.append(std::move(subRun));
+        }
     }
 
     // Something went wrong while reading.
+    SkASSERT(buffer.isValid());
     if (!buffer.isValid()) { return nullptr;}
 
     return std::move(slug);

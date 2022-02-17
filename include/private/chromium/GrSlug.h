@@ -21,6 +21,8 @@ class SkWriteBuffer;
 
 // You can use GrSlug to simulate drawTextBlob by defining the following at compile time.
 //    SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG
+// You can use GrSlug serialization to simulate drawTextBlob by defining the following:
+//    SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE
 // For Skia, add this to your args.gn file.
 //    extra_cflags = ["-D", "SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG"]
 
