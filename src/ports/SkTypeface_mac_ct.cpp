@@ -780,6 +780,8 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenExistingStream(int* ttcInde
     return fStream ? fStream->duplicate() : nullptr;
 }
 
+// TODO: testing perf: chromium:1297957 chromium:1297978
+#ifdef SK_TYPEFACE_MAC_USE_CPAL_TEST
 static bool has_table(CTFontRef ctFont, SkFontTableTag tableTag) {
     SkUniqueCFRef<CFArrayRef> cfArray(
             CTFontCopyAvailableTables(ctFont, kCTFontTableOptionNoOptions));
@@ -801,6 +803,12 @@ bool SkTypeface_Mac::onGlyphMaskNeedsCurrentColor() const {
     // CoreText only provides the size of a table with a copy, so do not use this->getTableSize().
     return has_table(fFontRef.get(), cpalTag);
 }
+#else
+bool SkTypeface_Mac::onGlyphMaskNeedsCurrentColor() const {
+    // This is overly expensive for the common 'sbix' case.
+    return this->fHasColorGlyphs;
+}
+#endif
 
 int SkTypeface_Mac::onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
