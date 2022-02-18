@@ -1381,7 +1381,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     }
 
     SkSpan<SkColor> palette(fFaceRec->fSkPalette.get(), fFaceRec->fFTPaletteEntryCount);
-    generateGlyphImage(fFace, palette, glyph, *bitmapMatrix);
+    generateGlyphImage(fFace, glyph, fLoadGlyphFlags, palette, *bitmapMatrix);
 }
 
 sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(const SkGlyph& glyph) {
@@ -1409,7 +1409,7 @@ sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(const SkGlyph& glyp
 
     emboldenIfNeeded(fFace, fFace->glyph, glyph.getGlyphID());
     SkSpan<SkColor> palette(fFaceRec->fSkPalette.get(), fFaceRec->fFTPaletteEntryCount);
-    return generateGlyphDrawable(fFace, palette, glyph);
+    return generateGlyphDrawable(fFace, glyph, fLoadGlyphFlags, palette);
 }
 
 bool SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path) {
