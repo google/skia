@@ -261,7 +261,8 @@ struct SK_API GrContextOptions {
      * rendering of all glyphs. This must be set to true to use GrSlug.
      */
     #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG) || \
-        defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE)
+        defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE) || \
+        defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_STRIKE_SERIALIZE)
     bool fSupportBilerpFromGlyphAtlas = true;
     #else
     bool fSupportBilerpFromGlyphAtlas = false;
