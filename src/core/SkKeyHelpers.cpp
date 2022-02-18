@@ -678,39 +678,40 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
 
 //--------------------------------------------------------------------------------------------------
 #ifdef SK_GRAPHITE_ENABLED
-std::unique_ptr<SkPaintParamsKey> CreateKey(SkShaderCodeDictionary* dict,
-                                            SkBackend backend,
-                                            skgpu::ShaderCombo::ShaderType s,
-                                            SkTileMode tm,
-                                            SkBlendMode bm) {
-    SkPaintParamsKeyBuilder builder(dict);
+SkPaintParamsKey CreateKey(SkShaderCodeDictionary* dict,
+                           SkBackend backend,
+                           SkPaintParamsKeyBuilder* builder,
+                           skgpu::ShaderCombo::ShaderType s,
+                           SkTileMode tm,
+                           SkBlendMode bm) {
+    SkDEBUGCODE(builder->checkReset());
 
     switch (s) {
         case skgpu::ShaderCombo::ShaderType::kNone:
-            DepthStencilOnlyBlock::AddToKey(dict, backend, &builder, nullptr);
+            DepthStencilOnlyBlock::AddToKey(dict, backend, builder, nullptr);
             break;
         case skgpu::ShaderCombo::ShaderType::kSolidColor:
-            SolidColorShaderBlock::AddToKey(dict, backend, &builder, nullptr, SkColors::kRed);
+            SolidColorShaderBlock::AddToKey(dict, backend, builder, nullptr, SkColors::kRed);
             break;
         case skgpu::ShaderCombo::ShaderType::kLinearGradient:
-            GradientShaderBlocks::AddToKey(dict, backend, &builder, nullptr,
+            GradientShaderBlocks::AddToKey(dict, backend, builder, nullptr,
                                            { SkShader::kLinear_GradientType, tm, 0 });
             break;
         case skgpu::ShaderCombo::ShaderType::kRadialGradient:
-            GradientShaderBlocks::AddToKey(dict, backend, &builder, nullptr,
+            GradientShaderBlocks::AddToKey(dict, backend, builder, nullptr,
                                            { SkShader::kRadial_GradientType, tm, 0 });
             break;
         case skgpu::ShaderCombo::ShaderType::kSweepGradient:
-            GradientShaderBlocks::AddToKey(dict, backend, &builder, nullptr,
+            GradientShaderBlocks::AddToKey(dict, backend, builder, nullptr,
                                            { SkShader::kSweep_GradientType, tm, 0 });
             break;
         case skgpu::ShaderCombo::ShaderType::kConicalGradient:
-            GradientShaderBlocks::AddToKey(dict, backend, &builder, nullptr,
+            GradientShaderBlocks::AddToKey(dict, backend, builder, nullptr,
                                            { SkShader::kConical_GradientType, tm, 0 });
             break;
     }
 
-    BlendModeBlock::AddToKey(dict, backend, &builder, nullptr, bm);
-    return builder.snap();
+    BlendModeBlock::AddToKey(dict, backend, builder, nullptr, bm);
+    return builder->lockAsKey();
 }
 #endif

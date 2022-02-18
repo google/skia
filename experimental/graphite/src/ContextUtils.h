@@ -14,6 +14,7 @@
 #include "include/core/SkTileMode.h"
 
 enum class CodeSnippetID : uint8_t;
+class SkPaintParamsKeyBuilder;
 class SkShaderCodeDictionary;
 class SkUniform;
 class SkUniformBlock;
@@ -24,7 +25,9 @@ namespace skgpu {
 class PaintParams;
 
 std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintData(
-        SkShaderCodeDictionary*, const PaintParams&);
+        SkShaderCodeDictionary*,
+        SkPaintParamsKeyBuilder* builder,
+        const PaintParams&);
 
 } // namespace skgpu
 

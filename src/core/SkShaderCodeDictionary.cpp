@@ -113,9 +113,12 @@ std::string SkShaderInfo::toSkSL() const {
 }
 #endif
 
-SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(
-        std::unique_ptr<SkPaintParamsKey> key) {
-    return fArena.make([&](void *ptr) { return new(ptr) Entry(std::move(key)); });
+SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(const SkPaintParamsKey& key) {
+    uint8_t* newKeyData = fArena.makeArray<uint8_t>(key.sizeInBytes());
+    memcpy(newKeyData, key.data(), key.sizeInBytes());
+
+    SkSpan<const uint8_t> newKeyAsSpan = SkMakeSpan(newKeyData, key.sizeInBytes());
+    return fArena.make([&](void *ptr) { return new(ptr) Entry(newKeyAsSpan); });
 }
 
 size_t SkShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey* key) const {
@@ -123,18 +126,18 @@ size_t SkShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey* key) con
 }
 
 const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
-        std::unique_ptr<SkPaintParamsKey> key) {
+        const SkPaintParamsKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
-    auto iter = fHash.find(key.get());
+    auto iter = fHash.find(&key);
     if (iter != fHash.end()) {
         SkASSERT(fEntryVector[iter->second->uniqueID().asUInt()] == iter->second);
         return iter->second;
     }
 
-    Entry* newEntry = this->makeEntry(std::move(key));
+    Entry* newEntry = this->makeEntry(key);
     newEntry->setUniqueID(fEntryVector.size());
-    fHash.insert(std::make_pair(newEntry->paintParamsKey(), newEntry));
+    fHash.insert(std::make_pair(&newEntry->paintParamsKey(), newEntry));
     fEntryVector.push_back(newEntry);
 
     return newEntry;
@@ -165,7 +168,7 @@ const SkShaderInfo::SnippetEntry* SkShaderCodeDictionary::getEntry(SkBuiltInCode
 void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkShaderInfo* info) {
     auto entry = this->lookup(uniqueID);
 
-    entry->paintParamsKey()->toShaderInfo(this, info);
+    entry->paintParamsKey().toShaderInfo(this, info);
 }
 
 int SkShaderCodeDictionary::addUserDefinedSnippet() {
@@ -422,7 +425,6 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             GenerateDefaultGlueCode,
             kNoChildren
     };
-
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kImageShader] = {
             { nullptr, kNumImageShaderUniforms },
             kImageShaderName, kImageShaderSkSL,

@@ -75,6 +75,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     auto recorder = context->makeRecorder();
     auto dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
 
+    SkPaintParamsKeyBuilder builder(dict);
+
     // Intentionally does not include ShaderType::kNone, which represents no fragment shading stage
     // and is thus not relevant to uniform extraction/caching.
     for (auto s : { ShaderCombo::ShaderType::kSolidColor,
@@ -91,17 +93,16 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
             }
 
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
-                std::unique_ptr<SkPaintParamsKey> expected = CreateKey(dict, SkBackend::kGraphite,
-                                                                       s, tm, bm);
-
                 auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
-                auto [ actualID, uniformBlock] = ExtractPaintData(dict, PaintParams(p));
+                auto [ actualID, uniformBlock] = ExtractPaintData(dict, &builder, PaintParams(p));
                 int actualNumUniforms = uniformBlock->count();
 
                 auto entry = dict->lookup(actualID);
 
+                SkPaintParamsKey expected = CreateKey(dict, SkBackend::kGraphite, &builder,
+                                                      s, tm, bm);
 
-                REPORTER_ASSERT(reporter, *expected == *entry->paintParamsKey());
+                REPORTER_ASSERT(reporter, expected == entry->paintParamsKey());
                 REPORTER_ASSERT(reporter, expectedNumUniforms == actualNumUniforms);
                 for (auto& u : *uniformBlock) {
                     for (int i = 0; i < u->count(); ++i) {

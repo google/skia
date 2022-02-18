@@ -14,21 +14,19 @@
 
 namespace {
 
-std::unique_ptr<SkPaintParamsKey> create_key(SkShaderCodeDictionary* dict,
-                                             int dummySnippetID,
-                                             int size) {
+SkPaintParamsKey create_key(SkPaintParamsKeyBuilder* builder, int dummySnippetID, int size) {
 
-    SkPaintParamsKeyBuilder builder(dict);
+    SkDEBUGCODE(builder->checkReset());
 
-    builder.beginBlock(dummySnippetID);
+    builder->beginBlock(dummySnippetID);
 
     for (int i = 0; i < size; ++i) {
-        builder.addByte(i % 256);
+        builder->addByte(i % 256);
     }
 
-    builder.endBlock();
+    builder->endBlock();
 
-    return builder.snap();
+    return builder->lockAsKey();
 }
 
 } // anonymous namespace
@@ -37,22 +35,28 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTest, reporter, context) {
 
     auto dict = context->priv().shaderCodeDictionary();
 
+    SkPaintParamsKeyBuilder builder(dict);
+
     static const int kMaxBlockDataSize = SkPaintParamsKey::kMaxBlockSize -
                                          SkPaintParamsKey::kBlockHeaderSizeInBytes;
 
-    std::unique_ptr<SkPaintParamsKey> key;
-
     // invalid code snippet ID
-    key = create_key(dict, kBuiltInCodeSnippetIDCount, kMaxBlockDataSize);
-    REPORTER_ASSERT(reporter, key->sizeInBytes() == SkPaintParamsKey::kBlockHeaderSizeInBytes);
+    {
+        SkPaintParamsKey key = create_key(&builder, kBuiltInCodeSnippetIDCount, kMaxBlockDataSize);
+        REPORTER_ASSERT(reporter, key.isErrorKey());
+    }
 
     int dummySnippetID = dict->addUserDefinedSnippet();
 
     // _Just_ on the edge of being too big
-    key = create_key(dict, dummySnippetID, kMaxBlockDataSize);
-    REPORTER_ASSERT(reporter, key->sizeInBytes() == SkPaintParamsKey::kMaxBlockSize);
+    {
+        SkPaintParamsKey key = create_key(&builder, dummySnippetID, kMaxBlockDataSize);
+        REPORTER_ASSERT(reporter, key.sizeInBytes() == SkPaintParamsKey::kMaxBlockSize);
+    }
 
     // Too big
-    key = create_key(dict, dummySnippetID, 1024);
-    REPORTER_ASSERT(reporter, key->sizeInBytes() == SkPaintParamsKey::kBlockHeaderSizeInBytes);
+    {
+        SkPaintParamsKey key = create_key(&builder, dummySnippetID, 1024);
+        REPORTER_ASSERT(reporter, key.isErrorKey());
+    }
 }

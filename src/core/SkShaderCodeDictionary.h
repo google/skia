@@ -65,12 +65,12 @@ public:
             SkASSERT(fUniqueID.isValid());
             return fUniqueID;
         }
-        const SkPaintParamsKey* paintParamsKey() const { return fKey.get(); }
+        const SkPaintParamsKey& paintParamsKey() const { return fKey; }
 
     private:
         friend class SkShaderCodeDictionary;
 
-        Entry(std::unique_ptr<SkPaintParamsKey> key) : fKey(std::move(key)) {}
+        Entry(const SkPaintParamsKey& key) : fKey(key.asSpan()) {}
 
         void setUniqueID(uint32_t newID) {
             SkASSERT(!fUniqueID.isValid());
@@ -78,10 +78,10 @@ public:
         }
 
         SkUniquePaintParamsID fUniqueID;  // fixed-size (uint32_t) unique ID assigned to a key
-        std::unique_ptr<SkPaintParamsKey> fKey; // variable-length paint key descriptor
+        SkPaintParamsKey fKey; // variable-length paint key descriptor
     };
 
-    const Entry* findOrCreate(std::unique_ptr<SkPaintParamsKey>) SK_EXCLUDES(fSpinLock);
+    const Entry* findOrCreate(const SkPaintParamsKey&) SK_EXCLUDES(fSpinLock);
 
     const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
@@ -100,7 +100,7 @@ public:
     int addUserDefinedSnippet();
 
 private:
-    Entry* makeEntry(std::unique_ptr<SkPaintParamsKey>);
+    Entry* makeEntry(const SkPaintParamsKey&);
 
     struct Hash {
         size_t operator()(const SkPaintParamsKey*) const;

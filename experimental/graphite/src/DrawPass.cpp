@@ -28,6 +28,7 @@
 #include "experimental/graphite/src/geom/BoundsManager.h"
 
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkPaintParamsKey.h"
 #include "src/core/SkTBlockList.h"
 #include "src/core/SkUniformData.h"
 #include "src/gpu/BufferWriter.h"
@@ -283,6 +284,9 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     std::vector<SortKey> keys;
     keys.reserve(draws->renderStepCount()); // will not exceed but may use less with occluded draws
 
+    SkShaderCodeDictionary* dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
+    SkPaintParamsKeyBuilder builder(dict);
+
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
         if (occlusionCuller && occlusionCuller->isOccluded(draw.fClip.drawBounds(),
                                                            draw.fOrder.depth())) {
@@ -296,9 +300,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         std::unique_ptr<SkUniformBlock> shadingUniforms;
         uint32_t shadingIndex = UniformCache::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
-            SkShaderCodeDictionary* dict =
-                    recorder->priv().resourceProvider()->shaderCodeDictionary();
-            std::tie(shaderID, shadingUniforms) = ExtractPaintData(dict, draw.fPaintParams.value());
+            std::tie(shaderID, shadingUniforms) = ExtractPaintData(dict, &builder,
+                                                                   draw.fPaintParams.value());
             shadingIndex = shadingUniformBindings.addUniforms(std::move(shadingUniforms));
         } // else depth-only
 

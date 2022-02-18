@@ -166,11 +166,12 @@ namespace BlendModeBlock {
 
 #ifdef SK_GRAPHITE_ENABLED
 // Bridge between the combinations system and the SkPaintParamsKey
-std::unique_ptr<SkPaintParamsKey> CreateKey(SkShaderCodeDictionary*,
-                                            SkBackend,
-                                            skgpu::ShaderCombo::ShaderType,
-                                            SkTileMode,
-                                            SkBlendMode);
+SkPaintParamsKey CreateKey(SkShaderCodeDictionary*,
+                           SkBackend,
+                           SkPaintParamsKeyBuilder*,
+                           skgpu::ShaderCombo::ShaderType,
+                           SkTileMode,
+                           SkBlendMode);
 #endif
 
 #endif // SkKeyHelpers_DEFINED
