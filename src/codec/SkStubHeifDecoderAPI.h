@@ -70,6 +70,10 @@ struct HeifDecoder {
     int skipScanlines(int) {
         return 0;
     }
+
+    uint32_t getColorDepth() {
+        return 0;
+    }
 };
 
 static inline HeifDecoder* createHeifDecoder() { return new HeifDecoder; }
