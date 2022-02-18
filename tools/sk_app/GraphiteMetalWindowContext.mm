@@ -65,9 +65,7 @@ void GraphiteMetalWindowContext::initializeContext() {
 
 void GraphiteMetalWindowContext::destroyContext() {
     if (fGraphiteContext) {
-        // TODO?
-        // in case we have outstanding refs to this (lua?)
-        // fGraphiteContext->abandonContext();
+        fGraphiteRecorder.reset();
         fGraphiteContext.reset();
     }
 
@@ -83,8 +81,6 @@ void GraphiteMetalWindowContext::destroyContext() {
 sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
     sk_sp<SkSurface> surface;
     id<CAMetalDrawable> currentDrawable = [fMetalLayer nextDrawable];
-
-    skgpu::mtl::TextureInfo mtlInfo((skgpu::mtl::Handle)currentDrawable.texture);
 
     skgpu::BackendTexture backendTex(this->dimensions(),
                                      (skgpu::mtl::Handle)currentDrawable.texture);

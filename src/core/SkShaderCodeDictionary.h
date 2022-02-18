@@ -106,13 +106,21 @@ private:
         size_t operator()(const SkPaintParamsKey*) const;
     };
 
+    struct KeyEqual {
+        bool operator()(const SkPaintParamsKey* k1, const SkPaintParamsKey* k2) const {
+            return k1->operator==(*k2);
+        }
+    };
+
     std::array<SkShaderInfo::SnippetEntry, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
     std::vector<SkShaderInfo::SnippetEntry> fUserDefinedCodeSnippets;
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
     mutable SkSpinlock fSpinLock;
 
-    std::unordered_map<const SkPaintParamsKey*, Entry*, Hash> fHash SK_GUARDED_BY(fSpinLock);
+    using PaintHashMap = std::unordered_map<const SkPaintParamsKey*, Entry*, Hash, KeyEqual>;
+
+    PaintHashMap fHash SK_GUARDED_BY(fSpinLock);
     std::vector<Entry*> fEntryVector SK_GUARDED_BY(fSpinLock);
 
     SkArenaAlloc fArena{256};
