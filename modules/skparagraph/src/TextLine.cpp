@@ -596,7 +596,6 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
 
     if (run->fEllipsis) {
         // Both ellipsis and placeholders can only be measured as one glyph
-        SkASSERT(textRange == run->textRange());
         result.fTextShift = runOffsetInLine;
         result.clip = SkRect::MakeXYWH(runOffsetInLine,
                                        sizes().runTop(run, this->fAscentStyle),
@@ -760,12 +759,12 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         // Extra efforts to get the ellipsis text style
         ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset,
                                                                 0, false, true);
-        TextRange testRange(run->fClusterStart, run->fClusterStart + 1);
+        TextRange testRange(run->fClusterStart, run->fClusterStart + run->textRange().width());
         for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
            auto block = fOwner->styles().begin() + index;
            auto intersect = intersected(block->fRange, testRange);
            if (intersect.width() > 0) {
-               visitor(textRange, block->fStyle, clipContext);
+               visitor(testRange, block->fStyle, clipContext);
                return run->advance().fX;
            }
         }
