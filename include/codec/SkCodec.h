@@ -760,6 +760,10 @@ protected:
 
     void setSrcXformFormat(XformFormat pixelFormat);
 
+    XformFormat getSrcXformFormat() const {
+        return fSrcXformFormat;
+    }
+
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.
         return this->dimensions();

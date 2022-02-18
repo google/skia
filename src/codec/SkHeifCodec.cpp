@@ -176,8 +176,11 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> s
         profile = nullptr;
     }
 
+    uint8_t colorDepth = heifDecoder->getColorDepth();
+
     SkEncodedInfo info = SkEncodedInfo::Make(heifInfo.mWidth, heifInfo.mHeight,
-            SkEncodedInfo::kYUV_Color, SkEncodedInfo::kOpaque_Alpha, 8, std::move(profile));
+            SkEncodedInfo::kYUV_Color, SkEncodedInfo::kOpaque_Alpha,
+            /*bitsPerComponent*/ 8, std::move(profile), colorDepth);
     SkEncodedOrigin orientation = get_orientation(heifInfo);
 
     *result = kSuccess;
@@ -212,6 +215,7 @@ bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaq
                 "- it is being decoded as non-opaque, which will draw slower\n");
     }
 
+    uint8_t colorDepth = fHeifDecoder->getColorDepth();
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
             this->setSrcXformFormat(skcms_PixelFormat_RGBA_8888);
@@ -235,8 +239,13 @@ bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaq
 
         case kRGBA_F16_SkColorType:
             SkASSERT(needsColorXform);
-            this->setSrcXformFormat(skcms_PixelFormat_RGBA_8888);
-            return fHeifDecoder->setOutputColor(kHeifColorFormat_RGBA_8888);
+            if (srcIsOpaque && colorDepth == 10) {
+                this->setSrcXformFormat(skcms_PixelFormat_RGBA_1010102);
+                return fHeifDecoder->setOutputColor(kHeifColorFormat_RGBA_1010102);
+            } else {
+                this->setSrcXformFormat(skcms_PixelFormat_RGBA_8888);
+                return fHeifDecoder->setOutputColor(kHeifColorFormat_RGBA_8888);
+            }
 
         default:
             return false;
@@ -433,13 +442,15 @@ void SkHeifCodec::allocateStorage(const SkImageInfo& dstInfo) {
 void SkHeifCodec::initializeSwizzler(
         const SkImageInfo& dstInfo, const Options& options) {
     SkImageInfo swizzlerDstInfo = dstInfo;
-    if (this->colorXform()) {
-        // Aligned with conversionSupported()
-        if (dstInfo.colorType() == kRGBA_1010102_SkColorType) {
-            swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_1010102_SkColorType);
-        } else {
+    switch (this->getSrcXformFormat()) {
+        case skcms_PixelFormat_RGBA_8888:
             swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_8888_SkColorType);
-        }
+            break;
+        case skcms_PixelFormat_RGBA_1010102:
+            swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_1010102_SkColorType);
+            break;
+        default:
+            SkASSERT(false);
     }
 
     int srcBPP = 4;

@@ -100,8 +100,15 @@ public:
         return Make(width, height, color, alpha, bitsPerComponent, nullptr);
     }
 
-    static SkEncodedInfo Make(int width, int height, Color color, Alpha alpha,
-            int bitsPerComponent, std::unique_ptr<ICCProfile> profile) {
+    static SkEncodedInfo Make(int width, int height, Color color,
+            Alpha alpha, int bitsPerComponent, std::unique_ptr<ICCProfile> profile) {
+        return Make(width, height, color, alpha, /*bitsPerComponent*/ bitsPerComponent,
+                std::move(profile), /*colorDepth*/ bitsPerComponent);
+    }
+
+    static SkEncodedInfo Make(int width, int height, Color color,
+            Alpha alpha, int bitsPerComponent, std::unique_ptr<ICCProfile> profile,
+            int colorDepth) {
         SkASSERT(1 == bitsPerComponent ||
                  2 == bitsPerComponent ||
                  4 == bitsPerComponent ||
@@ -150,7 +157,8 @@ public:
                 break;
         }
 
-        return SkEncodedInfo(width, height, color, alpha, bitsPerComponent, std::move(profile));
+        return SkEncodedInfo(width, height, color, alpha,
+                bitsPerComponent, colorDepth, std::move(profile));
     }
 
     /*
@@ -220,21 +228,28 @@ public:
 
     // Explicit copy method, to avoid accidental copying.
     SkEncodedInfo copy() const {
-        auto copy = SkEncodedInfo::Make(fWidth, fHeight, fColor, fAlpha, fBitsPerComponent);
+        auto copy = SkEncodedInfo::Make(
+                fWidth, fHeight, fColor, fAlpha, fBitsPerComponent, nullptr, fColorDepth);
         if (fProfile) {
             copy.fProfile = std::make_unique<ICCProfile>(*fProfile);
         }
         return copy;
     }
 
+    // Return number of bits of R/G/B channel
+    uint8_t getColorDepth() const {
+        return fColorDepth;
+    }
+
 private:
     SkEncodedInfo(int width, int height, Color color, Alpha alpha,
-            uint8_t bitsPerComponent, std::unique_ptr<ICCProfile> profile)
+            uint8_t bitsPerComponent, uint8_t colorDepth, std::unique_ptr<ICCProfile> profile)
         : fWidth(width)
         , fHeight(height)
         , fColor(color)
         , fAlpha(alpha)
         , fBitsPerComponent(bitsPerComponent)
+        , fColorDepth(colorDepth)
         , fProfile(std::move(profile))
     {}
 
@@ -243,6 +258,7 @@ private:
     Color                       fColor;
     Alpha                       fAlpha;
     uint8_t                     fBitsPerComponent;
+    uint8_t                     fColorDepth;
     std::unique_ptr<ICCProfile> fProfile;
 };
 
