@@ -30,18 +30,26 @@ const char kColrCpalTestFontPath[] = "fonts/more_samples-glyf_colr_1.ttf";
 
 constexpr SkFontArguments::Palette::Override kColorOverridesAll[] = {
         // A gradient of dark to light purple for the circle palette test glyph.
-        {0, 0xff310b55},
-        {1, 0xff510970},
-        {2, 0xff76078f},
-        {3, 0xff9606aa},
-        {4, 0xffb404c4},
-        {5, 0xffd802e2},
-        {6, 0xfffa00ff},
-        {7, 0xff888888},
-        {8, 0xff888888},
-        {9, 0xff888888},
+        // Randomly ordered with `shuf`.
+        // Add a repeat (later overrides override earlier overrides).
+        // Add three out of bounds entries (font has 12 palette entries).
+        { 6, 0xffffff00},
+        { 2, 0xff76078f},
+        { 4, 0xffb404c4},
+        { 1, 0xff510970},
+        { 6, 0xfffa00ff},
+        { 8, 0xff888888},
         {10, 0xff888888},
-        {11, 0xff888888}};
+        { 9, 0xff888888},
+        { 7, 0xff888888},
+        {11, 0xff888888},
+        { 0, 0xff310b55},
+        { 3, 0xff9606aa},
+        { 5, 0xffd802e2},
+        {13, 0xff00ffff},
+        {12, 0xff00ffff},
+        {-1, 0xff00ff00},
+};
 
 constexpr SkFontArguments::Palette::Override kColorOverridesOne[] = {
         {2, 0xff02dfe2},
