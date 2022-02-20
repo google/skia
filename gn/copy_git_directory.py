@@ -21,7 +21,8 @@ def copy_git_directory(src, dst, out=None):
     raise Exception('Directory "%s" does not exist.' % src)
   if not os.path.isdir(dst):
     os.makedirs(dst)
-  ls_files = subprocess.check_output(['git', 'ls-files', '-z', '.'], cwd=src)
+  ls_files = subprocess.check_output([
+      'git', 'ls-files', '-z', '.'], cwd=src).decode('utf-8')
   src_files = set(p for p in ls_files.split('\0') if p)
   abs_src = os.path.abspath(src)
   cwd = os.getcwd()

@@ -23,13 +23,14 @@ def makeEmptyFile(path):
 def compile(skslc, input, target, extension):
     target += extension
     try:
-        subprocess.check_output([skslc, input, target, settings], stderr=subprocess.STDOUT)
+        subprocess.check_output([
+            skslc, input, target, settings], stderr=subprocess.STDOUT).decode('utf-8')
         return True
 
     except subprocess.CalledProcessError as err:
         with open(target, 'wb') as dst:
             dst.write("### Compilation failed:\n\n")
-            dst.write("\n".join(err.output.splitlines()))
+            dst.write("\n".join(err.output.decode('utf-8').splitlines()))
             dst.write("\n")
         return False
 
