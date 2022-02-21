@@ -48,7 +48,7 @@ DEF_TEST(GrGlyphVector_Serialization, r) {
 
     auto data = wBuffer.snapshotAsData();
     SkReadBuffer rBuffer{data->data(), data->size()};
-    auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, &alloc);
+    auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, nullptr, &alloc);
     REPORTER_ASSERT(r, dst.has_value());
     REPORTER_ASSERT(r, TestingPeer::GetDescriptor(src) == TestingPeer::GetDescriptor(*dst));
 
@@ -71,7 +71,7 @@ DEF_TEST(GrGlyphVector_BadLengths, r) {
         auto data = wBuffer.snapshotAsData();
         SkReadBuffer rBuffer{data->data(), data->size()};
         GrSubRunAllocator alloc;
-        auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, &alloc);
+        auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, nullptr, &alloc);
         REPORTER_ASSERT(r, !dst.has_value());
     }
 
@@ -89,7 +89,7 @@ DEF_TEST(GrGlyphVector_BadLengths, r) {
         auto data = wBuffer.snapshotAsData();
         SkReadBuffer rBuffer{data->data(), data->size()};
         GrSubRunAllocator alloc;
-        auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, &alloc);
+        auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, nullptr, &alloc);
         REPORTER_ASSERT(r, !dst.has_value());
     }
 
@@ -107,7 +107,7 @@ DEF_TEST(GrGlyphVector_BadLengths, r) {
         auto data = wBuffer.snapshotAsData();
         SkReadBuffer rBuffer{data->data(), data->size()};
         GrSubRunAllocator alloc;
-        auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, &alloc);
+        auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, nullptr, &alloc);
         REPORTER_ASSERT(r, !dst.has_value());
     }
 }

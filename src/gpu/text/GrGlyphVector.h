@@ -16,6 +16,8 @@
 #include "src/gpu/GrSubRunAllocator.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
+class SkStrikeClient;
+
 // -- GlyphVector ----------------------------------------------------------------------------------
 // GlyphVector provides a way to delay the lookup of GrGlyphs until the code is running on the
 // GPU in single threaded mode. The GlyphVector is created in a multi-threaded environment, but
@@ -38,6 +40,7 @@ public:
     SkSpan<const GrGlyph*> glyphs() const;
 
     static std::optional<GrGlyphVector> MakeFromBuffer(SkReadBuffer& buffer,
+                                                       const SkStrikeClient* strikeClient,
                                                        GrSubRunAllocator* alloc);
     void flatten(SkWriteBuffer& buffer);
 
