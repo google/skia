@@ -548,8 +548,7 @@ static inline bool skpaint_to_grpaint_impl(
 
 #ifndef SK_IGNORE_GPU_DITHER
     GrColorType ct = dstColorInfo.colorType();
-    const bool shaderOverride = SkToBool(paintFP);
-    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct), shaderOverride)) {
+    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) && paintFP != nullptr) {
         float ditherRange = dither_range_for_config(ct);
         paintFP = make_dither_effect(
                 context, std::move(paintFP), ditherRange, context->priv().caps());

@@ -50,7 +50,7 @@ bool SkPaintPriv::Overwrites(const SkPaint* paint, ShaderOverrideOpacity overrid
     return SkXfermode::IsOpaque(bm.value(), opacityType);
 }
 
-bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT, bool shaderOverride) {
+bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
     // The paint dither flag can veto.
     if (!p.isDither()) {
         return false;
@@ -63,8 +63,7 @@ bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT, bool shaderO
 
     // Otherwise, dither is only needed for non-const paints.
     return p.getImageFilter() || p.getMaskFilter() ||
-           (p.getShader() && !as_SB(p.getShader())->isConstant()) ||
-           shaderOverride;
+           (p.getShader() && !as_SB(p.getShader())->isConstant());
 }
 
 // return true if the paint is just a single color (i.e. not a shader). If its
