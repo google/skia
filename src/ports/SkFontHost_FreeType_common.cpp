@@ -1648,9 +1648,6 @@ bool generateGlyphPathStatic(FT_Face face, SkPath* path) {
 }
 
 bool generateFacePathStatic(FT_Face face, SkGlyphID glyphID, uint32_t loadGlyphFlags, SkPath* path){
-#ifdef SK_IGNORE_FREETYPE_COLRV0_LOAD_FLAGS_FIX
-    loadGlyphFlags = 0;
-#endif
     loadGlyphFlags |= FT_LOAD_NO_BITMAP; // ignore embedded bitmaps so we're sure to get the outline
     loadGlyphFlags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
 
