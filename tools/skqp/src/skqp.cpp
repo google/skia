@@ -300,13 +300,15 @@ std::tuple<SkQP::RenderOutcome, std::string> SkQP::evaluateGM(SkQP::SkiaBackend 
         SkImageInfo::Make(w, h, skqp::kColorType, kPremul_SkAlphaType, nullptr);
     const SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
 
+    sk_sp<GrDirectContext> ctx = testCtx->makeContext(context_options(gm.get()));
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(
-            testCtx->makeContext(context_options(gm.get())).get(),
-            SkBudgeted::kNo, info, 0, &props);
+            ctx.get(), SkBudgeted::kNo, info, 0, &props);
     if (!surf) {
         return std::make_tuple(kError, "Skia Failure: gr-context");
     }
-    gm->draw(surf->getCanvas());
+    SkCanvas* canvas = surf->getCanvas();
+    gm->gpuSetup(ctx.get(), canvas);
+    gm->draw(canvas);
 
     SkBitmap image;
     image.allocPixels(SkImageInfo::Make(w, h, skqp::kColorType, skqp::kAlphaType));
