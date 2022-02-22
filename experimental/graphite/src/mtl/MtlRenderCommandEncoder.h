@@ -242,8 +242,25 @@ public:
     }
 
 private:
+    inline static constexpr int kMaxExpectedBuffers = 5;
+    inline static constexpr int kMaxExpectedTextures = 16;
+
     RenderCommandEncoder(const Gpu* gpu, sk_cfp<id<MTLRenderCommandEncoder>> encoder)
-        : Resource(gpu), fCommandEncoder(std::move(encoder)) {}
+            : Resource(gpu), fCommandEncoder(std::move(encoder)) {
+        for (int i = 0; i < kMaxExpectedBuffers; i++) {
+            fCurrentVertexBuffer[i] = nil;
+            fCurrentFragmentBuffer[i] = nil;
+            // We don't initialize fCurrentVertexOffset or fCurrentFragmentOffset because neither
+            // of those should ever be read unless we've already confirmed the current buffer
+            // matches the new one. That would mean we would have initialized the offset when we
+            // set the current buffer.
+        }
+
+        for (int i = 0; i < kMaxExpectedTextures; i++) {
+            fCurrentTexture[i] = nil;
+            fCurrentSampler[i] = nil;
+        }
+    }
 
     void onFreeGpuData() override {
         fCommandEncoder.reset();
@@ -255,13 +272,11 @@ private:
     id<MTLDepthStencilState> fCurrentDepthStencilState = nil;
     uint32_t fCurrentStencilReferenceValue = 0; // Metal default value
 
-    inline static constexpr int kMaxExpectedBuffers = 5;
     id<MTLBuffer> fCurrentVertexBuffer[kMaxExpectedBuffers];
     NSUInteger fCurrentVertexOffset[kMaxExpectedBuffers];
     id<MTLBuffer> fCurrentFragmentBuffer[kMaxExpectedBuffers];
     NSUInteger fCurrentFragmentOffset[kMaxExpectedBuffers];
 
-    inline static constexpr int kMaxExpectedTextures = 16;
     id<MTLTexture> fCurrentTexture[kMaxExpectedTextures];
     id<MTLSamplerState> fCurrentSampler[kMaxExpectedTextures];
 
