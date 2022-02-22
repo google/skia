@@ -8,6 +8,8 @@
 #include "include/private/chromium/GrSlug.h"
 
 #include "include/core/SkCanvas.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 GrTextReferenceFrame::~GrTextReferenceFrame() = default;
 
@@ -17,8 +19,15 @@ sk_sp<GrSlug> GrSlug::ConvertBlob(
     return canvas->convertBlobToSlug(blob, origin, paint);
 }
 
+sk_sp<SkData> GrSlug::serialize() const {
+    SkBinaryWriteBuffer buffer;
+    this->doFlatten(buffer);
+    return buffer.snapshotAsData();
+}
+
 sk_sp<GrSlug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
-sk_sp<GrSlug> GrSlug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
+sk_sp<GrSlug> GrSlug::Deserialize(const void* data, size_t size, const SkStrikeClient* client) {
+    SkReadBuffer buffer{data, size};
     return SkMakeSlugFromBuffer(buffer, client);
 }
 

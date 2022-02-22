@@ -1208,7 +1208,7 @@ bool SkStrikeClient::translateTypefaceID(SkAutoDescriptor* descriptor) const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrSlug> SkStrikeClient::makeSlugFromBuffer(SkReadBuffer& buffer) const {
-    return GrSlug::MakeFromBuffer(buffer, this);
+sk_sp<GrSlug> SkStrikeClient::deserializeSlug(const void* data, size_t size) const {
+    return GrSlug::Deserialize(data, size, this);
 }
 #endif  // SK_SUPPORT_GPU

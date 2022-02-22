@@ -141,7 +141,7 @@ public:
 
     // Given a buffer, unflatten into a slug making sure to do the typefaceID translation from
     // renderer to GPU. Returns nullptr if there was a problem.
-    sk_sp<GrSlug> makeSlugFromBuffer(SkReadBuffer& buffer) const;
+    sk_sp<GrSlug> deserializeSlug(const void* data, size_t size) const;
 
 private:
     std::unique_ptr<SkStrikeClientImpl> fImpl;

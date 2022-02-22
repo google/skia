@@ -337,11 +337,7 @@ DEF_GPUTEST_FOR_CONTEXTS(SkRemoteGlyphCache_SlugSerialization,
 
     // Generate strike updates.
     auto srcSlug = GrSlug::ConvertBlob(analysisCanvas.get(), *serverBlob, {0.3f, 0}, paint);
-    SkBinaryWriteBuffer writeBuffer;
-    srcSlug->flatten(writeBuffer);
-
-    auto data = writeBuffer.snapshotAsData();
-    SkReadBuffer readBuffer(data->data(), data->size());
+    auto dstSlugData = srcSlug->serialize();
 
     std::vector<uint8_t> serverStrikeData;
     server.writeStrikeData(&serverStrikeData);
@@ -351,7 +347,7 @@ DEF_GPUTEST_FOR_CONTEXTS(SkRemoteGlyphCache_SlugSerialization,
                     client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
 
     SkBitmap expected = RasterSlug(srcSlug, 10, 10, paint, dContext);
-    auto dstSlug = client.makeSlugFromBuffer(readBuffer);
+    auto dstSlug = client.deserializeSlug(dstSlugData->data(), dstSlugData->size());
     REPORTER_ASSERT(reporter, dstSlug != nullptr);
     SkBitmap actual = RasterSlug(dstSlug, 10, 10, paint, dContext);
     compare_blobs(expected, actual, reporter);
