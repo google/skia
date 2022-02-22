@@ -25,6 +25,17 @@ sk_sp<SkData> GrSlug::serialize() const {
     return buffer.snapshotAsData();
 }
 
+size_t GrSlug::serialize(void* buffer, size_t size) const {
+    SkBinaryWriteBuffer writeBuffer{buffer, size};
+    this->doFlatten(writeBuffer);
+
+    // If we overflow the given buffer, then SkWriteBuffer allocates a new larger buffer. Check
+    // to see if an additional buffer was allocated, if it wasn't then everything fit, else
+    // return 0 signaling the buffer overflowed.
+    // N.B. This is the idiom from SkTextBlob.
+    return writeBuffer.usingInitialStorage() ? writeBuffer.bytesWritten() : 0u;
+}
+
 sk_sp<GrSlug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
 sk_sp<GrSlug> GrSlug::Deserialize(const void* data, size_t size, const SkStrikeClient* client) {
     SkReadBuffer buffer{data, size};

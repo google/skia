@@ -47,6 +47,7 @@ public:
 
     // Serialize the slug.
     sk_sp<SkData> serialize() const;
+    size_t serialize(void* buffer, size_t size) const;
 
     // Set the client parameter to the appropriate SkStrikeClient when typeface ID translation
     // is needed.
