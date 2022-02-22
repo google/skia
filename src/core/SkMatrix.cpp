@@ -1639,9 +1639,7 @@ bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkSamplingO
     if (!SkSamplingPriv::NoChangeWithIdentityMatrix(sampling)) {
         return false;
     }
-    if (paint.isDither()) {
-        return false;
-    }
+
     // Our path aa is 2-bits, and our rect aa is 8, so we could use 8,
     // but in practice 4 seems enough (still looks smooth) and allows
     // more slightly fractional cases to fall into the fast (sprite) case.

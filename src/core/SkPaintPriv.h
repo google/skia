@@ -34,7 +34,7 @@ public:
      */
     static bool Overwrites(const SkPaint* paint, ShaderOverrideOpacity);
 
-    static bool ShouldDither(const SkPaint&, SkColorType, bool shaderOverride=false);
+    static bool ShouldDither(const SkPaint&, SkColorType);
 
     /*
      * The luminance color is used to determine which Gamma Canonical color to map to.  This is
