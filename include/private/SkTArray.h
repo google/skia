@@ -16,6 +16,7 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
+#include <algorithm>
 #include <string.h>
 #include <initializer_list>
 #include <memory>
