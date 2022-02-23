@@ -60,6 +60,10 @@ std::string get_uniforms(SkSpan<const SkUniform> uniforms, int* offset, int mang
                 result.append("half4");
                 *offset += 8 * count;
                 break;
+            case SkSLType::kInt:
+                result.append("int");
+                *offset += 4 * count;
+                break;
             default:
                 SkASSERT(0);
         }

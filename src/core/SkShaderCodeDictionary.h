@@ -28,6 +28,8 @@ public:
                                                      int indent);
 
     struct SnippetEntry {
+        std::string getMangledUniformName(int uniformIndex, int mangleId) const;
+
         SkSpan<const SkUniform> fUniforms;
         const char* fStaticFunctionName;
         const char* fStaticSkSL;

@@ -73,6 +73,10 @@ private:
     const size_t fDataSize;
 };
 
+// TODO: The current plan for fixing uniform padding is for the SkUniformBlock to hold a
+// persistent uniformManager. A stretch goal for this system would be for this combination
+// to accumulate all the uniforms and then rearrange them to minimize padding. This would,
+// obviously, vastly complicate uniform accumulation.
 class SkUniformBlock {
 public:
     SkUniformBlock() = default;

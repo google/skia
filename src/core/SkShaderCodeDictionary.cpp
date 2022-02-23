@@ -18,6 +18,14 @@ void add_indent(std::string* result, int indent) {
 
 } // anonymous namespace
 
+
+std::string SkShaderInfo::SnippetEntry::getMangledUniformName(int uniformIndex,
+                                                              int mangleId) const {
+    std::string result;
+    result = fUniforms[uniformIndex].name() + std::string("_") + std::to_string(mangleId);
+    return result;
+}
+
 // TODO: SkShaderInfo::toSkSL needs to work outside of both just graphite and metal. To do
 // so we'll need to switch over to using SkSL's uniform capabilities.
 #if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
@@ -195,8 +203,7 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
     SkSL::String::appendf(&result, "%s = %s(", resultName.c_str(), entry.fStaticFunctionName);
     for (size_t i = 0; i < entry.fUniforms.size(); ++i) {
         // The uniform names are mangled w/ the entry's index as a suffix
-        result += entry.fUniforms[i].name() + std::string("_") + std::to_string(entryIndex);
-
+        result += entry.getMangledUniformName(i, entryIndex);
         if (i+1 < entry.fUniforms.size()) {
             result += ", ";
         }
@@ -275,7 +282,14 @@ static const char* kImageShaderSkSL =
         "}\n";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumBlendShaderUniforms = 0;
+static constexpr int kNumBlendShaderUniforms = 4;
+static constexpr SkUniform kBlendShaderUniforms[kNumBlendShaderUniforms] = {
+        { "blendMode", SkSLType::kInt },
+        { "padding1",  SkSLType::kInt }, // TODO: add automatic uniform padding
+        { "padding2",  SkSLType::kInt },
+        { "padding3",  SkSLType::kInt },
+};
+
 static constexpr int kNumBlendShaderChildren = 2;
 
 // Note: we're counting on the compiler to inline this code and trim it down to just the used
@@ -353,14 +367,16 @@ std::string GenerateBlendShaderGlueCode(const std::string& resultName,
                                         const std::vector<std::string>& childNames,
                                         int indent) {
     SkASSERT(childNames.size() == kNumBlendShaderChildren);
+    SkASSERT(entry.fUniforms.size() == 4); // actual blend uniform + 3 padding int
+
+    std::string uniformName = entry.getMangledUniformName(0, entryIndex);
 
     std::string result;
 
     add_indent(&result, indent);
-    // TODO: actually feed in the blend mode either through a uniform or, somehow, from the
-    // SkPaintParamsKey
-    SkSL::String::appendf(&result, "%s = blend(kModulate, %s, %s);\n",
+    SkSL::String::appendf(&result, "%s = blend(%s, %s, %s);\n",
                           resultName.c_str(),
+                          uniformName.c_str(),
                           childNames[1].c_str(),
                           childNames[0].c_str());
 
@@ -432,7 +448,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kNoChildren
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kBlendShader] = {
-            { nullptr, kNumBlendShaderUniforms },
+            { kBlendShaderUniforms, kNumBlendShaderUniforms },
             kBlendShaderName, kBlendShaderSkSL,
             GenerateBlendShaderGlueCode,
             kNumBlendShaderChildren

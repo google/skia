@@ -547,6 +547,33 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
 //--------------------------------------------------------------------------------------------------
 namespace BlendShaderBlock {
 
+namespace {
+
+#ifdef SK_GRAPHITE_ENABLED
+
+sk_sp<SkUniformData> make_blendshader_uniform_data(SkShaderCodeDictionary* dict, SkBlendMode bm) {
+    static constexpr size_t kExpectedNumUniforms = 4; // actual blend uniform + 3 padding int
+
+    SkSpan<const SkUniform> uniforms = dict->getUniforms(SkBuiltInCodeSnippetID::kBlendShader);
+    SkASSERT(uniforms.size() == kExpectedNumUniforms);
+
+    skgpu::UniformManager mgr(skgpu::Layout::kMetal);
+
+    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr, nullptr);
+
+    sk_sp<SkUniformData> result = SkUniformData::Make(uniforms, dataSize);
+
+    int tmp = SkTo<int>(bm);
+    const void* srcs[kExpectedNumUniforms] = { &tmp, &tmp, &tmp, &tmp };
+
+    mgr.writeUniforms(result->uniforms(), srcs, result->offsets(), result->data());
+    return result;
+}
+
+#endif // SK_GRAPHITE_ENABLED
+
+} // anonymous namespace
+
 void AddToKey(SkShaderCodeDictionary* dict,
               SkBackend backend,
               SkPaintParamsKeyBuilder *builder,
@@ -555,6 +582,13 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
 #ifdef SK_GRAPHITE_ENABLED
     if (backend == SkBackend::kGraphite) {
+        // When extracted into SkShaderInfo::SnippetEntries the children will appear after their
+        // parent. Thus, the parent's uniform data must appear in the uniform block before the
+        // uniform data of the children.
+        if (uniformBlock) {
+            uniformBlock->add(make_blendshader_uniform_data(dict, blendData.fBM));
+        }
+
         builder->beginBlock(SkBuiltInCodeSnippetID::kBlendShader);
 
         // Child blocks always go right after the parent block's header
@@ -568,11 +602,9 @@ void AddToKey(SkShaderCodeDictionary* dict,
         as_SB(blendData.fSrc)->addToKey(dict, backend, builder, uniformBlock);
         int secondShaderSize = builder->sizeInBytes() - start;
 
-        add_blendmode_to_key(builder, blendData.fBM);
-
         builder->endBlock();
 
-        int expectedBlockSize = 1 + firstShaderSize + secondShaderSize;
+        int expectedBlockSize = firstShaderSize + secondShaderSize;
         validate_block_header(builder,
                               SkBuiltInCodeSnippetID::kBlendShader,
                               expectedBlockSize);
@@ -609,7 +641,7 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
     runningOffset += 1; // 1 byte for blendmode
 
     int calculatedBlockSize = SkPaintParamsKey::kBlockHeaderSizeInBytes +
-                              firstBlockSize + secondBlockSize + 1;
+                              firstBlockSize + secondBlockSize;
     SkASSERT(calculatedBlockSize == storedBlockSize);
 #endif// SK_GRAPHITE_ENABLED
 }

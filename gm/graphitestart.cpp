@@ -101,9 +101,10 @@ protected:
         // LR corner
         {
             SkPaint p;
-            p.setShader(create_blend_shader(SkBlendMode::kDstOver));
+            p.setShader(create_blend_shader(SkBlendMode::kModulate));
             canvas->drawRect({129, 129, 255, 255}, p);
         }
+
 #ifdef SK_GRAPHITE_ENABLED
         // TODO: failing serialize test on Linux, not sure what's going on
         canvas->writePixels(fBitmap, 0, 256);
