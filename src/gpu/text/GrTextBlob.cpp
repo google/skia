@@ -1106,20 +1106,19 @@ const GrAtlasSubRun* DirectMaskSubRun::testingOnly_atlasSubRun() const {
 // -- TransformedMaskSubRun ------------------------------------------------------------------------
 class TransformedMaskSubRun final : public GrSubRun, public GrBlobSubRun, public GrAtlasSubRun {
 public:
-    using VertexData = TransformedMaskVertexFiller::PositionAndExtent;
+    using PositionAndExtent = TransformedMaskVertexFiller::PositionAndExtent;
 
     TransformedMaskSubRun(const GrTextReferenceFrame* referenceFrame,
-                          GrMaskFormat format,
-                          SkScalar strikeToSourceScale,
                           const SkRect& bounds,
-                          SkSpan<const VertexData> vertexData,
+                          SkSpan<const PositionAndExtent> positionAndExtent,
+                          TransformedMaskVertexFiller&& vertexFiller,
                           GrGlyphVector&& glyphs);
 
     static GrSubRunOwner Make(const GrTextReferenceFrame* referenceFrame,
                               const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               sk_sp<SkStrike>&& strike,
                               SkScalar strikeToSourceScale,
-                              GrMaskFormat format,
+                              GrMaskFormat maskType,
                               GrSubRunAllocator* alloc);
 
     static GrSubRunOwner MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
@@ -1174,13 +1173,13 @@ private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
-    const TransformedMaskVertexFiller fVertexFiller;
-
     const GrTextReferenceFrame* const fReferenceFrame;
 
     // The bounds in source space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fVertexBounds;
-    const SkSpan<const VertexData> fVertexData;
+    const SkSpan<const PositionAndExtent> fPositionAndExtent;
+
+    const TransformedMaskVertexFiller fVertexFiller;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
@@ -1188,26 +1187,25 @@ private:
 };
 
 TransformedMaskSubRun::TransformedMaskSubRun(const GrTextReferenceFrame* referenceFrame,
-                                             GrMaskFormat format,
-                                             SkScalar strikeToSourceScale,
                                              const SkRect& bounds,
-                                             SkSpan<const VertexData> vertexData,
+                                             SkSpan<const PositionAndExtent> positionAndExtent,
+                                             TransformedMaskVertexFiller&& vertexFiller,
                                              GrGlyphVector&& glyphs)
-        : fVertexFiller{format, 0, strikeToSourceScale}
-        , fReferenceFrame{referenceFrame}
+        : fReferenceFrame{referenceFrame}
         , fVertexBounds{bounds}
-        , fVertexData{vertexData}
+        , fPositionAndExtent{positionAndExtent}
+        , fVertexFiller{std::move(vertexFiller)}
         , fGlyphs{std::move(glyphs)} { }
 
 GrSubRunOwner TransformedMaskSubRun::Make(const GrTextReferenceFrame* referenceFrame,
                                           const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                           sk_sp<SkStrike>&& strike,
                                           SkScalar strikeToSourceScale,
-                                          GrMaskFormat format,
+                                          GrMaskFormat maskType,
                                           GrSubRunAllocator* alloc) {
     SkRect bounds = SkRectPriv::MakeLargestInverted();
 
-    SkSpan<VertexData> vertexData = alloc->makePODArray<VertexData>(
+    SkSpan<PositionAndExtent> positionAndExtent = alloc->makePODArray<PositionAndExtent>(
             accepted,
             [&](auto e) {
                 auto [variant, pos] = e;
@@ -1220,11 +1218,14 @@ GrSubRunOwner TransformedMaskSubRun::Make(const GrTextReferenceFrame* referenceF
                         rb = SkPoint::Make(r, b) * strikeToSourceScale + pos;
 
                 bounds.joinPossiblyEmptyRect(SkRect::MakeLTRB(lt.x(), lt.y(), rb.x(), rb.y()));
-                return VertexData{pos, {l, t, r, b}};
+                return PositionAndExtent{pos, {l, t, r, b}};
             });
 
+    TransformedMaskVertexFiller vertexFiller{maskType, 0, strikeToSourceScale};
+
     return alloc->makeUnique<TransformedMaskSubRun>(
-            referenceFrame, format, strikeToSourceScale, bounds, vertexData,
+            referenceFrame, bounds, positionAndExtent,
+            std::move(vertexFiller),
             GrGlyphVector::Make(std::move(strike), accepted.get<0>(), alloc));
 }
 
@@ -1299,7 +1300,7 @@ void TransformedMaskSubRun::fillVertexData(void* vertexDst, int offset, int coun
                                            SkIRect clip) const {
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
     fVertexFiller.fillVertexData(fGlyphs.glyphs().subspan(offset, count),
-                                 fVertexData.subspan(offset, count),
+                                 fPositionAndExtent.subspan(offset, count),
                                  color,
                                  positionMatrix,
                                  clip,
@@ -1311,7 +1312,7 @@ size_t TransformedMaskSubRun::vertexStride(const SkMatrix& drawMatrix) const {
 }
 
 int TransformedMaskSubRun::glyphCount() const {
-    return SkCount(fVertexData);
+    return SkCount(fPositionAndExtent);
 }
 
 SkRect TransformedMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
