@@ -1,6 +1,7 @@
 load("@emsdk//emscripten_toolchain:wasm_rules.bzl", "wasm_cc_binary")
 load("//bazel/common_config_settings:defs.bzl", "bool_flag")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+load("//bazel:karma_test.bzl", "karma_test")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -428,4 +429,12 @@ bool_flag(
 bool_flag(
     default = True,
     flag_name = "include_matrix_js",
+)
+
+karma_test(
+    name = "hello_world",
+    srcs = [
+        "tests/hello_world.js",
+    ],
+    config_file = "karma.bazel.js",
 )
