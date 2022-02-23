@@ -780,35 +780,12 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenExistingStream(int* ttcInde
     return fStream ? fStream->duplicate() : nullptr;
 }
 
-// TODO: testing perf: chromium:1297957 chromium:1297978
-#ifdef SK_TYPEFACE_MAC_USE_CPAL_TEST
-static bool has_table(CTFontRef ctFont, SkFontTableTag tableTag) {
-    SkUniqueCFRef<CFArrayRef> cfArray(
-            CTFontCopyAvailableTables(ctFont, kCTFontTableOptionNoOptions));
-    if (!cfArray) {
-        return 0;
-    }
-    CFIndex count = CFArrayGetCount(cfArray.get());
-    for (CFIndex i = 0; i < count; ++i) {
-        uintptr_t fontTag = reinterpret_cast<uintptr_t>(
-            CFArrayGetValueAtIndex(cfArray.get(), i));
-        if (tableTag == static_cast<SkFontTableTag>(fontTag)) {
-            return true;
-        }
-    }
-    return false;
-}
 bool SkTypeface_Mac::onGlyphMaskNeedsCurrentColor() const {
-    constexpr SkFontTableTag cpalTag = SkSetFourByteTag('C', 'P', 'A', 'L');
-    // CoreText only provides the size of a table with a copy, so do not use this->getTableSize().
-    return has_table(fFontRef.get(), cpalTag);
-}
-#else
-bool SkTypeface_Mac::onGlyphMaskNeedsCurrentColor() const {
-    // This is overly expensive for the common 'sbix' case.
+    // `CPAL` (`COLR` and `SVG`) fonts may need the current color.
+    // However, even `sbix` fonts can have glyphs which need the current color.
+    // These may be glyphs with paths but no `sbix` entries, which are impossible to distinguish.
     return this->fHasColorGlyphs;
 }
-#endif
 
 int SkTypeface_Mac::onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
