@@ -28,13 +28,30 @@ public:
                                                      int indent);
 
     struct SnippetEntry {
+        SnippetEntry() = default;
+
+        SnippetEntry(SkSpan<const SkUniform> uniforms,
+                     const char* functionName,
+                     const char* code,
+                     GenerateGlueCodeForEntry glueCodeGenerator,
+                     int numChildren,
+                     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations)
+             : fUniforms(uniforms)
+             , fStaticFunctionName(functionName)
+             , fStaticSkSL(code)
+             , fGlueCodeGenerator(glueCodeGenerator)
+             , fNumChildren(numChildren)
+             , fDataPayloadExpectations(dataPayloadExpectations) {
+        }
+
         std::string getMangledUniformName(int uniformIndex, int mangleId) const;
 
         SkSpan<const SkUniform> fUniforms;
-        const char* fStaticFunctionName;
-        const char* fStaticSkSL;
-        GenerateGlueCodeForEntry fGlueCodeGenerator;
-        int fNumChildren;
+        const char* fStaticFunctionName = nullptr;
+        const char* fStaticSkSL = nullptr;
+        GenerateGlueCodeForEntry fGlueCodeGenerator = nullptr;
+        int fNumChildren = 0;
+        SkSpan<const SkPaintParamsKey::DataPayloadField> fDataPayloadExpectations;
     };
 
     void add(const SnippetEntry& entry) {
@@ -88,7 +105,14 @@ public:
     const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
     SkSpan<const SkUniform> getUniforms(SkBuiltInCodeSnippetID) const;
-    const SkShaderInfo::SnippetEntry* getEntry(SkBuiltInCodeSnippetID) const;
+
+    SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations(int snippetID) const;
+
+    // This method can return nullptr
+    const SkShaderInfo::SnippetEntry* getEntry(int codeSnippetID) const;
+    const SkShaderInfo::SnippetEntry* getEntry(SkBuiltInCodeSnippetID codeSnippetID) const {
+        return this->getEntry(SkTo<int>(codeSnippetID));
+    }
 
     void getShaderInfo(SkUniquePaintParamsID, SkShaderInfo*);
 
@@ -99,7 +123,8 @@ public:
     // TODO: this is still experimental but, most likely, it will need to be made thread-safe
     // It returns the code snippet ID to use to identify the supplied user-defined code
     // TODO: add hooks for user to actually provide code.
-    int addUserDefinedSnippet();
+    int addUserDefinedSnippet(const char* name,
+                              SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
 
 private:
     Entry* makeEntry(const SkPaintParamsKey&);
@@ -115,7 +140,10 @@ private:
     };
 
     std::array<SkShaderInfo::SnippetEntry, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
-    std::vector<SkShaderInfo::SnippetEntry> fUserDefinedCodeSnippets;
+
+    // The value returned from 'getEntry' must be stable so, hold the user-defined code snippet
+    // entries as pointers.
+    std::vector<std::unique_ptr<SkShaderInfo::SnippetEntry>> fUserDefinedCodeSnippets;
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
     mutable SkSpinlock fSpinLock;
@@ -125,6 +153,8 @@ private:
     PaintHashMap fHash SK_GUARDED_BY(fSpinLock);
     std::vector<Entry*> fEntryVector SK_GUARDED_BY(fSpinLock);
 
+    // This arena holds:
+    //    the Entries held in 'fHash' and 'fEntryVector' - thus, guarded by 'fSpinLock'
     SkArenaAlloc fArena{256};
 };
 

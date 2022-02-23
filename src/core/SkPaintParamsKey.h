@@ -22,9 +22,97 @@ enum class SkBackend : uint8_t {
     kGraphite,
     kSkVM
 };
-class SkPaintParamsKey;
+struct SkDataPayloadInfo;
+class SkPaintParamsKeyBuilder;
 class SkShaderCodeDictionary;
 class SkShaderInfo;
+
+// This class is a compact representation of the shader needed to implement a given
+// PaintParams. Its structure is a series of blocks where each block has a
+// header that consists of 2-bytes:
+//   a 1-byte code-snippet ID
+//   a 1-byte number-of-bytes-in-the-block field (incl. the space for the header)
+// The rest of the data in the block is dependent on the individual code snippet.
+// If a given block has child blocks, they appear in the key right after their
+// parent block's header.
+class SkPaintParamsKey {
+public:
+    static const int kBlockHeaderSizeInBytes = 2;
+    static const int kBlockSizeOffsetInBytes = 1; // offset to the block size w/in the header
+    static const int kMaxBlockSize = std::numeric_limits<uint8_t>::max();
+
+    enum class DataPayloadType {
+        kByte,
+    };
+
+    // A given snippet's data payload is stored as an SkSpan of DataPayloadFields in the
+    // SkShaderCodeDictionary. That span just defines the structure of the data payload. The actual
+    // data is stored in the paint params key.
+    struct DataPayloadField {
+        const char* fName;
+        DataPayloadType fType;
+        uint32_t fCount;
+    };
+
+    ~SkPaintParamsKey();
+
+    std::pair<SkBuiltInCodeSnippetID, uint8_t> readCodeSnippetID(int headerOffset) const {
+        SkASSERT(headerOffset <= this->sizeInBytes() - kBlockHeaderSizeInBytes);
+
+        SkBuiltInCodeSnippetID id = static_cast<SkBuiltInCodeSnippetID>(fData[headerOffset]);
+        uint8_t blockSize = fData[headerOffset+1];
+        SkASSERT(headerOffset + blockSize <= this->sizeInBytes());
+
+        return { id, blockSize };
+    }
+
+#ifdef SK_DEBUG
+    uint8_t byte(int offset) const {
+        SkASSERT(offset < this->sizeInBytes());
+        return fData[offset];
+    }
+    void dump(const SkShaderCodeDictionary*) const;
+#endif
+    void toShaderInfo(SkShaderCodeDictionary*, SkShaderInfo*) const;
+
+    SkSpan<const uint8_t> asSpan() const { return fData; }
+    const uint8_t* data() const { return fData.data(); }
+    int sizeInBytes() const { return SkTo<int>(fData.size()); }
+
+    bool operator==(const SkPaintParamsKey& that) const;
+    bool operator!=(const SkPaintParamsKey& that) const { return !(*this == that); }
+
+#if GR_TEST_UTILS
+    bool isErrorKey() const;
+#endif
+
+private:
+    friend class SkPaintParamsKeyBuilder;   // for the parented-data ctor
+    friend class SkShaderCodeDictionary;    // for the raw-data ctor
+
+    // This ctor is to be used when paintparams keys are being consecutively generated
+    // by a key builder. The memory backing this key's span is shared between the
+    // builder and its keys.
+    SkPaintParamsKey(SkSpan<const uint8_t> span, SkPaintParamsKeyBuilder* originatingBuilder);
+
+    // This ctor is used when this key isn't being created by a builder (i.e., when the key
+    // is in the dictionary). In this case the dictionary will own the memory backing the span.
+    SkPaintParamsKey(SkSpan<const uint8_t> rawData);
+
+    static int AddBlockToShaderInfo(SkShaderCodeDictionary*,
+                                    const SkPaintParamsKey&,
+                                    int headerOffset,
+                                    SkShaderInfo*);
+
+    // The memory referenced in 'fData' is always owned by someone else.
+    // If 'fOriginatingBuilder' is null, the dictionary's SkArena owns the memory and no explicit
+    // freeing is required.
+    // If 'fOriginatingBuilder' is non-null then the memory must be explicitly locked (in the ctor)
+    // and unlocked (in the dtor) on the 'fOriginatingBuilder' object.
+    SkSpan<const uint8_t> fData;
+    // This class should only ever access the 'lock' and 'unlock' calls on 'fOriginatingBuilder'
+    SkPaintParamsKeyBuilder* fOriginatingBuilder;
+};
 
 // The SkPaintParamsKeyBuilder and the SkPaintParamsKeys snapped from it share the same
 // underlying block of memory. When an SkPaintParamsKey is snapped from the builder it 'locks'
@@ -82,9 +170,14 @@ public:
 private:
     void makeInvalid();
 
+    // Information about the current block being written
     struct StackFrame {
         int fCodeSnippetID;
         int fHeaderOffset;
+#ifdef SK_DEBUG
+        SkSpan<const SkPaintParamsKey::DataPayloadField> fDataPayloadExpectations;
+        int fCurDataPayloadEntry = 0;
+#endif
     };
 
     bool fIsValid = true;
@@ -95,81 +188,6 @@ private:
     // the key.
     SkDEBUGCODE(bool fLocked = false;)
     SkTArray<uint8_t, true> fData;
-};
-
-// This class is a compact representation of the shader needed to implement a given
-// PaintParams. Its structure is a series of blocks where each block has a
-// header that consists of 2-bytes:
-//   a 1-byte code-snippet ID
-//   a 1-byte number-of-bytes-in-the-block field (incl. the space for the header)
-// The rest of the data in the block is dependent on the individual code snippet.
-// If a given block has child blocks, they appear in the key right after their
-// parent block's header.
-class SkPaintParamsKey {
-public:
-    static const int kBlockHeaderSizeInBytes = 2;
-    static const int kBlockSizeOffsetInBytes = 1; // offset to the block size w/in the header
-    static const int kMaxBlockSize = std::numeric_limits<uint8_t>::max();
-
-    ~SkPaintParamsKey();
-
-    std::pair<SkBuiltInCodeSnippetID, uint8_t> readCodeSnippetID(int headerOffset) const {
-        SkASSERT(headerOffset < this->sizeInBytes() - kBlockHeaderSizeInBytes);
-
-        SkBuiltInCodeSnippetID id = static_cast<SkBuiltInCodeSnippetID>(fData[headerOffset]);
-        uint8_t blockSize = fData[headerOffset+1];
-        SkASSERT(headerOffset + blockSize <= this->sizeInBytes());
-
-        return { id, blockSize };
-    }
-
-#ifdef SK_DEBUG
-    uint8_t byte(int offset) const {
-        SkASSERT(offset < this->sizeInBytes());
-        return fData[offset];
-    }
-    static int DumpBlock(const SkPaintParamsKey&, int headerOffset);
-    void dump() const;
-#endif
-    void toShaderInfo(SkShaderCodeDictionary*, SkShaderInfo*) const;
-
-    SkSpan<const uint8_t> asSpan() const { return fData; }
-    const uint8_t* data() const { return fData.data(); }
-    int sizeInBytes() const { return SkTo<int>(fData.size()); }
-
-    bool operator==(const SkPaintParamsKey& that) const;
-    bool operator!=(const SkPaintParamsKey& that) const { return !(*this == that); }
-
-#if GR_TEST_UTILS
-    bool isErrorKey() const;
-#endif
-
-private:
-    friend class SkPaintParamsKeyBuilder;   // for the parented-data ctor
-    friend class SkShaderCodeDictionary;    // for the raw-data ctor
-
-    // This ctor is to be used when paintparams keys are being consecutively generated
-    // by a key builder. The memory backing this key's span is shared between the
-    // builder and its keys.
-    SkPaintParamsKey(SkSpan<const uint8_t> span, SkPaintParamsKeyBuilder* originatingBuilder);
-
-    // This ctor is used when this key isn't being created by a builder (i.e., when the key
-    // is in the dictionary). In this case the dictionary will own the memory backing the span.
-    SkPaintParamsKey(SkSpan<const uint8_t> rawData);
-
-    static int AddBlockToShaderInfo(SkShaderCodeDictionary*,
-                                    const SkPaintParamsKey&,
-                                    int headerOffset,
-                                    SkShaderInfo*);
-
-    // The memory referenced in 'fData' is always owned by someone else.
-    // If 'fOriginatingBuilder' is null, the dictionary's SkArena owns the memory and no explicit
-    // freeing is required.
-    // If 'fOriginatingBuilder' is non-null then the memory must be explicitly locked (in the ctor)
-    // and unlocked (in the dtor) on the 'fOriginatingBuilder' object.
-    SkSpan<const uint8_t> fData;
-    // This class should only ever access the 'lock' and 'unlock' calls on 'fOriginatingBuilder'
-    SkPaintParamsKeyBuilder* fOriginatingBuilder;
 };
 
 #endif // SkPaintParamsKey_DEFINED

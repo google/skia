@@ -30,9 +30,6 @@ namespace DepthStencilOnlyBlock {
                   SkBackend,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*);
-#ifdef SK_DEBUG
-    void Dump(const SkPaintParamsKey&, int headerOffset);
-#endif
 
 } // namespace DepthStencilOnlyBlock
 
@@ -43,9 +40,6 @@ namespace SolidColorShaderBlock {
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   const SkColor4f&);
-#ifdef SK_DEBUG
-    void Dump(const SkPaintParamsKey&, int headerOffset);
-#endif
 
 } // namespace SolidColorShaderBlock
 
@@ -100,9 +94,6 @@ namespace GradientShaderBlocks {
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   const GradientData&);
-#ifdef SK_DEBUG
-    void Dump(const SkPaintParamsKey&, int headerOffset);
-#endif
 
 } // namespace GradientShaderBlocks
 
@@ -125,9 +116,6 @@ namespace ImageShaderBlock {
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   const ImageData&);
-#ifdef SK_DEBUG
-    void Dump(const SkPaintParamsKey&, int headerOffset);
-#endif
 
 } // namespace ImageShaderBlock
 
@@ -145,9 +133,6 @@ namespace BlendShaderBlock {
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   const BlendData&);
-#ifdef SK_DEBUG
-    void Dump(const SkPaintParamsKey&, int headerOffset);
-#endif
 
 } // namespace BlendShaderBlock
 
@@ -158,9 +143,6 @@ namespace BlendModeBlock {
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   SkBlendMode);
-#ifdef SK_DEBUG
-    void Dump(const SkPaintParamsKey&, int headerOffset);
-#endif
 
 } // namespace BlendModeBlock
 
