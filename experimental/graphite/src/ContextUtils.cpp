@@ -30,7 +30,7 @@ std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintD
 
     std::unique_ptr<SkUniformBlock> block = std::make_unique<SkUniformBlock>();
 
-    p.toKey(dict, SkBackend::kGraphite, builder, block.get());
+    p.toKey(dict, builder, block.get());
 
     SkPaintParamsKey key = builder->lockAsKey();
 

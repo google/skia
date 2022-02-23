@@ -12,8 +12,10 @@
 #include "src/core/SkShaderCodeDictionary.h"
 
 //--------------------------------------------------------------------------------------------------
-SkPaintParamsKeyBuilder::SkPaintParamsKeyBuilder(const SkShaderCodeDictionary* dict)
-        : fDict(dict) {
+SkPaintParamsKeyBuilder::SkPaintParamsKeyBuilder(const SkShaderCodeDictionary* dict,
+                                                 SkBackend backend)
+        : fDict(dict)
+        , fBackend(backend) {
 }
 
 #ifdef SK_DEBUG

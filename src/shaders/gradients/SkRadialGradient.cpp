@@ -84,7 +84,6 @@ std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
 #endif
 
 void SkRadialGradient::addToKey(SkShaderCodeDictionary* dict,
-                                SkBackend backend,
                                 SkPaintParamsKeyBuilder* builder,
                                 SkUniformBlock* uniformBlock) const {
     GradientShaderBlocks::GradientData data(kRadial_GradientType,
@@ -95,5 +94,5 @@ void SkRadialGradient::addToKey(SkShaderCodeDictionary* dict,
                                             fOrigColors4f,
                                             fOrigPos);
 
-    GradientShaderBlocks::AddToKey(dict, backend, builder, uniformBlock, data);
+    GradientShaderBlocks::AddToKey(dict, builder, uniformBlock, data);
 }

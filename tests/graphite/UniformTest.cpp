@@ -75,7 +75,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     auto recorder = context->makeRecorder();
     auto dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
 
-    SkPaintParamsKeyBuilder builder(dict);
+    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
     // Intentionally does not include ShaderType::kNone, which represents no fragment shading stage
     // and is thus not relevant to uniform extraction/caching.
@@ -99,8 +99,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
 
                 auto entry = dict->lookup(actualID);
 
-                SkPaintParamsKey expected = CreateKey(dict, SkBackend::kGraphite, &builder,
-                                                      s, tm, bm);
+                SkPaintParamsKey expected = CreateKey(dict, &builder, s, tm, bm);
 
                 REPORTER_ASSERT(reporter, expected == entry->paintParamsKey());
                 REPORTER_ASSERT(reporter, expectedNumUniforms == actualNumUniforms);

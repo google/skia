@@ -105,7 +105,6 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
 #endif
 
 void SkLinearGradient::addToKey(SkShaderCodeDictionary* dict,
-                                SkBackend backend,
                                 SkPaintParamsKeyBuilder* builder,
                                 SkUniformBlock* uniformBlock) const {
     GradientShaderBlocks::GradientData data(kLinear_GradientType,
@@ -116,5 +115,5 @@ void SkLinearGradient::addToKey(SkShaderCodeDictionary* dict,
                                             fOrigColors4f,
                                             fOrigPos);
 
-    GradientShaderBlocks::AddToKey(dict, backend, builder, uniformBlock, data);
+    GradientShaderBlocks::AddToKey(dict, builder, uniformBlock, data);
 }

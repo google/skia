@@ -257,10 +257,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     const SkShaderCodeDictionary::Entry* entry;
 
     {
-        SkPaintParamsKeyBuilder builder(dict);
+        SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
         SkPaintParamsKey key = CreateKey(dict,
-                                         SkBackend::kGraphite,
                                          &builder,
                                          ShaderCombo::ShaderType::kSolidColor,
                                          SkTileMode::kClamp,

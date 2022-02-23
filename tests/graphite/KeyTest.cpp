@@ -36,7 +36,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTest, reporter, context) {
 
     auto dict = context->priv().shaderCodeDictionary();
 
-    SkPaintParamsKeyBuilder builder(dict);
+    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
     // invalid code snippet ID
     {

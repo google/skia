@@ -285,7 +285,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     keys.reserve(draws->renderStepCount()); // will not exceed but may use less with occluded draws
 
     SkShaderCodeDictionary* dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
-    SkPaintParamsKeyBuilder builder(dict);
+    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
         if (occlusionCuller && occlusionCuller->isOccluded(draw.fClip.drawBounds(),

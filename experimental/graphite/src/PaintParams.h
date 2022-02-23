@@ -45,7 +45,6 @@ public:
     sk_sp<SkShader> refShader() const;
 
     void toKey(SkShaderCodeDictionary*,
-               SkBackend,
                SkPaintParamsKeyBuilder*,
                SkUniformBlock*) const;
 

@@ -45,7 +45,6 @@ public:
 #endif
 
     void addToKey(SkShaderCodeDictionary*,
-                  SkBackend,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*) const override;
 

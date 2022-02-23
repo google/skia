@@ -59,7 +59,6 @@ public:
 
     // TODO: make pure virtual
     virtual void addToKey(SkShaderCodeDictionary*,
-                          SkBackend,
                           SkPaintParamsKeyBuilder*,
                           SkUniformBlock*) const;
 

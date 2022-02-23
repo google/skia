@@ -75,14 +75,13 @@ void Context::preCompile(const PaintCombo& paintCombo) {
 
     SkShaderCodeDictionary* dict = fGlobalCache->shaderCodeDictionary();
 
-    SkPaintParamsKeyBuilder builder(dict);
+    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
     for (auto bm: paintCombo.fBlendModes) {
         for (auto& shaderCombo: paintCombo.fShaders) {
             for (auto shaderType: shaderCombo.fTypes) {
                 for (auto tm: shaderCombo.fTileModes) {
-                    SkPaintParamsKey key = CreateKey(dict, SkBackend::kGraphite, &builder,
-                                                     shaderType, tm, bm);
+                    SkPaintParamsKey key = CreateKey(dict, &builder, shaderType, tm, bm);
                     auto entry = dict->findOrCreate(std::move(key));
 
                     GraphicsPipelineDesc desc;

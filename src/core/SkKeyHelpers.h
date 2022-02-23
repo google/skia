@@ -27,7 +27,6 @@ class SkUniformBlock;
 namespace DepthStencilOnlyBlock {
 
     void AddToKey(SkShaderCodeDictionary*,
-                  SkBackend,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*);
 
@@ -36,7 +35,6 @@ namespace DepthStencilOnlyBlock {
 namespace SolidColorShaderBlock {
 
     void AddToKey(SkShaderCodeDictionary*,
-                  SkBackend,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   const SkColor4f&);
@@ -90,7 +88,6 @@ namespace GradientShaderBlocks {
     };
 
     void AddToKey(SkShaderCodeDictionary*,
-                  SkBackend,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   const GradientData&);
@@ -112,7 +109,6 @@ namespace ImageShaderBlock {
     };
 
     void AddToKey(SkShaderCodeDictionary*,
-                  SkBackend,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   const ImageData&);
@@ -129,7 +125,6 @@ namespace BlendShaderBlock {
     };
 
     void AddToKey(SkShaderCodeDictionary*,
-                  SkBackend,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   const BlendData&);
@@ -139,7 +134,6 @@ namespace BlendShaderBlock {
 namespace BlendModeBlock {
 
     void AddToKey(SkShaderCodeDictionary*,
-                  SkBackend,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*,
                   SkBlendMode);
@@ -149,7 +143,6 @@ namespace BlendModeBlock {
 #ifdef SK_GRAPHITE_ENABLED
 // Bridge between the combinations system and the SkPaintParamsKey
 SkPaintParamsKey CreateKey(SkShaderCodeDictionary*,
-                           SkBackend,
                            SkPaintParamsKeyBuilder*,
                            skgpu::ShaderCombo::ShaderType,
                            SkTileMode,

@@ -124,13 +124,14 @@ private:
 // being used in a tight loop to generate keys which can be recycled once they've been used to
 // find the dictionary's matching uniqueID. We don't expect the cost of copying the key's memory
 // into the dictionary to be prohibitive since that should be infrequent.
-// TODO: Make the builder carry the 'backend' rather than passing it everywhere separately
 class SkPaintParamsKeyBuilder {
 public:
-    SkPaintParamsKeyBuilder(const SkShaderCodeDictionary*);
+    SkPaintParamsKeyBuilder(const SkShaderCodeDictionary*, SkBackend);
     ~SkPaintParamsKeyBuilder() {
         SkASSERT(!this->isLocked());
     }
+
+    SkBackend backend() const { return fBackend; }
 
     void beginBlock(int codeSnippetID);
     void beginBlock(SkBuiltInCodeSnippetID id) { this->beginBlock(static_cast<int>(id)); }
@@ -182,6 +183,7 @@ private:
 
     bool fIsValid = true;
     const SkShaderCodeDictionary* fDict;
+    const SkBackend fBackend;
     std::vector<StackFrame> fStack;
 
     // TODO: It is probably overkill but we could encode the SkBackend in the first byte of
