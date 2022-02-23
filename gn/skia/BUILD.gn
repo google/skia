@@ -7,7 +7,7 @@ if (is_fuchsia) {
   import("//build/fuchsia/sdk.gni")
 }
 if (is_wasm) {
-  import("//gn/toolchain/wasm.gni")
+  import("../toolchain/wasm.gni")
 }
 
 declare_args() {
@@ -271,10 +271,7 @@ config("default") {
   }
 
   if (is_wasm) {
-    cflags += [
-      "--sysroot=$skia_emsdk_dir/upstream/emscripten/cache/sysroot",
-      "-sMAIN_MODULE=1",
-    ]
+    cflags += [ "--sysroot=$skia_emsdk_dir/upstream/emscripten/cache/sysroot" ]
     ldflags += [ "--sysroot=$skia_emsdk_dir/upstream/emscripten/cache/sysroot" ]
   }
 

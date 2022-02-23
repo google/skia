@@ -12,7 +12,6 @@ declare_args() {
   skia_emsdk_dir = rebase_path("../../third_party/externals/emsdk")
 }
 
-skia_wasm_toolchain = "//gn/toolchain:wasm"
 is_wasm = target_os == "wasm"
 
 # Defines a WASM library target.
@@ -38,7 +37,7 @@ template("skia_wasm_lib") {
   }
 
   group("$_lib_name") {
-    deps = [ ":${_lib_name}.js($skia_wasm_toolchain)" ]
+    deps = [ ":${_lib_name}.js" ]
   }
 }
 
