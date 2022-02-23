@@ -947,6 +947,46 @@ void Device::drawAtlas(const SkRSXform xform[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
+void Device::testingOnly_drawGlyphRunListWithSlug(SkCanvas* canvas,
+                                                  const SkGlyphRunList& glyphRunList,
+                                                  const SkPaint& paint) {
+    auto slug = this->convertGlyphRunListToSlug(glyphRunList, paint);
+    if (slug != nullptr) {
+        this->drawSlug(canvas, slug.get());
+    }
+}
+#endif
+
+#if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE)
+void Device::testingOnly_drawGlyphRunListWithSerializedSlug(SkCanvas* canvas,
+                                                            const SkGlyphRunList& glyphRunList,
+                                                            const SkPaint& paint) {
+    // This is not a text blob draw. Handle using glyphRunList conversion.
+    if (glyphRunList.blob() == nullptr) {
+        auto slug = this->convertGlyphRunListToSlug(glyphRunList, paint);
+        if (slug != nullptr) {
+            this->drawSlug(canvas, slug.get());
+        }
+        return;
+    }
+    auto srcSlug = GrSlug::ConvertBlob(canvas, *glyphRunList.blob(), glyphRunList.origin(), paint);
+
+    // There is nothing to draw.
+    if (srcSlug == nullptr) {
+        return;
+    }
+
+    auto dstSlugData = srcSlug->serialize();
+
+    auto dstSlug = GrSlug::Deserialize(dstSlugData->data(), dstSlugData->size());
+    SkASSERT(dstSlug != nullptr);
+    if (dstSlug != nullptr) {
+        this->drawSlug(canvas, dstSlug.get());
+    }
+}
+#endif
+
 void Device::onDrawGlyphRunList(SkCanvas* canvas,
                                 const SkGlyphRunList& glyphRunList,
                                 const SkPaint& paint) {
@@ -955,45 +995,13 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
     SkASSERT(!glyphRunList.hasRSXForm());
 
     #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
-        auto slug = this->convertGlyphRunListToSlug(glyphRunList, paint);
-        if (slug != nullptr) {
-            this->drawSlug(canvas, slug.get());
-        }
-        return;
+    this->testingOnly_drawGlyphRunListWithSlug(canvas, glyphRunList, paint);
     #elif defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE)
-
-        // This is not a text blob draw. Handle using glyphRunList conversion.
-        if (glyphRunList.blob() == nullptr) {
-            auto slug = this->convertGlyphRunListToSlug(glyphRunList, paint);
-            if (slug != nullptr) {
-                this->drawSlug(canvas, slug.get());
-            }
-            return;
-        }
-        auto srcSlug = GrSlug::ConvertBlob(
-                canvas, *glyphRunList.blob(), glyphRunList.origin(), paint);
-
-        // There is nothing to draw.
-        if (srcSlug == nullptr) { return; }
-
-        SkBinaryWriteBuffer writeBuffer;
-        srcSlug->flatten(writeBuffer);
-        auto data = writeBuffer.snapshotAsData();
-
-        SkReadBuffer readBuffer(data->data(), data->size());
-        auto dstSlug = GrSlug::MakeFromBuffer(readBuffer, nullptr);
-        SkASSERT(dstSlug != nullptr);
-        if (dstSlug != nullptr) {
-            this->drawSlug(canvas, dstSlug.get());
-        }
-
-        return;
-
+    this->testingOnly_drawGlyphRunListWithSerializedSlug(canvas, glyphRunList, paint);
     #else
-            fSurfaceDrawContext->drawGlyphRunList(
-                    canvas, this->clip(), this->asMatrixProvider(), glyphRunList, paint);
-            return;
-     #endif
+    fSurfaceDrawContext->drawGlyphRunList(
+            canvas, this->clip(), this->asMatrixProvider(), glyphRunList, paint);
+    #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -210,7 +210,17 @@ private:
     bool forceConservativeRasterClip() const override { return true; }
 
     const GrClip* clip() const { return &fClip; }
+    #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
+    void testingOnly_drawGlyphRunListWithSlug(SkCanvas* canvas,
+                                              const SkGlyphRunList& glyphRunList,
+                                              const SkPaint& paint);
+    #endif
 
+    #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE)
+    void testingOnly_drawGlyphRunListWithSerializedSlug(SkCanvas* canvas,
+                                                        const SkGlyphRunList& glyphRunList,
+                                                        const SkPaint& paint);
+    #endif
     // If not null, dstClip must be contained inside dst and will also respect the edge AA flags.
     // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.
     void drawImageQuad(const SkImage*, const SkRect* src, const SkRect* dst,
