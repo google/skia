@@ -9,10 +9,6 @@
       android:label="Skottie"
       android:theme="@android:style/Theme.Holo.Light">
     <activity
-        android:name=".CorrectnessActivity"
-        android:exported="true">
-    </activity>
-    <activity
         android:name=".SkottieActivity"
         android:exported="true">
     </activity>
