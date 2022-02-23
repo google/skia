@@ -8,6 +8,7 @@
 #ifndef GrSDFTControl_DEFINED
 #define GrSDFTControl_DEFINED
 
+#include "include/core/SkFlattenable.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkScalar.h"
 
@@ -22,6 +23,8 @@ class GrSDFTMatrixRange {
 public:
     GrSDFTMatrixRange(SkScalar min, SkScalar max) : fMatrixMin{min}, fMatrixMax{max} {}
     bool matrixInRange(const SkMatrix& matrix) const;
+    void flatten(SkWriteBuffer& buffer) const;
+    static GrSDFTMatrixRange MakeFromBuffer(SkReadBuffer& buffer);
 
 private:
     const SkScalar fMatrixMin,

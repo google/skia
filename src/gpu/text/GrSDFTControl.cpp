@@ -14,6 +14,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurfaceProps.h"
 #include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkReadBuffer.h"
 
 #include <tuple>
 
@@ -121,4 +122,15 @@ GrSDFTControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix) const 
 bool GrSDFTMatrixRange::matrixInRange(const SkMatrix& matrix) const {
     SkScalar maxScale = matrix.getMaxScale();
     return fMatrixMin < maxScale && maxScale <= fMatrixMax;
+}
+
+void GrSDFTMatrixRange::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeScalar(fMatrixMin);
+    buffer.writeScalar(fMatrixMax);
+}
+
+GrSDFTMatrixRange GrSDFTMatrixRange::MakeFromBuffer(SkReadBuffer& buffer) {
+    SkScalar min = buffer.readScalar();
+    SkScalar max = buffer.readScalar();
+    return GrSDFTMatrixRange{min, max};
 }
