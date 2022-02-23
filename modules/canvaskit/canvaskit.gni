@@ -19,6 +19,7 @@ declare_args() {
   skia_canvaskit_include_viewer = false
   skia_canvaskit_force_tracing = false
   skia_canvaskit_profile_build = false
+  skia_canvaskit_legacy_draw_vertices_blend_mode = false
 }
 
 # Assert that skia_canvaskit_profile_build implies release mode.

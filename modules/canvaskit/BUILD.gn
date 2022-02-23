@@ -351,7 +351,10 @@ skia_wasm_lib("canvaskit") {
   if (!skia_canvaskit_enable_alias_font) {
     defines += [ "CANVASKIT_NO_ALIAS_FONT" ]
   }
-
+  if (skia_canvaskit_legacy_draw_vertices_blend_mode) {
+    # https://github.com/flutter/flutter/issues/98531
+    defines += [ "SK_LEGACY_IGNORE_DRAW_VERTICES_BLEND_WITH_NO_SHADER" ]
+  }
   if (!skia_canvaskit_enable_font) {
     defines += [ "CK_NO_FONTS" ]
   }

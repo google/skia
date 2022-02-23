@@ -138,6 +138,11 @@ if [[ $@ == *no_alias_font* ]]; then
   ENABLE_ALIAS_FONT="false"
 fi
 
+LEGACY_DRAW_VERTICES="false"
+if [[ $@ == *legacy_draw_vertices* ]]; then
+  LEGACY_DRAW_VERTICES="true"
+fi
+
 GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
 if [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
   echo "Using the primitive shaper instead of the harfbuzz/icu one"
@@ -242,6 +247,7 @@ echo "Compiling"
   skia_canvaskit_enable_font=${ENABLE_FONT} \
   skia_canvaskit_enable_embedded_font=${ENABLE_EMBEDDED_FONT} \
   skia_canvaskit_enable_alias_font=${ENABLE_ALIAS_FONT} \
+  skia_canvaskit_legacy_draw_vertices_blend_mode=${LEGACY_DRAW_VERTICES} \
   skia_canvaskit_enable_paragraph=${ENABLE_PARAGRAPH}"
 
 ${NINJA} -C ${BUILD_DIR} canvaskit.js
