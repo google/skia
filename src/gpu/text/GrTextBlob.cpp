@@ -2937,14 +2937,13 @@ GrSubRunOwner DirectMaskSubRunSlug::MakeFromBuffer(const GrTextReferenceFrame* r
                                                    SkReadBuffer& buffer,
                                                    GrSubRunAllocator* alloc,
                                                    const SkStrikeClient* client) {
-
-    GrMaskFormat format = (GrMaskFormat)buffer.readInt();
+    GrMaskFormat maskType = (GrMaskFormat)buffer.readInt();
     SkGlyphRect runBounds;
     pun_read(buffer, &runBounds);
 
     int glyphCount = buffer.readInt();
-    SkASSERT(0 < glyphCount);
-    if (glyphCount <= 0) { return nullptr; }
+    if (!buffer.validate(0 < glyphCount)) { return nullptr; }
+    if (!buffer.validateCanReadN<DevicePosition>(glyphCount)) { return nullptr; }
     DevicePosition* positionsData = alloc->makePODArray<DevicePosition>(glyphCount);
     for (int i = 0; i < glyphCount; ++i) {
         pun_read(buffer, &positionsData[i]);
@@ -2952,12 +2951,11 @@ GrSubRunOwner DirectMaskSubRunSlug::MakeFromBuffer(const GrTextReferenceFrame* r
     SkSpan<DevicePosition> positions(positionsData, glyphCount);
 
     auto glyphVector = GrGlyphVector::MakeFromBuffer(buffer, client, alloc);
-    SkASSERT(glyphVector.has_value());
-    if (!glyphVector) { return nullptr; }
-    SkASSERT(SkTo<int>(glyphVector->glyphs().size()) == glyphCount);
-    if (SkTo<int>(glyphVector->glyphs().size()) != glyphCount) { return nullptr; }
+    if (!buffer.validate(glyphVector.has_value())) { return nullptr; }
+    if (!buffer.validate(SkCount(glyphVector->glyphs()) == glyphCount)) { return nullptr; }
+    SkASSERT(buffer.isValid());
     return alloc->makeUnique<DirectMaskSubRunSlug>(
-            referenceFrame, format, runBounds, positions, std::move(glyphVector.value()));
+            referenceFrame, maskType, runBounds, positions, std::move(glyphVector.value()));
 }
 
 template <typename T>
