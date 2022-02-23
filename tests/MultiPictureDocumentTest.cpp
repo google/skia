@@ -16,6 +16,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"

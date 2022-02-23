@@ -9,6 +9,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint3.h"
+#include "include/core/SkRRect.h"
 #include "include/utils/SkShadowUtils.h"
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"

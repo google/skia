@@ -8,6 +8,7 @@
 #include "include/private/SkPathRef.h"
 
 #include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTo.h"
@@ -540,6 +541,21 @@ SkRRect SkPathRef::getRRect() const {
     rrect.setRectRadii(bounds, radii);
     return rrect;
 }
+
+bool SkPathRef::isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const {
+        if (fIsRRect) {
+            if (rrect) {
+                *rrect = this->getRRect();
+            }
+            if (isCCW) {
+                *isCCW = SkToBool(fRRectOrOvalIsCCW);
+            }
+            if (start) {
+                *start = fRRectOrOvalStartIdx;
+            }
+        }
+        return SkToBool(fIsRRect);
+    }
 
 ///////////////////////////////////////////////////////////////////////////////
 
