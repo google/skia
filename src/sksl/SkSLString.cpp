@@ -6,7 +6,6 @@
  */
 
 #include "include/private/SkSLString.h"
-#include "src/sksl/SkSLUtil.h"
 #include <algorithm>
 #include <cinttypes>
 #include <cmath>

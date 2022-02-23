@@ -14,10 +14,6 @@
 #include <string>
 #include <string_view>
 
-#ifndef SKSL_STANDALONE
-#include "include/core/SkString.h"
-#endif
-
 namespace SkSL {
 
 bool stod(std::string_view s, SKSL_FLOAT* value);
