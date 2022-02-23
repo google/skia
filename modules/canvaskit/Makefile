@@ -157,3 +157,6 @@ bazel_canvaskit_release:
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.js build/canvaskit.js
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.wasm build/canvaskit.wasm
 	ls -l build
+
+bazel_test_canvaskit:
+	bazelisk test :hello_world --compilation_mode opt --spawn_strategy=local --test_output=all

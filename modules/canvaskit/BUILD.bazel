@@ -434,7 +434,14 @@ bool_flag(
 karma_test(
     name = "hello_world",
     srcs = [
+        ":canvaskit_wasm/canvaskit.js",
+        # We want to make sure the CanvasKit JS is loaded before the loader script
+        "tests/bazel_canvaskitinit.js",
+        # which is loaded before the tests...
         "tests/hello_world.js",
     ],
     config_file = "karma.bazel.js",
+    static_files = [
+        ":canvaskit_wasm/canvaskit.wasm",
+    ],
 )
