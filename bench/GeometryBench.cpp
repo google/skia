@@ -6,6 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"

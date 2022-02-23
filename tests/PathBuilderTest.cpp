@@ -7,6 +7,7 @@
 
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
+#include "include/core/SkRRect.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/Test.h"
 
