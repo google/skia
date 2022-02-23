@@ -71,9 +71,12 @@ echo "Compiling bitcode"
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-sMAIN_MODULE=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
+    \"-DSKNX_NO_SIMD\",
+    \"-DSK_DISABLE_AAA\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
-    \"-DSK_ENABLE_DUMP_GPU\", \"-DSK_DISABLE_LEGACY_SHADERCONTEXT\",
+    \"-DSK_ENABLE_DUMP_GPU\",
+    \"-DSK_DISABLE_LEGACY_SHADERCONTEXT\",
+    \"-DSK_BUILD_FOR_DEBUGGER\",
     ${EXTRA_CFLAGS}
   ] \
   is_debug=false \
