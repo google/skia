@@ -111,7 +111,7 @@ generated_cc_atom(
         "//include/private:SkTArray_hdr",
         "//include/private:SkTHash_hdr",
         "//src/gpu:GrCaps_hdr",
-        "//src/gpu:GrSwizzle_hdr",
+        "//src/gpu:Swizzle_hdr",
     ],
 )
 
@@ -495,7 +495,7 @@ generated_cc_atom(
         ":GrGLDefines_hdr",
         "//include/core:SkScalar_hdr",
         "//include/private:GrGLTypesPriv_hdr",
-        "//src/gpu:GrSwizzle_hdr",
+        "//src/gpu:Swizzle_hdr",
     ],
 )
 

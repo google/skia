@@ -367,10 +367,7 @@ generated_cc_atom(
     name = "SkSLString_hdr",
     hdrs = ["SkSLString.h"],
     visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkSLDefines_hdr",
-        "//include/core:SkString_hdr",
-    ],
+    deps = [":SkSLDefines_hdr"],
 )
 
 generated_cc_atom(

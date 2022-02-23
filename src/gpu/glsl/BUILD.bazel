@@ -145,7 +145,7 @@ generated_cc_atom(
         "//include/sksl:DSL_hdr",
         "//src/gpu:GrShaderCaps_hdr",
         "//src/gpu:GrShaderVar_hdr",
-        "//src/gpu:GrSwizzle_hdr",
+        "//src/gpu:Swizzle_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
         "//src/sksl/ir:SkSLVarDeclarations_hdr",
     ],
@@ -158,7 +158,7 @@ generated_cc_atom(
     deps = [
         ":GrGLSLProgramDataManager_hdr",
         "//src/gpu:GrShaderVar_hdr",
-        "//src/gpu:GrSwizzle_hdr",
+        "//src/gpu:Swizzle_hdr",
     ],
 )
 

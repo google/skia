@@ -7,10 +7,13 @@
 
 #include "src/shaders/gradients/SkRadialGradient.h"
 
-#include "src/core/SkKeyHelpers.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+
+#ifdef SK_ENABLE_SKSL
+#include "src/core/SkKeyHelpers.h"
+#endif
 
 namespace {
 
@@ -83,6 +86,7 @@ std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
 
 #endif
 
+#ifdef SK_ENABLE_SKSL
 void SkRadialGradient::addToKey(SkShaderCodeDictionary* dict,
                                 SkPaintParamsKeyBuilder* builder,
                                 SkUniformBlock* uniformBlock) const {
@@ -96,3 +100,4 @@ void SkRadialGradient::addToKey(SkShaderCodeDictionary* dict,
 
     GradientShaderBlocks::AddToKey(dict, builder, uniformBlock, data);
 }
+#endif

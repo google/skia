@@ -11,7 +11,6 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
-#include "src/core/SkKeyHelpers.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMipmapAccessor.h"
@@ -26,6 +25,10 @@
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkEmptyShader.h"
 #include "src/shaders/SkTransformShader.h"
+
+#ifdef SK_ENABLE_SKSL
+#include "src/core/SkKeyHelpers.h"
+#endif
 
 SkM44 SkImageShader::CubicResamplerMatrix(float B, float C) {
 #if 0
@@ -373,11 +376,13 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 
 #endif
 
+#ifdef SK_ENABLE_SKSL
 void SkImageShader::addToKey(SkShaderCodeDictionary* dict,
                              SkPaintParamsKeyBuilder* builder,
                              SkUniformBlock* uniformBlock) const {
     ImageShaderBlock::AddToKey(dict, builder, uniformBlock, { fTileModeX, fTileModeY });
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "src/core/SkImagePriv.h"

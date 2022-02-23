@@ -94,7 +94,6 @@ cc_library(
         ":SkImageFilter_src",
         ":SkImageGenerator_src",
         ":SkImageInfo_src",
-        ":SkKeyHelpers_src",
         ":SkLatticeIter_src",
         ":SkLineClipper_src",
         ":SkLocalMatrixImageFilter_src",
@@ -210,10 +209,14 @@ cc_library(
     ],
 )
 
+# These are sources that are only needed if SkSL is enabled (GPU backend or SkVM).
 cc_library(
     name = "sksl_srcs",
     deps = [
+        ":SkKeyHelpers_src",
+        ":SkPaintParamsKey_src",
         ":SkRuntimeEffect_src",
+        ":SkShaderCodeDictionary_src",
     ],
 )
 
@@ -3126,8 +3129,6 @@ generated_cc_atom(
         ":SkBlenderBase_hdr",
         ":SkColorFilterBase_hdr",
         ":SkColorSpacePriv_hdr",
-        ":SkKeyHelpers_hdr",
-        ":SkPaintParamsKey_hdr",
         ":SkPaintPriv_hdr",
         ":SkXfermodePriv_hdr",
         "//include/core:SkPaint_hdr",
@@ -5656,7 +5657,9 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkBuiltInCodeSnippetID_hdr",
+        "//include/core:SkSpan_hdr",
         "//include/core:SkTypes_hdr",
+        "//include/private:SkTArray_hdr",
     ],
 )
 

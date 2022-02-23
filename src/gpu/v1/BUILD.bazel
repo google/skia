@@ -110,6 +110,7 @@ generated_cc_atom(
         "//src/core:SkStroke_hdr",
         "//src/core:SkTLazy_hdr",
         "//src/core:SkVerticesPriv_hdr",
+        "//src/core:SkWriteBuffer_hdr",
         "//src/gpu:GrBlurUtils_hdr",
         "//src/gpu:GrDirectContextPriv_hdr",
         "//src/gpu:GrGpu_hdr",
@@ -350,8 +351,8 @@ generated_cc_atom(
         "//include/core:SkSize_hdr",
         "//include/private:GrTypesPriv_hdr",
         "//src/gpu:GrImageInfo_hdr",
-        "//src/gpu:GrSwizzle_hdr",
         "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu:Swizzle_hdr",
         "//src/gpu/ops:OpsTask_hdr",
     ],
 )

@@ -13,6 +13,8 @@
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkShaderBase.h"
 
+class SkShaderCodeDictionary;
+
 class SkImageShader : public SkShaderBase {
 public:
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
@@ -43,11 +45,11 @@ public:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
-
+#ifdef SK_ENABLE_SKSL
     void addToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*) const override;
-
+#endif
     static SkM44 CubicResamplerMatrix(float B, float C);
 
 private:

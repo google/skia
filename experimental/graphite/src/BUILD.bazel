@@ -100,6 +100,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":ContextPriv_hdr",
+        ":GlobalCache_hdr",
         ":Gpu_hdr",
     ],
 )
@@ -366,6 +367,7 @@ generated_cc_atom(
         "//experimental/graphite/include:Recorder_hdr",
         "//experimental/graphite/src/geom:BoundsManager_hdr",
         "//src/core:SkMathPriv_hdr",
+        "//src/core:SkPaintParamsKey_hdr",
         "//src/core:SkTBlockList_hdr",
         "//src/core:SkUniformData_hdr",
         "//src/gpu:BufferWriter_hdr",
@@ -482,7 +484,10 @@ generated_cc_atom(
     name = "Image_Graphite_hdr",
     hdrs = ["Image_Graphite.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//src/image:SkImage_Base_hdr"],
+    deps = [
+        ":TextureProxyView_hdr",
+        "//src/image:SkImage_Base_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -942,5 +947,17 @@ generated_cc_atom(
         ":UploadTask_hdr",
         "//experimental/graphite/include:Recorder_hdr",
         "//src/core:SkConvertPixels_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextureProxyView_hdr",
+    hdrs = ["TextureProxyView.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TextureProxy_hdr",
+        "//experimental/graphite/include:GraphiteTypes_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//src/gpu:Swizzle_hdr",
     ],
 )

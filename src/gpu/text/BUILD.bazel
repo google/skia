@@ -106,6 +106,8 @@ generated_cc_atom(
     deps = [
         "//include/core:SkCanvas_hdr",
         "//include/private/chromium:GrSlug_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
     ],
 )
 
@@ -167,10 +169,12 @@ generated_cc_atom(
         "//include/gpu:GrRecordingContext_hdr",
         "//include/private:SkTemplates_hdr",
         "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
         "//src/core:SkFontPriv_hdr",
         "//src/core:SkMaskFilterBase_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkPaintPriv_hdr",
+        "//src/core:SkReadBuffer_hdr",
         "//src/core:SkStrikeCache_hdr",
         "//src/core:SkStrikeSpec_hdr",
         "//src/gpu:GrBlurUtils_hdr",
@@ -235,6 +239,7 @@ generated_cc_atom(
     deps = [
         ":GrAtlasManager_hdr",
         ":GrGlyphVector_hdr",
+        "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
         "//src/core:SkReadBuffer_hdr",
         "//src/core:SkStrikeCache_hdr",
         "//src/core:SkStrikeSpec_hdr",

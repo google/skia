@@ -274,6 +274,7 @@ generated_cc_atom(
     hdrs = ["SkFontArguments.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":SkColor_hdr",
         ":SkScalar_hdr",
         ":SkTypes_hdr",
     ],

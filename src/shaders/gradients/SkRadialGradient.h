@@ -10,6 +10,8 @@
 
 #include "src/shaders/gradients/SkGradientShaderPriv.h"
 
+class SkShaderCodeDictionary;
+
 class SkRadialGradient final : public SkGradientShaderBase {
 public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
@@ -18,10 +20,11 @@ public:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
+#ifdef SK_ENABLE_SKSL
     void addToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
                   SkUniformBlock*) const override;
-
+#endif
 protected:
     SkRadialGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;

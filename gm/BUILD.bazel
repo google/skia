@@ -1927,8 +1927,8 @@ generated_cc_atom(
         "//include/private:SkColorData_hdr",
         "//src/core:SkCanvasPriv_hdr",
         "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu:GrSwizzle_hdr",
         "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu:Swizzle_hdr",
     ],
 )
 
@@ -5755,6 +5755,7 @@ generated_cc_atom(
     deps = [
         ":gm_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkMaskFilter_hdr",
         "//include/core:SkPaint_hdr",
         "//include/core:SkPathEffect_hdr",
         "//include/core:SkPath_hdr",
@@ -5763,6 +5764,7 @@ generated_cc_atom(
         "//include/core:SkScalar_hdr",
         "//include/core:SkTypes_hdr",
         "//include/effects:SkDashPathEffect_hdr",
+        "//include/effects:SkImageFilters_hdr",
     ],
 )
 
@@ -9381,6 +9383,7 @@ generated_cc_atom(
         "//include/gpu:GrRecordingContext_hdr",
         "//include/gpu:GrTypes_hdr",
         "//include/private:GrTypesPriv_hdr",
+        "//include/private:SkHalf_hdr",
         "//include/private:SkTArray_hdr",
         "//include/private:SkTDArray_hdr",
         "//include/private:SkTPin_hdr",
@@ -9614,5 +9617,28 @@ generated_cc_atom(
         "//src/gpu:SkGr_hdr",
         "//src/gpu/effects:GrYUVtoRGBEffect_hdr",
         "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "palette_src",
+    srcs = ["palette.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":gm_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkSize_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/core:SkTypes_hdr",
+        "//tools:Resources_hdr",
+        "//tools:ToolUtils_hdr",
     ],
 )

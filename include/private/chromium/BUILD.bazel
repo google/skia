@@ -5,6 +5,7 @@ generated_cc_atom(
     hdrs = ["GrSlug.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkData_hdr",
         "//include/core:SkRect_hdr",
         "//include/core:SkRefCnt_hdr",
     ],
