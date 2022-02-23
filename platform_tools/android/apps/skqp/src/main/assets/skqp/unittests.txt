@@ -1,7 +1,114 @@
+# This file is a list of regular expressions, one per line.
+# Any test name matching an expression will be excluded from the set run by SKQP.
+# Empty lines and comments starting with # are ignored.
+# This is parsed by tools/skqp/src/skqp.cpp
+# The sheet at go/skqp-cts-tests was the basis of this file.
+
 # Exclude all unit tests that end with the ES3 suffix because Android does not
 # require ES3 support.
 .+ES3
-# These tests fail or crash on a Pixel 6 Pro
+
 SkRemoteGlyphCache_.+
 ApplyGamma
 ResourceAllocatorTest
+ClipStack_SWMask
+ComposedImageFilter.+
+DDL.+
+DSL.+
+GpuDrawPath
+GpuRectanizer
+
+# Don't test Ganesh internals
+GrContextDump
+GrContextFactory_abandon
+GrContextFactory_executorAndTaskGroup
+GrThreadSafeCache.+
+
+ImageFilter.+
+MorphologyFilterRadiusWithMirrorCTM_Gpu
+
+# Android doesn't use promise images
+PromiseImage*
+
+SkSLArrayCast_GPU
+SkSLArrayComparison_GPU
+SkSLArrayConstructors_GPU
+SkSLArrayFollowedByScalar_GPU
+SkSLArrayNarrowingConversions_GPU
+SkSLConstArray_GPU
+SkSLDeadLoopVariable_GPU
+SkSLDoWhileBodyMustBeInlinedIntoAScope_GPU
+SkSLDoWhileControlFlow_GPU
+SkSLDoWhileTestCannotBeInlined_GPU
+SkSLEmptyBlocksES3_GPU
+SkSLForInitializerExpressionsCanBeInlined_GPU
+SkSLHexUnsigned_GPU
+SkSLIntFoldingES3_GPU
+SkSLIntrinsicAbsInt_GPU
+SkSLIntrinsicClampInt_GPU
+SkSLIntrinsicClampUInt_GPU
+SkSLIntrinsicDFdx_GPU
+SkSLIntrinsicDFdy_GPU
+SkSLIntrinsicDeterminant_GPU
+SkSLIntrinsicFloatBitsToInt_GPU
+SkSLIntrinsicFloatBitsToUint_GPU
+SkSLIntrinsicFwidth_GPU
+SkSLIntrinsicIntBitsToFloat_GPU
+SkSLIntrinsicIsInf_GPU
+SkSLIntrinsicMatrixCompMultES3_GPU
+SkSLIntrinsicMaxInt_GPU
+SkSLIntrinsicMinInt_GPU
+SkSLIntrinsicModf_GPU
+SkSLIntrinsicOuterProduct_GPU
+SkSLIntrinsicRoundEven_GPU
+SkSLIntrinsicRound_GPU
+SkSLIntrinsicSignInt_GPU
+SkSLIntrinsicTranspose_GPU
+SkSLIntrinsicTrunc_GPU
+SkSLIntrinsicUintBitsToFloat_GPU
+SkSLMatricesNonsquare_GPU
+SkSLMatrixFoldingES3_GPU
+SkSLOperatorsES3_GPU
+SkSLResizeMatrixNonsquare_GPU
+SkSLReturnsValueOnEveryPathES3_GPU
+SkSLScalarConversionConstructorsES3_GPU
+SkSLStaticSwitchInline_GPU
+SkSLStaticSwitch_GPU
+SkSLSwizzleByIndex_GPU
+SkSLWhileBodyMustBeInlinedIntoAScope_GPU
+SkSLWhileLoopControlFlow_GPU
+SkSLWhileTestCannotBeInlined_GPU
+
+SkipCopyTaskTest
+SkipOpsTaskTest
+SmallBoxBlurBug
+SrcSrcOverBatchTest
+
+# Tests chaining/batching logic, not actual execution
+TextureOpTest
+
+# These tests mostly stress the CPU-side math of triangulating, not the GPU drawing triangles, which hopefully we can trust to just work
+TriangulatingPath.+
+
+VkDRMModifierTest
+VkImageLayoutTest
+VkProtectedContext_AsyncReadFromProtectedSurface
+VkProtectedContext_CreateNonprotectedContext
+VkProtectedContext_CreateNonprotectedTextureInProtectedContext
+VkProtectedContext_CreateProtectedContext
+VkProtectedContext_CreateProtectedSkSurface
+VkProtectedContext_CreateProtectedTextureInNonprotectedContext
+VkProtectedContext_DDLMakeRenderTargetTest
+VkProtectedContext_DDLSurfaceCharacterizationTest
+VkProtectedContext_DrawProtectedImageOnProtectedSurface
+VkProtectedContext_DrawRectangle
+VkProtectedContext_DrawRectangleWithAntiAlias
+VkProtectedContext_DrawRectangleWithBlendMode
+VkProtectedContext_DrawRectangleWithFilter
+VkProtectedContext_DrawThinPath
+VkProtectedContext_ReadFromProtectedSurface
+VkProtectedContext_SaveLayer
+VkWrapTests
+
+XfermodeImageFilterCroppedInput_Gpu
+skbug5221_GPU
