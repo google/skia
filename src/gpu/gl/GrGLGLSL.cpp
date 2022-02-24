@@ -50,17 +50,17 @@ bool GrGLGetGLSLGeneration(const GrGLDriverInfo& info, SkSL::GLSLGeneration* gen
         } else if (ver >= GR_GLSL_VER(3,10)) {
             *generation = SkSL::GLSLGeneration::k310es;
         } else if (ver >= GR_GLSL_VER(3,00)) {
-            *generation = SkSL::GLSLGeneration::k330;
+            *generation = SkSL::GLSLGeneration::k300es;
         } else {
-            *generation = SkSL::GLSLGeneration::k110;
+            *generation = SkSL::GLSLGeneration::k100es;
         }
         return true;
     } else if (GR_IS_GR_WEBGL(info.fStandard)) {
         SkASSERT(ver >= GR_GL_VER(1,0));
         if (ver >= GR_GLSL_VER(2,0)) {
-            *generation = SkSL::GLSLGeneration::k330;  // ES 3.0
+            *generation = SkSL::GLSLGeneration::k300es;
         } else {
-            *generation = SkSL::GLSLGeneration::k110;
+            *generation = SkSL::GLSLGeneration::k100es;
         }
         return true;
     }
