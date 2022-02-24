@@ -23,6 +23,7 @@
 #include "src/core/SkTInternalLList.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSubRunAllocator.h"
 #include "src/gpu/ops/GrOp.h"
 
@@ -262,6 +263,7 @@ private:
                             sk_sp<SkStrike>&& strike) override;
     void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkFont& runFont,
+                            const SkDescriptor& descriptor,
                             SkScalar strikeToSourceScale) override;
     void processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                 const SkFont& runFont,
@@ -315,6 +317,7 @@ public:
                             SkScalar strikeToSourceScale) override;
     void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkFont& runFont,
+                            const SkDescriptor& descriptor,
                             SkScalar strikeToSourceScale) override;
     void processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                 const SkFont& runFont,

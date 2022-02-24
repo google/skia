@@ -406,18 +406,20 @@ std::tuple<bool, SkVector> can_use_direct(
 // -- PathOpSubmitter ------------------------------------------------------------------------------
 // Shared code for submitting GPU ops for drawing glyphs as paths.
 class PathOpSubmitter {
-    struct PathAndPosition;
+    union Variant;
+
 public:
     PathOpSubmitter(bool isAntiAliased,
                     SkScalar strikeToSourceScale,
-                    SkSpan<PathAndPosition> paths,
-                    std::unique_ptr<PathAndPosition[], GrSubRunAllocator::ArrayDestroyer> pathData);
-
-    PathOpSubmitter(PathOpSubmitter&& that);
+                    SkSpan<SkPoint> positions,
+                    SkSpan<SkGlyphID> glyphIDs,
+                    std::unique_ptr<SkPath[], GrSubRunAllocator::ArrayDestroyer> paths,
+                    const SkDescriptor& descriptor);
 
     static PathOpSubmitter Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                 bool isAntiAliased,
                                 SkScalar strikeToSourceScale,
+                                const SkDescriptor& descriptor,
                                 GrSubRunAllocator* alloc);
 
     void submitOps(SkCanvas*,
@@ -428,50 +430,52 @@ public:
                    skgpu::v1::SurfaceDrawContext* sdc) const;
 
 private:
-    struct PathAndPosition {
-        SkPath fPath;
-        SkPoint fPosition;
-        // Support for serialization.
-        SkPackedGlyphID fPackedID;
-    };
     const bool fIsAntiAliased;
     const SkScalar fStrikeToSourceScale;
-    const SkSpan<const PathAndPosition> fPaths;
-    std::unique_ptr<PathAndPosition[], GrSubRunAllocator::ArrayDestroyer> fPathData;
+    const SkSpan<const SkPoint> fPositions;
+    const SkSpan<const SkGlyphID> fGlyphIDs;
+    std::unique_ptr<SkPath[], GrSubRunAllocator::ArrayDestroyer> fPaths;
+    const SkAutoDescriptor fDescriptor;
 };
 
 PathOpSubmitter::PathOpSubmitter(
-        bool isAntiAliased,
-        SkScalar strikeToSourceScale,
-        SkSpan<PathAndPosition> paths,
-        std::unique_ptr<PathAndPosition[], GrSubRunAllocator::ArrayDestroyer> pathData)
-            : fIsAntiAliased{isAntiAliased}
-            , fStrikeToSourceScale{strikeToSourceScale}
-            , fPaths{paths}
-            , fPathData{std::move(pathData)} {
-    SkASSERT(!fPaths.empty());
+    bool isAntiAliased,
+    SkScalar strikeToSourceScale,
+    SkSpan<SkPoint> positions,
+    SkSpan<SkGlyphID> glyphIDs,
+    std::unique_ptr<SkPath[], GrSubRunAllocator::ArrayDestroyer> paths,
+    const SkDescriptor& descriptor)
+        : fIsAntiAliased{isAntiAliased}
+        , fStrikeToSourceScale{strikeToSourceScale}
+        , fPositions{positions}
+        , fGlyphIDs{glyphIDs}
+        , fPaths{std::move(paths)}
+        , fDescriptor {descriptor} {
+    SkASSERT(!fPositions.empty());
 }
-
-PathOpSubmitter::PathOpSubmitter(PathOpSubmitter&& that)
-    : fIsAntiAliased{that.fIsAntiAliased}
-    , fStrikeToSourceScale{that.fStrikeToSourceScale}
-    , fPaths{that.fPaths}
-    , fPathData{std::move(that.fPathData)} {}
 
 PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                       bool isAntiAliased,
                                       SkScalar strikeToSourceScale,
+                                      const SkDescriptor& descriptor,
                                       GrSubRunAllocator* alloc) {
-    auto pathData = alloc->makeUniqueArray<PathAndPosition>(
-            accepted.size(),
-            [&](int i){
-                auto [variant, pos] = accepted[i];
-                const SkGlyph& glyph = *variant.glyph();
-                return PathAndPosition{*glyph.path(), pos, glyph.getPackedID()};
-            });
-    SkSpan<PathAndPosition> paths{pathData.get(), accepted.size()};
+    int glyphCount = SkCount(accepted);
+    SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
+    SkGlyphID* glyphIDs = alloc->makePODArray<SkGlyphID>(glyphCount);
+    auto paths = alloc->makeUniqueArray<SkPath>(glyphCount);
 
-    return PathOpSubmitter{isAntiAliased, strikeToSourceScale, paths, std::move(pathData)};
+    for (auto [i, variant, pos] : SkMakeEnumerate(accepted)) {
+        positions[i] = pos;
+        glyphIDs[i] = variant.glyph()->getGlyphID();
+        paths[i] = *variant.glyph()->path();
+    }
+
+    return PathOpSubmitter{isAntiAliased,
+                           strikeToSourceScale,
+                           SkMakeSpan(positions, glyphCount),
+                           SkMakeSpan(glyphIDs, glyphCount),
+                           std::move(paths),
+                           descriptor};
 }
 
 void PathOpSubmitter::submitOps(SkCanvas* canvas,
@@ -496,9 +500,7 @@ void PathOpSubmitter::submitOps(SkCanvas* canvas,
     SkMatrix strikeToSource = SkMatrix::Scale(fStrikeToSourceScale, fStrikeToSourceScale);
     strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
     if (!needsExactCTM) {
-        for (const auto& pathPos : fPaths) {
-            const SkPath& path = pathPos.fPath;
-            const SkPoint pos = pathPos.fPosition;
+        for (auto [path, pos] : SkMakeZip(fPaths.get(), fPositions)) {
             // Transform the glyph to source space.
             SkMatrix pathMatrix = strikeToSource;
             pathMatrix.postTranslate(pos.x(), pos.y());
@@ -510,9 +512,7 @@ void PathOpSubmitter::submitOps(SkCanvas* canvas,
     } else {
         // Transform the path to device because the deviceMatrix must be unchanged to
         // draw effect, filter or shader paths.
-        for (const auto& pathPos : fPaths) {
-            const SkPath& path = pathPos.fPath;
-            const SkPoint pos = pathPos.fPosition;
+        for (auto [path, pos] : SkMakeZip(fPaths.get(), fPositions)) {
             // Transform the glyph to source space.
             SkMatrix pathMatrix = strikeToSource;
             pathMatrix.postTranslate(pos.x(), pos.y());
@@ -533,9 +533,11 @@ public:
     static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               bool isAntiAliased,
                               SkScalar strikeToSourceScale,
+                              const SkDescriptor& descriptor,
                               GrSubRunAllocator* alloc) {
         return alloc->makeUnique<PathSubRun>(
-                PathOpSubmitter::Make(accepted, isAntiAliased, strikeToSourceScale, alloc));
+                PathOpSubmitter::Make(
+                        accepted, isAntiAliased, strikeToSourceScale, descriptor, alloc));
     }
 
     void draw(SkCanvas* canvas,
@@ -2026,9 +2028,10 @@ void GrTextBlob::processDeviceMasks(
 
 void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     const SkFont& runFont,
+                                    const SkDescriptor& descriptor,
                                     SkScalar strikeToSourceScale) {
     fSubRunList.append(PathSubRun::Make(
-            accepted, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
+        accepted, has_some_antialiasing(runFont), strikeToSourceScale, descriptor, &fAlloc));
 }
 
 void GrTextBlob::processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
@@ -2733,11 +2736,13 @@ void GrSubRunNoCachePainter::processSourceMasks(const SkZip<SkGlyphVariant, SkPo
 
 void GrSubRunNoCachePainter::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                                 const SkFont& runFont,
+                                                const SkDescriptor& descriptor,
                                                 SkScalar strikeToSourceScale) {
     PathOpSubmitter pathDrawing =
             PathOpSubmitter::Make(accepted,
                                   has_some_antialiasing(runFont),
                                   strikeToSourceScale,
+                                  descriptor,
                                   fAlloc);
 
     pathDrawing.submitOps(fCanvas, fClip, fViewMatrix, fGlyphRunList.origin(), fPaint, fSDC);
@@ -2815,7 +2820,7 @@ public:
             SkScalar strikeToSourceScale) override;
     void processSourcePaths(
             const SkZip<SkGlyphVariant, SkPoint>& accepted, const SkFont& runFont,
-            SkScalar strikeToSourceScale) override;
+            const SkDescriptor& descriptor, SkScalar strikeToSourceScale) override;
     void processSourceDrawables(
             const SkZip<SkGlyphVariant, SkPoint>& drawables, const SkFont& runFont,
             SkScalar strikeToSourceScale) override;
@@ -3408,9 +3413,13 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
 void Slug::processSourcePaths(const SkZip<SkGlyphVariant,
                               SkPoint>& accepted,
                               const SkFont& runFont,
+                              const SkDescriptor& descriptor,
                               SkScalar strikeToSourceScale) {
-    fSubRuns.append(PathSubRun::Make(
-            accepted, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
+    fSubRuns.append(PathSubRun::Make(accepted,
+                                     has_some_antialiasing(runFont),
+                                     strikeToSourceScale,
+                                     descriptor,
+                                     &fAlloc));
 }
 
 void Slug::processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,

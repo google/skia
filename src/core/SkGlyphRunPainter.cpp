@@ -420,7 +420,10 @@ void SkGlyphRunListPainter::processGlyphRun(SkGlyphRunPainterInterface* process,
             if (process && !fAccepted.empty()) {
                 // processSourcePaths must be called even if there are no glyphs to make sure
                 // runs are set correctly.
-                process->processSourcePaths(fAccepted.accepted(), runFont, strikeToSourceScale);
+                process->processSourcePaths(fAccepted.accepted(),
+                                            runFont,
+                                            strikeSpec.descriptor(),
+                                            strikeToSourceScale);
             }
         }
     }
