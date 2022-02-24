@@ -531,7 +531,8 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::makeTypefaceFromDWriteFont(
     ProtoDWriteTypeface spec = { fontFace, font, fontFamily };
     sk_sp<SkTypeface> face = fTFCache.findByProcAndRef(FindByDWriteFont, &spec);
     if (nullptr == face) {
-        face = DWriteFontTypeface::Make(fFactory.get(), fontFace, font, fontFamily, nullptr);
+        face = DWriteFontTypeface::Make(fFactory.get(), fontFace, font, fontFamily, nullptr,
+                                        SkFontArguments::Palette{0, nullptr, 0});
         if (face) {
             fTFCache.add(face);
         }
@@ -1113,7 +1114,8 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamArgs(std::unique_ptr<Sk
                     sk_make_sp<DWriteFontTypeface::Loaders>(
                         fFactory.get(),
                         autoUnregisterFontFileLoader.detatch(),
-                        autoUnregisterFontCollectionLoader.detatch()));
+                        autoUnregisterFontCollectionLoader.detatch()),
+                    args.getPalette());
         }
     }
 

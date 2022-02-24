@@ -33,6 +33,96 @@
 #include "src/utils/win/SkDWrite.h"
 #include "src/utils/win/SkDWriteFontFileStream.h"
 
+HRESULT DWriteFontTypeface::initializePalette() {
+    if (!fIsColorFont) {
+        return S_OK;
+    }
+
+    if (!SkTFitsIn<UINT32>(fRequestedPalette.index)) {
+        HRM(DWRITE_E_NOCOLOR, "Requested palette index out of UINT32 range.");
+    }
+    UINT32 dwPaletteCount = fDWriteFontFace2->GetColorPaletteCount();
+    UINT32 requestedPaletteIndex = fRequestedPalette.index;
+    if (!(requestedPaletteIndex < dwPaletteCount)) {
+        HRM(DWRITE_E_NOCOLOR, "Requested palette index out of range.");
+    }
+
+    UINT32 dwPaletteEntryCount = fDWriteFontFace2->GetPaletteEntryCount();
+    SkAutoSTMalloc<8, DWRITE_COLOR_F> dwPaletteEntry(dwPaletteEntryCount);
+    HRM(fDWriteFontFace2->GetPaletteEntries(requestedPaletteIndex,
+                                            0, dwPaletteEntryCount,
+                                            dwPaletteEntry),
+        "Could not retrieve palette entries.");
+
+    fPalette.reset(new SkColor[dwPaletteEntryCount]);
+    for (UINT32 i = 0; i < dwPaletteEntryCount; ++i) {
+        fPalette[i] = SkColorSetARGB(sk_float_round2int(dwPaletteEntry[i].a * 255),
+                                     sk_float_round2int(dwPaletteEntry[i].r * 255),
+                                     sk_float_round2int(dwPaletteEntry[i].g * 255),
+                                     sk_float_round2int(dwPaletteEntry[i].b * 255));
+    }
+
+    for (int i = 0; i < fRequestedPalette.overrideCount; ++i) {
+        const SkFontArguments::Palette::Override& paletteOverride = fRequestedPalette.overrides[i];
+        if (!SkTFitsIn<UINT32>(paletteOverride.index) ||
+            !((UINT32)paletteOverride.index < dwPaletteEntryCount))
+        {
+            continue;
+        }
+        fPalette[paletteOverride.index] = paletteOverride.color;
+    }
+    fPaletteEntryCount = dwPaletteEntryCount;
+
+    return S_OK;
+}
+
+DWriteFontTypeface::DWriteFontTypeface(const SkFontStyle& style,
+                                       IDWriteFactory* factory,
+                                       IDWriteFontFace* fontFace,
+                                       IDWriteFont* font,
+                                       IDWriteFontFamily* fontFamily,
+                                       sk_sp<Loaders> loaders,
+                                       const SkFontArguments::Palette& palette)
+    : SkTypeface(style, false)
+    , fFactory(SkRefComPtr(factory))
+    , fDWriteFontFamily(SkRefComPtr(fontFamily))
+    , fDWriteFont(SkRefComPtr(font))
+    , fDWriteFontFace(SkRefComPtr(fontFace))
+    , fRequestedPaletteEntryOverrides(palette.overrideCount
+        ? (SkFontArguments::Palette::Override*)memcpy(
+             new SkFontArguments::Palette::Override[palette.overrideCount],
+             palette.overrides,
+             palette.overrideCount * sizeof(palette.overrides[0]))
+        : nullptr)
+    , fRequestedPalette{palette.index,
+                        fRequestedPaletteEntryOverrides.get(), palette.overrideCount }
+    , fPaletteEntryCount(0)
+    , fLoaders(std::move(loaders))
+{
+    if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace1))) {
+        // IUnknown::QueryInterface states that if it fails, punk will be set to nullptr.
+        // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
+        SkASSERT_RELEASE(nullptr == fDWriteFontFace1.get());
+    }
+    if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace2))) {
+        SkASSERT_RELEASE(nullptr == fDWriteFontFace2.get());
+    }
+    if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace4))) {
+        SkASSERT_RELEASE(nullptr == fDWriteFontFace4.get());
+    }
+    if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
+        SkASSERT_RELEASE(nullptr == fFactory2.get());
+    }
+
+    if (fDWriteFontFace1 && fDWriteFontFace1->IsMonospacedFont()) {
+        this->setIsFixedPitch(true);
+    }
+
+    fIsColorFont = fFactory2 && fDWriteFontFace2 && fDWriteFontFace2->IsColorFont();
+    this->initializePalette();
+}
+
+
 DWriteFontTypeface::Loaders::~Loaders() {
     // Don't return if any fail, just keep going to free up as much as possible.
     HRESULT hr;
@@ -85,6 +175,12 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
 
     desc->setFamilyName(utf8FamilyName.c_str());
     desc->setStyle(this->fontStyle());
+
+    desc->setPaleteIndex(fRequestedPalette.index);
+    sk_careful_memcpy(desc->setPaletteEntryOverrides(fRequestedPalette.overrideCount),
+                      fRequestedPalette.overrides,
+                      fRequestedPalette.overrideCount * sizeof(fRequestedPalette.overrides[0]));
+
     *isLocalStream = SkToBool(fLoaders);
 }
 
@@ -357,10 +453,25 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
                                         newFontFace.get(),
                                         fDWriteFont.get(),
                                         fDWriteFontFamily.get(),
-                                        fLoaders);
+                                        fLoaders,
+                                        args.getPalette());
     }
 
 #endif
+
+    // If the palette args have changed, a new font will need to be created.
+    if (args.getPalette().index != fRequestedPalette.index ||
+        args.getPalette().overrideCount != fRequestedPalette.overrideCount ||
+        memcmp(args.getPalette().overrides, fRequestedPalette.overrides,
+               fRequestedPalette.overrideCount * sizeof(fRequestedPalette.overrides[0])))
+    {
+        return DWriteFontTypeface::Make(fFactory.get(),
+                                        fDWriteFontFace.get(),
+                                        fDWriteFont.get(),
+                                        fDWriteFontFamily.get(),
+                                        fLoaders,
+                                        args.getPalette());
+    }
 
     return sk_ref_sp(this);
 }
