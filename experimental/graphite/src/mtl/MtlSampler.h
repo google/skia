@@ -37,7 +37,7 @@ private:
     Sampler(const Gpu* gpu,
             sk_cfp<id<MTLSamplerState>>);
 
-    void onFreeGpuData() override;
+    void freeGpuData() override;
 
     sk_cfp<id<MTLSamplerState>> fSamplerState;
 };

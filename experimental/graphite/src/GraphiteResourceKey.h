@@ -34,6 +34,7 @@ public:
 
     GraphiteResourceKey& operator=(const GraphiteResourceKey& that) {
         this->ResourceKey::operator=(that);
+        fShareable = that.fShareable;
         return *this;
     }
 

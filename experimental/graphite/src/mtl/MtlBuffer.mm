@@ -88,7 +88,7 @@ void Buffer::onUnmap() {
     fMapPtr = nullptr;
 }
 
-void Buffer::onFreeGpuData() {
+void Buffer::freeGpuData() {
     fBuffer.reset();
 }
 

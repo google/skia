@@ -43,7 +43,7 @@ private:
             sk_cfp<id<MTLTexture>>,
             Ownership);
 
-    void onFreeGpuData() override;
+    void freeGpuData() override;
 
     sk_cfp<id<MTLTexture>> fTexture;
 };

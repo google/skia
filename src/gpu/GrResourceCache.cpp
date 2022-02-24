@@ -251,21 +251,10 @@ void GrResourceCache::refResource(GrGpuResource* resource) {
     this->validate();
 }
 
-class GrResourceCache::AvailableForScratchUse {
-public:
-    AvailableForScratchUse() { }
-
-    bool operator()(const GrGpuResource* resource) const {
-        // Everything that is in the scratch map should be usable as a
-        // scratch resource.
-        return true;
-    }
-};
-
 GrGpuResource* GrResourceCache::findAndRefScratchResource(const skgpu::ScratchKey& scratchKey) {
     SkASSERT(scratchKey.isValid());
 
-    GrGpuResource* resource = fScratchMap.find(scratchKey, AvailableForScratchUse());
+    GrGpuResource* resource = fScratchMap.find(scratchKey);
     if (resource) {
         fScratchMap.remove(scratchKey, resource);
         this->refAndMakeResourceMRU(resource);

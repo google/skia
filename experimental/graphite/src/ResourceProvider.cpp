@@ -14,6 +14,7 @@
 #include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/GraphicsPipeline.h"
+#include "experimental/graphite/src/ResourceCache.h"
 #include "experimental/graphite/src/Sampler.h"
 #include "experimental/graphite/src/Texture.h"
 
@@ -23,13 +24,15 @@ ResourceProvider::ResourceProvider(const Gpu* gpu,
                                    sk_sp<GlobalCache> globalCache,
                                    SingleOwner* singleOwner)
         : fGpu(gpu)
-        , fResourceCache(singleOwner)
+        , fResourceCache(ResourceCache::Make(singleOwner))
         , fGlobalCache(std::move(globalCache)) {
+    SkASSERT(fResourceCache);
     fGraphicsPipelineCache.reset(new GraphicsPipelineCache(this));
 }
 
 ResourceProvider::~ResourceProvider() {
     fGraphicsPipelineCache.release();
+    fResourceCache->shutdown();
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(

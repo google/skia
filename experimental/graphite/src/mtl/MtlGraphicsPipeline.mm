@@ -466,7 +466,7 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvide
                                  pipelineDesc.renderStep()->instanceStride()));
 }
 
-void GraphicsPipeline::onFreeGpuData() {
+void GraphicsPipeline::freeGpuData() {
     fPipelineState.reset();
 }
 

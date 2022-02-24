@@ -30,7 +30,7 @@ private:
     void onMap() override;
     void onUnmap() override;
 
-    void onFreeGpuData() override;
+    void freeGpuData() override;
 
     sk_cfp<id<MTLBuffer>> fBuffer;
 };

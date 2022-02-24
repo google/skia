@@ -61,7 +61,7 @@ private:
         , fVertexStride(vertexStride)
         , fInstanceStride(instanceStride) {}
 
-    void onFreeGpuData() override;
+    void freeGpuData() override;
 
     sk_cfp<id<MTLRenderPipelineState>> fPipelineState;
     id<MTLDepthStencilState> fDepthStencilState;

@@ -74,6 +74,7 @@ void Recorder::deregisterDevice(const Device* device) {
 
 #if GR_TEST_UTILS
 bool Recorder::deviceIsRegistered(Device* device) {
+    ASSERT_SINGLE_OWNER
     for (auto& currentDevice : fTrackedDevices) {
         if (device == currentDevice) {
             return true;

@@ -262,7 +262,7 @@ private:
         }
     }
 
-    void onFreeGpuData() override {
+    void freeGpuData() override {
         fCommandEncoder.reset();
     }
 

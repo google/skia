@@ -10,7 +10,6 @@
 
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
-#include "experimental/graphite/src/ResourceCache.h"
 #include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTileMode.h"
@@ -28,7 +27,9 @@ class Caps;
 class GlobalCache;
 class Gpu;
 class GraphicsPipeline;
+class ResourceCache;
 class Sampler;
+class SingleOwner;
 class Texture;
 class TextureInfo;
 
@@ -89,7 +90,7 @@ private:
         ResourceProvider* fResourceProvider;
     };
 
-    ResourceCache fResourceCache;
+    sk_sp<ResourceCache> fResourceCache;
     sk_sp<GlobalCache> fGlobalCache;
 
     // Cache of GraphicsPipelines

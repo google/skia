@@ -291,8 +291,6 @@ private:
 
     class AutoValidate;
 
-    class AvailableForScratchUse;
-
     struct ScratchMapTraits {
         static const skgpu::ScratchKey& GetKey(const GrGpuResource& r) {
             return r.resourcePriv().getScratchKey();

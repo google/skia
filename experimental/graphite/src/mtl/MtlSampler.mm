@@ -92,7 +92,7 @@ sk_sp<Sampler> Sampler::Make(const Gpu* gpu,
     return sk_sp<Sampler>(new Sampler(gpu, std::move(sampler)));
 }
 
-void Sampler::onFreeGpuData() {
+void Sampler::freeGpuData() {
     fSamplerState.reset();
 }
 

@@ -110,7 +110,7 @@ sk_sp<Texture> Texture::MakeWrapped(const Gpu* gpu,
                                       Ownership::kWrapped));
 }
 
-void Texture::onFreeGpuData() {
+void Texture::freeGpuData() {
     fTexture.reset();
 }
 

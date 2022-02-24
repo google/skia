@@ -7,6 +7,8 @@
 
 #include "experimental/graphite/src/Resource.h"
 
+#include "experimental/graphite/src/ResourceCache.h"
+
 namespace skgpu {
 
 Resource::Resource(const Gpu* gpu) : fGpu(gpu), fUsageRefCnt(1), fCommandBufferRefCnt(0) {
@@ -22,19 +24,47 @@ Resource::~Resource() {
     SkASSERT(this->wasDestroyed());
 }
 
-void Resource::notifyARefIsZero(LastRemovedRef removedRef) const {
-    // TODO: Eventually we'll go through the cache to release the resource, but for now we just do
-    // this immediately.
-    SkASSERT(removedRef == LastRemovedRef::kUsageRef);
-    Resource* mutableThis = const_cast<Resource*>(this);
-    mutableThis->freeGpuData();
+void Resource::registerWithCache(sk_sp<ResourceCache> returnCache) {
+    SkASSERT(!fReturnCache);
+    SkASSERT(returnCache);
+
+    fReturnCache = std::move(returnCache);
 }
 
-void Resource::freeGpuData() {
+bool Resource::notifyARefIsZero(LastRemovedRef removedRef) const {
+    SkASSERT(removedRef == LastRemovedRef::kUsageRef || removedRef == LastRemovedRef::kCache);
+
+    // No resource should have been destroyed if there was still any sort of ref on it.
+    SkASSERT(!this->wasDestroyed());
+
+    Resource* mutableThis = const_cast<Resource*>(this);
+
+    // TODO: We have not switched all resources to use the ResourceCache yet. Once we do we should
+    // be able to assert that we have an fCacheReturn.
+    // SkASSERT(fReturnCache);
+    if (removedRef != LastRemovedRef::kCache &&
+        fReturnCache &&
+        fReturnCache->returnResource(mutableThis, removedRef)) {
+        return false;
+    }
+
+    if (!this->hasAnyRefs()) {
+        return true;
+    }
+    return false;
+}
+
+void Resource::internalDispose() {
     SkASSERT(fGpu);
-    this->onFreeGpuData();
+    this->freeGpuData();
     fGpu = nullptr;
+    // TODO: If we ever support freeing all the backend objects without deleting the object, we'll
+    // need to add a hasAnyRefs() check here.
     delete this;
+}
+
+bool Resource::isPurgeable() const {
+    return !this->hasAnyRefs();
 }
 
 } // namespace skgpu
