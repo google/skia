@@ -527,12 +527,8 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fCanUseFastMath = true;
 }
 
-void GrMtlCaps::applyDriverCorrectnessWorkarounds(const GrContextOptions&,
-                                                  const id<MTLDevice> device) {
-    // TODO: We may need to disable the fastmath option on Intel devices to avoid corruption
-//    if ([device.name rangeOfString:@"Intel"].location != NSNotFound) {
-//        fShaderCaps->fCanUseFastMath = false;
-//    }
+void GrMtlCaps::applyDriverCorrectnessWorkarounds(const GrContextOptions&, const id<MTLDevice>) {
+    // We don't have any active Metal workarounds.
 }
 
 // Define this so we can use it to initialize arrays and work around
