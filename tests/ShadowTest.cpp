@@ -7,7 +7,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkRRect.h"
 #include "include/core/SkVertices.h"
 #include "include/utils/SkShadowUtils.h"
 #include "src/core/SkDrawShadowInfo.h"

@@ -8,7 +8,6 @@
 #include <tuple>
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "modules/svg/include/SkSVGRect.h"
 #include "modules/svg/include/SkSVGRenderContext.h"

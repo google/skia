@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkPath.h"
-#include "include/core/SkRRect.h"
 #include "include/core/SkRegion.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"

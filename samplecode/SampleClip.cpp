@@ -10,7 +10,6 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathBuilder.h"
-#include "include/core/SkRRect.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkPathPriv.h"

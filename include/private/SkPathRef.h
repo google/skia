@@ -10,6 +10,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkIDChangeListener.h"
@@ -24,7 +25,6 @@
 
 class SkRBuffer;
 class SkWBuffer;
-class SkRRect;
 
 enum class SkPathConvexity {
     kConvex,
@@ -246,7 +246,21 @@ public:
         return SkToBool(fIsOval);
     }
 
-    bool isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const;
+    bool isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const {
+        if (fIsRRect) {
+            if (rrect) {
+                *rrect = this->getRRect();
+            }
+            if (isCCW) {
+                *isCCW = SkToBool(fRRectOrOvalIsCCW);
+            }
+            if (start) {
+                *start = fRRectOrOvalStartIdx;
+            }
+        }
+        return SkToBool(fIsRRect);
+    }
+
 
     bool hasComputedBounds() const {
         return !fBoundsIsDirty;
