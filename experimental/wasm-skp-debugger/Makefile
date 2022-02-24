@@ -18,9 +18,9 @@ debug:
 move-assets:
 	rm -rf ${SKIA_INFRA_ROOT}/debugger-app/build/debugger/
 	mkdir ${SKIA_INFRA_ROOT}/debugger-app/build/debugger/
-	cp ./debugger/bin/debugger.js   ${SKIA_INFRA_ROOT}/debugger-app/build/debugger/
-	cp ./debugger/bin/debugger.wasm ${SKIA_INFRA_ROOT}/debugger-app/build/debugger/
-	cp ./debugger/bin/version.js ${SKIA_INFRA_ROOT}/debugger-app/build/
+	cp ./debugger/bin/debugger.js   ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/
+	cp ./debugger/bin/debugger.wasm ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/
+	cp ./debugger/bin/version.js ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/
 
 # See buildbot/debugger-app/ for running the frontend.
 local-debug: debug move-assets
