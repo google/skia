@@ -248,20 +248,24 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile) {
     DEF_TEST(name ## _CPU, r) {                                     \
         test_cpu(r, path, true);                                    \
     }
-// The CPU backend lacks support for MANY ES3 features. However, if you know a test uses a subset
-// of ES3 that is supported, you can force it to run there:
-#define SKSL_TEST_CPU_ES3(name, path)                               \
-    DEF_TEST(name ## _CPU, r) {                                     \
-        test_cpu(r, path, false);                                   \
-    }
+
+// Tests that only use the CPU backend but without "strict ES2 mode", which limits SkSL language
+// features to GLSL ES 1.0. The CPU backend lacks support for many ES3 features. This is
+// appropriate for tests that use a subset of ES3 that is supported.
+#define SKSL_TEST_CPU_NO_STRICT_ES2(name, path) \
+    DEF_TEST(name##_CPU_NO_STRICT_ES2, r) { test_cpu(r, path, false); }
+
 #define SKSL_TEST_GPU(name, path)                                   \
     DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name ## _GPU, r, ctxInfo) {  \
         test_gpu(r, ctxInfo.directContext(), path);                 \
     }
-#define SKSL_TEST_ES3(name, path)                                   \
-    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name ## _GPU, r, ctxInfo) {  \
-        test_es3(r, ctxInfo.directContext(), path);                 \
+
+// Tests that run on GPUs with ES3 support only.
+#define SKSL_TEST_GPU_ES3(name, path)                            \
+    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name##_GPU, r, ctxInfo) { \
+        test_es3(r, ctxInfo.directContext(), path);              \
     }
+
 #define SKSL_TEST_REHYDRATE(name, path)                             \
     DEF_TEST(name ## _REHYDRATE, r) {                               \
         test_rehydrate(r, path);                                    \
@@ -280,10 +284,10 @@ SKSL_TEST(SkSLAssignmentOps,                   "folding/AssignmentOps.sksl")
 SKSL_TEST(SkSLBoolFolding,                     "folding/BoolFolding.sksl")
 SKSL_TEST(SkSLCastFolding,                     "folding/CastFolding.sksl")
 SKSL_TEST(SkSLIntFoldingES2,                   "folding/IntFoldingES2.sksl")
-SKSL_TEST_ES3(SkSLIntFoldingES3,               "folding/IntFoldingES3.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntFoldingES3, "folding/IntFoldingES3.sksl")
 SKSL_TEST(SkSLFloatFolding,                    "folding/FloatFolding.sksl")
 SKSL_TEST(SkSLMatrixFoldingES2,                "folding/MatrixFoldingES2.sksl")
-SKSL_TEST_ES3(SkSLMatrixFoldingES3,            "folding/MatrixFoldingES3.sksl")
+SKSL_TEST_GPU_ES3(SkSLMatrixFoldingES3, "folding/MatrixFoldingES3.sksl")
 SKSL_TEST(SkSLSelfAssignment,                  "folding/SelfAssignment.sksl")
 SKSL_TEST(SkSLShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(SkSLSwitchCaseFolding,               "folding/SwitchCaseFolding.sksl")
@@ -291,12 +295,12 @@ SKSL_TEST(SkSLSwizzleFolding,                  "folding/SwizzleFolding.sksl")
 SKSL_TEST(SkSLVectorScalarFolding,             "folding/VectorScalarFolding.sksl")
 SKSL_TEST(SkSLVectorVectorFolding,             "folding/VectorVectorFolding.sksl")
 
-SKSL_TEST_ES3(SkSLDoWhileBodyMustBeInlinedIntoAScope,
-         "inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl")
-SKSL_TEST_ES3(SkSLDoWhileTestCannotBeInlined,     "inliner/DoWhileTestCannotBeInlined.sksl")
+SKSL_TEST_GPU_ES3(SkSLDoWhileBodyMustBeInlinedIntoAScope,
+                  "inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl")
+SKSL_TEST_GPU_ES3(SkSLDoWhileTestCannotBeInlined, "inliner/DoWhileTestCannotBeInlined.sksl")
 SKSL_TEST(SkSLForBodyMustBeInlinedIntoAScope,     "inliner/ForBodyMustBeInlinedIntoAScope.sksl")
-SKSL_TEST_ES3(SkSLForInitializerExpressionsCanBeInlined,
-         "inliner/ForInitializerExpressionsCanBeInlined.sksl")
+SKSL_TEST_GPU_ES3(SkSLForInitializerExpressionsCanBeInlined,
+                  "inliner/ForInitializerExpressionsCanBeInlined.sksl")
 SKSL_TEST(SkSLForWithoutReturnInsideCanBeInlined, "inliner/ForWithoutReturnInsideCanBeInlined.sksl")
 SKSL_TEST(SkSLForWithReturnInsideCannotBeInlined, "inliner/ForWithReturnInsideCannotBeInlined.sksl")
 SKSL_TEST(SkSLIfBodyMustBeInlinedIntoAScope,      "inliner/IfBodyMustBeInlinedIntoAScope.sksl")
@@ -320,82 +324,90 @@ SKSL_TEST(SkSLInlineWithUnnecessaryBlocks,        "inliner/InlineWithUnnecessary
 SKSL_TEST(SkSLNoInline,                           "inliner/NoInline.sksl")
 SKSL_TEST(SkSLShortCircuitEvaluationsCannotInlineRightHandSide,
      "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl")
-SKSL_TEST_ES3(SkSLStaticSwitchInline,             "inliner/StaticSwitch.sksl")
+SKSL_TEST_GPU_ES3(SkSLStaticSwitchInline, "inliner/StaticSwitch.sksl")
 SKSL_TEST(SkSLStructsCanBeInlinedSafely,          "inliner/StructsCanBeInlinedSafely.sksl")
 SKSL_TEST(SkSLSwizzleCanBeInlinedDirectly,        "inliner/SwizzleCanBeInlinedDirectly.sksl")
 SKSL_TEST(SkSLTernaryResultsCannotBeInlined,      "inliner/TernaryResultsCannotBeInlined.sksl")
 SKSL_TEST(SkSLTernaryTestCanBeInlined,            "inliner/TernaryTestCanBeInlined.sksl")
 SKSL_TEST(SkSLTrivialArgumentsInlineDirectly,     "inliner/TrivialArgumentsInlineDirectly.sksl")
-SKSL_TEST_ES3(SkSLWhileBodyMustBeInlinedIntoAScope,
-         "inliner/WhileBodyMustBeInlinedIntoAScope.sksl")
-SKSL_TEST_ES3(SkSLWhileTestCannotBeInlined,       "inliner/WhileTestCannotBeInlined.sksl")
+SKSL_TEST_GPU_ES3(SkSLWhileBodyMustBeInlinedIntoAScope,
+                  "inliner/WhileBodyMustBeInlinedIntoAScope.sksl")
+SKSL_TEST_GPU_ES3(SkSLWhileTestCannotBeInlined, "inliner/WhileTestCannotBeInlined.sksl")
 
-SKSL_TEST(SkSLIntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicAbsInt,             "intrinsics/AbsInt.sksl")
-SKSL_TEST(SkSLIntrinsicCeil,                   "intrinsics/Ceil.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicDeterminant,        "intrinsics/Determinant.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicDFdx,               "intrinsics/DFdx.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicDFdy,               "intrinsics/DFdy.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicFloatBitsToInt,     "intrinsics/FloatBitsToInt.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicFloatBitsToUint,    "intrinsics/FloatBitsToUint.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicFwidth,             "intrinsics/Fwidth.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicIntBitsToFloat,     "intrinsics/IntBitsToFloat.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicIsInf,              "intrinsics/IsInf.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicClampInt,           "intrinsics/ClampInt.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicClampUInt,          "intrinsics/ClampUInt.sksl")
-SKSL_TEST(SkSLIntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
-SKSL_TEST(SkSLIntrinsicMatrixCompMultES2,      "intrinsics/MatrixCompMultES2.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicMatrixCompMultES3,  "intrinsics/MatrixCompMultES3.sksl")
-SKSL_TEST(SkSLIntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicMaxInt,             "intrinsics/MaxInt.sksl")
-SKSL_TEST(SkSLIntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicMinInt,             "intrinsics/MinInt.sksl")
-SKSL_TEST(SkSLIntrinsicMixFloat,               "intrinsics/MixFloat.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicModf,               "intrinsics/Modf.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicOuterProduct,       "intrinsics/OuterProduct.sksl")
+SKSL_TEST(SkSLIntrinsicAbsFloat, "intrinsics/AbsFloat.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicAbsInt, "intrinsics/AbsInt.sksl")
+SKSL_TEST(SkSLIntrinsicCeil, "intrinsics/Ceil.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicDeterminant, "intrinsics/Determinant.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicDFdx, "intrinsics/DFdx.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicDFdy, "intrinsics/DFdy.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicFloatBitsToInt, "intrinsics/FloatBitsToInt.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicFloatBitsToUint, "intrinsics/FloatBitsToUint.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicFwidth, "intrinsics/Fwidth.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicIntBitsToFloat, "intrinsics/IntBitsToFloat.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicIsInf, "intrinsics/IsInf.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicClampInt, "intrinsics/ClampInt.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicClampUInt, "intrinsics/ClampUInt.sksl")
+SKSL_TEST(SkSLIntrinsicClampFloat, "intrinsics/ClampFloat.sksl")
+SKSL_TEST(SkSLIntrinsicMatrixCompMultES2, "intrinsics/MatrixCompMultES2.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicMatrixCompMultES3, "intrinsics/MatrixCompMultES3.sksl")
+SKSL_TEST(SkSLIntrinsicMaxFloat, "intrinsics/MaxFloat.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicMaxInt, "intrinsics/MaxInt.sksl")
+SKSL_TEST(SkSLIntrinsicMinFloat, "intrinsics/MinFloat.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicMinInt, "intrinsics/MinInt.sksl")
+SKSL_TEST(SkSLIntrinsicMixFloat, "intrinsics/MixFloat.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicModf, "intrinsics/Modf.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicOuterProduct, "intrinsics/OuterProduct.sksl")
 // Fails on Mac OpenGL + Radeon 5300M (skia:12434)
-//SKSL_TEST_ES3(SkSLIntrinsicPackUnorm2x16,      "intrinsics/PackUnorm2x16.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicRound,              "intrinsics/Round.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicRoundEven,          "intrinsics/RoundEven.sksl")
-SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicSignInt,            "intrinsics/SignInt.sksl")
-SKSL_TEST(SkSLIntrinsicStep,                   "intrinsics/Step.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicTrunc,              "intrinsics/Trunc.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicTranspose,          "intrinsics/Transpose.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicUintBitsToFloat,    "intrinsics/UintBitsToFloat.sksl")
+// SKSL_TEST_GPU_ES3(SkSLIntrinsicPackUnorm2x16,      "intrinsics/PackUnorm2x16.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicRound, "intrinsics/Round.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicRoundEven, "intrinsics/RoundEven.sksl")
+SKSL_TEST(SkSLIntrinsicSignFloat, "intrinsics/SignFloat.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicSignInt, "intrinsics/SignInt.sksl")
+SKSL_TEST(SkSLIntrinsicStep, "intrinsics/Step.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicTrunc, "intrinsics/Trunc.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicTranspose, "intrinsics/Transpose.sksl")
+SKSL_TEST_GPU_ES3(SkSLIntrinsicUintBitsToFloat, "intrinsics/UintBitsToFloat.sksl")
 
-SKSL_TEST_ES3(SkSLArrayNarrowingConversions,   "runtime/ArrayNarrowingConversions.rts")
-SKSL_TEST(SkSLLoopFloat,                       "runtime/LoopFloat.rts")
-SKSL_TEST(SkSLLoopInt,                         "runtime/LoopInt.rts")
-SKSL_TEST(SkSLQualifierOrder,                  "runtime/QualifierOrder.rts")
-SKSL_TEST(SkSLPrecisionQualifiers,             "runtime/PrecisionQualifiers.rts")
-SKSL_TEST_CPU_ES3(SkSLRecursiveComparison_Arrays,  "runtime/RecursiveComparison_Arrays.rts")
-SKSL_TEST_CPU_ES3(SkSLRecursiveComparison_Structs, "runtime/RecursiveComparison_Structs.rts")
-SKSL_TEST_CPU_ES3(SkSLRecursiveComparison_Types,   "runtime/RecursiveComparison_Types.rts")
-SKSL_TEST_CPU_ES3(SkSLRecursiveComparison_Vectors, "runtime/RecursiveComparison_Vectors.rts")
+SKSL_TEST_GPU_ES3(SkSLArrayNarrowingConversions, "runtime/ArrayNarrowingConversions.rts")
+SKSL_TEST(SkSLLoopFloat, "runtime/LoopFloat.rts")
+SKSL_TEST(SkSLLoopInt, "runtime/LoopInt.rts")
+SKSL_TEST(SkSLQualifierOrder, "runtime/QualifierOrder.rts")
+SKSL_TEST(SkSLPrecisionQualifiers, "runtime/PrecisionQualifiers.rts")
 
-SKSL_TEST_ES3(SkSLArrayComparison,             "shared/ArrayComparison.sksl")
-SKSL_TEST_ES3(SkSLArrayConstructors,           "shared/ArrayConstructors.sksl")
-SKSL_TEST_ES3(SkSLArrayCast,                   "shared/ArrayCast.sksl")
-SKSL_TEST_ES3(SkSLArrayFollowedByScalar,       "shared/ArrayFollowedByScalar.sksl")
+// These tests specifically rely on SkVM backend behavior that is difficult to enforce on Metal and
+// GLSL implementations and specifically differs from Vulkan behavior (skia:12977). They also
+// rely on equality operators on array types which are not available in GLSL ES 1.00. Therefore
+// these tests are restricted to run on CPU and with "strict ES2 mode" disabled.
+SKSL_TEST_CPU_NO_STRICT_ES2(SkSLRecursiveComparison_Arrays,
+                            "runtime/RecursiveComparison_Arrays.rts")
+SKSL_TEST_CPU_NO_STRICT_ES2(SkSLRecursiveComparison_Structs,
+                            "runtime/RecursiveComparison_Structs.rts")
+SKSL_TEST_CPU_NO_STRICT_ES2(SkSLRecursiveComparison_Types, "runtime/RecursiveComparison_Types.rts")
+SKSL_TEST_CPU_NO_STRICT_ES2(SkSLRecursiveComparison_Vectors,
+                            "runtime/RecursiveComparison_Vectors.rts")
+
+SKSL_TEST_GPU_ES3(SkSLArrayComparison, "shared/ArrayComparison.sksl")
+SKSL_TEST_GPU_ES3(SkSLArrayConstructors, "shared/ArrayConstructors.sksl")
+SKSL_TEST_GPU_ES3(SkSLArrayCast, "shared/ArrayCast.sksl")
+SKSL_TEST_GPU_ES3(SkSLArrayFollowedByScalar, "shared/ArrayFollowedByScalar.sksl")
 SKSL_TEST(SkSLArrayTypes,                      "shared/ArrayTypes.sksl")
 SKSL_TEST(SkSLAssignment,                      "shared/Assignment.sksl")
 SKSL_TEST(SkSLCastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
 SKSL_TEST(SkSLCommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
 SKSL_TEST(SkSLCommaSideEffects,                "shared/CommaSideEffects.sksl")
 SKSL_TEST(SkSLConstantIf,                      "shared/ConstantIf.sksl")
-SKSL_TEST_ES3(SkSLConstArray,                  "shared/ConstArray.sksl")
+SKSL_TEST_GPU_ES3(SkSLConstArray, "shared/ConstArray.sksl")
 SKSL_TEST(SkSLConstVariableComparison,         "shared/ConstVariableComparison.sksl")
-SKSL_TEST_ES3(SkSLDeadLoopVariable,            "shared/DeadLoopVariable.sksl")
+SKSL_TEST_GPU_ES3(SkSLDeadLoopVariable, "shared/DeadLoopVariable.sksl")
 SKSL_TEST(SkSLDeadIfStatement,                 "shared/DeadIfStatement.sksl")
 SKSL_TEST(SkSLDeadReturn,                      "shared/DeadReturn.sksl")
 // TODO(skia:12012): some Radeons crash when compiling this code; disable them
-//SKSL_TEST_ES3(SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
+// SKSL_TEST_GPU_ES3(SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
 SKSL_TEST(SkSLDeadStripFunctions,              "shared/DeadStripFunctions.sksl")
 SKSL_TEST(SkSLDependentInitializers,           "shared/DependentInitializers.sksl")
-SKSL_TEST_ES3(SkSLDoWhileControlFlow,          "shared/DoWhileControlFlow.sksl")
+SKSL_TEST_GPU_ES3(SkSLDoWhileControlFlow, "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(SkSLEmptyBlocksES2,                  "shared/EmptyBlocksES2.sksl")
-SKSL_TEST_ES3(SkSLEmptyBlocksES3,              "shared/EmptyBlocksES3.sksl")
+SKSL_TEST_GPU_ES3(SkSLEmptyBlocksES3, "shared/EmptyBlocksES3.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,              "shared/ForLoopControlFlow.sksl")
 SKSL_TEST(SkSLFunctionAnonymousParameters,     "shared/FunctionAnonymousParameters.sksl")
 SKSL_TEST(SkSLFunctionArgTypeMatch,            "shared/FunctionArgTypeMatch.sksl")
@@ -405,14 +417,14 @@ SKSL_TEST(SkSLFunctionPrototype,               "shared/FunctionPrototype.sksl")
 SKSL_TEST(SkSLGeometricIntrinsics,             "shared/GeometricIntrinsics.sksl")
 SKSL_TEST(SkSLHelloWorld,                      "shared/HelloWorld.sksl")
 SKSL_TEST(SkSLHex,                             "shared/Hex.sksl")
-SKSL_TEST_ES3(SkSLHexUnsigned,                 "shared/HexUnsigned.sksl")
+SKSL_TEST_GPU_ES3(SkSLHexUnsigned, "shared/HexUnsigned.sksl")
 SKSL_TEST(SkSLInoutParameters,                 "shared/InoutParameters.sksl")
 SKSL_TEST(SkSLMatrices,                        "shared/Matrices.sksl")
-SKSL_TEST_ES3(SkSLMatricesNonsquare,           "shared/MatricesNonsquare.sksl")
+SKSL_TEST_GPU_ES3(SkSLMatricesNonsquare, "shared/MatricesNonsquare.sksl")
 // TODO(skia:12443) These tests actually don't work on MANY devices. The GLSL conformance suite
-// does a terrible job of enforcing this rule. We still test them on newer (ES3) devices, and CPU.
-SKSL_TEST_CPU_ES3(SkSLMatrixConstructorsES2,   "shared/MatrixConstructorsES2.sksl")
-SKSL_TEST_CPU_ES3(SkSLMatrixConstructorsES3,   "shared/MatrixConstructorsES3.sksl")
+// does a terrible job of enforcing this rule. We still test them on CPU.
+SKSL_TEST_CPU(SkSLMatrixConstructorsES2, "shared/MatrixConstructorsES2.sksl")
+SKSL_TEST_CPU_NO_STRICT_ES2(SkSLMatrixConstructorsES3, "shared/MatrixConstructorsES3.sksl")
 SKSL_TEST(SkSLMatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(SkSLMatrixScalarMath,                "shared/MatrixScalarMath.sksl")
 SKSL_TEST(SkSLMatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
@@ -420,21 +432,22 @@ SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl"
 SKSL_TEST(SkSLNegation,                        "shared/Negation.sksl")
 SKSL_TEST(SkSLNumberCasts,                     "shared/NumberCasts.sksl")
 SKSL_TEST(SkSLOperatorsES2,                    "shared/OperatorsES2.sksl")
-SKSL_TEST_ES3(SkSLOperatorsES3,                "shared/OperatorsES3.sksl")
+SKSL_TEST_GPU_ES3(SkSLOperatorsES3, "shared/OperatorsES3.sksl")
 SKSL_TEST(SkSLOssfuzz36852,                    "shared/Ossfuzz36852.sksl")
 SKSL_TEST(SkSLOutParams,                       "shared/OutParams.sksl")
 SKSL_TEST(SkSLOutParamsAreDistinct,            "shared/OutParamsAreDistinct.sksl")
 SKSL_TEST(SkSLOutParamsTricky,                 "shared/OutParamsTricky.sksl")
 SKSL_TEST(SkSLResizeMatrix,                    "shared/ResizeMatrix.sksl")
-SKSL_TEST_ES3(SkSLResizeMatrixNonsquare,       "shared/ResizeMatrixNonsquare.sksl")
+SKSL_TEST_GPU_ES3(SkSLResizeMatrixNonsquare, "shared/ResizeMatrixNonsquare.sksl")
 SKSL_TEST(SkSLReturnsValueOnEveryPathES2,      "shared/ReturnsValueOnEveryPathES2.sksl")
-SKSL_TEST_ES3(SkSLReturnsValueOnEveryPathES3,  "shared/ReturnsValueOnEveryPathES3.sksl")
+SKSL_TEST_GPU_ES3(SkSLReturnsValueOnEveryPathES3, "shared/ReturnsValueOnEveryPathES3.sksl")
 SKSL_TEST(SkSLScalarConversionConstructorsES2, "shared/ScalarConversionConstructorsES2.sksl")
 SKSL_TEST(SkSLScopedSymbol,                    "shared/ScopedSymbol.sksl")
-SKSL_TEST_ES3(SkSLScalarConversionConstructorsES3, "shared/ScalarConversionConstructorsES3.sksl")
+SKSL_TEST_GPU_ES3(SkSLScalarConversionConstructorsES3,
+                  "shared/ScalarConversionConstructorsES3.sksl")
 SKSL_TEST(SkSLStackingVectorCasts,             "shared/StackingVectorCasts.sksl")
 SKSL_TEST(SkSLStaticIf,                        "shared/StaticIf.sksl")
-SKSL_TEST_ES3(SkSLStaticSwitch,                "shared/StaticSwitch.sksl")
+SKSL_TEST_GPU_ES3(SkSLStaticSwitch, "shared/StaticSwitch.sksl")
 SKSL_TEST(SkSLStructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
 SKSL_TEST(SkSLStructsInFunctions,              "shared/StructsInFunctions.sksl")
 SKSL_TEST(SkSLSwitch,                          "shared/Switch.sksl")
@@ -443,7 +456,7 @@ SKSL_TEST(SkSLSwitchWithFallthrough,           "shared/SwitchWithFallthrough.sks
 SKSL_TEST(SkSLSwitchWithLoops,                 "shared/SwitchWithLoops.sksl")
 SKSL_TEST(SkSLSwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(SkSLSwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
-SKSL_TEST_ES3(SkSLSwizzleByIndex,              "shared/SwizzleByIndex.sksl")
+SKSL_TEST_GPU_ES3(SkSLSwizzleByIndex, "shared/SwizzleByIndex.sksl")
 SKSL_TEST(SkSLSwizzleConstants,                "shared/SwizzleConstants.sksl")
 SKSL_TEST(SkSLSwizzleLTRB,                     "shared/SwizzleLTRB.sksl")
 SKSL_TEST(SkSLSwizzleOpt,                      "shared/SwizzleOpt.sksl")
@@ -459,4 +472,4 @@ SKSL_TEST(SkSLUnusedVariables,                 "shared/UnusedVariables.sksl")
 SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
 SKSL_TEST(SkSLVectorToMatrixCast,              "shared/VectorToMatrixCast.sksl")
 SKSL_TEST(SkSLVectorScalarMath,                "shared/VectorScalarMath.sksl")
-SKSL_TEST_ES3(SkSLWhileLoopControlFlow,        "shared/WhileLoopControlFlow.sksl")
+SKSL_TEST_GPU_ES3(SkSLWhileLoopControlFlow, "shared/WhileLoopControlFlow.sksl")
