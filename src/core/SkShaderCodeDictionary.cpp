@@ -415,12 +415,6 @@ static const char* kErrorSkSL =
         "}\n";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumBlendShaderFields = 1;
-static constexpr SkPaintParamsKey::DataPayloadField kBlendShaderFields[kNumBlendShaderFields] = {
-        { "blendmode", SkPaintParamsKey::DataPayloadType::kByte, 1 }
-};
-
-//--------------------------------------------------------------------------------------------------
 static constexpr int kNumBlendModeFields = 1;
 static constexpr SkPaintParamsKey::DataPayloadField kBlendModeFields[kNumBlendModeFields] = {
         { "blendmode", SkPaintParamsKey::DataPayloadType::kByte, 1 }
@@ -517,7 +511,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kBlendShaderName, kBlendShaderSkSL,
             GenerateBlendShaderGlueCode,
             kNumBlendShaderChildren,
-            { kBlendShaderFields, kNumBlendShaderFields }
+            {}
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSimpleBlendMode] = {
             { nullptr, kNumErrorUniforms },
