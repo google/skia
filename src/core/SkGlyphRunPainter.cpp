@@ -123,7 +123,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                                     || (stroking && !hairline);
             if (!needsExactCTM) {
                 for (auto [variant, pos] : fAccepted.accepted()) {
-                    const SkPath* path = variant.path();
+                    const SkPath* path = variant.glyph()->path();
                     SkMatrix m;
                     SkPoint translate = drawOrigin + pos;
                     m.setScaleTranslate(strikeToSourceScale, strikeToSourceScale,
@@ -134,7 +134,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                 }
             } else {
                for (auto [variant, pos] : fAccepted.accepted()) {
-                    const SkPath* path = variant.path();
+                    const SkPath* path = variant.glyph()->path();
                     SkMatrix m;
                     SkPoint translate = drawOrigin + pos;
                     m.setScaleTranslate(strikeToSourceScale, strikeToSourceScale,

@@ -59,12 +59,12 @@ SkGlyphDigest SkScalerCache::addGlyph(SkGlyph* glyph) {
     return digest;
 }
 
-std::tuple<const SkPath*, size_t> SkScalerCache::preparePath(SkGlyph* glyph) {
+size_t SkScalerCache::preparePath(SkGlyph* glyph) {
     size_t delta = 0;
     if (glyph->setPath(&fAlloc, fScalerContext.get())) {
         delta = glyph->path()->approximateBytesUsed();
     }
-    return {glyph->path(), delta};
+    return delta;
 }
 
 std::tuple<const SkPath*, size_t> SkScalerCache::mergePath(
@@ -116,7 +116,7 @@ std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::internalPrepare(
         auto [glyph, size] = this->glyph(SkPackedGlyphID{glyphID});
         delta += size;
         if (pathDetail == kMetricsAndPath) {
-            auto [_, pathSize] = this->preparePath(glyph);
+            size_t pathSize = this->preparePath(glyph);
             delta += pathSize;
         }
         *cursor++ = glyph;
@@ -259,11 +259,11 @@ size_t SkScalerCache::prepareForPathDrawing(
     size_t delta = this->commonFilterLoop(accepted,
         [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
             SkGlyph* glyph = fGlyphForIndex[digest.index()];
-            auto [path, pathSize] = this->preparePath(glyph);
+            auto pathSize = this->preparePath(glyph);
             pathDelta += pathSize;
-            if (path != nullptr) {
+            if (glyph->path() != nullptr) {
                 // Save off the path to draw later.
-                accepted->accept(path, i);
+                accepted->accept(glyph, i);
             } else {
                 // Glyph does not have a path.
                 rejected->reject(i, digest.maxDimension());
