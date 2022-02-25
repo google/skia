@@ -262,7 +262,6 @@ private:
                             sk_sp<SkStrike>&& strike) override;
     void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkFont& runFont,
-                            sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale) override;
     void processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                 const SkFont& runFont,
@@ -316,7 +315,6 @@ public:
                             SkScalar strikeToSourceScale) override;
     void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkFont& runFont,
-                            sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale) override;
     void processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                 const SkFont& runFont,
