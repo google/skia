@@ -1242,8 +1242,6 @@ bool SkScalerContext_FreeType_Base::drawColorGlyph(FT_Face face,
                                                    uint32_t loadGlyphFlags,
                                                    SkSpan<SkColor> palette,
                                                    SkCanvas* canvas) {
-    SkPaint paint;
-    paint.setAntiAlias(true);
 
     // Only attempt to draw a COLRv1 glyph if FreeType is new enough to have the COLRv1 support.
 #ifdef TT_SUPPORT_COLRV1
@@ -1264,6 +1262,8 @@ bool SkScalerContext_FreeType_Base::drawColorGlyph(FT_Face face,
     layerIterator.p = nullptr;
     FT_UInt layerGlyphIndex = 0;
     FT_UInt layerColorIndex = 0;
+    SkPaint paint;
+    paint.setAntiAlias(!(loadGlyphFlags & FT_LOAD_TARGET_MONO));
     while (FT_Get_Color_Glyph_Layer(face, glyph.getGlyphID(), &layerGlyphIndex,
                                     &layerColorIndex, &layerIterator)) {
         haveLayers = true;

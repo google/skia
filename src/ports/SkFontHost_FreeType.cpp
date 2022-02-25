@@ -851,7 +851,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> ty
             // See http://code.google.com/p/chromium/issues/detail?id=43252#c24
             loadFlags = FT_LOAD_TARGET_MONO;
             if (fRec.getHinting() == SkFontHinting::kNone) {
-                loadFlags = FT_LOAD_NO_HINTING;
+                loadFlags |= FT_LOAD_NO_HINTING;
                 linearMetrics = true;
             }
         } else {
