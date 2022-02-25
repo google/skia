@@ -65,6 +65,9 @@ public:
     std::tuple<SkSpan<const SkGlyph*>, size_t> prepareImages(
             SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* results[]) SK_EXCLUDES(fMu);
 
+    std::tuple<SkSpan<const SkGlyph*>, size_t> prepareDrawables(
+            SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) SK_EXCLUDES(fMu);
+
     size_t prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) SK_EXCLUDES(fMu);
 
     // SkStrikeForGPU APIs

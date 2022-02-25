@@ -139,6 +139,20 @@ private:
     sk_sp<SkStrike> fStrike;
 };
 
+class SkBulkGlyphMetricsAndDrawables {
+public:
+    explicit SkBulkGlyphMetricsAndDrawables(const SkStrikeSpec& spec);
+    explicit SkBulkGlyphMetricsAndDrawables(sk_sp<SkStrike>&& strike);
+    ~SkBulkGlyphMetricsAndDrawables();
+    SkSpan<const SkGlyph*> glyphs(SkSpan<const SkGlyphID> glyphIDs);
+    const SkGlyph* glyph(SkGlyphID glyphID);
+
+private:
+    inline static constexpr int kTypicalGlyphCount = 20;
+    SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
+    sk_sp<SkStrike> fStrike;
+};
+
 class SkBulkGlyphMetricsAndImages {
 public:
     explicit SkBulkGlyphMetricsAndImages(const SkStrikeSpec& spec);

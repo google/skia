@@ -261,6 +261,23 @@ void SkBulkGlyphMetricsAndPaths::findIntercepts(
     fStrike->findIntercepts(bounds, scale, xPos, const_cast<SkGlyph*>(glyph), array, count);
 }
 
+SkBulkGlyphMetricsAndDrawables::SkBulkGlyphMetricsAndDrawables(const SkStrikeSpec& spec)
+        : fStrike{spec.findOrCreateStrike()} { }
+
+SkBulkGlyphMetricsAndDrawables::SkBulkGlyphMetricsAndDrawables(sk_sp<SkStrike>&& strike)
+        : fStrike{std::move(strike)} { }
+
+SkBulkGlyphMetricsAndDrawables::~SkBulkGlyphMetricsAndDrawables() = default;
+
+SkSpan<const SkGlyph*> SkBulkGlyphMetricsAndDrawables::glyphs(SkSpan<const SkGlyphID> glyphIDs) {
+    fGlyphs.reset(glyphIDs.size());
+    return fStrike->prepareDrawables(glyphIDs, fGlyphs.get());
+}
+
+const SkGlyph* SkBulkGlyphMetricsAndDrawables::glyph(SkGlyphID glyphID) {
+    return this->glyphs(SkSpan<const SkGlyphID>{&glyphID, 1})[0];
+}
+
 SkBulkGlyphMetricsAndImages::SkBulkGlyphMetricsAndImages(const SkStrikeSpec& spec)
         : fStrike{spec.findOrCreateStrike()} { }
 

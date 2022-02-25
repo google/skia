@@ -187,6 +187,21 @@ std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::prepareImages(
     return {{results, glyphIDs.size()}, delta};
 }
 
+std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::prepareDrawables(
+        SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) {
+    const SkGlyph** cursor = results;
+    SkAutoMutexExclusive lock{fMu};
+    size_t delta = 0;
+    for (auto glyphID : glyphIDs) {
+        auto[glyph, glyphSize] = this->glyph(SkPackedGlyphID{glyphID});
+        size_t drawableSize = this->prepareDrawable(glyph);
+        delta += glyphSize + drawableSize;
+        *cursor++ = glyph;
+    }
+
+    return {{results, glyphIDs.size()}, delta};
+}
+
 template <typename Fn>
 size_t SkScalerCache::commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) {
     size_t total = 0;
