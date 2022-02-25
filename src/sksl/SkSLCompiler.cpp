@@ -273,6 +273,16 @@ static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Builti
     symbols->addWithoutOwnership(types.fMat3.get());
     symbols->addWithoutOwnership(types.fMat4.get());
 
+    symbols->addWithoutOwnership(types.fMat2x2.get());
+    symbols->addWithoutOwnership(types.fMat2x3.get());
+    symbols->addWithoutOwnership(types.fMat2x4.get());
+    symbols->addWithoutOwnership(types.fMat3x2.get());
+    symbols->addWithoutOwnership(types.fMat3x3.get());
+    symbols->addWithoutOwnership(types.fMat3x4.get());
+    symbols->addWithoutOwnership(types.fMat4x2.get());
+    symbols->addWithoutOwnership(types.fMat4x3.get());
+    symbols->addWithoutOwnership(types.fMat4x4.get());
+
     // Alias every private type to "invalid". This will prevent code from using built-in names like
     // `sampler2D` as variable names.
     for (BuiltinTypePtr privateType : kPrivateTypes) {
