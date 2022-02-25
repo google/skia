@@ -114,6 +114,9 @@ public:
     std::vector<std::unique_ptr<ProgramElement>> elements();
 
     // Reads an entire program.
+    //
+    // NOTE: The program is initialized using a new ProgramConfig that may differ from the one that
+    // was assigned to the context of the Compiler this Rehydrator was constructed with.
     std::unique_ptr<Program> program();
 
 private:
