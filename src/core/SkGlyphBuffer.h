@@ -106,19 +106,10 @@ public:
         SkDEBUGCODE(fTag = kGlyph);
         return *this;
     }
-    SkGlyphVariant& operator= (SkDrawable* drawable) {
-        fV.drawable = drawable;
-        SkDEBUGCODE(fTag = kDrawable);
-        return *this;
-    }
 
     const SkGlyph* glyph() const {
         SkASSERT(fTag == kGlyph);
         return fV.glyph;
-    }
-    SkDrawable* drawable() const {
-        SkASSERT(fTag == kDrawable);
-        return fV.drawable;
     }
     SkPackedGlyphID packedID() const {
         SkASSERT(fTag == kPackedID);
@@ -127,12 +118,10 @@ public:
 
     operator SkPackedGlyphID()  const { return this->packedID(); }
     operator const SkGlyph*()   const { return this->glyph();    }
-    operator const SkDrawable*()const { return this->drawable(); }
 
 private:
     union {
         const SkGlyph* glyph;
-        SkDrawable* drawable;
         SkPackedGlyphID packedID;
     } fV;
 
@@ -141,7 +130,6 @@ private:
         kEmpty,
         kPackedID,
         kGlyph,
-        kDrawable,
     } fTag{kEmpty};
 #endif
 };
@@ -197,15 +185,6 @@ public:
         SkASSERT(fAcceptedSize <= from);
         fPositions[fAcceptedSize] = fPositions[from];
         fMultiBuffer[fAcceptedSize] = glyph;
-        fAcceptedSize++;
-    }
-
-    // Store drawable in the next slot, using the position information located at index from.
-    void accept(SkDrawable* drawable, size_t from) {
-        SkASSERT(fPhase == kProcess);
-        SkASSERT(fAcceptedSize <= from);
-        fPositions[fAcceptedSize] = fPositions[from];
-        fMultiBuffer[fAcceptedSize] = drawable;
         fAcceptedSize++;
     }
 

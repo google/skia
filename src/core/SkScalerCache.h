@@ -107,7 +107,7 @@ private:
     size_t preparePath(SkGlyph*) SK_REQUIRES(fMu);
 
     // If the drawable has never been set, then use the scaler context to add the glyph.
-    std::tuple<SkDrawable*, size_t> prepareDrawable(SkGlyph*) SK_REQUIRES(fMu);
+    size_t prepareDrawable(SkGlyph*) SK_REQUIRES(fMu);
 
     enum PathDetail {
         kMetricsOnly,

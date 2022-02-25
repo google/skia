@@ -153,7 +153,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                 fRejected.flipRejectsToSource();
 
                 for (auto [variant, pos] : fAccepted.accepted()) {
-                    SkDrawable* drawable = variant.drawable();
+                    SkDrawable* drawable = variant.glyph()->drawable();
                     SkMatrix m;
                     SkPoint translate = drawOrigin + pos;
                     m.setScaleTranslate(strikeToSourceScale, strikeToSourceScale,
@@ -392,7 +392,10 @@ void SkGlyphRunListPainter::processGlyphRun(SkGlyphRunPainterInterface* process,
             if (process && !fAccepted.empty()) {
                 // processSourceDrawables must be called even if there are no glyphs to make sure
                 // runs are set correctly.
-                process->processSourceDrawables(fAccepted.accepted(), runFont, strikeToSourceScale);
+                process->processSourceDrawables(fAccepted.accepted(),
+                                                runFont,
+                                                strikeSpec.descriptor(),
+                                                strikeToSourceScale);
             }
         }
     }
