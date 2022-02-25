@@ -138,13 +138,13 @@ OpStore %65 %64
 %66 = OpFunctionCall %v4float %unpremul_h4h4 %65
 OpStore %b %66
 %68 = OpLoad %v4float %a
-%70 = OpFOrdNotEqual %v4bool %68 %69
+%70 = OpFUnordNotEqual %v4bool %68 %69
 %72 = OpAny %bool %70
 OpSelectionMerge %74 None
 OpBranchConditional %72 %73 %74
 %73 = OpLabel
 %75 = OpLoad %v4float %b
-%76 = OpFOrdNotEqual %v4bool %75 %69
+%76 = OpFUnordNotEqual %v4bool %75 %69
 %77 = OpAny %bool %76
 OpBranch %74
 %74 = OpLabel

@@ -227,16 +227,16 @@ OpBranchConditional %131 %132 %133
 %143 = OpLoad %mat3v3float %inv3x3
 %144 = OpCompositeExtract %v3float %134 0
 %145 = OpCompositeExtract %v3float %143 0
-%146 = OpFOrdNotEqual %v3bool %144 %145
+%146 = OpFUnordNotEqual %v3bool %144 %145
 %147 = OpAny %bool %146
 %148 = OpCompositeExtract %v3float %134 1
 %149 = OpCompositeExtract %v3float %143 1
-%150 = OpFOrdNotEqual %v3bool %148 %149
+%150 = OpFUnordNotEqual %v3bool %148 %149
 %151 = OpAny %bool %150
 %152 = OpLogicalOr %bool %147 %151
 %153 = OpCompositeExtract %v3float %134 2
 %154 = OpCompositeExtract %v3float %143 2
-%155 = OpFOrdNotEqual %v3bool %153 %154
+%155 = OpFUnordNotEqual %v3bool %153 %154
 %156 = OpAny %bool %155
 %157 = OpLogicalOr %bool %152 %156
 OpBranch %133

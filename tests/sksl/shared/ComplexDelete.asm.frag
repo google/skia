@@ -67,21 +67,21 @@ OpStore %tmpColor %23
 %33 = OpCompositeConstruct %mat4v4float %35 %36 %37 %38
 %40 = OpCompositeExtract %v4float %32 0
 %41 = OpCompositeExtract %v4float %33 0
-%42 = OpFOrdNotEqual %v4bool %40 %41
+%42 = OpFUnordNotEqual %v4bool %40 %41
 %43 = OpAny %bool %42
 %44 = OpCompositeExtract %v4float %32 1
 %45 = OpCompositeExtract %v4float %33 1
-%46 = OpFOrdNotEqual %v4bool %44 %45
+%46 = OpFUnordNotEqual %v4bool %44 %45
 %47 = OpAny %bool %46
 %48 = OpLogicalOr %bool %43 %47
 %49 = OpCompositeExtract %v4float %32 2
 %50 = OpCompositeExtract %v4float %33 2
-%51 = OpFOrdNotEqual %v4bool %49 %50
+%51 = OpFUnordNotEqual %v4bool %49 %50
 %52 = OpAny %bool %51
 %53 = OpLogicalOr %bool %48 %52
 %54 = OpCompositeExtract %v4float %32 3
 %55 = OpCompositeExtract %v4float %33 3
-%56 = OpFOrdNotEqual %v4bool %54 %55
+%56 = OpFUnordNotEqual %v4bool %54 %55
 %57 = OpAny %bool %56
 %58 = OpLogicalOr %bool %53 %57
 OpSelectionMerge %62 None

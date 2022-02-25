@@ -82,7 +82,7 @@ OpStore %expectTTFF %27
 %32 = OpLoad %v4float %29
 %33 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
 %35 = OpLoad %v4float %33
-%28 = OpFOrdNotEqual %v4bool %32 %35
+%28 = OpFUnordNotEqual %v4bool %32 %35
 %36 = OpCompositeExtract %bool %28 0
 %37 = OpSelect %int %36 %int_1 %int_0
 %38 = OpConvertSToF %float %37

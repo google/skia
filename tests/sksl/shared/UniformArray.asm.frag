@@ -83,7 +83,7 @@ OpBranchConditional %38 %34 %36
 %45 = OpLoad %int %index
 %47 = OpIAdd %int %45 %int_1
 %48 = OpConvertSToF %float %47
-%49 = OpFOrdNotEqual %bool %44 %48
+%49 = OpFUnordNotEqual %bool %44 %48
 OpSelectionMerge %51 None
 OpBranchConditional %49 %50 %51
 %50 = OpLabel

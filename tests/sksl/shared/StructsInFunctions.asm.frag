@@ -295,7 +295,7 @@ OpBranchConditional %161 %162 %163
 %165 = OpFunctionCall %S %returns_a_struct_S
 %166 = OpCompositeExtract %float %164 0
 %167 = OpCompositeExtract %float %165 0
-%168 = OpFOrdNotEqual %bool %166 %167
+%168 = OpFUnordNotEqual %bool %166 %167
 %169 = OpCompositeExtract %int %164 1
 %170 = OpCompositeExtract %int %165 1
 %171 = OpINotEqual %bool %169 %170
@@ -339,7 +339,7 @@ OpBranchConditional %197 %198 %199
 %203 = OpCompositeExtract %S %201 0
 %204 = OpCompositeExtract %float %202 0
 %205 = OpCompositeExtract %float %203 0
-%206 = OpFOrdNotEqual %bool %204 %205
+%206 = OpFUnordNotEqual %bool %204 %205
 %207 = OpCompositeExtract %int %202 1
 %208 = OpCompositeExtract %int %203 1
 %209 = OpINotEqual %bool %207 %208
@@ -348,7 +348,7 @@ OpBranchConditional %197 %198 %199
 %212 = OpCompositeExtract %S %201 1
 %213 = OpCompositeExtract %float %211 0
 %214 = OpCompositeExtract %float %212 0
-%215 = OpFOrdNotEqual %bool %213 %214
+%215 = OpFUnordNotEqual %bool %213 %214
 %216 = OpCompositeExtract %int %211 1
 %217 = OpCompositeExtract %int %212 1
 %218 = OpINotEqual %bool %216 %217
@@ -410,7 +410,7 @@ OpBranchConditional %263 %264 %265
 %267 = OpLoad %Compound %c3
 %268 = OpCompositeExtract %v4float %266 0
 %269 = OpCompositeExtract %v4float %267 0
-%270 = OpFOrdNotEqual %v4bool %268 %269
+%270 = OpFUnordNotEqual %v4bool %268 %269
 %271 = OpAny %bool %270
 %272 = OpCompositeExtract %v3int %266 1
 %273 = OpCompositeExtract %v3int %267 1

@@ -177,11 +177,11 @@ OpBranchConditional %91 %92 %93
 %97 = OpCompositeConstruct %mat2v2float %98 %99
 %100 = OpCompositeExtract %v2float %95 0
 %101 = OpCompositeExtract %v2float %97 0
-%102 = OpFOrdNotEqual %v2bool %100 %101
+%102 = OpFUnordNotEqual %v2bool %100 %101
 %103 = OpAny %bool %102
 %104 = OpCompositeExtract %v2float %95 1
 %105 = OpCompositeExtract %v2float %97 1
-%106 = OpFOrdNotEqual %v2bool %104 %105
+%106 = OpFUnordNotEqual %v2bool %104 %105
 %107 = OpAny %bool %106
 %108 = OpLogicalOr %bool %103 %107
 OpBranch %93
@@ -200,16 +200,16 @@ OpBranchConditional %110 %111 %112
 %118 = OpCompositeConstruct %mat3v3float %115 %116 %117
 %119 = OpCompositeExtract %v3float %114 0
 %120 = OpCompositeExtract %v3float %118 0
-%121 = OpFOrdNotEqual %v3bool %119 %120
+%121 = OpFUnordNotEqual %v3bool %119 %120
 %122 = OpAny %bool %121
 %123 = OpCompositeExtract %v3float %114 1
 %124 = OpCompositeExtract %v3float %118 1
-%125 = OpFOrdNotEqual %v3bool %123 %124
+%125 = OpFUnordNotEqual %v3bool %123 %124
 %126 = OpAny %bool %125
 %127 = OpLogicalOr %bool %122 %126
 %128 = OpCompositeExtract %v3float %114 2
 %129 = OpCompositeExtract %v3float %118 2
-%130 = OpFOrdNotEqual %v3bool %128 %129
+%130 = OpFUnordNotEqual %v3bool %128 %129
 %131 = OpAny %bool %130
 %132 = OpLogicalOr %bool %127 %131
 OpBranch %112

@@ -166,7 +166,7 @@ void SPIRVCodeGenerator::setupIntrinsics() {
                                                                 SpvOpFOrdEqual, SpvOpIEqual,
                                                                 SpvOpIEqual, SpvOpLogicalEqual};
     fIntrinsicMap[k_notEqual_IntrinsicKind]         = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpFOrdNotEqual, SpvOpINotEqual,
+                                                                SpvOpFUnordNotEqual, SpvOpINotEqual,
                                                                 SpvOpINotEqual,
                                                                 SpvOpLogicalNotEqual};
     fIntrinsicMap[k_lessThan_IntrinsicKind]         = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
@@ -2446,7 +2446,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
         }
         case Token::Kind::TK_NEQ:
             if (operandType->isMatrix()) {
-                return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdNotEqual,
+                return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFUnordNotEqual,
                                                    SpvOpINotEqual, SpvOpAny, SpvOpLogicalOr, out);
             }
             if (operandType->isStruct()) {
@@ -2467,7 +2467,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                 tmpType = &resultType;
             }
             return this->foldToBool(this->writeBinaryOperation(*tmpType, *operandType, lhs, rhs,
-                                                               SpvOpFOrdNotEqual, SpvOpINotEqual,
+                                                               SpvOpFUnordNotEqual, SpvOpINotEqual,
                                                                SpvOpINotEqual, SpvOpLogicalNotEqual,
                                                                out),
                                     *operandType, SpvOpAny, out);

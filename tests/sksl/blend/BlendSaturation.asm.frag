@@ -288,7 +288,7 @@ OpBranchConditional %60 %61 %62
 %61 = OpLabel
 %63 = OpLoad %float %lum
 %64 = OpLoad %float %minComp
-%65 = OpFOrdNotEqual %bool %63 %64
+%65 = OpFUnordNotEqual %bool %63 %64
 OpBranch %62
 %62 = OpLabel
 %66 = OpPhi %bool %false %23 %65 %61
@@ -319,7 +319,7 @@ OpBranchConditional %84 %85 %86
 %85 = OpLabel
 %87 = OpLoad %float %maxComp
 %88 = OpLoad %float %lum
-%89 = OpFOrdNotEqual %bool %87 %88
+%89 = OpFUnordNotEqual %bool %87 %88
 OpBranch %86
 %86 = OpLabel
 %90 = OpPhi %bool %false %68 %89 %85
