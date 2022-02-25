@@ -20,6 +20,7 @@
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
@@ -483,10 +484,17 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             return ConstructorArray::Make(this->context(), /*line=*/-1, *type,
                     this->expressionArray());
         }
+        case Rehydrator::kConstructorArrayCast_Command: {
+            const Type* type = this->type();
+            ExpressionArray args = this->expressionArray();
+            SkASSERT(args.size() == 1);
+            return ConstructorArrayCast::Make(this->context(), /*line=*/-1, *type,
+                                              std::move(args[0]));
+        }
         case Rehydrator::kConstructorCompound_Command: {
             const Type* type = this->type();
             return ConstructorCompound::Make(this->context(), /*line=*/-1, *type,
-                                              this->expressionArray());
+                                             this->expressionArray());
         }
         case Rehydrator::kConstructorDiagonalMatrix_Command: {
             const Type* type = this->type();
@@ -524,7 +532,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorCompoundCast::Make(this->context(),/*line=*/-1, *type,
+            return ConstructorCompoundCast::Make(this->context(), /*line=*/-1, *type,
                     std::move(args[0]));
         }
         case Rehydrator::kFieldAccess_Command: {
