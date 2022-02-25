@@ -112,6 +112,7 @@ public:
         return SkPaintPriv::Unflatten(*this);
     }
 
+    SkFlattenable* readRawFlattenable();
     SkFlattenable* readFlattenable(SkFlattenable::Type);
     template <typename T> sk_sp<T> readFlattenable() {
         return sk_sp<T>((T*)this->readFlattenable(T::GetFlattenableType()));

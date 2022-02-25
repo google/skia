@@ -184,6 +184,9 @@ public:
         ChildPtr(sk_sp<SkColorFilter> cf) : fChild(std::move(cf)) {}
         ChildPtr(sk_sp<SkBlender> b) : fChild(std::move(b)) {}
 
+        // Asserts that the flattenable is either null, or one of the legal derived types
+        ChildPtr(sk_sp<SkFlattenable> f);
+
         std::optional<ChildType> type() const;
 
         SkShader* shader() const;

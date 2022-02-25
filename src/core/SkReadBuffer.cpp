@@ -393,7 +393,7 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
     }
 }
 
-SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
+SkFlattenable* SkReadBuffer::readRawFlattenable() {
     SkFlattenable::Factory factory = nullptr;
 
     if (fFactoryCount > 0) {
@@ -446,10 +446,6 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
             this->validate(false);
             return nullptr;
         }
-        if (obj && obj->getFlattenableType() != ft) {
-            this->validate(false);
-            return nullptr;
-        }
     } else {
         // we must skip the remaining data
         this->skip(sizeRecorded);
@@ -458,6 +454,15 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         return nullptr;
     }
     return obj.release();
+}
+
+SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
+    SkFlattenable* obj = this->readRawFlattenable();
+    if (obj && obj->getFlattenableType() != ft) {
+        this->validate(false);
+        return nullptr;
+    }
+    return obj;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
