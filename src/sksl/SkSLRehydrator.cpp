@@ -268,12 +268,18 @@ const Type* Rehydrator::type() {
 
 std::unique_ptr<Program> Rehydrator::program() {
     [[maybe_unused]] uint8_t command = this->readU8();
-    Context& context = this->context();
     SkASSERT(command == kProgram_Command);
-    ProgramConfig* oldConfig = context.fConfig;
-    ModifiersPool* oldModifiersPool = context.fModifiersPool;
+
+    // Initialize the temporary config used to generate the complete program. We explicitly avoid
+    // enforcing ES2 restrictions when rehydrating a program, which we assume to be already
+    // well-formed when dehydrated.
     auto config = std::make_unique<ProgramConfig>();
     config->fKind = (ProgramKind)this->readU8();
+    config->fSettings.fEnforceES2Restrictions = false;
+
+    Context& context = this->context();
+    ProgramConfig* oldConfig = context.fConfig;
+    ModifiersPool* oldModifiersPool = context.fModifiersPool;
     context.fConfig = config.get();
     fSymbolTable = fCompiler.moduleForProgramKind(config->fKind).fSymbols;
     auto modifiers = std::make_unique<ModifiersPool>();

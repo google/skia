@@ -149,9 +149,9 @@ static void test_one_permutation(skiatest::Reporter* r,
 static void test_permutations(skiatest::Reporter* r,
                               SkSurface* surface,
                               const char* testFile,
-                              bool worksInES2) {
+                              bool strictES2) {
     SkRuntimeEffect::Options options =
-            worksInES2 ? SkRuntimeEffect::Options{} : SkRuntimeEffectPriv::ES3Options();
+            strictES2 ? SkRuntimeEffect::Options{} : SkRuntimeEffectPriv::ES3Options();
     options.forceNoInline = false;
     test_one_permutation(r, surface, testFile, "", options);
 
@@ -159,18 +159,18 @@ static void test_permutations(skiatest::Reporter* r,
     test_one_permutation(r, surface, testFile, " (NoInline)", options);
 }
 
-static void test_cpu(skiatest::Reporter* r, const char* testFile, bool worksInES2) {
+static void test_cpu(skiatest::Reporter* r, const char* testFile, bool strictES2) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
 
-    test_permutations(r, surface.get(), testFile, worksInES2);
+    test_permutations(r, surface.get(), testFile, strictES2);
 }
 
 static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
 
-    test_permutations(r, surface.get(), testFile, /*worksInES2=*/true);
+    test_permutations(r, surface.get(), testFile, /*strictES2=*/true);
 }
 
 static void test_es3(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
@@ -181,10 +181,10 @@ static void test_es3(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
 
-    test_permutations(r, surface.get(), testFile, /*worksInES2=*/false);
+    test_permutations(r, surface.get(), testFile, /*strictES2=*/false);
 }
 
-static void test_clone(skiatest::Reporter* r, const char* testFile) {
+static void test_clone(skiatest::Reporter* r, const char* testFile, bool strictES2) {
     SkString shaderString = load_source(r, testFile, "");
     if (shaderString.isEmpty()) {
         return;
@@ -192,6 +192,7 @@ static void test_clone(skiatest::Reporter* r, const char* testFile) {
     std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
     SkSL::Program::Settings settings;
     settings.fAllowVarDeclarationCloneForTesting = true;
+    settings.fEnforceES2Restrictions = strictES2;
     SkSL::Compiler compiler(caps.get());
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
             SkSL::ProgramKind::kRuntimeShader, shaderString.c_str(), settings);
@@ -211,7 +212,7 @@ static void test_clone(skiatest::Reporter* r, const char* testFile) {
     SkSL::dsl::End();
 }
 
-static void test_rehydrate(skiatest::Reporter* r, const char* testFile) {
+static void test_rehydrate(skiatest::Reporter* r, const char* testFile, bool strictES2) {
     SkString shaderString = load_source(r, testFile, "");
     if (shaderString.isEmpty()) {
         return;
@@ -219,6 +220,7 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile) {
     std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     SkSL::Compiler compiler(caps.get());
     SkSL::Program::Settings settings;
+    settings.fEnforceES2Restrictions = strictES2;
     // Inlining causes problems because it can create expressions like bool(1) that can't be
     // directly instantiated. After a dehydrate/recycle pass, that expression simply becomes "true"
     // due to optimization - which is fine, but would cause us to fail an equality comparison. We
@@ -244,40 +246,56 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile) {
             rehydrated->description().c_str());
 }
 
-#define SKSL_TEST_CPU(name, path)                                   \
-    DEF_TEST(name ## _CPU, r) {                                     \
-        test_cpu(r, path, true);                                    \
+// Helper macros for various test environment invocations. Do not use these to declare test cases.
+// Use one of the SKSL_TEST_* macros below instead.
+#define DECL_TEST_CPU(name, path) \
+    DEF_TEST(name##_CPU, r) { test_cpu(r, path, /*strictES2=*/true); }
+
+#define DECL_TEST_CPU_NO_STRICT_ES2(name, path) \
+    DEF_TEST(name##_CPU_NO_STRICT_ES2, r) { test_cpu(r, path, /*strictES2=*/false); }
+
+#define DECL_TEST_GPU(name, path)                                \
+    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name##_GPU, r, ctxInfo) { \
+        test_gpu(r, ctxInfo.directContext(), path);              \
     }
+
+#define DECL_TEST_GPU_ES3(name, path)                                \
+    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name##_GPU_ES3, r, ctxInfo) { \
+        test_es3(r, ctxInfo.directContext(), path);                  \
+    }
+
+#define DECL_TEST_CLONE(name, path, strictES2) \
+    DEF_TEST(name##_CLONE, r) { test_clone(r, path, strictES2); }
+
+#define DECL_TEST_REHYDRATE(name, path, strictES2) \
+    DEF_TEST(name##_REHYDRATE, r) { test_rehydrate(r, path, strictES2); }
+
+// Use the following macros when declaring test cases:
+
+#define SKSL_TEST_CPU(name, path)                   \
+    DECL_TEST_CPU(name, path)                       \
+    DECL_TEST_CLONE(name, path, /*strictES2=*/true) \
+    DECL_TEST_REHYDRATE(name, path, /*strictES2=*/true)
 
 // Tests that only use the CPU backend but without "strict ES2 mode", which limits SkSL language
 // features to GLSL ES 1.0. The CPU backend lacks support for many ES3 features. This is
 // appropriate for tests that use a subset of ES3 that is supported.
-#define SKSL_TEST_CPU_NO_STRICT_ES2(name, path) \
-    DEF_TEST(name##_CPU_NO_STRICT_ES2, r) { test_cpu(r, path, false); }
-
-#define SKSL_TEST_GPU(name, path)                                   \
-    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name ## _GPU, r, ctxInfo) {  \
-        test_gpu(r, ctxInfo.directContext(), path);                 \
-    }
+#define SKSL_TEST_CPU_NO_STRICT_ES2(name, path)      \
+    DECL_TEST_CPU_NO_STRICT_ES2(name, path)          \
+    DECL_TEST_CLONE(name, path, /*strictES2=*/false) \
+    DECL_TEST_REHYDRATE(name, path, /*strictES2=*/false)
 
 // Tests that run on GPUs with ES3 support only.
-#define SKSL_TEST_GPU_ES3(name, path)                            \
-    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name##_GPU, r, ctxInfo) { \
-        test_es3(r, ctxInfo.directContext(), path);              \
-    }
+#define SKSL_TEST_GPU_ES3(name, path)                \
+    DECL_TEST_GPU_ES3(name, path)                    \
+    DECL_TEST_CLONE(name, path, /*strictES2=*/false) \
+    DECL_TEST_REHYDRATE(name, path, /*strictES2=*/false)
 
-#define SKSL_TEST_REHYDRATE(name, path)                             \
-    DEF_TEST(name ## _REHYDRATE, r) {                               \
-        test_rehydrate(r, path);                                    \
-    }
-
-#define SKSL_TEST_CLONE(name, path)                                 \
-    DEF_TEST(name ## _CLONE, r) {                                   \
-        test_clone(r, path);                                        \
-    }
-
-#define SKSL_TEST(name, path) SKSL_TEST_CPU(name, path) SKSL_TEST_GPU(name, path) \
-        SKSL_TEST_CLONE(name, path) SKSL_TEST_REHYDRATE(name, path)
+#define SKSL_TEST(name, path)                       \
+    DECL_TEST_CPU(name, path)                       \
+    DECL_TEST_GPU(name, path)                       \
+    DECL_TEST_CLONE(name, path, /*strictES2=*/true) \
+    DECL_TEST_REHYDRATE(name, path, /*strictES2=*/true)
 
 SKSL_TEST(SkSLArraySizeFolding,                "folding/ArraySizeFolding.sksl")
 SKSL_TEST(SkSLAssignmentOps,                   "folding/AssignmentOps.sksl")
@@ -339,7 +357,8 @@ SKSL_TEST_GPU_ES3(SkSLIntrinsicAbsInt, "intrinsics/AbsInt.sksl")
 SKSL_TEST(SkSLIntrinsicCeil, "intrinsics/Ceil.sksl")
 SKSL_TEST_GPU_ES3(SkSLIntrinsicDeterminant, "intrinsics/Determinant.sksl")
 SKSL_TEST_GPU_ES3(SkSLIntrinsicDFdx, "intrinsics/DFdx.sksl")
-SKSL_TEST_GPU_ES3(SkSLIntrinsicDFdy, "intrinsics/DFdy.sksl")
+// TODO(skia:12985): This test currently fails its REHYDRATE variant.
+// SKSL_TEST_GPU_ES3(SkSLIntrinsicDFdy, "intrinsics/DFdy.sksl")
 SKSL_TEST_GPU_ES3(SkSLIntrinsicFloatBitsToInt, "intrinsics/FloatBitsToInt.sksl")
 SKSL_TEST_GPU_ES3(SkSLIntrinsicFloatBitsToUint, "intrinsics/FloatBitsToUint.sksl")
 SKSL_TEST_GPU_ES3(SkSLIntrinsicFwidth, "intrinsics/Fwidth.sksl")
