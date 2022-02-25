@@ -11,11 +11,11 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
+#include "include/private/SkTFitsIn.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLStringStream.h"
 
-#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -56,7 +56,7 @@ public:
 
 private:
     void writeS8(int32_t i) {
-        SkASSERT(i >= -128 && i <= 127);
+        SkASSERT(SkTFitsIn<int8_t>(i));
         fBody.write8(i);
     }
 
@@ -66,27 +66,27 @@ private:
     }
 
     void writeU8(int32_t i) {
-        SkASSERT(i >= 0 && i <= 255);
+        SkASSERT(SkTFitsIn<uint8_t>(i));
         fBody.write8(i);
     }
 
     void writeS16(int32_t i) {
-        SkASSERT(i >= -32768 && i <= 32767);
+        SkASSERT(SkTFitsIn<int16_t>(i));
         fBody.write16(i);
     }
 
     void writeU16(int32_t i) {
-        SkASSERT(i >= 0 && i <= 65535);
+        SkASSERT(SkTFitsIn<uint16_t>(i));
         fBody.write16(i);
     }
 
     void writeS32(int64_t i) {
-        SkASSERT(i >= -2147483648LL && i <= 2147483647);
+        SkASSERT(SkTFitsIn<int32_t>(i));
         fBody.write32(i);
     }
 
     void writeU32(int64_t i) {
-        SkASSERT(i >= 0 && i <= 4294967295);
+        SkASSERT(SkTFitsIn<uint32_t>(i));
         fBody.write32(i);
     }
 
