@@ -85,6 +85,11 @@ private:
         fBody.write32(i);
     }
 
+    void writeU32(int64_t i) {
+        SkASSERT(i >= 0 && i <= 4294967295);
+        fBody.write32(i);
+    }
+
     void allocSymbolId(const Symbol* s) {
         SkASSERT(!symbolId(s));
         fSymbolMap.back()[s] = fNextId++;
