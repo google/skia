@@ -69,57 +69,13 @@ ThreadContext::~ThreadContext() {
 void ThreadContext::setupSymbolTable() {
     SkSL::Context& context = *fCompiler->fContext;
     SymbolTable::Push(&fCompiler->fSymbolTable, context.fConfig->fIsBuiltinCode);
-    SkSL::SymbolTable& symbols = *fCompiler->fSymbolTable;
 
     if (fSettings.fExternalFunctions) {
         // Add any external values to the new symbol table, so they're only visible to this Program.
+        SkSL::SymbolTable& symbols = *fCompiler->fSymbolTable;
         for (const std::unique_ptr<ExternalFunction>& ef : *fSettings.fExternalFunctions) {
             symbols.addWithoutOwnership(ef.get());
         }
-    }
-
-    bool runtimeEffect = ProgramConfig::IsRuntimeEffect(context.fConfig->fKind);
-    if (runtimeEffect && !context.fConfig->fSettings.fEnforceES2Restrictions) {
-        // We're compiling a runtime effect, but we're not enforcing ES2 restrictions. Add various
-        // non-ES2 types to our symbol table to allow them to be tested.
-        symbols.addWithoutOwnership(context.fTypes.fMat2x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat2x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat2x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat3x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat3x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat3x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat4x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat4x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat4x4.get());
-
-        symbols.addWithoutOwnership(context.fTypes.fFloat2x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat2x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat3x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat3x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat4x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat4x3.get());
-
-        symbols.addWithoutOwnership(context.fTypes.fHalf2x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf2x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf3x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf3x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf4x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf4x3.get());
-
-        symbols.addWithoutOwnership(context.fTypes.fUInt.get());
-        symbols.addWithoutOwnership(context.fTypes.fUInt2.get());
-        symbols.addWithoutOwnership(context.fTypes.fUInt3.get());
-        symbols.addWithoutOwnership(context.fTypes.fUInt4.get());
-
-        symbols.addWithoutOwnership(context.fTypes.fShort.get());
-        symbols.addWithoutOwnership(context.fTypes.fShort2.get());
-        symbols.addWithoutOwnership(context.fTypes.fShort3.get());
-        symbols.addWithoutOwnership(context.fTypes.fShort4.get());
-
-        symbols.addWithoutOwnership(context.fTypes.fUShort.get());
-        symbols.addWithoutOwnership(context.fTypes.fUShort2.get());
-        symbols.addWithoutOwnership(context.fTypes.fUShort3.get());
-        symbols.addWithoutOwnership(context.fTypes.fUShort4.get());
     }
 }
 
