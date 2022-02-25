@@ -1389,6 +1389,10 @@ public:
         sk_sp<SkTextBlob> cache;
         sk_sp<SkTextBlob> blob = glyphRunList.makeBlob();
         this->filterTextBlob(paint, blob.get(), &cache);
+        if (!cache) {
+            this->SkPaintFilterCanvas::onDrawGlyphRunList(glyphRunList, paint);
+            return;
+        }
         SkGlyphRunBuilder builder;
         const SkGlyphRunList& filtered = builder.blobToGlyphRunList(*cache, glyphRunList.origin());
         this->SkPaintFilterCanvas::onDrawGlyphRunList(filtered, paint);
