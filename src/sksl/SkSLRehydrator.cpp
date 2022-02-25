@@ -565,8 +565,13 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         }
         case Rehydrator::kIntLiteral_Command: {
             const Type* type = this->type();
-            int value = this->readS32();
-            return Literal::MakeInt(/*line=*/-1, value, type);
+            if (type->isUnsigned()) {
+                unsigned int value = this->readU32();
+                return Literal::MakeInt(/*line=*/-1, value, type);
+            } else {
+                int value = this->readS32();
+                return Literal::MakeInt(/*line=*/-1, value, type);
+            }
         }
         case Rehydrator::kPostfix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();

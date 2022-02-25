@@ -395,7 +395,11 @@ void Dehydrator::write(const Expression* e) {
                     SkASSERT(l.type().isInteger());
                     this->writeCommand(Rehydrator::kIntLiteral_Command);
                     this->write(l.type());
-                    this->writeS32(l.intValue());
+                    if (l.type().isUnsigned()) {
+                        this->writeU32(l.intValue());
+                    } else {
+                        this->writeS32(l.intValue());
+                    }
                 }
                 break;
             }
