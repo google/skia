@@ -32,6 +32,7 @@ class GrResourceProvider;
 class GrTextureProxy;
 class SkBitmap;
 class SkData;
+class SkIDChangeListener;
 class SkMatrix;
 class SkMatrixProvider;
 class SkPaint;

@@ -11,6 +11,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkTDArray.h"
 #include "include/private/SkTo.h"
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
 

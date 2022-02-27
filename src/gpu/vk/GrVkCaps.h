@@ -9,6 +9,7 @@
 #define GrVkCaps_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/SkTDArray.h"
 #include "src/gpu/GrCaps.h"
 
 class GrVkExtensions;

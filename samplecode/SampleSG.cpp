@@ -9,6 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPath.h"
+#include "include/private/SkTDArray.h"
 #include "samplecode/Sample.h"
 
 #include "modules/sksg/include/SkSGDraw.h"
@@ -27,6 +28,7 @@ struct PerNodeInfo {
 };
 
 class SampleSG : public Sample {
+    // TODO(kjlubick) use a vector instead of our private SkTDArray
     SkTDArray<PerNodeInfo> fSideCar;
     sk_sp<sksg::Group> fGroup;
     std::unique_ptr<sksg::Scene> fScene;

@@ -11,6 +11,7 @@
 
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkMutex.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkSharedMutex.h"

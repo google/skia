@@ -7,6 +7,7 @@
 
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkImage.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"

@@ -10,6 +10,7 @@
 
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkScalerContext.h"
 #include "src/ports/SkTypeface_win_dw.h"
 

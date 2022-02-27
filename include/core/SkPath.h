@@ -10,15 +10,20 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPathTypes.h"
-#include "include/private/SkPathRef.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkTo.h"
 
 #include <initializer_list>
+#include <tuple>
 
 class SkAutoPathBoundsUpdate;
 class SkData;
+class SkPathRef;
 class SkRRect;
 class SkWStream;
+
+enum class SkPathConvexity;
+enum class SkPathFirstDirection;
 
 // WIP -- define this locally, and fix call-sites to use SkPathBuilder (skbug.com/9000)
 //#define SK_HIDE_PATH_EDIT_METHODS
@@ -225,9 +230,7 @@ public:
 
     /** Returns true if the path is convex. If necessary, it will first compute the convexity.
      */
-    bool isConvex() const {
-        return SkPathConvexity::kConvex == this->getConvexity();
-    }
+    bool isConvex() const;
 
     /** Returns true if this path is recognized as an oval or circle.
 
@@ -285,10 +288,7 @@ public:
 
         @return  true if the path contains no SkPath::Verb array
     */
-    bool isEmpty() const {
-        SkDEBUGCODE(this->validate();)
-        return 0 == fPathRef->countVerbs();
-    }
+    bool isEmpty() const;
 
     /** Returns if contour is closed.
         Contour is closed if SkPath SkPath::Verb array was last modified by close(). When stroked,
@@ -306,10 +306,7 @@ public:
 
         @return  true if all SkPoint values are finite
     */
-    bool isFinite() const {
-        SkDEBUGCODE(this->validate();)
-        return fPathRef->isFinite();
-    }
+    bool isFinite() const;
 
     /** Returns true if the path is volatile; it will not be altered or discarded
         by the caller after it is drawn. SkPath by default have volatile set false, allowing
@@ -482,9 +479,7 @@ public:
 
         @return  bounds of all SkPoint in SkPoint array
     */
-    const SkRect& getBounds() const {
-        return fPathRef->getBounds();
-    }
+    const SkRect& getBounds() const;
 
     /** Updates internal bounds so that subsequent calls to getBounds() are instantaneous.
         Unaltered copies of SkPath may also access cached bounds through getBounds().
@@ -1409,7 +1404,7 @@ public:
 
         @return  SegmentMask bits or zero
     */
-    uint32_t getSegmentMasks() const { return fPathRef->getSegmentMasks(); }
+    uint32_t getSegmentMasks() const;
 
     /** \enum SkPath::Verb
         Verb instructs SkPath how to interpret one or more SkPoint and optional conic weight;
@@ -1759,7 +1754,7 @@ public:
 
         @return  true if SkPath data is consistent
     */
-    bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
+    bool isValid() const;
 
 private:
     SkPath(sk_sp<SkPathRef>, SkPathFillType, bool isVolatile, SkPathConvexity,
@@ -1810,12 +1805,14 @@ private:
 
     SkPathConvexity computeConvexity() const;
 
+    bool isValidImpl() const;
     /** Asserts if SkPath data is inconsistent.
         Debugging check intended for internal use only.
      */
-    SkDEBUGCODE(void validate() const { SkASSERT(this->isValidImpl()); } )
-    bool isValidImpl() const;
-    SkDEBUGCODE(void validateRef() const { fPathRef->validate(); } )
+#ifdef SK_DEBUG
+    void validate() const;
+    void validateRef() const;
+#endif
 
     // called by stroker to see if all points (in the last contour) are equal and worthy of a cap
     bool isZeroLengthSincePoint(int startPtIndex) const;
@@ -1823,18 +1820,10 @@ private:
     /** Returns if the path can return a bound at no cost (true) or will have to
         perform some computation (false).
      */
-    bool hasComputedBounds() const {
-        SkDEBUGCODE(this->validate();)
-        return fPathRef->hasComputedBounds();
-    }
-
+    bool hasComputedBounds() const;
 
     // 'rect' needs to be sorted
-    void setBounds(const SkRect& rect) {
-        SkPathRef::Editor ed(&fPathRef);
-
-        ed.setBounds(rect);
-    }
+    void setBounds(const SkRect& rect);
 
     void setPt(int index, SkScalar x, SkScalar y);
 
@@ -1852,9 +1841,7 @@ private:
     */
     SkPathConvexity getConvexity() const;
 
-    SkPathConvexity getConvexityOrUnknown() const {
-        return (SkPathConvexity)fConvexity.load(std::memory_order_relaxed);
-    }
+    SkPathConvexity getConvexityOrUnknown() const;
 
     // Compares the cached value with a freshly computed one (computeConvexity())
     bool isConvexityAccurate() const;

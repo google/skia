@@ -14,6 +14,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 
 #include "src/core/SkDraw.h"

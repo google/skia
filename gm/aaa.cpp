@@ -45,48 +45,49 @@ DEF_SIMPLE_GM(analytic_antialias_convex, canvas, W, H) {
     canvas->restore();
 
     // The following path is empty but it'll reveal bug chrome:662914
-    SkPathBuilder path;
-    path.moveTo(SkBits2Float(0x429b9d5c), SkBits2Float(0x4367a041));  // 77.8073f, 231.626f
+    SkPathBuilder pb;
+    pb.moveTo(SkBits2Float(0x429b9d5c), SkBits2Float(0x4367a041));  // 77.8073f, 231.626f
     // 77.8075f, 231.626f, 77.8074f, 231.625f, 77.8073f, 231.625f
-    path.cubicTo(SkBits2Float(0x429b9d71), SkBits2Float(0x4367a022),
+    pb.cubicTo(SkBits2Float(0x429b9d71), SkBits2Float(0x4367a022),
             SkBits2Float(0x429b9d64), SkBits2Float(0x4367a009),
             SkBits2Float(0x429b9d50), SkBits2Float(0x43679ff2));
-    path.lineTo(SkBits2Float(0x429b9d5c), SkBits2Float(0x4367a041));  // 77.8073f, 231.626f
-    path.close();
-    canvas->drawPath(path.detach(), p);
+    pb.lineTo(SkBits2Float(0x429b9d5c), SkBits2Float(0x4367a041));  // 77.8073f, 231.626f
+    pb.close();
+    canvas->drawPath(pb.detach(), p);
 
     // The following path reveals a subtle SkAnalyticQuadraticEdge::updateQuadratic bug:
     // we should not use any snapped y for the intermediate values whose error may accumulate;
     // snapping should only be allowed once before updateLine.
-    path.moveTo(SkBits2Float(0x434ba71e), SkBits2Float(0x438a06d0));  // 203.653f, 276.053f
-    path.lineTo(SkBits2Float(0x43492a74), SkBits2Float(0x4396d70d));  // 201.166f, 301.68f
+    pb.moveTo(SkBits2Float(0x434ba71e), SkBits2Float(0x438a06d0));  // 203.653f, 276.053f
+    pb.lineTo(SkBits2Float(0x43492a74), SkBits2Float(0x4396d70d));  // 201.166f, 301.68f
     // 200.921f, 304.207f, 196.939f, 303.82f, 0.707107f
-    path.conicTo(SkBits2Float(0x4348ebaf), SkBits2Float(0x43981a75),
+    pb.conicTo(SkBits2Float(0x4348ebaf), SkBits2Float(0x43981a75),
             SkBits2Float(0x4344f079), SkBits2Float(0x4397e900), SkBits2Float(0x3f3504f3));
-    path.close();
+    pb.close();
+    SkPath path = pb.detach();
     // Manually setting convexity is required. Otherwise, this path will be considered concave.
-    SkPathPriv::SetConvexity(&path, SkPathConvexity::kConvex);
-    canvas->drawPath(path.detach(), p);
+    SkPathPriv::SetConvexity(path, SkPathConvexity::kConvex);
+    canvas->drawPath(path, p);
 
     // skbug.com/7573
     y += 200;
     canvas->save();
     canvas->translate(0, y);
     p.setAntiAlias(true);
-    path.moveTo(1.98009784f, 9.0162744f);
-    path.lineTo(47.843992f, 10.1922744f);
-    path.lineTo(47.804008f, 11.7597256f);
-    path.lineTo(1.93990216f, 10.5837256f);
-    canvas->drawPath(path.detach(), p);
+    pb.moveTo(1.98009784f, 9.0162744f);
+    pb.lineTo(47.843992f, 10.1922744f);
+    pb.lineTo(47.804008f, 11.7597256f);
+    pb.lineTo(1.93990216f, 10.5837256f);
+    canvas->drawPath(pb.detach(), p);
     canvas->restore();
 
     // skbug.com/7813
     // t8888 splits the 800-high canvas into 3 pieces; the boundary is close to 266 and 534
-    path.moveTo(700, 266);
-    path.lineTo(710, 266);
-    path.lineTo(710, 534);
-    path.lineTo(700, 534);
-    canvas->drawPath(path.detach(), p);
+    pb.moveTo(700, 266);
+    pb.lineTo(710, 266);
+    pb.lineTo(710, 534);
+    pb.lineTo(700, 534);
+    canvas->drawPath(pb.detach(), p);
 }
 
 DEF_SIMPLE_GM(analytic_antialias_general, canvas, W, H) {

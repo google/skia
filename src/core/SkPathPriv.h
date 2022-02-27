@@ -9,7 +9,9 @@
 #define SkPathPriv_DEFINED
 
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkIDChangeListener.h"
+#include "include/private/SkPathRef.h"
 
 static_assert(0 == static_cast<int>(SkPathFillType::kWinding), "fill_type_mismatch");
 static_assert(1 == static_cast<int>(SkPathFillType::kEvenOdd), "fill_type_mismatch");
@@ -401,9 +403,6 @@ public:
     }
     static void SetConvexity(const SkPath& path, SkPathConvexity c) {
         path.setConvexity(c);
-    }
-    static void SetConvexity(SkPathBuilder* builder, SkPathConvexity c) {
-        builder->privateSetConvexity(c);
     }
     static void ForceComputeConvexity(const SkPath& path) {
         path.setConvexity(SkPathConvexity::kUnknown);
