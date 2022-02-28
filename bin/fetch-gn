@@ -23,7 +23,7 @@ os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 gnzip = os.path.join(tempfile.mkdtemp(), 'gn.zip')
 with open(gnzip, 'wb') as f:
   OS  = {'darwin': 'mac', 'linux': 'linux', 'linux2': 'linux', 'win32': 'windows'}[sys.platform]
-  cpu = {'amd64': 'amd64', 'arm64': 'arm64', 'x86_64': 'amd64'}[platform.machine().lower()]
+  cpu = {'aarch64': 'arm64', 'amd64': 'amd64', 'arm64': 'arm64', 'x86_64': 'amd64'}[platform.machine().lower()]
 
   rev = 'd62642c920e6a0d1756316d225a90fd6faa9e21e'
   url = 'https://chrome-infra-packages.appspot.com/dl/gn/gn/{}-{}/+/git_revision:{}'.format(

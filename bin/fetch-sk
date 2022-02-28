@@ -33,7 +33,7 @@ def sha256sum(path):
 os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
 OS  = {'darwin': 'mac', 'linux': 'linux', 'linux2': 'linux', 'win32': 'windows'}[sys.platform]
-cpu = {'amd64': 'amd64', 'arm64': 'arm64', 'x86_64': 'amd64'}[platform.machine().lower()]
+cpu = {'aarch64': 'arm64', 'amd64': 'amd64', 'arm64': 'arm64', 'x86_64': 'amd64'}[platform.machine().lower()]
 platform = '%s-%s' % (OS, cpu)
 sk = 'sk'
 if 'windows' in platform:
