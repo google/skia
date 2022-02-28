@@ -18,6 +18,8 @@ module.exports = function(config) {
       // The tests will make calls to /gold_rpc/whatever and they will be redirected
       // to the correct location.
       '/gold_rpc/': `http://localhost:${port}/`,
+      // This makes it more convenient for tests to load the test assets.
+      '/assets/': '/static/skia/modules/canvaskit/tests/assets/',
     },
 
     // possible values: 'dots', 'progress'

@@ -432,18 +432,31 @@ bool_flag(
 )
 
 karma_test(
-    name = "hello_world",
+    name = "canvaskit_js_wasms",
     srcs = [
         ":canvaskit_wasm/canvaskit.js",
         # We want to make sure the CanvasKit JS is loaded before the loader script
-        "tests/bazel_canvaskitinit.js",
+        "tests/bazel/canvaskitinit.js",
+        "tests/bazel/util.js",
+        "tests/bazel/test_reporter.js",
         # which is loaded before the tests...
-        "tests/hello_world.js",
+        "tests/bazel/smoke_test.js",
+        "tests/bazel/canvas_test.js",
+        "tests/bazel/canvas2d_test.js",
+        "tests/bazel/core_test.js",
+        "tests/bazel/font_test.js",
+        "tests/bazel/matrix_test.js",
+        "tests/bazel/paragraph_test.js",
+        "tests/bazel/path_test.js",
+        "tests/bazel/rtshader_test.js",
+        "tests/bazel/skottie_test.js",
     ],
     config_file = "karma.bazel.js",
-    # The tests need the Gold server to be up and running.
+    # The tests need the Gold server to be up and running so they can make POST requests to
+    # exfiltrate the PNGs they create.
     env = "//modules/canvaskit/go/gold_test_env:gold_test_env",
     static_files = [
         ":canvaskit_wasm/canvaskit.wasm",
+        "//modules/canvaskit/tests/assets:test_assets",
     ],
 )

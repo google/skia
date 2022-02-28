@@ -103,6 +103,7 @@ func beginTestManagementLogic(listener net.Listener) {
 		// Write the data in the POST to the special Bazel output directory
 		fileContents, err := base64.StdEncoding.DecodeString(payload.Base64Data)
 		if err != nil {
+		    fmt.Printf("Invalid base64 data: %s\n", err.Error())
 			http.Error(w, "Invalid base64 data "+err.Error(), http.StatusBadRequest)
 			return
 		}
