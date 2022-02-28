@@ -78,6 +78,7 @@ generated_cc_atom(
     hdrs = ["GrSDFTControl.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkFlattenable_hdr",
         "//include/core:SkFont_hdr",
         "//include/core:SkScalar_hdr",
     ],
@@ -96,6 +97,7 @@ generated_cc_atom(
         "//include/core:SkScalar_hdr",
         "//include/core:SkSurfaceProps_hdr",
         "//src/core:SkGlyphRunPainter_hdr",
+        "//src/core:SkReadBuffer_hdr",
     ],
 )
 
@@ -163,14 +165,18 @@ generated_cc_atom(
     deps = [
         ":GrAtlasManager_hdr",
         ":GrGlyphVector_hdr",
+        ":GrSDFTControl_hdr",
         ":GrStrikeCache_hdr",
         ":GrTextBlob_hdr",
         "//include/core:SkColorFilter_hdr",
+        "//include/core:SkScalar_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//include/private:SkTemplates_hdr",
         "//include/private/chromium:GrSlug_hdr",
         "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
+        "//src/core:SkEnumerate_hdr",
         "//src/core:SkFontPriv_hdr",
+        "//src/core:SkGlyph_hdr",
         "//src/core:SkMaskFilterBase_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkPaintPriv_hdr",

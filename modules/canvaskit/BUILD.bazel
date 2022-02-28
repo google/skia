@@ -441,6 +441,8 @@ karma_test(
         "tests/hello_world.js",
     ],
     config_file = "karma.bazel.js",
+    # The tests need the Gold server to be up and running.
+    env = "//modules/canvaskit/go/gold_test_env:gold_test_env",
     static_files = [
         ":canvaskit_wasm/canvaskit.wasm",
     ],

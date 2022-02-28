@@ -90,7 +90,6 @@ generated_cc_atom(
         ":SkTypes_hdr",
         "//include/private:SkDeque_hdr",
         "//include/private:SkMacros_hdr",
-        "//include/private:SkTOptional_hdr",
     ],
 )
 
@@ -384,7 +383,6 @@ generated_cc_atom(
         ":SkImageInfo_hdr",
         ":SkImage_hdr",
         ":SkYUVAPixmaps_hdr",
-        "//include/private:SkTOptional_hdr",
     ],
 )
 
@@ -415,7 +413,6 @@ generated_cc_atom(
         ":SkShader_hdr",
         ":SkTileMode_hdr",
         "//include/gpu:GrTypes_hdr",
-        "//include/private:SkTOptional_hdr",
     ],
 )
 
@@ -495,7 +492,6 @@ generated_cc_atom(
         ":SkBlendMode_hdr",
         ":SkColor_hdr",
         ":SkRefCnt_hdr",
-        "//include/private:SkTOptional_hdr",
         "//include/private:SkTo_hdr",
     ],
 )

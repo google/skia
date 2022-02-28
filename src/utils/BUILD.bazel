@@ -660,3 +660,23 @@ generated_cc_atom(
         "//src/core:SkStreamPriv_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "SkBlitterTraceCommon_hdr",
+    hdrs = ["SkBlitterTraceCommon.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkCycles_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkBlitterTrace_hdr",
+    hdrs = ["SkBlitterTrace.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkBlitterTraceCommon_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkCycles_hdr",
+    hdrs = ["SkCycles.h"],
+    visibility = ["//:__subpackages__"],
+)

@@ -362,6 +362,7 @@ generated_cc_atom(
         "//include/core:SkSpan_hdr",
         "//include/private:SkSLModifiers_hdr",
         "//include/private:SkSLSymbol_hdr",
+        "//include/private:SkTFitsIn_hdr",
         "//include/private:SkTHash_hdr",
     ],
 )
@@ -703,6 +704,7 @@ generated_cc_atom(
         "//include/private:SkSLStatement_hdr",
         "//src/sksl/ir:SkSLBinaryExpression_hdr",
         "//src/sksl/ir:SkSLBreakStatement_hdr",
+        "//src/sksl/ir:SkSLConstructorArrayCast_hdr",
         "//src/sksl/ir:SkSLConstructorArray_hdr",
         "//src/sksl/ir:SkSLConstructorCompoundCast_hdr",
         "//src/sksl/ir:SkSLConstructorCompound_hdr",

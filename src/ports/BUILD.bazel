@@ -1168,6 +1168,7 @@ generated_cc_atom(
     hdrs = ["SkTypeface_win_dw.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkFontArguments_hdr",
         "//include/core:SkTypeface_hdr",
         "//src/core:SkAdvancedTypefaceMetrics_hdr",
         "//src/core:SkLeanWindows_hdr",

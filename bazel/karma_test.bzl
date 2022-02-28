@@ -1,10 +1,14 @@
 """This module defines rules for running JS tests in a browser."""
 
-# https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl
-load("@io_bazel_rules_webtesting//web:web.bzl", "web_test")
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "node_modules_aspect")
 
-def karma_test(name, config_file, srcs, static_files = None, **kwargs):
+# https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl
+load("@io_bazel_rules_webtesting//web:web.bzl", "web_test")
+
+# https://github.com/google/skia-buildbot/blob/main/bazel/test_on_env/test_on_env.bzl
+load("@org_skia_go_infra//bazel/test_on_env:test_on_env.bzl", "test_on_env")
+
+def karma_test(name, config_file, srcs, static_files = None, env = None, **kwargs):
     """Tests the given JS files using Karma and a browser provided by Bazel (Chromium)
 
     This rule injects some JS code into the karma config file and produces both that modified
@@ -34,6 +38,10 @@ def karma_test(name, config_file, srcs, static_files = None, **kwargs):
         Examples:
           - `/static/skia/modules/canvaskit/tests/assets/color_wheel.gif`
           - `/static/skia/modules/canvaskit/canvaskit_wasm/canvaskit.wasm`
+      env: An optional label to a binary. If set, the test will be wrapped in a test_on_env rule,
+        and this binary will be used as the "env" part of test_on_env. It will be started before
+        the tests run and be running in parallel to them. See the test_on_env.bzl in the
+        Skia Infra repo for more.
       **kwargs: Additional arguments are passed to @io_bazel_rules_webtesting/web_test.
     """
     if len(srcs) == 0:
@@ -41,9 +49,9 @@ def karma_test(name, config_file, srcs, static_files = None, **kwargs):
     if not static_files:
         static_files = []
 
-    wrapped_test_name = name + "_karma_test"
+    karma_test_name = name + "_karma_test"
     _karma_test(
-        name = wrapped_test_name,
+        name = karma_test_name,
         srcs = srcs,
         deps = [
             "@npm//karma-chrome-launcher",
@@ -54,18 +62,36 @@ def karma_test(name, config_file, srcs, static_files = None, **kwargs):
         config_file = config_file,
         static_files = static_files,
         visibility = ["//visibility:private"],
+        tags = ["manual"],
     )
 
     # See the following link for the options.
     # https://github.com/bazelbuild/rules_webtesting/blob/e9cf17123068b1123c68219edf9b274bf057b9cc/web/internal/web_test.bzl#L164
     # TODO(kjlubick) consider using web_test_suite to test on Firefox as well.
-    web_test(
-        name = name,
-        launcher = ":" + wrapped_test_name,
-        browser = "@io_bazel_rules_webtesting//browsers:chromium-local",
-        test = wrapped_test_name,
-        **kwargs
-    )
+    if not env:
+        web_test(
+            name = name,
+            launcher = ":" + karma_test_name,
+            browser = "@io_bazel_rules_webtesting//browsers:chromium-local",
+            test = karma_test_name,
+            **kwargs
+        )
+    else:
+        web_test_name = name + "_web_test"
+        web_test(
+            name = web_test_name,
+            launcher = ":" + karma_test_name,
+            browser = "@io_bazel_rules_webtesting//browsers:chromium-local",
+            test = karma_test_name,
+            visibility = ["//visibility:private"],
+            **kwargs
+        )
+        test_on_env(
+            name = name,
+            env = env,
+            test = ":" + web_test_name,
+            test_on_env_binary = "@org_skia_go_infra//bazel/test_on_env:test_on_env",
+        )
 
 # This JS code is injected into the the provided karma configuration file. It contains
 # Bazel-specific logic that could be re-used across different configuration files.

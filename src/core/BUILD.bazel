@@ -3762,6 +3762,7 @@ generated_cc_atom(
         "//include/core:SkShader_hdr",
         "//include/private:SkTo_hdr",
         "//src/shaders:SkShaderBase_hdr",
+        "//src/utils:SkBlitterTrace_hdr",
     ],
 )
 
@@ -5186,6 +5187,7 @@ generated_cc_atom(
         "//include/private:SkImageInfoPriv_hdr",
         "//include/private:SkMacros_hdr",
         "//src/shaders:SkColorFilterShader_hdr",
+        "//src/utils:SkBlitterTrace_hdr",
     ],
 )
 

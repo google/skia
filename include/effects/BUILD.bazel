@@ -172,7 +172,6 @@ generated_cc_atom(
         "//include/core:SkString_hdr",
         "//include/private:SkOnce_hdr",
         "//include/private:SkSLSampleUsage_hdr",
-        "//include/private:SkTOptional_hdr",
     ],
 )
 

@@ -3,7 +3,7 @@
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 
 let CanvasKit = null;
-const LoadCanvasKit = new Promise((resolve, reject) => {
+const _LoadCanvasKit = new Promise((resolve, reject) => {
     console.log('canvaskit loading', new Date());
     CanvasKitInit({
         locateFile: (file) => '/static/skia/modules/canvaskit/canvaskit_wasm/'+file,
@@ -16,3 +16,19 @@ const LoadCanvasKit = new Promise((resolve, reject) => {
         reject();
     });
 });
+
+const _TestReportServer = new Promise((resolve, reject) => {
+    fetch('/gold_rpc/healthz').then((resp) => {
+        if (resp.ok) {
+            resolve();
+            return;
+        }
+        console.log('/healthz returned non 200 code')
+        reject();
+    }).catch((e) => {
+        console.log('Server for reporting results was not up', e)
+        reject();
+    });
+});
+
+const EverythingLoaded = Promise.all([_LoadCanvasKit, _TestReportServer]);

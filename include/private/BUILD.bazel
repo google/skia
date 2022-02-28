@@ -471,12 +471,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkTOptional_hdr",
-    hdrs = ["SkTOptional.h"],
-    visibility = ["//:__subpackages__"],
-)
-
-generated_cc_atom(
     name = "SkTPin_hdr",
     hdrs = ["SkTPin.h"],
     visibility = ["//:__subpackages__"],

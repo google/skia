@@ -7,7 +7,8 @@ generate:
 		modules/skshaper modules/svg modules/skresources modules/skparagraph modules/skunicode \
 		modules/skottie modules/skresources modules/sksg experimental/ffmpeg \
 		modules/particles \
-		experimental/bazel_test experimental/graphite example
+		experimental/bazel_test experimental/graphite example \
+		modules/canvaskit/go
 
 # This target should be run after the go.mod file is updated (e.g. version rolls or new updates)
 gazelle_update_repo:
