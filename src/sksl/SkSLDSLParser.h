@@ -125,7 +125,14 @@ private:
 
     void declarations();
 
-    SKSL_INT arraySize();
+    /**
+     * Parses an expression representing an array size. Reports errors if the array size is not
+     * valid (out of bounds, not a literal integer). Returns true if an expression was
+     * successfully parsed, even if that array size is not actually valid. In the event of a true
+     * return, outResult always contains a valid array size (even if the parsed array size was not
+     * actually valid; invalid array sizes result in a 1 to avoid additional errors downstream).
+     */
+    bool arraySize(SKSL_INT* outResult);
 
     void directive();
 
