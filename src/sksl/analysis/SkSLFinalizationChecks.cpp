@@ -80,23 +80,21 @@ public:
     }
 
     bool visitStatement(const Statement& stmt) override {
-        if (!fContext.fConfig->fSettings.fPermitInvalidStaticTests) {
-            switch (stmt.kind()) {
-                case Statement::Kind::kIf:
-                    if (stmt.as<IfStatement>().isStatic()) {
-                        fContext.fErrors->error(stmt.fLine, "static if has non-static test");
-                    }
-                    break;
+        switch (stmt.kind()) {
+            case Statement::Kind::kIf:
+                if (stmt.as<IfStatement>().isStatic()) {
+                    fContext.fErrors->error(stmt.fLine, "static if has non-static test");
+                }
+                break;
 
-                case Statement::Kind::kSwitch:
-                    if (stmt.as<SwitchStatement>().isStatic()) {
-                        fContext.fErrors->error(stmt.fLine, "static switch has non-static test");
-                    }
-                    break;
+            case Statement::Kind::kSwitch:
+                if (stmt.as<SwitchStatement>().isStatic()) {
+                    fContext.fErrors->error(stmt.fLine, "static switch has non-static test");
+                }
+                break;
 
-                default:
-                    break;
-            }
+            default:
+                break;
         }
         return INHERITED::visitStatement(stmt);
     }

@@ -263,7 +263,7 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
             }
 
             // Report an error if this was a static switch and BlockForCase failed us.
-            if (isStatic && !context.fConfig->fSettings.fPermitInvalidStaticTests) {
+            if (isStatic) {
                 context.fErrors->error(value->fLine,
                                        "static switch contains non-static conditional exit");
                 return nullptr;
