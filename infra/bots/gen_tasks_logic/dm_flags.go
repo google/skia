@@ -1149,6 +1149,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~^GrMeshTest$")
 	}
 
+	if b.matchOs("Mac") && b.gpu("IntelIrisPlus") {
+		// skia:7603
+		match = append(match, "~^GrMeshTest$")
+	}
+
 	if b.extraConfig("Vulkan") && b.model("GalaxyS20") {
 		// skia:10247
 		match = append(match, "~VkPrepareForExternalIOQueueTransitionTest")
