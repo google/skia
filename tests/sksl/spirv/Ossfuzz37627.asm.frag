@@ -18,9 +18,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %main = OpFunction %void None %7
 %8 = OpLabel
 %x = OpVariable %_ptr_Function_uint Function
-%14 = OpLoad %uint %x
-%15 = OpIAdd %uint %14 %uint_1
-OpStore %x %15
-%12 = OpSNegate %uint %15
+%13 = OpLoad %uint %x
+%14 = OpIAdd %uint %13 %uint_1
+OpStore %x %14
+%15 = OpSNegate %uint %14
 OpReturn
 OpFunctionEnd

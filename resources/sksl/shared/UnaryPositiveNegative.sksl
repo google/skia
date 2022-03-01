@@ -1,8 +1,72 @@
 uniform half4 colorWhite, colorGreen, colorRed;
+uniform float2x2 testMatrix2x2;
+uniform float3x3 testMatrix3x3;
+uniform float4x4 testMatrix4x4;
 
-half4 main(float2 coords) {
+bool test_fscalar() {
+    float x = colorWhite.r;
+    x = +x;
+    x = -x;
+    return x == -1;
+}
+
+bool test_iscalar() {
+    int x = int(colorWhite.r);
+    x = +x;
+    x = -x;
+    return x == -1;
+}
+
+bool test_fvec() {
     half2 x = colorWhite.rg;
     x = +x;
     x = -x;
-    return x == half2(-1) ? colorGreen : colorRed;
+    return x == half2(-1);
+}
+
+bool test_ivec() {
+    int2 x = int2(colorWhite.r);
+    x = +x;
+    x = -x;
+    return x == int2(-1);
+}
+
+bool test_mat2() {
+    const float2x2 negated = float2x2(-1, -2,
+                                      -3, -4);
+    float2x2 x = testMatrix2x2;
+    x = +x;
+    x = -x;
+    return x == negated;
+}
+
+bool test_mat3() {
+    const float3x3 negated = float3x3(-1, -2, -3,
+                                      -4, -5, -6,
+                                      -7, -8, -9);
+    float3x3 x = testMatrix3x3;
+    x = +x;
+    x = -x;
+    return x == negated;
+}
+
+bool test_mat4() {
+    const float4x4 negated = float4x4(-1,  -2,  -3,  -4,
+                                      -5,  -6,  -7,  -8,
+                                      -9,  -10, -11, -12,
+                                      -13, -14, -15, -16);
+    float4x4 x = testMatrix4x4;
+    x = +x;
+    x = -x;
+    return x == negated;
+}
+
+half4 main(float2 coords) {
+    return test_fscalar()
+            && test_iscalar()
+            && test_fvec()
+            && test_ivec()
+            && test_mat2()
+            && test_mat3()
+            && test_mat4() ? colorGreen : colorRed;
 }

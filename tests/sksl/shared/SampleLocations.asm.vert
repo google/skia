@@ -120,9 +120,9 @@ OpStore %outset %float_0_03125
 OpSelectionMerge %72 None
 OpBranchConditional %67 %70 %71
 %70 = OpLabel
-%74 = OpLoad %float %outset
-%73 = OpFNegate %float %74
-OpStore %69 %73
+%73 = OpLoad %float %outset
+%74 = OpFNegate %float %73
+OpStore %69 %74
 OpBranch %72
 %71 = OpLabel
 %75 = OpLoad %float %outset

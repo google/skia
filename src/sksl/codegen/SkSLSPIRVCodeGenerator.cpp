@@ -2256,6 +2256,28 @@ SpvId SPIRVCodeGenerator::writeMatrixComparison(const Type& operandType, SpvId l
     return result;
 }
 
+SpvId SPIRVCodeGenerator::writeComponentwiseMatrixUnary(const Type& operandType,
+                                                        SpvId operand,
+                                                        SpvOp_ op,
+                                                        OutputStream& out) {
+    SkASSERT(operandType.isMatrix());
+    SpvId columnType = this->getType(operandType.componentType().toCompound(
+            fContext, /*columns=*/operandType.rows(), /*rows=*/1));
+
+    std::vector<SpvId> columns;
+    columns.reserve(operandType.columns());
+    for (int i = 0; i < operandType.columns(); i++) {
+        SpvId srcColumn = this->nextId(&operandType);
+        this->writeInstruction(SpvOpCompositeExtract, columnType, srcColumn, operand, i, out);
+
+        SpvId dstColumn = this->nextId(&operandType);
+        this->writeInstruction(op, columnType, dstColumn, srcColumn, out);
+        columns.push_back(dstColumn);
+    }
+
+    return this->writeComposite(columns, operandType, out);
+}
+
 SpvId SPIRVCodeGenerator::writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs,
                                                          SpvId rhs, SpvOp_ op, OutputStream& out) {
     SkASSERT(operandType.isMatrix());
@@ -2775,16 +2797,22 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
 SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, OutputStream& out) {
     const Type& type = p.type();
     if (p.getOperator().kind() == Token::Kind::TK_MINUS) {
-        SpvId result = this->nextId(&type);
-        SpvId typeId = this->getType(type);
-        SpvId expr = this->writeExpression(*p.operand(), out);
+        SpvOp_ negateOp = SpvOpFNegate;
         if (is_float(fContext, type)) {
-            this->writeInstruction(SpvOpFNegate, typeId, result, expr, out);
+            negateOp = SpvOpFNegate;
         } else if (is_signed(fContext, type) || is_unsigned(fContext, type)) {
-            this->writeInstruction(SpvOpSNegate, typeId, result, expr, out);
+            negateOp = SpvOpSNegate;
         } else {
             SkDEBUGFAILF("unsupported prefix expression %s", p.description().c_str());
         }
+
+        SpvId expr = this->writeExpression(*p.operand(), out);
+        if (type.isMatrix()) {
+            return this->writeComponentwiseMatrixUnary(type, expr, negateOp, out);
+        }
+        SpvId result = this->nextId(&type);
+        SpvId typeId = this->getType(type);
+        this->writeInstruction(negateOp, typeId, result, expr, out);
         return result;
     }
     switch (p.getOperator().kind()) {
