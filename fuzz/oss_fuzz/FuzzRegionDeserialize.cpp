@@ -7,6 +7,7 @@
 
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkRegionPriv.h"

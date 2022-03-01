@@ -9,6 +9,7 @@
 #include <cstring>
 #include <type_traits>
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"

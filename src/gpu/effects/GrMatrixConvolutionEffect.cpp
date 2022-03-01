@@ -6,6 +6,7 @@
  */
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/private/SkHalf.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"

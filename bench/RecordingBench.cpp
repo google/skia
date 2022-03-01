@@ -6,7 +6,9 @@
  */
 
 #include "bench/RecordingBench.h"
+
 #include "include/core/SkBBHFactory.h"
+#include "include/core/SkData.h"
 #include "include/core/SkPictureRecorder.h"
 
 PictureCentricBench::PictureCentricBench(const char* name, const SkPicture* pic) : fName(name) {

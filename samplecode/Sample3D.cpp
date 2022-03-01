@@ -9,6 +9,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkVertices.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"

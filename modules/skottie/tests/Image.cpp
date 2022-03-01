@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "modules/skottie/include/Skottie.h"
 #include "tests/Test.h"
