@@ -45,6 +45,13 @@ public:
 
     SK_API GrBackendFormat compressedBackendFormat(SkImage::CompressionType) const;
 
+    /**
+     * Gets the maximum supported sample count for a color type. 1 is returned if only non-MSAA
+     * rendering is supported for the color type. 0 is returned if rendering to this color type
+     * is not supported at all.
+     */
+    SK_API int maxSurfaceSampleCountForColorType(SkColorType colorType) const;
+
     // TODO: When the public version is gone, rename to refThreadSafeProxy and add raw ptr ver.
     sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
 

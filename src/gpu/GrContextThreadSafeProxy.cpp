@@ -162,6 +162,14 @@ GrBackendFormat GrContextThreadSafeProxy::compressedBackendFormat(SkImage::Compr
     return format;
 }
 
+int GrContextThreadSafeProxy::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
+    SkASSERT(fCaps);
+
+    GrBackendFormat format = fCaps->getDefaultBackendFormat(SkColorTypeToGrColorType(colorType),
+                                                            GrRenderable::kYes);
+    return fCaps->maxRenderTargetSampleCount(format);
+}
+
 void GrContextThreadSafeProxy::abandonContext() {
     if (!fAbandoned.exchange(true)) {
         fTextBlobRedrawCoordinator->freeAll();
@@ -183,4 +191,3 @@ void GrContextThreadSafeProxyPriv::init(sk_sp<const GrCaps> caps,
                                         sk_sp<GrThreadSafePipelineBuilder> builder) const {
     fProxy->init(std::move(caps), std::move(builder));
 }
-

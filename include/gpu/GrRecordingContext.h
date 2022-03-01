@@ -90,7 +90,9 @@ public:
      * rendering is supported for the color type. 0 is returned if rendering to this color type
      * is not supported at all.
      */
-    SK_API int maxSurfaceSampleCountForColorType(SkColorType) const;
+    SK_API int maxSurfaceSampleCountForColorType(SkColorType colorType) const {
+        return INHERITED::maxSurfaceSampleCountForColorType(colorType);
+    }
 
     // Provides access to functions that aren't part of the public API.
     GrRecordingContextPriv priv();

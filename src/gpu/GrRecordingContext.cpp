@@ -53,13 +53,6 @@ GrRecordingContext::~GrRecordingContext() {
 #endif
 }
 
-int GrRecordingContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
-    GrBackendFormat format =
-            this->caps()->getDefaultBackendFormat(SkColorTypeToGrColorType(colorType),
-                                                  GrRenderable::kYes);
-    return this->caps()->maxRenderTargetSampleCount(format);
-}
-
 bool GrRecordingContext::init() {
     if (!INHERITED::init()) {
         return false;
@@ -249,4 +242,3 @@ void GrRecordingContext::DMSAAStats::merge(const DMSAAStats& stats) {
 
 #endif // GR_GPU_STATS
 #endif // GR_TEST_UTILS
-

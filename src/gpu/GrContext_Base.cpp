@@ -44,6 +44,10 @@ GrBackendFormat GrContext_Base::compressedBackendFormat(SkImage::CompressionType
     return fThreadSafeProxy->compressedBackendFormat(c);
 }
 
+int GrContext_Base::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
+    return fThreadSafeProxy->maxSurfaceSampleCountForColorType(colorType);
+}
+
 sk_sp<GrContextThreadSafeProxy> GrContext_Base::threadSafeProxy() { return fThreadSafeProxy; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,6 +2,11 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 101
+-------------
+  * Add maxSurfaceSampleCountForColorType(SkColorType ct) in GrContextThreadSafeProxy
+
+
 Milestone 100
 -------------
   * Skia now requires C++17 and the corresponding standard library (or newer).
