@@ -13,6 +13,10 @@
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecordedDrawable.h"
 
+#if SK_SUPPORT_GPU
+#include "include/private/chromium/GrSlug.h"
+#endif
+
 size_t SkRecordedDrawable::onApproximateBytesUsed() {
     size_t drawablesSize = 0;
     if (fDrawableList) {

@@ -16,6 +16,7 @@ class SkCanvas;
 class SkMatrix;
 class SkPaint;
 class SkTextBlob;
+class SkReadBuffer;
 class SkStrikeClient;
 class SkWriteBuffer;
 
@@ -53,6 +54,8 @@ public:
     // is needed.
     static sk_sp<GrSlug> Deserialize(
             const void* data, size_t size, const SkStrikeClient* client = nullptr);
+    static sk_sp<GrSlug> MakeFromBuffer(SkReadBuffer& buffer);
+
 
     // Draw the GrSlug obeying the canvas's mapping and clipping.
     void draw(SkCanvas* canvas) const;
@@ -60,7 +63,12 @@ public:
     virtual SkRect sourceBounds() const = 0;
     virtual const SkPaint& paint() const = 0;
 
-protected:
     virtual void doFlatten(SkWriteBuffer&) const = 0;
+
+    uint32_t uniqueID() const { return fUniqueID; }
+
+private:
+    static uint32_t NextUniqueID();
+    const uint32_t  fUniqueID{NextUniqueID()};
 };
 #endif  // GrSlug_DEFINED

@@ -21,6 +21,10 @@
 #include "src/core/SkResourceCache.h"
 #include <atomic>
 
+#if SK_SUPPORT_GPU
+#include "include/private/chromium/GrSlug.h"
+#endif
+
 // When we read/write the SkPictInfo via a stream, we have a sentinel byte right after the info.
 // Note: in the read/write buffer versions, we have a slightly different convention:
 //      We have a sentinel int32_t:

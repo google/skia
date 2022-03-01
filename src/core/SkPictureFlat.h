@@ -116,7 +116,9 @@ enum DrawType {
 
     RESET_CLIP,
 
-    LAST_DRAWTYPE_ENUM = RESET_CLIP,
+    DRAW_SLUG,
+
+    LAST_DRAWTYPE_ENUM = DRAW_SLUG,
 };
 
 enum DrawVertexFlags {

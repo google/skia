@@ -11,6 +11,8 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
+#include <atomic>
+
 GrTextReferenceFrame::~GrTextReferenceFrame() = default;
 
 GrSlug::~GrSlug() = default;
@@ -37,6 +39,10 @@ size_t GrSlug::serialize(void* buffer, size_t size) const {
 }
 
 sk_sp<GrSlug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
+sk_sp<GrSlug> GrSlug::MakeFromBuffer(SkReadBuffer& buffer) {
+    return SkMakeSlugFromBuffer(buffer, nullptr);
+}
+
 sk_sp<GrSlug> GrSlug::Deserialize(const void* data, size_t size, const SkStrikeClient* client) {
     SkReadBuffer buffer{data, size};
     return SkMakeSlugFromBuffer(buffer, client);
@@ -44,6 +50,11 @@ sk_sp<GrSlug> GrSlug::Deserialize(const void* data, size_t size, const SkStrikeC
 
 void GrSlug::draw(SkCanvas* canvas) const {
     canvas->drawSlug(this);
+}
+
+uint32_t GrSlug::NextUniqueID() {
+    static std::atomic<uint32_t> nextUnique = 1;
+    return nextUnique++;
 }
 
 // Most of GrSlug's implementation is in GrTextBlob.cpp to share common code.
