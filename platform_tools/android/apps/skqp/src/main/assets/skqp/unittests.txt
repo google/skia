@@ -17,6 +17,7 @@ DDL.+
 DSL.+
 GpuDrawPath
 GpuRectanizer
+ProcessorOptimizationValidationTest
 
 # Don't test Ganesh internals
 GrContextDump
