@@ -266,13 +266,13 @@ OpBranchConditional %26 %27 %28
 %52 = OpFAdd %float %44 %51
 %53 = OpLoad %v2float %18
 %54 = OpCompositeExtract %float %53 0
-%56 = OpLoad %v2float %17
-%57 = OpCompositeExtract %float %56 1
-%55 = OpFNegate %float %57
+%55 = OpLoad %v2float %17
+%56 = OpCompositeExtract %float %55 1
+%57 = OpFNegate %float %56
 %58 = OpLoad %v2float %17
 %59 = OpCompositeExtract %float %58 0
 %60 = OpFMul %float %float_2 %59
-%61 = OpFAdd %float %55 %60
+%61 = OpFAdd %float %57 %60
 %62 = OpFAdd %float %61 %float_1
 %63 = OpFMul %float %54 %62
 %64 = OpFAdd %float %52 %63

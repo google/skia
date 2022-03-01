@@ -86,17 +86,16 @@ static void test_one_permutation(skiatest::Reporter* r,
     set_uniform(&builder, "colorBlue",        SkV4{0, 0, 1, 1});
     set_uniform(&builder, "colorWhite",       SkV4{1, 1, 1, 1});
     set_uniform(&builder, "testInputs",       SkV4{-1.25, 0, 0.75, 2.25});
-    set_uniform(&builder, "testMatrix2x2",    std::array<float,4>{1, 2,
-                                                                  3, 4});
-    set_uniform(&builder, "testMatrix3x3",    std::array<float,9>{1, 2, 3,
-                                                                  4, 5, 6,
-                                                                  7, 8, 9});
     set_uniform(&builder, "unknownInput",     1.0f);
     set_uniform(&builder, "testMatrix2x2",    std::array<float,4>{1, 2,
                                                                   3, 4});
     set_uniform(&builder, "testMatrix3x3",    std::array<float,9>{1, 2, 3,
                                                                   4, 5, 6,
                                                                   7, 8, 9});
+    set_uniform(&builder, "testMatrix4x4",    std::array<float,16>{1,  2,  3,  4,
+                                                                   5,  6,  7,  8,
+                                                                   9,  10, 11, 12,
+                                                                   13, 14, 15, 16});
     set_uniform_array(&builder, "testArray",  SkMakeSpan(kArray));
 
     sk_sp<SkShader> shader = builder.makeShader();
@@ -306,6 +305,7 @@ SKSL_TEST_GPU_ES3(SkSLIntFoldingES3, "folding/IntFoldingES3.sksl")
 SKSL_TEST(SkSLFloatFolding,                    "folding/FloatFolding.sksl")
 SKSL_TEST(SkSLMatrixFoldingES2,                "folding/MatrixFoldingES2.sksl")
 SKSL_TEST_GPU_ES3(SkSLMatrixFoldingES3, "folding/MatrixFoldingES3.sksl")
+SKSL_TEST(SkSLNegation,                        "folding/Negation.sksl")
 SKSL_TEST(SkSLSelfAssignment,                  "folding/SelfAssignment.sksl")
 SKSL_TEST(SkSLShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(SkSLSwitchCaseFolding,               "folding/SwitchCaseFolding.sksl")
@@ -447,7 +447,6 @@ SKSL_TEST(SkSLMatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(SkSLMatrixScalarMath,                "shared/MatrixScalarMath.sksl")
 SKSL_TEST(SkSLMatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
 SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl")
-SKSL_TEST(SkSLNegation,                        "shared/Negation.sksl")
 SKSL_TEST(SkSLNumberCasts,                     "shared/NumberCasts.sksl")
 SKSL_TEST(SkSLOperatorsES2,                    "shared/OperatorsES2.sksl")
 SKSL_TEST_GPU_ES3(SkSLOperatorsES3, "shared/OperatorsES3.sksl")

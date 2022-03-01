@@ -21,7 +21,7 @@ OpDecorate %11 Binding 0
 OpDecorate %11 DescriptorSet 0
 OpDecorate %28 RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
-OpDecorate %33 RelaxedPrecision
+OpDecorate %37 RelaxedPrecision
 OpDecorate %38 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
@@ -56,18 +56,18 @@ OpFunctionEnd
 %this_function_is_defined_before_use_h4h4 = OpFunction %v4float None %24
 %26 = OpFunctionParameter %_ptr_Function_v4float
 %27 = OpLabel
-%29 = OpLoad %v4float %26
-%28 = OpFNegate %v4float %29
-OpReturnValue %28
+%28 = OpLoad %v4float %26
+%29 = OpFNegate %v4float %28
+OpReturnValue %29
 OpFunctionEnd
 %main = OpFunction %v4float None %30
 %31 = OpFunctionParameter %_ptr_Function_v2float
 %32 = OpLabel
 %39 = OpVariable %_ptr_Function_v4float Function
-%34 = OpAccessChain %_ptr_Uniform_v4float %11 %int_0
-%38 = OpLoad %v4float %34
-%33 = OpFNegate %v4float %38
-OpStore %39 %33
+%33 = OpAccessChain %_ptr_Uniform_v4float %11 %int_0
+%37 = OpLoad %v4float %33
+%38 = OpFNegate %v4float %37
+OpStore %39 %38
 %40 = OpFunctionCall %v4float %this_function_is_defined_before_use_h4h4 %39
 OpReturnValue %40
 OpFunctionEnd
