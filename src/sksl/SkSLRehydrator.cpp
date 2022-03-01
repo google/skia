@@ -13,6 +13,7 @@
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
+#include "include/sksl/DSLCore.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLThreadContext.h"
@@ -282,6 +283,7 @@ std::unique_ptr<Program> Rehydrator::program() {
     ModifiersPool* oldModifiersPool = context.fModifiersPool;
     context.fConfig = config.get();
     fSymbolTable = fCompiler.moduleForProgramKind(config->fKind).fSymbols;
+    dsl::Start(&fCompiler, config->fKind, config->fSettings);
     auto modifiers = std::make_unique<ModifiersPool>();
     context.fModifiersPool = modifiers.get();
     this->symbolTable();
@@ -290,9 +292,15 @@ std::unique_ptr<Program> Rehydrator::program() {
     context.fModifiersPool = oldModifiersPool;
     Program::Inputs inputs;
     inputs.fUseFlipRTUniform = this->readU8();
-    return std::make_unique<Program>(nullptr, std::move(config), fCompiler.fContext,
-            std::move(elements), /*sharedElements=*/std::vector<const ProgramElement*>(),
-            std::move(modifiers), fSymbolTable, /*pool=*/nullptr, inputs);
+    std::unique_ptr<Pool> pool = std::move(ThreadContext::MemoryPool());
+    pool->detachFromThread();
+    std::unique_ptr<Program> result = std::make_unique<Program>(nullptr, std::move(config),
+            fCompiler.fContext, std::move(elements),
+            /*sharedElements=*/std::vector<const ProgramElement*>(), std::move(modifiers),
+            fSymbolTable, std::move(pool), inputs);
+    fSymbolTable = fSymbolTable->fParent;
+    dsl::End();
+    return result;
 }
 
 std::vector<std::unique_ptr<ProgramElement>> Rehydrator::elements() {
