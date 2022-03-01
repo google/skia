@@ -298,7 +298,7 @@ TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger, AnchorP
 
 TextAdapter::~TextAdapter() = default;
 
-void TextAdapter::addFragment(const Shaper::Fragment& frag, float scale) {
+void TextAdapter::addFragment(const Shaper::Fragment& frag) {
     // For a given shaped fragment, build a corresponding SG fragment:
     //
     //   [TransformEffect] -> [Transform]
@@ -333,7 +333,7 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag, float scale) {
             rec.fStrokeColorNode = sksg::Color::Make(fText->fStrokeColor);
             rec.fStrokeColorNode->setAntiAlias(true);
             rec.fStrokeColorNode->setStyle(SkPaint::kStroke_Style);
-            rec.fStrokeColorNode->setStrokeWidth(fText->fStrokeWidth * scale);
+            rec.fStrokeColorNode->setStrokeWidth(fText->fStrokeWidth);
             draws.push_back(sksg::Draw::Make(blob_node, rec.fStrokeColorNode));
         }
     };
@@ -494,7 +494,7 @@ void TextAdapter::reshape() {
     fFragments.clear();
 
     for (const auto& frag : shape_result.fFragments) {
-        this->addFragment(frag, shape_result.fScale);
+        this->addFragment(frag);
     }
 
     if (!fAnimators.empty() || fPathInfo) {
