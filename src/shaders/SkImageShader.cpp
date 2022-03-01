@@ -379,8 +379,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 #ifdef SK_ENABLE_SKSL
 void SkImageShader::addToKey(SkShaderCodeDictionary* dict,
                              SkPaintParamsKeyBuilder* builder,
-                             SkUniformBlock* uniformBlock) const {
-    ImageShaderBlock::AddToKey(dict, builder, uniformBlock, { fTileModeX, fTileModeY });
+                             SkPipelineData* pipelineData) const {
+    ImageShaderBlock::AddToKey(dict, builder, pipelineData, { fTileModeX, fTileModeY });
 }
 #endif
 

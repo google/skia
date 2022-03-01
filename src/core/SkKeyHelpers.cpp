@@ -48,7 +48,7 @@ static const int kBlockDataSize = 0;
 
 void AddToKey(SkShaderCodeDictionary* /* dict */,
               SkPaintParamsKeyBuilder* builder,
-              SkUniformBlock* /* uniformBlock */) {
+              SkPipelineData* /* pipelineData */) {
     builder->beginBlock(SkBuiltInCodeSnippetID::kDepthStencilOnlyDraw);
     builder->endBlock();
 
@@ -90,7 +90,7 @@ sk_sp<SkUniformData> make_solid_uniform_data(SkShaderCodeDictionary* dict, SkCol
 
 void AddToKey(SkShaderCodeDictionary* dict,
               SkPaintParamsKeyBuilder* builder,
-              SkUniformBlock* uniformBlock,
+              SkPipelineData* pipelineData,
               const SkColor4f& color) {
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -102,8 +102,8 @@ void AddToKey(SkShaderCodeDictionary* dict,
                               SkBuiltInCodeSnippetID::kSolidColorShader,
                               kBlockDataSize);
 
-        if (uniformBlock) {
-            uniformBlock->add(make_solid_uniform_data(dict, color));
+        if (pipelineData) {
+            pipelineData->add(make_solid_uniform_data(dict, color));
         }
         return;
     }
@@ -272,7 +272,7 @@ GradientData::GradientData(SkShader::GradientType type,
 
 void AddToKey(SkShaderCodeDictionary* dict,
               SkPaintParamsKeyBuilder *builder,
-              SkUniformBlock* uniformBlock,
+              SkPipelineData* pipelineData,
               const GradientData& gradData) {
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -281,26 +281,26 @@ void AddToKey(SkShaderCodeDictionary* dict,
         switch (gradData.fType) {
             case SkShader::kLinear_GradientType:
                 codeSnippetID = SkBuiltInCodeSnippetID::kLinearGradientShader;
-                if (uniformBlock) {
-                    uniformBlock->add(make_linear_gradient_uniform_data(dict, gradData));
+                if (pipelineData) {
+                    pipelineData->add(make_linear_gradient_uniform_data(dict, gradData));
                 }
                 break;
             case SkShader::kRadial_GradientType:
                 codeSnippetID = SkBuiltInCodeSnippetID::kRadialGradientShader;
-                if (uniformBlock) {
-                    uniformBlock->add(make_radial_gradient_uniform_data(dict, gradData));
+                if (pipelineData) {
+                    pipelineData->add(make_radial_gradient_uniform_data(dict, gradData));
                 }
                 break;
             case SkShader::kSweep_GradientType:
                 codeSnippetID = SkBuiltInCodeSnippetID::kSweepGradientShader;
-                if (uniformBlock) {
-                    uniformBlock->add(make_sweep_gradient_uniform_data(dict, gradData));
+                if (pipelineData) {
+                    pipelineData->add(make_sweep_gradient_uniform_data(dict, gradData));
                 }
                 break;
             case SkShader::GradientType::kConical_GradientType:
                 codeSnippetID = SkBuiltInCodeSnippetID::kConicalGradientShader;
-                if (uniformBlock) {
-                    uniformBlock->add(make_conical_gradient_uniform_data(dict, gradData));
+                if (pipelineData) {
+                    pipelineData->add(make_conical_gradient_uniform_data(dict, gradData));
                 }
                 break;
             case SkShader::GradientType::kColor_GradientType:
@@ -324,7 +324,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
     if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
         // TODO: add implementation of other backends
-        SolidColorShaderBlock::AddToKey(dict, builder, uniformBlock, SkColors::kRed);
+        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, SkColors::kRed);
     }
 }
 
@@ -362,7 +362,7 @@ sk_sp<SkUniformData> make_image_uniform_data(SkShaderCodeDictionary* dict,
 
 void AddToKey(SkShaderCodeDictionary* dict,
               SkPaintParamsKeyBuilder* builder,
-              SkUniformBlock* uniformBlock,
+              SkPipelineData* pipelineData,
               const ImageData& imgData) {
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -377,8 +377,8 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
         builder->endBlock();
 
-        if (uniformBlock) {
-            uniformBlock->add(make_image_uniform_data(dict, imgData));
+        if (pipelineData) {
+            pipelineData->add(make_image_uniform_data(dict, imgData));
         }
         return;
     }
@@ -386,7 +386,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
     if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
         // TODO: add implementation for other backends
-        SolidColorShaderBlock::AddToKey(dict, builder, uniformBlock, SkColors::kRed);
+        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, SkColors::kRed);
     }
 }
 
@@ -424,7 +424,7 @@ sk_sp<SkUniformData> make_blendshader_uniform_data(SkShaderCodeDictionary* dict,
 
 void AddToKey(SkShaderCodeDictionary* dict,
               SkPaintParamsKeyBuilder *builder,
-              SkUniformBlock* uniformBlock,
+              SkPipelineData* pipelineData,
               const BlendData& blendData) {
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -432,8 +432,8 @@ void AddToKey(SkShaderCodeDictionary* dict,
         // When extracted into SkShaderInfo::SnippetEntries the children will appear after their
         // parent. Thus, the parent's uniform data must appear in the uniform block before the
         // uniform data of the children.
-        if (uniformBlock) {
-            uniformBlock->add(make_blendshader_uniform_data(dict, blendData.fBM));
+        if (pipelineData) {
+            pipelineData->add(make_blendshader_uniform_data(dict, blendData.fBM));
         }
 
         builder->beginBlock(SkBuiltInCodeSnippetID::kBlendShader);
@@ -442,11 +442,11 @@ void AddToKey(SkShaderCodeDictionary* dict,
         // TODO: add startChild/endChild entry points to SkPaintParamsKeyBuilder. They could be
         // used to compute and store the number of children w/in a block's header.
         int start = builder->sizeInBytes();
-        as_SB(blendData.fDst)->addToKey(dict, builder, uniformBlock);
+        as_SB(blendData.fDst)->addToKey(dict, builder, pipelineData);
         int firstShaderSize = builder->sizeInBytes() - start;
 
         start = builder->sizeInBytes();
-        as_SB(blendData.fSrc)->addToKey(dict, builder, uniformBlock);
+        as_SB(blendData.fSrc)->addToKey(dict, builder, pipelineData);
         int secondShaderSize = builder->sizeInBytes() - start;
 
         builder->endBlock();
@@ -461,7 +461,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
     if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
         // TODO: add implementation for other backends
-        SolidColorShaderBlock::AddToKey(dict, builder, uniformBlock, SkColors::kRed);
+        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, SkColors::kRed);
     }
 }
 
@@ -476,7 +476,7 @@ static const int kBlockDataSize = 1;
 
 void AddToKey(SkShaderCodeDictionary* dict,
               SkPaintParamsKeyBuilder *builder,
-              SkUniformBlock* uniformBlock,
+              SkPipelineData* pipelineData,
               SkBlendMode bm) {
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -494,7 +494,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
     if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
         // TODO: add implementation for other backends
-        SolidColorShaderBlock::AddToKey(dict, builder, uniformBlock, SkColors::kRed);
+        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, SkColors::kRed);
     }
 }
 

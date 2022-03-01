@@ -20,7 +20,7 @@ enum class SkBackend : uint8_t;
 class SkPaintParamsKey;
 class SkPaintParamsKeyBuilder;
 class SkShaderCodeDictionary;
-class SkUniformBlock;
+class SkPipelineData;
 
 // The KeyHelpers can be used to manually construct an SkPaintParamsKey
 
@@ -28,7 +28,7 @@ namespace DepthStencilOnlyBlock {
 
     void AddToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
-                  SkUniformBlock*);
+                  SkPipelineData*);
 
 } // namespace DepthStencilOnlyBlock
 
@@ -36,7 +36,7 @@ namespace SolidColorShaderBlock {
 
     void AddToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
-                  SkUniformBlock*,
+                  SkPipelineData*,
                   const SkColor4f&);
 
 } // namespace SolidColorShaderBlock
@@ -89,7 +89,7 @@ namespace GradientShaderBlocks {
 
     void AddToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
-                  SkUniformBlock*,
+                  SkPipelineData*,
                   const GradientData&);
 
 } // namespace GradientShaderBlocks
@@ -110,7 +110,7 @@ namespace ImageShaderBlock {
 
     void AddToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
-                  SkUniformBlock*,
+                  SkPipelineData*,
                   const ImageData&);
 
 } // namespace ImageShaderBlock
@@ -126,7 +126,7 @@ namespace BlendShaderBlock {
 
     void AddToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
-                  SkUniformBlock*,
+                  SkPipelineData*,
                   const BlendData&);
 
 } // namespace BlendShaderBlock
@@ -135,7 +135,7 @@ namespace BlendModeBlock {
 
     void AddToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
-                  SkUniformBlock*,
+                  SkPipelineData*,
                   SkBlendMode);
 
 } // namespace BlendModeBlock

@@ -24,7 +24,7 @@ public:
 #ifdef SK_ENABLE_SKSL
     void addToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
-                  SkUniformBlock*) const override;
+                  SkPipelineData*) const override;
 #endif
 
     SkScalar getTBias() const { return fTBias; }

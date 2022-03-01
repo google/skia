@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_UniformCache_DEFINED
-#define skgpu_UniformCache_DEFINED
+#ifndef skgpu_PipelineDataCache_DEFINED
+#define skgpu_PipelineDataCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
 
 #include <unordered_map>
 #include <vector>
 
-class SkUniformBlock;
+class SkPipelineData;
 
 namespace skgpu {
 
 
-class UniformCache {
+class PipelineDataCache {
 public:
     static constexpr uint32_t kInvalidUniformID = 0;
 
-    UniformCache();
+    PipelineDataCache();
 
-    // TODO: Revisit the UniformCache::insert and UniformData::Make APIs:
+    // TODO: Revisit the PipelineDataCache::insert and UniformData::Make APIs:
     // 1. UniformData::Make requires knowing the data size up front, which involves two invocations
     //    of the UniformManager. Ideally, we could align uniforms on the fly into a dynamic buffer.
     // 2. UniformData stores the offsets for each uniform, but these aren't needed after we've
@@ -45,9 +45,9 @@ public:
 
     // Add the block of uniform data to the cache and return a unique ID that corresponds to its
     // contents. If an identical block of data is already in the cache, that unique ID is returned.
-    uint32_t insert(std::unique_ptr<SkUniformBlock>);
+    uint32_t insert(std::unique_ptr<SkPipelineData>);
 
-    SkUniformBlock* lookup(uint32_t uniqueID);
+    SkPipelineData* lookup(uint32_t uniqueID);
 
     // The number of unique UniformBlock objects in the cache
     size_t count() const {
@@ -58,16 +58,16 @@ public:
 private:
     struct Hash {
         // This hash operator de-references and hashes the data contents
-        size_t operator()(SkUniformBlock*) const;
+        size_t operator()(SkPipelineData*) const;
     };
     struct Eq {
         // This equality operator de-references and compares the actual data contents
-        bool operator()(SkUniformBlock*, SkUniformBlock*) const;
+        bool operator()(SkPipelineData*, SkPipelineData*) const;
     };
 
     // The UniformBlock's unique ID is only unique w/in a Recorder _not_ globally
-    std::unordered_map<SkUniformBlock*, uint32_t, Hash, Eq> fUniformBlockIDs;
-    std::vector<std::unique_ptr<SkUniformBlock>> fUniformBlock;
+    std::unordered_map<SkPipelineData*, uint32_t, Hash, Eq> fUniformBlockIDs;
+    std::vector<std::unique_ptr<SkPipelineData>> fUniformBlock;
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -78,4 +78,4 @@ private:
 
 } // namespace skgpu
 
-#endif // skgpu_UniformCache_DEFINED
+#endif // skgpu_PipelineDataCache_DEFINED

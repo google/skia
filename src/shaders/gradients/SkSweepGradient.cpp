@@ -113,7 +113,7 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
 #ifdef SK_ENABLE_SKSL
 void SkSweepGradient::addToKey(SkShaderCodeDictionary* dict,
                                SkPaintParamsKeyBuilder* builder,
-                               SkUniformBlock* uniformBlock) const {
+                               SkPipelineData* pipelineData) const {
     GradientShaderBlocks::GradientData data(kSweep_GradientType,
                                             fCenter, { 0.0f, 0.0f },
                                             0.0, 0.0f,
@@ -122,6 +122,6 @@ void SkSweepGradient::addToKey(SkShaderCodeDictionary* dict,
                                             fOrigColors4f,
                                             fOrigPos);
 
-    GradientShaderBlocks::AddToKey(dict, builder, uniformBlock, data);
+    GradientShaderBlocks::AddToKey(dict, builder, pipelineData, data);
 }
 #endif

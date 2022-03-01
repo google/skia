@@ -25,7 +25,7 @@ class Recording;
 class ResourceProvider;
 class Task;
 class TaskGraph;
-class UniformCache;
+class PipelineDataCache;
 
 class Recorder final {
 public:
@@ -79,7 +79,7 @@ private:
     std::unique_ptr<ResourceProvider> fResourceProvider;
 
     std::unique_ptr<TaskGraph> fGraph;
-    std::unique_ptr<UniformCache> fUniformCache;
+    std::unique_ptr<PipelineDataCache> fPipelineDataCache;
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;
     std::vector<Device*> fTrackedDevices;
 

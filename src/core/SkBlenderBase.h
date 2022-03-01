@@ -19,9 +19,9 @@ enum class SkBackend : uint8_t;
 struct GrFPArgs;
 class GrFragmentProcessor;
 class SkPaintParamsKeyBuilder;
+class SkPipelineData;
 class SkRuntimeEffect;
 class SkShaderCodeDictionary;
-class SkUniformBlock;
 
 /**
  * Encapsulates a blend function, including non-public APIs.
@@ -61,7 +61,7 @@ public:
     // TODO: make pure virtual
     virtual void addToKey(SkShaderCodeDictionary*,
                           SkPaintParamsKeyBuilder*,
-                          SkUniformBlock*) const;
+                          SkPipelineData*) const;
 #endif
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }

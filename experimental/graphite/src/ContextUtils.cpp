@@ -21,22 +21,22 @@
 
 namespace skgpu {
 
-std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintData(
+std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkPipelineData>> ExtractPaintData(
         SkShaderCodeDictionary* dict,
         SkPaintParamsKeyBuilder* builder,
         const PaintParams& p) {
 
     SkDEBUGCODE(builder->checkReset());
 
-    std::unique_ptr<SkUniformBlock> block = std::make_unique<SkUniformBlock>();
+    std::unique_ptr<SkPipelineData> pipelineData = std::make_unique<SkPipelineData>();
 
-    p.toKey(dict, builder, block.get());
+    p.toKey(dict, builder, pipelineData.get());
 
     SkPaintParamsKey key = builder->lockAsKey();
 
     auto entry = dict->findOrCreate(key);
 
-    return { entry->uniqueID(), std::move(block) };
+    return { entry->uniqueID(), std::move(pipelineData) };
 }
 
 } // namespace skgpu

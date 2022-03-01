@@ -30,10 +30,10 @@ class SkImage;
 struct SkImageInfo;
 class SkPaint;
 class SkPaintParamsKeyBuilder;
+class SkPipelineData;
 class SkRasterPipeline;
 class SkRuntimeEffect;
 class SkShaderCodeDictionary;
-class SkUniformBlock;
 class SkStageUpdater;
 
 class SkUpdatableShader;
@@ -221,11 +221,11 @@ public:
 
         @param dictionary   dictionary of code fragments available to be used in the key
         @param builder      builder for creating the key for this SkShader
-        @param uniformBlock if non-null, storage for this shader's uniform data
+        @param pipelineData if non-null, storage for this shader's data
     */
     virtual void addToKey(SkShaderCodeDictionary* dictionary,
                           SkPaintParamsKeyBuilder* builder,
-                          SkUniformBlock* uniformBlock) const;
+                          SkPipelineData* pipelineData) const;
 #endif
 
 protected:

@@ -195,10 +195,10 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
 #ifdef SK_ENABLE_SKSL
 void SkShader_Blend::addToKey(SkShaderCodeDictionary* dict,
                               SkPaintParamsKeyBuilder* builder,
-                              SkUniformBlock* uniformBlock) const {
+                              SkPipelineData* pipelineData) const {
     // TODO: add blender support
     SkASSERT(!fBlender);
 
-    BlendShaderBlock::AddToKey(dict, builder, uniformBlock, { fDst.get(), fSrc.get(), fMode });
+    BlendShaderBlock::AddToKey(dict, builder, pipelineData, { fDst.get(), fSrc.get(), fMode });
 }
 #endif
