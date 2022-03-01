@@ -2476,6 +2476,9 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
         return false;
     }
     void* mappedMemory = transferBuffer->map();
+    if (!mappedMemory) {
+        return false;
+    }
 
     SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, rect.height());
 
