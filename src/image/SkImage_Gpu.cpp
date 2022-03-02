@@ -540,12 +540,12 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
         mipmapped = GrMipmapped::kNo;
     }
 
-    if (this->isTextureBacked()) {
+    if (as_IB(this)->isGaneshBacked()) {
         if (!as_IB(this)->context()->priv().matches(dContext)) {
             return nullptr;
         }
 
-        if (this->isTextureBacked() && (mipmapped == GrMipmapped::kNo || this->hasMipmaps())) {
+        if (mipmapped == GrMipmapped::kNo || this->hasMipmaps()) {
             return sk_ref_sp(const_cast<SkImage*>(this));
         }
     }

@@ -29,7 +29,7 @@
 namespace sk_gpu_test {
 
 GrTextureProxy* GetTextureImageProxy(SkImage* image, GrRecordingContext* rContext) {
-    if (!image->isTextureBacked() || as_IB(image)->isYUVA()) {
+    if (!as_IB(image)->isGaneshBacked() || as_IB(image)->isYUVA()) {
         return nullptr;
     }
     if (!rContext) {

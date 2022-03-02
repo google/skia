@@ -46,7 +46,7 @@ public:
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
 
-    bool onIsTextureBacked() const override { return true; }
+    bool isGaneshBacked() const override { return true; }
 
     size_t onTextureSize() const override;
 

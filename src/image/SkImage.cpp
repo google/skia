@@ -216,7 +216,9 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset, GrDirectContext* direc
 
 #if SK_SUPPORT_GPU
 
-bool SkImage::isTextureBacked() const { return as_IB(this)->onIsTextureBacked(); }
+bool SkImage::isTextureBacked() const {
+    return as_IB(this)->isGaneshBacked() || as_IB(this)->isGraphiteBacked();
+}
 
 size_t SkImage::textureSize() const { return as_IB(this)->onTextureSize(); }
 

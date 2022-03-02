@@ -731,7 +731,7 @@ public:
     */
     bool peekPixels(SkPixmap* pixmap) const;
 
-    /** Returns true the contents of SkImage was created on or uploaded to GPU memory,
+    /** Returns true if the contents of SkImage was created on or uploaded to GPU memory,
         and is available as a GPU texture.
 
         @return  true if SkImage is a GPU texture

@@ -43,7 +43,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(skgpu::Recorder* recorder,
         mipmapped = skgpu::Mipmapped::kNo;
     }
 
-    if (this->isTextureBacked()) {
+    if (as_IB(this)->isGraphiteBacked()) {
         if (mipmapped == skgpu::Mipmapped::kNo || this->hasMipmaps()) {
             const SkImage* image = this;
             return sk_ref_sp(const_cast<SkImage*>(image));
