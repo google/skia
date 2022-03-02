@@ -38,6 +38,7 @@
 class GrDirectContext;
 #endif
 
+#define DEBUGCANVAS_ATTRIBUTE_DUMP "dump"
 #define DEBUGCANVAS_ATTRIBUTE_COMMAND "command"
 #define DEBUGCANVAS_ATTRIBUTE_VISIBLE "visible"
 #define DEBUGCANVAS_ATTRIBUTE_MATRIX "matrix"
@@ -465,6 +466,13 @@ void DrawCommand::MakeJsonMatrix44(SkJSONWriter& writer, const SkM44& matrix) {
 
 void DrawCommand::MakeJsonPath(SkJSONWriter& writer, const SkPath& path) {
     writer.beginObject();
+
+    SkDynamicMemoryWStream wstream;
+    path.dump(&wstream, false);
+    auto data = wstream.detachAsData();
+    SkString dumpString((char*)data->bytes(), data->size());
+    writer.appendString(DEBUGCANVAS_ATTRIBUTE_DUMP, dumpString.c_str());
+
     switch (path.getFillType()) {
         case SkPathFillType::kWinding:
             writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILLTYPE, DEBUGCANVAS_FILLTYPE_WINDING);

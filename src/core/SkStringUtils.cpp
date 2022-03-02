@@ -16,7 +16,7 @@ void SkAppendScalar(SkString* str, SkScalar value, SkScalarAsStringType asType) 
             break;
         case kDec_SkScalarAsStringType: {
             SkString tmp;
-            tmp.printf("%g", value);
+            tmp.printf("%.9g", value);
             if (tmp.contains('.')) {
                 tmp.appendUnichar('f');
             }
