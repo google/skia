@@ -124,7 +124,7 @@ loop:
 45	    r25 = trunc r25
 46	    r25 = mul_i32 r25 r14
 47	    trace_var 0 r26 r26 $16 = r25
-48	    trace_line 0 r26 r26 L108
+48	    trace_line 0 r26 r26 L111
 49	    trace_enter 0 r26 r26 F1
 50	    trace_var 0 r26 r26 $18 = r25
 51	    trace_scope 0 r26 r26 1
