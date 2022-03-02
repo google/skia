@@ -8,6 +8,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTHash.h"
 #include "include/private/SkTPin.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLOperators.h"
@@ -48,7 +49,6 @@
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 
 #include <algorithm>
-#include <unordered_map>
 
 namespace {
     // sksl allows the optimizations of fast_mul(), so we want to use that most of the time.
@@ -172,8 +172,8 @@ private:
      * addition to a scalar).
      *
      * For a VariableReference, producing a Value is straightforward - we get the slot of the
-     * Variable (from fVariableMap), use that to look up the current skvm::Vals holding the
-     * variable's contents, and construct a Value with those ids.
+     * Variable (from fSlotMap), use that to look up the current skvm::Vals holding the variable's
+     * contents, and construct a Value with those ids.
      */
 
     /** Creates a Value from a collection of adjacent slots. */
@@ -319,10 +319,8 @@ private:
     };
     std::vector<Slot> fSlots;
 
-    // [Variable, first slot in fSlots]
-    std::unordered_map<const Variable*, size_t> fVariableMap;
-    // [Function, first slot in fSlots]
-    std::unordered_map<const FunctionDefinition*, size_t> fReturnValueMap;
+    // [Variable/Function, first slot in fSlots]
+    SkTHashMap<const IRNode*, size_t> fSlotMap;
 
     // Debug trace mask (set to true when fTraceCoord matches device coordinates)
     skvm::I32 fTraceMask;
@@ -422,7 +420,7 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
     }
 
     // Add storage for each global variable (including uniforms) to fSlots, and entries in
-    // fVariableMap to remember where every variable is stored.
+    // fSlotMap to remember where every variable is stored.
     const skvm::Val* uniformIter = uniforms.begin();
     size_t fpCount = 0;
     for (const ProgramElement* e : fProgram.elements()) {
@@ -430,12 +428,12 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
             const GlobalVarDeclaration& gvd = e->as<GlobalVarDeclaration>();
             const VarDeclaration& decl = gvd.declaration()->as<VarDeclaration>();
             const Variable& var = decl.var();
-            SkASSERT(fVariableMap.find(&var) == fVariableMap.end());
+            SkASSERT(!fSlotMap.find(&var));
 
-            // For most variables, fVariableMap stores an index into fSlots, but for children,
-            // fVariableMap stores the index to pass to fSample(Shader|ColorFilter|Blender)
+            // For most variables, fSlotMap stores an index into fSlots, but for children,
+            // fSlotMap stores the index to pass to fSample(Shader|ColorFilter|Blender)
             if (var.type().isEffectChild()) {
-                fVariableMap[&var] = fpCount++;
+                fSlotMap.set(&var, fpCount++);
                 continue;
             }
 
@@ -445,7 +443,7 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
             SkASSERT(!var.type().isOpaque());
 
             // getSlot() allocates space for the variable's value in fSlots, initializes it to zero,
-            // and populates fVariableMap.
+            // and populates fSlotMap.
             size_t slot   = this->getSlot(var),
                    nslots = var.type().slotCount();
 
@@ -660,20 +658,20 @@ size_t SkVMGenerator::createSlot(const std::string& name,
 }
 
 size_t SkVMGenerator::getSlot(const Variable& v) {
-    auto entry = fVariableMap.find(&v);
-    if (entry != fVariableMap.end()) {
-        return entry->second;
+    size_t* entry = fSlotMap.find(&v);
+    if (entry != nullptr) {
+        return *entry;
     }
 
     size_t slot = this->createSlot(std::string(v.name()), v.type(), v.fLine, /*fnReturnValue=*/-1);
-    fVariableMap[&v] = slot;
+    fSlotMap.set(&v, slot);
     return slot;
 }
 
 size_t SkVMGenerator::getSlot(const FunctionDefinition& fn) {
-    auto entry = fReturnValueMap.find(&fn);
-    if (entry != fReturnValueMap.end()) {
-        return entry->second;
+    size_t* entry = fSlotMap.find(&fn);
+    if (entry != nullptr) {
+        return *entry;
     }
 
     const FunctionDeclaration& decl = fn.declaration();
@@ -683,7 +681,7 @@ size_t SkVMGenerator::getSlot(const FunctionDefinition& fn) {
                                    decl.returnType(),
                                    fn.fLine,
                                    fnReturnValue);
-    fReturnValueMap[&fn] = slot;
+    fSlotMap.set(&fn, slot);
     return slot;
 }
 
@@ -1223,8 +1221,8 @@ Value SkVMGenerator::writeMatrixInverse4x4(const Value& m) {
 }
 
 Value SkVMGenerator::writeChildCall(const ChildCall& c) {
-    auto child_it = fVariableMap.find(&c.child());
-    SkASSERT(child_it != fVariableMap.end());
+    size_t* childPtr = fSlotMap.find(&c.child());
+    SkASSERT(childPtr != nullptr);
 
     const Expression* arg = c.arguments()[0].get();
     Value argVal = this->writeExpression(*arg);
@@ -1235,7 +1233,7 @@ Value SkVMGenerator::writeChildCall(const ChildCall& c) {
             SkASSERT(c.arguments().size() == 1);
             SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fFloat2));
             skvm::Coord coord = {f32(argVal[0]), f32(argVal[1])};
-            color = fCallbacks->sampleShader(child_it->second, coord);
+            color = fCallbacks->sampleShader(*childPtr, coord);
             break;
         }
         case Type::TypeKind::kColorFilter: {
@@ -1243,7 +1241,7 @@ Value SkVMGenerator::writeChildCall(const ChildCall& c) {
             SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
                      arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
             skvm::Color inColor = {f32(argVal[0]), f32(argVal[1]), f32(argVal[2]), f32(argVal[3])};
-            color = fCallbacks->sampleColorFilter(child_it->second, inColor);
+            color = fCallbacks->sampleColorFilter(*childPtr, inColor);
             break;
         }
         case Type::TypeKind::kBlender: {
@@ -1258,7 +1256,7 @@ Value SkVMGenerator::writeChildCall(const ChildCall& c) {
                      arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
             skvm::Color dstColor = {f32(argVal[0]), f32(argVal[1]), f32(argVal[2]), f32(argVal[3])};
 
-            color = fCallbacks->sampleBlender(child_it->second, srcColor, dstColor);
+            color = fCallbacks->sampleBlender(*childPtr, srcColor, dstColor);
             break;
         }
         default: {
