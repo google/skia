@@ -176,9 +176,5 @@ template <typename T> sk_cfp<T> sk_ret_cfp(T obj) {
     return sk_cfp<T>(SkCFSafeRetain(obj));
 }
 
-// For Flutter.
-// TODO: migrate them away from this and remove
-template <typename T> using sk_cf_obj = sk_cfp<T>;
-
 #endif  // __APPLE__
 #endif  // SkCFObject_DEFINED
