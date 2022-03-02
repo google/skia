@@ -15,6 +15,8 @@ $13 = pos (float2 : slot 2/2, L9)
 $14 = ten (int, L11)
 $15 = [get].result (int, L5)
 $16 = x (int, L5)
+$17 = [get].result (int, L5)
+$18 = [get].result (int, L5)
 F0 = half4 main(float2 pos)
 F1 = int get(int x)
 
@@ -62,14 +64,14 @@ loop:
 39	    trace_var 0 r16 r16 $16 = r12
 40	    trace_scope 0 r16 r16 1
 41	    trace_line 0 r16 r16 L6
-42	    trace_var 0 r16 r16 $15 = r12
+42	    trace_var 0 r16 r16 $17 = r12
 43	    trace_scope 0 r16 r16 -1
 44	    trace_exit 0 r16 r16 F1
 45	    trace_enter 0 r16 r16 F1
 46	    trace_var 0 r16 r16 $16 = r13
 47	    trace_scope 0 r16 r16 1
 48	    trace_line 0 r16 r16 L6
-49	    trace_var 0 r16 r16 $15 = r13
+49	    trace_var 0 r16 r16 $18 = r13
 50	    trace_scope 0 r16 r16 -1
 51	    trace_exit 0 r16 r16 F1
 52	    trace_var 0 r16 r16 $14 = r14

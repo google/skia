@@ -203,10 +203,12 @@ private:
     size_t getSlot(const Variable& v);
 
     /**
-     * Returns the slot holding fn's return value. Allocates storage if this is first time accessing
-     * the slot.
+     * Returns the slot holding fn's return value. Each call site is given a distinct slot, since
+     * multiple calls to the same function can occur in a single statement. This is generally the
+     * FunctionCall or ChildCall node, but main() doesn't have one of these so it uses the
+     * FunctionDefinition. Allocates storage if this is first time accessing the slot.
      */
-    size_t getSlot(const FunctionDefinition& fn);
+    size_t getFunctionSlot(const IRNode& callSite, const FunctionDefinition& fn);
 
     /**
      * Writes a value to a slot previously created by getSlot.
@@ -226,7 +228,9 @@ private:
     void setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device);
 
     /** Emits an SkSL function. Returns the slot index of the SkSL function's return value. */
-    size_t writeFunction(const FunctionDefinition& function, SkSpan<skvm::Val> arguments);
+    size_t writeFunction(const IRNode& caller,
+                         const FunctionDefinition& function,
+                         SkSpan<skvm::Val> arguments);
 
     skvm::F32 f32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
     skvm::I32 i32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
@@ -388,7 +392,7 @@ void SkVMGenerator::writeProgram(SkSpan<skvm::Val> uniforms,
     fConditionMask = fLoopMask = fBuilder->splat(0xffff'ffff);
 
     this->setupGlobals(uniforms, device);
-    size_t returnSlot = this->writeFunction(function, arguments);
+    size_t returnSlot = this->writeFunction(function, function, arguments);
 
     // Copy the value from the return slot into outReturn.
     SkASSERT(function.declaration().returnType().slotCount() == outReturn.size());
@@ -512,7 +516,8 @@ int SkVMGenerator::getDebugFunctionInfo(const FunctionDeclaration& decl) {
     return slot;
 }
 
-size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
+size_t SkVMGenerator::writeFunction(const IRNode& caller,
+                                    const FunctionDefinition& function,
                                     SkSpan<skvm::Val> arguments) {
     const FunctionDeclaration& decl = function.declaration();
 
@@ -522,7 +527,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
         fBuilder->trace_enter(fTraceHookID, this->mask(), fTraceMask, funcIndex);
     }
 
-    size_t returnSlot = this->getSlot(function);
+    size_t returnSlot = this->getFunctionSlot(caller, function);
     fFunctionStack.push_back({/*fReturnSlot=*/returnSlot, /*fReturned=*/fBuilder->splat(0)});
 
     // For all parameters, copy incoming argument IDs to our vector of (all) variable IDs
@@ -668,20 +673,18 @@ size_t SkVMGenerator::getSlot(const Variable& v) {
     return slot;
 }
 
-size_t SkVMGenerator::getSlot(const FunctionDefinition& fn) {
-    size_t* entry = fSlotMap.find(&fn);
+size_t SkVMGenerator::getFunctionSlot(const IRNode& callSite, const FunctionDefinition& fn) {
+    size_t* entry = fSlotMap.find(&callSite);
     if (entry != nullptr) {
         return *entry;
     }
 
     const FunctionDeclaration& decl = fn.declaration();
-    int fnReturnValue = fDebugTrace ? this->getDebugFunctionInfo(decl) : -1;
-
     size_t slot = this->createSlot("[" + std::string(decl.name()) + "].result",
                                    decl.returnType(),
                                    fn.fLine,
-                                   fnReturnValue);
-    fSlotMap.set(&fn, slot);
+                                   /*fnReturnValue=*/1);
+    fSlotMap.set(&callSite, slot);
     return slot;
 }
 
@@ -1514,18 +1517,18 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
     SkUNREACHABLE;
 }
 
-Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
-    if (f.function().isIntrinsic() && !f.function().definition()) {
-        return this->writeIntrinsicCall(f);
+Value SkVMGenerator::writeFunctionCall(const FunctionCall& call) {
+    if (call.function().isIntrinsic() && !call.function().definition()) {
+        return this->writeIntrinsicCall(call);
     }
 
-    const FunctionDeclaration& decl = f.function();
+    const FunctionDeclaration& decl = call.function();
     SkASSERTF(decl.definition(), "no definition for function '%s'", decl.description().c_str());
     const FunctionDefinition& funcDef = *decl.definition();
 
     // Evaluate all arguments, gather the results into a contiguous list of IDs
     std::vector<skvm::Val> argVals;
-    for (const auto& arg : f.arguments()) {
+    for (const auto& arg : call.arguments()) {
         Value v = this->writeExpression(*arg);
         for (size_t i = 0; i < v.slots(); ++i) {
             argVals.push_back(v[i]);
@@ -1537,11 +1540,11 @@ Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
         // This merges currentFunction().fReturned into fConditionMask. Lanes that conditionally
         // returned in the current function would otherwise resume execution within the child.
         ScopedCondition m(this, ~currentFunction().fReturned);
-        returnSlot = this->writeFunction(funcDef, SkMakeSpan(argVals));
+        returnSlot = this->writeFunction(call, funcDef, SkMakeSpan(argVals));
     }
 
     // Propagate new values of any 'out' params back to the original arguments
-    const std::unique_ptr<Expression>* argIter = f.arguments().begin();
+    const std::unique_ptr<Expression>* argIter = call.arguments().begin();
     size_t valIdx = 0;
     for (const Variable* p : decl.parameters()) {
         size_t nslots = p->type().slotCount();
@@ -1558,7 +1561,7 @@ Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
     }
 
     // Create a result Value from the return slot
-    return this->getSlotValue(returnSlot, f.type().slotCount());
+    return this->getSlotValue(returnSlot, call.type().slotCount());
 }
 
 Value SkVMGenerator::writeExternalFunctionCall(const ExternalFunctionCall& c) {
