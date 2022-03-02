@@ -920,6 +920,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(glMsaaConfig, "gm", ALL, "imageblurtiled")
 			skip(glMsaaConfig, "gm", ALL, "imagefiltersbase")
 		}
+
+		skip(ALL, "tests", ALL, "SkSLUnaryPositiveNegative_GPU")
 	}
 
 	if b.matchGpu("Adreno[3456]") { // disable broken tests on Adreno 3/4/5/6xx
