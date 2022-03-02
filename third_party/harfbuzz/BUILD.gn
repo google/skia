@@ -86,6 +86,7 @@ if (skia_use_system_harfbuzz) {
       "$_src/hb-buffer-deserialize-json.hh",
       "$_src/hb-buffer-deserialize-text.hh",
       "$_src/hb-buffer-serialize.cc",
+      "$_src/hb-buffer-verify.cc",
       "$_src/hb-buffer.cc",
       "$_src/hb-buffer.hh",
       "$_src/hb-cache.hh",
