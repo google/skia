@@ -9,7 +9,6 @@
 #define skgpu_GraphiteTypes_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkVx.h"
 
 namespace skgpu {
 

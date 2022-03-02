@@ -24,6 +24,14 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+
+#ifdef SK_GRAPHITE_ENABLED
+namespace skgpu {
+enum class Mipmapped : bool;
+class Recorder;
+class TextureProxyView;
+}
+#endif
 #endif
 
 // fixes https://bug.skia.org/5096
@@ -145,6 +153,12 @@ private:
                                                                const SkMatrix&,
                                                                const SkRect*,
                                                                const SkRect*) const override;
+#ifdef SK_GRAPHITE_ENABLED
+    std::tuple<skgpu::TextureProxyView, SkColorType> onAsView(skgpu::Recorder*,
+                                                              skgpu::Mipmapped) const override {
+        return {}; // TODO
+    }
+#endif
 #endif
 
     SkBitmap fBitmap;

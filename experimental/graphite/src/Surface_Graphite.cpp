@@ -31,7 +31,11 @@ sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
     SkImageInfo ii = subset ? this->imageInfo().makeDimensions(subset->size())
                             : this->imageInfo();
 
-    return sk_sp<Image_Graphite>(new Image_Graphite(ii));
+    // TODO: create a real proxy view
+    sk_sp<TextureProxy> proxy(new TextureProxy(ii.dimensions(), {}));
+    TextureProxyView tpv(std::move(proxy));
+
+    return sk_sp<Image>(new Image(tpv, ii.colorInfo()));
 }
 
 void Surface::onWritePixels(const SkPixmap& pixmap, int x, int y) {

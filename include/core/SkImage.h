@@ -18,6 +18,9 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrTypes.h"
 #endif
+#if SK_GRAPHITE_ENABLED
+#include "experimental/graphite/include/GraphiteTypes.h"
+#endif
 #include <functional>  // std::function
 #include <optional>
 
@@ -43,6 +46,12 @@ class GrRecordingContext;
 class GrContextThreadSafeProxy;
 class GrYUVABackendTextureInfo;
 class GrYUVABackendTextures;
+
+#if SK_GRAPHITE_ENABLED
+namespace skgpu {
+class Recorder;
+};
+#endif
 
 /** \class SkImage
     SkImage describes a two dimensional array of pixels to draw. The pixels may be
@@ -1122,6 +1131,31 @@ public:
     sk_sp<SkImage> makeTextureImage(GrDirectContext*,
                                     GrMipmapped = GrMipmapped::kNo,
                                     SkBudgeted = SkBudgeted::kYes) const;
+#endif
+#ifdef SK_GRAPHITE_ENABLED
+    /** Graphite version of makeTextureImage.
+
+        Returns SkImage backed by GPU texture, using Recorder for creation and uploads if necessary.
+        The returned SkImage respects mipMapped setting for non-GPU SkImages; if mipMapped
+        equals GrMipmapped::kYes, the backing texture allocates mip map levels.
+
+        It is assumed that MIP maps are always supported by the GPU.
+
+        Returns original SkImage if the image is already texture-backed, the recorder matches, and
+        mipMapped is compatible with the backing GPU texture. If mipmapped is not compatible,
+        it will return nullptr.
+
+        Returns nullptr if recorder is nullptr, or if SkImage was created with another
+        Recorder and work on that Recorder has not been submitted.
+
+        @param Recorder        the Recorder to use for storing commands
+        @param Mipmapped       whether created SkImage texture must allocate mip map levels
+        @return                created SkImage, or nullptr
+    */
+    sk_sp<SkImage> makeTextureImage(skgpu::Recorder*,
+                                    skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+                                    SkBudgeted = SkBudgeted::kYes) const;
+
 #endif
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into

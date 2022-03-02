@@ -451,6 +451,19 @@ GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
     return GrBackendTexture(); // invalid
 }
 
+#ifdef SK_GRAPHITE_ENABLED
+std::tuple<skgpu::TextureProxyView, SkColorType> SkImage_Base::asView(
+        skgpu::Recorder* recorder, skgpu::Mipmapped mipmapped) const {
+    if (!recorder) {
+        return {};
+    }
+    if (this->dimensions().area() <= 1) {
+        mipmapped = skgpu::Mipmapped::kNo;
+    }
+    return this->onAsView(recorder, mipmapped);
+}
+#endif
+
 #endif // SK_SUPPORT_GPU
 
 GrDirectContext* SkImage_Base::directContext() const {

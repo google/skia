@@ -9,6 +9,7 @@
 #define skgpu_geom_VectorTypes_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
+#include "include/private/SkVx.h"
 
 namespace skgpu {
 
