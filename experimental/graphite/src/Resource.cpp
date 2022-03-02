@@ -11,13 +11,11 @@
 
 namespace skgpu {
 
-Resource::Resource(const Gpu* gpu) : fGpu(gpu), fUsageRefCnt(1), fCommandBufferRefCnt(0) {
-    // Normally the array index will always be set before the cache tries to read so there isn't
-    // a worry about this not being initialized. However, when we try to validate the cache in
-    // debug builds we may try to read a resources index before it has actually been set by the
-    // cache
-    SkDEBUGCODE(fCacheArrayIndex = -1);
-}
+Resource::Resource(const Gpu* gpu)
+        : fGpu(gpu)
+        , fUsageRefCnt(1)
+        , fCommandBufferRefCnt(0)
+        , fCacheRefCnt(0) {}
 
 Resource::~Resource() {
     // The cache should have released or destroyed this resource.
@@ -32,8 +30,6 @@ void Resource::registerWithCache(sk_sp<ResourceCache> returnCache) {
 }
 
 bool Resource::notifyARefIsZero(LastRemovedRef removedRef) const {
-    SkASSERT(removedRef == LastRemovedRef::kUsageRef || removedRef == LastRemovedRef::kCache);
-
     // No resource should have been destroyed if there was still any sort of ref on it.
     SkASSERT(!this->wasDestroyed());
 

@@ -73,9 +73,9 @@ enum class Shareable : bool {
  * Resource.
  */
 enum class LastRemovedRef {
-    kUsageRef,
-    kCommandBufferRef,
-    kCache, // This isn't a real ref but used to signal the resource was removed from the cache
+    kUsage,
+    kCommandBuffer,
+    kCache,
 };
 
 };  // namespace skgpu
