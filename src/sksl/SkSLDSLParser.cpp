@@ -78,11 +78,11 @@ public:
     }
 };
 
-std::unordered_map<std::string_view, DSLParser::LayoutToken>* DSLParser::layoutTokens;
+SkTHashMap<std::string_view, DSLParser::LayoutToken>* DSLParser::sLayoutTokens;
 
 void DSLParser::InitLayoutMap() {
-    layoutTokens = new std::unordered_map<std::string_view, LayoutToken>;
-    #define TOKEN(name, text) (*layoutTokens)[text] = LayoutToken::name
+    sLayoutTokens = new SkTHashMap<std::string_view, LayoutToken>;
+    #define TOKEN(name, text) sLayoutTokens->set(text, LayoutToken::name)
     TOKEN(LOCATION,                     "location");
     TOKEN(OFFSET,                       "offset");
     TOKEN(BINDING,                      "binding");
@@ -757,9 +757,9 @@ DSLLayout DSLParser::layout() {
         for (;;) {
             Token t = this->nextToken();
             std::string text(this->text(t));
-            auto found = layoutTokens->find(text);
-            if (found != layoutTokens->end()) {
-                switch (found->second) {
+            LayoutToken* found = sLayoutTokens->find(text);
+            if (found != nullptr) {
+                switch (*found) {
                     case LayoutToken::ORIGIN_UPPER_LEFT:
                         result.originUpperLeft(this->position(t));
                         break;
