@@ -88,3 +88,12 @@ DEF_TEST(ChecksumConsistent, r) {
     REPORTER_ASSERT(r, SkOpts::hash(bytes, 99) == 0x3f98a130, "%08x", SkOpts::hash(bytes, 99));
     REPORTER_ASSERT(r, SkOpts::hash(bytes,255) == 0x3b9ceab2, "%08x", SkOpts::hash(bytes,255));
 }
+
+DEF_TEST(ChecksumStrings, r) {
+    constexpr char kMessage[] = "Checksums are supported for SkString, string, and string_view.";
+    const uint32_t expectedHash = SkOpts::hash(kMessage, strlen(kMessage));
+
+    REPORTER_ASSERT(r, expectedHash == SkGoodHash()(SkString(kMessage)));
+    REPORTER_ASSERT(r, expectedHash == SkGoodHash()(std::string(kMessage)));
+    REPORTER_ASSERT(r, expectedHash == SkGoodHash()(std::string_view(kMessage)));
+}
