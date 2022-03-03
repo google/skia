@@ -9,7 +9,7 @@
 
 namespace skgpu {
 
-Sampler::Sampler(const Gpu* gpu) : Resource(gpu) {}
+Sampler::Sampler(const Gpu* gpu) : Resource(gpu, Ownership::kOwned) {}
 
 Sampler::~Sampler() {}
 

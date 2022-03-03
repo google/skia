@@ -24,7 +24,10 @@ public:
 
 protected:
     Buffer(const Gpu* gpu, size_t size, BufferType type, PrioritizeGpuReads prioritizeGpuReads)
-        : Resource(gpu), fSize(size), fType(type), fPrioritizeGpuReads(prioritizeGpuReads) {}
+        : Resource(gpu, Ownership::kOwned)
+        , fSize(size)
+        , fType(type)
+        , fPrioritizeGpuReads(prioritizeGpuReads) {}
 
     void* fMapPtr = nullptr;
 

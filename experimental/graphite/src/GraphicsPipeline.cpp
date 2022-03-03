@@ -9,7 +9,7 @@
 
 namespace skgpu {
 
-GraphicsPipeline::GraphicsPipeline(const Gpu* gpu) : Resource(gpu) {
+GraphicsPipeline::GraphicsPipeline(const Gpu* gpu) : Resource(gpu, Ownership::kOwned) {
 }
 
 GraphicsPipeline::~GraphicsPipeline() {

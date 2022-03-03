@@ -10,7 +10,9 @@
 namespace skgpu {
 
 Texture::Texture(const Gpu* gpu, SkISize dimensions, const TextureInfo& info, Ownership ownership)
-        : Resource(gpu), fDimensions(dimensions), fInfo(info), fOwnership(ownership) {}
+        : Resource(gpu, ownership)
+        , fDimensions(dimensions)
+        , fInfo(info) {}
 
 Texture::~Texture() {}
 

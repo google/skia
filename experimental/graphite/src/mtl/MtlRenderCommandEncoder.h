@@ -246,7 +246,7 @@ private:
     inline static constexpr int kMaxExpectedTextures = 16;
 
     RenderCommandEncoder(const Gpu* gpu, sk_cfp<id<MTLRenderCommandEncoder>> encoder)
-            : Resource(gpu), fCommandEncoder(std::move(encoder)) {
+            : Resource(gpu, Ownership::kOwned), fCommandEncoder(std::move(encoder)) {
         for (int i = 0; i < kMaxExpectedBuffers; i++) {
             fCurrentVertexBuffer[i] = nil;
             fCurrentFragmentBuffer[i] = nil;

@@ -11,11 +11,12 @@
 
 namespace skgpu {
 
-Resource::Resource(const Gpu* gpu)
+Resource::Resource(const Gpu* gpu, Ownership ownership)
         : fGpu(gpu)
         , fUsageRefCnt(1)
         , fCommandBufferRefCnt(0)
-        , fCacheRefCnt(0) {}
+        , fCacheRefCnt(0)
+        , fOwnership(ownership) {}
 
 Resource::~Resource() {
     // The cache should have released or destroyed this resource.

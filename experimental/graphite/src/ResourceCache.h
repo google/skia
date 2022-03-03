@@ -98,6 +98,8 @@ private:
     PurgeableQueue fPurgeableQueue;
     ResourceArray fNonpurgeableResources;
 
+    SkDEBUGCODE(int fCount = 0;)
+
     ResourceMap fResourceMap;
 
     SingleOwner* fSingleOwner = nullptr;

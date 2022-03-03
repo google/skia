@@ -81,7 +81,7 @@ public:
 
 private:
     BlitCommandEncoder(const skgpu::Gpu* gpu, sk_cfp<id<MTLBlitCommandEncoder>> encoder)
-        : Resource(gpu), fCommandEncoder(std::move(encoder)) {}
+        : Resource(gpu, Ownership::kOwned), fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override {
         fCommandEncoder.reset();

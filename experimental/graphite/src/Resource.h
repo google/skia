@@ -79,6 +79,8 @@ public:
         }
     }
 
+    Ownership ownership() const { return fOwnership; }
+
     // Tests whether a object has been abandoned or released. All objects will be in this state
     // after their creating Context is destroyed or abandoned.
     //
@@ -95,7 +97,7 @@ public:
     void setKey(const GraphiteResourceKey& key) { fKey = key; }
 
 protected:
-    Resource(const Gpu*);
+    Resource(const Gpu*, Ownership);
     virtual ~Resource();
 
     // Overridden to free GPU resources in the backend API.
@@ -152,10 +154,15 @@ private:
         }
     }
 
+#ifdef SK_DEBUG
+    bool isUsableAsScratch() const {
+        return fKey.shareable() == Shareable::kNo && !this->hasUsageRef() && fNonShareableInCache;
+    }
+#endif
+
     ////////////////////////////////////////////////////////////////////////////
     // The remaining calls are meant to be truely private
     ////////////////////////////////////////////////////////////////////////////
-
     bool hasUsageRef() const {
         if (0 == fUsageRefCnt.load(std::memory_order_acquire)) {
             // The acquire barrier is only really needed if we return true.  It
@@ -217,12 +224,20 @@ private:
     // be returned or not.
     mutable int fReturnIndex = -1;
 
+    Ownership fOwnership;
+
     // An index into a heap when this resource is purgeable or an array when not. This is maintained
     // by the cache.
     mutable int fCacheArrayIndex = -1;
     // This value reflects how recently this resource was accessed in the cache. This is maintained
     // by the cache.
     uint32_t fTimestamp;
+
+    // This is only used during validation checking. Lots of the validation code depends on a
+    // resource being purgeable or not. However, purgeable itself just means having no refs. The
+    // refs can be removed before a Resource is returned to the cache (or even added to the
+    // ReturnQueue).
+    SkDEBUGCODE(mutable bool fNonShareableInCache = false);
 };
 
 } // namespace skgpu

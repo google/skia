@@ -28,12 +28,9 @@ public:
 protected:
     Texture(const Gpu*, SkISize dimensions, const TextureInfo& info, Ownership);
 
-    Ownership ownership() const { return fOwnership; }
-
 private:
     SkISize fDimensions;
     TextureInfo fInfo;
-    Ownership fOwnership;
 };
 
 } // namepsace skgpu

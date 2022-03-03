@@ -10,6 +10,7 @@
 #include "experimental/graphite/src/GraphiteResourceKey.h"
 #include "experimental/graphite/src/Resource.h"
 #include "include/private/SingleOwner.h"
+#include "include/utils/SkRandom.h"
 #include "src/core/SkTMultiMap.h"
 
 namespace skgpu {
@@ -78,6 +79,8 @@ void ResourceCache::insertResource(Resource* resource) {
 
     this->addToNonpurgeableArray(resource);
 
+    SkDEBUGCODE(fCount++;)
+
     if (resource->key().shareable() == Shareable::kYes) {
         fResourceMap.insert(resource->key(), resource);
     }
@@ -98,6 +101,7 @@ Resource* ResourceCache::findAndRefResource(const skgpu::GraphiteResourceKey& ke
             // If a resource is not shareable (i.e. scratch resource) then we remove it from the map
             // so that it isn't found again.
             fResourceMap.remove(key, resource);
+            SkDEBUGCODE(resource->fNonShareableInCache = false;)
         }
         this->refAndMakeResourceMRU(resource);
         this->validate();
@@ -215,6 +219,7 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
             // Shareable resources should still be in the cache
             SkASSERT(fResourceMap.find(resource->key()));
         } else {
+            SkDEBUGCODE(resource->fNonShareableInCache = true;)
             fResourceMap.insert(resource->key(), resource);
         }
     }
@@ -236,8 +241,11 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
         return;
     }
 
+    resource->setTimestamp(this->getNextTimestamp());
+
     this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
+    this->validate();
 }
 
 void ResourceCache::addToNonpurgeableArray(Resource* resource) {
@@ -357,7 +365,87 @@ int* ResourceCache::AccessResourceIndex(Resource* const& res) {
 
 #ifdef SK_DEBUG
 void ResourceCache::validate() const {
-    // TODO: fill this out
+    // Reduce the frequency of validations for large resource counts.
+    static SkRandom gRandom;
+    int mask = (SkNextPow2(fCount + 1) >> 5) - 1;
+    if (~mask && (gRandom.nextU() & mask)) {
+        return;
+    }
+
+    struct Stats {
+        int fShareable;
+        int fScratch;
+        const ResourceMap* fResourceMap;
+
+        Stats(const ResourceCache* cache) {
+            memset(this, 0, sizeof(*this));
+            fResourceMap = &cache->fResourceMap;
+        }
+
+        void update(Resource* resource) {
+            const GraphiteResourceKey& key = resource->key();
+            SkASSERT(key.isValid());
+
+            // We should always have at least 1 cache ref
+            SkASSERT(resource->hasCacheRef());
+
+            // We track scratch (non-shareable, no usage refs, has been returned to cache) and
+            // shareable resources here as those should be the only things in the fResourceMap. A
+            // non-shareable resources that does meet the scratch criteria will not be able to be
+            // given back out from a cache requests. After processing all the resources we assert
+            // that the fScratch + fShareable equals the count in the fResourceMap.
+            if (resource->isUsableAsScratch()) {
+                SkASSERT(key.shareable() == Shareable::kNo);
+                SkASSERT(!resource->hasUsageRef());
+                ++fScratch;
+                SkASSERT(fResourceMap->has(resource, key));
+                SkASSERT(resource->ownership() == Ownership::kOwned);
+            } else if (key.shareable() == Shareable::kNo) {
+                SkASSERT(resource->ownership() == Ownership::kOwned);
+                SkASSERT(!fResourceMap->has(resource, key));
+            } else {
+                SkASSERT(key.shareable() == Shareable::kYes);
+                ++fShareable;
+                SkASSERT(fResourceMap->has(resource, key));
+            }
+        }
+    };
+
+    {
+        int count = 0;
+        fResourceMap.foreach([&](const Resource& resource) {
+            SkASSERT(resource.isUsableAsScratch() || resource.key().shareable() == Shareable::kYes);
+            count++;
+        });
+        SkASSERT(count == fResourceMap.count());
+    }
+
+    // In the below checks we can assert that anything in the purgeable queue is purgeable because
+    // we won't put a Resource into that queue unless all refs are zero. Thus there is no way for
+    // that resource to be made non-purgeable without going through the cache (which will switch
+    // queues back to non-purgeable).
+    //
+    // However, we can't say the same for things in the non-purgeable array. It is possible that
+    // Resources have removed all their refs (thus technically become purgeable) but have not been
+    // processed back into the cache yet. Thus we may not have moved resources to the purgeable
+    // queue yet. Its also possible that Resource hasn't been added to the ReturnQueue yet (thread
+    // paused between unref and adding to ReturnQueue) so we can't even make asserts like not
+    // purgeable or is in ReturnQueue.
+    Stats stats(this);
+    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        SkASSERT(*fNonpurgeableResources[i]->accessCacheIndex() == i);
+        SkASSERT(!fNonpurgeableResources[i]->wasDestroyed());
+        SkASSERT(!this->inPurgeableQueue(fNonpurgeableResources[i]));
+        stats.update(fNonpurgeableResources[i]);
+    }
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        SkASSERT(fPurgeableQueue.at(i)->isPurgeable());
+        SkASSERT(*fPurgeableQueue.at(i)->accessCacheIndex() == i);
+        SkASSERT(!fPurgeableQueue.at(i)->wasDestroyed());
+        stats.update(fPurgeableQueue.at(i));
+    }
+
+    SkASSERT((stats.fScratch + stats.fShareable) == fResourceMap.count());
 }
 
 bool ResourceCache::isInCache(const Resource* resource) const {
