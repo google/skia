@@ -110,6 +110,13 @@ GrGLFormat GrBackendFormat::asGLFormat() const {
     }
     return GrGLFormat::kUnknown;
 }
+
+GrGLenum GrBackendFormat::asGLFormatEnum() const {
+    if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
+        return fGLFormat;
+    }
+    return 0;
+}
 #endif
 
 #ifdef SK_VULKAN

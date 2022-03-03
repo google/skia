@@ -137,6 +137,8 @@ public:
      * GrGLFormat::kUnknown.
      */
     GrGLFormat asGLFormat() const;
+
+    GrGLenum asGLFormatEnum() const;
 #endif
 
 #ifdef SK_VULKAN
