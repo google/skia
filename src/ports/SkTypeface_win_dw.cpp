@@ -38,18 +38,23 @@ HRESULT DWriteFontTypeface::initializePalette() {
         return S_OK;
     }
 
-    if (!SkTFitsIn<UINT32>(fRequestedPalette.index)) {
-        HRM(DWRITE_E_NOCOLOR, "Requested palette index out of UINT32 range.");
-    }
     UINT32 dwPaletteCount = fDWriteFontFace2->GetColorPaletteCount();
-    UINT32 requestedPaletteIndex = fRequestedPalette.index;
-    if (!(requestedPaletteIndex < dwPaletteCount)) {
-        HRM(DWRITE_E_NOCOLOR, "Requested palette index out of range.");
+    if (dwPaletteCount == 0) {
+        return S_OK;
+    }
+
+    // Treat out of range palette index values as 0. Still apply overrides.
+    // https://www.w3.org/TR/css-fonts-4/#base-palette-desc
+    UINT32 basePaletteIndex = 0;
+    if (SkTFitsIn<UINT32>(fRequestedPalette.index) &&
+        SkTo<UINT32>(fRequestedPalette.index) < dwPaletteCount)
+    {
+        basePaletteIndex = fRequestedPalette.index;
     }
 
     UINT32 dwPaletteEntryCount = fDWriteFontFace2->GetPaletteEntryCount();
     SkAutoSTMalloc<8, DWRITE_COLOR_F> dwPaletteEntry(dwPaletteEntryCount);
-    HRM(fDWriteFontFace2->GetPaletteEntries(requestedPaletteIndex,
+    HRM(fDWriteFontFace2->GetPaletteEntries(basePaletteIndex,
                                             0, dwPaletteEntryCount,
                                             dwPaletteEntry),
         "Could not retrieve palette entries.");
@@ -64,12 +69,11 @@ HRESULT DWriteFontTypeface::initializePalette() {
 
     for (int i = 0; i < fRequestedPalette.overrideCount; ++i) {
         const SkFontArguments::Palette::Override& paletteOverride = fRequestedPalette.overrides[i];
-        if (!SkTFitsIn<UINT32>(paletteOverride.index) ||
-            !((UINT32)paletteOverride.index < dwPaletteEntryCount))
+        if (SkTFitsIn<UINT32>(paletteOverride.index) &&
+            SkTo<UINT32>(paletteOverride.index) < dwPaletteEntryCount)
         {
-            continue;
+            fPalette[paletteOverride.index] = paletteOverride.color;
         }
-        fPalette[paletteOverride.index] = paletteOverride.color;
     }
     fPaletteEntryCount = dwPaletteEntryCount;
 

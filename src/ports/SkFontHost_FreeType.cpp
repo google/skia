@@ -312,26 +312,32 @@ void SkTypeface_FreeType::FaceRec::setupPalette(const SkFontData& data) {
     if (FT_Palette_Data_Get(fFace.get(), &paletteData)) {
         return;
     }
-    if (paletteData.num_palettes < data.getPaletteIndex() ) {
-        return;
+
+    // Treat out of range values as 0. Still apply overrides.
+    // https://www.w3.org/TR/css-fonts-4/#base-palette-desc
+    FT_UShort basePaletteIndex = 0;
+    if (SkTFitsIn<FT_UShort>(data.getPaletteIndex()) &&
+        SkTo<FT_UShort>(data.getPaletteIndex()) < paletteData.num_palettes)
+    {
+        basePaletteIndex = data.getPaletteIndex();
     }
+
     FT_Color* ftPalette = nullptr;
-    if (FT_Palette_Select(fFace.get(), data.getPaletteIndex(), &ftPalette)) {
+    if (FT_Palette_Select(fFace.get(), basePaletteIndex, &ftPalette)) {
         return;
     }
     fFTPaletteEntryCount = paletteData.num_palette_entries;
 
     for (int i = 0; i < data.getPaletteOverrideCount(); ++i) {
         const SkFontArguments::Palette::Override& paletteOverride = data.getPaletteOverrides()[i];
-        if (paletteOverride.index < 0 || fFTPaletteEntryCount <= paletteOverride.index) {
-            continue;
+        if (0 <= paletteOverride.index && paletteOverride.index < fFTPaletteEntryCount) {
+            const SkColor& skColor = paletteOverride.color;
+            FT_Color& ftColor = ftPalette[paletteOverride.index];
+            ftColor.blue  = SkColorGetB(skColor);
+            ftColor.green = SkColorGetG(skColor);
+            ftColor.red   = SkColorGetR(skColor);
+            ftColor.alpha = SkColorGetA(skColor);
         }
-        const SkColor& skColor = paletteOverride.color;
-        FT_Color& ftColor = ftPalette[paletteOverride.index];
-        ftColor.blue  = SkColorGetB(skColor);
-        ftColor.green = SkColorGetG(skColor);
-        ftColor.red   = SkColorGetR(skColor);
-        ftColor.alpha = SkColorGetA(skColor);
     }
 
     fSkPalette.reset(new SkColor[fFTPaletteEntryCount]);
