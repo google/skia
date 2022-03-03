@@ -11,6 +11,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTemplates.h"
+
+#include <initializer_list>
 #include <new>
 #include <utility>
 
@@ -132,6 +134,27 @@ public:
             }
             index = this->next(index);
         }
+    }
+
+    // Hash tables will automatically resize themselves when set() and remove() are called, but
+    // resize() can be called to manually grow capacity before a bulk insertion.
+    void resize(int capacity) {
+        SkASSERT(capacity >= fCount);
+        int oldCapacity = fCapacity;
+        SkDEBUGCODE(int oldCount = fCount);
+
+        fCount = 0;
+        fCapacity = capacity;
+        SkAutoTArray<Slot> oldSlots = std::move(fSlots);
+        fSlots = SkAutoTArray<Slot>(capacity);
+
+        for (int i = 0; i < oldCapacity; i++) {
+            Slot& s = oldSlots[i];
+            if (s.has_value()) {
+                this->uncheckedSet(*std::move(s));
+            }
+        }
+        SkASSERT(fCount == oldCount);
     }
 
     // Call fn on every entry in the table.  You may mutate the entries, but be very careful.
@@ -257,24 +280,6 @@ private:
         }
         SkASSERT(false);
         return nullptr;
-    }
-
-    void resize(int capacity) {
-        int oldCapacity = fCapacity;
-        SkDEBUGCODE(int oldCount = fCount);
-
-        fCount = 0;
-        fCapacity = capacity;
-        SkAutoTArray<Slot> oldSlots = std::move(fSlots);
-        fSlots = SkAutoTArray<Slot>(capacity);
-
-        for (int i = 0; i < oldCapacity; i++) {
-            Slot& s = oldSlots[i];
-            if (s.has_value()) {
-                this->uncheckedSet(*std::move(s));
-            }
-        }
-        SkASSERT(fCount == oldCount);
     }
 
     void removeSlot(int index) {
@@ -413,6 +418,29 @@ private:
 template <typename K, typename V, typename HashK = SkGoodHash>
 class SkTHashMap {
 public:
+    // Allow default construction and assignment.
+    SkTHashMap() = default;
+
+    SkTHashMap(SkTHashMap<K, V, HashK>&& that) = default;
+    SkTHashMap(const SkTHashMap<K, V, HashK>& that) = default;
+
+    SkTHashMap<K, V, HashK>& operator=(SkTHashMap<K, V, HashK>&& that) = default;
+    SkTHashMap<K, V, HashK>& operator=(const SkTHashMap<K, V, HashK>& that) = default;
+
+    // Construct with an initializer list of key-value pairs.
+    struct Pair : public std::pair<K, V> {
+        using std::pair<K, V>::pair;
+        static const K& GetKey(const Pair& p) { return p.first; }
+        static auto Hash(const K& key) { return HashK()(key); }
+    };
+
+    SkTHashMap(std::initializer_list<Pair> pairs) {
+        fTable.resize(pairs.size() * 5 / 3);
+        for (const Pair& p : pairs) {
+            fTable.set(p);
+        }
+    }
+
     // Clear the map.
     void reset() { fTable.reset(); }
 
@@ -466,12 +494,6 @@ public:
     }
 
     // Dereferencing an iterator gives back a key-value pair, suitable for structured binding.
-    struct Pair : public std::pair<K, V> {
-        using std::pair<K, V>::pair;
-        static const K& GetKey(const Pair& p) { return p.first; }
-        static auto Hash(const K& key) { return HashK()(key); }
-    };
-
     using Iter = typename SkTHashTable<Pair, K>::template Iter<std::pair<K, V>>;
 
     Iter begin() const {
@@ -490,6 +512,23 @@ private:
 template <typename T, typename HashT = SkGoodHash>
 class SkTHashSet {
 public:
+    // Allow default construction and assignment.
+    SkTHashSet() = default;
+
+    SkTHashSet(SkTHashSet<T, HashT>&& that) = default;
+    SkTHashSet(const SkTHashSet<T, HashT>& that) = default;
+
+    SkTHashSet<T, HashT>& operator=(SkTHashSet<T, HashT>&& that) = default;
+    SkTHashSet<T, HashT>& operator=(const SkTHashSet<T, HashT>& that) = default;
+
+    // Construct with an initializer list of Ts.
+    SkTHashSet(std::initializer_list<T> vals) {
+        fTable.resize(vals.size() * 5 / 3);
+        for (const T& val : vals) {
+            fTable.set(val);
+        }
+    }
+
     // Clear the set.
     void reset() { fTable.reset(); }
 

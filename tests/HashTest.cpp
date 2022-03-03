@@ -129,6 +129,47 @@ DEF_TEST(HashMap, r) {
     }
 }
 
+DEF_TEST(HashMapCtor, r) {
+    SkTHashMap<int, std::string_view> map{{1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}};
+    REPORTER_ASSERT(r, map.count() == 4);
+    REPORTER_ASSERT(r, map.approxBytesUsed() >= 4 * (sizeof(int) + sizeof(std::string_view)));
+
+    std::string_view* found = map.find(1);
+    REPORTER_ASSERT(r, found);
+    REPORTER_ASSERT(r, *found == "one");
+
+    found = map.find(2);
+    REPORTER_ASSERT(r, found);
+    REPORTER_ASSERT(r, *found == "two");
+
+    found = map.find(3);
+    REPORTER_ASSERT(r, found);
+    REPORTER_ASSERT(r, *found == "three");
+
+    found = map.find(4);
+    REPORTER_ASSERT(r, found);
+    REPORTER_ASSERT(r, *found == "four");
+
+    found = map.find(5);
+    REPORTER_ASSERT(r, !found);
+
+    found = map.find(6);
+    REPORTER_ASSERT(r, !found);
+}
+
+DEF_TEST(HashSetCtor, r) {
+    SkTHashSet<std::string_view> set{"one", "two", "three", "four"};
+    REPORTER_ASSERT(r, set.count() == 4);
+    REPORTER_ASSERT(r, set.approxBytesUsed() >= 4 * sizeof(std::string_view));
+
+    REPORTER_ASSERT(r, set.contains("one"));
+    REPORTER_ASSERT(r, set.contains("two"));
+    REPORTER_ASSERT(r, set.contains("three"));
+    REPORTER_ASSERT(r, set.contains("four"));
+    REPORTER_ASSERT(r, !set.contains("five"));
+    REPORTER_ASSERT(r, !set.contains("six"));
+}
+
 template <typename T>
 static void test_hash_set(skiatest::Reporter* r) {
     SkTHashSet<T> set;
