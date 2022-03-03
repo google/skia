@@ -333,11 +333,7 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag, float scale) {
             rec.fStrokeColorNode = sksg::Color::Make(fText->fStrokeColor);
             rec.fStrokeColorNode->setAntiAlias(true);
             rec.fStrokeColorNode->setStyle(SkPaint::kStroke_Style);
-#ifndef SK_SCALED_STROKE_DISABLED
             rec.fStrokeColorNode->setStrokeWidth(fText->fStrokeWidth * scale);
-#else
-            rec.fStrokeColorNode->setStrokeWidth(fText->fStrokeWidth);
-#endif
             draws.push_back(sksg::Draw::Make(blob_node, rec.fStrokeColorNode));
         }
     };
