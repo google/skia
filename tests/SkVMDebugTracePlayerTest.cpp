@@ -93,6 +93,19 @@ static std::string make_global_vars_string(const SkSL::SkVMDebugTrace& trace,
     return make_vars_string(trace, player.getGlobalVariables());
 }
 
+DEF_TEST(SkSLTracePlayerCanResetToNull, r) {
+    SkSL::SkVMDebugTracePlayer player;
+    player.reset(nullptr);
+
+    // We should be in a reasonable state.
+    REPORTER_ASSERT(r, player.cursor() == 0);
+    REPORTER_ASSERT(r, player.getCurrentLine() == -1);
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCallStack().empty());
+    REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    REPORTER_ASSERT(r, player.getLineNumbersReached().empty());
+}
+
 DEF_TEST(SkSLTracePlayerHelloWorld, r) {
     sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
 R"(                // Line 1
