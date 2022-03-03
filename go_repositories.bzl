@@ -3332,6 +3332,9 @@ def go_repositories():
     )
     go_repository(
         name = "org_chromium_go_luci",
+        # This module is distributed with pre-generated .pb.go files, so we disable generation of
+        # go_proto_library targets.
+        build_file_proto_mode = "disable",
         importpath = "go.chromium.org/luci",
         sum = "h1:Qe0s5XpxD36QC+7OVnc1Ce8igF3sfTo3f3ad4WKEpNo=",
         version = "v0.0.0-20201121231857-b9ab316d7198",

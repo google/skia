@@ -497,11 +497,15 @@ func GenTasks(cfg *Config) {
 	b.MustAddCasSpec(CAS_TASK_DRIVERS, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython",
-			"skia/go.mod",
-			"skia/go.sum",
+			// Deps needed to use Bazel
+			"skia/BUILD.bazel",
+			"skia/WORKSPACE.bazel",
+			"skia/bazel",
+			"skia/go_repositories.bzl",
+			"skia/toolchain",
+			// Actually needed to build the task drivers
+			"skia/infra/bots/BUILD.bazel",
 			"skia/infra/bots/build_task_drivers.sh",
-			"skia/infra/bots/run_recipe.py",
 			"skia/infra/bots/task_drivers",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
@@ -1013,13 +1017,12 @@ func (b *jobBuilder) bundleRecipes() string {
 func (b *jobBuilder) buildTaskDrivers(goos, goarch string) string {
 	name := BUILD_TASK_DRIVERS_PREFIX + "_" + goos + "_" + goarch
 	b.addTask(name, func(b *taskBuilder) {
-		b.usesGo()
 		b.cmd("/bin/bash", "skia/infra/bots/build_task_drivers.sh",
 			specs.PLACEHOLDER_ISOLATED_OUTDIR,
-			goos,
-			goarch)
-		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
+			goos+"_"+goarch)
+		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
+		b.addToPATH("bazelisk")
 		b.idempotent()
 		b.cas(CAS_TASK_DRIVERS)
 	})

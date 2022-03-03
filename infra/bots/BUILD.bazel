@@ -1,0 +1,43 @@
+# This rule is a convenient way to build all the task drivers and copy them all into a single
+# place as a tar folder. Otherwise, we would need to run many separate bazel build commands and
+# then fish the executables out of a deep folder structure like:
+# _bazel_bin/infra/bots/task_drivers/bazel_build_all/bazel_build_all_/bazel_build_all
+# After this runs, the executables will all be in //_bazel_bin/built_task_drivers.tar
+# Why the tar file? Windows binaries are created with .exe and other platforms are not. However,
+# outs *must* be static, thus we cannot use a select. Bazel requires us to define all outputs
+# exactly, so the only way to support files with different names on different platforms is to
+# package them up into a file with the same name.
+# Cross compilation is handled as per https://github.com/bazelbuild/rules_go#how-do-i-cross-compile
+genrule(
+    name = "all_task_drivers",
+    srcs = [
+        "//infra/bots/task_drivers/codesize",
+        "//infra/bots/task_drivers/compile_wasm_gm_tests",
+        "//infra/bots/task_drivers/fm_driver",
+        "//infra/bots/task_drivers/g3_canary",
+        "//infra/bots/task_drivers/perf_puppeteer_canvas",
+        "//infra/bots/task_drivers/perf_puppeteer_render_skps",
+        "//infra/bots/task_drivers/perf_puppeteer_skottie_frames",
+        "//infra/bots/task_drivers/push_apps_from_skia_image",
+        "//infra/bots/task_drivers/push_bazel_apps_from_wasm_image",
+        "//infra/bots/task_drivers/recreate_skps",
+        "//infra/bots/task_drivers/run_gn_to_bp",
+        "//infra/bots/task_drivers/run_wasm_gm_tests",
+        "@org_skia_go_infra//infra/bots/task_drivers/build_push_docker_image",
+        "@org_skia_go_infra//infra/bots/task_drivers/canary",
+        "@org_skia_go_infra//infra/bots/task_drivers/update_go_deps",
+    ],
+    outs = ["built_task_drivers.tar"],
+    # Make a temporary directory in the output directory, as recommended by
+    # https://bazel.build/reference/be/make-variables#predefined_genrule_variables
+    # Reminder that $(@D) refers to that output directory and $(SRCS) refers to all
+    # the input files, in a space separated list.
+    cmd = "mkdir -p $(@D)/tmp_task_drivers && " +
+          # Copy all the task drivers to the same folder
+          "cp $(SRCS) $(@D)/tmp_task_drivers && " +
+          # Tar them up from that folder (so they will be in the top level of the tar directory)
+          # The parent directory of our temp directory is where the output tar file should go.
+          "cd $(@D)/tmp_task_drivers && tar --file ../built_task_drivers.tar --create . && " +
+          # Delete the temp folder (as per the recommendation above)
+          "cd .. && rm -rf tmp_task_drivers",
+)

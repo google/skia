@@ -1,0 +1,35 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+
+go_library(
+    name = "perf_puppeteer_render_skps_lib",
+    srcs = ["perf_puppeteer_render_skps.go"],
+    importpath = "go.skia.org/skia/infra/bots/task_drivers/perf_puppeteer_render_skps",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//go/skerr",
+        "@org_skia_go_infra//go/sklog",
+        "@org_skia_go_infra//go/util",
+        "@org_skia_go_infra//task_driver/go/lib/os_steps",
+        "@org_skia_go_infra//task_driver/go/td",
+    ],
+)
+
+go_binary(
+    name = "perf_puppeteer_render_skps",
+    embed = [":perf_puppeteer_render_skps_lib"],
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "perf_puppeteer_render_skps_test",
+    srcs = ["perf_puppeteer_render_skps_test.go"],
+    embed = [":perf_puppeteer_render_skps_lib"],
+    deps = [
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//go/testutils",
+        "@org_skia_go_infra//task_driver/go/td",
+    ],
+)
