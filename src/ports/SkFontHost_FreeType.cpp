@@ -1873,7 +1873,7 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::makeFontData() const {
 
 void SkTypeface_FreeType::FontDataPaletteToDescriptorPalette(const SkFontData& fontData,
                                                              SkFontDescriptor* desc) {
-    desc->setPaleteIndex(fontData.getPaletteIndex());
+    desc->setPaletteIndex(fontData.getPaletteIndex());
     int paletteOverrideCount = fontData.getPaletteOverrideCount();
     auto overrides = desc->setPaletteEntryOverrides(paletteOverrideCount);
     for (int i = 0; i < paletteOverrideCount; ++i) {

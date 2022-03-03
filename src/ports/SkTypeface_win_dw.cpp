@@ -176,7 +176,7 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     desc->setFamilyName(utf8FamilyName.c_str());
     desc->setStyle(this->fontStyle());
 
-    desc->setPaleteIndex(fRequestedPalette.index);
+    desc->setPaletteIndex(fRequestedPalette.index);
     sk_careful_memcpy(desc->setPaletteEntryOverrides(fRequestedPalette.overrideCount),
                       fRequestedPalette.overrides,
                       fRequestedPalette.overrideCount * sizeof(fRequestedPalette.overrides[0]));

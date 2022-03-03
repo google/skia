@@ -111,7 +111,7 @@ public:
     std::unique_ptr<SkStreamAsset> detachStream() { return std::move(fStream); }
     void setStream(std::unique_ptr<SkStreamAsset> stream) { fStream = std::move(stream); }
     void setCollectionIndex(int collectionIndex) { fCollectionIndex = collectionIndex; }
-    void setPaleteIndex(int paletteIndex) { fPaletteIndex = paletteIndex; }
+    void setPaletteIndex(int paletteIndex) { fPaletteIndex = paletteIndex; }
     SkFontArguments::VariationPosition::Coordinate* setVariationCoordinates(int coordinateCount) {
         fCoordinateCount = coordinateCount;
         return fVariation.reset(coordinateCount);
