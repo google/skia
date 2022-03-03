@@ -64,17 +64,17 @@ public:
 
     CapsLookupTable(std::initializer_list<Pair> capsLookups) {
         for (auto& entry : capsLookups) {
-            fMap[entry.first] = std::unique_ptr<CapsLookupMethod>(entry.second);
+            fMap.set(entry.first, std::unique_ptr<CapsLookupMethod>(entry.second));
         }
     }
 
     const CapsLookupMethod* lookup(std::string_view name) const {
-        auto iter = fMap.find(name);
-        return (iter != fMap.end()) ? iter->second.get() : nullptr;
+        std::unique_ptr<CapsLookupMethod>* iter = fMap.find(name);
+        return iter ? iter->get() : nullptr;
     }
 
 private:
-    std::unordered_map<std::string_view, std::unique_ptr<CapsLookupMethod>> fMap;
+    SkTHashMap<std::string_view, std::unique_ptr<CapsLookupMethod>> fMap;
 };
 
 static const CapsLookupTable& caps_lookup_table() {
