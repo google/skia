@@ -37,6 +37,10 @@ public:
     struct Result {
         std::vector<Fragment> fFragments;
         size_t                fMissingGlyphCount = 0;
+        // Relative text size scale, when using an auto-scaling ResizePolicy
+        // (otherwise 1.0).  This is informative of the final text size, and is
+        // not required to render the Result.
+        float                 fScale = 1.0f;
 
         SkRect computeVisualBounds() const;
     };

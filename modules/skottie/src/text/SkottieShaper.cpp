@@ -429,6 +429,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         } else {
             // It fits - so it's a candidate.
             best_result = std::move(res);
+            best_result.fScale = try_scale;
 
             in_scale = try_scale;
             try_scale = (out_scale == max_scale)
