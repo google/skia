@@ -19,8 +19,7 @@ void add_indent(std::string* result, int indent) {
 } // anonymous namespace
 
 
-std::string SkShaderInfo::SnippetEntry::getMangledUniformName(int uniformIndex,
-                                                              int mangleId) const {
+std::string SkShaderSnippet::getMangledUniformName(int uniformIndex, int mangleId) const {
     std::string result;
     result = fUniforms[uniformIndex].name() + std::string("_") + std::to_string(mangleId);
     return result;
@@ -36,7 +35,7 @@ std::string SkShaderInfo::SnippetEntry::getMangledUniformName(int uniformIndex,
 namespace skgpu::mtl {
 std::string GetMtlUniforms(int bufferID,
                            const char* name,
-                           const std::vector<SkShaderInfo::SnippetEntry>&);
+                           const std::vector<SkShaderSnippet>&);
 } // namespace skgpu::mtl
 
 // Emit the glue code needed to invoke a single static helper isolated w/in its own scope.
@@ -55,7 +54,7 @@ std::string GetMtlUniforms(int bufferID,
 std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
                                                std::string* result,
                                                int indent) const {
-    const SkShaderInfo::SnippetEntry& entry = fEntries[*entryIndex];
+    const SkShaderSnippet& entry = fEntries[*entryIndex];
     int curEntryIndex = *entryIndex;
 
     std::string scopeOutputVar(std::string("outColor") + std::to_string(curEntryIndex));
@@ -175,7 +174,7 @@ SkSpan<const SkPaintParamsKey::DataPayloadField> SkShaderCodeDictionary::dataPay
     return this->getEntry(codeSnippetID)->fDataPayloadExpectations;
 }
 
-const SkShaderInfo::SnippetEntry* SkShaderCodeDictionary::getEntry(int codeSnippetID) const {
+const SkShaderSnippet* SkShaderCodeDictionary::getEntry(int codeSnippetID) const {
     SkASSERT(codeSnippetID >= 0 && codeSnippetID <= this->maxCodeSnippetID());
 
     if (codeSnippetID < kBuiltInCodeSnippetIDCount) {
@@ -204,7 +203,7 @@ namespace {
 // and stores the result in a variable named "resultName".
 std::string GenerateDefaultGlueCode(const std::string& resultName,
                                     int entryIndex,
-                                    const SkShaderInfo::SnippetEntry& entry,
+                                    const SkShaderSnippet& entry,
                                     const std::vector<std::string>& childNames,
                                     int indent) {
     SkASSERT(childNames.empty());
@@ -386,7 +385,7 @@ static const char* kBlendShaderSkSL =
 
 std::string GenerateBlendShaderGlueCode(const std::string& resultName,
                                         int entryIndex,
-                                        const SkShaderInfo::SnippetEntry& entry,
+                                        const SkShaderSnippet& entry,
                                         const std::vector<std::string>& childNames,
                                         int indent) {
     SkASSERT(childNames.size() == kNumBlendShaderChildren);
@@ -430,13 +429,12 @@ int SkShaderCodeDictionary::addUserDefinedSnippet(
         const char* name,
         SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations) {
 
-    std::unique_ptr<SkShaderInfo::SnippetEntry> entry(new SkShaderInfo::SnippetEntry(
-            {}, // no uniforms
-            name,
-            ";",
-            GenerateDefaultGlueCode,
-            kNoChildren,
-            dataPayloadExpectations));
+    std::unique_ptr<SkShaderSnippet> entry(new SkShaderSnippet({}, // no uniforms
+                                                               name,
+                                                               ";",
+                                                               GenerateDefaultGlueCode,
+                                                               kNoChildren,
+                                                               dataPayloadExpectations));
 
     // TODO: the memory for user-defined entries could go in the dictionary's arena but that
     // would have to be a thread safe allocation since the arena also stores entries for

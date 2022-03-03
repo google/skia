@@ -331,7 +331,7 @@ MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
 
 std::string GetMtlUniforms(int bufferID,
                            const char* name,
-                           const std::vector<SkShaderInfo::SnippetEntry>& codeSnippets) {
+                           const std::vector<SkShaderSnippet>& codeSnippets) {
     size_t numUniforms = 0;
     for (auto e : codeSnippets) {
         numUniforms += e.fUniforms.size();
