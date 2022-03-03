@@ -1,0 +1,13 @@
+/*#pragma settings SkVMDebugTrace*/
+
+uniform half4 colorRed, colorGreen;
+
+int get(int x) {
+    return x;
+}
+
+half4 main(float2 pos) {
+    // We should have three separate slots for `[get].result` here.
+    int ten = get(5) + get(3) + get(2);
+    return (ten == 10) ? colorGreen : colorRed;
+}

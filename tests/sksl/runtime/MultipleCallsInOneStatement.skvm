@@ -1,0 +1,86 @@
+$0 = colorRed (float4 : slot 1/4, L3)
+$1 = colorRed (float4 : slot 2/4, L3)
+$2 = colorRed (float4 : slot 3/4, L3)
+$3 = colorRed (float4 : slot 4/4, L3)
+$4 = colorGreen (float4 : slot 1/4, L3)
+$5 = colorGreen (float4 : slot 2/4, L3)
+$6 = colorGreen (float4 : slot 3/4, L3)
+$7 = colorGreen (float4 : slot 4/4, L3)
+$8 = [main].result (float4 : slot 1/4, L9)
+$9 = [main].result (float4 : slot 2/4, L9)
+$10 = [main].result (float4 : slot 3/4, L9)
+$11 = [main].result (float4 : slot 4/4, L9)
+$12 = pos (float2 : slot 1/2, L9)
+$13 = pos (float2 : slot 2/2, L9)
+$14 = ten (int, L11)
+$15 = [get].result (int, L5)
+$16 = x (int, L5)
+F0 = half4 main(float2 pos)
+F1 = int get(int x)
+
+17 registers, 64 instructions:
+0	r0 = uniform32 ptr0 0
+1	r1 = uniform32 ptr0 4
+2	r2 = uniform32 ptr0 8
+3	r3 = uniform32 ptr0 C
+4	r4 = uniform32 ptr0 10
+5	r5 = uniform32 ptr0 14
+6	r6 = uniform32 ptr0 18
+7	r7 = uniform32 ptr0 1C
+8	r8 = uniform32 ptr0 20
+9	r9 = splat 3F000000 (0.5)
+10	r10 = eq_f32 r0 r9
+11	r11 = splat 5 (7.0064923e-45)
+12	r12 = splat 3 (4.2038954e-45)
+13	r13 = splat 2 (2.8025969e-45)
+14	r14 = splat A (1.4012985e-44)
+loop:
+15	    r15 = index
+16	    r16 = eq_f32 r15 r9
+17	    r16 = bit_and r16 r10
+18	    trace_var 0 r16 r16 $0 = r1
+19	    trace_var 0 r16 r16 $1 = r2
+20	    trace_var 0 r16 r16 $2 = r3
+21	    trace_var 0 r16 r16 $3 = r4
+22	    trace_var 0 r16 r16 $4 = r5
+23	    trace_var 0 r16 r16 $5 = r6
+24	    trace_var 0 r16 r16 $6 = r7
+25	    trace_var 0 r16 r16 $7 = r8
+26	    trace_enter 0 r16 r16 F0
+27	    trace_var 0 r16 r16 $12 = r15
+28	    trace_var 0 r16 r16 $13 = r0
+29	    trace_scope 0 r16 r16 1
+30	    trace_line 0 r16 r16 L11
+31	    trace_enter 0 r16 r16 F1
+32	    trace_var 0 r16 r16 $16 = r11
+33	    trace_scope 0 r16 r16 1
+34	    trace_line 0 r16 r16 L6
+35	    trace_var 0 r16 r16 $15 = r11
+36	    trace_scope 0 r16 r16 -1
+37	    trace_exit 0 r16 r16 F1
+38	    trace_enter 0 r16 r16 F1
+39	    trace_var 0 r16 r16 $16 = r12
+40	    trace_scope 0 r16 r16 1
+41	    trace_line 0 r16 r16 L6
+42	    trace_var 0 r16 r16 $15 = r12
+43	    trace_scope 0 r16 r16 -1
+44	    trace_exit 0 r16 r16 F1
+45	    trace_enter 0 r16 r16 F1
+46	    trace_var 0 r16 r16 $16 = r13
+47	    trace_scope 0 r16 r16 1
+48	    trace_line 0 r16 r16 L6
+49	    trace_var 0 r16 r16 $15 = r13
+50	    trace_scope 0 r16 r16 -1
+51	    trace_exit 0 r16 r16 F1
+52	    trace_var 0 r16 r16 $14 = r14
+53	    trace_line 0 r16 r16 L12
+54	    trace_var 0 r16 r16 $8 = r5
+55	    trace_var 0 r16 r16 $9 = r6
+56	    trace_var 0 r16 r16 $10 = r7
+57	    trace_var 0 r16 r16 $11 = r8
+58	    trace_scope 0 r16 r16 -1
+59	    trace_exit 0 r16 r16 F0
+60	    store32 ptr1 r5
+61	    store32 ptr2 r6
+62	    store32 ptr3 r7
+63	    store32 ptr4 r8

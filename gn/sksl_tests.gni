@@ -647,6 +647,7 @@ sksl_rte_tests = [
   "/sksl/runtime/LargeProgram_ZeroIterFor.rts",
   "/sksl/runtime/LoopInt.rts",
   "/sksl/runtime/LoopFloat.rts",
+  "/sksl/runtime/MultipleCallsInOneStatement.rts",
   "/sksl/runtime/PrecisionQualifiers.rts",
   "/sksl/runtime/QualifierOrder.rts",
   "/sksl/runtime/RecursiveComparison_Structs.rts",

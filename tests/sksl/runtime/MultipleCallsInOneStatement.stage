@@ -1,0 +1,12 @@
+uniform half4 colorRed;
+uniform half4 colorGreen;
+int get_0(int x);
+int get_0(int x)
+{
+	return x;
+}
+half4 main(float2 pos)
+{
+	int ten = (get_0(5) + get_0(3)) + get_0(2);
+	return half4(ten == 10 ? colorGreen : colorRed);
+}
