@@ -3,18 +3,19 @@
 # found in the LICENSE file.
 
 declare_args() {
-  skia_canvaskit_enable_canvas_bindings = true
-  skia_canvaskit_enable_skottie = true
-  skia_canvaskit_enable_pathops = true
-  skia_canvaskit_enable_particles = true
-  skia_canvaskit_enable_rt_shader = true
-  skia_canvaskit_enable_sksl_trace = true
   skia_canvaskit_enable_alias_font = true
-  skia_canvaskit_enable_skp_serialization = true
+  skia_canvaskit_enable_canvas_bindings = true
+  skia_canvaskit_enable_debugger = false
   skia_canvaskit_enable_effects_deserialization = true
-  skia_canvaskit_enable_matrix_helper = true
-  skia_canvaskit_enable_font = true
   skia_canvaskit_enable_embedded_font = true
+  skia_canvaskit_enable_font = true
+  skia_canvaskit_enable_matrix_helper = true
+  skia_canvaskit_enable_particles = true
+  skia_canvaskit_enable_pathops = true
+  skia_canvaskit_enable_rt_shader = true
+  skia_canvaskit_enable_skottie = true
+  skia_canvaskit_enable_skp_serialization = true
+  skia_canvaskit_enable_sksl_trace = true
   skia_canvaskit_enable_paragraph = true
   skia_canvaskit_include_viewer = false
   skia_canvaskit_force_tracing = false

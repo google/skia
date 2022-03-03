@@ -30,7 +30,7 @@ release_viewer:
 
 debug:
 	# Does an incremental build where possible.
-	./compile.sh debug
+	./compile.sh debug --enable_debugger
 	- rm -rf build/
 	mkdir build
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
@@ -164,3 +164,12 @@ bazel_test_canvaskit:
 	echo "test output in //bazel-testlogs/modules/canvaskit/canvaskit_js_wasms/test.outputs/"
 	ls ../../bazel-testlogs/modules/canvaskit/canvaskit_js_wasms/test.outputs/
 
+with_debugger:
+	# Does an incremental build where possible.
+	./compile.sh debug enable_debugger
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./build/
+	cp ./build/canvaskit.js   ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/
+	cp ./build/canvaskit.wasm ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/

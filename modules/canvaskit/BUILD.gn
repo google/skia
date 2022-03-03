@@ -61,6 +61,18 @@ if (skia_enable_tools) {
   }
 }
 
+component("debugger") {
+  include_dirs = [ "../.." ]
+  sources = [
+    "../../tools/SkSharingProc.cpp",
+    "../../tools/UrlDataManager.cpp",
+    "../../tools/debugger/DebugCanvas.cpp",
+    "../../tools/debugger/DebugLayerManager.cpp",
+    "../../tools/debugger/DrawCommand.cpp",
+    "../../tools/debugger/JsonWriteBuffer.cpp",
+  ]
+}
+
 action("create_notomono_cpp") {
   script = "../../tools/embed_resources.py"
 
@@ -127,6 +139,11 @@ skia_wasm_lib("canvaskit") {
   }
   if (skia_canvaskit_include_viewer) {
     sources += [ "viewer_bindings.cpp" ]
+    # TODO(kjlubick): remove this
+  }
+  if (skia_canvaskit_enable_debugger) {
+    sources += [ "debugger_bindings.cpp" ]
+    deps += [ ":debugger" ]
   }
   if (skia_canvaskit_enable_embedded_font) {
     sources += [
@@ -253,6 +270,13 @@ skia_wasm_lib("canvaskit") {
     ]
   }
 
+  if (skia_canvaskit_enable_debugger) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("debugger.js"),
+    ]
+  }
+
   if (skia_canvaskit_enable_canvas_bindings) {
     ldflags += [
       "--pre-js",
@@ -357,5 +381,11 @@ skia_wasm_lib("canvaskit") {
   }
   if (!skia_canvaskit_enable_font) {
     defines += [ "CK_NO_FONTS" ]
+  }
+  if (skia_canvaskit_enable_debugger) {
+    defines += [
+      "SK_BUILD_FOR_DEBUGGER",
+      "SK_ENABLE_DUMP_GPU",
+    ]
   }
 }

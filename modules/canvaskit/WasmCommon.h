@@ -17,6 +17,7 @@
 using namespace emscripten;
 
 // Self-documenting types
+using JSColor = int32_t;
 using JSArray = emscripten::val;
 using JSObject = emscripten::val;
 using JSString = emscripten::val;
