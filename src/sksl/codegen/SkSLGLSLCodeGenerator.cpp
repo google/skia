@@ -57,7 +57,7 @@ void GLSLCodeGenerator::write(std::string_view s) {
 
 void GLSLCodeGenerator::writeLine(std::string_view s) {
     this->write(s);
-    fOut->writeText(fLineEnding);
+    fOut->writeText("\n");
     fAtLineStart = true;
 }
 
@@ -650,16 +650,12 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     proj = false;
                     break;
             }
-            if (!fTextureFunctionOverride.empty()) {
-                this->write(fTextureFunctionOverride.c_str());
-            } else {
-                this->write("texture");
-                if (this->caps().generation() < SkSL::GLSLGeneration::k130) {
-                    this->write(dim);
-                }
-                if (proj) {
-                    this->write("Proj");
-                }
+            this->write("texture");
+            if (this->caps().generation() < SkSL::GLSLGeneration::k130) {
+                this->write(dim);
+            }
+            if (proj) {
+                this->write("Proj");
             }
             nameWritten = true;
             break;

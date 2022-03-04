@@ -8,8 +8,6 @@
 #ifndef SKSL_GLSLCODEGENERATOR
 #define SKSL_GLSLCODEGENERATOR
 
-#include <unordered_map>
-
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
@@ -50,8 +48,7 @@ class VariableReference;
 class GLSLCodeGenerator : public CodeGenerator {
 public:
     GLSLCodeGenerator(const Context* context, const Program* program, OutputStream* out)
-    : INHERITED(context, program, out)
-    , fLineEnding("\n") {}
+    : INHERITED(context, program, out) {}
 
     bool generateCode() override;
 
@@ -170,7 +167,6 @@ protected:
 
     const ShaderCaps& caps() const { return fContext.fCaps; }
 
-    const char* fLineEnding;
     StringStream fExtensions;
     StringStream fGlobals;
     StringStream fExtraFunctions;
@@ -186,29 +182,6 @@ protected:
     bool fSetupClockwise = false;
     bool fSetupFragPosition = false;
     bool fSetupFragCoordWorkaround = false;
-    // if non-empty, replace all texture / texture2D / textureProj / etc. calls with this name
-    std::string fTextureFunctionOverride;
-
-    // We map function names to function class so we can quickly deal with function calls that need
-    // extra processing
-    enum class FunctionClass {
-        kAbs,
-        kAtan,
-        kDeterminant,
-        kDFdx,
-        kDFdy,
-        kFwidth,
-        kFMA,
-        kFract,
-        kInverse,
-        kInverseSqrt,
-        kMin,
-        kPow,
-        kSaturate,
-        kTexture,
-        kTranspose
-    };
-    static std::unordered_map<std::string_view, FunctionClass>* fFunctionClasses;
 
     using INHERITED = CodeGenerator;
 };
