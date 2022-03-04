@@ -656,7 +656,6 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                        type->isArrayedTexture(), type->isMultisampled(),
                                        type->isSampled() ? 1 : 2, SpvImageFormatUnknown,
                                        fConstantBuffer);
-                fImageTypeMap[key] = result;
                 break;
             }
             default:
@@ -671,14 +670,6 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
         return result;
     }
     return entry->second;
-}
-
-SpvId SPIRVCodeGenerator::getImageType(const Type& type) {
-    SkASSERT(type.typeKind() == Type::TypeKind::kSampler);
-    this->getType(type);
-    std::string key = type.displayName() + std::to_string(fDefaultLayout.fStd);
-    SkASSERT(fImageTypeMap.find(key) != fImageTypeMap.end());
-    return fImageTypeMap[key];
 }
 
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
@@ -3652,7 +3643,6 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         }
     }
 
-    write_stringstream(fExtraGlobalsBuffer, out);
     write_stringstream(fNameBuffer, out);
     write_stringstream(fDecorationBuffer, out);
     write_stringstream(fConstantBuffer, out);

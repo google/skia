@@ -130,7 +130,6 @@ public:
             , fDefaultLayout(MemoryLayout::k140_Standard)
             , fCapabilities(0)
             , fIdCount(1)
-            , fSetupFragPosition(false)
             , fCurrentBlock(0)
             , fSynthetics(fContext, /*builtin=*/true) {
         this->setupIntrinsics();
@@ -188,8 +187,6 @@ private:
     SpvId getType(const Type& type);
 
     SpvId getType(const Type& type, const MemoryLayout& layout);
-
-    SpvId getImageType(const Type& type);
 
     SpvId getFunctionType(const FunctionDeclaration& function);
 
@@ -489,20 +486,15 @@ private:
     std::unordered_map<IntrinsicKind, Intrinsic> fIntrinsicMap;
     std::unordered_map<const FunctionDeclaration*, SpvId> fFunctionMap;
     std::unordered_map<const Variable*, SpvId> fVariableMap;
-    std::unordered_map<const Variable*, int32_t> fInterfaceBlockMap;
-    std::unordered_map<std::string, SpvId> fImageTypeMap;
     std::unordered_map<std::string, SpvId> fTypeMap;
-    StringStream fCapabilitiesBuffer;
     StringStream fGlobalInitializersBuffer;
     StringStream fConstantBuffer;
-    StringStream fExtraGlobalsBuffer;
     StringStream fVariableBuffer;
     StringStream fNameBuffer;
     StringStream fDecorationBuffer;
 
     std::unordered_map<SPIRVNumberConstant, SpvId> fNumberConstants;
     std::unordered_map<SPIRVVectorConstant, SpvId> fVectorConstants;
-    bool fSetupFragPosition;
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;
     std::stack<SpvId> fBreakTarget;
@@ -510,7 +502,6 @@ private:
     bool fWroteRTFlip = false;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
-    int fSkInCount = 1;
     // Holds a list of uniforms that were declared as globals at the top-level instead of in an
     // interface block.
     UniformBuffer fUniformBuffer;
