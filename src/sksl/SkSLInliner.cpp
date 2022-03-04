@@ -9,7 +9,6 @@
 
 #include <limits.h>
 #include <memory>
-#include <unordered_set>
 
 #include "include/private/SkSLLayout.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
@@ -219,13 +218,13 @@ public:
 
 const Variable* Inliner::RemapVariable(const Variable* variable,
                                        const VariableRewriteMap* varMap) {
-    auto iter = varMap->find(variable);
-    if (iter == varMap->end()) {
+    std::unique_ptr<Expression>* remap = varMap->find(variable);
+    if (!remap) {
         SkDEBUGFAILF("rewrite map does not contain variable '%.*s'",
                      (int)variable->name().size(), variable->name().data());
         return variable;
     }
-    Expression* expr = iter->second.get();
+    Expression* expr = remap->get();
     SkASSERT(expr);
     if (!expr->is<VariableReference>()) {
         SkDEBUGFAILF("rewrite map contains non-variable replacement for '%.*s'",
@@ -438,9 +437,9 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int line,
             return expression.clone();
         case Expression::Kind::kVariableReference: {
             const VariableReference& v = expression.as<VariableReference>();
-            auto varMapIter = varMap->find(v.variable());
-            if (varMapIter != varMap->end()) {
-                return clone_with_ref_kind(*varMapIter->second, v.refKind());
+            std::unique_ptr<Expression>* remap = varMap->find(v.variable());
+            if (remap) {
+                return clone_with_ref_kind(**remap, v.refKind());
             }
             return v.clone();
         }
@@ -592,7 +591,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int line,
                                                      variable.type().clone(symbolTableForStatement),
                                                      isBuiltinCode,
                                                      variable.storage());
-            (*varMap)[&variable] = VariableReference::Make(line, clonedVar.get());
+            varMap->set(&variable, VariableReference::Make(line, clonedVar.get()));
             auto result = VarDeclaration::Make(*fContext,
                                                clonedVar.get(),
                                                decl.baseType().clone(symbolTableForStatement),
@@ -671,7 +670,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             if ((paramUsage.fRead > 1) ? Analysis::IsTrivialExpression(*arg)
                                        : !arg->hasSideEffects()) {
                 // ... we don't need to copy it at all! We can just use the existing expression.
-                varMap[param] = arg->clone();
+                varMap.set(param, arg->clone());
                 continue;
             }
         }
@@ -682,7 +681,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                             symbolTable.get(),
                                                             std::move(arguments[i]));
         inlineStatements.push_back(std::move(var.fVarDecl));
-        varMap[param] = VariableReference::Make(/*line=*/-1, var.fVarSymbol);
+        varMap.set(param, VariableReference::Make(/*line=*/-1, var.fVarSymbol));
     }
 
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
@@ -1057,23 +1056,24 @@ bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate,
                                     const ProgramUsage& usage,
                                     InlinabilityCache* cache) {
     const FunctionDeclaration& funcDecl = candidate_func(candidate);
-    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
-    if (wasInserted) {
-        // Recursion is forbidden here to avoid an infinite death spiral of inlining.
-        iter->second = this->isSafeToInline(funcDecl.definition(), usage) &&
-                       !contains_recursive_call(funcDecl);
+    if (const bool* cachedInlinability = cache->find(&funcDecl)) {
+        return *cachedInlinability;
     }
-
-    return iter->second;
+    // Recursion is forbidden here to avoid an infinite death spiral of inlining.
+    bool inlinability = this->isSafeToInline(funcDecl.definition(), usage) &&
+                        !contains_recursive_call(funcDecl);
+    cache->set(&funcDecl, inlinability);
+    return inlinability;
 }
 
 int Inliner::getFunctionSize(const FunctionDeclaration& funcDecl, FunctionSizeCache* cache) {
-    auto [iter, wasInserted] = cache->insert({&funcDecl, 0});
-    if (wasInserted) {
-        iter->second = Analysis::NodeCountUpToLimit(*funcDecl.definition(),
-                                                    this->settings().fInlineThreshold);
+    if (const int* cachedSize = cache->find(&funcDecl)) {
+        return *cachedSize;
     }
-    return iter->second;
+    int size = Analysis::NodeCountUpToLimit(*funcDecl.definition(),
+                                            this->settings().fInlineThreshold);
+    cache->set(&funcDecl, size);
+    return size;
 }
 
 void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
@@ -1156,8 +1156,8 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
     this->buildCandidateList(elements, symbols, usage, &candidateList);
 
     // Inline the candidates where we've determined that it's safe to do so.
-    using StatementRemappingTable = std::unordered_map<std::unique_ptr<Statement>*,
-                                                       std::unique_ptr<Statement>*>;
+    using StatementRemappingTable = SkTHashMap<std::unique_ptr<Statement>*,
+                                               std::unique_ptr<Statement>*>;
     StatementRemappingTable statementRemappingTable;
 
     bool madeChanges = false;
@@ -1182,11 +1182,11 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
         // Look up the enclosing statement; remap it if necessary.
         std::unique_ptr<Statement>* enclosingStmt = candidate.fEnclosingStmt;
         for (;;) {
-            auto iter = statementRemappingTable.find(enclosingStmt);
-            if (iter == statementRemappingTable.end()) {
+            std::unique_ptr<Statement>** remappedStmt = statementRemappingTable.find(enclosingStmt);
+            if (!remappedStmt) {
                 break;
             }
-            enclosingStmt = iter->second;
+            enclosingStmt = *remappedStmt;
         }
 
         // Move the enclosing statement to the end of the unscoped Block containing the inlined
@@ -1208,7 +1208,7 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
 
         // If anything else pointed at our enclosing statement, it's now pointing at a Block
         // containing many other statements as well. Maintain a fix-up table to account for this.
-        statementRemappingTable[enclosingStmt] = &(*enclosingStmt)->as<Block>().children().back();
+        statementRemappingTable.set(enclosingStmt,&(*enclosingStmt)->as<Block>().children().back());
 
         // Stop inlining if we've reached our hard cap on new statements.
         if (fInlinedStatementCounter >= kInlinedStatementLimit) {

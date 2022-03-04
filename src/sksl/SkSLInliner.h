@@ -9,8 +9,8 @@
 #define SKSL_INLINER
 
 #include <memory>
-#include <unordered_map>
 
+#include "include/private/SkTHash.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -47,7 +47,7 @@ public:
                  ProgramUsage* usage);
 
 private:
-    using VariableRewriteMap = std::unordered_map<const Variable*, std::unique_ptr<Expression>>;
+    using VariableRewriteMap = SkTHashMap<const Variable*, std::unique_ptr<Expression>>;
 
     enum class ReturnComplexity {
         kSingleSafeReturn,
@@ -83,12 +83,12 @@ private:
     /** Determines if a given function has multiple and/or early returns. */
     static ReturnComplexity GetReturnComplexity(const FunctionDefinition& funcDef);
 
-    using InlinabilityCache = std::unordered_map<const FunctionDeclaration*, bool>;
+    using InlinabilityCache = SkTHashMap<const FunctionDeclaration*, bool>;
     bool candidateCanBeInlined(const InlineCandidate& candidate,
                                const ProgramUsage& usage,
                                InlinabilityCache* cache);
 
-    using FunctionSizeCache = std::unordered_map<const FunctionDeclaration*, int>;
+    using FunctionSizeCache = SkTHashMap<const FunctionDeclaration*, int>;
     int getFunctionSize(const FunctionDeclaration& fnDecl, FunctionSizeCache* cache);
 
     /**
