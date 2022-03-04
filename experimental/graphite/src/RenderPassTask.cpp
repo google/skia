@@ -55,9 +55,12 @@ void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
     sk_sp<Texture> depthStencilTexture;
     if (fRenderPassDesc.fDepthStencilAttachment.fTextureInfo.isValid()) {
         // TODO: ensure this is a scratch/recycled texture
-        depthStencilTexture = resourceProvider->findOrCreateTexture(
+        depthStencilTexture = resourceProvider->findOrCreateDepthStencilAttachment(
                 fTarget->dimensions(), fRenderPassDesc.fDepthStencilAttachment.fTextureInfo);
-        SkASSERT(depthStencilTexture);
+        if (!depthStencilTexture) {
+            SKGPU_LOG_W("Could not get DepthStencil attachment for RenderPassTask");
+            return;
+        }
     }
 
     if (commandBuffer->beginRenderPass(fRenderPassDesc, fTarget->refTexture(), nullptr,

@@ -87,6 +87,33 @@ sk_sp<Texture> ResourceProvider::findOrCreateTexture(SkISize dimensions, const T
     return this->createTexture(dimensions, info);
 }
 
+sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dimensions,
+                                                                    const TextureInfo& info) {
+    SkASSERT(info.isValid());
+
+    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
+
+    GraphiteResourceKey key;
+    // We always make depth and stencil attachments shareable. Between any render pass the values
+    // are reset. Thus it is safe to be used by multiple different render passes without worry of
+    // stomping on each other's data.
+    fGpu->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
+
+    if (Resource* resource = fResourceCache->findAndRefResource(key)) {
+        return sk_sp<Texture>(static_cast<Texture*>(resource));
+    }
+
+    auto stencil = this->createTexture(dimensions, info);
+    if (!stencil) {
+        return nullptr;
+    }
+
+    stencil->setKey(key);
+    fResourceCache->insertResource(stencil.get());
+
+    return stencil;
+}
+
 sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SkSamplingOptions& smplOptions,
                                                                SkTileMode xTileMode,
                                                                SkTileMode yTileMode) {

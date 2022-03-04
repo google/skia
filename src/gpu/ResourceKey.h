@@ -39,6 +39,15 @@ public:
         return this->internalSize();
     }
 
+    /** Reset to an invalid key. */
+    void reset() {
+        fKey.reset(kMetaDataCnt);
+        fKey[kHash_MetaDataIdx] = 0;
+        fKey[kDomainAndSize_MetaDataIdx] = kInvalidDomain;
+    }
+
+    bool isValid() const { return kInvalidDomain != this->domain(); }
+
     /** Used to initialize a key. */
     class Builder {
     public:
@@ -81,13 +90,6 @@ protected:
 
     ResourceKey() { this->reset(); }
 
-    /** Reset to an invalid key. */
-    void reset() {
-        fKey.reset(kMetaDataCnt);
-        fKey[kHash_MetaDataIdx] = 0;
-        fKey[kDomainAndSize_MetaDataIdx] = kInvalidDomain;
-    }
-
     bool operator==(const ResourceKey& that) const {
         // Both keys should be sized to at least contain the meta data. The metadata contains each
         // key's length. So the second memcmp should only run if the keys have the same length.
@@ -109,8 +111,6 @@ protected:
         }
         return *this;
     }
-
-    bool isValid() const { return kInvalidDomain != this->domain(); }
 
     uint32_t domain() const { return fKey[kDomainAndSize_MetaDataIdx] & 0xffff; }
 
@@ -200,11 +200,6 @@ public:
 
     ScratchKey(const ScratchKey& that) { *this = that; }
 
-    /** reset() returns the key to the invalid state. */
-    using ResourceKey::reset;
-
-    using ResourceKey::isValid;
-
     ResourceType resourceType() const { return this->domain(); }
 
     ScratchKey& operator=(const ScratchKey& that) {
@@ -246,11 +241,6 @@ public:
     UniqueKey() : fTag(nullptr) {}
 
     UniqueKey(const UniqueKey& that) { *this = that; }
-
-    /** reset() returns the key to the invalid state. */
-    using ResourceKey::reset;
-
-    using ResourceKey::isValid;
 
     UniqueKey& operator=(const UniqueKey& that) {
         this->ResourceKey::operator=(that);

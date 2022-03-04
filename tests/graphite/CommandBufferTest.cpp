@@ -288,7 +288,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     renderPassDesc.fDepthStencilAttachment.fLoadOp = LoadOp::kDiscard;
     renderPassDesc.fDepthStencilAttachment.fStoreOp = StoreOp::kDiscard;
     sk_sp<Texture> depthStencilTexture =
-            resourceProvider->findOrCreateTexture(textureSize, depthStencilInfo);
+            resourceProvider->findOrCreateDepthStencilAttachment(textureSize, depthStencilInfo);
 
     // Create Sampler -- for now, just to test creation
     sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(

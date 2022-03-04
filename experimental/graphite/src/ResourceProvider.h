@@ -45,6 +45,9 @@ public:
     sk_sp<Texture> findOrCreateTexture(SkISize, const TextureInfo&);
     virtual sk_sp<Texture> createWrappedTexture(const BackendTexture&) = 0;
 
+    sk_sp<Texture> findOrCreateDepthStencilAttachment(SkISize dimensions,
+                                                      const TextureInfo&);
+
     sk_sp<Buffer> findOrCreateBuffer(size_t size, BufferType type, PrioritizeGpuReads);
 
     sk_sp<Sampler> findOrCreateCompatibleSampler(const SkSamplingOptions&,
