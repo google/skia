@@ -43,7 +43,7 @@ public:
     sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(const GraphicsPipelineDesc&,
                                                          const RenderPassDesc&);
 
-    sk_sp<Texture> findOrCreateTexture(SkISize, const TextureInfo&);
+    sk_sp<Texture> findOrCreateScratchTexture(SkISize, const TextureInfo&);
     virtual sk_sp<Texture> createWrappedTexture(const BackendTexture&) = 0;
 
     sk_sp<Texture> findOrCreateDepthStencilAttachment(SkISize dimensions,

@@ -83,8 +83,17 @@ sk_sp<GraphicsPipeline> ResourceProvider::GraphicsPipelineCache::refPipeline(
     return (*entry)->fPipeline;
 }
 
-sk_sp<Texture> ResourceProvider::findOrCreateTexture(SkISize dimensions, const TextureInfo& info) {
-    return this->createTexture(dimensions, info);
+sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
+                                                            const TextureInfo& info) {
+    SkASSERT(info.isValid());
+
+    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
+
+    GraphiteResourceKey key;
+    // Scratch textures are not shareable
+    fGpu->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kNo, &key);
+
+    return this->findOrCreateTextureWithKey(dimensions, info, key);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dimensions,

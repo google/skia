@@ -26,7 +26,7 @@ bool TextureProxy::instantiate(ResourceProvider* resourceProvider) {
     if (fTexture) {
         return true;
     }
-    fTexture = resourceProvider->findOrCreateTexture(fDimensions, fInfo);
+    fTexture = resourceProvider->findOrCreateScratchTexture(fDimensions, fInfo);
     if (!fTexture) {
         return false;
     }
