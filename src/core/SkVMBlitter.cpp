@@ -21,6 +21,7 @@
 #include "src/core/SkVM.h"
 #include "src/core/SkVMBlitter.h"
 #include "src/shaders/SkColorFilterShader.h"
+#include "src/shaders/SkColorShader.h"
 
 #include <cinttypes>
 
@@ -182,29 +183,6 @@ namespace {
             return c;
         }
     };
-
-    // This is similar to using SkShaders::Color(paint.getColor4f(), nullptr),
-    // but uses the blitter-provided paint color uniforms instead of pushing its own.
-    struct PaintColorShader : public SkShaderBase {
-        explicit PaintColorShader(bool isOpaque) : fIsOpaque(isOpaque) {}
-
-        const bool fIsOpaque;
-
-        // Only created here temporarily... never serialized.
-        Factory      getFactory() const override { return nullptr; }
-        const char* getTypeName() const override { return "PaintColorShader"; }
-
-        bool isOpaque() const override { return fIsOpaque; }
-
-        skvm::Color onProgram(skvm::Builder*,
-                              skvm::Coord, skvm::Coord, skvm::Color paint,
-                              const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
-                              skvm::Uniforms*, SkArenaAlloc*) const override {
-            // Incoming `paint` is unpremul in the destination color space,
-            // so we just need to premul it.
-            return premul(paint);
-        }
-    };
 }  // namespace
 
 bool SkVMBlitter::Key::operator==(const Key& that) const {
@@ -246,11 +224,11 @@ SkVMBlitter::Params SkVMBlitter::EffectiveParams(const SkPixmap& device,
     }
     SkASSERT(!paint.getColorFilter());
 
-    // If there's no explicit shader, the paint color is the shader,
+    // If there's no explicit shader, SkColorShader is the shader,
     // but if there is a shader, it's modulated by the paint alpha.
     sk_sp<SkShader> shader = paint.refShader();
     if (!shader) {
-        shader = sk_make_sp<PaintColorShader>(paint.getColor4f().isOpaque());
+        shader = sk_make_sp<SkColor4Shader>(paint.getColor4f(), nullptr);
     } else if (paint.getAlphaf() < 1.0f) {
         shader = sk_make_sp<SkColorFilterShader>(std::move(shader),
                                                  paint.getAlphaf(),
