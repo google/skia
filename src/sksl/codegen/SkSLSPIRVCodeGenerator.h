@@ -9,9 +9,8 @@
 #define SKSL_SPIRVCODEGENERATOR
 
 #include <stack>
-#include <unordered_map>
-#include <unordered_set>
 
+#include "include/private/SkTHash.h"
 #include "src/core/SkOpts.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
@@ -58,6 +57,12 @@ struct SPIRVNumberConstant {
     }
     int32_t                fValueBits;
     SkSL::Type::NumberKind fKind;
+
+    struct Hash {
+        uint32_t operator()(const SPIRVNumberConstant& key) const {
+            return key.fValueBits ^ (int)key.fKind;
+        }
+    };
 };
 
 struct SPIRVVectorConstant {
@@ -70,29 +75,13 @@ struct SPIRVVectorConstant {
     }
     SpvId fTypeId;
     SpvId fValueId[4];
+
+    struct Hash {
+        uint32_t operator()(const SPIRVVectorConstant& key) const {
+            return SkOpts::hash(&key, sizeof(key));
+        }
+    };
 };
-
-}  // namespace SkSL
-
-namespace std {
-
-template <>
-struct hash<SkSL::SPIRVNumberConstant> {
-    size_t operator()(const SkSL::SPIRVNumberConstant& key) const {
-        return key.fValueBits ^ (int)key.fKind;
-    }
-};
-
-template <>
-struct hash<SkSL::SPIRVVectorConstant> {
-    size_t operator()(const SkSL::SPIRVVectorConstant& key) const {
-        return SkOpts::hash(&key, sizeof(key));
-    }
-};
-
-}  // namespace std
-
-namespace SkSL {
 
 /**
  * Converts a Program into a SPIR-V binary.
@@ -483,18 +472,18 @@ private:
         int32_t unsignedOp;
         int32_t boolOp;
     };
-    std::unordered_map<IntrinsicKind, Intrinsic> fIntrinsicMap;
-    std::unordered_map<const FunctionDeclaration*, SpvId> fFunctionMap;
-    std::unordered_map<const Variable*, SpvId> fVariableMap;
-    std::unordered_map<std::string, SpvId> fTypeMap;
+    SkTHashMap<IntrinsicKind, Intrinsic> fIntrinsicMap;
+    SkTHashMap<const FunctionDeclaration*, SpvId> fFunctionMap;
+    SkTHashMap<const Variable*, SpvId> fVariableMap;
+    SkTHashMap<std::string, SpvId> fTypeMap;
     StringStream fGlobalInitializersBuffer;
     StringStream fConstantBuffer;
     StringStream fVariableBuffer;
     StringStream fNameBuffer;
     StringStream fDecorationBuffer;
 
-    std::unordered_map<SPIRVNumberConstant, SpvId> fNumberConstants;
-    std::unordered_map<SPIRVVectorConstant, SpvId> fVectorConstants;
+    SkTHashMap<SPIRVNumberConstant, SpvId, SPIRVNumberConstant::Hash> fNumberConstants;
+    SkTHashMap<SPIRVVectorConstant, SpvId, SPIRVVectorConstant::Hash> fVectorConstants;
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;
     std::stack<SpvId> fBreakTarget;
@@ -506,8 +495,8 @@ private:
     // interface block.
     UniformBuffer fUniformBuffer;
     std::vector<const VarDeclaration*> fTopLevelUniforms;
-    std::unordered_map<const Variable*, int> fTopLevelUniformMap; //<var, UniformBuffer field index>
-    std::unordered_set<const Variable*> fSPIRVBonusVariables;
+    SkTHashMap<const Variable*, int> fTopLevelUniformMap; // <var, UniformBuffer field index>
+    SkTHashSet<const Variable*> fSPIRVBonusVariables;
     SpvId fUniformBufferId = -1;
 
     friend class PointerLValue;
