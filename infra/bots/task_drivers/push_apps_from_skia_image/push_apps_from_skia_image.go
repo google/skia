@@ -125,6 +125,10 @@ func buildPushApiImage(ctx context.Context, dkr *docker.Docker, tag, checkoutDir
 	}
 	doxygenCmd := []string{"/bin/sh", "-c", "cd /CHECKOUT/tools/doxygen && doxygen ProdDoxyfile"}
 	doxygenImg := "gcr.io/skia-public/doxygen:testing-slim"
+	// Make sure we have the latest doxygen image.
+	if err := dkr.Pull(ctx, doxygenImg); err != nil {
+		return err
+	}
 	if err := dkr.Run(ctx, doxygenImg, doxygenCmd, volumes, env); err != nil {
 		return err
 	}
