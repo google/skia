@@ -174,12 +174,14 @@ bool SkImageShader::isOpaque() const {
            fTileModeX != SkTileMode::kDecal && fTileModeY != SkTileMode::kDecal;
 }
 
+#if defined(SK_LEGACY_RP_BICUBIC)
 constexpr SkCubicResampler kDefaultCubicResampler{1.0f/3, 1.0f/3};
 
 static bool is_default_cubic_resampler(SkCubicResampler cubic) {
     return SkScalarNearlyEqual(cubic.B, kDefaultCubicResampler.B) &&
            SkScalarNearlyEqual(cubic.C, kDefaultCubicResampler.C);
 }
+#endif
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 
@@ -459,14 +461,14 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
     // We only support certain sampling options in stages so far
     auto sampling = fSampling;
-    if (sampling.useCubic) {
-        if (!is_default_cubic_resampler(sampling.cubic)) {
-            return false;
-        }
-    } else if (sampling.mipmap == SkMipmapMode::kLinear) {
+    if (sampling.mipmap == SkMipmapMode::kLinear) {
         return false;
     }
-
+#if defined(SK_LEGACY_RP_BICUBIC)
+    if (sampling.useCubic && !is_default_cubic_resampler(sampling.cubic)) {
+        return false;
+    }
+#endif
 
     if (updater && (sampling.mipmap != SkMipmapMode::kNone)) {
         // TODO: medium: recall RequestBitmap and update width/height accordingly
@@ -510,6 +512,9 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     gather->stride = pm.rowBytesAsPixels();
     gather->width  = pm.width();
     gather->height = pm.height();
+    if (sampling.useCubic) {
+        CubicResamplerMatrix(sampling.cubic.B, sampling.cubic.C).getColMajor(gather->weights);
+    }
 
     auto limit_x = alloc->make<SkRasterPipeline_TileCtx>(),
          limit_y = alloc->make<SkRasterPipeline_TileCtx>();
@@ -693,6 +698,8 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     };
 
     if (sampling.useCubic) {
+        CubicResamplerMatrix(sampling.cubic.B, sampling.cubic.C).getColMajor(sampler->weights);
+
         p->append(SkRasterPipeline::save_xy, sampler);
 
         sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_n3y);
