@@ -109,41 +109,24 @@ void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetMan
     jassert(env, gAAssetManager,);
 
     std::lock_guard<std::mutex> lock(gMutex);
-    gSkQP.init(&gAndroidAssetManager, nullptr, reportDirectory.c_str());
+    gSkQP.init(&gAndroidAssetManager, reportDirectory.c_str());
 
     auto backends = gSkQP.getSupportedBackends();
     jassert(env, backends.size() > 0,);
-    auto gms = gSkQP.getGMs();
-    auto unitTests = gSkQP.getUnitTests();
+    const std::vector<SkQP::UnitTest>& unitTests = gSkQP.getUnitTests();
 
     constexpr char kStringArrayType[] = "[Ljava/lang/String;";
     env->SetObjectField(object, env->GetFieldID(SkQP_class, "mBackends", kStringArrayType),
                         to_java_string_array(env, backends, SkQP::GetBackendName));
     env->SetObjectField(object, env->GetFieldID(SkQP_class, "mUnitTests", kStringArrayType),
                         to_java_string_array(env, unitTests, SkQP::GetUnitTestName));
-    env->SetObjectField(object, env->GetFieldID(SkQP_class, "mGMs", kStringArrayType),
-                        to_java_string_array(env, gms, SkQP::GetGMName));
 }
 
 jlong Java_org_skia_skqp_SkQP_nExecuteGM(JNIEnv* env,
                                           jobject object,
                                           jint gmIndex,
                                           jint backendIndex) {
-    SkQP::RenderOutcome outcome;
-    std::string except;
-    {
-        std::lock_guard<std::mutex> lock(gMutex);
-        jassert(env, backendIndex < (jint)gSkQP.getSupportedBackends().size(), -1);
-        jassert(env, gmIndex < (jint)gSkQP.getGMs().size(), -1);
-        SkQP::SkiaBackend backend = gSkQP.getSupportedBackends()[backendIndex];
-        SkQP::GMFactory gm = gSkQP.getGMs()[gmIndex];
-        std::tie(outcome, except) = gSkQP.evaluateGM(backend, gm);
-    }
-
-    if (!except.empty()) {
-        (void)env->ThrowNew(env->FindClass("org/skia/skqp/SkQPException"), except.c_str());
-    }
-    return (jlong)outcome.fTotalError;
+    return 0;
 }
 
 jobjectArray Java_org_skia_skqp_SkQP_nExecuteUnitTest(JNIEnv* env,

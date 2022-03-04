@@ -2479,6 +2479,7 @@ if (skia_enable_tools) {
       sources = [
         "dm/DMGpuTestProcs.cpp",
         "tools/skqp/src/skqp.cpp",
+        "tools/skqp/src/skqp.h",
       ]
       deps = [
         ":gm",
