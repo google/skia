@@ -38,8 +38,9 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
     return kDstColorName;
 }
 
-void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquation equation) {
-    SkASSERT(GrBlendEquationIsAdvanced(equation));
+void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(
+        skgpu::BlendEquation equation) {
+    SkASSERT(skgpu::BlendEquationIsAdvanced(equation));
 
     if (fProgramBuilder->shaderCaps()->mustEnableAdvBlendEqs()) {
         this->addFeature(1 << kBlendEquationAdvanced_GLSLPrivateFeature,

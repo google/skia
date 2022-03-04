@@ -9,7 +9,7 @@
 #define GrXferProcessor_DEFINED
 
 #include "include/gpu/GrTypes.h"
-#include "src/gpu/GrBlend.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProcessorAnalysis.h"
@@ -92,11 +92,11 @@ public:
     struct BlendInfo {
         SkDEBUGCODE(SkString dump() const;)
 
-        GrBlendEquation fEquation = kAdd_GrBlendEquation;
-        GrBlendCoeff    fSrcBlend = kOne_GrBlendCoeff;
-        GrBlendCoeff    fDstBlend = kZero_GrBlendCoeff;
-        SkPMColor4f     fBlendConstant = SK_PMColor4fTRANSPARENT;
-        bool            fWriteColor = true;
+        skgpu::BlendEquation fEquation = skgpu::BlendEquation::kAdd;
+        skgpu::BlendCoeff    fSrcBlend = skgpu::BlendCoeff::kOne;
+        skgpu::BlendCoeff    fDstBlend = skgpu::BlendCoeff::kZero;
+        SkPMColor4f          fBlendConstant = SK_PMColor4fTRANSPARENT;
+        bool                 fWriteColor = true;
     };
 
     inline BlendInfo getBlendInfo() const {

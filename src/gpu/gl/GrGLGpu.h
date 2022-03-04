@@ -705,17 +705,17 @@ private:
     void setNeedsFlush() { fNeedsGLFlush = true; }
 
     struct {
-        GrBlendEquation fEquation;
-        GrBlendCoeff    fSrcCoeff;
-        GrBlendCoeff    fDstCoeff;
-        SkPMColor4f     fConstColor;
-        bool            fConstColorValid;
-        TriState        fEnabled;
+        skgpu::BlendEquation fEquation;
+        skgpu::BlendCoeff    fSrcCoeff;
+        skgpu::BlendCoeff    fDstCoeff;
+        SkPMColor4f          fConstColor;
+        bool                 fConstColorValid;
+        TriState             fEnabled;
 
         void invalidate() {
-            fEquation = kIllegal_GrBlendEquation;
-            fSrcCoeff = kIllegal_GrBlendCoeff;
-            fDstCoeff = kIllegal_GrBlendCoeff;
+            fEquation = skgpu::BlendEquation::kIllegal;
+            fSrcCoeff = skgpu::BlendCoeff::kIllegal;
+            fDstCoeff = skgpu::BlendCoeff::kIllegal;
             fConstColorValid = false;
             fEnabled = kUnknown_TriState;
         }

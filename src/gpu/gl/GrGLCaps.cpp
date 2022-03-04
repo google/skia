@@ -4116,12 +4116,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         if (ctxInfo.driver() == GrGLDriver::kNVIDIA &&
             ctxInfo.driverVersion() < GR_GL_DRIVER_VER(355, 00, 0)) {
             // Disable color-dodge and color-burn on pre-355.00 NVIDIA.
-            fAdvBlendEqDisableFlags |= (1 << kColorDodge_GrBlendEquation) |
-                                    (1 << kColorBurn_GrBlendEquation);
+            fAdvBlendEqDisableFlags |= (1 << static_cast<int>(skgpu::BlendEquation::kColorDodge)) |
+                                    (1 << static_cast<int>(skgpu::BlendEquation::kColorBurn));
         }
         if (ctxInfo.vendor() == GrGLVendor::kARM) {
             // Disable color-burn on ARM until the fix is released.
-            fAdvBlendEqDisableFlags |= (1 << kColorBurn_GrBlendEquation);
+            fAdvBlendEqDisableFlags |= (1 << static_cast<int>(skgpu::BlendEquation::kColorBurn));
         }
     }
 

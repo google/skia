@@ -94,10 +94,10 @@ void set_blend_factor(GrD3DGpu* gpu, const GrProgramInfo& info) {
     const GrXferProcessor& xferProcessor = info.pipeline().getXferProcessor();
     const skgpu::Swizzle& swizzle = info.pipeline().writeSwizzle();
     const GrXferProcessor::BlendInfo& blendInfo = xferProcessor.getBlendInfo();
-    GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
-    GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
+    skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
+    skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
     float floatColors[4];
-    if (GrBlendCoeffRefsConstant(srcCoeff) || GrBlendCoeffRefsConstant(dstCoeff)) {
+    if (skgpu::BlendCoeffRefsConstant(srcCoeff) || skgpu::BlendCoeffRefsConstant(dstCoeff)) {
         // Swizzle the blend to match what the shader will output.
         SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
         floatColors[0] = blendConst.fR;

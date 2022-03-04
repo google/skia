@@ -289,47 +289,47 @@ static void setup_multisample_state(int numSamples,
     multisampleInfo->alphaToOneEnable = VK_FALSE;
 }
 
-static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
+static VkBlendFactor blend_coeff_to_vk_blend(skgpu::BlendCoeff coeff) {
     switch (coeff) {
-        case kZero_GrBlendCoeff:
+        case skgpu::BlendCoeff::kZero:
             return VK_BLEND_FACTOR_ZERO;
-        case kOne_GrBlendCoeff:
+        case skgpu::BlendCoeff::kOne:
             return VK_BLEND_FACTOR_ONE;
-        case kSC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kSC:
             return VK_BLEND_FACTOR_SRC_COLOR;
-        case kISC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kISC:
             return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
-        case kDC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kDC:
             return VK_BLEND_FACTOR_DST_COLOR;
-        case kIDC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIDC:
             return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
-        case kSA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kSA:
             return VK_BLEND_FACTOR_SRC_ALPHA;
-        case kISA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kISA:
             return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        case kDA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kDA:
             return VK_BLEND_FACTOR_DST_ALPHA;
-        case kIDA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIDA:
             return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
-        case kConstC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kConstC:
             return VK_BLEND_FACTOR_CONSTANT_COLOR;
-        case kIConstC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIConstC:
             return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
-        case kS2C_GrBlendCoeff:
+        case skgpu::BlendCoeff::kS2C:
             return VK_BLEND_FACTOR_SRC1_COLOR;
-        case kIS2C_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIS2C:
             return VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
-        case kS2A_GrBlendCoeff:
+        case skgpu::BlendCoeff::kS2A:
             return VK_BLEND_FACTOR_SRC1_ALPHA;
-        case kIS2A_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIS2A:
             return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
-        case kIllegal_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIllegal:
             return VK_BLEND_FACTOR_ZERO;
     }
     SkUNREACHABLE;
 }
 
-static VkBlendOp blend_equation_to_vk_blend_op(GrBlendEquation equation) {
+static VkBlendOp blend_equation_to_vk_blend_op(skgpu::BlendEquation equation) {
     static const VkBlendOp gTable[] = {
         // Basic blend ops
         VK_BLEND_OP_ADD,
@@ -356,37 +356,37 @@ static VkBlendOp blend_equation_to_vk_blend_op(GrBlendEquation equation) {
         // Illegal.
         VK_BLEND_OP_ADD,
     };
-    static_assert(0 == kAdd_GrBlendEquation);
-    static_assert(1 == kSubtract_GrBlendEquation);
-    static_assert(2 == kReverseSubtract_GrBlendEquation);
-    static_assert(3 == kScreen_GrBlendEquation);
-    static_assert(4 == kOverlay_GrBlendEquation);
-    static_assert(5 == kDarken_GrBlendEquation);
-    static_assert(6 == kLighten_GrBlendEquation);
-    static_assert(7 == kColorDodge_GrBlendEquation);
-    static_assert(8 == kColorBurn_GrBlendEquation);
-    static_assert(9 == kHardLight_GrBlendEquation);
-    static_assert(10 == kSoftLight_GrBlendEquation);
-    static_assert(11 == kDifference_GrBlendEquation);
-    static_assert(12 == kExclusion_GrBlendEquation);
-    static_assert(13 == kMultiply_GrBlendEquation);
-    static_assert(14 == kHSLHue_GrBlendEquation);
-    static_assert(15 == kHSLSaturation_GrBlendEquation);
-    static_assert(16 == kHSLColor_GrBlendEquation);
-    static_assert(17 == kHSLLuminosity_GrBlendEquation);
-    static_assert(SK_ARRAY_COUNT(gTable) == kGrBlendEquationCnt);
+    static_assert(0 == (int)skgpu::BlendEquation::kAdd);
+    static_assert(1 == (int)skgpu::BlendEquation::kSubtract);
+    static_assert(2 == (int)skgpu::BlendEquation::kReverseSubtract);
+    static_assert(3 == (int)skgpu::BlendEquation::kScreen);
+    static_assert(4 == (int)skgpu::BlendEquation::kOverlay);
+    static_assert(5 == (int)skgpu::BlendEquation::kDarken);
+    static_assert(6 == (int)skgpu::BlendEquation::kLighten);
+    static_assert(7 == (int)skgpu::BlendEquation::kColorDodge);
+    static_assert(8 == (int)skgpu::BlendEquation::kColorBurn);
+    static_assert(9 == (int)skgpu::BlendEquation::kHardLight);
+    static_assert(10 == (int)skgpu::BlendEquation::kSoftLight);
+    static_assert(11 == (int)skgpu::BlendEquation::kDifference);
+    static_assert(12 == (int)skgpu::BlendEquation::kExclusion);
+    static_assert(13 == (int)skgpu::BlendEquation::kMultiply);
+    static_assert(14 == (int)skgpu::BlendEquation::kHSLHue);
+    static_assert(15 == (int)skgpu::BlendEquation::kHSLSaturation);
+    static_assert(16 == (int)skgpu::BlendEquation::kHSLColor);
+    static_assert(17 == (int)skgpu::BlendEquation::kHSLLuminosity);
+    static_assert(SK_ARRAY_COUNT(gTable) == skgpu::kBlendEquationCnt);
 
-    SkASSERT((unsigned)equation < kGrBlendEquationCnt);
-    return gTable[equation];
+    SkASSERT((unsigned)equation < skgpu::kBlendEquationCnt);
+    return gTable[(int)equation];
 }
 
 static void setup_color_blend_state(const GrXferProcessor::BlendInfo& blendInfo,
                                     VkPipelineColorBlendStateCreateInfo* colorBlendInfo,
                                     VkPipelineColorBlendAttachmentState* attachmentState) {
-    GrBlendEquation equation = blendInfo.fEquation;
-    GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
-    GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
-    bool blendOff = GrBlendShouldDisable(equation, srcCoeff, dstCoeff);
+    skgpu::BlendEquation equation = blendInfo.fEquation;
+    skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
+    skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
+    bool blendOff = skgpu::BlendShouldDisable(equation, srcCoeff, dstCoeff);
 
     memset(attachmentState, 0, sizeof(VkPipelineColorBlendAttachmentState));
     attachmentState->blendEnable = !blendOff;
@@ -648,10 +648,10 @@ void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
                                                 const skgpu::Swizzle& swizzle,
                                                 const GrXferProcessor& xferProcessor) {
     const GrXferProcessor::BlendInfo& blendInfo = xferProcessor.getBlendInfo();
-    GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
-    GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
+    skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
+    skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
     float floatColors[4];
-    if (GrBlendCoeffRefsConstant(srcCoeff) || GrBlendCoeffRefsConstant(dstCoeff)) {
+    if (skgpu::BlendCoeffRefsConstant(srcCoeff) || skgpu::BlendCoeffRefsConstant(dstCoeff)) {
         // Swizzle the blend to match what the shader will output.
         SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
         floatColors[0] = blendConst.fR;

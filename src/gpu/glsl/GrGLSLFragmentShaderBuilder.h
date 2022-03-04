@@ -8,7 +8,7 @@
 #ifndef GrGLSLFragmentShaderBuilder_DEFINED
 #define GrGLSLFragmentShaderBuilder_DEFINED
 
-#include "src/gpu/GrBlend.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/glsl/GrGLSLShaderBuilder.h"
@@ -74,7 +74,7 @@ public:
     /** Adds any necessary layout qualifiers in order to legalize the supplied blend equation with
         this shader. It is only legal to call this method with an advanced blend equation, and only
         if these equations are supported. */
-    virtual void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) = 0;
+    virtual void enableAdvancedBlendEquationIfNeeded(skgpu::BlendEquation) = 0;
 };
 
 /*
@@ -93,7 +93,7 @@ public:
     // GrGLSLXPFragmentBuilder interface.
     bool hasCustomColorOutput() const override { return SkToBool(fCustomColorOutput); }
     bool hasSecondaryOutput() const override { return fHasSecondaryOutput; }
-    void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
+    void enableAdvancedBlendEquationIfNeeded(skgpu::BlendEquation) override;
 
 private:
     // Private public interface, used by GrGLProgramBuilder to build a fragment shader

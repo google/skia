@@ -10,7 +10,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTo.h"
-#include "src/gpu/GrBlend.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProcessor.h"
@@ -42,13 +42,16 @@ public:
         kLast_OutputType = kISCModulate_OutputType
     };
 
-    constexpr BlendFormula(OutputType primaryOut, OutputType secondaryOut, GrBlendEquation equation,
-                           GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff)
+    constexpr BlendFormula(OutputType primaryOut,
+                           OutputType secondaryOut,
+                           skgpu::BlendEquation equation,
+                           skgpu::BlendCoeff srcCoeff,
+                           skgpu::BlendCoeff dstCoeff)
             : fPrimaryOutputType(primaryOut)
             , fSecondaryOutputType(secondaryOut)
-            , fBlendEquation(equation)
-            , fSrcCoeff(srcCoeff)
-            , fDstCoeff(dstCoeff)
+            , fBlendEquation(SkTo<uint8_t>(equation))
+            , fSrcCoeff(SkTo<uint8_t>(srcCoeff))
+            , fDstCoeff(SkTo<uint8_t>(dstCoeff))
             , fProps(GetProperties(primaryOut, secondaryOut, equation, srcCoeff, dstCoeff)) {}
 
     BlendFormula(const BlendFormula&) = default;
@@ -84,16 +87,16 @@ public:
         return SkToBool(fProps & kCanTweakAlphaForCoverage_Property);
     }
 
-    GrBlendEquation equation() const {
-        return fBlendEquation;
+    skgpu::BlendEquation equation() const {
+        return static_cast<skgpu::BlendEquation>(fBlendEquation);
     }
 
-    GrBlendCoeff srcCoeff() const {
-        return fSrcCoeff;
+    skgpu::BlendCoeff srcCoeff() const {
+        return static_cast<skgpu::BlendCoeff>(fSrcCoeff);
     }
 
-    GrBlendCoeff dstCoeff() const {
-        return fDstCoeff;
+    skgpu::BlendCoeff dstCoeff() const {
+        return static_cast<skgpu::BlendCoeff>(fDstCoeff);
     }
 
     OutputType primaryOutput() const {
@@ -119,25 +122,27 @@ private:
     /**
      * Deduce the properties of a BlendFormula.
      */
-    static constexpr Properties GetProperties(OutputType PrimaryOut, OutputType SecondaryOut,
-                                              GrBlendEquation BlendEquation, GrBlendCoeff SrcCoeff,
-                                              GrBlendCoeff DstCoeff);
+    static constexpr Properties GetProperties(OutputType PrimaryOut,
+                                              OutputType SecondaryOut,
+                                              skgpu::BlendEquation BlendEquation,
+                                              skgpu::BlendCoeff SrcCoeff,
+                                              skgpu::BlendCoeff DstCoeff);
 
     struct {
         // We allot the enums one more bit than they require because MSVC seems to sign-extend
         // them when the top bit is set. (This is in violation of the C++03 standard 9.6/4)
-        OutputType        fPrimaryOutputType    : 4;
-        OutputType        fSecondaryOutputType  : 4;
-        GrBlendEquation   fBlendEquation        : 6;
-        GrBlendCoeff      fSrcCoeff             : 6;
-        GrBlendCoeff      fDstCoeff             : 6;
-        Properties        fProps                : 32 - (4 + 4 + 6 + 6 + 6);
+        OutputType fPrimaryOutputType   : 4;
+        OutputType fSecondaryOutputType : 4;
+        uint32_t   fBlendEquation       : 6;
+        uint32_t   fSrcCoeff            : 6;
+        uint32_t   fDstCoeff            : 6;
+        Properties fProps               : 32 - (4 + 4 + 6 + 6 + 6);
     };
 
-    static_assert(kLast_OutputType      < (1 << 3));
-    static_assert(kLast_GrBlendEquation < (1 << 5));
-    static_assert(kLast_GrBlendCoeff    < (1 << 5));
-    static_assert(kLast_Property        < (1 << 6));
+    static_assert(kLast_OutputType                              < (1 << 3));
+    static_assert(static_cast<int>(skgpu::BlendEquation::kLast) < (1 << 5));
+    static_assert(static_cast<int>(skgpu::BlendCoeff::kLast)    < (1 << 5));
+    static_assert(kLast_Property                                < (1 << 6));
 };
 
 static_assert(4 == sizeof(BlendFormula));
@@ -146,34 +151,36 @@ SK_MAKE_BITFIELD_OPS(BlendFormula::Properties)
 
 constexpr BlendFormula::Properties BlendFormula::GetProperties(OutputType PrimaryOut,
                                                                OutputType SecondaryOut,
-                                                               GrBlendEquation BlendEquation,
-                                                               GrBlendCoeff SrcCoeff,
-                                                               GrBlendCoeff DstCoeff) {
+                                                               skgpu::BlendEquation BlendEquation,
+                                                               skgpu::BlendCoeff SrcCoeff,
+                                                               skgpu::BlendCoeff DstCoeff) {
     return
     // The provided formula should already be optimized before a BlendFormula is constructed.
     // Assert that here while setting up the properties in the constexpr constructor.
-    SkASSERT((kNone_OutputType == PrimaryOut) == !GrBlendCoeffsUseSrcColor(SrcCoeff, DstCoeff)),
-    SkASSERT(!GrBlendCoeffRefsSrc2(SrcCoeff)),
-    SkASSERT((kNone_OutputType == SecondaryOut) == !GrBlendCoeffRefsSrc2(DstCoeff)),
+    SkASSERT((kNone_OutputType == PrimaryOut) ==
+             !skgpu::BlendCoeffsUseSrcColor(SrcCoeff, DstCoeff)),
+    SkASSERT(!skgpu::BlendCoeffRefsSrc2(SrcCoeff)),
+    SkASSERT((kNone_OutputType == SecondaryOut) == !skgpu::BlendCoeffRefsSrc2(DstCoeff)),
     SkASSERT(PrimaryOut != SecondaryOut || kNone_OutputType == PrimaryOut),
     SkASSERT(kNone_OutputType != PrimaryOut || kNone_OutputType == SecondaryOut),
 
     static_cast<Properties>(
-        (GrBlendModifiesDst(BlendEquation, SrcCoeff, DstCoeff) ? kModifiesDst_Property : 0) |
-        (!GrBlendCoeffsUseDstColor(SrcCoeff, DstCoeff, false/*srcColorIsOpaque*/)
+        (skgpu::BlendModifiesDst(BlendEquation, SrcCoeff, DstCoeff) ? kModifiesDst_Property : 0) |
+        (!skgpu::BlendCoeffsUseDstColor(SrcCoeff, DstCoeff, false/*srcColorIsOpaque*/)
                     ? kUnaffectedByDst_Property
                     : 0) |
-        (!GrBlendCoeffsUseDstColor(SrcCoeff, DstCoeff, true/*srcColorIsOpaque*/)
+        (!skgpu::BlendCoeffsUseDstColor(SrcCoeff, DstCoeff, true/*srcColorIsOpaque*/)
                     ? kUnaffectedByDstIfOpaque_Property
                     : 0) |
-        ((PrimaryOut >= kModulate_OutputType && GrBlendCoeffsUseSrcColor(SrcCoeff, DstCoeff)) ||
+        ((PrimaryOut >= kModulate_OutputType &&
+                            skgpu::BlendCoeffsUseSrcColor(SrcCoeff, DstCoeff)) ||
                             (SecondaryOut >= kModulate_OutputType &&
-                            GrBlendCoeffRefsSrc2(DstCoeff))
+                            skgpu::BlendCoeffRefsSrc2(DstCoeff))
                     ? kUsesInputColor_Property
                     : 0) |  // We assert later that SrcCoeff doesn't ref src2.
         ((kModulate_OutputType == PrimaryOut || kNone_OutputType == PrimaryOut) &&
                             kNone_OutputType == SecondaryOut &&
-                            GrBlendAllowsCoverageAsAlpha(BlendEquation, SrcCoeff, DstCoeff)
+                            skgpu::BlendAllowsCoverageAsAlpha(BlendEquation, SrcCoeff, DstCoeff)
                     ? kCanTweakAlphaForCoverage_Property
                     : 0));
 }
@@ -182,23 +189,25 @@ constexpr BlendFormula::Properties BlendFormula::GetProperties(OutputType Primar
  * When there is no coverage, or the blend mode can tweak alpha for coverage, we use the standard
  * Porter Duff formula.
  */
-static constexpr BlendFormula MakeCoeffFormula(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
+static constexpr BlendFormula MakeCoeffFormula(skgpu::BlendCoeff srcCoeff,
+                                               skgpu::BlendCoeff dstCoeff) {
     // When the coeffs are (Zero, Zero) or (Zero, One) we set the primary output to none.
-    return (kZero_GrBlendCoeff == srcCoeff &&
-            (kZero_GrBlendCoeff == dstCoeff || kOne_GrBlendCoeff == dstCoeff))
+    return (skgpu::BlendCoeff::kZero == srcCoeff &&
+            (skgpu::BlendCoeff::kZero == dstCoeff || skgpu::BlendCoeff::kOne == dstCoeff))
            ? BlendFormula(BlendFormula::kNone_OutputType, BlendFormula::kNone_OutputType,
-                          kAdd_GrBlendEquation, kZero_GrBlendCoeff, dstCoeff)
+                          skgpu::BlendEquation::kAdd, skgpu::BlendCoeff::kZero, dstCoeff)
            : BlendFormula(BlendFormula::kModulate_OutputType, BlendFormula::kNone_OutputType,
-                        kAdd_GrBlendEquation, srcCoeff, dstCoeff);
+                          skgpu::BlendEquation::kAdd, srcCoeff, dstCoeff);
 }
 
 /**
  * Basic coeff formula similar to MakeCoeffFormula but we will make the src f*Sa. This is used in
  * LCD dst-out.
  */
-static constexpr BlendFormula MakeSAModulateFormula(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
+static constexpr BlendFormula MakeSAModulateFormula(skgpu::BlendCoeff srcCoeff,
+                                                    skgpu::BlendCoeff dstCoeff) {
     return BlendFormula(BlendFormula::kSAModulate_OutputType, BlendFormula::kNone_OutputType,
-                        kAdd_GrBlendEquation, srcCoeff, dstCoeff);
+                        skgpu::BlendEquation::kAdd, srcCoeff, dstCoeff);
 }
 
 /**
@@ -216,9 +225,9 @@ static constexpr BlendFormula MakeSAModulateFormula(GrBlendCoeff srcCoeff, GrBle
  * Xfer modes: dst-atop (Sa!=1)
  */
 static constexpr BlendFormula MakeCoverageFormula(
-        BlendFormula::OutputType oneMinusDstCoeffModulateOutput, GrBlendCoeff srcCoeff) {
+        BlendFormula::OutputType oneMinusDstCoeffModulateOutput, skgpu::BlendCoeff srcCoeff) {
     return BlendFormula(BlendFormula::kModulate_OutputType, oneMinusDstCoeffModulateOutput,
-                        kAdd_GrBlendEquation, srcCoeff, kIS2C_GrBlendCoeff);
+                        skgpu::BlendEquation::kAdd, srcCoeff, skgpu::BlendCoeff::kIS2C);
 }
 
 /**
@@ -238,7 +247,8 @@ static constexpr BlendFormula MakeCoverageFormula(
 static constexpr BlendFormula MakeCoverageSrcCoeffZeroFormula(
         BlendFormula::OutputType oneMinusDstCoeffModulateOutput) {
     return BlendFormula(oneMinusDstCoeffModulateOutput, BlendFormula::kNone_OutputType,
-                        kReverseSubtract_GrBlendEquation, kDC_GrBlendCoeff, kOne_GrBlendCoeff);
+                        skgpu::BlendEquation::kReverseSubtract, skgpu::BlendCoeff::kDC,
+                        skgpu::BlendCoeff::kOne);
 }
 
 /**
@@ -251,9 +261,9 @@ static constexpr BlendFormula MakeCoverageSrcCoeffZeroFormula(
  *
  * Xfer modes (Sa!=1): src, src-in, src-out
  */
-static constexpr BlendFormula MakeCoverageDstCoeffZeroFormula(GrBlendCoeff srcCoeff) {
+static constexpr BlendFormula MakeCoverageDstCoeffZeroFormula(skgpu::BlendCoeff srcCoeff) {
     return BlendFormula(BlendFormula::kModulate_OutputType, BlendFormula::kCoverage_OutputType,
-                        kAdd_GrBlendEquation, srcCoeff, kIS2A_GrBlendCoeff);
+                        skgpu::BlendEquation::kAdd, srcCoeff, skgpu::BlendCoeff::kIS2A);
 }
 
 /**
@@ -264,75 +274,77 @@ static constexpr BlendFormula MakeCoverageDstCoeffZeroFormula(GrBlendCoeff srcCo
 static constexpr BlendFormula gBlendTable[2][2][(int)SkBlendMode::kLastCoeffMode + 1] = {
                      /*>> No coverage, input color unknown <<*/ {{
 
-    /* clear */      MakeCoeffFormula(kZero_GrBlendCoeff, kZero_GrBlendCoeff),
-    /* src */        MakeCoeffFormula(kOne_GrBlendCoeff,  kZero_GrBlendCoeff),
-    /* dst */        MakeCoeffFormula(kZero_GrBlendCoeff, kOne_GrBlendCoeff),
-    /* src-over */   MakeCoeffFormula(kOne_GrBlendCoeff,  kISA_GrBlendCoeff),
-    /* dst-over */   MakeCoeffFormula(kIDA_GrBlendCoeff,  kOne_GrBlendCoeff),
-    /* src-in */     MakeCoeffFormula(kDA_GrBlendCoeff,   kZero_GrBlendCoeff),
-    /* dst-in */     MakeCoeffFormula(kZero_GrBlendCoeff, kSA_GrBlendCoeff),
-    /* src-out */    MakeCoeffFormula(kIDA_GrBlendCoeff,  kZero_GrBlendCoeff),
-    /* dst-out */    MakeCoeffFormula(kZero_GrBlendCoeff, kISA_GrBlendCoeff),
-    /* src-atop */   MakeCoeffFormula(kDA_GrBlendCoeff,   kISA_GrBlendCoeff),
-    /* dst-atop */   MakeCoeffFormula(kIDA_GrBlendCoeff,  kSA_GrBlendCoeff),
-    /* xor */        MakeCoeffFormula(kIDA_GrBlendCoeff,  kISA_GrBlendCoeff),
-    /* plus */       MakeCoeffFormula(kOne_GrBlendCoeff,  kOne_GrBlendCoeff),
-    /* modulate */   MakeCoeffFormula(kZero_GrBlendCoeff, kSC_GrBlendCoeff),
-    /* screen */     MakeCoeffFormula(kOne_GrBlendCoeff,  kISC_GrBlendCoeff),
+    /* clear */      MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kZero),
+    /* src */        MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kZero),
+    /* dst */        MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
+    /* src-over */   MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISA),
+    /* dst-over */   MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
+    /* src-in */     MakeCoeffFormula(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kZero),
+    /* dst-in */     MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSA),
+    /* src-out */    MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kZero),
+    /* dst-out */    MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kISA),
+    /* src-atop */   MakeCoeffFormula(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kISA),
+    /* dst-atop */   MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kSA),
+    /* xor */        MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kISA),
+    /* plus */       MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kOne),
+    /* modulate */   MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSC),
+    /* screen */     MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC),
 
                      }, /*>> Has coverage, input color unknown <<*/ {
 
     /* clear */      MakeCoverageSrcCoeffZeroFormula(BlendFormula::kCoverage_OutputType),
-    /* src */        MakeCoverageDstCoeffZeroFormula(kOne_GrBlendCoeff),
-    /* dst */        MakeCoeffFormula(kZero_GrBlendCoeff, kOne_GrBlendCoeff),
-    /* src-over */   MakeCoeffFormula(kOne_GrBlendCoeff,  kISA_GrBlendCoeff),
-    /* dst-over */   MakeCoeffFormula(kIDA_GrBlendCoeff,  kOne_GrBlendCoeff),
-    /* src-in */     MakeCoverageDstCoeffZeroFormula(kDA_GrBlendCoeff),
+    /* src */        MakeCoverageDstCoeffZeroFormula(skgpu::BlendCoeff::kOne),
+    /* dst */        MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
+    /* src-over */   MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISA),
+    /* dst-over */   MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
+    /* src-in */     MakeCoverageDstCoeffZeroFormula(skgpu::BlendCoeff::kDA),
     /* dst-in */     MakeCoverageSrcCoeffZeroFormula(BlendFormula::kISAModulate_OutputType),
-    /* src-out */    MakeCoverageDstCoeffZeroFormula(kIDA_GrBlendCoeff),
-    /* dst-out */    MakeCoeffFormula(kZero_GrBlendCoeff, kISA_GrBlendCoeff),
-    /* src-atop */   MakeCoeffFormula(kDA_GrBlendCoeff,   kISA_GrBlendCoeff),
-    /* dst-atop */   MakeCoverageFormula(BlendFormula::kISAModulate_OutputType, kIDA_GrBlendCoeff),
-    /* xor */        MakeCoeffFormula(kIDA_GrBlendCoeff,  kISA_GrBlendCoeff),
-    /* plus */       MakeCoeffFormula(kOne_GrBlendCoeff,  kOne_GrBlendCoeff),
+    /* src-out */    MakeCoverageDstCoeffZeroFormula(skgpu::BlendCoeff::kIDA),
+    /* dst-out */    MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kISA),
+    /* src-atop */   MakeCoeffFormula(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kISA),
+    /* dst-atop */   MakeCoverageFormula(BlendFormula::kISAModulate_OutputType,
+                                         skgpu::BlendCoeff::kIDA),
+    /* xor */        MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kISA),
+    /* plus */       MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kOne),
     /* modulate */   MakeCoverageSrcCoeffZeroFormula(BlendFormula::kISCModulate_OutputType),
-    /* screen */     MakeCoeffFormula(kOne_GrBlendCoeff,  kISC_GrBlendCoeff),
+    /* screen */     MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC),
 
                      }}, /*>> No coverage, input color opaque <<*/ {{
 
-    /* clear */      MakeCoeffFormula(kZero_GrBlendCoeff, kZero_GrBlendCoeff),
-    /* src */        MakeCoeffFormula(kOne_GrBlendCoeff,  kZero_GrBlendCoeff),
-    /* dst */        MakeCoeffFormula(kZero_GrBlendCoeff, kOne_GrBlendCoeff),
-    /* src-over */   MakeCoeffFormula(kOne_GrBlendCoeff,  kISA_GrBlendCoeff), // see comment below
-    /* dst-over */   MakeCoeffFormula(kIDA_GrBlendCoeff,  kOne_GrBlendCoeff),
-    /* src-in */     MakeCoeffFormula(kDA_GrBlendCoeff,   kZero_GrBlendCoeff),
-    /* dst-in */     MakeCoeffFormula(kZero_GrBlendCoeff, kOne_GrBlendCoeff),
-    /* src-out */    MakeCoeffFormula(kIDA_GrBlendCoeff,  kZero_GrBlendCoeff),
-    /* dst-out */    MakeCoeffFormula(kZero_GrBlendCoeff, kZero_GrBlendCoeff),
-    /* src-atop */   MakeCoeffFormula(kDA_GrBlendCoeff,   kZero_GrBlendCoeff),
-    /* dst-atop */   MakeCoeffFormula(kIDA_GrBlendCoeff,  kOne_GrBlendCoeff),
-    /* xor */        MakeCoeffFormula(kIDA_GrBlendCoeff,  kZero_GrBlendCoeff),
-    /* plus */       MakeCoeffFormula(kOne_GrBlendCoeff,  kOne_GrBlendCoeff),
-    /* modulate */   MakeCoeffFormula(kZero_GrBlendCoeff, kSC_GrBlendCoeff),
-    /* screen */     MakeCoeffFormula(kOne_GrBlendCoeff,  kISC_GrBlendCoeff),
+    /* clear */      MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kZero),
+    /* src */        MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kZero),
+    /* dst */        MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
+    /* src-over */   MakeCoeffFormula(skgpu::BlendCoeff::kOne,
+                                      skgpu::BlendCoeff::kISA), // see comment below
+    /* dst-over */   MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
+    /* src-in */     MakeCoeffFormula(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kZero),
+    /* dst-in */     MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
+    /* src-out */    MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kZero),
+    /* dst-out */    MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kZero),
+    /* src-atop */   MakeCoeffFormula(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kZero),
+    /* dst-atop */   MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
+    /* xor */        MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kZero),
+    /* plus */       MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kOne),
+    /* modulate */   MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSC),
+    /* screen */     MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC),
 
                      }, /*>> Has coverage, input color opaque <<*/ {
 
     /* clear */      MakeCoverageSrcCoeffZeroFormula(BlendFormula::kCoverage_OutputType),
-    /* src */        MakeCoeffFormula(kOne_GrBlendCoeff,  kISA_GrBlendCoeff),
-    /* dst */        MakeCoeffFormula(kZero_GrBlendCoeff, kOne_GrBlendCoeff),
-    /* src-over */   MakeCoeffFormula(kOne_GrBlendCoeff,  kISA_GrBlendCoeff),
-    /* dst-over */   MakeCoeffFormula(kIDA_GrBlendCoeff,  kOne_GrBlendCoeff),
-    /* src-in */     MakeCoeffFormula(kDA_GrBlendCoeff,   kISA_GrBlendCoeff),
-    /* dst-in */     MakeCoeffFormula(kZero_GrBlendCoeff, kOne_GrBlendCoeff),
-    /* src-out */    MakeCoeffFormula(kIDA_GrBlendCoeff,  kISA_GrBlendCoeff),
+    /* src */        MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISA),
+    /* dst */        MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
+    /* src-over */   MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISA),
+    /* dst-over */   MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
+    /* src-in */     MakeCoeffFormula(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kISA),
+    /* dst-in */     MakeCoeffFormula(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
+    /* src-out */    MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kISA),
     /* dst-out */    MakeCoverageSrcCoeffZeroFormula(BlendFormula::kCoverage_OutputType),
-    /* src-atop */   MakeCoeffFormula(kDA_GrBlendCoeff,   kISA_GrBlendCoeff),
-    /* dst-atop */   MakeCoeffFormula(kIDA_GrBlendCoeff,  kOne_GrBlendCoeff),
-    /* xor */        MakeCoeffFormula(kIDA_GrBlendCoeff,  kISA_GrBlendCoeff),
-    /* plus */       MakeCoeffFormula(kOne_GrBlendCoeff,  kOne_GrBlendCoeff),
+    /* src-atop */   MakeCoeffFormula(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kISA),
+    /* dst-atop */   MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
+    /* xor */        MakeCoeffFormula(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kISA),
+    /* plus */       MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kOne),
     /* modulate */   MakeCoverageSrcCoeffZeroFormula(BlendFormula::kISCModulate_OutputType),
-    /* screen */     MakeCoeffFormula(kOne_GrBlendCoeff,  kISC_GrBlendCoeff),
+    /* screen */     MakeCoeffFormula(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC),
 }}};
 // In the above table src-over is not optimized to src mode when the color is opaque because we
 // found no advantage to doing so. Also, we are using a global src-over XP in most cases which is
@@ -341,20 +353,32 @@ static constexpr BlendFormula gBlendTable[2][2][(int)SkBlendMode::kLastCoeffMode
 // this table.
 static constexpr BlendFormula gLCDBlendTable[(int)SkBlendMode::kLastCoeffMode + 1] = {
     /* clear */      MakeCoverageSrcCoeffZeroFormula(BlendFormula::kCoverage_OutputType),
-    /* src */        MakeCoverageFormula(BlendFormula::kCoverage_OutputType, kOne_GrBlendCoeff),
-    /* dst */        MakeCoeffFormula(kZero_GrBlendCoeff, kOne_GrBlendCoeff),
-    /* src-over */   MakeCoverageFormula(BlendFormula::kSAModulate_OutputType, kOne_GrBlendCoeff),
-    /* dst-over */   MakeCoeffFormula(kIDA_GrBlendCoeff, kOne_GrBlendCoeff),
-    /* src-in */     MakeCoverageFormula(BlendFormula::kCoverage_OutputType, kDA_GrBlendCoeff),
+    /* src */        MakeCoverageFormula(BlendFormula::kCoverage_OutputType,
+                                         skgpu::BlendCoeff::kOne),
+    /* dst */        MakeCoeffFormula(skgpu::BlendCoeff::kZero,
+                                      skgpu::BlendCoeff::kOne),
+    /* src-over */   MakeCoverageFormula(BlendFormula::kSAModulate_OutputType,
+                                         skgpu::BlendCoeff::kOne),
+    /* dst-over */   MakeCoeffFormula(skgpu::BlendCoeff::kIDA,
+                                      skgpu::BlendCoeff::kOne),
+    /* src-in */     MakeCoverageFormula(BlendFormula::kCoverage_OutputType,
+                                         skgpu::BlendCoeff::kDA),
     /* dst-in */     MakeCoverageSrcCoeffZeroFormula(BlendFormula::kISAModulate_OutputType),
-    /* src-out */    MakeCoverageFormula(BlendFormula::kCoverage_OutputType, kIDA_GrBlendCoeff),
-    /* dst-out */    MakeSAModulateFormula(kZero_GrBlendCoeff, kISC_GrBlendCoeff),
-    /* src-atop */   MakeCoverageFormula(BlendFormula::kSAModulate_OutputType, kDA_GrBlendCoeff),
-    /* dst-atop */   MakeCoverageFormula(BlendFormula::kISAModulate_OutputType, kIDA_GrBlendCoeff),
-    /* xor */        MakeCoverageFormula(BlendFormula::kSAModulate_OutputType, kIDA_GrBlendCoeff),
-    /* plus */       MakeCoeffFormula(kOne_GrBlendCoeff, kOne_GrBlendCoeff),
+    /* src-out */    MakeCoverageFormula(BlendFormula::kCoverage_OutputType,
+                                         skgpu::BlendCoeff::kIDA),
+    /* dst-out */    MakeSAModulateFormula(skgpu::BlendCoeff::kZero,
+                                           skgpu::BlendCoeff::kISC),
+    /* src-atop */   MakeCoverageFormula(BlendFormula::kSAModulate_OutputType,
+                                         skgpu::BlendCoeff::kDA),
+    /* dst-atop */   MakeCoverageFormula(BlendFormula::kISAModulate_OutputType,
+                                         skgpu::BlendCoeff::kIDA),
+    /* xor */        MakeCoverageFormula(BlendFormula::kSAModulate_OutputType,
+                                         skgpu::BlendCoeff::kIDA),
+    /* plus */       MakeCoeffFormula(skgpu::BlendCoeff::kOne,
+                                      skgpu::BlendCoeff::kOne),
     /* modulate */   MakeCoverageSrcCoeffZeroFormula(BlendFormula::kISCModulate_OutputType),
-    /* screen */     MakeCoeffFormula(kOne_GrBlendCoeff, kISC_GrBlendCoeff),
+    /* screen */     MakeCoeffFormula(skgpu::BlendCoeff::kOne,
+                                      skgpu::BlendCoeff::kISC),
 };
 
 static BlendFormula get_blend_formula(bool isOpaque,
@@ -551,8 +575,8 @@ private:
     void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override {}
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
-        blendInfo->fSrcBlend = kConstC_GrBlendCoeff;
-        blendInfo->fDstBlend = kISC_GrBlendCoeff;
+        blendInfo->fSrcBlend = skgpu::BlendCoeff::kConstC;
+        blendInfo->fDstBlend = skgpu::BlendCoeff::kISC;
         blendInfo->fBlendConstant = fBlendConstant;
     }
 
@@ -818,7 +842,7 @@ void GrPorterDuffXPFactory::TestGetXPOutputTypes(const GrXferProcessor* xp,
 ////////////////////////////////////////////////////////////////////////////////////////////////
 const GrXferProcessor& GrPorterDuffXPFactory::SimpleSrcOverXP() {
     static BlendFormula gSrcOverBlendFormula =
-            MakeCoeffFormula(kOne_GrBlendCoeff, kISA_GrBlendCoeff);
+            MakeCoeffFormula(skgpu::BlendCoeff::kOne, skgpu::BlendCoeff::kISA);
     static PorterDuffXferProcessor gSrcOverXP(gSrcOverBlendFormula,
                                               GrProcessorAnalysisCoverage::kSingleChannel);
     return gSrcOverXP;

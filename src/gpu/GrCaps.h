@@ -14,7 +14,7 @@
 #include "include/gpu/GrDriverBugWorkarounds.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
-#include "src/gpu/GrBlend.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxy.h"
@@ -149,10 +149,10 @@ public:
         return kAdvancedCoherent_BlendEquationSupport == fBlendEquationSupport;
     }
 
-    bool isAdvancedBlendEquationDisabled(GrBlendEquation equation) const {
-        SkASSERT(GrBlendEquationIsAdvanced(equation));
+    bool isAdvancedBlendEquationDisabled(skgpu::BlendEquation equation) const {
+        SkASSERT(skgpu::BlendEquationIsAdvanced(equation));
         SkASSERT(this->advancedBlendEquationSupport());
-        return SkToBool(fAdvBlendEqDisableFlags & (1 << equation));
+        return SkToBool(fAdvBlendEqDisableFlags & (1 << static_cast<int>(equation)));
     }
 
     // On some GPUs it is a performance win to disable blending instead of doing src-over with a src
@@ -597,7 +597,7 @@ protected:
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqDisableFlags;
-    static_assert(kLast_GrBlendEquation < 32);
+    static_assert(static_cast<int>(skgpu::BlendEquation::kLast) < 32);
 
     uint32_t fMapBufferFlags;
     int fBufferMapThreshold;

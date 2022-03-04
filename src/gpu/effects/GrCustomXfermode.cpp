@@ -28,31 +28,31 @@ bool GrCustomXfermode::IsSupportedMode(SkBlendMode mode) {
 // Static helpers
 ///////////////////////////////////////////////////////////////////////////////
 
-static constexpr GrBlendEquation hw_blend_equation(SkBlendMode mode) {
-    constexpr int kEqOffset = (kOverlay_GrBlendEquation - (int)SkBlendMode::kOverlay);
-    static_assert(kOverlay_GrBlendEquation == (int)SkBlendMode::kOverlay + kEqOffset);
-    static_assert(kDarken_GrBlendEquation == (int)SkBlendMode::kDarken + kEqOffset);
-    static_assert(kLighten_GrBlendEquation == (int)SkBlendMode::kLighten + kEqOffset);
-    static_assert(kColorDodge_GrBlendEquation == (int)SkBlendMode::kColorDodge + kEqOffset);
-    static_assert(kColorBurn_GrBlendEquation == (int)SkBlendMode::kColorBurn + kEqOffset);
-    static_assert(kHardLight_GrBlendEquation == (int)SkBlendMode::kHardLight + kEqOffset);
-    static_assert(kSoftLight_GrBlendEquation == (int)SkBlendMode::kSoftLight + kEqOffset);
-    static_assert(kDifference_GrBlendEquation == (int)SkBlendMode::kDifference + kEqOffset);
-    static_assert(kExclusion_GrBlendEquation == (int)SkBlendMode::kExclusion + kEqOffset);
-    static_assert(kMultiply_GrBlendEquation == (int)SkBlendMode::kMultiply + kEqOffset);
-    static_assert(kHSLHue_GrBlendEquation == (int)SkBlendMode::kHue + kEqOffset);
-    static_assert(kHSLSaturation_GrBlendEquation == (int)SkBlendMode::kSaturation + kEqOffset);
-    static_assert(kHSLColor_GrBlendEquation == (int)SkBlendMode::kColor + kEqOffset);
-    static_assert(kHSLLuminosity_GrBlendEquation == (int)SkBlendMode::kLuminosity + kEqOffset);
+static constexpr skgpu::BlendEquation hw_blend_equation(SkBlendMode mode) {
+    constexpr int kEqOffset = ((int)skgpu::BlendEquation::kOverlay - (int)SkBlendMode::kOverlay);
+    static_assert((int)skgpu::BlendEquation::kOverlay == (int)SkBlendMode::kOverlay + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kDarken == (int)SkBlendMode::kDarken + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kLighten == (int)SkBlendMode::kLighten + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kColorDodge == (int)SkBlendMode::kColorDodge + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kColorBurn == (int)SkBlendMode::kColorBurn + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kHardLight == (int)SkBlendMode::kHardLight + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kSoftLight == (int)SkBlendMode::kSoftLight + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kDifference == (int)SkBlendMode::kDifference + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kExclusion == (int)SkBlendMode::kExclusion + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kMultiply == (int)SkBlendMode::kMultiply + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kHSLHue == (int)SkBlendMode::kHue + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kHSLSaturation == (int)SkBlendMode::kSaturation + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kHSLColor == (int)SkBlendMode::kColor + kEqOffset);
+    static_assert((int)skgpu::BlendEquation::kHSLLuminosity == (int)SkBlendMode::kLuminosity + kEqOffset);
 
-    // There's an illegal GrBlendEquation that corresponds to no SkBlendMode, hence the extra +1.
-    static_assert(kGrBlendEquationCnt == (int)SkBlendMode::kLastMode + 1 + 1 + kEqOffset);
+    // There's an illegal BlendEquation that corresponds to no SkBlendMode, hence the extra +1.
+    static_assert(skgpu::kBlendEquationCnt == (int)SkBlendMode::kLastMode + 1 + 1 + kEqOffset);
 
-    return static_cast<GrBlendEquation>((int)mode + kEqOffset);
+    return static_cast<skgpu::BlendEquation>((int)mode + kEqOffset);
 #undef EQ_OFFSET
 }
 
-static bool can_use_hw_blend_equation(GrBlendEquation equation,
+static bool can_use_hw_blend_equation(skgpu::BlendEquation equation,
                                       GrProcessorAnalysisCoverage coverage, const GrCaps& caps) {
     if (!caps.advancedBlendEquationSupport()) {
         return false;
@@ -72,7 +72,7 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
 
 class CustomXP : public GrXferProcessor {
 public:
-    CustomXP(SkBlendMode mode, GrBlendEquation hwBlendEquation)
+    CustomXP(SkBlendMode mode, skgpu::BlendEquation hwBlendEquation)
         : INHERITED(kCustomXP_ClassID)
         , fMode(mode)
         , fHWBlendEquation(hwBlendEquation) {}
@@ -80,7 +80,7 @@ public:
     CustomXP(SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
             : INHERITED(kCustomXP_ClassID, /*willReadDstColor=*/true, coverage)
             , fMode(mode)
-            , fHWBlendEquation(kIllegal_GrBlendEquation) {
+            , fHWBlendEquation(skgpu::BlendEquation::kIllegal) {
     }
 
     const char* name() const override { return "Custom Xfermode"; }
@@ -90,7 +90,7 @@ public:
     GrXferBarrierType xferBarrierType(const GrCaps&) const override;
 
 private:
-    bool hasHWBlendEquation() const { return kIllegal_GrBlendEquation != fHWBlendEquation; }
+    bool hasHWBlendEquation() const { return skgpu::BlendEquation::kIllegal != fHWBlendEquation; }
 
     void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override;
 
@@ -98,8 +98,8 @@ private:
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override;
 
-    const SkBlendMode      fMode;
-    const GrBlendEquation  fHWBlendEquation;
+    const SkBlendMode          fMode;
+    const skgpu::BlendEquation fHWBlendEquation;
 
     using INHERITED = GrXferProcessor;
 };
@@ -210,7 +210,7 @@ private:
     GR_DECLARE_XP_FACTORY_TEST
 
     SkBlendMode fMode;
-    GrBlendEquation fHWBlendEquation;
+    skgpu::BlendEquation fHWBlendEquation;
 
     using INHERITED = GrXPFactory;
 };

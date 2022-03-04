@@ -55,86 +55,86 @@ void GrXferProcessor::addToKey(const GrShaderCaps& caps,
 }
 
 #ifdef SK_DEBUG
-static const char* equation_string(GrBlendEquation eq) {
+static const char* equation_string(skgpu::BlendEquation eq) {
     switch (eq) {
-        case kAdd_GrBlendEquation:
+        case skgpu::BlendEquation::kAdd:
             return "add";
-        case kSubtract_GrBlendEquation:
+        case skgpu::BlendEquation::kSubtract:
             return "subtract";
-        case kReverseSubtract_GrBlendEquation:
+        case skgpu::BlendEquation::kReverseSubtract:
             return "reverse_subtract";
-        case kScreen_GrBlendEquation:
+        case skgpu::BlendEquation::kScreen:
             return "screen";
-        case kOverlay_GrBlendEquation:
+        case skgpu::BlendEquation::kOverlay:
             return "overlay";
-        case kDarken_GrBlendEquation:
+        case skgpu::BlendEquation::kDarken:
             return "darken";
-        case kLighten_GrBlendEquation:
+        case skgpu::BlendEquation::kLighten:
             return "lighten";
-        case kColorDodge_GrBlendEquation:
+        case skgpu::BlendEquation::kColorDodge:
             return "color_dodge";
-        case kColorBurn_GrBlendEquation:
+        case skgpu::BlendEquation::kColorBurn:
             return "color_burn";
-        case kHardLight_GrBlendEquation:
+        case skgpu::BlendEquation::kHardLight:
             return "hard_light";
-        case kSoftLight_GrBlendEquation:
+        case skgpu::BlendEquation::kSoftLight:
             return "soft_light";
-        case kDifference_GrBlendEquation:
+        case skgpu::BlendEquation::kDifference:
             return "difference";
-        case kExclusion_GrBlendEquation:
+        case skgpu::BlendEquation::kExclusion:
             return "exclusion";
-        case kMultiply_GrBlendEquation:
+        case skgpu::BlendEquation::kMultiply:
             return "multiply";
-        case kHSLHue_GrBlendEquation:
+        case skgpu::BlendEquation::kHSLHue:
             return "hsl_hue";
-        case kHSLSaturation_GrBlendEquation:
+        case skgpu::BlendEquation::kHSLSaturation:
             return "hsl_saturation";
-        case kHSLColor_GrBlendEquation:
+        case skgpu::BlendEquation::kHSLColor:
             return "hsl_color";
-        case kHSLLuminosity_GrBlendEquation:
+        case skgpu::BlendEquation::kHSLLuminosity:
             return "hsl_luminosity";
-        case kIllegal_GrBlendEquation:
+        case skgpu::BlendEquation::kIllegal:
             SkASSERT(false);
             return "<illegal>";
     }
     return "";
 }
 
-static const char* coeff_string(GrBlendCoeff coeff) {
+static const char* coeff_string(skgpu::BlendCoeff coeff) {
     switch (coeff) {
-        case kZero_GrBlendCoeff:
+        case skgpu::BlendCoeff::kZero:
             return "zero";
-        case kOne_GrBlendCoeff:
+        case skgpu::BlendCoeff::kOne:
             return "one";
-        case kSC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kSC:
             return "src_color";
-        case kISC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kISC:
             return "inv_src_color";
-        case kDC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kDC:
             return "dst_color";
-        case kIDC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIDC:
             return "inv_dst_color";
-        case kSA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kSA:
             return "src_alpha";
-        case kISA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kISA:
             return "inv_src_alpha";
-        case kDA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kDA:
             return "dst_alpha";
-        case kIDA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIDA:
             return "inv_dst_alpha";
-        case kConstC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kConstC:
             return "const_color";
-        case kIConstC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIConstC:
             return "inv_const_color";
-        case kS2C_GrBlendCoeff:
+        case skgpu::BlendCoeff::kS2C:
             return "src2_color";
-        case kIS2C_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIS2C:
             return "inv_src2_color";
-        case kS2A_GrBlendCoeff:
+        case skgpu::BlendCoeff::kS2A:
             return "src2_alpha";
-        case kIS2A_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIS2A:
             return "inv_src2_alpha";
-        case kIllegal_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIllegal:
             SkASSERT(false);
             return "<illegal>";
     }

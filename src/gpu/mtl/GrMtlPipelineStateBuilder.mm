@@ -259,76 +259,76 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrGeometryProcessor& 
     return vertexDescriptor;
 }
 
-static MTLBlendFactor blend_coeff_to_mtl_blend(GrBlendCoeff coeff) {
+static MTLBlendFactor blend_coeff_to_mtl_blend(skgpu::BlendCoeff coeff) {
     switch (coeff) {
-        case kZero_GrBlendCoeff:
+        case skgpu::BlendCoeff::kZero:
             return MTLBlendFactorZero;
-        case kOne_GrBlendCoeff:
+        case skgpu::BlendCoeff::kOne:
             return MTLBlendFactorOne;
-        case kSC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kSC:
             return MTLBlendFactorSourceColor;
-        case kISC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kISC:
             return MTLBlendFactorOneMinusSourceColor;
-        case kDC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kDC:
             return MTLBlendFactorDestinationColor;
-        case kIDC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIDC:
             return MTLBlendFactorOneMinusDestinationColor;
-        case kSA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kSA:
             return MTLBlendFactorSourceAlpha;
-        case kISA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kISA:
             return MTLBlendFactorOneMinusSourceAlpha;
-        case kDA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kDA:
             return MTLBlendFactorDestinationAlpha;
-        case kIDA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIDA:
             return MTLBlendFactorOneMinusDestinationAlpha;
-        case kConstC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kConstC:
             return MTLBlendFactorBlendColor;
-        case kIConstC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIConstC:
             return MTLBlendFactorOneMinusBlendColor;
-        case kS2C_GrBlendCoeff:
+        case skgpu::BlendCoeff::kS2C:
             if (@available(macOS 10.12, iOS 11.0, *)) {
                 return MTLBlendFactorSource1Color;
             } else {
                 return MTLBlendFactorZero;
             }
-        case kIS2C_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIS2C:
             if (@available(macOS 10.12, iOS 11.0, *)) {
                 return MTLBlendFactorOneMinusSource1Color;
             } else {
                 return MTLBlendFactorZero;
             }
-        case kS2A_GrBlendCoeff:
+        case skgpu::BlendCoeff::kS2A:
             if (@available(macOS 10.12, iOS 11.0, *)) {
                 return MTLBlendFactorSource1Alpha;
             } else {
                 return MTLBlendFactorZero;
             }
-        case kIS2A_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIS2A:
             if (@available(macOS 10.12, iOS 11.0, *)) {
                 return MTLBlendFactorOneMinusSource1Alpha;
             } else {
                 return MTLBlendFactorZero;
             }
-        case kIllegal_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIllegal:
             return MTLBlendFactorZero;
     }
 
     SK_ABORT("Unknown blend coefficient");
 }
 
-static MTLBlendOperation blend_equation_to_mtl_blend_op(GrBlendEquation equation) {
+static MTLBlendOperation blend_equation_to_mtl_blend_op(skgpu::BlendEquation equation) {
     static const MTLBlendOperation gTable[] = {
-        MTLBlendOperationAdd,              // kAdd_GrBlendEquation
-        MTLBlendOperationSubtract,         // kSubtract_GrBlendEquation
-        MTLBlendOperationReverseSubtract,  // kReverseSubtract_GrBlendEquation
+        MTLBlendOperationAdd,              // skgpu::BlendEquation::kAdd
+        MTLBlendOperationSubtract,         // skgpu::BlendEquation::kSubtract
+        MTLBlendOperationReverseSubtract,  // skgpu::BlendEquation::kReverseSubtract
     };
-    static_assert(SK_ARRAY_COUNT(gTable) == kFirstAdvancedGrBlendEquation);
-    static_assert(0 == kAdd_GrBlendEquation);
-    static_assert(1 == kSubtract_GrBlendEquation);
-    static_assert(2 == kReverseSubtract_GrBlendEquation);
+    static_assert(SK_ARRAY_COUNT(gTable) == (int)skgpu::BlendEquation::kFirstAdvanced);
+    static_assert(0 == (int)skgpu::BlendEquation::kAdd);
+    static_assert(1 == (int)skgpu::BlendEquation::kSubtract);
+    static_assert(2 == (int)skgpu::BlendEquation::kReverseSubtract);
 
-    SkASSERT((unsigned)equation < kGrBlendEquationCnt);
-    return gTable[equation];
+    SkASSERT((unsigned)equation < skgpu::kBlendEquationCnt);
+    return gTable[(int)equation];
 }
 
 static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
@@ -344,10 +344,10 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
     // blending
     const GrXferProcessor::BlendInfo& blendInfo = pipeline.getXferProcessor().getBlendInfo();
 
-    GrBlendEquation equation = blendInfo.fEquation;
-    GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
-    GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
-    bool blendOn = !GrBlendShouldDisable(equation, srcCoeff, dstCoeff);
+    skgpu::BlendEquation equation = blendInfo.fEquation;
+    skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
+    skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
+    bool blendOn = !skgpu::BlendShouldDisable(equation, srcCoeff, dstCoeff);
 
     mtlColorAttachment.blendingEnabled = blendOn;
     if (writer) {

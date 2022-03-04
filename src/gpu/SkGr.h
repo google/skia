@@ -16,7 +16,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkBlendModePriv.h"
-#include "src/gpu/GrBlend.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrSamplerState.h"
@@ -115,16 +115,16 @@ bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
 ////////////////////////////////////////////////////////////////////////////////
 // Misc Sk to Gr type conversions
 
-static_assert((int)kZero_GrBlendCoeff == (int)SkBlendModeCoeff::kZero);
-static_assert((int)kOne_GrBlendCoeff == (int)SkBlendModeCoeff::kOne);
-static_assert((int)kSC_GrBlendCoeff == (int)SkBlendModeCoeff::kSC);
-static_assert((int)kISC_GrBlendCoeff == (int)SkBlendModeCoeff::kISC);
-static_assert((int)kDC_GrBlendCoeff == (int)SkBlendModeCoeff::kDC);
-static_assert((int)kIDC_GrBlendCoeff == (int)SkBlendModeCoeff::kIDC);
-static_assert((int)kSA_GrBlendCoeff == (int)SkBlendModeCoeff::kSA);
-static_assert((int)kISA_GrBlendCoeff == (int)SkBlendModeCoeff::kISA);
-static_assert((int)kDA_GrBlendCoeff == (int)SkBlendModeCoeff::kDA);
-static_assert((int)kIDA_GrBlendCoeff == (int)SkBlendModeCoeff::kIDA);
+static_assert((int)skgpu::BlendCoeff::kZero == (int)SkBlendModeCoeff::kZero);
+static_assert((int)skgpu::BlendCoeff::kOne == (int)SkBlendModeCoeff::kOne);
+static_assert((int)skgpu::BlendCoeff::kSC == (int)SkBlendModeCoeff::kSC);
+static_assert((int)skgpu::BlendCoeff::kISC == (int)SkBlendModeCoeff::kISC);
+static_assert((int)skgpu::BlendCoeff::kDC == (int)SkBlendModeCoeff::kDC);
+static_assert((int)skgpu::BlendCoeff::kIDC == (int)SkBlendModeCoeff::kIDC);
+static_assert((int)skgpu::BlendCoeff::kSA == (int)SkBlendModeCoeff::kSA);
+static_assert((int)skgpu::BlendCoeff::kISA == (int)SkBlendModeCoeff::kISA);
+static_assert((int)skgpu::BlendCoeff::kDA == (int)SkBlendModeCoeff::kDA);
+static_assert((int)skgpu::BlendCoeff::kIDA == (int)SkBlendModeCoeff::kIDA);
 // static_assert(SkXfermode::kCoeffCount == 10);
 
 ////////////////////////////////////////////////////////////////////////////////

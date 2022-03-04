@@ -156,13 +156,13 @@ static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
 
     static const uint32_t kBlendWriteShift = 1;
     static const uint32_t kBlendCoeffShift = 5;
-    static_assert(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
-    static_assert(kFirstAdvancedGrBlendEquation - 1 < 4);
+    static_assert((int)skgpu::BlendCoeff::kLast < (1 << kBlendCoeffShift));
+    static_assert((int)skgpu::BlendEquation::kFirstAdvanced - 1 < 4);
 
     uint32_t key = blendInfo.fWriteColor;
-    key |= (blendInfo.fSrcBlend << kBlendWriteShift);
-    key |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
-    key |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
+    key |= ((int)blendInfo.fSrcBlend << kBlendWriteShift);
+    key |= ((int)blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
+    key |= ((int)blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
 
     return key;
 }

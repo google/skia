@@ -15,65 +15,65 @@
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/utils/SkShaderUtils.h"
 
-static wgpu::BlendFactor to_dawn_blend_factor(GrBlendCoeff coeff) {
+static wgpu::BlendFactor to_dawn_blend_factor(skgpu::BlendCoeff coeff) {
     switch (coeff) {
-        case kZero_GrBlendCoeff:
+        case skgpu::BlendCoeff::kZero:
             return wgpu::BlendFactor::Zero;
-        case kOne_GrBlendCoeff:
+        case skgpu::BlendCoeff::kOne:
             return wgpu::BlendFactor::One;
-        case kSC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kSC:
             return wgpu::BlendFactor::Src;
-        case kISC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kISC:
             return wgpu::BlendFactor::OneMinusSrc;
-        case kDC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kDC:
             return wgpu::BlendFactor::Dst;
-        case kIDC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIDC:
             return wgpu::BlendFactor::OneMinusDst;
-        case kSA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kSA:
             return wgpu::BlendFactor::SrcAlpha;
-        case kISA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kISA:
             return wgpu::BlendFactor::OneMinusSrcAlpha;
-        case kDA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kDA:
             return wgpu::BlendFactor::DstAlpha;
-        case kIDA_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIDA:
             return wgpu::BlendFactor::OneMinusDstAlpha;
-        case kConstC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kConstC:
             return wgpu::BlendFactor::Constant;
-        case kIConstC_GrBlendCoeff:
+        case skgpu::BlendCoeff::kIConstC:
             return wgpu::BlendFactor::OneMinusConstant;
-        case kS2C_GrBlendCoeff:
-        case kIS2C_GrBlendCoeff:
-        case kS2A_GrBlendCoeff:
-        case kIS2A_GrBlendCoeff:
+        case skgpu::BlendCoeff::kS2C:
+        case skgpu::BlendCoeff::kIS2C:
+        case skgpu::BlendCoeff::kS2A:
+        case skgpu::BlendCoeff::kIS2A:
         default:
             SkASSERT(!"unsupported blend coefficient");
             return wgpu::BlendFactor::One;
         }
 }
 
-static wgpu::BlendFactor to_dawn_blend_factor_for_alpha(GrBlendCoeff coeff) {
+static wgpu::BlendFactor to_dawn_blend_factor_for_alpha(skgpu::BlendCoeff coeff) {
     switch (coeff) {
     // Force all srcColor used in alpha slot to alpha version.
-    case kSC_GrBlendCoeff:
+    case skgpu::BlendCoeff::kSC:
         return wgpu::BlendFactor::SrcAlpha;
-    case kISC_GrBlendCoeff:
+    case skgpu::BlendCoeff::kISC:
         return wgpu::BlendFactor::OneMinusSrcAlpha;
-    case kDC_GrBlendCoeff:
+    case skgpu::BlendCoeff::kDC:
         return wgpu::BlendFactor::DstAlpha;
-    case kIDC_GrBlendCoeff:
+    case skgpu::BlendCoeff::kIDC:
         return wgpu::BlendFactor::OneMinusDstAlpha;
     default:
         return to_dawn_blend_factor(coeff);
     }
 }
 
-static wgpu::BlendOperation to_dawn_blend_operation(GrBlendEquation equation) {
+static wgpu::BlendOperation to_dawn_blend_operation(skgpu::BlendEquation equation) {
     switch (equation) {
-    case kAdd_GrBlendEquation:
+    case skgpu::BlendEquation::kAdd:
         return wgpu::BlendOperation::Add;
-    case kSubtract_GrBlendEquation:
+    case skgpu::BlendEquation::kSubtract:
         return wgpu::BlendOperation::Subtract;
-    case kReverseSubtract_GrBlendEquation:
+    case skgpu::BlendEquation::kReverseSubtract:
         return wgpu::BlendOperation::ReverseSubtract;
     default:
         SkASSERT(!"unsupported blend equation");
@@ -175,9 +175,9 @@ static wgpu::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {
 
 static wgpu::BlendState create_blend_state(const GrDawnGpu* gpu, const GrPipeline& pipeline) {
     GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
-    GrBlendEquation equation = blendInfo.fEquation;
-    GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
-    GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
+    skgpu::BlendEquation equation = blendInfo.fEquation;
+    skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
+    skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
 
     wgpu::BlendFactor srcFactor = to_dawn_blend_factor(srcCoeff);
     wgpu::BlendFactor dstFactor = to_dawn_blend_factor(dstCoeff);

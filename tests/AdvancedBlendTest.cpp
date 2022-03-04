@@ -9,7 +9,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
-#include "src/gpu/GrBlend.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrPaint.h"
@@ -30,8 +30,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
 
     for (int mode = (int)SkBlendMode::kLastMode; mode > (int)SkBlendMode::kLastCoeffMode; --mode) {
         const SkBlendMode blendMode = (SkBlendMode)mode;
-        const GrBlendEquation blendEquation =
-                (GrBlendEquation)(mode + (kOverlay_GrBlendEquation - (int)SkBlendMode::kOverlay));
+        const skgpu::BlendEquation blendEquation = (skgpu::BlendEquation)(mode +
+                ((int)skgpu::BlendEquation::kOverlay - (int)SkBlendMode::kOverlay));
         const GrXPFactory* xpf = GrCustomXfermode::Get(blendMode);
 
         GrXPFactory::AnalysisProperties xpfAnalysis =

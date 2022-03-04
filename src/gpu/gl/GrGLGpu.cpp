@@ -90,25 +90,25 @@ static const GrGLenum gXfermodeEquation2Blend[] = {
     // Illegal... needs to map to something.
     GR_GL_FUNC_ADD,
 };
-static_assert(0 == kAdd_GrBlendEquation);
-static_assert(1 == kSubtract_GrBlendEquation);
-static_assert(2 == kReverseSubtract_GrBlendEquation);
-static_assert(3 == kScreen_GrBlendEquation);
-static_assert(4 == kOverlay_GrBlendEquation);
-static_assert(5 == kDarken_GrBlendEquation);
-static_assert(6 == kLighten_GrBlendEquation);
-static_assert(7 == kColorDodge_GrBlendEquation);
-static_assert(8 == kColorBurn_GrBlendEquation);
-static_assert(9 == kHardLight_GrBlendEquation);
-static_assert(10 == kSoftLight_GrBlendEquation);
-static_assert(11 == kDifference_GrBlendEquation);
-static_assert(12 == kExclusion_GrBlendEquation);
-static_assert(13 == kMultiply_GrBlendEquation);
-static_assert(14 == kHSLHue_GrBlendEquation);
-static_assert(15 == kHSLSaturation_GrBlendEquation);
-static_assert(16 == kHSLColor_GrBlendEquation);
-static_assert(17 == kHSLLuminosity_GrBlendEquation);
-static_assert(SK_ARRAY_COUNT(gXfermodeEquation2Blend) == kGrBlendEquationCnt);
+static_assert(0 == (int)skgpu::BlendEquation::kAdd);
+static_assert(1 == (int)skgpu::BlendEquation::kSubtract);
+static_assert(2 == (int)skgpu::BlendEquation::kReverseSubtract);
+static_assert(3 == (int)skgpu::BlendEquation::kScreen);
+static_assert(4 == (int)skgpu::BlendEquation::kOverlay);
+static_assert(5 == (int)skgpu::BlendEquation::kDarken);
+static_assert(6 == (int)skgpu::BlendEquation::kLighten);
+static_assert(7 == (int)skgpu::BlendEquation::kColorDodge);
+static_assert(8 == (int)skgpu::BlendEquation::kColorBurn);
+static_assert(9 == (int)skgpu::BlendEquation::kHardLight);
+static_assert(10 == (int)skgpu::BlendEquation::kSoftLight);
+static_assert(11 == (int)skgpu::BlendEquation::kDifference);
+static_assert(12 == (int)skgpu::BlendEquation::kExclusion);
+static_assert(13 == (int)skgpu::BlendEquation::kMultiply);
+static_assert(14 == (int)skgpu::BlendEquation::kHSLHue);
+static_assert(15 == (int)skgpu::BlendEquation::kHSLSaturation);
+static_assert(16 == (int)skgpu::BlendEquation::kHSLColor);
+static_assert(17 == (int)skgpu::BlendEquation::kHSLLuminosity);
+static_assert(SK_ARRAY_COUNT(gXfermodeEquation2Blend) == skgpu::kBlendEquationCnt);
 
 static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ZERO,
@@ -2552,19 +2552,19 @@ void GrGLGpu::flushBlendAndColorWrite(
         // We need to work around a driver bug by using a blend state that preserves the dst color,
         // rather than disabling color writes.
         GrXferProcessor::BlendInfo preserveDstBlend;
-        preserveDstBlend.fSrcBlend = kZero_GrBlendCoeff;
-        preserveDstBlend.fDstBlend = kOne_GrBlendCoeff;
+        preserveDstBlend.fSrcBlend = skgpu::BlendCoeff::kZero;
+        preserveDstBlend.fDstBlend = skgpu::BlendCoeff::kOne;
         this->flushBlendAndColorWrite(preserveDstBlend, swizzle);
         return;
     }
 
-    GrBlendEquation equation = blendInfo.fEquation;
-    GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
-    GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
+    skgpu::BlendEquation equation = blendInfo.fEquation;
+    skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
+    skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
 
     // Any optimization to disable blending should have already been applied and
     // tweaked the equation to "add" or "subtract", and the coeffs to (1, 0).
-    bool blendOff = GrBlendShouldDisable(equation, srcCoeff, dstCoeff) ||
+    bool blendOff = skgpu::BlendShouldDisable(equation, srcCoeff, dstCoeff) ||
                     !blendInfo.fWriteColor;
 
     if (blendOff) {
@@ -2574,12 +2574,12 @@ void GrGLGpu::flushBlendAndColorWrite(
             // Workaround for the ARM KHR_blend_equation_advanced disable flags issue
             // https://code.google.com/p/skia/issues/detail?id=3943
             if (this->ctxInfo().vendor() == GrGLVendor::kARM &&
-                GrBlendEquationIsAdvanced(fHWBlendState.fEquation)) {
+                skgpu::BlendEquationIsAdvanced(fHWBlendState.fEquation)) {
                 SkASSERT(this->caps()->advancedBlendEquationSupport());
                 // Set to any basic blending equation.
-                GrBlendEquation blend_equation = kAdd_GrBlendEquation;
-                GL_CALL(BlendEquation(gXfermodeEquation2Blend[blend_equation]));
-                fHWBlendState.fEquation = blend_equation;
+                skgpu::BlendEquation blendEquation = skgpu::BlendEquation::kAdd;
+                GL_CALL(BlendEquation(gXfermodeEquation2Blend[(int)blendEquation]));
+                fHWBlendState.fEquation = blendEquation;
             }
 
             // Workaround for Adreno 5xx BlendFunc bug. See crbug.com/1241134.
@@ -2587,14 +2587,14 @@ void GrGLGpu::flushBlendAndColorWrite(
             // reset our gl state and thus we will have forgotten if the previous use was a coeff
             // that referenced src2.
             if (this->glCaps().mustResetBlendFuncBetweenDualSourceAndDisable() &&
-                (GrBlendCoeffRefsSrc2(fHWBlendState.fSrcCoeff) ||
-                 GrBlendCoeffRefsSrc2(fHWBlendState.fDstCoeff) ||
-                 fHWBlendState.fSrcCoeff == kIllegal_GrBlendCoeff ||
-                 fHWBlendState.fDstCoeff == kIllegal_GrBlendCoeff)) {
+                (skgpu::BlendCoeffRefsSrc2(fHWBlendState.fSrcCoeff) ||
+                 skgpu::BlendCoeffRefsSrc2(fHWBlendState.fDstCoeff) ||
+                 fHWBlendState.fSrcCoeff == skgpu::BlendCoeff::kIllegal ||
+                 fHWBlendState.fDstCoeff == skgpu::BlendCoeff::kIllegal)) {
                 // We just reset the blend func to anything that doesn't reference src2
                 GL_CALL(BlendFunc(GR_GL_ONE, GR_GL_ZERO));
-                fHWBlendState.fSrcCoeff = kOne_GrBlendCoeff;
-                fHWBlendState.fDstCoeff = kZero_GrBlendCoeff;
+                fHWBlendState.fSrcCoeff = skgpu::BlendCoeff::kOne;
+                fHWBlendState.fDstCoeff = skgpu::BlendCoeff::kZero;
             }
 
             fHWBlendState.fEnabled = kNo_TriState;
@@ -2607,24 +2607,24 @@ void GrGLGpu::flushBlendAndColorWrite(
         }
 
         if (fHWBlendState.fEquation != equation) {
-            GL_CALL(BlendEquation(gXfermodeEquation2Blend[equation]));
+            GL_CALL(BlendEquation(gXfermodeEquation2Blend[(int)equation]));
             fHWBlendState.fEquation = equation;
         }
 
-        if (GrBlendEquationIsAdvanced(equation)) {
+        if (skgpu::BlendEquationIsAdvanced(equation)) {
             SkASSERT(this->caps()->advancedBlendEquationSupport());
             // Advanced equations have no other blend state.
             return;
         }
 
         if (fHWBlendState.fSrcCoeff != srcCoeff || fHWBlendState.fDstCoeff != dstCoeff) {
-            GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
-                              gXfermodeCoeff2Blend[dstCoeff]));
+            GL_CALL(BlendFunc(gXfermodeCoeff2Blend[(int)srcCoeff],
+                              gXfermodeCoeff2Blend[(int)dstCoeff]));
             fHWBlendState.fSrcCoeff = srcCoeff;
             fHWBlendState.fDstCoeff = dstCoeff;
         }
 
-        if (GrBlendCoeffRefsConstant(srcCoeff) || GrBlendCoeffRefsConstant(dstCoeff)) {
+        if (skgpu::BlendCoeffRefsConstant(srcCoeff) || skgpu::BlendCoeffRefsConstant(dstCoeff)) {
             SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
             if (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst) {
                 GL_CALL(BlendColor(blendConst.fR, blendConst.fG, blendConst.fB, blendConst.fA));

@@ -67,28 +67,28 @@ std::unique_ptr<GrXferProcessor::ProgramImpl> CoverageSetOpXP::makeProgramImpl()
 void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
     switch (fRegionOp) {
         case SkRegion::kReplace_Op:
-            blendInfo->fSrcBlend = kOne_GrBlendCoeff;
-            blendInfo->fDstBlend = kZero_GrBlendCoeff;
+            blendInfo->fSrcBlend = skgpu::BlendCoeff::kOne;
+            blendInfo->fDstBlend = skgpu::BlendCoeff::kZero;
             break;
         case SkRegion::kIntersect_Op:
-            blendInfo->fSrcBlend = kDC_GrBlendCoeff;
-            blendInfo->fDstBlend = kZero_GrBlendCoeff;
+            blendInfo->fSrcBlend = skgpu::BlendCoeff::kDC;
+            blendInfo->fDstBlend = skgpu::BlendCoeff::kZero;
             break;
         case SkRegion::kUnion_Op:
-            blendInfo->fSrcBlend = kOne_GrBlendCoeff;
-            blendInfo->fDstBlend = kISC_GrBlendCoeff;
+            blendInfo->fSrcBlend = skgpu::BlendCoeff::kOne;
+            blendInfo->fDstBlend = skgpu::BlendCoeff::kISC;
             break;
         case SkRegion::kXOR_Op:
-            blendInfo->fSrcBlend = kIDC_GrBlendCoeff;
-            blendInfo->fDstBlend = kISC_GrBlendCoeff;
+            blendInfo->fSrcBlend = skgpu::BlendCoeff::kIDC;
+            blendInfo->fDstBlend = skgpu::BlendCoeff::kISC;
             break;
         case SkRegion::kDifference_Op:
-            blendInfo->fSrcBlend = kZero_GrBlendCoeff;
-            blendInfo->fDstBlend = kISC_GrBlendCoeff;
+            blendInfo->fSrcBlend = skgpu::BlendCoeff::kZero;
+            blendInfo->fDstBlend = skgpu::BlendCoeff::kISC;
             break;
         case SkRegion::kReverseDifference_Op:
-            blendInfo->fSrcBlend = kIDC_GrBlendCoeff;
-            blendInfo->fDstBlend = kZero_GrBlendCoeff;
+            blendInfo->fSrcBlend = skgpu::BlendCoeff::kIDC;
+            blendInfo->fDstBlend = skgpu::BlendCoeff::kZero;
             break;
     }
     blendInfo->fBlendConstant = SK_PMColor4fTRANSPARENT;
