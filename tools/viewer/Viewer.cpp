@@ -2346,12 +2346,12 @@ void Viewer::drawImGui() {
                 ImGui::Checkbox("Override Size", &fFontOverrides.fSize);
                 if (fFontOverrides.fSize) {
                     ImGui::DragFloat2("TextRange", fFontOverrides.fSizeRange,
-                                      0.001f, -10.0f, 300.0f, "%.6f", 2.0f);
+                                      0.001f, -10.0f, 300.0f, "%.6f", ImGuiSliderFlags_Logarithmic);
                     float textSize = fFont.getSize();
                     if (ImGui::DragFloat("TextSize", &textSize, 0.001f,
                                          fFontOverrides.fSizeRange[0],
                                          fFontOverrides.fSizeRange[1],
-                                         "%.6f", 2.0f))
+                                         "%.6f", ImGuiSliderFlags_Logarithmic))
                     {
                         fFont.setSize(textSize);
                         uiParamsChanged = true;
