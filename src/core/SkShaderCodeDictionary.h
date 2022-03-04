@@ -23,6 +23,7 @@ struct SkShaderSnippet {
     using GenerateGlueCodeForEntry = std::string (*)(const std::string& resultName,
                                                      int entryIndex, // for uniform name mangling
                                                      const SkShaderSnippet&,
+                                                     const std::string& priorStageOutputName,
                                                      const std::vector<std::string>& childNames,
                                                      int indent);
 
@@ -68,7 +69,10 @@ public:
 #endif
 
 private:
-    std::string emitGlueCodeForEntry(int* entryIndex, std::string* result, int indent) const;
+    std::string emitGlueCodeForEntry(int* entryIndex,
+                                     const std::string& priorStageOutputName,
+                                     std::string* result,
+                                     int indent) const;
 
     std::vector<SkShaderSnippet> fEntries;
     bool fWritesColor = false;

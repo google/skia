@@ -481,12 +481,12 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
 #ifdef SK_GRAPHITE_ENABLED
     if (builder->backend() == SkBackend::kGraphite) {
-        builder->beginBlock(SkBuiltInCodeSnippetID::kSimpleBlendMode);
+        builder->beginBlock(SkBuiltInCodeSnippetID::kShaderBasedBlender);
         add_blendmode_to_key(builder, bm);
         builder->endBlock();
 
         validate_block_header(builder,
-                              SkBuiltInCodeSnippetID::kSimpleBlendMode,
+                              SkBuiltInCodeSnippetID::kShaderBasedBlender,
                               kBlockDataSize);
         return;
     }
