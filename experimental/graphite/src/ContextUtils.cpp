@@ -8,16 +8,11 @@
 #include "experimental/graphite/src/ContextUtils.h"
 
 #include <string>
-#include "experimental/graphite/src/ContextPriv.h"
-#include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/PaintParams.h"
-#include "include/core/SkPaint.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkBlenderBase.h"
-#include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPipelineData.h"
 #include "src/core/SkShaderCodeDictionary.h"
-#include "src/core/SkUniform.h"
-#include "src/core/SkUniformData.h"
 
 namespace skgpu {
 

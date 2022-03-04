@@ -18,7 +18,7 @@
 #include "experimental/graphite/src/PipelineDataCache.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/TaskGraph.h"
-#include "src/core/SkUniformData.h"
+#include "src/core/SkPipelineData.h"
 
 namespace skgpu {
 

@@ -9,9 +9,9 @@
 
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkPaintParamsKey.h"
+#include "src/core/SkPipelineData.h"
 #include "src/core/SkShaderCodeDictionary.h"
 #include "src/core/SkUniform.h"
-#include "src/core/SkUniformData.h"
 #include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_GRAPHITE_ENABLED

@@ -11,8 +11,8 @@
 #include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/src/PipelineDataCache.h"
 #include "experimental/graphite/src/RecorderPriv.h"
+#include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
-#include "src/core/SkUniformData.h"
 
 using namespace skgpu;
 

@@ -8,7 +8,7 @@
 #include "experimental/graphite/src/PipelineDataCache.h"
 
 #include "src/core/SkOpts.h"
-#include "src/core/SkUniformData.h"
+#include "src/core/SkPipelineData.h"
 
 namespace skgpu {
 

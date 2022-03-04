@@ -306,6 +306,8 @@ skia_core_sources = [
   "$_src/core/SkPathPriv.h",
   "$_src/core/SkPathRef.cpp",
   "$_src/core/SkPath_serial.cpp",
+  "$_src/core/SkPipelineData.cpp",
+  "$_src/core/SkPipelineData.h",
   "$_src/core/SkPixelRef.cpp",
   "$_src/core/SkPixmap.cpp",
   "$_src/core/SkPoint.cpp",

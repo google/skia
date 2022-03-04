@@ -29,6 +29,7 @@
 
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPaintParamsKey.h"
+#include "src/core/SkPipelineData.h"
 #include "src/core/SkTBlockList.h"
 #include "src/core/SkUniformData.h"
 #include "src/gpu/BufferWriter.h"
