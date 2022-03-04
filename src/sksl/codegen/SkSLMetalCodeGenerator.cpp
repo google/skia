@@ -223,7 +223,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
     // We need to detect cases where the caller passes the same variable as an out-param more than
     // once, and avoid reusing the variable name. (In those cases we can actually just ignore the
     // redundant input parameter entirely, and not give it any name.)
-    std::unordered_set<const Variable*> writtenVars;
+    SkTHashSet<const Variable*> writtenVars;
 
     for (int index = 0; index < arguments.count(); ++index) {
         this->write(separator);
@@ -239,8 +239,10 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
             this->write("&");
         }
         if (outVars[index]) {
-            auto [iter, didInsert] = writtenVars.insert(outVars[index]->variable());
-            if (didInsert) {
+            const Variable* var = outVars[index]->variable();
+            if (!writtenVars.contains(var)) {
+                writtenVars.add(var);
+
                 this->write(" ");
                 fIgnoreVariableReferenceModifiers = true;
                 this->writeVariableReference(*outVars[index]);
@@ -1071,34 +1073,33 @@ std::string MetalCodeGenerator::getMatrixConstructHelper(const AnyConstructor& c
         String::appendf(&name, "_%s", this->typeName(expr->type()).c_str());
     }
 
-    // If a helper-method has already been synthesized, we don't need to synthesize it again.
-    auto [iter, newlyCreated] = fHelpers.insert(name);
-    if (!newlyCreated) {
-        return name;
+    // If a helper-method has not been synthesized yet, create it now.
+    if (!fHelpers.contains(name)) {
+        fHelpers.add(name);
+
+        // Unlike GLSL, Metal requires that matrices are initialized with exactly R vectors of C
+        // components apiece. (In Metal 2.0, you can also supply R*C scalars, but you still cannot
+        // supply a mixture of scalars and vectors.)
+        fExtraFunctions.printf("%s %s(", typeName.c_str(), name.c_str());
+
+        size_t argIndex = 0;
+        const char* argSeparator = "";
+        for (const std::unique_ptr<Expression>& expr : args) {
+            fExtraFunctions.printf("%s%s x%zu", argSeparator,
+                                   this->typeName(expr->type()).c_str(), argIndex++);
+            argSeparator = ", ";
+        }
+
+        fExtraFunctions.printf(") {\n    return %s(", typeName.c_str());
+
+        if (args.size() == 1 && args.front()->type().isMatrix()) {
+            this->assembleMatrixFromMatrix(args.front()->type(), rows, columns);
+        } else {
+            this->assembleMatrixFromExpressions(c, columns, rows);
+        }
+
+        fExtraFunctions.writeText(");\n}\n");
     }
-
-    // Unlike GLSL, Metal requires that matrices are initialized with exactly R vectors of C
-    // components apiece. (In Metal 2.0, you can also supply R*C scalars, but you still cannot
-    // supply a mixture of scalars and vectors.)
-    fExtraFunctions.printf("%s %s(", typeName.c_str(), name.c_str());
-
-    size_t argIndex = 0;
-    const char* argSeparator = "";
-    for (const std::unique_ptr<Expression>& expr : args) {
-        fExtraFunctions.printf("%s%s x%zu", argSeparator,
-                               this->typeName(expr->type()).c_str(), argIndex++);
-        argSeparator = ", ";
-    }
-
-    fExtraFunctions.printf(") {\n    return %s(", typeName.c_str());
-
-    if (args.size() == 1 && args.front()->type().isMatrix()) {
-        this->assembleMatrixFromMatrix(args.front()->type(), rows, columns);
-    } else {
-        this->assembleMatrixFromExpressions(c, columns, rows);
-    }
-
-    fExtraFunctions.writeText(");\n}\n");
     return name;
 }
 
@@ -1175,8 +1176,8 @@ void MetalCodeGenerator::writeConstructorArrayCast(const ConstructorArrayCast& c
     std::string outTypeName = this->typeName(outType);
 
     std::string name = "array_of_" + outTypeName + "_from_" + inTypeName;
-    auto [iter, didInsert] = fHelpers.insert(name);
-    if (didInsert) {
+    if (!fHelpers.contains(name)) {
+        fHelpers.add(name);
         fExtraFunctions.printf(R"(
 template <size_t N>
 array<%s, N> %s(thread const array<%s, N>& x) {
@@ -1205,8 +1206,8 @@ std::string MetalCodeGenerator::getVectorFromMat2x2ConstructorHelper(const Type&
 
     std::string baseType = this->typeName(matrixType.componentType());
     std::string name = String::printf("%s4_from_%s2x2", baseType.c_str(), baseType.c_str());
-    if (fHelpers.find(name) == fHelpers.end()) {
-        fHelpers.insert(name);
+    if (!fHelpers.contains(name)) {
+        fHelpers.add(name);
 
         fExtraFunctions.printf(R"(
 %s4 %s(%s2x2 x) {
@@ -1417,8 +1418,8 @@ void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Typ
 
     std::string key = "Matrix *= " + this->typeName(left) + ":" + this->typeName(right);
 
-    auto [iter, wasInserted] = fHelpers.insert(key);
-    if (wasInserted) {
+    if (!fHelpers.contains(key)) {
+        fHelpers.add(key);
         fExtraFunctions.printf("thread %s& operator*=(thread %s& left, thread const %s& right) {\n"
                                "    left = left * right;\n"
                                "    return left;\n"
@@ -1436,8 +1437,8 @@ void MetalCodeGenerator::writeMatrixEqualityHelpers(const Type& left, const Type
 
     std::string key = "Matrix == " + this->typeName(left) + ":" + this->typeName(right);
 
-    auto [iter, wasInserted] = fHelpers.insert(key);
-    if (wasInserted) {
+    if (!fHelpers.contains(key)) {
+        fHelpers.add(key);
         fExtraFunctionPrototypes.printf(R"(
 thread bool operator==(const %s left, const %s right);
 thread bool operator!=(const %s left, const %s right);
@@ -1473,8 +1474,8 @@ void MetalCodeGenerator::writeMatrixDivisionHelpers(const Type& type) {
 
     std::string key = "Matrix / " + this->typeName(type);
 
-    auto [iter, wasInserted] = fHelpers.insert(key);
-    if (wasInserted) {
+    if (!fHelpers.contains(key)) {
+        fHelpers.add(key);
         std::string typeName = this->typeName(type);
 
         fExtraFunctions.printf(
@@ -1504,8 +1505,9 @@ void MetalCodeGenerator::writeArrayEqualityHelpers(const Type& type) {
     // If the array's component type needs a helper as well, we need to emit that one first.
     this->writeEqualityHelpers(type.componentType(), type.componentType());
 
-    auto [iter, wasInserted] = fHelpers.insert("ArrayEquality []");
-    if (wasInserted) {
+    std::string key = "ArrayEquality []";
+    if (!fHelpers.contains(key)) {
+        fHelpers.add(key);
         fExtraFunctionPrototypes.writeText(R"(
 template <typename T1, typename T2, size_t N>
 bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right);
@@ -1535,8 +1537,8 @@ void MetalCodeGenerator::writeStructEqualityHelpers(const Type& type) {
     SkASSERT(type.isStruct());
     std::string key = "StructEquality " + this->typeName(type);
 
-    auto [iter, wasInserted] = fHelpers.insert(key);
-    if (wasInserted) {
+    if (!fHelpers.contains(key)) {
+        fHelpers.add(key);
         // If one of the struct's fields needs a helper as well, we need to emit that one first.
         for (const Type::Field& field : type.fields()) {
             this->writeEqualityHelpers(*field.fType, *field.fType);
@@ -2045,10 +2047,10 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
             this->write(std::to_string(intf.arraySize()));
             this->write("]");
         }
-        fInterfaceBlockNameMap[&intf] = intf.instanceName();
+        fInterfaceBlockNameMap.set(&intf, intf.instanceName());
     } else {
-        fInterfaceBlockNameMap[&intf] = *fProgram.fSymbols->takeOwnershipOfString(
-                "_anonInterface" + std::to_string(fAnonInterfaceCount++));
+        fInterfaceBlockNameMap.set(&intf, *fProgram.fSymbols->takeOwnershipOfString(
+                "_anonInterface" + std::to_string(fAnonInterfaceCount++)));
     }
     this->writeLine(";");
 }
@@ -2099,7 +2101,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
         this->writeName(field.fName);
         this->writeLine(";");
         if (parentIntf) {
-            fInterfaceBlockMap[&field] = parentIntf;
+            fInterfaceBlockMap.set(&field, parentIntf);
         }
     }
 }
@@ -2109,7 +2111,7 @@ void MetalCodeGenerator::writeVarInitializer(const Variable& var, const Expressi
 }
 
 void MetalCodeGenerator::writeName(std::string_view name) {
-    if (fReservedWords.find(name) != fReservedWords.end()) {
+    if (fReservedWords.contains(name)) {
         this->write("_"); // adding underscore before name to avoid conflict with reserved words
     }
     this->write(name);
@@ -2733,15 +2735,15 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
     if (f.isBuiltin()) {
         return kNo_Requirements;
     }
-    auto found = fRequirements.find(&f);
-    if (found == fRequirements.end()) {
-        fRequirements[&f] = kNo_Requirements;
+    Requirements* found = fRequirements.find(&f);
+    if (!found) {
+        fRequirements.set(&f, kNo_Requirements);
         for (const ProgramElement* e : fProgram.elements()) {
             if (e->is<FunctionDefinition>()) {
                 const FunctionDefinition& def = e->as<FunctionDefinition>();
                 if (&def.declaration() == &f) {
                     Requirements reqs = this->requirements(def.body().get());
-                    fRequirements[&f] = reqs;
+                    fRequirements.set(&f, reqs);
                     return reqs;
                 }
             }
@@ -2750,7 +2752,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
         // function without ever giving a definition, as long as you don't call it.
         return kNo_Requirements;
     }
-    return found->second;
+    return *found;
 }
 
 bool MetalCodeGenerator::generateCode() {

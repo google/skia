@@ -447,6 +447,9 @@ public:
     // How many key/value pairs are in the table?
     int count() const { return fTable.count(); }
 
+    // Is empty?
+    bool empty() const { return fTable.count() == 0; }
+
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
 

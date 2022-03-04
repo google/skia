@@ -8,9 +8,7 @@
 #ifndef SKSL_METALCODEGENERATOR
 #define SKSL_METALCODEGENERATOR
 
-#include <unordered_map>
-#include <unordered_set>
-
+#include "include/private/SkTHash.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
@@ -263,9 +261,9 @@ protected:
 
     int getUniformSet(const Modifiers& m);
 
-    std::unordered_set<std::string_view> fReservedWords;
-    std::unordered_map<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
-    std::unordered_map<const InterfaceBlock*, std::string_view> fInterfaceBlockNameMap;
+    SkTHashSet<std::string_view> fReservedWords;
+    SkTHashMap<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
+    SkTHashMap<const InterfaceBlock*, std::string_view> fInterfaceBlockNameMap;
     int fAnonInterfaceCount = 0;
     int fPaddingCount = 0;
     const char* fLineEnding;
@@ -278,10 +276,10 @@ protected:
     std::set<std::string> fWrittenIntrinsics;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
-    std::unordered_map<const FunctionDeclaration*, Requirements> fRequirements;
+    SkTHashMap<const FunctionDeclaration*, Requirements> fRequirements;
     bool fSetupFragPositionGlobal = false;
     bool fSetupFragPositionLocal = false;
-    std::unordered_set<std::string> fHelpers;
+    SkTHashSet<std::string> fHelpers;
     int fUniformBuffer = -1;
     std::string fRTFlipName;
     const FunctionDeclaration* fCurrentFunction = nullptr;
