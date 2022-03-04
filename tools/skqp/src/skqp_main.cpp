@@ -33,7 +33,6 @@ private:
 
 struct Args {
   char *assetDir;
-  char *renderTests;
   char *outputDir;
 };
 }  // namespace
@@ -82,12 +81,11 @@ static bool should_skip(const char* const* rules, size_t count, const char* name
 static void parse_args(int argc, char *argv[], Args *args) {
   if (argc < 4) {
       std::cerr << "Usage:\n  " << argv[0]
-                << " ASSET_DIR RENDER_TESTS OUTPUT_DIR [TEST_MATCH_RULES]\n"
+                << " ASSET_DIR UNUSED_ARG OUTPUT_DIR [TEST_MATCH_RULES]\n"
                 << kSkipUsage << '\n';
       exit(1);
   }
   args->assetDir = argv[1];
-  args->renderTests = argv[2];
   args->outputDir = argv[3];
 }
 
@@ -102,40 +100,14 @@ int main(int argc, char *argv[]) {
     }
     StdAssetManager mgr(args.assetDir);
     SkQP skqp;
-    skqp.init(&mgr, args.renderTests, args.outputDir);
+    skqp.init(&mgr, args.outputDir);
     int ret = 0;
 
     const char* const* matchRules = &argv[4];
     size_t matchRulesCount = (size_t)(argc - 4);
 
-    // Rendering Tests
-    std::ostream& out = std::cout;
-    for (auto backend : skqp.getSupportedBackends()) {
-        auto testPrefix = std::string(SkQP::GetBackendName(backend)) + "_";
-        for (auto gmFactory : skqp.getGMs()) {
-            auto testName = testPrefix + SkQP::GetGMName(gmFactory);
-            if (should_skip(matchRules, matchRulesCount, testName.c_str())) {
-                continue;
-            }
-            out << "Starting: " << testName << "  ";
-            SkQP::RenderOutcome outcome;
-            std::string except;
-
-            std::tie(outcome, except) = skqp.evaluateGM(backend, gmFactory);
-            if (!except.empty()) {
-                out << "[ERROR: " << except << "]" << std::endl;
-                ret = 1;
-            } else if (outcome.fMaxError != 0) {
-                out << "[FAILED: " << outcome.fMaxError << "]" << std::endl;
-                ret = 1;
-            } else {
-                out << "[PASSED]" << std::endl;
-            }
-            out.flush();
-        }
-    }
-
     // Unit Tests
+    std::ostream& out = std::cout;
     for (auto test : skqp.getUnitTests()) {
         auto testName = std::string("unitTest_") +  SkQP::GetUnitTestName(test);
         if (should_skip(matchRules, matchRulesCount, testName.c_str())) {
