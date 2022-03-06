@@ -648,6 +648,7 @@ sksl_rte_tests = [
   "/sksl/runtime/LoopInt.rts",
   "/sksl/runtime/LoopFloat.rts",
   "/sksl/runtime/MultipleCallsInOneStatement.rts",
+  "/sksl/runtime/Ossfuzz45279.rts",
   "/sksl/runtime/PrecisionQualifiers.rts",
   "/sksl/runtime/QualifierOrder.rts",
   "/sksl/runtime/RecursiveComparison_Structs.rts",

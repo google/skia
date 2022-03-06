@@ -1,0 +1,7 @@
+1 registers, 5 instructions:
+0	r0 = splat 0 (0)
+loop:
+1	    store32 ptr1 r0
+2	    store32 ptr2 r0
+3	    store32 ptr3 r0
+4	    store32 ptr4 r0

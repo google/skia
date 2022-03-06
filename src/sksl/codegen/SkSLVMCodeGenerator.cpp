@@ -830,8 +830,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
                       bool foldResults = false) -> Value {
 
         Value result(nslots);
-        if (op.isEquality() && (lType.typeKind() == Type::TypeKind::kStruct ||
-                                lType.typeKind() == Type::TypeKind::kArray)) {
+        if (op.isEquality() && (lType.isStruct() || lType.isArray())) {
             // Shifting over lVal and rVal
             size_t slotOffset = 0;
             this->recursiveBinaryCompare(
@@ -851,8 +850,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
             }
         }
 
-        if (foldResults) {
-            // Just to be more explicit here we ask for a parameter and not detect it ourselves
+        if (foldResults && nslots > 1) {
             SkASSERT(op.isEquality());
             skvm::I32 folded = i32(result[0]);
             for (size_t i = 1; i < nslots; ++i) {

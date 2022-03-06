@@ -1,0 +1,6 @@
+half4 main(float2 _skAnonymousParam0)
+{
+	;
+	false;
+	return half4(half4(0.0));
+}
