@@ -25,6 +25,11 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
         return nullptr;
     }
     int line = test->fLine;
+    if (ifTrue->type().componentType().isOpaque()) {
+        context.fErrors->error(line, "ternary expression of opaque type '" +
+                                     ifTrue->type().displayName() + "' not allowed");
+        return nullptr;
+    }
     const Type* trueType;
     const Type* falseType;
     const Type* resultType;
@@ -35,11 +40,6 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
         context.fErrors->error(line, "ternary operator result mismatch: '" +
                                      ifTrue->type().displayName() + "', '" +
                                      ifFalse->type().displayName() + "'");
-        return nullptr;
-    }
-    if (trueType->componentType().isOpaque()) {
-        context.fErrors->error(line, "ternary expression of opaque type '" +
-                                     trueType->displayName() + "' not allowed");
         return nullptr;
     }
     if (context.fConfig->strictES2Mode() && trueType->isOrContainsArray()) {

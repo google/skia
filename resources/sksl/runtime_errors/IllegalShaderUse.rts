@@ -9,8 +9,21 @@ uniform float2 xy;
 // Incorrect shader declarations (they must be uniform)
 shader s3;
 in shader s4;
+// Incorrect shader declarations (no opaque types in structs or arrays)
+struct S { shader sh; };
+uniform S s5;
+uniform shader s6[2];
 
 // Various places that shaders should not be allowed:
+bool   equality()          { return s1 == s2; }
+bool   comparison()        { return s1 < s2; }
+bool   unary_not()         { return !s1; }
+void   unary_neg()         { -s1; }
+void   unary_pos()         { +s1; }
+void   arithmetic()        { s1 * s2; }
+void   index()             { s1[0]; }
+void   swizzle()           { s1.xyz; }
+void   assignment()        { s1 = s2; }
 half4  local()             { shader s; return s.eval(xy); }
 half4  parameter(shader s) { return s.eval(xy); }
 shader returned()          { return s1; }
@@ -22,6 +35,17 @@ half4  dangling_eval()     { s1.eval; }
 variables of type 'shader' must be uniform
 'in' variables not permitted in runtime effects
 variables of type 'shader' must be uniform
+opaque type 'shader' is not permitted in a struct
+opaque type 'shader' may not be used in an array
+type mismatch: '==' cannot operate on 'shader', 'shader'
+type mismatch: '<' cannot operate on 'shader', 'shader'
+'!' cannot operate on 'shader'
+'-' cannot operate on 'shader'
+'+' cannot operate on 'shader'
+type mismatch: '*' cannot operate on 'shader', 'shader'
+expected array, but found 'shader'
+type 'shader' has no method named 'xyz'
+cannot modify immutable variable 's1'
 variables of type 'shader' must be global
 variables of type 'shader' must be uniform
 parameters of type 'shader' not allowed

@@ -3,13 +3,24 @@
 error: 10: variables of type 'shader' must be uniform
 error: 11: 'in' variables not permitted in runtime effects
 error: 11: variables of type 'shader' must be uniform
-error: 14: variables of type 'shader' must be global
-error: 14: variables of type 'shader' must be uniform
-error: 15: parameters of type 'shader' not allowed
-error: 15: unknown identifier 's'
-error: 16: functions may not return opaque type 'shader'
-error: 17: cannot construct 'shader'
-error: 18: ternary expression of opaque type 'shader' not allowed
-error: 19: expected '(' to begin method call
-error: 19: function 'dangling_eval' can exit without returning a value
-12 errors
+error: 13: opaque type 'shader' is not permitted in a struct
+error: 15: opaque type 'shader' may not be used in an array
+error: 18: type mismatch: '==' cannot operate on 'shader', 'shader'
+error: 19: type mismatch: '<' cannot operate on 'shader', 'shader'
+error: 20: '!' cannot operate on 'shader'
+error: 21: '-' cannot operate on 'shader'
+error: 22: '+' cannot operate on 'shader'
+error: 23: type mismatch: '*' cannot operate on 'shader', 'shader'
+error: 24: expected array, but found 'shader'
+error: 25: type 'shader' has no method named 'xyz'
+error: 26: cannot modify immutable variable 's1'
+error: 27: variables of type 'shader' must be global
+error: 27: variables of type 'shader' must be uniform
+error: 28: parameters of type 'shader' not allowed
+error: 28: unknown identifier 's'
+error: 29: functions may not return opaque type 'shader'
+error: 30: cannot construct 'shader'
+error: 31: ternary expression of opaque type 'shader' not allowed
+error: 32: expected '(' to begin method call
+error: 32: function 'dangling_eval' can exit without returning a value
+23 errors

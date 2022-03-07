@@ -275,7 +275,7 @@ bool Operator::determineBinaryType(const Context& context,
 
         case Token::Kind::TK_EQEQ:   // left == right
         case Token::Kind::TK_NEQ: {  // left != right
-            if (left.isVoid()) {
+            if (left.isVoid() || left.isOpaque()) {
                 return false;
             }
             CoercionCost rightToLeft = right.coercionCost(left),
