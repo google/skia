@@ -15,6 +15,16 @@ DEF_TEST(TestNormal, reporter) {
     REPORTER_ASSERT(reporter, reporter);
 }
 
+// This is an example of a conditional test with a true condition.
+DEF_CONDITIONAL_TEST(TestTrueCondition, reporter, 1 == 1) {
+    REPORTER_ASSERT(reporter, reporter);
+}
+
+// This is an example of a conditional test with a false condition.
+DEF_CONDITIONAL_TEST(TestFalseCondition, reporter, 1 == 0) {
+    ERRORF(reporter, "DEF_CONDITIONAL_TEST executed a test with a false condition");
+}
+
 // This is an example of a GPU test that uses GrContextOptions to do the test.
 DEF_GPUTEST(TestGpuFactory, reporter, factory) {
     REPORTER_ASSERT(reporter, reporter);
@@ -40,3 +50,27 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(TestMockContext, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
     REPORTER_ASSERT(reporter, ctxInfo.directContext());
 }
+
+// Conditional GPU tests will only execute if the provided condition parameter is true.
+DEF_CONDITIONAL_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContextsWithTrueCondition,
+                                         reporter, ctxInfo, true) {
+    REPORTER_ASSERT(reporter, reporter);
+    REPORTER_ASSERT(reporter, ctxInfo.directContext());
+}
+
+DEF_CONDITIONAL_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContextsWithFalseCondition,
+                                         reporter, ctxInfo, false) {
+    ERRORF(reporter, "DEF_CONDITIONAL_GPUTEST_FOR_ALL_CONTEXTS ran with a false condition");
+}
+
+DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContextsWithTrueCondition,
+                                               reporter, ctxInfo, true) {
+    REPORTER_ASSERT(reporter, reporter);
+    REPORTER_ASSERT(reporter, ctxInfo.directContext());
+}
+
+DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContextsWithFalseCondition,
+                                               reporter, ctxInfo, false) {
+    ERRORF(reporter, "DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS ran with a false condition");
+}
+
