@@ -9,7 +9,7 @@
 #define GrDawnUtil_DEFINED
 
 #include "include/private/GrTypesPriv.h"
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 
 size_t GrDawnBytesPerBlock(wgpu::TextureFormat format);
 int GrDawnFormatStencilBits(wgpu::TextureFormat format);

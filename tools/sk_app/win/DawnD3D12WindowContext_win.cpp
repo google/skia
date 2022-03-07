@@ -7,10 +7,10 @@
 
 #include "tools/sk_app/DawnWindowContext.h"
 #include "tools/sk_app/win/WindowContextFactory_win.h"
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 #include "dawn/dawn_wsi.h"
-#include "dawn_native/DawnNative.h"
-#include "dawn_native/D3D12Backend.h"
+#include "dawn/native/DawnNative.h"
+#include "dawn/native/D3D12Backend.h"
 
 namespace sk_app {
 
@@ -42,7 +42,7 @@ DawnD3D12WindowContext::~DawnD3D12WindowContext() {
 
 DawnSwapChainImplementation DawnD3D12WindowContext::createSwapChainImplementation(
         int width, int height, const DisplayParams& params) {
-    return dawn_native::d3d12::CreateNativeSwapChainImpl(fDevice.Get(), fWindow);
+    return dawn::native::d3d12::CreateNativeSwapChainImpl(fDevice.Get(), fWindow);
 }
 
 wgpu::Device DawnD3D12WindowContext::onInitializeContext() {

@@ -9,7 +9,7 @@
 #define GrDawnBuffer_DEFINED
 
 #include "src/gpu/GrGpuBuffer.h"
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 
 class GrDawnGpu;
 

@@ -22,7 +22,7 @@ static constexpr int Success = 0;
 #undef None
 static constexpr int None = 0L;
 #endif
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 
 struct GrDawnTextureInfo {
     wgpu::Texture       fTexture;

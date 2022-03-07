@@ -12,7 +12,7 @@
 
 #include "src/gpu/GrSPIRVUniformHandler.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 
 #include "src/core/SkAutoMalloc.h"
 

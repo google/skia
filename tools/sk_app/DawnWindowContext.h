@@ -11,8 +11,8 @@
 #include "include/core/SkSurface.h"
 
 #include "tools/sk_app/WindowContext.h"
-#include "dawn/webgpu_cpp.h"
-#include "dawn_native/DawnNative.h"
+#include "webgpu/webgpu_cpp.h"
+#include "dawn/native/DawnNative.h"
 #include "dawn/dawn_wsi.h"
 
 namespace sk_app {
@@ -46,7 +46,7 @@ protected:
     wgpu::TextureFormat           fSwapChainFormat;
     wgpu::SwapChain               fSwapChain;
     wgpu::Device                  fDevice;
-    std::unique_ptr<dawn_native::Instance> fInstance;
+    std::unique_ptr<dawn::native::Instance> fInstance;
 };
 
 }   // namespace sk_app

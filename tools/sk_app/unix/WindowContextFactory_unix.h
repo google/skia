@@ -11,7 +11,7 @@
 
 // webgpu_cpp.h and X.h don't get along. Include this first, before X11 defines None, Success etc.
 #ifdef SK_DAWN
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 #endif
 #include <X11/Xlib.h>
 #include <GL/glx.h>

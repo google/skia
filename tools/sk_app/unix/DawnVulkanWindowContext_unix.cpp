@@ -7,8 +7,8 @@
 
 #include "tools/sk_app/DawnWindowContext.h"
 #include "tools/sk_app/unix/WindowContextFactory_unix.h"
-#include "dawn_native/DawnNative.h"
-#include "dawn_native/VulkanBackend.h"
+#include "dawn/native/DawnNative.h"
+#include "dawn/native/VulkanBackend.h"
 #include "src/ports/SkOSLibrary.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
@@ -54,7 +54,7 @@ DawnVulkanWindowContext_xlib::DawnVulkanWindowContext_xlib(const XlibWindowInfo&
 
 DawnSwapChainImplementation DawnVulkanWindowContext_xlib::createSwapChainImplementation(
         int width, int height, const DisplayParams& params) {
-    return dawn_native::vulkan::CreateNativeSwapChainImpl(fDevice.Get(), fVkSurface);
+    return dawn::native::vulkan::CreateNativeSwapChainImpl(fDevice.Get(), fVkSurface);
 }
 
 wgpu::Device DawnVulkanWindowContext_xlib::onInitializeContext() {
@@ -67,7 +67,7 @@ wgpu::Device DawnVulkanWindowContext_xlib::onInitializeContext() {
     if (!vkLib) {
         return nullptr;
     }
-    VkInstance instance = dawn_native::vulkan::GetInstance(device.Get());
+    VkInstance instance = dawn::native::vulkan::GetInstance(device.Get());
     if (!instance) {
         return nullptr;
     }

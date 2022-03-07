@@ -9,7 +9,7 @@
 #define GrDawnTexture_DEFINED
 
 #include "src/gpu/GrTexture.h"
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 
 class GrDawnGpu;
 

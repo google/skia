@@ -10,7 +10,7 @@
 
 #include "src/gpu/GrAttachment.h"
 
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 
 class GrDawnGpu;
 

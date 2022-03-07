@@ -12,7 +12,7 @@
 #include "src/gpu/GrSPIRVVaryingHandler.h"
 #include "src/gpu/dawn/GrDawnProgramDataManager.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
 #include <vector>

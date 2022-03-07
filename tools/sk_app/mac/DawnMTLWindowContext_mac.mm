@@ -7,10 +7,10 @@
 
 #include "tools/sk_app/DawnWindowContext.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 #include "dawn/dawn_wsi.h"
-#include "dawn_native/DawnNative.h"
-#include "dawn_native/MetalBackend.h"
+#include "dawn/native/DawnNative.h"
+#include "dawn/native/MetalBackend.h"
 
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
@@ -124,7 +124,7 @@ wgpu::Device DawnMTLWindowContext::onInitializeContext() {
         return nullptr;
     }
 
-    fMTLDevice = dawn_native::metal::GetMetalDevice(device.Get());
+    fMTLDevice = dawn::native::metal::GetMetalDevice(device.Get());
 
     CGSize size;
     size.width = width();

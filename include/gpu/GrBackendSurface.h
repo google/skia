@@ -31,7 +31,7 @@ class GrGLTextureParameters;
 class GrColorFormatDesc;
 
 #ifdef SK_DAWN
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 #endif
 
 #ifdef SK_METAL
