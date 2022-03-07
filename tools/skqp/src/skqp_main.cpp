@@ -79,14 +79,13 @@ static bool should_skip(const char* const* rules, size_t count, const char* name
 }
 
 static void parse_args(int argc, char *argv[], Args *args) {
-  if (argc < 4) {
-      std::cerr << "Usage:\n  " << argv[0]
-                << " ASSET_DIR UNUSED_ARG OUTPUT_DIR [TEST_MATCH_RULES]\n"
+  if (argc < 3) {
+      std::cerr << "Usage:\n  " << argv[0] << " ASSET_DIR OUTPUT_DIR [TEST_MATCH_RULES]\n"
                 << kSkipUsage << '\n';
       exit(1);
   }
   args->assetDir = argv[1];
-  args->outputDir = argv[3];
+  args->outputDir = argv[2];
 }
 
 int main(int argc, char *argv[]) {
@@ -103,8 +102,8 @@ int main(int argc, char *argv[]) {
     skqp.init(&mgr, args.outputDir);
     int ret = 0;
 
-    const char* const* matchRules = &argv[4];
-    size_t matchRulesCount = (size_t)(argc - 4);
+    const char* const* matchRules = &argv[3];
+    size_t matchRulesCount = (size_t)(argc - 3);
 
     // Unit Tests
     std::ostream& out = std::cout;

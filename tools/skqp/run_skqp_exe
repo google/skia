@@ -28,7 +28,7 @@ def skqp(build):
 
     adb('push', os.path.join(build, 'skqp'), '/data/local/tmp/skqp/skqp')
 
-    cmd = "cd /data/local/tmp/skqp; ./skqp skqp_assets '' report"
+    cmd = "cd /data/local/tmp/skqp; ./skqp skqp_assets report"
     sys.stdout.write("adb 'shell' '%s'\n" % cmd)
     ret = subprocess.call(['adb', 'shell', cmd])
 
