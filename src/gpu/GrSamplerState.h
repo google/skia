@@ -78,14 +78,6 @@ public:
         return GrMipmapped(fMipmapMode != MipmapMode::kNone);
     }
 
-    constexpr void setFilterMode(Filter filterMode) { fFilter = filterMode; }
-
-    constexpr void setMipmapMode(MipmapMode mm) { fMipmapMode = mm; }
-
-    constexpr void setWrapModeX(const WrapMode wrap) { fWrapModes[0] = wrap; }
-
-    constexpr void setWrapModeY(const WrapMode wrap) { fWrapModes[1] = wrap; }
-
     constexpr bool operator==(GrSamplerState that) const {
         return fWrapModes[0] == that.fWrapModes[0] && fWrapModes[1] == that.fWrapModes[1] &&
                fFilter == that.fFilter && fMipmapMode == that.fMipmapMode;

@@ -140,13 +140,12 @@ protected:
 
                 const SkRect* subset = j > 0 ? &kColorRect : nullptr;
 
-                GrSamplerState samplerState;
-                samplerState.setFilterMode(kFilters[i]);
+                auto wm = GrSamplerState::WrapMode::kClamp;
                 if (j > 0) {
-                    auto wm = static_cast<GrSamplerState::WrapMode>(j - 1);
-                    samplerState.setWrapModeX(wm);
-                    samplerState.setWrapModeY(wm);
+                    wm = static_cast<GrSamplerState::WrapMode>(j - 1);
                 }
+                GrSamplerState samplerState(wm, kFilters[i]);
+
                 const auto& caps = *rContext->priv().caps();
                 std::unique_ptr<GrFragmentProcessor> fp =
                         GrYUVtoRGBEffect::Make(fProxies, samplerState, caps, SkMatrix::I(), subset);

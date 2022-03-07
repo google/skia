@@ -177,7 +177,10 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureP
         } else {
             GrSamplerState planeSampler = samplerState;
             if (makeLinearWithSnap) {
-                planeSampler.setFilterMode(GrSamplerState::Filter::kLinear);
+                planeSampler = GrSamplerState(samplerState.wrapModeX(),
+                                              samplerState.wrapModeY(),
+                                              GrSamplerState::Filter::kLinear,
+                                              samplerState.mipmapMode());
             }
             planeFPs[i] = GrTextureEffect::Make(std::move(view),
                                                 kUnknown_SkAlphaType,
