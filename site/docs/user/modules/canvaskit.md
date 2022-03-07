@@ -63,7 +63,7 @@ Skia's [Lottie animation](https://skia.org/docs/user/modules/skottie) support.
   <figure>
     <canvas id=shader1 width=512 height=512></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/b382d3b660c4f314eb6a6eae9c0f1e0aadc95c0a2747b707e0dbe3f65a8b0a14"
+      <a href="https://jsfiddle.skia.org/canvaskit/ac0574825f9e517f2dfa8e822126ee75b005e8156c3de4a95d4ffd17ab6ca57b"
           target=_blank rel=noopener>
         Shader JSFiddle</a>
     </figcaption>
@@ -71,7 +71,7 @@ Skia's [Lottie animation](https://skia.org/docs/user/modules/skottie) support.
   <figure>
     <canvas id=camera3d width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/55e66e892a5ae98175cc0b086fbac2100a4642105bb76bd938ed75ccce5af432"
+      <a href="https://jsfiddle.skia.org/canvaskit/289946b783390c3242cb5cc117d7bcaf2bcb610bf3d1e67a1dd9c46c1e66b968"
           target=_blank rel=noopener>
         3D Cube JSFiddle</a>
     </figcaption>
