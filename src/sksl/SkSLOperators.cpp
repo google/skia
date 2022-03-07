@@ -265,6 +265,9 @@ bool Operator::determineBinaryType(const Context& context,
     const bool allowNarrowing = context.fConfig->fSettings.fAllowNarrowingConversions;
     switch (this->kind()) {
         case Token::Kind::TK_EQ:  // left = right
+            if (left.isVoid()) {
+                return false;
+            }
             *outLeftType = &left;
             *outRightType = &left;
             *outResultType = &left;
@@ -272,6 +275,9 @@ bool Operator::determineBinaryType(const Context& context,
 
         case Token::Kind::TK_EQEQ:   // left == right
         case Token::Kind::TK_NEQ: {  // left != right
+            if (left.isVoid()) {
+                return false;
+            }
             CoercionCost rightToLeft = right.coercionCost(left),
                          leftToRight = left.coercionCost(right);
             if (rightToLeft < leftToRight) {

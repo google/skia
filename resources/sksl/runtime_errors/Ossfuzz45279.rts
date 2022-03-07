@@ -2,3 +2,7 @@ void c(int) {}
 void b(int i) { c(i)==c(i); }
 void a(int) { b(0); }
 half4 main(float2) { int i; a(i); return half4(0); }
+
+/*%%*
+type mismatch: '==' cannot operate on 'void', 'void'
+*%%*/
