@@ -13,27 +13,17 @@
 
 namespace sk_tools {
 
-/** Template class that registers itself (in the constructor) into a linked-list
-    and provides a function-pointer. This can be used to auto-register a set of
-    services, e.g. a set of image codecs.
+/**
+ * Template class that registers itself (in the constructor) into a linked-list
+ * and provides a function-pointer. This can be used to auto-register a set of
+ * services, e.g. a set of image codecs.
  */
 template <typename T> class Registry : SkNoncopyable {
 public:
-    explicit Registry(T value) : fValue(value) {
-#ifdef SK_BUILD_FOR_ANDROID
-        // work-around for double-initialization bug
-        {
-            Registry* reg = gHead;
-            while (reg) {
-                if (reg == this) {
-                    return;
-                }
-                reg = reg->fChain;
-            }
+    explicit Registry(T value, bool condition = true) : fValue(value) {
+        if (condition) {
+            this->linkToRegistryHead();
         }
-#endif
-        fChain = gHead;
-        gHead  = this;
     }
 
     static const Registry* Head() { return gHead; }
@@ -54,6 +44,23 @@ public:
     };
 
 private:
+    void linkToRegistryHead() {
+#ifdef SK_BUILD_FOR_ANDROID
+        // work-around for double-initialization bug
+        {
+            Registry* reg = gHead;
+            while (reg) {
+                if (reg == this) {
+                    return;
+                }
+                reg = reg->fChain;
+            }
+        }
+#endif
+        fChain = gHead;
+        gHead  = this;
+    }
+
     T fValue;
     Registry* fChain;
 
