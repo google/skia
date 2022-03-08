@@ -102,8 +102,8 @@ std::tuple<SkStrikeSpec, SkScalar> SkStrikeSpec::MakeCanonicalized(
         canonicalizedPaint.reset();
     }
 
-    return {SkStrikeSpec(*canonicalizedFont, canonicalizedPaint,
-                         SkSurfaceProps(), kFakeGammaAndBoostContrast, SkMatrix::I()),
+    return {SkStrikeSpec(*canonicalizedFont, canonicalizedPaint, SkSurfaceProps(),
+                         SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I()),
             strikeToSourceScale};
 }
 
@@ -113,8 +113,8 @@ SkStrikeSpec SkStrikeSpec::MakeWithNoDevice(const SkFont& font, const SkPaint* p
         setupPaint = *paint;
     }
 
-    return SkStrikeSpec(
-            font, setupPaint, SkSurfaceProps(), kFakeGammaAndBoostContrast, SkMatrix::I());
+    return SkStrikeSpec(font, setupPaint, SkSurfaceProps(),
+                        SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
 }
 
 bool SkStrikeSpec::ShouldDrawAsPath(
@@ -166,7 +166,7 @@ SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) 
     return SkStrikeSpec(font,
                         SkPaint(),
                         SkSurfaceProps(0, kUnknown_SkPixelGeometry),
-                        kFakeGammaAndBoostContrast,
+                        SkScalerContextFlags::kFakeGammaAndBoostContrast,
                         SkMatrix::I());
 }
 

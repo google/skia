@@ -530,7 +530,7 @@ SkStrikeSpec make_small_strike(const SkTypeface& typeface) {
     return SkStrikeSpec::MakeMask(font,
                                   SkPaint(),
                                   SkSurfaceProps(0, kUnknown_SkPixelGeometry),
-                                  kFakeGammaAndBoostContrast,
+                                  SkScalerContextFlags::kFakeGammaAndBoostContrast,
                                   SkMatrix::I());
 }
 

@@ -31,17 +31,18 @@ class SkPathEffect;
 class SkScalerContext;
 class SkScalerContext_DW;
 
-enum SkScalerContextFlags : uint32_t {
+enum class SkScalerContextFlags : uint32_t {
     kNone                      = 0,
     kFakeGamma                 = 1 << 0,
     kBoostContrast             = 1 << 1,
     kFakeGammaAndBoostContrast = kFakeGamma | kBoostContrast,
 };
+SK_MAKE_BITFIELD_OPS(SkScalerContextFlags)
 
-enum SkAxisAlignment : uint32_t {
-    kNone_SkAxisAlignment,
-    kX_SkAxisAlignment,
-    kY_SkAxisAlignment
+enum class SkAxisAlignment : uint32_t {
+    kNone,
+    kX,
+    kY,
 };
 
 /*
@@ -150,10 +151,10 @@ public:
     void    getSingleMatrix(SkMatrix*) const;
 
     /** The kind of scale which will be applied by the underlying port (pre-matrix). */
-    enum PreMatrixScale {
-        kFull_PreMatrixScale,  // The underlying port can apply both x and y scale.
-        kVertical_PreMatrixScale,  // The underlying port can only apply a y scale.
-        kVerticalInteger_PreMatrixScale  // The underlying port can only apply an integer y scale.
+    enum class PreMatrixScale {
+        kFull,  // The underlying port can apply both x and y scale.
+        kVertical,  // The underlying port can only apply a y scale.
+        kVerticalInteger  // The underlying port can only apply an integer y scale.
     };
     /**
      *  Compute useful matrices for use with sizing in underlying libraries.
@@ -356,7 +357,7 @@ public:
 
     /**
     *  Return the axis (if any) that the baseline for horizontal text should land on.
-    *  As an example, the identity matrix will return kX_SkAxisAlignment
+    *  As an example, the identity matrix will return SkAxisAlignment::kX.
     */
     SkAxisAlignment computeAxisAlignmentForHText() const;
 

@@ -24,7 +24,7 @@ DEF_TEST(SkPackedGlyphIDCtor, reporter) {
 
     {
         // Normal sub-pixel with y-axis snapping.
-        auto roundingSpec = SkGlyphPositionRoundingSpec(true, kX_SkAxisAlignment);
+        auto roundingSpec = SkGlyphPositionRoundingSpec(true, SkAxisAlignment::kX);
         SkIPoint mask = roundingSpec.ignorePositionFieldMask;
         for (int x = -testLimit; x < testLimit; x++) {
             float fx = x * step;
@@ -40,7 +40,7 @@ DEF_TEST(SkPackedGlyphIDCtor, reporter) {
 
     {
         // No subpixel positioning.
-        auto roundingSpec = SkGlyphPositionRoundingSpec(false, kNone_SkAxisAlignment);
+        auto roundingSpec = SkGlyphPositionRoundingSpec(false, SkAxisAlignment::kNone);
         SkIPoint mask = roundingSpec.ignorePositionFieldMask;
         for (int y = -testLimit; y < testLimit; y++) {
             for (int x = -testLimit; x < testLimit; x++) {
@@ -57,7 +57,7 @@ DEF_TEST(SkPackedGlyphIDCtor, reporter) {
 
     {
         // Subpixel with no axis snapping.
-        auto roundingSpec = SkGlyphPositionRoundingSpec(true, kNone_SkAxisAlignment);
+        auto roundingSpec = SkGlyphPositionRoundingSpec(true, SkAxisAlignment::kNone);
         SkIPoint mask = roundingSpec.ignorePositionFieldMask;
         for (int y = -testLimit; y < testLimit; y++) {
             for (int x = -testLimit; x < testLimit; x++) {
@@ -79,7 +79,7 @@ DEF_TEST(SkPackedGlyphIDCtor, reporter) {
         // Distance is 2^21 - 2 (because the test is on the interval [-2, 2).
         const uint32_t kLogLargeDistance = 24 - PG::kSubPixelPosLen - 1;
         const int64_t kLargeDistance = (1ull << kLogLargeDistance) - 2;
-        auto roundingSpec = SkGlyphPositionRoundingSpec(true, kNone_SkAxisAlignment);
+        auto roundingSpec = SkGlyphPositionRoundingSpec(true, SkAxisAlignment::kNone);
         SkIPoint mask = roundingSpec.ignorePositionFieldMask;
         for (int y = -32; y < 33; y++) {
             for (int x = -32; x < 33; x++) {
@@ -171,7 +171,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
         SkDrawableGlyphBuffer accepted;
         accepted.ensureSize(100);
         SkMatrix matrix = SkMatrix::Scale(0.5, 0.5);
-        SkGlyphPositionRoundingSpec rounding{true, kX_SkAxisAlignment};
+        SkGlyphPositionRoundingSpec rounding{true, SkAxisAlignment::kX};
         accepted.startBitmapDevice(source, {100, 100}, matrix, rounding);
         for (auto [i, packedID, pos] : SkMakeEnumerate(accepted.input())) {
             REPORTER_ASSERT(reporter, glyphIDs[i] == packedID.packedID().glyphID());

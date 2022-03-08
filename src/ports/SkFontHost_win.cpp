@@ -653,8 +653,8 @@ SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
     // When not hinting, remove only the integer Y scale from sA and GsA. (Applied by GDI.)
     SkScalerContextRec::PreMatrixScale scaleConstraints =
         (fRec.getHinting() == SkFontHinting::kNone || fRec.getHinting() == SkFontHinting::kSlight)
-                   ? SkScalerContextRec::kVerticalInteger_PreMatrixScale
-                   : SkScalerContextRec::kVertical_PreMatrixScale;
+                   ? SkScalerContextRec::PreMatrixScale::kVerticalInteger
+                   : SkScalerContextRec::PreMatrixScale::kVertical;
     SkVector scale;
     SkMatrix sA;
     SkMatrix GsA;

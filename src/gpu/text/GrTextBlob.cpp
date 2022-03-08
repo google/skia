@@ -1970,7 +1970,7 @@ auto GrTextBlob::Key::Make(const SkGlyphRunList& glyphRunList,
             key.fBlurRec = blurRec;
         }
         key.fCanonicalColor = canonicalColor;
-        key.fScalerContextFlags = scalerContextFlags;
+        key.fScalerContextFlags = SkTo<uint32_t>(scalerContextFlags);
 
         // Do any runs use direct drawing types?.
         key.fHasSomeDirectSubRuns = false;

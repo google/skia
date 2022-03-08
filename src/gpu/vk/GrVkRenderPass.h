@@ -199,7 +199,6 @@ private:
     uint32_t              fClearValueCount;
     // For internally created render passes we assume the color attachment index is always 0.
     uint32_t              fColorAttachmentIndex = 0;
-    uint32_t              fResolveAttachmentIndex = 0;
 
     using INHERITED = GrVkManagedResource;
 };

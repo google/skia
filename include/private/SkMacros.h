@@ -7,6 +7,8 @@
 #ifndef SkMacros_DEFINED
 #define SkMacros_DEFINED
 
+#include <type_traits>
+
 /*
  *  Usage:  SK_MACRO_CONCAT(a, b)   to construct the symbol ab
  *
@@ -47,38 +49,31 @@
  * bitfield.
  */
 #define SK_MAKE_BITFIELD_OPS(X) \
+    inline X operator ~(X a) { \
+        using U = std::underlying_type_t<X>; \
+        return (X) (~static_cast<U>(a)); \
+    } \
     inline X operator |(X a, X b) { \
-        return (X) (+a | +b); \
+        using U = std::underlying_type_t<X>; \
+        return (X) (static_cast<U>(a) | static_cast<U>(b)); \
     } \
     inline X& operator |=(X& a, X b) { \
         return (a = a | b); \
     } \
     inline X operator &(X a, X b) { \
-        return (X) (+a & +b); \
+        using U = std::underlying_type_t<X>; \
+        return (X) (static_cast<U>(a) & static_cast<U>(b)); \
     } \
     inline X& operator &=(X& a, X b) { \
         return (a = a & b); \
-    } \
-    template <typename T> \
-    inline X operator &(T a, X b) { \
-        return (X) (+a & +b); \
-    } \
-    template <typename T> \
-    inline X operator &(X a, T b) { \
-        return (X) (+a & +b); \
-    } \
+    }
 
 #define SK_DECL_BITFIELD_OPS_FRIENDS(X) \
+    friend X operator ~(X a); \
     friend X operator |(X a, X b); \
     friend X& operator |=(X& a, X b); \
     \
     friend X operator &(X a, X b); \
-    friend X& operator &=(X& a, X b); \
-    \
-    template <typename T> \
-    friend X operator &(T a, X b); \
-    \
-    template <typename T> \
-    friend X operator &(X a, T b); \
+    friend X& operator &=(X& a, X b);
 
 #endif  // SkMacros_DEFINED

@@ -937,7 +937,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> ty
         return;
     }
 
-    fRec.computeMatrices(SkScalerContextRec::kFull_PreMatrixScale, &fScale, &fMatrix22Scalar);
+    fRec.computeMatrices(SkScalerContextRec::PreMatrixScale::kFull, &fScale, &fMatrix22Scalar);
     FT_F26Dot6 scaleX = SkScalarToFDot6(fScale.fX);
     FT_F26Dot6 scaleY = SkScalarToFDot6(fScale.fY);
 

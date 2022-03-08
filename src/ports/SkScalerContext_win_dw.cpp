@@ -281,7 +281,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     // horizontal glyphs and the subpixel flag should not affect glyph shapes.
 
     SkVector scale;
-    fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale, &scale, &fSkXform);
+    fRec.computeMatrices(SkScalerContextRec::PreMatrixScale::kVertical, &scale, &fSkXform);
 
     fXform.m11 = SkScalarToFloat(fSkXform.getScaleX());
     fXform.m12 = SkScalarToFloat(fSkXform.getSkewY());
