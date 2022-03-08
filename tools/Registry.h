@@ -45,18 +45,6 @@ public:
 
 private:
     void linkToRegistryHead() {
-#ifdef SK_BUILD_FOR_ANDROID
-        // work-around for double-initialization bug
-        {
-            Registry* reg = gHead;
-            while (reg) {
-                if (reg == this) {
-                    return;
-                }
-                reg = reg->fChain;
-            }
-        }
-#endif
         fChain = gHead;
         gHead  = this;
     }
