@@ -16,9 +16,9 @@ namespace skgpu {
 namespace {
 
 // TODO: Tune these values on real world data
-static constexpr size_t kVertexBufferSize = 2 << 10;
-static constexpr size_t kIndexBufferSize = 2 << 10;
-static constexpr size_t kUniformBufferSize = 2 << 10;
+static constexpr size_t kVertexBufferSize = 16 << 10; // 16 KB
+static constexpr size_t kIndexBufferSize =   2 << 10; //  2 KB
+static constexpr size_t kUniformBufferSize = 2 << 10; //  2 KB
 
 void* map_offset(BindBufferInfo binding) {
     // DrawBufferManager owns the Buffer, and this is only ever called when we know
