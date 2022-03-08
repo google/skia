@@ -313,28 +313,6 @@ private:
 };
 #endif
 
-#if defined(SK_ENABLE_SKRIVE)
-class SkRiveSrc final : public Src {
-public:
-    explicit SkRiveSrc(Path path);
-
-    Result draw(GrDirectContext*, SkCanvas*) const override;
-    SkISize size() const override;
-    Name name() const override;
-    bool veto(SinkFlags) const override;
-
-private:
-    // Generates a kTileCount x kTileCount filmstrip with evenly distributed frames.
-    inline static constexpr int      kTileCount  = 5;
-
-    // Fit kTileCount x kTileCount frames to a 1000x1000 film strip.
-    inline static constexpr SkScalar kTargetSize = 1000;
-    inline static constexpr SkScalar kTileSize   = kTargetSize / kTileCount;
-
-    const Path fPath;
-};
-#endif
-
 #if defined(SK_ENABLE_SVG)
 } // namespace DM
 

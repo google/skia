@@ -207,27 +207,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkRiveSlide_hdr",
-    hdrs = ["SkRiveSlide.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":Slide_hdr",
-        "//experimental/skrive/include:SkRive_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "SkRiveSlide_src",
-    srcs = ["SkRiveSlide.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkRiveSlide_hdr",
-        "//include/core:SkCanvas_hdr",
-        "//include/core:SkStream_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "SkSLSlide_hdr",
     hdrs = ["SkSLSlide.h"],
     visibility = ["//:__subpackages__"],
@@ -435,7 +414,6 @@ generated_cc_atom(
         ":ParticlesSlide_hdr",
         ":SKPSlide_hdr",
         ":SampleSlide_hdr",
-        ":SkRiveSlide_hdr",
         ":SkSLDebuggerSlide_hdr",
         ":SkSLSlide_hdr",
         ":SkottieSlide_hdr",

@@ -141,7 +141,6 @@ static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driv
 
 static DEFINE_string(skps, "skps", "Directory to read skps from.");
 static DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
-static DEFINE_string(rives, "rives", "Directory to read Rive/Flare files from.");
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
 static DEFINE_int_2(threads, j, -1,
@@ -886,9 +885,6 @@ static bool gather_srcs() {
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
 #if defined(SK_ENABLE_SKOTTIE)
     gather_file_srcs<SkottieSrc>(FLAGS_lotties, "json", "lottie");
-#endif
-#if defined(SK_ENABLE_SKRIVE)
-    gather_file_srcs<SkRiveSrc>(FLAGS_rives, "flr", "rive");
 #endif
 #if defined(SK_ENABLE_SVG)
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");

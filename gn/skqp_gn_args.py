@@ -11,7 +11,6 @@ def GetGNArgs(api_level, debug, arch=None, ndk=None, is_android_bp=False):
         'skia_enable_pdf':                  'false',
         'skia_enable_skshaper':             'false',
         'skia_enable_skottie':              'false',
-        'skia_enable_skrive':               'false',
         'skia_enable_sktext':               'false',
         'skia_enable_tools':                'true',
         'skia_enable_svg':                  'false',
