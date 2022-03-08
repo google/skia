@@ -80,7 +80,7 @@ public:
         uint32_t       fAttachmentCount;
     };
 
-    enum AttachmentFlags {
+    enum AttachmentFlags : uint32_t {
         kColor_AttachmentFlag = 0x1,
         kStencil_AttachmentFlag = 0x2,
         kResolve_AttachmentFlag = 0x4,
