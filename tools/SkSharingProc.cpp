@@ -11,7 +11,6 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSerialProcs.h"
-#include "include/core/SkStream.h"
 
 namespace {
     sk_sp<SkData> collectNonTextureImagesProc(SkImage* img, void* ctx) {

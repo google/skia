@@ -7,7 +7,6 @@
 
 #include "src/gpu/GrSWMaskHelper.h"
 
-#include "include/core/SkBitmap.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrCaps.h"

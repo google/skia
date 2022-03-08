@@ -7,7 +7,6 @@
 
 #include "tests/TestUtils.h"
 
-#include "include/core/SkStream.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/utils/SkBase64.h"
 #include "src/core/SkAutoPixmapStorage.h"

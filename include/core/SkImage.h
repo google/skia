@@ -8,6 +8,7 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
+#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -27,27 +28,24 @@
 #include <android/hardware_buffer.h>
 #endif
 
-class GrBackendFormat;
-class GrBackendTexture;
-class GrContextThreadSafeProxy;
-class GrDirectContext;
-class GrRecordingContext;
-class GrYUVABackendTextureInfo;
-class GrYUVABackendTextures;
-class SkCanvas;
 class SkData;
+class SkCanvas;
 class SkImage;
 class SkImageFilter;
 class SkImageGenerator;
 class SkMipmap;
 class SkPaint;
 class SkPicture;
-class SkPixmap;
 class SkPromiseImageTexture;
 class SkSurface;
 class SkYUVAPixmaps;
-
-enum class SkEncodedImageFormat;
+class GrBackendFormat;
+class GrBackendTexture;
+class GrDirectContext;
+class GrRecordingContext;
+class GrContextThreadSafeProxy;
+class GrYUVABackendTextureInfo;
+class GrYUVABackendTextures;
 
 #if SK_GRAPHITE_ENABLED
 namespace skgpu {

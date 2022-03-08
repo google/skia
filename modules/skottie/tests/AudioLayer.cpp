@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkStream.h"
 #include "modules/skottie/include/Skottie.h"
+
 #include "tests/Test.h"
 
 using namespace skottie;

@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkM44.h"
-#include "include/core/SkStream.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"

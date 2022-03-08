@@ -7,7 +7,6 @@
 
 #include "src/gpu/GrDirectContextPriv.h"
 
-#include "include/core/SkBitmap.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkRuntimeEffectPriv.h"

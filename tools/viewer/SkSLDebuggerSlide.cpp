@@ -8,7 +8,6 @@
 #include "tools/viewer/SkSLDebuggerSlide.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkStream.h"
 #include "tools/viewer/Viewer.h"
 
 #include <algorithm>

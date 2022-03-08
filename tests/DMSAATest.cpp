@@ -7,7 +7,6 @@
 
 #include "tests/Test.h"
 
-#include "include/core/SkBitmap.h"
 #include "include/core/SkVertices.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkMatrixProvider.h"
