@@ -40,6 +40,7 @@ generated_cc_atom(
     hdrs = ["SkImage_Base.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//experimental/graphite/src:TextureProxyView_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkSurface_hdr",
         "//include/private:SkTDArray_hdr",

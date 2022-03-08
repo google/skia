@@ -3267,6 +3267,7 @@ generated_cc_atom(
         ":SkPathPriv_hdr",
         ":SkSafeMath_hdr",
         "//include/core:SkPath_hdr",
+        "//include/core:SkRRect_hdr",
         "//include/private:SkNx_hdr",
         "//include/private:SkOnce_hdr",
         "//include/private:SkPathRef_hdr",
@@ -5187,6 +5188,7 @@ generated_cc_atom(
         "//include/private:SkImageInfoPriv_hdr",
         "//include/private:SkMacros_hdr",
         "//src/shaders:SkColorFilterShader_hdr",
+        "//src/shaders:SkColorShader_hdr",
         "//src/utils:SkBlitterTrace_hdr",
     ],
 )

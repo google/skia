@@ -115,21 +115,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "UniformCacheTest_src",
-    srcs = ["UniformCacheTest.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//experimental/graphite/include:Context_hdr",
-        "//experimental/graphite/include:Recorder_hdr",
-        "//experimental/graphite/src:RecorderPriv_hdr",
-        "//experimental/graphite/src:UniformCache_hdr",
-        "//src/core:SkUniformData_hdr",
-        "//src/core:SkUniform_hdr",
-        "//tests:Test_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "UniformTest_src",
     srcs = ["UniformTest.cpp"],
     visibility = ["//:__subpackages__"],
@@ -159,6 +144,21 @@ generated_cc_atom(
         "//experimental/graphite/src:ContextPriv_hdr",
         "//src/core:SkPaintParamsKey_hdr",
         "//src/core:SkShaderCodeDictionary_hdr",
+        "//tests:Test_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PipelineDataCacheTest_src",
+    srcs = ["PipelineDataCacheTest.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/include:Context_hdr",
+        "//experimental/graphite/include:Recorder_hdr",
+        "//experimental/graphite/src:PipelineDataCache_hdr",
+        "//experimental/graphite/src:RecorderPriv_hdr",
+        "//src/core:SkUniformData_hdr",
+        "//src/core:SkUniform_hdr",
         "//tests:Test_hdr",
     ],
 )

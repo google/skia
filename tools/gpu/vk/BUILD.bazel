@@ -4,7 +4,10 @@ generated_cc_atom(
     name = "GrVulkanDefines_hdr",
     hdrs = ["GrVulkanDefines.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkTypes_hdr"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/third_party:skias_vulkan_headers",
+    ],
 )
 
 generated_cc_atom(

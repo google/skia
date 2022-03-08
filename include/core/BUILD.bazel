@@ -412,6 +412,7 @@ generated_cc_atom(
         ":SkScalar_hdr",
         ":SkShader_hdr",
         ":SkTileMode_hdr",
+        "//experimental/graphite/include:GraphiteTypes_hdr",
         "//include/gpu:GrTypes_hdr",
     ],
 )

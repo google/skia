@@ -49,6 +49,7 @@ generated_cc_atom(
         "//include/private:GrD3DTypesMinimal_hdr",
         "//include/private:GrGLTypesPriv_hdr",
         "//include/private:GrVkTypesPriv_hdr",
+        "//third_party:dawn",
     ],
 )
 

@@ -2421,3 +2421,25 @@ cc_library(
         "etc1/etc1.h",
     ],
 )
+
+cc_library(
+    name = "dawn",
+    # TODO(kjlubick)
+)
+
+cc_library(
+    name = "vulkanmemoryallocator",
+    srcs = [
+        "vulkanmemoryallocator/GrVulkanMemoryAllocator.cpp",
+        "vulkanmemoryallocator/include/vk_mem_alloc.h",
+    ],
+    hdrs = [
+        "vulkanmemoryallocator/GrVulkanMemoryAllocator.h",
+    ],
+    includes = [
+        "vulkanmemoryallocator",
+    ],
+    deps = [
+        "//include/third_party:skias_vulkan_headers",
+    ],
+)

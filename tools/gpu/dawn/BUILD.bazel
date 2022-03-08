@@ -4,7 +4,10 @@ generated_cc_atom(
     name = "DawnTestContext_hdr",
     hdrs = ["DawnTestContext.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//tools/gpu:TestContext_hdr"],
+    deps = [
+        "//third_party:dawn",
+        "//tools/gpu:TestContext_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -14,10 +17,8 @@ generated_cc_atom(
     deps = [
         ":DawnTestContext_hdr",
         "//GL:glx_hdr",
-        "//dawn:dawn_proc_hdr",
-        "//dawn:webgpu_hdr",
-        "//dawn_native:OpenGLBackend_hdr",
         "//include/gpu:GrDirectContext_hdr",
+        "//third_party:dawn",
         "//tools:AutoreleasePool_hdr",
     ],
 )

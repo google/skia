@@ -1,4 +1,22 @@
+# https://github.com/bazelbuild/bazel-skylib
+load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//bazel:macros.bzl", "generated_cc_atom")
+
+selects.config_setting_group(
+    name = "vulkan_unix",
+    match_all = [
+        "//bazel/common_config_settings:vulkan_backend",
+        "@platforms//os:linux",
+    ],
+)
+
+selects.config_setting_group(
+    name = "gl_unix",
+    match_all = [
+        "//bazel/common_config_settings:gl_backend",
+        "@platforms//os:linux",
+    ],
+)
 
 cc_library(
     name = "sk_app",
@@ -8,16 +26,27 @@ cc_library(
         ":CommandSet_src",
         ":RasterWindowContext_hdr",
         ":WindowContext_src",
-        ":GLWindowContext_src",
         ":Window_src",
-    ] + [
-        # TODO(kjlubick) use a select to set these based on target platform
-        "//tools/sk_app/unix:GLWindowContext_unix_src",
-        "//tools/sk_app/unix:RasterWindowContext_unix_src",
-        "//tools/sk_app/unix:Window_unix_src",
-        "//tools/sk_app/unix:keysym2ucs_src",
-        "//tools/sk_app/unix:main_unix_src",
-    ],
+    ] + select({
+        "@platforms//os:linux": [
+            "//tools/sk_app/unix:RasterWindowContext_unix_src",
+            "//tools/sk_app/unix:Window_unix_src",
+            "//tools/sk_app/unix:keysym2ucs_src",
+            "//tools/sk_app/unix:main_unix_src",
+        ],
+        # TODO(kjlubick) add Windows/Mac support
+    }) + select({
+        "//bazel/common_config_settings:gl_backend": [
+            ":GLWindowContext_src",
+        ],
+        "//bazel/common_config_settings:vulkan_backend": [
+            ":VulkanWindowContext_src",
+            "//tools/gpu/vk:VkTestUtils_src",
+        ],
+    }) + select({
+        ":gl_unix": ["//tools/sk_app/unix:GLWindowContext_unix_src"],
+        ":vulkan_unix": ["//tools/sk_app/unix:VulkanWindowContext_unix_src"],
+    }),
 )
 
 generated_cc_atom(
@@ -54,10 +83,9 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":WindowContext_hdr",
-        "//dawn:dawn_wsi_hdr",
-        "//dawn_native:DawnNative_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkSurface_hdr",
+        "//third_party:dawn",
     ],
 )
 
@@ -67,11 +95,11 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":DawnWindowContext_hdr",
-        "//dawn:dawn_proc_hdr",
         "//include/core:SkSurface_hdr",
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//src/core:SkAutoMalloc_hdr",
+        "//third_party:dawn",
     ],
 )
 

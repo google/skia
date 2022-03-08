@@ -15,7 +15,8 @@
     #elif defined SK_BUILD_FOR_MAC
         #define SK_GPU_TOOLS_VK_LIBRARY_NAME libvk_swiftshader.dylib
     #else
-        #define SK_GPU_TOOLS_VK_LIBRARY_NAME libvulkan.so
+        #define SK_GPU_TOOLS_VK_LIBRARY_NAME        libvulkan.so
+        #define SK_GPU_TOOLS_VK_LIBRARY_NAME_BACKUP libvulkan.so.1
     #endif
 #endif
 
@@ -44,7 +45,16 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc) {
     if (!vkLib) {
         vkLib = SkLoadDynamicLibrary(STRINGIFY(SK_GPU_TOOLS_VK_LIBRARY_NAME));
         if (!vkLib) {
+            // vulkaninfo tries to load the library from two places, so we do as well
+            // https://github.com/KhronosGroup/Vulkan-Tools/blob/078d44e4664b7efa0b6c96ebced1995c4425d57a/vulkaninfo/vulkaninfo.h#L249
+#ifdef SK_GPU_TOOLS_VK_LIBRARY_NAME_BACKUP
+            vkLib = SkLoadDynamicLibrary(STRINGIFY(SK_GPU_TOOLS_VK_LIBRARY_NAME_BACKUP));
+            if (!vkLib) {
+                return false;
+            }
+#else
             return false;
+#endif
         }
         localInstProc = (PFN_vkGetInstanceProcAddr) SkGetProcedureAddress(vkLib,
                                                                           "vkGetInstanceProcAddr");

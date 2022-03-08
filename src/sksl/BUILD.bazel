@@ -331,6 +331,7 @@ generated_cc_atom(
     deps = [
         ":SkSLLexer_hdr",
         "//include/private:SkSLProgramKind_hdr",
+        "//include/private:SkTHash_hdr",
         "//include/sksl:DSLSymbols_hdr",
         "//include/sksl:DSL_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
@@ -455,6 +456,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLMangler_hdr",
+        "//include/private:SkTHash_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
         "//src/sksl/ir:SkSLVariableReference_hdr",
     ],
@@ -702,6 +704,7 @@ generated_cc_atom(
         "//include/private:SkSLModifiers_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLStatement_hdr",
+        "//include/sksl:DSLCore_hdr",
         "//src/sksl/ir:SkSLBinaryExpression_hdr",
         "//src/sksl/ir:SkSLBreakStatement_hdr",
         "//src/sksl/ir:SkSLConstructorArrayCast_hdr",
@@ -838,7 +841,10 @@ generated_cc_atom(
     name = "SkSLBuiltinMap_hdr",
     hdrs = ["SkSLBuiltinMap.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/private:SkSLString_hdr"],
+    deps = [
+        "//include/private:SkSLString_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
 )
 
 generated_cc_atom(

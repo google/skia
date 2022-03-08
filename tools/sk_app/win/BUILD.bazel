@@ -32,9 +32,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":WindowContextFactory_win_hdr",
-        "//dawn:dawn_wsi_hdr",
-        "//dawn_native:D3D12Backend_hdr",
-        "//dawn_native:DawnNative_hdr",
+        "//third_party:dawn",
         "//tools/sk_app:DawnWindowContext_hdr",
     ],
 )

@@ -89,5 +89,8 @@ generated_cc_atom(
     name = "VectorTypes_hdr",
     hdrs = ["VectorTypes.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//experimental/graphite/include:GraphiteTypes_hdr"],
+    deps = [
+        "//experimental/graphite/include:GraphiteTypes_hdr",
+        "//include/private:SkVx_hdr",
+    ],
 )

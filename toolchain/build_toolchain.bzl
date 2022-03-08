@@ -13,6 +13,7 @@ clang_url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0
 # still have their file extension, as some of the Starlark functions sniff the file extension
 # (e.g. download_and_extract). See //bazel/gcs_mirror for an automated way to update this mirror.
 mirror_prefix = "https://storage.googleapis.com/skia-world-readable/bazel/"
+
 # Set this to True to only use the files from the mirror host. This can be used to test the data
 # in the mirrors is not corrupt and publicly accessible.
 # If testing this, you need to delete the download cache, which defaults to
@@ -92,6 +93,12 @@ debs_to_install = [
         "sha256": "f300f9610b5f05f1ce566c4095f1bf2170e512ac5d201c40d895b8fce29dec98",
         "url": "https://ftp.debian.org/debian/pool/main/libg/libglvnd/libgl1_1.3.2-1_amd64.deb",
     },
+    # This is used by sk_app for Vulkan and Dawn on Unix.
+    {
+        # From https://packages.debian.org/bullseye/amd64/libx11-xcb-dev/download
+        "sha256": "80a2413ace2a0a073f2472059b9e589737cbf8a336fb6862684a5811bf640aa3",
+        "url": "https://ftp.debian.org/debian/pool/main/libx/libx11/libx11-xcb-dev_1.7.2-1_amd64.deb",
+    },
 ]
 
 def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):
@@ -99,7 +106,7 @@ def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):
 
     # https://docs.bazel.build/versions/main/skylark/lib/repository_ctx.html#download
     download_info = ctx.download(
-        url = _mirror([deb, mirror_prefix+sha256+".deb"]),
+        url = _mirror([deb, mirror_prefix + sha256 + ".deb"]),
         output = "deb.ar",
         sha256 = sha256,
     )
@@ -124,7 +131,7 @@ def _build_cpp_toolchain_impl(ctx):
     # Download the clang toolchain (the extraction can take a while)
     # https://docs.bazel.build/versions/main/skylark/lib/repository_ctx.html#download_and_extract
     download_info = ctx.download_and_extract(
-        url = _mirror([clang_url, mirror_prefix+clang_sha256+".tar.xz"]),
+        url = _mirror([clang_url, mirror_prefix + clang_sha256 + ".tar.xz"]),
         output = "",
         stripPrefix = clang_prefix,
         sha256 = clang_sha256,

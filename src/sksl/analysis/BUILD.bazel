@@ -24,6 +24,7 @@ generated_cc_atom(
         ":SkSLProgramVisitor_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLStatement_hdr",
+        "//include/private:SkTHash_hdr",
         "//src/core:SkSafeMath_hdr",
         "//src/sksl:SkSLAnalysis_hdr",
         "//src/sksl:SkSLContext_hdr",

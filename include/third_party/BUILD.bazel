@@ -1,0 +1,8 @@
+cc_library(
+    name = "skias_vulkan_headers",
+    includes = ["vulkan"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/third_party/vulkan/vulkan:vulkan_hdr",
+    ],
+)

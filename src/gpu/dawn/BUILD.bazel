@@ -4,7 +4,10 @@ generated_cc_atom(
     name = "GrDawnAttachment_hdr",
     hdrs = ["GrDawnAttachment.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//src/gpu:GrAttachment_hdr"],
+    deps = [
+        "//src/gpu:GrAttachment_hdr",
+        "//third_party:dawn",
+    ],
 )
 
 generated_cc_atom(
@@ -22,7 +25,10 @@ generated_cc_atom(
     name = "GrDawnBuffer_hdr",
     hdrs = ["GrDawnBuffer.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//src/gpu:GrGpuBuffer_hdr"],
+    deps = [
+        "//src/gpu:GrGpuBuffer_hdr",
+        "//third_party:dawn",
+    ],
 )
 
 generated_cc_atom(
@@ -73,6 +79,7 @@ generated_cc_atom(
         "//src/gpu:GrProgramDesc_hdr",
         "//src/gpu:GrStagingBufferManager_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
+        "//third_party:dawn",
     ],
 )
 
@@ -119,6 +126,7 @@ generated_cc_atom(
         "//include/gpu:GrTypes_hdr",
         "//src/gpu:GrColor_hdr",
         "//src/gpu:GrOpsRenderPass_hdr",
+        "//third_party:dawn",
     ],
 )
 
@@ -154,6 +162,7 @@ generated_cc_atom(
         "//src/gpu:GrSPIRVVaryingHandler_hdr",
         "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
         "//src/sksl:SkSLCompiler_hdr",
+        "//third_party:dawn",
     ],
 )
 
@@ -182,6 +191,7 @@ generated_cc_atom(
         "//src/core:SkAutoMalloc_hdr",
         "//src/gpu:GrSPIRVUniformHandler_hdr",
         "//src/gpu:GrUniformDataManager_hdr",
+        "//third_party:dawn",
     ],
 )
 
@@ -261,7 +271,10 @@ generated_cc_atom(
     name = "GrDawnTexture_hdr",
     hdrs = ["GrDawnTexture.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//src/gpu:GrTexture_hdr"],
+    deps = [
+        "//src/gpu:GrTexture_hdr",
+        "//third_party:dawn",
+    ],
 )
 
 generated_cc_atom(
@@ -287,7 +300,10 @@ generated_cc_atom(
     name = "GrDawnUtil_hdr",
     hdrs = ["GrDawnUtil.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/private:GrTypesPriv_hdr"],
+    deps = [
+        "//include/private:GrTypesPriv_hdr",
+        "//third_party:dawn",
+    ],
 )
 
 generated_cc_atom(

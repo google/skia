@@ -2,7 +2,7 @@ load("//bazel:macros.bzl", "generated_cc_atom")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 
 cc_binary_with_flags(
-    name = "hello_world",
+    name = "hello_world_gl",
     srcs = [
         "//example:HelloWorld_src",
     ],
@@ -31,6 +31,37 @@ cc_binary_with_flags(
     deps = [
         "//:skia_core",
         "//src/utils:json_srcs",
+        "//tools/sk_app",
+    ],
+)
+
+cc_binary_with_flags(
+    name = "hello_world_vulkan",
+    srcs = [
+        "//example:HelloWorld_src",
+    ],
+    linkopts = [
+        "-lX11",
+        "-lxcb",
+        "-lXau",
+        "-lXdmcp",
+        "-lX11-xcb",
+    ],
+    # These flags are defined in //bazel/common_config_settings/BUILD.bazel
+    set_flags = {
+        "gpu_backend": [
+            "vulkan_backend",
+        ],
+        # Load fonts from the standard system directory (e.g. "/usr/share/fonts/")
+        # as defined in //src/ports/SkFontMgr_custom_directory_factory.cpp
+        "fontmgr_factory": [
+            "custom_directory_fontmgr_factory",
+        ],
+    },
+    deps = [
+        "//:skia_core",
+        "//src/utils:json_srcs",
+        "//third_party:vulkanmemoryallocator",
         "//tools/sk_app",
     ],
 )

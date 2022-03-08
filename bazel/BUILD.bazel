@@ -1,6 +1,9 @@
 load("//bazel:macros.bzl", "select_multi")
 
-GENERAL_DEFINES = ["SK_HAS_ANDROID_CODEC"] + select({
+GENERAL_DEFINES = [
+    "SK_HAS_ANDROID_CODEC",
+    "SKIA_IMPLEMENTATION=1",
+] + select({
     "//bazel/common_config_settings:debug_build": [
         "SK_DEBUG",
     ],
@@ -32,6 +35,7 @@ GPU_DEFINES = select({
     "//bazel/common_config_settings:vulkan_backend": [
         "SK_VULKAN",
         "SK_SUPPORT_GPU=1",
+        "SK_USE_VMA",  # TODO(kjlubick) This will need to be configurable
     ],
     "//conditions:default": [
         "SK_SUPPORT_GPU=0",

@@ -63,6 +63,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLCodeGenerator_hdr",
+        "//include/private:SkTHash_hdr",
         "//src/sksl:SkSLOperators_hdr",
         "//src/sksl:SkSLStringStream_hdr",
     ],
@@ -163,6 +164,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLCodeGenerator_hdr",
+        "//include/private:SkTHash_hdr",
         "//src/core:SkOpts_hdr",
         "//src/sksl:SkSLMemoryLayout_hdr",
         "//src/sksl:SkSLStringStream_hdr",
@@ -249,6 +251,7 @@ generated_cc_atom(
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLStatement_hdr",
         "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
         "//include/private:SkTPin_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLOperators_hdr",

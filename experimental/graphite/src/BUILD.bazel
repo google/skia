@@ -357,11 +357,11 @@ generated_cc_atom(
         ":GlobalCache_hdr",
         ":GraphicsPipelineDesc_hdr",
         ":GraphicsPipeline_hdr",
+        ":PipelineDataCache_hdr",
         ":RecorderPriv_hdr",
         ":Renderer_hdr",
         ":ResourceProvider_hdr",
         ":TextureProxy_hdr",
-        ":UniformCache_hdr",
         ":UniformManager_hdr",
         "//experimental/graphite/include:GraphiteTypes_hdr",
         "//experimental/graphite/include:Recorder_hdr",
@@ -495,8 +495,10 @@ generated_cc_atom(
     srcs = ["Image_Graphite.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":Caps_hdr",
         ":Image_Graphite_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
+        ":RecorderPriv_hdr",
+        "//experimental/graphite/include:Recorder_hdr",
     ],
 )
 
@@ -519,9 +521,9 @@ generated_cc_atom(
         ":DrawBufferManager_hdr",
         ":GlobalCache_hdr",
         ":Gpu_hdr",
+        ":PipelineDataCache_hdr",
         ":ResourceProvider_hdr",
         ":TaskGraph_hdr",
-        ":UniformCache_hdr",
         "//experimental/graphite/include:Recorder_hdr",
         "//experimental/graphite/include:Recording_hdr",
         "//src/core:SkUniformData_hdr",
@@ -742,24 +744,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "UniformCache_hdr",
-    hdrs = ["UniformCache.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkRefCnt_hdr"],
-)
-
-generated_cc_atom(
-    name = "UniformCache_src",
-    srcs = ["UniformCache.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":UniformCache_hdr",
-        "//src/core:SkOpts_hdr",
-        "//src/core:SkUniformData_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "UniformManager_hdr",
     hdrs = ["UniformManager.h"],
     visibility = ["//:__subpackages__"],
@@ -924,6 +908,7 @@ generated_cc_atom(
         ":ResourceCache_hdr",
         ":Resource_hdr",
         "//include/private:SingleOwner_hdr",
+        "//include/utils:SkRandom_hdr",
         "//src/core:SkTMultiMap_hdr",
     ],
 )
@@ -968,5 +953,23 @@ generated_cc_atom(
         "//experimental/graphite/include:GraphiteTypes_hdr",
         "//include/core:SkRefCnt_hdr",
         "//src/gpu:Swizzle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PipelineDataCache_hdr",
+    hdrs = ["PipelineDataCache.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
+)
+
+generated_cc_atom(
+    name = "PipelineDataCache_src",
+    srcs = ["PipelineDataCache.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PipelineDataCache_hdr",
+        "//src/core:SkOpts_hdr",
+        "//src/core:SkUniformData_hdr",
     ],
 )

@@ -466,6 +466,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkRRect_hdr",
         "//include/core:SkRect_hdr",
         "//modules/svg/include:SkSVGRect_hdr",
         "//modules/svg/include:SkSVGRenderContext_hdr",

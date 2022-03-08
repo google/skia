@@ -22,4 +22,4 @@ known_good_builds:
 	bazelisk build //:skia_core --config=clang --sandbox_base=/dev/shm
 	bazelisk build //src/sksl/lex:sksllex --config=clang --sandbox_base=/dev/shm
 	bazelisk build //tools/skdiff --config=clang --sandbox_base=/dev/shm
-	bazelisk build //example:hello_world --config=clang --sandbox_base=/dev/shm
+	bazelisk build //example:hello_world_gl --config=clang --sandbox_base=/dev/shm
