@@ -81,15 +81,14 @@ void Context::preCompile(const PaintCombo& paintCombo) {
         for (auto& shaderCombo: paintCombo.fShaders) {
             for (auto shaderType: shaderCombo.fTypes) {
                 for (auto tm: shaderCombo.fTileModes) {
-                    SkPaintParamsKey key = CreateKey(dict, &builder, shaderType, tm, bm);
-                    auto entry = dict->findOrCreate(std::move(key));
+                    auto uniqueID = CreateKey(dict, &builder, shaderType, tm, bm);
 
                     GraphicsPipelineDesc desc;
 
                     for (const Renderer* r : kRenderers) {
                         for (auto&& s : r->steps()) {
                             if (s->performsShading()) {
-                                desc.setProgram(s, entry->uniqueID());
+                                desc.setProgram(s, uniqueID);
                             }
                             // TODO: Combine with renderpass description set to generate full
                             // GraphicsPipeline and MSL program. Cache that compiled pipeline on

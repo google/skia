@@ -17,10 +17,10 @@
 #include "include/core/SkTileMode.h"
 
 enum class SkBackend : uint8_t;
-class SkPaintParamsKey;
 class SkPaintParamsKeyBuilder;
 class SkShaderCodeDictionary;
 class SkPipelineData;
+class SkUniquePaintParamsID;
 
 // The KeyHelpers can be used to manually construct an SkPaintParamsKey
 
@@ -142,11 +142,11 @@ namespace BlendModeBlock {
 
 #ifdef SK_GRAPHITE_ENABLED
 // Bridge between the combinations system and the SkPaintParamsKey
-SkPaintParamsKey CreateKey(SkShaderCodeDictionary*,
-                           SkPaintParamsKeyBuilder*,
-                           skgpu::ShaderCombo::ShaderType,
-                           SkTileMode,
-                           SkBlendMode);
+SkUniquePaintParamsID CreateKey(SkShaderCodeDictionary*,
+                                SkPaintParamsKeyBuilder*,
+                                skgpu::ShaderCombo::ShaderType,
+                                SkTileMode,
+                                SkBlendMode);
 #endif
 
 #endif // SkKeyHelpers_DEFINED

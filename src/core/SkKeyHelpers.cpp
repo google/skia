@@ -502,11 +502,11 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
 //--------------------------------------------------------------------------------------------------
 #ifdef SK_GRAPHITE_ENABLED
-SkPaintParamsKey CreateKey(SkShaderCodeDictionary* dict,
-                           SkPaintParamsKeyBuilder* builder,
-                           skgpu::ShaderCombo::ShaderType s,
-                           SkTileMode tm,
-                           SkBlendMode bm) {
+SkUniquePaintParamsID CreateKey(SkShaderCodeDictionary* dict,
+                                SkPaintParamsKeyBuilder* builder,
+                                skgpu::ShaderCombo::ShaderType s,
+                                SkTileMode tm,
+                                SkBlendMode bm) {
     SkDEBUGCODE(builder->checkReset());
 
     switch (s) {
@@ -535,6 +535,10 @@ SkPaintParamsKey CreateKey(SkShaderCodeDictionary* dict,
     }
 
     BlendModeBlock::AddToKey(dict, builder, nullptr, bm);
-    return builder->lockAsKey();
+    SkPaintParamsKey key = builder->lockAsKey();
+
+    const SkShaderCodeDictionary::Entry* entry = dict->findOrCreate(key);
+
+    return  entry->uniqueID();
 }
 #endif
