@@ -464,7 +464,7 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     SkFlattenable* obj = this->readRawFlattenable();
     if (obj && obj->getFlattenableType() != ft) {
         this->validate(false);
-        delete obj;
+        obj->unref();
         return nullptr;
     }
     return obj;
