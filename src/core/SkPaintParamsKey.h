@@ -22,10 +22,10 @@ enum class SkBackend : uint8_t {
     kGraphite,
     kSkVM
 };
-struct SkDataPayloadInfo;
 class SkPaintParamsKeyBuilder;
 class SkShaderCodeDictionary;
 class SkShaderInfo;
+struct SkShaderSnippet;
 
 // This class is a compact representation of the shader needed to implement a given
 // PaintParams. Its structure is a series of blocks where each block has a
@@ -56,15 +56,50 @@ public:
 
     ~SkPaintParamsKey();
 
-    std::pair<SkBuiltInCodeSnippetID, uint8_t> readCodeSnippetID(int headerOffset) const {
-        SkASSERT(headerOffset <= this->sizeInBytes() - kBlockHeaderSizeInBytes);
+    class BlockReader {
+    public:
+        uint8_t blockSize() const {
+            SkASSERT(fBlock[kBlockSizeOffsetInBytes] == fBlock.size());
+            return SkTo<uint8_t>(fBlock.size());
+        }
 
-        SkBuiltInCodeSnippetID id = static_cast<SkBuiltInCodeSnippetID>(fData[headerOffset]);
-        uint8_t blockSize = fData[headerOffset+1];
-        SkASSERT(headerOffset + blockSize <= this->sizeInBytes());
+        int numChildren() const;
 
-        return { id, blockSize };
-    }
+        // Return the childIndex-th child's BlockReader
+        BlockReader child(const SkShaderCodeDictionary*, int childIndex) const;
+
+        // Retrieve the fieldIndex-th field in the data payload as a span of bytes. The type
+        // being read (bytes in this case) is checked against the data payload's structure.
+        SkSpan<const uint8_t> bytes(int fieldIndex) const;
+        // TODO: add more types (as needed) and their corresponding access methods
+
+        const SkShaderSnippet* entry() const { return fEntry; }
+
+#ifdef SK_DEBUG
+        int numDataPayloadFields() const;
+        void dump(const SkShaderCodeDictionary*, int indent) const;
+#endif
+
+    private:
+        friend class SkPaintParamsKey; // for ctor
+
+        BlockReader(const SkShaderCodeDictionary*,
+                    SkSpan<const uint8_t> parentSpan,
+                    int offsetInParent);
+
+        SkBuiltInCodeSnippetID codeSnippetId() const {
+            return static_cast<SkBuiltInCodeSnippetID>(fBlock[0]);
+        }
+
+        // The data payload appears after any children and occupies the remainder of the
+        // block's space.
+        SkSpan<const uint8_t> dataPayload() const;
+
+        SkSpan<const uint8_t> fBlock;
+        const SkShaderSnippet* fEntry;
+    };
+
+    BlockReader reader(const SkShaderCodeDictionary*, int headerOffset) const;
 
 #ifdef SK_DEBUG
     uint8_t byte(int offset) const {
@@ -99,10 +134,9 @@ private:
     // is in the dictionary). In this case the dictionary will own the memory backing the span.
     SkPaintParamsKey(SkSpan<const uint8_t> rawData);
 
-    static int AddBlockToShaderInfo(SkShaderCodeDictionary*,
-                                    const SkPaintParamsKey&,
-                                    int headerOffset,
-                                    SkShaderInfo*);
+    static void AddBlockToShaderInfo(SkShaderCodeDictionary*,
+                                     const SkPaintParamsKey::BlockReader&,
+                                     SkShaderInfo*);
 
     // The memory referenced in 'fData' is always owned by someone else.
     // If 'fOriginatingBuilder' is null, the dictionary's SkArena owns the memory and no explicit
