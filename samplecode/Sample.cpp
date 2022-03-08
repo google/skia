@@ -59,6 +59,13 @@ void Sample::draw(SkCanvas* canvas) {
     }
 }
 
+bool Sample::animate(double nanos) {
+    if (!fHaveCalledOnceBeforeDraw) {
+        fHaveCalledOnceBeforeDraw = true;
+        this->onOnceBeforeDraw();
+    }
+    return this->onAnimate(nanos);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 bool Sample::mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey modifierKeys) {

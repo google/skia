@@ -74,7 +74,7 @@ public:
     bool mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey modifierKeys);
 
     void setBGColor(SkColor color) { fBGColor = color; }
-    bool animate(double nanos) { return this->onAnimate(nanos); }
+    bool animate(double nanos);
 
     virtual SkString name() = 0;
 
