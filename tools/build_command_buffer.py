@@ -84,11 +84,16 @@ def main():
     platform = 'win32'
 
   shared_lib_name = 'libcommand_buffer_gles2.so'
+  egl_lib_name = 'libEGL.so'
+  gles_lib_name = 'libGLESv2.so'
   gclient = 'gclient'
   if platform == 'darwin':
     shared_lib_name = 'libcommand_buffer_gles2.dylib'
+    egl_lib_name = 'libEGL.dylib'
+    gles_lib_name = 'libGLESv2.dylib'
   elif platform == 'win32':
     shared_lib_name = 'command_buffer_gles2.dll'
+    # TODO: Not sure about naming of libEGL and libGLESv2 on Windows...
     gclient = 'gclient.bat'
 
   if not args.no_sync:
@@ -149,15 +154,31 @@ def main():
 
   shared_lib_src = os.path.join(shared_lib_src_dir, shared_lib_name)
   shared_lib_dst = os.path.join(args.output_dir, shared_lib_name)
+  egl_lib_src = os.path.join(shared_lib_src_dir, egl_lib_name)
+  egl_lib_dst = os.path.join(args.output_dir, egl_lib_name)
+  gles_lib_src = os.path.join(shared_lib_src_dir, gles_lib_name)
+  gles_lib_dst = os.path.join(args.output_dir, gles_lib_name)
 
   if not os.path.isfile(shared_lib_src):
     sys.exit('Command buffer shared library not at expected location: ' +
         shared_lib_src)
+  if not os.path.isfile(egl_lib_src):
+    sys.exit('ANGLE EGL shared library not at expected location: ' +
+        egl_lib_src)
+  if not os.path.isfile(gles_lib_src):
+    sys.exit('ANGLE GLES shared library not at expected location: ' +
+        gles_lib_src)
 
   shutil.copy2(shared_lib_src, shared_lib_dst)
+  shutil.copy2(egl_lib_src, egl_lib_dst)
+  shutil.copy2(gles_lib_src, gles_lib_dst)
 
   if not os.path.isfile(shared_lib_dst):
     sys.exit('Command buffer library not copied to ' + shared_lib_dst)
+  if not os.path.isfile(egl_lib_dst):
+    sys.exit('ANGLE EGL library not copied to ' + egl_lib_dst)
+  if not os.path.isfile(gles_lib_dst):
+    sys.exit('ANGLE GLES library not copied to ' + gles_lib_dst)
 
   print('Command buffer library copied to ' + shared_lib_dst)
 
