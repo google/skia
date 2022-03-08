@@ -30,7 +30,7 @@ release_viewer:
 
 debug:
 	# Does an incremental build where possible.
-	./compile.sh debug --enable_debugger
+	./compile.sh debug_build
 	- rm -rf build/
 	mkdir build
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
@@ -38,7 +38,7 @@ debug:
 
 debug_cpu:
 	# Does an incremental build where possible.
-	./compile.sh debug cpu_only
+	./compile.sh debug_build cpu_only
 	- rm -rf build/
 	mkdir build
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
@@ -46,7 +46,7 @@ debug_cpu:
 
 debug_viewer:
 	# Does an incremental build where possible.
-	./compile.sh debug viewer
+	./compile.sh debug_build viewer
 	- rm -rf build/
 	mkdir build
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
@@ -166,7 +166,7 @@ bazel_test_canvaskit:
 
 with_debugger:
 	# Does an incremental build where possible.
-	./compile.sh debug enable_debugger
+	./compile.sh debug_build enable_debugger
 	- rm -rf build/
 	mkdir build
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/

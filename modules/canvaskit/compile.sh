@@ -21,7 +21,7 @@ if [[ $@ != *force_tracing* ]] ; then
   FORCE_TRACING="true"
 fi
 
-if [[ $@ == *debug* ]]; then
+if [[ $@ == *debug_build* ]]; then
   echo "Building a Debug build"
   IS_DEBUG="true"
   IS_OFFICIAL_BUILD="false"
