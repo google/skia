@@ -21,6 +21,7 @@
 #include "src/core/SkStreamPriv.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
+#include "tests/TestHarness.h"
 #include "tools/fonts/TestFontMgr.h"
 #ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
@@ -163,6 +164,12 @@ static void print_backend_info(const char* dstPath,
     }
     out.writeText("]\n");
 #endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+TestHarness CurrentTestHarness() {
+    return TestHarness::kSkQP;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

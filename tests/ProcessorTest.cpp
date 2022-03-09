@@ -22,6 +22,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "tests/TestHarness.h"
 #include "tests/TestUtils.h"
 
 #include <atomic>
@@ -645,11 +646,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             // violating the optimizations, it's reasonable to expect it to violate requirements on
             // a large number of pixels in the image. Sporadic pixel violations are more indicative
             // of device errors and represents a separate problem.
-#if defined(SK_BUILD_FOR_SKQP)
-            static constexpr int kMaxAcceptableFailedPixels = 0; // Strict when running as SKQP
-#else
-            static constexpr int kMaxAcceptableFailedPixels = 2 * kRenderSize; // ~0.7% of the image
-#endif
+            static const int kMaxAcceptableFailedPixels =
+                    CurrentTestHarnessIsSkQP() ? 0 :  // Strict when running as SKQP
+                            2 * kRenderSize;          // ~0.7% of the image
 
             // Collect first optimization failure message, to be output later as a warning or an
             // error depending on whether the rendering "passed" or failed.
@@ -820,11 +819,9 @@ static bool verify_identical_render(skiatest::Reporter* reporter, int renderSize
     // is logically wrong, it's reasonable to expect it produce a large number of pixel differences
     // in the image. Sporadic pixel violations are more indicative device errors and represents a
     // separate problem.
-#if defined(SK_BUILD_FOR_SKQP)
-    const int maxAcceptableFailedPixels = 0;  // Strict when running as SKQP
-#else
-    const int maxAcceptableFailedPixels = 2 * renderSize;  // ~0.002% of the pixels (size 1024*1024)
-#endif
+    static const int maxAcceptableFailedPixels =
+            CurrentTestHarnessIsSkQP() ? 0 :  // Strict when running as SKQP
+                    2 * renderSize;           // ~0.002% of the pixels (size 1024*1024)
 
     int failedPixelCount = 0;
     int firstWrongX = 0;

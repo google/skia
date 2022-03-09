@@ -2039,6 +2039,8 @@ if (skia_enable_tools) {
     sources = [
       "tests/Test.cpp",
       "tests/Test.h",
+      "tests/TestHarness.cpp",
+      "tests/TestHarness.h",
       "tests/TestUtils.cpp",
       "tests/TestUtils.h",
     ]

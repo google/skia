@@ -30,6 +30,7 @@
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"
+#include "tests/TestHarness.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
@@ -706,16 +707,10 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(GrDirectContext* dCon
     //
     // Requesting a much larger backend texture size seems to prevent it from reusing the same
     // memory and avoids the issue.
-#if defined(SK_BUILD_FOR_SKQP)
-    const int kWidth = 10;
-    const int kHeight = 10;
-#else
-    const int kWidth = 100;
-    const int kHeight = 100;
-#endif
+    const SkISize kSize = CurrentTestHarnessIsSkQP() ? SkISize{10, 10} : SkISize{100, 100};
 
     auto surf = sk_gpu_test::MakeBackendTextureSurface(dContext,
-                                                       {kWidth, kHeight},
+                                                       kSize,
                                                        kTopLeft_GrSurfaceOrigin,
                                                        sampleCnt,
                                                        kRGBA_8888_SkColorType);

@@ -11,6 +11,11 @@
 #include <vector>
 
 #include "tests/Test.h"
+#include "tests/TestHarness.h"
+
+TestHarness CurrentTestHarness() {
+    return TestHarness::kListGpuUnitTests;
+}
 
 int main() {
     std::vector<std::string> tests;

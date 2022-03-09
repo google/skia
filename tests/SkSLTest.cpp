@@ -28,6 +28,7 @@
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "tests/Test.h"
+#include "tests/TestHarness.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -63,14 +64,14 @@ static constexpr bool is_strict_es2(int flags) {
     return !(flags & (SkSLTestFlags::CPU_ES3 | SkSLTestFlags::GPU_ES3));
 }
 
-static constexpr bool should_run_in_skqp(int flags) {
-#if defined(SK_BUILD_FOR_SKQP)
-    // Official SkQP builds should only run tests marked with the SkQP flag.
-    return flags & (SkSLTestFlags::SkQP);
-#else
-    // Other test binaries (dm/fm) should run every test, regardless of the SkQP flag.
-    return true;
-#endif
+static bool should_run_in_skqp(int flags) {
+    if (CurrentTestHarnessIsSkQP()) {
+        // Official SkQP builds should only run tests marked with the SkQP flag.
+        return flags & (SkSLTestFlags::SkQP);
+    } else {
+        // Other test binaries (dm/fm) should run every test, regardless of the SkQP flag.
+        return true;
+    }
 }
 
 template <typename T>

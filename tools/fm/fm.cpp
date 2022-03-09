@@ -20,6 +20,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
+#include "tests/TestHarness.h"
 #include "tools/AutoreleasePool.h"
 #include "tools/CrashHandler.h"
 #include "tools/HashAndEncode.h"
@@ -368,6 +369,10 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
     }
 
     return image;
+}
+
+TestHarness CurrentTestHarness() {
+    return TestHarness::kFM;
 }
 
 extern bool gUseSkVMBlitter;
