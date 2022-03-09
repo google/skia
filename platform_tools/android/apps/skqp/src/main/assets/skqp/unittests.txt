@@ -113,3 +113,8 @@ VkWrapTests
 
 XfermodeImageFilterCroppedInput_Gpu
 skbug5221_GPU
+
+# Tests which don't pass on some Qualcomm devices without workarounds b/222736702
+DMSAA_dual_source_blend_disable
+GLBackendAllocationTest
+GrSurfaceRenderability
