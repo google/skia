@@ -48,7 +48,7 @@ namespace SkSLTestFlags {
     static constexpr int GPU_ES3 = 1 << 3;
 
     /** SkQP tests will be run in Android/Fuchsia conformance tests with no driver workarounds. */
-    static constexpr int SkQP    = 1 << 4;  // TODO(skia:13037): implement SkQP flag
+    static constexpr int SkQP    = 1 << 4;
 }
 
 static constexpr bool is_cpu(int flags) {
@@ -61,6 +61,16 @@ static constexpr bool is_gpu(int flags) {
 
 static constexpr bool is_strict_es2(int flags) {
     return !(flags & (SkSLTestFlags::CPU_ES3 | SkSLTestFlags::GPU_ES3));
+}
+
+static constexpr bool should_run_in_skqp(int flags) {
+#if defined(SK_BUILD_FOR_SKQP)
+    // Official SkQP builds should only run tests marked with the SkQP flag.
+    return flags & (SkSLTestFlags::SkQP);
+#else
+    // Other test binaries (dm/fm) should run every test, regardless of the SkQP flag.
+    return true;
+#endif
 }
 
 template <typename T>
@@ -288,14 +298,15 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flag
             rehydrated->description().c_str());
 }
 
-#define SKSL_TEST(flags, name, path)                                                              \
-    DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_cpu(flags)) {                                    \
-        test_cpu(r, path, flags);                                                                 \
-    }                                                                                             \
-    DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS(SkSL##name##_GPU, r, ctxInfo, is_gpu(flags)) { \
-        test_gpu(r, ctxInfo.directContext(), path, flags);                                        \
-    }                                                                                             \
-    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }                               \
+#define SKSL_TEST(flags, name, path)                                                        \
+    DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_cpu(flags) && should_run_in_skqp(flags)) { \
+        test_cpu(r, path, flags);                                                           \
+    }                                                                                       \
+    DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS(                                         \
+            SkSL##name##_GPU, r, ctxInfo, is_gpu(flags) && should_run_in_skqp(flags)) {     \
+        test_gpu(r, ctxInfo.directContext(), path, flags);                                  \
+    }                                                                                       \
+    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }                         \
     DEF_TEST(SkSL##name##_Rehydrate, r) { test_rehydrate(r, path, flags); }
 
 /**
@@ -304,7 +315,7 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flag
  * - CPU_ES3: this test should pass on the CPU backend when "enforce ES2 restrictions" is off
  * - GPU:     this test should pass on the GPU backends
  * - GPU_ES3: this test should pass on an ES3-compatible GPU when "enforce ES2 restrictions" is off
- * - SkQP:    TODO(skia:13037): Android CTS (go/wtf/cts) enforces that devices must pass this test
+ * - SkQP:    Android CTS (go/wtf/cts) enforces that devices must pass this test
  */
 
 // clang-format off
