@@ -26,6 +26,7 @@
 #include "src/core/SkTaskGroup.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
+#include "tests/TestHarness.h"
 #include "tools/AutoreleasePool.h"
 #include "tools/HashAndEncode.h"
 #include "tools/ProcStats.h"
@@ -1475,6 +1476,12 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
         test.run(&reporter, options);
     }
     done("unit", "test", "", test.fName);
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+TestHarness CurrentTestHarness() {
+    return TestHarness::kDM;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
