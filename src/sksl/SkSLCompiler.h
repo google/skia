@@ -160,7 +160,7 @@ public:
 
     bool toMetal(Program& program, std::string* out);
 
-    void handleError(std::string_view msg, PositionInfo pos);
+    void handleError(std::string_view msg, Position pos);
 
     std::string errorText(bool showCount = true);
 
@@ -211,7 +211,7 @@ private:
         CompilerErrorReporter(Compiler* compiler)
             : fCompiler(*compiler) {}
 
-        void handleError(std::string_view msg, PositionInfo pos) override {
+        void handleError(std::string_view msg, Position pos) override {
             fCompiler.handleError(msg, pos);
         }
 

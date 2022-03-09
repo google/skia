@@ -3658,7 +3658,7 @@ bool SPIRVCodeGenerator::generateCode() {
     this->writeWord(fIdCount, *fOut);
     this->writeWord(0, *fOut); // reserved, always zero
     write_stringstream(buffer, *fOut);
-    fContext.fErrors->reportPendingErrors(PositionInfo());
+    fContext.fErrors->reportPendingErrors(Position());
     return fContext.fErrors->errorCount() == 0;
 }
 

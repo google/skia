@@ -69,7 +69,7 @@ public:
         SetErrorReporter(fOldReporter);
     }
 
-    void handleError(std::string_view msg, SkSL::PositionInfo pos) override {
+    void handleError(std::string_view msg, SkSL::Position pos) override {
         REPORTER_ASSERT(fReporter, fMsg, "Received unexpected extra error: %.*s\n",
                 (int)msg.length(), msg.data());
         REPORTER_ASSERT(fReporter, !fMsg || msg == fMsg,

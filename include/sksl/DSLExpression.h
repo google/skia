@@ -49,46 +49,46 @@ public:
     /**
      * Creates an expression representing a literal float.
      */
-    DSLExpression(float value, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression(float value, Position pos = Position::Capture());
 
     /**
      * Creates an expression representing a literal float.
      */
-    DSLExpression(double value, PositionInfo pos = PositionInfo::Capture())
+    DSLExpression(double value, Position pos = Position::Capture())
         : DSLExpression((float) value) {}
 
     /**
      * Creates an expression representing a literal int.
      */
-    DSLExpression(int value, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression(int value, Position pos = Position::Capture());
 
     /**
      * Creates an expression representing a literal int.
      */
-    DSLExpression(int64_t value, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression(int64_t value, Position pos = Position::Capture());
 
     /**
      * Creates an expression representing a literal uint.
      */
-    DSLExpression(unsigned int value, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression(unsigned int value, Position pos = Position::Capture());
 
     /**
      * Creates an expression representing a literal bool.
      */
-    DSLExpression(bool value, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression(bool value, Position pos = Position::Capture());
 
     /**
      * Creates an expression representing a variable reference.
      */
-    DSLExpression(DSLVarBase& var, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression(DSLVarBase& var, Position pos = Position::Capture());
 
-    DSLExpression(DSLVarBase&& var, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression(DSLVarBase&& var, Position pos = Position::Capture());
 
-    DSLExpression(DSLPossibleExpression expr, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression(DSLPossibleExpression expr, Position pos = Position::Capture());
 
     explicit DSLExpression(std::unique_ptr<SkSL::Expression> expression);
 
-    static DSLExpression Poison(PositionInfo pos = PositionInfo::Capture());
+    static DSLExpression Poison(Position pos = Position::Capture());
 
     ~DSLExpression();
 
@@ -99,26 +99,26 @@ public:
      */
     DSLPossibleExpression operator=(DSLExpression other);
 
-    DSLExpression x(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression x(Position pos = Position::Capture());
 
-    DSLExpression y(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression y(Position pos = Position::Capture());
 
-    DSLExpression z(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression z(Position pos = Position::Capture());
 
-    DSLExpression w(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression w(Position pos = Position::Capture());
 
-    DSLExpression r(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression r(Position pos = Position::Capture());
 
-    DSLExpression g(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression g(Position pos = Position::Capture());
 
-    DSLExpression b(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression b(Position pos = Position::Capture());
 
-    DSLExpression a(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression a(Position pos = Position::Capture());
 
     /**
      * Creates an SkSL struct field access expression.
      */
-    DSLExpression field(std::string_view name, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression field(std::string_view name, Position pos = Position::Capture());
 
     /**
      * Creates an SkSL array index expression.
@@ -126,10 +126,10 @@ public:
     DSLPossibleExpression operator[](DSLExpression index);
 
     DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args,
-                                     PositionInfo pos = PositionInfo::Capture());
+                                     Position pos = Position::Capture());
 
     DSLPossibleExpression operator()(ExpressionArray args,
-                                     PositionInfo pos = PositionInfo::Capture());
+                                     Position pos = Position::Capture());
 
     /**
      * Returns true if this object contains an expression. DSLExpressions which were created with
@@ -216,12 +216,12 @@ DSLPossibleExpression operator--(DSLExpression expr, int);
 
 /**
  * Represents an Expression which may have failed and/or have pending errors to report. Converting a
- * PossibleExpression into an Expression requires PositionInfo so that any pending errors can be
+ * PossibleExpression into an Expression requires a Position so that any pending errors can be
  * reported at the correct position.
  *
  * PossibleExpression is used instead of Expression in situations where it is not possible to
- * capture the PositionInfo at the time of Expression construction (notably in operator overloads,
- * where we cannot add default parameters).
+ * capture the Position at the time of Expression construction (notably in operator overloads, where
+ * we cannot add default parameters).
  */
 class DSLPossibleExpression {
 public:
@@ -238,27 +238,27 @@ public:
     /**
      * Reports any pending errors at the specified position.
      */
-    void reportErrors(PositionInfo pos);
+    void reportErrors(Position pos);
 
     DSLType type();
 
-    DSLExpression x(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression x(Position pos = Position::Capture());
 
-    DSLExpression y(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression y(Position pos = Position::Capture());
 
-    DSLExpression z(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression z(Position pos = Position::Capture());
 
-    DSLExpression w(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression w(Position pos = Position::Capture());
 
-    DSLExpression r(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression r(Position pos = Position::Capture());
 
-    DSLExpression g(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression g(Position pos = Position::Capture());
 
-    DSLExpression b(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression b(Position pos = Position::Capture());
 
-    DSLExpression a(PositionInfo pos = PositionInfo::Capture());
+    DSLExpression a(Position pos = Position::Capture());
 
-    DSLExpression field(std::string_view name, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression field(std::string_view name, Position pos = Position::Capture());
 
     DSLPossibleExpression operator=(DSLExpression expr);
 
@@ -271,10 +271,10 @@ public:
     DSLPossibleExpression operator[](DSLExpression index);
 
     DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args,
-                                     PositionInfo pos = PositionInfo::Capture());
+                                     Position pos = Position::Capture());
 
     DSLPossibleExpression operator()(ExpressionArray args,
-                                     PositionInfo pos = PositionInfo::Capture());
+                                     Position pos = Position::Capture());
 
     DSLPossibleExpression operator++();
 
@@ -284,7 +284,7 @@ public:
 
     DSLPossibleExpression operator--(int);
 
-    std::unique_ptr<SkSL::Expression> release(PositionInfo pos = PositionInfo::Capture());
+    std::unique_ptr<SkSL::Expression> release(Position pos = Position::Capture());
 
 private:
     std::unique_ptr<SkSL::Expression> fExpression;

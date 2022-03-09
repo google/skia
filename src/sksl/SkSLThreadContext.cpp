@@ -122,11 +122,11 @@ void ThreadContext::SetErrorReporter(ErrorReporter* errorReporter) {
     Context().fErrors = errorReporter;
 }
 
-void ThreadContext::ReportError(std::string_view msg, PositionInfo info) {
-    GetErrorReporter().error(msg, info);
+void ThreadContext::ReportError(std::string_view msg, Position pos) {
+    GetErrorReporter().error(msg, pos);
 }
 
-void ThreadContext::DefaultErrorReporter::handleError(std::string_view msg, PositionInfo pos) {
+void ThreadContext::DefaultErrorReporter::handleError(std::string_view msg, Position pos) {
     if (pos.line() > -1) {
         SK_ABORT("error: %s: %d: %.*sNo SkSL error reporter configured, treating this as a fatal "
                  "error\n", pos.file_name(), pos.line(), (int)msg.length(), msg.data());
@@ -137,7 +137,7 @@ void ThreadContext::DefaultErrorReporter::handleError(std::string_view msg, Posi
 
 }
 
-void ThreadContext::ReportErrors(PositionInfo pos) {
+void ThreadContext::ReportErrors(Position pos) {
     GetErrorReporter().reportPendingErrors(pos);
 }
 

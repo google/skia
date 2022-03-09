@@ -229,12 +229,12 @@ std::string_view DSLParser::text(Token token) {
     return std::string_view(fText->data() + token.fOffset, token.fLength);
 }
 
-PositionInfo DSLParser::position(Token t) {
+Position DSLParser::position(Token t) {
     return this->position(t.fLine);
 }
 
-PositionInfo DSLParser::position(int line) {
-    return PositionInfo("<unknown>", line);
+Position DSLParser::position(int line) {
+    return Position("<unknown>", line);
 }
 
 void DSLParser::error(Token token, std::string msg) {
@@ -479,7 +479,7 @@ bool DSLParser::parseInitializer(int line, DSLExpression* initializer) {
 
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
-void DSLParser::globalVarDeclarationEnd(PositionInfo pos, const dsl::DSLModifiers& mods,
+void DSLParser::globalVarDeclarationEnd(Position pos, const dsl::DSLModifiers& mods,
         dsl::DSLType baseType, std::string_view name) {
     using namespace dsl;
     int line = this->peek().fLine;
@@ -518,7 +518,7 @@ void DSLParser::globalVarDeclarationEnd(PositionInfo pos, const dsl::DSLModifier
 
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
-DSLStatement DSLParser::localVarDeclarationEnd(PositionInfo pos, const dsl::DSLModifiers& mods,
+DSLStatement DSLParser::localVarDeclarationEnd(Position pos, const dsl::DSLModifiers& mods,
         dsl::DSLType baseType, std::string_view name) {
     using namespace dsl;
     int line = this->peek().fLine;
@@ -702,7 +702,7 @@ std::optional<DSLWrapper<DSLParameter>> DSLParser::parameter(size_t paramIndex) 
     }
     Token name;
     std::string_view paramText;
-    PositionInfo paramPos;
+    Position paramPos;
     if (this->checkIdentifier(&name)) {
         paramPos = this->position(name);
         paramText = this->text(name);

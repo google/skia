@@ -249,7 +249,7 @@ private:
 class TrivialErrorReporter : public ErrorReporter {
 public:
     ~TrivialErrorReporter() override { this->reportPendingErrors({}); }
-    void handleError(std::string_view, PositionInfo) override {}
+    void handleError(std::string_view, Position) override {}
 };
 
 // This isn't actually using ProgramVisitor, because it only considers a subset of the fields for

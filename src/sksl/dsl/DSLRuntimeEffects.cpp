@@ -29,7 +29,7 @@ void StartRuntimeShader(SkSL::Compiler* compiler) {
 
 sk_sp<SkRuntimeEffect> EndRuntimeShader(SkRuntimeEffect::Options options) {
     std::unique_ptr<SkSL::Program> program = ReleaseProgram();
-    ThreadContext::ReportErrors(PositionInfo{});
+    ThreadContext::ReportErrors(Position{});
     sk_sp<SkRuntimeEffect> result;
     if (program) {
         result = SkRuntimeEffect::MakeForShader(std::move(program), options, &GetErrorReporter());

@@ -24,18 +24,18 @@ namespace SkSL {
 namespace dsl {
 
 DSLVarBase::DSLVarBase(DSLType type, std::string_view name, DSLExpression initialValue,
-                       PositionInfo pos)
+                       Position pos)
     : DSLVarBase(DSLModifiers(), std::move(type), name, std::move(initialValue), pos) {}
 
-DSLVarBase::DSLVarBase(DSLType type, DSLExpression initialValue, PositionInfo pos)
+DSLVarBase::DSLVarBase(DSLType type, DSLExpression initialValue, Position pos)
     : DSLVarBase(type, "var", std::move(initialValue), pos) {}
 
 DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, DSLExpression initialValue,
-                       PositionInfo pos)
+                       Position pos)
     : DSLVarBase(modifiers, type, "var", std::move(initialValue), pos) {}
 
 DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, std::string_view name,
-                       DSLExpression initialValue, PositionInfo pos)
+                       DSLExpression initialValue, Position pos)
     : fModifiers(std::move(modifiers))
     , fType(std::move(type))
     , fRawName(name)
@@ -103,7 +103,7 @@ VariableStorage DSLVar::storage() const {
 }
 
 DSLGlobalVar::DSLGlobalVar(const char* name)
-    : INHERITED(kVoid_Type, name, DSLExpression(), PositionInfo()) {
+    : INHERITED(kVoid_Type, name, DSLExpression(), Position()) {
     fName = name;
     DSLWriter::MarkDeclared(*this);
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
@@ -155,12 +155,12 @@ VariableStorage DSLParameter::storage() const {
 
 
 DSLPossibleExpression DSLVarBase::operator[](DSLExpression&& index) {
-    return DSLExpression(*this, PositionInfo())[std::move(index)];
+    return DSLExpression(*this, Position())[std::move(index)];
 }
 
 DSLPossibleExpression DSLVarBase::assign(DSLExpression expr) {
     return BinaryExpression::Convert(ThreadContext::Context(),
-            DSLExpression(*this, PositionInfo()).release(), SkSL::Token::Kind::TK_EQ,
+            DSLExpression(*this, Position()).release(), SkSL::Token::Kind::TK_EQ,
             expr.release());
 }
 
@@ -177,16 +177,16 @@ DSLPossibleExpression DSLParameter::operator=(DSLExpression expr) {
 }
 
 std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(std::string_view methodName,
-                                                           PositionInfo pos) {
+                                                           Position pos) {
     if (!this->fType.isEffectChild()) {
         ThreadContext::ReportError("type does not support method calls", pos);
         return nullptr;
     }
     return FieldAccess::Convert(ThreadContext::Context(), *ThreadContext::SymbolTable(),
-            DSLExpression(*this, PositionInfo()).release(), methodName);
+            DSLExpression(*this, Position()).release(), methodName);
 }
 
-DSLExpression DSLGlobalVar::eval(ExpressionArray args, PositionInfo pos) {
+DSLExpression DSLGlobalVar::eval(ExpressionArray args, Position pos) {
     auto method = this->methodCall("eval", pos);
     return DSLExpression(
             method ? SkSL::FunctionCall::Convert(ThreadContext::Context(), pos.line(),
@@ -195,13 +195,13 @@ DSLExpression DSLGlobalVar::eval(ExpressionArray args, PositionInfo pos) {
             pos);
 }
 
-DSLExpression DSLGlobalVar::eval(DSLExpression x, PositionInfo pos) {
+DSLExpression DSLGlobalVar::eval(DSLExpression x, Position pos) {
     ExpressionArray converted;
     converted.push_back(x.release());
     return this->eval(std::move(converted), pos);
 }
 
-DSLExpression DSLGlobalVar::eval(DSLExpression x, DSLExpression y, PositionInfo pos) {
+DSLExpression DSLGlobalVar::eval(DSLExpression x, DSLExpression y, Position pos) {
     ExpressionArray converted;
     converted.push_back(x.release());
     converted.push_back(y.release());

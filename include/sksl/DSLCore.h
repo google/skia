@@ -76,42 +76,42 @@ DSLExpression sk_Position();
 /**
  * #extension <name> : enable
  */
-void AddExtension(std::string_view name, PositionInfo pos = PositionInfo::Capture());
+void AddExtension(std::string_view name, Position pos = Position::Capture());
 
 /**
  * break;
  */
-DSLStatement Break(PositionInfo pos = PositionInfo::Capture());
+DSLStatement Break(Position pos = Position::Capture());
 
 /**
  * continue;
  */
-DSLStatement Continue(PositionInfo pos = PositionInfo::Capture());
+DSLStatement Continue(Position pos = Position::Capture());
 
 /**
  * Adds a modifiers declaration to the current program.
  */
-void Declare(const DSLModifiers& modifiers, PositionInfo pos = PositionInfo::Capture());
+void Declare(const DSLModifiers& modifiers, Position pos = Position::Capture());
 
 /**
  * Creates a local variable declaration statement.
  */
-DSLStatement Declare(DSLVar& var, PositionInfo pos = PositionInfo::Capture());
+DSLStatement Declare(DSLVar& var, Position pos = Position::Capture());
 
 /**
  * Creates a local variable declaration statement containing multiple variables.
  */
-DSLStatement Declare(SkTArray<DSLVar>& vars, PositionInfo pos = PositionInfo::Capture());
+DSLStatement Declare(SkTArray<DSLVar>& vars, Position pos = Position::Capture());
 
 /**
  * Declares a global variable.
  */
-void Declare(DSLGlobalVar& var, PositionInfo pos = PositionInfo::Capture());
+void Declare(DSLGlobalVar& var, Position pos = Position::Capture());
 
 /**
  * Declares a set of global variables.
  */
-void Declare(SkTArray<DSLGlobalVar>& vars, PositionInfo pos = PositionInfo::Capture());
+void Declare(SkTArray<DSLGlobalVar>& vars, Position pos = Position::Capture());
 
 /**
  * default: statements
@@ -124,50 +124,50 @@ DSLCase Default(Statements... statements) {
 /**
  * discard;
  */
-DSLStatement Discard(PositionInfo pos = PositionInfo::Capture());
+DSLStatement Discard(Position pos = Position::Capture());
 
 /**
  * do stmt; while (test);
  */
-DSLStatement Do(DSLStatement stmt, DSLExpression test, PositionInfo pos = PositionInfo::Capture());
+DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos = Position::Capture());
 
 /**
  * for (initializer; test; next) stmt;
  */
 DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
-                 DSLStatement stmt, PositionInfo pos = PositionInfo::Capture());
+                 DSLStatement stmt, Position pos = Position::Capture());
 
 /**
  * if (test) ifTrue; [else ifFalse;]
  */
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = DSLStatement(),
-                PositionInfo pos = PositionInfo::Capture());
+                Position pos = Position::Capture());
 
 DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
                             SkTArray<DSLField> fields, std::string_view varName = "",
-                            int arraySize = 0, PositionInfo pos = PositionInfo::Capture());
+                            int arraySize = 0, Position pos = Position::Capture());
 
 /**
  * return [value];
  */
 DSLStatement Return(DSLExpression value = DSLExpression(),
-                    PositionInfo pos = PositionInfo::Capture());
+                    Position pos = Position::Capture());
 
 /**
  * test ? ifTrue : ifFalse
  */
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
-                     PositionInfo info = PositionInfo::Capture());
+                     Position  = Position::Capture());
 
 DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue,
                       DSLStatement ifFalse = DSLStatement(),
-                      PositionInfo pos = PositionInfo::Capture());
+                      Position pos = Position::Capture());
 
 // Internal use only
 DSLPossibleStatement PossibleStaticSwitch(DSLExpression value, SkTArray<DSLCase> cases);
 
 DSLStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases,
-                          PositionInfo info = PositionInfo::Capture());
+                          Position pos = Position::Capture());
 
 /**
  * @switch (value) { cases }
@@ -184,7 +184,7 @@ DSLPossibleStatement StaticSwitch(DSLExpression value, Cases... cases) {
 DSLPossibleStatement PossibleSwitch(DSLExpression value, SkTArray<DSLCase> cases);
 
 DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases,
-                    PositionInfo info = PositionInfo::Capture());
+                    Position pos = Position::Capture());
 
 /**
  * switch (value) { cases }
@@ -201,187 +201,187 @@ DSLPossibleStatement Switch(DSLExpression value, Cases... cases) {
  * while (test) stmt;
  */
 DSLStatement While(DSLExpression test, DSLStatement stmt,
-                   PositionInfo info = PositionInfo::Capture());
+                   Position pos = Position::Capture());
 
 /**
  * expression.xyz1
  */
 DSLExpression Swizzle(DSLExpression base,
                       SkSL::SwizzleComponent::Type a,
-                      PositionInfo pos = PositionInfo::Capture());
+                      Position pos = Position::Capture());
 
 DSLExpression Swizzle(DSLExpression base,
                       SkSL::SwizzleComponent::Type a,
                       SkSL::SwizzleComponent::Type b,
-                      PositionInfo pos = PositionInfo::Capture());
+                      Position pos = Position::Capture());
 
 DSLExpression Swizzle(DSLExpression base,
                       SkSL::SwizzleComponent::Type a,
                       SkSL::SwizzleComponent::Type b,
                       SkSL::SwizzleComponent::Type c,
-                      PositionInfo pos = PositionInfo::Capture());
+                      Position pos = Position::Capture());
 
 DSLExpression Swizzle(DSLExpression base,
                       SkSL::SwizzleComponent::Type a,
                       SkSL::SwizzleComponent::Type b,
                       SkSL::SwizzleComponent::Type c,
                       SkSL::SwizzleComponent::Type d,
-                      PositionInfo pos = PositionInfo::Capture());
+                      Position pos = Position::Capture());
 
 /**
  * Returns the absolute value of x. If x is a vector, operates componentwise.
  */
-DSLExpression Abs(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Abs(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns true if all of the components of boolean vector x are true.
  */
-DSLExpression All(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression All(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns true if any of the components of boolean vector x are true.
  */
-DSLExpression Any(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Any(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the arctangent of y over x. Operates componentwise on vectors.
  */
-DSLExpression Atan(DSLExpression y_over_x, PositionInfo pos = PositionInfo::Capture());
-DSLExpression Atan(DSLExpression y, DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Atan(DSLExpression y_over_x, Position pos = Position::Capture());
+DSLExpression Atan(DSLExpression y, DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns x rounded towards positive infinity. If x is a vector, operates componentwise.
  */
-DSLExpression Ceil(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Ceil(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns x clamped to between min and max. If x is a vector, operates componentwise.
  */
 DSLExpression Clamp(DSLExpression x, DSLExpression min, DSLExpression max,
-                    PositionInfo pos = PositionInfo::Capture());
+                    Position pos = Position::Capture());
 
 /**
  * Returns the cosine of x. If x is a vector, operates componentwise.
  */
-DSLExpression Cos(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Cos(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the cross product of x and y.
  */
-DSLExpression Cross(DSLExpression x, DSLExpression y, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Cross(DSLExpression x, DSLExpression y, Position pos = Position::Capture());
 
 /**
  * Returns x converted from radians to degrees. If x is a vector, operates componentwise.
  */
-DSLExpression Degrees(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Degrees(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the distance between x and y.
  */
 DSLExpression Distance(DSLExpression x, DSLExpression y,
-                       PositionInfo pos = PositionInfo::Capture());
+                       Position pos = Position::Capture());
 
 /**
  * Returns the dot product of x and y.
  */
-DSLExpression Dot(DSLExpression x, DSLExpression y, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Dot(DSLExpression x, DSLExpression y, Position pos = Position::Capture());
 
 /**
  * Returns a boolean vector indicating whether components of x are equal to the corresponding
  * components of y.
  */
-DSLExpression Equal(DSLExpression x, DSLExpression y, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Equal(DSLExpression x, DSLExpression y, Position pos = Position::Capture());
 
 /**
  * Returns e^x. If x is a vector, operates componentwise.
  */
-DSLExpression Exp(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Exp(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns 2^x. If x is a vector, operates componentwise.
  */
-DSLExpression Exp2(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Exp2(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * If dot(i, nref) >= 0, returns n, otherwise returns -n.
  */
 DSLExpression Faceforward(DSLExpression n, DSLExpression i, DSLExpression nref,
-                          PositionInfo pos = PositionInfo::Capture());
+                          Position pos = Position::Capture());
 
 /**
  * Returns x rounded towards negative infinity. If x is a vector, operates componentwise.
  */
-DSLExpression Floor(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Floor(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the fractional part of x. If x is a vector, operates componentwise.
  */
-DSLExpression Fract(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Fract(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns a boolean vector indicating whether components of x are greater than the corresponding
  * components of y.
  */
 DSLExpression GreaterThan(DSLExpression x, DSLExpression y,
-                          PositionInfo pos = PositionInfo::Capture());
+                          Position pos = Position::Capture());
 
 /**
  * Returns a boolean vector indicating whether components of x are greater than or equal to the
  * corresponding components of y.
  */
 DSLExpression GreaterThanEqual(DSLExpression x, DSLExpression y,
-                               PositionInfo pos = PositionInfo::Capture());
+                               Position pos = Position::Capture());
 
 /**
  * Returns the 1/sqrt(x). If x is a vector, operates componentwise.
  */
-DSLExpression Inversesqrt(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Inversesqrt(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the inverse of the matrix x.
  */
-DSLExpression Inverse(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Inverse(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the length of the vector x.
  */
-DSLExpression Length(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Length(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns a boolean vector indicating whether components of x are less than the corresponding
  * components of y.
  */
 DSLExpression LessThan(DSLExpression x, DSLExpression y,
-                       PositionInfo pos = PositionInfo::Capture());
+                       Position pos = Position::Capture());
 
 /**
  * Returns a boolean vector indicating whether components of x are less than or equal to the
  * corresponding components of y.
  */
 DSLExpression LessThanEqual(DSLExpression x, DSLExpression y,
-                            PositionInfo pos = PositionInfo::Capture());
+                            Position pos = Position::Capture());
 
 /**
  * Returns the log base e of x. If x is a vector, operates componentwise.
  */
-DSLExpression Log(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Log(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the log base 2 of x. If x is a vector, operates componentwise.
  */
-DSLExpression Log2(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Log2(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the larger (closer to positive infinity) of x and y. If x is a vector, operates
  * componentwise. y may be either a vector of the same dimensions as x, or a scalar.
  */
-DSLExpression Max(DSLExpression x, DSLExpression y, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Max(DSLExpression x, DSLExpression y, Position pos = Position::Capture());
 
 /**
  * Returns the smaller (closer to negative infinity) of x and y. If x is a vector, operates
  * componentwise. y may be either a vector of the same dimensions as x, or a scalar.
  */
-DSLExpression Min(DSLExpression x, DSLExpression y, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Min(DSLExpression x, DSLExpression y, Position pos = Position::Capture());
 
 /**
  * Returns a linear intepolation between x and y at position a, where a=0 results in x and a=1
@@ -389,68 +389,68 @@ DSLExpression Min(DSLExpression x, DSLExpression y, PositionInfo pos = PositionI
  * same dimensions as x and y, or a scalar.
  */
 DSLExpression Mix(DSLExpression x, DSLExpression y, DSLExpression a,
-                  PositionInfo pos = PositionInfo::Capture());
+                  Position pos = Position::Capture());
 
 /**
  * Returns x modulo y. If x is a vector, operates componentwise. y may be either a vector of the
  * same dimensions as x, or a scalar.
  */
-DSLExpression Mod(DSLExpression x, DSLExpression y, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Mod(DSLExpression x, DSLExpression y, Position pos = Position::Capture());
 
 /**
  * Returns the vector x normalized to a length of 1.
  */
-DSLExpression Normalize(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Normalize(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns a boolean vector indicating whether components of x are not equal to the corresponding
  * components of y.
  */
 DSLExpression NotEqual(DSLExpression x, DSLExpression y,
-                       PositionInfo pos = PositionInfo::Capture());
+                       Position pos = Position::Capture());
 
 /**
  * Returns x raised to the power y. If x is a vector, operates componentwise. y may be either a
  * vector of the same dimensions as x, or a scalar.
  */
-DSLExpression Pow(DSLExpression x, DSLExpression y, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Pow(DSLExpression x, DSLExpression y, Position pos = Position::Capture());
 
 /**
  * Returns x converted from degrees to radians. If x is a vector, operates componentwise.
  */
-DSLExpression Radians(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Radians(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns i reflected from a surface with normal n.
  */
-DSLExpression Reflect(DSLExpression i, DSLExpression n, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Reflect(DSLExpression i, DSLExpression n, Position pos = Position::Capture());
 
 /**
  * Returns i refracted across a surface with normal n and ratio of indices of refraction eta.
  */
 DSLExpression Refract(DSLExpression i, DSLExpression n, DSLExpression eta,
-                      PositionInfo pos = PositionInfo::Capture());
+                      Position pos = Position::Capture());
 
 /**
  * Returns x, rounded to the nearest integer. If x is a vector, operates componentwise.
  */
-DSLExpression Round(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Round(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns x clamped to the range [0, 1]. If x is a vector, operates componentwise.
  */
-DSLExpression Saturate(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Saturate(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns -1, 0, or 1 depending on whether x is negative, zero, or positive, respectively. If x is
  * a vector, operates componentwise.
  */
-DSLExpression Sign(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Sign(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the sine of x. If x is a vector, operates componentwise.
  */
-DSLExpression Sin(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Sin(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns a smooth interpolation between 0 (at x=edge1) and 1 (at x=edge2). If x is a vector,
@@ -458,28 +458,28 @@ DSLExpression Sin(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
  * scalars.
  */
 DSLExpression Smoothstep(DSLExpression edge1, DSLExpression edge2, DSLExpression x,
-                         PositionInfo pos = PositionInfo::Capture());
+                         Position pos = Position::Capture());
 
 /**
  * Returns the square root of x. If x is a vector, operates componentwise.
  */
-DSLExpression Sqrt(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Sqrt(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns 0 if x < edge or 1 if x >= edge. If x is a vector, operates componentwise. edge may be
  * either a vector of the same dimensions as x, or a scalar.
  */
-DSLExpression Step(DSLExpression edge, DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Step(DSLExpression edge, DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns the tangent of x. If x is a vector, operates componentwise.
  */
-DSLExpression Tan(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Tan(DSLExpression x, Position pos = Position::Capture());
 
 /**
  * Returns x converted from premultipled to unpremultiplied alpha.
  */
-DSLExpression Unpremul(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+DSLExpression Unpremul(DSLExpression x, Position pos = Position::Capture());
 
 } // namespace dsl
 

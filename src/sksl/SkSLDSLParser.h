@@ -54,9 +54,9 @@ public:
 
     std::string_view text(Token token);
 
-    PositionInfo position(Token token);
+    Position position(Token token);
 
-    PositionInfo position(int line);
+    Position position(int line);
 
 private:
     static void InitLayoutMap();
@@ -143,7 +143,7 @@ private:
                                 const Token& name);
 
     struct VarDeclarationsPrefix {
-        PositionInfo fPosition;
+        Position fPosition;
         dsl::DSLModifiers fModifiers;
         dsl::DSLType fType = dsl::DSLType(dsl::kVoid_Type);
         Token fName;
@@ -163,10 +163,10 @@ private:
 
     bool parseInitializer(int line, dsl::DSLExpression* initializer);
 
-    void globalVarDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
+    void globalVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
             dsl::DSLType baseType, std::string_view name);
 
-    dsl::DSLStatement localVarDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
+    dsl::DSLStatement localVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
             dsl::DSLType baseType, std::string_view name);
 
     std::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter(size_t paramIndex);
@@ -291,7 +291,7 @@ private:
     private:
         class ForwardingErrorReporter : public ErrorReporter {
         public:
-            void handleError(std::string_view msg, PositionInfo pos) override {
+            void handleError(std::string_view msg, Position pos) override {
                 fErrors.push_back({std::string(msg), pos});
             }
 
@@ -304,7 +304,7 @@ private:
         private:
             struct Error {
                 std::string fMsg;
-                PositionInfo fPos;
+                Position fPos;
             };
 
             SkTArray<Error> fErrors;
@@ -312,7 +312,7 @@ private:
 
         void restoreErrorReporter() {
             SkASSERT(fOldErrorReporter);
-            fErrorReporter.reportPendingErrors(PositionInfo());
+            fErrorReporter.reportPendingErrors(Position());
             dsl::SetErrorReporter(fOldErrorReporter);
             fOldErrorReporter = nullptr;
         }

@@ -35,15 +35,15 @@ public:
      * name conflicts and the variable's name is only important when debugging shaders, the name
      * parameter is optional.
      */
-    DSLVarBase(DSLType type, std::string_view name, DSLExpression initialValue, PositionInfo pos);
+    DSLVarBase(DSLType type, std::string_view name, DSLExpression initialValue, Position pos);
 
-    DSLVarBase(DSLType type, DSLExpression initialValue, PositionInfo pos);
+    DSLVarBase(DSLType type, DSLExpression initialValue, Position pos);
 
     DSLVarBase(const DSLModifiers& modifiers, DSLType type, std::string_view name,
-               DSLExpression initialValue, PositionInfo pos);
+               DSLExpression initialValue, Position pos);
 
     DSLVarBase(const DSLModifiers& modifiers, DSLType type, DSLExpression initialValue,
-               PositionInfo pos);
+               Position pos);
 
     DSLVarBase(DSLVarBase&&) = default;
 
@@ -60,57 +60,57 @@ public:
     virtual VariableStorage storage() const = 0;
 
     DSLExpression x() {
-        return DSLExpression(*this, PositionInfo()).x();
+        return DSLExpression(*this, Position()).x();
     }
 
     DSLExpression y() {
-        return DSLExpression(*this, PositionInfo()).y();
+        return DSLExpression(*this, Position()).y();
     }
 
     DSLExpression z() {
-        return DSLExpression(*this, PositionInfo()).z();
+        return DSLExpression(*this, Position()).z();
     }
 
     DSLExpression w() {
-        return DSLExpression(*this, PositionInfo()).w();
+        return DSLExpression(*this, Position()).w();
     }
 
     DSLExpression r() {
-        return DSLExpression(*this, PositionInfo()).r();
+        return DSLExpression(*this, Position()).r();
     }
 
     DSLExpression g() {
-        return DSLExpression(*this, PositionInfo()).g();
+        return DSLExpression(*this, Position()).g();
     }
 
     DSLExpression b() {
-        return DSLExpression(*this, PositionInfo()).b();
+        return DSLExpression(*this, Position()).b();
     }
 
     DSLExpression a() {
-        return DSLExpression(*this, PositionInfo()).a();
+        return DSLExpression(*this, Position()).a();
     }
 
     DSLExpression field(std::string_view name) {
-        return DSLExpression(*this, PositionInfo()).field(name);
+        return DSLExpression(*this, Position()).field(name);
     }
 
     DSLPossibleExpression operator[](DSLExpression&& index);
 
     DSLPossibleExpression operator++() {
-        return ++DSLExpression(*this, PositionInfo());
+        return ++DSLExpression(*this, Position());
     }
 
     DSLPossibleExpression operator++(int) {
-        return DSLExpression(*this, PositionInfo())++;
+        return DSLExpression(*this, Position())++;
     }
 
     DSLPossibleExpression operator--() {
-        return --DSLExpression(*this, PositionInfo());
+        return --DSLExpression(*this, Position());
     }
 
     DSLPossibleExpression operator--(int) {
-        return DSLExpression(*this, PositionInfo())--;
+        return DSLExpression(*this, Position())--;
     }
 
 protected:
@@ -133,7 +133,7 @@ protected:
     // true if we have attempted to create the SkSL var
     bool fInitialized = false;
     bool fDeclared = false;
-    PositionInfo fPosition;
+    Position fPosition;
 
     friend class DSLCore;
     friend class DSLExpression;
@@ -152,22 +152,22 @@ public:
 
     DSLVar(DSLType type, std::string_view name = "var",
            DSLExpression initialValue = DSLExpression(),
-           PositionInfo pos = PositionInfo::Capture())
+           Position pos = Position::Capture())
         : INHERITED(type, name, std::move(initialValue), pos) {}
 
     DSLVar(DSLType type, const char* name, DSLExpression initialValue = DSLExpression(),
-           PositionInfo pos = PositionInfo::Capture())
+           Position pos = Position::Capture())
         : DSLVar(type, std::string_view(name), std::move(initialValue), pos) {}
 
-    DSLVar(DSLType type, DSLExpression initialValue, PositionInfo pos = PositionInfo::Capture())
+    DSLVar(DSLType type, DSLExpression initialValue, Position pos = Position::Capture())
         : INHERITED(type, std::move(initialValue), pos) {}
 
     DSLVar(const DSLModifiers& modifiers, DSLType type, std::string_view name = "var",
-           DSLExpression initialValue = DSLExpression(), PositionInfo pos = PositionInfo::Capture())
+           DSLExpression initialValue = DSLExpression(), Position pos = Position::Capture())
         : INHERITED(modifiers, type, name, std::move(initialValue), pos) {}
 
     DSLVar(const DSLModifiers& modifiers, DSLType type, const char* name,
-           DSLExpression initialValue = DSLExpression(), PositionInfo pos = PositionInfo::Capture())
+           DSLExpression initialValue = DSLExpression(), Position pos = Position::Capture())
         : DSLVar(modifiers, type, std::string_view(name), std::move(initialValue), pos) {}
 
     DSLVar(DSLVar&&) = default;
@@ -199,23 +199,23 @@ public:
     DSLGlobalVar() = default;
 
     DSLGlobalVar(DSLType type, std::string_view name = "var",
-           DSLExpression initialValue = DSLExpression(), PositionInfo pos = PositionInfo::Capture())
+           DSLExpression initialValue = DSLExpression(), Position pos = Position::Capture())
         : INHERITED(type, name, std::move(initialValue), pos) {}
 
     DSLGlobalVar(DSLType type, const char* name, DSLExpression initialValue = DSLExpression(),
-                 PositionInfo pos = PositionInfo::Capture())
+                 Position pos = Position::Capture())
         : DSLGlobalVar(type, std::string_view(name), std::move(initialValue), pos) {}
 
     DSLGlobalVar(DSLType type, DSLExpression initialValue,
-                 PositionInfo pos = PositionInfo::Capture())
+                 Position pos = Position::Capture())
         : INHERITED(type, std::move(initialValue), pos) {}
 
     DSLGlobalVar(const DSLModifiers& modifiers, DSLType type, std::string_view name = "var",
-           DSLExpression initialValue = DSLExpression(), PositionInfo pos = PositionInfo::Capture())
+           DSLExpression initialValue = DSLExpression(), Position pos = Position::Capture())
         : INHERITED(modifiers, type, name, std::move(initialValue), pos) {}
 
     DSLGlobalVar(const DSLModifiers& modifiers, DSLType type, const char* name,
-           DSLExpression initialValue = DSLExpression(), PositionInfo pos = PositionInfo::Capture())
+           DSLExpression initialValue = DSLExpression(), Position pos = Position::Capture())
         : DSLGlobalVar(modifiers, type, std::string_view(name), std::move(initialValue), pos) {}
 
     DSLGlobalVar(const char* name);
@@ -242,19 +242,19 @@ public:
      *     half4 shader::eval(float2 coords);
      *     half4 colorFilter::eval(half4 input);
      */
-    DSLExpression eval(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression eval(DSLExpression x, Position pos = Position::Capture());
 
     /**
      * Implements the following method call:
      *     half4 blender::eval(half4 src, half4 dst);
      */
     DSLExpression eval(DSLExpression x, DSLExpression y,
-            PositionInfo pos = PositionInfo::Capture());
+            Position pos = Position::Capture());
 
 private:
-    DSLExpression eval(ExpressionArray args, PositionInfo pos);
+    DSLExpression eval(ExpressionArray args, Position pos);
 
-    std::unique_ptr<SkSL::Expression> methodCall(std::string_view methodName, PositionInfo pos);
+    std::unique_ptr<SkSL::Expression> methodCall(std::string_view methodName, Position pos);
 
     using INHERITED = DSLVarBase;
 };
@@ -267,18 +267,18 @@ public:
     DSLParameter() = default;
 
     DSLParameter(DSLType type, std::string_view name = "var",
-                 PositionInfo pos = PositionInfo::Capture())
+                 Position pos = Position::Capture())
         : INHERITED(type, name, DSLExpression(), pos) {}
 
-    DSLParameter(DSLType type, const char* name, PositionInfo pos = PositionInfo::Capture())
+    DSLParameter(DSLType type, const char* name, Position pos = Position::Capture())
         : DSLParameter(type, std::string_view(name), pos) {}
 
     DSLParameter(const DSLModifiers& modifiers, DSLType type, std::string_view name = "var",
-                 PositionInfo pos = PositionInfo::Capture())
+                 Position pos = Position::Capture())
         : INHERITED(modifiers, type, name, DSLExpression(), pos) {}
 
     DSLParameter(const DSLModifiers& modifiers, DSLType type, const char* name,
-                 PositionInfo pos = PositionInfo::Capture())
+                 Position pos = Position::Capture())
         : DSLParameter(modifiers, type, std::string_view(name), pos) {}
 
     DSLParameter(DSLParameter&&) = default;

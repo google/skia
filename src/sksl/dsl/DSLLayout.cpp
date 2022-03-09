@@ -13,7 +13,7 @@ namespace SkSL {
 
 namespace dsl {
 
-DSLLayout& DSLLayout::flag(SkSL::Layout::Flag mask, const char* name, PositionInfo pos) {
+DSLLayout& DSLLayout::flag(SkSL::Layout::Flag mask, const char* name, Position pos) {
     if (fSkSLLayout.fFlags & mask) {
         ThreadContext::ReportError(
                 "layout qualifier '" + std::string(name) + "' appears more than once", pos);
@@ -23,7 +23,7 @@ DSLLayout& DSLLayout::flag(SkSL::Layout::Flag mask, const char* name, PositionIn
 }
 
 DSLLayout& DSLLayout::intValue(int* target, int value, SkSL::Layout::Flag flag, const char* name,
-                               PositionInfo pos) {
+                               Position pos) {
     this->flag(flag, name, pos);
     *target = value;
     return *this;

@@ -13,7 +13,7 @@
 
 namespace SkSL {
 
-void ErrorReporter::error(std::string_view msg, PositionInfo position) {
+void ErrorReporter::error(std::string_view msg, Position position) {
     if (skstd::contains(msg, Compiler::POISON_TAG)) {
         // don't report errors on poison values
         return;
@@ -31,7 +31,7 @@ void ErrorReporter::error(int line, std::string_view msg) {
         ++fErrorCount;
         fPendingErrors.push_back(std::string(msg));
     } else {
-        this->error(msg, PositionInfo(/*file=*/nullptr, line));
+        this->error(msg, Position(/*file=*/nullptr, line));
     }
 }
 

@@ -519,7 +519,7 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(int line, std::string_vi
         case Symbol::Kind::kType: {
             // go through DSLType so we report errors on private types
             dsl::DSLModifiers modifiers;
-            dsl::DSLType dslType(result->name(), &modifiers, PositionInfo(/*file=*/nullptr, line));
+            dsl::DSLType dslType(result->name(), &modifiers, Position(/*file=*/nullptr, line));
             return TypeReference::Convert(*fContext, line, &dslType.skslType());
         }
         case Symbol::Kind::kExternal: {
@@ -664,7 +664,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
                 errors.append(disassembly);
             }
             this->errorReporter().error(-1, errors);
-            this->errorReporter().reportPendingErrors(PositionInfo());
+            this->errorReporter().reportPendingErrors(Position());
 #else
             SkDEBUGFAILF("%s", errors.c_str());
 #endif
@@ -748,7 +748,7 @@ bool Compiler::toMetal(Program& program, std::string* out) {
 
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
-void Compiler::handleError(std::string_view msg, PositionInfo pos) {
+void Compiler::handleError(std::string_view msg, Position pos) {
     fErrorText += "error: ";
     if (pos.line() >= 1) {
         fErrorText += std::to_string(pos.line()) + ": ";
