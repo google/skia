@@ -133,5 +133,5 @@ void GrVkSampler::freeGPUData() const {
 
 GrVkSampler::Key GrVkSampler::GenerateKey(GrSamplerState samplerState,
                                           const GrVkYcbcrConversionInfo& ycbcrInfo) {
-    return {samplerState.asIndex(), GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo)};
+    return {samplerState.asKey(), GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo)};
 }

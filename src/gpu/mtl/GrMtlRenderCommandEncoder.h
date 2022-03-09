@@ -127,7 +127,7 @@ public:
     }
 
     void setFragmentTexture(id<MTLTexture> texture, NSUInteger index) {
-        SkASSERT(index < 16);
+        SkASSERT(index < kMaxTextures);
         if (fCurrentTexture[index] != texture) {
             [fCommandEncoder setFragmentTexture:texture
                                          atIndex:index];
@@ -135,6 +135,7 @@ public:
         }
     }
     void setFragmentSamplerState(GrMtlSampler* sampler, NSUInteger index) {
+        SkASSERT(index < kMaxSamplers);
         if (fCurrentSampler[index] != sampler) {
             [fCommandEncoder setFragmentSamplerState: sampler->mtlSampler()
                                          atIndex: index];
@@ -245,14 +246,22 @@ private:
 
     id<MTLRenderCommandEncoder> fCommandEncoder = nil;
 
+    // As of 2022-03-09 All GPU families have the same value at:
+    // https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf
+    static const int kMaxSamplers = 16;
+    // This is a self-imposed limit and is less than any GPU family's value at
+    // https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf
+    // Our implementation uses a 1:1 correspondence between textures and samplers.
+    static const int kMaxTextures = kMaxSamplers;
+
     __weak id<MTLRenderPipelineState> fCurrentRenderPipelineState = nil;
     __weak id<MTLDepthStencilState> fCurrentDepthStencilState = nil;
     __weak id<MTLBuffer> fCurrentVertexBuffer[2 + GrMtlUniformHandler::kUniformBindingCount];
     NSUInteger fCurrentVertexOffset[2 + GrMtlUniformHandler::kUniformBindingCount];
     __weak id<MTLBuffer> fCurrentFragmentBuffer[GrMtlUniformHandler::kUniformBindingCount];
     NSUInteger fCurrentFragmentOffset[2 + GrMtlUniformHandler::kUniformBindingCount];
-    __weak id<MTLTexture> fCurrentTexture[GrSamplerState::kNumUniqueSamplers];
-    GrMtlSampler* fCurrentSampler[GrSamplerState::kNumUniqueSamplers] = {};
+    __weak id<MTLTexture> fCurrentTexture[kMaxTextures];
+    GrMtlSampler* fCurrentSampler[kMaxSamplers] = {};
     MTLScissorRect fCurrentScissorRect = { 0, 0, 0, 0 };
     MTLTriangleFillMode fCurrentTriangleFillMode = (MTLTriangleFillMode)-1;
 };

@@ -157,7 +157,7 @@ static D3D12_FILTER d3d_filter(GrSamplerState sampler) {
 
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler(
         const GrSamplerState& params) {
-    uint32_t key = params.asIndex();
+    uint32_t key = params.asKey();
     D3D12_CPU_DESCRIPTOR_HANDLE* samplerPtr = fSamplers.find(key);
     if (samplerPtr) {
         return *samplerPtr;

@@ -18,6 +18,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/core/SkLRUCache.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
@@ -227,7 +228,6 @@ public:
     SamplerObjectCache(GrGLGpu* gpu) : fGpu(gpu) {
         fNumTextureUnits = fGpu->glCaps().shaderCaps()->maxFragmentSamplers();
         fTextureUnitStates = std::make_unique<UnitState[]>(fNumTextureUnits);
-        std::fill_n(fSamplers, kNumSamplers, 0);
     }
 
     ~SamplerObjectCache() {
@@ -235,24 +235,18 @@ public:
             // We've already been abandoned.
             return;
         }
-        for (GrGLuint sampler : fSamplers) {
-            // The spec states that "zero" values should be silently ignored, however they still
-            // trigger GL errors on some NVIDIA platforms.
-            if (sampler) {
-                GR_GL_CALL(fGpu->glInterface(), DeleteSamplers(1, &sampler));
-            }
-        }
     }
 
     void bindSampler(int unitIdx, GrSamplerState state) {
-        int index = state.asIndex();
-        if (!fSamplers[index]) {
+        uint32_t key = state.asKey();
+        const Sampler* sampler = fSamplers.find(key);
+        if (!sampler) {
             GrGLuint s;
             GR_GL_CALL(fGpu->glInterface(), GenSamplers(1, &s));
             if (!s) {
                 return;
             }
-            fSamplers[index] = s;
+            sampler = fSamplers.insert(key, Sampler(s, fGpu->glInterface()));
             GrGLenum minFilter = filter_to_gl_min_filter(state.filter(), state.mipmapMode());
             GrGLenum magFilter = filter_to_gl_mag_filter(state.filter());
             GrGLenum wrapX = wrap_mode_to_gl_wrap(state.wrapModeX(), fGpu->glCaps());
@@ -264,10 +258,11 @@ public:
             GR_GL_CALL(fGpu->glInterface(), SamplerParameteri(s, GR_GL_TEXTURE_WRAP_S, wrapX));
             GR_GL_CALL(fGpu->glInterface(), SamplerParameteri(s, GR_GL_TEXTURE_WRAP_T, wrapY));
         }
+        SkASSERT(sampler && sampler->id());
         if (!fTextureUnitStates[unitIdx].fKnown ||
-            fTextureUnitStates[unitIdx].fSamplerIDIfKnown != fSamplers[index]) {
-            GR_GL_CALL(fGpu->glInterface(), BindSampler(unitIdx, fSamplers[index]));
-            fTextureUnitStates[unitIdx].fSamplerIDIfKnown = fSamplers[index];
+            fTextureUnitStates[unitIdx].fSamplerIDIfKnown != sampler->id()) {
+            GR_GL_CALL(fGpu->glInterface(), BindSampler(unitIdx, sampler->id()));
+            fTextureUnitStates[unitIdx].fSamplerIDIfKnown = sampler->id();
             fTextureUnitStates[unitIdx].fKnown = true;
         }
     }
@@ -286,6 +281,7 @@ public:
     }
 
     void abandon() {
+        fSamplers.foreach([](uint32_t* key, Sampler* sampler) { sampler->abandon(); });
         fTextureUnitStates.reset();
         fNumTextureUnits = 0;
     }
@@ -295,23 +291,52 @@ public:
             // We've already been abandoned.
             return;
         }
-        GR_GL_CALL(fGpu->glInterface(), DeleteSamplers(kNumSamplers, fSamplers));
-        std::fill_n(fSamplers, kNumSamplers, 0);
+        fSamplers.reset();
         // Deleting a bound sampler implicitly binds sampler 0. We just invalidate all of our
         // knowledge.
         std::fill_n(fTextureUnitStates.get(), fNumTextureUnits, UnitState{});
     }
 
 private:
-    static constexpr int kNumSamplers = GrSamplerState::kNumUniqueSamplers;
+    class Sampler {
+    public:
+        Sampler() = default;
+        Sampler(const Sampler&) = delete;
+
+        Sampler(Sampler&& that) {
+            fID = that.fID;
+            fInterface = that.fInterface;
+            that.fID = 0;
+        }
+
+        Sampler(GrGLuint id, const GrGLInterface* interface) : fID(id), fInterface(interface) {}
+
+        ~Sampler() {
+            if (fID) {
+                GR_GL_CALL(fInterface, DeleteSamplers(1, &fID));
+            }
+        }
+
+        GrGLuint id() const { return fID; }
+
+        void abandon() { fID = 0; }
+
+    private:
+        GrGLuint             fID        = 0;
+        const GrGLInterface* fInterface = nullptr;
+    };
+
     struct UnitState {
         bool fKnown = false;
         GrGLuint fSamplerIDIfKnown = 0;
     };
-    GrGLGpu* fGpu;
-    std::unique_ptr<UnitState[]> fTextureUnitStates;
-    GrGLuint fSamplers[kNumSamplers];
-    int fNumTextureUnits;
+
+    static constexpr int kMaxSamplers = 32;
+
+    SkLRUCache<uint32_t, Sampler> fSamplers{kMaxSamplers};
+    std::unique_ptr<UnitState[]>  fTextureUnitStates;
+    GrGLGpu*                      fGpu;
+    int                           fNumTextureUnits;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

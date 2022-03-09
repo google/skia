@@ -86,31 +86,21 @@ public:
     constexpr bool operator!=(const GrSamplerState& that) const { return !(*this == that); }
 
     /**
-     * Turn the sampler state into an integer from a tightly packed range for use as an index
-     * (or key)
+     * Turn the sampler state into an integer for use as a key.
      */
-    constexpr uint8_t asIndex() const {
+    constexpr uint32_t asKey() const {
         constexpr int kNumWraps   = static_cast<int>(WrapMode::kLast) + 1;
         constexpr int kNumFilters = static_cast<int>(Filter::kLast  ) + 1;
-        int result = static_cast<int>(fWrapModes[0])*1
-                   + static_cast<int>(fWrapModes[1])*kNumWraps
-                   + static_cast<int>(fFilter)      *kNumWraps*kNumWraps
-                   + static_cast<int>(fMipmapMode)  *kNumWraps*kNumWraps*kNumFilters;
-        SkASSERT(result <= kNumUniqueSamplers);
-        return static_cast<uint8_t>(result);
+        return static_cast<int>(fWrapModes[0])*1                    +
+               static_cast<int>(fWrapModes[1])*kNumWraps            +
+               static_cast<int>(fFilter)      *kNumWraps*kNumWraps  +
+               static_cast<int>(fMipmapMode)  *kNumWraps*kNumWraps*kNumFilters;
     }
 
-    inline static constexpr int kNumUniqueSamplers = (static_cast<int>(WrapMode::kLast  ) + 1)
-                                                   * (static_cast<int>(WrapMode::kLast  ) + 1)
-                                                   * (static_cast<int>(Filter::kLast    ) + 1)
-                                                   * (static_cast<int>(MipmapMode::kLast) + 1);
 private:
     WrapMode fWrapModes[2] = {WrapMode::kClamp, WrapMode::kClamp};
     Filter fFilter = GrSamplerState::Filter::kNearest;
     MipmapMode fMipmapMode = GrSamplerState::MipmapMode::kNone;
 };
-
-static_assert(GrSamplerState::kNumUniqueSamplers <=
-              std::numeric_limits<decltype(GrSamplerState{}.asIndex())>::max());
 
 #endif

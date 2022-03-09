@@ -79,7 +79,7 @@ private:
     }
 
     struct SamplerHash {
-        uint32_t operator()(GrSamplerState state) const { return state.asIndex(); }
+        uint32_t operator()(GrSamplerState state) const { return state.asKey(); }
     };
 
     GrD3DDescriptorHeap::CPUHandle fShaderResourceView;
