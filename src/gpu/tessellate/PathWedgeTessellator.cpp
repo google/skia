@@ -122,21 +122,13 @@ private:
     int fMidpointWeight;
 };
 
-}  // namespace
-
-int PathWedgeTessellator::patchPreallocCount(int totalCombinedPathVerbCnt) const {
-    // Over-allocate enough wedges for 1 in 4 to chop.
-    int maxWedges = MaxCombinedFanEdgesInPathDrawList(totalCombinedPathVerbCnt);
-    return (maxWedges * 5 + 3) / 4;  // i.e., ceil(maxWedges * 5/4)
-}
-
-void PathWedgeTessellator::writePatches(PatchWriter& patchWriter,
-                                        const SkMatrix& shaderMatrix,
-                                        const PathDrawList& pathDrawList) {
+int write_patches(PatchWriter&& patchWriter,
+                  const SkMatrix& shaderMatrix,
+                  const PathTessellator::PathDrawList& pathDrawList) {
     wangs_formula::VectorXform shaderXform(shaderMatrix);
     for (auto [pathMatrix, path, color] : pathDrawList) {
         AffineMatrix m(pathMatrix);
-        if (fAttribs & PatchAttribs::kColor) {
+        if (patchWriter.attribs() & PatchAttribs::kColor) {
             patchWriter.updateColorAttrib(color);
         }
         MidpointContourParser parser(path);
@@ -198,12 +190,10 @@ void PathWedgeTessellator::writePatches(PatchWriter& patchWriter,
         }
     }
 
-    // We already chopped curves to make sure none needed a higher resolveLevel than
-    // kMaxFixedResolveLevel.
-    fFixedResolveLevel = SkTPin(patchWriter.requiredResolveLevel(),
-                                fFixedResolveLevel,
-                                int(kMaxFixedResolveLevel));
+    return patchWriter.requiredResolveLevel();
 }
+
+}  // namespace
 
 void PathWedgeTessellator::WriteFixedVertexBuffer(VertexWriter vertexWriter, size_t bufferSize) {
     SkASSERT(bufferSize >= sizeof(SkPoint));
@@ -249,6 +239,23 @@ void PathWedgeTessellator::prepareFixedCountBuffers(GrMeshDrawTarget* target) {
                                                    FixedIndexBufferSize(kMaxFixedResolveLevel),
                                                    gFixedIndexBufferKey,
                                                    WriteFixedIndexBuffer);
+}
+
+void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
+                                   int maxTessellationSegments,
+                                   const SkMatrix& shaderMatrix,
+                                   const PathDrawList& pathDrawList,
+                                   int totalCombinedPathVerbCnt,
+                                   bool willUseTessellationShaders) {
+    if (int patchPreallocCount = PatchPreallocCount(totalCombinedPathVerbCnt)) {
+        PatchWriter writer{target, &fVertexChunkArray, fAttribs,
+                           maxTessellationSegments, patchPreallocCount};
+        int resolveLevel = write_patches(std::move(writer), shaderMatrix, pathDrawList);
+        this->updateResolveLevel(resolveLevel);
+    }
+    if (!willUseTessellationShaders) {
+        this->prepareFixedCountBuffers(target);
+    }
 }
 
 void PathWedgeTessellator::drawTessellated(GrOpFlushState* flushState) const {

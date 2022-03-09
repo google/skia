@@ -33,26 +33,14 @@ int worst_case_edges_in_join(SkPaint::Join joinType, float numRadialSegmentsPerR
     return numEdges;
 }
 
-}  // namespace
-
-
-int StrokeFixedCountTessellator::patchPreallocCount(int totalCombinedStrokeVerbCnt) const {
-    // Over-allocate enough patches for each stroke to chop once, and for 8 extra caps. Since we
-    // have to chop at inflections, points of 180 degree rotation, and anywhere a stroke requires
-    // too many parametric segments, many strokes will end up getting choppped.
-    int strokePreallocCount = totalCombinedStrokeVerbCnt * 2;
-    int capPreallocCount = 8;
-    return strokePreallocCount + capPreallocCount;
-}
-
-int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
-                                              const SkMatrix& shaderMatrix,
-                                              std::array<float,2> matrixMinMaxScales,
-                                              PathStrokeList* pathStrokeList) {
+int write_patches(PatchWriter&& patchWriter,
+                  const SkMatrix& shaderMatrix,
+                  std::array<float,2> matrixMinMaxScales,
+                  StrokeTessellator::PathStrokeList* pathStrokeList) {
     int maxEdgesInJoin = 0;
     float maxRadialSegmentsPerRadian = 0;
     const float matrixMaxScale = matrixMinMaxScales[1];
-    if (!(fAttribs & PatchAttribs::kStrokeParams)) {
+    if (!(patchWriter.attribs() & PatchAttribs::kStrokeParams)) {
         // Strokes are static. Calculate tolerances once.
         const SkStrokeRec& stroke = pathStrokeList->fStroke;
         float localStrokeWidth = StrokeTolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
@@ -70,9 +58,9 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
     // The vector xform approximates how the control points are transformed by the shader to
     // more accurately compute how many *parametric* segments are needed.
     wangs_formula::VectorXform shaderXform{shaderMatrix};
-    for (PathStrokeList* pathStroke = pathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
+    for (auto* pathStroke = pathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
         const SkStrokeRec& stroke = pathStroke->fStroke;
-        if (fAttribs & PatchAttribs::kStrokeParams) {
+        if (patchWriter.attribs() & PatchAttribs::kStrokeParams) {
             // Strokes are dynamic. Calculate tolerances every time.
             float numRadialSegmentsPerRadian =
                     toleranceBuffer.fetchRadialSegmentsPerRadian(pathStroke);
@@ -83,7 +71,7 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
                                                   maxRadialSegmentsPerRadian);
             patchWriter.updateStrokeParamsAttrib(stroke);
         }
-        if (fAttribs & PatchAttribs::kColor) {
+        if (patchWriter.attribs() & PatchAttribs::kColor) {
             patchWriter.updateColorAttrib(pathStroke->fColor);
         }
 
@@ -203,6 +191,8 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
     return maxEdgesInJoin + maxEdgesInStroke;
 }
 
+}  // namespace
+
 void StrokeFixedCountTessellator::InitializeVertexIDFallbackBuffer(VertexWriter vertexWriter,
                                                                    size_t bufferSize) {
     SkASSERT(bufferSize % (sizeof(float) * 2) == 0);
@@ -221,16 +211,13 @@ int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
                                          std::array<float,2> matrixMinMaxScales,
                                          PathStrokeList* pathStrokeList,
                                          int totalCombinedStrokeVerbCnt) {
-    // NOTE: For now InstanceWriter manually chops curves that exceed kMaxParametricSegments_pow4,
-    // so passing in kMaxParametricSegments to PatchWriter avoids its auto-chopping while still
-    // correctly accumulating the min required segment count.
-    PatchWriter patchWriter(target, this, kMaxParametricSegments,
-                            this->patchPreallocCount(totalCombinedStrokeVerbCnt));
+    PatchWriter patchWriter(target, &fVertexChunkArray, fAttribs, kMaxParametricSegments,
+                            PatchPreallocCount(totalCombinedStrokeVerbCnt));
 
-    fFixedEdgeCount = this->writePatches(patchWriter,
-                                         shaderMatrix,
-                                         matrixMinMaxScales,
-                                         pathStrokeList);
+    fFixedEdgeCount = write_patches(std::move(patchWriter),
+                                    shaderMatrix,
+                                    matrixMinMaxScales,
+                                    pathStrokeList);
 
     // Don't draw more vertices than can be indexed by a signed short. We just have to draw the line
     // somewhere and this seems reasonable enough. (There are two vertices per edge, so 2^14 edges

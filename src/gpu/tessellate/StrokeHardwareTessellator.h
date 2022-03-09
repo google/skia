@@ -20,13 +20,6 @@ public:
     StrokeHardwareTessellator(PatchAttribs attribs, int maxTessellationSegments)
             : StrokeTessellator(attribs), fMaxTessellationSegments(maxTessellationSegments) {}
 
-    int patchPreallocCount(int totalCombinedStrokeVerbCnt) const final;
-
-    int writePatches(PatchWriter&,
-                     const SkMatrix& shaderMatrix,
-                     std::array<float,2> matrixMinMaxScales,
-                     PathStrokeList*) final;
-
 #if SK_GPU_V1
     int prepare(GrMeshDrawTarget*,
                 const SkMatrix& shaderMatrix,

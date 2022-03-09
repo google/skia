@@ -17,11 +17,6 @@
 
 namespace skgpu {
 
-#if SK_GPU_V1
-class PathTessellator;
-class StrokeTessellator;
-#endif
-
 // Writes out tessellation patches, formatted with their specific attribs, to a GPU buffer.
 class PatchWriter {
     using VectorXform = wangs_formula::VectorXform;
@@ -30,27 +25,17 @@ public:
                 GrVertexChunkArray* vertexChunkArray,
                 PatchAttribs attribs,
                 int maxTessellationSegments,
-                size_t patchStride,
                 int initialAllocCount)
             : fAttribs(attribs)
             , fMaxSegments_pow2(pow2(maxTessellationSegments))
             , fMaxSegments_pow4(pow2(fMaxSegments_pow2))
-            , fChunker(target, vertexChunkArray, patchStride, initialAllocCount) {
+            , fChunker(target, vertexChunkArray, PatchStride(attribs), initialAllocCount) {
         // For fans or strokes, the minimum required segment count is 1 (making either a triangle
         // with the fan point, or a stroked line). Otherwise, we need 2 segments to represent
         // triangles purely from the tessellated vertices.
         fCurrMinSegments_pow4 = (attribs & PatchAttribs::kFanPoint ||
                                  attribs & PatchAttribs::kJoinControlPoint) ? 1.f : 16.f; // 2^4
     }
-
-#if SK_GPU_V1
-    // Create PatchWriters that write directly to the GrVertexChunkArrays stored on the provided
-    // tessellators.
-    PatchWriter(GrMeshDrawTarget*, PathTessellator*,
-                int maxTessellationSegments, int initialPatchAllocCount);
-    PatchWriter(GrMeshDrawTarget*, StrokeTessellator*,
-                int maxTessellationSegments, int initialPatchAllocCount);
-#endif
 
     ~PatchWriter() {
         // finishStrokeContour() should have been called before this was deleted (or never used).

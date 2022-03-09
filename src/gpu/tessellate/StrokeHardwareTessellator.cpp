@@ -74,6 +74,12 @@ public:
         SkASSERT(!fPatchWriter.hasJoinControlPoint());
     }
 
+    PatchAttribs attribs() const { return fPatchWriter.attribs(); }
+    void updateColorAttrib(const SkPMColor4f& color) { fPatchWriter.updateColorAttrib(color); }
+    void updateStrokeParamsAttrib(const StrokeParams& params) {
+        fPatchWriter.updateStrokeParamsAttrib(params);
+    }
+
     // This is the precision value, adjusted for the view matrix, to use with Wang's formulas when
     // determining how many parametric segments a curve will require.
     float parametricPrecision() const {
@@ -656,26 +662,21 @@ SK_ALWAYS_INLINE bool cubic_has_cusp(const SkPoint p[4]) {
            (!(skvx::all(p0 == p1) || skvx::all(p2 == p3)) || (a == 0 && b == 0 && c == 0));
 }
 
-}  // namespace
-
-
-int StrokeHardwareTessellator::patchPreallocCount(int totalCombinedStrokeVerbCnt) const {
+int patch_prealloc_count(int totalCombinedStrokeVerbCnt) {
     // Over-allocate enough patches for 1 in 4 strokes to chop and for 8 extra caps.
     int strokePreallocCount = (totalCombinedStrokeVerbCnt * 5) / 4;
     int capPreallocCount = 8;
     return strokePreallocCount + capPreallocCount;
 }
 
-int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
-                                            const SkMatrix& shaderMatrix,
-                                            std::array<float,2> matrixMinMaxScales,
-                                            PathStrokeList* pathStrokeList) {
+void write_patches(HwPatchWriter&& hwPatchWriter,
+                   const SkMatrix& shaderMatrix,
+                   std::array<float,2> matrixMinMaxScales,
+                   StrokeTessellator::PathStrokeList* pathStrokeList) {
     using JoinType = HwPatchWriter::JoinType;
 
     float matrixMaxScale = matrixMinMaxScales[1];
-    HwPatchWriter hwPatchWriter(patchWriter, fMaxTessellationSegments, matrixMaxScale);
-
-    if (!(fAttribs & PatchAttribs::kStrokeParams)) {
+    if (!(hwPatchWriter.attribs() & PatchAttribs::kStrokeParams)) {
         // Strokes are static. Calculate tolerances once.
         const SkStrokeRec& stroke = pathStrokeList->fStroke;
         float localStrokeWidth = StrokeTolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
@@ -689,16 +690,16 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
     // have dynamic strokes.
     StrokeToleranceBuffer toleranceBuffer(matrixMaxScale);
 
-    for (PathStrokeList* pathStroke = pathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
+    for (auto* pathStroke = pathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
         const SkStrokeRec& stroke = pathStroke->fStroke;
-        if (fAttribs & PatchAttribs::kStrokeParams) {
+        if (hwPatchWriter.attribs() & PatchAttribs::kStrokeParams) {
             // Strokes are dynamic. Update tolerances with every new stroke.
             hwPatchWriter.updateTolerances(toleranceBuffer.fetchRadialSegmentsPerRadian(pathStroke),
                                            stroke.getJoin());
-            patchWriter.updateStrokeParamsAttrib(stroke);
+            hwPatchWriter.updateStrokeParamsAttrib(stroke);
         }
-        if (fAttribs & PatchAttribs::kColor) {
-            patchWriter.updateColorAttrib(pathStroke->fColor);
+        if (hwPatchWriter.attribs() & PatchAttribs::kColor) {
+            hwPatchWriter.updateColorAttrib(pathStroke->fColor);
         }
 
         const SkPath& path = pathStroke->fPath;
@@ -845,8 +846,9 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
             hwPatchWriter.writeCaps(p[path.countPoints() - 1], shaderMatrix, stroke);
         }
     }
-    return 0;
 }
+
+}  // namespace
 
 #if SK_GPU_V1
 
@@ -855,9 +857,14 @@ int StrokeHardwareTessellator::prepare(GrMeshDrawTarget* target,
                                        std::array<float,2> matrixMinMaxScales,
                                        PathStrokeList* pathStrokeList,
                                        int totalCombinedStrokeVerbCnt) {
-    PatchWriter patchWriter(target, this, 0.f, /* unused max segment tracking */
-                            this->patchPreallocCount(totalCombinedStrokeVerbCnt));
-    return this->writePatches(patchWriter, shaderMatrix, matrixMinMaxScales, pathStrokeList);
+    PatchWriter patchWriter(target,
+                            &fVertexChunkArray,
+                            fAttribs,
+                            0.f, /* unused max segment tracking */
+                            patch_prealloc_count(totalCombinedStrokeVerbCnt));
+    HwPatchWriter hwPatchWriter(patchWriter, fMaxTessellationSegments, matrixMinMaxScales[1]);
+    write_patches(std::move(hwPatchWriter), shaderMatrix, matrixMinMaxScales, pathStrokeList);
+    return 0;
 }
 
 void StrokeHardwareTessellator::draw(GrOpFlushState* flushState) const {

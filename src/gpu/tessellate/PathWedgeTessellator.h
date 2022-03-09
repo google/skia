@@ -31,11 +31,11 @@ public:
         fAttribs |= PatchAttribs::kFanPoint;
     }
 
-    int patchPreallocCount(int totalCombinedPathVerbCnt) const final;
-
-    void writePatches(PatchWriter&,
-                      const SkMatrix& shaderMatrix,
-                      const PathDrawList&) final;
+    static int PatchPreallocCount(int totalCombinedPathVerbCnt) {
+        // Over-allocate enough wedges for 1 in 4 to chop.
+        int maxWedges = MaxCombinedFanEdgesInPathDrawList(totalCombinedPathVerbCnt);
+        return (maxWedges * 5 + 3) / 4;  // i.e., ceil(maxWedges * 5/4)
+    }
 
     // Size of the vertex buffer to use when rendering with a fixed count shader.
     constexpr static int FixedVertexBufferSize(int maxFixedResolveLevel) {
@@ -55,6 +55,13 @@ public:
     static void WriteFixedIndexBuffer(VertexWriter vertexWriter, size_t bufferSize);
 
 #if SK_GPU_V1
+    void prepare(GrMeshDrawTarget* target,
+                 int maxTessellationSegments,
+                 const SkMatrix& shaderMatrix,
+                 const PathDrawList& pathDrawList,
+                 int totalCombinedPathVerbCnt,
+                 bool willUseTessellationShaders) final;
+
     void prepareFixedCountBuffers(GrMeshDrawTarget*) final;
 
     void drawTessellated(GrOpFlushState*) const final;

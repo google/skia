@@ -419,42 +419,16 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
     }
 
     if (fTessellator) {
-        int patchPreallocCount = fFanBreadcrumbs.count() +
-                                 fTessellator->patchPreallocCount(fPath.countVerbs());
-        SkASSERT(patchPreallocCount);  // Otherwise fTessellator should be null.
-
         auto tessShader = &fStencilCurvesProgram->geomProc().cast<GrPathTessellationShader>();
         int maxSegments = tessShader->maxTessellationSegments(*caps.shaderCaps());
-        PatchWriter patchWriter(flushState, fTessellator, maxSegments, patchPreallocCount);
 
-        // Write out breadcrumb triangles. This must be called after polysToTriangles() in order for
-        // fFanBreadcrumbs to be complete.
-        SkDEBUGCODE(int breadcrumbCount = 0;)
-        for (const auto* tri = fFanBreadcrumbs.head(); tri; tri = tri->fNext) {
-            SkDEBUGCODE(++breadcrumbCount;)
-            auto p0 = float2::Load(tri->fPts);
-            auto p1 = float2::Load(tri->fPts + 1);
-            auto p2 = float2::Load(tri->fPts + 2);
-            if (skvx::any((p0 == p1) & (p1 == p2))) {
-                // Cull completely horizontal or vertical triangles. GrTriangulator can't always
-                // get these breadcrumb edges right when they run parallel to the sweep
-                // direction because their winding is undefined by its current definition.
-                // FIXME(skia:12060): This seemed safe, but if there is a view matrix it will
-                // introduce T-junctions.
-                continue;
-            }
-            patchWriter.writeTriangle(p0, p1, p2);
-        }
-        SkASSERT(breadcrumbCount == fFanBreadcrumbs.count());
-
-        // Write out the curves.
-        fTessellator->writePatches(patchWriter,
-                                   tessShader->viewMatrix(),
-                                   {SkMatrix::I(), fPath, SK_PMColor4fTRANSPARENT});
-
-        if (!tessShader->willUseTessellationShaders()) {
-            fTessellator->prepareFixedCountBuffers(flushState);
-        }
+        fTessellator->prepareWithTriangles(flushState,
+                                           maxSegments,
+                                           tessShader->viewMatrix(),
+                                           &fFanBreadcrumbs,
+                                           {SkMatrix::I(), fPath, SK_PMColor4fTRANSPARENT},
+                                           fPath.countVerbs(),
+                                           tessShader->willUseTessellationShaders());
     }
 
     if (!caps.shaderCaps()->vertexIDSupport()) {

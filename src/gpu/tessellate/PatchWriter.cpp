@@ -9,11 +9,6 @@
 
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 
-#if SK_GPU_V1
-#include "src/gpu/tessellate/PathTessellator.h"
-#include "src/gpu/tessellate/StrokeTessellator.h"
-#endif
-
 namespace skgpu {
 
 SK_ALWAYS_INLINE SkPoint to_skpoint(float2 p) { return skvx::bit_pun<SkPoint>(p); }
@@ -24,32 +19,6 @@ void write_triangle_stack(PatchWriter* writer,
         writer->writeTriangle(p0, p1, p2);
     }
 }
-
-#if SK_GPU_V1
-PatchWriter::PatchWriter(GrMeshDrawTarget* target,
-                         PathTessellator* tessellator,
-                         int maxTessellationSegments,
-                         int initialPatchAllocCount)
-        : PatchWriter(target,
-                      &tessellator->fVertexChunkArray,
-                      tessellator->fAttribs,
-                      maxTessellationSegments,
-                      sizeof(SkPoint) * 4 + PatchAttribsStride(tessellator->fAttribs),
-                      initialPatchAllocCount) {
-}
-
-PatchWriter::PatchWriter(GrMeshDrawTarget* target,
-                         StrokeTessellator* tessellator,
-                         int maxTessellationSegments,
-                         int initialPatchAllocCount)
-        : PatchWriter(target,
-                      &tessellator->fVertexChunkArray,
-                      tessellator->fAttribs,
-                      maxTessellationSegments,
-                      sizeof(SkPoint) * 4 + PatchAttribsStride(tessellator->fAttribs),
-                      initialPatchAllocCount) {
-}
-#endif
 
 void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatches) {
     // If we aren't fanning or stroking, we need to fill the space between chops with triangles.

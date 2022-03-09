@@ -9,6 +9,7 @@
 #define tessellate_PathCurveTessellator_DEFINED
 
 #include "src/core/SkArenaAlloc.h"
+#include "src/gpu/geometry/GrInnerFanTriangulator.h"
 #include "src/gpu/tessellate/PathTessellator.h"
 
 namespace skgpu {
@@ -28,11 +29,13 @@ public:
                          PatchAttribs attribs = PatchAttribs::kNone)
             : PathTessellator(infinitySupport, attribs) {}
 
-    int patchPreallocCount(int totalCombinedPathVerbCnt) const final;
-
-    void writePatches(PatchWriter& patchWriter,
-                      const SkMatrix& shaderMatrix,
-                      const PathDrawList& pathDrawList) final;
+    static int PatchPreallocCount(int totalCombinedPathVerbCnt) {
+        // Over-allocate enough curves for 1 in 4 to chop.
+        int approxNumChops = (totalCombinedPathVerbCnt + 3) / 4;
+        // Every chop introduces 2 new patches: another curve patch and a triangle patch that glues
+        // the two chops together.
+        return totalCombinedPathVerbCnt + approxNumChops * 2;
+    }
 
     // Size of the vertex buffer to use when rendering with a fixed count shader.
     constexpr static int FixedVertexBufferSize(int maxFixedResolveLevel) {
@@ -55,6 +58,29 @@ public:
     static void WriteFixedIndexBufferBaseIndex(VertexWriter, size_t bufferSize, uint16_t baseIndex);
 
 #if SK_GPU_V1
+    void prepareWithTriangles(GrMeshDrawTarget* target,
+                              int maxTessellationSegments,
+                              const SkMatrix& shaderMatrix,
+                              GrInnerFanTriangulator::BreadcrumbTriangleList* extraTriangles,
+                              const PathDrawList& pathDrawList,
+                              int totalCombinedPathVerbCnt,
+                              bool willUseTessellationShaders);
+
+    void prepare(GrMeshDrawTarget* target,
+                 int maxTessellationSegments,
+                 const SkMatrix& shaderMatrix,
+                 const PathDrawList& pathDrawList,
+                 int totalCombinedPathVerbCnt,
+                 bool willUseTessellationShaders) final {
+        this->prepareWithTriangles(target,
+                                   maxTessellationSegments,
+                                   shaderMatrix,
+                                   nullptr, // no extra triangles by default
+                                   pathDrawList,
+                                   totalCombinedPathVerbCnt,
+                                   willUseTessellationShaders);
+    }
+
     void prepareFixedCountBuffers(GrMeshDrawTarget*) final;
 
     void drawTessellated(GrOpFlushState*) const final;

@@ -87,32 +87,8 @@ private:
         int numVerbsToGetTessellation = caps.minPathVerbsForHwTessellation();
         auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState, std::move(fProcessors),
                                                                  fPipelineFlags);
-        int numVerbs;
-        bool needsInnerFan;
-        switch (fMode) {
-            case Mode::kWedgeMiddleOut:
-                fTessellator = PathWedgeTessellator::Make(alloc, shaderCaps.infinitySupport());
-                numVerbs = numVerbsToGetMiddleOut;
-                needsInnerFan = false;
-                break;
-            case Mode::kCurveMiddleOut:
-                fTessellator = PathCurveTessellator::Make(alloc,
-                                                          shaderCaps.infinitySupport());
-                numVerbs = numVerbsToGetMiddleOut;
-                needsInnerFan = true;
-                break;
-            case Mode::kWedgeTessellate:
-                fTessellator = PathWedgeTessellator::Make(alloc, shaderCaps.infinitySupport());
-                numVerbs = numVerbsToGetTessellation;
-                needsInnerFan = false;
-                break;
-            case Mode::kCurveTessellate:
-                fTessellator = PathCurveTessellator::Make(alloc,
-                                                          shaderCaps.infinitySupport());
-                numVerbs = numVerbsToGetTessellation;
-                needsInnerFan = true;
-                break;
-        }
+        int numVerbs = (fMode == Mode::kWedgeMiddleOut || fMode == Mode::kCurveMiddleOut) ?
+                        numVerbsToGetMiddleOut : numVerbsToGetTessellation;
         auto* tessShader = GrPathTessellationShader::Make(alloc,
                                                           shaderMatrix,
                                                           kCyan,
@@ -130,35 +106,38 @@ private:
                                                      &GrUserStencilSettings::kUnused);
 
 
-        int patchPreallocCount = fTessellator->patchPreallocCount(fPath.countVerbs());
-        if (needsInnerFan) {
-            patchPreallocCount += fPath.countVerbs() - 1;
-        }
-        PatchWriter patchWriter(flushState,
-                                fTessellator,
-                                tessShader->maxTessellationSegments(*caps.shaderCaps()),
-                                patchPreallocCount);
+        int maxSegments = tessShader->maxTessellationSegments(*caps.shaderCaps());
+        PathTessellator::PathDrawList pathList{pathMatrix, fPath, kCyan};
 
-        if (needsInnerFan) {
-            // Write out inner fan triangles.
-            AffineMatrix m(pathMatrix);
+        if (fMode == Mode::kCurveTessellate || fMode == Mode::kCurveMiddleOut) {
+            // This emulates what PathStencilCoverOp does when using curves, except we include the
+            // middle-out triangles directly in the written patches for convenience (normally they
+            // use a simple triangle pipeline). But PathCurveTessellator only knows how to read
+            // extra triangles from BreadcrumbTriangleList, so build on from the middle-out stack.
+            SkArenaAlloc storage{256};
+            GrInnerFanTriangulator::BreadcrumbTriangleList triangles;
             for (PathMiddleOutFanIter it(fPath); !it.done();) {
                 for (auto [p0, p1, p2] : it.nextStack()) {
-                    auto [mp0, mp1] = m.map2Points(p0, p1);
-                    auto mp2 = m.map1Point(&p2);
-                    patchWriter.writeTriangle(mp0, mp1, mp2);
+                    triangles.append(&storage,
+                                     pathMatrix.mapPoint(p0),
+                                     pathMatrix.mapPoint(p1),
+                                     pathMatrix.mapPoint(p2),
+                                     /*winding=*/1);
                 }
             }
+
+            auto* tess = PathCurveTessellator::Make(alloc, shaderCaps.infinitySupport());
+            tess->prepareWithTriangles(flushState, maxSegments, shaderMatrix, &triangles, pathList,
+                                       fPath.countVerbs(),tessShader->willUseTessellationShaders());
+            fTessellator = tess;
+        } else {
+            // This emulates what PathStencilCoverOp does when using wedges.
+            fTessellator = PathWedgeTessellator::Make(alloc, shaderCaps.infinitySupport());
+            fTessellator->prepare(flushState, maxSegments, shaderMatrix, pathList,
+                                  fPath.countVerbs(), tessShader->willUseTessellationShaders());
         }
-
-        // Write out the curves.
-        fTessellator->writePatches(patchWriter, shaderMatrix, {pathMatrix, fPath, kCyan});
-
-        if (!tessShader->willUseTessellationShaders()) {
-            fTessellator->prepareFixedCountBuffers(flushState);
-        }
-
     }
+
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         flushState->bindPipeline(*fProgram, chainBounds);
         fTessellator->draw(flushState, fProgram->geomProc().willUseTessellationShaders());

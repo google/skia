@@ -155,7 +155,7 @@ bool ResourceCache::returnResource(Resource* resource, LastRemovedRef removedRef
         SkASSERT(nextResource.first != resource);
     }
 #endif
-    fReturnQueue.push_back(std::tie(resource, removedRef));
+    fReturnQueue.push_back(std::make_pair(resource, removedRef));
     *resource->accessReturnIndex() = fReturnQueue.size() - 1;
     resource->refCache();
     return true;
