@@ -22,6 +22,13 @@ namespace skgpu {
 
 namespace {
 
+using Writer = PatchWriter<Required<PatchAttribs::kJoinControlPoint>,
+                           Optional<PatchAttribs::kStrokeParams>,
+                           Optional<PatchAttribs::kColor>,
+                           Optional<PatchAttribs::kWideColorIfEnabled>,
+                           Optional<PatchAttribs::kExplicitCurveType>,
+                           TrackJoinControlPoints>;
+
 // Returns the worst-case number of edges we will need in order to draw a join of the given type.
 int worst_case_edges_in_join(SkPaint::Join joinType, float numRadialSegmentsPerRadian) {
     int numEdges = StrokeFixedCountTessellator::NumFixedEdgesInJoin(joinType);
@@ -33,7 +40,7 @@ int worst_case_edges_in_join(SkPaint::Join joinType, float numRadialSegmentsPerR
     return numEdges;
 }
 
-int write_patches(PatchWriter&& patchWriter,
+int write_patches(Writer&& patchWriter,
                   const SkMatrix& shaderMatrix,
                   std::array<float,2> matrixMinMaxScales,
                   StrokeTessellator::PathStrokeList* pathStrokeList) {
@@ -211,8 +218,8 @@ int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
                                          std::array<float,2> matrixMinMaxScales,
                                          PathStrokeList* pathStrokeList,
                                          int totalCombinedStrokeVerbCnt) {
-    PatchWriter patchWriter(target, &fVertexChunkArray, fAttribs, kMaxParametricSegments,
-                            PatchPreallocCount(totalCombinedStrokeVerbCnt));
+    Writer patchWriter(target, &fVertexChunkArray, fAttribs, kMaxParametricSegments,
+                       PatchPreallocCount(totalCombinedStrokeVerbCnt));
 
     fFixedEdgeCount = write_patches(std::move(patchWriter),
                                     shaderMatrix,

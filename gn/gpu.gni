@@ -318,7 +318,6 @@ skia_gpu_sources = [
 
   # tessellate
   "$_src/gpu/tessellate/AffineMatrix.h",
-  "$_src/gpu/tessellate/PatchWriter.cpp",
   "$_src/gpu/tessellate/PatchWriter.h",
   "$_src/gpu/tessellate/PathCurveTessellator.cpp",
   "$_src/gpu/tessellate/PathCurveTessellator.h",
