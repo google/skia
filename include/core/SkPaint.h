@@ -650,23 +650,7 @@ public:
         @param storage  computed bounds of geometry; may not be nullptr
         @return         fast computed bounds
     */
-    const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const {
-        // Things like stroking, etc... will do math on the bounds rect, assuming that it's sorted.
-        SkASSERT(orig.isSorted());
-        SkPaint::Style style = this->getStyle();
-        // ultra fast-case: filling with no effects that affect geometry
-        if (kFill_Style == style) {
-            uintptr_t effects = 0;
-            effects |= reinterpret_cast<uintptr_t>(this->getMaskFilter());
-            effects |= reinterpret_cast<uintptr_t>(this->getPathEffect());
-            effects |= reinterpret_cast<uintptr_t>(this->getImageFilter());
-            if (!effects) {
-                return orig;
-            }
-        }
-
-        return this->doComputeFastBounds(orig, storage, style);
-    }
+    const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const;
 
     /**     (to be made private)
 

@@ -8,14 +8,17 @@
 #ifndef TestSurface_DEFINED
 #define TestSurface_DEFINED
 
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 
 class GrDirectContext;
+class SkColorSpace;
 class SkSurface;
 class SkSurfaceProps;
+enum SkColorType : int;
+struct SkImageInfo;
 
 namespace sk_gpu_test {
 

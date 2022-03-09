@@ -15,6 +15,7 @@
 #include <vector>
 
 class SkBitmap;
+class SkColorInfo;
 
 namespace skiagm {
 

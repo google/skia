@@ -8,6 +8,7 @@
 #ifndef skgpu_tessellate_Tessellation_DEFINED
 #define skgpu_tessellate_Tessellation_DEFINED
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkVx.h"

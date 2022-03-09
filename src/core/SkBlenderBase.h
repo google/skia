@@ -9,7 +9,6 @@
 #define SkBlenderBase_DEFINED
 
 #include "include/core/SkBlender.h"
-#include "include/core/SkColorSpace.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkVM.h"
 
@@ -18,6 +17,7 @@
 enum class SkBackend : uint8_t;
 struct GrFPArgs;
 class GrFragmentProcessor;
+class SkColorInfo;
 class SkPaintParamsKeyBuilder;
 class SkPipelineData;
 class SkRuntimeEffect;

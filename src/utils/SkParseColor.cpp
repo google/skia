@@ -8,6 +8,8 @@
 
 #include "include/utils/SkParse.h"
 
+#include <algorithm> // std::lower_bound
+
 static constexpr const char* gColorNames[] = {
     "aliceblue",
     "antiquewhite",

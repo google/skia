@@ -8,11 +8,14 @@
 #ifndef SkPatchUtils_DEFINED
 #define SkPatchUtils_DEFINED
 
-#include "include/core/SkMatrix.h"
-#include "include/private/SkColorData.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
 
 class SkColorSpace;
+class SkMatrix;
 class SkVertices;
+struct SkISize;
+struct SkPoint;
 
 class SkPatchUtils {
 

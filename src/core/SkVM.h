@@ -10,6 +10,7 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTArray.h"

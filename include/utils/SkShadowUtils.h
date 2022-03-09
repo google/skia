@@ -17,6 +17,7 @@ class SkCanvas;
 class SkMatrix;
 class SkPath;
 class SkResourceCache;
+struct SkRect;
 
 class SK_API SkShadowUtils {
 public:

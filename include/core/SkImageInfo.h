@@ -8,7 +8,9 @@
 #ifndef SkImageInfo_DEFINED
 #define SkImageInfo_DEFINED
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkMath.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
@@ -19,93 +21,6 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
-/** \enum SkImageInfo::SkAlphaType
-    Describes how to interpret the alpha component of a pixel. A pixel may
-    be opaque, or alpha, describing multiple levels of transparency.
-
-    In simple blending, alpha weights the draw color and the destination
-    color to create a new color. If alpha describes a weight from zero to one:
-
-    new color = draw color * alpha + destination color * (1 - alpha)
-
-    In practice alpha is encoded in two or more bits, where 1.0 equals all bits set.
-
-    RGB may have alpha included in each component value; the stored
-    value is the original RGB multiplied by alpha. Premultiplied color
-    components improve performance.
-*/
-enum SkAlphaType : int {
-    kUnknown_SkAlphaType,                          //!< uninitialized
-    kOpaque_SkAlphaType,                           //!< pixel is opaque
-    kPremul_SkAlphaType,                           //!< pixel components are premultiplied by alpha
-    kUnpremul_SkAlphaType,                         //!< pixel components are independent of alpha
-    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType, //!< last valid value
-};
-
-/** Returns true if SkAlphaType equals kOpaque_SkAlphaType.
-
-    kOpaque_SkAlphaType is a hint that the SkColorType is opaque, or that all
-    alpha values are set to their 1.0 equivalent. If SkAlphaType is
-    kOpaque_SkAlphaType, and SkColorType is not opaque, then the result of
-    drawing any pixel with a alpha value less than 1.0 is undefined.
-*/
-static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
-    return kOpaque_SkAlphaType == at;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-/** \enum SkImageInfo::SkColorType
-    Describes how pixel bits encode color. A pixel may be an alpha mask, a grayscale, RGB, or ARGB.
-
-    kN32_SkColorType selects the native 32-bit ARGB format for the current configuration. This can
-    lead to inconsistent results across platforms, so use with caution.
-*/
-enum SkColorType : int {
-    kUnknown_SkColorType,      //!< uninitialized
-    kAlpha_8_SkColorType,      //!< pixel with alpha in 8-bit byte
-    kRGB_565_SkColorType,      //!< pixel with 5 bits red, 6 bits green, 5 bits blue, in 16-bit word
-    kARGB_4444_SkColorType,    //!< pixel with 4 bits for alpha, red, green, blue; in 16-bit word
-    kRGBA_8888_SkColorType,    //!< pixel with 8 bits for red, green, blue, alpha; in 32-bit word
-    kRGB_888x_SkColorType,     //!< pixel with 8 bits each for red, green, blue; in 32-bit word
-    kBGRA_8888_SkColorType,    //!< pixel with 8 bits for blue, green, red, alpha; in 32-bit word
-    kRGBA_1010102_SkColorType, //!< 10 bits for red, green, blue; 2 bits for alpha; in 32-bit word
-    kBGRA_1010102_SkColorType, //!< 10 bits for blue, green, red; 2 bits for alpha; in 32-bit word
-    kRGB_101010x_SkColorType,  //!< pixel with 10 bits each for red, green, blue; in 32-bit word
-    kBGR_101010x_SkColorType,  //!< pixel with 10 bits each for blue, green, red; in 32-bit word
-    kGray_8_SkColorType,       //!< pixel with grayscale level in 8-bit byte
-    kRGBA_F16Norm_SkColorType, //!< pixel with half floats in [0,1] for red, green, blue, alpha;
-                               //   in 64-bit word
-    kRGBA_F16_SkColorType,     //!< pixel with half floats for red, green, blue, alpha;
-                               //   in 64-bit word
-    kRGBA_F32_SkColorType,     //!< pixel using C float for red, green, blue, alpha; in 128-bit word
-
-    // The following 6 colortypes are just for reading from - not for rendering to
-    kR8G8_unorm_SkColorType,         //!< pixel with a uint8_t for red and green
-
-    kA16_float_SkColorType,          //!< pixel with a half float for alpha
-    kR16G16_float_SkColorType,       //!< pixel with a half float for red and green
-
-    kA16_unorm_SkColorType,          //!< pixel with a little endian uint16_t for alpha
-    kR16G16_unorm_SkColorType,       //!< pixel with a little endian uint16_t for red and green
-    kR16G16B16A16_unorm_SkColorType, //!< pixel with a little endian uint16_t for red, green, blue
-                                     //   and alpha
-
-    kSRGBA_8888_SkColorType,
-    kR8_unorm_SkColorType,
-
-    kLastEnum_SkColorType     = kR8_unorm_SkColorType, //!< last valid value
-
-#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-    kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native 32-bit BGRA encoding
-
-#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-    kN32_SkColorType          = kRGBA_8888_SkColorType,//!< native 32-bit RGBA encoding
-
-#else
-    #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
-#endif
-};
 
 /** Returns the number of bytes required to store a pixel, including unused padding.
     Returns zero if ct is kUnknown_SkColorType or invalid.

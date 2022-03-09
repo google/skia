@@ -12,6 +12,7 @@
 
 class SkReadBuffer;
 class SkWriteBuffer;
+enum SkColorType : int;
 
 class SkPaintPriv {
 public:

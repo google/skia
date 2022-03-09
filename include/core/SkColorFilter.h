@@ -13,6 +13,7 @@
 #include "include/core/SkFlattenable.h"
 
 class SkColorMatrix;
+class SkColorSpace;
 
 /**
 *  ColorFilters are optional objects in the drawing pipeline. When present in
