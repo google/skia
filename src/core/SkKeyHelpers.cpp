@@ -488,6 +488,11 @@ void AddToKey(SkShaderCodeDictionary* dict,
         validate_block_header(builder,
                               SkBuiltInCodeSnippetID::kShaderBasedBlender,
                               kBlockDataSize);
+
+        if (pipelineData) {
+            // TODO: set up the correct blend info
+            pipelineData->setBlendInfo(SkPipelineData::BlendInfo());
+        }
         return;
     }
 #endif// SK_GRAPHITE_ENABLED
@@ -534,10 +539,12 @@ SkUniquePaintParamsID CreateKey(SkShaderCodeDictionary* dict,
             break;
     }
 
-    BlendModeBlock::AddToKey(dict, builder, nullptr, bm);
+    // TODO: the blendInfo should be filled in by BlendModeBlock::AddToKey
+    SkPipelineData::BlendInfo blendInfo;
+    BlendModeBlock::AddToKey(dict, builder, /* pipelineData*/ nullptr, bm);
     SkPaintParamsKey key = builder->lockAsKey();
 
-    const SkShaderCodeDictionary::Entry* entry = dict->findOrCreate(key);
+    auto entry = dict->findOrCreate(key, blendInfo);
 
     return  entry->uniqueID();
 }

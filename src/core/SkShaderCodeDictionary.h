@@ -16,6 +16,7 @@
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkPaintParamsKey.h"
+#include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
 
 
@@ -53,16 +54,19 @@ struct SkShaderSnippet {
     SkSpan<const SkPaintParamsKey::DataPayloadField> fDataPayloadExpectations;
 };
 
+// This is just a simple collection object that gathers together all the information needed
+// for program creation and its invocation.
 class SkShaderInfo {
 public:
     void add(const SkShaderSnippet& entry) {
         fEntries.push_back(entry);
     }
-
-    // TODO: writing to color should be a property of the SnippetEntries and accumulated as the
-    // entries are added. _Not_ set manually via 'setWritesColor'.
-    void setWritesColor() { fWritesColor = true; }
-    bool writesColor() const { return fWritesColor; }
+#ifdef SK_GRAPHITE_ENABLED
+    void setBlendInfo(const SkPipelineData::BlendInfo& blendInfo) {
+        fBlendInfo = blendInfo;
+    }
+    const SkPipelineData::BlendInfo& blendInfo() const { return fBlendInfo; }
+#endif
 
 #if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
     std::string toSkSL() const;
@@ -75,7 +79,12 @@ private:
                                      int indent) const;
 
     std::vector<SkShaderSnippet> fEntries;
-    bool fWritesColor = false;
+
+#ifdef SK_GRAPHITE_ENABLED
+    // The blendInfo doesn't actually contribute to the program's creation but, it contains the
+    // matching fixed-function settings that the program's caller needs to set up.
+    SkPipelineData::BlendInfo fBlendInfo;
+#endif
 };
 
 class SkShaderCodeDictionary {
@@ -89,11 +98,21 @@ public:
             return fUniqueID;
         }
         const SkPaintParamsKey& paintParamsKey() const { return fKey; }
+#ifdef SK_GRAPHITE_ENABLED
+        const SkPipelineData::BlendInfo& blendInfo() const { return fBlendInfo; }
+#endif
 
     private:
         friend class SkShaderCodeDictionary;
 
+#ifdef SK_GRAPHITE_ENABLED
+        Entry(const SkPaintParamsKey& key, const SkPipelineData::BlendInfo& blendInfo)
+                : fKey(key.asSpan())
+                , fBlendInfo(blendInfo) {
+        }
+#else
         Entry(const SkPaintParamsKey& key) : fKey(key.asSpan()) {}
+#endif
 
         void setUniqueID(uint32_t newID) {
             SkASSERT(!fUniqueID.isValid());
@@ -102,9 +121,21 @@ public:
 
         SkUniquePaintParamsID fUniqueID;  // fixed-size (uint32_t) unique ID assigned to a key
         SkPaintParamsKey fKey; // variable-length paint key descriptor
+
+#ifdef SK_GRAPHITE_ENABLED
+        // The BlendInfo isn't used in the hash (that is the key's job) but it does directly vary
+        // with the key. It could, theoretically, be recreated from the key but that would add
+        // extra complexity.
+        SkPipelineData::BlendInfo fBlendInfo;
+#endif
     };
 
+#ifdef SK_GRAPHITE_ENABLED
+    const Entry* findOrCreate(const SkPaintParamsKey&,
+                              const SkPipelineData::BlendInfo&) SK_EXCLUDES(fSpinLock);
+#else
     const Entry* findOrCreate(const SkPaintParamsKey&) SK_EXCLUDES(fSpinLock);
+#endif
 
     const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
@@ -131,7 +162,11 @@ public:
                               SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
 
 private:
+#ifdef SK_GRAPHITE_ENABLED
+    Entry* makeEntry(const SkPaintParamsKey&, const SkPipelineData::BlendInfo&);
+#else
     Entry* makeEntry(const SkPaintParamsKey&);
+#endif
 
     struct Hash {
         size_t operator()(const SkPaintParamsKey*) const;

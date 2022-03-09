@@ -125,12 +125,21 @@ std::string SkShaderInfo::toSkSL() const {
 }
 #endif
 
-SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(const SkPaintParamsKey& key) {
+SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(
+        const SkPaintParamsKey& key
+#ifdef SK_GRAPHITE_ENABLED
+        , const SkPipelineData::BlendInfo& blendInfo
+#endif
+        ) {
     uint8_t* newKeyData = fArena.makeArray<uint8_t>(key.sizeInBytes());
     memcpy(newKeyData, key.data(), key.sizeInBytes());
 
     SkSpan<const uint8_t> newKeyAsSpan = SkMakeSpan(newKeyData, key.sizeInBytes());
+#ifdef SK_GRAPHITE_ENABLED
+    return fArena.make([&](void *ptr) { return new(ptr) Entry(newKeyAsSpan, blendInfo); });
+#else
     return fArena.make([&](void *ptr) { return new(ptr) Entry(newKeyAsSpan); });
+#endif
 }
 
 size_t SkShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey* key) const {
@@ -138,7 +147,11 @@ size_t SkShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey* key) con
 }
 
 const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
-        const SkPaintParamsKey& key) {
+        const SkPaintParamsKey& key
+#ifdef SK_GRAPHITE_ENABLED
+        , const SkPipelineData::BlendInfo& blendInfo
+#endif
+        ) {
     SkAutoSpinlock lock{fSpinLock};
 
     auto iter = fHash.find(&key);
@@ -147,7 +160,11 @@ const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
         return iter->second;
     }
 
+#ifdef SK_GRAPHITE_ENABLED
+    Entry* newEntry = this->makeEntry(key, blendInfo);
+#else
     Entry* newEntry = this->makeEntry(key);
+#endif
     newEntry->setUniqueID(fEntryVector.size());
     fHash.insert(std::make_pair(&newEntry->paintParamsKey(), newEntry));
     fEntryVector.push_back(newEntry);
@@ -198,6 +215,10 @@ void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkSha
     auto entry = this->lookup(uniqueID);
 
     entry->paintParamsKey().toShaderInfo(this, info);
+
+#ifdef SK_GRAPHITE_ENABLED
+    info->setBlendInfo(entry->blendInfo());
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

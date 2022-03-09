@@ -230,10 +230,6 @@ void SkPaintParamsKey::AddBlockToShaderInfo(SkShaderCodeDictionary* dict,
 
         AddBlockToShaderInfo(dict, childReader, result);
     }
-
-    if (reader.codeSnippetId() != SkBuiltInCodeSnippetID::kDepthStencilOnlyDraw) {
-        result->setWritesColor();
-    }
 }
 
 void SkPaintParamsKey::toShaderInfo(SkShaderCodeDictionary* dict, SkShaderInfo* result) const {
