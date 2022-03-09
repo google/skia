@@ -275,7 +275,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     renderPassDesc.fClearColor = { 1, 0, 0, 1 }; // red
 
     target->instantiate(resourceProvider);
-    DrawBufferManager bufferMgr(resourceProvider, 4);
+    DrawBufferManager bufferMgr(resourceProvider, gpu->caps()->requiredUniformBufferAlignment());
 
     TextureInfo depthStencilInfo =
             gpu->caps()->getDefaultDepthStencilTextureInfo(DepthStencilFlags::kDepthStencil,
