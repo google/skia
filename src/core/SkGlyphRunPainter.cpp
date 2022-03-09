@@ -19,6 +19,7 @@
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #endif // SK_SUPPORT_GPU
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPathEffect.h"

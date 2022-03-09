@@ -6,6 +6,7 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkCanvasPriv.h"

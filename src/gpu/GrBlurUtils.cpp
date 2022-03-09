@@ -26,6 +26,7 @@
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkPaint.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMaskFilterBase.h"
