@@ -385,22 +385,6 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
     return blobMaker.finalize(shaped_size);
 }
 
-bool result_fits(const Shaper::Result& res, const SkSize& res_size,
-                 const SkRect& box, const Shaper::TextDesc& desc) {
-    // optional max line count constraint
-    if (desc.fMaxLines) {
-        const auto line_count = res.fFragments.empty()
-                ? 0
-                : res.fFragments.back().fLineIndex + 1;
-        if (line_count > desc.fMaxLines) {
-            return false;
-        }
-    }
-
-    // geometric constraint
-    return res_size.width() <= box.width() && res_size.height() <= box.height();
-}
-
 Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
                           const SkRect& box, const sk_sp<SkFontMgr>& fontmgr) {
     Shaper::Result best_result;
@@ -435,7 +419,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         auto res = ShapeImpl(txt, desc, box, fontmgr, &res_size);
 
         const auto prev_scale = try_scale;
-        if (!result_fits(res, res_size, box, desc)) {
+        if (res_size.width() > box.width() || res_size.height() > box.height()) {
             out_scale = try_scale;
             try_scale = (in_scale == min_scale)
                     // initial in_scale not found yet - search exponentially
@@ -514,7 +498,7 @@ Shaper::Result Shaper::Shape(const SkString& orig_txt, const TextDesc& desc, con
         SkSize size;
         auto result = ShapeImpl(txt, desc, box, fontmgr, &size);
 
-        return result_fits(result, size, box, desc)
+        return (size.width() <= box.width() && size.height() <= box.height())
                 ? result
                 : ShapeToFit(txt, desc, box, fontmgr);
     }

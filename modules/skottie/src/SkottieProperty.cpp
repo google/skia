@@ -22,7 +22,6 @@ bool TextPropertyValue::operator==(const TextPropertyValue& other) const {
         && fLineHeight == other.fLineHeight
         && fLineShift == other.fLineShift
         && fAscent == other.fAscent
-        && fMaxLines == other.fMaxLines
         && fHAlign == other.fHAlign
         && fVAlign == other.fVAlign
         && fResize == other.fResize
