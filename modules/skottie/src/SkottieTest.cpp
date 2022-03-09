@@ -321,6 +321,7 @@ DEF_TEST(Skottie_Properties, reporter) {
       120,
       12,
       0,
+      0,
       SkTextUtils::kLeft_Align,
       Shaper::VAlign::kTopBaseline,
       Shaper::ResizePolicy::kNone,
@@ -480,7 +481,6 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
                 Shaper::LinebreakPolicy::kExplicit,
                 Shaper::Direction::kLTR,
                 Shaper::Capitalization::kNone,
-                Shaper::Flags::kNone
             };
 
             const auto shape_result = Shaper::Shape(text, desc, text_point,
@@ -551,7 +551,6 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                 Shaper::LinebreakPolicy::kParagraph,
                 Shaper::Direction::kLTR,
                 Shaper::Capitalization::kNone,
-                Shaper::Flags::kNone
             };
 
             const auto shape_result = Shaper::Shape(text, desc, text_box, SkFontMgr::RefDefault());
@@ -592,7 +591,6 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
         Shaper::LinebreakPolicy::kParagraph,
         Shaper::Direction::kLTR,
         Shaper::Capitalization::kNone,
-        Shaper::Flags::kNone
     };
 
     const SkString text("Foo bar baz");
@@ -685,7 +683,6 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
         Shaper::LinebreakPolicy::kParagraph,
         Shaper::Direction::kLTR,
         Shaper::Capitalization::kNone,
-        Shaper::Flags::kNone
     };
 
     const auto text_box = SkRect::MakeWH(100, 100);
