@@ -349,10 +349,10 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
 
 std::string GetMtlUniforms(int bufferID,
                            const char* name,
-                           const std::vector<SkShaderSnippet>& codeSnippets) {
+                           const std::vector<SkPaintParamsKey::BlockReader>& readers) {
     size_t numUniforms = 0;
-    for (auto e : codeSnippets) {
-        numUniforms += e.fUniforms.size();
+    for (auto r : readers) {
+        numUniforms += r.entry()->fUniforms.size();
     }
 
     if (!numUniforms) {
@@ -362,8 +362,8 @@ std::string GetMtlUniforms(int bufferID,
     int offset = 0;
 
     std::string result = get_uniform_header(bufferID, name);
-    for (int i = 0; i < (int) codeSnippets.size(); ++i) {
-        result += get_uniforms(codeSnippets[i].fUniforms, &offset, i);
+    for (int i = 0; i < (int) readers.size(); ++i) {
+        result += get_uniforms(readers[i].entry()->fUniforms, &offset, i);
     }
     result.append("};\n\n");
 
