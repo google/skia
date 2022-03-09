@@ -46,6 +46,7 @@ struct TextPropertyValue {
                             fLineHeight     = 0,
                             fLineShift      = 0,
                             fAscent         = 0;
+    size_t                  fMaxLines       = 0;                                 // when auto-sizing
     SkTextUtils::Align      fHAlign         = SkTextUtils::kLeft_Align;
     Shaper::VAlign          fVAlign         = Shaper::VAlign::kTop;
     Shaper::ResizePolicy    fResize         = Shaper::ResizePolicy::kNone;

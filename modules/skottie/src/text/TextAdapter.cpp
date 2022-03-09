@@ -440,10 +440,17 @@ void TextAdapter::setText(const TextValue& txt) {
 uint32_t TextAdapter::shaperFlags() const {
     uint32_t flags = Shaper::Flags::kNone;
 
-    // We need granular fragments (as opposed to consolidated blobs) when animating, or when
-    // positioning on a path.
-    if (!fAnimators.empty()  || fPathInfo) flags |= Shaper::Flags::kFragmentGlyphs;
-    if (fRequiresAnchorPoint)              flags |= Shaper::Flags::kTrackFragmentAdvanceAscent;
+    // We need granular fragments (as opposed to consolidated blobs):
+    //   - when animating
+    //   - when positioning on a path
+    //   - when clamping the number or lines (for accurate line count)
+    if (!fAnimators.empty() || fPathInfo || fText->fMaxLines) {
+        flags |= Shaper::Flags::kFragmentGlyphs;
+    }
+
+    if (fRequiresAnchorPoint) {
+        flags |= Shaper::Flags::kTrackFragmentAdvanceAscent;
+    }
 
     return flags;
 }
@@ -457,6 +464,7 @@ void TextAdapter::reshape() {
         fText->fLineHeight,
         fText->fLineShift,
         fText->fAscent,
+        fText->fMaxLines,
         fText->fHAlign,
         fText->fVAlign,
         fText->fResize,

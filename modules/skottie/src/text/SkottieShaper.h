@@ -109,11 +109,12 @@ public:
     struct TextDesc {
         const sk_sp<SkTypeface>&  fTypeface;
         SkScalar                  fTextSize,
-                                  fMinTextSize,
-                                  fMaxTextSize,
+                                  fMinTextSize,    // when auto-sizing
+                                  fMaxTextSize,    // when auto-sizing
                                   fLineHeight,
                                   fLineShift,
                                   fAscent;
+        size_t                    fMaxLines;       // when auto-sizing, 0 -> no max
         SkTextUtils::Align        fHAlign;
         VAlign                    fVAlign;
         ResizePolicy              fResize;
