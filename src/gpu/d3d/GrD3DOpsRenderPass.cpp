@@ -41,6 +41,7 @@ bool GrD3DOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const S
 
     fColorLoadOp = colorInfo.fLoadOp;
     fClearColor = colorInfo.fClearColor;
+    fStencilLoadOp = stencilInfo.fLoadOp;
 
     // TODO
 
