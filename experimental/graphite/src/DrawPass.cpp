@@ -378,9 +378,16 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         const DrawList::Draw& draw = *key.draw();
         const RenderStep& renderStep = key.renderStep();
 
+        const bool geometryUniformChange =
+                key.geometryUniforms() != PipelineDataCache::kInvalidUniformID &&
+                key.geometryUniforms() != lastGeometryUniforms;
+        const bool shadingUniformChange =
+                 key.shadingUniforms() != PipelineDataCache::kInvalidUniformID &&
+                 key.shadingUniforms() != lastShadingUniforms;
+
         const bool pipelineChange = key.pipeline() != lastPipeline;
-        const bool stateChange = key.geometryUniforms() != lastGeometryUniforms ||
-                                 key.shadingUniforms() != lastShadingUniforms ||
+        const bool stateChange = geometryUniformChange ||
+                                 shadingUniformChange ||
                                  draw.fClip.scissor() != lastScissor;
 
         // Update DrawWriter *before* we actually change any state so that accumulated draws from
@@ -397,24 +404,18 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         if (pipelineChange) {
             drawPass->fCommands.emplace_back(BindGraphicsPipeline{key.pipeline()});
             lastPipeline = key.pipeline();
-            lastShadingUniforms = PipelineDataCache::kInvalidUniformID;
-            lastGeometryUniforms = PipelineDataCache::kInvalidUniformID;
         }
         if (stateChange) {
-            if (key.geometryUniforms() != lastGeometryUniforms) {
-                if (key.geometryUniforms() != PipelineDataCache::kInvalidUniformID) {
-                    auto binding = geometryUniformBindings.getBinding(key.geometryUniforms());
-                    drawPass->fCommands.emplace_back(
-                            BindUniformBuffer{binding, UniformSlot::kRenderStep});
-                }
+            if (geometryUniformChange) {
+                auto binding = geometryUniformBindings.getBinding(key.geometryUniforms());
+                drawPass->fCommands.emplace_back(
+                        BindUniformBuffer{binding, UniformSlot::kRenderStep});
                 lastGeometryUniforms = key.geometryUniforms();
             }
-            if (key.shadingUniforms() != lastShadingUniforms) {
-                if (key.shadingUniforms() != PipelineDataCache::kInvalidUniformID) {
-                    auto binding = shadingUniformBindings.getBinding(key.shadingUniforms());
-                    drawPass->fCommands.emplace_back(
-                            BindUniformBuffer{binding, UniformSlot::kPaint});
-                }
+            if (shadingUniformChange) {
+                auto binding = shadingUniformBindings.getBinding(key.shadingUniforms());
+                drawPass->fCommands.emplace_back(
+                        BindUniformBuffer{binding, UniformSlot::kPaint});
                 lastShadingUniforms = key.shadingUniforms();
             }
             if (draw.fClip.scissor() != lastScissor) {
