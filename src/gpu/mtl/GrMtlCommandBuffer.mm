@@ -21,8 +21,12 @@
 GR_NORETAIN_BEGIN
 
 sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
-    id<MTLCommandBuffer> mtlCommandBuffer;
-    mtlCommandBuffer = [queue commandBuffer];
+#ifdef SK_BUILD_FOR_IOS
+    if (GrMtlIsAppInBackground()) {
+        NSLog(@"GrMtlCommandBuffer: WARNING: Creating MTLCommandBuffer while in background.");
+    }
+#endif
+    id<MTLCommandBuffer> mtlCommandBuffer = [queue commandBuffer];
     if (nil == mtlCommandBuffer) {
         return nullptr;
     }
@@ -56,6 +60,10 @@ id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
     }
 
     this->endAllEncoding();
+    if (fCmdBuffer.status != MTLCommandBufferStatusNotEnqueued) {
+        NSLog(@"GrMtlCommandBuffer: tried to create MTLBlitCommandEncoder while in invalid state.");
+        return nullptr;
+    }
 #ifdef SK_BUILD_FOR_IOS
     if (GrMtlIsAppInBackground()) {
         fActiveBlitCommandEncoder = nil;
@@ -155,6 +163,10 @@ GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
         MTLRenderPassDescriptor* descriptor,
         GrMtlOpsRenderPass* opsRenderPass) {
     this->endAllEncoding();
+    if (fCmdBuffer.status != MTLCommandBufferStatusNotEnqueued) {
+        NSLog(@"GrMtlCommandBuffer: tried to create MTLRenderCommandEncoder while in bad state.");
+        return nullptr;
+    }
 #ifdef SK_BUILD_FOR_IOS
     if (GrMtlIsAppInBackground()) {
         fActiveRenderCommandEncoder = nullptr;
@@ -175,6 +187,10 @@ GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
 
 bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
     this->endAllEncoding();
+    if (fCmdBuffer.status != MTLCommandBufferStatusNotEnqueued) {
+        NSLog(@"GrMtlCommandBuffer: Tried to commit command buffer while in invalid state.\n");
+        return false;
+    }
 #ifdef SK_BUILD_FOR_IOS
     if (GrMtlIsAppInBackground()) {
         NSLog(@"GrMtlCommandBuffer: Tried to commit command buffer while in background.\n");
@@ -187,9 +203,13 @@ bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
     }
 
     if (fCmdBuffer.status == MTLCommandBufferStatusError) {
-        NSString* description = fCmdBuffer.error.localizedDescription;
+#ifdef SK_DEBUG
+        NSString* description = [[fCmdBuffer error] localizedDescription];
         const char* errorString = [description UTF8String];
         SkDebugf("Error submitting command buffer: %s\n", errorString);
+#else
+        SkDebugf("Error submitting command buffer\n");
+#endif
     }
 
     return (fCmdBuffer.status != MTLCommandBufferStatusError);
