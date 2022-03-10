@@ -123,11 +123,11 @@ protected:
 
     PatchAttribs fAttribs;
 
+#if SK_GPU_V1
     // Calculated during prepare(). If using fixed count, this is the resolveLevel to use on our
     // instanced draws. 2^resolveLevel == numSegments.
     int fFixedResolveLevel = 0;
 
-#if SK_GPU_V1
     GrVertexChunkArray fVertexChunkArray;
 
     // If using fixed-count rendering, these are the vertex and index buffers.
