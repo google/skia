@@ -57,7 +57,7 @@ void SkTransformShader::appendMatrix(const SkMatrix& matrix, SkRasterPipeline* p
 }
 
 bool SkTransformShader::update(const SkMatrix& ctm) const {
-    if (SkMatrix matrix; this->computeTotalInverse(ctm, nullptr, &matrix)) {
+    if (SkMatrix matrix; fShader.computeTotalInverse(ctm, nullptr, &matrix)) {
         if (!fProcessingAsPerspective) {
             SkASSERT(!matrix.hasPerspective());
             if (matrix.hasPerspective()) {
