@@ -102,10 +102,14 @@ bool can_ignore_linear_filtering_subset(const SkRect& srcSubset,
 
 static const int kBmpSmallTileSize = 1 << 10;
 
-inline int get_tile_count(const SkIRect& srcRect, int tileSize)  {
+inline size_t get_tile_count(const SkIRect& srcRect, int tileSize)  {
     int tilesX = (srcRect.fRight / tileSize) - (srcRect.fLeft / tileSize) + 1;
     int tilesY = (srcRect.fBottom / tileSize) - (srcRect.fTop / tileSize) + 1;
-    return tilesX * tilesY;
+    // We calculate expected tile count before we read the bitmap's pixels, so hypothetically we can
+    // have lazy images with excessive dimensions that would cause (tilesX*tilesY) to overflow int.
+    // In these situations we also later fail to allocate a bitmap to store the lazy image, so there
+    // isn't really a performance concern around one image turning into millions of tiles.
+    return SkSafeMath::Mul(tilesX, tilesY);
 }
 
 int determine_tile_size(const SkIRect& src, int maxTileSize) {
