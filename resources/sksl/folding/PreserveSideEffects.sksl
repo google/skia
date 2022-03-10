@@ -1,0 +1,55 @@
+uniform half4 colorGreen, colorRed;
+
+// These tests verify that constructor expressions with side-effects do not get folded away.
+
+bool test_vector() {
+    bool ok = true;
+
+    float num = 0.0;
+    ok = ok && float2(++num, 0).y == 0.0;  // num => 1
+    ok = ok && float2(0, ++num).x == 0.0;  // num => 2
+
+    ok = ok && float3(++num, float2(1, 0)).yz == float2(1, 0);  // num => 3
+    ok = ok && float3(float2(1, 0), ++num).xy == float2(1, 0);  // num => 4
+    ok = ok && float3(float2(++num, 1), 0).yz == float2(1, 0);  // num => 5
+
+    ok = ok && float4(++num, float3(1, 0, 0)).yzw == float3(1, 0, 0);  // num => 6
+    ok = ok && float4(1, ++num, float2(1, 0)).x == 1.0;  // num => 7
+    ok = ok && float4(float2(1, 0), ++num, 1).w == 1.0;  // num => 8
+    ok = ok && float4(float2(1, 0), float2(1, ++num)).xyz == float3(1, 0, 1);  // num => 9
+
+    return ok && num == 9.0;
+}
+
+bool test_matrix() {
+    bool ok = true;
+
+    float num = 0.0;
+    ok = ok && float2x2(1, 2, 3, ++num)[0] == float2(1, 2);  // num => 1
+    ok = ok && float2x2(float2(++num), 3, 4)[1] == float2(3, 4);  // num => 2
+
+    ok = ok && float3x3(float3(1), float3(++num), float3(0))[0] == float3(1);  // num => 3
+    ok = ok && float3x3(float3(1), float3(++num), float3(0))[2] == float3(0);  // num => 4
+    ok = ok && float3x3(float3(++num), float3(1), float3(0))[1] == float3(1);  // num => 5
+
+    ok = ok && float3x3(1, 2, 3, 4, 5, ++num, 7, 8, 9)[0] == float3(1, 2, 3);  // num => 6
+    ok = ok && float3x3(1, 2, 3, 4, 5, 6, num++, 8, 9)[1] == float3(4, 5, 6);  // num => 7
+
+    // num => 8
+    ok = ok && float4x4(float4(++num), float4(1), float4(2), float4(3))[1] == float4(1);
+    // num => 9
+    ok = ok && float4x4(float4(1), float4(++num), float4(2), float4(3))[2] == float4(2);
+    // num => 10
+    ok = ok && float4x4(float4(1), float4(1), float4(++num), float4(3))[3] == float4(3);
+
+    ok = ok && float4x4(1,  2,      3, 4,
+                        5,  6,      7, 8,
+                        9,  10,    11, 12,
+                        13, 14, ++num, 16)[3].xy == float2(13, 14); // num => 11
+
+    return ok && num == 11.0;
+}
+
+half4 main(float2 coords) {
+    return test_vector() && test_matrix() ? colorGreen : colorRed;
+}

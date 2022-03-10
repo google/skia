@@ -524,6 +524,7 @@ sksl_folding_tests = [
   "/sksl/folding/MatrixFoldingES2.sksl",
   "/sksl/folding/MatrixFoldingES3.sksl",
   "/sksl/folding/Negation.sksl",
+  "/sksl/folding/PreserveSideEffects.sksl",
   "/sksl/folding/SelfAssignment.sksl",
   "/sksl/folding/ShortCircuitBoolFolding.sksl",
   "/sksl/folding/SwizzleFolding.sksl",

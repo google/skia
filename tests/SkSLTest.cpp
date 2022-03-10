@@ -333,6 +333,7 @@ SKSL_TEST(CPU + GPU + SkQP, FloatFolding,                    "folding/FloatFoldi
 SKSL_TEST(CPU + GPU + SkQP, MatrixFoldingES2,                "folding/MatrixFoldingES2.sksl")
 SKSL_TEST(GPU_ES3,          MatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
 SKSL_TEST(CPU + GPU + SkQP, Negation,                        "folding/Negation.sksl")
+SKSL_TEST(CPU + GPU + SkQP, PreserveSideEffects,             "folding/PreserveSideEffects.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SelfAssignment,                  "folding/SelfAssignment.sksl")
 SKSL_TEST(CPU + GPU + SkQP, ShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SwitchCaseFolding,               "folding/SwitchCaseFolding.sksl")

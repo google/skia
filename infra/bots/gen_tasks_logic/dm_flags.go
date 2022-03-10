@@ -996,8 +996,21 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// Various Nvidia GPUs crash or generate errors when assembling weird matrices
 			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES2_GPU") // skia:12443
 			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES3_GPU") // skia:12443
+
+			// Nvidia drivers erroneously constant-fold expressions with side-effects in matrix and
+			// vector constructors when compiling GLSL.
+			skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_GPU") // skia:13035
 		}
+	}
+
+	if b.gpu("Tegra3") && !b.extraConfig("Vulkan") {
+		// Fails on Tegra3 w/ OpenGL ES
 		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU") // skia:11919
+	}
+
+	if b.gpu("QuadroP400") && b.matchOs("Ubuntu") && b.matchModel("Golo") {
+		// Fails on Ubuntu18-Golo bots with QuadroP400 GPUs on Vulkan and OpenGL
+		skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_GPU") // skia:13035
 	}
 
 	if b.gpu("PowerVRGE8320") || b.gpu("Tegra3") || b.gpu("Adreno308") {
