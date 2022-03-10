@@ -14,9 +14,13 @@
 
 class GrMockAttachment : public GrAttachment {
 public:
-    GrMockAttachment(GrMockGpu* gpu, SkISize dimensions, UsageFlags supportedUsages, int sampleCnt)
+    GrMockAttachment(GrMockGpu* gpu,
+                     SkISize dimensions,
+                     UsageFlags supportedUsages,
+                     int sampleCnt,
+                     std::string_view label)
             : INHERITED(gpu, dimensions, supportedUsages, sampleCnt, GrMipmapped::kNo,
-                        GrProtected::kNo) {
+                        GrProtected::kNo, label) {
         SkASSERT(supportedUsages == UsageFlags::kStencilAttachment);
         this->registerWithCache(SkBudgeted::kYes);
     }

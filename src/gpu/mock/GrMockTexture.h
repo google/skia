@@ -20,8 +20,9 @@ public:
                   SkISize dimensions,
                   GrProtected isProtected,
                   GrMipmapStatus mipmapStatus,
-                  const GrMockTextureInfo& info)
-            : GrMockTexture(gpu, dimensions, isProtected, mipmapStatus, info) {
+                  const GrMockTextureInfo& info,
+                  std::string_view label)
+            : GrMockTexture(gpu, dimensions, isProtected, mipmapStatus, info, label) {
         this->registerWithCache(budgeted);
     }
 
@@ -31,8 +32,9 @@ public:
                   GrMipmapStatus mipmapStatus,
                   const GrMockTextureInfo& info,
                   GrWrapCacheable cacheable,
-                  GrIOType ioType)
-            : GrMockTexture(gpu, dimensions, isProtected, mipmapStatus, info) {
+                  GrIOType ioType,
+                  std::string_view label)
+            : GrMockTexture(gpu, dimensions, isProtected, mipmapStatus, info, label) {
         if (ioType == kRead_GrIOType) {
             this->setReadOnly();
         }
@@ -54,9 +56,11 @@ public:
 protected:
     // constructor for subclasses
     GrMockTexture(GrMockGpu* gpu, const SkISize& dimensions, GrProtected isProtected,
-                  GrMipmapStatus mipmapStatus, const GrMockTextureInfo& info)
-            : GrSurface(gpu, dimensions, isProtected)
-            , INHERITED(gpu, dimensions, isProtected, GrTextureType::k2D, mipmapStatus)
+                  GrMipmapStatus mipmapStatus,
+                  const GrMockTextureInfo& info,
+                  std::string_view label)
+            : GrSurface(gpu, dimensions, isProtected, label)
+            , INHERITED(gpu, dimensions, isProtected, GrTextureType::k2D, mipmapStatus, label)
             , fInfo(info) {}
 
     void onRelease() override {
@@ -84,18 +88,21 @@ public:
                        SkISize dimensions,
                        int sampleCnt,
                        GrProtected isProtected,
-                       const GrMockRenderTargetInfo& info)
-            : GrSurface(gpu, dimensions, isProtected)
-            , INHERITED(gpu, dimensions, sampleCnt, isProtected)
+                       const GrMockRenderTargetInfo& info,
+                       std::string_view label)
+            : GrSurface(gpu, dimensions, isProtected, label)
+            , INHERITED(gpu, dimensions, sampleCnt, isProtected, label)
             , fInfo(info) {
         this->registerWithCache(budgeted);
     }
 
     enum Wrapped { kWrapped };
     GrMockRenderTarget(GrMockGpu* gpu, Wrapped, SkISize dimensions, int sampleCnt,
-                       GrProtected isProtected, const GrMockRenderTargetInfo& info)
-            : GrSurface(gpu, dimensions, isProtected)
-            , INHERITED(gpu, dimensions, sampleCnt, isProtected)
+                       GrProtected isProtected,
+                       const GrMockRenderTargetInfo& info,
+                       std::string_view label)
+            : GrSurface(gpu, dimensions, isProtected, label)
+            , INHERITED(gpu, dimensions, sampleCnt, isProtected, label)
             , fInfo(info) {
         this->registerWithCacheWrapped(GrWrapCacheable::kNo);
     }
@@ -138,9 +145,10 @@ protected:
                        SkISize dimensions,
                        int sampleCnt,
                        GrProtected isProtected,
-                       const GrMockRenderTargetInfo& info)
-            : GrSurface(gpu, dimensions, isProtected)
-            , INHERITED(gpu, dimensions, sampleCnt, isProtected)
+                       const GrMockRenderTargetInfo& info,
+                       std::string_view label)
+            : GrSurface(gpu, dimensions, isProtected, label)
+            , INHERITED(gpu, dimensions, sampleCnt, isProtected, label)
             , fInfo(info) {}
 
 private:
@@ -159,10 +167,11 @@ public:
                               GrProtected isProtected,
                               GrMipmapStatus mipmapStatus,
                               const GrMockTextureInfo& texInfo,
-                              const GrMockRenderTargetInfo& rtInfo)
-            : GrSurface(gpu, dimensions, isProtected)
-            , GrMockTexture(gpu, dimensions, isProtected, mipmapStatus, texInfo)
-            , GrMockRenderTarget(gpu, dimensions, sampleCnt, isProtected, rtInfo) {
+                              const GrMockRenderTargetInfo& rtInfo,
+                              std::string_view label)
+            : GrSurface(gpu, dimensions, isProtected, label)
+            , GrMockTexture(gpu, dimensions, isProtected, mipmapStatus, texInfo, label)
+            , GrMockRenderTarget(gpu, dimensions, sampleCnt, isProtected, rtInfo, label) {
         this->registerWithCache(budgeted);
     }
 
@@ -174,10 +183,11 @@ public:
                               GrMipmapStatus mipmapStatus,
                               const GrMockTextureInfo& texInfo,
                               const GrMockRenderTargetInfo& rtInfo,
-                              GrWrapCacheable cacheable)
-            : GrSurface(gpu, dimensions, isProtected)
-            , GrMockTexture(gpu, dimensions, isProtected, mipmapStatus, texInfo)
-            , GrMockRenderTarget(gpu, dimensions, sampleCnt, isProtected, rtInfo) {
+                              GrWrapCacheable cacheable,
+                              std::string_view label)
+            : GrSurface(gpu, dimensions, isProtected, label)
+            , GrMockTexture(gpu, dimensions, isProtected, mipmapStatus, texInfo, label)
+            , GrMockRenderTarget(gpu, dimensions, sampleCnt, isProtected, rtInfo, label) {
         this->registerWithCacheWrapped(cacheable);
     }
 

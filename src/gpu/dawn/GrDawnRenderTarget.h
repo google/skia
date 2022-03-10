@@ -35,7 +35,8 @@ protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
                        SkISize dimensions,
                        int sampleCnt,
-                       const GrDawnRenderTargetInfo& info);
+                       const GrDawnRenderTargetInfo& info,
+                       std::string_view label);
 
     void onAbandon() override;
     void onRelease() override;

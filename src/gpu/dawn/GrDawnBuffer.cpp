@@ -28,8 +28,9 @@ namespace {
 }
 
 GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
-                           GrAccessPattern pattern)
-    : INHERITED(gpu, sizeInBytes, type, pattern) {
+                           GrAccessPattern pattern,
+                           std::string_view label)
+    : INHERITED(gpu, sizeInBytes, type, pattern, label) {
     wgpu::BufferDescriptor bufferDesc;
     bufferDesc.size = sizeInBytes;
     bufferDesc.usage = GrGpuBufferTypeToDawnUsageBit(type);

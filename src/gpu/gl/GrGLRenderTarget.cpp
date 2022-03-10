@@ -27,9 +27,10 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    GrGLFormat format,
                                    int sampleCount,
                                    const IDs& ids,
-                                   sk_sp<GrGLAttachment> stencil)
-        : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo, std::move(stencil)) {
+                                   sk_sp<GrGLAttachment> stencil,
+                                   std::string_view label)
+        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
+        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo, label, std::move(stencil)) {
     this->init(format, ids);
     this->setFlags(gpu->glCaps(), ids);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -39,9 +40,10 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    const SkISize& dimensions,
                                    GrGLFormat format,
                                    int sampleCount,
-                                   const IDs& ids)
-        : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo) {
+                                   const IDs& ids,
+                                   std::string_view label)
+        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
+        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo, label) {
     this->init(format, ids);
     this->setFlags(gpu->glCaps(), ids);
 }
@@ -103,7 +105,7 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                      sFmt);
     }
     return sk_sp<GrGLRenderTarget>(
-            new GrGLRenderTarget(gpu, dimensions, format, sampleCount, idDesc, std::move(sb)));
+            new GrGLRenderTarget(gpu, dimensions, format, sampleCount, idDesc, std::move(sb), {}));
 }
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {

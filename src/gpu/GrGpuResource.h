@@ -222,7 +222,7 @@ protected:
     // final class).
     void registerWithCacheWrapped(GrWrapCacheable);
 
-    GrGpuResource(GrGpu*);
+    GrGpuResource(GrGpu*, std::string_view label);
     virtual ~GrGpuResource();
 
     GrGpu* getGpu() const { return fGpu; }
@@ -311,6 +311,7 @@ private:
     GrBudgetedType fBudgetedType = GrBudgetedType::kUnbudgetedUncacheable;
     bool fRefsWrappedObjects = false;
     const UniqueID fUniqueID;
+    const std::string fLabel;
 
     using INHERITED = GrIORef<GrGpuResource>;
     friend class GrIORef<GrGpuResource>; // to access notifyRefCntWillBeZero and

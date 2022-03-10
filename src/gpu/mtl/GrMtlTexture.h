@@ -43,7 +43,11 @@ public:
     bool reallocForMipmap(GrMtlGpu* gpu, uint32_t mipLevels);
 
 protected:
-    GrMtlTexture(GrMtlGpu*, SkISize, sk_sp<GrMtlAttachment>, GrMipmapStatus);
+    GrMtlTexture(GrMtlGpu*,
+                 SkISize,
+                 sk_sp<GrMtlAttachment>,
+                 GrMipmapStatus,
+                 std::string_view label);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -63,7 +67,12 @@ protected:
 private:
     enum Wrapped { kWrapped };
 
-    GrMtlTexture(GrMtlGpu*, SkBudgeted, SkISize, sk_sp<GrMtlAttachment>, GrMipmapStatus);
+    GrMtlTexture(GrMtlGpu*,
+                 SkBudgeted,
+                 SkISize,
+                 sk_sp<GrMtlAttachment>,
+                 GrMipmapStatus,
+                 std::string_view label);
 
     GrMtlTexture(GrMtlGpu*,
                  Wrapped,
@@ -71,7 +80,8 @@ private:
                  sk_sp<GrMtlAttachment>,
                  GrMipmapStatus,
                  GrWrapCacheable,
-                 GrIOType);
+                 GrIOType,
+                 std::string_view label);
 
     sk_sp<GrMtlAttachment> fTexture;
 

@@ -17,8 +17,15 @@ GrDawnAttachment::GrDawnAttachment(GrDawnGpu* gpu,
                                    UsageFlags supportedUsages,
                                    int samples,
                                    wgpu::Texture texture,
-                                   wgpu::TextureView view)
-        : INHERITED(gpu, dimensions, supportedUsages, samples, GrMipmapped::kNo, GrProtected::kNo)
+                                   wgpu::TextureView view,
+                                   std::string_view label)
+        : INHERITED(gpu,
+                    dimensions,
+                    supportedUsages,
+                    samples,
+                    GrMipmapped::kNo,
+                    GrProtected::kNo,
+                    label)
         , fTexture(texture)
         , fView(view) {
     this->registerWithCache(SkBudgeted::kYes);
@@ -41,9 +48,8 @@ sk_sp<GrDawnAttachment> GrDawnAttachment::MakeStencil(GrDawnGpu* gpu,
     if (!view) {
         return nullptr;
     }
-    return sk_sp<GrDawnAttachment>(
-            new GrDawnAttachment(gpu, dimensions, UsageFlags::kStencilAttachment, sampleCnt,
-                                 texture, view));
+    return sk_sp<GrDawnAttachment>(new GrDawnAttachment(
+            gpu, dimensions, UsageFlags::kStencilAttachment, sampleCnt, texture, view, {}));
 }
 
 GrDawnAttachment::~GrDawnAttachment() {}

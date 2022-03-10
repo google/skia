@@ -40,7 +40,8 @@ private:
                 GrAccessPattern accessPattern,
                 VkBuffer buffer,
                 const GrVkAlloc& alloc,
-                const GrVkDescriptorSet* uniformDescriptorSet);
+               const GrVkDescriptorSet* uniformDescriptorSet,
+               std::string_view label);
 
     bool isVkMappable() const { return fAlloc.fFlags & GrVkAlloc::kMappable_Flag; }
 

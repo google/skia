@@ -24,9 +24,10 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      SkISize dimensions,
                                      sk_sp<GrMtlAttachment> colorAttachment,
                                      sk_sp<GrMtlAttachment> resolveAttachment,
-                                     Wrapped)
-        : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , GrRenderTarget(gpu, dimensions, colorAttachment->numSamples(), GrProtected::kNo)
+                                     Wrapped,
+                                     std::string_view label)
+        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
+        , GrRenderTarget(gpu, dimensions, colorAttachment->numSamples(), GrProtected::kNo, label)
         , fColorAttachment(std::move(colorAttachment))
         , fResolveAttachment(std::move(resolveAttachment)) {
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -36,9 +37,10 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      SkISize dimensions,
                                      sk_sp<GrMtlAttachment> colorAttachment,
-                                     sk_sp<GrMtlAttachment> resolveAttachment)
-        : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , GrRenderTarget(gpu, dimensions, colorAttachment->numSamples(), GrProtected::kNo)
+                                     sk_sp<GrMtlAttachment> resolveAttachment,
+                                     std::string_view label)
+        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
+        , GrRenderTarget(gpu, dimensions, colorAttachment->numSamples(), GrProtected::kNo, label)
         , fColorAttachment(std::move(colorAttachment))
         , fResolveAttachment(std::move(resolveAttachment)) {
 }
@@ -76,16 +78,16 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
                     sk_sp<GrMtlAttachment>(static_cast<GrMtlAttachment*>(msaaAttachment.release()));
             mtlRT = new GrMtlRenderTarget(
                     gpu, dimensions, std::move(colorAttachment), std::move(textureAttachment),
-                    kWrapped);
+                    kWrapped, {});
             mtlRT->setRequiresManualMSAAResolve();
         } else {
             SkASSERT(sampleCnt == static_cast<int>([texture sampleCount]));
             mtlRT = new GrMtlRenderTarget(gpu, dimensions, std::move(textureAttachment), nil,
-                                          kWrapped);
+                                          kWrapped, {});
         }
     } else {
         mtlRT = new GrMtlRenderTarget(gpu, dimensions, std::move(textureAttachment), nil,
-                                      kWrapped);
+                                      kWrapped, {});
     }
 
     return sk_sp<GrMtlRenderTarget>(mtlRT);

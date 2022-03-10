@@ -16,9 +16,15 @@ GrD3DAttachment::GrD3DAttachment(GrD3DGpu* gpu,
                                  const D3D12_RESOURCE_DESC& desc,
                                  const GrD3DTextureResourceInfo& info,
                                  sk_sp<GrD3DResourceState> state,
-                                 const GrD3DDescriptorHeap::CPUHandle& view)
-        : GrAttachment(gpu, dimensions, supportedUsages, desc.SampleDesc.Count, GrMipmapped::kNo,
-                       GrProtected::kNo)
+                                 const GrD3DDescriptorHeap::CPUHandle& view,
+                                 std::string_view label)
+        : GrAttachment(gpu,
+                       dimensions,
+                       supportedUsages,
+                       desc.SampleDesc.Count,
+                       GrMipmapped::kNo,
+                       GrProtected::kNo,
+                       label)
         , GrD3DTextureResource(info, state)
         , fView(view)
         , fFormat(format) {
@@ -61,7 +67,9 @@ sk_sp<GrD3DAttachment> GrD3DAttachment::MakeStencil(GrD3DGpu* gpu,
     return sk_sp<GrD3DAttachment>(new GrD3DAttachment(gpu, dimensions,
                                                       UsageFlags::kStencilAttachment,
                                                       format, resourceDesc, info,
-                                                      std::move(state), view));
+                                                      std::move(state),
+                                                      view,
+                                                      {}));
 }
 
 void GrD3DAttachment::onRelease() {

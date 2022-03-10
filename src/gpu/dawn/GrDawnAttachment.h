@@ -34,7 +34,8 @@ private:
                      UsageFlags supportedUsages,
                      int samples,
                      wgpu::Texture texture,
-                     wgpu::TextureView view);
+                     wgpu::TextureView view,
+                     std::string_view label);
 
     GrDawnGpu* getDawnGpu() const;
 

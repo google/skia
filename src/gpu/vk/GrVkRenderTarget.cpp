@@ -52,12 +52,18 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    SkISize dimensions,
                                    sk_sp<GrVkImage> colorAttachment,
                                    sk_sp<GrVkImage> resolveAttachment,
-                                   CreateType createType)
-        : GrSurface(gpu, dimensions,
-                    colorAttachment->isProtected() ? GrProtected::kYes : GrProtected::kNo)
+                                   CreateType createType,
+                                   std::string_view label)
+        : GrSurface(gpu,
+                    dimensions,
+                    colorAttachment->isProtected() ? GrProtected::kYes : GrProtected::kNo,
+                    label)
         // for the moment we only support 1:1 color to stencil
-        , GrRenderTarget(gpu, dimensions, colorAttachment->numSamples(),
-                         colorAttachment->isProtected() ? GrProtected::kYes : GrProtected::kNo)
+        , GrRenderTarget(gpu,
+                         dimensions,
+                         colorAttachment->numSamples(),
+                         colorAttachment->isProtected() ? GrProtected::kYes : GrProtected::kNo,
+                         label)
         , fColorAttachment(std::move(colorAttachment))
         , fResolveAttachment(std::move(resolveAttachment))
         , fCachedFramebuffers() {
@@ -82,13 +88,19 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
 
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    SkISize dimensions,
-                                   sk_sp<GrVkFramebuffer> externalFramebuffer)
-        : GrSurface(gpu, dimensions,
+                                   sk_sp<GrVkFramebuffer> externalFramebuffer,
+                                   std::string_view label)
+        : GrSurface(gpu,
+                    dimensions,
                     externalFramebuffer->colorAttachment()->isProtected() ? GrProtected::kYes
-                                                                          : GrProtected::kNo)
-        , GrRenderTarget(gpu, dimensions, 1,
+                                                                          : GrProtected::kNo,
+                    label)
+        , GrRenderTarget(gpu,
+                         dimensions,
+                         1,
                          externalFramebuffer->colorAttachment()->isProtected() ? GrProtected::kYes
-                                                                               : GrProtected::kNo)
+                                                                               : GrProtected::kNo,
+                         label)
         , fCachedFramebuffers()
         , fExternalFramebuffer(externalFramebuffer) {
     SkASSERT(fExternalFramebuffer);
@@ -146,8 +158,8 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
         return nullptr;
     }
 
-    GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu,dimensions, std::move(colorAttachment),
-                                                  nullptr, CreateType::kDirectlyWrapped);
+    GrVkRenderTarget* vkRT = new GrVkRenderTarget(
+            gpu, dimensions, std::move(colorAttachment), nullptr, CreateType::kDirectlyWrapped, {});
     return sk_sp<GrVkRenderTarget>(vkRT);
 }
 
@@ -194,7 +206,7 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
             gpu, std::move(colorAttachment), sk_sp<const GrVkRenderPass>(rp),
             std::move(scb)));
 
-    GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu, dimensions, std::move(framebuffer));
+    GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu, dimensions, std::move(framebuffer), {});
 
     return sk_sp<GrVkRenderTarget>(vkRT);
 }

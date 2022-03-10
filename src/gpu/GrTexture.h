@@ -64,7 +64,12 @@ public:
                                   skgpu::ScratchKey* key);
 
 protected:
-    GrTexture(GrGpu*, const SkISize&, GrProtected, GrTextureType, GrMipmapStatus);
+    GrTexture(GrGpu*,
+              const SkISize&,
+              GrProtected,
+              GrTextureType,
+              GrMipmapStatus,
+              std::string_view label);
 
     virtual bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) = 0;
 

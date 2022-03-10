@@ -81,7 +81,11 @@ public:
     bool updateData(const void* src, size_t srcSizeInBytes);
 
 protected:
-    GrGpuBuffer(GrGpu*, size_t sizeInBytes, GrGpuBufferType, GrAccessPattern);
+    GrGpuBuffer(GrGpu*,
+                size_t sizeInBytes,
+                GrGpuBufferType,
+                GrAccessPattern,
+                std::string_view label);
     GrGpuBufferType intendedType() const { return fIntendedType; }
 
     void* fMapPtr;

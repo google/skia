@@ -25,7 +25,8 @@ public:
                               SkISize dimensions,
                               int sampleCnt,
                               const GrDawnTextureInfo& textureInfo,
-                              GrMipmapStatus mipmapStatus);
+                              GrMipmapStatus mipmapStatus,
+                              std::string_view label);
 
     bool canAttemptStencilAttachment(bool useMSAASurface) const override;
 

@@ -15,11 +15,12 @@ GrDawnTextureRenderTarget::GrDawnTextureRenderTarget(GrDawnGpu* gpu,
                                                      SkISize dimensions,
                                                      int sampleCnt,
                                                      const GrDawnTextureInfo& textureInfo,
-                                                     GrMipmapStatus mipmapStatus)
-        : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , GrDawnTexture(gpu, dimensions, textureInfo, mipmapStatus)
-        , GrDawnRenderTarget(gpu, dimensions, sampleCnt,
-                             GrDawnRenderTargetInfo(textureInfo)) {}
+                                                     GrMipmapStatus mipmapStatus,
+                                                     std::string_view label)
+        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
+        , GrDawnTexture(gpu, dimensions, textureInfo, mipmapStatus, label)
+        , GrDawnRenderTarget(
+                  gpu, dimensions, sampleCnt, GrDawnRenderTargetInfo(textureInfo), label) {}
 
 bool GrDawnTextureRenderTarget::canAttemptStencilAttachment(bool useMSAASurface) const {
     SkASSERT(useMSAASurface == (this->numSamples() > 1));

@@ -24,12 +24,18 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkBudgeted budgeted,
                          SkISize dimensions,
                          sk_sp<GrVkImage> texture,
-                         GrMipmapStatus mipmapStatus)
-        : GrSurface(gpu, dimensions,
-                    texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
-        , GrTexture(gpu, dimensions,
+                         GrMipmapStatus mipmapStatus,
+                         std::string_view label)
+        : GrSurface(gpu,
+                    dimensions,
                     texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
-                    GrTextureType::k2D, mipmapStatus)
+                    label)
+        , GrTexture(gpu,
+                    dimensions,
+                    texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
+                    GrTextureType::k2D,
+                    mipmapStatus,
+                    label)
         , fTexture(std::move(texture))
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == fTexture->mipLevels()));
@@ -43,12 +49,24 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
     }
 }
 
-GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions,
-                         sk_sp<GrVkImage> texture, GrMipmapStatus mipmapStatus,
-                         GrWrapCacheable cacheable, GrIOType ioType, bool isExternal)
-        : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
-        , GrTexture(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
-                    isExternal ? GrTextureType::kExternal : GrTextureType::k2D, mipmapStatus)
+GrVkTexture::GrVkTexture(GrVkGpu* gpu,
+                         SkISize dimensions,
+                         sk_sp<GrVkImage> texture,
+                         GrMipmapStatus mipmapStatus,
+                         GrWrapCacheable cacheable,
+                         GrIOType ioType,
+                         bool isExternal,
+                         std::string_view label)
+        : GrSurface(gpu,
+                    dimensions,
+                    texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
+                    label)
+        , GrTexture(gpu,
+                    dimensions,
+                    texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
+                    isExternal ? GrTextureType::kExternal : GrTextureType::k2D,
+                    mipmapStatus,
+                    label)
         , fTexture(std::move(texture))
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == fTexture->mipLevels()));
@@ -63,10 +81,18 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions,
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkISize dimensions,
                          sk_sp<GrVkImage> texture,
-                         GrMipmapStatus mipmapStatus)
-        : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
-        , GrTexture(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
-                    GrTextureType::k2D, mipmapStatus)
+                         GrMipmapStatus mipmapStatus,
+                         std::string_view label)
+        : GrSurface(gpu,
+                    dimensions,
+                    texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
+                    label)
+        , GrTexture(gpu,
+                    dimensions,
+                    texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
+                    GrTextureType::k2D,
+                    mipmapStatus,
+                    label)
         , fTexture(std::move(texture))
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == fTexture->mipLevels()));
@@ -88,8 +114,8 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
     if (!texture) {
         return nullptr;
     }
-    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, budgeted, dimensions, std::move(texture),
-                                              mipmapStatus));
+    return sk_sp<GrVkTexture>(
+            new GrVkTexture(gpu, budgeted, dimensions, std::move(texture), mipmapStatus, {}));
 }
 
 sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
@@ -117,8 +143,8 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
     bool isExternal = info.fYcbcrConversionInfo.isValid() &&
                       (info.fYcbcrConversionInfo.fExternalFormat != 0);
     isExternal |= (info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT);
-    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, dimensions, std::move(texture), mipmapStatus,
-                                              cacheable, ioType, isExternal));
+    return sk_sp<GrVkTexture>(new GrVkTexture(
+            gpu, dimensions, std::move(texture), mipmapStatus, cacheable, ioType, isExternal, {}));
 }
 
 GrVkTexture::~GrVkTexture() {

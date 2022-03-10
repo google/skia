@@ -75,13 +75,16 @@ sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType
 
     return sk_sp<GrD3DBuffer>(new GrD3DBuffer(gpu, size, intendedType, accessPattern,
                                               std::move(resource), std::move(alloc),
-                                              resourceState));
+                                              resourceState,
+                                              {}));
 }
 
 GrD3DBuffer::GrD3DBuffer(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedType,
                          GrAccessPattern accessPattern, gr_cp<ID3D12Resource> bufferResource,
-                         sk_sp<GrD3DAlloc> alloc, D3D12_RESOURCE_STATES resourceState)
-    : INHERITED(gpu, size, intendedType, accessPattern)
+                         sk_sp<GrD3DAlloc> alloc,
+                         D3D12_RESOURCE_STATES resourceState,
+                         std::string_view label)
+    : INHERITED(gpu, size, intendedType, accessPattern, label)
     , fResourceState(resourceState)
     , fD3DResource(std::move(bufferResource))
     , fAlloc(std::move(alloc)) {

@@ -41,7 +41,8 @@ private:
                     const D3D12_RESOURCE_DESC&,
                     const GrD3DTextureResourceInfo&,
                     sk_sp<GrD3DResourceState>,
-                    const GrD3DDescriptorHeap::CPUHandle& view);
+                    const GrD3DDescriptorHeap::CPUHandle& view,
+                    std::string_view label);
 
     GrD3DGpu* getD3DGpu() const;
 

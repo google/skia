@@ -228,7 +228,8 @@ private:
               sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
               sk_sp<const GrVkImageView> framebufferView,
               sk_sp<const GrVkImageView> textureView,
-              SkBudgeted);
+              SkBudgeted,
+              std::string_view label);
 
     GrVkImage(GrVkGpu* gpu,
               SkISize dimensions,
@@ -239,7 +240,8 @@ private:
               sk_sp<const GrVkImageView> textureView,
               GrBackendObjectOwnership,
               GrWrapCacheable,
-              bool forSecondaryCB);
+              bool forSecondaryCB,
+              std::string_view label);
 
     void init(GrVkGpu*, bool forSecondaryCB);
 

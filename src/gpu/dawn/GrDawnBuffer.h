@@ -15,7 +15,11 @@ class GrDawnGpu;
 
 class GrDawnBuffer : public GrGpuBuffer {
 public:
-    GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType type, GrAccessPattern pattern);
+    GrDawnBuffer(GrDawnGpu* gpu,
+                 size_t sizeInBytes,
+                 GrGpuBufferType type,
+                 GrAccessPattern pattern,
+                 std::string_view label);
 
     ~GrDawnBuffer() override;
 

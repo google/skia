@@ -70,7 +70,11 @@ public:
     const SkTArray<SkPoint>& getSampleLocations();
 
 protected:
-    GrRenderTarget(GrGpu*, const SkISize&, int sampleCount, GrProtected,
+    GrRenderTarget(GrGpu*,
+                   const SkISize&,
+                   int sampleCount,
+                   GrProtected,
+                   std::string_view label,
                    sk_sp<GrAttachment> stenicl = nullptr);
     ~GrRenderTarget() override;
 

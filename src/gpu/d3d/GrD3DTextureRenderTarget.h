@@ -63,7 +63,8 @@ private:
                              sk_sp<GrD3DResourceState> msaaState,
                              const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
                              const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
-                             GrMipmapStatus);
+                             GrMipmapStatus,
+                             std::string_view label);
 
     // non-MSAA, not-wrapped
     GrD3DTextureRenderTarget(GrD3DGpu* gpu,
@@ -73,7 +74,8 @@ private:
                              sk_sp<GrD3DResourceState> state,
                              const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
                              const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
-                             GrMipmapStatus);
+                             GrMipmapStatus,
+                             std::string_view label);
 
     // MSAA, wrapped
     GrD3DTextureRenderTarget(GrD3DGpu* gpu,
@@ -86,7 +88,8 @@ private:
                              const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
                              const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
                              GrMipmapStatus,
-                             GrWrapCacheable);
+                             GrWrapCacheable,
+                             std::string_view label);
 
     // non-MSAA, wrapped
     GrD3DTextureRenderTarget(GrD3DGpu* gpu,
@@ -96,7 +99,8 @@ private:
                              const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
                              const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
                              GrMipmapStatus,
-                             GrWrapCacheable);
+                             GrWrapCacheable,
+                             std::string_view label);
 
     // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;

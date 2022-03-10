@@ -116,10 +116,13 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(SkISize dimensions,
         GrMockRenderTargetInfo rtInfo(ct, NextInternalRenderTargetID());
         return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, budgeted, dimensions,
                                                               renderTargetSampleCnt, isProtected,
-                                                              mipmapStatus, texInfo, rtInfo));
+                                                              mipmapStatus,
+                                                              texInfo,
+                                                              rtInfo,
+                                                              {}));
     }
     return sk_sp<GrTexture>(
-            new GrMockTexture(this, budgeted, dimensions, isProtected, mipmapStatus, texInfo));
+            new GrMockTexture(this, budgeted, dimensions, isProtected, mipmapStatus, texInfo, {}));
 }
 
 // TODO: why no 'isProtected' ?!
@@ -147,7 +150,7 @@ sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(SkISize dimensions,
                               NextInternalTextureID());
 
     return sk_sp<GrTexture>(
-            new GrMockTexture(this, budgeted, dimensions, isProtected, mipmapStatus, texInfo));
+            new GrMockTexture(this, budgeted, dimensions, isProtected, mipmapStatus, texInfo, {}));
 }
 
 sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
@@ -165,8 +168,8 @@ sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
     GrMipmapStatus mipmapStatus = tex.hasMipmaps() ? GrMipmapStatus::kValid
                                                    : GrMipmapStatus::kNotAllocated;
     auto isProtected = GrProtected(tex.isProtected());
-    return sk_sp<GrTexture>(new GrMockTexture(this, tex.dimensions(), isProtected, mipmapStatus,
-                                              texInfo, wrapType, ioType));
+    return sk_sp<GrTexture>(new GrMockTexture(
+            this, tex.dimensions(), isProtected, mipmapStatus, texInfo, wrapType, ioType, {}));
 }
 
 sk_sp<GrTexture> GrMockGpu::onWrapCompressedBackendTexture(const GrBackendTexture& tex,
@@ -192,7 +195,9 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     auto isProtected = GrProtected(tex.isProtected());
     return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, tex.dimensions(), sampleCnt,
                                                           isProtected, mipmapStatus, texInfo,
-                                                          rtInfo, cacheable));
+                                                          rtInfo,
+                                                          cacheable,
+                                                          {}));
 }
 
 sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt) {
@@ -202,20 +207,21 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendRenderTarget(const GrBackendRender
     auto isProtected = GrProtected(rt.isProtected());
     return sk_sp<GrRenderTarget>(new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped,
                                                         rt.dimensions(), rt.sampleCnt(),
-                                                        isProtected, info));
+                                                        isProtected,
+                                                        info,
+                                                        {}));
 }
 
 sk_sp<GrGpuBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,
                                              GrAccessPattern accessPattern, const void*) {
-    return sk_sp<GrGpuBuffer>(new GrMockBuffer(this, sizeInBytes, type, accessPattern));
+    return sk_sp<GrGpuBuffer>(new GrMockBuffer(this, sizeInBytes, type, accessPattern, {}));
 }
 
 sk_sp<GrAttachment> GrMockGpu::makeStencilAttachment(const GrBackendFormat& /*colorFormat*/,
                                                      SkISize dimensions, int numStencilSamples) {
     fStats.incStencilAttachmentCreates();
-    return sk_sp<GrAttachment>(
-            new GrMockAttachment(this, dimensions, GrAttachment::UsageFlags::kStencilAttachment,
-                                 numStencilSamples));
+    return sk_sp<GrAttachment>(new GrMockAttachment(
+            this, dimensions, GrAttachment::UsageFlags::kStencilAttachment, numStencilSamples, {}));
 }
 
 GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,

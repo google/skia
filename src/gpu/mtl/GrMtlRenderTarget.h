@@ -61,7 +61,8 @@ protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       SkISize,
                       sk_sp<GrMtlAttachment> colorAttachment,
-                      sk_sp<GrMtlAttachment> resolveAttachment);
+                      sk_sp<GrMtlAttachment> resolveAttachment,
+                      std::string_view label);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -81,7 +82,8 @@ private:
                       SkISize,
                       sk_sp<GrMtlAttachment> colorAttachment,
                       sk_sp<GrMtlAttachment> resolveAttachment,
-                      Wrapped);
+                      Wrapped,
+                      std::string_view label);
 
     bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) override;
 

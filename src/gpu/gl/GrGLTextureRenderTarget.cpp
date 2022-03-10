@@ -18,10 +18,11 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  int sampleCount,
                                                  const GrGLTexture::Desc& texDesc,
                                                  const GrGLRenderTarget::IDs& rtIDs,
-                                                 GrMipmapStatus mipmapStatus)
-        : GrSurface(gpu, texDesc.fSize, GrProtected::kNo)
-        , GrGLTexture(gpu, texDesc, nullptr, mipmapStatus)
-        , GrGLRenderTarget(gpu, texDesc.fSize, texDesc.fFormat, sampleCount, rtIDs) {
+                                                 GrMipmapStatus mipmapStatus,
+                                                 std::string_view label)
+        : GrSurface(gpu, texDesc.fSize, GrProtected::kNo, label)
+        , GrGLTexture(gpu, texDesc, nullptr, mipmapStatus, label)
+        , GrGLRenderTarget(gpu, texDesc.fSize, texDesc.fFormat, sampleCount, rtIDs, label) {
     this->registerWithCache(budgeted);
 }
 
@@ -31,11 +32,11 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  sk_sp<GrGLTextureParameters> parameters,
                                                  const GrGLRenderTarget::IDs& rtIDs,
                                                  GrWrapCacheable cacheable,
-                                                 GrMipmapStatus mipmapStatus)
-        : GrSurface(gpu, texDesc.fSize, GrProtected::kNo)
-        , GrGLTexture(gpu, texDesc, std::move(parameters), mipmapStatus)
-        , GrGLRenderTarget(gpu, texDesc.fSize, texDesc.fFormat, sampleCount,
-                           rtIDs) {
+                                                 GrMipmapStatus mipmapStatus,
+                                                 std::string_view label)
+        : GrSurface(gpu, texDesc.fSize, GrProtected::kNo, label)
+        , GrGLTexture(gpu, texDesc, std::move(parameters), mipmapStatus, label)
+        , GrGLRenderTarget(gpu, texDesc.fSize, texDesc.fFormat, sampleCount, rtIDs, label) {
     this->registerWithCacheWrapped(cacheable);
 }
 
@@ -69,7 +70,7 @@ sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
         GrWrapCacheable cacheable,
         GrMipmapStatus mipmapStatus) {
     return sk_sp<GrGLTextureRenderTarget>(new GrGLTextureRenderTarget(
-            gpu, sampleCount, texDesc, std::move(parameters), rtIDs, cacheable, mipmapStatus));
+            gpu, sampleCount, texDesc, std::move(parameters), rtIDs, cacheable, mipmapStatus, {}));
 }
 
 size_t GrGLTextureRenderTarget::onGpuMemorySize() const {

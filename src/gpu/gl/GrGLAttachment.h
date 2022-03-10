@@ -31,9 +31,8 @@ public:
                                                          UsageFlags supportedUsages,
                                                          int sampleCnt,
                                                          GrGLFormat format) {
-        return sk_sp<GrGLAttachment>(
-                new GrGLAttachment(gpu, renderbufferID, dimensions, supportedUsages, sampleCnt,
-                                   format));
+        return sk_sp<GrGLAttachment>(new GrGLAttachment(
+                gpu, renderbufferID, dimensions, supportedUsages, sampleCnt, format, {}));
     }
 
     GrBackendFormat backendFormat() const override;
@@ -55,9 +54,15 @@ private:
                    SkISize dimensions,
                    UsageFlags supportedUsages,
                    int sampleCnt,
-                   GrGLFormat format)
-            : GrAttachment(gpu, dimensions, supportedUsages, sampleCnt, GrMipmapped::kNo,
-                           GrProtected::kNo)
+                   GrGLFormat format,
+                   std::string_view label)
+            : GrAttachment(gpu,
+                           dimensions,
+                           supportedUsages,
+                           sampleCnt,
+                           GrMipmapped::kNo,
+                           GrProtected::kNo,
+                           label)
             , fFormat(format)
             , fRenderbufferID(renderbufferID) {
         SkASSERT(supportedUsages == UsageFlags::kStencilAttachment ||

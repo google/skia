@@ -26,7 +26,11 @@ public:
     id<MTLBuffer> mtlBuffer() const { return fMtlBuffer; }
 
 protected:
-    GrMtlBuffer(GrMtlGpu*, size_t size, GrGpuBufferType intendedType, GrAccessPattern);
+    GrMtlBuffer(GrMtlGpu*,
+                size_t size,
+                GrGpuBufferType intendedType,
+                GrAccessPattern,
+                std::string_view label);
 
     void onAbandon() override;
     void onRelease() override;

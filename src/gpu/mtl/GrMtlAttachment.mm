@@ -20,10 +20,11 @@ GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
                                  SkISize dimensions,
                                  UsageFlags supportedUsages,
                                  id<MTLTexture> texture,
-                                 SkBudgeted budgeted)
+                                 SkBudgeted budgeted,
+                                 std::string_view label)
         : GrAttachment(gpu, dimensions, supportedUsages, texture.sampleCount,
                        texture.mipmapLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
-                       GrProtected::kNo)
+                       GrProtected::kNo, label)
         , fTexture(texture) {
     this->registerWithCache(budgeted);
 }
@@ -32,10 +33,11 @@ GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
                                  SkISize dimensions,
                                  UsageFlags supportedUsages,
                                  id<MTLTexture> texture,
-                                 GrWrapCacheable cacheable)
+                                 GrWrapCacheable cacheable,
+                                 std::string_view label)
         : GrAttachment(gpu, dimensions, supportedUsages, texture.sampleCount,
                        texture.mipmapLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
-                       GrProtected::kNo)
+                       GrProtected::kNo, label)
         , fTexture(texture) {
     this->registerWithCacheWrapped(cacheable);
 }
@@ -140,7 +142,7 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::Make(GrMtlGpu* gpu,
 #endif
 
     return sk_sp<GrMtlAttachment>(new GrMtlAttachment(gpu, dimensions, attachmentUsages,
-                                                      texture, budgeted));
+                                                      texture, budgeted, {}));
 }
 
 sk_sp<GrMtlAttachment> GrMtlAttachment::MakeWrapped(
@@ -151,7 +153,7 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::MakeWrapped(
         GrWrapCacheable cacheable) {
 
     return sk_sp<GrMtlAttachment>(new GrMtlAttachment(gpu, dimensions, attachmentUsages, texture,
-                                                      cacheable));
+                                                      cacheable, {}));
 }
 
 GrMtlAttachment::~GrMtlAttachment() {

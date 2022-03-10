@@ -37,7 +37,7 @@ NSString* kBufferTypeNames[kGrGpuBufferTypeCount] = {
 
 sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                      GrAccessPattern accessPattern, const void* data) {
-    sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern));
+    sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern, {}));
     if (data && !buffer->onUpdateData(data, size)) {
         return nullptr;
     }
@@ -45,8 +45,8 @@ sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType
 }
 
 GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
-                         GrAccessPattern accessPattern)
-        : INHERITED(gpu, size, intendedType, accessPattern)
+                         GrAccessPattern accessPattern, std::string_view label)
+        : INHERITED(gpu, size, intendedType, accessPattern, label)
         , fIsDynamic(accessPattern != kStatic_GrAccessPattern) {
     NSUInteger options = 0;
     if (@available(macOS 10.11, iOS 9.0, *)) {

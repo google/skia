@@ -21,7 +21,8 @@ static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
     return gpu->getContext()->priv().getResourceCache();
 }
 
-GrGpuResource::GrGpuResource(GrGpu* gpu) : fGpu(gpu), fUniqueID(CreateUniqueID()) {
+GrGpuResource::GrGpuResource(GrGpu* gpu, std::string_view label)
+        : fGpu(gpu), fUniqueID(CreateUniqueID()), fLabel(label) {
     SkDEBUGCODE(fCacheArrayIndex = -1);
 }
 

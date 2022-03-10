@@ -30,7 +30,7 @@ public:
 
 protected:
     GrD3DBuffer(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern, gr_cp<ID3D12Resource>,
-                sk_sp<GrD3DAlloc>, D3D12_RESOURCE_STATES);
+                sk_sp<GrD3DAlloc>, D3D12_RESOURCE_STATES, std::string_view label);
 
     void onAbandon() override;
     void onRelease() override;

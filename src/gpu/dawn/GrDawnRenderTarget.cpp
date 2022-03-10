@@ -14,16 +14,17 @@
 GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
                                        SkISize dimensions,
                                        int sampleCnt,
-                                       const GrDawnRenderTargetInfo& info)
-        : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , GrRenderTarget(gpu, dimensions, sampleCnt, GrProtected::kNo)
+                                       const GrDawnRenderTargetInfo& info,
+                                       std::string_view label)
+        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
+        , GrRenderTarget(gpu, dimensions, sampleCnt, GrProtected::kNo, label)
         , fInfo(info) {}
 
 sk_sp<GrDawnRenderTarget> GrDawnRenderTarget::MakeWrapped(GrDawnGpu* gpu,
                                                           SkISize dimensions,
                                                           int sampleCnt,
                                                           const GrDawnRenderTargetInfo& info) {
-    sk_sp<GrDawnRenderTarget> rt(new GrDawnRenderTarget(gpu, dimensions, sampleCnt, info));
+    sk_sp<GrDawnRenderTarget> rt(new GrDawnRenderTarget(gpu, dimensions, sampleCnt, info, {}));
     rt->registerWithCacheWrapped(GrWrapCacheable::kNo);
     return rt;
 }

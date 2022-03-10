@@ -18,8 +18,9 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu,
                                const SkISize& dimensions,
                                int sampleCount,
                                GrProtected isProtected,
+                               std::string_view label,
                                sk_sp<GrAttachment> stencil)
-        : INHERITED(gpu, dimensions, isProtected)
+        : INHERITED(gpu, dimensions, isProtected, label)
         , fSampleCnt(sampleCount) {
     if (this->numSamples() > 1) {
         fMSAAStencilAttachment = std::move(stencil);

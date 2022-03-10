@@ -26,11 +26,12 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      sk_sp<GrD3DResourceState> msaaState,
                                      const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
                                      const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
-                                     Wrapped)
-        : GrSurface(gpu, dimensions, info.fProtected)
+                                     Wrapped,
+                                     std::string_view label)
+        : GrSurface(gpu, dimensions, info.fProtected, label)
         , GrD3DTextureResource(info, std::move(state))
         // for the moment we only support 1:1 color to stencil
-        , GrRenderTarget(gpu, dimensions, msaaInfo.fSampleCount, info.fProtected)
+        , GrRenderTarget(gpu, dimensions, msaaInfo.fSampleCount, info.fProtected, label)
         , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState)))
         , fColorRenderTargetView(colorRenderTargetView)
         , fResolveRenderTargetView(resolveRenderTargetView) {
@@ -48,11 +49,12 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      const GrD3DTextureResourceInfo& msaaInfo,
                                      sk_sp<GrD3DResourceState> msaaState,
                                      const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
-                                     const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView)
-        : GrSurface(gpu, dimensions, info.fProtected)
+                                     const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
+                                     std::string_view label)
+        : GrSurface(gpu, dimensions, info.fProtected, label)
         , GrD3DTextureResource(info, std::move(state))
         // for the moment we only support 1:1 color to stencil
-        , GrRenderTarget(gpu, dimensions, msaaInfo.fSampleCount, info.fProtected)
+        , GrRenderTarget(gpu, dimensions, msaaInfo.fSampleCount, info.fProtected, label)
         , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState)))
         , fColorRenderTargetView(colorRenderTargetView)
         , fResolveRenderTargetView(resolveRenderTargetView) {
@@ -67,10 +69,11 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      const GrD3DTextureResourceInfo& info,
                                      sk_sp<GrD3DResourceState> state,
                                      const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
-                                     Wrapped)
-        : GrSurface(gpu, dimensions, info.fProtected)
+                                     Wrapped,
+                                     std::string_view label)
+        : GrSurface(gpu, dimensions, info.fProtected, label)
         , GrD3DTextureResource(info, std::move(state))
-        , GrRenderTarget(gpu, dimensions, info.fSampleCount, info.fProtected)
+        , GrRenderTarget(gpu, dimensions, info.fSampleCount, info.fProtected, label)
         , fMSAATextureResource(nullptr)
         , fColorRenderTargetView(renderTargetView) {
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -82,10 +85,11 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      SkISize dimensions,
                                      const GrD3DTextureResourceInfo& info,
                                      sk_sp<GrD3DResourceState> state,
-                                     const GrD3DDescriptorHeap::CPUHandle& renderTargetView)
-        : GrSurface(gpu, dimensions, info.fProtected)
+                                     const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
+                                     std::string_view label)
+        : GrSurface(gpu, dimensions, info.fProtected, label)
         , GrD3DTextureResource(info, std::move(state))
-        , GrRenderTarget(gpu, dimensions, info.fSampleCount, info.fProtected)
+        , GrRenderTarget(gpu, dimensions, info.fSampleCount, info.fProtected, label)
         , fMSAATextureResource(nullptr)
         , fColorRenderTargetView(renderTargetView) {}
 
@@ -119,10 +123,11 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
 
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state), msInfo,
                                       std::move(msState), msaaRenderTargetView, renderTargetView,
-                                      kWrapped);
+                                      kWrapped,
+                                      {});
     } else {
-        d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state), renderTargetView,
-                                      kWrapped);
+        d3dRT = new GrD3DRenderTarget(
+                gpu, dimensions, info, std::move(state), renderTargetView, kWrapped, {});
     }
 
     return sk_sp<GrD3DRenderTarget>(d3dRT);

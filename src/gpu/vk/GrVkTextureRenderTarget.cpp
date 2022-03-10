@@ -28,11 +28,14 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(
         sk_sp<GrVkImage> texture,
         sk_sp<GrVkImage> colorAttachment,
         sk_sp<GrVkImage> resolveAttachment,
-        GrMipmapStatus mipmapStatus)
-        : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
-        , GrVkTexture(gpu, dimensions, std::move(texture), mipmapStatus)
+        GrMipmapStatus mipmapStatus,
+        std::string_view label)
+        : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo, label)
+        , GrVkTexture(gpu, dimensions, std::move(texture), mipmapStatus, label)
         , GrVkRenderTarget(gpu, dimensions, std::move(colorAttachment),
-                           std::move(resolveAttachment), CreateType::kFromTextureRT) {
+                           std::move(resolveAttachment),
+                           CreateType::kFromTextureRT,
+                           label) {
     this->registerWithCache(budgeted);
 }
 
@@ -43,11 +46,15 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(
         sk_sp<GrVkImage> colorAttachment,
         sk_sp<GrVkImage> resolveAttachment,
         GrMipmapStatus mipmapStatus,
-        GrWrapCacheable cacheable)
-        : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
-        , GrVkTexture(gpu, dimensions, std::move(texture), mipmapStatus)
+        GrWrapCacheable cacheable,
+        std::string_view label)
+        : GrSurface(gpu,
+                    dimensions,
+                    texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
+                    label)
+        , GrVkTexture(gpu, dimensions, std::move(texture), mipmapStatus, label)
         , GrVkRenderTarget(gpu, dimensions, std::move(colorAttachment),
-                           std::move(resolveAttachment), CreateType::kFromTextureRT) {
+                           std::move(resolveAttachment), CreateType::kFromTextureRT, label) {
     this->registerWithCacheWrapped(cacheable);
 }
 
@@ -101,9 +108,14 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeNewTextureRenderTarg
     }
     SkASSERT(colorAttachment);
     SkASSERT(sampleCnt == 1 || resolveAttachment);
-    return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(
-            gpu, budgeted, dimensions, std::move(texture), std::move(colorAttachment),
-            std::move(resolveAttachment), mipmapStatus));
+    return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(gpu,
+                                                                      budgeted,
+                                                                      dimensions,
+                                                                      std::move(texture),
+                                                                      std::move(colorAttachment),
+                                                                      std::move(resolveAttachment),
+                                                                      mipmapStatus,
+                                                                      {}));
 }
 
 sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(
@@ -146,9 +158,14 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRender
     GrMipmapStatus mipmapStatus =
             info.fLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
 
-    return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(
-            gpu, dimensions, std::move(texture), std::move(colorAttachment),
-            std::move(resolveAttachment), mipmapStatus, cacheable));
+    return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(gpu,
+                                                                      dimensions,
+                                                                      std::move(texture),
+                                                                      std::move(colorAttachment),
+                                                                      std::move(resolveAttachment),
+                                                                      mipmapStatus,
+                                                                      cacheable,
+                                                                      {}));
 }
 
 size_t GrVkTextureRenderTarget::onGpuMemorySize() const {

@@ -36,8 +36,12 @@ public:
     bool hasAttachedToTexture() const { return fHasAttachedToTexture; }
 
 protected:
-    GrGLBuffer(GrGLGpu*, size_t size, GrGpuBufferType intendedType, GrAccessPattern,
-               const void* data);
+    GrGLBuffer(GrGLGpu*,
+               size_t size,
+               GrGpuBufferType intendedType,
+               GrAccessPattern,
+               const void* data,
+               std::string_view label);
 
     void onAbandon() override;
     void onRelease() override;

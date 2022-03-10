@@ -23,11 +23,12 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    sk_sp<GrMtlAttachment> texture,
                                                    sk_sp<GrMtlAttachment> colorAttachment,
                                                    sk_sp<GrMtlAttachment> resolveAttachment,
-                                                   GrMipmapStatus mipmapStatus)
-        : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , GrMtlTexture(gpu, dimensions, std::move(texture), mipmapStatus)
+                                                   GrMipmapStatus mipmapStatus,
+                                                   std::string_view label)
+        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
+        , GrMtlTexture(gpu, dimensions, std::move(texture), mipmapStatus, label)
         , GrMtlRenderTarget(gpu, dimensions, std::move(colorAttachment),
-                            std::move(resolveAttachment)) {
+                            std::move(resolveAttachment), label) {
     this->registerWithCache(budgeted);
 }
 
@@ -37,11 +38,12 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    sk_sp<GrMtlAttachment> colorAttachment,
                                                    sk_sp<GrMtlAttachment> resolveAttachment,
                                                    GrMipmapStatus mipmapStatus,
-                                                   GrWrapCacheable cacheable)
-        : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , GrMtlTexture(gpu, dimensions, std::move(texture), mipmapStatus)
+                                                   GrWrapCacheable cacheable,
+                                                   std::string_view label)
+        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
+        , GrMtlTexture(gpu, dimensions, std::move(texture), mipmapStatus, label)
         , GrMtlRenderTarget(gpu, dimensions, std::move(colorAttachment),
-                            std::move(resolveAttachment)) {
+                            std::move(resolveAttachment), label) {
     this->registerWithCacheWrapped(cacheable);
 }
 
@@ -95,7 +97,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
 
     return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
             gpu, budgeted, dimensions, std::move(textureAttachment), std::move(colorAttachment),
-            std::move(resolveAttachment), mipmapStatus));
+            std::move(resolveAttachment), mipmapStatus, {}));
 }
 
 sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
@@ -130,7 +132,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
 
     return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
             gpu, dimensions, std::move(textureAttachment), std::move(colorAttachment),
-            std::move(resolveAttachment), mipmapStatus, cacheable));
+            std::move(resolveAttachment), mipmapStatus, cacheable, {}));
 }
 
 size_t GrMtlTextureRenderTarget::onGpuMemorySize() const {

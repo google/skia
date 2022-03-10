@@ -23,8 +23,9 @@ GrVkBuffer::GrVkBuffer(GrVkGpu* gpu,
                          GrAccessPattern accessPattern,
                          VkBuffer buffer,
                          const GrVkAlloc& alloc,
-                         const GrVkDescriptorSet* uniformDescriptorSet)
-        : GrGpuBuffer(gpu, sizeInBytes, bufferType, accessPattern)
+                       const GrVkDescriptorSet* uniformDescriptorSet,
+                       std::string_view label)
+        : GrGpuBuffer(gpu, sizeInBytes, bufferType, accessPattern, label)
         , fBuffer(buffer)
         , fAlloc(alloc)
         , fUniformDescriptorSet(uniformDescriptorSet) {
@@ -148,8 +149,8 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
         }
     }
 
-    return sk_sp<GrVkBuffer>(new GrVkBuffer(gpu, size, bufferType, accessPattern, buffer, alloc,
-                                              uniformDescSet));
+    return sk_sp<GrVkBuffer>(new GrVkBuffer(
+            gpu, size, bufferType, accessPattern, buffer, alloc, uniformDescSet, {}));
 }
 
 void GrVkBuffer::vkMap(size_t size) {

@@ -42,7 +42,7 @@ sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu, size_t size, GrGpuBufferType in
         return nullptr;
     }
 
-    sk_sp<GrGLBuffer> buffer(new GrGLBuffer(gpu, size, intendedType, accessPattern, data));
+    sk_sp<GrGLBuffer> buffer(new GrGLBuffer(gpu, size, intendedType, accessPattern, data, {}));
     if (0 == buffer->bufferID()) {
         return nullptr;
     }
@@ -103,9 +103,13 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
     return usageType(bufferType, accessPattern);
 }
 
-GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrGpuBufferType intendedType,
-                       GrAccessPattern accessPattern, const void* data)
-        : INHERITED(gpu, size, intendedType, accessPattern)
+GrGLBuffer::GrGLBuffer(GrGLGpu* gpu,
+                       size_t size,
+                       GrGpuBufferType intendedType,
+                       GrAccessPattern accessPattern,
+                       const void* data,
+                       std::string_view label)
+        : INHERITED(gpu, size, intendedType, accessPattern, label)
         , fIntendedType(intendedType)
         , fBufferID(0)
         , fUsage(gr_to_gl_access_pattern(intendedType, accessPattern, gpu->glCaps()))

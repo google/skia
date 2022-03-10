@@ -98,7 +98,8 @@ protected:
                      const SkISize&,
                      GrGLFormat,
                      int sampleCount,
-                     const IDs&);
+                     const IDs&,
+                     std::string_view label);
 
     void init(GrGLFormat, const IDs&);
 
@@ -112,9 +113,13 @@ protected:
 
 private:
     // Constructor for instances wrapping backend objects.
-    GrGLRenderTarget(
-            GrGLGpu*, const SkISize&, GrGLFormat, int sampleCount, const IDs&,
-            sk_sp<GrGLAttachment> stencil);
+    GrGLRenderTarget(GrGLGpu*,
+                     const SkISize&,
+                     GrGLFormat,
+                     int sampleCount,
+                     const IDs&,
+                     sk_sp<GrGLAttachment> stencil,
+                     std::string_view label);
 
     void setFlags(const GrGLCaps&, const IDs&);
 
