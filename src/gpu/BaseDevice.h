@@ -44,7 +44,7 @@ public:
 
     GrSurfaceProxyView readSurfaceView();
 
-    BaseDevice* asGpuDevice() override { return this; }
+    BaseDevice* asGaneshDevice() override { return this; }
 
 #if SK_GPU_V1
     virtual v1::SurfaceDrawContext* surfaceDrawContext() { return nullptr; }

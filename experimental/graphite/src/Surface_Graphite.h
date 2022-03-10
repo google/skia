@@ -21,6 +21,7 @@ public:
     Surface(sk_sp<Device>);
     ~Surface() override;
 
+    Recorder* onGetRecorder() override;
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;

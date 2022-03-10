@@ -117,7 +117,7 @@ void SkCanvasPriv::DrawCustomMesh(SkCanvas* canvas,
 
 #if SK_GPU_V1
 skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
-    if (auto gpuDevice = canvas->topDevice()->asGpuDevice()) {
+    if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
         return gpuDevice->surfaceDrawContext();
     }
 
@@ -126,7 +126,7 @@ skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanva
 #endif // SK_GPU_V1
 
 skgpu::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
-    if (auto gpuDevice = canvas->topDevice()->asGpuDevice()) {
+    if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
         return gpuDevice->surfaceFillContext();
     }
 
@@ -153,7 +153,7 @@ skgpu::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* c
 #include "src/gpu/BaseDevice.h"
 
 GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
-    if (auto gpuDevice = canvas->topDevice()->asGpuDevice()) {
+    if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
         return gpuDevice->targetProxy();
     }
 

@@ -38,6 +38,8 @@ public:
                               SkColorType,
                               SkAlphaType);
 
+    Device* asGraphiteDevice() override { return this; }
+
     Recorder* recorder() { return fRecorder; }
     // This call is triggered from the Recorder on its registered Devices. It is typically called
     // when the Recorder is abandoned or deleted.

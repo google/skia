@@ -62,6 +62,10 @@
 #endif
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/src/Device.h"
+#endif
+
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
 
@@ -1706,13 +1710,24 @@ GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
 
 GrRecordingContext* SkCanvas::recordingContext() {
 #if SK_SUPPORT_GPU
-    if (auto gpuDevice = this->topDevice()->asGpuDevice()) {
+    if (auto gpuDevice = this->topDevice()->asGaneshDevice()) {
         return gpuDevice->recordingContext();
     }
 #endif
 
     return nullptr;
 }
+
+skgpu::Recorder* SkCanvas::recorder() {
+#ifdef SK_GRAPHITE_ENABLED
+    if (auto graphiteDevice = this->topDevice()->asGraphiteDevice()) {
+        return graphiteDevice->recorder();
+    }
+#endif
+
+    return nullptr;
+}
+
 
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
                           const SkPaint& paint) {

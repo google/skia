@@ -66,6 +66,8 @@ class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
 
+namespace skgpu { class Recorder; }
+
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
     SkCanvas contains a stack of SkMatrix and clip values.
@@ -296,6 +298,12 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_recordingContext
      */
     virtual GrRecordingContext* recordingContext();
+
+    /** Returns Recorder for the GPU surface associated with SkCanvas.
+
+        @return  Recorder, if available; nullptr otherwise
+     */
+    virtual skgpu::Recorder* recorder();
 
     /** Sometimes a canvas is owned by a surface. If it is, getSurface() will return a bare
      *  pointer to that surface, else this will return nullptr.

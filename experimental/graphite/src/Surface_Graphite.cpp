@@ -21,6 +21,10 @@ Surface::Surface(sk_sp<Device> device)
 
 Surface::~Surface() {}
 
+Recorder* Surface::onGetRecorder() {
+    return fDevice->recorder();
+}
+
 SkCanvas* Surface::onNewCanvas() { return new SkCanvas(fDevice); }
 
 sk_sp<SkSurface> Surface::onNewSurface(const SkImageInfo& ii) {
