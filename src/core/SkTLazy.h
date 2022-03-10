@@ -110,7 +110,7 @@ private:
 };
 
 /**
- * A helper built on top of SkTLazy to do copy-on-first-write. The object is initialized
+ * A helper built on top of std::optional to do copy-on-first-write. The object is initialized
  * with a const pointer but provides a non-const pointer accessor. The first time the
  * accessor is called (if ever) the object is cloned.
  *
@@ -147,29 +147,29 @@ public:
 
     SkTCopyOnFirstWrite& operator=(const SkTCopyOnFirstWrite& that) {
         fLazy = that.fLazy;
-        fObj  = fLazy.isValid() ? fLazy.get() : that.fObj;
+        fObj  = fLazy.has_value() ? &fLazy.value() : that.fObj;
         return *this;
     }
 
     SkTCopyOnFirstWrite& operator=(SkTCopyOnFirstWrite&& that) {
         fLazy = std::move(that.fLazy);
-        fObj  = fLazy.isValid() ? fLazy.get() : that.fObj;
+        fObj  = fLazy.has_value() ? &fLazy.value() : that.fObj;
         return *this;
     }
 
     // Should only be called once, and only if the default constructor was used.
     void init(const T& initial) {
-        SkASSERT(nullptr == fObj);
-        SkASSERT(!fLazy.isValid());
+        SkASSERT(!fObj);
+        SkASSERT(!fLazy.has_value());
         fObj = &initial;
     }
 
     // If not already initialized, in-place instantiates the writable object
     template <typename... Args>
     void initIfNeeded(Args&&... args) {
-        if (nullptr == fObj) {
-            SkASSERT(!fLazy.isValid());
-            fObj = fLazy.init(std::forward<Args>(args)...);
+        if (!fObj) {
+            SkASSERT(!fLazy.has_value());
+            fObj = fLazy.emplace(std::forward<Args>(args)...);
         }
     }
 
@@ -178,11 +178,11 @@ public:
      */
     T* writable() {
         SkASSERT(fObj);
-        if (!fLazy.isValid()) {
-            fLazy.set(*fObj);
-            fObj = fLazy.get();
+        if (!fLazy.has_value()) {
+            fLazy = *fObj;
+            fObj = &fLazy.value();
         }
-        return const_cast<T*>(fObj);
+        return &fLazy.value();
     }
 
     const T* get() const { return fObj; }
@@ -198,8 +198,8 @@ public:
     const T& operator *() const { return *fObj; }
 
 private:
-    const T*    fObj;
-    SkTLazy<T>  fLazy;
+    const T*         fObj;
+    std::optional<T> fLazy;
 };
 
 #endif
