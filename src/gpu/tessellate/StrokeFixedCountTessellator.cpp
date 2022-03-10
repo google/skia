@@ -22,7 +22,8 @@ namespace skgpu {
 
 namespace {
 
-using Writer = PatchWriter<Required<PatchAttribs::kJoinControlPoint>,
+using Writer = PatchWriter<GrVertexChunkBuilder,
+                           Required<PatchAttribs::kJoinControlPoint>,
                            Optional<PatchAttribs::kStrokeParams>,
                            Optional<PatchAttribs::kColor>,
                            Optional<PatchAttribs::kWideColorIfEnabled>,
@@ -218,8 +219,8 @@ int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
                                          std::array<float,2> matrixMinMaxScales,
                                          PathStrokeList* pathStrokeList,
                                          int totalCombinedStrokeVerbCnt) {
-    Writer patchWriter(target, &fVertexChunkArray, fAttribs, kMaxParametricSegments,
-                       PatchPreallocCount(totalCombinedStrokeVerbCnt));
+    Writer patchWriter{fAttribs, kMaxParametricSegments,
+                       target, &fVertexChunkArray, PatchPreallocCount(totalCombinedStrokeVerbCnt)};
 
     fFixedEdgeCount = write_patches(std::move(patchWriter),
                                     shaderMatrix,

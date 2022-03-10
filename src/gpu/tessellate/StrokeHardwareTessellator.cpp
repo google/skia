@@ -56,7 +56,8 @@ void quad_to_cubic(const SkPoint p[3], SkPoint patch[4]) {
 }
 
 using PathStrokeList = StrokeTessellator::PathStrokeList;
-using HwPatchWriterBase = PatchWriter<Required<PatchAttribs::kJoinControlPoint>,
+using HwPatchWriterBase = PatchWriter<GrVertexChunkBuilder,
+                                      Required<PatchAttribs::kJoinControlPoint>,
                                       Optional<PatchAttribs::kStrokeParams>,
                                       Optional<PatchAttribs::kColor>,
                                       Optional<PatchAttribs::kWideColorIfEnabled>>;
@@ -76,7 +77,7 @@ public:
                   int maxTessellationSegments,
                   int preallocCount,
                   float matrixMaxScale)
-            : HwPatchWriterBase(target, vertexChunkArray, attribs, 0, preallocCount)
+            : HwPatchWriterBase(attribs, 0, target, vertexChunkArray, preallocCount)
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
             , fMaxTessellationSegments(std::max(maxTessellationSegments - 2, 1))

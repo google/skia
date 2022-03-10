@@ -22,7 +22,8 @@ namespace skgpu {
 
 namespace {
 
-using Writer = PatchWriter<Optional<PatchAttribs::kColor>,
+using Writer = PatchWriter<GrVertexChunkBuilder,
+                           Optional<PatchAttribs::kColor>,
                            Optional<PatchAttribs::kWideColorIfEnabled>,
                            Optional<PatchAttribs::kExplicitCurveType>,
                            AddTrianglesWhenChopping,
@@ -167,8 +168,8 @@ void PathCurveTessellator::prepareWithTriangles(
     int patchPreallocCount = PatchPreallocCount(totalCombinedPathVerbCnt) +
                              (extraTriangles ? extraTriangles->count() : 0);
     if (patchPreallocCount) {
-        Writer writer{target, &fVertexChunkArray, fAttribs,
-                      maxTessellationSegments, patchPreallocCount};
+        Writer writer{fAttribs, maxTessellationSegments,
+                      target, &fVertexChunkArray, patchPreallocCount};
 
         // Write out extra space-filling triangles to connect the curve patches with any external
         // source of geometry (e.g. inner triangulation that handles winding explicitly).

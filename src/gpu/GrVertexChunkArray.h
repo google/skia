@@ -32,10 +32,12 @@ struct GrVertexChunk {
 using GrVertexChunkArray = SkSTArray<1, GrVertexChunk>;
 
 // Builds a GrVertexChunkArray. The provided Target must not be used externally throughout the
-// entire lifetime of this object.
+// entire lifetime of this object. GrVertexChunkBuilder is drop-in compatible for the PatchAllocator
+// parameter to PatchWriter.
 class GrVertexChunkBuilder : SkNoncopyable {
 public:
-    GrVertexChunkBuilder(GrMeshDrawTarget* target, GrVertexChunkArray* chunks, size_t stride,
+    // Stride must come first to be compatible with PatchWriter's templating.
+    GrVertexChunkBuilder(size_t stride, GrMeshDrawTarget* target, GrVertexChunkArray* chunks,
                          int minVerticesPerChunk)
             : fTarget(target)
             , fChunks(chunks)
@@ -63,7 +65,8 @@ public:
                              fCurrChunkVertexWriter.makeOffset(fStride * count));
     }
 
-    SK_ALWAYS_INLINE skgpu::VertexWriter appendVertex() { return this->appendVertices(1); }
+    // PatchWriter's allocator template requires an append() function
+    SK_ALWAYS_INLINE skgpu::VertexWriter append() { return this->appendVertices(1); }
 
     // Pops the most recent 'count' contiguous vertices. Since there is no guarantee of contiguity
     // between appends, 'count' may be no larger than the most recent call to appendVertices().

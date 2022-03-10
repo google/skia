@@ -9,7 +9,6 @@
 #define tessellate_PatchWriter_DEFINED
 
 #include "include/private/SkColorData.h"
-#include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
@@ -52,6 +51,15 @@ namespace skgpu {
  *   - TrackJoinControlPoints
  *   - AddTrianglesWhenChopping
  *   - DiscardFlatCurves
+ *
+ * In addition to variable traits, PatchWriter's first template argument defines the type used for
+ * allocating the GPU instance data. The templated "PatchAllocator" can be any type that provides:
+ *   size_t stride() const;        // the stride of each instance
+ *   skgpu::VertexWriter append(); // a GPU-backed vertex writer for a single instance worth of data
+ *
+ * Additionally, it must have a constructor that takes the stride as its first argument.
+ * PatchWriter forwards any additional constructor args from its ctor to the allocator after
+ * computing the necessary stride for its PatchAttribs configuration.
  */
 
 // *** TRAITS ***
@@ -160,7 +168,7 @@ struct NullTriangulator {
 #define ENABLE_IF(cond) template <typename Void=void> std::enable_if_t<cond, Void>
 
 // *** PatchWriter ***
-template <typename... Traits>
+template <typename PatchAllocator, typename... Traits>
 class PatchWriter {
     // Helpers to extract specifics from the template traits pack.
     template <typename F>     struct has_trait  : std::disjunction<std::is_same<F, Traits>...> {};
@@ -215,16 +223,15 @@ class PatchWriter {
     static_assert(!kTrackJoinControlPoints || req_attrib<PatchAttribs::kJoinControlPoint>::value,
                   "Deferred patches and auto-updating joins requires kJoinControlPoint attrib");
 public:
-    PatchWriter(GrMeshDrawTarget* target,
-                GrVertexChunkArray* vertexChunkArray,
-                PatchAttribs attribs,
+    template <typename... Args> // forwarded to PatchAllocator
+    PatchWriter(PatchAttribs attribs,
                 int maxTessellationSegments,
-                int initialAllocCount)
+                Args&&... allocArgs)
             : fAttribs(attribs)
             , fMaxSegments_pow2(pow2(maxTessellationSegments))
             , fMaxSegments_pow4(pow2(fMaxSegments_pow2))
             , fCurrMinSegments_pow4(1.f)
-            , fChunker(target, vertexChunkArray, PatchStride(attribs), initialAllocCount)
+            , fPatchAllocator(PatchStride(attribs), std::forward<Args>(allocArgs)...)
             , fJoin(attribs)
             , fFanPoint(attribs)
             , fStrokeParams(attribs)
@@ -267,8 +274,8 @@ public:
             // after the 4 control points.
             memcpy(SkTAddOffset<void>(fDeferredPatch.fData, 4 * sizeof(SkPoint)),
                    &fJoin, sizeof(SkPoint));
-            if (VertexWriter vw = fChunker.appendVertex()) {
-                vw << VertexWriter::Array<char>(fDeferredPatch.fData, fChunker.stride());
+            if (VertexWriter vw = fPatchAllocator.append()) {
+                vw << VertexWriter::Array<char>(fDeferredPatch.fData, fPatchAllocator.stride());
             }
         }
 
@@ -439,7 +446,7 @@ public:
     AI void writeCircle(SkPoint p) {
         // This does not use writePatch() because it uses its own location as the join attribute
         // value instead of fJoin and never defers.
-        if (VertexWriter vw = fChunker.appendVertex()) {
+        if (VertexWriter vw = fPatchAllocator.append()) {
             vw << VertexWriter::Repeat<4>(p); // p0,p1,p2,p3 = p -> 4 copies
             this->emitPatchAttribs(std::move(vw), {fAttribs, p}, kCubicCurveType);
         }
@@ -486,12 +493,12 @@ private:
         if constexpr (kTrackJoinControlPoints) {
             if (fDeferredPatch.fMustDefer) {
                 SkASSERT(!fDeferredPatch.fHasPending);
-                SkASSERT(fChunker.stride() <= kMaxStride);
+                SkASSERT(fPatchAllocator.stride() <= kMaxStride);
                 fDeferredPatch.fHasPending = true;
-                return {fDeferredPatch.fData, fChunker.stride()};
+                return {fDeferredPatch.fData, fPatchAllocator.stride()};
             }
         }
-        return fChunker.appendVertex();
+        return fPatchAllocator.append();
     }
 
     // Helpers that normalize curves to a generic patch, but do no other work.
@@ -662,8 +669,7 @@ private:
     const float fMaxSegments_pow4;
     float fCurrMinSegments_pow4;
 
-    GrVertexChunkBuilder fChunker;
-
+    PatchAllocator fPatchAllocator;
     DeferredPatch  fDeferredPatch; // only usable if kTrackJoinControlPoints is true
 
     // Instance attribute state written after the 4 control points of a patch

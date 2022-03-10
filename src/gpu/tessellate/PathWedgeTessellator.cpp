@@ -23,7 +23,8 @@ namespace skgpu {
 
 namespace {
 
-using Writer = PatchWriter<Required<PatchAttribs::kFanPoint>,
+using Writer = PatchWriter<GrVertexChunkBuilder,
+                           Required<PatchAttribs::kFanPoint>,
                            Optional<PatchAttribs::kColor>,
                            Optional<PatchAttribs::kWideColorIfEnabled>,
                            Optional<PatchAttribs::kExplicitCurveType>>;
@@ -254,8 +255,8 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
                                    int totalCombinedPathVerbCnt,
                                    bool willUseTessellationShaders) {
     if (int patchPreallocCount = PatchPreallocCount(totalCombinedPathVerbCnt)) {
-        Writer writer{target, &fVertexChunkArray, fAttribs,
-                      maxTessellationSegments, patchPreallocCount};
+        Writer writer{fAttribs, maxTessellationSegments,
+                      target, &fVertexChunkArray, patchPreallocCount};
         int resolveLevel = write_patches(std::move(writer), shaderMatrix, pathDrawList);
         this->updateResolveLevel(resolveLevel);
     }
