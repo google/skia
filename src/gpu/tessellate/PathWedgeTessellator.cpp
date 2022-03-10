@@ -23,12 +23,6 @@ namespace skgpu {
 
 namespace {
 
-using Writer = PatchWriter<Required<PatchAttribs::kFanPoint>,
-                           Optional<PatchAttribs::kColor>,
-                           Optional<PatchAttribs::kWideColorIfEnabled>,
-                           Optional<PatchAttribs::kExplicitCurveType>>;
-
-
 // Parses out each contour in a path and tracks the midpoint. Example usage:
 //
 //   SkTPathContourParser parser;
@@ -128,7 +122,7 @@ private:
     int fMidpointWeight;
 };
 
-int write_patches(Writer&& patchWriter,
+int write_patches(PatchWriter&& patchWriter,
                   const SkMatrix& shaderMatrix,
                   const PathTessellator::PathDrawList& pathDrawList) {
     wangs_formula::VectorXform shaderXform(shaderMatrix);
@@ -254,8 +248,8 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
                                    int totalCombinedPathVerbCnt,
                                    bool willUseTessellationShaders) {
     if (int patchPreallocCount = PatchPreallocCount(totalCombinedPathVerbCnt)) {
-        Writer writer{target, &fVertexChunkArray, fAttribs,
-                      maxTessellationSegments, patchPreallocCount};
+        PatchWriter writer{target, &fVertexChunkArray, fAttribs,
+                           maxTessellationSegments, patchPreallocCount};
         int resolveLevel = write_patches(std::move(writer), shaderMatrix, pathDrawList);
         this->updateResolveLevel(resolveLevel);
     }
