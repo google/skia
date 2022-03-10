@@ -26,6 +26,7 @@
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkMD5.h"
 #include "tests/Test.h"
+#include "tests/TestHarness.h"
 #include "tools/HashAndEncode.h"
 #include "tools/ResourceFactory.h"
 #include "tools/flags/CommandLineFlags.h"
@@ -346,6 +347,10 @@ GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
 void Init() {
     // Use the portable fonts.
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+}
+
+TestHarness CurrentTestHarness() {
+    return TestHarness::kWasmGMTests;
 }
 
 EMSCRIPTEN_BINDINGS(GMs) {

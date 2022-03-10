@@ -16,6 +16,7 @@ enum class TestHarness {
     kFM,
     kListGpuUnitTests,
     kSkQP,
+    kWasmGMTests,
 };
 TestHarness CurrentTestHarness();
 bool CurrentTestHarnessIsSkQP();
