@@ -47,7 +47,7 @@ void PaintParams::toKey(SkShaderCodeDictionary* dict,
     if (fShader) {
         as_SB(fShader)->addToKey(dict, builder, pipelineData);
     } else {
-        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, fColor);
+        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, fColor.premul());
     }
 
     if (fBlender) {

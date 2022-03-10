@@ -145,12 +145,12 @@ void SkColorShader::addToKey(SkShaderCodeDictionary* dict,
                              SkPaintParamsKeyBuilder* builder,
                              SkPipelineData* pipelineData) const {
     SolidColorShaderBlock::AddToKey(dict, builder, pipelineData,
-                                    SkColor4f::FromColor(fColor));
+                                    SkColor4f::FromColor(fColor).premul());
 }
 
 void SkColor4Shader::addToKey(SkShaderCodeDictionary* dict,
                               SkPaintParamsKeyBuilder* builder,
                               SkPipelineData* pipelineData) const {
-    SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, fColor);
+    SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, fColor.premul());
 }
 #endif

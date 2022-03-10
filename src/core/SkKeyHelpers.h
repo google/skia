@@ -15,6 +15,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
+#include "include/private/SkColorData.h"
 
 enum class SkBackend : uint8_t;
 class SkPaintParamsKeyBuilder;
@@ -37,7 +38,7 @@ namespace SolidColorShaderBlock {
     void AddToKey(SkShaderCodeDictionary*,
                   SkPaintParamsKeyBuilder*,
                   SkPipelineData*,
-                  const SkColor4f&);
+                  const SkPMColor4f&);
 
 } // namespace SolidColorShaderBlock
 

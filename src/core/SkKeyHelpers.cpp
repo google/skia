@@ -18,6 +18,8 @@
 #include "experimental/graphite/src/UniformManager.h"
 #endif
 
+constexpr SkPMColor4f kErrorColor = { 1, 0, 0, 1 };
+
 namespace {
 
 // This can be used to catch errors in blocks that have a fixed, known block data size
@@ -67,7 +69,8 @@ namespace {
 #ifdef SK_GRAPHITE_ENABLED
 static const int kBlockDataSize = 0;
 
-sk_sp<SkUniformData> make_solid_uniform_data(SkShaderCodeDictionary* dict, SkColor4f color) {
+sk_sp<SkUniformData> make_solid_uniform_data(SkShaderCodeDictionary* dict,
+                                             const SkPMColor4f& premulColor) {
     static constexpr size_t kExpectedNumUniforms = 1;
 
     SkSpan<const SkUniform> uniforms = dict->getUniforms(SkBuiltInCodeSnippetID::kSolidColorShader);
@@ -79,7 +82,7 @@ sk_sp<SkUniformData> make_solid_uniform_data(SkShaderCodeDictionary* dict, SkCol
 
     sk_sp<SkUniformData> result = SkUniformData::Make(uniforms, dataSize);
 
-    const void* srcs[kExpectedNumUniforms] = { &color };
+    const void* srcs[kExpectedNumUniforms] = { &premulColor };
 
     mgr.writeUniforms(result->uniforms(), srcs, result->offsets(), result->data());
     return result;
@@ -91,7 +94,7 @@ sk_sp<SkUniformData> make_solid_uniform_data(SkShaderCodeDictionary* dict, SkCol
 void AddToKey(SkShaderCodeDictionary* dict,
               SkPaintParamsKeyBuilder* builder,
               SkPipelineData* pipelineData,
-              const SkColor4f& color) {
+              const SkPMColor4f& premulColor) {
 
 #ifdef SK_GRAPHITE_ENABLED
     if (builder->backend() == SkBackend::kGraphite) {
@@ -103,7 +106,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
                               kBlockDataSize);
 
         if (pipelineData) {
-            pipelineData->add(make_solid_uniform_data(dict, color));
+            pipelineData->add(make_solid_uniform_data(dict, premulColor));
         }
         return;
     }
@@ -324,7 +327,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
     if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
         // TODO: add implementation of other backends
-        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, SkColors::kRed);
+        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, kErrorColor);
     }
 }
 
@@ -386,7 +389,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
     if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
         // TODO: add implementation for other backends
-        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, SkColors::kRed);
+        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, kErrorColor);
     }
 }
 
@@ -461,7 +464,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
     if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
         // TODO: add implementation for other backends
-        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, SkColors::kRed);
+        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, kErrorColor);
     }
 }
 
@@ -499,7 +502,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
     if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
         // TODO: add implementation for other backends
-        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, SkColors::kRed);
+        SolidColorShaderBlock::AddToKey(dict, builder, pipelineData, kErrorColor);
     }
 }
 
@@ -519,7 +522,7 @@ SkUniquePaintParamsID CreateKey(SkShaderCodeDictionary* dict,
             DepthStencilOnlyBlock::AddToKey(dict, builder, nullptr);
             break;
         case skgpu::ShaderCombo::ShaderType::kSolidColor:
-            SolidColorShaderBlock::AddToKey(dict, builder, nullptr, SkColors::kRed);
+            SolidColorShaderBlock::AddToKey(dict, builder, nullptr, kErrorColor);
             break;
         case skgpu::ShaderCombo::ShaderType::kLinearGradient:
             GradientShaderBlocks::AddToKey(dict, builder, nullptr,
