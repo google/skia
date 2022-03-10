@@ -87,8 +87,7 @@ public:
 
     bool hasBlur() const { return fHasBlur; }
 
-    bool requiresAnchorPoint()     const { return fRequiresAnchorPoint;     }
-    bool requiresLineAdjustments() const { return fRequiresLineAdjustments; }
+    bool requiresAnchorPoint() const { return fRequiresAnchorPoint; }
 
 private:
     TextAnimator(std::vector<sk_sp<RangeSelector>>&&,
@@ -101,14 +100,13 @@ private:
     const std::vector<sk_sp<RangeSelector>> fSelectors;
 
     AnimatedProps fTextProps;
-    bool          fHasFillColor            : 1,
-                  fHasStrokeColor          : 1,
-                  fHasFillOpacity          : 1,
-                  fHasStrokeOpacity        : 1,
-                  fHasOpacity              : 1,
-                  fHasBlur                 : 1,
-                  fRequiresAnchorPoint     : 1, // animator sensitive to transform origin?
-                  fRequiresLineAdjustments : 1; // animator effects line-wide fragment adjustments
+    bool          fHasFillColor        : 1,
+                  fHasStrokeColor      : 1,
+                  fHasFillOpacity      : 1,
+                  fHasStrokeOpacity    : 1,
+                  fHasOpacity          : 1,
+                  fHasBlur             : 1,
+                  fRequiresAnchorPoint : 1; // animator sensitive to transform origin?
 };
 
 } // namespace internal

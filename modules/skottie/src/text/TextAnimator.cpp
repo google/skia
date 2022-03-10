@@ -182,14 +182,11 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
                            const AnimationBuilder* abuilder,
                            AnimatablePropertyContainer* acontainer)
     : fSelectors(std::move(selectors))
-    , fRequiresAnchorPoint(false)
-    , fRequiresLineAdjustments(false) {
+    , fRequiresAnchorPoint(false) {
 
     acontainer->bind(*abuilder, jprops["p" ], fTextProps.position);
-
-    // Tracking and line spacing affect all line fragments.
-    fRequiresLineAdjustments |= acontainer->bind(*abuilder, jprops["t" ], fTextProps.tracking);
-    fRequiresLineAdjustments |= acontainer->bind(*abuilder, jprops["ls"], fTextProps.line_spacing);
+    acontainer->bind(*abuilder, jprops["t" ], fTextProps.tracking);
+    acontainer->bind(*abuilder, jprops["ls"], fTextProps.line_spacing);
 
     // Scale and rotation are anchor-point-dependent.
     fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["s"], fTextProps.scale);
