@@ -9,6 +9,7 @@
 #define SkottieProperty_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypeface.h"
@@ -57,6 +58,7 @@ struct TextPropertyValue {
     SkColor                 fFillColor      = SK_ColorTRANSPARENT,
                             fStrokeColor    = SK_ColorTRANSPARENT;
     TextPaintOrder          fPaintOrder     = TextPaintOrder::kFillStroke;
+    SkPaint::Join           fStrokeJoin     = SkPaint::Join::kMiter_Join;
     bool                    fHasFill        = false,
                             fHasStroke      = false;
 

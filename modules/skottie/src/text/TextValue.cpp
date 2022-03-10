@@ -161,6 +161,14 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
         v->fPaintOrder  = ParseDefault((*jtxt)["of"], true)
                 ? TextPaintOrder::kFillStroke
                 : TextPaintOrder::kStrokeFill;
+
+        static constexpr SkPaint::Join gJoins[] = {
+            SkPaint::kMiter_Join,  // lj: 1
+            SkPaint::kRound_Join,  // lj: 2
+            SkPaint::kBevel_Join,  // lj: 3
+        };
+        v->fStrokeJoin = gJoins[std::min<size_t>(ParseDefault<size_t>((*jtxt)["lj"], 1) - 1,
+                                                 SK_ARRAY_COUNT(gJoins) - 1)];
     }
 
     return true;

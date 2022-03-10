@@ -332,6 +332,7 @@ DEF_TEST(Skottie_Properties, reporter) {
       SK_ColorTRANSPARENT,
       SK_ColorTRANSPARENT,
       TextPaintOrder::kFillStroke,
+      SkPaint::Join::kDefault_Join,
       false,
       false
     }));
