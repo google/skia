@@ -38,7 +38,7 @@ DrawWriter::DrawWriter(DrawDispatcher* dispatcher,
 void DrawWriter::setTemplate(BindBufferInfo vertices,
                              BindBufferInfo indices,
                              BindBufferInfo instances,
-                             unsigned int templateCount) {
+                             int templateCount) {
     if (vertices != fVertices || instances != fInstances || fIndices != indices) {
         if (fPendingCount > 0) {
             this->flush();
@@ -60,7 +60,8 @@ void DrawWriter::setTemplate(BindBufferInfo vertices,
         fTemplateCount = templateCount;
 
         fPendingBufferBinds = true;
-    } else if (templateCount != fTemplateCount) {
+    } else if ((templateCount >= 0 && templateCount != fTemplateCount) || // vtx or reg. instances
+               (templateCount < 0 && fTemplateCount >= 0)) {              // dynamic index instances
         if (fPendingCount > 0) {
             this->flush();
         }
@@ -72,10 +73,13 @@ void DrawWriter::setTemplate(BindBufferInfo vertices,
         fTemplateCount = templateCount;
     }
 
-    SkASSERT(fVertices      == vertices);
-    SkASSERT(fInstances     == instances);
-    SkASSERT(fIndices       == indices);
-    SkASSERT(fTemplateCount == templateCount);
+    SkASSERT(fVertices  == vertices);
+    SkASSERT(fInstances == instances);
+    SkASSERT(fIndices   == indices);
+    // NOTE: This allows 'fTemplateCount' to update across multiple DynamicInstances as long
+    // as they have the same vertex and index buffers.
+    SkASSERT((fTemplateCount < 0) == (templateCount < 0));
+    SkASSERT(fTemplateCount < 0 || fTemplateCount == templateCount);
 }
 
 void DrawWriter::flush() {
@@ -89,11 +93,19 @@ void DrawWriter::flush() {
 
     if (fTemplateCount) {
         // Instanced drawing
+        unsigned int realVertexCount;
+        if (fTemplateCount < 0) {
+            realVertexCount = -fTemplateCount - 1;
+            fTemplateCount = -1; // reset to re-accumulate max index account for next flush
+        } else {
+            realVertexCount = fTemplateCount;
+        }
+
         if (fIndices) {
-            fDispatcher->drawIndexedInstanced(fPrimitiveType, 0, fTemplateCount, 0,
+            fDispatcher->drawIndexedInstanced(fPrimitiveType, 0, realVertexCount, 0,
                                               fPendingBase, fPendingCount);
         } else {
-            fDispatcher->drawInstanced(fPrimitiveType, 0, fTemplateCount,
+            fDispatcher->drawInstanced(fPrimitiveType, 0, realVertexCount,
                                        fPendingBase, fPendingCount);
         }
     } else {

@@ -118,6 +118,26 @@ public:
     // other per-vertex data.
     class Instances;
 
+    // Collects new instance data for a call to CommandBuffer::drawInstanced() or
+    // drawIndexedInstanced() (depending on presence of index data in the template). Unlike the
+    // Instances mode, the template's index or vertex count is not provided at the time of creation.
+    // Instead, DynamicInstances can be used with pipeline programs that can have a flexible number
+    // of vertices per instance. Appended instances specify the minimum index/vertex count they
+    // must be drawn with, but if they are later batched with instances that would use more, the
+    // pipeline's vertex shader knows how to handle it.
+    //
+    // Usage for drawInstanced (fixedIndices == {}) or drawIndexedInstanced:
+    //    DrawWriter::DynamicInstances instances(writer, fixedVerts, fixedIndices);
+    //    instances.append(minIndexCount1, n1) << ...;
+    //    instances.append(minIndexCount2, n2) << ...;
+    //
+    // In this example, if the two sets of instances were contiguous, a single draw call with
+    // (n1 + n2) instances would still be made using max(minIndexCount1, minIndexCount2) as the
+    // index/vertex count. If the available vertex data from the DrawBufferManager forced a flush
+    // after the first, then the second would use minIndexCount2 unless a subsequent compatible
+    // DynamicInstances template appended more contiguous data.
+    class DynamicInstances;
+
     // Issues a draws with fully specified data. This can be used when all instance data has already
     // been written to known buffers, or when the vertex shader only depends on the vertex or
     // instance IDs. To keep things simple, these helpers do not accept parameters for base vertices
@@ -133,11 +153,13 @@ public:
     }
     void drawInstanced(BindBufferInfo vertices, unsigned int vertexCount,
                        BindBufferInfo instances, unsigned int instanceCount) {
+        SkASSERT(vertexCount > 0);
         this->bindAndFlush(vertices, {}, instances, vertexCount, instanceCount);
     }
     void drawIndexedInstanced(BindBufferInfo vertices, BindBufferInfo indices,
                               unsigned int indexCount, BindBufferInfo instances,
                               unsigned int instanceCount) {
+        SkASSERT(indexCount > 0);
         this->bindAndFlush(vertices, indices, instances, indexCount, instanceCount);
     }
 
@@ -156,18 +178,22 @@ private:
     BindBufferInfo fIndices;
     BindBufferInfo fInstances;
     // Vertex/index count for [pseudo]-instanced rendering:
-    // == 0 is vertex-only drawing; > 0 is regular instanced drawing
-    unsigned int fTemplateCount;
+    // == 0 is vertex-only drawing; > 0 is regular instanced drawing; < 0 is dynamic index count
+    // instanced drawing, where real index count = max(-fTemplateCount-1)
+    int fTemplateCount;
 
     unsigned int fPendingCount; // # of vertices or instances (depending on mode) to be drawn
     unsigned int fPendingBase; // vertex/instance offset (depending on mode) applied to buffer
     bool fPendingBufferBinds; // true if {fVertices,fIndices,fInstances} has changed since last draw
 
     void setTemplate(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
-                     unsigned int templateCount);
+                     int templateCount);
+    // NOTE: bindAndFlush's templateCount is unsigned because dynamic index count instancing
+    // isn't applicable.
     void bindAndFlush(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
                       unsigned int templateCount, unsigned int drawCount) {
-        this->setTemplate(vertices, indices, instances, templateCount);
+        SkASSERT(drawCount > 0);
+        this->setTemplate(vertices, indices, instances, SkTo<int>(templateCount));
         fPendingBase = 0;
         fPendingCount = drawCount;
         this->flush();
@@ -289,11 +315,33 @@ public:
               BindBufferInfo indices,
               unsigned int vertexCount)
             : Appender(w, Target::kInstances) {
-        w.setTemplate(vertices, indices, w.fInstances, vertexCount);
+        w.setTemplate(vertices, indices, w.fInstances, SkTo<int>(vertexCount));
     }
 
     using Appender::reserve;
     using Appender::append;
+};
+
+class DrawWriter::DynamicInstances : private DrawWriter::Appender {
+public:
+    DynamicInstances(DrawWriter& w,
+                     BindBufferInfo vertices,
+                     BindBufferInfo indices)
+            : Appender(w, Target::kInstances) {
+        w.setTemplate(vertices, indices, w.fInstances, -1);
+    }
+
+    using Appender::reserve;
+
+    VertexWriter append(unsigned int indexCount, unsigned int instanceCount) {
+        SkASSERT(indexCount > 0);
+        VertexWriter w = this->Appender::append(instanceCount);
+        // Record index count after appending instance data in case the append triggered a flush
+        // or earlier dynamic instances and the max index count is reset. This ensures that the
+        // just appended instances will be flushed with a template count at least 'indexCount'.
+        fDrawer.fTemplateCount = std::min(fDrawer.fTemplateCount, -SkTo<int>(indexCount) - 1);
+        return w;
+    }
 };
 
 } // namespace skgpu
