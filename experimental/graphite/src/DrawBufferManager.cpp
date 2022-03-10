@@ -27,6 +27,18 @@ void* map_offset(BindBufferInfo binding) {
                               static_cast<ptrdiff_t>(binding.fOffset));
 }
 
+template <size_t BufferBlockSize>
+size_t sufficient_block_size(size_t requiredBytes) {
+    // Always request a buffer at least 'requiredBytes', but keep them in multiples of
+    // 'BufferBlockSize' for improved reuse.
+    static constexpr size_t kMaxSize   = std::numeric_limits<size_t>::max();
+    static constexpr size_t kMaxBlocks = kMaxSize / BufferBlockSize;
+    size_t blocks = (requiredBytes / BufferBlockSize) + 1;
+    size_t bufferSize = blocks > kMaxBlocks ? kMaxSize : (blocks * BufferBlockSize);
+    SkASSERT(requiredBytes < bufferSize);
+    return bufferSize;
+}
+
 } // anonymous namespace
 
 DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider,
@@ -54,8 +66,8 @@ std::tuple<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size
     }
 
     if (!fCurrentVertexBuffer) {
-        SkASSERT(requiredBytes <= kVertexBufferSize);
-        fCurrentVertexBuffer = fResourceProvider->findOrCreateBuffer(kVertexBufferSize,
+        size_t bufferSize = sufficient_block_size<kVertexBufferSize>(requiredBytes);
+        fCurrentVertexBuffer = fResourceProvider->findOrCreateBuffer(bufferSize,
                                                                      BufferType::kVertex,
                                                                      PrioritizeGpuReads::kNo);
         fVertexOffset = 0;
@@ -70,6 +82,11 @@ std::tuple<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size
     return {VertexWriter(map_offset(bindInfo), requiredBytes), bindInfo};
 }
 
+void DrawBufferManager::returnVertexBytes(size_t unusedBytes) {
+    SkASSERT(fVertexOffset >= unusedBytes);
+    fVertexOffset -= unusedBytes;
+}
+
 std::tuple<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t requiredBytes) {
     if (!requiredBytes) {
         return {IndexWriter(), BindBufferInfo()};
@@ -80,8 +97,8 @@ std::tuple<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t
     }
 
     if (!fCurrentIndexBuffer) {
-        SkASSERT(requiredBytes <= kIndexBufferSize);
-        fCurrentIndexBuffer = fResourceProvider->findOrCreateBuffer(kIndexBufferSize,
+        size_t bufferSize = sufficient_block_size<kIndexBufferSize>(requiredBytes);
+        fCurrentIndexBuffer = fResourceProvider->findOrCreateBuffer(bufferSize,
                                                                     BufferType::kIndex,
                                                                     PrioritizeGpuReads::kNo);
         fIndexOffset = 0;
@@ -110,8 +127,8 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
     }
 
     if (!fCurrentUniformBuffer) {
-        SkASSERT(requiredBytes <= kUniformBufferSize);
-        fCurrentUniformBuffer = fResourceProvider->findOrCreateBuffer(kUniformBufferSize,
+        size_t bufferSize = sufficient_block_size<kUniformBufferSize>(requiredBytes);
+        fCurrentUniformBuffer = fResourceProvider->findOrCreateBuffer(bufferSize,
                                                                       BufferType::kUniform,
                                                                       PrioritizeGpuReads::kNo);
         fUniformOffset = 0;

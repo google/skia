@@ -8,12 +8,11 @@
 #ifndef skgpu_DrawWriter_DEFINED
 #define skgpu_DrawWriter_DEFINED
 
+#include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/DrawTypes.h"
 #include "src/gpu/BufferWriter.h"
 
 namespace skgpu {
-
-class DrawBufferManager;
 
 class DrawDispatcher; // Forward declaration, handles virtual dispatch of binds/draws
 
@@ -207,32 +206,80 @@ public:
 // template-specific API to accumulate vertex/instance data.
 class DrawWriter::Appender {
 public:
-    Appender(DrawWriter& w) : fWriter(w) {
+    enum class Target { kVertices, kInstances };
+
+    Appender(DrawWriter& w, Target target)
+            : fDrawer(w)
+            , fTarget(target == Target::kVertices ? w.fVertices     : w.fInstances)
+            , fStride(target == Target::kVertices ? w.fVertexStride : w.fInstanceStride)
+            , fReservedCount(0)
+            , fNextWriter() {
+        SkASSERT(fStride > 0);
         SkASSERT(!w.fAppender);
         SkDEBUGCODE(w.fAppender = this;)
     }
 
     ~Appender() {
-        SkASSERT(fWriter.fAppender == this);
-        SkDEBUGCODE(fWriter.fAppender = nullptr;)
+        if (fReservedCount > 0) {
+            fDrawer.fManager->returnVertexBytes(fReservedCount * fStride);
+        }
+        SkASSERT(fDrawer.fAppender == this);
+        SkDEBUGCODE(fDrawer.fAppender = nullptr;)
     }
 
 protected:
-    DrawWriter& fWriter;
+    DrawWriter&     fDrawer;
+    BindBufferInfo& fTarget;
+    size_t          fStride;
 
-    VertexWriter append(unsigned int count, size_t stride, BindBufferInfo& target);
+    unsigned int fReservedCount; // in target stride units
+    VertexWriter fNextWriter;    // writing to the target buffer binding
+
+    void reserve(unsigned int count) {
+        if (fReservedCount >= count) {
+            return;
+        } else if (fReservedCount > 0) {
+            // Have contiguous bytes that can't satisfy request, so return them in the event the
+            // DBM has additional contiguous bytes after the prior reserved range.
+            fDrawer.fManager->returnVertexBytes(fReservedCount * fStride);
+        }
+
+        fReservedCount = count;
+        // NOTE: Cannot bind tuple directly to fNextWriter, compilers don't produce the right
+        // move assignment.
+        auto [writer, reservedChunk] = fDrawer.fManager->getVertexWriter(count * fStride);
+        if (reservedChunk.fBuffer != fTarget.fBuffer ||
+            reservedChunk.fOffset !=
+                    (fTarget.fOffset + (fDrawer.fPendingBase + fDrawer.fPendingCount) * fStride)) {
+            // Not contiguous, so flush and update binding to 'reservedChunk'
+            fDrawer.flush();
+
+            fTarget = reservedChunk;
+            fDrawer.fPendingBase = 0;
+            fDrawer.fPendingBufferBinds = true;
+        }
+        fNextWriter = std::move(writer);
+    }
+
+    VertexWriter append(unsigned int count) {
+        SkASSERT(count > 0);
+        this->reserve(count);
+
+        SkASSERT(fReservedCount >= count);
+        fReservedCount -= count;
+        fDrawer.fPendingCount += count;
+        return std::exchange(fNextWriter, fNextWriter.makeOffset(count * fStride));
+    }
 };
 
 class DrawWriter::Vertices : private DrawWriter::Appender {
 public:
-    Vertices(DrawWriter& w) : Appender(w) {
-        SkASSERT(w.fVertexStride > 0);
+    Vertices(DrawWriter& w) : Appender(w, Target::kVertices) {
         w.setTemplate(w.fVertices, {}, {}, 0);
     }
 
-    VertexWriter append(unsigned int count) {
-        return this->Appender::append(count, fWriter.fVertexStride, fWriter.fVertices);
-    }
+    using Appender::reserve;
+    using Appender::append;
 };
 
 class DrawWriter::Instances : private DrawWriter::Appender {
@@ -241,14 +288,12 @@ public:
               BindBufferInfo vertices,
               BindBufferInfo indices,
               unsigned int vertexCount)
-            : Appender(w) {
-        SkASSERT(w.fInstanceStride > 0);
+            : Appender(w, Target::kInstances) {
         w.setTemplate(vertices, indices, w.fInstances, vertexCount);
     }
 
-    VertexWriter append(unsigned int count) {
-        return this->Appender::append(count, fWriter.fInstanceStride, fWriter.fInstances);
-    }
+    using Appender::reserve;
+    using Appender::append;
 };
 
 } // namespace skgpu

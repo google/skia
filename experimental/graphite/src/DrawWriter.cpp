@@ -109,28 +109,4 @@ void DrawWriter::flush() {
     fPendingCount = 0;
 }
 
-VertexWriter DrawWriter::Appender::append(unsigned int count,
-                                          size_t stride,
-                                          BindBufferInfo& target) {
-    SkASSERT(&target == &fWriter.fInstances || &target == &fWriter.fVertices);
-    SkASSERT(this == fWriter.fAppender);
-
-    auto [writer, nextChunk] = fWriter.fManager->getVertexWriter(count * stride);
-    // Check if next chunk's data is contiguous with what's previously been appended
-    if (nextChunk.fBuffer != target.fBuffer ||
-        nextChunk.fOffset !=
-                target.fOffset + (fWriter.fPendingBase + fWriter.fPendingCount) * stride) {
-        // Alignment mismatch, or the old buffer filled up, so must update the bindings
-        fWriter.flush();
-        target = nextChunk;
-
-        fWriter.fPendingBase = 0;
-        fWriter.fPendingBufferBinds = true;
-    }
-
-    fWriter.fPendingCount += count;
-
-    return std::move(writer);
-}
-
 } // namespace skgpu

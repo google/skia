@@ -29,6 +29,10 @@ public:
     std::tuple<IndexWriter, BindBufferInfo> getIndexWriter(size_t requiredBytes);
     std::tuple<UniformWriter, BindBufferInfo> getUniformWriter(size_t requiredBytes);
 
+    // Returns the last 'unusedBytes' from the last call to getVertexWriter(). Assumes that
+    // 'unusedBytes' is less than the 'requiredBytes' to the original allocation.
+    void returnVertexBytes(size_t unusedBytes);
+
     // Finalizes all buffers and transfers ownership of them to the CommandBuffer.
     void transferToCommandBuffer(CommandBuffer*);
 
