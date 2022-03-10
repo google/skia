@@ -69,12 +69,8 @@ private:
     void buildDomainMaps(const Shaper::Result&);
 
     void pushPropsToFragment(const TextAnimator::ResolvedProps&, const FragmentRec&,
-                             const SkV2&, const TextAnimator::DomainSpan*) const;
-
-    void adjustLineProps(const TextAnimator::ModulatorBuffer&,
-                         const TextAnimator::DomainSpan&,
-                         const SkV2& line_offset,
-                         float line_tracking) const;
+                             const SkV2& frag_offset, const SkV2& grouping_alignment,
+                             const TextAnimator::DomainSpan*) const;
 
     SkV2 fragmentAnchorPoint(const FragmentRec&, const SkV2&,
                              const TextAnimator::DomainSpan*) const;
@@ -116,8 +112,9 @@ private:
     struct PathInfo;
     std::unique_ptr<PathInfo> fPathInfo;
 
-    bool                      fHasBlurAnimator     : 1,
-                              fRequiresAnchorPoint : 1;
+    bool                      fHasBlurAnimator         : 1,
+                              fRequiresAnchorPoint     : 1,
+                              fRequiresLineAdjustments : 1;
 };
 
 } // namespace internal
