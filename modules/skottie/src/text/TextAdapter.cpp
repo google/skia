@@ -234,8 +234,9 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
 
         for (const skjson::ObjectValue* janimator : *janimators) {
             if (auto animator = TextAnimator::Make(janimator, abuilder, adapter.get())) {
-                adapter->fHasBlurAnimator     |= animator->hasBlur();
-                adapter->fRequiresAnchorPoint |= animator->requiresAnchorPoint();
+                adapter->fHasBlurAnimator         |= animator->hasBlur();
+                adapter->fRequiresAnchorPoint     |= animator->requiresAnchorPoint();
+                adapter->fRequiresLineAdjustments |= animator->requiresLineAdjustments();
 
                 adapter->fAnimators.push_back(std::move(animator));
             }
@@ -294,7 +295,8 @@ TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger, AnchorP
     , fLogger(std::move(logger))
     , fAnchorPointGrouping(apg)
     , fHasBlurAnimator(false)
-    , fRequiresAnchorPoint(false) {}
+    , fRequiresAnchorPoint(false)
+    , fRequiresLineAdjustments(false) {}
 
 TextAdapter::~TextAdapter() = default;
 
@@ -580,16 +582,51 @@ void TextAdapter::onSync() {
     }
 
     size_t grouping_span_index = 0;
-    SkV2           line_offset = { 0, 0 }; // cumulative line spacing
+    SkV2   current_line_offset = { 0, 0 }; // cumulative line spacing
+
+#ifndef SK_LEGACY_SKOTTIE_TRACKING
+    auto compute_linewide_props = [this](const TextAnimator::ModulatorBuffer& buf,
+                                         const TextAnimator::DomainSpan& line_span) {
+        SkV2  total_spacing  = {0,0};
+        float total_tracking = 0;
+
+        // Only compute these when needed.
+        if (fRequiresLineAdjustments) {
+            for (size_t i = line_span.fOffset; i < line_span.fOffset + line_span.fCount; ++i) {
+                const auto& props = buf[i].props;
+                total_spacing  += props.line_spacing;
+                total_tracking += props.tracking;
+            }
+
+            // The first glyph does not contribute |before| tracking, and the last one does not
+            // contribute |after| tracking.
+            total_tracking -= 0.5f * (buf[line_span.fOffset].props.tracking +
+                                      buf[line_span.fOffset + line_span.fCount - 1].props.tracking);
+        }
+
+        return std::make_tuple(total_spacing, total_tracking);
+    };
+#endif
 
     // Finally, push all props to their corresponding fragment.
     for (const auto& line_span : fMaps.fLinesMap) {
+#ifndef SK_LEGACY_SKOTTIE_TRACKING
+        const auto [line_spacing, line_tracking] = compute_linewide_props(buf, line_span);
+        const auto align_offset = -line_tracking * align_factor(fText->fHAlign);
+
+        // line spacing of the first line is ignored (nothing to "space" against)
+        if (&line_span != &fMaps.fLinesMap.front() && line_span.fCount) {
+            // For each line, the actual spacing is an average of individual fragment spacing
+            // (to preserve the "line").
+            current_line_offset += line_spacing / line_span.fCount;
+        }
+
+        float tracking_acc = 0;
+#else
         SkV2 line_spacing = { 0, 0 };
         float line_tracking = 0;
         bool line_has_tracking = false;
-
-        // Tracking requires special treatment: unlike other props, its effect is not localized
-        // to a single fragment, but requires re-alignment of the whole line.
+#endif
         for (size_t i = line_span.fOffset; i < line_span.fOffset + line_span.fCount; ++i) {
             // Track the grouping domain span in parallel.
             if (grouping_domain && i >= (*grouping_domain)[grouping_span_index].fOffset +
@@ -601,7 +638,30 @@ void TextAdapter::onSync() {
 
             const auto& props = buf[i].props;
             const auto& frag  = fFragments[i];
-            this->pushPropsToFragment(props, frag, fGroupingAlignment * .01f, // percentage
+#ifndef SK_LEGACY_SKOTTIE_TRACKING
+            // AE tracking is defined per glyph, based on two components: |before| and |after|.
+            // BodyMovin only exports "balanced" tracking values, where before = after = tracking/2.
+            //
+            // Tracking is applied as a local glyph offset, and contributes to the line width for
+            // alignment purposes.
+            //
+            // No |before| tracking for the first glyph, nor |after| tracking for the last one.
+            const auto track_before = i > line_span.fOffset
+                                        ? props.tracking * 0.5f : 0.0f,
+                       track_after  = i < line_span.fOffset + line_span.fCount - 1
+                                        ? props.tracking * 0.5f : 0.0f;
+
+            const auto frag_offset = current_line_offset +
+                                     SkV2{align_offset + tracking_acc + track_before, 0};
+
+            tracking_acc += track_before + track_after;
+
+            this->pushPropsToFragment(props, frag, frag_offset, fGroupingAlignment * .01f, // %
+                                      grouping_domain ? &(*grouping_domain)[grouping_span_index]
+                                                        : nullptr);
+        }
+#else
+            this->pushPropsToFragment(props, frag, {0,0}, fGroupingAlignment * .01f, // percentage
                                       grouping_domain ? &(*grouping_domain)[grouping_span_index]
                                                         : nullptr);
 
@@ -615,13 +675,13 @@ void TextAdapter::onSync() {
         if (&line_span != &fMaps.fLinesMap.front()) {
             // For each line, the actual spacing is an average of individual fragment spacing
             // (to preserve the "line").
-            line_offset += line_spacing / line_span.fCount;
+            current_line_offset += line_spacing / line_span.fCount;
         }
 
-        if (line_offset != SkV2{0, 0} || line_has_tracking) {
-            this->adjustLineProps(buf, line_span, line_offset, line_tracking);
+        if (current_line_offset != SkV2{0, 0} || line_has_tracking) {
+            this->adjustLineProps(buf, line_span, current_line_offset, line_tracking);
         }
-
+#endif
     }
 }
 
@@ -682,10 +742,10 @@ SkV2 TextAdapter::fragmentAnchorPoint(const FragmentRec& rec,
 }
 
 SkM44 TextAdapter::fragmentMatrix(const TextAnimator::ResolvedProps& props,
-                                  const FragmentRec& rec, const SkV2& anchor_point) const {
+                                  const FragmentRec& rec, const SkV2& frag_offset) const {
     const SkV3 pos = {
-        props.position.x + rec.fOrigin.fX + anchor_point.x,
-        props.position.y + rec.fOrigin.fY + anchor_point.y,
+        props.position.x + rec.fOrigin.fX + frag_offset.x,
+        props.position.y + rec.fOrigin.fY + frag_offset.y,
         props.position.z
     };
 
@@ -715,12 +775,13 @@ SkM44 TextAdapter::fragmentMatrix(const TextAnimator::ResolvedProps& props,
 
 void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
                                       const FragmentRec& rec,
+                                      const SkV2& frag_offset,
                                       const SkV2& grouping_alignment,
                                       const TextAnimator::DomainSpan* grouping_span) const {
     const auto anchor_point = this->fragmentAnchorPoint(rec, grouping_alignment, grouping_span);
 
     rec.fMatrixNode->setMatrix(
-                this->fragmentMatrix(props, rec, anchor_point)
+                this->fragmentMatrix(props, rec, anchor_point + frag_offset)
               * SkM44::Rotate({ 1, 0, 0 }, SkDegreesToRadians(props.rotation.x))
               * SkM44::Rotate({ 0, 1, 0 }, SkDegreesToRadians(props.rotation.y))
               * SkM44::Rotate({ 0, 0, 1 }, SkDegreesToRadians(props.rotation.z))
