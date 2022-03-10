@@ -18,6 +18,8 @@ extern "C" {
 #include "libswscale/swscale.h"
 }
 
+class SkStream;
+
 class SkVideoDecoder {
 public:
     SkVideoDecoder(GrRecordingContext* = nullptr);

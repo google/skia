@@ -6,8 +6,10 @@
  */
 
 #include "experimental/ffmpeg/SkVideoDecoder.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkYUVAPixmaps.h"
 
 static SkYUVColorSpace get_yuvspace(AVColorSpace space) {
