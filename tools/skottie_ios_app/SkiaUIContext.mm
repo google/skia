@@ -3,7 +3,9 @@
 
 #include "tools/skottie_ios_app/SkiaContext.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkTime.h"
 #include "include/utils/mac/SkCGUtils.h"
 

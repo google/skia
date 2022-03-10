@@ -13,7 +13,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
-
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrDirectContextPriv.h"
@@ -23,7 +22,6 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
-
 #include "tools/gpu/ProxyUtils.h"
 
 static GrSurfaceProxyView create_view(GrDirectContext* dContext,

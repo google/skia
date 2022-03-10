@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include "include/core/SkStream.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "tests/Test.h"

@@ -7,9 +7,11 @@
 
 #include <jni.h>
 
+#include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkTileMode.h"
+#include "include/private/SkTo.h"
 #include "modules/androidkit/src/Utils.h"
 
 namespace {
