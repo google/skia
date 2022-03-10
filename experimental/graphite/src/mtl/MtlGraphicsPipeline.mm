@@ -328,16 +328,104 @@ MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
     return vertexDescriptor;
 }
 
+// TODO: share this w/ Ganesh Metal backend?
+static MTLBlendFactor blend_coeff_to_mtl_blend(skgpu::BlendCoeff coeff) {
+    switch (coeff) {
+        case skgpu::BlendCoeff::kZero:
+            return MTLBlendFactorZero;
+        case skgpu::BlendCoeff::kOne:
+            return MTLBlendFactorOne;
+        case skgpu::BlendCoeff::kSC:
+            return MTLBlendFactorSourceColor;
+        case skgpu::BlendCoeff::kISC:
+            return MTLBlendFactorOneMinusSourceColor;
+        case skgpu::BlendCoeff::kDC:
+            return MTLBlendFactorDestinationColor;
+        case skgpu::BlendCoeff::kIDC:
+            return MTLBlendFactorOneMinusDestinationColor;
+        case skgpu::BlendCoeff::kSA:
+            return MTLBlendFactorSourceAlpha;
+        case skgpu::BlendCoeff::kISA:
+            return MTLBlendFactorOneMinusSourceAlpha;
+        case skgpu::BlendCoeff::kDA:
+            return MTLBlendFactorDestinationAlpha;
+        case skgpu::BlendCoeff::kIDA:
+            return MTLBlendFactorOneMinusDestinationAlpha;
+        case skgpu::BlendCoeff::kConstC:
+            return MTLBlendFactorBlendColor;
+        case skgpu::BlendCoeff::kIConstC:
+            return MTLBlendFactorOneMinusBlendColor;
+        case skgpu::BlendCoeff::kS2C:
+            if (@available(macOS 10.12, iOS 11.0, *)) {
+                return MTLBlendFactorSource1Color;
+            } else {
+                return MTLBlendFactorZero;
+            }
+        case skgpu::BlendCoeff::kIS2C:
+            if (@available(macOS 10.12, iOS 11.0, *)) {
+                return MTLBlendFactorOneMinusSource1Color;
+            } else {
+                return MTLBlendFactorZero;
+            }
+        case skgpu::BlendCoeff::kS2A:
+            if (@available(macOS 10.12, iOS 11.0, *)) {
+                return MTLBlendFactorSource1Alpha;
+            } else {
+                return MTLBlendFactorZero;
+            }
+        case skgpu::BlendCoeff::kIS2A:
+            if (@available(macOS 10.12, iOS 11.0, *)) {
+                return MTLBlendFactorOneMinusSource1Alpha;
+            } else {
+                return MTLBlendFactorZero;
+            }
+        case skgpu::BlendCoeff::kIllegal:
+            return MTLBlendFactorZero;
+    }
+
+    SK_ABORT("Unknown blend coefficient");
+}
+
+// TODO: share this w/ Ganesh Metal backend?
+static MTLBlendOperation blend_equation_to_mtl_blend_op(skgpu::BlendEquation equation) {
+    static const MTLBlendOperation gTable[] = {
+            MTLBlendOperationAdd,              // skgpu::BlendEquation::kAdd
+            MTLBlendOperationSubtract,         // skgpu::BlendEquation::kSubtract
+            MTLBlendOperationReverseSubtract,  // skgpu::BlendEquation::kReverseSubtract
+    };
+    static_assert(SK_ARRAY_COUNT(gTable) == (int)skgpu::BlendEquation::kFirstAdvanced);
+    static_assert(0 == (int)skgpu::BlendEquation::kAdd);
+    static_assert(1 == (int)skgpu::BlendEquation::kSubtract);
+    static_assert(2 == (int)skgpu::BlendEquation::kReverseSubtract);
+
+    SkASSERT((unsigned)equation < skgpu::kBlendEquationCnt);
+    return gTable[(int)equation];
+}
+
 static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
         MTLPixelFormat format,
         const SkPipelineData::BlendInfo& blendInfo) {
+
+    skgpu::BlendEquation equation = blendInfo.fEquation;
+    skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
+    skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
+    bool blendOn = !skgpu::BlendShouldDisable(equation, srcCoeff, dstCoeff);
 
     // TODO: I *think* this gets cleaned up by the pipelineDescriptor?
     auto mtlColorAttachment = [[MTLRenderPipelineColorAttachmentDescriptor alloc] init];
 
     mtlColorAttachment.pixelFormat = format;
 
-    mtlColorAttachment.blendingEnabled = FALSE;
+    mtlColorAttachment.blendingEnabled = blendOn;
+
+    if (blendOn) {
+        mtlColorAttachment.sourceRGBBlendFactor = blend_coeff_to_mtl_blend(srcCoeff);
+        mtlColorAttachment.destinationRGBBlendFactor = blend_coeff_to_mtl_blend(dstCoeff);
+        mtlColorAttachment.rgbBlendOperation = blend_equation_to_mtl_blend_op(equation);
+        mtlColorAttachment.sourceAlphaBlendFactor = blend_coeff_to_mtl_blend(srcCoeff);
+        mtlColorAttachment.destinationAlphaBlendFactor = blend_coeff_to_mtl_blend(dstCoeff);
+        mtlColorAttachment.alphaBlendOperation = blend_equation_to_mtl_blend_op(equation);
+    }
 
     mtlColorAttachment.writeMask = blendInfo.fWritesColor ? MTLColorWriteMaskAll
                                                           : MTLColorWriteMaskNone;

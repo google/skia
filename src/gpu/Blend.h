@@ -16,7 +16,7 @@ namespace skgpu {
 /**
  * Equations for alpha-blending.
  */
-enum class BlendEquation {
+enum class BlendEquation : uint8_t {
     // Basic blend equations.
     kAdd,             //<! Cs*S + Cd*D
     kSubtract,        //<! Cs*S - Cd*D
@@ -51,7 +51,7 @@ static const int kBlendEquationCnt = static_cast<int>(BlendEquation::kLast) + 1;
 /**
  * Coefficients for alpha-blending.
  */
-enum class BlendCoeff {
+enum class BlendCoeff : uint8_t {
     kZero,    //<! 0
     kOne,     //<! 1
     kSC,      //<! src color

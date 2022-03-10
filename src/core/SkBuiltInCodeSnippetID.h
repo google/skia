@@ -32,6 +32,7 @@ enum class SkBuiltInCodeSnippetID : uint8_t {
     kBlendShader,     // aka ComposeShader
 
     // BlendMode code snippets
+    kFixedFunctionBlender,
     kShaderBasedBlender,
 
     kLast = kShaderBasedBlender

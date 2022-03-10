@@ -97,7 +97,7 @@ std::string SkShaderInfo::toSkSL() const {
     std::string result = skgpu::mtl::GetMtlUniforms(2, "FS", fBlockReaders);
 
     std::set<const char*> emittedStaticSnippets;
-    for (auto reader : fBlockReaders) {
+    for (const auto& reader : fBlockReaders) {
         const SkShaderSnippet* e = reader.entry();
         if (emittedStaticSnippets.find(e->fStaticFunctionName) == emittedStaticSnippets.end()) {
             result += e->fStaticSkSL;
@@ -326,7 +326,7 @@ static const char* kImageShaderName = "image_shader";
 static const char* kImageShaderSkSL =
         "half4 image_shader() {\n"
         "    float c = fract(abs(sk_FragCoord.x/10.0));\n"
-        "    return half4(c, c, c, 1.0);\n"
+        "    return half4(1.0, 1.0 - c, 1.0 - c, 1.0);\n"
         "}\n";
 
 static constexpr int kNumImageShaderFields = 2;
@@ -448,6 +448,36 @@ static const char* kErrorSkSL =
         "}\n";
 
 //--------------------------------------------------------------------------------------------------
+static constexpr int kNumFixedFunctionBlenderFields = 1;
+static constexpr DataPayloadField kFixedFunctionBlenderFields[kNumFixedFunctionBlenderFields] = {
+        { "blendmode", SkPaintParamsKey::DataPayloadType::kByte, 1 }
+};
+
+// This method generates the glue code for the case where the SkBlendMode-based blending is
+// handled with fixed function blending.
+std::string GenerateFixedFunctionBlenderGlueCode(const std::string& resultName,
+                                                 int entryIndex,
+                                                 const SkPaintParamsKey::BlockReader& reader,
+                                                 const std::string& priorStageOutputName,
+                                                 const std::vector<std::string>& childNames,
+                                                 int indent) {
+    SkASSERT(childNames.empty());
+    SkASSERT(reader.entry()->fUniforms.empty());
+    SkASSERT(reader.numDataPayloadFields() == 1);
+
+    // The actual blending is set up via the fixed function pipeline so we don't actually
+    // need to access the blend mode in the glue code.
+
+    std::string result;
+    add_indent(&result, indent);
+    result += "// Fixed-function blending\n";
+    add_indent(&result, indent);
+    SkSL::String::appendf(&result, "%s = %s;", resultName.c_str(), priorStageOutputName.c_str());
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
 static constexpr int kNumShaderBasedBlenderFields = 1;
 static constexpr DataPayloadField kShaderBasedBlenderFields[kNumShaderBasedBlenderFields] = {
         { "blendmode", SkPaintParamsKey::DataPayloadType::kByte, 1 }
@@ -471,6 +501,8 @@ std::string GenerateShaderBasedBlenderGlueCode(const std::string& resultName,
 
     std::string result;
 
+    add_indent(&result, indent);
+    result += "// Shader-based blending\n";
     // TODO: emit code to perform dest read
     add_indent(&result, indent);
     result += "half4 dummyDst = half4(1.0, 1.0, 1.0, 1.0);\n";
@@ -577,8 +609,15 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kNumBlendShaderChildren,
             {}
     };
+    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kFixedFunctionBlender] = {
+            { },     // no uniforms
+            "", "",  // fixed function blending doesn't have any static SkSL
+            GenerateFixedFunctionBlenderGlueCode,
+            kNoChildren,
+            { kFixedFunctionBlenderFields, kNumFixedFunctionBlenderFields }
+    };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kShaderBasedBlender] = {
-            { },
+            { },     // no uniforms
             kBlendHelperName, kBlendHelperSkSL,
             GenerateShaderBasedBlenderGlueCode,
             kNoChildren,

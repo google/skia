@@ -16,6 +16,7 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "experimental/graphite/src/UniformManager.h"
+#include "src/gpu/Blend.h"
 #endif
 
 constexpr SkPMColor4f kErrorColor = { 1, 0, 0, 1 };
@@ -471,10 +472,53 @@ void AddToKey(SkShaderCodeDictionary* dict,
 } // namespace BlendShaderBlock
 
 //--------------------------------------------------------------------------------------------------
+#ifdef SK_GRAPHITE_ENABLED
+namespace {
+
+constexpr SkPipelineData::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
+                                                          skgpu::BlendCoeff dstCoeff) {
+    return { skgpu::BlendEquation::kAdd,
+             srcCoeff,
+             dstCoeff,
+             SK_PMColor4fTRANSPARENT,
+             skgpu::BlendModifiesDst(skgpu::BlendEquation::kAdd, srcCoeff, dstCoeff) };
+}
+
+/*>> No coverage, input color unknown <<*/
+static constexpr SkPipelineData::BlendInfo gBlendTable[(int)SkBlendMode::kLastCoeffMode + 1] = {
+        /* clear */      make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kZero),
+        /* src */        make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kZero),
+        /* dst */        make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
+        /* src-over */   make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISA),
+        /* dst-over */   make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
+        /* src-in */     make_simple_blendInfo(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kZero),
+        /* dst-in */     make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSA),
+        /* src-out */    make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kZero),
+        /* dst-out */    make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kISA),
+        /* src-atop */   make_simple_blendInfo(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kISA),
+        /* dst-atop */   make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kSA),
+        /* xor */        make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kISA),
+        /* plus */       make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kOne),
+        /* modulate */   make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSC),
+        /* screen */     make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC)
+};
+
+const SkPipelineData::BlendInfo& get_blend_info(SkBlendMode bm) {
+    if (bm <= SkBlendMode::kLastCoeffMode) {
+        return gBlendTable[(int) bm];
+    }
+
+    return gBlendTable[(int) SkBlendMode::kSrc];
+}
+
+} // anonymous namespace
+#endif // SK_GRAPHITE_ENABLED
+
 namespace BlendModeBlock {
 
 #ifdef SK_GRAPHITE_ENABLED
-static const int kBlockDataSize = 1;
+static const int kFixedFunctionBlockDataSize = 1;
+static const int kShaderBasedBlockDataSize = 1;
 #endif
 
 void AddToKey(SkShaderCodeDictionary* dict,
@@ -484,17 +528,31 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
 #ifdef SK_GRAPHITE_ENABLED
     if (builder->backend() == SkBackend::kGraphite) {
-        builder->beginBlock(SkBuiltInCodeSnippetID::kShaderBasedBlender);
-        add_blendmode_to_key(builder, bm);
-        builder->endBlock();
+        if (bm <= SkBlendMode::kLastCoeffMode) {
+            builder->beginBlock(SkBuiltInCodeSnippetID::kFixedFunctionBlender);
+            add_blendmode_to_key(builder, bm);
+            builder->endBlock();
 
-        validate_block_header(builder,
-                              SkBuiltInCodeSnippetID::kShaderBasedBlender,
-                              kBlockDataSize);
+            validate_block_header(builder,
+                                  SkBuiltInCodeSnippetID::kFixedFunctionBlender,
+                                  kFixedFunctionBlockDataSize);
 
-        if (pipelineData) {
-            // TODO: set up the correct blend info
-            pipelineData->setBlendInfo(SkPipelineData::BlendInfo());
+            if (pipelineData) {
+                pipelineData->setBlendInfo(get_blend_info(bm));
+            }
+        } else {
+            builder->beginBlock(SkBuiltInCodeSnippetID::kShaderBasedBlender);
+            add_blendmode_to_key(builder, bm);
+            builder->endBlock();
+
+            validate_block_header(builder,
+                                  SkBuiltInCodeSnippetID::kShaderBasedBlender,
+                                  kShaderBasedBlockDataSize);
+
+            if (pipelineData) {
+                // TODO: set up the correct blend info
+                pipelineData->setBlendInfo(SkPipelineData::BlendInfo());
+            }
         }
         return;
     }
@@ -543,7 +601,7 @@ SkUniquePaintParamsID CreateKey(SkShaderCodeDictionary* dict,
     }
 
     // TODO: the blendInfo should be filled in by BlendModeBlock::AddToKey
-    SkPipelineData::BlendInfo blendInfo;
+    SkPipelineData::BlendInfo blendInfo = get_blend_info(bm);
     BlendModeBlock::AddToKey(dict, builder, /* pipelineData*/ nullptr, bm);
     SkPaintParamsKey key = builder->lockAsKey();
 
