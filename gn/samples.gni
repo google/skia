@@ -58,6 +58,7 @@ samples_sources = [
   "$_samplecode/SampleQuadStroker.cpp",
   "$_samplecode/SampleRectanizer.cpp",
   "$_samplecode/SampleRepeatTile.cpp",
+  "$_samplecode/SampleSBIX.cpp",
   "$_samplecode/SampleSG.cpp",
   "$_samplecode/SampleSVGFile.cpp",
   "$_samplecode/SampleShadowColor.cpp",
