@@ -341,6 +341,8 @@ namespace {
 
 #ifdef SK_GRAPHITE_ENABLED
 
+// For now, the image shader doesn't have any uniforms. This will probably change.
+#if 0
 sk_sp<SkUniformData> make_image_uniform_data(SkShaderCodeDictionary* dict,
                                              const ImageData& imgData) {
     SkDEBUGCODE(static constexpr size_t kExpectedNumUniforms = 0;)
@@ -359,6 +361,7 @@ sk_sp<SkUniformData> make_image_uniform_data(SkShaderCodeDictionary* dict,
     mgr.writeUniforms(result->uniforms(), nullptr, result->offsets(), result->data());
     return result;
 }
+#endif
 
 #endif // SK_GRAPHITE_ENABLED
 
@@ -381,9 +384,13 @@ void AddToKey(SkShaderCodeDictionary* dict,
 
         builder->endBlock();
 
+        // For now, the image shader doesn't have any uniforms. This will probably change.
+#if 0
         if (pipelineData) {
             pipelineData->add(make_image_uniform_data(dict, imgData));
         }
+#endif
+
         return;
     }
 #endif // SK_GRAPHITE_ENABLED

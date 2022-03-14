@@ -53,9 +53,9 @@ public:
 
     void add(sk_sp<SkUniformData>);
 
-    bool empty() const { return fUniformData.empty(); }
-    size_t totalSize() const;  // TODO: cache this?
-    int count() const;         // TODO: cache this?
+    bool hasUniforms() const { return !fUniformData.empty(); }
+    size_t totalUniformSize() const;  // TODO: cache this?
+    int numUniforms() const;         // TODO: cache this?
 
     bool operator==(const SkPipelineData&) const;
     bool operator!=(const SkPipelineData& other) const { return !(*this == other);  }

@@ -67,6 +67,7 @@ public:
     }
 
     void setVertexBuffer(id<MTLBuffer> buffer, NSUInteger offset, NSUInteger index) {
+        SkASSERT(buffer != nil);
         SkASSERT(index < kMaxExpectedBuffers);
         if (@available(macOS 10.11, iOS 8.3, *)) {
             if (fCurrentVertexBuffer[index] == buffer) {
@@ -93,6 +94,7 @@ public:
     }
 
     void setFragmentBuffer(id<MTLBuffer> buffer, NSUInteger offset, NSUInteger index) {
+        SkASSERT(buffer != nil);
         SkASSERT(index < kMaxExpectedBuffers);
         if (@available(macOS 10.11, iOS 8.3, *)) {
             if (fCurrentFragmentBuffer[index] == buffer) {

@@ -9,14 +9,16 @@
 #include "src/core/SkPipelineData.h"
 
 SkPipelineData::SkPipelineData(sk_sp<SkUniformData> initial) {
+    SkASSERT(initial && initial->count());
     fUniformData.push_back(std::move(initial));
 }
 
 void SkPipelineData::add(sk_sp<SkUniformData> uniforms) {
+    SkASSERT(uniforms && uniforms->count());
     fUniformData.push_back(std::move(uniforms));
 }
 
-size_t SkPipelineData::totalSize() const {
+size_t SkPipelineData::totalUniformSize() const {
     size_t total = 0;
 
     // TODO: It seems like we need to worry about alignment between the separate sets of uniforms
@@ -27,7 +29,7 @@ size_t SkPipelineData::totalSize() const {
     return total;
 }
 
-int SkPipelineData::count() const {
+int SkPipelineData::numUniforms() const {
     int total = 0;
 
     for (auto& u : fUniformData) {

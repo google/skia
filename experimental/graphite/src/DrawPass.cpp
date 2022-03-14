@@ -183,7 +183,7 @@ public:
             : fBufferMgr(bufferMgr), fCache(cache) {}
 
     uint32_t addUniforms(std::unique_ptr<SkPipelineData> pipelineData) {
-        if (!pipelineData || pipelineData->empty()) {
+        if (!pipelineData || !pipelineData->hasUniforms()) {
             return PipelineDataCache::kInvalidUniformID;
         }
 
@@ -191,7 +191,8 @@ public:
         if (fBindings.find(index) == fBindings.end()) {
             SkPipelineData* tmp = fCache->lookup(index);
             // First time encountering this data, so upload to the GPU
-            size_t totalDataSize = tmp->totalSize();
+            size_t totalDataSize = tmp->totalUniformSize();
+            SkASSERT(totalDataSize);
             auto [writer, bufferInfo] = fBufferMgr->getUniformWriter(totalDataSize);
             for (auto& u : *tmp) {
                 writer.write(u->data(), u->dataSize());
