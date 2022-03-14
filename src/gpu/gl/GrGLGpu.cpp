@@ -33,7 +33,6 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrUtil.h"
-#include "src/gpu/SkRenderEngineAbortf.h"
 #include "src/gpu/gl/GrGLAttachment.h"
 #include "src/gpu/gl/GrGLBuffer.h"
 #include "src/gpu/gl/GrGLOpsRenderPass.h"
@@ -1223,7 +1222,6 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
 
     GL_CALL(GenFramebuffers(1, &rtIDs->fSingleSampleFBOID));
     if (!rtIDs->fSingleSampleFBOID) {
-        RENDERENGINE_ABORTF("%s failed to GenFramebuffers!", __func__);
         return false;
     }
 
