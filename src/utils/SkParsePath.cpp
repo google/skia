@@ -72,6 +72,22 @@ static const char* find_scalar(const char str[], SkScalar* value,
     return str;
 }
 
+// https://www.w3.org/TR/SVG11/paths.html#PathDataBNF
+//
+// flag:
+//    "0" | "1"
+static const char* find_flag(const char str[], bool* value) {
+    if (!str) {
+        return nullptr;
+    }
+    if (str[0] != '1' && str[0] != '0') {
+        return nullptr;
+    }
+    *value = str[0] != '0';
+    str = skip_sep(str + 1);
+    return str;
+}
+
 bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
     SkPath path;
     SkPoint first = {0, 0};
@@ -164,18 +180,19 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                 break;
             case 'A': {
                 SkPoint radii;
-                SkScalar angle, largeArc, sweep;
+                SkScalar angle;
+                bool largeArc, sweep;
                 if ((data = find_points(data, &radii, 1, false, nullptr))
                         && (data = skip_sep(data))
                         && (data = find_scalar(data, &angle, false, 0))
                         && (data = skip_sep(data))
-                        && (data = find_scalar(data, &largeArc, false, 0))
+                        && (data = find_flag(data, &largeArc))
                         && (data = skip_sep(data))
-                        && (data = find_scalar(data, &sweep, false, 0))
+                        && (data = find_flag(data, &sweep))
                         && (data = skip_sep(data))
                         && (data = find_points(data, &points[0], 1, relative, &c))) {
-                    path.arcTo(radii, angle, (SkPath::ArcSize) SkToBool(largeArc),
-                            (SkPathDirection) !SkToBool(sweep), points[0]);
+                    path.arcTo(radii, angle, (SkPath::ArcSize) largeArc,
+                            (SkPathDirection) !sweep, points[0]);
                     path.getLastPt(&c);
                 }
                 } break;

@@ -128,3 +128,13 @@ DEF_TEST(ParsePathOptionalCommand, r) {
         REPORTER_ASSERT(r, path.countPoints() == gTests[i].fPoints);
     }
 }
+
+DEF_TEST(ParsePathArcFlags, r) {
+    const char* arcs = "M10 10a2.143 2.143 0 100-4.285 2.143 2.143 0 000 4.286";
+    SkPath path;
+    REPORTER_ASSERT(r, SkParsePath::FromSVGString(arcs, &path));
+    // Arcs decompose to two conics.
+    REPORTER_ASSERT(r, path.countVerbs() == 5);
+    // One for move, 2x per conic.
+    REPORTER_ASSERT(r, path.countPoints() == 9);
+}
