@@ -156,6 +156,11 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 				}
 			}
 		}
+
+		if b.extraConfig("Graphite") {
+			configs = []string{"grmtl"}
+		}
+
 		if b.os("ChromeOS") {
 			// Just run GLES for now - maybe add gles_msaa4 in the future
 			configs = []string{"gles"}
