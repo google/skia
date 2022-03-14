@@ -63,6 +63,16 @@ static SkQP gSkQP;
                     __FILE__ ": assert(" #cond ") failed."); \
     return ret; } } while (0)
 
+////////////////////////////////////////////////////////////////////////////////
+
+static jobjectArray make_java_string_array(JNIEnv* env, jint arraySize) {
+    jclass stringClass = env->FindClass("java/lang/String");
+    jassert(env, stringClass, nullptr);
+    jobjectArray jarray = env->NewObjectArray(arraySize, stringClass, nullptr);
+    jassert(env, jarray != nullptr, nullptr);
+    return jarray;
+}
+
 static void set_string_array_element(JNIEnv* env, jobjectArray a, const char* s, unsigned i) {
     jstring jstr = env->NewStringUTF(s);
     jassert(env, jstr != nullptr,);
@@ -70,16 +80,11 @@ static void set_string_array_element(JNIEnv* env, jobjectArray a, const char* s,
     env->DeleteLocalRef(jstr);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 template <typename T, typename F>
-jobjectArray to_java_string_array(JNIEnv* env,
-                                  const std::vector<T>& array,
-                                  F toString) {
-    jclass stringClass = env->FindClass("java/lang/String");
-    jassert(env, stringClass, nullptr);
-    jobjectArray jarray = env->NewObjectArray((jint)array.size(), stringClass, nullptr);
-    jassert(env, jarray != nullptr, nullptr);
+static jobjectArray to_java_string_array(JNIEnv* env,
+                                         const std::vector<T>& array,
+                                         F toString) {
+    jobjectArray jarray = make_java_string_array(env, (jint)array.size());
     for (unsigned i = 0; i < array.size(); ++i) {
         set_string_array_element(env, jarray, std::string(toString(array[i])).c_str(), i);
     }
@@ -120,6 +125,8 @@ void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetMan
                         to_java_string_array(env, backends, SkQP::GetBackendName));
     env->SetObjectField(object, env->GetFieldID(SkQP_class, "mUnitTests", kStringArrayType),
                         to_java_string_array(env, unitTests, SkQP::GetUnitTestName));
+    env->SetObjectField(object, env->GetFieldID(SkQP_class, "mGMs", kStringArrayType),
+                        make_java_string_array(env, 0));
 }
 
 jlong Java_org_skia_skqp_SkQP_nExecuteGM(JNIEnv* env,
