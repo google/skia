@@ -8,9 +8,6 @@
 #ifndef SkImageEncoder_DEFINED
 #define SkImageEncoder_DEFINED
 
-// TODO: update clients so we can remove this include, they should IWYU
-#include "include/core/SkBitmap.h"
-
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkPixmap.h"
