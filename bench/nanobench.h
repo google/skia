@@ -13,6 +13,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "tools/gpu/GrContextFactory.h"
+#include "tools/graphite/ContextFactory.h"
 
 class SkBitmap;
 class SkCanvas;
@@ -27,6 +28,7 @@ struct Config {
     int samples;
     sk_gpu_test::GrContextFactory::ContextType ctxType;
     sk_gpu_test::GrContextFactory::ContextOverrides ctxOverrides;
+    skiatest::graphite::ContextFactory::ContextType graphiteCtxType;
     uint32_t surfaceFlags;
 };
 
