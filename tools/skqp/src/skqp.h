@@ -50,7 +50,6 @@ public:
 
     /** These functions provide a descriptive name for the given value.*/
     static const char* GetUnitTestName(UnitTest);
-    static const char* GetBackendName(SkiaBackend);
 
     SkQP();
     ~SkQP();
@@ -70,8 +69,6 @@ public:
         report directory. */
     void makeReport();
 
-    /** @return a list of backends that this version of SkQP supports.  */
-    const std::vector<SkiaBackend>& getSupportedBackends() const { return fSupportedBackends; }
     /** @return a list of all Skia GPU unit tests in lexicographic order.  */
     const std::vector<UnitTest>& getUnitTests() const { return fUnitTests; }
     ////////////////////////////////////////////////////////////////////////////

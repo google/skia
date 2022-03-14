@@ -15,12 +15,9 @@ import android.content.res.AssetManager;
  */
 public class SkQP {
     protected native void nInit(AssetManager assetManager, String dataDir);
-    protected native long nExecuteGM(int gm, int backend) throws SkQPException;
     protected native String[] nExecuteUnitTest(int test);
     protected native void nMakeReport();
 
-    protected String[] mGMs;
-    protected String[] mBackends;
     protected String[] mUnitTests;
 
     protected static final String kSkiaGM = "skqp_";
