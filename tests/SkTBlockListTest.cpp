@@ -48,6 +48,8 @@ public:
     static size_t TotalSize(SkTBlockList<C, N>& list) {
         return list.fAllocator->totalSize();
     }
+
+    static constexpr size_t kAddressAlign = SkBlockAllocator::kAddressAlign;
 };
 
 // Checks that the allocator has the correct count, etc and that the element IDs are correct.
@@ -300,6 +302,20 @@ static void run_reserve_test(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == C::gInstCnt);
 }
 
+void run_large_increment_test(skiatest::Reporter* reporter) {
+    static constexpr size_t kIncrementMax = std::numeric_limits<uint16_t>::max();
+    // Pick an item count such that count*sizeof(C)/max align exceeds uint16_t max.
+    int itemCount = (int) (sizeof(C) * kIncrementMax / TBlockListTestAccess::kAddressAlign) + 1;
+    SkTBlockList<C> largeIncrement(itemCount);
+    // Trigger a scratch block allocation, which given default fixed growth policy, will be one
+    // block increment.
+    largeIncrement.reserve(10);
+    size_t scratchSize = TBlockListTestAccess::ScratchBlockSize(largeIncrement);
+    // SkBlockAllocator aligns large blocks to 4k
+    size_t expected = SkAlignTo(kIncrementMax * TBlockListTestAccess::kAddressAlign, (1 << 12));
+    REPORTER_ASSERT(reporter, scratchSize == expected);
+}
+
 DEF_TEST(SkTBlockList, reporter) {
     // Test combinations of allocators with and without stack storage and with different block sizes
     SkTBlockList<C> a1(1);
@@ -335,4 +351,6 @@ DEF_TEST(SkTBlockList, reporter) {
     run_concat_trivial_test<5, 1>(reporter, 50, 10);
     run_concat_trivial_test<1, 5>(reporter, 10, 50);
     run_concat_trivial_test<5, 5>(reporter, 100, 100);
+
+    run_large_increment_test(reporter);
 }
