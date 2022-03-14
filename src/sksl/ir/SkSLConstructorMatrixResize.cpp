@@ -13,7 +13,7 @@
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorMatrixResize::Make(const Context& context,
-                                                          int line,
+                                                          Position pos,
                                                           const Type& type,
                                                           std::unique_ptr<Expression> arg) {
     SkASSERT(type.isMatrix());
@@ -25,7 +25,7 @@ std::unique_ptr<Expression> ConstructorMatrixResize::Make(const Context& context
         return arg;
     }
 
-    return std::make_unique<ConstructorMatrixResize>(line, type, std::move(arg));
+    return std::make_unique<ConstructorMatrixResize>(pos, type, std::move(arg));
 }
 
 std::optional<double> ConstructorMatrixResize::getConstantValue(int n) const {

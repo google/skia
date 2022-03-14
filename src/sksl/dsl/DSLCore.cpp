@@ -129,16 +129,17 @@ public:
         int unused[] = {0, (static_cast<void>(argArray.push_back(args.release())), 0)...};
         static_cast<void>(unused);
 
-        return SkSL::FunctionCall::Convert(ThreadContext::Context(), /*line=*/-1,
-                ThreadContext::Compiler().convertIdentifier(-1, name), std::move(argArray));
+        return SkSL::FunctionCall::Convert(ThreadContext::Context(), Position(),
+                ThreadContext::Compiler().convertIdentifier(Position(), name),
+                std::move(argArray));
     }
 
     static DSLStatement Break(Position pos) {
-        return SkSL::BreakStatement::Make(pos.line());
+        return SkSL::BreakStatement::Make(pos);
     }
 
     static DSLStatement Continue(Position pos) {
-        return SkSL::ContinueStatement::Make(pos.line());
+        return SkSL::ContinueStatement::Make(pos);
     }
 
     static void Declare(const DSLModifiers& modifiers) {
@@ -159,7 +160,7 @@ public:
         for (DSLVar& v : vars) {
             statements.push_back(Declare(v, pos).release());
         }
-        return SkSL::Block::MakeUnscoped(pos.line(), std::move(statements));
+        return SkSL::Block::MakeUnscoped(pos, std::move(statements));
     }
 
     static void Declare(DSLGlobalVar& var, Position pos) {
@@ -192,7 +193,7 @@ public:
     }
 
     static DSLStatement Discard(Position pos) {
-        return SkSL::DiscardStatement::Make(pos.line());
+        return SkSL::DiscardStatement::Make(pos);
     }
 
     static DSLPossibleStatement Do(DSLStatement stmt, DSLExpression test) {
@@ -201,7 +202,7 @@ public:
 
     static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
                                     DSLExpression next, DSLStatement stmt, Position pos) {
-        return ForStatement::Convert(ThreadContext::Context(), pos.line(),
+        return ForStatement::Convert(ThreadContext::Context(), pos,
                                      initializer.releaseIfPossible(), test.releaseIfPossible(),
                                      next.releaseIfPossible(), stmt.release(),
                                      ThreadContext::SymbolTable());
@@ -209,8 +210,8 @@ public:
 
     static DSLPossibleStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
                                    bool isStatic) {
-        return IfStatement::Convert(ThreadContext::Context(), /*line=*/-1, isStatic, test.release(),
-                                    ifTrue.release(), ifFalse.releaseIfPossible());
+        return IfStatement::Convert(ThreadContext::Context(), Position(), isStatic, test.release(),
+                ifTrue.release(), ifFalse.releaseIfPossible());
     }
 
     static void FindRTAdjust(SkSL::InterfaceBlock& intf, Position pos) {
@@ -245,7 +246,7 @@ public:
             if (baseType->isArray()) {
                 baseType = &baseType->componentType();
             }
-            SkSL::VarDeclaration::ErrorCheck(ThreadContext::Context(), field.fPosition.line(),
+            SkSL::VarDeclaration::ErrorCheck(ThreadContext::Context(), field.fPosition,
                     field.fModifiers.fModifiers, baseType, Variable::Storage::kInterfaceBlock);
             GetErrorReporter().reportPendingErrors(field.fPosition);
             skslFields.push_back(SkSL::Type::Field(field.fModifiers.fModifiers, field.fName,
@@ -253,7 +254,7 @@ public:
         }
         const SkSL::Type* structType =
                 ThreadContext::SymbolTable()->takeOwnershipOfSymbol(SkSL::Type::MakeStructType(
-                        pos.line(), typeName, std::move(skslFields), /*interfaceBlock=*/true));
+                        pos, typeName, std::move(skslFields), /*interfaceBlock=*/true));
         DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
         DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName, DSLExpression(),
                 pos);
@@ -264,14 +265,14 @@ public:
         }
         const SkSL::Variable* skslVar = DSLWriter::Var(var);
         if (skslVar) {
-            auto intf = std::make_unique<SkSL::InterfaceBlock>(pos.line(),
-                    *skslVar, typeName, varName, arraySize, ThreadContext::SymbolTable());
+            auto intf = std::make_unique<SkSL::InterfaceBlock>(pos, *skslVar, typeName, varName,
+                    arraySize, ThreadContext::SymbolTable());
             FindRTAdjust(*intf, pos);
             ThreadContext::ProgramElements().push_back(std::move(intf));
             if (varName.empty()) {
                 const std::vector<SkSL::Type::Field>& structFields = structType->fields();
                 for (size_t i = 0; i < structFields.size(); ++i) {
-                    ThreadContext::SymbolTable()->add(std::make_unique<SkSL::Field>(pos.line(),
+                    ThreadContext::SymbolTable()->add(std::make_unique<SkSL::Field>(pos,
                                                                                     skslVar,
                                                                                     i));
                 }
@@ -288,7 +289,7 @@ public:
         // this point we do not know the function's return type. We therefore do not check for
         // errors, or coerce the value to the correct type, until the return statement is actually
         // added to a function. (This is done in FunctionDefinition::Convert.)
-        return SkSL::ReturnStatement::Make(pos.line(), value.releaseIfPossible());
+        return SkSL::ReturnStatement::Make(pos, value.releaseIfPossible());
     }
 
     static DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a,
@@ -342,16 +343,16 @@ public:
         caseBlocks.reserve_back(cases.count());
         for (DSLCase& c : cases) {
             values.push_back(c.fValue.releaseIfPossible());
-            caseBlocks.push_back(SkSL::Block::Make(/*line=*/-1,
-                    std::move(c.fStatements), /*symbols=*/nullptr, /*isScope=*/false));
+            caseBlocks.push_back(SkSL::Block::Make(Position(), std::move(c.fStatements),
+                    /*symbols=*/nullptr, /*isScope=*/false));
         }
-        return SwitchStatement::Convert(ThreadContext::Context(), /*line=*/-1, isStatic,
+        return SwitchStatement::Convert(ThreadContext::Context(), Position(), isStatic,
                 value.release(), std::move(values), std::move(caseBlocks),
                 ThreadContext::SymbolTable());
     }
 
     static DSLPossibleStatement While(DSLExpression test, DSLStatement stmt) {
-        return ForStatement::ConvertWhile(ThreadContext::Context(), /*line=*/-1, test.release(),
+        return ForStatement::ConvertWhile(ThreadContext::Context(), Position(), test.release(),
                                           stmt.release(), ThreadContext::SymbolTable());
     }
 };
@@ -373,7 +374,7 @@ DSLExpression sk_Position() {
 }
 
 void AddExtension(std::string_view name, Position pos) {
-    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::Extension>(pos.line(), name));
+    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::Extension>(pos, name));
     ThreadContext::ReportErrors(pos);
 }
 

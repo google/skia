@@ -69,7 +69,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                             }
                         }
                         msg = "potential recursion (function call cycle) not allowed:" + msg;
-                        fContext.fErrors->error(pe.fLine, std::move(msg));
+                        fContext.fErrors->error(pe.fPosition, std::move(msg));
                         fFunctionSize = 0;
                         *cachedCost = 0;
                         return true;
@@ -86,7 +86,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                         msg += "\n\t" + (*unwind)->description();
                     }
                     msg += "\n\t" + decl->description();
-                    fContext.fErrors->error(pe.fLine, std::move(msg));
+                    fContext.fErrors->error(pe.fPosition, std::move(msg));
                     fFunctionSize = 0;
                     fFunctionCostMap.set(decl, 0);
                     return true;
@@ -200,7 +200,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
             // Report an error when main()'s flattened size is larger than our program limit.
             if (visitor.functionSize() > kProgramSizeLimit &&
                 element->as<FunctionDefinition>().declaration().isMain()) {
-                context.fErrors->error(/*line=*/-1, "program is too large");
+                context.fErrors->error(Position(), "program is too large");
             }
         }
     }

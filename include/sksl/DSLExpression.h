@@ -9,9 +9,10 @@
 #define SKSL_DSL_EXPRESSION
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLWrapper.h"
-#include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 
 #include <cstdint>
 #include <memory>

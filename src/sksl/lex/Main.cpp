@@ -54,16 +54,14 @@ static void writeH(const DFA& dfa, const char* lexer, const char* token,
 
     )" << token << "() {}";
 
-    out << token << R"((Kind kind, int32_t offset, int32_t length, int32_t line)
+    out << token << R"((Kind kind, int32_t offset, int32_t length)
     : fKind(kind)
     , fOffset(offset)
-    , fLength(length)
-    , fLine(line) {}
+    , fLength(length) {}
 
     Kind fKind      = Kind::TK_NONE;
     int32_t fOffset = -1;
     int32_t fLength = -1;
-    int32_t fLine   = -1;
 };
 
 class )" << lexer << R"( {
@@ -71,29 +69,25 @@ public:
     void start(std::string_view text) {
         fText = text;
         fOffset = 0;
-        fLine = 1;
     }
 
     )" << token << R"( next();
 
     struct Checkpoint {
         int32_t fOffset;
-        int32_t fLine;
     };
 
     Checkpoint getCheckpoint() const {
-        return {fOffset, fLine};
+        return {fOffset};
     }
 
     void rewindToCheckpoint(Checkpoint checkpoint) {
         fOffset = checkpoint.fOffset;
-        fLine = checkpoint.fLine;
     }
 
 private:
     std::string_view fText;
     int32_t fOffset;
-    int32_t fLine;
 };
 
 } // namespace
@@ -149,13 +143,13 @@ static void writeCPP(const DFA& dfa, const char* lexer, const char* token, const
     // a bit.
     int32_t startOffset = fOffset;
     if (startOffset == (int32_t)fText.length()) {
-        return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0, fLine);
+        return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0);
     }
     State state = 1;
     for (;;) {
         if (fOffset >= (int32_t)fText.length()) {
             if (kAccepts[state] == -1) {
-                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0, fLine);
+                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
             }
             break;
         }
@@ -169,12 +163,9 @@ static void writeCPP(const DFA& dfa, const char* lexer, const char* token, const
         }
         state = newState;
         ++fOffset;
-        if (c == '\n') {
-            ++fLine;
-        }
     }
     Token::Kind kind = ()" << token << R"(::Kind) kAccepts[state];
-    return )" << token << R"((kind, startOffset, fOffset - startOffset, fLine);
+    return )" << token << R"((kind, startOffset, fOffset - startOffset);
 }
 
 } // namespace

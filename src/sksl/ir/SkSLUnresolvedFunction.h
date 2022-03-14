@@ -20,7 +20,7 @@ public:
     inline static constexpr Kind kSymbolKind = Kind::kUnresolvedFunction;
 
     UnresolvedFunction(std::vector<const FunctionDeclaration*> funcs)
-    : INHERITED(-1, kSymbolKind, funcs[0]->name())
+    : INHERITED(Position(), kSymbolKind, funcs[0]->name())
     , fFunctions(std::move(funcs)) {
 #ifdef SK_DEBUG
         SkASSERT(!this->functions().empty());

@@ -146,7 +146,7 @@ public:
                                                  Type::TypeKind typeKind);
 
     /** Creates a struct type with the given fields. */
-    static std::unique_ptr<Type> MakeStructType(int line,
+    static std::unique_ptr<Type> MakeStructType(Position pos,
                                                 std::string_view name,
                                                 std::vector<Field> fields,
                                                 bool interfaceBlock = false);
@@ -509,7 +509,7 @@ public:
     const Type* applyPrecisionQualifiers(const Context& context,
                                          Modifiers* modifiers,
                                          SymbolTable* symbols,
-                                         int line) const;
+                                         Position pos) const;
 
     /**
      * Coerces the passed-in expression to this type. If the types are incompatible, reports an
@@ -522,7 +522,7 @@ public:
     bool checkForOutOfRangeLiteral(const Context& context, const Expression& expr) const;
 
     /** Checks if `value` can fit in this type. The type must be scalar. */
-    bool checkForOutOfRangeLiteral(const Context& context, double value, int line) const;
+    bool checkForOutOfRangeLiteral(const Context& context, double value, Position pos) const;
 
     /**
      * Verifies that the expression is a valid constant array size for this type. Returns the array
@@ -531,8 +531,9 @@ public:
     SKSL_INT convertArraySize(const Context& context, std::unique_ptr<Expression> size) const;
 
 protected:
-    Type(std::string_view name, const char* abbrev, TypeKind kind, int line = -1)
-        : INHERITED(line, kSymbolKind, name)
+    Type(std::string_view name, const char* abbrev, TypeKind kind,
+            Position pos = Position())
+        : INHERITED(pos, kSymbolKind, name)
         , fTypeKind(kind) {
         SkASSERT(strlen(abbrev) <= kMaxAbbrevLength);
         strcpy(fAbbreviatedName, abbrev);

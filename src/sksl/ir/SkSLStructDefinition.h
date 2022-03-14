@@ -28,8 +28,8 @@ class StructDefinition final : public ProgramElement {
 public:
     inline static constexpr Kind kProgramElementKind = Kind::kStructDefinition;
 
-    StructDefinition(int line, const Type& type)
-    : INHERITED(line, kProgramElementKind)
+    StructDefinition(Position pos, const Type& type)
+    : INHERITED(pos, kProgramElementKind)
     , fType(&type) {}
 
     const Type& type() const {
@@ -37,7 +37,7 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<StructDefinition>(fLine, this->type());
+        return std::make_unique<StructDefinition>(fPosition, this->type());
     }
 
     std::string description() const override {

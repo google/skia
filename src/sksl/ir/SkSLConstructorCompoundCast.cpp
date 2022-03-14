@@ -30,8 +30,8 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
         // replace it with a splat of a different type, e.g. `int4(7)`.
         ConstructorSplat& splat = constCtor->as<ConstructorSplat>();
         return ConstructorSplat::Make(
-                context, constCtor->fLine, destType,
-                ConstructorScalarCast::Make(context, constCtor->fLine, scalarType,
+                context, constCtor->fPosition, destType,
+                ConstructorScalarCast::Make(context, constCtor->fPosition, scalarType,
                                             std::move(splat.argument())));
     }
 
@@ -40,8 +40,8 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
         // with a diagonal matrix of a different type, e.g. `half3x3(2)`.
         ConstructorDiagonalMatrix& matrixCtor = constCtor->as<ConstructorDiagonalMatrix>();
         return ConstructorDiagonalMatrix::Make(
-                context, constCtor->fLine, destType,
-                ConstructorScalarCast::Make(context, constCtor->fLine, scalarType,
+                context, constCtor->fPosition, destType,
+                ConstructorScalarCast::Make(context, constCtor->fPosition, scalarType,
                                             std::move(matrixCtor.argument())));
     }
 
@@ -53,20 +53,20 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
     typecastArgs.reserve_back(numSlots);
     for (size_t index = 0; index < numSlots; ++index) {
         std::optional<double> slotVal = constCtor->getConstantValue(index);
-        if (scalarType.checkForOutOfRangeLiteral(context, *slotVal, constCtor->fLine)) {
+        if (scalarType.checkForOutOfRangeLiteral(context, *slotVal, constCtor->fPosition)) {
             // We've reported an error because the literal is out of range for this type. Zero out
             // the value to avoid a cascade of errors.
             *slotVal = 0.0;
         }
-        typecastArgs.push_back(Literal::Make(constCtor->fLine, *slotVal, &scalarType));
+        typecastArgs.push_back(Literal::Make(constCtor->fPosition, *slotVal, &scalarType));
     }
 
-    return ConstructorCompound::Make(context, constCtor->fLine, destType,
+    return ConstructorCompound::Make(context, constCtor->fPosition, destType,
                                      std::move(typecastArgs));
 }
 
 std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context,
-                                                          int line,
+                                                          Position pos,
                                                           const Type& type,
                                                           std::unique_ptr<Expression> arg) {
     // Only vectors or matrices of the same dimensions are allowed.
@@ -89,7 +89,7 @@ std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context
     if (arg->isCompileTimeConstant()) {
         return cast_constant_composite(context, type, std::move(arg));
     }
-    return std::make_unique<ConstructorCompoundCast>(line, type, std::move(arg));
+    return std::make_unique<ConstructorCompoundCast>(pos, type, std::move(arg));
 }
 
 }  // namespace SkSL

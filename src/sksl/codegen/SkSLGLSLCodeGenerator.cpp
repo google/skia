@@ -801,7 +801,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             if (this->caps().fbFetchSupport()) {
                 this->write(this->caps().fbFetchColorName());
             } else {
-                fContext.fErrors->error(ref.fLine,
+                fContext.fErrors->error(ref.fPosition,
                                         "sk_LastFragColor requires framebuffer fetch support");
             }
             break;
@@ -928,12 +928,12 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
         this->writeExpression(*b.right(), Precedence::kTernary);
     } else {
-        Literal boolTrue(/*line=*/-1, /*value=*/1, fContext.fTypes.fBool.get());
+        Literal boolTrue(Position(), /*value=*/1, fContext.fTypes.fBool.get());
         this->writeLiteral(boolTrue);
     }
     this->write(" : ");
     if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
-        Literal boolFalse(/*line=*/-1, /*value=*/0, fContext.fTypes.fBool.get());
+        Literal boolFalse(Position(), /*value=*/0, fContext.fTypes.fBool.get());
         this->writeLiteral(boolFalse);
     } else {
         this->writeExpression(*b.right(), Precedence::kTernary);
@@ -1308,8 +1308,8 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     if (f.test()) {
         if (this->caps().addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
-                    /*line=*/-1, f.test()->clone(), Token::Kind::TK_LOGICALAND,
-                    Literal::MakeBool(fContext, /*line=*/-1, /*value=*/true),
+                    Position(), f.test()->clone(), Token::Kind::TK_LOGICALAND,
+                    Literal::MakeBool(fContext, Position(), /*value=*/true),
                     fContext.fTypes.fBool.get()));
             this->writeExpression(*and_true, Precedence::kTopLevel);
         } else {

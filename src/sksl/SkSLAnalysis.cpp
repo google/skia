@@ -274,8 +274,8 @@ public:
                 VariableReference& varRef = expr.as<VariableReference>();
                 const Variable* var = varRef.variable();
                 if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag)) {
-                    fErrors->error(expr.fLine, "cannot modify immutable variable '" +
-                                               std::string(var->name()) + "'");
+                    fErrors->error(expr.fPosition, "cannot modify immutable variable '" +
+                            std::string(var->name()) + "'");
                 } else {
                     SkASSERT(fAssignedVar == nullptr);
                     fAssignedVar = &varRef;
@@ -300,7 +300,7 @@ public:
                 break;
 
             default:
-                fErrors->error(expr.fLine, "cannot assign to this expression");
+                fErrors->error(expr.fPosition, "cannot assign to this expression");
                 break;
         }
     }
@@ -312,7 +312,7 @@ private:
             SkASSERT(idx >= SwizzleComponent::X && idx <= SwizzleComponent::W);
             int bit = 1 << idx;
             if (bits & bit) {
-                fErrors->error(swizzle.fLine,
+                fErrors->error(swizzle.fPosition,
                                "cannot write to the same swizzle field more than once");
                 break;
             }
@@ -403,8 +403,8 @@ bool Analysis::DetectVarDeclarationWithoutScope(const Statement& stmt, ErrorRepo
     // Report an error.
     SkASSERT(var);
     if (errors) {
-        errors->error(stmt.fLine, "variable '" + std::string(var->name()) +
-                                  "' must be created in a scope");
+        errors->error(stmt.fPosition, "variable '" + std::string(var->name()) +
+                "' must be created in a scope");
     }
     return true;
 }
@@ -431,7 +431,8 @@ bool Analysis::UpdateVariableRefKind(Expression* expr,
     }
     if (!info.fAssignedVar) {
         if (errors) {
-            errors->error(expr->fLine, "can't assign to expression '" + expr->description() + "'");
+            errors->error(expr->fPosition, "can't assign to expression '" + expr->description() +
+                    "'");
         }
         return false;
     }
@@ -541,7 +542,7 @@ public:
         if (e.is<IndexExpression>()) {
             const IndexExpression& i = e.as<IndexExpression>();
             if (!Analysis::IsConstantIndexExpression(*i.index(), &fLoopIndices)) {
-                fErrors.error(i.fLine, "index expression must be constant");
+                fErrors.error(i.fPosition, "index expression must be constant");
                 return true;
             }
         }

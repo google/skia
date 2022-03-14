@@ -429,8 +429,8 @@ class StructType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kStruct;
 
-    StructType(int line, std::string_view name, std::vector<Field> fields, bool interfaceBlock)
-        : INHERITED(std::move(name), "S", kTypeKind, line)
+    StructType(Position pos, std::string_view name, std::vector<Field> fields, bool interfaceBlock)
+        : INHERITED(std::move(name), "S", kTypeKind, pos)
         , fFields(std::move(fields))
         , fInterfaceBlock(interfaceBlock) {}
 
@@ -565,9 +565,9 @@ std::unique_ptr<Type> Type::MakeScalarType(std::string_view name, const char* ab
 
 }
 
-std::unique_ptr<Type> Type::MakeStructType(int line, std::string_view name,
+std::unique_ptr<Type> Type::MakeStructType(Position pos, std::string_view name,
                                            std::vector<Field> fields, bool interfaceBlock) {
-    return std::make_unique<StructType>(line, name, std::move(fields), interfaceBlock);
+    return std::make_unique<StructType>(pos, name, std::move(fields), interfaceBlock);
 }
 
 std::unique_ptr<Type> Type::MakeTextureType(const char* name, SpvDim_ dimensions, bool isDepth,
@@ -622,7 +622,7 @@ CoercionCost Type::coercionCost(const Type& other) const {
 const Type* Type::applyPrecisionQualifiers(const Context& context,
                                            Modifiers* modifiers,
                                            SymbolTable* symbols,
-                                           int line) const {
+                                           Position pos) const {
     // SkSL doesn't support low precision, so `lowp` is interpreted as medium precision.
     bool highp   = modifiers->fFlags & Modifiers::kHighp_Flag;
     bool mediump = modifiers->fFlags & Modifiers::kMediump_Flag;
@@ -636,12 +636,12 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
     if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
         // We want to discourage precision modifiers internally. Instead, use the type that
         // corresponds to the precision you need. (e.g. half vs float, short vs int)
-        context.fErrors->error(line, "precision qualifiers are not allowed");
+        context.fErrors->error(pos, "precision qualifiers are not allowed");
         return nullptr;
     }
 
     if ((int(lowp) + int(mediump) + int(highp)) != 1) {
-        context.fErrors->error(line, "only one precision qualifier can be used");
+        context.fErrors->error(pos, "only one precision qualifier can be used");
         return nullptr;
     }
 
@@ -685,7 +685,7 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
         }
     }
 
-    context.fErrors->error(line, "type '" + this->displayName() +
+    context.fErrors->error(pos, "type '" + this->displayName() +
                                  "' does not support precision qualifiers");
     return nullptr;
 }
@@ -846,7 +846,7 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
         case TypeKind::kStruct: {
             const std::string* name = symbolTable->takeOwnershipOfString(std::string(this->name()));
             return symbolTable->add(Type::MakeStructType(
-                    this->fLine, *name, this->fields(), this->isInterfaceBlock()));
+                    this->fPosition, *name, this->fields(), this->isInterfaceBlock()));
         }
         default:
             SkDEBUGFAILF("don't know how to clone type '%s'", this->description().c_str());
@@ -863,24 +863,24 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
         return expr;
     }
 
-    const int line = expr->fLine;
+    const Position pos = expr->fPosition;
     const Program::Settings& settings = context.fConfig->fSettings;
     if (!expr->coercionCost(*this).isPossible(settings.fAllowNarrowingConversions)) {
-        context.fErrors->error(line, "expected '" + this->displayName() + "', but found '" +
-                                     expr->type().displayName() + "'");
+        context.fErrors->error(pos, "expected '" + this->displayName() + "', but found '" +
+                expr->type().displayName() + "'");
         return nullptr;
     }
 
     if (this->isScalar()) {
-        return ConstructorScalarCast::Make(context, line, *this, std::move(expr));
+        return ConstructorScalarCast::Make(context, pos, *this, std::move(expr));
     }
     if (this->isVector() || this->isMatrix()) {
-        return ConstructorCompoundCast::Make(context, line, *this, std::move(expr));
+        return ConstructorCompoundCast::Make(context, pos, *this, std::move(expr));
     }
     if (this->isArray()) {
-        return ConstructorArrayCast::Make(context, line, *this, std::move(expr));
+        return ConstructorArrayCast::Make(context, pos, *this, std::move(expr));
     }
-    context.fErrors->error(line, "cannot construct '" + this->displayName() + "'");
+    context.fErrors->error(pos, "cannot construct '" + this->displayName() + "'");
     return nullptr;
 }
 
@@ -938,7 +938,7 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
                 std::optional<double> slotVal = valueExpr->getConstantValue(slot);
                 // Check for Literal values that are out of range for the base type.
                 if (slotVal.has_value() &&
-                    baseType.checkForOutOfRangeLiteral(context, *slotVal, valueExpr->fLine)) {
+                    baseType.checkForOutOfRangeLiteral(context, *slotVal, valueExpr->fPosition)) {
                     foundError = true;
                 }
             }
@@ -949,13 +949,13 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
     return foundError;
 }
 
-bool Type::checkForOutOfRangeLiteral(const Context& context, double value, int line) const {
+bool Type::checkForOutOfRangeLiteral(const Context& context, double value, Position pos) const {
     SkASSERT(this->isScalar());
     if (this->isInteger()) {
         if (value < this->minimumValue() || value > this->maximumValue()) {
             // We found a value that can't fit in the type. Flag it as an error.
             context.fErrors->error(
-                    line,
+                    pos,
                     SkSL::String::printf("integer is out of range for type '%s': %.0f",
                                          this->displayName().c_str(),
                                          std::floor(value)));
@@ -971,29 +971,29 @@ SKSL_INT Type::convertArraySize(const Context& context, std::unique_ptr<Expressi
         return 0;
     }
     if (this->isArray()) {
-        context.fErrors->error(size->fLine, "multi-dimensional arrays are not supported");
+        context.fErrors->error(size->fPosition, "multi-dimensional arrays are not supported");
         return 0;
     }
     if (this->isVoid()) {
-        context.fErrors->error(size->fLine, "type 'void' may not be used in an array");
+        context.fErrors->error(size->fPosition, "type 'void' may not be used in an array");
         return 0;
     }
     if (this->isOpaque()) {
-        context.fErrors->error(size->fLine, "opaque type '" + std::string(this->name()) +
+        context.fErrors->error(size->fPosition, "opaque type '" + std::string(this->name()) +
                                             "' may not be used in an array");
         return 0;
     }
     SKSL_INT count;
     if (!ConstantFolder::GetConstantInt(*size, &count)) {
-        context.fErrors->error(size->fLine, "array size must be an integer");
+        context.fErrors->error(size->fPosition, "array size must be an integer");
         return 0;
     }
     if (count <= 0) {
-        context.fErrors->error(size->fLine, "array size must be positive");
+        context.fErrors->error(size->fPosition, "array size must be positive");
         return 0;
     }
     if (!SkTFitsIn<int32_t>(count)) {
-        context.fErrors->error(size->fLine, "array size is too large");
+        context.fErrors->error(size->fPosition, "array size is too large");
         return 0;
     }
     return static_cast<int>(count);

@@ -24,10 +24,10 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     if (!test || !ifTrue || !ifFalse) {
         return nullptr;
     }
-    int line = test->fLine;
+    Position pos = test->fPosition;
     if (ifTrue->type().componentType().isOpaque()) {
-        context.fErrors->error(line, "ternary expression of opaque type '" +
-                                     ifTrue->type().displayName() + "' not allowed");
+        context.fErrors->error(pos, "ternary expression of opaque type '" +
+                ifTrue->type().displayName() + "' not allowed");
         return nullptr;
     }
     const Type* trueType;
@@ -37,14 +37,13 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     if (!equalityOp.determineBinaryType(context, ifTrue->type(), ifFalse->type(),
                                         &trueType, &falseType, &resultType) ||
         !trueType->matches(*falseType)) {
-        context.fErrors->error(line, "ternary operator result mismatch: '" +
-                                     ifTrue->type().displayName() + "', '" +
-                                     ifFalse->type().displayName() + "'");
+        context.fErrors->error(pos, "ternary operator result mismatch: '" +
+                ifTrue->type().displayName() + "', '" + ifFalse->type().displayName() + "'");
         return nullptr;
     }
     if (context.fConfig->strictES2Mode() && trueType->isOrContainsArray()) {
-        context.fErrors->error(line, "ternary operator result may not be an array (or struct "
-                                     "containing an array)");
+        context.fErrors->error(pos, "ternary operator result may not be an array (or struct "
+                "containing an array)");
         return nullptr;
     }
     ifTrue = trueType->coerceExpression(std::move(ifTrue), context);
@@ -73,7 +72,7 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
                                                    : std::move(ifFalse);
     }
 
-    return std::make_unique<TernaryExpression>(test->fLine, std::move(test), std::move(ifTrue),
+    return std::make_unique<TernaryExpression>(test->fPosition, std::move(test), std::move(ifTrue),
                                                std::move(ifFalse));
 }
 

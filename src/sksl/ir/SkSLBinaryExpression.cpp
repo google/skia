@@ -43,7 +43,7 @@ static std::unique_ptr<Expression> rewrite_matrix_vector_multiply(const Context&
     for (int n = 0; n < left.type().rows(); ++n) {
         // Get mat[N] with an index expression.
         std::unique_ptr<Expression> matN = IndexExpression::Make(
-                context, left.clone(), Literal::MakeInt(context, left.fLine, n));
+                context, left.clone(), Literal::MakeInt(context, left.fPosition, n));
         // Get vec[N] with a swizzle expression.
         std::unique_ptr<Expression> vecN = Swizzle::Make(
                 context, right.clone(), ComponentArray{(SkSL::SwizzleComponent::Type)n});
@@ -73,7 +73,7 @@ std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
     if (!left || !right) {
         return nullptr;
     }
-    const int line = left->fLine;
+    const Position pos = left->fPosition;
 
     const Type* rawLeftType = (left->isIntLiteral() && right->type().isInteger())
             ? &right->type()
@@ -97,30 +97,29 @@ std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
     const Type* resultType;
     if (!op.determineBinaryType(context, *rawLeftType, *rawRightType,
                                 &leftType, &rightType, &resultType)) {
-        context.fErrors->error(line, "type mismatch: '" + std::string(op.tightOperatorName()) +
-                                     "' cannot operate on '" + left->type().displayName() +
-                                     "', '" + right->type().displayName() + "'");
+        context.fErrors->error(pos, "type mismatch: '" + std::string(op.tightOperatorName()) +
+                "' cannot operate on '" + left->type().displayName() + "', '" +
+                right->type().displayName() + "'");
         return nullptr;
     }
 
     if (isAssignment && leftType->componentType().isOpaque()) {
-        context.fErrors->error(line, "assignments to opaque type '" + left->type().displayName() +
-                                     "' are not permitted");
+        context.fErrors->error(pos, "assignments to opaque type '" + left->type().displayName() +
+                "' are not permitted");
         return nullptr;
     }
     if (context.fConfig->strictES2Mode()) {
         if (!op.isAllowedInStrictES2Mode()) {
-            context.fErrors->error(line, "operator '" + std::string(op.tightOperatorName()) +
-                                         "' is not allowed");
+            context.fErrors->error(pos, "operator '" + std::string(op.tightOperatorName()) +
+                    "' is not allowed");
             return nullptr;
         }
         if (leftType->isOrContainsArray()) {
             // Most operators are already rejected on arrays, but GLSL ES 1.0 is very explicit that
             // the *only* operator allowed on arrays is subscripting (and the rules against
             // assignment, comparison, and even sequence apply to structs containing arrays as well)
-            context.fErrors->error(line,
-                                   "operator '" + std::string(op.tightOperatorName()) +
-                                   "' can not operate on arrays (or structs containing arrays)");
+            context.fErrors->error(pos, "operator '" + std::string(op.tightOperatorName()) +
+                    "' can not operate on arrays (or structs containing arrays)");
             return nullptr;
         }
     }
@@ -167,8 +166,8 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
     }
 
     // Perform constant-folding on the expression.
-    const int line = left->fLine;
-    if (std::unique_ptr<Expression> result = ConstantFolder::Simplify(context, line, *left,
+    const Position pos = left->fPosition;
+    if (std::unique_ptr<Expression> result = ConstantFolder::Simplify(context, pos, *left,
                                                                       op, *right, *resultType)) {
         return result;
     }
@@ -180,7 +179,7 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
         //                                        : mat * vec)
         if (is_low_precision_matrix_vector_multiply(*left, op, *right, *resultType)) {
             // Look up `sk_Caps.rewriteMatrixVectorMultiply`.
-            auto caps = Setting::Convert(context, line, "rewriteMatrixVectorMultiply");
+            auto caps = Setting::Convert(context, pos, "rewriteMatrixVectorMultiply");
 
             bool capsBitIsTrue = caps->isBoolLiteral() && caps->as<Literal>().boolValue();
             if (capsBitIsTrue || !caps->isBoolLiteral()) {
@@ -199,13 +198,13 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
                         context,
                         std::move(caps),
                         std::move(rewrite),
-                        std::make_unique<BinaryExpression>(line, std::move(left), op,
+                        std::make_unique<BinaryExpression>(pos, std::move(left), op,
                                                            std::move(right), resultType));
             }
         }
     }
 
-    return std::make_unique<BinaryExpression>(line, std::move(left), op,
+    return std::make_unique<BinaryExpression>(pos, std::move(left), op,
                                               std::move(right), resultType);
 }
 
@@ -235,7 +234,7 @@ bool BinaryExpression::CheckRef(const Expression& expr) {
 }
 
 std::unique_ptr<Expression> BinaryExpression::clone() const {
-    return std::make_unique<BinaryExpression>(fLine,
+    return std::make_unique<BinaryExpression>(fPosition,
                                               this->left()->clone(),
                                               this->getOperator(),
                                               this->right()->clone(),

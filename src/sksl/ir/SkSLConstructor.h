@@ -18,8 +18,8 @@ namespace SkSL {
  */
 class AnyConstructor : public Expression {
 public:
-    AnyConstructor(int line, Kind kind, const Type* type)
-            : INHERITED(line, kind, type) {}
+    AnyConstructor(Position pos, Kind kind, const Type* type)
+            : INHERITED(pos, kind, type) {}
 
     virtual SkSpan<std::unique_ptr<Expression>> argumentSpan() = 0;
     virtual SkSpan<const std::unique_ptr<Expression>> argumentSpan() const = 0;
@@ -81,9 +81,9 @@ private:
  */
 class SingleArgumentConstructor : public AnyConstructor {
 public:
-    SingleArgumentConstructor(int line, Kind kind, const Type* type,
+    SingleArgumentConstructor(Position pos, Kind kind, const Type* type,
                               std::unique_ptr<Expression> argument)
-            : INHERITED(line, kind, type)
+            : INHERITED(pos, kind, type)
             , fArgument(std::move(argument)) {}
 
     std::unique_ptr<Expression>& argument() {
@@ -113,9 +113,10 @@ private:
  */
 class MultiArgumentConstructor : public AnyConstructor {
 public:
-    MultiArgumentConstructor(int line, Kind kind, const Type* type, ExpressionArray arguments)
-            : INHERITED(line, kind, type)
-            , fArguments(std::move(arguments)) {}
+    MultiArgumentConstructor(Position pos, Kind kind, const Type* type,
+            ExpressionArray arguments)
+        : INHERITED(pos, kind, type)
+        , fArguments(std::move(arguments)) {}
 
     ExpressionArray& arguments() {
         return fArguments;
@@ -157,7 +158,7 @@ namespace Constructor {
     // Constructor expression types; this class chooses the proper one based on context, e.g.
     // `ConstructorCompound`, `ConstructorScalarCast`, or `ConstructorMatrixResize`.
     std::unique_ptr<Expression> Convert(const Context& context,
-                                        int line,
+                                        Position pos,
                                         const Type& type,
                                         ExpressionArray args);
 };

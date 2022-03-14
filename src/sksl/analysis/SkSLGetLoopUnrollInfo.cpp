@@ -235,7 +235,7 @@ static const char* get_es2_loop_unroll_info(const Statement* loopInitializer,
     return nullptr;  // All checks pass
 }
 
-std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(int line,
+std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position pos,
                                                             const Statement* loopInitializer,
                                                             const Expression* loopTest,
                                                             const Expression* loopNext,
@@ -246,7 +246,7 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(int line,
                                                    loopStatement, *result)) {
         result = nullptr;
         if (errors) {
-            errors->error(line, msg);
+            errors->error(pos, msg);
         }
     }
     return result;

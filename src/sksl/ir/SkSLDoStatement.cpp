@@ -18,7 +18,7 @@ std::unique_ptr<Statement> DoStatement::Convert(const Context& context,
                                                 std::unique_ptr<Statement> stmt,
                                                 std::unique_ptr<Expression> test) {
     if (context.fConfig->strictES2Mode()) {
-        context.fErrors->error(stmt->fLine, "do-while loops are not supported");
+        context.fErrors->error(stmt->fPosition, "do-while loops are not supported");
         return nullptr;
     }
     test = context.fTypes.fBool->coerceExpression(std::move(test), context);
@@ -37,11 +37,11 @@ std::unique_ptr<Statement> DoStatement::Make(const Context& context,
     SkASSERT(!context.fConfig->strictES2Mode());
     SkASSERT(test->type().matches(*context.fTypes.fBool));
     SkASSERT(!Analysis::DetectVarDeclarationWithoutScope(*stmt));
-    return std::make_unique<DoStatement>(stmt->fLine, std::move(stmt), std::move(test));
+    return std::make_unique<DoStatement>(stmt->fPosition, std::move(stmt), std::move(test));
 }
 
 std::unique_ptr<Statement> DoStatement::clone() const {
-    return std::make_unique<DoStatement>(fLine, this->statement()->clone(),
+    return std::make_unique<DoStatement>(fPosition, this->statement()->clone(),
                                          this->test()->clone());
 }
 

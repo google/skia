@@ -142,7 +142,7 @@ public:
             std::string text,
             Program::Settings settings);
 
-    std::unique_ptr<Expression> convertIdentifier(int line, std::string_view name);
+    std::unique_ptr<Expression> convertIdentifier(Position pos, std::string_view name);
 
     bool toSPIRV(Program& program, OutputStream& out);
 

@@ -50,7 +50,7 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
             }
         }
         std::unique_ptr<SkSL::Variable> skslvar = SkSL::Variable::Convert(ThreadContext::Context(),
-                var.fPosition.line(), var.fModifiers.fModifiers, &var.fType.skslType(), var.fName,
+                var.fPosition, var.fModifiers.fModifiers, &var.fType.skslType(), var.fName,
                 /*isArray=*/false, /*arraySize=*/nullptr, var.storage());
         SkSL::Variable* varPtr = skslvar.get();
         if (var.storage() != SkSL::VariableStorage::kParameter) {
@@ -70,7 +70,7 @@ std::unique_ptr<SkSL::Variable> DSLWriter::CreateParameterVar(DSLParameter& var)
     // This should only be called on undeclared parameter variables, but we allow the creation to go
     // ahead regardless so we don't have to worry about null pointers potentially sneaking in and
     // breaking things. DSLFunction is responsible for reporting errors for invalid parameters.
-    return SkSL::Variable::Convert(ThreadContext::Context(), var.fPosition.line(),
+    return SkSL::Variable::Convert(ThreadContext::Context(), var.fPosition,
             var.fModifiers.fModifiers, &var.fType.skslType(), var.fName, /*isArray=*/false,
             /*arraySize=*/nullptr, var.storage());
 }
@@ -105,7 +105,7 @@ void DSLWriter::AddVarDeclaration(DSLStatement& existing, DSLVar& additional) {
         stmts.reserve_back(2);
         stmts.push_back(std::move(existing.fStatement));
         stmts.push_back(Declare(additional).release());
-        existing.fStatement = SkSL::Block::MakeUnscoped(/*line=*/-1, std::move(stmts));
+        existing.fStatement = SkSL::Block::MakeUnscoped(Position(), std::move(stmts));
     } else if (existing.fStatement->isEmpty()) {
         // If the variable declaration generated an error, we can end up with a Nop statement here.
         existing.fStatement = Declare(additional).release();

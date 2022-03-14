@@ -57,7 +57,7 @@ static const SkSL::Type* find_type(const Context& context,
                                    Position pos) {
     const Type* type = find_type(context, name, pos);
     type = type->applyPrecisionQualifiers(context, modifiers, ThreadContext::SymbolTable().get(),
-                                          pos.line());
+            pos);
     ThreadContext::ReportErrors(pos);
     return type;
 }
@@ -246,7 +246,7 @@ DSLPossibleExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> arg
         }
         skslArgs.push_back(arg.release());
     }
-    return SkSL::Constructor::Convert(ThreadContext::Context(), /*line=*/-1, type.skslType(),
+    return SkSL::Constructor::Convert(ThreadContext::Context(), Position(), type.skslType(),
             std::move(skslArgs));
 }
 
@@ -289,12 +289,12 @@ DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
         }
         skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &type);
     }
-    const SkSL::Type* result = ThreadContext::SymbolTable()->add(Type::MakeStructType(pos.line(),
-            name, skslFields));
+    const SkSL::Type* result = ThreadContext::SymbolTable()->add(Type::MakeStructType(pos, name,
+            skslFields));
     if (result->isTooDeeplyNested()) {
         ThreadContext::ReportError("struct '" + std::string(name) + "' is too deeply nested", pos);
     }
-    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*line=*/-1,
+    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(Position(),
             *result));
     return result;
 }

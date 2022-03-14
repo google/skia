@@ -33,7 +33,7 @@ public:
                    int arraySize,
                    std::unique_ptr<Expression> value,
                    bool isClone = false)
-            : INHERITED(var->fLine, kStatementKind)
+            : INHERITED(var->fPosition, kStatementKind)
             , fVar(var)
             , fBaseType(*baseType)
             , fArraySize(arraySize)
@@ -50,7 +50,7 @@ public:
     // Checks the modifiers, baseType, and storage for compatibility with one another and reports
     // errors if needed. This method is implicitly called during Convert(), but is also explicitly
     // called while processing interface block fields.
-    static void ErrorCheck(const Context& context, int line, const Modifiers& modifiers,
+    static void ErrorCheck(const Context& context, Position pos, const Modifiers& modifiers,
             const Type* baseType, Variable::Storage storage);
 
     // Does proper error checking and type coercion; reports errors via ErrorReporter.
@@ -118,7 +118,7 @@ public:
     inline static constexpr Kind kProgramElementKind = Kind::kGlobalVar;
 
     GlobalVarDeclaration(std::unique_ptr<Statement> decl)
-            : INHERITED(decl->fLine, kProgramElementKind)
+            : INHERITED(decl->fPosition, kProgramElementKind)
             , fDeclaration(std::move(decl)) {
         SkASSERT(this->declaration()->is<VarDeclaration>());
     }

@@ -11,6 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLSampleUsage.h"
+#include "include/sksl/SkSLErrorReporter.h"
 
 #include <memory>
 #include <set>
@@ -165,7 +166,7 @@ bool IsConstantIndexExpression(const Expression& expr,
  * If the requirements are not met, the problem is reported via `errors` (if not nullptr), and
  * null is returned.
  */
-std::unique_ptr<LoopUnrollInfo> GetLoopUnrollInfo(int line,
+std::unique_ptr<LoopUnrollInfo> GetLoopUnrollInfo(Position pos,
                                                   const Statement* loopInitializer,
                                                   const Expression* loopTest,
                                                   const Expression* loopNext,

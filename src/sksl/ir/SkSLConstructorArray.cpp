@@ -13,15 +13,15 @@
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorArray::Convert(const Context& context,
-                                                      int line,
+                                                      Position pos,
                                                       const Type& type,
                                                       ExpressionArray args) {
     SkASSERTF(type.isArray() && type.columns() > 0, "%s", type.description().c_str());
 
     // ES2 doesn't support first-class array types.
     if (context.fConfig->strictES2Mode()) {
-        context.fErrors->error(line, "construction of array type '" + type.displayName() +
-                                     "' is not supported");
+        context.fErrors->error(pos, "construction of array type '" + type.displayName() +
+                "' is not supported");
         return nullptr;
     }
 
@@ -35,16 +35,15 @@ std::unique_ptr<Expression> ConstructorArray::Convert(const Context& context,
         const Type& exprType = expr.type();
 
         if (exprType.isArray() && exprType.canCoerceTo(type, /*allowNarrowing=*/true)) {
-            return ConstructorArrayCast::Make(context, line, type, std::move(args.front()));
+            return ConstructorArrayCast::Make(context, pos, type, std::move(args.front()));
         }
     }
 
     // Check that the number of constructor arguments matches the array size.
     if (type.columns() != args.count()) {
-        context.fErrors->error(line, String::printf("invalid arguments to '%s' constructor "
-                                                    "(expected %d elements, but found %d)",
-                                                    type.displayName().c_str(), type.columns(),
-                                                    args.count()));
+        context.fErrors->error(pos, String::printf("invalid arguments to '%s' constructor "
+                "(expected %d elements, but found %d)", type.displayName().c_str(), type.columns(),
+                args.count()));
         return nullptr;
     }
 
@@ -57,11 +56,11 @@ std::unique_ptr<Expression> ConstructorArray::Convert(const Context& context,
         }
     }
 
-    return ConstructorArray::Make(context, line, type, std::move(args));
+    return ConstructorArray::Make(context, pos, type, std::move(args));
 }
 
 std::unique_ptr<Expression> ConstructorArray::Make(const Context& context,
-                                                   int line,
+                                                   Position pos,
                                                    const Type& type,
                                                    ExpressionArray args) {
     SkASSERT(!context.fConfig->strictES2Mode());
@@ -71,7 +70,7 @@ std::unique_ptr<Expression> ConstructorArray::Make(const Context& context,
         return type.componentType().matches(arg->type());
     }));
 
-    return std::make_unique<ConstructorArray>(line, type, std::move(args));
+    return std::make_unique<ConstructorArray>(pos, type, std::move(args));
 }
 
 }  // namespace SkSL

@@ -8,6 +8,7 @@
 #include "include/sksl/SkSLErrorReporter.h"
 
 #include "include/private/SkStringView.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
@@ -22,17 +23,28 @@ void ErrorReporter::error(std::string_view msg, Position position) {
     this->handleError(msg, position);
 }
 
-void ErrorReporter::error(int line, std::string_view msg) {
+void ErrorReporter::error(Position pos, std::string_view msg) {
     if (skstd::contains(msg, Compiler::POISON_TAG)) {
         // don't report errors on poison values
         return;
     }
-    if (line == -1) {
+    if (pos.valid()) {
+        this->error(msg, pos);
+    } else {
         ++fErrorCount;
         fPendingErrors.push_back(std::string(msg));
-    } else {
-        this->error(msg, Position(/*file=*/nullptr, line));
     }
+}
+
+void ErrorReporter::reportPendingErrors(Position pos) {
+    for (const std::string& msg : fPendingErrors) {
+        this->handleError(msg, pos);
+    }
+    fPendingErrors.clear();
+}
+
+void TestingOnly_AbortErrorReporter::handleError(std::string_view msg, Position pos) {
+    SK_ABORT("%.*s", (int)msg.length(), msg.data());
 }
 
 } // namespace SkSL

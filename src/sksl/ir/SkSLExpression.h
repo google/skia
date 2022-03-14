@@ -66,8 +66,8 @@ public:
         kContainsRTAdjust
     };
 
-    Expression(int line, Kind kind, const Type* type)
-        : INHERITED(line, (int) kind)
+    Expression(Position pos, Kind kind, const Type* type)
+        : INHERITED(pos, (int) kind)
         , fType(type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }

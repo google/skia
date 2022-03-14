@@ -121,7 +121,7 @@ DSLGlobalVar::DSLGlobalVar(const char* name)
                                 SkSL::Modifiers::kNo_Flag));
 
         fVar = ThreadContext::SymbolTable()->takeOwnershipOfIRNode(std::make_unique<SkSL::Variable>(
-                /*line=*/-1,
+                Position(),
                 modifiers,
                 fName,
                 ThreadContext::Context().fTypes.fFloat2.get(),
@@ -189,8 +189,8 @@ std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(std::string_view meth
 DSLExpression DSLGlobalVar::eval(ExpressionArray args, Position pos) {
     auto method = this->methodCall("eval", pos);
     return DSLExpression(
-            method ? SkSL::FunctionCall::Convert(ThreadContext::Context(), pos.line(),
-                                                 std::move(method), std::move(args))
+            method ? SkSL::FunctionCall::Convert(ThreadContext::Context(), pos, std::move(method),
+                                                 std::move(args))
                    : nullptr,
             pos);
 }

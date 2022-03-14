@@ -51,7 +51,7 @@ public:
         // To avoid overzealous error reporting, only trigger the error at the first place where the
         // global limit is exceeded.
         if (prevSlotsUsed < kVariableSlotLimit && fGlobalSlotsUsed >= kVariableSlotLimit) {
-            fContext.fErrors->error(decl.fLine,
+            fContext.fErrors->error(decl.fPosition,
                                     "global variable '" + std::string(decl.var().name()) +
                                     "' exceeds the size limit");
         }
@@ -70,7 +70,7 @@ public:
             if (!param->type().isStruct() && paramInout == Modifiers::Flag::kOut_Flag) {
                 ProgramUsage::VariableCounts counts = fUsage.get(*param);
                 if (counts.fWrite <= 0) {
-                    fContext.fErrors->error(funcDecl.fLine,
+                    fContext.fErrors->error(funcDecl.fPosition,
                                             "function '" + std::string(funcDecl.name()) +
                                             "' never assigns a value to out parameter '" +
                                             std::string(param->name()) + "'");
@@ -83,13 +83,13 @@ public:
         switch (stmt.kind()) {
             case Statement::Kind::kIf:
                 if (stmt.as<IfStatement>().isStatic()) {
-                    fContext.fErrors->error(stmt.fLine, "static if has non-static test");
+                    fContext.fErrors->error(stmt.fPosition, "static if has non-static test");
                 }
                 break;
 
             case Statement::Kind::kSwitch:
                 if (stmt.as<SwitchStatement>().isStatic()) {
-                    fContext.fErrors->error(stmt.fLine, "static switch has non-static test");
+                    fContext.fErrors->error(stmt.fPosition, "static switch has non-static test");
                 }
                 break;
 
@@ -104,8 +104,8 @@ public:
             case Expression::Kind::kFunctionCall: {
                 const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
                 if (!decl.isBuiltin() && !decl.definition()) {
-                    fContext.fErrors->error(expr.fLine, "function '" + decl.description() +
-                                                        "' is not defined");
+                    fContext.fErrors->error(expr.fPosition, "function '" + decl.description() +
+                            "' is not defined");
                 }
                 break;
             }
@@ -114,11 +114,11 @@ public:
             case Expression::Kind::kMethodReference:
             case Expression::Kind::kTypeReference:
                 SkDEBUGFAIL("invalid reference-expr, should have been reported by coerce()");
-                fContext.fErrors->error(expr.fLine, "invalid expression");
+                fContext.fErrors->error(expr.fPosition, "invalid expression");
                 break;
             default:
                 if (expr.type().matches(*fContext.fTypes.fInvalid)) {
-                    fContext.fErrors->error(expr.fLine, "invalid expression");
+                    fContext.fErrors->error(expr.fPosition, "invalid expression");
                 }
                 break;
         }

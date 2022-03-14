@@ -9,6 +9,7 @@
 #define SKSL_MODIFIERS
 
 #include "include/private/SkSLLayout.h"
+#include "include/sksl/SkSLPosition.h"
 
 #include <vector>
 
@@ -117,7 +118,7 @@ struct Modifiers {
      * Verifies that only permitted modifiers and layout flags are included. Reports errors and
      * returns false in the event of a violation.
      */
-    bool checkPermitted(const Context& context, int line, int permittedModifierFlags,
+    bool checkPermitted(const Context& context, Position pos, int permittedModifierFlags,
             int permittedLayoutFlags) const;
 
     Layout fLayout;

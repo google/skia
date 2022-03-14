@@ -23,8 +23,8 @@ static bool index_out_of_range(const Context& context, SKSL_INT index, const Exp
         return false;
     }
 
-    context.fErrors->error(base.fLine, "index " + std::to_string(index) + " out of range for '" +
-                                       base.type().displayName() + "'");
+    context.fErrors->error(base.fPosition, "index " + std::to_string(index) +
+            " out of range for '" + base.type().displayName() + "'");
     return true;
 }
 
@@ -60,13 +60,13 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
         if (!arraySize) {
             return nullptr;
         }
-        return TypeReference::Convert(context, base->fLine,
+        return TypeReference::Convert(context, base->fPosition,
                                       symbolTable.addArrayDimension(&baseType, arraySize));
     }
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
     const Type& baseType = base->type();
     if (!baseType.isArray() && !baseType.isMatrix() && !baseType.isVector()) {
-        context.fErrors->error(base->fLine,
+        context.fErrors->error(base->fPosition,
                                "expected array, but found '" + baseType.displayName() + "'");
         return nullptr;
     }
@@ -134,7 +134,8 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                 for (int slot = 0; slot < vecWidth; ++slot) {
                     std::optional<double> slotVal = baseExpr->getConstantValue(indexValue + slot);
                     if (slotVal.has_value()) {
-                        ctorArgs.push_back(Literal::Make(baseExpr->fLine, *slotVal, &scalarType));
+                        ctorArgs.push_back(Literal::Make(baseExpr->fPosition, *slotVal,
+                                &scalarType));
                     } else {
                         ctorArgs.reset();
                         break;
@@ -142,8 +143,8 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                 }
 
                 if (!ctorArgs.empty()) {
-                    int line = ctorArgs.front()->fLine;
-                    return ConstructorCompound::Make(context, line, vecType, std::move(ctorArgs));
+                    Position pos = ctorArgs.front()->fPosition;
+                    return ConstructorCompound::Make(context, pos, vecType, std::move(ctorArgs));
                 }
             }
         }

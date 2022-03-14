@@ -14,7 +14,7 @@
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& context,
-                                                            int line,
+                                                            Position pos,
                                                             const Type& type,
                                                             std::unique_ptr<Expression> arg) {
     SkASSERT(type.isMatrix());
@@ -26,7 +26,7 @@ std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& conte
     // to be replaced with `mat4(5.0)`.
     arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
 
-    return std::make_unique<ConstructorDiagonalMatrix>(line, type, std::move(arg));
+    return std::make_unique<ConstructorDiagonalMatrix>(pos, type, std::move(arg));
 }
 
 std::optional<double> ConstructorDiagonalMatrix::getConstantValue(int n) const {

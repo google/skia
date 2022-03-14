@@ -18,7 +18,7 @@
 namespace SkSL {
 
 std::unique_ptr<Statement> IfStatement::clone() const {
-    return std::make_unique<IfStatement>(fLine, this->isStatic(), this->test()->clone(),
+    return std::make_unique<IfStatement>(fPosition, this->isStatic(), this->test()->clone(),
                                          this->ifTrue()->clone(),
                                          this->ifFalse() ? this->ifFalse()->clone() : nullptr);
 }
@@ -35,10 +35,9 @@ std::string IfStatement::description() const {
     return result;
 }
 
-std::unique_ptr<Statement> IfStatement::Convert(const Context& context, int line, bool isStatic,
-                                                std::unique_ptr<Expression> test,
-                                                std::unique_ptr<Statement> ifTrue,
-                                                std::unique_ptr<Statement> ifFalse) {
+std::unique_ptr<Statement> IfStatement::Convert(const Context& context, Position pos,
+        bool isStatic, std::unique_ptr<Expression> test, std::unique_ptr<Statement> ifTrue,
+        std::unique_ptr<Statement> ifFalse) {
     test = context.fTypes.fBool->coerceExpression(std::move(test), context);
     if (!test) {
         return nullptr;
@@ -50,7 +49,7 @@ std::unique_ptr<Statement> IfStatement::Convert(const Context& context, int line
     if (ifFalse && Analysis::DetectVarDeclarationWithoutScope(*ifFalse, context.fErrors)) {
         return nullptr;
     }
-    return IfStatement::Make(context, line, isStatic, std::move(test),
+    return IfStatement::Make(context, pos, isStatic, std::move(test),
                              std::move(ifTrue), std::move(ifFalse));
 }
 
@@ -60,10 +59,9 @@ static std::unique_ptr<Statement> replace_empty_with_nop(std::unique_ptr<Stateme
                                                    : Nop::Make();
 }
 
-std::unique_ptr<Statement> IfStatement::Make(const Context& context, int line, bool isStatic,
-                                             std::unique_ptr<Expression> test,
-                                             std::unique_ptr<Statement> ifTrue,
-                                             std::unique_ptr<Statement> ifFalse) {
+std::unique_ptr<Statement> IfStatement::Make(const Context& context, Position pos, bool isStatic,
+        std::unique_ptr<Expression> test, std::unique_ptr<Statement> ifTrue,
+        std::unique_ptr<Statement> ifFalse) {
     SkASSERT(test->type().matches(*context.fTypes.fBool));
     SkASSERT(!Analysis::DetectVarDeclarationWithoutScope(*ifTrue));
     SkASSERT(!ifFalse || !Analysis::DetectVarDeclarationWithoutScope(*ifFalse));
@@ -101,7 +99,7 @@ std::unique_ptr<Statement> IfStatement::Make(const Context& context, int line, b
         }
     }
 
-    return std::make_unique<IfStatement>(line, isStatic, std::move(test),
+    return std::make_unique<IfStatement>(pos, isStatic, std::move(test),
                                          std::move(ifTrue), std::move(ifFalse));
 }
 

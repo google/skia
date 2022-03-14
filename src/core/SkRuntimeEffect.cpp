@@ -250,7 +250,7 @@ sk_sp<SkRuntimeEffect> SkRuntimeEffect::MakeFromDSL(std::unique_ptr<SkSL::Progra
                                                     SkSL::ErrorReporter* errors) {
     Result result = MakeFromDSL(std::move(program), options, kind);
     if (!result.effect) {
-        errors->error(result.errorText.c_str(), SkSL::Position(nullptr, -1));
+        errors->error(result.errorText.c_str(), SkSL::Position());
     }
     return std::move(result.effect);
 }

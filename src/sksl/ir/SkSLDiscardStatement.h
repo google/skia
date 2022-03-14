@@ -20,15 +20,15 @@ class DiscardStatement final : public Statement {
 public:
     inline static constexpr Kind kStatementKind = Kind::kDiscard;
 
-    DiscardStatement(int line)
-    : INHERITED(line, kStatementKind) {}
+    DiscardStatement(Position pos)
+    : INHERITED(pos, kStatementKind) {}
 
-    static std::unique_ptr<Statement> Make(int line) {
-        return std::make_unique<DiscardStatement>(line);
+    static std::unique_ptr<Statement> Make(Position pos) {
+        return std::make_unique<DiscardStatement>(pos);
     }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<DiscardStatement>(fLine);
+        return std::make_unique<DiscardStatement>(fPosition);
     }
 
     std::string description() const override {

@@ -29,34 +29,34 @@ static IntrinsicKind identify_intrinsic(std::string_view functionName) {
 }
 
 static bool check_modifiers(const Context& context,
-                            int line,
+                            Position pos,
                             const Modifiers& modifiers) {
     const int permitted = Modifiers::kHasSideEffects_Flag |
                           Modifiers::kInline_Flag |
                           Modifiers::kNoInline_Flag |
                           (context.fConfig->fIsBuiltinCode ? Modifiers::kES3_Flag : 0);
-    modifiers.checkPermitted(context, line, permitted, /*permittedLayoutFlags=*/0);
+    modifiers.checkPermitted(context, pos, permitted, /*permittedLayoutFlags=*/0);
     if ((modifiers.fFlags & Modifiers::kInline_Flag) &&
         (modifiers.fFlags & Modifiers::kNoInline_Flag)) {
-        context.fErrors->error(line, "functions cannot be both 'inline' and 'noinline'");
+        context.fErrors->error(pos, "functions cannot be both 'inline' and 'noinline'");
         return false;
     }
     return true;
 }
 
-static bool check_return_type(const Context& context, int line, const Type& returnType) {
+static bool check_return_type(const Context& context, Position pos, const Type& returnType) {
     ErrorReporter& errors = *context.fErrors;
     if (returnType.isArray()) {
-        errors.error(line, "functions may not return type '" + returnType.displayName() + "'");
+        errors.error(pos, "functions may not return type '" + returnType.displayName() + "'");
         return false;
     }
     if (context.fConfig->strictES2Mode() && returnType.isOrContainsArray()) {
-        errors.error(line, "functions may not return structs containing arrays");
+        errors.error(pos, "functions may not return structs containing arrays");
         return false;
     }
     if (!context.fConfig->fIsBuiltinCode && returnType.componentType().isOpaque()) {
-        errors.error(line, "functions may not return opaque type '" + returnType.displayName() +
-                           "'");
+        errors.error(pos, "functions may not return opaque type '" + returnType.displayName() +
+                "'");
         return false;
     }
     return true;
@@ -75,7 +75,7 @@ static bool check_parameters(const Context& context,
 
     // Check modifiers on each function parameter.
     for (auto& param : parameters) {
-        param->modifiers().checkPermitted(context, param->fLine,
+        param->modifiers().checkPermitted(context, param->fPosition,
                 Modifiers::kConst_Flag | Modifiers::kIn_Flag | Modifiers::kOut_Flag,
                 /*permittedLayoutFlags=*/0);
         const Type& type = param->type();
@@ -83,8 +83,8 @@ static bool check_parameters(const Context& context,
         // parameters. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.
         if (type.isEffectChild() && !context.fConfig->fIsBuiltinCode) {
-            context.fErrors->error(param->fLine, "parameters of type '" + type.displayName() +
-                                                 "' not allowed");
+            context.fErrors->error(param->fPosition, "parameters of type '" + type.displayName() +
+                    "' not allowed");
             return false;
         }
 
@@ -131,7 +131,7 @@ static bool check_parameters(const Context& context,
     return true;
 }
 
-static bool check_main_signature(const Context& context, int line, const Type& returnType,
+static bool check_main_signature(const Context& context, Position pos, const Type& returnType,
                                  std::vector<std::unique_ptr<Variable>>& parameters) {
     ErrorReporter& errors = *context.fErrors;
     ProgramKind kind = context.fConfig->fKind;
@@ -189,12 +189,12 @@ static bool check_main_signature(const Context& context, int line, const Type& r
         case ProgramKind::kRuntimeColorFilter: {
             // (half4|float4) main(half4|float4)
             if (!typeIsValidForColor(returnType)) {
-                errors.error(line, "'main' must return: 'vec4', 'float4', or 'half4'");
+                errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");
                 return false;
             }
             bool validParams = (parameters.size() == 1 && paramIsInputColor(0));
             if (!validParams) {
-                errors.error(line, "'main' parameter must be 'vec4', 'float4', or 'half4'");
+                errors.error(pos, "'main' parameter must be 'vec4', 'float4', or 'half4'");
                 return false;
             }
             break;
@@ -202,14 +202,14 @@ static bool check_main_signature(const Context& context, int line, const Type& r
         case ProgramKind::kRuntimeShader: {
             // (half4|float4) main(float2)  -or-  (half4|float4) main(float2, half4|float4)
             if (!typeIsValidForColor(returnType)) {
-                errors.error(line, "'main' must return: 'vec4', 'float4', or 'half4'");
+                errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");
                 return false;
             }
             bool validParams =
                     (parameters.size() == 1 && paramIsCoords(0)) ||
                     (parameters.size() == 2 && paramIsCoords(0) && paramIsInputColor(1));
             if (!validParams) {
-                errors.error(line, "'main' parameters must be (float2, (vec4|float4|half4)?)");
+                errors.error(pos, "'main' parameters must be (float2, (vec4|float4|half4)?)");
                 return false;
             }
             break;
@@ -217,14 +217,14 @@ static bool check_main_signature(const Context& context, int line, const Type& r
         case ProgramKind::kRuntimeBlender: {
             // (half4|float4) main(half4|float4, half4|float4)
             if (!typeIsValidForColor(returnType)) {
-                errors.error(line, "'main' must return: 'vec4', 'float4', or 'half4'");
+                errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");
                 return false;
             }
             if (!(parameters.size() == 2 &&
                   paramIsInputColor(0) &&
                   paramIsDestColor(1))) {
-                errors.error(line, "'main' parameters must be (vec4|float4|half4, "
-                                                                "vec4|float4|half4)");
+                errors.error(pos, "'main' parameters must be (vec4|float4|half4, "
+                        "vec4|float4|half4)");
                 return false;
             }
             break;
@@ -232,11 +232,11 @@ static bool check_main_signature(const Context& context, int line, const Type& r
         case ProgramKind::kCustomMeshVertex: {
             // float2 main(Attributes, out Varyings)
             if (!returnType.matches(*context.fTypes.fFloat2)) {
-                errors.error(line, "'main' must return: 'vec2' or 'float2'");
+                errors.error(pos, "'main' must return: 'vec2' or 'float2'");
                 return false;
             }
             if (!(parameters.size() == 2 && paramIsInAttributes(0) && paramIsOutVaryings(1))) {
-                errors.error(line, "'main' parameters must be (Attributes, out Varyings");
+                errors.error(pos, "'main' parameters must be (Attributes, out Varyings");
                 return false;
             }
             break;
@@ -246,12 +246,12 @@ static bool check_main_signature(const Context& context, int line, const Type& r
             // void main(Varyings) -or- void main(Varyings, out half4|float4])
             if (!returnType.matches(*context.fTypes.fFloat2) &&
                 !returnType.matches(*context.fTypes.fVoid)) {
-                errors.error(line, "'main' must return: 'vec2', 'float2', 'or' 'void'");
+                errors.error(pos, "'main' must return: 'vec2', 'float2', 'or' 'void'");
                 return false;
             }
             if (!((parameters.size() == 1 && paramIsInVaryings(0)) ||
                   (parameters.size() == 2 && paramIsInVaryings(0) && paramIsOutColor(1)))) {
-                errors.error(line, "'main' parameters must be (Varyings, (out (half4|float4))?)");
+                errors.error(pos, "'main' parameters must be (Varyings, (out (half4|float4))?)");
                 return false;
             }
             break;
@@ -263,14 +263,14 @@ static bool check_main_signature(const Context& context, int line, const Type& r
             bool validParams = (parameters.size() == 0) ||
                                (parameters.size() == 1 && paramIsCoords(0));
             if (!validParams) {
-                errors.error(line, "shader 'main' must be main() or main(float2)");
+                errors.error(pos, "shader 'main' must be main() or main(float2)");
                 return false;
             }
             break;
         }
         case ProgramKind::kVertex:
             if (parameters.size()) {
-                errors.error(line, "shader 'main' must have zero parameters");
+                errors.error(pos, "shader 'main' must have zero parameters");
                 return false;
             }
             break;
@@ -285,7 +285,7 @@ static bool check_main_signature(const Context& context, int line, const Type& r
  */
 static bool find_existing_declaration(const Context& context,
                                       SymbolTable& symbols,
-                                      int line,
+                                      Position pos,
                                       std::string_view name,
                                       std::vector<std::unique_ptr<Variable>>& parameters,
                                       const Type* returnType,
@@ -303,7 +303,7 @@ static bool find_existing_declaration(const Context& context,
                 functions.push_back(&entry->as<FunctionDeclaration>());
                 break;
             default:
-                errors.error(line, "symbol '" + std::string(name) + "' was already defined");
+                errors.error(pos, "symbol '" + std::string(name) + "' was already defined");
                 return false;
         }
         for (const FunctionDeclaration* other : functions) {
@@ -327,26 +327,26 @@ static bool find_existing_declaration(const Context& context,
                 for (std::unique_ptr<Variable>& param : parameters) {
                     paramPtrs.push_back(param.get());
                 }
-                FunctionDeclaration invalidDecl(line,
+                FunctionDeclaration invalidDecl(pos,
                                                 &other->modifiers(),
                                                 name,
                                                 std::move(paramPtrs),
                                                 returnType,
                                                 context.fConfig->fIsBuiltinCode);
-                errors.error(line,
+                errors.error(pos,
                              "functions '" + invalidDecl.description() + "' and '" +
                              other->description() + "' differ only in return type");
                 return false;
             }
             for (size_t i = 0; i < parameters.size(); i++) {
                 if (parameters[i]->modifiers() != other->parameters()[i]->modifiers()) {
-                    errors.error(line, "modifiers on parameter " + std::to_string(i + 1) +
-                                       " differ between declaration and definition");
+                    errors.error(pos, "modifiers on parameter " + std::to_string(i + 1) +
+                            " differ between declaration and definition");
                     return false;
                 }
             }
             if (other->definition() && !other->isBuiltin()) {
-                errors.error(line, "duplicate definition of " + other->description());
+                errors.error(pos, "duplicate definition of " + other->description());
                 return false;
             }
             *outExistingDecl = other;
@@ -356,13 +356,13 @@ static bool find_existing_declaration(const Context& context,
     return true;
 }
 
-FunctionDeclaration::FunctionDeclaration(int line,
+FunctionDeclaration::FunctionDeclaration(Position pos,
                                          const Modifiers* modifiers,
                                          std::string_view name,
                                          std::vector<const Variable*> parameters,
                                          const Type* returnType,
                                          bool builtin)
-        : INHERITED(line, kSymbolKind, name, /*type=*/nullptr)
+        : INHERITED(pos, kSymbolKind, name, /*type=*/nullptr)
         , fDefinition(nullptr)
         , fModifiers(modifiers)
         , fParameters(std::move(parameters))
@@ -374,7 +374,7 @@ FunctionDeclaration::FunctionDeclaration(int line,
 const FunctionDeclaration* FunctionDeclaration::Convert(
         const Context& context,
         SymbolTable& symbols,
-        int line,
+        Position pos,
         const Modifiers* modifiers,
         std::string_view name,
         std::vector<std::unique_ptr<Variable>> parameters,
@@ -382,11 +382,11 @@ const FunctionDeclaration* FunctionDeclaration::Convert(
     bool isMain = (name == "main");
 
     const FunctionDeclaration* decl = nullptr;
-    if (!check_modifiers(context, line, *modifiers) ||
-        !check_return_type(context, line, *returnType) ||
+    if (!check_modifiers(context, pos, *modifiers) ||
+        !check_return_type(context, pos, *returnType) ||
         !check_parameters(context, parameters, isMain) ||
-        (isMain && !check_main_signature(context, line, *returnType, parameters)) ||
-        !find_existing_declaration(context, symbols, line, name, parameters, returnType, &decl)) {
+        (isMain && !check_main_signature(context, pos, *returnType, parameters)) ||
+        !find_existing_declaration(context, symbols, pos, name, parameters, returnType, &decl)) {
         return nullptr;
     }
     std::vector<const Variable*> finalParameters;
@@ -397,7 +397,7 @@ const FunctionDeclaration* FunctionDeclaration::Convert(
     if (decl) {
         return decl;
     }
-    auto result = std::make_unique<FunctionDeclaration>(line, modifiers, name,
+    auto result = std::make_unique<FunctionDeclaration>(pos, modifiers, name,
                                                         std::move(finalParameters), returnType,
                                                         context.fConfig->fIsBuiltinCode);
     return symbols.add(std::move(result));

@@ -27,16 +27,16 @@ class ConstructorDiagonalMatrix final : public SingleArgumentConstructor {
 public:
     inline static constexpr Kind kExpressionKind = Kind::kConstructorDiagonalMatrix;
 
-    ConstructorDiagonalMatrix(int line, const Type& type, std::unique_ptr<Expression> arg)
-        : INHERITED(line, kExpressionKind, &type, std::move(arg)) {}
+    ConstructorDiagonalMatrix(Position pos, const Type& type, std::unique_ptr<Expression> arg)
+        : INHERITED(pos, kExpressionKind, &type, std::move(arg)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
-                                            int line,
+                                            Position pos,
                                             const Type& type,
                                             std::unique_ptr<Expression> arg);
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorDiagonalMatrix>(fLine, this->type(),
+        return std::make_unique<ConstructorDiagonalMatrix>(fPosition, this->type(),
                                                            argument()->clone());
     }
 

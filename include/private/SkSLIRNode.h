@@ -10,6 +10,7 @@
 
 #include "include/private/SkSLString.h"
 #include "include/private/SkTArray.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLPool.h"
@@ -47,12 +48,12 @@ public:
     IRNode(const IRNode&) = delete;
     IRNode& operator=(const IRNode&) = delete;
 
-    // line of this element within the program being compiled, for error reporting purposes
-    int fLine;
+    // position of this element within the program being compiled, for error reporting purposes
+    Position fPosition;
 
 protected:
-    IRNode(int line, int kind)
-        : fLine(line)
+    IRNode(Position position, int kind)
+        : fPosition(position)
         , fKind(kind) {}
 
     int fKind;

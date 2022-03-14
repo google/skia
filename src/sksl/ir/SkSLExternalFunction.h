@@ -20,7 +20,7 @@ public:
     inline static constexpr Kind kSymbolKind = Kind::kExternal;
 
     ExternalFunction(const char* name, const Type& type)
-        : INHERITED(-1, kSymbolKind, name, &type) {}
+        : INHERITED(Position(), kSymbolKind, name, &type) {}
 
     virtual int callParameterCount() const = 0;
 

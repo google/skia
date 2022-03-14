@@ -17,36 +17,7 @@
 
 namespace SkSL {
 
-#ifndef __has_builtin
-    #define __has_builtin(x) 0
-#endif
-
-class Position {
-public:
-    Position(const char* file = nullptr, int line = -1)
-        : fFile(file)
-        , fLine(line) {}
-
-#if __has_builtin(__builtin_FILE) && __has_builtin(__builtin_LINE)
-    static Position Capture(const char* file = __builtin_FILE(), int line = __builtin_LINE()) {
-        return Position(file, line);
-    }
-#else
-    static Position Capture() { return Position(); }
-#endif // __has_builtin(__builtin_FILE) && __has_builtin(__builtin_LINE)
-
-    const char* file_name() const {
-        return fFile;
-    }
-
-    int line() const {
-        return fLine;
-    }
-
-private:
-    const char* fFile = nullptr;
-    int32_t fLine = -1;
-};
+class Position;
 
 /**
  * Class which is notified in the event of an error.
@@ -65,18 +36,13 @@ public:
      * Reports an error message at the given line of the source text. Errors reported
      * with a line of -1 will be queued until line number information can be determined.
      */
-    void error(int line, std::string_view msg);
+    void error(Position pos, std::string_view msg);
 
     const char* source() const { return fSource; }
 
     void setSource(const char* source) { fSource = source; }
 
-    void reportPendingErrors(Position pos) {
-        for (const std::string& msg : fPendingErrors) {
-            this->handleError(msg, pos);
-        }
-        fPendingErrors.clear();
-    }
+    void reportPendingErrors(Position pos);
 
     int errorCount() const {
         return fErrorCount;
@@ -105,9 +71,7 @@ private:
  */
 class TestingOnly_AbortErrorReporter : public ErrorReporter {
 public:
-    void handleError(std::string_view msg, Position pos) override {
-        SK_ABORT("%.*s", (int)msg.length(), msg.data());
-    }
+    void handleError(std::string_view msg, Position pos) override;
 };
 
 } // namespace SkSL

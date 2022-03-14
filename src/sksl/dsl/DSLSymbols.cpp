@@ -34,7 +34,7 @@ std::shared_ptr<SymbolTable> CurrentSymbolTable() {
 }
 
 DSLPossibleExpression Symbol(std::string_view name, Position pos) {
-    return ThreadContext::Compiler().convertIdentifier(pos.line(), name);
+    return ThreadContext::Compiler().convertIdentifier(pos, name);
 }
 
 bool IsType(std::string_view name) {

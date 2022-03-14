@@ -21,8 +21,8 @@ class FunctionPrototype final : public ProgramElement {
 public:
     inline static constexpr Kind kProgramElementKind = Kind::kFunctionPrototype;
 
-    FunctionPrototype(int line, const FunctionDeclaration* declaration, bool builtin)
-            : INHERITED(line, kProgramElementKind)
+    FunctionPrototype(Position pos, const FunctionDeclaration* declaration, bool builtin)
+            : INHERITED(pos, kProgramElementKind)
             , fDeclaration(declaration)
             , fBuiltin(builtin) {}
 
@@ -35,7 +35,8 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<FunctionPrototype>(fLine, &this->declaration(), /*builtin=*/false);
+        return std::make_unique<FunctionPrototype>(fPosition, &this->declaration(),
+                /*builtin=*/false);
     }
 
     std::string description() const override {

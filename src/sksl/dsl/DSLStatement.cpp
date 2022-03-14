@@ -55,8 +55,8 @@ DSLStatement::DSLStatement(DSLPossibleStatement stmt, Position pos) {
     } else {
         fStatement = SkSL::Nop::Make();
     }
-    if (pos.line() != -1) {
-        fStatement->fLine = pos.line();
+    if (pos.valid()) {
+        fStatement->fPosition = pos;
     }
 }
 
@@ -83,12 +83,12 @@ DSLPossibleStatement::~DSLPossibleStatement() {
 }
 
 DSLStatement operator,(DSLStatement left, DSLStatement right) {
-    int line = left.fStatement->fLine;
+    Position pos = left.fStatement->fPosition;
     StatementArray stmts;
     stmts.reserve_back(2);
     stmts.push_back(left.release());
     stmts.push_back(right.release());
-    return DSLStatement(SkSL::Block::MakeUnscoped(line, std::move(stmts)));
+    return DSLStatement(SkSL::Block::MakeUnscoped(pos, std::move(stmts)));
 }
 
 } // namespace dsl

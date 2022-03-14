@@ -43,7 +43,7 @@ static void append_rtadjust_fixup_to_vertex_main(const Context& context,
 
         SkASSERT(skPerVertex);
         auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
-            return VariableReference::Make(/*line=*/-1, var);
+            return VariableReference::Make(Position(), var);
         };
         auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
             return FieldAccess::Make(context, Ref(var), idx, OwnerKind::kAnonymousInterfaceBlock);
@@ -70,7 +70,7 @@ static void append_rtadjust_fixup_to_vertex_main(const Context& context,
 }
 
 std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& context,
-                                                                int line,
+                                                                Position pos,
                                                                 const FunctionDeclaration& function,
                                                                 std::unique_ptr<Statement> body,
                                                                 bool builtin) {
@@ -102,8 +102,8 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                               if (a->isBuiltin() != b->isBuiltin()) {
                                   return a->isBuiltin() < b->isBuiltin();
                               }
-                              if (a->fLine != b->fLine) {
-                                  return a->fLine < b->fLine;
+                              if (a->fPosition != b->fPosition) {
+                                  return a->fPosition < b->fPosition;
                               }
                               if (a->name() != b->name()) {
                                   return a->name() < b->name();
@@ -155,7 +155,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     // place where the stack limit is exceeded.
                     if (prevSlotsUsed < kVariableSlotLimit && fSlotsUsed >= kVariableSlotLimit) {
                         fContext.fErrors->error(
-                                stmt.fLine,
+                                stmt.fPosition,
                                 "variable '" + std::string(stmt.as<VarDeclaration>().var().name()) +
                                 "' exceeds the stack size limit");
                     }
@@ -167,7 +167,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     // issue, we can add normalization before each return statement.
                     if (fContext.fConfig->fKind == ProgramKind::kVertex && fFunction.isMain()) {
                         fContext.fErrors->error(
-                                stmt.fLine,
+                                stmt.fPosition,
                                 "early returns from vertex programs are not supported");
                     }
 
@@ -181,13 +181,13 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                         } else {
                             // Returning something from a function with a void return type.
                             returnStmt.setExpression(nullptr);
-                            fContext.fErrors->error(returnStmt.fLine,
+                            fContext.fErrors->error(returnStmt.fPosition,
                                                     "may not return a value from a void function");
                         }
                     } else {
                         if (this->functionReturnsValue()) {
                             // Returning nothing from a function with a non-void return type.
-                            fContext.fErrors->error(returnStmt.fLine,
+                            fContext.fErrors->error(returnStmt.fPosition,
                                                     "expected function to return '" +
                                                     fFunction.returnType().displayName() + "'");
                         }
@@ -213,7 +213,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                 }
                 case Statement::Kind::kBreak:
                     if (fBreakableLevel == 0) {
-                        fContext.fErrors->error(stmt.fLine,
+                        fContext.fErrors->error(stmt.fPosition,
                                                 "break statement must be inside a loop or switch");
                     }
                     break;
@@ -222,10 +222,10 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                         if (std::any_of(fContinuableLevel.begin(),
                                         fContinuableLevel.end(),
                                         [](int level) { return level > 0; })) {
-                            fContext.fErrors->error(stmt.fLine,
+                            fContext.fErrors->error(stmt.fPosition,
                                                    "continue statement cannot be used in a switch");
                         } else {
-                            fContext.fErrors->error(stmt.fLine,
+                            fContext.fErrors->error(stmt.fPosition,
                                                     "continue statement must be inside a loop");
                         }
                     }
@@ -259,15 +259,14 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
     }
 
     if (Analysis::CanExitWithoutReturningValue(function, *body)) {
-        context.fErrors->error(function.fLine, "function '" + std::string(function.name()) +
-                                               "' can exit without returning a value");
+        context.fErrors->error(function.fPosition, "function '" + std::string(function.name()) +
+                "' can exit without returning a value");
     }
 
-    SkASSERTF(!function.isIntrinsic(),
-              "Intrinsic %s should not have a definition",
-              std::string(function.name()).c_str());
-    return std::make_unique<FunctionDefinition>(line, &function, builtin, std::move(body),
-                                                std::move(referencedBuiltinFunctions));
+    SkASSERTF(!function.isIntrinsic(), "Intrinsic %s should not have a definition",
+            std::string(function.name()).c_str());
+    return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body),
+            std::move(referencedBuiltinFunctions));
 }
 
 }  // namespace SkSL

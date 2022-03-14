@@ -117,7 +117,7 @@ private:
     bool expectIdentifier(Token* result);
 
     void error(Token token, std::string msg);
-    void error(int line, std::string msg);
+    void error(Position position, std::string msg);
 
     // these functions parse individual grammar rules from the current parse position; you probably
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
@@ -159,9 +159,9 @@ private:
 
     SkTArray<dsl::DSLGlobalVar> structVarDeclaration(const dsl::DSLModifiers& modifiers);
 
-    bool parseArrayDimensions(int line, dsl::DSLType* type);
+    bool parseArrayDimensions(Position pos, dsl::DSLType* type);
 
-    bool parseInitializer(int line, dsl::DSLExpression* initializer);
+    bool parseInitializer(Position pos, dsl::DSLExpression* initializer);
 
     void globalVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
             dsl::DSLType baseType, std::string_view name);
@@ -241,9 +241,10 @@ private:
 
     dsl::DSLExpression postfixExpression();
 
-    dsl::DSLExpression swizzle(int line, dsl::DSLExpression base, std::string_view swizzleMask);
+    dsl::DSLExpression swizzle(Position pos, dsl::DSLExpression base,
+            std::string_view swizzleMask);
 
-    dsl::DSLExpression call(int line, dsl::DSLExpression base, ExpressionArray args);
+    dsl::DSLExpression call(Position pos, dsl::DSLExpression base, ExpressionArray args);
 
     dsl::DSLExpression suffix(dsl::DSLExpression base);
 

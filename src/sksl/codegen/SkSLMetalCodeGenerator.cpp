@@ -119,7 +119,7 @@ void MetalCodeGenerator::writeStructDefinition(const StructDefinition& s) {
     const Type& type = s.type();
     this->writeLine("struct " + type.displayName() + " {");
     fIndentation++;
-    this->writeFields(type.fields(), type.fLine);
+    this->writeFields(type.fields(), type.fPosition);
     fIndentation--;
     this->writeLine("};");
 }
@@ -1164,7 +1164,7 @@ void MetalCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
     } else if (c.type().isMatrix()) {
         this->writeConstructorCompoundMatrix(c, parentPrecedence);
     } else {
-        fContext.fErrors->error(c.fLine, "unsupported compound constructor");
+        fContext.fErrors->error(c.fPosition, "unsupported compound constructor");
     }
 }
 
@@ -1861,7 +1861,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 this->write("vertex Outputs vertexMain");
                 break;
             default:
-                fContext.fErrors->error(-1, "unsupported kind of program");
+                fContext.fErrors->error(Position(), "unsupported kind of program");
                 return false;
         }
         this->write("(Inputs _in [[stage_in]]");
@@ -1876,7 +1876,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 if (var.var().type().typeKind() == Type::TypeKind::kSampler) {
                     if (var.var().type().dimensions() != SpvDim2D) {
                         // Not yet implemented--Skia currently only uses 2D textures.
-                        fContext.fErrors->error(decls.fLine, "Unsupported texture dimensions");
+                        fContext.fErrors->error(decls.fPosition, "Unsupported texture dimensions");
                         return false;
                     }
                     int binding = getUniformBinding(var.var().modifiers());
@@ -2033,7 +2033,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         structType = &structType->componentType();
     }
     fIndentation++;
-    this->writeFields(structType->fields(), structType->fLine, &intf);
+    this->writeFields(structType->fields(), structType->fPosition, &intf);
     if (fProgram.fInputs.fUseFlipRTUniform) {
         this->writeLine("float2 " SKSL_RTFLIP_NAME ";");
     }
@@ -2055,21 +2055,21 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine(";");
 }
 
-void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int parentLine,
-                                     const InterfaceBlock* parentIntf) {
+void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, Position parentPos,
+        const InterfaceBlock* parentIntf) {
     MemoryLayout memoryLayout(MemoryLayout::kMetal_Standard);
     int currentOffset = 0;
     for (const Type::Field& field : fields) {
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
         if (!MemoryLayout::LayoutIsSupported(*fieldType)) {
-            fContext.fErrors->error(parentLine, "type '" + std::string(fieldType->name()) +
+            fContext.fErrors->error(parentPos, "type '" + std::string(fieldType->name()) +
                                                 "' is not permitted here");
             return;
         }
         if (fieldOffset != -1) {
             if (currentOffset > fieldOffset) {
-                fContext.fErrors->error(parentLine,
+                fContext.fErrors->error(parentPos,
                                         "offset of field '" + std::string(field.fName) +
                                         "' must be at least " + std::to_string(currentOffset));
                 return;
@@ -2083,7 +2083,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             }
             int alignment = memoryLayout.alignment(*fieldType);
             if (fieldOffset % alignment) {
-                fContext.fErrors->error(parentLine,
+                fContext.fErrors->error(parentPos,
                                         "offset of field '" + std::string(field.fName) +
                                         "' must be a multiple of " + std::to_string(alignment));
                 return;
@@ -2091,7 +2091,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
         }
         size_t fieldSize = memoryLayout.size(*fieldType);
         if (fieldSize > static_cast<size_t>(std::numeric_limits<int>::max() - currentOffset)) {
-            fContext.fErrors->error(parentLine, "field offset overflow");
+            fContext.fErrors->error(parentPos, "field offset overflow");
             return;
         }
         currentOffset += fieldSize;
@@ -2292,7 +2292,7 @@ void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
                 this->writeExpression(*r.expression(), Precedence::kTopLevel);
                 this->writeLine(";");
             } else {
-                fContext.fErrors->error(r.fLine,
+                fContext.fErrors->error(r.fPosition,
                         "Metal does not support returning '" +
                         r.expression()->type().description() + "' from main()");
             }
@@ -2328,7 +2328,7 @@ void MetalCodeGenerator::writeUniformStruct() {
                     this->write("struct Uniforms {\n");
                     fUniformBuffer = uniformSet;
                 } else if (uniformSet != fUniformBuffer) {
-                    fContext.fErrors->error(decls.fLine,
+                    fContext.fErrors->error(decls.fPosition,
                             "Metal backend requires all uniforms to have the same "
                             "'layout(set=...)'");
                 }
@@ -2393,7 +2393,7 @@ void MetalCodeGenerator::writeOutputStruct() {
 
                 int location = var.modifiers().fLayout.fLocation;
                 if (location < 0) {
-                    fContext.fErrors->error(var.fLine,
+                    fContext.fErrors->error(var.fPosition,
                             "Metal out variables must have 'layout(location=...)'");
                 } else if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
                     this->write(" [[user(locn" + std::to_string(location) + ")]]");

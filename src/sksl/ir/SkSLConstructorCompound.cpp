@@ -15,7 +15,7 @@
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
-                                                      int line,
+                                                      Position pos,
                                                       const Type& type,
                                                       ExpressionArray args) {
     SkASSERT(type.isAllowedInES2(context));
@@ -83,7 +83,7 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
         arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
     }
 
-    return std::make_unique<ConstructorCompound>(line, type, std::move(args));
+    return std::make_unique<ConstructorCompound>(pos, type, std::move(args));
 }
 
 }  // namespace SkSL

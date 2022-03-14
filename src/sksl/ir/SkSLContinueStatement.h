@@ -20,15 +20,15 @@ class ContinueStatement final : public Statement {
 public:
     inline static constexpr Kind kStatementKind = Kind::kContinue;
 
-    ContinueStatement(int line)
-    : INHERITED(line, kStatementKind) {}
+    ContinueStatement(Position pos)
+    : INHERITED(pos, kStatementKind) {}
 
-    static std::unique_ptr<Statement> Make(int line) {
-        return std::make_unique<ContinueStatement>(line);
+    static std::unique_ptr<Statement> Make(Position pos) {
+        return std::make_unique<ContinueStatement>(pos);
     }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<ContinueStatement>(fLine);
+        return std::make_unique<ContinueStatement>(fPosition);
     }
 
     std::string description() const override {

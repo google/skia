@@ -22,8 +22,8 @@ class ExternalFunctionCall final : public Expression {
 public:
     inline static constexpr Kind kExpressionKind = Kind::kExternalFunctionCall;
 
-    ExternalFunctionCall(int line, const ExternalFunction* function, ExpressionArray arguments)
-        : INHERITED(line, kExpressionKind, &function->type())
+    ExternalFunctionCall(Position pos, const ExternalFunction* function, ExpressionArray arguments)
+        : INHERITED(pos, kExpressionKind, &function->type())
         , fFunction(*function)
         , fArguments(std::move(arguments)) {}
 
@@ -52,7 +52,7 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ExternalFunctionCall>(fLine, &this->function(),
+        return std::make_unique<ExternalFunctionCall>(fPosition, &this->function(),
                                                       this->arguments().clone());
     }
 

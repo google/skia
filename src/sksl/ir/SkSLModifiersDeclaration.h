@@ -23,7 +23,7 @@ public:
     inline static constexpr Kind kProgramElementKind = Kind::kModifiers;
 
     ModifiersDeclaration(const Modifiers* modifiers)
-        : INHERITED(-1, kProgramElementKind)
+        : INHERITED(Position(), kProgramElementKind)
         , fModifiers(modifiers) {}
 
     const Modifiers& modifiers() const {

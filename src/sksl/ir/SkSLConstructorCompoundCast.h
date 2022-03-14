@@ -26,11 +26,11 @@ class ConstructorCompoundCast final : public SingleArgumentConstructor {
 public:
     inline static constexpr Kind kExpressionKind = Kind::kConstructorCompoundCast;
 
-    ConstructorCompoundCast(int line, const Type& type, std::unique_ptr<Expression> arg)
-        : INHERITED(line, kExpressionKind, &type, std::move(arg)) {}
+    ConstructorCompoundCast(Position pos, const Type& type, std::unique_ptr<Expression> arg)
+        : INHERITED(pos, kExpressionKind, &type, std::move(arg)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
-                                            int line,
+                                            Position pos,
                                             const Type& type,
                                             std::unique_ptr<Expression> arg);
 
@@ -40,7 +40,8 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorCompoundCast>(fLine, this->type(), argument()->clone());
+        return std::make_unique<ConstructorCompoundCast>(fPosition, this->type(),
+                argument()->clone());
     }
 
 private:

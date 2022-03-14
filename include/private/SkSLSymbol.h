@@ -30,8 +30,8 @@ public:
         kLast = kVariable
     };
 
-    Symbol(int offset, Kind kind, std::string_view name, const Type* type = nullptr)
-        : INHERITED(offset, (int) kind)
+    Symbol(Position pos, Kind kind, std::string_view name, const Type* type = nullptr)
+        : INHERITED(pos, (int) kind)
         , fName(name)
         , fType(type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);

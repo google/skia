@@ -24,7 +24,7 @@ struct Swizzle final : public Expression {
 
     Swizzle(const Context& context, std::unique_ptr<Expression> base,
             const ComponentArray& components)
-            : INHERITED(base->fLine, kExpressionKind,
+            : INHERITED(base->fPosition, kExpressionKind,
                         &base->type().componentType().toCompound(context, components.size(), 1))
             , fBase(std::move(base))
             , fComponents(components) {
@@ -79,7 +79,7 @@ struct Swizzle final : public Expression {
 
 private:
     Swizzle(const Type* type, std::unique_ptr<Expression> base, const ComponentArray& components)
-        : INHERITED(base->fLine, kExpressionKind, type)
+        : INHERITED(base->fPosition, kExpressionKind, type)
         , fBase(std::move(base))
         , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);

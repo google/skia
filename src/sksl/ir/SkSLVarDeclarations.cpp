@@ -59,52 +59,52 @@ std::string VarDeclaration::description() const {
 }
 
 void VarDeclaration::ErrorCheck(const Context& context,
-                                int line,
+                                Position pos,
                                 const Modifiers& modifiers,
                                 const Type* baseType,
                                 Variable::Storage storage) {
     if (baseType->matches(*context.fTypes.fInvalid)) {
-        context.fErrors->error(line, "invalid type");
+        context.fErrors->error(pos, "invalid type");
         return;
     }
     if (baseType->isVoid()) {
-        context.fErrors->error(line, "variables of type 'void' are not allowed");
+        context.fErrors->error(pos, "variables of type 'void' are not allowed");
         return;
     }
     if (context.fConfig->strictES2Mode() && baseType->isArray()) {
-        context.fErrors->error(line, "array size must appear after variable name");
+        context.fErrors->error(pos, "array size must appear after variable name");
     }
 
     if (baseType->componentType().isOpaque() && storage != Variable::Storage::kGlobal) {
-        context.fErrors->error(line,
+        context.fErrors->error(pos,
                 "variables of type '" + baseType->displayName() + "' must be global");
     }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) && baseType->isMatrix()) {
-        context.fErrors->error(line, "'in' variables may not have matrix type");
+        context.fErrors->error(pos, "'in' variables may not have matrix type");
     }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
-        context.fErrors->error(line, "'in uniform' variables not permitted");
+        context.fErrors->error(pos, "'in uniform' variables not permitted");
     }
     if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
         if (modifiers.fFlags & Modifiers::kIn_Flag) {
-            context.fErrors->error(line, "'in' variables not permitted in runtime effects");
+            context.fErrors->error(pos, "'in' variables not permitted in runtime effects");
         }
     }
     if (baseType->isEffectChild() && !(modifiers.fFlags & Modifiers::kUniform_Flag)) {
-        context.fErrors->error(line,
+        context.fErrors->error(pos,
                 "variables of type '" + baseType->displayName() + "' must be uniform");
     }
     if (modifiers.fFlags & SkSL::Modifiers::kUniform_Flag &&
         (context.fConfig->fKind == ProgramKind::kCustomMeshVertex ||
          context.fConfig->fKind == ProgramKind::kCustomMeshFragment)) {
-        context.fErrors->error(line, "uniforms are not permitted in custom mesh shaders");
+        context.fErrors->error(pos, "uniforms are not permitted in custom mesh shaders");
     }
     if (modifiers.fLayout.fFlags & Layout::kColor_Flag) {
         if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
-            context.fErrors->error(line, "'layout(color)' is only permitted in runtime effects");
+            context.fErrors->error(pos, "'layout(color)' is only permitted in runtime effects");
         }
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
-            context.fErrors->error(line,
+            context.fErrors->error(pos,
                                    "'layout(color)' is only permitted on 'uniform' variables");
         }
         auto validColorXformType = [](const Type& t) {
@@ -113,7 +113,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
         };
         if (!validColorXformType(*baseType) && !(baseType->isArray() &&
                                                  validColorXformType(baseType->componentType()))) {
-            context.fErrors->error(line,
+            context.fErrors->error(pos,
                                    "'layout(color)' is not permitted on variables of type '" +
                                            baseType->displayName() + "'");
         }
@@ -139,7 +139,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
         permittedLayoutFlags &= ~Layout::kBinding_Flag;
         permittedLayoutFlags &= ~Layout::kSet_Flag;
     }
-    modifiers.checkPermitted(context, line, permitted, permittedLayoutFlags);
+    modifiers.checkPermitted(context, pos, permitted, permittedLayoutFlags);
 }
 
 bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable& var,
@@ -148,25 +148,25 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable&
     if (baseType->isArray()) {
         baseType = &baseType->componentType();
     }
-    ErrorCheck(context, var.fLine, var.modifiers(), baseType, var.storage());
+    ErrorCheck(context, var.fPosition, var.modifiers(), baseType, var.storage());
     if (value) {
         if (var.type().isOpaque()) {
-            context.fErrors->error(value->fLine, "opaque type '" + var.type().displayName() +
-                                                 "' cannot use initializer expressions");
+            context.fErrors->error(value->fPosition, "opaque type '" + var.type().displayName() +
+                    "' cannot use initializer expressions");
             return false;
         }
         if (var.modifiers().fFlags & Modifiers::kIn_Flag) {
-            context.fErrors->error(value->fLine,
+            context.fErrors->error(value->fPosition,
                                    "'in' variables cannot use initializer expressions");
             return false;
         }
         if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
-            context.fErrors->error(value->fLine,
+            context.fErrors->error(value->fPosition,
                                    "'uniform' variables cannot use initializer expressions");
             return false;
         }
         if (var.storage() == Variable::Storage::kInterfaceBlock) {
-            context.fErrors->error(value->fLine,
+            context.fErrors->error(value->fPosition,
                                    "initializers are not permitted on interface block fields");
             return false;
         }
@@ -177,25 +177,25 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable&
     }
     if (var.modifiers().fFlags & Modifiers::kConst_Flag) {
         if (!value) {
-            context.fErrors->error(var.fLine, "'const' variables must be initialized");
+            context.fErrors->error(var.fPosition, "'const' variables must be initialized");
             return false;
         }
         if (!Analysis::IsConstantExpression(*value)) {
-            context.fErrors->error(value->fLine,
+            context.fErrors->error(value->fPosition,
                                    "'const' variable initializer must be a constant expression");
             return false;
         }
     }
     if (var.storage() == Variable::Storage::kInterfaceBlock) {
         if (var.type().isOpaque()) {
-            context.fErrors->error(var.fLine, "opaque type '" + var.type().displayName() +
-                                              "' is not permitted in an interface block");
+            context.fErrors->error(var.fPosition, "opaque type '" + var.type().displayName() +
+                    "' is not permitted in an interface block");
             return false;
         }
     }
     if (var.storage() == Variable::Storage::kGlobal) {
         if (value && !Analysis::IsConstantExpression(*value)) {
-            context.fErrors->error(value->fLine,
+            context.fErrors->error(value->fPosition,
                                    "global variable initializer must be a constant expression");
             return false;
         }
@@ -232,11 +232,11 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
                var->name() == Compiler::RTADJUST_NAME) {
         // `sk_RTAdjust` is special, and makes the IR generator emit position-fixup expressions.
         if (ThreadContext::RTAdjustState().fVar || ThreadContext::RTAdjustState().fInterfaceBlock) {
-            context.fErrors->error(var->fLine, "duplicate definition of 'sk_RTAdjust'");
+            context.fErrors->error(var->fPosition, "duplicate definition of 'sk_RTAdjust'");
             return nullptr;
         }
         if (!var->type().matches(*context.fTypes.fFloat4)) {
-            context.fErrors->error(var->fLine, "sk_RTAdjust must have type 'float4'");
+            context.fErrors->error(var->fPosition, "sk_RTAdjust must have type 'float4'");
             return nullptr;
         }
         ThreadContext::RTAdjustState().fVar = var.get();

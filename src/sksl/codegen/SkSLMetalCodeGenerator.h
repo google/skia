@@ -92,7 +92,7 @@ protected:
 
     void writeStructDefinitions();
 
-    void writeFields(const std::vector<Type::Field>& fields, int parentLine,
+    void writeFields(const std::vector<Type::Field>& fields, Position pos,
                      const InterfaceBlock* parentIntf = nullptr);
 
     int size(const Type* type, bool isPacked) const;

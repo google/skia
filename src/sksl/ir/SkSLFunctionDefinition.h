@@ -23,9 +23,9 @@ public:
 
     using FunctionSet = std::unordered_set<const FunctionDeclaration*>;
 
-    FunctionDefinition(int line, const FunctionDeclaration* declaration, bool builtin,
+    FunctionDefinition(Position pos, const FunctionDeclaration* declaration, bool builtin,
                        std::unique_ptr<Statement> body, FunctionSet referencedBuiltinFunctions)
-        : INHERITED(line, kProgramElementKind)
+        : INHERITED(pos, kProgramElementKind)
         , fDeclaration(declaration)
         , fBuiltin(builtin)
         , fBody(std::move(body))
@@ -43,7 +43,7 @@ public:
      * errors when trying to call a function with an error in it.)
      */
     static std::unique_ptr<FunctionDefinition> Convert(const Context& context,
-                                                       int line,
+                                                       Position pos,
                                                        const FunctionDeclaration& function,
                                                        std::unique_ptr<Statement> body,
                                                        bool builtin);
@@ -69,7 +69,7 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<FunctionDefinition>(fLine, &this->declaration(),
+        return std::make_unique<FunctionDefinition>(fPosition, &this->declaration(),
                                                     /*builtin=*/false, this->body()->clone(),
                                                     this->referencedBuiltinFunctions());
     }

@@ -26,25 +26,26 @@ class ConstructorScalarCast final : public SingleArgumentConstructor {
 public:
     inline static constexpr Kind kExpressionKind = Kind::kConstructorScalarCast;
 
-    ConstructorScalarCast(int line, const Type& type, std::unique_ptr<Expression> arg)
-        : INHERITED(line, kExpressionKind, &type, std::move(arg)) {}
+    ConstructorScalarCast(Position pos, const Type& type, std::unique_ptr<Expression> arg)
+        : INHERITED(pos, kExpressionKind, &type, std::move(arg)) {}
 
     // ConstructorScalarCast::Convert will typecheck and create scalar-constructor expressions.
     // Reports errors via the ErrorReporter; returns null on error.
     static std::unique_ptr<Expression> Convert(const Context& context,
-                                               int line,
+                                               Position pos,
                                                const Type& rawType,
                                                ExpressionArray args);
 
     // ConstructorScalarCast::Make casts a scalar expression. Casts that can be evaluated at
     // compile-time will do so (e.g. `int(4.1)` --> `Literal(int 4)`). Errors reported via SkASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
-                                            int line,
+                                            Position pos,
                                             const Type& type,
                                             std::unique_ptr<Expression> arg);
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorScalarCast>(fLine, this->type(), argument()->clone());
+        return std::make_unique<ConstructorScalarCast>(fPosition, this->type(),
+                argument()->clone());
     }
 
     bool isCompileTimeConstant() const override {

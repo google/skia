@@ -12,7 +12,7 @@
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorSplat::Make(const Context& context,
-                                                   int line,
+                                                   Position pos,
                                                    const Type& type,
                                                    std::unique_ptr<Expression> arg) {
     SkASSERT(type.isAllowedInES2(context));
@@ -31,7 +31,7 @@ std::unique_ptr<Expression> ConstructorSplat::Make(const Context& context,
     arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
 
     SkASSERT(type.isVector());
-    return std::make_unique<ConstructorSplat>(line, type, std::move(arg));
+    return std::make_unique<ConstructorSplat>(pos, type, std::move(arg));
 }
 
 }  // namespace SkSL

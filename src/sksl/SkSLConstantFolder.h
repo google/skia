@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "include/private/SkSLDefines.h"
+#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperators.h"
 
 namespace SkSL {
@@ -51,7 +52,7 @@ public:
 
     /** Simplifies the binary expression `left OP right`. Returns null if it can't be simplified. */
     static std::unique_ptr<Expression> Simplify(const Context& context,
-                                                int line,
+                                                Position pos,
                                                 const Expression& left,
                                                 Operator op,
                                                 const Expression& right,

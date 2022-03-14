@@ -34,7 +34,7 @@ public:
         return context.fTypes.fBool.get();
     }
     std::unique_ptr<Expression> value(const Context& context) const override {
-        return Literal::MakeBool(context, /*line=*/-1, (context.fCaps.*fGetCap)());
+        return Literal::MakeBool(context, Position(), (context.fCaps.*fGetCap)());
     }
 
 private:
@@ -51,7 +51,7 @@ public:
         return context.fTypes.fInt.get();
     }
     std::unique_ptr<Expression> value(const Context& context) const override {
-        return Literal::MakeInt(context, /*line=*/-1, (context.fCaps.*fGetCap)());
+        return Literal::MakeInt(context, Position(), (context.fCaps.*fGetCap)());
     }
 
 private:
@@ -104,37 +104,37 @@ static const CapsLookupTable& caps_lookup_table() {
 
 }  // namespace
 
-static const Type* get_type(const Context& context, int line, std::string_view name) {
+static const Type* get_type(const Context& context, Position pos, std::string_view name) {
     if (const CapsLookupMethod* caps = caps_lookup_table().lookup(name)) {
         return caps->type(context);
     }
 
-    context.fErrors->error(line, "unknown capability flag '" + std::string(name) + "'");
+    context.fErrors->error(pos, "unknown capability flag '" + std::string(name) + "'");
     return nullptr;
 }
 
-static std::unique_ptr<Expression> get_value(const Context& context, int line,
+static std::unique_ptr<Expression> get_value(const Context& context, Position pos,
                                              const std::string_view& name) {
     if (const CapsLookupMethod* caps = caps_lookup_table().lookup(name)) {
         return caps->value(context);
     }
 
-    context.fErrors->error(line, "unknown capability flag '" + std::string(name) + "'");
+    context.fErrors->error(pos, "unknown capability flag '" + std::string(name) + "'");
     return nullptr;
 }
 
-std::unique_ptr<Expression> Setting::Convert(const Context& context, int line,
+std::unique_ptr<Expression> Setting::Convert(const Context& context, Position pos,
                                              const std::string_view& name) {
     SkASSERT(context.fConfig);
 
     if (context.fConfig->fSettings.fReplaceSettings) {
         // Insert the settings value directly into the IR.
-        return get_value(context, line, name);
+        return get_value(context, pos, name);
     }
 
     // Generate a Setting IRNode.
-    const Type* type = get_type(context, line, name);
-    return type ? std::make_unique<Setting>(line, name, type) : nullptr;
+    const Type* type = get_type(context, pos, name);
+    return type ? std::make_unique<Setting>(pos, name, type) : nullptr;
 }
 
 }  // namespace SkSL

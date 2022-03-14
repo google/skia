@@ -32,10 +32,10 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
             double negated = -value->as<Literal>().value();
             // Don't simplify the expression if the type can't hold the negated value.
             const Type& type = value->type();
-            if (type.checkForOutOfRangeLiteral(context, negated, value->fLine)) {
+            if (type.checkForOutOfRangeLiteral(context, negated, value->fPosition)) {
                 return nullptr;
             }
-            return Literal::Make(originalExpr.fLine, negated, &type);
+            return Literal::Make(originalExpr.fPosition, negated, &type);
         }
         case Expression::Kind::kPrefix: {
             // Convert `-(-expression)` into `expression`.
@@ -49,7 +49,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
             // Convert `-array[N](literal, ...)` into `array[N](-literal, ...)`.
             if (value->isCompileTimeConstant()) {
                 const ConstructorArray& ctor = value->as<ConstructorArray>();
-                return ConstructorArray::Make(context, originalExpr.fLine, ctor.type(),
+                return ConstructorArray::Make(context, originalExpr.fPosition, ctor.type(),
                                               negate_operands(context, ctor.arguments()));
             }
             break;
@@ -60,8 +60,8 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
                 const ConstructorDiagonalMatrix& ctor = value->as<ConstructorDiagonalMatrix>();
                 if (std::unique_ptr<Expression> simplified = simplify_negation(context,
                                                                                *ctor.argument())) {
-                    return ConstructorDiagonalMatrix::Make(context, originalExpr.fLine, ctor.type(),
-                                                           std::move(simplified));
+                    return ConstructorDiagonalMatrix::Make(context, originalExpr.fPosition,
+                            ctor.type(), std::move(simplified));
                 }
             }
             break;
@@ -72,7 +72,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
                 const ConstructorSplat& ctor = value->as<ConstructorSplat>();
                 if (std::unique_ptr<Expression> simplified = simplify_negation(context,
                                                                                *ctor.argument())) {
-                    return ConstructorSplat::Make(context, originalExpr.fLine, ctor.type(),
+                    return ConstructorSplat::Make(context, originalExpr.fPosition, ctor.type(),
                                                   std::move(simplified));
                 }
             }
@@ -82,7 +82,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
             // Convert `-vecN(literal, ...)` into `vecN(-literal, ...)`.
             if (value->isCompileTimeConstant()) {
                 const ConstructorCompound& ctor = value->as<ConstructorCompound>();
-                return ConstructorCompound::Make(context, originalExpr.fLine, ctor.type(),
+                return ConstructorCompound::Make(context, originalExpr.fPosition, ctor.type(),
                                                  negate_operands(context, ctor.arguments()));
             }
             break;
@@ -127,7 +127,7 @@ static std::unique_ptr<Expression> logical_not_operand(const Context& context,
             // Convert !boolLiteral(true) to boolLiteral(false).
             SkASSERT(value->type().isBoolean());
             const Literal& b = value->as<Literal>();
-            return Literal::MakeBool(operand->fLine, !b.boolValue(), &operand->type());
+            return Literal::MakeBool(operand->fPosition, !b.boolValue(), &operand->type());
         }
         case Expression::Kind::kPrefix: {
             // Convert `!(!expression)` into `expression`.
@@ -152,7 +152,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
     switch (op.kind()) {
         case Token::Kind::TK_PLUS:
             if (baseType.isArray() || !baseType.componentType().isNumber()) {
-                context.fErrors->error(base->fLine,
+                context.fErrors->error(base->fPosition,
                                        "'+' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -160,7 +160,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
 
         case Token::Kind::TK_MINUS:
             if (baseType.isArray() || !baseType.componentType().isNumber()) {
-                context.fErrors->error(base->fLine,
+                context.fErrors->error(base->fPosition,
                                        "'-' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -169,7 +169,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
         case Token::Kind::TK_PLUSPLUS:
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
-                context.fErrors->error(base->fLine,
+                context.fErrors->error(base->fPosition,
                                        "'" + std::string(op.tightOperatorName()) +
                                        "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
@@ -182,7 +182,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
 
         case Token::Kind::TK_LOGICALNOT:
             if (!baseType.isBoolean()) {
-                context.fErrors->error(base->fLine,
+                context.fErrors->error(base->fPosition,
                                        "'" + std::string(op.tightOperatorName()) +
                                        "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
@@ -193,12 +193,12 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
             if (context.fConfig->strictES2Mode()) {
                 // GLSL ES 1.00, Section 5.1
                 context.fErrors->error(
-                        base->fLine,
+                        base->fPosition,
                         "operator '" + std::string(op.tightOperatorName()) + "' is not allowed");
                 return nullptr;
             }
             if (baseType.isArray() || !baseType.componentType().isInteger()) {
-                context.fErrors->error(base->fLine,
+                context.fErrors->error(base->fPosition,
                                        "'" + std::string(op.tightOperatorName()) +
                                        "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;

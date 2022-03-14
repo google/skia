@@ -94,8 +94,8 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
     }
 
     if (!symbol->is<FunctionDeclaration>()) {
-        fContext.fErrors->error(symbol->fLine, "symbol '" + std::string(name) +
-                                               "' was already defined");
+        fContext.fErrors->error(symbol->fPosition, "symbol '" + std::string(name) +
+                "' was already defined");
         return;
     }
 
