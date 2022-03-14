@@ -21,7 +21,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" {
 JNIEXPORT void JNICALL Java_org_skia_skqp_SkQP_nInit(JNIEnv*, jobject, jobject, jstring);
-JNIEXPORT jlong JNICALL Java_org_skia_skqp_SkQP_nExecuteGM(JNIEnv*, jobject, jint, jint);
 JNIEXPORT jobjectArray JNICALL Java_org_skia_skqp_SkQP_nExecuteUnitTest(JNIEnv*, jobject, jint);
 JNIEXPORT void JNICALL Java_org_skia_skqp_SkQP_nMakeReport(JNIEnv*, jobject);
 }  // extern "C"
@@ -116,24 +115,11 @@ void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetMan
     std::lock_guard<std::mutex> lock(gMutex);
     gSkQP.init(&gAndroidAssetManager, reportDirectory.c_str());
 
-    auto backends = gSkQP.getSupportedBackends();
-    jassert(env, backends.size() > 0,);
     const std::vector<SkQP::UnitTest>& unitTests = gSkQP.getUnitTests();
 
     constexpr char kStringArrayType[] = "[Ljava/lang/String;";
-    env->SetObjectField(object, env->GetFieldID(SkQP_class, "mBackends", kStringArrayType),
-                        to_java_string_array(env, backends, SkQP::GetBackendName));
     env->SetObjectField(object, env->GetFieldID(SkQP_class, "mUnitTests", kStringArrayType),
                         to_java_string_array(env, unitTests, SkQP::GetUnitTestName));
-    env->SetObjectField(object, env->GetFieldID(SkQP_class, "mGMs", kStringArrayType),
-                        make_java_string_array(env, 0));
-}
-
-jlong Java_org_skia_skqp_SkQP_nExecuteGM(JNIEnv* env,
-                                          jobject object,
-                                          jint gmIndex,
-                                          jint backendIndex) {
-    return 0;
 }
 
 jobjectArray Java_org_skia_skqp_SkQP_nExecuteUnitTest(JNIEnv* env,

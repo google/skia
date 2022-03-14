@@ -174,15 +174,6 @@ TestHarness CurrentTestHarness() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const char* SkQP::GetBackendName(SkQP::SkiaBackend b) {
-    switch (b) {
-        case SkQP::SkiaBackend::kGL:     return "gl";
-        case SkQP::SkiaBackend::kGLES:   return "gles";
-        case SkQP::SkiaBackend::kVulkan: return "vk";
-    }
-    return "";
-}
-
 const char* SkQP::GetUnitTestName(SkQP::UnitTest t) { return t->fName; }
 
 SkQP::SkQP() {}

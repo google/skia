@@ -53,16 +53,10 @@ public class SkQPRunner extends Runner implements Filterable {
         AssetManager assetManager = context.getResources().getAssets();
         mImpl.nInit(assetManager, mOutputDirectory);
 
-        int totalCount = mImpl.mUnitTests.length + mImpl.mGMs.length * mImpl.mBackends.length;
+        int totalCount = mImpl.mUnitTests.length;
         mTests = new Description[totalCount];
         mShouldSkipTest = new boolean[totalCount]; // = {false, false, ....};
         int index = 0;
-        for (int backend = 0; backend < mImpl.mBackends.length; backend++) {
-            for (int gm = 0; gm < mImpl.mGMs.length; gm++) {
-                mTests[index++] = Description.createTestDescription(SkQPRunner.class,
-                    mImpl.mBackends[backend] + "_" + mImpl.mGMs[gm]);
-            }
-        }
         for (int unitTest = 0; unitTest < mImpl.mUnitTests.length; unitTest++) {
             mTests[index++] = Description.createTestDescription(SkQPRunner.class,
                     "unitTest_" + mImpl.mUnitTests[unitTest]);
@@ -102,38 +96,6 @@ public class SkQPRunner extends Runner implements Filterable {
     public void run(RunNotifier notifier) {
         int testNumber = 0;  // out of number of actually run tests.
         int testIndex = 0;  // out of potential tests.
-        for (int backend = 0; backend < mImpl.mBackends.length; backend++) {
-            for (int gm = 0; gm < mImpl.mGMs.length; gm++, testIndex++) {
-                Description desc = mTests[testIndex];
-                String name = desc.getMethodName();
-                if (mShouldSkipTest[testIndex]) {
-                    continue;
-                }
-                ++testNumber;
-                notifier.fireTestStarted(desc);
-                long value = java.lang.Long.MAX_VALUE;
-                String error = null;
-                try {
-                    value = mImpl.nExecuteGM(gm, backend);
-                } catch (SkQPException exept) {
-                    error = exept.getMessage();
-                }
-                String result = "pass";
-                if (error != null) {
-                    SkQPRunner.Fail(desc, notifier, String.format("Exception: %s", error));
-                    Log.w(TAG, String.format("[ERROR] '%s': %s", name, error));
-                    result = "ERROR";
-                } else if (value != 0) {
-                    SkQPRunner.Fail(desc, notifier, String.format(
-                                "Image mismatch: max channel diff = %d", value));
-                    Log.w(TAG, String.format("[FAIL] '%s': %d > 0", name, value));
-                    result = "FAIL";
-                }
-                notifier.fireTestFinished(desc);
-                Log.i(TAG, String.format("Rendering Test '%s' complete (%d/%d). [%s]",
-                                         name, testNumber, mShouldRunTestCount, result));
-            }
-        }
         for (int unitTest = 0; unitTest < mImpl.mUnitTests.length; unitTest++, testIndex++) {
             Description desc = mTests[testIndex];
             String name = desc.getMethodName();

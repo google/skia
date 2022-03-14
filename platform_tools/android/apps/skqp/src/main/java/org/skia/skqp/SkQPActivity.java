@@ -34,35 +34,15 @@ public class SkQPActivity extends AppCompatActivity implements Runnable {
         Log.i(SkQP.LOG_PREFIX, "Output Dir: " + outputDirPath);
         File outputDir = new File(outputDirPath);
         try {
-            SkQPActivity.ensureEmtpyDirectory(outputDir);
+            SkQPActivity.ensureEmptyDirectory(outputDir);
         } catch (IOException e) {
-            Log.e(SkQP.LOG_PREFIX, "ensureEmtpyDirectory:" + e.getMessage());
+            Log.e(SkQP.LOG_PREFIX, "ensureEmptyDirectory:" + e.getMessage());
         }
 
-        // Note: nInit will initialize the mGMs, mBackends and mUnitTests fields.
+        // Note: nInit will initialize the mUnitTests field.
         AssetManager assetManager = context.getResources().getAssets();
         impl.nInit(assetManager, outputDirPath);
 
-        for (int backend = 0; backend < impl.mBackends.length; backend++) {
-          for (int gm = 0; gm < impl.mGMs.length; gm++) {
-              String testName = SkQP.kSkiaGM + impl.mBackends[backend] + "_" + impl.mGMs[gm];
-              long value = java.lang.Long.MAX_VALUE;
-              String error = null;
-              Log.i(SkQP.LOG_PREFIX, "Running: " + testName);
-              try {
-                  value = impl.nExecuteGM(gm, backend);
-              } catch (SkQPException exept) {
-                  error = exept.getMessage();
-              }
-              if (error != null) {
-                  Log.w(SkQP.LOG_PREFIX, "Error: " + testName + " " + error);
-              } else if (value != 0) {
-                  Log.w(SkQP.LOG_PREFIX, String.format("Fail: %s %d", testName, value));
-              } else {
-                  Log.i(SkQP.LOG_PREFIX, "Pass: " + testName);
-              }
-          }
-        }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
             String testName = SkQP.kSkiaUnitTests + "_" + impl.mUnitTests[unitTest];
             Log.w(SkQP.LOG_PREFIX, "Running: " + testName);
@@ -78,11 +58,10 @@ public class SkQPActivity extends AppCompatActivity implements Runnable {
         Log.i(SkQP.LOG_PREFIX, "Finished running all tests.");
         impl.nMakeReport();
 
-
         finish();
     }
 
-    private static void ensureEmtpyDirectory(File f) throws IOException {
+    private static void ensureEmptyDirectory(File f) throws IOException {
         if (f.exists()) {
             SkQPActivity.delete(f);
         }
