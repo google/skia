@@ -40,56 +40,73 @@ static constexpr char kUnitTestReportPath[] = "unit_tests.txt";
 static constexpr char kUnitTestsPath[]   = "skqp/unittests.txt";
 
 // Kind of like Python's readlines(), but without any allocation.
-// Calls f() on each line.
-// F is [](const char*, size_t) -> void
-template <typename F>
-static void readlines(const void* data, size_t size, F f) {
+// Calls `lineFn` on each line.
+static void read_lines(const void* data,
+                       size_t size,
+                       const std::function<void(std::string_view)>& lineFn) {
     const char* start = (const char*)data;
     const char* end = start + size;
     const char* ptr = start;
     while (ptr < end) {
         while (*ptr++ != '\n' && ptr < end) {}
         size_t len = ptr - start;
-        f(start, len);
+        lineFn(std::string_view(start, len));
         start = ptr;
     }
 }
 
-// Parses the unittests.txt file.
-// when exclude is true, all tests are run except those matching lines from the file
-// when exclude is false, only tests matching lines from the file are run.
-// Each line is a regular expression matching test names.
-// Lines may start with # to indicate a comment
-static void get_unit_tests(SkQPAssetManager* mgr,
-                           std::vector<SkQP::UnitTest>* unitTests,
-                           bool exclude) {
-    std::vector<std::regex> patterns;
-    auto insert = [&patterns](const char* s, size_t l) {
-        SkASSERT(l > 1) ;
-        if (l > 0 && s[l - 1] == '\n') {  // strip line endings.
-            --l;
-        }
-        if (l > 0 && s[0] != '#') {  // only add non-empty strings, and ignore comments.
-            patterns.emplace_back(std::string(s, l));
-        }
-    };
-    if (sk_sp<SkData> dat = mgr->open(kUnitTestsPath)) {
-        readlines(dat->data(), dat->size(), insert);
+namespace {
+
+// Parses the contents of the `skqp/unittests.txt` file.
+// Each line in the exclusion list is a regular expression that matches against test names.
+// Matches indicate tests that should be excluded. Lines may start with # to indicate a comment.
+class ExclusionList {
+public:
+    ExclusionList() {}
+
+    void initialize(sk_sp<SkData> dat) {
+        fPatterns = {};
+        read_lines(dat->data(), dat->size(), [this](std::string_view line) {
+            if (!line.empty() && line.back() == '\n') {
+                // Strip line endings.
+                line.remove_suffix(1);
+            }
+            if (!line.empty() && line.front() != '#') {
+                // Only add non-empty strings, and ignore comments.
+                fPatterns.emplace_back(std::string(line));
+            }
+        });
     }
-    for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
-        bool matches_one = false;
-        for (const auto& pat : patterns) {
-            if (std::regex_match(std::string(test.fName), pat)) {
-                matches_one = true;
-                continue;
+
+    bool isExcluded(const std::string& name) const {
+        for (const auto& pat : fPatterns) {
+            if (std::regex_match(name, pat)) {
+                return true;
             }
         }
-        if (exclude != matches_one && test.fNeedsGpu) {
-            unitTests->push_back(&test);
+        return false;
+    }
+
+private:
+    std::vector<std::regex> fPatterns;
+};
+}
+
+// Returns a list of every unit test to be run.
+static std::vector<SkQP::UnitTest> get_unit_tests(const ExclusionList& exclusionList) {
+    std::vector<SkQP::UnitTest> unitTests;
+    for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
+        if (!test.fNeedsGpu) {
+            continue;
         }
+        if (exclusionList.isExcluded(test.fName)) {
+            continue;
+        }
+        unitTests.push_back(&test);
     }
     auto lt = [](SkQP::UnitTest u, SkQP::UnitTest v) { return strcmp(u->fName, v->fName) < 0; };
-    std::sort(unitTests->begin(), unitTests->end(), lt);
+    std::sort(unitTests.begin(), unitTests.end(), lt);
+    return unitTests;
 }
 
 static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
@@ -181,27 +198,27 @@ SkQP::SkQP() {}
 
 SkQP::~SkQP() {}
 
-void SkQP::init(SkQPAssetManager* am, const char* reportDirectory) {
-    SkASSERT_RELEASE(!fAssetManager);
-    SkASSERT_RELEASE(am);
-    fAssetManager = am;
+void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
+    SkASSERT_RELEASE(assetManager);
     fReportDirectory = reportDirectory;
 
     SkGraphics::Init();
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
 
-    /* If the file "skqp/unittests.txt" does not exist or is empty, run all gpu
-       unit tests.  Otherwise run only tests that do not match a line in that file.
-       The list is checked in at platform_tools/android/apps/skqp/src/main/assets/skqp/unittests.txt
-    */
-    get_unit_tests(fAssetManager, &fUnitTests, true);
+    // Load the exclusion list `skqp/unittests.txt`, if it exists.
+    // The list is checked in at platform_tools/android/apps/skqp/src/main/assets/skqp/unittests.txt
+    ExclusionList exclusionList;
+    if (sk_sp<SkData> dat = assetManager->open(kUnitTestsPath)) {
+        exclusionList.initialize(dat);
+    }
+
+    fUnitTests = get_unit_tests(exclusionList);
     fSupportedBackends = get_backends();
 
     print_backend_info((fReportDirectory + "/grdump.txt").c_str(), fSupportedBackends);
 }
 
 std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {
-    SkASSERT_RELEASE(fAssetManager);
     struct : public skiatest::Reporter {
         std::vector<std::string> fErrors;
         void reportFailed(const skiatest::Failure& failure) override {
@@ -227,7 +244,6 @@ inline void write(SkWStream* wStream, const T& text) {
 }
 
 void SkQP::makeReport() {
-    SkASSERT_RELEASE(fAssetManager);
     if (!sk_isdir(fReportDirectory.c_str())) {
         SkDebugf("Report destination does not exist: '%s'\n", fReportDirectory.c_str());
         return;
