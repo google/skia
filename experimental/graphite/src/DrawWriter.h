@@ -88,6 +88,13 @@ public:
         SkASSERT(fPendingCount == 0);
     }
 
+#ifdef SK_DEBUG
+    // Query current pipeline state for validation
+    size_t        instanceStride() const { return fInstanceStride; }
+    size_t        vertexStride()   const { return fVertexStride;   }
+    PrimitiveType primitiveType()  const { return fPrimitiveType;  }
+#endif
+
     // Collects new vertex data for a call to CommandBuffer::draw(). Automatically accumulates
     // vertex data into a buffer, issuing draw and bind calls as needed when a new buffer is
     // required, so that it is seamless to the caller. The draws do not use instances or indices.
