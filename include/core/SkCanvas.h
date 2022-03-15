@@ -2276,7 +2276,7 @@ protected:
 
     /** Experimental
      */
-    virtual void doDrawSlug(GrSlug* slug);
+    virtual void doDrawSlug(const GrSlug* slug);
 #endif
 
 private:
@@ -2424,7 +2424,7 @@ private:
     /** Experimental
      * Draw an GrSlug given the current canvas state.
      */
-    void drawSlug(GrSlug* slug);
+    void drawSlug(const GrSlug* slug);
 #endif
 
     /** Experimental

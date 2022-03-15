@@ -55,7 +55,7 @@ public:
             const void* data, size_t size, const SkStrikeClient* client = nullptr);
 
     // Draw the GrSlug obeying the canvas's mapping and clipping.
-    void draw(SkCanvas* canvas);
+    void draw(SkCanvas* canvas) const;
 
     virtual SkRect sourceBounds() const = 0;
     virtual const SkPaint& paint() const = 0;

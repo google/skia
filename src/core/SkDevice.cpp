@@ -486,7 +486,7 @@ sk_sp<GrSlug> SkBaseDevice::convertGlyphRunListToSlug(
     return nullptr;
 }
 
-void SkBaseDevice::drawSlug(SkCanvas*, GrSlug*) {
+void SkBaseDevice::drawSlug(SkCanvas*, const GrSlug*) {
     SK_ABORT("GrSlug drawing not supported.");
 }
 #endif

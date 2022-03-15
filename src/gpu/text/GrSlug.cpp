@@ -42,7 +42,7 @@ sk_sp<GrSlug> GrSlug::Deserialize(const void* data, size_t size, const SkStrikeC
     return SkMakeSlugFromBuffer(buffer, client);
 }
 
-void GrSlug::draw(SkCanvas* canvas) {
+void GrSlug::draw(SkCanvas* canvas) const {
     canvas->drawSlug(this);
 }
 

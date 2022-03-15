@@ -161,7 +161,7 @@ protected:
             const SkGlyphRunList& glyphRunList,
             const SkPaint& paint) override;
 
-    void drawSlug(SkCanvas*, GrSlug* slug) override;
+    void drawSlug(SkCanvas*, const GrSlug* slug) override;
 
     void onClipRect(const SkRect& rect, SkClipOp op, bool aa) override {
         SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);

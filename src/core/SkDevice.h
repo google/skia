@@ -307,7 +307,7 @@ protected:
     virtual sk_sp<GrSlug> convertGlyphRunListToSlug(
             const SkGlyphRunList& glyphRunList,
             const SkPaint& paint);
-    virtual void drawSlug(SkCanvas*, GrSlug* slug);
+    virtual void drawSlug(SkCanvas*, const GrSlug* slug);
 #endif
 
     /**

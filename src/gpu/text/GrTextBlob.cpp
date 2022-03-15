@@ -2918,7 +2918,7 @@ public:
     void surfaceDraw(SkCanvas*,
                      const GrClip* clip,
                      const SkMatrixProvider& viewMatrix,
-                     skgpu::v1::SurfaceDrawContext* sdc);
+                     skgpu::v1::SurfaceDrawContext* sdc) const;
 
     void doFlatten(SkWriteBuffer& buffer) const override;
     SkRect sourceBounds() const override { return fSourceBounds; }
@@ -2984,7 +2984,7 @@ Slug::Slug(SkRect sourceBounds,
            , fOrigin{origin} { }
 
 void Slug::surfaceDraw(SkCanvas* canvas, const GrClip* clip, const SkMatrixProvider& viewMatrix,
-                       skgpu::v1::SurfaceDrawContext* sdc) {
+                       skgpu::v1::SurfaceDrawContext* sdc) const {
     for (const GrSubRun& subRun : fSubRuns) {
         subRun.draw(canvas, clip, viewMatrix, fOrigin, fPaint, sdc);
     }
@@ -3577,7 +3577,7 @@ Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const SkPa
             this->asMatrixProvider(), glyphRunList, paint);
 }
 
-void Device::drawSlug(SkCanvas* canvas, GrSlug* slug) {
+void Device::drawSlug(SkCanvas* canvas, const GrSlug* slug) {
     fSurfaceDrawContext->drawSlug(canvas, this->clip(), this->asMatrixProvider(), slug);
 }
 
@@ -3597,8 +3597,8 @@ SurfaceDrawContext::convertGlyphRunListToSlug(const SkMatrixProvider& viewMatrix
 void SurfaceDrawContext::drawSlug(SkCanvas* canvas,
                                   const GrClip* clip,
                                   const SkMatrixProvider& viewMatrix,
-                                  GrSlug* slugPtr) {
-    Slug* slug = static_cast<Slug*>(slugPtr);
+                                  const GrSlug* slugPtr) {
+    const Slug* slug = static_cast<const Slug*>(slugPtr);
 
     slug->surfaceDraw(canvas, clip, viewMatrix, this);
 }
