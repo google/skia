@@ -32,8 +32,8 @@ private:
 };
 
 struct Args {
-  char *assetDir;
-  char *outputDir;
+    char* assetDir;
+    char* outputDir;
 };
 }  // namespace
 
@@ -106,24 +106,23 @@ int main(int argc, char *argv[]) {
     size_t matchRulesCount = (size_t)(argc - 3);
 
     // Unit Tests
-    std::ostream& out = std::cout;
-    for (auto test : skqp.getUnitTests()) {
-        auto testName = std::string("unitTest_") +  SkQP::GetUnitTestName(test);
+    for (SkQP::UnitTest test : skqp.getUnitTests()) {
+        auto testName = std::string("unitTest_") + SkQP::GetUnitTestName(test);
         if (should_skip(matchRules, matchRulesCount, testName.c_str())) {
             continue;
         }
-        out << "Starting: " << testName << " ";
+        std::cout << "Starting: " << testName << " ";
         std::vector<std::string> errors = skqp.executeTest(test);
         if (!errors.empty()) {
-            out << "[FAILED: " << errors.size() << " error(s)]" << std::endl;
+            std::cout << "[FAILED: " << errors.size() << " error(s)]" << std::endl;
             for (const std::string& error : errors) {
-                out << "  " <<  error << std::endl;
+                std::cout << "  " <<  error << std::endl;
             }
             ret = 1;
         } else {
-            out << "[PASSED]" << std::endl;
+            std::cout << "[PASSED]" << std::endl;
         }
-        out.flush();
+        std::cout.flush();
     }
     skqp.makeReport();
 
