@@ -636,20 +636,30 @@ void PathOpSubmitter::submitOps(SkCanvas* canvas,
                                 skgpu::v1::SurfaceDrawContext* sdc) const {
     SkPaint runPaint{paint};
     runPaint.setAntiAlias(fIsAntiAliased);
-    // If there are shaders, blurs or styles, the path must be scaled into source
-    // space independently of the CTM. This allows the CTM to be correct for the
-    // different effects.
-    GrStyle style(runPaint);
 
-    bool needsExactCTM = runPaint.getShader()
-                         || style.applies()
-                         || runPaint.getMaskFilter();
+
+    SkMaskFilterBase* maskFilter = as_MFB(runPaint.getMaskFilter());
 
     // Calculate the matrix that maps the path glyphs from their size in the strike to
     // the graphics source space.
     SkMatrix strikeToSource = SkMatrix::Scale(fStrikeToSourceScale, fStrikeToSourceScale);
     strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
+
+    // If there are shaders, non-blur mask filters or styles, the path must be scaled into source
+    // space independently of the CTM. This allows the CTM to be correct for the different effects.
+    GrStyle style(runPaint);
+    bool needsExactCTM = runPaint.getShader()
+                         || style.applies()
+                         || (maskFilter != nullptr && !maskFilter->asABlur(nullptr));
     if (!needsExactCTM) {
+        SkMaskFilterBase::BlurRec blurRec;
+
+        // If there is a blur mask filter, then sigma needs to be adjusted to account for the
+        // scaling of fStrikeToSourceScale.
+        if (maskFilter != nullptr && maskFilter->asABlur(&blurRec)) {
+            runPaint.setMaskFilter(
+                    SkMaskFilter::MakeBlur(blurRec.fStyle, blurRec.fSigma / fStrikeToSourceScale));
+        }
         for (auto [path, pos] : SkMakeZip(fPaths.get(), fPositions)) {
             // Transform the glyph to source space.
             SkMatrix pathMatrix = strikeToSource;
