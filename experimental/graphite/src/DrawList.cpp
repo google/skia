@@ -21,49 +21,23 @@ const Transform& DrawList::deduplicateTransform(const Transform& localToDevice) 
     return fTransforms.back();
 }
 
-void DrawList::stencilAndFillPath(const Transform& localToDevice,
-                                  const Shape& shape,
-                                  const Clip& clip,
-                                  DrawOrder ordering,
-                                  const PaintParams* paint) {
-    SkASSERT(localToDevice.valid());
-    SkASSERT(!shape.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
-
-    const Renderer& renderer = Renderer::StencilAndFillPath(shape.fillType());
-    fDraws.push_back({renderer, this->deduplicateTransform(localToDevice),
-                      shape, clip, ordering, paint, nullptr});
-    fRenderStepCount += renderer.numRenderSteps();
-}
-
-void DrawList::fillConvexPath(const Transform& localToDevice,
-                              const Shape& shape,
-                              const Clip& clip,
-                              DrawOrder ordering,
-                              const PaintParams* paint) {
-    SkASSERT(localToDevice.valid());
-    SkASSERT(!shape.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
-    // TODO actually record this, but for now just drop the draw since the Renderer
-    // isn't implemented yet
-    // fDraws.push_back({Renderer::FillConvexPath(),
-    //                   this->deduplicateTransform(localToDevice),
-    //                   shape, clip, ordering, paint, nullptr});
-    // fRenderStepCount += Renderer::FillConvexPath().numRenderSteps();
-}
-
-void DrawList::strokePath(const Transform& localToDevice,
+void DrawList::recordDraw(const Renderer& renderer,
+                          const Transform& localToDevice,
                           const Shape& shape,
-                          const StrokeParams& stroke,
                           const Clip& clip,
                           DrawOrder ordering,
-                          const PaintParams* paint) {
+                          const PaintParams* paint,
+                          const StrokeParams* stroke) {
     SkASSERT(localToDevice.valid());
     SkASSERT(!shape.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
-    // TODO actually record this, but for now just drop the draw since the Renderer
-    // isn't implemented yet
-    // fDraws.push_back({Renderer::StrokePath(),
-    //                   this->deduplicateTransform(localToDevice),
-    //                   shape, clip, ordering, paint, stroke});
-    // fRenderStepCount += Renderer::StrokePath().numRenderSteps();
+    SkASSERT(!(renderer.depthStencilFlags() & DepthStencilFlags::kStencil) ||
+             ordering.stencilIndex() != DrawOrder::kUnassigned);
+
+    // TODO: Add validation that the renderer's expected shape type and stroke params match provided
+
+    fDraws.push_back({renderer, this->deduplicateTransform(localToDevice),
+                      shape, clip, ordering, paint, stroke});
+    fRenderStepCount += renderer.numRenderSteps();
 }
 
 } // namespace skgpu

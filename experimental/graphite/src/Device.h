@@ -22,8 +22,10 @@ class BoundsManager;
 class Clip;
 class Context;
 class DrawContext;
+class PaintParams;
 class Recorder;
 class Shape;
+class StrokeParams;
 class TextureProxy;
 class Transform;
 
@@ -156,6 +158,13 @@ private:
                    const SkPaint&,
                    const SkStrokeRec&,
                    Mask<DrawFlags> = DrawFlags::kNone);
+    // Lowest level draw recording where everything but Renderer has been decided.
+    void recordDraw(const Transform& localToDevice,
+                    const Shape& shape,
+                    const Clip& clip,
+                    DrawOrder ordering,
+                    const PaintParams* paint,
+                    const StrokeParams* stroke);
 
     // Determines most optimal painters order for a draw of the given shape and style. This computes
     // the draw's bounds, applying both the style and scissor to the returned bounds. Low-level

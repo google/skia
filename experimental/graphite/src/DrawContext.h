@@ -50,28 +50,15 @@ public:
 
     int pendingDrawCount() const { return fPendingDraws->drawCount(); }
 
-    // TODO: need color/depth clearing functions (so DCL will probably need those too)
-
     void clear(const SkColor4f& clearColor);
 
-    void stencilAndFillPath(const Transform& localToDevice,
-                            const Shape& shape,
-                            const Clip& clip,
-                            DrawOrder order,
-                            const PaintParams* paint);
-
-    void fillConvexPath(const Transform& localToDevice,
-                        const Shape& shape,
-                        const Clip& clip,
-                        DrawOrder order,
-                        const PaintParams* paint);
-
-    void strokePath(const Transform& localToDevice,
+    void recordDraw(const Renderer& renderer,
+                    const Transform& localToDevice,
                     const Shape& shape,
-                    const StrokeParams& stroke,
                     const Clip& clip,
-                    DrawOrder order,
-                    const PaintParams* paint);
+                    DrawOrder ordering,
+                    const PaintParams* paint,
+                    const StrokeParams* stroke);
 
     bool writePixels(Recorder* recorder,
                      const SkPixmap& src,
