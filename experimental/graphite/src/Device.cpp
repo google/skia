@@ -37,6 +37,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkSpecialImage.h"
+#include "src/core/SkStroke.h"
 
 #include <unordered_map>
 #include <vector>
@@ -434,8 +435,45 @@ void Device::recordDraw(const Transform& localToDevice,
                         DrawOrder ordering,
                         const PaintParams* paint,
                         const StrokeParams* stroke) {
-    // TODO: skip strokes and perspective for now
-    if (stroke || localToDevice.type() == Transform::Type::kPerspective) {
+    // TODO: remove after CPU-transform fallbacks are no longer needed
+    static const Transform kIdentity{SkM44()};
+    // TODO: skip perspective for now
+    if (localToDevice.type() == Transform::Type::kPerspective) {
+        return;
+    }
+
+    // TODO: For now stroked paths are converted to fills on the CPU since the fixed count
+    // stroke path renderer hasn't been ported to Graphite yet.
+    if (stroke) {
+        SkPath strokeAsPath = shape.asPath();
+        SkStroke stroker;
+        stroker.setCap(stroke->cap());
+        stroker.setJoin(stroke->join());
+        stroker.setMiterLimit(stroke->miterLimit());
+        stroker.setDoFill(false);
+        const Transform* transform;
+        if (stroke->halfWidth() == 0.f) {
+            // Manually transform to device space and then generate a 1px stroke filled path, which
+            // would require applying a local matrix to the paint but we skip that for now since all
+            // of this is temporary anyways and most hairlines aren't spatially-varying.
+            strokeAsPath.transform(localToDevice.matrix().asM33());
+            stroker.setWidth(1.f);
+            stroker.strokePath(strokeAsPath, &strokeAsPath);
+            transform = &kIdentity;
+        } else {
+            stroker.setResScale(localToDevice.maxScaleFactor());
+            stroker.setWidth(stroke->width());
+            stroker.strokePath(strokeAsPath, &strokeAsPath);
+            transform = &localToDevice;
+        }
+        // Strokes as fills shouldn't be inverse filled
+        if (strokeAsPath.isInverseFillType()) {
+            strokeAsPath.toggleInverseFillType();
+        }
+        // Stroked paths with just moveTos may produce an empty path, which shouldn't be sent on
+        if (!strokeAsPath.isEmpty()) {
+            this->recordDraw(*transform, Shape(strokeAsPath), clip, ordering, paint, nullptr);
+        }
         return;
     }
 
