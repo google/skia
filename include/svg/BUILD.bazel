@@ -4,5 +4,5 @@ generated_cc_atom(
     name = "SkSVGCanvas_hdr",
     hdrs = ["SkSVGCanvas.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkCanvas_hdr"],
+    deps = ["//include/core:SkTypes_hdr"],
 )

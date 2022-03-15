@@ -8,12 +8,34 @@
 #ifndef SkSVGDevice_DEFINED
 #define SkSVGDevice_DEFINED
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTemplates.h"
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkClipStackDevice.h"
 
+#include <memory>
+
+class SkBaseDevice;
+class SkBitmap;
+class SkBlender;
+class SkClipStack;
+class SkData;
+class SkGlyphRunList;
+class SkImage;
+class SkPaint;
+class SkPath;
+class SkRRect;
+class SkVertices;
 class SkXMLWriter;
+struct SkISize;
+struct SkPoint;
+struct SkRect;
+struct SkSamplingOptions;
+#ifdef SK_ENABLE_SKSL
+struct SkCustomMesh;
+#endif
 
 class SkSVGDevice final : public SkClipStackDevice {
 public:
@@ -37,8 +59,9 @@ protected:
 
     void onDrawGlyphRunList(SkCanvas*, const SkGlyphRunList&, const SkPaint&) override;
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) override;
+#ifdef SK_ENABLE_SKSL
     void drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) override;
-
+#endif
 private:
     SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, uint32_t);
     ~SkSVGDevice() override;

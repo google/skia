@@ -7,34 +7,67 @@
 
 #include "src/svg/SkSVGDevice.h"
 
-#include <memory>
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageEncoder.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkChecksum.h"
+#include "include/private/SkNoncopyable.h"
 #include "include/private/SkTHash.h"
 #include "include/private/SkTPin.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkBase64.h"
-#include "src/codec/SkJpegCodec.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkClipStack.h"
-#include "src/core/SkDraw.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkUtils.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/core/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/xml/SkXMLWriter.h"
+
+#include <string>
+#include <memory>
+#include <utility>
+
+class SkBlender;
+class SkVertices;
+struct SkSamplingOptions;
+
+#ifdef SK_ENABLE_SKSL
+#include "include/core/SkCustomMesh.h"
+#endif
+#ifdef SK_CODEC_DECODES_JPEG
+#include "src/codec/SkJpegCodec.h"
+#endif
 
 namespace {
 
@@ -1106,6 +1139,8 @@ void SkSVGDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPain
     // todo
 }
 
+#ifdef SK_ENABLE_SKSL
 void SkSVGDevice::drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) {
     // todo
 }
+#endif

@@ -6,8 +6,15 @@
  */
 
 #include "include/svg/SkSVGCanvas.h"
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTo.h"
 #include "src/svg/SkSVGDevice.h"
 #include "src/xml/SkXMLWriter.h"
+
+#include <utility>
 
 std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkWStream* writer,
                                             uint32_t flags) {

@@ -8,9 +8,13 @@
 #ifndef SkSVGCanvas_DEFINED
 #define SkSVGCanvas_DEFINED
 
-#include "include/core/SkCanvas.h"
+#include "include/core/SkTypes.h"
 
+#include <memory>
+
+class SkCanvas;
 class SkWStream;
+struct SkRect;
 
 class SK_API SkSVGCanvas {
 public:
