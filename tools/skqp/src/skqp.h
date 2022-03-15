@@ -46,6 +46,11 @@ public:
     };
     using UnitTest = const skiatest::Test*;
 
+    struct SkSLErrorTest {
+        std::string name;
+        std::string shaderText;
+    };
+
     ////////////////////////////////////////////////////////////////////////////
 
     /** These functions provide a descriptive name for the given value.*/
@@ -71,17 +76,21 @@ public:
     /** @return a sorted list of all Skia GPU unit tests */
     const std::vector<UnitTest>& getUnitTests() const { return fUnitTests; }
 
+    /** @return a sorted list of all SkSL error tests */
+    const std::vector<SkSLErrorTest>& getSkSLErrorTests() const { return fSkSLErrorTests; }
+
     ////////////////////////////////////////////////////////////////////////////
 
 private:
-    struct UnitTestResult {
-        UnitTest fUnitTest;
-        std::vector<std::string> fErrors;
+    struct TestResult {
+        std::string name;
+        std::vector<std::string> errors;
     };
-    std::vector<UnitTestResult> fUnitTestResults;
+    std::vector<TestResult> fTestResults;
     std::vector<SkiaBackend> fSupportedBackends;
     std::string fReportDirectory;
     std::vector<UnitTest> fUnitTests;
+    std::vector<SkSLErrorTest> fSkSLErrorTests;
 
     SkQP(const SkQP&) = delete;
     SkQP& operator=(const SkQP&) = delete;
