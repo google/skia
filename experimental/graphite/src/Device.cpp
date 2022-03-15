@@ -437,10 +437,6 @@ void Device::recordDraw(const Transform& localToDevice,
                         const StrokeParams* stroke) {
     // TODO: remove after CPU-transform fallbacks are no longer needed
     static const Transform kIdentity{SkM44()};
-    // TODO: skip perspective for now
-    if (localToDevice.type() == Transform::Type::kPerspective) {
-        return;
-    }
 
     // TODO: For now stroked paths are converted to fills on the CPU since the fixed count
     // stroke path renderer hasn't been ported to Graphite yet.
@@ -474,6 +470,14 @@ void Device::recordDraw(const Transform& localToDevice,
         if (!strokeAsPath.isEmpty()) {
             this->recordDraw(*transform, Shape(strokeAsPath), clip, ordering, paint, nullptr);
         }
+        return;
+    }
+    // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
+    // device space so we draw something approximately correct (barring local coord issues).
+    if (localToDevice.type() == Transform::Type::kPerspective) {
+        SkPath devicePath = shape.asPath();
+        devicePath.transform(localToDevice.matrix().asM33());
+        this->recordDraw(kIdentity, Shape(devicePath), clip, ordering, paint, nullptr);
         return;
     }
 
