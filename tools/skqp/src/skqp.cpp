@@ -22,6 +22,7 @@
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
+#include "tools/Resources.h"
 #include "tools/fonts/TestFontMgr.h"
 #ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
@@ -106,6 +107,38 @@ static std::vector<SkQP::UnitTest> get_unit_tests(const ExclusionList& exclusion
     auto lt = [](SkQP::UnitTest u, SkQP::UnitTest v) { return strcmp(u->fName, v->fName) < 0; };
     std::sort(unitTests.begin(), unitTests.end(), lt);
     return unitTests;
+}
+
+// Returns a list of every SkSL error test to be run.
+static std::vector<SkQP::SkSLErrorTest> get_sksl_error_tests(const ExclusionList& exclusionList) {
+    std::vector<SkQP::SkSLErrorTest> skslErrorTests;
+
+    auto iterateFn = [&](const char* directory, const char* extension) {
+        SkString resourceDirectory = GetResourcePath(directory);
+        SkOSFile::Iter iter(resourceDirectory.c_str(), extension);
+        SkString name;
+
+        while (iter.next(&name, /*getDir=*/false)) {
+            if (exclusionList.isExcluded(name.c_str())) {
+                continue;
+            }
+            SkString path(SkOSPath::Join(directory, name.c_str()));
+            sk_sp<SkData> shaderText = GetResourceAsData(path.c_str());
+            if (!shaderText) {
+                continue;
+            }
+            skslErrorTests.push_back({name.c_str(), static_cast<const char*>(shaderText->data())});
+        }
+    };
+
+    // Android only supports runtime shaders, not color filters or blenders.
+    iterateFn("sksl/runtime_errors/", ".rts");
+
+    auto lt = [](const SkQP::SkSLErrorTest& a, const SkQP::SkSLErrorTest& b) {
+        return a.name < b.name;
+    };
+    std::sort(skslErrorTests.begin(), skslErrorTests.end(), lt);
+    return skslErrorTests;
 }
 
 static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
@@ -212,6 +245,7 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     }
 
     fUnitTests = get_unit_tests(exclusionList);
+    fSkSLErrorTests = get_sksl_error_tests(exclusionList);
     fSupportedBackends = get_backends();
 
     print_backend_info((fReportDirectory + "/grdump.txt").c_str(), fSupportedBackends);
@@ -231,7 +265,7 @@ std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {
         test->fContextOptionsProc(&options);
     }
     test->fProc(&r, options);
-    fUnitTestResults.push_back(UnitTestResult{test, r.fErrors});
+    fTestResults.push_back(TestResult{test->fName, r.fErrors});
     return r.fErrors;
 }
 
@@ -249,13 +283,13 @@ void SkQP::makeReport() {
     }
     SkFILEWStream unitOut(SkOSPath::Join(fReportDirectory.c_str(), kUnitTestReportPath).c_str());
     SkASSERT_RELEASE(unitOut.isValid());
-    for (const SkQP::UnitTestResult& result : fUnitTestResults) {
-        unitOut.writeText(GetUnitTestName(result.fUnitTest));
-        if (result.fErrors.empty()) {
+    for (const SkQP::TestResult& result : fTestResults) {
+        unitOut.writeText(result.name.c_str());
+        if (result.errors.empty()) {
             unitOut.writeText(" PASSED\n* * *\n");
         } else {
-            write(&unitOut, SkStringPrintf(" FAILED (%zu errors)\n", result.fErrors.size()));
-            for (const std::string& err : result.fErrors) {
+            write(&unitOut, SkStringPrintf(" FAILED (%zu errors)\n", result.errors.size()));
+            for (const std::string& err : result.errors) {
                 write(&unitOut, err);
                 unitOut.newline();
             }
