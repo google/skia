@@ -498,8 +498,9 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                               const char* clampStopSwizzle) {
             if (clamp) {
                 fb->codeAppendf("clampedCoord%s = clamp(subsetCoord%s, %s%s, %s%s);",
-                                coordSwizzle, coordSwizzle, clampName, clampStartSwizzle, clampName,
-                                clampStopSwizzle);
+                                coordSwizzle, coordSwizzle,
+                                clampName, clampStartSwizzle,
+                                clampName, clampStopSwizzle);
             } else {
                 fb->codeAppendf("clampedCoord%s = subsetCoord%s;", coordSwizzle, coordSwizzle);
             }

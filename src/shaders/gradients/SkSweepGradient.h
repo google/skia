@@ -22,7 +22,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 #ifdef SK_ENABLE_SKSL
-    void addToKey(SkShaderCodeDictionary*,
+    void addToKey(const SkKeyContext&,
                   SkPaintParamsKeyBuilder*,
                   SkPipelineData*) const override;
 #endif

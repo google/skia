@@ -28,6 +28,7 @@
 #include "experimental/graphite/src/UniformManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
+#include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkShaderCodeDictionary.h"
 #include "src/core/SkUniformData.h"
@@ -235,8 +236,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     gpu->testingOnly_startCapture();
 #endif
     auto recorder = context->makeRecorder();
+    SkKeyContext keyContext(recorder.get());
     auto resourceProvider = recorder->priv().resourceProvider();
-    auto dict = resourceProvider->shaderCodeDictionary();
     auto commandBuffer = resourceProvider->createCommandBuffer();
 
     SkISize textureSize = { kTextureWidth, kTextureHeight };
@@ -256,9 +257,11 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
     SkUniquePaintParamsID uniqueID;
     {
+        auto dict = keyContext.dict();
+
         SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
-        uniqueID = CreateKey(dict,
+        uniqueID = CreateKey(keyContext,
                              &builder,
                              ShaderCombo::ShaderType::kSolidColor,
                              SkTileMode::kClamp,

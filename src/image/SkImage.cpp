@@ -453,6 +453,8 @@ GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
     return GrBackendTexture(); // invalid
 }
 
+#endif // SK_SUPPORT_GPU
+
 #ifdef SK_GRAPHITE_ENABLED
 std::tuple<skgpu::TextureProxyView, SkColorType> SkImage_Base::asView(
         skgpu::Recorder* recorder, skgpu::Mipmapped mipmapped) const {
@@ -464,9 +466,7 @@ std::tuple<skgpu::TextureProxyView, SkColorType> SkImage_Base::asView(
     }
     return this->onAsView(recorder, mipmapped);
 }
-#endif
-
-#endif // SK_SUPPORT_GPU
+#endif // SK_GRAPHITE_ENABLED
 
 GrDirectContext* SkImage_Base::directContext() const {
 #if SK_SUPPORT_GPU

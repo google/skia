@@ -19,6 +19,7 @@
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "include/core/SkPathTypes.h"
+#include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkShaderCodeDictionary.h"
 
@@ -74,6 +75,7 @@ void Context::preCompile(const PaintCombo& paintCombo) {
     };
 
     SkShaderCodeDictionary* dict = fGlobalCache->shaderCodeDictionary();
+    SkKeyContext keyContext(dict);
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
@@ -81,7 +83,7 @@ void Context::preCompile(const PaintCombo& paintCombo) {
         for (auto& shaderCombo: paintCombo.fShaders) {
             for (auto shaderType: shaderCombo.fTypes) {
                 for (auto tm: shaderCombo.fTileModes) {
-                    auto uniqueID = CreateKey(dict, &builder, shaderType, tm, bm);
+                    auto uniqueID = CreateKey(keyContext, &builder, shaderType, tm, bm);
 
                     GraphicsPipelineDesc desc;
 

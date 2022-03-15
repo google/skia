@@ -25,7 +25,7 @@ namespace skgpu {
 class PaintParams;
 
 std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkPipelineData>> ExtractPaintData(
-        SkShaderCodeDictionary*,
+        Recorder*,
         SkPaintParamsKeyBuilder* builder,
         const PaintParams&);
 

@@ -10,10 +10,13 @@
 
 #include <vector>
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkTileMode.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkUniformData.h"
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/src/TextureProxy.h"
 #include "src/gpu/Blend.h"
 #endif
 
@@ -49,6 +52,8 @@ public:
         fBlendInfo = blendInfo;
     }
     const BlendInfo& blendInfo() const { return fBlendInfo; }
+
+    void addImage(const SkSamplingOptions&, const SkTileMode[2], sk_sp<skgpu::TextureProxy>);
 #endif
 
     void add(sk_sp<SkUniformData>);
@@ -75,6 +80,13 @@ private:
     std::vector<sk_sp<SkUniformData>> fUniformData;
 
 #ifdef SK_GRAPHITE_ENABLED
+    struct TextureInfo {
+        sk_sp<skgpu::TextureProxy> fProxy;
+        SkSamplingOptions          fSamplingOptions;
+        SkTileMode                 fTileModes[2];
+    };
+
+    std::vector<TextureInfo> fProxies;
     BlendInfo fBlendInfo;
 #endif
 };

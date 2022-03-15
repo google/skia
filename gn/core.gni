@@ -247,6 +247,8 @@ skia_core_sources = [
   "$_src/core/SkImageFilter_Base.h",
   "$_src/core/SkImageGenerator.cpp",
   "$_src/core/SkImageInfo.cpp",
+  "$_src/core/SkKeyContext.cpp",
+  "$_src/core/SkKeyContext.h",
   "$_src/core/SkKeyHelpers.cpp",
   "$_src/core/SkKeyHelpers.h",
   "$_src/core/SkLRUCache.h",

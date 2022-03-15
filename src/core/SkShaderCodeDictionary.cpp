@@ -320,11 +320,14 @@ static const char* kSolidShaderSkSL =
         "}\n";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumImageShaderUniforms = 0;
+static constexpr int kNumImageShaderUniforms = 1;
+static constexpr SkUniform kImageShaderUniforms[kNumImageShaderUniforms] = {
+        { "subset",  SkSLType::kFloat4 },
+};
 
 static const char* kImageShaderName = "image_shader";
 static const char* kImageShaderSkSL =
-        "half4 image_shader() {\n"
+        "half4 image_shader(float4 subset) {\n"
         "    float c = fract(abs(sk_FragCoord.x/10.0));\n"
         "    return half4(1.0, 1.0 - c, 1.0 - c, 1.0);\n"
         "}\n";
@@ -596,7 +599,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             { kLinearGrad4Fields, kNumLinearGrad4Fields }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kImageShader] = {
-            { nullptr, kNumImageShaderUniforms },
+            SkMakeSpan(kImageShaderUniforms, kNumImageShaderUniforms),
             kImageShaderName, kImageShaderSkSL,
             GenerateDefaultGlueCode,
             kNoChildren,
@@ -611,7 +614,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kFixedFunctionBlender] = {
             { },     // no uniforms
-            "", "",  // fixed function blending doesn't have any static SkSL
+            "FF-blending", "",  // fixed function blending doesn't have any static SkSL
             GenerateFixedFunctionBlenderGlueCode,
             kNoChildren,
             { kFixedFunctionBlenderFields, kNumFixedFunctionBlenderFields }

@@ -17,6 +17,7 @@
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkUniquePaintParamsID.h"
+#include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkShaderCodeDictionary.h"
@@ -74,7 +75,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     using namespace skgpu;
 
     auto recorder = context->makeRecorder();
-    auto dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
+    SkKeyContext keyContext(recorder.get());
+    auto dict = keyContext.dict();
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
@@ -96,9 +98,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
                 auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
 
-                auto [ uniqueID1, pipelineData] = ExtractPaintData(dict, &builder, PaintParams(p));
+                auto [ uniqueID1, pipelineData] = ExtractPaintData(recorder.get(), &builder,
+                                                                   PaintParams(p));
 
-                SkUniquePaintParamsID uniqueID2 = CreateKey(dict, &builder, s, tm, bm);
+                SkUniquePaintParamsID uniqueID2 = CreateKey(keyContext, &builder, s, tm, bm);
                 // ExtractPaintData and CreateKey agree
                 REPORTER_ASSERT(reporter, uniqueID1 == uniqueID2);
 

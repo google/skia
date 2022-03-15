@@ -18,6 +18,14 @@ void SkPipelineData::add(sk_sp<SkUniformData> uniforms) {
     fUniformData.push_back(std::move(uniforms));
 }
 
+#ifdef SK_GRAPHITE_ENABLED
+void SkPipelineData::addImage(const SkSamplingOptions& sampling,
+                              const SkTileMode tileModes[2],
+                              sk_sp<skgpu::TextureProxy> proxy) {
+    fProxies.push_back({std::move(proxy), sampling, {tileModes[0], tileModes[1]}});
+}
+#endif
+
 size_t SkPipelineData::totalUniformSize() const {
     size_t total = 0;
 

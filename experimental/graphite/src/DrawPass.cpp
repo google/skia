@@ -305,7 +305,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         uint32_t shadingIndex = PipelineDataCache::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
             std::unique_ptr<SkPipelineData> pipelineData;
-            std::tie(shaderID, pipelineData) = ExtractPaintData(dict, &builder,
+            std::tie(shaderID, pipelineData) = ExtractPaintData(recorder, &builder,
                                                                 draw.fPaintParams.value());
             shadingIndex = shadingUniformBindings.addUniforms(std::move(pipelineData));
         } // else depth-only

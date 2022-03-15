@@ -21,7 +21,7 @@ class SkColorInfo;
 class SkPaintParamsKeyBuilder;
 class SkPipelineData;
 class SkRuntimeEffect;
-class SkShaderCodeDictionary;
+class SkKeyContext;
 
 /**
  * Encapsulates a blend function, including non-public APIs.
@@ -59,7 +59,7 @@ public:
 
 #ifdef SK_ENABLE_SKSL
     // TODO: make pure virtual
-    virtual void addToKey(SkShaderCodeDictionary*,
+    virtual void addToKey(const SkKeyContext&,
                           SkPaintParamsKeyBuilder*,
                           SkPipelineData*) const;
 #endif
