@@ -72,11 +72,6 @@ private:
                              const SkV2& frag_offset, const SkV2& grouping_alignment,
                              const TextAnimator::DomainSpan*) const;
 
-    void adjustLineProps(const TextAnimator::ModulatorBuffer&,
-                         const TextAnimator::DomainSpan&,
-                         const SkV2& line_offset,
-                         float line_tracking) const;
-
     SkV2 fragmentAnchorPoint(const FragmentRec&, const SkV2&,
                              const TextAnimator::DomainSpan*) const;
     uint32_t shaperFlags() const;
