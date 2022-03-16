@@ -495,6 +495,21 @@ std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::TestCreate(GrProcess
 
 //////////////////////////////////////////////////////////////////////////////
 
+static bool elliptical_effect_uses_scale(const GrShaderCaps& caps, const SkRRect& rrect) {
+    // If we're on a device where float != fp32 then we'll do the distance computation in a space
+    // that is normalized by the largest radius. The scale uniform will be scale, 1/scale. The
+    // radii uniform values are already in this normalized space.
+    if (!caps.floatIs32Bits()) {
+        return true;
+    }
+    // Additionally, even if we have fp32, large radii can underflow 1/radii^2 terms leading to
+    // blurry coverage. This effect applies to simple and nine-patch, so only need to check TL+BR
+    const SkVector& r0 = rrect.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& r1 = rrect.radii(SkRRect::kLowerRight_Corner);
+    float maxRadius = std::max(std::max(r0.fX, r0.fY), std::max(r1.fX, r1.fY));
+    return SkScalarNearlyZero(1.f / (maxRadius * maxRadius));
+}
+
 class EllipticalRRectEffect::Impl : public ProgramImpl {
 public:
     void emitCode(EmitArgs&) override;
@@ -532,11 +547,9 @@ void EllipticalRRectEffect::Impl::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("float2 dxy0 = %s.LT - sk_FragCoord.xy;", rectName);
     fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.RB;", rectName);
 
-    // If we're on a device where float != fp32 then we'll do the distance computation in a space
-    // that is normalized by the largest radius. The scale uniform will be scale, 1/scale. The
-    // radii uniform values are already in this normalized space.
+
     const char* scaleName = nullptr;
-    if (!args.fShaderCaps->floatIs32Bits()) {
+    if (elliptical_effect_uses_scale(*args.fShaderCaps, erre.fRRect)) {
         fScaleUniform = uniformHandler->addUniform(&erre, kFragment_GrShaderFlag, SkSLType::kHalf2,
                                                    "scale", &scaleName);
     }
@@ -665,8 +678,11 @@ void EllipticalRRectEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdma
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void EllipticalRRectEffect::onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const {
-    static_assert((int)GrClipEdgeType::kLast < (1 << 3));
-    b->add32(fRRect.getType() | static_cast<int>(fEdgeType) << 3);
+    static_assert(kGrClipEdgeTypeCnt <= 4); // 2 bits
+    static_assert((int)SkRRect::kLastType + 1 <= 8); // 3 bits
+    b->addBits(2, static_cast<int>(fEdgeType), "edge_type");
+    b->addBits(3, static_cast<int>(fRRect.getType()), "rrect_type");
+    b->addBool(elliptical_effect_uses_scale(caps, fRRect), "scale_radii");
 }
 
 std::unique_ptr<GrFragmentProcessor::ProgramImpl> EllipticalRRectEffect::onMakeProgramImpl() const {
@@ -695,7 +711,7 @@ GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
             auto fp = GrFragmentProcessor::Rect(std::move(inputFP), edgeType, rrect.getBounds());
             return GrFPSuccess(std::move(fp));
         }
-        if (SkRRectPriv::GetSimpleRadii(rrect).fX == SkRRectPriv::GetSimpleRadii(rrect).fY) {
+        if (SkRRectPriv::IsSimpleCircular(rrect)) {
             return CircularRRectEffect::Make(std::move(inputFP), edgeType,
                                              CircularRRectEffect::kAll_CornerFlags, rrect);
         } else {

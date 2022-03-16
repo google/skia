@@ -113,15 +113,24 @@ protected:
             for (int curRRect = 0; curRRect < kNumRRects; ++curRRect) {
                 bool drew = true;
 #ifdef SK_DEBUG
-                SkRect imageSpaceBounds = fRRects[curRRect].getBounds();
-                imageSpaceBounds.offset(SkIntToScalar(x), SkIntToScalar(y));
-                SkASSERT(kMaxImageBound.contains(imageSpaceBounds));
+                if (curRRect != kNumRRects - 1) { // skip last rrect, which is large but clipped
+                    SkRect imageSpaceBounds = fRRects[curRRect].getBounds();
+                    imageSpaceBounds.offset(SkIntToScalar(x), SkIntToScalar(y));
+                    SkASSERT(kMaxImageBound.contains(imageSpaceBounds));
+                }
 #endif
                 canvas->save();
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+
+                    SkRRect rrect = fRRects[curRRect];
+                    if (curRRect == kNumRRects - 1) {
+                        canvas->clipRect({0, 0, kTileX - 2, kTileY - 2});
+                        canvas->translate(-0.14f * rrect.rect().width(),
+                                          -0.14f * rrect.rect().height());
+                    }
                     if (kEffect_Type == fType) {
-                        SkRRect rrect = fRRects[curRRect];
-                        rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
+                        fRRects[curRRect].transform(canvas->getLocalToDeviceAs3x3(), &rrect);
+
                         GrClipEdgeType edgeType = (GrClipEdgeType) et;
                         const auto& caps = *rContext->priv().caps()->shaderCaps();
                         auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr,
@@ -133,7 +142,10 @@ protected:
                             grPaint.setColor4f({ 0, 0, 0, 1.f });
 
                             SkRect bounds = rrect.getBounds();
-                            bounds.outset(2.f, 2.f);
+                            bounds.intersect(SkRect::MakeXYWH(x, y, kTileX - 2, kTileY - 2));
+                            if (et == (int) GrClipEdgeType::kLast) {
+                                bounds.outset(2.f, 2.f);
+                            }
 
                             sdc->addDrawOp(skgpu::v1::FillRectOp::MakeNonAARect(
                                     rContext, std::move(grPaint), SkMatrix::I(), bounds));
@@ -142,12 +154,13 @@ protected:
                         }
                     } else if (fType == kBW_Clip_Type || fType == kAA_Clip_Type) {
                         bool aaClip = (kAA_Clip_Type == fType);
-                        canvas->clipRRect(fRRects[curRRect], aaClip);
+                        canvas->clipRRect(rrect, aaClip);
                         canvas->setMatrix(SkMatrix::Scale(kImageWidth, kImageHeight));
                         canvas->drawRect(SkRect::MakeWH(1, 1), paint);
                     } else {
-                        canvas->drawRRect(fRRects[curRRect], paint);
+                        canvas->drawRRect(rrect, paint);
                     }
+
                 canvas->restore();
                 if (drew) {
                     x = x + kTileX;
@@ -183,6 +196,9 @@ protected:
         for (size_t i = 1; i < SK_ARRAY_COUNT(gRadii); ++i) {
             fRRects[kNumSimpleCases+i].setRectRadii(SkRect::MakeWH(kTileX-2, kTileY-2), gRadii[i]);
         }
+        // The last case is larger than kTileX-2 x kTileY-2 but will be drawn at an offset
+        // into a clip rect that respects the tile size and highlights the rrect's corner curve.
+        fRRects[kNumRRects - 1].setRectXY({9.f, 9.f, 1699.f, 1699.f}, 843.749f, 843.75f);
     }
 
 private:
@@ -199,7 +215,7 @@ private:
 
     static const SkVector gRadii[kNumComplexCases][4];
 
-    inline static constexpr int kNumRRects = kNumSimpleCases + kNumComplexCases;
+    inline static constexpr int kNumRRects = kNumSimpleCases + kNumComplexCases + 1 /* extra big */;
     SkRRect fRRects[kNumRRects];
 
     using INHERITED = GM;
