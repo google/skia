@@ -178,7 +178,7 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
 }
 
 sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
-    if (!fPendingUploads) {
+    if (!fPendingUploads || fPendingUploads->size() == 0) {
         return nullptr;
     }
 

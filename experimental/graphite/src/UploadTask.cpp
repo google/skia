@@ -20,24 +20,12 @@
 
 namespace skgpu {
 
-void UploadCommand::addCommand(ResourceProvider* resourceProvider,
-                               CommandBuffer* commandBuffer) const {
-    if (!fTextureProxy) {
-        SKGPU_LOG_E("No texture proxy specified for UploadTask");
-        return;
-    }
-    if (!fTextureProxy->instantiate(resourceProvider)) {
-        SKGPU_LOG_E("Could not instantiate texture proxy for UploadTask!");
-        return;
-    }
-
-    commandBuffer->copyBufferToTexture(std::move(fBuffer),
-                                       fTextureProxy->refTexture(),
-                                       fCopyData.data(),
-                                       fCopyData.size());
-}
-
-//---------------------------------------------------------------------------
+UploadInstance::UploadInstance(sk_sp<Buffer> buffer,
+                               sk_sp<TextureProxy> textureProxy,
+                               std::vector<BufferTextureCopyData> copyData)
+    : fBuffer(buffer)
+    , fTextureProxy(textureProxy)
+    , fCopyData(copyData) {}
 
 size_t compute_combined_buffer_size(int mipLevelCount,
                                     size_t bytesPerPixel,
@@ -68,11 +56,11 @@ size_t compute_combined_buffer_size(int mipLevelCount,
     return combinedBufferSize;
 }
 
-bool UploadList::appendUpload(Recorder* recorder,
-                              sk_sp<TextureProxy> textureProxy,
-                              SkColorType dataColorType,
-                              const std::vector<MipLevel>& levels,
-                              const SkIRect& dstRect) {
+UploadInstance UploadInstance::Make(Recorder* recorder,
+                                    sk_sp<TextureProxy> textureProxy,
+                                    SkColorType dataColorType,
+                                    const std::vector<MipLevel>& levels,
+                                    const SkIRect& dstRect) {
     const Caps* caps = recorder->priv().caps();
     SkASSERT(caps->isTexturable(textureProxy->textureInfo()));
 
@@ -85,20 +73,20 @@ bool UploadList::appendUpload(Recorder* recorder,
     SkASSERT(mipLevelCount == 1 || mipLevelCount == textureProxy->textureInfo().numMipLevels());
 
     if (dstRect.isEmpty()) {
-        return false;
+        return {};
     }
 
     SkASSERT(caps->areColorTypeAndTextureInfoCompatible(dataColorType,
                                                         textureProxy->textureInfo()));
 
     if (mipLevelCount == 1 && !levels[0].fPixels) {
-        return true;   // no data to upload
+        return {};   // no data to upload
     }
 
     for (unsigned int i = 0; i < mipLevelCount; ++i) {
         // We do not allow any gaps in the mip data
         if (!levels[i].fPixels) {
-            return false;
+            return {};
         }
     }
 
@@ -118,7 +106,7 @@ bool UploadList::appendUpload(Recorder* recorder,
     std::vector<BufferTextureCopyData> copyData(mipLevelCount);
 
     if (!buffer) {
-        return false;
+        return {};
     }
     char* bufferData = (char*) buffer->map(); // TODO: get from staging buffer instead
     size_t baseOffset = 0;
@@ -149,25 +137,69 @@ bool UploadList::appendUpload(Recorder* recorder,
 
     buffer->unmap();
 
-    fCommands.push_back({std::move(buffer), std::move(textureProxy), std::move(copyData)});
+    return {std::move(buffer), std::move(textureProxy), std::move(copyData)};
+}
 
+void UploadInstance::addCommand(ResourceProvider* resourceProvider,
+                                CommandBuffer* commandBuffer) const {
+    if (!fTextureProxy) {
+        SKGPU_LOG_E("No texture proxy specified for UploadTask");
+        return;
+    }
+    if (!fTextureProxy->instantiate(resourceProvider)) {
+        SKGPU_LOG_E("Could not instantiate texture proxy for UploadTask!");
+        return;
+    }
+
+    commandBuffer->copyBufferToTexture(std::move(fBuffer),
+                                       fTextureProxy->refTexture(),
+                                       fCopyData.data(),
+                                       fCopyData.size());
+}
+
+//---------------------------------------------------------------------------
+
+bool UploadList::appendUpload(Recorder* recorder,
+                              sk_sp<TextureProxy> textureProxy,
+                              SkColorType dataColorType,
+                              const std::vector<MipLevel>& levels,
+                              const SkIRect& dstRect) {
+    UploadInstance instance = UploadInstance::Make(recorder, textureProxy, dataColorType,
+                                                   levels, dstRect);
+    if (!instance.isValid()) {
+        return false;
+    }
+
+    fInstances.push_back(instance);
     return true;
 }
 
 //---------------------------------------------------------------------------
 
 sk_sp<UploadTask> UploadTask::Make(UploadList* uploadList) {
-    return sk_sp<UploadTask>(new UploadTask(std::move(uploadList->fCommands)));
+    SkASSERT(uploadList && uploadList->fInstances.size() > 0);
+    return sk_sp<UploadTask>(new UploadTask(std::move(uploadList->fInstances)));
 }
 
-UploadTask::UploadTask(std::vector<UploadCommand> commands) : fCommands(std::move(commands)) {}
+sk_sp<UploadTask> UploadTask::Make(const UploadInstance& instance) {
+    if (!instance.isValid()) {
+        return nullptr;
+    }
+    return sk_sp<UploadTask>(new UploadTask(instance));
+}
+
+UploadTask::UploadTask(std::vector<UploadInstance> instances) : fInstances(std::move(instances)) {}
+
+UploadTask::UploadTask(const UploadInstance& instance) {
+    fInstances.push_back(instance);
+}
 
 UploadTask::~UploadTask() {}
 
 void UploadTask::addCommands(ResourceProvider* resourceProvider,
                              CommandBuffer* commandBuffer) {
-    for (unsigned int i = 0; i < fCommands.size(); ++i) {
-        fCommands[i].addCommand(resourceProvider, commandBuffer);
+    for (unsigned int i = 0; i < fInstances.size(); ++i) {
+        fInstances[i].addCommand(resourceProvider, commandBuffer);
     }
 }
 

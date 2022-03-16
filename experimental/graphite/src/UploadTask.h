@@ -31,11 +31,25 @@ struct MipLevel {
 };
 
 /**
- * An UploadCommand represents a single set of uploads from a buffer to texture that
+ * An UploadInstance represents a single set of uploads from a buffer to texture that
  * can be processed in a single command.
  */
-struct UploadCommand {
+class UploadInstance {
+public:
+    static UploadInstance Make(Recorder*,
+                               sk_sp<TextureProxy> targetProxy,
+                               SkColorType colorType,
+                               const std::vector<MipLevel>& levels,
+                               const SkIRect& dstRect);
+
+    bool isValid() const { return fBuffer != nullptr; }
+
+    // Adds upload command to the given CommandBuffer
     void addCommand(ResourceProvider*, CommandBuffer*) const;
+
+private:
+    UploadInstance() {}
+    UploadInstance(sk_sp<Buffer>, sk_sp<TextureProxy>, std::vector<BufferTextureCopyData>);
 
     sk_sp<Buffer> fBuffer;
     sk_sp<TextureProxy> fTextureProxy;
@@ -60,10 +74,12 @@ public:
                       const std::vector<MipLevel>& levels,
                       const SkIRect& dstRect);
 
+    int size() { return fInstances.size(); }
+
 private:
     friend class UploadTask;
 
-    std::vector<UploadCommand> fCommands;
+    std::vector<UploadInstance> fInstances;
 };
 
 /*
@@ -75,15 +91,17 @@ private:
 class UploadTask final : public Task {
 public:
     static sk_sp<UploadTask> Make(UploadList*);
+    static sk_sp<UploadTask> Make(const UploadInstance&);
 
     ~UploadTask() override;
 
     void addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:
-    UploadTask(std::vector<UploadCommand>);
+    UploadTask(std::vector<UploadInstance>);
+    UploadTask(const UploadInstance&);
 
-    std::vector<UploadCommand> fCommands;
+    std::vector<UploadInstance> fInstances;
 };
 
 } // namespace skgpu
