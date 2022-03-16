@@ -196,13 +196,19 @@ bool SkTriColorShader::update(const SkMatrix& ctmInv, const SkPoint pts[],
 // - convert colors into dst colorspace before interpolation (matches gradients)
 // - apply per-color alpha before interpolation (matches old version of vertices)
 //
-static SkPMColor4f* convert_colors(const SkColor src[], int count, SkColorSpace* deviceCS,
-                                   SkArenaAlloc* alloc) {
+static SkPMColor4f* convert_colors(const SkColor src[],
+                                   int count,
+                                   SkColorSpace* deviceCS,
+                                   SkArenaAlloc* alloc,
+                                   bool skipColorXform) {
     SkPMColor4f* dst = alloc->makeArray<SkPMColor4f>(count);
-    SkImageInfo srcInfo = SkImageInfo::Make(count, 1, kBGRA_8888_SkColorType,
-                                            kUnpremul_SkAlphaType, SkColorSpace::MakeSRGB());
-    SkImageInfo dstInfo = SkImageInfo::Make(count, 1, kRGBA_F32_SkColorType,
-                                            kPremul_SkAlphaType, sk_ref_sp(deviceCS));
+
+    // Passing `nullptr` for the destination CS effectively disables color conversion.
+    auto dstCS = skipColorXform ? nullptr : sk_ref_sp(deviceCS);
+    SkImageInfo srcInfo = SkImageInfo::Make(
+            count, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType, SkColorSpace::MakeSRGB());
+    SkImageInfo dstInfo =
+            SkImageInfo::Make(count, 1, kRGBA_F32_SkColorType, kPremul_SkAlphaType, dstCS);
     SkAssertResult(SkConvertPixels(dstInfo, dst, 0, srcInfo, src, 0));
     return dst;
 }
@@ -312,7 +318,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
                                const SkMatrix& ctmInverse,
                                const SkPoint* dev2,
                                const SkPoint3* dev3,
-                               SkArenaAlloc* outerAlloc) const {
+                               SkArenaAlloc* outerAlloc,
+                               bool skipColorXform) const {
     SkVerticesPriv info(vertices->priv());
 
     const int vertexCount = info.vertexCount();
@@ -358,7 +365,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
     SkTriColorShader* triColorShader = nullptr;
     SkPMColor4f* dstColors = nullptr;
     if (colors) {
-        dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), outerAlloc);
+        dstColors =
+                convert_colors(colors, vertexCount, fDst.colorSpace(), outerAlloc, skipColorXform);
         triColorShader = outerAlloc->make<SkTriColorShader>(compute_is_opaque(colors, vertexCount),
                                                             usePerspective);
     }
@@ -516,7 +524,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
 
 void SkDraw::drawVertices(const SkVertices* vertices,
                           sk_sp<SkBlender> blender,
-                          const SkPaint& paint) const {
+                          const SkPaint& paint,
+                          bool skipColorXform) const {
     SkVerticesPriv info(vertices->priv());
     const int vertexCount = info.vertexCount();
     const int indexCount = info.indexCount();
@@ -559,5 +568,6 @@ void SkDraw::drawVertices(const SkVertices* vertices,
         }
     }
 
-    this->drawFixedVertices(vertices, std::move(blender), paint, ctmInv, dev2, dev3, &outerAlloc);
+    this->drawFixedVertices(
+            vertices, std::move(blender), paint, ctmInv, dev2, dev3, &outerAlloc, skipColorXform);
 }

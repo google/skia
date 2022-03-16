@@ -268,7 +268,14 @@ protected:
     virtual void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                                   const SkRect& dst, SkFilterMode, const SkPaint&);
 
-    virtual void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) = 0;
+    /**
+     * If skipColorXform is true, then the implementation should assume that the provided
+     * vertex colors are already in the destination color space.
+     */
+    virtual void drawVertices(const SkVertices*,
+                              sk_sp<SkBlender>,
+                              const SkPaint&,
+                              bool skipColorXform = false) = 0;
 #ifdef SK_ENABLE_SKSL
     virtual void drawCustomMesh(SkCustomMesh cm, sk_sp<SkBlender>, const SkPaint&) = 0;
 #endif
@@ -523,7 +530,7 @@ protected:
     void drawRRect(const SkRRect&, const SkPaint&) override {}
     void drawPath(const SkPath&, const SkPaint&, bool) override {}
     void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override {}
-    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) override {}
+    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override {}
 #ifdef SK_ENABLE_SKSL
     void drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) override {}
 #endif

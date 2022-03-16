@@ -965,7 +965,7 @@ void SkPDFDevice::onDrawGlyphRunList(SkCanvas*,
     }
 }
 
-void SkPDFDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) {
+void SkPDFDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) {
     if (this->hasEmptyClip()) {
         return;
     }

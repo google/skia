@@ -65,7 +65,11 @@ public:
                              SkGlyphRunListPainter* glyphPainter,
                              const SkGlyphRunList& glyphRunList,
                              const SkPaint& paint) const;
-    void    drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) const;
+    /* If skipColorXform, skips color conversion when assigning per-vertex colors */
+    void drawVertices(const SkVertices*,
+                      sk_sp<SkBlender>,
+                      const SkPaint&,
+                      bool skipColorXform) const;
     void  drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
                     sk_sp<SkBlender>, const SkPaint&);
 
@@ -123,7 +127,8 @@ private:
                            const SkMatrix& ctmInverse,
                            const SkPoint* dev2,
                            const SkPoint3* dev3,
-                           SkArenaAlloc* outerAlloc) const;
+                           SkArenaAlloc* outerAlloc,
+                           bool skipColorXform) const;
 
     void drawPath(const SkPath&,
                   const SkPaint&,

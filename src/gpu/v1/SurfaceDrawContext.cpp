@@ -936,7 +936,8 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
                                       GrPaint&& paint,
                                       const SkMatrixProvider& matrixProvider,
                                       sk_sp<SkVertices> vertices,
-                                      GrPrimitiveType* overridePrimType) {
+                                      GrPrimitiveType* overridePrimType,
+                                      bool skipColorXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -945,6 +946,7 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     SkASSERT(vertices);
+    auto xform = skipColorXform ? nullptr : this->colorInfo().refColorSpaceXformFromSRGB();
     GrAAType aaType = fCanUseDynamicMSAA ? GrAAType::kMSAA : this->chooseAAType(GrAA::kNo);
     GrOp::Owner op = DrawCustomMeshOp::Make(fContext,
                                             std::move(paint),
@@ -952,7 +954,7 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
                                             overridePrimType,
                                             matrixProvider,
                                             aaType,
-                                            this->colorInfo().refColorSpaceXformFromSRGB());
+                                            std::move(xform));
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -963,7 +965,7 @@ void SurfaceDrawContext::drawCustomMesh(const GrClip* clip,
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceDrawContext", "drawVertices", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceDrawContext", "drawCustomMesh", fContext);
 
     AutoCheckFlush acf(this->drawingManager());
 

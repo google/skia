@@ -1135,7 +1135,7 @@ void SkSVGDevice::onDrawGlyphRunList(SkCanvas* canvas,
     }
 }
 
-void SkSVGDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) {
+void SkSVGDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) {
     // todo
 }
 

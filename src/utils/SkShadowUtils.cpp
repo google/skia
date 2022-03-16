@@ -649,7 +649,10 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     this,
                     hasPerspective ? SkMatrix::I()
                                    : this->localToDevice() * SkMatrix::Translate(tx, ty));
-            this->drawVertices(vertices, SkBlender::Mode(mode), paint);
+            // The vertex colors for a tesselated shadow polygon are always either opaque black
+            // or transparent and their real contribution to the final blended color is via
+            // their alpha. We can skip expensive per-vertex color conversion for this.
+            this->drawVertices(vertices, SkBlender::Mode(mode), paint, /*skipColorXform=*/true);
         }
     };
 
@@ -688,7 +691,13 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     SkColorFilters::Blend(rec.fAmbientColor,
                                                   SkBlendMode::kModulate)->makeComposed(
                                                                SkColorFilterPriv::MakeGaussian()));
-                this->drawVertices(vertices.get(), SkBlender::Mode(SkBlendMode::kModulate), paint);
+                // The vertex colors for a tesselated shadow polygon are always either opaque black
+                // or transparent and their real contribution to the final blended color is via
+                // their alpha. We can skip expensive per-vertex color conversion for this.
+                this->drawVertices(vertices.get(),
+                                   SkBlender::Mode(SkBlendMode::kModulate),
+                                   paint,
+                                   /*skipColorXform=*/true);
                 success = true;
             }
         }
@@ -770,7 +779,13 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     SkColorFilters::Blend(rec.fSpotColor,
                                                   SkBlendMode::kModulate)->makeComposed(
                                                       SkColorFilterPriv::MakeGaussian()));
-                this->drawVertices(vertices.get(), SkBlender::Mode(SkBlendMode::kModulate), paint);
+                // The vertex colors for a tesselated shadow polygon are always either opaque black
+                // or transparent and their real contribution to the final blended color is via
+                // their alpha. We can skip expensive per-vertex color conversion for this.
+                this->drawVertices(vertices.get(),
+                                   SkBlender::Mode(SkBlendMode::kModulate),
+                                   paint,
+                                   /*skipColorXform=*/true);
                 success = true;
             }
         }

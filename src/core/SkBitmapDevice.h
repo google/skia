@@ -86,7 +86,7 @@ protected:
                        const SkSamplingOptions&, const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
 
-    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) override;
+    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
 #ifdef SK_ENABLE_SKSL
     void drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) override;
 #endif

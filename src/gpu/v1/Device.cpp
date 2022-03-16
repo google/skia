@@ -846,7 +846,8 @@ void Device::drawImageLattice(const SkImage* image,
 
 void Device::drawVertices(const SkVertices* vertices,
                           sk_sp<SkBlender> blender,
-                          const SkPaint& paint) {
+                          const SkPaint& paint,
+                          bool skipColorXform) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawVertices", fContext.get());
     SkASSERT(vertices);
@@ -873,7 +874,8 @@ void Device::drawVertices(const SkVertices* vertices,
                                       std::move(grPaint),
                                       this->asMatrixProvider(),
                                       sk_ref_sp(const_cast<SkVertices*>(vertices)),
-                                      nullptr);
+                                      nullptr,
+                                      skipColorXform);
 }
 
 void Device::drawCustomMesh(SkCustomMesh customMesh,
