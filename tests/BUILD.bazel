@@ -494,7 +494,7 @@ generated_cc_atom(
         "//include/gpu:GrDirectContext_hdr",
         "//include/private:GrTypesPriv_hdr",
         "//include/private:SkColorData_hdr",
-        "//src/gpu:GrBlend_hdr",
+        "//src/gpu:Blend_hdr",
         "//src/gpu:GrCaps_hdr",
         "//src/gpu:GrDirectContextPriv_hdr",
         "//src/gpu:GrPaint_hdr",
@@ -973,6 +973,7 @@ generated_cc_atom(
         "//include/core:SkRect_hdr",
         "//include/core:SkRegion_hdr",
         "//include/core:SkScalar_hdr",
+        "//include/core:SkStream_hdr",
         "//include/core:SkSurface_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkTDArray_hdr",
@@ -1464,6 +1465,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Test_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkVertices_hdr",
         "//src/core:SkBlendModePriv_hdr",
         "//src/core:SkMatrixProvider_hdr",
@@ -1845,6 +1847,7 @@ generated_cc_atom(
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColorPriv_hdr",
         "//include/core:SkEncodedImageFormat_hdr",
+        "//include/core:SkImageEncoder_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkStream_hdr",
         "//include/core:SkSurface_hdr",
@@ -2082,6 +2085,7 @@ generated_cc_atom(
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkFont_hdr",
+        "//include/core:SkStream_hdr",
         "//include/core:SkTypeface_hdr",
         "//include/ports:SkFontMgr_android_hdr",
         "//include/private:SkFixed_hdr",
@@ -3469,6 +3473,7 @@ generated_cc_atom(
         ":Test_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkStream_hdr",
+        "//include/private:SkTDArray_hdr",
         "//include/private:SkTo_hdr",
         "//src/pdf:SkPDFMakeToUnicodeCmap_hdr",
     ],
@@ -4676,6 +4681,7 @@ generated_cc_atom(
     srcs = ["ProcessorTest.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":TestHarness_hdr",
         ":TestUtils_hdr",
         ":Test_hdr",
         "//include/gpu:GrDirectContext_hdr",
@@ -4866,6 +4872,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Test_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColorPriv_hdr",
         "//include/core:SkImage_hdr",
@@ -5644,6 +5651,7 @@ generated_cc_atom(
         "//include/core:SkColorFilter_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkPaint_hdr",
+        "//include/core:SkStream_hdr",
         "//include/core:SkSurface_hdr",
         "//include/effects:SkBlenders_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
@@ -5766,6 +5774,7 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkM44_hdr",
+        "//include/core:SkStream_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl/codegen:SkSLVMCodeGenerator_hdr",
         "//src/sksl/ir:SkSLExternalFunction_hdr",
@@ -5812,6 +5821,7 @@ generated_cc_atom(
     srcs = ["SkSLTest.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":TestHarness_hdr",
         ":Test_hdr",
         "//gm:gm_hdr",
         "//include/core:SkBitmap_hdr",
@@ -6263,7 +6273,9 @@ generated_cc_atom(
     srcs = ["SurfaceTest.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":TestHarness_hdr",
         ":Test_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkOverdrawCanvas_hdr",
@@ -6379,6 +6391,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":TestUtils_hdr",
+        "//include/core:SkStream_hdr",
         "//include/encode:SkPngEncoder_hdr",
         "//include/utils:SkBase64_hdr",
         "//src/core:SkAutoPixmapStorage_hdr",
@@ -7049,4 +7062,17 @@ generated_cc_atom(
         "//include/core:SkSurface_hdr",
         "//include/gpu:GrDirectContext_hdr",
     ],
+)
+
+generated_cc_atom(
+    name = "TestHarness_hdr",
+    hdrs = ["TestHarness.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "TestHarness_src",
+    srcs = ["TestHarness.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":TestHarness_hdr"],
 )

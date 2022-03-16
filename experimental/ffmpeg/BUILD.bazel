@@ -13,8 +13,10 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkVideoDecoder_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
+        "//include/core:SkStream_hdr",
         "//include/core:SkYUVAPixmaps_hdr",
     ],
 )

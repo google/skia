@@ -1,6 +1,8 @@
-load("//bazel:macros.bzl", "generated_cc_atom")
+load("//bazel:macros.bzl", "enforce_iwyu_on_package", "generated_cc_atom")
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+enforce_iwyu_on_package()
 
 cc_binary(
     name = "bazel_test_exe",

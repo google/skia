@@ -38,22 +38,10 @@ generated_cc_atom(
     hdrs = ["PatchWriter.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":MiddleOutPolygonTriangulator_hdr",
         ":Tessellation_hdr",
         ":WangsFormula_hdr",
         "//include/private:SkColorData_hdr",
-        "//src/gpu:GrVertexChunkArray_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "PatchWriter_src",
-    srcs = ["PatchWriter.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":MiddleOutPolygonTriangulator_hdr",
-        ":PatchWriter_hdr",
-        ":PathTessellator_hdr",
-        ":StrokeTessellator_hdr",
     ],
 )
 
@@ -64,6 +52,7 @@ generated_cc_atom(
     deps = [
         ":PathTessellator_hdr",
         "//src/core:SkArenaAlloc_hdr",
+        "//src/gpu/geometry:GrInnerFanTriangulator_hdr",
     ],
 )
 
@@ -88,7 +77,6 @@ generated_cc_atom(
     hdrs = ["PathTessellator.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":PatchWriter_hdr",
         ":Tessellation_hdr",
         "//src/gpu:GrGpuBuffer_hdr",
         "//src/gpu:GrVertexChunkArray_hdr",
@@ -199,6 +187,7 @@ generated_cc_atom(
     hdrs = ["Tessellation.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkPoint_hdr",
         "//include/core:SkStrokeRec_hdr",
         "//include/gpu:GrTypes_hdr",
         "//include/private:SkVx_hdr",

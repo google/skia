@@ -118,6 +118,7 @@ generated_cc_atom(
         ":SkPDFUtils_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkData_hdr",
+        "//include/core:SkEncodedImageFormat_hdr",
         "//include/core:SkExecutor_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkStream_hdr",

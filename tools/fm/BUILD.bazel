@@ -27,6 +27,7 @@ generated_cc_atom(
         "//src/gpu:GrDirectContextPriv_hdr",
         "//src/gpu:GrGpu_hdr",
         "//src/utils:SkOSPath_hdr",
+        "//tests:TestHarness_hdr",
         "//tests:Test_hdr",
         "//tools:AutoreleasePool_hdr",
         "//tools:CrashHandler_hdr",

@@ -39,7 +39,7 @@ generated_cc_atom(
     hdrs = ["BackendSurfaceFactory.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkRefCnt_hdr",
         "//include/core:SkSize_hdr",
         "//include/gpu:GrTypes_hdr",
         "//include/private:SkColorData_hdr",
@@ -66,6 +66,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkColor_hdr",
+        "//include/core:SkImageInfo_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/gpu:GrTypes_hdr",
     ],

@@ -185,7 +185,6 @@ cc_library(
         "//src/gpu/ops:TessellationPathRenderer_src",
         "//src/gpu/ops:TextureOp_src",
         "//src/gpu/ops:TriangulatingPathRenderer_src",
-        "//src/gpu/tessellate:PatchWriter_src",
         "//src/gpu/tessellate:PathCurveTessellator_src",
         "//src/gpu/tessellate:PathWedgeTessellator_src",
         "//src/gpu/tessellate:StrokeFixedCountTessellator_src",
@@ -651,13 +650,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "GrBlend_hdr",
-    hdrs = ["GrBlend.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkTypes_hdr"],
-)
-
-generated_cc_atom(
     name = "GrBlurUtils_hdr",
     hdrs = ["GrBlurUtils.h"],
     visibility = ["//:__subpackages__"],
@@ -681,6 +673,7 @@ generated_cc_atom(
         ":GrThreadSafeCache_hdr",
         ":GrUtil_hdr",
         ":SkGr_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkPaint_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",
@@ -742,7 +735,7 @@ generated_cc_atom(
     hdrs = ["GrCaps.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":GrBlend_hdr",
+        ":Blend_hdr",
         ":GrSamplerState_hdr",
         ":GrShaderCaps_hdr",
         ":GrSurfaceProxy_hdr",
@@ -1095,6 +1088,7 @@ generated_cc_atom(
         ":SkGr_hdr",
         ":SurfaceContext_hdr",
         ":SurfaceFillContext_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/gpu:GrContextThreadSafeProxy_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//src/core:SkRuntimeEffectPriv_hdr",
@@ -2602,6 +2596,7 @@ generated_cc_atom(
         ":GrTextureProxy_hdr",
         ":SkGr_hdr",
         ":SurfaceContext_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/gpu/geometry:GrStyledShape_hdr",
@@ -3283,7 +3278,7 @@ generated_cc_atom(
     hdrs = ["GrXferProcessor.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":GrBlend_hdr",
+        ":Blend_hdr",
         ":GrNonAtomicRef_hdr",
         ":GrProcessorAnalysis_hdr",
         ":GrProcessor_hdr",
@@ -3341,7 +3336,7 @@ generated_cc_atom(
     hdrs = ["SkGr.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":GrBlend_hdr",
+        ":Blend_hdr",
         ":GrCaps_hdr",
         ":GrColor_hdr",
         ":GrSamplerState_hdr",
@@ -3538,4 +3533,11 @@ generated_cc_atom(
         ":Swizzle_hdr",
         "//src/core:SkRasterPipeline_hdr",
     ],
+)
+
+generated_cc_atom(
+    name = "Blend_hdr",
+    hdrs = ["Blend.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkTypes_hdr"],
 )

@@ -15,6 +15,7 @@ load(
     "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "action_config",
     "feature",
+    "feature_set",
     "flag_group",
     "flag_set",
     "tool",
@@ -30,6 +31,7 @@ def _clang_impl(ctx):
     features = []
     features += _make_default_flags()
     features += _make_diagnostic_flags()
+    features += _make_iwyu_flags()
 
     # https://docs.bazel.build/versions/main/skylark/lib/cc_common.html#create_cc_toolchain_config_info
     # Note, this rule is defined in Java code, not Starlark
@@ -326,6 +328,52 @@ def _make_diagnostic_flags():
             enabled = False,
             flag_sets = [
                 link_search_dirs,
+            ],
+        ),
+    ]
+
+def _make_iwyu_flags():
+    """Here we define the flags that signal whether or not to enforce IWYU."""
+
+    # https://bazel.build/docs/cc-toolchain-config-reference#features
+    opt_file_into_iwyu = flag_set(
+        actions = [
+            ACTION_NAMES.c_compile,
+            ACTION_NAMES.cpp_compile,
+        ],
+        flag_groups = [
+            flag_group(
+                flags = [
+                    # This define does not impact compilation, but it acts as a signal to the
+                    # clang_trampoline.sh whether check the file with include-what-you-use
+                    # A define was chosen because it is ignored by clang and IWYU, but can be
+                    # easily found with bash.
+                    "-DSKIA_ENFORCE_IWYU_FOR_THIS_FILE",
+                ],
+            ),
+        ],
+    )
+
+    return [
+        feature(
+            # The IWYU checks can add some overhead to the build (1-5 seconds per file), so we only
+            # want to run them sometimes. By adding --feature skia_enforce_iwyu to the Bazel
+            # command, this will turn on the checking (for all files that have not been opted-out).
+            "skia_enforce_iwyu",
+            enabled = False,
+        ),
+        feature(
+            "skia_opt_file_into_iwyu",
+            enabled = False,
+            flag_sets = [
+                opt_file_into_iwyu,
+            ],
+            # If the skia_enforce_iwyu features is not enabled (e.g. globally via a CLI flag), we
+            # will not run the IWYU analysis on any files.
+            requires = [
+                feature_set(features = [
+                    "skia_enforce_iwyu",
+                ]),
             ],
         ),
     ]

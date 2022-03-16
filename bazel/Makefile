@@ -17,8 +17,8 @@ gazelle_update_repo:
 
 # Run this target to test all known working Bazel builds
 known_good_builds:
-	bazelisk build //experimental/bazel_test/... --config=clang
-	bazelisk run //experimental/bazel_test:bazel_test_exe --config=clang
+	bazelisk build //experimental/bazel_test/... --config=clang --sandbox_base=/dev/shm --features skia_enforce_iwyu
+	bazelisk run //experimental/bazel_test:bazel_test_exe --config=clang --sandbox_base=/dev/shm
 	bazelisk build //:skia_core --config=clang --sandbox_base=/dev/shm
 	bazelisk build //src/sksl/lex:sksllex --config=clang --sandbox_base=/dev/shm
 	bazelisk build //tools/skdiff --config=clang --sandbox_base=/dev/shm

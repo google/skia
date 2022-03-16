@@ -302,6 +302,7 @@ generated_cc_atom(
     deps = [
         ":GrMatrixConvolutionEffect_hdr",
         ":GrTextureEffect_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/private:SkHalf_hdr",
         "//src/gpu:GrDirectContextPriv_hdr",
         "//src/gpu:GrProxyProvider_hdr",
@@ -405,7 +406,7 @@ generated_cc_atom(
         "//include/gpu:GrTypes_hdr",
         "//include/private:SkMacros_hdr",
         "//include/private:SkTo_hdr",
-        "//src/gpu:GrBlend_hdr",
+        "//src/gpu:Blend_hdr",
         "//src/gpu:GrCaps_hdr",
         "//src/gpu:GrPipeline_hdr",
         "//src/gpu:GrProcessorAnalysis_hdr",

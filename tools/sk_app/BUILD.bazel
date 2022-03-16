@@ -52,27 +52,38 @@ cc_library(
 generated_cc_atom(
     name = "Application_hdr",
     hdrs = ["Application.h"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
 )
 
 generated_cc_atom(
     name = "CommandSet_hdr",
     hdrs = ["CommandSet.h"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
-        ":Window_hdr",
         "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTArray_hdr",
+        "//tools/skui:InputState_hdr",
+        "//tools/skui:Key_hdr",
+        "//tools/skui:ModifierKey_hdr",
     ],
 )
 
 generated_cc_atom(
     name = "CommandSet_src",
     srcs = ["CommandSet.cpp"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
         ":CommandSet_hdr",
+        ":Window_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkFontTypes_hdr",
         "//include/core:SkFont_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkScalar_hdr",
         "//src/core:SkStringUtils_hdr",
     ],
 )

@@ -268,6 +268,7 @@ generated_cc_atom(
         "//include/core:SkFontMgr_hdr",
         "//include/core:SkTypeface_hdr",
         "//include/core:SkTypes_hdr",
+        "//include/private:SkMutex_hdr",
         "//src/core:SkGlyph_hdr",
         "//src/core:SkScalerContext_hdr",
         "//src/core:SkSharedMutex_hdr",
@@ -1044,6 +1045,7 @@ generated_cc_atom(
         ":SkTypeface_win_dw_hdr",
         "//include/core:SkScalar_hdr",
         "//include/core:SkTypes_hdr",
+        "//include/private:SkTDArray_hdr",
         "//src/core:SkScalerContext_hdr",
     ],
 )
@@ -1057,6 +1059,7 @@ generated_cc_atom(
         ":SkTypeface_win_dw_hdr",
         "//include/codec:SkCodec_hdr",
         "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
         "//include/core:SkDrawable_hdr",
         "//include/core:SkFontMetrics_hdr",
         "//include/core:SkPath_hdr",

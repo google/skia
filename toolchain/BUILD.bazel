@@ -18,6 +18,7 @@ filegroup(name = "not_implemented")
 filegroup(
     name = "all-toolchain-files",
     srcs = [
+        "IWYU_mapping.imp",
         "ar_trampoline.sh",
         "clang_trampoline.sh",
         "lld_trampoline.sh",

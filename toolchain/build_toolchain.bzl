@@ -99,6 +99,13 @@ debs_to_install = [
         "sha256": "80a2413ace2a0a073f2472059b9e589737cbf8a336fb6862684a5811bf640aa3",
         "url": "https://ftp.debian.org/debian/pool/main/libx/libx11/libx11-xcb-dev_1.7.2-1_amd64.deb",
     },
+    # This is used to make sure we include only the headers we need. This corresponds to
+    # IWYU version 0.17, which uses Clang 13, like we compile with.
+    {
+        # From https://packages.debian.org/sid/amd64/iwyu/download
+        "sha256": "9fd6932a7609e89364f7edc5f9613892c98c21c88a3931e51cf1a0f8744759bd",
+        "url": "https://ftp.debian.org/debian/pool/main/i/iwyu/iwyu_8.17-1_amd64.deb",
+    },
 ]
 
 def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):

@@ -4428,6 +4428,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":gm_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkFont_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
         "//src/core:SkCanvasPriv_hdr",
@@ -4448,6 +4449,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":gm_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkImageInfo_hdr",
@@ -4837,6 +4839,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":gm_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPaint_hdr",
@@ -5865,6 +5868,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":gm_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkPaint_hdr",
         "//include/core:SkRect_hdr",
@@ -7633,6 +7637,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":gm_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkPaint_hdr",
@@ -8556,6 +8561,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":gm_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkMatrix_hdr",
@@ -9244,6 +9250,7 @@ generated_cc_atom(
         "//include/core:SkPaint_hdr",
         "//include/core:SkPath_hdr",
         "//include/core:SkSize_hdr",
+        "//include/core:SkStream_hdr",
         "//include/core:SkString_hdr",
         "//include/core:SkTextBlob_hdr",
         "//include/utils:SkCustomTypeface_hdr",
@@ -9586,6 +9593,7 @@ generated_cc_atom(
         "//include/core:SkCanvas_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPixmap_hdr",
+        "//include/core:SkStream_hdr",
         "//include/core:SkSurface_hdr",
         "//include/encode:SkJpegEncoder_hdr",
         "//include/gpu:GrRecordingContext_hdr",

@@ -41,6 +41,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//experimental/graphite/src:TextureProxyView_hdr",
+        "//include/core:SkData_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkSurface_hdr",
         "//include/private:SkTDArray_hdr",
@@ -111,6 +112,7 @@ generated_cc_atom(
     deps = [
         ":SkImage_GpuYUVA_hdr",
         ":SkImage_Gpu_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkYUVAPixmaps_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",

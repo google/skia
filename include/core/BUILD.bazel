@@ -140,6 +140,7 @@ generated_cc_atom(
     hdrs = ["SkColor.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":SkAlphaType_hdr",
         ":SkImageInfo_hdr",
         ":SkScalar_hdr",
         ":SkTypes_hdr",
@@ -391,7 +392,9 @@ generated_cc_atom(
     hdrs = ["SkImageInfo.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":SkAlphaType_hdr",
         ":SkColorSpace_hdr",
+        ":SkColorType_hdr",
         ":SkMath_hdr",
         ":SkRect_hdr",
         ":SkSize_hdr",
@@ -405,7 +408,6 @@ generated_cc_atom(
     hdrs = ["SkImage.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkImageEncoder_hdr",
         ":SkImageInfo_hdr",
         ":SkRefCnt_hdr",
         ":SkSamplingOptions_hdr",
@@ -505,6 +507,7 @@ generated_cc_atom(
         ":SkMatrix_hdr",
         ":SkPathTypes_hdr",
         ":SkPath_hdr",
+        ":SkRefCnt_hdr",
         "//include/private:SkTDArray_hdr",
     ],
 )
@@ -545,7 +548,7 @@ generated_cc_atom(
     deps = [
         ":SkMatrix_hdr",
         ":SkPathTypes_hdr",
-        "//include/private:SkPathRef_hdr",
+        ":SkRefCnt_hdr",
         "//include/private:SkTo_hdr",
     ],
 )
@@ -941,4 +944,17 @@ generated_cc_atom(
         ":SkString_hdr",
         ":SkTypes_hdr",
     ],
+)
+
+generated_cc_atom(
+    name = "SkAlphaType_hdr",
+    hdrs = ["SkAlphaType.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkColorType_hdr",
+    hdrs = ["SkColorType.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkTypes_hdr"],
 )

@@ -9,7 +9,11 @@
 #define CommandSet_DEFINED
 
 #include "include/core/SkString.h"
-#include "tools/sk_app/Window.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "tools/skui/InputState.h"
+#include "tools/skui/Key.h"
+#include "tools/skui/ModifierKey.h"
 
 #include <functional>
 #include <vector>
@@ -17,6 +21,7 @@
 class SkCanvas;
 
 namespace sk_app {
+class Window;
 
 /**
  * Helper class used by applications that want to hook keypresses to trigger events.

@@ -437,8 +437,8 @@ generated_cc_atom(
     hdrs = ["SkPatchUtils.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/core:SkMatrix_hdr",
-        "//include/private:SkColorData_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkRefCnt_hdr",
     ],
 )
 

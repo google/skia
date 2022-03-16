@@ -50,11 +50,14 @@ def select_multi(values_map, default, name = ""):
         })
     return rv
 
-def generated_cc_atom(name, **kwargs):
+def generated_cc_atom(name, enforce_iwyu = False, **kwargs):
     """A self-annotating label for a generated cc_library for exactly one file.
 
     Args:
         name: string, the name of the cc_library
+        enforce_iwyu: boolean, if true, this file will fail to compile if the headers to not comply
+            with the include-what-you-use standards. This does not affect dependencies nor
+            dependents, only the file listed in srcs/hdrs.
         **kwargs: All other arguments are passed verbatim to cc_library
     """
     if len(kwargs.get("srcs", [])) > 1 or len(kwargs.get("hdrs", [])) > 1:
@@ -66,7 +69,16 @@ def generated_cc_atom(name, **kwargs):
     deps = kwargs.get("deps", [])
     deps.append("//bazel:defines_from_flags")
     kwargs["deps"] = deps
+
+    features = kwargs.get("features", [])
+    if enforce_iwyu:
+        features.append("skia_opt_file_into_iwyu")
     native.cc_library(
         name = name,
+        features = features,
         **kwargs
     )
+
+def enforce_iwyu_on_package():
+    """A self-annotating macro to set force_iwyu = True on all rules in this package."""
+    native.package(features = ["skia_opt_file_into_iwyu"])

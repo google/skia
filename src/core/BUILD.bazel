@@ -269,6 +269,7 @@ generated_cc_atom(
         "//include/core:SkPath_hdr",
         "//include/private:SkColorData_hdr",
         "//include/private:SkMacros_hdr",
+        "//include/private:SkTDArray_hdr",
         "//include/private:SkTo_hdr",
     ],
 )
@@ -688,7 +689,6 @@ generated_cc_atom(
         ":SkArenaAlloc_hdr",
         ":SkVM_hdr",
         "//include/core:SkBlender_hdr",
-        "//include/core:SkColorSpace_hdr",
     ],
 )
 
@@ -1013,6 +1013,7 @@ generated_cc_atom(
         ":SkTextFormatParams_hdr",
         ":SkTraceEvent_hdr",
         ":SkVerticesPriv_hdr",
+        "//experimental/graphite/src:Device_hdr",
         "//include/core:SkBlender_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColorFilter_hdr",
@@ -2136,6 +2137,7 @@ generated_cc_atom(
         ":SkStrikeForGPU_hdr",
         ":SkStrikeSpec_hdr",
         ":SkTraceEvent_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/core:SkColorFilter_hdr",
         "//include/core:SkMaskFilter_hdr",
         "//include/core:SkPathEffect_hdr",
@@ -3008,7 +3010,7 @@ generated_cc_atom(
         "//include/core:SkString_hdr",
         "//include/private:SkColorData_hdr",
         "//include/utils:SkRandom_hdr",
-        "//src/gpu:GrBlend_hdr",
+        "//src/gpu:Blend_hdr",
         "//src/gpu:GrFragmentProcessor_hdr",
         "//src/gpu:SkGr_hdr",
         "//src/gpu/effects:GrBlendFragmentProcessor_hdr",
@@ -3254,7 +3256,9 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkPathBuilder_hdr",
+        "//include/core:SkRefCnt_hdr",
         "//include/private:SkIDChangeListener_hdr",
+        "//include/private:SkPathRef_hdr",
     ],
 )
 
@@ -3868,6 +3872,7 @@ generated_cc_atom(
         ":SkRecordDraw_hdr",
         "//include/core:SkBBHFactory_hdr",
         "//include/core:SkImage_hdr",
+        "//include/private:SkTDArray_hdr",
         "//src/utils:SkPatchUtils_hdr",
     ],
 )
@@ -5206,6 +5211,7 @@ generated_cc_atom(
     deps = [
         ":SkVM_fwd_hdr",
         "//include/core:SkBlendMode_hdr",
+        "//include/core:SkColorType_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkSpan_hdr",
         "//include/private:SkMacros_hdr",
@@ -5572,6 +5578,7 @@ generated_cc_atom(
         "//include/core:SkBlendMode_hdr",
         "//include/core:SkShader_hdr",
         "//include/core:SkTileMode_hdr",
+        "//include/private:SkColorData_hdr",
     ],
 )
 
@@ -5583,8 +5590,8 @@ generated_cc_atom(
         ":SkDebugUtils_hdr",
         ":SkKeyHelpers_hdr",
         ":SkPaintParamsKey_hdr",
+        ":SkPipelineData_hdr",
         ":SkShaderCodeDictionary_hdr",
-        ":SkUniformData_hdr",
         ":SkUniform_hdr",
         "//experimental/graphite/src:UniformManager_hdr",
         "//src/shaders:SkShaderBase_hdr",
@@ -5635,10 +5642,7 @@ generated_cc_atom(
     name = "SkUniformData_src",
     srcs = ["SkUniformData.cpp"],
     visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkOpts_hdr",
-        ":SkUniformData_hdr",
-    ],
+    deps = [":SkUniformData_hdr"],
 )
 
 generated_cc_atom(
@@ -5674,9 +5678,32 @@ generated_cc_atom(
     deps = [
         ":SkArenaAlloc_hdr",
         ":SkPaintParamsKey_hdr",
+        ":SkPipelineData_hdr",
         ":SkUniform_hdr",
         "//include/core:SkSpan_hdr",
         "//include/private:SkSpinlock_hdr",
         "//include/private:SkUniquePaintParamsID_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPipelineData_hdr",
+    hdrs = ["SkPipelineData.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkUniformData_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/private:SkColorData_hdr",
+        "//src/gpu:Blend_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPipelineData_src",
+    srcs = ["SkPipelineData.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpts_hdr",
+        ":SkPipelineData_hdr",
     ],
 )

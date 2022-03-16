@@ -969,6 +969,7 @@ generated_cc_atom(
     deps = [
         ":GrSimpleMeshDrawOpHelper_hdr",
         ":ShadowRRectOp_hdr",
+        "//include/core:SkBitmap_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/core:SkRRectPriv_hdr",
         "//src/gpu:GrDrawOpTest_hdr",

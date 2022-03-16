@@ -226,6 +226,7 @@ generated_cc_atom(
         ":Viewer_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkFont_hdr",
+        "//include/core:SkStream_hdr",
         "//include/effects:SkGradientShader_hdr",
         "//include/effects:SkPerlinNoiseShader_hdr",
         "//include/sksl:SkSLDebugTrace_hdr",
@@ -483,5 +484,6 @@ generated_cc_atom(
         ":SkSLDebuggerSlide_hdr",
         ":Viewer_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkStream_hdr",
     ],
 )
