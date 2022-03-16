@@ -20,6 +20,11 @@ public class SkQP {
 
     protected String[] mUnitTests;
 
+    // These arrays are intended to be a matching set.
+    // mSkSLErrorTestName[n] holds a name; mSkSLErrorTestShader[n] has the associated shader text.
+    protected String[] mSkSLErrorTestName;
+    protected String[] mSkSLErrorTestShader;
+
     protected static final String kSkiaGM = "skqp_";
     protected static final String kSkiaUnitTests = "skqp_unitTest";
     protected static final String LOG_PREFIX = "org.skia.skqp";
