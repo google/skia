@@ -34,7 +34,7 @@ installed with `depot_tools`.
     # or
     # fetch skia
     cd skia
-    python2 tools/git-sync-deps
+    python3 tools/git-sync-deps
 
 ## Getting started with Skia
 
