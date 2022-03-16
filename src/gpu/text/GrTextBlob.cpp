@@ -576,7 +576,10 @@ std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buf
     SkBulkGlyphMetricsAndPaths pathGetter{std::move(strike)};
 
     for (auto [i, glyphID] : SkMakeEnumerate(SkMakeSpan(glyphIDs, glyphCount))) {
-        paths[i] = *pathGetter.glyph(glyphID)->path();
+        const SkPath* path = pathGetter.glyph(glyphID)->path();
+        // There should never be missing paths in a sub run.
+        if (path == nullptr) { return {}; }
+        paths[i] = *path;
     }
 
     SkASSERT(buffer.isValid());
