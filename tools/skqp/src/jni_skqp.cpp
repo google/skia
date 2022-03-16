@@ -105,10 +105,10 @@ static void set_string_array_element(JNIEnv* env, jobjectArray a, const char* s,
 template <typename T, typename F>
 static jobjectArray to_java_string_array(JNIEnv* env,
                                          const std::vector<T>& array,
-                                         F toString) {
+                                         F stringizeFn) {
     jobjectArray jarray = make_java_string_array(env, (jint)array.size());
-    for (unsigned i = 0; i < array.size(); ++i) {
-        set_string_array_element(env, jarray, std::string(toString(array[i])).c_str(), i);
+    for (size_t i = 0; i < array.size(); ++i) {
+        set_string_array_element(env, jarray, stringizeFn(array[i]), i);
     }
     return jarray;
 }
@@ -119,6 +119,14 @@ static std::string to_string(JNIEnv* env, jstring jString) {
     std::string sString(utf8String);
     env->ReleaseStringUTFChars(jString, utf8String);
     return sString;
+}
+
+static const char* get_sksl_error_name(const SkQP::SkSLErrorTest& t) {
+    return t.name.c_str();
+}
+
+static const char* get_sksl_error_shader_text(const SkQP::SkSLErrorTest& t) {
+    return t.shaderText.c_str();
 }
 
 void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetManager,
@@ -139,10 +147,18 @@ void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetMan
     gSkQP.init(&gAndroidAssetManager, reportDirectory.c_str());
 
     const std::vector<SkQP::UnitTest>& unitTests = gSkQP.getUnitTests();
+    const std::vector<SkQP::SkSLErrorTest>& skslErrorTests = gSkQP.getSkSLErrorTests();
 
     constexpr char kStringArrayType[] = "[Ljava/lang/String;";
-    env->SetObjectField(object, env->GetFieldID(SkQP_class, "mUnitTests", kStringArrayType),
-                        to_java_string_array(env, unitTests, SkQP::GetUnitTestName));
+    env->SetObjectField(object,
+                        env->GetFieldID(SkQP_class, "mUnitTests", kStringArrayType),
+                        to_java_string_array(env, unitTests, &SkQP::GetUnitTestName));
+    env->SetObjectField(object,
+                        env->GetFieldID(SkQP_class, "mSkSLErrorTestName", kStringArrayType),
+                        to_java_string_array(env, skslErrorTests, get_sksl_error_name));
+    env->SetObjectField(object,
+                        env->GetFieldID(SkQP_class, "mSkSLErrorTestShader", kStringArrayType),
+                        to_java_string_array(env, skslErrorTests, get_sksl_error_shader_text));
 }
 
 jobjectArray Java_org_skia_skqp_SkQP_nExecuteUnitTest(JNIEnv* env,
