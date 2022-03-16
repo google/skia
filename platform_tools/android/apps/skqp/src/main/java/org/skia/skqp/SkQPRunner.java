@@ -27,10 +27,8 @@ import org.junit.runner.notification.RunNotifier;
 
 @RunWith(SkQPRunner.class)
 public class SkQPRunner extends Runner implements Filterable {
-    private int mShouldRunTestCount;
-    private Description[] mTests;
-    private Description mDescription;
-    private boolean[] mShouldSkipTest;
+    private Description[] mUnitTestDesc;
+    private Description mSuiteDesc;
     private String mOutputDirectory;
     private SkQP mImpl;
     private static final String TAG = SkQP.LOG_PREFIX;
@@ -53,58 +51,57 @@ public class SkQPRunner extends Runner implements Filterable {
         AssetManager assetManager = context.getResources().getAssets();
         mImpl.nInit(assetManager, mOutputDirectory);
 
-        int totalCount = mImpl.mUnitTests.length;
-        mTests = new Description[totalCount];
-        mShouldSkipTest = new boolean[totalCount]; // = {false, false, ....};
-        int index = 0;
-        for (int unitTest = 0; unitTest < mImpl.mUnitTests.length; unitTest++) {
-            mTests[index++] = Description.createTestDescription(SkQPRunner.class,
-                    "unitTest_" + mImpl.mUnitTests[unitTest]);
+        mUnitTestDesc = new Description[mImpl.mUnitTests.length];
+        for (int index = 0; index < mImpl.mUnitTests.length; ++index) {
+            mUnitTestDesc[index] = Description.createTestDescription(
+                    SkQPRunner.class, "unitTest_" + mImpl.mUnitTests[index]);
         }
-        assert(index == totalCount);
-        this.updateDescription(null);
+
+        this.applyFilter(null);
     }
 
-    private void updateDescription(Filter filter) {
-        mShouldRunTestCount = 0;
-        mDescription = Description.createSuiteDescription(SkQP.class);
-        assert(mTests.length == mShouldSkipTest.length);
-        for (int i = 0; i < mTests.length; ++i) {
-            boolean doRunTest = filter != null ? filter.shouldRun(mTests[i]) : true;
-            mShouldSkipTest[i] = !doRunTest;
-            if (doRunTest) {
-                mDescription.addChild(mTests[i]);
-                ++mShouldRunTestCount;
+    private void applyFilter(Filter filter) {
+        mSuiteDesc = Description.createSuiteDescription(SkQP.class);
+        addFilteredTestsToSuite(mUnitTestDesc, filter);
+    }
+
+    private void addFilteredTestsToSuite(Description[] tests, Filter filter) {
+        for (int i = 0; i < tests.length; ++i) {
+            if (filter == null || filter.shouldRun(tests[i])) {
+                mSuiteDesc.addChild(tests[i]);
+            } else {
+                tests[i] = Description.EMPTY;
             }
         }
     }
 
     @Override
     public void filter(Filter filter) throws NoTestsRemainException {
-        this.updateDescription(filter);
-        if (0 == mShouldRunTestCount) {
+        this.applyFilter(filter);
+        if (mSuiteDesc.isEmpty()) {
             throw new NoTestsRemainException();
         }
     }
 
     @Override
     public Description getDescription() {
-        return mDescription;
+        return mSuiteDesc;
     }
 
     @Override
     public void run(RunNotifier notifier) {
         int testNumber = 0;  // out of number of actually run tests.
-        int testIndex = 0;  // out of potential tests.
-        for (int unitTest = 0; unitTest < mImpl.mUnitTests.length; unitTest++, testIndex++) {
-            Description desc = mTests[testIndex];
-            String name = desc.getMethodName();
-            if (mShouldSkipTest[testIndex]) {
+        for (int index = 0; index < mUnitTestDesc.length; index++) {
+            Description desc = mUnitTestDesc[index];
+            if (desc.isEmpty()) {
+                // This test was filtered out and can be skipped.
                 continue;
             }
+
+            String name = desc.getMethodName();
             ++testNumber;
             notifier.fireTestStarted(desc);
-            String[] errors = mImpl.nExecuteUnitTest(unitTest);
+            String[] errors = mImpl.nExecuteUnitTest(index);
             String result = "pass";
             if (errors != null && errors.length > 0) {
                 Log.w(TAG, String.format("[FAIL] Test '%s' had %d failures.", name, errors.length));
@@ -116,7 +113,7 @@ public class SkQPRunner extends Runner implements Filterable {
             }
             notifier.fireTestFinished(desc);
             Log.i(TAG, String.format("Test '%s' complete (%d/%d). [%s]",
-                                     name, testNumber, mShouldRunTestCount, result));
+                                     name, testNumber, mSuiteDesc.testCount(), result));
         }
         mImpl.nMakeReport();
         Log.i(TAG, String.format("output written to \"%s\"", mOutputDirectory));
