@@ -254,13 +254,13 @@ std::unique_ptr<Program> DSLParser::program() {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
     Start(&fCompiler, fKind, fSettings);
     SetErrorReporter(errorReporter);
-    errorReporter->setSource(fText->c_str());
+    errorReporter->setSource(*fText);
     this->declarations();
     std::unique_ptr<Program> result;
     if (!GetErrorReporter().errorCount()) {
         result = dsl::ReleaseProgram(std::move(fText));
     }
-    errorReporter->setSource(nullptr);
+    errorReporter->setSource(std::string_view());
     End();
     return result;
 }
@@ -269,12 +269,12 @@ SkSL::LoadedModule DSLParser::moduleInheritingFrom(SkSL::ParsedModule baseModule
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
     StartModule(&fCompiler, fKind, fSettings, std::move(baseModule));
     SetErrorReporter(errorReporter);
-    errorReporter->setSource(fText->c_str());
+    errorReporter->setSource(*fText);
     this->declarations();
     CurrentSymbolTable()->takeOwnershipOfString(std::move(*fText));
     SkSL::LoadedModule result{ fKind, CurrentSymbolTable(),
             std::move(ThreadContext::ProgramElements()) };
-    errorReporter->setSource(nullptr);
+    errorReporter->setSource(std::string_view());
     End();
     return result;
 }

@@ -670,7 +670,7 @@ size_t SkVMGenerator::createSlot(const std::string& name,
 // TODO(skia:13058): remove this and track positions directly
 int SkVMGenerator::getLine(Position pos) {
     if (pos.valid()) {
-        return pos.line(fProgram.fSource->c_str());
+        return pos.line(*fProgram.fSource);
     } else {
         return -1;
     }

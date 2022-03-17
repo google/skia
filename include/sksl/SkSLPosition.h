@@ -8,6 +8,10 @@
 #ifndef SKSL_POSITION
 #define SKSL_POSITION
 
+#include "include/core/SkTypes.h"
+#include <cinttypes>
+#include <string>
+
 #ifndef __has_builtin
     #define __has_builtin(x) 0
 #endif
@@ -53,20 +57,7 @@ public:
         return fStartOffsetOrLine != -1;
     }
 
-    int line(const char* source = nullptr) const {
-        SkASSERT(this->valid());
-        if (fEndOffset == -1) {
-            return fStartOffsetOrLine;
-        }
-        SkASSERT(source);
-        int line = 1;
-        for (int i = 0; i < fStartOffsetOrLine; i++) {
-            if (source[i] == '\n') {
-                ++line;
-            }
-        }
-        return line;
-    }
+    int line(std::string_view source = std::string_view()) const;
 
     int startOffset() const {
         SkASSERT(fEndOffset != -1);
