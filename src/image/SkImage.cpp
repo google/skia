@@ -457,14 +457,14 @@ GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
 
 #ifdef SK_GRAPHITE_ENABLED
 std::tuple<skgpu::TextureProxyView, SkColorType> SkImage_Base::asView(
-        skgpu::Recorder* recorder, skgpu::Mipmapped mipmapped) const {
+        skgpu::Recorder* recorder, skgpu::Mipmapped mipmapped, SkBudgeted budgeted) const {
     if (!recorder) {
         return {};
     }
     if (this->dimensions().area() <= 1) {
         mipmapped = skgpu::Mipmapped::kNo;
     }
-    return this->onAsView(recorder, mipmapped);
+    return this->onAsView(recorder, mipmapped, budgeted);
 }
 #endif // SK_GRAPHITE_ENABLED
 

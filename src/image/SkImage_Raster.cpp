@@ -153,12 +153,11 @@ private:
                                                                const SkMatrix&,
                                                                const SkRect*,
                                                                const SkRect*) const override;
+#endif
 #ifdef SK_GRAPHITE_ENABLED
     std::tuple<skgpu::TextureProxyView, SkColorType> onAsView(skgpu::Recorder*,
-                                                              skgpu::Mipmapped) const override {
-        return {}; // TODO
-    }
-#endif
+                                                              skgpu::Mipmapped,
+                                                              SkBudgeted) const override;
 #endif
 
     SkBitmap fBitmap;
@@ -473,4 +472,13 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Raster::onAsFragmentProcessor(
                                          subset,
                                          domain);
 }
+#endif
+
+#ifdef SK_GRAPHITE_ENABLED
+std::tuple<skgpu::TextureProxyView, SkColorType> SkImage_Raster::onAsView(
+        skgpu::Recorder*,
+        skgpu::Mipmapped,
+        SkBudgeted) const {
+        return {}; // TODO
+    }
 #endif

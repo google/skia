@@ -396,7 +396,9 @@ void SkImageShader::addToKey(const SkKeyContext& keyContext,
 
         auto mipmapped = (fSampling.mipmap != SkMipmapMode::kNone) ? skgpu::Mipmapped::kYes
                                                                    : skgpu::Mipmapped::kNo;
-        auto[view, ct] = grImage->asView(keyContext.recorder(), mipmapped);
+        // TODO: In practice which SkBudgeted value used shouldn't matter because we're not going
+        // to create a new texture here. But should the SkImage know its SkBudgeted state?
+        auto[view, ct] = grImage->asView(keyContext.recorder(), mipmapped, SkBudgeted::kNo);
         imgData.fTextureProxy = view.refProxy();
     }
 #endif
