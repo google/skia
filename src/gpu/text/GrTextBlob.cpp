@@ -3025,9 +3025,10 @@ sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* c
     buffer.readMatrix(&positionMatrix);
     SkPoint origin = buffer.readPoint();
     int subRunCount = buffer.readInt();
-    SkASSERT(subRunCount != 0);
-    if (!buffer.validate(subRunCount != 0)) { return nullptr; }
+    SkASSERT(subRunCount > 0);
+    if (!buffer.validate(subRunCount > 0)) { return nullptr; }
     int subRunsUnflattenSizeHint = buffer.readInt();
+    if (!buffer.validate(subRunsUnflattenSizeHint >= 0)) { return nullptr; }
 
     sk_sp<Slug> slug{new (::operator new (sizeof(Slug) + subRunsUnflattenSizeHint))
                              Slug(sourceBounds,
