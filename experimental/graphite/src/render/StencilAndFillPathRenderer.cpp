@@ -315,7 +315,7 @@ public:
             float4 devPosition = float4(localcoord.xy, 0.0, 1.0);)";
     }
 
-    void writeVertices(DrawWriter* w,
+    void writeVertices(DrawWriter* dw,
                        const SkIRect& bounds,
                        const Transform& localToDevice,
                        const Shape& shape) const override {
@@ -323,18 +323,18 @@ public:
         static constexpr int kMaxTessellationSegments = 1 << PathTessellator::kMaxFixedResolveLevel;
         SkPath path = shape.asPath(); // TODO: Iterate the Shape directly
 
-        BindBufferInfo fixedVertexBuffer = w->bufferManager()->getStaticBuffer(
+        BindBufferInfo fixedVertexBuffer = dw->bufferManager()->getStaticBuffer(
                 BufferType::kVertex,
                 PathCurveTessellator::WriteFixedVertexBuffer,
                 FixedVertexBufferSize);
-        BindBufferInfo fixedIndexBuffer = w->bufferManager()->getStaticBuffer(
+        BindBufferInfo fixedIndexBuffer = dw->bufferManager()->getStaticBuffer(
                 BufferType::kIndex,
                 PathCurveTessellator::WriteFixedIndexBuffer,
                 FixedIndexBufferSize);
 
         int patchReserveCount = PathCurveTessellator::PatchPreallocCount(path.countVerbs());
         Writer writer{kAttribs, kMaxTessellationSegments,
-                      *w, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
+                      *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
 
         // TODO: Is it better to pre-transform on the CPU and only have a matrix uniform to compute
         // local coords, or is it better to always transform on the GPU (less CPU usage, more
