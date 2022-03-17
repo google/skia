@@ -77,10 +77,13 @@ void GrBagOfBytes::needMoreBytes(int requestedSize, int alignment) {
 
 // -- GrSubRunAllocator ----------------------------------------------------------------------------
 GrSubRunAllocator::GrSubRunAllocator(char* bytes, int size, int firstHeapAllocation)
-        : fAlloc{bytes, SkTo<size_t>(size), SkTo<size_t>(firstHeapAllocation)} {}
+        : fAlloc{bytes, SkTo<size_t>(size), SkTo<size_t>(firstHeapAllocation)} {
+                  SkASSERT_RELEASE(SkTFitsIn<size_t>(size));
+                  SkASSERT_RELEASE(SkTFitsIn<size_t>(firstHeapAllocation));
+}
 
 GrSubRunAllocator::GrSubRunAllocator(int firstHeapAllocation)
-        : GrSubRunAllocator(nullptr, 0, firstHeapAllocation) {}
+        : GrSubRunAllocator(nullptr, 0, firstHeapAllocation) { }
 
 void* GrSubRunAllocator::alignedBytes(int unsafeSize, int unsafeAlignment) {
     return fAlloc.alignedBytes(unsafeSize, unsafeAlignment);
