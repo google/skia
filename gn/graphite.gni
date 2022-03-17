@@ -108,6 +108,7 @@ skia_graphite_sources = [
   "$_src/geom/Transform.cpp",
   "$_src/geom/Transform_graphite.h",
   "$_src/geom/VectorTypes.h",
+  "$_src/render/StencilAndCoverDSS.h",
   "$_src/render/StencilAndFillPathRenderer.cpp",
 ]
 

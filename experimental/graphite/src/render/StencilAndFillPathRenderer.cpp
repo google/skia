@@ -11,6 +11,7 @@
 #include "experimental/graphite/src/UniformManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
+#include "experimental/graphite/src/render/StencilAndCoverDSS.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "src/core/SkUniformData.h"
@@ -25,119 +26,13 @@ namespace skgpu {
 
 namespace {
 
-// TODO: These settings are actually shared by tessellating path renderers, so will be exposed later
-
-// Returns the stencil settings to use for a standard Redbook "stencil" pass.
-constexpr DepthStencilSettings fillrule_settings(bool evenOdd) {
-    // Increments clockwise triangles and decrements counterclockwise. Used for "winding" fill.
-    constexpr DepthStencilSettings::Face kIncCW = {
-        /*stencilFail=*/   StencilOp::kKeep,
-        /*depthFail=*/     StencilOp::kKeep,
-        /*dsPass=*/        StencilOp::kIncWrap,
-        /*stencilCompare=*/CompareOp::kAlways,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0xffffffff
-    };
-    constexpr DepthStencilSettings::Face kDecCCW = {
-        /*stencilFail=*/   StencilOp::kKeep,
-        /*depthFail=*/     StencilOp::kKeep,
-        /*dsPass=*/        StencilOp::kDecWrap,
-        /*stencilCompare=*/CompareOp::kAlways,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0xffffffff
-    };
-
-    // Toggles the bottom stencil bit. Used for "even-odd" fill.
-    constexpr DepthStencilSettings::Face kToggle = {
-        /*stencilFail=*/   StencilOp::kKeep,
-        /*depthFail=*/     StencilOp::kKeep,
-        /*dsPass=*/        StencilOp::kInvert,
-        /*stencilCompare=*/CompareOp::kAlways,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0x00000001
-    };
-
-    // Always use ref = 0, disable depths, but still use greater depth test.
-    constexpr DepthStencilSettings kWindingFill = {
-        /*frontStencil=*/kIncCW,
-        /*backStencil=*/ kDecCCW,
-        /*refValue=*/    0,
-        /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kAlways, // kGreater once steps know the right depth value
-        /*depthTest=*/   true,
-        /*depthWrite=*/  false
-    };
-    constexpr DepthStencilSettings kEvenOddFill = {
-        /*frontStencil=*/kToggle,
-        /*backStencil=*/ kToggle,
-        /*refValue=*/    0,
-        /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kAlways, // kGreater once steps know the right depth value
-        /*depthTest=*/   true,
-        /*depthWrite=*/  false
-    };
-
-    return evenOdd ? kEvenOddFill : kWindingFill;
-}
-
-// Returns the stencil settings to use for a standard Redbook "fill" pass. Allows non-zero
-// stencil values to pass and write a color, and resets the stencil value back to zero; discards
-// immediately on stencil values of zero (or does the inverse of these operations when the path
-// requires filling everything else).
-constexpr DepthStencilSettings cover_settings(bool inverse) {
-    // Resets non-zero bits to 0, passes when not zero. We set depthFail to kZero because if we
-    // encounter that case, the kNotEqual=0 stencil test passed, so it does need to be set back to 0
-    // and the dsPass op won't be run. In practice, since the stencil steps will fail the same depth
-    // test, the stencil value will likely not be non-zero, but best to be explicit.
-    constexpr DepthStencilSettings::Face kNormal = {
-        /*stencilFail=*/   StencilOp::kKeep,
-        /*depthFail=*/     StencilOp::kZero,
-        /*dsPass=*/        StencilOp::kZero,
-        /*stencilCompare=*/CompareOp::kNotEqual,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0xffffffff
-    };
-
-    // Resets non-zero bits to 0, passes when zero
-    constexpr DepthStencilSettings::Face kInverted = {
-        /*stencilFail=*/   StencilOp::kZero,
-        /*depthFail=*/     StencilOp::kKeep,
-        /*dsPass=*/        StencilOp::kKeep,
-        /*stencilCompare=*/CompareOp::kEqual,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0xffffffff
-    };
-
-    // Always use ref = 0, enabled depth writes, and greater depth test, both
-    // front and back use the same stencil settings.
-    constexpr DepthStencilSettings kNormalDSS = {
-        /*frontStencil=*/kNormal,
-        /*frontStencil=*/kNormal,
-        /*refValue=*/    0,
-        /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kAlways, // kGreater once steps know the right depth value
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
-    };
-    constexpr DepthStencilSettings kInvertedDSS = {
-        /*frontStencil=*/kInverted,
-        /*backStencil=*/ kInverted,
-        /*refValue=*/    0,
-        /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kAlways, // kGreater once steps know the right depth value
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
-    };
-    return inverse ? kInvertedDSS : kNormalDSS;
-}
-
 class StencilFanRenderStep final : public RenderStep {
 public:
     StencilFanRenderStep(bool evenOdd)
             : RenderStep(Flags::kRequiresMSAA,
                          /*uniforms=*/{},
                          PrimitiveType::kTriangles,
-                         fillrule_settings(evenOdd),
+                         evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
                          /*vertexAttrs=*/{{"position",
                                            VertexAttribType::kFloat3,
                                            SkSLType::kFloat3}},
@@ -232,7 +127,7 @@ public:
             : RenderStep(Flags::kRequiresMSAA,
                          /*uniforms=*/{},
                          PrimitiveType::kTriangles,
-                         fillrule_settings(evenOdd),
+                         evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
                          /*vertexAttrs=*/  {{"resolveLevel_and_idx",
                                              VertexAttribType::kFloat2, SkSLType::kFloat2}},
                          /*instanceAttrs=*/{{"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
@@ -400,7 +295,7 @@ public:
             : RenderStep(Flags::kPerformsShading,
                          /*uniforms=*/{},
                          PrimitiveType::kTriangles,
-                         cover_settings(inverseFill),
+                         inverseFill ? kInverseCoverPass : kRegularCoverPass,
                          /*vertexAttrs=*/{{"position",
                                            VertexAttribType::kFloat3,
                                            SkSLType::kFloat3}},
