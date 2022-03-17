@@ -13,6 +13,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/pathops/SkPathOps.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkFDot6.h"
@@ -47,6 +48,11 @@
 #else
 #    include "src/core/SkScopeExit.h"
 #endif
+#endif
+
+// FT_OUTLINE_OVERLAP was added in FreeType 2.10.3
+#ifndef FT_OUTLINE_OVERLAP
+#    define FT_OUTLINE_OVERLAP 0x40
 #endif
 
 // FT_LOAD_COLOR and the corresponding FT_Pixel_Mode::FT_PIXEL_MODE_BGRA
@@ -1728,7 +1734,13 @@ bool generateFacePathCOLRv1(FT_Face face, SkGlyphID glyphID, SkPath* path) {
 }  // namespace
 
 bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path) {
-    return generateGlyphPathStatic(face, path);
+    if (!generateGlyphPathStatic(face, path)) {
+        return false;
+    }
+    if (face->glyph->outline.flags & FT_OUTLINE_OVERLAP) {
+        Simplify(*path, path);
+    }
+    return true;
 }
 
 bool SkScalerContext_FreeType_Base::generateFacePath(FT_Face face,
