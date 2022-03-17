@@ -24,14 +24,17 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#endif
 
 #ifdef SK_GRAPHITE_ENABLED
-namespace skgpu {
-enum class Mipmapped : bool;
-class Recorder;
-class TextureProxyView;
-}
-#endif
+#include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/include/Recorder.h"
+#include "experimental/graphite/src/Buffer.h"
+#include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/CommandBuffer.h"
+#include "experimental/graphite/src/RecorderPriv.h"
+#include "experimental/graphite/src/TextureProxyView.h"
+#include "experimental/graphite/src/UploadTask.h"
 #endif
 
 // fixes https://bug.skia.org/5096
@@ -475,10 +478,98 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Raster::onAsFragmentProcessor(
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-std::tuple<skgpu::TextureProxyView, SkColorType> SkImage_Raster::onAsView(
-        skgpu::Recorder*,
-        skgpu::Mipmapped,
-        SkBudgeted) const {
-        return {}; // TODO
+// Based on Ganesh, we may need to use this in more than one place,
+// so pulling it out to make it more modular before finding it a home.
+std::tuple<skgpu::TextureProxyView, SkColorType> make_bitmap_proxy_view(skgpu::Recorder* recorder,
+                                                                        const SkBitmap& bitmap,
+                                                                        skgpu::Mipmapped mipmapped,
+                                                                        SkBudgeted budgeted) {
+    // Adjust params based on input and Caps
+    const skgpu::Caps* caps = recorder->priv().caps();
+    SkColorType ct = bitmap.info().colorType();
+
+    if (bitmap.dimensions().area() <= 1) {
+        mipmapped = skgpu::Mipmapped::kNo;
     }
+    int mipLevelCount = (mipmapped == skgpu::Mipmapped::kYes) ?
+            SkMipmap::ComputeLevelCount(bitmap.width(), bitmap.height()) + 1 : 1;
+
+    auto textureInfo = caps->getDefaultSampledTextureInfo(ct, mipLevelCount, skgpu::Protected::kNo,
+                                                          skgpu::Renderable::kNo);
+    if (!textureInfo.isValid()) {
+        ct = kRGBA_8888_SkColorType;
+        textureInfo = caps->getDefaultSampledTextureInfo(ct, mipLevelCount, skgpu::Protected::kNo,
+                                                         skgpu::Renderable::kNo);
+    }
+    SkASSERT(textureInfo.isValid());
+
+    // Convert bitmap to texture colortype if necessary
+    SkBitmap bmpToUpload;
+    if (ct != bitmap.info().colorType()) {
+        if (!bmpToUpload.tryAllocPixels(bitmap.info().makeColorType(ct)) ||
+            !bitmap.readPixels(bmpToUpload.pixmap())) {
+            return {};
+        }
+        bmpToUpload.setImmutable();
+    } else {
+        bmpToUpload = bitmap;
+    }
+
+    if (!SkImageInfoIsValid(bmpToUpload.info())) {
+        return {};
+    }
+
+    // setup MipLevels
+    std::vector<skgpu::MipLevel> texels;
+    if (mipLevelCount == 1) {
+        texels.resize(mipLevelCount);
+        texels[0].fPixels = bitmap.getPixels();
+        texels[0].fRowBytes = bitmap.rowBytes();
+    } else {
+        sk_sp<SkMipmap> mipmaps(SkMipmap::Build(bitmap.pixmap(), nullptr));
+        if (!mipmaps) {
+            return {};
+        }
+
+        SkASSERT(mipLevelCount == mipmaps->countLevels() + 1);
+        texels.resize(mipLevelCount);
+
+        texels[0].fPixels = bitmap.getPixels();
+        texels[0].fRowBytes = bitmap.rowBytes();
+
+        for (int i = 1; i < mipLevelCount; ++i) {
+            SkMipmap::Level generatedMipLevel;
+            mipmaps->getLevel(i - 1, &generatedMipLevel);
+            texels[i].fPixels = generatedMipLevel.fPixmap.addr();
+            texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
+            SkASSERT(texels[i].fPixels);
+            SkASSERT(generatedMipLevel.fPixmap.colorType() == bitmap.colorType());
+        }
+    }
+
+    // Create proxy
+    sk_sp<skgpu::TextureProxy> proxy(new skgpu::TextureProxy(bitmap.dimensions(), textureInfo));
+    if (!proxy) {
+        return {};
+    }
+    SkASSERT(caps->areColorTypeAndTextureInfoCompatible(ct, proxy->textureInfo()));
+    SkASSERT(mipmapped == skgpu::Mipmapped::kNo || proxy->mipmapped() == skgpu::Mipmapped::kYes);
+
+    // Add UploadTask to Recorder
+    skgpu::UploadInstance upload = skgpu::UploadInstance::Make(
+            recorder, proxy, ct, texels, SkIRect::MakeSize(bitmap.dimensions()));
+    recorder->priv().add(skgpu::UploadTask::Make(upload));
+
+    // TODO: get readSwizzle from caps
+    skgpu::Swizzle swizzle = skgpu::Swizzle::RGBA();
+    return {{std::move(proxy), swizzle}, ct};
+}
+
+std::tuple<skgpu::TextureProxyView, SkColorType> SkImage_Raster::onAsView(
+        skgpu::Recorder* recorder,
+        skgpu::Mipmapped mipmapped,
+        SkBudgeted budgeted) const {
+    return make_bitmap_proxy_view(recorder, fBitmap, mipmapped, budgeted);
+}
+
 #endif

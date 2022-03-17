@@ -17,6 +17,7 @@
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkTraceEvent.h"
 
 namespace skgpu {
 
@@ -136,6 +137,10 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     }
 
     buffer->unmap();
+
+    ATRACE_ANDROID_FRAMEWORK("Upload %sTexture [%ux%u]",
+                             mipLevelCount > 1 ? "MipMap " : "",
+                             dstRect.width(), dstRect.height());
 
     return {std::move(buffer), std::move(textureProxy), std::move(copyData)};
 }
