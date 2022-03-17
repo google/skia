@@ -12,6 +12,13 @@
 
 namespace SkSL {
 
+#if __has_builtin(__builtin_FILE) && __has_builtin(__builtin_LINE)
+    Position Position::Capture(const char* file, int line) {
+        ThreadContext::SetFilename(file);
+        return Position::Line(line);
+    }
+#endif
+
 int Position::line(std::string_view source) const {
     SkASSERT(this->valid());
     if (fEndOffset == -1) {

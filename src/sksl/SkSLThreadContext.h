@@ -161,6 +161,14 @@ public:
     }
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
+    static const char* Filename() {
+        return Instance().fFilename;
+    }
+
+    static void SetFilename(const char* filename) {
+        Instance().fFilename = filename;
+    }
+
     /**
      * Returns the ErrorReporter associated with the current thread. This object will be notified
      * when any DSL errors occur.
@@ -207,6 +215,8 @@ private:
     Mangler fMangler;
     RTAdjustData fRTAdjust;
     Program::Inputs fInputs;
+    // for DSL error reporting purposes
+    const char* fFilename = "";
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
