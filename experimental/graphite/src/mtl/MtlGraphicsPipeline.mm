@@ -560,13 +560,13 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvide
 
     const DepthStencilSettings& depthStencilSettings =
             pipelineDesc.renderStep()->depthStencilSettings();
-    id<MTLDepthStencilState> dss = resourceProvider->findOrCreateCompatibleDepthStencilState(
-            depthStencilSettings);
+    sk_cfp<id<MTLDepthStencilState>> dss =
+            resourceProvider->findOrCreateCompatibleDepthStencilState(depthStencilSettings);
 
     return sk_sp<GraphicsPipeline>(
             new GraphicsPipeline(gpu,
                                  std::move(pso),
-                                 dss,
+                                 std::move(dss),
                                  depthStencilSettings.fStencilReferenceValue,
                                  pipelineDesc.renderStep()->vertexStride(),
                                  pipelineDesc.renderStep()->instanceStride()));

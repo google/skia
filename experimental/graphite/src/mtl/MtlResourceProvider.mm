@@ -127,7 +127,7 @@ MTLStencilDescriptor* stencil_face_to_mtl(DepthStencilSettings::Face face) {
 }
 }  // anonymous namespace
 
-id<MTLDepthStencilState> ResourceProvider::findOrCreateCompatibleDepthStencilState(
+sk_cfp<id<MTLDepthStencilState>> ResourceProvider::findOrCreateCompatibleDepthStencilState(
             const DepthStencilSettings& depthStencilSettings) {
     sk_cfp<id<MTLDepthStencilState>>* depthStencilState;
     depthStencilState = fDepthStencilStates.find(depthStencilSettings);
@@ -150,7 +150,7 @@ id<MTLDepthStencilState> ResourceProvider::findOrCreateCompatibleDepthStencilSta
     }
 
     SkASSERT(depthStencilState);
-    return depthStencilState->get();
+    return *depthStencilState;
 }
 
 } // namespace skgpu::mtl
