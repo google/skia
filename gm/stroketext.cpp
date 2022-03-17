@@ -10,6 +10,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
@@ -95,10 +97,24 @@ DEF_SIMPLE_GM(stroketext, canvas, 1200, 480) {
     draw_text_set(canvas, paint, font);
 }
 
-DEF_SIMPLE_GM_CAN_FAIL(stroketext_native, canvas, msg, 650, 320) {
+DEF_SIMPLE_GM_CAN_FAIL(stroketext_native, canvas, msg, 650, 420) {
     sk_sp<SkTypeface> ttf = MakeResourceAsTypeface("fonts/Stroking.ttf");
     sk_sp<SkTypeface> otf = MakeResourceAsTypeface("fonts/Stroking.otf");
-    if (!ttf && !otf) {
+
+    sk_sp<SkTypeface> overlap = []() -> sk_sp<SkTypeface>{
+        std::unique_ptr<SkStreamAsset> variableStream(GetResourceAsStream("fonts/Variable.ttf"));
+        if (!variableStream) {
+            return nullptr;
+        }
+        const SkFontArguments::VariationPosition::Coordinate position[] = {
+            { SkSetFourByteTag('w','g','h','t'), 721.0f },
+        };
+        SkFontArguments params;
+        params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+        return SkFontMgr::RefDefault()->makeFromStream(std::move(variableStream), params);
+    }();
+
+    if (!ttf && !otf && !overlap) {
         msg->append("No support for ttf or otf.");
         return skiagm::DrawResult::kSkip;
     }
@@ -138,6 +154,16 @@ DEF_SIMPLE_GM_CAN_FAIL(stroketext_native, canvas, msg, 650, 320) {
         */
         SkFont font(otf, 100);
         canvas->drawString("○◉  ⁰¹³ᶠ", 10, 300, font, p);
+    }
+
+    if (overlap) {
+        /* Variable.ttf is structured like:
+            U+74 t (glyf outline has overlap flag)
+            U+167 ŧ (glyf outline does not have overlap flag)
+        */
+        SkFont font(overlap, 100);
+        p.setStrokeWidth(1);
+        canvas->drawString("tŧ", 10, 400, font, p);
     }
 
     return skiagm::DrawResult::kOk;
