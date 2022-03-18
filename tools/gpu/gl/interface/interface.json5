@@ -32,7 +32,7 @@
       "EnableVertexAttribArray", "Finish", "Flush",
       "FrontFace", "GenBuffers",
       "GenTextures", "GetBufferParameteriv", "GetError",
-      "GetFloatv", "GetIntegerv", "GetProgramInfoLog",
+      "GetIntegerv", "GetProgramInfoLog",
       "GetProgramiv", "GetShaderInfoLog",
       "GetShaderiv", "GetString",
       "GetUniformLocation", "IsTexture", "LineWidth", "LinkProgram", "PixelStorei",
@@ -46,11 +46,6 @@
       "VertexAttrib2fv", "VertexAttrib3fv", "VertexAttrib4fv", "VertexAttribPointer",
       "Viewport",
     ],
-
-    // TODO: Remove 'optional' once Chrome sets this function in the interface.
-    "optional": [
-      "GetFloatv",
-    ]
   },
   { // GL exclusive core functions
     "GL":    [{"ext": "<core>"}],
@@ -615,11 +610,8 @@
 
     "functions": [
       "BindSampler", "DeleteSamplers", "GenSamplers",
-      "SamplerParameterf", "SamplerParameteri", "SamplerParameteriv",
+      "SamplerParameteri", "SamplerParameteriv",
     ],
-
-    // TODO: Remove 'optional' once Chrome sets this function in the interface.
-    "optional": ["SamplerParameterf"]
   },
 
   {

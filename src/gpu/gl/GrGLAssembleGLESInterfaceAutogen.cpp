@@ -91,7 +91,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     GET_PROC(GenTextures);
     GET_PROC(GetBufferParameteriv);
     GET_PROC(GetError);
-    GET_PROC(GetFloatv);
     GET_PROC(GetIntegerv);
     GET_PROC(GetProgramInfoLog);
     GET_PROC(GetProgramiv);
@@ -426,7 +425,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC(BindSampler);
         GET_PROC(DeleteSamplers);
         GET_PROC(GenSamplers);
-        GET_PROC(SamplerParameterf);
         GET_PROC(SamplerParameteri);
         GET_PROC(SamplerParameteriv);
     }
