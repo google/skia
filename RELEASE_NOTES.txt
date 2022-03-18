@@ -2,10 +2,18 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 102
+-------------
+  * Add glGetFloatv and glSamplerParameterf to GrGLInterface.
+
+* * *
+
 Milestone 101
 -------------
   * Add maxSurfaceSampleCountForColorType(SkColorType ct) in GrContextThreadSafeProxy
   * Enums SkAlphaType and SkColorType are broken out into their own header files in include/core/
+
+* * *
 
 Milestone 100
 -------------

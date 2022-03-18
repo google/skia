@@ -170,6 +170,7 @@ public:
         GrGLFunction<GrGLGetBufferParameterivFn> fGetBufferParameteriv;
         GrGLFunction<GrGLGetErrorFn> fGetError;
         GrGLFunction<GrGLGetFramebufferAttachmentParameterivFn> fGetFramebufferAttachmentParameteriv;
+        GrGLFunction<GrGLGetFloatvFn> fGetFloatv;
         GrGLFunction<GrGLGetIntegervFn> fGetIntegerv;
         GrGLFunction<GrGLGetMultisamplefvFn> fGetMultisamplefv;
         GrGLFunction<GrGLGetProgramBinaryFn> fGetProgramBinary;
@@ -248,6 +249,7 @@ public:
         GrGLFunction<GrGLBindUniformLocationFn> fBindUniformLocation;
 
         GrGLFunction<GrGLResolveMultisampleFramebufferFn> fResolveMultisampleFramebuffer;
+        GrGLFunction<GrGLSamplerParameterfFn> fSamplerParameterf;
         GrGLFunction<GrGLSamplerParameteriFn> fSamplerParameteri;
         GrGLFunction<GrGLSamplerParameterivFn> fSamplerParameteriv;
         GrGLFunction<GrGLScissorFn> fScissor;
