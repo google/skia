@@ -5,23 +5,45 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBitmap.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorFilter.h"
-#include "include/core/SkData.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/SkSLDefines.h"
+#include "include/sksl/DSL.h"
+#include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLRuntimeEffects.h"
+#include "include/sksl/DSLType.h"
+#include "include/sksl/DSLVar.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLUtil.h"
 #include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#include <algorithm>
-#include <thread>
+#include <array>
+#include <functional>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
+
+class GrRecordingContext;
 
 using namespace SkSL::dsl;
 

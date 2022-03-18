@@ -8,20 +8,26 @@
 #ifndef SKSL_COMPILER
 #define SKSL_COMPILER
 
-#include <set>
-#include <unordered_set>
-#include <vector>
 #include "include/core/SkSize.h"
-#include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLContext.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
+#include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLProgramKind.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLInliner.h"
+#include "src/sksl/SkSLMangler.h"
+#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/GrShaderVar.h"
-#endif
+#include <array>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <unordered_set>
+#include <vector>
 
 #define SK_FRAGCOLOR_BUILTIN           10001
 #define SK_LASTFRAGCOLOR_BUILTIN       10008
@@ -35,19 +41,19 @@
 #define SK_INSTANCEID_BUILTIN             43
 #define SK_POSITION_BUILTIN                0
 
-class SkBitSet;
 class SkSLCompileBench;
 
 namespace SkSL {
 
 namespace dsl {
     class DSLCore;
-    class DSLWriter;
 }
 
-class ExternalFunction;
-class FunctionDeclaration;
-class ProgramUsage;
+class Context;
+class Expression;
+class IRNode;
+class OutputStream;
+class SymbolTable;
 struct ShaderCaps;
 
 struct LoadedModule {

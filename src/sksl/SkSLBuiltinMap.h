@@ -8,14 +8,13 @@
 #ifndef SKSL_BUILTINMAP
 #define SKSL_BUILTINMAP
 
-#include "include/private/SkSLString.h"
+#include "include/private/SkSLProgramElement.h"
 #include "include/private/SkTHash.h"
 
 #include <memory>
+#include <string>
 
 namespace SkSL {
-
-class ProgramElement;
 
 /**
  * Represents the builtin elements in the Context.

@@ -7,13 +7,13 @@
 
 #include "src/sksl/SkSLConstantFolder.h"
 
-#include <limits>
-
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLModifiers.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
@@ -23,6 +23,12 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+
+#include <math.h>
+#include <limits>
+#include <optional>
+#include <type_traits>
+#include <utility>
 
 namespace SkSL {
 

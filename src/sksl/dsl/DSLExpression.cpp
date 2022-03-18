@@ -7,12 +7,18 @@
 
 #include "include/sksl/DSLExpression.h"
 
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
 #include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLStatement.h"
+#include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "include/sksl/DSLWrapper.h"
+#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -20,10 +26,13 @@
 #include "src/sksl/ir/SkSLPoison.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 
 #include <math.h>
+#include <utility>
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
 

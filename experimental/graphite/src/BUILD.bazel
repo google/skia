@@ -126,6 +126,7 @@ generated_cc_atom(
         ":PaintParams_hdr",
         "//include/private:SkUniquePaintParamsID_hdr",
         "//src/core:SkBlenderBase_hdr",
+        "//src/core:SkKeyContext_hdr",
         "//src/core:SkPipelineData_hdr",
         "//src/core:SkShaderCodeDictionary_hdr",
     ],
@@ -150,6 +151,7 @@ generated_cc_atom(
         "//experimental/graphite/include:TextureInfo_hdr",
         "//experimental/graphite/src/mtl:MtlTrampoline_hdr",
         "//include/core:SkPathTypes_hdr",
+        "//src/core:SkKeyContext_hdr",
         "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkShaderCodeDictionary_hdr",
     ],
@@ -204,6 +206,7 @@ generated_cc_atom(
         ":Gpu_hdr",
         ":Log_hdr",
         ":RecorderPriv_hdr",
+        ":Renderer_hdr",
         ":ResourceProvider_hdr",
         ":TextureProxy_hdr",
         ":Texture_hdr",
@@ -222,6 +225,7 @@ generated_cc_atom(
         "//src/core:SkMatrixPriv_hdr",
         "//src/core:SkPaintPriv_hdr",
         "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkStroke_hdr",
     ],
 )
 
@@ -231,6 +235,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":DrawTypes_hdr",
+        ":ResourceTypes_hdr",
         "//include/core:SkRefCnt_hdr",
         "//src/gpu:BufferWriter_hdr",
     ],
@@ -938,6 +943,7 @@ generated_cc_atom(
         ":UploadTask_hdr",
         "//experimental/graphite/include:Recorder_hdr",
         "//src/core:SkConvertPixels_hdr",
+        "//src/core:SkTraceEvent_hdr",
     ],
 )
 

@@ -8,12 +8,15 @@
 #ifndef SkSLSharedCompiler_DEFINED
 #define SkSLSharedCompiler_DEFINED
 
-#include "include/private/SkMutex.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_ENABLE_SKSL
 
+#include "include/private/SkMutex.h"
+
 namespace SkSL {
+
+class Compiler;
 
 /** A shared compiler instance for runtime client SkSL that is internally guarded by a mutex. */
 class SharedCompiler {

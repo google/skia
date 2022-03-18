@@ -5,6 +5,7 @@ generated_cc_atom(
     hdrs = ["GrGLProgramBuilder.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/gpu:GrContextOptions_hdr",
         "//src/gpu:GrPipeline_hdr",
         "//src/gpu/gl:GrGLProgramDataManager_hdr",
         "//src/gpu/gl:GrGLProgram_hdr",

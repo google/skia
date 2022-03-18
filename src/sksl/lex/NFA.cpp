@@ -7,6 +7,9 @@
 
 #include "src/sksl/lex/NFA.h"
 
+#include "src/sksl/lex/LexUtil.h"
+#include <string>
+
 int NFA::match(std::string s) const {
     std::vector<int> states = fStartStates;
     for (size_t i = 0; i < s.size(); ++i) {

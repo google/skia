@@ -10,7 +10,6 @@
 #include "include/private/SkStringView.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
 
 namespace SkSL {
 

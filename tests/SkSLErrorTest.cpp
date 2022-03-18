@@ -5,20 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "gm/gm.h"
-#include "include/effects/SkRuntimeEffect.h"
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/private/SkSLProgramKind.h"
 #include "src/core/SkOSFile.h"
-#include "src/core/SkRuntimeEffectPriv.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDirectContextPriv.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
 
+#include <functional>
+#include <memory>
 #include <sstream>
-#include <string_view>
+#include <string>
+#include <utility>
+#include <vector>
 
 static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::ProgramKind kind) {
     sk_sp<SkData> shaderData = GetResourceAsData(testFile);

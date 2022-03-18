@@ -8,10 +8,7 @@
 #ifndef SKSL_DSL_EXPRESSION
 #define SKSL_DSL_EXPRESSION
 
-#include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
 #include "include/private/SkTArray.h"
-#include "include/sksl/DSLWrapper.h"
 #include "include/sksl/SkSLPosition.h"
 
 #include <cstdint>
@@ -27,14 +24,14 @@
 namespace SkSL {
 
 class Expression;
-class Type;
+class ExpressionArray;
 
 namespace dsl {
 
 class DSLPossibleExpression;
-class DSLStatement;
 class DSLType;
 class DSLVarBase;
+template <typename T> class DSLWrapper;
 
 /**
  * Represents an expression such as 'cos(x)' or 'a + b'.

@@ -7,17 +7,30 @@
 
 #include "include/sksl/DSLFunction.h"
 
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLStatement.h"
+#include "include/private/SkSLString.h"
 #include "include/sksl/DSLVar.h"
-#include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "include/sksl/DSLWrapper.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLFunctionPrototype.h"
-#include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLVariable.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace SkSL {
+
+class Block;
 
 namespace dsl {
 

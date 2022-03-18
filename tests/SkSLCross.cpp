@@ -5,11 +5,38 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/GrColor.h"
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrPixmap.h"
+#include "src/gpu/GrProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
+
+#include <memory>
+#include <utility>
+
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
 
 static void run_test(skiatest::Reporter*, GrDirectContext*,
                      skgpu::v1::SurfaceDrawContext*, SkVector a,

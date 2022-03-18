@@ -75,6 +75,7 @@ generated_cc_atom(
         ":GrVkUniformHandler_hdr",
         ":GrVkUtil_hdr",
         "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrContextOptions_hdr",
         "//include/gpu/vk:GrVkBackendContext_hdr",
         "//include/gpu/vk:GrVkExtensions_hdr",
         "//src/core:SkCompressedDataUtils_hdr",

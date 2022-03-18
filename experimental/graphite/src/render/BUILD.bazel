@@ -14,7 +14,10 @@ generated_cc_atom(
         "//include/core:SkRect_hdr",
         "//src/core:SkUniformData_hdr",
         "//src/gpu:BufferWriter_hdr",
+        "//src/gpu/tessellate:AffineMatrix_hdr",
         "//src/gpu/tessellate:MiddleOutPolygonTriangulator_hdr",
+        "//src/gpu/tessellate:PatchWriter_hdr",
+        "//src/gpu/tessellate:PathCurveTessellator_hdr",
         "//src/gpu/tessellate:PathTessellator_hdr",
     ],
 )

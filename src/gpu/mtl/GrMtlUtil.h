@@ -11,6 +11,7 @@
 #import <Metal/Metal.h>
 
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/private/GrMtlTypesPriv.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/sksl/ir/SkSLProgram.h"

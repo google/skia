@@ -11,13 +11,14 @@
 #include <memory>
 
 #include "include/private/SkSLDefines.h"
-#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperators.h"
 
 namespace SkSL {
 
 class Context;
 class Expression;
+class Position;
+class Type;
 
 /**
  * Performs constant folding on IR expressions. This simplifies expressions containing

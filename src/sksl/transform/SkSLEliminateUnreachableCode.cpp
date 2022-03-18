@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
@@ -13,9 +14,12 @@
 #include "src/sksl/transform/SkSLProgramWriter.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
+#include <memory>
 #include <stack>
+#include <vector>
 
 namespace SkSL {
+class Expression;
 
 void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) {
     class UnreachableCodeEliminator : public ProgramWriter {

@@ -7,11 +7,14 @@
 
 #include "include/private/SkSLProgramElement.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
+#include <memory>
+#include <vector>
 
 namespace SkSL {
 

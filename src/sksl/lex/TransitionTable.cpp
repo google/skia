@@ -9,11 +9,12 @@
 #include "src/sksl/lex/TransitionTable.h"
 
 #include <array>
-#include <bitset>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 namespace {

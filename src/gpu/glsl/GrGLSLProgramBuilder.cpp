@@ -9,6 +9,7 @@
 
 #include <memory>
 
+#include "include/sksl/DSL.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrGeometryProcessor.h"

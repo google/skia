@@ -7,11 +7,20 @@
 
 #include "src/sksl/dsl/priv/DSLFPs.h"
 
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLCodeStringExpression.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLType.h"
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#include <memory>
+#include <string>
 
 namespace SkSL {
 

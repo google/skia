@@ -23,6 +23,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkColor_hdr",
+        "//include/core:SkPaint_hdr",
         "//include/core:SkPoint_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkTypeface_hdr",

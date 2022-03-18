@@ -239,6 +239,14 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkImage_Base_hdr",
+        "//experimental/graphite/include:GraphiteTypes_hdr",
+        "//experimental/graphite/include:Recorder_hdr",
+        "//experimental/graphite/src:Buffer_hdr",
+        "//experimental/graphite/src:Caps_hdr",
+        "//experimental/graphite/src:CommandBuffer_hdr",
+        "//experimental/graphite/src:RecorderPriv_hdr",
+        "//experimental/graphite/src:TextureProxyView_hdr",
+        "//experimental/graphite/src:UploadTask_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkData_hdr",
@@ -386,7 +394,6 @@ generated_cc_atom(
         "//src/gpu:GrRecordingContextPriv_hdr",
         "//src/gpu:GrRenderTarget_hdr",
         "//src/gpu:GrTexture_hdr",
-        "//src/gpu:SkRenderEngineAbortf_hdr",
     ],
 )
 

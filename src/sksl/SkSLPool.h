@@ -8,9 +8,10 @@
 #ifndef SKSL_POOL
 #define SKSL_POOL
 
-#include <memory>
-
 #include "src/sksl/SkSLMemoryPool.h"
+
+#include <stddef.h>
+#include <memory>
 
 namespace SkSL {
 

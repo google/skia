@@ -11,12 +11,20 @@
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLType.h"
+#include "include/sksl/SkSLPosition.h"
+
+#include <stdint.h>
+#include <memory>
+#include <string_view>
+#include <utility>
 
 namespace SkSL {
 
 class Expression;
+class ExpressionArray;
 class IRGenerator;
 class SPIRVCodeGenerator;
+class Statement;
 class Variable;
 enum class VariableStorage : int8_t;
 

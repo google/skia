@@ -5,13 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include <limits>
-
 #include "include/sksl/SkSLErrorReporter.h"
-#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "tests/Test.h"
+
+#include <cstdint>
+#include <limits>
+#include <memory>
 
 DEF_TEST(SkSLTypeLimits, r) {
     GrShaderCaps caps;

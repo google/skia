@@ -32,7 +32,7 @@ else
   else
     # Run IWYU again, but this time display the output. Then return non-zero to fail the build.
     # These flags are a little different, but only in ways that affect what was displayed, not the
-    # analysis.
+    # analysis. If we aren't sure why IWYU wants to include something, try changing verbose to 3.
     external/clang_linux_amd64/usr/bin/include-what-you-use \
         -Xiwyu --mapping_file=$MAPPING_FILE -Xiwyu --no_comments \
         -Xiwyu --quoted_includes_first -Xiwyu --verbose=3 $@

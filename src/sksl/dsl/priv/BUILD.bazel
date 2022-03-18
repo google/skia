@@ -1,12 +1,17 @@
-load("//bazel:macros.bzl", "generated_cc_atom")
+load("//bazel:macros.bzl", "enforce_iwyu_on_package", "generated_cc_atom")
+
+enforce_iwyu_on_package()
 
 generated_cc_atom(
     name = "DSLFPs_hdr",
     hdrs = ["DSLFPs.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/sksl:DSL_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/sksl:DSLExpression_hdr",
+        "//include/sksl:DSLVar_hdr",
         "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
     ],
 )
 
@@ -17,8 +22,14 @@ generated_cc_atom(
     deps = [
         ":DSLFPs_hdr",
         ":DSLWriter_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//src/sksl:SkSLBuiltinTypes_hdr",
+        "//src/sksl:SkSLContext_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
         "//src/sksl/ir:SkSLCodeStringExpression_hdr",
+        "//src/sksl/ir:SkSLExpression_hdr",
+        "//src/sksl/ir:SkSLType_hdr",
     ],
 )
 
@@ -28,8 +39,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkTypes_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
-        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
     ],
 )
 
@@ -39,13 +49,26 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":DSLWriter_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkSLDefines_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+        "//include/private:SkSLStatement_hdr",
         "//include/sksl:DSLCore_hdr",
+        "//include/sksl:DSLExpression_hdr",
+        "//include/sksl:DSLModifiers_hdr",
         "//include/sksl:DSLStatement_hdr",
         "//include/sksl:DSLSymbols_hdr",
+        "//include/sksl:DSLType_hdr",
         "//include/sksl:DSLVar_hdr",
+        "//include/sksl:SkSLPosition_hdr",
+        "//src/sksl:SkSLMangler_hdr",
+        "//src/sksl:SkSLModifiersPool_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
         "//src/sksl/ir:SkSLBlock_hdr",
+        "//src/sksl/ir:SkSLExpression_hdr",
         "//src/sksl/ir:SkSLNop_hdr",
+        "//src/sksl/ir:SkSLType_hdr",
         "//src/sksl/ir:SkSLVarDeclarations_hdr",
         "//src/sksl/ir:SkSLVariable_hdr",
     ],

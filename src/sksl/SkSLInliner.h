@@ -8,26 +8,28 @@
 #ifndef SKSL_INLINER
 #define SKSL_INLINER
 
-#include <memory>
-
 #include "include/private/SkTHash.h"
-#include "src/sksl/SkSLMangler.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
+
+#include <memory>
+#include <vector>
 
 namespace SkSL {
 
-class Block;
-class Context;
-class Expression;
 class FunctionCall;
+class FunctionDeclaration;
 class FunctionDefinition;
-struct InlineCandidate;
-struct InlineCandidateList;
-class ModifiersPool;
+class Position;
+class ProgramElement;
 class Statement;
 class SymbolTable;
 class Variable;
+struct InlineCandidate;
+struct InlineCandidateList;
 
 /**
  * Converts a FunctionCall in the IR to a set of statements to be injected ahead of the function

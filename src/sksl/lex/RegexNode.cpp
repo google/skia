@@ -7,7 +7,11 @@
 
 #include "src/sksl/lex/RegexNode.h"
 
+#include "src/sksl/lex/LexUtil.h"
 #include "src/sksl/lex/NFA.h"
+#include "src/sksl/lex/NFAState.h"
+
+#include <string>
 
 std::vector<int> RegexNode::createStates(NFA* nfa, const std::vector<int>& accept) const {
     std::vector<int> result;

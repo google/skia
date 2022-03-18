@@ -7,13 +7,22 @@
 
 #include "src/sksl/SkSLThreadContext.h"
 
+#include "include/private/SkSLProgramElement.h"
 #include "include/sksl/DSLSymbols.h"
+#include "src/sksl/SkSLBuiltinMap.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLModifiersPool.h"
+#include "src/sksl/SkSLParsedModule.h"
+#include "src/sksl/SkSLPool.h"
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLExternalFunction.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+
+#include <type_traits>
+
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/sksl/SkSLBuiltinMap.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/ir/SkSLExternalFunction.h"
 
 namespace SkSL {
 

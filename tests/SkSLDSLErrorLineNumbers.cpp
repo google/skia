@@ -5,17 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLIRNode.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/sksl/DSL.h"
+#include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLStatement.h"
+#include "include/sksl/DSLType.h"
+#include "include/sksl/DSLVar.h"
+#include "include/sksl/DSLWrapper.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
-
 #include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#include <limits>
+#include <string>
+#include <string_view>
 
 using namespace SkSL::dsl;
 

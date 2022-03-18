@@ -9,6 +9,11 @@
 
 #include "src/sksl/lex/LexUtil.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <utility>
+#include <vector>
+
 RegexNode RegexParser::parse(std::string source) {
     fSource = source;
     fIndex = 0;

@@ -7,7 +7,8 @@
 
 #include "src/sksl/SkSLPool.h"
 
-#include "include/private/SkSLDefines.h"
+#include "include/core/SkTypes.h"
+#include "src/gpu/GrMemoryPool.h"
 
 #define VLOG(...) // printf(__VA_ARGS__)
 

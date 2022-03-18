@@ -8,8 +8,8 @@
 #ifndef SKSL_DSL_RUNTIME_EFFECTS
 #define SKSL_DSL_RUNTIME_EFFECTS
 
+#include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/sksl/DSL.h"
 
 namespace SkSL {
 

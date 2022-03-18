@@ -52,6 +52,7 @@ generated_cc_atom(
         "//src/utils:SkOSPath_hdr",
         "//tests:TestHarness_hdr",
         "//tests:Test_hdr",
+        "//tools:Resources_hdr",
         "//tools/fonts:TestFontMgr_hdr",
         "//tools/gpu/gl:GLTestContext_hdr",
         "//tools/gpu/vk:VkTestContext_hdr",

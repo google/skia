@@ -6,12 +6,15 @@
  */
 
 #include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
+#include <memory>
+#include <vector>
 
 namespace SkSL {
 

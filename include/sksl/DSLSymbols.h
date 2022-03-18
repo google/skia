@@ -8,8 +8,8 @@
 #ifndef SKSL_DSL_SYMBOLS
 #define SKSL_DSL_SYMBOLS
 
-#include "include/private/SkSLString.h"
 #include "include/sksl/DSLExpression.h"
+#include "include/sksl/SkSLPosition.h"
 
 #include <memory>
 #include <string_view>
@@ -20,7 +20,7 @@ class SymbolTable;
 
 namespace dsl {
 
-class DSLVar;
+class DSLVarBase;
 
 // This header provides methods for manually managing symbol tables in DSL code. They should not be
 // used by normal hand-written DSL code, where we rely on C++ to manage symbols, but are instead

@@ -8,26 +8,31 @@
 #ifndef SKSL_DEHYDRATOR
 #define SKSL_DEHYDRATOR
 
-#include "include/core/SkSpan.h"
-#include "include/private/SkSLModifiers.h"
-#include "include/private/SkSLSymbol.h"
-#include "include/private/SkTFitsIn.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
-#include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLStringStream.h"
 
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <vector>
+
+template <typename T> class SkSpan;
 
 namespace SkSL {
 
-class AnyConstructor;
 class Expression;
-struct Program;
+class OutputStream;
 class ProgramElement;
 class Statement;
 class Symbol;
 class SymbolTable;
+struct Layout;
+struct Modifiers;
+struct Program;
 
 /**
  * Converts SkSL objects into a binary file. See binary_format.md for a description of the file

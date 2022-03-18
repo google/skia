@@ -81,6 +81,7 @@ generated_cc_atom(
     deps = [
         ":GrGLSLProgramBuilder_hdr",
         ":GrGLSLVarying_hdr",
+        "//include/sksl:DSL_hdr",
         "//src/gpu:GrCaps_hdr",
         "//src/gpu:GrFragmentProcessor_hdr",
         "//src/gpu:GrGeometryProcessor_hdr",

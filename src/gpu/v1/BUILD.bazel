@@ -96,6 +96,7 @@ generated_cc_atom(
         "//include/private:SkShadowFlags_hdr",
         "//include/private:SkTo_hdr",
         "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
         "//src/core:SkCanvasPriv_hdr",
         "//src/core:SkClipStack_hdr",
         "//src/core:SkCustomMeshPriv_hdr",

@@ -5,14 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLStatement.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLModifiers.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
-#include "src/sksl/ir/SkSLDoStatement.h"
-#include "src/sksl/ir/SkSLForStatement.h"
-#include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLIfStatement.h"
-#include "src/sksl/ir/SkSLSwitchStatement.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
+
+#include <set>
 
 namespace SkSL {
 

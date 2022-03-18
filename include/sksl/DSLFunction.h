@@ -8,21 +8,26 @@
 #ifndef SKSL_DSL_FUNCTION
 #define SKSL_DSL_FUNCTION
 
+#include "include/private/SkSLDefines.h"
+#include "include/private/SkTArray.h"
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLModifiers.h"
+#include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
-#include "include/sksl/DSLWrapper.h"
+#include "include/sksl/SkSLPosition.h"
+
+#include <string_view>
+#include <utility>
 
 namespace SkSL {
 
-class Block;
 class FunctionDeclaration;
-class Variable;
 
 namespace dsl {
 
-class DSLType;
+template <typename T> class DSLWrapper;
 
 class DSLFunction {
 public:

@@ -5,12 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkStreamPriv.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
+
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkStreamPriv.h"
 #include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"
 
+#include <stdio.h>
 #include <sstream>
+#include <string>
+#include <string_view>
+#include <utility>
 
 static constexpr char kTraceVersion[] = "20220209";
 

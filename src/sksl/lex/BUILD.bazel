@@ -1,4 +1,6 @@
-load("//bazel:macros.bzl", "generated_cc_atom")
+load("//bazel:macros.bzl", "enforce_iwyu_on_package", "generated_cc_atom")
+
+enforce_iwyu_on_package()
 
 cc_binary(
     name = "sksllex",
@@ -35,7 +37,11 @@ generated_cc_atom(
     srcs = ["Main.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":DFA_hdr",
+        ":LexUtil_hdr",
+        ":NFA_hdr",
         ":NFAtoDFA_hdr",
+        ":RegexNode_hdr",
         ":RegexParser_hdr",
         ":TransitionTable_hdr",
     ],
@@ -62,7 +68,10 @@ generated_cc_atom(
     name = "NFA_src",
     srcs = ["NFA.cpp"],
     visibility = ["//:__subpackages__"],
-    deps = [":NFA_hdr"],
+    deps = [
+        ":LexUtil_hdr",
+        ":NFA_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -88,6 +97,8 @@ generated_cc_atom(
     srcs = ["RegexNode.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":LexUtil_hdr",
+        ":NFAState_hdr",
         ":NFA_hdr",
         ":RegexNode_hdr",
     ],

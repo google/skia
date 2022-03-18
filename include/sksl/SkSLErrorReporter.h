@@ -9,7 +9,6 @@
 #define SKSL_ERROR_REPORTER
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLString.h"
 
 #include <string>
 #include <string_view>

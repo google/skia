@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLOutputStream.h"
 
+#include <stdio.h>
 #include <memory>
 
 namespace SkSL {

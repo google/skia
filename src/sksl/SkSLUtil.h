@@ -8,28 +8,19 @@
 #ifndef SKSL_UTIL
 #define SKSL_UTIL
 
-#include <cstdarg>
-#include <memory>
-#include <stdlib.h>
-#include <string.h>
-#include "include/private/SkSLDefines.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/sksl/SkSLGLSL.h"
-#include "src/sksl/SkSLLexer.h"
+
+#include <memory>
 
 #ifndef SKSL_STANDALONE
 #include "include/core/SkTypes.h"
-#if SK_SUPPORT_GPU
-#include "include/gpu/GrContextOptions.h"
-#include "include/private/GrTypesPriv.h"
-#endif // SK_SUPPORT_GPU
 #endif // SKSL_STANDALONE
 
 namespace SkSL {
 
 class Context;
 class OutputStream;
-class ShaderCapsFactory;
 class StringStream;
 class Type;
 

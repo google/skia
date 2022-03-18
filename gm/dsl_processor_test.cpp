@@ -7,6 +7,7 @@
 
 #include "gm/gm.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/sksl/DSL.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"

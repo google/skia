@@ -7,19 +7,24 @@
 
 #include "src/sksl/SkSLRehydrator.h"
 
-#include <memory>
-#include <unordered_set>
-
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLStatement.h"
+#include "include/private/SkTArray.h"
 #include "include/sksl/DSLCore.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLModifiersPool.h"
+#include "src/sksl/SkSLParsedModule.h"
+#include "src/sksl/SkSLPool.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
-#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
@@ -49,6 +54,7 @@
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
@@ -61,6 +67,13 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
+
+#include <stdio.h>
+#include <memory>
+#include <string>
+#include <type_traits>
+#include <utility>
 
 namespace SkSL {
 

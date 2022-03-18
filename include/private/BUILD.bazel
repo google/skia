@@ -312,6 +312,7 @@ generated_cc_atom(
     deps = [
         ":SkSLString_hdr",
         ":SkTArray_hdr",
+        "//include/sksl:SkSLPosition_hdr",
         "//src/sksl:SkSLLexer_hdr",
         "//src/sksl:SkSLModifiersPool_hdr",
         "//src/sksl:SkSLPool_hdr",
@@ -329,7 +330,10 @@ generated_cc_atom(
     name = "SkSLModifiers_hdr",
     hdrs = ["SkSLModifiers.h"],
     visibility = ["//:__subpackages__"],
-    deps = [":SkSLLayout_hdr"],
+    deps = [
+        ":SkSLLayout_hdr",
+        "//include/sksl:SkSLPosition_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -366,7 +370,10 @@ generated_cc_atom(
     name = "SkSLString_hdr",
     hdrs = ["SkSLString.h"],
     visibility = ["//:__subpackages__"],
-    deps = [":SkSLDefines_hdr"],
+    deps = [
+        ":SkSLDefines_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
 )
 
 generated_cc_atom(

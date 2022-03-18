@@ -8,11 +8,14 @@
 #ifndef SKVMDEBUGTRACE
 #define SKVMDEBUGTRACE
 
-#include "include/core/SkPoint.h"
 #include "include/sksl/SkSLDebugTrace.h"
+
+#include "include/core/SkPoint.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <memory>
+#include <stdint.h>
 #include <string>
 #include <vector>
 

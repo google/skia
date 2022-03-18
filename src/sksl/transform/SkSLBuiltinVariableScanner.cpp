@@ -7,15 +7,30 @@
 
 #include "src/sksl/transform/SkSLTransform.h"
 
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"
 #include "src/sksl/SkSLBuiltinMap.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
+
+#ifdef SK_DEBUG
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#endif
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace SkSL {
 

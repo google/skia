@@ -8,19 +8,24 @@
 #ifndef SKSL_GLSLCODEGENERATOR
 #define SKSL_GLSLCODEGENERATOR
 
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
+#include <set>
+#include <string>
+#include <string_view>
+
 namespace SkSL {
 
+class AnyConstructor;
 class BinaryExpression;
 class Block;
 class ConstructorDiagonalMatrix;
-class ConstructorScalarCast;
 class DoStatement;
+class Expression;
 class ExpressionStatement;
-class Extension;
 class FieldAccess;
 class ForStatement;
 class FunctionCall;
@@ -28,19 +33,28 @@ class FunctionDeclaration;
 class FunctionDefinition;
 class FunctionPrototype;
 class IfStatement;
-struct IndexExpression;
 class InterfaceBlock;
 class Literal;
+class OutputStream;
 class PostfixExpression;
 class PrefixExpression;
+class ProgramElement;
 class ReturnStatement;
 class Setting;
+class Statement;
 class StructDefinition;
 class SwitchStatement;
-struct Swizzle;
 class TernaryExpression;
+class Type;
 class VarDeclaration;
+class Variable;
 class VariableReference;
+struct IndexExpression;
+struct Layout;
+struct Modifiers;
+struct Program;
+struct ShaderCaps;
+struct Swizzle;
 
 /**
  * Converts a Program into GLSL code.

@@ -7,6 +7,11 @@
 
 #include "src/sksl/tracing/SkVMDebugTracePlayer.h"
 
+#include <limits.h>
+#include <algorithm>
+#include <type_traits>
+#include <utility>
+
 namespace SkSL {
 
 void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {

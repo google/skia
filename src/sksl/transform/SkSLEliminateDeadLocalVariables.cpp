@@ -5,16 +5,27 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLStatement.h"
+#include "include/private/SkTHash.h"
+#include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/transform/SkSLProgramWriter.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
+#include <memory>
+#include <utility>
+#include <vector>
+
 namespace SkSL {
+class Context;
 
 bool Transform::EliminateDeadLocalVariables(Program& program, ProgramUsage* usage) {
     class DeadLocalVariableEliminator : public ProgramWriter {

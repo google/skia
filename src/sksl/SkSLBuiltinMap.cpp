@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLString.h"
 #include "src/sksl/SkSLBuiltinMap.h"
+
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLProgramElement.h"
+
+#include <utility>
 
 namespace SkSL {
 

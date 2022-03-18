@@ -6,7 +6,11 @@
  */
 
 #include "src/sksl/SkSLContext.h"
+
+#include "include/core/SkTypes.h"
+#ifdef SK_DEBUG
 #include "src/sksl/SkSLPool.h"
+#endif
 
 namespace SkSL {
 

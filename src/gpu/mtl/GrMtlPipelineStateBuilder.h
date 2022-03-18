@@ -8,6 +8,7 @@
 #ifndef GrMtlPipelineStateBuilder_DEFINED
 #define GrMtlPipelineStateBuilder_DEFINED
 
+#include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/mtl/GrMtlUniformHandler.h"

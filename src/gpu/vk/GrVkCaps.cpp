@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "src/core/SkCompressedDataUtils.h"

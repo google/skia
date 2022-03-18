@@ -5,13 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/lex/DFA.h"
+#include "src/sksl/lex/LexUtil.h"
+#include "src/sksl/lex/NFA.h"
 #include "src/sksl/lex/NFAtoDFA.h"
+#include "src/sksl/lex/RegexNode.h"
 #include "src/sksl/lex/RegexParser.h"
 #include "src/sksl/lex/TransitionTable.h"
 
-#include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <algorithm>
 #include <sstream>
 #include <string>
+#include <vector>
 
 /**
  * Processes a .lex file and produces .h and .cpp files which implement a lexical analyzer. The .lex

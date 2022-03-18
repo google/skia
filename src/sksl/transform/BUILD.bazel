@@ -1,4 +1,6 @@
-load("//bazel:macros.bzl", "generated_cc_atom")
+load("//bazel:macros.bzl", "enforce_iwyu_on_package", "generated_cc_atom")
+
+enforce_iwyu_on_package()
 
 generated_cc_atom(
     name = "SkSLBuiltinVariableScanner_src",
@@ -6,15 +8,23 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLTransform_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLProgramKind_hdr",
         "//src/sksl:SkSLBuiltinMap_hdr",
+        "//src/sksl:SkSLBuiltinTypes_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLContext_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
         "//src/sksl/analysis:SkSLProgramVisitor_hdr",
+        "//src/sksl/ir:SkSLExpression_hdr",
+        "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
         "//src/sksl/ir:SkSLInterfaceBlock_hdr",
+        "//src/sksl/ir:SkSLType_hdr",
         "//src/sksl/ir:SkSLVarDeclarations_hdr",
+        "//src/sksl/ir:SkSLVariableReference_hdr",
+        "//src/sksl/ir:SkSLVariable_hdr",
     ],
 )
 
@@ -26,6 +36,7 @@ generated_cc_atom(
         ":SkSLTransform_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//src/sksl:SkSLProgramSettings_hdr",
+        "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
     ],
@@ -38,6 +49,7 @@ generated_cc_atom(
     deps = [
         ":SkSLTransform_hdr",
         "//include/private:SkSLProgramElement_hdr",
+        "//include/private:SkSLStatement_hdr",
         "//src/sksl:SkSLProgramSettings_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
         "//src/sksl/ir:SkSLVarDeclarations_hdr",
@@ -51,12 +63,18 @@ generated_cc_atom(
     deps = [
         ":SkSLProgramWriter_hdr",
         ":SkSLTransform_hdr",
+        "//include/core:SkTypes_hdr",
         "//include/private:SkSLProgramElement_hdr",
+        "//include/private:SkSLStatement_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
         "//src/sksl/ir:SkSLExpressionStatement_hdr",
+        "//src/sksl/ir:SkSLExpression_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
         "//src/sksl/ir:SkSLNop_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
         "//src/sksl/ir:SkSLVarDeclarations_hdr",
+        "//src/sksl/ir:SkSLVariable_hdr",
     ],
 )
 
@@ -67,6 +85,7 @@ generated_cc_atom(
     deps = [
         ":SkSLProgramWriter_hdr",
         ":SkSLTransform_hdr",
+        "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLStatement_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
         "//src/sksl/ir:SkSLIfStatement_hdr",

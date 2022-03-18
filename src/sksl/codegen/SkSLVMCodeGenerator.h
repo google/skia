@@ -8,12 +8,14 @@
 #ifndef SKSL_VMGENERATOR
 #define SKSL_VMGENERATOR
 
-#include "include/core/SkSpan.h"
-#include "include/private/SkSLString.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/ir/SkSLType.h"
 
-#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
+
+template <typename T> class SkSpan;
 
 namespace SkSL {
 

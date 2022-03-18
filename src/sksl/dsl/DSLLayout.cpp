@@ -9,6 +9,8 @@
 
 #include "src/sksl/SkSLThreadContext.h"
 
+#include <string>
+
 namespace SkSL {
 
 namespace dsl {

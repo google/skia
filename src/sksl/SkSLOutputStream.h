@@ -8,8 +8,10 @@
 #ifndef SKSL_OUTPUTSTREAM
 #define SKSL_OUTPUTSTREAM
 
-#include "include/private/SkSLDefines.h"
-#include "include/private/SkSLString.h"
+#include "include/core/SkTypes.h"
+
+#include <stdarg.h>
+#include <string>
 
 namespace SkSL {
 

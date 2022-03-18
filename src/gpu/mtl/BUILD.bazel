@@ -121,6 +121,7 @@ generated_cc_atom(
     deps = [
         ":GrMtlUniformHandler_hdr",
         ":GrMtlVaryingHandler_hdr",
+        "//include/gpu:GrContextOptions_hdr",
         "//src/gpu:GrPipeline_hdr",
         "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
         "//src/sksl:SkSLCompiler_hdr",
@@ -272,6 +273,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrContextOptions_hdr",
         "//include/private:GrMtlTypesPriv_hdr",
         "//include/private:GrTypesPriv_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",

@@ -8,6 +8,7 @@
 #include "include/private/SkSLSampleUsage.h"
 
 #include <algorithm>
+#include <string>
 
 namespace SkSL {
 

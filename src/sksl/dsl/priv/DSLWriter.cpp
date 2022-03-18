@@ -7,15 +7,33 @@
 
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
+#include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLStatement.h"
 #include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLSymbols.h"
+#include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
+#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLMangler.h"
+#include "src/sksl/SkSLModifiersPool.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLNop.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
+
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 namespace SkSL {
 

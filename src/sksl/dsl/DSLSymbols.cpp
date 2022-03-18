@@ -7,14 +7,23 @@
 
 #include "include/sksl/DSLSymbols.h"
 
+#include "include/private/SkSLSymbol.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
+
+#include <string>
+#include <type_traits>
+#include <utility>
 
 namespace SkSL {
 
 namespace dsl {
+
+class DSLVarBase;
 
 static bool is_type_in_symbol_table(std::string_view name, SkSL::SymbolTable* symbols) {
     const SkSL::Symbol* s = (*symbols)[name];

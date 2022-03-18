@@ -8,23 +8,41 @@
 #ifndef SKSL_DSLPARSER
 #define SKSL_DSLPARSER
 
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkSLProgramKind.h"
+#include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
-#include "include/sksl/DSL.h"
-#include "include/sksl/DSLSymbols.h"
+#include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLLayout.h"
+#include "include/sksl/DSLModifiers.h"
+#include "include/sksl/DSLStatement.h"
+#include "include/sksl/DSLType.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLLexer.h"
-#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/SkSLProgramSettings.h"
 
 #include <memory>
 #include <optional>
+#include <string>
 #include <string_view>
 
 namespace SkSL {
 
-class ErrorReporter;
-struct Modifiers;
 struct ParsedModule;
-class SymbolTable;
+struct Program;
+
+namespace dsl {
+class DSLBlock;
+class DSLCase;
+class DSLGlobalVar;
+class DSLParameter;
+template <typename T> class DSLWrapper;
+
+}
 
 /**
  * Consumes .sksl text and invokes DSL functions to instantiate the program.

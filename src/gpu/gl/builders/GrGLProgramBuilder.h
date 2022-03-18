@@ -8,6 +8,7 @@
 #ifndef GrGLProgramBuilder_DEFINED
 #define GrGLProgramBuilder_DEFINED
 
+#include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/gl/GrGLProgram.h"
 #include "src/gpu/gl/GrGLProgramDataManager.h"

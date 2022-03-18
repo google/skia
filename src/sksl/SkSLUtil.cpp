@@ -7,14 +7,16 @@
 
 #include "src/sksl/SkSLUtil.h"
 
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLType.h"
 
-#include "src/gpu/GrShaderCaps.h"
+#include <string>
 
-#ifndef __STDC_FORMAT_MACROS
-#define __STDC_FORMAT_MACROS
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#include "src/gpu/GrShaderCaps.h"
 #endif
 
 namespace SkSL {

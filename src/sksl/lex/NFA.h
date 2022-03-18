@@ -11,6 +11,10 @@
 #include "src/sksl/lex/NFAState.h"
 #include "src/sksl/lex/RegexNode.h"
 
+#include <string>
+#include <utility>
+#include <vector>
+
 /**
  * A nondeterministic finite automaton for matching regular expressions. The NFA is initialized with
  * a number of regular expressions, and then matches a string against all of them simultaneously.

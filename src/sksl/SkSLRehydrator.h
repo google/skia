@@ -8,24 +8,28 @@
 #ifndef SKSL_REHYDRATOR
 #define SKSL_REHYDRATOR
 
+#include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
+#include <memory>
+#include <string_view>
 #include <vector>
 
 namespace SkSL {
 
 class Compiler;
-class Context;
 class ErrorReporter;
 class Expression;
+class ModifiersPool;
 class ProgramElement;
 class Statement;
-class SymbolTable;
 class Type;
+struct Program;
 
 /**
  * Interprets a simple bytecode format that encodes the structure of an SkSL IR tree. This is used

@@ -5,20 +5,51 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrDirectContext.h"
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkSLIRNode.h"
+#include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLProgramKind.h"
+#include "include/private/SkSLStatement.h"
+#include "include/private/SkTArray.h"
 #include "include/sksl/DSL.h"
+#include "include/sksl/DSLBlock.h"
+#include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLFunction.h"
+#include "include/sksl/DSLLayout.h"
+#include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLRuntimeEffects.h"
+#include "include/sksl/DSLStatement.h"
+#include "include/sksl/DSLType.h"
+#include "include/sksl/DSLVar.h"
+#include "include/sksl/DSLWrapper.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVariable.h"
-
 #include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
+#include <ctype.h>
+#include <stdlib.h>
+#include <cstdint>
 #include <limits>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 using namespace SkSL::dsl;
 

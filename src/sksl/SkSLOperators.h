@@ -8,7 +8,7 @@
 #ifndef SKSL_OPERATORS
 #define SKSL_OPERATORS
 
-#include "include/private/SkSLDefines.h"
+#include "include/core/SkTypes.h"
 #include "src/sksl/SkSLLexer.h"
 
 #include <string_view>

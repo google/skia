@@ -9,6 +9,11 @@
 
 #ifdef SK_ENABLE_SKSL
 
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLUtil.h"
+
+#include <memory>
+
 namespace SkSL {
 struct SharedCompiler::Impl {
     Impl() {

@@ -5,32 +5,44 @@
  * found in the LICENSE file.
  */
 
-#include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkData.h"
-#include "include/core/SkFont.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkSize.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
-#include "include/effects/SkImageFilters.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkSLDefines.h"  // for kDefaultInlineThreshold
+#include "include/gpu/GrDirectContext.h"
+#include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLProgramKind.h"
 #include "include/sksl/DSLCore.h"
-#include "include/utils/SkRandom.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLRehydrator.h"
-#include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
+#include "tools/gpu/GrContextFactory.h"
+
+#include <array>
+#include <memory>
+#include <string>
+#include <vector>
 
 static constexpr int kWidth = 2;
 static constexpr int kHeight = 2;

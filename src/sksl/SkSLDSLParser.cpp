@@ -7,13 +7,32 @@
 
 #include "src/sksl/SkSLDSLParser.h"
 
+#include "include/core/SkSpan.h"
+#include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLString.h"
+#include "include/sksl/DSL.h"
+#include "include/sksl/DSLBlock.h"
+#include "include/sksl/DSLCase.h"
+#include "include/sksl/DSLFunction.h"
+#include "include/sksl/DSLSymbols.h"
+#include "include/sksl/DSLVar.h"
+#include "include/sksl/DSLWrapper.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/dsl/priv/DSL_priv.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLProgram.h"
+
 #include <memory>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 using namespace SkSL::dsl;
 

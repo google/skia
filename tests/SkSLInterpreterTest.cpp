@@ -5,15 +5,39 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkSLProgramKind.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkVM.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
-#include "src/utils/SkJSON.h"
-
 #include "tests/Test.h"
+
+#include <math.h>
+#include <stdio.h>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace SkSL { class FunctionDefinition; }
+namespace SkSL { class Type; }
 
 struct ProgramBuilder {
     ProgramBuilder(skiatest::Reporter* r, const char* src)

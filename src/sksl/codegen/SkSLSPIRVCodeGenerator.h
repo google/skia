@@ -8,16 +8,33 @@
 #ifndef SKSL_SPIRVCODEGENERATOR
 #define SKSL_SPIRVCODEGENERATOR
 
-#include <stack>
-
+#include "include/private/SkSLDefines.h"
+#include "include/private/SkSLLayout.h"
+#include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkOpts.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/spirv.h"
+
+#include <stdint.h>
+#include <memory>
+#include <stack>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace SkSL {
 
+class AnyConstructor;
 class BinaryExpression;
 class Block;
 class ConstructorCompound;
@@ -26,29 +43,30 @@ class ConstructorDiagonalMatrix;
 class ConstructorMatrixResize;
 class ConstructorScalarCast;
 class ConstructorSplat;
+class Context;
 class DoStatement;
+class Expression;
 class FieldAccess;
 class ForStatement;
 class FunctionCall;
-class FunctionDeclaration;
-class FunctionDefinition;
-class FunctionPrototype;
 class IfStatement;
-struct IndexExpression;
-class InterfaceBlock;
-enum IntrinsicKind : int8_t;
 class Literal;
 class Operator;
+class OutputStream;
+class Position;
 class PostfixExpression;
 class PrefixExpression;
+class ProgramElement;
 class ReturnStatement;
-class Setting;
-class StructDefinition;
+class Statement;
 class SwitchStatement;
-struct Swizzle;
 class TernaryExpression;
 class VarDeclaration;
 class VariableReference;
+enum IntrinsicKind : int8_t;
+struct IndexExpression;
+struct Program;
+struct Swizzle;
 
 struct SPIRVNumberConstant {
     bool operator==(const SPIRVNumberConstant& that) const {

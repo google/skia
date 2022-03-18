@@ -7,6 +7,7 @@
 
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 
+#include "include/sksl/DSL.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"

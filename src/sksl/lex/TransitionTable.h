@@ -8,6 +8,7 @@
 #ifndef SKSL_TRANSITIONTABLE
 #define SKSL_TRANSITIONTABLE
 
+#include <stddef.h>
 #include <fstream>
 
 struct DFA;

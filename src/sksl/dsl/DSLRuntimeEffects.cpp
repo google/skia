@@ -7,10 +7,17 @@
 
 #include "include/sksl/DSLRuntimeEffects.h"
 
-#include "include/effects/SkRuntimeEffect.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLProgramKind.h"
 #include "include/sksl/DSLCore.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/ir/SkSLProgram.h"
+
+#include <memory>
+#include <utility>
 
 namespace SkSL {
 

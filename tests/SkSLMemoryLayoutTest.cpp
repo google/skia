@@ -5,12 +5,21 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSLModifiers.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLMemoryLayout.h"
-
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "tests/Test.h"
+
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
 
 DEF_TEST(SkSLMemoryLayout140Test, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;

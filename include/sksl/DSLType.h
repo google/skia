@@ -9,11 +9,13 @@
 #define SKSL_DSL_TYPE
 
 #include "include/core/SkSpan.h"
-#include "include/private/SkSLString.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
+#include "include/sksl/SkSLPosition.h"
 
 #include <cstdint>
+#include <string_view>
+#include <utility>
 
 namespace SkSL {
 
@@ -22,7 +24,6 @@ class Type;
 
 namespace dsl {
 
-class DSLExpression;
 class DSLField;
 class DSLVarBase;
 

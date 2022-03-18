@@ -8,8 +8,6 @@
 #ifndef SKSL_DSL_LAYOUT
 #define SKSL_DSL_LAYOUT
 
-#include "include/sksl/DSLLayout.h"
-
 #include "include/private/SkSLLayout.h"
 #include "include/sksl/SkSLPosition.h"
 

@@ -7,6 +7,7 @@
 
 #include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
 
+#include "include/sksl/DSL.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"

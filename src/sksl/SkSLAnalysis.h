@@ -8,11 +8,9 @@
 #ifndef SkSLAnalysis_DEFINED
 #define SkSLAnalysis_DEFINED
 
-#include "include/core/SkSpan.h"
-#include "include/private/SkSLDefines.h"
 #include "include/private/SkSLSampleUsage.h"
-#include "include/sksl/SkSLErrorReporter.h"
 
+#include <stdint.h>
 #include <memory>
 #include <set>
 
@@ -20,18 +18,18 @@ namespace SkSL {
 
 class ErrorReporter;
 class Expression;
-class ForStatement;
 class FunctionDeclaration;
 class FunctionDefinition;
-struct LoadedModule;
-struct Program;
+class Position;
 class ProgramElement;
 class ProgramUsage;
 class Statement;
-struct LoopUnrollInfo;
 class Variable;
 class VariableReference;
 enum class VariableRefKind : int8_t;
+struct LoadedModule;
+struct LoopUnrollInfo;
+struct Program;
 
 /**
  * Provides utilities for analyzing SkSL statically before it's composed into a full program.
