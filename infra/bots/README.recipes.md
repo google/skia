@@ -229,17 +229,17 @@ Args:
 If the operation fails, it will be retried multiple times.
 ### *recipe_modules* / [infra](/infra/bots/recipe_modules/infra)
 
-[DEPS](/infra/bots/recipe_modules/infra/__init__.py#7): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/infra/__init__.py#7): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 PYTHON_VERSION_COMPATIBILITY: PY3
 
 #### **class [InfraApi](/infra/bots/recipe_modules/infra/api.py#14)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&emsp; **@property**<br>&mdash; **def [go\_bin](/infra/bots/recipe_modules/infra/api.py#19)(self):**
+&emsp; **@property**<br>&mdash; **def [go\_bin](/infra/bots/recipe_modules/infra/api.py#46)(self):**
 
-&emsp; **@property**<br>&mdash; **def [go\_env](/infra/bots/recipe_modules/infra/api.py#23)(self):**
+&emsp; **@property**<br>&mdash; **def [go\_env](/infra/bots/recipe_modules/infra/api.py#50)(self):**
 
-&emsp; **@property**<br>&mdash; **def [gopath](/infra/bots/recipe_modules/infra/api.py#33)(self):**
+&emsp; **@property**<br>&mdash; **def [gopath](/infra/bots/recipe_modules/infra/api.py#60)(self):**
 
 &emsp; **@property**<br>&mdash; **def [goroot](/infra/bots/recipe_modules/infra/api.py#15)(self):**
 ### *recipe_modules* / [run](/infra/bots/recipe_modules/run)

@@ -1,6 +1,34 @@
 [
   {
     "cmd": [
+      "realpath",
+      "[START_DIR]/go/go/VERSION"
+    ],
+    "name": "realpath go/go/VERSION"
+  },
+  {
+    "cmd": [
+      "dirname",
+      ""
+    ],
+    "name": "dirname"
+  },
+  {
+    "cmd": [
+      "realpath",
+      "[START_DIR]/go/go/VERSION"
+    ],
+    "name": "realpath go/go/VERSION (2)"
+  },
+  {
+    "cmd": [
+      "dirname",
+      ""
+    ],
+    "name": "dirname (2)"
+  },
+  {
+    "cmd": [
       "echo",
       "hello world"
     ],

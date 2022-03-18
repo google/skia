@@ -157,6 +157,38 @@
   },
   {
     "cmd": [
+      "realpath",
+      "[START_DIR]/go/go/VERSION"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "name": "realpath go/go/VERSION"
+  },
+  {
+    "cmd": [
+      "dirname",
+      ""
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "name": "dirname"
+  },
+  {
+    "cmd": [
+      "realpath",
+      "[START_DIR]/go/go/VERSION"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "name": "realpath go/go/VERSION (2)"
+  },
+  {
+    "cmd": [
+      "dirname",
+      ""
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "name": "dirname (2)"
+  },
+  {
+    "cmd": [
       "make",
       "-C",
       "tools/gpu/gl/interface",
