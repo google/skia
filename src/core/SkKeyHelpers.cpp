@@ -407,9 +407,9 @@ void AddToKey(const SkKeyContext& keyContext,
         builder->endBlock();
 
         if (pipelineData) {
-            pipelineData->addImage(imgData.fSampling,
-                                   imgData.fTileModes,
-                                   std::move(imgData.fTextureProxy));
+            pipelineData->add(imgData.fSampling,
+                              imgData.fTileModes,
+                              std::move(imgData.fTextureProxy));
 
             pipelineData->add(make_image_uniform_data(dict, imgData));
         }
