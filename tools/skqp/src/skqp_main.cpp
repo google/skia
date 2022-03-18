@@ -12,6 +12,7 @@
 
 #include "include/core/SkData.h"
 #include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,12 +22,27 @@ class StdAssetManager : public SkQPAssetManager {
 public:
     StdAssetManager(const char* p) : fPrefix(p) {
         SkASSERT(!fPrefix.empty());
-        //TODO(halcanary): does this need to be changed if I run SkQP in Windows?
-        fPrefix += "/";
     }
-    sk_sp<SkData> open(const char* path) override {
-        return SkData::MakeFromFileName((fPrefix + path).c_str());
+
+    sk_sp<SkData> open(const char* subpath) override {
+        SkString path = SkOSPath::Join(fPrefix.c_str(), subpath);
+        return SkData::MakeFromFileName(path.c_str());
     }
+
+    std::vector<std::string> iterateDir(const char* directory, const char* extension) override {
+        std::vector<std::string> paths;
+        SkString resourceDirectory = GetResourcePath(directory);
+        SkOSFile::Iter iter(resourceDirectory.c_str(), extension);
+        SkString name;
+
+        while (iter.next(&name, /*getDir=*/false)) {
+            SkString path(SkOSPath::Join(directory, name.c_str()));
+            paths.push_back(path.c_str());
+        }
+
+        return paths;
+    }
+
 private:
     std::string fPrefix;
 };
@@ -97,6 +113,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "sk_mkdir(" << args.outputDir << ") failed.\n";
         return 2;
     }
+
     StdAssetManager mgr(args.assetDir);
     SkQP skqp;
     skqp.init(&mgr, args.outputDir);

@@ -110,29 +110,23 @@ static std::vector<SkQP::UnitTest> get_unit_tests(const ExclusionList& exclusion
 }
 
 // Returns a list of every SkSL error test to be run.
-static std::vector<SkQP::SkSLErrorTest> get_sksl_error_tests(const ExclusionList& exclusionList) {
+static std::vector<SkQP::SkSLErrorTest> get_sksl_error_tests(SkQPAssetManager* assetManager,
+                                                             const ExclusionList& exclusionList) {
     std::vector<SkQP::SkSLErrorTest> skslErrorTests;
 
-    auto iterateFn = [&](const char* directory, const char* extension) {
-        SkString resourceDirectory = GetResourcePath(directory);
-        SkOSFile::Iter iter(resourceDirectory.c_str(), extension);
-        SkString name;
-
-        while (iter.next(&name, /*getDir=*/false)) {
-            if (exclusionList.isExcluded(name.c_str())) {
-                continue;
-            }
-            SkString path(SkOSPath::Join(directory, name.c_str()));
-            sk_sp<SkData> shaderText = GetResourceAsData(path.c_str());
-            if (!shaderText) {
-                continue;
-            }
-            skslErrorTests.push_back({name.c_str(), static_cast<const char*>(shaderText->data())});
-        }
-    };
-
     // Android only supports runtime shaders, not color filters or blenders.
-    iterateFn("sksl/runtime_errors/", ".rts");
+    std::vector<std::string> paths = assetManager->iterateDir("sksl/runtime_errors/", ".rts");
+    for (const std::string& path : paths) {
+        SkString name = SkOSPath::Basename(path.c_str());
+        if (exclusionList.isExcluded(name.c_str())) {
+            continue;
+        }
+        sk_sp<SkData> shaderText = GetResourceAsData(path.c_str());
+        if (!shaderText) {
+            continue;
+        }
+        skslErrorTests.push_back({name.c_str(), static_cast<const char*>(shaderText->data())});
+    };
 
     auto lt = [](const SkQP::SkSLErrorTest& a, const SkQP::SkSLErrorTest& b) {
         return a.name < b.name;
@@ -245,7 +239,7 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     }
 
     fUnitTests = get_unit_tests(exclusionList);
-    fSkSLErrorTests = get_sksl_error_tests(exclusionList);
+    fSkSLErrorTests = get_sksl_error_tests(assetManager, exclusionList);
     fSupportedBackends = get_backends();
 
     print_backend_info((fReportDirectory + "/grdump.txt").c_str(), fSupportedBackends);
@@ -281,19 +275,19 @@ void SkQP::makeReport() {
         SkDebugf("Report destination does not exist: '%s'\n", fReportDirectory.c_str());
         return;
     }
-    SkFILEWStream unitOut(SkOSPath::Join(fReportDirectory.c_str(), kUnitTestReportPath).c_str());
-    SkASSERT_RELEASE(unitOut.isValid());
+    SkFILEWStream report(SkOSPath::Join(fReportDirectory.c_str(), kUnitTestReportPath).c_str());
+    SkASSERT_RELEASE(report.isValid());
     for (const SkQP::TestResult& result : fTestResults) {
-        unitOut.writeText(result.name.c_str());
+        report.writeText(result.name.c_str());
         if (result.errors.empty()) {
-            unitOut.writeText(" PASSED\n* * *\n");
+            report.writeText(" PASSED\n* * *\n");
         } else {
-            write(&unitOut, SkStringPrintf(" FAILED (%zu errors)\n", result.errors.size()));
+            write(&report, SkStringPrintf(" FAILED (%zu errors)\n", result.errors.size()));
             for (const std::string& err : result.errors) {
-                write(&unitOut, err);
-                unitOut.newline();
+                write(&report, err);
+                report.newline();
             }
-            unitOut.writeText("* * *\n");
+            report.writeText("* * *\n");
         }
     }
 }

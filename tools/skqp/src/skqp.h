@@ -32,6 +32,8 @@ public:
     SkQPAssetManager() {}
     virtual ~SkQPAssetManager() {}
     virtual sk_sp<SkData> open(const char* path) = 0;
+    virtual std::vector<std::string> iterateDir(const char* directory, const char* extension) = 0;
+
 private:
     SkQPAssetManager(const SkQPAssetManager&) = delete;
     SkQPAssetManager& operator=(const SkQPAssetManager&) = delete;
