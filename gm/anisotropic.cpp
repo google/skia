@@ -21,7 +21,7 @@ namespace skiagm {
 // This GM exercises HighQuality anisotropic filtering.
 class AnisotropicGM : public GM {
 public:
-    AnisotropicGM() : fSampling(SkCubicResampler::Mitchell()) {
+    AnisotropicGM() : fSampling(SkFilterMode::kLinear, SkMipmapMode::kLinear) {
         this->setBGColor(0xFFCCCCCC);
     }
 
