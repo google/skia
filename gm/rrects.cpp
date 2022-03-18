@@ -143,7 +143,7 @@ protected:
 
                             SkRect bounds = rrect.getBounds();
                             bounds.intersect(SkRect::MakeXYWH(x, y, kTileX - 2, kTileY - 2));
-                            if (et == (int) GrClipEdgeType::kLast) {
+                            if (et >= (int) GrClipEdgeType::kInverseFillBW) {
                                 bounds.outset(2.f, 2.f);
                             }
 
