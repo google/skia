@@ -8,14 +8,13 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkPipelineData.h"
 
-SkPipelineData::SkPipelineData(sk_sp<SkUniformData> initial) {
-    SkASSERT(initial && initial->count());
-    fUniformData.push_back(std::move(initial));
+SkPipelineData::SkPipelineData(sk_sp<SkUniformData> initial)
+        : fUniformDataBlock(std::move(initial)) {
 }
 
 void SkPipelineData::add(sk_sp<SkUniformData> uniforms) {
     SkASSERT(uniforms && uniforms->count());
-    fUniformData.push_back(std::move(uniforms));
+    fUniformDataBlock.add(std::move(uniforms));
 }
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -26,7 +25,7 @@ void SkPipelineData::addImage(const SkSamplingOptions& sampling,
 }
 #endif
 
-size_t SkPipelineData::totalUniformSize() const {
+size_t SkPipelineData::UniformDataBlock::totalUniformSize() const {
     size_t total = 0;
 
     // TODO: It seems like we need to worry about alignment between the separate sets of uniforms
@@ -37,7 +36,7 @@ size_t SkPipelineData::totalUniformSize() const {
     return total;
 }
 
-int SkPipelineData::numUniforms() const {
+int SkPipelineData::UniformDataBlock::numUniforms() const {
     int total = 0;
 
     for (auto& u : fUniformData) {
@@ -47,7 +46,7 @@ int SkPipelineData::numUniforms() const {
     return total;
 }
 
-bool SkPipelineData::operator==(const SkPipelineData& other) const {
+bool SkPipelineData::UniformDataBlock::operator==(const UniformDataBlock& other) const {
     if (fUniformData.size() != other.fUniformData.size()) {
         return false;
     }
@@ -61,8 +60,8 @@ bool SkPipelineData::operator==(const SkPipelineData& other) const {
     return true;
 }
 
-size_t SkPipelineData::hash() const {
-    int32_t hash = 0;
+uint32_t SkPipelineData::UniformDataBlock::hash() const {
+    uint32_t hash = 0;
 
     for (auto& u : fUniformData) {
         hash = SkOpts::hash_fn(u->data(), u->dataSize(), hash);

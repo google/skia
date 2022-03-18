@@ -107,9 +107,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
 
                 // ExtractPaintData made the pipeline data we expected
                 {
-                    int actualNumUniforms = pipelineData->numUniforms();
+                    auto uniforms = pipelineData->uniformDataBlock();
+                    int actualNumUniforms = uniforms.numUniforms();
                     REPORTER_ASSERT(reporter, expectedNumUniforms == actualNumUniforms);
-                    for (const auto& u: *pipelineData) {
+                    for (const auto& u : uniforms) {
                         for (int i = 0; i < u->count(); ++i) {
                             REPORTER_ASSERT(reporter,
                                             u->offset(i) >= 0 && u->offset(i) < u->dataSize());

@@ -56,28 +56,50 @@ public:
     void addImage(const SkSamplingOptions&, const SkTileMode[2], sk_sp<skgpu::TextureProxy>);
 #endif
 
+    class UniformDataBlock {
+    public:
+        UniformDataBlock() = default;
+        UniformDataBlock(sk_sp<SkUniformData> initial) {
+            SkASSERT(initial && initial->count());
+            fUniformData.push_back(std::move(initial));
+        }
+
+        bool empty() const { return fUniformData.empty(); }
+        size_t totalUniformSize() const;  // TODO: cache this?
+        int numUniforms() const;          // TODO: cache this?
+
+        bool operator==(const UniformDataBlock&) const;
+        bool operator!=(const UniformDataBlock& other) const { return !(*this == other);  }
+        uint32_t hash() const;
+
+        using container = std::vector<sk_sp<SkUniformData>>;
+        using iterator = container::iterator;
+
+        inline iterator begin() noexcept { return fUniformData.begin(); }
+        inline iterator end() noexcept { return fUniformData.end(); }
+
+        void add(sk_sp<SkUniformData> ud) {
+            fUniformData.push_back(std::move(ud));
+        }
+
+    private:
+        // TODO: SkUniformData should be held uniquely
+        std::vector<sk_sp<SkUniformData>> fUniformData;
+    };
+
     void add(sk_sp<SkUniformData>);
+    bool hasUniforms() const { return !fUniformDataBlock.empty(); }
 
-    bool hasUniforms() const { return !fUniformData.empty(); }
-    size_t totalUniformSize() const;  // TODO: cache this?
-    int numUniforms() const;         // TODO: cache this?
+    UniformDataBlock& uniformDataBlock() { return fUniformDataBlock; }
 
-    bool operator==(const SkPipelineData&) const;
-    bool operator!=(const SkPipelineData& other) const { return !(*this == other);  }
-    size_t hash() const;
-
-    using container = std::vector<sk_sp<SkUniformData>>;
-    using iterator = container::iterator;
-    using const_iterator = container::const_iterator;
-
-    inline iterator begin() noexcept { return fUniformData.begin(); }
-    inline const_iterator cbegin() const noexcept { return fUniformData.cbegin(); }
-    inline iterator end() noexcept { return fUniformData.end(); }
-    inline const_iterator cend() const noexcept { return fUniformData.cend(); }
+    // TODO: remove these two once the PipelineDataCache has been split
+    bool operator==(const SkPipelineData& that) const {
+        return fUniformDataBlock == that.fUniformDataBlock;
+    }
+    uint32_t hash() const { return fUniformDataBlock.hash(); }
 
 private:
-    // TODO: SkUniformData should be held uniquely
-    std::vector<sk_sp<SkUniformData>> fUniformData;
+    UniformDataBlock fUniformDataBlock;
 
 #ifdef SK_GRAPHITE_ENABLED
     struct TextureInfo {

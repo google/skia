@@ -199,10 +199,10 @@ public:
         if (fBindings.find(index) == fBindings.end()) {
             SkPipelineData* tmp = fCache->lookup(index);
             // First time encountering this data, so upload to the GPU
-            size_t totalDataSize = tmp->totalUniformSize();
+            size_t totalDataSize = tmp->uniformDataBlock().totalUniformSize();
             SkASSERT(totalDataSize);
             auto [writer, bufferInfo] = fBufferMgr->getUniformWriter(totalDataSize);
-            for (auto& u : *tmp) {
+            for (auto& u : tmp->uniformDataBlock()) {
                 writer.write(u->data(), u->dataSize());
             }
 
