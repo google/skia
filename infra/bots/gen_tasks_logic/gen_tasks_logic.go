@@ -907,7 +907,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"IntelHD2000":   "8086:0102",
 					"IntelHD405":    "8086:22b1",
 					"IntelIris640":  "8086:5926",
-					"QuadroP400":    "10de:1cb3-430.14",
+					"QuadroP400":    "10de:1cb3-440.100",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Ubuntu GPU mapping.", b.parts["cpu_or_gpu_value"])
