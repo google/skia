@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
@@ -164,13 +165,52 @@ public class SkQPRunner extends Runner implements Filterable {
             return mSkSLErrorTestDesc.length;
         }
         public String name(int index) {
-            return desc(index).getMethodName();
+            return mImpl.mSkSLErrorTestName[index];
         }
         public Description desc(int index) {
             return mSkSLErrorTestDesc[index];
         }
         public boolean run(RunNotifier notifier, int index) {
-            // TODO(skia:13042): compile SkSL and check error conditions
+            String shaderText = mImpl.mSkSLErrorTestShader[index];
+            try {
+                new RuntimeShader(shaderText);
+                // Because this is an error test, we expected an exception to be thrown.
+                // If we reach this point, no exception occurred; report this as an error.
+                SkQPRunner.Fail(desc(index), notifier, "Shader did not generate any errors.");
+                Log.w(TAG, String.format("[FAIL] '%s': Shader did not generate any errors",
+                                         name(index)));
+                return false;
+            }
+            catch (Exception ex) {
+                // Verify that RuntimeShader actually emitted the expected error messages.
+                // The list of expectations isn't necessarily exhaustive, though.
+                String errorText = ex.getMessage();
+                String[] block = shaderText.split(Pattern.quote("*%%*"));
+                if (block.length >= 3) {
+                    // We only intend to support a single /%**%/ section.
+                    // Because we are splitting on *%%*, expectations should always be in block[1].
+                    String[] expectations = block[1].split("\n");
+                    for (String expectation : expectations) {
+                        if (expectation.length() == 0) {
+                            continue;
+                        }
+                        int errIndex = errorText.indexOf(expectation);
+                        // If this error wasn't reported, trigger an error.
+                        if (errIndex < 0) {
+                            String failMessage = String.format("Expected error '%s', got '%s'",
+                                                               expectation, ex.getMessage());
+                            SkQPRunner.Fail(desc(index), notifier, failMessage);
+                            Log.w(TAG, String.format("[FAIL] '%s': %s", name(index), failMessage));
+                            return false;
+                        }
+                        // We found the error that we expected to have. Remove that error from our
+                        // text, and everything preceding it as well. This ensures that we don't
+                        // match the same error twice, and that errors are reported in the order
+                        // we expect.
+                        errorText = errorText.substring(errIndex + expectation.length());
+                    }
+                }
+            }
             return true;
         }
     }
