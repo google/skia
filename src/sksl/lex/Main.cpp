@@ -20,7 +20,7 @@
  * where <pattern> is either a regular expression (e.g [0-9]) or a double-quoted literal string.
  */
 
-static constexpr const char* HEADER =
+static constexpr const char HEADER[] =
     "/*\n"
     " * Copyright 2017 Google Inc.\n"
     " *\n"
@@ -38,7 +38,6 @@ static void writeH(const DFA& dfa, const char* lexer, const char* token,
     out << HEADER;
     out << "#ifndef SKSL_" << lexer << "\n";
     out << "#define SKSL_" << lexer << "\n";
-    out << "#include <cstddef>\n";
     out << "#include <cstdint>\n";
     out << "#include <string_view>\n";
     out << "namespace SkSL {\n";

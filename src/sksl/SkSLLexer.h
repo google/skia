@@ -9,7 +9,6 @@
  *****************************************************************************************/
 #ifndef SKSL_Lexer
 #define SKSL_Lexer
-#include <cstddef>
 #include <cstdint>
 #include <string_view>
 namespace SkSL {
