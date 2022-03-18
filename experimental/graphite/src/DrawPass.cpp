@@ -79,13 +79,15 @@ public:
             int renderStep,
             uint32_t pipelineIndex,
             uint32_t geomUniformIndex,
-            uint32_t shadingUniformIndex)
+            uint32_t shadingUniformIndex,
+            uint32_t textureDataIndex)
         : fPipelineKey(ColorDepthOrderField::set(draw->fOrder.paintOrder().bits()) |
                        StencilIndexField::set(draw->fOrder.stencilIndex().bits())  |
                        RenderStepField::set(static_cast<uint32_t>(renderStep))     |
                        PipelineField::set(pipelineIndex))
-        , fUniformKey(GeometryUniformField::set(geomUniformIndex) |
-                      ShadingUniformField::set(shadingUniformIndex))
+        , fUniformKey(GeometryUniformField::set(geomUniformIndex)   |
+                      ShadingUniformField::set(shadingUniformIndex) |
+                      TextureBindingsField::set(textureDataIndex))
         , fDraw(draw) {
         SkASSERT(renderStep <= draw->fRenderer.numRenderSteps());
     }
@@ -104,6 +106,7 @@ public:
     uint32_t pipeline()          const { return PipelineField::get(fPipelineKey);       }
     uint32_t geometryUniforms()  const { return GeometryUniformField::get(fUniformKey); }
     uint32_t shadingUniforms()   const { return ShadingUniformField::get(fUniformKey);  }
+    uint32_t textureBindings()   const { return TextureBindingsField::get(fUniformKey); }
 
 private:
     // Fields are ordered from most-significant to least when sorting by 128-bit value.
@@ -115,8 +118,9 @@ private:
     using PipelineField        = Bitfield<30, 0>;  // bits >= log2(max steps*DrawList::kMaxDraws)
     uint64_t fPipelineKey;
 
-    using GeometryUniformField = Bitfield<32, 32>; // bits >= log2(max steps * max draw count)
-    using ShadingUniformField  = Bitfield<32, 0>;  //  ""
+    using GeometryUniformField = Bitfield<22, 42>; // bits >= log2(max steps * max draw count)
+    using ShadingUniformField  = Bitfield<21, 21>; //  ""
+    using TextureBindingsField = Bitfield<21, 0>;  //  ""
     uint64_t fUniformKey;
 
     // Backpointer to the draw that produced the sort key
@@ -126,9 +130,13 @@ private:
     static_assert(StencilIndexField::kBits    >= sizeof(DisjointStencilIndex));
     static_assert(RenderStepField::kBits      >= SkNextLog2_portable(Renderer::kMaxRenderSteps));
     static_assert(PipelineField::kBits        >=
-                        SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
-    static_assert(GeometryUniformField::kBits >= PipelineField::kBits);
-    static_assert(ShadingUniformField::kBits  >= PipelineField::kBits);
+                          SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
+    static_assert(GeometryUniformField::kBits >=
+                          SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
+    static_assert(ShadingUniformField::kBits  >=
+                          SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
+    static_assert(TextureBindingsField::kBits >=
+                          SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
 };
 
 class DrawPass::Drawer final : public DrawDispatcher {
@@ -347,7 +355,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 pipelineIndex = pipelineLookup->second;
             }
 
-            keys.push_back({&draw, stepIndex, pipelineIndex, geometryIndex, stepShadingIndex});
+            // TODO: fill in the textureBinding field
+            keys.push_back({&draw, stepIndex, pipelineIndex, geometryIndex, stepShadingIndex, 0});
         }
 
         passBounds.join(draw.fClip.drawBounds());
