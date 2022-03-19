@@ -1739,9 +1739,11 @@ bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path
     if (!generateGlyphPathStatic(face, path)) {
         return false;
     }
+#ifndef SK_IGNORE_OUTLINE_OVERLAP_FIX
     if (face->glyph->outline.flags & FT_OUTLINE_OVERLAP) {
         Simplify(*path, path);
     }
+#endif
     return true;
 }
 
