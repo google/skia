@@ -192,7 +192,9 @@ public:
     // across draw calls, and reduce the number of shader permutations required. These Renderers
     // are stateless singletons and remain alive for the entire program. Each Renderer corresponds
     // to a specific recording function on DrawList and fill type.
-    static const Renderer& StencilAndFillPath(SkPathFillType);
+    static const Renderer& StencilTessellatedCurvesAndTris(SkPathFillType);
+
+    static const Renderer& StencilTessellatedWedges(SkPathFillType);
     // TODO: Not on the immediate sprint target, but show what needs to be added for DrawList's API
     // static const Renderer& FillConvexPath();
     // static const Renderer& StrokePath();

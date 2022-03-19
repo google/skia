@@ -486,12 +486,22 @@ void Device::recordDraw(const Transform& localToDevice,
     // TODO: All shapes that select a tessellating path renderer need to be "pre-chopped" if they
     // are large enough to exceed the fixed count tessellation limits.
     const Renderer* renderer = nullptr;
+
+    // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose between wedges
+    // curves consistently in Graphite and Ganesh.
+    const bool preferWedges = (shape.isPath() && shape.path().countVerbs() < 50) ||
+                              clip.drawBounds().area() <= (256 * 256);
+
     // TODO: Route all filled shapes to stencil-and-cover for the sprint; convex will draw
     // correctly but uses an unnecessary stencil step.
     // if (shape.convex()) {
     //     renderer = Renderer::ConvexPath();
     // } else {
-    renderer = &Renderer::StencilAndFillPath(shape.fillType());
+    if (preferWedges) {
+        renderer = &Renderer::StencilTessellatedWedges(shape.fillType());
+    } else {
+        renderer = &Renderer::StencilTessellatedCurvesAndTris(shape.fillType());
+    }
 
     if (!renderer) {
         SKGPU_LOG_W("Skipping draw with no supported path renderer.");

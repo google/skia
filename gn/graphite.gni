@@ -116,6 +116,8 @@ skia_graphite_sources = [
   "$_src/render/StencilAndFillPathRenderer.cpp",
   "$_src/render/TessellateCurvesRenderStep.cpp",
   "$_src/render/TessellateCurvesRenderStep.h",
+  "$_src/render/TessellateWedgesRenderStep.cpp",
+  "$_src/render/TessellateWedgesRenderStep.h",
 ]
 
 skia_graphite_mtl_sources = [

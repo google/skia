@@ -68,10 +68,14 @@ void Context::submit(SyncToCpu syncToCpu) {
 
 void Context::preCompile(const PaintCombo& paintCombo) {
     static const Renderer* kRenderers[] = {
-            &Renderer::StencilAndFillPath(SkPathFillType::kWinding),
-            &Renderer::StencilAndFillPath(SkPathFillType::kEvenOdd),
-            &Renderer::StencilAndFillPath(SkPathFillType::kInverseWinding),
-            &Renderer::StencilAndFillPath(SkPathFillType::kInverseEvenOdd)
+            &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kWinding),
+            &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kEvenOdd),
+            &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kInverseWinding),
+            &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kInverseEvenOdd),
+            &Renderer::StencilTessellatedWedges(SkPathFillType::kWinding),
+            &Renderer::StencilTessellatedWedges(SkPathFillType::kEvenOdd),
+            &Renderer::StencilTessellatedWedges(SkPathFillType::kInverseWinding),
+            &Renderer::StencilTessellatedWedges(SkPathFillType::kInverseEvenOdd)
     };
 
     SkShaderCodeDictionary* dict = fGlobalCache->shaderCodeDictionary();

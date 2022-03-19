@@ -10,37 +10,75 @@
 #include "experimental/graphite/src/render/CoverBoundsRenderStep.h"
 #include "experimental/graphite/src/render/MiddleOutFanRenderStep.h"
 #include "experimental/graphite/src/render/TessellateCurvesRenderStep.h"
+#include "experimental/graphite/src/render/TessellateWedgesRenderStep.h"
 #include "include/core/SkPathTypes.h"
 
 namespace skgpu {
 
-const Renderer& Renderer::StencilAndFillPath(SkPathFillType fillType) {
+namespace {
+
+const RenderStep* cover_step() {
+    static const CoverBoundsRenderStep kFill{false};
+    return &kFill;
+}
+
+const RenderStep* inverse_cover_step() {
+    static const CoverBoundsRenderStep kInverseFill{true};
+    return &kInverseFill;
+}
+
+}  // namespace
+
+const Renderer& Renderer::StencilTessellatedCurvesAndTris(SkPathFillType fillType) {
     // Because each fill type uses a different stencil settings, there is one Renderer per type.
     // However, at each stage (stencil vs. cover), there are only two RenderSteps to branch on.
     static const MiddleOutFanRenderStep kWindingStencilFan{false};
     static const MiddleOutFanRenderStep kEvenOddStencilFan{true};
     static const TessellateCurvesRenderStep kWindingStencilCurves{false};
     static const TessellateCurvesRenderStep kEvenOddStencilCurves{true};
-    static const CoverBoundsRenderStep kFill{false};
-    static const CoverBoundsRenderStep kInverseFill{true};
 
-    // TODO: Uncomment and include the curve stenciling steps to draw curved paths
-    static const Renderer kWindingRenderer{"stencil-and-fill[winding]",
+    static const Renderer kWindingRenderer{"StencilTessellatedCurvesAndTris[winding]",
                                            &kWindingStencilFan,
                                            &kWindingStencilCurves,
-                                           &kFill};
-    static const Renderer kInverseWindingRenderer{"stencil-and-fill[inverse-winding]",
+                                           cover_step()};
+    static const Renderer kInverseWindingRenderer{"StencilTessellatedCurvesAndTris[inverse-winding]",
                                                   &kWindingStencilFan,
                                                   &kWindingStencilCurves,
-                                                  &kInverseFill};
-    static const Renderer kEvenOddRenderer{"stencil-and-fill[evenodd]",
+                                                  inverse_cover_step()};
+    static const Renderer kEvenOddRenderer{"StencilTessellatedCurvesAndTris[evenodd]",
                                            &kEvenOddStencilFan,
                                            &kEvenOddStencilCurves,
-                                           &kFill};
-    static const Renderer kInverseEvenOddRenderer{"stencil-and-fill[inverse-evenodd]",
+                                           cover_step()};
+    static const Renderer kInverseEvenOddRenderer{"StencilTessellatedCurvesAndTris[inverse-evenodd]",
                                                   &kEvenOddStencilFan,
                                                   &kEvenOddStencilCurves,
-                                                  &kInverseFill};
+                                                  inverse_cover_step()};
+
+    switch(fillType) {
+        case SkPathFillType::kWinding: return kWindingRenderer;
+        case SkPathFillType::kEvenOdd: return kEvenOddRenderer;
+        case SkPathFillType::kInverseWinding: return kInverseWindingRenderer;
+        case SkPathFillType::kInverseEvenOdd: return kInverseEvenOddRenderer;
+    }
+    SkUNREACHABLE;
+}
+
+const Renderer& Renderer::StencilTessellatedWedges(SkPathFillType fillType) {
+    static const TessellateWedgesRenderStep kWindingStencilWedges{false};
+    static const TessellateWedgesRenderStep kEvenOddStencilWedges{true};
+
+    static const Renderer kWindingRenderer{"StencilTessellatedWedges[winding]",
+                                           &kWindingStencilWedges,
+                                           cover_step()};
+    static const Renderer kInverseWindingRenderer{"StencilTessellatedWedges[inverse-winding]",
+                                                  &kWindingStencilWedges,
+                                                  inverse_cover_step()};
+    static const Renderer kEvenOddRenderer{"StencilTessellatedWedges[evenodd]",
+                                           &kEvenOddStencilWedges,
+                                           cover_step()};
+    static const Renderer kInverseEvenOddRenderer{"StencilTessellatedWedges[inverse-evenodd]",
+                                                  &kEvenOddStencilWedges,
+                                                  inverse_cover_step()};
 
     switch(fillType) {
         case SkPathFillType::kWinding: return kWindingRenderer;
