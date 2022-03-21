@@ -8,6 +8,8 @@
 #ifndef tessellate_PathTessellator_DEFINED
 #define tessellate_PathTessellator_DEFINED
 
+#include "include/core/SkPath.h"
+#include "include/private/SkColorData.h"
 #include "src/gpu/tessellate/Tessellation.h"
 
 class SkPath;
@@ -115,12 +117,6 @@ protected:
         }
     }
 
-    void updateResolveLevel(int resolveLevel) {
-        // We should already chopped curves to make sure none needed a higher resolveLevel than
-        // kMaxFixedResolveLevel.
-        fFixedResolveLevel = SkTPin(resolveLevel, fFixedResolveLevel, kMaxFixedResolveLevel);
-    }
-
     PatchAttribs fAttribs;
 
 #if SK_GPU_V1
@@ -133,6 +129,13 @@ protected:
     // If using fixed-count rendering, these are the vertex and index buffers.
     sk_sp<const GrGpuBuffer> fFixedVertexBuffer;
     sk_sp<const GrGpuBuffer> fFixedIndexBuffer;
+
+
+    void updateResolveLevel(int resolveLevel) {
+        // We should already chopped curves to make sure none needed a higher resolveLevel than
+        // kMaxFixedResolveLevel.
+        fFixedResolveLevel = SkTPin(resolveLevel, fFixedResolveLevel, kMaxFixedResolveLevel);
+    }
 #endif
 };
 

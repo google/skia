@@ -9,6 +9,7 @@
 #define tessellate_PatchWriter_DEFINED
 
 #include "include/private/SkColorData.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"

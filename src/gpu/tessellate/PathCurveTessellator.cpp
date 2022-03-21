@@ -22,6 +22,8 @@ namespace skgpu {
 
 namespace {
 
+#if SK_GPU_V1
+
 using Writer = PatchWriter<GrVertexChunkBuilder,
                            Optional<PatchAttribs::kColor>,
                            Optional<PatchAttribs::kWideColorIfEnabled>,
@@ -71,6 +73,8 @@ int write_patches(Writer&& patchWriter,
 
     return patchWriter.requiredResolveLevel();
 }
+
+#endif
 
 }  // namespace
 
