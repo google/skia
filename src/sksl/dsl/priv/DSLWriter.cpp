@@ -119,11 +119,12 @@ void DSLWriter::AddVarDeclaration(DSLStatement& existing, DSLVar& additional) {
         SkASSERT(!block.isScope());
         block.children().push_back(Declare(additional).release());
     } else if (existing.fStatement->is<VarDeclaration>()) {
+        Position pos = existing.fStatement->fPosition;
         StatementArray stmts;
         stmts.reserve_back(2);
         stmts.push_back(std::move(existing.fStatement));
         stmts.push_back(Declare(additional).release());
-        existing.fStatement = SkSL::Block::MakeUnscoped(Position(), std::move(stmts));
+        existing.fStatement = SkSL::Block::MakeUnscoped(pos, std::move(stmts));
     } else if (existing.fStatement->isEmpty()) {
         // If the variable declaration generated an error, we can end up with a Nop statement here.
         existing.fStatement = Declare(additional).release();

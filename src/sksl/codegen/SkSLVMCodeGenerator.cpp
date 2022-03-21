@@ -362,6 +362,10 @@ private:
     skvm::I32 fLoopMask;
     skvm::I32 fContinueMask;
 
+    // `fInsideUnscopedBlock` will be nonzero if we are currently writing statements inside of a
+    // Block where isScope is false. (Conceptually those statements should all count as one.)
+    int fInsideUnscopedBlock = 0;
+
     //
     // State that's local to the generation of a single function:
     //
@@ -1862,6 +1866,8 @@ void SkVMGenerator::writeBlock(const Block& b) {
     skvm::I32 mask = this->mask();
     if (b.isScope()) {
         this->emitTraceScope(mask, +1);
+    } else {
+        ++fInsideUnscopedBlock;
     }
 
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
@@ -1870,6 +1876,8 @@ void SkVMGenerator::writeBlock(const Block& b) {
 
     if (b.isScope()) {
         this->emitTraceScope(mask, -1);
+    } else {
+        --fInsideUnscopedBlock;
     }
 }
 
@@ -2009,7 +2017,7 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 }
 
 void SkVMGenerator::emitTraceLine(int line) {
-    if (fDebugTrace && line > 0) {
+    if (fDebugTrace && line > 0 && fInsideUnscopedBlock == 0) {
         fBuilder->trace_line(fTraceHookID, this->mask(), fTraceMask, line);
     }
 }
