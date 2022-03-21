@@ -78,16 +78,16 @@ public:
     SortKey(const DrawList::Draw* draw,
             int renderStep,
             uint32_t pipelineIndex,
-            uint32_t geomUniformIndex,
-            uint32_t shadingUniformIndex,
-            uint32_t textureDataIndex)
+            UniformDataCache::Index geomUniformIndex,
+            UniformDataCache::Index shadingUniformIndex,
+            TextureDataCache::Index textureDataIndex)
         : fPipelineKey(ColorDepthOrderField::set(draw->fOrder.paintOrder().bits()) |
                        StencilIndexField::set(draw->fOrder.stencilIndex().bits())  |
                        RenderStepField::set(static_cast<uint32_t>(renderStep))     |
                        PipelineField::set(pipelineIndex))
-        , fUniformKey(GeometryUniformField::set(geomUniformIndex)   |
-                      ShadingUniformField::set(shadingUniformIndex) |
-                      TextureBindingsField::set(textureDataIndex))
+        , fUniformKey(GeometryUniformField::set(geomUniformIndex.asUInt()) |
+                      ShadingUniformField::set(shadingUniformIndex.asUInt()) |
+                      TextureBindingsField::set(textureDataIndex.asUInt()))
         , fDraw(draw) {
         SkASSERT(renderStep <= draw->fRenderer.numRenderSteps());
     }
@@ -103,10 +103,16 @@ public:
 
     const DrawList::Draw* draw() const { return fDraw; }
 
-    uint32_t pipeline()          const { return PipelineField::get(fPipelineKey);       }
-    uint32_t geometryUniforms()  const { return GeometryUniformField::get(fUniformKey); }
-    uint32_t shadingUniforms()   const { return ShadingUniformField::get(fUniformKey);  }
-    uint32_t textureBindings()   const { return TextureBindingsField::get(fUniformKey); }
+    uint32_t pipeline() const { return PipelineField::get(fPipelineKey);       }
+    UniformDataCache::Index geometryUniforms() const {
+        return UniformDataCache::Index(GeometryUniformField::get(fUniformKey));
+    }
+    UniformDataCache::Index shadingUniforms() const {
+        return UniformDataCache::Index(ShadingUniformField::get(fUniformKey));
+    }
+    TextureDataCache::Index textureBindings() const {
+        return TextureDataCache::Index(TextureBindingsField::get(fUniformKey));
+    }
 
 private:
     // Fields are ordered from most-significant to least when sorting by 128-bit value.
@@ -182,45 +188,45 @@ private:
 
 namespace {
 
-// For now, we're treating the uniforms, samplers, and textures as a unit. That means that, in
-// this cache, two pipelineData objects that have the same uniforms but different samplers or
-// textures will be treated as distinct objects (and the uniforms will be uploaded twice).
 class UniformBindingCache {
 public:
-    UniformBindingCache(DrawBufferManager* bufferMgr, PipelineDataCache* cache)
-            : fBufferMgr(bufferMgr), fCache(cache) {}
+    UniformBindingCache(DrawBufferManager* bufferMgr, UniformDataCache* uniformDataCache)
+            : fBufferMgr(bufferMgr)
+            , fUniformDataCache(uniformDataCache) {
+    }
 
-    uint32_t addUniforms(std::unique_ptr<SkPipelineData> pipelineData) {
-        if (!pipelineData || !pipelineData->hasUniforms()) {
-            return PipelineDataCache::kInvalidUniformID;
+    UniformDataCache::Index addUniforms(const SkUniformDataBlock& uniformDataBlock) {
+        if (uniformDataBlock.empty()) {
+            return {};
         }
 
-        uint32_t index = fCache->insert(std::move(pipelineData));
-        if (fBindings.find(index) == fBindings.end()) {
-            SkPipelineData* tmp = fCache->lookup(index);
+        UniformDataCache::Index uIndex = fUniformDataCache->insert(uniformDataBlock);
+        SkUniformDataBlock *udb = fUniformDataCache->lookup(uIndex);
+
+        if (fBindings.find(uIndex.asUInt()) == fBindings.end()) {
             // First time encountering this data, so upload to the GPU
-            size_t totalDataSize = tmp->uniformDataBlock().totalUniformSize();
+            size_t totalDataSize = udb->totalUniformSize();
             SkASSERT(totalDataSize);
-            auto [writer, bufferInfo] = fBufferMgr->getUniformWriter(totalDataSize);
-            for (auto& u : tmp->uniformDataBlock()) {
+            auto[writer, bufferInfo] = fBufferMgr->getUniformWriter(totalDataSize);
+            for (const auto &u : *udb) {
                 writer.write(u->data(), u->dataSize());
             }
 
-            fBindings.insert({index, bufferInfo});
+            fBindings.insert({uIndex.asUInt(), bufferInfo});
         }
 
-        return index;
+        return uIndex;
     }
 
-    BindBufferInfo getBinding(uint32_t uniformIndex) {
-        auto lookup = fBindings.find(uniformIndex);
+    BindBufferInfo getBinding(UniformDataCache::Index uniformDataIndex) {
+        auto lookup = fBindings.find(uniformDataIndex.asUInt());
         SkASSERT(lookup != fBindings.end());
         return lookup->second;
     }
 
 private:
     DrawBufferManager* fBufferMgr;
-    PipelineDataCache* fCache;
+    UniformDataCache* fUniformDataCache;
 
     std::unordered_map<uint32_t, BindBufferInfo> fBindings;
 };
@@ -288,9 +294,12 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     Rect passBounds = Rect::InfiniteInverted();
 
     DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
-    PipelineDataCache geometryUniforms;
-    UniformBindingCache geometryUniformBindings(bufferMgr, &geometryUniforms);
-    UniformBindingCache shadingUniformBindings(bufferMgr, recorder->priv().pipelineDataCache());
+
+    // We don't expect the uniforms from the renderSteps to reappear multiple times across a
+    // recorder's lifetime so we only de-dupe them w/in a given DrawPass.
+    UniformDataCache geometryUniformDataCache;
+    UniformBindingCache geometryUniformBindings(bufferMgr, &geometryUniformDataCache);
+    UniformBindingCache shadingUniformBindings(bufferMgr, recorder->priv().uniformDataCache());
 
     std::unordered_map<const GraphicsPipelineDesc*, uint32_t, Hash, Eq> pipelineDescToIndex;
 
@@ -310,12 +319,14 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         // bound independently of those used by the rest of the RenderStep, then we can upload now
         // and remember the location for re-use on any RenderStep that does shading.
         SkUniquePaintParamsID shaderID;
-        uint32_t shadingIndex = PipelineDataCache::kInvalidUniformID;
+        UniformDataCache::Index shadingUniformIndex;
+        TextureDataCache::Index textureBindingIndex; // TODO: fill in the textureBinding field
         if (draw.fPaintParams.has_value()) {
             std::unique_ptr<SkPipelineData> pipelineData;
             std::tie(shaderID, pipelineData) = ExtractPaintData(recorder, &builder,
                                                                 draw.fPaintParams.value());
-            shadingIndex = shadingUniformBindings.addUniforms(std::move(pipelineData));
+            shadingUniformIndex = shadingUniformBindings.addUniforms(
+                    pipelineData->uniformDataBlock());
         } // else depth-only
 
         for (int stepIndex = 0; stepIndex < draw.fRenderer.numRenderSteps(); ++stepIndex) {
@@ -323,13 +334,15 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             const bool performsShading = draw.fPaintParams.has_value() && step->performsShading();
 
             SkUniquePaintParamsID stepShaderID;
-            uint32_t stepShadingIndex = PipelineDataCache::kInvalidUniformID;
+            UniformDataCache::Index stepShadingUniformIndex;
+            TextureDataCache::Index stepTextureBindingIndex;
             if (performsShading) {
                 stepShaderID = shaderID;
-                stepShadingIndex = shadingIndex;
+                stepShadingUniformIndex = shadingUniformIndex;
+                stepTextureBindingIndex = textureBindingIndex;
             } // else depth-only draw or stencil-only step of renderer so no shading is needed
 
-            uint32_t geometryIndex = PipelineDataCache::kInvalidUniformID;
+            UniformDataCache::Index geometryUniformIndex;
             if (step->numUniforms() > 0) {
                 // TODO: Get layout from the GPU
                 auto uniforms = step->writeUniforms(Layout::kMetal,
@@ -337,8 +350,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                                     draw.fTransform,
                                                     draw.fShape);
 
-                geometryIndex = geometryUniformBindings.addUniforms(
-                        std::make_unique<SkPipelineData>(std::move(uniforms)));
+                geometryUniformIndex = geometryUniformBindings.addUniforms(
+                        SkUniformDataBlock(std::move(uniforms)));
             }
 
             GraphicsPipelineDesc desc;
@@ -355,8 +368,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 pipelineIndex = pipelineLookup->second;
             }
 
-            // TODO: fill in the textureBinding field
-            keys.push_back({&draw, stepIndex, pipelineIndex, geometryIndex, stepShadingIndex, 0});
+            keys.push_back({&draw, stepIndex, pipelineIndex,
+                            geometryUniformIndex,
+                            stepShadingUniformIndex,
+                            stepTextureBindingIndex});
         }
 
         passBounds.join(draw.fClip.drawBounds());
@@ -380,20 +395,18 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // Used to track when a new pipeline or dynamic state needs recording between draw steps.
     // Setting to # render steps ensures the very first time through the loop will bind a pipeline.
     uint32_t lastPipeline = draws->renderStepCount();
-    uint32_t lastShadingUniforms = PipelineDataCache::kInvalidUniformID;
-    uint32_t lastGeometryUniforms = PipelineDataCache::kInvalidUniformID;
+    UniformDataCache::Index lastShadingUniforms;
+    UniformDataCache::Index lastGeometryUniforms;
     SkIRect lastScissor = SkIRect::MakeSize(drawPass->fTarget->dimensions());
 
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = *key.draw();
         const RenderStep& renderStep = key.renderStep();
 
-        const bool geometryUniformChange =
-                key.geometryUniforms() != PipelineDataCache::kInvalidUniformID &&
-                key.geometryUniforms() != lastGeometryUniforms;
-        const bool shadingUniformChange =
-                 key.shadingUniforms() != PipelineDataCache::kInvalidUniformID &&
-                 key.shadingUniforms() != lastShadingUniforms;
+        const bool geometryUniformChange = key.geometryUniforms().isValid() &&
+                                           key.geometryUniforms() != lastGeometryUniforms;
+        const bool shadingUniformChange = key.shadingUniforms().isValid() &&
+                                          key.shadingUniforms() != lastShadingUniforms;
 
         const bool pipelineChange = key.pipeline() != lastPipeline;
         const bool stateChange = geometryUniformChange ||

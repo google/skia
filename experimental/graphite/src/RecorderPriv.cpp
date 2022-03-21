@@ -18,8 +18,8 @@ ResourceProvider* RecorderPriv::resourceProvider() const {
     return fRecorder->fResourceProvider.get();
 }
 
-PipelineDataCache* RecorderPriv::pipelineDataCache() const {
-    return fRecorder->fPipelineDataCache.get();
+UniformDataCache* RecorderPriv::uniformDataCache() const {
+    return fRecorder->fUniformDataCache.get();
 }
 
 const Caps* RecorderPriv::caps() const {

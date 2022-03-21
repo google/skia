@@ -9,22 +9,31 @@
 #define skgpu_PipelineDataCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "src/core/SkPipelineData.h"
 
 #include <unordered_map>
 #include <vector>
 
-class SkPipelineData;
-
 namespace skgpu {
 
-
+// Add the block of data (DataBlockT) to the cache and return a unique ID that corresponds to its
+// contents. If an identical block of data is already in the cache, that unique ID is returned.
+// A DataBlockT must have:
+//   uint32_t hash() const;
+//   operator==
+template<typename DataBlockT>
 class PipelineDataCache {
 public:
-    static constexpr uint32_t kInvalidUniformID = 0;
+    static constexpr uint32_t kInvalidIndex = 0;
 
-    PipelineDataCache();
+    PipelineDataCache() {
+        // kInvalidIndex is reserved
+        static_assert(kInvalidIndex == 0);
+        fDataBlocks.push_back(nullptr);
+        fDataBlockIDs.insert({nullptr, Index()});
+    }
 
-    // TODO: Revisit the PipelineDataCache::insert and UniformData::Make APIs:
+    // TODO: For the uniform data version of this cache we should revisit the insert and Make APIs:
     // 1. UniformData::Make requires knowing the data size up front, which involves two invocations
     //    of the UniformManager. Ideally, we could align uniforms on the fly into a dynamic buffer.
     // 2. UniformData stores the offsets for each uniform, but these aren't needed after we've
@@ -43,38 +52,94 @@ public:
     //    It can be a little less generic if UniformCache returns id and bind buffer info. On the
     //    other hand unordered_map::insert has the same semantics as this insert, so maybe it's fine
 
-    // Add the block of uniform data to the cache and return a unique ID that corresponds to its
-    // contents. If an identical block of data is already in the cache, that unique ID is returned.
-    uint32_t insert(std::unique_ptr<SkPipelineData>);
+    // Simple wrapper around the returned index to keep all the uint32_ts straight
+    class Index {
+    public:
+        Index() : fIndex(kInvalidIndex) {}
+        explicit Index(uint32_t index) : fIndex(index) {}
 
-    SkPipelineData* lookup(uint32_t uniqueID);
+        bool operator==(const Index& that) const { return fIndex == that.fIndex; }
+        bool operator!=(const Index& that) const { return !(*this == that); }
+        bool isValid() const { return fIndex != kInvalidIndex; }
+        uint32_t asUInt() const { return fIndex; }
+    private:
+        uint32_t fIndex;
+    };
 
-    // The number of unique UniformBlock objects in the cache
+    Index insert(const DataBlockT& dataBlock) {
+        auto kv = fDataBlockIDs.find(const_cast<DataBlockT*>(&dataBlock));
+        if (kv != fDataBlockIDs.end()) {
+            return kv->second;
+        }
+
+        Index id(SkTo<uint32_t>(fDataBlocks.size()));
+        SkASSERT(id.isValid());
+
+        // TODO: switch this over to using an SkArena
+        std::unique_ptr<DataBlockT> tmp(new DataBlockT(dataBlock));
+        fDataBlockIDs.insert({tmp.get(), id});
+        fDataBlocks.push_back(std::move(tmp));
+        this->validate();
+        return id;
+    }
+
+    DataBlockT* lookup(Index uniqueID) {
+        SkASSERT(uniqueID.asUInt() < fDataBlocks.size());
+        return fDataBlocks[uniqueID.asUInt()].get();
+    }
+
+    // The number of unique DataBlockT objects in the cache
     size_t count() const {
-        SkASSERT(fUniformBlock.size() == fUniformBlockIDs.size() && fUniformBlock.size() > 0);
-        return fUniformBlock.size() - 1;
+        SkASSERT(fDataBlocks.size() == fDataBlockIDs.size() && fDataBlocks.size() > 0);
+        return fDataBlocks.size() - 1;  /* -1 to discount the invalidID's entry */
     }
 
 private:
     struct Hash {
         // This hash operator de-references and hashes the data contents
-        size_t operator()(SkPipelineData*) const;
+        size_t operator()(DataBlockT* dataBlock) const {
+            if (!dataBlock) {
+                return 0;
+            }
+
+            return dataBlock->hash();
+        }
     };
     struct Eq {
         // This equality operator de-references and compares the actual data contents
-        bool operator()(SkPipelineData*, SkPipelineData*) const;
+        bool operator()(DataBlockT *a, DataBlockT *b) const {
+            if (!a || !b) {
+                return !a && !b;
+            }
+
+            return *a == *b;
+        }
     };
 
-    // The UniformBlock's unique ID is only unique w/in a Recorder _not_ globally
-    std::unordered_map<SkPipelineData*, uint32_t, Hash, Eq> fUniformBlockIDs;
-    std::vector<std::unique_ptr<SkPipelineData>> fUniformBlock;
+    // Note: the unique IDs are only unique w/in a Recorder or a Recording _not_ globally
+    std::unordered_map<DataBlockT*, Index, Hash, Eq> fDataBlockIDs;
+    std::vector<std::unique_ptr<DataBlockT>> fDataBlocks;
 
+    void validate() const {
 #ifdef SK_DEBUG
-    void validate() const;
-#else
-    void validate() const {}
+        for (size_t i = 0; i < fDataBlocks.size(); ++i) {
+            auto kv = fDataBlockIDs.find(fDataBlocks[i].get());
+            SkASSERT(kv != fDataBlockIDs.end());
+            SkASSERT(kv->first == fDataBlocks[i].get());
+            SkASSERT(SkTo<uint32_t>(i) == kv->second.asUInt());
+        }
 #endif
+    }
 };
+
+// A UniformDataCache lives for the entire duration of a Recorder. As such it has a greater
+// likelihood of overflowing a uint32_t index.
+using UniformDataCache = PipelineDataCache<SkUniformDataBlock>;
+
+// A TextureDataCache only lives for a single Recording. When a Recording is snapped it is pulled
+// off of the Recorder and goes with the Recording as a record of the required Textures and
+// Samplers.
+using TextureDataCache = PipelineDataCache<SkPipelineData::TextureDataBlock>;
 
 } // namespace skgpu
 

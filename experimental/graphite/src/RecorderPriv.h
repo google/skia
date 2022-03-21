@@ -17,7 +17,7 @@ public:
     void add(sk_sp<Task>);
 
     ResourceProvider* resourceProvider() const;
-    PipelineDataCache* pipelineDataCache() const;
+    UniformDataCache* uniformDataCache() const;
     DrawBufferManager* drawBufferManager() const;
     const Caps* caps() const;
 

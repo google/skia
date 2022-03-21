@@ -20,6 +20,37 @@
 #include "src/gpu/Blend.h"
 #endif
 
+class SkUniformDataBlock {
+public:
+    SkUniformDataBlock() = default;
+    SkUniformDataBlock(sk_sp<SkUniformData> initial) {
+        SkASSERT(initial && initial->count());
+        fUniformData.push_back(std::move(initial));
+    }
+
+    bool empty() const { return fUniformData.empty(); }
+    size_t totalUniformSize() const;  // TODO: cache this?
+    int numUniforms() const;          // TODO: cache this?
+
+    bool operator==(const SkUniformDataBlock&) const;
+    bool operator!=(const SkUniformDataBlock& other) const { return !(*this == other);  }
+    uint32_t hash() const;
+
+    using container = std::vector<sk_sp<SkUniformData>>;
+    using iterator = container::iterator;
+
+    inline iterator begin() noexcept { return fUniformData.begin(); }
+    inline iterator end() noexcept { return fUniformData.end(); }
+
+    void add(sk_sp<SkUniformData> ud) {
+        fUniformData.push_back(std::move(ud));
+    }
+
+private:
+    // TODO: SkUniformData should be held uniquely
+    std::vector<sk_sp<SkUniformData>> fUniformData;
+};
+
 // TODO: The current plan for fixing uniform padding is for the SkPipelineData to hold a
 // persistent uniformManager. A stretch goal for this system would be for this combination
 // to accumulate all the uniforms and then rearrange them to minimize padding. This would,
@@ -96,41 +127,10 @@ public:
     const TextureDataBlock& textureDataBlock() { return fTextureDataBlock; }
 #endif
 
-    class UniformDataBlock {
-    public:
-        UniformDataBlock() = default;
-        UniformDataBlock(sk_sp<SkUniformData> initial) {
-            SkASSERT(initial && initial->count());
-            fUniformData.push_back(std::move(initial));
-        }
-
-        bool empty() const { return fUniformData.empty(); }
-        size_t totalUniformSize() const;  // TODO: cache this?
-        int numUniforms() const;          // TODO: cache this?
-
-        bool operator==(const UniformDataBlock&) const;
-        bool operator!=(const UniformDataBlock& other) const { return !(*this == other);  }
-        uint32_t hash() const;
-
-        using container = std::vector<sk_sp<SkUniformData>>;
-        using iterator = container::iterator;
-
-        inline iterator begin() noexcept { return fUniformData.begin(); }
-        inline iterator end() noexcept { return fUniformData.end(); }
-
-        void add(sk_sp<SkUniformData> ud) {
-            fUniformData.push_back(std::move(ud));
-        }
-
-    private:
-        // TODO: SkUniformData should be held uniquely
-        std::vector<sk_sp<SkUniformData>> fUniformData;
-    };
-
     void add(sk_sp<SkUniformData>);
     bool hasUniforms() const { return !fUniformDataBlock.empty(); }
 
-    UniformDataBlock& uniformDataBlock() { return fUniformDataBlock; }
+    SkUniformDataBlock& uniformDataBlock() { return fUniformDataBlock; }
 
     // TODO: remove these two once the PipelineDataCache has been split
     bool operator==(const SkPipelineData& that) const {
@@ -139,7 +139,7 @@ public:
     uint32_t hash() const { return fUniformDataBlock.hash(); }
 
 private:
-    UniformDataBlock fUniformDataBlock;
+    SkUniformDataBlock fUniformDataBlock;
 
 #ifdef SK_GRAPHITE_ENABLED
     TextureDataBlock fTextureDataBlock;

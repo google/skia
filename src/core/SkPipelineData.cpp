@@ -17,7 +17,7 @@ void SkPipelineData::add(sk_sp<SkUniformData> uniforms) {
     fUniformDataBlock.add(std::move(uniforms));
 }
 
-size_t SkPipelineData::UniformDataBlock::totalUniformSize() const {
+size_t SkUniformDataBlock::totalUniformSize() const {
     size_t total = 0;
 
     // TODO: It seems like we need to worry about alignment between the separate sets of uniforms
@@ -28,7 +28,7 @@ size_t SkPipelineData::UniformDataBlock::totalUniformSize() const {
     return total;
 }
 
-int SkPipelineData::UniformDataBlock::numUniforms() const {
+int SkUniformDataBlock::numUniforms() const {
     int total = 0;
 
     for (auto& u : fUniformData) {
@@ -38,7 +38,7 @@ int SkPipelineData::UniformDataBlock::numUniforms() const {
     return total;
 }
 
-bool SkPipelineData::UniformDataBlock::operator==(const UniformDataBlock& other) const {
+bool SkUniformDataBlock::operator==(const SkUniformDataBlock& other) const {
     if (fUniformData.size() != other.fUniformData.size()) {
         return false;
     }
@@ -52,7 +52,7 @@ bool SkPipelineData::UniformDataBlock::operator==(const UniformDataBlock& other)
     return true;
 }
 
-uint32_t SkPipelineData::UniformDataBlock::hash() const {
+uint32_t SkUniformDataBlock::hash() const {
     uint32_t hash = 0;
 
     for (auto& u : fUniformData) {
