@@ -278,20 +278,15 @@ void CommandBuffer::onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t o
     }
 }
 
-void CommandBuffer::onBindTextures(const TextureBindEntry* entries, int count) {
-    for (int i = 0; i < count; ++i) {
-        SkASSERT(entries[i].fTexture);
-        id<MTLTexture> texture = ((Texture*)entries[i].fTexture.get())->mtlTexture();
-        fActiveRenderCommandEncoder->setFragmentTexture(texture, entries[i].fBindIndex);
-    }
-}
+void CommandBuffer::onBindTextureAndSampler(sk_sp<skgpu::Texture> texture,
+                                            sk_sp<skgpu::Sampler> sampler,
+                                            unsigned int bindIndex) {
+    SkASSERT(texture && sampler);
 
-void CommandBuffer::onBindSamplers(const SamplerBindEntry* entries, int count) {
-    for (int i = 0; i < count; ++i) {
-        SkASSERT(entries[i].fSampler);
-        id<MTLSamplerState> samplerState = ((Sampler*)entries[i].fSampler.get())->mtlSamplerState();
-        fActiveRenderCommandEncoder->setFragmentSamplerState(samplerState, entries[i].fBindIndex);
-    }
+    id<MTLTexture> mtlTexture = ((Texture*)texture.get())->mtlTexture();
+    id<MTLSamplerState> mtlSamplerState = ((Sampler*)sampler.get())->mtlSamplerState();
+    fActiveRenderCommandEncoder->setFragmentTexture(mtlTexture, bindIndex);
+    fActiveRenderCommandEncoder->setFragmentSamplerState(mtlSamplerState, bindIndex);
 }
 
 void CommandBuffer::onSetScissor(unsigned int left, unsigned int top,

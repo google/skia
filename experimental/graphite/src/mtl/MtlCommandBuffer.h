@@ -63,8 +63,10 @@ private:
                              const skgpu::Buffer* instanceBuffer, size_t instanceOffset) override;
     void onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t offset) override;
 
-    void onBindTextures(const TextureBindEntry* entries, int count) override;
-    void onBindSamplers(const SamplerBindEntry* entries, int count) override;
+
+    void onBindTextureAndSampler(sk_sp<skgpu::Texture>,
+                                 sk_sp<skgpu::Sampler>,
+                                 unsigned int bindIndex) override;
 
     void onSetScissor(unsigned int left, unsigned int top,
                       unsigned int width, unsigned int height) override;

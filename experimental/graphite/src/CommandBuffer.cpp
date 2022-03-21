@@ -101,20 +101,12 @@ void CommandBuffer::bindDrawBuffers(BindBufferInfo vertices,
     this->bindIndexBuffer(sk_ref_sp(indices.fBuffer), indices.fOffset);
 }
 
-void CommandBuffer::bindTextures(const TextureBindEntry* entries, int count) {
-    this->onBindTextures(entries, count);
-    for (int i = 0; i < count; ++i) {
-        SkASSERT(entries[i].fTexture);
-        this->trackResource(entries[i].fTexture);
-    }
-}
-
-void CommandBuffer::bindSamplers(const SamplerBindEntry* entries, int count) {
-    this->onBindSamplers(entries, count);
-    for (int i = 0; i < count; ++i) {
-        SkASSERT(entries[i].fSampler);
-        this->trackResource(entries[i].fSampler);
-    }
+void CommandBuffer::bindTextureAndSampler(sk_sp<Texture> texture,
+                                          sk_sp<Sampler> sampler,
+                                          int bindIndex) {
+    this->onBindTextureAndSampler(texture, sampler, bindIndex);
+    this->trackResource(std::move(texture));
+    this->trackResource(std::move(sampler));
 }
 
 bool CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,

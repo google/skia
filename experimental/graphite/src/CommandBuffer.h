@@ -91,17 +91,7 @@ public:
                          BindBufferInfo instances,
                          BindBufferInfo indices) final;
 
-    struct TextureBindEntry {
-        sk_sp<Texture> fTexture;
-        unsigned int   fBindIndex;
-    };
-    void bindTextures(const TextureBindEntry* entries, int count);
-
-    struct SamplerBindEntry {
-        sk_sp<Sampler> fSampler;
-        unsigned int   fBindIndex;
-    };
-    void bindSamplers(const SamplerBindEntry* entries, int count);
+    void bindTextureAndSampler(sk_sp<Texture>, sk_sp<Sampler>, int bindIndex);
 
     // TODO: do we want to handle multiple scissor rects and viewports?
     void setScissor(unsigned int left, unsigned int top, unsigned int width, unsigned int height) {
@@ -181,8 +171,9 @@ private:
                                      const Buffer* instanceBuffer, size_t instanceOffset) = 0;
     virtual void onBindIndexBuffer(const Buffer* indexBuffer, size_t bufferOffset) = 0;
 
-    virtual void onBindTextures(const TextureBindEntry* entries, int count) = 0;
-    virtual void onBindSamplers(const SamplerBindEntry* entries, int count) = 0;
+    virtual void onBindTextureAndSampler(sk_sp<Texture>,
+                                         sk_sp<Sampler>,
+                                         unsigned int bindIndex) = 0;
 
     virtual void onSetScissor(unsigned int left, unsigned int top,
                               unsigned int width, unsigned int height) = 0;
