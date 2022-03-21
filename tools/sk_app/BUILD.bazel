@@ -3,9 +3,9 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//bazel:macros.bzl", "generated_cc_atom")
 
 selects.config_setting_group(
-    name = "vulkan_unix",
+    name = "dawn_unix",
     match_all = [
-        "//bazel/common_config_settings:vulkan_backend",
+        "//bazel/common_config_settings:dawn_backend",
         "@platforms//os:linux",
     ],
 )
@@ -14,6 +14,14 @@ selects.config_setting_group(
     name = "gl_unix",
     match_all = [
         "//bazel/common_config_settings:gl_backend",
+        "@platforms//os:linux",
+    ],
+)
+
+selects.config_setting_group(
+    name = "vulkan_unix",
+    match_all = [
+        "//bazel/common_config_settings:vulkan_backend",
         "@platforms//os:linux",
     ],
 )
@@ -36,6 +44,9 @@ cc_library(
         ],
         # TODO(kjlubick) add Windows/Mac support
     }) + select({
+        "//bazel/common_config_settings:dawn_backend": [
+            ":DawnWindowContext_src",
+        ],
         "//bazel/common_config_settings:gl_backend": [
             ":GLWindowContext_src",
         ],
@@ -44,6 +55,7 @@ cc_library(
             "//tools/gpu/vk:VkTestUtils_src",
         ],
     }) + select({
+        ":dawn_unix": ["//tools/sk_app/unix:DawnVulkanWindowContext_unix_src"],
         ":gl_unix": ["//tools/sk_app/unix:GLWindowContext_unix_src"],
         ":vulkan_unix": ["//tools/sk_app/unix:VulkanWindowContext_unix_src"],
     }),

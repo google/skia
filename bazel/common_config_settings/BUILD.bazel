@@ -1,5 +1,8 @@
 load(":defs.bzl", "bool_flag", "string_flag_with_values")
 
+# https://github.com/bazelbuild/bazel-skylib
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
 # @platforms is found at https://github.com/bazelbuild/platforms
 package(default_visibility = ["//:__subpackages__"])
 
@@ -59,6 +62,15 @@ config_setting(
     },
 )
 
+selects.config_setting_group(
+    name = "has_gpu_backend",
+    match_any = [
+        "//bazel/common_config_settings:gl_backend",
+        "//bazel/common_config_settings:dawn_backend",
+        "//bazel/common_config_settings:vulkan_backend",
+    ],
+)
+
 # =============================================================================
 #                     Configurable Skia Features
 # =============================================================================
@@ -81,6 +93,7 @@ string_flag_with_values(
     values = [
         "gl_backend",
         "vulkan_backend",
+        "dawn_backend",
     ],
 )
 

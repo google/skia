@@ -136,3 +136,22 @@ browser_repositories(
     chromium = True,
     firefox = True,
 )
+
+###################################################
+# External C++ deps with Bazel support            #
+###################################################
+local_repository(
+    name = "abseil_cpp",
+    path = "third_party/externals/abseil-cpp",
+)
+
+local_repository(
+    name = "spirv_tools",
+    path = "third_party/externals/spirv-tools",
+)
+
+local_repository(
+    # This name is important because spirv_tools expects @spirv_headers to exist by that name.
+    name = "spirv_headers",
+    path = "third_party/externals/spirv-headers",
+)

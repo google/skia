@@ -9,7 +9,7 @@
 #define DawnTestContext_DEFINED
 
 #include "tools/gpu/TestContext.h"
-#include <dawn/native/DawnNative.h>
+#include "dawn/native/DawnNative.h"
 
 #ifdef SK_DAWN
 

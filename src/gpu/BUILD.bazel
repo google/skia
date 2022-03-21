@@ -210,6 +210,25 @@ cc_library(
 )
 
 cc_library(
+    name = "dawn_srcs",
+    deps = [
+        "//src/gpu/dawn:GrDawnAttachment_src",
+        "//src/gpu/dawn:GrDawnBuffer_src",
+        "//src/gpu/dawn:GrDawnCaps_src",
+        "//src/gpu/dawn:GrDawnGpu_src",
+        "//src/gpu/dawn:GrDawnOpsRenderPass_src",
+        "//src/gpu/dawn:GrDawnProgramBuilder_src",
+        "//src/gpu/dawn:GrDawnProgramDataManager_src",
+        "//src/gpu/dawn:GrDawnRenderTarget_src",
+        "//src/gpu/dawn:GrDawnRingBuffer_src",
+        "//src/gpu/dawn:GrDawnTextureRenderTarget_src",
+        "//src/gpu/dawn:GrDawnTexture_src",
+        "//src/gpu/dawn:GrDawnTypesPriv_src",
+        "//src/gpu/dawn:GrDawnUtil_src",
+    ],
+)
+
+cc_library(
     name = "gl_srcs",
     deps = [
         "//src/gpu/gl:GrGLAssembleGLESInterfaceAutogen_src",
@@ -334,6 +353,10 @@ cc_library(
     name = "srcs",
     visibility = ["//:__subpackages__"],
     deps = [":core_srcs"] + select({
+        "//bazel/common_config_settings:dawn_backend": [
+            ":dawn_srcs",
+            ":v1_srcs",
+        ],
         "//bazel/common_config_settings:gl_backend": [
             ":gl_srcs",
             ":v1_srcs",

@@ -1,5 +1,3 @@
-# https://github.com/bazelbuild/bazel-skylib
-load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//bazel:macros.bzl", "generated_cc_atom")
 
 cc_library(
@@ -223,8 +221,8 @@ cc_library(
 cc_library(
     name = "srcs",
     visibility = ["//:__subpackages__"],
-    deps = [":core_srcs"] + selects.with_or({
-        ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
+    deps = [":core_srcs"] + select({
+        "//bazel/common_config_settings:has_gpu_backend": [
             ":sksl_srcs",
         ],
         "//conditions:default": [],

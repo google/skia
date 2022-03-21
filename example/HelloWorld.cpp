@@ -24,6 +24,8 @@ HelloWorld::HelloWorld(int argc, char** argv, void* platformData)
         : fBackendType(Window::kNativeGL_BackendType),
 #elif defined(SK_VULKAN)
         : fBackendType(Window::kVulkan_BackendType),
+#elif defined(SK_DAWN)
+        : fBackendType(Window::kDawn_BackendType),
 #else
         : fBackendType(Window::kRaster_BackendType),
 #endif
@@ -57,6 +59,8 @@ void HelloWorld::updateTitle() {
         title.append("GL");
 #elif defined(SK_VULKAN)
         title.append("Vulkan");
+#elif defined(SK_DAWN)
+        title.append("Dawn");
 #else
         title.append("Unknown GPU backend");
 #endif
@@ -133,6 +137,8 @@ bool HelloWorld::onChar(SkUnichar c, skui::ModifierKey modifiers) {
             fBackendType = Window::kNativeGL_BackendType;
 #elif defined(SK_VULKAN)
             fBackendType = Window::kVulkan_BackendType;
+#elif defined(SK_DAWN)
+            fBackendType = Window::kDawn_BackendType;
 #else
             SkDebugf("No GPU backend configured\n");
             return true;
