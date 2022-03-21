@@ -952,14 +952,14 @@ optional("gpu") {
   if (skia_use_dawn) {
     public_defines += [ "SK_DAWN" ]
     sources += skia_dawn_sources
-    public_deps += [ "//third_party/externals/dawn/src/dawn:dawn_headers" ]
+    public_deps += [ "//third_party/externals/dawn/include/dawn:cpp_headers" ]
     deps += [
-      "//third_party/externals/dawn/src/dawn:dawn_proc",
-      "//third_party/externals/dawn/src/dawn:dawncpp",
+      "//third_party/externals/dawn/src/dawn:cpp",
+      "//third_party/externals/dawn/src/dawn:proc",
     ]
     if (dawn_enable_d3d12 || dawn_enable_desktop_gl || dawn_enable_metal ||
         dawn_enable_opengles || dawn_enable_vulkan) {
-      deps += [ "//third_party/externals/dawn/src/dawn_native" ]
+      deps += [ "//third_party/externals/dawn/src/dawn/native" ]
     }
     if (dawn_enable_d3d12) {
       libs += [
