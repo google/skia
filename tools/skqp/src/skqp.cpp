@@ -114,22 +114,27 @@ static std::vector<SkQP::SkSLErrorTest> get_sksl_error_tests(SkQPAssetManager* a
                                                              const ExclusionList& exclusionList) {
     std::vector<SkQP::SkSLErrorTest> skslErrorTests;
 
-    // Android only supports runtime shaders, not color filters or blenders.
-    std::vector<std::string> paths = assetManager->iterateDir("sksl/runtime_errors/", ".rts");
-    for (const std::string& path : paths) {
-        SkString name = SkOSPath::Basename(path.c_str());
-        if (exclusionList.isExcluded(name.c_str())) {
-            continue;
+    auto iterateFn = [&](const char* directory, const char* extension) {
+        std::vector<std::string> paths = assetManager->iterateDir(directory, extension);
+        for (const std::string& path : paths) {
+            SkString name = SkOSPath::Basename(path.c_str());
+            if (exclusionList.isExcluded(name.c_str())) {
+                continue;
+            }
+            sk_sp<SkData> shaderText = GetResourceAsData(path.c_str());
+            if (!shaderText) {
+                continue;
+            }
+            skslErrorTests.push_back({
+                name.c_str(),
+                std::string(static_cast<const char*>(shaderText->data()), shaderText->size())
+            });
         }
-        sk_sp<SkData> shaderText = GetResourceAsData(path.c_str());
-        if (!shaderText) {
-            continue;
-        }
-        skslErrorTests.push_back({
-            name.c_str(),
-            std::string(static_cast<const char*>(shaderText->data()), shaderText->size())
-        });
     };
+
+    // Android only supports runtime shaders, not fragment shaders, color filters or blenders.
+    iterateFn("sksl/errors/", ".rts");
+    iterateFn("sksl/runtime_errors/", ".rts");
 
     auto lt = [](const SkQP::SkSLErrorTest& a, const SkQP::SkSLErrorTest& b) {
         return a.name < b.name;
