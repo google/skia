@@ -18,7 +18,7 @@
 
 namespace skiagm {
 
-// This GM exercises HighQuality anisotropic filtering.
+// This GM exercises anisotropic image scaling.
 class AnisotropicGM : public GM {
 public:
     AnisotropicGM() : fSampling(SkFilterMode::kLinear, SkMipmapMode::kLinear) {
@@ -27,7 +27,7 @@ public:
 
 protected:
 
-    SkString onShortName() override { return SkString("anisotropic_hq"); }
+    SkString onShortName() override { return SkString("anisotropic_image_scale_mip"); }
 
     SkISize onISize() override {
         return SkISize::Make(2*kImageSize + 3*kSpacer,
