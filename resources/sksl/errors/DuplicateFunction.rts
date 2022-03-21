@@ -1,0 +1,6 @@
+void func() {}
+void func() {}
+
+/*%%*
+duplicate definition of void func()
+*%%*/

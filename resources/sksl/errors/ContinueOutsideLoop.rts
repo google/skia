@@ -1,0 +1,15 @@
+void outside_for() {
+    for (int x=0; x<10; ++x) {}
+    continue;
+}
+
+void inside_switch() {
+    switch (1) {
+        default: continue;
+    }
+}
+
+/*%%*
+continue statement must be inside a loop
+continue statement must be inside a loop
+*%%*/
