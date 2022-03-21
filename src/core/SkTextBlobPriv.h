@@ -37,6 +37,8 @@ public:
      *          invalid.
      */
     static sk_sp<SkTextBlob> MakeFromBuffer(SkReadBuffer&);
+
+    static bool HasRSXForm(const SkTextBlob& blob);
 };
 
 //
@@ -246,5 +248,14 @@ private:
 
     SkDEBUGCODE(uint8_t* fStorageTop;)
 };
+
+inline bool SkTextBlobPriv::HasRSXForm(const SkTextBlob& blob) {
+    for (SkTextBlobRunIterator i{&blob}; !i.done(); i.next()) {
+        if (i.positioning() == SkTextBlobRunIterator::kRSXform_Positioning) {
+            return true;
+        }
+    }
+    return false;
+}
 
 #endif // SkTextBlobPriv_DEFINED
