@@ -1,4 +1,4 @@
-void main() { float[2][2] x; }
+void func() { float x[2][2]; }
 
 /*%%*
 multi-dimensional arrays are not supported

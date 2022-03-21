@@ -129,6 +129,9 @@ DEF_TEST(SkSLErrorTest, r) {
     iterate_dir("sksl/errors/", ".sksl", [&](const char* path) {
         test_expect_fail(r, path, SkSL::ProgramKind::kFragment);
     });
+    iterate_dir("sksl/errors/", ".rts", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kRuntimeShader);
+    });
 }
 
 DEF_TEST(SkSLRuntimeShaderErrorTest, r) {
