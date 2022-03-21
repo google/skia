@@ -21,6 +21,8 @@ public:
     DrawBufferManager* drawBufferManager() const;
     const Caps* caps() const;
 
+    void flushTrackedDevices();
+
 private:
     explicit RecorderPriv(Recorder* recorder) : fRecorder(recorder) {}
     RecorderPriv& operator=(const RecorderPriv&) = delete;

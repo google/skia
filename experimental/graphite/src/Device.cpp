@@ -7,23 +7,20 @@
 
 #include "experimental/graphite/src/Device.h"
 
-#include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/Recorder.h"
-#include "experimental/graphite/include/Recording.h"
 #include "experimental/graphite/include/SkStuff.h"
 #include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextPriv.h"
-#include "experimental/graphite/src/CopyTask.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/Log.h"
 #include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/Renderer.h"
-#include "experimental/graphite/src/ResourceProvider.h"
-#include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
+#include "experimental/graphite/src/TextureUtils.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
 #include "experimental/graphite/src/geom/IntersectionTree.h"
 #include "experimental/graphite/src/geom/Shape.h"
@@ -198,54 +195,19 @@ bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
 bool Device::readPixels(Context* context,
                         Recorder* recorder,
                         const SkPixmap& pm,
-                        int x,
-                        int y) {
-    // TODO: Support more formats that we can read back into
-    if (pm.colorType() != kRGBA_8888_SkColorType) {
-        return false;
-    }
-
-    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
-
-    TextureProxy* srcProxy = fDC->target();
-    if (!srcProxy->instantiate(resourceProvider)) {
-        return false;
-    }
-    sk_sp<Texture> srcTexture = srcProxy->refTexture();
-    SkASSERT(srcTexture);
-
-    size_t rowBytes = pm.rowBytes();
-    size_t size = rowBytes * pm.height();
-    sk_sp<Buffer> dstBuffer = resourceProvider->findOrCreateBuffer(size,
-                                                                   BufferType::kXferGpuToCpu,
-                                                                   PrioritizeGpuReads::kNo);
-    if (!dstBuffer) {
-        return false;
-    }
-
-    SkIRect srcRect = SkIRect::MakeXYWH(x, y, pm.width(), pm.height());
-    sk_sp<CopyTextureToBufferTask> task =
-            CopyTextureToBufferTask::Make(std::move(srcTexture),
-                                          srcRect,
-                                          dstBuffer,
-                                          /*bufferOffset=*/0,
-                                          rowBytes);
-    if (!task) {
-        return false;
-    }
-
-    this->flushPendingWorkToRecorder();
-    fRecorder->priv().add(std::move(task));
-
-    // TODO: Can snapping ever fail?
-    context->insertRecording(fRecorder->snap());
-    context->submit(SyncToCpu::kYes);
-
-    void* mappedMemory = dstBuffer->map();
-
-    memcpy(pm.writable_addr(), mappedMemory, size);
-
-    return true;
+                        int srcX,
+                        int srcY) {
+    return ReadPixelsHelper([this]() {
+                                this->flushPendingWorkToRecorder();
+                            },
+                            context,
+                            recorder,
+                            fDC->target(),
+                            pm.info(),
+                            pm.writable_addr(),
+                            pm.rowBytes(),
+                            srcX,
+                            srcY);
 }
 
 bool Device::onWritePixels(const SkPixmap& pm, int x, int y) {

@@ -94,6 +94,8 @@ skia_graphite_sources = [
   "$_src/TextureProxy.cpp",
   "$_src/TextureProxy.h",
   "$_src/TextureProxyView.h",
+  "$_src/TextureUtils.cpp",
+  "$_src/TextureUtils.h",
   "$_src/UniformManager.cpp",
   "$_src/UniformManager.h",
   "$_src/UploadTask.cpp",

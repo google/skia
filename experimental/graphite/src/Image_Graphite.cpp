@@ -10,6 +10,7 @@
 #include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/RecorderPriv.h"
+#include "experimental/graphite/src/TextureUtils.h"
 
 namespace skgpu {
 
@@ -21,6 +22,26 @@ Image::Image(TextureProxyView view,
 }
 
 Image::~Image() {}
+
+bool Image::testingOnly_ReadPixels(Context* context,
+                                   Recorder* recorder,
+                                   const SkImageInfo& dstInfo,
+                                   void* dstPixels,
+                                   size_t dstRowBytes,
+                                   int srcX,
+                                   int srcY) {
+    return ReadPixelsHelper([recorder]() {
+                                recorder->priv().flushTrackedDevices();
+                            },
+                            context,
+                            recorder,
+                            fTextureProxyView.proxy(),
+                            dstInfo,
+                            dstPixels,
+                            dstRowBytes,
+                            srcX,
+                            srcY);
+}
 
 std::tuple<TextureProxyView, SkColorType> Image::onAsView(Recorder*,
                                                           Mipmapped mipmapped,

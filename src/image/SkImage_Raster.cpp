@@ -33,7 +33,7 @@
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/RecorderPriv.h"
-#include "experimental/graphite/src/TextureProxyView.h"
+#include "experimental/graphite/src/TextureUtils.h"
 #include "experimental/graphite/src/UploadTask.h"
 #endif
 
@@ -569,7 +569,7 @@ std::tuple<skgpu::TextureProxyView, SkColorType> SkImage_Raster::onAsView(
         skgpu::Recorder* recorder,
         skgpu::Mipmapped mipmapped,
         SkBudgeted budgeted) const {
-    return make_bitmap_proxy_view(recorder, fBitmap, mipmapped, budgeted);
+    return MakeBitmapProxyView(recorder, fBitmap, mipmapped, budgeted);
 }
 
 #endif

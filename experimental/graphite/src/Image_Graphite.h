@@ -14,6 +14,9 @@
 
 namespace skgpu {
 
+class Context;
+class Recorder;
+
 class Image final : public SkImage_Base {
 public:
     Image(TextureProxyView, const SkColorInfo&);
@@ -26,6 +29,15 @@ public:
                       int srcX,
                       int srcY,
                       CachingHint) const override { return false; }
+    // Temporary and only for testing purposes.
+    // To be removed once asynchronous readback is working.
+    bool testingOnly_ReadPixels(Context*,
+                                Recorder*,
+                                const SkImageInfo& dstInfo,
+                                void* dstPixels,
+                                size_t dstRowBytes,
+                                int srcX,
+                                int srcY);
 
     bool onHasMipmaps() const override { return false; }
 

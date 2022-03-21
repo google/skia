@@ -10,6 +10,7 @@
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "experimental/graphite/src/TextureProxy.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/Swizzle.h"
 
