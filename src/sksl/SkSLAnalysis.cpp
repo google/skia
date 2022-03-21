@@ -399,8 +399,8 @@ bool Analysis::DetectVarDeclarationWithoutScope(const Statement& stmt, ErrorRepo
     // Report an error.
     SkASSERT(var);
     if (errors) {
-        errors->error(stmt.fPosition, "variable '" + std::string(var->name()) +
-                "' must be created in a scope");
+        errors->error(var->fPosition,
+                      "variable '" + std::string(var->name()) + "' must be created in a scope");
     }
     return true;
 }

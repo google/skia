@@ -1,5 +1,7 @@
 void main() {
-    do int foo = 1, bar = foo; while (false);
+    do
+        int foo = 1, bar = foo;
+    while (false);
 }
 
 /*%%*
