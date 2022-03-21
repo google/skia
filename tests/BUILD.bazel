@@ -7,6 +7,7 @@ cc_library(
     deps = [
         ":Test_src",
         ":TestUtils_src",
+        ":TestHarness_src",
 
         # These are the deps of the tests
         ":CodecPriv_hdr",
