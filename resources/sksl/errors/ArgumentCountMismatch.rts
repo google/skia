@@ -2,7 +2,7 @@ float foo(float x) {
     return x * x;
 }
 
-void main() {
+void caller() {
     float x = foo(1, 2);
 }
 
