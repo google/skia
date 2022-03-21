@@ -26,18 +26,18 @@ void structBoth() {
     float x = s * s;
 }
 
-sampler2D smp;
+uniform shader shad;
 
-void samplerLeft() {
-    float x = smp * 2;
+void shaderLeft() {
+    float x = shad * 2;
 }
 
-void samplerRight() {
-    float x = 2 * smp;
+void shaderRight() {
+    float x = 2 * shad;
 }
 
-void samplerBoth() {
-    float x = smp * smp;
+void shaderBoth() {
+    float x = shad * shad;
 }
 
 int array[1];
@@ -61,9 +61,9 @@ type mismatch: '*' cannot operate on '<INVALID>', '<INVALID>'
 type mismatch: '*' cannot operate on 'S', 'int'
 type mismatch: '*' cannot operate on 'int', 'S'
 type mismatch: '*' cannot operate on 'S', 'S'
-type mismatch: '*' cannot operate on 'sampler2D', 'int'
-type mismatch: '*' cannot operate on 'int', 'sampler2D'
-type mismatch: '*' cannot operate on 'sampler2D', 'sampler2D'
+type mismatch: '*' cannot operate on 'shader', 'int'
+type mismatch: '*' cannot operate on 'int', 'shader'
+type mismatch: '*' cannot operate on 'shader', 'shader'
 type mismatch: '*' cannot operate on 'int[1]', 'int'
 type mismatch: '*' cannot operate on 'int', 'int[1]'
 type mismatch: '*' cannot operate on 'int[1]', 'int[1]'
