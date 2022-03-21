@@ -69,7 +69,9 @@ size_t fixed_index_buffer_size() {
 }  // namespace
 
 TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd)
-        : RenderStep(Flags::kRequiresMSAA,
+        : RenderStep("TessellateCurvesRenderStep",
+                     evenOdd ? "even-odd" : "winding",
+                     Flags::kRequiresMSAA,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,

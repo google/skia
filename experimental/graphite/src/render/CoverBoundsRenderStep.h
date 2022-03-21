@@ -18,8 +18,6 @@ public:
 
     ~CoverBoundsRenderStep() override;
 
-    const char* name() const override { return "CoverBoundsRenderStep"; }
-
     const char* vertexSkSL() const override;
     void writeVertices(DrawWriter*,
                        const SkIRect&,

@@ -18,7 +18,9 @@
 namespace skgpu {
 
 MiddleOutFanRenderStep::MiddleOutFanRenderStep(bool evenOdd)
-        : RenderStep(Flags::kRequiresMSAA,
+        : RenderStep("MiddleOutFanRenderStep",
+                     evenOdd ? "even-odd" : "winding",
+                     Flags::kRequiresMSAA,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,

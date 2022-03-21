@@ -63,8 +63,6 @@ public:
         return &kSingleton;
     }
 
-    const char* name() const override { return "uniform-rect"; }
-
     const char* vertexSkSL() const override {
         return "float2 tmpPosition = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));\n"
                "float4 devPosition = float4(tmpPosition * scale + translate, 0.0, 1.0);\n";
@@ -94,7 +92,8 @@ public:
     }
 
 private:
-    UniformRectDraw() : RenderStep(Flags::kPerformsShading,
+    UniformRectDraw() : RenderStep("UniformRectDraw", "test-only",
+                                   Flags::kPerformsShading,
                                    /*uniforms=*/{{"scale",     SkSLType::kFloat2},
                                                  {"translate", SkSLType::kFloat2}},
                                    PrimitiveType::kTriangleStrip,
@@ -117,8 +116,6 @@ public:
         static const TriangleRectDraw kSingleton;
         return &kSingleton;
     }
-
-    const char* name() const override { return "triangle-rect"; }
 
     const char* vertexSkSL() const override {
         return "float4 devPosition = float4(position * scale + translate, 0.0, 1.0);\n";
@@ -155,7 +152,8 @@ public:
 
 private:
     TriangleRectDraw()
-            : RenderStep(Flags::kPerformsShading,
+            : RenderStep("TriangleRectDraw", "test-only",
+                         Flags::kPerformsShading,
                          /*uniforms=*/{{"scale",     SkSLType::kFloat2},
                                        {"translate", SkSLType::kFloat2}},
                          PrimitiveType::kTriangles,
@@ -174,8 +172,6 @@ public:
         static const InstanceRectDraw kSingleton;
         return &kSingleton;
     }
-
-    const char* name() const override { return "instance-rect"; }
 
     const char* vertexSkSL() const override {
         return "float2 tmpPosition = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));\n"
@@ -209,7 +205,8 @@ public:
 
 private:
     InstanceRectDraw()
-            : RenderStep(Flags::kPerformsShading,
+            : RenderStep("InstanceRectDraw", "test-only",
+                         Flags::kPerformsShading,
                          /*uniforms=*/{},
                          PrimitiveType::kTriangles,
                          kTestDepthStencilSettings,

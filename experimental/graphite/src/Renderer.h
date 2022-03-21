@@ -20,6 +20,8 @@
 
 #include <array>
 #include <initializer_list>
+#include <string>
+#include <string_view>
 #include <vector>
 
 struct SkIRect;
@@ -61,7 +63,9 @@ public:
                                                const Transform&,
                                                const Shape&) const = 0;
 
-    virtual const char* name()      const = 0;
+    // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
+    // and variant is a unique term describing instance's specific configuration.
+    const char* name() const { return fName.c_str(); }
 
     // TODO: This is only temporary. Eventually the RenderStep will define its logic in SkSL and
     // be able to have code operate in both the vertex and fragment shaders. Ideally the RenderStep
@@ -124,7 +128,9 @@ protected:
     // While RenderStep does not define the full program that's run for a draw, it defines the
     // entire vertex layout of the pipeline. This is not allowed to change, so can be provided to
     // the RenderStep constructor by subclasses.
-    RenderStep(Mask<Flags> flags,
+    RenderStep(std::string_view className,
+               std::string_view variantName,
+               Mask<Flags> flags,
                std::initializer_list<SkUniform> uniforms,
                PrimitiveType primitiveType,
                DepthStencilSettings depthStencilSettings,
@@ -137,12 +143,18 @@ protected:
             , fVertexAttrs(vertexAttrs)
             , fInstanceAttrs(instanceAttrs)
             , fVertexStride(0)
-            , fInstanceStride(0) {
+            , fInstanceStride(0)
+            , fName(className) {
         for (auto v : this->vertexAttributes()) {
             fVertexStride += v.sizeAlign4();
         }
         for (auto i : this->instanceAttributes()) {
             fInstanceStride += i.sizeAlign4();
+        }
+        if (variantName.size() > 0) {
+            fName += "[";
+            fName += variantName;
+            fName += "]";
         }
     }
 
@@ -168,6 +180,8 @@ private:
 
     size_t fVertexStride;   // derived from vertex attribute set
     size_t fInstanceStride; // derived from instance attribute set
+
+    std::string fName;
 };
 SKGPU_MAKE_MASK_OPS(RenderStep::Flags);
 

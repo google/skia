@@ -21,8 +21,6 @@ public:
 
     ~MiddleOutFanRenderStep() override;
 
-    const char* name() const override { return "MiddleOutFanRenderStep"; }
-
     const char* vertexSkSL() const override;
     void writeVertices(DrawWriter*,
                        const SkIRect&,

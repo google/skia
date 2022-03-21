@@ -15,7 +15,9 @@
 namespace skgpu {
 
 CoverBoundsRenderStep::CoverBoundsRenderStep(bool inverseFill)
-        : RenderStep(Flags::kPerformsShading,
+        : RenderStep("CoverBoundsRenderStep",
+                     inverseFill ? "inverse" : "regular",
+                     Flags::kPerformsShading,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangles,
                      inverseFill ? kInverseCoverPass : kRegularCoverPass,

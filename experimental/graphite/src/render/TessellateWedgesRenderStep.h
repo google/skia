@@ -21,8 +21,6 @@ public:
 
     ~TessellateWedgesRenderStep() override;
 
-    const char* name() const override { return "TessellateWedgesRenderStep"; }
-
     const char* vertexSkSL() const override;
     void writeVertices(DrawWriter*,
                        const SkIRect&,

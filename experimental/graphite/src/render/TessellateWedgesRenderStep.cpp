@@ -68,7 +68,9 @@ size_t fixed_index_buffer_size() {
 }  // namespace
 
 TessellateWedgesRenderStep::TessellateWedgesRenderStep(bool evenOdd)
-        : RenderStep(Flags::kRequiresMSAA,
+        : RenderStep("TessellateWedgesRenderStep",
+                     evenOdd ? "even-odd" : "winding",
+                     Flags::kRequiresMSAA,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
