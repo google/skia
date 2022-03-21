@@ -209,8 +209,10 @@ public:
     static const Renderer& StencilTessellatedCurvesAndTris(SkPathFillType);
 
     static const Renderer& StencilTessellatedWedges(SkPathFillType);
+
+    static const Renderer& ConvexTessellatedWedges();
+
     // TODO: Not on the immediate sprint target, but show what needs to be added for DrawList's API
-    // static const Renderer& FillConvexPath();
     // static const Renderer& StrokePath();
     // TODO: Will add more of these as primitive rendering etc. is fleshed out
 

@@ -487,20 +487,21 @@ void Device::recordDraw(const Transform& localToDevice,
     // are large enough to exceed the fixed count tessellation limits.
     const Renderer* renderer = nullptr;
 
-    // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose between wedges
-    // curves consistently in Graphite and Ganesh.
-    const bool preferWedges = (shape.isPath() && shape.path().countVerbs() < 50) ||
-                              clip.drawBounds().area() <= (256 * 256);
-
-    // TODO: Route all filled shapes to stencil-and-cover for the sprint; convex will draw
-    // correctly but uses an unnecessary stencil step.
-    // if (shape.convex()) {
-    //     renderer = Renderer::ConvexPath();
-    // } else {
-    if (preferWedges) {
-        renderer = &Renderer::StencilTessellatedWedges(shape.fillType());
+    if (shape.convex() && !shape.inverted()) {
+        // TODO: Ganesh doesn't have a curve+middle-out triangles option for convex paths, but it
+        // would be pretty trivial to spin up.
+        renderer = &Renderer::ConvexTessellatedWedges();
     } else {
-        renderer = &Renderer::StencilTessellatedCurvesAndTris(shape.fillType());
+        // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose between
+        // wedges curves consistently in Graphite and Ganesh.
+        const bool preferWedges = (shape.isPath() && shape.path().countVerbs() < 50) ||
+                                   clip.drawBounds().area() <= (256 * 256);
+
+        if (preferWedges) {
+            renderer = &Renderer::StencilTessellatedWedges(shape.fillType());
+        } else {
+            renderer = &Renderer::StencilTessellatedCurvesAndTris(shape.fillType());
+        }
     }
 
     if (!renderer) {

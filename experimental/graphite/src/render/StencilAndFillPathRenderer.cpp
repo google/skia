@@ -9,6 +9,7 @@
 
 #include "experimental/graphite/src/render/CoverBoundsRenderStep.h"
 #include "experimental/graphite/src/render/MiddleOutFanRenderStep.h"
+#include "experimental/graphite/src/render/StencilAndCoverDSS.h"
 #include "experimental/graphite/src/render/TessellateCurvesRenderStep.h"
 #include "experimental/graphite/src/render/TessellateWedgesRenderStep.h"
 #include "include/core/SkPathTypes.h"
@@ -26,6 +27,16 @@ const RenderStep* inverse_cover_step() {
     static const CoverBoundsRenderStep kInverseFill{true};
     return &kInverseFill;
 }
+
+static constexpr DepthStencilSettings kDirectShadingPass = {
+        /*frontStencil=*/{},
+        /*backStencil=*/ {},
+        /*refValue=*/    0,
+        /*stencilTest=*/ false,
+        /*depthCompare=*/CompareOp::kAlways, // TODO: switch to greater
+        /*depthTest=*/   true,
+        /*depthWrite=*/  true
+};
 
 }  // namespace
 
@@ -64,8 +75,8 @@ const Renderer& Renderer::StencilTessellatedCurvesAndTris(SkPathFillType fillTyp
 }
 
 const Renderer& Renderer::StencilTessellatedWedges(SkPathFillType fillType) {
-    static const TessellateWedgesRenderStep kWindingStencilWedges{false};
-    static const TessellateWedgesRenderStep kEvenOddStencilWedges{true};
+    static const TessellateWedgesRenderStep kWindingStencilWedges{"winding",  kWindingStencilPass};
+    static const TessellateWedgesRenderStep kEvenOddStencilWedges{"even-odd", kEvenOddStencilPass};
 
     static const Renderer kWindingRenderer{"StencilTessellatedWedges[winding]",
                                            &kWindingStencilWedges,
@@ -87,6 +98,12 @@ const Renderer& Renderer::StencilTessellatedWedges(SkPathFillType fillType) {
         case SkPathFillType::kInverseEvenOdd: return kInverseEvenOddRenderer;
     }
     SkUNREACHABLE;
+}
+
+const Renderer& Renderer::ConvexTessellatedWedges() {
+    static const TessellateWedgesRenderStep kConvexWedges{"convex", kDirectShadingPass};
+    static const Renderer kConvexWedgeRenderer{"ConvexTessellatedWedges", &kConvexWedges};
+    return kConvexWedgeRenderer;
 }
 
 } // namespace skgpu

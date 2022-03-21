@@ -23,6 +23,7 @@ namespace skgpu::mtl {
 bool FormatIsDepthOrStencil(MTLPixelFormat format) {
     switch (format) {
         case MTLPixelFormatStencil8: // fallthrough
+        case MTLPixelFormatDepth32Float:
         case MTLPixelFormatDepth32Float_Stencil8:
             return true;
         default:
@@ -32,6 +33,7 @@ bool FormatIsDepthOrStencil(MTLPixelFormat format) {
 
 bool FormatIsDepth(MTLPixelFormat format) {
     switch (format) {
+        case MTLPixelFormatDepth32Float:
         case MTLPixelFormatDepth32Float_Stencil8:
             return true;
         default:

@@ -10,7 +10,6 @@
 #include "experimental/graphite/src/DrawWriter.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
-#include "experimental/graphite/src/render/StencilAndCoverDSS.h"
 
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/MidpointContourParser.h"
@@ -67,13 +66,16 @@ size_t fixed_index_buffer_size() {
 
 }  // namespace
 
-TessellateWedgesRenderStep::TessellateWedgesRenderStep(bool evenOdd)
+TessellateWedgesRenderStep::TessellateWedgesRenderStep(std::string_view variantName,
+                                                       DepthStencilSettings depthStencilSettings)
         : RenderStep("TessellateWedgesRenderStep",
-                     evenOdd ? "even-odd" : "winding",
-                     Flags::kRequiresMSAA,
+                     variantName,
+                     Flags::kRequiresMSAA |
+                     (depthStencilSettings.fDepthWriteEnabled ? Flags::kPerformsShading
+                                                              : Flags::kNone),
                      /*uniforms=*/{},
                      PrimitiveType::kTriangles,
-                     evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
+                     depthStencilSettings,
                      /*vertexAttrs=*/  {{"resolveLevel_and_idx",
                                          VertexAttribType::kFloat2, SkSLType::kFloat2}},
                      /*instanceAttrs=*/{{"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
