@@ -1,5 +1,5 @@
 """
-This file specifies a clang toolchain that can run on a Linux host which does depend on any
+This file specifies a clang toolchain that can run on a Linux host which doesn't depend on any
 installed packages from the host machine.
 
 See build_toolchain.bzl for more details on the creation of the toolchain.
