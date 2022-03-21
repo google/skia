@@ -99,6 +99,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":AffineMatrix_hdr",
+        ":MidpointContourParser_hdr",
         ":PatchWriter_hdr",
         ":PathCurveTessellator_hdr",
         ":PathWedgeTessellator_hdr",
@@ -221,5 +222,15 @@ generated_cc_atom(
         "//include/core:SkPoint_hdr",
         "//include/core:SkString_hdr",
         "//include/private:SkFloatingPoint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MidpointContourParser_hdr",
+    hdrs = ["MidpointContourParser.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//src/core:SkPathPriv_hdr",
     ],
 )

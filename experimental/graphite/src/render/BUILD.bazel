@@ -5,19 +5,109 @@ generated_cc_atom(
     srcs = ["StencilAndFillPathRenderer.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//experimental/graphite/src:DrawWriter_hdr",
+        ":CoverBoundsRenderStep_hdr",
+        ":MiddleOutFanRenderStep_hdr",
+        ":TessellateCurvesRenderStep_hdr",
+        ":TessellateWedgesRenderStep_hdr",
         "//experimental/graphite/src:Renderer_hdr",
-        "//experimental/graphite/src:UniformManager_hdr",
+        "//include/core:SkPathTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CoverBoundsRenderStep_hdr",
+    hdrs = ["CoverBoundsRenderStep.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//experimental/graphite/src:Renderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "CoverBoundsRenderStep_src",
+    srcs = ["CoverBoundsRenderStep.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CoverBoundsRenderStep_hdr",
+        ":StencilAndCoverDSS_hdr",
+        "//experimental/graphite/src:DrawWriter_hdr",
         "//experimental/graphite/src/geom:Shape_hdr",
         "//experimental/graphite/src/geom:Transform_graphite_hdr",
-        "//include/core:SkPathTypes_hdr",
-        "//include/core:SkRect_hdr",
-        "//src/core:SkUniformData_hdr",
-        "//src/gpu:BufferWriter_hdr",
-        "//src/gpu/tessellate:AffineMatrix_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MiddleOutFanRenderStep_hdr",
+    hdrs = ["MiddleOutFanRenderStep.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//experimental/graphite/src:Renderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "MiddleOutFanRenderStep_src",
+    srcs = ["MiddleOutFanRenderStep.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":MiddleOutFanRenderStep_hdr",
+        ":StencilAndCoverDSS_hdr",
+        "//experimental/graphite/src:DrawWriter_hdr",
+        "//experimental/graphite/src/geom:Shape_hdr",
+        "//experimental/graphite/src/geom:Transform_graphite_hdr",
         "//src/gpu/tessellate:MiddleOutPolygonTriangulator_hdr",
+        "//src/gpu/tessellate:PathTessellator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StencilAndCoverDSS_hdr",
+    hdrs = ["StencilAndCoverDSS.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//experimental/graphite/src:DrawTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "TessellateCurvesRenderStep_hdr",
+    hdrs = ["TessellateCurvesRenderStep.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//experimental/graphite/src:Renderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "TessellateCurvesRenderStep_src",
+    srcs = ["TessellateCurvesRenderStep.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":StencilAndCoverDSS_hdr",
+        ":TessellateCurvesRenderStep_hdr",
+        "//experimental/graphite/src:DrawWriter_hdr",
+        "//experimental/graphite/src/geom:Shape_hdr",
+        "//experimental/graphite/src/geom:Transform_graphite_hdr",
+        "//src/gpu/tessellate:AffineMatrix_hdr",
         "//src/gpu/tessellate:PatchWriter_hdr",
         "//src/gpu/tessellate:PathCurveTessellator_hdr",
         "//src/gpu/tessellate:PathTessellator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TessellateWedgesRenderStep_hdr",
+    hdrs = ["TessellateWedgesRenderStep.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//experimental/graphite/src:Renderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "TessellateWedgesRenderStep_src",
+    srcs = ["TessellateWedgesRenderStep.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":StencilAndCoverDSS_hdr",
+        ":TessellateWedgesRenderStep_hdr",
+        "//experimental/graphite/src:DrawWriter_hdr",
+        "//experimental/graphite/src/geom:Shape_hdr",
+        "//experimental/graphite/src/geom:Transform_graphite_hdr",
+        "//src/gpu/tessellate:AffineMatrix_hdr",
+        "//src/gpu/tessellate:MidpointContourParser_hdr",
+        "//src/gpu/tessellate:PatchWriter_hdr",
+        "//src/gpu/tessellate:PathTessellator_hdr",
+        "//src/gpu/tessellate:PathWedgeTessellator_hdr",
     ],
 )

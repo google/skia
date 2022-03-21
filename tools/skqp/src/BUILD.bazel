@@ -8,6 +8,7 @@ generated_cc_atom(
         ":skqp_hdr",
         "//include/core:SkStream_hdr",
         "//include/private:SkTo_hdr",
+        "//src/utils:SkOSPath_hdr",
         "//tools:ResourceFactory_hdr",
     ],
 )
@@ -26,6 +27,7 @@ generated_cc_atom(
         ":skqp_hdr",
         "//include/core:SkData_hdr",
         "//src/core:SkOSFile_hdr",
+        "//src/utils:SkOSPath_hdr",
         "//tools:Resources_hdr",
     ],
 )

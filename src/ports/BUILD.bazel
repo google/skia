@@ -289,6 +289,7 @@ generated_cc_atom(
         "//include/core:SkPath_hdr",
         "//include/core:SkPictureRecorder_hdr",
         "//include/effects:SkGradientShader_hdr",
+        "//include/pathops:SkPathOps_hdr",
         "//include/private:SkColorData_hdr",
         "//include/private:SkTo_hdr",
         "//src/core:SkFDot6_hdr",

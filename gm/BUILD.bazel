@@ -8486,6 +8486,8 @@ generated_cc_atom(
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColor_hdr",
+        "//include/core:SkFontArguments_hdr",
+        "//include/core:SkFontMgr_hdr",
         "//include/core:SkFontTypes_hdr",
         "//include/core:SkFont_hdr",
         "//include/core:SkImageInfo_hdr",

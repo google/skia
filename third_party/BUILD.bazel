@@ -2222,6 +2222,7 @@ HARFBUZZ_SRCS = [
     "externals/harfbuzz/src/hb-buffer-deserialize-json.hh",
     "externals/harfbuzz/src/hb-buffer-deserialize-text.hh",
     "externals/harfbuzz/src/hb-buffer-serialize.cc",
+    "externals/harfbuzz/src/hb-buffer-verify.cc",
     "externals/harfbuzz/src/hb-buffer.cc",
     "externals/harfbuzz/src/hb-buffer.hh",
     "externals/harfbuzz/src/hb-cache.hh",
