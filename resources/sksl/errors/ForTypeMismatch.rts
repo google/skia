@@ -1,4 +1,4 @@
-void main() {
+void func() {
     for (int x = 0; x; x++) {}
 }
 
