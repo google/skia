@@ -1,5 +1,0 @@
-void outside_while()   { while(true) {} if (true) break; }
-
-/*%%*
-break statement must be inside a loop or switch
-*%%*/

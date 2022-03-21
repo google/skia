@@ -1,0 +1,8 @@
+void outside_loop() {
+    for (int x=0; x<10; ++x) {}
+    if (true) break;
+}
+
+/*%%*
+break statement must be inside a loop or switch
+*%%*/
