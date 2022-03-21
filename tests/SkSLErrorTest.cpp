@@ -24,16 +24,7 @@
 #include <utility>
 #include <vector>
 
-static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::ProgramKind kind) {
-    sk_sp<SkData> shaderData = GetResourceAsData(testFile);
-    if (!shaderData) {
-        ERRORF(r, "%s: Unable to load file", SkOSPath::Basename(testFile).c_str());
-        return;
-    }
-
-    std::string shaderString{reinterpret_cast<const char*>(shaderData->bytes()),
-                             shaderData->size()};
-
+static std::vector<std::string> get_expected_errors(const char* shaderString) {
     // Error expectations are embedded in the source with a special *%%* marker, like so:
     //
     //     /*%%*
@@ -45,7 +36,7 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::
     std::vector<std::string> expectedErrors;
     constexpr char kExpectedErrorsStart[] = "/*%%*";
     constexpr char kExpectedErrorsEnd[] = "*%%*/";
-    if (const char* startPtr = strstr(shaderString.c_str(), kExpectedErrorsStart)) {
+    if (const char* startPtr = strstr(shaderString, kExpectedErrorsStart)) {
         startPtr += strlen(kExpectedErrorsStart);
         if (const char* endPtr = strstr(startPtr, kExpectedErrorsEnd)) {
             // Store the text between these delimiters in an array of expected errors.
@@ -60,23 +51,15 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::
         }
     }
 
-    // Compile the code.
-    std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
-    SkSL::Compiler compiler(caps.get());
-    SkSL::Program::Settings settings;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::move(shaderString),
-                                                                     settings);
+    return expectedErrors;
+}
 
-    // If the code actually generated a working program, we've already failed.
-    if (program) {
-        ERRORF(r, "%s: Expected failure, but compiled successfully",
-                  SkOSPath::Basename(testFile).c_str());
-        return;
-    }
-
+static void check_expected_errors(skiatest::Reporter* r,
+                                  const char* testFile,
+                                  const std::vector<std::string>& expectedErrors,
+                                  std::string reportedErrors) {
     // Verify that the SkSL compiler actually emitted the expected error messages.
     // The list of expectations isn't necessarily exhaustive, though.
-    std::string reportedErrors = compiler.errorText();
     std::string originalErrors = reportedErrors;
     bool reportOriginalErrors = false;
     for (const std::string& expectedError : expectedErrors) {
@@ -98,6 +81,35 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::
         ERRORF(r, "%s: The following errors were reported:\n%s\n",
                SkOSPath::Basename(testFile).c_str(), originalErrors.c_str());
     }
+}
+
+static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::ProgramKind kind) {
+    sk_sp<SkData> shaderData = GetResourceAsData(testFile);
+    if (!shaderData) {
+        ERRORF(r, "%s: Unable to load file", SkOSPath::Basename(testFile).c_str());
+        return;
+    }
+
+    std::string shaderString{reinterpret_cast<const char*>(shaderData->bytes()),
+                             shaderData->size()};
+
+    std::vector<std::string> expectedErrors = get_expected_errors(shaderString.c_str());
+
+    // Compile the code.
+    std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
+    SkSL::Compiler compiler(caps.get());
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::move(shaderString),
+                                                                     settings);
+
+    // If the code actually generated a working program, we've already failed.
+    if (program) {
+        ERRORF(r, "%s: Expected failure, but compiled successfully",
+                  SkOSPath::Basename(testFile).c_str());
+        return;
+    }
+
+    check_expected_errors(r, testFile, expectedErrors, compiler.errorText());
 }
 
 static void iterate_dir(const char* directory,
