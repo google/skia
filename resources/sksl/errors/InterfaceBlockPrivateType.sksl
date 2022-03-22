@@ -1,0 +1,7 @@
+InterfaceBlock {
+    $mat g;
+};
+
+/*%%*
+type '$mat' is private
+*%%*/

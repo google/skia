@@ -1,7 +1,3 @@
-InterfaceBlock {
-    $mat g;
-};
-
 struct S {
     $bvec bv;
 };
@@ -12,7 +8,6 @@ void ctor_mat_private()      { $mat(0); }
 void ctor_literal_private()  { $floatLiteral(0); }
 
 /*%%*
-type '$mat' is private
 type '$bvec' is private
 type '$ivec' is private
 type '$genType' is private

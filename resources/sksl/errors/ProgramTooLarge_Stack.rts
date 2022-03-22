@@ -5,7 +5,7 @@ struct S {
     half h;
 };
 
-void main() {
+void func() {
     int small;
     S big_chungus;
     S no_report; // we don't need to report overflows past the first

@@ -1,0 +1,7 @@
+half4 main(float2 coords) {
+    coords.r[ = ( coords.g );
+}
+
+/*%%*
+expected expression, but found '='
+*%%*/
