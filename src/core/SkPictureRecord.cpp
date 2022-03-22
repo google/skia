@@ -581,8 +581,8 @@ void SkPictureRecord::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScala
 
 #if SK_SUPPORT_GPU
 void SkPictureRecord::onDrawSlug(const GrSlug* slug) {
-    // Just the id for the slug.
-    size_t size = kUInt32Size;
+    // op + slug id
+    size_t size = 2 * kUInt32Size;
     size_t initialOffset = this->addDraw(DRAW_SLUG, &size);
 
     this->addSlug(slug);
