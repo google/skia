@@ -1,4 +1,4 @@
-void main() {
+void func() {
     if (true) half4 x;
 }
 
