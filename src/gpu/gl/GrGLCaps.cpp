@@ -1934,24 +1934,6 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kBGRA8);
         info.fFormatType = FormatType::kNormalizedFixedPoint;
 
-        // We currently only use the renderbuffer format when allocating msaa renderbuffers, so we
-        // are making decisions here based on that use case. The GL_EXT_texture_format_BGRA8888
-        // extension adds BGRA color renderbuffer support for ES 2.0, but this does not guarantee
-        // support for MSAA renderbuffers. Additionally, the renderable support was added in a later
-        // revision of the extension. So it is possible for older drivers to support the extension
-        // but only an early revision of it without renderable support. We have no way of
-        // distinguishing between the two. The GL_APPLE_texture_format_BGRA8888 does not add support
-        // for BGRA color renderbuffers at all. Ideally, for both cases we would use RGBA8 for our
-        // format for the MSAA buffer. In the GL_EXT_texture_format_BGRA8888 case we can still
-        // make the resolve BGRA and which will work for glBlitFramebuffer for resolving which just
-        // requires the src and dst be bindable to FBOs. However, we can't do this in the current
-        // world since some devices (e.g. chromium & angle) require the formats in glBlitFramebuffer
-        // to match. We don't have a way to really check this during resolve since we only actually
-        // have GrBackendFormat that is shared by the GrGLRenderTarget. We always set the
-        // renderbuffer format to RGBA8 but disable MSAA unless we have the APPLE extension.
-        // Once we break those up into different surface we can revisit doing this change.
-        info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
-
         info.fDefaultExternalFormat = GR_GL_BGRA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         info.fDefaultColorType = GrColorType::kBGRA_8888;
@@ -1981,9 +1963,32 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
         if (GR_IS_GR_GL_ES(standard)) {
             if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
+                // The GL_EXT_texture_format_BGRA8888 extension adds BGRA color renderbuffer support
+                // for ES 2.0. The extension adds BGRA to the supported renerable formats in table
+                // 4.5. In ES 2.0. All the extensions that add multisample support, all reference
+                // table 4.5 as the formats that are supported. Thus we can use msaaRenderFlags.
+                // Additionally, the renderable support was added in a later revision of the
+                // extension. So it is possible for older drivers to support the extension but only
+                // an early revision of it without renderable support. We have no way of
+                // distinguishing between the two and assume renderable.
+
+                info.fInternalFormatForRenderbuffer = GR_GL_BGRA;
+
                 info.fFlags = FormatInfo::kTexturable_Flag
-                            | FormatInfo::kTransfers_Flag
-                            | nonMSAARenderFlags;
+                            | FormatInfo::kTransfers_Flag;
+                // Only enable BGRA msaa if we know we're going through Angle. The spec for
+                // GL_EXT_texture_format_BGRA8888 was updated in 2016 to add support for GL_BGRA_EXT
+                // as a sized, renderable format. But we may end up running on old drivers written
+                // against earlier version of the spec. Also the interactions between all these
+                // extensions are very suibtle and it wouldn't be hard for a driver to mess them up.
+                // We are confident that Angle does it as we expect. Our non-angle test bots do seem
+                // to pass and draw correctly so we could consider enabling this more broadly in the
+                // future.
+                if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown) {
+                    info.fFlags |= msaaRenderFlags;
+                } else {
+                    info.fFlags |= nonMSAARenderFlags;
+                }
                 // GL_EXT_texture storage has defined interactions with
                 // GL_EXT_texture_format_BGRA8888. However, ES3 supports glTexStorage but
                 // without GL_EXT_texture_storage it does not allow the BGRA8 sized internal format.
@@ -2006,6 +2011,9 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     info.fFlags = FormatInfo::kTexturable_Flag
                                 | FormatInfo::kTransfers_Flag
                                 | msaaRenderFlags;
+                    // The GL_APPLE_texture_format_BGRA8888 does not add support for BGRA color
+                    // renderbuffers at all so we use RGBA here.
+                    info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
                     supportsBGRATexStorage = true;
                 }
             }
