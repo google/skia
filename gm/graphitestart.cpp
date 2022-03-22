@@ -11,9 +11,42 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "tools/Resources.h"
 
 namespace {
+
+class MetaContext {
+public:
+    MetaContext(SkCanvas* canvas) {
+#ifdef SK_GRAPHITE_ENABLED
+        fRecorder = canvas->recorder();
+#endif
+        fContext = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
+                                              : nullptr;
+    }
+
+    sk_sp<SkImage> makeTextureImage(sk_sp<SkImage> orig) const {
+#ifdef SK_GRAPHITE_ENABLED
+        if (fRecorder) {
+            return orig->makeTextureImage(fRecorder);
+        }
+#endif
+
+        if (fContext) {
+            return orig->makeTextureImage(fContext);
+        }
+
+        return orig;
+    }
+
+private:
+#ifdef SK_GRAPHITE_ENABLED
+    skgpu::Recorder* fRecorder;
+#endif
+
+    GrDirectContext* fContext;
+};
 
 sk_sp<SkShader> create_gradient_shader(SkRect r) {
     // TODO: it seems like only the x-component of sk_FragCoord is making it to the shader!
@@ -25,7 +58,7 @@ sk_sp<SkShader> create_gradient_shader(SkRect r) {
                                         SkTileMode::kClamp);
 }
 
-sk_sp<SkShader> create_image_shader() {
+sk_sp<SkShader> create_image_shader(const MetaContext& context) {
     SkImageInfo ii = SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkBitmap bitmap;
 
@@ -42,16 +75,16 @@ sk_sp<SkShader> create_image_shader() {
     bitmap.setImmutable();
 
     sk_sp<SkImage> img = SkImage::MakeFromBitmap(bitmap);
-    // TODO: we'll need a 'makeTextureImage' call here
+    img = context.makeTextureImage(std::move(img));
 
     return img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions());
 }
 
-sk_sp<SkShader> create_blend_shader(SkBlendMode bm) {
+sk_sp<SkShader> create_blend_shader(const MetaContext& context, SkBlendMode bm) {
     constexpr SkColor4f kTransYellow = {1.0f, 1.0f, 0.0f, 0.5f};
 
     sk_sp<SkShader> dst = SkShaders::Color(kTransYellow, nullptr);
-    return SkShaders::Blend(bm, std::move(dst), create_image_shader());
+    return SkShaders::Blend(bm, std::move(dst), create_image_shader(context));
 }
 
 void draw_blend_mode_swatches(SkCanvas* canvas, SkRect clipRect) {
@@ -119,6 +152,8 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
+        MetaContext context(canvas);
+
         // UL corner
         {
             SkPaint p;
@@ -137,14 +172,14 @@ protected:
         // LL corner
         {
             SkPaint p;
-            p.setShader(create_image_shader());
+            p.setShader(create_image_shader(context));
             canvas->drawRect({2, 129, 127, 255}, p);
         }
 
         // LR corner
         {
             SkPaint p;
-            p.setShader(create_blend_shader(SkBlendMode::kModulate));
+            p.setShader(create_blend_shader(context, SkBlendMode::kModulate));
             canvas->drawRect({129, 129, 255, 255}, p);
         }
 
