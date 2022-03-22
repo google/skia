@@ -1,7 +1,0 @@
-void main() {
-    if (true) ; else half4 color = sk_FragColor;
-}
-
-/*%%*
-variable 'color' must be created in a scope
-*%%*/
