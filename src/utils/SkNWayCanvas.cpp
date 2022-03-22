@@ -292,6 +292,15 @@ void SkNWayCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y
     }
 }
 
+#if SK_SUPPORT_GPU
+void SkNWayCanvas::onDrawSlug(const GrSlug* slug) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawSlug(slug);
+    }
+}
+#endif
+
 void SkNWayCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                  const SkPaint* paint) {
     Iter iter(fList);
