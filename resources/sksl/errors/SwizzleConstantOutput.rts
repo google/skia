@@ -1,4 +1,4 @@
-void main() {
+void func() {
     float4 test = float4(1);
     test.xyz0 = float4(1);
 }

@@ -2,7 +2,7 @@ struct S {
     float float;
 } s;
 
-float4 main() {
+float4 func() {
     return s.float.xxxx;
 }
 

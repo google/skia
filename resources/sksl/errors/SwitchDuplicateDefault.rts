@@ -1,4 +1,4 @@
-void main() {
+void func() {
     switch (1) {
         default:
         default:
