@@ -2276,7 +2276,7 @@ protected:
 
     /** Experimental
      */
-    virtual void doDrawSlug(const GrSlug* slug);
+    virtual void onDrawSlug(const GrSlug* slug);
 #endif
 
 private:

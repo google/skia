@@ -2353,11 +2353,11 @@ SkCanvas::doConvertBlobToSlug(const SkTextBlob& blob, SkPoint origin, const SkPa
 void SkCanvas::drawSlug(const GrSlug* slug) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (slug) {
-        this->doDrawSlug(slug);
+        this->onDrawSlug(slug);
     }
 }
 
-void SkCanvas::doDrawSlug(const GrSlug* slug) {
+void SkCanvas::onDrawSlug(const GrSlug* slug) {
     SkRect bounds = slug->sourceBounds();
     if (this->internalQuickReject(bounds, slug->paint())) {
         return;
