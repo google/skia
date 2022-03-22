@@ -1,4 +1,4 @@
-void main() {
+void func() {
     float x;
     x = 1.5 2.5;
 }
