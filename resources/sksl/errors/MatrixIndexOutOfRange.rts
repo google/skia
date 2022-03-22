@@ -1,0 +1,26 @@
+void half3x3_neg1()            { half3x3 m;  half3   v = m[-1]; }
+void half3x3_0()               { half3x3 m;  half3   v = m[0]; }
+void half3x3_1()               { half3x3 m;  half3   v = m[1]; }
+void half3x3_2()               { half3x3 m;  half3   v = m[2]; }
+void half3x3_3()               { half3x3 m;  half3   v = m[3]; }
+void half3x3_4()               { half3x3 m;  half3   v = m[4]; }
+void half3x3_huge()            { half3x3 m;  half3   v = m[1000000000]; }
+
+void half3x3_neg1_constidx()   { half3x3 m;  const int INDEX = -1;         half3 v = m[INDEX]; }
+void half3x3_0_constidx()      { half3x3 m;  const int INDEX = 0;          half3 v = m[INDEX]; }
+void half3x3_1_constidx()      { half3x3 m;  const int INDEX = 1;          half3 v = m[INDEX]; }
+void half3x3_2_constidx()      { half3x3 m;  const int INDEX = 2;          half3 v = m[INDEX]; }
+void half3x3_3_constidx()      { half3x3 m;  const int INDEX = 3;          half3 v = m[INDEX]; }
+void half3x3_4_constidx()      { half3x3 m;  const int INDEX = 4;          half3 v = m[INDEX]; }
+void half3x3_huge_constidx()   { half3x3 m;  const int INDEX = 1000000000; half3 v = m[INDEX]; }
+
+/*%%*
+index -1 out of range for 'half3x3'
+index 3 out of range for 'half3x3'
+index 4 out of range for 'half3x3'
+index 1000000000 out of range for 'half3x3'
+index -1 out of range for 'half3x3'
+index 3 out of range for 'half3x3'
+index 4 out of range for 'half3x3'
+index 1000000000 out of range for 'half3x3'
+*%%*/
