@@ -21,6 +21,9 @@
 
 namespace SkSL {
 
+// TODO: Once Graphite has its own GPU-caps system, SK_GRAPHITE_ENABLED should get its own mode.
+// At the moment, it either mimics what GrShaderCaps reports, or it uses these hard-coded values
+// depending on the build.
 #if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
 std::unique_ptr<ShaderCaps> ShaderCapsFactory::MakeShaderCaps() {
     std::unique_ptr<ShaderCaps> standalone = std::make_unique<ShaderCaps>();
@@ -41,7 +44,7 @@ void write_stringstream(const StringStream& s, OutputStream& out) {
     out.write(s.str().c_str(), s.str().size());
 }
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#if !defined(SKSL_STANDALONE) && (SK_SUPPORT_GPU || SK_SUPPORT_GRAPHITE)
 bool type_to_sksltype(const Context& context, const Type& type, SkSLType* outType) {
     // If a new GrSL type is added, this function will need to be updated.
     static_assert(kSkSLTypeCount == 41);

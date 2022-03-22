@@ -401,7 +401,7 @@ private:
     static std::unique_ptr<ShaderCaps> MakeShaderCaps();
 };
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#if !defined(SKSL_STANDALONE) && (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
 bool type_to_sksltype(const Context& context, const Type& type, SkSLType* outType);
 #endif
 
