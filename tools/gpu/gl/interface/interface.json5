@@ -46,11 +46,6 @@
       "VertexAttrib2fv", "VertexAttrib3fv", "VertexAttrib4fv", "VertexAttribPointer",
       "Viewport",
     ],
-
-    // TODO: Remove 'optional' once Chrome sets this function in the interface.
-    "optional": [
-      "GetFloatv",
-    ]
   },
   { // GL exclusive core functions
     "GL":    [{"ext": "<core>"}],
@@ -617,9 +612,6 @@
       "BindSampler", "DeleteSamplers", "GenSamplers",
       "SamplerParameterf", "SamplerParameteri", "SamplerParameteriv",
     ],
-
-    // TODO: Remove 'optional' once Chrome sets this function in the interface.
-    "optional": ["SamplerParameterf"]
   },
 
   {

@@ -125,6 +125,7 @@ bool GrGLInterface::validate() const {
         !fFunctions.fGenTextures ||
         !fFunctions.fGetBufferParameteriv ||
         !fFunctions.fGetError ||
+        !fFunctions.fGetFloatv ||
         !fFunctions.fGetIntegerv ||
         !fFunctions.fGetProgramInfoLog ||
         !fFunctions.fGetProgramiv ||
@@ -690,6 +691,7 @@ bool GrGLInterface::validate() const {
         if (!fFunctions.fBindSampler ||
             !fFunctions.fDeleteSamplers ||
             !fFunctions.fGenSamplers ||
+            !fFunctions.fSamplerParameterf ||
             !fFunctions.fSamplerParameteri ||
             !fFunctions.fSamplerParameteriv) {
             RETURN_FALSE_INTERFACE;
