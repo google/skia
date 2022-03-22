@@ -1,0 +1,6 @@
+int func() { return 1; }
+void func() {}
+
+/*%%*
+functions 'void func()' and 'int func()' differ only in return type
+*%%*/

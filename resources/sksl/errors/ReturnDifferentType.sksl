@@ -1,6 +1,0 @@
-int main() { return 1; }
-void main() {}
-
-/*%%*
-functions 'void main()' and 'int main()' differ only in return type
-*%%*/
