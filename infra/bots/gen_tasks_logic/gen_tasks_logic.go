@@ -669,7 +669,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			ignore := []string{
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
 				"ReleaseAndAbandonGpuContext", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
-				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "OOPRDDL", "T8888",
+				"NoGPUThreads", "DDL1", "DDL3", "OOPRDDL", "T8888",
 				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "SkottieTracing", "SkottieWASM",
 				"GpuTess", "DMSAAStats", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
 				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2", "i5"}
@@ -1541,9 +1541,6 @@ func (b *taskBuilder) commonTestPerfAssets() {
 		if b.matchGpu("Intel") {
 			b.asset("mesa_intel_driver_linux")
 		}
-	}
-	if b.matchOs("Win") && b.extraConfig("ProcDump") {
-		b.asset("procdump_win")
 	}
 }
 

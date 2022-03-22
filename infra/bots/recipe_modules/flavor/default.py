@@ -172,19 +172,6 @@ class DefaultFlavor(object):
       ld_library_path.append(clang_linux + '/lib')
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
-    elif 'ProcDump' in extra_tokens:
-      dumps_dir = self.m.path.join(self.m.vars.swarming_out_dir, 'dumps')
-      self.m.file.ensure_directory('makedirs dumps', dumps_dir)
-      procdump = str(self.m.vars.workdir.join('procdump_win',
-                                                'procdump64.exe'))
-      # Full docs for ProcDump here:
-      # https://docs.microsoft.com/en-us/sysinternals/downloads/procdump
-      # -accepteula automatically accepts the license agreement
-      # -mp saves a packed minidump to save space
-      # -e 1 tells procdump to dump once
-      # -x <dump dir> <exe> <args> launches exe and writes dumps to the
-      #   specified dir
-      cmd = [procdump, '-accepteula', '-mp', '-e', '1', '-x', dumps_dir] + cmd
 
     if 'ASAN' in extra_tokens:
       os = self.m.vars.builder_cfg.get('os', '')
