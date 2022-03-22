@@ -1,0 +1,26 @@
+void half2x4_neg1()            { half2x4 m;      half4   v = m[-1]; }
+void half2x4_0()               { half2x4 m;      half4   v = m[0]; }
+void half2x4_1()               { half2x4 m;      half4   v = m[1]; }
+void half2x4_2()               { half2x4 m;      half4   v = m[2]; }
+void half2x4_3()               { half2x4 m;      half4   v = m[3]; }
+void half2x4_4()               { half2x4 m;      half4   v = m[4]; }
+void half2x4_huge()            { half2x4 m;      half4   v = m[1000000000]; }
+
+void half4x2_neg1()            { half4x2 m;      half2   v = m[-1]; }
+void half4x2_0()               { half4x2 m;      half2   v = m[0]; }
+void half4x2_1()               { half4x2 m;      half2   v = m[1]; }
+void half4x2_2()               { half4x2 m;      half2   v = m[2]; }
+void half4x2_3()               { half4x2 m;      half2   v = m[3]; }
+void half4x2_4()               { half4x2 m;      half2   v = m[4]; }
+void half4x2_huge()            { half4x2 m;      half2   v = m[1000000000]; }
+
+/*%%*
+index -1 out of range for 'half2x4'
+index 2 out of range for 'half2x4'
+index 3 out of range for 'half2x4'
+index 4 out of range for 'half2x4'
+index 1000000000 out of range for 'half2x4'
+index -1 out of range for 'half4x2'
+index 4 out of range for 'half4x2'
+index 1000000000 out of range for 'half4x2'
+*%%*/

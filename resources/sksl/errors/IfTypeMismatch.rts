@@ -1,4 +1,4 @@
-void main() {
+void func() {
     if (3) {}
 }
 
