@@ -17,9 +17,8 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/tessellate/AffineMatrix.h"
+#include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/PathCurveTessellator.h"
-#include "src/gpu/tessellate/PathWedgeTessellator.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
@@ -238,8 +237,7 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         // The inner fan isn't built into the tessellator. Generate a standard Redbook fan with a
         // middle-out topology.
         GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fFanBuffer, &fFanBaseVertex);
-        int maxCombinedFanEdges =
-                PathTessellator::MaxCombinedFanEdgesInPathDrawList(fTotalCombinedPathVerbCnt);
+        int maxCombinedFanEdges = MaxCombinedFanEdgesInPaths(fTotalCombinedPathVerbCnt);
         // A single n-sided polygon is fanned by n-2 triangles. Multiple polygons with a combined
         // edge count of n are fanned by strictly fewer triangles.
         int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);

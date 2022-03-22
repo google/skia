@@ -12,8 +12,8 @@
 #include "experimental/graphite/src/geom/Transform_graphite.h"
 #include "experimental/graphite/src/render/StencilAndCoverDSS.h"
 
+#include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/PathTessellator.h"
 
 namespace skgpu {
 
@@ -43,8 +43,7 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer,
     // paths to SkPath just to iterate their pts/verbs
     SkPath path = shape.asPath();
 
-    const int maxCombinedFanEdges =
-            PathTessellator::MaxCombinedFanEdgesInPathDrawList(path.countVerbs());
+    const int maxCombinedFanEdges = MaxCombinedFanEdgesInPaths(path.countVerbs());
     const int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
 
     DrawWriter::Vertices verts{*writer};

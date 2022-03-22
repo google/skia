@@ -11,17 +11,15 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
+#include "src/gpu/ops/PathTessellator.h"
+#include "src/gpu/ops/StrokeTessellator.h"
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/PathCurveTessellator.h"
-#include "src/gpu/tessellate/PathWedgeTessellator.h"
-#include "src/gpu/tessellate/StrokeFixedCountTessellator.h"
-#include "src/gpu/tessellate/StrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "tools/ToolUtils.h"
 #include <vector>
 
-namespace skgpu {
+namespace skgpu::v1 {
 
 // This is the number of cubics in desk_chalkboard.skp. (There are no quadratics in the chalkboard.)
 constexpr static int kNumCubicsInChalkboard = 47182;
@@ -143,7 +141,7 @@ DEF_PATH_TESS_BENCH(GrPathCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
     auto tess = PathCurveTessellator::Make(&arena,
                                            fTarget->caps().shaderCaps()->infinitySupport());
     tess->prepare(fTarget.get(),
-                  1 << PathCurveTessellator::kMaxFixedResolveLevel,
+                  kMaxParametricSegments,
                   fMatrix,
                   {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},
                   fPath.countVerbs(),
@@ -157,7 +155,7 @@ DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
     auto tess = PathWedgeTessellator::Make(&arena,
                                            fTarget->caps().shaderCaps()->infinitySupport());
     tess->prepare(fTarget.get(),
-                  1 << PathCurveTessellator::kMaxFixedResolveLevel,
+                  kMaxParametricSegments,
                   fMatrix,
                   {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},
                   fPath.countVerbs(),
@@ -232,8 +230,7 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
                     ToolUtils::make_star(SkRect::MakeWH(500, 500), kNumCubicsInChalkboard),
                     SkMatrix::I()) {
     // Conservative estimate of triangulation (see PathStencilCoverOp)
-    const int maxVerts =
-            3 * (PathTessellator::MaxCombinedFanEdgesInPathDrawList(kNumCubicsInChalkboard) - 2);
+    const int maxVerts = 3 * (MaxCombinedFanEdgesInPaths(kNumCubicsInChalkboard) - 2);
 
     sk_sp<const GrBuffer> buffer;
     int baseVertex;
@@ -411,4 +408,4 @@ DEF_BENCH(return new TessPrepareBench(
         "GrStrokeFixedCountTessellator_motionmark");
 )
 
-}  // namespace skgpu
+}  // namespace skgpu::v1

@@ -11,7 +11,6 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/StrokeTessellator.h"
 
 GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shaderCaps,
                                                        Mode mode,

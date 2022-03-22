@@ -12,8 +12,6 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/tessellate/StrokeFixedCountTessellator.h"
-#include "src/gpu/tessellate/StrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
 namespace {

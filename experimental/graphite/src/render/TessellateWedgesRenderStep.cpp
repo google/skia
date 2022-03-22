@@ -12,10 +12,9 @@
 #include "experimental/graphite/src/geom/Transform_graphite.h"
 
 #include "src/gpu/tessellate/AffineMatrix.h"
+#include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/MidpointContourParser.h"
 #include "src/gpu/tessellate/PatchWriter.h"
-#include "src/gpu/tessellate/PathTessellator.h"
-#include "src/gpu/tessellate/PathWedgeTessellator.h"
 
 namespace skgpu {
 
@@ -41,8 +40,7 @@ struct DrawWriterAllocator {
         // PatchWriter's tracked segment count^4.
         // Wedges use one extra triangle to connect to the fan point compared to the curve version.
         static constexpr unsigned int kMaxIndexCount =
-                3 * (1 + PathTessellator::NumCurveTrianglesAtResolveLevel(
-                            PathTessellator::kMaxFixedResolveLevel));
+                3 * (1 + NumCurveTrianglesAtResolveLevel(kMaxFixedResolveLevel));
         return fInstances.append(kMaxIndexCount, 1);
     }
 
@@ -56,13 +54,6 @@ struct DrawWriterAllocator {
 static constexpr PatchAttribs kAttribs = PatchAttribs::kFanPoint;
 using Writer = PatchWriter<DrawWriterAllocator,
                            Required<PatchAttribs::kFanPoint>>;
-
-size_t fixed_vertex_buffer_size() {
-    return PathWedgeTessellator::FixedVertexBufferSize(PathTessellator::kMaxFixedResolveLevel);
-}
-size_t fixed_index_buffer_size() {
-    return PathWedgeTessellator::FixedIndexBufferSize(PathTessellator::kMaxFixedResolveLevel);
-}
 
 }  // namespace
 
@@ -161,21 +152,19 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
                                                const SkIRect& bounds,
                                                const Transform& localToDevice,
                                                const Shape& shape) const {
-    // TODO: Caps check
-    static constexpr int kMaxTessellationSegments = 1 << PathTessellator::kMaxFixedResolveLevel;
     SkPath path = shape.asPath(); // TODO: Iterate the Shape directly
 
     BindBufferInfo fixedVertexBuffer = dw->bufferManager()->getStaticBuffer(
             BufferType::kVertex,
-            PathWedgeTessellator::WriteFixedVertexBuffer,
-            fixed_vertex_buffer_size);
+            FixedCountWedges::WriteVertexBuffer,
+            FixedCountWedges::VertexBufferSize);
     BindBufferInfo fixedIndexBuffer = dw->bufferManager()->getStaticBuffer(
             BufferType::kIndex,
-            PathWedgeTessellator::WriteFixedIndexBuffer,
-            fixed_index_buffer_size);
+            FixedCountWedges::WriteIndexBuffer,
+            FixedCountWedges::IndexBufferSize);
 
-    int patchReserveCount = PathWedgeTessellator::PatchPreallocCount(path.countVerbs());
-    Writer writer{kAttribs, kMaxTessellationSegments,
+    int patchReserveCount = FixedCountWedges::PreallocCount(path.countVerbs());
+    Writer writer{kAttribs, kMaxParametricSegments,
                   *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
 
     // TODO: Is it better to pre-transform on the CPU and only have a matrix uniform to compute

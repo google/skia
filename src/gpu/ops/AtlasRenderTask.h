@@ -12,7 +12,7 @@
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/ops/OpsTask.h"
-#include "src/gpu/tessellate/PathTessellator.h"
+#include "src/gpu/ops/PathTessellator.h"
 
 struct SkIPoint16;
 

@@ -327,4 +327,5 @@ int FindCubicConvex180Chops(const SkPoint pts[], float T[2], bool* areCusps) {
     }
     return 0;
 }
+
 }  // namespace skgpu

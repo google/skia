@@ -13,9 +13,8 @@
 #include "experimental/graphite/src/render/StencilAndCoverDSS.h"
 
 #include "src/gpu/tessellate/AffineMatrix.h"
+#include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/PatchWriter.h"
-#include "src/gpu/tessellate/PathCurveTessellator.h"
-#include "src/gpu/tessellate/PathTessellator.h"
 
 namespace skgpu {
 
@@ -42,8 +41,7 @@ struct DrawWriterAllocator {
         // TODO (skbug.com/13056): Actually compute optimal minimum required index count based on
         // PatchWriter's tracked segment count^4.
         static constexpr unsigned int kMaxIndexCount =
-                3 * PathTessellator::NumCurveTrianglesAtResolveLevel(
-                            PathTessellator::kMaxFixedResolveLevel);
+                3 * NumCurveTrianglesAtResolveLevel(kMaxFixedResolveLevel);
         return fInstances.append(kMaxIndexCount, 1);
     }
 
@@ -58,13 +56,6 @@ static constexpr PatchAttribs kAttribs = PatchAttribs::kNone;
 using Writer = PatchWriter<DrawWriterAllocator,
                            AddTrianglesWhenChopping,
                            DiscardFlatCurves>;
-
-size_t fixed_vertex_buffer_size() {
-    return PathCurveTessellator::FixedVertexBufferSize(PathTessellator::kMaxFixedResolveLevel);
-}
-size_t fixed_index_buffer_size() {
-    return PathCurveTessellator::FixedIndexBufferSize(PathTessellator::kMaxFixedResolveLevel);
-}
 
 }  // namespace
 
@@ -152,22 +143,20 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw,
                                                const SkIRect& bounds,
                                                const Transform& localToDevice,
                                                const Shape& shape) const {
-    // TODO: Caps check
-    static constexpr int kMaxTessellationSegments = 1 << PathTessellator::kMaxFixedResolveLevel;
     SkPath path = shape.asPath(); // TODO: Iterate the Shape directly
 
     BindBufferInfo fixedVertexBuffer = dw->bufferManager()->getStaticBuffer(
             BufferType::kVertex,
-            PathCurveTessellator::WriteFixedVertexBuffer,
-            fixed_vertex_buffer_size);
+            FixedCountCurves::WriteVertexBuffer,
+            FixedCountCurves::VertexBufferSize);
     BindBufferInfo fixedIndexBuffer = dw->bufferManager()->getStaticBuffer(
             BufferType::kIndex,
-            PathCurveTessellator::WriteFixedIndexBuffer,
-            fixed_index_buffer_size);
+            FixedCountCurves::WriteIndexBuffer,
+            FixedCountCurves::IndexBufferSize);
 
-    int patchReserveCount = PathCurveTessellator::PatchPreallocCount(path.countVerbs());
-    Writer writer{kAttribs, kMaxTessellationSegments,
-                    *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
+    int patchReserveCount = FixedCountCurves::PreallocCount(path.countVerbs());
+    Writer writer{kAttribs, kMaxParametricSegments,
+                  *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
 
     // TODO: Is it better to pre-transform on the CPU and only have a matrix uniform to compute
     // local coords, or is it better to always transform on the GPU (less CPU usage, more

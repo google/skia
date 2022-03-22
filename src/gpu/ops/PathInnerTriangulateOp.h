@@ -13,13 +13,9 @@
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
-namespace skgpu {
+namespace skgpu::v1 {
 
 class PathCurveTessellator;
-
-};
-
-namespace skgpu::v1 {
 
 // This op is a 3-pass twist on the standard Redbook "stencil then cover" algorithm:
 //

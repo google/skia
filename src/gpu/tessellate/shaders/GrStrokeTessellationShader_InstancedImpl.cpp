@@ -9,7 +9,7 @@
 
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/StrokeFixedCountTessellator.h"
+#include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
 using skgpu::VertexWriter;
@@ -186,7 +186,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     } else {
         args.fVertBuilder->codeAppendf(R"(
         float numEdgesInJoin = %i;)",
-        skgpu::StrokeFixedCountTessellator::NumFixedEdgesInJoin(joinType));
+        skgpu::NumFixedEdgesInJoin(joinType));
     }
 
     args.fVertBuilder->codeAppend(R"(

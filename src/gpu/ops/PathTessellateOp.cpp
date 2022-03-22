@@ -9,7 +9,6 @@
 
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/tessellate/PathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 namespace skgpu::v1 {

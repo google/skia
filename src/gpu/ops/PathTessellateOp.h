@@ -9,7 +9,7 @@
 #define PathTessellateOp_DEFINED
 
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/tessellate/PathTessellator.h"
+#include "src/gpu/ops/PathTessellator.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 

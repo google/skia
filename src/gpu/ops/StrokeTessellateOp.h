@@ -10,7 +10,7 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/tessellate/StrokeTessellator.h"
+#include "src/gpu/ops/StrokeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 class GrRecordingContext;

@@ -10,7 +10,7 @@
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/PathTessellator.h"
+#include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
@@ -69,7 +69,7 @@ public:
     }
 
     int maxTessellationSegments(const GrShaderCaps&) const override {
-        return 1 << skgpu::PathTessellator::kMaxFixedResolveLevel;
+        return skgpu::kMaxParametricSegments;
     }
 
 private:
@@ -98,9 +98,9 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
             const MiddleOutShader& middleOutShader = shader.cast<MiddleOutShader>();
             v->defineConstant("PRECISION", skgpu::kTessellationPrecision);
             v->defineConstant("MAX_FIXED_RESOLVE_LEVEL",
-                              (float)skgpu::PathTessellator::kMaxFixedResolveLevel);
+                              (float)skgpu::kMaxFixedResolveLevel);
             v->defineConstant("MAX_FIXED_SEGMENTS",
-                              (float)(1 << skgpu::PathTessellator::kMaxFixedResolveLevel));
+                              (float)(skgpu::kMaxParametricSegments));
             v->insertFunction(skgpu::wangs_formula::as_sksl().c_str());
             if (middleOutShader.fAttribs & PatchAttribs::kExplicitCurveType) {
                 v->insertFunction(SkStringPrintf(R"(

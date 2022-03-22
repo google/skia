@@ -13,7 +13,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/PathCurveTessellator.h"
+#include "src/gpu/ops/PathTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 namespace skgpu::v1 {
