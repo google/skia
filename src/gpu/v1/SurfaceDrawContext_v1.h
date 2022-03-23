@@ -126,7 +126,7 @@ public:
             int sampleCnt,
             GrSurfaceOrigin,
             const SkSurfaceProps&,
-            sk_sp<GrRefCntedCallback> releaseHelper);
+            sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
     SurfaceDrawContext(GrRecordingContext*,
                        GrSurfaceProxyView readView,

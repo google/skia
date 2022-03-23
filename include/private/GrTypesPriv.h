@@ -978,36 +978,6 @@ static constexpr GrColorType GrMaskFormatToColorType(GrMaskFormat format) {
     SkUNREACHABLE;
 }
 
-/**
- * Ref-counted object that calls a callback from its destructor.
- */
-class GrRefCntedCallback : public SkNVRefCnt<GrRefCntedCallback> {
-public:
-    using Context = void*;
-    using Callback = void (*)(Context);
-
-    static sk_sp<GrRefCntedCallback> Make(Callback proc, Context ctx) {
-        if (!proc) {
-            return nullptr;
-        }
-        return sk_sp<GrRefCntedCallback>(new GrRefCntedCallback(proc, ctx));
-    }
-
-    ~GrRefCntedCallback() { fReleaseProc(fReleaseCtx); }
-
-    Context context() const { return fReleaseCtx; }
-
-private:
-    GrRefCntedCallback(Callback proc, Context ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {}
-    GrRefCntedCallback(const GrRefCntedCallback&) = delete;
-    GrRefCntedCallback(GrRefCntedCallback&&) = delete;
-    GrRefCntedCallback& operator=(const GrRefCntedCallback&) = delete;
-    GrRefCntedCallback& operator=(GrRefCntedCallback&&) = delete;
-
-    Callback fReleaseProc;
-    Context fReleaseCtx;
-};
-
 enum class GrDstSampleFlags {
     kNone = 0,
     kRequiresTextureBarrier =   1 << 0,

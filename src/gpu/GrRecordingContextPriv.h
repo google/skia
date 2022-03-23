@@ -12,6 +12,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/BaseDevice.h"
 #include "src/gpu/GrImageContextPriv.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/text/GrSDFTControl.h"
 
 class GrImageInfo;
@@ -201,7 +202,7 @@ public:
             const GrBackendTexture&,
             int sampleCount,
             GrSurfaceOrigin,
-            sk_sp<GrRefCntedCallback> releaseHelper);
+            sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
 protected:
     explicit GrRecordingContextPriv(GrRecordingContext* rContext) : GrImageContextPriv(rContext) {}

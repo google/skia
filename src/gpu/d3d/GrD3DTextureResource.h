@@ -73,7 +73,7 @@ public:
             GrD3DGpu* gpu, SkISize dimensions, int sampleCnt, const GrD3DTextureResourceInfo& info,
             SkColor4f clearColor);
 
-    void setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper);
+    void setResourceRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
 protected:
     void releaseResource(GrD3DGpu* gpu);

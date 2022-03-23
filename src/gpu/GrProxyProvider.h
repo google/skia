@@ -116,12 +116,12 @@ public:
                                              GrWrapOwnership,
                                              GrWrapCacheable,
                                              GrIOType,
-                                             sk_sp<GrRefCntedCallback> = nullptr);
+                                             sk_sp<skgpu::RefCntedCallback> = nullptr);
 
     sk_sp<GrTextureProxy> wrapCompressedBackendTexture(const GrBackendTexture&,
                                                        GrWrapOwnership,
                                                        GrWrapCacheable,
-                                                       sk_sp<GrRefCntedCallback> releaseHelper);
+                                                       sk_sp<skgpu::RefCntedCallback>);
 
     /*
      * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
@@ -130,13 +130,13 @@ public:
                                                        int sampleCnt,
                                                        GrWrapOwnership,
                                                        GrWrapCacheable,
-                                                       sk_sp<GrRefCntedCallback> releaseHelper);
+                                                       sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
     /*
      * Create a render target proxy that wraps a backend render target
      */
     sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                  sk_sp<GrRefCntedCallback> releaseHelper);
+                                                  sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
     sk_sp<GrRenderTargetProxy> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                                    const GrVkDrawableInfo&);

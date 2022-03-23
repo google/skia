@@ -8,10 +8,10 @@
 #ifndef GrManagedResource_DEFINED
 #define GrManagedResource_DEFINED
 
-#include "include/private/GrTypesPriv.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
 #include "include/utils/SkRandom.h"
+#include "src/gpu/RefCntedCallback.h"
 #include <atomic>
 
 class GrTexture;
@@ -221,12 +221,12 @@ public:
         SkASSERT(!fReleaseHelper);
     }
 
-    void setRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
+    void setRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) {
         fReleaseHelper = std::move(releaseHelper);
     }
 
 protected:
-    mutable sk_sp<GrRefCntedCallback> fReleaseHelper;
+    mutable sk_sp<skgpu::RefCntedCallback> fReleaseHelper;
 
     void invokeReleaseProc() const {
         if (fReleaseHelper) {

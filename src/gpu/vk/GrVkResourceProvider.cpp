@@ -466,7 +466,7 @@ void GrVkResourceProvider::forceSyncAllCommandBuffers() {
 }
 
 void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
-        sk_sp<GrRefCntedCallback> finishedCallback) {
+        sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     for (int i = 0; i < fActiveCommandPools.count(); ++i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();

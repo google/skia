@@ -843,7 +843,7 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
 }
 
 bool GrGpu::clearBackendTexture(const GrBackendTexture& backendTexture,
-                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                 std::array<float, 4> color) {
     if (!backendTexture.isValid()) {
         return false;
@@ -886,7 +886,7 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
 }
 
 bool GrGpu::updateCompressedBackendTexture(const GrBackendTexture& backendTexture,
-                                           sk_sp<GrRefCntedCallback> finishedCallback,
+                                           sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                            const void* data,
                                            size_t length) {
     SkASSERT(data);

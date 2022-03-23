@@ -19,6 +19,7 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/Swizzle.h"
 
 class GrAttachment;
@@ -534,7 +535,7 @@ public:
                                           GrProtected);
 
     bool clearBackendTexture(const GrBackendTexture&,
-                             sk_sp<GrRefCntedCallback> finishedCallback,
+                             sk_sp<skgpu::RefCntedCallback> finishedCallback,
                              std::array<float, 4> color);
 
     /**
@@ -547,21 +548,21 @@ public:
                                                     GrProtected);
 
     bool updateCompressedBackendTexture(const GrBackendTexture&,
-                                        sk_sp<GrRefCntedCallback> finishedCallback,
+                                        sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                         const void* data,
                                         size_t length);
 
     virtual bool setBackendTextureState(const GrBackendTexture&,
                                         const GrBackendSurfaceMutableState&,
                                         GrBackendSurfaceMutableState* previousState,
-                                        sk_sp<GrRefCntedCallback> finishedCallback) {
+                                        sk_sp<skgpu::RefCntedCallback> finishedCallback) {
         return false;
     }
 
     virtual bool setBackendRenderTargetState(const GrBackendRenderTarget&,
                                              const GrBackendSurfaceMutableState&,
                                              GrBackendSurfaceMutableState* previousState,
-                                             sk_sp<GrRefCntedCallback> finishedCallback) {
+                                             sk_sp<skgpu::RefCntedCallback> finishedCallback) {
         return false;
     }
 
@@ -678,11 +679,11 @@ private:
             SkISize dimensions, const GrBackendFormat&, GrMipmapped, GrProtected) = 0;
 
     virtual bool onClearBackendTexture(const GrBackendTexture&,
-                                       sk_sp<GrRefCntedCallback> finishedCallback,
+                                       sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                        std::array<float, 4> color) = 0;
 
     virtual bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
-                                                  sk_sp<GrRefCntedCallback> finishedCallback,
+                                                  sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                                   const void* data,
                                                   size_t length) = 0;
 

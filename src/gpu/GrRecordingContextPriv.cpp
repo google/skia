@@ -308,7 +308,7 @@ std::unique_ptr<skgpu::SurfaceFillContext> GrRecordingContextPriv::makeSFCFromBa
         const GrBackendTexture& tex,
         int sampleCount,
         GrSurfaceOrigin origin,
-        sk_sp<GrRefCntedCallback> releaseHelper) {
+        sk_sp<skgpu::RefCntedCallback> releaseHelper) {
 
 #if SK_GPU_V1
     SkASSERT(sampleCount > 0);

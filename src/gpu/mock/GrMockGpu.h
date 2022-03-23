@@ -179,7 +179,7 @@ private:
                                             GrProtected) override;
 
     bool onClearBackendTexture(const GrBackendTexture&,
-                               sk_sp<GrRefCntedCallback> finishedCallback,
+                               sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                std::array<float, 4> color) override {
         return true;
     }
@@ -190,7 +190,7 @@ private:
                                                       GrProtected) override;
 
     bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
-                                          sk_sp<GrRefCntedCallback> finishedCallback,
+                                          sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                           const void*,
                                           size_t) override {
         return true;

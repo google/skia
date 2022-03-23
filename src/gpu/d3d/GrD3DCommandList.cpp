@@ -80,7 +80,7 @@ void GrD3DCommandList::releaseResources() {
     this->callFinishedCallbacks();
 }
 
-void GrD3DCommandList::addFinishedCallback(sk_sp<GrRefCntedCallback> callback) {
+void GrD3DCommandList::addFinishedCallback(sk_sp<skgpu::RefCntedCallback> callback) {
     fFinishedCallbacks.push_back(std::move(callback));
 }
 

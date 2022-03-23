@@ -11,6 +11,7 @@
 #include "src/gpu/GrSemaphore.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/GrTypesPriv.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
 #include <cinttypes>

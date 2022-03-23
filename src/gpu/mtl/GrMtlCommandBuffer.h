@@ -37,7 +37,7 @@ public:
     bool commit(bool waitUntilCompleted);
     bool hasWork() { return fHasWork; }
 
-    void addFinishedCallback(sk_sp<GrRefCntedCallback> callback) {
+    void addFinishedCallback(sk_sp<skgpu::RefCntedCallback> callback) {
         fFinishedCallbacks.push_back(std::move(callback));
     }
 
@@ -114,7 +114,7 @@ private:
     MTLRenderPassDescriptor*    fPreviousRenderPassDescriptor;
     bool                        fHasWork;
 
-    SkTArray<sk_sp<GrRefCntedCallback>> fFinishedCallbacks;
+    SkTArray<sk_sp<skgpu::RefCntedCallback>> fFinishedCallbacks;
 
 };
 

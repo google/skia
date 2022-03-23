@@ -520,11 +520,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
     return proxy;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture& backendTex,
-                                                          GrWrapOwnership ownership,
-                                                          GrWrapCacheable cacheable,
-                                                          GrIOType ioType,
-                                                          sk_sp<GrRefCntedCallback> releaseHelper) {
+sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(
+        const GrBackendTexture& backendTex,
+        GrWrapOwnership ownership,
+        GrWrapCacheable cacheable,
+        GrIOType ioType,
+        sk_sp<skgpu::RefCntedCallback> releaseHelper) {
     SkASSERT(ioType != kWrite_GrIOType);
 
     if (this->isAbandoned()) {
@@ -561,7 +562,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(
         const GrBackendTexture& beTex,
         GrWrapOwnership ownership,
         GrWrapCacheable cacheable,
-        sk_sp<GrRefCntedCallback> releaseHelper) {
+        sk_sp<skgpu::RefCntedCallback> releaseHelper) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -597,7 +598,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         int sampleCnt,
         GrWrapOwnership ownership,
         GrWrapCacheable cacheable,
-        sk_sp<GrRefCntedCallback> releaseHelper) {
+        sk_sp<skgpu::RefCntedCallback> releaseHelper) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -635,7 +636,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         const GrBackendRenderTarget& backendRT,
-        sk_sp<GrRefCntedCallback> releaseHelper) {
+        sk_sp<skgpu::RefCntedCallback> releaseHelper) {
     if (this->isAbandoned()) {
         return nullptr;
     }

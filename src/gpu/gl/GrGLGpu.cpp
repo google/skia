@@ -1565,7 +1565,7 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
 }
 
 bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
-                                               sk_sp<GrRefCntedCallback> finishedCallback,
+                                               sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                                const void* data,
                                                size_t length) {
     GrGLTextureInfo info;
@@ -3704,7 +3704,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
 }
 
 bool GrGLGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
-                                    sk_sp<GrRefCntedCallback> finishedCallback,
+                                    sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                     std::array<float, 4> color) {
     this->handleDirtyContext();
 

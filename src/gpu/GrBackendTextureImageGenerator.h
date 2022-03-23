@@ -76,7 +76,7 @@ private:
         // all uses of the wrapped texture are finished on the borrowing context before we open
         // this back up to other contexts. In general a ref to this release proc is owned by all
         // proxies and gpu uses of the backend texture.
-        GrRefCntedCallback*              fBorrowingContextReleaseProc;
+        skgpu::RefCntedCallback*         fBorrowingContextReleaseProc;
         GrDirectContext::DirectContextID fBorrowingContextID;
 
         std::unique_ptr<GrSemaphore>     fSemaphore;

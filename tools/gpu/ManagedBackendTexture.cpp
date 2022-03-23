@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkMipmap.h"
+#include "src/gpu/RefCntedCallback.h"
 
 namespace {
 
@@ -53,8 +54,8 @@ void* ManagedBackendTexture::MakeYUVAReleaseContext(
     return context;
 }
 
-sk_sp<GrRefCntedCallback> ManagedBackendTexture::refCountedCallback() const {
-    return GrRefCntedCallback::Make(ReleaseProc, this->releaseContext());
+sk_sp<skgpu::RefCntedCallback> ManagedBackendTexture::refCountedCallback() const {
+    return skgpu::RefCntedCallback::Make(ReleaseProc, this->releaseContext());
 }
 
 void ManagedBackendTexture::wasAdopted() { fTexture = {}; }

@@ -261,10 +261,10 @@ void GrMtlGpu::finishOutstandingGpuWork() {
 void GrMtlGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                                GrGpuFinishedContext finishedContext) {
     SkASSERT(finishedProc);
-    this->addFinishedCallback(GrRefCntedCallback::Make(finishedProc, finishedContext));
+    this->addFinishedCallback(skgpu::RefCntedCallback::Make(finishedProc, finishedContext));
 }
 
-void GrMtlGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
+void GrMtlGpu::addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     SkASSERT(finishedCallback);
     // Besides the current commandbuffer, we also add the finishedCallback to the newest outstanding
     // commandbuffer. Our contract for calling the proc is that all previous submitted cmdbuffers
@@ -923,7 +923,7 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
 }
 
 bool GrMtlGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
-                                     sk_sp<GrRefCntedCallback> finishedCallback,
+                                     sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                      std::array<float, 4> color) {
     GrMtlTextureInfo info;
     SkAssertResult(backendTexture.getMtlTextureInfo(&info));
@@ -1025,7 +1025,7 @@ GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(
 }
 
 bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
-                                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                                sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                                 const void* data,
                                                 size_t size) {
     GrMtlTextureInfo info;

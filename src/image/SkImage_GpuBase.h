@@ -44,12 +44,13 @@ public:
 
     // Helper for making a lazy proxy for a promise image.
     // PromiseImageTextureFulfillProc must not be null.
-    static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(GrContextThreadSafeProxy*,
-                                                           SkISize dimensions,
-                                                           GrBackendFormat,
-                                                           GrMipmapped,
-                                                           PromiseImageTextureFulfillProc,
-                                                           sk_sp<GrRefCntedCallback> releaseHelper);
+    static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
+            GrContextThreadSafeProxy*,
+            SkISize dimensions,
+            GrBackendFormat,
+            GrMipmapped,
+            PromiseImageTextureFulfillProc,
+            sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
 protected:
     SkImage_GpuBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);

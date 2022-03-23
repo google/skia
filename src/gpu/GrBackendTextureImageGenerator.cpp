@@ -119,7 +119,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
     auto proxyProvider = dContext->priv().proxyProvider();
 
     fBorrowingMutex.acquire();
-    sk_sp<GrRefCntedCallback> releaseProcHelper;
+    sk_sp<skgpu::RefCntedCallback> releaseProcHelper;
     if (fRefHelper->fBorrowingContextID.isValid()) {
         if (fRefHelper->fBorrowingContextID != dContext->directContextID()) {
             fBorrowingMutex.release();
@@ -134,10 +134,10 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
     } else {
         SkASSERT(!fRefHelper->fBorrowingContextReleaseProc);
         // The ref we add to fRefHelper here will be passed into and owned by the
-        // GrRefCntedCallback.
+        // skgpu::RefCntedCallback.
         fRefHelper->ref();
         releaseProcHelper =
-                GrRefCntedCallback::Make(ReleaseRefHelper_TextureReleaseProc, fRefHelper);
+                skgpu::RefCntedCallback::Make(ReleaseRefHelper_TextureReleaseProc, fRefHelper);
         fRefHelper->fBorrowingContextReleaseProc = releaseProcHelper.get();
     }
     fRefHelper->fBorrowingContextID = dContext->directContextID();

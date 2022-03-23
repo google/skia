@@ -13,6 +13,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/GrGpuResource.h"
+#include "src/gpu/RefCntedCallback.h"
 
 class GrRenderTarget;
 class GrTexture;
@@ -41,7 +42,7 @@ public:
 
     virtual GrBackendFormat backendFormat() const = 0;
 
-    void setRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
+    void setRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) {
         this->onSetRelease(releaseHelper);
         fReleaseHelper = std::move(releaseHelper);
     }
@@ -51,7 +52,7 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
     void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
-        this->setRelease(GrRefCntedCallback::Make(proc, ctx));
+        this->setRelease(skgpu::RefCntedCallback::Make(proc, ctx));
     }
 
     /**
@@ -141,7 +142,7 @@ private:
 
     // Unmanaged backends (e.g. Vulkan) may want to specially handle the release proc in order to
     // ensure it isn't called until GPU work related to the resource is completed.
-    virtual void onSetRelease(sk_sp<GrRefCntedCallback>) {}
+    virtual void onSetRelease(sk_sp<skgpu::RefCntedCallback>) {}
 
     void invokeReleaseProc() {
         // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
@@ -152,7 +153,7 @@ private:
     SkISize                    fDimensions;
     GrInternalSurfaceFlags     fSurfaceFlags;
     GrProtected                fIsProtected;
-    sk_sp<GrRefCntedCallback>  fReleaseHelper;
+    sk_sp<skgpu::RefCntedCallback>  fReleaseHelper;
 
     using INHERITED = GrGpuResource;
 };

@@ -312,7 +312,7 @@ public:
 
     bool finished(GrVkGpu* gpu);
 
-    void addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc);
+    void addFinishedProc(sk_sp<skgpu::RefCntedCallback> finishedProc);
 
     void callFinishedProcs() {
         fFinishedProcs.reset();
@@ -331,7 +331,7 @@ private:
 
     SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fSecondaryCommandBuffers;
     VkFence                                                     fSubmitFence;
-    SkTArray<sk_sp<GrRefCntedCallback>>                         fFinishedProcs;
+    SkTArray<sk_sp<skgpu::RefCntedCallback>>                    fFinishedProcs;
 
     using INHERITED = GrVkCommandBuffer;
 };

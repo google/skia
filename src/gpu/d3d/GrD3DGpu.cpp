@@ -233,10 +233,10 @@ void GrD3DGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
 void GrD3DGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                                GrGpuFinishedContext finishedContext) {
     SkASSERT(finishedProc);
-    this->addFinishedCallback(GrRefCntedCallback::Make(finishedProc, finishedContext));
+    this->addFinishedCallback(skgpu::RefCntedCallback::Make(finishedProc, finishedContext));
 }
 
-void GrD3DGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
+void GrD3DGpu::addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     SkASSERT(finishedCallback);
     // Besides the current command list, we also add the finishedCallback to the newest outstanding
     // command list. Our contract for calling the proc is that all previous submitted command lists
@@ -1387,7 +1387,7 @@ static bool copy_color_data(const GrD3DCaps& caps,
 }
 
 bool GrD3DGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
-                                     sk_sp<GrRefCntedCallback> finishedCallback,
+                                     sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                      std::array<float, 4> color) {
     GrD3DTextureResourceInfo info;
     SkAssertResult(backendTexture.getD3DTextureResourceInfo(&info));
@@ -1488,7 +1488,7 @@ GrBackendTexture GrD3DGpu::onCreateCompressedBackendTexture(
 }
 
 bool GrD3DGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
-                                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                                sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                                 const void* data,
                                                 size_t size) {
     GrD3DTextureResourceInfo info;

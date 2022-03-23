@@ -83,12 +83,12 @@ public:
     bool setBackendTextureState(const GrBackendTexture&,
                                 const GrBackendSurfaceMutableState&,
                                 GrBackendSurfaceMutableState* previousState,
-                                sk_sp<GrRefCntedCallback> finishedCallback) override;
+                                sk_sp<skgpu::RefCntedCallback> finishedCallback) override;
 
     bool setBackendRenderTargetState(const GrBackendRenderTarget&,
                                      const GrBackendSurfaceMutableState&,
                                      GrBackendSurfaceMutableState* previousState,
-                                     sk_sp<GrRefCntedCallback> finishedCallback) override;
+                                     sk_sp<skgpu::RefCntedCallback> finishedCallback) override;
 
     void deleteBackendTexture(const GrBackendTexture&) override;
 
@@ -222,11 +222,11 @@ private:
                                                       GrProtected) override;
 
     bool onClearBackendTexture(const GrBackendTexture&,
-                               sk_sp<GrRefCntedCallback> finishedCallback,
+                               sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                std::array<float, 4> color) override;
 
     bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
-                                          sk_sp<GrRefCntedCallback> finishedCallback,
+                                          sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                           const void* data,
                                           size_t length) override;
 
@@ -235,7 +235,7 @@ private:
                                 SkISize dimensions,
                                 const GrVkSharedImageInfo& newInfo,
                                 GrBackendSurfaceMutableState* previousState,
-                                sk_sp<GrRefCntedCallback> finishedCallback);
+                                sk_sp<skgpu::RefCntedCallback> finishedCallback);
 
     sk_sp<GrTexture> onCreateTexture(SkISize,
                                      const GrBackendFormat&,
@@ -307,7 +307,7 @@ private:
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;
 
-    void addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback);
+    void addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback);
 
     GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
                                         bool useMSAASurface,

@@ -1603,7 +1603,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
 }
 
 bool GrVkGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
-                                    sk_sp<GrRefCntedCallback> finishedCallback,
+                                    sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                     std::array<float, 4> color) {
     GrVkImageInfo info;
     SkAssertResult(backendTexture.getVkImageInfo(&info));
@@ -1702,7 +1702,7 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
 }
 
 bool GrVkGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
-                                               sk_sp<GrRefCntedCallback> finishedCallback,
+                                               sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                                const void* data,
                                                size_t size) {
     GrVkImageInfo info;
@@ -1814,7 +1814,7 @@ bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
                                      SkISize dimensions,
                                      const GrVkSharedImageInfo& newInfo,
                                      GrBackendSurfaceMutableState* previousState,
-                                     sk_sp<GrRefCntedCallback> finishedCallback) {
+                                     sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     sk_sp<GrVkImage> texture = GrVkImage::MakeWrapped(this,
                                                       dimensions,
                                                       info,
@@ -1841,7 +1841,7 @@ bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
 bool GrVkGpu::setBackendTextureState(const GrBackendTexture& backendTeture,
                                      const GrBackendSurfaceMutableState& newState,
                                      GrBackendSurfaceMutableState* previousState,
-                                     sk_sp<GrRefCntedCallback> finishedCallback) {
+                                     sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     GrVkImageInfo info;
     SkAssertResult(backendTeture.getVkImageInfo(&info));
     sk_sp<GrBackendSurfaceMutableStateImpl> currentState = backendTeture.getMutableState();
@@ -1855,7 +1855,7 @@ bool GrVkGpu::setBackendTextureState(const GrBackendTexture& backendTeture,
 bool GrVkGpu::setBackendRenderTargetState(const GrBackendRenderTarget& backendRenderTarget,
                                           const GrBackendSurfaceMutableState& newState,
                                           GrBackendSurfaceMutableState* previousState,
-                                          sk_sp<GrRefCntedCallback> finishedCallback) {
+                                          sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     GrVkImageInfo info;
     SkAssertResult(backendRenderTarget.getVkImageInfo(&info));
     sk_sp<GrBackendSurfaceMutableStateImpl> currentState = backendRenderTarget.getMutableState();
@@ -2097,10 +2097,10 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndStateUpdates(
 void GrVkGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                               GrGpuFinishedContext finishedContext) {
     SkASSERT(finishedProc);
-    this->addFinishedCallback(GrRefCntedCallback::Make(finishedProc, finishedContext));
+    this->addFinishedCallback(skgpu::RefCntedCallback::Make(finishedProc, finishedContext));
 }
 
-void GrVkGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
+void GrVkGpu::addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     SkASSERT(finishedCallback);
     fResourceProvider.addFinishedProcToActiveCommandBuffers(std::move(finishedCallback));
 }

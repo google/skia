@@ -667,7 +667,7 @@ bool GrVkPrimaryCommandBuffer::finished(GrVkGpu* gpu) {
     }
 }
 
-void GrVkPrimaryCommandBuffer::addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc) {
+void GrVkPrimaryCommandBuffer::addFinishedProc(sk_sp<skgpu::RefCntedCallback> finishedProc) {
     fFinishedProcs.push_back(std::move(finishedProc));
 }
 

@@ -269,7 +269,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::MakeFromBackendTexture(
         int sampleCnt,
         GrSurfaceOrigin origin,
         const SkSurfaceProps& surfaceProps,
-        sk_sp<GrRefCntedCallback> releaseHelper) {
+        sk_sp<skgpu::RefCntedCallback> releaseHelper) {
     SkASSERT(sampleCnt > 0);
     sk_sp<GrTextureProxy> proxy(rContext->priv().proxyProvider()->wrapRenderableBackendTexture(
             tex, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,

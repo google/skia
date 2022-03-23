@@ -200,7 +200,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         GrBackendFormat backendFormat,
         GrMipmapped mipMapped,
         PromiseImageTextureFulfillProc fulfillProc,
-        sk_sp<GrRefCntedCallback> releaseHelper) {
+        sk_sp<skgpu::RefCntedCallback> releaseHelper) {
     SkASSERT(tsp);
     SkASSERT(!dimensions.isEmpty());
     SkASSERT(releaseHelper);
@@ -233,7 +233,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
     class PromiseLazyInstantiateCallback {
     public:
         PromiseLazyInstantiateCallback(PromiseImageTextureFulfillProc fulfillProc,
-                                       sk_sp<GrRefCntedCallback> releaseHelper)
+                                       sk_sp<skgpu::RefCntedCallback> releaseHelper)
                 : fFulfillProc(fulfillProc), fReleaseHelper(std::move(releaseHelper)) {}
         PromiseLazyInstantiateCallback(PromiseLazyInstantiateCallback&&) = default;
         PromiseLazyInstantiateCallback(const PromiseLazyInstantiateCallback&) {
@@ -318,7 +318,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     private:
         PromiseImageTextureFulfillProc fFulfillProc;
-        sk_sp<GrRefCntedCallback> fReleaseHelper;
+        sk_sp<skgpu::RefCntedCallback> fReleaseHelper;
         GrTexture* fTexture = nullptr;
         GrDirectContext::DirectContextID fTextureContextID;
         bool fFulfillProcFailed = false;
