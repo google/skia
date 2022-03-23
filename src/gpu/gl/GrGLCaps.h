@@ -500,7 +500,8 @@ private:
                            GrColorType memoryColorType, ExternalFormatUsage usage,
                            GrGLenum* externalFormat, GrGLenum* externalType) const;
 
-    void init(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
+    void init(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*,
+              bool wasOriginallyAngle);
     void initGLSL(const GrGLContextInfo&, const GrGLInterface*);
 
     struct FormatWorkarounds {
@@ -530,7 +531,8 @@ private:
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilSupport(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
-    void initFormatTable(const GrGLContextInfo&, const GrGLInterface*, const FormatWorkarounds&);
+    void initFormatTable(const GrGLContextInfo&, const GrGLInterface*, const FormatWorkarounds&,
+                         bool driverIsActuallyAngle);
     void setupSampleCounts(const GrGLContextInfo&, const GrGLInterface*);
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
