@@ -10,9 +10,13 @@
 
 #include "include/core/SkRefCnt.h"
 
+class SkTextureDataBlock;
+
 namespace skgpu {
 
 class CommandBuffer;
+template<typename DataBlockT> class PipelineDataCache;
+using TextureDataCache = PipelineDataCache<SkTextureDataBlock>;
 
 class Recording final {
 public:
@@ -22,9 +26,12 @@ protected:
 private:
     friend class Context; // for access fCommandBuffer
     friend class Recorder; // for ctor
-    Recording(sk_sp<CommandBuffer>);
+    Recording(sk_sp<CommandBuffer>, std::unique_ptr<TextureDataCache>);
 
     sk_sp<CommandBuffer> fCommandBuffer;
+
+    // The TextureDataCache holds all the Textures and Samplers used in this Recording.
+    std::unique_ptr<TextureDataCache> fTextureDataCache;
 };
 
 } // namespace skgpu

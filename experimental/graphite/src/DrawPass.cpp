@@ -31,8 +31,6 @@
 #include "src/core/SkPaintParamsKey.h"
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkTBlockList.h"
-#include "src/core/SkUniformData.h"
-#include "src/gpu/BufferWriter.h"
 
 #include <algorithm>
 #include <unordered_map>
@@ -300,6 +298,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     UniformDataCache geometryUniformDataCache;
     UniformBindingCache geometryUniformBindings(bufferMgr, &geometryUniformDataCache);
     UniformBindingCache shadingUniformBindings(bufferMgr, recorder->priv().uniformDataCache());
+    TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
 
     std::unordered_map<const GraphicsPipelineDesc*, uint32_t, Hash, Eq> pipelineDescToIndex;
 
@@ -320,13 +319,14 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         // and remember the location for re-use on any RenderStep that does shading.
         SkUniquePaintParamsID shaderID;
         UniformDataCache::Index shadingUniformIndex;
-        TextureDataCache::Index textureBindingIndex; // TODO: fill in the textureBinding field
+        TextureDataCache::Index textureBindingIndex;
         if (draw.fPaintParams.has_value()) {
             std::unique_ptr<SkPipelineData> pipelineData;
             std::tie(shaderID, pipelineData) = ExtractPaintData(recorder, &builder,
                                                                 draw.fPaintParams.value());
             shadingUniformIndex = shadingUniformBindings.addUniforms(
                     pipelineData->uniformDataBlock());
+            textureBindingIndex = textureDataCache->insert(pipelineData->textureDataBlock());
         } // else depth-only
 
         for (int stepIndex = 0; stepIndex < draw.fRenderer.numRenderSteps(); ++stepIndex) {
@@ -396,6 +396,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // Setting to # render steps ensures the very first time through the loop will bind a pipeline.
     uint32_t lastPipeline = draws->renderStepCount();
     UniformDataCache::Index lastShadingUniforms;
+    TextureDataCache::Index lastTextureBindings;
     UniformDataCache::Index lastGeometryUniforms;
     SkIRect lastScissor = SkIRect::MakeSize(drawPass->fTarget->dimensions());
 
@@ -407,6 +408,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                            key.geometryUniforms() != lastGeometryUniforms;
         const bool shadingUniformChange = key.shadingUniforms().isValid() &&
                                           key.shadingUniforms() != lastShadingUniforms;
+        const bool textureBindingsChange = key.textureBindings().isValid() &&
+                                           key.textureBindings() != lastTextureBindings;
 
         const bool pipelineChange = key.pipeline() != lastPipeline;
         const bool stateChange = geometryUniformChange ||
@@ -440,6 +443,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 drawPass->fCommands.emplace_back(
                         BindUniformBuffer{binding, UniformSlot::kPaint});
                 lastShadingUniforms = key.shadingUniforms();
+            }
+            if (textureBindingsChange) {
+                // TODO: add BindTexturesAndSamplers command here
+                lastTextureBindings = key.textureBindings();
             }
             if (draw.fClip.scissor() != lastScissor) {
                 drawPass->fCommands.emplace_back(SetScissor{draw.fClip.scissor()});

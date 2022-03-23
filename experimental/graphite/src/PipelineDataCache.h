@@ -139,7 +139,7 @@ using UniformDataCache = PipelineDataCache<SkUniformDataBlock>;
 // A TextureDataCache only lives for a single Recording. When a Recording is snapped it is pulled
 // off of the Recorder and goes with the Recording as a record of the required Textures and
 // Samplers.
-using TextureDataCache = PipelineDataCache<SkPipelineData::TextureDataBlock>;
+using TextureDataCache = PipelineDataCache<SkTextureDataBlock>;
 
 } // namespace skgpu
 

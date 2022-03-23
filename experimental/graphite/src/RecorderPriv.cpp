@@ -23,6 +23,10 @@ UniformDataCache* RecorderPriv::uniformDataCache() const {
     return fRecorder->fUniformDataCache.get();
 }
 
+TextureDataCache* RecorderPriv::textureDataCache() const {
+    return fRecorder->fTextureDataCache.get();
+}
+
 const Caps* RecorderPriv::caps() const {
     return fRecorder->fGpu->caps();
 }

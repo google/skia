@@ -8,11 +8,14 @@
 #include "experimental/graphite/include/Recording.h"
 
 #include "experimental/graphite/src/CommandBuffer.h"
+#include "experimental/graphite/src/PipelineDataCache.h"
 
 namespace skgpu {
 
-Recording::Recording(sk_sp<CommandBuffer> commandBuffer)
-        : fCommandBuffer(std::move(commandBuffer)){
+Recording::Recording(sk_sp<CommandBuffer> commandBuffer,
+                     std::unique_ptr<TextureDataCache> textureDataCache)
+        : fCommandBuffer(std::move(commandBuffer))
+        , fTextureDataCache(std::move(textureDataCache)) {
 }
 
 Recording::~Recording() {}

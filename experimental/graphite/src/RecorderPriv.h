@@ -18,6 +18,7 @@ public:
 
     ResourceProvider* resourceProvider() const;
     UniformDataCache* uniformDataCache() const;
+    TextureDataCache* textureDataCache() const;
     DrawBufferManager* drawBufferManager() const;
     const Caps* caps() const;
 
