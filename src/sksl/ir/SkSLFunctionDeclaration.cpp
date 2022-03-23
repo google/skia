@@ -75,7 +75,7 @@ static bool check_parameters(const Context& context,
 
     // Check modifiers on each function parameter.
     for (auto& param : parameters) {
-        param->modifiers().checkPermitted(context, param->fPosition,
+        param->modifiers().checkPermitted(context, param->modifiersPosition(),
                 Modifiers::kConst_Flag | Modifiers::kIn_Flag | Modifiers::kOut_Flag,
                 /*permittedLayoutFlags=*/0);
         const Type& type = param->type();
@@ -375,6 +375,7 @@ const FunctionDeclaration* FunctionDeclaration::Convert(
         const Context& context,
         SymbolTable& symbols,
         Position pos,
+        Position modifiersPosition,
         const Modifiers* modifiers,
         std::string_view name,
         std::vector<std::unique_ptr<Variable>> parameters,
@@ -382,7 +383,7 @@ const FunctionDeclaration* FunctionDeclaration::Convert(
     bool isMain = (name == "main");
 
     const FunctionDeclaration* decl = nullptr;
-    if (!check_modifiers(context, pos, *modifiers) ||
+    if (!check_modifiers(context, modifiersPosition, *modifiers) ||
         !check_return_type(context, pos, *returnType) ||
         !check_parameters(context, parameters, isMain) ||
         (isMain && !check_main_signature(context, pos, *returnType, parameters)) ||

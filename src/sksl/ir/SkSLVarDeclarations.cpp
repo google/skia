@@ -60,6 +60,7 @@ std::string VarDeclaration::description() const {
 
 void VarDeclaration::ErrorCheck(const Context& context,
                                 Position pos,
+                                Position modifiersPosition,
                                 const Modifiers& modifiers,
                                 const Type* baseType,
                                 Variable::Storage storage) {
@@ -139,7 +140,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
         permittedLayoutFlags &= ~Layout::kBinding_Flag;
         permittedLayoutFlags &= ~Layout::kSet_Flag;
     }
-    modifiers.checkPermitted(context, pos, permitted, permittedLayoutFlags);
+    modifiers.checkPermitted(context, modifiersPosition, permitted, permittedLayoutFlags);
 }
 
 bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable& var,
@@ -148,7 +149,8 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable&
     if (baseType->isArray()) {
         baseType = &baseType->componentType();
     }
-    ErrorCheck(context, var.fPosition, var.modifiers(), baseType, var.storage());
+    ErrorCheck(context, var.fPosition, var.modifiersPosition(), var.modifiers(), baseType,
+            var.storage());
     if (value) {
         if (var.type().isOpaque()) {
             context.fErrors->error(value->fPosition, "opaque type '" + var.type().displayName() +

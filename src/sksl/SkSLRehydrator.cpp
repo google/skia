@@ -263,7 +263,8 @@ const Symbol* Rehydrator::symbol() {
             const Type* type = this->type();
             Variable::Storage storage = (Variable::Storage) this->readU8();
             const Variable* result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
-                    Position(), m, name, type, fSymbolTable->isBuiltin(), storage));
+                    /*pos=*/Position(), /*modifiersPosition=*/Position(), m, name, type,
+                    fSymbolTable->isBuiltin(), storage));
             this->addSymbol(id, result);
             return result;
         }

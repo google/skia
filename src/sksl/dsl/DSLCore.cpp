@@ -265,7 +265,8 @@ public:
                 baseType = &baseType->componentType();
             }
             SkSL::VarDeclaration::ErrorCheck(ThreadContext::Context(), field.fPosition,
-                    field.fModifiers.fModifiers, baseType, Variable::Storage::kInterfaceBlock);
+                    field.fModifiers.fPosition, field.fModifiers.fModifiers, baseType,
+                    Variable::Storage::kInterfaceBlock);
             GetErrorReporter().reportPendingErrors(field.fPosition);
             skslFields.push_back(SkSL::Type::Field(field.fModifiers.fModifiers, field.fName,
                                                    &field.fType.skslType()));

@@ -594,6 +594,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                     fContext->fMangler->uniqueName(variable.name(), symbolTableForStatement));
             auto clonedVar = std::make_unique<Variable>(
                                                      pos,
+                                                     variable.modifiersPosition(),
                                                      &variable.modifiers(),
                                                      name->c_str(),
                                                      variable.type().clone(symbolTableForStatement),

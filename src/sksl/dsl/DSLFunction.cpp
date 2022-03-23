@@ -68,6 +68,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
     fDecl = SkSL::FunctionDeclaration::Convert(ThreadContext::Context(),
                                                *ThreadContext::SymbolTable(),
                                                pos,
+                                               modifiers.fPosition,
                                                ThreadContext::Modifiers(modifiers.fModifiers),
                                                name == "main" ? name : DSLWriter::Name(name),
                                                std::move(paramVars), &returnType.skslType());

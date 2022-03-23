@@ -144,7 +144,8 @@ DSLGlobalVar::DSLGlobalVar(const char* name)
                                 SkSL::Modifiers::kNo_Flag));
 
         fVar = ThreadContext::SymbolTable()->takeOwnershipOfIRNode(std::make_unique<SkSL::Variable>(
-                Position(),
+                /*pos=*/Position(),
+                /*modifiersPosition=*/Position(),
                 modifiers,
                 fName,
                 ThreadContext::Context().fTypes.fFloat2.get(),

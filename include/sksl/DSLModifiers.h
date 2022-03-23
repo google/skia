@@ -32,11 +32,12 @@ enum Modifier {
 
 class DSLModifiers {
 public:
-    DSLModifiers(int flags = 0)
-        : DSLModifiers(DSLLayout(), flags) {}
+    DSLModifiers(int flags = 0, Position pos = Position::Capture())
+        : DSLModifiers(DSLLayout(), flags, pos) {}
 
-    DSLModifiers(DSLLayout layout, int flags = 0)
-        : fModifiers(layout.fSkSLLayout, flags) {}
+    DSLModifiers(DSLLayout layout, int flags = 0, Position pos = Position::Capture())
+        : fModifiers(layout.fSkSLLayout, flags)
+        , fPosition(pos) {}
 
     int flags() const {
         return fModifiers.fFlags;
@@ -48,6 +49,7 @@ public:
 
 private:
     SkSL::Modifiers fModifiers;
+    Position fPosition;
 
     friend DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos);
     friend class DSLCore;

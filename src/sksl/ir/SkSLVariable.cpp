@@ -30,8 +30,9 @@ const Expression* Variable::initialValue() const {
 }
 
 std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos,
-        const Modifiers& modifiers, const Type* baseType, std::string_view name, bool isArray,
-        std::unique_ptr<Expression> arraySize, Variable::Storage storage) {
+        Position modifiersPos, const Modifiers& modifiers, const Type* baseType,
+        std::string_view name, bool isArray, std::unique_ptr<Expression> arraySize,
+        Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
         (modifiers.fFlags & Modifiers::kOut_Flag) &&
         context.fConfig->fKind == ProgramKind::kFragment && name != Compiler::FRAGCOLOR_NAME) {
@@ -41,12 +42,14 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos
         context.fErrors->error(pos, "name '" + std::string(name) + "' is reserved");
     }
 
-    return Make(context, pos, modifiers, baseType, name, isArray, std::move(arraySize), storage);
+    return Make(context, pos, modifiersPos, modifiers, baseType, name, isArray,
+            std::move(arraySize), storage);
 }
 
 std::unique_ptr<Variable> Variable::Make(const Context& context, Position pos,
-        const Modifiers& modifiers, const Type* baseType, std::string_view name, bool isArray,
-        std::unique_ptr<Expression> arraySize, Variable::Storage storage) {
+        Position modifiersPos, const Modifiers& modifiers, const Type* baseType,
+        std::string_view name, bool isArray, std::unique_ptr<Expression> arraySize,
+        Variable::Storage storage) {
     const Type* type = baseType;
     int arraySizeValue = 0;
     if (isArray) {
@@ -57,8 +60,8 @@ std::unique_ptr<Variable> Variable::Make(const Context& context, Position pos,
         }
         type = ThreadContext::SymbolTable()->addArrayDimension(type, arraySizeValue);
     }
-    return std::make_unique<Variable>(pos, context.fModifiersPool->add(modifiers), name, type,
-            context.fConfig->fIsBuiltinCode, storage);
+    return std::make_unique<Variable>(pos, modifiersPos, context.fModifiersPool->add(modifiers),
+            name, type, context.fConfig->fIsBuiltinCode, storage);
 }
 
 Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
@@ -85,6 +88,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
     // Create our new variable and add it to the symbol table.
     ScratchVariable result;
     auto var = std::make_unique<Variable>(initialValue ? initialValue->fPosition : Position(),
+                                          /*modifiersPosition=*/Position(),
                                           context.fModifiersPool->add(Modifiers{}),
                                           name->c_str(),
                                           type,

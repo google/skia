@@ -68,8 +68,9 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
             }
         }
         std::unique_ptr<SkSL::Variable> skslvar = SkSL::Variable::Convert(ThreadContext::Context(),
-                var.fPosition, var.fModifiers.fModifiers, &var.fType.skslType(), var.fName,
-                /*isArray=*/false, /*arraySize=*/nullptr, var.storage());
+                var.fPosition, var.fModifiers.fPosition, var.fModifiers.fModifiers,
+                &var.fType.skslType(), var.fName, /*isArray=*/false, /*arraySize=*/nullptr,
+                var.storage());
         SkSL::Variable* varPtr = skslvar.get();
         if (var.storage() != SkSL::VariableStorage::kParameter) {
             var.fDeclaration = VarDeclaration::Convert(ThreadContext::Context(), std::move(skslvar),
@@ -89,8 +90,8 @@ std::unique_ptr<SkSL::Variable> DSLWriter::CreateParameterVar(DSLParameter& var)
     // ahead regardless so we don't have to worry about null pointers potentially sneaking in and
     // breaking things. DSLFunction is responsible for reporting errors for invalid parameters.
     return SkSL::Variable::Convert(ThreadContext::Context(), var.fPosition,
-            var.fModifiers.fModifiers, &var.fType.skslType(), var.fName, /*isArray=*/false,
-            /*arraySize=*/nullptr, var.storage());
+            var.fModifiers.fPosition, var.fModifiers.fModifiers, &var.fType.skslType(), var.fName,
+            /*isArray=*/false, /*arraySize=*/nullptr, var.storage());
 }
 
 std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVarBase& var) {

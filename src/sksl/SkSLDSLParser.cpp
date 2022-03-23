@@ -834,6 +834,7 @@ DSLLayout DSLParser::layout() {
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
             VARYING | INLINE)* */
 DSLModifiers DSLParser::modifiers() {
+    Position start = this->position(this->peek());
     DSLLayout layout = this->layout();
     int flags = 0;
     for (;;) {
@@ -845,7 +846,7 @@ DSLModifiers DSLParser::modifiers() {
         flags |= tokenFlag;
         this->nextToken();
     }
-    return DSLModifiers(std::move(layout), flags);
+    return DSLModifiers(std::move(layout), flags, start);
 }
 
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
