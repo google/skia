@@ -18,6 +18,8 @@
 
 #include <memory>
 
+class SkTextureDataBlock;
+
 namespace skgpu {
 
 class BoundsManager;
@@ -92,6 +94,11 @@ private:
         BindBufferInfo fInfo;
         UniformSlot fSlot;
     };
+    struct BindTexturesAndSamplers {
+        // The data backing this pointer is stored in the TextureDataCache. Its lifetime is for
+        // a single Recording (thus guaranteed to be longer than this DrawPass' lifetime).
+        SkTextureDataBlock* fTextureBlock;
+    };
     struct BindDrawBuffers {
         BindBufferInfo fVertices;
         BindBufferInfo fInstances;
@@ -132,6 +139,7 @@ private:
     enum class CommandType {
         kBindGraphicsPipeline,
         kBindUniformBuffer,
+        kBindTexturesAndSamplers,
         kBindDrawBuffers,
         kDraw,
         kDrawIndexed,
@@ -147,20 +155,23 @@ private:
     struct Command {
         CommandType fType;
         union {
-            BindGraphicsPipeline fBindGraphicsPipeline;
-            BindUniformBuffer    fBindUniformBuffer;
-            BindDrawBuffers      fBindDrawBuffers;
-            Draw                 fDraw;
-            DrawIndexed          fDrawIndexed;
-            DrawInstanced        fDrawInstanced;
-            DrawIndexedInstanced fDrawIndexedInstanced;
-            SetScissor           fSetScissor;
+            BindGraphicsPipeline    fBindGraphicsPipeline;
+            BindUniformBuffer       fBindUniformBuffer;
+            BindTexturesAndSamplers fBindTexturesAndSamplers;
+            BindDrawBuffers         fBindDrawBuffers;
+            Draw                    fDraw;
+            DrawIndexed             fDrawIndexed;
+            DrawInstanced           fDrawInstanced;
+            DrawIndexedInstanced    fDrawIndexedInstanced;
+            SetScissor              fSetScissor;
         };
 
         explicit Command(BindGraphicsPipeline d)
                 : fType(CommandType::kBindGraphicsPipeline), fBindGraphicsPipeline(d) {}
         explicit Command(BindUniformBuffer d)
                 : fType(CommandType::kBindUniformBuffer), fBindUniformBuffer(d) {}
+        explicit Command(BindTexturesAndSamplers d)
+                : fType(CommandType::kBindTexturesAndSamplers), fBindTexturesAndSamplers(d) {}
         explicit Command(BindDrawBuffers d)
                 : fType(CommandType::kBindDrawBuffers), fBindDrawBuffers(d) {}
         explicit Command(Draw d)

@@ -23,6 +23,8 @@
 #include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
+#include "experimental/graphite/src/Sampler.h"
+#include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/UniformManager.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
@@ -442,7 +444,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 lastShadingUniforms = key.shadingUniforms();
             }
             if (textureBindingsChange) {
-                // TODO: add BindTexturesAndSamplers command here
+                auto textureDataBlock = textureDataCache->lookup(key.textureBindings());
+                drawPass->fCommands.emplace_back(BindTexturesAndSamplers{textureDataBlock});
                 lastTextureBindings = key.textureBindings();
             }
             if (draw.fGeometry.clip().scissor() != lastScissor) {
@@ -487,11 +490,28 @@ void DrawPass::addCommands(ResourceProvider* resourceProvider,
             case CommandType::kBindGraphicsPipeline: {
                 auto& d = c.fBindGraphicsPipeline;
                 buffer->bindGraphicsPipeline(fullPipelines[d.fPipelineIndex]);
-                break; }
+            } break;
             case CommandType::kBindUniformBuffer: {
                 auto& d = c.fBindUniformBuffer;
                 buffer->bindUniformBuffer(d.fSlot, sk_ref_sp(d.fInfo.fBuffer), d.fInfo.fOffset);
-                break; }
+            } break;
+            case CommandType::kBindTexturesAndSamplers: {
+                auto& d = c.fBindTexturesAndSamplers;
+
+                for (int i = 0; i < d.fTextureBlock->numTextures(); ++i) {
+                    const auto &texture = d.fTextureBlock->texture(i);
+
+                    sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(
+                            texture.fSamplingOptions, texture.fTileModes[0], texture.fTileModes[1]);
+
+                    SkASSERT(texture.fProxy->texture());
+                    SkASSERT(sampler);
+                    buffer->bindTextureAndSampler(texture.fProxy->refTexture(),
+                                                  std::move(sampler),
+                                                  i);
+                }
+
+            } break;
             case CommandType::kBindDrawBuffers: {
                 auto& d = c.fBindDrawBuffers;
                 buffer->bindDrawBuffers(d.fVertices, d.fInstances, d.fIndices);

@@ -16,6 +16,7 @@
 #include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/UniformManager.h"
 #include "src/gpu/Blend.h"
@@ -386,7 +387,8 @@ void AddToKey(const SkKeyContext& keyContext,
 
 #ifdef SK_GRAPHITE_ENABLED
     if (builder->backend() == SkBackend::kGraphite) {
-        if (pipelineData && !imgData.fTextureProxy) {
+        // TODO: allow through lazy proxies
+        if (pipelineData && (!imgData.fTextureProxy || !imgData.fTextureProxy->refTexture())) {
             // We're dropping the ImageShader here. This could be an instance of trying to draw
             // a raster-backed image w/ a Graphite-backed canvas.
             // TODO: At some point the pre-compile path should also be creating a texture
