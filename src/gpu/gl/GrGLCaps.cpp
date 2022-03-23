@@ -76,28 +76,16 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
 
     fShaderCaps = std::make_unique<GrShaderCaps>();
 
-    // All of Skia's automated testing of ANGLE and all related tuning of performance and driver
-    // workarounds is oriented around the D3D backends of ANGLE. Chrome has started using Skia
-    // on top of ANGLE's GL backend. In this case ANGLE is still interfacing the same underlying
-    // GL driver that our performance and correctness tuning was performed on. To avoid losing
-    // that we strip the ANGLE info and for the rest of caps setup pretend we're directly on top of
-    // the GL driver. Note that this means that some driver workarounds are likely implemented at
-    // two levels of the stack (Skia and ANGLE) but we haven't determined which. There may be some
-    // checks that we do want to know if we're backed by angle (e.g. msaa bgra) so we pass in a flag
-    // to tell us that.
-    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kOpenGL) {
-        this->init(contextOptions, ctxInfo.makeNonAngle(), glInterface, true);
-        // A major caveat is that ANGLE does not allow client side arrays.
-        fPreferClientSideDynamicBuffers = false;
-    } else {
-        this->init(contextOptions, ctxInfo, glInterface, false);
-    }
+    this->init(contextOptions, ctxInfo, glInterface);
+}
+
+static bool angle_backend_is_d3d(GrGLANGLEBackend backend) {
+    return backend == GrGLANGLEBackend::kD3D9 || backend == GrGLANGLEBackend::kD3D11;
 }
 
 void GrGLCaps::init(const GrContextOptions& contextOptions,
                     const GrGLContextInfo& ctxInfo,
-                    const GrGLInterface* gli,
-                    bool driverIsActuallyAngle) {
+                    const GrGLInterface* gli) {
     GrGLStandard standard = ctxInfo.standard();
     // standard can be unused (optimized away) if SK_ASSUME_GL_ES is set
     sk_ignore_unused_variable(standard);
@@ -461,10 +449,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // We've measured a performance increase using non-VBO vertex data for dynamic content on these
     // GPUs. Perhaps we should read the renderer string and limit this decision to specific GPU
     // families rather than basing it on the vendor alone.
-    // The Chrome command buffer blocks the use of client side buffers (but may emulate VBOs with
-    // them). Client side buffers are not allowed in core profiles.
+    // Angle doesn't support client side buffers. The Chrome command buffer blocks the use of client
+    // side buffers (but may emulate VBOs with them). Client side buffers are not allowed in core
+    // profiles.
     if (GR_IS_GR_GL(standard) || GR_IS_GR_GL_ES(standard)) {
-        if (!ctxInfo.isOverCommandBuffer() && !fIsCoreProfile &&
+        if (ctxInfo.angleBackend() == GrGLANGLEBackend::kUnknown &&
+            !ctxInfo.isOverCommandBuffer() &&
+            !fIsCoreProfile &&
             (ctxInfo.vendor() == GrGLVendor::kARM         ||
              ctxInfo.vendor() == GrGLVendor::kImagination ||
              ctxInfo.vendor() == GrGLVendor::kQualcomm)) {
@@ -625,11 +616,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
 #ifdef SK_BUILD_FOR_WIN
-    // We're assuming that on Windows Chromium we're using ANGLE.
-    bool isANGLE = ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown ||
-                   ctxInfo.isOverCommandBuffer();
+    // We're assuming that on Windows Chromium we're using D3D ANGLE.
+    bool isD3DANGLE = angle_backend_is_d3d(ctxInfo.angleBackend()) ||
+                      ctxInfo.isOverCommandBuffer();
     // On ANGLE deferring flushes can lead to GPU starvation
-    fPreferVRAMUseOverFlushes = !isANGLE;
+    fPreferVRAMUseOverFlushes = !isD3DANGLE;
 #endif
 
     if (ctxInfo.isOverCommandBuffer()) {
@@ -806,7 +797,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     // Requires msaa support, ES compatibility have already been detected.
-    this->initFormatTable(ctxInfo, gli, formatWorkarounds, driverIsActuallyAngle);
+    this->initFormatTable(ctxInfo, gli, formatWorkarounds);
 
     this->finishInitialization(contextOptions);
 
@@ -948,7 +939,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     // Is this only true on ANGLE's D3D backends or also on the GL backend?
     shaderCaps->fPreferFlatInterpolation = shaderCaps->fFlatInterpolationSupport &&
                                            ctxInfo.vendor() != GrGLVendor::kQualcomm &&
-                                           ctxInfo.angleBackend() == GrGLANGLEBackend::kUnknown;
+                                           !angle_backend_is_d3d(ctxInfo.angleBackend());
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fNoPerspectiveInterpolationSupport =
             ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
@@ -1364,8 +1355,7 @@ void GrGLCaps::setColorTypeFormat(GrColorType colorType, GrGLFormat format) {
 }
 
 void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
-                               const FormatWorkarounds& formatWorkarounds,
-                               bool driverIsActuallyAngle) {
+                               const FormatWorkarounds& formatWorkarounds) {
     GrGLStandard standard = ctxInfo.standard();
     // standard can be unused (optimized away) if SK_ASSUME_GL_ES is set
     sk_ignore_unused_variable(standard);
@@ -1987,7 +1977,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 // We are confident that Angle does it as we expect. Our non-angle test bots do seem
                 // to pass and draw correctly so we could consider enabling this more broadly in the
                 // future.
-                if (driverIsActuallyAngle) {
+                if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown) {
                     // Angle incorrectly requires GL_BGRA8_EXT for the interalFormat for both ES2
                     // and ES3 even though this extension does not define that value. The extension
                     // only defines GL_BGRA_EXT as an internal format.
@@ -3745,8 +3735,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // The TransferPixelsToTexture test fails on ANGLE D3D9 and D3D11 if this is enabled.
     // https://anglebug.com/5542
-    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 ||
-        ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
+    if (angle_backend_is_d3d(ctxInfo.angleBackend())) {
         fTransferPixelsToRowBytesSupport = false;
     }
 
@@ -4044,7 +4033,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // we've explicitly guarded the division with a check against zero. This manifests in much
     // more complex ways in some of our shaders, so we use this caps bit to add an epsilon value
     // to the denominator of divisions, even when we've added checks that the denominator isn't 0.
-    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown || ctxInfo.isOverCommandBuffer()) {
+    if (angle_backend_is_d3d(ctxInfo.angleBackend()) || ctxInfo.isOverCommandBuffer()) {
         shaderCaps->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
     }
 #endif
