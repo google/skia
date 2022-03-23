@@ -477,7 +477,7 @@ void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
 
 void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                                        const TypefaceVisitor& visitor) {
-    std::vector<sk_sp<SkTypeface>> typefaces = fParagraph->fFontCollection->findTypefaces(textStyle.getFontFamilies(), textStyle.getFontStyle());
+    std::vector<sk_sp<SkTypeface>> typefaces = fParagraph->fFontCollection->findTypefaces(textStyle.getFontFamilies(), textStyle.getFontStyle(), textStyle.getFontArguments());
 
     for (const auto& typeface : typefaces) {
         if (visitor(typeface) == Resolved::Everything) {
@@ -591,7 +591,8 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         // Get the placeholder font
         std::vector<sk_sp<SkTypeface>> typefaces = fParagraph->fFontCollection->findTypefaces(
             placeholder.fTextStyle.getFontFamilies(),
-            placeholder.fTextStyle.getFontStyle());
+            placeholder.fTextStyle.getFontStyle(),
+            placeholder.fTextStyle.getFontArguments());
         sk_sp<SkTypeface> typeface = typefaces.size() ? typefaces.front() : nullptr;
         SkFont font(typeface, placeholder.fTextStyle.getFontSize());
 

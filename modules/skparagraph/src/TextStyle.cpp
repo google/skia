@@ -2,26 +2,62 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFontStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skparagraph/src/FontArguments.h"
 
 namespace skia {
 namespace textlayout {
 
 const std::vector<SkString> TextStyle::kDefaultFontFamilies = { SkString(DEFAULT_FONT_FAMILY) };
 
-TextStyle::TextStyle(const TextStyle& other, bool placeholder) {
+TextStyle::TextStyle(const TextStyle& other) {
+    copyFrom(other);
+}
+
+TextStyle& TextStyle::operator=(const TextStyle& other) {
+    copyFrom(other);
+    return *this;
+}
+
+void TextStyle::copyFrom(const TextStyle& other) {
+    fIsPlaceholder = other.fIsPlaceholder;
     fColor = other.fColor;
-    fFontSize = other.fFontSize;
-    fFontFamilies = other.fFontFamilies;
     fDecoration = other.fDecoration;
-    fHasBackground = other.fHasBackground;
-    fHasForeground = other.fHasForeground;
-    fBackground = other.fBackground;
-    fForeground = other.fForeground;
+    fFontStyle = other.fFontStyle;
+    fFontFamilies = other.fFontFamilies;
+    fLetterSpacing = other.fLetterSpacing;
+    fWordSpacing = other.fWordSpacing;
+    fHeight = other.fHeight;
     fHeightOverride = other.fHeightOverride;
-    fIsPlaceholder = placeholder;
-    fFontFeatures = other.fFontFeatures;
     fHalfLeading = other.fHalfLeading;
     fBaselineShift = other.fBaselineShift;
+    fFontSize = other.fFontSize;
+    fLocale = other.fLocale;
+    fHasForeground = other.fHasForeground;
+    fForeground = other.fForeground;
+    fHasBackground = other.fHasBackground;
+    fBackground = other.fBackground;
+    fTextShadows = other.fTextShadows;
+    fFontFeatures = other.fFontFeatures;
+    setFontArguments(other.getFontArguments());
+}
+
+TextStyle TextStyle::cloneForPlaceholder() {
+    TextStyle result;
+    result.fColor = fColor;
+    result.fFontSize = fFontSize;
+    result.fFontFamilies = fFontFamilies;
+    result.fDecoration = fDecoration;
+    result.fHasBackground = fHasBackground;
+    result.fHasForeground = fHasForeground;
+    result.fBackground = fBackground;
+    result.fForeground = fForeground;
+    result.fHeightOverride = fHeightOverride;
+    result.fIsPlaceholder = true;
+    result.fFontFeatures = fFontFeatures;
+    result.fHalfLeading = fHalfLeading;
+    result.fBaselineShift = fBaselineShift;
+    result.setFontArguments(getFontArguments());
+    return result;
 }
 
 bool TextStyle::equals(const TextStyle& other) const {
@@ -49,6 +85,9 @@ bool TextStyle::equals(const TextStyle& other) const {
         return false;
     }
     if (fHeight != other.fHeight) {
+        return false;
+    }
+    if (fHeightOverride != other.fHeightOverride) {
         return false;
     }
     if (fHalfLeading != other.fHalfLeading) {
@@ -85,6 +124,9 @@ bool TextStyle::equals(const TextStyle& other) const {
             return false;
         }
     }
+    if (fFontArgs != other.fFontArgs) {
+        return false;
+    }
 
     return true;
 }
@@ -95,6 +137,7 @@ bool TextStyle::equalsByFonts(const TextStyle& that) const {
            fFontStyle == that.fFontStyle &&
            fFontFamilies == that.fFontFamilies &&
            fFontFeatures == that.fFontFeatures &&
+           fFontArgs == that.getFontArguments() &&
            nearlyEqual(fLetterSpacing, that.fLetterSpacing) &&
            nearlyEqual(fWordSpacing, that.fWordSpacing) &&
            nearlyEqual(fHeight, that.fHeight) &&
@@ -172,6 +215,39 @@ void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
     // If we shift the baseline we need to make sure the shifted text fits the line
     metrics->fAscent += fBaselineShift;
     metrics->fDescent += fBaselineShift;
+}
+
+void TextStyle::setFontArguments(const std::optional<SkFontArguments>& args) {
+    if (!args) {
+        fFontArgs.reset();
+        return;
+    }
+
+    fArgsCoordinates.clear();
+    SkFontArguments::VariationPosition argsPosition = args->getVariationDesignPosition();
+    for (int i = 0; i < argsPosition.coordinateCount; ++i) {
+        fArgsCoordinates.push_back(argsPosition.coordinates[i]);
+    }
+    SkFontArguments::VariationPosition position{
+        fArgsCoordinates.empty() ? nullptr : fArgsCoordinates.data(),
+        static_cast<int>(fArgsCoordinates.size())
+    };
+
+    fArgsOverrides.clear();
+    SkFontArguments::Palette argsPalette = args->getPalette();
+    for (int i = 0; i < argsPalette.overrideCount; ++i) {
+        fArgsOverrides.push_back(argsPalette.overrides[i]);
+    }
+    SkFontArguments::Palette palette{
+        argsPalette.index,
+        fArgsOverrides.empty() ? nullptr : fArgsOverrides.data(),
+        static_cast<int>(fArgsOverrides.size())
+    };
+
+    fFontArgs.emplace()
+        .setCollectionIndex(args->getCollectionIndex())
+        .setVariationDesignPosition(position)
+        .setPalette(palette);
 }
 
 bool PlaceholderStyle::equals(const PlaceholderStyle& other) const {

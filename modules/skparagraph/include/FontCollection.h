@@ -3,6 +3,7 @@
 #define FontCollection_DEFINED
 
 #include <memory>
+#include <optional>
 #include <set>
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
@@ -31,6 +32,7 @@ public:
     sk_sp<SkFontMgr> getFallbackManager() const { return fDefaultFontManager; }
 
     std::vector<sk_sp<SkTypeface>> findTypefaces(const std::vector<SkString>& familyNames, SkFontStyle fontStyle);
+    std::vector<sk_sp<SkTypeface>> findTypefaces(const std::vector<SkString>& familyNames, SkFontStyle fontStyle, const std::optional<SkFontArguments>& fontArgs);
 
     sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const SkString& locale);
     sk_sp<SkTypeface> defaultFallback();
@@ -49,13 +51,14 @@ private:
     sk_sp<SkTypeface> matchTypeface(const SkString& familyName, SkFontStyle fontStyle);
 
     struct FamilyKey {
-        FamilyKey(const std::vector<SkString>& familyNames, SkFontStyle style)
-                : fFamilyNames(familyNames), fFontStyle(style) {}
+        FamilyKey(const std::vector<SkString>& familyNames, SkFontStyle style, const std::optional<SkFontArguments>& args)
+                : fFamilyNames(familyNames), fFontStyle(style), fFontArgs(args) {}
 
         FamilyKey() {}
 
         std::vector<SkString> fFamilyNames;
         SkFontStyle fFontStyle;
+        std::optional<SkFontArguments> fFontArgs;
 
         bool operator==(const FamilyKey& other) const;
 

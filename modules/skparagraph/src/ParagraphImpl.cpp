@@ -585,7 +585,7 @@ void ParagraphImpl::resolveStrut() {
         return;
     }
 
-    std::vector<sk_sp<SkTypeface>> typefaces = fFontCollection->findTypefaces(strutStyle.getFontFamilies(), strutStyle.getFontStyle());
+    std::vector<sk_sp<SkTypeface>> typefaces = fFontCollection->findTypefaces(strutStyle.getFontFamilies(), strutStyle.getFontStyle(), std::nullopt);
     if (typefaces.empty()) {
         SkDEBUGF("Could not resolve strut font\n");
         return;
@@ -901,7 +901,7 @@ void ParagraphImpl::computeEmptyMetrics() {
     }
 
     auto typefaces = fontCollection()->findTypefaces(
-      textStyle.getFontFamilies(), textStyle.getFontStyle());
+      textStyle.getFontFamilies(), textStyle.getFontStyle(), textStyle.getFontArguments());
     auto typeface = typefaces.empty() ? nullptr : typefaces.front();
 
     SkFont font(typeface, textStyle.getFontSize());

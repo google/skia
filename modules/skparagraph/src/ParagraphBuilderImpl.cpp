@@ -129,7 +129,7 @@ void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderSty
     auto start = fUtf8.size();
     auto topStyle = fTextStyles.top();
     if (!lastOne) {
-        pushStyle(TextStyle(topStyle, true));
+        pushStyle(topStyle.cloneForPlaceholder());
         addText(std::u16string(1ull, 0xFFFC));
         pop();
     }
