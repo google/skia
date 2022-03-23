@@ -543,7 +543,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
         this->finalizeShaders();
 
         SkSL::Program::Settings settings;
-        settings.fSharpenTextures = fGpu->getContext()->priv().options().fSharpenMipmappedTextures;
+        settings.fSharpenTextures = true;
         SkASSERT(!this->fragColorIsInOut());
 
         SkReadBuffer reader;
@@ -739,7 +739,7 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
     auto errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
 
     SkSL::Program::Settings settings;
-    settings.fSharpenTextures = gpu->getContext()->priv().options().fSharpenMipmappedTextures;
+    settings.fSharpenTextures = true;
     GrPersistentCacheUtils::ShaderMetadata meta;
     meta.fSettings = &settings;
 

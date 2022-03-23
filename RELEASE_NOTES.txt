@@ -5,6 +5,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 102
 -------------
   * Add glGetFloatv and glSamplerParameterf to GrGLInterface.
+  * GrContextOptions::fSharpenMipmappedTextures is ignored. MIP LOD is now always
+    biased on the GPU backend. The CPU backend implementation is modified to match
+    this behavior.
 
 * * *
 

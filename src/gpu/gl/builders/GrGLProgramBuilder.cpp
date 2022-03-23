@@ -230,8 +230,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     auto errorHandler = this->gpu()->getContext()->priv().getShaderErrorHandler();
     const GrGeometryProcessor& geomProc = this->geometryProcessor();
     SkSL::Program::Settings settings;
-    settings.fSharpenTextures =
-                    this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
+    settings.fSharpenTextures = true;
     settings.fFragColorIsInOut = this->fragColorIsInOut();
 
     SkSL::Program::Inputs inputs;
@@ -530,7 +529,7 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
     auto errorHandler = dContext->priv().getShaderErrorHandler();
 
     SkSL::Program::Settings settings;
-    settings.fSharpenTextures = dContext->priv().options().fSharpenMipmappedTextures;
+    settings.fSharpenTextures = true;
     GrPersistentCacheUtils::ShaderMetadata meta;
     meta.fSettings = &settings;
 
