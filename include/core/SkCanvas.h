@@ -2271,8 +2271,8 @@ protected:
 #if SK_SUPPORT_GPU
     /** Experimental
      */
-    virtual sk_sp<GrSlug> doConvertBlobToSlug(
-            const SkTextBlob& blob, SkPoint origin, const SkPaint& paint);
+    virtual sk_sp<GrSlug> onConvertGlyphRunListToSlug(
+            const SkGlyphRunList& glyphRunList, const SkPaint& paint);
 
     /** Experimental
      */

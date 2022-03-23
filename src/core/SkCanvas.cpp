@@ -2332,13 +2332,12 @@ void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPa
 sk_sp<GrSlug> SkCanvas::convertBlobToSlug(
         const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-
-    return this->doConvertBlobToSlug(blob, origin, paint);
+    auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(blob, origin);
+    return this->onConvertGlyphRunListToSlug(glyphRunList, paint);
 }
 
 sk_sp<GrSlug>
-SkCanvas::doConvertBlobToSlug(const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
-    auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(blob, origin);
+SkCanvas::onConvertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     SkRect bounds = glyphRunList.sourceBounds();
     if (bounds.isEmpty() || !bounds.isFinite() || paint.nothingToDraw()) {
         return nullptr;
