@@ -17,7 +17,6 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include <functional>
-#include <vector>  // TODO: unused
 
 class SkData;
 
