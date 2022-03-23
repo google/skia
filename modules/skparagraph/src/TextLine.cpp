@@ -507,35 +507,86 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     // Go through the clusters in the reverse logical order
     // taking off cluster by cluster until the ellipsis fits
     SkScalar width = fAdvance.fX;
-
-    auto attachEllipsis = [&](const Cluster* cluster){
-        // Shape the ellipsis
-        std::unique_ptr<Run> run = shapeEllipsis(ellipsis, cluster->run());
-        run->fClusterStart = cluster->textRange().start;
-      run->setOwner(fOwner);
-
-        // See if it fits
-        if (width + run->advance().fX > maxWidth) {
-            width -= cluster->width();
-            // Continue if it's not
-            return false;
-        }
-
-        fEllipsis = std::move(run);
-        fEllipsis->shift(width, 0);
-        fAdvance.fX = width;
-        return true;
-    };
-
+    // There is one case when we need to attach the ellipsis on the left:
+    // when the first few runs together wider than the ellipsis run are RTL
+    // In all the other cases we attach the ellipsis on the right
+    RunIndex leftRun = EMPTY_RUN;
+    std::unique_ptr<Run> ellipsisRun;
     iterateThroughClustersInGlyphsOrder(
-        true, false, [&](const Cluster* cluster, bool ghost) {
-            return !attachEllipsis(cluster);
+        false, false, [&](const Cluster* cluster, bool ghost) {
+            if (cluster->run().leftToRight()) {
+                return false;
+            }
+            // Shape the ellipsis if the run has changed
+            if (leftRun != cluster->runIndex()) {
+                ellipsisRun = shapeEllipsis(ellipsis, cluster->run());
+                if (ellipsisRun->advance().fX > maxWidth) {
+                    // Ellipsis is bigger than the entire line
+                    return false;
+                }
+                ellipsisRun->fClusterStart = cluster->textRange().start;
+                ellipsisRun->setOwner(fOwner);
+                leftRun = cluster->runIndex();
+            }
+            // See if it fits
+            if (width + ellipsisRun->advance().fX > maxWidth) {
+                width -= cluster->width();
+                // Continue if it's not
+                return true;
+            }
+            fEllipsis = std::move(ellipsisRun);
+            fEllipsis->fBidiLevel = 1;
+            fClusterRange.end = cluster - fOwner->clusters().data() + 1;
+            fGhostClusterRange.end = cluster - fOwner->clusters().data() + 1;
+            fText.end = cluster->textRange().end;
+            fTextIncludingNewlines.end = cluster->textRange().end;
+            fTextExcludingSpaces.end = cluster->textRange().end;
+            fAdvance.fX = width;
+            return false;
         });
 
-    if (!fEllipsis) {
-        // Weird situation: just the ellipsis on the line (if it fits)
-        attachEllipsis(&fOwner->cluster(clusters().start));
-    }
+    if (fEllipsis) return;
+
+    RunIndex rightRun = EMPTY_RUN;
+    iterateThroughClustersInGlyphsOrder(
+        true, false, [&](const Cluster* cluster, bool ghost) {
+            // Shape the ellipsis if the run has changed
+            if (rightRun != cluster->runIndex()) {
+                // Shape the ellipsis
+                ellipsisRun = shapeEllipsis(ellipsis, cluster->run());
+                if (ellipsisRun->advance().fX > maxWidth) {
+                    // Ellipsis is bigger than the entire line
+                    return false;
+                }
+                ellipsisRun->fClusterStart = cluster->textRange().start;
+                ellipsisRun->setOwner(fOwner);
+                rightRun = cluster->runIndex();
+            }
+            // See if it fits
+            if (width + ellipsisRun->advance().fX > maxWidth) {
+                width -= cluster->width();
+                // Continue if it's not
+                return true;
+            }
+            fEllipsis = std::move(ellipsisRun);
+            fEllipsis->fBidiLevel = 0;
+            fClusterRange.end = cluster - fOwner->clusters().data() + 1;
+            fGhostClusterRange.end = fClusterRange.end;
+            fText.end = cluster->textRange().end;
+            fTextIncludingNewlines.end = cluster->textRange().end;
+            fTextExcludingSpaces.end = cluster->textRange().end;
+            fAdvance.fX = width;
+            return false;
+        });
+    if (fEllipsis) return;
+
+    // Weird situation: ellipsis does not fit; no ellipsis then
+    fClusterRange.end = fClusterRange.start;
+    fGhostClusterRange.end = fClusterRange.start;
+    fText.end = fText.start;
+    fTextIncludingNewlines.end = fTextIncludingNewlines.start;
+    fTextExcludingSpaces.end = fTextExcludingSpaces.start;
+    fAdvance.fX = 0;
 }
 
 std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Run& run) {
@@ -703,9 +754,9 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
         if (run->leftToRight()) {
             // We only use this member for LTR
             result.fExcludedTrailingSpaces = std::max(result.clip.fRight - fAdvance.fX, 0.0f);
+            result.clippingNeeded = true;
+            result.clip.fRight = fAdvance.fX;
         }
-        result.clippingNeeded = true;
-        result.clip.fRight = fAdvance.fX;
     }
 
     if (result.clip.width() < 0) {
@@ -856,6 +907,13 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
     SkScalar runOffset = 0;
     SkScalar totalWidth = 0;
     auto textRange = includingGhostSpaces ? this->textWithNewlines() : this->trimmedText();
+
+    if (this->ellipsis() != nullptr && !this->ellipsis()->leftToRight()) {
+        runOffset = this->ellipsis()->offset().fX;
+        if (visitor(ellipsis(), runOffset, ellipsis()->textRange(), &width)) {
+        }
+    }
+
     for (auto& runIndex : fRunsInVisualOrder) {
 
         const auto run = &this->fOwner->run(runIndex);
@@ -885,7 +943,7 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
     runOffset += width;
     totalWidth += width;
 
-    if (this->ellipsis() != nullptr) {
+    if (this->ellipsis() != nullptr && this->ellipsis()->leftToRight()) {
         if (visitor(ellipsis(), runOffset, ellipsis()->textRange(), &width)) {
             totalWidth += width;
         }

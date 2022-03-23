@@ -2076,8 +2076,8 @@ protected:
             auto impl = static_cast<ParagraphImpl*>(paragraph.get());
             for (auto& line : impl->lines()) {
                 if (this->isVerbose()) {
-                    SkDebugf("line[%d]: %f + %f\n", (int)(&line - impl->lines().begin()),
-                                                    line.offset().fX, line.shift());
+                    SkDebugf("line[%d]: %f\n", (int)(&line - impl->lines().begin()),
+                                                    line.offset().fX);
                 }
                 line.iterateThroughVisualRuns(true,
                     [&](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
