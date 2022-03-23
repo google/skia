@@ -7,9 +7,8 @@
 
 #include "experimental/graphite/src/render/CoverBoundsRenderStep.h"
 
+#include "experimental/graphite/src/DrawGeometry.h"
 #include "experimental/graphite/src/DrawWriter.h"
-#include "experimental/graphite/src/geom/Shape.h"
-#include "experimental/graphite/src/geom/Transform_graphite.h"
 #include "experimental/graphite/src/render/StencilAndCoverDSS.h"
 
 namespace skgpu {
@@ -33,20 +32,18 @@ const char* CoverBoundsRenderStep::vertexSkSL() const {
     return "     float4 devPosition = float4(position.xy, 0.0, position.z);\n";
 }
 
-void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
-                                          const SkIRect& bounds,
-                                          const Transform& localToDevice,
-                                          const Shape& shape) const {
+void CoverBoundsRenderStep::writeVertices(DrawWriter* writer, const DrawGeometry& geom) const {
     SkV4 devPoints[4]; // ordered TL, TR, BR, BL
 
     if (fInverseFill) {
         // TODO: When we handle local coords, we'd need to map these corners by the inverse.
+        const SkIRect& bounds = geom.clip().scissor();
         devPoints[0] = {(float) bounds.fLeft,  (float) bounds.fTop,    0.f, 1.f};
         devPoints[1] = {(float) bounds.fRight, (float) bounds.fTop,    0.f, 1.f};
         devPoints[2] = {(float) bounds.fRight, (float) bounds.fBottom, 0.f, 1.f};
         devPoints[3] = {(float) bounds.fLeft,  (float) bounds.fBottom, 0.f, 1.f};
     } else {
-        localToDevice.mapPoints(shape.bounds(), devPoints);
+        geom.transform().mapPoints(geom.shape().bounds(), devPoints);
     }
 
     DrawWriter::Vertices verts{*writer};
@@ -58,10 +55,7 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
                     << devPoints[2].x << devPoints[2].y << devPoints[2].w;// BR
 }
 
-sk_sp<SkUniformData> CoverBoundsRenderStep::writeUniforms(Layout,
-                                                          const SkIRect&,
-                                                          const Transform&,
-                                                          const Shape&) const {
+sk_sp<SkUniformData> CoverBoundsRenderStep::writeUniforms(Layout, const DrawGeometry&) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
     return nullptr;
 }

@@ -24,16 +24,14 @@
 #include <string_view>
 #include <vector>
 
-struct SkIRect;
 enum class SkPathFillType;
 class SkUniformData;
 
 namespace skgpu {
 
 class DrawWriter;
+class DrawGeometry;
 class ResourceProvider;
-class Shape;
-class Transform;
 
 enum class Layout;
 
@@ -44,10 +42,7 @@ public:
     // The DrawWriter is configured with the vertex and instance strides of the RenderStep, and its
     // primitive type. The recorded draws will be executed with a graphics pipeline compatible with
     // this RenderStep.
-    virtual void writeVertices(DrawWriter*,
-                               const SkIRect& bounds,
-                               const Transform&,
-                               const Shape&) const = 0;
+    virtual void writeVertices(DrawWriter*, const DrawGeometry&) const = 0;
 
     // Write out the uniform values (aligned for the layout). These values will be de-duplicated
     // across all draws using the RenderStep before uploading to the GPU, but it can be assumed the
@@ -58,10 +53,7 @@ public:
     // nice if we could remember the offsets for the layout/gpu and reuse them across draws.
     // Similarly, it would be nice if this could write into reusable storage and then DrawPass or
     // UniformCache handles making an sk_sp if we need to assign a new unique ID to the uniform data
-    virtual sk_sp<SkUniformData> writeUniforms(Layout layout,
-                                               const SkIRect& bounds,
-                                               const Transform&,
-                                               const Shape&) const = 0;
+    virtual sk_sp<SkUniformData> writeUniforms(Layout layout, const DrawGeometry&) const = 0;
 
     // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
     // and variant is a unique term describing instance's specific configuration.

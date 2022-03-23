@@ -79,11 +79,11 @@ public:
             UniformDataCache::Index geomUniformIndex,
             UniformDataCache::Index shadingUniformIndex,
             TextureDataCache::Index textureDataIndex)
-        : fPipelineKey(ColorDepthOrderField::set(draw->fOrder.paintOrder().bits()) |
-                       StencilIndexField::set(draw->fOrder.stencilIndex().bits())  |
-                       RenderStepField::set(static_cast<uint32_t>(renderStep))     |
+        : fPipelineKey(ColorDepthOrderField::set(draw->fGeometry.order().paintOrder().bits()) |
+                       StencilIndexField::set(draw->fGeometry.order().stencilIndex().bits())  |
+                       RenderStepField::set(static_cast<uint32_t>(renderStep))                |
                        PipelineField::set(pipelineIndex))
-        , fUniformKey(GeometryUniformField::set(geomUniformIndex.asUInt()) |
+        , fUniformKey(GeometryUniformField::set(geomUniformIndex.asUInt())   |
                       ShadingUniformField::set(shadingUniformIndex.asUInt()) |
                       TextureBindingsField::set(textureDataIndex.asUInt()))
         , fDraw(draw) {
@@ -309,8 +309,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
-        if (occlusionCuller && occlusionCuller->isOccluded(draw.fClip.drawBounds(),
-                                                           draw.fOrder.depth())) {
+        if (occlusionCuller && occlusionCuller->isOccluded(draw.fGeometry.clip().drawBounds(),
+                                                           draw.fGeometry.order().depth())) {
             continue;
         }
 
@@ -345,10 +345,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             UniformDataCache::Index geometryUniformIndex;
             if (step->numUniforms() > 0) {
                 // TODO: Get layout from the GPU
-                auto uniforms = step->writeUniforms(Layout::kMetal,
-                                                    draw.fClip.scissor(),
-                                                    draw.fTransform,
-                                                    draw.fShape);
+                auto uniforms = step->writeUniforms(Layout::kMetal, draw.fGeometry);
 
                 geometryUniformIndex = geometryUniformBindings.addUniforms(
                         SkUniformDataBlock(std::move(uniforms)));
@@ -374,7 +371,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                             stepTextureBindingIndex});
         }
 
-        passBounds.join(draw.fClip.drawBounds());
+        passBounds.join(draw.fGeometry.clip().drawBounds());
         drawPass->fDepthStencilFlags |= draw.fRenderer.depthStencilFlags();
         drawPass->fRequiresMSAA |= draw.fRenderer.requiresMSAA();
     }
@@ -414,7 +411,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         const bool pipelineChange = key.pipeline() != lastPipeline;
         const bool stateChange = geometryUniformChange ||
                                  shadingUniformChange ||
-                                 draw.fClip.scissor() != lastScissor;
+                                 draw.fGeometry.clip().scissor() != lastScissor;
 
         // Update DrawWriter *before* we actually change any state so that accumulated draws from
         // the previous state use the proper state.
@@ -448,13 +445,13 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 // TODO: add BindTexturesAndSamplers command here
                 lastTextureBindings = key.textureBindings();
             }
-            if (draw.fClip.scissor() != lastScissor) {
-                drawPass->fCommands.emplace_back(SetScissor{draw.fClip.scissor()});
-                lastScissor = draw.fClip.scissor();
+            if (draw.fGeometry.clip().scissor() != lastScissor) {
+                drawPass->fCommands.emplace_back(SetScissor{draw.fGeometry.clip().scissor()});
+                lastScissor = draw.fGeometry.clip().scissor();
             }
         }
 
-        renderStep.writeVertices(&drawWriter, draw.fClip.scissor(), draw.fTransform, draw.fShape);
+        renderStep.writeVertices(&drawWriter, draw.fGeometry);
     }
     // Finish recording draw calls for any collected data at the end of the loop
     drawWriter.flush();

@@ -7,9 +7,8 @@
 
 #include "experimental/graphite/src/render/TessellateWedgesRenderStep.h"
 
+#include "experimental/graphite/src/DrawGeometry.h"
 #include "experimental/graphite/src/DrawWriter.h"
-#include "experimental/graphite/src/geom/Shape.h"
-#include "experimental/graphite/src/geom/Transform_graphite.h"
 
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
@@ -148,11 +147,8 @@ const char* TessellateWedgesRenderStep::vertexSkSL() const {
         float4 devPosition = float4(localcoord.xy, 0.0, 1.0);)";
 }
 
-void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
-                                               const SkIRect& bounds,
-                                               const Transform& localToDevice,
-                                               const Shape& shape) const {
-    SkPath path = shape.asPath(); // TODO: Iterate the Shape directly
+void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometry& geom) const {
+    SkPath path = geom.shape().asPath(); // TODO: Iterate the Shape directly
 
     BindBufferInfo fixedVertexBuffer = dw->bufferManager()->getStaticBuffer(
             BufferType::kVertex,
@@ -176,7 +172,7 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
     // TODO: This doesn't handle perspective yet, and ideally wouldn't go through SkMatrix.
     // It may not be relevant, though, if transforms are applied on the GPU and we only need to
     // determine an approximate 2x2 for 'shaderXform' and Wang's formula evaluation.
-    AffineMatrix m(localToDevice.matrix().asM33());
+    AffineMatrix m(geom.transform().matrix().asM33());
 
     // TODO: Essentially the same as PathWedgeTessellator::write_patches but with a different
     // PatchWriter template.
@@ -242,10 +238,7 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
     }
 }
 
-sk_sp<SkUniformData> TessellateWedgesRenderStep::writeUniforms(Layout,
-                                                              const SkIRect&,
-                                                              const Transform&,
-                                                              const Shape&) const {
+sk_sp<SkUniformData> TessellateWedgesRenderStep::writeUniforms(Layout, const DrawGeometry&) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
     return nullptr;
 }

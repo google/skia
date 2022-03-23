@@ -10,6 +10,8 @@
 
 #include "experimental/graphite/src/TextureProxyView.h"
 
+#include <functional>
+
 class SkBitmap;
 enum SkColorType : int;
 struct SkImageInfo;

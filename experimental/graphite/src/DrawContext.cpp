@@ -66,7 +66,7 @@ void DrawContext::recordDraw(const Renderer& renderer,
                              const Clip& clip,
                              DrawOrder ordering,
                              const PaintParams* paint,
-                             const StrokeParams* stroke) {
+                             const StrokeStyle* stroke) {
     SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(clip.scissor()));
     fPendingDraws->recordDraw(renderer, localToDevice, shape, clip, ordering, paint, stroke);
 }

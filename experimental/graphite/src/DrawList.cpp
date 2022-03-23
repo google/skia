@@ -27,7 +27,7 @@ void DrawList::recordDraw(const Renderer& renderer,
                           const Clip& clip,
                           DrawOrder ordering,
                           const PaintParams* paint,
-                          const StrokeParams* stroke) {
+                          const StrokeStyle* stroke) {
     SkASSERT(localToDevice.valid());
     SkASSERT(!shape.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
     SkASSERT(!(renderer.depthStencilFlags() & DepthStencilFlags::kStencil) ||

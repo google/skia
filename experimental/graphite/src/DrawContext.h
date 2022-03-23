@@ -58,7 +58,7 @@ public:
                     const Clip& clip,
                     DrawOrder ordering,
                     const PaintParams* paint,
-                    const StrokeParams* stroke);
+                    const StrokeStyle* stroke);
 
     bool writePixels(Recorder* recorder,
                      const SkPixmap& src,
