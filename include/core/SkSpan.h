@@ -33,11 +33,8 @@ public:
     constexpr SkSpan(const SkSpan<U>& that) : fPtr(that.data()), fSize{that.size()} {}
     constexpr SkSpan(const SkSpan& o) = default;
 
-    constexpr SkSpan& operator=(const SkSpan& that) {
-        fPtr = that.fPtr;
-        fSize = that.fSize;
-        return *this;
-    }
+    constexpr SkSpan& operator=(const SkSpan& that) = default;
+
     constexpr T& operator [] (size_t i) const {
         SkASSERT(i < this->size());
         return fPtr[i];

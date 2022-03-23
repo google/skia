@@ -58,7 +58,6 @@ void SkPaintParamsKeyBuilder::beginBlock(int codeSnippetID) {
 
     SkASSERT(!this->isLocked());
 
-    fData.reserve_back(SkPaintParamsKey::kBlockHeaderSizeInBytes);
     fStack.push_back({ codeSnippetID, this->sizeInBytes(),
                        SkDEBUGCODE(kHeaderExpectations, 0) });
 
@@ -102,7 +101,7 @@ void SkPaintParamsKeyBuilder::endBlock() {
 
     fData[headerOffset+SkPaintParamsKey::kBlockSizeOffsetInBytes] = blockSize;
 
-    fStack.pop_back();
+    fStack.pop();
 
 #ifdef SK_DEBUG
     if (!fStack.empty()) {
@@ -140,7 +139,7 @@ void SkPaintParamsKeyBuilder::addBytes(uint32_t numBytes, const uint8_t* data) {
 
     SkASSERT(!this->isLocked());
 
-    fData.push_back_n(numBytes, data);
+    fData.append(numBytes, data);
 }
 
 SkPaintParamsKey SkPaintParamsKeyBuilder::lockAsKey() {
@@ -154,17 +153,17 @@ SkPaintParamsKey SkPaintParamsKeyBuilder::lockAsKey() {
     // Partially reset for reuse. Note that the key resulting from this call will be holding a lock
     // on this builder and must be deleted before this builder is fully reset.
     fIsValid = true;
-    fStack.clear();
+    fStack.rewind();
 
-    return SkPaintParamsKey(SkMakeSpan(fData.data(), fData.count()), this);
+    return SkPaintParamsKey(SkMakeSpan(fData.begin(), fData.count()), this);
 }
 
 void SkPaintParamsKeyBuilder::makeInvalid() {
     SkASSERT(fIsValid);
     SkASSERT(!this->isLocked());
 
-    fStack.clear();
-    fData.reset();
+    fStack.rewind();
+    fData.rewind();
     this->beginBlock(SkBuiltInCodeSnippetID::kError);
     this->endBlock();
 

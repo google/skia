@@ -10,12 +10,11 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkBuiltInCodeSnippetID.h"
 
 #include <array>
 #include <limits>
-#include <vector>
 
 enum class SkBackend : uint8_t {
     kGanesh,
@@ -195,7 +194,7 @@ public:
 
     void unlock() {
         SkASSERT(fLocked);
-        fData.reset();
+        fData.rewind();
         SkDEBUGCODE(fLocked = false;)
         SkDEBUGCODE(this->checkReset();)
     }
@@ -215,15 +214,18 @@ private:
 #endif
     };
 
-    bool fIsValid = true;
     const SkShaderCodeDictionary* fDict;
-    const SkBackend fBackend;
-    std::vector<StackFrame> fStack;
-
     // TODO: It is probably overkill but we could encode the SkBackend in the first byte of
     // the key.
+    const SkBackend fBackend;
+
+    bool fIsValid = true;
     SkDEBUGCODE(bool fLocked = false;)
-    SkTArray<uint8_t, true> fData;
+
+    // Use SkTDArray so that we can guarantee that rewind() preserves the underlying storage and
+    // repeated use of the builder will hit a high-water mark and avoid lots of allocations.
+    SkTDArray<StackFrame> fStack;
+    SkTDArray<uint8_t> fData;
 };
 
 #endif // SkPaintParamsKey_DEFINED
