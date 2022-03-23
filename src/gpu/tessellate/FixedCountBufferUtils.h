@@ -10,6 +10,8 @@
 
 #include "include/core/SkPaint.h"
 
+#include <algorithm>
+
 namespace skgpu {
 
 struct VertexWriter;
