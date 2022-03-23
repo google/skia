@@ -68,6 +68,7 @@ static const struct {
     { "glnostencils",          "gpu", "api=gl,stencils=false" },
     { "gldft",                 "gpu", "api=gl,dit=true" },
     { "glesdft",               "gpu", "api=gles,dit=true" },
+    { "glslug",                "gpu", "api=gl,slug=true" },
     { "gltestthreading",       "gpu", "api=gl,testThreading=true" },
     { "gltestpersistentcache", "gpu", "api=gl,testPersistentCache=1" },
     { "gltestglslcache",       "gpu", "api=gl,testPersistentCache=2" },
@@ -531,6 +532,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
                                                bool                      testPrecompile,
                                                bool                      useDDLSink,
                                                bool                      OOPRish,
+                                               bool                      slug,
                                                bool                      reducedShaders,
                                                SurfType                  surfType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
@@ -545,6 +547,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
         , fTestPrecompile(testPrecompile)
         , fUseDDLSink(useDDLSink)
         , fOOPRish(OOPRish)
+        , fSlug(slug)
         , fReducedShaders(reducedShaders)
         , fSurfType(surfType) {
     if (!useStencilBuffers) {
@@ -574,6 +577,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
     bool                                testPrecompile      = false;
     bool                                useDDLs             = false;
     bool                                ooprish             = false;
+    bool                                slug                = false;
     bool                                reducedShaders      = false;
     bool                                fakeGLESVersion2    = false;
     SkCommandLineConfigGpu::SurfType    surfType = SkCommandLineConfigGpu::SurfType::kDefault;
@@ -596,6 +600,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
             extendedOptions.get_option_bool("testPrecompile", &testPrecompile) &&
             extendedOptions.get_option_bool("useDDLSink", &useDDLs) &&
             extendedOptions.get_option_bool("OOPRish", &ooprish) &&
+            extendedOptions.get_option_bool("slug", &slug);
             extendedOptions.get_option_bool("reducedShaders", &reducedShaders) &&
             extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
@@ -626,6 +631,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
                                       testPrecompile,
                                       useDDLs,
                                       ooprish,
+                                      slug,
                                       reducedShaders,
                                       surfType);
 }

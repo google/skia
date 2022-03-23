@@ -69,6 +69,7 @@ public:
                            bool                      testPrecompile,
                            bool                      useDDLSink,
                            bool                      OOPRish,
+                           bool                      slug,
                            bool                      reducedShaders,
                            SurfType);
 
@@ -84,6 +85,7 @@ public:
     bool          getTestPrecompile() const { return fTestPrecompile; }
     bool          getUseDDLSink() const { return fUseDDLSink; }
     bool          getOOPRish() const { return fOOPRish; }
+    bool          getSlug() const { return fSlug; }
     bool          getReducedShaders() const { return fReducedShaders; }
     SurfType      getSurfType() const { return fSurfType; }
 
@@ -99,6 +101,7 @@ private:
     bool                fTestPrecompile;
     bool                fUseDDLSink;
     bool                fOOPRish;
+    bool                fSlug;
     bool                fReducedShaders;
     SurfType            fSurfType;
 };
