@@ -77,10 +77,11 @@ enum class PatchAttribs {
     kFanPoint = 1 << 1,  // [float2] Used by wedges. This is the center point the wedges fan around.
     kStrokeParams = 1 << 2,  // [float2] Used when strokes have different widths or join types.
     kColor = 1 << 3,  // [ubyte4 or float4] Used when patches have different colors.
-    kExplicitCurveType = 1 << 4,  // [float] Used when GPU can't infer curve type based on infinity.
+    kPaintDepth = 1 << 4, // [float] Used in Graphite to specify depth attachment value for draw.
+    kExplicitCurveType = 1 << 5,  // [float] Used when GPU can't infer curve type based on infinity.
 
     // Extra flags.
-    kWideColorIfEnabled = 1 << 5,  // If kColor is set, specifies it to be float4 wide color.
+    kWideColorIfEnabled = 1 << 6,  // If kColor is set, specifies it to be float4 wide color.
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)
@@ -100,6 +101,7 @@ constexpr size_t PatchAttribsStride(PatchAttribs attribs) {
            (attribs & PatchAttribs::kColor
                     ? (attribs & PatchAttribs::kWideColorIfEnabled ? sizeof(float)
                                                                    : sizeof(uint8_t)) * 4 : 0) +
+           (attribs & PatchAttribs::kPaintDepth ? sizeof(float) : 0) +
            (attribs & PatchAttribs::kExplicitCurveType ? sizeof(float) : 0);
 }
 constexpr size_t PatchStride(PatchAttribs attribs) {

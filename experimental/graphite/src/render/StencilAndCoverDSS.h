@@ -54,7 +54,7 @@ constexpr DepthStencilSettings kWindingStencilPass = {
         /*backStencil=*/ kDecrementCCW,
         /*refValue=*/    0,
         /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kAlways, // TODO: kGreater once steps know the right depth value
+        /*depthCompare=*/CompareOp::kGreater,
         /*depthTest=*/   true,
         /*depthWrite=*/  false // The depth write will be handled by the covering pass
 };
@@ -66,7 +66,7 @@ constexpr DepthStencilSettings kEvenOddStencilPass = {
         /*backStencil=*/ kToggle,
         /*refValue=*/    0,
         /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kAlways, // TODO: kGreater once steps know the right depth value
+        /*depthCompare=*/CompareOp::kGreater,
         /*depthTest=*/   true,
         /*depthWrite=*/  false // The depth write will be handled by the covering pass
 };
@@ -106,7 +106,7 @@ constexpr DepthStencilSettings kRegularCoverPass = {
         /*backStencil=*/ kPassNonZero,
         /*refValue=*/    0,
         /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kAlways, // TODO: kGreater once steps know the right depth value
+        /*depthCompare=*/CompareOp::kGreater,
         /*depthTest=*/   true,
         /*depthWrite=*/  true
 };
@@ -118,7 +118,7 @@ constexpr DepthStencilSettings kInverseCoverPass = {
         /*backStencil=*/ kPassZero,
         /*refValue=*/    0,
         /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kAlways, // TODO: kGreater once steps know the right depth value
+        /*depthCompare=*/CompareOp::kGreater,
         /*depthTest=*/   true,
         /*depthWrite=*/  true
 };

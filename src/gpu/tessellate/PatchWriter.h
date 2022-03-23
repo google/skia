@@ -204,6 +204,7 @@ class PatchWriter {
                                               /* else */ uint32_t>>;
 
     DEF_ATTRIB_TYPE(ColorAttrib,     PatchAttribs::kColor,             Color);
+    DEF_ATTRIB_TYPE(DepthAttrib,     PatchAttribs::kPaintDepth,        float);
     DEF_ATTRIB_TYPE(CurveTypeAttrib, PatchAttribs::kExplicitCurveType, float);
 #undef DEF_ATTRIB_TYPE
 
@@ -212,6 +213,7 @@ class PatchWriter {
             (FanPointAttrib::kEnabled  ? sizeof(SkPoint)                              : 0) +
             (StrokeAttrib::kEnabled    ? sizeof(StrokeParams)                         : 0) +
             (ColorAttrib::kEnabled     ? std::min(sizeof(Color), sizeof(SkPMColor4f)) : 0) +
+            (DepthAttrib::kEnabled     ? sizeof(float)                                : 0) +
             (CurveTypeAttrib::kEnabled ? sizeof(float)                                : 0);
 
     // Types that vary depending on the activated features, but do not define the patch data.
@@ -236,7 +238,8 @@ public:
             , fJoin(attribs)
             , fFanPoint(attribs)
             , fStrokeParams(attribs)
-            , fColor(attribs) {
+            , fColor(attribs)
+            , fDepth(attribs) {
         // Explicit curve types are provided on the writePatch signature, and not a field of
         // PatchWriter, so initialize one in the ctor to validate the provided runtime attribs.
         SkDEBUGCODE((void) CurveTypeAttrib(attribs);)
@@ -320,6 +323,12 @@ public:
         } else {
             fColor = color.toBytes_RGBA();
         }
+    }
+
+    // Updates the paint depth written out with each patch.
+    ENABLE_IF(DepthAttrib::kEnabled) updatePaintDepthAttrib(float depth) {
+        SkASSERT(fAttribs & PatchAttribs::kPaintDepth);
+        fDepth = depth;
     }
 
     /**
@@ -486,7 +495,7 @@ private:
                              const JoinAttrib& join,
                              float explicitCurveType) {
         // NOTE: operator<< overrides automatically handle optional and disabled attribs.
-        vertexWriter << join << fFanPoint << fStrokeParams << fColor
+        vertexWriter << join << fFanPoint << fStrokeParams << fColor << fDepth
                      << CurveTypeAttrib{fAttribs, explicitCurveType};
     }
 
@@ -678,6 +687,7 @@ private:
     FanPointAttrib fFanPoint;
     StrokeAttrib   fStrokeParams;
     ColorAttrib    fColor;
+    DepthAttrib    fDepth;
 };
 
 }  // namespace skgpu

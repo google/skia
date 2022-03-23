@@ -51,8 +51,9 @@ struct DrawWriterAllocator {
 // No explicit curve type, since we assume infinity is supported on GPUs using graphite
 // No color or wide color attribs, since it might always be part of the PaintParams
 // or we'll add a color-only fast path to RenderStep later.
-static constexpr PatchAttribs kAttribs = PatchAttribs::kNone;
+static constexpr PatchAttribs kAttribs = PatchAttribs::kPaintDepth;
 using Writer = PatchWriter<DrawWriterAllocator,
+                           Required<PatchAttribs::kPaintDepth>,
                            AddTrianglesWhenChopping,
                            DiscardFlatCurves>;
 
@@ -68,7 +69,8 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd)
                      /*vertexAttrs=*/  {{"resolveLevel_and_idx",
                                          VertexAttribType::kFloat2, SkSLType::kFloat2}},
                      /*instanceAttrs=*/{{"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                                        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4}}) {
+                                        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
+                                        {"depth", VertexAttribType::kFloat, SkSLType::kFloat}}) {
     SkASSERT(this->instanceStride() == PatchStride(kAttribs));
 }
 
@@ -135,7 +137,7 @@ const char* TessellateCurvesRenderStep::vertexSkSL() const {
                 localcoord = (fixedVertexID == 0) ? p0.xy : p3.xy;
             }
         }
-        float4 devPosition = float4(localcoord.xy, 0.0, 1.0);)";
+        float4 devPosition = float4(localcoord.xy, depth, 1.0);)";
 }
 
 void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometry& geom) const {
@@ -153,6 +155,8 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
     int patchReserveCount = FixedCountCurves::PreallocCount(path.countVerbs());
     Writer writer{kAttribs, kMaxParametricSegments,
                   *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
+
+    writer.updatePaintDepthAttrib(geom.order().depthAsFloat());
 
     // TODO: Is it better to pre-transform on the CPU and only have a matrix uniform to compute
     // local coords, or is it better to always transform on the GPU (less CPU usage, more

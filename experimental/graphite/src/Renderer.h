@@ -67,7 +67,9 @@ public:
 
     // Returns the body of a vertex function, which must define a float4 devPosition variable.
     // It has access to the variables declared by vertexAttributes(), instanceAttributes(),
-    // and uniforms().
+    // and uniforms(). The 'devPosition' variable's z must store the PaintDepth normalized to a
+    // float from [0, 1], for each processed draw although the RenderStep can choose to upload it
+    // as attributes or uniforms.
     //
     // NOTE: The above contract is mainly so that the entire SkSL program can be created by just str
     // concatenating struct definitions generated from the RenderStep and paint Combination

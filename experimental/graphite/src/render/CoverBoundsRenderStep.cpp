@@ -21,15 +21,15 @@ CoverBoundsRenderStep::CoverBoundsRenderStep(bool inverseFill)
                      PrimitiveType::kTriangles,
                      inverseFill ? kInverseCoverPass : kRegularCoverPass,
                      /*vertexAttrs=*/{{"position",
-                                       VertexAttribType::kFloat3,
-                                       SkSLType::kFloat3}},
+                                       VertexAttribType::kFloat4,
+                                       SkSLType::kFloat4}},
                      /*instanceAttrs=*/{})
         , fInverseFill(inverseFill) {}
 
 CoverBoundsRenderStep::~CoverBoundsRenderStep() {}
 
 const char* CoverBoundsRenderStep::vertexSkSL() const {
-    return "     float4 devPosition = float4(position.xy, 0.0, position.z);\n";
+    return "     float4 devPosition = position;\n";
 }
 
 void CoverBoundsRenderStep::writeVertices(DrawWriter* writer, const DrawGeometry& geom) const {
@@ -46,13 +46,14 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer, const DrawGeometry
         geom.transform().mapPoints(geom.shape().bounds(), devPoints);
     }
 
+    float depth = geom.order().depthAsFloat();
     DrawWriter::Vertices verts{*writer};
-    verts.append(6) << devPoints[0].x << devPoints[0].y << devPoints[0].w // TL
-                    << devPoints[3].x << devPoints[3].y << devPoints[3].w // BL
-                    << devPoints[1].x << devPoints[1].y << devPoints[1].w // TR
-                    << devPoints[1].x << devPoints[1].y << devPoints[1].w // TR
-                    << devPoints[3].x << devPoints[3].y << devPoints[3].w // BL
-                    << devPoints[2].x << devPoints[2].y << devPoints[2].w;// BR
+    verts.append(6) << devPoints[0].x << devPoints[0].y << depth << devPoints[0].w // TL
+                    << devPoints[3].x << devPoints[3].y << depth << devPoints[3].w // BL
+                    << devPoints[1].x << devPoints[1].y << depth << devPoints[1].w // TR
+                    << devPoints[1].x << devPoints[1].y << depth << devPoints[1].w // TR
+                    << devPoints[3].x << devPoints[3].y << depth << devPoints[3].w // BL
+                    << devPoints[2].x << devPoints[2].y << depth << devPoints[2].w;// BR
 }
 
 sk_sp<SkUniformData> CoverBoundsRenderStep::writeUniforms(Layout, const DrawGeometry&) const {

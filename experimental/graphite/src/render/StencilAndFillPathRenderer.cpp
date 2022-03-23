@@ -33,7 +33,7 @@ static constexpr DepthStencilSettings kDirectShadingPass = {
         /*backStencil=*/ {},
         /*refValue=*/    0,
         /*stencilTest=*/ false,
-        /*depthCompare=*/CompareOp::kAlways, // TODO: switch to greater
+        /*depthCompare=*/CompareOp::kGreater,
         /*depthTest=*/   true,
         /*depthWrite=*/  true
 };

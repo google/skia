@@ -24,14 +24,14 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(bool evenOdd)
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
                      /*vertexAttrs=*/{{"position",
-                                       VertexAttribType::kFloat3,
-                                       SkSLType::kFloat3}},
+                                       VertexAttribType::kFloat4,
+                                       SkSLType::kFloat4}},
                      /*instanceAttrs=*/{}) {}
 
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}
 
 const char* MiddleOutFanRenderStep::vertexSkSL() const {
-    return "     float4 devPosition = float4(position.xy, 0.0, position.z);\n";
+    return "     float4 devPosition = position;\n";
 }
 
 void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawGeometry& geom) const {
@@ -42,6 +42,8 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawGeometr
     const int maxCombinedFanEdges = MaxCombinedFanEdgesInPaths(path.countVerbs());
     const int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
 
+    float depth = geom.order().depthAsFloat();
+
     DrawWriter::Vertices verts{*writer};
     verts.reserve(maxTrianglesInFans * 3);
     for (PathMiddleOutFanIter it(path); !it.done();) {
@@ -51,9 +53,9 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawGeometr
             SkV4 devPoints[3];
             geom.transform().mapPoints(p, devPoints, 3);
 
-            verts.append(3) << devPoints[0].x << devPoints[0].y << devPoints[0].w  // p0
-                            << devPoints[1].x << devPoints[1].y << devPoints[1].w  // p1
-                            << devPoints[2].x << devPoints[2].y << devPoints[2].w; // p2
+            verts.append(3) << devPoints[0].x << devPoints[0].y << depth << devPoints[0].w  // p0
+                            << devPoints[1].x << devPoints[1].y << depth << devPoints[1].w  // p1
+                            << devPoints[2].x << devPoints[2].y << depth << devPoints[2].w; // p2
         }
     }
 }

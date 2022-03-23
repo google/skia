@@ -137,6 +137,8 @@ public:
     DisjointStencilIndex    stencilIndex() const { return fStencilIndex; }
     PaintersDepth           depth()        const { return fDepth;        }
 
+    float depthAsFloat() const { return fDepth.bits() / (float) PaintersDepth::Last().bits(); }
+
     DrawOrder& dependsOnPaintersOrder(CompressedPaintersOrder prevDraw) {
         // A draw must be ordered after all previous draws that it depends on
         CompressedPaintersOrder next = prevDraw.next();
