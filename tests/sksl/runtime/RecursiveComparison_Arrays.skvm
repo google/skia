@@ -42,7 +42,7 @@
 40	r18 = bit_or r24 r18
 41	r18 = bit_or r19 r18
 42	r18 = bit_and r21 r18
-43	r18 = bit_xor r9 r18
+43	r18 = bit_xor r18 r9
 44	r18 = bit_and r21 r18
 45	r21 = bit_and r13 r18
 46	r19 = bit_and r10 r18
@@ -71,7 +71,7 @@
 69	r20 = bit_and r17 r20
 70	r20 = bit_and r16 r20
 71	r20 = bit_and r22 r20
-72	r20 = bit_xor r9 r20
+72	r20 = bit_xor r20 r9
 73	r20 = bit_and r22 r20
 74	r22 = splat 40000000 (2)
 75	r22 = add_f32 r0 r22
@@ -100,7 +100,7 @@
 98	r23 = bit_and r25 r23
 99	r23 = bit_and r15 r23
 100	r23 = bit_and r24 r23
-101	r23 = bit_xor r9 r23
+101	r23 = bit_xor r23 r9
 102	r23 = bit_and r24 r23
 103	r24 = bit_and r10 r23
 104	r15 = bit_and r8 r23
@@ -127,12 +127,12 @@
 125	r22 = bit_and r14 r22
 126	r22 = bit_and r12 r22
 127	r22 = bit_and r20 r22
-128	r22 = bit_xor r9 r22
-129	r22 = bit_and r20 r22
-130	r4 = select r22 r0 r4
-131	r5 = select r22 r1 r5
-132	r6 = select r22 r2 r6
-133	r7 = select r22 r3 r7
+128	r9 = bit_xor r22 r9
+129	r9 = bit_and r20 r9
+130	r4 = select r9 r0 r4
+131	r5 = select r9 r1 r5
+132	r6 = select r9 r2 r6
+133	r7 = select r9 r3 r7
 loop:
 134	    store32 ptr1 r4
 135	    store32 ptr2 r5

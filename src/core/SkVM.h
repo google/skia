@@ -1008,6 +1008,14 @@ namespace skvm {
             return this->allImm(id, &imm) && imm == want;
         }
 
+        // `canonicalizeIdOrder` and has two rules:
+        // - Immediate values go last; that is, `x + 1` is preferred over `1 + x`.
+        // - If both/neither of x and y are immediate, lower IDs go before higher IDs.
+        // Canonicalizing the IDs helps with opcode deduplication. Putting immediates in a
+        // consistent position makes it easier to detect no-op arithmetic like `x + 0`.
+        template <typename F32_or_I32>
+        void canonicalizeIdOrder(F32_or_I32& x, F32_or_I32& y);
+
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<TraceHook*>                       fTraceHooks;

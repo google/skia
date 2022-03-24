@@ -24,11 +24,11 @@ loop:
 21	    r6 = add_i32 r6 r0
 22	    r6 = shl_i32 r6 2
 23	    r11 = gather32 ptr0 10 r6
-24	    r12 = add_i32 r3 r6
+24	    r12 = add_i32 r6 r3
 25	    r12 = gather32 ptr0 10 r12
-26	    r13 = add_i32 r4 r6
+26	    r13 = add_i32 r6 r4
 27	    r13 = gather32 ptr0 10 r13
-28	    r6 = add_i32 r5 r6
+28	    r6 = add_i32 r6 r5
 29	    r6 = gather32 ptr0 10 r6
 30	    r14 = sub_f32 r2 r7
 31	    r11 = mul_f32 r11 r14

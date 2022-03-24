@@ -10,12 +10,12 @@
 8	r8 = splat 0 (0)
 9	r9 = splat FFFFFFFF (nan)
 10	r10 = trunc r1
-11	r8 = eq_i32 r8 r10
+11	r8 = eq_i32 r10 r8
 12	r11 = bit_and r4 r8
 13	r12 = bit_and r5 r8
 14	r13 = bit_and r6 r8
 15	r14 = bit_and r7 r8
-16	r15 = bit_xor r9 r8
+16	r15 = bit_xor r8 r9
 17	r8 = bit_and r8 r15
 18	r16 = splat 1 (1.4012985e-45)
 19	r16 = eq_i32 r10 r16
@@ -25,12 +25,12 @@
 23	r12 = select r16 r1 r12
 24	r13 = select r16 r2 r13
 25	r14 = select r16 r3 r14
-26	r16 = bit_xor r9 r16
-27	r16 = bit_and r15 r16
-28	r11 = select r16 r4 r11
-29	r12 = select r16 r5 r12
-30	r13 = select r16 r6 r13
-31	r14 = select r16 r7 r14
+26	r9 = bit_xor r16 r9
+27	r9 = bit_and r15 r9
+28	r11 = select r9 r4 r11
+29	r12 = select r9 r5 r12
+30	r13 = select r9 r6 r13
+31	r14 = select r9 r7 r14
 loop:
 32	    store32 ptr1 r11
 33	    store32 ptr2 r12
