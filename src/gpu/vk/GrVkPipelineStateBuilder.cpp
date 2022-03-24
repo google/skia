@@ -189,7 +189,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     SkSL::Program::Settings settings;
     settings.fRTFlipBinding = this->gpu()->vkCaps().getFragmentUniformBinding();
     settings.fRTFlipSet = this->gpu()->vkCaps().getFragmentUniformSet();
-    settings.fSharpenTextures = true;
+    settings.fSharpenTextures =
+                        this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
     settings.fRTFlipOffset = fUniformHandler.getRTFlipOffset();
     settings.fUsePushConstants = usePushConstants;
     if (fFS.fForceHighPrecision) {

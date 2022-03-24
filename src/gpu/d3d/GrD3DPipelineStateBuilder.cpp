@@ -558,7 +558,8 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     this->finalizeShaders();
 
     SkSL::Program::Settings settings;
-    settings.fSharpenTextures = true;
+    settings.fSharpenTextures =
+        this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
     settings.fRTFlipOffset = fUniformHandler.getRTFlipOffset();
     settings.fRTFlipBinding = 0;
     settings.fRTFlipSet = 0;
