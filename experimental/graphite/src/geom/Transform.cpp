@@ -22,19 +22,63 @@ Rect map_rect(const SkM44& m, const Rect& r) {
     return SkMatrixPriv::MapRect(m, r.asSkRect());
 }
 
+Transform::Type get_matrix_info(const SkM44& m, SkM44* inverse, SkV2* scale) {
+    // First compute the inverse.
+    // TODO: Alternatively we could compute type first and have type-specific inverses, but it seems
+    // useful to ensure any non-invalid matrix returns true from SkM44::invert.
+    if (!m.invert(inverse)) {
+        *scale = {1.f, 1.f};
+        return Transform::Type::kInvalid;
+    }
+
+    static constexpr SkV4 kNoPerspective = {0.f, 0.f, 0.f, 1.f};
+    static constexpr SkV4 kNoZ = {0.f, 0.f, 1.f, 0.f};
+    if (m.row(3) != kNoPerspective || m.col(2) != kNoZ || m.row(2) != kNoZ) {
+        // TODO: Use SkMatrixPriv::DifferentialAreaScale, but we need a representative point then.
+        // Or something like lengths of upper 2x2 divided by w?
+        *scale = {1.f, 1.f};
+        return Transform::Type::kProjection;
+    }
+
+    //                                              [sx kx 0 tx]
+    // At this point, we know that m is of the form [ky sy 0 ty]
+    //                                              [0  0  1 0 ]
+    //                                              [0  0  0 1 ]
+    // Other than kIdentity, none of the types depend on (tx, ty). The remaining types are
+    // identified by considering the upper 2x2.
+    float sx = m.rc(0, 0);
+    float sy = m.rc(1, 1);
+    float kx = m.rc(0, 1);
+    float ky = m.rc(1, 0);
+    if (kx == 0.f && ky == 0.f) {
+        // 2x2 is a diagonal matrix
+        *scale = {std::abs(sx), std::abs(sy)};
+        if (sx == 1.f && sy == 1.f && m.rc(0, 3) == 0.f && m.rc(1, 3) == 0.f) {
+            return Transform::Type::kIdentity;
+        } else if (sx > 0.f && sy > 0.f) {
+            return Transform::Type::kSimpleRectStaysRect;
+        } else {
+            // We don't need to worry about sx or sy being 0 here because that would imply the
+            // matrix wasn't invertible and that was already tested.
+            SkASSERT(sx != 0.f && sy != 0.f);
+            return Transform::Type::kRectStaysRect;
+        }
+    } else if (sx == 0.f && sy == 0.f) {
+        // 2x2 is an anti-diagonal matrix and represents a 90 or 270 degree rotation plus optional
+        // scale and translate. Similar to before, kx and ky can't be 0 or m wouldn't be invertible.
+        SkASSERT(kx != 0.f && ky != 0.f);
+        *scale = {std::abs(ky), std::abs(kx)};
+        return Transform::Type::kRectStaysRect;
+    } else {
+        *scale = {SkV2{sx, ky}.length(), SkV2{kx, sy}.length()};
+        return Transform::Type::kAffine;
+    }
+}
+
 } // anonymous namespace
 
-Transform::Transform(const SkM44& m)
-        : fM(m) {
-    if (fM.invert(&fInvM)) {
-        // TODO: actually detect these
-        fType = (fM == SkM44()) ? Type::kIdentity : Type::kPerspective;
-        fScale = {1.f, 1.f};
-    } else {
-        fType = Type::kInvalid;
-        fInvM = SkM44();
-        fScale = {1.f, 1.f};
-    }
+Transform::Transform(const SkM44& m) : fM(m) {
+    fType = get_matrix_info(m, &fInvM, &fScale);
 }
 
 bool Transform::operator==(const Transform& t) const {

@@ -33,9 +33,10 @@ public:
         // The matrix transform may have skew or rotation, so a mapped rect does not fill space,
         // but there is no need to perform perspective division or w-plane clipping.
         kAffine,
-        // The matrix includes perspective, so care must be taken when w is less than or near 0,
-        // and perspective division and interpolation are needed for correct rendering.
-        kPerspective,
+        // The matrix includes perspective or modifies Z and requires further projection to 2D,
+        // so care must be taken when w is less than or near 0, and homogeneous division and
+        // perspective-correct interpolation are needed when rendering.
+        kProjection,
         // The matrix is not invertible or not finite, so should not be used to draw.
         kInvalid,
     };

@@ -437,7 +437,7 @@ void Device::recordDraw(const Transform& localToDevice,
     }
     // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
     // device space so we draw something approximately correct (barring local coord issues).
-    if (localToDevice.type() == Transform::Type::kPerspective) {
+    if (localToDevice.type() == Transform::Type::kProjection) {
         SkPath devicePath = shape.asPath();
         devicePath.transform(localToDevice.matrix().asM33());
         this->recordDraw(kIdentity, Shape(devicePath), clip, ordering, paint, nullptr);
