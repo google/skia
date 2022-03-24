@@ -1163,10 +1163,14 @@ namespace skvm {
     I32 Builder::select(I32 x, I32 y, I32 z) {
         if (y.id == z.id) { return y; }
         if (int X,Y,Z; this->allImm(x.id,&X, y.id,&Y, z.id,&Z)) { return splat(X?Y:Z); }
-        if (this->isImm(x.id,~0)) { return y; }               // true  ? y : z == y
-        if (this->isImm(x.id, 0)) { return z; }               // false ? y : z == z
-        if (this->isImm(y.id, 0)) { return bit_clear(z,x); }  //     x ? 0 : z == ~x&z
-        if (this->isImm(z.id, 0)) { return bit_and  (y,x); }  //     x ? y : 0 ==  x&y
+        if (this->isImm(x.id,~0)) { return y; }                // (true  ? y : z) == y
+        if (this->isImm(x.id, 0)) { return z; }                // (false ? y : z) == z
+        if (this->isImm(y.id, 0)) { return bit_clear(z,x); }   //     (x ? 0 : z) == ~x&z
+        if (this->isImm(z.id, 0)) { return bit_and  (y,x); }   //     (x ? y : 0) ==  x&y
+        if (Val notX = this->holdsBitNot(x.id); notX != NA) {  //    (!x ? y : z) == (x ? z : y)
+            x.id = notX;
+            std::swap(y, z);
+        }
         return {this, this->push(Op::select, x.id, y.id, z.id)};
     }
 

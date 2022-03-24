@@ -1,24 +1,22 @@
-8 registers, 22 instructions:
+7 registers, 20 instructions:
 0	r0 = uniform32 ptr0 4
 1	r1 = uniform32 ptr0 8
 2	r2 = uniform32 ptr0 C
 3	r3 = splat 0 (0)
-4	r4 = splat FFFFFFFF (nan)
-5	r5 = neq_f32 r0 r3
-6	r6 = splat 3F800000 (1)
-7	r6 = bit_and r2 r6
-8	r7 = to_f32 r1
-9	r7 = select r5 r6 r7
-10	r3 = eq_i32 r1 r3
-11	r4 = bit_xor r3 r4
-12	r3 = splat 1 (1.4012985e-45)
-13	r3 = bit_and r2 r3
-14	r0 = trunc r0
-15	r0 = select r4 r3 r0
-16	r0 = to_f32 r0
-17	r0 = mul_f32 r7 r0
+4	r4 = neq_f32 r0 r3
+5	r5 = splat 3F800000 (1)
+6	r5 = bit_and r2 r5
+7	r6 = to_f32 r1
+8	r6 = select r4 r5 r6
+9	r3 = eq_i32 r1 r3
+10	r1 = splat 1 (1.4012985e-45)
+11	r1 = bit_and r2 r1
+12	r0 = trunc r0
+13	r1 = select r3 r0 r1
+14	r1 = to_f32 r1
+15	r1 = mul_f32 r6 r1
 loop:
-18	    store32 ptr1 r0
-19	    store32 ptr2 r0
-20	    store32 ptr3 r0
-21	    store32 ptr4 r0
+16	    store32 ptr1 r1
+17	    store32 ptr2 r1
+18	    store32 ptr3 r1
+19	    store32 ptr4 r1
