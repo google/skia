@@ -136,6 +136,9 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fUTF8IndexForUTF16Index.reset();
         this->fUTF16IndexForUTF8Index.reset();
         this->fRuns.reset();
+        this->fClusters.reset();
+        this->fClustersIndexFromCodeUnit.reset();
+        this->fClustersIndexFromCodeUnit.push_back_n(fText.size() + 1, EMPTY_INDEX);
         if (!this->shapeTextIntoEndlessLine()) {
             this->resetContext();
             // TODO: merge the two next calls - they always come together
@@ -160,17 +163,6 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
             return;
         }
-        fState = kShaped;
-    }
-
-    if (fState < kMarked) {
-        this->fClusters.reset();
-        this->resetShifts();
-        this->fClustersIndexFromCodeUnit.reset();
-        this->fClustersIndexFromCodeUnit.push_back_n(fText.size() + 1, EMPTY_INDEX);
-        this->buildClusterTable();
-        fState = kClusterized;
-        this->spaceGlyphs();
         fState = kMarked;
     }
 
@@ -185,6 +177,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
     if (fState < kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
+        this->resetShifts();
         this->formatLines(fWidth);
         fState = kFormatted;
     }
@@ -337,7 +330,6 @@ Cluster::Cluster(ParagraphImpl* owner,
         , fStart(start)
         , fEnd(end)
         , fWidth(width)
-        , fSpacing(0)
         , fHeight(height)
         , fHalfLetterSpacing(0.0) {
     size_t whiteSpacesBreakLen = 0;
@@ -368,17 +360,13 @@ Cluster::Cluster(ParagraphImpl* owner,
 SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
     SkASSERT(start <= end);
     // clip |= end == size();  // Clip at the end of the run?
-    SkScalar shift = 0;
-    if (fSpaced && end > start) {
-        shift = fShifts[clip ? end - 1 : end] - fShifts[start];
-    }
     auto correction = 0.0f;
     if (end > start && !fJustificationShifts.empty()) {
         // This is not a typo: we are using Point as a pair of SkScalars
         correction = fJustificationShifts[end - 1].fX -
                      fJustificationShifts[start].fY;
     }
-    return posX(end) - posX(start) + shift + correction;
+    return posX(end) - posX(start) + correction;
 }
 
 // Clusters in the order of the input text
@@ -425,52 +413,6 @@ void ParagraphImpl::buildClusterTable() {
     }
     fClustersIndexFromCodeUnit[fText.size()] = fClusters.size();
     fClusters.emplace_back(this, EMPTY_RUN, 0, 0, this->text({fText.size(), fText.size()}), 0, 0);
-}
-
-void ParagraphImpl::spaceGlyphs() {
-
-    // Walk through all the clusters in the direction of shaped text
-    // (we have to walk through the styles in the same order, too)
-    SkScalar shift = 0;
-    for (auto& run : fRuns) {
-
-        // Skip placeholder runs
-        if (run.isPlaceholder()) {
-            continue;
-        }
-
-        bool soFarWhitespacesOnly = true;
-        run.iterateThroughClusters([this, &run, &shift, &soFarWhitespacesOnly](Cluster* cluster) {
-            // Shift the cluster (shift collected from the previous clusters)
-            run.shift(cluster, shift);
-
-            // Synchronize styles (one cluster can be covered by few styles)
-            Block* currentStyle = this->fTextStyles.begin();
-            while (!cluster->startsIn(currentStyle->fRange)) {
-                currentStyle++;
-                SkASSERT(currentStyle != this->fTextStyles.end());
-            }
-
-            SkASSERT(!currentStyle->fStyle.isPlaceholder());
-
-            // Process word spacing
-            if (currentStyle->fStyle.getWordSpacing() != 0) {
-                if (cluster->isWhitespaceBreak() && cluster->isSoftBreak()) {
-                    if (!soFarWhitespacesOnly) {
-                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
-                    }
-                }
-            }
-            // Process letter spacing
-            if (currentStyle->fStyle.getLetterSpacing() != 0) {
-                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
-            }
-
-            if (soFarWhitespacesOnly && !cluster->isWhitespaceBreak()) {
-                soFarWhitespacesOnly = false;
-            }
-        });
-    }
 }
 
 bool ParagraphImpl::shapeTextIntoEndlessLine() {

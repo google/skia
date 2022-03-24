@@ -152,16 +152,10 @@ public:
     SkSpan<const uint32_t> clusterIndexes() const {
         return SkSpan<const uint32_t>(fClusterIndexes.begin(), fClusterIndexes.size());
     }
-    SkSpan<const SkScalar> shifts() const { return SkSpan<const SkScalar>(fShifts.begin(), fShifts.size()); }
 
     void commit();
 
     SkRect getBounds(size_t pos) const { return fBounds[pos]; }
-
-    void resetShifts() {
-        for (auto& r: fShifts) { r = 0; }
-        fSpaced = false;
-    }
 
     void resetJustificationShifts() {
         fJustificationShifts.reset();
@@ -188,19 +182,18 @@ private:
     // These fields are not modified after shaping completes and can safely be
     // shared among copies of the run that are held by different paragraphs.
     struct GlyphData {
-        SkSTArray<128, SkGlyphID, true> glyphs;
-        SkSTArray<128, SkPoint, true> positions;
-        SkSTArray<128, uint32_t, true> clusterIndexes;
-        SkSTArray<128, SkRect, true> bounds;
+        SkSTArray<64, SkGlyphID, true> glyphs;
+        SkSTArray<64, SkPoint, true> positions;
+        SkSTArray<64, uint32_t, true> clusterIndexes;
+        SkSTArray<64, SkRect, true> bounds;
     };
     std::shared_ptr<GlyphData> fGlyphData;
-    SkSTArray<128, SkGlyphID, true>& fGlyphs;
-    SkSTArray<128, SkPoint, true>& fPositions;
-    SkSTArray<128, uint32_t, true>& fClusterIndexes;
-    SkSTArray<128, SkRect, true>& fBounds;
+    SkSTArray<64, SkGlyphID, true>& fGlyphs;
+    SkSTArray<64, SkPoint, true>& fPositions;
+    SkSTArray<64, uint32_t, true>& fClusterIndexes;
+    SkSTArray<64, SkRect, true>& fBounds;
 
-    SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing)
-    SkSTArray<128, SkPoint, true> fJustificationShifts; // For justification (current and prev shifts)
+    SkSTArray<64, SkPoint, true> fJustificationShifts; // For justification (current and prev shifts)
 
     SkFontMetrics fFontMetrics;
     const SkScalar fHeightMultiplier;
@@ -210,7 +203,6 @@ private:
     SkScalar fCorrectDescent;
     SkScalar fCorrectLeading;
 
-    bool fSpaced;
     bool fEllipsis;
     uint8_t fBidiLevel;
 };
@@ -278,7 +270,6 @@ public:
             , fStart(0)
             , fEnd()
             , fWidth()
-            , fSpacing(0)
             , fHeight()
             , fHalfLetterSpacing(0.0) {}
 
@@ -301,9 +292,11 @@ public:
     size_t roundPos(SkScalar s) const;
 
     void space(SkScalar shift, SkScalar space) {
-        fSpacing += space;
         fWidth += shift;
     }
+
+    ParagraphImpl* getOwner() const { return fOwner; }
+    void setOwner(ParagraphImpl* owner) { fOwner = owner; }
 
     bool isWhitespaceBreak() const { return fIsWhiteSpaceBreak; }
     bool isIntraWordBreak() const { return fIsIntraWordBreak; }
@@ -354,7 +347,6 @@ private:
     size_t fStart;
     size_t fEnd;
     SkScalar fWidth;
-    SkScalar fSpacing;
     SkScalar fHeight;
     SkScalar fHalfLetterSpacing;
 

@@ -195,7 +195,6 @@ public:
     bool computeCodeUnitProperties();
 
     void buildClusterTable();
-    void spaceGlyphs();
     bool shapeTextIntoEndlessLine();
     void breakShapedTextIntoLines(SkScalar maxWidth);
     void paintLinesIntoPicture(SkScalar x, SkScalar y);
@@ -217,7 +216,6 @@ public:
     void resetShifts() {
         for (auto& run : fRuns) {
             run.resetJustificationShifts();
-            run.resetShifts();
         }
     }
 
@@ -252,7 +250,7 @@ private:
     SkTArray<Run, false> fRuns;         // kShaped
     SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
     SkTArray<CodeUnitFlags> fCodeUnitProperties;
-    SkTArray<size_t> fClustersIndexFromCodeUnit;
+    SkTArray<size_t, true> fClustersIndexFromCodeUnit;
     std::vector<size_t> fWords;
     std::vector<SkUnicode::BidiRegion> fBidiRegions;
     // These two arrays are used in measuring methods (getRectsForRange, getGlyphPositionAtCoordinate)
