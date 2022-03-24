@@ -7,13 +7,13 @@
 
 #include "experimental/graphite/src/CommandBuffer.h"
 
-#include "experimental/graphite/src/GraphicsPipeline.h"
-#include "src/core/SkTraceEvent.h"
-
 #include "experimental/graphite/src/Buffer.h"
+#include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/Sampler.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/RefCntedCallback.h"
 
 namespace skgpu {
 
@@ -31,6 +31,14 @@ void CommandBuffer::releaseResources() {
 
 void CommandBuffer::trackResource(sk_sp<Resource> resource) {
     fTrackedResources.push_back(std::move(resource));
+}
+
+void CommandBuffer::addFinishedProc(sk_sp<RefCntedCallback> finishedProc) {
+    fFinishedProcs.push_back(std::move(finishedProc));
+}
+
+void CommandBuffer::callFinishedProcs() {
+    fFinishedProcs.reset();
 }
 
 bool CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,

@@ -25,8 +25,8 @@ namespace skgpu {
 static constexpr int kDefaultOutstandingAllocCnt = 8;
 
 Gpu::Gpu(sk_sp<const Caps> caps)
-    : fOutstandingSubmissions(sizeof(OutstandingSubmission), kDefaultOutstandingAllocCnt)
-    , fCaps(std::move(caps)) {
+    : fCaps(std::move(caps))
+    , fOutstandingSubmissions(sizeof(OutstandingSubmission), kDefaultOutstandingAllocCnt) {
     // subclasses create their own subclassed resource provider
 }
 
@@ -58,7 +58,13 @@ bool Gpu::submit(sk_sp<CommandBuffer> commandBuffer) {
     }
 #endif
 
-    return this->onSubmit(std::move(commandBuffer));
+    auto submission = this->onSubmit(std::move(commandBuffer));
+    if (!submission) {
+        return false;
+    }
+
+    new (fOutstandingSubmissions.push_back()) OutstandingSubmission(std::move(submission));
+    return true;
 }
 
 void Gpu::checkForFinishedWork(SyncToCpu sync) {

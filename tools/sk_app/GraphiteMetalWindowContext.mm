@@ -100,7 +100,9 @@ void GraphiteMetalWindowContext::swapBuffers() {
     // This chunk of code should not be in this class but higher up either in Window or
     // WindowContext
     std::unique_ptr<skgpu::Recording> recording = fGraphiteRecorder->snap();
-    fGraphiteContext->insertRecording(std::move(recording));
+    skgpu::InsertRecordingInfo info;
+    info.fRecording = recording.get();
+    fGraphiteContext->insertRecording(info);
     fGraphiteContext->submit(skgpu::SyncToCpu::kNo);
 
     id<CAMetalDrawable> currentDrawable = (id<CAMetalDrawable>)fDrawableHandle;

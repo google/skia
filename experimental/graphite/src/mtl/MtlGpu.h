@@ -35,7 +35,7 @@ public:
 private:
     Gpu(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const Caps>);
 
-    bool onSubmit(sk_sp<skgpu::CommandBuffer>) override;
+    skgpu::Gpu::OutstandingSubmission onSubmit(sk_sp<skgpu::CommandBuffer>) override;
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const skgpu::TextureInfo&) override;
     void onDeleteBackendTexture(BackendTexture&) override;

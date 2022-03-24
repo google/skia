@@ -8,20 +8,26 @@
 #ifndef skgpu_GpuWorkSubmission_DEFINED
 #define skgpu_GpuWorkSubmission_DEFINED
 
+#include "include/core/SkRefCnt.h"
+
 namespace skgpu {
+class CommandBuffer;
 class Gpu;
 
 class GpuWorkSubmission {
 public:
-    virtual ~GpuWorkSubmission() = default;
+    virtual ~GpuWorkSubmission();
 
     virtual bool isFinished() = 0;
     virtual void waitUntilFinished(const Gpu*) = 0;
 
 protected:
-    GpuWorkSubmission() = default;
+    CommandBuffer* commandBuffer() { return fCommandBuffer.get(); }
+
+    GpuWorkSubmission(sk_sp<CommandBuffer> cmdBuffer);
 
 private:
+    sk_sp<CommandBuffer> fCommandBuffer;
 };
 
 } // namespace skgpu

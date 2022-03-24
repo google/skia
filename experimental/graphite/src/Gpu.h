@@ -66,10 +66,9 @@ protected:
     void initCompiler();
 
     using OutstandingSubmission = std::unique_ptr<GpuWorkSubmission>;
-    SkDeque fOutstandingSubmissions;
 
 private:
-    virtual bool onSubmit(sk_sp<CommandBuffer>) = 0;
+    virtual OutstandingSubmission onSubmit(sk_sp<CommandBuffer>) = 0;
 
     virtual BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) = 0;
     virtual void onDeleteBackendTexture(BackendTexture&) = 0;
@@ -78,6 +77,8 @@ private:
     // Compiler used for compiling SkSL into backend shader code. We only want to create the
     // compiler once, as there is significant overhead to the first compile.
     std::unique_ptr<SkSL::Compiler> fCompiler;
+
+    SkDeque fOutstandingSubmissions;
 };
 
 } // namespace skgpu

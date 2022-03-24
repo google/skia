@@ -60,31 +60,29 @@ std::unique_ptr<skgpu::ResourceProvider> Gpu::makeResourceProvider(
 class WorkSubmission final : public skgpu::GpuWorkSubmission {
 public:
     WorkSubmission(sk_sp<CommandBuffer> cmdBuffer)
-        : fCommandBuffer(std::move(cmdBuffer)) {}
+        : GpuWorkSubmission(std::move(cmdBuffer)) {}
     ~WorkSubmission() override {}
 
     bool isFinished() override {
-        return fCommandBuffer->isFinished();
+        return static_cast<CommandBuffer*>(this->commandBuffer())->isFinished();
     }
     void waitUntilFinished(const skgpu::Gpu*) override {
-        return fCommandBuffer->waitUntilFinished();
+        return static_cast<CommandBuffer*>(this->commandBuffer())->waitUntilFinished();
     }
 
 private:
     sk_sp<CommandBuffer> fCommandBuffer;
 };
 
-bool Gpu::onSubmit(sk_sp<skgpu::CommandBuffer> commandBuffer) {
+skgpu::Gpu::OutstandingSubmission Gpu::onSubmit(sk_sp<skgpu::CommandBuffer> commandBuffer) {
     SkASSERT(commandBuffer);
     sk_sp<CommandBuffer>& mtlCmdBuffer = (sk_sp<CommandBuffer>&)(commandBuffer);
     if (!mtlCmdBuffer->commit()) {
-        return false;
+        return nullptr;
     }
 
-    std::unique_ptr<WorkSubmission> submission(new WorkSubmission(mtlCmdBuffer));
-    new (fOutstandingSubmissions.push_back()) OutstandingSubmission(std::move(submission));
-
-    return true;
+    std::unique_ptr<GpuWorkSubmission> submission(new WorkSubmission(mtlCmdBuffer));
+    return submission;
 }
 
 BackendTexture Gpu::onCreateBackendTexture(SkISize dimensions, const skgpu::TextureInfo& info) {

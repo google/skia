@@ -154,9 +154,12 @@ bool ReadPixelsHelper(FlushPendingWorkCallback&& flushPendingWork,
 
     flushPendingWork();
     recorder->priv().add(std::move(task));
+    auto recording = recorder->snap();
 
     // TODO: Can snapping ever fail?
-    context->insertRecording(recorder->snap());
+    skgpu::InsertRecordingInfo info;
+    info.fRecording = recording.get();
+    context->insertRecording(info);
     context->submit(SyncToCpu::kYes);
 
     void* mappedMemory = dstBuffer->map();

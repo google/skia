@@ -22,6 +22,7 @@ namespace skgpu {
 class Buffer;
 class Gpu;
 class GraphicsPipeline;
+class RefCntedCallback;
 class Resource;
 class Sampler;
 class Texture;
@@ -74,6 +75,9 @@ public:
 #endif
 
     void trackResource(sk_sp<Resource> resource);
+
+    void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
+    void callFinishedProcs();
 
     bool beginRenderPass(const RenderPassDesc&,
                          sk_sp<Texture> colorTexture,
@@ -207,6 +211,7 @@ private:
 
     inline static constexpr int kInitialTrackedResourcesCount = 32;
     SkSTArray<kInitialTrackedResourcesCount, sk_sp<Resource>> fTrackedResources;
+    SkTArray<sk_sp<RefCntedCallback>> fFinishedProcs;
 };
 
 } // namespace skgpu

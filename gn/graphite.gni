@@ -52,6 +52,7 @@ skia_graphite_sources = [
   "$_src/GlobalCache.h",
   "$_src/Gpu.cpp",
   "$_src/Gpu.h",
+  "$_src/GpuWorkSubmission.cpp",
   "$_src/GpuWorkSubmission.h",
   "$_src/GraphicsPipeline.cpp",
   "$_src/GraphicsPipeline.h",

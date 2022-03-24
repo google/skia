@@ -10,7 +10,20 @@
 
 #include "include/core/SkTypes.h"
 
+#include <memory>
+
 namespace skgpu {
+
+class Recording;
+
+using GpuFinishedContext = void*;
+using GpuFinishedProc = void (*)(GpuFinishedContext finishedContext);
+
+struct InsertRecordingInfo {
+    Recording* fRecording = nullptr;
+    GpuFinishedContext fFinishedContext = nullptr;
+    GpuFinishedProc fFinishedProc = nullptr;
+};
 
 /**
  * Actually submit work to the GPU and track its completion
