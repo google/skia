@@ -1016,6 +1016,9 @@ namespace skvm {
         template <typename F32_or_I32>
         void canonicalizeIdOrder(F32_or_I32& x, F32_or_I32& y);
 
+        // If the passed in ID is a bit-not, return the value being bit-notted. Otherwise, NA.
+        Val holdsBitNot(Val id);
+
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<TraceHook*>                       fTraceHooks;

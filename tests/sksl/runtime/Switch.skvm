@@ -1,4 +1,4 @@
-17 registers, 36 instructions:
+16 registers, 33 instructions:
 0	r0 = uniform32 ptr0 4
 1	r1 = uniform32 ptr0 8
 2	r2 = uniform32 ptr0 C
@@ -15,24 +15,21 @@
 13	r12 = bit_and r5 r8
 14	r13 = bit_and r6 r8
 15	r14 = bit_and r7 r8
-16	r15 = bit_xor r8 r9
-17	r8 = bit_and r8 r15
-18	r16 = splat 1 (1.4012985e-45)
-19	r16 = eq_i32 r10 r16
-20	r16 = bit_or r8 r16
-21	r16 = bit_and r15 r16
-22	r11 = select r16 r0 r11
-23	r12 = select r16 r1 r12
-24	r13 = select r16 r2 r13
-25	r14 = select r16 r3 r14
-26	r9 = bit_xor r16 r9
-27	r9 = bit_and r15 r9
-28	r11 = select r9 r4 r11
-29	r12 = select r9 r5 r12
-30	r13 = select r9 r6 r13
-31	r14 = select r9 r7 r14
+16	r15 = splat 1 (1.4012985e-45)
+17	r15 = eq_i32 r10 r15
+18	r15 = bit_clear r15 r8
+19	r11 = select r15 r0 r11
+20	r12 = select r15 r1 r12
+21	r13 = select r15 r2 r13
+22	r14 = select r15 r3 r14
+23	r9 = bit_xor r15 r9
+24	r8 = bit_clear r9 r8
+25	r11 = select r8 r4 r11
+26	r12 = select r8 r5 r12
+27	r13 = select r8 r6 r13
+28	r14 = select r8 r7 r14
 loop:
-32	    store32 ptr1 r11
-33	    store32 ptr2 r12
-34	    store32 ptr3 r13
-35	    store32 ptr4 r14
+29	    store32 ptr1 r11
+30	    store32 ptr2 r12
+31	    store32 ptr3 r13
+32	    store32 ptr4 r14
