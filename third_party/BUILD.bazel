@@ -1,6 +1,7 @@
 # https://github.com/bazelbuild/bazel-skylib
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@rules_python//python:defs.bzl", "py_binary")
+load("@py_deps//:requirements.bzl", "requirement")
 
 cc_library(
     name = "skcms",
@@ -2454,6 +2455,12 @@ cc_library(
 py_binary(
     name = "dawn_json_generator",
     srcs = ["externals/dawn/generator/dawn_json_generator.py"],
+    deps = [
+        requirement("jinja2"),
+        # jinja2 has a dep on MarkupSafe. Declaring MarkupSafe here is not necessary, but it makes
+        # the link easier to find than searching the Bazel cache for generated deps.
+        requirement("MarkupSafe"),
+    ],
 )
 
 genrule(

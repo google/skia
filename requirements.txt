@@ -1,0 +1,3 @@
+jinja2==2.11.3 --hash=sha256:03e47ad063331dd6a3f04a43eddca8a966a26ba0c5b7207a9a9e4e08f1b29419
+# https://github.com/pallets/markupsafe/issues/286
+MarkupSafe==2.0.1 --hash=sha256:1f2ade76b9903f39aa442b4aadd2177decb66525062db244b35d71d0ee8599b6
