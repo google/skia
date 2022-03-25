@@ -52,32 +52,37 @@ static int calculate_count(double start, double end, double delta, bool forwards
     return (int)count;
 }
 
-static const char* get_es2_loop_unroll_info(const Statement* loopInitializer,
-                                            const Expression* loopTest,
-                                            const Expression* loopNext,
-                                            const Statement* loopStatement,
-                                            LoopUnrollInfo& loopInfo) {
+struct ErrorInfo {
+    const char* msg;
+    Position pos;
+};
+static ErrorInfo get_es2_loop_unroll_info(Position loopPos,
+                                          const Statement* loopInitializer,
+                                          const Expression* loopTest,
+                                          const Expression* loopNext,
+                                          const Statement* loopStatement,
+                                          LoopUnrollInfo& loopInfo) {
     //
     // init_declaration has the form: type_specifier identifier = constant_expression
     //
     if (!loopInitializer) {
-        return "missing init declaration";
+        return {"missing init declaration", loopPos};
     }
     if (!loopInitializer->is<VarDeclaration>()) {
-        return "invalid init declaration";
+        return {"invalid init declaration", loopInitializer->fPosition};
     }
     const VarDeclaration& initDecl = loopInitializer->as<VarDeclaration>();
     if (!initDecl.baseType().isNumber()) {
-        return "invalid type for loop index";
+        return {"invalid type for loop index", loopInitializer->fPosition};
     }
     if (initDecl.arraySize() != 0) {
-        return "invalid type for loop index";
+        return {"invalid type for loop index", loopInitializer->fPosition};
     }
     if (!initDecl.value()) {
-        return "missing loop index initializer";
+        return {"missing loop index initializer", loopInitializer->fPosition};
     }
     if (!ConstantFolder::GetConstantValue(*initDecl.value(), &loopInfo.fStart)) {
-        return "loop index initializer must be a constant expression";
+        return {"loop index initializer must be a constant expression", loopInitializer->fPosition};
     }
 
     loopInfo.fIndex = &initDecl.var();
@@ -91,14 +96,14 @@ static const char* get_es2_loop_unroll_info(const Statement* loopInitializer,
     // condition has the form: loop_index relational_operator constant_expression
     //
     if (!loopTest) {
-        return "missing condition";
+        return {"missing condition", loopPos};
     }
     if (!loopTest->is<BinaryExpression>()) {
-        return "invalid condition";
+        return {"invalid condition", loopTest->fPosition};
     }
     const BinaryExpression& cond = loopTest->as<BinaryExpression>();
     if (!is_loop_index(cond.left())) {
-        return "expected loop index on left hand side of condition";
+        return {"expected loop index on left hand side of condition", loopTest->fPosition};
     }
     // relational_operator is one of: > >= < <= == or !=
     switch (cond.getOperator().kind()) {
@@ -110,11 +115,11 @@ static const char* get_es2_loop_unroll_info(const Statement* loopInitializer,
         case Token::Kind::TK_NEQ:
             break;
         default:
-            return "invalid relational operator";
+            return {"invalid relational operator", loopTest->fPosition};
     }
     double loopEnd = 0;
     if (!ConstantFolder::GetConstantValue(*cond.right(), &loopEnd)) {
-        return "loop index must be compared with a constant expression";
+        return {"loop index must be compared with a constant expression", loopTest->fPosition};
     }
 
     //
@@ -127,50 +132,51 @@ static const char* get_es2_loop_unroll_info(const Statement* loopInitializer,
     // it's an oversight, so we allow those as well.
     //
     if (!loopNext) {
-        return "missing loop expression";
+        return {"missing loop expression", loopPos};
     }
     switch (loopNext->kind()) {
         case Expression::Kind::kBinary: {
             const BinaryExpression& next = loopNext->as<BinaryExpression>();
             if (!is_loop_index(next.left())) {
-                return "expected loop index in loop expression";
+                return {"expected loop index in loop expression", loopNext->fPosition};
             }
             if (!ConstantFolder::GetConstantValue(*next.right(), &loopInfo.fDelta)) {
-                return "loop index must be modified by a constant expression";
+                return {"loop index must be modified by a constant expression",
+                        loopNext->fPosition};
             }
             switch (next.getOperator().kind()) {
                 case Token::Kind::TK_PLUSEQ:                                      break;
                 case Token::Kind::TK_MINUSEQ: loopInfo.fDelta = -loopInfo.fDelta; break;
                 default:
-                    return "invalid operator in loop expression";
+                    return {"invalid operator in loop expression", loopNext->fPosition};
             }
         } break;
         case Expression::Kind::kPrefix: {
             const PrefixExpression& next = loopNext->as<PrefixExpression>();
             if (!is_loop_index(next.operand())) {
-                return "expected loop index in loop expression";
+                return {"expected loop index in loop expression", loopNext->fPosition};
             }
             switch (next.getOperator().kind()) {
                 case Token::Kind::TK_PLUSPLUS:   loopInfo.fDelta =  1; break;
                 case Token::Kind::TK_MINUSMINUS: loopInfo.fDelta = -1; break;
                 default:
-                    return "invalid operator in loop expression";
+                    return {"invalid operator in loop expression", loopNext->fPosition};
             }
         } break;
         case Expression::Kind::kPostfix: {
             const PostfixExpression& next = loopNext->as<PostfixExpression>();
             if (!is_loop_index(next.operand())) {
-                return "expected loop index in loop expression";
+                return {"expected loop index in loop expression", loopNext->fPosition};
             }
             switch (next.getOperator().kind()) {
                 case Token::Kind::TK_PLUSPLUS:   loopInfo.fDelta =  1; break;
                 case Token::Kind::TK_MINUSMINUS: loopInfo.fDelta = -1; break;
                 default:
-                    return "invalid operator in loop expression";
+                    return {"invalid operator in loop expression", loopNext->fPosition};
             }
         } break;
         default:
-            return "invalid loop expression";
+            return {"invalid loop expression", loopNext->fPosition};
     }
 
     //
@@ -178,7 +184,8 @@ static const char* get_es2_loop_unroll_info(const Statement* loopInitializer,
     // argument to a function 'out' or 'inout' parameter.
     //
     if (Analysis::StatementWritesToVariable(*loopStatement, initDecl.var())) {
-        return "loop index must not be modified within body of the loop";
+        return {"loop index must not be modified within body of the loop",
+                loopStatement->fPosition};
     }
 
     // Finally, compute the iteration count, based on the bounds, and the termination operator.
@@ -236,21 +243,22 @@ static const char* get_es2_loop_unroll_info(const Statement* loopInitializer,
 
     SkASSERT(loopInfo.fCount >= 0);
     if (loopInfo.fCount >= kLoopTerminationLimit) {
-        return "loop must guarantee termination in fewer iterations";
+        return {"loop must guarantee termination in fewer iterations", loopPos};
     }
 
-    return nullptr;  // All checks pass
+    return {nullptr, Position()};  // All checks pass
 }
 
-std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position pos,
+std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
                                                             const Statement* loopInitializer,
                                                             const Expression* loopTest,
                                                             const Expression* loopNext,
                                                             const Statement* loopStatement,
                                                             ErrorReporter* errors) {
     auto result = std::make_unique<LoopUnrollInfo>();
-    if (const char* msg = get_es2_loop_unroll_info(loopInitializer, loopTest, loopNext,
-                                                   loopStatement, *result)) {
+    auto [msg, pos] = get_es2_loop_unroll_info(loopPos, loopInitializer, loopTest, loopNext,
+            loopStatement, *result);
+    if (msg) {
         result = nullptr;
         if (errors) {
             errors->error(pos, msg);
