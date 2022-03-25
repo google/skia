@@ -59,7 +59,7 @@ sk_sp<SkShader> create_gradient_shader(SkRect r) {
 }
 
 sk_sp<SkShader> create_image_shader(const MetaContext& context) {
-    SkImageInfo ii = SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkImageInfo ii = SkImageInfo::Make(128, 128, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkBitmap bitmap;
 
     bitmap.allocPixels(ii);
@@ -67,9 +67,19 @@ sk_sp<SkShader> create_image_shader(const MetaContext& context) {
 
     SkCanvas canvas(bitmap);
 
-    SkPaint redPaint;
-    redPaint.setColor(SK_ColorRED);
-    canvas.drawCircle(50, 50, 50, redPaint);
+    SkColor colors[3][3] = {
+            { SK_ColorRED,    SK_ColorDKGRAY, SK_ColorBLUE },
+            { SK_ColorLTGRAY, SK_ColorCYAN,   SK_ColorYELLOW },
+            { SK_ColorGREEN,  SK_ColorWHITE,  SK_ColorMAGENTA }
+    };
+
+    for (int y = 0; y < 3; ++y) {
+        for (int x = 0; x < 3; ++x) {
+            SkPaint paint;
+            paint.setColor(colors[y][x]);
+            canvas.drawRect(SkRect::MakeXYWH(x*42, y*42, 43, 43), paint);
+        }
+    }
 
     bitmap.setAlphaType(kOpaque_SkAlphaType);
     bitmap.setImmutable();
@@ -157,8 +167,16 @@ protected:
         // UL corner
         {
             SkPaint p;
-            p.setColor(SK_ColorRED);
-            canvas->drawRect({2, 2, 127, 127}, p);
+            p.setShader(create_image_shader(context));
+
+            SkPath path;
+            path.moveTo(1,   1);
+            path.lineTo(64,  127);
+            path.lineTo(127, 1);
+            path.lineTo(63,  63);
+            path.close();
+
+            canvas->drawPath(path, p);
         }
 
         // UR corner
@@ -172,7 +190,7 @@ protected:
         // LL corner
         {
             SkPaint p;
-            p.setShader(create_image_shader(context));
+            p.setColor(SK_ColorRED);
             canvas->drawRect({2, 129, 127, 255}, p);
         }
 

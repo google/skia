@@ -19,6 +19,16 @@
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
 
+// TODO: How to represent the type (e.g., 2D) of texture being sampled?
+class SkTextureAndSampler {
+public:
+    constexpr SkTextureAndSampler(const char* name) : fName(name) {}
+
+    const char* name() const { return fName; }
+
+private:
+    const char* fName;
+};
 
 struct SkShaderSnippet {
     using GenerateGlueCodeForEntry = std::string (*)(const std::string& resultName,
@@ -31,12 +41,14 @@ struct SkShaderSnippet {
     SkShaderSnippet() = default;
 
     SkShaderSnippet(SkSpan<const SkUniform> uniforms,
+                    SkSpan<const SkTextureAndSampler> texturesAndSamplers,
                     const char* functionName,
                     const char* code,
                     GenerateGlueCodeForEntry glueCodeGenerator,
                     int numChildren,
                     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations)
             : fUniforms(uniforms)
+            , fTexturesAndSamplers(texturesAndSamplers)
             , fStaticFunctionName(functionName)
             , fStaticSkSL(code)
             , fGlueCodeGenerator(glueCodeGenerator)
@@ -47,6 +59,7 @@ struct SkShaderSnippet {
     std::string getMangledUniformName(int uniformIndex, int mangleId) const;
 
     SkSpan<const SkUniform> fUniforms;
+    SkSpan<const SkTextureAndSampler> fTexturesAndSamplers;
     const char* fStaticFunctionName = nullptr;
     const char* fStaticSkSL = nullptr;
     GenerateGlueCodeForEntry fGlueCodeGenerator = nullptr;

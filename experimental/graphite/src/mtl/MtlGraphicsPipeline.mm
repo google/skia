@@ -464,6 +464,25 @@ std::string GetMtlUniforms(int bufferID,
     return result;
 }
 
+std::string GetMtlTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockReader>& readers,
+                                      int* binding) {
+
+    std::string result;
+    for (int i = 0; i < (int) readers.size(); ++i) {
+        auto texturesAndSamplers = readers[i].entry()->fTexturesAndSamplers;
+
+        for (int j = 0; j < (int) texturesAndSamplers.size(); ++j) {
+            const SkTextureAndSampler& t = texturesAndSamplers[j];
+            SkSL::String::appendf(&result,
+                                  "layout(binding=%d) uniform sampler2D %s_%d_%d;\n",
+                                  *binding, t.name(), i, j);
+            (*binding)++;
+        }
+    }
+
+    return result;
+}
+
 
 enum ShaderType {
     kVertex_ShaderType = 0,
