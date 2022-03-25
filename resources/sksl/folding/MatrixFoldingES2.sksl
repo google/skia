@@ -188,10 +188,54 @@ bool test_matrix_op_matrix_half() {
     return ok;
 }
 
+bool test_vector_op_matrix_float() {
+    bool ok = true;
+
+    ok = ok && (float2(1, 2) * float2x2(3, 4, 5, 6) == float2(11, 17));
+    ok = ok && (float3(1, 2, 3) * float3x3(-1, 0, 1, 0, 1, 0, 2, 0, 1) == float3(2, 2, 5));
+    ok = ok && (float4(1, 2, 3, 4) * float4x4(1, 0, 3, 0, 0, 2, 0, 0, 1, 0, 2, 1, 0, 2, 0, 1) ==
+                    float4(10, 4, 11, 8));
+    return ok;
+}
+
+bool test_vector_op_matrix_half() {
+    bool ok = true;
+
+    ok = ok && (half2(1, 2) * half2x2(3, 4, 5, 6) == half2(11, 17));
+    ok = ok && (half3(1, 2, 3) * half3x3(-1, 0, 1, 0, 1, 0, 2, 0, 1) == half3(2, 2, 5));
+    ok = ok && (half4(1, 2, 3, 4) * half4x4(1, 0, 3, 0, 0, 2, 0, 0, 1, 0, 2, 1, 0, 2, 0, 1) ==
+                    half4(10, 4, 11, 8));
+    return ok;
+}
+
+bool test_matrix_op_vector_float() {
+    bool ok = true;
+
+    ok = ok && (float2x2(3, 4, 5, 6) * float2(1, 2) == float2(13, 16));
+    ok = ok && (float3x3(-1, 0, 1, 0, 1, 0, 2, 0, 1) * float3(1, 2, 3) == float3(5, 2, 4));
+    ok = ok && (float4x4(1, 0, 3, 0, 0, 2, 0, 0, 1, 0, 2, 1, 0, 2, 0, 1) * float4(1, 2, 3, 4) ==
+                    float4(4, 12, 9, 7));
+    return ok;
+}
+
+bool test_matrix_op_vector_half() {
+    bool ok = true;
+
+    ok = ok && (half2x2(3, 4, 5, 6) * half2(1, 2) == half2(13, 16));
+    ok = ok && (half3x3(-1, 0, 1, 0, 1, 0, 2, 0, 1) * half3(1, 2, 3) == half3(5, 2, 4));
+    ok = ok && (half4x4(1, 0, 3, 0, 0, 2, 0, 0, 1, 0, 2, 1, 0, 2, 0, 1) * half4(1, 2, 3, 4) ==
+                    half4(4, 12, 9, 7));
+    return ok;
+}
+
 half4 main(float2 coords) {
     return (test_eq() &&
             test_matrix_op_scalar_float() &&
             test_matrix_op_scalar_half() &&
             test_matrix_op_matrix_float() &&
-            test_matrix_op_matrix_half()) ? colorGreen : colorRed;
+            test_matrix_op_matrix_half() &&
+            test_vector_op_matrix_float() &&
+            test_vector_op_matrix_half() &&
+            test_matrix_op_vector_float() &&
+            test_matrix_op_vector_half())? colorGreen : colorRed;
 }

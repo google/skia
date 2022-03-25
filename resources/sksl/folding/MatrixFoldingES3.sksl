@@ -88,9 +88,53 @@ bool test_matrix_op_matrix_half() {
     return ok;
 }
 
+bool test_vector_op_matrix_float() {
+    bool ok = true;
+
+    ok = ok && (float2(1, 2) * float4x2(3, 4, 5, 6, 7, 8, 9, 10) == float4(11, 17, 23, 29));
+    ok = ok && (float3(1, 2, 3) * float2x3(-1, 0, 0, 1, 2, 0) == float2(-1, 5));
+    ok = ok && (float4(1, 2, 3, 4) * float3x4(1,0,2, 3,-1,0, 0,1,2, 0,1,0) == float3(19, 3, 5));
+
+    return ok;
+}
+
+bool test_vector_op_matrix_half() {
+    bool ok = true;
+
+    ok = ok && (half2(1, 2) * half4x2(3, 4, 5, 6, 7, 8, 9, 10) == half4(11, 17, 23, 29));
+    ok = ok && (half3(1, 2, 3) * half2x3(-1, 0, 0, 1, 2, 0) == half2(-1, 5));
+    ok = ok && (half4(1, 2, 3, 4) * half3x4(1,0,2, 3,-1,0, 0,1,2, 0,1,0) == half3(19, 3, 5));
+
+    return ok;
+}
+
+bool test_matrix_op_vector_float() {
+    bool ok = true;
+
+    ok = ok && (float2x4(1, 0, 2, 3, -1, 0, 0, 1) * float2(1, 2) == float4(-1, 0, 2, 5));
+    ok = ok && (float3x2(-1, 0, 0, 1, 2, 0) * float3(1, 2, 3) == float2(5, 2));
+    ok = ok && (float4x3(3,4,5,6, 7,8,9,10, 11,12,13,14) * float4(1,2,3,4) == float3(90, 100, 110));
+
+    return ok;
+}
+
+bool test_matrix_op_vector_half() {
+    bool ok = true;
+
+    ok = ok && (half2x4(1, 0, 2, 3, -1, 0, 0, 1) * half2(1, 2) == half4(-1, 0, 2, 5));
+    ok = ok && (half3x2(-1, 0, 0, 1, 2, 0) * half3(1, 2, 3) == half2(5, 2));
+    ok = ok && (half4x3(3,4,5,6, 7,8,9,10, 11,12,13,14) * half4(1,2,3,4) == half3(90, 100, 110));
+
+    return ok;
+}
+
 half4 main(float2 coords) {
     return (test_eq_float() &&
             test_eq_half() &&
             test_matrix_op_matrix_float() &&
-            test_matrix_op_matrix_half()) ? colorGreen : colorRed;
+            test_matrix_op_matrix_half() &&
+            test_vector_op_matrix_float() &&
+            test_vector_op_matrix_half() &&
+            test_matrix_op_vector_float() &&
+            test_matrix_op_vector_half()) ? colorGreen : colorRed;
 }

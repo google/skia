@@ -100,26 +100,15 @@ static std::unique_ptr<Expression> simplify_constant_equality(const Context& con
     return nullptr;
 }
 
-static std::unique_ptr<Expression> simplify_matrix_times_matrix(const Context& context,
-                                                                const Expression& left,
-                                                                const Expression& right) {
-    const Type& leftType = left.type();
-    const Type& rightType = right.type();
-
-    SkASSERT(leftType.isMatrix());
-    SkASSERT(rightType.isMatrix());
-
-    const Type& componentType = leftType.componentType();
-    SkASSERT(componentType.matches(rightType.componentType()));
-
-    const int leftColumns  = leftType.columns(),
-              leftRows     = leftType.rows(),
-              rightColumns = rightType.columns(),
-              rightRows    = rightType.rows(),
-              outColumns   = rightColumns,
-              outRows      = leftRows;
-    SkASSERT(leftColumns == rightRows);
-    const Type& resultType = componentType.toCompound(context, outColumns, outRows);
+static std::unique_ptr<Expression> simplify_matrix_multiplication(const Context& context,
+                                                                  const Expression& left,
+                                                                  const Expression& right,
+                                                                  int leftColumns,
+                                                                  int leftRows,
+                                                                  int rightColumns,
+                                                                  int rightRows) {
+    const Type& componentType = left.type().componentType();
+    SkASSERT(componentType.matches(right.type().componentType()));
 
     // Fetch the left matrix.
     double leftVals[4][4];
@@ -136,6 +125,10 @@ static std::unique_ptr<Expression> simplify_matrix_times_matrix(const Context& c
         }
     }
 
+    SkASSERT(leftColumns == rightRows);
+    int outColumns   = rightColumns,
+        outRows      = leftRows;
+
     ExpressionArray args;
     args.reserve_back(outColumns * outRows);
     for (int c = 0; c < outColumns; ++c) {
@@ -149,7 +142,55 @@ static std::unique_ptr<Expression> simplify_matrix_times_matrix(const Context& c
         }
     }
 
+    if (outColumns == 1) {
+        // Matrix-times-vector conceptually makes a 1-column N-row matrix, but we return vecN.
+        std::swap(outColumns, outRows);
+    }
+
+    const Type& resultType = componentType.toCompound(context, outColumns, outRows);
     return ConstructorCompound::Make(context, left.fPosition, resultType, std::move(args));
+}
+
+static std::unique_ptr<Expression> simplify_matrix_times_matrix(const Context& context,
+                                                                const Expression& left,
+                                                                const Expression& right) {
+    const Type& leftType = left.type();
+    const Type& rightType = right.type();
+
+    SkASSERT(leftType.isMatrix());
+    SkASSERT(rightType.isMatrix());
+
+    return simplify_matrix_multiplication(context, left, right,
+                                          leftType.columns(), leftType.rows(),
+                                          rightType.columns(), rightType.rows());
+}
+
+static std::unique_ptr<Expression> simplify_vector_times_matrix(const Context& context,
+                                                                const Expression& left,
+                                                                const Expression& right) {
+    const Type& leftType = left.type();
+    const Type& rightType = right.type();
+
+    SkASSERT(leftType.isVector());
+    SkASSERT(rightType.isMatrix());
+
+    return simplify_matrix_multiplication(context, left, right,
+                                          /*leftColumns=*/leftType.columns(), /*leftRows=*/1,
+                                          rightType.columns(), rightType.rows());
+}
+
+static std::unique_ptr<Expression> simplify_matrix_times_vector(const Context& context,
+                                                                const Expression& left,
+                                                                const Expression& right) {
+    const Type& leftType = left.type();
+    const Type& rightType = right.type();
+
+    SkASSERT(leftType.isMatrix());
+    SkASSERT(rightType.isVector());
+
+    return simplify_matrix_multiplication(context, left, right,
+                                          leftType.columns(), leftType.rows(),
+                                          /*rightColumns=*/1, /*rightRows=*/rightType.columns());
 }
 
 static std::unique_ptr<Expression> simplify_componentwise(const Context& context,
@@ -589,9 +630,17 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         #undef RESULT
     }
 
-    // Perform matrix * matrix multiplication.
-    if (op.kind() == Token::Kind::TK_STAR && leftType.isMatrix() && rightType.isMatrix()) {
-        return simplify_matrix_times_matrix(context, *left, *right);
+    // Perform matrix multiplication.
+    if (op.kind() == Token::Kind::TK_STAR) {
+        if (leftType.isMatrix() && rightType.isMatrix()) {
+            return simplify_matrix_times_matrix(context, *left, *right);
+        }
+        if (leftType.isVector() && rightType.isMatrix()) {
+            return simplify_vector_times_matrix(context, *left, *right);
+        }
+        if (leftType.isMatrix() && rightType.isVector()) {
+            return simplify_matrix_times_vector(context, *left, *right);
+        }
     }
 
     // Perform constant folding on pairs of vectors/matrices.
