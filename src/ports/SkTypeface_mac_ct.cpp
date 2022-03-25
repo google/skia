@@ -566,8 +566,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
         }
     }
 
-    SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ctFont.get()));
-    if (ctAxes && CFArrayGetCount(ctAxes.get()) > 0) {
+    CFArrayRef ctAxes = this->getVariationAxes();
+    if (ctAxes && CFArrayGetCount(ctAxes) > 0) {
         info->fFlags |= SkAdvancedTypefaceMetrics::kVariable_FontFlag;
     }
 
@@ -787,14 +787,21 @@ bool SkTypeface_Mac::onGlyphMaskNeedsCurrentColor() const {
     return this->fHasColorGlyphs;
 }
 
+CFArrayRef SkTypeface_Mac::getVariationAxes() const {
+    fInitVariationAxes([this]{
+        fVariationAxes.reset(CTFontCopyVariationAxes(fFontRef.get()));
+    });
+    return fVariationAxes.get();
+}
+
 int SkTypeface_Mac::onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
 {
-    SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(fFontRef.get()));
+    CFArrayRef ctAxes = this->getVariationAxes();
     if (!ctAxes) {
         return -1;
     }
-    CFIndex axisCount = CFArrayGetCount(ctAxes.get());
+    CFIndex axisCount = CFArrayGetCount(ctAxes);
     if (!coordinates || coordinateCount < axisCount) {
         return axisCount;
     }
@@ -807,7 +814,7 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
 
     for (int i = 0; i < axisCount; ++i) {
         CFDictionaryRef axisInfoDict;
-        if (!SkCFDynamicCast(CFArrayGetValueAtIndex(ctAxes.get(), i), &axisInfoDict, "Axis")) {
+        if (!SkCFDynamicCast(CFArrayGetValueAtIndex(ctAxes, i), &axisInfoDict, "Axis")) {
             return -1;
         }
 
@@ -1119,15 +1126,15 @@ int SkTypeface_Mac::onCountGlyphs() const {
 }
 
 /** Creates a dictionary suitable for setting the axes on a CTFont. */
-CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, const SkFontArguments& args) {
+CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, CFArrayRef ctAxes,
+                                                 const SkFontArguments& args) {
     OpszVariation opsz;
     constexpr const SkFourByteTag opszTag = SkSetFourByteTag('o','p','s','z');
 
-    SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct));
     if (!ctAxes) {
         return CTFontVariation();
     }
-    CFIndex axisCount = CFArrayGetCount(ctAxes.get());
+    CFIndex axisCount = CFArrayGetCount(ctAxes);
 
     // On 10.12 and later, this only returns non-default variations.
     SkUniqueCFRef<CFDictionaryRef> oldCtVariation(CTFontCopyVariation(ct));
@@ -1142,7 +1149,7 @@ CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, const SkFontArgum
 
     for (int i = 0; i < axisCount; ++i) {
         CFDictionaryRef axisInfoDict;
-        if (!SkCFDynamicCast(CFArrayGetValueAtIndex(ctAxes.get(), i), &axisInfoDict, "Axis")) {
+        if (!SkCFDynamicCast(CFArrayGetValueAtIndex(ctAxes, i), &axisInfoDict, "Axis")) {
             return CTFontVariation();
         }
 
@@ -1224,7 +1231,9 @@ CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, const SkFontArgum
 }
 
 sk_sp<SkTypeface> SkTypeface_Mac::onMakeClone(const SkFontArguments& args) const {
-    CTFontVariation ctVariation = SkCTVariationFromSkFontArguments(fFontRef.get(), args);
+    CTFontVariation ctVariation = SkCTVariationFromSkFontArguments(fFontRef.get(),
+                                                                   this->getVariationAxes(),
+                                                                   args);
 
     SkUniqueCFRef<CTFontRef> ctVariant;
     if (ctVariation.variation) {
@@ -1273,11 +1282,11 @@ sk_sp<SkTypeface> SkTypeface_Mac::onMakeClone(const SkFontArguments& args) const
 int SkTypeface_Mac::onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                                    int parameterCount) const
 {
-    SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(fFontRef.get()));
+    CFArrayRef ctAxes = this->getVariationAxes();
     if (!ctAxes) {
         return -1;
     }
-    CFIndex axisCount = CFArrayGetCount(ctAxes.get());
+    CFIndex axisCount = CFArrayGetCount(ctAxes);
 
     if (!parameters || parameterCount < axisCount) {
         return axisCount;
@@ -1289,7 +1298,7 @@ int SkTypeface_Mac::onGetVariationDesignParameters(SkFontParameters::Variation::
 
     for (int i = 0; i < axisCount; ++i) {
         CFDictionaryRef axisInfoDict;
-        if (!SkCFDynamicCast(CFArrayGetValueAtIndex(ctAxes.get(), i), &axisInfoDict, "Axis")) {
+        if (!SkCFDynamicCast(CFArrayGetValueAtIndex(ctAxes, i), &axisInfoDict, "Axis")) {
             return -1;
         }
 

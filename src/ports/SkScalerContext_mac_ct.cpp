@@ -718,8 +718,8 @@ void SkScalerContext_Mac::generateFontMetrics(SkFontMetrics* metrics) {
     metrics->fFlags |= SkFontMetrics::kUnderlineThicknessIsValid_Flag;
     metrics->fFlags |= SkFontMetrics::kUnderlinePositionIsValid_Flag;
 
-    SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(fCTFont.get()));
-    if (ctAxes && CFArrayGetCount(ctAxes.get()) > 0) {
+    CFArrayRef ctAxes = ((SkTypeface_Mac*)this->getTypeface())->getVariationAxes();
+    if (ctAxes && CFArrayGetCount(ctAxes) > 0) {
         // The bounds are only valid for the default variation.
         metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
     }
