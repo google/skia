@@ -25,3 +25,67 @@ build --flag_alias=enable_effect_serialization=no//bazel/common_config_settings:
 # CanvasKit flags
 build --flag_alias=ck_enable_fonts=//modules/canvaskit:enable_fonts
 build --flag_alias=ck_disable_fonts=no//modules/canvaskit:enable_fonts
+
+# =============================================================================
+# REMOTE BUILD EXECUTION
+# =============================================================================
+
+# =====
+# The following was copied from https://github.com/bazelbuild/bazel-toolchains/blob/ea243d43269df23de03a797cff2347e1fc3d02bb/bazelrc/bazel-4.1.0.bazelrc
+# We should be free to modify this as we see fit.
+# 
+# Depending on how many machines are in the remote execution instance, setting
+# this higher can make builds faster by allowing more jobs to run in parallel.
+# Setting it too high can result in jobs that timeout, however, while waiting
+# for a remote machine to execute them.
+build:remote --jobs=50
+
+# Set several flags related to specifying the platform, toolchain and java
+# properties.
+build:remote --java_runtime_version=rbe_jdk
+build:remote --tool_java_runtime_version=rbe_jdk
+
+build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+# Platform flags:
+# The toolchain container used for execution is defined in the target indicated
+# by "extra_execution_platforms", "host_platform" and "platforms".
+# More about platforms: https://docs.bazel.build/versions/master/platforms.html
+
+# Starting with Bazel 0.27.0 strategies do not need to be explicitly
+# defined. See https://github.com/bazelbuild/bazel/issues/7480
+build:remote --define=EXECUTOR=remote
+
+# Enable remote execution so actions are performed on the remote systems.
+build:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
+
+# Enforce stricter environment rules, which eliminates some non-hermetic
+# behavior and therefore improves both the remote cache hit rate and the
+# correctness and repeatability of the build.
+build:remote --incompatible_strict_action_env=true
+
+# Set a higher timeout value, just in case.
+build:remote --remote_timeout=3600
+
+# Enable authentication. This will pick up application default credentials by
+# default. You can use --google_credentials=some_file.json to use a service
+# account credential instead.
+# See https://developers.google.com/remote-build-execution/docs/authentication
+build:remote --google_default_credentials=true
+
+# End of the copied RBE settings
+#=====
+
+# Use the RBE instance on the skia-rbe GCP project.
+build:remote --remote_instance_name projects/skia-rbe/instances/default_instance
+
+# These settings are specific to compiling on our Linux RBE workers. For example,
+# Use the worker pool as specified by the gce_linux_platform platform in
+# //bazel/rbe/BUILD.bazel.
+build:linux-rbe --config=remote
+# Use our hermetic toolchain instead of the clang in the toolchain.
+build:linux-rbe --crosstool_top=//toolchain:clang_suite
+build:linux-rbe --extra_execution_platforms=//bazel/rbe:gce_linux_platform
+build:linux-rbe --host_platform=//bazel/rbe:gce_linux_platform
+build:linux-rbe --platforms=//bazel/rbe:gce_linux_platform
+build:linux-rbe --extra_toolchains=//bazel/rbe/gce_linux/java:all
+build:linux-rbe --extra_toolchains=//bazel/rbe/gce_linux/config:cc-toolchain

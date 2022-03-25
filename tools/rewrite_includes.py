@@ -22,28 +22,31 @@ parser.add_argument('sources', nargs='*',
 args = parser.parse_args()
 
 roots = [
-    'bench',
-    'dm',
-    'docs',
-    'example',
-    'experimental',
-    'fuzz',
-    'gm',
-    'include',
-    'modules',
-    'platform_tools/android/apps',
-    'samplecode',
-    'src',
-    'tests',
-    'third_party/etc1',
-    'third_party/gif',
-    'tools'
-  ]
+  'bench',
+  'dm',
+  'docs',
+  'example',
+  'experimental',
+  'fuzz',
+  'gm',
+  'include',
+  'modules',
+  'platform_tools/android/apps',
+  'samplecode',
+  'src',
+  'tests',
+  'third_party/etc1',
+  'third_party/gif',
+  'tools'
+]
 
-# Don't count our local Vulkan headers as Skia headers;
-# we don't want #include <vulkan/vulkan_foo.h> rewritten to point to them.
-# Nor do we care about things in node_modules, used by *Kits.
-ignorelist = ['include/third_party/vulkan', 'node_modules']
+ignorelist = [
+  # Don't count our local Vulkan headers as Skia headers;
+  # we don't want #include <vulkan/vulkan_foo.h> rewritten to point to them.
+  'include/third_party/vulkan',
+  # Some node_modules/ files (used by CanvasKit et al) have c++ code which we should ignore.
+  'node_modules',
+]
 
 assert '/' in [os.sep, os.altsep]
 def fix_path(p):
@@ -77,7 +80,8 @@ need_rewriting = []
 for file_path in to_rewrite():
   if ('/generated/' in file_path or
       'tests/sksl/' in file_path or
-      'third_party/skcms' in file_path):
+      'third_party/skcms' in file_path or
+      file_path.startswith('bazel/rbe')):
     continue
   if (file_path.endswith('.h') or
       file_path.endswith('.c') or

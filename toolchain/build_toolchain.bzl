@@ -106,6 +106,36 @@ debs_to_install = [
         "sha256": "9fd6932a7609e89364f7edc5f9613892c98c21c88a3931e51cf1a0f8744759bd",
         "url": "https://ftp.debian.org/debian/pool/main/i/iwyu/iwyu_8.17-1_amd64.deb",
     },
+    {
+        # This is a requirement of iwyu
+        # https://packages.debian.org/sid/amd64/libclang-cpp13/download
+        "sha256": "c6e2471de8f3ec06e40c8e006e06bbd251dd0c8000dee820a4b6dca3d3290c0d",
+        "url": "https://ftp.debian.org/debian/pool/main/l/llvm-toolchain-13/libclang-cpp13_13.0.1-3+b1_amd64.deb",
+    },
+    {
+        # This is a requirement of libclang-cpp13
+        # https://packages.debian.org/sid/amd64/libstdc++6/download
+        "sha256": "f37e5954423955938c5309a8d0e475f7e84e92b56b8301487fb885192dee8085",
+        "url": "https://ftp.debian.org/debian/pool/main/g/gcc-12/libstdc++6_12-20220319-1_amd64.deb",
+    },
+    {
+        # This is a requirement of iwyu
+        # https://packages.debian.org/sid/amd64/libllvm13/download
+        "sha256": "49f29a6c9fbc3097077931529e7fe1c032b1d04a984d971aa1e6990a5133556e",
+        "url": "https://ftp.debian.org/debian/pool/main/l/llvm-toolchain-13/libllvm13_13.0.1-3+b1_amd64.deb",
+    },
+    {
+        # This is a requirement of libllvm13
+        # https://packages.debian.org/sid/amd64/libffi8/download
+        "sha256": "87c55b36951aed18ef2c357683e15c365713bda6090f15386998b57df433b387",
+        "url": "https://ftp.debian.org/debian/pool/main/libf/libffi/libffi8_3.4.2-4_amd64.deb",
+    },
+    {
+        # This is a requirement of libllvm13
+        # https://packages.debian.org/sid/libz3-4
+        "sha256": "b415b863678625dee3f3c75bd48b1b9e3b6e11279ebec337904d7f09630d107f",
+        "url": "https://ftp.debian.org/debian/pool/main/z/z3/libz3-4_4.8.12-1+b1_amd64.deb",
+    },
 ]
 
 def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):

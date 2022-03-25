@@ -4,6 +4,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+export LD_LIBRARY_PATH="external/clang_linux_amd64/usr/lib/x86_64-linux-gnu:external/clang_linux_amd64/usr/lib/llvm-13/lib"
+
 # If compilation fails, we want to exit right away
 set -e
 # We only want to run include-what-you-use if SKIA_ENFORCE_IWYU_FOR_THIS_FILE is in the arguments

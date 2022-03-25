@@ -1,0 +1,18 @@
+# https://github.com/bazelbuild/bazel-toolchains/blob/master/rules/exec_properties/exec_properties.bzl
+load("@bazel_toolchains//rules/exec_properties:exec_properties.bzl", "create_rbe_exec_properties_dict")
+
+# https://bazel.build/docs/platforms
+platform(
+    name = "gce_linux_platform",
+    constraint_values = [
+        "@bazel_tools//platforms:linux",
+        "@bazel_tools//platforms:x86_64",
+        "@bazel_tools//tools/cpp:clang",
+    ],
+    exec_properties = create_rbe_exec_properties_dict(
+        container_image = "docker://gcr.io/skia-public/rbe_linux@sha256:4f7ea556fbf46f65f0c6a2d65144bbcb1139acc78ef19be4bd4b04dcfa623f18",
+        os_family = "Linux",
+        pool = "gce_linux",
+    ),
+    parents = ["@local_config_platform//:host"],
+)

@@ -2454,7 +2454,10 @@ cc_library(
 
 py_binary(
     name = "dawn_json_generator",
-    srcs = ["externals/dawn/generator/dawn_json_generator.py"],
+    srcs = [
+        "externals/dawn/generator/dawn_json_generator.py",
+        "externals/dawn/generator/generator_lib.py",
+    ],
     deps = [
         requirement("jinja2"),
         # jinja2 has a dep on MarkupSafe. Declaring MarkupSafe here is not necessary, but it makes

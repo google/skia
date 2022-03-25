@@ -10,6 +10,7 @@ cc_toolchain_suite(
         # The key is target_cpu|compiler
         "k8|clang": ":clang_toolchain",
         "x86_64|clang": ":clang_toolchain",
+        "k8": ":clang_toolchain",
     },
 )
 
