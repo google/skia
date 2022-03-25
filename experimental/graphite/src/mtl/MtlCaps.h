@@ -8,9 +8,11 @@
 #ifndef skgpu_MtlCaps_DEFINED
 #define skgpu_MtlCaps_DEFINED
 
-#include "experimental/graphite/src/Caps.h"
+#include <vector>
 
 #import <Metal/Metal.h>
+
+#include "experimental/graphite/src/Caps.h"
 
 namespace skgpu::mtl {
 
@@ -69,8 +71,49 @@ private:
     bool onIsTexturable(const skgpu::TextureInfo&) const override;
     bool isTexturable(MTLPixelFormat) const;
     bool isRenderable(MTLPixelFormat, uint32_t numSamples) const;
+    uint32_t maxRenderTargetSampleCount(MTLPixelFormat) const;
 
     size_t getTransferBufferAlignment(size_t bytesPerPixel) const override;
+
+    struct FormatInfo {
+        uint32_t colorTypeFlags(SkColorType colorType) const {
+            for (int i = 0; i < fColorTypeInfoCount; ++i) {
+                if (fColorTypeInfos[i].fColorType == colorType) {
+                    return fColorTypeInfos[i].fFlags;
+                }
+            }
+            return 0;
+        }
+
+        enum {
+            kTexturable_Flag  = 0x1,
+            kRenderable_Flag  = 0x2, // Color attachment and blendable
+            kMSAA_Flag        = 0x4,
+            kResolve_Flag     = 0x8,
+        };
+        static const uint16_t kAllFlags = kTexturable_Flag | kRenderable_Flag |
+                                          kMSAA_Flag | kResolve_Flag;
+
+        uint16_t fFlags = 0;
+
+        std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
+        int fColorTypeInfoCount = 0;
+    };
+    inline static constexpr size_t kNumMtlFormats = 8;
+
+    static size_t GetFormatIndex(MTLPixelFormat);
+    FormatInfo fFormatTable[kNumMtlFormats];
+
+    const FormatInfo& getFormatInfo(const MTLPixelFormat pixelFormat) const {
+        size_t index = GetFormatIndex(pixelFormat);
+        return fFormatTable[index];
+    }
+
+    MTLPixelFormat fColorTypeToFormatTable[kSkColorTypeCnt];
+    void setColorType(SkColorType, std::initializer_list<MTLPixelFormat> formats);
+
+    // A vector of the viable sample counts (e.g., { 1, 2, 4, 8 }).
+    std::vector<uint32_t> fColorSampleCounts;
 
     GPUFamily fGPUFamily;
     int fFamilyGroup;

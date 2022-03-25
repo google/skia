@@ -42,8 +42,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(MtlBackendTextureTest, reporter, context) {
     REPORTER_ASSERT(reporter, beTexture.isValid());
     context->deleteBackendTexture(beTexture);
 
-    // It should fail with a format that isn't rgba8
-    textureInfo.fFormat = MTLPixelFormatR8Unorm;
+    // It should fail with a format that isn't one of our supported formats
+    textureInfo.fFormat = MTLPixelFormatRGB9E5Float;
     beTexture = context->createBackendTexture(kSize, textureInfo);
     REPORTER_ASSERT(reporter, !beTexture.isValid());
     context->deleteBackendTexture(beTexture);
