@@ -465,7 +465,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     return drawPass;
 }
 
-void DrawPass::addCommands(ResourceProvider* resourceProvider,
+bool DrawPass::addCommands(ResourceProvider* resourceProvider,
                            CommandBuffer* buffer,
                            const RenderPassDesc& renderPassDesc) const {
     // TODO: Validate RenderPass state against DrawPass's target and requirements?
@@ -500,12 +500,14 @@ void DrawPass::addCommands(ResourceProvider* resourceProvider,
 
                 for (int i = 0; i < d.fTextureBlock->numTextures(); ++i) {
                     const auto &texture = d.fTextureBlock->texture(i);
+                    if (!texture.fProxy->texture()) {
+                        return false;
+                    }
 
                     sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(
                             texture.fSamplingOptions, texture.fTileModes[0], texture.fTileModes[1]);
-
-                    SkASSERT(texture.fProxy->texture());
                     SkASSERT(sampler);
+
                     buffer->bindTextureAndSampler(texture.fProxy->refTexture(),
                                                   std::move(sampler),
                                                   i);
@@ -542,6 +544,8 @@ void DrawPass::addCommands(ResourceProvider* resourceProvider,
             }
         }
     }
+
+    return true;
 }
 
 } // namespace skgpu

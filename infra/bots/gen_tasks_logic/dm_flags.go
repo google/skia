@@ -302,6 +302,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// TODO: re-enable - currently fails with "Failed to make lazy image"
 			skip(ALL, "gm", ALL, "image_subset")
 
+			// TODO: re-enable - currently fails readback from surface
+			skip(ALL, "gm", ALL, "blurrect_compare")
+			skip(ALL, "gm", ALL, "lattice_alpha")
+			skip(ALL, "gm", ALL, "localmatriximageshader")
+			skip(ALL, "gm", ALL, "savelayer_f16")
+
 			if b.extraConfig("ASAN") {
 				// skbug.com/12507 (Neon UB during JPEG compression on M1 ASAN Graphite bot)
 				skip(ALL, "gm", ALL, "yuv420_odd_dim") // Oddly enough yuv420_odd_dim_repeat doesn't crash

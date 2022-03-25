@@ -317,9 +317,11 @@ struct GraphiteTarget : public Target {
     void endTiming() override {
         if (context && recorder) {
             std::unique_ptr<skgpu::Recording> recording = this->recorder->snap();
-            skgpu::InsertRecordingInfo info;
-            info.fRecording = recording.get();
-            this->context->insertRecording(info);
+            if (recording) {
+                skgpu::InsertRecordingInfo info;
+                info.fRecording = recording.get();
+                this->context->insertRecording(info);
+            }
             context->submit(skgpu::SyncToCpu::kNo);
         }
     }
@@ -328,9 +330,11 @@ struct GraphiteTarget : public Target {
             // TODO: have a way to sync work with out submitting a Recording which is currently
             // required.
             std::unique_ptr<skgpu::Recording> recording = this->recorder->snap();
-            skgpu::InsertRecordingInfo info;
-            info.fRecording = recording.get();
-            this->context->insertRecording(info);
+            if (recording) {
+                skgpu::InsertRecordingInfo info;
+                info.fRecording = recording.get();
+                this->context->insertRecording(info);
+            }
             this->context->submit(skgpu::SyncToCpu::kYes);
         }
     }

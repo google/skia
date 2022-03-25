@@ -39,12 +39,13 @@ CopyTextureToBufferTask::CopyTextureToBufferTask(sk_sp<Texture> texture,
 
 CopyTextureToBufferTask::~CopyTextureToBufferTask() {}
 
-void CopyTextureToBufferTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
+bool CopyTextureToBufferTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
     commandBuffer->copyTextureToBuffer(std::move(fTexture),
                                        fSrcRect,
                                        std::move(fBuffer),
                                        fBufferOffset,
                                        fBufferRowBytes);
+    return true;
 }
 
 } // namespace skgpu

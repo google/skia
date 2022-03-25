@@ -16,10 +16,14 @@ void TaskGraph::add(sk_sp<Task> task) {
     fTasks.emplace_back(std::move(task));
 }
 
-void TaskGraph::addCommands(ResourceProvider* resourceProvider, CommandBuffer* commandBuffer) {
+bool TaskGraph::addCommands(ResourceProvider* resourceProvider, CommandBuffer* commandBuffer) {
     for (const auto& task: fTasks) {
-        task->addCommands(resourceProvider, commandBuffer);
+        if (!task->addCommands(resourceProvider, commandBuffer)) {
+            return false;
+        }
     }
+
+    return true;
 }
 
 void TaskGraph::reset() {

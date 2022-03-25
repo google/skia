@@ -79,7 +79,8 @@ public:
 
     // Transform this DrawPass into commands issued to the CommandBuffer. Assumes that the buffer
     // has already begun a correctly configured render pass matching this pass's target.
-    void addCommands(ResourceProvider*, CommandBuffer*, const RenderPassDesc&) const;
+    // Returns true on success; false on failure
+    bool addCommands(ResourceProvider*, CommandBuffer*, const RenderPassDesc&) const;
 
 private:
     class SortKey;

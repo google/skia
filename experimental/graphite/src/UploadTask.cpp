@@ -201,11 +201,13 @@ UploadTask::UploadTask(const UploadInstance& instance) {
 
 UploadTask::~UploadTask() {}
 
-void UploadTask::addCommands(ResourceProvider* resourceProvider,
+bool UploadTask::addCommands(ResourceProvider* resourceProvider,
                              CommandBuffer* commandBuffer) {
     for (unsigned int i = 0; i < fInstances.size(); ++i) {
         fInstances[i].addCommand(resourceProvider, commandBuffer);
     }
+
+    return true;
 }
 
 } // namespace skgpu

@@ -21,7 +21,9 @@ public:
     ~TaskGraph();
 
     void add(sk_sp<Task>);
-    void addCommands(ResourceProvider*, CommandBuffer*);
+
+    // Returns true on success; false on failure
+    bool addCommands(ResourceProvider*, CommandBuffer*);
     void reset();
 
 protected:
