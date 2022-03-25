@@ -1708,11 +1708,12 @@ DSLExpression DSLParser::swizzle(Position pos, DSLExpression base,
         }
     }
     switch (length) {
-        case 1: return dsl::Swizzle(std::move(base), components[0]);
-        case 2: return dsl::Swizzle(std::move(base), components[0], components[1]);
-        case 3: return dsl::Swizzle(std::move(base), components[0], components[1], components[2]);
+        case 1: return dsl::Swizzle(std::move(base), components[0], pos);
+        case 2: return dsl::Swizzle(std::move(base), components[0], components[1], pos);
+        case 3: return dsl::Swizzle(std::move(base), components[0], components[1], components[2],
+                                    pos);
         case 4: return dsl::Swizzle(std::move(base), components[0], components[1], components[2],
-                                    components[3]);
+                                    components[3], pos);
         default: SkUNREACHABLE;
     }
 }

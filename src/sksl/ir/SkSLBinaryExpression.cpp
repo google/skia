@@ -45,8 +45,9 @@ static std::unique_ptr<Expression> rewrite_matrix_vector_multiply(const Context&
         std::unique_ptr<Expression> matN = IndexExpression::Make(
                 context, left.clone(), Literal::MakeInt(context, left.fPosition, n));
         // Get vec[N] with a swizzle expression.
-        std::unique_ptr<Expression> vecN = Swizzle::Make(
-                context, right.clone(), ComponentArray{(SkSL::SwizzleComponent::Type)n});
+        std::unique_ptr<Expression> vecN = Swizzle::Make(context,
+                left.fPosition.rangeThrough(right.fPosition), right.clone(),
+                ComponentArray{(SkSL::SwizzleComponent::Type)n});
         // Multiply them together.
         const Type* matNType = &matN->type();
         std::unique_ptr<Expression> product =

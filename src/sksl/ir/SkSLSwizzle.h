@@ -22,9 +22,9 @@ namespace SkSL {
 struct Swizzle final : public Expression {
     inline static constexpr Kind kExpressionKind = Kind::kSwizzle;
 
-    Swizzle(const Context& context, std::unique_ptr<Expression> base,
+    Swizzle(const Context& context, Position pos, std::unique_ptr<Expression> base,
             const ComponentArray& components)
-            : INHERITED(base->fPosition, kExpressionKind,
+            : INHERITED(pos, kExpressionKind,
                         &base->type().componentType().toCompound(context, components.size(), 1))
             , fBase(std::move(base))
             , fComponents(components) {
@@ -35,16 +35,19 @@ struct Swizzle final : public Expression {
     // errors via ErrorReporter, and returns an expression that combines constructors and native
     // swizzles (comprised solely of X/Y/W/Z).
     static std::unique_ptr<Expression> Convert(const Context& context,
+                                               Position pos,
                                                std::unique_ptr<Expression> base,
                                                ComponentArray inComponents);
 
     static std::unique_ptr<Expression> Convert(const Context& context,
+                                               Position pos,
                                                std::unique_ptr<Expression> base,
                                                std::string_view maskString);
 
     // Swizzle::Make does not permit ZERO or ONE in the component array, just X/Y/Z/W; errors are
     // reported via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
+                                            Position pos,
                                             std::unique_ptr<Expression> expr,
                                             ComponentArray inComponents);
 
@@ -65,8 +68,8 @@ struct Swizzle final : public Expression {
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new Swizzle(&this->type(), this->base()->clone(),
-                                                       this->components()));
+        return std::unique_ptr<Expression>(new Swizzle(fPosition, &this->type(),
+                this->base()->clone(), this->components()));
     }
 
     std::string description() const override {
@@ -78,8 +81,9 @@ struct Swizzle final : public Expression {
     }
 
 private:
-    Swizzle(const Type* type, std::unique_ptr<Expression> base, const ComponentArray& components)
-        : INHERITED(base->fPosition, kExpressionKind, type)
+    Swizzle(Position pos, const Type* type, std::unique_ptr<Expression> base,
+            const ComponentArray& components)
+        : INHERITED(pos, kExpressionKind, type)
         , fBase(std::move(base))
         , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);

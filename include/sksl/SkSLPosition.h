@@ -31,6 +31,7 @@ public:
     }
 
     static Position Range(int startOffset, int endOffset) {
+        SkASSERT(startOffset <= endOffset);
         Position result;
         result.fStartOffsetOrLine = startOffset;
         result.fEndOffset = endOffset;
@@ -57,6 +58,15 @@ public:
     int endOffset() const {
         SkASSERT(fEndOffset != -1);
         return fEndOffset;
+    }
+
+    // Returns the position from this through, and including the entirety of, end.
+    Position rangeThrough(Position end) const {
+        if (fEndOffset == -1 || end.fEndOffset == -1) {
+            return *this;
+        }
+        SkASSERT(this->startOffset() <= end.startOffset() && this->endOffset() <= end.endOffset());
+        return Range(this->startOffset(), end.endOffset());
     }
 
     bool operator==(const Position& other) const {

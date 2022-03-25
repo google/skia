@@ -495,6 +495,7 @@ ExpressionArray Rehydrator::expressionArray() {
 }
 
 std::unique_ptr<Expression> Rehydrator::expression() {
+    Position pos;
     int kind = this->readU8();
     switch (kind) {
         case Rehydrator::kBinary_Command: {
@@ -505,63 +506,55 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         }
         case Rehydrator::kBoolLiteral_Command: {
             bool value = this->readU8();
-            return Literal::MakeBool(this->context(), Position(), value);
+            return Literal::MakeBool(this->context(), pos, value);
         }
         case Rehydrator::kConstructorArray_Command: {
             const Type* type = this->type();
-            return ConstructorArray::Make(this->context(), Position(), *type,
-                    this->expressionArray());
+            return ConstructorArray::Make(this->context(), pos, *type, this->expressionArray());
         }
         case Rehydrator::kConstructorArrayCast_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorArrayCast::Make(this->context(), Position(), *type,
-                                              std::move(args[0]));
+            return ConstructorArrayCast::Make(this->context(), pos, *type, std::move(args[0]));
         }
         case Rehydrator::kConstructorCompound_Command: {
             const Type* type = this->type();
-            return ConstructorCompound::Make(this->context(), Position(), *type,
-                                             this->expressionArray());
+            return ConstructorCompound::Make(this->context(), pos, *type, this->expressionArray());
         }
         case Rehydrator::kConstructorDiagonalMatrix_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorDiagonalMatrix::Make(this->context(), Position(), *type,
-                                                   std::move(args[0]));
+            return ConstructorDiagonalMatrix::Make(this->context(), pos, *type, std::move(args[0]));
         }
         case Rehydrator::kConstructorMatrixResize_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorMatrixResize::Make(this->context(), Position(), *type,
-                                                 std::move(args[0]));
+            return ConstructorMatrixResize::Make(this->context(), pos, *type, std::move(args[0]));
         }
         case Rehydrator::kConstructorScalarCast_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorScalarCast::Make(this->context(), Position(), *type,
-                    std::move(args[0]));
+            return ConstructorScalarCast::Make(this->context(), pos, *type, std::move(args[0]));
         }
         case Rehydrator::kConstructorSplat_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorSplat::Make(this->context(), Position(), *type, std::move(args[0]));
+            return ConstructorSplat::Make(this->context(), pos, *type, std::move(args[0]));
         }
         case Rehydrator::kConstructorStruct_Command: {
             const Type* type = this->type();
-            return ConstructorStruct::Make(this->context(), Position(), *type,
-                    this->expressionArray());
+            return ConstructorStruct::Make(this->context(), pos, *type, this->expressionArray());
         }
         case Rehydrator::kConstructorCompoundCast_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorCompoundCast::Make(this->context(), Position(), *type,
-                    std::move(args[0]));
+            return ConstructorCompoundCast::Make(this->context(), pos, *type, std::move(args[0]));
         }
         case Rehydrator::kFieldAccess_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -574,7 +567,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             int32_t floatBits = this->readS32();
             float value;
             memcpy(&value, &floatBits, sizeof(value));
-            return Literal::MakeFloat(Position(), value, type);
+            return Literal::MakeFloat(pos, value, type);
         }
         case Rehydrator::kFunctionCall_Command: {
             const Type* type = this->type();
@@ -592,7 +585,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
                 SkASSERT(false);
                 return nullptr;
             }
-            return FunctionCall::Make(this->context(), Position(), type, *f, std::move(args));
+            return FunctionCall::Make(this->context(), pos, type, *f, std::move(args));
         }
         case Rehydrator::kIndex_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -603,10 +596,10 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             const Type* type = this->type();
             if (type->isUnsigned()) {
                 unsigned int value = this->readU32();
-                return Literal::MakeInt(Position(), value, type);
+                return Literal::MakeInt(pos, value, type);
             } else {
                 int value = this->readS32();
-                return Literal::MakeInt(Position(), value, type);
+                return Literal::MakeInt(pos, value, type);
             }
         }
         case Rehydrator::kPostfix_Command: {
@@ -630,7 +623,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < count; ++i) {
                 components.push_back(this->readU8());
             }
-            return Swizzle::Make(this->context(), std::move(base), components);
+            return Swizzle::Make(this->context(), pos, std::move(base), components);
         }
         case Rehydrator::kTernary_Command: {
             std::unique_ptr<Expression> test = this->expression();

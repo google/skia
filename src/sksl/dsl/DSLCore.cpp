@@ -314,7 +314,7 @@ public:
 
     static DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a,
                                  Position pos) {
-        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), base.release(),
+        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), pos, base.release(),
                                               ComponentArray{a}),
                              pos);
     }
@@ -323,7 +323,7 @@ public:
                                  SkSL::SwizzleComponent::Type a,
                                  SkSL::SwizzleComponent::Type b,
                                  Position pos) {
-        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), base.release(),
+        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), pos, base.release(),
                                               ComponentArray{a, b}),
                              pos);
     }
@@ -333,7 +333,7 @@ public:
                                  SkSL::SwizzleComponent::Type b,
                                  SkSL::SwizzleComponent::Type c,
                                  Position pos) {
-        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), base.release(),
+        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), pos, base.release(),
                                               ComponentArray{a, b, c}),
                              pos);
     }
@@ -344,7 +344,7 @@ public:
                                  SkSL::SwizzleComponent::Type c,
                                  SkSL::SwizzleComponent::Type d,
                                  Position pos) {
-        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), base.release(),
+        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), pos, base.release(),
                                               ComponentArray{a,b,c,d}),
                              pos);
     }
