@@ -150,7 +150,7 @@ generated_cc_atom(
         "//include/private:SkTArray_hdr",
         "//include/private:SkTHash_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
-        "//include/sksl:SkSLPosition_hdr",
+        "//src/sksl/analysis:SkSLNoOpErrorReporter_hdr",
         "//src/sksl/analysis:SkSLProgramVisitor_hdr",
         "//src/sksl/ir:SkSLBinaryExpression_hdr",
         "//src/sksl/ir:SkSLBlock_hdr",

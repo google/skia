@@ -54,6 +54,8 @@ class Expression;
 class IRNode;
 class OutputStream;
 class SymbolTable;
+class Variable;
+
 struct ShaderCaps;
 
 struct LoadedModule {

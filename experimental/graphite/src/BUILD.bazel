@@ -43,6 +43,7 @@ generated_cc_atom(
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkRefCnt_hdr",
         "//src/gpu:ResourceKey_hdr",
+        "//src/gpu:Swizzle_hdr",
     ],
 )
 

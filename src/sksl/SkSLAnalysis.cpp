@@ -18,7 +18,6 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "include/sksl/SkSLErrorReporter.h"
-#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
@@ -57,7 +56,6 @@
 
 #include <optional>
 #include <string>
-#include <string_view>
 
 namespace SkSL {
 
