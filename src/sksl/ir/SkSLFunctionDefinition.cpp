@@ -136,7 +136,6 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                         this->copyBuiltinFunctionIfNeeded(func);
                     }
                 }
-
             }
             return INHERITED::visitExpression(expr);
         }

@@ -8,7 +8,6 @@ struct Outputs {
 };
 struct T {
     int x;
-    float2 u_skRTFlip;
 };
 struct Globals {
     constant T* _anonInterface0;

@@ -479,6 +479,19 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     return DSLParser(this, settings, kind, std::move(text)).program();
 }
 
+void Compiler::updateInputsForBuiltinVariable(const Variable& var) {
+    switch (var.modifiers().fLayout.fBuiltin) {
+        case SK_FRAGCOORD_BUILTIN:
+            if (fContext->fCaps.canUseFragCoord()) {
+                ThreadContext::Inputs().fUseFlipRTUniform = true;
+            }
+            break;
+        case SK_CLOCKWISE_BUILTIN:
+            ThreadContext::Inputs().fUseFlipRTUniform = true;
+            break;
+    }
+}
+
 std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::string_view name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
@@ -498,17 +511,6 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
         }
         case Symbol::Kind::kVariable: {
             const Variable* var = &result->as<Variable>();
-            const Modifiers& modifiers = var->modifiers();
-            switch (modifiers.fLayout.fBuiltin) {
-                case SK_FRAGCOORD_BUILTIN:
-                    if (fContext->fCaps.canUseFragCoord()) {
-                        ThreadContext::Inputs().fUseFlipRTUniform = true;
-                    }
-                    break;
-                case SK_CLOCKWISE_BUILTIN:
-                    ThreadContext::Inputs().fUseFlipRTUniform = true;
-                    break;
-            }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
             return VariableReference::Make(pos, var, VariableReference::RefKind::kRead);
         }

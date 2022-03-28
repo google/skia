@@ -22,6 +22,10 @@ enum class ProgramKind : int8_t;
 
 namespace Transform {
 
+/**
+ * Scans the finished program for built-in variables like `sk_FragColor` and adds them to the
+ * program's shared elements.
+ */
 void FindAndDeclareBuiltinVariables(const Context& context, ProgramKind programKind,
                                     std::vector<const ProgramElement*>& sharedElements);
 
