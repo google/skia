@@ -101,8 +101,7 @@ const char* TessellateCurvesRenderStep::vertexSkSL() const {
                 p3 = p2;  // Duplicate the endpoint for shared code that also runs on cubics.
             } else {
                 // The patch is an integral cubic.
-                maxResolveLevel = wangs_formula_cubic_log2(4, p0, p1, p2, p3,
-                                                           float2x2(1.0, 0.0, 0.0, 1.0));
+                maxResolveLevel = wangs_formula_cubic_log2(4, p0, p1, p2, p3, float2x2(1.0));
             }
             if (resolveLevel > maxResolveLevel) {
                 // This vertex is at a higher resolve level than we need. Demote to a lower
