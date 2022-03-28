@@ -26,13 +26,10 @@ template <typename Key> class SkTestCanvas;
 // A test canvas to test using slug rendering instead of text blob rendering.
 struct SkSlugTestKey {};
 template <>
-class SkTestCanvas<SkSlugTestKey> : public SkNWayCanvas {
+class SkTestCanvas<SkSlugTestKey> : public SkCanvas {
 public:
-    SkTestCanvas(SkCanvas* convertCanvas);
+    SkTestCanvas(SkCanvas* canvas);
     void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
-
-private:
-    SkCanvas* fGPUCanvas;
 };
 
 #endif  // SkTestCanvas_DEFINED

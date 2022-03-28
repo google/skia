@@ -2877,9 +2877,8 @@ SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> all
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU && GR_TEST_UTILS
-SkTestCanvas<SkSlugTestKey>::SkTestCanvas(SkCanvas* convertCanvas)
-        : SkNWayCanvas(convertCanvas)
-        , fGPUCanvas(convertCanvas) { }
+SkTestCanvas<SkSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
+        : SkCanvas(sk_ref_sp(canvas->baseDevice())) {}
 
 void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
         const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
@@ -2890,10 +2889,10 @@ void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
     auto layer = this->aboutToDraw(this, paint, &bounds);
     if (layer) {
         if (glyphRunList.hasRSXForm()) {
-            fGPUCanvas->onDrawGlyphRunList(glyphRunList, layer->paint());
+            this->SkCanvas::onDrawGlyphRunList(glyphRunList, layer->paint());
         } else {
-            auto slug = fGPUCanvas->onConvertGlyphRunListToSlug(glyphRunList, layer->paint());
-            fGPUCanvas->drawSlug(slug.get());
+            auto slug = this->onConvertGlyphRunListToSlug(glyphRunList, layer->paint());
+            this->drawSlug(slug.get());
         }
     }
 }
