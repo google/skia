@@ -241,6 +241,9 @@
   {"name": "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"},
   {"name": "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64"},
   {"name": "Housekeeper-PerCommit-BundleRecipes"},
+  {"name": "Housekeeper-PerCommit-CheckGeneratedBazelFiles",
+   "cq_config": {}
+   },
   {"name": "Housekeeper-PerCommit-CheckGeneratedFiles",
    "cq_config": {"location_regexes": ["src/gpu/effects/generated/.*", "src/sksl/.*"]}
    },

@@ -892,6 +892,11 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ]
     },
+    "Housekeeper-PerCommit-CheckGeneratedBazelFiles": {
+      "tasks": [
+        "Housekeeper-PerCommit-CheckGeneratedBazelFiles"
+      ]
+    },
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
       "tasks": [
         "Housekeeper-PerCommit-CheckGeneratedFiles"
@@ -20316,6 +20321,43 @@
         ]
       },
       "idempotent": true
+    },
+    "Housekeeper-PerCommit-CheckGeneratedBazelFiles": {
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/bazelisk",
+          "path": "bazelisk",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "./check_generated_bazel_files",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Housekeeper-PerCommit-CheckGeneratedBazelFiles"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "bazelisk"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
       "caches": [
@@ -87887,6 +87929,7 @@
     "CodeSize-fm-Debian10-Clang-x86_64-Debug": {},
     "CodeSize-fm-Debian10-Clang-x86_64-Release": {},
     "Housekeeper-OnDemand-Presubmit": {},
+    "Housekeeper-PerCommit-CheckGeneratedBazelFiles": {},
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
       "location_regexes": [
         "src/gpu/effects/generated/.*",

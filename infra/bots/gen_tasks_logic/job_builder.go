@@ -141,6 +141,11 @@ func (b *jobBuilder) genTasksForJob() {
 		b.checkGeneratedFiles()
 		return
 	}
+	if b.Name == "Housekeeper-PerCommit-CheckGeneratedBazelFiles" {
+		b.checkGeneratedBazelFiles()
+		return
+	}
+
 	if b.Name == "Housekeeper-PerCommit-RunGnToBp" {
 		b.checkGnToBp()
 		return
