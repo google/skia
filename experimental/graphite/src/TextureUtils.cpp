@@ -105,8 +105,7 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
             recorder, proxy, ct, texels, SkIRect::MakeSize(bmpToUpload.dimensions()));
     recorder->priv().add(UploadTask::Make(upload));
 
-    // TODO: get readSwizzle from caps
-    Swizzle swizzle = Swizzle::RGBA();
+    Swizzle swizzle = caps->getReadSwizzle(ct, textureInfo);
     return {{std::move(proxy), swizzle}, ct};
 }
 

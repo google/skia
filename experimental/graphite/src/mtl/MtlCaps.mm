@@ -514,6 +514,22 @@ skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlag
     return info;
 }
 
+const skgpu::Caps::ColorTypeInfo* Caps::getColorTypeInfo(
+        SkColorType ct, const skgpu::TextureInfo& textureInfo) const {
+    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(textureInfo.mtlTextureSpec().fFormat);
+    SkASSERT(mtlFormat != MTLPixelFormatInvalid);
+
+    const FormatInfo& info = this->getFormatInfo(mtlFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const ColorTypeInfo& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == ct) {
+            return &ctInfo;
+        }
+    }
+
+    return nullptr;
+}
+
 UniqueKey Caps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
                                         const RenderPassDesc& renderPassDesc) const {
     UniqueKey pipelineKey;
@@ -573,19 +589,6 @@ uint32_t Caps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
     } else {
         return 1;
     }
-}
-
-bool Caps::onAreColorTypeAndTextureInfoCompatible(SkColorType ct,
-                                                  const skgpu::TextureInfo& textureInfo) const {
-    MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(textureInfo.mtlTextureSpec().fFormat);
-
-    const auto& info = this->getFormatInfo(mtlFormat);
-    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
-        if (info.fColorTypeInfos[i].fColorType == ct) {
-            return true;
-        }
-    }
-    return false;
 }
 
 size_t Caps::getTransferBufferAlignment(size_t bytesPerPixel) const {

@@ -70,8 +70,7 @@ private:
         return fColorTypeToFormatTable[idx];
     }
 
-    bool onAreColorTypeAndTextureInfoCompatible(SkColorType,
-                                                const skgpu::TextureInfo&) const override;
+    const ColorTypeInfo* getColorTypeInfo(SkColorType, const skgpu::TextureInfo&) const override;
 
     bool onIsTexturable(const skgpu::TextureInfo&) const override;
     bool isTexturable(MTLPixelFormat) const;
