@@ -136,8 +136,6 @@ protected:
 
     void writeInterfaceBlock(const InterfaceBlock& intf);
 
-    void writeFunctionStart(const FunctionDeclaration& f);
-
     void writeFunctionRequirementParams(const FunctionDeclaration& f,
                                         const char*& separator);
 
@@ -298,8 +296,6 @@ protected:
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
     SkTHashMap<const FunctionDeclaration*, Requirements> fRequirements;
-    bool fSetupFragPositionGlobal = false;
-    bool fSetupFragPositionLocal = false;
     SkTHashSet<std::string> fHelpers;
     int fUniformBuffer = -1;
     std::string fRTFlipName;
