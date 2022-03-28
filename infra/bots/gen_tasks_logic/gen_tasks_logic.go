@@ -1205,6 +1205,8 @@ func (b *jobBuilder) compile() string {
 	name := b.deriveCompileTaskName()
 	if b.extraConfig("WasmGMTests") {
 		b.compileWasmGMTests(name)
+	} else if b.compiler("BazelClang") {
+		b.compileWithBazel(name)
 	} else {
 		b.addTask(name, func(b *taskBuilder) {
 			recipe := "compile"
@@ -1287,6 +1289,31 @@ func (b *jobBuilder) compile() string {
 	}
 
 	return name
+}
+
+// compileWithBazel uses RBE to compile Skia.
+func (b *jobBuilder) compileWithBazel(name string) {
+	if b.extraConfig("IWYU") {
+		b.addTask(name, func(b *taskBuilder) {
+			b.cmd("./bazel_check_includes",
+				"--project_id", "skia-swarming-bots",
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+			)
+			// Only the large machines have the compute-engine scope necessary to use RBE
+			// http://review.skia.org/446297
+			b.linuxGceDimensions(MACHINE_TYPE_LARGE)
+			b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
+			b.addToPATH("bazelisk")
+			b.idempotent()
+			b.cas(CAS_COMPILE)
+			b.dep(b.buildTaskDrivers("linux", "amd64"))
+			b.attempts(1)
+			b.serviceAccount(b.cfg.ServiceAccountCompile)
+		})
+	} else {
+		log.Fatalf("Unsupported Bazel task " + name)
+	}
 }
 
 // recreateSKPs generates a RecreateSKPs task.

@@ -33,7 +33,7 @@ build --flag_alias=ck_disable_fonts=no//modules/canvaskit:enable_fonts
 # =====
 # The following was copied from https://github.com/bazelbuild/bazel-toolchains/blob/ea243d43269df23de03a797cff2347e1fc3d02bb/bazelrc/bazel-4.1.0.bazelrc
 # We should be free to modify this as we see fit.
-# 
+#
 # Depending on how many machines are in the remote execution instance, setting
 # this higher can make builds faster by allowing more jobs to run in parallel.
 # Setting it too high can result in jobs that timeout, however, while waiting

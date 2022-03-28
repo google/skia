@@ -1,5 +1,10 @@
 {
   "jobs": {
+    "Build-Debian10-BazelClang-x86_64-Release-IWYU": {
+      "tasks": [
+        "Build-Debian10-BazelClang-x86_64-Release-IWYU"
+      ]
+    },
     "Build-Debian10-Clang-arm-Debug-Android": {
       "tasks": [
         "Build-Debian10-Clang-arm-Debug-Android"
@@ -3176,6 +3181,43 @@
     }
   },
   "tasks": {
+    "Build-Debian10-BazelClang-x86_64-Release-IWYU": {
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/bazelisk",
+          "path": "bazelisk",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "./bazel_check_includes",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Build-Debian10-BazelClang-x86_64-Release-IWYU"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "bazelisk"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
     "Build-Debian10-Clang-arm-Debug-Android": {
       "caches": [
         {
@@ -87542,11 +87584,16 @@
     "compile": {
       "root": "..",
       "paths": [
+        "skia/.bazelrc",
+        "skia/.bazelversion",
         "skia/.clang-format",
         "skia/.clang-tidy",
         "skia/.gn",
         "skia/.vpython",
+        "skia/BUILD.bazel",
         "skia/BUILD.gn",
+        "skia/WORKSPACE.bazel",
+        "skia/bazel",
         "skia/bench",
         "skia/bin",
         "skia/build/fuchsia",
@@ -87555,12 +87602,12 @@
         "skia/client_utils/android",
         "skia/dm",
         "skia/docs/examples",
-        "skia/example/HelloWorld.cpp",
-        "skia/example/HelloWorld.h",
+        "skia/example",
         "skia/experimental",
         "skia/fuzz",
         "skia/gm",
         "skia/gn",
+        "skia/go_repositories.bzl",
         "skia/include",
         "skia/infra/bots/assets/android_ndk_darwin/VERSION",
         "skia/infra/bots/assets/android_ndk_linux/VERSION",
@@ -87569,6 +87616,7 @@
         "skia/infra/bots/assets/clang_linux/VERSION",
         "skia/infra/bots/assets/clang_win/VERSION",
         "skia/infra/bots/run_recipe.py",
+        "skia/infra/bots/task_drivers",
         "skia/infra/canvaskit",
         "skia/infra/pathkit",
         "skia/modules",
@@ -87577,11 +87625,13 @@
         "skia/platform_tools/android/vulkan/Skia_Vulkan_Android.h",
         "skia/platform_tools/ios/app/LaunchScreen.storyboard",
         "skia/platform_tools/libraries/include/arcore_c_api.h",
+        "skia/requirements.txt",
         "skia/resources",
         "skia/samplecode",
         "skia/src",
         "skia/tests",
         "skia/third_party",
+        "skia/toolchain",
         "skia/tools"
       ],
       "excludes": [
@@ -87766,6 +87816,9 @@
     }
   },
   "commit_queue": {
+    "Build-Debian10-BazelClang-x86_64-Release-IWYU": {
+      "experimental": true
+    },
     "Build-Debian10-Clang-arm-Debug-Android": {},
     "Build-Debian10-Clang-arm-Release-Android_API26": {},
     "Build-Debian10-Clang-arm64-Debug-Android": {},

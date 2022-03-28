@@ -18,7 +18,7 @@ mirror_prefix = "https://storage.googleapis.com/skia-world-readable/bazel/"
 # in the mirrors is not corrupt and publicly accessible.
 # If testing this, you need to delete the download cache, which defaults to
 # ~/.cache/bazel/_bazel_$USER/cache/repos/v1/
-# https://docs.bazel.build/versions/main/guide.html#the-repository-cache
+# https://bazel.build/docs/build#repository-cache
 force_test_of_mirrors = False
 
 debs_to_install = [
@@ -141,33 +141,45 @@ debs_to_install = [
 def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):
     """Downloads a debian file and extracts the data into the provided output directory"""
 
-    # https://docs.bazel.build/versions/main/skylark/lib/repository_ctx.html#download
-    download_info = ctx.download(
+    # https://bazel.build/rules/lib/repository_ctx#download
+    # .deb files are also .ar archives.
+    ctx.download(
         url = _mirror([deb, mirror_prefix + sha256 + ".deb"]),
-        output = "deb.ar",
+        output = "tmp/deb.ar",
         sha256 = sha256,
     )
 
-    # https://docs.bazel.build/versions/main/skylark/lib/repository_ctx.html#execute
-    # This uses the extracted llvm-ar that comes with clang.
-    ctx.execute(["bin/llvm-ar", "x", "deb.ar"])
+    # https://bazel.build/rules/lib/repository_ctx#execute
+    # This uses the statically built binary from the infra repo
+    res = ctx.execute(["bin/open_ar", "--input", "tmp/deb.ar", "--output_dir", "tmp"], quiet = False)
+    if res.return_code != 0:
+        # Run it again to display the error
+        fail("Could not open deb.ar from " + deb)
 
-    # https://docs.bazel.build/versions/main/skylark/lib/repository_ctx.html#extract
+    # https://bazel.build/rules/lib/repository_ctx#extract
     extract_info = ctx.extract(
-        archive = "data.tar.xz",
+        archive = "tmp/data.tar.xz",
         output = output,
         stripPrefix = prefix,
     )
 
     # Clean up
-    ctx.delete("deb.ar")
-    ctx.delete("data.tar.xz")
-    ctx.delete("control.tar.xz")
+    ctx.delete("tmp")
 
 def _build_cpp_toolchain_impl(ctx):
+    # Workaround for Bazel not yet supporting .ar files
+    # See https://skia-review.googlesource.com/c/buildbot/+/524764
+    # https://bazel.build/rules/lib/repository_ctx#download
+    ctx.download(
+        url = mirror_prefix + "open_ar_v1",
+        sha256 = "55bb74d9ce5d6fa06e390b2319a410ec595dbb591a3ce650da356efe970f86d3",
+        executable = True,
+        output = "bin/open_ar",
+    )
+
     # Download the clang toolchain (the extraction can take a while)
-    # https://docs.bazel.build/versions/main/skylark/lib/repository_ctx.html#download_and_extract
-    download_info = ctx.download_and_extract(
+    # https://bazel.build/rules/lib/repository_ctx#download_and_extract
+    ctx.download_and_extract(
         url = _mirror([clang_url, mirror_prefix + clang_sha256 + ".tar.xz"]),
         output = "",
         stripPrefix = clang_prefix,
@@ -186,7 +198,7 @@ def _build_cpp_toolchain_impl(ctx):
 
     # Create a BUILD.bazel file that makes all the files in this subfolder
     # available for use in rules, i.e. in the toolchain declaration.
-    # https://docs.bazel.build/versions/main/skylark/lib/repository_ctx.html#file
+    # https://bazel.build/rules/lib/repository_ctx#file
     ctx.file(
         "BUILD.bazel",
         content = """
