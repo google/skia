@@ -11,7 +11,12 @@
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "include/core/SkRefCnt.h"
 
-namespace skgpu { class Context; }
+namespace skgpu {
+class Context;
+class Recording;
+}
+
+namespace sk_gpu_test { class FlushFinishTracker; }
 
 namespace skiatest::graphite {
 
@@ -30,7 +35,25 @@ public:
 
     virtual std::unique_ptr<skgpu::Context> makeContext() = 0;
 
+    bool getMaxGpuFrameLag(int *maxFrameLag) const {
+        *maxFrameLag = kMaxFrameLag;
+        return true;
+    }
+
+    /**
+     * This will insert a Recording and submit work to the GPU. Additionally, we will add a finished
+     * callback to our insert recording call. We allow ourselves to have kMaxFrameLag number of
+     * unfinished flushes active on the GPU at a time. If we have 2 outstanding flushes then we will
+     * wait on the CPU until one has finished.
+     */
+    void submitRecordingAndWaitOnSync(skgpu::Context*, skgpu::Recording*);
+
 protected:
+    static constexpr int kMaxFrameLag = 3;
+
+    sk_sp<sk_gpu_test::FlushFinishTracker> fFinishTrackers[kMaxFrameLag - 1];
+    int fCurrentFlushIdx = 0;
+
     GraphiteTestContext();
 };
 

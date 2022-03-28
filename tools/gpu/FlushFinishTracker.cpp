@@ -10,6 +10,10 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTraceEvent.h"
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/include/Context.h"
+#endif
+
 #include <chrono>
 
 namespace sk_gpu_test {
@@ -19,7 +23,16 @@ void FlushFinishTracker::waitTillFinished() {
     auto begin = std::chrono::steady_clock::now();
     auto end = begin;
     while (!fIsFinished && (end - begin) < std::chrono::seconds(2)) {
-        fContext->checkAsyncWorkCompletion();
+        if (fContext) {
+            fContext->checkAsyncWorkCompletion();
+        } else {
+#ifdef SK_GRAPHITE_ENABLED
+            SkASSERT(fGraphiteContext);
+            fGraphiteContext->checkAsyncWorkCompletion();
+#else
+            SkDEBUGFAIL("No valid context");
+#endif
+        }
         end = std::chrono::steady_clock::now();
     }
     if (!fIsFinished) {

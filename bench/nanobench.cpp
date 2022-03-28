@@ -256,7 +256,7 @@ struct GPUTarget : public Target {
             this->contextInfo.testContext()->flushAndWaitOnSync(contextInfo.directContext());
         }
     }
-    void fence() override { this->contextInfo.testContext()->finish(); }
+    void syncCPU() override { this->contextInfo.testContext()->finish(); }
 
     bool needsFrameTiming(int* maxFrameLag) const override {
         if (!this->contextInfo.testContext()->getMaxGpuFrameLag(maxFrameLag)) {
@@ -297,20 +297,16 @@ struct GPUTarget : public Target {
 #ifdef SK_GRAPHITE_ENABLED
 struct GraphiteTarget : public Target {
     explicit GraphiteTarget(const Config& c) : Target(c) {}
-    using ContextInfo = skiatest::graphite::ContextFactory::ContextInfo;
+    using TestContext = skiatest::graphite::GraphiteTestContext;
     using ContextFactory = skiatest::graphite::ContextFactory;
 
     std::unique_ptr<ContextFactory> factory;
 
+    TestContext* testContext;
     skgpu::Context* context;
     std::unique_ptr<skgpu::Recorder> recorder;
 
-    ~GraphiteTarget() override {
-        // TODO: We need to get the ref counting correct for MtlPipeline and MTLDepthStencilState
-        // since right now they live on the Recorder. Until then make sure the Context has finished
-        // all its work.
-        this->fence();
-    }
+    ~GraphiteTarget() override {}
 
     void setup() override {}
 
@@ -318,17 +314,15 @@ struct GraphiteTarget : public Target {
         if (context && recorder) {
             std::unique_ptr<skgpu::Recording> recording = this->recorder->snap();
             if (recording) {
-                skgpu::InsertRecordingInfo info;
-                info.fRecording = recording.get();
-                this->context->insertRecording(info);
+                this->testContext->submitRecordingAndWaitOnSync(this->context, recording.get());
             }
-            context->submit(skgpu::SyncToCpu::kNo);
         }
     }
-    void fence() override {
+    void syncCPU() override {
         if (context && recorder) {
             // TODO: have a way to sync work with out submitting a Recording which is currently
-            // required.
+            // required. Probably need to get to the point where the backend command buffers are
+            // stored on the Context and not Recordings before this is feasible.
             std::unique_ptr<skgpu::Recording> recording = this->recorder->snap();
             if (recording) {
                 skgpu::InsertRecordingInfo info;
@@ -340,14 +334,7 @@ struct GraphiteTarget : public Target {
     }
 
     bool needsFrameTiming(int* maxFrameLag) const override {
-        // TODO
-#if 0
-        if (!this->contextInfo.testContext()->getMaxGpuFrameLag(maxFrameLag)) {
-            // Frame lag is unknown.
-            *maxFrameLag = FLAGS_gpuFrameLag;
-        }
-#endif
-        *maxFrameLag = FLAGS_gpuFrameLag;
+        SkAssertResult(this->testContext->getMaxGpuFrameLag(maxFrameLag));
         return true;
     }
     bool init(SkImageInfo info, Benchmark* bench) override {
@@ -357,11 +344,12 @@ struct GraphiteTarget : public Target {
         // context options when we make the factory here.
         this->factory = std::make_unique<ContextFactory>();
 
-        auto [testContext, ctx] = this->factory->getContextInfo(this->config.graphiteCtxType);
+        auto [testCtx, ctx] = this->factory->getContextInfo(this->config.graphiteCtxType);
         if (!ctx) {
             return false;
         }
-        context = ctx;
+        this->testContext = testCtx;
+        this->context = ctx;
 
         this->recorder = this->context->makeRecorder();
         if (!this->recorder) {
@@ -539,7 +527,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
         loops = clamp_loops(loops);
 
         // Make sure we're not still timing our calibration.
-        target->fence();
+        target->syncCPU();
     } else {
         loops = detect_forever_loops(loops);
     }

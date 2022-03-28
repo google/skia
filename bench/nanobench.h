@@ -54,7 +54,7 @@ struct Target {
     /** Called between benchmarks (or between calibration and measured
         runs) to make sure all pending work in drivers / threads is
         complete. */
-    virtual void fence() { }
+    virtual void syncCPU() { }
 
     /** CPU-like targets can just be timed, but GPU-like
         targets need to pay attention to frame boundaries

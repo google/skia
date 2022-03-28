@@ -80,6 +80,10 @@ void Context::submit(SyncToCpu syncToCpu) {
     fGpu->checkForFinishedWork(syncToCpu);
 }
 
+void Context::checkAsyncWorkCompletion() {
+    fGpu->checkForFinishedWork(SyncToCpu::kNo);
+}
+
 void Context::preCompile(const PaintCombo& paintCombo) {
     static const Renderer* kRenderers[] = {
             &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kWinding),
