@@ -204,6 +204,7 @@ generated_cc_atom(
         "//include/core:SkImageInfo_hdr",
         "//include/private:GrTypesPriv_hdr",
         "//src/core:SkMipmap_hdr",
+        "//src/gpu:RefCntedCallback_hdr",
     ],
 )
 

@@ -353,6 +353,7 @@ generated_cc_atom(
         "//include/core:SkShader_hdr",
         "//include/utils:SkNWayCanvas_hdr",
         "//src/core:SkCanvasPriv_hdr",
+        "//src/core:SkDevice_hdr",
     ],
 )
 
@@ -679,4 +680,16 @@ generated_cc_atom(
     name = "SkCycles_hdr",
     hdrs = ["SkCycles.h"],
     visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkTestCanvas_hdr",
+    hdrs = ["SkTestCanvas.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkSize_hdr",
+        "//include/utils:SkNWayCanvas_hdr",
+        "//src/core:SkDevice_hdr",
+        "//src/core:SkGlyphRun_hdr",
+    ],
 )

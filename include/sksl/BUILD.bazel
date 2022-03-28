@@ -33,7 +33,6 @@ generated_cc_atom(
     deps = [
         ":DSLCase_hdr",
         ":DSLExpression_hdr",
-        ":DSLModifiers_hdr",
         ":DSLStatement_hdr",
         ":DSLVar_hdr",
         ":SkSLPosition_hdr",

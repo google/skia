@@ -31,6 +31,7 @@ generated_cc_atom(
         "//experimental/graphite/src:CommandBuffer_hdr",
         "//experimental/graphite/src:ContextPriv_hdr",
         "//experimental/graphite/src:DrawBufferManager_hdr",
+        "//experimental/graphite/src:DrawGeometry_hdr",
         "//experimental/graphite/src:DrawWriter_hdr",
         "//experimental/graphite/src:GlobalCache_hdr",
         "//experimental/graphite/src:Gpu_hdr",

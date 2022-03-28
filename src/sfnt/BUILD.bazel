@@ -329,3 +329,13 @@ generated_cc_atom(
         ":SkSFNTHeader_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "SkOTTable_hmtx_hdr",
+    hdrs = ["SkOTTable_hmtx.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)

@@ -13,7 +13,6 @@
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLCase.h"
 #include "include/sksl/DSLExpression.h"
-#include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/SkSLPosition.h"
@@ -33,6 +32,7 @@ struct ProgramSettings;
 namespace dsl {
 
 class DSLField;
+class DSLModifiers;
 
 // When users import the DSL namespace via `using namespace SkSL::dsl`, we want the SwizzleComponent
 // Type enum to come into scope as well, so `Swizzle(var, X, Y, ONE)` can work as expected.

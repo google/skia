@@ -876,6 +876,7 @@ generated_cc_atom(
     deps = [
         ":GrVkManagedResource_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
         "//src/gpu:GrSemaphore_hdr",
     ],
 )

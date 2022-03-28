@@ -42,120 +42,7 @@ generated_cc_atom(
         ":Tessellation_hdr",
         ":WangsFormula_hdr",
         "//include/private:SkColorData_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "PathCurveTessellator_hdr",
-    hdrs = ["PathCurveTessellator.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":PathTessellator_hdr",
-        "//src/core:SkArenaAlloc_hdr",
-        "//src/gpu/geometry:GrInnerFanTriangulator_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "PathCurveTessellator_src",
-    srcs = ["PathCurveTessellator.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":AffineMatrix_hdr",
-        ":MiddleOutPolygonTriangulator_hdr",
-        ":PatchWriter_hdr",
-        ":PathCurveTessellator_hdr",
-        ":WangsFormula_hdr",
-        "//src/gpu:GrMeshDrawTarget_hdr",
-        "//src/gpu:GrOpFlushState_hdr",
-        "//src/gpu:GrResourceProvider_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "PathTessellator_hdr",
-    hdrs = ["PathTessellator.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":Tessellation_hdr",
-        "//src/gpu:GrGpuBuffer_hdr",
-        "//src/gpu:GrVertexChunkArray_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "PathWedgeTessellator_hdr",
-    hdrs = ["PathWedgeTessellator.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":PathTessellator_hdr",
-        "//src/core:SkArenaAlloc_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "PathWedgeTessellator_src",
-    srcs = ["PathWedgeTessellator.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":AffineMatrix_hdr",
-        ":MidpointContourParser_hdr",
-        ":PatchWriter_hdr",
-        ":PathCurveTessellator_hdr",
-        ":PathWedgeTessellator_hdr",
-        ":WangsFormula_hdr",
-        "//src/core:SkPathPriv_hdr",
-        "//src/gpu:GrMeshDrawTarget_hdr",
-        "//src/gpu:GrOpFlushState_hdr",
-        "//src/gpu:GrResourceProvider_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "StrokeFixedCountTessellator_hdr",
-    hdrs = ["StrokeFixedCountTessellator.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":StrokeTessellator_hdr",
-        "//src/gpu:GrGpuBuffer_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "StrokeFixedCountTessellator_src",
-    srcs = ["StrokeFixedCountTessellator.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":PatchWriter_hdr",
-        ":StrokeFixedCountTessellator_hdr",
-        ":StrokeIterator_hdr",
-        ":WangsFormula_hdr",
-        "//src/core:SkGeometry_hdr",
-        "//src/gpu:GrMeshDrawTarget_hdr",
-        "//src/gpu:GrOpFlushState_hdr",
-        "//src/gpu:GrResourceProvider_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "StrokeHardwareTessellator_hdr",
-    hdrs = ["StrokeHardwareTessellator.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [":StrokeTessellator_hdr"],
-)
-
-generated_cc_atom(
-    name = "StrokeHardwareTessellator_src",
-    srcs = ["StrokeHardwareTessellator.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":PatchWriter_hdr",
-        ":StrokeHardwareTessellator_hdr",
-        ":WangsFormula_hdr",
-        "//src/core:SkGeometry_hdr",
-        "//src/core:SkPathPriv_hdr",
-        "//src/gpu:GrMeshDrawTarget_hdr",
-        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:BufferWriter_hdr",
     ],
 )
 
@@ -167,19 +54,6 @@ generated_cc_atom(
         "//include/core:SkPaint_hdr",
         "//include/core:SkStrokeRec_hdr",
         "//src/core:SkPathPriv_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "StrokeTessellator_hdr",
-    hdrs = ["StrokeTessellator.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":Tessellation_hdr",
-        "//include/core:SkPath_hdr",
-        "//include/core:SkStrokeRec_hdr",
-        "//include/private:SkColorData_hdr",
-        "//src/gpu:GrVertexChunkArray_hdr",
     ],
 )
 
@@ -232,5 +106,24 @@ generated_cc_atom(
     deps = [
         "//include/core:SkPath_hdr",
         "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FixedCountBufferUtils_hdr",
+    hdrs = ["FixedCountBufferUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkPaint_hdr"],
+)
+
+generated_cc_atom(
+    name = "FixedCountBufferUtils_src",
+    srcs = ["FixedCountBufferUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":FixedCountBufferUtils_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
     ],
 )

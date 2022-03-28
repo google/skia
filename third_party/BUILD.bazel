@@ -2978,11 +2978,15 @@ cc_library(
 cc_library(
     name = "dawn",
     visibility = ["//:__subpackages__"],
-    deps = [
-        ":dawn_cpp",
-        ":dawn_native",
-        ":dawn_proc",
-    ],
+    deps = select({
+        # Emscripten provides the dawn files necessary as system headers.
+        "//bazel/common_config_settings:cpu_wasm": [],
+        "//conditions:default": [
+            ":dawn_cpp",
+            ":dawn_native",
+            ":dawn_proc",
+        ],
+    }),
 )
 
 TINT_HDRS = [
@@ -3116,8 +3120,6 @@ TINT_SRCS = [
     "externals/tint/src/tint/ast/stride_attribute.h",
     "externals/tint/src/tint/ast/struct.cc",
     "externals/tint/src/tint/ast/struct.h",
-    "externals/tint/src/tint/ast/struct_block_attribute.cc",
-    "externals/tint/src/tint/ast/struct_block_attribute.h",
     "externals/tint/src/tint/ast/struct_member.cc",
     "externals/tint/src/tint/ast/struct_member.h",
     "externals/tint/src/tint/ast/struct_member_align_attribute.cc",
@@ -3245,8 +3247,6 @@ TINT_SRCS = [
     "externals/tint/src/tint/transform/multiplanar_external_texture.h",
     "externals/tint/src/tint/transform/num_workgroups_from_uniform.cc",
     "externals/tint/src/tint/transform/num_workgroups_from_uniform.h",
-    "externals/tint/src/tint/transform/pad_array_elements.cc",
-    "externals/tint/src/tint/transform/pad_array_elements.h",
     "externals/tint/src/tint/transform/promote_initializers_to_const_var.cc",
     "externals/tint/src/tint/transform/promote_initializers_to_const_var.h",
     "externals/tint/src/tint/transform/promote_side_effects_to_decl.cc",

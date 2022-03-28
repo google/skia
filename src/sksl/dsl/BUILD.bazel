@@ -32,6 +32,7 @@ generated_cc_atom(
         "//include/private:SkSLStatement_hdr",
         "//include/private:SkSLSymbol_hdr",
         "//include/sksl:DSLCore_hdr",
+        "//include/sksl:DSLModifiers_hdr",
         "//include/sksl:DSLSymbols_hdr",
         "//include/sksl:DSLType_hdr",
         "//include/sksl:DSLVar_hdr",

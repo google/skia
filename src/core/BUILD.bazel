@@ -1036,6 +1036,7 @@ generated_cc_atom(
         "//src/image:SkImage_Base_hdr",
         "//src/image:SkSurface_Base_hdr",
         "//src/utils:SkPatchUtils_hdr",
+        "//src/utils:SkTestCanvas_hdr",
     ],
 )
 
@@ -5600,6 +5601,7 @@ generated_cc_atom(
         ":SkShaderCodeDictionary_hdr",
         ":SkUniform_hdr",
         "//experimental/graphite/src:TextureProxy_hdr",
+        "//experimental/graphite/src:Texture_hdr",
         "//experimental/graphite/src:UniformManager_hdr",
         "//src/gpu:Blend_hdr",
         "//src/shaders:SkShaderBase_hdr",
@@ -5675,7 +5677,7 @@ generated_cc_atom(
         ":SkBuiltInCodeSnippetID_hdr",
         "//include/core:SkSpan_hdr",
         "//include/core:SkTypes_hdr",
-        "//include/private:SkTArray_hdr",
+        "//include/private:SkTDArray_hdr",
     ],
 )
 

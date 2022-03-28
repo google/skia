@@ -7,6 +7,7 @@ generated_cc_atom(
     deps = [
         ":CoverBoundsRenderStep_hdr",
         ":MiddleOutFanRenderStep_hdr",
+        ":StencilAndCoverDSS_hdr",
         ":TessellateCurvesRenderStep_hdr",
         ":TessellateWedgesRenderStep_hdr",
         "//experimental/graphite/src:Renderer_hdr",
@@ -28,9 +29,8 @@ generated_cc_atom(
     deps = [
         ":CoverBoundsRenderStep_hdr",
         ":StencilAndCoverDSS_hdr",
+        "//experimental/graphite/src:DrawGeometry_hdr",
         "//experimental/graphite/src:DrawWriter_hdr",
-        "//experimental/graphite/src/geom:Shape_hdr",
-        "//experimental/graphite/src/geom:Transform_graphite_hdr",
     ],
 )
 
@@ -48,11 +48,10 @@ generated_cc_atom(
     deps = [
         ":MiddleOutFanRenderStep_hdr",
         ":StencilAndCoverDSS_hdr",
+        "//experimental/graphite/src:DrawGeometry_hdr",
         "//experimental/graphite/src:DrawWriter_hdr",
-        "//experimental/graphite/src/geom:Shape_hdr",
-        "//experimental/graphite/src/geom:Transform_graphite_hdr",
+        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
         "//src/gpu/tessellate:MiddleOutPolygonTriangulator_hdr",
-        "//src/gpu/tessellate:PathTessellator_hdr",
     ],
 )
 
@@ -77,13 +76,11 @@ generated_cc_atom(
     deps = [
         ":StencilAndCoverDSS_hdr",
         ":TessellateCurvesRenderStep_hdr",
+        "//experimental/graphite/src:DrawGeometry_hdr",
         "//experimental/graphite/src:DrawWriter_hdr",
-        "//experimental/graphite/src/geom:Shape_hdr",
-        "//experimental/graphite/src/geom:Transform_graphite_hdr",
         "//src/gpu/tessellate:AffineMatrix_hdr",
+        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
         "//src/gpu/tessellate:PatchWriter_hdr",
-        "//src/gpu/tessellate:PathCurveTessellator_hdr",
-        "//src/gpu/tessellate:PathTessellator_hdr",
     ],
 )
 
@@ -99,15 +96,12 @@ generated_cc_atom(
     srcs = ["TessellateWedgesRenderStep.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":StencilAndCoverDSS_hdr",
         ":TessellateWedgesRenderStep_hdr",
+        "//experimental/graphite/src:DrawGeometry_hdr",
         "//experimental/graphite/src:DrawWriter_hdr",
-        "//experimental/graphite/src/geom:Shape_hdr",
-        "//experimental/graphite/src/geom:Transform_graphite_hdr",
         "//src/gpu/tessellate:AffineMatrix_hdr",
+        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
         "//src/gpu/tessellate:MidpointContourParser_hdr",
         "//src/gpu/tessellate:PatchWriter_hdr",
-        "//src/gpu/tessellate:PathTessellator_hdr",
-        "//src/gpu/tessellate:PathWedgeTessellator_hdr",
     ],
 )

@@ -243,7 +243,7 @@ generated_cc_atom(
         "//experimental/graphite/src:Caps_hdr",
         "//experimental/graphite/src:CommandBuffer_hdr",
         "//experimental/graphite/src:RecorderPriv_hdr",
-        "//experimental/graphite/src:TextureProxyView_hdr",
+        "//experimental/graphite/src:TextureUtils_hdr",
         "//experimental/graphite/src:UploadTask_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",

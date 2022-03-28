@@ -4,6 +4,7 @@ cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//modules/skparagraph/src:Decorations_src",
+        "//modules/skparagraph/src:FontArguments_src",
         "//modules/skparagraph/src:FontCollection_src",
         "//modules/skparagraph/src:OneLineShaper_src",
         "//modules/skparagraph/src:ParagraphBuilderImpl_src",

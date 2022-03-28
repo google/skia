@@ -173,6 +173,7 @@ cc_library(
         "//src/gpu/ops:PathInnerTriangulateOp_src",
         "//src/gpu/ops:PathStencilCoverOp_src",
         "//src/gpu/ops:PathTessellateOp_src",
+        "//src/gpu/ops:PathTessellator_src",
         "//src/gpu/ops:QuadPerEdgeAA_src",
         "//src/gpu/ops:RegionOp_src",
         "//src/gpu/ops:ShadowRRectOp_src",
@@ -182,13 +183,11 @@ cc_library(
         "//src/gpu/ops:SoftwarePathRenderer_src",
         "//src/gpu/ops:StrokeRectOp_src",
         "//src/gpu/ops:StrokeTessellateOp_src",
+        "//src/gpu/ops:StrokeTessellator_src",
         "//src/gpu/ops:TessellationPathRenderer_src",
         "//src/gpu/ops:TextureOp_src",
         "//src/gpu/ops:TriangulatingPathRenderer_src",
-        "//src/gpu/tessellate:PathCurveTessellator_src",
-        "//src/gpu/tessellate:PathWedgeTessellator_src",
-        "//src/gpu/tessellate:StrokeFixedCountTessellator_src",
-        "//src/gpu/tessellate:StrokeHardwareTessellator_src",
+        "//src/gpu/tessellate:FixedCountBufferUtils_src",
         "//src/gpu/tessellate:Tessellation_src",
         "//src/gpu/tessellate/shaders:GrPathTessellationShader_Hardware_src",
         "//src/gpu/tessellate/shaders:GrPathTessellationShader_MiddleOut_src",
@@ -1590,6 +1589,7 @@ generated_cc_atom(
         ":GrOpsRenderPass_hdr",
         ":GrPixmap_hdr",
         ":GrXferProcessor_hdr",
+        ":RefCntedCallback_hdr",
         ":Swizzle_hdr",
         "//include/core:SkPath_hdr",
         "//include/core:SkSpan_hdr",
@@ -1686,7 +1686,7 @@ generated_cc_atom(
     hdrs = ["GrManagedResource.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/private:GrTypesPriv_hdr",
+        ":RefCntedCallback_hdr",
         "//include/private:SkMutex_hdr",
         "//include/private:SkTHash_hdr",
         "//include/utils:SkRandom_hdr",
@@ -2186,6 +2186,7 @@ generated_cc_atom(
     deps = [
         ":BaseDevice_hdr",
         ":GrImageContextPriv_hdr",
+        ":RefCntedCallback_hdr",
         "//include/core:SkPaint_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/gpu/text:GrSDFTControl_hdr",
@@ -2868,6 +2869,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrGpuResource_hdr",
+        ":RefCntedCallback_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkRect_hdr",
         "//include/gpu:GrBackendSurface_hdr",
@@ -3556,4 +3558,11 @@ generated_cc_atom(
     hdrs = ["Blend.h"],
     visibility = ["//:__subpackages__"],
     deps = ["//include/core:SkTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "RefCntedCallback_hdr",
+    hdrs = ["RefCntedCallback.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
 )

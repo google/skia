@@ -184,10 +184,10 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":OpsTask_hdr",
+        ":PathTessellator_hdr",
         "//include/core:SkPath_hdr",
         "//src/core:SkTBlockList_hdr",
         "//src/gpu:GrDynamicAtlas_hdr",
-        "//src/gpu/tessellate:PathTessellator_hdr",
     ],
 )
 
@@ -813,13 +813,13 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":PathInnerTriangulateOp_hdr",
+        ":PathTessellator_hdr",
         "//src/gpu:GrEagerVertexAllocator_hdr",
         "//src/gpu:GrGpu_hdr",
         "//src/gpu:GrOpFlushState_hdr",
         "//src/gpu:GrRecordingContextPriv_hdr",
         "//src/gpu:GrResourceProvider_hdr",
         "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
-        "//src/gpu/tessellate:PathCurveTessellator_hdr",
         "//src/gpu/tessellate/shaders:GrPathTessellationShader_hdr",
     ],
 )
@@ -831,7 +831,7 @@ generated_cc_atom(
     deps = [
         ":FillPathFlags_hdr",
         ":GrDrawOp_hdr",
-        "//src/gpu/tessellate:PathTessellator_hdr",
+        ":PathTessellator_hdr",
         "//src/gpu/tessellate/shaders:GrTessellationShader_hdr",
     ],
 )
@@ -852,9 +852,8 @@ generated_cc_atom(
         "//src/gpu/glsl:GrGLSLVarying_hdr",
         "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
         "//src/gpu/tessellate:AffineMatrix_hdr",
+        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
         "//src/gpu/tessellate:MiddleOutPolygonTriangulator_hdr",
-        "//src/gpu/tessellate:PathCurveTessellator_hdr",
-        "//src/gpu/tessellate:PathWedgeTessellator_hdr",
         "//src/gpu/tessellate:Tessellation_hdr",
         "//src/gpu/tessellate/shaders:GrPathTessellationShader_hdr",
     ],
@@ -866,7 +865,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrDrawOp_hdr",
-        "//src/gpu/tessellate:PathTessellator_hdr",
+        ":PathTessellator_hdr",
         "//src/gpu/tessellate:Tessellation_hdr",
         "//src/gpu/tessellate/shaders:GrTessellationShader_hdr",
     ],
@@ -880,7 +879,6 @@ generated_cc_atom(
         ":PathTessellateOp_hdr",
         "//src/gpu:GrAppliedClip_hdr",
         "//src/gpu:GrOpFlushState_hdr",
-        "//src/gpu/tessellate:PathWedgeTessellator_hdr",
         "//src/gpu/tessellate/shaders:GrPathTessellationShader_hdr",
     ],
 )
@@ -1146,8 +1144,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrDrawOp_hdr",
+        ":StrokeTessellator_hdr",
         "//include/core:SkStrokeRec_hdr",
-        "//src/gpu/tessellate:StrokeTessellator_hdr",
         "//src/gpu/tessellate/shaders:GrTessellationShader_hdr",
     ],
 )
@@ -1163,8 +1161,6 @@ generated_cc_atom(
         "//src/gpu:GrAppliedClip_hdr",
         "//src/gpu:GrOpFlushState_hdr",
         "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu/tessellate:StrokeFixedCountTessellator_hdr",
-        "//src/gpu/tessellate:StrokeHardwareTessellator_hdr",
         "//src/gpu/tessellate/shaders:GrStrokeTessellationShader_hdr",
     ],
 )
@@ -1335,5 +1331,70 @@ generated_cc_atom(
         "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
         "//src/sksl/codegen:SkSLPipelineStageCodeGenerator_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathTessellator_hdr",
+    hdrs = ["PathTessellator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/gpu:GrGpuBuffer_hdr",
+        "//src/gpu:GrVertexChunkArray_hdr",
+        "//src/gpu/geometry:GrInnerFanTriangulator_hdr",
+        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
+        "//src/gpu/tessellate:Tessellation_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathTessellator_src",
+    srcs = ["PathTessellator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PathTessellator_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu/tessellate:AffineMatrix_hdr",
+        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
+        "//src/gpu/tessellate:MiddleOutPolygonTriangulator_hdr",
+        "//src/gpu/tessellate:MidpointContourParser_hdr",
+        "//src/gpu/tessellate:PatchWriter_hdr",
+        "//src/gpu/tessellate:WangsFormula_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeTessellator_hdr",
+    hdrs = ["StrokeTessellator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/private:SkColorData_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/gpu:GrVertexChunkArray_hdr",
+        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
+        "//src/gpu/tessellate:Tessellation_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeTessellator_src",
+    srcs = ["StrokeTessellator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":StrokeTessellator_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu/tessellate:PatchWriter_hdr",
+        "//src/gpu/tessellate:StrokeIterator_hdr",
+        "//src/gpu/tessellate:WangsFormula_hdr",
     ],
 )
