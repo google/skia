@@ -3038,8 +3038,7 @@ sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* c
                                   subRunsUnflattenSizeHint)};
     for (int i = 0; i < subRunCount; ++i) {
         auto subRun = GrSubRun::MakeFromBuffer(slug.get(), buffer, &slug->fAlloc, client);
-        // TODO: uncomment when all the sub runs serialize.
-        // if (!buffer.validate(subRun != nullptr)) { return nullptr; }
+        if (!buffer.validate(subRun != nullptr)) { return nullptr; }
         if (subRun != nullptr) {
             slug->fSubRuns.append(std::move(subRun));
         }
