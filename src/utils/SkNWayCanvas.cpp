@@ -11,11 +11,6 @@
 #include "src/core/SkDevice.h"
 
 SkNWayCanvas::SkNWayCanvas(int width, int height) : INHERITED(width, height) {}
-#if SK_SUPPORT_GPU && GR_TEST_UTILS
-SkNWayCanvas::SkNWayCanvas(SkCanvas* canvas) : INHERITED(sk_ref_sp(canvas->baseDevice())) {
-    this->addCanvas(canvas);
-}
-#endif
 
 SkNWayCanvas::~SkNWayCanvas() {
     this->removeAll();
