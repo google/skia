@@ -114,7 +114,7 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(const Context& ctx,
         }
 
         inputs[i]->draw(canvas,
-                        SkIntToScalar(offsets[i].x() - x0), SkIntToScalar(offsets[i].y() - y0));
+                        SkIntToScalar(offsets[i].x()) - x0, SkIntToScalar(offsets[i].y()) - y0);
     }
 
     offset->fX = bounds.left();
