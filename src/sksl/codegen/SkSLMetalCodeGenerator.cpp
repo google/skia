@@ -2756,9 +2756,6 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
 }
 
 MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const FunctionDeclaration& f) {
-    if (f.isBuiltin()) {
-        return kNo_Requirements;
-    }
     Requirements* found = fRequirements.find(&f);
     if (!found) {
         fRequirements.set(&f, kNo_Requirements);
