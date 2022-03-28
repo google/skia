@@ -23,6 +23,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/analysis/SkSLNoOpErrorReporter.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -241,13 +242,6 @@ private:
     using INHERITED = ProgramVisitor;
 };
 
-// If a caller doesn't care about errors, we can use this trivial reporter that just counts up.
-class TrivialErrorReporter : public ErrorReporter {
-public:
-    ~TrivialErrorReporter() override { this->reportPendingErrors({}); }
-    void handleError(std::string_view, Position) override {}
-};
-
 // This isn't actually using ProgramVisitor, because it only considers a subset of the fields for
 // any given expression kind. For instance, when indexing an array (e.g. `x[1]`), we only want to
 // know if the base (`x`) is assignable; the index expression (`1`) doesn't need to be.
@@ -414,8 +408,8 @@ bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& 
 }
 
 bool Analysis::IsAssignable(Expression& expr, AssignmentInfo* info, ErrorReporter* errors) {
-    TrivialErrorReporter trivialErrors;
-    return IsAssignableVisitor{errors ? errors : &trivialErrors}.visit(expr, info);
+    NoOpErrorReporter unusedErrors;
+    return IsAssignableVisitor{errors ? errors : &unusedErrors}.visit(expr, info);
 }
 
 bool Analysis::UpdateVariableRefKind(Expression* expr,
