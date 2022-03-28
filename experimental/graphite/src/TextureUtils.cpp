@@ -25,8 +25,6 @@
 
 namespace skgpu {
 
-// Based on Ganesh, we may need to use this in more than one place,
-// so pulling it out to make it more modular before finding it a home.
 std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder,
                                                               const SkBitmap& bitmap,
                                                               Mipmapped mipmapped,

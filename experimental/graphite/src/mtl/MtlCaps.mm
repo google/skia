@@ -476,7 +476,7 @@ skgpu::TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
     TextureInfo info;
     info.fSampleCount = 1;
     info.fLevelCount = levelCount;
-    info.fFormat = SkColorTypeToFormat(colorType);
+    info.fFormat = this->getFormatFromColorType(colorType);
     info.fUsage = usage;
     info.fStorageMode = MTLStorageModePrivate;
     info.fFramebufferOnly = false;
@@ -492,7 +492,7 @@ skgpu::TextureInfo Caps::getDefaultMSAATextureInfo(SkColorType colorType,
     TextureInfo info;
     info.fSampleCount = sampleCount;
     info.fLevelCount = 1;
-    info.fFormat = SkColorTypeToFormat(colorType);
+    info.fFormat = this->getFormatFromColorType(colorType);
     info.fUsage = usage;
     info.fStorageMode = MTLStorageModePrivate;
     info.fFramebufferOnly = false;

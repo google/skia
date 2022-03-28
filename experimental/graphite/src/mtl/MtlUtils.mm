@@ -51,22 +51,6 @@ bool FormatIsStencil(MTLPixelFormat format) {
     }
 }
 
-MTLPixelFormat SkColorTypeToFormat(SkColorType colorType) {
-    switch (colorType) {
-        case kRGBA_8888_SkColorType:
-            return MTLPixelFormatRGBA8Unorm;
-        case kBGRA_8888_SkColorType:
-            return MTLPixelFormatBGRA8Unorm;
-        case kAlpha_8_SkColorType:
-            return MTLPixelFormatR8Unorm;
-        case kRGBA_F16_SkColorType:
-            return MTLPixelFormatRGBA16Float;
-        default:
-            // TODO: fill in the rest of the formats
-            SkUNREACHABLE;
-    }
-}
-
 MTLPixelFormat DepthStencilFlagsToFormat(Mask<DepthStencilFlags> mask) {
     // TODO: Decide if we want to change this to always return a combined depth and stencil format
     // to allow more sharing of depth stencil allocations.
