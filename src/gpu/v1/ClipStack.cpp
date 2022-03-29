@@ -1646,7 +1646,7 @@ GrFPResult ClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* mask
     fp = GrFragmentProcessor::DeviceSpace(std::move(fp));
 
     // Must combine the coverage sampled from the texture effect with the previous coverage
-    fp = GrBlendFragmentProcessor::Make(std::move(fp), std::move(clipFP), SkBlendMode::kDstIn);
+    fp = GrBlendFragmentProcessor::Make<SkBlendMode::kDstIn>(std::move(fp), std::move(clipFP));
     return GrFPSuccess(std::move(fp));
 }
 

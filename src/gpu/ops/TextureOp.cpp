@@ -1181,7 +1181,7 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
                                        caps);
         }
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
-        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
+        fp = GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(fp), nullptr);
         if (saturate == Saturate::kYes) {
             fp = GrFragmentProcessor::ClampOutput(std::move(fp));
         }

@@ -17,11 +17,22 @@ namespace GrBlendFragmentProcessor {
 
 /**
  * Blends src and dst inputs according to the blend mode. If either input is null, fInputColor is
- * used instead.
+ * used instead. TODO(johnstiles): Uses a uniform to specify the blend mode, reducing shader count.
  */
 std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> src,
                                           std::unique_ptr<GrFragmentProcessor> dst,
                                           SkBlendMode mode);
+
+/**
+ * Blends src and dst inputs according to the blend mode. If either input is null, fInputColor is
+ * used instead. Bakes the blend function directly into the code.
+ */
+template <SkBlendMode mode>
+std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> src,
+                                          std::unique_ptr<GrFragmentProcessor> dst) {
+    return Make(std::move(src), std::move(dst), mode);
+}
+
 
 }  // namespace GrBlendFragmentProcessor
 

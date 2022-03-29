@@ -521,8 +521,8 @@ void draw_image(GrRecordingContext* rContext,
             if (!shaderFP) {
                 return;
             }
-            fp = GrBlendFragmentProcessor::Make(
-                    std::move(fp), std::move(shaderFP), SkBlendMode::kDstIn);
+            fp = GrBlendFragmentProcessor::Make<SkBlendMode::kDstIn>(std::move(fp),
+                                                                     std::move(shaderFP));
         } else {
             // Multiply the input (paint) color by the texture (alpha)
             fp = GrFragmentProcessor::MulInputByChildAlpha(std::move(fp));

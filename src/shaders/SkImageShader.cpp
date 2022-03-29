@@ -366,7 +366,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                            kPremul_SkAlphaType);
 
         if (fImage->isAlphaOnly()) {
-            fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
+            fp = GrBlendFragmentProcessor::Make<SkBlendMode::kDstIn>(std::move(fp), nullptr);
         }
     }
 
