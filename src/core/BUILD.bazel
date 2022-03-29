@@ -3988,6 +3988,7 @@ generated_cc_atom(
         "//include/core:SkPicture_hdr",
         "//include/core:SkSurface_hdr",
         "//include/private:SkTo_hdr",
+        "//include/private/chromium:GrSlug_hdr",
         "//src/utils:SkPatchUtils_hdr",
     ],
 )
@@ -4014,6 +4015,7 @@ generated_cc_atom(
         "//include/core:SkString_hdr",
         "//include/core:SkTextBlob_hdr",
         "//include/core:SkVertices_hdr",
+        "//include/private/chromium:GrSlug_hdr",
     ],
 )
 

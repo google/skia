@@ -26,6 +26,10 @@
 #include "include/core/SkVertices.h"
 #include "src/core/SkDrawShadowInfo.h"
 
+#if SK_SUPPORT_GPU
+#include "include/private/chromium/GrSlug.h"
+#endif
+
 namespace SkRecords {
 
 // A list of all the types of canvas calls we can record.
@@ -74,6 +78,7 @@ namespace SkRecords {
     M(DrawRect)                                                     \
     M(DrawRegion)                                                   \
     M(DrawTextBlob)                                                 \
+    M(DrawSlug)                                                     \
     M(DrawAtlas)                                                    \
     M(DrawVertices)                                                 \
     M(DrawShadowRec)                                                \
@@ -293,6 +298,12 @@ RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         sk_sp<const SkTextBlob> blob;
         SkScalar x;
         SkScalar y);
+#if SK_SUPPORT_GPU
+RECORD(DrawSlug, kDraw_Tag|kHasText_Tag,
+       sk_sp<const GrSlug> slug);
+#else
+RECORD(DrawSlug, 0)
+#endif
 RECORD(DrawPatch, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<SkPoint> cubics;

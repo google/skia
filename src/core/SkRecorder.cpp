@@ -11,6 +11,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
 #include "include/private/SkTo.h"
+#include "include/private/chromium/GrSlug.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkGlyphRun.h"
@@ -233,6 +234,12 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     TRY_MINIRECORDER(drawTextBlob, blob, x, y, paint);
     this->append<SkRecords::DrawTextBlob>(paint, sk_ref_sp(blob), x, y);
 }
+
+#if SK_SUPPORT_GPU
+void SkRecorder::onDrawSlug(const GrSlug* slug) {
+    this->append<SkRecords::DrawSlug>(sk_ref_sp(slug));
+}
+#endif
 
 void SkRecorder::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     sk_sp<SkTextBlob> blob = sk_ref_sp(glyphRunList.blob());
