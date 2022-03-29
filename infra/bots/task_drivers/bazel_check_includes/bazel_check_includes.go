@@ -20,9 +20,8 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
-// This value is currently 110% of the total number of workers. We can play with this number as
-// RBE gets more and more use.
-const rbeJobs = 165
+// This value is arbitrarily selected. It is smaller than our maximum RBE pool size.
+const rbeJobs = 100
 
 var (
 	// Required properties for this task.

@@ -23,7 +23,7 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
-// This value is arbitrarily selected.
+// This value is arbitrarily selected. It is smaller than our maximum RBE pool size.
 const rbeJobs = 100
 
 var (
