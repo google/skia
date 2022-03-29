@@ -680,13 +680,6 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     if (kARM_VkVendor == properties.vendorID) {
         fShouldCollapseSrcOverToSrcWhenAble = true;
     }
-
-    // We're seeing vkCmdClearAttachments take a lot of cpu time when clearing the color attachment.
-    // We really should only be getting in there for partial clears. So instead we will do all
-    // partial clears as draws.
-    if (kQualcomm_VkVendor == properties.vendorID) {
-        fPerformPartialClearsAsDraws = true;
-    }
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
