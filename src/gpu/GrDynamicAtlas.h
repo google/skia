@@ -8,13 +8,11 @@
 #ifndef GrDynamicAtlas_DEFINED
 #define GrDynamicAtlas_DEFINED
 
-#include "src/core/SkArenaAlloc.h"
+#include "src/gpu/GrDynamicRectanizer.h"
 #include "src/gpu/GrTextureProxy.h"
 
 class GrOnFlushResourceProvider;
 class GrResourceProvider;
-struct SkIPoint16;
-struct SkIRect;
 
 /**
  * This class implements a dynamic size GrRectanizer that grows until it reaches the implementation-
@@ -25,8 +23,6 @@ class GrDynamicAtlas {
 public:
     // As long as GrSurfaceOrigin exists, we just have to decide on one for the atlas texture.
     inline static constexpr GrSurfaceOrigin kTextureOrigin = kTopLeft_GrSurfaceOrigin;
-    inline static constexpr int kPadding = 1;  // Amount of padding below and to the right of each
-                                               // path.
 
     using LazyAtlasDesc = GrSurfaceProxy::LazySurfaceDesc;
     using LazyInstantiateAtlasCallback = GrSurfaceProxy::LazyInstantiateCallback;
@@ -42,10 +38,7 @@ public:
                                                     const GrCaps&,
                                                     GrSurfaceProxy::UseAllocator);
 
-    enum class RectanizerAlgorithm {
-        kSkyline,
-        kPow2
-    };
+    using RectanizerAlgorithm = GrDynamicRectanizer::RectanizerAlgorithm;
 
     GrDynamicAtlas(GrColorType colorType, InternalMultisample, SkISize initialSize,
                    int maxAtlasSize, const GrCaps&,
@@ -55,7 +48,7 @@ public:
     void reset(SkISize initialSize, const GrCaps& desc);
 
     GrColorType colorType() const { return fColorType; }
-    int maxAtlasSize() const { return fMaxAtlasSize; }
+    int maxAtlasSize() const { return fDynamicRectanizer.maxAtlasSize(); }
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
     GrSurfaceProxyView readView(const GrCaps&) const;
     GrSurfaceProxyView writeView(const GrCaps&) const;
@@ -64,7 +57,7 @@ public:
     // Attempts to add a rect to the atlas. Returns true if successful, along with the rect's
     // top-left location in the atlas.
     bool addRect(int width, int height, SkIPoint16* location);
-    const SkISize& drawBounds() { return fDrawBounds; }
+    const SkISize& drawBounds() { return fDynamicRectanizer.drawBounds(); }
 
     // Instantiates our texture proxy for the atlas. After this call, it is no longer valid to call
     // addRect(), setUserBatchID(), or this method again.
@@ -82,15 +75,7 @@ private:
 
     const GrColorType fColorType;
     const InternalMultisample fInternalMultisample;
-    const int fMaxAtlasSize;
-    const RectanizerAlgorithm fRectanizerAlgorithm;
-    int fWidth;
-    int fHeight;
-    SkISize fDrawBounds;
-
-    SkSTArenaAllocWithReset<512> fNodeAllocator;
-    Node* fTopNode = nullptr;
-
+    GrDynamicRectanizer fDynamicRectanizer;
     sk_sp<GrTextureProxy> fTextureProxy;
     sk_sp<GrTexture> fBackingTexture;
 };

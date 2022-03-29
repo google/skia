@@ -91,6 +91,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrDstProxyView.h",
   "$_src/gpu/GrDynamicAtlas.cpp",
   "$_src/gpu/GrDynamicAtlas.h",
+  "$_src/gpu/GrDynamicRectanizer.cpp",
+  "$_src/gpu/GrDynamicRectanizer.h",
   "$_src/gpu/GrEagerVertexAllocator.cpp",
   "$_src/gpu/GrEagerVertexAllocator.h",
   "$_src/gpu/GrFinishCallbacks.cpp",
