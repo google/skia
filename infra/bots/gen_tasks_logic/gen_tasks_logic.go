@@ -499,10 +499,13 @@ func GenTasks(cfg *Config) {
 		Root: "..",
 		Paths: []string{
 			// Deps needed to use Bazel
+			"skia/.bazelrc",
+			"skia/.bazelversion",
 			"skia/BUILD.bazel",
 			"skia/WORKSPACE.bazel",
 			"skia/bazel",
 			"skia/go_repositories.bzl",
+			"skia/requirements.txt",
 			"skia/toolchain",
 			// Actually needed to build the task drivers
 			"skia/infra/bots/BUILD.bazel",

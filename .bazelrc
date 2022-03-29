@@ -84,8 +84,8 @@ build:remote --remote_instance_name projects/skia-rbe/instances/default_instance
 build:linux-rbe --config=remote
 # Use our hermetic toolchain instead of the clang in the toolchain.
 build:linux-rbe --crosstool_top=//toolchain:clang_suite
+# We want to run on this RBE platform
 build:linux-rbe --extra_execution_platforms=//bazel/rbe:gce_linux_platform
-build:linux-rbe --host_platform=//bazel/rbe:gce_linux_platform
-build:linux-rbe --platforms=//bazel/rbe:gce_linux_platform
+# On the RBE instances, this Java and C++ toolchain are available
 build:linux-rbe --extra_toolchains=//bazel/rbe/gce_linux/java:all
 build:linux-rbe --extra_toolchains=//bazel/rbe/gce_linux/config:cc-toolchain

@@ -23,7 +23,8 @@ PLATFORM=${2:-linux_amd64} # use linux_amd64 if not specified
 # /mnt/pd0 is the bigger disk mounted to the GCE VM.
 # https://bazel.build/docs/output_directories#layout
 bazelisk --output_user_root=/mnt/pd0/bazel_cache \
-    build //infra/bots:all_task_drivers --platforms=@io_bazel_rules_go//go/toolchain:${PLATFORM}
+    build //infra/bots:all_task_drivers --platforms=@io_bazel_rules_go//go/toolchain:${PLATFORM} \
+    --config=linux-rbe
 
 tar -xf bazel-bin/infra/bots/built_task_drivers.tar -C ${1}
 # Bazel outputs are write-protected, so we make sure everybody can write them. This way there
