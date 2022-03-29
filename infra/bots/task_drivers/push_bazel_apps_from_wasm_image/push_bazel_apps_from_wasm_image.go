@@ -112,6 +112,8 @@ func main() {
 	}
 
 	opts := bazel.BazelOptions{
+		// We want the cache to be on a bigger disk than default. The root disk, where the home
+		// directory (and default Bazel cache) lives, is only 15 GB on our GCE VMs.
 		CachePath: "/mnt/pd0/bazel_cache",
 	}
 	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
