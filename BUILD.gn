@@ -637,33 +637,8 @@ if (skia_compile_sksl_tests) {
       "SK_ENABLE_SPIRV_CROSS",
       "SK_ENABLE_SPIRV_VALIDATION",
     ]
-    sources = [
-      "src/core/SkArenaAlloc.cpp",
-      "src/core/SkBlockAllocator.cpp",
-      "src/core/SkCpu.cpp",
-      "src/core/SkData.cpp",
-      "src/core/SkHalf.cpp",
-      "src/core/SkMalloc.cpp",
-      "src/core/SkMath.cpp",
-      "src/core/SkMatrixInvert.cpp",
-      "src/core/SkSemaphore.cpp",
-      "src/core/SkStream.cpp",
-      "src/core/SkString.cpp",
-      "src/core/SkStringUtils.cpp",
-      "src/core/SkThreadID.cpp",
-      "src/core/SkUtils.cpp",
-      "src/core/SkVM.cpp",
-      "src/gpu/GrMemoryPool.cpp",
-      "src/ports/SkMemory_malloc.cpp",
-      "src/ports/SkOSFile_stdio.cpp",
-      "src/sksl/SkSLMain.cpp",
-      "src/utils/SkJSON.cpp",
-      "src/utils/SkJSONWriter.cpp",
-      "src/utils/SkParse.cpp",
-      "src/utils/SkShaderUtils.cpp",
-      "src/utils/SkUTF.cpp",
-      "src/utils/SkVMVisualizer.cpp",
-    ]
+    sources = skslc_deps
+    sources += [ "src/sksl/SkSLMain.cpp" ]
     libs = []
     if (is_win) {
       sources += [ "src/ports/SkOSFile_win.cpp" ]
