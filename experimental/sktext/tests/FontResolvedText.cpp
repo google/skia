@@ -39,14 +39,14 @@ struct GrContextOptions;
 using namespace skia::text;
 
 UNIX_ONLY_TEST(SkText_FontResolution1, reporter) {
-    TrivialFontChain* fontChain = new TrivialFontChain("Roboto", 40.0f, SkFontStyle::Normal());
+    auto fontChain = sk_sp(new TrivialFontChain("Roboto", 40.0f, SkFontStyle::Normal()));
     if (fontChain->empty()) return;
 
     std::u16string utf16(u"Hello world");
     UnicodeText unicodeText(SkUnicode::Make(), SkSpan<uint16_t>((uint16_t*)utf16.data(), utf16.size()));
     if (!unicodeText.getUnicode()) return;
 
-    FontBlock fontBlock(utf16.size(), sk_ref_sp<FontChain>(fontChain));
+    FontBlock fontBlock(utf16.size(), fontChain);
     auto fontResolvedText = unicodeText.resolveFonts(SkSpan<FontBlock>(&fontBlock, 1));
 
     auto resolvedFonts = fontResolvedText->resolvedFonts();
@@ -59,14 +59,14 @@ UNIX_ONLY_TEST(SkText_FontResolution1, reporter) {
 }
 
 UNIX_ONLY_TEST(SkText_FontResolution3, reporter) {
-    MultipleFontChain* fontChain = new MultipleFontChain({ "Roboto", "Noto Color Emoji", "Noto Serif CJK JP" }, 40.0f, SkFontStyle::Normal());
+    auto fontChain = sk_sp(new MultipleFontChain({ "Roboto", "Noto Color Emoji", "Noto Serif CJK JP" }, 40.0f, SkFontStyle::Normal()));
     if (fontChain->count() < 3) return;
 
     std::u16string utf16(u"English English 字典 字典 😀😃😄 😀😃😄");
     UnicodeText unicodeText(SkUnicode::Make(), SkSpan<uint16_t>((uint16_t*)utf16.data(), utf16.size()));
     if (!unicodeText.getUnicode()) return;
 
-    FontBlock fontBlock(utf16.size(), sk_ref_sp<FontChain>(fontChain));
+    FontBlock fontBlock(utf16.size(), fontChain);
     auto fontResolvedText = unicodeText.resolveFonts(SkSpan<FontBlock>(&fontBlock, 1));
 
     auto resolvedFonts = fontResolvedText->resolvedFonts();

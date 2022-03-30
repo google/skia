@@ -39,14 +39,14 @@ struct GrContextOptions;
 using namespace skia::text;
 
 UNIX_ONLY_TEST(SkText_ShapedText_LTR, reporter) {
-    TrivialFontChain* fontChain = new TrivialFontChain("Roboto", 40.0f, SkFontStyle::Normal());
+    auto fontChain = sk_sp(new TrivialFontChain("Roboto", 40.0f, SkFontStyle::Normal()));
     if (fontChain->empty()) return;
 
     std::u16string utf16(u"Hello world\nHello world");
     UnicodeText unicodeText(SkUnicode::Make(), SkSpan<uint16_t>((uint16_t*)utf16.data(), utf16.size()));
     if (!unicodeText.getUnicode()) return;
 
-    FontBlock fontBlock(utf16.size(), sk_ref_sp<FontChain>(fontChain));
+    FontBlock fontBlock(utf16.size(), fontChain);
     auto fontResolvedText = unicodeText.resolveFonts(SkSpan<FontBlock>(&fontBlock, 1));
     auto shapedText = fontResolvedText->shape(&unicodeText, TextDirection::kLtr);
     auto logicalRuns = shapedText->getLogicalRuns();
@@ -58,7 +58,7 @@ UNIX_ONLY_TEST(SkText_ShapedText_LTR, reporter) {
 }
 
 UNIX_ONLY_TEST(SkText_ShapedText_RTL, reporter) {
-    sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40.0f, SkFontStyle::Normal());
+    auto fontChain = sk_sp(new TrivialFontChain("Roboto", 40.0f, SkFontStyle::Normal()));
     if (fontChain->empty()) return;
 
     std::u16string utf16(u"\u202EHELLO WORLD\nHELLO WORLD");
