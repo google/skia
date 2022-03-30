@@ -214,7 +214,7 @@ if (is_ios) {
       }
 
       # should only code sign when running on a device, not the simulator
-      if (target_cpu != "x64") {
+      if (!ios_use_simulator) {
         code_signing_script = "//gn/codesign_ios.py"
         code_signing_sources = [ "$target_gen_dir/$app_name" ]
         code_signing_outputs = [

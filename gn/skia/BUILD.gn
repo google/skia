@@ -25,12 +25,12 @@ declare_args() {
 if (is_ios && xcode_sysroot == "") {
   if (is_tvos) {
     sdk = "appletvos"
-    if (target_cpu == "x86" || target_cpu == "x64") {
+    if (ios_use_simulator) {
       sdk = "appletvsimulator"
     }
   } else {
     sdk = "iphoneos"
-    if (target_cpu == "x86" || target_cpu == "x64") {
+    if (ios_use_simulator) {
       sdk = "iphonesimulator"
     }
   }

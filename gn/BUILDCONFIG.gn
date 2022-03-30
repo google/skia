@@ -31,6 +31,8 @@ declare_args() {
   clang_win_version = ""
 
   ios_min_target = ""
+  ios_use_simulator =
+      target_os == "ios" && (target_cpu == "x86" || target_cpu == "x64")
 }
 declare_args() {
   is_debug = !is_official_build
