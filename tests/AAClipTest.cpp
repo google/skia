@@ -119,6 +119,8 @@ static bool operator==(const SkRasterClip& a, const SkRasterClip& b) {
     SkMask mask0, mask1;
     copyToMask(a, &mask0);
     copyToMask(b, &mask1);
+    SkAutoMaskFreeImage free0(mask0.fImage);
+    SkAutoMaskFreeImage free1(mask1.fImage);
     return mask0 == mask1;
 }
 
@@ -142,11 +144,9 @@ static bool operator==(const SkRegion& rgn, const SkAAClip& aaclip) {
 
     copyToMask(rgn, &mask0);
     aaclip.copyToMask(&mask1);
-    bool eq = (mask0 == mask1);
-
-    SkMask::FreeImage(mask0.fImage);
-    SkMask::FreeImage(mask1.fImage);
-    return eq;
+    SkAutoMaskFreeImage free0(mask0.fImage);
+    SkAutoMaskFreeImage free1(mask1.fImage);
+    return mask0 == mask1;
 }
 
 static bool equalsAAClip(const SkRegion& rgn) {
