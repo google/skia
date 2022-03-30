@@ -111,12 +111,7 @@ generated_cc_atom(
     name = "ContextUtils_hdr",
     hdrs = ["ContextUtils.h"],
     visibility = ["//:__subpackages__"],
-    deps = [
-        "//experimental/graphite/include:Context_hdr",
-        "//include/core:SkBlendMode_hdr",
-        "//include/core:SkSpan_hdr",
-        "//include/core:SkTileMode_hdr",
-    ],
+    deps = [":PipelineDataCache_hdr"],
 )
 
 generated_cc_atom(
@@ -126,6 +121,8 @@ generated_cc_atom(
     deps = [
         ":ContextUtils_hdr",
         ":PaintParams_hdr",
+        ":RecorderPriv_hdr",
+        ":ResourceProvider_hdr",
         "//include/private:SkUniquePaintParamsID_hdr",
         "//src/core:SkBlenderBase_hdr",
         "//src/core:SkKeyContext_hdr",

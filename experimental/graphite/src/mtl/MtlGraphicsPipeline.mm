@@ -186,7 +186,7 @@ std::string get_sksl_vs(const GraphicsPipelineDesc& desc) {
 
 std::string get_sksl_fs(SkShaderCodeDictionary* dict,
                         const GraphicsPipelineDesc& desc,
-                        SkPipelineData::BlendInfo* blendInfo) {
+                        SkPipelineDataGatherer::BlendInfo* blendInfo) {
     if (!desc.paintParamsID().isValid()) {
         // TODO: we should return the error shader code here
         return {};
@@ -410,7 +410,7 @@ static MTLBlendOperation blend_equation_to_mtl_blend_op(skgpu::BlendEquation equ
 
 static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
         MTLPixelFormat format,
-        const SkPipelineData::BlendInfo& blendInfo) {
+        const SkPipelineDataGatherer::BlendInfo& blendInfo) {
 
     skgpu::BlendEquation equation = blendInfo.fEquation;
     skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
@@ -513,7 +513,7 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvide
         return nullptr;
     }
 
-    SkPipelineData::BlendInfo blendInfo;
+    SkPipelineDataGatherer::BlendInfo blendInfo;
     auto dict = resourceProvider->shaderCodeDictionary();
     if (!SkSLToMSL(gpu,
                    get_sksl_fs(dict, pipelineDesc, &blendInfo),

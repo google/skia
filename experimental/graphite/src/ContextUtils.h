@@ -8,26 +8,22 @@
 #ifndef skgpu_ContextUtils_DEFINED
 #define skgpu_ContextUtils_DEFINED
 
-#include "experimental/graphite/include/Context.h"
-#include "include/core/SkBlendMode.h"
-#include "include/core/SkSpan.h"
-#include "include/core/SkTileMode.h"
+#include "experimental/graphite/src/PipelineDataCache.h"
 
-enum class CodeSnippetID : uint8_t;
 class SkPaintParamsKeyBuilder;
-class SkPipelineData;
-class SkShaderCodeDictionary;
-class SkUniform;
+class SkPipelineDataGatherer;
 class SkUniquePaintParamsID;
 
 namespace skgpu {
 
 class PaintParams;
+class Recorder;
 
-std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkPipelineData>> ExtractPaintData(
-        Recorder*,
-        SkPaintParamsKeyBuilder* builder,
-        const PaintParams&);
+std::tuple<SkUniquePaintParamsID, UniformDataCache::Index, TextureDataCache::Index>
+ExtractPaintData(Recorder*,
+                 SkPipelineDataGatherer* gatherer,
+                 SkPaintParamsKeyBuilder* builder,
+                 const PaintParams&);
 
 } // namespace skgpu
 

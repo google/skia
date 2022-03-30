@@ -77,8 +77,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     auto recorder = context->makeRecorder();
     SkKeyContext keyContext(recorder.get());
     auto dict = keyContext.dict();
+    auto uCache = recorder->priv().uniformDataCache();
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+    SkPipelineDataGatherer gatherer;
 
     // Intentionally does not include ShaderType::kNone, which represents no fragment shading stage
     // and is thus not relevant to uniform extraction/caching.
@@ -98,8 +100,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
                 auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
 
-                auto [ uniqueID1, pipelineData] = ExtractPaintData(recorder.get(), &builder,
-                                                                   PaintParams(p));
+                auto [ uniqueID1, uIndex, tIndex] = ExtractPaintData(recorder.get(), &gatherer,
+                                                                     &builder, PaintParams(p));
 
                 SkUniquePaintParamsID uniqueID2 = CreateKey(keyContext, &builder, s, tm, bm);
                 // ExtractPaintData and CreateKey agree
@@ -107,10 +109,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
 
                 // ExtractPaintData made the pipeline data we expected
                 {
-                    auto uniforms = pipelineData->uniformDataBlock();
-                    int actualNumUniforms = uniforms.numUniforms();
+                    SkUniformDataBlock* uniforms = uCache->lookup(uIndex);
+                    int actualNumUniforms = uniforms->numUniforms();
                     REPORTER_ASSERT(reporter, expectedNumUniforms == actualNumUniforms);
-                    for (const auto& u : uniforms) {
+                    for (const auto& u : *uniforms) {
                         for (int i = 0; i < u->count(); ++i) {
                             REPORTER_ASSERT(reporter,
                                             u->offset(i) >= 0 && u->offset(i) < u->dataSize());

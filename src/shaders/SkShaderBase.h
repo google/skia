@@ -30,7 +30,7 @@ class SkImage;
 struct SkImageInfo;
 class SkPaint;
 class SkPaintParamsKeyBuilder;
-class SkPipelineData;
+class SkPipelineDataGatherer;
 class SkRasterPipeline;
 class SkRuntimeEffect;
 class SkKeyContext;
@@ -219,13 +219,13 @@ public:
         Add implementation details, for the specified backend, of this SkShader to the
         provided key.
 
-        @param keyContext   backend context for key creation
-        @param builder      builder for creating the key for this SkShader
-        @param pipelineData if non-null, storage for this shader's data
+        @param keyContext backend context for key creation
+        @param builder    builder for creating the key for this SkShader
+        @param gatherer   if non-null, storage for this shader's data
     */
     virtual void addToKey(const SkKeyContext& keyContext,
                           SkPaintParamsKeyBuilder* builder,
-                          SkPipelineData* pipelineData) const;
+                          SkPipelineDataGatherer* gatherer) const;
 #endif
 
 protected:

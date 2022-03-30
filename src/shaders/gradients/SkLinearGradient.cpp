@@ -111,7 +111,7 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
 #ifdef SK_ENABLE_SKSL
 void SkLinearGradient::addToKey(const SkKeyContext& keyContext,
                                 SkPaintParamsKeyBuilder* builder,
-                                SkPipelineData* pipelineData) const {
+                                SkPipelineDataGatherer* gatherer) const {
     GradientShaderBlocks::GradientData data(kLinear_GradientType,
                                             fStart, fEnd,
                                             0.0f, 0.0f,
@@ -120,6 +120,6 @@ void SkLinearGradient::addToKey(const SkKeyContext& keyContext,
                                             fOrigColors4f,
                                             fOrigPos);
 
-    GradientShaderBlocks::AddToKey(keyContext, builder, pipelineData, data);
+    GradientShaderBlocks::AddToKey(keyContext, builder, gatherer, data);
 }
 #endif

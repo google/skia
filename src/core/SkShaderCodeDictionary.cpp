@@ -134,7 +134,7 @@ std::string SkShaderInfo::toSkSL() const {
 SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(
         const SkPaintParamsKey& key
 #ifdef SK_GRAPHITE_ENABLED
-        , const SkPipelineData::BlendInfo& blendInfo
+        , const SkPipelineDataGatherer::BlendInfo& blendInfo
 #endif
         ) {
     uint8_t* newKeyData = fArena.makeArray<uint8_t>(key.sizeInBytes());
@@ -155,7 +155,7 @@ size_t SkShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey* key) con
 const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
         const SkPaintParamsKey& key
 #ifdef SK_GRAPHITE_ENABLED
-        , const SkPipelineData::BlendInfo& blendInfo
+        , const SkPipelineDataGatherer::BlendInfo& blendInfo
 #endif
         ) {
     SkAutoSpinlock lock{fSpinLock};

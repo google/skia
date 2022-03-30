@@ -19,7 +19,7 @@ struct GrFPArgs;
 class GrFragmentProcessor;
 class SkColorInfo;
 class SkPaintParamsKeyBuilder;
-class SkPipelineData;
+class SkPipelineDataGatherer;
 class SkRuntimeEffect;
 class SkKeyContext;
 
@@ -61,7 +61,7 @@ public:
     // TODO: make pure virtual
     virtual void addToKey(const SkKeyContext&,
                           SkPaintParamsKeyBuilder*,
-                          SkPipelineData*) const;
+                          SkPipelineDataGatherer*) const;
 #endif
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }

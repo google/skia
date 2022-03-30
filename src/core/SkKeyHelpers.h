@@ -20,7 +20,7 @@
 
 enum class SkBackend : uint8_t;
 class SkPaintParamsKeyBuilder;
-class SkPipelineData;
+class SkPipelineDataGatherer;
 class SkUniquePaintParamsID;
 class SkKeyContext;
 
@@ -32,7 +32,7 @@ namespace DepthStencilOnlyBlock {
 
     void AddToKey(const SkKeyContext&,
                   SkPaintParamsKeyBuilder*,
-                  SkPipelineData*);
+                  SkPipelineDataGatherer*);
 
 } // namespace DepthStencilOnlyBlock
 
@@ -40,7 +40,7 @@ namespace SolidColorShaderBlock {
 
     void AddToKey(const SkKeyContext&,
                   SkPaintParamsKeyBuilder*,
-                  SkPipelineData*,
+                  SkPipelineDataGatherer*,
                   const SkPMColor4f&);
 
 } // namespace SolidColorShaderBlock
@@ -93,7 +93,7 @@ namespace GradientShaderBlocks {
 
     void AddToKey(const SkKeyContext&,
                   SkPaintParamsKeyBuilder*,
-                  SkPipelineData*,
+                  SkPipelineDataGatherer*,
                   const GradientData&);
 
 } // namespace GradientShaderBlocks
@@ -120,7 +120,7 @@ namespace ImageShaderBlock {
 
     void AddToKey(const SkKeyContext&,
                   SkPaintParamsKeyBuilder*,
-                  SkPipelineData*,
+                  SkPipelineDataGatherer*,
                   const ImageData&);
 
 } // namespace ImageShaderBlock
@@ -136,7 +136,7 @@ namespace BlendShaderBlock {
 
     void AddToKey(const SkKeyContext&,
                   SkPaintParamsKeyBuilder*,
-                  SkPipelineData*,
+                  SkPipelineDataGatherer*,
                   const BlendData&);
 
 } // namespace BlendShaderBlock
@@ -145,7 +145,7 @@ namespace BlendModeBlock {
 
     void AddToKey(const SkKeyContext&,
                   SkPaintParamsKeyBuilder*,
-                  SkPipelineData*,
+                  SkPipelineDataGatherer*,
                   SkBlendMode);
 
 } // namespace BlendModeBlock

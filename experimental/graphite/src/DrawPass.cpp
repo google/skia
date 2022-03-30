@@ -201,7 +201,16 @@ public:
         }
 
         UniformDataCache::Index uIndex = fUniformDataCache->insert(uniformDataBlock);
+        return this->addUniforms(uIndex);
+    }
+
+    UniformDataCache::Index addUniforms(UniformDataCache::Index uIndex) {
+        if (!uIndex.isValid()) {
+            return {};
+        }
+
         SkUniformDataBlock *udb = fUniformDataCache->lookup(uIndex);
+        SkASSERT(udb);
 
         if (fBindings.find(uIndex.asUInt()) == fBindings.end()) {
             // First time encountering this data, so upload to the GPU
@@ -309,6 +318,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     SkShaderCodeDictionary* dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+    SkPipelineDataGatherer gatherer;
 
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
         if (occlusionCuller && occlusionCuller->isOccluded(draw.fGeometry.clip().drawBounds(),
@@ -323,12 +333,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         UniformDataCache::Index shadingUniformIndex;
         TextureDataCache::Index textureBindingIndex;
         if (draw.fPaintParams.has_value()) {
-            std::unique_ptr<SkPipelineData> pipelineData;
-            std::tie(shaderID, pipelineData) = ExtractPaintData(recorder, &builder,
-                                                                draw.fPaintParams.value());
-            shadingUniformIndex = shadingUniformBindings.addUniforms(
-                    pipelineData->uniformDataBlock());
-            textureBindingIndex = textureDataCache->insert(pipelineData->textureDataBlock());
+            UniformDataCache::Index uniformDataIndex;
+            std::tie(shaderID, uniformDataIndex, textureBindingIndex) =
+                    ExtractPaintData(recorder, &gatherer, &builder, draw.fPaintParams.value());
+            shadingUniformIndex = shadingUniformBindings.addUniforms(uniformDataIndex);
         } // else depth-only
 
         for (int stepIndex = 0; stepIndex < draw.fRenderer.numRenderSteps(); ++stepIndex) {

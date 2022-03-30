@@ -23,7 +23,7 @@ public:
 #ifdef SK_ENABLE_SKSL
     void addToKey(const SkKeyContext&,
                   SkPaintParamsKeyBuilder*,
-                  SkPipelineData*) const override;
+                  SkPipelineDataGatherer*) const override;
 #endif
 
 protected:

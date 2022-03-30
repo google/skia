@@ -8,7 +8,25 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkPipelineData.h"
 
-void SkPipelineData::add(sk_sp<SkUniformData> uniforms) {
+void SkPipelineDataGatherer::reset() {
+    fUniformDataBlock.reset();
+#ifdef SK_GRAPHITE_ENABLED
+    fTextureDataBlock.reset();
+    fBlendInfo = BlendInfo();
+#endif
+}
+
+#ifdef SK_DEBUG
+void SkPipelineDataGatherer::checkReset() {
+    SkASSERT(fUniformDataBlock.empty());
+#ifdef SK_GRAPHITE_ENABLED
+    SkASSERT(fTextureDataBlock.empty());
+    SkASSERT(fBlendInfo == BlendInfo());
+#endif
+}
+#endif
+
+void SkPipelineDataGatherer::add(sk_sp<SkUniformData> uniforms) {
     SkASSERT(uniforms && uniforms->count());
     fUniformDataBlock.add(std::move(uniforms));
 }

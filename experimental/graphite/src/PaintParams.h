@@ -13,7 +13,7 @@
 
 enum class SkBackend : uint8_t;
 class SkPaintParamsKeyBuilder;
-class SkPipelineData;
+class SkPipelineDataGatherer;
 class SkShader;
 class SkKeyContext;
 
@@ -46,7 +46,7 @@ public:
 
     void toKey(const SkKeyContext&,
                SkPaintParamsKeyBuilder*,
-               SkPipelineData*) const;
+               SkPipelineDataGatherer*) const;
 
 private:
     SkColor4f        fColor;

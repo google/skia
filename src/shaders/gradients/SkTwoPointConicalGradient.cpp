@@ -283,7 +283,7 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
 #ifdef SK_ENABLE_SKSL
 void SkTwoPointConicalGradient::addToKey(const SkKeyContext& keyContext,
                                          SkPaintParamsKeyBuilder* builder,
-                                         SkPipelineData* pipelineData) const {
+                                         SkPipelineDataGatherer* gatherer) const {
     GradientShaderBlocks::GradientData data(kConical_GradientType,
                                             fCenter1, fCenter2,
                                             fRadius1, fRadius2,
@@ -292,6 +292,6 @@ void SkTwoPointConicalGradient::addToKey(const SkKeyContext& keyContext,
                                             fOrigColors4f,
                                             fOrigPos);
 
-    GradientShaderBlocks::AddToKey(keyContext, builder, pipelineData, data);
+    GradientShaderBlocks::AddToKey(keyContext, builder, gatherer, data);
 }
 #endif
