@@ -189,6 +189,7 @@ generated_cc_atom(
         "//src/gpu:GrMeshDrawTarget_hdr",
         "//src/gpu:GrRecordingContextPriv_hdr",
         "//src/gpu:GrStyle_hdr",
+        "//src/gpu:GrSubRunAllocator_hdr",
         "//src/gpu:SkGr_hdr",
         "//src/gpu/effects:GrDistanceFieldGeoProc_hdr",
         "//src/gpu/geometry:GrStyledShape_hdr",

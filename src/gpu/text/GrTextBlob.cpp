@@ -25,6 +25,7 @@
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSubRunAllocator.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -3028,7 +3029,12 @@ sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* c
     SkASSERT(subRunCount > 0);
     if (!buffer.validate(subRunCount > 0)) { return nullptr; }
     int subRunsUnflattenSizeHint = buffer.readInt();
-    if (!buffer.validate(subRunsUnflattenSizeHint >= 0)) { return nullptr; }
+
+    // Since the hint doesn't affect performance, then if it looks fishy just pick a reasonable
+    // value.
+    if (subRunsUnflattenSizeHint < 0 || (1 << 16) < subRunsUnflattenSizeHint) {
+        subRunsUnflattenSizeHint = 128;
+    }
 
     sk_sp<Slug> slug{new (::operator new (sizeof(Slug) + subRunsUnflattenSizeHint))
                              Slug(sourceBounds,
