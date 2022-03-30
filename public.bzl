@@ -272,12 +272,8 @@ GL_SRCS_UNIX = struct(
         "src/gpu/gl/*.h",
         "src/gpu/gl/builders/*.cpp",
         "src/gpu/gl/builders/*.h",
-        "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
-        "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
     ],
-    exclude = [
-        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
-    ],
+    exclude = [],
 )
 PORTS_SRCS_UNIX = struct(
     include = [
