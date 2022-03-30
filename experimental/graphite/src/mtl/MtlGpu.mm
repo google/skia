@@ -59,7 +59,7 @@ std::unique_ptr<skgpu::ResourceProvider> Gpu::makeResourceProvider(
 
 class WorkSubmission final : public skgpu::GpuWorkSubmission {
 public:
-    WorkSubmission(sk_sp<CommandBuffer> cmdBuffer)
+    WorkSubmission(sk_sp<skgpu::CommandBuffer> cmdBuffer)
         : GpuWorkSubmission(std::move(cmdBuffer)) {}
     ~WorkSubmission() override {}
 
@@ -76,12 +76,13 @@ private:
 
 skgpu::Gpu::OutstandingSubmission Gpu::onSubmit(sk_sp<skgpu::CommandBuffer> commandBuffer) {
     SkASSERT(commandBuffer);
-    sk_sp<CommandBuffer>& mtlCmdBuffer = (sk_sp<CommandBuffer>&)(commandBuffer);
+    CommandBuffer* mtlCmdBuffer = static_cast<CommandBuffer*>(commandBuffer.get());
     if (!mtlCmdBuffer->commit()) {
+        commandBuffer->callFinishedProcs(/*success=*/false);
         return nullptr;
     }
 
-    std::unique_ptr<GpuWorkSubmission> submission(new WorkSubmission(mtlCmdBuffer));
+    std::unique_ptr<GpuWorkSubmission> submission(new WorkSubmission(std::move(commandBuffer)));
     return submission;
 }
 

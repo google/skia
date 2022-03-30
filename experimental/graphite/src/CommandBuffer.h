@@ -77,7 +77,7 @@ public:
     void trackResource(sk_sp<Resource> resource);
 
     void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
-    void callFinishedProcs();
+    void callFinishedProcs(bool success);
 
     bool beginRenderPass(const RenderPassDesc&,
                          sk_sp<Texture> colorTexture,

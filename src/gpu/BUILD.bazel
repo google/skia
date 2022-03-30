@@ -3564,5 +3564,8 @@ generated_cc_atom(
     name = "RefCntedCallback_hdr",
     hdrs = ["RefCntedCallback.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkRefCnt_hdr"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/gpu:GpuTypes_hdr",
+    ],
 )

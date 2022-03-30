@@ -15,7 +15,7 @@ GpuWorkSubmission::GpuWorkSubmission(sk_sp<CommandBuffer> cmdBuffer)
         : fCommandBuffer(std::move(cmdBuffer)) {}
 
 GpuWorkSubmission::~GpuWorkSubmission() {
-    fCommandBuffer->callFinishedProcs();
+    fCommandBuffer->callFinishedProcs(/*success=*/true);
 }
 
 } // namespace skgpu

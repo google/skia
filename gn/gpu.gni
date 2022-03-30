@@ -801,6 +801,7 @@ skia_native_gpu_sources = [
 ]
 
 skia_shared_gpu_sources = [
+  "$_include/gpu/GpuTypes.h",
   "$_include/gpu/ShaderErrorHandler.h",
   "$_include/private/SingleOwner.h",
   "$_src/gpu/Blend.h",

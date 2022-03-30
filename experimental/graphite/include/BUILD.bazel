@@ -30,7 +30,10 @@ generated_cc_atom(
     name = "GraphiteTypes_hdr",
     hdrs = ["GraphiteTypes.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkTypes_hdr"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/gpu:GpuTypes_hdr",
+    ],
 )
 
 generated_cc_atom(

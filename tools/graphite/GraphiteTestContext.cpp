@@ -38,7 +38,7 @@ void GraphiteTestContext::submitRecordingAndWaitOnSync(skgpu::Context* context,
     skgpu::InsertRecordingInfo info;
     info.fRecording = recording;
     info.fFinishedContext = fFinishTrackers[fCurrentFlushIdx].get();
-    info.fFinishedProc = sk_gpu_test::FlushFinishTracker::FlushFinished;
+    info.fFinishedProc = sk_gpu_test::FlushFinishTracker::FlushFinishedResult;
     context->insertRecording(info);
 
     context->submit(skgpu::SyncToCpu::kNo);

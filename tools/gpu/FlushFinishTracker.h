@@ -9,6 +9,7 @@
 #define FlushFinishTracker_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GpuTypes.h"
 
 class GrDirectContext;
 
@@ -24,6 +25,10 @@ public:
         auto tracker = static_cast<FlushFinishTracker*>(finishedContext);
         tracker->setFinished();
         tracker->unref();
+    }
+
+    static void FlushFinishedResult(void* finishedContext, skgpu::CallbackResult) {
+        FlushFinished(finishedContext);
     }
 
     FlushFinishTracker(GrDirectContext* context) : fContext(context) {}

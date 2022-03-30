@@ -60,6 +60,9 @@ void Context::insertRecording(const InsertRecordingInfo& info) {
 
     SkASSERT(info.fRecording);
     if (!info.fRecording) {
+        if (callback) {
+            callback->setFailureResult();
+        }
         return;
     }
 
