@@ -243,12 +243,11 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> BlendFragmentProcessor::onMake
                                                                    SkSLType::kHalf4,
                                                                    "blendOp", &blendOp);
                 fragBuilder->codeAppendf(
-                        "half4 src = %s, dst = %s;"
-                        "return min(half4(1), "
-                                   "src * (%s.x + (%s.z * (dst.a + min(%s.z, 0)))) + "
-                                   "dst * (%s.y + (%s.w * (src.a + min(%s.w, 0)))));",
+                        "half4 src = %s;"
+                        "half4 dst = %s;"
+                        "half2 coeff = %s.xy + (%s.zw * (half2(dst.a, src.a) + min(%s.zw, 0)));"
+                        "return min(half4(1), src * coeff.x + dst * coeff.y);",
                         srcColor.c_str(), dstColor.c_str(),
-                        blendOp, blendOp, blendOp,
                         blendOp, blendOp, blendOp);
             } else {
                 // Blend src and dst colors together using a built-in blend function.
