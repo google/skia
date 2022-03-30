@@ -469,6 +469,7 @@ SKSL_TEST(CPU + GPU + SkQP, HelloWorld,                      "shared/HelloWorld.
 SKSL_TEST(CPU + GPU + SkQP, Hex,                             "shared/Hex.sksl")
 SKSL_TEST(GPU_ES3,          HexUnsigned,                     "shared/HexUnsigned.sksl")
 SKSL_TEST(CPU + GPU + SkQP, InoutParameters,                 "shared/InoutParameters.sksl")
+SKSL_TEST(CPU + GPU + SkQP, InoutParamsAreDistinct,          "shared/InoutParamsAreDistinct.sksl")
 SKSL_TEST(CPU + GPU + SkQP, Matrices,                        "shared/Matrices.sksl")
 SKSL_TEST(GPU_ES3,          MatricesNonsquare,               "shared/MatricesNonsquare.sksl")
 // TODO(skia:12443) These tests actually don't work on MANY devices. The GLSL SkQP suite
@@ -485,6 +486,7 @@ SKSL_TEST(GPU_ES3,          OperatorsES3,                    "shared/OperatorsES
 SKSL_TEST(CPU + GPU + SkQP, Ossfuzz36852,                    "shared/Ossfuzz36852.sksl")
 SKSL_TEST(CPU + GPU + SkQP, OutParams,                       "shared/OutParams.sksl")
 SKSL_TEST(CPU + GPU + SkQP, OutParamsAreDistinct,            "shared/OutParamsAreDistinct.sksl")
+SKSL_TEST(CPU + GPU + SkQP, OutParamsAreDistinctFromGlobal,  "shared/OutParamsAreDistinctFromGlobal.sksl")
 SKSL_TEST(CPU + GPU + SkQP, OutParamsTricky,                 "shared/OutParamsTricky.sksl")
 SKSL_TEST(CPU + GPU + SkQP, ResizeMatrix,                    "shared/ResizeMatrix.sksl")
 SKSL_TEST(GPU_ES3,          ResizeMatrixNonsquare,           "shared/ResizeMatrixNonsquare.sksl")

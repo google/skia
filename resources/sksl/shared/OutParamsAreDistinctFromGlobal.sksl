@@ -1,0 +1,11 @@
+uniform half4 colorGreen, colorRed;
+
+half x = 1;
+bool out_params_are_distinct_from_global(out half y) {
+    y = 2;
+    return x == 1 && y == 2;
+}
+
+half4 main(float2 coords) {
+    return out_params_are_distinct_from_global(x) ? colorGreen : colorRed;
+}

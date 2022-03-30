@@ -1,0 +1,12 @@
+uniform half4 colorGreen, colorRed;
+
+bool inout_params_are_distinct(inout half x, inout half y) {
+    x = 1;
+    y = 2;
+    return x == 1 && y == 2;
+}
+
+half4 main(float2 coords) {
+    half x = 0;
+    return inout_params_are_distinct(x, x) ? colorGreen : colorRed;
+}
