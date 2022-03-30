@@ -8,23 +8,42 @@
 #ifndef SKDEBUGCANVAS_H_
 #define SKDEBUGCANVAS_H_
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCanvasVirtualEnforcer.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkString.h"
-#include "include/core/SkVertices.h"
-#include "include/pathops/SkPathOps.h"
-#include "include/private/SkTArray.h"
-#include "tools/UrlDataManager.h"
-#include "tools/debugger/DrawCommand.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
 
 #include <map>
 #include <vector>
 
-class GrAuditTrail;
-class SkNWayCanvas;
-class SkPicture;
 class DebugLayerManager;
+class DrawCommand;
+class GrAuditTrail;
+class SkData;
+class SkDrawable;
+class SkImage;
+class SkJSONWriter;
+class SkMatrix;
+class SkPaint;
+class SkPath;
+class SkPicture;
+class SkRRect;
+class SkRegion;
+class SkShader;
+class SkTextBlob;
+class SkVertices;
+class UrlDataManager;
+struct SkDrawShadowRec;
+struct SkPoint;
+struct SkRSXform;
 
 class DebugCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:

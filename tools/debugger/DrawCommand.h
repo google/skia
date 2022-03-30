@@ -8,22 +8,44 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
-#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkFlattenable.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
-#include "include/core/SkRSXform.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkTLazy.h"
-#include "src/utils/SkJSONWriter.h"
-#include "tools/UrlDataManager.h"
 
 class DebugLayerManager;
+class SkBitmap;
+class SkFlattenable;
+class SkJSONWriter;
+class SkWStream;
+class UrlDataManager;
+struct SkPoint3;
+struct SkRSXform;
 
 class DrawCommand {
 public:

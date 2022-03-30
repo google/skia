@@ -8,6 +8,8 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkStream.h"
 #include "include/utils/SkNullCanvas.h"
+#include "src/utils/SkJSONWriter.h"
+#include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
 
 #include <iostream>

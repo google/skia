@@ -1529,6 +1529,7 @@ generated_cc_atom(
         "//include/core:SkPaint_hdr",
         "//include/core:SkPictureRecorder_hdr",
         "//include/core:SkPicture_hdr",
+        "//include/core:SkPixmap_hdr",
         "//include/core:SkRect_hdr",
         "//tools/debugger:DebugLayerManager_hdr",
     ],

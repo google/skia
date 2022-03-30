@@ -7,7 +7,21 @@
 
 #include "tools/debugger/JsonWriteBuffer.h"
 
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkString.h"
+#include "src/utils/SkJSONWriter.h"
 #include "tools/debugger/DrawCommand.h"
+
+class SkImage;
+class SkMatrix;
+class SkPaint;
+class SkRegion;
+class SkStream;
+class SkTypeface;
+struct SkIRect;
+struct SkPoint3;
+struct SkRect;
 
 void JsonWriteBuffer::append(const char* type) {
     SkString fullName = SkStringPrintf("%02d_%s", fCount++, type);

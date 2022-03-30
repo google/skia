@@ -67,6 +67,10 @@ func main() {
 		"--gpu_backend=gl_backend", "--include_decoder=jpeg_decode_codec"); err != nil {
 		td.Fatal(ctx, err)
 	}
+
+	if err := bazelCheckIncludes(ctx, skiaDir, "//tools/debugger", "--gpu_backend=gl_backend"); err != nil {
+		td.Fatal(ctx, err)
+	}
 }
 
 // bazelCheckIncludes builds the given label with the feature enabled that treats improper include

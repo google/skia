@@ -7,21 +7,39 @@
 
 #include "tools/debugger/DebugCanvas.h"
 
+#include "include/core/SkData.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkVertices.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/private/SkTArray.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/GrSurfaceProxy.h"
 #include "src/utils/SkJSONWriter.h"
 #include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/DrawCommand.h"
 
 #include <string>
+#include <utility>
+
+class SkDrawable;
+class SkImage;
+class SkRRect;
+class SkRegion;
+class UrlDataManager;
+struct SkDrawShadowRec;
 
 #if SK_GPU_V1
 #include "src/gpu/GrAuditTrail.h"

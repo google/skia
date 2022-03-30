@@ -8,12 +8,22 @@
 #ifndef DEBUGLAYERMANAGER_H_
 #define DEBUGLAYERMANAGER_H_
 
+#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/private/SkTHash.h"
-#include "src/utils/SkJSONWriter.h"
 #include "tools/debugger/DebugCanvas.h"
 
+#include <memory>
 #include <vector>
+
+class SkCanvas;
+class SkJSONWriter;
+class SkPicture;
+class SkSurface;
+class UrlDataManager;
+struct SkIRect;
 
 // A class to assist in playing back and debugging an mskp file containing offscreen layer commands.
 
@@ -31,8 +41,6 @@
 // Clients may ask for a rendering of a given layer by its RenderNode id and frame, and
 // this class will return a rendering of how it looked on that frame.
 // returning an SkImage snapshot of the internally managed surface.
-
-class DebugCanvas;
 
 class DebugLayerManager {
 public:

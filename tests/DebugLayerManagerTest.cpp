@@ -8,6 +8,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
 #include "tests/Test.h"
 #include "tools/debugger/DebugLayerManager.h"

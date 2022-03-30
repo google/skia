@@ -88059,7 +88059,11 @@
   },
   "commit_queue": {
     "Build-Debian10-BazelClang-x86_64-Release-IWYU": {
-      "experimental": true
+      "location_regexes": [
+        "src/sksl/*",
+        "src/svg/*",
+        "tools/debugger/*"
+      ]
     },
     "Build-Debian10-Clang-arm-Debug-Android": {},
     "Build-Debian10-Clang-arm-Release-Android_API26": {},

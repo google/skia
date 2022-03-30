@@ -7,8 +7,7 @@
 
 #include "fuzz/Fuzz.h"
 #include "fuzz/FuzzCommon.h"
-
-// CORE
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFontMgr.h"
@@ -20,18 +19,10 @@
 #include "include/core/SkRSXform.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTypeface.h"
-#include "include/docs/SkPDFDocument.h"
-#include "include/private/SkTo.h"
-#include "include/svg/SkSVGCanvas.h"
-#include "include/utils/SkNullCanvas.h"
-#include "src/core/SkOSFile.h"
-#include "src/core/SkPaintPriv.h"
-#include "src/core/SkPicturePriv.h"
-#include "tools/debugger/DebugCanvas.h"
-
-// EFFECTS
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkVertices.h"
+#include "include/docs/SkPDFDocument.h"
 #include "include/effects/Sk1DPathEffect.h"
 #include "include/effects/Sk2DPathEffect.h"
 #include "include/effects/SkColorMatrixFilter.h"
@@ -44,10 +35,17 @@
 #include "include/effects/SkLumaColorFilter.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkTableColorFilter.h"
+#include "include/private/SkTo.h"
+#include "include/svg/SkSVGCanvas.h"
+#include "include/utils/SkNullCanvas.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
-
-// SRC
+#include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkUTF.h"
+#include "tools/UrlDataManager.h"
+#include "tools/debugger/DebugCanvas.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #if SK_SUPPORT_GPU
@@ -61,8 +59,6 @@
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #endif
-
-// MISC
 
 #include <iostream>
 #include <utility>

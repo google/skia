@@ -9,10 +9,12 @@
 
 #include <memory>
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/utils/SkJSONWriter.h"
 #include "tools/ToolUtils.h"
+#include "tools/debugger/DrawCommand.h"
 
 using namespace sk_gpu_test;
 

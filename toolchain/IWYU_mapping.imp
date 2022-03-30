@@ -1,5 +1,6 @@
 [
   { include: ["<__algorithm/copy.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/copy_n.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/max.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/min.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/remove_if.h>", "private", "<algorithm>", "public"] },
