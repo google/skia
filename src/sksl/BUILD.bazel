@@ -30,7 +30,7 @@ cc_library(
         ":SkSLInliner_src",
         ":SkSLLexer_src",
         ":SkSLMangler_src",
-        ":SkSLOperators_src",
+        ":SkSLOperator_src",
         ":SkSLOutputStream_src",
         ":SkSLPool_src",
         ":SkSLPosition_src",
@@ -277,8 +277,8 @@ generated_cc_atom(
     hdrs = ["SkSLConstantFolder.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkSLOperators_hdr",
         "//include/private:SkSLDefines_hdr",
+        "//include/sksl:SkSLOperator_hdr",
     ],
 )
 
@@ -290,7 +290,6 @@ generated_cc_atom(
         ":SkSLAnalysis_hdr",
         ":SkSLConstantFolder_hdr",
         ":SkSLContext_hdr",
-        ":SkSLLexer_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkSLModifiers_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
@@ -396,7 +395,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLDehydrator_hdr",
-        ":SkSLOperators_hdr",
         ":SkSLOutputStream_hdr",
         ":SkSLProgramSettings_hdr",
         ":SkSLRehydrator_hdr",
@@ -408,6 +406,7 @@ generated_cc_atom(
         "//include/private:SkSLStatement_hdr",
         "//include/private:SkSLSymbol_hdr",
         "//include/private:SkTArray_hdr",
+        "//include/sksl:SkSLOperator_hdr",
         "//src/sksl/ir:SkSLBinaryExpression_hdr",
         "//src/sksl/ir:SkSLBlock_hdr",
         "//src/sksl/ir:SkSLConstructorArrayCast_hdr",
@@ -502,9 +501,7 @@ generated_cc_atom(
     deps = [
         ":SkSLAnalysis_hdr",
         ":SkSLInliner_hdr",
-        ":SkSLLexer_hdr",
         ":SkSLMangler_hdr",
-        ":SkSLOperators_hdr",
         "//include/core:SkSpan_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkSLDefines_hdr",
@@ -513,6 +510,7 @@ generated_cc_atom(
         "//include/private:SkSLStatement_hdr",
         "//include/private:SkTArray_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
+        "//include/sksl:SkSLOperator_hdr",
         "//include/sksl:SkSLPosition_hdr",
         "//src/sksl/analysis:SkSLProgramVisitor_hdr",
         "//src/sksl/ir:SkSLBinaryExpression_hdr",
@@ -645,31 +643,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkSLOperators_hdr",
-    hdrs = ["SkSLOperators.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkSLLexer_hdr",
-        "//include/core:SkTypes_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "SkSLOperators_src",
-    srcs = ["SkSLOperators.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkSLBuiltinTypes_hdr",
-        ":SkSLContext_hdr",
-        ":SkSLOperators_hdr",
-        ":SkSLProgramSettings_hdr",
-        "//include/core:SkTypes_hdr",
-        "//include/private:SkStringView_hdr",
-        "//src/sksl/ir:SkSLType_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "SkSLOutputStream_hdr",
     hdrs = ["SkSLOutputStream.h"],
     visibility = ["//:__subpackages__"],
@@ -739,7 +712,6 @@ generated_cc_atom(
     deps = [
         ":SkSLAnalysis_hdr",
         ":SkSLCompiler_hdr",
-        ":SkSLLexer_hdr",
         ":SkSLModifiersPool_hdr",
         ":SkSLParsedModule_hdr",
         ":SkSLPool_hdr",
@@ -752,6 +724,7 @@ generated_cc_atom(
         "//include/private:SkSLStatement_hdr",
         "//include/private:SkTArray_hdr",
         "//include/sksl:DSLCore_hdr",
+        "//include/sksl:SkSLOperator_hdr",
         "//include/sksl:SkSLPosition_hdr",
         "//src/sksl/ir:SkSLBinaryExpression_hdr",
         "//src/sksl/ir:SkSLBlock_hdr",
@@ -946,5 +919,20 @@ generated_cc_atom(
     deps = [
         ":SkSLThreadContext_hdr",
         "//include/sksl:SkSLPosition_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLOperator_src",
+    srcs = ["SkSLOperator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLBuiltinTypes_hdr",
+        ":SkSLContext_hdr",
+        ":SkSLProgramSettings_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkStringView_hdr",
+        "//include/sksl:SkSLOperator_hdr",
+        "//src/sksl/ir:SkSLType_hdr",
     ],
 )

@@ -15,7 +15,7 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/private/SkTArray.h"
-#include "src/sksl/SkSLOperators.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLRehydrator.h"

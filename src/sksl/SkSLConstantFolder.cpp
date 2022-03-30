@@ -13,7 +13,6 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
@@ -49,11 +48,11 @@ static std::unique_ptr<Expression> eliminate_no_op_boolean(const Expression& lef
     bool rightVal = right.as<Literal>().boolValue();
 
     // Detect no-op Boolean expressions and optimize them away.
-    if ((op.kind() == Token::Kind::TK_LOGICALAND && rightVal)  ||  // (expr && true)  -> (expr)
-        (op.kind() == Token::Kind::TK_LOGICALOR  && !rightVal) ||  // (expr || false) -> (expr)
-        (op.kind() == Token::Kind::TK_LOGICALXOR && !rightVal) ||  // (expr ^^ false) -> (expr)
-        (op.kind() == Token::Kind::TK_EQEQ       && rightVal)  ||  // (expr == true)  -> (expr)
-        (op.kind() == Token::Kind::TK_NEQ        && !rightVal)) {  // (expr != false) -> (expr)
+    if ((op.kind() == Operator::Kind::LOGICALAND && rightVal)  ||  // (expr && true)  -> (expr)
+        (op.kind() == Operator::Kind::LOGICALOR  && !rightVal) ||  // (expr || false) -> (expr)
+        (op.kind() == Operator::Kind::LOGICALXOR && !rightVal) ||  // (expr ^^ false) -> (expr)
+        (op.kind() == Operator::Kind::EQEQ       && rightVal)  ||  // (expr == true)  -> (expr)
+        (op.kind() == Operator::Kind::NEQ        && !rightVal)) {  // (expr != false) -> (expr)
 
         return left.clone();
     }
@@ -67,8 +66,8 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
     bool leftVal = left.as<Literal>().boolValue();
 
     // When the literal is on the left, we can sometimes eliminate the other expression entirely.
-    if ((op.kind() == Token::Kind::TK_LOGICALAND && !leftVal) ||  // (false && expr) -> (false)
-        (op.kind() == Token::Kind::TK_LOGICALOR  && leftVal)) {   // (true  || expr) -> (true)
+    if ((op.kind() == Operator::Kind::LOGICALAND && !leftVal) ||  // (false && expr) -> (false)
+        (op.kind() == Operator::Kind::LOGICALOR  && leftVal)) {   // (true  || expr) -> (true)
 
         return left.clone();
     }
@@ -82,8 +81,8 @@ static std::unique_ptr<Expression> simplify_constant_equality(const Context& con
                                                               const Expression& left,
                                                               Operator op,
                                                               const Expression& right) {
-    if (op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ) {
-        bool equality = (op.kind() == Token::Kind::TK_EQEQ);
+    if (op.kind() == Operator::Kind::EQEQ || op.kind() == Operator::Kind::NEQ) {
+        bool equality = (op.kind() == Operator::Kind::EQEQ);
 
         switch (left.compareConstant(right)) {
             case Expression::ComparisonResult::kNotEqual:
@@ -210,10 +209,10 @@ static std::unique_ptr<Expression> simplify_componentwise(const Context& context
     using FoldFn = double (*)(double, double);
     FoldFn foldFn;
     switch (op.kind()) {
-        case Token::Kind::TK_PLUS:  foldFn = +[](double a, double b) { return a + b; }; break;
-        case Token::Kind::TK_MINUS: foldFn = +[](double a, double b) { return a - b; }; break;
-        case Token::Kind::TK_STAR:  foldFn = +[](double a, double b) { return a * b; }; break;
-        case Token::Kind::TK_SLASH: foldFn = +[](double a, double b) { return a / b; }; break;
+        case Operator::Kind::PLUS:  foldFn = +[](double a, double b) { return a + b; }; break;
+        case Operator::Kind::MINUS: foldFn = +[](double a, double b) { return a - b; }; break;
+        case Operator::Kind::STAR:  foldFn = +[](double a, double b) { return a * b; }; break;
+        case Operator::Kind::SLASH: foldFn = +[](double a, double b) { return a / b; }; break;
         default:
             return nullptr;
     }
@@ -311,10 +310,10 @@ static bool is_constant_value(const Expression& expr, double value) {
 static bool error_on_divide_by_zero(const Context& context, Position pos, Operator op,
                                     const Expression& right) {
     switch (op.kind()) {
-        case Token::Kind::TK_SLASH:
-        case Token::Kind::TK_SLASHEQ:
-        case Token::Kind::TK_PERCENT:
-        case Token::Kind::TK_PERCENTEQ:
+        case Operator::Kind::SLASH:
+        case Operator::Kind::SLASHEQ:
+        case Operator::Kind::PERCENT:
+        case Operator::Kind::PERCENTEQ:
             if (contains_constant_zero(right)) {
                 context.fErrors->error(pos, "division by zero");
                 return true;
@@ -366,7 +365,7 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
                                                              const Expression& right,
                                                              const Type& resultType) {
     switch (op.kind()) {
-        case Token::Kind::TK_PLUS:
+        case Operator::Kind::PLUS:
             if (is_constant_value(right, 0.0)) {  // x + 0
                 return cast_expression(context, left, resultType);
             }
@@ -375,7 +374,7 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
             }
             break;
 
-        case Token::Kind::TK_STAR:
+        case Operator::Kind::STAR:
             if (is_constant_value(right, 1.0)) {  // x * 1
                 return cast_expression(context, left, resultType);
             }
@@ -390,25 +389,25 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
             }
             break;
 
-        case Token::Kind::TK_MINUS:
+        case Operator::Kind::MINUS:
             if (is_constant_value(right, 0.0)) {  // x - 0
                 return cast_expression(context, left, resultType);
             }
             if (is_constant_value(left, 0.0)) {   // 0 - x (to `-x`)
                 if (std::unique_ptr<Expression> val = cast_expression(context, right, resultType)) {
-                    return PrefixExpression::Make(context, Token::Kind::TK_MINUS, std::move(val));
+                    return PrefixExpression::Make(context, Operator::Kind::MINUS, std::move(val));
                 }
             }
             break;
 
-        case Token::Kind::TK_SLASH:
+        case Operator::Kind::SLASH:
             if (is_constant_value(right, 1.0)) {  // x / 1
                 return cast_expression(context, left, resultType);
             }
             break;
 
-        case Token::Kind::TK_PLUSEQ:
-        case Token::Kind::TK_MINUSEQ:
+        case Operator::Kind::PLUSEQ:
+        case Operator::Kind::MINUSEQ:
             if (is_constant_value(right, 0.0)) {  // x += 0, x -= 0
                 if (std::unique_ptr<Expression> var = cast_expression(context, left, resultType)) {
                     Analysis::UpdateVariableRefKind(var.get(), VariableRefKind::kRead);
@@ -417,8 +416,8 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
             }
             break;
 
-        case Token::Kind::TK_STAREQ:
-        case Token::Kind::TK_SLASHEQ:
+        case Operator::Kind::STAREQ:
+        case Operator::Kind::SLASHEQ:
             if (is_constant_value(right, 1.0)) {  // x *= 1, x /= 1
                 if (std::unique_ptr<Expression> var = cast_expression(context, left, resultType)) {
                     Analysis::UpdateVariableRefKind(var.get(), VariableRefKind::kRead);
@@ -474,14 +473,14 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
 
     // If this is the comma operator, the left side is evaluated but not otherwise used in any way.
     // So if the left side has no side effects, it can just be eliminated entirely.
-    if (op.kind() == Token::Kind::TK_COMMA && !left->hasSideEffects()) {
+    if (op.kind() == Operator::Kind::COMMA && !left->hasSideEffects()) {
         return right->clone();
     }
 
     // If this is the assignment operator, and both sides are the same trivial expression, this is
     // self-assignment (i.e., `var = var`) and can be reduced to just a variable reference (`var`).
     // This can happen when other parts of the assignment are optimized away.
-    if (op.kind() == Token::Kind::TK_EQ && Analysis::IsSameExpressionTree(*left, *right)) {
+    if (op.kind() == Operator::Kind::EQ && Analysis::IsSameExpressionTree(*left, *right)) {
         return right->clone();
     }
 
@@ -491,11 +490,11 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         bool rightVal = right->as<Literal>().boolValue();
         bool result;
         switch (op.kind()) {
-            case Token::Kind::TK_LOGICALAND: result = leftVal && rightVal; break;
-            case Token::Kind::TK_LOGICALOR:  result = leftVal || rightVal; break;
-            case Token::Kind::TK_LOGICALXOR: result = leftVal ^  rightVal; break;
-            case Token::Kind::TK_EQEQ:       result = leftVal == rightVal; break;
-            case Token::Kind::TK_NEQ:        result = leftVal != rightVal; break;
+            case Operator::Kind::LOGICALAND: result = leftVal && rightVal; break;
+            case Operator::Kind::LOGICALOR:  result = leftVal || rightVal; break;
+            case Operator::Kind::LOGICALXOR: result = leftVal ^  rightVal; break;
+            case Operator::Kind::EQEQ:       result = leftVal == rightVal; break;
+            case Operator::Kind::NEQ:        result = leftVal != rightVal; break;
             default: return nullptr;
         }
         return Literal::MakeBool(context, pos, result);
@@ -518,13 +517,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         return eliminate_no_op_boolean(*left, op, *right);
     }
 
-    if (op.kind() == Token::Kind::TK_EQEQ && Analysis::IsSameExpressionTree(*left, *right)) {
+    if (op.kind() == Operator::Kind::EQEQ && Analysis::IsSameExpressionTree(*left, *right)) {
         // With == comparison, if both sides are the same trivial expression, this is self-
         // comparison and is always true. (We are not concerned with NaN.)
         return Literal::MakeBool(context, leftExpr.fPosition, /*value=*/true);
     }
 
-    if (op.kind() == Token::Kind::TK_NEQ && Analysis::IsSameExpressionTree(*left, *right)) {
+    if (op.kind() == Operator::Kind::NEQ && Analysis::IsSameExpressionTree(*left, *right)) {
         // With != comparison, if both sides are the same trivial expression, this is self-
         // comparison and is always false. (We are not concerned with NaN.)
         return Literal::MakeBool(context, leftExpr.fPosition, /*value=*/false);
@@ -562,31 +561,31 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         #define URESULT(Op)  fold_int_expression(pos, \
                              (SKSL_INT)((SKSL_UINT)(leftVal) Op (SKSL_UINT)(rightVal)), &resultType)
         switch (op.kind()) {
-            case Token::Kind::TK_PLUS:       return URESULT(+);
-            case Token::Kind::TK_MINUS:      return URESULT(-);
-            case Token::Kind::TK_STAR:       return URESULT(*);
-            case Token::Kind::TK_SLASH:
+            case Operator::Kind::PLUS:       return URESULT(+);
+            case Operator::Kind::MINUS:      return URESULT(-);
+            case Operator::Kind::STAR:       return URESULT(*);
+            case Operator::Kind::SLASH:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
                     context.fErrors->error(pos, "arithmetic overflow");
                     return nullptr;
                 }
                 return RESULT(/);
-            case Token::Kind::TK_PERCENT:
+            case Operator::Kind::PERCENT:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
                     context.fErrors->error(pos, "arithmetic overflow");
                     return nullptr;
                 }
                 return RESULT(%);
-            case Token::Kind::TK_BITWISEAND: return RESULT(&);
-            case Token::Kind::TK_BITWISEOR:  return RESULT(|);
-            case Token::Kind::TK_BITWISEXOR: return RESULT(^);
-            case Token::Kind::TK_EQEQ:       return RESULT(==);
-            case Token::Kind::TK_NEQ:        return RESULT(!=);
-            case Token::Kind::TK_GT:         return RESULT(>);
-            case Token::Kind::TK_GTEQ:       return RESULT(>=);
-            case Token::Kind::TK_LT:         return RESULT(<);
-            case Token::Kind::TK_LTEQ:       return RESULT(<=);
-            case Token::Kind::TK_SHL:
+            case Operator::Kind::BITWISEAND: return RESULT(&);
+            case Operator::Kind::BITWISEOR:  return RESULT(|);
+            case Operator::Kind::BITWISEXOR: return RESULT(^);
+            case Operator::Kind::EQEQ:       return RESULT(==);
+            case Operator::Kind::NEQ:        return RESULT(!=);
+            case Operator::Kind::GT:         return RESULT(>);
+            case Operator::Kind::GTEQ:       return RESULT(>=);
+            case Operator::Kind::LT:         return RESULT(<);
+            case Operator::Kind::LTEQ:       return RESULT(<=);
+            case Operator::Kind::SHL:
                 if (rightVal >= 0 && rightVal <= 31) {
                     // Left-shifting a negative (or really, any signed) value is undefined behavior
                     // in C++, but not GLSL. Do the shift on unsigned values, to avoid UBSAN.
@@ -594,7 +593,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                 }
                 context.fErrors->error(pos, "shift value out of range");
                 return nullptr;
-            case Token::Kind::TK_SHR:
+            case Operator::Kind::SHR:
                 if (rightVal >= 0 && rightVal <= 31) {
                     return RESULT(>>);
                 }
@@ -615,23 +614,23 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
 
         #define RESULT(Op) fold_float_expression(pos, leftVal Op rightVal, &resultType)
         switch (op.kind()) {
-            case Token::Kind::TK_PLUS:  return RESULT(+);
-            case Token::Kind::TK_MINUS: return RESULT(-);
-            case Token::Kind::TK_STAR:  return RESULT(*);
-            case Token::Kind::TK_SLASH: return RESULT(/);
-            case Token::Kind::TK_EQEQ:  return RESULT(==);
-            case Token::Kind::TK_NEQ:   return RESULT(!=);
-            case Token::Kind::TK_GT:    return RESULT(>);
-            case Token::Kind::TK_GTEQ:  return RESULT(>=);
-            case Token::Kind::TK_LT:    return RESULT(<);
-            case Token::Kind::TK_LTEQ:  return RESULT(<=);
+            case Operator::Kind::PLUS:  return RESULT(+);
+            case Operator::Kind::MINUS: return RESULT(-);
+            case Operator::Kind::STAR:  return RESULT(*);
+            case Operator::Kind::SLASH: return RESULT(/);
+            case Operator::Kind::EQEQ:  return RESULT(==);
+            case Operator::Kind::NEQ:   return RESULT(!=);
+            case Operator::Kind::GT:    return RESULT(>);
+            case Operator::Kind::GTEQ:  return RESULT(>=);
+            case Operator::Kind::LT:    return RESULT(<);
+            case Operator::Kind::LTEQ:  return RESULT(<=);
             default:                    return nullptr;
         }
         #undef RESULT
     }
 
     // Perform matrix multiplication.
-    if (op.kind() == Token::Kind::TK_STAR) {
+    if (op.kind() == Operator::Kind::STAR) {
         if (leftType.isMatrix() && rightType.isMatrix()) {
             return simplify_matrix_times_matrix(context, *left, *right);
         }

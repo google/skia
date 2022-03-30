@@ -9,11 +9,10 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
-#include "src/sksl/SkSLLexer.h"
-#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/analysis/SkSLNoOpErrorReporter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -118,12 +117,12 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
     }
     // relational_operator is one of: > >= < <= == or !=
     switch (cond.getOperator().kind()) {
-        case Token::Kind::TK_GT:
-        case Token::Kind::TK_GTEQ:
-        case Token::Kind::TK_LT:
-        case Token::Kind::TK_LTEQ:
-        case Token::Kind::TK_EQEQ:
-        case Token::Kind::TK_NEQ:
+        case Operator::Kind::GT:
+        case Operator::Kind::GTEQ:
+        case Operator::Kind::LT:
+        case Operator::Kind::LTEQ:
+        case Operator::Kind::EQEQ:
+        case Operator::Kind::NEQ:
             break;
         default:
             errors.error(loopTest->fPosition, "invalid relational operator");
@@ -161,8 +160,8 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
                 return nullptr;
             }
             switch (next.getOperator().kind()) {
-                case Token::Kind::TK_PLUSEQ:                                        break;
-                case Token::Kind::TK_MINUSEQ: loopInfo->fDelta = -loopInfo->fDelta; break;
+                case Operator::Kind::PLUSEQ:                                        break;
+                case Operator::Kind::MINUSEQ: loopInfo->fDelta = -loopInfo->fDelta; break;
                 default:
                     errors.error(loopNext->fPosition, "invalid operator in loop expression");
                     return nullptr;
@@ -175,8 +174,8 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
                 return nullptr;
             }
             switch (next.getOperator().kind()) {
-                case Token::Kind::TK_PLUSPLUS:   loopInfo->fDelta =  1; break;
-                case Token::Kind::TK_MINUSMINUS: loopInfo->fDelta = -1; break;
+                case Operator::Kind::PLUSPLUS:   loopInfo->fDelta =  1; break;
+                case Operator::Kind::MINUSMINUS: loopInfo->fDelta = -1; break;
                 default:
                     errors.error(loopNext->fPosition, "invalid operator in loop expression");
                     return nullptr;
@@ -189,8 +188,8 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
                 return nullptr;
             }
             switch (next.getOperator().kind()) {
-                case Token::Kind::TK_PLUSPLUS:   loopInfo->fDelta =  1; break;
-                case Token::Kind::TK_MINUSMINUS: loopInfo->fDelta = -1; break;
+                case Operator::Kind::PLUSPLUS:   loopInfo->fDelta =  1; break;
+                case Operator::Kind::MINUSMINUS: loopInfo->fDelta = -1; break;
                 default:
                     errors.error(loopNext->fPosition, "invalid operator in loop expression");
                     return nullptr;
@@ -215,27 +214,27 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
     loopInfo->fCount = 0;
 
     switch (cond.getOperator().kind()) {
-        case Token::Kind::TK_LT:
+        case Operator::Kind::LT:
             loopInfo->fCount = calculate_count(loopInfo->fStart, loopEnd, loopInfo->fDelta,
                                               /*forwards=*/true, /*inclusive=*/false);
             break;
 
-        case Token::Kind::TK_GT:
+        case Operator::Kind::GT:
             loopInfo->fCount = calculate_count(loopInfo->fStart, loopEnd, loopInfo->fDelta,
                                               /*forwards=*/false, /*inclusive=*/false);
             break;
 
-        case Token::Kind::TK_LTEQ:
+        case Operator::Kind::LTEQ:
             loopInfo->fCount = calculate_count(loopInfo->fStart, loopEnd, loopInfo->fDelta,
                                               /*forwards=*/true, /*inclusive=*/true);
             break;
 
-        case Token::Kind::TK_GTEQ:
+        case Operator::Kind::GTEQ:
             loopInfo->fCount = calculate_count(loopInfo->fStart, loopEnd, loopInfo->fDelta,
                                               /*forwards=*/false, /*inclusive=*/true);
             break;
 
-        case Token::Kind::TK_NEQ: {
+        case Operator::Kind::NEQ: {
             float iterations = sk_ieee_double_divide(loopEnd - loopInfo->fStart, loopInfo->fDelta);
             loopInfo->fCount = std::ceil(iterations);
             if (loopInfo->fCount < 0 || loopInfo->fCount != iterations ||
@@ -245,7 +244,7 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
             }
             break;
         }
-        case Token::Kind::TK_EQEQ: {
+        case Operator::Kind::EQEQ: {
             if (loopInfo->fStart == loopEnd) {
                 // Start and end begin in the same place, so we can run one iteration...
                 if (loopInfo->fDelta) {

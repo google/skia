@@ -18,14 +18,13 @@
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/GLSL.std.450.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLModifiersPool.h"
-#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -2352,7 +2351,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                 const Type& rightType, SpvId rhs,
                                                 const Type& resultType, OutputStream& out) {
     // The comma operator ignores the type of the left-hand side entirely.
-    if (op.kind() == Token::Kind::TK_COMMA) {
+    if (op.kind() == Operator::Kind::COMMA) {
         return rhs;
     }
     // overall type we are operating on: float2, int, uint4...
@@ -2363,11 +2362,11 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
         if (leftType.isVector() && rightType.isNumber()) {
             if (resultType.componentType().isFloat()) {
                 switch (op.kind()) {
-                    case Token::Kind::TK_SLASH: {
+                    case Operator::Kind::SLASH: {
                         rhs = this->writeReciprocal(rightType, rhs, out);
                         [[fallthrough]];
                     }
-                    case Token::Kind::TK_STAR: {
+                    case Operator::Kind::STAR: {
                         SpvId result = this->nextId(&resultType);
                         this->writeInstruction(SpvOpVectorTimesScalar, this->getType(resultType),
                                                result, lhs, rhs, out);
@@ -2390,7 +2389,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             operandType = &leftType;
         } else if (rightType.isVector() && leftType.isNumber()) {
             if (resultType.componentType().isFloat()) {
-                if (op.kind() == Token::Kind::TK_STAR) {
+                if (op.kind() == Operator::Kind::STAR) {
                     SpvId result = this->nextId(&resultType);
                     this->writeInstruction(SpvOpVectorTimesScalar, this->getType(resultType),
                                            result, rhs, lhs, out);
@@ -2409,7 +2408,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             lhs = vec;
             operandType = &rightType;
         } else if (leftType.isMatrix()) {
-            if (op.kind() == Token::Kind::TK_STAR) {
+            if (op.kind() == Operator::Kind::STAR) {
                 // Matrix-times-vector and matrix-times-scalar have dedicated ops in SPIR-V.
                 SpvOp_ spvop;
                 if (rightType.isMatrix()) {
@@ -2436,7 +2435,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                    resultType, out);
             }
         } else if (rightType.isMatrix()) {
-            if (op.kind() == Token::Kind::TK_STAR) {
+            if (op.kind() == Operator::Kind::STAR) {
                 // Matrix-times-vector and matrix-times-scalar have dedicated ops in SPIR-V.
                 SpvId result = this->nextId(&resultType);
                 if (leftType.isVector()) {
@@ -2469,7 +2468,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
         SkASSERT(operandType->matches(this->getActualType(rightType)));
     }
     switch (op.kind()) {
-        case Token::Kind::TK_EQEQ: {
+        case Operator::Kind::EQEQ: {
             if (operandType->isMatrix()) {
                 return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdEqual,
                                                    SpvOpIEqual, SpvOpAll, SpvOpLogicalAnd, out);
@@ -2494,7 +2493,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                                SpvOpIEqual, SpvOpLogicalEqual, out),
                                     *operandType, SpvOpAll, out);
         }
-        case Token::Kind::TK_NEQ:
+        case Operator::Kind::NEQ:
             if (operandType->isMatrix()) {
                 return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFUnordNotEqual,
                                                    SpvOpINotEqual, SpvOpAny, SpvOpLogicalOr, out);
@@ -2506,7 +2505,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                 return this->writeArrayComparison(*operandType, lhs, op, rhs, out);
             }
             [[fallthrough]];
-        case Token::Kind::TK_LOGICALXOR:
+        case Operator::Kind::LOGICALXOR:
             SkASSERT(resultType.isBoolean());
             const Type* tmpType;
             if (operandType->isVector()) {
@@ -2521,40 +2520,40 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                                SpvOpINotEqual, SpvOpLogicalNotEqual,
                                                                out),
                                     *operandType, SpvOpAny, out);
-        case Token::Kind::TK_GT:
+        case Operator::Kind::GT:
             SkASSERT(resultType.isBoolean());
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                               SpvOpFOrdGreaterThan, SpvOpSGreaterThan,
                                               SpvOpUGreaterThan, SpvOpUndef, out);
-        case Token::Kind::TK_LT:
+        case Operator::Kind::LT:
             SkASSERT(resultType.isBoolean());
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFOrdLessThan,
                                               SpvOpSLessThan, SpvOpULessThan, SpvOpUndef, out);
-        case Token::Kind::TK_GTEQ:
+        case Operator::Kind::GTEQ:
             SkASSERT(resultType.isBoolean());
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                               SpvOpFOrdGreaterThanEqual, SpvOpSGreaterThanEqual,
                                               SpvOpUGreaterThanEqual, SpvOpUndef, out);
-        case Token::Kind::TK_LTEQ:
+        case Operator::Kind::LTEQ:
             SkASSERT(resultType.isBoolean());
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                               SpvOpFOrdLessThanEqual, SpvOpSLessThanEqual,
                                               SpvOpULessThanEqual, SpvOpUndef, out);
-        case Token::Kind::TK_PLUS:
+        case Operator::Kind::PLUS:
             if (leftType.isMatrix() && rightType.isMatrix()) {
                 SkASSERT(leftType.matches(rightType));
                 return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFAdd, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFAdd,
                                               SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
-        case Token::Kind::TK_MINUS:
+        case Operator::Kind::MINUS:
             if (leftType.isMatrix() && rightType.isMatrix()) {
                 SkASSERT(leftType.matches(rightType));
                 return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFSub, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFSub,
                                               SpvOpISub, SpvOpISub, SpvOpUndef, out);
-        case Token::Kind::TK_STAR:
+        case Operator::Kind::STAR:
             if (leftType.isMatrix() && rightType.isMatrix()) {
                 // matrix multiply
                 SpvId result = this->nextId(&resultType);
@@ -2564,31 +2563,31 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFMul,
                                               SpvOpIMul, SpvOpIMul, SpvOpUndef, out);
-        case Token::Kind::TK_SLASH:
+        case Operator::Kind::SLASH:
             if (leftType.isMatrix() && rightType.isMatrix()) {
                 SkASSERT(leftType.matches(rightType));
                 return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFDiv, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFDiv,
                                               SpvOpSDiv, SpvOpUDiv, SpvOpUndef, out);
-        case Token::Kind::TK_PERCENT:
+        case Operator::Kind::PERCENT:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFMod,
                                               SpvOpSMod, SpvOpUMod, SpvOpUndef, out);
-        case Token::Kind::TK_SHL:
+        case Operator::Kind::SHL:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpShiftLeftLogical, SpvOpShiftLeftLogical,
                                               SpvOpUndef, out);
-        case Token::Kind::TK_SHR:
+        case Operator::Kind::SHR:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpShiftRightArithmetic, SpvOpShiftRightLogical,
                                               SpvOpUndef, out);
-        case Token::Kind::TK_BITWISEAND:
+        case Operator::Kind::BITWISEAND:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpBitwiseAnd, SpvOpBitwiseAnd, SpvOpUndef, out);
-        case Token::Kind::TK_BITWISEOR:
+        case Operator::Kind::BITWISEOR:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpBitwiseOr, SpvOpBitwiseOr, SpvOpUndef, out);
-        case Token::Kind::TK_BITWISEXOR:
+        case Operator::Kind::BITWISEXOR:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpBitwiseXor, SpvOpBitwiseXor, SpvOpUndef, out);
         default:
@@ -2600,7 +2599,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
 SpvId SPIRVCodeGenerator::writeArrayComparison(const Type& arrayType, SpvId lhs, Operator op,
                                                SpvId rhs, OutputStream& out) {
     // The inputs must be arrays, and the op must be == or !=.
-    SkASSERT(op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ);
+    SkASSERT(op.kind() == Operator::Kind::EQEQ || op.kind() == Operator::Kind::NEQ);
     SkASSERT(arrayType.isArray());
     const Type& componentType = arrayType.componentType();
     const SpvId componentTypeId = this->getType(componentType);
@@ -2628,7 +2627,7 @@ SpvId SPIRVCodeGenerator::writeArrayComparison(const Type& arrayType, SpvId lhs,
 SpvId SPIRVCodeGenerator::writeStructComparison(const Type& structType, SpvId lhs, Operator op,
                                                 SpvId rhs, OutputStream& out) {
     // The inputs must be structs containing fields, and the op must be == or !=.
-    SkASSERT(op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ);
+    SkASSERT(op.kind() == Operator::Kind::EQEQ || op.kind() == Operator::Kind::NEQ);
     SkASSERT(structType.isStruct());
     const std::vector<Type::Field>& fields = structType.fields();
     SkASSERT(!fields.empty());
@@ -2665,11 +2664,11 @@ SpvId SPIRVCodeGenerator::mergeComparisons(SpvId comparison, SpvId allComparison
     SpvId boolTypeId = this->getType(boolType);
     SpvId logicalOp = this->nextId(&boolType);
     switch (op.kind()) {
-        case Token::Kind::TK_EQEQ:
+        case Operator::Kind::EQEQ:
             this->writeInstruction(SpvOpLogicalAnd, boolTypeId, logicalOp,
                                    comparison, allComparisons, out);
             break;
-        case Token::Kind::TK_NEQ:
+        case Operator::Kind::NEQ:
             this->writeInstruction(SpvOpLogicalOr, boolTypeId, logicalOp,
                                    comparison, allComparisons, out);
             break;
@@ -2682,7 +2681,7 @@ SpvId SPIRVCodeGenerator::mergeComparisons(SpvId comparison, SpvId allComparison
 
 static float division_by_literal_value(Operator op, const Expression& right) {
     // If this is a division by a literal value, returns that literal value. Otherwise, returns 0.
-    if (op.kind() == Token::Kind::TK_SLASH && right.isFloatLiteral()) {
+    if (op.kind() == Operator::Kind::SLASH && right.isFloatLiteral()) {
         float rhsValue = right.as<Literal>().floatValue();
         if (std::isfinite(rhsValue)) {
             return rhsValue;
@@ -2697,17 +2696,17 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
     Operator op = b.getOperator();
 
     switch (op.kind()) {
-        case Token::Kind::TK_EQ: {
+        case Operator::Kind::EQ: {
             // Handles assignment.
             SpvId rhs = this->writeExpression(*right, out);
             this->getLValue(*left, out)->store(rhs, out);
             return rhs;
         }
-        case Token::Kind::TK_LOGICALAND:
+        case Operator::Kind::LOGICALAND:
             // Handles short-circuiting; we don't necessarily evaluate both LHS and RHS.
             return this->writeLogicalAnd(*b.left(), *b.right(), out);
 
-        case Token::Kind::TK_LOGICALOR:
+        case Operator::Kind::LOGICALOR:
             // Handles short-circuiting; we don't necessarily evaluate both LHS and RHS.
             return this->writeLogicalOr(*b.left(), *b.right(), out);
 
@@ -2731,7 +2730,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         // Rewrite floating-point division by a literal into multiplication by the reciprocal.
         // This converts `expr / 2` into `expr * 0.5`
         // This improves codegen, especially for certain types of divides (e.g. vector/scalar).
-        op = Operator(Token::Kind::TK_STAR);
+        op = Operator(Operator::Kind::STAR);
         rhs = this->writeLiteral(1.0 / rhsValue, right->type());
     } else {
         // Write the right-hand side expression normally.
@@ -2824,7 +2823,7 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
 
 SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, OutputStream& out) {
     const Type& type = p.type();
-    if (p.getOperator().kind() == Token::Kind::TK_MINUS) {
+    if (p.getOperator().kind() == Operator::Kind::MINUS) {
         SpvOp_ negateOp = SpvOpFNegate;
         if (is_float(fContext, type)) {
             negateOp = SpvOpFNegate;
@@ -2844,9 +2843,9 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
         return result;
     }
     switch (p.getOperator().kind()) {
-        case Token::Kind::TK_PLUS:
+        case Operator::Kind::PLUS:
             return this->writeExpression(*p.operand(), out);
-        case Token::Kind::TK_PLUSPLUS: {
+        case Operator::Kind::PLUSPLUS: {
             std::unique_ptr<LValue> lv = this->getLValue(*p.operand(), out);
             SpvId one = this->writeLiteral(1.0, type);
             SpvId result = this->writeBinaryOperation(type, type, lv->load(out), one,
@@ -2855,7 +2854,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
             lv->store(result, out);
             return result;
         }
-        case Token::Kind::TK_MINUSMINUS: {
+        case Operator::Kind::MINUSMINUS: {
             std::unique_ptr<LValue> lv = this->getLValue(*p.operand(), out);
             SpvId one = this->writeLiteral(1.0, type);
             SpvId result = this->writeBinaryOperation(type, type, lv->load(out), one, SpvOpFSub,
@@ -2863,14 +2862,14 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
             lv->store(result, out);
             return result;
         }
-        case Token::Kind::TK_LOGICALNOT: {
+        case Operator::Kind::LOGICALNOT: {
             SkASSERT(p.operand()->type().isBoolean());
             SpvId result = this->nextId(nullptr);
             this->writeInstruction(SpvOpLogicalNot, this->getType(type), result,
                                    this->writeExpression(*p.operand(), out), out);
             return result;
         }
-        case Token::Kind::TK_BITWISENOT: {
+        case Operator::Kind::BITWISENOT: {
             SpvId result = this->nextId(nullptr);
             this->writeInstruction(SpvOpNot, this->getType(type), result,
                                    this->writeExpression(*p.operand(), out), out);
@@ -2888,13 +2887,13 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
     SpvId result = lv->load(out);
     SpvId one = this->writeLiteral(1.0, type);
     switch (p.getOperator().kind()) {
-        case Token::Kind::TK_PLUSPLUS: {
+        case Operator::Kind::PLUSPLUS: {
             SpvId temp = this->writeBinaryOperation(type, type, result, one, SpvOpFAdd,
                                                     SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
             lv->store(temp, out);
             return result;
         }
-        case Token::Kind::TK_MINUSMINUS: {
+        case Operator::Kind::MINUSMINUS: {
             SpvId temp = this->writeBinaryOperation(type, type, result, one, SpvOpFSub,
                                                     SpvOpISub, SpvOpISub, SpvOpUndef, out);
             lv->store(temp, out);
@@ -3432,7 +3431,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     auto assignmentStmt = std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
             Position(),
             std::move(skFragColorRef),
-            Token::Kind::TK_EQ,
+            Operator::Kind::EQ,
             std::move(callMainFn),
             &main.returnType()));
 

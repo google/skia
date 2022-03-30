@@ -11,7 +11,7 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
-#include "src/sksl/SkSLOperators.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLType.h"

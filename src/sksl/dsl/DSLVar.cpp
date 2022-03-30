@@ -17,11 +17,11 @@
 #include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLType.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/SkSLUtil.h"
@@ -184,7 +184,7 @@ DSLPossibleExpression DSLVarBase::operator[](DSLExpression&& index) {
 
 DSLPossibleExpression DSLVarBase::assign(DSLExpression expr) {
     return BinaryExpression::Convert(ThreadContext::Context(),
-            DSLExpression(*this, Position()).release(), SkSL::Token::Kind::TK_EQ,
+            DSLExpression(*this, Position()).release(), SkSL::Operator::Kind::EQ,
             expr.release());
 }
 

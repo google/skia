@@ -40,7 +40,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
         case Expression::Kind::kPrefix: {
             // Convert `-(-expression)` into `expression`.
             const PrefixExpression& prefix = value->as<PrefixExpression>();
-            if (prefix.getOperator().kind() == Token::Kind::TK_MINUS) {
+            if (prefix.getOperator().kind() == Operator::Kind::MINUS) {
                 return prefix.operand()->clone();
             }
             break;
@@ -101,7 +101,7 @@ static ExpressionArray negate_operands(const Context& context, const ExpressionA
         if (std::unique_ptr<Expression> simplified = simplify_negation(context, *expr)) {
             replacement.push_back(std::move(simplified));
         } else {
-            replacement.push_back(std::make_unique<PrefixExpression>(Token::Kind::TK_MINUS,
+            replacement.push_back(std::make_unique<PrefixExpression>(Operator::Kind::MINUS,
                                                                      expr->clone()));
         }
     }
@@ -116,7 +116,7 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
     }
 
     // No simplified form; convert expression to Prefix(TK_MINUS, expression).
-    return std::make_unique<PrefixExpression>(Token::Kind::TK_MINUS, std::move(value));
+    return std::make_unique<PrefixExpression>(Operator::Kind::MINUS, std::move(value));
 }
 
 static std::unique_ptr<Expression> logical_not_operand(const Context& context,
@@ -132,7 +132,7 @@ static std::unique_ptr<Expression> logical_not_operand(const Context& context,
         case Expression::Kind::kPrefix: {
             // Convert `!(!expression)` into `expression`.
             PrefixExpression& prefix = operand->as<PrefixExpression>();
-            if (prefix.getOperator().kind() == Token::Kind::TK_LOGICALNOT) {
+            if (prefix.getOperator().kind() == Operator::Kind::LOGICALNOT) {
                 return std::move(prefix.operand());
             }
             break;
@@ -142,7 +142,7 @@ static std::unique_ptr<Expression> logical_not_operand(const Context& context,
     }
 
     // No simplified form; convert expression to Prefix(TK_LOGICALNOT, expression).
-    return std::make_unique<PrefixExpression>(Token::Kind::TK_LOGICALNOT, std::move(operand));
+    return std::make_unique<PrefixExpression>(Operator::Kind::LOGICALNOT, std::move(operand));
 }
 
 std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
@@ -150,7 +150,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
                                                       std::unique_ptr<Expression> base) {
     const Type& baseType = base->type();
     switch (op.kind()) {
-        case Token::Kind::TK_PLUS:
+        case Operator::Kind::PLUS:
             if (baseType.isArray() || !baseType.componentType().isNumber()) {
                 context.fErrors->error(base->fPosition,
                                        "'+' cannot operate on '" + baseType.displayName() + "'");
@@ -158,7 +158,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
             }
             break;
 
-        case Token::Kind::TK_MINUS:
+        case Operator::Kind::MINUS:
             if (baseType.isArray() || !baseType.componentType().isNumber()) {
                 context.fErrors->error(base->fPosition,
                                        "'-' cannot operate on '" + baseType.displayName() + "'");
@@ -166,8 +166,8 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
             }
             break;
 
-        case Token::Kind::TK_PLUSPLUS:
-        case Token::Kind::TK_MINUSMINUS:
+        case Operator::Kind::PLUSPLUS:
+        case Operator::Kind::MINUSMINUS:
             if (!baseType.isNumber()) {
                 context.fErrors->error(base->fPosition,
                                        "'" + std::string(op.tightOperatorName()) +
@@ -180,7 +180,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
             }
             break;
 
-        case Token::Kind::TK_LOGICALNOT:
+        case Operator::Kind::LOGICALNOT:
             if (!baseType.isBoolean()) {
                 context.fErrors->error(base->fPosition,
                                        "'" + std::string(op.tightOperatorName()) +
@@ -189,7 +189,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
             }
             break;
 
-        case Token::Kind::TK_BITWISENOT:
+        case Operator::Kind::BITWISENOT:
             if (context.fConfig->strictES2Mode()) {
                 // GLSL ES 1.00, Section 5.1
                 context.fErrors->error(
@@ -222,27 +222,27 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
 std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Operator op,
                                                    std::unique_ptr<Expression> base) {
     switch (op.kind()) {
-        case Token::Kind::TK_PLUS:
+        case Operator::Kind::PLUS:
             SkASSERT(!base->type().isArray());
             SkASSERT(base->type().componentType().isNumber());
             return base;
 
-        case Token::Kind::TK_MINUS:
+        case Operator::Kind::MINUS:
             SkASSERT(!base->type().isArray());
             SkASSERT(base->type().componentType().isNumber());
             return negate_operand(context, std::move(base));
 
-        case Token::Kind::TK_LOGICALNOT:
+        case Operator::Kind::LOGICALNOT:
             SkASSERT(base->type().isBoolean());
             return logical_not_operand(context, std::move(base));
 
-        case Token::Kind::TK_PLUSPLUS:
-        case Token::Kind::TK_MINUSMINUS:
+        case Operator::Kind::PLUSPLUS:
+        case Operator::Kind::MINUSMINUS:
             SkASSERT(base->type().isNumber());
             SkASSERT(Analysis::IsAssignable(*base));
             break;
 
-        case Token::Kind::TK_BITWISENOT:
+        case Operator::Kind::BITWISENOT:
             SkASSERT(!context.fConfig->strictES2Mode());
             SkASSERT(!base->type().isArray());
             SkASSERT(base->type().componentType().isInteger());

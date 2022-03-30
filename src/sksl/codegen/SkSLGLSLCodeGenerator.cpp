@@ -22,7 +22,6 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLGLSL.h"
-#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
@@ -498,7 +497,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 arguments.size() == 2 &&
                 arguments[1]->kind() == Expression::Kind::kPrefix) {
                 const PrefixExpression& p = (PrefixExpression&) *arguments[1];
-                if (p.getOperator().kind() == Token::Kind::TK_MINUS) {
+                if (p.getOperator().kind() == Operator::Kind::MINUS) {
                     this->write("atan(");
                     this->writeExpression(*arguments[0], Precedence::kSequence);
                     this->write(", -1.0 * ");
@@ -513,7 +512,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 arguments.size() == 2 &&
                 arguments[1]->is<PrefixExpression>()) {
                 const PrefixExpression& p = arguments[1]->as<PrefixExpression>();
-                if (p.getOperator().kind() == Token::Kind::TK_MINUS) {
+                if (p.getOperator().kind() == Operator::Kind::MINUS) {
                     this->write("ldexp(");
                     this->writeExpression(*arguments[0], Precedence::kSequence);
                     this->write(", ");
@@ -878,7 +877,7 @@ void GLSLCodeGenerator::writeMatrixComparisonWorkaround(const BinaryExpression& 
     const Expression& right = *b.right();
     Operator op = b.getOperator();
 
-    SkASSERT(op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ);
+    SkASSERT(op.kind() == Operator::Kind::EQEQ || op.kind() == Operator::Kind::NEQ);
     SkASSERT(left.type().isMatrix());
     SkASSERT(right.type().isMatrix());
 
@@ -904,14 +903,14 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     const Expression& right = *b.right();
     Operator op = b.getOperator();
     if (this->caps().unfoldShortCircuitAsTernary() &&
-            (op.kind() == Token::Kind::TK_LOGICALAND || op.kind() == Token::Kind::TK_LOGICALOR)) {
+            (op.kind() == Operator::Kind::LOGICALAND || op.kind() == Operator::Kind::LOGICALOR)) {
         this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
         return;
     }
 
     if (this->caps().rewriteMatrixComparisons() &&
             left.type().isMatrix() && right.type().isMatrix() &&
-            (op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ)) {
+            (op.kind() == Operator::Kind::EQEQ || op.kind() == Operator::Kind::NEQ)) {
         this->writeMatrixComparisonWorkaround(b);
         return;
     }
@@ -951,14 +950,14 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     // a || b  =>   a ? true : b
     this->writeExpression(*b.left(), Precedence::kTernary);
     this->write(" ? ");
-    if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
+    if (b.getOperator().kind() == Operator::Kind::LOGICALAND) {
         this->writeExpression(*b.right(), Precedence::kTernary);
     } else {
         Literal boolTrue(Position(), /*value=*/1, fContext.fTypes.fBool.get());
         this->writeLiteral(boolTrue);
     }
     this->write(" : ");
-    if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
+    if (b.getOperator().kind() == Operator::Kind::LOGICALAND) {
         Literal boolFalse(Position(), /*value=*/0, fContext.fTypes.fBool.get());
         this->writeLiteral(boolFalse);
     } else {
@@ -1334,7 +1333,7 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     if (f.test()) {
         if (this->caps().addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
-                    Position(), f.test()->clone(), Token::Kind::TK_LOGICALAND,
+                    Position(), f.test()->clone(), Operator::Kind::LOGICALAND,
                     Literal::MakeBool(fContext, Position(), /*value=*/true),
                     fContext.fTypes.fBool.get()));
             this->writeExpression(*and_true, Precedence::kTopLevel);

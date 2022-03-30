@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLOperators.h"
+#include "include/sksl/SkSLOperator.h"
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkStringView.h"
@@ -21,123 +21,79 @@ namespace SkSL {
 
 Operator::Precedence Operator::getBinaryPrecedence() const {
     switch (this->kind()) {
-        case Kind::TK_STAR:         // fall through
-        case Kind::TK_SLASH:        // fall through
-        case Kind::TK_PERCENT:      return Precedence::kMultiplicative;
-        case Kind::TK_PLUS:         // fall through
-        case Kind::TK_MINUS:        return Precedence::kAdditive;
-        case Kind::TK_SHL:          // fall through
-        case Kind::TK_SHR:          return Precedence::kShift;
-        case Kind::TK_LT:           // fall through
-        case Kind::TK_GT:           // fall through
-        case Kind::TK_LTEQ:         // fall through
-        case Kind::TK_GTEQ:         return Precedence::kRelational;
-        case Kind::TK_EQEQ:         // fall through
-        case Kind::TK_NEQ:          return Precedence::kEquality;
-        case Kind::TK_BITWISEAND:   return Precedence::kBitwiseAnd;
-        case Kind::TK_BITWISEXOR:   return Precedence::kBitwiseXor;
-        case Kind::TK_BITWISEOR:    return Precedence::kBitwiseOr;
-        case Kind::TK_LOGICALAND:   return Precedence::kLogicalAnd;
-        case Kind::TK_LOGICALXOR:   return Precedence::kLogicalXor;
-        case Kind::TK_LOGICALOR:    return Precedence::kLogicalOr;
-        case Kind::TK_EQ:           // fall through
-        case Kind::TK_PLUSEQ:       // fall through
-        case Kind::TK_MINUSEQ:      // fall through
-        case Kind::TK_STAREQ:       // fall through
-        case Kind::TK_SLASHEQ:      // fall through
-        case Kind::TK_PERCENTEQ:    // fall through
-        case Kind::TK_SHLEQ:        // fall through
-        case Kind::TK_SHREQ:        // fall through
-        case Kind::TK_BITWISEANDEQ: // fall through
-        case Kind::TK_BITWISEXOREQ: // fall through
-        case Kind::TK_BITWISEOREQ:  return Precedence::kAssignment;
-        case Kind::TK_COMMA:        return Precedence::kSequence;
+        case Kind::STAR:         // fall through
+        case Kind::SLASH:        // fall through
+        case Kind::PERCENT:      return Precedence::kMultiplicative;
+        case Kind::PLUS:         // fall through
+        case Kind::MINUS:        return Precedence::kAdditive;
+        case Kind::SHL:          // fall through
+        case Kind::SHR:          return Precedence::kShift;
+        case Kind::LT:           // fall through
+        case Kind::GT:           // fall through
+        case Kind::LTEQ:         // fall through
+        case Kind::GTEQ:         return Precedence::kRelational;
+        case Kind::EQEQ:         // fall through
+        case Kind::NEQ:          return Precedence::kEquality;
+        case Kind::BITWISEAND:   return Precedence::kBitwiseAnd;
+        case Kind::BITWISEXOR:   return Precedence::kBitwiseXor;
+        case Kind::BITWISEOR:    return Precedence::kBitwiseOr;
+        case Kind::LOGICALAND:   return Precedence::kLogicalAnd;
+        case Kind::LOGICALXOR:   return Precedence::kLogicalXor;
+        case Kind::LOGICALOR:    return Precedence::kLogicalOr;
+        case Kind::EQ:           // fall through
+        case Kind::PLUSEQ:       // fall through
+        case Kind::MINUSEQ:      // fall through
+        case Kind::STAREQ:       // fall through
+        case Kind::SLASHEQ:      // fall through
+        case Kind::PERCENTEQ:    // fall through
+        case Kind::SHLEQ:        // fall through
+        case Kind::SHREQ:        // fall through
+        case Kind::BITWISEANDEQ: // fall through
+        case Kind::BITWISEXOREQ: // fall through
+        case Kind::BITWISEOREQ:  return Precedence::kAssignment;
+        case Kind::COMMA:        return Precedence::kSequence;
         default: SK_ABORT("unsupported binary operator");
-    }
-}
-
-bool Operator::isOperator() const {
-    switch (this->kind()) {
-        case Kind::TK_PLUS:
-        case Kind::TK_MINUS:
-        case Kind::TK_STAR:
-        case Kind::TK_SLASH:
-        case Kind::TK_PERCENT:
-        case Kind::TK_SHL:
-        case Kind::TK_SHR:
-        case Kind::TK_LOGICALNOT:
-        case Kind::TK_LOGICALAND:
-        case Kind::TK_LOGICALOR:
-        case Kind::TK_LOGICALXOR:
-        case Kind::TK_BITWISENOT:
-        case Kind::TK_BITWISEAND:
-        case Kind::TK_BITWISEOR:
-        case Kind::TK_BITWISEXOR:
-        case Kind::TK_EQ:
-        case Kind::TK_EQEQ:
-        case Kind::TK_NEQ:
-        case Kind::TK_LT:
-        case Kind::TK_GT:
-        case Kind::TK_LTEQ:
-        case Kind::TK_GTEQ:
-        case Kind::TK_PLUSEQ:
-        case Kind::TK_MINUSEQ:
-        case Kind::TK_STAREQ:
-        case Kind::TK_SLASHEQ:
-        case Kind::TK_PERCENTEQ:
-        case Kind::TK_SHLEQ:
-        case Kind::TK_SHREQ:
-        case Kind::TK_BITWISEANDEQ:
-        case Kind::TK_BITWISEOREQ:
-        case Kind::TK_BITWISEXOREQ:
-        case Kind::TK_PLUSPLUS:
-        case Kind::TK_MINUSMINUS:
-        case Kind::TK_COMMA:
-            return true;
-        default:
-            return false;
     }
 }
 
 const char* Operator::operatorName() const {
     switch (this->kind()) {
-        case Kind::TK_PLUS:         return " + ";
-        case Kind::TK_MINUS:        return " - ";
-        case Kind::TK_STAR:         return " * ";
-        case Kind::TK_SLASH:        return " / ";
-        case Kind::TK_PERCENT:      return " % ";
-        case Kind::TK_SHL:          return " << ";
-        case Kind::TK_SHR:          return " >> ";
-        case Kind::TK_LOGICALNOT:   return "!";
-        case Kind::TK_LOGICALAND:   return " && ";
-        case Kind::TK_LOGICALOR:    return " || ";
-        case Kind::TK_LOGICALXOR:   return " ^^ ";
-        case Kind::TK_BITWISENOT:   return "~";
-        case Kind::TK_BITWISEAND:   return " & ";
-        case Kind::TK_BITWISEOR:    return " | ";
-        case Kind::TK_BITWISEXOR:   return " ^ ";
-        case Kind::TK_EQ:           return " = ";
-        case Kind::TK_EQEQ:         return " == ";
-        case Kind::TK_NEQ:          return " != ";
-        case Kind::TK_LT:           return " < ";
-        case Kind::TK_GT:           return " > ";
-        case Kind::TK_LTEQ:         return " <= ";
-        case Kind::TK_GTEQ:         return " >= ";
-        case Kind::TK_PLUSEQ:       return " += ";
-        case Kind::TK_MINUSEQ:      return " -= ";
-        case Kind::TK_STAREQ:       return " *= ";
-        case Kind::TK_SLASHEQ:      return " /= ";
-        case Kind::TK_PERCENTEQ:    return " %= ";
-        case Kind::TK_SHLEQ:        return " <<= ";
-        case Kind::TK_SHREQ:        return " >>= ";
-        case Kind::TK_BITWISEANDEQ: return " &= ";
-        case Kind::TK_BITWISEOREQ:  return " |= ";
-        case Kind::TK_BITWISEXOREQ: return " ^= ";
-        case Kind::TK_PLUSPLUS:     return "++";
-        case Kind::TK_MINUSMINUS:   return "--";
-        case Kind::TK_COMMA:        return ", ";
-        default:
-            SK_ABORT("unsupported operator: %d\n", (int) fKind);
+        case Kind::PLUS:         return " + ";
+        case Kind::MINUS:        return " - ";
+        case Kind::STAR:         return " * ";
+        case Kind::SLASH:        return " / ";
+        case Kind::PERCENT:      return " % ";
+        case Kind::SHL:          return " << ";
+        case Kind::SHR:          return " >> ";
+        case Kind::LOGICALNOT:   return "!";
+        case Kind::LOGICALAND:   return " && ";
+        case Kind::LOGICALOR:    return " || ";
+        case Kind::LOGICALXOR:   return " ^^ ";
+        case Kind::BITWISENOT:   return "~";
+        case Kind::BITWISEAND:   return " & ";
+        case Kind::BITWISEOR:    return " | ";
+        case Kind::BITWISEXOR:   return " ^ ";
+        case Kind::EQ:           return " = ";
+        case Kind::EQEQ:         return " == ";
+        case Kind::NEQ:          return " != ";
+        case Kind::LT:           return " < ";
+        case Kind::GT:           return " > ";
+        case Kind::LTEQ:         return " <= ";
+        case Kind::GTEQ:         return " >= ";
+        case Kind::PLUSEQ:       return " += ";
+        case Kind::MINUSEQ:      return " -= ";
+        case Kind::STAREQ:       return " *= ";
+        case Kind::SLASHEQ:      return " /= ";
+        case Kind::PERCENTEQ:    return " %= ";
+        case Kind::SHLEQ:        return " <<= ";
+        case Kind::SHREQ:        return " >>= ";
+        case Kind::BITWISEANDEQ: return " &= ";
+        case Kind::BITWISEOREQ:  return " |= ";
+        case Kind::BITWISEXOREQ: return " ^= ";
+        case Kind::PLUSPLUS:     return "++";
+        case Kind::MINUSMINUS:   return "--";
+        case Kind::COMMA:        return ", ";
+        default: SkUNREACHABLE;
     }
 }
 
@@ -154,17 +110,17 @@ std::string_view Operator::tightOperatorName() const {
 
 bool Operator::isAssignment() const {
     switch (this->kind()) {
-        case Kind::TK_EQ:           // fall through
-        case Kind::TK_PLUSEQ:       // fall through
-        case Kind::TK_MINUSEQ:      // fall through
-        case Kind::TK_STAREQ:       // fall through
-        case Kind::TK_SLASHEQ:      // fall through
-        case Kind::TK_PERCENTEQ:    // fall through
-        case Kind::TK_SHLEQ:        // fall through
-        case Kind::TK_SHREQ:        // fall through
-        case Kind::TK_BITWISEOREQ:  // fall through
-        case Kind::TK_BITWISEXOREQ: // fall through
-        case Kind::TK_BITWISEANDEQ:
+        case Kind::EQ:           // fall through
+        case Kind::PLUSEQ:       // fall through
+        case Kind::MINUSEQ:      // fall through
+        case Kind::STAREQ:       // fall through
+        case Kind::SLASHEQ:      // fall through
+        case Kind::PERCENTEQ:    // fall through
+        case Kind::SHLEQ:        // fall through
+        case Kind::SHREQ:        // fall through
+        case Kind::BITWISEOREQ:  // fall through
+        case Kind::BITWISEXOREQ: // fall through
+        case Kind::BITWISEANDEQ:
             return true;
         default:
             return false;
@@ -173,26 +129,26 @@ bool Operator::isAssignment() const {
 
 Operator Operator::removeAssignment() const {
     switch (this->kind()) {
-        case Kind::TK_PLUSEQ:       return Operator{Kind::TK_PLUS};
-        case Kind::TK_MINUSEQ:      return Operator{Kind::TK_MINUS};
-        case Kind::TK_STAREQ:       return Operator{Kind::TK_STAR};
-        case Kind::TK_SLASHEQ:      return Operator{Kind::TK_SLASH};
-        case Kind::TK_PERCENTEQ:    return Operator{Kind::TK_PERCENT};
-        case Kind::TK_SHLEQ:        return Operator{Kind::TK_SHL};
-        case Kind::TK_SHREQ:        return Operator{Kind::TK_SHR};
-        case Kind::TK_BITWISEOREQ:  return Operator{Kind::TK_BITWISEOR};
-        case Kind::TK_BITWISEXOREQ: return Operator{Kind::TK_BITWISEXOR};
-        case Kind::TK_BITWISEANDEQ: return Operator{Kind::TK_BITWISEAND};
+        case Kind::PLUSEQ:       return Kind::PLUS;
+        case Kind::MINUSEQ:      return Kind::MINUS;
+        case Kind::STAREQ:       return Kind::STAR;
+        case Kind::SLASHEQ:      return Kind::SLASH;
+        case Kind::PERCENTEQ:    return Kind::PERCENT;
+        case Kind::SHLEQ:        return Kind::SHL;
+        case Kind::SHREQ:        return Kind::SHR;
+        case Kind::BITWISEOREQ:  return Kind::BITWISEOR;
+        case Kind::BITWISEXOREQ: return Kind::BITWISEXOR;
+        case Kind::BITWISEANDEQ: return Kind::BITWISEAND;
         default: return *this;
     }
 }
 
-bool Operator::isLogical() const {
+bool Operator::isRelational() const {
     switch (this->kind()) {
-        case Token::Kind::TK_LT:
-        case Token::Kind::TK_GT:
-        case Token::Kind::TK_LTEQ:
-        case Token::Kind::TK_GTEQ:
+        case Kind::LT:
+        case Kind::GT:
+        case Kind::LTEQ:
+        case Kind::GTEQ:
             return true;
         default:
             return false;
@@ -201,18 +157,18 @@ bool Operator::isLogical() const {
 
 bool Operator::isOnlyValidForIntegralTypes() const {
     switch (this->kind()) {
-        case Token::Kind::TK_SHL:
-        case Token::Kind::TK_SHR:
-        case Token::Kind::TK_BITWISEAND:
-        case Token::Kind::TK_BITWISEOR:
-        case Token::Kind::TK_BITWISEXOR:
-        case Token::Kind::TK_PERCENT:
-        case Token::Kind::TK_SHLEQ:
-        case Token::Kind::TK_SHREQ:
-        case Token::Kind::TK_BITWISEANDEQ:
-        case Token::Kind::TK_BITWISEOREQ:
-        case Token::Kind::TK_BITWISEXOREQ:
-        case Token::Kind::TK_PERCENTEQ:
+        case Kind::SHL:
+        case Kind::SHR:
+        case Kind::BITWISEAND:
+        case Kind::BITWISEOR:
+        case Kind::BITWISEXOR:
+        case Kind::PERCENT:
+        case Kind::SHLEQ:
+        case Kind::SHREQ:
+        case Kind::BITWISEANDEQ:
+        case Kind::BITWISEOREQ:
+        case Kind::BITWISEXOREQ:
+        case Kind::PERCENTEQ:
             return true;
         default:
             return false;
@@ -221,26 +177,26 @@ bool Operator::isOnlyValidForIntegralTypes() const {
 
 bool Operator::isValidForMatrixOrVector() const {
     switch (this->kind()) {
-        case Token::Kind::TK_PLUS:
-        case Token::Kind::TK_MINUS:
-        case Token::Kind::TK_STAR:
-        case Token::Kind::TK_SLASH:
-        case Token::Kind::TK_PERCENT:
-        case Token::Kind::TK_SHL:
-        case Token::Kind::TK_SHR:
-        case Token::Kind::TK_BITWISEAND:
-        case Token::Kind::TK_BITWISEOR:
-        case Token::Kind::TK_BITWISEXOR:
-        case Token::Kind::TK_PLUSEQ:
-        case Token::Kind::TK_MINUSEQ:
-        case Token::Kind::TK_STAREQ:
-        case Token::Kind::TK_SLASHEQ:
-        case Token::Kind::TK_PERCENTEQ:
-        case Token::Kind::TK_SHLEQ:
-        case Token::Kind::TK_SHREQ:
-        case Token::Kind::TK_BITWISEANDEQ:
-        case Token::Kind::TK_BITWISEOREQ:
-        case Token::Kind::TK_BITWISEXOREQ:
+        case Kind::PLUS:
+        case Kind::MINUS:
+        case Kind::STAR:
+        case Kind::SLASH:
+        case Kind::PERCENT:
+        case Kind::SHL:
+        case Kind::SHR:
+        case Kind::BITWISEAND:
+        case Kind::BITWISEOR:
+        case Kind::BITWISEXOR:
+        case Kind::PLUSEQ:
+        case Kind::MINUSEQ:
+        case Kind::STAREQ:
+        case Kind::SLASHEQ:
+        case Kind::PERCENTEQ:
+        case Kind::SHLEQ:
+        case Kind::SHREQ:
+        case Kind::BITWISEANDEQ:
+        case Kind::BITWISEOREQ:
+        case Kind::BITWISEXOREQ:
             return true;
         default:
             return false;
@@ -248,7 +204,7 @@ bool Operator::isValidForMatrixOrVector() const {
 }
 
 bool Operator::isMatrixMultiply(const Type& left, const Type& right) const {
-    if (this->kind() != Token::Kind::TK_STAR && this->kind() != Token::Kind::TK_STAREQ) {
+    if (this->kind() != Kind::STAR && this->kind() != Kind::STAREQ) {
         return false;
     }
     if (left.isMatrix()) {
@@ -269,7 +225,7 @@ bool Operator::determineBinaryType(const Context& context,
                                    const Type** outResultType) const {
     const bool allowNarrowing = context.fConfig->fSettings.fAllowNarrowingConversions;
     switch (this->kind()) {
-        case Token::Kind::TK_EQ:  // left = right
+        case Kind::EQ:  // left = right
             if (left.isVoid()) {
                 return false;
             }
@@ -278,8 +234,8 @@ bool Operator::determineBinaryType(const Context& context,
             *outResultType = &left;
             return right.canCoerceTo(left, allowNarrowing);
 
-        case Token::Kind::TK_EQEQ:   // left == right
-        case Token::Kind::TK_NEQ: {  // left != right
+        case Kind::EQEQ:   // left == right
+        case Kind::NEQ: {  // left != right
             if (left.isVoid() || left.isOpaque()) {
                 return false;
             }
@@ -302,16 +258,16 @@ bool Operator::determineBinaryType(const Context& context,
             }
             return false;
         }
-        case Token::Kind::TK_LOGICALOR:   // left || right
-        case Token::Kind::TK_LOGICALAND:  // left && right
-        case Token::Kind::TK_LOGICALXOR:  // left ^^ right
+        case Kind::LOGICALOR:   // left || right
+        case Kind::LOGICALAND:  // left && right
+        case Kind::LOGICALXOR:  // left ^^ right
             *outLeftType = context.fTypes.fBool.get();
             *outRightType = context.fTypes.fBool.get();
             *outResultType = context.fTypes.fBool.get();
             return left.canCoerceTo(*context.fTypes.fBool, allowNarrowing) &&
                    right.canCoerceTo(*context.fTypes.fBool, allowNarrowing);
 
-        case Token::Kind::TK_COMMA:  // left, right
+        case Operator::Kind::COMMA:  // left, right
             if (left.isOpaque() || right.isOpaque()) {
                 return false;
             }
@@ -373,7 +329,7 @@ bool Operator::determineBinaryType(const Context& context,
         }
         // Convert component type to compound.
         *outLeftType = &(*outLeftType)->toCompound(context, left.columns(), left.rows());
-        if (!this->isLogical()) {
+        if (!this->isRelational()) {
             *outResultType = &(*outResultType)->toCompound(context, left.columns(), left.rows());
         }
         return true;
@@ -389,7 +345,7 @@ bool Operator::determineBinaryType(const Context& context,
         }
         // Convert component type to compound.
         *outRightType = &(*outRightType)->toCompound(context, right.columns(), right.rows());
-        if (!this->isLogical()) {
+        if (!this->isRelational()) {
             *outResultType = &(*outResultType)->toCompound(context, right.columns(), right.rows());
         }
         return true;
@@ -418,7 +374,7 @@ bool Operator::determineBinaryType(const Context& context,
         } else {
             return false;
         }
-        if (this->isLogical()) {
+        if (this->isRelational()) {
             *outResultType = context.fTypes.fBool.get();
         }
         return true;

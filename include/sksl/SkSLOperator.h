@@ -5,11 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SKSL_OPERATORS
-#define SKSL_OPERATORS
-
-#include "include/core/SkTypes.h"
-#include "src/sksl/SkSLLexer.h"
+#ifndef SKSL_OPERATOR
+#define SKSL_OPERATOR
 
 #include <string_view>
 
@@ -20,12 +17,43 @@ class Type;
 
 class Operator {
 public:
-    using Kind = Token::Kind;
-
-    // Allow implicit conversion from Token::Kind, since this is just a utility wrapper on top.
-    Operator(Token::Kind t) : fKind(t) {
-        SkASSERTF(this->isOperator(), "token-kind %d is not an operator", (int)fKind);
-    }
+    enum class Kind {
+        PLUS,
+        MINUS,
+        STAR,
+        SLASH,
+        PERCENT,
+        SHL,
+        SHR,
+        LOGICALNOT,
+        LOGICALAND,
+        LOGICALOR,
+        LOGICALXOR,
+        BITWISENOT,
+        BITWISEAND,
+        BITWISEOR,
+        BITWISEXOR,
+        EQ,
+        EQEQ,
+        NEQ,
+        LT,
+        GT,
+        LTEQ,
+        GTEQ,
+        PLUSEQ,
+        MINUSEQ,
+        STAREQ,
+        SLASHEQ,
+        PERCENTEQ,
+        SHLEQ,
+        SHREQ,
+        BITWISEANDEQ,
+        BITWISEOREQ,
+        BITWISEXOREQ,
+        PLUSPLUS,
+        MINUSMINUS,
+        COMMA
+    };
 
     enum class Precedence {
         kParentheses    =  1,
@@ -48,10 +76,12 @@ public:
         kTopLevel       = kSequence
     };
 
-    Token::Kind kind() const { return fKind; }
+    Operator(Kind op) : fKind(op) {}
+
+    Kind kind() const { return fKind; }
 
     bool isEquality() const {
-        return fKind == Token::Kind::TK_EQEQ || fKind == Token::Kind::TK_NEQ;
+        return fKind == Kind::EQEQ || fKind == Kind::NEQ;
     }
 
     Precedence getBinaryPrecedence() const;
@@ -70,10 +100,10 @@ public:
     Operator removeAssignment() const;
 
     /**
-     * Defines the set of logical (comparison) operators:
+     * Defines the set of relational (comparison) operators:
      *     <  <=  >  >=
      */
-    bool isLogical() const;
+    bool isRelational() const;
 
     /**
      * Defines the set of operators which are only valid on integral types:

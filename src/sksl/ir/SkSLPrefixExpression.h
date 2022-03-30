@@ -8,8 +8,7 @@
 #ifndef SKSL_PREFIXEXPRESSION
 #define SKSL_PREFIXEXPRESSION
 
-#include "src/sksl/SkSLLexer.h"
-#include "src/sksl/SkSLOperators.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 #include <memory>
@@ -51,8 +50,8 @@ public:
 
     bool hasProperty(Property property) const override {
         if (property == Property::kSideEffects &&
-            (this->getOperator().kind() == Token::Kind::TK_PLUSPLUS ||
-             this->getOperator().kind() == Token::Kind::TK_MINUSMINUS)) {
+            (this->getOperator().kind() == Operator::Kind::PLUSPLUS ||
+             this->getOperator().kind() == Operator::Kind::MINUSMINUS)) {
             return true;
         }
         return this->operand()->hasProperty(property);

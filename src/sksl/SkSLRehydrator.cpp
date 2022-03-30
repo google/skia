@@ -13,10 +13,10 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLCore.h"
+#include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/SkSLPool.h"
@@ -500,7 +500,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
     switch (kind) {
         case Rehydrator::kBinary_Command: {
             std::unique_ptr<Expression> left = this->expression();
-            Token::Kind op = (Token::Kind) this->readU8();
+            Operator::Kind op = (Operator::Kind)this->readU8();
             std::unique_ptr<Expression> right = this->expression();
             return BinaryExpression::Make(this->context(), std::move(left), op, std::move(right));
         }
@@ -603,12 +603,12 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             }
         }
         case Rehydrator::kPostfix_Command: {
-            Token::Kind op = (Token::Kind) this->readU8();
+            Operator::Kind op = (Operator::Kind)this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
             return PostfixExpression::Make(this->context(), std::move(operand), op);
         }
         case Rehydrator::kPrefix_Command: {
-            Token::Kind op = (Token::Kind) this->readU8();
+            Operator::Kind op = (Operator::Kind)this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
             return PrefixExpression::Make(this->context(), op, std::move(operand));
         }

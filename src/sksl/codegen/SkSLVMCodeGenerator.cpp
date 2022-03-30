@@ -23,10 +23,9 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "include/private/SkTPin.h"
+#include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLLexer.h"
-#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -787,7 +786,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
     const Expression& left = *b.left();
     const Expression& right = *b.right();
     Operator op = b.getOperator();
-    if (op.kind() == Token::Kind::TK_EQ) {
+    if (op.kind() == Operator::Kind::EQ) {
         return this->writeStore(left, this->writeExpression(right));
     }
 
@@ -803,7 +802,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
 
     // A few ops require special treatment:
     switch (op.kind()) {
-        case Token::Kind::TK_LOGICALAND: {
+        case Operator::Kind::LOGICALAND: {
             SkASSERT(!isAssignment);
             SkASSERT(nk == Type::NumberKind::kBoolean);
             skvm::I32 lVal = i32(this->writeExpression(left));
@@ -811,7 +810,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
             skvm::I32 rVal = i32(this->writeExpression(right));
             return lVal & rVal;
         }
-        case Token::Kind::TK_LOGICALOR: {
+        case Operator::Kind::LOGICALOR: {
             SkASSERT(!isAssignment);
             SkASSERT(nk == Type::NumberKind::kBoolean);
             skvm::I32 lVal = i32(this->writeExpression(left));
@@ -819,7 +818,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
             skvm::I32 rVal = i32(this->writeExpression(right));
             return lVal | rVal;
         }
-        case Token::Kind::TK_COMMA:
+        case Operator::Kind::COMMA:
             // We write the left side of the expression to preserve its side effects, even though we
             // immediately discard the result.
             this->writeExpression(left);
@@ -833,7 +832,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
           rVal = this->writeExpression(right);
 
     // Special case for M*V, V*M, M*M (but not V*V!)
-    if (op.kind() == Token::Kind::TK_STAR
+    if (op.kind() == Operator::Kind::STAR
         && lVecOrMtx && rVecOrMtx && !(lType.isVector() && rType.isVector())) {
         int rCols = rType.columns(),
             rRows = rType.rows(),
@@ -891,7 +890,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
             SkASSERT(op.isEquality());
             skvm::I32 folded = i32(result[0]);
             for (size_t i = 1; i < nslots; ++i) {
-                if (op.kind() == Token::Kind::TK_NEQ) {
+                if (op.kind() == Operator::Kind::NEQ) {
                     folded |= i32(result[i]);
                 } else {
                     folded &= i32(result[i]);
@@ -909,37 +908,37 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
     };
 
     switch (op.kind()) {
-        case Token::Kind::TK_EQEQ:
+        case Operator::Kind::EQEQ:
             SkASSERT(!isAssignment);
             return binary([](skvm::F32 x, skvm::F32 y) { return x == y; },
                           [](skvm::I32 x, skvm::I32 y) { return x == y; }, /*foldResults=*/ true);
-        case Token::Kind::TK_NEQ:
+        case Operator::Kind::NEQ:
             SkASSERT(!isAssignment);
             return binary([](skvm::F32 x, skvm::F32 y) { return x != y; },
                           [](skvm::I32 x, skvm::I32 y) { return x != y; }, /*foldResults=*/ true);
-        case Token::Kind::TK_GT:
+        case Operator::Kind::GT:
             return binary([](skvm::F32 x, skvm::F32 y) { return x > y; },
                           [](skvm::I32 x, skvm::I32 y) { return x > y; });
-        case Token::Kind::TK_GTEQ:
+        case Operator::Kind::GTEQ:
             return binary([](skvm::F32 x, skvm::F32 y) { return x >= y; },
                           [](skvm::I32 x, skvm::I32 y) { return x >= y; });
-        case Token::Kind::TK_LT:
+        case Operator::Kind::LT:
             return binary([](skvm::F32 x, skvm::F32 y) { return x < y; },
                           [](skvm::I32 x, skvm::I32 y) { return x < y; });
-        case Token::Kind::TK_LTEQ:
+        case Operator::Kind::LTEQ:
             return binary([](skvm::F32 x, skvm::F32 y) { return x <= y; },
                           [](skvm::I32 x, skvm::I32 y) { return x <= y; });
 
-        case Token::Kind::TK_PLUS:
+        case Operator::Kind::PLUS:
             return binary([](skvm::F32 x, skvm::F32 y) { return x + y; },
                           [](skvm::I32 x, skvm::I32 y) { return x + y; });
-        case Token::Kind::TK_MINUS:
+        case Operator::Kind::MINUS:
             return binary([](skvm::F32 x, skvm::F32 y) { return x - y; },
                           [](skvm::I32 x, skvm::I32 y) { return x - y; });
-        case Token::Kind::TK_STAR:
+        case Operator::Kind::STAR:
             return binary([](skvm::F32 x, skvm::F32 y) { return x ** y; },
                           [](skvm::I32 x, skvm::I32 y) { return x * y; });
-        case Token::Kind::TK_SLASH:
+        case Operator::Kind::SLASH:
             // Minimum spec (GLSL ES 1.0) has very loose requirements for integer operations.
             // (Low-end GPUs may not have integer ALUs). Given that, we are allowed to do floating
             // point division plus rounding. Section 10.28 of the spec even clarifies that the
@@ -949,19 +948,19 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
                               return skvm::trunc(skvm::to_F32(x) / skvm::to_F32(y));
                           });
 
-        case Token::Kind::TK_BITWISEXOR:
-        case Token::Kind::TK_LOGICALXOR:
+        case Operator::Kind::BITWISEXOR:
+        case Operator::Kind::LOGICALXOR:
             return binary(unsupported_f, [](skvm::I32 x, skvm::I32 y) { return x ^ y; });
-        case Token::Kind::TK_BITWISEAND:
+        case Operator::Kind::BITWISEAND:
             return binary(unsupported_f, [](skvm::I32 x, skvm::I32 y) { return x & y; });
-        case Token::Kind::TK_BITWISEOR:
+        case Operator::Kind::BITWISEOR:
             return binary(unsupported_f, [](skvm::I32 x, skvm::I32 y) { return x | y; });
 
         // These three operators are all 'reserved' (illegal) in our minimum spec, but will require
         // implementation in the future.
-        case Token::Kind::TK_PERCENT:
-        case Token::Kind::TK_SHL:
-        case Token::Kind::TK_SHR:
+        case Operator::Kind::PERCENT:
+        case Operator::Kind::SHL:
+        case Operator::Kind::SHR:
         default:
             SkDEBUGFAIL("Unsupported operator");
             return {};
@@ -1639,9 +1638,9 @@ Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
     Value val = this->writeExpression(*p.operand());
 
     switch (p.getOperator().kind()) {
-        case Token::Kind::TK_PLUSPLUS:
-        case Token::Kind::TK_MINUSMINUS: {
-            bool incr = p.getOperator().kind() == Token::Kind::TK_PLUSPLUS;
+        case Operator::Kind::PLUSPLUS:
+        case Operator::Kind::MINUSMINUS: {
+            bool incr = p.getOperator().kind() == Operator::Kind::PLUSPLUS;
 
             switch (base_number_kind(p.type())) {
                 case Type::NumberKind::kFloat:
@@ -1656,7 +1655,7 @@ Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
             }
             return this->writeStore(*p.operand(), val);
         }
-        case Token::Kind::TK_MINUS: {
+        case Operator::Kind::MINUS: {
             switch (base_number_kind(p.type())) {
                 case Type::NumberKind::kFloat:
                     return this->unary(val, [](skvm::F32 x) { return -x; });
@@ -1667,8 +1666,8 @@ Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
                     return {};
             }
         }
-        case Token::Kind::TK_LOGICALNOT:
-        case Token::Kind::TK_BITWISENOT:
+        case Operator::Kind::LOGICALNOT:
+        case Operator::Kind::BITWISENOT:
             return this->unary(val, [](skvm::I32 x) { return ~x; });
         default:
             SkASSERT(false);
@@ -1678,12 +1677,12 @@ Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
 
 Value SkVMGenerator::writePostfixExpression(const PostfixExpression& p) {
     switch (p.getOperator().kind()) {
-        case Token::Kind::TK_PLUSPLUS:
-        case Token::Kind::TK_MINUSMINUS: {
+        case Operator::Kind::PLUSPLUS:
+        case Operator::Kind::MINUSMINUS: {
             Value old = this->writeExpression(*p.operand()),
                   val = old;
             SkASSERT(val.slots() == 1);
-            bool incr = p.getOperator().kind() == Token::Kind::TK_PLUSPLUS;
+            bool incr = p.getOperator().kind() == Operator::Kind::PLUSPLUS;
 
             switch (base_number_kind(p.type())) {
                 case Type::NumberKind::kFloat:

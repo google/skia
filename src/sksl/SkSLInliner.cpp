@@ -15,11 +15,10 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLMangler.h"
-#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLChildCall.h"
@@ -560,7 +559,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                     BinaryExpression::Make(
                             *fContext,
                             clone_with_ref_kind(**resultExpr, VariableRefKind::kWrite),
-                            Token::Kind::TK_EQ,
+                            Operator::Kind::EQ,
                             expr(r.expression())));
 
             // Functions without early returns aren't wrapped in a for loop and don't need to worry
@@ -969,8 +968,8 @@ public:
                 // enforce that rule is to avoid inlining the right side entirely. However, it is
                 // safe for other types of binary expression to inline both sides.
                 Operator op = binaryExpr.getOperator();
-                bool shortCircuitable = (op.kind() == Token::Kind::TK_LOGICALAND ||
-                                         op.kind() == Token::Kind::TK_LOGICALOR);
+                bool shortCircuitable = (op.kind() == Operator::Kind::LOGICALAND ||
+                                         op.kind() == Operator::Kind::LOGICALOR);
                 if (!shortCircuitable) {
                     this->visitExpression(&binaryExpr.right());
                 }

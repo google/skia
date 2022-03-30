@@ -25,7 +25,7 @@ static bool is_low_precision_matrix_vector_multiply(const Expression& left,
                                                     const Expression& right,
                                                     const Type& resultType) {
     return !resultType.highPrecision() &&
-           op.kind() == Token::Kind::TK_STAR &&
+           op.kind() == Operator::Kind::STAR &&
            left.type().isMatrix() &&
            right.type().isVector() &&
            left.type().rows() == right.type().columns() &&
@@ -58,7 +58,7 @@ static std::unique_ptr<Expression> rewrite_matrix_vector_multiply(const Context&
         } else {
             sum = BinaryExpression::Make(context,
                                          std::move(sum),
-                                         Operator(Token::Kind::TK_PLUS),
+                                         Operator(Operator::Kind::PLUS),
                                          std::move(product),
                                          matNType);
         }
@@ -86,7 +86,7 @@ std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
     bool isAssignment = op.isAssignment();
     if (isAssignment &&
         !Analysis::UpdateVariableRefKind(left.get(),
-                                         op.kind() != Token::Kind::TK_EQ
+                                         op.kind() != Operator::Kind::EQ
                                                  ? VariableReference::RefKind::kReadWrite
                                                  : VariableReference::RefKind::kWrite,
                                          context.fErrors)) {
@@ -162,7 +162,7 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
     SkASSERT(!op.isAssignment() || !left->type().componentType().isOpaque());
 
     // For simple assignments, detect and report out-of-range literal values.
-    if (op.kind() == Token::Kind::TK_EQ) {
+    if (op.kind() == Operator::Kind::EQ) {
         left->type().checkForOutOfRangeLiteral(context, *right);
     }
 

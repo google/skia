@@ -8,9 +8,9 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 
@@ -33,7 +33,7 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     const Type* trueType;
     const Type* falseType;
     const Type* resultType;
-    Operator equalityOp(Token::Kind::TK_EQEQ);
+    Operator equalityOp(Operator::Kind::EQEQ);
     if (!equalityOp.determineBinaryType(context, ifTrue->type(), ifFalse->type(),
                                         &trueType, &falseType, &resultType) ||
         !trueType->matches(*falseType)) {

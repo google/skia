@@ -8,8 +8,7 @@
 #ifndef SKSL_BINARYEXPRESSION
 #define SKSL_BINARYEXPRESSION
 
-#include "src/sksl/SkSLLexer.h"
-#include "src/sksl/SkSLOperators.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"

@@ -11,7 +11,7 @@
 #include <memory>
 
 #include "include/private/SkSLDefines.h"
-#include "src/sksl/SkSLOperators.h"
+#include "include/sksl/SkSLOperator.h"
 
 namespace SkSL {
 

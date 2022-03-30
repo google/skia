@@ -22,7 +22,6 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -74,7 +73,7 @@ namespace SkSL {
 
 static const char* operator_name(Operator op) {
     switch (op.kind()) {
-        case Token::Kind::TK_LOGICALXOR:  return " != ";
+        case Operator::Kind::LOGICALXOR:  return " != ";
         default:                          return op.operatorName();
     }
 }
@@ -1650,14 +1649,14 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     Precedence precedence = op.getBinaryPrecedence();
     bool needParens = precedence >= parentPrecedence;
     switch (op.kind()) {
-        case Token::Kind::TK_EQEQ:
+        case Operator::Kind::EQEQ:
             this->writeEqualityHelpers(leftType, rightType);
             if (leftType.isVector()) {
                 this->write("all");
                 needParens = true;
             }
             break;
-        case Token::Kind::TK_NEQ:
+        case Operator::Kind::NEQ:
             this->writeEqualityHelpers(leftType, rightType);
             if (leftType.isVector()) {
                 this->write("any");
@@ -1667,10 +1666,10 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         default:
             break;
     }
-    if (leftType.isMatrix() && rightType.isMatrix() && op.kind() == Token::Kind::TK_STAREQ) {
+    if (leftType.isMatrix() && rightType.isMatrix() && op.kind() == Operator::Kind::STAREQ) {
         this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
     }
-    if (op.removeAssignment().kind() == Token::Kind::TK_SLASH &&
+    if (op.removeAssignment().kind() == Operator::Kind::SLASH &&
         ((leftType.isMatrix() && rightType.isMatrix()) ||
          (leftType.isScalar() && rightType.isMatrix()) ||
          (leftType.isMatrix() && rightType.isScalar()))) {
@@ -1681,13 +1680,13 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     }
     bool needMatrixSplatOnScalar = rightType.isMatrix() && leftType.isNumber() &&
                                    op.isValidForMatrixOrVector() &&
-                                   op.removeAssignment().kind() != Token::Kind::TK_STAR;
+                                   op.removeAssignment().kind() != Operator::Kind::STAR;
     if (needMatrixSplatOnScalar) {
         this->writeNumberAsMatrix(left, rightType);
     } else {
         this->writeExpression(left, precedence);
     }
-    if (op.kind() != Token::Kind::TK_EQ && op.isAssignment() &&
+    if (op.kind() != Operator::Kind::EQ && op.isAssignment() &&
         left.kind() == Expression::Kind::kSwizzle && !left.hasSideEffects()) {
         // This doesn't compile in Metal:
         // float4 x = float4(1);
@@ -1704,7 +1703,7 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
 
     needMatrixSplatOnScalar = leftType.isMatrix() && rightType.isNumber() &&
                               op.isValidForMatrixOrVector() &&
-                              op.removeAssignment().kind() != Token::Kind::TK_STAR;
+                              op.removeAssignment().kind() != Operator::Kind::STAR;
     if (needMatrixSplatOnScalar) {
         this->writeNumberAsMatrix(right, leftType);
     } else {
@@ -1735,12 +1734,12 @@ void MetalCodeGenerator::writePrefixExpression(const PrefixExpression& p,
     // According to the MSL specification, the arithmetic unary operators (+ and –) do not act
     // upon matrix type operands. We treat the unary "+" as NOP for all operands.
     const Operator op = p.getOperator();
-    if (op.kind() == Token::Kind::TK_PLUS) {
+    if (op.kind() == Operator::Kind::PLUS) {
         return this->writeExpression(*p.operand(), Precedence::kPrefix);
     }
 
     const bool matrixNegation =
-            op.kind() == Token::Kind::TK_MINUS && p.operand()->type().isMatrix();
+            op.kind() == Operator::Kind::MINUS && p.operand()->type().isMatrix();
     const bool needParens = Precedence::kPrefix >= parentPrecedence || matrixNegation;
 
     if (needParens) {

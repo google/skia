@@ -8,8 +8,8 @@
 #ifndef SKSL_GLSLCODEGENERATOR
 #define SKSL_GLSLCODEGENERATOR
 
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
