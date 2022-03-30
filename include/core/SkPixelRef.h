@@ -112,7 +112,9 @@ private:
 
     void setTemporarilyImmutable();
     void restoreMutability();
-    friend class SkSurface_Raster;   // For the two methods above.
+    bool isTemporarilyImmutable();
+    friend class SkSurface_Raster;  // For temporary immutable methods above.
+    friend class SkImage_Raster;    // For temporary immutable methods above.
 
     void setImmutableWithID(uint32_t genID);
     friend void SkBitmapCache_setImmutableWithID(SkPixelRef*, uint32_t);

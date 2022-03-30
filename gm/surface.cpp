@@ -298,6 +298,47 @@ DEF_SURFACE_TESTS(simple_snap_image2, canvas, 256, 256) {
     canvas->drawImage(std::move(image), 0, 0);
 }
 
+DEF_SIMPLE_GM(snap_with_mips, canvas, 80, 75) {
+    auto ct = canvas->imageInfo().colorType() == kUnknown_SkColorType
+                      ? kRGBA_8888_SkColorType
+                      : canvas->imageInfo().colorType();
+    auto ii = SkImageInfo::Make({32, 32},
+                                ct,
+                                kPremul_SkAlphaType,
+                                canvas->imageInfo().refColorSpace());
+    auto surface = SkSurface::MakeRaster(ii);
+
+    auto nextImage = [&](SkColor color) {
+        surface->getCanvas()->clear(color);
+        SkPaint paint;
+        paint.setColor(~color | 0xFF000000);
+        surface->getCanvas()->drawRect(SkRect::MakeLTRB(surface->width() *2/5.f,
+                                                        surface->height()*2/5.f,
+                                                        surface->width() *3/5.f,
+                                                        surface->height()*3/5.f),
+                                    paint);
+        return surface->makeImageSnapshot()->withDefaultMipmaps();
+    };
+
+    static constexpr int kPad = 8;
+    static const SkSamplingOptions kSampling{SkFilterMode::kLinear, SkMipmapMode::kLinear};
+
+    canvas->save();
+    for (int y = 0; y < 3; ++y) {
+        canvas->save();
+        SkColor kColors[] = {0xFFF0F0F0, SK_ColorBLUE};
+        for (int x = 0; x < 2; ++x) {
+            auto image = nextImage(kColors[x]);
+            canvas->drawImage(image, 0, 0, kSampling);
+            canvas->translate(ii.width() + kPad, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, ii.width() + kPad);
+        canvas->scale(.4f, .4f);
+    }
+    canvas->restore();
+}
+
 DEF_SURFACE_TESTS(copy_on_write_savelayer, canvas, 256, 256) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     sk_sp<SkSurface> surf = make(info);

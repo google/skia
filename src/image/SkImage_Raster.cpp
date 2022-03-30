@@ -135,13 +135,22 @@ public:
     SkMipmap* onPeekMips() const override { return fBitmap.fMips.get(); }
 
     sk_sp<SkImage> onMakeWithMipmaps(sk_sp<SkMipmap> mips) const override {
-        auto img = new SkImage_Raster(fBitmap);
+        // This SkImage may be a SkSurface's cached image snapshot. If so, we can't make a new image
+        // that shares the original image's backing SkPixelRef. This is because when copy-on-write
+        // is not triggered we just keep updating the backing SkPixelRef's contents. The SkPixelRefs
+        // that back cached SkImage snapshots are marked "temporarily immutable" so we look for that
+        // as our signal that we must copy.
+        auto copyMode = fBitmap.fPixelRef->isTemporarilyImmutable()
+                                ? SkCopyPixelsMode::kAlways_SkCopyPixelsMode
+                                : SkCopyPixelsMode::kIfMutable_SkCopyPixelsMode;
+        sk_sp<SkImage> img = SkMakeImageFromRasterBitmap(fBitmap, copyMode);
+        auto imgRaster = static_cast<SkImage_Raster*>(img.get());
         if (mips) {
-            img->fBitmap.fMips = std::move(mips);
+            imgRaster->fBitmap.fMips = std::move(mips);
         } else {
-            img->fBitmap.fMips.reset(SkMipmap::Build(fBitmap.pixmap(), nullptr));
+            imgRaster->fBitmap.fMips.reset(SkMipmap::Build(fBitmap.pixmap(), nullptr));
         }
-        return sk_sp<SkImage>(img);
+        return img;
     }
 
 private:
