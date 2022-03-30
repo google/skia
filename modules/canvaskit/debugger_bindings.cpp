@@ -22,6 +22,7 @@
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
 #include "tools/debugger/DebugLayerManager.h"
+#include "tools/debugger/DrawCommand.h"
 
 #include <memory>
 #include <string>
