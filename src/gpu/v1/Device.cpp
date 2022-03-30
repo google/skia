@@ -481,16 +481,21 @@ void Device::drawEdgeAAQuad(const SkRect& rect,
         grPaint.setXPFactory(SkBlendMode_AsXPFactory(mode));
     }
 
-    // This is exclusively meant for tiling operations, so keep AA enabled to handle MSAA seaming
-    GrQuadAAFlags grAA = SkToGrQuadAAFlags(aaFlags);
     if (clip) {
         // Use fillQuadWithEdgeAA
-        fSurfaceDrawContext->fillQuadWithEdgeAA(this->clip(), std::move(grPaint), GrAA::kYes, grAA,
-                                                this->localToDevice(), clip, nullptr);
+        fSurfaceDrawContext->fillQuadWithEdgeAA(this->clip(),
+                                                std::move(grPaint),
+                                                SkToGrQuadAAFlags(aaFlags),
+                                                this->localToDevice(),
+                                                clip,
+                                                nullptr);
     } else {
         // Use fillRectWithEdgeAA to preserve mathematical properties of dst being rectangular
-        fSurfaceDrawContext->fillRectWithEdgeAA(this->clip(), std::move(grPaint), GrAA::kYes, grAA,
-                                                this->localToDevice(), rect);
+        fSurfaceDrawContext->fillRectWithEdgeAA(this->clip(),
+                                                std::move(grPaint),
+                                                SkToGrQuadAAFlags(aaFlags),
+                                                this->localToDevice(),
+                                                rect);
     }
 }
 
@@ -785,8 +790,7 @@ void Device::drawImageRect(const SkImage* image,
     ASSERT_SINGLE_OWNER
     GrAA aa = fSurfaceDrawContext->chooseAA(paint);
     GrQuadAAFlags aaFlags = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
-    this->drawImageQuad(image, src, &dst, nullptr, aa, aaFlags, nullptr, sampling, paint,
-                        constraint);
+    this->drawImageQuad(image, src, &dst, nullptr, aaFlags, nullptr, sampling, paint, constraint);
 }
 
 void Device::drawViewLattice(GrSurfaceProxyView view,

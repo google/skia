@@ -402,7 +402,6 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> draw_mipmap_into_new_rende
                      {1, 1, 1, 1},
                      SkRect::MakeWH(4, 4),
                      SkRect::MakeWH(1, 1),
-                     GrAA::kYes,
                      GrQuadAAFlags::kAll,
                      SkCanvas::kFast_SrcRectConstraint,
                      SkMatrix::I(),

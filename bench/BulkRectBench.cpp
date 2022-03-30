@@ -151,7 +151,7 @@ protected:
         SkMatrixProvider matrixProvider(view);
         GrPaint grPaint;
         SkPaintToGrPaint(context, sdc->colorInfo(), paint, matrixProvider, &grPaint);
-        sdc->drawQuadSet(nullptr, std::move(grPaint), GrAA::kYes, view, batch, kRectCount);
+        sdc->drawQuadSet(nullptr, std::move(grPaint), view, batch, kRectCount);
     }
 
     void drawSolidColorsRef(SkCanvas* canvas) const {

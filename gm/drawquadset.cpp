@@ -87,7 +87,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
                 SkMatrixProvider matrixProvider(view);
                 GrPaint grPaint;
                 SkPaintToGrPaint(rContext, sdc->colorInfo(), paint, matrixProvider, &grPaint);
-                sdc->fillRectWithEdgeAA(nullptr, std::move(grPaint), GrAA::kYes,
+                sdc->fillRectWithEdgeAA(nullptr, std::move(grPaint),
                                         static_cast<GrQuadAAFlags>(aa), view, tile);
             } else {
                 // Fallback to solid color on raster backend since the public API only has color

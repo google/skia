@@ -185,7 +185,7 @@ public:
         SkRect rect = SkRect::Make(bounds);
         DrawQuad quad{GrQuad::MakeFromRect(rect, SkMatrix::I()),
                       GrQuad::MakeFromRect(rect, localMatrix), GrQuadAAFlags::kNone};
-        this->drawFilledQuad(clip, std::move(paint), GrAA::kNo, &quad);
+        this->drawFilledQuad(clip, std::move(paint), &quad);
     }
 
     /**
@@ -194,17 +194,17 @@ public:
      * This is a specialized version of fillQuadWithEdgeAA, but is kept separate since knowing
      * the geometry is a rectangle affords more optimizations.
      */
-    void fillRectWithEdgeAA(const GrClip* clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
+    void fillRectWithEdgeAA(const GrClip* clip, GrPaint&& paint, GrQuadAAFlags edgeAA,
                             const SkMatrix& viewMatrix, const SkRect& rect,
                             const SkRect* optionalLocalRect = nullptr) {
         if (edgeAA == GrQuadAAFlags::kAll) {
-            this->fillRectToRect(clip, std::move(paint), aa, viewMatrix, rect,
+            this->fillRectToRect(clip, std::move(paint), GrAA::kYes, viewMatrix, rect,
                                  (optionalLocalRect) ? *optionalLocalRect : rect);
             return;
         }
         const SkRect& localRect = optionalLocalRect ? *optionalLocalRect : rect;
         DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(localRect), edgeAA};
-        this->drawFilledQuad(clip, std::move(paint), aa, &quad);
+        this->drawFilledQuad(clip, std::move(paint), &quad);
     }
 
     /**
@@ -219,17 +219,17 @@ public:
      * The last argument, 'optionalLocalQuad', can be null if no separate local coordinates are
      * necessary.
      */
-    void fillQuadWithEdgeAA(const GrClip* clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
+    void fillQuadWithEdgeAA(const GrClip* clip, GrPaint&& paint, GrQuadAAFlags edgeAA,
                             const SkMatrix& viewMatrix, const SkPoint points[4],
                             const SkPoint optionalLocalPoints[4]) {
         const SkPoint* localPoints = optionalLocalPoints ? optionalLocalPoints : points;
         DrawQuad quad{GrQuad::MakeFromSkQuad(points, viewMatrix),
                       GrQuad::MakeFromSkQuad(localPoints, SkMatrix::I()), edgeAA};
-        this->drawFilledQuad(clip, std::move(paint), aa, &quad);
+        this->drawFilledQuad(clip, std::move(paint), &quad);
     }
 
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
-    void drawQuadSet(const GrClip* clip, GrPaint&& paint, GrAA aa, const SkMatrix& viewMatrix,
+    void drawQuadSet(const GrClip* clip, GrPaint&& paint, const SkMatrix& viewMatrix,
                      const GrQuadSetEntry[], int cnt);
 
     /**
@@ -247,7 +247,6 @@ public:
                      const SkPMColor4f&,
                      const SkRect& srcRect,
                      const SkRect& dstRect,
-                     GrAA,
                      GrQuadAAFlags,
                      SkCanvas::SrcRectConstraint,
                      const SkMatrix&,
@@ -269,7 +268,6 @@ public:
                          const SkPMColor4f& color,
                          const SkPoint srcQuad[4],
                          const SkPoint dstQuad[4],
-                         GrAA aa,
                          GrQuadAAFlags edgeAA,
                          const SkRect* subset,
                          const SkMatrix& viewMatrix,
@@ -277,7 +275,7 @@ public:
         DrawQuad quad{GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
                       GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), edgeAA};
         this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform), filter, mm,
-                               color, mode, aa, &quad, subset);
+                               color, mode, &quad, subset);
     }
 
     /**
@@ -298,7 +296,6 @@ public:
                         GrSamplerState::Filter,
                         GrSamplerState::MipmapMode,
                         SkBlendMode mode,
-                        GrAA aa,
                         SkCanvas::SrcRectConstraint,
                         const SkMatrix& viewMatrix,
                         sk_sp<GrColorSpaceXform> texXform);
@@ -559,7 +556,7 @@ public:
         DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix),
                       localMatrix ? GrQuad::MakeFromRect(rect, *localMatrix) : GrQuad(rect),
                       doStencilMSAA == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
-        this->drawFilledQuad(clip, std::move(paint), doStencilMSAA, &quad, ss);
+        this->drawFilledQuad(clip, std::move(paint), &quad, ss);
     }
 
     // Fills the user stencil bits with a non-zero value at every sample inside the path. This will
@@ -663,23 +660,22 @@ private:
     // 'stencilSettings' are provided merely for decision making purposes; When non-null,
     // optimization strategies that submit special ops are avoided.
     //
-    // 'aa' and 'quad' should be the original draw request on input, and will be updated as
+    // 'quad' should be the original draw request on input, and will be updated as
     // appropriate depending on the returned optimization level.
     //
     // If kSubmitted is returned, the provided paint was consumed. Otherwise it is left unchanged.
     QuadOptimization attemptQuadOptimization(const GrClip* clip,
                                              const GrUserStencilSettings* stencilSettings,
-                                             GrAA* aa,
                                              DrawQuad* quad,
                                              GrPaint* paint);
 
-    // If stencil settings, 'ss', are non-null, AA controls MSAA or no AA. If they are null, then AA
-    // can choose between coverage, MSAA as per chooseAAType(). This will always attempt to apply
+    // The overall AA policy is determined by the quad's edge flags: kNone is no AA, and anything
+    // else uses some form of anti-aliasing. If 'ss' is non-null, that will be MSAA; otherwise it's
+    // MSAA or analytic coverage per chooseAAType(). This will always attempt to apply
     // quad optimizations, so all quad/rect public APIs should rely on this function for consistent
     // clipping behavior. 'quad' will be modified in place to reflect final rendered geometry.
     void drawFilledQuad(const GrClip* clip,
                         GrPaint&& paint,
-                        GrAA aa,
                         DrawQuad* quad,
                         const GrUserStencilSettings* ss = nullptr);
 
@@ -693,7 +689,6 @@ private:
                           GrSamplerState::MipmapMode,
                           const SkPMColor4f& color,
                           SkBlendMode blendMode,
-                          GrAA aa,
                           DrawQuad* quad,
                           const SkRect* subset = nullptr);
 

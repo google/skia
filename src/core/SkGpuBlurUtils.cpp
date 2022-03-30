@@ -646,7 +646,6 @@ std::unique_ptr<skgpu::v1::SurfaceDrawContext> GaussianBlur(GrRecordingContext* 
                                      SK_PMColor4fWHITE,
                                      SkRect::Make(srcRect),
                                      SkRect::Make(dstRect),
-                                     GrAA::kNo,
                                      GrQuadAAFlags::kNone,
                                      SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint,
                                      SkMatrix::I(),

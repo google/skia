@@ -416,7 +416,9 @@ enum class SurfaceDrawContext::QuadOptimization {
 };
 
 SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization(
-        const GrClip* clip, const GrUserStencilSettings* stencilSettings, GrAA* aa, DrawQuad* quad,
+        const GrClip* clip,
+        const GrUserStencilSettings* stencilSettings,
+        DrawQuad* quad,
         GrPaint* paint) {
     // Optimization requirements:
     // 1. kDiscard applies when clip bounds and quad bounds do not intersect
@@ -454,17 +456,18 @@ SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization
         return QuadOptimization::kCropped;
     }
 
+    GrAA drawUsesAA{quad->fEdgeFlags != GrQuadAAFlags::kNone};
     auto conservativeCrop = [&]() {
         static constexpr int kLargeDrawLimit = 15000;
         // Crop the quad to the render target. This doesn't change the visual results of drawing but
         // is meant to help numerical stability for excessively large draws.
         if (drawBounds.width() > kLargeDrawLimit || drawBounds.height() > kLargeDrawLimit) {
-            GrQuadUtils::CropToRect(rtRect, *aa, quad, /* compute local */ !constColor);
+            GrQuadUtils::CropToRect(rtRect, drawUsesAA, quad, /* compute local */ !constColor);
         }
     };
 
     bool simpleColor = !stencilSettings && constColor;
-    GrClip::PreClipResult result = clip ? clip->preApply(drawBounds, *aa)
+    GrClip::PreClipResult result = clip ? clip->preApply(drawBounds, drawUsesAA)
                                         : GrClip::PreClipResult(GrClip::Effect::kUnclipped);
     switch(result.fEffect) {
         case GrClip::Effect::kClippedOut:
@@ -479,13 +482,11 @@ SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization
                 // that any geometric clipping doesn't need to change aa or edge flags (since we
                 // know this is on pixel boundaries, it will draw the same regardless).
                 // See skbug.com/13114 for more details.
-                GrAA clipAA = (*aa == GrAA::kNo || quad->fEdgeFlags == GrQuadAAFlags::kNone) ?
-                              GrAA::kNo : GrAA::kYes;
-                result = GrClip::PreClipResult(SkRRect::MakeRect(rtRect), clipAA);
+                result = GrClip::PreClipResult(SkRRect::MakeRect(rtRect), drawUsesAA);
             }
             break;
         case GrClip::Effect::kClipped:
-            if (!result.fIsRRect || (stencilSettings && result.fAA != *aa) ||
+            if (!result.fIsRRect || (stencilSettings && result.fAA != drawUsesAA) ||
                 (!result.fRRect.isRect() && !simpleColor)) {
                 // The clip and draw state are too complicated to try and reduce
                 conservativeCrop();
@@ -533,18 +534,6 @@ SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization
                 }
             }
 
-            // else the draw and clip were combined so just update the AA to reflect combination
-            if (*aa == GrAA::kNo && result.fAA == GrAA::kYes &&
-                quad->fEdgeFlags != GrQuadAAFlags::kNone) {
-                // The clip was anti-aliased and now the draw needs to be upgraded to AA to
-                // properly reflect the smooth edge of the clip.
-                *aa = GrAA::kYes;
-            }
-            // We intentionally do not downgrade AA here because we don't know if we need to
-            // preserve MSAA (see GrQuadAAFlags docs). But later in the pipeline, the ops can
-            // use GrResolveAATypeForQuad() to turn off coverage AA when all flags are off.
-            // deviceQuad is exactly the intersection of original quad and clip, so it can be
-            // drawn with no clip (submitted by caller)
             return QuadOptimization::kClipApplied;
         }
     } else {
@@ -571,7 +560,6 @@ SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization
 
 void SurfaceDrawContext::drawFilledQuad(const GrClip* clip,
                                         GrPaint&& paint,
-                                        GrAA aa,
                                         DrawQuad* quad,
                                         const GrUserStencilSettings* ss) {
     ASSERT_SINGLE_OWNER
@@ -581,10 +569,12 @@ void SurfaceDrawContext::drawFilledQuad(const GrClip* clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    QuadOptimization opt = this->attemptQuadOptimization(clip, ss, &aa, quad, &paint);
+    QuadOptimization opt = this->attemptQuadOptimization(clip, ss, quad, &paint);
     if (opt >= QuadOptimization::kClipApplied) {
         // These optimizations require caller to add an op themselves
         const GrClip* finalClip = opt == QuadOptimization::kClipApplied ? nullptr : clip;
+        // The quad being drawn requires AA if any of its edges requires AA
+        GrAA aa{quad->fEdgeFlags != GrQuadAAFlags::kNone};
         GrAAType aaType;
         if (ss) {
             aaType = (aa == GrAA::kYes) ? GrAAType::kMSAA : GrAAType::kNone;
@@ -611,13 +601,14 @@ void SurfaceDrawContext::drawTexture(const GrClip* clip,
                                      const SkPMColor4f& color,
                                      const SkRect& srcRect,
                                      const SkRect& dstRect,
-                                     GrAA aa,
                                      GrQuadAAFlags edgeAA,
                                      SkCanvas::SrcRectConstraint constraint,
                                      const SkMatrix& viewMatrix,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform) {
     // If we are using dmsaa then go through FillRRectOp (via fillRectToRect).
-    if ((this->alwaysAntialias() || this->caps()->reducedShaderMode()) && aa == GrAA::kYes) {
+    if ((this->alwaysAntialias() || this->caps()->reducedShaderMode()) &&
+        edgeAA != GrQuadAAFlags::kNone) {
+
         GrPaint paint;
         paint.setColor4f(color);
         std::unique_ptr<GrFragmentProcessor> fp;
@@ -645,7 +636,7 @@ void SurfaceDrawContext::drawTexture(const GrClip* clip,
     DrawQuad quad{GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), edgeAA};
 
     this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(colorSpaceXform), filter,
-                           mm, color, blendMode, aa, &quad, subset);
+                           mm, color, blendMode, &quad, subset);
 }
 
 void SurfaceDrawContext::drawTexturedQuad(const GrClip* clip,
@@ -656,7 +647,6 @@ void SurfaceDrawContext::drawTexturedQuad(const GrClip* clip,
                                           GrSamplerState::MipmapMode mm,
                                           const SkPMColor4f& color,
                                           SkBlendMode blendMode,
-                                          GrAA aa,
                                           DrawQuad* quad,
                                           const SkRect* subset) {
     ASSERT_SINGLE_OWNER
@@ -669,14 +659,14 @@ void SurfaceDrawContext::drawTexturedQuad(const GrClip* clip,
 
     // Functionally this is very similar to drawFilledQuad except that there's no constColor to
     // enable the kSubmitted optimizations, no stencil settings support, and its a TextureOp.
-    QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &aa, quad,
+    QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, quad,
                                                          nullptr/*paint*/);
 
     SkASSERT(opt != QuadOptimization::kSubmitted);
     if (opt != QuadOptimization::kDiscarded) {
-        // And the texture op if not discarded
+        // Add the texture op if not discarded
         const GrClip* finalClip = opt == QuadOptimization::kClipApplied ? nullptr : clip;
-        GrAAType aaType = this->chooseAAType(aa);
+        GrAAType aaType = this->chooseAAType(GrAA{quad->fEdgeFlags != GrQuadAAFlags::kNone});
         auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
         auto saturate = clampType == GrClampType::kManual ? TextureOp::Saturate::kYes
                                                           : TextureOp::Saturate::kNo;
@@ -757,7 +747,7 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
         aa == GrAA::kYes) {  // If aa is kNo when using dmsaa, the rect is axis aligned. Don't use
                              // FillRRectOp because it might require dual source blending.
                              // http://skbug.com/11756
-        QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &aa, &quad,
+        QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &quad,
                                                              &paint);
         if (opt < QuadOptimization::kClipApplied) {
             // The optimization was completely handled inside attempt().
@@ -795,16 +785,15 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
     }
 
     assert_alive(paint);
-    this->drawFilledQuad(clip, std::move(paint), aa, &quad);
+    this->drawFilledQuad(clip, std::move(paint), &quad);
 }
 
 void SurfaceDrawContext::drawQuadSet(const GrClip* clip,
                                      GrPaint&& paint,
-                                     GrAA aa,
                                      const SkMatrix& viewMatrix,
                                      const GrQuadSetEntry quads[],
                                      int cnt) {
-    GrAAType aaType = this->chooseAAType(aa);
+    GrAAType aaType = this->chooseAAType(GrAA::kYes);
 
     FillRectOp::AddFillRectOps(this, clip, fContext, std::move(paint), aaType, viewMatrix,
                                quads, cnt);
@@ -917,7 +906,6 @@ void SurfaceDrawContext::drawTextureSet(const GrClip* clip,
                                         GrSamplerState::Filter filter,
                                         GrSamplerState::MipmapMode mm,
                                         SkBlendMode mode,
-                                        GrAA aa,
                                         SkCanvas::SrcRectConstraint constraint,
                                         const SkMatrix& viewMatrix,
                                         sk_sp<GrColorSpaceXform> texXform) {
@@ -929,7 +917,7 @@ void SurfaceDrawContext::drawTextureSet(const GrClip* clip,
     // Create the minimum number of GrTextureOps needed to draw this set. Individual
     // GrTextureOps can rebind the texture between draws thus avoiding GrPaint (re)creation.
     AutoCheckFlush acf(this->drawingManager());
-    GrAAType aaType = this->chooseAAType(aa);
+    GrAAType aaType = this->chooseAAType(GrAA::kYes);
     auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
     auto saturate = clampType == GrClampType::kManual ? TextureOp::Saturate::kYes
                                                       : TextureOp::Saturate::kNo;
@@ -1734,7 +1722,7 @@ void SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
     GrQuadAAFlags edgeAA = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
 
     assert_alive(paint);
-    this->fillQuadWithEdgeAA(clip, std::move(paint), aa, edgeAA, viewMatrix, corners, nullptr);
+    this->fillQuadWithEdgeAA(clip, std::move(paint), edgeAA, viewMatrix, corners, nullptr);
 }
 
 bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,

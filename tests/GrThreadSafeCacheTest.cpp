@@ -198,7 +198,6 @@ public:
                          {1.0f, 1.0f, 1.0f, 1.0f},
                          SkRect::MakeWH(wh, wh),
                          SkRect::MakeWH(wh, wh),
-                         GrAA::kNo,
                          GrQuadAAFlags::kNone,
                          SkCanvas::kFast_SrcRectConstraint,
                          SkMatrix::I(),

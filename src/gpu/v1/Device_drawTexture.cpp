@@ -349,7 +349,6 @@ void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
                   const SkRect& srcRect,
                   const SkRect& dstRect,
                   const SkPoint dstClip[4],
-                  GrAA aa,
                   GrQuadAAFlags aaFlags,
                   SkCanvas::SrcRectConstraint constraint,
                   GrSurfaceProxyView view,
@@ -365,7 +364,7 @@ void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
     if (constraint != SkCanvas::kStrict_SrcRectConstraint && !proxy->isFunctionallyExact()) {
         // Conservative estimate of how much a coord could be outset from src rect:
         // 1/2 pixel for AA and 1/2 pixel for linear filtering
-        float buffer = 0.5f * (aa == GrAA::kYes) +
+        float buffer = 0.5f * (aaFlags != GrQuadAAFlags::kNone) +
                        0.5f * (filter == GrSamplerState::Filter::kLinear);
         SkRect safeBounds = proxy->getBoundsRect();
         safeBounds.inset(buffer, buffer);
@@ -390,7 +389,6 @@ void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
                              color,
                              srcQuad,
                              dstClip,
-                             aa,
                              aaFlags,
                              constraint == SkCanvas::kStrict_SrcRectConstraint ? &srcRect : nullptr,
                              ctm,
@@ -405,7 +403,6 @@ void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
                          color,
                          srcRect,
                          dstRect,
-                         aa,
                          aaFlags,
                          constraint,
                          ctm,
@@ -424,7 +421,6 @@ void draw_image(GrRecordingContext* rContext,
                 const SkRect& dst,
                 const SkPoint dstClip[4],
                 const SkMatrix& srcToDst,
-                GrAA aa,
                 GrQuadAAFlags aaFlags,
                 SkCanvas::SrcRectConstraint constraint,
                 SkSamplingOptions sampling,
@@ -449,7 +445,6 @@ void draw_image(GrRecordingContext* rContext,
                      src,
                      dst,
                      dstClip,
-                     aa,
                      aaFlags,
                      constraint,
                      std::move(view),
@@ -545,10 +540,10 @@ void draw_image(GrRecordingContext* rContext,
                 GrMapRectPoints(dst, src, dstClip, srcClipPoints, 4);
                 srcClip = srcClipPoints;
             }
-            sdc->fillQuadWithEdgeAA(clip, std::move(grPaint), aa, aaFlags, ctm, dstClip, srcClip);
+            sdc->fillQuadWithEdgeAA(clip, std::move(grPaint), aaFlags, ctm, dstClip, srcClip);
         } else {
             // Provide explicit texture coords when possible, otherwise rely on texture matrix
-            sdc->fillRectWithEdgeAA(clip, std::move(grPaint), aa, aaFlags, ctm, dst,
+            sdc->fillRectWithEdgeAA(clip, std::move(grPaint), aaFlags, ctm, dst,
                                     canUseTextureCoordsAsLocalCoords ? &src : nullptr);
         }
     } else {
@@ -580,7 +575,7 @@ void draw_tiled_bitmap(GrRecordingContext* rContext,
                        const SkRect& srcRect,
                        const SkIRect& clippedSrcIRect,
                        const SkPaint& paint,
-                       GrAA aa,
+                       GrQuadAAFlags origAAFlags,
                        SkCanvas::SrcRectConstraint constraint,
                        SkSamplingOptions sampling,
                        SkTileMode tileMode) {
@@ -636,20 +631,18 @@ void draw_tiled_bitmap(GrRecordingContext* rContext,
                          image->height() <= rContext->priv().caps()->maxTextureSize());
 
                 GrQuadAAFlags aaFlags = GrQuadAAFlags::kNone;
-                if (aa == GrAA::kYes) {
-                    // If the entire bitmap was anti-aliased, turn on AA for the outside tile edges.
-                    if (tileR.fLeft <= srcRect.fLeft) {
-                        aaFlags |= GrQuadAAFlags::kLeft;
-                    }
-                    if (tileR.fRight >= srcRect.fRight) {
-                        aaFlags |= GrQuadAAFlags::kRight;
-                    }
-                    if (tileR.fTop <= srcRect.fTop) {
-                        aaFlags |= GrQuadAAFlags::kTop;
-                    }
-                    if (tileR.fBottom >= srcRect.fBottom) {
-                        aaFlags |= GrQuadAAFlags::kBottom;
-                    }
+                // Preserve the original edge AA flags for the exterior tile edges.
+                if (tileR.fLeft <= srcRect.fLeft && (origAAFlags & GrQuadAAFlags::kLeft)) {
+                    aaFlags |= GrQuadAAFlags::kLeft;
+                }
+                if (tileR.fRight >= srcRect.fRight && (origAAFlags & GrQuadAAFlags::kRight)) {
+                    aaFlags |= GrQuadAAFlags::kRight;
+                }
+                if (tileR.fTop <= srcRect.fTop && (origAAFlags & GrQuadAAFlags::kTop)) {
+                    aaFlags |= GrQuadAAFlags::kTop;
+                }
+                if (tileR.fBottom >= srcRect.fBottom && (origAAFlags & GrQuadAAFlags::kBottom)) {
+                    aaFlags |= GrQuadAAFlags::kBottom;
                 }
 
                 // now offset it to make it "local" to our tmp bitmap
@@ -666,7 +659,6 @@ void draw_tiled_bitmap(GrRecordingContext* rContext,
                            rectToDraw,
                            nullptr,
                            offsetSrcToDst,
-                           aa,
                            aaFlags,
                            constraint,
                            sampling,
@@ -746,7 +738,6 @@ void Device::drawSpecial(SkSpecialImage* special,
                dst,
                nullptr,
                srcToDst,
-               aa,
                aaFlags,
                SkCanvas::kStrict_SrcRectConstraint,
                sampling);
@@ -756,7 +747,6 @@ void Device::drawImageQuad(const SkImage* image,
                            const SkRect* srcRect,
                            const SkRect* dstRect,
                            const SkPoint dstClip[4],
-                           GrAA aa,
                            GrQuadAAFlags aaFlags,
                            const SkMatrix* preViewMatrix,
                            const SkSamplingOptions& origSampling,
@@ -826,7 +816,7 @@ void Device::drawImageQuad(const SkImage* image,
                                   src,
                                   clippedSubset,
                                   paint,
-                                  aa,
+                                  aaFlags,
                                   constraint,
                                   sampling,
                                   tileMode);
@@ -845,7 +835,6 @@ void Device::drawImageQuad(const SkImage* image,
                dst,
                dstClip,
                srcToDst,
-               aa,
                aaFlags,
                constraint,
                sampling);
@@ -870,10 +859,9 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                 auto paintAlpha = paint.getAlphaf();
                 entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
             }
-            // Always send GrAA::kYes to preserve seaming across tiling in MSAA
             this->drawImageQuad(
                     set[i].fImage.get(), &set[i].fSrcRect, &set[i].fDstRect,
-                    set[i].fHasClip ? dstClips + dstClipIndex : nullptr, GrAA::kYes,
+                    set[i].fHasClip ? dstClips + dstClipIndex : nullptr,
                     SkToGrQuadAAFlags(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
                     sampling, *entryPaint, constraint);
@@ -903,7 +891,6 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                                 filter,
                                                 GrSamplerState::MipmapMode::kNone,
                                                 mode,
-                                                GrAA::kYes,
                                                 constraint,
                                                 this->localToDevice(),
                                                 std::move(textureXform));
@@ -952,7 +939,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                 entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
             }
             this->drawImageQuad(
-                    image, &set[i].fSrcRect, &set[i].fDstRect, clip, GrAA::kYes,
+                    image, &set[i].fSrcRect, &set[i].fDstRect, clip,
                     SkToGrQuadAAFlags(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
                     sampling, *entryPaint, constraint);
