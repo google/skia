@@ -132,8 +132,6 @@ void SkPixelRef::restoreMutability() {
     fMutability = kMutable;
 }
 
-bool SkPixelRef::isTemporarilyImmutable() { return fMutability == kTemporarilyImmutable; }
-
 sk_sp<SkPixelRef> SkMakePixelRefWithProc(int width, int height, size_t rowBytes, void* addr,
                                          void (*releaseProc)(void* addr, void* ctx), void* ctx) {
     SkASSERT(width >= 0 && height >= 0);
