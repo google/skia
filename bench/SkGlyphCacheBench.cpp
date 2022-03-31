@@ -9,6 +9,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"

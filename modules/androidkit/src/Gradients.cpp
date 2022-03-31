@@ -7,6 +7,7 @@
 
 #include <jni.h>
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkM44.h"
 #include "include/effects/SkGradientShader.h"
 #include "modules/androidkit/src/Utils.h"

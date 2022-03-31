@@ -19,6 +19,7 @@
 #include "experimental/graphite/src/Surface_Graphite.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
+#include "include/core/SkColorSpace.h"
 
 sk_sp<SkSurface> MakeGraphite(skgpu::Recorder* recorder, const SkImageInfo& ii) {
     sk_sp<skgpu::Device> device = skgpu::Device::Make(recorder, ii);

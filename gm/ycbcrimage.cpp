@@ -11,6 +11,7 @@
 #ifdef SK_VULKAN
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSize.h"

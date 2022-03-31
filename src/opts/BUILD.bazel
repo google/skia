@@ -157,6 +157,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkData_hdr",
         "//include/core:SkTypes_hdr",
+        "//include/third_party/skcms:skcms_hdr",
         "//src/core:SkUtils_hdr",
     ],
 )

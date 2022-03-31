@@ -10,6 +10,9 @@
 
 #include "include/core/SkColorFilter.h"
 
+struct skcms_Matrix3x3;
+struct skcms_TransferFunction;
+
 class SkColorFilterPriv {
 public:
     static sk_sp<SkColorFilter> MakeGaussian();

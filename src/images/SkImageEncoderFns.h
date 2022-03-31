@@ -9,6 +9,7 @@
 #define SkImageEncoderFns_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkICC.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"

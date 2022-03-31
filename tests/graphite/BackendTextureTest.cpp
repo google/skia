@@ -16,6 +16,7 @@
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/ResourceTypes.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkSurface.h"
 
 using namespace skgpu;

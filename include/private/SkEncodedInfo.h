@@ -10,6 +10,7 @@
 
 #include <memory>
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/third_party/skcms/skcms.h"

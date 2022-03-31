@@ -3,6 +3,8 @@
 
 #include "tools/skottie_ios_app/SkMetalViewBridge.h"
 
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"

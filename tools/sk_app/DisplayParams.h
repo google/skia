@@ -7,6 +7,7 @@
 #ifndef DisplayParams_DEFINED
 #define DisplayParams_DEFINED
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/gpu/GrContextOptions.h"

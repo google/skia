@@ -5,6 +5,7 @@ generated_cc_atom(
     srcs = ["SkParticleBinding.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkContourMeasure_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPath_hdr",

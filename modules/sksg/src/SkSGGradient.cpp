@@ -7,6 +7,7 @@
 
 #include "modules/sksg/include/SkSGGradient.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkTPin.h"

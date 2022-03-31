@@ -82,7 +82,11 @@ generated_cc_atom(
     name = "SkGradientShader_hdr",
     hdrs = ["SkGradientShader.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkShader_hdr"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/core:SkTileMode_hdr",
+    ],
 )
 
 generated_cc_atom(

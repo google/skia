@@ -39,6 +39,7 @@ generated_cc_atom(
     hdrs = ["BackendSurfaceFactory.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkSize_hdr",
         "//include/gpu:GrTypes_hdr",
@@ -79,6 +80,7 @@ generated_cc_atom(
     deps = [
         ":BackendTextureImageFactory_hdr",
         ":ManagedBackendTexture_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPixmap_hdr",
         "//include/gpu:GrBackendSurface_hdr",
@@ -338,6 +340,7 @@ generated_cc_atom(
     hdrs = ["YUVUtils.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkYUVAPixmaps_hdr",
         "//include/gpu:GrBackendSurface_hdr",

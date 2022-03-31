@@ -31,6 +31,7 @@ typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
  */
 class SkMipmap : public SkCachedData {
 public:
+    ~SkMipmap() override;
     // Allocate and fill-in a mipmap. If computeContents is false, we just allocated
     // and compute the sizes/rowbytes, but leave the pixel-data uninitialized.
     static SkMipmap* Build(const SkPixmap& src, SkDiscardableFactoryProc,
@@ -86,12 +87,10 @@ private:
     Level*              fLevels;    // managed by the baseclass, may be null due to onDataChanged.
     int                 fCount;
 
-    SkMipmap(void* malloc, size_t size) : INHERITED(malloc, size) {}
-    SkMipmap(size_t size, SkDiscardableMemory* dm) : INHERITED(size, dm) {}
+    SkMipmap(void* malloc, size_t size);
+    SkMipmap(size_t size, SkDiscardableMemory* dm);
 
     static size_t AllocLevelsSize(int levelCount, size_t pixelSize);
-
-    using INHERITED = SkCachedData;
 };
 
 #endif

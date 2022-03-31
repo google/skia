@@ -11,6 +11,8 @@
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/TextureUtils.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
 
 namespace skgpu {
 

@@ -7,6 +7,7 @@
 
 #include "include/core/SkBitmap.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkMath.h"
@@ -101,6 +102,10 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
     SkASSERT(bounds);
     *bounds = fPixmap.bounds();
 }
+
+SkColorSpace* SkBitmap::colorSpace() const { return fPixmap.colorSpace(); }
+
+sk_sp<SkColorSpace> SkBitmap::refColorSpace() const { return fPixmap.info().refColorSpace(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 

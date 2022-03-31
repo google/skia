@@ -16,9 +16,11 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
+
 #include <functional>
 
 class SkData;
+struct skcms_TransferFunction;
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -30,7 +32,7 @@ class SkData;
  * at runtime, so we can scale this problem linearly rather than combinatorically.
  *
  * Each stage is represented by a function conforming to a common interface and by an
- * arbitrary context pointer.  The stage funciton arguments and calling convention are
+ * arbitrary context pointer.  The stage function arguments and calling convention are
  * designed to maximize the amount of data we can pass along the pipeline cheaply, and
  * vary depending on CPU feature detection.
  */

@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 
+class SkColorSpace;
 class SkSurface;
 class SkSurfaceProps;
 

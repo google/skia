@@ -21,6 +21,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPathEffect.h"
 #include "include/private/SkTDArray.h"

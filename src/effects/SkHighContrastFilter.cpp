@@ -5,6 +5,7 @@
 * found in the LICENSE file.
 */
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkHighContrastFilter.h"
 #include "include/effects/SkRuntimeEffect.h"

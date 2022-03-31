@@ -1060,6 +1060,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SmallPathShapeData_hdr",
+        "//include/private:SkFixed_hdr",
         "//src/gpu/geometry:GrStyledShape_hdr",
     ],
 )

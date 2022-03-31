@@ -373,6 +373,7 @@ generated_cc_atom(
     srcs = ["SkSVGLinearGradient.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkColorSpace_hdr",
         "//include/effects:SkGradientShader_hdr",
         "//modules/svg/include:SkSVGLinearGradient_hdr",
         "//modules/svg/include:SkSVGRenderContext_hdr",
@@ -453,6 +454,7 @@ generated_cc_atom(
     srcs = ["SkSVGRadialGradient.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkColorSpace_hdr",
         "//include/effects:SkGradientShader_hdr",
         "//modules/svg/include:SkSVGRadialGradient_hdr",
         "//modules/svg/include:SkSVGRenderContext_hdr",

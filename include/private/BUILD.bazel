@@ -134,6 +134,7 @@ generated_cc_atom(
     hdrs = ["SkEncodedInfo.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/third_party/skcms:skcms_hdr",

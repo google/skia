@@ -12,6 +12,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSamplingOptions.h"
 
+class SkColorSpace;
 class SkData;
 struct SkMask;
 
@@ -170,7 +171,7 @@ public:
 
         @return  SkColorSpace in SkImageInfo, or nullptr
     */
-    SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
+    SkColorSpace* colorSpace() const;
 
     /** Returns smart pointer to SkColorSpace, the range of colors, associated with
         SkImageInfo. The smart pointer tracks the number of objects sharing this
@@ -180,7 +181,7 @@ public:
 
         @return  SkColorSpace in SkImageInfo wrapped in a smart pointer
     */
-    sk_sp<SkColorSpace> refColorSpace() const { return fInfo.refColorSpace(); }
+    sk_sp<SkColorSpace> refColorSpace() const;
 
     /** Returns true if SkAlphaType is kOpaque_SkAlphaType.
         Does not check if SkColorType allows alpha, or if any pixel value has

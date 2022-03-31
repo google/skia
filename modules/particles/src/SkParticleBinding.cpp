@@ -7,6 +7,7 @@
 
 #include "modules/particles/include/SkParticleBinding.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"

@@ -16,6 +16,7 @@
 #include <thread>
 #include <unistd.h>
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkSurface.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"

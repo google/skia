@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/DrawContext.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkPixmap.h"
 #include "include/private/SkColorData.h"
 

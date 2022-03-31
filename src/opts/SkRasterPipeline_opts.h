@@ -10,6 +10,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkTypes.h"
+#include "include/third_party/skcms/skcms.h"
 #include "src/core/SkUtils.h"  // unaligned_{load,store}
 #include <cstdint>
 

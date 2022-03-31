@@ -20,6 +20,7 @@ generated_cc_atom(
         "//gm:gm_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkSurface_hdr",
         "//include/effects:SkImageFilters_hdr",
         "//include/encode:SkPngEncoder_hdr",

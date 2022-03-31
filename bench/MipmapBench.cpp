@@ -7,6 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
 #include "src/core/SkMipmap.h"
 
 class MipmapBench: public Benchmark {

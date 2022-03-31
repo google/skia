@@ -206,6 +206,7 @@ generated_cc_atom(
     deps = [
         ":SkImage_Lazy_hdr",
         "//include/core:SkBitmap_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkImageGenerator_hdr",
         "//include/gpu:GrDirectContext_hdr",
@@ -247,6 +248,7 @@ generated_cc_atom(
         "//experimental/graphite/src:UploadTask_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkPixelRef_hdr",
         "//include/core:SkSurface_hdr",
@@ -336,6 +338,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkPaint_hdr",
         "//include/core:SkRect_hdr",

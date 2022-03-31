@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 
 // This GM should draw two yellow boxes; the bug drew one in cyan.

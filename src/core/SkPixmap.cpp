@@ -8,6 +8,7 @@
 #include "include/core/SkPixmap.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkUnPreMultiply.h"
@@ -60,6 +61,10 @@ bool SkPixmap::reset(const SkMask& src) {
 void SkPixmap::setColorSpace(sk_sp<SkColorSpace> cs) {
     fInfo = fInfo.makeColorSpace(std::move(cs));
 }
+
+SkColorSpace* SkPixmap::colorSpace() const { return fInfo.colorSpace(); }
+
+sk_sp<SkColorSpace> SkPixmap::refColorSpace() const { return fInfo.refColorSpace(); }
 
 bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     SkIRect srcRect, r;

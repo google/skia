@@ -2268,6 +2268,7 @@ generated_cc_atom(
     deps = [
         ":gm_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkFont_hdr",
         "//include/core:SkSurface_hdr",
         "//tools:Resources_hdr",
@@ -3646,6 +3647,7 @@ generated_cc_atom(
         "//include/core:SkBlendMode_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColorFilter_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkImage_hdr",
@@ -3977,6 +3979,7 @@ generated_cc_atom(
     deps = [
         ":gm_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkEncodedImageFormat_hdr",
         "//include/core:SkImageInfo_hdr",
@@ -4842,6 +4845,7 @@ generated_cc_atom(
         ":gm_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPaint_hdr",
         "//include/effects:SkGradientShader_hdr",
@@ -6084,6 +6088,7 @@ generated_cc_atom(
         "//include/core:SkBlendMode_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColorFilter_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkFontTypes_hdr",
         "//include/core:SkFont_hdr",
@@ -7552,6 +7557,7 @@ generated_cc_atom(
         ":gm_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColorFilter_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPaint_hdr",
@@ -8172,6 +8178,7 @@ generated_cc_atom(
         ":gm_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
     ],
 )
@@ -9578,6 +9585,7 @@ generated_cc_atom(
     deps = [
         ":gm_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPaint_hdr",
         "//include/core:SkSize_hdr",

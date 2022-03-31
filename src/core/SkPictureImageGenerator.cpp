@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"

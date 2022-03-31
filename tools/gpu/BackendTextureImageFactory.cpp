@@ -7,6 +7,7 @@
 
 #include "tools/gpu/BackendTextureImageFactory.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPixmap.h"
 #include "include/gpu/GrBackendSurface.h"

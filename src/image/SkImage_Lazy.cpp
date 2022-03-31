@@ -8,6 +8,7 @@
 #include "src/image/SkImage_Lazy.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageGenerator.h"
 #include "src/core/SkBitmapCache.h"

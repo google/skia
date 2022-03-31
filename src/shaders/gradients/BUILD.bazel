@@ -86,6 +86,7 @@ generated_cc_atom(
         ":SkRadialGradient_hdr",
         ":SkSweepGradient_hdr",
         ":SkTwoPointConicalGradient_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkMallocPixelRef_hdr",
         "//include/private:SkFloatBits_hdr",
         "//include/private:SkHalf_hdr",

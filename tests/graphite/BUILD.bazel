@@ -13,6 +13,7 @@ generated_cc_atom(
         "//experimental/graphite/src:ContextPriv_hdr",
         "//experimental/graphite/src:Gpu_hdr",
         "//experimental/graphite/src:ResourceTypes_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkSurface_hdr",
         "//tests:Test_hdr",
     ],

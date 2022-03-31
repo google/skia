@@ -384,6 +384,11 @@ template <typename F> void downsample_3_3(void* dst, const void* src, size_t src
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+SkMipmap::SkMipmap(void* malloc, size_t size) : SkCachedData(malloc, size) {}
+SkMipmap::SkMipmap(size_t size, SkDiscardableMemory* dm) : SkCachedData(size, dm) {}
+
+SkMipmap::~SkMipmap() = default;
+
 size_t SkMipmap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     if (levelCount < 0) {
         return 0;

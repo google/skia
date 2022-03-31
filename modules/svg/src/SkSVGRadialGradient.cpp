@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColorSpace.h"
 #include "include/effects/SkGradientShader.h"
 #include "modules/svg/include/SkSVGRadialGradient.h"
 #include "modules/svg/include/SkSVGRenderContext.h"

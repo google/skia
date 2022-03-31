@@ -8,9 +8,11 @@
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTemplates.h"
+#include "include/third_party/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
+
 #include <algorithm>
 
 bool gForceHighPrecisionRasterPipeline;

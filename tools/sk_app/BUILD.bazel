@@ -131,6 +131,7 @@ generated_cc_atom(
     hdrs = ["DisplayParams.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkSurfaceProps_hdr",
         "//include/gpu:GrContextOptions_hdr",

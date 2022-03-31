@@ -1,9 +1,12 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
+#include "tools/HashAndEncode.h"
+
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkICC.h"
 #include "include/core/SkString.h"
-#include "tools/HashAndEncode.h"
+#include "include/third_party/skcms/skcms.h"
 
 #include <png.h>
 

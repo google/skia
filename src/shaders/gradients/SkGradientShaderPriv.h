@@ -25,10 +25,8 @@ class SkWriteBuffer;
 class SkGradientShaderBase : public SkShaderBase {
 public:
     struct Descriptor {
-        Descriptor() {
-            sk_bzero(this, sizeof(*this));
-            fTileMode = SkTileMode::kClamp;
-        }
+        Descriptor();
+        ~Descriptor();
 
         const SkMatrix*     fLocalMatrix;
         const SkColor4f*    fColors;

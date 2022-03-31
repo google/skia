@@ -395,6 +395,7 @@ generated_cc_atom(
         ":SkColorType_hdr",
         ":SkMath_hdr",
         ":SkRect_hdr",
+        ":SkRefCnt_hdr",
         ":SkSize_hdr",
         "//include/private:SkTFitsIn_hdr",
         "//include/private:SkTo_hdr",

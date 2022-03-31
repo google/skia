@@ -23,6 +23,7 @@
 #include "src/shaders/SkShaderBase.h"
 
 class SkBitmap;
+class SkColorSpace;
 struct SkDrawShadowRec;
 class SkGlyphRun;
 class SkGlyphRunList;
@@ -479,17 +480,9 @@ private:
 
 class SkNoPixelsDevice : public SkBaseDevice {
 public:
+    SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props);
     SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props,
-                     sk_sp<SkColorSpace> colorSpace = nullptr)
-            : SkBaseDevice(SkImageInfo::Make(bounds.size(), kUnknown_SkColorType,
-                                             kUnknown_SkAlphaType, std::move(colorSpace)),
-                           props) {
-        // this fails if we enable this assert: DiscardableImageMapTest.GetDiscardableImagesInRectMaxImage
-        //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
-
-        this->setOrigin(SkM44(), bounds.left(), bounds.top());
-        this->resetClipStack();
-    }
+                     sk_sp<SkColorSpace> colorSpace);
 
     void resetForNextPicture(const SkIRect& bounds) {
         //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);

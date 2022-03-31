@@ -773,6 +773,7 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkBitmap_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkMallocPixelRef_hdr",
@@ -2906,6 +2907,7 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkGraphics_hdr",
         "//include/core:SkImageGenerator_hdr",
@@ -3130,6 +3132,7 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkPaint_hdr",
         "//include/core:SkPath_hdr",
@@ -4883,6 +4886,7 @@ generated_cc_atom(
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColorPriv_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkSurface_hdr",
         "//include/private:SkColorData_hdr",
@@ -5652,6 +5656,7 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkGraphics_hdr",
         "//include/core:SkPictureRecorder_hdr",
         "//include/core:SkPicture_hdr",
@@ -7010,6 +7015,7 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkSurface_hdr",
         "//include/core:SkTypes_hdr",
@@ -7191,6 +7197,7 @@ generated_cc_atom(
         ":TestUtils_hdr",
         ":Test_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkSurface_hdr",
         "//include/gpu:GrDirectContext_hdr",
     ],

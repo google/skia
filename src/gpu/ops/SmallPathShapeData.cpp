@@ -7,6 +7,7 @@
 
 #include "src/gpu/ops/SmallPathShapeData.h"
 
+#include "include/private/SkFixed.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 
 namespace skgpu::v1 {
