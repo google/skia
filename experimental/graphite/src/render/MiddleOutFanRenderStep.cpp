@@ -60,9 +60,10 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawGeometr
     }
 }
 
-sk_sp<SkUniformData> MiddleOutFanRenderStep::writeUniforms(Layout, const DrawGeometry&) const {
+void MiddleOutFanRenderStep::writeUniforms(Layout,
+                                           const DrawGeometry&,
+                                           SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
-    return nullptr;
 }
 
 }  // namespace skgpu

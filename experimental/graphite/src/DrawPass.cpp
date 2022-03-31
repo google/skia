@@ -195,15 +195,6 @@ public:
             , fUniformDataCache(uniformDataCache) {
     }
 
-    UniformDataCache::Index addUniforms(const SkUniformDataBlock& uniformDataBlock) {
-        if (uniformDataBlock.empty()) {
-            return {};
-        }
-
-        UniformDataCache::Index uIndex = fUniformDataCache->insert(uniformDataBlock);
-        return this->addUniforms(uIndex);
-    }
-
     UniformDataCache::Index addUniforms(UniformDataCache::Index uIndex) {
         if (!uIndex.isValid()) {
             return {};
@@ -354,11 +345,12 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
             UniformDataCache::Index geometryUniformIndex;
             if (step->numUniforms() > 0) {
-                // TODO: Get layout from the GPU
-                auto uniforms = step->writeUniforms(Layout::kMetal, draw.fGeometry);
-
-                geometryUniformIndex = geometryUniformBindings.addUniforms(
-                        SkUniformDataBlock(std::move(uniforms)));
+                UniformDataCache::Index uniformDataIndex;
+                uniformDataIndex = ExtractRenderStepData(&geometryUniformDataCache,
+                                                         &gatherer,
+                                                         step,
+                                                         draw.fGeometry);
+                geometryUniformIndex = geometryUniformBindings.addUniforms(uniformDataIndex);
             }
 
             GraphicsPipelineDesc desc;

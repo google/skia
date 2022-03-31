@@ -241,9 +241,10 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
     }
 }
 
-sk_sp<SkUniformData> TessellateWedgesRenderStep::writeUniforms(Layout, const DrawGeometry&) const {
+void TessellateWedgesRenderStep::writeUniforms(Layout,
+                                               const DrawGeometry&,
+                                               SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
-    return nullptr;
 }
 
 }  // namespace skgpu

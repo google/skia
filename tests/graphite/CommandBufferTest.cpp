@@ -74,16 +74,18 @@ public:
         writer->draw({}, 4);
     }
 
-    sk_sp<SkUniformData> writeUniforms(Layout layout, const DrawGeometry& geom) const override {
+    void writeUniforms(Layout layout,
+                       const DrawGeometry& geom,
+                       SkPipelineDataGatherer* gatherer) const override {
         SkASSERT(geom.shape().isRect());
         // TODO: A << API for uniforms would be nice, particularly if it could take pre-computed
         // offsets for each uniform.
-        auto uniforms = SkUniformData::Make(this->uniforms(), sizeof(float) * 4);
+        sk_sp<SkUniformData> uniforms = SkUniformData::Make(this->uniforms(), sizeof(float) * 4);
         float2 scale = geom.shape().rect().size();
         float2 translate = geom.shape().rect().topLeft();
         memcpy(uniforms->data(), &scale, sizeof(float2));
         memcpy(uniforms->data() + sizeof(float2), &translate, sizeof(float2));
-        return uniforms;
+        gatherer->add(std::move(uniforms));
     }
 
 private:
@@ -133,11 +135,13 @@ public:
         writer->drawIndexed(vertices, indices, 6);
     }
 
-    sk_sp<SkUniformData> writeUniforms(Layout layout, const DrawGeometry&) const override {
-        auto uniforms = SkUniformData::Make(this->uniforms(), sizeof(float) * 4);
+    void writeUniforms(Layout layout,
+                       const DrawGeometry&,
+                       SkPipelineDataGatherer* gatherer) const override {
+        sk_sp<SkUniformData> uniforms = SkUniformData::Make(this->uniforms(), sizeof(float) * 4);
         float data[4] = {2.f, 2.f, -1.f, -1.f};
         memcpy(uniforms->data(), data, 4 * sizeof(float));
-        return uniforms;
+        gatherer->add(std::move(uniforms));
     }
 
 private:
@@ -183,9 +187,7 @@ public:
         instances.append(1) << geom.shape().rect().topLeft() << geom.shape().rect().size();
     }
 
-    sk_sp<SkUniformData> writeUniforms(Layout, const DrawGeometry&) const override {
-        return nullptr;
-    }
+    void writeUniforms(Layout, const DrawGeometry&, SkPipelineDataGatherer*) const override { }
 
 private:
     InstanceRectDraw()
@@ -288,6 +290,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
         SkColor4f fColor;
     };
 
+    SkPipelineDataGatherer gatherer;
+
     auto draw = [&](const RenderStep* step, std::vector<RectAndColor> draws) {
         GraphicsPipelineDesc pipelineDesc;
         pipelineDesc.setProgram(step, uniqueID);
@@ -312,15 +316,20 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
             DrawOrder order(depth);
             DrawGeometry geom{kIdentity, shape, {shape.bounds(), kBounds}, order, nullptr};
 
-            auto renderStepUniforms =  step->writeUniforms(Layout::kMetal, geom);
-            if (renderStepUniforms) {
+            SkDEBUGCODE(gatherer.checkReset());
+            step->writeUniforms(Layout::kMetal, geom, &gatherer);
+            if (gatherer.hasUniforms()) {
+                SkUniformDataBlock* renderStepUniforms = &gatherer.uniformDataBlock();
                 auto [writer, bindInfo] =
-                        bufferMgr.getUniformWriter(renderStepUniforms->dataSize());
-                writer.write(renderStepUniforms->data(), renderStepUniforms->dataSize());
+                        bufferMgr.getUniformWriter(renderStepUniforms->totalUniformSize());
+                for (const auto &u : *renderStepUniforms) {
+                    writer.write(u->data(), u->dataSize());
+                }
                 commandBuffer->bindUniformBuffer(UniformSlot::kRenderStep,
                                                  sk_ref_sp(bindInfo.fBuffer),
                                                  bindInfo.fOffset);
             }
+            gatherer.reset();
 
             // TODO: Rely on uniform writer and GetUniforms(kSolidColor).
             auto [writer, bindInfo] = bufferMgr.getUniformWriter(sizeof(SkColor4f));

@@ -25,6 +25,7 @@
 #include <vector>
 
 enum class SkPathFillType;
+class SkPipelineDataGatherer;
 class SkUniformData;
 
 namespace skgpu {
@@ -53,7 +54,9 @@ public:
     // nice if we could remember the offsets for the layout/gpu and reuse them across draws.
     // Similarly, it would be nice if this could write into reusable storage and then DrawPass or
     // UniformCache handles making an sk_sp if we need to assign a new unique ID to the uniform data
-    virtual sk_sp<SkUniformData> writeUniforms(Layout layout, const DrawGeometry&) const = 0;
+    virtual void writeUniforms(Layout layout,
+                               const DrawGeometry&,
+                               SkPipelineDataGatherer*) const = 0;
 
     // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
     // and variant is a unique term describing instance's specific configuration.

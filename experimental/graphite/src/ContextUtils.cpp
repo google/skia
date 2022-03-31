@@ -10,7 +10,9 @@
 #include <string>
 #include "experimental/graphite/src/PaintParams.h"
 #include "experimental/graphite/src/RecorderPriv.h"
+#include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
+#include "experimental/graphite/src/UniformManager.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkKeyContext.h"
@@ -45,6 +47,22 @@ ExtractPaintData(Recorder* recorder,
     gatherer->reset();
 
     return { entry->uniqueID(), uniformIndex, textureIndex };
+}
+
+UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
+                                              SkPipelineDataGatherer* gatherer,
+                                              const RenderStep* step,
+                                              const DrawGeometry& geometry) {
+    SkDEBUGCODE(gatherer->checkReset());
+
+    // TODO: Get layout from the GPU
+    step->writeUniforms(Layout::kMetal, geometry, gatherer);
+
+    UniformDataCache::Index uIndex = geometryUniformDataCache->insert(gatherer->uniformDataBlock());
+
+    gatherer->reset();
+
+    return uIndex;
 }
 
 } // namespace skgpu

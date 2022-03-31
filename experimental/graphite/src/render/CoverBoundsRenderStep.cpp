@@ -56,9 +56,10 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer, const DrawGeometry
                     << devPoints[2].x << devPoints[2].y << depth << devPoints[2].w;// BR
 }
 
-sk_sp<SkUniformData> CoverBoundsRenderStep::writeUniforms(Layout, const DrawGeometry&) const {
+void CoverBoundsRenderStep::writeUniforms(Layout,
+                                          const DrawGeometry&,
+                                          SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
-    return nullptr;
 }
 
 }  // namespace skgpu
