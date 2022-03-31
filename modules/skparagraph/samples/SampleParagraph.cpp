@@ -2932,8 +2932,7 @@ protected:
         ParagraphStyle paragraph_style;
 
         auto column = width()/3;
-        auto draw = [&](DrawOptions options, SkScalar x) {
-            paragraph_style.setDrawOptions(options);
+        auto draw = [&](SkScalar x) {
             ParagraphBuilderImpl builder(paragraph_style, fontCollection);
             TextStyle text_style;
             text_style.setColor(SK_ColorBLACK);
@@ -2948,9 +2947,7 @@ protected:
             paragraph->paint(canvas, x, 400);
         };
 
-        draw(DrawOptions::kReplay, column*0);
-        draw(DrawOptions::kRecord, column*1);
-        draw(DrawOptions::kDirect, column*2);
+        draw(column*0);
     }
 
 private:
@@ -3621,36 +3618,23 @@ protected:
 
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true, true);
+        fontCollection->disableFontFallback();
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setFontFamilies({SkString("Roboto42")});
         text_style.setFontSize(10);
-        SkPaint black; black.setColor(SK_ColorBLACK);
+        SkPaint black;
+        black.setColor(SK_ColorBLACK);
         text_style.setForegroundColor(black);
 
         ParagraphStyle paragraph_style;
         paragraph_style.setTextStyle(text_style);
-        paragraph_style.setTextDirection(TextDirection::kLtr);
-        StrutStyle strut_style;
-        strut_style.setStrutEnabled(true);
-        strut_style.setFontFamilies({SkString("Ahem")});
-        strut_style.setFontSize(16);
-        strut_style.setHeight(4.0f);
-        strut_style.setHeightOverride(true);
-        strut_style.setLeading(-1.0f);
-        strut_style.setForceStrutHeight(true);
-        paragraph_style.setStrutStyle(strut_style);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
 
         builder.pushStyle(text_style);
-        builder.addText(u"Atwater Peel Sherbrooke Bonaventure\nhi\nwasssup!");
+        builder.addText(" ");
         auto paragraph = builder.Build();
-        paragraph->layout(797);
+        paragraph->layout(SK_ScalarInfinity);
         paragraph->paint(canvas, 0, 0);
-        auto boxes = paragraph->getRectsForRange(0, 60,
-                                                 RectHeightStyle::kIncludeLineSpacingTop, RectWidthStyle::kMax);
-        for (auto& box : boxes) {
-            SkDebugf("[%f, %f, %f, %f]: %s\n", box.rect.left(), box.rect.top(), box.rect.right(), box.rect.bottom(), box.direction == TextDirection::kLtr ? "left" : "right");
-        }
     }
 
 private:

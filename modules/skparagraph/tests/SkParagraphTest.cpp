@@ -5693,7 +5693,7 @@ UNIX_ONLY_TEST(SkParagraph_LineMetrics, reporter) {
     }
 };
 
-UNIX_ONLY_TEST(SkParagraph_PlaceholderHeightInf, reporter) {
+DEF_TEST_DISABLED(SkParagraph_PlaceholderHeightInf, reporter) {
     TestCanvas canvas("SkParagraph_PlaceholderHeightInf.png");
 
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -5712,7 +5712,7 @@ UNIX_ONLY_TEST(SkParagraph_PlaceholderHeightInf, reporter) {
     placeholder_style.fBaselineOffset = SK_ScalarInfinity;
 
     ParagraphStyle paragraph_style;
-    paragraph_style.setDrawOptions(DrawOptions::kRecord);
+    //paragraph_style.setDrawOptions(DrawOptions::kRecord);
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
     builder.pushStyle(text_style);
     builder.addText("Limited by budget");
