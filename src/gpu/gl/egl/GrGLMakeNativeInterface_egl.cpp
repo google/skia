@@ -9,5 +9,3 @@
 #include "include/gpu/gl/egl/GrGLMakeEGLInterface.h"
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() { return GrGLMakeEGLInterface(); }
-
-const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }

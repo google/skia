@@ -344,11 +344,6 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
                            GrDirectContext* direct) {
     if (!interface) {
         interface = GrGLMakeNativeInterface();
-        // For clients that have written their own GrGLCreateNativeInterface and haven't yet updated
-        // to GrGLMakeNativeInterface.
-        if (!interface) {
-            interface = sk_ref_sp(GrGLCreateNativeInterface());
-        }
         if (!interface) {
             return nullptr;
         }

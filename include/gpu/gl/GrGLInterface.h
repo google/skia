@@ -31,8 +31,6 @@ struct GrGLInterface;
  * appropriate one to build.
  */
 SK_API sk_sp<const GrGLInterface> GrGLMakeNativeInterface();
-// Deprecated alternative to GrGLMakeNativeInterface().
-SK_API const GrGLInterface* GrGLCreateNativeInterface();
 
 /**
  * GrContext uses the following interface to make all calls into OpenGL. When a

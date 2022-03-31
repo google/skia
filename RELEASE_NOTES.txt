@@ -5,6 +5,7 @@ This file includes a list of high level updates for each milestone release.
 Milestone 102
 -------------
   * Add glGetFloatv and glSamplerParameterf to GrGLInterface.
+  * GrGLCreateNativeInterface is removed. Use GrGLMakeNativeInterface.
 
 * * *
 

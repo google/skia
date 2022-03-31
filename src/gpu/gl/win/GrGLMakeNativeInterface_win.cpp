@@ -66,6 +66,4 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
 
 #endif // ARM64
 
-const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
-
 #endif//defined(SK_BUILD_FOR_WIN)
