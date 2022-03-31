@@ -211,10 +211,41 @@ bool Device::readPixels(Context* context,
                             srcY);
 }
 
-bool Device::onWritePixels(const SkPixmap& pm, int x, int y) {
-    this->flushPendingWorkToRecorder();
+bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
+    // TODO: we may need to share this in a more central place to handle uploads
+    // to backend textures
 
-    return fDC->writePixels(fRecorder, pm, {x, y});
+    const TextureProxy* target = fDC->target();
+
+    // TODO: add mipmap support for createBackendTexture
+
+    if (src.colorType() == kUnknown_SkColorType) {
+        return false;
+    }
+
+    // TODO: check for readOnly or framebufferOnly target and return false if so
+
+    const Caps* caps = fRecorder->priv().caps();
+
+    // TODO: canvas2DFastPath?
+    // TODO: check that surface supports writePixels
+    // TODO: handle writePixels as draw if needed (e.g., canvas2DFastPath || !supportsWritePixels)
+
+    // TODO: check for flips and conversions and either handle here or pass info to UploadTask
+
+    // for now, until conversions are supported
+    if (!caps->areColorTypeAndTextureInfoCompatible(src.colorType(),
+                                                    target->textureInfo())) {
+        return false;
+    }
+
+    std::vector<MipLevel> levels;
+    levels.push_back({src.addr(), src.rowBytes()});
+
+    SkIRect dstRect = SkIRect::MakePtSize({x, y}, src.dimensions());
+
+    this->flushPendingWorkToRecorder();
+    return fDC->recordUpload(fRecorder, sk_ref_sp(target), src.colorType(), levels, dstRect);
 }
 
 SkIRect Device::onDevClipBounds() const {

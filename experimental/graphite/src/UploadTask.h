@@ -68,7 +68,7 @@ private:
  */
 class UploadList {
 public:
-    bool appendUpload(Recorder*,
+    bool recordUpload(Recorder*,
                       sk_sp<TextureProxy> targetProxy,
                       SkColorType colorType,
                       const std::vector<MipLevel>& levels,

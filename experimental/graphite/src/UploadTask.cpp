@@ -164,12 +164,12 @@ void UploadInstance::addCommand(ResourceProvider* resourceProvider,
 
 //---------------------------------------------------------------------------
 
-bool UploadList::appendUpload(Recorder* recorder,
+bool UploadList::recordUpload(Recorder* recorder,
                               sk_sp<TextureProxy> textureProxy,
                               SkColorType dataColorType,
                               const std::vector<MipLevel>& levels,
                               const SkIRect& dstRect) {
-    UploadInstance instance = UploadInstance::Make(recorder, textureProxy, dataColorType,
+    UploadInstance instance = UploadInstance::Make(recorder, std::move(textureProxy), dataColorType,
                                                    levels, dstRect);
     if (!instance.isValid()) {
         return false;

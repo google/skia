@@ -60,17 +60,6 @@ DrawContext::~DrawContext() {
     fDrawPasses.clear();
 }
 
-void DrawContext::recordDraw(const Renderer& renderer,
-                             const Transform& localToDevice,
-                             const Shape& shape,
-                             const Clip& clip,
-                             DrawOrder ordering,
-                             const PaintParams* paint,
-                             const StrokeStyle* stroke) {
-    SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(clip.scissor()));
-    fPendingDraws->recordDraw(renderer, localToDevice, shape, clip, ordering, paint, stroke);
-}
-
 void DrawContext::clear(const SkColor4f& clearColor) {
     fPendingLoadOp = LoadOp::kClear;
     SkPMColor4f pmColor = clearColor.premul();
@@ -82,48 +71,27 @@ void DrawContext::clear(const SkColor4f& clearColor) {
     fDrawPasses.clear();
 }
 
-//
-// TODO: The other draw-recording APIs in DrawContext are relatively simple, just storing state
-// from the caller's decision making. If possible we should consider moving the more complex logic
-// somewhere above DrawContext and have this be much simpler.
-bool DrawContext::writePixels(Recorder* recorder, const SkPixmap& src, SkIPoint dstPoint) {
-    // TODO: add mipmap support for createBackendTexture
+void DrawContext::recordDraw(const Renderer& renderer,
+                             const Transform& localToDevice,
+                             const Shape& shape,
+                             const Clip& clip,
+                             DrawOrder ordering,
+                             const PaintParams* paint,
+                             const StrokeStyle* stroke) {
+    SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(clip.scissor()));
+    fPendingDraws->recordDraw(renderer, localToDevice, shape, clip, ordering, paint, stroke);
+}
 
+bool DrawContext::recordUpload(Recorder* recorder,
+                               sk_sp<TextureProxy> targetProxy,
+                               SkColorType colorType,
+                               const std::vector<MipLevel>& levels,
+                               const SkIRect& dstRect) {
     // Our caller should have clipped to the bounds of the surface already.
-    SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(
-            SkIRect::MakePtSize(dstPoint, src.dimensions())));
-
-    if (!recorder) {
-        return false;
-    }
-
-    if (src.colorType() == kUnknown_SkColorType) {
-        return false;
-    }
-
-    // TODO: check for readOnly or framebufferOnly target and return false if so
-
-    const Caps* caps = recorder->priv().caps();
-
-    // TODO: canvas2DFastPath?
-    // TODO: check that surface supports writePixels
-    // TODO: handle writePixels as draw if needed (e.g., canvas2DFastPath || !supportsWritePixels)
-
-    // TODO: check for flips and conversions and either handle here or pass info to appendUpload
-
-    // for now, until conversions are supported
-    if (!caps->areColorTypeAndTextureInfoCompatible(src.colorType(),
-                                                    fTarget->textureInfo())) {
-        return false;
-    }
-
-    std::vector<MipLevel> levels;
-    levels.push_back({src.addr(), src.rowBytes()});
-
-    SkIRect dstRect = SkIRect::MakePtSize(dstPoint, src.dimensions());
-    return fPendingUploads->appendUpload(recorder,
-                                         fTarget,
-                                         src.colorType(),
+    SkASSERT(SkIRect::MakeSize(targetProxy->dimensions()).contains(dstRect));
+    return fPendingUploads->recordUpload(recorder,
+                                         std::move(targetProxy),
+                                         colorType,
                                          levels,
                                          dstRect);
 }

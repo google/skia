@@ -60,9 +60,11 @@ public:
                     const PaintParams* paint,
                     const StrokeStyle* stroke);
 
-    bool writePixels(Recorder* recorder,
-                     const SkPixmap& src,
-                     SkIPoint dstPt);
+    bool recordUpload(Recorder* recorder,
+                      sk_sp<TextureProxy> targetProxy,
+                      SkColorType colorType,
+                      const std::vector<MipLevel>& levels,
+                      const SkIRect& dstRect);
 
     // Ends the current DrawList being accumulated by the SDC, converting it into an optimized and
     // immutable DrawPass. The DrawPass will be ordered after any other snapped DrawPasses or
