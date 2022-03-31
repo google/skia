@@ -1036,6 +1036,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.gpu("PowerVRGE8320") {
 		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinct_GPU")
+		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinctFromGlobal_GPU") // skia:13115
 	}
 
 	if !b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X") || b.gpu("RadeonHD7770")) {
