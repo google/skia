@@ -366,16 +366,17 @@ void ResolveAAType(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags, c
         // When aa type is coverage, disable AA if the edge configuration doesn't actually need it
         case GrAAType::kCoverage:
             if (requestedEdgeFlags == GrQuadAAFlags::kNone) {
-                // Turn off anti-aliasing
+                // This can happen when quads are drawn in bulk, where the requestedAAType was
+                // conservatively enabled and the edge flags are per-entry.
                 *outAAType = GrAAType::kNone;
-            } else {
-                // For coverage AA, if the quad is a rect and it lines up with pixel boundaries
-                // then overall aa and per-edge aa can be completely disabled
-                if (quad.quadType() == GrQuad::Type::kAxisAligned && !quad.aaHasEffectOnRect()) {
-                    *outAAType = GrAAType::kNone;
-                    *outEdgeFlags = GrQuadAAFlags::kNone;
-                }
+            } else if (quad.quadType() == GrQuad::Type::kAxisAligned &&
+                       !quad.aaHasEffectOnRect(requestedEdgeFlags)) {
+                // For coverage AA, if the quad is a rect and AA-enabled edges line up with pixel
+                // boundaries, then overall AA and per-edge AA can be completely disabled.
+                *outAAType = GrAAType::kNone;
+                *outEdgeFlags = GrQuadAAFlags::kNone;
             }
+
             break;
         // For no or msaa anti aliasing, override the edge flags since edge flags only make sense
         // when coverage aa is being used.

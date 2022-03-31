@@ -137,6 +137,7 @@ generated_cc_atom(
     deps = [
         ":GrQuad_hdr",
         "//include/core:SkMatrix_hdr",
+        "//include/private:GrTypesPriv_hdr",
     ],
 )
 

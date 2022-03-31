@@ -112,7 +112,7 @@ public:
     bool hasPerspective() const { return fType == Type::kPerspective; }
 
     // True if anti-aliasing affects this quad. Only valid when quadType == kAxisAligned
-    bool aaHasEffectOnRect() const;
+    bool aaHasEffectOnRect(GrQuadAAFlags edgeFlags) const;
 
     // True if this quad is axis-aligned and still has its top-left corner at v0. Equivalently,
     // quad == GrQuad(quad->bounds()). Axis-aligned quads with flips and rotations may exactly

@@ -8,11 +8,20 @@
 #include "src/gpu/geometry/GrQuad.h"
 
 #include "include/core/SkMatrix.h"
+#include "include/private/GrTypesPriv.h"
 
 using V4f = skvx::Vec<4, float>;
 
-static bool aa_affects_rect(float ql, float qt, float qr, float qb) {
-    return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);
+static bool aa_affects_rect(GrQuadAAFlags edgeFlags, float ql, float qt, float qr, float qb) {
+    // Edge coordinates for non-AA edges do not need to be integers; any AA-enabled edge that is
+    // at an integer coordinate could be drawn non-AA and be visually identical to non-AA.
+#if defined(SK_USE_LEGACY_EDGE_AA_DOWNGRADE)
+    edgeFlags = GrQuadAAFlags::kAll;
+#endif
+    return ((edgeFlags & GrQuadAAFlags::kLeft)   && !SkScalarIsInt(ql)) ||
+           ((edgeFlags & GrQuadAAFlags::kRight)  && !SkScalarIsInt(qr)) ||
+           ((edgeFlags & GrQuadAAFlags::kTop)    && !SkScalarIsInt(qt)) ||
+           ((edgeFlags & GrQuadAAFlags::kBottom) && !SkScalarIsInt(qb));
 }
 
 static void map_rect_translate_scale(const SkRect& rect, const SkMatrix& m,
@@ -126,10 +135,10 @@ GrQuad GrQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
     }
 }
 
-bool GrQuad::aaHasEffectOnRect() const {
+bool GrQuad::aaHasEffectOnRect(GrQuadAAFlags edgeFlags) const {
     SkASSERT(this->quadType() == Type::kAxisAligned);
     // If rect, ws must all be 1s so no need to divide
-    return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
+    return aa_affects_rect(edgeFlags, fX[0], fY[0], fX[3], fY[3]);
 }
 
 bool GrQuad::asRect(SkRect* rect) const {
