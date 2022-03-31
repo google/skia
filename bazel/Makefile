@@ -40,7 +40,10 @@ rbe_known_good_builds:
 	bazelisk build //:skia_core --config=linux-rbe
 	bazelisk build //src/sksl/lex:sksllex --config=linux-rbe
 	bazelisk build //tools/skdiff --config=linux-rbe
-	# TODO(kjlubick) CanvasKit does not link on RBE (closure issue)
+	# TODO(kjlubick) CanvasKit in release mode (i.e. with Closure) requires
+	# https://github.com/emscripten-core/emscripten/pull/16640 to land
+	bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode dbg --config=linux-rbe \
+		--jobs 100
 
 	# Test the enforcement of include what you use
 	bazelisk build //example:hello_world_gl --config=linux-rbe --features skia_enforce_iwyu
