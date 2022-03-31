@@ -1027,3 +1027,30 @@ generated_cc_atom(
         ":GpuWorkSubmission_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "ClipStack_graphite_hdr",
+    hdrs = ["ClipStack_graphite.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src/geom:Shape_hdr",
+        "//experimental/graphite/src/geom:Transform_graphite_hdr",
+        "//include/core:SkClipOp_hdr",
+        "//src/core:SkTBlockList_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ClipStack_src",
+    srcs = ["ClipStack.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ClipStack_graphite_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkShader_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkRRectPriv_hdr",
+        "//src/core:SkRectPriv_hdr",
+    ],
+)

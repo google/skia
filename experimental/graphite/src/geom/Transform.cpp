@@ -22,6 +22,19 @@ Rect map_rect(const SkM44& m, const Rect& r) {
     return SkMatrixPriv::MapRect(m, r.asSkRect());
 }
 
+void map_points(const SkM44& m, const SkV4* in, SkV4* out, int count) {
+    // TODO: These maybe should go into SkM44, since bulk point mapping seems generally useful
+    float4 c0 = float4::Load(SkMatrixPriv::M44ColMajor(m) + 0);
+    float4 c1 = float4::Load(SkMatrixPriv::M44ColMajor(m) + 4);
+    float4 c2 = float4::Load(SkMatrixPriv::M44ColMajor(m) + 8);
+    float4 c3 = float4::Load(SkMatrixPriv::M44ColMajor(m) + 12);
+
+    for (int i = 0; i < count; ++i) {
+        float4 p = (c0 * in[i].x) + (c1 * in[i].y) + (c2 * in[i].z) + (c3 * in[i].w);
+        p.store(out + i);
+    }
+}
+
 Transform::Type get_matrix_info(const SkM44& m, SkM44* inverse, SkV2* scale) {
     // First compute the inverse.
     // TODO: Alternatively we could compute type first and have type-specific inverses, but it seems
@@ -109,6 +122,14 @@ void Transform::mapPoints(const SkV2* localIn, SkV4* deviceOut, int count) const
         float4 p = c0 * localIn[i].x + c1 * localIn[i].y /* + c2*0.f */ + c3 /* *1.f */;
         p.store(deviceOut + i);
     }
+}
+
+void Transform::mapPoints(const SkV4* localIn, SkV4* deviceOut, int count) const {
+    return map_points(fM, localIn, deviceOut, count);
+}
+
+void Transform::inverseMapPoints(const SkV4* deviceIn, SkV4* localOut, int count) const {
+    return map_points(fInvM, deviceIn, localOut, count);
 }
 
 } // namespace skgpu
