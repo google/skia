@@ -577,20 +577,6 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawDRRect(oPtr, iPtr, paint);
   };
 
-  CanvasKit.Canvas.prototype.drawGlyphs = function(glyphs, positions, x, y, font, paint) {
-    if (!(glyphs.length*2 <= positions.length)) {
-        throw 'Not enough positions for the array of gyphs';
-    }
-    CanvasKit.setCurrentContext(this._context);
-    const glyphs_ptr    = copy1dArray(glyphs, 'HEAPU16');
-    const positions_ptr = copy1dArray(positions, 'HEAPF32');
-
-    this._drawGlyphs(glyphs.length, glyphs_ptr, positions_ptr, x, y, font, paint);
-
-    freeArraysThatAreNotMallocedByUsers(positions_ptr, positions);
-    freeArraysThatAreNotMallocedByUsers(glyphs_ptr,    glyphs);
-  };
-
   CanvasKit.Canvas.prototype.drawImage = function(img, x, y, paint) {
     CanvasKit.setCurrentContext(this._context);
     this._drawImage(img, x, y, paint || null);

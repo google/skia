@@ -13,6 +13,20 @@ CanvasKit._extraInitializations.push(function() {
     CanvasKit._free(strPtr);
   };
 
+  CanvasKit.Canvas.prototype.drawGlyphs = function(glyphs, positions, x, y, font, paint) {
+    if (!(glyphs.length*2 <= positions.length)) {
+        throw 'Not enough positions for the array of gyphs';
+    }
+    CanvasKit.setCurrentContext(this._context);
+    const glyphs_ptr    = copy1dArray(glyphs, 'HEAPU16');
+    const positions_ptr = copy1dArray(positions, 'HEAPF32');
+
+    this._drawGlyphs(glyphs.length, glyphs_ptr, positions_ptr, x, y, font, paint);
+
+    freeArraysThatAreNotMallocedByUsers(positions_ptr, positions);
+    freeArraysThatAreNotMallocedByUsers(glyphs_ptr,    glyphs);
+  };
+
   // Glyphs should be a Uint16Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
   // The return value will be a Float32Array that is 4 times as long as the input array. For each
