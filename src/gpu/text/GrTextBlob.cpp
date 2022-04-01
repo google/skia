@@ -248,8 +248,11 @@ static bool check_glyph_count(SkReadBuffer& buffer, int glyphCount) {
 std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFromBuffer(
         SkReadBuffer& buffer, GrSubRunAllocator* alloc) {
     GrMaskFormat maskType = (GrMaskFormat)buffer.readInt();
+    if (!buffer.validate(maskType < kMaskFormatCount)) { return {}; }
     int dstPadding = buffer.readInt();
+    if (!buffer.validate(0 <= dstPadding && dstPadding <= 2)) { return {}; }
     SkScalar strikeToSourceScale = buffer.readScalar();
+    if (!buffer.validate(0 < strikeToSourceScale)) { return {}; }
     SkRect sourceBounds = buffer.readRect();
 
     int glyphCount = buffer.readInt();
