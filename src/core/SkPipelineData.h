@@ -24,13 +24,12 @@ class SkUniformDataBlock {
 public:
     SkUniformDataBlock() = default;
     SkUniformDataBlock(sk_sp<SkUniformData> initial) {
-        SkASSERT(initial && initial->count());
+        SkASSERT(initial && initial->dataSize());
         fUniformData.push_back(std::move(initial));
     }
 
     bool empty() const { return fUniformData.empty(); }
     size_t totalUniformSize() const;  // TODO: cache this?
-    int numUniforms() const;          // TODO: cache this?
 
     bool operator==(const SkUniformDataBlock&) const;
     bool operator!=(const SkUniformDataBlock& other) const { return !(*this == other);  }

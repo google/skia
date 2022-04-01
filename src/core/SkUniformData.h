@@ -14,8 +14,7 @@
 
 /*
  * TODO: Here is the plan of record for SkUniformData
- *    allocate them (and their ancillary data (offsets & data)) in an arena - and rm SkRefCnt
- *    remove the offsets - these should be recomputable as/if needed
+ *    allocate them (and their ancillary data in an arena - and rm SkRefCnt
  *    allow a scratch buffer to be used to collect the uniform data when processing a PaintParams
  *       - this can be reset for each draw and be copied into a cache if it needs to be preserved
  *    if possible, clear out the cache (and delete the arena) once the DrawPass is created/the
@@ -30,17 +29,13 @@
 class SkUniformData : public SkRefCnt {
 public:
 
-    // TODO: should we require a name (e.g., "gradient_uniforms") for each uniform block so
-    // we can better name the Metal FS uniform struct?
-    static sk_sp<SkUniformData> Make(SkSpan<const SkUniform>, size_t dataSize);
+    static sk_sp<SkUniformData> Make(size_t dataSize);
 
     ~SkUniformData() override {
         // TODO: fData should just be allocated right after UniformData in an arena
         delete [] fData;
     }
 
-    int count() const { return static_cast<unsigned int>(fUniforms.size()); }
-    SkSpan<const SkUniform> uniforms() const { return fUniforms; }
     char* data() { return fData; }
     const char* data() const { return fData; }
     size_t dataSize() const { return fDataSize; }
@@ -49,15 +44,11 @@ public:
     bool operator!=(const SkUniformData& other) const { return !(*this == other);  }
 
 private:
-    SkUniformData(SkSpan<const SkUniform> uniforms,
-                  char* data,
-                  size_t dataSize)
-            : fUniforms(uniforms)
-            , fData(data)
+    SkUniformData(char* data, size_t dataSize)
+            : fData(data)
             , fDataSize(dataSize) {
     }
 
-    SkSpan<const SkUniform> fUniforms;
     char* fData;
     const size_t fDataSize;
 };

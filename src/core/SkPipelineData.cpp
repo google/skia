@@ -27,7 +27,7 @@ void SkPipelineDataGatherer::checkReset() {
 #endif
 
 void SkPipelineDataGatherer::add(sk_sp<SkUniformData> uniforms) {
-    SkASSERT(uniforms && uniforms->count());
+    SkASSERT(uniforms && uniforms->dataSize());
     fUniformDataBlock.add(std::move(uniforms));
 }
 
@@ -37,16 +37,6 @@ size_t SkUniformDataBlock::totalUniformSize() const {
     // TODO: It seems like we need to worry about alignment between the separate sets of uniforms
     for (auto& u : fUniformData) {
         total += u->dataSize();
-    }
-
-    return total;
-}
-
-int SkUniformDataBlock::numUniforms() const {
-    int total = 0;
-
-    for (auto& u : fUniformData) {
-        total += u->count();
     }
 
     return total;

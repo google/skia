@@ -18,20 +18,10 @@ using namespace skgpu;
 
 namespace {
 
-std::unique_ptr<SkUniformDataBlock> make_udb(int numUniforms, int dataSize) {
-    static constexpr int kMaxUniforms = 3;
-    static constexpr SkUniform kUniforms[kMaxUniforms] {
-        {"point0",   SkSLType::kFloat2 },
-        {"point1",   SkSLType::kFloat2 },
-        {"point2",   SkSLType::kFloat2 },
-    };
-
-    SkASSERT(numUniforms <= kMaxUniforms);
-
-    sk_sp<SkUniformData> ud = SkUniformData::Make(SkSpan<const SkUniform>(kUniforms, numUniforms),
-                                                  dataSize);
+std::unique_ptr<SkUniformDataBlock> make_udb(int seed, int dataSize) {
+    sk_sp<SkUniformData> ud = SkUniformData::Make(dataSize);
     for (int i = 0; i < dataSize; ++i) {
-        ud->data()[i] = i % 255;
+        ud->data()[i] = (seed+i) % 255;
     }
 
     return std::make_unique<SkUniformDataBlock>(std::move(ud));
@@ -56,7 +46,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
     }
 
     // Add a new unique UDB
-    std::unique_ptr<SkUniformDataBlock> udb1 = make_udb(2, 16);
+    std::unique_ptr<SkUniformDataBlock> udb1 = make_udb(7, 16);
     UniformDataCache::Index id1;
     {
         id1 = cache->insert(*udb1);
@@ -69,7 +59,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
 
     // Try to add a duplicate UDB
     {
-        std::unique_ptr<SkUniformDataBlock> udb2 = make_udb(2, 16);
+        std::unique_ptr<SkUniformDataBlock> udb2 = make_udb(7, 16);
         UniformDataCache::Index id2 = cache->insert(*udb2);
         REPORTER_ASSERT(reporter, id2.isValid());
         REPORTER_ASSERT(reporter, id2 == id1);
@@ -82,7 +72,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
 
     // Add a second new unique UDB
     {
-        std::unique_ptr<SkUniformDataBlock> udb3 = make_udb(3, 16);
+        std::unique_ptr<SkUniformDataBlock> udb3 = make_udb(13, 16);
         UniformDataCache::Index id3 = cache->insert(*udb3);
         REPORTER_ASSERT(reporter, id3.isValid());
         REPORTER_ASSERT(reporter, id3 != id1);
@@ -93,5 +83,5 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
         REPORTER_ASSERT(reporter, cache->count() == 2);
     }
 
-    // TODO(robertphillips): expand this test to exercise all the PD comparison failure modes
+    // TODO(robertphillips): expand this test to exercise all the UDB comparison failure modes
 }

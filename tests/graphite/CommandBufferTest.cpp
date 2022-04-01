@@ -80,7 +80,7 @@ public:
         SkASSERT(geom.shape().isRect());
         // TODO: A << API for uniforms would be nice, particularly if it could take pre-computed
         // offsets for each uniform.
-        sk_sp<SkUniformData> uniforms = SkUniformData::Make(this->uniforms(), sizeof(float) * 4);
+        sk_sp<SkUniformData> uniforms = SkUniformData::Make(sizeof(float) * 4);
         float2 scale = geom.shape().rect().size();
         float2 translate = geom.shape().rect().topLeft();
         memcpy(uniforms->data(), &scale, sizeof(float2));
@@ -138,7 +138,7 @@ public:
     void writeUniforms(Layout layout,
                        const DrawGeometry&,
                        SkPipelineDataGatherer* gatherer) const override {
-        sk_sp<SkUniformData> uniforms = SkUniformData::Make(this->uniforms(), sizeof(float) * 4);
+        sk_sp<SkUniformData> uniforms = SkUniformData::Make(sizeof(float) * 4);
         float data[4] = {2.f, 2.f, -1.f, -1.f};
         memcpy(uniforms->data(), data, 4 * sizeof(float));
         gatherer->add(std::move(uniforms));
