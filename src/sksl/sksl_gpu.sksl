@@ -293,6 +293,23 @@ half4 blend_xor(half4 src, half4 dst) { return (1 - dst.a)*src + (1 - src.a)*dst
 
 half4 blend_plus(half4 src, half4 dst) { return min(src + dst, 1); }
 
+// This multi-purpose Porter-Duff blend function can perform any of the thirteen blends above,
+// when passed one of the following values for BlendOp:
+// - SrcOver: half4(1, 0,  0, -1)
+// - DstOver: half4(0, 1, -1,  0)
+// - SrcIn:   half4(0, 0,  1,  0)
+// - DstIn:   half4(0, 0,  0,  1)
+// - SrcOut:  half4(0, 0, -1,  0)
+// - DstOut:  half4(0, 0,  0, -1)
+// - SrcATop: half4(0, 0,  1, -1)
+// - DstATop: half4(0, 0, -1,  1)
+// - Xor:     half4(0, 0, -1, -1)
+// - Plus:    half4(1, 1,  0,  0)
+half4 blend_porter_duff(half4 src, half4 dst, half4 blendOp) {
+    half2 coeff = blendOp.xy + (blendOp.zw * (half2(dst.a, src.a) + min(blendOp.zw, 0)));
+    return min(half4(1), src * coeff.x + dst * coeff.y);
+}
+
 half4 blend_modulate(half4 src, half4 dst) { return src*dst; }
 
 half4 blend_screen(half4 src, half4 dst) { return src + (1 - src)*dst; }
