@@ -1061,8 +1061,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             } else {
                 SkASSERT(arguments.size() == 2);
                 if (fProgram.fConfig->fSettings.fSharpenTextures) {
-                    SpvId lodBias = this->writeLiteral(kSharpenTexturesBias,
-                                                       *fContext.fTypes.fFloat);
+                    SpvId lodBias = this->writeLiteral(-0.5, *fContext.fTypes.fFloat);
                     this->writeInstruction(op, type, result, sampler, uv,
                                            SpvImageOperandsBiasMask, lodBias, out);
                 } else {

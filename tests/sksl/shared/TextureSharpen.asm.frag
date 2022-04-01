@@ -51,7 +51,7 @@ OpDecorate %48 RelaxedPrecision
 %19 = OpTypeFunction %void
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %float_0 = OpConstant %float 0
-%float_n0_479999989 = OpConstant %float -0.479999989
+%float_n0_5 = OpConstant %float -0.5
 %v2float = OpTypeVector %float 2
 %31 = OpConstantComposite %v2float %float_0 %float_0
 %v3float = OpTypeVector %float 3
@@ -63,16 +63,16 @@ OpDecorate %48 RelaxedPrecision
 %c = OpVariable %_ptr_Function_v4float Function
 %d = OpVariable %_ptr_Function_v4float Function
 %24 = OpLoad %12 %one
-%23 = OpImageSampleImplicitLod %v4float %24 %float_0 Bias %float_n0_479999989
+%23 = OpImageSampleImplicitLod %v4float %24 %float_0 Bias %float_n0_5
 OpStore %a %23
 %29 = OpLoad %16 %two
-%28 = OpImageSampleImplicitLod %v4float %29 %31 Bias %float_n0_479999989
+%28 = OpImageSampleImplicitLod %v4float %29 %31 Bias %float_n0_5
 OpStore %b %28
 %34 = OpLoad %12 %one
-%33 = OpImageSampleProjImplicitLod %v4float %34 %31 Bias %float_n0_479999989
+%33 = OpImageSampleProjImplicitLod %v4float %34 %31 Bias %float_n0_5
 OpStore %c %33
 %37 = OpLoad %16 %two
-%36 = OpImageSampleProjImplicitLod %v4float %37 %39 Bias %float_n0_479999989
+%36 = OpImageSampleProjImplicitLod %v4float %37 %39 Bias %float_n0_5
 OpStore %d %36
 %40 = OpLoad %v4float %a
 %41 = OpCompositeExtract %float %40 0
