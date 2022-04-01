@@ -63,9 +63,7 @@ public:
         uint32_t fLen;
     };
 
-#ifdef SK_DEBUG
     uint32_t getCount() const { return fCount; }
-#endif
 
     SkString dumpRec() const;
 

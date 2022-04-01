@@ -33,6 +33,10 @@
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
 #include <freetype/ftsynth.h>
 
+namespace {
+static inline const constexpr bool kSkShowTextBlitCoverage = false;
+}
+
 #ifdef TT_SUPPORT_COLRV1
 // FT_ClipBox and FT_Get_Color_Glyph_ClipBox introduced VER-2-11-0-18-g47cf8ebf4
 // FT_COLR_COMPOSITE_PLUS and renumbering introduced VER-2-11-0-21-ge40ae7569
@@ -100,18 +104,18 @@ FT_Pixel_Mode compute_pixel_mode(SkMask::Format format) {
 ///////////////////////////////////////////////////////////////////////////////
 
 uint16_t packTriple(U8CPU r, U8CPU g, U8CPU b) {
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-    r = std::max(r, (U8CPU)0x40);
-    g = std::max(g, (U8CPU)0x40);
-    b = std::max(b, (U8CPU)0x40);
-#endif
+    if constexpr (kSkShowTextBlitCoverage) {
+        r = std::max(r, (U8CPU)0x40);
+        g = std::max(g, (U8CPU)0x40);
+        b = std::max(b, (U8CPU)0x40);
+    }
     return SkPack888ToRGB16(r, g, b);
 }
 
 uint16_t grayToRGB16(U8CPU gray) {
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-    gray = std::max(gray, (U8CPU)0x40);
-#endif
+    if constexpr (kSkShowTextBlitCoverage) {
+        gray = std::max(gray, (U8CPU)0x40);
+    }
     return SkPack888ToRGB16(gray, gray, gray);
 }
 
@@ -302,9 +306,9 @@ void copyFTBitmap(const FT_Bitmap& srcFTBitmap, SkMask& dstMask) {
                 uint8_t r = *src_row++;
                 uint8_t a = *src_row++;
                 *dst_row++ = SkPackARGB32(a, r, g, b);
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-                *(dst_row-1) = SkFourByteInterp256(*(dst_row-1), SK_ColorWHITE, 0x40);
-#endif
+                if constexpr (kSkShowTextBlitCoverage) {
+                    *(dst_row-1) = SkFourByteInterp256(*(dst_row-1), SK_ColorWHITE, 0x40);
+                }
             }
             src += srcPitch;
             dst += dstRowBytes;
@@ -745,12 +749,12 @@ void colrv1_draw_paint(SkCanvas* canvas,
              * pass that to the path generation. */
             if (generateFacePathCOLRv1(face, glyphID, &path)) {
 
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-              SkPaint highlight_paint;
-              highlight_paint.setColor(0x33FF0000);
-              canvas->drawRect(path.getBounds(), highlight_paint);
-#endif
-              canvas->clipPath(path, true /* doAntiAlias */);
+                if constexpr (kSkShowTextBlitCoverage) {
+                    SkPaint highlight_paint;
+                    highlight_paint.setColor(0x33FF0000);
+                    canvas->drawRect(path.getBounds(), highlight_paint);
+                }
+                canvas->clipPath(path, true /* doAntiAlias */);
             }
             break;
         }
@@ -800,14 +804,12 @@ void colrv1_draw_glyph_with_path(SkCanvas* canvas, const SkSpan<SkColor>& palett
      * glyph graph, we need to extract at least the requested glyph width and height and
      * pass that to the path generation. */
     if (generateFacePathCOLRv1(face, glyphID, &path)) {
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-        SkPaint highlight_paint;
-        highlight_paint.setColor(0x33FF0000);
-        canvas->drawRect(path.getBounds(), highlight_paint);
-#endif
-        {
-            canvas->drawPath(path, skiaFillPaint);
+        if constexpr (kSkShowTextBlitCoverage) {
+            SkPaint highlight_paint;
+            highlight_paint.setColor(0x33FF0000);
+            canvas->drawRect(path.getBounds(), highlight_paint);
         }
+        canvas->drawPath(path, skiaFillPaint);
     }
 }
 
@@ -1322,11 +1324,11 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
 
                 // Scale unscaledBitmap into dstBitmap.
                 SkCanvas canvas(dstBitmap);
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-                canvas.clear(0x33FF0000);
-#else
-                canvas.clear(SK_ColorTRANSPARENT);
-#endif
+                if constexpr (kSkShowTextBlitCoverage) {
+                    canvas.clear(0x33FF0000);
+                } else {
+                    canvas.clear(SK_ColorTRANSPARENT);
+                }
                 canvas.translate(-glyph.fLeft, -glyph.fTop);
 
                 if (this->isSubpixel()) {
@@ -1343,7 +1345,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
                     return;
                 }
             } else
-#endif
+#endif  // FT_COLOR_H
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
                 FT_Outline_Translate(outline, dx, dy);
                 FT_Error err = FT_Render_Glyph(face->glyph, doVert ? FT_RENDER_MODE_LCD_V :
@@ -1354,9 +1356,9 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
                 }
 
                 SkMask mask = glyph.mask();
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-                memset(mask.fImage, 0x80, mask.fBounds.height() * mask.fRowBytes);
-#endif
+                if constexpr (kSkShowTextBlitCoverage) {
+                    memset(mask.fImage, 0x80, mask.fBounds.height() * mask.fRowBytes);
+                }
                 FT_GlyphSlotRec& ftGlyph = *face->glyph;
 
                 if (!SkIRect::Intersects(mask.fBounds,
@@ -1439,14 +1441,23 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
                 target.num_grays = 256;
 
                 FT_Outline_Get_Bitmap(face->glyph->library, outline, &target);
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-                for (int y = 0; y < glyph.fHeight; ++y) {
-                    for (int x = 0; x < glyph.fWidth; ++x) {
-                        uint8_t& a = ((uint8_t*)glyph.fImage)[(glyph.rowBytes() * y) + x];
-                        a = std::max<uint8_t>(a, 0x20);
+                if constexpr (kSkShowTextBlitCoverage) {
+                    if (glyph.fMaskFormat == SkMask::kBW_Format) {
+                        for (unsigned y = 0; y < target.rows; y += 2) {
+                            for (unsigned x = (y & 0x2); x < target.width; x+=4) {
+                                uint8_t& b = target.buffer[(target.pitch * y) + (x >> 3)];
+                                b = b ^ (1 << (0x7 - (x & 0x7)));
+                            }
+                        }
+                    } else {
+                        for (unsigned y = 0; y < target.rows; ++y) {
+                            for (unsigned x = 0; x < target.width; ++x) {
+                                uint8_t& a = target.buffer[(target.pitch * y) + x];
+                                a = std::max<uint8_t>(a, 0x20);
+                            }
+                        }
                     }
                 }
-#endif
             }
         } break;
 
@@ -1511,11 +1522,11 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
 
             // Scale unscaledBitmap into dstBitmap.
             SkCanvas canvas(dstBitmap);
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-            canvas.clear(0x33FF0000);
-#else
-            canvas.clear(SK_ColorTRANSPARENT);
-#endif
+            if constexpr (kSkShowTextBlitCoverage) {
+                canvas.clear(0x33FF0000);
+            } else {
+                canvas.clear(SK_ColorTRANSPARENT);
+            }
             canvas.translate(-glyph.fLeft, -glyph.fTop);
             canvas.concat(bitmapTransform);
             canvas.translate(face->glyph->bitmap_left, -face->glyph->bitmap_top);

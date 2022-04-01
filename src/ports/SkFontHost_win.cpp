@@ -41,6 +41,10 @@
 #include <usp10.h>
 #include <objbase.h>
 
+namespace {
+static inline const constexpr bool kSkShowTextBlitCoverage = false;
+}
+
 static void (*gEnsureLOGFONTAccessibleProc)(const LOGFONT&);
 
 void SkTypeface_SetEnsureLOGFONTAccessibleProc(void (*proc)(const LOGFONT&)) {
@@ -982,8 +986,6 @@ void SkScalerContext_GDI::generateFontMetrics(SkFontMetrics* metrics) {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#define SK_SHOW_TEXT_BLIT_COVERAGE 0
-
 static void build_power_table(uint8_t table[], float ee) {
     for (int i = 0; i < 256; i++) {
         float x = i / 255.f;
@@ -1052,9 +1054,11 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
     U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, tableR);
     U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
     U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
-#if SK_SHOW_TEXT_BLIT_COVERAGE
-    r = std::max(r, 10); g = std::max(g, 10); b = std::max(b, 10);
-#endif
+    if constexpr (kSkShowTextBlitCoverage) {
+        r = std::max(r, 10u);
+        g = std::max(g, 10u);
+        b = std::max(b, 10u);
+    }
     return SkPack888ToRGB16(r, g, b);
 }
 
@@ -1068,9 +1072,9 @@ void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
             dst[i] = rgb_to_a8<APPLY_PREBLEND>(src[i], table8);
-#if SK_SHOW_TEXT_BLIT_COVERAGE
-            dst[i] = std::max(dst[i], 10);
-#endif
+            if constexpr (kSkShowTextBlitCoverage) {
+                dst[i] = std::max(dst[i], 10u);
+            }
         }
         src = SkTAddOffset<const SkGdiRGB>(src, srcRB);
         dst -= dstRB;
@@ -1146,7 +1150,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
             src += srcRB;
             dst -= dstRB;
         }
-#if SK_SHOW_TEXT_BLIT_COVERAGE
+        if constexpr (kSkShowTextBlitCoverage) {
             if (glyph.width() > 0 && glyph.fHeight > 0) {
                 int bitCount = glyph.width() & 7;
                 uint8_t* first = (uint8_t*)glyph.fImage;
@@ -1154,7 +1158,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
                 *first |= 1 << 7;
                 *last |= bitCount == 0 ? 1 : 1 << (8 - bitCount);
             }
-#endif
+        }
     } else if (isAA) {
         // since the caller may require A8 for maskfilters, we can't check for BW
         // ... until we have the caller tell us that explicitly

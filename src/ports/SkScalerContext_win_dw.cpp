@@ -44,6 +44,7 @@
 #include <dwrite_3.h>
 
 namespace {
+static inline const constexpr bool kSkShowTextBlitCoverage = false;
 
 /* Note:
  * In versions 8 and 8.1 of Windows, some calls in DWrite are not thread safe.
@@ -1119,11 +1120,11 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
     dstBitmap.setPixels(glyph.fImage);
 
     SkCanvas canvas(dstBitmap);
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-    canvas.clear(0x33FF0000);
-#else
-    canvas.clear(SK_ColorTRANSPARENT);
-#endif
+    if constexpr (kSkShowTextBlitCoverage) {
+        canvas.clear(0x33FF0000);
+    } else {
+        canvas.clear(SK_ColorTRANSPARENT);
+    }
     canvas.translate(-SkIntToScalar(glyph.fLeft), -SkIntToScalar(glyph.fTop));
 
     this->drawColorGlyphImage(glyph, canvas);

@@ -37,9 +37,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEBUG
-    #define DUMP_RECx
-#endif
+namespace {
+static inline const constexpr bool kSkShowTextBlitCoverage = false;
+static inline const constexpr bool kSkScalerContextDumpRec = false;
+}
 
 SkScalerContextRec SkScalerContext::PreprocessRec(const SkTypeface& typeface,
                                                   const SkScalerContextEffects& effects,
@@ -84,12 +85,12 @@ SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerConte
 
     , fPreBlend(fMaskFilter ? SkMaskGamma::PreBlend() : SkScalerContext::GetMaskPreBlend(fRec))
 {
-#ifdef DUMP_REC
-    SkDebugf("SkScalerContext checksum %x count %d length %d\n",
-             desc->getChecksum(), desc->getCount(), desc->getLength());
-    SkDebugf("%s", fRec.dump().c_str());
-    SkDebugf("  effects %x\n", desc->findEntry(kEffects_SkDescriptorTag, nullptr));
-#endif
+    if constexpr (kSkScalerContextDumpRec) {
+        SkDebugf("SkScalerContext checksum %x count %d length %d\n",
+                 desc->getChecksum(), desc->getCount(), desc->getLength());
+        SkDebugf("%s", fRec.dump().c_str());
+        SkDebugf("  effects %p\n", desc->findEntry(kEffects_SkDescriptorTag, nullptr));
+    }
 }
 
 SkScalerContext::~SkScalerContext() {}
@@ -275,8 +276,6 @@ SK_ERROR:
     return glyph;
 }
 
-#define SK_SHOW_TEXT_BLIT_COVERAGE 0
-
 static void applyLUTToA8Mask(const SkMask& mask, const uint8_t* lut) {
     uint8_t* SK_RESTRICT dst = (uint8_t*)mask.fImage;
     unsigned rowBytes = mask.fRowBytes;
@@ -385,9 +384,11 @@ static void pack4xHToMask(const SkPixmap& src, const SkMask& dst,
                 g = fir[1];
                 b = fir[2];
             }
-#if SK_SHOW_TEXT_BLIT_COVERAGE
-            r = std::max(r, 10); g = std::max(g, 10); b = std::max(b, 10);
-#endif
+            if constexpr (kSkShowTextBlitCoverage) {
+                r = std::max(r, 10u);
+                g = std::max(g, 10u);
+                b = std::max(b, 10u);
+            }
             if (toA8) {
                 U8CPU a = (r + g + b) / 3;
                 if (maskPreBlend.isApplicable()) {
