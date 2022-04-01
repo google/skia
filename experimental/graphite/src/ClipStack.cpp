@@ -31,15 +31,13 @@ enum class ClipGeometry {
 // (Element, Element), (Element, SaveRecord), (Element, Draw), and (SaveRecord, Draw).
 template<typename A, typename B>
 ClipGeometry get_clip_geometry(const A& a, const B& b) {
-    // TODO: This will need to be updated to use skgpu::Rect instead of SkIRect. At the same time,
-    // we could also consider doing more involved intersection tests, similar to shape_contains_rect
-    // to detect cases where local bounds are disjoint, but device bounds still overlap.
-    // NOTE: SkIRect::Intersects() returns false when two rectangles touch at an edge (so the result
-    // is empty). This behavior is desired for the following clip effect policies.
+    // TODO: Could also consider doing more involved intersection tests, similar to
+    // shape_contains_rect to detect cases where local bounds are disjoint, but device bounds still
+    // overlap. If that case is handled here, then RawElement::combine's logic can be simpler.
     if (a.op() == SkClipOp::kIntersect) {
         if (b.op() == SkClipOp::kIntersect) {
             // Intersect (A) + Intersect (B)
-            if (!SkIRect::Intersects(a.outerBounds(), b.outerBounds())) {
+            if (!a.outerBounds().intersects(b.outerBounds())) {
                 // Regions with non-zero coverage are disjoint, so intersection = empty
                 return ClipGeometry::kEmpty;
             } else if (b.contains(a)) {
@@ -55,7 +53,7 @@ ClipGeometry get_clip_geometry(const A& a, const B& b) {
         } else {
             SkASSERT(b.op() == SkClipOp::kDifference);
             // Intersect (A) + Difference (B)
-            if (!SkIRect::Intersects(a.outerBounds(), b.outerBounds())) {
+            if (!a.outerBounds().intersects(b.outerBounds())) {
                 // A only intersects B's full coverage region, so intersection = A
                 return ClipGeometry::kAOnly;
             } else if (b.contains(a)) {
@@ -72,7 +70,7 @@ ClipGeometry get_clip_geometry(const A& a, const B& b) {
         if (b.op() == SkClipOp::kIntersect) {
             // Difference (A) + Intersect (B) - the mirror of Intersect(A) + Difference(B),
             // but combining is commutative so this is equivalent barring naming.
-            if (!SkIRect::Intersects(b.outerBounds(), a.outerBounds())) {
+            if (!b.outerBounds().intersects(a.outerBounds())) {
                 // B only intersects A's full coverage region, so intersection = B
                 return ClipGeometry::kBOnly;
             } else if (a.contains(b)) {
@@ -142,12 +140,12 @@ bool shape_contains_rect(const Shape& a, const Transform& aToDevice,
     return true;
 }
 
-SkIRect subtract(const SkIRect& a, const SkIRect& b, bool exact) {
-    SkIRect diff;
-    if (SkRectPriv::Subtract(a, b, &diff) || !exact) {
+Rect subtract(const Rect& a, const Rect& b, bool exact) {
+    SkRect diff;
+    if (SkRectPriv::Subtract(a.asSkRect(), b.asSkRect(), &diff) || !exact) {
         // Either A-B is exactly the rectangle stored in diff, or we don't need an exact answer
         // and can settle for the subrect of A excluded from B (which is also 'diff')
-        return diff;
+        return Rect{diff};
     } else {
         // For our purposes, we want the original A when A-B cannot be exactly represented
         return a;
@@ -161,90 +159,68 @@ static const Transform kIdentity{SkM44()};
 ///////////////////////////////////////////////////////////////////////////////
 // ClipStack::Element
 
-ClipStack::RawElement::RawElement(const SkIRect& deviceBounds,
+ClipStack::RawElement::RawElement(const Rect& deviceBounds,
                                   const Transform& localToDevice,
                                   const Shape& shape,
                                   SkClipOp op)
         : Element{shape, localToDevice, op}
-        , fInnerBounds(SkIRect::MakeEmpty())
-        , fOuterBounds(SkIRect::MakeEmpty())
         , fInvalidatedByIndex(-1) {
-    if (!localToDevice.valid()) {
-        // If the transform can't be inverted, it means that two dimensions are collapsed to 0 or
-        // 1 dimension, making the device-space geometry effectively empty.
+    // Discard shapes that don't have any area (including when a transform can't be inverted, since
+    // it means the two dimensions are collapsed to 0 or 1 dimension in device space).
+    if (fShape.isLine() || !localToDevice.valid()) {
         fShape.reset();
     }
-
     // Make sure the shape is not inverted. An inverted shape is equivalent to a non-inverted shape
     // with the clip op toggled.
     if (fShape.inverted()) {
-        fOp = fOp == SkClipOp::kIntersect ? SkClipOp::kDifference : SkClipOp::kIntersect;
+        fOp = (fOp == SkClipOp::kIntersect) ? SkClipOp::kDifference : SkClipOp::kIntersect;
         fShape.setInverted(false);
     }
 
-    // Discard shapes that don't have any area
-    if (fShape.isLine()) {
-        fShape.reset();
-    }
-    if (fShape.isEmpty()) {
-        return;
-    }
+    fOuterBounds = fLocalToDevice.mapRect(fShape.bounds()).makeIntersect(deviceBounds);
+    fInnerBounds = Rect::InfiniteInverted();
 
-    // At this point the shape has area and the transform is valid, so compute bounding boxes.
-    Rect outer = fLocalToDevice.mapRect(fShape.bounds());
-    outer.intersect(Rect{SkRect::Make(deviceBounds)});
-    if (!outer.isEmptyNegativeOrNaN()) {
-        // A non-empty shape is offscreen, so treat it as empty
-        fShape.reset();
-        return;
-    }
-
-    // TODO: When switching to skgpu::Rect, graphite's clip stack won't round in or out to try
-    // and match pixel boundaries, but will compare original bounds directly.
-    fOuterBounds = outer.makeRoundOut().asSkRect().round();
-
-    if (fLocalToDevice.type() == Transform::Type::kRectStaysRect) {
+    // Apply rect-stays-rect transforms to rects and round rects to reduce the number of unique
+    // local coordinate systems that are in play.
+    if (!fOuterBounds.isEmptyNegativeOrNaN() &&
+        fLocalToDevice.type() == Transform::Type::kRectStaysRect) {
         if (fShape.isRect()) {
-            // The actual geometry can be updated to the device-intersected bounds and we can
-            // know the inner bounds
-            fShape.setRect(outer);
+            // The actual geometry can be updated to the device-intersected bounds and we know the
+            // inner bounds are equal to the outer.
+            fShape.setRect(fOuterBounds);
             fLocalToDevice = kIdentity;
-
-            fInnerBounds = outer.makeRoundIn().asSkRect().round();
-            SkASSERT(fOuterBounds.contains(fInnerBounds) || fInnerBounds.isEmpty());
+            fInnerBounds = fOuterBounds;
         } else if (fShape.isRRect()) {
             // Can't transform in place and must still check transform result since some very
             // ill-formed scale+translate matrices can cause invalid rrect radii.
-            SkRRect src;
-            if (fShape.rrect().transform(fLocalToDevice, &src)) {
-                fShape.setRRect(src);
+            SkRRect xformed;
+            if (fShape.rrect().transform(fLocalToDevice, &xformed)) {
+                fShape.setRRect(xformed);
                 fLocalToDevice = kIdentity;
-
-                SkRect inner = SkRRectPriv::InnerBounds(fShape.rrect());
-                fInnerBounds = inner.roundIn();
-                if (!fInnerBounds.intersect(deviceBounds)) {
-                    fInnerBounds = SkIRect::MakeEmpty();
-                }
+                // Refresh outer bounds to match the transformed round rect in case
+                // SkRRect::transform produces slightly different results from Transform::mapRect.
+                fOuterBounds = fShape.bounds().makeIntersect(deviceBounds);
+                fInnerBounds = Rect{SkRRectPriv::InnerBounds(xformed)}.makeIntersect(fOuterBounds);
             }
         }
     }
 
-    if (fOuterBounds.isEmpty()) {
-        // Consistency clean up if floating point math put our bounds in an unusual state
+    if (fOuterBounds.isEmptyNegativeOrNaN()) {
+        // Either was already an empty shape or a non-empty shape is offscreen, so treat it as such.
         fShape.reset();
-        fInnerBounds.setEmpty();
+        fInnerBounds = Rect::InfiniteInverted();
     }
 
     // Post-conditions on inner and outer bounds
-    this->validate();
     SkASSERT(fShape.isEmpty() || deviceBounds.contains(fOuterBounds));
+    this->validate();
 }
 
 void ClipStack::RawElement::validate() const {
     // If the shape type isn't empty, the outer bounds shouldn't be empty; if the inner bounds are
     // not empty, they must be contained in outer.
-    SkASSERT((fShape.isEmpty() || !fOuterBounds.isEmpty()) &&
-             (fInnerBounds.isEmpty() || fOuterBounds.contains(fInnerBounds)));
+    SkASSERT((fShape.isEmpty() || !fOuterBounds.isEmptyNegativeOrNaN()) &&
+             (fInnerBounds.isEmptyNegativeOrNaN() || fOuterBounds.contains(fInnerBounds)));
 }
 
 void ClipStack::RawElement::markInvalid(const SaveRecord& current) {
@@ -262,9 +238,7 @@ bool ClipStack::RawElement::contains(const SaveRecord& s) const {
     if (fInnerBounds.contains(s.outerBounds())) {
         return true;
     } else {
-        // This is very similar to contains(Draw) but we just have outerBounds to work with.
-        Rect queryBounds{SkRect::Make(s.outerBounds())};
-        return shape_contains_rect(fShape, fLocalToDevice, queryBounds, kIdentity);
+        return shape_contains_rect(fShape, fLocalToDevice, s.outerBounds(), kIdentity);
     }
 }
 
@@ -349,10 +323,10 @@ bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& c
     if (shapeUpdated) {
         // This logic works under the assumption that both combined elements were intersect.
         SkASSERT(fOp == SkClipOp::kIntersect && other.fOp == SkClipOp::kIntersect);
-        SkAssertResult(fOuterBounds.intersect(other.fOuterBounds));
-        if (!fInnerBounds.intersect(other.fInnerBounds)) {
-            fInnerBounds = SkIRect::MakeEmpty();
-        }
+        fOuterBounds.intersect(other.fOuterBounds);
+        fInnerBounds.intersect(other.fInnerBounds);
+        // Inner bounds can become empty, but outer bounds should not be able to.
+        SkASSERT(!fOuterBounds.isEmptyNegativeOrNaN());
         return true;
     } else {
         return false;
@@ -424,7 +398,7 @@ ClipStack::ClipState ClipStack::RawElement::clipType() const {
 ///////////////////////////////////////////////////////////////////////////////
 // ClipStack::SaveRecord
 
-ClipStack::SaveRecord::SaveRecord(const SkIRect& deviceBounds)
+ClipStack::SaveRecord::SaveRecord(const Rect& deviceBounds)
         : fInnerBounds(deviceBounds)
         , fOuterBounds(deviceBounds)
         , fShader(nullptr)
@@ -549,12 +523,10 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
         if (toAdd.op() == SkClipOp::kIntersect) {
             // Intersect (stack) + Intersect (toAdd)
             //  - Bounds updates is simply the paired intersections of outer and inner.
-            SkAssertResult(fOuterBounds.intersect(toAdd.outerBounds()));
-            if (!fInnerBounds.intersect(toAdd.innerBounds())) {
-                // NOTE: this does the right thing if either rect is empty, since we set the
-                // inner bounds to empty here
-                fInnerBounds = SkIRect::MakeEmpty();
-            }
+            fOuterBounds.intersect(toAdd.outerBounds());
+            fInnerBounds.intersect(toAdd.innerBounds());
+            // Outer should not have become empty, but is allowed to if there's no intersection.
+            SkASSERT(!fOuterBounds.isEmptyNegativeOrNaN());
         } else {
             // Intersect (stack) + Difference (toAdd)
             //  - Shrink the stack's outer bounds if the difference op's inner bounds completely
@@ -567,7 +539,7 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
         if (toAdd.op() == SkClipOp::kIntersect) {
             // Difference (stack) + Intersect (toAdd)
             //  - Bounds updates are just the mirror of Intersect(stack) + Difference(toAdd)
-            SkIRect oldOuter = fOuterBounds;
+            Rect oldOuter = fOuterBounds;
             fOuterBounds = subtract(toAdd.outerBounds(), fInnerBounds, /* exact */ true);
             fInnerBounds = subtract(toAdd.innerBounds(), oldOuter,     /* exact */ false);
         } else {
@@ -575,8 +547,7 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
             //  - The updated outer bounds is the union of outer bounds and the inner becomes the
             //    largest of the two possible inner bounds
             fOuterBounds.join(toAdd.outerBounds());
-            if (toAdd.innerBounds().width() * toAdd.innerBounds().height() >
-                fInnerBounds.width() * fInnerBounds.height()) {
+            if (toAdd.innerBounds().area() > fInnerBounds.area()) {
                 fInnerBounds = toAdd.innerBounds();
             }
         }
@@ -585,8 +556,8 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
     // If we get here, we're keeping the new element and the stack's bounds have been updated.
     // We ought to have caught the cases where the stack bounds resemble an empty or wide open
     // clip, so assert that's the case.
-    SkASSERT(!fOuterBounds.isEmpty() &&
-             (fInnerBounds.isEmpty() || fOuterBounds.contains(fInnerBounds)));
+    SkASSERT(!fOuterBounds.isEmptyNegativeOrNaN() &&
+             (fInnerBounds.isEmptyNegativeOrNaN() || fOuterBounds.contains(fInnerBounds)));
 
     return this->appendElement(std::move(toAdd), elements);
 }
@@ -721,9 +692,9 @@ static constexpr int kSaveStackIncrement = 8;
 ClipStack::ClipStack(const SkIRect& deviceBounds)
         : fElements(kElementStackIncrement)
         , fSaves(kSaveStackIncrement)
-        , fDeviceBounds(deviceBounds) {
+        , fDeviceBounds(SkRect::Make(deviceBounds)) {
     // Start with a save record that is wide open
-    fSaves.emplace_back(deviceBounds);
+    fSaves.emplace_back(fDeviceBounds);
 }
 
 ClipStack::~ClipStack() = default;
@@ -750,10 +721,10 @@ void ClipStack::restore() {
     fSaves.back().restoreElements(&fElements);
 }
 
-SkIRect ClipStack::conservativeBounds() const {
+Rect ClipStack::conservativeBounds() const {
     const SaveRecord& current = this->currentSaveRecord();
     if (current.state() == ClipState::kEmpty) {
-        return SkIRect::MakeEmpty();
+        return Rect::InfiniteInverted();
     } else if (current.state() == ClipState::kWideOpen) {
         return fDeviceBounds;
     } else {

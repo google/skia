@@ -34,6 +34,7 @@ public:
         SkClipOp  fOp;
     };
 
+    // 'deviceBounds' is an SkIRect because it must always represent the bounds of entire pixels.
     ClipStack(const SkIRect& deviceBounds);
 
     ~ClipStack();
@@ -42,7 +43,7 @@ public:
     ClipStack& operator=(const ClipStack&) = delete;
 
     ClipState clipState() const { return this->currentSaveRecord().state(); }
-    SkIRect conservativeBounds() const;
+    Rect conservativeBounds() const;
 
     class ElementIter;
     // Provides for-range over active, valid clip elements from most recent to oldest.
@@ -83,25 +84,25 @@ private:
     public:
         using Stack = SkTBlockList<RawElement, 1>;
 
-        RawElement(const SkIRect& deviceBounds,
+        RawElement(const Rect& deviceBounds,
                    const Transform& localToDevice,
                    const Shape& shape,
                    SkClipOp op);
         // TODO: A destructor that validates there's no pending draws that weren't flushed.
 
         // Common clip type interface
-        SkClipOp        op() const { return fOp; }
-        const SkIRect&  outerBounds() const { return fOuterBounds; }
-        bool            contains(const SaveRecord& s) const;
-        bool            contains(const RawElement& e) const;
+        SkClipOp    op()          const { return fOp;          }
+        const Rect& outerBounds() const { return fOuterBounds; }
+        bool        contains(const SaveRecord& s) const;
+        bool        contains(const RawElement& e) const;
 
         // Additional element-specific data
-        const Element&  asElement() const { return *this; }
+        const Element&   asElement()     const { return *this;          }
 
-        ClipState        clipType() const;
-        const Shape&     shape() const { return fShape; }
+        const Shape&     shape()         const { return fShape;         }
         const Transform& localToDevice() const { return fLocalToDevice; }
-        const SkIRect&   innerBounds() const { return fInnerBounds; }
+        const Rect&      innerBounds()   const { return fInnerBounds;   }
+        ClipState        clipType()      const;
 
         // As new elements are pushed on to the stack, they may make older elements redundant.
         // The old elements are marked invalid so they are skipped during clip application, but may
@@ -137,11 +138,14 @@ private:
         // later on.
         bool combine(const RawElement& other, const SaveRecord& current);
 
-        // Device space bounds, rounded in or out to pixel boundaries and accounting for any
-        // uncertainty around anti-aliasing and rasterization snapping.
-        // TODO: These will move to skgpu::Rect, but that requires more extensive rewriting.
-        SkIRect  fInnerBounds;
-        SkIRect  fOuterBounds;
+        // Device space bounds. These bounds are not snapped to pixels with the assumption that if
+        // a relation (intersects, contains, etc.) is true for the bounds it will be true for the
+        // rasterization of the coordinates that produced those bounds.
+        Rect fInnerBounds;
+        Rect fOuterBounds;
+        // TODO: Convert fOuterBounds to a ComplementRect to make intersection tests faster?
+        // Would need to store both original and complement, since the intersection test is
+        // Rect + ComplementRect and Element/SaveRecord could be on either side of operation.
 
         // Elements are invalidated by SaveRecords as the record is updated with new elements that
         // override old geometry. An invalidated element stores the index of the first element of
@@ -161,23 +165,22 @@ private:
     public:
         using Stack = SkTBlockList<SaveRecord, 2>;
 
-        explicit SaveRecord(const SkIRect& deviceBounds);
+        explicit SaveRecord(const Rect& deviceBounds);
 
         SaveRecord(const SaveRecord& prior, int startingElementIndex);
 
         // The common clip type interface
-        SkClipOp        op() const { return fStackOp; }
-        const SkIRect&  outerBounds() const { return fOuterBounds; }
-        bool            contains(const RawElement& e) const;
+        SkClipOp    op()          const { return fStackOp;     }
+        const Rect& outerBounds() const { return fOuterBounds; }
+        bool        contains(const RawElement& e) const;
 
         // Additional save record-specific data/functionality
-        const SkShader* shader() const { return fShader.get(); }
-        const SkIRect&  innerBounds() const { return fInnerBounds; }
-        int             firstActiveElementIndex() const { return fStartingElementIndex; }
-        int             oldestElementIndex() const { return fOldestValidIndex; }
-        bool            canBeUpdated() const { return (fDeferredSaveCount == 0); }
-
-        ClipState       state() const;
+        const SkShader* shader()                  const { return fShader.get();             }
+        const Rect&     innerBounds()             const { return fInnerBounds;              }
+        int             firstActiveElementIndex() const { return fStartingElementIndex;     }
+        int             oldestElementIndex()      const { return fOldestValidIndex;         }
+        bool            canBeUpdated()            const { return (fDeferredSaveCount == 0); }
+        ClipState       state()                   const;
 
         // Deferred save manipulation
         void pushSave() {
@@ -214,16 +217,15 @@ private:
 
         // Inner bounds is always contained in outer bounds, or it is empty. All bounds will be
         // contained in the device bounds.
-        SkIRect   fInnerBounds; // Inside is full coverage (stack op == intersect) or 0 cov (diff)
-        SkIRect   fOuterBounds; // Outside is 0 coverage (op == intersect) or full cov (diff)
+        Rect fInnerBounds; // Inside is full coverage (stack op == intersect) or 0 cov (diff)
+        Rect fOuterBounds; // Outside is 0 coverage (op == intersect) or full cov (diff)
 
         // A save record can have up to one shader, multiple shaders are automatically blended
         sk_sp<SkShader> fShader;
 
         const int fStartingElementIndex; // First element owned by this save record
-        int       fOldestValidIndex; // Index of oldest element that remains valid for this record
-
-        int       fDeferredSaveCount; // Number of save() calls without modifications (yet)
+        int       fOldestValidIndex;     // Index of oldest element that's valid for this record
+        int       fDeferredSaveCount;    // Number of save() calls without modifications (yet)
 
         // Will be kIntersect unless every valid element is kDifference, which is significant
         // because if kDifference then there is an implicit extra outer bounds at the device edges.
@@ -240,10 +242,11 @@ private:
     // and initializing a first record if it were empty.
     SaveRecord& writableSaveRecord(bool* wasDeferred);
 
-    RawElement::Stack        fElements;
-    SaveRecord::Stack        fSaves; // always has one wide open record at the top
+    RawElement::Stack fElements;
+    SaveRecord::Stack fSaves; // always has one wide open record at the top
 
-    const SkIRect            fDeviceBounds;
+    // Will have integer coordinates, but is converted to Rect for ease of use.
+    const Rect fDeviceBounds;
 };
 
 // Clip element iteration
