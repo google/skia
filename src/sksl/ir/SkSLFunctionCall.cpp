@@ -928,6 +928,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
             return nullptr;
         }
         case Expression::Kind::kPoison:
+            functionValue->fPosition = pos;
             return functionValue;
         default:
             context.fErrors->error(pos, "not a function");

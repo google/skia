@@ -50,6 +50,7 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLContinueStatement_hdr",
         "//src/sksl/ir:SkSLDiscardStatement_hdr",
         "//src/sksl/ir:SkSLDoStatement_hdr",
+        "//src/sksl/ir:SkSLExpression_hdr",
         "//src/sksl/ir:SkSLExtension_hdr",
         "//src/sksl/ir:SkSLField_hdr",
         "//src/sksl/ir:SkSLForStatement_hdr",

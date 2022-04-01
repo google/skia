@@ -23,20 +23,16 @@ public:
     inline static constexpr Kind kExpressionKind = Kind::kPrefix;
 
     // Use PrefixExpression::Make to automatically simplify various prefix expression types.
-    PrefixExpression(Operator op, std::unique_ptr<Expression> operand)
-        : INHERITED(operand->fPosition, kExpressionKind, &operand->type())
+    PrefixExpression(Position pos, Operator op, std::unique_ptr<Expression> operand)
+        : INHERITED(pos, kExpressionKind, &operand->type())
         , fOperator(op)
         , fOperand(std::move(operand)) {}
 
     // Creates an SkSL prefix expression; uses the ErrorReporter to report errors.
-    static std::unique_ptr<Expression> Convert(const Context& context, Operator op,
+    static std::unique_ptr<Expression> Convert(const Context& context, Position pos, Operator op,
                                                std::unique_ptr<Expression> base);
 
     // Creates an SkSL prefix expression; reports errors via ASSERT.
-    static std::unique_ptr<Expression> Make(const Context& context, Operator op,
-                                            std::unique_ptr<Expression> base);
-
-    // TODO(ethannicholas): make Position required
     static std::unique_ptr<Expression> Make(const Context& context, Position pos, Operator op,
                                             std::unique_ptr<Expression> base);
 
@@ -62,7 +58,8 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<PrefixExpression>(this->getOperator(), this->operand()->clone());
+        return std::make_unique<PrefixExpression>(fPosition, this->getOperator(),
+                this->operand()->clone());
     }
 
     std::string description() const override {

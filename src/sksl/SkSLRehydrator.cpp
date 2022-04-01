@@ -502,7 +502,8 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             std::unique_ptr<Expression> left = this->expression();
             Operator::Kind op = (Operator::Kind)this->readU8();
             std::unique_ptr<Expression> right = this->expression();
-            return BinaryExpression::Make(this->context(), std::move(left), op, std::move(right));
+            return BinaryExpression::Make(this->context(), pos, std::move(left), op,
+                    std::move(right));
         }
         case Rehydrator::kBoolLiteral_Command: {
             bool value = this->readU8();
@@ -560,7 +561,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             std::unique_ptr<Expression> base = this->expression();
             int index = this->readU8();
             FieldAccess::OwnerKind ownerKind = (FieldAccess::OwnerKind) this->readU8();
-            return FieldAccess::Make(this->context(), std::move(base), index, ownerKind);
+            return FieldAccess::Make(this->context(), pos, std::move(base), index, ownerKind);
         }
         case Rehydrator::kFloatLiteral_Command: {
             const Type* type = this->type();
@@ -590,7 +591,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kIndex_Command: {
             std::unique_ptr<Expression> base = this->expression();
             std::unique_ptr<Expression> index = this->expression();
-            return IndexExpression::Make(this->context(), std::move(base), std::move(index));
+            return IndexExpression::Make(this->context(), pos, std::move(base), std::move(index));
         }
         case Rehydrator::kIntLiteral_Command: {
             const Type* type = this->type();
@@ -605,16 +606,16 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kPostfix_Command: {
             Operator::Kind op = (Operator::Kind)this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return PostfixExpression::Make(this->context(), std::move(operand), op);
+            return PostfixExpression::Make(this->context(), pos, std::move(operand), op);
         }
         case Rehydrator::kPrefix_Command: {
             Operator::Kind op = (Operator::Kind)this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return PrefixExpression::Make(this->context(), op, std::move(operand));
+            return PrefixExpression::Make(this->context(), pos, op, std::move(operand));
         }
         case Rehydrator::kSetting_Command: {
             std::string name(this->readString());
-            return Setting::Convert(this->context(), Position(), name);
+            return Setting::Convert(this->context(), pos, name);
         }
         case Rehydrator::kSwizzle_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -629,13 +630,13 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             std::unique_ptr<Expression> test = this->expression();
             std::unique_ptr<Expression> ifTrue = this->expression();
             std::unique_ptr<Expression> ifFalse = this->expression();
-            return TernaryExpression::Make(this->context(), std::move(test),
+            return TernaryExpression::Make(this->context(), pos, std::move(test),
                                            std::move(ifTrue), std::move(ifFalse));
         }
         case Rehydrator::kVariableReference_Command: {
             const Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             VariableReference::RefKind refKind = (VariableReference::RefKind) this->readU8();
-            return VariableReference::Make(Position(), var, refKind);
+            return VariableReference::Make(pos, var, refKind);
         }
         case Rehydrator::kVoid_Command:
             return nullptr;

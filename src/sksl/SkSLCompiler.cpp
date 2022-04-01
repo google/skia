@@ -518,7 +518,7 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
             const Field* field = &result->as<Field>();
             auto base = VariableReference::Make(pos, &field->owner(),
                                                 VariableReference::RefKind::kRead);
-            return FieldAccess::Make(*fContext, std::move(base), field->fieldIndex(),
+            return FieldAccess::Make(*fContext, pos, std::move(base), field->fieldIndex(),
                                      FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
         }
         case Symbol::Kind::kType: {

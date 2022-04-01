@@ -51,6 +51,7 @@ const Type& IndexExpression::IndexType(const Context& context, const Type& type)
 
 std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
                                                      SymbolTable& symbolTable,
+                                                     Position pos,
                                                      std::unique_ptr<Expression> base,
                                                      std::unique_ptr<Expression> index) {
     // Convert an array type reference: `int[10]`.
@@ -60,7 +61,7 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
         if (!arraySize) {
             return nullptr;
         }
-        return TypeReference::Convert(context, base->fPosition,
+        return TypeReference::Convert(context, pos,
                                       symbolTable.addArrayDimension(&baseType, arraySize));
     }
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
@@ -84,13 +85,6 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
             return nullptr;
         }
     }
-    return IndexExpression::Make(context, std::move(base), std::move(index));
-}
-
-std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
-                                                  std::unique_ptr<Expression> base,
-                                                  std::unique_ptr<Expression> index) {
-    Position pos = base->fPosition;
     return IndexExpression::Make(context, pos, std::move(base), std::move(index));
 }
 

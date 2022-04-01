@@ -17,6 +17,7 @@
 namespace SkSL {
 
 std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
+                                                       Position pos,
                                                        std::unique_ptr<Expression> test,
                                                        std::unique_ptr<Expression> ifTrue,
                                                        std::unique_ptr<Expression> ifFalse) {
@@ -24,7 +25,6 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     if (!test || !ifTrue || !ifFalse) {
         return nullptr;
     }
-    Position pos = test->fPosition;
     if (ifTrue->type().componentType().isOpaque()) {
         context.fErrors->error(pos, "ternary expression of opaque type '" +
                 ifTrue->type().displayName() + "' not allowed");
@@ -54,10 +54,12 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     if (!ifFalse) {
         return nullptr;
     }
-    return TernaryExpression::Make(context, std::move(test), std::move(ifTrue), std::move(ifFalse));
+    return TernaryExpression::Make(context, pos, std::move(test), std::move(ifTrue),
+            std::move(ifFalse));
 }
 
 std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
+                                                    Position pos,
                                                     std::unique_ptr<Expression> test,
                                                     std::unique_ptr<Expression> ifTrue,
                                                     std::unique_ptr<Expression> ifFalse) {
@@ -65,8 +67,6 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
     SkASSERT(!ifTrue->type().componentType().isOpaque());
     SkASSERT(!context.fConfig->strictES2Mode() || !ifTrue->type().isOrContainsArray());
 
-    // TODO(ethannicholas): replace this with a pos parameter
-    Position pos = test->fPosition;
     const Expression* testExpr = ConstantFolder::GetConstantValueForVariable(*test);
     if (testExpr->isBoolLiteral()) {
         // static boolean test, just return one of the branches

@@ -30,6 +30,7 @@
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLForStatement.h"
@@ -349,10 +350,12 @@ public:
                              pos);
     }
 
-    static DSLPossibleExpression Select(DSLExpression test, DSLExpression ifTrue,
-                                        DSLExpression ifFalse) {
-        return TernaryExpression::Convert(ThreadContext::Context(), test.release(),
+    static DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
+            Position pos) {
+        auto result = TernaryExpression::Convert(ThreadContext::Context(), pos, test.release(),
                                           ifTrue.release(), ifFalse.release());
+        SkASSERT(!result || result->fPosition == pos);
+        return DSLExpression(std::move(result), pos);
     }
 
     static DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases,
@@ -486,8 +489,7 @@ DSLStatement Return(DSLExpression expr, Position pos) {
 
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      Position pos) {
-    return DSLExpression(DSLCore::Select(std::move(test), std::move(ifTrue), std::move(ifFalse)),
-                         pos);
+    return DSLCore::Select(std::move(test), std::move(ifTrue), std::move(ifFalse), pos);
 }
 
 DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,

@@ -29,15 +29,11 @@ struct IndexExpression final : public Expression {
     // Returns a simplified index-expression; reports errors via the ErrorReporter.
     static std::unique_ptr<Expression> Convert(const Context& context,
                                                SymbolTable& symbolTable,
+                                               Position pos,
                                                std::unique_ptr<Expression> base,
                                                std::unique_ptr<Expression> index);
 
     // Returns a simplified index-expression; reports errors via ASSERT.
-    static std::unique_ptr<Expression> Make(const Context& context,
-                                            std::unique_ptr<Expression> base,
-                                            std::unique_ptr<Expression> index);
-
-    // TODO(ethannicholas): make Position required
     static std::unique_ptr<Expression> Make(const Context& context,
                                             Position pos,
                                             std::unique_ptr<Expression> base,

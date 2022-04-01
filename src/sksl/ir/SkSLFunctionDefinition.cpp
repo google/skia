@@ -46,11 +46,12 @@ static void append_rtadjust_fixup_to_vertex_main(const Context& context,
             return VariableReference::Make(Position(), var);
         };
         auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
-            return FieldAccess::Make(context, Ref(var), idx, OwnerKind::kAnonymousInterfaceBlock);
+            return FieldAccess::Make(context, Position(), Ref(var), idx,
+                    OwnerKind::kAnonymousInterfaceBlock);
         };
         auto Pos = [&]() -> DSLExpression {
-            return DSLExpression(FieldAccess::Make(context, Ref(skPerVertex), /*fieldIndex=*/0,
-                                                   OwnerKind::kAnonymousInterfaceBlock));
+            return DSLExpression(FieldAccess::Make(context, Position(), Ref(skPerVertex),
+                    /*fieldIndex=*/0, OwnerKind::kAnonymousInterfaceBlock));
         };
         auto Adjust = [&]() -> DSLExpression {
             return DSLExpression(rtAdjust.fInterfaceBlock

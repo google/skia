@@ -404,7 +404,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
             return expression.clone();
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& f = expression.as<FieldAccess>();
-            return FieldAccess::Make(*fContext, expr(f.base()), f.fieldIndex(), f.ownerKind());
+            return FieldAccess::Make(*fContext, pos, expr(f.base()), f.fieldIndex(), f.ownerKind());
         }
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();
@@ -438,7 +438,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
         }
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = expression.as<TernaryExpression>();
-            return TernaryExpression::Make(*fContext, expr(t.test()),
+            return TernaryExpression::Make(*fContext, pos, expr(t.test()),
                                            expr(t.ifTrue()), expr(t.ifFalse()));
         }
         case Expression::Kind::kTypeReference:

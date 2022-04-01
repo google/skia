@@ -51,12 +51,14 @@ public:
     int line(std::string_view source = std::string_view()) const;
 
     int startOffset() const {
-        SkASSERT(fEndOffset != -1);
+        SkASSERT(this->valid());
+        SkASSERTF(fEndOffset != -1, "checking offsets of line position (%d)", fStartOffsetOrLine);
         return fStartOffsetOrLine;
     }
 
     int endOffset() const {
-        SkASSERT(fEndOffset != -1);
+        SkASSERT(this->valid());
+        SkASSERTF(fEndOffset != -1, "checking offsets of line position (%d)", fStartOffsetOrLine);
         return fEndOffset;
     }
 

@@ -412,7 +412,8 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
             if (is_constant_value(left, 0.0)) {   // 0 - x (to `-x`)
                 if (std::unique_ptr<Expression> val = cast_expression(context, pos, right,
                         resultType)) {
-                    return PrefixExpression::Make(context, Operator::Kind::MINUS, std::move(val));
+                    return PrefixExpression::Make(context, pos, Operator::Kind::MINUS,
+                            std::move(val));
                 }
             }
             break;

@@ -1483,7 +1483,8 @@ DSLExpression DSLParser::logicalXorExpression() {
         if (!right.hasValue()) {
             return {};
         }
-        DSLExpression next = LogicalXor(std::move(result), std::move(right));
+        Position pos = result.position().rangeThrough(right.position());
+        DSLExpression next(LogicalXor(std::move(result), std::move(right)), pos);
         result.swap(next);
     }
     return result;
