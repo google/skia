@@ -40,12 +40,12 @@ protected:
     // midway between levels we select just the larger level, i.e. a bias of -.5. However, using
     // this bias with kNearest mode with a draw that is a perfect power of two downscale puts us
     // right on the rounding edge where it could go up or down depending on the particular GPU.
-    // Experimentally we found that at -.49 iOS devices (iPhone 7, 8,and 11, and iPad Pro
+    // Experimentally we found that at -.49 most iOS devices (iPhone 7, 8, and iPad Pro
     // [PowerVRGT7800 version]) all round to the level twice as big as the device space footprint
-    // for some such draws in our unit tests on GLES. They do not at -.48. All other GPUs passed
-    // tests with -.499. Though, at this time the bias is not implemented in the MSL codegen and so
-    // iOS/Metal was not tested.
-    static constexpr float kSharpenTexturesBias = -.48f;
+    // for some such draws in our unit tests on GLES. However, the iPhone 11 still fails and so
+    // we are using -.475. They do not at -.48. All other GPUs passed tests with -.499. Though, at
+    // this time the bias is not implemented in the MSL codegen and so iOS/Metal was not tested.
+    static constexpr float kSharpenTexturesBias = -.475f;
 #endif
 
     const Context& fContext;

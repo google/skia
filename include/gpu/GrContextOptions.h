@@ -170,9 +170,7 @@ struct SK_API GrContextOptions {
     bool fAvoidStencilBuffers = false;
 
     /**
-     * If true, texture fetches from mip-mapped textures will be biased to read larger MIP levels.
-     * This has the effect of sharpening those textures, at the cost of some aliasing, and possible
-     * performance impact.
+     * Unused. The behavior that this controlled is now enabled unconditionally.
      */
     bool fSharpenMipmappedTextures = false;
 
