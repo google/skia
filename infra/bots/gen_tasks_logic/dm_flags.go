@@ -588,6 +588,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("tests")
 	}
 
+	// Workaround for skbug.com/13040. Eventually, the CommandBuffer bots are going to be
+	// replaced with ANGLE bots, so this is fine as a temporary fix
+	if b.extraConfig("CommandBuffer") {
+		removeFromArgs("tests")
+	}
+
 	if b.extraConfig("NativeFonts") { // images won't exercise native font integration :)
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
