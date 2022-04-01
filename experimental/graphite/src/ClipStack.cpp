@@ -18,128 +18,6 @@ namespace skgpu {
 
 namespace {
 
-// This captures which of the two elements in (A op B) would be required when they are combined,
-// where op is intersect or difference.
-enum class ClipGeometry {
-    kEmpty,
-    kAOnly,
-    kBOnly,
-    kBoth
-};
-
-// A and B can be Element, SaveRecord, or Draw. Supported combinations are, order not mattering,
-// (Element, Element), (Element, SaveRecord), (Element, Draw), and (SaveRecord, Draw).
-template<typename A, typename B>
-ClipGeometry get_clip_geometry(const A& a, const B& b) {
-    // TODO: Could also consider doing more involved intersection tests, similar to
-    // shape_contains_rect to detect cases where local bounds are disjoint, but device bounds still
-    // overlap. If that case is handled here, then RawElement::combine's logic can be simpler.
-    if (a.op() == SkClipOp::kIntersect) {
-        if (b.op() == SkClipOp::kIntersect) {
-            // Intersect (A) + Intersect (B)
-            if (!a.outerBounds().intersects(b.outerBounds())) {
-                // Regions with non-zero coverage are disjoint, so intersection = empty
-                return ClipGeometry::kEmpty;
-            } else if (b.contains(a)) {
-                // B's full coverage region contains entirety of A, so intersection = A
-                return ClipGeometry::kAOnly;
-            } else if (a.contains(b)) {
-                // A's full coverage region contains entirety of B, so intersection = B
-                return ClipGeometry::kBOnly;
-            } else {
-                // The shapes intersect in some non-trivial manner
-                return ClipGeometry::kBoth;
-            }
-        } else {
-            SkASSERT(b.op() == SkClipOp::kDifference);
-            // Intersect (A) + Difference (B)
-            if (!a.outerBounds().intersects(b.outerBounds())) {
-                // A only intersects B's full coverage region, so intersection = A
-                return ClipGeometry::kAOnly;
-            } else if (b.contains(a)) {
-                // B's zero coverage region completely contains A, so intersection = empty
-                return ClipGeometry::kEmpty;
-            } else {
-                // Intersection cannot be simplified. Note that the combination of a intersect
-                // and difference op in this order cannot produce kBOnly
-                return ClipGeometry::kBoth;
-            }
-        }
-    } else {
-        SkASSERT(a.op() == SkClipOp::kDifference);
-        if (b.op() == SkClipOp::kIntersect) {
-            // Difference (A) + Intersect (B) - the mirror of Intersect(A) + Difference(B),
-            // but combining is commutative so this is equivalent barring naming.
-            if (!b.outerBounds().intersects(a.outerBounds())) {
-                // B only intersects A's full coverage region, so intersection = B
-                return ClipGeometry::kBOnly;
-            } else if (a.contains(b)) {
-                // A's zero coverage region completely contains B, so intersection = empty
-                return ClipGeometry::kEmpty;
-            } else {
-                // Cannot be simplified
-                return ClipGeometry::kBoth;
-            }
-        } else {
-            SkASSERT(b.op() == SkClipOp::kDifference);
-            // Difference (A) + Difference (B)
-            if (a.contains(b)) {
-                // A's zero coverage region contains B, so B doesn't remove any extra
-                // coverage from their intersection.
-                return ClipGeometry::kAOnly;
-            } else if (b.contains(a)) {
-                // Mirror of the above case, intersection = B instead
-                return ClipGeometry::kBOnly;
-            } else {
-                // Intersection of the two differences cannot be simplified. Note that for
-                // this op combination it is not possible to produce kEmpty.
-                return ClipGeometry::kBoth;
-            }
-        }
-    }
-}
-
-// a.contains(b) where a's local space is defined by 'aToDevice', and b's possibly separate local
-// space is defined by 'bToDevice'. 'a' and 'b' geometry are provided in their local spaces.
-bool shape_contains_rect(const Shape& a, const Transform& aToDevice,
-                         const Rect& b, const Transform& bToDevice) {
-    if (!a.convex()) {
-        return false;
-    }
-
-    if (aToDevice == bToDevice) {
-        // A and B are in the same coordinate space, so don't bother mapping
-        return a.conservativeContains(b);
-    } else if (bToDevice.type() == Transform::Type::kIdentity &&
-               aToDevice.type() == Transform::Type::kRectStaysRect) {
-        // Optimize the common case of draws (B, with identity matrix) and axis-aligned shapes,
-        // instead of checking the four corners separately.
-        Rect bInA = aToDevice.inverseMapRect(b);
-        return a.conservativeContains(bInA);
-    }
-
-    // Test each corner for contains; since a is convex, if all 4 corners of b's bounds are
-    // contained, then the entirety of b is within a.
-    SkV4 deviceQuad[4];
-    bToDevice.mapPoints(b, deviceQuad);
-    SkV4 localQuad[4];
-    aToDevice.inverseMapPoints(deviceQuad, localQuad, 4);
-    for (int i = 0; i < 4; ++i) {
-        // TODO: Would be nice to make this consistent with how the GPU clips NDC w.
-        if (deviceQuad[i].w < SkPathPriv::kW0PlaneDistance ||
-            localQuad[i].w < SkPathPriv::kW0PlaneDistance) {
-            // Something in B actually projects behind the W = 0 plane and would be clipped to
-            // infinity, so it's extremely unlikely that A can contain B.
-            return false;
-        }
-        if (!a.conservativeContains(float2::Load(localQuad + i) / localQuad[i].w)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 Rect subtract(const Rect& a, const Rect& b, bool exact) {
     SkRect diff;
     if (SkRectPriv::Subtract(a.asSkRect(), b.asSkRect(), &diff) || !exact) {
@@ -155,6 +33,203 @@ Rect subtract(const Rect& a, const Rect& b, bool exact) {
 static const Transform kIdentity{SkM44()};
 
 } // anonymous namespace
+
+///////////////////////////////////////////////////////////////////////////////
+// ClipStack::TransformedShape
+
+// A flyweight object describing geometry, subject to a local-to-device transform.
+// This can be used by SaveRecords, Elements, and draws to determine how two shape operations
+// interact with each other, without needing to share a base class, friend each other, or have a
+// template for each combination of two types.
+struct ClipStack::TransformedShape {
+    const Transform& fLocalToDevice;
+    const Shape&     fShape;
+    const Rect&      fOuterBounds;
+    const Rect&      fInnerBounds;
+
+    SkClipOp         fOp;
+
+    // contains() performs a fair amount of work to be as accurate as possible since it can mean
+    // greatly simplifying the clip stack. However, in some contexts this isn't worth doing because
+    // the actual shape is only an approximation (save records), or there's no current way to take
+    // advantage of knowing this shape contains another (draws containing a clip hypothetically
+    // could replace their geometry to draw the clip directly, but that isn't implemented now).
+    bool fContainsChecksOnlyBounds = false;
+
+    bool intersects(const TransformedShape&) const;
+    bool contains(const TransformedShape&) const;
+};
+
+bool ClipStack::TransformedShape::intersects(const TransformedShape& o) const {
+    if (!fOuterBounds.intersects(o.fOuterBounds)) {
+        return false;
+    }
+    if (fLocalToDevice == o.fLocalToDevice) {
+        // Since the two shape's local coordinate spaces are the same, we can compare shape
+        // bounds directly for a more accurate intersection test. We intentionally do not go
+        // further and do shape-specific intersection tests since these could have unknown
+        // complexity (for paths) and limited utility (e.g. two round rects that are disjoint
+        // solely from their corner curves).
+        return fShape.bounds().intersects(o.fShape.bounds());
+    } else if (fLocalToDevice.type() > Transform::Type::kRectStaysRect ||
+               o.fLocalToDevice.type() > Transform::Type::kRectStaysRect) {
+        // The shapes don't share the same coordinate system, and their approximate 'outer'
+        // bounds in device space could have substantial outsetting to contain the transformed
+        // shape (e.g. 45 degree rotation). This makes it worth mapping the corners of o'
+        // into this shape's local space for a more accurate test.
+        Rect bounds = fShape.bounds();
+        SkV4 deviceQuad[4];
+        o.fLocalToDevice.mapPoints(o.fShape.bounds(), deviceQuad);
+        SkV4 localQuad[4];
+        fLocalToDevice.inverseMapPoints(deviceQuad, localQuad, 4);
+        for (int i = 0; i < 4; ++i) {
+            // TODO: Would be nice to make this consistent with how the GPU clips NDC w.
+            if (deviceQuad[i].w < SkPathPriv::kW0PlaneDistance ||
+                localQuad[i].w < SkPathPriv::kW0PlaneDistance) {
+                // Something in 'o' actually projects behind the W = 0 plane and would be
+                // clipped to infinity, so pessimistically assume that they could intersect.
+                return true;
+            }
+            if (bounds.contains(Rect::Point(float2::Load(localQuad + i) / localQuad[i].w))) {
+                // If any corner of 'o's bounds are contained then it intersects our bounds
+                return true;
+            }
+        }
+        // Else no corners of 'o's bounds are inside our bounds, so no intersection
+        return false;
+    }
+
+    // Else the two shape's coordinate spaces are different but both rect-stays-rect or simpler.
+    // This means, though, that their outer bounds approximations are tight to their transormed
+    // shape bounds. There's no point to do further tests given that and that we already found
+    // that these outer bounds *do* intersect.
+    return true;
+}
+
+bool ClipStack::TransformedShape::contains(const TransformedShape& o) const {
+    if (fInnerBounds.contains(o.fOuterBounds)) {
+        return true;
+    }
+    if (fContainsChecksOnlyBounds) {
+        return false; // don't do any more work
+    }
+
+    if (fLocalToDevice == o.fLocalToDevice) {
+        // Test the shapes directly against each other, with a special check for a rrect+rrect
+        // containment (a intersect b == a implies b contains a) and paths (same gen ID, or same
+        // path for small paths means they contain each other).
+        static constexpr int kMaxPathComparePoints = 16;
+        if (fShape.isRRect() && o.fShape.isRRect()) {
+            return SkRRectPriv::ConservativeIntersect(fShape.rrect(), o.fShape.rrect())
+                    == o.fShape.rrect();
+        } else if (fShape.isPath() && o.fShape.isPath()) {
+            // TODO: Is this worth doing still if clips only cost as much as a single draw?
+            return (fShape.path().getGenerationID() == o.fShape.path().getGenerationID()) ||
+                    (fShape.path().countPoints() <= kMaxPathComparePoints &&
+                    fShape.path() == o.fShape.path());
+        } else {
+            return fShape.conservativeContains(o.fShape.bounds());
+        }
+    } else if (fLocalToDevice.type() <= Transform::Type::kRectStaysRect &&
+               o.fLocalToDevice.type() <= Transform::Type::kRectStaysRect) {
+        // Optimize the common case where o's bounds can be mapped tightly into this coordinate
+        // space and then tested against our shape.
+        Rect localBounds = fLocalToDevice.inverseMapRect(
+                o.fLocalToDevice.mapRect(o.fShape.bounds()));
+        return fShape.conservativeContains(localBounds);
+    } else if (fShape.convex()) {
+        // Since this shape is convex, if all four corners of o's bounding box are inside it
+        // then the entirety of o is also guaranteed to be inside it.
+        SkV4 deviceQuad[4];
+        o.fLocalToDevice.mapPoints(o.fShape.bounds(), deviceQuad);
+        SkV4 localQuad[4];
+        fLocalToDevice.inverseMapPoints(deviceQuad, localQuad, 4);
+        for (int i = 0; i < 4; ++i) {
+            // TODO: Would be nice to make this consistent with how the GPU clips NDC w.
+            if (deviceQuad[i].w < SkPathPriv::kW0PlaneDistance ||
+                localQuad[i].w < SkPathPriv::kW0PlaneDistance) {
+                // Something in O actually projects behind the W = 0 plane and would be clipped
+                // to infinity, so it's extremely unlikely that this contains O.
+                return false;
+            }
+            if (!fShape.conservativeContains(float2::Load(localQuad + i) / localQuad[i].w)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Else not an easily comparable pair of shapes so assume this doesn't contain O
+    return false;
+}
+
+ClipStack::SimplifyResult ClipStack::Simplify(const TransformedShape& a,
+                                              const TransformedShape& b) {
+    enum class ClipCombo {
+        kDD = 0b00,
+        kDI = 0b01,
+        kID = 0b10,
+        kII = 0b11
+    };
+
+    switch(static_cast<ClipCombo>(((int) a.fOp << 1) | (int) b.fOp)) {
+        case ClipCombo::kII:
+            // Intersect (A) + Intersect (B)
+            if (!a.intersects(b)) {
+                // Regions with non-zero coverage are disjoint, so intersection = empty
+                return SimplifyResult::kEmpty;
+            } else if (b.contains(a)) {
+                // B's full coverage region contains entirety of A, so intersection = A
+                return SimplifyResult::kAOnly;
+            } else if (a.contains(b)) {
+                // A's full coverage region contains entirety of B, so intersection = B
+                return SimplifyResult::kBOnly;
+            } else {
+                // The shapes intersect in some non-trivial manner
+                return SimplifyResult::kBoth;
+            }
+        case ClipCombo::kID:
+            // Intersect (A) + Difference (B)
+            if (!a.intersects(b)) {
+                // A only intersects B's full coverage region, so intersection = A
+                return SimplifyResult::kAOnly;
+            } else if (b.contains(a)) {
+                // B's zero coverage region completely contains A, so intersection = empty
+                return SimplifyResult::kEmpty;
+            } else {
+                // Intersection cannot be simplified. Note that the combination of a intersect
+                // and difference op in this order cannot produce kBOnly
+                return SimplifyResult::kBoth;
+            }
+        case ClipCombo::kDI:
+            // Difference (A) + Intersect (B) - the mirror of Intersect(A) + Difference(B),
+            // but combining is commutative so this is equivalent barring naming.
+            if (!b.intersects(a)) {
+                // B only intersects A's full coverage region, so intersection = B
+                return SimplifyResult::kBOnly;
+            } else if (a.contains(b)) {
+                // A's zero coverage region completely contains B, so intersection = empty
+                return SimplifyResult::kEmpty;
+            } else {
+                // Cannot be simplified
+                return SimplifyResult::kBoth;
+            }
+        case ClipCombo::kDD:
+            // Difference (A) + Difference (B)
+            if (a.contains(b)) {
+                // A's zero coverage region contains B, so B doesn't remove any extra
+                // coverage from their intersection.
+                return SimplifyResult::kAOnly;
+            } else if (b.contains(a)) {
+                // Mirror of the above case, intersection = B instead
+                return SimplifyResult::kBOnly;
+            } else {
+                // Intersection of the two differences cannot be simplified. Note that for
+                // this op combination it is not possible to produce kEmpty.
+                return SimplifyResult::kBoth;
+            }
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // ClipStack::Element
@@ -216,6 +291,10 @@ ClipStack::RawElement::RawElement(const Rect& deviceBounds,
     this->validate();
 }
 
+ClipStack::RawElement::operator TransformedShape() const {
+    return {fLocalToDevice, fShape, fOuterBounds, fInnerBounds, fOp};
+}
+
 void ClipStack::RawElement::validate() const {
     // If the shape type isn't empty, the outer bounds shouldn't be empty; if the inner bounds are
     // not empty, they must be contained in outer.
@@ -234,40 +313,6 @@ void ClipStack::RawElement::restoreValid(const SaveRecord& current) {
     }
 }
 
-bool ClipStack::RawElement::contains(const SaveRecord& s) const {
-    if (fInnerBounds.contains(s.outerBounds())) {
-        return true;
-    } else {
-        return shape_contains_rect(fShape, fLocalToDevice, s.outerBounds(), kIdentity);
-    }
-}
-
-bool ClipStack::RawElement::contains(const RawElement& e) const {
-    // TODO: In Graphite, we can keep the draw's shape and transform through the entire clip process
-    // so it can be tested identically to clip elements.
-    if (fInnerBounds.contains(e.fOuterBounds)) {
-        return true;
-    }
-
-    if (fLocalToDevice == e.fLocalToDevice) {
-        // Test the shapes directly against each other, with a special check for a rrect+rrect
-        // containment (a intersect b == a implies b contains a) and paths (same gen ID, or same
-        // path for small paths means they contain each other).
-        static constexpr int kMaxPathComparePoints = 16;
-        if (fShape.isRRect() && e.fShape.isRRect()) {
-            return SkRRectPriv::ConservativeIntersect(fShape.rrect(), e.fShape.rrect())
-                    == e.fShape.rrect();
-        } else if (fShape.isPath() && e.fShape.isPath()) {
-            // TODO: Is this worth doing still if clips only cost as much as a single draw?
-            return fShape.path().getGenerationID() == e.fShape.path().getGenerationID() ||
-                   (fShape.path().getPoints(nullptr, 0) <= kMaxPathComparePoints &&
-                    fShape.path() == e.fShape.path());
-        } // else fall through to shape_contains_rect
-    }
-
-    return shape_contains_rect(fShape, fLocalToDevice, e.fShape.bounds(), e.fLocalToDevice);
-}
-
 bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& current) {
     // To reduce the number of possibilities, only consider intersect+intersect. Difference and
     // mixed op cases could be analyzed to simplify one of the shapes, but that is a rare
@@ -282,14 +327,9 @@ bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& c
     if (fShape.isRect() && other.fShape.isRect()) {
         if (fLocalToDevice == other.fLocalToDevice) {
             Rect intersection = fShape.rect().makeIntersect(other.fShape.rect());
-            if (intersection.isEmptyNegativeOrNaN()) {
-                // By floating point, it turns out the combination should be empty
-                fShape.reset();
-                this->markInvalid(current);
-                return true;
-            } else {
-                fShape.setRect(intersection);
-            }
+            // Simplify() should have caught this case
+            SkASSERT(!intersection.isEmptyNegativeOrNaN());
+            fShape.setRect(intersection);
             shapeUpdated = true;
         }
     } else if ((fShape.isRect() || fShape.isRRect()) &&
@@ -311,12 +351,11 @@ bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& c
                     fShape.setRRect(joined);
                 }
                 shapeUpdated = true;
-            } else if (!a.getBounds().intersects(b.getBounds())) {
-                // Like the rect+rect combination, the intersection is actually empty
-                fShape.reset();
-                this->markInvalid(current);
-                return true;
             }
+            // else the intersection isn't representable as a rrect, or doesn't actually intersect.
+            // ConservativeIntersect doesn't disambiguate those two cases, and just testing bounding
+            // boxes for non-intersection would have already been caught by Simplify(), so
+            // just don't combine the two elements and let rasterization resolve the combination.
         }
     }
 
@@ -340,24 +379,24 @@ void ClipStack::RawElement::updateForElement(RawElement* added, const SaveRecord
     }
 
     // 'A' refers to this element, 'B' refers to 'added'.
-    switch (get_clip_geometry(*this, *added)) {
-        case ClipGeometry::kEmpty:
+    switch (Simplify(*this, *added)) {
+        case SimplifyResult::kEmpty:
             // Mark both elements as invalid to signal that the clip is fully empty
             this->markInvalid(current);
             added->markInvalid(current);
             break;
 
-        case ClipGeometry::kAOnly:
+        case SimplifyResult::kAOnly:
             // This element already clips more than 'added', so mark 'added' is invalid to skip it
             added->markInvalid(current);
             break;
 
-        case ClipGeometry::kBOnly:
+        case SimplifyResult::kBOnly:
             // 'added' clips more than this element, so mark this as invalid
             this->markInvalid(current);
             break;
 
-        case ClipGeometry::kBoth:
+        case SimplifyResult::kBoth:
             // Else the bounds checks think we need to keep both, but depending on the combination
             // of the ops and shape kinds, we may be able to do better.
             if (added->combine(*this, current)) {
@@ -431,10 +470,6 @@ ClipStack::ClipState ClipStack::SaveRecord::state() const {
     }
 }
 
-bool ClipStack::SaveRecord::contains(const ClipStack::RawElement& element) const {
-    return fInnerBounds.contains(element.outerBounds());
-}
-
 void ClipStack::SaveRecord::removeElements(RawElement::Stack* elements) {
     while (elements->count() > fStartingElementIndex) {
         elements->pop_back();
@@ -486,25 +521,33 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
         return true;
     }
 
+    // Here we treat the SaveRecord as a "TransformedShape" with the identity transform, and a shape
+    // equal to its outer bounds. This lets us get accurate intersection tests against the new
+    // element, but we pass true to skip more detailed contains checks because the SaveRecord's
+    // shape is potentially very different from its aggregate outer bounds.
+    Shape outerSaveBounds{fOuterBounds};
+    TransformedShape save{kIdentity, outerSaveBounds, fOuterBounds, fInnerBounds, fStackOp,
+                          /*containsChecksBoundsOnly=*/true};
+
     // In this invocation, 'A' refers to the existing stack's bounds and 'B' refers to the new
     // element.
-    switch (get_clip_geometry(*this, toAdd)) {
-        case ClipGeometry::kEmpty:
+    switch (Simplify(save, toAdd)) {
+        case SimplifyResult::kEmpty:
             // The combination results in an empty clip
             fState = ClipState::kEmpty;
             return true;
 
-        case ClipGeometry::kAOnly:
+        case SimplifyResult::kAOnly:
             // The combination would not be any different than the existing clip
             return false;
 
-        case ClipGeometry::kBOnly:
+        case SimplifyResult::kBOnly:
             // The combination would invalidate the entire existing stack and can be replaced with
             // just the new element.
             this->replaceWithElement(std::move(toAdd), elements);
             return true;
 
-        case ClipGeometry::kBoth:
+        case SimplifyResult::kBoth:
             // The new element combines in a complex manner, so update the stack's bounds based on
             // the combination of its and the new element's ops (handled below)
             break;

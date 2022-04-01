@@ -61,12 +61,6 @@ public:
     // TODO: Some applyClip function that handles the bulk of what Device::applyClipToDraw
 
 private:
-    // Internally, a lot of clip reasoning is based on an op, outer bounds, and whether a shape
-    // contains another (possibly just conservatively based on inner/outer device-space bounds).
-    //
-    // Element and SaveRecord store this information directly. A draw is equivalent to a clip
-    // element with the intersection op.
-    //
     // SaveRecords and Elements are stored in two parallel stacks. The top-most SaveRecord is the
     // active record, older records represent earlier save points and aren't modified until they
     // become active again. Elements may be owned by the active SaveRecord, in which case they are
@@ -79,6 +73,22 @@ private:
     // See go/grclipstack-2.0 for additional details and visualization of the data structures.
     class SaveRecord;
 
+    // Internally, a lot of clip reasoning is based on an op, outer bounds, and whether a shape
+    // contains another (possibly just conservatively based on inner/outer device-space bounds).
+    // Element and SaveRecord store this information directly. A draw is equivalent to a clip
+    // element with the intersection op. TransformedShape is a lightweight wrapper that can convert
+    // these different types into a common type that Simplify() can reason about.
+    struct TransformedShape;
+    // This captures which of the two elements in (A op B) would be required when they are combined,
+    // where op is intersect or difference.
+    enum class SimplifyResult {
+        kEmpty,
+        kAOnly,
+        kBOnly,
+        kBoth
+    };
+    static SimplifyResult Simplify(const TransformedShape& a, const TransformedShape& b);
+
     // Wraps the geometric Element data with logic for containment and bounds testing.
     class RawElement : private Element {
     public:
@@ -90,18 +100,15 @@ private:
                    SkClipOp op);
         // TODO: A destructor that validates there's no pending draws that weren't flushed.
 
-        // Common clip type interface
-        SkClipOp    op()          const { return fOp;          }
-        const Rect& outerBounds() const { return fOuterBounds; }
-        bool        contains(const SaveRecord& s) const;
-        bool        contains(const RawElement& e) const;
+        operator TransformedShape() const;
 
-        // Additional element-specific data
         const Element&   asElement()     const { return *this;          }
 
         const Shape&     shape()         const { return fShape;         }
         const Transform& localToDevice() const { return fLocalToDevice; }
+        const Rect&      outerBounds()   const { return fOuterBounds;   }
         const Rect&      innerBounds()   const { return fInnerBounds;   }
+        SkClipOp         op()            const { return fOp;            }
         ClipState        clipType()      const;
 
         // As new elements are pushed on to the stack, they may make older elements redundant.
@@ -169,18 +176,15 @@ private:
 
         SaveRecord(const SaveRecord& prior, int startingElementIndex);
 
-        // The common clip type interface
-        SkClipOp    op()          const { return fStackOp;     }
-        const Rect& outerBounds() const { return fOuterBounds; }
-        bool        contains(const RawElement& e) const;
+        const SkShader* shader()      const { return fShader.get(); }
+        const Rect&     outerBounds() const { return fOuterBounds;  }
+        const Rect&     innerBounds() const { return fInnerBounds;  }
+        SkClipOp        op()          const { return fStackOp;      }
+        ClipState       state()       const;
 
-        // Additional save record-specific data/functionality
-        const SkShader* shader()                  const { return fShader.get();             }
-        const Rect&     innerBounds()             const { return fInnerBounds;              }
-        int             firstActiveElementIndex() const { return fStartingElementIndex;     }
-        int             oldestElementIndex()      const { return fOldestValidIndex;         }
-        bool            canBeUpdated()            const { return (fDeferredSaveCount == 0); }
-        ClipState       state()                   const;
+        int  firstActiveElementIndex() const { return fStartingElementIndex;     }
+        int  oldestElementIndex()      const { return fOldestValidIndex;         }
+        bool canBeUpdated()            const { return (fDeferredSaveCount == 0); }
 
         // Deferred save manipulation
         void pushSave() {
