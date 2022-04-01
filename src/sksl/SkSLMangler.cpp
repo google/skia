@@ -18,6 +18,12 @@ namespace SkSL {
 
 std::string Mangler::uniqueName(std::string_view baseName, SymbolTable* symbolTable) {
     SkASSERT(symbolTable);
+
+    // Private names might begin with a $. Strip that off.
+    if (skstd::starts_with(baseName, '$')) {
+        baseName.remove_prefix(1);
+    }
+
     // The inliner runs more than once, so the base name might already have been mangled and have a
     // prefix like "_123_x". Let's strip that prefix off to make the generated code easier to read.
     if (skstd::starts_with(baseName, '_')) {
