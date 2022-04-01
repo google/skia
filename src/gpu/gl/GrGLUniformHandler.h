@@ -44,7 +44,7 @@ private:
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock) {}
 
-    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+    UniformHandle internalAddUniformArray(const GrProcessor* owner,
                                           uint32_t visibility,
                                           SkSLType type,
                                           const char* name,

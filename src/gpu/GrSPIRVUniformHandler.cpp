@@ -186,7 +186,7 @@ uint32_t get_ubo_offset(uint32_t* currentOffset, SkSLType type, int arrayCount) 
 }  // namespace
 
 GrGLSLUniformHandler::UniformHandle GrSPIRVUniformHandler::internalAddUniformArray(
-        const GrFragmentProcessor* owner,
+        const GrProcessor* owner,
         uint32_t visibility,
         SkSLType type,
         const char* name,

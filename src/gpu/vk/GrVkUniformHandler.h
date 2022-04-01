@@ -102,7 +102,7 @@ private:
         , fCurrentOffsets{0, 0} {
     }
 
-    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+    UniformHandle internalAddUniformArray(const GrProcessor* owner,
                                           uint32_t visibility,
                                           SkSLType type,
                                           const char* name,

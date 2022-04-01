@@ -198,7 +198,7 @@ GrVkUniformHandler::~GrVkUniformHandler() {
 }
 
 GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
-                                                                   const GrFragmentProcessor* owner,
+                                                                   const GrProcessor* owner,
                                                                    uint32_t visibility,
                                                                    SkSLType type,
                                                                    const char* name,

@@ -54,7 +54,7 @@ private:
     const char* samplerVariable(SamplerHandle handle) const override;
     skgpu::Swizzle samplerSwizzle(SamplerHandle handle) const override;
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
-    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+    UniformHandle internalAddUniformArray(const GrProcessor* owner,
                                           uint32_t visibility,
                                           SkSLType type,
                                           const char* name,

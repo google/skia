@@ -17,6 +17,7 @@
 
 class GrGLSLProgramBuilder;
 class GrGLSLShaderBuilder;
+class GrProcessor;
 class GrSamplerState;
 class GrSurfaceProxy;
 
@@ -32,10 +33,10 @@ struct GrGLSLBuiltinUniformHandles {
 class GrGLSLUniformHandler {
 public:
     struct UniformInfo {
-        GrShaderVar                fVariable;
-        uint32_t                   fVisibility;
-        const GrFragmentProcessor* fOwner;
-        SkString                   fRawName;
+        GrShaderVar        fVariable;
+        uint32_t           fVisibility;
+        const GrProcessor* fOwner;
+        SkString           fRawName;
     };
 
     virtual ~GrGLSLUniformHandler() {}
@@ -50,7 +51,7 @@ public:
         supported at this time. The actual uniform name will be mangled. If outName is not nullptr
         then it will refer to the final uniform name after return. Use the addUniformArray variant
         to add an array of uniforms. */
-    UniformHandle addUniform(const GrFragmentProcessor* owner,
+    UniformHandle addUniform(const GrProcessor* owner,
                              uint32_t visibility,
                              SkSLType type,
                              const char* name,
@@ -59,7 +60,7 @@ public:
         return this->addUniformArray(owner, visibility, type, name, 0, outName);
     }
 
-    UniformHandle addUniformArray(const GrFragmentProcessor* owner,
+    UniformHandle addUniformArray(const GrProcessor* owner,
                                   uint32_t visibility,
                                   SkSLType type,
                                   const char* name,
@@ -85,11 +86,11 @@ public:
 
     // Looks up a uniform that was added by 'owner' with the given 'rawName' (pre-mangling).
     // If there is no such uniform, a variable with type kVoid is returned.
-    GrShaderVar getUniformMapping(const GrFragmentProcessor& owner, SkString rawName) const;
+    GrShaderVar getUniformMapping(const GrProcessor& owner, SkString rawName) const;
 
     // Like getUniformMapping(), but if the uniform is found it also marks it as accessible in
     // the vertex shader.
-    GrShaderVar liftUniformToVertexShader(const GrFragmentProcessor& owner, SkString rawName);
+    GrShaderVar liftUniformToVertexShader(const GrProcessor& owner, SkString rawName);
 
 protected:
     explicit GrGLSLUniformHandler(GrGLSLProgramBuilder* program) : fProgramBuilder(program) {}
@@ -118,7 +119,7 @@ private:
         return {};
     }
 
-    virtual UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+    virtual UniformHandle internalAddUniformArray(const GrProcessor* owner,
                                                   uint32_t visibility,
                                                   SkSLType type,
                                                   const char* name,

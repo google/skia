@@ -62,7 +62,7 @@ private:
         , fCurrentUBOMaxAlignment(0x0) {
     }
 
-    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+    UniformHandle internalAddUniformArray(const GrProcessor* owner,
                                           uint32_t visibility,
                                           SkSLType type,
                                           const char* name,

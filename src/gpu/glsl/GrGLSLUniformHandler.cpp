@@ -10,7 +10,7 @@
 #include "src/gpu/glsl/GrGLSL.h"
 #include "src/gpu/glsl/GrGLSLShaderBuilder.h"
 
-GrShaderVar GrGLSLUniformHandler::getUniformMapping(const GrFragmentProcessor& owner,
+GrShaderVar GrGLSLUniformHandler::getUniformMapping(const GrProcessor& owner,
                                                     SkString rawName) const {
     for (int i = this->numUniforms() - 1; i >= 0; i--) {
         const UniformInfo& u = this->uniform(i);
@@ -21,7 +21,7 @@ GrShaderVar GrGLSLUniformHandler::getUniformMapping(const GrFragmentProcessor& o
     return GrShaderVar();
 }
 
-GrShaderVar GrGLSLUniformHandler::liftUniformToVertexShader(const GrFragmentProcessor& owner,
+GrShaderVar GrGLSLUniformHandler::liftUniformToVertexShader(const GrProcessor& owner,
                                                             SkString rawName) {
     for (int i = this->numUniforms() - 1; i >= 0; i--) {
         UniformInfo& u = this->uniform(i);
