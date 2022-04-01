@@ -151,6 +151,17 @@ SkScalar Run::addSpacesAtTheEnd(SkScalar space, Cluster* cluster) {
     return space;
 }
 
+SkScalar Run::addSpacesEvenly(SkScalar space) {
+    SkScalar shift = 0;
+    for (size_t i = 0; i < this->size(); ++i) {
+        fPositions[i].fX += shift;
+        shift += space;
+    }
+    fPositions[this->size()].fX += shift;
+    fAdvance.fX += shift;
+    return shift;
+}
+
 SkScalar Run::addSpacesEvenly(SkScalar space, Cluster* cluster) {
     // Offset all the glyphs in the cluster
     SkScalar shift = 0;

@@ -348,11 +348,99 @@ SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
     return posX(end) - posX(start) + correction;
 }
 
+// In some cases we apply spacing to glyphs first and then build the cluster table, in some we do
+// the opposite - just to optimize the most common case.
+void ParagraphImpl::applySpacingAndBuildClusterTable() {
+
+    // Check all text styles to see what we have to do (if anything)
+    size_t letterSpacingStyles = 0;
+    bool hasWordSpacing = false;
+    for (auto& block : fTextStyles) {
+        if (block.fRange.width() > 0) {
+            if (!SkScalarNearlyZero(block.fStyle.getLetterSpacing())) {
+                ++letterSpacingStyles;
+            }
+            if (!SkScalarNearlyZero(block.fStyle.getWordSpacing())) {
+                hasWordSpacing = true;
+            }
+        }
+    }
+
+    if (letterSpacingStyles == 0 && !hasWordSpacing) {
+        // We don't have to do anything about spacing (most common case)
+        this->buildClusterTable();
+        return;
+    }
+
+    if (letterSpacingStyles == 1 && !hasWordSpacing && fTextStyles.size() == 1 &&
+        fTextStyles[0].fRange.width() == fText.size() && fRuns.size() == 1) {
+        // We have to letter space the entire paragraph (second most common case)
+        auto& run = fRuns[0];
+        auto& style = fTextStyles[0].fStyle;
+        run.addSpacesEvenly(style.getLetterSpacing());
+        this->buildClusterTable();
+        // This is something Flutter requires
+        for (auto& cluster : fClusters) {
+            cluster.setHalfLetterSpacing(fTextStyles[0].fStyle.getLetterSpacing()/2);
+        }
+        return;
+    }
+
+    // The complex case: many text styles with spacing (possibly not adjusted to glyphs)
+    this->buildClusterTable();
+
+    // Walk through all the clusters in the direction of shaped text
+    // (we have to walk through the styles in the same order, too)
+    SkScalar shift = 0;
+    for (auto& run : fRuns) {
+
+        // Skip placeholder runs
+        if (run.isPlaceholder()) {
+            continue;
+        }
+        bool soFarWhitespacesOnly = true;
+        run.iterateThroughClusters([this, &run, &shift, &soFarWhitespacesOnly](Cluster* cluster) {
+            // Shift the cluster (shift collected from the previous clusters)
+            run.shift(cluster, shift);
+
+            // Synchronize styles (one cluster can be covered by few styles)
+            Block* currentStyle = fTextStyles.begin();
+            while (!cluster->startsIn(currentStyle->fRange)) {
+                currentStyle++;
+                SkASSERT(currentStyle != fTextStyles.end());
+            }
+
+            SkASSERT(!currentStyle->fStyle.isPlaceholder());
+
+            // Process word spacing
+            if (currentStyle->fStyle.getWordSpacing() != 0) {
+                if (cluster->isWhitespaceBreak() && cluster->isSoftBreak()) {
+                    if (!soFarWhitespacesOnly) {
+                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
+                    }
+                }
+            }
+            // Process letter spacing
+            if (currentStyle->fStyle.getLetterSpacing() != 0) {
+                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
+            }
+
+            if (soFarWhitespacesOnly && !cluster->isWhitespaceBreak()) {
+                soFarWhitespacesOnly = false;
+            }
+        });
+    }
+}
+
 // Clusters in the order of the input text
 void ParagraphImpl::buildClusterTable() {
+    // It's possible that one grapheme includes few runs; we cannot handle it
+    // so we break graphemes by the runs instead
+    // It's not the ideal solution and has to be revisited later
     int cluster_count = 1;
     for (auto& run : fRuns) {
         cluster_count += run.isPlaceholder() ? 1 : run.size();
+        fCodeUnitProperties[run.fTextRange.start] |= CodeUnitFlags::kGraphemeStart;
     }
     fClusters.reserve_back(cluster_count);
 
@@ -415,12 +503,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     auto result = oneLineShaper.shape();
     fUnresolvedGlyphs = oneLineShaper.unresolvedGlyphs();
 
-    // It's possible that one grapheme includes few runs; we cannot handle it
-    // so we break graphemes by the runs instead
-    // It's not the ideal solution and has to be revisited later
-    for (auto& run : fRuns) {
-        fCodeUnitProperties[run.fTextRange.start] |= CodeUnitFlags::kGraphemeStart;
-    }
+    this->applySpacingAndBuildClusterTable();
 
     if (!result) {
         return false;
