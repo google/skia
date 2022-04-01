@@ -1,60 +1,79 @@
 // Copyright 2019 Google LLC.
 
-#include "modules/skparagraph/src/FontArguments.h"
+#include "modules/skparagraph/include/FontArguments.h"
 
-bool operator==(const SkFontArguments& a, const SkFontArguments& b) {
-    if (a.getCollectionIndex() != b.getCollectionIndex()) {
-        return false;
-    }
-
-    const SkFontArguments::VariationPosition posA = a.getVariationDesignPosition();
-    const SkFontArguments::VariationPosition posB = b.getVariationDesignPosition();
-    if (posA.coordinateCount != posB.coordinateCount) {
-        return false;
-    }
-    for (int i = 0; i < posA.coordinateCount; ++i) {
-        const SkFontArguments::VariationPosition::Coordinate& coordA = posA.coordinates[i];
-        const SkFontArguments::VariationPosition::Coordinate& coordB = posB.coordinates[i];
-        if (coordA.axis != coordB.axis || coordA.value != coordB.value) {
-            return false;
-        }
-    }
-
-    const SkFontArguments::Palette palA = a.getPalette();
-    const SkFontArguments::Palette palB = b.getPalette();
-    if (palA.index != palB.index || palA.overrideCount != palB.overrideCount) {
-        return false;
-    }
-    for (int i = 0; i < palA.overrideCount; ++i) {
-        const SkFontArguments::Palette::Override& overA = palA.overrides[i];
-        const SkFontArguments::Palette::Override& overB = palB.overrides[i];
-        if (overA.index != overB.index || overA.color != overB.color) {
-            return false;
-        }
-    }
-
-    return true;
+static bool operator==(const SkFontArguments::VariationPosition::Coordinate& a,
+                       const SkFontArguments::VariationPosition::Coordinate& b) {
+   return a.axis == b.axis && a.value == b.value;
 }
 
-bool operator!=(const SkFontArguments& a, const SkFontArguments& b) {
-    return !(a == b);
+static bool operator==(const SkFontArguments::Palette::Override& a,
+                       const SkFontArguments::Palette::Override& b) {
+   return a.index == b.index && a.color == b.color;
 }
 
 namespace std {
-    size_t hash<SkFontArguments>::operator()(const SkFontArguments& args) const {
-        size_t hash = 0;
-        hash ^= std::hash<int>()(args.getCollectionIndex());
-        const SkFontArguments::VariationPosition pos = args.getVariationDesignPosition();
-        for (int i = 0; i < pos.coordinateCount; ++i) {
-            hash ^= std::hash<SkFourByteTag>()(pos.coordinates[i].axis);
-            hash ^= std::hash<float>()(pos.coordinates[i].value);
-        }
-        const SkFontArguments::Palette pal = args.getPalette();
-        hash ^= std::hash<int>()(pal.index);
-        for (int i = 0; i < pal.overrideCount; ++i) {
-            hash ^= std::hash<int>()(pal.overrides[i].index);
-            hash ^= std::hash<SkColor>()(pal.overrides[i].color);
-        }
-        return hash;
+
+size_t hash<skia::textlayout::FontArguments>::operator()(const skia::textlayout::FontArguments& args) const {
+    size_t hash = 0;
+    hash ^= std::hash<int>()(args.fCollectionIndex);
+    for (const auto& coord : args.fCoordinates) {
+        hash ^= std::hash<SkFourByteTag>()(coord.axis);
+        hash ^= std::hash<float>()(coord.value);
     }
+    hash ^= std::hash<int>()(args.fPaletteIndex);
+    for (const auto& override : args.fPaletteOverrides) {
+        hash ^= std::hash<int>()(override.index);
+        hash ^= std::hash<SkColor>()(override.color);
+    }
+    return hash;
 }
+
+}  // namespace std
+
+namespace skia {
+namespace textlayout {
+
+FontArguments::FontArguments(const SkFontArguments& args)
+        : fCollectionIndex(args.getCollectionIndex()),
+          fCoordinates(args.getVariationDesignPosition().coordinates,
+                       args.getVariationDesignPosition().coordinates +
+                       args.getVariationDesignPosition().coordinateCount),
+          fPaletteIndex(args.getPalette().index),
+          fPaletteOverrides(args.getPalette().overrides,
+                            args.getPalette().overrides +
+                            args.getPalette().overrideCount) {}
+
+bool operator==(const FontArguments& a, const FontArguments& b) {
+    return a.fCollectionIndex == b.fCollectionIndex &&
+           a.fCoordinates == b.fCoordinates &&
+           a.fPaletteIndex == b.fPaletteIndex &&
+           a.fPaletteOverrides == b.fPaletteOverrides;
+}
+
+bool operator!=(const skia::textlayout::FontArguments& a, const skia::textlayout::FontArguments& b) {
+    return !(a == b);
+}
+
+sk_sp<SkTypeface> FontArguments::CloneTypeface(sk_sp<SkTypeface> typeface) const {
+    SkFontArguments::VariationPosition position{
+        fCoordinates.data(),
+        static_cast<int>(fCoordinates.size())
+    };
+
+    SkFontArguments::Palette palette{
+        fPaletteIndex,
+        fPaletteOverrides.data(),
+        static_cast<int>(fPaletteOverrides.size())
+    };
+
+    SkFontArguments args;
+    args.setCollectionIndex(fCollectionIndex);
+    args.setVariationDesignPosition(position);
+    args.setPalette(palette);
+
+    return typeface->makeClone(args);
+}
+
+}  // namespace textlayout
+}  // namespace skia

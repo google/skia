@@ -1,8 +1,8 @@
 // Copyright 2019 Google LLC.
 #include <memory>
 
+#include "modules/skparagraph/include/FontArguments.h"
 #include "modules/skparagraph/include/ParagraphCache.h"
-#include "modules/skparagraph/src/FontArguments.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 
 namespace skia {
@@ -130,7 +130,7 @@ uint32_t ParagraphCacheKey::computeHash() const {
             hash = mix(hash, SkGoodHash()(ff.fValue));
             hash = mix(hash, SkGoodHash()(ff.fName));
         }
-        hash = mix(hash, std::hash<std::optional<SkFontArguments>>()(ts.fStyle.getFontArguments()));
+        hash = mix(hash, std::hash<std::optional<FontArguments>>()(ts.fStyle.getFontArguments()));
         hash = mix(hash, SkGoodHash()(ts.fStyle.getFontStyle()));
         hash = mix(hash, SkGoodHash()(relax(ts.fStyle.getFontSize())));
         hash = mix(hash, SkGoodHash()(ts.fRange));

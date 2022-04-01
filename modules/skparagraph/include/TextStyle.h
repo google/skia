@@ -11,6 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
 #include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/FontArguments.h"
 #include "modules/skparagraph/include/TextShadow.h"
 
 // TODO: Make it external so the other platforms (Android) could use it
@@ -149,8 +150,8 @@ struct PlaceholderStyle {
 class TextStyle {
 public:
     TextStyle() = default;
-    TextStyle(const TextStyle& other);
-    TextStyle& operator=(const TextStyle& other);
+    TextStyle(const TextStyle& other) = default;
+    TextStyle& operator=(const TextStyle& other) = default;
 
     TextStyle cloneForPlaceholder();
 
@@ -212,7 +213,7 @@ public:
     void resetFontFeatures() { fFontFeatures.clear(); }
 
     // Font arguments
-    std::optional<SkFontArguments> getFontArguments() const { return fFontArgs; }
+    const std::optional<FontArguments>& getFontArguments() const { return fFontArguments; }
     // The contents of the SkFontArguments will be copied into the TextStyle,
     // and the SkFontArguments can be safely deleted after setFontArguments returns.
     void setFontArguments(const std::optional<SkFontArguments>& args);
@@ -261,8 +262,6 @@ public:
 private:
     static const std::vector<SkString> kDefaultFontFamilies;
 
-    void copyFrom(const TextStyle& other);
-
     Decoration fDecoration = {
             TextDecoration::kNoDecoration,
             // TODO: switch back to kGaps when (if) switching flutter to skparagraph
@@ -303,9 +302,7 @@ private:
 
     std::vector<FontFeature> fFontFeatures;
 
-    std::optional<SkFontArguments> fFontArgs;
-    std::vector<SkFontArguments::VariationPosition::Coordinate> fArgsCoordinates;
-    std::vector<SkFontArguments::Palette::Override> fArgsOverrides;
+    std::optional<FontArguments> fFontArguments;
 };
 
 typedef size_t TextIndex;

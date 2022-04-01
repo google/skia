@@ -32,6 +32,7 @@ generated_cc_atom(
     hdrs = ["FontCollection.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":FontArguments_hdr",
         ":ParagraphCache_hdr",
         ":TextStyle_hdr",
         "//include/core:SkFontMgr_hdr",
@@ -110,6 +111,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":DartTypes_hdr",
+        ":FontArguments_hdr",
         ":TextShadow_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkFontMetrics_hdr",
@@ -130,5 +132,15 @@ generated_cc_atom(
         "//include/core:SkString_hdr",
         "//include/private:SkTArray_hdr",
         "//include/private:SkTHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FontArguments_hdr",
+    hdrs = ["FontArguments.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontArguments_hdr",
+        "//include/core:SkTypeface_hdr",
     ],
 )

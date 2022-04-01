@@ -2,44 +2,11 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFontStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
-#include "modules/skparagraph/src/FontArguments.h"
 
 namespace skia {
 namespace textlayout {
 
 const std::vector<SkString> TextStyle::kDefaultFontFamilies = { SkString(DEFAULT_FONT_FAMILY) };
-
-TextStyle::TextStyle(const TextStyle& other) {
-    copyFrom(other);
-}
-
-TextStyle& TextStyle::operator=(const TextStyle& other) {
-    copyFrom(other);
-    return *this;
-}
-
-void TextStyle::copyFrom(const TextStyle& other) {
-    fIsPlaceholder = other.fIsPlaceholder;
-    fColor = other.fColor;
-    fDecoration = other.fDecoration;
-    fFontStyle = other.fFontStyle;
-    fFontFamilies = other.fFontFamilies;
-    fLetterSpacing = other.fLetterSpacing;
-    fWordSpacing = other.fWordSpacing;
-    fHeight = other.fHeight;
-    fHeightOverride = other.fHeightOverride;
-    fHalfLeading = other.fHalfLeading;
-    fBaselineShift = other.fBaselineShift;
-    fFontSize = other.fFontSize;
-    fLocale = other.fLocale;
-    fHasForeground = other.fHasForeground;
-    fForeground = other.fForeground;
-    fHasBackground = other.fHasBackground;
-    fBackground = other.fBackground;
-    fTextShadows = other.fTextShadows;
-    fFontFeatures = other.fFontFeatures;
-    setFontArguments(other.getFontArguments());
-}
 
 TextStyle TextStyle::cloneForPlaceholder() {
     TextStyle result;
@@ -56,7 +23,7 @@ TextStyle TextStyle::cloneForPlaceholder() {
     result.fFontFeatures = fFontFeatures;
     result.fHalfLeading = fHalfLeading;
     result.fBaselineShift = fBaselineShift;
-    result.setFontArguments(getFontArguments());
+    result.fFontArguments = fFontArguments;
     return result;
 }
 
@@ -124,7 +91,7 @@ bool TextStyle::equals(const TextStyle& other) const {
             return false;
         }
     }
-    if (fFontArgs != other.fFontArgs) {
+    if (fFontArguments != other.fFontArguments) {
         return false;
     }
 
@@ -137,7 +104,7 @@ bool TextStyle::equalsByFonts(const TextStyle& that) const {
            fFontStyle == that.fFontStyle &&
            fFontFamilies == that.fFontFamilies &&
            fFontFeatures == that.fFontFeatures &&
-           fFontArgs == that.getFontArguments() &&
+           fFontArguments == that.getFontArguments() &&
            nearlyEqual(fLetterSpacing, that.fLetterSpacing) &&
            nearlyEqual(fWordSpacing, that.fWordSpacing) &&
            nearlyEqual(fHeight, that.fHeight) &&
@@ -189,7 +156,7 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
                    fHeight == other.fHeight &&
                    fHalfLeading == other.fHalfLeading &&
                    fBaselineShift == other.fBaselineShift &&
-                   fFontArgs == other.fFontArgs;
+                   fFontArguments == other.fFontArguments;
         default:
             SkASSERT(false);
             return false;
@@ -219,35 +186,11 @@ void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
 
 void TextStyle::setFontArguments(const std::optional<SkFontArguments>& args) {
     if (!args) {
-        fFontArgs.reset();
+        fFontArguments.reset();
         return;
     }
 
-    fArgsCoordinates.clear();
-    SkFontArguments::VariationPosition argsPosition = args->getVariationDesignPosition();
-    for (int i = 0; i < argsPosition.coordinateCount; ++i) {
-        fArgsCoordinates.push_back(argsPosition.coordinates[i]);
-    }
-    SkFontArguments::VariationPosition position{
-        fArgsCoordinates.empty() ? nullptr : fArgsCoordinates.data(),
-        static_cast<int>(fArgsCoordinates.size())
-    };
-
-    fArgsOverrides.clear();
-    SkFontArguments::Palette argsPalette = args->getPalette();
-    for (int i = 0; i < argsPalette.overrideCount; ++i) {
-        fArgsOverrides.push_back(argsPalette.overrides[i]);
-    }
-    SkFontArguments::Palette palette{
-        argsPalette.index,
-        fArgsOverrides.empty() ? nullptr : fArgsOverrides.data(),
-        static_cast<int>(fArgsOverrides.size())
-    };
-
-    fFontArgs.emplace()
-        .setCollectionIndex(args->getCollectionIndex())
-        .setVariationDesignPosition(position)
-        .setPalette(palette);
+    fFontArguments.emplace(*args);
 }
 
 bool PlaceholderStyle::equals(const PlaceholderStyle& other) const {
