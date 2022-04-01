@@ -1,7 +1,16 @@
 """
-This file assembles a toolchain for Linux using the Clang Compiler glibc.
+This file assembles a toolchain for an amd64 Linux host using the Clang Compiler and glibc.
 
-It downloads the necessary header files and pre-compiled static/shared libraries to
+It downloads the necessary headers, executables, and pre-compiled static/shared libraries to
+the external subfolder of the Bazel cache (the same place third party deps are downloaded with
+http_archive or similar functions in WORKSPACE.bazel). These will be able to be used via our
+custom c++ toolchain configuration (see //toolchain/clang_toolchain_config.bzl)
+
+Most files are downloaded as .deb files from packages.debian.org (with us acting as the dependency
+resolver) and extracted to
+  [outputRoot (aka Bazel cache)]/[outputUserRoot]/[outputBase]/external/clang_linux_amd64
+  (See https://bazel.build/docs/output_directories#layout-diagram)
+which will act as our sysroot.
 """
 
 # From https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz.sha256
@@ -166,7 +175,7 @@ def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):
     # Clean up
     ctx.delete("tmp")
 
-def _build_cpp_toolchain_impl(ctx):
+def _download_linux_amd64_toolchain_impl(ctx):
     # Workaround for Bazel not yet supporting .ar files
     # See https://skia-review.googlesource.com/c/buildbot/+/524764
     # https://bazel.build/rules/lib/repository_ctx#download
@@ -220,8 +229,10 @@ def _mirror(arr):
         return [arr[1]]
     return arr
 
-build_cpp_toolchain = repository_rule(
-    implementation = _build_cpp_toolchain_impl,
+# https://bazel.build/rules/repository_rules
+download_linux_amd64_toolchain = repository_rule(
+    implementation = _download_linux_amd64_toolchain_impl,
     attrs = {},
-    doc = "",
+    doc = "Downloads clang, and all supporting headers, executables, " +
+          "and shared libraries required to build Skia on a Linux amd64 host",
 )

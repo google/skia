@@ -1,7 +1,10 @@
 workspace(name = "skia")
 
+load("//toolchain:download_toolchains.bzl", "download_toolchains_for_skia")
+
+download_toolchains_for_skia("clang_linux_amd64", "clang_mac_m1")
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("//toolchain:build_toolchain.bzl", "build_cpp_toolchain")
 
 # See https://github.com/emscripten-core/emsdk/tree/85d27a4a2a60d591613a305b14ae438c2bb3ce11/bazel#setup-instructions
 http_archive(
@@ -23,11 +26,6 @@ emsdk_deps()
 load("@emsdk//:emscripten_deps.bzl", emsdk_emscripten_deps = "emscripten_deps")
 
 emsdk_emscripten_deps(emscripten_version = "3.1.4")
-
-build_cpp_toolchain(
-    # Meant to run on amd64 linux and compile for amd64 linux.
-    name = "clang_linux_amd64",
-)
 
 http_archive(
     name = "bazel_skylib",

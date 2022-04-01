@@ -1,8 +1,13 @@
+# All of our clang builds should use the hermetic toolchain
 build:clang --crosstool_top=//toolchain:clang_suite
-build:clang --compiler=clang
 
-# Use the default Bazel C++ toolchain to build the tools used during the build.
-build:clang --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+# We don't have a great way to test the host system in order to use the right
+# version of the toolchain. So we need to have the user specify what their host is.
+build:clang_linux --config=clang
+build:clang_linux --compiler=host_is_linux_amd64
+
+build:clang_mac --config=clang
+build:clang_mac --compiler=host_is_mac_M1
 
 # =============================================================================
 # Alias to build configurations below. This makes configuring things from

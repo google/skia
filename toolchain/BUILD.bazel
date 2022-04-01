@@ -1,23 +1,27 @@
 load("@rules_cc//cc:defs.bzl", "cc_toolchain", "cc_toolchain_suite")
-load(":clang_toolchain_config.bzl", "provide_clang_toolchain_config")
+load(":linux_amd64_toolchain_config.bzl", "provide_linux_amd64_toolchain_config")
 
 package(default_visibility = ["//visibility:public"])
 
-# https://docs.bazel.build/versions/main/be/c-cpp.html#cc_toolchain_suite
+# https://bazel.build/reference/be/c-cpp#cc_toolchain_suite
 cc_toolchain_suite(
     name = "clang_suite",
     toolchains = {
         # The key is target_cpu|compiler
-        "k8|clang": ":clang_toolchain",
-        "x86_64|clang": ":clang_toolchain",
-        "k8": ":clang_toolchain",
+        # compiler appears to be a string we can choose arbitrarily
+        # https://bazel.build/reference/command-line-reference?hl=en#flag--compiler
+        "k8|host_is_linux_amd64": ":linux_amd64_host",
+        "x86_64|host_is_linux_amd64": ":linux_amd64_host",
+        "k8": ":linux_amd64_host",
+        # TODO(jmbetancourt)
+        # "arm64|host_is_mac_M1": ":mac_M1_host",
     },
 )
 
 filegroup(name = "not_implemented")
 
 filegroup(
-    name = "all-toolchain-files",
+    name = "all_linux_amd64_files",
     srcs = [
         "IWYU_mapping.imp",
         "ar_trampoline.sh",
@@ -27,20 +31,20 @@ filegroup(
     ],
 )
 
-provide_clang_toolchain_config(
-    name = "clang_toolchain_config",
+provide_linux_amd64_toolchain_config(
+    name = "linux_amd64_toolchain_config",
 )
 
+# https://bazel.build/reference/be/c-cpp#cc_toolchain
 cc_toolchain(
-    name = "clang_toolchain",
-    all_files = ":all-toolchain-files",
-    ar_files = ":all-toolchain-files",
-    compiler_files = ":all-toolchain-files",
+    name = "linux_amd64_host",
+    all_files = ":all_linux_amd64_files",
+    ar_files = ":all_linux_amd64_files",
+    compiler_files = ":all_linux_amd64_files",
     dwp_files = ":not_implemented",
-    linker_files = ":all-toolchain-files",
+    linker_files = ":all_linux_amd64_files",
     objcopy_files = ":not_implemented",
     strip_files = ":not_implemented",
-    supports_param_files = 0,
-    toolchain_config = ":clang_toolchain_config",
-    toolchain_identifier = "clang-toolchain",
+    supports_param_files = False,
+    toolchain_config = ":linux_amd64_toolchain_config",
 )

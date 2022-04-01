@@ -26,7 +26,7 @@ load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 # The location of the created clang toolchain.
 EXTERNAL_TOOLCHAIN = "external/clang_linux_amd64"
 
-def _clang_impl(ctx):
+def _linux_amd64_toolchain_info(ctx):
     action_configs = _make_action_configs()
     features = []
     features += _make_default_flags()
@@ -59,10 +59,10 @@ def _clang_impl(ctx):
         toolchain_identifier = "clang-toolchain",
     )
 
-provide_clang_toolchain_config = rule(
+provide_linux_amd64_toolchain_config = rule(
     attrs = {},
     provides = [CcToolchainConfigInfo],
-    implementation = _clang_impl,
+    implementation = _linux_amd64_toolchain_info,
 )
 
 def _make_action_configs():
