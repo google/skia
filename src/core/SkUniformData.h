@@ -35,19 +35,12 @@ public:
     static sk_sp<SkUniformData> Make(SkSpan<const SkUniform>, size_t dataSize);
 
     ~SkUniformData() override {
-        // TODO: fOffsets and fData should just be allocated right after UniformData in an arena
-        delete [] fOffsets;
+        // TODO: fData should just be allocated right after UniformData in an arena
         delete [] fData;
     }
 
     int count() const { return static_cast<unsigned int>(fUniforms.size()); }
     SkSpan<const SkUniform> uniforms() const { return fUniforms; }
-    uint32_t* offsets() { return fOffsets; }
-    const uint32_t* offsets() const { return fOffsets; }
-    uint32_t offset(int index) {
-        SkASSERT(index >= 0 && static_cast<size_t>(index) < fUniforms.size());
-        return fOffsets[index];
-    }
     char* data() { return fData; }
     const char* data() const { return fData; }
     size_t dataSize() const { return fDataSize; }
@@ -57,17 +50,14 @@ public:
 
 private:
     SkUniformData(SkSpan<const SkUniform> uniforms,
-                  uint32_t* offsets,
                   char* data,
                   size_t dataSize)
             : fUniforms(uniforms)
-            , fOffsets(offsets)
             , fData(data)
             , fDataSize(dataSize) {
     }
 
     SkSpan<const SkUniform> fUniforms;
-    uint32_t* fOffsets; // offset of each uniform in 'fData'
     char* fData;
     const size_t fDataSize;
 };

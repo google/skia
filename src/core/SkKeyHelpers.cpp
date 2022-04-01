@@ -82,13 +82,13 @@ sk_sp<SkUniformData> make_solid_uniform_data(SkShaderCodeDictionary* dict,
 
     skgpu::UniformManager mgr(skgpu::Layout::kMetal);
 
-    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr, nullptr);
+    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr);
 
     sk_sp<SkUniformData> result = SkUniformData::Make(uniforms, dataSize);
 
     const void* srcs[kExpectedNumUniforms] = { &premulColor };
 
-    mgr.writeUniforms(result->uniforms(), srcs, result->offsets(), result->data());
+    mgr.writeUniforms(result->uniforms(), srcs, result->data());
     return result;
 }
 #endif // SK_GRAPHITE_ENABLED
@@ -142,11 +142,11 @@ sk_sp<SkUniformData> make_gradient_uniform_data_common(
 
     // TODO: Given that, for the sprint, we always know the uniforms we could cache 'dataSize'
     // for each layout and skip the first call.
-    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr, nullptr);
+    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr);
 
     sk_sp<SkUniformData> result = SkUniformData::Make(uniforms, dataSize);
 
-    mgr.writeUniforms(result->uniforms(), srcs, result->offsets(), result->data());
+    mgr.writeUniforms(result->uniforms(), srcs, result->data());
     return result;
 }
 
@@ -356,14 +356,14 @@ sk_sp<SkUniformData> make_image_uniform_data(SkShaderCodeDictionary* dict,
 
     skgpu::UniformManager mgr(skgpu::Layout::kMetal);
 
-    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr, nullptr);
+    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr);
 
     sk_sp<SkUniformData> result = SkUniformData::Make(uniforms, dataSize);
 
     // TODO: add the required data to ImageData and assemble the uniforms here
     const void* srcs[kExpectedNumUniforms] = { &imgData.fSubset };
 
-    mgr.writeUniforms(result->uniforms(), srcs, result->offsets(), result->data());
+    mgr.writeUniforms(result->uniforms(), srcs, result->data());
     return result;
 }
 
@@ -443,14 +443,14 @@ sk_sp<SkUniformData> make_blendshader_uniform_data(SkShaderCodeDictionary* dict,
 
     skgpu::UniformManager mgr(skgpu::Layout::kMetal);
 
-    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr, nullptr);
+    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr);
 
     sk_sp<SkUniformData> result = SkUniformData::Make(uniforms, dataSize);
 
     int tmp = SkTo<int>(bm);
     const void* srcs[kExpectedNumUniforms] = { &tmp, &tmp, &tmp, &tmp };
 
-    mgr.writeUniforms(result->uniforms(), srcs, result->offsets(), result->data());
+    mgr.writeUniforms(result->uniforms(), srcs, result->data());
     return result;
 }
 

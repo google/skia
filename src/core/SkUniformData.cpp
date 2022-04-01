@@ -10,11 +10,10 @@
 #include <cstring>
 
 sk_sp<SkUniformData> SkUniformData::Make(SkSpan<const SkUniform> uniforms, size_t dataSize) {
-    // TODO: the offsets and data should just be allocated right after UniformData in an arena
-    uint32_t* offsets = new uint32_t[uniforms.size()];
+    // TODO: data should just be allocated right after UniformData in an arena
     char* data = new char[dataSize];
 
-    return sk_sp<SkUniformData>(new SkUniformData(uniforms, offsets, data, dataSize));
+    return sk_sp<SkUniformData>(new SkUniformData(uniforms, data, dataSize));
 }
 
 bool SkUniformData::operator==(const SkUniformData& other) const {
@@ -25,6 +24,5 @@ bool SkUniformData::operator==(const SkUniformData& other) const {
 
     return !memcmp(this->uniforms().data(), other.uniforms().data(),
                    this->uniforms().size_bytes()) &&
-           !memcmp(this->data(), other.data(), this->dataSize()) &&
-           !memcmp(this->offsets(), other.offsets(), this->count()*sizeof(uint32_t));
+           !memcmp(this->data(), other.data(), this->dataSize());
 }

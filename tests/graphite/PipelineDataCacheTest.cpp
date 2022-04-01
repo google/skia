@@ -30,9 +30,6 @@ std::unique_ptr<SkUniformDataBlock> make_udb(int numUniforms, int dataSize) {
 
     sk_sp<SkUniformData> ud = SkUniformData::Make(SkSpan<const SkUniform>(kUniforms, numUniforms),
                                                   dataSize);
-    for (int i = 0; i < numUniforms; ++i) {
-        ud->offsets()[i] = i;
-    }
     for (int i = 0; i < dataSize; ++i) {
         ud->data()[i] = i % 255;
     }

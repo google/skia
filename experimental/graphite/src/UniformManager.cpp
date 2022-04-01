@@ -495,7 +495,6 @@ SkSLType UniformManager::getUniformTypeForLayout(SkSLType type) {
 
 uint32_t UniformManager::writeUniforms(SkSpan<const SkUniform> uniforms,
                                        const void** srcs,
-                                       uint32_t* offsets,
                                        char *dst) {
     decltype(&Writer<Rules140>::WriteUniform) write;
     switch (fLayout) {
@@ -535,9 +534,6 @@ uint32_t UniformManager::writeUniforms(SkSpan<const SkUniform> uniforms,
                                       srcs ? srcs[i] : nullptr);
         SkASSERT(debugOffset == offset);
 
-        if (offsets) {
-            offsets[i] = offset;
-        }
         offset += bytesWritten;
     }
 

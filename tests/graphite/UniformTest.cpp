@@ -25,9 +25,9 @@
 
 namespace {
 
-std::tuple<SkPaint, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
-                                      SkTileMode tm,
-                                      SkBlendMode bm) {
+std::tuple<SkPaint, int, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
+                                           SkTileMode tm,
+                                           SkBlendMode bm) {
     SkPoint pts[2] = {{-100, -100},
                       {100,  100}};
     SkColor colors[2] = {SK_ColorRED, SK_ColorGREEN};
@@ -35,6 +35,7 @@ std::tuple<SkPaint, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
 
     sk_sp<SkShader> s;
     int numUniforms = 0;
+    int numTextures = 0;
     switch (shaderType) {
         case skgpu::ShaderCombo::ShaderType::kNone:
             SkDEBUGFAIL("kNone cannot be represented as an SkPaint");
@@ -66,7 +67,7 @@ std::tuple<SkPaint, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
     p.setColor(SK_ColorRED);
     p.setShader(std::move(s));
     p.setBlendMode(bm);
-    return { p, numUniforms };
+    return { p, numUniforms, numTextures };
 }
 
 } // anonymous namespace
@@ -78,6 +79,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     SkKeyContext keyContext(recorder.get());
     auto dict = keyContext.dict();
     auto uCache = recorder->priv().uniformDataCache();
+    auto tCache = recorder->priv().textureDataCache();
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
     SkPipelineDataGatherer gatherer;
@@ -98,7 +100,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
             }
 
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
-                auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
+                auto [ p, expectedNumUniforms, expectedNumTextures ] = create_paint(s, tm, bm);
 
                 auto [ uniqueID1, uIndex, tIndex] = ExtractPaintData(recorder.get(), &gatherer,
                                                                      &builder, PaintParams(p));
@@ -107,18 +109,28 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
                 // ExtractPaintData and CreateKey agree
                 REPORTER_ASSERT(reporter, uniqueID1 == uniqueID2);
 
-                // ExtractPaintData made the pipeline data we expected
                 {
                     SkUniformDataBlock* uniforms = uCache->lookup(uIndex);
                     int actualNumUniforms = uniforms->numUniforms();
-                    REPORTER_ASSERT(reporter, expectedNumUniforms == actualNumUniforms);
-                    for (const auto& u : *uniforms) {
-                        for (int i = 0; i < u->count(); ++i) {
-                            REPORTER_ASSERT(reporter,
-                                            u->offset(i) >= 0 && u->offset(i) < u->dataSize());
-                        }
-                    }
 
+                    // CreateKey doesn't create any uniform data so we can't compare that.
+                    // The fact that the SkUniquePaintParamsID's matched means CreateKey and
+                    //   ExtractPaintData created the same PaintParamsKey so we know their
+                    //   structure matches.
+                    // All we can really check wrt the uniform data is that we got the expected #
+                    REPORTER_ASSERT(reporter, expectedNumUniforms == actualNumUniforms);
+                }
+
+                // TODO: This isn't particularly useful until we add image shaders to the
+                // pre-compilation set.
+                {
+                    SkTextureDataBlock* textureData = tCache->lookup(tIndex);
+                    int actualNumTextures = textureData ? textureData->numTextures() : 0;
+
+                    REPORTER_ASSERT(reporter, expectedNumTextures == actualNumTextures);
+                }
+
+                {
                     // TODO: check the blendInfo here too
                 }
             }

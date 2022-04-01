@@ -27,16 +27,14 @@ public:
 
     /*
      * Use the uniform 'definitions' to write the data in 'srcs' into 'dst' (if it is non-null).
-     * If non-null, 'offsets' is filled in with the offset of each uniform w/in 'dst'. The
-     * number of bytes that was written (or would've been written) to 'dst' is returned.
+     * The number of bytes that was written (or would've been written) to 'dst' is returned.
      * In practice one should call:
-     *   auto bytes = writeUniforms(definitions, nullptr, nullptr, nullptr);
-     *   // allocate dst and offsets memory
-     *   writeUniforms(definitions, src, offsets, dst);
+     *   auto bytes = writeUniforms(definitions, nullptr, nullptr);
+     *   // allocate dst memory
+     *   writeUniforms(definitions, src, dst);
      */
     uint32_t writeUniforms(SkSpan<const SkUniform> definitions,
                            const void** srcs,
-                           uint32_t* offsets,
                            char *dst);
 
 private:
