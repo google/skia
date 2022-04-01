@@ -47,7 +47,7 @@ std::shared_ptr<SymbolTable> CurrentSymbolTable();
 /**
  * Returns an expression referring to the named symbol.
  */
-DSLPossibleExpression Symbol(std::string_view name, Position pos = Position::Capture());
+DSLExpression Symbol(std::string_view name, Position pos = Position::Capture());
 
 /**
  * Returns true if the name refers to a type (user or built-in) in the current symbol table.

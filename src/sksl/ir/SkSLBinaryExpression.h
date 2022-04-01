@@ -50,9 +50,24 @@ public:
                                             Operator op,
                                             std::unique_ptr<Expression> right);
 
+    // TODO(ethannicholas): make Position required
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            Position pos,
+                                            std::unique_ptr<Expression> left,
+                                            Operator op,
+                                            std::unique_ptr<Expression> right);
+
     // Creates a potentially-simplified form of the expression. Result type is passed in.
     // Asserts if the expressions do not typecheck or are otherwise invalid.
     static std::unique_ptr<Expression> Make(const Context& context,
+                                            std::unique_ptr<Expression> left,
+                                            Operator op,
+                                            std::unique_ptr<Expression> right,
+                                            const Type* resultType);
+
+    // TODO(ethannicholas): make Position required
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            Position pos,
                                             std::unique_ptr<Expression> left,
                                             Operator op,
                                             std::unique_ptr<Expression> right,

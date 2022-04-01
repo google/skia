@@ -48,7 +48,7 @@ public:
      * If the expression is a const variable with a known compile-time-constant value, returns a
      * clone of that value. If not, returns the original expression as-is.
      */
-    static std::unique_ptr<Expression> MakeConstantValueForVariable(
+    static std::unique_ptr<Expression> MakeConstantValueForVariable(Position pos,
             std::unique_ptr<Expression> expr);
 
     /** Simplifies the binary expression `left OP right`. Returns null if it can't be simplified. */

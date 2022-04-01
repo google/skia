@@ -431,6 +431,7 @@ static void extract_matrix(const Expression* expr, float mat[16]) {
 }
 
 static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& context,
+                                                           Position pos,
                                                            IntrinsicKind intrinsic,
                                                            const ExpressionArray& argArray,
                                                            const Type& returnType) {
@@ -650,9 +651,16 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             return (I() - 2.0 * Dot(N(), I()) * N()).release();
         }
         case k_refract_IntrinsicKind: {
-            auto I    = [&] { return DSLExpression{arguments[0]->clone()}; };
-            auto N    = [&] { return DSLExpression{arguments[1]->clone()}; };
-            auto Eta  = [&] { return DSLExpression{arguments[2]->clone()}; };
+            // Refract uses its arguments out-of-order in such a way that we end up trying to create
+            // an invalid Position range, so we rewrite the arguments' positions to avoid that here.
+            auto clone = [&](const Expression* expr) {
+                std::unique_ptr<Expression> result = expr->clone();
+                result->fPosition = pos;
+                return DSLExpression(std::move(result));
+            };
+            auto I    = [&] { return clone(arguments[0]); };
+            auto N    = [&] { return clone(arguments[1]); };
+            auto Eta  = [&] { return clone(arguments[2]); };
 
             std::unique_ptr<Expression> k =
                     (1 - Pow(Eta(), 2) * (1 - Pow(Dot(N(), I()), 2))).release();
@@ -1005,9 +1013,11 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
     if (function.isIntrinsic() && has_compile_time_constant_arguments(arguments)) {
         // The function is an intrinsic and all inputs are compile-time constants. Optimize it.
         if (std::unique_ptr<Expression> expr = optimize_intrinsic_call(context,
+                                                                       pos,
                                                                        function.intrinsicKind(),
                                                                        arguments,
                                                                        *returnType)) {
+            expr->fPosition = pos;
             return expr;
         }
     }

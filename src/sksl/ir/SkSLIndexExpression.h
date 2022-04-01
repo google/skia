@@ -20,9 +20,9 @@ namespace SkSL {
 struct IndexExpression final : public Expression {
     inline static constexpr Kind kExpressionKind = Kind::kIndex;
 
-    IndexExpression(const Context& context, std::unique_ptr<Expression> base,
+    IndexExpression(const Context& context, Position pos, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
-        : INHERITED(base->fPosition, kExpressionKind, &IndexType(context, base->type()))
+        : INHERITED(pos, kExpressionKind, &IndexType(context, base->type()))
         , fBase(std::move(base))
         , fIndex(std::move(index)) {}
 
@@ -34,6 +34,12 @@ struct IndexExpression final : public Expression {
 
     // Returns a simplified index-expression; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
+                                            std::unique_ptr<Expression> base,
+                                            std::unique_ptr<Expression> index);
+
+    // TODO(ethannicholas): make Position required
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            Position pos,
                                             std::unique_ptr<Expression> base,
                                             std::unique_ptr<Expression> index);
 

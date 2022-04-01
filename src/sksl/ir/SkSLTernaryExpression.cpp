@@ -65,14 +65,21 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
     SkASSERT(!ifTrue->type().componentType().isOpaque());
     SkASSERT(!context.fConfig->strictES2Mode() || !ifTrue->type().isOrContainsArray());
 
+    // TODO(ethannicholas): replace this with a pos parameter
+    Position pos = test->fPosition;
     const Expression* testExpr = ConstantFolder::GetConstantValueForVariable(*test);
     if (testExpr->isBoolLiteral()) {
         // static boolean test, just return one of the branches
-        return testExpr->as<Literal>().boolValue() ? std::move(ifTrue)
-                                                   : std::move(ifFalse);
+        if (testExpr->as<Literal>().boolValue()) {
+            ifTrue->fPosition = pos;
+            return ifTrue;
+        } else {
+            ifFalse->fPosition = pos;
+            return ifFalse;
+        }
     }
 
-    return std::make_unique<TernaryExpression>(test->fPosition, std::move(test), std::move(ifTrue),
+    return std::make_unique<TernaryExpression>(pos, std::move(test), std::move(ifTrue),
                                                std::move(ifFalse));
 }
 

@@ -55,7 +55,7 @@ std::unique_ptr<Expression> ConstructorArrayCast::Make(const Context& context,
 
     // Look up the value of constant variables. This allows constant-expressions like `myArray` to
     // be replaced with the compile-time constant `int[2](0, 1)`.
-    arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
+    arg = ConstantFolder::MakeConstantValueForVariable(pos, std::move(arg));
 
     // We can cast a vector of compile-time constants at compile-time.
     if (arg->isCompileTimeConstant()) {

@@ -18,6 +18,7 @@
 #include "include/sksl/DSLSymbols.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/DSLWrapper.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLParsedModule.h"
@@ -266,6 +267,16 @@ void DSLParser::error(Token token, std::string msg) {
 
 void DSLParser::error(Position position, std::string msg) {
     GetErrorReporter().error(msg.c_str(), position);
+}
+
+Position DSLParser::rangeFrom(Position start) {
+    int offset = fPushback.fKind != Token::Kind::TK_NONE ? fPushback.fOffset
+                                                         : fLexer.getCheckpoint().fOffset;
+    return Position::Range(start.startOffset(), offset);
+}
+
+Position DSLParser::rangeFrom(Token start) {
+    return this->rangeFrom(this->position(start));
 }
 
 /* declaration* END_OF_FILE */
@@ -1340,6 +1351,7 @@ DSLStatement DSLParser::expressionStatement() {
 
 /* assignmentExpression (COMMA assignmentExpression)* */
 DSLExpression DSLParser::expression() {
+    [[maybe_unused]] Token start = this->peek();
     DSLExpression result = this->assignmentExpression();
     if (!result.hasValue()) {
         return {};
@@ -1354,24 +1366,36 @@ DSLExpression DSLParser::expression() {
         if (!right.hasValue()) {
             return {};
         }
-        DSLExpression next = dsl::operator,(std::move(result), std::move(right));
+        Position pos = result.position().rangeThrough(right.position());
+        DSLExpression next = DSLExpression(dsl::operator,(std::move(result), std::move(right)),
+                pos);
         result.swap(next);
     }
+    SkASSERTF(result.position().valid(), "Expression %s has invalid position",
+            result.description().c_str());
+    SkASSERTF(result.position().line() == -1, "Expression %s has non-range position (line %d)",
+            result.description().c_str(), result.position().line());
+    SkASSERTF(result.position().startOffset() == this->position(start).startOffset(),
+            "Expected %s to start at %d (first token: '%.*s'), but it has range %d-%d\n",
+            result.description().c_str(), this->position(start).startOffset(),
+            (int)this->text(start).length(), this->text(start).data(),
+            result.position().startOffset(), result.position().endOffset());
     return result;
 }
 
-#define OPERATOR_RIGHT(op, exprType)                                         \
-    do {                                                                     \
-        this->nextToken();                                                   \
-        if (!depth.increase()) {                                             \
-            return {};                                                       \
-        }                                                                    \
-        DSLExpression right = this->exprType();                              \
-        if (!right.hasValue()) {                                             \
-            return {};                                                       \
-        }                                                                    \
-        DSLExpression next = std::move(result) op std::move(right);          \
-        result.swap(next);                                                   \
+#define OPERATOR_RIGHT(op, exprType)                                                    \
+    do {                                                                                \
+        this->nextToken();                                                              \
+        if (!depth.increase()) {                                                        \
+            return {};                                                                  \
+        }                                                                               \
+        DSLExpression right = this->exprType();                                         \
+        if (!right.hasValue()) {                                                        \
+            return {};                                                                  \
+        }                                                                               \
+        Position pos = result.position().rangeThrough(right.position());                \
+        DSLExpression next = DSLExpression(std::move(result) op std::move(right), pos); \
+        result.swap(next);                                                              \
     } while (false)
 
 /* ternaryExpression ((EQEQ | STAREQ | SLASHEQ | PERCENTEQ | PLUSEQ | MINUSEQ | SHLEQ | SHREQ |
@@ -1427,7 +1451,8 @@ DSLExpression DSLParser::ternaryExpression() {
     if (!falseExpr.hasValue()) {
         return {};
     }
-    return Select(std::move(base), std::move(trueExpr), std::move(falseExpr));
+    Position pos = base.position().rangeThrough(falseExpr.position());
+    return Select(std::move(base), std::move(trueExpr), std::move(falseExpr), pos);
 }
 
 /* logicalXorExpression (LOGICALOR logicalXorExpression)* */
@@ -1602,8 +1627,8 @@ DSLExpression DSLParser::multiplicativeExpression() {
 /* postfixExpression | (PLUS | MINUS | NOT | PLUSPLUS | MINUSMINUS) unaryExpression */
 DSLExpression DSLParser::unaryExpression() {
     AutoDSLDepth depth(this);
-    Token next = this->peek();
-    switch (next.fKind) {
+    Token start = this->peek();
+    switch (start.fKind) {
         case Token::Kind::TK_PLUS:
         case Token::Kind::TK_MINUS:
         case Token::Kind::TK_LOGICALNOT:
@@ -1618,13 +1643,14 @@ DSLExpression DSLParser::unaryExpression() {
             if (!expr.hasValue()) {
                 return {};
             }
-            switch (next.fKind) {
-                case Token::Kind::TK_PLUS:       return {{ +std::move(expr)}};
-                case Token::Kind::TK_MINUS:      return {{ -std::move(expr)}};
-                case Token::Kind::TK_LOGICALNOT: return {{ !std::move(expr)}};
-                case Token::Kind::TK_BITWISENOT: return {{ ~std::move(expr)}};
-                case Token::Kind::TK_PLUSPLUS:   return {{++std::move(expr)}};
-                case Token::Kind::TK_MINUSMINUS: return {{--std::move(expr)}};
+            Position p = Position::Range(start.fOffset, expr.position().endOffset());
+            switch (start.fKind) {
+                case Token::Kind::TK_PLUS:       return expr.prefix(Operator::Kind::PLUS, p);
+                case Token::Kind::TK_MINUS:      return expr.prefix(Operator::Kind::MINUS, p);
+                case Token::Kind::TK_LOGICALNOT: return expr.prefix(Operator::Kind::LOGICALNOT, p);
+                case Token::Kind::TK_BITWISENOT: return expr.prefix(Operator::Kind::BITWISENOT, p);
+                case Token::Kind::TK_PLUSPLUS:   return expr.prefix(Operator::Kind::PLUSPLUS, p);
+                case Token::Kind::TK_MINUSMINUS: return expr.prefix(Operator::Kind::MINUSMINUS, p);
                 default: SkUNREACHABLE;
             }
         }
@@ -1680,7 +1706,7 @@ DSLExpression DSLParser::swizzle(Position pos, DSLExpression base,
     for (int i = 0; i < length; ++i) {
         if (i >= 4) {
             this->error(pos, "too many components in swizzle mask");
-            return DSLExpression::Poison();
+            return DSLExpression::Poison(pos);
         }
         switch (swizzleMask[i]) {
             case '0': components[i] = SwizzleComponent::ZERO; break;
@@ -1704,7 +1730,7 @@ DSLExpression DSLParser::swizzle(Position pos, DSLExpression base,
             default:
                 this->error(pos, String::printf("invalid swizzle component '%c'",
                         swizzleMask[i]).c_str());
-                return DSLExpression::Poison();
+                return DSLExpression::Poison(pos);
         }
     }
     switch (length) {
@@ -1733,24 +1759,21 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
     switch (next.fKind) {
         case Token::Kind::TK_LBRACKET: {
             if (this->checkNext(Token::Kind::TK_RBRACKET)) {
-                this->error(next, "missing index in '[]'");
-                return DSLExpression::Poison();
+                Position pos = this->rangeFrom(base.position());
+                this->error(pos, "missing index in '[]'");
+                return DSLExpression::Poison(pos);
             }
             DSLExpression index = this->expression();
             if (!index.hasValue()) {
                 return {};
             }
             this->expect(Token::Kind::TK_RBRACKET, "']' to complete array access expression");
-            DSLPossibleExpression result = base[std::move(index)];
-            if (!result.valid()) {
-                result.reportErrors(this->position(next));
-            }
-            return std::move(result);
+            return base.index(std::move(index), this->rangeFrom(base.position()));
         }
         case Token::Kind::TK_DOT: {
-            Position pos = this->position(this->peek());
             std::string_view text;
             if (this->identifier(&text)) {
+                Position pos = this->rangeFrom(base.position());
                 return this->swizzle(pos, std::move(base), text);
             }
             [[fallthrough]];
@@ -1763,16 +1786,18 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
             field.remove_prefix(1);
             // use the next *raw* token so we don't ignore whitespace - we only care about
             // identifiers that directly follow the float
+            Position pos = this->rangeFrom(base.position());
             Token id = this->nextRawToken();
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
-                return this->swizzle(this->position(next), std::move(base),
-                                     std::string(field) + std::string(this->text(id)));
+                pos = this->rangeFrom(base.position());
+                return this->swizzle(pos, std::move(base), std::string(field) +
+                        std::string(this->text(id)));
             } else if (field.empty()) {
-                this->error(next, "expected field name or swizzle mask after '.'");
-                return {{DSLExpression::Poison()}};
+                this->error(pos, "expected field name or swizzle mask after '.'");
+                return {{DSLExpression::Poison(pos)}};
             }
             this->pushback(id);
-            return this->swizzle(this->position(next), std::move(base), field);
+            return this->swizzle(pos, std::move(base), field);
         }
         case Token::Kind::TK_LPAREN: {
             ExpressionArray args;
@@ -1789,12 +1814,17 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
                 }
             }
             this->expect(Token::Kind::TK_RPAREN, "')' to complete function arguments");
-            return this->call(this->position(next), std::move(base), std::move(args));
+            Position pos = this->rangeFrom(base.position());
+            return this->call(pos, std::move(base), std::move(args));
         }
-        case Token::Kind::TK_PLUSPLUS:
-            return std::move(base)++;
-        case Token::Kind::TK_MINUSMINUS:
-            return std::move(base)--;
+        case Token::Kind::TK_PLUSPLUS: {
+            Position pos = this->rangeFrom(base.position());
+            return DSLExpression(std::move(base)++, pos);
+        }
+        case Token::Kind::TK_MINUSMINUS: {
+            Position pos = this->rangeFrom(base.position());
+            return DSLExpression(std::move(base)--, pos);
+        }
         default: {
             this->error(next, "expected expression suffix, but found '" +
                               std::string(this->text(next)) + "'");
@@ -1843,6 +1873,7 @@ DSLExpression DSLParser::term() {
             DSLExpression result = this->expression();
             if (result.hasValue()) {
                 this->expect(Token::Kind::TK_RPAREN, "')' to complete expression");
+                result.setPosition(this->rangeFrom(this->position(t)));
                 return result;
             }
             break;

@@ -24,7 +24,7 @@ std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& conte
 
     // Look up the value of constant variables. This allows constant-expressions like `mat4(five)`
     // to be replaced with `mat4(5.0)`.
-    arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
+    arg = ConstantFolder::MakeConstantValueForVariable(pos, std::move(arg));
 
     return std::make_unique<ConstructorDiagonalMatrix>(pos, type, std::move(arg));
 }

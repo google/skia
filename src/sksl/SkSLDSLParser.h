@@ -137,6 +137,10 @@ private:
     void error(Token token, std::string msg);
     void error(Position position, std::string msg);
 
+    // Returns the range from `start` to the current parse position.
+    Position rangeFrom(Position start);
+    Position rangeFrom(Token start);
+
     // these functions parse individual grammar rules from the current parse position; you probably
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
     // file have comments describing the grammar rules.

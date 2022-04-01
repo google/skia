@@ -138,6 +138,15 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
                                                    std::unique_ptr<Expression> left,
                                                    Operator op,
                                                    std::unique_ptr<Expression> right) {
+    const Position pos = left->fPosition.rangeThrough(right->fPosition);
+    return BinaryExpression::Make(context, pos, std::move(left), op, std::move(right));
+}
+
+std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
+                                                   Position pos,
+                                                   std::unique_ptr<Expression> left,
+                                                   Operator op,
+                                                   std::unique_ptr<Expression> right) {
     // Determine the result type of the binary expression.
     const Type* leftType;
     const Type* rightType;
@@ -145,10 +154,20 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
     SkAssertResult(op.determineBinaryType(context, left->type(), right->type(),
                                           &leftType, &rightType, &resultType));
 
-    return BinaryExpression::Make(context, std::move(left), op, std::move(right), resultType);
+    return BinaryExpression::Make(context, pos, std::move(left), op, std::move(right), resultType);
 }
 
 std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
+                                                   std::unique_ptr<Expression> left,
+                                                   Operator op,
+                                                   std::unique_ptr<Expression> right,
+                                                   const Type* resultType) {
+    const Position pos = left->fPosition.rangeThrough(right->fPosition);
+    return BinaryExpression::Make(context, pos, std::move(left), op, std::move(right), resultType);
+}
+
+std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
+                                                   Position pos,
                                                    std::unique_ptr<Expression> left,
                                                    Operator op,
                                                    std::unique_ptr<Expression> right,
@@ -167,7 +186,6 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
     }
 
     // Perform constant-folding on the expression.
-    const Position pos = left->fPosition;
     if (std::unique_ptr<Expression> result = ConstantFolder::Simplify(context, pos, *left,
                                                                       op, *right, *resultType)) {
         return result;

@@ -457,7 +457,7 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
                                       std::move(expr));
     }
 
-    // Detect identity swizzles like `color.rgba` and return the base-expression as-is.
+    // Detect identity swizzles like `color.rgba` and optimize it away.
     if (components.count() == exprType.columns()) {
         bool identity = true;
         for (int i = 0; i < components.count(); ++i) {
@@ -467,6 +467,7 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
             }
         }
         if (identity) {
+            expr->fPosition = pos;
             return expr;
         }
     }
@@ -494,7 +495,7 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
     if (value->is<ConstructorSplat>()) {
         const ConstructorSplat& splat = value->as<ConstructorSplat>();
         return ConstructorSplat::Make(
-                context, splat.fPosition,
+                context, pos,
                 splat.type().componentType().toCompound(context, components.size(), /*rows=*/1),
                 splat.argument()->clone());
     }

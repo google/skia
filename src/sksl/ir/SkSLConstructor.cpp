@@ -124,12 +124,11 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
         // literal, this will make sure it's the right type of literal. If an expression of matching
         // type, the expression will be returned as-is. If it's an expression of mismatched type,
         // this adds a cast.
-        Position ctorPosition = arg->fPosition;
         const Type& ctorType = type.componentType().toCompound(context, arg->type().columns(),
                                                                /*rows=*/1);
         ExpressionArray ctorArg;
         ctorArg.push_back(std::move(arg));
-        arg = Constructor::Convert(context, ctorPosition, ctorType, std::move(ctorArg));
+        arg = Constructor::Convert(context, pos, ctorType, std::move(ctorArg));
         if (!arg) {
             return nullptr;
         }
@@ -153,6 +152,7 @@ std::unique_ptr<Expression> Constructor::Convert(const Context& context,
     if (args.size() == 1 && args[0]->type().matches(type) && !type.componentType().isOpaque()) {
         // Don't generate redundant casts; if the expression is already of the correct type, just
         // return it as-is.
+        args[0]->fPosition = pos;
         return std::move(args[0]);
     }
     if (type.isScalar()) {

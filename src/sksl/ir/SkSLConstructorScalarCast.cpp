@@ -67,7 +67,7 @@ std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
     }
     // Look up the value of constant variables. This allows constant-expressions like `int(zero)` to
     // be replaced with a literal zero.
-    arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
+    arg = ConstantFolder::MakeConstantValueForVariable(pos, std::move(arg));
 
     // We can cast scalar literals at compile-time when possible. (If the resulting literal would be
     // out of range for its type, we report an error and return zero to minimize error cascading.

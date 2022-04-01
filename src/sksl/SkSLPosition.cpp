@@ -24,7 +24,9 @@ int Position::line(std::string_view source) const {
     if (fEndOffset == -1) {
         return fStartOffsetOrLine;
     }
-    SkASSERT(source.data());
+    if (!source.data()) {
+        return -1;
+    }
     // we allow the offset to equal the length, because that's where TK_END_OF_FILE is reported
     SkASSERT(fStartOffsetOrLine <= (int)source.length());
     int offset = std::min(fStartOffsetOrLine, (int)source.length());

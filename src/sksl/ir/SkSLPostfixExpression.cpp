@@ -30,12 +30,21 @@ std::unique_ptr<Expression> PostfixExpression::Convert(const Context& context,
     return PostfixExpression::Make(context, std::move(base), op);
 }
 
-std::unique_ptr<Expression> PostfixExpression::Make(const Context&,
-                                                    std::unique_ptr<Expression> base,
-                                                    Operator op) {
+std::unique_ptr<Expression> PostfixExpression::Make(const Context& context,
+                                                    std::unique_ptr<Expression> base, Operator op) {
     SkASSERT(base->type().isNumber());
     SkASSERT(Analysis::IsAssignable(*base));
     return std::make_unique<PostfixExpression>(std::move(base), op);
+}
+
+std::unique_ptr<Expression> PostfixExpression::Make(const Context& context,
+                                                    Position pos,
+                                                    std::unique_ptr<Expression> base,
+                                                    Operator op) {
+    std::unique_ptr<Expression> result = PostfixExpression::Make(context, std::move(base), op);
+    // TODO(ethannicholas): create it with the right position in the first place
+    result->fPosition = pos;
+    return result;
 }
 
 }  // namespace SkSL

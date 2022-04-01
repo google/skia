@@ -90,6 +90,14 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
 std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                                                   std::unique_ptr<Expression> base,
                                                   std::unique_ptr<Expression> index) {
+    Position pos = base->fPosition;
+    return IndexExpression::Make(context, pos, std::move(base), std::move(index));
+}
+
+std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
+                                                  Position pos,
+                                                  std::unique_ptr<Expression> base,
+                                                  std::unique_ptr<Expression> index) {
     const Type& baseType = base->type();
     SkASSERT(baseType.isArray() || baseType.isMatrix() || baseType.isVector());
     SkASSERT(index->type().isInteger());
@@ -98,7 +106,6 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
     if (indexExpr->isIntLiteral()) {
         SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
         if (!index_out_of_range(context, indexValue, *base)) {
-            Position pos = base->fPosition;
             if (baseType.isVector()) {
                 // Constant array indexes on vectors can be converted to swizzles: `v[2]` --> `v.z`.
                 // Swizzling is harmless and can unlock further simplifications for some base types.
@@ -115,7 +122,9 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                     const ExpressionArray& arguments = arrayCtor.arguments();
                     SkASSERT(arguments.count() == baseType.columns());
 
-                    return arguments[indexValue]->clone();
+                    std::unique_ptr<Expression> result = arguments[indexValue]->clone();
+                    result->fPosition = pos;
+                    return result;
                 }
             }
 
@@ -151,7 +160,7 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
         }
     }
 
-    return std::make_unique<IndexExpression>(context, std::move(base), std::move(index));
+    return std::make_unique<IndexExpression>(context, pos, std::move(base), std::move(index));
 }
 
 }  // namespace SkSL

@@ -21,7 +21,7 @@ class CapsLookupMethod {
 public:
     virtual ~CapsLookupMethod() {}
     virtual const Type* type(const Context& context) const = 0;
-    virtual std::unique_ptr<Expression> value(const Context& context) const = 0;
+    virtual std::unique_ptr<Expression> value(const Context& context, Position pos) const = 0;
 };
 
 class BoolCapsLookup : public CapsLookupMethod {
@@ -33,8 +33,8 @@ public:
     const Type* type(const Context& context) const override {
         return context.fTypes.fBool.get();
     }
-    std::unique_ptr<Expression> value(const Context& context) const override {
-        return Literal::MakeBool(context, Position(), (context.fCaps.*fGetCap)());
+    std::unique_ptr<Expression> value(const Context& context, Position pos) const override {
+        return Literal::MakeBool(context, pos, (context.fCaps.*fGetCap)());
     }
 
 private:
@@ -50,8 +50,8 @@ public:
     const Type* type(const Context& context) const override {
         return context.fTypes.fInt.get();
     }
-    std::unique_ptr<Expression> value(const Context& context) const override {
-        return Literal::MakeInt(context, Position(), (context.fCaps.*fGetCap)());
+    std::unique_ptr<Expression> value(const Context& context, Position pos) const override {
+        return Literal::MakeInt(context, pos, (context.fCaps.*fGetCap)());
     }
 
 private:
@@ -116,7 +116,7 @@ static const Type* get_type(const Context& context, Position pos, std::string_vi
 static std::unique_ptr<Expression> get_value(const Context& context, Position pos,
                                              const std::string_view& name) {
     if (const CapsLookupMethod* caps = caps_lookup_table().lookup(name)) {
-        return caps->value(context);
+        return caps->value(context, pos);
     }
 
     context.fErrors->error(pos, "unknown capability flag '" + std::string(name) + "'");

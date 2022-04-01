@@ -50,6 +50,12 @@ DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression)
     SkASSERT(this->hasValue());
 }
 
+DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression, Position pos)
+    : fExpression(expression ? std::move(expression)
+                             : SkSL::Poison::Make(pos, ThreadContext::Context())) {
+    ThreadContext::ReportErrors(pos);
+}
+
 DSLExpression::DSLExpression(float value, Position pos)
     : fExpression(SkSL::Literal::MakeFloat(ThreadContext::Context(),
                                            pos,
@@ -134,11 +140,26 @@ std::unique_ptr<SkSL::Expression> DSLExpression::releaseIfPossible() {
     return std::move(fExpression);
 }
 
-DSLType DSLExpression::type() {
+DSLType DSLExpression::type() const {
     if (!this->hasValue()) {
         return kVoid_Type;
     }
     return &fExpression->type();
+}
+
+std::string DSLExpression::description() const {
+    SkASSERT(this->hasValue());
+    return fExpression->description();
+}
+
+Position DSLExpression::position() const {
+    SkASSERT(this->hasValue());
+    return fExpression->fPosition;
+}
+
+void DSLExpression::setPosition(Position pos) {
+    SkASSERT(this->hasValue());
+    fExpression->fPosition = pos;
 }
 
 DSLExpression DSLExpression::x(Position pos) {
@@ -188,6 +209,17 @@ DSLPossibleExpression DSLExpression::operator[](DSLExpression right) {
             this->release(), right.release());
 }
 
+DSLExpression DSLExpression::index(DSLExpression index, Position pos) {
+    std::unique_ptr<SkSL::Expression> result = IndexExpression::Convert(ThreadContext::Context(),
+            *ThreadContext::SymbolTable(), this->release(), index.release());
+    if (!result) {
+        return Poison(pos);
+    }
+    // TODO(ethannicholas): pass pos directly into IndexExpression
+    result->fPosition = pos;
+    return DSLExpression(std::move(result));
+}
+
 DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args,
                                                 Position pos) {
     ExpressionArray converted;
@@ -201,6 +233,17 @@ DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpressio
 DSLPossibleExpression DSLExpression::operator()(ExpressionArray args, Position pos) {
     return SkSL::FunctionCall::Convert(ThreadContext::Context(), pos, this->release(),
             std::move(args));
+}
+
+DSLExpression DSLExpression::prefix(Operator::Kind op, Position pos) {
+    std::unique_ptr<SkSL::Expression> result = PrefixExpression::Convert(ThreadContext::Context(),
+            op, this->release());
+    if (!result) {
+        return Poison(pos);
+    }
+    // TODO(ethannicholas): pass pos directly into PrefixExpression
+    result->fPosition = pos;
+    return DSLExpression(std::move(result));
 }
 
 #define OP(op, token)                                                                              \
@@ -302,11 +345,21 @@ void DSLPossibleExpression::reportErrors(Position pos) {
     ThreadContext::ReportErrors(pos);
 }
 
-DSLType DSLPossibleExpression::type() {
+DSLType DSLPossibleExpression::type() const {
     if (!this->valid()) {
         return kVoid_Type;
     }
     return &fExpression->type();
+}
+
+std::string DSLPossibleExpression::description() const {
+    SkASSERT(this->valid());
+    return fExpression->description();
+}
+
+Position DSLPossibleExpression::position() const {
+    SkASSERT(this->valid());
+    return fExpression->fPosition;
 }
 
 DSLExpression DSLPossibleExpression::x(Position pos) {

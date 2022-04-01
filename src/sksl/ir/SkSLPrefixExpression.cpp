@@ -256,4 +256,12 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Opera
     return std::make_unique<PrefixExpression>(op, std::move(base));
 }
 
+std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Position pos,
+                                                   Operator op, std::unique_ptr<Expression> base) {
+    std::unique_ptr<Expression> result = PrefixExpression::Make(context, op, std::move(base));
+    // TODO(ethannicholas): create it with the right position in the first place
+    result->fPosition = pos;
+    return result;
+}
+
 }  // namespace SkSL

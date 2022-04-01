@@ -65,7 +65,9 @@ public:
         if (fEndOffset == -1 || end.fEndOffset == -1) {
             return *this;
         }
-        SkASSERT(this->startOffset() <= end.startOffset() && this->endOffset() <= end.endOffset());
+        SkASSERTF(this->startOffset() <= end.startOffset() && this->endOffset() <= end.endOffset(),
+                "Invalid range: (%d-%d) - (%d-%d)\n", this->startOffset(), this->endOffset(),
+                end.startOffset(), end.endOffset());
         return Range(this->startOffset(), end.endOffset());
     }
 

@@ -9,10 +9,12 @@
 #define SKSL_DSL_EXPRESSION
 
 #include "include/private/SkTArray.h"
+#include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <string_view>
 
 #if defined(__has_cpp_attribute) && __has_cpp_attribute(clang::reinitializes)
@@ -86,11 +88,20 @@ public:
 
     explicit DSLExpression(std::unique_ptr<SkSL::Expression> expression);
 
+    // If expression is null, returns Poison(pos)
+    DSLExpression(std::unique_ptr<SkSL::Expression> expression, Position pos);
+
     static DSLExpression Poison(Position pos = Position::Capture());
 
     ~DSLExpression();
 
-    DSLType type();
+    DSLType type() const;
+
+    std::string description() const;
+
+    Position position() const;
+
+    void setPosition(Position pos);
 
     /**
      * Overloads the '=' operator to create an SkSL assignment statement.
@@ -128,6 +139,16 @@ public:
 
     DSLPossibleExpression operator()(ExpressionArray args,
                                      Position pos = Position::Capture());
+
+    /**
+     * Invokes a prefix operator.
+     */
+    DSLExpression prefix(Operator::Kind op, Position pos);
+
+    /**
+     * Equivalent to operator[].
+     */
+    DSLExpression index(DSLExpression index, Position pos);
 
     /**
      * Returns true if this object contains an expression. DSLExpressions which were created with
@@ -238,7 +259,11 @@ public:
      */
     void reportErrors(Position pos);
 
-    DSLType type();
+    DSLType type() const;
+
+    std::string description() const;
+
+    Position position() const;
 
     DSLExpression x(Position pos = Position::Capture());
 
