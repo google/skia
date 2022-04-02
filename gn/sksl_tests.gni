@@ -296,6 +296,8 @@ sksl_spirv_tests = [
   "/sksl/errors/UndefinedFunction.rts",
 ]
 
+sksl_wgsl_tests = [ "/sksl/shared/HelloWorld.sksl" ]
+
 sksl_shared_tests = [
   "/sksl/intrinsics/AbsFloat.sksl",
   "/sksl/intrinsics/AbsInt.sksl",
@@ -736,6 +738,13 @@ sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
 # generate a .metal output file.
 sksl_metal_tests_sources =
     sksl_metal_tests + sksl_blend_tests + sksl_shared_tests
+
+# Tests in sksl_wgsl_tests_sources will be compiled with --settings on, and are expected to generate
+# a .wgsl output file.
+# TODO(skia:13092): WGSL support is WIP and the test sources added here are copies of a subset of
+# shared test sources to track development progress. Eventually we want this to at a minimum equal
+# sksl_shared_tests.
+sksl_wgsl_tests_sources = sksl_wgsl_tests
 
 # Tests in sksl_spirv_tests_sources will be compiled with --settings on, and are expected to
 # generate a .asm.(frag|vert|geom) output file.

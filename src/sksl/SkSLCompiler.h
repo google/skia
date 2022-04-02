@@ -171,6 +171,8 @@ public:
 
     bool toMetal(Program& program, std::string* out);
 
+    bool toWGSL(Program& program, OutputStream& out);
+
     void handleError(std::string_view msg, Position pos);
 
     std::string errorText(bool showCount = true);

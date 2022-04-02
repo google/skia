@@ -30,6 +30,7 @@
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
+#include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
@@ -749,6 +750,13 @@ bool Compiler::toMetal(Program& program, std::string* out) {
         *out = buffer.str();
     }
     return result;
+}
+
+bool Compiler::toWGSL(Program& program, OutputStream& out) {
+    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toWGSL");
+    AutoSource as(this, *program.fSource);
+    WGSLCodeGenerator cg(fContext.get(), &program, &out);
+    return cg.generateCode();
 }
 
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED

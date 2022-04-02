@@ -8,27 +8,40 @@
 #ifndef SKSL_WGSLCODEGENERATOR
 #define SKSL_WGSLCODEGENERATOR
 
-#include "include/private/SkBitmaskEnum.h"
+#include <stdint.h>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkTHash.h"
 #include "include/sksl/SkSLOperator.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
+
+namespace sknonstd {
+template <typename T> struct is_bitmask_enum;
+}  // namespace sknonstd
 
 namespace SkSL {
 
 class AnyConstructor;
 class BinaryExpression;
 class Block;
+class Context;
 class ConstructorCompound;
 class Expression;
 class ExpressionStatement;
 class FunctionDeclaration;
 class FunctionDefinition;
 class Literal;
+class OutputStream;
 class ProgramElement;
 class ReturnStatement;
 class Statement;
+class Type;
 class VarDeclaration;
-class Variable;
+struct Modifiers;
+struct Program;
 
 /**
  * Convert a Program into WGSL code.

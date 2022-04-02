@@ -830,6 +830,12 @@ if (skia_compile_sksl_tests) {
     lang = "--spirv"
     settings = "--settings"
   }
+  compile_sksl("wgsl_tests") {
+    sources = sksl_wgsl_tests_sources
+    outExtensions = [ ".wgsl" ]
+    lang = "--wgsl"
+    settings = "--settings"
+  }
 } else {
   group("compile_sksl_glsl_tests") {
   }
@@ -840,6 +846,8 @@ if (skia_compile_sksl_tests) {
   group("compile_sksl_skvm_tests") {
   }
   group("compile_sksl_spirv_tests") {
+  }
+  group("compile_sksl_wgsl_tests") {
   }
 }
 
