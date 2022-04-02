@@ -8,6 +8,8 @@
 #ifndef SKSL_WGSLCODEGENERATOR
 #define SKSL_WGSLCODEGENERATOR
 
+#include "include/private/SkBitmaskEnum.h"
+#include "include/private/SkTHash.h"
 #include "include/sksl/SkSLOperator.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
@@ -54,6 +56,33 @@ public:
         kNumWorkgroups,         // input
     };
 
+    // Represents a function's dependencies that are not accessible in global scope. For instance,
+    // pipeline stage input and output parameters must be passed in as an argument.
+    //
+    // This is a bitmask enum.
+    enum class FunctionDependencies : uint8_t {
+        kNone = 0,
+        kPipelineInputs = 1,
+        kPipelineOutputs = 2,
+    };
+
+    struct ProgramRequirements {
+        using DepsMap = SkTHashMap<const FunctionDeclaration*, FunctionDependencies>;
+
+        ProgramRequirements() = default;
+        ProgramRequirements(DepsMap dependencies, bool mainNeedsCoordsArgument)
+                : dependencies(std::move(dependencies))
+                , mainNeedsCoordsArgument(mainNeedsCoordsArgument) {}
+
+        // Mappings used to synthesize function parameters according to dependencies on pipeline
+        // input/output variables.
+        DepsMap dependencies;
+
+        // True, if the main function takes a coordinate parameter. This is used to ensure that
+        // sk_FragCoord is declared as part of pipeline inputs.
+        bool mainNeedsCoordsArgument;
+    };
+
     WGSLCodeGenerator(const Context* context, const Program* program, OutputStream* out)
             : INHERITED(context, program, out) {}
 
@@ -62,6 +91,9 @@ public:
 private:
     using INHERITED = CodeGenerator;
     using Precedence = Operator::Precedence;
+
+    // Called by generateCode() as the first step.
+    void preprocessProgram();
 
     // Write output content while correctly handling indentation.
     void write(std::string_view s);
@@ -106,7 +138,10 @@ private:
     void writeStageInputStruct();
     void writeStageOutputStruct();
 
+    // Stores the disallowed identifier names.
+    // TODO(skia:13092): populate this
     SkTHashSet<std::string_view> fReservedWords;
+    ProgramRequirements fRequirements;
 
     // Output processing state.
     int fIndentation = 0;
@@ -114,5 +149,10 @@ private:
 };
 
 }  // namespace SkSL
+
+namespace sknonstd {
+template <>
+struct is_bitmask_enum<SkSL::WGSLCodeGenerator::FunctionDependencies> : std::true_type {};
+}  // namespace sknonstd
 
 #endif  // SKSL_WGSLCODEGENERATOR

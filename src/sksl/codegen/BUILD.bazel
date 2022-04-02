@@ -406,6 +406,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLCodeGenerator_hdr",
+        "//include/private:SkBitmaskEnum_hdr",
+        "//include/private:SkTHash_hdr",
         "//include/sksl:SkSLOperator_hdr",
     ],
 )
@@ -419,12 +421,14 @@ generated_cc_atom(
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLStringStream_hdr",
         "//src/sksl:SkSLUtil_hdr",
+        "//src/sksl/analysis:SkSLProgramVisitor_hdr",
         "//src/sksl/ir:SkSLBinaryExpression_hdr",
         "//src/sksl/ir:SkSLBlock_hdr",
         "//src/sksl/ir:SkSLConstructorCompound_hdr",
         "//src/sksl/ir:SkSLConstructor_hdr",
         "//src/sksl/ir:SkSLExpressionStatement_hdr",
         "//src/sksl/ir:SkSLExpression_hdr",
+        "//src/sksl/ir:SkSLFunctionCall_hdr",
         "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
         "//src/sksl/ir:SkSLInterfaceBlock_hdr",
