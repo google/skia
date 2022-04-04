@@ -600,7 +600,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
             extendedOptions.get_option_bool("testPrecompile", &testPrecompile) &&
             extendedOptions.get_option_bool("useDDLSink", &useDDLs) &&
             extendedOptions.get_option_bool("OOPRish", &ooprish) &&
-            extendedOptions.get_option_bool("slug", &slug);
+            extendedOptions.get_option_bool("slug", &slug) &&
             extendedOptions.get_option_bool("reducedShaders", &reducedShaders) &&
             extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
