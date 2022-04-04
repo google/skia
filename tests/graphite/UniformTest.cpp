@@ -34,33 +34,27 @@ std::tuple<SkPaint, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
     SkScalar offsets[2] = {0.0f, 1.0f};
 
     sk_sp<SkShader> s;
-    int numUniforms = 0;
     int numTextures = 0;
     switch (shaderType) {
         case skgpu::ShaderCombo::ShaderType::kNone:
             SkDEBUGFAIL("kNone cannot be represented as an SkPaint");
             break;
         case skgpu::ShaderCombo::ShaderType::kSolidColor:
-            numUniforms += 1;
             break;
         case skgpu::ShaderCombo::ShaderType::kLinearGradient:
             s = SkGradientShader::MakeLinear(pts, colors, offsets, 2, tm);
-            numUniforms += 7;
             break;
         case skgpu::ShaderCombo::ShaderType::kRadialGradient:
             s = SkGradientShader::MakeRadial({0, 0}, 100, colors, offsets, 2, tm);
-            numUniforms += 7;
             break;
         case skgpu::ShaderCombo::ShaderType::kSweepGradient:
             s = SkGradientShader::MakeSweep(0, 0, colors, offsets, 2, tm,
                                             0, 359, 0, nullptr);
-            numUniforms += 7;
             break;
         case skgpu::ShaderCombo::ShaderType::kConicalGradient:
             s = SkGradientShader::MakeTwoPointConical({100, 100}, 100,
                                                       {-100, -100}, 100,
                                                       colors, offsets, 2, tm);
-            numUniforms += 7;
             break;
     }
     SkPaint p;
