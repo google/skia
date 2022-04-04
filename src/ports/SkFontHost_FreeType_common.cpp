@@ -520,10 +520,10 @@ inline SkPoint SkVectorProjection(SkPoint a, SkPoint b) {
 bool colrv1_configure_skpaint(FT_Face face,
                               const SkSpan<SkColor>& palette,
                               const SkColor foregroundColor,
-                              FT_COLR_Paint colrv1_paint,
+                              const FT_COLR_Paint& colrv1_paint,
                               SkPaint* paint) {
     auto fetch_color_stops = [&face, &palette, &foregroundColor](
-                                               FT_ColorStopIterator& color_stop_iterator,
+                                               const FT_ColorStopIterator& color_stop_iterator,
                                                std::vector<SkScalar>& stops,
                                                std::vector<SkColor>& colors) -> bool {
         const FT_UInt num_color_stops = color_stop_iterator.num_color_stops;
@@ -538,8 +538,9 @@ bool colrv1_configure_skpaint(FT_Face face,
         sorted_stops.resize(num_color_stops);
 
         FT_ColorStop color_stop;
-        while (FT_Get_Colorline_Stops(face, &color_stop, &color_stop_iterator)) {
-            FT_UInt index = color_stop_iterator.current_color_stop - 1;
+        FT_ColorStopIterator mutable_color_stop_iterator = color_stop_iterator;
+        while (FT_Get_Colorline_Stops(face, &color_stop, &mutable_color_stop_iterator)) {
+            FT_UInt index = mutable_color_stop_iterator.current_color_stop - 1;
             sorted_stops[index].stop_pos = color_stop.stop_offset / float(1 << 14);
             FT_UInt16& palette_index = color_stop.color.palette_index;
             if (palette_index == kForegroundColorPaletteIndex) {
@@ -591,7 +592,7 @@ bool colrv1_configure_skpaint(FT_Face face,
             break;
         }
         case FT_COLR_PAINTFORMAT_LINEAR_GRADIENT: {
-            FT_PaintLinearGradient& linear_gradient = colrv1_paint.u.linear_gradient;
+            const FT_PaintLinearGradient& linear_gradient = colrv1_paint.u.linear_gradient;
             SkPoint line_positions[2] = {SkPoint::Make(SkFixedToScalar(linear_gradient.p0.x),
                                                        -SkFixedToScalar(linear_gradient.p0.y)),
                                          SkPoint::Make(SkFixedToScalar(linear_gradient.p1.x),
@@ -660,7 +661,7 @@ bool colrv1_configure_skpaint(FT_Face face,
             break;
         }
         case FT_COLR_PAINTFORMAT_RADIAL_GRADIENT: {
-            FT_PaintRadialGradient& radial_gradient = colrv1_paint.u.radial_gradient;
+            const FT_PaintRadialGradient& radial_gradient = colrv1_paint.u.radial_gradient;
             SkPoint start = SkPoint::Make(SkFixedToScalar(radial_gradient.c0.x),
                                           -SkFixedToScalar(radial_gradient.c0.y));
             SkScalar radius = SkFixedToScalar(radial_gradient.r0);
@@ -684,7 +685,7 @@ bool colrv1_configure_skpaint(FT_Face face,
             break;
         }
         case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
-            FT_PaintSweepGradient& sweep_gradient = colrv1_paint.u.sweep_gradient;
+            const FT_PaintSweepGradient& sweep_gradient = colrv1_paint.u.sweep_gradient;
             SkPoint center = SkPoint::Make(SkFixedToScalar(sweep_gradient.center.x),
                                            -SkFixedToScalar(sweep_gradient.center.y));
             SkScalar startAngle = SkFixedToScalar(sweep_gradient.start_angle * 180.0f);
@@ -736,7 +737,7 @@ void colrv1_draw_paint(SkCanvas* canvas,
                        const SkSpan<SkColor>& palette,
                        const SkColor foregroundColor,
                        FT_Face face,
-                       FT_COLR_Paint colrv1_paint) {
+                       const FT_COLR_Paint& colrv1_paint) {
     SkPaint paint;
 
     switch (colrv1_paint.format) {
@@ -784,7 +785,7 @@ void colrv1_draw_paint(SkCanvas* canvas,
 }
 
 void colrv1_draw_glyph_with_path(SkCanvas* canvas, const SkSpan<SkColor>& palette, SkColor foregroundColor, FT_Face face,
-                                 FT_COLR_Paint glyphPaint, FT_COLR_Paint fillPaint) {
+                                 const FT_COLR_Paint& glyphPaint, const FT_COLR_Paint& fillPaint) {
     SkASSERT(glyphPaint.format == FT_COLR_PAINTFORMAT_GLYPH);
     SkASSERT(fillPaint.format == FT_COLR_PAINTFORMAT_SOLID ||
              fillPaint.format == FT_COLR_PAINTFORMAT_LINEAR_GRADIENT ||
@@ -818,7 +819,7 @@ void colrv1_draw_glyph_with_path(SkCanvas* canvas, const SkSpan<SkColor>& palett
  * bounding box calculation mode, no SkCanvas is specified, but we only want to
  * retrieve the transform from the FreeType paint object. */
 void colrv1_transform(FT_Face face,
-                      FT_COLR_Paint colrv1_paint,
+                      const FT_COLR_Paint& colrv1_paint,
                       SkCanvas* canvas,
                       SkMatrix* out_transform = nullptr) {
     SkMatrix transform;
