@@ -23,25 +23,6 @@ static inline bool does_cpu_blend_impl_match_gpu(SkBlendMode mode) {
            mode != SkBlendMode::kColorBurn;
 }
 
-static bool supports_shared_blend_logic(SkBlendMode mode) {
-    switch (mode) {
-        case SkBlendMode::kSrcOver:
-        case SkBlendMode::kDstOver:
-        case SkBlendMode::kSrcIn:
-        case SkBlendMode::kDstIn:
-        case SkBlendMode::kSrcOut:
-        case SkBlendMode::kDstOut:
-        case SkBlendMode::kSrcATop:
-        case SkBlendMode::kDstATop:
-        case SkBlendMode::kXor:
-        case SkBlendMode::kPlus:
-            return true;
-
-        default:
-            return false;
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 class BlendFragmentProcessor : public GrFragmentProcessor {
@@ -65,7 +46,7 @@ private:
                            bool shareBlendLogic)
             : INHERITED(kBlendFragmentProcessor_ClassID, OptFlags(src.get(), dst.get(), mode))
             , fMode(mode)
-            , fShareBlendLogic(shareBlendLogic && supports_shared_blend_logic(mode)) {
+            , fShareBlendLogic(shareBlendLogic) {
         this->setIsBlendFunction();
         this->registerChild(std::move(src));
         this->registerChild(std::move(dst));
@@ -164,7 +145,7 @@ private:
 
     void onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const override {
         if (fShareBlendLogic) {
-            b->add32(-1);
+            b->add32(GrGLSLBlend::BlendKey(fMode));
         } else {
             b->add32((int)fMode);
         }
@@ -223,7 +204,8 @@ std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new BlendFragmentProcessor(*this));
 }
 
-std::unique_ptr<GrFragmentProcessor::ProgramImpl> BlendFragmentProcessor::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> BlendFragmentProcessor::onMakeProgramImpl()
+        const {
     class Impl : public ProgramImpl {
     public:
         void emitCode(EmitArgs& args) override {
@@ -236,16 +218,16 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> BlendFragmentProcessor::onMake
             SkString dstColor = this->invokeChild(1, args);
 
             if (bfp.fShareBlendLogic) {
-                // Handle basic Porter-Duff blend ops by multiplying with uniforms.
-                const char* blendOp;
-                fBlendOpUniform = args.fUniformHandler->addUniform(&args.fFp,
-                                                                   kFragment_GrShaderFlag,
-                                                                   SkSLType::kHalf4,
-                                                                   "blendOp", &blendOp);
-                fragBuilder->codeAppendf("return blend_porter_duff(%s, %s, %s);",
-                                         srcColor.c_str(), dstColor.c_str(), blendOp);
+                // Use a blend expression that may rely on uniforms.
+                std::string blendExpr = GrGLSLBlend::BlendExpression(&args.fFp,
+                                                                     args.fUniformHandler,
+                                                                     &fBlendUniform,
+                                                                     srcColor.c_str(),
+                                                                     dstColor.c_str(),
+                                                                     mode);
+                fragBuilder->codeAppendf("return %s;", blendExpr.c_str());
             } else {
-                // Blend src and dst colors together using a built-in blend function.
+                // Blend src and dst colors together using a hardwired built-in blend function.
                 fragBuilder->codeAppendf("return %s(%s, %s);",
                                          GrGLSLBlend::BlendFuncName(mode),
                                          srcColor.c_str(),
@@ -256,26 +238,12 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> BlendFragmentProcessor::onMake
         void onSetData(const GrGLSLProgramDataManager& pdman,
                        const GrFragmentProcessor& fp) override {
             const BlendFragmentProcessor& bfp = fp.cast<BlendFragmentProcessor>();
-            const SkBlendMode mode = bfp.fMode;
-
             if (bfp.fShareBlendLogic) {
-                switch (mode) {
-                    case SkBlendMode::kSrcOver: pdman.set4f(fBlendOpUniform,  1, 0,  0, -1); break;
-                    case SkBlendMode::kDstOver: pdman.set4f(fBlendOpUniform,  0, 1, -1,  0); break;
-                    case SkBlendMode::kSrcIn:   pdman.set4f(fBlendOpUniform,  0, 0,  1,  0); break;
-                    case SkBlendMode::kDstIn:   pdman.set4f(fBlendOpUniform,  0, 0,  0,  1); break;
-                    case SkBlendMode::kSrcOut:  pdman.set4f(fBlendOpUniform,  0, 0, -1,  0); break;
-                    case SkBlendMode::kDstOut:  pdman.set4f(fBlendOpUniform,  0, 0,  0, -1); break;
-                    case SkBlendMode::kSrcATop: pdman.set4f(fBlendOpUniform,  0, 0,  1, -1); break;
-                    case SkBlendMode::kDstATop: pdman.set4f(fBlendOpUniform,  0, 0, -1,  1); break;
-                    case SkBlendMode::kXor:     pdman.set4f(fBlendOpUniform,  0, 0, -1, -1); break;
-                    case SkBlendMode::kPlus:    pdman.set4f(fBlendOpUniform,  1, 1,  0,  0); break;
-                    default:                    SkDEBUGFAIL("unexpected blend mode"); break;
-                }
+                GrGLSLBlend::SetBlendModeUniformData(pdman, fBlendUniform, bfp.fMode);
             }
         }
 
-        UniformHandle fBlendOpUniform;
+        UniformHandle fBlendUniform;
     };
 
     return std::make_unique<Impl>();

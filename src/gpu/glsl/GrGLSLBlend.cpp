@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSLString.h"
 #include "src/gpu/glsl/GrGLSLBlend.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -52,6 +53,73 @@ void AppendMode(GrGLSLShaderBuilder* fsBuilder,
                 const char* outColor,
                 SkBlendMode mode) {
     fsBuilder->codeAppendf("%s = %s(%s, %s);", outColor, BlendFuncName(mode), srcColor, dstColor);
+}
+
+std::string BlendExpression(const GrProcessor* processor,
+                            GrGLSLUniformHandler* uniformHandler,
+                            GrGLSLProgramDataManager::UniformHandle* blendUniform,
+                            const char* srcColor,
+                            const char* dstColor,
+                            SkBlendMode mode) {
+    switch (mode) {
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kDstOver:
+        case SkBlendMode::kSrcIn:
+        case SkBlendMode::kDstIn:
+        case SkBlendMode::kSrcOut:
+        case SkBlendMode::kDstOut:
+        case SkBlendMode::kSrcATop:
+        case SkBlendMode::kDstATop:
+        case SkBlendMode::kXor:
+        case SkBlendMode::kPlus: {
+            const char* blendName;
+            *blendUniform = uniformHandler->addUniform(processor, kFragment_GrShaderFlag,
+                                                       SkSLType::kHalf4, "blend", &blendName);
+            return SkSL::String::printf("blend_porter_duff(%s, %s, %s)",
+                                        srcColor, dstColor, blendName);
+        }
+        default: {
+            return SkSL::String::printf("%s(%s, %s)",
+                                        BlendFuncName(mode), srcColor, dstColor);
+        }
+    }
+}
+
+int BlendKey(SkBlendMode mode) {
+    switch (mode) {
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kDstOver:
+        case SkBlendMode::kSrcIn:
+        case SkBlendMode::kDstIn:
+        case SkBlendMode::kSrcOut:
+        case SkBlendMode::kDstOut:
+        case SkBlendMode::kSrcATop:
+        case SkBlendMode::kDstATop:
+        case SkBlendMode::kXor:
+        case SkBlendMode::kPlus:
+            return -1;
+
+        default:
+            return (int)mode;
+    }
+}
+
+void SetBlendModeUniformData(const GrGLSLProgramDataManager& pdman,
+                             GrGLSLProgramDataManager::UniformHandle blendUniform,
+                             SkBlendMode mode) {
+    switch (mode) {
+        case SkBlendMode::kSrcOver: pdman.set4f(blendUniform, 1, 0,  0, -1); break;
+        case SkBlendMode::kDstOver: pdman.set4f(blendUniform, 0, 1, -1,  0); break;
+        case SkBlendMode::kSrcIn:   pdman.set4f(blendUniform, 0, 0,  1,  0); break;
+        case SkBlendMode::kDstIn:   pdman.set4f(blendUniform, 0, 0,  0,  1); break;
+        case SkBlendMode::kSrcOut:  pdman.set4f(blendUniform, 0, 0, -1,  0); break;
+        case SkBlendMode::kDstOut:  pdman.set4f(blendUniform, 0, 0,  0, -1); break;
+        case SkBlendMode::kSrcATop: pdman.set4f(blendUniform, 0, 0,  1, -1); break;
+        case SkBlendMode::kDstATop: pdman.set4f(blendUniform, 0, 0, -1,  1); break;
+        case SkBlendMode::kXor:     pdman.set4f(blendUniform, 0, 0, -1, -1); break;
+        case SkBlendMode::kPlus:    pdman.set4f(blendUniform, 1, 1,  0,  0); break;
+        default:                    /* no uniform data necessary */ break;
+    }
 }
 
 }  // namespace GrGLSLBlend

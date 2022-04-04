@@ -4,7 +4,10 @@ generated_cc_atom(
     name = "GrGLSLBlend_hdr",
     hdrs = ["GrGLSLBlend.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkBlendMode_hdr"],
+    deps = [
+        ":GrGLSLProgramDataManager_hdr",
+        "//include/core:SkBlendMode_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -15,6 +18,7 @@ generated_cc_atom(
         ":GrGLSLBlend_hdr",
         ":GrGLSLFragmentShaderBuilder_hdr",
         ":GrGLSLProgramBuilder_hdr",
+        "//include/private:SkSLString_hdr",
     ],
 )
 
