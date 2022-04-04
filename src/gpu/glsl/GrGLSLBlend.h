@@ -23,16 +23,6 @@ namespace GrGLSLBlend {
 const char* BlendFuncName(SkBlendMode mode);
 
 /**
- * Appends GLSL code to fsBuilder that assigns a specified blend of the srcColor and dstColor
- * variables to the outColor variable.
- */
-void AppendMode(GrGLSLShaderBuilder* fsBuilder,
-                const char* srcColor,
-                const char* dstColor,
-                const char* outColor,
-                SkBlendMode mode);
-
-/**
  * Returns an SkSL expression that blends the passed-in srcColor and dstColor values.
  * Matching calls to SetBlendModeUniformData and BlendKey must be made from your GrProcessor.
  */

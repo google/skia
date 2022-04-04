@@ -47,14 +47,6 @@ const char* BlendFuncName(SkBlendMode mode) {
     SkUNREACHABLE;
 }
 
-void AppendMode(GrGLSLShaderBuilder* fsBuilder,
-                const char* srcColor,
-                const char* dstColor,
-                const char* outColor,
-                SkBlendMode mode) {
-    fsBuilder->codeAppendf("%s = %s(%s, %s);", outColor, BlendFuncName(mode), srcColor, dstColor);
-}
-
 std::string BlendExpression(const GrProcessor* processor,
                             GrGLSLUniformHandler* uniformHandler,
                             GrGLSLProgramDataManager::UniformHandle* blendUniform,

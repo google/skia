@@ -105,15 +105,14 @@ private:
 };
 
 void CustomXP::onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const {
-    uint32_t key = 0;
     if (this->hasHWBlendEquation()) {
         SkASSERT(caps.advBlendEqInteraction() > 0);  // 0 will mean !xp.hasHWBlendEquation().
-        key |= caps.advBlendEqInteraction();
-        static_assert(GrShaderCaps::kLast_AdvBlendEqInteraction < 4);
+        b->addBool(true, "has hardware blend equation");
+        b->add32(caps.advBlendEqInteraction());
     } else {
-        key |= static_cast<int>(fMode) << 3;
+        b->addBool(false, "has hardware blend equation");
+        b->add32(GrGLSLBlend::BlendKey(fMode));
     }
-    b->add32(key);
 }
 
 std::unique_ptr<GrXferProcessor::ProgramImpl> CustomXP::makeProgramImpl() const {
@@ -147,7 +146,9 @@ std::unique_ptr<GrXferProcessor::ProgramImpl> CustomXP::makeProgramImpl() const 
             const CustomXP& xp = proc.cast<CustomXP>();
             SkASSERT(!xp.hasHWBlendEquation());
 
-            GrGLSLBlend::AppendMode(fragBuilder, srcColor, dstColor, outColor, xp.fMode);
+            std::string blendExpr = GrGLSLBlend::BlendExpression(
+                    &xp, uniformHandler, &fBlendUniform, srcColor, dstColor, xp.fMode);
+            fragBuilder->codeAppendf("%s = %s;", outColor, blendExpr.c_str());
 
             // Apply coverage.
             DefaultCoverageModulation(fragBuilder,
@@ -157,6 +158,16 @@ std::unique_ptr<GrXferProcessor::ProgramImpl> CustomXP::makeProgramImpl() const 
                                       outColorSecondary,
                                       xp);
         }
+
+        void onSetData(const GrGLSLProgramDataManager& pdman,
+                       const GrXferProcessor& proc) override {
+            if (fBlendUniform.isValid()) {
+                const CustomXP& xp = proc.cast<CustomXP>();
+                GrGLSLBlend::SetBlendModeUniformData(pdman, fBlendUniform, xp.fMode);
+            }
+        }
+
+        GrGLSLUniformHandler::UniformHandle fBlendUniform;
     };
 
     return std::make_unique<Impl>();

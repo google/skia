@@ -527,7 +527,7 @@ private:
 
 
 void ShaderPDXferProcessor::onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder* b) const {
-    b->add32(static_cast<int>(fXfermode));
+    b->add32(GrGLSLBlend::BlendKey(fXfermode));
 }
 
 std::unique_ptr<GrXferProcessor::ProgramImpl> ShaderPDXferProcessor::makeProgramImpl() const {
@@ -543,7 +543,9 @@ std::unique_ptr<GrXferProcessor::ProgramImpl> ShaderPDXferProcessor::makeProgram
                                      const GrXferProcessor& proc) override {
             const ShaderPDXferProcessor& xp = proc.cast<ShaderPDXferProcessor>();
 
-            GrGLSLBlend::AppendMode(fragBuilder, srcColor, dstColor, outColor, xp.fXfermode);
+            std::string blendExpr = GrGLSLBlend::BlendExpression(
+                    &xp, uniformHandler, &fBlendUniform, srcColor, dstColor, xp.fXfermode);
+            fragBuilder->codeAppendf("%s = %s;", outColor, blendExpr.c_str());
 
             // Apply coverage.
             DefaultCoverageModulation(fragBuilder,
@@ -553,6 +555,16 @@ std::unique_ptr<GrXferProcessor::ProgramImpl> ShaderPDXferProcessor::makeProgram
                                       outColorSecondary,
                                       xp);
         }
+
+        void onSetData(const GrGLSLProgramDataManager& pdman,
+                       const GrXferProcessor& proc) override {
+            if (fBlendUniform.isValid()) {
+                const ShaderPDXferProcessor& xp = proc.cast<ShaderPDXferProcessor>();
+                GrGLSLBlend::SetBlendModeUniformData(pdman, fBlendUniform, xp.fXfermode);
+            }
+        }
+
+        GrGLSLUniformHandler::UniformHandle fBlendUniform;
     };
 
     return std::make_unique<Impl>();
