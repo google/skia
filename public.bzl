@@ -275,6 +275,19 @@ GL_SRCS_UNIX = struct(
     ],
     exclude = [],
 )
+GL_SRCS_UNIX_EGL = struct(
+    include = [
+        "src/gpu/gl/*.cpp",
+        "src/gpu/gl/*.h",
+        "src/gpu/gl/builders/*.cpp",
+        "src/gpu/gl/builders/*.h",
+        "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
+        "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+    ],
+    exclude = [
+        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+    ],
+)
 PORTS_SRCS_UNIX = struct(
     include = [
         "src/ports/**/*.cpp",
@@ -521,6 +534,7 @@ def ports_srcs(os_conditions):
             skia_glob(PORTS_SRCS_FUCHSIA),
             skia_glob(PORTS_SRCS_MACOS),
             skia_glob(PORTS_SRCS_ANDROID_NO_FONT),
+            skia_glob(PORTS_SRCS_UNIX),
         ],
     )
 
@@ -535,6 +549,7 @@ def gl_srcs(os_conditions):
             skia_glob(GL_SRCS_FUCHSIA),
             skia_glob(GL_SRCS_MACOS),
             skia_glob(GL_SRCS_ANDROID),
+            skia_glob(GL_SRCS_UNIX_EGL),
         ],
     )
 
