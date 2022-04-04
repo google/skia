@@ -1281,8 +1281,8 @@ DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) 
 
 // The 99% case. No clip. Non-color only.
 void direct_2D(SkZip<Mask2DVertex[4],
-               const GrGlyph*,
-               const DirectMaskSubRun::DevicePosition> quadData,
+                     const GrGlyph*,
+                     const DirectMaskSubRun::DevicePosition> quadData,
                GrColor color,
                SkPoint originOffset) {
     for (auto[quad, glyph, leftTop] : quadData) {
@@ -3067,7 +3067,7 @@ sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* c
 // -- DirectMaskSubRunSlug -------------------------------------------------------------------------
 class DirectMaskSubRunSlug final : public GrSubRun, public GrAtlasSubRun {
 public:
-    using DevicePosition = skvx::Vec<2, int16_t>;
+    using DevicePosition = DirectMaskSubRun::DevicePosition;
 
     DirectMaskSubRunSlug(const GrTextReferenceFrame* referenceFrame,
                          GrMaskFormat format,
@@ -3334,26 +3334,6 @@ DirectMaskSubRunSlug::regenerateAtlas(int begin, int end, GrMeshDrawTarget* targ
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
 }
 
-// The 99% case. No clip. Non-color only.
-void direct_2D3(SkZip<Mask2DVertex[4],
-        const GrGlyph*,
-        const DirectMaskSubRunNoCache::DevicePosition> quadData,
-                GrColor color,
-                SkPoint originOffset) {
-    for (auto[quad, glyph, leftTop] : quadData) {
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        SkScalar dl = leftTop[0] + originOffset.x(),
-                 dt = leftTop[1] + originOffset.y(),
-                 dr = dl + (ar - al),
-                 db = dt + (ab - at);
-
-        quad[0] = {{dl, dt}, color, {al, at}};  // L,T
-        quad[1] = {{dl, db}, color, {al, ab}};  // L,B
-        quad[2] = {{dr, dt}, color, {ar, at}};  // R,T
-        quad[3] = {{dr, db}, color, {ar, ab}};  // R,B
-    }
-}
-
 template<typename Quad, typename VertexData>
 void transformed_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
                            GrColor color,
@@ -3421,7 +3401,7 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
             if (fMaskFormat != kARGB_GrMaskFormat) {
                 using Quad = Mask2DVertex[4];
                 SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
-                direct_2D3(quadData((Quad*)vertexDst), color, originOffset);
+                direct_2D(quadData((Quad*)vertexDst), color, originOffset);
             } else {
                 using Quad = ARGB2DVertex[4];
                 SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(SkMatrix::I()));
