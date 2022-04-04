@@ -70,6 +70,16 @@ std::string BlendExpression(const GrProcessor* processor,
             return SkSL::String::printf("blend_porter_duff(%s, %s, %s)",
                                         srcColor, dstColor, blendName);
         }
+        case SkBlendMode::kHue:
+        case SkBlendMode::kSaturation:
+        case SkBlendMode::kLuminosity:
+        case SkBlendMode::kColor: {
+            const char* blendName;
+            *blendUniform = uniformHandler->addUniform(processor, kFragment_GrShaderFlag,
+                                                       SkSLType::kHalf2, "blend", &blendName);
+            return SkSL::String::printf("blend_hslc(%s, %s, %s.x, bool(%s.y))",
+                                        srcColor, dstColor, blendName, blendName);
+        }
         default: {
             return SkSL::String::printf("%s(%s, %s)",
                                         BlendFuncName(mode), srcColor, dstColor);
@@ -91,6 +101,12 @@ int BlendKey(SkBlendMode mode) {
         case SkBlendMode::kPlus:
             return -1;
 
+        case SkBlendMode::kHue:
+        case SkBlendMode::kSaturation:
+        case SkBlendMode::kLuminosity:
+        case SkBlendMode::kColor:
+            return -2;
+
         default:
             return (int)mode;
     }
@@ -100,16 +116,22 @@ void SetBlendModeUniformData(const GrGLSLProgramDataManager& pdman,
                              GrGLSLProgramDataManager::UniformHandle blendUniform,
                              SkBlendMode mode) {
     switch (mode) {
-        case SkBlendMode::kSrcOver: pdman.set4f(blendUniform, 1, 0,  0, -1); break;
-        case SkBlendMode::kDstOver: pdman.set4f(blendUniform, 0, 1, -1,  0); break;
-        case SkBlendMode::kSrcIn:   pdman.set4f(blendUniform, 0, 0,  1,  0); break;
-        case SkBlendMode::kDstIn:   pdman.set4f(blendUniform, 0, 0,  0,  1); break;
-        case SkBlendMode::kSrcOut:  pdman.set4f(blendUniform, 0, 0, -1,  0); break;
-        case SkBlendMode::kDstOut:  pdman.set4f(blendUniform, 0, 0,  0, -1); break;
-        case SkBlendMode::kSrcATop: pdman.set4f(blendUniform, 0, 0,  1, -1); break;
-        case SkBlendMode::kDstATop: pdman.set4f(blendUniform, 0, 0, -1,  1); break;
-        case SkBlendMode::kXor:     pdman.set4f(blendUniform, 0, 0, -1, -1); break;
-        case SkBlendMode::kPlus:    pdman.set4f(blendUniform, 1, 1,  0,  0); break;
+        case SkBlendMode::kSrcOver:    pdman.set4f(blendUniform, 1, 0,  0, -1); break;
+        case SkBlendMode::kDstOver:    pdman.set4f(blendUniform, 0, 1, -1,  0); break;
+        case SkBlendMode::kSrcIn:      pdman.set4f(blendUniform, 0, 0,  1,  0); break;
+        case SkBlendMode::kDstIn:      pdman.set4f(blendUniform, 0, 0,  0,  1); break;
+        case SkBlendMode::kSrcOut:     pdman.set4f(blendUniform, 0, 0, -1,  0); break;
+        case SkBlendMode::kDstOut:     pdman.set4f(blendUniform, 0, 0,  0, -1); break;
+        case SkBlendMode::kSrcATop:    pdman.set4f(blendUniform, 0, 0,  1, -1); break;
+        case SkBlendMode::kDstATop:    pdman.set4f(blendUniform, 0, 0, -1,  1); break;
+        case SkBlendMode::kXor:        pdman.set4f(blendUniform, 0, 0, -1, -1); break;
+        case SkBlendMode::kPlus:       pdman.set4f(blendUniform, 1, 1,  0,  0); break;
+
+        case SkBlendMode::kHue:        pdman.set2f(blendUniform, 0, 1); break;
+        case SkBlendMode::kSaturation: pdman.set2f(blendUniform, 1, 1); break;
+        case SkBlendMode::kColor:      pdman.set2f(blendUniform, 0, 0); break;
+        case SkBlendMode::kLuminosity: pdman.set2f(blendUniform, 1, 0); break;
+
         default:                    /* no uniform data necessary */ break;
     }
 }

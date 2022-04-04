@@ -475,38 +475,34 @@ half3 $blend_set_color_saturation(half3 hueLumColor, half3 satColor) {
     }
 }
 
-half4 blend_hue(half4 src, half4 dst) {
-    half alpha = dst.a*src.a;
-    half3 sda = src.rgb*dst.a;
-    half3 dsa = dst.rgb*src.a;
-    return half4($blend_set_color_luminance($blend_set_color_saturation(sda, dsa), alpha, dsa) +
-                 dst.rgb - dsa + src.rgb - sda,
+half4 blend_hslc(half4 src, half4 dst, half flip, bool saturate) {
+    half alpha = dst.a * src.a;
+    half3 sda = src.rgb * dst.a;
+    half3 dsa = dst.rgb * src.a;
+    half3 l = mix(sda, dsa, flip);
+    half3 r = mix(dsa, sda, flip);
+    if (saturate) {
+        l = $blend_set_color_saturation(l, r);
+        r = dsa;
+    }
+    return half4($blend_set_color_luminance(l, alpha, r) + dst.rgb - dsa + src.rgb - sda,
                  src.a + dst.a - alpha);
+}
+
+half4 blend_hue(half4 src, half4 dst) {
+    return blend_hslc(src, dst, /*flip=*/0, /*saturate=*/true);
 }
 
 half4 blend_saturation(half4 src, half4 dst) {
-    half alpha = dst.a*src.a;
-    half3 sda = src.rgb*dst.a;
-    half3 dsa = dst.rgb*src.a;
-    return half4($blend_set_color_luminance($blend_set_color_saturation(dsa, sda), alpha, dsa) +
-                 dst.rgb - dsa + src.rgb - sda,
-                 src.a + dst.a - alpha);
+    return blend_hslc(src, dst, /*flip=*/1, /*saturate=*/true);
 }
 
 half4 blend_color(half4 src, half4 dst)  {
-    half alpha = dst.a*src.a;
-    half3 sda = src.rgb*dst.a;
-    half3 dsa = dst.rgb*src.a;
-    return half4($blend_set_color_luminance(sda, alpha, dsa) + dst.rgb - dsa + src.rgb - sda,
-                 src.a + dst.a - alpha);
+    return blend_hslc(src, dst, /*flip=*/0, /*saturate=*/false);
 }
 
 half4 blend_luminosity(half4 src, half4 dst) {
-    half alpha = dst.a*src.a;
-    half3 sda = src.rgb*dst.a;
-    half3 dsa = dst.rgb*src.a;
-    return half4($blend_set_color_luminance(dsa, alpha, sda) + dst.rgb - dsa + src.rgb - sda,
-                 src.a + dst.a - alpha);
+    return blend_hslc(src, dst, /*flip=*/1, /*saturate=*/false);
 }
 
 // The max() guards against division by zero when the incoming color is transparent black
