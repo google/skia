@@ -66,6 +66,10 @@ bool paint_depends_on_dst(const PaintParams& paintParams) {
     }
 }
 
+SkIRect rect_to_pixelbounds(const Rect& r) {
+    return skvx::bit_pun<SkIRect>(skvx::cast<int>(r.makeRoundOut().ltrb()));
+}
+
 } // anonymous namespace
 
 /**
@@ -158,6 +162,7 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         : SkBaseDevice(dc->imageInfo(), SkSurfaceProps())
         , fRecorder(recorder)
         , fDC(std::move(dc))
+        , fClip(SkIRect::MakeSize(fDC->target()->dimensions()))
         , fColorDepthBoundsManager(std::make_unique<NaiveBoundsManager>())
         , fDisjointStencilSet(std::make_unique<IntersectionTreeSet>())
         , fCurrentDepth(DrawOrder::kClearDepth)
@@ -248,10 +253,126 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
     return fDC->recordUpload(fRecorder, sk_ref_sp(target), src.colorType(), levels, dstRect);
 }
 
-SkIRect Device::onDevClipBounds() const {
-    auto target = fDC->target();
-    return SkIRect::MakeSize(target->dimensions());
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool Device::onClipIsAA() const {
+    // All clips are AA'ed unless it's wide-open, empty, or a device-rect with integer coordinates
+    ClipStack::ClipState type = fClip.clipState();
+    if (type == ClipStack::ClipState::kWideOpen || type == ClipStack::ClipState::kEmpty) {
+        return false;
+    } else if (type == ClipStack::ClipState::kDeviceRect) {
+        const ClipStack::Element rect = *fClip.begin();
+        SkASSERT(rect.fShape.isRect() && rect.fLocalToDevice.type() == Transform::Type::kIdentity);
+        return rect.fShape.rect() != rect.fShape.rect().makeRoundOut();
+    } else {
+        return true;
+    }
 }
+
+SkBaseDevice::ClipType Device::onGetClipType() const {
+    ClipStack::ClipState state = fClip.clipState();
+    if (state == ClipStack::ClipState::kEmpty) {
+        return ClipType::kEmpty;
+    } else if (state == ClipStack::ClipState::kDeviceRect ||
+               state == ClipStack::ClipState::kWideOpen) {
+        return ClipType::kRect;
+    } else {
+        return ClipType::kComplex;
+    }
+}
+
+SkIRect Device::onDevClipBounds() const {
+    return rect_to_pixelbounds(fClip.conservativeBounds());
+}
+
+// TODO: This is easy enough to support, but do we still need this API in Skia at all?
+void Device::onAsRgnClip(SkRegion* region) const {
+    SkIRect bounds = this->devClipBounds();
+    // Assume wide open and then perform intersect/difference operations reducing the region
+    region->setRect(bounds);
+    const SkRegion deviceBounds(bounds);
+    for (const ClipStack::Element& e : fClip) {
+        SkRegion tmp;
+        if (e.fShape.isRect() && e.fLocalToDevice.type() == Transform::Type::kIdentity) {
+            tmp.setRect(rect_to_pixelbounds(e.fShape.rect()));
+        } else {
+            SkPath tmpPath = e.fShape.asPath();
+            tmpPath.transform(e.fLocalToDevice);
+            tmp.setPath(tmpPath, deviceBounds);
+        }
+
+        region->op(tmp, (SkRegion::Op) e.fOp);
+    }
+}
+
+void Device::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
+    SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+    // TODO: Cached transform?
+    Transform localToDevice(this->localToDevice44());
+    // TODO: Snap rect edges to pixel bounds if non-AA and axis-aligned?
+    fClip.clipShape(localToDevice, Shape{rect}, op);
+}
+
+void Device::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+    SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+    // TODO: Cached transform?
+    Transform localToDevice(this->localToDevice44());
+    // TODO: Snap rrect edges to pixel bounds if non-AA and axis-aligned? Is that worth doing to
+    // seam with non-AA rects even if the curves themselves are AA'ed?
+    fClip.clipShape(localToDevice, Shape{rrect}, op);
+}
+
+void Device::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+    SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+    // TODO: Cached transform?
+    Transform localToDevice(this->localToDevice44());
+    // TODO: Ensure all path inspection is handled here or in SkCanvas, and that non-AA rects as
+    // paths are routed appropriately.
+    // TODO: Must also detect paths that are lines so the clip stack can be set to empty
+    fClip.clipShape(localToDevice, Shape{path}, op);
+}
+
+void Device::onClipShader(sk_sp<SkShader> shader) {
+    fClip.clipShader(std::move(shader));
+}
+
+// TODO: Is clipRegion() on the deprecation chopping block. If not it should be...
+void Device::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
+    SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+
+    Transform globalToDevice{this->globalToDevice()};
+
+    if (globalRgn.isEmpty()) {
+        fClip.clipShape(globalToDevice, Shape{}, op);
+    } else if (globalRgn.isRect()) {
+        // TODO: Region clips are non-AA so this should match non-AA onClipRect(), but we use a
+        // different transform so can't just call that instead.
+        fClip.clipShape(globalToDevice, Shape{SkRect::Make(globalRgn.getBounds())}, op);
+    } else {
+        // TODO: Can we just iterate the region and do non-AA rects for each chunk?
+        SkPath path;
+        globalRgn.getBoundaryPath(&path);
+        fClip.clipShape(globalToDevice, Shape{path}, op);
+    }
+}
+
+void Device::onReplaceClip(const SkIRect& rect) {
+    // ReplaceClip() is currently not intended to be supported in Graphite since it's only used
+    // for emulating legacy clip ops in Android Framework, and apps/devices that require that
+    // should not use Graphite. However, if it needs to be supported, we could probably implement
+    // it by:
+    //  1. Flush all pending clip element depth draws.
+    //  2. Draw a fullscreen rect to the depth attachment using a Z value greater than what's
+    //     been used so far.
+    //  3. Make sure all future "unclipped" draws use this Z value instead of 0 so they aren't
+    //     sorted before the depth reset.
+    //  4. Make sure all prior elements are inactive so they can't affect subsequent draws.
+    //
+    // For now, just ignore it.
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 void Device::drawPaint(const SkPaint& paint) {
     // TODO: check paint params as well
@@ -364,6 +485,10 @@ void Device::drawShape(const Shape& shape,
         this->drawShape(shape, paint, style, flags | DrawFlags::kIgnoreMaskFilter);
         return;
     }
+
+    // TODO: Manually snap pixels for rects, rrects, and lines if paint is non-AA (ideally also
+    // consider snapping stroke width and/or adjusting geometry for hairlines). This pixel snapping
+    // math should be consistent with how non-AA clip [r]rects are handled.
 
     // If we got here, then path effects and mask filters should have been handled and the style
     // should be fill or stroke/hairline. Stroke-and-fill is not handled by DrawContext, but is

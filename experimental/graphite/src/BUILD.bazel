@@ -186,6 +186,7 @@ generated_cc_atom(
     hdrs = ["Device.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":ClipStack_graphite_hdr",
         ":DrawOrder_hdr",
         ":EnumBitMask_hdr",
         "//experimental/graphite/src/geom:Rect_hdr",

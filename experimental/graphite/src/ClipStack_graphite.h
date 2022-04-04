@@ -249,8 +249,9 @@ private:
     RawElement::Stack fElements;
     SaveRecord::Stack fSaves; // always has one wide open record at the top
 
-    // Will have integer coordinates, but is converted to Rect for ease of use.
-    const Rect fDeviceBounds;
+    // Will have integer coordinates, but is converted to SkRect for ease of use.
+    // NOTE: Not an skgpu::Rect because we want to avoid ClipStack itself being over-aligned.
+    const SkRect fDeviceBounds;
 };
 
 // Clip element iteration

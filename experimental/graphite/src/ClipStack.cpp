@@ -769,14 +769,14 @@ Rect ClipStack::conservativeBounds() const {
     if (current.state() == ClipState::kEmpty) {
         return Rect::InfiniteInverted();
     } else if (current.state() == ClipState::kWideOpen) {
-        return fDeviceBounds;
+        return Rect{fDeviceBounds};
     } else {
         if (current.op() == SkClipOp::kDifference) {
             // The outer/inner bounds represent what's cut out, so full bounds remains the device
             // bounds, minus any fully clipped content that spans the device edge.
-            return subtract(fDeviceBounds, current.innerBounds(), /* exact */ true);
+            return subtract(Rect{fDeviceBounds}, current.innerBounds(), /* exact */ true);
         } else {
-            SkASSERT(fDeviceBounds.contains(current.outerBounds()));
+            SkASSERT(fDeviceBounds.contains(current.outerBounds().asSkRect()));
             return current.outerBounds();
         }
     }
@@ -821,7 +821,7 @@ void ClipStack::clipShape(const Transform& localToDevice, const Shape& shape, Sk
     // effect of all elements while device bounds clipping happens implicitly. During addElement,
     // we may still be able to invalidate some older elements).
     // NOTE: Does not try to simplify the shape type by inspecting the SkPath.
-    RawElement element{fDeviceBounds, localToDevice, shape, op};
+    RawElement element{Rect{fDeviceBounds}, localToDevice, shape, op};
     SkASSERT(!element.shape().inverted());
 
     // An empty op means do nothing (for difference), or close the save record, so we try and detect
