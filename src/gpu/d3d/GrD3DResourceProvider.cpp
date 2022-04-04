@@ -136,6 +136,9 @@ static D3D12_TEXTURE_ADDRESS_MODE wrap_mode_to_d3d_address_mode(GrSamplerState::
 }
 
 static D3D12_FILTER d3d_filter(GrSamplerState sampler) {
+    if (sampler.isAniso()) {
+        return D3D12_FILTER_ANISOTROPIC;
+    }
     switch (sampler.mipmapMode()) {
         // When the mode is kNone we disable filtering using maxLOD.
         case GrSamplerState::MipmapMode::kNone:
@@ -157,7 +160,9 @@ static D3D12_FILTER d3d_filter(GrSamplerState sampler) {
 
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler(
         const GrSamplerState& params) {
-    uint32_t key = params.asKey();
+    // In D3D anisotropic filtering uses the same field (D3D12_SAMPLER_DESC::Filter) as min/mag/mip
+    // settings and so is not orthogonal to them.
+    uint32_t key = params.asKey(/*anisoIsOrthogonal=*/false);
     D3D12_CPU_DESCRIPTOR_HANDLE* samplerPtr = fSamplers.find(key);
     if (samplerPtr) {
         return *samplerPtr;

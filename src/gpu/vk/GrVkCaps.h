@@ -176,6 +176,8 @@ public:
 
     uint32_t maxInputAttachmentDescriptors() const { return fMaxInputAttachmentDescriptors; }
 
+    float maxSamplerAnisotropy() const { return fMaxSamplerAnisotropy; }
+
     bool mustInvalidatePrimaryCmdBufferStateAfterClearAttachments() const {
         return fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments;
     }
@@ -445,6 +447,8 @@ private:
     int fMaxPerPoolCachedSecondaryCommandBuffers = 100;
 
     uint32_t fMaxInputAttachmentDescriptors = 0;
+
+    float fMaxSamplerAnisotropy = 1.f;
 
     bool fMustLoadFullImageWithDiscardableMSAA = false;
     bool fSupportsDiscardableMSAAForDMSAA = true;

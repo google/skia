@@ -61,8 +61,9 @@ GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu, GrSamplerState samplerState,
     createInfo.addressModeV = wrap_mode_to_vk_sampler_address(samplerState.wrapModeY());
     createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE; // Shouldn't matter
     createInfo.mipLodBias = 0.0f;
-    createInfo.anisotropyEnable = VK_FALSE;
-    createInfo.maxAnisotropy = 1.0f;
+    createInfo.anisotropyEnable = samplerState.isAniso() ? VK_TRUE : VK_FALSE;
+    createInfo.maxAnisotropy = std::min(static_cast<float>(samplerState.maxAniso()),
+                                        gpu->vkCaps().maxSamplerAnisotropy());
     createInfo.compareEnable = VK_FALSE;
     createInfo.compareOp = VK_COMPARE_OP_NEVER;
     // Vulkan doesn't have a direct mapping of GL's nearest or linear filters for minFilter since
@@ -133,5 +134,8 @@ void GrVkSampler::freeGPUData() const {
 
 GrVkSampler::Key GrVkSampler::GenerateKey(GrSamplerState samplerState,
                                           const GrVkYcbcrConversionInfo& ycbcrInfo) {
-    return {samplerState.asKey(), GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo)};
+    // In VK the max aniso value is specified in addition to min/mag/mip filters and the
+    // driver is encouraged to consider the other filter settings when doing aniso.
+    return {samplerState.asKey(/*anisoIsOrthogonal=*/true),
+            GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo)};
 }

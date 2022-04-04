@@ -237,7 +237,9 @@ public:
     }
 
     void bindSampler(int unitIdx, GrSamplerState state) {
-        uint32_t key = state.asKey();
+        // In GL the max aniso value is specified in addition to min/mag filters and the driver
+        // is encouraged to consider the other filter settings when doing aniso.
+        uint32_t key = state.asKey(/*anisoIsOrthogonal=*/true);
         const Sampler* sampler = fSamplers.find(key);
         if (!sampler) {
             GrGLuint s;
@@ -256,6 +258,14 @@ public:
                        SamplerParameteri(s, GR_GL_TEXTURE_MAG_FILTER, magFilter));
             GR_GL_CALL(fGpu->glInterface(), SamplerParameteri(s, GR_GL_TEXTURE_WRAP_S, wrapX));
             GR_GL_CALL(fGpu->glInterface(), SamplerParameteri(s, GR_GL_TEXTURE_WRAP_T, wrapY));
+            SkASSERT(fGpu->glCaps().anisoSupport() || !state.isAniso());
+            if (fGpu->glCaps().anisoSupport()) {
+                float maxAniso = std::min(static_cast<GrGLfloat>(state.maxAniso()),
+                                          fGpu->glCaps().maxTextureMaxAnisotropy());
+                GR_GL_CALL(fGpu->glInterface(), SamplerParameterf(s,
+                                                                  GR_GL_TEXTURE_MAX_ANISOTROPY,
+                                                                  maxAniso));
+            }
         }
         SkASSERT(sampler && sampler->id());
         if (!fTextureUnitStates[unitIdx].fKnown ||
@@ -1352,7 +1362,9 @@ static sk_sp<GrTexture> return_null_texture() {
 }
 
 static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
-        const GrGLInterface* interface, GrGLenum target) {
+        const GrGLInterface* interface,
+        const GrGLCaps& caps,
+        GrGLenum target) {
     // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
     // drivers have a bug where an FBO won't be complete if it includes a
     // texture that is not mipmap complete (considering the filter in use).
@@ -1365,6 +1377,9 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
     GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, state.fMinFilter));
     GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_WRAP_S, state.fWrapS));
     GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_WRAP_T, state.fWrapT));
+    if (caps.anisoSupport()) {
+        GR_GL_CALL(interface, TexParameterf(target, GR_GL_TEXTURE_MAX_ANISOTROPY, 1.f));
+    }
     return state;
 }
 
@@ -1711,7 +1726,9 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
 
     set_khr_debug_label(this, id);
 
-    *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
+    *initialState = set_initial_texture_params(this->glInterface(),
+                                               this->glCaps(),
+                                               GR_GL_TEXTURE_2D);
 
     return id;
 }
@@ -1743,9 +1760,9 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
     }
 
     if (initialState) {
-        *initialState = set_initial_texture_params(this->glInterface(), target);
+        *initialState = set_initial_texture_params(this->glInterface(), this->glCaps(), target);
     } else {
-        set_initial_texture_params(this->glInterface(), target);
+        set_initial_texture_params(this->glInterface(), this->glCaps(), target);
     }
 
     if (GrProtected::kYes == isProtected) {
@@ -2725,6 +2742,9 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const skgpu:
         newSamplerState.fWrapS = wrap_mode_to_gl_wrap(samplerState.wrapModeX(), this->glCaps());
         newSamplerState.fWrapT = wrap_mode_to_gl_wrap(samplerState.wrapModeY(), this->glCaps());
 
+        newSamplerState.fMaxAniso = std::min(static_cast<GrGLfloat>(samplerState.maxAniso()),
+                                             this->glCaps().maxTextureMaxAnisotropy());
+
         // These are the OpenGL default values.
         newSamplerState.fMinLOD = -1000.f;
         newSamplerState.fMaxLOD = 1000.f;
@@ -2761,6 +2781,13 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const skgpu:
                 this->setTextureUnit(unitIdx);
                 static const GrGLfloat kTransparentBlack[4] = {0.f, 0.f, 0.f, 0.f};
                 GL_CALL(TexParameterfv(target, GR_GL_TEXTURE_BORDER_COLOR, kTransparentBlack));
+            }
+        }
+        if (this->caps()->anisoSupport()) {
+            if (setAll || oldSamplerState.fMaxAniso != newSamplerState.fMaxAniso) {
+                GL_CALL(TexParameterf(target,
+                                      GR_GL_TEXTURE_MAX_ANISOTROPY,
+                                      newSamplerState.fMaxAniso));
             }
         }
     }

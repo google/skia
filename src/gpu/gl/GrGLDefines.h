@@ -631,6 +631,8 @@
 #define GR_GL_TEXTURE_WRAP_S                 0x2802
 #define GR_GL_TEXTURE_WRAP_T                 0x2803
 #define GR_GL_TEXTURE_USAGE                  0x93A2
+#define GR_GL_TEXTURE_MAX_ANISOTROPY         0x84FE
+#define GR_GL_MAX_TEXTURE_MAX_ANISOTROPY     0x84FF
 
 /* TextureTarget */
 /*      GL_TEXTURE_2D */

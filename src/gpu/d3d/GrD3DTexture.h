@@ -84,7 +84,11 @@ private:
     }
 
     struct SamplerHash {
-        uint32_t operator()(GrSamplerState state) const { return state.asKey(); }
+        uint32_t operator()(GrSamplerState state) const {
+            // In D3D anisotropic filtering uses the same field (D3D12_SAMPLER_DESC::Filter) as
+            // min/mag/mip settings and so is not orthogonal to them.
+            return state.asKey(/*anisoIsOrthogonal=*/false);
+        }
     };
 
     GrD3DDescriptorHeap::CPUHandle fShaderResourceView;

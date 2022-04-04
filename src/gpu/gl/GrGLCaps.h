@@ -141,6 +141,8 @@ public:
     }
     int maxRenderTargetSampleCount(GrGLFormat) const;
 
+    float maxTextureMaxAnisotropy() const { return fMaxTextureMaxAnisotropy; }
+
     bool isFormatCopyable(const GrBackendFormat&) const override;
 
     bool canFormatBeFBOColorAttachment(GrGLFormat) const;
@@ -553,6 +555,7 @@ private:
     SkTArray<GrGLenum, true> fProgramBinaryFormats;
 
     int fMaxFragmentUniformVectors = 0;
+    float fMaxTextureMaxAnisotropy = 1.f;
 
     MSFBOType           fMSFBOType          = kNone_MSFBOType;
     InvalidateFBType    fInvalidateFBType   = kNone_InvalidateFBType;

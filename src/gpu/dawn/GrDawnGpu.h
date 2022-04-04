@@ -241,7 +241,9 @@ private:
 
     struct SamplerHash {
         size_t operator()(GrSamplerState samplerState) const {
-            return SkOpts::hash_fn(&samplerState, sizeof(samplerState), 0);
+            // In WebGPU it is required that minFilter, magFilter, and mipmapFilter are all
+            // "linear" when maxAnisotropy is > 1.
+            return samplerState.asKey(/*anisoIsOrthogonal=*/false);
         }
     };
 

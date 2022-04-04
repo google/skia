@@ -38,6 +38,7 @@ public:
         GrGLenum fWrapT;
         GrGLfloat fMinLOD;
         GrGLfloat fMaxLOD;
+        GrGLfloat fMaxAniso;
         // We always want the border color to be transparent black, so no need to store 4 floats.
         // Just track if it's been invalidated and no longer the default
         bool fBorderColorInvalid;

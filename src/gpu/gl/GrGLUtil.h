@@ -245,6 +245,12 @@ enum class GrGLANGLEBackend {
         GR_GL_CALL(gl, GetIntegerv(e, p));                                     \
     } while (0)
 
+#define GR_GL_GetFloatv(gl, e, p)                                              \
+    do {                                                                       \
+        *(p) = GR_GL_INIT_ZERO;                                                \
+        GR_GL_CALL(gl, GetFloatv(e, p));                                       \
+    } while (0)
+
 #define GR_GL_GetFramebufferAttachmentParameteriv(gl, t, a, pname, p)          \
     do {                                                                       \
         *(p) = GR_GL_INIT_ZERO;                                                \

@@ -18,6 +18,7 @@ GrGLTextureParameters::SamplerOverriddenState::SamplerOverriddenState()
         , fWrapT(GR_GL_REPEAT)
         , fMinLOD(-1000.f)
         , fMaxLOD(1000.f)
+        , fMaxAniso(1.f)
         , fBorderColorInvalid(false) {}
 
 void GrGLTextureParameters::SamplerOverriddenState::invalidate() {
@@ -27,6 +28,7 @@ void GrGLTextureParameters::SamplerOverriddenState::invalidate() {
     fWrapT = ~0U;
     fMinLOD = SK_ScalarNaN;
     fMaxLOD = SK_ScalarNaN;
+    fMaxAniso = -1.f;
     fBorderColorInvalid = true;
 }
 

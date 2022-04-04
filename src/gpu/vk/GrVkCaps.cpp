@@ -44,6 +44,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
      * GrCaps fields
      **************************************************************************/
     fMipmapSupport = true;   // always available in Vulkan
+    fAnisoSupport = true;   // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
@@ -390,6 +391,8 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
     fMaxInputAttachmentDescriptors = properties.limits.maxDescriptorSetInputAttachments;
+
+    fMaxSamplerAnisotropy = properties.limits.maxSamplerAnisotropy;
 
     // On desktop GPUs we have found that this does not provide much benefit. The perf results show
     // a mix of regressions, some improvements, and lots of no changes. Thus it is no worth enabling

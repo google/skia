@@ -49,6 +49,8 @@ public:
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
         only for POT textures) */
     bool mipmapSupport() const { return fMipmapSupport; }
+    /** Is anisotropic filtering supported. */
+    bool anisoSupport() const { return fAnisoSupport; }
 
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
@@ -539,6 +541,7 @@ protected:
 
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipmapSupport                              : 1;
+    bool fAnisoSupport                               : 1;
     bool fReuseScratchTextures                       : 1;
     bool fReuseScratchBuffers                        : 1;
     bool fGpuTracingSupport                          : 1;

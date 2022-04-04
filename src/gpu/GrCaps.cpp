@@ -17,8 +17,9 @@
 #include "src/gpu/GrWindowRectangles.h"
 
 GrCaps::GrCaps(const GrContextOptions& options) {
-    fMipmapSupport = false;
     fNPOTTextureTileSupport = false;
+    fMipmapSupport = false;
+    fAnisoSupport = false;
     fReuseScratchTextures = true;
     fReuseScratchBuffers = true;
     fGpuTracingSupport = false;
@@ -197,8 +198,9 @@ static SkString map_flags_to_string(uint32_t flags) {
 void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->beginObject();
 
-    writer->appendBool("MIP Map Support", fMipmapSupport);
     writer->appendBool("NPOT Texture Tile Support", fNPOTTextureTileSupport);
+    writer->appendBool("MIP Map Support", fMipmapSupport);
+    writer->appendBool("Aniso Support", fAnisoSupport);
     writer->appendBool("Reuse Scratch Textures", fReuseScratchTextures);
     writer->appendBool("Reuse Scratch Buffers", fReuseScratchBuffers);
     writer->appendBool("Gpu Tracing Support", fGpuTracingSupport);

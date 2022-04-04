@@ -71,7 +71,8 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
     samplerDesc.mipFilter = mipFilter;
     samplerDesc.lodMinClamp = 0.0f;
     samplerDesc.lodMaxClamp = FLT_MAX;  // default value according to docs.
-    samplerDesc.maxAnisotropy = 1.0f;
+    // Metal documents that maxAnisotropy must be between 1 and 16 inclusive.
+    samplerDesc.maxAnisotropy = std::min(samplerState.maxAniso(), 16);
     samplerDesc.normalizedCoordinates = true;
     if (@available(macOS 10.11, iOS 9.0, *)) {
         samplerDesc.compareFunction = MTLCompareFunctionNever;
@@ -82,7 +83,9 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
 }
 
 GrMtlSampler::Key GrMtlSampler::GenerateKey(GrSamplerState samplerState) {
-    return samplerState.asKey();
+    // We haven't found any documentation on how anisotropy interacts with other filter settings
+    // so assume they are all considered.
+    return samplerState.asKey(/*anisoIsOrthogonal=*/true);
 }
 
 GR_NORETAIN_END

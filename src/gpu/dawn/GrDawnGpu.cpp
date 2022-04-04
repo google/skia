@@ -884,8 +884,14 @@ wgpu::Sampler GrDawnGpu::getOrCreateSampler(GrSamplerState samplerState) {
     desc.addressModeU = to_dawn_address_mode(samplerState.wrapModeX());
     desc.addressModeV = to_dawn_address_mode(samplerState.wrapModeY());
     desc.addressModeW = wgpu::AddressMode::ClampToEdge;
-    desc.magFilter = desc.minFilter = to_dawn_filter_mode(samplerState.filter());
-    desc.mipmapFilter = to_dawn_mipmap_mode(samplerState.mipmapMode());
+    desc.maxAnisotropy = samplerState.maxAniso();
+    if (samplerState.isAniso()) {
+        // WebGPU requires these to be linear when maxAnisotropy is > 1.
+        desc.magFilter = desc.minFilter = desc.mipmapFilter = wgpu::FilterMode::Linear;
+    } else {
+        desc.magFilter = desc.minFilter = to_dawn_filter_mode(samplerState.filter());
+        desc.mipmapFilter = to_dawn_mipmap_mode(samplerState.mipmapMode());
+    }
     wgpu::Sampler sampler = device().CreateSampler(&desc);
     fSamplers.insert(std::pair<GrSamplerState, wgpu::Sampler>(samplerState, sampler));
     return sampler;

@@ -96,7 +96,11 @@ private:
     sk_sp<GrVkImage> fTexture;
 
     struct SamplerHash {
-        uint32_t operator()(GrSamplerState state) const { return state.asKey(); }
+        uint32_t operator()(GrSamplerState state) const {
+            // In VK the max aniso value is specified in addition to min/mag/mip filters and the
+            // driver is encouraged to consider the other filter settings when doing aniso.
+            return state.asKey(/*anisoIsOrthogonal=*/true);
+        }
     };
     struct DescriptorCacheEntry;
     SkLRUCache<const GrSamplerState, std::unique_ptr<DescriptorCacheEntry>, SamplerHash>

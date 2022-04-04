@@ -2634,6 +2634,9 @@ generated_cc_atom(
     deps = [
         "//include/core:SkSamplingOptions_hdr",
         "//include/gpu:GrTypes_hdr",
+        "//include/private:SkTPin_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkMathPriv_hdr",
     ],
 )
 
