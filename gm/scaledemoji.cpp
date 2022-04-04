@@ -18,6 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
+#include "src/utils/SkUTF.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -150,12 +151,22 @@ public:
 protected:
     struct EmojiFont {
         sk_sp<SkTypeface> fTypeface;
-        const char* fText;
+        SkString fText;
     } fEmojiFont;
 
     void onOnceBeforeDraw() override {
         fEmojiFont.fTypeface = ToolUtils::emoji_typeface();
-        fEmojiFont.fText     = ToolUtils::emoji_sample_text();
+
+        int count = 0;
+        const char* ch_ptr = ToolUtils::emoji_sample_text();
+        const char* ch_end = ch_ptr + strlen(ch_ptr);
+        while (ch_ptr < ch_end && count < 2) {
+            SkUnichar ch = SkUTF::NextUTF8(&ch_ptr, ch_end);
+            if (ch != ' ') {
+                fEmojiFont.fText.appendUnichar(ch);
+                ++count;
+            }
+        }
     }
 
     SkString onShortName() override {
@@ -174,9 +185,7 @@ protected:
         SkFont font;
         font.setTypeface(fEmojiFont.fTypeface);
         font.setSize(40);
-        const char* text = "\xF0\x9F\x98\x80"
-                           "\xE2\x99\xA2";  // 😀♢;
-        sk_sp<SkTextBlob> blob = make_hpos_test_blob_utf8(text, font);
+        sk_sp<SkTextBlob> blob = make_hpos_test_blob_utf8(fEmojiFont.fText.c_str(), font);
 
         // draw text at different point sizes
         // Testing GPU bitmap path, SDF path with no scaling,

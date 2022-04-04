@@ -7770,6 +7770,7 @@ generated_cc_atom(
         "//include/core:SkString_hdr",
         "//include/core:SkTextBlob_hdr",
         "//include/core:SkTypeface_hdr",
+        "//src/utils:SkUTF_hdr",
         "//tools:ToolUtils_hdr",
     ],
 )
