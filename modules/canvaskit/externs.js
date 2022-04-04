@@ -760,6 +760,11 @@ var CanvasKit = {
 
   TextStyle: function() {},
 
+  SkpDebugPlayer: {
+    // public API (from C++ bindings)
+    loadSkp: function() {},
+  },
+
   // Constants and Enums
   gpu: {},
   skottie: {},
