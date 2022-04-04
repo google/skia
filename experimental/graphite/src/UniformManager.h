@@ -15,6 +15,8 @@ class SkUniform;
 
 namespace skgpu {
 
+enum class CType : unsigned;
+
 enum class Layout {
     kStd140,
     kStd430,
@@ -24,6 +26,11 @@ enum class Layout {
 class UniformManager {
 public:
     UniformManager(Layout layout);
+
+    void reset();
+#ifdef SK_DEBUG
+    void checkReset() const;
+#endif
 
     /*
      * Use the uniform 'definitions' to write the data in 'srcs' into 'dst' (if it is non-null).
@@ -40,7 +47,20 @@ public:
 private:
     SkSLType getUniformTypeForLayout(SkSLType type);
 
-    Layout fLayout;
+
+    using WriteUniformFn = uint32_t(*)(SkSLType type,
+                                       CType ctype,
+                                       void *dest,
+                                       int n,
+                                       const void *src);
+
+    WriteUniformFn fWriteUniform;
+    Layout fLayout;  // TODO: eventually 'fLayout' will not need to be stored
+#ifdef SK_DEBUG
+    uint32_t fCurUBOOffset;
+    uint32_t fCurUBOMaxAlignment;
+#endif // SK_DEBUG
+    uint32_t fOffset;
 };
 
 } // namespace skgpu
