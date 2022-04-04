@@ -25,11 +25,8 @@ half3 blend_set_color_luminance_Qh3h3hh3(half3 hueSatColor, half alpha, half3 lu
     }
 }
 half3 blend_set_color_saturation_helper_Qh3h3h(half3 minMidMax, half sat) {
-    if (minMidMax.x < minMidMax.z) {
-        return half3(0.0h, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat);
-    } else {
-        return half3(0.0h);
-    }
+    half2 delta = minMidMax.yz - minMidMax.xx;
+    return delta.y >= 9.9999997473787516e-06h ? half3(0.0h, (delta.x / delta.y) * sat, sat) : half3(0.0h);
 }
 half3 blend_set_color_saturation_Qh3h3h3(half3 hueLumColor, half3 satColor) {
     half sat = max(max(satColor.x, satColor.y), satColor.z) - min(min(satColor.x, satColor.y), satColor.z);

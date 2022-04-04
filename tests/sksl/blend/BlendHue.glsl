@@ -17,11 +17,8 @@ vec3 blend_set_color_luminance_Qh3h3hh3(vec3 hueSatColor, float alpha, vec3 lumC
     }
 }
 vec3 blend_set_color_saturation_helper_Qh3h3h(vec3 minMidMax, float sat) {
-    if (minMidMax.x < minMidMax.z) {
-        return vec3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat);
-    } else {
-        return vec3(0.0);
-    }
+    vec2 delta = minMidMax.yz - minMidMax.xx;
+    return delta.y >= 9.9999997473787516e-06 ? vec3(0.0, (delta.x / delta.y) * sat, sat) : vec3(0.0);
 }
 vec3 blend_set_color_saturation_Qh3h3h3(vec3 hueLumColor, vec3 satColor) {
     float sat = max(max(satColor.x, satColor.y), satColor.z) - min(min(satColor.x, satColor.y), satColor.z);
