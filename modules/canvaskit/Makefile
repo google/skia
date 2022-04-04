@@ -171,5 +171,6 @@ with_debugger:
 	mkdir build
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./build/
-	cp ./build/canvaskit.js   ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/
-	cp ./build/canvaskit.wasm ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/
+	cp ./build/canvaskit.js         ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/
+	cp ./build/canvaskit.wasm       ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/
+	cp ./npm_build/types/index.d.ts ${SKIA_INFRA_ROOT}/debugger-app/wasm_libs/local_build/canvaskit.d.ts
