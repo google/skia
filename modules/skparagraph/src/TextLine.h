@@ -86,7 +86,7 @@ public:
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
 
     void format(TextAlign align, SkScalar maxWidth);
-    SkRect paint(SkCanvas* canvas, SkScalar x, SkScalar y);
+    void paint(SkCanvas* canvas, SkScalar x, SkScalar y);
     void visit(SkScalar x, SkScalar y);
     void ensureTextBlobCachePopulated();
 
@@ -126,9 +126,24 @@ private:
     void justify(SkScalar maxWidth);
 
     void buildTextBlob(TextRange textRange, const TextStyle& style, const ClipContext& context);
-    void paintBackground(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    SkRect paintShadow(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    void paintDecorations(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    void paintBackground(SkCanvas* canvas,
+                         SkScalar x,
+                         SkScalar y,
+                         TextRange textRange,
+                         const TextStyle& style,
+                         const ClipContext& context) const;
+    void paintShadow(SkCanvas* canvas,
+                     SkScalar x,
+                     SkScalar y,
+                     TextRange textRange,
+                     const TextStyle& style,
+                     const ClipContext& context) const;
+    void paintDecorations(SkCanvas* canvas,
+                          SkScalar x,
+                          SkScalar y,
+                          TextRange textRange,
+                          const TextStyle& style,
+                          const ClipContext& context) const;
 
     void shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift);
 
