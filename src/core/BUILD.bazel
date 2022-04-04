@@ -5717,6 +5717,7 @@ generated_cc_atom(
     deps = [
         ":SkUniformData_hdr",
         "//experimental/graphite/src:TextureProxy_hdr",
+        "//experimental/graphite/src:UniformManager_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkSamplingOptions_hdr",
         "//include/core:SkTileMode_hdr",

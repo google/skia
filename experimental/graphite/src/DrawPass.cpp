@@ -309,7 +309,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     SkShaderCodeDictionary* dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
-    SkPipelineDataGatherer gatherer;
+    SkPipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
 
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
         if (occlusionCuller && occlusionCuller->isOccluded(draw.fGeometry.clip().drawBounds(),

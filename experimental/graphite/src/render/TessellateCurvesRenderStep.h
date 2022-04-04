@@ -23,7 +23,7 @@ public:
 
     const char* vertexSkSL() const override;
     void writeVertices(DrawWriter*, const DrawGeometry&) const override;
-    void writeUniforms(Layout, const DrawGeometry&, SkPipelineDataGatherer*) const override;
+    void writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const override;
 };
 
 }  // namespace skgpu

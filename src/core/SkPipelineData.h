@@ -17,6 +17,7 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "experimental/graphite/src/TextureProxy.h"
+#include "experimental/graphite/src/UniformManager.h"
 #include "src/gpu/Blend.h"
 #endif
 
@@ -123,13 +124,17 @@ public:
     };
 #endif
 
-    SkPipelineDataGatherer() = default;
+#ifdef SK_GRAPHITE_ENABLED
+    SkPipelineDataGatherer(skgpu::Layout layout) : fLayout(layout) {}
+#endif
 
     void reset();
     // Check that the gatherer has been reset to its initial state prior to collecting new data.
     SkDEBUGCODE(void checkReset();)
 
 #ifdef SK_GRAPHITE_ENABLED
+    skgpu::Layout layout() const { return fLayout; }
+
     void setBlendInfo(const SkPipelineDataGatherer::BlendInfo& blendInfo) {
         fBlendInfo = blendInfo;
     }
@@ -156,6 +161,7 @@ private:
 #ifdef SK_GRAPHITE_ENABLED
     SkTextureDataBlock fTextureDataBlock;
     BlendInfo        fBlendInfo;
+    skgpu::Layout    fLayout;
 #endif
 };
 

@@ -55,8 +55,7 @@ UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformD
                                               const DrawGeometry& geometry) {
     SkDEBUGCODE(gatherer->checkReset());
 
-    // TODO: Get layout from the GPU
-    step->writeUniforms(Layout::kMetal, geometry, gatherer);
+    step->writeUniforms(geometry, gatherer);
 
     UniformDataCache::Index uIndex = geometryUniformDataCache->insert(gatherer->uniformDataBlock());
 
