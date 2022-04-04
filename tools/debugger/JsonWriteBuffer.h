@@ -21,6 +21,7 @@ class SkMatrix;
 class SkPaint;
 class SkPath;
 class SkRegion;
+struct SkSamplingOptions;
 class SkStream;
 class SkTypeface;
 class UrlDataManager;
@@ -58,6 +59,7 @@ public:
     void   writeRect(const SkRect& rect) override;
     void   writeRegion(const SkRegion& region) override;
     void   writePath(const SkPath& path) override;
+    void   writeSampling(const SkSamplingOptions&) override;
     size_t writeStream(SkStream* stream, size_t length) override;
     void   writeImage(const SkImage*) override;
     void   writeTypeface(SkTypeface* typeface) override;

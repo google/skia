@@ -126,6 +126,7 @@ public:
     static void MakeJsonMatrix44(SkJSONWriter&, const SkM44&);
     static void MakeJsonPath(SkJSONWriter&, const SkPath& path);
     static void MakeJsonRegion(SkJSONWriter&, const SkRegion& region);
+    static void MakeJsonSampling(SkJSONWriter&, const SkSamplingOptions& sampling);
     static void MakeJsonPaint(SkJSONWriter&, const SkPaint& paint, UrlDataManager& urlDataManager);
     static void MakeJsonLattice(SkJSONWriter&, const SkCanvas::Lattice& lattice);
 

@@ -165,6 +165,7 @@ generated_cc_atom(
         "//include/core:SkPixmap_hdr",
         "//include/core:SkPoint3_hdr",
         "//include/core:SkRSXform_hdr",
+        "//include/core:SkSamplingOptions_hdr",
         "//include/core:SkSize_hdr",
         "//include/core:SkStream_hdr",
         "//include/core:SkTypeface_hdr",

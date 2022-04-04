@@ -60,6 +60,7 @@ public:
     virtual void writeIRect(const SkIRect& rect) = 0;
     virtual void writeRect(const SkRect& rect) = 0;
     virtual void writeRegion(const SkRegion& region) = 0;
+    virtual void writeSampling(const SkSamplingOptions&) = 0;
     virtual void writePath(const SkPath& path) = 0;
     virtual size_t writeStream(SkStream* stream, size_t length) = 0;
     virtual void writeImage(const SkImage*) = 0;
@@ -122,6 +123,7 @@ public:
     void writeIRect(const SkIRect& rect) override;
     void writeRect(const SkRect& rect) override;
     void writeRegion(const SkRegion& region) override;
+    void writeSampling(const SkSamplingOptions&) override;
     void writePath(const SkPath& path) override;
     size_t writeStream(SkStream* stream, size_t length) override;
     void writeImage(const SkImage*) override;

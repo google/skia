@@ -23,6 +23,8 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
+struct SkSamplingOptions;
+
 class SkWriter32 : SkNoncopyable {
 public:
     /**
@@ -147,6 +149,8 @@ public:
         SkASSERT(SkAlign4(size) == size);
         rgn.writeToMemory(this->reserve(size));
     }
+
+    void writeSampling(const SkSamplingOptions& sampling);
 
     // write count bytes (must be a multiple of 4)
     void writeMul4(const void* values, size_t size) {

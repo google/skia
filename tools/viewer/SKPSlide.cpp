@@ -46,7 +46,7 @@ void SKPSlide::load(SkScalar, SkScalar) {
     fStream->rewind();
     fPic = SkPicture::MakeFromStream(fStream.get());
     if (!fPic) {
-        SkDebugf("Could parse SkPicture from skp stream for slide %s.\n", fName.c_str());
+        SkDebugf("Could not parse SkPicture from skp stream for slide %s.\n", fName.c_str());
         return;
     }
     fCullRect = fPic->cullRect().roundOut();

@@ -183,8 +183,6 @@ generated_cc_atom(
         "//src/core:SkOpts_hdr",
         "//src/core:SkRasterPipeline_hdr",
         "//src/core:SkReadBuffer_hdr",
-        "//src/core:SkSamplingPriv_hdr",
-        "//src/core:SkScopeExit_hdr",
         "//src/core:SkVM_hdr",
         "//src/core:SkWriteBuffer_hdr",
         "//src/gpu:GrColorInfo_hdr",

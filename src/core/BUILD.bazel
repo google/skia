@@ -5383,6 +5383,7 @@ generated_cc_atom(
     deps = [
         ":SkMatrixPriv_hdr",
         ":SkWriter32_hdr",
+        "//include/core:SkSamplingOptions_hdr",
         "//include/private:SkTo_hdr",
     ],
 )

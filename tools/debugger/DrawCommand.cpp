@@ -25,6 +25,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRSXform.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
@@ -74,6 +75,7 @@ class GrDirectContext;
 #define DEBUGCANVAS_ATTRIBUTE_COLOR "color"
 #define DEBUGCANVAS_ATTRIBUTE_ALPHA "alpha"
 #define DEBUGCANVAS_ATTRIBUTE_BLENDMODE "blendMode"
+#define DEBUGCANVAS_ATTRIBUTE_SAMPLING "sampling"
 #define DEBUGCANVAS_ATTRIBUTE_STYLE "style"
 #define DEBUGCANVAS_ATTRIBUTE_STROKEWIDTH "strokeWidth"
 #define DEBUGCANVAS_ATTRIBUTE_STROKEMITER "strokeMiter"
@@ -566,6 +568,16 @@ void DrawCommand::MakeJsonRegion(SkJSONWriter& writer, const SkRegion& region) {
     SkPath path;
     region.getBoundaryPath(&path);
     MakeJsonPath(writer, path);
+}
+
+void DrawCommand::MakeJsonSampling(SkJSONWriter& writer, const SkSamplingOptions& sampling) {
+    writer.beginObject();
+    writer.appendBool("useCubic", sampling.useCubic);
+    writer.appendS32("filter", (int)sampling.filter);
+    writer.appendS32("mipmap", (int)sampling.mipmap);
+    writer.appendFloat("cubic.B", sampling.cubic.B);
+    writer.appendFloat("cubic.C", sampling.cubic.C);
+    writer.endObject();
 }
 
 static const char* clipop_name(SkClipOp op) {
@@ -1213,6 +1225,8 @@ void DrawImageCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManag
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
         MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_SAMPLING);
+    MakeJsonSampling(writer, fSampling);
 
     writer.appendU32(DEBUGCANVAS_ATTRIBUTE_UNIQUE_ID, fImage->uniqueID());
     writer.appendS32(DEBUGCANVAS_ATTRIBUTE_WIDTH, fImage->width());
@@ -1318,6 +1332,8 @@ void DrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataM
     MakeJsonRect(writer, fSrc);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
     MakeJsonRect(writer, fDst);
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_SAMPLING);
+    MakeJsonSampling(writer, fSampling);
     if (fPaint.isValid()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
         MakeJsonPaint(writer, *fPaint, urlDataManager);
@@ -1377,6 +1393,8 @@ void DrawImageRectLayerCommand::toJSON(SkJSONWriter& writer, UrlDataManager& url
 
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
     MakeJsonRect(writer, fDst);
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_SAMPLING);
+    MakeJsonSampling(writer, fSampling);
     if (fPaint.isValid()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
         MakeJsonPaint(writer, *fPaint, urlDataManager);

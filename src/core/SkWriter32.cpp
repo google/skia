@@ -5,14 +5,27 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkWriter32.h"
+
+#include "include/core/SkSamplingOptions.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkWriter32.h"
 
 void SkWriter32::writeMatrix(const SkMatrix& matrix) {
     size_t size = SkMatrixPriv::WriteToMemory(matrix, nullptr);
     SkASSERT(SkAlign4(size) == size);
     SkMatrixPriv::WriteToMemory(matrix, this->reserve(size));
+}
+
+void SkWriter32::writeSampling(const SkSamplingOptions& sampling) {
+    this->writeBool(sampling.useCubic);
+    if (sampling.useCubic) {
+        this->writeScalar(sampling.cubic.B);
+        this->writeScalar(sampling.cubic.C);
+    } else {
+        this->write32((unsigned)sampling.filter);
+        this->write32((unsigned)sampling.mipmap);
+    }
 }
 
 void SkWriter32::writeString(const char str[], size_t len) {

@@ -92,7 +92,7 @@ sk_sp<SkFlattenable> SkImageImageFilter::CreateProc(SkReadBuffer& buffer) {
 }
 
 void SkImageImageFilter::flatten(SkWriteBuffer& buffer) const {
-    SkSamplingPriv::Write(buffer, fSampling);
+    buffer.writeSampling(fSampling);
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
     buffer.writeImage(fImage.get());

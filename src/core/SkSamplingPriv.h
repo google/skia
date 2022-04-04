@@ -43,9 +43,6 @@ public:
         return !sampling.useCubic || sampling.cubic.B == 0;
     }
 
-    static SkSamplingOptions Read(SkReadBuffer&);
-    static void Write(SkWriteBuffer&, const SkSamplingOptions&);
-
     static SkSamplingOptions FromFQ(SkLegacyFQ, SkMediumAs = kNearest_SkMediumAs);
 };
 

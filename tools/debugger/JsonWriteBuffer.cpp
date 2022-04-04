@@ -192,6 +192,11 @@ void JsonWriteBuffer::writePath(const SkPath& path) {
     DrawCommand::MakeJsonPath(*fWriter, path);
 }
 
+void JsonWriteBuffer::writeSampling(const SkSamplingOptions& sampling) {
+    this->append("sampling");
+    DrawCommand::MakeJsonSampling(*fWriter, sampling);
+}
+
 size_t JsonWriteBuffer::writeStream(SkStream* stream, size_t length) {
     // Contents not supported
     this->append("stream");
