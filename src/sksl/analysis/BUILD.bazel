@@ -163,3 +163,26 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = ["//include/sksl:SkSLErrorReporter_hdr"],
 )
+
+generated_cc_atom(
+    name = "SkSLIsSameExpressionTree_src",
+    srcs = ["SkSLIsSameExpressionTree.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkSLDefines_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/sksl:SkSLOperator_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl/ir:SkSLConstructor_hdr",
+        "//src/sksl/ir:SkSLExpression_hdr",
+        "//src/sksl/ir:SkSLFieldAccess_hdr",
+        "//src/sksl/ir:SkSLIndexExpression_hdr",
+        "//src/sksl/ir:SkSLLiteral_hdr",
+        "//src/sksl/ir:SkSLPrefixExpression_hdr",
+        "//src/sksl/ir:SkSLSwizzle_hdr",
+        "//src/sksl/ir:SkSLType_hdr",
+        "//src/sksl/ir:SkSLVariableReference_hdr",
+    ],
+)

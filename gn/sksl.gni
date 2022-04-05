@@ -87,6 +87,7 @@ skia_sksl_sources = [
   "$_src/sksl/analysis/SkSLFinalizationChecks.cpp",
   "$_src/sksl/analysis/SkSLGetLoopUnrollInfo.cpp",
   "$_src/sksl/analysis/SkSLIsConstantExpression.cpp",
+  "$_src/sksl/analysis/SkSLIsSameExpressionTree.cpp",
   "$_src/sksl/analysis/SkSLNoOpErrorReporter.h",
   "$_src/sksl/analysis/SkSLProgramUsage.cpp",
   "$_src/sksl/analysis/SkSLProgramVisitor.h",

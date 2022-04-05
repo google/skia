@@ -23,7 +23,7 @@ vec4 main() {
     bool _19_r = false;
     bool _20_s = true;
     bool _21_t = false;
-    bool _22_u = !_0_a == !_0_a;
-    bool _23_v = !_0_a != !_0_a;
+    bool _22_u = true;
+    bool _23_v = false;
     return ((((((((((((((((((((_0_a && !_1_b) && _2_c) && !_3_d) && _4_e) && !_5_f) && _6_g) && !_7_h) && _8_i) && !_9_j) && _12_k) && !_13_l) && _14_m) && !_15_n) && _16_o) && !_17_p) && _18_q) && !_19_r) && _20_s) && !_21_t) && _22_u) && !_23_v ? colorGreen : colorRed;
 }

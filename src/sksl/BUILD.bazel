@@ -45,6 +45,7 @@ cc_library(
         "//src/sksl/analysis:SkSLFinalizationChecks_src",
         "//src/sksl/analysis:SkSLGetLoopUnrollInfo_src",
         "//src/sksl/analysis:SkSLIsConstantExpression_src",
+        "//src/sksl/analysis:SkSLIsSameExpressionTree_src",
         "//src/sksl/analysis:SkSLProgramUsage_src",
         "//src/sksl/analysis:SkSLSwitchCaseContainsExit_src",
         "//src/sksl/codegen:SkSLGLSLCodeGenerator_src",
