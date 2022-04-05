@@ -660,6 +660,7 @@ std::optional<DSLType> DSLParser::structDeclaration() {
     SkTArray<DSLField> fields;
     std::unordered_set<std::string> field_names;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
+        Token fieldStart = this->peek();
         DSLModifiers modifiers = this->modifiers();
         std::optional<DSLType> type = this->type(&modifiers);
         if (!type) {
@@ -678,10 +679,11 @@ std::optional<DSLType> DSLParser::structDeclaration() {
                 if (!this->arraySize(&size)) {
                     return std::nullopt;
                 }
-                actualType = dsl::Array(actualType, size, this->position(memberName));
                 if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
                     return std::nullopt;
                 }
+                actualType = dsl::Array(actualType, size,
+                        this->rangeFrom(this->position(fieldStart)));
             }
 
             std::string key(this->text(memberName));
@@ -690,11 +692,12 @@ std::optional<DSLType> DSLParser::structDeclaration() {
                 fields.push_back(DSLField(modifiers,
                                     std::move(actualType),
                                     this->text(memberName),
-                                    this->position(memberName)));
+                                    this->rangeFrom(fieldStart)));
                 field_names.emplace(key);
             } else {
-                this->error(name, "field '" + key + "' was already defined in the same struct ('" +
-                                  std::string(this->text(name)) + "')");
+                this->error(memberName, "field '" + key +
+                    "' was already defined in the same struct ('" + std::string(this->text(name)) +
+                    "')");
             }
         } while (this->checkNext(Token::Kind::TK_COMMA));
         if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {

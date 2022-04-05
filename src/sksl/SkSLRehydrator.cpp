@@ -224,7 +224,7 @@ const Symbol* Rehydrator::symbol() {
                 Modifiers m = this->modifiers();
                 std::string_view fieldName = this->readString();
                 const Type* type = this->type();
-                fields.emplace_back(m, fieldName, type);
+                fields.emplace_back(Position(), m, fieldName, type);
             }
             bool interfaceBlock = this->readU8();
             std::string_view nameChars(*fSymbolTable->takeOwnershipOfString(std::move(name)));

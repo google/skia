@@ -287,16 +287,16 @@ DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
             std::string desc = field.fModifiers.fModifiers.description();
             desc.pop_back();  // remove trailing space
             ThreadContext::ReportError("modifier '" + desc + "' is not permitted on a struct field",
-                    field.fPosition);
+                    field.fModifiers.fPosition);
         }
         if (field.fModifiers.fModifiers.fLayout.fFlags & Layout::kBinding_Flag) {
             ThreadContext::ReportError(
                     "layout qualifier 'binding' is not permitted on a struct field",
-                    field.fPosition);
+                    field.fModifiers.fPosition);
         }
         if (field.fModifiers.fModifiers.fLayout.fFlags & Layout::kSet_Flag) {
             ThreadContext::ReportError("layout qualifier 'set' is not permitted on a struct field",
-                                       field.fPosition);
+                                       field.fModifiers.fPosition);
         }
 
         const SkSL::Type& type = field.fType.skslType();
@@ -306,7 +306,7 @@ DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
             ThreadContext::ReportError("opaque type '" + type.displayName() +
                                        "' is not permitted in a struct", field.fPosition);
         }
-        skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &type);
+        skslFields.emplace_back(field.fPosition, field.fModifiers.fModifiers, field.fName, &type);
     }
     const SkSL::Type* result = ThreadContext::SymbolTable()->add(Type::MakeStructType(pos, name,
             skslFields));

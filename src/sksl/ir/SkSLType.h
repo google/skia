@@ -60,8 +60,9 @@ public:
     inline static constexpr int kMaxAbbrevLength = 3;
 
     struct Field {
-        Field(Modifiers modifiers, std::string_view name, const Type* type)
-        : fModifiers(modifiers)
+        Field(Position pos, Modifiers modifiers, std::string_view name, const Type* type)
+        : fPosition(pos)
+        , fModifiers(modifiers)
         , fName(name)
         , fType(std::move(type)) {}
 
@@ -69,6 +70,7 @@ public:
             return fType->displayName() + " " + std::string(fName) + ";";
         }
 
+        Position fPosition;
         Modifiers fModifiers;
         std::string_view fName;
         const Type* fType;
