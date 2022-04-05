@@ -8,16 +8,27 @@
 #include "include/core/SkCustomMesh.h"
 
 #ifdef SK_ENABLE_SKSL
-
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkMath.h"
+#include "include/private/SkOpts_spi.h"
+#include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLProgramKind.h"
 #include "src/core/SkCustomMeshPriv.h"
-#include "src/gpu/GrShaderCaps.h"
+#include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLSharedCompiler.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 #include <locale>
+#include <string>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 
 using Attribute = SkCustomMeshSpecification::Attribute;
 using Varying   = SkCustomMeshSpecification::Varying;
@@ -168,6 +179,27 @@ check_vertex_offsets_and_stride(SkSpan<const Attribute> attributes,
         }
     }
     RETURN_SUCCESS;
+}
+
+SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(
+        SkSpan<const Attribute> attributes,
+        size_t                  vertexStride,
+        SkSpan<const Varying>   varyings,
+        const SkString&         vs,
+        const SkString&         fs) {
+    return Make(attributes, vertexStride, varyings, vs, fs,
+                SkColorSpace::MakeSRGB(), kPremul_SkAlphaType);
+}
+
+SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(
+        SkSpan<const Attribute> attributes,
+        size_t                  vertexStride,
+        SkSpan<const Varying>   varyings,
+        const SkString&         vs,
+        const SkString&         fs,
+        sk_sp<SkColorSpace>     cs) {
+    return Make(attributes, vertexStride, varyings, vs, fs,
+                std::move(cs), kPremul_SkAlphaType);
 }
 
 SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(

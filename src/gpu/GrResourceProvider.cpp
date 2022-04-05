@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrResourceProvider.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/private/SingleOwner.h"
 #include "src/core/SkConvertPixels.h"

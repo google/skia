@@ -20,6 +20,7 @@ generated_cc_atom(
         ":GrAtlasManager_hdr",
         ":GrStrikeCache_hdr",
         "//include/core:SkBitmap_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImageEncoder_hdr",
         "//include/core:SkStream_hdr",
         "//include/gpu:GrDirectContext_hdr",

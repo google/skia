@@ -933,10 +933,10 @@ generated_cc_atom(
 generated_cc_atom(
     name = "SkCustomMesh_hdr",
     hdrs = ["SkCustomMesh.h"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkColorSpace_hdr",
-        ":SkImageInfo_hdr",
+        ":SkAlphaType_hdr",
         ":SkRect_hdr",
         ":SkRefCnt_hdr",
         ":SkSpan_hdr",

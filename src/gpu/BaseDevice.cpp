@@ -7,6 +7,7 @@
 
 #include "src/gpu/BaseDevice.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"

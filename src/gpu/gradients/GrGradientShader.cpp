@@ -7,8 +7,7 @@
 
 #include "src/gpu/gradients/GrGradientShader.h"
 
-#include "src/gpu/gradients/GrGradientBitmapCache.h"
-
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -20,6 +19,7 @@
 #include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/gradients/GrGradientBitmapCache.h"
 
 using Vec4 = skvx::Vec<4, float>;
 

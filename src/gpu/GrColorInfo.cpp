@@ -7,7 +7,11 @@
 
 #include "src/gpu/GrColorInfo.h"
 
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
 #include "src/core/SkColorSpacePriv.h"
+
+#include <utility>
 
 GrColorInfo::GrColorInfo(
         GrColorType colorType, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace)
@@ -22,5 +26,24 @@ GrColorInfo::GrColorInfo(const SkColorInfo& ci)
                       ci.alphaType(),
                       ci.refColorSpace()) {}
 
+GrColorInfo::GrColorInfo() = default;
 GrColorInfo::GrColorInfo(const GrColorInfo&) = default;
 GrColorInfo& GrColorInfo::operator=(const GrColorInfo&) = default;
+GrColorInfo::~GrColorInfo() = default;
+
+bool GrColorInfo::operator==(const GrColorInfo& that) const {
+    return fColorType == that.fColorType &&
+           fAlphaType == that.fAlphaType &&
+           SkColorSpace::Equals(fColorSpace.get(), that.fColorSpace.get());
+}
+
+GrColorInfo GrColorInfo::makeColorType(GrColorType ct) const {
+    return GrColorInfo(ct, fAlphaType, this->refColorSpace());
+}
+
+bool GrColorInfo::isLinearlyBlended() const {
+    return fColorSpace && fColorSpace->gammaIsLinear();
+}
+
+SkColorSpace* GrColorInfo::colorSpace() const { return fColorSpace.get(); }
+sk_sp<SkColorSpace> GrColorInfo::refColorSpace() const { return fColorSpace; }

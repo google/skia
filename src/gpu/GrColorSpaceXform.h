@@ -8,13 +8,21 @@
 #ifndef GrColorSpaceXform_DEFINED
 #define GrColorSpaceXform_DEFINED
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkColorSpacePriv.h"
+#include "include/private/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
+#include <stdint.h>
+#include <memory>
+
 class GrColorInfo;
 class SkColorSpace;
+struct GrShaderCaps;
+
+namespace skgpu { class KeyBuilder; }
 
  /**
   * Represents a color space transformation
@@ -34,21 +42,7 @@ public:
      * GrFragmentProcessor::addToKey() must call this and include the returned value in its
      * computed key.
      */
-    static uint32_t XformKey(const GrColorSpaceXform* xform) {
-        // Code generation depends on which steps we apply,
-        // and the kinds of transfer functions (if we're applying those).
-        if (!xform) { return 0; }
-
-        const SkColorSpaceXformSteps& steps(xform->fSteps);
-        uint32_t key = steps.flags.mask();
-        if (steps.flags.linearize) {
-            key |= classify_transfer_fn(steps.srcTF)    << 8;
-        }
-        if (steps.flags.encode) {
-            key |= classify_transfer_fn(steps.dstTFInv) << 16;
-        }
-        return key;
-    }
+    static uint32_t XformKey(const GrColorSpaceXform* xform);
 
     static bool Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b);
 

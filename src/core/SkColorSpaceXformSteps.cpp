@@ -5,9 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkColorSpaceXformSteps.h"
+
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
 #include "include/third_party/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkVM.h"
 

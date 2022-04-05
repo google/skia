@@ -12,6 +12,7 @@
 #include "src/core/SkMathPriv.h"
 
 #if SK_SUPPORT_GPU
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrRecordingContextPriv.h"

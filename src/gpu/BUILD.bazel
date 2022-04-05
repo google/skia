@@ -45,6 +45,7 @@ cc_library(
         ":GrGpuResource_src",
         ":GrGpu_src",
         ":GrImageContext_src",
+        ":GrImageInfo_src",
         ":GrManagedResource_src",
         ":GrMemoryPool_src",
         ":GrMeshDrawTarget_src",
@@ -401,6 +402,7 @@ generated_cc_atom(
         ":GrSurfaceProxyView_hdr",
         ":SurfaceContext_hdr",
         ":SurfaceFillContext_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/gpu:GrRecordingContext_hdr",
     ],
 )
@@ -636,6 +638,7 @@ generated_cc_atom(
         ":GrTextureProxyPriv_hdr",
         ":GrTexture_hdr",
         ":SkGr_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/core:SkMessageBus_hdr",
@@ -703,6 +706,7 @@ generated_cc_atom(
         ":GrUtil_hdr",
         ":SkGr_hdr",
         "//include/core:SkBitmap_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkPaint_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",
@@ -830,21 +834,25 @@ generated_cc_atom(
 generated_cc_atom(
     name = "GrColorInfo_hdr",
     hdrs = ["GrColorInfo.h"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrColorSpaceXform_hdr",
-        "//include/core:SkColorSpace_hdr",
+        "//include/core:SkAlphaType_hdr",
         "//include/core:SkRefCnt_hdr",
-        "//include/gpu:GrTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
     ],
 )
 
 generated_cc_atom(
     name = "GrColorInfo_src",
     srcs = ["GrColorInfo.cpp"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrColorInfo_hdr",
+        "//include/core:SkColorSpace_hdr",
+        "//include/core:SkImageInfo_hdr",
         "//src/core:SkColorSpacePriv_hdr",
     ],
 )
@@ -852,11 +860,14 @@ generated_cc_atom(
 generated_cc_atom(
     name = "GrColorSpaceXform_hdr",
     hdrs = ["GrColorSpaceXform.h"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrFragmentProcessor_hdr",
+        "//include/core:SkAlphaType_hdr",
+        "//include/core:SkColor_hdr",
         "//include/core:SkRefCnt_hdr",
-        "//src/core:SkColorSpacePriv_hdr",
+        "//include/private:SkColorData_hdr",
         "//src/core:SkColorSpaceXformSteps_hdr",
     ],
 )
@@ -864,12 +875,15 @@ generated_cc_atom(
 generated_cc_atom(
     name = "GrColorSpaceXform_src",
     srcs = ["GrColorSpaceXform.cpp"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrColorInfo_hdr",
         ":GrColorSpaceXform_hdr",
+        ":GrProcessor_hdr",
         ":KeyBuilder_hdr",
-        "//include/core:SkColorSpace_hdr",
+        "//include/core:SkString_hdr",
+        "//include/third_party/skcms:skcms_hdr",
         "//src/core:SkColorSpacePriv_hdr",
         "//src/gpu/glsl:GrGLSLColorSpaceXformHelper_hdr",
         "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
@@ -1025,6 +1039,7 @@ generated_cc_atom(
         ":GrImageInfo_hdr",
         ":GrPixmap_hdr",
         ":Swizzle_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/private:SkTPin_hdr",
         "//include/third_party/skcms:skcms_hdr",
         "//src/core:SkColorSpaceXformSteps_hdr",
@@ -1680,11 +1695,26 @@ generated_cc_atom(
 generated_cc_atom(
     name = "GrImageInfo_hdr",
     hdrs = ["GrImageInfo.h"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrColorInfo_hdr",
-        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkAlphaType_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSize_hdr",
         "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrImageInfo_src",
+    srcs = ["GrImageInfo.cpp"],
+    enforce_iwyu = True,
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrImageInfo_hdr",
+        "//include/core:SkColorSpace_hdr",
+        "//include/core:SkImageInfo_hdr",
     ],
 )
 
@@ -1834,6 +1864,7 @@ generated_cc_atom(
         ":GrProgramInfo_hdr",
         ":GrResourceProvider_hdr",
         ":GrTexture_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//src/core:SkConvertPixels_hdr",
     ],
@@ -2211,6 +2242,7 @@ generated_cc_atom(
         ":GrRecordingContextPriv_hdr",
         ":GrRenderTargetProxy_hdr",
         ":GrSurfaceProxyView_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//src/gpu/v1:Device_v1_hdr",
         "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
         "//src/gpu/v1:SurfaceFillContext_v1_hdr",
@@ -2538,6 +2570,7 @@ generated_cc_atom(
         ":GrTexture_hdr",
         ":ResourceKey_hdr",
         ":SkGr_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/gpu:GrBackendSemaphore_hdr",
         "//include/private:SingleOwner_hdr",
         "//src/core:SkConvertPixels_hdr",
@@ -2867,6 +2900,7 @@ generated_cc_atom(
         ":GrTextureRenderTargetProxy_hdr",
         ":GrTexture_hdr",
         ":SurfaceFillContext_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/core:SkMathPriv_hdr",
@@ -2941,6 +2975,7 @@ generated_cc_atom(
         ":GrProcessorUnitTest_hdr",
         ":GrStyle_hdr",
         ":GrTestUtils_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkMatrix_hdr",
         "//include/core:SkPathBuilder_hdr",
         "//include/core:SkRRect_hdr",
@@ -3473,6 +3508,7 @@ generated_cc_atom(
         ":SkGr_hdr",
         ":SurfaceContext_hdr",
         ":SurfaceFillContext_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/core:SkAutoPixmapStorage_hdr",

@@ -8,6 +8,7 @@
 #include "include/core/SkTypes.h"
 #include "tests/Test.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrColor.h"

@@ -9,6 +9,7 @@
 #include "src/gpu/v1/ClipStack.h"
 #include "tests/Test.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"

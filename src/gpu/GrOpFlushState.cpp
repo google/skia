@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrOpFlushState.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrDataUtils.h"

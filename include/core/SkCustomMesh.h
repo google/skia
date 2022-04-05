@@ -11,14 +11,16 @@
 #include "include/core/SkTypes.h"
 
 #ifdef SK_ENABLE_SKSL
-#include "include/core/SkColorSpace.h"
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 
+#include <memory>
 #include <vector>
+
+class SkColorSpace;
 
 namespace SkSL { struct Program; }
 
@@ -115,9 +117,20 @@ public:
                        size_t                  vertexStride,
                        SkSpan<const Varying>   varyings,
                        const SkString&         vs,
+                       const SkString&         fs);
+    static Result Make(SkSpan<const Attribute> attributes,
+                       size_t                  vertexStride,
+                       SkSpan<const Varying>   varyings,
+                       const SkString&         vs,
                        const SkString&         fs,
-                       sk_sp<SkColorSpace>     cs = SkColorSpace::MakeSRGB(),
-                       SkAlphaType             at = kPremul_SkAlphaType);
+                       sk_sp<SkColorSpace>     cs);
+    static Result Make(SkSpan<const Attribute> attributes,
+                       size_t                  vertexStride,
+                       SkSpan<const Varying>   varyings,
+                       const SkString&         vs,
+                       const SkString&         fs,
+                       sk_sp<SkColorSpace>     cs,
+                       SkAlphaType             at);
 
     SkSpan<const Attribute> attributes() const { return SkMakeSpan(fAttributes); }
 

@@ -7,6 +7,7 @@
 
 #include "src/gpu/v1/ClipStack.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathPriv.h"

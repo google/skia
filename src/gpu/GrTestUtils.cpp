@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrTestUtils.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"

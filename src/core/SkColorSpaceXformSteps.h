@@ -8,11 +8,12 @@
 #ifndef SkColorSpaceXformSteps_DEFINED
 #define SkColorSpaceXformSteps_DEFINED
 
-#include "include/core/SkColorSpace.h"
-#include "include/core/SkImageInfo.h"
-#include "include/private/SkImageInfoPriv.h"
-#include "src/core/SkVM_fwd.h"
+#include "include/core/SkAlphaType.h"
+#include "include/third_party/skcms/skcms.h"
+#include "src/core/SkVM.h"
+#include <stdint.h>
 
+class SkColorSpace;
 class SkRasterPipeline;
 
 struct SkColorSpaceXformSteps {

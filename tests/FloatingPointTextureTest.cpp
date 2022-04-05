@@ -14,6 +14,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkHalf.h"
 #include "src/gpu/GrDirectContextPriv.h"

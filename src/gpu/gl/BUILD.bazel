@@ -250,6 +250,7 @@ generated_cc_atom(
         ":GrGLOpsRenderPass_hdr",
         ":GrGLSemaphore_hdr",
         ":GrGLTextureRenderTarget_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkPixmap_hdr",
         "//include/core:SkTypes_hdr",
         "//include/gpu:GrBackendSemaphore_hdr",

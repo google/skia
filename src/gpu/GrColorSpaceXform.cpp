@@ -7,12 +7,20 @@
 
 #include "src/gpu/GrColorSpaceXform.h"
 
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkString.h"
+#include "include/third_party/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/GrColorInfo.h"
+#include "src/gpu/GrProcessor.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include <string.h>
+#include <utility>
+
+class GrGLSLProgramDataManager;
+class GrGLSLUniformHandler;
+struct GrShaderCaps;
 
 sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkAlphaType srcAT,
                                                  SkColorSpace* dst, SkAlphaType dstAT) {
@@ -25,6 +33,22 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(const GrColorInfo& srcInfo,
                                                  const GrColorInfo& dstInfo) {
     return Make(srcInfo.colorSpace(), srcInfo.alphaType(),
                 dstInfo.colorSpace(), dstInfo.alphaType());
+}
+
+uint32_t GrColorSpaceXform::XformKey(const GrColorSpaceXform* xform) {
+    // Code generation depends on which steps we apply,
+    // and the kinds of transfer functions (if we're applying those).
+    if (!xform) { return 0; }
+
+    const SkColorSpaceXformSteps& steps(xform->fSteps);
+    uint32_t key = steps.flags.mask();
+    if (steps.flags.linearize) {
+        key |= classify_transfer_fn(steps.srcTF)    << 8;
+    }
+    if (steps.flags.encode) {
+        key |= classify_transfer_fn(steps.dstTFInv) << 16;
+    }
+    return key;
 }
 
 bool GrColorSpaceXform::Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b) {

@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkChecksum.h"
 #include "include/utils/SkRandom.h"

@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkCustomMesh.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"

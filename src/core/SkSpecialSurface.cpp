@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSurfacePriv.h"
 

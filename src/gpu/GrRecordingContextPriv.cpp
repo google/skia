@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrRecordingContextPriv.h"
 
+#include "include/core/SkColorSpace.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrProxyProvider.h"

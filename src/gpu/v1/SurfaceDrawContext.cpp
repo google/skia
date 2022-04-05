@@ -7,6 +7,7 @@
 
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/GrBackendSemaphore.h"

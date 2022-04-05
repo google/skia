@@ -6,6 +6,8 @@
  */
 
 #include "gm/gm.h"
+
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"

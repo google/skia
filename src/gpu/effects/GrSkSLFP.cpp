@@ -10,6 +10,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/GrContext_Base.h"
 #include "include/private/SkSLString.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVM.h"
 #include "src/gpu/GrBaseContextPriv.h"

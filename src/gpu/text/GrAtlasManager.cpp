@@ -7,6 +7,7 @@
 
 #include "src/gpu/text/GrAtlasManager.h"
 
+#include "include/core/SkColorSpace.h"
 #include "src/codec/SkMasks.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/gpu/GrGlyph.h"

@@ -8,6 +8,7 @@
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"

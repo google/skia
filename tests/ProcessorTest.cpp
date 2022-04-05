@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrDirectContextPriv.h"

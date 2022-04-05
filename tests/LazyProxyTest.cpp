@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrClip.h"

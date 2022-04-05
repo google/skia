@@ -1922,6 +1922,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":gm_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkPoint_hdr",
         "//include/core:SkRect_hdr",
         "//include/private:SkColorData_hdr",
@@ -3224,6 +3225,7 @@ generated_cc_atom(
         ":gm_hdr",
         "//include/core:SkBlender_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkCustomMesh_hdr",
         "//include/core:SkSurface_hdr",
         "//include/effects:SkGradientShader_hdr",
@@ -4659,6 +4661,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":gm_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/effects:SkGradientShader_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/core:SkCanvasPriv_hdr",
@@ -6597,6 +6600,7 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/effects:SkDashPathEffect_hdr",
         "//include/effects:SkGradientShader_hdr",
+        "//include/private:SkImageInfoPriv_hdr",
         "//include/private:SkTPin_hdr",
         "//src/core:SkColorSpaceXformSteps_hdr",
     ],

@@ -8,53 +8,36 @@
 #ifndef GrImageInfo_DEFINED
 #define GrImageInfo_DEFINED
 
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrColorInfo.h"
 
+#include <stddef.h>
+
+class SkColorSpace;
+struct SkImageInfo;
+
 class GrImageInfo {
 public:
-    GrImageInfo() = default;
+    GrImageInfo();
+    GrImageInfo(const SkImageInfo& info);
+    GrImageInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, int w, int h);
+    GrImageInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, const SkISize& dimensions);
+    GrImageInfo(const GrColorInfo& info, const SkISize& dimensions);
+    GrImageInfo(GrColorInfo&& info, const SkISize& dimensions);
 
-    /* implicit */ GrImageInfo(const SkImageInfo& info)
-            : fColorInfo(info.colorInfo()), fDimensions(info.dimensions()) {}
+    GrImageInfo(const GrImageInfo&);
+    GrImageInfo(GrImageInfo&&);
+    GrImageInfo& operator=(const GrImageInfo&);
+    GrImageInfo& operator=(GrImageInfo&&);
 
-    GrImageInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, int w, int h)
-            : fColorInfo(ct, at, std::move(cs)), fDimensions{w,h} {}
-
-    GrImageInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, const SkISize& dimensions)
-            : fColorInfo(ct, at, std::move(cs)), fDimensions(dimensions) {}
-
-    GrImageInfo(const GrColorInfo& info, const SkISize& dimensions)
-            : fColorInfo(info), fDimensions(dimensions) {}
-
-    GrImageInfo(GrColorInfo&& info, const SkISize& dimensions)
-            : fColorInfo(std::move(info)), fDimensions(dimensions) {}
-
-    GrImageInfo(const GrImageInfo&) = default;
-    GrImageInfo(GrImageInfo&&) = default;
-    GrImageInfo& operator=(const GrImageInfo&) = default;
-    GrImageInfo& operator=(GrImageInfo&&) = default;
-
-    GrImageInfo makeColorType(GrColorType ct) const {
-        return {this->colorInfo().makeColorType(ct), this->dimensions()};
-    }
-
-    GrImageInfo makeAlphaType(SkAlphaType at) const {
-        return {this->colorType(), at, this->refColorSpace(), this->width(), this->height()};
-    }
-
-    GrImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const {
-        return {this->colorType(), this->alphaType(), std::move(cs), this->width(), this->height()};
-    }
-
-    GrImageInfo makeDimensions(SkISize dimensions) const {
-        return {this->colorType(), this->alphaType(), this->refColorSpace(), dimensions};
-    }
-
-    GrImageInfo makeWH(int width, int height) const {
-        return {this->colorType(), this->alphaType(), this->refColorSpace(), width, height};
-    }
+    GrImageInfo makeColorType(GrColorType ct) const;
+    GrImageInfo makeAlphaType(SkAlphaType at) const;
+    GrImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const;
+    GrImageInfo makeDimensions(SkISize dimensions) const ;
+    GrImageInfo makeWH(int width, int height) const;
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
 
@@ -64,7 +47,7 @@ public:
 
     SkColorSpace* colorSpace() const { return fColorInfo.colorSpace(); }
 
-    sk_sp<SkColorSpace> refColorSpace() const { return fColorInfo.refColorSpace(); }
+    sk_sp<SkColorSpace> refColorSpace() const;
 
     SkISize dimensions() const { return fDimensions; }
 

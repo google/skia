@@ -7,10 +7,9 @@
 
 #include "tests/Test.h"
 
-#include <array>
-#include <memory>
-#include <vector>
+
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
@@ -28,6 +27,10 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+
+#include <array>
+#include <memory>
+#include <vector>
 
 #if 0
 #include "tools/ToolUtils.h"

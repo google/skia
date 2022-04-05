@@ -472,6 +472,22 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext* rContext,
                                       kBorrow_GrWrapOwnership, std::move(releaseHelper));
 }
 
+sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrRecordingContext* context,
+                                               const GrBackendTexture& backendTexture,
+                                               GrSurfaceOrigin textureOrigin,
+                                               SkColorType colorType) {
+    return SkImage::MakeFromAdoptedTexture(context, backendTexture, textureOrigin,
+                                           colorType, kPremul_SkAlphaType, nullptr);
+}
+sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrRecordingContext* context,
+                                               const GrBackendTexture& backendTexture,
+                                               GrSurfaceOrigin textureOrigin,
+                                               SkColorType colorType,
+                                               SkAlphaType alphaType) {
+    return SkImage::MakeFromAdoptedTexture(context, backendTexture, textureOrigin,
+                                           colorType, alphaType, nullptr);
+}
+
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrRecordingContext* rContext,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkColorType ct, SkAlphaType at,

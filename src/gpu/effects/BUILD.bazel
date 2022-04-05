@@ -503,6 +503,7 @@ generated_cc_atom(
         "//include/private:GrContext_Base_hdr",
         "//include/private:SkSLString_hdr",
         "//src/core:SkColorFilterBase_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
         "//src/core:SkRuntimeEffectPriv_hdr",
         "//src/core:SkVM_hdr",
         "//src/gpu:GrBaseContextPriv_hdr",

@@ -6,6 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
 #include "include/gpu/GrDirectContext.h"

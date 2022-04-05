@@ -8,37 +8,34 @@
 #ifndef GrColorInfo_DEFINED
 #define GrColorInfo_DEFINED
 
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrColorSpaceXform.h"
 
+class SkColorInfo;
+class SkColorSpace;
 /**
  * All the info needed to interpret a color: Color type + alpha type + color space. Also caches
  * the GrColorSpaceXform from sRGB. */
 class GrColorInfo {
 public:
-    GrColorInfo() = default;
+    GrColorInfo();
     GrColorInfo(const GrColorInfo&);
     GrColorInfo& operator=(const GrColorInfo&);
     GrColorInfo(GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
     /* implicit */ GrColorInfo(const SkColorInfo&);
+    ~GrColorInfo();
 
-    bool operator==(const GrColorInfo& that) const {
-        return  fColorType == that.fColorType &&
-                fAlphaType == that.fAlphaType &&
-                SkColorSpace::Equals(fColorSpace.get(), that.fColorSpace.get());
-    }
+    bool operator==(const GrColorInfo& that) const;
     bool operator!=(const GrColorInfo& that) const { return !(*this == that); }
 
-    GrColorInfo makeColorType(GrColorType ct) const {
-        return GrColorInfo(ct, fAlphaType, this->refColorSpace());
-    }
+    GrColorInfo makeColorType(GrColorType ct) const;
 
-    bool isLinearlyBlended() const { return fColorSpace && fColorSpace->gammaIsLinear(); }
+    bool isLinearlyBlended() const;
 
-    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
-    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
+    SkColorSpace* colorSpace() const;
+    sk_sp<SkColorSpace> refColorSpace() const;
 
     GrColorSpaceXform* colorSpaceXformFromSRGB() const { return fColorXformFromSRGB.get(); }
     sk_sp<GrColorSpaceXform> refColorSpaceXformFromSRGB() const { return fColorXformFromSRGB; }

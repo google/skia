@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
 #include "include/effects/SkGradientShader.h"

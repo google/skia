@@ -7,11 +7,9 @@
 
 // This is a GPU-backend specific test. It relies on static initializers to work
 
-#include <memory>
-
 #include "include/core/SkTypes.h"
-#include "tests/Test.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkPointPriv.h"
@@ -27,6 +25,9 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "tests/Test.h"
+
+#include <memory>
 
 namespace {
 class Op : public GrMeshDrawOp {

@@ -7,8 +7,7 @@
 
 #include "src/gpu/SurfaceContext.h"
 
-#include <memory>
-
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -29,6 +28,8 @@
 #include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+
+#include <memory>
 
 #define ASSERT_SINGLE_OWNER         SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_FALSE_IF_ABANDONED   if (this->fContext->abandoned()) { return false;   }

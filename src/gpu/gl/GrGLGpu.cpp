@@ -7,6 +7,7 @@
 
 #include "src/gpu/gl/GrGLGpu.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSemaphore.h"

@@ -24,6 +24,7 @@ generated_cc_atom(
         ":ClipStack_hdr",
         ":StencilMaskHelper_hdr",
         ":SurfaceDrawContext_v1_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkMatrix_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkPathPriv_hdr",
@@ -255,6 +256,7 @@ generated_cc_atom(
     deps = [
         ":PathRenderer_hdr",
         ":SurfaceDrawContext_v1_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkDrawable_hdr",
         "//include/core:SkVertices_hdr",
         "//include/gpu:GrBackendSemaphore_hdr",

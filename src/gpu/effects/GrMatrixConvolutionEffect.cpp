@@ -112,7 +112,7 @@ GrMatrixConvolutionEffect::KernelWrapper::Make(GrRecordingContext* rContext,
     }
 
     SkBitmap bm;
-    auto info = SkImageInfo::Make({length, 1}, colorType, kPremul_SkAlphaType, nullptr);
+    auto info = SkImageInfo::Make({length, 1}, colorType, kPremul_SkAlphaType);
     if (!bm.tryAllocPixels(info)) {
         return {};
     }

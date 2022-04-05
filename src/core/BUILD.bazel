@@ -1186,24 +1186,28 @@ generated_cc_atom(
 generated_cc_atom(
     name = "SkColorSpaceXformSteps_hdr",
     hdrs = ["SkColorSpaceXformSteps.h"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkVM_fwd_hdr",
-        "//include/core:SkColorSpace_hdr",
-        "//include/core:SkImageInfo_hdr",
-        "//include/private:SkImageInfoPriv_hdr",
+        ":SkVM_hdr",
+        "//include/core:SkAlphaType_hdr",
+        "//include/third_party/skcms:skcms_hdr",
     ],
 )
 
 generated_cc_atom(
     name = "SkColorSpaceXformSteps_src",
     srcs = ["SkColorSpaceXformSteps.cpp"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkColorSpacePriv_hdr",
         ":SkColorSpaceXformSteps_hdr",
         ":SkRasterPipeline_hdr",
         ":SkVM_hdr",
+        "//include/core:SkColorSpace_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkFloatingPoint_hdr",
         "//include/third_party/skcms:skcms_hdr",
     ],
 )
@@ -2245,6 +2249,7 @@ generated_cc_atom(
         ":SkGpuBlurUtils_hdr",
         ":SkMathPriv_hdr",
         "//include/core:SkBitmap_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkRect_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/gpu:GrCaps_hdr",
@@ -4563,6 +4568,7 @@ generated_cc_atom(
         ":SkSpecialSurface_hdr",
         ":SkSurfacePriv_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkMallocPixelRef_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/gpu:GrRecordingContextPriv_hdr",
@@ -5569,16 +5575,25 @@ generated_cc_atom(
 generated_cc_atom(
     name = "SkCustomMesh_src",
     srcs = ["SkCustomMesh.cpp"],
+    enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkCustomMeshPriv_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkCustomMesh_hdr",
-        "//src/gpu:GrShaderCaps_hdr",
+        "//include/core:SkMath_hdr",
+        "//include/private:SkOpts_spi_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+        "//include/private:SkSLProgramKind_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLBuiltinTypes_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLSharedCompiler_hdr",
+        "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
-        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+        "//src/sksl/ir:SkSLType_hdr",
+        "//src/sksl/ir:SkSLVariable_hdr",
     ],
 )
 
