@@ -575,33 +575,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkSLMain_src",
-    srcs = ["SkSLMain.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkSLCompiler_hdr",
-        ":SkSLDehydrator_hdr",
-        ":SkSLFileOutputStream_hdr",
-        ":SkSLStringStream_hdr",
-        ":SkSLUtil_hdr",
-        "//include/core:SkGraphics_hdr",
-        "//include/core:SkStream_hdr",
-        "//include/private:SkStringView_hdr",
-        "//src/core:SkCpu_hdr",
-        "//src/core:SkOpts_hdr",
-        "//src/opts:SkChecksum_opts_hdr",
-        "//src/opts:SkVM_opts_hdr",
-        "//src/sksl/codegen:SkSLPipelineStageCodeGenerator_hdr",
-        "//src/sksl/codegen:SkSLVMCodeGenerator_hdr",
-        "//src/sksl/ir:SkSLUnresolvedFunction_hdr",
-        "//src/sksl/ir:SkSLVarDeclarations_hdr",
-        "//src/sksl/tracing:SkVMDebugTrace_hdr",
-        "//src/utils:SkShaderUtils_hdr",
-        "//src/utils:SkVMVisualizer_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "SkSLMangler_hdr",
     hdrs = ["SkSLMangler.h"],
     visibility = ["//:__subpackages__"],

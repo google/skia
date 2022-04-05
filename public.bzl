@@ -247,7 +247,7 @@ BASE_SRCS_ALL = struct(
         "src/gpu/dawn/*",
 
         # Defines main.
-        "src/sksl/SkSLMain.cpp",
+        "tools/skslc/Main.cpp",
 
         # Only used to regenerate the lexer
         "src/sksl/lex/*",

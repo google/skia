@@ -638,7 +638,7 @@ if (skia_compile_sksl_tests) {
       "SK_ENABLE_SPIRV_VALIDATION",
     ]
     sources = skslc_deps
-    sources += [ "src/sksl/SkSLMain.cpp" ]
+    sources += [ "tools/skslc/Main.cpp" ]
     libs = []
     if (is_win) {
       sources += [ "src/ports/SkOSFile_win.cpp" ]
