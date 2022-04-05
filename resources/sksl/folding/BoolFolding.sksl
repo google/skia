@@ -26,8 +26,11 @@ bool test() {
     bool s = bool4(true, true, true, true) == bool4(true);
     bool t = bool4(true, true, true, false) == bool4(true);
 
+    bool u = (!a == !a);
+    bool v = (!a != !a);
+
     return a && !b && c && !d && e && !f && g && !h && i && !j && k && !l && m && !n && o && !p
-             && q && !r && s && !t;
+             && q && !r && s && !t && u && !v;
 }
 
 half4 main(float2 coords) {
