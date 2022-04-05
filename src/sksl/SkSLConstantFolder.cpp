@@ -281,6 +281,15 @@ static std::unique_ptr<Expression> cast_expression(const Context& context,
     return Constructor::Convert(context, pos, type, std::move(ctorArgs));
 }
 
+static std::unique_ptr<Expression> negate_expression(const Context& context,
+                                                     Position pos,
+                                                     const Expression& expr,
+                                                     const Type& type) {
+    std::unique_ptr<Expression> ctor = cast_expression(context, pos, expr, type);
+    return ctor ? PrefixExpression::Make(context, pos, Operator::Kind::MINUS, std::move(ctor))
+                : nullptr;
+}
+
 bool ConstantFolder::GetConstantInt(const Expression& value, SKSL_INT* out) {
     const Expression* expr = GetConstantValueForVariable(value);
     if (!expr->isIntLiteral()) {
@@ -403,6 +412,12 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
             if (is_constant_value(left, 0.0) && !right.hasSideEffects()) {  // 0 * x
                 return cast_expression(context, pos, left, resultType);
             }
+            if (is_constant_value(right, -1.0)) {  // x * -1 (to `-x`)
+                return negate_expression(context, pos, left, resultType);
+            }
+            if (is_constant_value(left, -1.0)) {   // -1 * x (to `-x`)
+                return negate_expression(context, pos, right, resultType);
+            }
             break;
 
         case Operator::Kind::MINUS:
@@ -410,11 +425,7 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
                 return cast_expression(context, pos, left, resultType);
             }
             if (is_constant_value(left, 0.0)) {   // 0 - x (to `-x`)
-                if (std::unique_ptr<Expression> val = cast_expression(context, pos, right,
-                        resultType)) {
-                    return PrefixExpression::Make(context, pos, Operator::Kind::MINUS,
-                            std::move(val));
-                }
+                return negate_expression(context, pos, right, resultType);
             }
             break;
 
