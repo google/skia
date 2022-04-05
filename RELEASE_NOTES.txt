@@ -9,6 +9,13 @@ Milestone 102
   * GrContextOptions::fSharpenMipmappedTextures is removed. MIP LOD is now always
     biased on the GPU backend. The CPU backend implementation is modified to match
     this behavior.
+  * Passing SkCanvas::kStrict_SrcRectConstraint disables mipmapping. The old behavior differed
+    between GPU and CPU. CPU always computed a new set of mipmap based on the subset. GPU restricted
+    the sampling coordinates to the subset in the base level but upper level pixels that map to
+    pixels outside the subset in the base level were still used. To get the previous CPU behavior
+    use SkImage::makeSubset() to make a subset image and draw that. The previous GPU behavior is
+    similar, though not exactly, equivalent to making a mipmapped image shader from the original
+    image and applying that to a rectangle.
 
 * * *
 
