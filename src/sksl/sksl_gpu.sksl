@@ -332,16 +332,21 @@ half4 blend_overlay(half4 a, half4 b, half flip) {
     return blend_overlay(mix(a, b, flip), mix(b, a, flip));
 }
 
-half4 blend_darken(half4 src, half4 dst) {
-   half4 result = blend_src_over(src, dst);
-   result.rgb = min(result.rgb, (1 - dst.a)*src.rgb + dst.rgb);
-   return result;
-}
-
 half4 blend_lighten(half4 src, half4 dst) {
     half4 result = blend_src_over(src, dst);
     result.rgb = max(result.rgb, (1 - dst.a)*src.rgb + dst.rgb);
     return result;
+}
+
+half4 blend_darken(half4 src, half4 dst, half mode /* darken: 1, lighten: -1 */) {
+    half4 a = blend_src_over(src, dst);
+    half3 b = (1 - dst.a) * src.rgb + dst.rgb;  // DstOver.rgb
+    a.rgb = mode * min(a.rgb * mode, b.rgb * mode);
+    return a;
+}
+
+half4 blend_darken(half4 src, half4 dst) {
+   return blend_darken(src, dst, 1);
 }
 
 half $guarded_divide(half n, half d) {
