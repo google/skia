@@ -21,40 +21,40 @@ half4 blend_hslc_h4h4h4hb(half4 src, half4 dst, half flip, bool saturate) {
     half3 l = mix(sda, dsa, flip);
     half3 r = mix(dsa, sda, flip);
     if (saturate) {
-        half3 _1_blend_set_color_saturation;
-        half _2_sat = max(max(r.x, r.y), r.z) - min(min(r.x, r.y), r.z);
+        half3 _0_blend_set_color_saturation;
+        half _1_sat = max(max(r.x, r.y), r.z) - min(min(r.x, r.y), r.z);
         if (l.x <= l.y) {
             if (l.y <= l.z) {
-                _1_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l, _2_sat);
+                _0_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l, _1_sat);
             } else if (l.x <= l.z) {
-                _1_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.xzy, _2_sat).xzy;
+                _0_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.xzy, _1_sat).xzy;
             } else {
-                _1_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.zxy, _2_sat).yzx;
+                _0_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.zxy, _1_sat).yzx;
             }
         } else if (l.x <= l.z) {
-            _1_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.yxz, _2_sat).yxz;
+            _0_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.yxz, _1_sat).yxz;
         } else if (l.y <= l.z) {
-            _1_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.yzx, _2_sat).zxy;
+            _0_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.yzx, _1_sat).zxy;
         } else {
-            _1_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.zyx, _2_sat).zyx;
+            _0_blend_set_color_saturation = blend_set_color_saturation_helper_Qh3h3h(l.zyx, _1_sat).zyx;
         }
-        l = _1_blend_set_color_saturation;
+        l = _0_blend_set_color_saturation;
         r = dsa;
     }
-    half3 _3_blend_set_color_luminance;
-    half _4_lum = dot(half3(0.30000001192092896h, 0.5899999737739563h, 0.10999999940395355h), r);
-    half3 _5_result = (_4_lum - dot(half3(0.30000001192092896h, 0.5899999737739563h, 0.10999999940395355h), l)) + l;
-    half _6_minComp = min(min(_5_result.x, _5_result.y), _5_result.z);
-    half _7_maxComp = max(max(_5_result.x, _5_result.y), _5_result.z);
-    if (_6_minComp < 0.0h && _4_lum != _6_minComp) {
-        _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / (_4_lum - _6_minComp));
+    half3 _2_blend_set_color_luminance;
+    half _3_lum = dot(half3(0.30000001192092896h, 0.5899999737739563h, 0.10999999940395355h), r);
+    half3 _4_result = (_3_lum - dot(half3(0.30000001192092896h, 0.5899999737739563h, 0.10999999940395355h), l)) + l;
+    half _5_minComp = min(min(_4_result.x, _4_result.y), _4_result.z);
+    half _6_maxComp = max(max(_4_result.x, _4_result.y), _4_result.z);
+    if (_5_minComp < 0.0h && _3_lum != _5_minComp) {
+        _4_result = _3_lum + (_4_result - _3_lum) * (_3_lum / (_3_lum - _5_minComp));
     }
-    if (_7_maxComp > alpha && _7_maxComp != _4_lum) {
-        _3_blend_set_color_luminance = _4_lum + ((_5_result - _4_lum) * (alpha - _4_lum)) / (_7_maxComp - _4_lum);
+    if (_6_maxComp > alpha && _6_maxComp != _3_lum) {
+        _2_blend_set_color_luminance = _3_lum + ((_4_result - _3_lum) * (alpha - _3_lum)) / (_6_maxComp - _3_lum);
     } else {
-        _3_blend_set_color_luminance = _5_result;
+        _2_blend_set_color_luminance = _4_result;
     }
-    return half4((((_3_blend_set_color_luminance + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
+    return half4((((_2_blend_set_color_luminance + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;

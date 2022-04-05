@@ -80,6 +80,13 @@ std::string BlendExpression(const GrProcessor* processor,
             return SkSL::String::printf("blend_hslc(%s, %s, %s.x, bool(%s.y))",
                                         srcColor, dstColor, blendName, blendName);
         }
+        case SkBlendMode::kOverlay:
+        case SkBlendMode::kHardLight: {
+            const char* blendName;
+            *blendUniform = uniformHandler->addUniform(processor, kFragment_GrShaderFlag,
+                                                       SkSLType::kHalf, "blend", &blendName);
+            return SkSL::String::printf("blend_overlay(%s, %s, %s)", srcColor, dstColor, blendName);
+        }
         default: {
             return SkSL::String::printf("%s(%s, %s)",
                                         BlendFuncName(mode), srcColor, dstColor);
@@ -107,6 +114,10 @@ int BlendKey(SkBlendMode mode) {
         case SkBlendMode::kColor:
             return -2;
 
+        case SkBlendMode::kOverlay:
+        case SkBlendMode::kHardLight:
+            return -3;
+
         default:
             return (int)mode;
     }
@@ -131,6 +142,9 @@ void SetBlendModeUniformData(const GrGLSLProgramDataManager& pdman,
         case SkBlendMode::kSaturation: pdman.set2f(blendUniform, 1, 1); break;
         case SkBlendMode::kColor:      pdman.set2f(blendUniform, 0, 0); break;
         case SkBlendMode::kLuminosity: pdman.set2f(blendUniform, 1, 0); break;
+
+        case SkBlendMode::kOverlay:    pdman.set1f(blendUniform, 0); break;
+        case SkBlendMode::kHardLight:  pdman.set1f(blendUniform, 1); break;
 
         default:                    /* no uniform data necessary */ break;
     }

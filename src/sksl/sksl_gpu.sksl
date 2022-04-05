@@ -315,9 +315,8 @@ half4 blend_modulate(half4 src, half4 dst) { return src*dst; }
 half4 blend_screen(half4 src, half4 dst) { return src + (1 - src)*dst; }
 
 half $blend_overlay_component(half2 s, half2 d) {
-    return (2*d.x <= d.y)
-            ? 2*s.x*d.x
-            : s.y*d.y - 2*(d.y - d.x)*(s.y - s.x);
+    return (2*d.x <= d.y) ? 2*s.x*d.x
+                          : s.y*d.y - 2*(d.y - d.x)*(s.y - s.x);
 }
 
 half4 blend_overlay(half4 src, half4 dst) {
@@ -327,6 +326,10 @@ half4 blend_overlay(half4 src, half4 dst) {
                          src.a + (1 - src.a)*dst.a);
     result.rgb += dst.rgb*(1 - src.a) + src.rgb*(1 - dst.a);
     return result;
+}
+
+half4 blend_overlay(half4 a, half4 b, half flip) {
+    return blend_overlay(mix(a, b, flip), mix(b, a, flip));
 }
 
 half4 blend_darken(half4 src, half4 dst) {
@@ -392,7 +395,9 @@ half4 blend_color_burn(half4 src, half4 dst) {
                  src.a + (1 - src.a)*dst.a);
 }
 
-half4 blend_hard_light(half4 src, half4 dst) { return blend_overlay(dst, src); }
+half4 blend_hard_light(half4 src, half4 dst) {
+    return blend_overlay(dst, src);
+}
 
 half $soft_light_component(half2 s, half2 d) {
     if (2*s.x <= s.y) {
