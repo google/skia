@@ -21,8 +21,12 @@
 #include "src/gpu/Blend.h"
 #endif
 
+class SkArenaAlloc;
+
 class SkUniformDataBlock {
 public:
+    static std::unique_ptr<SkUniformDataBlock> Make(const SkUniformDataBlock&, SkArenaAlloc*);
+
     SkUniformDataBlock() = default;
     SkUniformDataBlock(sk_sp<SkUniformData> initial) {
         SkASSERT(initial && initial->dataSize());
@@ -69,11 +73,12 @@ public:
         SkTileMode                 fTileModes[2];
     };
 
+    static std::unique_ptr<SkTextureDataBlock> Make(const SkTextureDataBlock&, SkArenaAlloc*);
     SkTextureDataBlock() = default;
 
     bool empty() const { return fTextureData.empty(); }
     int numTextures() const { return SkTo<int>(fTextureData.size()); }
-    const TextureInfo& texture(int index) { return fTextureData[index]; }
+    const TextureInfo& texture(int index) const { return fTextureData[index]; }
 
     bool operator==(const SkTextureDataBlock&) const;
     bool operator!=(const SkTextureDataBlock& other) const { return !(*this == other);  }

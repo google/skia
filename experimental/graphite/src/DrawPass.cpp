@@ -200,7 +200,7 @@ public:
             return {};
         }
 
-        SkUniformDataBlock *udb = fUniformDataCache->lookup(uIndex);
+        const SkUniformDataBlock *udb = fUniformDataCache->lookup(uIndex);
         SkASSERT(udb);
 
         if (fBindings.find(uIndex.asUInt()) == fBindings.end()) {
@@ -208,7 +208,9 @@ public:
             size_t totalDataSize = udb->totalUniformSize();
             SkASSERT(totalDataSize);
             auto[writer, bufferInfo] = fBufferMgr->getUniformWriter(totalDataSize);
-            for (const auto &u : *udb) {
+
+            // TODO: this const_cast will go away in a following CL
+            for (const auto &u : *const_cast<SkUniformDataBlock*>(udb)) {
                 writer.write(u->data(), u->dataSize());
             }
 

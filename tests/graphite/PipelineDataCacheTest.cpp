@@ -41,7 +41,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
         UniformDataCache::Index invalid;
         REPORTER_ASSERT(reporter, !invalid.isValid());
 
-        SkUniformDataBlock* lookup = cache->lookup(invalid);
+        const SkUniformDataBlock* lookup = cache->lookup(invalid);
         REPORTER_ASSERT(reporter, !lookup);
     }
 
@@ -51,7 +51,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
     {
         id1 = cache->insert(*udb1);
         REPORTER_ASSERT(reporter, id1.isValid());
-        SkUniformDataBlock* lookup = cache->lookup(id1);
+        const SkUniformDataBlock* lookup = cache->lookup(id1);
         REPORTER_ASSERT(reporter, *lookup == *udb1);
 
         REPORTER_ASSERT(reporter, cache->count() == 1);
@@ -63,7 +63,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
         UniformDataCache::Index id2 = cache->insert(*udb2);
         REPORTER_ASSERT(reporter, id2.isValid());
         REPORTER_ASSERT(reporter, id2 == id1);
-        SkUniformDataBlock* lookup = cache->lookup(id2);
+        const SkUniformDataBlock* lookup = cache->lookup(id2);
         REPORTER_ASSERT(reporter, *lookup == *udb1);
         REPORTER_ASSERT(reporter, *lookup == *udb2);
 
@@ -76,7 +76,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
         UniformDataCache::Index id3 = cache->insert(*udb3);
         REPORTER_ASSERT(reporter, id3.isValid());
         REPORTER_ASSERT(reporter, id3 != id1);
-        SkUniformDataBlock* lookup = cache->lookup(id3);
+        const SkUniformDataBlock* lookup = cache->lookup(id3);
         REPORTER_ASSERT(reporter, *lookup == *udb3);
         REPORTER_ASSERT(reporter, *lookup != *udb1);
 

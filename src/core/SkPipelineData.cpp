@@ -26,6 +26,11 @@ void SkPipelineDataGatherer::checkReset() {
 }
 #endif
 
+std::unique_ptr<SkUniformDataBlock> SkUniformDataBlock::Make(const SkUniformDataBlock& other,
+                                                             SkArenaAlloc* /* arena */) {
+    return std::make_unique<SkUniformDataBlock>(other);
+}
+
 void SkPipelineDataGatherer::add(sk_sp<SkUniformData> uniforms) {
     SkASSERT(uniforms && uniforms->dataSize());
     fUniformDataBlock.add(std::move(uniforms));
@@ -69,6 +74,11 @@ uint32_t SkUniformDataBlock::hash() const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef SK_GRAPHITE_ENABLED
 static constexpr int kSkFilterModeCount = static_cast<int>(SkFilterMode::kLast) + 1;
+
+std::unique_ptr<SkTextureDataBlock> SkTextureDataBlock::Make(const SkTextureDataBlock& other,
+                                                             SkArenaAlloc* /* arena */) {
+    return std::make_unique<SkTextureDataBlock>(other);
+}
 
 bool SkTextureDataBlock::TextureInfo::operator==(const TextureInfo& other) const {
     return fProxy == other.fProxy &&

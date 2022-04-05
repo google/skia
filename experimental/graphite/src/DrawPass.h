@@ -98,7 +98,7 @@ private:
     struct BindTexturesAndSamplers {
         // The data backing this pointer is stored in the TextureDataCache. Its lifetime is for
         // a single Recording (thus guaranteed to be longer than this DrawPass' lifetime).
-        SkTextureDataBlock* fTextureBlock;
+        const SkTextureDataBlock* fTextureBlock;
     };
     struct BindDrawBuffers {
         BindBufferInfo fVertices;

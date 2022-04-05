@@ -975,6 +975,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkRefCnt_hdr",
+        "//src/core:SkArenaAlloc_hdr",
         "//src/core:SkPipelineData_hdr",
     ],
 )

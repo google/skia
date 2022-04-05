@@ -9,6 +9,7 @@
 #define skgpu_PipelineDataCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkPipelineData.h"
 
 #include <unordered_map>
@@ -16,12 +17,17 @@
 
 namespace skgpu {
 
-// Add the block of data (DataBlockT) to the cache and return a unique ID that corresponds to its
+// Add a block of data to the cache and return a unique ID that corresponds to its
 // contents. If an identical block of data is already in the cache, that unique ID is returned.
-// A DataBlockT must have:
+// A StorageT captures how the memory of the BaseT is managed in the cache
+// A BaseT captures the datatype that is stored in the cache and must have:
 //   uint32_t hash() const;
 //   operator==
-template<typename DataBlockT>
+//   static StorageT Make(const BaseT&, SkArenaAlloc*);
+//
+// Note: The baseT/storageT split is only required until the SkTextureDataBlock is also stored
+// in an arena.
+template<typename StorageT, typename BaseT>
 class PipelineDataCache {
 public:
     static constexpr uint32_t kInvalidIndex = 0;
@@ -29,7 +35,7 @@ public:
     PipelineDataCache() {
         // kInvalidIndex is reserved
         static_assert(kInvalidIndex == 0);
-        fDataBlocks.push_back(nullptr);
+        fDataBlocks.push_back({});
         fDataBlockIDs.insert({nullptr, Index()});
     }
 
@@ -66,8 +72,8 @@ public:
         uint32_t fIndex;
     };
 
-    Index insert(const DataBlockT& dataBlock) {
-        auto kv = fDataBlockIDs.find(const_cast<DataBlockT*>(&dataBlock));
+    Index insert(const BaseT& dataBlock) {
+        auto kv = fDataBlockIDs.find(const_cast<BaseT*>(&dataBlock));
         if (kv != fDataBlockIDs.end()) {
             return kv->second;
         }
@@ -75,20 +81,19 @@ public:
         Index id(SkTo<uint32_t>(fDataBlocks.size()));
         SkASSERT(id.isValid());
 
-        // TODO: switch this over to using an SkArena
-        std::unique_ptr<DataBlockT> tmp(new DataBlockT(dataBlock));
+        StorageT tmp(BaseT::Make(dataBlock, &fArena));
         fDataBlockIDs.insert({tmp.get(), id});
         fDataBlocks.push_back(std::move(tmp));
         this->validate();
         return id;
     }
 
-    DataBlockT* lookup(Index uniqueID) {
+    const BaseT* lookup(Index uniqueID) {
         SkASSERT(uniqueID.asUInt() < fDataBlocks.size());
         return fDataBlocks[uniqueID.asUInt()].get();
     }
 
-    // The number of unique DataBlockT objects in the cache
+    // The number of unique BaseT objects in the cache
     size_t count() const {
         SkASSERT(fDataBlocks.size() == fDataBlockIDs.size() && fDataBlocks.size() > 0);
         return fDataBlocks.size() - 1;  /* -1 to discount the invalidID's entry */
@@ -97,7 +102,7 @@ public:
 private:
     struct Hash {
         // This hash operator de-references and hashes the data contents
-        size_t operator()(DataBlockT* dataBlock) const {
+        size_t operator()(const BaseT* dataBlock) const {
             if (!dataBlock) {
                 return 0;
             }
@@ -107,7 +112,7 @@ private:
     };
     struct Eq {
         // This equality operator de-references and compares the actual data contents
-        bool operator()(DataBlockT *a, DataBlockT *b) const {
+        bool operator()(const BaseT* a, const BaseT* b) const {
             if (!a || !b) {
                 return !a && !b;
             }
@@ -117,8 +122,9 @@ private:
     };
 
     // Note: the unique IDs are only unique w/in a Recorder or a Recording _not_ globally
-    std::unordered_map<DataBlockT*, Index, Hash, Eq> fDataBlockIDs;
-    std::vector<std::unique_ptr<DataBlockT>> fDataBlocks;
+    std::unordered_map<const BaseT*, Index, Hash, Eq> fDataBlockIDs;
+    std::vector<StorageT> fDataBlocks;
+    SkArenaAlloc fArena{0};
 
     void validate() const {
 #ifdef SK_DEBUG
@@ -134,12 +140,12 @@ private:
 
 // A UniformDataCache lives for the entire duration of a Recorder. As such it has a greater
 // likelihood of overflowing a uint32_t index.
-using UniformDataCache = PipelineDataCache<SkUniformDataBlock>;
+using UniformDataCache = PipelineDataCache<std::unique_ptr<SkUniformDataBlock>, SkUniformDataBlock>;
 
 // A TextureDataCache only lives for a single Recording. When a Recording is snapped it is pulled
 // off of the Recorder and goes with the Recording as a record of the required Textures and
 // Samplers.
-using TextureDataCache = PipelineDataCache<SkTextureDataBlock>;
+using TextureDataCache = PipelineDataCache<std::unique_ptr<SkTextureDataBlock>, SkTextureDataBlock>;
 
 } // namespace skgpu
 

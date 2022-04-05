@@ -15,8 +15,8 @@ class SkTextureDataBlock;
 namespace skgpu {
 
 class CommandBuffer;
-template<typename DataBlockT> class PipelineDataCache;
-using TextureDataCache = PipelineDataCache<SkTextureDataBlock>;
+template<typename StorageT, typename BaseT> class PipelineDataCache;
+using TextureDataCache = PipelineDataCache<std::unique_ptr<SkTextureDataBlock>, SkTextureDataBlock>;
 
 class Recording final {
 public:

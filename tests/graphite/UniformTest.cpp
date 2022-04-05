@@ -105,7 +105,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
                 // TODO: This isn't particularly useful until we add image shaders to the
                 // pre-compilation set.
                 {
-                    SkTextureDataBlock* textureData = tCache->lookup(tIndex);
+                    const SkTextureDataBlock* textureData = tCache->lookup(tIndex);
                     int actualNumTextures = textureData ? textureData->numTextures() : 0;
 
                     REPORTER_ASSERT(reporter, expectedNumTextures == actualNumTextures);
