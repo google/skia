@@ -244,6 +244,12 @@ DSLExpression DSLExpression::prefix(Operator::Kind op, Position pos) {
     return DSLExpression(std::move(result), pos);
 }
 
+DSLExpression DSLExpression::postfix(Operator::Kind op, Position pos) {
+    std::unique_ptr<SkSL::Expression> result = PostfixExpression::Convert(ThreadContext::Context(),
+            pos, this->release(), op);
+    return DSLExpression(std::move(result), pos);
+}
+
 #define OP(op, token)                                                                              \
 DSLPossibleExpression operator op(DSLExpression left, DSLExpression right) {                       \
     return BinaryExpression::Convert(ThreadContext::Context(), Position(), left.release(),         \

@@ -1821,14 +1821,10 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
             Position pos = this->rangeFrom(base.position());
             return this->call(pos, std::move(base), std::move(args));
         }
-        case Token::Kind::TK_PLUSPLUS: {
-            Position pos = this->rangeFrom(base.position());
-            return DSLExpression(std::move(base)++, pos);
-        }
-        case Token::Kind::TK_MINUSMINUS: {
-            Position pos = this->rangeFrom(base.position());
-            return DSLExpression(std::move(base)--, pos);
-        }
+        case Token::Kind::TK_PLUSPLUS:
+            return base.postfix(Operator::Kind::PLUSPLUS, this->rangeFrom(base.position()));
+        case Token::Kind::TK_MINUSMINUS:
+            return base.postfix(Operator::Kind::MINUSMINUS, this->rangeFrom(base.position()));
         default: {
             this->error(next, "expected expression suffix, but found '" +
                               std::string(this->text(next)) + "'");
