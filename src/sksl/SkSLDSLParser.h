@@ -20,6 +20,7 @@
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLLexer.h"
@@ -43,6 +44,8 @@ class DSLParameter;
 template <typename T> class DSLWrapper;
 
 }
+
+class AutoDSLDepth;
 
 /**
  * Consumes .sksl text and invokes DSL functions to instantiate the program.
@@ -230,6 +233,10 @@ private:
     std::optional<dsl::DSLBlock> block();
 
     dsl::DSLStatement expressionStatement();
+
+    using BinaryParseFn = dsl::DSLExpression (DSLParser::*)();
+    bool SK_WARN_UNUSED_RESULT operatorRight(AutoDSLDepth& depth, Operator::Kind op,
+            BinaryParseFn rightFn, dsl::DSLExpression& result);
 
     dsl::DSLExpression expression();
 
