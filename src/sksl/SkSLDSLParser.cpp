@@ -164,17 +164,23 @@ Token DSLParser::nextRawToken() {
     return token;
 }
 
+static bool is_whitespace(Token::Kind kind) {
+    switch (kind) {
+        case Token::Kind::TK_WHITESPACE:
+        case Token::Kind::TK_LINE_COMMENT:
+        case Token::Kind::TK_BLOCK_COMMENT:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 Token DSLParser::nextToken() {
     for (;;) {
         Token token = this->nextRawToken();
-        switch (token.fKind) {
-            case Token::Kind::TK_WHITESPACE:
-            case Token::Kind::TK_LINE_COMMENT:
-            case Token::Kind::TK_BLOCK_COMMENT:
-                continue;
-
-            default:
-                return token;
+        if (!is_whitespace(token.fKind)) {
+            return token;
         }
     }
 }
@@ -371,25 +377,25 @@ void DSLParser::directive() {
 /* modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter (COMMA parameter)* RPAREN
    (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
 bool DSLParser::declaration() {
-    Token lookahead = this->peek();
-    if (lookahead.fKind == Token::Kind::TK_SEMICOLON) {
+    Token start = this->peek();
+    if (start.fKind == Token::Kind::TK_SEMICOLON) {
         this->nextToken();
-        this->error(lookahead, "expected a declaration, but found ';'");
+        this->error(start, "expected a declaration, but found ';'");
         return false;
     }
     DSLModifiers modifiers = this->modifiers();
-    lookahead = this->peek();
+    Token lookahead = this->peek();
     if (lookahead.fKind == Token::Kind::TK_IDENTIFIER && !IsType(this->text(lookahead))) {
         // we have an identifier that's not a type, could be the start of an interface block
         return this->interfaceBlock(modifiers);
     }
     if (lookahead.fKind == Token::Kind::TK_SEMICOLON) {
         this->nextToken();
-        Declare(modifiers, position(lookahead));
+        Declare(modifiers, this->position(start));
         return true;
     }
     if (lookahead.fKind == Token::Kind::TK_STRUCT) {
-        this->structVarDeclaration(modifiers);
+        this->structVarDeclaration(this->position(start), modifiers);
         return true;
     }
     std::optional<DSLType> type = this->type(&modifiers);
@@ -401,15 +407,16 @@ bool DSLParser::declaration() {
         return false;
     }
     if (this->checkNext(Token::Kind::TK_LPAREN)) {
-        return this->functionDeclarationEnd(modifiers, *type, name);
+        return this->functionDeclarationEnd(this->position(start), modifiers, *type, name);
     } else {
-        this->globalVarDeclarationEnd(this->position(name), modifiers, *type, this->text(name));
+        this->globalVarDeclarationEnd(this->position(start), modifiers, *type, this->text(name));
         return true;
     }
 }
 
 /* (RPAREN | VOID RPAREN | parameter (COMMA parameter)* RPAREN) (block | SEMICOLON) */
-bool DSLParser::functionDeclarationEnd(const DSLModifiers& modifiers,
+bool DSLParser::functionDeclarationEnd(Position start,
+                                       const DSLModifiers& modifiers,
                                        DSLType type,
                                        const Token& name) {
     SkTArray<DSLWrapper<DSLParameter>> parameters;
@@ -439,17 +446,19 @@ bool DSLParser::functionDeclarationEnd(const DSLModifiers& modifiers,
     for (DSLWrapper<DSLParameter>& param : parameters) {
         parameterPointers.push_back(&param.get());
     }
-    DSLFunction result(modifiers, type, this->text(name), parameterPointers, this->position(name));
+    DSLFunction result(modifiers, type, this->text(name), parameterPointers,
+            this->rangeFrom(start));
     if (!this->checkNext(Token::Kind::TK_SEMICOLON)) {
         AutoDSLSymbolTable symbols;
         for (DSLParameter* var : parameterPointers) {
             AddToSymbolTable(*var);
         }
+        Token bodyStart = this->peek();
         std::optional<DSLBlock> body = this->block();
         if (!body) {
             return false;
         }
-        result.define(std::move(*body), this->position(name));
+        result.define(std::move(*body), this->rangeFrom(bodyStart));
     }
     return true;
 }
@@ -483,18 +492,19 @@ bool DSLParser::arraySize(SKSL_INT* outResult) {
 }
 
 bool DSLParser::parseArrayDimensions(Position pos, DSLType* type) {
-    while (this->checkNext(Token::Kind::TK_LBRACKET)) {
+    Token next;
+    while (this->checkNext(Token::Kind::TK_LBRACKET, &next)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
-            this->error(pos, "expected array dimension");
+            this->error(this->rangeFrom(next), "expected array dimension");
         } else {
             SKSL_INT size;
             if (!this->arraySize(&size)) {
                 return false;
             }
-            *type = Array(*type, size, pos);
             if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
                 return false;
             }
+            *type = Array(*type, size, this->rangeFrom(pos));
         }
     }
     return true;
@@ -524,7 +534,7 @@ void DSLParser::globalVarDeclarationEnd(Position pos, const dsl::DSLModifiers& m
     if (!this->parseInitializer(pos, &initializer)) {
         return;
     }
-    DSLGlobalVar first(mods, type, name, std::move(initializer), pos);
+    DSLGlobalVar first(mods, type, name, std::move(initializer), this->rangeFrom(pos));
     Declare(first);
     AddToSymbolTable(first);
 
@@ -542,7 +552,7 @@ void DSLParser::globalVarDeclarationEnd(Position pos, const dsl::DSLModifiers& m
             return;
         }
         DSLGlobalVar next(mods, type, this->text(identifierName), std::move(anotherInitializer),
-                pos);
+                this->rangeFrom(identifierName));
         Declare(next);
         AddToSymbolTable(next, this->position(identifierName));
     }
@@ -562,7 +572,7 @@ DSLStatement DSLParser::localVarDeclarationEnd(Position pos, const dsl::DSLModif
     if (!this->parseInitializer(pos, &initializer)) {
         return {};
     }
-    DSLVar first(mods, type, name, std::move(initializer), pos);
+    DSLVar first(mods, type, name, std::move(initializer), this->rangeFrom(pos));
     DSLStatement result = Declare(first);
     AddToSymbolTable(first);
 
@@ -579,7 +589,8 @@ DSLStatement DSLParser::localVarDeclarationEnd(Position pos, const dsl::DSLModif
         if (!this->parseInitializer(pos, &anotherInitializer)) {
             return result;
         }
-        DSLVar next(mods, type, this->text(identifierName), std::move(anotherInitializer), pos);
+        DSLVar next(mods, type, this->text(identifierName), std::move(anotherInitializer),
+                this->rangeFrom(identifierName));
         DSLWriter::AddVarDeclaration(result, next);
         AddToSymbolTable(next, this->position(identifierName));
     }
@@ -643,6 +654,7 @@ DSLStatement DSLParser::varDeclarations() {
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
 std::optional<DSLType> DSLParser::structDeclaration() {
+    Position start = this->position(this->peek());
     if (!this->expect(Token::Kind::TK_STRUCT, "'struct'")) {
         return std::nullopt;
     }
@@ -705,21 +717,22 @@ std::optional<DSLType> DSLParser::structDeclaration() {
         }
     }
     if (fields.empty()) {
-        this->error(name, "struct '" + std::string(this->text(name)) +
-                          "' must contain at least one field");
+        this->error(this->rangeFrom(start), "struct '" + std::string(this->text(name)) +
+                "' must contain at least one field");
     }
-    return dsl::Struct(this->text(name), SkMakeSpan(fields), this->position(name));
+    return dsl::Struct(this->text(name), SkMakeSpan(fields), this->rangeFrom(start));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
-SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& modifiers) {
+SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(Position start,
+                                                            const DSLModifiers& modifiers) {
     std::optional<DSLType> type = this->structDeclaration();
     if (!type) {
         return {};
     }
     Token name;
     if (this->checkIdentifier(&name)) {
-        this->globalVarDeclarationEnd(this->position(name), modifiers, std::move(*type),
+        this->globalVarDeclarationEnd(this->rangeFrom(name), modifiers, std::move(*type),
                                       this->text(name));
     } else {
         this->expect(Token::Kind::TK_SEMICOLON, "';'");
@@ -729,6 +742,7 @@ SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& 
 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
 std::optional<DSLWrapper<DSLParameter>> DSLParser::parameter(size_t paramIndex) {
+    Position pos = this->position(this->peek());
     DSLModifiers modifiers = this->modifiers();
     std::optional<DSLType> type = this->type(&modifiers);
     if (!type) {
@@ -736,19 +750,16 @@ std::optional<DSLWrapper<DSLParameter>> DSLParser::parameter(size_t paramIndex) 
     }
     Token name;
     std::string_view paramText;
-    Position paramPos;
     if (this->checkIdentifier(&name)) {
-        paramPos = this->position(name);
         paramText = this->text(name);
     } else {
         std::string anonymousName = String::printf("_skAnonymousParam%zu", paramIndex);
-        paramPos = this->position(this->peek());
         paramText = *CurrentSymbolTable()->takeOwnershipOfString(std::move(anonymousName));
     }
-    if (!this->parseArrayDimensions(this->position(name), &type.value())) {
+    if (!this->parseArrayDimensions(pos, &type.value())) {
         return std::nullopt;
     }
-    return {{DSLParameter(modifiers, *type, paramText, paramPos)}};
+    return {{DSLParameter(modifiers, *type, paramText, this->rangeFrom(pos))}};
 }
 
 /** EQ INT_LITERAL */
@@ -848,8 +859,13 @@ DSLLayout DSLParser::layout() {
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
             VARYING | INLINE)* */
 DSLModifiers DSLParser::modifiers() {
-    Position start = this->position(this->peek());
+    int start = this->peek().fOffset;
     DSLLayout layout = this->layout();
+    Token raw = this->nextRawToken();
+    int end = raw.fOffset;
+    if (!is_whitespace(raw.fKind)) {
+        this->pushback(raw);
+    }
     int flags = 0;
     for (;;) {
         // TODO(ethannicholas): handle duplicate / incompatible flags
@@ -858,9 +874,9 @@ DSLModifiers DSLParser::modifiers() {
             break;
         }
         flags |= tokenFlag;
-        this->nextToken();
+        end = this->position(this->nextToken()).endOffset();
     }
-    return DSLModifiers(std::move(layout), flags, start);
+    return DSLModifiers(std::move(layout), flags, Position::Range(start, end));
 }
 
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
@@ -927,11 +943,12 @@ std::optional<DSLType> DSLParser::type(DSLModifiers* modifiers) {
             if (!this->arraySize(&size)) {
                 return std::nullopt;
             }
-            result = Array(result, size, this->position(type));
+            this->expect(Token::Kind::TK_RBRACKET, "']'");
+            result = Array(result, size, this->rangeFrom(type));
         } else {
             this->error(this->peek(), "expected array dimension");
+            this->expect(Token::Kind::TK_RBRACKET, "']'");
         }
-        this->expect(Token::Kind::TK_RBRACKET, "']'");
     }
     return result;
 }
@@ -944,7 +961,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     if (!this->expectIdentifier(&typeName)) {
         return false;
     }
-    if (peek().fKind != Token::Kind::TK_LBRACE) {
+    if (this->peek().fKind != Token::Kind::TK_LBRACE) {
         // we only get into interfaceBlock if we found a top-level identifier which was not a type.
         // 99% of the time, the user was not actually intending to create an interface block, so
         // it's better to report it as an unknown type
@@ -955,6 +972,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     SkTArray<dsl::Field> fields;
     std::unordered_set<std::string> field_names;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
+        Position fieldPos = this->position(this->peek());
         DSLModifiers fieldModifiers = this->modifiers();
         std::optional<dsl::DSLType> type = this->type(&fieldModifiers);
         if (!type) {
@@ -988,16 +1006,20 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
                 fields.push_back(dsl::Field(fieldModifiers,
                                             std::move(actualType),
                                             this->text(fieldName),
-                                            this->position(fieldName)));
+                                            this->rangeFrom(fieldPos)));
                 field_names.emplace(key);
             } else {
-                this->error(typeName,
+                this->error(fieldName,
                             "field '" + key +
                             "' was already defined in the same interface block ('" +
                             std::string(this->text(typeName)) +  "')");
             }
         }
         while (this->checkNext(Token::Kind::TK_COMMA));
+    }
+    if (fields.empty()) {
+        this->error(this->rangeFrom(typeName), "interface block '" +
+                std::string(this->text(typeName)) + "' must contain at least one member");
     }
     std::string_view instanceName;
     Token instanceNameToken;
@@ -1011,14 +1033,11 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
             this->expect(Token::Kind::TK_RBRACKET, "']'");
         }
     }
-    this->expect(Token::Kind::TK_SEMICOLON, "';'");
-    if (fields.empty()) {
-        this->error(typeName, "interface block '" + std::string(this->text(typeName)) +
-                              "' must contain at least one member");
-    } else {
+    if (!fields.empty()) {
         dsl::InterfaceBlock(modifiers, this->text(typeName), std::move(fields), instanceName,
                             size, this->position(typeName));
     }
+    this->expect(Token::Kind::TK_SEMICOLON, "';'");
     return true;
 }
 
@@ -1050,12 +1069,13 @@ DSLStatement DSLParser::ifStatement() {
             return {};
         }
     }
+    Position pos = this->rangeFrom(start);
     if (isStatic) {
         return StaticIf(std::move(test), std::move(ifTrue),
-                ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), this->position(start));
+                ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), pos);
     } else {
         return If(std::move(test), std::move(ifTrue),
-                ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), this->position(start));
+                ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), pos);
     }
 }
 
@@ -1085,7 +1105,7 @@ DSLStatement DSLParser::doStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return {};
     }
-    return Do(std::move(statement), std::move(test), this->position(start));
+    return Do(std::move(statement), std::move(test), this->rangeFrom(start));
 }
 
 /* WHILE LPAREN expression RPAREN STATEMENT */
@@ -1108,7 +1128,7 @@ DSLStatement DSLParser::whileStatement() {
     if (!statement.hasValue()) {
         return {};
     }
-    return While(std::move(test), std::move(statement), this->position(start));
+    return While(std::move(test), std::move(statement), this->rangeFrom(start));
 }
 
 /* CASE expression COLON statement* */
@@ -1186,10 +1206,11 @@ DSLStatement DSLParser::switchStatement() {
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
         return {};
     }
+    Position pos = this->rangeFrom(start);
     if (isStatic) {
-        return StaticSwitch(std::move(value), std::move(cases), this->position(start));
+        return StaticSwitch(std::move(value), std::move(cases), pos);
     } else {
-        return Switch(std::move(value), std::move(cases), this->position(start));
+        return Switch(std::move(value), std::move(cases), pos);
     }
 }
 
@@ -1246,7 +1267,7 @@ dsl::DSLStatement DSLParser::forStatement() {
                test.hasValue() ? std::move(test) : DSLExpression(),
                next.hasValue() ? std::move(next) : DSLExpression(),
                std::move(statement),
-               this->position(start));
+               this->rangeFrom(start));
 }
 
 /* RETURN expression? SEMICOLON */
@@ -1267,7 +1288,7 @@ DSLStatement DSLParser::returnStatement() {
         return {};
     }
     return Return(expression.hasValue() ? std::move(expression) : DSLExpression(),
-            this->position(start));
+            this->rangeFrom(start));
 }
 
 /* BREAK SEMICOLON */
@@ -1889,9 +1910,8 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
     switch (next.fKind) {
         case Token::Kind::TK_LBRACKET: {
             if (this->checkNext(Token::Kind::TK_RBRACKET)) {
-                Position pos = this->rangeFrom(base.position());
-                this->error(pos, "missing index in '[]'");
-                return DSLExpression::Poison(pos);
+                this->error(this->rangeFrom(next), "missing index in '[]'");
+                return DSLExpression::Poison(this->rangeFrom(base.position()));
             }
             DSLExpression index = this->expression();
             if (!index.hasValue()) {

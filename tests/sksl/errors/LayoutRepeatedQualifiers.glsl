@@ -11,7 +11,7 @@ error: 21: layout qualifier 'index' appears more than once
 error: 22: layout qualifier 'set' appears more than once
 error: 23: layout qualifier 'builtin' appears more than once
 error: 24: layout qualifier 'input_attachment_index' appears more than once
-error: 25: 'layout(color)' is only permitted in runtime effects
-error: 25: 'layout(color)' is only permitted on 'uniform' variables
-error: 25: 'layout(color)' is not permitted on variables of type 'float'
+error: 1: 'layout(color)' is only permitted in runtime effects
+error: 1: 'layout(color)' is only permitted on 'uniform' variables
+error: 1: 'layout(color)' is not permitted on variables of type 'float'
 14 errors

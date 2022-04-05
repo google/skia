@@ -228,10 +228,10 @@ public:
                                      ThreadContext::SymbolTable());
     }
 
-    static DSLPossibleStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
-                                   bool isStatic) {
-        return IfStatement::Convert(ThreadContext::Context(), Position(), isStatic, test.release(),
-                ifTrue.release(), ifFalse.releaseIfPossible());
+    static DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
+            bool isStatic, Position pos) {
+        return DSLStatement(IfStatement::Convert(ThreadContext::Context(), pos, isStatic,
+                test.release(), ifTrue.release(), ifFalse.releaseIfPossible()), pos);
     }
 
     static void FindRTAdjust(SkSL::InterfaceBlock& intf, Position pos) {
@@ -465,9 +465,8 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 }
 
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, Position pos) {
-    return DSLStatement(DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse),
-                                    /*isStatic=*/false),
-                        pos);
+    return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse), /*isStatic=*/false,
+            pos);
 }
 
 DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
@@ -493,9 +492,8 @@ DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifF
 
 DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
                       Position pos) {
-    return DSLStatement(DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse),
-                                    /*isStatic=*/true),
-                         pos);
+    return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse), /*isStatic=*/true,
+            pos);
 }
 
 DSLPossibleStatement PossibleStaticSwitch(DSLExpression value, SkTArray<DSLCase> cases) {
