@@ -170,11 +170,6 @@ struct SK_API GrContextOptions {
     bool fAvoidStencilBuffers = false;
 
     /**
-     * Unused. The behavior that this controlled is now enabled unconditionally.
-     */
-    bool fSharpenMipmappedTextures = false;
-
-    /**
      * Enables driver workaround to use draws instead of HW clears, e.g. glClear on the GL backend.
      */
     Enable fUseDrawInsteadOfClear = Enable::kDefault;
