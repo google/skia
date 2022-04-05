@@ -79,6 +79,8 @@ def generated_cc_atom(name, enforce_iwyu = False, **kwargs):
         **kwargs
     )
 
+# buildifier: disable=unnamed-macro
+# buildifier: disable=native-package
 def enforce_iwyu_on_package():
     """A self-annotating macro to set force_iwyu = True on all rules in this package."""
     native.package(features = ["skia_opt_file_into_iwyu"])

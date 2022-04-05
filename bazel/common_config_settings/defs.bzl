@@ -31,7 +31,8 @@ multi_string_flag = rule(
     doc = "A string-typed build setting that can be set multiple times on the command line",
 )
 
-def string_flag_with_values(flag_name, values, default = "", multiple = False, name = ""):
+# buildifier: disable=unnamed-macro
+def string_flag_with_values(flag_name, values, default = "", multiple = False):
     """Create a string flag and corresponding config_settings.
 
     string_flag_with_values is a Bazel Macro that defines a flag with the given name and a set
@@ -47,7 +48,6 @@ def string_flag_with_values(flag_name, values, default = "", multiple = False, n
         default: string, whatever the default value should be if the flag is not set. Can be
             empty string for both a string_flag and a multi_string flag.
         multiple: boolean, True if the flag should be able to be set multiple times on the CLI.
-        name: string unused, https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md#unnamed-macro
     """
     if multiple:
         multi_string_flag(
@@ -87,7 +87,8 @@ def string_flag_with_values(flag_name, values, default = "", multiple = False, n
             },
         )
 
-def bool_flag(flag_name, default = True, name = ""):
+# buildifier: disable=unnamed-macro
+def bool_flag(flag_name, default = True, public = True):
     """Create a boolean flag and corresponding config_settings.
 
     bool_flag is a Bazel Macro that defines a boolean flag with the given name two config_settings,
@@ -99,9 +100,13 @@ def bool_flag(flag_name, default = True, name = ""):
     Args:
         flag_name: string, the name of the flag to create and use for the config_settings
         default: boolean, if the flag should default to on or off.
-        name: string unused, https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md#unnamed-macro
+        public: boolean, if the flag should be usable from other packages or if it is meant to be
+            combined with some other constraint.
     """
     skylib_bool_flag(name = flag_name, build_setting_default = default)
+    vis = ["//:__subpackages__"]
+    if not public:
+        vis = ["//visibility:private"]
 
     native.config_setting(
         name = flag_name + "_true",
@@ -110,6 +115,7 @@ def bool_flag(flag_name, default = True, name = ""):
             # https://docs.bazel.build/versions/main/skylark/config.html#build-settings-and-select
             ":" + flag_name: "True",
         },
+        visibility = vis,
     )
 
     native.config_setting(
@@ -117,4 +123,5 @@ def bool_flag(flag_name, default = True, name = ""):
         flag_values = {
             ":" + flag_name: "False",
         },
+        visibility = vis,
     )

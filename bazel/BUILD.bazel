@@ -35,7 +35,6 @@ GPU_DEFINES = select({
     "//bazel/common_config_settings:vulkan_backend": [
         "SK_VULKAN",
         "SK_SUPPORT_GPU=1",
-        "SK_USE_VMA",  # TODO(kjlubick) This will need to be configurable
     ],
     "//bazel/common_config_settings:dawn_backend": [
         "SK_DAWN",
@@ -55,6 +54,11 @@ GPU_DEFINES = select({
     "//bazel/common_config_settings:webgl_standard": [
         "SK_ASSUME_WEBGL=1",
         "SK_USE_WEBGL",
+    ],
+    "//conditions:default": [],
+}) + select({
+    "//bazel/common_config_settings:vulkan_with_vma": [
+        "SK_USE_VMA",
     ],
     "//conditions:default": [],
 })
