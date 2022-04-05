@@ -28,6 +28,18 @@ selects.config_setting_group(
 
 cc_library(
     name = "sk_app",
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lX11",
+            "-lxcb",  # dep of X11
+            "-lXau",  # dep of xcb
+            "-lXdmcp",  # dep of xcb
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        (":dawn_unix", ":vulkan_unix"): ["-lX11-xcb"],
+        "//conditions:default": [],
+    }),
     visibility = ["//:__subpackages__"],
     deps = [
         ":Application_hdr",

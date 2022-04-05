@@ -350,6 +350,10 @@ selects.config_setting_group(
 
 cc_library(
     name = "srcs",
+    linkopts = select({
+        "//bazel/common_config_settings:gl_backend": ["-lGL"],
+        "//conditions:default": [],
+    }),
     visibility = ["//:__subpackages__"],
     deps = [":core_srcs"] + select({
         "//bazel/common_config_settings:dawn_backend": [
