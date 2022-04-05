@@ -206,6 +206,15 @@ public:
 
     virtual std::unique_ptr<Expression> clone() const = 0;
 
+    /**
+     * Returns a clone with a modified position.
+     */
+    std::unique_ptr<Expression> clone(Position pos) {
+        std::unique_ptr<Expression> result = this->clone();
+        result->fPosition = pos;
+        return result;
+    }
+
 private:
     const Type* fType;
 

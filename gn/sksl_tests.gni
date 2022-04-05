@@ -410,6 +410,7 @@ sksl_shared_tests = [
   "/sksl/shared/DependentInitializers.sksl",
   "/sksl/shared/DerivativesUnused.sksl",
   "/sksl/shared/Discard.sksl",
+  "/sksl/shared/DoubleNegation.sksl",
   "/sksl/shared/DoWhileControlFlow.sksl",
   "/sksl/shared/EmptyBlocksES2.sksl",
   "/sksl/shared/EmptyBlocksES3.sksl",

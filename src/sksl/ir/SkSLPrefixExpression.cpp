@@ -44,7 +44,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
             // Convert `-(-expression)` into `expression`.
             const PrefixExpression& prefix = value->as<PrefixExpression>();
             if (prefix.getOperator().kind() == Operator::Kind::MINUS) {
-                return prefix.operand()->clone();
+                return prefix.operand()->clone(pos);
             }
             break;
         }

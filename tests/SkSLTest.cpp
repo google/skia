@@ -455,6 +455,7 @@ SKSL_TEST(CPU + GPU + SkQP, DeadReturn,                      "shared/DeadReturn.
 // SKSL_TEST(GPU_ES3,       SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
 SKSL_TEST(CPU + GPU + SkQP, DeadStripFunctions,              "shared/DeadStripFunctions.sksl")
 SKSL_TEST(CPU + GPU + SkQP, DependentInitializers,           "shared/DependentInitializers.sksl")
+SKSL_TEST(CPU + GPU + SkQP, DoubleNegation,                  "shared/DoubleNegation.sksl")
 SKSL_TEST(GPU_ES3,          DoWhileControlFlow,              "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(CPU + GPU + SkQP, EmptyBlocksES2,                  "shared/EmptyBlocksES2.sksl")
 SKSL_TEST(GPU_ES3,          EmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")
