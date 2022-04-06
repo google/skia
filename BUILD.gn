@@ -628,9 +628,22 @@ if (skia_lex) {
   }
 }
 
-# Build sksl-precompile when the compile-modules flag is set.
-# TODO(skia:13164): skslc is still in charge of module compilation for now
+if (skia_compile_modules || skia_compile_sksl_tests) {
+  # Copy the module source files into the out directory.
+  copy("sksl_pre_includes") {
+    sources = [
+      "src/sksl/sksl_frag.sksl",
+      "src/sksl/sksl_gpu.sksl",
+      "src/sksl/sksl_public.sksl",
+      "src/sksl/sksl_rt_shader.sksl",
+      "src/sksl/sksl_vert.sksl",
+    ]
+    outputs = [ "$root_out_dir/{{source_file_part}}" ]
+  }
+}
+
 if (skia_compile_modules) {
+  # Generate the sksl-precompile binary.
   skia_executable("sksl-precompile") {
     defines = [
       "SKSL_STANDALONE",
@@ -650,10 +663,52 @@ if (skia_compile_modules) {
     include_dirs = [ "." ]
     deps = [ ":run_sksllex" ]
   }
+
+  sksl_precompile_path = "$root_out_dir/"
+  if (host_toolchain != default_toolchain_name) {
+    sksl_precompile_path += "$host_toolchain/"
+  }
+  sksl_precompile_path += "sksl-precompile"
+  if (host_os == "win") {
+    sksl_precompile_path += ".exe"
+  }
+
+  # Use dehydrate_sksl.py to precompile all of the modules.
+  dehydrate_sksl_sources = get_target_outputs(":sksl_pre_includes")
+
+  dehydrate_sksl_outputs = []
+  foreach(src, dehydrate_sksl_sources) {
+    name = get_path_info(src, "name")
+
+    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
+    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
+    dehydrate_sksl_outputs += [ "$target_out_dir/" + rebase_path(
+                                    "src/sksl/generated/$name.dehydrated.sksl",
+                                    target_out_dir) ]
+  }
+
+  action("dehydrate_sksl") {
+    script = "gn/dehydrate_sksl.py"
+    deps = [
+      ":sksl-precompile(//gn/toolchain:$host_toolchain)",
+      ":sksl_pre_includes",
+    ]
+    sources = dehydrate_sksl_sources
+    outputs = dehydrate_sksl_outputs
+    args = [
+      rebase_path(sksl_precompile_path),
+      rebase_path("src/sksl/generated"),
+    ]
+    args += rebase_path(dehydrate_sksl_sources)
+  }
+} else {
+  group("dehydrate_sksl") {
+  }
 }
 
-# `Compile SkSL Tests` relies on skslc.
+# `Compile SkSL Tests` relies on skslc and the precompiled modules.
 if (skia_compile_sksl_tests) {
+  # Build skslc.
   skia_executable("skslc") {
     defines = [
       "SKSL_STANDALONE",
@@ -691,52 +746,8 @@ if (skia_compile_sksl_tests) {
     skslc_path += ".exe"
   }
 
-  copy("sksl_pre_includes") {
-    sources = [
-      "src/sksl/sksl_frag.sksl",
-      "src/sksl/sksl_gpu.sksl",
-      "src/sksl/sksl_public.sksl",
-      "src/sksl/sksl_rt_shader.sksl",
-      "src/sksl/sksl_vert.sksl",
-    ]
-    outputs = [ "$root_out_dir/{{source_file_part}}" ]
-  }
-
-  dehydrate_sksl_sources = get_target_outputs(":sksl_pre_includes")
-
-  dehydrate_sksl_outputs = []
-  foreach(src, dehydrate_sksl_sources) {
-    name = get_path_info(src, "name")
-
-    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
-    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
-    dehydrate_sksl_outputs += [ "$target_out_dir/" + rebase_path(
-                                    "src/sksl/generated/$name.dehydrated.sksl",
-                                    target_out_dir) ]
-  }
-
-  action("dehydrate_sksl") {
-    script = "gn/dehydrate_sksl.py"
-    deps = [
-      ":sksl_pre_includes",
-      ":skslc(//gn/toolchain:$host_toolchain)",
-    ]
-    sources = dehydrate_sksl_sources
-    outputs = dehydrate_sksl_outputs
-    args = [
-      rebase_path(skslc_path),
-      rebase_path("src/sksl/generated"),
-    ]
-    args += rebase_path(dehydrate_sksl_sources)
-  }
-} else {
-  group("dehydrate_sksl") {
-  }
-}
-
-if (skia_compile_sksl_tests) {
+  # Build the test files using skslc.
   import("gn/sksl_tests.gni")
-
   template("compile_sksl") {
     # Compile the passed-in `sources` into `outputs` using skslc, with the given language/settings.
     action("compile_sksl_${target_name}") {

@@ -9,20 +9,20 @@ import os
 import subprocess
 import sys
 
-skslc = sys.argv[1]
+sksl_precompile = sys.argv[1]
 targetDir = sys.argv[2]
-includes = sys.argv[3:]
+modules = sys.argv[3:]
 
-for inc in includes:
+for module in modules:
     try:
-        noExt, _ = os.path.splitext(inc)
+        noExt, _ = os.path.splitext(module)
         head, tail = os.path.split(noExt)
         if not os.path.isdir(targetDir):
             os.mkdir(targetDir)
         target = os.path.join(targetDir, tail)
         subprocess.check_output([
-            skslc, inc, target + ".dehydrated.sksl"]).decode('utf-8')
+            sksl_precompile, target + ".dehydrated.sksl", module]).decode('utf-8')
     except subprocess.CalledProcessError as err:
-        print("### Error compiling " + inc + ":")
+        print("### Error compiling " + module + ":")
         print(err.output)
         exit(1)
