@@ -57,7 +57,7 @@ DSLStatement::DSLStatement(DSLPossibleStatement stmt, Position pos) {
     } else {
         fStatement = SkSL::Nop::Make();
     }
-    if (pos.valid()) {
+    if (pos.valid() && !fStatement->fPosition.valid()) {
         fStatement->fPosition = pos;
     }
 }

@@ -498,11 +498,11 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
         const Layout& fieldLayout = field.fModifiers.fLayout;
         if (fieldLayout.fOffset >= 0) {
             if (fieldLayout.fOffset < (int) offset) {
-                fContext.fErrors->error(type.fPosition, "offset of field '" +
+                fContext.fErrors->error(field.fPosition, "offset of field '" +
                         std::string(field.fName) + "' must be at least " + std::to_string(offset));
             }
             if (fieldLayout.fOffset % alignment) {
-                fContext.fErrors->error(type.fPosition,
+                fContext.fErrors->error(field.fPosition,
                         "offset of field '" + std::string(field.fName) +
                         "' must be a multiple of " + std::to_string(alignment));
             }

@@ -1,4 +1,6 @@
 ### Compilation failed:
 
 error: 2: type mismatch: '==' cannot operate on 'void', 'void'
+void b(int i) { c(i)==c(i); }
+                ^^^^^^^^^^
 1 error

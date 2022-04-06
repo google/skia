@@ -1,4 +1,6 @@
 ### Compilation failed:
 
 error: 1: expected an identifier, but found type 'sampler3D'
+int sampler3D;
+    ^^^^^^^^^
 1 error

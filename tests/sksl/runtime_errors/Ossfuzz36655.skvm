@@ -1,15 +1,39 @@
 ### Compilation failed:
 
 error: 2: expected '(' to begin constructor invocation
+    ;int x;+(2);;;;;;colorFilter;;;;;;;;
+                                ^
 error: 11: expected '(' to begin function call
+    n();n();;;;;;;;;;atan;;;;;;;;;;;2;
+                         ^
 error: 17: expected '(' to begin function call
+    ;0;;;l();n;;
+              ^
 error: 21: expected '(' to begin function call
+    (32/43/4-half3x3(5)[2].ttt+4/35).ss00*1752).s > 5)n();;0;n;n()
+                                                              ^
 error: 23: expected '(' to begin constructor invocation
+    ;float[992];
+               ^
 error: 26: expected '(' to begin function call
+    (2).ss00*2147483648).s > 0)n();1;n;n()
+                                      ^
 error: 32: expected '(' to begin function call
+    052).s >=5)n();1;n;n
+                      ^
 error: 32: expected '(' to begin function call
+    052).s >=5)n();1;n;n
+                        ^
 error: 35: expected '(' to begin function call
+    ;0;;;l();n;;
+              ^
 error: 39: expected '(' to begin function call
+    (32/43/4-half3x3(5)[2].ttt+4/35).ss00*1752).s > 5)n();;1;n;n()
+                                                              ^
 error: 43: expected '(' to begin constructor invocation
+    ;float[992];
+               ^
 error: 46: expected '(' to begin function call
+    (2).ss00*7152).s > 0)n();1;n;n()
+                                ^
 12 errors

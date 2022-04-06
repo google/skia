@@ -1,10 +1,24 @@
 ### Compilation failed:
 
 error: 6: 'main' parameters must be (float2, (vec4|float4|half4)?)
+half4 main() { return half4(1); }
+^^^^^^^^^^^^
 error: 7: 'main' parameters must be (float2, (vec4|float4|half4)?)
+half4 main(half4 color) { return color; }
+^^^^^^^^^^^^^^^^^^^^^^^
 error: 7: unknown identifier 'color'
+half4 main(half4 color) { return color; }
+                                 ^^^^^
 error: 8: 'main' parameters must be (float2, (vec4|float4|half4)?)
+half4 main(float2 xy, half4 color, half4 bonusColor) { return color; }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 8: unknown identifier 'color'
+half4 main(float2 xy, half4 color, half4 bonusColor) { return color; }
+                                                              ^^^^^
 error: 9: 'main' parameters must be (float2, (vec4|float4|half4)?)
+half4 main(half4 outOfOrderColor, float2 outOfOrderXy) { return color; }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 9: unknown identifier 'color'
+half4 main(half4 outOfOrderColor, float2 outOfOrderXy) { return color; }
+                                                                ^^^^^
 7 errors

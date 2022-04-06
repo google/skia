@@ -1,4 +1,6 @@
 ### Compilation failed:
 
 error: 8: construction of array type 'float[3]' is not supported
+void array_ctor() { float[3](1, 2, 3); }
+                    ^^^^^^^^^^^^^^^^^
 1 error

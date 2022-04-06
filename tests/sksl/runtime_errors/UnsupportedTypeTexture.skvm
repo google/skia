@@ -1,4 +1,6 @@
 ### Compilation failed:
 
 error: 1: invalid type
+uniform texture2D s;
+^^^^^^^^^^^^^^^^^^^
 1 error

@@ -1,12 +1,30 @@
 ### Compilation failed:
 
 error: 3: missing condition
+void no_condition() { for (int i = 0;;i++) {} }
+                      ^^^^^^^^^^^^^^^^^^^^^^^
 error: 5: invalid condition
+void unary_cond_op()   { for (int i = 0; !(i > 1); ++i) {} }
+                                         ^^^^^^^^
 error: 6: invalid condition
+void implict_cond_op() { for (int i = 1; bool(i); --i) {} }
+                                         ^^^^^^^
 error: 7: expected loop index on left hand side of condition
+void complex_cond_op() { for (int i = 0; i < 1 && i < 2; ++i) {} }
+                                         ^^^^^^^^^^^^^^
 error: 9: expected loop index on left hand side of condition
+void cond_wrong_var()  { int j = 0; for (int i = 0; j < 1; ++i) {} }
+                                                    ^^^^^
 error: 10: expected loop index on left hand side of condition
+void cond_wrong_side() { for (int i = 0; 1 > i; ++i) {} }
+                                         ^^^^^
 error: 11: expected loop index on left hand side of condition
+void cond_index_cast() { for (int i = 0; float(i) < 1.5; ++i) {} }
+                                         ^^^^^^^^^^^^^^
 error: 15: loop index must be compared with a constant expression
+void cond_uniform_val()    { for (int i = 0; i < u; ++i) {} }
+                                             ^^^^^
 error: 16: loop index must be compared with a constant expression
+void cond_param_val(int p) { for (int i = 0; i < p; ++i) {} }
+                                             ^^^^^
 9 errors

@@ -1,5 +1,9 @@
 ### Compilation failed:
 
 error: 23: index expression must be constant
+void uniform_index()    { int a[2]; a[u] = 0; }
+                                    ^^^^
 error: 24: index expression must be constant
+void param_index(int p) { int a[2]; a[p] = 0; }
+                                    ^^^^
 2 errors

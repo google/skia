@@ -2092,7 +2092,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, Pos
         }
         if (fieldOffset != -1) {
             if (currentOffset > fieldOffset) {
-                fContext.fErrors->error(parentPos,
+                fContext.fErrors->error(field.fPosition,
                                         "offset of field '" + std::string(field.fName) +
                                         "' must be at least " + std::to_string(currentOffset));
                 return;
@@ -2106,7 +2106,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, Pos
             }
             int alignment = memoryLayout.alignment(*fieldType);
             if (fieldOffset % alignment) {
-                fContext.fErrors->error(parentPos,
+                fContext.fErrors->error(field.fPosition,
                                         "offset of field '" + std::string(field.fName) +
                                         "' must be a multiple of " + std::to_string(alignment));
                 return;

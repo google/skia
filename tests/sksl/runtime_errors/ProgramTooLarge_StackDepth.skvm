@@ -52,4 +52,6 @@ error: 11: exceeded max function call depth:
 	void f48()
 	void f49()
 	void f50()
+void f50() { f51(); }
+           ^^^^^^^^^^
 1 error

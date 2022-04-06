@@ -1,4 +1,6 @@
 ### Compilation failed:
 
 error: 1: expected an identifier, but found type 'texture2D'
+int texture2D;
+    ^^^^^^^^^
 1 error

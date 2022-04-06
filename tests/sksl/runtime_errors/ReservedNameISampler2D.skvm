@@ -1,4 +1,6 @@
 ### Compilation failed:
 
 error: 1: expected an identifier, but found type 'isampler2D'
+int isampler2D;
+    ^^^^^^^^^^
 1 error

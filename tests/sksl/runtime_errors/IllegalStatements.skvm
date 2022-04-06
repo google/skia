@@ -1,6 +1,12 @@
 ### Compilation failed:
 
 error: 3: discard statement is only permitted in fragment shaders
+void discard_stmt() { discard; }
+                      ^^^^^^^
 error: 5: do-while loops are not supported
+int do_loop(int x) { do { x++; } while(x < 1); return x; }
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 7: while loops are not supported
+int while_loop(int x) { while (x < 1) { x++; } return x; }
+                        ^^^^^^^^^^^^^^^^^^^^^^
 3 errors

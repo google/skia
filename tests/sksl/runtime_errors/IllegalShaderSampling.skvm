@@ -1,18 +1,48 @@
 ### Compilation failed:
 
 error: 11: no match for shader::eval(float2, half4)
+half4 eval_shader_xy_color()   { return s.eval(xy, color); }
+                                        ^^^^^^^^^^^^^^^^^
 error: 12: no match for shader::eval(half4)
+half4 eval_shader_color()      { return s.eval(color); }
+                                        ^^^^^^^^^^^^^
 error: 13: no match for shader::eval(half4, float2)
+half4 eval_shader_color_xy()   { return s.eval(color, xy); }
+                                        ^^^^^^^^^^^^^^^^^
 error: 14: no match for shader::eval()
+half4 eval_shader_empty()      { return s.eval(); }
+                                        ^^^^^^^^
 error: 15: no match for shader::eval(float3x3)
+half4 eval_shader_matrix()     { return s.eval(float3x3(1)); }
+                                        ^^^^^^^^^^^^^^^^^^^
 error: 16: type mismatch: ',' cannot operate on 'int', 'shader'
+half4 eval_shader_comma_expr() { return (i++, s).eval(xy); }
+                                         ^^^^^^
 error: 18: no match for colorFilter::eval()
+half4 eval_colorFilter_empty()      { return f.eval(); }
+                                             ^^^^^^^^
 error: 19: no match for colorFilter::eval(float2)
+half4 eval_colorFilter_xy()         { return f.eval(xy); }
+                                             ^^^^^^^^^^
 error: 20: no match for colorFilter::eval(float2, half4)
+half4 eval_colorFilter_xy_color()   { return f.eval(xy, color); }
+                                             ^^^^^^^^^^^^^^^^^
 error: 21: type mismatch: ',' cannot operate on 'shader', 'colorFilter'
+half4 eval_colorFilter_comma_expr() { return (s, f).eval(color); }
+                                              ^^^^
 error: 23: no match for blender::eval()
+half4 eval_blender_empty()      { return b.eval(); }
+                                         ^^^^^^^^
 error: 24: no match for blender::eval(half4)
+half4 eval_blender_color()      { return b.eval(color); }
+                                         ^^^^^^^^^^^^^
 error: 25: no match for blender::eval(float2)
+half4 eval_blender_xy()         { return b.eval(xy); }
+                                         ^^^^^^^^^^
 error: 26: no match for blender::eval(float2, half4)
+half4 eval_blender_xy_color()   { return b.eval(xy, color); }
+                                         ^^^^^^^^^^^^^^^^^
 error: 27: type mismatch: ',' cannot operate on 'blender', 'blender'
+half4 eval_blender_comma_expr() { return (b, b).eval(color, color); }
+                                          ^^^^
 15 errors

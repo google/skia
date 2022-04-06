@@ -1,4 +1,6 @@
 ### Compilation failed:
 
 error: 1: expected an identifier, but found type 'sampler2DRect'
+int sampler2DRect;
+    ^^^^^^^^^^^^^
 1 error

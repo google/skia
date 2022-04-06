@@ -37,8 +37,9 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     if (!equalityOp.determineBinaryType(context, ifTrue->type(), ifFalse->type(),
                                         &trueType, &falseType, &resultType) ||
         !trueType->matches(*falseType)) {
-        context.fErrors->error(pos, "ternary operator result mismatch: '" +
-                ifTrue->type().displayName() + "', '" + ifFalse->type().displayName() + "'");
+        context.fErrors->error(ifTrue->fPosition.rangeThrough(ifFalse->fPosition),
+                "ternary operator result mismatch: '" + ifTrue->type().displayName() + "', '" +
+                ifFalse->type().displayName() + "'");
         return nullptr;
     }
     if (context.fConfig->strictES2Mode() && trueType->isOrContainsArray()) {

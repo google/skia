@@ -81,7 +81,7 @@ public:
             if (!param->type().isStruct() && paramInout == Modifiers::Flag::kOut_Flag) {
                 ProgramUsage::VariableCounts counts = fUsage.get(*param);
                 if (counts.fWrite <= 0) {
-                    fContext.fErrors->error(funcDef.body()->fPosition,
+                    fContext.fErrors->error(param->fPosition,
                                             "function '" + std::string(funcDecl.name()) +
                                             "' never assigns a value to out parameter '" +
                                             std::string(param->name()) + "'");

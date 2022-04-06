@@ -327,8 +327,8 @@ void DSLParser::declarations() {
                 this->directive();
                 break;
             case Token::Kind::TK_INVALID: {
-                this->nextToken();
                 this->error(this->peek(), "invalid token");
+                this->nextToken();
                 done = true;
                 break;
             }
