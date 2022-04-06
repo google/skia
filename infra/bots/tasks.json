@@ -869,12 +869,6 @@
       ],
       "trigger": "nightly"
     },
-    "Housekeeper-Nightly-UpdateGoDeps": {
-      "tasks": [
-        "Housekeeper-Nightly-UpdateGoDeps"
-      ],
-      "trigger": "nightly"
-    },
     "Housekeeper-OnDemand-Presubmit": {
       "priority": 1,
       "tasks": [
@@ -20147,100 +20141,6 @@
       "execution_timeout_ns": 21600000000000,
       "io_timeout_ns": 21600000000000,
       "max_attempts": 2,
-      "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Housekeeper-Nightly-UpdateGoDeps": {
-      "caches": [
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "go_cache",
-          "path": "cache/go_cache"
-        },
-        {
-          "name": "gopath",
-          "path": "cache/gopath"
-        }
-      ],
-      "casSpec": "empty",
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/linux-amd64",
-          "path": "cipd_bin_packages",
-          "version": "version:2@2.35.1.chromium.8"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
-        },
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:16"
-        },
-        {
-          "name": "skia/bots/protoc",
-          "path": "protoc",
-          "version": "version:0"
-        }
-      ],
-      "command": [
-        "./update_go_deps",
-        "--project_id",
-        "skia-swarming-bots",
-        "--task_id",
-        "<(TASK_ID)",
-        "--task_name",
-        "Housekeeper-Nightly-UpdateGoDeps",
-        "--workdir",
-        ".",
-        "--gerrit_project",
-        "skia",
-        "--gerrit_url",
-        "https://skia-review.googlesource.com",
-        "--repo",
-        "<(REPO)",
-        "--revision",
-        "<(REVISION)",
-        "--patch_issue",
-        "<(ISSUE)",
-        "--patch_set",
-        "<(PATCHSET)",
-        "--patch_server",
-        "<(CODEREVIEW_SERVER)"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "GOROOT": [
-          "go/go"
-        ],
-        "PATH": [
-          "go/go/bin",
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ]
-      },
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-OnDemand-Presubmit": {

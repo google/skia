@@ -27,7 +27,6 @@ genrule(
         "//infra/bots/task_drivers/run_wasm_gm_tests",
         "@org_skia_go_infra//infra/bots/task_drivers/build_push_docker_image",
         "@org_skia_go_infra//infra/bots/task_drivers/canary",
-        "@org_skia_go_infra//infra/bots/task_drivers/update_go_deps",
     ],
     outs = ["built_task_drivers.tar"],
     # Make a temporary directory in the output directory, as recommended by
