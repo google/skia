@@ -12,6 +12,7 @@
 #include "include/private/SkHalf.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkUniform.h"
+#include "src/core/SkUniformData.h"
 
 // ensure that these types are the sizes the uniform data is expecting
 static_assert(sizeof(int32_t) == 4);
@@ -492,7 +493,7 @@ SkSLType UniformManager::getUniformTypeForLayout(SkSLType type) {
 
 UniformManager::UniformManager(Layout layout) : fLayout(layout) {
 
-    switch (fLayout) {
+    switch (layout) {
         case Layout::kStd140:
             fWriteUniform = Writer<Rules140>::WriteUniform;
             break;
@@ -507,12 +508,18 @@ UniformManager::UniformManager(Layout layout) : fLayout(layout) {
     this->reset();
 }
 
+sk_sp<SkUniformData> UniformManager::createUniformData() {
+    return SkUniformData::Make(fStorage.begin(), fStorage.count());
+}
+
+
 void UniformManager::reset() {
 #ifdef SK_DEBUG
     fCurUBOOffset = 0;
     fCurUBOMaxAlignment = 0;
 #endif
     fOffset = 0;
+    fStorage.rewind();
 }
 
 #ifdef SK_DEBUG
@@ -520,36 +527,39 @@ void UniformManager::checkReset() const {
     SkASSERT(fCurUBOOffset == 0);
     SkASSERT(fCurUBOMaxAlignment == 0);
     SkASSERT(fOffset == 0);
+    SkASSERT(fStorage.empty());
 }
-#endif
 
-uint32_t UniformManager::writeUniforms(SkSpan<const SkUniform> uniforms,
-                                       const void** srcs,
-                                       char *dst) {
+void UniformManager::checkExpected(SkSLType type, unsigned int count) {
+    SkSLType revisedType = this->getUniformTypeForLayout(type);
+
+    uint32_t debugOffset = get_ubo_aligned_offset(&fCurUBOOffset,
+                                                  &fCurUBOMaxAlignment,
+                                                  revisedType,
+                                                  count);
+    SkASSERT(debugOffset == fOffset);
+}
+#endif // SK_DEBUG
+
+void UniformManager::write(SkSLType type, unsigned int count, const void* src) {
+    SkSLType revisedType = this->getUniformTypeForLayout(type);
+
+    uint32_t bytesNeeded = fWriteUniform(revisedType, CType::kDefault, nullptr, count, nullptr);
+    char* dst = fStorage.append(bytesNeeded);
+    uint32_t bytesWritten = fWriteUniform(revisedType, CType::kDefault, dst, count, src);
+    SkASSERT(bytesNeeded == bytesWritten);
+    fOffset += bytesWritten;
+}
+
+void UniformManager::writeUniforms(SkSpan<const SkUniform> uniforms, const void** srcs) {
     this->reset();
 
     for (int i = 0; i < (int) uniforms.size(); ++i) {
         const SkUniform& u = uniforms[i];
-        SkSLType uniformType = this->getUniformTypeForLayout(u.type());
 
-#ifdef SK_DEBUG
-        uint32_t debugOffset = get_ubo_aligned_offset(&fCurUBOOffset,
-                                                      &fCurUBOMaxAlignment,
-                                                      uniformType,
-                                                      u.count());
-#endif // SK_DEBUG
-
-        uint32_t bytesWritten = fWriteUniform(uniformType,
-                                              CType::kDefault,
-                                              dst ? &dst[fOffset] : nullptr,
-                                              u.count(),
-                                              srcs ? srcs[i] : nullptr);
-        SkASSERT(debugOffset == fOffset);
-
-        fOffset += bytesWritten;
+        SkDEBUGCODE(this->checkExpected(u.type(), u.count());)
+        this->write(u.type(), u.count(), srcs[i]);
     }
-
-    return fOffset;
 }
 
 } // namespace skgpu

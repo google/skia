@@ -8,10 +8,13 @@
 #ifndef skgpu_UniformManager_DEFINED
 #define skgpu_UniformManager_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkSLTypeShared.h"
 
 class SkUniform;
+class SkUniformData;
 
 namespace skgpu {
 
@@ -27,26 +30,23 @@ class UniformManager {
 public:
     UniformManager(Layout layout);
 
+    sk_sp<SkUniformData> createUniformData();
+    int size() const { return fStorage.count(); }
+
     void reset();
 #ifdef SK_DEBUG
     void checkReset() const;
+    void checkExpected(SkSLType type, unsigned int count);
 #endif
 
     /*
-     * Use the uniform 'definitions' to write the data in 'srcs' into 'dst' (if it is non-null).
-     * The number of bytes that was written (or would've been written) to 'dst' is returned.
-     * In practice one should call:
-     *   auto bytes = writeUniforms(definitions, nullptr, nullptr);
-     *   // allocate dst memory
-     *   writeUniforms(definitions, src, dst);
+     * Use the uniform 'definitions' to write the data in 'srcs' into internally allocated memory.
      */
-    uint32_t writeUniforms(SkSpan<const SkUniform> definitions,
-                           const void** srcs,
-                           char *dst);
+    void writeUniforms(SkSpan<const SkUniform> definitions, const void** srcs);
 
 private:
     SkSLType getUniformTypeForLayout(SkSLType type);
-
+    void write(SkSLType type, unsigned int count, const void* src);
 
     using WriteUniformFn = uint32_t(*)(SkSLType type,
                                        CType ctype,
@@ -61,6 +61,8 @@ private:
     uint32_t fCurUBOMaxAlignment;
 #endif // SK_DEBUG
     uint32_t fOffset;
+
+    SkTDArray<char> fStorage;
 };
 
 } // namespace skgpu

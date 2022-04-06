@@ -29,7 +29,7 @@
 class SkUniformData : public SkRefCnt {
 public:
 
-    static sk_sp<SkUniformData> Make(size_t dataSize);
+    static sk_sp<SkUniformData> Make(const char* data, size_t size);
 
     ~SkUniformData() override {
         // TODO: fData should just be allocated right after UniformData in an arena

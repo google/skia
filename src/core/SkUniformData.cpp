@@ -9,11 +9,11 @@
 
 #include <cstring>
 
-sk_sp<SkUniformData> SkUniformData::Make(size_t dataSize) {
+sk_sp<SkUniformData> SkUniformData::Make(const char* data, size_t size) {
     // TODO: data should just be allocated right after UniformData in an arena
-    char* data = new char[dataSize];
-
-    return sk_sp<SkUniformData>(new SkUniformData(data, dataSize));
+    char* newData = new char[size];
+    memcpy(newData, data, size);
+    return sk_sp<SkUniformData>(new SkUniformData(newData, size));
 }
 
 bool SkUniformData::operator==(const SkUniformData& other) const {

@@ -81,15 +81,11 @@ void add_solid_uniform_data(const SkShaderCodeDictionary* dict,
     SkSpan<const SkUniform> uniforms = dict->getUniforms(SkBuiltInCodeSnippetID::kSolidColorShader);
     SkASSERT(uniforms.size() == kExpectedNumUniforms);
 
-    skgpu::UniformManager mgr(gatherer->layout());
-
-    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr);
-
-    sk_sp<SkUniformData> result = SkUniformData::Make(dataSize);
-
     const void* srcs[kExpectedNumUniforms] = { &premulColor };
 
-    mgr.writeUniforms(uniforms, srcs, result->data());
+    skgpu::UniformManager mgr(gatherer->layout());
+    mgr.writeUniforms(uniforms, srcs);
+    sk_sp<SkUniformData> result = mgr.createUniformData();
 
     gatherer->add(std::move(result));
 }
@@ -141,14 +137,8 @@ void add_gradient_uniform_data_common(SkSpan<const SkUniform> uniforms,
                                       const void* srcs[kExpectedNumGradientUniforms],
                                       SkPipelineDataGatherer* gatherer) {
     skgpu::UniformManager mgr(gatherer->layout());
-
-    // TODO: Given that, for the sprint, we always know the uniforms we could cache 'dataSize'
-    // for each layout and skip the first call.
-    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr);
-
-    sk_sp<SkUniformData> result = SkUniformData::Make(dataSize);
-
-    mgr.writeUniforms(uniforms, srcs, result->data());
+    mgr.writeUniforms(uniforms, srcs);
+    sk_sp<SkUniformData> result = mgr.createUniformData();
 
     gatherer->add(std::move(result));
 }
@@ -362,16 +352,12 @@ void add_image_uniform_data(const SkShaderCodeDictionary* dict,
     SkSpan<const SkUniform> uniforms = dict->getUniforms(SkBuiltInCodeSnippetID::kImageShader);
     SkASSERT(uniforms.size() == kExpectedNumUniforms);
 
-    skgpu::UniformManager mgr(gatherer->layout());
-
-    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr);
-
-    sk_sp<SkUniformData> result = SkUniformData::Make(dataSize);
-
     // TODO: add the required data to ImageData and assemble the uniforms here
     const void* srcs[kExpectedNumUniforms] = { &imgData.fSubset };
 
-    mgr.writeUniforms(uniforms, srcs, result->data());
+    skgpu::UniformManager mgr(gatherer->layout());
+    mgr.writeUniforms(uniforms, srcs);
+    sk_sp<SkUniformData> result = mgr.createUniformData();
 
     gatherer->add(std::move(result));
 }
@@ -452,16 +438,12 @@ void add_blendshader_uniform_data(SkShaderCodeDictionary* dict,
     SkSpan<const SkUniform> uniforms = dict->getUniforms(SkBuiltInCodeSnippetID::kBlendShader);
     SkASSERT(uniforms.size() == kExpectedNumUniforms);
 
-    skgpu::UniformManager mgr(gatherer->layout());
-
-    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr);
-
-    sk_sp<SkUniformData> result = SkUniformData::Make(dataSize);
-
     int tmp = SkTo<int>(bm);
     const void* srcs[kExpectedNumUniforms] = { &tmp, &tmp, &tmp, &tmp };
 
-    mgr.writeUniforms(uniforms, srcs, result->data());
+    skgpu::UniformManager mgr(gatherer->layout());
+    mgr.writeUniforms(uniforms, srcs);
+    sk_sp<SkUniformData> result = mgr.createUniformData();
 
     gatherer->add(std::move(result));
 }
