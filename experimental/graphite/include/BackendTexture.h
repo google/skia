@@ -22,9 +22,9 @@ class BackendTexture {
 public:
     BackendTexture() {}
 #ifdef SK_METAL
-    // The BackendTexture will not call retain or release on the passed in mtl::Handle. Thus the
-    // client must keep the mtl::Handle valid until they are no longer using the BackendTexture.
-    BackendTexture(SkISize dimensions, mtl::Handle mtlTexture);
+    // The BackendTexture will not call retain or release on the passed in MtlHandle. Thus the
+    // client must keep the MtlHandle valid until they are no longer using the BackendTexture.
+    BackendTexture(SkISize dimensions, graphite::MtlHandle mtlTexture);
 #endif
 
     BackendTexture(const BackendTexture&);
@@ -44,7 +44,7 @@ public:
     const TextureInfo& info() const { return fInfo; }
 
 #ifdef SK_METAL
-    mtl::Handle getMtlTexture() const;
+    graphite::MtlHandle getMtlTexture() const;
 #endif
 
 private:
@@ -53,7 +53,7 @@ private:
 
     union {
 #ifdef SK_METAL
-        mtl::Handle fMtlTexture;
+        graphite::MtlHandle fMtlTexture;
 #endif
     };
 };

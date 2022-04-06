@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlBuffer_DEFINED
-#define skgpu_MtlBuffer_DEFINED
+#ifndef skgpu_graphite_MtlBuffer_DEFINED
+#define skgpu_graphite_MtlBuffer_DEFINED
 
 #include "experimental/graphite/include/mtl/MtlTypes.h"
 #include "experimental/graphite/src/Buffer.h"
@@ -14,18 +14,18 @@
 
 #import <Metal/Metal.h>
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
+class MtlGpu;
 
-class Gpu;
-
-class Buffer : public skgpu::Buffer {
+class MtlBuffer : public skgpu::Buffer {
 public:
-    static sk_sp<Buffer> Make(const Gpu*, size_t size, BufferType type, PrioritizeGpuReads);
+    static sk_sp<Buffer> Make(const MtlGpu*, size_t size, BufferType type, PrioritizeGpuReads);
 
     id<MTLBuffer> mtlBuffer() const { return fBuffer.get(); }
 
 private:
-    Buffer(const Gpu*, size_t size, BufferType type, PrioritizeGpuReads, sk_cfp<id<MTLBuffer>>);
+    MtlBuffer(const MtlGpu*, size_t size, BufferType type, PrioritizeGpuReads,
+              sk_cfp<id<MTLBuffer>>);
 
     void onMap() override;
     void onUnmap() override;
@@ -35,7 +35,7 @@ private:
     sk_cfp<id<MTLBuffer>> fBuffer;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlBuffer_DEFINED
+#endif // skgpu_graphite_MtlBuffer_DEFINED
 

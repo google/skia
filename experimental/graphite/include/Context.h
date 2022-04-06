@@ -27,7 +27,7 @@ class Gpu;
 class Recorder;
 class Recording;
 class TextureInfo;
-namespace mtl { struct BackendContext; }
+namespace graphite { struct MtlBackendContext; }
 
 struct ShaderCombo {
     enum class ShaderType {
@@ -64,7 +64,7 @@ public:
     ~Context();
 
 #ifdef SK_METAL
-    static std::unique_ptr<Context> MakeMetal(const skgpu::mtl::BackendContext&);
+    static std::unique_ptr<Context> MakeMetal(const skgpu::graphite::MtlBackendContext&);
 #endif
 
     BackendApi backend() const { return fBackend; }

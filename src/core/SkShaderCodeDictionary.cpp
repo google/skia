@@ -32,13 +32,13 @@ std::string SkShaderSnippet::getMangledUniformName(int uniformIndex, int mangleI
 #include <set>
 
 // TODO: switch this over to using SkSL's uniform system
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 std::string GetMtlUniforms(int bufferID,
                            const char* name,
                            const std::vector<SkPaintParamsKey::BlockReader>&);
 std::string GetMtlTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockReader>&,
                                       int* binding);
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
 // Emit the glue code needed to invoke a single static helper isolated w/in its own scope.
 // The structure of this will be:
@@ -96,10 +96,10 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
 // in the 'fStaticSkSL' field.
 std::string SkShaderInfo::toSkSL() const {
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
-    std::string result = skgpu::mtl::GetMtlUniforms(2, "FS", fBlockReaders);
+    std::string result = skgpu::graphite::GetMtlUniforms(2, "FS", fBlockReaders);
 
     int binding = 0;
-    result += skgpu::mtl::GetMtlTexturesAndSamplers(fBlockReaders, &binding);
+    result += skgpu::graphite::GetMtlTexturesAndSamplers(fBlockReaders, &binding);
 
     std::set<const char*> emittedStaticSnippets;
     for (const auto& reader : fBlockReaders) {

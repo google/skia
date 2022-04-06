@@ -44,7 +44,7 @@ std::tuple<GraphiteTestContext*, skgpu::Context*> ContextFactory::getContextInfo
     switch (type) {
         case ContextType::kMetal: {
 #ifdef SK_METAL
-            testCtx = mtl::TestContext::Make();
+            testCtx = graphite::MtlTestContext::Make();
 #endif
         } break;
 

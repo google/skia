@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlSampler_DEFINED
-#define skgpu_MtlSampler_DEFINED
+#ifndef skgpu_graphite_MtlSampler_DEFINED
+#define skgpu_graphite_MtlSampler_DEFINED
 
 #include "experimental/graphite/src/Sampler.h"
 
@@ -18,30 +18,30 @@
 
 struct SkSamplingOptions;
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-class Gpu;
+class MtlGpu;
 
-class Sampler : public skgpu::Sampler {
+class MtlSampler : public skgpu::Sampler {
 public:
-    static sk_sp<Sampler> Make(const Gpu*,
-                               const SkSamplingOptions& samplingOptions,
-                               SkTileMode xTileMode,
-                               SkTileMode yTileMode);
+    static sk_sp<MtlSampler> Make(const MtlGpu*,
+                                  const SkSamplingOptions& samplingOptions,
+                                  SkTileMode xTileMode,
+                                  SkTileMode yTileMode);
 
-    ~Sampler() override {}
+    ~MtlSampler() override {}
 
     id<MTLSamplerState> mtlSamplerState() const { return fSamplerState.get(); }
 
 private:
-    Sampler(const Gpu* gpu,
-            sk_cfp<id<MTLSamplerState>>);
+    MtlSampler(const MtlGpu* gpu,
+               sk_cfp<id<MTLSamplerState>>);
 
     void freeGpuData() override;
 
     sk_cfp<id<MTLSamplerState>> fSamplerState;
 };
 
-} // namepsace skgpu::mtl
+} // namepsace skgpu::graphite
 
-#endif // skgpu_MtlSampler_DEFINED
+#endif // skgpu_graphite_MtlSampler_DEFINED

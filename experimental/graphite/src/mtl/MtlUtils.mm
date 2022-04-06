@@ -18,9 +18,9 @@
 #import <UIKit/UIApplication.h>
 #endif
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-bool FormatIsDepthOrStencil(MTLPixelFormat format) {
+bool MtlFormatIsDepthOrStencil(MTLPixelFormat format) {
     switch (format) {
         case MTLPixelFormatStencil8: // fallthrough
         case MTLPixelFormatDepth32Float:
@@ -31,7 +31,7 @@ bool FormatIsDepthOrStencil(MTLPixelFormat format) {
     }
 }
 
-bool FormatIsDepth(MTLPixelFormat format) {
+bool MtlFormatIsDepth(MTLPixelFormat format) {
     switch (format) {
         case MTLPixelFormatDepth32Float:
         case MTLPixelFormatDepth32Float_Stencil8:
@@ -41,7 +41,7 @@ bool FormatIsDepth(MTLPixelFormat format) {
     }
 }
 
-bool FormatIsStencil(MTLPixelFormat format) {
+bool MtlFormatIsStencil(MTLPixelFormat format) {
     switch (format) {
         case MTLPixelFormatStencil8: // fallthrough
         case MTLPixelFormatDepth32Float_Stencil8:
@@ -51,7 +51,7 @@ bool FormatIsStencil(MTLPixelFormat format) {
     }
 }
 
-MTLPixelFormat DepthStencilFlagsToFormat(Mask<DepthStencilFlags> mask) {
+MTLPixelFormat MtlDepthStencilFlagsToFormat(Mask<DepthStencilFlags> mask) {
     // TODO: Decide if we want to change this to always return a combined depth and stencil format
     // to allow more sharing of depth stencil allocations.
     if (mask == DepthStencilFlags::kDepth) {
@@ -71,7 +71,7 @@ MTLPixelFormat DepthStencilFlagsToFormat(Mask<DepthStencilFlags> mask) {
 static const bool gPrintSKSL = false;
 static const bool gPrintMSL = false;
 
-bool SkSLToMSL(const Gpu* gpu,
+bool SkSLToMSL(const MtlGpu* gpu,
                const std::string& sksl,
                SkSL::ProgramKind programKind,
                const SkSL::Program::Settings& settings,
@@ -109,9 +109,9 @@ bool SkSLToMSL(const Gpu* gpu,
     return true;
 }
 
-sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
-                                            const std::string& msl,
-                                            ShaderErrorHandler* errorHandler) {
+sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlGpu* gpu,
+                                               const std::string& msl,
+                                               ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
     auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
                                                    length:msl.size()
@@ -142,9 +142,9 @@ sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
 }
 
 #ifdef SK_BUILD_FOR_IOS
-bool IsAppInBackground() {
+bool MtlIsAppInBackground() {
     return [NSThread isMainThread] &&
            ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground);
 }
 #endif
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlGpu_DEFINED
-#define skgpu_MtlGpu_DEFINED
+#ifndef skgpu_graphite_MtlGpu_DEFINED
+#define skgpu_graphite_MtlGpu_DEFINED
 
 #include "experimental/graphite/src/Gpu.h"
 
@@ -17,23 +17,23 @@
 
 #import <Metal/Metal.h>
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-class Gpu final : public skgpu::Gpu {
+class MtlGpu final : public skgpu::Gpu {
 public:
-    static sk_sp<skgpu::Gpu> Make(const BackendContext&);
-    ~Gpu() override;
+    static sk_sp<skgpu::Gpu> Make(const MtlBackendContext&);
+    ~MtlGpu() override;
 
     id<MTLDevice> device() const { return fDevice.get(); }
     id<MTLCommandQueue> queue() const { return fQueue.get(); }
 
-    const Caps& mtlCaps() const { return static_cast<const Caps&>(*this->caps()); }
+    const MtlCaps& mtlCaps() const { return static_cast<const MtlCaps&>(*this->caps()); }
 
     std::unique_ptr<skgpu::ResourceProvider> makeResourceProvider(
             sk_sp<GlobalCache>, SingleOwner*) const override;
 
 private:
-    Gpu(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const Caps>);
+    MtlGpu(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const MtlCaps>);
 
     skgpu::Gpu::OutstandingSubmission onSubmit(sk_sp<skgpu::CommandBuffer>) override;
 
@@ -49,6 +49,6 @@ private:
     sk_cfp<id<MTLCommandQueue>> fQueue;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlGpu_DEFINED
+#endif // skgpu_graphite_MtlGpu_DEFINED

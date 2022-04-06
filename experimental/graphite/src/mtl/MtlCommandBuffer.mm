@@ -19,9 +19,9 @@
 #include "experimental/graphite/src/mtl/MtlTexture.h"
 #include "experimental/graphite/src/mtl/MtlUtils.h"
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-sk_sp<CommandBuffer> CommandBuffer::Make(const Gpu* gpu) {
+sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(const MtlGpu* gpu) {
     sk_cfp<id<MTLCommandBuffer>> cmdBuffer;
     id<MTLCommandQueue> queue = gpu->queue();
     if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
@@ -41,22 +41,22 @@ sk_sp<CommandBuffer> CommandBuffer::Make(const Gpu* gpu) {
     }
 
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
-     (*cmdBuffer).label = @"CommandBuffer::Make";
+     (*cmdBuffer).label = @"MtlCommandBuffer::Make";
 #endif
 
-    return sk_sp<CommandBuffer>(new CommandBuffer(std::move(cmdBuffer), gpu));
+    return sk_sp<MtlCommandBuffer>(new MtlCommandBuffer(std::move(cmdBuffer), gpu));
 }
 
-CommandBuffer::CommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const Gpu* gpu)
+MtlCommandBuffer::MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const MtlGpu* gpu)
     : fCommandBuffer(std::move(cmdBuffer)), fGpu(gpu) {}
 
-CommandBuffer::~CommandBuffer() {}
+MtlCommandBuffer::~MtlCommandBuffer() {}
 
-bool CommandBuffer::commit() {
+bool MtlCommandBuffer::commit() {
     SkASSERT(!fActiveRenderCommandEncoder);
     this->endBlitCommandEncoder();
 #ifdef SK_BUILD_FOR_IOS
-    if (IsAppInBackground()) {
+    if (MtlIsAppInBackground()) {
         NSLog(@"CommandBuffer: Tried to commit command buffer while in background.\n");
         return false;
     }
@@ -72,14 +72,14 @@ bool CommandBuffer::commit() {
     return ((*fCommandBuffer).status != MTLCommandBufferStatusError);
 }
 
-bool CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
-                                      const skgpu::Texture* colorTexture,
-                                      const skgpu::Texture* resolveTexture,
-                                      const skgpu::Texture* depthStencilTexture) {
+bool MtlCommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
+                                         const skgpu::Texture* colorTexture,
+                                         const skgpu::Texture* resolveTexture,
+                                         const skgpu::Texture* depthStencilTexture) {
     SkASSERT(!fActiveRenderCommandEncoder);
     this->endBlitCommandEncoder();
 #ifdef SK_BUILD_FOR_IOS
-    if (IsAppInBackground()) {
+    if (MtlIsAppInBackground()) {
         NSLog(@"CommandBuffer: tried to create MTLRenderCommandEncoder while in background.\n");
         return false;
     }
@@ -109,7 +109,7 @@ bool CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
     if (colorTexture) {
         // TODO: check Texture matches RenderPassDesc
         auto colorAttachment = (*descriptor).colorAttachments[0];
-        colorAttachment.texture = ((Texture*)colorTexture)->mtlTexture();
+        colorAttachment.texture = ((MtlTexture*)colorTexture)->mtlTexture();
         const std::array<float, 4>& clearColor = renderPassDesc.fClearColor;
         colorAttachment.clearColor =
                 MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
@@ -119,7 +119,7 @@ bool CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
         if (resolveTexture) {
             SkASSERT(renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore);
             // TODO: check Texture matches RenderPassDesc
-            colorAttachment.resolveTexture = ((Texture*)resolveTexture)->mtlTexture();
+            colorAttachment.resolveTexture = ((MtlTexture*)resolveTexture)->mtlTexture();
             // Inclusion of a resolve texture implies the client wants to finish the
             // renderpass with a resolve.
             if (@available(macOS 10.12, iOS 10.0, *)) {
@@ -141,8 +141,8 @@ bool CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
     auto& depthStencilInfo = renderPassDesc.fDepthStencilAttachment;
     if (depthStencilTexture) {
         // TODO: check Texture matches RenderPassDesc
-        id<MTLTexture> mtlTexture = ((Texture*)depthStencilTexture)->mtlTexture();
-        if (FormatIsDepth(mtlTexture.pixelFormat)) {
+        id<MTLTexture> mtlTexture = ((MtlTexture*)depthStencilTexture)->mtlTexture();
+        if (MtlFormatIsDepth(mtlTexture.pixelFormat)) {
             auto depthAttachment = (*descriptor).depthAttachment;
             depthAttachment.texture = mtlTexture;
             depthAttachment.clearDepth = renderPassDesc.fClearDepth;
@@ -151,7 +151,7 @@ bool CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
             depthAttachment.storeAction =
                      mtlStoreAction[static_cast<int>(depthStencilInfo.fStoreOp)];
         }
-        if (FormatIsStencil(mtlTexture.pixelFormat)) {
+        if (MtlFormatIsStencil(mtlTexture.pixelFormat)) {
             auto stencilAttachment = (*descriptor).stencilAttachment;
             stencilAttachment.texture = mtlTexture;
             stencilAttachment.clearStencil = renderPassDesc.fClearStencil;
@@ -164,33 +164,33 @@ bool CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
         SkASSERT(!depthStencilInfo.fTextureInfo.isValid());
     }
 
-    fActiveRenderCommandEncoder = RenderCommandEncoder::Make(fGpu,
-                                                             fCommandBuffer.get(),
-                                                             descriptor.get());
+    fActiveRenderCommandEncoder = MtlRenderCommandEncoder::Make(fGpu,
+                                                                fCommandBuffer.get(),
+                                                                descriptor.get());
 
     this->trackResource(fActiveRenderCommandEncoder);
 
     return true;
 }
 
-void CommandBuffer::endRenderPass() {
+void MtlCommandBuffer::endRenderPass() {
     SkASSERT(fActiveRenderCommandEncoder);
     fActiveRenderCommandEncoder->endEncoding();
     fActiveRenderCommandEncoder.reset();
 }
 
-BlitCommandEncoder* CommandBuffer::getBlitCommandEncoder() {
+MtlBlitCommandEncoder* MtlCommandBuffer::getBlitCommandEncoder() {
     if (fActiveBlitCommandEncoder) {
         return fActiveBlitCommandEncoder.get();
     }
 #ifdef SK_BUILD_FOR_IOS
-    if (IsAppInBackground()) {
+    if (MtlIsAppInBackground()) {
         NSLog(@"CommandBuffer: tried to create MTLBlitCommandEncoder while in background.\n");
         return nullptr;
     }
 #endif
 
-    fActiveBlitCommandEncoder = BlitCommandEncoder::Make(fGpu, fCommandBuffer.get());
+    fActiveBlitCommandEncoder = MtlBlitCommandEncoder::Make(fGpu, fCommandBuffer.get());
 
     if (!fActiveBlitCommandEncoder) {
         return nullptr;
@@ -202,17 +202,17 @@ BlitCommandEncoder* CommandBuffer::getBlitCommandEncoder() {
     return fActiveBlitCommandEncoder.get();
 }
 
-void CommandBuffer::endBlitCommandEncoder() {
+void MtlCommandBuffer::endBlitCommandEncoder() {
     if (fActiveBlitCommandEncoder) {
         fActiveBlitCommandEncoder->endEncoding();
         fActiveBlitCommandEncoder.reset();
     }
 }
 
-void CommandBuffer::onBindGraphicsPipeline(const skgpu::GraphicsPipeline* graphicsPipeline) {
+void MtlCommandBuffer::onBindGraphicsPipeline(const skgpu::GraphicsPipeline* graphicsPipeline) {
     SkASSERT(fActiveRenderCommandEncoder);
 
-    auto mtlPipeline = static_cast<const GraphicsPipeline*>(graphicsPipeline);
+    auto mtlPipeline = static_cast<const MtlGraphicsPipeline*>(graphicsPipeline);
     auto pipelineState = mtlPipeline->mtlPipelineState();
     fActiveRenderCommandEncoder->setRenderPipelineState(pipelineState);
     auto depthStencilState = mtlPipeline->mtlDepthStencilState();
@@ -224,21 +224,21 @@ void CommandBuffer::onBindGraphicsPipeline(const skgpu::GraphicsPipeline* graphi
     fCurrentInstanceStride = mtlPipeline->instanceStride();
 }
 
-void CommandBuffer::onBindUniformBuffer(UniformSlot slot,
-                                        const skgpu::Buffer* uniformBuffer,
-                                        size_t uniformOffset) {
+void MtlCommandBuffer::onBindUniformBuffer(UniformSlot slot,
+                                           const skgpu::Buffer* uniformBuffer,
+                                           size_t uniformOffset) {
     SkASSERT(fActiveRenderCommandEncoder);
 
-    id<MTLBuffer> mtlBuffer = uniformBuffer ? static_cast<const Buffer*>(uniformBuffer)->mtlBuffer()
-                                            : nullptr;
+    id<MTLBuffer> mtlBuffer = uniformBuffer ?
+            static_cast<const MtlBuffer*>(uniformBuffer)->mtlBuffer() : nullptr;
 
     unsigned int bufferIndex;
     switch(slot) {
         case UniformSlot::kRenderStep:
-            bufferIndex = GraphicsPipeline::kRenderStepUniformBufferIndex;
+            bufferIndex = MtlGraphicsPipeline::kRenderStepUniformBufferIndex;
             break;
         case UniformSlot::kPaint:
-            bufferIndex = GraphicsPipeline::kPaintUniformBufferIndex;
+            bufferIndex = MtlGraphicsPipeline::kPaintUniformBufferIndex;
             break;
     }
 
@@ -246,31 +246,31 @@ void CommandBuffer::onBindUniformBuffer(UniformSlot slot,
     fActiveRenderCommandEncoder->setFragmentBuffer(mtlBuffer, uniformOffset, bufferIndex);
 }
 
-void CommandBuffer::onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
-                                        size_t vertexOffset,
-                                        const skgpu::Buffer* instanceBuffer,
-                                        size_t instanceOffset) {
+void MtlCommandBuffer::onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
+                                           size_t vertexOffset,
+                                           const skgpu::Buffer* instanceBuffer,
+                                           size_t instanceOffset) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     if (vertexBuffer) {
-        id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(vertexBuffer)->mtlBuffer();
+        id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(vertexBuffer)->mtlBuffer();
         // Metal requires buffer offsets to be aligned to the data type, which is at most 4 bytes
         // since we use [[attribute]] to automatically unpack float components into SIMD arrays.
         SkASSERT((vertexOffset & 0b11) == 0);
         fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, vertexOffset,
-                                                     GraphicsPipeline::kVertexBufferIndex);
+                                                     MtlGraphicsPipeline::kVertexBufferIndex);
     }
     if (instanceBuffer) {
-        id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(instanceBuffer)->mtlBuffer();
+        id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(instanceBuffer)->mtlBuffer();
         SkASSERT((instanceOffset & 0b11) == 0);
         fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, instanceOffset,
-                                                     GraphicsPipeline::kInstanceBufferIndex);
+                                                     MtlGraphicsPipeline::kInstanceBufferIndex);
     }
 }
 
-void CommandBuffer::onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t offset) {
+void MtlCommandBuffer::onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t offset) {
     if (indexBuffer) {
-        fCurrentIndexBuffer = static_cast<const Buffer*>(indexBuffer)->mtlBuffer();
+        fCurrentIndexBuffer = static_cast<const MtlBuffer*>(indexBuffer)->mtlBuffer();
         fCurrentIndexBufferOffset = offset;
     } else {
         fCurrentIndexBuffer = nil;
@@ -278,26 +278,26 @@ void CommandBuffer::onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t o
     }
 }
 
-void CommandBuffer::onBindTextureAndSampler(sk_sp<skgpu::Texture> texture,
-                                            sk_sp<skgpu::Sampler> sampler,
-                                            unsigned int bindIndex) {
+void MtlCommandBuffer::onBindTextureAndSampler(sk_sp<skgpu::Texture> texture,
+                                               sk_sp<skgpu::Sampler> sampler,
+                                               unsigned int bindIndex) {
     SkASSERT(texture && sampler);
 
-    id<MTLTexture> mtlTexture = ((Texture*)texture.get())->mtlTexture();
-    id<MTLSamplerState> mtlSamplerState = ((Sampler*)sampler.get())->mtlSamplerState();
+    id<MTLTexture> mtlTexture = ((MtlTexture*)texture.get())->mtlTexture();
+    id<MTLSamplerState> mtlSamplerState = ((MtlSampler*)sampler.get())->mtlSamplerState();
     fActiveRenderCommandEncoder->setFragmentTexture(mtlTexture, bindIndex);
     fActiveRenderCommandEncoder->setFragmentSamplerState(mtlSamplerState, bindIndex);
 }
 
-void CommandBuffer::onSetScissor(unsigned int left, unsigned int top,
-                                 unsigned int width, unsigned int height) {
+void MtlCommandBuffer::onSetScissor(unsigned int left, unsigned int top,
+                                    unsigned int width, unsigned int height) {
     SkASSERT(fActiveRenderCommandEncoder);
     MTLScissorRect scissorRect = { left, top, width, height };
     fActiveRenderCommandEncoder->setScissorRect(scissorRect);
 }
 
-void CommandBuffer::onSetViewport(float x, float y, float width, float height,
-                                  float minDepth, float maxDepth) {
+void MtlCommandBuffer::onSetViewport(float x, float y, float width, float height,
+                                     float minDepth, float maxDepth) {
     SkASSERT(fActiveRenderCommandEncoder);
     MTLViewport viewport = { x, y, width, height, minDepth, maxDepth };
     fActiveRenderCommandEncoder->setViewport(viewport);
@@ -309,10 +309,10 @@ void CommandBuffer::onSetViewport(float x, float y, float width, float height,
     // surfaces we have are TopLeft origin).
     float rtAdjust[4] = {invTwoW, -invTwoH, -1.f - x * invTwoW, 1.f + y * invTwoH};
     fActiveRenderCommandEncoder->setVertexBytes(rtAdjust, 4 * sizeof(float),
-                                                GraphicsPipeline::kIntrinsicUniformBufferIndex);
+                                                MtlGraphicsPipeline::kIntrinsicUniformBufferIndex);
 }
 
-void CommandBuffer::onSetBlendConstants(std::array<float, 4> blendConstants) {
+void MtlCommandBuffer::onSetBlendConstants(std::array<float, 4> blendConstants) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     fActiveRenderCommandEncoder->setBlendColor(blendConstants.data());
@@ -332,7 +332,9 @@ static MTLPrimitiveType graphite_to_mtl_primitive(PrimitiveType primitiveType) {
     return mtlPrimitiveType[static_cast<int>(primitiveType)];
 }
 
-void CommandBuffer::onDraw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) {
+void MtlCommandBuffer::onDraw(PrimitiveType type,
+                              unsigned int baseVertex,
+                              unsigned int vertexCount) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
@@ -340,8 +342,8 @@ void CommandBuffer::onDraw(PrimitiveType type, unsigned int baseVertex, unsigned
     fActiveRenderCommandEncoder->drawPrimitives(mtlPrimitiveType, baseVertex, vertexCount);
 }
 
-void CommandBuffer::onDrawIndexed(PrimitiveType type, unsigned int baseIndex,
-                                  unsigned int indexCount, unsigned int baseVertex) {
+void MtlCommandBuffer::onDrawIndexed(PrimitiveType type, unsigned int baseIndex,
+                                     unsigned int indexCount, unsigned int baseVertex) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
@@ -359,9 +361,9 @@ void CommandBuffer::onDrawIndexed(PrimitiveType type, unsigned int baseIndex,
     }
 }
 
-void CommandBuffer::onDrawInstanced(PrimitiveType type, unsigned int baseVertex,
-                                    unsigned int vertexCount, unsigned int baseInstance,
-                                    unsigned int instanceCount) {
+void MtlCommandBuffer::onDrawInstanced(PrimitiveType type, unsigned int baseVertex,
+                                       unsigned int vertexCount, unsigned int baseInstance,
+                                       unsigned int instanceCount) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
@@ -371,9 +373,12 @@ void CommandBuffer::onDrawInstanced(PrimitiveType type, unsigned int baseVertex,
                                                 instanceCount, baseInstance);
 }
 
-void CommandBuffer::onDrawIndexedInstanced(PrimitiveType type, unsigned int baseIndex,
-                                           unsigned int indexCount, unsigned int baseVertex,
-                                           unsigned int baseInstance, unsigned int instanceCount) {
+void MtlCommandBuffer::onDrawIndexedInstanced(PrimitiveType type,
+                                              unsigned int baseIndex,
+                                              unsigned int indexCount,
+                                              unsigned int baseVertex,
+                                              unsigned int baseInstance,
+                                              unsigned int instanceCount) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
@@ -397,21 +402,21 @@ static bool check_max_blit_width(int widthInPixels) {
     return true;
 }
 
-bool CommandBuffer::onCopyTextureToBuffer(const skgpu::Texture* texture,
-                                          SkIRect srcRect,
-                                          const skgpu::Buffer* buffer,
-                                          size_t bufferOffset,
-                                          size_t bufferRowBytes) {
+bool MtlCommandBuffer::onCopyTextureToBuffer(const skgpu::Texture* texture,
+                                             SkIRect srcRect,
+                                             const skgpu::Buffer* buffer,
+                                             size_t bufferOffset,
+                                             size_t bufferRowBytes) {
     SkASSERT(!fActiveRenderCommandEncoder);
 
     if (!check_max_blit_width(srcRect.width())) {
         return false;
     }
 
-    id<MTLTexture> mtlTexture = static_cast<const Texture*>(texture)->mtlTexture();
-    id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(buffer)->mtlBuffer();
+    id<MTLTexture> mtlTexture = static_cast<const MtlTexture*>(texture)->mtlTexture();
+    id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(buffer)->mtlBuffer();
 
-    BlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
+    MtlBlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
     if (!blitCmdEncoder) {
         return false;
     }
@@ -433,16 +438,16 @@ bool CommandBuffer::onCopyTextureToBuffer(const skgpu::Texture* texture,
     return true;
 }
 
-bool CommandBuffer::onCopyBufferToTexture(const skgpu::Buffer* buffer,
-                                          const skgpu::Texture* texture,
-                                          const BufferTextureCopyData* copyData,
-                                          int count) {
+bool MtlCommandBuffer::onCopyBufferToTexture(const skgpu::Buffer* buffer,
+                                             const skgpu::Texture* texture,
+                                             const BufferTextureCopyData* copyData,
+                                             int count) {
     SkASSERT(!fActiveRenderCommandEncoder);
 
-    id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(buffer)->mtlBuffer();
-    id<MTLTexture> mtlTexture = static_cast<const Texture*>(texture)->mtlTexture();
+    id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(buffer)->mtlBuffer();
+    id<MTLTexture> mtlTexture = static_cast<const MtlTexture*>(texture)->mtlTexture();
 
-    BlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
+    MtlBlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
     if (!blitCmdEncoder) {
         return false;
     }
@@ -470,4 +475,4 @@ bool CommandBuffer::onCopyBufferToTexture(const skgpu::Buffer* buffer,
 }
 
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite

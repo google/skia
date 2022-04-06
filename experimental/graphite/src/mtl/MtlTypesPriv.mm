@@ -9,9 +9,9 @@
 
 #import <Metal/Metal.h>
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-TextureInfo::TextureInfo(Handle texture) {
+MtlTextureInfo::MtlTextureInfo(MtlHandle texture) {
     SkASSERT(texture);
     id<MTLTexture> mtlTex = (id<MTLTexture>)texture;
 
@@ -24,10 +24,10 @@ TextureInfo::TextureInfo(Handle texture) {
     fFramebufferOnly = mtlTex.framebufferOnly;
 }
 
-TextureInfo TextureSpecToTextureInfo(const TextureSpec& mtlSpec,
-                                     uint32_t sampleCount,
-                                     uint32_t levelCount) {
-    TextureInfo info;
+MtlTextureInfo MtlTextureSpecToTextureInfo(const MtlTextureSpec& mtlSpec,
+                                           uint32_t sampleCount,
+                                           uint32_t levelCount) {
+    MtlTextureInfo info;
     // Shared info
     info.fSampleCount = sampleCount;
     info.fLevelCount = levelCount;
@@ -41,4 +41,4 @@ TextureInfo TextureSpecToTextureInfo(const TextureSpec& mtlSpec,
     return info;
 }
 
-}  // namespace skgpu::mtl
+}  // namespace skgpu::graphite

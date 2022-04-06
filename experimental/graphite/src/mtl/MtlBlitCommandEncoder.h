@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlBlitCommandEncoder_DEFINED
-#define skgpu_MtlBlitCommandEncoder_DEFINED
+#ifndef skgpu_graphite_MtlBlitCommandEncoder_DEFINED
+#define skgpu_graphite_MtlBlitCommandEncoder_DEFINED
 
 #include "experimental/graphite/src/Resource.h"
 #include "include/core/SkRect.h"
@@ -15,19 +15,19 @@
 
 #import <Metal/Metal.h>
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
 /**
- * Wraps a MTLBlitCommandEncoder object
+ * Wraps a MTLMtlBlitCommandEncoder object
  */
-class BlitCommandEncoder : public Resource {
+class MtlBlitCommandEncoder : public Resource {
 public:
-    static sk_sp<BlitCommandEncoder> Make(const skgpu::Gpu* gpu,
-                                          id<MTLCommandBuffer> commandBuffer) {
+    static sk_sp<MtlBlitCommandEncoder> Make(const skgpu::Gpu* gpu,
+                                             id<MTLCommandBuffer> commandBuffer) {
         // Adding a retain here to keep our own ref separate from the autorelease pool
         sk_cfp<id<MTLBlitCommandEncoder>> encoder =
                 sk_ret_cfp<id<MTLBlitCommandEncoder>>([commandBuffer blitCommandEncoder]);
-        return sk_sp<BlitCommandEncoder>(new BlitCommandEncoder(gpu, std::move(encoder)));
+        return sk_sp<MtlBlitCommandEncoder>(new MtlBlitCommandEncoder(gpu, std::move(encoder)));
     }
 
     void pushDebugGroup(NSString* string) {
@@ -80,7 +80,7 @@ public:
     }
 
 private:
-    BlitCommandEncoder(const skgpu::Gpu* gpu, sk_cfp<id<MTLBlitCommandEncoder>> encoder)
+    MtlBlitCommandEncoder(const skgpu::Gpu* gpu, sk_cfp<id<MTLBlitCommandEncoder>> encoder)
         : Resource(gpu, Ownership::kOwned), fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override {
@@ -90,6 +90,6 @@ private:
     sk_cfp<id<MTLBlitCommandEncoder>> fCommandEncoder;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlBlitCommandEncoder_DEFINED
+#endif // skgpu_graphite_MtlBlitCommandEncoder_DEFINED

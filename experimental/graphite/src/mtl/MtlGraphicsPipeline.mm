@@ -22,7 +22,7 @@
 
 #include "src/gpu/tessellate/WangsFormula.h"
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
 namespace {
 
@@ -294,7 +294,7 @@ MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
         SkASSERT(MTLVertexFormatInvalid != format);
         mtlAttribute.format = format;
         mtlAttribute.offset = vertexAttributeOffset;
-        mtlAttribute.bufferIndex = GraphicsPipeline::kVertexBufferIndex;
+        mtlAttribute.bufferIndex = MtlGraphicsPipeline::kVertexBufferIndex;
 
         vertexAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
@@ -303,7 +303,7 @@ MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
 
     if (vertexAttributeCount) {
         MTLVertexBufferLayoutDescriptor* vertexBufferLayout =
-                vertexDescriptor.layouts[GraphicsPipeline::kVertexBufferIndex];
+                vertexDescriptor.layouts[MtlGraphicsPipeline::kVertexBufferIndex];
         vertexBufferLayout.stepFunction = MTLVertexStepFunctionPerVertex;
         vertexBufferLayout.stepRate = 1;
         vertexBufferLayout.stride = vertexAttributeOffset;
@@ -317,7 +317,7 @@ MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
         SkASSERT(MTLVertexFormatInvalid != format);
         mtlAttribute.format = format;
         mtlAttribute.offset = instanceAttributeOffset;
-        mtlAttribute.bufferIndex = GraphicsPipeline::kInstanceBufferIndex;
+        mtlAttribute.bufferIndex = MtlGraphicsPipeline::kInstanceBufferIndex;
 
         instanceAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
@@ -326,7 +326,7 @@ MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
 
     if (instanceAttributeCount) {
         MTLVertexBufferLayoutDescriptor* instanceBufferLayout =
-                vertexDescriptor.layouts[GraphicsPipeline::kInstanceBufferIndex];
+                vertexDescriptor.layouts[MtlGraphicsPipeline::kInstanceBufferIndex];
         instanceBufferLayout.stepFunction = MTLVertexStepFunctionPerInstance;
         instanceBufferLayout.stepRate = 1;
         instanceBufferLayout.stride = instanceAttributeOffset;
@@ -492,10 +492,10 @@ enum ShaderType {
 };
 static const int kShaderTypeCount = kLast_ShaderType + 1;
 
-sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvider,
-                                               const Gpu* gpu,
-                                               const skgpu::GraphicsPipelineDesc& pipelineDesc,
-                                               const skgpu::RenderPassDesc& renderPassDesc) {
+sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
+        MtlResourceProvider* resourceProvider, const MtlGpu* gpu,
+        const skgpu::GraphicsPipelineDesc& pipelineDesc,
+        const skgpu::RenderPassDesc& renderPassDesc) {
     sk_cfp<MTLRenderPipelineDescriptor*> psoDescriptor([[MTLRenderPipelineDescriptor alloc] init]);
 
     std::string msl[kShaderTypeCount];
@@ -527,12 +527,12 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvide
 
     sk_cfp<id<MTLLibrary>> shaderLibraries[kShaderTypeCount];
 
-    shaderLibraries[kVertex_ShaderType] = CompileShaderLibrary(gpu,
-                                                               msl[kVertex_ShaderType],
-                                                               errorHandler);
-    shaderLibraries[kFragment_ShaderType] = CompileShaderLibrary(gpu,
-                                                                 msl[kFragment_ShaderType],
-                                                                 errorHandler);
+    shaderLibraries[kVertex_ShaderType] = MtlCompileShaderLibrary(gpu,
+                                                                  msl[kVertex_ShaderType],
+                                                                  errorHandler);
+    shaderLibraries[kFragment_ShaderType] = MtlCompileShaderLibrary(gpu,
+                                                                    msl[kFragment_ShaderType],
+                                                                    errorHandler);
     if (!shaderLibraries[kVertex_ShaderType] || !shaderLibraries[kFragment_ShaderType]) {
         return nullptr;
     }
@@ -547,7 +547,7 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvide
     // TODO: I *think* this gets cleaned up by the pipelineDescriptor?
     (*psoDescriptor).vertexDescriptor = create_vertex_descriptor(pipelineDesc.renderStep());
 
-    mtl::TextureInfo mtlTexInfo;
+    MtlTextureInfo mtlTexInfo;
     renderPassDesc.fColorAttachment.fTextureInfo.getMtlTextureInfo(&mtlTexInfo);
 
     auto mtlColorAttachment = create_color_attachment((MTLPixelFormat)mtlTexInfo.fFormat,
@@ -557,12 +557,12 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvide
 
     renderPassDesc.fDepthStencilAttachment.fTextureInfo.getMtlTextureInfo(&mtlTexInfo);
     MTLPixelFormat depthStencilFormat = (MTLPixelFormat)mtlTexInfo.fFormat;
-    if (FormatIsStencil(depthStencilFormat)) {
+    if (MtlFormatIsStencil(depthStencilFormat)) {
         (*psoDescriptor).stencilAttachmentPixelFormat = depthStencilFormat;
     } else {
         (*psoDescriptor).stencilAttachmentPixelFormat = MTLPixelFormatInvalid;
     }
-    if (FormatIsDepth(depthStencilFormat)) {
+    if (MtlFormatIsDepth(depthStencilFormat)) {
         (*psoDescriptor).depthAttachmentPixelFormat = depthStencilFormat;
     } else {
         (*psoDescriptor).depthAttachmentPixelFormat = MTLPixelFormatInvalid;
@@ -582,17 +582,17 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvide
     sk_cfp<id<MTLDepthStencilState>> dss =
             resourceProvider->findOrCreateCompatibleDepthStencilState(depthStencilSettings);
 
-    return sk_sp<GraphicsPipeline>(
-            new GraphicsPipeline(gpu,
-                                 std::move(pso),
-                                 std::move(dss),
-                                 depthStencilSettings.fStencilReferenceValue,
-                                 pipelineDesc.renderStep()->vertexStride(),
-                                 pipelineDesc.renderStep()->instanceStride()));
+    return sk_sp<MtlGraphicsPipeline>(
+            new MtlGraphicsPipeline(gpu,
+                                    std::move(pso),
+                                    std::move(dss),
+                                    depthStencilSettings.fStencilReferenceValue,
+                                    pipelineDesc.renderStep()->vertexStride(),
+                                    pipelineDesc.renderStep()->instanceStride()));
 }
 
-void GraphicsPipeline::freeGpuData() {
+void MtlGraphicsPipeline::freeGpuData() {
     fPipelineState.reset();
 }
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite

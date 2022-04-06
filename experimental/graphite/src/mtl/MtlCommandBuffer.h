@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlCommandBuffer_DEFINED
-#define skgpu_MtlCommandBuffer_DEFINED
+#ifndef skgpu_graphite_MtlCommandBuffer_DEFINED
+#define skgpu_graphite_MtlCommandBuffer_DEFINED
 
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/GpuWorkSubmission.h"
@@ -19,15 +19,15 @@
 
 #import <Metal/Metal.h>
 
-namespace skgpu::mtl {
-class BlitCommandEncoder;
-class Gpu;
-class RenderCommandEncoder;
+namespace skgpu::graphite {
+class MtlBlitCommandEncoder;
+class MtlGpu;
+class MtlRenderCommandEncoder;
 
-class CommandBuffer final : public skgpu::CommandBuffer {
+class MtlCommandBuffer final : public skgpu::CommandBuffer {
 public:
-    static sk_sp<CommandBuffer> Make(const Gpu*);
-    ~CommandBuffer() override;
+    static sk_sp<MtlCommandBuffer> Make(const MtlGpu*);
+    ~MtlCommandBuffer() override;
 
     bool isFinished() {
         return (*fCommandBuffer).status == MTLCommandBufferStatusCompleted ||
@@ -49,7 +49,7 @@ public:
     bool commit();
 
 private:
-    CommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const Gpu* gpu);
+    MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const MtlGpu* gpu);
 
     bool onBeginRenderPass(const RenderPassDesc&,
                            const skgpu::Texture* colorTexture,
@@ -94,21 +94,21 @@ private:
                                const BufferTextureCopyData* copyData,
                                int count) override;
 
-    BlitCommandEncoder* getBlitCommandEncoder();
+    MtlBlitCommandEncoder* getBlitCommandEncoder();
     void endBlitCommandEncoder();
 
     sk_cfp<id<MTLCommandBuffer>> fCommandBuffer;
-    sk_sp<RenderCommandEncoder> fActiveRenderCommandEncoder;
-    sk_sp<BlitCommandEncoder> fActiveBlitCommandEncoder;
+    sk_sp<MtlRenderCommandEncoder> fActiveRenderCommandEncoder;
+    sk_sp<MtlBlitCommandEncoder> fActiveBlitCommandEncoder;
 
     size_t fCurrentVertexStride = 0;
     size_t fCurrentInstanceStride = 0;
     id<MTLBuffer> fCurrentIndexBuffer;
     size_t fCurrentIndexBufferOffset = 0;
 
-    const Gpu* fGpu;
+    const MtlGpu* fGpu;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlCommandBuffer_DEFINED
+#endif // skgpu_graphite_MtlCommandBuffer_DEFINED

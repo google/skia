@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlRenderCommandEncoder_DEFINED
-#define skgpu_MtlRenderCommandEncoder_DEFINED
+#ifndef skgpu_graphite_MtlRenderCommandEncoder_DEFINED
+#define skgpu_graphite_MtlRenderCommandEncoder_DEFINED
 
 #include "experimental/graphite/src/Resource.h"
 #include "include/core/SkRefCnt.h"
@@ -14,20 +14,20 @@
 
 #import <Metal/Metal.h>
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
 /**
  * Wraps a MTLRenderCommandEncoder object and associated tracked state
  */
-class RenderCommandEncoder : public Resource {
+class MtlRenderCommandEncoder : public Resource {
 public:
-    static sk_sp<RenderCommandEncoder> Make(const Gpu* gpu,
-                                            id<MTLCommandBuffer> commandBuffer,
-                                            MTLRenderPassDescriptor* descriptor) {
+    static sk_sp<MtlRenderCommandEncoder> Make(const Gpu* gpu,
+                                               id<MTLCommandBuffer> commandBuffer,
+                                               MTLRenderPassDescriptor* descriptor) {
         // Adding a retain here to keep our own ref separate from the autorelease pool
         sk_cfp<id<MTLRenderCommandEncoder>> encoder =
                  sk_ret_cfp([commandBuffer renderCommandEncoderWithDescriptor:descriptor]);
-        return sk_sp<RenderCommandEncoder>(new RenderCommandEncoder(gpu, std::move(encoder)));
+        return sk_sp<MtlRenderCommandEncoder>(new MtlRenderCommandEncoder(gpu, std::move(encoder)));
     }
 
     void setLabel(NSString* label) {
@@ -247,7 +247,7 @@ private:
     inline static constexpr int kMaxExpectedBuffers = 5;
     inline static constexpr int kMaxExpectedTextures = 16;
 
-    RenderCommandEncoder(const Gpu* gpu, sk_cfp<id<MTLRenderCommandEncoder>> encoder)
+    MtlRenderCommandEncoder(const Gpu* gpu, sk_cfp<id<MTLRenderCommandEncoder>> encoder)
             : Resource(gpu, Ownership::kOwned), fCommandEncoder(std::move(encoder)) {
         for (int i = 0; i < kMaxExpectedBuffers; i++) {
             fCurrentVertexBuffer[i] = nil;
@@ -286,6 +286,6 @@ private:
     MTLTriangleFillMode fCurrentTriangleFillMode = (MTLTriangleFillMode)-1;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlRenderCommandEncoder_DEFINED
+#endif // skgpu_graphite_MtlRenderCommandEncoder_DEFINED

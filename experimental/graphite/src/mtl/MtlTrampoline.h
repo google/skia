@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlTrampoline_DEFINED
-#define skgpu_MtlTrampoline_DEFINED
+#ifndef skgpu_graphite_MtlTrampoline_DEFINED
+#define skgpu_graphite_MtlTrampoline_DEFINED
 
 #include "include/core/SkRefCnt.h"
 
@@ -14,19 +14,19 @@ namespace skgpu {
 class Gpu;
 }
 
-namespace skgpu::mtl {
-struct BackendContext;
+namespace skgpu::graphite {
+struct MtlBackendContext;
 
 /*
  * This class is used to hold functions which trampoline from the Graphite cpp code
  * to the Mtl Objective-C files.
  */
-class Trampoline {
+class MtlTrampoline {
 public:
-    static sk_sp<skgpu::Gpu> MakeGpu(const BackendContext&);
+    static sk_sp<skgpu::Gpu> MakeGpu(const MtlBackendContext&);
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlTrampoline_DEFINED
+#endif // skgpu_graphite_MtlTrampoline_DEFINED
 

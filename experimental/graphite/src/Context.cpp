@@ -38,8 +38,8 @@ Context::Context(sk_sp<Gpu> gpu, BackendApi backend)
 Context::~Context() {}
 
 #ifdef SK_METAL
-std::unique_ptr<Context> Context::MakeMetal(const mtl::BackendContext& backendContext) {
-    sk_sp<Gpu> gpu = mtl::Trampoline::MakeGpu(backendContext);
+std::unique_ptr<Context> Context::MakeMetal(const graphite::MtlBackendContext& backendContext) {
+    sk_sp<Gpu> gpu = graphite::MtlTrampoline::MakeGpu(backendContext);
     if (!gpu) {
         return nullptr;
     }

@@ -11,10 +11,10 @@
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "include/core/SkSamplingOptions.h"
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-Sampler::Sampler(const Gpu* gpu,
-                 sk_cfp<id<MTLSamplerState>> samplerState)
+MtlSampler::MtlSampler(const MtlGpu* gpu,
+                       sk_cfp<id<MTLSamplerState>> samplerState)
         : skgpu::Sampler(gpu)
         , fSamplerState(std::move(samplerState)) {}
 
@@ -44,10 +44,10 @@ static inline MTLSamplerAddressMode tile_mode_to_mtl_sampler_address(SkTileMode 
     SkUNREACHABLE;
 }
 
-sk_sp<Sampler> Sampler::Make(const Gpu* gpu,
-                             const SkSamplingOptions& samplingOptions,
-                             SkTileMode xTileMode,
-                             SkTileMode yTileMode) {
+sk_sp<MtlSampler> MtlSampler::Make(const MtlGpu* gpu,
+                                   const SkSamplingOptions& samplingOptions,
+                                   SkTileMode xTileMode,
+                                   SkTileMode yTileMode) {
     sk_cfp<MTLSamplerDescriptor*> desc([[MTLSamplerDescriptor alloc] init]);
 
     MTLSamplerMinMagFilter minMagFilter = [&] {
@@ -89,12 +89,12 @@ sk_sp<Sampler> Sampler::Make(const Gpu* gpu,
     if (!sampler) {
         return nullptr;
     }
-    return sk_sp<Sampler>(new Sampler(gpu, std::move(sampler)));
+    return sk_sp<MtlSampler>(new MtlSampler(gpu, std::move(sampler)));
 }
 
-void Sampler::freeGpuData() {
+void MtlSampler::freeGpuData() {
     fSamplerState.reset();
 }
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 

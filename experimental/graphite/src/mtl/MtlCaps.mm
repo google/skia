@@ -15,9 +15,9 @@
 #include "experimental/graphite/src/mtl/MtlUtils.h"
 #include "src/sksl/SkSLUtil.h"
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-Caps::Caps(const id<MTLDevice> device)
+MtlCaps::MtlCaps(const id<MTLDevice> device)
         : skgpu::Caps() {
     fShaderCaps = std::make_unique<SkSL::ShaderCaps>();
 
@@ -27,11 +27,11 @@ Caps::Caps(const id<MTLDevice> device)
 
     this->initFormatTable();
 
-    // Metal-specific caps
+    // Metal-specific MtlCaps
 }
 
 // translates from older MTLFeatureSet interface to MTLGPUFamily interface
-bool Caps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
+bool MtlCaps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
 #if defined(SK_BUILD_FOR_MAC)
     // Apple Silicon is only available in later OSes
     *gpuFamily = GPUFamily::kMac;
@@ -134,7 +134,7 @@ bool Caps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFamily
     return false;
 }
 
-bool Caps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
+bool MtlCaps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
 #if GR_METAL_SDK_VERSION >= 220
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         // Apple Silicon
@@ -200,7 +200,7 @@ bool Caps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) 
     return false;
 }
 
-void Caps::initGPUFamily(id<MTLDevice> device) {
+void MtlCaps::initGPUFamily(id<MTLDevice> device) {
     if (!GetGPUFamily(device, &fGPUFamily, &fFamilyGroup) &&
         !GetGPUFamilyFromFeatureSet(device, &fGPUFamily, &fFamilyGroup)) {
         // We don't know what this is, fall back to minimum defaults
@@ -214,7 +214,7 @@ void Caps::initGPUFamily(id<MTLDevice> device) {
     }
 }
 
-void Caps::initCaps(const id<MTLDevice> device) {
+void MtlCaps::initCaps(const id<MTLDevice> device) {
     if (this->isMac() || fFamilyGroup >= 3) {
         fMaxTextureSize = 16384;
     } else {
@@ -248,7 +248,7 @@ void Caps::initCaps(const id<MTLDevice> device) {
     }
 }
 
-void Caps::initShaderCaps() {
+void MtlCaps::initShaderCaps() {
     SkSL::ShaderCaps* shaderCaps = fShaderCaps.get();
 
     // Setting this true with the assumption that this cap will eventually mean we support varying
@@ -291,7 +291,7 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
     MTLPixelFormatInvalid,
 };
 
-void Caps::setColorType(SkColorType colorType, std::initializer_list<MTLPixelFormat> formats) {
+void MtlCaps::setColorType(SkColorType colorType, std::initializer_list<MTLPixelFormat> formats) {
 #ifdef SK_DEBUG
     for (size_t i = 0; i < kNumMtlFormats; ++i) {
         const auto& formatInfo = fFormatTable[i];
@@ -321,10 +321,10 @@ void Caps::setColorType(SkColorType colorType, std::initializer_list<MTLPixelFor
     }
 }
 
-size_t Caps::GetFormatIndex(MTLPixelFormat pixelFormat) {
-    static_assert(SK_ARRAY_COUNT(kMtlFormats) == Caps::kNumMtlFormats,
+size_t MtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
+    static_assert(SK_ARRAY_COUNT(kMtlFormats) == MtlCaps::kNumMtlFormats,
                   "Size of kMtlFormats array must match static value in header");
-    for (size_t i = 0; i < Caps::kNumMtlFormats; ++i) {
+    for (size_t i = 0; i < MtlCaps::kNumMtlFormats; ++i) {
         if (kMtlFormats[i] == pixelFormat) {
             return i;
         }
@@ -332,7 +332,7 @@ size_t Caps::GetFormatIndex(MTLPixelFormat pixelFormat) {
     return GetFormatIndex(MTLPixelFormatInvalid);
 }
 
-void Caps::initFormatTable() {
+void MtlCaps::initFormatTable() {
     FormatInfo* info;
 
     // Format: RGBA8Unorm
@@ -464,16 +464,16 @@ void Caps::initFormatTable() {
     this->setColorType(kR8_unorm_SkColorType,         { MTLPixelFormatR8Unorm });
 }
 
-skgpu::TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
-                                                      uint32_t levelCount,
-                                                      Protected,
-                                                      Renderable renderable) const {
+skgpu::TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,
+                                                         uint32_t levelCount,
+                                                         Protected,
+                                                         Renderable renderable) const {
     MTLTextureUsage usage = MTLTextureUsageShaderRead;
     if (renderable == Renderable::kYes) {
         usage |= MTLTextureUsageRenderTarget;
     }
 
-    TextureInfo info;
+    MtlTextureInfo info;
     info.fSampleCount = 1;
     info.fLevelCount = levelCount;
     info.fFormat = this->getFormatFromColorType(colorType);
@@ -484,12 +484,12 @@ skgpu::TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
     return info;
 }
 
-skgpu::TextureInfo Caps::getDefaultMSAATextureInfo(SkColorType colorType,
-                                                   uint32_t sampleCount,
-                                                   Protected) const {
+skgpu::TextureInfo MtlCaps::getDefaultMSAATextureInfo(SkColorType colorType,
+                                                      uint32_t sampleCount,
+                                                      Protected) const {
     MTLTextureUsage usage = MTLTextureUsageRenderTarget;
 
-    TextureInfo info;
+    MtlTextureInfo info;
     info.fSampleCount = sampleCount;
     info.fLevelCount = 1;
     info.fFormat = this->getFormatFromColorType(colorType);
@@ -500,13 +500,12 @@ skgpu::TextureInfo Caps::getDefaultMSAATextureInfo(SkColorType colorType,
     return info;
 }
 
-skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags> depthStencilType,
-                                                           uint32_t sampleCount,
-                                                           Protected) const {
-    TextureInfo info;
+skgpu::TextureInfo MtlCaps::getDefaultDepthStencilTextureInfo(
+            Mask<DepthStencilFlags> depthStencilType, uint32_t sampleCount, Protected) const {
+    MtlTextureInfo info;
     info.fSampleCount = sampleCount;
     info.fLevelCount = 1;
-    info.fFormat = DepthStencilFlagsToFormat(depthStencilType);
+    info.fFormat = MtlDepthStencilFlagsToFormat(depthStencilType);
     info.fUsage = MTLTextureUsageRenderTarget;
     info.fStorageMode = MTLStorageModePrivate;
     info.fFramebufferOnly = false;
@@ -514,7 +513,7 @@ skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlag
     return info;
 }
 
-const skgpu::Caps::ColorTypeInfo* Caps::getColorTypeInfo(
+const skgpu::Caps::ColorTypeInfo* MtlCaps::getColorTypeInfo(
         SkColorType ct, const skgpu::TextureInfo& textureInfo) const {
     MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(textureInfo.mtlTextureSpec().fFormat);
     SkASSERT(mtlFormat != MTLPixelFormatInvalid);
@@ -530,8 +529,8 @@ const skgpu::Caps::ColorTypeInfo* Caps::getColorTypeInfo(
     return nullptr;
 }
 
-UniqueKey Caps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
-                                        const RenderPassDesc& renderPassDesc) const {
+UniqueKey MtlCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
+                                           const RenderPassDesc& renderPassDesc) const {
     UniqueKey pipelineKey;
     {
         static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain = UniqueKey::GenerateDomain();
@@ -543,7 +542,7 @@ UniqueKey Caps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc
             builder[i] = pipelineDescKey[i];
         }
         // add renderpassdesc key
-        mtl::TextureInfo colorInfo, depthStencilInfo;
+        MtlTextureInfo colorInfo, depthStencilInfo;
         renderPassDesc.fColorAttachment.fTextureInfo.getMtlTextureInfo(&colorInfo);
         renderPassDesc.fDepthStencilAttachment.fTextureInfo.getMtlTextureInfo(&depthStencilInfo);
         SkASSERT(colorInfo.fFormat < 65535 && depthStencilInfo.fFormat < 65535);
@@ -555,7 +554,7 @@ UniqueKey Caps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc
     return pipelineKey;
 }
 
-bool Caps::onIsTexturable(const skgpu::TextureInfo& info) const {
+bool MtlCaps::onIsTexturable(const skgpu::TextureInfo& info) const {
     if (!(info.mtlTextureSpec().fUsage & MTLTextureUsageShaderRead)) {
         return false;
     }
@@ -565,21 +564,21 @@ bool Caps::onIsTexturable(const skgpu::TextureInfo& info) const {
     return this->isTexturable((MTLPixelFormat)info.mtlTextureSpec().fFormat);
 }
 
-bool Caps::isTexturable(MTLPixelFormat format) const {
+bool MtlCaps::isTexturable(MTLPixelFormat format) const {
     const FormatInfo& formatInfo = this->getFormatInfo(format);
     return SkToBool(FormatInfo::kTexturable_Flag && formatInfo.fFlags);
 }
 
-bool Caps::isRenderable(const skgpu::TextureInfo& info) const {
+bool MtlCaps::isRenderable(const skgpu::TextureInfo& info) const {
     return info.mtlTextureSpec().fUsage & MTLTextureUsageRenderTarget &&
     this->isRenderable((MTLPixelFormat)info.mtlTextureSpec().fFormat, info.numSamples());
 }
 
-bool Caps::isRenderable(MTLPixelFormat format, uint32_t sampleCount) const {
+bool MtlCaps::isRenderable(MTLPixelFormat format, uint32_t sampleCount) const {
     return sampleCount <= this->maxRenderTargetSampleCount(format);
 }
 
-uint32_t Caps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
+uint32_t MtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
     const FormatInfo& formatInfo = this->getFormatInfo(format);
     if (!SkToBool(formatInfo.fFlags & FormatInfo::kRenderable_Flag)) {
         return 0;
@@ -591,7 +590,7 @@ uint32_t Caps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
     }
 }
 
-size_t Caps::getTransferBufferAlignment(size_t bytesPerPixel) const {
+size_t MtlCaps::getTransferBufferAlignment(size_t bytesPerPixel) const {
     return std::max(bytesPerPixel, getMinBufferAlignment());
 }
 
@@ -614,12 +613,12 @@ uint32_t samples_to_key(uint32_t numSamples) {
     }
 }
 
-void Caps::buildKeyForTexture(SkISize dimensions,
-                              const skgpu::TextureInfo& info,
-                              ResourceType type,
-                              Shareable shareable,
-                              GraphiteResourceKey* key) const {
-    const TextureSpec& mtlSpec = info.mtlTextureSpec();
+void MtlCaps::buildKeyForTexture(SkISize dimensions,
+                                 const skgpu::TextureInfo& info,
+                                 ResourceType type,
+                                 Shareable shareable,
+                                 GraphiteResourceKey* key) const {
+    const MtlTextureSpec& mtlSpec = info.mtlTextureSpec();
 
     SkASSERT(!dimensions.isEmpty());
 
@@ -664,4 +663,4 @@ void Caps::buildKeyForTexture(SkISize dimensions,
 
 }
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite

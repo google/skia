@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlBackendContext_DEFINED
-#define skgpu_MtlBackendContext_DEFINED
+#ifndef skgpu_graphite_MtlBackendContext_DEFINED
+#define skgpu_graphite_MtlBackendContext_DEFINED
 
 #include "experimental/graphite/include/mtl/MtlTypes.h"
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-// The BackendContext contains all of the base Metal objects needed by the MtlGpu. The assumption
+// The MtlBackendContext contains all of the base Metal objects needed by the MtlGpu. The assumption
 // is that the client will set these up and pass them to the MtlGpu constructor.
-struct SK_API BackendContext {
+struct SK_API MtlBackendContext {
     sk_cfp<CFTypeRef> fDevice;
     sk_cfp<CFTypeRef> fQueue;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlBackendContext_DEFINED
+#endif // skgpu_graphite_MtlBackendContext_DEFINED

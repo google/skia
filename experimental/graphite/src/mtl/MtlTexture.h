@@ -5,49 +5,48 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlTexture_DEFINED
-#define skgpu_MtlTexture_DEFINED
+#ifndef skgpu_graphite_MtlTexture_DEFINED
+#define skgpu_graphite_MtlTexture_DEFINED
 
 #include "experimental/graphite/src/Texture.h"
 #include "include/core/SkRefCnt.h"
 
 #import <Metal/Metal.h>
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
+class MtlGpu;
 
-class Gpu;
-
-class Texture : public skgpu::Texture {
+class MtlTexture : public skgpu::Texture {
 public:
-    static sk_cfp<id<MTLTexture>> MakeMtlTexture(const Gpu*,
+    static sk_cfp<id<MTLTexture>> MakeMtlTexture(const MtlGpu*,
                                                  SkISize dimensions,
                                                  const skgpu::TextureInfo&);
 
-    static sk_sp<Texture> Make(const Gpu*,
+    static sk_sp<Texture> Make(const MtlGpu*,
                                SkISize dimensions,
                                const skgpu::TextureInfo&);
 
-    static sk_sp<Texture> MakeWrapped(const Gpu*,
+    static sk_sp<Texture> MakeWrapped(const MtlGpu*,
                                       SkISize dimensions,
                                       const skgpu::TextureInfo&,
                                       sk_cfp<id<MTLTexture>>);
 
-    ~Texture() override {}
+    ~MtlTexture() override {}
 
     id<MTLTexture> mtlTexture() const { return fTexture.get(); }
 
 private:
-    Texture(const Gpu* gpu,
-            SkISize dimensions,
-            const skgpu::TextureInfo& info,
-            sk_cfp<id<MTLTexture>>,
-            Ownership);
+    MtlTexture(const MtlGpu* gpu,
+               SkISize dimensions,
+               const skgpu::TextureInfo& info,
+               sk_cfp<id<MTLTexture>>,
+               Ownership);
 
     void freeGpuData() override;
 
     sk_cfp<id<MTLTexture>> fTexture;
 };
 
-} // namepsace skgpu::mtl
+} // namepsace skgpu::graphite
 
-#endif // skgpu_MtlTexture_DEFINED
+#endif // skgpu_graphite_MtlTexture_DEFINED

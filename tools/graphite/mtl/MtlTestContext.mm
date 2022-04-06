@@ -14,9 +14,9 @@
 
 #import <Metal/Metal.h>
 
-namespace skiatest::graphite::mtl {
+namespace skiatest::graphite {
 
-std::unique_ptr<GraphiteTestContext> TestContext::Make() {
+std::unique_ptr<GraphiteTestContext> MtlTestContext::Make() {
     sk_cfp<id<MTLDevice>> device;
 #ifdef SK_BUILD_FOR_MAC
     sk_cfp<NSArray<id <MTLDevice>>*> availableDevices(MTLCopyAllDevices());
@@ -40,14 +40,14 @@ std::unique_ptr<GraphiteTestContext> TestContext::Make() {
     device.reset(MTLCreateSystemDefaultDevice());
 #endif
 
-    skgpu::mtl::BackendContext backendContext = {};
+    skgpu::graphite::MtlBackendContext backendContext = {};
     backendContext.fDevice.retain(device.get());
     backendContext.fQueue.reset([*device newCommandQueue]);
 
-    return std::unique_ptr<GraphiteTestContext>(new TestContext(backendContext));
+    return std::unique_ptr<GraphiteTestContext>(new MtlTestContext(backendContext));
 }
 
-std::unique_ptr<skgpu::Context> TestContext::makeContext() {
+std::unique_ptr<skgpu::Context> MtlTestContext::makeContext() {
     return skgpu::Context::MakeMetal(fMtl);
 }
 

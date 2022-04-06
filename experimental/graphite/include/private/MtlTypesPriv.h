@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlTypesPriv_DEFINED
-#define skgpu_MtlTypesPriv_DEFINED
+#ifndef skgpu_graphite_MtlTypesPriv_DEFINED
+#define skgpu_graphite_MtlTypesPriv_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "experimental/graphite/include/mtl/MtlTypes.h"
@@ -38,37 +38,37 @@
 
 #endif  // __APPLE__
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-struct TextureSpec {
-    TextureSpec()
+struct MtlTextureSpec {
+    MtlTextureSpec()
             : fFormat(0)
             , fUsage(0)
             , fStorageMode(0)
             , fFramebufferOnly(false) {}
-    TextureSpec(const TextureInfo& info)
+    MtlTextureSpec(const MtlTextureInfo& info)
             : fFormat(info.fFormat)
             , fUsage(info.fUsage)
             , fStorageMode(info.fStorageMode)
             , fFramebufferOnly(info.fFramebufferOnly) {}
 
-    bool operator==(const TextureSpec& that) const {
+    bool operator==(const MtlTextureSpec& that) const {
         return fFormat == that.fFormat &&
                fUsage == that.fUsage &&
                fStorageMode == that.fStorageMode &&
                fFramebufferOnly == that.fFramebufferOnly;
     }
 
-    PixelFormat fFormat;
-    TextureUsage fUsage;
-    StorageMode fStorageMode;
+    MtlPixelFormat fFormat;
+    MtlTextureUsage fUsage;
+    MtlStorageMode fStorageMode;
     bool fFramebufferOnly;
 };
 
-TextureInfo TextureSpecToTextureInfo(const TextureSpec& mtlSpec,
-                                     uint32_t sampleCount,
-                                     uint32_t levelCount);
+MtlTextureInfo MtlTextureSpecToTextureInfo(const MtlTextureSpec& mtlSpec,
+                                           uint32_t sampleCount,
+                                           uint32_t levelCount);
 
-}  // namespace skgpu::mtl
+}  // namespace skgpu::graphite
 
-#endif  // skgpu_MtlTypesPriv_DEFINED
+#endif  // skgpu_graphite_MtlTypesPriv_DEFINED

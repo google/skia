@@ -9,7 +9,7 @@
 
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
 NSString* kBufferTypeNames[kBufferTypeCount] = {
@@ -21,15 +21,15 @@ NSString* kBufferTypeNames[kBufferTypeCount] = {
 };
 #endif
 
-sk_sp<Buffer> Buffer::Make(const Gpu* gpu,
-                           size_t size,
-                           BufferType type,
-                           PrioritizeGpuReads prioritizeGpuReads) {
+sk_sp<Buffer> MtlBuffer::Make(const MtlGpu* gpu,
+                              size_t size,
+                              BufferType type,
+                              PrioritizeGpuReads prioritizeGpuReads) {
     if (size <= 0) {
         return nullptr;
     }
 
-    const Caps& mtlCaps = gpu->mtlCaps();
+    const MtlCaps& mtlCaps = gpu->mtlCaps();
 
     NSUInteger options = 0;
     if (@available(macOS 10.11, iOS 9.0, *)) {
@@ -55,18 +55,18 @@ sk_sp<Buffer> Buffer::Make(const Gpu* gpu,
     (*buffer).label = kBufferTypeNames[(int)type];
 #endif
 
-    return sk_sp<Buffer>(new Buffer(gpu, size, type, prioritizeGpuReads, std::move(buffer)));
+    return sk_sp<Buffer>(new MtlBuffer(gpu, size, type, prioritizeGpuReads, std::move(buffer)));
 }
 
-Buffer::Buffer(const Gpu* gpu,
-               size_t size,
-               BufferType type,
-               PrioritizeGpuReads prioritizeGpuReads,
-               sk_cfp<id<MTLBuffer>> buffer)
+MtlBuffer::MtlBuffer(const MtlGpu* gpu,
+                     size_t size,
+                     BufferType type,
+                     PrioritizeGpuReads prioritizeGpuReads,
+                     sk_cfp<id<MTLBuffer>> buffer)
         : skgpu::Buffer(gpu, size, type, prioritizeGpuReads)
         , fBuffer(std::move(buffer)) {}
 
-void Buffer::onMap() {
+void MtlBuffer::onMap() {
     SkASSERT(fBuffer);
     SkASSERT(!this->isMapped());
 
@@ -77,7 +77,7 @@ void Buffer::onMap() {
     fMapPtr = static_cast<char*>((*fBuffer).contents);
 }
 
-void Buffer::onUnmap() {
+void MtlBuffer::onUnmap() {
     SkASSERT(fBuffer);
     SkASSERT(this->isMapped());
 #ifdef SK_BUILD_FOR_MAC
@@ -88,9 +88,9 @@ void Buffer::onUnmap() {
     fMapPtr = nullptr;
 }
 
-void Buffer::freeGpuData() {
+void MtlBuffer::freeGpuData() {
     fBuffer.reset();
 }
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 

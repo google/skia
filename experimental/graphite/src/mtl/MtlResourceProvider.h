@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlResourceProvider_DEFINED
-#define skgpu_MtlResourceProvider_DEFINED
+#ifndef skgpu_graphite_MtlResourceProvider_DEFINED
+#define skgpu_graphite_MtlResourceProvider_DEFINED
 
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/ResourceProvider.h"
@@ -18,14 +18,14 @@ namespace skgpu {
 class CommandBuffer;
 }
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-class Gpu;
+class MtlGpu;
 
-class ResourceProvider final : public skgpu::ResourceProvider {
+class MtlResourceProvider final : public skgpu::ResourceProvider {
 public:
-    ResourceProvider(const skgpu::Gpu* gpu, sk_sp<GlobalCache>, SingleOwner*);
-    ~ResourceProvider() override {}
+    MtlResourceProvider(const skgpu::Gpu* gpu, sk_sp<GlobalCache>, SingleOwner*);
+    ~MtlResourceProvider() override {}
 
     sk_sp<skgpu::Texture> createWrappedTexture(const BackendTexture&) override;
 
@@ -34,7 +34,7 @@ public:
             const DepthStencilSettings&);
 
 private:
-    const Gpu* mtlGpu();
+    const MtlGpu* mtlGpu();
 
     sk_sp<skgpu::CommandBuffer> createCommandBuffer() override;
     sk_sp<skgpu::GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&,
@@ -49,6 +49,6 @@ private:
     SkTHashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>> fDepthStencilStates;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlResourceProvider_DEFINED
+#endif // skgpu_graphite_MtlResourceProvider_DEFINED

@@ -16,9 +16,9 @@
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
 #include "experimental/graphite/src/mtl/MtlTexture.h"
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-sk_sp<skgpu::Gpu> Gpu::Make(const BackendContext& context) {
+sk_sp<skgpu::Gpu> MtlGpu::Make(const MtlBackendContext& context) {
     // TODO: This was taken from GrMtlGpu.mm's Make, does graphite deserve a higher version?
     if (@available(macOS 10.14, iOS 11.0, *)) {
         // no warning needed
@@ -35,26 +35,28 @@ sk_sp<skgpu::Gpu> Gpu::Make(const BackendContext& context) {
     sk_cfp<id<MTLDevice>> device = sk_ret_cfp((id<MTLDevice>)(context.fDevice.get()));
     sk_cfp<id<MTLCommandQueue>> queue = sk_ret_cfp((id<MTLCommandQueue>)(context.fQueue.get()));
 
-    sk_sp<const Caps> caps(new Caps(device.get()));
+    sk_sp<const MtlCaps> caps(new MtlCaps(device.get()));
 
-    return sk_sp<skgpu::Gpu>(new Gpu(std::move(device), std::move(queue), std::move(caps)));
+    return sk_sp<skgpu::Gpu>(new MtlGpu(std::move(device), std::move(queue), std::move(caps)));
 }
 
-Gpu::Gpu(sk_cfp<id<MTLDevice>> device, sk_cfp<id<MTLCommandQueue>> queue, sk_sp<const Caps> caps)
+MtlGpu::MtlGpu(sk_cfp<id<MTLDevice>> device,
+               sk_cfp<id<MTLCommandQueue>> queue,
+               sk_sp<const MtlCaps> caps)
     : skgpu::Gpu(std::move(caps))
     , fDevice(std::move(device))
     , fQueue(std::move(queue)) {
     this->initCompiler();
 }
 
-Gpu::~Gpu() {
+MtlGpu::~MtlGpu() {
 }
 
-std::unique_ptr<skgpu::ResourceProvider> Gpu::makeResourceProvider(
+std::unique_ptr<skgpu::ResourceProvider> MtlGpu::makeResourceProvider(
         sk_sp<GlobalCache> globalCache, SingleOwner* singleOwner) const {
-    return std::unique_ptr<skgpu::ResourceProvider>(new ResourceProvider(this,
-                                                                         std::move(globalCache),
-                                                                         singleOwner));
+    return std::unique_ptr<skgpu::ResourceProvider>(new MtlResourceProvider(this,
+                                                                            std::move(globalCache),
+                                                                            singleOwner));
 }
 
 class WorkSubmission final : public skgpu::GpuWorkSubmission {
@@ -64,19 +66,19 @@ public:
     ~WorkSubmission() override {}
 
     bool isFinished() override {
-        return static_cast<CommandBuffer*>(this->commandBuffer())->isFinished();
+        return static_cast<MtlCommandBuffer*>(this->commandBuffer())->isFinished();
     }
     void waitUntilFinished(const skgpu::Gpu*) override {
-        return static_cast<CommandBuffer*>(this->commandBuffer())->waitUntilFinished();
+        return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
     }
 
 private:
     sk_sp<CommandBuffer> fCommandBuffer;
 };
 
-skgpu::Gpu::OutstandingSubmission Gpu::onSubmit(sk_sp<skgpu::CommandBuffer> commandBuffer) {
+skgpu::Gpu::OutstandingSubmission MtlGpu::onSubmit(sk_sp<skgpu::CommandBuffer> commandBuffer) {
     SkASSERT(commandBuffer);
-    CommandBuffer* mtlCmdBuffer = static_cast<CommandBuffer*>(commandBuffer.get());
+    MtlCommandBuffer* mtlCmdBuffer = static_cast<MtlCommandBuffer*>(commandBuffer.get());
     if (!mtlCmdBuffer->commit()) {
         commandBuffer->callFinishedProcs(/*success=*/false);
         return nullptr;
@@ -86,22 +88,22 @@ skgpu::Gpu::OutstandingSubmission Gpu::onSubmit(sk_sp<skgpu::CommandBuffer> comm
     return submission;
 }
 
-BackendTexture Gpu::onCreateBackendTexture(SkISize dimensions, const skgpu::TextureInfo& info) {
-    sk_cfp<id<MTLTexture>> texture = Texture::MakeMtlTexture(this, dimensions, info);
+BackendTexture MtlGpu::onCreateBackendTexture(SkISize dimensions, const skgpu::TextureInfo& info) {
+    sk_cfp<id<MTLTexture>> texture = MtlTexture::MakeMtlTexture(this, dimensions, info);
     if (!texture) {
         return {};
     }
     return BackendTexture(dimensions, (Handle)texture.release());
 }
 
-void Gpu::onDeleteBackendTexture(BackendTexture& texture) {
+void MtlGpu::onDeleteBackendTexture(BackendTexture& texture) {
     SkASSERT(texture.backend() == BackendApi::kMetal);
-    Handle texHandle = texture.getMtlTexture();
+    MtlHandle texHandle = texture.getMtlTexture();
     SkCFSafeRelease(texHandle);
 }
 
 #if GRAPHITE_TEST_UTILS
-void Gpu::testingOnly_startCapture() {
+void MtlGpu::testingOnly_startCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         // TODO: add newer Metal interface as well
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
@@ -123,7 +125,7 @@ void Gpu::testingOnly_startCapture() {
      }
 }
 
-void Gpu::testingOnly_endCapture() {
+void MtlGpu::testingOnly_endCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
         if (captureManager.isCapturing) {
@@ -133,4 +135,4 @@ void Gpu::testingOnly_endCapture() {
 }
 #endif
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlTypes_DEFINED
-#define skgpu_MtlTypes_DEFINED
+#ifndef skgpu_graphite_MtlTypes_DEFINED
+#define skgpu_graphite_MtlTypes_DEFINED
 
 #include "include/ports/SkCFObject.h"
 
@@ -26,35 +26,35 @@
 #endif // __APPLE__
 
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
 /**
  * Declares typedefs for Metal types used in Graphite cpp code
  */
-using PixelFormat = unsigned int;
-using TextureUsage = unsigned int;
-using StorageMode = unsigned int;
-using Handle = const void*;
+using MtlPixelFormat = unsigned int;
+using MtlTextureUsage = unsigned int;
+using MtlStorageMode = unsigned int;
+using MtlHandle = const void*;
 
-struct TextureInfo {
+struct MtlTextureInfo {
     uint32_t fSampleCount = 1;
     uint32_t fLevelCount = 0;
 
     // Since we aren't in an Obj-C header we can't directly use Mtl types here. Each of these can
     // cast to their mapped Mtl types list below.
-    PixelFormat fFormat = 0;       // MTLPixelFormat fFormat = MTLPixelFormatInvalid;
-    TextureUsage fUsage = 0;       // MTLTextureUsage fUsage = MTLTextureUsageUnknown;
-    StorageMode fStorageMode = 0;  // MTLStorageMode fStorageMode = MTLStorageModeShared;
+    MtlPixelFormat fFormat = 0;       // MTLPixelFormat fFormat = MTLPixelFormatInvalid;
+    MtlTextureUsage fUsage = 0;       // MTLTextureUsage fUsage = MTLTextureUsageUnknown;
+    MtlStorageMode fStorageMode = 0;  // MTLStorageMode fStorageMode = MTLStorageModeShared;
     bool fFramebufferOnly = false;
 
-    TextureInfo() = default;
-    TextureInfo(Handle mtlTexture);
-    TextureInfo(uint32_t sampleCount,
-                uint32_t levelCount,
-                PixelFormat format,
-                TextureUsage usage,
-                StorageMode storageMode,
-                bool framebufferOnly)
+    MtlTextureInfo() = default;
+    MtlTextureInfo(MtlHandle mtlTexture);
+    MtlTextureInfo(uint32_t sampleCount,
+                   uint32_t levelCount,
+                   MtlPixelFormat format,
+                   MtlTextureUsage usage,
+                   MtlStorageMode storageMode,
+                   bool framebufferOnly)
             : fSampleCount(sampleCount)
             , fLevelCount(levelCount)
             , fFormat(format)
@@ -63,6 +63,6 @@ struct TextureInfo {
             , fFramebufferOnly(framebufferOnly) {}
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlTypes_DEFINED
+#endif // skgpu_graphite_MtlTypes_DEFINED

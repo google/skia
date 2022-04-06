@@ -50,9 +50,9 @@ void GraphiteMetalWindowContext::initializeContext() {
 
     fValid = this->onInitializeContext();
 
-    skgpu::mtl::BackendContext backendContext = {};
-    backendContext.fDevice.retain((skgpu::mtl::Handle)fDevice.get());
-    backendContext.fQueue.retain((skgpu::mtl::Handle)fQueue.get());
+    skgpu::graphite::MtlBackendContext backendContext = {};
+    backendContext.fDevice.retain((skgpu::graphite::MtlHandle)fDevice.get());
+    backendContext.fQueue.retain((skgpu::graphite::MtlHandle)fQueue.get());
     fGraphiteContext = skgpu::Context::MakeMetal(backendContext);
     fGraphiteRecorder = fGraphiteContext->makeRecorder();
     // TODO
@@ -83,7 +83,7 @@ sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
     id<CAMetalDrawable> currentDrawable = [fMetalLayer nextDrawable];
 
     skgpu::BackendTexture backendTex(this->dimensions(),
-                                     (skgpu::mtl::Handle)currentDrawable.texture);
+                                     (skgpu::graphite::MtlHandle)currentDrawable.texture);
 
     surface = MakeGraphiteFromBackendTexture(this->graphiteRecorder(),
                                              backendTex,
@@ -91,7 +91,7 @@ sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
                                              fDisplayParams.fColorSpace,
                                              &fDisplayParams.fSurfaceProps);
 
-    fDrawableHandle = CFRetain((skgpu::mtl::Handle) currentDrawable);
+    fDrawableHandle = CFRetain((skgpu::graphite::MtlHandle) currentDrawable);
 
     return surface;
 }

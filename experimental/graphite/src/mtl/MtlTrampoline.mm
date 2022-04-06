@@ -9,9 +9,9 @@
 
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 
-namespace skgpu::mtl {
-sk_sp<skgpu::Gpu> Trampoline::MakeGpu(const BackendContext& backendContext) {
-    return Gpu::Make(backendContext);
+namespace skgpu::graphite {
+sk_sp<skgpu::Gpu> MtlTrampoline::MakeGpu(const MtlBackendContext& backendContext) {
+    return MtlGpu::Make(backendContext);
 }
 
-}  // namespace skgpu::mtl
+}  // namespace skgpu::graphite

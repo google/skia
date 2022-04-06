@@ -20,7 +20,7 @@ namespace {
 }
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(MtlBackendTextureTest, reporter, context) {
-    mtl::TextureInfo textureInfo;
+    graphite::MtlTextureInfo textureInfo;
     textureInfo.fSampleCount = 1;
     textureInfo.fLevelCount = 1;
     textureInfo.fFormat = MTLPixelFormatRGBA8Unorm;

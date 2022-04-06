@@ -14,11 +14,11 @@
 
 #include "experimental/graphite/include/mtl/MtlBackendContext.h"
 
-namespace skiatest::graphite::mtl {
+namespace skiatest::graphite {
 
-class TestContext : public GraphiteTestContext {
+class MtlTestContext : public GraphiteTestContext {
 public:
-    ~TestContext() override {}
+    ~MtlTestContext() override {}
 
     static std::unique_ptr<GraphiteTestContext> Make();
 
@@ -26,17 +26,17 @@ public:
 
     std::unique_ptr<skgpu::Context> makeContext() override;
 
-    const skgpu::mtl::BackendContext& getBackendContext() const {
+    const skgpu::graphite::MtlBackendContext& getBackendContext() const {
         return fMtl;
     }
 
 protected:
-    TestContext(const skgpu::mtl::BackendContext& mtl) : fMtl(mtl) {}
+    MtlTestContext(const skgpu::graphite::MtlBackendContext& mtl) : fMtl(mtl) {}
 
-    skgpu::mtl::BackendContext fMtl;
+    skgpu::graphite::MtlBackendContext fMtl;
 };
 
-}  // namespace skiatest::graphite::mtl
+}  // namespace skiatest::graphite
 
 #endif // SK_METAL
 

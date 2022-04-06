@@ -19,58 +19,58 @@
 
 #import <Metal/Metal.h>
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-ResourceProvider::ResourceProvider(const skgpu::Gpu* gpu,
-                                   sk_sp<GlobalCache> globalCache,
-                                   SingleOwner* singleOwner)
+MtlResourceProvider::MtlResourceProvider(const skgpu::Gpu* gpu,
+                                         sk_sp<GlobalCache> globalCache,
+                                         SingleOwner* singleOwner)
     : skgpu::ResourceProvider(gpu, std::move(globalCache), singleOwner) {
 }
 
-const Gpu* ResourceProvider::mtlGpu() {
-    return static_cast<const Gpu*>(fGpu);
+const MtlGpu* MtlResourceProvider::mtlGpu() {
+    return static_cast<const MtlGpu*>(fGpu);
 }
 
-sk_sp<skgpu::CommandBuffer> ResourceProvider::createCommandBuffer() {
-    return CommandBuffer::Make(this->mtlGpu());
+sk_sp<skgpu::CommandBuffer> MtlResourceProvider::createCommandBuffer() {
+    return MtlCommandBuffer::Make(this->mtlGpu());
 }
 
-sk_sp<skgpu::GraphicsPipeline> ResourceProvider::onCreateGraphicsPipeline(
+sk_sp<skgpu::GraphicsPipeline> MtlResourceProvider::onCreateGraphicsPipeline(
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
-    return GraphicsPipeline::Make(this,
-                                  this->mtlGpu(),
-                                  pipelineDesc,
-                                  renderPassDesc);
+    return MtlGraphicsPipeline::Make(this,
+                                     this->mtlGpu(),
+                                     pipelineDesc,
+                                     renderPassDesc);
 }
 
-sk_sp<skgpu::Texture> ResourceProvider::createTexture(SkISize dimensions,
+sk_sp<skgpu::Texture> MtlResourceProvider::createTexture(SkISize dimensions,
                                                       const skgpu::TextureInfo& info) {
-    return Texture::Make(this->mtlGpu(), dimensions, info);
+    return MtlTexture::Make(this->mtlGpu(), dimensions, info);
 }
 
-sk_sp<skgpu::Texture> ResourceProvider::createWrappedTexture(const BackendTexture& texture) {
-    mtl::Handle mtlHandleTexture = texture.getMtlTexture();
+sk_sp<skgpu::Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& texture) {
+    MtlHandle mtlHandleTexture = texture.getMtlTexture();
     if (!mtlHandleTexture) {
         return nullptr;
     }
     sk_cfp<id<MTLTexture>> mtlTexture = sk_ret_cfp((id<MTLTexture>)mtlHandleTexture);
-    return Texture::MakeWrapped(this->mtlGpu(),
-                                texture.dimensions(),
-                                texture.info(),
-                                std::move(mtlTexture));
+    return MtlTexture::MakeWrapped(this->mtlGpu(),
+                                   texture.dimensions(),
+                                   texture.info(),
+                                   std::move(mtlTexture));
 }
 
-sk_sp<skgpu::Buffer> ResourceProvider::createBuffer(size_t size,
-                                                    BufferType type,
-                                                    PrioritizeGpuReads prioritizeGpuReads) {
-    return Buffer::Make(this->mtlGpu(), size, type, prioritizeGpuReads);
+sk_sp<skgpu::Buffer> MtlResourceProvider::createBuffer(size_t size,
+                                                       BufferType type,
+                                                       PrioritizeGpuReads prioritizeGpuReads) {
+    return MtlBuffer::Make(this->mtlGpu(), size, type, prioritizeGpuReads);
 }
 
-sk_sp<skgpu::Sampler> ResourceProvider::createSampler(const SkSamplingOptions& samplingOptions,
-                                                      SkTileMode xTileMode,
-                                                      SkTileMode yTileMode) {
-    return Sampler::Make(this->mtlGpu(), samplingOptions, xTileMode, yTileMode);
+sk_sp<skgpu::Sampler> MtlResourceProvider::createSampler(const SkSamplingOptions& samplingOptions,
+                                                         SkTileMode xTileMode,
+                                                         SkTileMode yTileMode) {
+    return MtlSampler::Make(this->mtlGpu(), samplingOptions, xTileMode, yTileMode);
 }
 
 namespace {
@@ -127,7 +127,7 @@ MTLStencilDescriptor* stencil_face_to_mtl(DepthStencilSettings::Face face) {
 }
 }  // anonymous namespace
 
-sk_cfp<id<MTLDepthStencilState>> ResourceProvider::findOrCreateCompatibleDepthStencilState(
+sk_cfp<id<MTLDepthStencilState>> MtlResourceProvider::findOrCreateCompatibleDepthStencilState(
             const DepthStencilSettings& depthStencilSettings) {
     sk_cfp<id<MTLDepthStencilState>>* depthStencilState;
     depthStencilState = fDepthStencilStates.find(depthStencilSettings);
@@ -153,4 +153,4 @@ sk_cfp<id<MTLDepthStencilState>> ResourceProvider::findOrCreateCompatibleDepthSt
     return *depthStencilState;
 }
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
