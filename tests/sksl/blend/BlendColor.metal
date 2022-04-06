@@ -11,8 +11,11 @@ struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
 half3 blend_set_color_saturation_helper_Qh3h3h(half3 minMidMax, half sat) {
-    half2 delta = minMidMax.yz - minMidMax.xx;
-    return delta.y >= 9.9999997473787516e-06h ? half3(0.0h, (delta.x / delta.y) * sat, sat) : half3(0.0h);
+    if (minMidMax.x < minMidMax.z) {
+        return half3(0.0h, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat);
+    } else {
+        return half3(0.0h);
+    }
 }
 half4 blend_hslc_h4h4h4hb(half4 src, half4 dst, half flip, bool saturate) {
     half alpha = dst.w * src.w;

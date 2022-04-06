@@ -8,8 +8,11 @@ vec4 blend_dst_in_h4h4h4(vec4 src, vec4 dst) {
     return dst * src.w;
 }
 vec3 blend_set_color_saturation_helper_Qh3h3h(vec3 minMidMax, float sat) {
-    vec2 delta = minMidMax.yz - minMidMax.xx;
-    return delta.y >= 9.9999997473787516e-06 ? vec3(0.0, (delta.x / delta.y) * sat, sat) : vec3(0.0);
+    if (minMidMax.x < minMidMax.z) {
+        return vec3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat);
+    } else {
+        return vec3(0.0);
+    }
 }
 vec4 blend_hslc_h4h4h4hb(vec4 src, vec4 dst, float flip, bool saturate) {
     float alpha = dst.w * src.w;
