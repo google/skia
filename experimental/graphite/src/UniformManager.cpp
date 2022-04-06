@@ -11,8 +11,8 @@
 #include "include/core/SkMatrix.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
-#include "src/core/SkUniformData.h"
 
 // ensure that these types are the sizes the uniform data is expecting
 static_assert(sizeof(int32_t) == 4);
@@ -508,10 +508,9 @@ UniformManager::UniformManager(Layout layout) : fLayout(layout) {
     this->reset();
 }
 
-sk_sp<SkUniformData> UniformManager::createUniformData() {
-    return SkUniformData::Make(fStorage.begin(), fStorage.count());
+SkUniformDataBlock UniformManager::peekData() const {
+    return SkUniformDataBlock(SkMakeSpan(fStorage.begin(), fStorage.count()), false);
 }
-
 
 void UniformManager::reset() {
 #ifdef SK_DEBUG

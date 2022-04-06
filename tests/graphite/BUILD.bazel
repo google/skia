@@ -49,7 +49,6 @@ generated_cc_atom(
         "//src/core:SkKeyContext_hdr",
         "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkShaderCodeDictionary_hdr",
-        "//src/core:SkUniformData_hdr",
         "//tests:Test_hdr",
     ],
 )
@@ -136,7 +135,6 @@ generated_cc_atom(
         "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkPipelineData_hdr",
         "//src/core:SkShaderCodeDictionary_hdr",
-        "//src/core:SkUniformData_hdr",
         "//tests:Test_hdr",
     ],
 )

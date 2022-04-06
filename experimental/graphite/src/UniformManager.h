@@ -18,7 +18,7 @@
 struct SkPoint;
 struct SkRect;
 class SkUniform;
-class SkUniformData;
+class SkUniformDataBlock;
 
 namespace skgpu {
 
@@ -34,7 +34,7 @@ class UniformManager {
 public:
     UniformManager(Layout layout);
 
-    sk_sp<SkUniformData> createUniformData();
+    SkUniformDataBlock peekData() const;
     int size() const { return fStorage.count(); }
 
     void reset();

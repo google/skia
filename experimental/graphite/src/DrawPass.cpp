@@ -205,14 +205,9 @@ public:
 
         if (fBindings.find(uIndex.asUInt()) == fBindings.end()) {
             // First time encountering this data, so upload to the GPU
-            size_t totalDataSize = udb->totalUniformSize();
-            SkASSERT(totalDataSize);
-            auto[writer, bufferInfo] = fBufferMgr->getUniformWriter(totalDataSize);
-
-            // TODO: this const_cast will go away in a following CL
-            for (const auto &u : *const_cast<SkUniformDataBlock*>(udb)) {
-                writer.write(u->data(), u->dataSize());
-            }
+            SkASSERT(udb->size());
+            auto[writer, bufferInfo] = fBufferMgr->getUniformWriter(udb->size());
+            writer.write(udb->data(), udb->size());
 
             fBindings.insert({uIndex.asUInt(), bufferInfo});
         }

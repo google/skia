@@ -19,8 +19,7 @@ using namespace skgpu;
 namespace {
 
 std::unique_ptr<SkUniformDataBlock> make_udb(const char* data, size_t size) {
-    sk_sp<SkUniformData> ud = SkUniformData::Make(data, size);
-    return std::make_unique<SkUniformDataBlock>(std::move(ud));
+    return std::make_unique<SkUniformDataBlock>(SkMakeSpan(data, size), false);
 }
 
 } // anonymous namespace

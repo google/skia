@@ -21,7 +21,6 @@
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkShaderCodeDictionary.h"
-#include "src/core/SkUniformData.h"
 
 namespace {
 

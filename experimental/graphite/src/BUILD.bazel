@@ -777,7 +777,7 @@ generated_cc_atom(
         "//include/core:SkMatrix_hdr",
         "//include/private:SkHalf_hdr",
         "//include/private:SkTemplates_hdr",
-        "//src/core:SkUniformData_hdr",
+        "//src/core:SkPipelineData_hdr",
         "//src/core:SkUniform_hdr",
     ],
 )

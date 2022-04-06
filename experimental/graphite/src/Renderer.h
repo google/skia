@@ -26,7 +26,6 @@
 
 enum class SkPathFillType;
 class SkPipelineDataGatherer;
-class SkUniformData;
 
 namespace skgpu {
 
