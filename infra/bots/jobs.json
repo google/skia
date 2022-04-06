@@ -263,7 +263,6 @@
   {"name": "Housekeeper-PerCommit-IsolateSVG"},
   {"name": "Housekeeper-PerCommit-IsolateSkImage"},
   {"name": "Housekeeper-PerCommit-PushAppsFromSkiaDockerImage"},
-  {"name": "Housekeeper-PerCommit-PushAppsFromWASMDockerImage"},
   {"name": "Housekeeper-PerCommit-PushBazelAppsFromWASMDockerImage"},
   {
     "name": "Housekeeper-PerCommit-RunGnToBp",
@@ -350,12 +349,7 @@
   {"name": "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Skpbench"},
   {"name": "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-AllPathsVolatile_Skpbench"},
   {"name": "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal_AllPathsVolatile_Skpbench"},
-  {"name": "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN"},
   {"name": "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"},
-  {
-    "name": "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN",
-    "cq_config": {}
-  },
   {"name": "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"},
   {"name": "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"},
   {"name": "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DMSAAStats"},
@@ -405,8 +399,6 @@
   {"name": "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All"},
   {"name": "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All"},
   {"name": "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All-Metal"},
-  {"name": "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All"},
-  {"name": "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal"},
   {"name": "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All"},
   {"name": "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All-Metal"},
   {"name": "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All"},
@@ -603,18 +595,12 @@
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal"},
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
-    "cq_config": {}
-  },
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN"},
   {
     "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan",
     "cq_config": {}
   },
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-OOPRDDL_ASAN"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-OOPRDDL_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-PreAbandonGpuContext"},
   {
@@ -626,11 +612,8 @@
     "cq_config": {}
   },
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-OOPRDDL_TSAN"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-OOPRDDL_TSAN_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-TSAN_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"},
@@ -743,10 +726,6 @@
   {"name": "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All-Metal"},
   {"name": "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All"},
   {"name": "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All-Metal"},
-  {"name": "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All"},
-  {"name": "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All-Metal"},
-  {"name": "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All"},
-  {"name": "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal"},
   {"name": "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All"},
   {"name": "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal"},
   {"name": "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All"},
