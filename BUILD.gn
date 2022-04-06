@@ -628,6 +628,30 @@ if (skia_lex) {
   }
 }
 
+# Build sksl-precompile when the compile-modules flag is set.
+# TODO(skia:13164): skslc is still in charge of module compilation for now
+if (skia_compile_modules) {
+  skia_executable("sksl-precompile") {
+    defines = [
+      "SKSL_STANDALONE",
+      "SK_DISABLE_TRACING",
+    ]
+    sources = skslc_deps
+    sources += [ "tools/sksl-precompile/SkSLPrecompile.cpp" ]
+    libs = []
+    if (is_win) {
+      sources += [ "src/ports/SkOSFile_win.cpp" ]
+    } else {
+      sources += [ "src/ports/SkOSFile_posix.cpp" ]
+      libs += [ "dl" ]
+    }
+    sources += skia_sksl_sources
+    sources += skia_sksl_gpu_sources
+    include_dirs = [ "." ]
+    deps = [ ":run_sksllex" ]
+  }
+}
+
 # `Compile SkSL Tests` relies on skslc.
 if (skia_compile_sksl_tests) {
   skia_executable("skslc") {

@@ -136,6 +136,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   if 'CheckGeneratedFiles' in extra_tokens:
     compiler = 'Clang'
+    args['skia_compile_modules'] = 'true'
     args['skia_compile_sksl_tests'] = 'true'
     args['skia_generate_workarounds'] = 'true'
 

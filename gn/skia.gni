@@ -10,6 +10,7 @@ is_skia_dev_build = is_skia_standalone && !is_official_build
 
 declare_args() {
   skia_android_serial = ""
+  skia_compile_modules = false
   skia_compile_sksl_tests = false
   skia_enable_api_available_macro = true
   skia_enable_android_utils = is_skia_dev_build
