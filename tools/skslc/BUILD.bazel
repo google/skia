@@ -13,7 +13,6 @@ generated_cc_atom(
         "//src/opts:SkChecksum_opts_hdr",
         "//src/opts:SkVM_opts_hdr",
         "//src/sksl:SkSLCompiler_hdr",
-        "//src/sksl:SkSLDehydrator_hdr",
         "//src/sksl:SkSLFileOutputStream_hdr",
         "//src/sksl:SkSLStringStream_hdr",
         "//src/sksl:SkSLUtil_hdr",

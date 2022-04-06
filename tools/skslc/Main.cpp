@@ -14,7 +14,6 @@
 #include "src/opts/SkChecksum_opts.h"
 #include "src/opts/SkVM_opts.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
@@ -75,24 +74,6 @@ static std::unique_ptr<SkWStream> as_SkWStream(SkSL::OutputStream& s) {
     };
 
     return std::make_unique<Adapter>(s);
-}
-
-// Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
-// filename prefix and suffix (e.g. "Gr" and ".fp"), returns the "base name" of the
-// file (in this case, 'FooFragmentProcessor'). If no match, returns the empty string.
-static std::string base_name(const std::string& fpPath, const char* prefix, const char* suffix) {
-    std::string result;
-    const char* end = &*fpPath.end();
-    const char* fileName = end;
-    // back up until we find a slash
-    while (fileName != fpPath && '/' != *(fileName - 1) && '\\' != *(fileName - 1)) {
-        --fileName;
-    }
-    if (!strncmp(fileName, prefix, strlen(prefix)) &&
-        !strncmp(end - strlen(suffix), suffix, strlen(suffix))) {
-        result.append(fileName + strlen(prefix), end - fileName - strlen(prefix) - strlen(suffix));
-    }
-    return result;
 }
 
 static bool consume_suffix(std::string* str, const char suffix[]) {
@@ -523,34 +504,6 @@ ResultCode processCommand(const std::vector<std::string>& args) {
                     out.writeString(SkShaderUtils::PrettyPrint(callbacks.fOutput));
                     return true;
                 });
-    } else if (skstd::ends_with(outputPath, ".dehydrated.sksl")) {
-        SkSL::FileOutputStream out(outputPath.c_str());
-        SkSL::Compiler compiler(caps);
-        if (!out.isValid()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
-        SkSL::LoadedModule module =
-                compiler.loadModule(kind, SkSL::Compiler::MakeModulePath(inputPath.c_str()),
-                                    /*base=*/nullptr, /*dehydrate=*/true);
-        SkSL::Dehydrator dehydrator;
-        dehydrator.write(*module.fSymbols);
-        dehydrator.write(module.fElements);
-        std::string baseName = base_name(inputPath, "", ".sksl");
-        SkSL::StringStream buffer;
-        dehydrator.finish(buffer);
-        const std::string& data = buffer.str();
-        out.printf("static uint8_t SKSL_INCLUDE_%s[] = {", baseName.c_str());
-        for (size_t i = 0; i < data.length(); ++i) {
-            out.printf("%s%d,", dehydrator.prefixAtOffset(i), uint8_t(data[i]));
-        }
-        out.printf("};\n");
-        out.printf("static constexpr size_t SKSL_INCLUDE_%s_LENGTH = sizeof(SKSL_INCLUDE_%s);\n",
-                   baseName.c_str(), baseName.c_str());
-        if (!out.close()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
     } else if (skstd::ends_with(outputPath, ".html")) {
         settings.fAllowTraceVarInSkVMDebugTrace = false;
 
@@ -584,7 +537,7 @@ ResultCode processCommand(const std::vector<std::string>& args) {
             });
     } else {
         printf("expected output path to end with one of: .glsl, .html, .metal, .hlsl, .spirv, "
-               ".asm.frag, .skvm, .stage, .asm.vert, .dehydrated.sksl (got '%s')\n",
+               ".asm.frag, .skvm, .stage, .asm.vert (got '%s')\n",
                outputPath.c_str());
         return ResultCode::kConfigurationError;
     }

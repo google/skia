@@ -47,9 +47,9 @@ enum class ResultCode {
     kOutputError = 3,
 };
 
-// Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
-// filename prefix and suffix (e.g. "Gr" and ".fp"), returns the "base name" of the
-// file (in this case, 'FooFragmentProcessor'). If no match, returns the empty string.
+// Given the path to a file (e.g. 'src/sksl/sksl_gpu.sksl') and the expected prefix and suffix
+// (e.g. 'sksl_' and '.sksl'), returns the "base name" of the file (in this case, 'gpu').
+// If no match, returns the empty string.
 static std::string base_name(const std::string& fpPath, const char* prefix, const char* suffix) {
     std::string result;
     const char* end = &*fpPath.end();
