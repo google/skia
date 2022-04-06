@@ -169,18 +169,6 @@ private:
                     const PaintParams* paint,
                     const StrokeStyle* stroke);
 
-    // Determines most optimal painters order for a draw of the given shape and style. This computes
-    // the draw's bounds, applying both the style and scissor to the returned bounds. Low-level
-    // renderers must not draw outside of these bounds or decisions made about ordering draw
-    // operations at the Device level can be invalidated. In addition to the scissor test and draw
-    // bounds, this returns the largest compressed painter's order of the clip shapes that affect
-    // the draw (the draw's order must be greater than this value to be rendered/clipped correctly).
-    //
-    // This also records the draw's bounds to any clip elements that affect it so that they are
-    // recorded when popped off the stack, or making an image snapshot of the Device.
-    std::pair<Clip, CompressedPaintersOrder>
-    applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&, PaintersDepth z);
-
     bool needsFlushBeforeDraw(int numNewDraws) const;
 
     Recorder* fRecorder;

@@ -67,7 +67,7 @@ bool paint_depends_on_dst(const PaintParams& paintParams) {
 }
 
 SkIRect rect_to_pixelbounds(const Rect& r) {
-    return skvx::bit_pun<SkIRect>(skvx::cast<int>(r.makeRoundOut().ltrb()));
+    return r.makeRoundOut().asSkIRect();
 }
 
 } // anonymous namespace
@@ -503,7 +503,8 @@ void Device::drawShape(const Shape& shape,
     }
 
     DrawOrder order(fCurrentDepth.next());
-    auto [clip, clipOrder] = this->applyClipToDraw(localToDevice, shape, style, order.depth());
+    auto [clip, clipOrder] = fClip.applyClipToDraw(
+            fColorDepthBoundsManager.get(), localToDevice, shape, style, order.depth());
     if (clip.drawBounds().isEmptyNegativeOrNaN()) {
         // Clipped out, so don't record anything
         return;
@@ -637,34 +638,6 @@ void Device::recordDraw(const Transform& localToDevice,
     // so we will need to take into account the previous draw. Since no Renderer uses coverage AA
     // right now, it's not an issue yet.
     fDC->recordDraw(*renderer, localToDevice, shape, clip, ordering, paint, stroke);
-}
-
-std::pair<Clip, CompressedPaintersOrder> Device::applyClipToDraw(const Transform& localToDevice,
-                                                                 const Shape& shape,
-                                                                 const SkStrokeRec& style,
-                                                                 PaintersDepth z) {
-    SkIRect scissor = this->devClipBounds();
-
-    Rect drawBounds = shape.bounds();
-    if (!style.isHairlineStyle()) {
-        float localStyleOutset = style.getInflationRadius();
-        drawBounds.outset(localStyleOutset);
-    }
-    drawBounds = localToDevice.mapRect(drawBounds);
-
-    // Hairlines get an extra pixel *after* transforming to device space
-    if (style.isHairlineStyle()) {
-        drawBounds.outset(0.5f);
-    }
-
-    drawBounds.intersect(SkRect::Make(scissor));
-    if (drawBounds.isEmptyNegativeOrNaN()) {
-        // Trivially clipped out, so return now
-        return {{drawBounds, scissor}, DrawOrder::kNoIntersection};
-    }
-
-    // TODO: iterate the clip stack and accumulate draw bounds into clip usage
-    return {{drawBounds, scissor}, DrawOrder::kNoIntersection};
 }
 
 void Device::flushPendingWorkToRecorder() {

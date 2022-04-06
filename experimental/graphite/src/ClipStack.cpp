@@ -7,8 +7,11 @@
 
 #include "experimental/graphite/src/ClipStack_graphite.h"
 
+#include "experimental/graphite/src/DrawGeometry.h"
+#include "experimental/graphite/src/geom/BoundsManager.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkStrokeRec.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -847,6 +850,40 @@ void ClipStack::clipShape(const Transform& localToDevice, const Shape& shape, Sk
             fSaves.back().pushSave();
         }
     }
+}
+
+std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
+        const BoundsManager* boundsManager,
+        const Transform& localToDevice,
+        const Shape& shape,
+        const SkStrokeRec& style,
+        PaintersDepth z) {
+    // TODO: The Clip's scissor is defined in terms of integer pixel coords, but if we move to
+    // clip plane distances in the vertex shader, it can be defined in terms of the original float
+    // coordinates.
+    Rect scissor = this->conservativeBounds().makeRoundOut();
+
+    Rect drawBounds = shape.bounds();
+    if (!style.isHairlineStyle()) {
+        float localStyleOutset = style.getInflationRadius();
+        drawBounds.outset(localStyleOutset);
+    }
+    drawBounds = localToDevice.mapRect(drawBounds);
+
+    // Hairlines get an extra pixel *after* transforming to device space
+    if (style.isHairlineStyle()) {
+        drawBounds.outset(0.5f);
+    }
+
+    drawBounds.intersect(scissor);
+    if (drawBounds.isEmptyNegativeOrNaN()) {
+        // Trivially clipped out, so return now
+        return {{drawBounds, scissor.asSkIRect()}, DrawOrder::kNoIntersection};
+    }
+
+    // TODO: iterate the clip stack and accumulate draw bounds into clip usage
+    return {{drawBounds, scissor.asSkIRect()}, DrawOrder::kNoIntersection};
+
 }
 
 } // namespace skgpu

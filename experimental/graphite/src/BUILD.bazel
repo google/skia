@@ -1039,6 +1039,7 @@ generated_cc_atom(
     hdrs = ["ClipStack_graphite.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":DrawOrder_hdr",
         "//experimental/graphite/src/geom:Shape_hdr",
         "//experimental/graphite/src/geom:Transform_graphite_hdr",
         "//include/core:SkClipOp_hdr",
@@ -1052,8 +1053,11 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":ClipStack_graphite_hdr",
+        ":DrawGeometry_hdr",
+        "//experimental/graphite/src/geom:BoundsManager_hdr",
         "//include/core:SkMatrix_hdr",
         "//include/core:SkShader_hdr",
+        "//include/core:SkStrokeRec_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkPathPriv_hdr",
         "//src/core:SkRRectPriv_hdr",

@@ -8,14 +8,19 @@
 #ifndef skgpu_ClipStack_DEFINED
 #define skgpu_ClipStack_DEFINED
 
+#include "experimental/graphite/src/DrawOrder.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
 #include "include/core/SkClipOp.h"
 #include "src/core/SkTBlockList.h"
 
 class SkShader;
+class SkStrokeRec;
 
 namespace skgpu {
+
+class BoundsManager;
+class Clip;
 
 // TODO: Port over many of the unit tests for skgpu/v1/ClipStack defined in GrClipStackTest since
 // those tests do a thorough job of enumerating the different element combinations.
@@ -58,7 +63,27 @@ public:
     void clipShape(const Transform& localToDevice, const Shape& shape, SkClipOp op);
     void clipShader(sk_sp<SkShader> shader);
 
-    // TODO: Some applyClip function that handles the bulk of what Device::applyClipToDraw
+    // Apply the clip stack to the draw described by the provided transform, shape, and stroke.
+    // The provided 'z' value is the depth value that the draw will use if it's not clipped out
+    // entirely. Applying clips to a draw is a mostly lazy operation except for what is returned:
+    //  - The Clip's scissor is set to 'conservativeBounds()'.
+    //  - The Clip stores the draw's clipped bounds, taking into account its transform, styling, and
+    //    the above scissor.
+    //  - The CompressedPaintersOrder is the largest order that will be used by any of the clip
+    //    elements that affect the draw.
+    //
+    // In addition to computing these values, the clip stack updates per-clip element state for
+    // later rendering. Clip shapes that affect draws are later recorded into the Device's
+    // DrawContext with their own painter's order chosen to sort earlier than all affected draws
+    // but using a Z value greater than affected draws. This ensures that the draws fail the depth
+    // test for clipped-out pixels.
+    //
+    // If the draw is clipped out, the returned draw bounds will be empty.
+    std::pair<Clip, CompressedPaintersOrder> applyClipToDraw(const BoundsManager*,
+                                                             const Transform&,
+                                                             const Shape&,
+                                                             const SkStrokeRec&,
+                                                             PaintersDepth z);
 
 private:
     // SaveRecords and Elements are stored in two parallel stacks. The top-most SaveRecord is the
