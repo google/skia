@@ -18,13 +18,14 @@
 
 namespace SkSL {
 
-static bool index_out_of_range(const Context& context, SKSL_INT index, const Expression& base) {
+static bool index_out_of_range(const Context& context, Position pos, SKSL_INT index,
+        const Expression& base) {
     if (index >= 0 && index < base.type().columns()) {
         return false;
     }
 
-    context.fErrors->error(base.fPosition, "index " + std::to_string(index) +
-            " out of range for '" + base.type().displayName() + "'");
+    context.fErrors->error(pos, "index " + std::to_string(index) + " out of range for '" +
+            base.type().displayName() + "'");
     return true;
 }
 
@@ -57,7 +58,7 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
     // Convert an array type reference: `int[10]`.
     if (base->is<TypeReference>()) {
         const Type& baseType = base->as<TypeReference>().value();
-        SKSL_INT arraySize = baseType.convertArraySize(context, std::move(index));
+        SKSL_INT arraySize = baseType.convertArraySize(context, pos, std::move(index));
         if (!arraySize) {
             return nullptr;
         }
@@ -81,7 +82,7 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
     const Expression* indexExpr = ConstantFolder::GetConstantValueForVariable(*index);
     if (indexExpr->isIntLiteral()) {
         SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
-        if (index_out_of_range(context, indexValue, *base)) {
+        if (index_out_of_range(context, index->fPosition, indexValue, *base)) {
             return nullptr;
         }
     }
@@ -99,7 +100,7 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
     const Expression* indexExpr = ConstantFolder::GetConstantValueForVariable(*index);
     if (indexExpr->isIntLiteral()) {
         SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
-        if (!index_out_of_range(context, indexValue, *base)) {
+        if (!index_out_of_range(context, index->fPosition, indexValue, *base)) {
             if (baseType.isVector()) {
                 // Constant array indexes on vectors can be converted to swizzles: `v[2]` --> `v.z`.
                 // Swizzling is harmless and can unlock further simplifications for some base types.

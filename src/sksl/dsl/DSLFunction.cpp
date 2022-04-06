@@ -17,6 +17,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -29,8 +30,6 @@
 #include <vector>
 
 namespace SkSL {
-
-class Block;
 
 namespace dsl {
 
@@ -88,6 +87,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
 
 void DSLFunction::define(DSLBlock block, Position pos) {
     std::unique_ptr<SkSL::Block> body = block.release();
+    body->fPosition = pos;
     if (!fDecl) {
         // Evidently we failed to create the declaration; error should already have been reported.
         // Release the block so we don't fail its destructor assert.

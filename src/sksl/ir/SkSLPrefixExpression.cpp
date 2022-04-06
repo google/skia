@@ -35,7 +35,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
             double negated = -value->as<Literal>().value();
             // Don't simplify the expression if the type can't hold the negated value.
             const Type& type = value->type();
-            if (type.checkForOutOfRangeLiteral(context, negated, value->fPosition)) {
+            if (type.checkForOutOfRangeLiteral(context, negated, pos)) {
                 return nullptr;
             }
             return Literal::Make(pos, negated, &type);

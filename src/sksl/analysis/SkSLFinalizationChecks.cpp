@@ -81,7 +81,7 @@ public:
             if (!param->type().isStruct() && paramInout == Modifiers::Flag::kOut_Flag) {
                 ProgramUsage::VariableCounts counts = fUsage.get(*param);
                 if (counts.fWrite <= 0) {
-                    fContext.fErrors->error(funcDecl.fPosition,
+                    fContext.fErrors->error(funcDef.body()->fPosition,
                                             "function '" + std::string(funcDecl.name()) +
                                             "' never assigns a value to out parameter '" +
                                             std::string(param->name()) + "'");
@@ -94,13 +94,15 @@ public:
         switch (stmt.kind()) {
             case Statement::Kind::kIf:
                 if (stmt.as<IfStatement>().isStatic()) {
-                    fContext.fErrors->error(stmt.fPosition, "static if has non-static test");
+                    fContext.fErrors->error(stmt.as<IfStatement>().test()->fPosition,
+                            "static if has non-static test");
                 }
                 break;
 
             case Statement::Kind::kSwitch:
                 if (stmt.as<SwitchStatement>().isStatic()) {
-                    fContext.fErrors->error(stmt.fPosition, "static switch has non-static test");
+                    fContext.fErrors->error(stmt.as<SwitchStatement>().value()->fPosition,
+                            "static switch has non-static test");
                 }
                 break;
 

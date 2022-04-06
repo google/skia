@@ -53,8 +53,8 @@ static const SkSL::Type* verify_type(const Context& context,
 }
 
 static const SkSL::Type* find_type(const Context& context,
-                                   std::string_view name,
-                                   Position pos) {
+                                   Position pos,
+                                   std::string_view name) {
     const Symbol* symbol = (*ThreadContext::SymbolTable())[name];
     if (!symbol) {
         context.fErrors->error(String::printf("no symbol named '%.*s'",
@@ -71,13 +71,14 @@ static const SkSL::Type* find_type(const Context& context,
 }
 
 static const SkSL::Type* find_type(const Context& context,
+                                   Position overallPos,
                                    std::string_view name,
-                                   Modifiers* modifiers,
-                                   Position pos) {
-    const Type* type = find_type(context, name, pos);
+                                   Position modifiersPos,
+                                   Modifiers* modifiers) {
+    const Type* type = find_type(context, overallPos, name);
     type = type->applyPrecisionQualifiers(context, modifiers, ThreadContext::SymbolTable().get(),
-            pos);
-    ThreadContext::ReportErrors(pos);
+            modifiersPos);
+    ThreadContext::ReportErrors(overallPos);
     return type;
 }
 
@@ -187,14 +188,15 @@ static const SkSL::Type* get_type_from_type_constant(const Context& context, Typ
 }
 
 DSLType::DSLType(std::string_view name)
-        : fSkSLType(find_type(ThreadContext::Context(), name, Position())) {}
+    : fSkSLType(find_type(ThreadContext::Context(), Position(), name)) {}
 
 DSLType::DSLType(std::string_view name, DSLModifiers* modifiers, Position pos)
-        : fSkSLType(find_type(ThreadContext::Context(), name, &modifiers->fModifiers, pos)) {}
+    : fSkSLType(find_type(ThreadContext::Context(), pos, name, modifiers->fPosition,
+        &modifiers->fModifiers)) {}
 
 DSLType::DSLType(const SkSL::Type* type)
-        : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowPrivateTypes=*/true,
-                                Position())) {}
+    : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowPrivateTypes=*/true,
+            Position())) {}
 
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();
@@ -270,7 +272,7 @@ DSLPossibleExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> arg
 }
 
 DSLType Array(const DSLType& base, int count, Position pos) {
-    count = base.skslType().convertArraySize(ThreadContext::Context(),
+    count = base.skslType().convertArraySize(ThreadContext::Context(), pos,
             DSLExpression(count, pos).release());
     ThreadContext::ReportErrors(pos);
     if (!count) {

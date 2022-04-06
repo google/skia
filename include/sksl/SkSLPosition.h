@@ -73,6 +73,11 @@ public:
         return Range(this->startOffset(), end.endOffset());
     }
 
+    // Returns a position representing the character immediately after this position
+    Position after() const {
+        return Range(fEndOffset, fEndOffset + 1);
+    }
+
     bool operator==(const Position& other) const {
         return fStartOffsetOrLine == other.fStartOffsetOrLine &&
                 fEndOffset == other.fEndOffset;

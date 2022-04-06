@@ -259,7 +259,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
     }
 
     if (Analysis::CanExitWithoutReturningValue(function, *body)) {
-        context.fErrors->error(function.fPosition, "function '" + std::string(function.name()) +
+        context.fErrors->error(body->fPosition, "function '" + std::string(function.name()) +
                 "' can exit without returning a value");
     }
 

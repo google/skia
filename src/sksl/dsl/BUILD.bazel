@@ -118,6 +118,7 @@ generated_cc_atom(
         "//src/sksl:SkSLProgramSettings_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
         "//src/sksl/dsl/priv:DSLWriter_hdr",
+        "//src/sksl/ir:SkSLBlock_hdr",
         "//src/sksl/ir:SkSLExpression_hdr",
         "//src/sksl/ir:SkSLFunctionCall_hdr",
         "//src/sksl/ir:SkSLFunctionDeclaration_hdr",

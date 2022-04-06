@@ -36,7 +36,8 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
         (modifiers.fFlags & Modifiers::kOut_Flag) &&
         context.fConfig->fKind == ProgramKind::kFragment && name != Compiler::FRAGCOLOR_NAME) {
-        context.fErrors->error(pos, "out location=0, index=0 is reserved for sk_FragColor");
+        context.fErrors->error(modifiersPos,
+                "out location=0, index=0 is reserved for sk_FragColor");
     }
     if (!context.fConfig->fIsBuiltinCode && skstd::starts_with(name, '$')) {
         context.fErrors->error(pos, "name '" + std::string(name) + "' is reserved");
@@ -54,7 +55,7 @@ std::unique_ptr<Variable> Variable::Make(const Context& context, Position pos,
     int arraySizeValue = 0;
     if (isArray) {
         SkASSERT(arraySize);
-        arraySizeValue = type->convertArraySize(context, std::move(arraySize));
+        arraySizeValue = type->convertArraySize(context, pos, std::move(arraySize));
         if (!arraySizeValue) {
             return nullptr;
         }
