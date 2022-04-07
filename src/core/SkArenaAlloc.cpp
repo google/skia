@@ -144,8 +144,11 @@ SkArenaAllocWithReset::SkArenaAllocWithReset(char* block,
         , fFirstHeapAllocationSize{SkToU32(firstHeapAllocation)} {}
 
 void SkArenaAllocWithReset::reset() {
+    char* const    firstBlock              = fFirstBlock;
+    const uint32_t firstSize               = fFirstSize;
+    const uint32_t firstHeapAllocationSize = fFirstHeapAllocationSize;
     this->~SkArenaAllocWithReset();
-    new (this) SkArenaAllocWithReset{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
+    new (this) SkArenaAllocWithReset{firstBlock, firstSize, firstHeapAllocationSize};
 }
 
 // SkFibonacci47 is the first 47 Fibonacci numbers. Fib(47) is the largest value less than 2 ^ 32.
