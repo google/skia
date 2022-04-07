@@ -5,7 +5,7 @@
 
 # These are variables that are overridable by projects that include Tint.
 
-tint_root_dir = "//third_party/externals/tint"
+tint_root_dir = "//third_party/externals/dawn"
 tint_spirv_tools_dir = "//third_party/externals/spirv-tools"
 tint_spirv_headers_dir = "//third_party/externals/spirv-headers"
 

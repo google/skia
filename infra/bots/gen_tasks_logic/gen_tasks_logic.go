@@ -1206,6 +1206,10 @@ func (b *jobBuilder) compile() string {
 				b.usesDocker()
 				b.cache(CACHES_DOCKER...)
 			}
+			if b.extraConfig("Dawn") {
+			    // https://dawn.googlesource.com/dawn/+/516701da8184655a47c92a573cc84da7db5e69d4/generator/dawn_version_generator.py#21
+			    b.usesGit()
+			}
 
 			// Android bots require a toolchain.
 			if b.extraConfig("Android") {

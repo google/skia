@@ -5781,6 +5781,14 @@
           "path": "cache/ccache"
         },
         {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
           "name": "vpython",
           "path": "cache/vpython"
         }
@@ -5798,7 +5806,22 @@
           "version": "version:2@3.8.10.chromium.19"
         },
         {
+          "name": "infra/3pp/tools/git/linux-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.35.1.chromium.8"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
         },
@@ -15664,6 +15687,14 @@
     "Build-Win-Clang-x86_64-Debug-Dawn": {
       "caches": [
         {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
           "name": "vpython",
           "path": "cache/vpython"
         }
@@ -15681,7 +15712,22 @@
           "version": "version:2@3.8.10.chromium.19"
         },
         {
+          "name": "infra/3pp/tools/git/windows-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.35.1.chromium.8"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
         },
@@ -16246,6 +16292,14 @@
     "Build-Win-Clang-x86_64-Release-Dawn": {
       "caches": [
         {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
           "name": "vpython",
           "path": "cache/vpython"
         }
@@ -16263,7 +16317,22 @@
           "version": "version:2@3.8.10.chromium.19"
         },
         {
+          "name": "infra/3pp/tools/git/windows-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.35.1.chromium.8"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:304cba432f44135f67b4aaedc140a14fa0d5e336"
         },
