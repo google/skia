@@ -1177,6 +1177,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~BadImage")
 	}
 
+	if b.arch("arm64") && b.extraConfig("ASAN") {
+		// skbug.com/13155 the use of longjmp may cause ASAN stack check issues.
+		skip(ALL, "test", ALL, "SkPDF_JpegIdentification");
+	}
+
 	if b.matchOs("Mac") && b.gpu("IntelHD6000") {
 		// skia:7574
 		match = append(match, "~^ProcessorCloneTest$")
