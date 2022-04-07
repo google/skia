@@ -328,8 +328,8 @@ half4 blend_overlay(half4 src, half4 dst) {
     return result;
 }
 
-half4 blend_overlay(half4 a, half4 b, half flip) {
-    return blend_overlay(mix(a, b, flip), mix(b, a, flip));
+half4 blend_overlay(half4 a, half4 b, bool flip) {
+    return blend_overlay(flip ? b : a, flip ? a : b);
 }
 
 half4 blend_lighten(half4 src, half4 dst) {
