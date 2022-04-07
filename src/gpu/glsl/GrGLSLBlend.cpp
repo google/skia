@@ -77,7 +77,7 @@ std::string BlendExpression(const GrProcessor* processor,
             const char* blendName;
             *blendUniform = uniformHandler->addUniform(processor, kFragment_GrShaderFlag,
                                                        SkSLType::kHalf2, "blend", &blendName);
-            return SkSL::String::printf("blend_hslc(%s, %s, %s.x, bool(%s.y))",
+            return SkSL::String::printf("blend_hslc(%s, %s, bool(%s.x), bool(%s.y))",
                                         srcColor, dstColor, blendName, blendName);
         }
         case SkBlendMode::kOverlay:

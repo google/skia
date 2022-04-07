@@ -460,41 +460,40 @@ half $blend_color_saturation(half3 color) {
     return max(max(color.r, color.g), color.b) - min(min(color.r, color.g), color.b);
 }
 
-half3 $blend_set_color_saturation_helper(half3 minMidMax, half sat) {
-    if (minMidMax.r < minMidMax.b) {
-        return half3(0,
-                    $guarded_divide(sat*(minMidMax.g - minMidMax.r), (minMidMax.b - minMidMax.r)),
-                    sat);
+half3 $blend_set_color_saturation_helper(half3 minMidMax, half3 satColor) {
+    if (minMidMax.b > minMidMax.r) {
+        minMidMax.gb -= minMidMax.rr;
+        half sat = $blend_color_saturation(satColor);
+        return half3(0, sat * $guarded_divide(minMidMax.g, minMidMax.b), sat);
     } else {
         return half3(0);
     }
 }
 
 half3 $blend_set_color_saturation(half3 hueLumColor, half3 satColor) {
-    half sat = $blend_color_saturation(satColor);
     if (hueLumColor.r <= hueLumColor.g) {
         if (hueLumColor.g <= hueLumColor.b) {
-            return $blend_set_color_saturation_helper(hueLumColor.rgb, sat);
+            return $blend_set_color_saturation_helper(hueLumColor.rgb, satColor);
         } else if (hueLumColor.r <= hueLumColor.b) {
-            return $blend_set_color_saturation_helper(hueLumColor.rbg, sat).rbg;
+            return $blend_set_color_saturation_helper(hueLumColor.rbg, satColor).rbg;
         } else {
-            return $blend_set_color_saturation_helper(hueLumColor.brg, sat).gbr;
+            return $blend_set_color_saturation_helper(hueLumColor.brg, satColor).gbr;
         }
     } else if (hueLumColor.r <= hueLumColor.b) {
-       return $blend_set_color_saturation_helper(hueLumColor.grb, sat).grb;
+       return $blend_set_color_saturation_helper(hueLumColor.grb, satColor).grb;
     } else if (hueLumColor.g <= hueLumColor.b) {
-       return $blend_set_color_saturation_helper(hueLumColor.gbr, sat).brg;
+       return $blend_set_color_saturation_helper(hueLumColor.gbr, satColor).brg;
     } else {
-       return $blend_set_color_saturation_helper(hueLumColor.bgr, sat).bgr;
+       return $blend_set_color_saturation_helper(hueLumColor.bgr, satColor).bgr;
     }
 }
 
-half4 blend_hslc(half4 src, half4 dst, half flip, bool saturate) {
+half4 blend_hslc(half4 src, half4 dst, bool flip, bool saturate) {
     half alpha = dst.a * src.a;
     half3 sda = src.rgb * dst.a;
     half3 dsa = dst.rgb * src.a;
-    half3 l = mix(sda, dsa, flip);
-    half3 r = mix(dsa, sda, flip);
+    half3 l = flip ? dsa : sda;
+    half3 r = flip ? sda : dsa;
     if (saturate) {
         l = $blend_set_color_saturation(l, r);
         r = dsa;
@@ -504,19 +503,19 @@ half4 blend_hslc(half4 src, half4 dst, half flip, bool saturate) {
 }
 
 half4 blend_hue(half4 src, half4 dst) {
-    return blend_hslc(src, dst, /*flip=*/0, /*saturate=*/true);
+    return blend_hslc(src, dst, /*flip=*/false, /*saturate=*/true);
 }
 
 half4 blend_saturation(half4 src, half4 dst) {
-    return blend_hslc(src, dst, /*flip=*/1, /*saturate=*/true);
+    return blend_hslc(src, dst, /*flip=*/true, /*saturate=*/true);
 }
 
 half4 blend_color(half4 src, half4 dst)  {
-    return blend_hslc(src, dst, /*flip=*/0, /*saturate=*/false);
+    return blend_hslc(src, dst, /*flip=*/false, /*saturate=*/false);
 }
 
 half4 blend_luminosity(half4 src, half4 dst) {
-    return blend_hslc(src, dst, /*flip=*/1, /*saturate=*/false);
+    return blend_hslc(src, dst, /*flip=*/true, /*saturate=*/false);
 }
 
 // The max() guards against division by zero when the incoming color is transparent black
