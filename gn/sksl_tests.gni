@@ -279,6 +279,7 @@ sksl_metal_tests = [
 
 sksl_spirv_tests = [
   "/sksl/spirv/ConstantVectorFromVector.sksl",
+  "/sksl/spirv/ConstantVectorize.sksl",
   "/sksl/spirv/InterfaceBlockPushConstant.sksl",
   "/sksl/spirv/LayoutMultipleOf4.sksl",
   "/sksl/spirv/LayoutOutOfOrder.sksl",

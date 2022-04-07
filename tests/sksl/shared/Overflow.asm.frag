@@ -111,7 +111,7 @@ OpDecorate %286 RelaxedPrecision
 OpDecorate %288 RelaxedPrecision
 OpDecorate %290 RelaxedPrecision
 OpDecorate %291 RelaxedPrecision
-OpDecorate %294 RelaxedPrecision
+OpDecorate %292 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -155,6 +155,8 @@ OpDecorate %294 RelaxedPrecision
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int_0 = OpConstant %int 0
 %float_1 = OpConstant %float 1
+%278 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%279 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %_entrypoint_v = OpFunction %void None %15
 %16 = OpLabel
 %20 = OpVariable %_ptr_Function_v2float Function
@@ -402,8 +404,6 @@ OpStore %hugeUvec %234
 %275 = OpCompositeExtract %int %268 3
 %276 = OpConvertSToF %float %275
 %277 = OpCompositeConstruct %v4float %270 %272 %274 %276
-%278 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_0
-%279 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
 %267 = OpExtInst %v4float %1 FClamp %277 %278 %279
 %280 = OpFMul %v4float %266 %267
 %282 = OpLoad %v4uint %hugeUvec
@@ -416,9 +416,7 @@ OpStore %hugeUvec %234
 %289 = OpCompositeExtract %uint %282 3
 %290 = OpConvertUToF %float %289
 %291 = OpCompositeConstruct %v4float %284 %286 %288 %290
-%292 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_0
-%293 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
-%281 = OpExtInst %v4float %1 FClamp %291 %292 %293
-%294 = OpFMul %v4float %280 %281
-OpReturnValue %294
+%281 = OpExtInst %v4float %1 FClamp %291 %278 %279
+%292 = OpFMul %v4float %280 %281
+OpReturnValue %292
 OpFunctionEnd

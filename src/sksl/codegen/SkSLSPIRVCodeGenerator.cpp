@@ -895,23 +895,15 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
 SpvId SPIRVCodeGenerator::vectorize(const Expression& arg, int vectorSize, OutputStream& out) {
     SkASSERT(vectorSize >= 1 && vectorSize <= 4);
     const Type& argType = arg.type();
-    SpvId raw = this->writeExpression(arg, out);
-    if (argType.isScalar()) {
-        if (vectorSize == 1) {
-            return raw;
-        }
-        SpvId vector = this->nextId(&argType);
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + vectorSize, out);
-        this->writeWord(this->getType(argType.toCompound(fContext, vectorSize, 1)), out);
-        this->writeWord(vector, out);
-        for (int i = 0; i < vectorSize; i++) {
-            this->writeWord(raw, out);
-        }
-        return vector;
-    } else {
-        SkASSERT(vectorSize == argType.columns());
-        return raw;
+    if (argType.isScalar() && vectorSize > 1) {
+        ConstructorSplat splat{arg.fPosition,
+                               argType.toCompound(fContext, vectorSize, /*rows=*/1),
+                               arg.clone()};
+        return this->writeConstructorSplat(splat, out);
     }
+
+    SkASSERT(vectorSize == argType.columns());
+    return this->writeExpression(arg, out);
 }
 
 std::vector<SpvId> SPIRVCodeGenerator::vectorize(const ExpressionArray& args, OutputStream& out) {

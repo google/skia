@@ -1,0 +1,9 @@
+uniform half4 colorGreen;
+
+half4 main(float2 coords) {
+    // We should see only one `OpConstantComposite %v2float %float_3 %float_3` in the output.
+    float2 a = max(coords, 3.0);
+    float2 b = min(coords, 3.0);
+    a = b;
+    return colorGreen;
+}
