@@ -42,7 +42,7 @@ else:
                                   'Provisioning Profiles',
                                   '*.mobileprovision')):
     if re.search(r'''<key>Name</key>
-\t<string>''' + profile + r'''</string>''', open(p).read(), re.MULTILINE):
+\t<string>''' + profile + r'''</string>''', open(p, 'rb').read().decode("utf-8", "ignore"), re.MULTILINE):
       mobileprovision = p
 if mobileprovision is None:
   print("Provisioning profile matching '" + profile + "' not found.")
@@ -56,7 +56,7 @@ shutil.copy(mobileprovision,
 # Extract the appliciation identitifer prefix from the .mobileprovision.
 m = re.search(r'''<key>ApplicationIdentifierPrefix</key>
 \t<array>
-\t<string>(.*)</string>''', open(mobileprovision).read(), re.MULTILINE)
+\t<string>(.*)</string>''', open(mobileprovision, 'rb').read().decode("utf-8", "ignore"), re.MULTILINE)
 prefix = m.group(1)
 
 app, _ = os.path.splitext(os.path.basename(pkg))
@@ -70,7 +70,7 @@ with tempfile.NamedTemporaryFile() as f:
     <key>get-task-allow</key>         <true/>
   </dict>
 </plist>
-'''.format(prefix=prefix, app=app))
+'''.format(prefix=prefix, app=app).encode("utf-8"))
   f.flush()
 
   subprocess.check_call(['codesign',
