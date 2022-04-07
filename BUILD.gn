@@ -1004,7 +1004,7 @@ optional("gpu") {
     cflags_objcc += [ "-fobjc-arc" ]
   }
 
-  if (is_debug) {
+  if (is_debug || skia_build_for_debugger) {
     public_defines += [ "SK_ENABLE_DUMP_GPU" ]
   }
 }
@@ -1373,6 +1373,10 @@ skia_component("skia") {
   if (skia_enable_sksl) {
     deps += [ ":dehydrate_sksl" ]
     sources += skia_sksl_sources
+  }
+
+  if (skia_build_for_debugger) {
+    defines += [ "SK_BUILD_FOR_DEBUGGER" ]
   }
 
   if (is_win) {

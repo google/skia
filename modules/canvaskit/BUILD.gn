@@ -382,10 +382,4 @@ skia_wasm_lib("canvaskit") {
   if (!skia_canvaskit_enable_font) {
     defines += [ "CK_NO_FONTS" ]
   }
-  if (skia_canvaskit_enable_debugger) {
-    defines += [
-      "SK_BUILD_FOR_DEBUGGER",
-      "SK_ENABLE_DUMP_GPU",
-    ]
-  }
 }

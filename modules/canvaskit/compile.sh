@@ -229,6 +229,7 @@ echo "Compiling"
   skia_use_wuffs=true \
   skia_use_zlib=true \
   skia_enable_gpu=${ENABLE_GPU} \
+  skia_build_for_debugger=${DEBUGGER_ENABLED} \
   \
   ${GN_SHAPER} \
   ${GN_FONT} \
