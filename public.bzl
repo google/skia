@@ -1071,3 +1071,10 @@ SVG_TOOL_SRCS = [
     "tools/flags/CommandLineFlags.cpp",
     "tools/flags/CommandLineFlags.h",
 ]
+
+################################################################################
+## EGL support
+################################################################################
+
+SKIA_EGL_HDRS = [ "include/gpu/gl/egl/GrGLMakeEGLInterface.h" ]
+SKIA_EGL_SRCS = [ "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp" ]
