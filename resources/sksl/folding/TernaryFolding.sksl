@@ -1,0 +1,29 @@
+uniform half4 colorRed, colorGreen;
+
+bool do_side_effect(out bool x) {
+    x = true;
+    return false;
+}
+
+const bool TRUE = true;
+const bool FALSE = false;
+
+half4 main(float2 coords) {
+    bool ok;
+
+    ok = (colorRed == colorGreen) ? true : true;
+
+    ok = ok && (colorGreen.g == 1 ? true : true);
+    ok = ok && (colorGreen.g == 0 ? TRUE : true);
+    ok = ok || (colorGreen.g == 1 ? false : false);
+    ok = ok || (colorGreen.g == 0 ? false : FALSE);
+
+    half4 green = coords.x == coords.y ? colorGreen : colorGreen;
+    half4 red   = coords.x != coords.y ? colorRed   : colorRed;
+
+    // Make sure side effects are honored.
+    bool param = false;
+    bool call = do_side_effect(param) ? true : true;
+
+    return (ok && param && call) ? green : red;
+}

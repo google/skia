@@ -9,9 +9,11 @@
 
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 
 namespace SkSL {
@@ -77,6 +79,18 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
         } else {
             ifFalse->fPosition = pos;
             return ifFalse;
+        }
+    }
+
+    // A ternary with matching true- and false-cases can be reduced to `(test, ifTrue)`.
+    // If `test` has no side-effects, it will be optimized away by the constant-folder as well.
+    if (context.fConfig->fSettings.fOptimize) {
+        const Expression* ifTrueExpr  = ConstantFolder::GetConstantValueForVariable(*ifTrue);
+        const Expression* ifFalseExpr = ConstantFolder::GetConstantValueForVariable(*ifFalse);
+
+        if (Analysis::IsSameExpressionTree(*ifTrueExpr, *ifFalseExpr)) {
+            return BinaryExpression::Make(context, pos, std::move(test),
+                                          Operator::Kind::COMMA, std::move(ifTrue));
         }
     }
 
