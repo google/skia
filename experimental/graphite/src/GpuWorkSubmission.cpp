@@ -9,7 +9,7 @@
 
 #include "experimental/graphite/src/CommandBuffer.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 GpuWorkSubmission::GpuWorkSubmission(sk_sp<CommandBuffer> cmdBuffer)
         : fCommandBuffer(std::move(cmdBuffer)) {}
@@ -18,5 +18,5 @@ GpuWorkSubmission::~GpuWorkSubmission() {
     fCommandBuffer->callFinishedProcs(/*success=*/true);
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 

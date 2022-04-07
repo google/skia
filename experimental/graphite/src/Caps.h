@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Caps_DEFINED
-#define skgpu_Caps_DEFINED
+#ifndef skgpu_graphite_Caps_DEFINED
+#define skgpu_graphite_Caps_DEFINED
 
 #include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkImageInfo.h"
@@ -18,7 +18,7 @@ namespace SkSL {
 struct ShaderCaps;
 }
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class GraphicsPipelineDesc;
 class GraphiteResourceKey;
@@ -109,6 +109,6 @@ private:
     virtual const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const = 0;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Caps_DEFINED
+#endif // skgpu_graphite_Caps_DEFINED

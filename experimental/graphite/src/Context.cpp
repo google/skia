@@ -28,7 +28,7 @@
 #include "experimental/graphite/src/mtl/MtlTrampoline.h"
 #endif
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 Context::Context(sk_sp<Gpu> gpu, BackendApi backend)
         : fGpu(std::move(gpu))
@@ -38,8 +38,8 @@ Context::Context(sk_sp<Gpu> gpu, BackendApi backend)
 Context::~Context() {}
 
 #ifdef SK_METAL
-std::unique_ptr<Context> Context::MakeMetal(const graphite::MtlBackendContext& backendContext) {
-    sk_sp<Gpu> gpu = graphite::MtlTrampoline::MakeGpu(backendContext);
+std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendContext) {
+    sk_sp<Gpu> gpu = MtlTrampoline::MakeGpu(backendContext);
     if (!gpu) {
         return nullptr;
     }
@@ -145,4 +145,4 @@ void Context::deleteBackendTexture(BackendTexture& texture) {
     fGpu->deleteBackendTexture(texture);
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

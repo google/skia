@@ -73,9 +73,9 @@ bool MtlCommandBuffer::commit() {
 }
 
 bool MtlCommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
-                                         const skgpu::Texture* colorTexture,
-                                         const skgpu::Texture* resolveTexture,
-                                         const skgpu::Texture* depthStencilTexture) {
+                                         const Texture* colorTexture,
+                                         const Texture* resolveTexture,
+                                         const Texture* depthStencilTexture) {
     SkASSERT(!fActiveRenderCommandEncoder);
     this->endBlitCommandEncoder();
 #ifdef SK_BUILD_FOR_IOS
@@ -209,7 +209,7 @@ void MtlCommandBuffer::endBlitCommandEncoder() {
     }
 }
 
-void MtlCommandBuffer::onBindGraphicsPipeline(const skgpu::GraphicsPipeline* graphicsPipeline) {
+void MtlCommandBuffer::onBindGraphicsPipeline(const GraphicsPipeline* graphicsPipeline) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     auto mtlPipeline = static_cast<const MtlGraphicsPipeline*>(graphicsPipeline);
@@ -225,7 +225,7 @@ void MtlCommandBuffer::onBindGraphicsPipeline(const skgpu::GraphicsPipeline* gra
 }
 
 void MtlCommandBuffer::onBindUniformBuffer(UniformSlot slot,
-                                           const skgpu::Buffer* uniformBuffer,
+                                           const Buffer* uniformBuffer,
                                            size_t uniformOffset) {
     SkASSERT(fActiveRenderCommandEncoder);
 
@@ -246,9 +246,9 @@ void MtlCommandBuffer::onBindUniformBuffer(UniformSlot slot,
     fActiveRenderCommandEncoder->setFragmentBuffer(mtlBuffer, uniformOffset, bufferIndex);
 }
 
-void MtlCommandBuffer::onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
+void MtlCommandBuffer::onBindVertexBuffers(const Buffer* vertexBuffer,
                                            size_t vertexOffset,
-                                           const skgpu::Buffer* instanceBuffer,
+                                           const Buffer* instanceBuffer,
                                            size_t instanceOffset) {
     SkASSERT(fActiveRenderCommandEncoder);
 
@@ -268,7 +268,7 @@ void MtlCommandBuffer::onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
     }
 }
 
-void MtlCommandBuffer::onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t offset) {
+void MtlCommandBuffer::onBindIndexBuffer(const Buffer* indexBuffer, size_t offset) {
     if (indexBuffer) {
         fCurrentIndexBuffer = static_cast<const MtlBuffer*>(indexBuffer)->mtlBuffer();
         fCurrentIndexBufferOffset = offset;
@@ -278,8 +278,8 @@ void MtlCommandBuffer::onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_
     }
 }
 
-void MtlCommandBuffer::onBindTextureAndSampler(sk_sp<skgpu::Texture> texture,
-                                               sk_sp<skgpu::Sampler> sampler,
+void MtlCommandBuffer::onBindTextureAndSampler(sk_sp<Texture> texture,
+                                               sk_sp<Sampler> sampler,
                                                unsigned int bindIndex) {
     SkASSERT(texture && sampler);
 
@@ -402,9 +402,9 @@ static bool check_max_blit_width(int widthInPixels) {
     return true;
 }
 
-bool MtlCommandBuffer::onCopyTextureToBuffer(const skgpu::Texture* texture,
+bool MtlCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
                                              SkIRect srcRect,
-                                             const skgpu::Buffer* buffer,
+                                             const Buffer* buffer,
                                              size_t bufferOffset,
                                              size_t bufferRowBytes) {
     SkASSERT(!fActiveRenderCommandEncoder);
@@ -438,8 +438,8 @@ bool MtlCommandBuffer::onCopyTextureToBuffer(const skgpu::Texture* texture,
     return true;
 }
 
-bool MtlCommandBuffer::onCopyBufferToTexture(const skgpu::Buffer* buffer,
-                                             const skgpu::Texture* texture,
+bool MtlCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
+                                             const Texture* texture,
                                              const BufferTextureCopyData* copyData,
                                              int count) {
     SkASSERT(!fActiveRenderCommandEncoder);

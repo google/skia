@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Image_Graphite_DEFINED
-#define skgpu_Image_Graphite_DEFINED
+#ifndef skgpu_graphite_Image_Graphite_DEFINED
+#define skgpu_graphite_Image_Graphite_DEFINED
 
 #include "src/image/SkImage_Base.h"
 
 #include "experimental/graphite/src/TextureProxyView.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Context;
 class Recorder;
@@ -89,6 +89,6 @@ private:
     TextureProxyView fTextureProxyView;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Image_Graphite_DEFINED
+#endif // skgpu_graphite_Image_Graphite_DEFINED

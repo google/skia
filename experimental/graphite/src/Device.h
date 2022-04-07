@@ -17,7 +17,7 @@
 
 class SkStrokeRec;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class BoundsManager;
 class Clip;

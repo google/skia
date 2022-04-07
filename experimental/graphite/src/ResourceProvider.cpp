@@ -18,7 +18,7 @@
 #include "experimental/graphite/src/Sampler.h"
 #include "experimental/graphite/src/Texture.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 ResourceProvider::ResourceProvider(const Gpu* gpu,
                                    sk_sp<GlobalCache> globalCache,
@@ -191,4 +191,4 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
 }
 
 
-} // namespace skgpu
+} // namespace skgpu::graphite

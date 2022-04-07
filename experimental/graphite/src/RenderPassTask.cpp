@@ -15,7 +15,7 @@
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 sk_sp<RenderPassTask> RenderPassTask::Make(std::vector<std::unique_ptr<DrawPass>> passes,
                                            const RenderPassDesc& desc,
@@ -80,4 +80,4 @@ bool RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
     return true;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <limits>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // BSP node. Space is partitioned by an either vertical or horizontal line. Note that if a rect
 // straddles the partition line, it will need to go on both sides of the tree.
@@ -207,4 +207,4 @@ IntersectionTree::IntersectionTree()
     static_assert(kLeafNodeSize == sizeof(LeafNode));
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

@@ -11,7 +11,7 @@
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 namespace {
 
@@ -201,4 +201,4 @@ void DrawBufferManager::transferToCommandBuffer(CommandBuffer* commandBuffer) {
     }
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Recorder_DEFINED
-#define skgpu_Recorder_DEFINED
+#ifndef skgpu_graphite_Recorder_DEFINED
+#define skgpu_graphite_Recorder_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SingleOwner.h"
@@ -16,7 +16,7 @@
 class SkTextureDataBlock;
 class SkUniformDataBlock;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Caps;
 class Device;
@@ -96,6 +96,6 @@ private:
     mutable SingleOwner fSingleOwner;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Recorder_DEFINED
+#endif // skgpu_graphite_Recorder_DEFINED

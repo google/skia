@@ -17,7 +17,7 @@
 namespace skgpu::graphite {
 class MtlGpu;
 
-class MtlBuffer : public skgpu::Buffer {
+class MtlBuffer : public Buffer {
 public:
     static sk_sp<Buffer> Make(const MtlGpu*, size_t size, BufferType type, PrioritizeGpuReads);
 

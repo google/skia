@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_PipelineDataCache_DEFINED
-#define skgpu_PipelineDataCache_DEFINED
+#ifndef skgpu_graphite_PipelineDataCache_DEFINED
+#define skgpu_graphite_PipelineDataCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkArenaAlloc.h"
@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // Add a block of data to the cache and return a unique ID that corresponds to its
 // contents. If an identical block of data is already in the cache, that unique ID is returned.
@@ -147,6 +147,6 @@ using UniformDataCache = PipelineDataCache<std::unique_ptr<SkUniformDataBlock>, 
 // Samplers.
 using TextureDataCache = PipelineDataCache<std::unique_ptr<SkTextureDataBlock>, SkTextureDataBlock>;
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_PipelineDataCache_DEFINED
+#endif // skgpu_graphite_PipelineDataCache_DEFINED

@@ -11,7 +11,7 @@
 #include "include/gpu/GrTypes.h"
 
 #ifdef SK_GRAPHITE_ENABLED
-namespace skgpu { class Recorder; }
+namespace skgpu::graphite { class Recorder; }
 #endif
 
 #if SK_SUPPORT_GPU
@@ -28,8 +28,8 @@ public:
     // Constructor for the pre-compile code path
     SkKeyContext(SkShaderCodeDictionary* dict) : fDictionary(dict) {}
 #ifdef SK_GRAPHITE_ENABLED
-    SkKeyContext(skgpu::Recorder*);
-    skgpu::Recorder* recorder() const { return fRecorder; }
+    SkKeyContext(skgpu::graphite::Recorder*);
+    skgpu::graphite::Recorder* recorder() const { return fRecorder; }
 #endif
 #if SK_SUPPORT_GPU
     SkKeyContext(GrRecordingContext*);
@@ -40,7 +40,7 @@ public:
 
 private:
 #ifdef SK_GRAPHITE_ENABLED
-    skgpu::Recorder* fRecorder = nullptr;
+    skgpu::graphite::Recorder* fRecorder = nullptr;
 #endif
 
 #if SK_SUPPORT_GPU

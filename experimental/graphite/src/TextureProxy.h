@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_TextureProxy_DEFINED
-#define skgpu_TextureProxy_DEFINED
+#ifndef skgpu_graphite_TextureProxy_DEFINED
+#define skgpu_graphite_TextureProxy_DEFINED
 
 #include "experimental/graphite/include/TextureInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class ResourceProvider;
 class Texture;
@@ -45,6 +45,6 @@ private:
     sk_sp<Texture> fTexture;
 };
 
-} // namepsace skgpu
+} // namepsace skgpu::graphite
 
-#endif // skgpu_TextureProxy_DEFINED
+#endif // skgpu_graphite_TextureProxy_DEFINED

@@ -24,7 +24,7 @@ class SkPipelineDataGatherer;
 class SkUniquePaintParamsID;
 class SkKeyContext;
 
-namespace skgpu { class TextureProxy; }
+namespace skgpu::graphite { class TextureProxy; }
 
 // The KeyHelpers can be used to manually construct an SkPaintParamsKey
 
@@ -114,7 +114,7 @@ namespace ImageShaderBlock {
         // TODO: Currently this is only filled in when we're generating the key from an actual
         // SkImageShader. In the pre-compile case we will need to create a Graphite promise
         // image which holds the appropriate data.
-        sk_sp<skgpu::TextureProxy> fTextureProxy;
+        sk_sp<skgpu::graphite::TextureProxy> fTextureProxy;
 #endif
     };
 
@@ -154,7 +154,7 @@ namespace BlendModeBlock {
 // Bridge between the combinations system and the SkPaintParamsKey
 SkUniquePaintParamsID CreateKey(const SkKeyContext&,
                                 SkPaintParamsKeyBuilder*,
-                                skgpu::ShaderCombo::ShaderType,
+                                skgpu::graphite::ShaderCombo::ShaderType,
                                 SkTileMode,
                                 SkBlendMode);
 #endif

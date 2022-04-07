@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawWriter_DEFINED
-#define skgpu_DrawWriter_DEFINED
+#ifndef skgpu_graphite_DrawWriter_DEFINED
+#define skgpu_graphite_DrawWriter_DEFINED
 
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/DrawTypes.h"
 #include "src/gpu/BufferWriter.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class DrawDispatcher; // Forward declaration, handles virtual dispatch of binds/draws
 
@@ -351,6 +351,6 @@ public:
     }
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_DrawWriter_DEFINED
+#endif // skgpu_graphite_DrawWriter_DEFINED

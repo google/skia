@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_render_CoverBoundsRenderStep_DEFINED
-#define skgpu_render_CoverBoundsRenderStep_DEFINED
+#ifndef skgpu_graphite_render_CoverBoundsRenderStep_DEFINED
+#define skgpu_graphite_render_CoverBoundsRenderStep_DEFINED
 
 #include "experimental/graphite/src/Renderer.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class CoverBoundsRenderStep final : public RenderStep {
 public:
@@ -26,6 +26,6 @@ private:
     const bool fInverseFill;
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite
 
 #endif // skgpu_render_CoverBoundsRenderStep_DEFINED

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_TextureInfo_DEFINED
-#define skgpu_TextureInfo_DEFINED
+#ifndef skgpu_graphite_TextureInfo_DEFINED
+#define skgpu_graphite_TextureInfo_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 
@@ -14,7 +14,7 @@
 #include "experimental/graphite/include/private/MtlTypesPriv.h"
 #endif
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // Forward declares so we can friend classes in other namespaces
 #ifdef SK_METAL
@@ -28,7 +28,7 @@ class TextureInfo {
 public:
     TextureInfo() {}
 #ifdef SK_METAL
-    TextureInfo(const graphite::MtlTextureInfo& mtlInfo)
+    TextureInfo(const MtlTextureInfo& mtlInfo)
             : fBackend(BackendApi::kMetal)
             , fValid(true)
             , fSampleCount(mtlInfo.fSampleCount)
@@ -52,7 +52,7 @@ public:
     Protected isProtected() const { return fProtected; }
 
 #ifdef SK_METAL
-    bool getMtlTextureInfo(graphite::MtlTextureInfo* info) const {
+    bool getMtlTextureInfo(MtlTextureInfo* info) const {
         if (!this->isValid() || fBackend != BackendApi::kMetal) {
             return false;
         }
@@ -63,9 +63,9 @@ public:
 
 private:
 #ifdef SK_METAL
-    friend class graphite::MtlCaps;
-    friend class graphite::MtlTexture;
-    const graphite::MtlTextureSpec& mtlTextureSpec() const {
+    friend class MtlCaps;
+    friend class MtlTexture;
+    const MtlTextureSpec& mtlTextureSpec() const {
         SkASSERT(fValid && fBackend == BackendApi::kMetal);
         return fMtlSpec;
     }
@@ -80,11 +80,11 @@ private:
 
     union {
 #ifdef SK_METAL
-        graphite::MtlTextureSpec fMtlSpec;
+        MtlTextureSpec fMtlSpec;
 #endif
     };
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite
 
-#endif  //skgpu_TextureInfo_DEFINED
+#endif  //skgpu_graphite_TextureInfo_DEFINED

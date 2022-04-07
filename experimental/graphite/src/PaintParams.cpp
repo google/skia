@@ -13,7 +13,7 @@
 #include "src/core/SkPaintParamsKey.h"
 #include "src/shaders/SkShaderBase.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 PaintParams::PaintParams(const SkColor4f& color,
                          sk_sp<SkBlender> blender,
@@ -59,4 +59,4 @@ void PaintParams::toKey(const SkKeyContext& keyContext,
     SkASSERT(builder->sizeInBytes() > 0);
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

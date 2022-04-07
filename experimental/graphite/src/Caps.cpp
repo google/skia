@@ -10,7 +10,7 @@
 #include "experimental/graphite/include/TextureInfo.h"
 #include "src/sksl/SkSLUtil.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 Caps::Caps() {}
 Caps::~Caps() {}
@@ -42,7 +42,7 @@ skgpu::Swizzle Caps::getReadSwizzle(SkColorType ct, const TextureInfo& info) con
     return colorTypeInfo->fReadSwizzle;
 }
 
-skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const skgpu::TextureInfo& info) const {
+skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const TextureInfo& info) const {
     auto colorTypeInfo = this->getColorTypeInfo(ct, info);
     if (!colorTypeInfo) {
         SkDEBUGFAILF("Illegal color type (%d) and format combination.", static_cast<int>(ct));
@@ -52,4 +52,4 @@ skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const skgpu::TextureInfo& i
     return colorTypeInfo->fWriteSwizzle;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

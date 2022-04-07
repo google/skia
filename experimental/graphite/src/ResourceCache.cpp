@@ -13,7 +13,7 @@
 #include "include/utils/SkRandom.h"
 #include "src/core/SkTMultiMap.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
@@ -88,7 +88,7 @@ void ResourceCache::insertResource(Resource* resource) {
     // TODO: purge resources if adding this one put us over budget (when we actually have a budget).
 }
 
-Resource* ResourceCache::findAndRefResource(const skgpu::GraphiteResourceKey& key) {
+Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key) {
     ASSERT_SINGLE_OWNER
 
     this->processReturnedResources();
@@ -465,4 +465,4 @@ bool ResourceCache::isInCache(const Resource* resource) const {
 
 #endif // SK_DEBUG
 
-} // namespace skgpu
+} // namespace skgpu::graphite

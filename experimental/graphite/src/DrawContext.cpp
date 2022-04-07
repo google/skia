@@ -28,7 +28,7 @@
 #include "experimental/graphite/src/geom/BoundsManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 sk_sp<DrawContext> DrawContext::Make(sk_sp<TextureProxy> target,
                                      sk_sp<SkColorSpace> colorSpace,
@@ -158,4 +158,4 @@ sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
     return uploadTask;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

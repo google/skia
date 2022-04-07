@@ -15,7 +15,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/RefCntedCallback.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 CommandBuffer::CommandBuffer() {}
 
@@ -122,9 +122,9 @@ void CommandBuffer::bindTextureAndSampler(sk_sp<Texture> texture,
     this->trackResource(std::move(sampler));
 }
 
-bool CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,
+bool CommandBuffer::copyTextureToBuffer(sk_sp<Texture> texture,
                                         SkIRect srcRect,
-                                        sk_sp<skgpu::Buffer> buffer,
+                                        sk_sp<Buffer> buffer,
                                         size_t bufferOffset,
                                         size_t bufferRowBytes) {
     SkASSERT(texture);
@@ -143,8 +143,8 @@ bool CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,
     return true;
 }
 
-bool CommandBuffer::copyBufferToTexture(sk_sp<skgpu::Buffer> buffer,
-                                        sk_sp<skgpu::Texture> texture,
+bool CommandBuffer::copyBufferToTexture(sk_sp<Buffer> buffer,
+                                        sk_sp<Texture> texture,
                                         const BufferTextureCopyData* copyData,
                                         int count) {
     SkASSERT(buffer);
@@ -163,4 +163,4 @@ bool CommandBuffer::copyBufferToTexture(sk_sp<skgpu::Buffer> buffer,
     return true;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

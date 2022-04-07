@@ -16,23 +16,23 @@
 
 namespace skgpu::graphite {
 
-class MtlCaps final : public skgpu::Caps {
+class MtlCaps final : public skgpu::graphite::Caps {
 public:
     MtlCaps(const id<MTLDevice>);
     ~MtlCaps() override {}
 
-    skgpu::TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                                    uint32_t levelCount,
-                                                    Protected,
-                                                    Renderable) const override;
+    TextureInfo getDefaultSampledTextureInfo(SkColorType,
+                                             uint32_t levelCount,
+                                             Protected,
+                                             Renderable) const override;
 
-    skgpu::TextureInfo getDefaultMSAATextureInfo(SkColorType,
-                                                 uint32_t sampleCount,
-                                                 Protected) const override;
+    TextureInfo getDefaultMSAATextureInfo(SkColorType,
+                                          uint32_t sampleCount,
+                                          Protected) const override;
 
-    skgpu::TextureInfo getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags>,
-                                                         uint32_t sampleCount,
-                                                         Protected) const override;
+    TextureInfo getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags>,
+                                                  uint32_t sampleCount,
+                                                  Protected) const override;
 
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                       const RenderPassDesc&) const override;
@@ -42,10 +42,10 @@ public:
 
     size_t getMinBufferAlignment() const { return this->isMac() ? 4 : 1; }
 
-    bool isRenderable(const skgpu::TextureInfo&) const override;
+    bool isRenderable(const TextureInfo&) const override;
 
     void buildKeyForTexture(SkISize dimensions,
-                            const skgpu::TextureInfo&,
+                            const TextureInfo&,
                             ResourceType,
                             Shareable,
                             GraphiteResourceKey*) const override;
@@ -70,9 +70,9 @@ private:
         return fColorTypeToFormatTable[idx];
     }
 
-    const ColorTypeInfo* getColorTypeInfo(SkColorType, const skgpu::TextureInfo&) const override;
+    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
 
-    bool onIsTexturable(const skgpu::TextureInfo&) const override;
+    bool onIsTexturable(const TextureInfo&) const override;
     bool isTexturable(MTLPixelFormat) const;
     bool isRenderable(MTLPixelFormat, uint32_t numSamples) const;
     uint32_t maxRenderTargetSampleCount(MTLPixelFormat) const;

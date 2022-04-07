@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Texture_DEFINED
-#define skgpu_Texture_DEFINED
+#ifndef skgpu_graphite_Texture_DEFINED
+#define skgpu_graphite_Texture_DEFINED
 
 #include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/src/Resource.h"
 #include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkSize.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Texture : public Resource {
 public:
@@ -33,6 +33,6 @@ private:
     TextureInfo fInfo;
 };
 
-} // namepsace skgpu
+} // namepsace skgpu::graphite
 
-#endif // skgpu_Texture_DEFINED
+#endif // skgpu_graphite_Texture_DEFINED

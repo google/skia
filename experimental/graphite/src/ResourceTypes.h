@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_ResourceTypes_DEFINED
-#define skgpu_ResourceTypes_DEFINED
+#ifndef skgpu_graphite_ResourceTypes_DEFINED
+#define skgpu_graphite_ResourceTypes_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "experimental/graphite/src/EnumBitMask.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 /**
  * Is the Texture renderable or not
@@ -78,6 +78,6 @@ enum class LastRemovedRef {
     kCache,
 };
 
-};  // namespace skgpu
+};  // namespace skgpu::graphite
 
-#endif // skgpu_ResourceTypes_DEFINED
+#endif // skgpu_graphite_ResourceTypes_DEFINED

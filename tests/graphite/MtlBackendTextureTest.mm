@@ -13,14 +13,14 @@
 
 #import <Metal/Metal.h>
 
-using namespace skgpu;
+using namespace skgpu::graphite;
 
 namespace {
     const SkISize kSize = {16, 16};
 }
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(MtlBackendTextureTest, reporter, context) {
-    graphite::MtlTextureInfo textureInfo;
+    MtlTextureInfo textureInfo;
     textureInfo.fSampleCount = 1;
     textureInfo.fLevelCount = 1;
     textureInfo.fFormat = MTLPixelFormatRGBA8Unorm;

@@ -17,8 +17,9 @@
 
 namespace skgpu {
 class ShaderErrorHandler;
+}
 
-namespace graphite {
+namespace skgpu::graphite {
 class MtlGpu;
 
 bool MtlFormatIsDepthOrStencil(MTLPixelFormat);
@@ -46,6 +47,5 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlGpu* gpu,
 bool MtlIsAppInBackground();
 #endif
 } // namespace skgpu::graphite
-} // namespace skgpu
 
 #endif // skgpu_graphite_MtlUtils_DEFINED

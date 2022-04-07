@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_GpuWorkSubmission_DEFINED
-#define skgpu_GpuWorkSubmission_DEFINED
+#ifndef skgpu_graphite_GpuWorkSubmission_DEFINED
+#define skgpu_graphite_GpuWorkSubmission_DEFINED
 
 #include "include/core/SkRefCnt.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 class CommandBuffer;
 class Gpu;
 
@@ -30,6 +30,6 @@ private:
     sk_sp<CommandBuffer> fCommandBuffer;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_GpuWorkSubmission_DEFINED
+#endif // skgpu_graphite_GpuWorkSubmission_DEFINED

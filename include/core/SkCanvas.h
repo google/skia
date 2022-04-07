@@ -66,7 +66,7 @@ class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
 
-namespace skgpu { class Recorder; }
+namespace skgpu::graphite { class Recorder; }
 namespace SkRecords { class Draw; }
 
 /** \class SkCanvas
@@ -304,7 +304,7 @@ public:
 
         @return  Recorder, if available; nullptr otherwise
      */
-    virtual skgpu::Recorder* recorder();
+    virtual skgpu::graphite::Recorder* recorder();
 
     /** Sometimes a canvas is owned by a surface. If it is, getSurface() will return a bare
      *  pointer to that surface, else this will return nullptr.

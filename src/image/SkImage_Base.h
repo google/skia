@@ -131,9 +131,9 @@ public:
     // a color type. This may be different than the image's color type when the image is not
     // texture-backed and the capabilities of the GPU require a data type conversion to put
     // the data in a texture.
-    std::tuple<skgpu::TextureProxyView, SkColorType> asView(
-            skgpu::Recorder*,
-            skgpu::Mipmapped mipmapped,
+    std::tuple<skgpu::graphite::TextureProxyView, SkColorType> asView(
+            skgpu::graphite::Recorder*,
+            skgpu::graphite::Mipmapped mipmapped,
             SkBudgeted) const;
 #endif
 
@@ -229,9 +229,9 @@ private:
             const SkRect* domain) const = 0;
 #endif
 #ifdef SK_GRAPHITE_ENABLED
-    virtual std::tuple<skgpu::TextureProxyView, SkColorType> onAsView(
-            skgpu::Recorder*,
-            skgpu::Mipmapped mipmapped,
+    virtual std::tuple<skgpu::graphite::TextureProxyView, SkColorType> onAsView(
+            skgpu::graphite::Recorder*,
+            skgpu::graphite::Mipmapped mipmapped,
             SkBudgeted) const {
         return {}; // TODO: once incompatible derived classes are removed make this pure virtual
     }

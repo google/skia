@@ -20,7 +20,7 @@ struct SkRect;
 class SkUniform;
 class SkUniformDataBlock;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 enum class CType : unsigned;
 

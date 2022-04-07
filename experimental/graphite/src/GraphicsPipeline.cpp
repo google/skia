@@ -7,7 +7,7 @@
 
 #include "experimental/graphite/src/GraphicsPipeline.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 GraphicsPipeline::GraphicsPipeline(const Gpu* gpu) : Resource(gpu, Ownership::kOwned) {
 }
@@ -15,4 +15,4 @@ GraphicsPipeline::GraphicsPipeline(const Gpu* gpu) : Resource(gpu, Ownership::kO
 GraphicsPipeline::~GraphicsPipeline() {
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

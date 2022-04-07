@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Sampler_DEFINED
-#define skgpu_Sampler_DEFINED
+#ifndef skgpu_graphite_Sampler_DEFINED
+#define skgpu_graphite_Sampler_DEFINED
 
 #include "experimental/graphite/src/Resource.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Sampler : public Resource {
 public:
@@ -22,6 +22,6 @@ protected:
 private:
 };
 
-} // namepsace skgpu
+} // namepsace skgpu::graphite
 
-#endif // skgpu_Sampler_DEFINED
+#endif // skgpu_graphite_Sampler_DEFINED

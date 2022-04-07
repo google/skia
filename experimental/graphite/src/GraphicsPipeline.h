@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_GraphicsPipeline_DEFINED
-#define skgpu_GraphicsPipeline_DEFINED
+#ifndef skgpu_graphite_GraphicsPipeline_DEFINED
+#define skgpu_graphite_GraphicsPipeline_DEFINED
 
 #include "experimental/graphite/src/Resource.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 /**
  * GraphicsPipeline corresponds to a backend specific pipeline used for rendering (vs. compute),
@@ -32,6 +32,6 @@ protected:
 private:
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_GraphicsPipeline_DEFINED
+#endif // skgpu_graphite_GraphicsPipeline_DEFINED

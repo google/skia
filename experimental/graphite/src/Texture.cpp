@@ -7,7 +7,7 @@
 
 #include "experimental/graphite/src/Texture.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 Texture::Texture(const Gpu* gpu, SkISize dimensions, const TextureInfo& info, Ownership ownership)
         : Resource(gpu, ownership)
@@ -16,4 +16,4 @@ Texture::Texture(const Gpu* gpu, SkISize dimensions, const TextureInfo& info, Ow
 
 Texture::~Texture() {}
 
-} // namespace skgpu
+} // namespace skgpu::graphite

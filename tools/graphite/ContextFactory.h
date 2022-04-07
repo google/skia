@@ -13,7 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "tools/graphite/GraphiteTestContext.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
     class Context;
 };
 
@@ -36,7 +36,7 @@ public:
 
         ContextFactory::ContextType type() const { return fType; }
 
-        skgpu::Context* context() const { return fContext.get(); }
+        skgpu::graphite::Context* context() const { return fContext.get(); }
         GraphiteTestContext* testContext() const { return fTestContext.get(); }
 
     private:
@@ -44,11 +44,11 @@ public:
 
         ContextInfo(ContextFactory::ContextType type,
                     std::unique_ptr<GraphiteTestContext> testContext,
-                    std::unique_ptr<skgpu::Context> context);
+                    std::unique_ptr<skgpu::graphite::Context> context);
 
-        ContextType                          fType = ContextType::kMock;
-        std::unique_ptr<GraphiteTestContext> fTestContext;
-        std::unique_ptr<skgpu::Context>      fContext;
+        ContextType                               fType = ContextType::kMock;
+        std::unique_ptr<GraphiteTestContext>      fTestContext;
+        std::unique_ptr<skgpu::graphite::Context> fContext;
     };
 
     ContextFactory() = default;
@@ -57,7 +57,7 @@ public:
 
     ~ContextFactory() = default;
 
-    std::tuple<GraphiteTestContext*, skgpu::Context*> getContextInfo(ContextType);
+    std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> getContextInfo(ContextType);
 
 private:
     std::vector<ContextInfo> fContexts;

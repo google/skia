@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_GraphiteTypes_DEFINED
-#define skgpu_GraphiteTypes_DEFINED
+#ifndef skgpu_graphite_GraphiteTypes_DEFINED
+#define skgpu_graphite_GraphiteTypes_DEFINED
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 
 #include <memory>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Recording;
 
@@ -66,6 +66,6 @@ enum class Protected : bool {
     kYes = true,
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_GraphiteTypes_DEFINED
+#endif // skgpu_graphite_GraphiteTypes_DEFINED

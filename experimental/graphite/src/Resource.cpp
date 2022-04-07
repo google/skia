@@ -9,7 +9,7 @@
 
 #include "experimental/graphite/src/ResourceCache.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 Resource::Resource(const Gpu* gpu, Ownership ownership)
         : fGpu(gpu)
@@ -64,5 +64,5 @@ bool Resource::isPurgeable() const {
     return !this->hasAnyRefs();
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 

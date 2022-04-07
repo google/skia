@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawTypes_DEFINED
-#define skgpu_DrawTypes_DEFINED
+#ifndef skgpu_graphite_DrawTypes_DEFINED
+#define skgpu_graphite_DrawTypes_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Buffer;
 
@@ -276,6 +276,6 @@ struct DepthStencilSettings {
     bool fDepthWriteEnabled = false;
 };
 
-};  // namespace skgpu
+};  // namespace skgpu::graphite
 
-#endif // skgpu_DrawTypes_DEFINED
+#endif // skgpu_graphite_DrawTypes_DEFINED

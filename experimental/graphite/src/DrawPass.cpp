@@ -37,7 +37,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // Helper to manage packed fields within a uint64_t
 template <uint64_t Bits, uint64_t Offset>
@@ -230,14 +230,14 @@ private:
 
 // std::unordered_map implementation for GraphicsPipelineDesc* that de-reference the pointers.
 struct Hash {
-    size_t operator()(const skgpu::GraphicsPipelineDesc* desc) const noexcept {
-        return skgpu::GraphicsPipelineDesc::Hash()(*desc);
+    size_t operator()(const GraphicsPipelineDesc* desc) const noexcept {
+        return GraphicsPipelineDesc::Hash()(*desc);
     }
 };
 
 struct Eq {
-    bool operator()(const skgpu::GraphicsPipelineDesc* a,
-                    const skgpu::GraphicsPipelineDesc* b) const noexcept {
+    bool operator()(const GraphicsPipelineDesc* a,
+                    const GraphicsPipelineDesc* b) const noexcept {
         return *a == *b;
     }
 };
@@ -545,4 +545,4 @@ bool DrawPass::addCommands(ResourceProvider* resourceProvider,
     return true;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

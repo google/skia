@@ -66,9 +66,9 @@ public:
 
         uint32_t samplerKey() const;
 
-        sk_sp<skgpu::TextureProxy> fProxy;
-        SkSamplingOptions          fSamplingOptions;
-        SkTileMode                 fTileModes[2];
+        sk_sp<skgpu::graphite::TextureProxy> fProxy;
+        SkSamplingOptions                    fSamplingOptions;
+        SkTileMode                           fTileModes[2];
     };
 
     static std::unique_ptr<SkTextureDataBlock> Make(const SkTextureDataBlock&, SkArenaAlloc*);
@@ -84,7 +84,7 @@ public:
 
     void add(const SkSamplingOptions& sampling,
              const SkTileMode tileModes[2],
-             sk_sp<skgpu::TextureProxy> proxy) {
+             sk_sp<skgpu::graphite::TextureProxy> proxy) {
         fTextureData.push_back({std::move(proxy), sampling, {tileModes[0], tileModes[1]}});
     }
 
@@ -128,7 +128,7 @@ public:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-    SkPipelineDataGatherer(skgpu::Layout layout) : fUniformManager(layout) {}
+    SkPipelineDataGatherer(skgpu::graphite::Layout layout) : fUniformManager(layout) {}
 #endif
 
     void reset();
@@ -143,7 +143,7 @@ public:
 
     void add(const SkSamplingOptions& sampling,
              const SkTileMode tileModes[2],
-             sk_sp<skgpu::TextureProxy> proxy) {
+             sk_sp<skgpu::graphite::TextureProxy> proxy) {
         fTextureDataBlock.add(sampling, tileModes, std::move(proxy));
     }
     bool hasTextures() const { return !fTextureDataBlock.empty(); }
@@ -164,16 +164,16 @@ public:
     void write(const float* floats, int count) { fUniformManager.write(floats, count); }
     void write(float something) { fUniformManager.write(&something, 1); }
     void write(int something) { fUniformManager.write(something); }
-    void write(skgpu::float2 something) { fUniformManager.write(something); }
+    void write(skgpu::graphite::float2 something) { fUniformManager.write(something); }
 
     bool hasUniforms() const { return fUniformManager.size(); }
 
     SkUniformDataBlock peekUniformData() const { return fUniformManager.peekData(); }
 
 private:
-    SkTextureDataBlock    fTextureDataBlock;
-    BlendInfo             fBlendInfo;
-    skgpu::UniformManager fUniformManager;
+    SkTextureDataBlock              fTextureDataBlock;
+    BlendInfo                       fBlendInfo;
+    skgpu::graphite::UniformManager fUniformManager;
 #endif // SK_GRAPHITE_ENABLED
 };
 

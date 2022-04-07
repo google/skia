@@ -10,7 +10,7 @@
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Texture.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 TextureProxy::TextureProxy(SkISize dimensions, const TextureInfo& info)
         : fDimensions(dimensions), fInfo(info) {}
@@ -49,4 +49,4 @@ void TextureProxy::validateTexture(const Texture* texture) {
 }
 #endif
 
-} // namespace skgpu
+} // namespace skgpu::graphite

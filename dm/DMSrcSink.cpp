@@ -2099,17 +2099,17 @@ namespace {
 // For the sprint Graphite only handles:
 //    solid colors with src or srcOver
 //    repeated or clamped linear gradients with src or srcOver
-void precompile(skgpu::Context* context) {
-    using ShaderType = skgpu::ShaderCombo::ShaderType;
+void precompile(skgpu::graphite::Context* context) {
+    using ShaderType = skgpu::graphite::ShaderCombo::ShaderType;
 
-    skgpu::PaintCombo c1 { { skgpu::ShaderCombo({ ShaderType::kSolidColor },
-                                                { SkTileMode::kRepeat }) },
-                           { SkBlendMode::kSrcOver, SkBlendMode::kSrc } };
+    skgpu::graphite::PaintCombo c1 { { skgpu::graphite::ShaderCombo({ ShaderType::kSolidColor },
+                                                                    { SkTileMode::kRepeat }) },
+                                     { SkBlendMode::kSrcOver, SkBlendMode::kSrc } };
     context->preCompile(c1);
 
-    skgpu::PaintCombo c2 { { skgpu::ShaderCombo({ ShaderType::kLinearGradient },
-                                                { SkTileMode::kRepeat, SkTileMode::kClamp }) },
-                           { SkBlendMode::kSrcOver, SkBlendMode::kSrc } };
+    skgpu::graphite::PaintCombo c2 { { skgpu::graphite::ShaderCombo({ ShaderType::kLinearGradient },
+                                                     { SkTileMode::kRepeat, SkTileMode::kClamp }) },
+                                     { SkBlendMode::kSrcOver, SkBlendMode::kSrc } };
     context->preCompile(c2);
 }
 
@@ -2138,7 +2138,7 @@ Result GraphiteSink::draw(const Src& src,
         precompile(context);
     }
 
-    std::unique_ptr<skgpu::Recorder> recorder = context->makeRecorder();
+    std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
     if (!recorder) {
         return Result::Fatal("Could not create a recorder.");
     }
@@ -2160,24 +2160,24 @@ Result GraphiteSink::draw(const Src& src,
         // that instead.
         SkPixmap pm;
         if (!dst->peekPixels(&pm) ||
-            !static_cast<skgpu::Surface*>(surface.get())->onReadPixels(context,
-                                                                       recorder.get(),
-                                                                       pm,
-                                                                       0,
-                                                                       0)) {
+            !static_cast<skgpu::graphite::Surface*>(surface.get())->onReadPixels(context,
+                                                                                 recorder.get(),
+                                                                                 pm,
+                                                                                 0,
+                                                                                 0)) {
             return Result::Fatal("Could not readback from surface.");
         }
     }
 
-    std::unique_ptr<skgpu::Recording> recording = recorder->snap();
+    std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
     if (!recording) {
         return Result::Fatal("Could not create a recording.");
     }
 
-    skgpu::InsertRecordingInfo info;
+    skgpu::graphite::InsertRecordingInfo info;
     info.fRecording = recording.get();
     context->insertRecording(info);
-    context->submit(skgpu::SyncToCpu::kYes);
+    context->submit(skgpu::graphite::SyncToCpu::kYes);
 
     return Result::Ok();
 }

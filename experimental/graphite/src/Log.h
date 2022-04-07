@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Log_DEFINED
-#define skgpu_Log_DEFINED
+#ifndef skgpu_graphite_Log_DEFINED
+#define skgpu_graphite_Log_DEFINED
 
-namespace skgpu {
+namespace skgpu::graphite {
 enum class Priority : int {
     kError = 0,
     kWarning = 1,
     kDebug = 2,
 };
-};  // namespace skgpu
+};  // namespace skgpu::graphite
 
 #if !defined(SKGPU_LOWEST_ACTIVE_PRIORITY)
 #ifdef SK_DEBUG
@@ -29,8 +29,8 @@ enum class Priority : int {
             SkDebugf("[graphite] " fmt "\n", ##__VA_ARGS__); \
         } \
     } while (0)
-#define SKGPU_LOG_E(fmt, ...) SKGPU_LOG(skgpu::Priority::kError, "** ERROR ** " fmt, ##__VA_ARGS__)
-#define SKGPU_LOG_W(fmt, ...) SKGPU_LOG(skgpu::Priority::kWarning, "WARNING - " fmt, ##__VA_ARGS__)
-#define SKGPU_LOG_D(fmt, ...) SKGPU_LOG(skgpu::Priority::kDebug, fmt, ##__VA_ARGS__)
+#define SKGPU_LOG_E(fmt, ...) SKGPU_LOG(Priority::kError, "** ERROR ** " fmt, ##__VA_ARGS__)
+#define SKGPU_LOG_W(fmt, ...) SKGPU_LOG(Priority::kWarning, "WARNING - " fmt, ##__VA_ARGS__)
+#define SKGPU_LOG_D(fmt, ...) SKGPU_LOG(Priority::kDebug, fmt, ##__VA_ARGS__)
 
-#endif // skgpu_Log_DEFINED
+#endif // skgpu_graphite_Log_DEFINED

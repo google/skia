@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_PaintParams_DEFINED
-#define skgpu_PaintParams_DEFINED
+#ifndef skgpu_graphite_PaintParams_DEFINED
+#define skgpu_graphite_PaintParams_DEFINED
 
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
@@ -17,7 +17,7 @@ class SkPipelineDataGatherer;
 class SkShader;
 class SkKeyContext;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // TBD: If occlusion culling is eliminated as a phase, we can easily move the paint conversion
 // back to Device when the command is recorded (similar to SkPaint -> GrPaint), and then

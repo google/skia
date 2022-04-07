@@ -9,7 +9,7 @@
 #include "include/utils/SkRandom.h"
 #include "tests/Test.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class SimpleIntersectionTree {
 public:
@@ -36,9 +36,9 @@ DEF_GRAPHITE_TEST(skgpu_IntersectionTree, reporter) {
         IntersectionTree tree;
         for (int i = 0; i < 1000; ++i) {
             Rect rect = Rect::XYWH(rand.nextRangeF(0, 500),
-                                   rand.nextRangeF(0, 500),
-                                   rand.nextRangeF(0, 70),
-                                   rand.nextRangeF(0, 70));
+                                                       rand.nextRangeF(0, 500),
+                                                       rand.nextRangeF(0, 70),
+                                                       rand.nextRangeF(0, 70));
             CHECK(tree.add(rect) == simpleTree.add({rect.left(),
                                                    rect.top(),
                                                    rect.right(),
@@ -72,4 +72,4 @@ DEF_GRAPHITE_TEST(skgpu_IntersectionTree, reporter) {
     }
 }
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite

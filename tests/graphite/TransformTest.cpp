@@ -11,6 +11,6 @@
 
 DEF_GRAPHITE_TEST(TransformTest, reporter) {
     // TODO: Michael takes this over
-    skgpu::Transform t{SkM44()};
-    REPORTER_ASSERT(reporter, t.type() == skgpu::Transform::Type::kIdentity);
+    skgpu::graphite::Transform t{SkM44()};
+    REPORTER_ASSERT(reporter, t.type() == skgpu::graphite::Transform::Type::kIdentity);
 }

@@ -1719,7 +1719,7 @@ GrRecordingContext* SkCanvas::recordingContext() {
     return nullptr;
 }
 
-skgpu::Recorder* SkCanvas::recorder() {
+skgpu::graphite::Recorder* SkCanvas::recorder() {
 #ifdef SK_GRAPHITE_ENABLED
     if (auto graphiteDevice = this->topDevice()->asGraphiteDevice()) {
         return graphiteDevice->recorder();

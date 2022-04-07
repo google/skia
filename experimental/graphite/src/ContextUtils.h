@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_ContextUtils_DEFINED
-#define skgpu_ContextUtils_DEFINED
+#ifndef skgpu_graphite_ContextUtils_DEFINED
+#define skgpu_graphite_ContextUtils_DEFINED
 
 #include "experimental/graphite/src/PipelineDataCache.h"
 
@@ -14,7 +14,7 @@ class SkPaintParamsKeyBuilder;
 class SkPipelineDataGatherer;
 class SkUniquePaintParamsID;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class DrawGeometry;
 class PaintParams;
@@ -32,6 +32,6 @@ UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformD
                                               const RenderStep* step,
                                               const DrawGeometry& geometry);
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_ContextUtils_DEFINED
+#endif // skgpu_graphite_ContextUtils_DEFINED

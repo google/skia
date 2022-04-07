@@ -20,7 +20,7 @@ static_assert(sizeof(float) == 4);
 static_assert(sizeof(int16_t) == 2);
 static_assert(sizeof(SkHalf) == 2);
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 //////////////////////////////////////////////////////////////////////////////
 template<typename BaseType>
@@ -610,4 +610,4 @@ void UniformManager::write(float2 something) {
     this->write(kType, 1, &something);
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

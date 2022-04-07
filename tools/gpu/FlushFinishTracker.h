@@ -14,7 +14,7 @@
 class GrDirectContext;
 
 #ifdef SK_GRAPHITE_ENABLED
-namespace skgpu { class Context; }
+namespace skgpu::graphite { class Context; }
 #endif
 
 namespace sk_gpu_test {
@@ -33,7 +33,7 @@ public:
 
     FlushFinishTracker(GrDirectContext* context) : fContext(context) {}
 #ifdef SK_GRAPHITE_ENABLED
-    FlushFinishTracker(skgpu::Context* context) : fGraphiteContext(context) {}
+    FlushFinishTracker(skgpu::graphite::Context* context) : fGraphiteContext(context) {}
 #endif
 
     void setFinished() { fIsFinished = true; }
@@ -43,7 +43,7 @@ public:
 private:
     GrDirectContext* fContext = nullptr;
 #ifdef SK_GRAPHITE_ENABLED
-    skgpu::Context*  fGraphiteContext = nullptr;
+    skgpu::graphite::Context*  fGraphiteContext = nullptr;
 #endif
 
     // Currently we don't have the this bool be atomic cause all current uses of this class happen

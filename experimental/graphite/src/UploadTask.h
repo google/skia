@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_UploadTask_DEFINED
-#define skgpu_UploadTask_DEFINED
+#ifndef skgpu_graphite_UploadTask_DEFINED
+#define skgpu_graphite_UploadTask_DEFINED
 
 #include "experimental/graphite/src/Task.h"
 
@@ -16,7 +16,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Buffer;
 struct BufferTextureCopyData;
@@ -104,6 +104,6 @@ private:
     std::vector<UploadInstance> fInstances;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_UploadTask_DEFINED
+#endif // skgpu_graphite_UploadTask_DEFINED

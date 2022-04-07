@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_geom_Shape_DEFINED
-#define skgpu_geom_Shape_DEFINED
+#ifndef skgpu_graphite_geom_Shape_DEFINED
+#define skgpu_graphite_geom_Shape_DEFINED
 
 #include "include/core/SkM44.h"
 #include "include/core/SkPath.h"
@@ -17,7 +17,7 @@
 
 #include <array>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 /**
  * Shape is effectively a std::variant over different geometric shapes, with the most complex
@@ -170,6 +170,6 @@ private:
     bool    fInverted = false;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_geom_Shape_DEFINED
+#endif // skgpu_graphite_geom_Shape_DEFINED

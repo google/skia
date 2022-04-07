@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_geom_IntersectionTree_DEFINED
-#define skgpu_geom_IntersectionTree_DEFINED
+#ifndef skgpu_graphite_geom_IntersectionTree_DEFINED
+#define skgpu_graphite_geom_IntersectionTree_DEFINED
 
 #include "experimental/graphite/src/geom/Rect.h"
 #include "src/core/SkArenaAlloc.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 /**
  * Maintains a collection of non-overlapping rectangles.
@@ -59,6 +59,6 @@ private:
     Node* fRoot;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_geom_IntersectionTree_DEFINED
+#endif // skgpu_graphite_geom_IntersectionTree_DEFINED

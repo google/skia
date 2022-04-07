@@ -381,10 +381,10 @@ void SkImageShader::addToKey(const SkKeyContext& keyContext,
 
 #ifdef SK_GRAPHITE_ENABLED
     if (as_IB(fImage)->isGraphiteBacked()) {
-        skgpu::Image* grImage = static_cast<skgpu::Image*>(fImage.get());
+        skgpu::graphite::Image* grImage = static_cast<skgpu::graphite::Image*>(fImage.get());
 
-        auto mipmapped = (fSampling.mipmap != SkMipmapMode::kNone) ? skgpu::Mipmapped::kYes
-                                                                   : skgpu::Mipmapped::kNo;
+        auto mipmapped = (fSampling.mipmap != SkMipmapMode::kNone) ?
+                skgpu::graphite::Mipmapped::kYes : skgpu::graphite::Mipmapped::kNo;
         // TODO: In practice which SkBudgeted value used shouldn't matter because we're not going
         // to create a new texture here. But should the SkImage know its SkBudgeted state?
         auto[view, ct] = grImage->asView(keyContext.recorder(), mipmapped, SkBudgeted::kNo);

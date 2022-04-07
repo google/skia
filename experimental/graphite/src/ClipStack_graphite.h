@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_ClipStack_DEFINED
-#define skgpu_ClipStack_DEFINED
+#ifndef skgpu_graphite_ClipStack_DEFINED
+#define skgpu_graphite_ClipStack_DEFINED
 
 #include "experimental/graphite/src/DrawOrder.h"
 #include "experimental/graphite/src/geom/Shape.h"
@@ -17,7 +17,7 @@
 class SkShader;
 class SkStrokeRec;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class BoundsManager;
 class Clip;
@@ -320,6 +320,6 @@ ClipStack::ElementIter ClipStack::end() const {
     return ElementIter(fElements.ritems().end(), 0);
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_ClipStack_DEFINED
+#endif // skgpu_graphite_ClipStack_DEFINED

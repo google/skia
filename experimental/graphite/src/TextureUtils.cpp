@@ -23,27 +23,27 @@
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/UploadTask.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder,
                                                               const SkBitmap& bitmap,
                                                               Mipmapped mipmapped,
                                                               SkBudgeted budgeted) {
     // Adjust params based on input and Caps
-    const skgpu::Caps* caps = recorder->priv().caps();
+    const skgpu::graphite::Caps* caps = recorder->priv().caps();
     SkColorType ct = bitmap.info().colorType();
 
     if (bitmap.dimensions().area() <= 1) {
-        mipmapped = skgpu::Mipmapped::kNo;
+        mipmapped = Mipmapped::kNo;
     }
     int mipLevelCount = (mipmapped == Mipmapped::kYes) ?
             SkMipmap::ComputeLevelCount(bitmap.width(), bitmap.height()) + 1 : 1;
 
-    auto textureInfo = caps->getDefaultSampledTextureInfo(ct, mipLevelCount, skgpu::Protected::kNo,
+    auto textureInfo = caps->getDefaultSampledTextureInfo(ct, mipLevelCount, Protected::kNo,
                                                           Renderable::kNo);
     if (!textureInfo.isValid()) {
         ct = kRGBA_8888_SkColorType;
-        textureInfo = caps->getDefaultSampledTextureInfo(ct, mipLevelCount, skgpu::Protected::kNo,
+        textureInfo = caps->getDefaultSampledTextureInfo(ct, mipLevelCount, Protected::kNo,
                                                          Renderable::kNo);
     }
     SkASSERT(textureInfo.isValid());
@@ -101,7 +101,7 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
     SkASSERT(mipmapped == Mipmapped::kNo || proxy->mipmapped() == Mipmapped::kYes);
 
     // Add UploadTask to Recorder
-    skgpu::UploadInstance upload = UploadInstance::Make(
+    UploadInstance upload = UploadInstance::Make(
             recorder, proxy, ct, texels, SkIRect::MakeSize(bmpToUpload.dimensions()));
     recorder->priv().add(UploadTask::Make(upload));
 
@@ -156,7 +156,7 @@ bool ReadPixelsHelper(FlushPendingWorkCallback&& flushPendingWork,
     if (!recording) {
         return false;
     }
-    skgpu::InsertRecordingInfo info;
+    InsertRecordingInfo info;
     info.fRecording = recording.get();
     context->insertRecording(info);
     context->submit(SyncToCpu::kYes);
@@ -168,4 +168,4 @@ bool ReadPixelsHelper(FlushPendingWorkCallback&& flushPendingWork,
     return true;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

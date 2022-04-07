@@ -7,7 +7,7 @@
 
 #include "experimental/graphite/src/GraphiteResourceKey.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 ResourceType GraphiteResourceKey::GenerateResourceType() {
     static std::atomic<int32_t> nextType{ResourceKey::kInvalidDomain + 1};
@@ -20,5 +20,5 @@ ResourceType GraphiteResourceKey::GenerateResourceType() {
     return static_cast<ResourceType>(type);
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 

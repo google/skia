@@ -14,7 +14,7 @@
 #include "experimental/graphite/src/render/TessellateWedgesRenderStep.h"
 #include "include/core/SkPathTypes.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 namespace {
 

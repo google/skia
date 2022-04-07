@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_RenderPassTask_DEFINED
-#define skgpu_RenderPassTask_DEFINED
+#ifndef skgpu_graphite_RenderPassTask_DEFINED
+#define skgpu_graphite_RenderPassTask_DEFINED
 
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/Task.h"
 
 #include <vector>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class CommandBuffer;
 class Context;
@@ -47,6 +47,6 @@ private:
     sk_sp<TextureProxy> fTarget;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_RenderPassTask_DEFINED
+#endif // skgpu_graphite_RenderPassTask_DEFINED

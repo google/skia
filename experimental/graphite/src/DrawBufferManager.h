@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawBufferManager_DEFINED
-#define skgpu_DrawBufferManager_DEFINED
+#ifndef skgpu_graphite_DrawBufferManager_DEFINED
+#define skgpu_graphite_DrawBufferManager_DEFINED
 
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/ResourceTypes.h"
@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Buffer;
 class CommandBuffer;
@@ -71,6 +71,6 @@ private:
     std::unordered_map<uintptr_t, sk_sp<Buffer>> fStaticBuffers;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_DrawBufferManager_DEFINED
+#endif // skgpu_graphite_DrawBufferManager_DEFINED

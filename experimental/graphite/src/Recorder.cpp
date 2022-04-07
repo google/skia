@@ -20,7 +20,7 @@
 #include "experimental/graphite/src/TaskGraph.h"
 #include "src/core/SkPipelineData.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
 
@@ -101,4 +101,4 @@ bool Recorder::deviceIsRegistered(Device* device) {
 }
 #endif
 
-} // namespace skgpu
+} // namespace skgpu::graphite

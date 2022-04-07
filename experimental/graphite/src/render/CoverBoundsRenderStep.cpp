@@ -11,7 +11,7 @@
 #include "experimental/graphite/src/DrawWriter.h"
 #include "experimental/graphite/src/render/StencilAndCoverDSS.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 CoverBoundsRenderStep::CoverBoundsRenderStep(bool inverseFill)
         : RenderStep("CoverBoundsRenderStep",
@@ -60,4 +60,4 @@ void CoverBoundsRenderStep::writeUniforms(const DrawGeometry&, SkPipelineDataGat
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite

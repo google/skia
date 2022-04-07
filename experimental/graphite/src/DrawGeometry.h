@@ -18,7 +18,7 @@
 
 #include <optional>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // NOTE: Only represents the stroke or hairline styles; stroke-and-fill must be handled higher up.
 class StrokeStyle {

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_ResourceProvider_DEFINED
-#define skgpu_ResourceProvider_DEFINED
+#ifndef skgpu_graphite_ResourceProvider_DEFINED
+#define skgpu_graphite_ResourceProvider_DEFINED
 
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
@@ -20,6 +20,10 @@ struct SkSamplingOptions;
 class SkShaderCodeDictionary;
 
 namespace skgpu {
+class SingleOwner;
+}
+
+namespace skgpu::graphite {
 
 class BackendTexture;
 class Buffer;
@@ -30,7 +34,6 @@ class GraphicsPipeline;
 class GraphiteResourceKey;
 class ResourceCache;
 class Sampler;
-class SingleOwner;
 class Texture;
 class TextureInfo;
 
@@ -109,6 +112,6 @@ private:
     std::unique_ptr<GraphicsPipelineCache> fGraphicsPipelineCache;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_ResourceProvider_DEFINED
+#endif // skgpu_graphite_ResourceProvider_DEFINED

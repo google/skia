@@ -16,19 +16,19 @@
 namespace skgpu::graphite {
 class MtlGpu;
 
-class MtlTexture : public skgpu::Texture {
+class MtlTexture : public Texture {
 public:
     static sk_cfp<id<MTLTexture>> MakeMtlTexture(const MtlGpu*,
                                                  SkISize dimensions,
-                                                 const skgpu::TextureInfo&);
+                                                 const TextureInfo&);
 
     static sk_sp<Texture> Make(const MtlGpu*,
                                SkISize dimensions,
-                               const skgpu::TextureInfo&);
+                               const TextureInfo&);
 
     static sk_sp<Texture> MakeWrapped(const MtlGpu*,
                                       SkISize dimensions,
-                                      const skgpu::TextureInfo&,
+                                      const TextureInfo&,
                                       sk_cfp<id<MTLTexture>>);
 
     ~MtlTexture() override {}
@@ -38,7 +38,7 @@ public:
 private:
     MtlTexture(const MtlGpu* gpu,
                SkISize dimensions,
-               const skgpu::TextureInfo& info,
+               const TextureInfo& info,
                sk_cfp<id<MTLTexture>>,
                Ownership);
 

@@ -11,7 +11,7 @@
 #include "experimental/graphite/src/geom/VectorTypes.h"
 #include "src/core/SkMatrixPriv.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 namespace {
 
@@ -132,4 +132,4 @@ void Transform::inverseMapPoints(const SkV4* deviceIn, SkV4* localOut, int count
     return map_points(fInvM, deviceIn, localOut, count);
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

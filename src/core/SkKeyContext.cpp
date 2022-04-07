@@ -11,7 +11,7 @@
 #include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 
-SkKeyContext::SkKeyContext(skgpu::Recorder* recorder) : fRecorder(recorder) {
+SkKeyContext::SkKeyContext(skgpu::graphite::Recorder* recorder) : fRecorder(recorder) {
     fDictionary = fRecorder->priv().resourceProvider()->shaderCodeDictionary();
 }
 #endif

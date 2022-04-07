@@ -17,17 +17,14 @@
 
 class SkShaderCodeDictionary;
 
-namespace skgpu {
+namespace skgpu::graphite {
 class Context;
 class GraphicsPipelineDesc;
-struct RenderPassDesc;
-} // namespace skgpu
-
-namespace skgpu::graphite {
 class MtlGpu;
 class MtlResourceProvider;
+struct RenderPassDesc;
 
-class MtlGraphicsPipeline final : public skgpu::GraphicsPipeline {
+class MtlGraphicsPipeline final : public GraphicsPipeline {
 public:
     inline static constexpr unsigned int kIntrinsicUniformBufferIndex = 0;
     inline static constexpr unsigned int kRenderStepUniformBufferIndex = 1;
@@ -37,8 +34,8 @@ public:
 
     static sk_sp<MtlGraphicsPipeline> Make(MtlResourceProvider*,
                                            const MtlGpu*,
-                                           const skgpu::GraphicsPipelineDesc&,
-                                           const skgpu::RenderPassDesc&);
+                                           const GraphicsPipelineDesc&,
+                                           const RenderPassDesc&);
     ~MtlGraphicsPipeline() override {}
 
     id<MTLRenderPipelineState> mtlPipelineState() const { return fPipelineState.get(); }
@@ -48,13 +45,13 @@ public:
     size_t instanceStride() const { return fInstanceStride; }
 
 private:
-    MtlGraphicsPipeline(const skgpu::Gpu* gpu,
+    MtlGraphicsPipeline(const skgpu::graphite::Gpu* gpu,
                         sk_cfp<id<MTLRenderPipelineState>> pso,
                         sk_cfp<id<MTLDepthStencilState>> dss,
                         uint32_t refValue,
                         size_t vertexStride,
                         size_t instanceStride)
-        : skgpu::GraphicsPipeline(gpu)
+        : GraphicsPipeline(gpu)
         , fPipelineState(std::move(pso))
         , fDepthStencilState(dss)
         , fStencilReferenceValue(refValue)

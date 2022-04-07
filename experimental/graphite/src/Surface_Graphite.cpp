@@ -12,7 +12,7 @@
 #include "experimental/graphite/src/Device.h"
 #include "experimental/graphite/src/Image_Graphite.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 Surface::Surface(sk_sp<Device> device)
         : SkSurface_Base(device->width(), device->height(), &device->surfaceProps())
@@ -56,4 +56,4 @@ bool Surface::onReadPixels(Context* context,
     return fDevice->readPixels(context, recorder, dst, srcX, srcY);
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

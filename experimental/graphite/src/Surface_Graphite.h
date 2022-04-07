@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Surface_Graphite_DEFINED
-#define skgpu_Surface_Graphite_DEFINED
+#ifndef skgpu_graphite_Surface_Graphite_DEFINED
+#define skgpu_graphite_Surface_Graphite_DEFINED
 
 #include "src/image/SkSurface_Base.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Context;
 class Device;
@@ -33,6 +33,6 @@ private:
     sk_sp<Device> fDevice;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Surface_Graphite_DEFINED
+#endif // skgpu_graphite_Surface_Graphite_DEFINED

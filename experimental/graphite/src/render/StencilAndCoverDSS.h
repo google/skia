@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_render_StencilAndCoverDSS_DEFINED
-#define skgpu_render_StencilAndCoverDSS_DEFINED
+#ifndef skgpu_graphite_render_StencilAndCoverDSS_DEFINED
+#define skgpu_graphite_render_StencilAndCoverDSS_DEFINED
 
 #include "experimental/graphite/src/DrawTypes.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 /**
  * "stencil" pass DepthAndStencilSettings reusable for RenderSteps following some form of
@@ -123,6 +123,6 @@ constexpr DepthStencilSettings kInverseCoverPass = {
         /*depthWrite=*/  true
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite
 
-#endif // skgpu_render_RedbookDepthAndStencilSettings
+#endif // skgpu_graphite_render_RedbookDepthAndStencilSettings

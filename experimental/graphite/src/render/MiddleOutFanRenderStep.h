@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_render_MiddleOutFanRenderStep_DEFINED
-#define skgpu_render_MiddleOutFanRenderStep_DEFINED
+#ifndef skgpu_graphite_render_MiddleOutFanRenderStep_DEFINED
+#define skgpu_graphite_render_MiddleOutFanRenderStep_DEFINED
 
 #include "experimental/graphite/src/Renderer.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class MiddleOutFanRenderStep final : public RenderStep {
 public:
@@ -26,6 +26,6 @@ public:
     void writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const override;
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite
 
-#endif // skgpu_render_MiddleOutFanRenderStep_DEFINED
+#endif // skgpu_graphite_render_MiddleOutFanRenderStep_DEFINED

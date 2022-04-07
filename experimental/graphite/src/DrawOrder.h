@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawOrder_DEFINED
-#define skgpu_DrawOrder_DEFINED
+#ifndef skgpu_graphite_DrawOrder_DEFINED
+#define skgpu_graphite_DrawOrder_DEFINED
 
 #include "include/core/SkTypes.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // Helper to encapsulate an unsigned number and enforce that it can only be used to create a
 // monotonic sequence. The template argument 'Sequence' is used to define different sequences
@@ -161,6 +161,6 @@ private:
     PaintersDepth           fDepth;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_DrawOrder_DEFINED
+#endif // skgpu_graphite_DrawOrder_DEFINED

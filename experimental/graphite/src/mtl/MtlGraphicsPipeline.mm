@@ -494,8 +494,8 @@ static const int kShaderTypeCount = kLast_ShaderType + 1;
 
 sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
         MtlResourceProvider* resourceProvider, const MtlGpu* gpu,
-        const skgpu::GraphicsPipelineDesc& pipelineDesc,
-        const skgpu::RenderPassDesc& renderPassDesc) {
+        const GraphicsPipelineDesc& pipelineDesc,
+        const RenderPassDesc& renderPassDesc) {
     sk_cfp<MTLRenderPipelineDescriptor*> psoDescriptor([[MTLRenderPipelineDescriptor alloc] init]);
 
     std::string msl[kShaderTypeCount];

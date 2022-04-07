@@ -17,7 +17,7 @@
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 namespace {
 
@@ -886,4 +886,4 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
 
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

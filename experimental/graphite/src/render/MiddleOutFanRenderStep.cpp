@@ -14,7 +14,7 @@
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 MiddleOutFanRenderStep::MiddleOutFanRenderStep(bool evenOdd)
         : RenderStep("MiddleOutFanRenderStep",
@@ -64,4 +64,4 @@ void MiddleOutFanRenderStep::writeUniforms(const DrawGeometry&, SkPipelineDataGa
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite

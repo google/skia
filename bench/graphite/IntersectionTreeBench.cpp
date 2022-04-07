@@ -16,7 +16,7 @@
 static DEFINE_string(intersectionTreeFile, "",
                      "svg or skp for the IntersectionTree bench to sniff paths from.");
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class IntersectionTreeBench : public Benchmark {
 protected:
@@ -157,11 +157,11 @@ private:
     }
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite
 
-DEF_BENCH( return new skgpu::RandomIntersectionBench(100); )
-DEF_BENCH( return new skgpu::RandomIntersectionBench(500); )
-DEF_BENCH( return new skgpu::RandomIntersectionBench(1000); )
-DEF_BENCH( return new skgpu::RandomIntersectionBench(5000); )
-DEF_BENCH( return new skgpu::RandomIntersectionBench(10000); )
-DEF_BENCH( return new skgpu::FileIntersectionBench(); )  // Sniffs --intersectionTreeFile
+DEF_BENCH( return new skgpu::graphite::RandomIntersectionBench(100); )
+DEF_BENCH( return new skgpu::graphite::RandomIntersectionBench(500); )
+DEF_BENCH( return new skgpu::graphite::RandomIntersectionBench(1000); )
+DEF_BENCH( return new skgpu::graphite::RandomIntersectionBench(5000); )
+DEF_BENCH( return new skgpu::graphite::RandomIntersectionBench(10000); )
+DEF_BENCH( return new skgpu::graphite::FileIntersectionBench(); )  // Sniffs --intersectionTreeFile

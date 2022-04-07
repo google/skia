@@ -11,7 +11,7 @@
 #include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/src/Device.h"
 
-using namespace skgpu;
+using namespace skgpu::graphite;
 
 // Tests to make sure the managing of back pointers between Recorder and Device all work properly.
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(RecorderDevicePtrTest, reporter, context) {

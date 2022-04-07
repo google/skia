@@ -22,7 +22,7 @@ namespace skgpu::graphite {
  */
 class MtlBlitCommandEncoder : public Resource {
 public:
-    static sk_sp<MtlBlitCommandEncoder> Make(const skgpu::Gpu* gpu,
+    static sk_sp<MtlBlitCommandEncoder> Make(const skgpu::graphite::Gpu* gpu,
                                              id<MTLCommandBuffer> commandBuffer) {
         // Adding a retain here to keep our own ref separate from the autorelease pool
         sk_cfp<id<MTLBlitCommandEncoder>> encoder =
@@ -80,7 +80,8 @@ public:
     }
 
 private:
-    MtlBlitCommandEncoder(const skgpu::Gpu* gpu, sk_cfp<id<MTLBlitCommandEncoder>> encoder)
+    MtlBlitCommandEncoder(const skgpu::graphite::Gpu* gpu,
+                          sk_cfp<id<MTLBlitCommandEncoder>> encoder)
         : Resource(gpu, Ownership::kOwned), fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override {

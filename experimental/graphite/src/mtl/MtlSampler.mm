@@ -15,7 +15,7 @@ namespace skgpu::graphite {
 
 MtlSampler::MtlSampler(const MtlGpu* gpu,
                        sk_cfp<id<MTLSamplerState>> samplerState)
-        : skgpu::Sampler(gpu)
+        : Sampler(gpu)
         , fSamplerState(std::move(samplerState)) {}
 
 static inline MTLSamplerAddressMode tile_mode_to_mtl_sampler_address(SkTileMode tileMode,

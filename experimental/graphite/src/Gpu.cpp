@@ -16,7 +16,7 @@
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "src/sksl/SkSLCompiler.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // This constant determines how many OutstandingSubmissions are allocated together as a block in
 // the deque. As such it needs to balance allocating too much memory vs. incurring
@@ -109,4 +109,4 @@ void Gpu::deleteBackendTexture(BackendTexture& texture) {
 }
 
 
-} // namespace skgpu
+} // namespace skgpu::graphite

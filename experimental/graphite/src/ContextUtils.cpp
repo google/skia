@@ -19,7 +19,7 @@
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkShaderCodeDictionary.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 std::tuple<SkUniquePaintParamsID, UniformDataCache::Index, TextureDataCache::Index>
 ExtractPaintData(Recorder* recorder,
@@ -64,4 +64,4 @@ UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformD
     return uIndex;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Gpu_DEFINED
-#define skgpu_Gpu_DEFINED
+#ifndef skgpu_graphite_Gpu_DEFINED
+#define skgpu_graphite_Gpu_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
@@ -19,6 +19,10 @@ namespace SkSL {
 }
 
 namespace skgpu {
+class SingleOwner;
+}
+
+namespace skgpu::graphite {
 
 class BackendTexture;
 class Caps;
@@ -26,7 +30,6 @@ class CommandBuffer;
 class GlobalCache;
 class GpuWorkSubmission;
 class ResourceProvider;
-class SingleOwner;
 class TextureInfo;
 
 // TODO: Figure out if we need to fission Gpu into parts that are needed by a Recorder and parts
@@ -81,6 +84,6 @@ private:
     SkDeque fOutstandingSubmissions;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Gpu_DEFINED
+#endif // skgpu_graphite_Gpu_DEFINED

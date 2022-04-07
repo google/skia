@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Attribute_DEFINED
-#define skgpu_Attribute_DEFINED
+#ifndef skgpu_graphite_Attribute_DEFINED
+#define skgpu_graphite_Attribute_DEFINED
 
 #include "experimental/graphite/src/DrawTypes.h"
 #include "src/core/SkSLTypeShared.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
  /** Describes a vertex or instance attribute. */
 class Attribute {
@@ -42,6 +42,6 @@ private:
     SkSLType fGPUType = SkSLType::kVoid;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Attribute_DEFINED
+#endif // skgpu_graphite_Attribute_DEFINED

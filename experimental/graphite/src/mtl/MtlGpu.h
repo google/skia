@@ -19,9 +19,9 @@
 
 namespace skgpu::graphite {
 
-class MtlGpu final : public skgpu::Gpu {
+class MtlGpu final : public Gpu {
 public:
-    static sk_sp<skgpu::Gpu> Make(const MtlBackendContext&);
+    static sk_sp<Gpu> Make(const MtlBackendContext&);
     ~MtlGpu() override;
 
     id<MTLDevice> device() const { return fDevice.get(); }
@@ -29,15 +29,15 @@ public:
 
     const MtlCaps& mtlCaps() const { return static_cast<const MtlCaps&>(*this->caps()); }
 
-    std::unique_ptr<skgpu::ResourceProvider> makeResourceProvider(
+    std::unique_ptr<ResourceProvider> makeResourceProvider(
             sk_sp<GlobalCache>, SingleOwner*) const override;
 
 private:
     MtlGpu(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const MtlCaps>);
 
-    skgpu::Gpu::OutstandingSubmission onSubmit(sk_sp<skgpu::CommandBuffer>) override;
+    Gpu::OutstandingSubmission onSubmit(sk_sp<CommandBuffer>) override;
 
-    BackendTexture onCreateBackendTexture(SkISize dimensions, const skgpu::TextureInfo&) override;
+    BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
     void onDeleteBackendTexture(BackendTexture&) override;
 
 #if GRAPHITE_TEST_UTILS

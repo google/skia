@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Task_DEFINED
-#define skgpu_Task_DEFINED
+#ifndef skgpu_graphite_Task_DEFINED
+#define skgpu_graphite_Task_DEFINED
 
 #include "include/core/SkRefCnt.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class CommandBuffer;
 class ResourceProvider;
@@ -28,6 +28,6 @@ protected:
 private:
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Task_DEFINED
+#endif // skgpu_graphite_Task_DEFINED

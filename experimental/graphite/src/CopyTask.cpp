@@ -11,7 +11,7 @@
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/Texture.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 sk_sp<CopyTextureToBufferTask> CopyTextureToBufferTask::Make(sk_sp<Texture> texture,
                                                              SkIRect srcRect,
@@ -48,4 +48,4 @@ bool CopyTextureToBufferTask::addCommands(ResourceProvider*, CommandBuffer* comm
     return true;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_CommandBuffer_DEFINED
-#define skgpu_CommandBuffer_DEFINED
+#ifndef skgpu_graphite_CommandBuffer_DEFINED
+#define skgpu_graphite_CommandBuffer_DEFINED
 
 #include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/src/DrawTypes.h"
@@ -19,10 +19,13 @@
 struct SkIRect;
 
 namespace skgpu {
+class RefCntedCallback;
+}
+
+namespace skgpu::graphite {
 class Buffer;
 class Gpu;
 class GraphicsPipeline;
-class RefCntedCallback;
 class Resource;
 class Sampler;
 class Texture;
@@ -214,6 +217,6 @@ private:
     SkTArray<sk_sp<RefCntedCallback>> fFinishedProcs;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_CommandBuffer_DEFINED
+#endif // skgpu_graphite_CommandBuffer_DEFINED

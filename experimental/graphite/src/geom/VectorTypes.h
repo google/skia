@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_geom_VectorTypes_DEFINED
-#define skgpu_geom_VectorTypes_DEFINED
+#ifndef skgpu_graphite_geom_VectorTypes_DEFINED
+#define skgpu_graphite_geom_VectorTypes_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "include/private/SkVx.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // Use familiar type names from SkSL.
 template<int N> using vec = skvx::Vec<N, float>;
@@ -26,7 +26,7 @@ template<int N> using uvec = skvx::Vec<N, uint32_t>;
 using uint2 = uvec<2>;
 using uint4 = uvec<4>;
 
-};  // namespace skgpu
+};  // namespace skgpu::graphite
 
-#endif // skgpu_geom_VectorTypes_DEFINED
+#endif // skgpu_graphite_geom_VectorTypes_DEFINED
 

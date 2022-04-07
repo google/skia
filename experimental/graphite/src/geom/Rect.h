@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_geom_Rect_DEFINED
-#define skgpu_geom_Rect_DEFINED
+#ifndef skgpu_graphite_geom_Rect_DEFINED
+#define skgpu_graphite_geom_Rect_DEFINED
 
 #include "experimental/graphite/src/geom/VectorTypes.h"
 #include "include/core/SkRect.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 #define AI SK_ALWAYS_INLINE
 
@@ -149,6 +149,6 @@ private:
 
 #undef AI
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_geom_Rect_DEFINED
+#endif // skgpu_graphite_geom_Rect_DEFINED

@@ -18,7 +18,7 @@
 #include "include/private/SkUniquePaintParamsID.h"
 
 #include <array>
-namespace skgpu {
+namespace skgpu::graphite {
 
 class RenderStep;
 

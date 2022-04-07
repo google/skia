@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_TaskGraph_DEFINED
-#define skgpu_TaskGraph_DEFINED
+#ifndef skgpu_graphite_TaskGraph_DEFINED
+#define skgpu_graphite_TaskGraph_DEFINED
 
 #include <vector>
 #include "experimental/graphite/src/Task.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 class CommandBuffer;
 class ResourceProvider;
 
@@ -31,6 +31,6 @@ private:
     std::vector<sk_sp<Task>> fTasks;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_TaskGraph_DEFINED
+#endif // skgpu_graphite_TaskGraph_DEFINED

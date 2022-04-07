@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_EnumBitMask_DEFINED
-#define skgpu_EnumBitMask_DEFINED
+#ifndef skgpu_graphite_EnumBitMask_DEFINED
+#define skgpu_graphite_EnumBitMask_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 /**
  * Wraps an enum that is used for flags, and enables masking with type safety. Example:
@@ -61,19 +61,27 @@ private:
  * Defines functions that make it possible to use bitwise operators on an enum.
  */
 #define SKGPU_MAKE_MASK_OPS(E) \
-    SK_MAYBE_UNUSED constexpr skgpu::Mask<E> operator|(E a, E b) { return skgpu::Mask<E>(a) | b; } \
-    SK_MAYBE_UNUSED constexpr skgpu::Mask<E> operator&(E a, E b) { return skgpu::Mask<E>(a) & b; } \
-    SK_MAYBE_UNUSED constexpr skgpu::Mask<E> operator^(E a, E b) { return skgpu::Mask<E>(a) ^ b; } \
-    SK_MAYBE_UNUSED constexpr skgpu::Mask<E> operator~(E e) { return ~skgpu::Mask<E>(e); } \
+    SK_MAYBE_UNUSED constexpr skgpu::graphite::Mask<E> operator|(E a, E b) { \
+        return skgpu::graphite::Mask<E>(a) | b; \
+    } \
+    SK_MAYBE_UNUSED constexpr skgpu::graphite::Mask<E> operator&(E a, E b) { \
+        return skgpu::graphite::Mask<E>(a) & b; \
+    } \
+    SK_MAYBE_UNUSED constexpr skgpu::graphite::Mask<E> operator^(E a, E b) { \
+        return skgpu::graphite::Mask<E>(a) ^ b; \
+    } \
+    SK_MAYBE_UNUSED constexpr skgpu::graphite::Mask<E> operator~(E e) { \
+        return ~skgpu::graphite::Mask<E>(e); \
+    } \
 
 #define SKGPU_DECL_MASK_OPS_FRIENDS(E) \
-    friend constexpr skgpu::Mask<E> operator|(E, E); \
-    friend constexpr skgpu::Mask<E> operator&(E, E); \
-    friend constexpr skgpu::Mask<E> operator^(E, E); \
-    friend constexpr skgpu::Mask<E> operator~(E); \
+    friend constexpr skgpu::graphite::Mask<E> operator|(E, E); \
+    friend constexpr skgpu::graphite::Mask<E> operator&(E, E); \
+    friend constexpr skgpu::graphite::Mask<E> operator^(E, E); \
+    friend constexpr skgpu::graphite::Mask<E> operator~(E); \
 
-};  // namespace skgpu
+};  // namespace skgpu::graphite
 
-#endif // skgpu_EnumBitMask_DEFINED
+#endif // skgpu_graphite_EnumBitMask_DEFINED
 
 

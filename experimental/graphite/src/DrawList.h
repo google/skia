@@ -19,7 +19,7 @@
 #include <limits>
 #include <optional>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Renderer;
 class Shape;

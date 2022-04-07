@@ -17,8 +17,8 @@ namespace skgpu::graphite {
 
 sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlGpu* gpu,
                                                   SkISize dimensions,
-                                                  const skgpu::TextureInfo& info) {
-    const skgpu::Caps* caps = gpu->caps();
+                                                  const TextureInfo& info) {
+    const skgpu::graphite::Caps* caps = gpu->caps();
     if (dimensions.width() > caps->maxTextureSize() ||
         dimensions.height() > caps->maxTextureSize()) {
         return nullptr;
@@ -79,15 +79,15 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlGpu* gpu,
 
 MtlTexture::MtlTexture(const MtlGpu* gpu,
                        SkISize dimensions,
-                       const skgpu::TextureInfo& info,
+                       const TextureInfo& info,
                        sk_cfp<id<MTLTexture>> texture,
                        Ownership ownership)
-        : skgpu::Texture(gpu, dimensions, info, ownership)
+        : Texture(gpu, dimensions, info, ownership)
         , fTexture(std::move(texture)) {}
 
 sk_sp<Texture> MtlTexture::Make(const MtlGpu* gpu,
                                 SkISize dimensions,
-                                const skgpu::TextureInfo& info) {
+                                const TextureInfo& info) {
     sk_cfp<id<MTLTexture>> texture = MakeMtlTexture(gpu, dimensions, info);
     if (!texture) {
         return nullptr;
@@ -101,7 +101,7 @@ sk_sp<Texture> MtlTexture::Make(const MtlGpu* gpu,
 
 sk_sp<Texture> MtlTexture::MakeWrapped(const MtlGpu* gpu,
                                        SkISize dimensions,
-                                       const skgpu::TextureInfo& info,
+                                       const TextureInfo& info,
                                        sk_cfp<id<MTLTexture>> texture) {
     return sk_sp<Texture>(new MtlTexture(gpu,
                                          dimensions,

@@ -14,7 +14,7 @@
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
 
-using namespace skgpu;
+using namespace skgpu::graphite;
 
 namespace {
 

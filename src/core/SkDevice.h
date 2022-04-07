@@ -36,6 +36,8 @@ class SkSpecialImage;
 namespace skif { class Mapping; }
 namespace skgpu {
 class BaseDevice;
+}
+namespace skgpu::graphite {
 class Device;
 }
 
@@ -193,7 +195,7 @@ public:
     virtual bool android_utils_clipWithStencil() { return false; }
 
     virtual skgpu::BaseDevice* asGaneshDevice() { return nullptr; }
-    virtual skgpu::Device* asGraphiteDevice() { return nullptr; }
+    virtual skgpu::graphite::Device* asGraphiteDevice() { return nullptr; }
 
     // Ensure that non-RSXForm runs are passed to onDrawGlyphRunList.
     void drawGlyphRunList(SkCanvas*, const SkGlyphRunList& glyphRunList, const SkPaint& paint);

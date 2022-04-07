@@ -38,7 +38,7 @@
 #define CAPTURE_COMMANDBUFFER 0
 #endif
 
-using namespace skgpu;
+using namespace skgpu::graphite;
 
 namespace {
 
@@ -387,7 +387,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     bool result = gpu->submit(commandBuffer);
     REPORTER_ASSERT(reporter, result);
 
-    gpu->checkForFinishedWork(skgpu::SyncToCpu::kYes);
+    gpu->checkForFinishedWork(SyncToCpu::kYes);
     uint32_t* pixels = (uint32_t*)(copyBuffer->map());
     REPORTER_ASSERT(reporter, pixels[0] == 0xffff0000);
     REPORTER_ASSERT(reporter, pixels[51 + 38*kTextureWidth] == 0xff00ffff);

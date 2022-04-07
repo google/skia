@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_TextureUtils_DEFINED
-#define skgpu_TextureUtils_DEFINED
+#ifndef skgpu_graphite_TextureUtils_DEFINED
+#define skgpu_graphite_TextureUtils_DEFINED
 
 #include "experimental/graphite/src/TextureProxyView.h"
 
@@ -16,7 +16,7 @@ class SkBitmap;
 enum SkColorType : int;
 struct SkImageInfo;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Context;
 
@@ -33,6 +33,6 @@ bool ReadPixelsHelper(FlushPendingWorkCallback&&,
                       Context* context, Recorder* recorder, TextureProxy* srcProxy,
                       const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY);
-}
+} // namespace skgpu::graphite
 
-#endif // skgpu_TextureUtils_DEFINED
+#endif // skgpu_graphite_TextureUtils_DEFINED

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_ResourceCache_DEFINED
-#define skgpu_ResourceCache_DEFINED
+#ifndef skgpu_graphite_ResourceCache_DEFINED
+#define skgpu_graphite_ResourceCache_DEFINED
 
 #include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkRefCnt.h"
@@ -19,10 +19,13 @@
 #include <vector>
 
 namespace skgpu {
+class SingleOwner;
+}
+
+namespace skgpu::graphite {
 
 class GraphiteResourceKey;
 class Resource;
-class SingleOwner;
 
 class ResourceCache : public SkRefCnt {
 public:
@@ -111,6 +114,6 @@ private:
     ReturnQueue fReturnQueue SK_GUARDED_BY(fReturnMutex);
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_ResourceCache_DEFINED
+#endif // skgpu_graphite_ResourceCache_DEFINED

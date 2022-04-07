@@ -15,7 +15,7 @@
 #include "src/gpu/tessellate/MidpointContourParser.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 namespace {
 
@@ -245,4 +245,4 @@ void TessellateWedgesRenderStep::writeUniforms(const DrawGeometry&, SkPipelineDa
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite

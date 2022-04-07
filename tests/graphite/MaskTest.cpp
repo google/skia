@@ -17,7 +17,7 @@ enum class Flags {
 
 SKGPU_MAKE_MASK_OPS(Flags);
 
-using namespace skgpu;
+using namespace skgpu::graphite;
 
 DEF_GRAPHITE_TEST(skgpu_Mask, r) {
     Mask<Flags> flags = Flags::kNone;

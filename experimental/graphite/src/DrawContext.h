@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawContext_DEFINED
-#define skgpu_DrawContext_DEFINED
+#ifndef skgpu_graphite_DrawContext_DEFINED
+#define skgpu_graphite_DrawContext_DEFINED
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
@@ -20,7 +20,7 @@
 
 class SkPixmap;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class BoundsManager;
 class Recorder;
@@ -126,6 +126,6 @@ private:
     std::unique_ptr<UploadList> fPendingUploads;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_DrawContext_DEFINED
+#endif // skgpu_graphite_DrawContext_DEFINED

@@ -38,7 +38,7 @@ class GrRecordingContext;
 class GrRenderTarget;
 enum GrSurfaceOrigin: int;
 
-namespace skgpu { class Recorder; }
+namespace skgpu::graphite { class Recorder; }
 
 /** \class SkSurface
     SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
@@ -523,7 +523,7 @@ public:
 
         @return the recorder, if available; nullptr otherwise
      */
-    skgpu::Recorder* recorder();
+    skgpu::graphite::Recorder* recorder();
 
 #if SK_SUPPORT_GPU
     enum BackendHandleAccess {

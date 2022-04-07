@@ -11,7 +11,7 @@
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/TaskGraph.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fRecorder->singleOwner())
 
@@ -47,4 +47,4 @@ void RecorderPriv::flushTrackedDevices() {
     }
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

@@ -9,10 +9,10 @@
 
 #include "src/core/SkShaderCodeDictionary.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 GlobalCache::GlobalCache() : fShaderCodeDictionary(std::make_unique<SkShaderCodeDictionary>()) {}
 
 GlobalCache::~GlobalCache() {};
 
-} // namespace skgpu
+} // namespace skgpu::graphite

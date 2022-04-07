@@ -303,8 +303,8 @@ struct GraphiteTarget : public Target {
     std::unique_ptr<ContextFactory> factory;
 
     TestContext* testContext;
-    skgpu::Context* context;
-    std::unique_ptr<skgpu::Recorder> recorder;
+    skgpu::graphite::Context* context;
+    std::unique_ptr<skgpu::graphite::Recorder> recorder;
 
     ~GraphiteTarget() override {}
 
@@ -312,7 +312,7 @@ struct GraphiteTarget : public Target {
 
     void endTiming() override {
         if (context && recorder) {
-            std::unique_ptr<skgpu::Recording> recording = this->recorder->snap();
+            std::unique_ptr<skgpu::graphite::Recording> recording = this->recorder->snap();
             if (recording) {
                 this->testContext->submitRecordingAndWaitOnSync(this->context, recording.get());
             }
@@ -323,13 +323,13 @@ struct GraphiteTarget : public Target {
             // TODO: have a way to sync work with out submitting a Recording which is currently
             // required. Probably need to get to the point where the backend command buffers are
             // stored on the Context and not Recordings before this is feasible.
-            std::unique_ptr<skgpu::Recording> recording = this->recorder->snap();
+            std::unique_ptr<skgpu::graphite::Recording> recording = this->recorder->snap();
             if (recording) {
-                skgpu::InsertRecordingInfo info;
+                skgpu::graphite::InsertRecordingInfo info;
                 info.fRecording = recording.get();
                 this->context->insertRecording(info);
             }
-            this->context->submit(skgpu::SyncToCpu::kYes);
+            this->context->submit(skgpu::graphite::SyncToCpu::kYes);
         }
     }
 

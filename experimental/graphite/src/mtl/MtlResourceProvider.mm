@@ -21,21 +21,21 @@
 
 namespace skgpu::graphite {
 
-MtlResourceProvider::MtlResourceProvider(const skgpu::Gpu* gpu,
+MtlResourceProvider::MtlResourceProvider(const Gpu* gpu,
                                          sk_sp<GlobalCache> globalCache,
                                          SingleOwner* singleOwner)
-    : skgpu::ResourceProvider(gpu, std::move(globalCache), singleOwner) {
+    : ResourceProvider(gpu, std::move(globalCache), singleOwner) {
 }
 
 const MtlGpu* MtlResourceProvider::mtlGpu() {
     return static_cast<const MtlGpu*>(fGpu);
 }
 
-sk_sp<skgpu::CommandBuffer> MtlResourceProvider::createCommandBuffer() {
+sk_sp<CommandBuffer> MtlResourceProvider::createCommandBuffer() {
     return MtlCommandBuffer::Make(this->mtlGpu());
 }
 
-sk_sp<skgpu::GraphicsPipeline> MtlResourceProvider::onCreateGraphicsPipeline(
+sk_sp<GraphicsPipeline> MtlResourceProvider::onCreateGraphicsPipeline(
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
     return MtlGraphicsPipeline::Make(this,
@@ -44,12 +44,12 @@ sk_sp<skgpu::GraphicsPipeline> MtlResourceProvider::onCreateGraphicsPipeline(
                                      renderPassDesc);
 }
 
-sk_sp<skgpu::Texture> MtlResourceProvider::createTexture(SkISize dimensions,
-                                                      const skgpu::TextureInfo& info) {
+sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,
+                                                  const TextureInfo& info) {
     return MtlTexture::Make(this->mtlGpu(), dimensions, info);
 }
 
-sk_sp<skgpu::Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& texture) {
+sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& texture) {
     MtlHandle mtlHandleTexture = texture.getMtlTexture();
     if (!mtlHandleTexture) {
         return nullptr;
@@ -61,13 +61,13 @@ sk_sp<skgpu::Texture> MtlResourceProvider::createWrappedTexture(const BackendTex
                                    std::move(mtlTexture));
 }
 
-sk_sp<skgpu::Buffer> MtlResourceProvider::createBuffer(size_t size,
-                                                       BufferType type,
-                                                       PrioritizeGpuReads prioritizeGpuReads) {
+sk_sp<Buffer> MtlResourceProvider::createBuffer(size_t size,
+                                                BufferType type,
+                                                PrioritizeGpuReads prioritizeGpuReads) {
     return MtlBuffer::Make(this->mtlGpu(), size, type, prioritizeGpuReads);
 }
 
-sk_sp<skgpu::Sampler> MtlResourceProvider::createSampler(const SkSamplingOptions& samplingOptions,
+sk_sp<Sampler> MtlResourceProvider::createSampler(const SkSamplingOptions& samplingOptions,
                                                          SkTileMode xTileMode,
                                                          SkTileMode yTileMode) {
     return MtlSampler::Make(this->mtlGpu(), samplingOptions, xTileMode, yTileMode);

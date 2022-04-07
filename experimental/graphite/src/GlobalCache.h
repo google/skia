@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_GlobalCache_DEFINED
-#define skgpu_GlobalCache_DEFINED
+#ifndef skgpu_graphite_GlobalCache_DEFINED
+#define skgpu_graphite_GlobalCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
 
 class SkShaderCodeDictionary;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // TODO: This class needs to be thread safe. In the current version there is no thread safety and
 // we need to go back and add protection around access to any of its memebers.
@@ -27,6 +27,6 @@ private:
     std::unique_ptr<SkShaderCodeDictionary> fShaderCodeDictionary;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_GlobalCache_DEFINED
+#endif // skgpu_graphite_GlobalCache_DEFINED

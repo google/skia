@@ -19,7 +19,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkTraceEvent.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 UploadInstance::UploadInstance(sk_sp<Buffer> buffer,
                                sk_sp<TextureProxy> textureProxy,
@@ -210,4 +210,4 @@ bool UploadTask::addCommands(ResourceProvider* resourceProvider,
     return true;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

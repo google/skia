@@ -54,7 +54,7 @@ GrRecordingContext* SkSurface_Base::onGetRecordingContext() {
     return nullptr;
 }
 
-skgpu::Recorder* SkSurface_Base::onGetRecorder() {
+skgpu::graphite::Recorder* SkSurface_Base::onGetRecorder() {
     return nullptr;
 }
 
@@ -322,7 +322,7 @@ GrRecordingContext* SkSurface::recordingContext() {
     return asSB(this)->onGetRecordingContext();
 }
 
-skgpu::Recorder* SkSurface::recorder() {
+skgpu::graphite::Recorder* SkSurface::recorder() {
     return asSB(this)->onGetRecorder();
 }
 

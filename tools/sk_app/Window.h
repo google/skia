@@ -24,7 +24,7 @@ class SkSurface;
 class SkSurfaceProps;
 class SkString;
 
-namespace skgpu {
+namespace skgpu::graphite {
 class Context;
 }
 
@@ -151,7 +151,7 @@ public:
 
     // Returns null if there is not a GPU backend or if the backend is not yet created.
     GrDirectContext* directContext() const;
-    skgpu::Context* graphiteContext() const;
+    skgpu::graphite::Context* graphiteContext() const;
 
 protected:
     Window();

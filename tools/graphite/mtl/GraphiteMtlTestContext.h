@@ -22,9 +22,9 @@ public:
 
     static std::unique_ptr<GraphiteTestContext> Make();
 
-    skgpu::BackendApi backend() override { return skgpu::BackendApi::kMetal; }
+    skgpu::graphite::BackendApi backend() override { return skgpu::graphite::BackendApi::kMetal; }
 
-    std::unique_ptr<skgpu::Context> makeContext() override;
+    std::unique_ptr<skgpu::graphite::Context> makeContext() override;
 
     const skgpu::graphite::MtlBackendContext& getBackendContext() const {
         return fMtl;

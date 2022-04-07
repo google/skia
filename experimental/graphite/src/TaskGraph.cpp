@@ -7,7 +7,7 @@
 
 #include "experimental/graphite/src/TaskGraph.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 TaskGraph::TaskGraph() {}
 TaskGraph::~TaskGraph() {}
@@ -30,4 +30,4 @@ void TaskGraph::reset() {
     fTasks.clear();
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

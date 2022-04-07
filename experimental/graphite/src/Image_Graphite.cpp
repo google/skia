@@ -14,7 +14,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageInfo.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 Image::Image(TextureProxyView view,
              const SkColorInfo& info)
@@ -56,20 +56,20 @@ std::tuple<TextureProxyView, SkColorType> Image::onAsView(Recorder*,
     return {fTextureProxyView, ct};
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-sk_sp<SkImage> SkImage::makeTextureImage(skgpu::Recorder* recorder,
-                                         skgpu::Mipmapped mipmapped,
+sk_sp<SkImage> SkImage::makeTextureImage(skgpu::graphite::Recorder* recorder,
+                                         skgpu::graphite::Mipmapped mipmapped,
                                          SkBudgeted budgeted) const {
     if (!recorder) {
         return nullptr;
     }
     if (this->dimensions().area() <= 1) {
-        mipmapped = skgpu::Mipmapped::kNo;
+        mipmapped = skgpu::graphite::Mipmapped::kNo;
     }
 
     if (as_IB(this)->isGraphiteBacked()) {
-        if (mipmapped == skgpu::Mipmapped::kNo || this->hasMipmaps()) {
+        if (mipmapped == skgpu::graphite::Mipmapped::kNo || this->hasMipmaps()) {
             const SkImage* image = this;
             return sk_ref_sp(const_cast<SkImage*>(image));
         }
@@ -79,12 +79,9 @@ sk_sp<SkImage> SkImage::makeTextureImage(skgpu::Recorder* recorder,
         return nullptr;
     }
     SkASSERT(view.proxy());
-    SkASSERT(mipmapped == skgpu::Mipmapped::kNo ||
-             view.proxy()->mipmapped() == skgpu::Mipmapped::kYes);
+    SkASSERT(mipmapped == skgpu::graphite::Mipmapped::kNo ||
+             view.proxy()->mipmapped() == skgpu::graphite::Mipmapped::kYes);
     SkColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-    return sk_make_sp<skgpu::Image>(std::move(view),
-                                    std::move(colorInfo));
+    return sk_make_sp<skgpu::graphite::Image>(std::move(view),
+                                              std::move(colorInfo));
 }
-
-
-

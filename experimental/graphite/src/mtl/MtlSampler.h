@@ -22,7 +22,7 @@ namespace skgpu::graphite {
 
 class MtlGpu;
 
-class MtlSampler : public skgpu::Sampler {
+class MtlSampler : public Sampler {
 public:
     static sk_sp<MtlSampler> Make(const MtlGpu*,
                                   const SkSamplingOptions& samplingOptions,

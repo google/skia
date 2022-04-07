@@ -24,7 +24,7 @@ class MtlBlitCommandEncoder;
 class MtlGpu;
 class MtlRenderCommandEncoder;
 
-class MtlCommandBuffer final : public skgpu::CommandBuffer {
+class MtlCommandBuffer final : public CommandBuffer {
 public:
     static sk_sp<MtlCommandBuffer> Make(const MtlGpu*);
     ~MtlCommandBuffer() override;
@@ -52,20 +52,20 @@ private:
     MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const MtlGpu* gpu);
 
     bool onBeginRenderPass(const RenderPassDesc&,
-                           const skgpu::Texture* colorTexture,
-                           const skgpu::Texture* resolveTexture,
-                           const skgpu::Texture* depthStencilTexture) override;
+                           const Texture* colorTexture,
+                           const Texture* resolveTexture,
+                           const Texture* depthStencilTexture) override;
     void endRenderPass() override;
 
-    void onBindGraphicsPipeline(const skgpu::GraphicsPipeline*) override;
-    void onBindUniformBuffer(UniformSlot, const skgpu::Buffer*, size_t offset) override;
-    void onBindVertexBuffers(const skgpu::Buffer* vertexBuffer, size_t vertexOffset,
-                             const skgpu::Buffer* instanceBuffer, size_t instanceOffset) override;
-    void onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t offset) override;
+    void onBindGraphicsPipeline(const GraphicsPipeline*) override;
+    void onBindUniformBuffer(UniformSlot, const Buffer*, size_t offset) override;
+    void onBindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
+                             const Buffer* instanceBuffer, size_t instanceOffset) override;
+    void onBindIndexBuffer(const Buffer* indexBuffer, size_t offset) override;
 
 
-    void onBindTextureAndSampler(sk_sp<skgpu::Texture>,
-                                 sk_sp<skgpu::Sampler>,
+    void onBindTextureAndSampler(sk_sp<Texture>,
+                                 sk_sp<Sampler>,
                                  unsigned int bindIndex) override;
 
     void onSetScissor(unsigned int left, unsigned int top,
@@ -84,13 +84,13 @@ private:
                                 unsigned int indexCount, unsigned int baseVertex,
                                 unsigned int baseInstance, unsigned int instanceCount) override;
 
-    bool onCopyTextureToBuffer(const skgpu::Texture*,
+    bool onCopyTextureToBuffer(const Texture*,
                                SkIRect srcRect,
-                               const skgpu::Buffer*,
+                               const Buffer*,
                                size_t bufferOffset,
                                size_t bufferRowBytes) override;
-    bool onCopyBufferToTexture(const skgpu::Buffer*,
-                               const skgpu::Texture*,
+    bool onCopyBufferToTexture(const Buffer*,
+                               const Texture*,
                                const BufferTextureCopyData* copyData,
                                int count) override;
 

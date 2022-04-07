@@ -21,7 +21,7 @@ public:
     ~SkSurface_Base() override;
 
     virtual GrRecordingContext* onGetRecordingContext();
-    virtual skgpu::Recorder* onGetRecorder();
+    virtual skgpu::graphite::Recorder* onGetRecorder();
 
 #if SK_SUPPORT_GPU
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);

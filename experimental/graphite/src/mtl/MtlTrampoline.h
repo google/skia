@@ -10,11 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 
-namespace skgpu {
-class Gpu;
-}
-
 namespace skgpu::graphite {
+class Gpu;
 struct MtlBackendContext;
 
 /*
@@ -23,7 +20,7 @@ struct MtlBackendContext;
  */
 class MtlTrampoline {
 public:
-    static sk_sp<skgpu::Gpu> MakeGpu(const MtlBackendContext&);
+    static sk_sp<skgpu::graphite::Gpu> MakeGpu(const MtlBackendContext&);
 };
 
 } // namespace skgpu::graphite

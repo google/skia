@@ -50,7 +50,7 @@ class SkYUVAPixmaps;
 enum class SkEncodedImageFormat;
 
 #if SK_GRAPHITE_ENABLED
-namespace skgpu {
+namespace skgpu::graphite {
 class Recorder;
 };
 #endif
@@ -1163,8 +1163,8 @@ public:
         @param Mipmapped       whether created SkImage texture must allocate mip map levels
         @return                created SkImage, or nullptr
     */
-    sk_sp<SkImage> makeTextureImage(skgpu::Recorder*,
-                                    skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+    sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
+                                    skgpu::graphite::Mipmapped = skgpu::graphite::Mipmapped::kNo,
                                     SkBudgeted = SkBudgeted::kYes) const;
 
 #endif

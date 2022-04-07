@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Buffer_DEFINED
-#define skgpu_Buffer_DEFINED
+#ifndef skgpu_graphite_Buffer_DEFINED
+#define skgpu_graphite_Buffer_DEFINED
 
 #include "experimental/graphite/src/Resource.h"
 #include "experimental/graphite/src/ResourceTypes.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Buffer : public Resource {
 public:
@@ -45,7 +45,7 @@ private:
     PrioritizeGpuReads fPrioritizeGpuReads;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Buffer_DEFINED
+#endif // skgpu_graphite_Buffer_DEFINED
 

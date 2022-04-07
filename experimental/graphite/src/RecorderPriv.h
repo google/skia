@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_RecorderPriv_DEFINED
-#define skgpu_RecorderPriv_DEFINED
+#ifndef skgpu_graphite_RecorderPriv_DEFINED
+#define skgpu_graphite_RecorderPriv_DEFINED
 
 #include "experimental/graphite/include/Recorder.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class RecorderPriv {
 public:
@@ -46,6 +46,6 @@ inline const RecorderPriv Recorder::priv() const {  // NOLINT(readability-const-
     return RecorderPriv(const_cast<Recorder*>(this));
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_RecorderPriv_DEFINED
+#endif // skgpu_graphite_RecorderPriv_DEFINED

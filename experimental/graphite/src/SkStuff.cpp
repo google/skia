@@ -21,23 +21,25 @@
 #include "experimental/graphite/src/TextureProxy.h"
 #include "include/core/SkColorSpace.h"
 
-sk_sp<SkSurface> MakeGraphite(skgpu::Recorder* recorder, const SkImageInfo& ii) {
-    sk_sp<skgpu::Device> device = skgpu::Device::Make(recorder, ii);
+using namespace skgpu::graphite;
+
+sk_sp<SkSurface> MakeGraphite(Recorder* recorder, const SkImageInfo& ii) {
+    sk_sp<Device> device = Device::Make(recorder, ii);
     if (!device) {
         return nullptr;
     }
 
-    return sk_make_sp<skgpu::Surface>(std::move(device));
+    return sk_make_sp<Surface>(std::move(device));
 }
 
-static bool validate_backend_texture(const skgpu::Caps* caps,
-                                     const skgpu::BackendTexture& texture,
+static bool validate_backend_texture(const Caps* caps,
+                                     const BackendTexture& texture,
                                      SkColorType ct) {
     if (!texture.isValid()) {
         return false;
     }
 
-    const skgpu::TextureInfo& info = texture.info();
+    const TextureInfo& info = texture.info();
     if (!caps->areColorTypeAndTextureInfoCompatible(ct, info)) {
         return false;
     }
@@ -48,8 +50,8 @@ static bool validate_backend_texture(const skgpu::Caps* caps,
     return true;
 }
 
-sk_sp<SkSurface> MakeGraphiteFromBackendTexture(skgpu::Recorder* recorder,
-                                                const skgpu::BackendTexture& beTexture,
+sk_sp<SkSurface> MakeGraphiteFromBackendTexture(Recorder* recorder,
+                                                const BackendTexture& beTexture,
                                                 SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* props) {
@@ -64,23 +66,23 @@ sk_sp<SkSurface> MakeGraphiteFromBackendTexture(skgpu::Recorder* recorder,
         return nullptr;
     }
 
-    sk_sp<skgpu::Texture> texture =
+    sk_sp<Texture> texture =
             recorder->priv().resourceProvider()->createWrappedTexture(beTexture);
 
     if (!texture) {
         return nullptr;
     }
 
-    sk_sp<skgpu::TextureProxy> proxy(new skgpu::TextureProxy(std::move(texture)));
+    sk_sp<TextureProxy> proxy(new TextureProxy(std::move(texture)));
 
-    sk_sp<skgpu::Device> device = skgpu::Device::Make(recorder,
-                                                      std::move(proxy),
-                                                      std::move(colorSpace),
-                                                      colorType,
-                                                      kPremul_SkAlphaType);
+    sk_sp<Device> device = Device::Make(recorder,
+                                        std::move(proxy),
+                                        std::move(colorSpace),
+                                        colorType,
+                                        kPremul_SkAlphaType);
     if (!device) {
         return nullptr;
     }
 
-    return sk_make_sp<skgpu::Surface>(std::move(device));
+    return sk_make_sp<Surface>(std::move(device));
 }

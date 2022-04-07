@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_CopyTask_DEFINED
-#define skgpu_CopyTask_DEFINED
+#ifndef skgpu_graphite_CopyTask_DEFINED
+#define skgpu_graphite_CopyTask_DEFINED
 
 #include "experimental/graphite/src/Task.h"
 
 #include "include/core/SkRect.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Buffer;
 class CommandBuffer;
@@ -44,6 +44,6 @@ private:
     size_t fBufferRowBytes;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_CopyTask_DEFINED
+#endif // skgpu_graphite_CopyTask_DEFINED

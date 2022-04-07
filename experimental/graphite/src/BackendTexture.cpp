@@ -7,7 +7,7 @@
 
 #include "experimental/graphite/include/BackendTexture.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 BackendTexture::~BackendTexture() {}
 
@@ -62,12 +62,12 @@ bool BackendTexture::operator==(const BackendTexture& that) const {
 }
 
 #ifdef SK_METAL
-BackendTexture::BackendTexture(SkISize dimensions, graphite::MtlHandle mtlTexture)
+BackendTexture::BackendTexture(SkISize dimensions, MtlHandle mtlTexture)
         : fDimensions(dimensions)
-        , fInfo(graphite::MtlTextureInfo(mtlTexture))
+        , fInfo(MtlTextureInfo(mtlTexture))
         , fMtlTexture(mtlTexture) {}
 
-graphite::MtlHandle BackendTexture::getMtlTexture() const {
+MtlHandle BackendTexture::getMtlTexture() const {
     if (this->isValid() && this->backend() == BackendApi::kMetal) {
         return fMtlTexture;
     }
@@ -76,5 +76,5 @@ graphite::MtlHandle BackendTexture::getMtlTexture() const {
 
 #endif
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 

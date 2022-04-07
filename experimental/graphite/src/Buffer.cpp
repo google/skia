@@ -7,7 +7,7 @@
 
 #include "experimental/graphite/src/Buffer.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 void* Buffer::map() {
     if (!this->isMapped()) {
@@ -22,5 +22,5 @@ void Buffer::unmap() {
     fMapPtr = nullptr;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 

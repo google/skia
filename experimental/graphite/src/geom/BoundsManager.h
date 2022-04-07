@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_geom_BoundsManager_DEFINED
-#define skgpu_geom_BoundsManager_DEFINED
+#ifndef skgpu_graphite_geom_BoundsManager_DEFINED
+#define skgpu_graphite_geom_BoundsManager_DEFINED
 
 #include "experimental/graphite/src/DrawOrder.h"
 #include "experimental/graphite/src/geom/Rect.h"
@@ -15,7 +15,7 @@
 
 #include <cstdint>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 /**
  * BoundsManager is an acceleration structure for device-space related pixel bounds queries.
@@ -120,6 +120,6 @@ private:
     SkTBlockList<Record> fRects{16, SkBlockAllocator::GrowthPolicy::kFibonacci};
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_geom_BoundsManager_DEFINED
+#endif // skgpu_graphite_geom_BoundsManager_DEFINED

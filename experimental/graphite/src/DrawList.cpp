@@ -10,7 +10,7 @@
 #include "experimental/graphite/src/Renderer.h"
 #include "src/gpu/BufferWriter.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 const Transform& DrawList::deduplicateTransform(const Transform& localToDevice) {
     // TODO: This is a pretty simple deduplication strategy and doesn't take advantage of the stack

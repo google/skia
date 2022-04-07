@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_GraphiteResourceKey_DEFINED
-#define skgpu_GraphiteResourceKey_DEFINED
+#ifndef skgpu_graphite_GraphiteResourceKey_DEFINED
+#define skgpu_graphite_GraphiteResourceKey_DEFINED
 
 #include "experimental/graphite/src/ResourceTypes.h"
 #include "src/gpu/ResourceKey.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class GraphiteResourceKey : public skgpu::ResourceKey {
 public:
@@ -59,6 +59,6 @@ private:
     Shareable fShareable;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_GraphiteResourceKey_DEFINED
+#endif // skgpu_graphite_GraphiteResourceKey_DEFINED

@@ -23,8 +23,9 @@
 #include "src/core/SkShaderCodeDictionary.h"
 
 namespace {
+using namespace skgpu::graphite;
 
-std::tuple<SkPaint, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
+std::tuple<SkPaint, int> create_paint(ShaderCombo::ShaderType shaderType,
                                       SkTileMode tm,
                                       SkBlendMode bm) {
     SkPoint pts[2] = {{-100, -100},
@@ -35,22 +36,22 @@ std::tuple<SkPaint, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
     sk_sp<SkShader> s;
     int numTextures = 0;
     switch (shaderType) {
-        case skgpu::ShaderCombo::ShaderType::kNone:
+        case ShaderCombo::ShaderType::kNone:
             SkDEBUGFAIL("kNone cannot be represented as an SkPaint");
             break;
-        case skgpu::ShaderCombo::ShaderType::kSolidColor:
+        case ShaderCombo::ShaderType::kSolidColor:
             break;
-        case skgpu::ShaderCombo::ShaderType::kLinearGradient:
+        case ShaderCombo::ShaderType::kLinearGradient:
             s = SkGradientShader::MakeLinear(pts, colors, offsets, 2, tm);
             break;
-        case skgpu::ShaderCombo::ShaderType::kRadialGradient:
+        case ShaderCombo::ShaderType::kRadialGradient:
             s = SkGradientShader::MakeRadial({0, 0}, 100, colors, offsets, 2, tm);
             break;
-        case skgpu::ShaderCombo::ShaderType::kSweepGradient:
+        case ShaderCombo::ShaderType::kSweepGradient:
             s = SkGradientShader::MakeSweep(0, 0, colors, offsets, 2, tm,
                                             0, 359, 0, nullptr);
             break;
-        case skgpu::ShaderCombo::ShaderType::kConicalGradient:
+        case ShaderCombo::ShaderType::kConicalGradient:
             s = SkGradientShader::MakeTwoPointConical({100, 100}, 100,
                                                       {-100, -100}, 100,
                                                       colors, offsets, 2, tm);
@@ -66,7 +67,7 @@ std::tuple<SkPaint, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
-    using namespace skgpu;
+    using namespace skgpu::graphite;
 
     auto recorder = context->makeRecorder();
     SkKeyContext keyContext(recorder.get());

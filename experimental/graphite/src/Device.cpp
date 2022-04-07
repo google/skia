@@ -40,7 +40,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 namespace {
 

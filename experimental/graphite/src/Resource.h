@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Resource_DEFINED
-#define skgpu_Resource_DEFINED
+#ifndef skgpu_graphite_Resource_DEFINED
+#define skgpu_graphite_Resource_DEFINED
 
 #include "experimental/graphite/src/GraphiteResourceKey.h"
 #include "experimental/graphite/src/ResourceTypes.h"
@@ -16,7 +16,7 @@
 
 class SkMutex;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Gpu;
 class ResourceCache;
@@ -240,7 +240,7 @@ private:
     SkDEBUGCODE(mutable bool fNonShareableInCache = false);
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Resource_DEFINED
+#endif // skgpu_graphite_Resource_DEFINED
 

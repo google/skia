@@ -10,7 +10,7 @@
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "src/gpu/BufferWriter.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 DrawWriter::DrawWriter(DrawDispatcher* dispatcher, DrawBufferManager* bufferManager)
         : DrawWriter(dispatcher, bufferManager, PrimitiveType::kTriangles, 0, 0) {}
@@ -121,4 +121,4 @@ void DrawWriter::flush() {
     fPendingCount = 0;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

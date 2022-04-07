@@ -43,7 +43,7 @@ public:
 
 private:
 #ifdef SK_GRAPHITE_ENABLED
-    skgpu::Recorder* fRecorder;
+    skgpu::graphite::Recorder* fRecorder;
 #endif
 
     GrDirectContext* fContext;

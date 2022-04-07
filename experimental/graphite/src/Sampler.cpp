@@ -7,10 +7,10 @@
 
 #include "experimental/graphite/src/Sampler.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 Sampler::Sampler(const Gpu* gpu) : Resource(gpu, Ownership::kOwned) {}
 
 Sampler::~Sampler() {}
 
-} // namespace skgpu
+} // namespace skgpu::graphite

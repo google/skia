@@ -7,7 +7,7 @@
 
 #include "experimental/graphite/src/ProgramCache.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ProgramCache::ProgramInfo::ProgramInfo(uint32_t uniqueID, Combination c)
@@ -102,4 +102,4 @@ sk_sp<ProgramCache::ProgramInfo> ProgramCache::lookup(uint32_t uniqueID) {
     return fProgramVector[uniqueID];
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

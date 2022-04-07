@@ -88,7 +88,7 @@ uint32_t SkTextureDataBlock::hash() const {
         // for the hash here. This is a bit sloppy though in that it would be nice if proxies backed
         // by the same scratch texture hashed the same (it is tough to see how we could do that
         // at DrawPass creation time though).
-        hash = SkOpts::hash_fn(d.fProxy.get(), sizeof(skgpu::TextureProxy*), hash);
+        hash = SkOpts::hash_fn(d.fProxy.get(), sizeof(skgpu::graphite::TextureProxy*), hash);
     }
 
     return hash;

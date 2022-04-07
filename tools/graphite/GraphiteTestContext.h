@@ -11,7 +11,7 @@
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "include/core/SkRefCnt.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 class Context;
 class Recording;
 }
@@ -31,9 +31,9 @@ public:
 
     virtual ~GraphiteTestContext();
 
-    virtual skgpu::BackendApi backend() = 0;
+    virtual skgpu::graphite::BackendApi backend() = 0;
 
-    virtual std::unique_ptr<skgpu::Context> makeContext() = 0;
+    virtual std::unique_ptr<skgpu::graphite::Context> makeContext() = 0;
 
     bool getMaxGpuFrameLag(int *maxFrameLag) const {
         *maxFrameLag = kMaxFrameLag;
@@ -46,7 +46,7 @@ public:
      * unfinished flushes active on the GPU at a time. If we have 2 outstanding flushes then we will
      * wait on the CPU until one has finished.
      */
-    void submitRecordingAndWaitOnSync(skgpu::Context*, skgpu::Recording*);
+    void submitRecordingAndWaitOnSync(skgpu::graphite::Context*, skgpu::graphite::Recording*);
 
 protected:
     static constexpr int kMaxFrameLag = 3;

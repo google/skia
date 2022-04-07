@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_TextureProxyView_DEFINED
-#define skgpu_TextureProxyView_DEFINED
+#ifndef skgpu_graphite_TextureProxyView_DEFINED
+#define skgpu_graphite_TextureProxyView_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "experimental/graphite/src/TextureProxy.h"
@@ -14,7 +14,7 @@
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/Swizzle.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Recorder;
 
@@ -108,7 +108,7 @@ private:
     Swizzle fSwizzle;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif
+#endif // skgpu_graphite_TextureProxyView_DEFINED
 

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_ContextPriv_DEFINED
-#define skgpu_ContextPriv_DEFINED
+#ifndef skgpu_graphite_ContextPriv_DEFINED
+#define skgpu_graphite_ContextPriv_DEFINED
 
 #include "experimental/graphite/include/Context.h"
 
 class SkShaderCodeDictionary;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class GlobalCache;
 class Gpu;
@@ -49,6 +49,6 @@ inline const ContextPriv Context::priv() const {
     return ContextPriv(const_cast<Context *>(this));
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_ContextPriv_DEFINED
+#endif // skgpu_graphite_ContextPriv_DEFINED

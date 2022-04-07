@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Renderer_DEFINED
-#define skgpu_Renderer_DEFINED
+#ifndef skgpu_graphite_Renderer_DEFINED
+#define skgpu_graphite_Renderer_DEFINED
 
 #include "experimental/graphite/src/Attribute.h"
 #include "experimental/graphite/src/DrawTypes.h"
@@ -27,8 +27,7 @@
 enum class SkPathFillType;
 class SkPipelineDataGatherer;
 
-namespace skgpu {
-
+namespace skgpu::graphite {
 class DrawWriter;
 class DrawGeometry;
 class ResourceProvider;
@@ -263,6 +262,6 @@ private:
     Mask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
 };
 
-} // skgpu namespace
+} // skgpu namespace::graphite
 
-#endif // skgpu_Renderer_DEFINED
+#endif // skgpu_graphite_Renderer_DEFINED

@@ -63,7 +63,7 @@ MtlBuffer::MtlBuffer(const MtlGpu* gpu,
                      BufferType type,
                      PrioritizeGpuReads prioritizeGpuReads,
                      sk_cfp<id<MTLBuffer>> buffer)
-        : skgpu::Buffer(gpu, size, type, prioritizeGpuReads)
+        : Buffer(gpu, size, type, prioritizeGpuReads)
         , fBuffer(std::move(buffer)) {}
 
 void MtlBuffer::onMap() {

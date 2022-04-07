@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_geom_Transform_DEFINED
-#define skgpu_geom_Transform_DEFINED
+#ifndef skgpu_graphite_geom_Transform_DEFINED
+#define skgpu_graphite_geom_Transform_DEFINED
 
 #include "include/core/SkM44.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class Rect;
 
@@ -79,6 +79,6 @@ private:
     SkV2  fScale; // always > 0
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_geom_Transform_DEFINED
+#endif // skgpu_graphite_geom_Transform_DEFINED

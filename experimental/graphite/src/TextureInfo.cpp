@@ -7,7 +7,7 @@
 
 #include "experimental/graphite/include/TextureInfo.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 TextureInfo& TextureInfo::operator=(const TextureInfo& that) {
     if (!that.isValid()) {
@@ -61,5 +61,5 @@ bool TextureInfo::operator==(const TextureInfo& that) const {
     }
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 

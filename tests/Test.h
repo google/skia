@@ -13,7 +13,7 @@
 #include "tools/Registry.h"
 #include "tools/gpu/GrContextFactory.h"
 
-namespace skgpu { class Context; }
+namespace skgpu::graphite { class Context; }
 
 namespace skiatest {
 
@@ -137,7 +137,7 @@ void RunWithGPUTestContexts(GrContextTestFn*, GrContextTypeFilterFn*, Reporter*,
 
 namespace graphite {
 
-typedef void GraphiteTestFn(Reporter*, skgpu::Context*);
+typedef void GraphiteTestFn(Reporter*, skgpu::graphite::Context*);
 
 void RunWithGraphiteTestContexts(GraphiteTestFn*, Reporter*);
 
@@ -211,7 +211,7 @@ private:
     void test_##name(skiatest::Reporter* reporter)
 
 #define DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, reporter, graphite_context)                    \
-    static void test_##name(skiatest::Reporter*, skgpu::Context*);                          \
+    static void test_##name(skiatest::Reporter*, skgpu::graphite::Context*);                \
     static void test_graphite_contexts_##name(skiatest::Reporter* _reporter,                \
                                               const GrContextOptions& /*unused*/) {         \
         skiatest::graphite::RunWithGraphiteTestContexts(test_##name, _reporter);            \
@@ -219,7 +219,7 @@ private:
     skiatest::TestRegistry name##TestRegistry(                                              \
             skiatest::Test(#name, /*gpu=*/false, /*graphite=*/true,                         \
                            test_graphite_contexts_##name));                                 \
-    void test_##name(skiatest::Reporter* reporter, skgpu::Context* graphite_context)
+    void test_##name(skiatest::Reporter* reporter, skgpu::graphite::Context* graphite_context)
 
 #define DEF_GPUTEST(name, reporter, options)                                             \
     static void test_##name(skiatest::Reporter*, const GrContextOptions&);               \

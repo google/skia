@@ -7,9 +7,9 @@
 
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 GraphicsPipelineDesc::GraphicsPipelineDesc() {
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

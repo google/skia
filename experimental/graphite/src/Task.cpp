@@ -7,9 +7,9 @@
 
 #include "experimental/graphite/src/Task.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 Task::Task() {}
 Task::~Task() {}
 
-} // namespace skgpu
+} // namespace skgpu::graphite
