@@ -131,7 +131,6 @@ public:
         //   - auto line breaking retains all separating whitespace on the first line (no artificial
         //     leading WS is created).
         auto adjust_trailing_whitespace = [this]() {
-#ifndef SK_LEGACY_SKOTTIE_WHITESPACE
             // For left-alignment, trailing WS doesn't make any difference.
             if (fLineRuns.empty() || fDesc.fHAlign == SkTextUtils::Align::kLeft_Align) {
                 return;
@@ -170,7 +169,6 @@ public:
                            fLinePos.data() + fLineGlyphCount,
                            fLinePos.data(),
                            [&offset](SkPoint pos) { return SkPoint{pos.fX + offset, pos.fY}; });
-#endif
         };
 
         adjust_trailing_whitespace();
