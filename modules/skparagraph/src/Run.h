@@ -401,7 +401,6 @@ public:
         if (fForceStrut) {
             return;
         }
-
         fAscent = std::min(fAscent, run->correctAscent());
         fDescent = std::max(fDescent, run->correctDescent());
         fLeading = std::max(fLeading, run->correctLeading());
@@ -463,6 +462,11 @@ public:
         fLeading = l;
     }
 
+    void updateRawData(SkScalar ra, SkScalar rd) {
+        fRawAscent = ra;
+        fRawDescent = rd;
+    }
+
     SkScalar alphabeticBaseline() const { return fLeading / 2 - fAscent; }
     SkScalar ideographicBaseline() const { return fDescent - fAscent + fLeading; }
     SkScalar deltaBaselines() const { return fLeading / 2 + fDescent; }
@@ -477,6 +481,7 @@ public:
 
 private:
 
+    friend class ParagraphImpl;
     friend class TextWrapper;
     friend class TextLine;
 

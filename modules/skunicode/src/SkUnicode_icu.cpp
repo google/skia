@@ -419,6 +419,11 @@ public:
         return SkScriptIterator_icu::makeScriptIterator();
     }
 
+    static bool isHardLineBreak(SkUnichar utf8) {
+        auto property = sk_u_getIntPropertyValue(utf8, UCHAR_LINE_BREAK);
+        return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;
+    }
+
     // TODO: Use ICU data file to detect controls and whitespaces
     bool isControl(SkUnichar utf8) override {
         return sk_u_iscntrl(utf8);
@@ -432,9 +437,8 @@ public:
         return sk_u_isspace(utf8);
     }
 
-    static bool isHardLineBreak(SkUnichar utf8) {
-        auto property = sk_u_getIntPropertyValue(utf8, UCHAR_LINE_BREAK);
-        return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;
+    bool isHardBreak(SkUnichar utf8) override {
+        return SkUnicode_icu::isHardLineBreak(utf8);
     }
 
     SkString toUpper(const SkString& str) override {

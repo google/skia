@@ -78,6 +78,9 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fOldWidth(0)
         , fOldHeight(0)
         , fUnicode(std::move(unicode))
+        , fHasLineBreaks(false)
+        , fHasWhitespacesInside(false)
+        , fTrailingSpaces(0)
 {
     SkASSERT(fUnicode);
 }
@@ -237,20 +240,37 @@ bool ParagraphImpl::computeCodeUnitProperties() {
         return false;
     }
 
-    // Get all spaces
+    // Collect all spaces and some extra information
+    fTrailingSpaces = fText.size();
+    TextIndex firstWhitespace = EMPTY_INDEX;
     fUnicode->forEachCodepoint(fText.c_str(), fText.size(),
-       [this](SkUnichar unichar, int32_t start, int32_t end, int32_t count) {
+       [this, &firstWhitespace](SkUnichar unichar, int32_t start, int32_t end, int32_t count) {
             if (fUnicode->isWhitespace(unichar)) {
                 for (auto i = start; i < end; ++i) {
                     fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfWhiteSpaceBreak;
                 }
+                if (fTrailingSpaces  == fText.size()) {
+                    fTrailingSpaces = start;
+                }
+                if (firstWhitespace == EMPTY_INDEX) {
+                    firstWhitespace = start;
+                }
+            } else {
+                fTrailingSpaces = fText.size();
             }
             if (fUnicode->isSpace(unichar)) {
                 for (auto i = start; i < end; ++i) {
                     fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfIntraWordBreak;
                 }
             }
+            if (fUnicode->isHardBreak(unichar)) {
+                fHasLineBreaks = true;
+            }
        });
+
+    if (firstWhitespace < fTrailingSpaces) {
+        fHasWhitespacesInside = true;
+    }
 
     // Get line breaks
     std::vector<SkUnicode::LineBreakBefore> lineBreaks;
@@ -381,7 +401,7 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
         this->buildClusterTable();
         // This is something Flutter requires
         for (auto& cluster : fClusters) {
-            cluster.setHalfLetterSpacing(fTextStyles[0].fStyle.getLetterSpacing()/2);
+            cluster.setHalfLetterSpacing(style.getLetterSpacing()/2);
         }
         return;
     }
@@ -515,6 +535,69 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 }
 
 void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
+
+    if (!fHasLineBreaks &&
+        !fHasWhitespacesInside &&
+        fPlaceholders.size() == 1 &&
+        fRuns.size() == 1 && fRuns[0].fAdvance.fX <= maxWidth) {
+        // This is a short version of a line breaking when we know that:
+        // 1. We have only one line of text
+        // 2. It's shaped into a single run
+        // 3. There are no placeholders
+        // 4. There are no linebreaks (which will format text into multiple lines)
+        // 5. There are no whitespaces so the minIntrinsicWidth=maxIntrinsicWidth
+        // (To think about that, the last condition is not quite right;
+        // we should calculate minIntrinsicWidth by soft line breaks.
+        // However, it's how it's done in Flutter now)
+        auto& run = this->fRuns[0];
+        auto advance = run.advance();
+        auto textRange = TextRange(0, this->text().size());
+        auto textExcludingSpaces = TextRange(0, fTrailingSpaces);
+        InternalLineMetrics metrics(this->strutForceHeight());
+        metrics.add(&run);
+        if (this->strutEnabled()) {
+            this->strutMetrics().updateLineMetrics(metrics);
+        }
+        auto disableFirstAscent = this->paragraphStyle().getTextHeightBehavior() &
+                                  TextHeightBehavior::kDisableFirstAscent;
+        auto disableLastDescent = this->paragraphStyle().getTextHeightBehavior() &
+                                  TextHeightBehavior::kDisableLastDescent;
+        if (disableFirstAscent) {
+            metrics.fAscent = metrics.fRawAscent;
+        }
+        if (disableLastDescent) {
+            metrics.fDescent = metrics.fRawDescent;
+        }
+        ClusterIndex trailingSpaces = fClusters.size();
+        do {
+            --trailingSpaces;
+            auto& cluster = fClusters[trailingSpaces];
+            if (!cluster.isWhitespaceBreak()) {
+                ++trailingSpaces;
+                break;
+            }
+            advance.fX -= cluster.width();
+        } while (trailingSpaces != 0);
+
+        advance.fY = metrics.height();
+        auto clusterRange = ClusterRange(0, trailingSpaces);
+        auto clusterRangeWithGhosts = ClusterRange(0, this->clusters().size() - 1);
+        this->addLine(SkPoint::Make(0, 0), advance,
+                      textExcludingSpaces, textRange, textRange,
+                      clusterRange, clusterRangeWithGhosts, run.advance().x(),
+                      metrics);
+
+        fLongestLine = nearlyZero(advance.fX) ? run.advance().fX : advance.fX;
+        fHeight = advance.fY;
+        fWidth = maxWidth;
+        fMaxIntrinsicWidth = run.advance().fX;
+        fMinIntrinsicWidth = advance.fX;
+        fAlphabeticBaseline = fLines.empty() ? fEmptyMetrics.alphabeticBaseline() : fLines.front().alphabeticBaseline();
+        fIdeographicBaseline = fLines.empty() ? fEmptyMetrics.ideographicBaseline() : fLines.front().ideographicBaseline();
+        fExceededMaxLines = false;
+        return;
+    }
+
     TextWrapper textWrapper;
     textWrapper.breakTextIntoLines(
             this,
@@ -536,7 +619,6 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, getEllipsis(), true);
                 }
-
                 fLongestLine = std::max(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
             });
 

@@ -3617,27 +3617,38 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
-        auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        auto fontCollection = getFontCollection();
+
+        StrutStyle strut_style;
+        strut_style.setFontFamilies({SkString("Roboto")});
+        strut_style.setStrutEnabled(true);
+        strut_style.setFontSize(8);
+        strut_style.setForceStrutHeight(true);
+
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(100);
-        SkPaint black;
-        black.setColor(SK_ColorBLACK);
-        text_style.setForegroundColor(black);
-        SkPaint red;
-        red.setColor(SK_ColorRED);
-        text_style.setBackgroundColor(red);
+        text_style.setFontSize(14);
+        text_style.setColor(SK_ColorBLACK);
 
         ParagraphStyle paragraph_style;
         paragraph_style.setTextStyle(text_style);
+        paragraph_style.setStrutStyle(strut_style);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
 
         builder.pushStyle(text_style);
-        builder.addText(".");
+        builder.addText("something");
         auto paragraph = builder.Build();
         paragraph->layout(SK_ScalarInfinity);
         paragraph->paint(canvas, 0, 0);
+        SkDebugf("height=%f\n", paragraph->getHeight());
+        /*
+        auto boxes =
+                paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        for (auto& box : boxes) {
+            SkDebugf("[%f,%f:%f,%f]\n",
+                     box.rect.fLeft, box.rect.fTop, box.rect.fRight, box.rect.fBottom);
+        }
+        */
     }
 
 private:

@@ -6790,3 +6790,42 @@ UNIX_ONLY_TEST(SkParagraph_EllipsisGetRectForRange, reporter) {
     canvas.drawRects(SK_ColorRED, boxes1);
     canvas.drawRects(SK_ColorRED, boxes2);
 }
+
+UNIX_ONLY_TEST(SkParagraph_StrutAndTextBehavior, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    TestCanvas canvas("SkParagraph_StrutAndTextBehavior.png");
+    const char* text = " ";
+    const size_t len = strlen(text);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(16.0);
+    text_style.setColor(SK_ColorBLACK);
+    StrutStyle strut_style;
+    strut_style.setStrutEnabled(true);
+    strut_style.setForceStrutHeight(true);
+    strut_style.setHeight(1.5);
+    strut_style.setHeightOverride(true);
+    strut_style.setFontFamilies({SkString("Ahem")});
+    strut_style.setFontSize(16.0);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setStrutStyle(strut_style);
+    paragraph_style.setTextStyle(text_style);
+
+    auto draw = [&](TextHeightBehavior tb) {
+        paragraph_style.setTextHeightBehavior(tb);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText(text, len);
+        auto paragraph = builder.Build();
+        paragraph->layout(SK_ScalarInfinity);
+        return paragraph->getHeight();
+    };
+
+    auto height1 = draw(TextHeightBehavior::kDisableAll);
+    auto height2 = draw(TextHeightBehavior::kAll);
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(height1, 16.0f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(height2, 24.0f));
+}

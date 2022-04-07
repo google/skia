@@ -270,6 +270,9 @@ private:
     SkScalar fMaxWidthWithTrailingSpaces;
 
     std::shared_ptr<SkUnicode> fUnicode;
+    bool fHasLineBreaks;
+    bool fHasWhitespacesInside;
+    TextIndex fTrailingSpaces;
 };
 }  // namespace textlayout
 }  // namespace skia

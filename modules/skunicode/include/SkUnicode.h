@@ -115,6 +115,7 @@ class SKUNICODE_API SkUnicode {
         virtual bool isControl(SkUnichar utf8) = 0;
         virtual bool isWhitespace(SkUnichar utf8) = 0;
         virtual bool isSpace(SkUnichar utf8) = 0;
+        virtual bool isHardBreak(SkUnichar utf8) = 0;
         virtual SkString toUpper(const SkString&) = 0;
 
         // Methods used in SkShaper and SkText
