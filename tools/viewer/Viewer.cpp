@@ -31,9 +31,9 @@
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkVMBlitter.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrGpu.h"
-#include "src/gpu/GrPersistentCacheUtils.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrPersistentCacheUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/utils/SkJSONWriter.h"
@@ -58,8 +58,8 @@
 #include "tools/viewer/SvgSlide.h"
 
 #if SK_GPU_V1
-#include "src/gpu/ops/AtlasPathRenderer.h"
-#include "src/gpu/ops/TessellationPathRenderer.h"
+#include "src/gpu/ganesh/ops/AtlasPathRenderer.h"
+#include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 #endif
 
 #include <cstdlib>

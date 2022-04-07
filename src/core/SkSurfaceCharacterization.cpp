@@ -8,8 +8,8 @@
 #include "include/core/SkSurfaceCharacterization.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 
 #ifdef SK_VULKAN
 #include "include/gpu/vk/GrVkTypes.h"

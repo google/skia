@@ -17,11 +17,11 @@
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkHalf.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SurfaceContext.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SurfaceContext.h"
 #include "tools/gpu/ProxyUtils.h"
 
 #include <float.h>

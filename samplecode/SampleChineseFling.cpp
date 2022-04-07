@@ -18,7 +18,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #endif
 
 static sk_sp<SkTypeface> chinese_typeface() {

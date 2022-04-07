@@ -6,15 +6,15 @@
  */
 
 #include "src/core/SkGlyph.h"
-#include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/text/GrGlyphVector.h"
+#include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/text/GrGlyphVector.h"
 
 #include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/gpu/GrSubRunAllocator.h"
+#include "src/gpu/ganesh/GrSubRunAllocator.h"
 #include "tests/Test.h"
 
 class TestingPeer {

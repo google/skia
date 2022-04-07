@@ -15,9 +15,9 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrAHardwareBufferImageGenerator.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrGpu.h"
+#include "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrGpu.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

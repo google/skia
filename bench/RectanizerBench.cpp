@@ -12,8 +12,8 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 
-#include "src/gpu/GrRectanizerPow2.h"
-#include "src/gpu/GrRectanizerSkyline.h"
+#include "src/gpu/ganesh/GrRectanizerPow2.h"
+#include "src/gpu/ganesh/GrRectanizerSkyline.h"
 
 /**
  * This bench exercises Ganesh' GrRectanizer classes. It exercises the following

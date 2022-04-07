@@ -19,7 +19,7 @@
 #include "src/core/SkScalerCache.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrStrikeCache.h"
+#include "src/gpu/ganesh/text/GrStrikeCache.h"
 #endif
 
 bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = false;

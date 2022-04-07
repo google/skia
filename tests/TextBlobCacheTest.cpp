@@ -20,7 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkGlyphRun.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/fonts/RandomScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN
@@ -29,9 +29,9 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/text/GrAtlasManager.h"
-#include "src/gpu/text/GrTextBlobRedrawCoordinator.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/text/GrAtlasManager.h"
+#include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;

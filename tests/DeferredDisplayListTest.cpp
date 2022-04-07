@@ -29,13 +29,13 @@
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrGpu.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetProxy.h"
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "src/image/SkImage_GpuBase.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"
@@ -50,8 +50,8 @@
 #include <utility>
 
 #ifdef SK_VULKAN
-#include "src/gpu/vk/GrVkCaps.h"
-#include "src/gpu/vk/GrVkSecondaryCBDrawContext.h"
+#include "src/gpu/ganesh/vk/GrVkCaps.h"
+#include "src/gpu/ganesh/vk/GrVkSecondaryCBDrawContext_impl.h"
 #endif
 
 class SurfaceParameters {

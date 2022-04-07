@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	outDir  = flag.String("out_dir", "../../src/gpu/gl", "Where to output the GrGlAssembleInterface_* and GrGlInterface.cpp files")
+	outDir  = flag.String("out_dir", "../../src/gpu/ganesh/gl", "Where to output the GrGlAssembleInterface_* and GrGlInterface.cpp files")
 	inTable = flag.String("in_table", "./interface.json5", "The JSON5 table to read in")
 	dryRun  = flag.Bool("dryrun", false, "Print the outputs, don't write to file")
 )

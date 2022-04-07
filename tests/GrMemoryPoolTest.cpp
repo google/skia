@@ -9,7 +9,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
-#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/ganesh/GrMemoryPool.h"
 #include "tests/Test.h"
 
 // A is the top of an inheritance tree of classes that overload op new and

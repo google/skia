@@ -99,7 +99,7 @@ SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
 
 #if SK_SUPPORT_GPU
 
-#include "src/gpu/gradients/GrGradientShader.h"
+#include "src/gpu/ganesh/gradients/GrGradientShader.h"
 
 std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
         const GrFPArgs& args) const {

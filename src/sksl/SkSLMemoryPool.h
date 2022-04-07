@@ -14,7 +14,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/ganesh/GrMemoryPool.h"
 
 namespace SkSL {
 using MemoryPool = ::GrMemoryPool;

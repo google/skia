@@ -30,10 +30,10 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrGpu.h"
-#include "src/gpu/gl/GrGLCaps.h"
-#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/gl/GrGLCaps.h"
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 
 #include <algorithm>
 #include <cstdint>

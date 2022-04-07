@@ -12,16 +12,16 @@
 #if SK_SUPPORT_GPU
 
 #include "src/core/SkCanvasPriv.h"
-#include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
-#include "src/gpu/ops/PathTessellator.h"
-#include "src/gpu/ops/TessellationPathRenderer.h"
+#include "src/gpu/ganesh/GrOpFlushState.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/ops/GrDrawOp.h"
+#include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/ganesh/ops/PathTessellator.h"
+#include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
+#include "src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace skgpu::v1 {
 

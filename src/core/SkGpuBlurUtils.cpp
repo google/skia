@@ -14,15 +14,15 @@
 #if SK_SUPPORT_GPU
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
-#include "src/gpu/effects/GrMatrixConvolutionEffect.h"
-#include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/effects/GrGaussianConvolutionFragmentProcessor.h"
+#include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
+#include "src/gpu/ganesh/effects/GrTextureEffect.h"
 
 #if SK_GPU_V1
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
 

@@ -10,14 +10,14 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrTexture.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrRenderTarget.h"
+#include "src/gpu/ganesh/GrTexture.h"
 #ifdef SK_GL
-#include "src/gpu/gl/GrGLBuffer.h"
-#include "src/gpu/gl/GrGLDefines.h"
-#include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLTextureRenderTarget.h"
+#include "src/gpu/ganesh/gl/GrGLBuffer.h"
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLGpu.h"
+#include "src/gpu/ganesh/gl/GrGLTextureRenderTarget.h"
 #endif
 
 /*

@@ -22,7 +22,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-#include "src/gpu/effects/GrMatrixConvolutionEffect.h"
+#include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 #include "tools/ToolUtils.h"
 
 #include <vector>

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 
 #include "fuzz/Fuzz.h"

@@ -19,7 +19,7 @@
 #include "src/core/SkVM_fwd.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrFPArgs.h"
+#include "src/gpu/ganesh/GrFPArgs.h"
 #endif
 
 class GrFragmentProcessor;

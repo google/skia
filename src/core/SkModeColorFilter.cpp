@@ -84,9 +84,9 @@ skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
 ///////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "src/gpu/Blend.h"
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrBlendFragmentProcessor.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 
 GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                   GrRecordingContext*,

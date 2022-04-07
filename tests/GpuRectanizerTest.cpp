@@ -8,8 +8,8 @@
 #include "include/core/SkSize.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
-#include "src/gpu/GrRectanizerPow2.h"
-#include "src/gpu/GrRectanizerSkyline.h"
+#include "src/gpu/ganesh/GrRectanizerPow2.h"
+#include "src/gpu/ganesh/GrRectanizerSkyline.h"
 #include "tests/Test.h"
 
 static const int kWidth = 1024;

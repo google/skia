@@ -11,7 +11,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "tools/sk_app/GLWindowContext.h"
 #include "tools/sk_app/win/WindowContextFactory_win.h"
 

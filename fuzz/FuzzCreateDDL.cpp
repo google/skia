@@ -13,7 +13,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "tools/gpu/GrContextFactory.h"
 
 #include "fuzz/Fuzz.h"

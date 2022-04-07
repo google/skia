@@ -8,7 +8,7 @@
 #include "tools/gpu/gl/GLTestContext.h"
 
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/gl/GrGLUtil.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tools/gpu/GpuTimer.h"
 
 namespace {

@@ -25,7 +25,7 @@
 #include <vector>
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
 #endif
 
 namespace SkSL {

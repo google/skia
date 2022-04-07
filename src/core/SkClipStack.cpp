@@ -15,7 +15,7 @@
 #include <new>
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrProxyProvider.h"
 #endif
 
 SkClipStack::Element::Element(const Element& that) {

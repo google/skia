@@ -23,7 +23,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
-#include "src/gpu/GrCaps.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tests/Test.h"
 #include "tools/SkSharingProc.h"
@@ -178,8 +178,8 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrAHardwareBufferUtils.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 
 #include <android/hardware_buffer.h>
 

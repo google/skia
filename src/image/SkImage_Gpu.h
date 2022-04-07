@@ -10,9 +10,9 @@
 
 #include "include/private/SkSpinlock.h"
 #include "src/core/SkImagePriv.h"
-#include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrSurfaceProxyPriv.h"
-#include "src/gpu/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrGpuResourcePriv.h"
+#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/image/SkImage_GpuBase.h"
 
 class GrDirectContext;

@@ -10,7 +10,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/Test.h"
 
 static SkBitmap read_pixels(sk_sp<SkSurface> surface, SkColor initColor) {

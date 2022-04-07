@@ -16,7 +16,7 @@
 #include "src/shaders/SkColorFilterShader.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
 #endif
 
 SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader,

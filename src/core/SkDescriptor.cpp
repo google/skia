@@ -16,7 +16,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/ganesh/GrResourceProvider.h"
 
 std::unique_ptr<SkDescriptor> SkDescriptor::Alloc(size_t length) {
     SkASSERT(length >= sizeof(SkDescriptor) && SkAlign4(length) == length);

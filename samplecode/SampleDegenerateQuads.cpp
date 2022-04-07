@@ -7,8 +7,8 @@
 
 #include "samplecode/Sample.h"
 
-#include "src/gpu/geometry/GrQuad.h"
-#include "src/gpu/ops/QuadPerEdgeAA.h"
+#include "src/gpu/ganesh/geometry/GrQuad.h"
+#include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"

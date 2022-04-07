@@ -92,8 +92,8 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/SkGr.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/SkGr.h"
 
 GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext* ctx,
                                                               const SkImageInfo& info,

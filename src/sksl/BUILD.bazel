@@ -607,7 +607,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkTypes_hdr",
-        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu/ganesh:GrMemoryPool_hdr",
     ],
 )
 
@@ -652,7 +652,7 @@ generated_cc_atom(
     deps = [
         ":SkSLPool_hdr",
         "//include/core:SkTypes_hdr",
-        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu/ganesh:GrMemoryPool_hdr",
     ],
 )
 
@@ -789,7 +789,7 @@ generated_cc_atom(
         "//include/private:SkSLProgramKind_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
         "//include/sksl:SkSLPosition_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
     ],
 )
@@ -808,7 +808,7 @@ generated_cc_atom(
         ":SkSLUtil_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//include/sksl:DSLSymbols_hdr",
-        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/ganesh/glsl:GrGLSLFragmentShaderBuilder_hdr",
         "//src/sksl/ir:SkSLExternalFunction_hdr",
         "//src/sksl/ir:SkSLSymbolTable_hdr",
     ],
@@ -835,7 +835,7 @@ generated_cc_atom(
         ":SkSLOutputStream_hdr",
         ":SkSLStringStream_hdr",
         ":SkSLUtil_hdr",
-        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu/ganesh:GrShaderCaps_hdr",
         "//src/sksl/ir:SkSLType_hdr",
     ],
 )

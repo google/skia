@@ -10,7 +10,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkCachedData.h"
-#include "src/gpu/GrYUVATextureProxies.h"
+#include "src/gpu/ganesh/GrYUVATextureProxies.h"
 #include "src/image/SkImage_GpuBase.h"
 
 class GrDirectContext;

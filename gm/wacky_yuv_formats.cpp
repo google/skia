@@ -45,8 +45,8 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkYUVMath.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
 

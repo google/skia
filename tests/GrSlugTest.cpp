@@ -7,7 +7,7 @@
 
 #include "include/core/SkTextBlob.h"
 #include "include/private/chromium/GrSlug.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 

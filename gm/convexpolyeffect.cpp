@@ -20,11 +20,11 @@
 #include "include/core/SkString.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrPaint.h"
-#include "src/gpu/effects/GrConvexPolyEffect.h"
-#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/effects/GrConvexPolyEffect.h"
+#include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tools/gpu/TestOps.h"
 
 #include <memory>

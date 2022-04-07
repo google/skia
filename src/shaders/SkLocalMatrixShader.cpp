@@ -11,8 +11,8 @@
 #include "src/shaders/SkLocalMatrixShader.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/effects/GrMatrixEffect.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #endif
 
 #if SK_SUPPORT_GPU

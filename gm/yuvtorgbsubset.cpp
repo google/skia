@@ -19,12 +19,12 @@
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/gpu/GrSamplerState.h"
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/GrYUVATextureProxies.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrYUVtoRGBEffect.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrYUVATextureProxies.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 #include <memory>
 #include <utility>

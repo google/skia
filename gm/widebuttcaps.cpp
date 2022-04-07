@@ -12,11 +12,11 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/utils/SkRandom.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrDrawingManager.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/ops/TessellationPathRenderer.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDrawingManager.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 
 static constexpr float kStrokeWidth = 100;
 static constexpr int kTestWidth = 120 * 4;

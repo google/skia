@@ -9,8 +9,8 @@
 
 #include "include/core/SkExecutor.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

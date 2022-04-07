@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h" // IWYU pragma: keep
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 #include <memory>

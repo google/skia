@@ -30,7 +30,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkTLazy.h"
-#include "src/gpu/GrColor.h"
+#include "src/gpu/ganesh/GrColor.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLUtil.h"
 #include "tests/Test.h"

@@ -43,7 +43,7 @@ bool SkImageGenerator::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
 }
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 GrSurfaceProxyView SkImageGenerator::generateTexture(GrRecordingContext* ctx,
                                                      const SkImageInfo& info,

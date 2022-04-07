@@ -16,7 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
 
 class GrRecordingContext;

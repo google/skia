@@ -10,8 +10,8 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/gpu/GrDataUtils.h"
-#include "src/gpu/GrPixmap.h"
+#include "src/gpu/ganesh/GrDataUtils.h"
+#include "src/gpu/ganesh/GrPixmap.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 

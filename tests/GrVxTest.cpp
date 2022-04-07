@@ -7,7 +7,7 @@
 
 #include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"
-#include "src/gpu/GrVx.h"
+#include "src/gpu/ganesh/GrVx.h"
 #include "tests/Test.h"
 #include <limits>
 #include <numeric>

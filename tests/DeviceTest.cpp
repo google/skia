@@ -15,7 +15,7 @@
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

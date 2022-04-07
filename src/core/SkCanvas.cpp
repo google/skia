@@ -54,12 +54,12 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/chromium/GrSlug.h"
-#include "src/gpu/BaseDevice.h"
-#include "src/gpu/SkGr.h"
+#include "src/gpu/ganesh/BaseDevice.h"
+#include "src/gpu/ganesh/SkGr.h"
 #include "src/utils/SkTestCanvas.h"
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-#   include "src/gpu/GrRenderTarget.h"
-#   include "src/gpu/GrRenderTargetProxy.h"
+#   include "src/gpu/ganesh/GrRenderTarget.h"
+#   include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #endif
 #endif
 

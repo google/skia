@@ -38,8 +38,8 @@
 #include <type_traits>
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #endif
 
 namespace SkSL {

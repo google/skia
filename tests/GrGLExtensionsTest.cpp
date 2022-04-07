@@ -8,7 +8,7 @@
 #include "include/core/SkTypes.h"
 
 #include "include/gpu/gl/GrGLExtensions.h"
-#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "tests/Test.h"
 
 #ifdef SK_GL

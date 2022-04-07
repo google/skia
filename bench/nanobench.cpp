@@ -91,9 +91,9 @@ SK_BLITTER_TRACE_INIT
 #endif
 
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/SkGr.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/SkGr.h"
 #include "tools/gpu/GrContextFactory.h"
 
 using sk_gpu_test::ContextInfo;

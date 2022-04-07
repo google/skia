@@ -15,7 +15,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkTLazy.h"
-#include "src/gpu/GrColorInfo.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/shaders/SkColorShader.h"
 #include "tests/Test.h"
 

@@ -172,8 +172,8 @@ skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
 #if SK_SUPPORT_GPU
 
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/effects/GrBlendFragmentProcessor.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
         const GrFPArgs& orig_args) const {

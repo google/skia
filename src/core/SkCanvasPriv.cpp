@@ -113,7 +113,7 @@ void SkCanvasPriv::DrawCustomMesh(SkCanvas* canvas,
 #if GR_TEST_UTILS
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/BaseDevice.h"
+#include "src/gpu/ganesh/BaseDevice.h"
 
 #if SK_GPU_V1
 skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
@@ -150,7 +150,7 @@ skgpu::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* c
 #endif // GR_TEST_UTILS
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/BaseDevice.h"
+#include "src/gpu/ganesh/BaseDevice.h"
 
 GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
     if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {

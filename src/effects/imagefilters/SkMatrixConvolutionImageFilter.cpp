@@ -18,10 +18,10 @@
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrMatrixConvolutionEffect.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 #endif
 
 namespace {

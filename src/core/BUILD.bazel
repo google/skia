@@ -653,8 +653,8 @@ generated_cc_atom(
         ":SkKeyHelpers_hdr",
         ":SkReadBuffer_hdr",
         ":SkWriteBuffer_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
-        "//src/gpu/effects:GrBlendFragmentProcessor_hdr",
+        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
+        "//src/gpu/ganesh/effects:GrBlendFragmentProcessor_hdr",
     ],
 )
 
@@ -666,7 +666,7 @@ generated_cc_atom(
         "//include/core:SkBlendMode_hdr",
         "//include/core:SkColor_hdr",
         "//include/private:SkColorData_hdr",
-        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/ganesh:GrXferProcessor_hdr",
     ],
 )
 
@@ -869,22 +869,22 @@ generated_cc_atom(
         "//include/core:SkStrokeRec_hdr",
         "//include/core:SkVertices_hdr",
         "//include/gpu:GrRecordingContext_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
-        "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu:GrResourceProvider_hdr",
-        "//src/gpu:GrShaderCaps_hdr",
-        "//src/gpu:GrStyle_hdr",
-        "//src/gpu:GrTextureProxy_hdr",
-        "//src/gpu:GrThreadSafeCache_hdr",
-        "//src/gpu:SkGr_hdr",
-        "//src/gpu/effects:GrMatrixEffect_hdr",
-        "//src/gpu/effects:GrSkSLFP_hdr",
-        "//src/gpu/effects:GrTextureEffect_hdr",
-        "//src/gpu/geometry:GrStyledShape_hdr",
-        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
-        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
-        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
-        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
+        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
+        "//src/gpu/ganesh:GrResourceProvider_hdr",
+        "//src/gpu/ganesh:GrShaderCaps_hdr",
+        "//src/gpu/ganesh:GrStyle_hdr",
+        "//src/gpu/ganesh:GrTextureProxy_hdr",
+        "//src/gpu/ganesh:GrThreadSafeCache_hdr",
+        "//src/gpu/ganesh:SkGr_hdr",
+        "//src/gpu/ganesh/effects:GrMatrixEffect_hdr",
+        "//src/gpu/ganesh/effects:GrSkSLFP_hdr",
+        "//src/gpu/ganesh/effects:GrTextureEffect_hdr",
+        "//src/gpu/ganesh/geometry:GrStyledShape_hdr",
+        "//src/gpu/ganesh/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/ganesh/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/ganesh/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
     ],
 )
 
@@ -981,7 +981,7 @@ generated_cc_atom(
         ":SkDevice_hdr",
         ":SkReadBuffer_hdr",
         ":SkWriter32_hdr",
-        "//src/gpu:BaseDevice_hdr",
+        "//src/gpu/ganesh:BaseDevice_hdr",
     ],
 )
 
@@ -1030,10 +1030,10 @@ generated_cc_atom(
         "//include/private:SkTo_hdr",
         "//include/private/chromium:GrSlug_hdr",
         "//include/utils:SkNoDrawCanvas_hdr",
-        "//src/gpu:BaseDevice_hdr",
-        "//src/gpu:GrRenderTargetProxy_hdr",
-        "//src/gpu:GrRenderTarget_hdr",
-        "//src/gpu:SkGr_hdr",
+        "//src/gpu/ganesh:BaseDevice_hdr",
+        "//src/gpu/ganesh:GrRenderTargetProxy_hdr",
+        "//src/gpu/ganesh:GrRenderTarget_hdr",
+        "//src/gpu/ganesh:SkGr_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/image:SkSurface_Base_hdr",
         "//src/utils:SkPatchUtils_hdr",
@@ -1089,7 +1089,7 @@ generated_cc_atom(
         ":SkRectPriv_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkPath_hdr",
-        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu/ganesh:GrProxyProvider_hdr",
         "//src/shaders:SkShaderBase_hdr",
     ],
 )
@@ -1138,7 +1138,7 @@ generated_cc_atom(
         "//include/effects:SkRuntimeEffect_hdr",
         "//include/private:SkColorData_hdr",
         "//include/private:SkNx_hdr",
-        "//src/gpu/effects:GrSkSLFP_hdr",
+        "//src/gpu/ganesh/effects:GrSkSLFP_hdr",
     ],
 )
 
@@ -1166,9 +1166,9 @@ generated_cc_atom(
         "//include/private:SkNx_hdr",
         "//include/private:SkTDArray_hdr",
         "//include/third_party/skcms:skcms_hdr",
-        "//src/gpu:GrColorInfo_hdr",
-        "//src/gpu:GrColorSpaceXform_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu/ganesh:GrColorInfo_hdr",
+        "//src/gpu/ganesh:GrColorSpaceXform_hdr",
+        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
     ],
 )
 
@@ -1434,10 +1434,10 @@ generated_cc_atom(
         "//include/core:SkSurface_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//include/gpu:GrYUVABackendTextures_hdr",
-        "//src/gpu:GrProxyProvider_hdr",
-        "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu:GrTexture_hdr",
-        "//src/gpu:SkGr_hdr",
+        "//src/gpu/ganesh:GrProxyProvider_hdr",
+        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
+        "//src/gpu/ganesh:GrTexture_hdr",
+        "//src/gpu/ganesh:SkGr_hdr",
         "//src/image:SkImage_GpuYUVA_hdr",
         "//src/image:SkImage_Gpu_hdr",
         "//src/image:SkSurface_Gpu_hdr",
@@ -1453,8 +1453,8 @@ generated_cc_atom(
         "//include/core:SkDeferredDisplayList_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkTypes_hdr",
-        "//src/gpu:GrDirectContextPriv_hdr",
-        "//src/gpu:GrRenderTask_hdr",
+        "//src/gpu/ganesh:GrDirectContextPriv_hdr",
+        "//src/gpu/ganesh:GrRenderTask_hdr",
     ],
 )
 
@@ -1493,7 +1493,7 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/private:SkTo_hdr",
         "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
-        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu/ganesh:GrResourceProvider_hdr",
     ],
 )
 
@@ -2123,7 +2123,7 @@ generated_cc_atom(
         ":SkScalerContext_hdr",
         ":SkTextBlobPriv_hdr",
         "//include/core:SkSurfaceProps_hdr",
-        "//src/gpu/text:GrSDFTControl_hdr",
+        "//src/gpu/ganesh/text:GrSDFTControl_hdr",
     ],
 )
 
@@ -2151,14 +2151,14 @@ generated_cc_atom(
         "//include/core:SkPathEffect_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//include/private:SkTDArray_hdr",
-        "//src/gpu:GrCaps_hdr",
-        "//src/gpu:GrColorInfo_hdr",
-        "//src/gpu:GrDirectContextPriv_hdr",
-        "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu:SkGr_hdr",
-        "//src/gpu/text:GrSDFTControl_hdr",
-        "//src/gpu/text:GrTextBlobRedrawCoordinator_hdr",
-        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+        "//src/gpu/ganesh:GrCaps_hdr",
+        "//src/gpu/ganesh:GrColorInfo_hdr",
+        "//src/gpu/ganesh:GrDirectContextPriv_hdr",
+        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
+        "//src/gpu/ganesh:SkGr_hdr",
+        "//src/gpu/ganesh/text:GrSDFTControl_hdr",
+        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
+        "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
     ],
 )
 
@@ -2252,13 +2252,13 @@ generated_cc_atom(
         "//include/core:SkColorSpace_hdr",
         "//include/core:SkRect_hdr",
         "//include/gpu:GrRecordingContext_hdr",
-        "//src/gpu:GrCaps_hdr",
-        "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu:SkGr_hdr",
-        "//src/gpu/effects:GrGaussianConvolutionFragmentProcessor_hdr",
-        "//src/gpu/effects:GrMatrixConvolutionEffect_hdr",
-        "//src/gpu/effects:GrTextureEffect_hdr",
-        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+        "//src/gpu/ganesh:GrCaps_hdr",
+        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
+        "//src/gpu/ganesh:SkGr_hdr",
+        "//src/gpu/ganesh/effects:GrGaussianConvolutionFragmentProcessor_hdr",
+        "//src/gpu/ganesh/effects:GrMatrixConvolutionEffect_hdr",
+        "//src/gpu/ganesh/effects:GrTextureEffect_hdr",
+        "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
     ],
 )
 
@@ -2430,12 +2430,12 @@ generated_cc_atom(
         "//include/core:SkRect_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//include/private:SkSafe32_hdr",
-        "//src/gpu:GrColorSpaceXform_hdr",
-        "//src/gpu:GrDirectContextPriv_hdr",
-        "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu:GrTextureProxy_hdr",
-        "//src/gpu:SkGr_hdr",
-        "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu/ganesh:GrColorSpaceXform_hdr",
+        "//src/gpu/ganesh:GrDirectContextPriv_hdr",
+        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
+        "//src/gpu/ganesh:GrTextureProxy_hdr",
+        "//src/gpu/ganesh:SkGr_hdr",
+        "//src/gpu/ganesh:SurfaceFillContext_hdr",
     ],
 )
 
@@ -2450,7 +2450,7 @@ generated_cc_atom(
         "//include/core:SkImageGenerator_hdr",
         "//include/core:SkImage_hdr",
         "//src/codec:SkColorTable_hdr",
-        "//src/gpu:GrSurfaceProxyView_hdr",
+        "//src/gpu/ganesh:GrSurfaceProxyView_hdr",
     ],
 )
 
@@ -2702,10 +2702,10 @@ generated_cc_atom(
         ":SkWriteBuffer_hdr",
         "//include/core:SkPath_hdr",
         "//include/core:SkRRect_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
-        "//src/gpu:GrSurfaceProxyView_hdr",
-        "//src/gpu:GrTextureProxy_hdr",
-        "//src/gpu/text:GrSDFMaskFilter_hdr",
+        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
+        "//src/gpu/ganesh:GrSurfaceProxyView_hdr",
+        "//src/gpu/ganesh:GrTextureProxy_hdr",
+        "//src/gpu/ganesh/text:GrSDFMaskFilter_hdr",
     ],
 )
 
@@ -3023,9 +3023,9 @@ generated_cc_atom(
         "//include/private:SkColorData_hdr",
         "//include/utils:SkRandom_hdr",
         "//src/gpu:Blend_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
-        "//src/gpu:SkGr_hdr",
-        "//src/gpu/effects:GrBlendFragmentProcessor_hdr",
+        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
+        "//src/gpu/ganesh:SkGr_hdr",
+        "//src/gpu/ganesh/effects:GrBlendFragmentProcessor_hdr",
     ],
 )
 
@@ -3429,8 +3429,8 @@ generated_cc_atom(
         "//include/core:SkPicture_hdr",
         "//include/core:SkSurface_hdr",
         "//include/gpu:GrRecordingContext_hdr",
-        "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu:SkGr_hdr",
+        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
+        "//src/gpu/ganesh:SkGr_hdr",
         "//src/image:SkImage_Base_hdr",
     ],
 )
@@ -4179,13 +4179,13 @@ generated_cc_atom(
         "//include/gpu:GrRecordingContext_hdr",
         "//include/private:SkMutex_hdr",
         "//include/sksl:DSLCore_hdr",
-        "//src/gpu:GrColorInfo_hdr",
-        "//src/gpu:GrFPArgs_hdr",
-        "//src/gpu:GrImageInfo_hdr",
-        "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu:SurfaceFillContext_hdr",
-        "//src/gpu/effects:GrMatrixEffect_hdr",
-        "//src/gpu/effects:GrSkSLFP_hdr",
+        "//src/gpu/ganesh:GrColorInfo_hdr",
+        "//src/gpu/ganesh:GrFPArgs_hdr",
+        "//src/gpu/ganesh:GrImageInfo_hdr",
+        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
+        "//src/gpu/ganesh:SurfaceFillContext_hdr",
+        "//src/gpu/ganesh/effects:GrMatrixEffect_hdr",
+        "//src/gpu/ganesh/effects:GrSkSLFP_hdr",
         "//src/image:SkImage_Gpu_hdr",
         "//src/sksl:SkSLAnalysis_hdr",
         "//src/sksl:SkSLCompiler_hdr",
@@ -4517,7 +4517,7 @@ generated_cc_atom(
         "//include/core:SkSamplingOptions_hdr",
         "//include/core:SkSurfaceProps_hdr",
         "//include/private:GrTypesPriv_hdr",
-        "//src/gpu:GrSurfaceProxyView_hdr",
+        "//src/gpu/ganesh:GrSurfaceProxyView_hdr",
     ],
 )
 
@@ -4537,10 +4537,10 @@ generated_cc_atom(
         "//include/core:SkTileMode_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",
-        "//src/gpu:GrImageInfo_hdr",
-        "//src/gpu:GrProxyProvider_hdr",
-        "//src/gpu:GrRecordingContextPriv_hdr",
-        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu/ganesh:GrImageInfo_hdr",
+        "//src/gpu/ganesh:GrProxyProvider_hdr",
+        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
+        "//src/gpu/ganesh:GrTextureProxy_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/image:SkImage_Gpu_hdr",
         "//src/shaders:SkImageShader_hdr",
@@ -4571,7 +4571,7 @@ generated_cc_atom(
         "//include/core:SkColorSpace_hdr",
         "//include/core:SkMallocPixelRef_hdr",
         "//include/gpu:GrRecordingContext_hdr",
-        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
     ],
 )
 
@@ -4687,7 +4687,7 @@ generated_cc_atom(
         "//include/core:SkTypeface_hdr",
         "//include/private:SkMutex_hdr",
         "//include/private:SkTemplates_hdr",
-        "//src/gpu/text:GrStrikeCache_hdr",
+        "//src/gpu/ganesh/text:GrStrikeCache_hdr",
     ],
 )
 
@@ -4722,7 +4722,7 @@ generated_cc_atom(
         ":SkStrikeForGPU_hdr",
         "//include/core:SkMaskFilter_hdr",
         "//include/core:SkPathEffect_hdr",
-        "//src/gpu/text:GrSDFTControl_hdr",
+        "//src/gpu/ganesh/text:GrSDFTControl_hdr",
     ],
 )
 
@@ -4737,9 +4737,9 @@ generated_cc_atom(
         ":SkStrikeSpec_hdr",
         ":SkTLazy_hdr",
         "//include/core:SkGraphics_hdr",
-        "//src/gpu/text:GrSDFMaskFilter_hdr",
-        "//src/gpu/text:GrSDFTControl_hdr",
-        "//src/gpu/text:GrStrikeCache_hdr",
+        "//src/gpu/ganesh/text:GrSDFMaskFilter_hdr",
+        "//src/gpu/ganesh/text:GrSDFTControl_hdr",
+        "//src/gpu/ganesh/text:GrStrikeCache_hdr",
     ],
 )
 
@@ -4839,8 +4839,8 @@ generated_cc_atom(
     deps = [
         "//include/core:SkSurfaceCharacterization_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
-        "//src/gpu:GrCaps_hdr",
-        "//src/gpu:GrContextThreadSafeProxyPriv_hdr",
+        "//src/gpu/ganesh:GrCaps_hdr",
+        "//src/gpu/ganesh:GrContextThreadSafeProxyPriv_hdr",
     ],
 )
 
@@ -5020,7 +5020,7 @@ generated_cc_atom(
         "//include/core:SkRSXform_hdr",
         "//include/core:SkTextBlob_hdr",
         "//include/core:SkTypeface_hdr",
-        "//src/gpu/text:GrTextBlobRedrawCoordinator_hdr",
+        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
     ],
 )
 
@@ -5436,9 +5436,9 @@ generated_cc_atom(
         "//include/core:SkString_hdr",
         "//include/private:SkColorData_hdr",
         "//include/private:SkOnce_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
-        "//src/gpu/effects:GrCustomXfermode_hdr",
-        "//src/gpu/effects:GrPorterDuffXferProcessor_hdr",
+        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
+        "//src/gpu/ganesh/effects:GrCustomXfermode_hdr",
+        "//src/gpu/ganesh/effects:GrPorterDuffXferProcessor_hdr",
     ],
 )
 
@@ -5548,9 +5548,9 @@ generated_cc_atom(
         "//include/private:SkChecksum_hdr",
         "//include/private:SkTHash_hdr",
         "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
-        "//src/gpu:GrDrawOpAtlas_hdr",
-        "//src/gpu/text:GrSDFTControl_hdr",
-        "//src/gpu/text:GrTextBlob_hdr",
+        "//src/gpu/ganesh:GrDrawOpAtlas_hdr",
+        "//src/gpu/ganesh/text:GrSDFTControl_hdr",
+        "//src/gpu/ganesh/text:GrTextBlob_hdr",
     ],
 )
 

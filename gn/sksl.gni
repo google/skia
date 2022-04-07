@@ -246,7 +246,7 @@ skslc_deps = [
   "$_src/core/SkThreadID.cpp",
   "$_src/core/SkUtils.cpp",
   "$_src/core/SkVM.cpp",
-  "$_src/gpu/GrMemoryPool.cpp",
+  "$_src/gpu/ganesh/GrMemoryPool.cpp",
   "$_src/ports/SkMemory_malloc.cpp",
   "$_src/ports/SkOSFile_stdio.cpp",
   "$_src/utils/SkJSON.cpp",

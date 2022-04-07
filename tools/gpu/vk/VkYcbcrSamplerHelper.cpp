@@ -10,9 +10,9 @@
 #ifdef SK_VULKAN
 
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/vk/GrVkGpu.h"
-#include "src/gpu/vk/GrVkUtil.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
 
 int VkYcbcrSamplerHelper::GetExpectedY(int x, int y, int width, int height) {
     return 16 + (x + y) * 219 / (width + height - 2);

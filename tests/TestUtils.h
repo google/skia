@@ -9,7 +9,7 @@
 #define TestUtils_DEFINED
 
 #include "include/core/SkBitmap.h"
-#include "src/gpu/GrDataUtils.h"
+#include "src/gpu/ganesh/GrDataUtils.h"
 #include "tests/Test.h"
 
 namespace skgpu { class SurfaceContext; }

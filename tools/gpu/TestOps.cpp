@@ -9,16 +9,16 @@
 
 #include "src/core/SkPointPriv.h"
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrGeometryProcessor.h"
-#include "src/gpu/GrMemoryPool.h"
-#include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/KeyBuilder.h"
-#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLVarying.h"
-#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrMemoryPool.h"
+#include "src/gpu/ganesh/GrOpFlushState.h"
+#include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
+#include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {
 

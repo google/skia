@@ -20,10 +20,10 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrDrawingManager.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDrawingManager.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
 static constexpr float kStrokeWidth = 30;
 static constexpr int kCellSize = 200;
@@ -182,7 +182,7 @@ DEF_SIMPLE_GM(trickycubicstrokes_roundcaps, canvas, kTestWidth, kTestHeight) {
 }
 
 #if SK_GPU_V1
-#include "src/gpu/ops/TessellationPathRenderer.h"
+#include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 
 class TrickyCubicStrokes_tess_segs_5 : public skiagm::GM {
     SkString onShortName() override {

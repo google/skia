@@ -513,7 +513,7 @@ generated_cc_atom(
         "//src/core:SkGeometry_hdr",
         "//src/core:SkPointPriv_hdr",
         "//src/core:SkRectPriv_hdr",
-        "//src/gpu/geometry:GrPathUtils_hdr",
+        "//src/gpu/ganesh/geometry:GrPathUtils_hdr",
     ],
 )
 
@@ -547,8 +547,8 @@ generated_cc_atom(
         "//src/core:SkTLazy_hdr",
         "//src/core:SkVM_hdr",
         "//src/core:SkVerticesPriv_hdr",
-        "//src/gpu/effects:GrSkSLFP_hdr",
-        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/ganesh/effects:GrSkSLFP_hdr",
+        "//src/gpu/ganesh/geometry:GrStyledShape_hdr",
     ],
 )
 

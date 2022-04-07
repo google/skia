@@ -10,9 +10,9 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/SkGr.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/SkGr.h"
 #include "tests/Test.h"
 
 class TestingSpecialSurfaceAccess {

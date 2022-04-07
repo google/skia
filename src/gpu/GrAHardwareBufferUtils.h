@@ -4,67 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GrAHardwareBufferUtils_DEFINED
-#define GrAHardwareBufferUtils_DEFINED
 
-#include "include/core/SkTypes.h"
+// TODO: Once we can get Android to use the ganesh version of the file we can remove this one. At
+// that time we should also rename the ganesh file to drop the _impl.
+#include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrTypes.h"
-
-class GrDirectContext;
-
-extern "C" {
-    typedef struct AHardwareBuffer AHardwareBuffer;
-}
-
-namespace GrAHardwareBufferUtils {
-
-SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat);
-
-GrBackendFormat GetBackendFormat(GrDirectContext* context, AHardwareBuffer* hardwareBuffer,
-                                 uint32_t bufferFormat, bool requireKnownFormat);
-
-typedef void* TexImageCtx;
-typedef void (*DeleteImageProc)(TexImageCtx);
-typedef void (*UpdateImageProc)(TexImageCtx, GrDirectContext*);
-
-/**
- * Create a GrBackendTexture from AHardwareBuffer
- *
- * @param   context         GPU context
- * @param   hardwareBuffer  AHB
- * @param   width           texture width
- * @param   height          texture height
- * @param   deleteProc      returns a function that deletes the texture and
- *                          other GPU resources. Must be invoked on the same
- *                          thread as MakeBackendTexture
- * @param   updateProc      returns a function, that needs to be invoked, when
- *                          AHB buffer content has changed. Must be invoked on
- *                          the same thread as MakeBackendTexture
- * @param   imageCtx        returns an opaque image context, that is passed as
- *                          first argument to deleteProc and updateProc
- * @param   isProtectedContent if true, GL backend uses EXT_protected_content
- * @param   backendFormat   backend format, usually created with helper
- *                          function GetBackendFormat
- * @param   isRenderable    true if GrBackendTexture can be used as a color
- *                          attachment
- * @return                  valid GrBackendTexture object on success
- */
-GrBackendTexture MakeBackendTexture(GrDirectContext* context, AHardwareBuffer* hardwareBuffer,
-                                    int width, int height,
-                                    DeleteImageProc* deleteProc,
-                                    UpdateImageProc* updateProc,
-                                    TexImageCtx* imageCtx,
-                                    bool isProtectedContent,
-                                    const GrBackendFormat& backendFormat,
-                                    bool isRenderable,
-                                    bool fromAndroidWindow = false);
-
-} // GrAHardwareBufferUtils
-
-
-#endif
-#endif

@@ -12,7 +12,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/ganesh/GrResourceProvider.h"
 #include "tests/Test.h"
 
 #include <memory>

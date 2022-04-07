@@ -21,7 +21,7 @@
 #include <type_traits>
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 namespace SkSL {

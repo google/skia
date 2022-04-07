@@ -209,13 +209,13 @@ BASE_SRCS_ALL = struct(
         "src/codec/*",
         "src/device/xps/*",  # Windows-only. Move to ports?
         "src/doc/*_XPS.cpp",  # Windows-only. Move to ports?
-        "src/gpu/gl/android/*",
-        "src/gpu/gl/egl/*",
-        "src/gpu/gl/glfw/*",
-        "src/gpu/gl/glx/*",
-        "src/gpu/gl/iOS/*",
-        "src/gpu/gl/mac/*",
-        "src/gpu/gl/win/*",
+        "src/gpu/ganesh/gl/android/*",
+        "src/gpu/ganesh/gl/egl/*",
+        "src/gpu/ganesh/gl/glfw/*",
+        "src/gpu/ganesh/gl/glx/*",
+        "src/gpu/ganesh/gl/iOS/*",
+        "src/gpu/ganesh/gl/mac/*",
+        "src/gpu/ganesh/gl/win/*",
         "src/opts/**/*",
         "src/ports/**/*",
         "src/utils/android/**/*",
@@ -223,7 +223,7 @@ BASE_SRCS_ALL = struct(
         "src/utils/win/**/*",
 
         # Exclude multiple definitions.
-        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+        "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp",
         "src/pdf/SkDocument_PDF_None.cpp",  # We use src/pdf/SkPDFDocument.cpp.
 
         # Exclude files that don't compile everywhere.
@@ -231,20 +231,20 @@ BASE_SRCS_ALL = struct(
         "src/xml/**/*",  # Avoid dragging in expat when not needed.
 
         # Exclude all GL specific files
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
+        "src/gpu/ganesh/gl/*",
+        "src/gpu/ganesh/gl/builders/*",
 
         # Exclude all WebGL specific files
-        "src/gpu/gl/webgl/*",
+        "src/gpu/ganesh/gl/webgl/*",
 
         # Currently exclude all vulkan specific files
-        "src/gpu/vk/*",
+        "src/gpu/ganesh/vk/*",
 
         # Currently exclude all Direct3D specific files
-        "src/gpu/d3d/*",
+        "src/gpu/ganesh/d3d/*",
 
         # Currently exclude all Dawn-specific files
-        "src/gpu/dawn/*",
+        "src/gpu/ganesh/dawn/*",
 
         # Defines main.
         "tools/skslc/Main.cpp",
@@ -268,24 +268,24 @@ def codec_srcs(limited):
 
 GL_SRCS_UNIX = struct(
     include = [
-        "src/gpu/gl/*.cpp",
-        "src/gpu/gl/*.h",
-        "src/gpu/gl/builders/*.cpp",
-        "src/gpu/gl/builders/*.h",
+        "src/gpu/ganesh/gl/*.cpp",
+        "src/gpu/ganesh/gl/*.h",
+        "src/gpu/ganesh/gl/builders/*.cpp",
+        "src/gpu/ganesh/gl/builders/*.h",
     ],
     exclude = [],
 )
 GL_SRCS_UNIX_EGL = struct(
     include = [
-        "src/gpu/gl/*.cpp",
-        "src/gpu/gl/*.h",
-        "src/gpu/gl/builders/*.cpp",
-        "src/gpu/gl/builders/*.h",
-        "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
-        "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+        "src/gpu/ganesh/gl/*.cpp",
+        "src/gpu/ganesh/gl/*.h",
+        "src/gpu/ganesh/gl/builders/*.cpp",
+        "src/gpu/ganesh/gl/builders/*.h",
+        "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
+        "src/gpu/ganesh/gl/egl/GrGLMakeNativeInterface_egl.cpp",
     ],
     exclude = [
-        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+        "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp",
     ],
 )
 PORTS_SRCS_UNIX = struct(
@@ -315,14 +315,14 @@ PORTS_SRCS_UNIX = struct(
 
 GL_SRCS_ANDROID = struct(
     include = [
-        "src/gpu/gl/*.cpp",
-        "src/gpu/gl/*.h",
-        "src/gpu/gl/builders/*.cpp",
-        "src/gpu/gl/builders/*.h",
-        "src/gpu/gl/android/*.cpp",
+        "src/gpu/ganesh/gl/*.cpp",
+        "src/gpu/ganesh/gl/*.h",
+        "src/gpu/ganesh/gl/builders/*.cpp",
+        "src/gpu/ganesh/gl/builders/*.h",
+        "src/gpu/ganesh/gl/android/*.cpp",
     ],
     exclude = [
-        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+        "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp",
     ],
 )
 PORTS_SRCS_ANDROID = struct(
@@ -378,14 +378,14 @@ PORTS_SRCS_ANDROID_NO_FONT = struct(
 
 GL_SRCS_IOS = struct(
     include = [
-        "src/gpu/gl/*.cpp",
-        "src/gpu/gl/*.h",
-        "src/gpu/gl/builders/*.cpp",
-        "src/gpu/gl/builders/*.h",
-        "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp",
+        "src/gpu/ganesh/gl/*.cpp",
+        "src/gpu/ganesh/gl/*.h",
+        "src/gpu/ganesh/gl/builders/*.cpp",
+        "src/gpu/ganesh/gl/builders/*.h",
+        "src/gpu/ganesh/gl/iOS/GrGLMakeNativeInterface_iOS.cpp",
     ],
     exclude = [
-        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+        "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp",
     ],
 )
 PORTS_SRCS_IOS = struct(
@@ -420,15 +420,15 @@ PORTS_SRCS_IOS = struct(
 
 GL_SRCS_WASM = struct(
     include = [
-        "src/gpu/gl/*.cpp",
-        "src/gpu/gl/*.h",
-        "src/gpu/gl/builders/*.cpp",
-        "src/gpu/gl/builders/*.h",
-        "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
-        "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+        "src/gpu/ganesh/gl/*.cpp",
+        "src/gpu/ganesh/gl/*.h",
+        "src/gpu/ganesh/gl/builders/*.cpp",
+        "src/gpu/ganesh/gl/builders/*.h",
+        "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
+        "src/gpu/ganesh/gl/egl/GrGLMakeNativeInterface_egl.cpp",
     ],
     exclude = [
-        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+        "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp",
     ],
 )
 PORTS_SRCS_WASM = struct(
@@ -468,8 +468,8 @@ PORTS_SRCS_WASM = struct(
 
 GL_SRCS_FUCHSIA = struct(
     include = [
-        "src/gpu/vk/*.cpp",
-        "src/gpu/vk/*.h",
+        "src/gpu/ganesh/vk/*.cpp",
+        "src/gpu/ganesh/vk/*.h",
     ],
     exclude = [],
 )
@@ -508,14 +508,14 @@ PORTS_SRCS_FUCHSIA = struct(
 
 GL_SRCS_MACOS = struct(
     include = [
-        "src/gpu/gl/*.cpp",
-        "src/gpu/gl/*.h",
-        "src/gpu/gl/builders/*.cpp",
-        "src/gpu/gl/builders/*.h",
-        "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp",
+        "src/gpu/ganesh/gl/*.cpp",
+        "src/gpu/ganesh/gl/*.h",
+        "src/gpu/ganesh/gl/builders/*.cpp",
+        "src/gpu/ganesh/gl/builders/*.h",
+        "src/gpu/ganesh/gl/mac/GrGLMakeNativeInterface_mac.cpp",
     ],
     exclude = [
-        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+        "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp",
     ],
 )
 PORTS_SRCS_MACOS = PORTS_SRCS_IOS
@@ -561,7 +561,7 @@ def metal_objc_srcs():
         [
             "include/**/*.h",
             "src/**/*.h",
-            "src/gpu/mtl/**/*.mm",
+            "src/gpu/ganesh/mtl/**/*.mm",
             "third_party/**/*.h",
         ],
     ) + [

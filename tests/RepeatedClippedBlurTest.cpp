@@ -10,8 +10,8 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrResourceCache.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrResourceCache.h"
 #include "tests/Test.h"
 
 // This is the repro of a CastOS memory regression bug (b/138674523).

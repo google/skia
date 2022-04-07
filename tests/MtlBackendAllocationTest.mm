@@ -6,8 +6,8 @@
  */
 
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/mtl/GrMtlCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/mtl/GrMtlCaps.h"
 #include "tests/Test.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 

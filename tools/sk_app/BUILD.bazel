@@ -173,10 +173,10 @@ generated_cc_atom(
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//src/core:SkMathPriv_hdr",
-        "//src/gpu:GrCaps_hdr",
-        "//src/gpu:GrDirectContextPriv_hdr",
-        "//src/gpu/gl:GrGLDefines_hdr",
-        "//src/gpu/gl:GrGLUtil_hdr",
+        "//src/gpu/ganesh:GrCaps_hdr",
+        "//src/gpu/ganesh:GrDirectContextPriv_hdr",
+        "//src/gpu/ganesh/gl:GrGLDefines_impl_hdr",
+        "//src/gpu/ganesh/gl:GrGLUtil_hdr",
         "//src/image:SkImage_Base_hdr",
     ],
 )
@@ -221,7 +221,7 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/gpu/vk:GrVkBackendContext_hdr",
         "//include/gpu/vk:GrVkVulkan_hdr",
-        "//src/gpu/vk:GrVkInterface_hdr",
+        "//src/gpu/ganesh/vk:GrVkInterface_hdr",
         "//tools/gpu/vk:VkTestUtils_hdr",
     ],
 )
@@ -239,8 +239,8 @@ generated_cc_atom(
         "//include/gpu/vk:GrVkExtensions_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
         "//src/core:SkAutoMalloc_hdr",
-        "//src/gpu/vk:GrVkImage_hdr",
-        "//src/gpu/vk:GrVkUtil_hdr",
+        "//src/gpu/ganesh/vk:GrVkImage_hdr",
+        "//src/gpu/ganesh/vk:GrVkUtil_hdr",
     ],
 )
 

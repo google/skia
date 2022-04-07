@@ -844,7 +844,7 @@ generated_cc_atom(
         "//include/private:SkSLModifiers_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkTHash_hdr",
-        "//src/gpu/vk:GrVkCaps_hdr",
+        "//src/gpu/ganesh/vk:GrVkCaps_hdr",
         "//src/sksl:SkSLAnalysis_hdr",
         "//src/sksl:SkSLProgramSettings_hdr",
     ],

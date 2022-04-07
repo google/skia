@@ -33,7 +33,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTemplates.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {

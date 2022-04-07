@@ -10,9 +10,9 @@
 #include "include/core/SkPath.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrDrawingManager.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDrawingManager.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
 namespace skiagm {

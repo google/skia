@@ -1,0 +1,121 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkLRUCache.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/ganesh/GrProgramDesc.h"
+#include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/effects/GrSkSLFP.h"
+
+/**
+ * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
+ * cannot allocate any GPU resources.
+ */
+class GrDDLContext final : public GrRecordingContext {
+public:
+    GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
+        : INHERITED(std::move(proxy), true) {
+    }
+
+    ~GrDDLContext() override {}
+
+    void abandonContext() override {
+        SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
+        INHERITED::abandonContext();
+    }
+
+private:
+    // Add to the set of unique program infos required by this DDL
+    void recordProgramInfo(const GrProgramInfo* programInfo) final {
+        if (!programInfo) {
+            return;
+        }
+
+        const GrCaps* caps = this->caps();
+
+        if (this->backend() == GrBackendApi::kMetal ||
+            this->backend() == GrBackendApi::kDirect3D ||
+            this->backend() == GrBackendApi::kDawn) {
+            // Currently Metal, Direct3D, and Dawn require a live renderTarget to
+            // compute the key
+            return;
+        }
+
+        GrProgramDesc desc = caps->makeDesc(nullptr, *programInfo);
+        if (!desc.isValid()) {
+            return;
+        }
+
+        fProgramInfoMap.add(desc, programInfo);
+    }
+
+    void detachProgramData(SkTArray<ProgramData>* dst) final {
+        SkASSERT(dst->empty());
+
+        fProgramInfoMap.toArray(dst);
+    }
+
+
+private:
+    class ProgramInfoMap : public ::SkNoncopyable {
+        typedef const GrProgramDesc  CacheKey;
+        typedef const GrProgramInfo* CacheValue;
+
+    public:
+        // All the programInfo data should be stored in the record-time arena so there is no
+        // need to ref them here or to delete them in the destructor.
+        ProgramInfoMap() : fMap(10) {}
+        ~ProgramInfoMap() {}
+
+        // TODO: this is doing a lot of reallocating of the ProgramDesc! Once the program descs
+        // are allocated in the record-time area there won't be a problem.
+        void add(CacheKey& desc, const GrProgramInfo* programInfo) {
+            SkASSERT(desc.isValid());
+
+            const CacheValue* preExisting = fMap.find(desc);
+            if (preExisting) {
+                return;
+            }
+
+            fMap.insert(desc, programInfo);
+        }
+
+        void toArray(SkTArray<ProgramData>* dst) {
+            fMap.foreach([dst](CacheKey* programDesc, CacheValue* programInfo) {
+                             // TODO: remove this allocation once the program descs are stored
+                             // in the record-time arena.
+                             dst->emplace_back(std::make_unique<const GrProgramDesc>(*programDesc),
+                                               *programInfo);
+                         });
+        }
+
+    private:
+        struct DescHash {
+            uint32_t operator()(CacheKey& desc) const {
+                return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+            }
+        };
+
+        SkLRUCache<CacheKey, CacheValue, DescHash> fMap;
+    };
+
+    ProgramInfoMap fProgramInfoMap;
+
+    using INHERITED = GrRecordingContext;
+};
+
+sk_sp<GrRecordingContext> GrRecordingContextPriv::MakeDDL(sk_sp<GrContextThreadSafeProxy> proxy) {
+    sk_sp<GrRecordingContext> context(new GrDDLContext(std::move(proxy)));
+
+    if (!context->init()) {
+        return nullptr;
+    }
+    return context;
+}

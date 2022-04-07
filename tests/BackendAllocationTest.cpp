@@ -10,11 +10,11 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/SurfaceFillContext.h"
-#include "src/gpu/effects/GrBlendFragmentProcessor.h"
-#include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/SurfaceFillContext.h"
+#include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
+#include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
@@ -23,15 +23,15 @@
 #include "tools/gpu/ProxyUtils.h"
 
 #ifdef SK_GL
-#include "src/gpu/gl/GrGLCaps.h"
-#include "src/gpu/gl/GrGLDefines.h"
-#include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLUtil.h"
+#include "src/gpu/ganesh/gl/GrGLCaps.h"
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLGpu.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
 #endif
 
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlTypes.h"
-#include "src/gpu/mtl/GrMtlCppUtil.h"
+#include "src/gpu/ganesh/mtl/GrMtlCppUtil.h"
 #endif
 
 using sk_gpu_test::ManagedBackendTexture;
@@ -900,7 +900,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
 
 #ifdef SK_VULKAN
 
-#include "src/gpu/vk/GrVkCaps.h"
+#include "src/gpu/ganesh/vk/GrVkCaps.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();

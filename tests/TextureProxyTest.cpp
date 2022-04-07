@@ -13,18 +13,18 @@
 #include "include/core/SkImage.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrResourceCache.h"
-#include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrTexture.h"
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SkGr.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrResourceCache.h"
+#include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SkGr.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
 #ifdef SK_DAWN
-#include "src/gpu/dawn/GrDawnGpu.h"
+#include "src/gpu/ganesh/dawn/GrDawnGpu.h"
 #endif
 
 int GrProxyProvider::numUniqueKeyProxies_TestOnly() const {

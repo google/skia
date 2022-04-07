@@ -24,10 +24,10 @@
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SkGr.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SkGr.h"
 #if SK_GPU_V1
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #endif // SK_GPU_V1
 #endif // SK_SUPPORT_GPU
 

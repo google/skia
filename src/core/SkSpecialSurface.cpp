@@ -120,7 +120,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:

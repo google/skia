@@ -37,13 +37,13 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrColorInfo.h"
-#include "src/gpu/GrFPArgs.h"
-#include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/SurfaceFillContext.h"
-#include "src/gpu/effects/GrMatrixEffect.h"
-#include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrFPArgs.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/SurfaceFillContext.h"
+#include "src/gpu/ganesh/effects/GrMatrixEffect.h"
+#include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
 

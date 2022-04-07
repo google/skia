@@ -13,10 +13,10 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/SurfaceFillContext.h"
-#include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceFillContext.h"
+#include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "tools/Resources.h"
 
 DEF_SIMPLE_GPU_GM(swizzle, rContext, canvas, 512, 512) {

@@ -13,10 +13,10 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkUtils.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/text/GrStrikeCache.h"
-#include "src/gpu/text/GrTextBlob.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/text/GrStrikeCache.h"
+#include "src/gpu/ganesh/text/GrTextBlob.h"
 #include "src/utils/SkUTF.h"
 
 // From Project Guttenberg. This is UTF-8 text.

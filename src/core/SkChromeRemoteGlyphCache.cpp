@@ -33,9 +33,9 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContextOptions.h"
-#include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/text/GrSDFTControl.h"
-#include "src/gpu/text/GrTextBlob.h"
+#include "src/gpu/ganesh/GrDrawOpAtlas.h"
+#include "src/gpu/ganesh/text/GrSDFTControl.h"
+#include "src/gpu/ganesh/text/GrTextBlob.h"
 #endif
 
 namespace {

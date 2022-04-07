@@ -120,7 +120,7 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
 }
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/ganesh/effects/GrSkSLFP.h"
 
 // Convert RGBA -> HSLA (including unpremul).
 //

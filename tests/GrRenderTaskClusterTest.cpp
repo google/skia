@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrRenderTaskCluster.h"
-#include "src/gpu/mock/GrMockRenderTask.h"
-#include "src/gpu/mock/GrMockSurfaceProxy.h"
+#include "src/gpu/ganesh/GrRenderTaskCluster.h"
+#include "src/gpu/ganesh/mock/GrMockRenderTask.h"
+#include "src/gpu/ganesh/mock/GrMockSurfaceProxy.h"
 #include "tests/Test.h"
 
 typedef void (*CreateGraphPF)(SkTArray<sk_sp<GrMockRenderTask>>* graph,

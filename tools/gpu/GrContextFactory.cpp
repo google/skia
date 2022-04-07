@@ -7,7 +7,7 @@
  */
 
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/gpu/GrContextFactory.h"
 #ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
@@ -29,7 +29,7 @@
 #ifdef SK_DAWN
 #include "tools/gpu/dawn/DawnTestContext.h"
 #endif
-#include "src/gpu/GrCaps.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "tools/gpu/mock/MockTestContext.h"
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_ENABLE_DISCRETE_GPU)

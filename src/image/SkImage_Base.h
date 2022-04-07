@@ -16,9 +16,9 @@
 
 #if SK_SUPPORT_GPU
 #include "include/private/SkTDArray.h"
-#include "src/gpu/GrSurfaceProxyView.h"
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SkGr.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SkGr.h"
 
 class GrTexture;
 #endif

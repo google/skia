@@ -32,7 +32,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMask.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <vector>

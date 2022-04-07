@@ -10,8 +10,8 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/sksl:DSLExpression_hdr",
         "//include/sksl:DSLVar_hdr",
-        "//src/gpu:GrFragmentProcessor_hdr",
-        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
+        "//src/gpu/ganesh/glsl:GrGLSLUniformHandler_hdr",
     ],
 )
 
@@ -39,7 +39,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkTypes_hdr",
-        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/ganesh/glsl:GrGLSLUniformHandler_hdr",
     ],
 )
 

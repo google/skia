@@ -8,7 +8,7 @@
 #include "bench/GMBench.h"
 
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
 GMBench::GMBench(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
     fGM->setMode(skiagm::GM::kBench_Mode);

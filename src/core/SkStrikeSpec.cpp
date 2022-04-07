@@ -14,9 +14,9 @@
 #include "src/core/SkTLazy.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrSDFMaskFilter.h"
-#include "src/gpu/text/GrSDFTControl.h"
-#include "src/gpu/text/GrStrikeCache.h"
+#include "src/gpu/ganesh/text/GrSDFMaskFilter.h"
+#include "src/gpu/ganesh/text/GrSDFTControl.h"
+#include "src/gpu/ganesh/text/GrStrikeCache.h"
 #endif
 
 SkStrikeSpec::SkStrikeSpec(const SkDescriptor& descriptor, sk_sp<SkTypeface> typeface)

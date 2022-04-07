@@ -11,16 +11,16 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
-#include "src/gpu/GrBackendUtils.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrGpu.h"
-#include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrTexture.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/SurfaceContext.h"
+#include "src/gpu/ganesh/GrBackendUtils.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrRenderTarget.h"
+#include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceContext.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
@@ -178,8 +178,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     }
 }
 
-#include "src/gpu/GrDrawingManager.h"
-#include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrDrawingManager.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 
 // For each context, set it to always clear the textures and then run through all the
 // supported formats checking that the textures are actually cleared

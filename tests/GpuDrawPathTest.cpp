@@ -17,7 +17,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "tests/Test.h"
 
 #include <initializer_list>

@@ -16,7 +16,7 @@
 #include "src/core/SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrSDFTControl.h"
+#include "src/gpu/ganesh/text/GrSDFTControl.h"
 class GrColorInfo;
 namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 #endif

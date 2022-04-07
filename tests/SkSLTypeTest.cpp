@@ -6,7 +6,7 @@
  */
 
 #include "include/sksl/SkSLErrorReporter.h"
-#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"

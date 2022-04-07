@@ -8,9 +8,9 @@
 #include "bench/ResultsWriter.h"
 #include "bench/SkSLBench.h"
 #include "include/core/SkCanvas.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/mock/GrMockCaps.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/mock/GrMockCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDSLParser.h"
 

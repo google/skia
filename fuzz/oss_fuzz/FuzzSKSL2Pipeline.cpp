@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"

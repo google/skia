@@ -13,9 +13,9 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkMathPriv.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrGpu.h"
-#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrProxyProvider.h"
 #include "tests/Test.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 

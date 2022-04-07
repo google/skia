@@ -10,7 +10,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 
-#include "src/gpu/mtl/GrMtlUtil.h"
+#include "src/gpu/ganesh/mtl/GrMtlUtil.h"
 
 #ifdef SK_METAL
 

@@ -12,12 +12,12 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkGpuBlurUtils.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrStyle.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrBlendFragmentProcessor.h"
-#include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrStyle.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
+#include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "src/image/SkImage_Base.h"
 
 namespace {

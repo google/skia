@@ -12,8 +12,8 @@
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrRectanizerPow2.h"
-#include "src/gpu/GrRectanizerSkyline.h"
+#include "src/gpu/ganesh/GrRectanizerPow2.h"
+#include "src/gpu/ganesh/GrRectanizerSkyline.h"
 
 // This slide visualizes the various GrRectanizer-derived classes behavior
 // for various input sets

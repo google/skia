@@ -20,20 +20,20 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkIPoint16.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDeferredUpload.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/GrDrawingManager.h"
-#include "src/gpu/GrMemoryPool.h"
-#include "src/gpu/GrOnFlushResourceProvider.h"
-#include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/GrXferProcessor.h"
-#include "src/gpu/ops/AtlasTextOp.h"
-#include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/ops/GrOp.h"
-#include "src/gpu/text/GrAtlasManager.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDeferredUpload.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDrawOpAtlas.h"
+#include "src/gpu/ganesh/GrDrawingManager.h"
+#include "src/gpu/ganesh/GrMemoryPool.h"
+#include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
+#include "src/gpu/ganesh/GrOpFlushState.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
+#include "src/gpu/ganesh/ops/AtlasTextOp.h"
+#include "src/gpu/ganesh/ops/GrDrawOp.h"
+#include "src/gpu/ganesh/ops/GrOp.h"
+#include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -187,7 +187,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
 }
 
 #if SK_GPU_V1
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 // This test verifies that the AtlasTextOp::onPrepare method correctly handles a failure
 // when allocating an atlas page.

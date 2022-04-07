@@ -111,7 +111,7 @@ bool SkShaderMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkShaderMF::onAsFragmentProcessor(const GrFPArgs& args) const {
     return GrFragmentProcessor::MulInputByChildAlpha(as_SB(fShader)->asFragmentProcessor(args));

@@ -23,7 +23,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
 static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,

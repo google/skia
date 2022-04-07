@@ -10,7 +10,7 @@
 #include "src/core/SkCpu.h"
 #include "src/core/SkMSAN.h"
 #include "src/core/SkVM.h"
-#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"

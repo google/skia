@@ -96,7 +96,7 @@ generated_cc_atom(
         "//src/core:SkCachedData_hdr",
         "//src/core:SkMipmap_hdr",
         "//src/core:SkTaskGroup_hdr",
-        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu/ganesh:GrDirectContextPriv_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/image:SkImage_GpuYUVA_hdr",
     ],
@@ -130,7 +130,7 @@ generated_cc_atom(
         "//include/gpu:GrDirectContext_hdr",
         "//src/core:SkDeferredDisplayListPriv_hdr",
         "//src/core:SkTaskGroup_hdr",
-        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu/ganesh:GrDirectContextPriv_hdr",
         "//src/image:SkImage_Gpu_hdr",
     ],
 )

@@ -50,14 +50,14 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/gpu/GrContextFactory.h"
 #endif
 
 #ifdef SK_GL
 #include "include/gpu/gl/GrGLFunctions.h"
-#include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLUtil.h"
+#include "src/gpu/ganesh/gl/GrGLGpu.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
 #endif
 
 #include <iostream>

@@ -8,7 +8,7 @@
 #include "bench/SKPBench.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/flags/CommandLineFlags.h"
 
 
@@ -136,7 +136,7 @@ void SKPBench::drawPicture() {
     }
 }
 
-#include "src/gpu/GrGpu.h"
+#include "src/gpu/ganesh/GrGpu.h"
 static void draw_pic_for_stats(SkCanvas* canvas,
                                GrDirectContext* dContext,
                                const SkPicture* picture,

@@ -12,7 +12,7 @@
 #include "include/pathops/SkPathOps.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "tests/Test.h"
 
 #include <initializer_list>

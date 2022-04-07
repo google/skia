@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
-#include "src/gpu/GrTTopoSort.h"
+#include "src/gpu/ganesh/GrTTopoSort.h"
 
 #include "tools/ToolUtils.h"
 

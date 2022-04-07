@@ -9,9 +9,9 @@
 #define ProxyUtils_DEFINED
 
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 
 class GrDirectContext;
 class GrProgramInfo;

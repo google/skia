@@ -16,8 +16,8 @@
 
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/vk/GrVkImage.h"
-#include "src/gpu/vk/GrVkUtil.h"
+#include "src/gpu/ganesh/vk/GrVkImage.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW

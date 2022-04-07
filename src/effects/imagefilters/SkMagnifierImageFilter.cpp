@@ -18,9 +18,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "src/core/SkRuntimeEffectPriv.h"
-#include "src/gpu/GrColorSpaceXform.h"
-#include "src/gpu/effects/GrSkSLFP.h"
-#include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
+#include "src/gpu/ganesh/effects/GrSkSLFP.h"
+#include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #endif
 
 namespace {

@@ -7,16 +7,16 @@
 
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/mtl/GrMtlGpu.h"
 #include "tests/Test.h"
 
 #import <Metal/Metal.h>
 #import <MetalKit/MTKView.h>
 
-#include "src/gpu/mtl/GrMtlCaps.h"
-#include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
+#include "src/gpu/ganesh/mtl/GrMtlCaps.h"
+#include "src/gpu/ganesh/mtl/GrMtlTextureRenderTarget.h"
 
 DEF_GPUTEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
     if (@available(macOS 11.0, iOS 9.0, *)) {

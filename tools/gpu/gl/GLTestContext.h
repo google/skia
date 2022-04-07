@@ -9,7 +9,7 @@
 #define GLTestContext_DEFINED
 
 #include "include/gpu/gl/GrGLInterface.h"
-#include "src/gpu/gl/GrGLUtil.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tools/gpu/TestContext.h"
 
 namespace sk_gpu_test {

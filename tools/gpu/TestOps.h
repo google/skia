@@ -10,8 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/ops/GrOp.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/ops/GrOp.h"
 
 class GrPaint;
 

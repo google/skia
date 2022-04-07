@@ -11,8 +11,8 @@
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/gl/GrGLDefines.h"
-#include "src/gpu/gl/GrGLUtil.h"
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "src/ports/SkOSLibrary.h"
 #include "third_party/externals/angle2/include/platform/Platform.h"
 

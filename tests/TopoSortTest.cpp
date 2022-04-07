@@ -6,7 +6,7 @@
  */
 
 #include "include/utils/SkRandom.h"
-#include "src/gpu/GrTTopoSort.h"
+#include "src/gpu/ganesh/GrTTopoSort.h"
 #include "tests/Test.h"
 
 #include "tools/ToolUtils.h"

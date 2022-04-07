@@ -13,8 +13,8 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkSurfacePriv.h"
-#include "src/gpu/GrStyle.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/GrStyle.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 

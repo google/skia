@@ -33,8 +33,8 @@
 #include "src/utils/SkShadowTessellator.h"
 #include <new>
 #if SK_SUPPORT_GPU
-#include "src/gpu/effects/GrSkSLFP.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/ganesh/effects/GrSkSLFP.h"
+#include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #endif
 
 /**

@@ -17,8 +17,8 @@
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/core/SkYUVMath.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
 namespace {

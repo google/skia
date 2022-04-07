@@ -19,8 +19,8 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkRuntimeEffectPriv.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

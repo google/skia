@@ -20,14 +20,14 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrPaint.h"
-#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/GrRRectEffect.h"
-#include "src/gpu/ops/FillRectOp.h"
-#include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/ganesh/effects/GrRRectEffect.h"
+#include "src/gpu/ganesh/ops/FillRectOp.h"
+#include "src/gpu/ganesh/ops/GrDrawOp.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 #include <memory>
 #include <utility>

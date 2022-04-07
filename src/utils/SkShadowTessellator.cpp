@@ -18,7 +18,7 @@
 #include "src/utils/SkShadowTessellator.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/ganesh/geometry/GrPathUtils.h"
 #endif
 
 

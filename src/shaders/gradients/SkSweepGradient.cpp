@@ -101,7 +101,7 @@ skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms
 
 #if SK_SUPPORT_GPU
 
-#include "src/gpu/gradients/GrGradientShader.h"
+#include "src/gpu/ganesh/gradients/GrGradientShader.h"
 
 std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
         const GrFPArgs& args) const {

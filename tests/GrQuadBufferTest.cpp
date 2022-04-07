@@ -7,7 +7,7 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/geometry/GrQuadBuffer.h"
+#include "src/gpu/ganesh/geometry/GrQuadBuffer.h"
 
 #include <vector>
 

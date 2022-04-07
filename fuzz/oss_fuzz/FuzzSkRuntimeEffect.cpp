@@ -12,7 +12,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkBlenders.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 
 #include "fuzz/Fuzz.h"
 

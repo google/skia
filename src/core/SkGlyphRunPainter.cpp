@@ -9,14 +9,14 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrColorInfo.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/text/GrSDFTControl.h"
-#include "src/gpu/text/GrTextBlobRedrawCoordinator.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/text/GrSDFTControl.h"
+#include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #endif // SK_SUPPORT_GPU
 
 #include "include/core/SkBitmap.h"

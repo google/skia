@@ -22,12 +22,12 @@
 #include "src/core/SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrColorSpaceXform.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/SurfaceFillContext.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceFillContext.h"
 #endif
 #include <atomic>
 

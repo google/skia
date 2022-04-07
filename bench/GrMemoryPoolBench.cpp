@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/utils/SkRandom.h"
-#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/ganesh/GrMemoryPool.h"
 
 #include <type_traits>
 

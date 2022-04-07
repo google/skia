@@ -26,9 +26,9 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMatrixProvider.h"
-#include "src/gpu/GrPaint.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>

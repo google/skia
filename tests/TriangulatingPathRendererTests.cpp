@@ -12,14 +12,14 @@
 #include "include/core/SkRect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrEagerVertexAllocator.h"
-#include "src/gpu/GrStyle.h"
-#include "src/gpu/GrUserStencilSettings.h"
-#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/geometry/GrAATriangulator.h"
-#include "src/gpu/geometry/GrInnerFanTriangulator.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrEagerVertexAllocator.h"
+#include "src/gpu/ganesh/GrStyle.h"
+#include "src/gpu/ganesh/GrUserStencilSettings.h"
+#include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/ganesh/geometry/GrAATriangulator.h"
+#include "src/gpu/ganesh/geometry/GrInnerFanTriangulator.h"
+#include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/shaders/SkShaderBase.h"
 #include "tools/ToolUtils.h"
 #include <map>
@@ -488,8 +488,8 @@ CreatePathFn kNonEdgeAAPaths[] = {
 };
 
 #if SK_GPU_V1
-#include "src/gpu/ops/TriangulatingPathRenderer.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/ops/TriangulatingPathRenderer.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 // A simple concave path. Test this with a non-invertible matrix.
 static SkPath create_path_17() {

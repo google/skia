@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/v1/ClipStack.h"
+#include "src/gpu/ganesh/v1/ClipStack.h"
 #include "tests/Test.h"
 
 #include "include/core/SkColorSpace.h"
@@ -19,10 +19,10 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/ops/GrDrawOp.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 

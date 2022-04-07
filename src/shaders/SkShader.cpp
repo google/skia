@@ -27,7 +27,7 @@
 #include "src/shaders/SkTransformShader.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
 #endif
 
 #ifdef SK_ENABLE_SKSL

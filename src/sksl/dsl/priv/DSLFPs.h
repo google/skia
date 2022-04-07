@@ -14,8 +14,8 @@
 
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLVar.h"
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
 namespace SkSL {
 

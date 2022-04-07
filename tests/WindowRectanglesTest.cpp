@@ -10,7 +10,7 @@
 
 #include "include/utils/SkRandom.h"
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/GrWindowRectangles.h"
+#include "src/gpu/ganesh/GrWindowRectangles.h"
 
 static SkIRect next_irect(SkRandom& r) {
     return {r.nextS(), r.nextS(), r.nextS(), r.nextS()};

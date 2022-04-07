@@ -23,7 +23,7 @@
 #include <new>
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrTextBlobRedrawCoordinator.h"
+#include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
 #endif
 
 namespace {

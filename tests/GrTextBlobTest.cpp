@@ -10,7 +10,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "src/core/SkSurfacePriv.h"
-#include "src/gpu/text/GrTextBlob.h"
+#include "src/gpu/ganesh/text/GrTextBlob.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 

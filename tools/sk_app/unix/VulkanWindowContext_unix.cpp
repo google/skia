@@ -8,8 +8,8 @@
 
 #include "include/gpu/vk/GrVkVulkan.h"
 
-#include "src/gpu/vk/GrVkInterface.h"
-#include "src/gpu/vk/GrVkUtil.h"
+#include "src/gpu/ganesh/vk/GrVkInterface.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
 
 #include "tools/gpu/vk/VkTestUtils.h"
 

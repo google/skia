@@ -17,14 +17,14 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkRuntimeEffectPriv.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrColorSpaceXform.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrSkSLFP.h"
-#include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/effects/GrSkSLFP.h"
+#include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #if SK_GPU_V1
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #endif // SK_GPU_V1
 #endif // SK_SUPPORT_GPU
 

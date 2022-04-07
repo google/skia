@@ -16,7 +16,7 @@
 #include <string>
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #endif
 
 namespace SkSL {
