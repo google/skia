@@ -15,12 +15,16 @@ namespace SkSL {
 
 namespace dsl {
 
-DSLBlock::DSLBlock(SkSL::StatementArray statements, std::shared_ptr<SymbolTable> symbols)
+DSLBlock::DSLBlock(SkSL::StatementArray statements, std::shared_ptr<SymbolTable> symbols,
+        Position pos)
     : fStatements(std::move(statements))
-    , fSymbols(std::move(symbols)) {}
+    , fSymbols(std::move(symbols))
+    , fPosition(pos) {}
 
-DSLBlock::DSLBlock(SkTArray<DSLStatement> statements, std::shared_ptr<SymbolTable> symbols)
-    : fSymbols(std::move(symbols)) {
+DSLBlock::DSLBlock(SkTArray<DSLStatement> statements, std::shared_ptr<SymbolTable> symbols,
+        Position pos)
+    : fSymbols(std::move(symbols))
+    , fPosition(pos) {
     fStatements.reserve_back(statements.count());
     for (DSLStatement& s : statements) {
         fStatements.push_back(s.release());
@@ -37,8 +41,7 @@ DSLBlock::~DSLBlock() {
 }
 
 std::unique_ptr<SkSL::Block> DSLBlock::release() {
-    return std::make_unique<SkSL::Block>(Position(), std::move(fStatements),
-                                         std::move(fSymbols));
+    return std::make_unique<SkSL::Block>(fPosition, std::move(fStatements), std::move(fSymbols));
 }
 
 void DSLBlock::append(DSLStatement stmt) {

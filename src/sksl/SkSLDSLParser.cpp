@@ -1343,7 +1343,8 @@ std::optional<DSLBlock> DSLParser::block() {
         switch (this->peek().fKind) {
             case Token::Kind::TK_RBRACE:
                 this->nextToken();
-                return DSLBlock(std::move(statements), CurrentSymbolTable());
+                return DSLBlock(std::move(statements), CurrentSymbolTable(),
+                        this->rangeFrom(start));
             case Token::Kind::TK_END_OF_FILE:
                 this->error(this->peek(), "expected '}', but found end of file");
                 return std::nullopt;

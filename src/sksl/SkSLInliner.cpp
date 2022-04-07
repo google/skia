@@ -503,7 +503,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
 
         case Statement::Kind::kDo: {
             const DoStatement& d = statement.as<DoStatement>();
-            return DoStatement::Make(*fContext, stmt(d.statement()), expr(d.test()));
+            return DoStatement::Make(*fContext, pos, stmt(d.statement()), expr(d.test()));
         }
         case Statement::Kind::kExpression: {
             const ExpressionStatement& e = statement.as<ExpressionStatement>();

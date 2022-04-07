@@ -28,11 +28,13 @@ public:
 
     // Creates an SkSL do-while loop; uses the ErrorReporter to report errors.
     static std::unique_ptr<Statement> Convert(const Context& context,
+                                              Position pos,
                                               std::unique_ptr<Statement> stmt,
                                               std::unique_ptr<Expression> test);
 
     // Creates an SkSL do-while loop; reports errors via ASSERT.
     static std::unique_ptr<Statement> Make(const Context& context,
+                                           Position pos,
                                            std::unique_ptr<Statement> stmt,
                                            std::unique_ptr<Expression> test);
 

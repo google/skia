@@ -2028,7 +2028,10 @@ void SkVMGenerator::emitTraceScope(skvm::I32 executionMask, int delta) {
 }
 
 void SkVMGenerator::writeStatement(const Statement& s) {
-    this->emitTraceLine(this->getLine(s.fPosition));
+    if (!s.is<Block>() || !s.as<Block>().isScope()) {
+        // we don't care about tracing the positions of curly braces
+        this->emitTraceLine(this->getLine(s.fPosition));
+    }
 
     switch (s.kind()) {
         case Statement::Kind::kBlock:

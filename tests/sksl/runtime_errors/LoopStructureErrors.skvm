@@ -14,13 +14,13 @@ void infinite_loop3()     { for (float i = 3; i >= 3; i += 1e-20) {} }
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 14: loop index must not be modified within body of the loop
 void index_modified()    { for (int i = 0; i < 2; i++) { i++; } }
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                       ^^^^^^^^
 error: 15: loop index must not be modified within body of the loop
 void index_out_param()   { for (int i = 0; i < 1; i++) { set(i); } }
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                       ^^^^^^^^^^^
 error: 16: loop index must not be modified within body of the loop
 void index_inout_param() { for (int i = 0; i < 1; i++) { inc(i); } }
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                       ^^^^^^^^^^^
 error: 18: loop must guarantee termination in fewer iterations
 void infinite_loop_le()   { for (int i = 0; i <= 3; --i)  {} }
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

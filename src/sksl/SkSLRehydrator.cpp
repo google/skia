@@ -407,7 +407,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         case Rehydrator::kDo_Command: {
             std::unique_ptr<Statement> stmt = this->statement();
             std::unique_ptr<Expression> expr = this->expression();
-            return DoStatement::Make(this->context(), std::move(stmt), std::move(expr));
+            return DoStatement::Make(this->context(), Position(), std::move(stmt), std::move(expr));
         }
         case Rehydrator::kExpressionStatement_Command: {
             std::unique_ptr<Expression> expr = this->expression();

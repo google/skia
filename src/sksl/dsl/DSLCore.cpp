@@ -216,8 +216,9 @@ public:
         return SkSL::DiscardStatement::Make(pos);
     }
 
-    static DSLPossibleStatement Do(DSLStatement stmt, DSLExpression test) {
-        return DoStatement::Convert(ThreadContext::Context(), stmt.release(), test.release());
+    static DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos) {
+        return DSLStatement(DoStatement::Convert(ThreadContext::Context(), pos, stmt.release(),
+                test.release()), pos);
     }
 
     static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
@@ -455,7 +456,7 @@ DSLStatement Discard(Position pos) {
 }
 
 DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos) {
-    return DSLStatement(DSLCore::Do(std::move(stmt), std::move(test)), pos);
+    return DSLCore::Do(std::move(stmt), std::move(test), pos);
 }
 
 DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,

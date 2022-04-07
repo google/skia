@@ -8,6 +8,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":DSLStatement_hdr",
+        ":SkSLPosition_hdr",
         "//include/private:SkSLDefines_hdr",
         "//include/private:SkTArray_hdr",
     ],

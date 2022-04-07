@@ -686,7 +686,6 @@ enter half4 main(float2 p)
   p.x = 1.5
   p.y = 1.5
   scope +1
-   line 4
    scope +1
     line 5
     [main].result.x = 1
