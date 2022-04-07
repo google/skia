@@ -460,36 +460,12 @@ half $blend_color_saturation(half3 color) {
     return max(max(color.r, color.g), color.b) - min(min(color.r, color.g), color.b);
 }
 
-half3 $blend_set_color_saturation(half3 hueLumColor, half3 satColor) {
-    // Sort the RGB components of hueLumColor so that R <= G <= B.
-    half3 midPt = half3(0);
-    half3 satPt = half3(0);
-    if (hueLumColor.r <= hueLumColor.g) {
-        if (hueLumColor.g <= hueLumColor.b) {
-            hueLumColor -= hueLumColor.rrr;
-            midPt.y = satPt.z = 1;
-        } else if (hueLumColor.r <= hueLumColor.b) {
-            hueLumColor = hueLumColor.rbg - hueLumColor.rrr;
-            midPt.z = satPt.y = 1;
-        } else {
-            hueLumColor = hueLumColor.brg - hueLumColor.bbb;
-            midPt.x = satPt.y = 1;
-        }
-    } else if (hueLumColor.r <= hueLumColor.b) {
-        hueLumColor = hueLumColor.grb - hueLumColor.ggg;
-        midPt.x = satPt.z = 1;
-    } else if (hueLumColor.g <= hueLumColor.b) {
-        hueLumColor = hueLumColor.gbr - hueLumColor.ggg;
-        midPt.z = satPt.x = 1;
-    } else {
-        hueLumColor = hueLumColor.bgr - hueLumColor.bbb;
-        midPt.y = satPt.x = 1;
-    }
-    if (hueLumColor.b > 0) {
-        midPt *= $guarded_divide(hueLumColor.g, hueLumColor.b);
-        hueLumColor = (midPt + satPt) * $blend_color_saturation(satColor);
-    }
-    return hueLumColor;
+half3 $blend_set_color_saturation(half3 color, half3 satColor) {
+    half mn = min(min(color.r, color.g), color.b);
+    half mx = max(max(color.r, color.g), color.b);
+
+    return (mx > mn) ? ((color - mn) * $blend_color_saturation(satColor)) / (mx - mn)
+                     : half3(0);
 }
 
 half4 blend_hslc(half4 src, half4 dst, bool flip, bool saturate) {
