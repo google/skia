@@ -1,5 +1,4 @@
 buildconfig = "//gn/BUILDCONFIG.gn"
-script_executable = "python3"
 
 default_args = {
   angle_standalone = false
