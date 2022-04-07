@@ -5,15 +5,13 @@
 
 from . import util
 
-
-# TODO(dogben): Move this mapping to a machine-editable file.
 IMAGES = {
     'gcc-debian10': (
         'gcr.io/skia-public/gcc-debian10@sha256:'
-        '89a72df1e2fdea6f774a3fa4199bb9aaa4a0526a3ac1f233e604d689b694f95c'),
+        'cd1dd99a3c423332a00998a20c4363aa1d5998b41f21e6e86ca016b412082777'),
     'gcc-debian10-x86': (
         'gcr.io/skia-public/gcc-debian10-x86@sha256:'
-        'b1ec55403ac66d9500d033d6ffd7663894d32335711fbbb0fb4c67dfce812203'),
+        'e30b4616f842fa2fd89329abf3d8e81cf6c25e147640289f37692f18862515c8'),
 }
 
 

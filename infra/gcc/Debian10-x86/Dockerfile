@@ -7,5 +7,6 @@ RUN dpkg --add-architecture i386 && \
   g++-multilib \
   libfontconfig-dev:i386 \
   libglu-dev:i386 \
-  python \
+  python3 \
   && rm -rf /var/lib/apt/lists/*
+RUN ln -s /usr/bin/python3 /usr/bin/python
