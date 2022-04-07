@@ -35,20 +35,17 @@ vec4 blend_hslc_h4h4h4hb(vec4 src, vec4 dst, float flip, bool saturate) {
         l = _2_blend_set_color_saturation;
         r = dsa;
     }
-    vec3 _4_blend_set_color_luminance;
-    float _5_lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), r);
-    vec3 _6_result = (_5_lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), l)) + l;
-    float _7_minComp = min(min(_6_result.x, _6_result.y), _6_result.z);
-    float _8_maxComp = max(max(_6_result.x, _6_result.y), _6_result.z);
-    if (_7_minComp < 0.0 && _5_lum != _7_minComp) {
-        _6_result = _5_lum + (_6_result - _5_lum) * (_5_lum / (_5_lum - _7_minComp));
+    float _4_lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), r);
+    vec3 _5_result = (_4_lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), l)) + l;
+    float _6_minComp = min(min(_5_result.x, _5_result.y), _5_result.z);
+    float _7_maxComp = max(max(_5_result.x, _5_result.y), _5_result.z);
+    if (_6_minComp < 0.0 && _4_lum != _6_minComp) {
+        _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / (_4_lum - _6_minComp));
     }
-    if (_8_maxComp > alpha && _8_maxComp != _5_lum) {
-        _4_blend_set_color_luminance = _5_lum + ((_6_result - _5_lum) * (alpha - _5_lum)) / (_8_maxComp - _5_lum);
-    } else {
-        _4_blend_set_color_luminance = _6_result;
+    if (_7_maxComp > alpha && _7_maxComp != _4_lum) {
+        _5_result = _4_lum + ((_5_result - _4_lum) * (alpha - _4_lum)) / (_7_maxComp - _4_lum);
     }
-    return vec4((((_4_blend_set_color_luminance + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
+    return vec4((((_5_result + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }
 void main() {
     float _1_c = color.x * color.y + color.z;
