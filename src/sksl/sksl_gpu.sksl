@@ -460,32 +460,36 @@ half $blend_color_saturation(half3 color) {
     return max(max(color.r, color.g), color.b) - min(min(color.r, color.g), color.b);
 }
 
-half3 $blend_set_color_saturation_helper(half3 minMidMax, half3 satColor) {
-    if (minMidMax.b > minMidMax.r) {
-        minMidMax.gb -= minMidMax.rr;
-        half sat = $blend_color_saturation(satColor);
-        return half3(0, sat * $guarded_divide(minMidMax.g, minMidMax.b), sat);
-    } else {
-        return half3(0);
-    }
-}
-
 half3 $blend_set_color_saturation(half3 hueLumColor, half3 satColor) {
+    // Sort the RGB components of hueLumColor so that R <= G <= B.
+    half3 midPt = half3(0);
+    half3 satPt = half3(0);
     if (hueLumColor.r <= hueLumColor.g) {
         if (hueLumColor.g <= hueLumColor.b) {
-            return $blend_set_color_saturation_helper(hueLumColor.rgb, satColor);
+            hueLumColor -= hueLumColor.rrr;
+            midPt.y = satPt.z = 1;
         } else if (hueLumColor.r <= hueLumColor.b) {
-            return $blend_set_color_saturation_helper(hueLumColor.rbg, satColor).rbg;
+            hueLumColor = hueLumColor.rbg - hueLumColor.rrr;
+            midPt.z = satPt.y = 1;
         } else {
-            return $blend_set_color_saturation_helper(hueLumColor.brg, satColor).gbr;
+            hueLumColor = hueLumColor.brg - hueLumColor.bbb;
+            midPt.x = satPt.y = 1;
         }
     } else if (hueLumColor.r <= hueLumColor.b) {
-       return $blend_set_color_saturation_helper(hueLumColor.grb, satColor).grb;
+        hueLumColor = hueLumColor.grb - hueLumColor.ggg;
+        midPt.x = satPt.z = 1;
     } else if (hueLumColor.g <= hueLumColor.b) {
-       return $blend_set_color_saturation_helper(hueLumColor.gbr, satColor).brg;
+        hueLumColor = hueLumColor.gbr - hueLumColor.ggg;
+        midPt.z = satPt.x = 1;
     } else {
-       return $blend_set_color_saturation_helper(hueLumColor.bgr, satColor).bgr;
+        hueLumColor = hueLumColor.bgr - hueLumColor.bbb;
+        midPt.y = satPt.x = 1;
     }
+    if (hueLumColor.b > 0) {
+        midPt *= $guarded_divide(hueLumColor.g, hueLumColor.b);
+        hueLumColor = (midPt + satPt) * $blend_color_saturation(satColor);
+    }
+    return hueLumColor;
 }
 
 half4 blend_hslc(half4 src, half4 dst, bool flip, bool saturate) {
