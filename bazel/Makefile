@@ -22,6 +22,7 @@ known_good_builds:
 	bazelisk build //:skia_core --config=clang
 	bazelisk build //src/sksl/lex:sksllex --config=clang
 	bazelisk build //tools/skdiff --config=clang
+	bazelisk build //tools/skslc --config=clang
 	bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode opt --sandbox_base=/dev/shm
 
 	# Test the enforcement of include what you use
@@ -41,6 +42,7 @@ rbe_known_good_builds:
 	bazelisk build //:skia_core --config=linux-rbe
 	bazelisk build //src/sksl/lex:sksllex --config=linux-rbe
 	bazelisk build //tools/skdiff --config=linux-rbe
+	bazelisk build //tools/skslc --config=linux-rbe
 	# TODO(kjlubick) CanvasKit in release mode (i.e. with Closure) requires
 	# https://github.com/emscripten-core/emscripten/pull/16640 to land
 	bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode dbg --config=linux-rbe \

@@ -25,6 +25,14 @@ GENERAL_DEFINES = [
         "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
     ],
     "//conditions:default": [],
+}) + select({
+    "//bazel/common_config_settings:enable_skslc_true": [
+        "SKSL_STANDALONE",
+        "SK_DISABLE_TRACING",
+        "SK_ENABLE_SPIRV_CROSS",
+        "SK_ENABLE_SPIRV_VALIDATION",
+    ],
+    "//conditions:default": [],
 })
 
 GPU_DEFINES = select({

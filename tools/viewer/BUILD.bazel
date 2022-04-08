@@ -462,6 +462,7 @@ generated_cc_atom(
         "//tools/flags:CommandLineFlags_hdr",
         "//tools/flags:CommonFlags_hdr",
         "//tools/trace:EventTracingPriv_hdr",
+        "@spirv_tools",
     ],
 )
 

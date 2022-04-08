@@ -323,7 +323,10 @@ generated_cc_atom(
     name = "SkSLSPIRVtoHLSL_src",
     srcs = ["SkSLSPIRVtoHLSL.cpp"],
     visibility = ["//:__subpackages__"],
-    deps = [":SkSLSPIRVtoHLSL_hdr"],
+    deps = [
+        ":SkSLSPIRVtoHLSL_hdr",
+        "//third_party:spirv_cross",
+    ],
 )
 
 generated_cc_atom(

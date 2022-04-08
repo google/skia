@@ -117,6 +117,37 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "skslc_deps",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkArenaAlloc_src",
+        "//src/core:SkBlockAllocator_src",
+        "//src/core:SkCpu_src",
+        "//src/core:SkData_src",
+        "//src/core:SkHalf_src",
+        "//src/core:SkMalloc_src",
+        "//src/core:SkMath_src",
+        "//src/core:SkMatrixInvert_src",
+        "//src/core:SkSemaphore_src",
+        "//src/core:SkStream_src",
+        "//src/core:SkStringUtils_src",
+        "//src/core:SkString_src",
+        "//src/core:SkThreadID_src",
+        "//src/core:SkUtils_src",
+        "//src/core:SkVM_src",
+        "//src/gpu/ganesh:GrMemoryPool_src",
+        "//src/ports:SkMemory_malloc_src",
+        "//src/ports:SkOSFile_stdio_src",
+        "//src/utils:SkJSONWriter_src",
+        "//src/utils:SkJSON_src",
+        "//src/utils:SkParse_src",
+        "//src/utils:SkShaderUtils_src",
+        "//src/utils:SkUTF_src",
+        "//src/utils:SkVMVisualizer_src",
+    ],
+)
+
 generated_cc_atom(
     name = "GLSL.std.450_hdr",
     hdrs = ["GLSL.std.450.h"],
@@ -270,6 +301,7 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLVariableReference_hdr",
         "//src/sksl/ir:SkSLVariable_hdr",
         "//src/sksl/transform:SkSLTransform_hdr",
+        "@spirv_tools",
     ],
 )
 

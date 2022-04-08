@@ -1,4 +1,19 @@
+load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 load("//bazel:macros.bzl", "generated_cc_atom")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+cc_binary_with_flags(
+    name = "skslc",
+    set_flags = {
+        "enable_skslc": ["True"],
+    },
+    deps = [
+        ":Main_src",
+        "//src/ports:osfile",
+        "//src/sksl:skslc_deps",
+        "//src/sksl:srcs",
+    ],
+)
 
 generated_cc_atom(
     name = "Main_src",
@@ -23,5 +38,6 @@ generated_cc_atom(
         "//src/sksl/tracing:SkVMDebugTrace_hdr",
         "//src/utils:SkShaderUtils_hdr",
         "//src/utils:SkVMVisualizer_hdr",
+        "@spirv_tools",
     ],
 )

@@ -62,8 +62,8 @@
 
   "sample/chromium/font_subsetter.h": "SK_GAZELLE_IGNORE TODO //third_party:sfntly",
 
-  "third_party/externals/spirv-cross/spirv_hlsl.hpp": "SK_GAZELLE_IGNORE TODO //third_party:spirv_cross",
-  "spirv-tools/libspirv.hpp": "SK_GAZELLE_IGNORE TODO //third_party:spirv_tools",
+  "third_party/externals/spirv-cross/spirv_hlsl.hpp": "//third_party:spirv_cross",
+  "spirv-tools/libspirv.hpp": "@spirv_tools//:spirv_tools",
 
   "vk_platform.h": "//include/third_party/vulkan/vulkan:vk_platform_hdr",
   "vulkan_android.h": "//include/third_party/vulkan/vulkan:vulkan_android_hdr",

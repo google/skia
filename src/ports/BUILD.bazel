@@ -109,6 +109,7 @@ cc_library(
 
 cc_library(
     name = "osfile",
+    visibility = ["//tools/skslc:__pkg__"],
     deps = [":SkOSFile_stdio_src"] + select({
         "@platforms//os:windows": [":SkOSFile_win_src"],
         "//conditions:default": [":SkOSFile_posix_src"],
