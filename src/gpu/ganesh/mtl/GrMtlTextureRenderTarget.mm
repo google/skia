@@ -97,7 +97,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
 
     return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
             gpu, budgeted, dimensions, std::move(textureAttachment), std::move(colorAttachment),
-            std::move(resolveAttachment), mipmapStatus, {}));
+            std::move(resolveAttachment), mipmapStatus, /*label=*/{}));
 }
 
 sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
@@ -132,7 +132,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
 
     return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
             gpu, dimensions, std::move(textureAttachment), std::move(colorAttachment),
-            std::move(resolveAttachment), mipmapStatus, cacheable, {}));
+            std::move(resolveAttachment), mipmapStatus, cacheable, /*label=*/{}));
 }
 
 size_t GrMtlTextureRenderTarget::onGpuMemorySize() const {

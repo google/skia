@@ -97,8 +97,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture, reporter
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fSize = SkISize::Make(64, 64);
 
-    auto texture =
-            sk_make_sp<GrGLTexture>(gpu, SkBudgeted::kNo, desc, GrMipmapStatus::kNotAllocated, "");
+    auto texture = sk_make_sp<GrGLTexture>(
+            gpu, SkBudgeted::kNo, desc, GrMipmapStatus::kNotAllocated, /*label=*/"");
 
     ValidateMemoryDumps(reporter, dContext, 2, texture->gpuMemorySize(), true /* isOwned */);
 }
@@ -183,7 +183,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTextureRenderTarg
     rtIDs.fTotalMemorySamplesPerPixel = 9;
 
     auto texRT = sk_make_sp<GrGLTextureRenderTarget>(
-            gpu, SkBudgeted::kYes, 8, texDesc, rtIDs, GrMipmapStatus::kNotAllocated, "");
+            gpu, SkBudgeted::kYes, 8, texDesc, rtIDs, GrMipmapStatus::kNotAllocated, /*label=*/"");
 
     ValidateMemoryDumps(reporter, dContext, 3, texRT->gpuMemorySize(), true /* isOwned */);
 }

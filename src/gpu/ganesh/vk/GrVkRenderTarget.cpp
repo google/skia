@@ -158,8 +158,12 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
         return nullptr;
     }
 
-    GrVkRenderTarget* vkRT = new GrVkRenderTarget(
-            gpu, dimensions, std::move(colorAttachment), nullptr, CreateType::kDirectlyWrapped, {});
+    GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu,
+                                                  dimensions,
+                                                  std::move(colorAttachment),
+                                                  nullptr,
+                                                  CreateType::kDirectlyWrapped,
+                                                  /*label=*/{});
     return sk_sp<GrVkRenderTarget>(vkRT);
 }
 
@@ -206,7 +210,8 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
             gpu, std::move(colorAttachment), sk_sp<const GrVkRenderPass>(rp),
             std::move(scb)));
 
-    GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu, dimensions, std::move(framebuffer), {});
+    GrVkRenderTarget* vkRT =
+            new GrVkRenderTarget(gpu, dimensions, std::move(framebuffer), /*label=*/{});
 
     return sk_sp<GrVkRenderTarget>(vkRT);
 }

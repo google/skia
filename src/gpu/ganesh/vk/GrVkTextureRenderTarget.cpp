@@ -115,7 +115,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeNewTextureRenderTarg
                                                                       std::move(colorAttachment),
                                                                       std::move(resolveAttachment),
                                                                       mipmapStatus,
-                                                                      {}));
+                                                                      /*label=*/{}));
 }
 
 sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(
@@ -165,7 +165,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRender
                                                                       std::move(resolveAttachment),
                                                                       mipmapStatus,
                                                                       cacheable,
-                                                                      {}));
+                                                                      /*label=*/{}));
 }
 
 size_t GrVkTextureRenderTarget::onGpuMemorySize() const {

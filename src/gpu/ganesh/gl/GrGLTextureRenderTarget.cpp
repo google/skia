@@ -69,8 +69,14 @@ sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
         const GrGLRenderTarget::IDs& rtIDs,
         GrWrapCacheable cacheable,
         GrMipmapStatus mipmapStatus) {
-    return sk_sp<GrGLTextureRenderTarget>(new GrGLTextureRenderTarget(
-            gpu, sampleCount, texDesc, std::move(parameters), rtIDs, cacheable, mipmapStatus, {}));
+    return sk_sp<GrGLTextureRenderTarget>(new GrGLTextureRenderTarget(gpu,
+                                                                      sampleCount,
+                                                                      texDesc,
+                                                                      std::move(parameters),
+                                                                      rtIDs,
+                                                                      cacheable,
+                                                                      mipmapStatus,
+                                                                      /*label=*/{}));
 }
 
 size_t GrGLTextureRenderTarget::onGpuMemorySize() const {

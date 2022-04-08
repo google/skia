@@ -33,13 +33,15 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        GrProtected isProtected,
                                                        GrInternalSurfaceFlags surfaceFlags,
                                                        UseAllocator useAllocator,
-                                                       GrDDLProvider creatingProvider)
-        : GrSurfaceProxy(format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator)
+                                                       GrDDLProvider creatingProvider,
+                                                       std::string_view label)
+        : GrSurfaceProxy(
+                  format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator, label)
         // for now textures w/ data are always wrapped
         , GrRenderTargetProxy(caps, format, dimensions, sampleCnt, fit, budgeted, isProtected,
-                              surfaceFlags, useAllocator)
+                              surfaceFlags, useAllocator, label)
         , GrTextureProxy(format, dimensions, mipMapped, mipmapStatus, fit, budgeted, isProtected,
-                         surfaceFlags, useAllocator, creatingProvider) {
+                         surfaceFlags, useAllocator, creatingProvider, label) {
     this->initSurfaceFlags(caps);
 }
 
@@ -56,17 +58,42 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        GrProtected isProtected,
                                                        GrInternalSurfaceFlags surfaceFlags,
                                                        UseAllocator useAllocator,
-                                                       GrDDLProvider creatingProvider)
-        : GrSurfaceProxy(std::move(callback), format, dimensions, fit, budgeted, isProtected,
-                         surfaceFlags, useAllocator)
+                                                       GrDDLProvider creatingProvider,
+                                                       std::string_view label)
+        : GrSurfaceProxy(std::move(callback),
+                         format,
+                         dimensions,
+                         fit,
+                         budgeted,
+                         isProtected,
+                         surfaceFlags,
+                         useAllocator,
+                         label)
         // Since we have virtual inheritance, we initialize GrSurfaceProxy directly. Send null
         // callbacks to the texture and RT proxies simply to route to the appropriate constructors.
-        , GrRenderTargetProxy(LazyInstantiateCallback(), format, dimensions, sampleCnt, fit,
-                              budgeted, isProtected, surfaceFlags, useAllocator,
-                              WrapsVkSecondaryCB::kNo)
-        , GrTextureProxy(LazyInstantiateCallback(), format, dimensions, mipMapped, mipmapStatus,
-                         fit, budgeted, isProtected, surfaceFlags, useAllocator,
-                         creatingProvider) {
+        , GrRenderTargetProxy(LazyInstantiateCallback(),
+                              format,
+                              dimensions,
+                              sampleCnt,
+                              fit,
+                              budgeted,
+                              isProtected,
+                              surfaceFlags,
+                              useAllocator,
+                              WrapsVkSecondaryCB::kNo,
+                              label)
+        , GrTextureProxy(LazyInstantiateCallback(),
+                         format,
+                         dimensions,
+                         mipMapped,
+                         mipmapStatus,
+                         fit,
+                         budgeted,
+                         isProtected,
+                         surfaceFlags,
+                         useAllocator,
+                         creatingProvider,
+                         label) {
     this->initSurfaceFlags(caps);
 }
 

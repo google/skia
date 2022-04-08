@@ -54,10 +54,11 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, SkISize dimensions,
     info.fLevelCount = mipLevels;
     sk_sp<GrDawnTexture> result;
     if (renderTarget) {
-        result = sk_sp<GrDawnTextureRenderTarget>(
-                new GrDawnTextureRenderTarget(gpu, dimensions, sampleCnt, info, status, {}));
+        result = sk_sp<GrDawnTextureRenderTarget>(new GrDawnTextureRenderTarget(
+                gpu, dimensions, sampleCnt, info, status, /*label=*/{}));
     } else {
-        result = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, dimensions, info, status, {}));
+        result = sk_sp<GrDawnTexture>(
+                new GrDawnTexture(gpu, dimensions, info, status, /*label=*/{}));
     }
     result->registerWithCache(budgeted);
     return result;
@@ -75,10 +76,10 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, SkISize dimensio
     GrMipmapStatus status = info.fLevelCount > 1 ? GrMipmapStatus::kValid
                                                  : GrMipmapStatus::kNotAllocated;
     if (GrRenderable::kYes == renderable) {
-        tex = sk_sp<GrDawnTexture>(
-                new GrDawnTextureRenderTarget(gpu, dimensions, sampleCnt, info, status, {}));
+        tex = sk_sp<GrDawnTexture>(new GrDawnTextureRenderTarget(
+                gpu, dimensions, sampleCnt, info, status, /*label=*/{}));
     } else {
-        tex = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, dimensions, info, status, {}));
+        tex = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, dimensions, info, status, /*label=*/{}));
     }
     tex->registerWithCacheWrapped(cacheable);
     if (ioType == kRead_GrIOType) {

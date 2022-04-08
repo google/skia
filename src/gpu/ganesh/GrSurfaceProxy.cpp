@@ -48,14 +48,16 @@ GrSurfaceProxy::GrSurfaceProxy(const GrBackendFormat& format,
                                SkBudgeted budgeted,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
-                               UseAllocator useAllocator)
+                               UseAllocator useAllocator,
+                               std::string_view label)
         : fSurfaceFlags(surfaceFlags)
         , fFormat(format)
         , fDimensions(dimensions)
         , fFit(fit)
         , fBudgeted(budgeted)
         , fUseAllocator(useAllocator)
-        , fIsProtected(isProtected) {
+        , fIsProtected(isProtected)
+        , fLabel(label) {
     SkASSERT(fFormat.isValid());
     SkASSERT(is_valid_non_lazy(dimensions));
 }
@@ -68,7 +70,8 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback,
                                SkBudgeted budgeted,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
-                               UseAllocator useAllocator)
+                               UseAllocator useAllocator,
+                               std::string_view label)
         : fSurfaceFlags(surfaceFlags)
         , fFormat(format)
         , fDimensions(dimensions)
@@ -76,7 +79,8 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback,
         , fBudgeted(budgeted)
         , fUseAllocator(useAllocator)
         , fLazyInstantiateCallback(std::move(callback))
-        , fIsProtected(isProtected) {
+        , fIsProtected(isProtected)
+        , fLabel(label) {
     SkASSERT(fFormat.isValid());
     SkASSERT(fLazyInstantiateCallback);
     SkASSERT(is_valid_lazy(dimensions, fit));
@@ -96,7 +100,8 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface,
                             : SkBudgeted::kNo)
         , fUseAllocator(useAllocator)
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
-        , fIsProtected(fTarget->isProtected() ? GrProtected::kYes : GrProtected::kNo) {
+        , fIsProtected(fTarget->isProtected() ? GrProtected::kYes : GrProtected::kNo)
+        , fLabel(fTarget->getLabel()) {
     SkASSERT(fFormat.isValid());
 }
 

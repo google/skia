@@ -48,8 +48,13 @@ sk_sp<GrDawnAttachment> GrDawnAttachment::MakeStencil(GrDawnGpu* gpu,
     if (!view) {
         return nullptr;
     }
-    return sk_sp<GrDawnAttachment>(new GrDawnAttachment(
-            gpu, dimensions, UsageFlags::kStencilAttachment, sampleCnt, texture, view, {}));
+    return sk_sp<GrDawnAttachment>(new GrDawnAttachment(gpu,
+                                                        dimensions,
+                                                        UsageFlags::kStencilAttachment,
+                                                        sampleCnt,
+                                                        texture,
+                                                        view,
+                                                        /*label=*/{}));
 }
 
 GrDawnAttachment::~GrDawnAttachment() {}

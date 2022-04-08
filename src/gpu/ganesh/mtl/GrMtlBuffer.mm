@@ -37,7 +37,7 @@ NSString* kBufferTypeNames[kGrGpuBufferTypeCount] = {
 
 sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                      GrAccessPattern accessPattern, const void* data) {
-    sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern, {}));
+    sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern, /*label=*/{}));
     if (data && !buffer->onUpdateData(data, size)) {
         return nullptr;
     }

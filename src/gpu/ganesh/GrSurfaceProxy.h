@@ -366,7 +366,8 @@ protected:
                    SkBudgeted,
                    GrProtected,
                    GrInternalSurfaceFlags,
-                   UseAllocator);
+                   UseAllocator,
+                   std::string_view label);
     // Lazy-callback version - takes a new UniqueID from the shared resource/proxy pool.
     GrSurfaceProxy(LazyInstantiateCallback&&,
                    const GrBackendFormat&,
@@ -375,15 +376,14 @@ protected:
                    SkBudgeted,
                    GrProtected,
                    GrInternalSurfaceFlags,
-                   UseAllocator);
+                   UseAllocator,
+                   std::string_view label);
 
     // Wrapped version - shares the UniqueID of the passed surface.
     // Takes UseAllocator because even though this is already instantiated it still can participate
     // in allocation by having its backing resource recycled to other uninstantiated proxies or
     // not depending on UseAllocator.
-    GrSurfaceProxy(sk_sp<GrSurface>,
-                   SkBackingFit,
-                   UseAllocator);
+    GrSurfaceProxy(sk_sp<GrSurface>, SkBackingFit, UseAllocator);
 
     friend class GrSurfaceProxyPriv;
 
@@ -458,6 +458,8 @@ private:
     GrProtected            fIsProtected;
 
     int                     fTaskTargetCount = 0;
+
+    const std::string fLabel;
 
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
     // will be called but, when the proxy is deferred, it will compute the answer itself.

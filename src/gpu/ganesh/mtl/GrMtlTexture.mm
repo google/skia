@@ -90,7 +90,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu,
         return nullptr;
     }
     return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, dimensions, std::move(texture),
-                                                mipmapStatus, {}));
+                                                mipmapStatus, /*label=*/{}));
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
@@ -113,7 +113,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
                                                                : GrMipmapStatus::kNotAllocated;
     return sk_sp<GrMtlTexture>(
             new GrMtlTexture(gpu, kWrapped, dimensions, std::move(attachment), mipmapStatus,
-                             cacheable, ioType, {}));
+                             cacheable, ioType, /*label=*/{}));
 }
 
 GrMtlTexture::~GrMtlTexture() {

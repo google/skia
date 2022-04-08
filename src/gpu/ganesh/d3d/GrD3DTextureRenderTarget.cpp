@@ -157,7 +157,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
                                                                      msaaRenderTargetView,
                                                                      renderTargetView,
                                                                      mipmapStatus,
-                                                                     {});
+                                                                     /*label=*/{});
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(gpu,
@@ -168,7 +168,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
                                                                      shaderResourceView,
                                                                      renderTargetView,
                                                                      mipmapStatus,
-                                                                     {});
+                                                                     /*label=*/{});
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     }
 }
@@ -216,7 +216,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
                                                                      renderTargetView,
                                                                      mipmapStatus,
                                                                      cacheable,
-                                                                     {});
+                                                                     /*label=*/{});
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         return sk_sp<GrD3DTextureRenderTarget>(new GrD3DTextureRenderTarget(gpu,
@@ -227,7 +227,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
                                                                             renderTargetView,
                                                                             mipmapStatus,
                                                                             cacheable,
-                                                                            {}));
+                                                                            /*label=*/{}));
     }
 }
 

@@ -104,8 +104,8 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                      sampleCount,
                                                      sFmt);
     }
-    return sk_sp<GrGLRenderTarget>(
-            new GrGLRenderTarget(gpu, dimensions, format, sampleCount, idDesc, std::move(sb), {}));
+    return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(
+            gpu, dimensions, format, sampleCount, idDesc, std::move(sb), /*label=*/{}));
 }
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {

@@ -114,8 +114,8 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
     if (!texture) {
         return nullptr;
     }
-    return sk_sp<GrVkTexture>(
-            new GrVkTexture(gpu, budgeted, dimensions, std::move(texture), mipmapStatus, {}));
+    return sk_sp<GrVkTexture>(new GrVkTexture(
+            gpu, budgeted, dimensions, std::move(texture), mipmapStatus, /*label=*/{}));
 }
 
 sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
@@ -143,8 +143,14 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
     bool isExternal = info.fYcbcrConversionInfo.isValid() &&
                       (info.fYcbcrConversionInfo.fExternalFormat != 0);
     isExternal |= (info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT);
-    return sk_sp<GrVkTexture>(new GrVkTexture(
-            gpu, dimensions, std::move(texture), mipmapStatus, cacheable, ioType, isExternal, {}));
+    return sk_sp<GrVkTexture>(new GrVkTexture(gpu,
+                                              dimensions,
+                                              std::move(texture),
+                                              mipmapStatus,
+                                              cacheable,
+                                              ioType,
+                                              isExternal,
+                                              /*label=*/{}));
 }
 
 GrVkTexture::~GrVkTexture() {

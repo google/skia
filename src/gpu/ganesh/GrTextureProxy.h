@@ -118,7 +118,8 @@ protected:
                    GrProtected,
                    GrInternalSurfaceFlags,
                    UseAllocator,
-                   GrDDLProvider creatingProvider);
+                   GrDDLProvider creatingProvider,
+                   std::string_view label);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -140,10 +141,13 @@ protected:
                    GrProtected,
                    GrInternalSurfaceFlags,
                    UseAllocator,
-                   GrDDLProvider creatingProvider);
+                   GrDDLProvider creatingProvider,
+                   std::string_view label);
 
     // Wrapped version
-    GrTextureProxy(sk_sp<GrSurface>, UseAllocator, GrDDLProvider creatingProvider);
+    GrTextureProxy(sk_sp<GrSurface>,
+                   UseAllocator,
+                   GrDDLProvider creatingProvider);
 
     ~GrTextureProxy() override;
 

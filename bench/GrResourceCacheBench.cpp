@@ -44,7 +44,7 @@ static void populate_cache(GrGpu* gpu, int resourceCount, int keyData32Count) {
     for (int i = 0; i < resourceCount; ++i) {
         skgpu::UniqueKey key;
         BenchResource::ComputeKey(i, keyData32Count, &key);
-        GrGpuResource* resource = new BenchResource(gpu, {});
+        GrGpuResource* resource = new BenchResource(gpu, /*label=*/{});
         resource->resourcePriv().setUniqueKey(key);
         resource->unref();
     }

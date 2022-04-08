@@ -32,8 +32,10 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
                                          SkBudgeted budgeted,
                                          GrProtected isProtected,
                                          GrInternalSurfaceFlags surfaceFlags,
-                                         UseAllocator useAllocator)
-        : INHERITED(format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator)
+                                         UseAllocator useAllocator,
+                                         std::string_view label)
+        : INHERITED(
+                  format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator, label)
         , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {}
 
@@ -47,9 +49,10 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          GrProtected isProtected,
                                          GrInternalSurfaceFlags surfaceFlags,
                                          UseAllocator useAllocator,
-                                         WrapsVkSecondaryCB wrapsVkSecondaryCB)
+                                         WrapsVkSecondaryCB wrapsVkSecondaryCB,
+                                         std::string_view label)
         : INHERITED(std::move(callback), format, dimensions, fit, budgeted, isProtected,
-                    surfaceFlags, useAllocator)
+                    surfaceFlags, useAllocator, label)
         , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {}
 

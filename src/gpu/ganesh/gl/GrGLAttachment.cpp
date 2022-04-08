@@ -87,7 +87,7 @@ sk_sp<GrGLAttachment> GrGLAttachment::MakeStencil(GrGLGpu* gpu,
                                                     GrAttachment::UsageFlags::kStencilAttachment,
                                                     sampleCnt,
                                                     format,
-                                                    {}));
+                                                    /*label=*/{}));
 }
 
 sk_sp<GrGLAttachment> GrGLAttachment::MakeMSAA(GrGLGpu* gpu,
@@ -114,7 +114,7 @@ sk_sp<GrGLAttachment> GrGLAttachment::MakeMSAA(GrGLGpu* gpu,
                                                     GrAttachment::UsageFlags::kColorAttachment,
                                                     sampleCnt,
                                                     format,
-                                                    {}));
+                                                    /*label=*/{}));
 }
 
 

@@ -12,14 +12,16 @@
 
 class GrMockSurfaceProxy : public GrSurfaceProxy {
 public:
-    GrMockSurfaceProxy(SkString name) : GrSurfaceProxy(
-            GrBackendFormat::MakeMock(GrColorType::kRGBA_8888, SkImage::CompressionType::kNone),
-            SkISize::Make(1, 1),
-            SkBackingFit::kExact,
-            SkBudgeted::kNo,
-            GrProtected::kNo,
-            GrInternalSurfaceFlags::kNone,
-            UseAllocator::kNo) {
+    GrMockSurfaceProxy(SkString name, std::string_view label)
+            : GrSurfaceProxy(GrBackendFormat::MakeMock(GrColorType::kRGBA_8888,
+                                                       SkImage::CompressionType::kNone),
+                             SkISize::Make(1, 1),
+                             SkBackingFit::kExact,
+                             SkBudgeted::kNo,
+                             GrProtected::kNo,
+                             GrInternalSurfaceFlags::kNone,
+                             UseAllocator::kNo,
+                             label) {
         SkDEBUGCODE(this->setDebugName(std::move(name)));
     }
 
