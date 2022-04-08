@@ -10,6 +10,8 @@ RUN cd /tmp \
 
 ENV PATH=${PATH}:/tmp/depot_tools
 
+# See skbug.com/13128
+ENV DEPOT_TOOLS_UPDATE=0
 # Checkout Skia using fetch from depot_tools
 RUN mkdir -p /tmp/skia \
   && cd /tmp/skia \
