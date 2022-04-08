@@ -103,6 +103,8 @@ OpDecorate %147 RelaxedPrecision
 %73 = OpConstantComposite %v3float %float_7 %float_8 %float_9
 %v3bool = OpTypeVector %bool 3
 %float_100 = OpConstant %float 100
+%98 = OpConstantComposite %v2float %float_100 %float_0
+%99 = OpConstantComposite %v2float %float_0 %float_100
 %115 = OpConstantComposite %v3float %float_9 %float_8 %float_7
 %116 = OpConstantComposite %v3float %float_6 %float_5 %float_4
 %117 = OpConstantComposite %v3float %float_3 %float_2 %float_1
@@ -175,8 +177,6 @@ OpBranchConditional %91 %92 %93
 %92 = OpLabel
 %94 = OpAccessChain %_ptr_Uniform_mat2v2float %10 %int_2
 %95 = OpLoad %mat2v2float %94
-%98 = OpCompositeConstruct %v2float %float_100 %float_0
-%99 = OpCompositeConstruct %v2float %float_0 %float_100
 %97 = OpCompositeConstruct %mat2v2float %98 %99
 %100 = OpCompositeExtract %v2float %95 0
 %101 = OpCompositeExtract %v2float %97 0

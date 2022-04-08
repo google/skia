@@ -65,6 +65,10 @@ OpDecorate %80 RelaxedPrecision
 %_arr_mat4v4float_int_1 = OpTypeArray %mat4v4float %int_1
 %_ptr_Function__arr_mat4v4float_int_1 = OpTypePointer Function %_arr_mat4v4float_int_1
 %float_16 = OpConstant %float 16
+%50 = OpConstantComposite %v4float %float_16 %float_0 %float_0 %float_0
+%51 = OpConstantComposite %v4float %float_0 %float_16 %float_0 %float_0
+%52 = OpConstantComposite %v4float %float_0 %float_0 %float_16 %float_0
+%53 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_16
 %int_3 = OpConstant %int 3
 %_ptr_Function_float = OpTypePointer Function %float
 %int_0 = OpConstant %int 0
@@ -90,10 +94,6 @@ OpFunctionEnd
 OpStore %test1 %35
 %42 = OpCompositeConstruct %_arr_v2float_int_2 %40 %41
 OpStore %test2 %42
-%50 = OpCompositeConstruct %v4float %float_16 %float_0 %float_0 %float_0
-%51 = OpCompositeConstruct %v4float %float_0 %float_16 %float_0 %float_0
-%52 = OpCompositeConstruct %v4float %float_0 %float_0 %float_16 %float_0
-%53 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_16
 %49 = OpCompositeConstruct %mat4v4float %50 %51 %52 %53
 %54 = OpCompositeConstruct %_arr_mat4v4float_int_1 %49
 OpStore %test3 %54
