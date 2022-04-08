@@ -86,10 +86,14 @@ OpDecorate %155 RelaxedPrecision
 %mat2v2float = OpTypeMatrix %v2float 2
 %_arr_mat2v2float_int_2 = OpTypeArray %mat2v2float %int_2
 %_ptr_Function__arr_mat2v2float_int_2 = OpTypePointer Function %_arr_mat2v2float_int_2
+%61 = OpConstantComposite %v2float %float_1 %float_2
+%62 = OpConstantComposite %v2float %float_3 %float_4
 %float_5 = OpConstant %float 5
 %float_6 = OpConstant %float 6
 %float_7 = OpConstant %float 7
 %float_8 = OpConstant %float 8
+%68 = OpConstantComposite %v2float %float_5 %float_6
+%69 = OpConstantComposite %v2float %float_7 %float_8
 %_ptr_Function__arr_mat2v2float_int_2_0 = OpTypePointer Function %_arr_mat2v2float_int_2
 %false = OpConstantFalse %bool
 %v3bool = OpTypeVector %bool 3
@@ -131,11 +135,7 @@ OpStore %s3 %54
 OpStore %i3 %55
 %56 = OpLoad %_arr_v3int_int_3 %i3
 OpStore %s3 %56
-%61 = OpCompositeConstruct %v2float %float_1 %float_2
-%62 = OpCompositeConstruct %v2float %float_3 %float_4
 %63 = OpCompositeConstruct %mat2v2float %61 %62
-%68 = OpCompositeConstruct %v2float %float_5 %float_6
-%69 = OpCompositeConstruct %v2float %float_7 %float_8
 %70 = OpCompositeConstruct %mat2v2float %68 %69
 %71 = OpCompositeConstruct %_arr_mat2v2float_int_2 %63 %70
 OpStore %h2x2 %71

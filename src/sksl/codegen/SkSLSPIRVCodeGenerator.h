@@ -268,6 +268,8 @@ private:
 
     SpvId writeConstantVector(const AnyConstructor& c);
 
+    SpvId writeConstantVector(const Type& type, const SPIRVVectorConstant& key);
+
     SpvId writeScalarToMatrixSplat(const Type& matrixType, SpvId scalarId, OutputStream& out);
 
     SpvId writeFloatConstructor(const AnyConstructor& c, OutputStream& out);
@@ -326,6 +328,10 @@ private:
     SpvId writeConstructorSplat(const ConstructorSplat& c, OutputStream& out);
 
     SpvId writeConstructorCompoundCast(const ConstructorCompoundCast& c, OutputStream& out);
+
+    SpvId writeCompositeAsConstant(const std::vector<SpvId>& arguments,
+                                   const Type& type,
+                                   OutputStream& out);
 
     SpvId writeComposite(const std::vector<SpvId>& arguments, const Type& type, OutputStream& out);
 

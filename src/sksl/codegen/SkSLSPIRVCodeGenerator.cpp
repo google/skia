@@ -1280,6 +1280,10 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const AnyConstructor& c) {
         key.fValueId[n] = this->writeLiteral(*slotVal, scalarType);
     }
 
+    return this->writeConstantVector(type, key);
+}
+
+SpvId SPIRVCodeGenerator::writeConstantVector(const Type& type, const SPIRVVectorConstant& key) {
     // Check to see if we've already synthesized this vector constant.
     if (SpvId* entry = fVectorConstants.find(key)) {
         return *entry;
@@ -1689,12 +1693,48 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, O
     return this->writeComposite(arguments, type, out);
 }
 
+SpvId SPIRVCodeGenerator::writeCompositeAsConstant(const std::vector<SpvId>& arguments,
+                                                   const Type& type,
+                                                   OutputStream& out) {
+    if (!type.isVector()) {
+        // Only vectors are allowed.
+        return (SpvId)-1;
+    }
+    SPIRVVectorConstant key = {/*fTypeId=*/(SpvId)-1,
+                               /*fValueId=*/{(SpvId)-1, (SpvId)-1, (SpvId)-1, (SpvId)-1}};
+    for (size_t index = 0; index < arguments.size(); ++index) {
+        // See if this argument is a numeric constant by scanning fNumberConstants.
+        SpvId arg = arguments[index];
+        bool found = false;
+        for (const auto& [k, v] : fNumberConstants) {
+            if (v == arg) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            // This argument isn't a literal.
+            return (SpvId)-1;
+        }
+        key.fValueId[index] = arg;
+    }
+    // We found a composite that's composed entirely of literals. Write an OpConstantComposite.
+    key.fTypeId = this->getType(type);
+    return this->writeConstantVector(type, key);
+}
+
 SpvId SPIRVCodeGenerator::writeComposite(const std::vector<SpvId>& arguments,
                                          const Type& type,
                                          OutputStream& out) {
+    // If this is a vector composed entirely of literals, write a constant.
+    SpvId result = this->writeCompositeAsConstant(arguments, type, out);
+    if (result != (SpvId)-1) {
+        return result;
+    }
+
     SkASSERT(arguments.size() == (type.isStruct() ? type.fields().size() : (size_t)type.columns()));
 
-    SpvId result = this->nextId(&type);
+    result = this->nextId(&type);
     this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
     this->writeWord(this->getType(type), out);
     this->writeWord(result, out);
