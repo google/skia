@@ -7,20 +7,20 @@
 
 #include "tests/Test.h"
 
+#include "experimental/graphite/include/Recorder.h"
+#include "experimental/graphite/src/ContextPriv.h"
+#include "experimental/graphite/src/ContextUtils.h"
+#include "experimental/graphite/src/GlobalCache.h"
+#include "experimental/graphite/src/PaintParams.h"
+#include "experimental/graphite/src/RecorderPriv.h"
+#include "experimental/graphite/src/ResourceProvider.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkShaderCodeDictionary.h"
-#include "src/gpu/graphite/ContextPriv.h"
-#include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/GlobalCache.h"
-#include "src/gpu/graphite/PaintParams.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/ResourceProvider.h"
 
 namespace {
 using namespace skgpu::graphite;

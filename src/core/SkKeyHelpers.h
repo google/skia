@@ -9,7 +9,7 @@
 #define SkKeyHelpers_DEFINED
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "include/gpu/graphite/Context.h"
+#include "experimental/graphite/include/Context.h"
 #endif
 
 #include "include/core/SkBlendMode.h"

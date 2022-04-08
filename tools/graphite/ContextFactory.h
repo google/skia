@@ -9,8 +9,8 @@
 #define skiatest_graphite_ContextFactory_DEFINED
 
 #include <vector>
+#include "experimental/graphite/include/GraphiteTypes.h"
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/graphite/GraphiteTypes.h"
 #include "tools/graphite/GraphiteTestContext.h"
 
 namespace skgpu::graphite {

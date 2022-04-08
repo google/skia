@@ -1,0 +1,11 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "MtlTypesPriv_hdr",
+    hdrs = ["MtlTypesPriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/include:GraphiteTypes_hdr",
+        "//experimental/graphite/include/mtl:MtlTypes_hdr",
+    ],
+)

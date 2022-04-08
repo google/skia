@@ -17,10 +17,10 @@
 #include "include/private/SkColorData.h"
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/src/TextureProxy.h"
+#include "experimental/graphite/src/UniformManager.h"
+#include "experimental/graphite/src/geom/VectorTypes.h"
 #include "src/gpu/Blend.h"
-#include "src/gpu/graphite/TextureProxy.h"
-#include "src/gpu/graphite/UniformManager.h"
-#include "src/gpu/graphite/geom/VectorTypes.h"
 #endif
 
 class SkArenaAlloc;

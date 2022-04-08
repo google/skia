@@ -28,14 +28,14 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "include/gpu/graphite/GraphiteTypes.h"
-#include "include/gpu/graphite/Recorder.h"
-#include "src/gpu/graphite/Buffer.h"
-#include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/TextureUtils.h"
-#include "src/gpu/graphite/UploadTask.h"
+#include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/include/Recorder.h"
+#include "experimental/graphite/src/Buffer.h"
+#include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/CommandBuffer.h"
+#include "experimental/graphite/src/RecorderPriv.h"
+#include "experimental/graphite/src/TextureUtils.h"
+#include "experimental/graphite/src/UploadTask.h"
 #endif
 
 // fixes https://bug.skia.org/5096

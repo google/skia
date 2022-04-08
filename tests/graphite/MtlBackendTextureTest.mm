@@ -7,9 +7,9 @@
 
 #include "tests/Test.h"
 
-#include "include/gpu/graphite/BackendTexture.h"
-#include "include/gpu/graphite/Context.h"
-#include "include/gpu/graphite/mtl/MtlTypes.h"
+#include "experimental/graphite/include/BackendTexture.h"
+#include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/include/mtl/MtlTypes.h"
 
 #import <Metal/Metal.h>
 

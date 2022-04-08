@@ -10,7 +10,7 @@
 #include "include/gpu/GrDirectContext.h"
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "include/gpu/graphite/Context.h"
+#include "experimental/graphite/include/Context.h"
 #include "tools/graphite/ContextFactory.h"
 #endif
 

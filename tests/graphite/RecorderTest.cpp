@@ -7,9 +7,9 @@
 
 #include "tests/Test.h"
 
-#include "include/gpu/graphite/Context.h"
-#include "include/gpu/graphite/Recorder.h"
-#include "src/gpu/graphite/Device.h"
+#include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/include/Recorder.h"
+#include "experimental/graphite/src/Device.h"
 
 using namespace skgpu::graphite;
 

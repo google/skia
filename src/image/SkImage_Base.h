@@ -24,7 +24,7 @@ class GrTexture;
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/gpu/graphite/TextureProxyView.h"
+#include "experimental/graphite/src/TextureProxyView.h"
 #endif
 
 #include <new>

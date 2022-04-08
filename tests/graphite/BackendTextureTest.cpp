@@ -7,14 +7,14 @@
 
 #include "tests/Test.h"
 
-#include "include/gpu/graphite/BackendTexture.h"
-#include "include/gpu/graphite/Context.h"
-#include "include/gpu/graphite/Recorder.h"
-#include "include/gpu/graphite/SkStuff.h"
-#include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/ContextPriv.h"
-#include "src/gpu/graphite/Gpu.h"
-#include "src/gpu/graphite/ResourceTypes.h"
+#include "experimental/graphite/include/BackendTexture.h"
+#include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/include/Recorder.h"
+#include "experimental/graphite/include/SkStuff.h"
+#include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/ContextPriv.h"
+#include "experimental/graphite/src/Gpu.h"
+#include "experimental/graphite/src/ResourceTypes.h"
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkSurface.h"

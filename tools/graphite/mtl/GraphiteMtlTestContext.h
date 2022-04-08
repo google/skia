@@ -12,7 +12,7 @@
 
 #ifdef SK_METAL
 
-#include "include/gpu/graphite/mtl/MtlBackendContext.h"
+#include "experimental/graphite/include/mtl/MtlBackendContext.h"
 
 namespace skiatest::graphite {
 

@@ -7,7 +7,7 @@ generate:
 		modules/skshaper modules/svg modules/skresources modules/skparagraph modules/skunicode \
 		modules/skottie modules/skresources modules/sksg experimental/ffmpeg \
 		modules/particles \
-		experimental/bazel_test example \
+		experimental/bazel_test experimental/graphite example \
 		modules/canvaskit/go \
 		infra/bots/task_drivers
 

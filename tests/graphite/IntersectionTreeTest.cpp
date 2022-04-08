@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "experimental/graphite/src/geom/IntersectionTree.h"
 #include "include/utils/SkRandom.h"
-#include "src/gpu/graphite/geom/IntersectionTree.h"
 #include "tests/Test.h"
 
 namespace skgpu::graphite {

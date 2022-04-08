@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/EnumBitMask.h"
+#include "experimental/graphite/src/EnumBitMask.h"
 #include "tests/Test.h"
 
 enum class Flags {

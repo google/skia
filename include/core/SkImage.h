@@ -18,7 +18,7 @@
 #include "include/gpu/GrTypes.h"
 #endif
 #if SK_GRAPHITE_ENABLED
-#include "include/gpu/graphite/GraphiteTypes.h"
+#include "experimental/graphite/include/GraphiteTypes.h"
 #endif
 #include <functional>  // std::function
 #include <optional>

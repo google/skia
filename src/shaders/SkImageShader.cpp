@@ -27,7 +27,7 @@
 #ifdef SK_ENABLE_SKSL
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/gpu/graphite/Image_Graphite.h"
+#include "experimental/graphite/src/Image_Graphite.h"
 #endif
 
 #include "src/core/SkKeyContext.h"

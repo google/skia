@@ -1012,6 +1012,7 @@ generated_cc_atom(
         ":SkTextFormatParams_hdr",
         ":SkTraceEvent_hdr",
         ":SkVerticesPriv_hdr",
+        "//experimental/graphite/src:Device_hdr",
         "//include/core:SkBlender_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColorFilter_hdr",
@@ -1033,7 +1034,6 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrRenderTargetProxy_hdr",
         "//src/gpu/ganesh:GrRenderTarget_hdr",
         "//src/gpu/ganesh:SkGr_hdr",
-        "//src/gpu/graphite:Device_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/image:SkSurface_Base_hdr",
         "//src/utils:SkPatchUtils_hdr",
@@ -5609,11 +5609,11 @@ generated_cc_atom(
     hdrs = ["SkKeyHelpers.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//experimental/graphite/include:Context_hdr",
         "//include/core:SkBlendMode_hdr",
         "//include/core:SkSamplingOptions_hdr",
         "//include/core:SkShader_hdr",
         "//include/core:SkTileMode_hdr",
-        "//include/gpu/graphite:Context_hdr",
         "//include/private:SkColorData_hdr",
     ],
 )
@@ -5630,10 +5630,10 @@ generated_cc_atom(
         ":SkPipelineData_hdr",
         ":SkShaderCodeDictionary_hdr",
         ":SkUniform_hdr",
+        "//experimental/graphite/src:TextureProxy_hdr",
+        "//experimental/graphite/src:Texture_hdr",
+        "//experimental/graphite/src:UniformManager_hdr",
         "//src/gpu:Blend_hdr",
-        "//src/gpu/graphite:TextureProxy_hdr",
-        "//src/gpu/graphite:Texture_hdr",
-        "//src/gpu/graphite:UniformManager_hdr",
         "//src/shaders:SkShaderBase_hdr",
     ],
 )
@@ -5713,6 +5713,9 @@ generated_cc_atom(
     hdrs = ["SkPipelineData.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//experimental/graphite/src:TextureProxy_hdr",
+        "//experimental/graphite/src:UniformManager_hdr",
+        "//experimental/graphite/src/geom:VectorTypes_hdr",
         "//include/core:SkPoint_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkSamplingOptions_hdr",
@@ -5720,9 +5723,6 @@ generated_cc_atom(
         "//include/core:SkTileMode_hdr",
         "//include/private:SkColorData_hdr",
         "//src/gpu:Blend_hdr",
-        "//src/gpu/graphite:TextureProxy_hdr",
-        "//src/gpu/graphite:UniformManager_hdr",
-        "//src/gpu/graphite/geom:VectorTypes_hdr",
     ],
 )
 
@@ -5749,8 +5749,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkKeyContext_hdr",
+        "//experimental/graphite/src:RecorderPriv_hdr",
+        "//experimental/graphite/src:ResourceProvider_hdr",
         "//include/gpu:GrRecordingContext_hdr",
-        "//src/gpu/graphite:RecorderPriv_hdr",
-        "//src/gpu/graphite:ResourceProvider_hdr",
     ],
 )

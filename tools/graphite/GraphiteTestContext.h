@@ -8,8 +8,8 @@
 #ifndef skiatest_graphite_GraphiteTestContext_DEFINED
 #define skiatest_graphite_GraphiteTestContext_DEFINED
 
+#include "experimental/graphite/include/GraphiteTypes.h"
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/graphite/GraphiteTypes.h"
 
 namespace skgpu::graphite {
 class Context;

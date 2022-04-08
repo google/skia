@@ -6,8 +6,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GraphiteTestContext_hdr",
+        "//experimental/graphite/include:GraphiteTypes_hdr",
         "//include/core:SkRefCnt_hdr",
-        "//include/gpu/graphite:GraphiteTypes_hdr",
     ],
 )
 
@@ -17,7 +17,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":ContextFactory_hdr",
-        "//include/gpu/graphite:Context_hdr",
+        "//experimental/graphite/include:Context_hdr",
         "//tools/graphite/mtl:GraphiteMtlTestContext_hdr",
     ],
 )
@@ -27,8 +27,8 @@ generated_cc_atom(
     hdrs = ["GraphiteTestContext.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//experimental/graphite/include:GraphiteTypes_hdr",
         "//include/core:SkRefCnt_hdr",
-        "//include/gpu/graphite:GraphiteTypes_hdr",
     ],
 )
 
@@ -38,9 +38,9 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GraphiteTestContext_hdr",
-        "//include/gpu/graphite:Context_hdr",
-        "//include/gpu/graphite:GraphiteTypes_hdr",
-        "//include/gpu/graphite:Recording_hdr",
+        "//experimental/graphite/include:Context_hdr",
+        "//experimental/graphite/include:GraphiteTypes_hdr",
+        "//experimental/graphite/include:Recording_hdr",
         "//src/core:SkTraceEvent_hdr",
         "//tools/gpu:FlushFinishTracker_hdr",
     ],
