@@ -65,6 +65,7 @@ OpDecorate %221 RelaxedPrecision
 %int_0 = OpConstant %int 0
 %float_100 = OpConstant %float 100
 %float_200 = OpConstant %float 200
+%38 = OpConstantComposite %v4float %float_200 %float_200 %float_200 %float_200
 %uint_100 = OpConstant %uint 100
 %uint_200 = OpConstant %uint 200
 %uint_275 = OpConstant %uint 275
@@ -120,7 +121,6 @@ OpFunctionEnd
 %30 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %34 = OpLoad %v4float %30
 %36 = OpVectorTimesScalar %v4float %34 %float_100
-%38 = OpCompositeConstruct %v4float %float_200 %float_200 %float_200 %float_200
 %39 = OpFAdd %v4float %36 %38
 %40 = OpCompositeExtract %float %39 0
 %41 = OpConvertFToU %uint %40

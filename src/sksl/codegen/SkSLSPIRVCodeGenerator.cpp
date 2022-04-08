@@ -2409,16 +2409,9 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                         break;
                 }
             }
-            // promote number to vector
-            const Type& vecType = leftType;
-            SpvId vec = this->nextId(&vecType);
-            this->writeOpCode(SpvOpCompositeConstruct, 3 + vecType.columns(), out);
-            this->writeWord(this->getType(vecType), out);
-            this->writeWord(vec, out);
-            for (int i = 0; i < vecType.columns(); i++) {
-                this->writeWord(rhs, out);
-            }
-            rhs = vec;
+            // Vectorize the right-hand side.
+            std::vector<SpvId> arguments(/*count*/ leftType.columns(), /*value*/ rhs);
+            rhs = this->writeComposite(arguments, leftType, out);
             operandType = &leftType;
         } else if (rightType.isVector() && leftType.isNumber()) {
             if (resultType.componentType().isFloat()) {
@@ -2429,16 +2422,9 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                     return result;
                 }
             }
-            // promote number to vector
-            const Type& vecType = rightType;
-            SpvId vec = this->nextId(&vecType);
-            this->writeOpCode(SpvOpCompositeConstruct, 3 + vecType.columns(), out);
-            this->writeWord(this->getType(vecType), out);
-            this->writeWord(vec, out);
-            for (int i = 0; i < vecType.columns(); i++) {
-                this->writeWord(lhs, out);
-            }
-            lhs = vec;
+            // Vectorize the left-hand side.
+            std::vector<SpvId> arguments(/*count*/ rightType.columns(), /*value*/ lhs);
+            lhs = this->writeComposite(arguments, rightType, out);
             operandType = &rightType;
         } else if (leftType.isMatrix()) {
             if (op.kind() == Operator::Kind::STAR) {

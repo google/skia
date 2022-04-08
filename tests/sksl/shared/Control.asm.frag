@@ -49,6 +49,7 @@ OpDecorate %54 RelaxedPrecision
 %float_0_5 = OpConstant %float 0.5
 %int_1 = OpConstant %int 1
 %float_0_25 = OpConstant %float 0.25
+%51 = OpConstantComposite %v4float %float_0_25 %float_0_25 %float_0_25 %float_0_25
 %int_2 = OpConstant %int 2
 %int_100 = OpConstant %int 100
 %main = OpFunction %void None %14
@@ -92,7 +93,6 @@ OpLoopMerge %48 %47 None
 OpBranch %45
 %45 = OpLabel
 %49 = OpLoad %v4float %sk_FragColor
-%51 = OpCompositeConstruct %v4float %float_0_25 %float_0_25 %float_0_25 %float_0_25
 %52 = OpFAdd %v4float %49 %51
 OpStore %sk_FragColor %52
 OpBranch %46
