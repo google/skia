@@ -2872,6 +2872,19 @@ if (skia_enable_tools) {
     }
   }
 
+  if (skia_use_vulkan) {
+    test_app("VulkanBasic") {
+      # Bots and even devs may not have Vulkan headers, so put
+      # include/third_party/vulkan on our path so they're always available.
+      all_dependent_configs = [ ":our_vulkan_headers" ]
+
+      sources = [ "example/VulkanBasic.cpp" ]
+      sources += [ "tools/gpu/vk/VkTestUtils.h" ]
+      sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
+      deps = [ ":skia" ]
+    }
+  }
+
   if (skia_qt_path != "" && (is_win || is_linux || is_mac)) {
     action_foreach("generate_mocs") {
       script = "gn/call.py"
