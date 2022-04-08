@@ -183,18 +183,8 @@ string_flag_with_values(
 )
 
 bool_flag(
-    default = False,
-    flag_name = "use_icu",
-)
-
-bool_flag(
-    default = False,
-    flag_name = "disable_tracing",
-)
-
-bool_flag(
-    default = False,
-    flag_name = "disable_effect_serialization",
+    default = True,
+    flag_name = "enable_effect_serialization",
 )
 
 bool_flag(
@@ -208,8 +198,19 @@ bool_flag(
 )
 
 bool_flag(
+    # See SkTraceVentCommon.h for more on this type of tracing.
+    default = True,
+    flag_name = "enable_tracing",
+)
+
+bool_flag(
     default = False,
     flag_name = "is_skia_dev_build",
+)
+
+bool_flag(
+    default = False,
+    flag_name = "use_icu",
 )
 
 bool_flag(

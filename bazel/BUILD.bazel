@@ -14,10 +14,10 @@ GENERAL_DEFINES = [
         "SK_RELEASE",
     ],
 }) + select({
-    "//bazel/common_config_settings:disable_tracing_true": ["SK_DISABLE_TRACING"],
+    "//bazel/common_config_settings:enable_tracing_false": ["SK_DISABLE_TRACING"],
     "//conditions:default": [],
 }) + select({
-    "//bazel/common_config_settings:disable_effect_serialization_true": ["SK_DISABLE_EFFECT_DESERIALIZATION"],
+    "//bazel/common_config_settings:enable_effect_serialization_false": ["SK_DISABLE_EFFECT_DESERIALIZATION"],
     "//conditions:default": [],
 }) + select({
     "//bazel/common_config_settings:is_skia_dev_build_true": [
