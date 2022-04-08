@@ -11,7 +11,7 @@
 #include "src/core/SkTraceEvent.h"
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "experimental/graphite/include/Context.h"
+#include "include/gpu/graphite/Context.h"
 #endif
 
 #include <chrono>

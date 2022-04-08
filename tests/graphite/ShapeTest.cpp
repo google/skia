@@ -7,7 +7,7 @@
 
 #include "tests/Test.h"
 
-#include "experimental/graphite/src/geom/Shape.h"
+#include "src/gpu/graphite/geom/Shape.h"
 
 DEF_GRAPHITE_TEST(ShapeTest, reporter) {
     // TODO: Michael takes this over

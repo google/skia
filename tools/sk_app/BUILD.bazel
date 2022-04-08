@@ -262,9 +262,9 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":WindowContext_hdr",
-        "//experimental/graphite/include:Context_hdr",
-        "//experimental/graphite/include:Recorder_hdr",
         "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu/graphite:Context_hdr",
+        "//include/gpu/graphite:Recorder_hdr",
     ],
 )
 

@@ -7,8 +7,8 @@
 
 #include "tools/graphite/mtl/GraphiteMtlTestContext.h"
 
-#include "experimental/graphite/include/Context.h"
-#include "experimental/graphite/include/mtl/MtlTypes.h"
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/mtl/MtlTypes.h"
 
 #ifdef SK_METAL
 

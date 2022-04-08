@@ -7,7 +7,7 @@
 
 #include "tools/graphite/ContextFactory.h"
 
-#include "experimental/graphite/include/Context.h"
+#include "include/gpu/graphite/Context.h"
 
 #ifdef SK_METAL
 #include "tools/graphite/mtl/GraphiteMtlTestContext.h"

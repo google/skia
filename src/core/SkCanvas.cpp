@@ -64,7 +64,7 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "experimental/graphite/src/Device.h"
+#include "src/gpu/graphite/Device.h"
 #endif
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)

@@ -4,8 +4,9 @@
 # found in the LICENSE file.
 
 # Things are easiest for everyone if these source paths are absolute.
-_src = get_path_info("../experimental/graphite/src", "abspath")
-_include = get_path_info("../experimental/graphite/include", "abspath")
+_src = get_path_info("../src/gpu/graphite", "abspath")
+_include = get_path_info("../include/gpu/graphite", "abspath")
+_include_private = get_path_info("../include/private/gpu/graphite", "abspath")
 
 skia_graphite_public = [
   "$_include/BackendTexture.h",
@@ -127,7 +128,7 @@ skia_graphite_sources = [
 skia_graphite_mtl_sources = [
   "$_include/mtl/MtlBackendContext.h",
   "$_include/mtl/MtlTypes.h",
-  "$_include/private/MtlTypesPriv.h",
+  "$_include_private/MtlTypesPriv.h",
   "$_src/mtl/MtlBlitCommandEncoder.h",
   "$_src/mtl/MtlBuffer.h",
   "$_src/mtl/MtlBuffer.mm",

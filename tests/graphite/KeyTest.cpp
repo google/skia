@@ -10,7 +10,7 @@
 #include "src/core/SkPaintParamsKey.h"
 #include "src/core/SkShaderCodeDictionary.h"
 
-#include "experimental/graphite/src/ContextPriv.h"
+#include "src/gpu/graphite/ContextPriv.h"
 
 namespace {
 

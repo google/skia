@@ -5,7 +5,7 @@ generated_cc_atom(
     hdrs = ["GraphiteMtlTestContext.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//experimental/graphite/include/mtl:MtlBackendContext_hdr",
+        "//include/gpu/graphite/mtl:MtlBackendContext_hdr",
         "//tools/graphite:GraphiteTestContext_hdr",
     ],
 )
