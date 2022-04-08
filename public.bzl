@@ -1076,5 +1076,5 @@ SVG_TOOL_SRCS = [
 ## EGL support
 ################################################################################
 
-SKIA_EGL_HDRS = [ "include/gpu/gl/egl/GrGLMakeEGLInterface.h" ]
-SKIA_EGL_SRCS = [ "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp" ]
+SKIA_EGL_HDRS = ["include/gpu/gl/egl/GrGLMakeEGLInterface.h"]
+SKIA_EGL_SRCS = ["src/gpu/gl/egl/GrGLMakeEGLInterface.cpp"]
