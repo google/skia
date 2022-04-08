@@ -77,8 +77,6 @@ public:
 
     Position position(Token token);
 
-    Position position(int line);
-
 private:
     static void InitLayoutMap();
 

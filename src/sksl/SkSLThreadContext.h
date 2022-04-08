@@ -12,7 +12,6 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLProgramKind.h"
 #include "include/sksl/SkSLErrorReporter.h"
-#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -33,6 +32,7 @@ namespace SkSL {
 class Compiler;
 class ModifiersPool;
 class Pool;
+class Position;
 class ProgramElement;
 class SymbolTable;
 class Variable;
@@ -194,7 +194,7 @@ public:
      * Notifies the current ErrorReporter that an error has occurred. The default error handler
      * prints the message to stderr and aborts.
      */
-    static void ReportError(std::string_view msg, Position pos = Position::Capture());
+    static void ReportError(std::string_view msg, Position pos = {});
 
     /**
      * Forwards any pending errors to the DSL ErrorReporter.

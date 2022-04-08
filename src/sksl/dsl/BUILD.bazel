@@ -37,6 +37,7 @@ generated_cc_atom(
         "//include/sksl:DSLType_hdr",
         "//include/sksl:DSLVar_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
+        "//include/sksl:SkSLPosition_hdr",
         "//src/sksl:SkSLBuiltinTypes_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLContext_hdr",
@@ -164,6 +165,7 @@ generated_cc_atom(
         "//include/sksl:DSLBlock_hdr",
         "//include/sksl:DSLExpression_hdr",
         "//include/sksl:DSLStatement_hdr",
+        "//include/sksl:SkSLPosition_hdr",
         "//src/gpu/ganesh:GrFragmentProcessor_hdr",
         "//src/gpu/ganesh/glsl:GrGLSLFragmentShaderBuilder_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
@@ -181,6 +183,7 @@ generated_cc_atom(
     deps = [
         "//include/private:SkSLSymbol_hdr",
         "//include/sksl:DSLSymbols_hdr",
+        "//include/sksl:SkSLPosition_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
         "//src/sksl/dsl/priv:DSLWriter_hdr",

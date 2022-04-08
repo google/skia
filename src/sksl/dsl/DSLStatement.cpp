@@ -10,6 +10,7 @@
 #include "include/private/SkSLDefines.h"
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLExpression.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"

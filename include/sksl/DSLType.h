@@ -91,7 +91,7 @@ public:
 
     DSLType(std::string_view name,
             DSLModifiers* modifiers,
-            Position pos = Position::Capture());
+            Position pos = {});
 
     /**
      * Returns true if this type is a bool.
@@ -221,16 +221,16 @@ MATRIX_TYPE(Half)
 #undef VECTOR_TYPE
 #undef MATRIX_TYPE
 
-DSLType Array(const DSLType& base, int count, Position pos = Position::Capture());
+DSLType Array(const DSLType& base, int count, Position pos = {});
 
 class DSLField {
 public:
     DSLField(const DSLType type, std::string_view name,
-             Position pos = Position::Capture())
+             Position pos = {})
         : DSLField(DSLModifiers(), type, name, pos) {}
 
     DSLField(const DSLModifiers& modifiers, const DSLType type, std::string_view name,
-             Position pos = Position::Capture())
+             Position pos = {})
         : fModifiers(modifiers)
         , fType(type)
         , fName(name)
@@ -247,7 +247,7 @@ private:
 };
 
 DSLType Struct(std::string_view name, SkSpan<DSLField> fields,
-               Position pos = Position::Capture());
+               Position pos = {});
 
 template<typename... Field>
 DSLType Struct(std::string_view name, Field... fields) {

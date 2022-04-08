@@ -9,6 +9,7 @@
 
 #include "include/private/SkSLProgramElement.h"
 #include "include/sksl/DSLSymbols.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLModifiersPool.h"
@@ -136,14 +137,8 @@ void ThreadContext::ReportError(std::string_view msg, Position pos) {
 }
 
 void ThreadContext::DefaultErrorReporter::handleError(std::string_view msg, Position pos) {
-    if (pos.line() > -1) {
-        SK_ABORT("error: %s: %d: %.*sNo SkSL error reporter configured, treating this as a fatal "
-                 "error\n", ThreadContext::Filename(), pos.line(), (int)msg.length(), msg.data());
-    } else {
-        SK_ABORT("error: %.*s\nNo SkSL error reporter configured, treating this as a fatal error\n",
-                 (int)msg.length(), msg.data());
-    }
-
+    SK_ABORT("error: %.*s\nNo SkSL error reporter configured, treating this as a fatal error\n",
+             (int)msg.length(), msg.data());
 }
 
 void ThreadContext::ReportErrors(Position pos) {

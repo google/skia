@@ -19,53 +19,53 @@ class DSLLayout {
 public:
     DSLLayout() {}
 
-    DSLLayout& originUpperLeft(Position pos = Position::Capture()) {
+    DSLLayout& originUpperLeft(Position pos = {}) {
         return this->flag(SkSL::Layout::kOriginUpperLeft_Flag, "origin_upper_left", pos);
     }
 
-    DSLLayout& pushConstant(Position pos = Position::Capture()) {
+    DSLLayout& pushConstant(Position pos = {}) {
         return this->flag(SkSL::Layout::kPushConstant_Flag, "push_constant", pos);
     }
 
-    DSLLayout& blendSupportAllEquations(Position pos = Position::Capture()) {
+    DSLLayout& blendSupportAllEquations(Position pos = {}) {
         return this->flag(SkSL::Layout::kBlendSupportAllEquations_Flag,
                           "blend_support_all_equations", pos);
     }
 
-    DSLLayout& color(Position pos = Position::Capture()) {
+    DSLLayout& color(Position pos = {}) {
         return this->flag(SkSL::Layout::kColor_Flag, "color", pos);
     }
 
-    DSLLayout& location(int location, Position pos = Position::Capture()) {
+    DSLLayout& location(int location, Position pos = {}) {
         return this->intValue(&fSkSLLayout.fLocation, location, SkSL::Layout::kLocation_Flag,
                               "location", pos);
     }
 
-    DSLLayout& offset(int offset, Position pos = Position::Capture()) {
+    DSLLayout& offset(int offset, Position pos = {}) {
         return this->intValue(&fSkSLLayout.fOffset, offset, SkSL::Layout::kOffset_Flag, "offset",
                               pos);
     }
 
-    DSLLayout& binding(int binding, Position pos = Position::Capture()) {
+    DSLLayout& binding(int binding, Position pos = {}) {
         return this->intValue(&fSkSLLayout.fBinding, binding, SkSL::Layout::kBinding_Flag,
                               "binding", pos);
     }
 
-    DSLLayout& index(int index, Position pos = Position::Capture()) {
+    DSLLayout& index(int index, Position pos = {}) {
         return this->intValue(&fSkSLLayout.fIndex, index, SkSL::Layout::kIndex_Flag, "index", pos);
     }
 
-    DSLLayout& set(int set, Position pos = Position::Capture()) {
+    DSLLayout& set(int set, Position pos = {}) {
         return this->intValue(&fSkSLLayout.fSet, set, SkSL::Layout::kSet_Flag, "set", pos);
     }
 
-    DSLLayout& builtin(int builtin, Position pos = Position::Capture()) {
+    DSLLayout& builtin(int builtin, Position pos = {}) {
         return this->intValue(&fSkSLLayout.fBuiltin, builtin, SkSL::Layout::kBuiltin_Flag,
                               "builtin", pos);
     }
 
     DSLLayout& inputAttachmentIndex(int inputAttachmentIndex,
-                                    Position pos = Position::Capture()) {
+                                    Position pos = {}) {
         return this->intValue(&fSkSLLayout.fInputAttachmentIndex, inputAttachmentIndex,
                               SkSL::Layout::kInputAttachmentIndex_Flag, "input_attachment_index",
                               pos);

@@ -32,10 +32,10 @@ enum Modifier {
 
 class DSLModifiers {
 public:
-    DSLModifiers(int flags = 0, Position pos = Position::Capture())
+    DSLModifiers(int flags = 0, Position pos = {})
         : DSLModifiers(DSLLayout(), flags, pos) {}
 
-    DSLModifiers(DSLLayout layout, int flags = 0, Position pos = Position::Capture())
+    DSLModifiers(DSLLayout layout, int flags = 0, Position pos = {})
         : fModifiers(layout.fSkSLLayout, flags)
         , fPosition(pos) {}
 

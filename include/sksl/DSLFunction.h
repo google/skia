@@ -51,12 +51,12 @@ public:
     }
 
     DSLFunction(const DSLType& returnType, std::string_view name,
-                SkTArray<DSLParameter*> parameters, Position pos = Position::Capture()) {
+                SkTArray<DSLParameter*> parameters, Position pos = {}) {
         this->init(DSLModifiers(), returnType, name, std::move(parameters), pos);
     }
 
     DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, std::string_view name,
-                SkTArray<DSLParameter*> parameters, Position pos = Position::Capture()) {
+                SkTArray<DSLParameter*> parameters, Position pos = {}) {
         this->init(modifiers, returnType, name, std::move(parameters), pos);
     }
 
@@ -71,7 +71,7 @@ public:
         this->define(std::move(block));
     }
 
-    void define(DSLBlock block, Position pos = Position::Capture());
+    void define(DSLBlock block, Position pos = {});
 
     /**
      * Invokes the function with the given arguments.
@@ -88,9 +88,9 @@ public:
      * Invokes the function with the given arguments.
      */
     DSLExpression call(SkTArray<DSLWrapper<DSLExpression>> args,
-            Position pos = Position::Capture());
+            Position pos = {});
 
-    DSLExpression call(ExpressionArray args, Position pos = Position::Capture());
+    DSLExpression call(ExpressionArray args, Position pos = {});
 
 private:
     void collectArgs(ExpressionArray& args) {}

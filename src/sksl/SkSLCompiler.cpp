@@ -759,11 +759,8 @@ void Compiler::handleError(std::string_view msg, Position pos) {
     std::string_view src = this->errorReporter().source();
     int line = -1;
     if (pos.valid()) {
-        line = pos.line();
-        if (line == -1) {
-            line = pos.line(src);
-            printLocation = pos.startOffset() < (int)src.length();
-        }
+        line = pos.line(src);
+        printLocation = pos.startOffset() < (int)src.length();
         fErrorText += std::to_string(line) + ": ";
     }
     fErrorText += std::string(msg) + "\n";

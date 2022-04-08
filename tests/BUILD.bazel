@@ -5759,32 +5759,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkSLDSLErrorLineNumbers_src",
-    srcs = ["SkSLDSLErrorLineNumbers.cpp"],
-    enforce_iwyu = True,
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":Test_hdr",
-        "//include/gpu:GrDirectContext_hdr",
-        "//include/sksl:DSLCore_hdr",
-        "//include/sksl:DSLExpression_hdr",
-        "//include/sksl:DSLStatement_hdr",
-        "//include/sksl:DSLType_hdr",
-        "//include/sksl:DSLVar_hdr",
-        "//include/sksl:DSLWrapper_hdr",
-        "//include/sksl:DSL_hdr",
-        "//include/sksl:SkSLErrorReporter_hdr",
-        "//include/sksl:SkSLPosition_hdr",
-        "//src/gpu/ganesh:GrDirectContextPriv_hdr",
-        "//src/gpu/ganesh:GrGpu_hdr",
-        "//src/sksl:SkSLCompiler_hdr",
-        "//src/sksl:SkSLThreadContext_hdr",
-        "//src/sksl/dsl/priv:DSLWriter_hdr",
-        "//tools/gpu:GrContextFactory_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "SkSLDSLOnlyTest_src",
     srcs = ["SkSLDSLOnlyTest.cpp"],
     enforce_iwyu = False,  # DSL.h intentionally supplies transitive dependencies

@@ -37,10 +37,10 @@ public:
     }
 
     DSLCase(DSLExpression value, SkTArray<DSLStatement> statements,
-            Position pos = Position::Capture());
+            Position pos = {});
 
     DSLCase(DSLExpression value, SkSL::StatementArray statements,
-            Position pos = Position::Capture());
+            Position pos = {});
 
     DSLCase(DSLCase&&);
 

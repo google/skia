@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLStatement.h"
-#include "include/sksl/SkSLPosition.h"
 
 #include <memory>
 #include <utility>
@@ -18,6 +17,7 @@
 namespace SkSL {
 
 class Expression;
+class Position;
 
 namespace dsl {
 
@@ -32,9 +32,9 @@ public:
 
     DSLStatement(DSLExpression expr);
 
-    DSLStatement(DSLPossibleExpression expr, Position pos = Position::Capture());
+    DSLStatement(DSLPossibleExpression expr, Position pos = {});
 
-    DSLStatement(DSLPossibleStatement stmt, Position pos = Position::Capture());
+    DSLStatement(DSLPossibleStatement stmt, Position pos = {});
 
     DSLStatement(DSLBlock block);
 

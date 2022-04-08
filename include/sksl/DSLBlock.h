@@ -40,10 +40,10 @@ public:
     DSLBlock(DSLBlock&& other) = default;
 
     DSLBlock(SkSL::StatementArray statements, std::shared_ptr<SymbolTable> symbols = nullptr,
-            Position pos = Position::Capture());
+            Position pos = {});
 
     DSLBlock(SkTArray<DSLStatement> statements, std::shared_ptr<SymbolTable> symbols = nullptr,
-            Position pos = Position::Capture());
+            Position pos = {});
 
     ~DSLBlock();
 

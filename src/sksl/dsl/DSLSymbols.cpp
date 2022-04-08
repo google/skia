@@ -8,6 +8,7 @@
 #include "include/sksl/DSLSymbols.h"
 
 #include "include/private/SkSLSymbol.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
