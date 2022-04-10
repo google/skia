@@ -697,12 +697,11 @@ int main() {                // Line 2
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
     player.step();
 
-    // TODO(skia:13189): these lines are skipped in the debug trace
-//    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
-//    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+    player.step();
 
-//    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
-//    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+    player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 13);
     player.step();

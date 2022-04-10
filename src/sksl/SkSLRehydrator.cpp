@@ -395,8 +395,8 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             for (int i = 0; i < count; ++i) {
                 statements.push_back(this->statement());
             }
-            bool isScope = this->readU8();
-            return Block::Make(Position(), std::move(statements), fSymbolTable, isScope);
+            Block::Kind blockKind = (Block::Kind)this->readU8();
+            return Block::Make(Position(), std::move(statements), blockKind, fSymbolTable);
         }
         case Rehydrator::kBreak_Command:
             return BreakStatement::Make(Position());

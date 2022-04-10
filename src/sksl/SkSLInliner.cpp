@@ -285,7 +285,7 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
         if (nestedBlock->children().size() != 1) {
             // We found a block with multiple (or zero) statements, but no scope? Let's add a scope
             // to the outermost block.
-            block.setIsScope(true);
+            block.setBlockKind(Block::Kind::kBracedScope);
             return;
         }
         if (!nestedBlock->children()[0]->is<Block>()) {
@@ -491,9 +491,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
     switch (statement.kind()) {
         case Statement::Kind::kBlock: {
             const Block& b = statement.as<Block>();
-            return Block::Make(pos, blockStmts(b),
-                               SymbolTable::WrapIfBuiltin(b.symbolTable()),
-                               b.isScope());
+            return Block::Make(pos, blockStmts(b), b.blockKind(),
+                               SymbolTable::WrapIfBuiltin(b.symbolTable()));
         }
 
         case Statement::Kind::kBreak:
@@ -702,12 +701,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     SkASSERT(inlineStatements.count() <= expectedStmtCount);
 
-    // Wrap all of the generated statements in a block. We need a real Block here, so we can't use
-    // MakeUnscoped. This is because we need to add another child statement to the Block later.
+    // Wrap all of the generated statements in a block. We need a real Block here, because we need
+    // to add another child statement to the Block later.
     InlinedCall inlinedCall;
-    inlinedCall.fInlinedBody = Block::Make(pos, std::move(inlineStatements),
-                                           /*symbols=*/nullptr, /*isScope=*/false);
-
+    inlinedCall.fInlinedBody = Block::MakeBlock(pos, std::move(inlineStatements),
+                                                Block::Kind::kUnbracedBlock);
     if (resultExpr) {
         // Return our result expression as-is.
         inlinedCall.fReplacementExpr = std::move(resultExpr);

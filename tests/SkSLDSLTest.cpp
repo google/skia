@@ -1704,7 +1704,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
                 "switch (b) {}");
 
     EXPECT_EQUAL(Switch(b, Default(), Case(0), Case(1)),
-                "switch (b) { default: case 0: case 1: }");
+                "switch (b) { default: ; case 0: ; case 1: ; }");
 
     {
         ExpectError error(r, "duplicate case value '0'");

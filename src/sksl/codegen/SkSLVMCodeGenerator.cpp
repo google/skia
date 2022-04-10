@@ -361,9 +361,9 @@ private:
     skvm::I32 fLoopMask;
     skvm::I32 fContinueMask;
 
-    // `fInsideUnscopedBlock` will be nonzero if we are currently writing statements inside of a
-    // Block where isScope is false. (Conceptually those statements should all count as one.)
-    int fInsideUnscopedBlock = 0;
+    // `fInsideCompoundStatement` will be nonzero if we are currently writing statements inside of a
+    // compound-statement Block. (Conceptually those statements should all count as one.)
+    int fInsideCompoundStatement = 0;
 
     //
     // State that's local to the generation of a single function:
@@ -1863,20 +1863,21 @@ skvm::Val SkVMGenerator::writeConditionalStore(skvm::Val lhs, skvm::Val rhs, skv
 
 void SkVMGenerator::writeBlock(const Block& b) {
     skvm::I32 mask = this->mask();
-    if (b.isScope()) {
-        this->emitTraceScope(mask, +1);
+    if (b.blockKind() == Block::Kind::kCompoundStatement) {
+        this->emitTraceLine(this->getLine(b.fPosition));
+        ++fInsideCompoundStatement;
     } else {
-        ++fInsideUnscopedBlock;
+        this->emitTraceScope(mask, +1);
     }
 
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
         this->writeStatement(*stmt);
     }
 
-    if (b.isScope()) {
-        this->emitTraceScope(mask, -1);
+    if (b.blockKind() == Block::Kind::kCompoundStatement) {
+        --fInsideCompoundStatement;
     } else {
-        --fInsideUnscopedBlock;
+        this->emitTraceScope(mask, -1);
     }
 }
 
@@ -2016,7 +2017,7 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 }
 
 void SkVMGenerator::emitTraceLine(int line) {
-    if (fDebugTrace && line > 0 && fInsideUnscopedBlock == 0) {
+    if (fDebugTrace && line > 0 && fInsideCompoundStatement == 0) {
         fBuilder->trace_line(fTraceHookID, this->mask(), fTraceMask, line);
     }
 }
@@ -2028,8 +2029,8 @@ void SkVMGenerator::emitTraceScope(skvm::I32 executionMask, int delta) {
 }
 
 void SkVMGenerator::writeStatement(const Statement& s) {
-    if (!s.is<Block>() || !s.as<Block>().isScope()) {
-        // we don't care about tracing the positions of curly braces
+    // The debugger should stop on all types of statements, except for Blocks.
+    if (!s.is<Block>()) {
         this->emitTraceLine(this->getLine(s.fPosition));
     }
 

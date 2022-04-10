@@ -181,7 +181,7 @@ public:
         for (DSLVar& v : vars) {
             statements.push_back(Declare(v, pos).release());
         }
-        return SkSL::Block::MakeUnscoped(pos, std::move(statements));
+        return SkSL::Block::Make(pos, std::move(statements), Block::Kind::kCompoundStatement);
     }
 
     static void Declare(DSLGlobalVar& var, Position pos) {
@@ -368,7 +368,7 @@ public:
         for (DSLCase& c : cases) {
             values.push_back(c.fValue.releaseIfPossible());
             caseBlocks.push_back(SkSL::Block::Make(Position(), std::move(c.fStatements),
-                    /*symbols=*/nullptr, /*isScope=*/false));
+                                                   Block::Kind::kUnbracedBlock));
         }
         return SwitchStatement::Convert(ThreadContext::Context(), Position(), isStatic,
                 value.release(), std::move(values), std::move(caseBlocks),

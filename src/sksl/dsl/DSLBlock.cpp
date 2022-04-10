@@ -41,7 +41,8 @@ DSLBlock::~DSLBlock() {
 }
 
 std::unique_ptr<SkSL::Block> DSLBlock::release() {
-    return std::make_unique<SkSL::Block>(fPosition, std::move(fStatements), std::move(fSymbols));
+    return std::make_unique<SkSL::Block>(fPosition, std::move(fStatements),
+                                         Block::Kind::kBracedScope, std::move(fSymbols));
 }
 
 void DSLBlock::append(DSLStatement stmt) {

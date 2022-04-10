@@ -621,7 +621,7 @@ Represents a reference to the variable `var`.
 | `kSymbolTable_Command`      | symbolTable    |
 | `uint8`                     | statementCount |
 | `Statement[statementCount]` | statements     |
-| `bool`                      | isScope        |
+| `uint8`                     | blockKind      |
 
 A block of statements.
 

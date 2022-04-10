@@ -11,13 +11,11 @@ bool switch_fallthrough_twice_bi(int value) {
             _tmpSwitchFallthrough0 = 1;
         }
         if ((_tmpSwitchFallthrough0 > 0) || (_tmpSwitchValue1 == 1)) {
-            {
-            }
+            ;
             _tmpSwitchFallthrough0 = 1;
         }
         if ((_tmpSwitchFallthrough0 > 0) || (_tmpSwitchValue1 == 2)) {
-            {
-            }
+            ;
             _tmpSwitchFallthrough0 = 1;
         }
         if ((_tmpSwitchFallthrough0 > 0) || (_tmpSwitchValue1 == 3)) {
@@ -39,8 +37,7 @@ vec4 main() {
             _tmpSwitchFallthrough3 = 1;
         }
         if ((_tmpSwitchFallthrough3 > 0) || (_tmpSwitchValue4 == 1)) {
-            {
-            }
+            ;
             _tmpSwitchFallthrough3 = 1;
         }
         if ((_tmpSwitchFallthrough3 > 0) || (_tmpSwitchValue4 == 0)) {

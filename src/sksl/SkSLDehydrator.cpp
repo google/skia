@@ -480,7 +480,7 @@ void Dehydrator::write(const Statement* s) {
                 for (const std::unique_ptr<Statement>& blockStmt : b.children()) {
                     this->write(blockStmt.get());
                 }
-                this->writeU8(b.isScope());
+                this->writeU8((int8_t)b.blockKind());
                 break;
             }
             case Statement::Kind::kBreak:
