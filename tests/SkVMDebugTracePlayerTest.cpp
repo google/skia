@@ -571,7 +571,6 @@ int main() {      // Line 9
     REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "##[main].result = 44");
 }
 
-
 DEF_TEST(SkSLTracePlayerVariableScope, r) {
     sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
 R"(                         // Line 1
@@ -643,6 +642,69 @@ int main() {                // Line 2
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 20);
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##i = 9, e = 5, a = 1");
+    player.step();
+
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+}
+
+DEF_TEST(SkSLTracePlayerNestedBlocks, r) {
+    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+R"(                         // Line 1
+int main() {                // Line 2
+    {{{{{{{                 // Line 3
+            int a, b;       // Line 4
+    }}}}}}}                 // Line 5
+    return 0;               // Line 6
+}
+)");
+    SkSL::SkVMDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
+
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    player.step();
+
+    REPORTER_ASSERT(r, player.getCurrentLine() == 6);
+    player.step();
+
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+}
+
+DEF_TEST(SkSLTracePlayerSwitchStatement, r) {
+    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+R"(                         // Line 1
+int main() {                // Line 2
+    int x = 2;              // Line 3
+    switch (x) {            // Line 4
+        case 1:             // Line 5
+            break;          // Line 6
+        case 2:             // Line 7
+            ++x;            // Line 8
+        case 3:             // Line 9
+            break;          // Line 10
+        case 4:             // Line 11
+    }                       // Line 12
+    return x;               // Line 13
+}
+)");
+    SkSL::SkVMDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
+
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    player.step();
+
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    player.step();
+
+    // TODO(skia:13189): these lines are skipped in the debug trace
+//    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+//    player.step();
+
+//    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+//    player.step();
+
+    REPORTER_ASSERT(r, player.getCurrentLine() == 13);
     player.step();
 
     REPORTER_ASSERT(r, player.traceHasCompleted());
