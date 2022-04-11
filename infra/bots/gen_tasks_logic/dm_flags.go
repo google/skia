@@ -465,6 +465,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("mtltestprecompile", "gm", ALL, "circular_arcs_hairline")
 			skip("mtltestprecompile", "gm", ALL, "dashcircle")
 			skip("mtltestprecompile", "gm", ALL, "dftext")
+			skip("mtltestprecompile", "gm", ALL, "encode-platform")
 			skip("mtltestprecompile", "gm", ALL, "fontmgr_bounds")
 			skip("mtltestprecompile", "gm", ALL, "fontmgr_bounds_1_-0.25")
 			skip("mtltestprecompile", "gm", ALL, "glyph_pos_h_b")
