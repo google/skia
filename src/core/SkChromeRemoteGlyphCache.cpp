@@ -291,7 +291,7 @@ private:
     LowerRangeBitVector fSentLowGlyphIDs;
 
     // The masks and paths that currently reside in the GPU process.
-    SkTHashTable<SkGlyphDigest, uint32_t, SkGlyphDigest> fSentGlyphs;
+    SkTHashMap<SkPackedGlyphID, SkGlyphDigest, SkPackedGlyphID::Hash> fSentGlyphs;
     SkTHashTable<PathSummary, SkPackedGlyphID, PathSummaryTraits> fSentPaths;
     SkTHashTable<DrawableSummary, SkGlyphID, DrawableSummaryTraits> fSentDrawables;
 
@@ -438,7 +438,7 @@ void RemoteStrike::commonMaskLoop(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected, Rejector&& reject) {
     accepted->forEachInput(
             [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
-                SkGlyphDigest* digest = fSentGlyphs.find(packedID.value());
+                SkGlyphDigest* digest = fSentGlyphs.find(packedID);
                 if (digest == nullptr) {
                     // Put the new SkGlyph in the glyphs to send.
                     this->ensureScalerContext();
@@ -446,7 +446,7 @@ void RemoteStrike::commonMaskLoop(
                     SkGlyph* glyph = &fMasksToSend.back();
 
                     SkGlyphDigest newDigest{0, *glyph};
-                    digest = fSentGlyphs.set(newDigest);
+                    digest = fSentGlyphs.set(packedID, newDigest);
                 }
 
                 // Reject things that are too big.
@@ -462,14 +462,14 @@ void RemoteStrike::prepareForMaskDrawing(
         SkPackedGlyphID packedID = variant.packedID();
         if (fSentLowGlyphIDs.test(packedID)) {
             #ifdef SK_DEBUG
-            SkGlyphDigest* digest = fSentGlyphs.find(packedID.value());
+            SkGlyphDigest* digest = fSentGlyphs.find(packedID);
             SkASSERT(digest != nullptr);
             SkASSERT(digest->canDrawAsMask() && digest->canDrawAsSDFT());
             #endif
             continue;
         }
 
-        SkGlyphDigest* digest = fSentGlyphs.find(packedID.value());
+        SkGlyphDigest* digest = fSentGlyphs.find(packedID);
         if (digest == nullptr) {
 
             // Put the new SkGlyph in the glyphs to send.
@@ -479,7 +479,7 @@ void RemoteStrike::prepareForMaskDrawing(
 
             SkGlyphDigest newDigest{0, *glyph};
 
-            digest = fSentGlyphs.set(newDigest);
+            digest = fSentGlyphs.set(packedID, newDigest);
 
             if (digest->canDrawAsMask() && digest->canDrawAsSDFT()) {
                 fSentLowGlyphIDs.setIfLower(packedID);

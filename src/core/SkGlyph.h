@@ -46,11 +46,17 @@ struct SkPackedGlyphID {
         kFixedPointSubPixelPosBits = kFixedPointBinaryPointPos - kSubPixelPosLen,
     };
 
-    inline static constexpr SkScalar kSubpixelRound =
+    inline static const constexpr SkScalar kSubpixelRound =
             1.f / (1u << (SkPackedGlyphID::kSubPixelPosLen + 1));
 
-    inline static constexpr SkIPoint kXYFieldMask{kSubPixelPosMask << kSubPixelX,
-                                                  kSubPixelPosMask << kSubPixelY};
+    inline static const constexpr SkIPoint kXYFieldMask{kSubPixelPosMask << kSubPixelX,
+                                                        kSubPixelPosMask << kSubPixelY};
+
+    struct Hash {
+         uint32_t operator() (SkPackedGlyphID packedID) const {
+            return packedID.hash();
+        }
+    };
 
     constexpr explicit SkPackedGlyphID(SkGlyphID glyphID)
             : fID{(uint32_t)glyphID << kGlyphID} { }
@@ -256,20 +262,10 @@ public:
     bool isColor()       const {return fIsColor;      }
     bool canDrawAsMask() const {return fCanDrawAsMask;}
     bool canDrawAsSDFT() const {return fCanDrawAsSDFT;}
-    uint32_t packedGlyphID() const {return fPackedGlyphID;}
     uint16_t maxDimension()  const {return fMaxDimension; }
-
-    // Support mapping from SkPackedGlyphID stored in the digest.
-    static uint32_t GetKey(SkGlyphDigest digest) {
-        return digest.packedGlyphID();
-    }
-    static uint32_t Hash(uint32_t packedGlyphID) {
-        return SkGoodHash()(packedGlyphID);
-    }
 
 private:
     static_assert(SkPackedGlyphID::kEndData == 20);
-    uint64_t fPackedGlyphID : SkPackedGlyphID::kEndData;
     uint64_t fIndex         : SkPackedGlyphID::kEndData;
     uint64_t fIsEmpty       : 1;
     uint64_t fIsColor       : 1;

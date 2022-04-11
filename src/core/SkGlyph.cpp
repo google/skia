@@ -397,8 +397,7 @@ void SkGlyph::ensureIntercepts(const SkScalar* bounds, SkScalar scale, SkScalar 
 }
 
 SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
-        : fPackedGlyphID{glyph.getPackedID().value()}
-        , fIndex{SkTo<uint32_t>(index)}
+        : fIndex{SkTo<uint32_t>(index)}
         , fIsEmpty(glyph.isEmpty())
         , fIsColor(glyph.isColor())
         , fCanDrawAsMask{SkStrikeForGPU::CanDrawAsMask(glyph)}
