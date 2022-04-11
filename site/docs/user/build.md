@@ -258,12 +258,16 @@ project.
 ## iOS
 
 Run GN to generate your build files. Set `target_os="ios"` to build for iOS.
-This defaults to `target_cpu="arm64"`. Choosing `x64` targets the iOS simulator.
+This defaults to `target_cpu="arm64"`. To use the iOS simulator, set
+`ios_use_simulator=true` and set `target_cpu` to your Mac's architecture.
+On an Intel Mac, setting `target_cpu="x64"` alone will also target the iOS
+simulator.
 
 ```
 bin/gn gen out/ios64  --args='target_os="ios"'
 bin/gn gen out/ios32  --args='target_os="ios" target_cpu="arm"'
-bin/gn gen out/iossim --args='target_os="ios" target_cpu="x64"'
+bin/gn gen out/iossim-apple --args='target_os="ios" target_cpu="arm64" ios_use_simulator=true'
+bin/gn gen out/iossim-intel --args='target_os="ios" target_cpu="x64"'
 ```
 
 This will also package (and for devices, sign) iOS test binaries. This defaults
