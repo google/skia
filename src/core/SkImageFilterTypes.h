@@ -402,8 +402,12 @@ public:
     }
 
     LayerSpace<SkIRect> round() const { return LayerSpace<SkIRect>(fData.round()); }
-    LayerSpace<SkIRect> roundIn() const { return LayerSpace<SkIRect>(fData.roundIn()); }
-    LayerSpace<SkIRect> roundOut() const { return LayerSpace<SkIRect>(fData.roundOut()); }
+    LayerSpace<SkIRect> roundIn() const {
+        return LayerSpace<SkIRect>(fData.makeOutset(kRoundEpsilon, kRoundEpsilon).roundIn());
+    }
+    LayerSpace<SkIRect> roundOut() const {
+        return LayerSpace<SkIRect>(fData.makeInset(kRoundEpsilon, kRoundEpsilon).roundOut());
+    }
 
     bool intersect(const LayerSpace<SkRect>& r) { return fData.intersect(r.fData); }
     void join(const LayerSpace<SkRect>& r) { fData.join(r.fData); }
@@ -411,6 +415,17 @@ public:
     void outset(const LayerSpace<SkSize>& delta) { fData.outset(delta.width(), delta.height()); }
 
 private:
+    // This exists to cover up issues where infinite precision would produce integers but float
+    // math produces values just larger/smaller than an int and roundOut/In on bounds would produce
+    // nearly a full pixel error. One such case is crbug.com/1313579 where the caller has produced
+    // near integer CTM and uses integer crop rects that would grab an extra row/column of the
+    // input image when using a strict roundOut.
+#if defined(SK_DISABLE_SKIF_TOLERANCE_ROUND)
+    static constexpr float kRoundEpsilon = 0;
+#else
+    static constexpr float kRoundEpsilon = 1e-3f;
+#endif
+
     SkRect fData;
 };
 
