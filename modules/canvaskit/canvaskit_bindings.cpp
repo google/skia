@@ -89,7 +89,7 @@
 #include "include/pathops/SkPathOps.h"
 #endif
 
-#if defined(CK_INCLUDE_RUNTIME_EFFECT) && defined(SKSL_ENABLE_TRACING)
+#if defined(CK_INCLUDE_RUNTIME_EFFECT) && defined(CK_INCLUDE_SKSL_TRACE)
 #include "include/sksl/SkSLDebugTrace.h"
 #endif
 
@@ -1802,7 +1802,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers());
 
 #ifdef CK_INCLUDE_RUNTIME_EFFECT
-#ifdef SKSL_ENABLE_TRACING
+#ifdef CK_INCLUDE_SKSL_TRACE
     class_<SkSL::DebugTrace>("DebugTrace")
         .smart_ptr<sk_sp<SkSL::DebugTrace>>("sk_sp<DebugTrace>")
         .function("writeTrace", optional_override([](SkSL::DebugTrace& self) -> std::string {
@@ -1830,7 +1830,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
             return effect;
         }))
-#ifdef SKSL_ENABLE_TRACING
+#ifdef CK_INCLUDE_SKSL_TRACE
         .class_function("MakeTraced", optional_override([](
                 sk_sp<SkShader> shader,
                 int traceCoordX,

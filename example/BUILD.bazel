@@ -23,6 +23,7 @@ cc_binary_with_flags(
     },
     deps = [
         "//:skia_core",
+        "//src/utils:json_srcs",
         "//tools/sk_app",
     ],
 )
@@ -45,6 +46,7 @@ cc_binary_with_flags(
     },
     deps = [
         "//:skia_core",
+        "//src/utils:json_srcs",
         "//tools/sk_app",
     ],
 )
@@ -67,6 +69,7 @@ cc_binary_with_flags(
     },
     deps = [
         "//:skia_core",
+        "//src/utils:json_srcs",
         "//tools/sk_app",
     ],
 )

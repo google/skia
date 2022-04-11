@@ -15,7 +15,8 @@ filegroup(
 )
 
 cc_library(
-    name = "core_srcs",
+    name = "srcs",
+    visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLAnalysis_src",
         ":SkSLBuiltinMap_src",
@@ -145,23 +146,6 @@ cc_library(
         "//src/utils:SkUTF_src",
         "//src/utils:SkVMVisualizer_src",
     ],
-)
-
-cc_library(
-    name = "tracing_srcs",
-    deps = [
-        "//src/sksl/tracing:SkVMDebugTracePlayer_src",
-        "//src/utils:json_srcs",
-    ],
-)
-
-cc_library(
-    name = "srcs",
-    visibility = ["//:__subpackages__"],
-    deps = [":core_srcs"] + select({
-        "//bazel/common_config_settings:enable_sksl_tracing_true": [":tracing_srcs"],
-        "//bazel/common_config_settings:enable_sksl_tracing_false": [],
-    }),
 )
 
 generated_cc_atom(

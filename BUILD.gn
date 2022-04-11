@@ -711,7 +711,6 @@ if (skia_compile_sksl_tests) {
   # Build skslc.
   skia_executable("skslc") {
     defines = [
-      "SKSL_ENABLE_TRACING",
       "SKSL_STANDALONE",
       "SK_DISABLE_TRACING",
       "SK_ENABLE_SPIRV_CROSS",
@@ -1374,11 +1373,6 @@ skia_component("skia") {
   if (skia_enable_sksl) {
     deps += [ ":dehydrate_sksl" ]
     sources += skia_sksl_sources
-
-    if (skia_enable_sksl_tracing) {
-      defines += [ "SKSL_ENABLE_TRACING" ]
-      sources += skia_sksl_tracing_sources
-    }
   }
 
   if (skia_build_for_debugger) {

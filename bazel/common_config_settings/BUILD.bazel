@@ -199,16 +199,6 @@ bool_flag(
 
 bool_flag(
     default = False,
-    flag_name = "enable_skslc",
-)
-
-bool_flag(
-    default = False,
-    flag_name = "enable_sksl_tracing",
-)
-
-bool_flag(
-    default = False,
     flag_name = "is_skia_dev_build",
 )
 
@@ -217,3 +207,9 @@ bool_flag(
     flag_name = "use_vulkan_memory_allocator",
     public = False,  # Users should use :vulkan_with_vma
 )
+
+bool_flag(
+    default = False,
+    flag_name = "enable_skslc",
+)
+

@@ -33,11 +33,6 @@ GENERAL_DEFINES = [
         "SK_ENABLE_SPIRV_VALIDATION",
     ],
     "//conditions:default": [],
-}) + select({
-    "//bazel/common_config_settings:enable_sksl_tracing_true": [
-        "SKSL_ENABLE_TRACING",
-    ],
-    "//conditions:default": [],
 })
 
 GPU_DEFINES = select({

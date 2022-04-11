@@ -230,7 +230,6 @@ echo "Compiling"
   skia_use_zlib=true \
   skia_enable_gpu=${ENABLE_GPU} \
   skia_build_for_debugger=${DEBUGGER_ENABLED} \
-  skia_enable_sksl_tracing=${ENABLE_SKSL_TRACE} \
   \
   ${GN_SHAPER} \
   ${GN_FONT} \
@@ -248,6 +247,7 @@ echo "Compiling"
   skia_canvaskit_enable_particles=${ENABLE_PARTICLES} \
   skia_canvaskit_enable_pathops=${ENABLE_PATHOPS} \
   skia_canvaskit_enable_rt_shader=${ENABLE_RT_SHADER} \
+  skia_canvaskit_enable_sksl_trace=${ENABLE_SKSL_TRACE} \
   skia_canvaskit_enable_matrix_helper=${ENABLE_MATRIX} \
   skia_canvaskit_enable_canvas_bindings=${ENABLE_CANVAS} \
   skia_canvaskit_enable_font=${ENABLE_FONT} \

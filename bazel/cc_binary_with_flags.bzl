@@ -7,7 +7,6 @@ It is based off of https://github.com/bazelbuild/examples/tree/main/rules/starla
 """
 
 _bool_flags = [
-    "//bazel/common_config_settings:enable_sksl_tracing",
     "//bazel/common_config_settings:enable_skslc",
     "//bazel/common_config_settings:is_skia_dev_build",
     "//bazel/common_config_settings:use_icu",
