@@ -30,7 +30,8 @@ build --flag_alias=enable_vma=//bazel/common_config_settings:use_vulkan_memory_a
 build --flag_alias=disable_vma=no//bazel/common_config_settings:use_vulkan_memory_allocator
 build --flag_alias=enable_skslc=//bazel/common_config_settings:enable_skslc
 build --flag_alias=disable_skslc=no//bazel/common_config_settings:enable_skslc
-
+build --flag_alias=enable_sksl_tracing=//bazel/common_config_settings:enable_sksl_tracing
+build --flag_alias=disable_sksl_tracing=no//bazel/common_config_settings:enable_sksl_tracing
 # CanvasKit flags
 build --flag_alias=ck_enable_fonts=//modules/canvaskit:enable_fonts
 build --flag_alias=ck_disable_fonts=no//modules/canvaskit:enable_fonts

@@ -7,6 +7,8 @@
 
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 
+#ifdef SKSL_ENABLE_TRACING
+
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
@@ -386,3 +388,30 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
 }
 
 }  // namespace SkSL
+
+#else // SKSL_ENABLE_TRACING
+
+#include <string>
+
+namespace SkSL {
+
+void SkVMDebugTrace::setTraceCoord(const SkIPoint &coord) {}
+
+void SkVMDebugTrace::setSource(std::string source) {}
+
+bool SkVMDebugTrace::readTrace(SkStream *r) { return false; }
+
+void SkVMDebugTrace::writeTrace(SkWStream *w) const {}
+
+void SkVMDebugTrace::dump(SkWStream *o) const {}
+
+std::string SkVMDebugTrace::getSlotComponentSuffix(int slotIndex) const { return ""; }
+
+std::string SkVMDebugTrace::getSlotValue(int slotIndex, int32_t value) const { return ""; }
+
+double SkVMDebugTrace::interpretValueBits(int slotIndex, int32_t valueBits) const { return 0; }
+
+std::string SkVMDebugTrace::slotValueToString(int slotIndex, double value) const { return ""; }
+
+}
+#endif

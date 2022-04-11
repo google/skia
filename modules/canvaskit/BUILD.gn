@@ -369,9 +369,6 @@ skia_wasm_lib("canvaskit") {
   if (skia_canvaskit_enable_rt_shader) {
     defines += [ "CK_INCLUDE_RUNTIME_EFFECT" ]
   }
-  if (skia_canvaskit_enable_sksl_trace) {
-    defines += [ "CK_INCLUDE_SKSL_TRACE" ]
-  }
   if (!skia_canvaskit_enable_alias_font) {
     defines += [ "CANVASKIT_NO_ALIAS_FONT" ]
   }
@@ -381,5 +378,8 @@ skia_wasm_lib("canvaskit") {
   }
   if (!skia_canvaskit_enable_font) {
     defines += [ "CK_NO_FONTS" ]
+  }
+  if (skia_enable_sksl_tracing) {
+    defines += [ "SKSL_ENABLE_TRACING" ]
   }
 }
