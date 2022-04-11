@@ -509,7 +509,7 @@ UniformManager::UniformManager(Layout layout) : fLayout(layout) {
 }
 
 SkUniformDataBlock UniformManager::peekData() const {
-    return SkUniformDataBlock(SkMakeSpan(fStorage.begin(), fStorage.count()), false);
+    return SkUniformDataBlock(SkMakeSpan(fStorage.begin(), fStorage.count()));
 }
 
 void UniformManager::reset() {
@@ -598,16 +598,16 @@ void UniformManager::write(const float* floats, int count) {
     this->write(kType, count, floats);
 }
 
-void UniformManager::write(int something) {
+void UniformManager::write(int i) {
     static const SkSLType kType = SkSLType::kInt;
     SkDEBUGCODE(this->checkExpected(kType, 1);)
-    this->write(kType, 1, &something);
+    this->write(kType, 1, &i);
 }
 
-void UniformManager::write(float2 something) {
+void UniformManager::write(float2 v) {
     static const SkSLType kType = SkSLType::kFloat2;
     SkDEBUGCODE(this->checkExpected(kType, 1);)
-    this->write(kType, 1, &something);
+    this->write(kType, 1, &v);
 }
 
 } // namespace skgpu::graphite

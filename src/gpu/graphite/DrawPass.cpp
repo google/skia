@@ -200,7 +200,7 @@ public:
             return {};
         }
 
-        const SkUniformDataBlock *udb = fUniformDataCache->lookup(uIndex);
+        const SkUniformDataBlock* udb = fUniformDataCache->lookup(uIndex);
         SkASSERT(udb);
 
         if (fBindings.find(uIndex.asUInt()) == fBindings.end()) {

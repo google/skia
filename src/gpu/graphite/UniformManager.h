@@ -30,6 +30,7 @@ enum class Layout {
     kMetal, /** This is our own self-imposed layout we use for Metal. */
 };
 
+// TODO: This is only used in the SkPipelineDataGatherer - maybe hide it better.
 class UniformManager {
 public:
     UniformManager(Layout layout);

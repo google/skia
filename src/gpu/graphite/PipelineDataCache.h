@@ -140,7 +140,7 @@ private:
 
 // A UniformDataCache lives for the entire duration of a Recorder. As such it has a greater
 // likelihood of overflowing a uint32_t index.
-using UniformDataCache = PipelineDataCache<std::unique_ptr<SkUniformDataBlock>, SkUniformDataBlock>;
+using UniformDataCache = PipelineDataCache<SkUniformDataBlockPassThrough, SkUniformDataBlock>;
 
 // A TextureDataCache only lives for a single Recording. When a Recording is snapped it is pulled
 // off of the Recorder and goes with the Recording as a record of the required Textures and

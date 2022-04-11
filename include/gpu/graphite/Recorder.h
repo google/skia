@@ -15,6 +15,7 @@
 
 class SkTextureDataBlock;
 class SkUniformDataBlock;
+class SkUniformDataBlockPassThrough;  // TODO: remove
 
 namespace skgpu::graphite {
 
@@ -30,7 +31,7 @@ class Task;
 class TaskGraph;
 
 template<typename StorageT, typename BaseT> class PipelineDataCache;
-using UniformDataCache = PipelineDataCache<std::unique_ptr<SkUniformDataBlock>, SkUniformDataBlock>;
+using UniformDataCache = PipelineDataCache<SkUniformDataBlockPassThrough, SkUniformDataBlock>;
 using TextureDataCache = PipelineDataCache<std::unique_ptr<SkTextureDataBlock>, SkTextureDataBlock>;
 
 class Recorder final {

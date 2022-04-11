@@ -28,15 +28,10 @@ class SkUniform;
 
 class SkUniformDataBlock {
 public:
-    static std::unique_ptr<SkUniformDataBlock> Make(const SkUniformDataBlock&, SkArenaAlloc*);
+    static SkUniformDataBlock* Make(const SkUniformDataBlock&, SkArenaAlloc*);
 
-    SkUniformDataBlock(SkSpan<const char> data, bool ownMem) : fData(data), fOwnMem(ownMem) {}
+    SkUniformDataBlock(SkSpan<const char> data) : fData(data) {}
     SkUniformDataBlock() = default;
-    ~SkUniformDataBlock() {
-        if (fOwnMem) {
-            delete [] fData.data();
-        }
-    }
 
     const char* data() const { return fData.data(); }
     size_t size() const { return fData.size(); }
@@ -51,10 +46,21 @@ public:
 
 private:
     SkSpan<const char> fData;
+};
 
-    // This is only required until the uniform data is stored in the arena. Once there this
-    // class will never delete the data referenced w/in the span
-    bool fOwnMem = false;
+// We would like to store just a "const SkUniformDataBlock*" in the UniformDataCache but, until
+// the TextureDataCache is switched over to storing its data in an arena, whatever is held in
+// the cache must interoperate w/ std::unique_ptr (i.e., have a get() function).
+// TODO: remove this class
+class SkUniformDataBlockPassThrough {
+public:
+    SkUniformDataBlockPassThrough() = default;
+    SkUniformDataBlockPassThrough(SkUniformDataBlock* udb) : fUDB(udb) {}
+
+    SkUniformDataBlock* get() const { return fUDB; }
+
+private:
+    SkUniformDataBlock* fUDB = nullptr;
 };
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -155,9 +161,9 @@ public:
     void write(const SkRect& rect) { fUniformManager.write(rect); }
     void write(SkPoint point) { fUniformManager.write(point); }
     void write(const float* floats, int count) { fUniformManager.write(floats, count); }
-    void write(float something) { fUniformManager.write(&something, 1); }
-    void write(int something) { fUniformManager.write(something); }
-    void write(skgpu::graphite::float2 something) { fUniformManager.write(something); }
+    void write(float f) { fUniformManager.write(&f, 1); }
+    void write(int i) { fUniformManager.write(i); }
+    void write(skgpu::graphite::float2 v) { fUniformManager.write(v); }
 
     bool hasUniforms() const { return fUniformManager.size(); }
 
