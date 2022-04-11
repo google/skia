@@ -183,18 +183,19 @@ string_flag_with_values(
 )
 
 bool_flag(
-    default = False,
-    flag_name = "use_icu",
+    default = True,
+    flag_name = "enable_effect_serialization",
 )
 
 bool_flag(
     default = False,
-    flag_name = "disable_tracing",
+    flag_name = "enable_skslc",
 )
 
 bool_flag(
-    default = False,
-    flag_name = "disable_effect_serialization",
+    # See SkTraceVentCommon.h for more on this type of tracing.
+    default = True,
+    flag_name = "enable_tracing",
 )
 
 bool_flag(
@@ -203,13 +204,12 @@ bool_flag(
 )
 
 bool_flag(
+    default = False,
+    flag_name = "use_icu",
+)
+
+bool_flag(
     default = True,
     flag_name = "use_vulkan_memory_allocator",
     public = False,  # Users should use :vulkan_with_vma
 )
-
-bool_flag(
-    default = False,
-    flag_name = "enable_skslc",
-)
-
