@@ -16,6 +16,7 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkTLazy.h"
 
 namespace skgpu::graphite {
 
@@ -410,6 +411,76 @@ void ClipStack::RawElement::updateForElement(RawElement* added, const SaveRecord
     }
 }
 
+std::pair<bool, CompressedPaintersOrder>
+ClipStack::RawElement::updateForDraw(const BoundsManager* boundsManager,
+                                     const TransformedShape& draw,
+                                     PaintersDepth drawZ) {
+    if (this->isInvalid()) {
+        // Cannot affect the draw
+        return {/*clippedOut=*/false, DrawOrder::kNoIntersection};
+    }
+
+    // For this analysis, A refers to the Element and B refers to the draw
+    switch(Simplify(*this, draw)) {
+        case SimplifyResult::kEmpty:
+            // The more detailed per-element checks have determined the draw is clipped out.
+            return {/*clippedOut=*/true, DrawOrder::kNoIntersection};
+
+        case SimplifyResult::kBOnly:
+            // This element does not affect the draw
+            return {/*clippedOut=*/false, DrawOrder::kNoIntersection};
+
+        case SimplifyResult::kAOnly:
+            // If this were the only element, we could replace the draw's geometry but that only
+            // gives us a win if we know that the clip element would only be used by this draw.
+            // For now, just fall through to regular clip handling.
+            [[fallthrough]];
+
+        case SimplifyResult::kBoth:
+            if (fOrder == DrawOrder::kNoIntersection) {
+                // No usage yet so we need an order that we will use when drawing to just the depth
+                // attachment. It is sufficient to use the next CompressedPaintersOrder after the
+                // most recent draw under this clip's outer bounds. It is necessary to use the
+                // entire clip's outer bounds because the order has to be determined before the
+                // final usage bounds are known and a subsequent draw could require a completely
+                // different portion of the clip than this triggering draw.
+                //
+                // Lazily determining the order has several benefits to computing it when the clip
+                // element was first created:
+                //  - Elements that are invalidated by nested clips before draws are made do not
+                //    waste time in the BoundsManager.
+                //  - Elements that never actually modify a draw (e.g. a defensive clip) do not
+                //    waste time in the BoundsManager.
+                //  - A draw that triggers clip usage on multiple elements will more likely assign
+                //    the same order to those elements, meaning their depth-only draws are more
+                //    likely to batch in the final DrawPass.
+                //
+                // However, it does mean that clip elements can have the same order as each other,
+                // or as later draws (e.g. after the clip has been popped off the stack). Any
+                // overlap between clips or draws is addressed when the clip is drawn by selecting
+                // an appropriate DisjointStencilIndex value. Stencil-aside, this order assignment
+                // logic, max Z tracking, and the depth test during rasterization are able to
+                // resolve everything correctly even if clips have the same order value.
+                // See go/clip-stack-order for a detailed analysis of why this works.
+                fOrder = boundsManager->getMostRecentDraw(fOuterBounds).next();
+                fUsageBounds = draw.fOuterBounds;
+                fMaxZ = drawZ;
+            } else {
+                // Earlier draws have already used this element so we cannot change where the
+                // depth-only draw will be sorted to, but we need to ensure we cover the new draw's
+                // bounds and use a Z value that will clip out its pixels as appropriate.
+                fUsageBounds.join(draw.fOuterBounds);
+                if (drawZ > fMaxZ) {
+                    fMaxZ = drawZ;
+                }
+            }
+
+            return {/*clippedOut=*/false, fOrder};
+    }
+
+    SkUNREACHABLE;
+}
+
 ClipStack::ClipState ClipStack::RawElement::clipType() const {
     // Map from the internal shape kind to the clip state enum
     switch (fShape.type()) {
@@ -473,6 +544,37 @@ ClipStack::ClipState ClipStack::SaveRecord::state() const {
     }
 }
 
+Rect ClipStack::SaveRecord::scissor(const Rect& deviceBounds, const Rect& drawBounds) const {
+    // This should only be called when the clip stack actually has something non-trivial to evaluate
+    // It is effectively a reduced version of Simplify() dealing only with device-space bounds and
+    // returning the intersection results.
+    SkASSERT(this->state() != ClipState::kEmpty && this->state() != ClipState::kWideOpen);
+    SkASSERT(deviceBounds.contains(drawBounds)); // This should have already been handled.
+
+    if (fStackOp == SkClipOp::kDifference) {
+        // kDifference nominally uses the draw's bounds minus the save record's inner bounds as the
+        // scissor. However, if the draw doesn't intersect the clip at all then it doesn't have any
+        // visual effect and we can switch to the device bounds as the canonical scissor.
+        if (!fOuterBounds.intersects(drawBounds)) {
+            return deviceBounds;
+        } else {
+            // This automatically detects the case where the draw is contained in inner bounds and
+            // would be entirely clipped out.
+            return subtract(drawBounds, fInnerBounds, /*exact=*/true);
+        }
+    } else {
+        // kIntersect nominally uses the save record's outer bounds as the scissor. However, if the
+        // draw is contained entirely within those bounds, it doesn't have any visual effect so
+        // switch to using the device bounds as the canonical scissor to minimize state changes.
+        if (fOuterBounds.contains(drawBounds)) {
+            return deviceBounds;
+        } else {
+            // This automatically detects the case where the draw does not intersect the clip.
+            return fOuterBounds;
+        }
+    }
+}
+
 void ClipStack::SaveRecord::removeElements(RawElement::Stack* elements) {
     while (elements->count() > fStartingElementIndex) {
         elements->pop_back();
@@ -530,7 +632,7 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
     // shape is potentially very different from its aggregate outer bounds.
     Shape outerSaveBounds{fOuterBounds};
     TransformedShape save{kIdentity, outerSaveBounds, fOuterBounds, fInnerBounds, fStackOp,
-                          /*containsChecksBoundsOnly=*/true};
+                          /*containsChecksOnlyBounds=*/true};
 
     // In this invocation, 'A' refers to the existing stack's bounds and 'B' refers to the new
     // element.
@@ -858,32 +960,95 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
         const Shape& shape,
         const SkStrokeRec& style,
         PaintersDepth z) {
-    // TODO: The Clip's scissor is defined in terms of integer pixel coords, but if we move to
-    // clip plane distances in the vertex shader, it can be defined in terms of the original float
-    // coordinates.
-    Rect scissor = this->conservativeBounds().makeRoundOut();
+    const SaveRecord& cs = this->currentSaveRecord();
+    if (cs.state() == ClipState::kEmpty) {
+        // We know the draw is clipped out so don't bother computing the base draw bounds.
+        return {Clip{Rect::InfiniteInverted(), SkIRect::MakeEmpty()}, DrawOrder::kNoIntersection};
+    }
+    // Compute draw bounds, clipped only to our device bounds since we need to return that even if
+    // the clip stack is known to be wide-open.
+    const Rect deviceBounds{fDeviceBounds};
 
+    // When 'style' isn't fill, 'shape' describes the pre-stroke shape so we can't use it to check
+    // against clip elements and this will be set to the bounds of the post-stroked shape instead.
+    SkTCopyOnFirstWrite<Shape> styledShape{shape};
     Rect drawBounds = shape.bounds();
     if (!style.isHairlineStyle()) {
         float localStyleOutset = style.getInflationRadius();
         drawBounds.outset(localStyleOutset);
+
+        if (!style.isFillStyle()) {
+            // While this loses any shape type, the bounds remain local so can be fairly accurate.
+            styledShape.writable()->setRect(drawBounds);
+        }
     }
     drawBounds = localToDevice.mapRect(drawBounds);
 
     // Hairlines get an extra pixel *after* transforming to device space
     if (style.isHairlineStyle()) {
         drawBounds.outset(0.5f);
+        // and the associated transform must be kIdentity since drawBounds has been mapped by
+        // localToDevice already.
+        styledShape.writable()->setRect(drawBounds);
     }
 
+    drawBounds.intersect(deviceBounds);
+    if (drawBounds.isEmptyNegativeOrNaN() || cs.state() == ClipState::kWideOpen) {
+        // Either the draw is off screen, so it's clipped out regardless of the state of the
+        // SaveRecord, or there are no elements to apply to the draw. In both cases, 'drawBounds'
+        // has the correct value, the scissor is the device bounds (ignored if clipped-out), and
+        // we can return kNoIntersection for the painter's order.
+        return {Clip{drawBounds, deviceBounds.asSkIRect()}, DrawOrder::kNoIntersection};
+    }
+
+    // We don't evaluate Simplify() on the SaveRecord and the draw because a reduced version of
+    // Simplify is effectively performed in computing the scissor rect.
+    // Given that, we can skip iterating over the clip elements when:
+    //  - the draw's *scissored* bounds are empty, which happens when the draw was clipped out.
+    //  - the draw's *bounds* are contained in our inner bounds, which happens if all we need to
+    //    apply to the draw is the computed scissor rect.
+    // TODO: The Clip's scissor is defined in terms of integer pixel coords, but if we move to
+    // clip plane distances in the vertex shader, it can be defined in terms of the original float
+    // coordinates.
+    Rect scissor = cs.scissor(deviceBounds, drawBounds).makeRoundOut();
     drawBounds.intersect(scissor);
-    if (drawBounds.isEmptyNegativeOrNaN()) {
-        // Trivially clipped out, so return now
-        return {{drawBounds, scissor.asSkIRect()}, DrawOrder::kNoIntersection};
+    if (drawBounds.isEmptyNegativeOrNaN() || cs.innerBounds().contains(drawBounds)) {
+        // Like above, in both cases drawBounds holds the right value and can return kNoIntersection
+        return {Clip{drawBounds, scissor.asSkIRect()}, DrawOrder::kNoIntersection};
     }
 
-    // TODO: iterate the clip stack and accumulate draw bounds into clip usage
-    return {{drawBounds, scissor.asSkIRect()}, DrawOrder::kNoIntersection};
+    // If we made it here, the clip stack affects the draw in a complex way so iterate each element.
+    // A draw is a transformed shape that "intersects" the clip. We use empty inner bounds because
+    // there's currently no way to re-write the draw as the clip's geometry, so there's no need to
+    // check if the draw contains the clip (vice versa is still checked and represents an unclipped
+    // draw so is very useful to identify).
+    TransformedShape draw{style.isHairlineStyle() ? kIdentity : localToDevice,
+                          *styledShape,
+                          /*outerBounds=*/drawBounds,
+                          /*innerBounds=*/Rect::InfiniteInverted(),
+                          /*op=*/SkClipOp::kIntersect,
+                          /*containsChecksOnlyBounds=*/true};
 
+    CompressedPaintersOrder maxClipOrder = DrawOrder::kNoIntersection;
+    int i = fElements.count();
+    for (RawElement& e : fElements.ritems()) {
+        --i;
+        if (i < cs.oldestElementIndex()) {
+            // All earlier elements have been invalidated by elements already processed so the draw
+            // can't be affected by them and cannot contribute to their usage bounds.
+            break;
+        }
+
+        auto [clippedOut, order] = e.updateForDraw(boundsManager, draw, z);
+        if (clippedOut) {
+            drawBounds = Rect::InfiniteInverted();
+            break;
+        } else {
+            maxClipOrder = std::max(order, maxClipOrder);
+        }
+    }
+
+    return {Clip{drawBounds, scissor.asSkIRect()}, maxClipOrder};
 }
 
 } // namespace skgpu::graphite

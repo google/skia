@@ -160,6 +160,16 @@ private:
         // is handled by modifying 'added'.
         void updateForElement(RawElement* added, const SaveRecord& current);
 
+        // Updates usage tracking to incorporate the bounds and Z value for the new draw call.
+        // If this element hasn't affected any prior draws, it will use the bounds manager to
+        // assign itself a compressed painters order for later rendering.
+        //
+        // Returns whether or not this element clips out the draw with more detailed analysis, and
+        // if not, returns the painters order the draw must sort after.
+        std::pair<bool, CompressedPaintersOrder> updateForDraw(const BoundsManager* boundsManager,
+                                                               const TransformedShape& draw,
+                                                               PaintersDepth drawZ);
+
         void validate() const;
 
     private:
@@ -179,15 +189,18 @@ private:
         // Would need to store both original and complement, since the intersection test is
         // Rect + ComplementRect and Element/SaveRecord could be on either side of operation.
 
+        // State tracking how this clip element needs to be recorded into the draw context. As the
+        // clip stack is applied to additional draws, the clip's Z and usage bounds grow to account
+        // for it; its compressed painter's order is selected the first time a draw is affected.
+        Rect fUsageBounds;
+        CompressedPaintersOrder fOrder;
+        PaintersDepth fMaxZ;
+
         // Elements are invalidated by SaveRecords as the record is updated with new elements that
         // override old geometry. An invalidated element stores the index of the first element of
         // the save record that invalidated it. This makes it easy to undo when the save record is
         // popped from the stack, and is stable as the current save record is modified.
         int fInvalidatedByIndex;
-
-        // TODO: Need to store the CompressedPaintersOrder the clip needs to be drawn at, the
-        // union of the draw bounds it affects to act as its own scissor, and the highest paint Z
-        // it affects.
     };
 
     // Represents a saved point in the clip stack, and manages the life time of elements added to
@@ -210,6 +223,8 @@ private:
         int  firstActiveElementIndex() const { return fStartingElementIndex;     }
         int  oldestElementIndex()      const { return fOldestValidIndex;         }
         bool canBeUpdated()            const { return (fDeferredSaveCount == 0); }
+
+        Rect scissor(const Rect& deviceBounds, const Rect& drawBounds) const;
 
         // Deferred save manipulation
         void pushSave() {
