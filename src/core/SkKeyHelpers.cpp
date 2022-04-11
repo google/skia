@@ -16,10 +16,10 @@
 #include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "experimental/graphite/src/Texture.h"
-#include "experimental/graphite/src/TextureProxy.h"
-#include "experimental/graphite/src/UniformManager.h"
 #include "src/gpu/Blend.h"
+#include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/UniformManager.h"
 #endif
 
 #define VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID) \

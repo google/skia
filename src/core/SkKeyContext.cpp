@@ -8,8 +8,8 @@
 #include "src/core/SkKeyContext.h"
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "experimental/graphite/src/RecorderPriv.h"
-#include "experimental/graphite/src/ResourceProvider.h"
+#include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/ResourceProvider.h"
 
 SkKeyContext::SkKeyContext(skgpu::graphite::Recorder* recorder) : fRecorder(recorder) {
     fDictionary = fRecorder->priv().resourceProvider()->shaderCodeDictionary();

@@ -7,9 +7,9 @@
 
 #include "tools/graphite/GraphiteTestContext.h"
 
-#include "experimental/graphite/include/Context.h"
-#include "experimental/graphite/include/GraphiteTypes.h"
-#include "experimental/graphite/include/Recording.h"
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/Recording.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/gpu/FlushFinishTracker.h"
 

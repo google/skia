@@ -9,13 +9,13 @@
 #include "src/core/SkMathPriv.h"
 #include "tools/sk_app/GraphiteMetalWindowContext.h"
 
-#include "experimental/graphite/include/BackendTexture.h"
-#include "experimental/graphite/include/Context.h"
-#include "experimental/graphite/include/Recorder.h"
-#include "experimental/graphite/include/Recording.h"
-#include "experimental/graphite/include/SkStuff.h"
-#include "experimental/graphite/include/mtl/MtlBackendContext.h"
-#include "experimental/graphite/include/mtl/MtlTypes.h"
+#include "include/gpu/graphite/BackendTexture.h"
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/SkStuff.h"
+#include "include/gpu/graphite/mtl/MtlBackendContext.h"
+#include "include/gpu/graphite/mtl/MtlTypes.h"
 
 using sk_app::DisplayParams;
 using sk_app::GraphiteMetalWindowContext;

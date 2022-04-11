@@ -169,7 +169,6 @@ generated_cc_atom(
         ":SkEmptyShader_hdr",
         ":SkImageShader_hdr",
         ":SkTransformShader_hdr",
-        "//experimental/graphite/src:Image_Graphite_hdr",
         "//include/private:SkImageInfoPriv_hdr",
         "//src/core:SkArenaAlloc_hdr",
         "//src/core:SkColorSpacePriv_hdr",
@@ -187,6 +186,7 @@ generated_cc_atom(
         "//src/core:SkWriteBuffer_hdr",
         "//src/gpu/ganesh:GrColorInfo_hdr",
         "//src/gpu/ganesh/effects:GrBlendFragmentProcessor_hdr",
+        "//src/gpu/graphite:Image_Graphite_hdr",
         "//src/image:SkImage_Base_hdr",
     ],
 )

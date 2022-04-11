@@ -112,8 +112,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":FlushFinishTracker_hdr",
-        "//experimental/graphite/include:Context_hdr",
         "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu/graphite:Context_hdr",
         "//src/core:SkTraceEvent_hdr",
     ],
 )
