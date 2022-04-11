@@ -260,21 +260,26 @@ public:
     // Default ctor is only needed for the hash table.
     SkGlyphDigest() = default;
     SkGlyphDigest(size_t index, const SkGlyph& glyph);
-    int index()          const {return fIndex;        }
-    bool isEmpty()       const {return fIsEmpty;      }
-    bool isColor()       const {return fIsColor;      }
-    bool canDrawAsMask() const {return fCanDrawAsMask;}
-    bool canDrawAsSDFT() const {return fCanDrawAsSDFT;}
-    uint16_t maxDimension()  const {return fMaxDimension; }
+    int index()          const { return fIndex;         }
+    bool isEmpty()       const { return fIsEmpty;       }
+    bool isColor()       const { return fIsColor;       }
+    bool canDrawAsMask() const { return fCanDrawAsMask; }
+    bool canDrawAsSDFT() const { return fCanDrawAsSDFT; }
+    uint16_t maxDimension()  const {
+        auto [width, height] = fBounds.widthHeight();
+        return std::max(width.val, height.val);
+    }
 
 private:
     static_assert(SkPackedGlyphID::kEndData == 20);
-    uint64_t fIndex         : SkPackedGlyphID::kEndData;
-    uint64_t fIsEmpty       : 1;
-    uint64_t fIsColor       : 1;
-    uint64_t fCanDrawAsMask : 1;
-    uint64_t fCanDrawAsSDFT : 1;
-    uint64_t fMaxDimension  : 16;
+    struct {
+        uint32_t fIndex     : SkPackedGlyphID::kEndData;
+        bool fIsEmpty       : 1;
+        bool fIsColor       : 1;
+        bool fCanDrawAsMask : 1;
+        bool fCanDrawAsSDFT : 1;
+    };
+    SkGlyphRect fBounds;
 };
 
 class SkGlyph {

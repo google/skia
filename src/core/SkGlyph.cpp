@@ -402,4 +402,4 @@ SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
         , fIsColor(glyph.isColor())
         , fCanDrawAsMask{SkStrikeForGPU::CanDrawAsMask(glyph)}
         , fCanDrawAsSDFT{SkStrikeForGPU::CanDrawAsSDFT(glyph)}
-        , fMaxDimension{(uint16_t)glyph.maxDimension()} {}
+        , fBounds{glyph.glyphRect()} {}
