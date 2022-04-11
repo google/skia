@@ -903,6 +903,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"RadeonHD7770":  "1002:683d-26.20.13031.18002",
 					"RadeonR9M470X": "1002:6646-26.20.13031.18002",
 					"QuadroP400":    "10de:1cb3-30.0.15.1179",
+					"RTX3060":       "10de:2489-30.0.15.1165",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Win GPU mapping.", b.parts["cpu_or_gpu_value"])
@@ -1207,8 +1208,8 @@ func (b *jobBuilder) compile() string {
 				b.cache(CACHES_DOCKER...)
 			}
 			if b.extraConfig("Dawn") {
-			    // https://dawn.googlesource.com/dawn/+/516701da8184655a47c92a573cc84da7db5e69d4/generator/dawn_version_generator.py#21
-			    b.usesGit()
+				// https://dawn.googlesource.com/dawn/+/516701da8184655a47c92a573cc84da7db5e69d4/generator/dawn_version_generator.py#21
+				b.usesGit()
 			}
 
 			// Android bots require a toolchain.
