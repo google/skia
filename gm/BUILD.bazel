@@ -9670,3 +9670,16 @@ generated_cc_atom(
         "//tools:ToolUtils_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "crbug_1313579_src",
+    srcs = ["crbug_1313579.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":gm_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/effects:SkImageFilters_hdr",
+    ],
+)
