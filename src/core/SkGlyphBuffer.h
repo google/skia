@@ -145,15 +145,9 @@ public:
     // during drawing.
     void startSource(const SkZip<const SkGlyphID, const SkPoint>& source);
 
-    // Load the buffer with SkPackedGlyphIDs and positions using the device transform.
-    void startBitmapDevice(
-            const SkZip<const SkGlyphID, const SkPoint>& source,
-            SkPoint origin, const SkMatrix& viewMatrix,
-            const SkGlyphPositionRoundingSpec& roundingSpec);
-
-    // Load the buffer with SkPackedGlyphIDs, calculating positions so they can be constant.
+    // Load the buffer with SkPackedGlyphIDs, calculating positions, so they can be constant.
     //
-    // The positions are calculated integer positions in devices space, and the mapping of the
+    // The positions are calculated integer positions in devices space, and the mapping of
     // the source origin through the initial matrix is returned. It is given that these positions
     // are only reused when the blob is translated by an integral amount. Thus, the shifted
     // positions are given by the following equation where (ix, iy) is the integer positions of
@@ -165,9 +159,11 @@ public:
     //
     // In theory, newMappedOrigin - initialMappedOrigin should be integer, but the vagaries of
     // floating point don't guarantee that, so force it to integer.
-    void startGPUDevice(
+    //
+    // N.B. The positionMatrix is already translated by the origin of the glyph run list.
+    void startDevicePositioning(
             const SkZip<const SkGlyphID, const SkPoint>& source,
-            const SkMatrix& drawMatrix,
+            const SkMatrix& positionMatrix,
             const SkGlyphPositionRoundingSpec& roundingSpec);
 
     SkString dumpInput() const;

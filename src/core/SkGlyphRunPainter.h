@@ -79,14 +79,15 @@ public:
 
     void drawForBitmapDevice(
             SkCanvas* canvas, const BitmapDevicePainter* bitmapDevice,
-            const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& deviceMatrix);
+            const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& drawMatrix);
 
 #if SK_SUPPORT_GPU
     // A nullptr for process means that the calls to the cache will be performed, but none of the
     // callbacks will be called.
+    // N.B. The positionMatrix has already been translated to the glyph run list origin.
     void processGlyphRun(SkGlyphRunPainterInterface* process,
                          const SkGlyphRun& glyphRun,
-                         const SkMatrix& drawMatrix,
+                         const SkMatrix& positionMatrix,
                          const SkPaint& drawPaint,
                          const GrSDFTControl& control,
                          const char* tag = nullptr,

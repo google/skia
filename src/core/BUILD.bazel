@@ -2225,6 +2225,7 @@ generated_cc_atom(
         ":SkGlyph_hdr",
         ":SkScalerContext_hdr",
         "//include/core:SkDrawable_hdr",
+        "//include/core:SkScalar_hdr",
         "//src/pathops:SkPathOpsCubic_hdr",
         "//src/pathops:SkPathOpsQuad_hdr",
     ],

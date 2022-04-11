@@ -8,6 +8,7 @@
 #include "src/core/SkGlyph.h"
 
 #include "include/core/SkDrawable.h"
+#include "include/core/SkScalar.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkScalerContext.h"
 #include "src/pathops/SkPathOpsCubic.h"
@@ -29,6 +30,7 @@ SkMask SkGlyph::mask() const {
 }
 
 SkMask SkGlyph::mask(SkPoint position) const {
+    SkASSERT(SkScalarIsInt(position.x()) && SkScalarIsInt(position.y()));
     SkMask answer = this->mask();
     answer.fBounds.offset(SkScalarFloorToInt(position.x()), SkScalarFloorToInt(position.y()));
     return answer;
