@@ -1082,4 +1082,4 @@ SVG_TOOL_SRCS = [
 ################################################################################
 
 SKIA_EGL_HDRS = ["include/gpu/gl/egl/GrGLMakeEGLInterface.h"]
-SKIA_EGL_SRCS = ["src/gpu/gl/egl/GrGLMakeEGLInterface.cpp"]
+SKIA_EGL_SRCS = ["src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp"]
