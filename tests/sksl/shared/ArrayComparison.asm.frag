@@ -41,11 +41,9 @@ OpDecorate %_arr_v3int_int_2 ArrayStride 16
 OpDecorate %_arr_mat2v2float_int_3 ArrayStride 32
 OpDecorate %61 RelaxedPrecision
 OpDecorate %64 RelaxedPrecision
-OpDecorate %71 RelaxedPrecision
 OpDecorate %74 RelaxedPrecision
 OpDecorate %75 RelaxedPrecision
 OpDecorate %78 RelaxedPrecision
-OpDecorate %81 RelaxedPrecision
 OpDecorate %82 RelaxedPrecision
 OpMemberDecorate %S 0 Offset 0
 OpMemberDecorate %S 1 Offset 4
@@ -122,8 +120,10 @@ OpDecorate %325 RelaxedPrecision
 %float_6 = OpConstant %float 6
 %69 = OpConstantComposite %v2float %float_3 %float_4
 %70 = OpConstantComposite %v2float %float_5 %float_6
+%71 = OpConstantComposite %mat2v2float %69 %70
 %79 = OpConstantComposite %v2float %float_2 %float_3
 %80 = OpConstantComposite %v2float %float_4 %float_5
+%81 = OpConstantComposite %mat2v2float %79 %80
 %83 = OpConstantComposite %v2float %float_6 %float_0
 %84 = OpConstantComposite %v2float %float_0 %float_6
 %S = OpTypeStruct %int %int
@@ -171,7 +171,6 @@ OpStore %v2 %51
 OpStore %v3 %56
 %61 = OpCompositeConstruct %mat2v2float %62 %63
 %64 = OpCompositeConstruct %mat2v2float %65 %66
-%71 = OpCompositeConstruct %mat2v2float %69 %70
 %72 = OpCompositeConstruct %_arr_mat2v2float_int_3 %61 %64 %71
 OpStore %m1 %72
 %74 = OpCompositeConstruct %mat2v2float %62 %63
@@ -179,7 +178,6 @@ OpStore %m1 %72
 %76 = OpCompositeConstruct %_arr_mat2v2float_int_3 %74 %75 %71
 OpStore %m2 %76
 %78 = OpCompositeConstruct %mat2v2float %62 %63
-%81 = OpCompositeConstruct %mat2v2float %79 %80
 %82 = OpCompositeConstruct %mat2v2float %83 %84
 %85 = OpCompositeConstruct %_arr_mat2v2float_int_3 %78 %81 %82
 OpStore %m3 %85

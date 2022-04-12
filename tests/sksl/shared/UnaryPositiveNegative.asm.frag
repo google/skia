@@ -105,6 +105,7 @@ OpDecorate %250 RelaxedPrecision
 %float_n4 = OpConstant %float -4
 %83 = OpConstantComposite %v2float %float_n1 %float_n2
 %84 = OpConstantComposite %v2float %float_n3 %float_n4
+%85 = OpConstantComposite %mat2v2float %83 %84
 %_ptr_Uniform_mat2v2float = OpTypePointer Uniform %mat2v2float
 %int_3 = OpConstant %int 3
 %_ptr_Function_mat3v3float = OpTypePointer Function %mat3v3float
@@ -116,6 +117,7 @@ OpDecorate %250 RelaxedPrecision
 %116 = OpConstantComposite %v3float %float_n1 %float_n2 %float_n3
 %117 = OpConstantComposite %v3float %float_n4 %float_n5 %float_n6
 %118 = OpConstantComposite %v3float %float_n7 %float_n8 %float_n9
+%119 = OpConstantComposite %mat3v3float %116 %117 %118
 %_ptr_Uniform_mat3v3float = OpTypePointer Uniform %mat3v3float
 %int_4 = OpConstant %int 4
 %v3bool = OpTypeVector %bool 3
@@ -131,6 +133,7 @@ OpDecorate %250 RelaxedPrecision
 %161 = OpConstantComposite %v4float %float_n5 %float_n6 %float_n7 %float_n8
 %162 = OpConstantComposite %v4float %float_n9 %float_n10 %float_n11 %float_n12
 %163 = OpConstantComposite %v4float %float_n13 %float_n14 %float_n15 %float_n16
+%164 = OpConstantComposite %mat4v4float %160 %161 %162 %163
 %_ptr_Uniform_mat4v4float = OpTypePointer Uniform %mat4v4float
 %int_5 = OpConstant %int 5
 %v4bool = OpTypeVector %bool 4
@@ -199,7 +202,6 @@ OpFunctionEnd
 %77 = OpLabel
 %negated = OpVariable %_ptr_Function_mat2v2float Function
 %x_2 = OpVariable %_ptr_Function_mat2v2float Function
-%85 = OpCompositeConstruct %mat2v2float %83 %84
 OpStore %negated %85
 %87 = OpAccessChain %_ptr_Uniform_mat2v2float %16 %int_3
 %90 = OpLoad %mat2v2float %87
@@ -228,7 +230,6 @@ OpFunctionEnd
 %108 = OpLabel
 %negated_0 = OpVariable %_ptr_Function_mat3v3float Function
 %x_3 = OpVariable %_ptr_Function_mat3v3float Function
-%119 = OpCompositeConstruct %mat3v3float %116 %117 %118
 OpStore %negated_0 %119
 %121 = OpAccessChain %_ptr_Uniform_mat3v3float %16 %int_4
 %124 = OpLoad %mat3v3float %121
@@ -264,7 +265,6 @@ OpFunctionEnd
 %150 = OpLabel
 %negated_1 = OpVariable %_ptr_Function_mat4v4float Function
 %x_4 = OpVariable %_ptr_Function_mat4v4float Function
-%164 = OpCompositeConstruct %mat4v4float %160 %161 %162 %163
 OpStore %negated_1 %164
 %166 = OpAccessChain %_ptr_Uniform_mat4v4float %16 %int_5
 %169 = OpLoad %mat4v4float %166

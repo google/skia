@@ -14,7 +14,6 @@ OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %x RelaxedPrecision
-OpDecorate %31 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
 OpDecorate %35 RelaxedPrecision
@@ -43,6 +42,7 @@ OpDecorate %39 RelaxedPrecision
 %float_3 = OpConstant %float 3
 %29 = OpConstantComposite %v2float %float_0 %float_1
 %30 = OpConstantComposite %v2float %float_2 %float_3
+%31 = OpConstantComposite %mat2v2float %29 %30
 %_entrypoint_v = OpFunction %void None %12
 %13 = OpLabel
 %17 = OpVariable %_ptr_Function_v2float Function
@@ -56,7 +56,6 @@ OpFunctionEnd
 %22 = OpLabel
 %x = OpVariable %_ptr_Function_mat2v2float Function
 %y = OpVariable %_ptr_Function_v2float Function
-%31 = OpCompositeConstruct %mat2v2float %29 %30
 OpStore %x %31
 %33 = OpLoad %mat2v2float %x
 %34 = OpCompositeExtract %float %33 0 0

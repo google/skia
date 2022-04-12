@@ -650,6 +650,26 @@ SpvId SPIRVCodeGenerator::writeOpCompositeConstruct(const Type& type,
         }
     }
 
+    // If this is a matrix composed entirely of literals, constant-composite them instead.
+    if (type.isMatrix()) {
+        SkSTArray<16, SpvId> constants;
+        if (this->toConstants(SkMakeSpan(values), &constants)) {
+            // Create each matrix column.
+            SkASSERT(type.isMatrix());
+            const Type& vecType = type.componentType().toCompound(fContext,
+                                                                  /*columns=*/type.rows(),
+                                                                  /*rows=*/1);
+            SkSTArray<4, SpvId> columnIDs;
+            for (int index=0; index < type.columns(); ++index) {
+                SkSTArray<4, SpvId> columnConstants(&constants[index * type.rows()],
+                                                    type.rows());
+                columnIDs.push_back(this->writeOpConstantComposite(vecType, columnConstants));
+            }
+            // Compose the matrix from its columns.
+            return this->writeOpConstantComposite(type, columnIDs);
+        }
+    }
+
     Words words;
     words.push_back(this->getType(type));
     words.push_back(Word::Result(type));

@@ -25,7 +25,6 @@ OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
 OpDecorate %h24 RelaxedPrecision
-OpDecorate %32 RelaxedPrecision
 OpDecorate %37 RelaxedPrecision
 OpDecorate %40 RelaxedPrecision
 OpDecorate %41 RelaxedPrecision
@@ -37,7 +36,6 @@ OpDecorate %46 RelaxedPrecision
 OpDecorate %47 RelaxedPrecision
 OpDecorate %48 RelaxedPrecision
 OpDecorate %h42 RelaxedPrecision
-OpDecorate %65 RelaxedPrecision
 OpDecorate %67 RelaxedPrecision
 OpDecorate %69 RelaxedPrecision
 OpDecorate %70 RelaxedPrecision
@@ -67,9 +65,7 @@ OpDecorate %93 RelaxedPrecision
 OpDecorate %94 RelaxedPrecision
 OpDecorate %95 RelaxedPrecision
 OpDecorate %112 RelaxedPrecision
-OpDecorate %115 RelaxedPrecision
 OpDecorate %128 RelaxedPrecision
-OpDecorate %133 RelaxedPrecision
 OpDecorate %185 RelaxedPrecision
 OpDecorate %187 RelaxedPrecision
 OpDecorate %188 RelaxedPrecision
@@ -94,6 +90,7 @@ OpDecorate %188 RelaxedPrecision
 %_ptr_Function_mat2v4float = OpTypePointer Function %mat2v4float
 %float_9 = OpConstant %float 9
 %31 = OpConstantComposite %v4float %float_9 %float_9 %float_9 %float_9
+%32 = OpConstantComposite %mat2v4float %31 %31
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_1 = OpConstant %int 1
@@ -112,6 +109,7 @@ OpDecorate %188 RelaxedPrecision
 %62 = OpConstantComposite %v2float %float_3 %float_4
 %63 = OpConstantComposite %v2float %float_5 %float_6
 %64 = OpConstantComposite %v2float %float_7 %float_8
+%65 = OpConstantComposite %mat4v2float %61 %62 %63 %64
 %v3float = OpTypeVector %float 3
 %mat4v3float = OpTypeMatrix %v3float 4
 %_ptr_Function_mat4v3float = OpTypePointer Function %mat4v3float
@@ -125,14 +123,17 @@ OpDecorate %188 RelaxedPrecision
 %107 = OpConstantComposite %v3float %float_36 %float_40 %float_42
 %108 = OpConstantComposite %v3float %float_42 %float_40 %float_36
 %109 = OpConstantComposite %v3float %float_30 %float_22 %float_12
+%110 = OpConstantComposite %mat4v3float %106 %107 %108 %109
 %false = OpConstantFalse %bool
 %113 = OpConstantComposite %v4float %float_9 %float_0 %float_0 %float_9
 %114 = OpConstantComposite %v4float %float_0 %float_9 %float_0 %float_9
+%115 = OpConstantComposite %mat2v4float %113 %114
 %v4bool = OpTypeVector %bool 4
 %129 = OpConstantComposite %v2float %float_1 %float_0
 %130 = OpConstantComposite %v2float %float_0 %float_4
 %131 = OpConstantComposite %v2float %float_0 %float_6
 %132 = OpConstantComposite %v2float %float_0 %float_8
+%133 = OpConstantComposite %mat4v2float %129 %130 %131 %132
 %v2bool = OpTypeVector %bool 2
 %v3bool = OpTypeVector %bool 3
 %_ptr_Function_v4float = OpTypePointer Function %v4float
@@ -151,7 +152,6 @@ OpFunctionEnd
 %h42 = OpVariable %_ptr_Function_mat4v2float Function
 %f43 = OpVariable %_ptr_Function_mat4v3float Function
 %179 = OpVariable %_ptr_Function_v4float Function
-%32 = OpCompositeConstruct %mat2v4float %31 %31
 %33 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
 %37 = OpLoad %v4float %33
 %38 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
@@ -165,7 +165,6 @@ OpFunctionEnd
 %47 = OpFMul %v4float %45 %46
 %48 = OpCompositeConstruct %mat2v4float %44 %47
 OpStore %h24 %48
-%65 = OpCompositeConstruct %mat4v2float %61 %62 %63 %64
 %66 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
 %67 = OpLoad %v4float %66
 %68 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
@@ -197,10 +196,8 @@ OpStore %h24 %48
 %94 = OpFMul %v2float %92 %93
 %95 = OpCompositeConstruct %mat4v2float %85 %88 %91 %94
 OpStore %h42 %95
-%110 = OpCompositeConstruct %mat4v3float %106 %107 %108 %109
 OpStore %f43 %110
 %112 = OpLoad %mat2v4float %h24
-%115 = OpCompositeConstruct %mat2v4float %113 %114
 %117 = OpCompositeExtract %v4float %112 0
 %118 = OpCompositeExtract %v4float %115 0
 %119 = OpFOrdEqual %v4bool %117 %118
@@ -214,7 +211,6 @@ OpSelectionMerge %127 None
 OpBranchConditional %125 %126 %127
 %126 = OpLabel
 %128 = OpLoad %mat4v2float %h42
-%133 = OpCompositeConstruct %mat4v2float %129 %130 %131 %132
 %135 = OpCompositeExtract %v2float %128 0
 %136 = OpCompositeExtract %v2float %133 0
 %137 = OpFOrdEqual %v2bool %135 %136
