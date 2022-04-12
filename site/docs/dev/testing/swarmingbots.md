@@ -22,9 +22,7 @@ Skia's Swarming bots are hosted in three places:
 
 [go/skbl](https://goto.google.com/skbl) lists all Skia Swarming bots.
 
-<a name="connecting-to-swarming-bots"></a> Connecting to Swarming Bots
-
----
+### <a name="connecting-to-swarming-bots">Connecting to Swarming Bots</a>
 
 If you need to make changes on a bot/device, please check with the Infra
 Gardener or another Infra team member. Most bots/devices can be flashed/imaged
@@ -53,7 +51,8 @@ back to a clean state, but others can not.
       instructed to install the Chrome RDP Extension for GCP if it hasn't
       already been installed.)
 
-- Machine name ends with “a9”, “m3”, "m5" -> Chrome Golo/Labs
+- Machine name ends with “a9”, “m3”, "m5". Or name matches the pattern {lin, mac, win}-NNN-g580 ->
+  Chrome Golo/Labs
 
   - To log in to Golo bots, see
     [go/chrome-infra-build-access](https://goto.google.com/chrome-infra-build-access).
