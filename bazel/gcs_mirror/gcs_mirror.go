@@ -66,7 +66,7 @@ func main() {
 		if err := processOne(workDir, *url, *sha256Hash); err != nil {
 			fatalf("Error while processing entry: %s", err)
 		}
-		fmt.Printf("https://storage.googleapis.com/skia-world-readable/bazel/%s.tar.gz\n", *sha256Hash)
+		fmt.Printf("https://storage.googleapis.com/skia-world-readable/bazel/%s%s\n", *sha256Hash, getSuffix(*url))
 	}
 }
 
@@ -137,7 +137,7 @@ func processOne(workDir, url, hash string) error {
 	return skerr.Wrapf(cmd.Run(), "uploading %s to GCS", tmpFile)
 }
 
-var supportedSuffixes = []string{".tar.gz", ".tar.xz", ".deb"}
+var supportedSuffixes = []string{".tar.gz", ".tar.xz", ".deb", ".zip"}
 
 // getSuffix returns the filetype suffix of the file if it is in the list of supported suffixes.
 // Otherwise, it returns empty string.
