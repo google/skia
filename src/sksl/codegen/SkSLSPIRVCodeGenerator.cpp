@@ -889,14 +889,14 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 break;
             }
             case Type::TypeKind::kSampler: {
-                if (type->dimensions() != SpvDimSubpassData) {
-                    if (type->dimensions() == SpvDimBuffer) {
-                        fCapabilities |= 1ULL << SpvCapabilitySampledBuffer;
-                    }
-                    SpvId imageTypeId = this->getType(type->textureType(), layout);
-                    this->writeInstruction(SpvOpTypeSampledImage, result, imageTypeId,
-                                           fConstantBuffer);
+                // Subpass inputs should use the Texture type, not a Sampler.
+                SkASSERT(type->dimensions() != SpvDimSubpassData);
+                if (type->dimensions() == SpvDimBuffer) {
+                    fCapabilities |= 1ULL << SpvCapabilitySampledBuffer;
                 }
+                SpvId imageTypeId = this->getType(type->textureType(), layout);
+                this->writeInstruction(SpvOpTypeSampledImage, result, imageTypeId,
+                                       fConstantBuffer);
                 break;
             }
             case Type::TypeKind::kSeparateSampler: {
