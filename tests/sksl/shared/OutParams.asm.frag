@@ -314,10 +314,10 @@ OpFunctionEnd
 %84 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
 %85 = OpLoad %v4float %84
 %86 = OpCompositeExtract %float %85 0
-%88 = OpCompositeConstruct %v2float %86 %float_0
-%89 = OpCompositeConstruct %v2float %float_0 %86
-%87 = OpCompositeConstruct %mat2v2float %88 %89
-OpStore %82 %87
+%87 = OpCompositeConstruct %v2float %86 %float_0
+%88 = OpCompositeConstruct %v2float %float_0 %86
+%89 = OpCompositeConstruct %mat2v2float %87 %88
+OpStore %82 %89
 OpReturn
 OpFunctionEnd
 %out_half3x3_vh33 = OpFunction %void None %91
@@ -326,11 +326,11 @@ OpFunctionEnd
 %95 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
 %96 = OpLoad %v4float %95
 %97 = OpCompositeExtract %float %96 1
-%99 = OpCompositeConstruct %v3float %97 %float_0 %float_0
-%100 = OpCompositeConstruct %v3float %float_0 %97 %float_0
-%101 = OpCompositeConstruct %v3float %float_0 %float_0 %97
-%98 = OpCompositeConstruct %mat3v3float %99 %100 %101
-OpStore %93 %98
+%98 = OpCompositeConstruct %v3float %97 %float_0 %float_0
+%99 = OpCompositeConstruct %v3float %float_0 %97 %float_0
+%100 = OpCompositeConstruct %v3float %float_0 %float_0 %97
+%101 = OpCompositeConstruct %mat3v3float %98 %99 %100
+OpStore %93 %101
 OpReturn
 OpFunctionEnd
 %out_half4x4_vh44 = OpFunction %void None %103
@@ -339,12 +339,12 @@ OpFunctionEnd
 %107 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
 %108 = OpLoad %v4float %107
 %109 = OpCompositeExtract %float %108 2
-%111 = OpCompositeConstruct %v4float %109 %float_0 %float_0 %float_0
-%112 = OpCompositeConstruct %v4float %float_0 %109 %float_0 %float_0
-%113 = OpCompositeConstruct %v4float %float_0 %float_0 %109 %float_0
-%114 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %109
-%110 = OpCompositeConstruct %mat4v4float %111 %112 %113 %114
-OpStore %105 %110
+%110 = OpCompositeConstruct %v4float %109 %float_0 %float_0 %float_0
+%111 = OpCompositeConstruct %v4float %float_0 %109 %float_0 %float_0
+%112 = OpCompositeConstruct %v4float %float_0 %float_0 %109 %float_0
+%113 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %109
+%114 = OpCompositeConstruct %mat4v4float %110 %111 %112 %113
+OpStore %105 %114
 OpReturn
 OpFunctionEnd
 %out_int_vi = OpFunction %void None %115
@@ -435,10 +435,10 @@ OpFunctionEnd
 %178 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
 %179 = OpLoad %v4float %178
 %180 = OpCompositeExtract %float %179 0
-%182 = OpCompositeConstruct %v2float %180 %float_0
-%183 = OpCompositeConstruct %v2float %float_0 %180
-%181 = OpCompositeConstruct %mat2v2float %182 %183
-OpStore %176 %181
+%181 = OpCompositeConstruct %v2float %180 %float_0
+%182 = OpCompositeConstruct %v2float %float_0 %180
+%183 = OpCompositeConstruct %mat2v2float %181 %182
+OpStore %176 %183
 OpReturn
 OpFunctionEnd
 %out_float3x3_vf33 = OpFunction %void None %91
@@ -447,11 +447,11 @@ OpFunctionEnd
 %186 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
 %187 = OpLoad %v4float %186
 %188 = OpCompositeExtract %float %187 1
-%190 = OpCompositeConstruct %v3float %188 %float_0 %float_0
-%191 = OpCompositeConstruct %v3float %float_0 %188 %float_0
-%192 = OpCompositeConstruct %v3float %float_0 %float_0 %188
-%189 = OpCompositeConstruct %mat3v3float %190 %191 %192
-OpStore %184 %189
+%189 = OpCompositeConstruct %v3float %188 %float_0 %float_0
+%190 = OpCompositeConstruct %v3float %float_0 %188 %float_0
+%191 = OpCompositeConstruct %v3float %float_0 %float_0 %188
+%192 = OpCompositeConstruct %mat3v3float %189 %190 %191
+OpStore %184 %192
 OpReturn
 OpFunctionEnd
 %out_float4x4_vf44 = OpFunction %void None %103
@@ -460,12 +460,12 @@ OpFunctionEnd
 %195 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
 %196 = OpLoad %v4float %195
 %197 = OpCompositeExtract %float %196 2
-%199 = OpCompositeConstruct %v4float %197 %float_0 %float_0 %float_0
-%200 = OpCompositeConstruct %v4float %float_0 %197 %float_0 %float_0
-%201 = OpCompositeConstruct %v4float %float_0 %float_0 %197 %float_0
-%202 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %197
-%198 = OpCompositeConstruct %mat4v4float %199 %200 %201 %202
-OpStore %193 %198
+%198 = OpCompositeConstruct %v4float %197 %float_0 %float_0 %float_0
+%199 = OpCompositeConstruct %v4float %float_0 %197 %float_0 %float_0
+%200 = OpCompositeConstruct %v4float %float_0 %float_0 %197 %float_0
+%201 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %197
+%202 = OpCompositeConstruct %mat4v4float %198 %199 %200 %201
+OpStore %193 %202
 OpReturn
 OpFunctionEnd
 %out_bool_vb = OpFunction %void None %203

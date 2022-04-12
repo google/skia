@@ -264,12 +264,6 @@ private:
                            OutputStream& out);
 
     /**
-     * Writes a matrix with the diagonal entries all equal to the provided expression, and all other
-     * entries equal to zero.
-     */
-    void writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type, OutputStream& out);
-
-    /**
      * Writes a potentially-different-sized copy of a matrix. Entries which do not exist in the
      * source matrix are filled with zero; entries which do not exist in the destination matrix are
      * ignored.

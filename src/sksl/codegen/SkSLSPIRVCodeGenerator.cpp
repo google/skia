@@ -1704,31 +1704,6 @@ SpvId SPIRVCodeGenerator::castScalarToBoolean(SpvId inputId, const Type& inputTy
     return result;
 }
 
-void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type,
-                                                 OutputStream& out) {
-    SpvId zeroId = this->writeLiteral(0.0, *fContext.fTypes.fFloat);
-    std::vector<SpvId> columnIds;
-    columnIds.reserve(type.columns());
-    const Type& vecType = type.componentType().toCompound(fContext,
-                                                          /*columns=*/type.rows(),
-                                                          /*rows=*/1);
-    SkSTArray<4, SpvId> arguments;
-    arguments.resize(type.rows());
-    for (int column = 0; column < type.columns(); column++) {
-        for (int row = 0; row < type.rows(); row++) {
-            arguments[row] = (row == column) ? diagonal : zeroId;
-        }
-        columnIds.push_back(this->writeOpCompositeConstruct(vecType, arguments, out));
-    }
-    this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(),
-                      out);
-    this->writeWord(this->getType(type), out);
-    this->writeWord(id, out);
-    for (SpvId columnId : columnIds) {
-        this->writeWord(columnId, out);
-    }
-}
-
 SpvId SPIRVCodeGenerator::writeMatrixCopy(SpvId src, const Type& srcType, const Type& dstType,
                                           OutputStream& out) {
     SkASSERT(srcType.isMatrix());
@@ -1983,12 +1958,24 @@ SpvId SPIRVCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagon
     SkASSERT(c.argument()->type().isScalar());
 
     // Write out the scalar argument.
-    SpvId argument = this->writeExpression(*c.argument(), out);
+    SpvId diagonal = this->writeExpression(*c.argument(), out);
 
     // Build the diagonal matrix.
-    SpvId result = this->nextId(&type);
-    this->writeUniformScaleMatrix(result, argument, type, out);
-    return result;
+    SpvId zeroId = this->writeLiteral(0.0, *fContext.fTypes.fFloat);
+
+    const Type& vecType = type.componentType().toCompound(fContext,
+                                                          /*columns=*/type.rows(),
+                                                          /*rows=*/1);
+    SkSTArray<4, SpvId> columnIds;
+    SkSTArray<4, SpvId> arguments;
+    arguments.resize(type.rows());
+    for (int column = 0; column < type.columns(); column++) {
+        for (int row = 0; row < type.rows(); row++) {
+            arguments[row] = (row == column) ? diagonal : zeroId;
+        }
+        columnIds.push_back(this->writeOpCompositeConstruct(vecType, arguments, out));
+    }
+    return this->writeOpCompositeConstruct(type, columnIds, out);
 }
 
 SpvId SPIRVCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixResize& c,
