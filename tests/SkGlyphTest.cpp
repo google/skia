@@ -14,6 +14,8 @@ DEF_TEST(SkGlyphRectBasic, reporter) {
     REPORTER_ASSERT(reporter, !r.empty());
     SkGlyphRect a = rect_union(r, empty_rect());
     REPORTER_ASSERT(reporter, a.iRect() == SkIRect::MakeLTRB(1, 1, 10, 10));
+    auto widthHeight = a.widthHeight();
+    REPORTER_ASSERT(reporter, widthHeight[0] == 9 && widthHeight[1] == 9);
 
     a = rect_intersection(r, full_rect());
     REPORTER_ASSERT(reporter, a.iRect() == SkIRect::MakeLTRB(1, 1, 10, 10));

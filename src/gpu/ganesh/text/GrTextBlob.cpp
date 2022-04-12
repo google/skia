@@ -1111,7 +1111,7 @@ GrSubRunOwner DirectMaskSubRun::Make(const GrTextBlob* blob,
             const SkGlyphRect deviceBounds =
                     skGlyph->glyphRect().offset(SkScalarRoundToInt(x), SkScalarRoundToInt(y));
             runBounds = skglyph::rect_union(runBounds, deviceBounds);
-            glyphLeftTop[goodPosCount] = deviceBounds.topLeft();
+            glyphLeftTop[goodPosCount] = deviceBounds.leftTop();
             glyphIDs[goodPosCount].packedGlyphID = skGlyph->getPackedID();
             goodPosCount += 1;
         }
@@ -2326,7 +2326,7 @@ GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkP
             const SkGlyphRect deviceBounds =
                     skGlyph->glyphRect().offset(SkScalarRoundToInt(x), SkScalarRoundToInt(y));
             runBounds = skglyph::rect_union(runBounds, deviceBounds);
-            glyphLeftTop[goodPosCount] = deviceBounds.topLeft();
+            glyphLeftTop[goodPosCount] = deviceBounds.leftTop();
             glyphIDs[goodPosCount].packedGlyphID = skGlyph->getPackedID();
             goodPosCount += 1;
         }
@@ -3184,7 +3184,7 @@ GrSubRunOwner DirectMaskSubRunSlug::Make(const GrTextReferenceFrame* referenceFr
             const SkGlyphRect deviceBounds =
                     skGlyph->glyphRect().offset(SkScalarRoundToInt(x), SkScalarRoundToInt(y));
             runBounds = skglyph::rect_union(runBounds, deviceBounds);
-            glyphLeftTop[goodPosCount] = deviceBounds.topLeft();
+            glyphLeftTop[goodPosCount] = deviceBounds.leftTop();
             glyphIDs[goodPosCount].packedGlyphID = skGlyph->getPackedID();
             goodPosCount += 1;
         }
