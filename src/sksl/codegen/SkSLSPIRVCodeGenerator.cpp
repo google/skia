@@ -255,66 +255,79 @@ static bool is_in(const Modifiers& m) {
     }
 }
 
+static bool is_control_flow_op(SpvOp_ op) {
+    switch (op) {
+        case SpvOpReturn:
+        case SpvOpReturnValue:
+        case SpvOpKill:
+        case SpvOpSwitch:
+        case SpvOpBranch:
+        case SpvOpBranchConditional:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool is_globally_reachable_op(SpvOp_ op) {
+    switch (op) {
+        case SpvOpConstant:
+        case SpvOpConstantTrue:
+        case SpvOpConstantFalse:
+        case SpvOpConstantComposite:
+        case SpvOpTypeVoid:
+        case SpvOpTypeInt:
+        case SpvOpTypeFloat:
+        case SpvOpTypeBool:
+        case SpvOpTypeVector:
+        case SpvOpTypeMatrix:
+        case SpvOpTypeArray:
+        case SpvOpTypePointer:
+        case SpvOpTypeFunction:
+        case SpvOpTypeRuntimeArray:
+        case SpvOpTypeStruct:
+        case SpvOpTypeImage:
+        case SpvOpTypeSampledImage:
+        case SpvOpTypeSampler:
+        case SpvOpVariable:
+        case SpvOpFunction:
+        case SpvOpFunctionParameter:
+        case SpvOpFunctionEnd:
+        case SpvOpExecutionMode:
+        case SpvOpMemoryModel:
+        case SpvOpCapability:
+        case SpvOpExtInstImport:
+        case SpvOpEntryPoint:
+        case SpvOpSource:
+        case SpvOpSourceExtension:
+        case SpvOpName:
+        case SpvOpMemberName:
+        case SpvOpDecorate:
+        case SpvOpMemberDecorate:
+            return true;
+        default:
+            return false;
+    }
+}
+
 void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& out) {
     SkASSERT(opCode != SpvOpLoad || &out != &fConstantBuffer);
     SkASSERT(opCode != SpvOpUndef);
-    switch (opCode) {
-        case SpvOpReturn:      // fall through
-        case SpvOpReturnValue: // fall through
-        case SpvOpKill:        // fall through
-        case SpvOpSwitch:      // fall through
-        case SpvOpBranch:      // fall through
-        case SpvOpBranchConditional:
-            if (fCurrentBlock == 0) {
-                // We just encountered dead code--instructions that don't have an associated block.
-                // Synthesize a label if this happens; this is necessary to satisfy the validator.
-                this->writeLabel(this->nextId(nullptr), out);
-            }
-            fCurrentBlock = 0;
-            break;
-        case SpvOpConstant:          // fall through
-        case SpvOpConstantTrue:      // fall through
-        case SpvOpConstantFalse:     // fall through
-        case SpvOpConstantComposite: // fall through
-        case SpvOpTypeVoid:          // fall through
-        case SpvOpTypeInt:           // fall through
-        case SpvOpTypeFloat:         // fall through
-        case SpvOpTypeBool:          // fall through
-        case SpvOpTypeVector:        // fall through
-        case SpvOpTypeMatrix:        // fall through
-        case SpvOpTypeArray:         // fall through
-        case SpvOpTypePointer:       // fall through
-        case SpvOpTypeFunction:      // fall through
-        case SpvOpTypeRuntimeArray:  // fall through
-        case SpvOpTypeStruct:        // fall through
-        case SpvOpTypeImage:         // fall through
-        case SpvOpTypeSampledImage:  // fall through
-        case SpvOpTypeSampler:       // fall through
-        case SpvOpVariable:          // fall through
-        case SpvOpFunction:          // fall through
-        case SpvOpFunctionParameter: // fall through
-        case SpvOpFunctionEnd:       // fall through
-        case SpvOpExecutionMode:     // fall through
-        case SpvOpMemoryModel:       // fall through
-        case SpvOpCapability:        // fall through
-        case SpvOpExtInstImport:     // fall through
-        case SpvOpEntryPoint:        // fall through
-        case SpvOpSource:            // fall through
-        case SpvOpSourceExtension:   // fall through
-        case SpvOpName:              // fall through
-        case SpvOpMemberName:        // fall through
-        case SpvOpDecorate:          // fall through
-        case SpvOpMemberDecorate:
-            break;
-        default:
-            // We may find ourselves with dead code--instructions that don't have an associated
-            // block. This should be a rare event, but if it happens, synthesize a label; this is
-            // necessary to satisfy the validator.
-            if (fCurrentBlock == 0) {
-                this->writeLabel(this->nextId(nullptr), out);
-            }
-            break;
+    bool foundDeadCode = false;
+    if (is_control_flow_op(opCode)) {
+        // This instruction causes us to leave the current block.
+        foundDeadCode = (fCurrentBlock == 0);
+        fCurrentBlock = 0;
+    } else if (!is_globally_reachable_op(opCode)) {
+        foundDeadCode = (fCurrentBlock == 0);
     }
+
+    if (foundDeadCode) {
+        // We just encountered dead code--an instruction that don't have an associated block.
+        // Synthesize a label if this happens; this is necessary to satisfy the validator.
+        this->writeLabel(this->nextId(nullptr), out);
+    }
+
     this->writeWord((length << 16) | opCode, out);
 }
 
