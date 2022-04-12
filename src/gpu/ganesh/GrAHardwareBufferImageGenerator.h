@@ -9,7 +9,7 @@
 
 #include "include/core/SkImageGenerator.h"
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 class GrGpuResource;
 class GrSurfaceProxyView;

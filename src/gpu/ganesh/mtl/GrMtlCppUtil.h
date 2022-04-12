@@ -10,7 +10,7 @@
 
 #include "include/core/SkImage.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 class GrBackendFormat;
 

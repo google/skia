@@ -155,9 +155,9 @@ generated_cc_atom(
     deps = [
         ":PathRenderer_hdr",
         "//include/core:SkTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
         "//include/private:SkNoncopyable_hdr",
         "//include/private:SkTArray_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 
@@ -193,8 +193,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkRefCnt_hdr",
-        "//include/private:GrTypesPriv_hdr",
         "//include/private:SkTArray_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 
@@ -262,9 +262,9 @@ generated_cc_atom(
         "//include/gpu:GrBackendSemaphore_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",
-        "//include/private:GrImageContext_hdr",
         "//include/private:SkShadowFlags_hdr",
         "//include/private:SkVx_hdr",
+        "//include/private/gpu/ganesh:GrImageContext_hdr",
         "//include/utils:SkShadowUtils_hdr",
         "//src/core:SkAutoPixmapStorage_hdr",
         "//src/core:SkConvertPixels_hdr",
@@ -335,7 +335,7 @@ generated_cc_atom(
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkSurfaceProps_hdr",
         "//include/core:SkSurface_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/core:SkGlyphRunPainter_hdr",
         "//src/gpu/ganesh:GrPaint_hdr",
         "//src/gpu/ganesh:GrRenderTargetProxy_hdr",
@@ -352,7 +352,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkSize_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu:Swizzle_hdr",
         "//src/gpu/ganesh:GrImageInfo_hdr",
         "//src/gpu/ganesh:SurfaceFillContext_hdr",
@@ -367,7 +367,7 @@ generated_cc_atom(
     deps = [
         ":SurfaceDrawContext_v1_hdr",
         ":SurfaceFillContext_v1_hdr",
-        "//include/private:GrImageContext_hdr",
+        "//include/private/gpu/ganesh:GrImageContext_hdr",
         "//src/gpu/ganesh:GrDstProxyView_hdr",
         "//src/gpu/ganesh:GrImageContextPriv_hdr",
         "//src/gpu/ganesh:GrProxyProvider_hdr",

@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 
 struct GrShaderCaps;

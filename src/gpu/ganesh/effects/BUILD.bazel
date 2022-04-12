@@ -18,7 +18,7 @@ generated_cc_atom(
     hdrs = ["GrBezierEffect.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/core:SkArenaAlloc_hdr",
         "//src/gpu/ganesh:GrCaps_hdr",
         "//src/gpu/ganesh:GrGeometryProcessor_hdr",
@@ -126,7 +126,7 @@ generated_cc_atom(
     hdrs = ["GrConvexPolyEffect.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrCaps_hdr",
         "//src/gpu/ganesh:GrFragmentProcessor_hdr",
         "//src/gpu/ganesh:GrProcessor_hdr",
@@ -371,7 +371,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkRefCnt_hdr",
         "//include/gpu:GrTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrFragmentProcessor_hdr",
     ],
 )
@@ -429,7 +429,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkRefCnt_hdr",
         "//include/gpu:GrTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrFragmentProcessor_hdr",
     ],
 )
@@ -500,8 +500,8 @@ generated_cc_atom(
         ":GrSkSLFP_hdr",
         "//include/effects:SkOverdrawColorFilter_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
-        "//include/private:GrContext_Base_hdr",
         "//include/private:SkSLString_hdr",
+        "//include/private/gpu/ganesh:GrContext_Base_hdr",
         "//src/core:SkColorFilterBase_hdr",
         "//src/core:SkColorSpacePriv_hdr",
         "//src/core:SkRuntimeEffectPriv_hdr",

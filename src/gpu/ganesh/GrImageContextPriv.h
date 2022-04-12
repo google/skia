@@ -8,7 +8,7 @@
 #ifndef GrImageContextPriv_DEFINED
 #define GrImageContextPriv_DEFINED
 
-#include "include/private/GrImageContext.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"

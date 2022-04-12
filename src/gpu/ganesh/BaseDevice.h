@@ -9,7 +9,7 @@
 #define BaseDevice_DEFINED
 
 #include "include/core/SkImage.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkDevice.h"
 
 class GrRenderTargetProxy;

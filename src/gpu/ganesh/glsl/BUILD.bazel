@@ -184,7 +184,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrGLSLProgramDataManager_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/core:SkTBlockList_hdr",
         "//src/gpu/ganesh:GrShaderVar_hdr",
     ],

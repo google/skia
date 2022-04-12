@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrContext_Base.h"
+#include "include/private/gpu/ganesh/GrContext_Base.h"
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"

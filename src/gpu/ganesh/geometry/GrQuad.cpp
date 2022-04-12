@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 using V4f = skvx::Vec<4, float>;
 

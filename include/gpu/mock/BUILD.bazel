@@ -6,6 +6,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/gpu:GrTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )

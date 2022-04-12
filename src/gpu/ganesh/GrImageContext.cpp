@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#include "include/private/GrImageContext.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
 
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"

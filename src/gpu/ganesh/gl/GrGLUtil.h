@@ -9,8 +9,8 @@
 #define GrGLUtil_DEFINED
 
 #include "include/gpu/gl/GrGLInterface.h"
-#include "include/private/GrTypesPriv.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"

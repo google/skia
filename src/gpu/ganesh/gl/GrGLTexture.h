@@ -9,7 +9,7 @@
 #ifndef GrGLTexture_DEFINED
 #define GrGLTexture_DEFINED
 
-#include "include/private/GrGLTypesPriv.h"
+#include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"

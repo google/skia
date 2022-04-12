@@ -10,7 +10,7 @@
 
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/image/SkImage_Base.h"
 

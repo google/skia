@@ -2238,7 +2238,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 
@@ -2682,8 +2682,8 @@ generated_cc_atom(
         "//include/core:SkMaskFilter_hdr",
         "//include/core:SkPaint_hdr",
         "//include/core:SkStrokeRec_hdr",
-        "//include/private:GrTypesPriv_hdr",
         "//include/private:SkNoncopyable_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 
@@ -4517,7 +4517,7 @@ generated_cc_atom(
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkSamplingOptions_hdr",
         "//include/core:SkSurfaceProps_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrSurfaceProxyView_hdr",
     ],
 )
@@ -4556,7 +4556,7 @@ generated_cc_atom(
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkSurfaceProps_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 
@@ -5472,8 +5472,8 @@ generated_cc_atom(
         ":SkConvertPixels_hdr",
         ":SkYUVAInfoLocation_hdr",
         "//include/core:SkYUVAPixmaps_hdr",
-        "//include/private:GrImageContext_hdr",
         "//include/private:SkImageInfoPriv_hdr",
+        "//include/private/gpu/ganesh:GrImageContext_hdr",
     ],
 )
 
@@ -5562,7 +5562,7 @@ generated_cc_atom(
     deps = [
         ":SkSLTypeShared_hdr",
         "//include/core:SkCustomMesh_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 

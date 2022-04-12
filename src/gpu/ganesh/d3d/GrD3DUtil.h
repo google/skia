@@ -11,7 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 #define GR_D3D_CALL_ERRCHECK(X)                                         \
     do {                                                                \

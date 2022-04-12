@@ -12,8 +12,8 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
-#include "include/private/GrMtlTypesPriv.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrMtlTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 class GrMtlGpu;

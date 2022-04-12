@@ -9,7 +9,7 @@
 #define GrPersistentCacheEntry_DEFINED
 
 #include "include/core/SkData.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 class SkReadBuffer;

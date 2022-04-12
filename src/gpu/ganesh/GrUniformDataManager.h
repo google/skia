@@ -10,8 +10,8 @@
 
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 
-#include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkSLTypeShared.h"
 

@@ -7,7 +7,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrBackendSurfaceMutableStateImpl.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 

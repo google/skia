@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkScalar.h"
-#include "include/private/GrGLTypesPriv.h"
+#include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 

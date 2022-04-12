@@ -256,7 +256,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/gpu:GrTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrOpsRenderPass_hdr",
     ],
 )
@@ -499,7 +499,7 @@ generated_cc_atom(
     deps = [
         "//include/gpu:GrBackendSemaphore_hdr",
         "//include/gpu/d3d:GrD3DTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrSemaphore_hdr",
     ],
 )
@@ -545,7 +545,7 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu/d3d:GrD3DTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrManagedResource_hdr",
     ],
 )
@@ -596,7 +596,7 @@ generated_cc_atom(
         ":GrD3DResourceState_hdr",
         ":GrD3DTypesPriv_hdr",
         "//include/gpu/d3d:GrD3DTypes_hdr",
-        "//include/private:GrD3DTypesMinimal_hdr",
+        "//include/private/gpu/ganesh:GrD3DTypesMinimal_hdr",
     ],
 )
 
@@ -622,7 +622,7 @@ generated_cc_atom(
         "//include/core:SkImage_hdr",
         "//include/gpu:GrTypes_hdr",
         "//include/gpu/d3d:GrD3DTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrD3DTypesMinimal.h"
+#include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
 
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/ganesh/d3d/GrD3DResourceState.h"
@@ -81,4 +81,3 @@ void GrD3DTextureResourceSpecHolder::cleanup() {
     delete fSpec;
     fSpec = nullptr;
 }
-

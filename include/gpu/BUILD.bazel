@@ -19,7 +19,7 @@ generated_cc_atom(
         "//include/gpu/gl:GrGLTypes_hdr",
         "//include/gpu/mtl:GrMtlTypes_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
-        "//include/private:GrD3DTypesMinimal_hdr",
+        "//include/private/gpu/ganesh:GrD3DTypesMinimal_hdr",
     ],
 )
 
@@ -29,7 +29,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrTypes_hdr",
-        "//include/private:GrVkTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrVkTypesPriv_hdr",
     ],
 )
 
@@ -46,9 +46,9 @@ generated_cc_atom(
         "//include/gpu/mock:GrMockTypes_hdr",
         "//include/gpu/mtl:GrMtlTypes_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
-        "//include/private:GrD3DTypesMinimal_hdr",
-        "//include/private:GrGLTypesPriv_hdr",
-        "//include/private:GrVkTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrD3DTypesMinimal_hdr",
+        "//include/private/gpu/ganesh:GrGLTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrVkTypesPriv_hdr",
         "//third_party:dawn",
     ],
 )
@@ -71,7 +71,7 @@ generated_cc_atom(
         "//include/core:SkData_hdr",
         "//include/core:SkString_hdr",
         "//include/core:SkTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 
@@ -120,8 +120,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkRefCnt_hdr",
-        "//include/private:GrImageContext_hdr",
         "//include/private:SkTArray_hdr",
+        "//include/private/gpu/ganesh:GrImageContext_hdr",
     ],
 )
 
@@ -131,12 +131,12 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrTypes_hdr",
-        "//include/private:GrD3DTypesMinimal_hdr",
-        "//include/private:GrDawnTypesPriv_hdr",
-        "//include/private:GrGLTypesPriv_hdr",
-        "//include/private:GrMockTypesPriv_hdr",
-        "//include/private:GrMtlTypesPriv_hdr",
-        "//include/private:GrVkTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrD3DTypesMinimal_hdr",
+        "//include/private/gpu/ganesh:GrDawnTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrGLTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrMockTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrMtlTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrVkTypesPriv_hdr",
     ],
 )
 

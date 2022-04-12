@@ -9,7 +9,7 @@
 #define SurfaceFillContext_v1_DEFINED
 
 #include "include/core/SkSize.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"

@@ -10,7 +10,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"

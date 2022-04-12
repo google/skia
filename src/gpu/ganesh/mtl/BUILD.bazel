@@ -54,7 +54,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkImage_hdr",
         "//include/gpu/mtl:GrMtlTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 
@@ -76,7 +76,7 @@ generated_cc_atom(
     deps = [
         "//include/gpu:GrTypes_hdr",
         "//include/gpu/mtl:GrMtlTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 
@@ -91,8 +91,8 @@ generated_cc_atom(
         ":GrMtlResourceProvider_hdr",
         ":GrMtlUtil_hdr",
         "//include/gpu/mtl:GrMtlBackendContext_hdr",
-        "//include/private:GrMtlTypesPriv_hdr",
         "//include/private:SkDeque_hdr",
+        "//include/private/gpu/ganesh:GrMtlTypesPriv_hdr",
         "//src/gpu/ganesh:GrFinishCallbacks_hdr",
         "//src/gpu/ganesh:GrGpu_hdr",
         "//src/gpu/ganesh:GrRenderTarget_hdr",
@@ -147,7 +147,7 @@ generated_cc_atom(
         ":GrMtlBuffer_hdr",
         ":GrMtlPipelineStateDataManager_hdr",
         ":GrMtlPipeline_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrStencilSettings_hdr",
         "//src/gpu/ganesh/glsl:GrGLSLProgramBuilder_hdr",
     ],
@@ -220,7 +220,7 @@ generated_cc_atom(
     deps = [
         ":GrMtlUtil_hdr",
         "//include/gpu:GrBackendSemaphore_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrManagedResource_hdr",
         "//src/gpu/ganesh:GrSemaphore_hdr",
     ],
@@ -274,8 +274,8 @@ generated_cc_atom(
     deps = [
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu:GrContextOptions_hdr",
-        "//include/private:GrMtlTypesPriv_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrMtlTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
     ],
 )

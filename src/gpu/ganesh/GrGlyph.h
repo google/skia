@@ -8,7 +8,7 @@
 #ifndef GrGlyph_DEFINED
 #define GrGlyph_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"

@@ -12,7 +12,7 @@
 #include "src/core/SkYUVAInfoLocation.h"
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrImageContext.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
 #endif
 
 

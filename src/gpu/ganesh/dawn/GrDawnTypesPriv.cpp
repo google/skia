@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrDawnTypesPriv.h"
+#include "include/private/gpu/ganesh/GrDawnTypesPriv.h"
 
 GrDawnSurfaceInfo GrDawnTextureSpecToSurfaceInfo(const GrDawnTextureSpec& dawnSpec,
                                                  uint32_t sampleCount,

@@ -531,7 +531,7 @@ const GrGeometryProcessor::TextureSampler& GrGeometryProcessor::IthTextureSample
 
 /**
  * Returns the size of the attrib type in bytes.
- * This was moved from include/private/GrTypesPriv.h in service of Skia dependents that build
+ * This was moved from include/private/gpu/ganesh/GrTypesPriv.h in service of Skia dependents that build
  * with C++11.
  */
 static constexpr inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {

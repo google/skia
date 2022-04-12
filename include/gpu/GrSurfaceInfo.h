@@ -11,22 +11,22 @@
 #include "include/gpu/GrTypes.h"
 
 #ifdef SK_GL
-#include "include/private/GrGLTypesPriv.h"
+#include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #endif
 #ifdef SK_VULKAN
-#include "include/private/GrVkTypesPriv.h"
+#include "include/private/gpu/ganesh/GrVkTypesPriv.h"
 #endif
 #ifdef SK_DIRECT3D
-#include "include/private/GrD3DTypesMinimal.h"
+#include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
 struct GrD3DSurfaceInfo;
 #endif
 #ifdef SK_METAL
-#include "include/private/GrMtlTypesPriv.h"
+#include "include/private/gpu/ganesh/GrMtlTypesPriv.h"
 #endif
 #ifdef SK_DAWN
-#include "include/private/GrDawnTypesPriv.h"
+#include "include/private/gpu/ganesh/GrDawnTypesPriv.h"
 #endif
-#include "include/private/GrMockTypesPriv.h"
+#include "include/private/gpu/ganesh/GrMockTypesPriv.h"
 
 class GrSurfaceInfo {
 public:

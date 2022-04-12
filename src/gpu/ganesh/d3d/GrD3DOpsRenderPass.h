@@ -11,7 +11,7 @@
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 class GrD3DGpu;
 class GrD3DPipelineState;

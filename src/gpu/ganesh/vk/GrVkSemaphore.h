@@ -11,7 +11,7 @@
 #include "src/gpu/ganesh/GrSemaphore.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 
 #include <cinttypes>

@@ -201,7 +201,7 @@ generated_cc_atom(
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkSurface_hdr",
         "//include/ports:SkCFObject_hdr",
-        "//include/private:GrMtlTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrMtlTypesPriv_hdr",
     ],
 )
 

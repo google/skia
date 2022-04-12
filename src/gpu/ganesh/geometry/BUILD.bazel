@@ -111,8 +111,8 @@ generated_cc_atom(
         ":GrQuadUtils_hdr",
         ":GrQuad_hdr",
         "//include/core:SkRect_hdr",
-        "//include/private:GrTypesPriv_hdr",
         "//include/private:SkVx_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/core:SkPathPriv_hdr",
     ],
 )
@@ -137,7 +137,7 @@ generated_cc_atom(
     deps = [
         ":GrQuad_hdr",
         "//include/core:SkMatrix_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 

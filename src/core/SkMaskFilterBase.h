@@ -17,7 +17,7 @@
 #include "src/core/SkMask.h"
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #endif
 
 class GrClip;

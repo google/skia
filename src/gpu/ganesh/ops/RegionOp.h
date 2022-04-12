@@ -8,7 +8,7 @@
 #ifndef RegionOp_DEFINED
 #define RegionOp_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
 class GrPaint;

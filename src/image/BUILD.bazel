@@ -58,7 +58,7 @@ generated_cc_atom(
         ":SkImage_Base_hdr",
         "//include/core:SkDeferredDisplayListRecorder_hdr",
         "//include/gpu:GrBackendSurface_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/core:SkYUVAInfoLocation_hdr",
     ],
 )
@@ -363,7 +363,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSurface_Base_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 

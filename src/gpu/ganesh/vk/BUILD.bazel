@@ -370,8 +370,8 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
-        "//include/private:GrVkTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrVkTypesPriv_hdr",
         "//src/gpu/ganesh:GrAttachment_hdr",
         "//src/gpu/ganesh:GrBackendSurfaceMutableStateImpl_hdr",
         "//src/gpu/ganesh:GrManagedResource_hdr",
@@ -465,8 +465,8 @@ generated_cc_atom(
     deps = [
         "//include/gpu/vk:GrVkMemoryAllocator_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
         "//include/private:SkTArray_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
 )
 
@@ -660,7 +660,7 @@ generated_cc_atom(
     deps = [
         ":GrVkManagedResource_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrGeometryProcessor_hdr",
         "//src/gpu/ganesh:GrXferProcessor_hdr",
     ],
@@ -865,7 +865,7 @@ generated_cc_atom(
     deps = [
         ":GrVkManagedResource_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrSemaphore_hdr",
     ],
 )
@@ -946,7 +946,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrVkImageLayout_hdr",
-        "//include/private:GrVkTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrVkTypesPriv_hdr",
         "//src/gpu/ganesh:GrBackendSurfaceMutableStateImpl_hdr",
     ],
 )

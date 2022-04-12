@@ -8,8 +8,8 @@
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/GrContext_Base.h"
 #include "include/private/SkSLString.h"
+#include "include/private/gpu/ganesh/GrContext_Base.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVM.h"

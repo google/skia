@@ -106,10 +106,10 @@ generated_cc_atom(
     deps = [
         ":GrGLAttachment_hdr",
         ":GrGLUtil_hdr",
-        "//include/private:GrGLTypesPriv_hdr",
         "//include/private:SkChecksum_hdr",
         "//include/private:SkTArray_hdr",
         "//include/private:SkTHash_hdr",
+        "//include/private/gpu/ganesh:GrGLTypesPriv_hdr",
         "//src/gpu:Swizzle_hdr",
         "//src/gpu/ganesh:GrCaps_hdr",
     ],
@@ -416,7 +416,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/gpu:GrBackendSemaphore_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrSemaphore_hdr",
     ],
 )
@@ -461,7 +461,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrGLUtil_hdr",
-        "//include/private:GrGLTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrGLTypesPriv_hdr",
         "//src/gpu/ganesh:GrGpu_hdr",
         "//src/gpu/ganesh:GrTexture_hdr",
     ],
@@ -489,7 +489,7 @@ generated_cc_atom(
     deps = [
         ":GrGLDefines_impl_hdr",
         "//include/core:SkScalar_hdr",
-        "//include/private:GrGLTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrGLTypesPriv_hdr",
         "//src/gpu:Swizzle_hdr",
     ],
 )
@@ -526,8 +526,8 @@ generated_cc_atom(
     deps = [
         ":GrGLDefines_impl_hdr",
         "//include/gpu/gl:GrGLInterface_hdr",
-        "//include/private:GrTypesPriv_hdr",
         "//include/private:SkImageInfoPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrDataUtils_hdr",
         "//src/gpu/ganesh:GrStencilSettings_hdr",
     ],
@@ -540,7 +540,7 @@ generated_cc_atom(
     deps = [
         ":GrGLUtil_hdr",
         "//include/core:SkMatrix_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrDataUtils_hdr",
     ],
 )
@@ -551,7 +551,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrGLProgramDataManager_hdr",
-        "//include/private:GrTypesPriv_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh/glsl:GrGLSLVarying_hdr",
     ],
 )
@@ -563,8 +563,8 @@ generated_cc_atom(
     deps = [
         ":GrGLDefines_impl_hdr",
         "//include/gpu/gl:GrGLTypes_hdr",
-        "//include/private:GrTypesPriv_hdr",
         "//include/private:SkTArray_hdr",
+        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrGpuResource_hdr",
     ],
 )

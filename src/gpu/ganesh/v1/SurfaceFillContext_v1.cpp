@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/v1/SurfaceFillContext_v1.h"
 
-#include "include/private/GrImageContext.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/gpu/ganesh/GrDstProxyView.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"

@@ -9,7 +9,7 @@
 #define GrMtlSemaphore_DEFINED
 
 #include "include/gpu/GrBackendSemaphore.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"

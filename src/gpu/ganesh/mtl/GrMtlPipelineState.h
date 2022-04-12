@@ -8,7 +8,7 @@
 #ifndef GrMtlPipelineState_DEFINED
 #define GrMtlPipelineState_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/ganesh/mtl/GrMtlBuffer.h"

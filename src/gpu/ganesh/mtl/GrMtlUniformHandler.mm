@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/mtl/GrMtlUniformHandler.h"
 
-#include "include/private/GrMtlTypesPriv.h"
+#include "include/private/gpu/ganesh/GrMtlTypesPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrUtil.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"

@@ -21,7 +21,7 @@
 #endif
 
 #ifdef SK_DIRECT3D
-#include "include/private/GrD3DTypesMinimal.h"
+#include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
 #endif
 
 /**

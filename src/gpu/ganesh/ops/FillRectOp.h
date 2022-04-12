@@ -8,7 +8,7 @@
 #ifndef FillRectOp_DEFINED
 #define FillRectOp_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
 struct DrawQuad;

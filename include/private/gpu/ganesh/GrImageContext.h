@@ -8,8 +8,8 @@
 #ifndef GrImageContext_DEFINED
 #define GrImageContext_DEFINED
 
-#include "include/private/GrContext_Base.h"
 #include "include/private/SingleOwner.h"
+#include "include/private/gpu/ganesh/GrContext_Base.h"
 
 class GrImageContextPriv;
 

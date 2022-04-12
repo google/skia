@@ -8,7 +8,7 @@
 #ifndef GrDawnUtil_DEFINED
 #define GrDawnUtil_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "webgpu/webgpu_cpp.h"
 
 size_t GrDawnBytesPerBlock(wgpu::TextureFormat format);

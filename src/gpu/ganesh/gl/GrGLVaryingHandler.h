@@ -8,7 +8,7 @@
 #ifndef GrGLVaryingHandler_DEFINED
 #define GrGLVaryingHandler_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/gl/GrGLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 

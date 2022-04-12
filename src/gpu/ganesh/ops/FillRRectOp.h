@@ -8,7 +8,7 @@
 #ifndef FillRRectOp_DEFINED
 #define FillRRectOp_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
 class GrCaps;

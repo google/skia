@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/GrContext_Base.h"
+#include "include/private/gpu/ganesh/GrContext_Base.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"

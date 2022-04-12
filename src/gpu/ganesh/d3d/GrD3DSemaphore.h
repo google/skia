@@ -10,7 +10,7 @@
 
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
 
 class GrD3DGpu;

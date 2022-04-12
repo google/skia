@@ -11,7 +11,7 @@
 #include "include/gpu/GrTypes.h"
 
 #ifdef SK_VULKAN
-#include "include/private/GrVkTypesPriv.h"
+#include "include/private/gpu/ganesh/GrVkTypesPriv.h"
 #endif
 
 /**

@@ -8,7 +8,7 @@
 #ifndef ProxyUtils_DEFINED
 #define ProxyUtils_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"

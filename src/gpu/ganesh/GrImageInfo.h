@@ -11,7 +11,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 
 #include <stddef.h>

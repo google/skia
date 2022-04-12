@@ -9,7 +9,7 @@
 #define GrVkPipeline_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"

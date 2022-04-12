@@ -9,10 +9,10 @@
 #define GrBufferAllocPool_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/GrTypesPriv.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCpuBuffer.h"
 #include "src/gpu/ganesh/GrDrawIndirectCommand.h"
 #include "src/gpu/ganesh/GrNonAtomicRef.h"
