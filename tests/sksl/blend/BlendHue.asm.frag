@@ -102,12 +102,10 @@ OpDecorate %119 RelaxedPrecision
 OpDecorate %120 RelaxedPrecision
 OpDecorate %122 RelaxedPrecision
 OpDecorate %123 RelaxedPrecision
-OpDecorate %125 RelaxedPrecision
 OpDecorate %126 RelaxedPrecision
 OpDecorate %127 RelaxedPrecision
 OpDecorate %_4_lum RelaxedPrecision
 OpDecorate %129 RelaxedPrecision
-OpDecorate %133 RelaxedPrecision
 OpDecorate %134 RelaxedPrecision
 OpDecorate %_5_result RelaxedPrecision
 OpDecorate %136 RelaxedPrecision

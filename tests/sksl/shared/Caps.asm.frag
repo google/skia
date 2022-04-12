@@ -16,7 +16,7 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %21 RelaxedPrecision
 OpDecorate %23 RelaxedPrecision
 OpDecorate %25 RelaxedPrecision
-OpDecorate %26 RelaxedPrecision
+OpDecorate %27 RelaxedPrecision
 OpDecorate %28 RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
 %float = OpTypeFloat 32
@@ -49,9 +49,9 @@ OpStore %z %int_1
 %23 = OpConvertSToF %float %22
 %24 = OpLoad %int %z
 %25 = OpConvertSToF %float %24
-%26 = OpCompositeConstruct %v3float %21 %23 %25
+%27 = OpCompositeConstruct %v3float %21 %23 %25
 %28 = OpLoad %v4float %sk_FragColor
-%29 = OpVectorShuffle %v4float %28 %26 4 5 6 3
+%29 = OpVectorShuffle %v4float %28 %27 4 5 6 3
 OpStore %sk_FragColor %29
 OpReturn
 OpFunctionEnd

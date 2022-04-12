@@ -43,12 +43,10 @@ OpDecorate %57 RelaxedPrecision
 OpDecorate %58 RelaxedPrecision
 OpDecorate %59 RelaxedPrecision
 OpDecorate %result RelaxedPrecision
-OpDecorate %65 RelaxedPrecision
 OpDecorate %66 RelaxedPrecision
 OpDecorate %67 RelaxedPrecision
 OpDecorate %69 RelaxedPrecision
 OpDecorate %70 RelaxedPrecision
-OpDecorate %71 RelaxedPrecision
 OpDecorate %83 RelaxedPrecision
 OpDecorate %86 RelaxedPrecision
 OpDecorate %87 RelaxedPrecision
@@ -64,8 +62,8 @@ OpDecorate %87 RelaxedPrecision
 %12 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
 %17 = OpTypeFunction %void
-%v2float = OpTypeVector %float 2
 %float_0 = OpConstant %float 0
+%v2float = OpTypeVector %float 2
 %21 = OpConstantComposite %v2float %float_0 %float_0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %_ptr_Function_float = OpTypePointer Function %float

@@ -35,8 +35,8 @@ OpDecorate %26 RelaxedPrecision
 %test2DRect = OpVariable %_ptr_UniformConstant_12 UniformConstant
 %void = OpTypeVoid
 %16 = OpTypeFunction %void
-%v2float = OpTypeVector %float 2
 %float_0_5 = OpConstant %float 0.5
+%v2float = OpTypeVector %float 2
 %22 = OpConstantComposite %v2float %float_0_5 %float_0_5
 %v3float = OpTypeVector %float 3
 %28 = OpConstantComposite %v3float %float_0_5 %float_0_5 %float_0_5

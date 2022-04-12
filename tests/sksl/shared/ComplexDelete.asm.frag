@@ -42,8 +42,8 @@ OpDecorate %24 RelaxedPrecision
 %void = OpTypeVoid
 %19 = OpTypeFunction %void
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%v2float = OpTypeVector %float 2
 %float_1 = OpConstant %float 1
+%v2float = OpTypeVector %float 2
 %27 = OpConstantComposite %v2float %float_1 %float_1
 %_ptr_Uniform_mat4v4float = OpTypePointer Uniform %mat4v4float
 %int = OpTypeInt 32 1

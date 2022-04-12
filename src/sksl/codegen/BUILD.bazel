@@ -235,7 +235,6 @@ generated_cc_atom(
         "//include/private:SkSLProgramKind_hdr",
         "//include/private:SkTArray_hdr",
         "//include/private:SkTHash_hdr",
-        "//src/core:SkOpts_hdr",
         "//src/sksl:SkSLMemoryLayout_hdr",
         "//src/sksl:SkSLStringStream_hdr",
         "//src/sksl:spirv_hdr",

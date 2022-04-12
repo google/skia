@@ -37,8 +37,8 @@ OpDecorate %37 RelaxedPrecision
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%v2float = OpTypeVector %float 2
 %float_0 = OpConstant %float 0
+%v2float = OpTypeVector %float 2
 %23 = OpConstantComposite %v2float %float_0 %float_0
 %v3float = OpTypeVector %float 3
 %28 = OpConstantComposite %v3float %float_0 %float_0 %float_0

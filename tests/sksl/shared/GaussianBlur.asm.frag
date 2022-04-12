@@ -58,10 +58,8 @@ OpDecorate %98 RelaxedPrecision
 OpDecorate %99 RelaxedPrecision
 OpDecorate %outputColor_Stage0 RelaxedPrecision
 OpDecorate %outputCoverage_Stage0 RelaxedPrecision
-OpDecorate %105 RelaxedPrecision
 OpDecorate %output_Stage1 RelaxedPrecision
 OpDecorate %_6_output RelaxedPrecision
-OpDecorate %109 RelaxedPrecision
 OpDecorate %115 RelaxedPrecision
 OpDecorate %116 RelaxedPrecision
 OpDecorate %121 RelaxedPrecision

@@ -28,33 +28,26 @@ OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
 OpDecorate %constGreen RelaxedPrecision
-OpDecorate %29 RelaxedPrecision
 OpDecorate %expectedA RelaxedPrecision
-OpDecorate %31 RelaxedPrecision
 OpDecorate %expectedB RelaxedPrecision
-OpDecorate %33 RelaxedPrecision
 OpDecorate %41 RelaxedPrecision
 OpDecorate %42 RelaxedPrecision
 OpDecorate %43 RelaxedPrecision
 OpDecorate %44 RelaxedPrecision
-OpDecorate %49 RelaxedPrecision
 OpDecorate %51 RelaxedPrecision
 OpDecorate %52 RelaxedPrecision
 OpDecorate %53 RelaxedPrecision
 OpDecorate %54 RelaxedPrecision
-OpDecorate %63 RelaxedPrecision
 OpDecorate %65 RelaxedPrecision
 OpDecorate %66 RelaxedPrecision
 OpDecorate %67 RelaxedPrecision
 OpDecorate %68 RelaxedPrecision
-OpDecorate %76 RelaxedPrecision
 OpDecorate %78 RelaxedPrecision
 OpDecorate %79 RelaxedPrecision
 OpDecorate %86 RelaxedPrecision
 OpDecorate %87 RelaxedPrecision
 OpDecorate %92 RelaxedPrecision
 OpDecorate %93 RelaxedPrecision
-OpDecorate %99 RelaxedPrecision
 OpDecorate %100 RelaxedPrecision
 OpDecorate %101 RelaxedPrecision
 OpDecorate %107 RelaxedPrecision
@@ -64,12 +57,10 @@ OpDecorate %117 RelaxedPrecision
 OpDecorate %118 RelaxedPrecision
 OpDecorate %125 RelaxedPrecision
 OpDecorate %126 RelaxedPrecision
-OpDecorate %127 RelaxedPrecision
 OpDecorate %128 RelaxedPrecision
 OpDecorate %129 RelaxedPrecision
 OpDecorate %137 RelaxedPrecision
 OpDecorate %138 RelaxedPrecision
-OpDecorate %139 RelaxedPrecision
 OpDecorate %140 RelaxedPrecision
 OpDecorate %141 RelaxedPrecision
 OpDecorate %149 RelaxedPrecision
@@ -77,10 +68,8 @@ OpDecorate %150 RelaxedPrecision
 OpDecorate %151 RelaxedPrecision
 OpDecorate %157 RelaxedPrecision
 OpDecorate %158 RelaxedPrecision
-OpDecorate %163 RelaxedPrecision
 OpDecorate %164 RelaxedPrecision
 OpDecorate %165 RelaxedPrecision
-OpDecorate %171 RelaxedPrecision
 OpDecorate %172 RelaxedPrecision
 OpDecorate %173 RelaxedPrecision
 OpDecorate %179 RelaxedPrecision
@@ -99,8 +88,8 @@ OpDecorate %193 RelaxedPrecision
 %10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
-%v2float = OpTypeVector %float 2
 %float_0 = OpConstant %float 0
+%v2float = OpTypeVector %float 2
 %19 = OpConstantComposite %v2float %float_0 %float_0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %23 = OpTypeFunction %v4float %_ptr_Function_v2float

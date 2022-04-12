@@ -56,8 +56,8 @@ OpDecorate %139 RelaxedPrecision
 %10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
-%v2float = OpTypeVector %float 2
 %float_0 = OpConstant %float 0
+%v2float = OpTypeVector %float 2
 %19 = OpConstantComposite %v2float %float_0 %float_0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %23 = OpTypeFunction %v4float %_ptr_Function_v2float
@@ -111,8 +111,8 @@ OpBranchConditional %43 %44 %45
 %51 = OpConvertFToS %int %50
 %52 = OpCompositeExtract %float %49 1
 %53 = OpConvertFToS %int %52
-%54 = OpCompositeConstruct %v2int %51 %53
-%46 = OpExtInst %v2int %1 SAbs %54
+%55 = OpCompositeConstruct %v2int %51 %53
+%46 = OpExtInst %v2int %1 SAbs %55
 %56 = OpLoad %v4int %expected
 %57 = OpVectorShuffle %v2int %56 %56 0 1
 %58 = OpIEqual %v2bool %46 %57
@@ -132,8 +132,8 @@ OpBranchConditional %61 %62 %63
 %72 = OpConvertFToS %int %71
 %73 = OpCompositeExtract %float %67 2
 %74 = OpConvertFToS %int %73
-%75 = OpCompositeConstruct %v3int %70 %72 %74
-%64 = OpExtInst %v3int %1 SAbs %75
+%76 = OpCompositeConstruct %v3int %70 %72 %74
+%64 = OpExtInst %v3int %1 SAbs %76
 %77 = OpLoad %v4int %expected
 %78 = OpVectorShuffle %v3int %77 %77 0 1 2
 %79 = OpIEqual %v3bool %64 %78

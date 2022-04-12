@@ -14,7 +14,6 @@
 #include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
-#include "src/core/SkOpts.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
@@ -32,6 +31,8 @@
 #include <string>
 #include <string_view>
 #include <vector>
+
+template <typename T> class SkSpan;
 
 namespace SkSL {
 
@@ -68,39 +69,6 @@ enum IntrinsicKind : int8_t;
 struct IndexExpression;
 struct Program;
 struct Swizzle;
-
-struct SPIRVNumberConstant {
-    bool operator==(const SPIRVNumberConstant& that) const {
-        return fValueBits == that.fValueBits &&
-               fKind      == that.fKind;
-    }
-    int32_t                fValueBits;
-    SkSL::Type::NumberKind fKind;
-
-    struct Hash {
-        uint32_t operator()(const SPIRVNumberConstant& key) const {
-            return key.fValueBits ^ (int)key.fKind;
-        }
-    };
-};
-
-struct SPIRVVectorConstant {
-    bool operator==(const SPIRVVectorConstant& that) const {
-        return fTypeId     == that.fTypeId &&
-               fValueId[0] == that.fValueId[0] &&
-               fValueId[1] == that.fValueId[1] &&
-               fValueId[2] == that.fValueId[2] &&
-               fValueId[3] == that.fValueId[3];
-    }
-    SpvId fTypeId;
-    SpvId fValueId[4];
-
-    struct Hash {
-        uint32_t operator()(const SPIRVVectorConstant& key) const {
-            return SkOpts::hash(&key, sizeof(key));
-        }
-    };
-};
 
 /**
  * Converts a Program into a SPIR-V binary.
@@ -270,10 +238,6 @@ private:
 
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
 
-    SpvId writeConstantVector(const AnyConstructor& c);
-
-    SpvId writeConstantVector(const Type& type, const SPIRVVectorConstant& key);
-
     SpvId writeScalarToMatrixSplat(const Type& matrixType, SpvId scalarId, OutputStream& out);
 
     SpvId writeFloatConstructor(const AnyConstructor& c, OutputStream& out);
@@ -312,8 +276,8 @@ private:
      */
     SpvId writeMatrixCopy(SpvId src, const Type& srcType, const Type& dstType, OutputStream& out);
 
-    void addColumnEntry(const Type& columnType, std::vector<SpvId>* currentColumn,
-                        std::vector<SpvId>* columnIds, int rows, SpvId entry, OutputStream& out);
+    void addColumnEntry(const Type& columnType, SkTArray<SpvId>* currentColumn,
+                        SkTArray<SpvId>* columnIds, int rows, SpvId entry, OutputStream& out);
 
     SpvId writeConstructorCompound(const ConstructorCompound& c, OutputStream& out);
 
@@ -332,10 +296,6 @@ private:
     SpvId writeConstructorSplat(const ConstructorSplat& c, OutputStream& out);
 
     SpvId writeConstructorCompoundCast(const ConstructorCompoundCast& c, OutputStream& out);
-
-    SpvId writeCompositeAsConstant(const std::vector<SpvId>& arguments,
-                                   const Type& type,
-                                   OutputStream& out);
 
     SpvId writeComposite(const std::vector<SpvId>& arguments, const Type& type, OutputStream& out);
 
@@ -485,6 +445,12 @@ private:
     SpvId writeOpConstantTrue(const Type& type);
     SpvId writeOpConstantFalse(const Type& type);
     SpvId writeOpConstant(const Type& type, int32_t valueBits);
+    SpvId writeOpConstantComposite(const Type& type, const SkTArray<SpvId>& values);
+    SpvId writeOpCompositeConstruct(const Type& type, const SkTArray<SpvId>&, OutputStream& out);
+
+    // Converts the provided SpvId(s) into an array of scalar OpConstants, if it can be done.
+    bool toConstants(SpvId value, SkTArray<SpvId>* constants);
+    bool toConstants(SkSpan<const SpvId> values, SkTArray<SpvId>* constants);
 
     void pruneReachableOps(size_t numReachableOps);
 
@@ -549,8 +515,6 @@ private:
     // unreachable, we remove it from both op-caches.
     std::vector<SpvId> fReachableOps;
 
-    SkTHashMap<SPIRVNumberConstant, SpvId, SPIRVNumberConstant::Hash> fNumberConstants;
-    SkTHashMap<SPIRVVectorConstant, SpvId, SPIRVVectorConstant::Hash> fVectorConstants;
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;
     std::stack<SpvId> fBreakTarget;

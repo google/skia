@@ -38,8 +38,8 @@ OpDecorate %60 RelaxedPrecision
 %10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
-%v2float = OpTypeVector %float 2
 %float_0 = OpConstant %float 0
+%v2float = OpTypeVector %float 2
 %19 = OpConstantComposite %v2float %float_0 %float_0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %23 = OpTypeFunction %v4float %_ptr_Function_v2float
@@ -72,9 +72,9 @@ OpStore %i %33
 %38 = OpCompositeConstruct %v4int %37 %37 %37 %37
 OpStore %i4 %38
 %39 = OpLoad %int %i
-%40 = OpCompositeConstruct %v2int %39 %39
-%42 = OpCompositeExtract %int %40 0
-%43 = OpCompositeExtract %int %40 1
+%41 = OpCompositeConstruct %v2int %39 %39
+%42 = OpCompositeExtract %int %41 0
+%43 = OpCompositeExtract %int %41 1
 %45 = OpCompositeConstruct %v4int %42 %43 %int_0 %int_1
 OpStore %i4 %45
 %46 = OpLoad %int %i

@@ -22,6 +22,6 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %12 = OpLoad %int %i
 %14 = OpISub %int %12 %int_1
 OpStore %i %14
-%15 = OpCompositeConstruct %v3int %12 %12 %12
+%16 = OpCompositeConstruct %v3int %12 %12 %12
 OpReturn
 OpFunctionEnd
