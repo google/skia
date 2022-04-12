@@ -319,8 +319,7 @@ RemoteStrike::RemoteStrike(
     SkASSERT(fContext != nullptr);
 }
 
-// No need to write fForceBW because it is a flag private to SkScalerContext_DW, which will never
-// be called on the GPU side.
+// No need to write fScalerContextBits because any needed image is already generated.
 void write_glyph(const SkGlyph& glyph, Serializer* serializer) {
     serializer->write<SkPackedGlyphID>(glyph.getPackedID());
     serializer->write<float>(glyph.advanceX());
@@ -969,8 +968,7 @@ SkStrikeClientImpl::SkStrikeClientImpl(
       fStrikeCache{strikeCache ? strikeCache : SkStrikeCache::GlobalStrikeCache()},
       fIsLogging{isLogging} {}
 
-// No need to read fForceBW because it is a flag private to SkScalerContext_DW, which will never
-// be called on the GPU side.
+// No need to write fScalerContextBits because any needed image is already generated.
 bool SkStrikeClientImpl::ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer) {
     SkPackedGlyphID glyphID;
     if (!deserializer->read<SkPackedGlyphID>(&glyphID)) return false;

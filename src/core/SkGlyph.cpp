@@ -119,7 +119,7 @@ size_t SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
         fHeight = from.fHeight;
         fTop = from.fTop;
         fLeft = from.fLeft;
-        fForceBW = from.fForceBW;
+        fScalerContextBits = from.fScalerContextBits;
         fMaskFormat = from.fMaskFormat;
 
         // From glyph may not have an image because the glyph is too large.

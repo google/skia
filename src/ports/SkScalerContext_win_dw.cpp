@@ -777,7 +777,7 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
                                   &bbox),
              "Fallback bounding box could not be determined.");
         if (glyphCheckAndSetBounds(glyph, bbox)) {
-            glyph->fForceBW = 1;
+            glyph->fScalerContextBits |= ScalerContextBits::ForceBW;
             glyph->fMaskFormat = SkMask::kBW_Format;
         }
     }
@@ -1180,7 +1180,7 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     //Create the mask.
     DWRITE_RENDERING_MODE renderingMode = fRenderingMode;
     DWRITE_TEXTURE_TYPE textureType = fTextureType;
-    if (glyph.fForceBW) {
+    if (glyph.fScalerContextBits & ScalerContextBits::ForceBW) {
         renderingMode = DWRITE_RENDERING_MODE_ALIASED;
         textureType = DWRITE_TEXTURE_ALIASED_1x1;
     }

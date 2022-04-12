@@ -36,6 +36,10 @@ protected:
     void generateFontMetrics(SkFontMetrics*) override;
 
 private:
+    struct ScalerContextBits {
+        static const constexpr uint32_t ForceBW = 1 << 0;
+    };
+
     static void BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph);
 
     template<bool APPLY_PREBLEND>
