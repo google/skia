@@ -273,11 +273,11 @@ public:
 private:
     static_assert(SkPackedGlyphID::kEndData == 20);
     struct {
-        uint32_t fIndex         : SkPackedGlyphID::kEndData;
-        uint32_t fIsEmpty       : 1;
-        uint32_t fIsColor       : 1;
-        uint32_t fCanDrawAsMask : 1;
-        uint32_t fCanDrawAsSDFT : 1;
+        uint32_t fIndex     : SkPackedGlyphID::kEndData;
+        bool fIsEmpty       : 1;
+        bool fIsColor       : 1;
+        bool fCanDrawAsMask : 1;
+        bool fCanDrawAsSDFT : 1;
     };
     SkGlyphRect fBounds;
 };
