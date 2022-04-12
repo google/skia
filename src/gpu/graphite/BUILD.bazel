@@ -191,6 +191,7 @@ generated_cc_atom(
         ":EnumBitMask_hdr",
         "//src/core:SkDevice_hdr",
         "//src/gpu/graphite/geom:Rect_hdr",
+        "//src/gpu/graphite/geom:Transform_graphite_hdr",
     ],
 )
 

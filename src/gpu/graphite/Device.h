@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/EnumBitMask.h"
 #include "src/gpu/graphite/geom/Rect.h"
+#include "src/gpu/graphite/geom/Transform_graphite.h"
 
 class SkStrokeRec;
 
@@ -28,7 +29,6 @@ class Recorder;
 class Shape;
 class StrokeStyle;
 class TextureProxy;
-class Transform;
 
 class Device final : public SkBaseDevice  {
 public:
@@ -53,6 +53,8 @@ public:
     void flushPendingWorkToRecorder();
 
     bool readPixels(Context*, Recorder*, const SkPixmap& dst, int x, int y);
+
+    const Transform& localToDeviceTransform();
 
 private:
     class IntersectionTreeSet;
@@ -181,6 +183,9 @@ private:
     std::unique_ptr<BoundsManager> fColorDepthBoundsManager;
     // Tracks disjoint stencil indices for all recordered draws
     std::unique_ptr<IntersectionTreeSet> fDisjointStencilSet;
+
+    // Lazily updated Transform constructed from localToDevice()'s SkM44
+    Transform fCachedLocalToDevice;
 
     // The max depth value sent to the DrawContext, incremented so each draw has a unique value.
     PaintersDepth fCurrentDepth;

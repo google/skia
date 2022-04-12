@@ -165,6 +165,7 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         , fClip(SkIRect::MakeSize(fDC->target()->dimensions()))
         , fColorDepthBoundsManager(std::make_unique<NaiveBoundsManager>())
         , fDisjointStencilSet(std::make_unique<IntersectionTreeSet>())
+        , fCachedLocalToDevice(SkM44())
         , fCurrentDepth(DrawOrder::kClearDepth)
         , fDrawsOverlap(false) {
     SkASSERT(SkToBool(fDC) && SkToBool(fRecorder));
@@ -180,6 +181,13 @@ Device::~Device() {
 
 void Device::abandonRecorder() {
     fRecorder = nullptr;
+}
+
+const Transform& Device::localToDeviceTransform() {
+    if (this->checkLocalToDeviceDirty()) {
+        fCachedLocalToDevice = Transform{this->localToDevice44()};
+    }
+    return fCachedLocalToDevice;
 }
 
 SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
@@ -308,29 +316,23 @@ void Device::onAsRgnClip(SkRegion* region) const {
 
 void Device::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
-    // TODO: Cached transform?
-    Transform localToDevice(this->localToDevice44());
     // TODO: Snap rect edges to pixel bounds if non-AA and axis-aligned?
-    fClip.clipShape(localToDevice, Shape{rect}, op);
+    fClip.clipShape(this->localToDeviceTransform(), Shape{rect}, op);
 }
 
 void Device::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
-    // TODO: Cached transform?
-    Transform localToDevice(this->localToDevice44());
     // TODO: Snap rrect edges to pixel bounds if non-AA and axis-aligned? Is that worth doing to
     // seam with non-AA rects even if the curves themselves are AA'ed?
-    fClip.clipShape(localToDevice, Shape{rrect}, op);
+    fClip.clipShape(this->localToDeviceTransform(), Shape{rrect}, op);
 }
 
 void Device::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
-    // TODO: Cached transform?
-    Transform localToDevice(this->localToDevice44());
     // TODO: Ensure all path inspection is handled here or in SkCanvas, and that non-AA rects as
     // paths are routed appropriately.
     // TODO: Must also detect paths that are lines so the clip stack can be set to empty
-    fClip.clipShape(localToDevice, Shape{path}, op);
+    fClip.clipShape(this->localToDeviceTransform(), Shape{path}, op);
 }
 
 void Device::onClipShader(sk_sp<SkShader> shader) {
@@ -381,17 +383,16 @@ void Device::drawPaint(const SkPaint& paint) {
         fDC->clear(paint.getColor4f());
         return;
     }
-    SkRect deviceBounds = SkRect::Make(this->devClipBounds());
-    // TODO: Should be able to get the inverse from the matrix cache
-    SkM44 devToLocal;
-    if (!this->localToDevice44().invert(&devToLocal)) {
+
+    const Transform& localToDevice = this->localToDeviceTransform();
+    if (!localToDevice.valid()) {
         // TBD: This matches legacy behavior for drawPaint() that requires local coords, although
         // v1 handles arbitrary transforms when the paint is solid color because it just fills the
         // device bounds directly. In the new world it might be nice to have non-invertible
         // transforms formalized (i.e. no drawing ever, handled at SkCanvas level possibly?)
         return;
     }
-    SkRect localCoveringBounds = SkMatrixPriv::MapRect(devToLocal, deviceBounds);
+    Rect localCoveringBounds = localToDevice.inverseMapRect(fClip.conservativeBounds());
     this->drawShape(Shape(localCoveringBounds), paint, kFillStyle,
                     DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
 }
@@ -446,11 +447,7 @@ void Device::drawShape(const Shape& shape,
                        const SkPaint& paint,
                        const SkStrokeRec& style,
                        Mask<DrawFlags> flags) {
-    // TODO: Device will cache the Transform or otherwise ensure it's computed once per change to
-    // its local-to-device matrix, but that requires updating SkDevice's virtuals. Right now we
-    // re-compute the Transform every draw, as well as any time we recurse on drawShape(), but that
-    // goes away with the caching.
-    Transform localToDevice(this->localToDevice44());
+    const Transform& localToDevice = this->localToDeviceTransform();
     if (!localToDevice.valid()) {
         // If the transform is not invertible or not finite then drawing isn't well defined.
         SKGPU_LOG_W("Skipping draw with non-invertible/non-finite transform.");

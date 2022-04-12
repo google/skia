@@ -188,6 +188,7 @@ public:
     void setLocalToDevice(const SkM44& localToDevice) {
         fLocalToDevice = localToDevice;
         fLocalToDevice33 = fLocalToDevice.asM33();
+        fLocalToDeviceDirty = true;
     }
     void setGlobalCTM(const SkM44& ctm);
     virtual void validateDevBounds(const SkIRect&) {}
@@ -421,6 +422,13 @@ protected:
     // inspect a layer's device to know if calling drawDevice() later is allowed.
     virtual bool isNoPixelsDevice() const { return false; }
 
+    // Returns whether or not localToDevice() has changed since the last call to this function.
+    bool checkLocalToDeviceDirty() {
+        bool wasDirty = fLocalToDeviceDirty;
+        fLocalToDeviceDirty = false;
+        return wasDirty;
+    }
+
 private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
@@ -476,6 +484,11 @@ private:
     // fLocalToDevice (inherited from SkMatrixProvider) is the device CTM, not the global CTM
     // It maps from local space to the device's coordinate space.
     // fDeviceToGlobal * fLocalToDevice will match the canvas' CTM.
+    //
+    // setGlobalCTM and setLocalToDevice are intentionally not virtual for performance reasons.
+    // However, track a dirty bit for subclasses that want to defer local-to-device dependent
+    // calculations until needed for a clip or draw.
+    bool fLocalToDeviceDirty = true;
 
     using INHERITED = SkRefCnt;
 };
