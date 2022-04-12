@@ -133,6 +133,11 @@ public:
             , fStencilIndex(kUnassigned)
             , fDepth(originalOrder) {}
 
+    DrawOrder(PaintersDepth originalOrder, CompressedPaintersOrder compressedOrder)
+            : fPaintOrder(compressedOrder)
+            , fStencilIndex(kUnassigned)
+            , fDepth(originalOrder) {}
+
     CompressedPaintersOrder paintOrder()   const { return fPaintOrder;   }
     DisjointStencilIndex    stencilIndex() const { return fStencilIndex; }
     PaintersDepth           depth()        const { return fDepth;        }

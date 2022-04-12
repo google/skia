@@ -21,6 +21,7 @@ namespace skgpu::graphite {
 
 class BoundsManager;
 class Clip;
+class Device;
 
 // TODO: Port over many of the unit tests for skgpu/v1/ClipStack defined in GrClipStackTest since
 // those tests do a thorough job of enumerating the different element combinations.
@@ -39,8 +40,8 @@ public:
         SkClipOp  fOp;
     };
 
-    // 'deviceBounds' is an SkIRect because it must always represent the bounds of entire pixels.
-    ClipStack(const SkIRect& deviceBounds);
+    // 'owningDevice' must outlive the clip stack.
+    ClipStack(Device* owningDevice);
 
     ~ClipStack();
 
@@ -48,6 +49,7 @@ public:
     ClipStack& operator=(const ClipStack&) = delete;
 
     ClipState clipState() const { return this->currentSaveRecord().state(); }
+    int maxDeferredClipDraws() const { return fElements.count(); }
     Rect conservativeBounds() const;
 
     class ElementIter;
@@ -84,6 +86,8 @@ public:
                                                              const Shape&,
                                                              const SkStrokeRec&,
                                                              PaintersDepth z);
+
+    void recordDeferredClipDraws();
 
 private:
     // SaveRecords and Elements are stored in two parallel stacks. The top-most SaveRecord is the
@@ -123,11 +127,22 @@ private:
                    const Transform& localToDevice,
                    const Shape& shape,
                    SkClipOp op);
-        // TODO: A destructor that validates there's no pending draws that weren't flushed.
+
+        ~RawElement() {
+            // A pending draw means the element affects something already recorded, so its own
+            // shape needs to be recorded as a draw. Since recording requires the Device (and
+            // DrawContext), it must happen before we destroy the element itself.
+            SkASSERT(!this->hasPendingDraw());
+        }
+
+        // Silence warnings about implicit copy ctor/assignment because we're declaring a dtor
+        RawElement(const RawElement&) = default;
+        RawElement& operator=(const RawElement&) = default;
 
         operator TransformedShape() const;
 
-        const Element&   asElement()     const { return *this;          }
+        const Element& asElement()      const { return *this;                                }
+        bool           hasPendingDraw() const { return fOrder != DrawOrder::kNoIntersection; }
 
         const Shape&     shape()         const { return fShape;         }
         const Transform& localToDevice() const { return fLocalToDevice; }
@@ -140,9 +155,6 @@ private:
         // The old elements are marked invalid so they are skipped during clip application, but may
         // become active again when a save record is restored.
         bool isInvalid() const { return fInvalidatedByIndex >= 0; }
-        // TODO: If an element was used by a draw and marked invalid, it can be drawn if it was in
-        // the active save record, since it won't be coming back. If it's not the active save record
-        // its draw can continue to be deferred until that save record is popped off the stack.
         void markInvalid(const SaveRecord& current);
         void restoreValid(const SaveRecord& current);
 
@@ -169,6 +181,11 @@ private:
         std::pair<bool, CompressedPaintersOrder> updateForDraw(const BoundsManager* boundsManager,
                                                                const TransformedShape& draw,
                                                                PaintersDepth drawZ);
+
+        // Record a depth-only draw to the given device, restricted to the portion of the clip that
+        // is actually required based on prior recorded draws. Resets usage tracking for subsequent
+        // passes.
+        void drawClip(Device*);
 
         void validate() const;
 
@@ -240,24 +257,24 @@ private:
 
         // Return true if the element was added to 'elements', or otherwise affected the save record
         // (e.g. turned it empty).
-        bool addElement(RawElement&& toAdd, RawElement::Stack* elements);
+        bool addElement(RawElement&& toAdd, RawElement::Stack* elements, Device*);
 
         void addShader(sk_sp<SkShader> shader);
 
         // Remove the elements owned by this save record, which must happen before the save record
-        // itself is removed from the clip stack.
-        // TODO: This will need to handle drawing any removed clip elements that affected draws.
-        void removeElements(RawElement::Stack* elements);
+        // itself is removed from the clip stack. Records draws for any removed elements that have
+        // draw usages.
+        void removeElements(RawElement::Stack* elements, Device*);
 
         // Restore element validity now that this record is the new top of the stack.
         void restoreElements(RawElement::Stack* elements);
 
     private:
         // These functions modify 'elements' and element-dependent state of the record
-        // (such as valid index and fState).
-        // TODO: This will need to handle drawing any inactivated clip elements that affected draws.
-        bool appendElement(RawElement&& toAdd, RawElement::Stack* elements);
-        void replaceWithElement(RawElement&& toAdd, RawElement::Stack* elements);
+        // (such as valid index and fState). Records draws for any clips that have deferred usages
+        // that are inactivated and cannot be restored (i.e. part of the active save record).
+        bool appendElement(RawElement&& toAdd, RawElement::Stack* elements, Device*);
+        void replaceWithElement(RawElement&& toAdd, RawElement::Stack* elements, Device*);
 
         // Inner bounds is always contained in outer bounds, or it is empty. All bounds will be
         // contained in the device bounds.
@@ -277,6 +294,8 @@ private:
         ClipState fState;
     };
 
+    Rect deviceBounds() const;
+
     const SaveRecord& currentSaveRecord() const {
         SkASSERT(!fSaves.empty());
         return fSaves.back();
@@ -289,9 +308,7 @@ private:
     RawElement::Stack fElements;
     SaveRecord::Stack fSaves; // always has one wide open record at the top
 
-    // Will have integer coordinates, but is converted to SkRect for ease of use.
-    // NOTE: Not an skgpu::Rect because we want to avoid ClipStack itself being over-aligned.
-    const SkRect fDeviceBounds;
+    Device* fDevice; // the device this clip stack is coupled with
 };
 
 // Clip element iteration

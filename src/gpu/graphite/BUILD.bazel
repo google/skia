@@ -1059,6 +1059,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":ClipStack_graphite_hdr",
+        ":Device_hdr",
         ":DrawGeometry_hdr",
         "//include/core:SkMatrix_hdr",
         "//include/core:SkShader_hdr",

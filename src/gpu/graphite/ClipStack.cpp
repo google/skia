@@ -15,6 +15,7 @@
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkTLazy.h"
+#include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawGeometry.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 
@@ -243,6 +244,9 @@ ClipStack::RawElement::RawElement(const Rect& deviceBounds,
                                   const Shape& shape,
                                   SkClipOp op)
         : Element{shape, localToDevice, op}
+        , fUsageBounds{Rect::InfiniteInverted()}
+        , fOrder(DrawOrder::kNoIntersection)
+        , fMaxZ(DrawOrder::kClearDepth)
         , fInvalidatedByIndex(-1) {
     // Discard shapes that don't have any area (including when a transform can't be inverted, since
     // it means the two dimensions are collapsed to 0 or 1 dimension in device space).
@@ -253,7 +257,6 @@ ClipStack::RawElement::RawElement(const Rect& deviceBounds,
     // with the clip op toggled.
     if (fShape.inverted()) {
         fOp = (fOp == SkClipOp::kIntersect) ? SkClipOp::kDifference : SkClipOp::kIntersect;
-        fShape.setInverted(false);
     }
 
     fOuterBounds = fLocalToDevice.mapRect(fShape.bounds()).makeIntersect(deviceBounds);
@@ -290,6 +293,10 @@ ClipStack::RawElement::RawElement(const Rect& deviceBounds,
         fInnerBounds = Rect::InfiniteInverted();
     }
 
+    // Now that fOp and fShape are canonical, set the shape's fill type to match how it needs to be
+    // drawn as a depth-only shape everywhere that is clipped out (intersect is thus inverse-filled)
+    fShape.setInverted(fOp == SkClipOp::kIntersect);
+
     // Post-conditions on inner and outer bounds
     SkASSERT(fShape.isEmpty() || deviceBounds.contains(fOuterBounds));
     this->validate();
@@ -299,16 +306,64 @@ ClipStack::RawElement::operator TransformedShape() const {
     return {fLocalToDevice, fShape, fOuterBounds, fInnerBounds, fOp};
 }
 
+void ClipStack::RawElement::drawClip(Device* device) {
+    this->validate();
+
+    // Skip elements that have not affected any draws
+    if (!this->hasPendingDraw()) {
+        SkASSERT(fUsageBounds.isEmptyNegativeOrNaN());
+        return;
+    }
+
+    SkASSERT(!fUsageBounds.isEmptyNegativeOrNaN());
+    // For clip draws, the usage bounds is the scissor.
+    Rect scissor = fUsageBounds.makeRoundOut();
+    Rect drawBounds = fOuterBounds.makeIntersect(scissor);
+    if (!drawBounds.isEmptyNegativeOrNaN()) {
+        // Although we are recording this clip draw after all the draws it affects, 'fOrder' was
+        // determined at the first usage, so after sorting by DrawOrder the clip draw will be in the
+        // right place. Unlike regular draws that use their own "Z", by writing the max Z this clip
+        // affects, it will cause those draws to fail depth tests where they need to be clipped.
+        DrawOrder order{fMaxZ, fOrder};
+        // An element's clip op is encoded in the shape's fill type. Inverse fills are intersect ops
+        // and regular fills are difference ops. This means fShape is already in the right state to
+        // draw directly.
+        SkASSERT((fOp == SkClipOp::kDifference && !fShape.inverted()) ||
+                 (fOp == SkClipOp::kIntersect && fShape.inverted()));
+        // A null paint implies depth-only rendering, a null stroke style implies fill.
+        device->recordDraw(fLocalToDevice, fShape, Clip{drawBounds, scissor.asSkIRect()}, order,
+                           /*paint=*/nullptr, /*stroke=*/nullptr);
+    }
+
+    // After the clip shape is drawn, reset its state. If the clip element is being popped off the
+    // stack or overwritten because a new clip invalidated it, this won't matter. But if the clips
+    // were drawn because the Device had to flush pending work while the clip stack was not empty,
+    // subsequent draws will still need to be clipped to the elements. In this case, the usage
+    // accumulation process will begin again and automatically use the Device's post-flush Z values
+    // and BoundsManager state.
+    fUsageBounds = Rect::InfiniteInverted();
+    fOrder = DrawOrder::kNoIntersection;
+    fMaxZ = DrawOrder::kClearDepth;
+}
+
 void ClipStack::RawElement::validate() const {
     // If the shape type isn't empty, the outer bounds shouldn't be empty; if the inner bounds are
     // not empty, they must be contained in outer.
     SkASSERT((fShape.isEmpty() || !fOuterBounds.isEmptyNegativeOrNaN()) &&
              (fInnerBounds.isEmptyNegativeOrNaN() || fOuterBounds.contains(fInnerBounds)));
+    SkASSERT((fOp == SkClipOp::kDifference && !fShape.inverted()) ||
+             (fOp == SkClipOp::kIntersect && fShape.inverted()));
+    SkASSERT(!this->hasPendingDraw() || !fUsageBounds.isEmptyNegativeOrNaN());
 }
 
 void ClipStack::RawElement::markInvalid(const SaveRecord& current) {
     SkASSERT(!this->isInvalid());
     fInvalidatedByIndex = current.firstActiveElementIndex();
+    // NOTE: We don't draw the accumulated clip usage when the element is marked invalid. Some
+    // invalidated elements are part of earlier save records so can become re-active after a restore
+    // in which case they should continue to accumulate. Invalidated elements that are part of the
+    // active save record are removed at the end of the stack modification, which is when they are
+    // explicitly drawn.
 }
 
 void ClipStack::RawElement::restoreValid(const SaveRecord& current) {
@@ -318,6 +373,10 @@ void ClipStack::RawElement::restoreValid(const SaveRecord& current) {
 }
 
 bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& current) {
+    // Don't combine elements that have collected draw usage, since that changes their geometry.
+    if (this->hasPendingDraw() || other.hasPendingDraw()) {
+        return false;
+    }
     // To reduce the number of possibilities, only consider intersect+intersect. Difference and
     // mixed op cases could be analyzed to simplify one of the shapes, but that is a rare
     // occurrence and the math is much more complicated.
@@ -370,6 +429,8 @@ bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& c
         fInnerBounds.intersect(other.fInnerBounds);
         // Inner bounds can become empty, but outer bounds should not be able to.
         SkASSERT(!fOuterBounds.isEmptyNegativeOrNaN());
+        fShape.setInverted(true); // the setR[R]ect operations reset to non-inverse
+        this->validate();
         return true;
     } else {
         return false;
@@ -437,7 +498,7 @@ ClipStack::RawElement::updateForDraw(const BoundsManager* boundsManager,
             [[fallthrough]];
 
         case SimplifyResult::kBoth:
-            if (fOrder == DrawOrder::kNoIntersection) {
+            if (!this->hasPendingDraw()) {
                 // No usage yet so we need an order that we will use when drawing to just the depth
                 // attachment. It is sufficient to use the next CompressedPaintersOrder after the
                 // most recent draw under this clip's outer bounds. It is necessary to use the
@@ -575,8 +636,11 @@ Rect ClipStack::SaveRecord::scissor(const Rect& deviceBounds, const Rect& drawBo
     }
 }
 
-void ClipStack::SaveRecord::removeElements(RawElement::Stack* elements) {
+void ClipStack::SaveRecord::removeElements(RawElement::Stack* elements, Device* device) {
     while (elements->count() > fStartingElementIndex) {
+        // Since the element is being deleted now, it won't be in the ClipStack when the Device
+        // calls recordDeferredClipDraws(). Record the clip's draw now (if it needs it).
+        elements->back().drawClip(device);
         elements->pop_back();
     }
 }
@@ -609,7 +673,9 @@ void ClipStack::SaveRecord::addShader(sk_sp<SkShader> shader) {
     }
 }
 
-bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* elements) {
+bool ClipStack::SaveRecord::addElement(RawElement&& toAdd,
+                                       RawElement::Stack* elements,
+                                       Device* device) {
     // Validity check the element's state first
     toAdd.validate();
 
@@ -623,6 +689,7 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
         // An empty difference op should have been detected earlier, since it's a no-op
         SkASSERT(toAdd.op() == SkClipOp::kIntersect);
         fState = ClipState::kEmpty;
+        this->removeElements(elements, device);
         return true;
     }
 
@@ -640,6 +707,7 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
         case SimplifyResult::kEmpty:
             // The combination results in an empty clip
             fState = ClipState::kEmpty;
+            this->removeElements(elements, device);
             return true;
 
         case SimplifyResult::kAOnly:
@@ -649,7 +717,7 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
         case SimplifyResult::kBOnly:
             // The combination would invalidate the entire existing stack and can be replaced with
             // just the new element.
-            this->replaceWithElement(std::move(toAdd), elements);
+            this->replaceWithElement(std::move(toAdd), elements, device);
             return true;
 
         case SimplifyResult::kBoth:
@@ -662,7 +730,7 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
         // When the stack was wide open and the clip effect was kBoth, the "complex" manner is
         // simply to keep the element and update the stack bounds to be the element's intersected
         // with the device.
-        this->replaceWithElement(std::move(toAdd), elements);
+        this->replaceWithElement(std::move(toAdd), elements, device);
         return true;
     }
 
@@ -707,10 +775,12 @@ bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* el
     SkASSERT(!fOuterBounds.isEmptyNegativeOrNaN() &&
              (fInnerBounds.isEmptyNegativeOrNaN() || fOuterBounds.contains(fInnerBounds)));
 
-    return this->appendElement(std::move(toAdd), elements);
+    return this->appendElement(std::move(toAdd), elements, device);
 }
 
-bool ClipStack::SaveRecord::appendElement(RawElement&& toAdd, RawElement::Stack* elements) {
+bool ClipStack::SaveRecord::appendElement(RawElement&& toAdd,
+                                          RawElement::Stack* elements,
+                                          Device* device) {
     // Update past elements to account for the new element
     int i = elements->count() - 1;
 
@@ -788,20 +858,25 @@ bool ClipStack::SaveRecord::appendElement(RawElement&& toAdd, RawElement::Stack*
     }
     while (elements->count() > targetCount) {
         SkASSERT(oldestActiveInvalid != &elements->back()); // shouldn't delete what we'll reuse
+        elements->back().drawClip(device);
         elements->pop_back();
     }
     if (oldestActiveInvalid) {
+        oldestActiveInvalid->drawClip(device);
         *oldestActiveInvalid = std::move(toAdd);
     } else if (elements->count() < targetCount) {
         elements->push_back(std::move(toAdd));
     } else {
+        elements->back().drawClip(device);
         elements->back() = std::move(toAdd);
     }
 
     return true;
 }
 
-void ClipStack::SaveRecord::replaceWithElement(RawElement&& toAdd, RawElement::Stack* elements) {
+void ClipStack::SaveRecord::replaceWithElement(RawElement&& toAdd,
+                                               RawElement::Stack* elements,
+                                               Device* device) {
     // The aggregate state of the save record mirrors the element
     fInnerBounds = toAdd.innerBounds();
     fOuterBounds = toAdd.outerBounds();
@@ -811,11 +886,13 @@ void ClipStack::SaveRecord::replaceWithElement(RawElement&& toAdd, RawElement::S
     // All prior active element can be removed from the stack: [startingIndex, count - 1]
     int targetCount = fStartingElementIndex + 1;
     while (elements->count() > targetCount) {
+        elements->back().drawClip(device);
         elements->pop_back();
     }
     if (elements->count() < targetCount) {
         elements->push_back(std::move(toAdd));
     } else {
+        elements->back().drawClip(device);
         elements->back() = std::move(toAdd);
     }
 
@@ -837,12 +914,12 @@ void ClipStack::SaveRecord::replaceWithElement(RawElement&& toAdd, RawElement::S
 static constexpr int kElementStackIncrement = 8;
 static constexpr int kSaveStackIncrement = 8;
 
-ClipStack::ClipStack(const SkIRect& deviceBounds)
+ClipStack::ClipStack(Device* owningDevice)
         : fElements(kElementStackIncrement)
         , fSaves(kSaveStackIncrement)
-        , fDeviceBounds(SkRect::Make(deviceBounds)) {
+        , fDevice(owningDevice) {
     // Start with a save record that is wide open
-    fSaves.emplace_back(fDeviceBounds);
+    fSaves.emplace_back(this->deviceBounds());
 }
 
 ClipStack::~ClipStack() = default;
@@ -862,11 +939,15 @@ void ClipStack::restore() {
 
     // When we remove a save record, we delete all elements >= its starting index and any masks
     // that were rasterized for it.
-    current.removeElements(&fElements);
+    current.removeElements(&fElements, fDevice);
 
     fSaves.pop_back();
     // Restore any remaining elements that were only invalidated by the now-removed save record.
     fSaves.back().restoreElements(&fElements);
+}
+
+Rect ClipStack::deviceBounds() const {
+    return Rect::WH(fDevice->width(), fDevice->height());
 }
 
 Rect ClipStack::conservativeBounds() const {
@@ -874,14 +955,14 @@ Rect ClipStack::conservativeBounds() const {
     if (current.state() == ClipState::kEmpty) {
         return Rect::InfiniteInverted();
     } else if (current.state() == ClipState::kWideOpen) {
-        return Rect{fDeviceBounds};
+        return this->deviceBounds();
     } else {
         if (current.op() == SkClipOp::kDifference) {
             // The outer/inner bounds represent what's cut out, so full bounds remains the device
             // bounds, minus any fully clipped content that spans the device edge.
-            return subtract(Rect{fDeviceBounds}, current.innerBounds(), /* exact */ true);
+            return subtract(this->deviceBounds(), current.innerBounds(), /* exact */ true);
         } else {
-            SkASSERT(fDeviceBounds.contains(current.outerBounds().asSkRect()));
+            SkASSERT(this->deviceBounds().contains(current.outerBounds()));
             return current.outerBounds();
         }
     }
@@ -916,7 +997,9 @@ void ClipStack::clipShader(sk_sp<SkShader> shader) {
     // Another is resolve the clip shader into an alpha mask image that is sampled by the draw.
 }
 
-void ClipStack::clipShape(const Transform& localToDevice, const Shape& shape, SkClipOp op) {
+void ClipStack::clipShape(const Transform& localToDevice,
+                          const Shape& shape,
+                          SkClipOp op) {
     if (this->currentSaveRecord().state() == ClipState::kEmpty) {
         return;
     }
@@ -926,8 +1009,7 @@ void ClipStack::clipShape(const Transform& localToDevice, const Shape& shape, Sk
     // effect of all elements while device bounds clipping happens implicitly. During addElement,
     // we may still be able to invalidate some older elements).
     // NOTE: Does not try to simplify the shape type by inspecting the SkPath.
-    RawElement element{Rect{fDeviceBounds}, localToDevice, shape, op};
-    SkASSERT(!element.shape().inverted());
+    RawElement element{this->deviceBounds(), localToDevice, shape, op};
 
     // An empty op means do nothing (for difference), or close the save record, so we try and detect
     // that early before doing additional unnecessary save record allocation.
@@ -943,7 +1025,7 @@ void ClipStack::clipShape(const Transform& localToDevice, const Shape& shape, Sk
     bool wasDeferred;
     SaveRecord& save = this->writableSaveRecord(&wasDeferred);
     SkDEBUGCODE(int elementCount = fElements.count();)
-    if (!save.addElement(std::move(element), &fElements)) {
+    if (!save.addElement(std::move(element), &fElements, fDevice)) {
         if (wasDeferred) {
             // We made a new save record, but ended up not adding an element to the stack.
             // So instead of keeping an empty save record around, pop it off and restore the counter
@@ -967,29 +1049,37 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
     }
     // Compute draw bounds, clipped only to our device bounds since we need to return that even if
     // the clip stack is known to be wide-open.
-    const Rect deviceBounds{fDeviceBounds};
+    const Rect deviceBounds = this->deviceBounds();
 
     // When 'style' isn't fill, 'shape' describes the pre-stroke shape so we can't use it to check
     // against clip elements and this will be set to the bounds of the post-stroked shape instead.
     SkTCopyOnFirstWrite<Shape> styledShape{shape};
     Rect drawBounds = shape.bounds();
-    if (!style.isHairlineStyle()) {
-        float localStyleOutset = style.getInflationRadius();
-        drawBounds.outset(localStyleOutset);
+    if (shape.inverted()) {
+        // Inverse-filled shapes always fill the entire device (restricted to the clip).
+        drawBounds = deviceBounds;
+        styledShape.writable()->setRect(drawBounds);
+    } else {
+        // Regular filled shapes and strokes get larger based on style and transform
+        if (!style.isHairlineStyle()) {
+            float localStyleOutset = style.getInflationRadius();
+            drawBounds.outset(localStyleOutset);
 
-        if (!style.isFillStyle()) {
-            // While this loses any shape type, the bounds remain local so can be fairly accurate.
+            if (!style.isFillStyle()) {
+                // While this loses any shape type, the bounds remain local so hopefully tests are
+                // fairly accurate.
+                styledShape.writable()->setRect(drawBounds);
+            }
+        }
+        drawBounds = localToDevice.mapRect(drawBounds);
+
+        // Hairlines get an extra pixel *after* transforming to device space
+        if (style.isHairlineStyle()) {
+            drawBounds.outset(0.5f);
+            // and the associated transform must be kIdentity since drawBounds has been mapped by
+            // localToDevice already.
             styledShape.writable()->setRect(drawBounds);
         }
-    }
-    drawBounds = localToDevice.mapRect(drawBounds);
-
-    // Hairlines get an extra pixel *after* transforming to device space
-    if (style.isHairlineStyle()) {
-        drawBounds.outset(0.5f);
-        // and the associated transform must be kIdentity since drawBounds has been mapped by
-        // localToDevice already.
-        styledShape.writable()->setRect(drawBounds);
     }
 
     drawBounds.intersect(deviceBounds);
@@ -1051,4 +1141,15 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
     return {Clip{drawBounds, scissor.asSkIRect()}, maxClipOrder};
 }
 
-} // namespace skgpu::graphite
+void ClipStack::recordDeferredClipDraws() {
+    for (auto& e : fElements.items()) {
+        // When a Device requires all clip elements to be recorded, we have to iterate all elements,
+        // and will draw clip shapes for elements that are still marked as invalid from the clip
+        // stack, including those that are older than the current save record's oldest valid index,
+        // because they could have accumulated draw usage prior to being invalidated, but weren't
+        // flushed when they were invalidated because of an intervening save.
+        e.drawClip(fDevice);
+    }
+}
+
+} // namespace skgpu

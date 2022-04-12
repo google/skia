@@ -162,7 +162,7 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         : SkBaseDevice(dc->imageInfo(), SkSurfaceProps())
         , fRecorder(recorder)
         , fDC(std::move(dc))
-        , fClip(SkIRect::MakeSize(fDC->target()->dimensions()))
+        , fClip(this)
         , fColorDepthBoundsManager(std::make_unique<NaiveBoundsManager>())
         , fDisjointStencilSet(std::make_unique<IntersectionTreeSet>())
         , fCachedLocalToDevice(SkM44())
@@ -535,9 +535,10 @@ void Device::drawShape(const Shape& shape,
     // Record the painters order and depth used for this draw
     // TODO: If recordDraw picked a coverage AA renderer, 'dependsOnDst' is out of date.
     const bool fullyOpaque = !dependsOnDst &&
+                             clipOrder == DrawOrder::kNoIntersection &&
                              shape.isRect() &&
                              localToDevice.type() <= Transform::Type::kRectStaysRect;
-    fColorDepthBoundsManager->recordDraw(shape.bounds(),
+    fColorDepthBoundsManager->recordDraw(clip.drawBounds(),
                                          order.paintOrder(),
                                          order.depth(),
                                          fullyOpaque);
@@ -648,8 +649,7 @@ void Device::flushPendingWorkToRecorder() {
         fRecorder->priv().add(std::move(uploadTask));
     }
 
-    // TODO: iterate the clip stack and issue a depth-only draw for every clip element that has
-    // a non-empty usage bounds, using that bounds as the scissor.
+    fClip.recordDeferredClipDraws();
     auto drawTask = fDC->snapRenderPassTask(fRecorder, fColorDepthBoundsManager.get());
     if (drawTask) {
         fRecorder->priv().add(std::move(drawTask));
@@ -665,9 +665,8 @@ void Device::flushPendingWorkToRecorder() {
 }
 
 bool Device::needsFlushBeforeDraw(int numNewDraws) const {
-    // TODO: iterate the clip stack and count the number of clip elements (both w/ and w/o usage
-    // since we want to know the max # of clip shapes that flushing might add as draws).
-    // numNewDraws += clip element count...
+    // Must also account for the elements in the clip stack that might need to be recorded.
+    numNewDraws += fClip.maxDeferredClipDraws();
     return (DrawList::kMaxDraws - fDC->pendingDrawCount()) < numNewDraws;
 }
 

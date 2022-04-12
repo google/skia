@@ -191,6 +191,8 @@ private:
     PaintersDepth fCurrentDepth;
 
     bool fDrawsOverlap;
+
+    friend class ClipStack; // for recordDraw
 };
 
 SKGPU_MAKE_MASK_OPS(Device::DrawFlags)

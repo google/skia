@@ -11,6 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "tools/Resources.h"
@@ -165,6 +166,9 @@ protected:
 
         MetaContext context(canvas);
 
+        canvas->save();
+        canvas->clipRRect(SkRRect::MakeRectXY({16.f, 16.f, 240.f, 366.f}, 32.f, 32.f), true);
+
         // UL corner
         {
             SkPaint p;
@@ -201,6 +205,8 @@ protected:
             p.setShader(create_blend_shader(context, SkBlendMode::kModulate));
             canvas->drawRect({129, 129, 255, 255}, p);
         }
+
+        canvas->restore();
 
 #ifdef SK_GRAPHITE_ENABLED
         // TODO: failing serialize test on Linux, not sure what's going on
