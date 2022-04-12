@@ -63,6 +63,7 @@ bool SkBaseDevice::setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
         fLocalToDevice.postTranslate(-bufferOriginX, -bufferOriginY);
     }
     fLocalToDevice33 = fLocalToDevice.asM33();
+    fLocalToDeviceDirty = true;
     return true;
 }
 
@@ -72,6 +73,7 @@ void SkBaseDevice::setGlobalCTM(const SkM44& ctm) {
     // Map from the global CTM state to this device's coordinate system.
     fLocalToDevice.postConcat(fGlobalToDevice);
     fLocalToDevice33 = fLocalToDevice.asM33();
+    fLocalToDeviceDirty = true;
 }
 
 bool SkBaseDevice::isPixelAlignedToGlobal() const {
