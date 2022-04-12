@@ -127,6 +127,10 @@ public:
         return fStrikeSpec;
     }
 
+    void verifyPinnedStrike() const {
+        SkASSERT_RELEASE(fPinner == nullptr || !fPinner->canDelete());
+    }
+
 #if SK_SUPPORT_GPU
     sk_sp<GrTextStrike> findOrCreateGrStrike(GrStrikeCache* grStrikeCache) const;
 #endif

@@ -93,6 +93,9 @@ void GrGlyphVector::packedGlyphIDToGrGlyph(GrStrikeCache* cache) {
             variant.grGlyph = fGrStrike->getGlyph(variant.packedGlyphID);
         }
 
+        // This must be pinned for the Atlas filling to work.
+        fStrike->verifyPinnedStrike();
+
         // Drop the ref on the strike that was taken in the SkGlyphRunPainter process* methods.
         fStrike = nullptr;
     }
