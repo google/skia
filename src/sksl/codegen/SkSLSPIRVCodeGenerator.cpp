@@ -680,6 +680,53 @@ SpvId SPIRVCodeGenerator::writeOpCompositeConstruct(const Type& type,
     return this->writeInstruction(SpvOpCompositeConstruct, words, out);
 }
 
+SpvId SPIRVCodeGenerator::toComponent(const SPIRVCodeGenerator::Instruction& instr, int component) {
+    if (instr.fOp == SpvOpConstantComposite) {
+        // Add 2 to the component index to skip past ResultType and ResultID.
+        return instr.fWords[2 + component];
+    }
+    // TODO(johnstiles): add support for SpvOpCompositeConstruct
+    return NA;
+}
+
+SpvId SPIRVCodeGenerator::writeOpCompositeExtract(const Type& type,
+                                                  SpvId base,
+                                                  int component,
+                                                  OutputStream& out) {
+    // If the base op is a composite, we can extract from it directly.
+    if (Instruction* instr = fSpvIdCache.find(base)) {
+        SpvId result = this->toComponent(*instr, component);
+        if (result != NA) {
+            return result;
+        }
+    }
+    return this->writeInstruction(
+            SpvOpCompositeExtract,
+            {this->getType(type), Word::Result(type), base, Word::Number(component)},
+            out);
+}
+
+SpvId SPIRVCodeGenerator::writeOpCompositeExtract(const Type& type,
+                                                  SpvId base,
+                                                  int componentA,
+                                                  int componentB,
+                                                  OutputStream& out) {
+    // If the base op is a composite, we can extract from it directly.
+    if (Instruction* instr = fSpvIdCache.find(base)) {
+        SpvId result = this->toComponent(*instr, componentA);
+        if (result != NA) {
+            return this->writeOpCompositeExtract(type, result, componentB, out);
+        }
+    }
+    return this->writeInstruction(SpvOpCompositeExtract,
+                                  {this->getType(type),
+                                   Word::Result(type),
+                                   base,
+                                   Word::Number(componentA),
+                                   Word::Number(componentB)},
+                                  out);
+}
+
 void SPIRVCodeGenerator::writeCapabilities(OutputStream& out) {
     for (uint64_t i = 0, bit = 1; i <= kLast_Capability; i++, bit <<= 1) {
         if (fCapabilities & bit) {
@@ -1688,9 +1735,7 @@ SpvId SPIRVCodeGenerator::writeMatrixCopy(SpvId src, const Type& srcType, const 
     SkASSERT(dstType.isMatrix());
     SkASSERT(srcType.componentType().matches(dstType.componentType()));
     SpvId id = this->nextId(&dstType);
-    SpvId srcColumnType = this->getType(srcType.componentType().toCompound(fContext,
-                                                                           srcType.rows(),
-                                                                           1));
+    const Type& srcColumnType = srcType.componentType().toCompound(fContext, srcType.rows(), 1);
     SpvId dstColumnType = this->getType(dstType.componentType().toCompound(fContext,
                                                                            dstType.rows(),
                                                                            1));
@@ -1702,8 +1747,7 @@ SpvId SPIRVCodeGenerator::writeMatrixCopy(SpvId src, const Type& srcType, const 
     for (int i = 0; i < dstType.columns(); i++) {
         if (i < srcType.columns()) {
             // we're still inside the src matrix, copy the column
-            SpvId srcColumn = this->nextId(&dstType);
-            this->writeInstruction(SpvOpCompositeExtract, srcColumnType, srcColumn, src, i, out);
+            SpvId srcColumn = this->writeOpCompositeExtract(srcColumnType, src, i, out);
             SpvId dstColumn;
             if (srcType.rows() == dstType.rows()) {
                 // columns are equal size, don't need to do anything
@@ -1788,12 +1832,9 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorCompound& c, O
         // Special-case handling of float4 -> mat2x2.
         SkASSERT(type.rows() == 2 && type.columns() == 2);
         SkASSERT(arg0Type.columns() == 4);
-        SpvId componentType = this->getType(type.componentType());
         SpvId v[4];
         for (int i = 0; i < 4; ++i) {
-            v[i] = this->nextId(&type);
-            this->writeInstruction(SpvOpCompositeExtract, componentType, v[i], arguments[0], i,
-                                   out);
+            v[i] = this->writeOpCompositeExtract(type.componentType(), arguments[0], i, out);
         }
         const Type& vecType = type.componentType().toCompound(fContext, /*columns=*/2, /*rows=*/1);
         SpvId v0v1 = this->writeOpCompositeConstruct(vecType, {v[0], v[1]}, out);
@@ -1818,11 +1859,9 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorCompound& c, O
             this->addColumnEntry(columnType, &currentColumn, &columnIds, rows, arguments[i], out);
         } else {
             // This argument needs to be decomposed into its constituent scalars.
-            SpvId componentType = this->getType(argType.componentType());
             for (int j = 0; j < argType.columns(); ++j) {
-                SpvId swizzle = this->nextId(&argType);
-                this->writeInstruction(SpvOpCompositeExtract, componentType, swizzle,
-                                       arguments[i], j, out);
+                SpvId swizzle = this->writeOpCompositeExtract(argType.componentType(),
+                                                              arguments[i], j, out);
                 this->addColumnEntry(columnType, &currentColumn, &columnIds, rows, swizzle, out);
             }
         }
@@ -1854,20 +1893,15 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, O
             SkASSERT(argType.rows() == 2);
             SkASSERT(argType.columns() == 2);
             for (int j = 0; j < 4; ++j) {
-                SpvId componentId = this->nextId(&componentType);
-                this->writeInstruction(SpvOpCompositeExtract, this->getType(componentType),
-                                       componentId, arg, j / 2, j % 2, out);
-                arguments.push_back(componentId);
+                arguments.push_back(this->writeOpCompositeExtract(componentType, arg,
+                                                                  j / 2, j % 2, out));
             }
         } else if (argType.isVector()) {
             // There's a bug in the Intel Vulkan driver where OpCompositeConstruct doesn't handle
             // vector arguments at all, so we always extract each vector component and pass them
             // into OpCompositeConstruct individually.
             for (int j = 0; j < argType.columns(); j++) {
-                SpvId componentId = this->nextId(&componentType);
-                this->writeInstruction(SpvOpCompositeExtract, this->getType(componentType),
-                                       componentId, arg, j, out);
-                arguments.push_back(componentId);
+                arguments.push_back(this->writeOpCompositeExtract(componentType, arg, j, out));
             }
         } else {
             arguments.push_back(arg);
@@ -1935,9 +1969,7 @@ SpvId SPIRVCodeGenerator::writeConstructorCompoundCast(const ConstructorCompound
 
     SkSTArray<4, SpvId> arguments;
     for (int index = 0; index < argType.columns(); ++index) {
-        SpvId componentId = this->nextId(&srcType);
-        this->writeInstruction(SpvOpCompositeExtract, this->getType(srcType), componentId,
-                               compositeId, index, out);
+        SpvId componentId = this->writeOpCompositeExtract(srcType, compositeId, index, out);
         arguments.push_back(this->castScalarToType(componentId, srcType, dstType, out));
     }
 
@@ -2359,20 +2391,19 @@ SpvId SPIRVCodeGenerator::writeFieldAccess(const FieldAccess& f, OutputStream& o
 
 SpvId SPIRVCodeGenerator::writeSwizzle(const Swizzle& swizzle, OutputStream& out) {
     SpvId base = this->writeExpression(*swizzle.base(), out);
-    SpvId result = this->nextId(&swizzle.type());
     size_t count = swizzle.components().size();
     if (count == 1) {
-        this->writeInstruction(SpvOpCompositeExtract, this->getType(swizzle.type()), result, base,
-                               swizzle.components()[0], out);
-    } else {
-        this->writeOpCode(SpvOpVectorShuffle, 5 + (int32_t) count, out);
-        this->writeWord(this->getType(swizzle.type()), out);
-        this->writeWord(result, out);
-        this->writeWord(base, out);
-        this->writeWord(base, out);
-        for (int component : swizzle.components()) {
-            this->writeWord(component, out);
-        }
+        return this->writeOpCompositeExtract(swizzle.type(), base, swizzle.components()[0], out);
+    }
+
+    SpvId result = this->nextId(&swizzle.type());
+    this->writeOpCode(SpvOpVectorShuffle, 5 + (int32_t) count, out);
+    this->writeWord(this->getType(swizzle.type()), out);
+    this->writeWord(result, out);
+    this->writeWord(base, out);
+    this->writeWord(base, out);
+    for (int component : swizzle.components()) {
+        this->writeWord(component, out);
     }
     return result;
 }
@@ -2413,19 +2444,17 @@ SpvId SPIRVCodeGenerator::writeMatrixComparison(const Type& operandType, SpvId l
                                                 OutputStream& out) {
     SpvOp_ compareOp = is_float(fContext, operandType) ? floatOperator : intOperator;
     SkASSERT(operandType.isMatrix());
-    SpvId columnType = this->getType(operandType.componentType().toCompound(fContext,
-                                                                            operandType.rows(),
-                                                                            1));
-    SpvId bvecType = this->getType(fContext.fTypes.fBool->toCompound(fContext,
+    const Type& columnType = operandType.componentType().toCompound(fContext,
                                                                     operandType.rows(),
-                                                                    1));
+                                                                    1);
+    SpvId bvecType = this->getType(fContext.fTypes.fBool->toCompound(fContext,
+                                                                     operandType.rows(),
+                                                                     1));
     SpvId boolType = this->getType(*fContext.fTypes.fBool);
     SpvId result = 0;
     for (int i = 0; i < operandType.columns(); i++) {
-        SpvId columnL = this->nextId(&operandType);
-        this->writeInstruction(SpvOpCompositeExtract, columnType, columnL, lhs, i, out);
-        SpvId columnR = this->nextId(&operandType);
-        this->writeInstruction(SpvOpCompositeExtract, columnType, columnR, rhs, i, out);
+        SpvId columnL = this->writeOpCompositeExtract(columnType, lhs, i, out);
+        SpvId columnR = this->writeOpCompositeExtract(columnType, rhs, i, out);
         SpvId compare = this->nextId(&operandType);
         this->writeInstruction(compareOp, bvecType, compare, columnL, columnR, out);
         SpvId merge = this->nextId(nullptr);
@@ -2434,8 +2463,7 @@ SpvId SPIRVCodeGenerator::writeMatrixComparison(const Type& operandType, SpvId l
             SpvId next = this->nextId(nullptr);
             this->writeInstruction(mergeOperator, boolType, next, result, merge, out);
             result = next;
-        }
-        else {
+        } else {
             result = merge;
         }
     }
@@ -2447,16 +2475,16 @@ SpvId SPIRVCodeGenerator::writeComponentwiseMatrixUnary(const Type& operandType,
                                                         SpvOp_ op,
                                                         OutputStream& out) {
     SkASSERT(operandType.isMatrix());
-    SpvId columnType = this->getType(operandType.componentType().toCompound(
-            fContext, /*columns=*/operandType.rows(), /*rows=*/1));
+    const Type& columnType = operandType.componentType().toCompound(fContext,
+                                                                    /*columns=*/operandType.rows(),
+                                                                    /*rows=*/1);
+    SpvId columnTypeId = this->getType(columnType);
 
     SkSTArray<4, SpvId> columns;
     for (int i = 0; i < operandType.columns(); i++) {
-        SpvId srcColumn = this->nextId(&operandType);
-        this->writeInstruction(SpvOpCompositeExtract, columnType, srcColumn, operand, i, out);
-
+        SpvId srcColumn = this->writeOpCompositeExtract(columnType, operand, i, out);
         SpvId dstColumn = this->nextId(&operandType);
-        this->writeInstruction(op, columnType, dstColumn, srcColumn, out);
+        this->writeInstruction(op, columnTypeId, dstColumn, srcColumn, out);
         columns.push_back(dstColumn);
     }
 
@@ -2466,17 +2494,17 @@ SpvId SPIRVCodeGenerator::writeComponentwiseMatrixUnary(const Type& operandType,
 SpvId SPIRVCodeGenerator::writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs,
                                                          SpvId rhs, SpvOp_ op, OutputStream& out) {
     SkASSERT(operandType.isMatrix());
-    SpvId columnType = this->getType(operandType.componentType().toCompound(fContext,
-                                                                            operandType.rows(),
-                                                                            1));
+    const Type& columnType = operandType.componentType().toCompound(fContext,
+                                                                    /*columns=*/operandType.rows(),
+                                                                    /*rows=*/1);
+    SpvId columnTypeId = this->getType(columnType);
+
     SkSTArray<4, SpvId> columns;
     for (int i = 0; i < operandType.columns(); i++) {
-        SpvId columnL = this->nextId(&operandType);
-        this->writeInstruction(SpvOpCompositeExtract, columnType, columnL, lhs, i, out);
-        SpvId columnR = this->nextId(&operandType);
-        this->writeInstruction(SpvOpCompositeExtract, columnType, columnR, rhs, i, out);
+        SpvId columnL = this->writeOpCompositeExtract(columnType, lhs, i, out);
+        SpvId columnR = this->writeOpCompositeExtract(columnType, rhs, i, out);
         columns.push_back(this->nextId(&operandType));
-        this->writeInstruction(op, columnType, columns[i], columnL, columnR, out);
+        this->writeInstruction(op, columnTypeId, columns[i], columnL, columnR, out);
     }
     return this->writeOpCompositeConstruct(operandType, columns, out);
 }
@@ -2749,7 +2777,6 @@ SpvId SPIRVCodeGenerator::writeArrayComparison(const Type& arrayType, SpvId lhs,
     SkASSERT(op.kind() == Operator::Kind::EQEQ || op.kind() == Operator::Kind::NEQ);
     SkASSERT(arrayType.isArray());
     const Type& componentType = arrayType.componentType();
-    const SpvId componentTypeId = this->getType(componentType);
     const int arraySize = arrayType.columns();
     SkASSERT(arraySize > 0);
 
@@ -2758,10 +2785,8 @@ SpvId SPIRVCodeGenerator::writeArrayComparison(const Type& arrayType, SpvId lhs,
     SpvId allComparisons = NA;
     for (int index = 0; index < arraySize; ++index) {
         // Get the left and right item in the array.
-        SpvId itemL = this->nextId(&componentType);
-        this->writeInstruction(SpvOpCompositeExtract, componentTypeId, itemL, lhs, index, out);
-        SpvId itemR = this->nextId(&componentType);
-        this->writeInstruction(SpvOpCompositeExtract, componentTypeId, itemR, rhs, index, out);
+        SpvId itemL = this->writeOpCompositeExtract(componentType, lhs, index, out);
+        SpvId itemR = this->writeOpCompositeExtract(componentType, rhs, index, out);
         // Use `writeBinaryExpression` with the requested == or != operator on these items.
         SpvId comparison = this->writeBinaryExpression(componentType, itemL, op,
                                                        componentType, itemR, boolType, out);
@@ -2785,12 +2810,9 @@ SpvId SPIRVCodeGenerator::writeStructComparison(const Type& structType, SpvId lh
     for (int index = 0; index < (int)fields.size(); ++index) {
         // Get the left and right versions of this field.
         const Type& fieldType = *fields[index].fType;
-        const SpvId fieldTypeId = this->getType(fieldType);
 
-        SpvId fieldL = this->nextId(&fieldType);
-        this->writeInstruction(SpvOpCompositeExtract, fieldTypeId, fieldL, lhs, index, out);
-        SpvId fieldR = this->nextId(&fieldType);
-        this->writeInstruction(SpvOpCompositeExtract, fieldTypeId, fieldR, rhs, index, out);
+        SpvId fieldL = this->writeOpCompositeExtract(fieldType, lhs, index, out);
+        SpvId fieldR = this->writeOpCompositeExtract(fieldType, rhs, index, out);
         // Use `writeBinaryExpression` with the requested == or != operator on these fields.
         SpvId comparison = this->writeBinaryExpression(fieldType, fieldL, op, fieldType, fieldR,
                                                        boolType, out);

@@ -447,10 +447,16 @@ private:
     SpvId writeOpConstant(const Type& type, int32_t valueBits);
     SpvId writeOpConstantComposite(const Type& type, const SkTArray<SpvId>& values);
     SpvId writeOpCompositeConstruct(const Type& type, const SkTArray<SpvId>&, OutputStream& out);
+    SpvId writeOpCompositeExtract(const Type& type, SpvId base, int component, OutputStream& out);
+    SpvId writeOpCompositeExtract(const Type& type, SpvId base, int componentA, int componentB,
+                                  OutputStream& out);
 
     // Converts the provided SpvId(s) into an array of scalar OpConstants, if it can be done.
     bool toConstants(SpvId value, SkTArray<SpvId>* constants);
     bool toConstants(SkSpan<const SpvId> values, SkTArray<SpvId>* constants);
+
+    // Extracts the requested component SpvId from a composite instruction, if it can be done.
+    SpvId toComponent(const Instruction& instr, int component);
 
     void pruneReachableOps(size_t numReachableOps);
 
