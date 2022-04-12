@@ -198,14 +198,18 @@ DEF_TEST(SkSpan, reporter) {
 
     {
         std::array<int, 5> v = {{1, 2, 3, 4, 5}};
-        auto s = SkMakeSpan(v);
+        auto s = SkMakeSpan(v); // {1, 2, 3, 4, 5}
         REPORTER_ASSERT(reporter, s[3] == 4);
-        s[3] = 100;
+        s[3] = 100; // {1, 2, 3, 100, 5}
         REPORTER_ASSERT(reporter, s[3] == 100);
-        auto s1 = s.subspan(1,3);
+        auto s1 = s.subspan(1,3); // {2, 3, 100}
         REPORTER_ASSERT(reporter, s1.size() == 3);
         REPORTER_ASSERT(reporter, s1.front() == 2);
         REPORTER_ASSERT(reporter, s1.back() == 100);
+        auto s2 = s.subspan(2); // {3, 100, 5}
+        REPORTER_ASSERT(reporter, s2.size() == 3);
+        REPORTER_ASSERT(reporter, s2.front() == 3);
+        REPORTER_ASSERT(reporter, s2.back() == 5);
     }
 
     {
