@@ -670,15 +670,13 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 break;
             }
             case Type::TypeKind::kSampler: {
-                SpvId image = result;
-                if (SpvDimSubpassData != type->dimensions()) {
-                    image = this->getType(type->textureType(), layout);
-                }
-                if (SpvDimBuffer == type->dimensions()) {
-                    fCapabilities |= (((uint64_t) 1) << SpvCapabilitySampledBuffer);
-                }
-                if (SpvDimSubpassData != type->dimensions()) {
-                    this->writeInstruction(SpvOpTypeSampledImage, result, image, fConstantBuffer);
+                if (type->dimensions() != SpvDimSubpassData) {
+                    if (type->dimensions() == SpvDimBuffer) {
+                        fCapabilities |= 1ULL << SpvCapabilitySampledBuffer;
+                    }
+                    SpvId imageTypeId = this->getType(type->textureType(), layout);
+                    this->writeInstruction(SpvOpTypeSampledImage, result, imageTypeId,
+                                           fConstantBuffer);
                 }
                 break;
             }
