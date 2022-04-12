@@ -9,6 +9,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOpts_spi.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
@@ -77,6 +78,60 @@ constexpr int DEVICE_FRAGCOORDS_BUILTIN = -1000;
 constexpr int DEVICE_CLOCKWISE_BUILTIN  = -1001;
 
 namespace SkSL {
+
+// Equality and hash operators for Instructions.
+bool SPIRVCodeGenerator::Instruction::operator==(const SPIRVCodeGenerator::Instruction& that) const {
+    return fOp         == that.fOp &&
+           fResultKind == that.fResultKind &&
+           fWords      == that.fWords;
+
+}
+
+struct SPIRVCodeGenerator::Instruction::Hash {
+    uint32_t operator()(const SPIRVCodeGenerator::Instruction& key) const {
+        uint32_t hash = key.fResultKind;
+        hash = SkOpts::hash_fn(&key.fOp, sizeof(key.fOp), hash);
+        hash = SkOpts::hash_fn(key.fWords.data(), key.fWords.size() * sizeof(int32_t), hash);
+        return hash;
+    }
+};
+
+// This class is used to pass values and result placeholder slots to writeInstruction.
+struct SPIRVCodeGenerator::Word {
+    enum Kind {
+        kNone,
+        kSpvId,
+        kNumber,
+        kDefaultPrecisionResult,
+        kRelaxedPrecisionResult,
+    };
+
+    Word(SpvId id) : fValue(id), fKind(Kind::kSpvId) {}
+    Word(int32_t val, Kind kind) : fValue(val), fKind(kind) {}
+
+    static Word Number(int32_t val) {
+        return Word{val, Kind::kNumber};
+    }
+
+    static Word Result(const Type& type) {
+        return (type.hasPrecision() && !type.highPrecision()) ? RelaxedResult() : Result();
+    }
+
+    static Word RelaxedResult() {
+        Kind kind = ThreadContext::Settings().fForceHighPrecision ? kDefaultPrecisionResult
+                                                                  : kRelaxedPrecisionResult;
+        return Word{(int32_t)NA, kind};
+    }
+
+    static Word Result() {
+        return Word{(int32_t)NA, kDefaultPrecisionResult};
+    }
+
+    bool isResult() const { return fKind >= Kind::kDefaultPrecisionResult; }
+
+    int32_t fValue;
+    Kind fKind;
+};
 
 // Skia's magic number is 31 and goes in the top 16 bits. We can use the lower bits to version the
 // sksl generator if we want.
@@ -459,6 +514,81 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
     this->writeWord(word6, out);
     this->writeWord(word7, out);
     this->writeWord(word8, out);
+}
+
+SpvId SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode,
+                                           const SkTArray<Word>& words,
+                                           OutputStream& out) {
+    // Build up an cache key for this word.
+    Instruction key;
+    key.fOp = opCode;
+    key.fWords.resize(words.count());
+    key.fResultKind = Word::Kind::kNone;
+
+    for (int index = 0; index < words.count(); ++index) {
+        const Word& word = words[index];
+        key.fWords[index] = word.fValue;
+        if (word.isResult()) {
+            SkASSERT(key.fResultKind == Word::Kind::kNone);
+            key.fResultKind = word.fKind;
+        }
+    }
+
+    SpvId result = NA;
+
+    if (key.fResultKind != Word::Kind::kNone) {
+        // If this instruction exists in our op cache, return the cached SpvId.
+        if (SpvId* cachedOp = fOpCache.find(key)) {
+            return *cachedOp;
+        }
+        // Consume a new SpvId and cache the instruction.
+        result = fIdCount++;
+        fOpCache.set(key, result);
+        fSpvIdCache.set(result, key);
+
+        // Globally-reachable ops are not subject to the whims of flow control.
+        if (!is_globally_reachable_op(opCode)) {
+            fReachableOps.push_back(result);
+        }
+        // If the result is relaxed-precision, add the requisite decoration.
+        if (key.fResultKind == Word::Kind::kRelaxedPrecisionResult) {
+            this->writeInstruction(SpvOpDecorate, result, SpvDecorationRelaxedPrecision,
+                                   fDecorationBuffer);
+        }
+    }
+
+    // Write the requested instruction.
+    this->writeOpCode(opCode, words.size() + 1, out);
+    for (const Word& word : words) {
+        if (word.isResult()) {
+            SkASSERT(result != NA);
+            this->writeWord(result, out);
+        } else {
+            this->writeWord(word.fValue, out);
+        }
+    }
+
+    // Return the result.
+    return result;
+}
+
+SpvId SPIRVCodeGenerator::writeOpConstantTrue(const Type& type) {
+    return this->writeInstruction(SpvOpConstantTrue,
+                                  Words{this->getType(type), Word::Result()},
+                                  fConstantBuffer);
+}
+
+SpvId SPIRVCodeGenerator::writeOpConstantFalse(const Type& type) {
+    return this->writeInstruction(SpvOpConstantFalse,
+                                  Words{this->getType(type), Word::Result()},
+                                  fConstantBuffer);
+}
+
+SpvId SPIRVCodeGenerator::writeOpConstant(const Type& type, int32_t valueBits) {
+    return this->writeInstruction(
+            SpvOpConstant,
+            Words{this->getType(type), Word::Result(), Word::Number(valueBits)},
+            fConstantBuffer);
 }
 
 void SPIRVCodeGenerator::writeCapabilities(OutputStream& out) {
@@ -2774,6 +2904,9 @@ SpvId SPIRVCodeGenerator::writeLogicalAnd(const Expression& left, const Expressi
                                           OutputStream& out) {
     SpvId falseConstant = this->writeLiteral(0.0, *fContext.fTypes.fBool);
     SpvId lhs = this->writeExpression(left, out);
+
+    size_t numReachableOps = fReachableOps.size();
+
     SpvId rhsLabel = this->nextId(nullptr);
     SpvId end = this->nextId(nullptr);
     SpvId lhsBlock = fCurrentBlock;
@@ -2787,6 +2920,9 @@ SpvId SPIRVCodeGenerator::writeLogicalAnd(const Expression& left, const Expressi
     SpvId result = this->nextId(nullptr);
     this->writeInstruction(SpvOpPhi, this->getType(*fContext.fTypes.fBool), result, falseConstant,
                            lhsBlock, rhs, rhsBlock, out);
+
+    this->pruneReachableOps(numReachableOps);
+
     return result;
 }
 
@@ -2794,6 +2930,9 @@ SpvId SPIRVCodeGenerator::writeLogicalOr(const Expression& left, const Expressio
                                          OutputStream& out) {
     SpvId trueConstant = this->writeLiteral(1.0, *fContext.fTypes.fBool);
     SpvId lhs = this->writeExpression(left, out);
+
+    size_t numReachableOps = fReachableOps.size();
+
     SpvId rhsLabel = this->nextId(nullptr);
     SpvId end = this->nextId(nullptr);
     SpvId lhsBlock = fCurrentBlock;
@@ -2807,6 +2946,9 @@ SpvId SPIRVCodeGenerator::writeLogicalOr(const Expression& left, const Expressio
     SpvId result = this->nextId(nullptr);
     this->writeInstruction(SpvOpPhi, this->getType(*fContext.fTypes.fBool), result, trueConstant,
                            lhsBlock, rhs, rhsBlock, out);
+
+    this->pruneReachableOps(numReachableOps);
+
     return result;
 }
 
@@ -2824,6 +2966,9 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
                                out);
         return result;
     }
+
+    size_t numReachableOps = fReachableOps.size();
+
     // was originally using OpPhi to choose the result, but for some reason that is crashing on
     // Adreno. Switched to storing the result in a temp variable as glslang does.
     SpvId var = this->nextId(nullptr);
@@ -2843,6 +2988,9 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
     this->writeLabel(end, out);
     SpvId result = this->nextId(&type);
     this->writeInstruction(SpvOpLoad, this->getType(type), result, var, out);
+
+    this->pruneReachableOps(numReachableOps);
+
     return result;
 }
 
@@ -2945,21 +3093,18 @@ SpvId SPIRVCodeGenerator::writeLiteral(double value, const Type& type) {
     }
 
     SPIRVNumberConstant key{valueBits, type.numberKind()};
-    if (SpvId* entry = fNumberConstants.find(key)) {
-        return *entry;
-    }
+    // Don't rely on fNumberConstants for deduplication. Let `writeInstruction` do it.
 
-    SpvId result = this->nextId(nullptr);
-    fNumberConstants.set(key, result);
+    SpvId result;
 
     if (type.isBoolean()) {
-        this->writeInstruction(valueBits ? SpvOpConstantTrue : SpvOpConstantFalse,
-                               this->getType(type), result, fConstantBuffer);
+        result = valueBits ? this->writeOpConstantTrue(type)
+                           : this->writeOpConstantFalse(type);
     } else {
-        this->writeInstruction(SpvOpConstant, this->getType(type), result,
-                               (SpvId)valueBits, fConstantBuffer);
+        result = this->writeOpConstant(type, valueBits);
     }
 
+    fNumberConstants.set(key, result);
     return result;
 }
 
@@ -2984,6 +3129,8 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
 }
 
 SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStream& out) {
+    size_t numReachableOps = fReachableOps.size();
+
     fVariableBuffer.reset();
     SpvId result = this->writeFunctionStart(f.declaration(), out);
     fCurrentBlock = 0;
@@ -3003,6 +3150,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
         }
     }
     this->writeInstruction(SpvOpFunctionEnd, out);
+    this->pruneReachableOps(numReachableOps);
     return result;
 }
 
@@ -3268,10 +3416,29 @@ void SPIRVCodeGenerator::writeBlock(const Block& b, OutputStream& out) {
     }
 }
 
+void SPIRVCodeGenerator::pruneReachableOps(size_t numReachableOps) {
+    while (fReachableOps.size() > numReachableOps) {
+        SpvId prunableSpvId = fReachableOps.back();
+        const Instruction* prunableOp = fSpvIdCache.find(prunableSpvId);
+
+        if (prunableOp) {
+            fOpCache.remove(*prunableOp);
+            fSpvIdCache.remove(prunableSpvId);
+        } else {
+            SkDEBUGFAIL("reachable-op list contains unrecognized SpvId");
+        }
+
+        fReachableOps.pop_back();
+    }
+}
+
 void SPIRVCodeGenerator::writeIfStatement(const IfStatement& stmt, OutputStream& out) {
     SpvId test = this->writeExpression(*stmt.test(), out);
     SpvId ifTrue = this->nextId(nullptr);
     SpvId ifFalse = this->nextId(nullptr);
+
+    size_t numReachableOps = fReachableOps.size();
+
     if (stmt.ifFalse()) {
         SpvId end = this->nextId(nullptr);
         this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
@@ -3281,6 +3448,8 @@ void SPIRVCodeGenerator::writeIfStatement(const IfStatement& stmt, OutputStream&
         if (fCurrentBlock) {
             this->writeInstruction(SpvOpBranch, end, out);
         }
+        this->pruneReachableOps(numReachableOps);
+
         this->writeLabel(ifFalse, out);
         this->writeStatement(*stmt.ifFalse(), out);
         if (fCurrentBlock) {
@@ -3297,12 +3466,17 @@ void SPIRVCodeGenerator::writeIfStatement(const IfStatement& stmt, OutputStream&
         }
         this->writeLabel(ifFalse, out);
     }
+
+    this->pruneReachableOps(numReachableOps);
 }
 
 void SPIRVCodeGenerator::writeForStatement(const ForStatement& f, OutputStream& out) {
     if (f.initializer()) {
         this->writeStatement(*f.initializer(), out);
     }
+
+    size_t numReachableOps = fReachableOps.size();
+
     SpvId header = this->nextId(nullptr);
     SpvId start = this->nextId(nullptr);
     SpvId body = this->nextId(nullptr);
@@ -3334,9 +3508,13 @@ void SPIRVCodeGenerator::writeForStatement(const ForStatement& f, OutputStream& 
     this->writeLabel(end, out);
     fBreakTarget.pop();
     fContinueTarget.pop();
+
+    this->pruneReachableOps(numReachableOps);
 }
 
 void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& out) {
+    size_t numReachableOps = fReachableOps.size();
+
     SpvId header = this->nextId(nullptr);
     SpvId start = this->nextId(nullptr);
     SpvId next = this->nextId(nullptr);
@@ -3361,10 +3539,15 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
     this->writeLabel(end, out);
     fBreakTarget.pop();
     fContinueTarget.pop();
+
+    this->pruneReachableOps(numReachableOps);
 }
 
 void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputStream& out) {
     SpvId value = this->writeExpression(*s.value(), out);
+
+    size_t numReachableOps = fReachableOps.size();
+
     std::vector<SpvId> labels;
     SpvId end = this->nextId(nullptr);
     SpvId defaultLabel = end;
@@ -3401,6 +3584,7 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
         if (fCurrentBlock) {
             this->writeInstruction(SpvOpBranch, labels[i + 1], out);
         }
+        this->pruneReachableOps(numReachableOps);
     }
     this->writeLabel(end, out);
     fBreakTarget.pop();
