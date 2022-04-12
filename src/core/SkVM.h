@@ -485,7 +485,7 @@ namespace skvm {
     }
 
     using Val = int;
-    // We reserve an impossibe Val ID as a sentinel
+    // We reserve an impossible Val ID as a sentinel
     // NA meaning none, n/a, null, nil, etc.
     static const Val NA = -1;
 

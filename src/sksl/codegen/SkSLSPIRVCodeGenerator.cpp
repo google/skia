@@ -826,7 +826,7 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             SkDEBUGFAILF("unsupported expression: %s", expr.description().c_str());
             break;
     }
-    return -1;
+    return NA;
 }
 
 SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream& out) {
@@ -835,7 +835,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
     if (!intrinsic) {
         fContext.fErrors->error(c.fPosition, "unsupported intrinsic '" + function.description() +
                 "'");
-        return -1;
+        return NA;
     }
     const ExpressionArray& arguments = c.arguments();
     int32_t intrinsicId = intrinsic->floatOp;
@@ -901,7 +901,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
         default:
             fContext.fErrors->error(c.fPosition, "unsupported intrinsic '" +
                     function.description() + "'");
-            return -1;
+            return NA;
     }
 }
 
@@ -1202,7 +1202,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCallArgument(const FunctionCall& call,
     // passed directly
     SpvId tmpVar;
     // if we need a temporary var to store this argument, this is the value to store in the var
-    SpvId tmpValueId = -1;
+    SpvId tmpValueId = NA;
 
     if (is_out(paramModifiers)) {
         std::unique_ptr<LValue> lv = this->getLValue(arg, out);
@@ -1229,7 +1229,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCallArgument(const FunctionCall& call,
                            tmpVar,
                            SpvStorageClassFunction,
                            fVariableBuffer);
-    if (tmpValueId != (SpvId)-1) {
+    if (tmpValueId != NA) {
         this->writeInstruction(SpvOpStore, tmpVar, tmpValueId, out);
     }
     return tmpVar;
@@ -1253,7 +1253,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     if (!entry) {
         fContext.fErrors->error(c.fPosition, "function '" + function.description() +
                 "' is not defined");
-        return -1;
+        return NA;
     }
     // Temp variables are used to write back out-parameters after the function call is complete.
     std::vector<TempVar> tempVars;
@@ -1280,15 +1280,14 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const AnyConstructor& c) {
     SkASSERT(type.isVector() && c.isCompileTimeConstant());
 
     // Get each of the constructor components as SPIR-V constants.
-    SPIRVVectorConstant key{this->getType(type),
-                            /*fValueId=*/{SpvId(-1), SpvId(-1), SpvId(-1), SpvId(-1)}};
+    SPIRVVectorConstant key{this->getType(type), /*fValueId=*/{NA, NA, NA, NA}};
 
     const Type& scalarType = type.componentType();
     for (int n = 0; n < type.columns(); n++) {
         std::optional<double> slotVal = c.getConstantValue(n);
         if (!slotVal.has_value()) {
             SkDEBUGFAILF("writeConstantVector: %s not actually constant", c.description().c_str());
-            return (SpvId)-1;
+            return NA;
         }
         key.fValueId[n] = this->writeLiteral(*slotVal, scalarType);
     }
@@ -1365,7 +1364,7 @@ SpvId SPIRVCodeGenerator::castScalarToFloat(SpvId inputId, const Type& inputType
         this->writeInstruction(SpvOpConvertUToF, this->getType(outputType), result, inputId, out);
     } else {
         SkDEBUGFAILF("unsupported type for float typecast: %s", inputType.description().c_str());
-        return (SpvId)-1;
+        return NA;
     }
     return result;
 }
@@ -1400,7 +1399,7 @@ SpvId SPIRVCodeGenerator::castScalarToSignedInt(SpvId inputId, const Type& input
     } else {
         SkDEBUGFAILF("unsupported type for signed int typecast: %s",
                      inputType.description().c_str());
-        return (SpvId)-1;
+        return NA;
     }
     return result;
 }
@@ -1435,7 +1434,7 @@ SpvId SPIRVCodeGenerator::castScalarToUnsignedInt(SpvId inputId, const Type& inp
     } else {
         SkDEBUGFAILF("unsupported type for unsigned int typecast: %s",
                      inputType.description().c_str());
-        return (SpvId)-1;
+        return NA;
     }
     return result;
 }
@@ -1474,7 +1473,7 @@ SpvId SPIRVCodeGenerator::castScalarToBoolean(SpvId inputId, const Type& inputTy
                                inputId, zeroID, out);
     } else {
         SkDEBUGFAILF("unsupported type for boolean typecast: %s", inputType.description().c_str());
-        return (SpvId)-1;
+        return NA;
     }
     return result;
 }
@@ -1708,10 +1707,9 @@ SpvId SPIRVCodeGenerator::writeCompositeAsConstant(const std::vector<SpvId>& arg
                                                    OutputStream& out) {
     if (!type.isVector()) {
         // Only vectors are allowed.
-        return (SpvId)-1;
+        return NA;
     }
-    SPIRVVectorConstant key = {/*fTypeId=*/(SpvId)-1,
-                               /*fValueId=*/{(SpvId)-1, (SpvId)-1, (SpvId)-1, (SpvId)-1}};
+    SPIRVVectorConstant key = {/*fTypeId=*/NA, /*fValueId=*/{NA, NA, NA, NA}};
     for (size_t index = 0; index < arguments.size(); ++index) {
         // See if this argument is a numeric constant by scanning fNumberConstants.
         SpvId arg = arguments[index];
@@ -1724,7 +1722,7 @@ SpvId SPIRVCodeGenerator::writeCompositeAsConstant(const std::vector<SpvId>& arg
         }
         if (!found) {
             // This argument isn't a literal.
-            return (SpvId)-1;
+            return NA;
         }
         key.fValueId[index] = arg;
     }
@@ -1738,7 +1736,7 @@ SpvId SPIRVCodeGenerator::writeComposite(const std::vector<SpvId>& arguments,
                                          OutputStream& out) {
     // If this is a vector composed entirely of literals, write a constant.
     SpvId result = this->writeCompositeAsConstant(arguments, type, out);
-    if (result != (SpvId)-1) {
+    if (result != NA) {
         return result;
     }
 
@@ -1912,7 +1910,7 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
         }
         default: {
             SpvId id = this->getLValue(expr, out)->getPointer();
-            SkASSERT(id != (SpvId) -1);
+            SkASSERT(id != NA);
             chain.push_back(id);
             break;
         }
@@ -2091,7 +2089,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 return lvalue;
             }
             SpvId base = lvalue->getPointer();
-            if (base == (SpvId) -1) {
+            if (base == NA) {
                 fContext.fErrors->error(swizzle.fPosition,
                         "unable to retrieve lvalue from swizzle");
             }
@@ -2148,7 +2146,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             // to appear in a SPIR-V program (it's only valid in ES2). Report an error.
             fContext.fErrors->error(ref.fPosition,
                     "sk_SecondaryFragColor is not allowed in SPIR-V");
-            return (SpvId)-1;
+            return NA;
         }
         case SK_FRAGCOORD_BUILTIN: {
             // Handle inserting use of uniform to flip y when referencing sk_FragCoord.
@@ -2490,7 +2488,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             }
         } else {
             fContext.fErrors->error(leftType.fPosition, "unsupported mixed-type expression");
-            return -1;
+            return NA;
         }
     } else {
         operandType = &this->getActualType(leftType);
@@ -2621,7 +2619,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                               SpvOpBitwiseXor, SpvOpBitwiseXor, SpvOpUndef, out);
         default:
             fContext.fErrors->error(Position(), "unsupported token");
-            return -1;
+            return NA;
     }
 }
 
@@ -2637,7 +2635,7 @@ SpvId SPIRVCodeGenerator::writeArrayComparison(const Type& arrayType, SpvId lhs,
 
     // Synthesize equality checks for each item in the array.
     const Type& boolType = *fContext.fTypes.fBool;
-    SpvId allComparisons = (SpvId)-1;
+    SpvId allComparisons = NA;
     for (int index = 0; index < arraySize; ++index) {
         // Get the left and right item in the array.
         SpvId itemL = this->nextId(&componentType);
@@ -2663,7 +2661,7 @@ SpvId SPIRVCodeGenerator::writeStructComparison(const Type& structType, SpvId lh
 
     // Synthesize equality checks for each field in the struct.
     const Type& boolType = *fContext.fTypes.fBool;
-    SpvId allComparisons = (SpvId)-1;
+    SpvId allComparisons = NA;
     for (int index = 0; index < (int)fields.size(); ++index) {
         // Get the left and right versions of this field.
         const Type& fieldType = *fields[index].fType;
@@ -2685,7 +2683,7 @@ SpvId SPIRVCodeGenerator::writeStructComparison(const Type& structType, SpvId lh
 SpvId SPIRVCodeGenerator::mergeComparisons(SpvId comparison, SpvId allComparisons, Operator op,
                                            OutputStream& out) {
     // If this is the first entry, we don't need to merge comparison results with anything.
-    if (allComparisons == (SpvId)-1) {
+    if (allComparisons == NA) {
         return comparison;
     }
     // Use LogicalAnd or LogicalOr to combine the comparison with all the other comparisons.
@@ -2703,7 +2701,7 @@ SpvId SPIRVCodeGenerator::mergeComparisons(SpvId comparison, SpvId allComparison
             break;
         default:
             SkDEBUGFAILF("mergeComparisons only supports == and !=, not %s", op.operatorName());
-            return (SpvId)-1;
+            return NA;
     }
     return logicalOp;
 }
@@ -2906,7 +2904,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
         }
         default:
             SkDEBUGFAILF("unsupported prefix expression: %s", p.description().c_str());
-            return -1;
+            return NA;
     }
 }
 
@@ -2930,7 +2928,7 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
         }
         default:
             SkDEBUGFAILF("unsupported postfix expression %s", p.description().c_str());
-            return -1;
+            return NA;
     }
 }
 
@@ -3194,7 +3192,7 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
     this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
     if (varDecl.value()) {
         SkASSERT(!fCurrentBlock);
-        fCurrentBlock = -1;
+        fCurrentBlock = NA;
         SpvId value = this->writeExpression(*varDecl.value(), fGlobalInitializersBuffer);
         this->writeInstruction(SpvOpStore, id, value, fGlobalInitializersBuffer);
         fCurrentBlock = 0;

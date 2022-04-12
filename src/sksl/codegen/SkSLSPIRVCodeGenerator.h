@@ -106,17 +106,20 @@ struct SPIRVVectorConstant {
  */
 class SPIRVCodeGenerator : public CodeGenerator {
 public:
+    // We reserve an impossible SpvId as a sentinel. (NA meaning none, n/a, etc.)
+    static constexpr SpvId NA = (SpvId)-1;
+
     class LValue {
     public:
         virtual ~LValue() {}
 
         // returns a pointer to the lvalue, if possible. If the lvalue cannot be directly referenced
-        // by a pointer (e.g. vector swizzles), returns -1.
-        virtual SpvId getPointer() { return -1; }
+        // by a pointer (e.g. vector swizzles), returns NA.
+        virtual SpvId getPointer() { return NA; }
 
         // Returns true if a valid pointer returned by getPointer represents a memory object
         // (see https://github.com/KhronosGroup/SPIRV-Tools/issues/2892). Has no meaning if
-        // getPointer() returns -1.
+        // getPointer() returns NA.
         virtual bool isMemoryObjectPointer() const { return true; }
 
         // Applies a swizzle to the components of the LValue, if possible. This is used to create
@@ -521,7 +524,7 @@ private:
     std::vector<const VarDeclaration*> fTopLevelUniforms;
     SkTHashMap<const Variable*, int> fTopLevelUniformMap; // <var, UniformBuffer field index>
     SkTHashSet<const Variable*> fSPIRVBonusVariables;
-    SpvId fUniformBufferId = -1;
+    SpvId fUniformBufferId = NA;
 
     friend class PointerLValue;
     friend class SwizzleLValue;
