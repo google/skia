@@ -193,6 +193,11 @@ bool_flag(
 )
 
 bool_flag(
+    default = False,
+    flag_name = "enable_sksl_tracing",
+)
+
+bool_flag(
     # See SkTraceVentCommon.h for more on this type of tracing.
     default = True,
     flag_name = "enable_tracing",

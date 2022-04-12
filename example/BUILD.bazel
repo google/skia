@@ -23,7 +23,6 @@ cc_binary_with_flags(
     },
     deps = [
         "//:skia_core",
-        "//src/utils:json_srcs",
         "//tools/sk_app",
     ],
 )
@@ -46,7 +45,6 @@ cc_binary_with_flags(
     },
     deps = [
         "//:skia_core",
-        "//src/utils:json_srcs",
         "//tools/sk_app",
     ],
 )
@@ -69,7 +67,6 @@ cc_binary_with_flags(
     },
     deps = [
         "//:skia_core",
-        "//src/utils:json_srcs",
         "//tools/sk_app",
     ],
 )
@@ -87,7 +84,6 @@ cc_binary_with_flags(
     },
     deps = [
         "//:skia_core",
-        "//src/utils:json_srcs",
         # This DEPS is for the utility in the demo for creating a vulkan context.
         # Outside clients would not need it.
         "//tools/gpu/vk:VkTestUtils_src",

@@ -204,14 +204,17 @@ skia_sksl_sources = [
   "$_src/sksl/spirv.h",
   "$_src/sksl/tracing/SkVMDebugTrace.cpp",
   "$_src/sksl/tracing/SkVMDebugTrace.h",
-  "$_src/sksl/tracing/SkVMDebugTracePlayer.cpp",
-  "$_src/sksl/tracing/SkVMDebugTracePlayer.h",
   "$_src/sksl/transform/SkSLBuiltinVariableScanner.cpp",
   "$_src/sksl/transform/SkSLEliminateDeadFunctions.cpp",
   "$_src/sksl/transform/SkSLEliminateDeadGlobalVariables.cpp",
   "$_src/sksl/transform/SkSLEliminateDeadLocalVariables.cpp",
   "$_src/sksl/transform/SkSLEliminateUnreachableCode.cpp",
   "$_src/sksl/transform/SkSLTransform.h",
+]
+
+skia_sksl_tracing_sources = [
+  "$_src/sksl/tracing/SkVMDebugTracePlayer.cpp",
+  "$_src/sksl/tracing/SkVMDebugTracePlayer.h",
 ]
 
 skia_sksl_gpu_sources = [
