@@ -39,10 +39,13 @@ deps = {
   "third_party/externals/opengl-registry" : "https://skia.googlesource.com/external/github.com/KhronosGroup/OpenGL-Registry@14b80ebeab022b2c78f84a573f01028c96075553",
   "third_party/externals/piex"            : "https://android.googlesource.com/platform/external/piex.git@bb217acdca1cc0c16b704669dd6f91a1b509c406",
   "third_party/externals/sfntly"          : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@b55ff303ea2f9e26702b514cf6a3196a2e3e2974",
+  "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@011bba68c81900f1c80c619ec4dc4b7478304efa",
+  # vulkan-deps is a meta-repo containing several interdependent Khronos Vulkan repositories.
+  # When the vulkan-deps revision is updated, those repos (spirv-*, vulkan-*) should be updated as well.
+  "third_party/externals/vulkan-deps"     : "https://chromium.googlesource.com/vulkan-deps@c9be322642fb4c85bf70615bdbd2d206e60c19f5",
   "third_party/externals/spirv-cross"     : "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross@0e2880ab990e79ce6cc8c79c219feda42d98b1e8",
   "third_party/externals/spirv-headers"   : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@814e728b30ddd0f4509233099a3ad96fd4318c07",
   "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@4b092d2ab81854e61632bdd1e658907f0071c37e",
-  "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@011bba68c81900f1c80c619ec4dc4b7478304efa",
   "third_party/externals/vulkan-headers"  : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers@76f00ef6cbb1886eb1162d1fa39bee8b51e22ee8",
   "third_party/externals/vulkan-tools"    : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools@5f3ce24e7a530d089842c8192c2565a672555250",
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
