@@ -37,7 +37,8 @@ protected:
 
 private:
     struct ScalerContextBits {
-        static const constexpr uint32_t ForceBW = 1 << 0;
+        using value_type = decltype(SkGlyph::fScalerContextBits);
+        static const constexpr value_type ForceBW = 1 << 0;
     };
 
     static void BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph);
