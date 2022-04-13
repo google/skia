@@ -66,45 +66,45 @@ OpDecorate %290 RelaxedPrecision
 %46 = OpTypeFunction %bool
 %true = OpConstantTrue %bool
 %_ptr_Function_float = OpTypePointer Function %float
-%49 = OpTypeFunction %bool %_ptr_Function_float
+%50 = OpTypeFunction %bool %_ptr_Function_float
 %53 = OpTypeFunction %bool %_ptr_Function_v2float
 %v3float = OpTypeVector %float 3
 %_ptr_Function_v3float = OpTypePointer Function %v3float
-%57 = OpTypeFunction %bool %_ptr_Function_v3float
+%58 = OpTypeFunction %bool %_ptr_Function_v3float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%61 = OpTypeFunction %bool %_ptr_Function_v4float
+%62 = OpTypeFunction %bool %_ptr_Function_v4float
 %mat2v2float = OpTypeMatrix %v2float 2
 %_ptr_Function_mat2v2float = OpTypePointer Function %mat2v2float
-%66 = OpTypeFunction %bool %_ptr_Function_mat2v2float
+%67 = OpTypeFunction %bool %_ptr_Function_mat2v2float
 %mat3v3float = OpTypeMatrix %v3float 3
 %_ptr_Function_mat3v3float = OpTypePointer Function %mat3v3float
-%71 = OpTypeFunction %bool %_ptr_Function_mat3v3float
+%72 = OpTypeFunction %bool %_ptr_Function_mat3v3float
 %mat4v4float = OpTypeMatrix %v4float 4
 %_ptr_Function_mat4v4float = OpTypePointer Function %mat4v4float
-%76 = OpTypeFunction %bool %_ptr_Function_mat4v4float
+%77 = OpTypeFunction %bool %_ptr_Function_mat4v4float
 %_ptr_Function_bool = OpTypePointer Function %bool
-%94 = OpTypeFunction %bool %_ptr_Function_bool
+%95 = OpTypeFunction %bool %_ptr_Function_bool
 %v2bool = OpTypeVector %bool 2
 %_ptr_Function_v2bool = OpTypePointer Function %v2bool
-%99 = OpTypeFunction %bool %_ptr_Function_v2bool
+%100 = OpTypeFunction %bool %_ptr_Function_v2bool
 %v3bool = OpTypeVector %bool 3
 %_ptr_Function_v3bool = OpTypePointer Function %v3bool
-%104 = OpTypeFunction %bool %_ptr_Function_v3bool
+%105 = OpTypeFunction %bool %_ptr_Function_v3bool
 %v4bool = OpTypeVector %bool 4
 %_ptr_Function_v4bool = OpTypePointer Function %v4bool
-%109 = OpTypeFunction %bool %_ptr_Function_v4bool
+%110 = OpTypeFunction %bool %_ptr_Function_v4bool
 %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
-%114 = OpTypeFunction %bool %_ptr_Function_int
+%115 = OpTypeFunction %bool %_ptr_Function_int
 %v2int = OpTypeVector %int 2
 %_ptr_Function_v2int = OpTypePointer Function %v2int
-%119 = OpTypeFunction %bool %_ptr_Function_v2int
+%120 = OpTypeFunction %bool %_ptr_Function_v2int
 %v3int = OpTypeVector %int 3
 %_ptr_Function_v3int = OpTypePointer Function %v3int
-%124 = OpTypeFunction %bool %_ptr_Function_v3int
+%125 = OpTypeFunction %bool %_ptr_Function_v3int
 %v4int = OpTypeVector %int 4
 %_ptr_Function_v4int = OpTypePointer Function %v4int
-%129 = OpTypeFunction %bool %_ptr_Function_v4int
+%130 = OpTypeFunction %bool %_ptr_Function_v4int
 %133 = OpTypeFunction %v4float %_ptr_Function_v2float
 %false = OpConstantFalse %bool
 %float_1 = OpConstant %float 1
@@ -150,7 +150,7 @@ OpFunctionEnd
 %47 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_float_bf = OpFunction %bool None %49
+%takes_float_bf = OpFunction %bool None %50
 %51 = OpFunctionParameter %_ptr_Function_float
 %52 = OpLabel
 OpReturnValue %true
@@ -160,32 +160,32 @@ OpFunctionEnd
 %55 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_float3_bf3 = OpFunction %bool None %57
+%takes_float3_bf3 = OpFunction %bool None %58
 %59 = OpFunctionParameter %_ptr_Function_v3float
 %60 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_float4_bf4 = OpFunction %bool None %61
+%takes_float4_bf4 = OpFunction %bool None %62
 %63 = OpFunctionParameter %_ptr_Function_v4float
 %64 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_float2x2_bf22 = OpFunction %bool None %66
+%takes_float2x2_bf22 = OpFunction %bool None %67
 %68 = OpFunctionParameter %_ptr_Function_mat2v2float
 %69 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_float3x3_bf33 = OpFunction %bool None %71
+%takes_float3x3_bf33 = OpFunction %bool None %72
 %73 = OpFunctionParameter %_ptr_Function_mat3v3float
 %74 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_float4x4_bf44 = OpFunction %bool None %76
+%takes_float4x4_bf44 = OpFunction %bool None %77
 %78 = OpFunctionParameter %_ptr_Function_mat4v4float
 %79 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_half_bh = OpFunction %bool None %49
+%takes_half_bh = OpFunction %bool None %50
 %80 = OpFunctionParameter %_ptr_Function_float
 %81 = OpLabel
 OpReturnValue %true
@@ -195,67 +195,67 @@ OpFunctionEnd
 %83 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_half3_bh3 = OpFunction %bool None %57
+%takes_half3_bh3 = OpFunction %bool None %58
 %84 = OpFunctionParameter %_ptr_Function_v3float
 %85 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_half4_bh4 = OpFunction %bool None %61
+%takes_half4_bh4 = OpFunction %bool None %62
 %86 = OpFunctionParameter %_ptr_Function_v4float
 %87 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_half2x2_bh22 = OpFunction %bool None %66
+%takes_half2x2_bh22 = OpFunction %bool None %67
 %88 = OpFunctionParameter %_ptr_Function_mat2v2float
 %89 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_half3x3_bh33 = OpFunction %bool None %71
+%takes_half3x3_bh33 = OpFunction %bool None %72
 %90 = OpFunctionParameter %_ptr_Function_mat3v3float
 %91 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_half4x4_bh44 = OpFunction %bool None %76
+%takes_half4x4_bh44 = OpFunction %bool None %77
 %92 = OpFunctionParameter %_ptr_Function_mat4v4float
 %93 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_bool_bb = OpFunction %bool None %94
+%takes_bool_bb = OpFunction %bool None %95
 %96 = OpFunctionParameter %_ptr_Function_bool
 %97 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_bool2_bb2 = OpFunction %bool None %99
+%takes_bool2_bb2 = OpFunction %bool None %100
 %101 = OpFunctionParameter %_ptr_Function_v2bool
 %102 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_bool3_bb3 = OpFunction %bool None %104
+%takes_bool3_bb3 = OpFunction %bool None %105
 %106 = OpFunctionParameter %_ptr_Function_v3bool
 %107 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_bool4_bb4 = OpFunction %bool None %109
+%takes_bool4_bb4 = OpFunction %bool None %110
 %111 = OpFunctionParameter %_ptr_Function_v4bool
 %112 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_int_bi = OpFunction %bool None %114
+%takes_int_bi = OpFunction %bool None %115
 %116 = OpFunctionParameter %_ptr_Function_int
 %117 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_int2_bi2 = OpFunction %bool None %119
+%takes_int2_bi2 = OpFunction %bool None %120
 %121 = OpFunctionParameter %_ptr_Function_v2int
 %122 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_int3_bi3 = OpFunction %bool None %124
+%takes_int3_bi3 = OpFunction %bool None %125
 %126 = OpFunctionParameter %_ptr_Function_v3int
 %127 = OpLabel
 OpReturnValue %true
 OpFunctionEnd
-%takes_int4_bi4 = OpFunction %bool None %129
+%takes_int4_bi4 = OpFunction %bool None %130
 %131 = OpFunctionParameter %_ptr_Function_v4int
 %132 = OpLabel
 OpReturnValue %true

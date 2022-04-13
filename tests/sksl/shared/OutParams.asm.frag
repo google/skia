@@ -213,47 +213,47 @@ OpDecorate %497 RelaxedPrecision
 %41 = OpConstantComposite %v2float %float_0 %float_0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %_ptr_Function_float = OpTypePointer Function %float
-%45 = OpTypeFunction %void %_ptr_Function_float
+%46 = OpTypeFunction %void %_ptr_Function_float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_2 = OpConstant %int 2
 %55 = OpTypeFunction %void %_ptr_Function_v2float
 %v3float = OpTypeVector %float 3
 %_ptr_Function_v3float = OpTypePointer Function %v3float
-%63 = OpTypeFunction %void %_ptr_Function_v3float
+%64 = OpTypeFunction %void %_ptr_Function_v3float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%71 = OpTypeFunction %void %_ptr_Function_v4float
+%72 = OpTypeFunction %void %_ptr_Function_v4float
 %mat2v2float = OpTypeMatrix %v2float 2
 %_ptr_Function_mat2v2float = OpTypePointer Function %mat2v2float
-%80 = OpTypeFunction %void %_ptr_Function_mat2v2float
+%81 = OpTypeFunction %void %_ptr_Function_mat2v2float
 %mat3v3float = OpTypeMatrix %v3float 3
 %_ptr_Function_mat3v3float = OpTypePointer Function %mat3v3float
-%91 = OpTypeFunction %void %_ptr_Function_mat3v3float
+%92 = OpTypeFunction %void %_ptr_Function_mat3v3float
 %mat4v4float = OpTypeMatrix %v4float 4
 %_ptr_Function_mat4v4float = OpTypePointer Function %mat4v4float
-%103 = OpTypeFunction %void %_ptr_Function_mat4v4float
+%104 = OpTypeFunction %void %_ptr_Function_mat4v4float
 %_ptr_Function_int = OpTypePointer Function %int
-%115 = OpTypeFunction %void %_ptr_Function_int
+%116 = OpTypeFunction %void %_ptr_Function_int
 %v2int = OpTypeVector %int 2
 %_ptr_Function_v2int = OpTypePointer Function %v2int
-%124 = OpTypeFunction %void %_ptr_Function_v2int
+%125 = OpTypeFunction %void %_ptr_Function_v2int
 %v3int = OpTypeVector %int 3
 %_ptr_Function_v3int = OpTypePointer Function %v3int
-%134 = OpTypeFunction %void %_ptr_Function_v3int
+%135 = OpTypeFunction %void %_ptr_Function_v3int
 %v4int = OpTypeVector %int 4
 %_ptr_Function_v4int = OpTypePointer Function %v4int
-%144 = OpTypeFunction %void %_ptr_Function_v4int
+%145 = OpTypeFunction %void %_ptr_Function_v4int
 %_ptr_Function_bool = OpTypePointer Function %bool
-%203 = OpTypeFunction %void %_ptr_Function_bool
+%204 = OpTypeFunction %void %_ptr_Function_bool
 %v2bool = OpTypeVector %bool 2
 %_ptr_Function_v2bool = OpTypePointer Function %v2bool
-%212 = OpTypeFunction %void %_ptr_Function_v2bool
+%213 = OpTypeFunction %void %_ptr_Function_v2bool
 %v3bool = OpTypeVector %bool 3
 %_ptr_Function_v3bool = OpTypePointer Function %v3bool
-%222 = OpTypeFunction %void %_ptr_Function_v3bool
+%223 = OpTypeFunction %void %_ptr_Function_v3bool
 %v4bool = OpTypeVector %bool 4
 %_ptr_Function_v4bool = OpTypePointer Function %v4bool
-%232 = OpTypeFunction %void %_ptr_Function_v4bool
+%233 = OpTypeFunction %void %_ptr_Function_v4bool
 %241 = OpTypeFunction %v4float %_ptr_Function_v2float
 %int_1 = OpConstant %int 1
 %int_3 = OpConstant %int 3
@@ -269,7 +269,7 @@ OpStore %42 %41
 OpStore %sk_FragColor %44
 OpReturn
 OpFunctionEnd
-%out_half_vh = OpFunction %void None %45
+%out_half_vh = OpFunction %void None %46
 %47 = OpFunctionParameter %_ptr_Function_float
 %48 = OpLabel
 %49 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -288,7 +288,7 @@ OpFunctionEnd
 OpStore %56 %61
 OpReturn
 OpFunctionEnd
-%out_half3_vh3 = OpFunction %void None %63
+%out_half3_vh3 = OpFunction %void None %64
 %65 = OpFunctionParameter %_ptr_Function_v3float
 %66 = OpLabel
 %67 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -298,7 +298,7 @@ OpFunctionEnd
 OpStore %65 %70
 OpReturn
 OpFunctionEnd
-%out_half4_vh4 = OpFunction %void None %71
+%out_half4_vh4 = OpFunction %void None %72
 %73 = OpFunctionParameter %_ptr_Function_v4float
 %74 = OpLabel
 %75 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -308,7 +308,7 @@ OpFunctionEnd
 OpStore %73 %78
 OpReturn
 OpFunctionEnd
-%out_half2x2_vh22 = OpFunction %void None %80
+%out_half2x2_vh22 = OpFunction %void None %81
 %82 = OpFunctionParameter %_ptr_Function_mat2v2float
 %83 = OpLabel
 %84 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -320,7 +320,7 @@ OpFunctionEnd
 OpStore %82 %89
 OpReturn
 OpFunctionEnd
-%out_half3x3_vh33 = OpFunction %void None %91
+%out_half3x3_vh33 = OpFunction %void None %92
 %93 = OpFunctionParameter %_ptr_Function_mat3v3float
 %94 = OpLabel
 %95 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -333,7 +333,7 @@ OpFunctionEnd
 OpStore %93 %101
 OpReturn
 OpFunctionEnd
-%out_half4x4_vh44 = OpFunction %void None %103
+%out_half4x4_vh44 = OpFunction %void None %104
 %105 = OpFunctionParameter %_ptr_Function_mat4v4float
 %106 = OpLabel
 %107 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -347,7 +347,7 @@ OpFunctionEnd
 OpStore %105 %114
 OpReturn
 OpFunctionEnd
-%out_int_vi = OpFunction %void None %115
+%out_int_vi = OpFunction %void None %116
 %117 = OpFunctionParameter %_ptr_Function_int
 %118 = OpLabel
 %119 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -357,7 +357,7 @@ OpFunctionEnd
 OpStore %117 %122
 OpReturn
 OpFunctionEnd
-%out_int2_vi2 = OpFunction %void None %124
+%out_int2_vi2 = OpFunction %void None %125
 %126 = OpFunctionParameter %_ptr_Function_v2int
 %127 = OpLabel
 %128 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -368,7 +368,7 @@ OpFunctionEnd
 OpStore %126 %132
 OpReturn
 OpFunctionEnd
-%out_int3_vi3 = OpFunction %void None %134
+%out_int3_vi3 = OpFunction %void None %135
 %136 = OpFunctionParameter %_ptr_Function_v3int
 %137 = OpLabel
 %138 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -379,7 +379,7 @@ OpFunctionEnd
 OpStore %136 %142
 OpReturn
 OpFunctionEnd
-%out_int4_vi4 = OpFunction %void None %144
+%out_int4_vi4 = OpFunction %void None %145
 %146 = OpFunctionParameter %_ptr_Function_v4int
 %147 = OpLabel
 %148 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -390,7 +390,7 @@ OpFunctionEnd
 OpStore %146 %152
 OpReturn
 OpFunctionEnd
-%out_float_vf = OpFunction %void None %45
+%out_float_vf = OpFunction %void None %46
 %153 = OpFunctionParameter %_ptr_Function_float
 %154 = OpLabel
 %155 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -409,7 +409,7 @@ OpFunctionEnd
 OpStore %158 %163
 OpReturn
 OpFunctionEnd
-%out_float3_vf3 = OpFunction %void None %63
+%out_float3_vf3 = OpFunction %void None %64
 %164 = OpFunctionParameter %_ptr_Function_v3float
 %165 = OpLabel
 %166 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -419,7 +419,7 @@ OpFunctionEnd
 OpStore %164 %169
 OpReturn
 OpFunctionEnd
-%out_float4_vf4 = OpFunction %void None %71
+%out_float4_vf4 = OpFunction %void None %72
 %170 = OpFunctionParameter %_ptr_Function_v4float
 %171 = OpLabel
 %172 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -429,7 +429,7 @@ OpFunctionEnd
 OpStore %170 %175
 OpReturn
 OpFunctionEnd
-%out_float2x2_vf22 = OpFunction %void None %80
+%out_float2x2_vf22 = OpFunction %void None %81
 %176 = OpFunctionParameter %_ptr_Function_mat2v2float
 %177 = OpLabel
 %178 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -441,7 +441,7 @@ OpFunctionEnd
 OpStore %176 %183
 OpReturn
 OpFunctionEnd
-%out_float3x3_vf33 = OpFunction %void None %91
+%out_float3x3_vf33 = OpFunction %void None %92
 %184 = OpFunctionParameter %_ptr_Function_mat3v3float
 %185 = OpLabel
 %186 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -454,7 +454,7 @@ OpFunctionEnd
 OpStore %184 %192
 OpReturn
 OpFunctionEnd
-%out_float4x4_vf44 = OpFunction %void None %103
+%out_float4x4_vf44 = OpFunction %void None %104
 %193 = OpFunctionParameter %_ptr_Function_mat4v4float
 %194 = OpLabel
 %195 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -468,7 +468,7 @@ OpFunctionEnd
 OpStore %193 %202
 OpReturn
 OpFunctionEnd
-%out_bool_vb = OpFunction %void None %203
+%out_bool_vb = OpFunction %void None %204
 %205 = OpFunctionParameter %_ptr_Function_bool
 %206 = OpLabel
 %207 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -478,7 +478,7 @@ OpFunctionEnd
 OpStore %205 %210
 OpReturn
 OpFunctionEnd
-%out_bool2_vb2 = OpFunction %void None %212
+%out_bool2_vb2 = OpFunction %void None %213
 %214 = OpFunctionParameter %_ptr_Function_v2bool
 %215 = OpLabel
 %216 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -489,7 +489,7 @@ OpFunctionEnd
 OpStore %214 %220
 OpReturn
 OpFunctionEnd
-%out_bool3_vb3 = OpFunction %void None %222
+%out_bool3_vb3 = OpFunction %void None %223
 %224 = OpFunctionParameter %_ptr_Function_v3bool
 %225 = OpLabel
 %226 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2
@@ -500,7 +500,7 @@ OpFunctionEnd
 OpStore %224 %230
 OpReturn
 OpFunctionEnd
-%out_bool4_vb4 = OpFunction %void None %232
+%out_bool4_vb4 = OpFunction %void None %233
 %234 = OpFunctionParameter %_ptr_Function_v4bool
 %235 = OpLabel
 %236 = OpAccessChain %_ptr_Uniform_v4float %32 %int_2

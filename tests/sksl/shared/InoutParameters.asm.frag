@@ -61,7 +61,7 @@ OpDecorate %71 RelaxedPrecision
 %23 = OpConstantComposite %v2float %float_0 %float_0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%27 = OpTypeFunction %void %_ptr_Function_v4float
+%28 = OpTypeFunction %void %_ptr_Function_v4float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
@@ -75,7 +75,7 @@ OpStore %24 %23
 OpStore %sk_FragColor %26
 OpReturn
 OpFunctionEnd
-%outParameterWrite_vh4 = OpFunction %void None %27
+%outParameterWrite_vh4 = OpFunction %void None %28
 %29 = OpFunctionParameter %_ptr_Function_v4float
 %30 = OpLabel
 %31 = OpAccessChain %_ptr_Uniform_v4float %14 %int_0
@@ -83,7 +83,7 @@ OpFunctionEnd
 OpStore %29 %35
 OpReturn
 OpFunctionEnd
-%outParameterWriteIndirect_vh4 = OpFunction %void None %27
+%outParameterWriteIndirect_vh4 = OpFunction %void None %28
 %36 = OpFunctionParameter %_ptr_Function_v4float
 %37 = OpLabel
 %38 = OpVariable %_ptr_Function_v4float Function
@@ -92,7 +92,7 @@ OpFunctionEnd
 OpStore %36 %40
 OpReturn
 OpFunctionEnd
-%inoutParameterWrite_vh4 = OpFunction %void None %27
+%inoutParameterWrite_vh4 = OpFunction %void None %28
 %41 = OpFunctionParameter %_ptr_Function_v4float
 %42 = OpLabel
 %43 = OpLoad %v4float %41
@@ -101,7 +101,7 @@ OpFunctionEnd
 OpStore %41 %45
 OpReturn
 OpFunctionEnd
-%inoutParameterWriteIndirect_vh4 = OpFunction %void None %27
+%inoutParameterWriteIndirect_vh4 = OpFunction %void None %28
 %46 = OpFunctionParameter %_ptr_Function_v4float
 %47 = OpLabel
 %49 = OpVariable %_ptr_Function_v4float Function

@@ -117,7 +117,7 @@ OpDecorate %139 RelaxedPrecision
 %11 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %v2float = OpTypeVector %float 2
 %_ptr_Function_v2float = OpTypePointer Function %v2float
-%15 = OpTypeFunction %float %_ptr_Function_v2float %_ptr_Function_v2float
+%16 = OpTypeFunction %float %_ptr_Function_v2float %_ptr_Function_v2float
 %float_0 = OpConstant %float 0
 %float_1 = OpConstant %float 1
 %_ptr_Function_float = OpTypePointer Function %float
@@ -127,7 +127,7 @@ OpDecorate %139 RelaxedPrecision
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
-%color_dodge_component_Qhh2h2 = OpFunction %float None %15
+%color_dodge_component_Qhh2h2 = OpFunction %float None %16
 %17 = OpFunctionParameter %_ptr_Function_v2float
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpLabel

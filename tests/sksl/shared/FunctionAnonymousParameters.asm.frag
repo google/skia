@@ -48,15 +48,15 @@ OpDecorate %71 RelaxedPrecision
 %21 = OpConstantComposite %v2float %float_0 %float_0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %_ptr_Function_bool = OpTypePointer Function %bool
-%25 = OpTypeFunction %v4float %_ptr_Function_bool %_ptr_Function_v2float
+%26 = OpTypeFunction %v4float %_ptr_Function_bool %_ptr_Function_v2float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
-%S = OpTypeStruct %int
 %_ptr_Function_int = OpTypePointer Function %int
 %_ptr_Function_float = OpTypePointer Function %float
+%S = OpTypeStruct %int
 %_ptr_Function_S = OpTypePointer Function %S
-%36 = OpTypeFunction %v4float %_ptr_Function_int %_ptr_Function_float %_ptr_Function_S
+%39 = OpTypeFunction %v4float %_ptr_Function_int %_ptr_Function_float %_ptr_Function_S
 %int_1 = OpConstant %int 1
 %47 = OpTypeFunction %v4float %_ptr_Function_v2float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
@@ -71,7 +71,7 @@ OpStore %22 %21
 OpStore %sk_FragColor %24
 OpReturn
 OpFunctionEnd
-%fnGreen_h4bf2 = OpFunction %v4float None %25
+%fnGreen_h4bf2 = OpFunction %v4float None %26
 %27 = OpFunctionParameter %_ptr_Function_bool
 %28 = OpFunctionParameter %_ptr_Function_v2float
 %29 = OpLabel
@@ -79,7 +79,7 @@ OpFunctionEnd
 %34 = OpLoad %v4float %30
 OpReturnValue %34
 OpFunctionEnd
-%fnRed_h4ifS = OpFunction %v4float None %36
+%fnRed_h4ifS = OpFunction %v4float None %39
 %40 = OpFunctionParameter %_ptr_Function_int
 %41 = OpFunctionParameter %_ptr_Function_float
 %42 = OpFunctionParameter %_ptr_Function_S

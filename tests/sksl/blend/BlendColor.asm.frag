@@ -201,10 +201,10 @@ OpDecorate %245 RelaxedPrecision
 %12 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %v3float = OpTypeVector %float 3
 %_ptr_Function_v3float = OpTypePointer Function %v3float
-%16 = OpTypeFunction %float %_ptr_Function_v3float
+%17 = OpTypeFunction %float %_ptr_Function_v3float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Function_bool = OpTypePointer Function %bool
-%37 = OpTypeFunction %v4float %_ptr_Function_v4float %_ptr_Function_v4float %_ptr_Function_bool %_ptr_Function_bool
+%39 = OpTypeFunction %v4float %_ptr_Function_v4float %_ptr_Function_v4float %_ptr_Function_bool %_ptr_Function_bool
 %_ptr_Function_float = OpTypePointer Function %float
 %float_1 = OpConstant %float 1
 %float_0 = OpConstant %float 0
@@ -220,7 +220,7 @@ OpDecorate %245 RelaxedPrecision
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
-%blend_color_saturation_Qhh3 = OpFunction %float None %16
+%blend_color_saturation_Qhh3 = OpFunction %float None %17
 %18 = OpFunctionParameter %_ptr_Function_v3float
 %19 = OpLabel
 %22 = OpLoad %v3float %18
@@ -242,7 +242,7 @@ OpDecorate %245 RelaxedPrecision
 %36 = OpFSub %float %20 %28
 OpReturnValue %36
 OpFunctionEnd
-%blend_hslc_h4h4h4bb = OpFunction %v4float None %37
+%blend_hslc_h4h4h4bb = OpFunction %v4float None %39
 %40 = OpFunctionParameter %_ptr_Function_v4float
 %41 = OpFunctionParameter %_ptr_Function_v4float
 %42 = OpFunctionParameter %_ptr_Function_bool

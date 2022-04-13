@@ -92,18 +92,18 @@ OpDecorate %214 RelaxedPrecision
 %20 = OpConstantComposite %v2float %float_0 %float_0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %v3float = OpTypeVector %float 3
+%_ptr_Function_v3float = OpTypePointer Function %v3float
 %int = OpTypeInt 32 1
 %v2int = OpTypeVector %int 2
-%v4bool = OpTypeVector %bool 4
-%v2bool = OpTypeVector %bool 2
-%v3bool = OpTypeVector %bool 3
-%_ptr_Function_v3float = OpTypePointer Function %v3float
 %_ptr_Function_v2int = OpTypePointer Function %v2int
 %_ptr_Function_v4float = OpTypePointer Function %v4float
+%v4bool = OpTypeVector %bool 4
 %_ptr_Function_v4bool = OpTypePointer Function %v4bool
+%v2bool = OpTypeVector %bool 2
 %_ptr_Function_v2bool = OpTypePointer Function %v2bool
+%v3bool = OpTypeVector %bool 3
 %_ptr_Function_v3bool = OpTypePointer Function %v3bool
-%30 = OpTypeFunction %bool %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v3float %_ptr_Function_v2int %_ptr_Function_v2int %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v4float %_ptr_Function_v2int %_ptr_Function_v4bool %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v2bool %_ptr_Function_v2bool %_ptr_Function_v3bool
+%36 = OpTypeFunction %bool %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v3float %_ptr_Function_v2int %_ptr_Function_v2int %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v4float %_ptr_Function_v2int %_ptr_Function_v4bool %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v2float %_ptr_Function_v2bool %_ptr_Function_v2bool %_ptr_Function_v3bool
 %float_1 = OpConstant %float 1
 %float_17 = OpConstant %float 17
 %115 = OpTypeFunction %v4float %_ptr_Function_v2float
@@ -135,7 +135,7 @@ OpStore %21 %20
 OpStore %sk_FragColor %23
 OpReturn
 OpFunctionEnd
-%check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3 = OpFunction %bool None %30
+%check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3 = OpFunction %bool None %36
 %37 = OpFunctionParameter %_ptr_Function_v2float
 %38 = OpFunctionParameter %_ptr_Function_v2float
 %39 = OpFunctionParameter %_ptr_Function_v2float

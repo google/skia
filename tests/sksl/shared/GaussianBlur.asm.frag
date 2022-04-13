@@ -260,15 +260,15 @@ OpDecorate %527 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%23 = OpTypeImage %float 2D 0 0 0 1 Unknown
-%22 = OpTypeSampledImage %23
-%_ptr_UniformConstant_22 = OpTypePointer UniformConstant %22
-%uTextureSampler_0_Stage1 = OpVariable %_ptr_UniformConstant_22 UniformConstant
+%22 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%21 = OpTypeSampledImage %22
+%_ptr_UniformConstant_21 = OpTypePointer UniformConstant %21
+%uTextureSampler_0_Stage1 = OpVariable %_ptr_UniformConstant_21 UniformConstant
 %_ptr_Input_v2float = OpTypePointer Input %v2float
 %vLocalCoord_Stage0 = OpVariable %_ptr_Input_v2float Input
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Function_v2float = OpTypePointer Function %v2float
-%26 = OpTypeFunction %v4float %_ptr_Function_v4float %_ptr_Function_v2float
+%28 = OpTypeFunction %v4float %_ptr_Function_v4float %_ptr_Function_v2float
 %int_3 = OpConstant %int 3
 %_ptr_Uniform_mat3v3float = OpTypePointer Uniform %mat3v3float
 %float_1 = OpConstant %float 1
@@ -291,7 +291,7 @@ OpDecorate %527 RelaxedPrecision
 %_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
 %119 = OpConstantComposite %v2float %float_0 %float_0
 %int_2 = OpConstant %int 2
-%MatrixEffect_Stage1_c0_c0_h4h4f2 = OpFunction %v4float None %26
+%MatrixEffect_Stage1_c0_c0_h4h4f2 = OpFunction %v4float None %28
 %29 = OpFunctionParameter %_ptr_Function_v4float
 %30 = OpFunctionParameter %_ptr_Function_v2float
 %31 = OpLabel
@@ -325,7 +325,7 @@ OpStore %54 %53
 OpStore %59 %58
 %62 = OpLoad %v2float %_2_subsetCoord
 OpStore %_3_clampedCoord %62
-%65 = OpLoad %22 %uTextureSampler_0_Stage1
+%65 = OpLoad %21 %uTextureSampler_0_Stage1
 %66 = OpLoad %v2float %_3_clampedCoord
 %67 = OpAccessChain %_ptr_Uniform_v4float %4 %int_6
 %68 = OpLoad %v4float %67

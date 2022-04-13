@@ -51,7 +51,7 @@ OpDecorate %57 RelaxedPrecision
 %_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
 %12 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %_ptr_Function_v2float = OpTypePointer Function %v2float
-%16 = OpTypeFunction %float %_ptr_Function_v2float %_ptr_Function_v2float
+%17 = OpTypeFunction %float %_ptr_Function_v2float %_ptr_Function_v2float
 %void = OpTypeVoid
 %47 = OpTypeFunction %void
 %_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
@@ -61,7 +61,7 @@ OpDecorate %57 RelaxedPrecision
 %_ptr_Output_float = OpTypePointer Output %float
 %int_2 = OpConstant %int 2
 %int_3 = OpConstant %int 3
-%cross_length_2d_hh2h2 = OpFunction %float None %16
+%cross_length_2d_hh2h2 = OpFunction %float None %17
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpFunctionParameter %_ptr_Function_v2float
 %20 = OpLabel
@@ -78,7 +78,7 @@ OpDecorate %57 RelaxedPrecision
 %31 = OpFSub %float %25 %30
 OpReturnValue %31
 OpFunctionEnd
-%cross_length_2d_ff2f2 = OpFunction %float None %16
+%cross_length_2d_ff2f2 = OpFunction %float None %17
 %32 = OpFunctionParameter %_ptr_Function_v2float
 %33 = OpFunctionParameter %_ptr_Function_v2float
 %34 = OpLabel

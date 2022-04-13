@@ -47,7 +47,7 @@ OpDecorate %79 RelaxedPrecision
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %25 = OpTypeFunction %float %_ptr_Function_v2float
 %_ptr_Function_float = OpTypePointer Function %float
-%33 = OpTypeFunction %void %_ptr_Function_float
+%34 = OpTypeFunction %void %_ptr_Function_float
 %int = OpTypeInt 32 1
 %int_2 = OpConstant %int 2
 %_arr_float_int_2 = OpTypeArray %float %int_2
@@ -78,7 +78,7 @@ OpFunctionEnd
 %32 = OpFMul %float %29 %31
 OpReturnValue %32
 OpFunctionEnd
-%bar_vf = OpFunction %void None %33
+%bar_vf = OpFunction %void None %34
 %35 = OpFunctionParameter %_ptr_Function_float
 %36 = OpLabel
 %y = OpVariable %_ptr_Function__arr_float_int_2 Function

@@ -974,77 +974,46 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
 }
 
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
-    std::string key = std::to_string(this->getType(function.returnType())) + "(";
-    std::string separator;
-    const std::vector<const Variable*>& parameters = function.parameters();
-    for (size_t i = 0; i < parameters.size(); i++) {
-        key += separator;
-        separator = ", ";
-        key += std::to_string(this->getType(parameters[i]->type()));
+    Words words;
+    words.push_back(Word::Result());
+    words.push_back(this->getType(function.returnType()));
+    for (const Variable* parameter : function.parameters()) {
+        // glslang seems to treat all function arguments as pointers whether they need to be or
+        // not. I was initially puzzled by this until I ran bizarre failures with certain
+        // patterns of function calls and control constructs, as exemplified by this minimal
+        // failure case:
+        //
+        // void sphere(float x) {
+        // }
+        //
+        // void map() {
+        //     sphere(1.0);
+        // }
+        //
+        // void main() {
+        //     for (int i = 0; i < 1; i++) {
+        //         map();
+        //     }
+        // }
+        //
+        // As of this writing, compiling this in the "obvious" way (with sphere taking a float)
+        // crashes. Making it take a float* and storing the argument in a temporary variable,
+        // as glslang does, fixes it. It's entirely possible I simply missed whichever part of
+        // the spec makes this make sense.
+        words.push_back(this->getPointerType(parameter->type(), SpvStorageClassFunction));
     }
-    key += ")";
-    SpvId* entry = fTypeMap.find(key);
-    if (!entry) {
-        SpvId result = this->nextId(nullptr);
-        int32_t length = 3 + (int32_t) parameters.size();
-        SpvId returnType = this->getType(function.returnType());
-        std::vector<SpvId> parameterTypes;
-        for (size_t i = 0; i < parameters.size(); i++) {
-            // glslang seems to treat all function arguments as pointers whether they need to be or
-            // not. I  was initially puzzled by this until I ran bizarre failures with certain
-            // patterns of function calls and control constructs, as exemplified by this minimal
-            // failure case:
-            //
-            // void sphere(float x) {
-            // }
-            //
-            // void map() {
-            //     sphere(1.0);
-            // }
-            //
-            // void main() {
-            //     for (int i = 0; i < 1; i++) {
-            //         map();
-            //     }
-            // }
-            //
-            // As of this writing, compiling this in the "obvious" way (with sphere taking a float)
-            // crashes. Making it take a float* and storing the argument in a temporary variable,
-            // as glslang does, fixes it. It's entirely possible I simply missed whichever part of
-            // the spec makes this make sense.
-            parameterTypes.push_back(this->getPointerType(parameters[i]->type(),
-                                                          SpvStorageClassFunction));
-        }
-        this->writeOpCode(SpvOpTypeFunction, length, fConstantBuffer);
-        this->writeWord(result, fConstantBuffer);
-        this->writeWord(returnType, fConstantBuffer);
-        for (SpvId id : parameterTypes) {
-            this->writeWord(id, fConstantBuffer);
-        }
-        fTypeMap.set(key, result);
-        return result;
-    }
-    return *entry;
+    return this->writeInstruction(SpvOpTypeFunction, words, fConstantBuffer);
 }
 
 SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ storageClass) {
     return this->getPointerType(type, fDefaultLayout, storageClass);
 }
 
-SpvId SPIRVCodeGenerator::getPointerType(const Type& rawType, const MemoryLayout& layout,
+SpvId SPIRVCodeGenerator::getPointerType(const Type& type, const MemoryLayout& layout,
                                          SpvStorageClass_ storageClass) {
-    const Type& type = this->getActualType(rawType);
-    std::string key = type.displayName() + "*" + std::to_string(layout.fStd) +
-                      std::to_string(storageClass);
-    SpvId* entry = fTypeMap.find(key);
-    if (!entry) {
-        SpvId result = this->nextId(nullptr);
-        this->writeInstruction(SpvOpTypePointer, result, storageClass,
-                               this->getType(type), fConstantBuffer);
-        fTypeMap.set(key, result);
-        return result;
-    }
-    return *entry;
+    return this->writeInstruction(SpvOpTypePointer,
+                                  {Word::Result(), Word::Number(storageClass), this->getType(type)},
+                                  fConstantBuffer);
 }
 
 SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& out) {

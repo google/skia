@@ -31,10 +31,10 @@ OpDecorate %24 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%13 = OpTypeImage %float 2D 0 0 0 1 Unknown
-%12 = OpTypeSampledImage %13
-%_ptr_UniformConstant_12 = OpTypePointer UniformConstant %12
-%s = OpVariable %_ptr_UniformConstant_12 UniformConstant
+%12 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%11 = OpTypeSampledImage %12
+%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
+%s = OpVariable %_ptr_UniformConstant_11 UniformConstant
 %mat4v4float = OpTypeMatrix %v4float 4
 %_UniformBuffer = OpTypeStruct %mat4v4float
 %_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
@@ -61,7 +61,7 @@ OpDecorate %24 RelaxedPrecision
 %20 = OpLabel
 %tmpColor = OpVariable %_ptr_Function_v4float Function
 %55 = OpVariable %_ptr_Function_v4float Function
-%24 = OpLoad %12 %s
+%24 = OpLoad %11 %s
 %23 = OpImageSampleImplicitLod %v4float %24 %27
 OpStore %tmpColor %23
 %28 = OpAccessChain %_ptr_Uniform_mat4v4float %14 %int_0

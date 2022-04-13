@@ -1,7 +1,7 @@
 ### Compilation failed:
 
 error: SPIR-V validation error: Operand 3 of TypeImage requires one of these capabilities: Sampled1D Image1D 
-  %13 = OpTypeImage %float 1D 0 0 0 1 Unknown
+  %12 = OpTypeImage %float 1D 0 0 0 1 Unknown
 
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
@@ -35,10 +35,10 @@ OpDecorate %35 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%13 = OpTypeImage %float 1D 0 0 0 1 Unknown
-%12 = OpTypeSampledImage %13
-%_ptr_UniformConstant_12 = OpTypePointer UniformConstant %12
-%tex = OpVariable %_ptr_UniformConstant_12 UniformConstant
+%12 = OpTypeImage %float 1D 0 0 0 1 Unknown
+%11 = OpTypeSampledImage %12
+%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
+%tex = OpVariable %_ptr_UniformConstant_11 UniformConstant
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
 %_ptr_Function_v4float = OpTypePointer Function %v4float
@@ -49,10 +49,10 @@ OpDecorate %35 RelaxedPrecision
 %16 = OpLabel
 %a = OpVariable %_ptr_Function_v4float Function
 %b = OpVariable %_ptr_Function_v4float Function
-%20 = OpLoad %12 %tex
+%20 = OpLoad %11 %tex
 %19 = OpImageSampleImplicitLod %v4float %20 %float_0
 OpStore %a %19
-%24 = OpLoad %12 %tex
+%24 = OpLoad %11 %tex
 %23 = OpImageSampleProjImplicitLod %v4float %24 %26
 OpStore %b %23
 %27 = OpLoad %v4float %a

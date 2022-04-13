@@ -109,11 +109,11 @@ OpDecorate %127 RelaxedPrecision
 %12 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %v2float = OpTypeVector %float 2
 %_ptr_Function_v2float = OpTypePointer Function %v2float
-%16 = OpTypeFunction %float %_ptr_Function_v2float %_ptr_Function_v2float
+%17 = OpTypeFunction %float %_ptr_Function_v2float %_ptr_Function_v2float
 %float_2 = OpConstant %float 2
 %_ptr_Function_float = OpTypePointer Function %float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%58 = OpTypeFunction %v4float %_ptr_Function_v4float %_ptr_Function_v4float
+%59 = OpTypeFunction %v4float %_ptr_Function_v4float %_ptr_Function_v4float
 %float_1 = OpConstant %float 1
 %v3float = OpTypeVector %float 3
 %void = OpTypeVoid
@@ -122,7 +122,7 @@ OpDecorate %127 RelaxedPrecision
 %int = OpTypeInt 32 1
 %int_1 = OpConstant %int 1
 %int_0 = OpConstant %int 0
-%blend_overlay_component_Qhh2h2 = OpFunction %float None %16
+%blend_overlay_component_Qhh2h2 = OpFunction %float None %17
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpFunctionParameter %_ptr_Function_v2float
 %20 = OpLabel
@@ -169,7 +169,7 @@ OpBranch %32
 %57 = OpLoad %float %28
 OpReturnValue %57
 OpFunctionEnd
-%blend_overlay_h4h4h4 = OpFunction %v4float None %58
+%blend_overlay_h4h4h4 = OpFunction %v4float None %59
 %60 = OpFunctionParameter %_ptr_Function_v4float
 %61 = OpFunctionParameter %_ptr_Function_v4float
 %62 = OpLabel
