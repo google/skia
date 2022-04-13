@@ -502,6 +502,8 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     SkSL::Program::Inputs inputs[kShaderTypeCount];
     SkSL::Program::Settings settings;
 
+    settings.fForceNoRTFlip = true;
+
     ShaderErrorHandler* errorHandler = DefaultShaderErrorHandler();
     if (!SkSLToMSL(gpu,
                    get_sksl_vs(pipelineDesc),

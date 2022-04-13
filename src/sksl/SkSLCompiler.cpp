@@ -484,11 +484,13 @@ void Compiler::updateInputsForBuiltinVariable(const Variable& var) {
     switch (var.modifiers().fLayout.fBuiltin) {
         case SK_FRAGCOORD_BUILTIN:
             if (fContext->fCaps.canUseFragCoord()) {
-                ThreadContext::Inputs().fUseFlipRTUniform = true;
+                ThreadContext::Inputs().fUseFlipRTUniform =
+                        !fContext->fConfig->fSettings.fForceNoRTFlip;
             }
             break;
         case SK_CLOCKWISE_BUILTIN:
-            ThreadContext::Inputs().fUseFlipRTUniform = true;
+            ThreadContext::Inputs().fUseFlipRTUniform =
+                    !fContext->fConfig->fSettings.fForceNoRTFlip;
             break;
     }
 }

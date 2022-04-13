@@ -30,6 +30,10 @@ struct ProgramSettings {
     bool fForceHighPrecision = false;
     // if true, add -0.5 bias to LOD of all texture lookups
     bool fSharpenTextures = false;
+    // If true, sk_FragCoord, the dFdy gradient, and sk_Clockwise won't be modified by the
+    // rtFlip. Additionally, the 'fUseFlipRTUniform' boolean will be forced to false so no rtFlip
+    // uniform will be emitted.
+    bool fForceNoRTFlip = false;
     // if the program needs to create an RTFlip uniform, this is its offset in the uniform buffer
     int fRTFlipOffset = -1;
     // if the program needs to create an RTFlip uniform and is creating SPIR-V, this is the binding
