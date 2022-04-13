@@ -38,7 +38,10 @@ public:
     kColorFontsRepoTransform,
     kColorFontsRepoClipBox,
     kColorFontsRepoComposite,
-    kColorFontsRepoForeground
+    kColorFontsRepoForeground,
+    kColorFontsRepoSweepPad,
+    kColorFontsRepoSweepReflect,
+    kColorFontsRepoSweepRepeat,
   };
 
   ColrV1GM(ColrV1TestType testType, SkScalar skewX, SkScalar rotateDeg)
@@ -67,6 +70,12 @@ protected:
                 return SkString("composite");
             case kColorFontsRepoForeground:
                 return SkString("foreground");
+            case kColorFontsRepoSweepPad:
+                return SkString("sweep_pad");
+            case kColorFontsRepoSweepReflect:
+                return SkString("sweep_reflect");
+            case kColorFontsRepoSweepRepeat:
+                return SkString("sweep_repeat");
         }
         SkASSERT(false); /* not reached */
         return SkString();
@@ -117,6 +126,15 @@ protected:
                 break;
             case kColorFontsRepoForeground:
                 fEmojiFont.fGlyphs = {47, 48, 49, 50, 51, 52, 53, 54};
+                break;
+            case kColorFontsRepoSweepPad:
+                fEmojiFont.fGlyphs = {2, 58, 59, 60, 61, 62, 63, 64};
+                break;
+            case kColorFontsRepoSweepReflect:
+                fEmojiFont.fGlyphs = {65, 66, 67, 68, 69, 70, 71, 72};
+                break;
+            case kColorFontsRepoSweepRepeat:
+                fEmojiFont.fGlyphs = {73, 74, 75, 76, 77, 78, 79, 80};
                 break;
         }
     }
@@ -193,5 +211,8 @@ DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoClipBox, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoClipBox, -0.5f, 20.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoComposite, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoForeground, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoSweepPad, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoSweepReflect, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoSweepRepeat, 0.f, 0.f);)
 
 }  // namespace skiagm

@@ -726,6 +726,7 @@ bool colrv1_configure_skpaint(FT_Face face,
             };
             startAngle = clampAngleToRange(startAngle);
             endAngle = clampAngleToRange(endAngle);
+#ifdef SK_IGNORE_COLRV1_SWEEP_FIX
             /* TODO: Spec clarifications on which side of the gradient is to be
              * painted, repeat modes, how to handle 0 degrees transition, see
              * https://github.com/googlefonts/colr-gradients-spec/issues/250 */
@@ -742,6 +743,27 @@ bool colrv1_configure_skpaint(FT_Face face,
             paint->setShader(SkGradientShader::MakeSweep(
                     center.x(), center.y(), colors.data(), stops.data(), stops.size(),
                     SkTileMode::kDecal, startAngle, endAngle, 0, &angleAdjust));
+#else
+            SkScalar sectorAngle =
+                    endAngle > startAngle ? endAngle - startAngle : endAngle + 360.0f - startAngle;
+
+            /* https://docs.microsoft.com/en-us/typography/opentype/spec/colr#sweep-gradients
+             * "The angles are expressed in counter-clockwise degrees from the
+             * direction of the positive x-axis on the design grid. [...]  The
+             * color line progresses from the start angle to the end angle in
+             * the counter-clockwise direction;"
+             */
+
+            SkMatrix localMatrix;
+            localMatrix.postRotate(startAngle, center.x(), center.y());
+            /* Mirror along x-axis to change angle direction. */
+            localMatrix.postScale(1, -1, center.x(), center.y());
+            SkTileMode tileMode = ToSkTileMode(sweepGradient.colorline.extend);
+
+            paint->setShader(SkGradientShader::MakeSweep(
+                    center.x(), center.y(), colors.data(), stops.data(), stops.size(),
+                    tileMode, 0, sectorAngle, 0, &localMatrix));
+#endif
             return true;
         }
         default: {
