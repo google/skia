@@ -3564,7 +3564,6 @@ namespace skgpu::v1 {
 sk_sp<GrSlug>
 Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     auto recordingContextPriv = this->recordingContext()->priv();
-    SkASSERT(recordingContextPriv.options().fSupportBilerpFromGlyphAtlas);
     const GrSDFTControl control = recordingContextPriv.getSDFTControl(
             this->surfaceProps().isUseDeviceIndependentFonts());
 
@@ -3577,7 +3576,19 @@ Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const SkPa
 
 void Device::drawSlug(SkCanvas* canvas, const GrSlug* grSlug) {
     const Slug* slug = static_cast<const Slug*>(grSlug);
-    slug->surfaceDraw(canvas, this->clip(), this->asMatrixProvider(), fSurfaceDrawContext.get());
+    auto matrixProvider = this->asMatrixProvider();
+#if defined(SK_DEBUG)
+    if (!fContext->priv().options().fSupportBilerpFromGlyphAtlas) {
+        // We can draw a slug if the atlas has padding or if the creation matrix and the
+        // drawing matrix are the same. If they are the same, then the Slug will use the direct
+        // drawing code and not use bi-lerp.
+        SkMatrix slugMatrix = slug->initialPositionMatrix();
+        SkMatrix positionMatrix = matrixProvider.localToDevice();
+        positionMatrix.preTranslate(slug->origin().x(), slug->origin().y());
+        SkASSERT(slugMatrix == positionMatrix);
+    }
+#endif
+    slug->surfaceDraw(canvas, this->clip(), matrixProvider, fSurfaceDrawContext.get());
 }
 
 sk_sp<GrSlug> MakeSlug(const SkMatrixProvider& drawMatrix,

@@ -1113,8 +1113,17 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
 #elif defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_STRIKE_SERIALIZE)
     this->testingOnly_drawGlyphRunListWithSerializedSlugAndStrike(canvas, glyphRunList, paint);
 #else
-    fSurfaceDrawContext->drawGlyphRunList(
-            canvas, this->clip(), this->asMatrixProvider(), glyphRunList, paint);
+    if (glyphRunList.blob() == nullptr) {
+        // If the glyphRunList does not have an associated text blob, then it was created by one of
+        // the direct draw APIs (drawGlyphs, etc.). Use a Slug to draw the glyphs.
+        auto slug = this->convertGlyphRunListToSlug(glyphRunList, paint);
+        if (slug != nullptr) {
+            this->drawSlug(canvas, slug.get());
+        }
+    } else {
+        fSurfaceDrawContext->drawGlyphRunList(
+                canvas, this->clip(), this->asMatrixProvider(), glyphRunList, paint);
+    }
 #endif
 }
 
