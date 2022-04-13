@@ -260,10 +260,10 @@ OpDecorate %527 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%22 = OpTypeImage %float 2D 0 0 0 1 Unknown
-%21 = OpTypeSampledImage %22
-%_ptr_UniformConstant_21 = OpTypePointer UniformConstant %21
-%uTextureSampler_0_Stage1 = OpVariable %_ptr_UniformConstant_21 UniformConstant
+%21 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%22 = OpTypeSampledImage %21
+%_ptr_UniformConstant_22 = OpTypePointer UniformConstant %22
+%uTextureSampler_0_Stage1 = OpVariable %_ptr_UniformConstant_22 UniformConstant
 %_ptr_Input_v2float = OpTypePointer Input %v2float
 %vLocalCoord_Stage0 = OpVariable %_ptr_Input_v2float Input
 %_ptr_Function_v4float = OpTypePointer Function %v4float
@@ -325,7 +325,7 @@ OpStore %54 %53
 OpStore %59 %58
 %62 = OpLoad %v2float %_2_subsetCoord
 OpStore %_3_clampedCoord %62
-%65 = OpLoad %21 %uTextureSampler_0_Stage1
+%65 = OpLoad %22 %uTextureSampler_0_Stage1
 %66 = OpLoad %v2float %_3_clampedCoord
 %67 = OpAccessChain %_ptr_Uniform_v4float %4 %int_6
 %68 = OpLoad %v4float %67

@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: SPIR-V validation error: Block decoration on target <id> '4[%_arr_testBlock_int_2]' must be a structure type
+error: SPIR-V validation error: Block decoration on target <id> '8[%_arr_testBlock_int_2]' must be a structure type
   OpDecorate %_arr_testBlock_int_2 Block
 
 OpCapability Shader
