@@ -121,7 +121,6 @@ auto AtlasTextOp::Geometry::MakeForBlob(const GrAtlasSubRun& subRun,
                              drawOrigin,
                              clipRect,
                              std::move(supportData),
-                             nullptr,
                              color};
 }
 

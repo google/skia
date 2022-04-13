@@ -39,17 +39,14 @@ public:
                  SkPoint drawOrigin,
                  SkIRect clipRect,
                  sk_sp<SkRefCnt> supportData,
-                 GrAtlasSubRunOwner subRunOwner,
                  const SkPMColor4f& color)
             : fSubRun{subRun}
             , fSupportDataKeepAlive{std::move(supportData)}
-            , fSubRunDtor{std::move(subRunOwner)}
             , fDrawMatrix{drawMatrix}
             , fDrawOrigin{drawOrigin}
             , fClipRect{clipRect}
             , fColor{color} {
-                SkASSERT(fSupportDataKeepAlive != nullptr || fSubRunDtor != nullptr);
-                SkASSERT(SkToBool(fSubRunDtor) != SkToBool(fSupportDataKeepAlive));
+                SkASSERT(fSupportDataKeepAlive != nullptr);
         }
 
         static Geometry* MakeForBlob(const GrAtlasSubRun& subRun,
@@ -64,11 +61,8 @@ public:
 
         const GrAtlasSubRun& fSubRun;
 
-        // Either this Geometry holds a ref to the support data in the case of a blob based
-        // SubRun (WithCaching case), or it holds a unique_ptr to a SubRun allocated on the
-        // GrTextBlobAllocator in the NoCache case. It must hold one, and can't hold both.
+        // Keep the GrTextBlob or Slug alive until the op is deleted.
         sk_sp<SkRefCnt> fSupportDataKeepAlive;
-        GrAtlasSubRunOwner fSubRunDtor;
 
         const SkMatrix fDrawMatrix;
         const SkPoint fDrawOrigin;
