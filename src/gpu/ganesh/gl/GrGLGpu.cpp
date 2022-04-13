@@ -1378,9 +1378,6 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
     GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, state.fMinFilter));
     GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_WRAP_S, state.fWrapS));
     GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_WRAP_T, state.fWrapT));
-    if (caps.anisoSupport()) {
-        GR_GL_CALL(interface, TexParameterf(target, GR_GL_TEXTURE_MAX_ANISOTROPY, 1.f));
-    }
     return state;
 }
 
