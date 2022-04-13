@@ -1,9 +1,6 @@
 licenses(["notice"])
 
-# https://github.com/bazelbuild/bazel-skylib
-load("@bazel_skylib//lib:selects.bzl", "selects")
-load("@rules_python//python:defs.bzl", "py_binary")
-load("@py_deps//:requirements.bzl", "requirement")
+load("//bazel:macros.bzl", "py_binary", "requirement", "selects")
 
 cc_library(
     name = "skcms",

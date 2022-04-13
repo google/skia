@@ -1,7 +1,6 @@
 licenses(["notice"])
 
-load("//bazel:macros.bzl", "generated_cc_atom")
-load("@rules_python//python:defs.bzl", "py_binary")
+load("//bazel:macros.bzl", "generated_cc_atom", "py_binary")
 
 py_binary(
     name = "embed_resources",

@@ -2,8 +2,7 @@ licenses(["notice"])
 
 load(":defs.bzl", "bool_flag", "string_flag_with_values")
 
-# https://github.com/bazelbuild/bazel-skylib
-load("@bazel_skylib//lib:selects.bzl", "selects")
+load("//bazel:macros.bzl", "selects")
 
 # @platforms is found at https://github.com/bazelbuild/platforms
 package(default_visibility = ["//:__subpackages__"])

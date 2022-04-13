@@ -1,8 +1,6 @@
 licenses(["notice"])
 
-# https://github.com/bazelbuild/bazel-skylib
-load("@bazel_skylib//lib:selects.bzl", "selects")
-load("//bazel:macros.bzl", "generated_cc_atom")
+load("//bazel:macros.bzl", "generated_cc_atom", "selects")
 
 selects.config_setting_group(
     name = "dawn_unix",

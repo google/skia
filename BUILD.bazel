@@ -1,9 +1,6 @@
 licenses(["notice"])
 
-# https://github.com/bazelbuild/bazel-skylib
-load("@bazel_skylib//lib:selects.bzl", "selects")
-load("//bazel:macros.bzl", "select_multi")
-load("@bazel_gazelle//:def.bzl", "gazelle")
+load("//bazel:macros.bzl", "gazelle", "select_multi", "selects")
 
 package(default_visibility = ["//:__subpackages__"])
 
