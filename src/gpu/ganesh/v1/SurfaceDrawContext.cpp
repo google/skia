@@ -327,29 +327,6 @@ void SurfaceDrawContext::willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask
 #endif
 }
 
-void SurfaceDrawContext::drawGlyphRunListNoCache(SkCanvas* canvas,
-                                                 const GrClip* clip,
-                                                 const SkMatrixProvider& viewMatrix,
-                                                 const SkGlyphRunList& glyphRunList,
-                                                 const SkPaint& paint) {
-    GrSDFTControl control =
-            fContext->priv().getSDFTControl(fSurfaceProps.isUseDeviceIndependentFonts());
-    const SkPoint drawOrigin = glyphRunList.origin();
-    SkMatrix drawMatrix = viewMatrix.localToDevice();
-    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-    GrSubRunAllocator* const alloc = this->subRunAlloc();
-
-    GrSubRunNoCachePainter painter{canvas, this, alloc, clip, viewMatrix, glyphRunList, paint};
-    for (auto& glyphRun : glyphRunList) {
-        // Make and add the text ops.
-        fGlyphPainter.processGlyphRun(&painter,
-                                      glyphRun,
-                                      drawMatrix,
-                                      paint,
-                                      control);
-    }
-}
-
 void SurfaceDrawContext::drawGlyphRunList(SkCanvas* canvas,
                                           const GrClip* clip,
                                           const SkMatrixProvider& viewMatrix,
