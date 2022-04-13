@@ -48,14 +48,13 @@ protected:
         : INHERITED(std::move(typeface), effects, desc)
     {}
 
-    bool drawColorGlyph(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
-                        SkSpan<SkColor> palette, SkCanvas*);
-    void generateGlyphImage(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
-                            SkSpan<SkColor> palette, const SkMatrix& bitmapTransform);
+    bool drawCOLRv0Glyph(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
+                         SkSpan<SkColor> palette, SkCanvas*);
+    bool drawCOLRv1Glyph(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
+                         SkSpan<SkColor> palette, SkCanvas*);
+    void generateGlyphImage(FT_Face, const SkGlyph&, const SkMatrix& bitmapTransform);
     bool generateGlyphPath(FT_Face, SkPath*);
     bool generateFacePath(FT_Face, SkGlyphID, uint32_t loadGlyphFlags, SkPath*);
-    sk_sp<SkDrawable> generateGlyphDrawable(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
-                                            SkSpan<SkColor> palette);
 
     // Computes a bounding box for a COLRv1 glyph id in FT_BBox 26.6 format and FreeType's y-up
     // coordinate space.
@@ -66,6 +65,10 @@ protected:
     // state of FT_Face.
     bool computeColrV1GlyphBoundingBox(FT_Face face, SkGlyphID glyphID, FT_BBox* boundingBox);
 
+    struct ScalerContextBits {
+        static const constexpr uint32_t COLRv0 = 1;
+        static const constexpr uint32_t COLRv1 = 2;
+    };
 private:
     using INHERITED = SkScalerContext;
 };
