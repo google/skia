@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 # This rule is a convenient way to build all the task drivers and copy them all into a single
 # place as a tar folder. Otherwise, we would need to run many separate bazel build commands and
 # then fish the executables out of a deep folder structure like:

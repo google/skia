@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 cc_library(
     name = "skunicode",
     hdrs = ["//modules/skunicode/include:hdrs"],

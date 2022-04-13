@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 load("//bazel:macros.bzl", "generated_cc_atom", "select_multi")
 
 cc_library(

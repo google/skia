@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 cc_library(
     name = "skottie",
     hdrs = ["//modules/skottie/include:hdrs"],

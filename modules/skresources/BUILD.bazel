@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 cc_library(
     name = "skresources",
     hdrs = ["//modules/skresources/include:hdrs"],

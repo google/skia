@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 cc_library(
     name = "skshaper",
     hdrs = ["//modules/skshaper/include:hdrs"],

@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 load("//bazel:macros.bzl", "select_multi")
 
 GENERAL_DEFINES = [

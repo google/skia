@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 load("//bazel:macros.bzl", "enforce_iwyu_on_package", "generated_cc_atom")
 
 enforce_iwyu_on_package()

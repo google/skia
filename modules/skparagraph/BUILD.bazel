@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 cc_library(
     name = "skparagraph",
     hdrs = ["//modules/skparagraph/include:hdrs"],

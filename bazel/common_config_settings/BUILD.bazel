@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 load(":defs.bzl", "bool_flag", "string_flag_with_values")
 
 # https://github.com/bazelbuild/bazel-skylib

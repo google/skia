@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 # https://github.com/bazelbuild/bazel-skylib
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//bazel:macros.bzl", "select_multi")
