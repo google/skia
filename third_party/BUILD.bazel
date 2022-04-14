@@ -1,6 +1,6 @@
-licenses(["notice"])
-
 load("//bazel:macros.bzl", "py_binary", "requirement", "selects")
+
+licenses(["notice"])
 
 cc_library(
     name = "skcms",
@@ -3544,4 +3544,3 @@ cc_library(
     defines = ["SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS"],
     visibility = ["//:__subpackages__"],
 )
-

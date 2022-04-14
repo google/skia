@@ -1,6 +1,6 @@
-licenses(["notice"])
-
 load("//bazel:macros.bzl", "select_multi")
+
+licenses(["notice"])
 
 GENERAL_DEFINES = [
     "SK_HAS_ANDROID_CODEC",

@@ -1,6 +1,6 @@
-licenses(["notice"])
-
 load("//bazel:macros.bzl", "gazelle", "select_multi", "selects")
+
+licenses(["notice"])
 
 package(default_visibility = ["//:__subpackages__"])
 

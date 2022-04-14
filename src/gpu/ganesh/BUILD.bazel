@@ -1,6 +1,6 @@
-licenses(["notice"])
-
 load("//bazel:macros.bzl", "generated_cc_atom", "selects")
+
+licenses(["notice"])
 
 cc_library(
     name = "core_srcs",

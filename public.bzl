@@ -1,5 +1,5 @@
 ################################################################################
-# Skylark macros
+# Starlark macros
 ################################################################################
 
 def skia_select(conditions, results):
@@ -177,10 +177,10 @@ def skia_opts_deps(cpu):
     res = [":opts_rest"]
 
     if cpu == SKIA_CPU_ARM:
-        res += [":opts_neon"]
+        res.append(":opts_neon")
 
     if cpu == SKIA_CPU_ARM64:
-        res += [":opts_crc32"]
+        res.append(":opts_crc32")
 
     if cpu == SKIA_CPU_X86:
         res += [

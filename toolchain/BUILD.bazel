@@ -1,7 +1,7 @@
-licenses(["notice"])
-
 load("@rules_cc//cc:defs.bzl", "cc_toolchain", "cc_toolchain_suite")
 load(":linux_amd64_toolchain_config.bzl", "provide_linux_amd64_toolchain_config")
+
+licenses(["notice"])
 
 package(default_visibility = ["//visibility:public"])
 

@@ -1,7 +1,7 @@
-licenses(["notice"])
-
 # https://github.com/bazelbuild/bazel-toolchains/blob/master/rules/exec_properties/exec_properties.bzl
 load("@bazel_toolchains//rules/exec_properties:exec_properties.bzl", "create_rbe_exec_properties_dict")
+
+licenses(["notice"])
 
 # https://bazel.build/docs/platforms
 platform(

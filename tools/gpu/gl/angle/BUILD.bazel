@@ -1,6 +1,6 @@
-licenses(["notice"])
-
 load("//bazel:macros.bzl", "generated_cc_atom")
+
+licenses(["notice"])
 
 generated_cc_atom(
     name = "GLTestContext_angle_hdr",
