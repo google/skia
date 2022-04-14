@@ -1649,13 +1649,12 @@ public:
 
 bool generateGlyphPathStatic(FT_Face face, SkPath* path) {
     SkFTGeometrySink sink{path};
-    FT_Error err = FT_Outline_Decompose(&face->glyph->outline, &SkFTGeometrySink::Funcs, &sink);
-
-    if (err != 0) {
+    if (face->glyph->format != FT_GLYPH_FORMAT_OUTLINE ||
+        FT_Outline_Decompose(&face->glyph->outline, &SkFTGeometrySink::Funcs, &sink))
+    {
         path->reset();
         return false;
     }
-
     path->close();
     return true;
 }
@@ -1663,18 +1662,11 @@ bool generateGlyphPathStatic(FT_Face face, SkPath* path) {
 bool generateFacePathStatic(FT_Face face, SkGlyphID glyphID, uint32_t loadGlyphFlags, SkPath* path){
     loadGlyphFlags |= FT_LOAD_NO_BITMAP; // ignore embedded bitmaps so we're sure to get the outline
     loadGlyphFlags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
-
-    FT_Error err = FT_Load_Glyph(face, glyphID, loadGlyphFlags);
-    if (err != 0) {
+    if (FT_Load_Glyph(face, glyphID, loadGlyphFlags)) {
         path->reset();
         return false;
     }
-
-    if (!generateGlyphPathStatic(face, path)) {
-        path->reset();
-        return false;
-    }
-    return true;
+    return generateGlyphPathStatic(face, path);
 }
 
 #ifdef TT_SUPPORT_COLRV1
