@@ -626,6 +626,7 @@ generated_cc_atom(
         "//include/core:SkStream_hdr",
         "//include/core:SkTypeface_hdr",
         "//include/ports:SkFontMgr_fuchsia_hdr",
+        "//include/private:SkThreadAnnotations_hdr",
         "//src/core:SkFontDescriptor_hdr",
         "//src/core:SkTypefaceCache_hdr",
     ],

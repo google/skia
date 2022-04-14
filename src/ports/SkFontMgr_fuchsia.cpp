@@ -19,37 +19,77 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/SkThreadAnnotations.h"
 #include "src/core/SkTypefaceCache.h"
 
-void UnmapMemory(const void* buffer, uint64_t size) {
-    static_assert(sizeof(void*) == sizeof(uint64_t), "pointers aren't 64-bit");
-    zx::vmar::root_self()->unmap(reinterpret_cast<uintptr_t>(buffer), size);
-}
+// SkFuchsiaFontDataCache keep track of SkData created from `fuchsia::mem::Buffer` where each buffer
+// is identified with a unique identifier. It allows to share the same SkData instances between all
+// SkTypeface instances created from the same buffer.
+class SkFuchsiaFontDataCache : public SkRefCnt {
+public:
+    SkFuchsiaFontDataCache() = default;
+    ~SkFuchsiaFontDataCache() { SkASSERT(fBuffers.empty()); }
 
-struct ReleaseSkDataContext {
-    uint64_t fBufferSize;
-    std::function<void()> releaseProc;
+    sk_sp<SkData> GetOrCreateSkData(int bufferId, const fuchsia::mem::Buffer& buffer);
 
-    ReleaseSkDataContext(uint64_t bufferSize, const std::function<void()>& releaseProc)
-            : fBufferSize(bufferSize), releaseProc(releaseProc) {}
+private:
+    struct ReleaseSkDataContext {
+        sk_sp<SkFuchsiaFontDataCache> fCache;
+        int fBufferId;
+    };
+
+    static void ReleaseSkData(const void* buffer, void* context);
+    void OnBufferDeleted(int bufferId);
+
+    SkMutex fMutex;
+    std::unordered_map<int, SkData*> fBuffers SK_GUARDED_BY(fMutex);
 };
 
-void ReleaseSkData(const void* buffer, void* context) {
-    auto releaseSkDataContext = reinterpret_cast<ReleaseSkDataContext*>(context);
-    SkASSERT(releaseSkDataContext);
-    UnmapMemory(buffer, releaseSkDataContext->fBufferSize);
-    releaseSkDataContext->releaseProc();
-    delete releaseSkDataContext;
+sk_sp<SkData> SkFuchsiaFontDataCache::GetOrCreateSkData(int bufferId,
+                                                        const fuchsia::mem::Buffer& buffer) {
+    SkAutoMutexExclusive mutexLock(fMutex);
+
+    auto iter = fBuffers.find(bufferId);
+    if (iter != fBuffers.end()) {
+        return sk_ref_sp(iter->second);
+    }
+    auto font_mgr = sk_ref_sp(this);
+
+    uint64_t size = buffer.size;
+    uintptr_t mapped_addr = 0;
+    zx_status_t status =
+            zx::vmar::root_self()->map(ZX_VM_PERM_READ, 0, buffer.vmo, 0, size, &mapped_addr);
+    if (status != ZX_OK) return nullptr;
+
+    auto context = new ReleaseSkDataContext{sk_ref_sp(this), bufferId};
+    auto data = SkData::MakeWithProc(
+            reinterpret_cast<void*>(mapped_addr), size, ReleaseSkData, context);
+    SkASSERT(data);
+
+    fBuffers[bufferId] = data.get();
+    return data;
 }
 
-sk_sp<SkData> MakeSkDataFromBuffer(const fuchsia::mem::Buffer& data,
-                                   std::function<void()> release_proc) {
-    uint64_t size = data.size;
-    uintptr_t buffer = 0;
-    zx_status_t status = zx::vmar::root_self()->map(ZX_VM_PERM_READ, 0, data.vmo, 0, size, &buffer);
-    if (status != ZX_OK) return nullptr;
-    auto context = new ReleaseSkDataContext(size, release_proc);
-    return SkData::MakeWithProc(reinterpret_cast<void*>(buffer), size, ReleaseSkData, context);
+void SkFuchsiaFontDataCache::OnBufferDeleted(int bufferId) {
+    zx_vaddr_t unmap_addr;
+    size_t unmap_size;
+    {
+        SkAutoMutexExclusive mutexLock(fMutex);
+        auto it = fBuffers.find(bufferId);
+        SkASSERT(it != fBuffers.end());
+        unmap_addr = reinterpret_cast<zx_vaddr_t>(it->second->data());
+        unmap_size = it->second->size();
+        fBuffers.erase(it);
+    }
+
+    zx::vmar::root_self()->unmap(unmap_addr, unmap_size);
+}
+
+// static
+void SkFuchsiaFontDataCache::ReleaseSkData(const void* buffer, void* context) {
+    auto releaseSkDataContext = reinterpret_cast<ReleaseSkDataContext*>(context);
+    releaseSkDataContext->fCache->OnBufferDeleted(releaseSkDataContext->fBufferId);
+    delete releaseSkDataContext;
 }
 
 fuchsia::fonts::Slant SkToFuchsiaSlant(SkFontStyle::Slant slant) {
@@ -259,17 +299,11 @@ private:
                                     const char* bcp47[], int bcp47Count, SkUnichar character,
                                     bool allow_fallback, bool exact_style_match) const;
 
-    sk_sp<SkData> GetOrCreateSkData(int bufferId, const fuchsia::mem::Buffer& buffer) const;
-    void OnSkDataDeleted(int bufferId) const;
-
     sk_sp<SkTypeface> GetOrCreateTypeface(TypefaceId id, const fuchsia::mem::Buffer& buffer) const;
 
     mutable fuchsia::fonts::ProviderSyncPtr fFontProvider;
 
-    mutable SkMutex fCacheMutex;
-
-    // Must be accessed only with fCacheMutex acquired.
-    mutable std::unordered_map<int, SkData*> fBufferCache;
+    sk_sp<SkFuchsiaFontDataCache> fBufferCache;
     mutable SkTypefaceCache fTypefaceCache;
 };
 
@@ -316,7 +350,7 @@ private:
 };
 
 SkFontMgr_Fuchsia::SkFontMgr_Fuchsia(fuchsia::fonts::ProviderSyncPtr provider)
-        : fFontProvider(std::move(provider)) {}
+        : fFontProvider(std::move(provider)), fBufferCache(sk_make_sp<SkFuchsiaFontDataCache>()) {}
 
 SkFontMgr_Fuchsia::~SkFontMgr_Fuchsia() = default;
 
@@ -451,29 +485,6 @@ sk_sp<SkTypeface> SkFontMgr_Fuchsia::FetchTypeface(const char familyName[],
                                response.buffer());
 }
 
-sk_sp<SkData> SkFontMgr_Fuchsia::GetOrCreateSkData(int bufferId,
-                                                   const fuchsia::mem::Buffer& buffer) const {
-    fCacheMutex.assertHeld();
-
-    auto iter = fBufferCache.find(bufferId);
-    if (iter != fBufferCache.end()) {
-        return sk_ref_sp(iter->second);
-    }
-    auto font_mgr = sk_ref_sp(this);
-    auto data = MakeSkDataFromBuffer(
-            buffer, [font_mgr, bufferId]() { font_mgr->OnSkDataDeleted(bufferId); });
-    if (!data) {
-        return nullptr;
-    }
-    fBufferCache[bufferId] = data.get();
-    return data;
-}
-
-void SkFontMgr_Fuchsia::OnSkDataDeleted(int bufferId) const {
-    SK_UNUSED bool wasFound = fBufferCache.erase(bufferId) != 0;
-    SkASSERT(wasFound);
-}
-
 static bool FindByTypefaceId(SkTypeface* cachedTypeface, void* ctx) {
     SkTypeface_Fuchsia* cachedFuchsiaTypeface = static_cast<SkTypeface_Fuchsia*>(cachedTypeface);
     TypefaceId* id = static_cast<TypefaceId*>(ctx);
@@ -483,12 +494,10 @@ static bool FindByTypefaceId(SkTypeface* cachedTypeface, void* ctx) {
 
 sk_sp<SkTypeface> SkFontMgr_Fuchsia::GetOrCreateTypeface(TypefaceId id,
                                                          const fuchsia::mem::Buffer& buffer) const {
-    SkAutoMutexExclusive mutexLock(fCacheMutex);
-
     sk_sp<SkTypeface> cached = fTypefaceCache.findByProcAndRef(FindByTypefaceId, &id);
     if (cached) return cached;
 
-    sk_sp<SkData> data = GetOrCreateSkData(id.bufferId, buffer);
+    sk_sp<SkData> data = fBufferCache->GetOrCreateSkData(id.bufferId, buffer);
     if (!data) return nullptr;
 
     auto result = CreateTypefaceFromSkData(std::move(data), id);
