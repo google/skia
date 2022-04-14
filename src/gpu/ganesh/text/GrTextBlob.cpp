@@ -3581,34 +3581,21 @@ void Slug::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
 namespace skgpu::v1 {
 sk_sp<GrSlug>
 Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
-    return fSurfaceDrawContext->convertGlyphRunListToSlug(
-            this->asMatrixProvider(), glyphRunList, paint);
+    auto recordingContextPriv = this->recordingContext()->priv();
+    SkASSERT(recordingContextPriv.options().fSupportBilerpFromGlyphAtlas);
+    const GrSDFTControl control = recordingContextPriv.getSDFTControl(
+            this->surfaceProps().isUseDeviceIndependentFonts());
+
+    return Slug::Make(this->asMatrixProvider(),
+                      glyphRunList,
+                      paint,
+                      control,
+                      fSurfaceDrawContext->glyphRunPainter());
 }
 
-void Device::drawSlug(SkCanvas* canvas, const GrSlug* slug) {
-    fSurfaceDrawContext->drawSlug(canvas, this->clip(), this->asMatrixProvider(), slug);
-}
-
-sk_sp<GrSlug>
-SurfaceDrawContext::convertGlyphRunListToSlug(const SkMatrixProvider& viewMatrix,
-                                              const SkGlyphRunList& glyphRunList,
-                                              const SkPaint& paint) {
-    SkASSERT(fContext->priv().options().fSupportBilerpFromGlyphAtlas);
-
-    GrSDFTControl control =
-            this->recordingContext()->priv().getSDFTControl(
-                    this->surfaceProps().isUseDeviceIndependentFonts());
-
-    return Slug::Make(viewMatrix, glyphRunList, paint, control, &fGlyphPainter);
-}
-
-void SurfaceDrawContext::drawSlug(SkCanvas* canvas,
-                                  const GrClip* clip,
-                                  const SkMatrixProvider& viewMatrix,
-                                  const GrSlug* slugPtr) {
-    const Slug* slug = static_cast<const Slug*>(slugPtr);
-
-    slug->surfaceDraw(canvas, clip, viewMatrix, this);
+void Device::drawSlug(SkCanvas* canvas, const GrSlug* grSlug) {
+    const Slug* slug = static_cast<const Slug*>(grSlug);
+    slug->surfaceDraw(canvas, this->clip(), this->asMatrixProvider(), fSurfaceDrawContext.get());
 }
 
 sk_sp<GrSlug> MakeSlug(const SkMatrixProvider& drawMatrix,

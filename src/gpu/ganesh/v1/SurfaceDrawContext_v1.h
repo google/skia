@@ -505,21 +505,6 @@ public:
                                  const SkPaint& paint);
 
     /**
-     * Convert the glyph-run list to a slug.
-     */
-    sk_sp<GrSlug> convertGlyphRunListToSlug(const SkMatrixProvider& viewMatrix,
-                                            const SkGlyphRunList& glyphRunList,
-                                            const SkPaint& paint);
-
-    /**
-     * Draw a slug.
-     */
-    void drawSlug(SkCanvas*,
-                  const GrClip* clip,
-                  const SkMatrixProvider& viewMatrix,
-                  const GrSlug* slugPtr);
-
-    /**
      * Adds the necessary signal and wait semaphores and adds the passed in SkDrawable to the
      * command stream.
      */
