@@ -2359,20 +2359,20 @@ namespace skvm {
 
     // https://static.docs.arm.com/ddi0596/a/DDI_0596_ARM_a64_instruction_set_architecture.pdf
 
-    static int operator"" _mask(unsigned long long bits) { return (1<<(int)bits)-1; }
+    static int mask(unsigned long long bits) { return (1<<(int)bits)-1; }
 
     void Assembler::op(uint32_t hi, V m, uint32_t lo, V n, V d) {
-        this->word( (hi & 11_mask) << 21
-                  | (m  &  5_mask) << 16
-                  | (lo &  6_mask) << 10
-                  | (n  &  5_mask) <<  5
-                  | (d  &  5_mask) <<  0);
+        this->word( (hi & mask(11)) << 21
+                  | (m  & mask(5)) << 16
+                  | (lo & mask(6)) << 10
+                  | (n  & mask(5)) <<  5
+                  | (d  & mask(5)) <<  0);
     }
     void Assembler::op(uint32_t op22, V n, V d, int imm) {
-        this->word( (op22 & 22_mask) << 10
+        this->word( (op22 & mask(22)) << 10
                   | imm  // size and location depends on the instruction
-                  | (n    &  5_mask) <<  5
-                  | (d    &  5_mask) <<  0);
+                  | (n    & mask(5)) <<  5
+                  | (d    & mask(5)) <<  0);
     }
 
     void Assembler::and16b(V d, V n, V m) { this->op(0b0'1'0'01110'00'1, m, 0b00011'1, n, d); }
@@ -2417,19 +2417,19 @@ namespace skvm {
     void Assembler::zip24s(V d, V n, V m) { this->op(0b0'1'001110'10'0, m, 0b0'1'11'10, n, d); }
 
     void Assembler::sli4s(V d, V n, int imm5) {
-        this->op(0b0'1'1'011110'0100'000'01010'1,    n, d, ( imm5 & 5_mask)<<16);
+        this->op(0b0'1'1'011110'0100'000'01010'1,    n, d, ( imm5 & mask(5))<<16);
     }
     void Assembler::shl4s(V d, V n, int imm5) {
-        this->op(0b0'1'0'011110'0100'000'01010'1,    n, d, ( imm5 & 5_mask)<<16);
+        this->op(0b0'1'0'011110'0100'000'01010'1,    n, d, ( imm5 & mask(5))<<16);
     }
     void Assembler::sshr4s(V d, V n, int imm5) {
-        this->op(0b0'1'0'011110'0100'000'00'0'0'0'1, n, d, (-imm5 & 5_mask)<<16);
+        this->op(0b0'1'0'011110'0100'000'00'0'0'0'1, n, d, (-imm5 & mask(5))<<16);
     }
     void Assembler::ushr4s(V d, V n, int imm5) {
-        this->op(0b0'1'1'011110'0100'000'00'0'0'0'1, n, d, (-imm5 & 5_mask)<<16);
+        this->op(0b0'1'1'011110'0100'000'00'0'0'0'1, n, d, (-imm5 & mask(5))<<16);
     }
     void Assembler::ushr8h(V d, V n, int imm4) {
-        this->op(0b0'1'1'011110'0010'000'00'0'0'0'1, n, d, (-imm4 & 4_mask)<<16);
+        this->op(0b0'1'1'011110'0010'000'00'0'0'0'1, n, d, (-imm4 & mask(4))<<16);
     }
 
     void Assembler::scvtf4s (V d, V n) { this->op(0b0'1'0'01110'0'0'10000'11101'10, n,d); }
@@ -2450,106 +2450,106 @@ namespace skvm {
     void Assembler::uminv4s(V d, V n) { this->op(0b0'1'1'01110'10'11000'1'1010'10, n,d); }
 
     void Assembler::brk(int imm16) {
-        this->op(0b11010100'001'00000000000, (imm16 & 16_mask) << 5);
+        this->op(0b11010100'001'00000000000, (imm16 & mask(16)) << 5);
     }
 
     void Assembler::ret(X n) { this->op(0b1101011'0'0'10'11111'0000'0'0, n, (X)0); }
 
     void Assembler::add(X d, X n, int imm12) {
-        this->op(0b1'0'0'10001'00'000000000000, n,d, (imm12 & 12_mask) << 10);
+        this->op(0b1'0'0'10001'00'000000000000, n,d, (imm12 & mask(12)) << 10);
     }
     void Assembler::sub(X d, X n, int imm12) {
-        this->op(0b1'1'0'10001'00'000000000000, n,d, (imm12 & 12_mask) << 10);
+        this->op(0b1'1'0'10001'00'000000000000, n,d, (imm12 & mask(12)) << 10);
     }
     void Assembler::subs(X d, X n, int imm12) {
-        this->op(0b1'1'1'10001'00'000000000000, n,d, (imm12 & 12_mask) << 10);
+        this->op(0b1'1'1'10001'00'000000000000, n,d, (imm12 & mask(12)) << 10);
     }
 
     void Assembler::add(X d, X n, X m, Shift shift, int imm6) {
         SkASSERT(shift != ROR);
 
-        int imm = (imm6  & 6_mask) << 0
-                | (m     & 5_mask) << 6
-                | (0     & 1_mask) << 11
-                | (shift & 2_mask) << 12;
+        int imm = (imm6  & mask(6)) << 0
+                | (m     & mask(5)) << 6
+                | (0     & mask(1)) << 11
+                | (shift & mask(2)) << 12;
         this->op(0b1'0'0'01011'00'0'00000'000000, n,d, imm << 10);
     }
 
     void Assembler::b(Condition cond, Label* l) {
         const int imm19 = this->disp19(l);
-        this->op(0b0101010'0'00000000000000, (X)0, (V)cond, (imm19 & 19_mask) << 5);
+        this->op(0b0101010'0'00000000000000, (X)0, (V)cond, (imm19 & mask(19)) << 5);
     }
     void Assembler::cbz(X t, Label* l) {
         const int imm19 = this->disp19(l);
-        this->op(0b1'011010'0'00000000000000, (X)0, t, (imm19 & 19_mask) << 5);
+        this->op(0b1'011010'0'00000000000000, (X)0, t, (imm19 & mask(19)) << 5);
     }
     void Assembler::cbnz(X t, Label* l) {
         const int imm19 = this->disp19(l);
-        this->op(0b1'011010'1'00000000000000, (X)0, t, (imm19 & 19_mask) << 5);
+        this->op(0b1'011010'1'00000000000000, (X)0, t, (imm19 & mask(19)) << 5);
     }
 
     void Assembler::ldrd(X dst, X src, int imm12) {
-        this->op(0b11'111'0'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+        this->op(0b11'111'0'01'01'000000000000, src, dst, (imm12 & mask(12)) << 10);
     }
     void Assembler::ldrs(X dst, X src, int imm12) {
-        this->op(0b10'111'0'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+        this->op(0b10'111'0'01'01'000000000000, src, dst, (imm12 & mask(12)) << 10);
     }
     void Assembler::ldrh(X dst, X src, int imm12) {
-        this->op(0b01'111'0'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+        this->op(0b01'111'0'01'01'000000000000, src, dst, (imm12 & mask(12)) << 10);
     }
     void Assembler::ldrb(X dst, X src, int imm12) {
-        this->op(0b00'111'0'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+        this->op(0b00'111'0'01'01'000000000000, src, dst, (imm12 & mask(12)) << 10);
     }
 
     void Assembler::ldrq(V dst, X src, int imm12) {
-        this->op(0b00'111'1'01'11'000000000000, src, dst, (imm12 & 12_mask) << 10);
+        this->op(0b00'111'1'01'11'000000000000, src, dst, (imm12 & mask(12)) << 10);
     }
     void Assembler::ldrd(V dst, X src, int imm12) {
-        this->op(0b11'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+        this->op(0b11'111'1'01'01'000000000000, src, dst, (imm12 & mask(12)) << 10);
     }
     void Assembler::ldrs(V dst, X src, int imm12) {
-        this->op(0b10'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+        this->op(0b10'111'1'01'01'000000000000, src, dst, (imm12 & mask(12)) << 10);
     }
     void Assembler::ldrh(V dst, X src, int imm12) {
-        this->op(0b01'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+        this->op(0b01'111'1'01'01'000000000000, src, dst, (imm12 & mask(12)) << 10);
     }
     void Assembler::ldrb(V dst, X src, int imm12) {
-        this->op(0b00'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+        this->op(0b00'111'1'01'01'000000000000, src, dst, (imm12 & mask(12)) << 10);
     }
 
     void Assembler::strs(X src, X dst, int imm12) {
-        this->op(0b10'111'0'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+        this->op(0b10'111'0'01'00'000000000000, dst, src, (imm12 & mask(12)) << 10);
     }
 
     void Assembler::strq(V src, X dst, int imm12) {
-        this->op(0b00'111'1'01'10'000000000000, dst, src, (imm12 & 12_mask) << 10);
+        this->op(0b00'111'1'01'10'000000000000, dst, src, (imm12 & mask(12)) << 10);
     }
     void Assembler::strd(V src, X dst, int imm12) {
-        this->op(0b11'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+        this->op(0b11'111'1'01'00'000000000000, dst, src, (imm12 & mask(12)) << 10);
     }
     void Assembler::strs(V src, X dst, int imm12) {
-        this->op(0b10'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+        this->op(0b10'111'1'01'00'000000000000, dst, src, (imm12 & mask(12)) << 10);
     }
     void Assembler::strh(V src, X dst, int imm12) {
-        this->op(0b01'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+        this->op(0b01'111'1'01'00'000000000000, dst, src, (imm12 & mask(12)) << 10);
     }
     void Assembler::strb(V src, X dst, int imm12) {
-        this->op(0b00'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+        this->op(0b00'111'1'01'00'000000000000, dst, src, (imm12 & mask(12)) << 10);
     }
 
     void Assembler::movs(X dst, V src, int lane) {
         int imm5 = (lane << 3) | 0b100;
-        this->op(0b0'0'0'01110000'00000'0'01'1'1'1, src, dst, (imm5 & 5_mask) << 16);
+        this->op(0b0'0'0'01110000'00000'0'01'1'1'1, src, dst, (imm5 & mask(5)) << 16);
     }
     void Assembler::inss(V dst, X src, int lane) {
         int imm5 = (lane << 3) | 0b100;
-        this->op(0b0'1'0'01110000'00000'0'0011'1, src, dst, (imm5 & 5_mask) << 16);
+        this->op(0b0'1'0'01110000'00000'0'0011'1, src, dst, (imm5 & mask(5)) << 16);
     }
 
 
     void Assembler::ldrq(V dst, Label* l) {
         const int imm19 = this->disp19(l);
-        this->op(0b10'011'1'00'00000000000000, (V)0, dst, (imm19 & 19_mask) << 5);
+        this->op(0b10'011'1'00'00000000000000, (V)0, dst, (imm19 & mask(19)) << 5);
     }
 
     void Assembler::dup4s(V dst, X src) {
@@ -2603,8 +2603,8 @@ namespace skvm {
                     disp += delta/4;  // delta is in bytes, we want instructions.
 
                     // Put it all back together, preserving the high 8 bits and low 5.
-                    inst = ((disp << 5) &  (19_mask << 5))
-                         | ((inst     ) & ~(19_mask << 5));
+                    inst = ((disp << 5) &  (mask(19) << 5))
+                         | ((inst     ) & ~(mask(19) << 5));
                     memcpy(fCode + ref, &inst, 4);
                 }
             }
