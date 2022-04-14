@@ -1,0 +1,3 @@
+/*#pragma settings NoRTFlip*/
+
+void main() { sk_FragColor.xy = half2(sk_FragCoord.xy); }
