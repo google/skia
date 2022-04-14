@@ -28,11 +28,11 @@ OpDecorate %26 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%12 = OpTypeImage %float 2D 0 0 0 1 Unknown
-%11 = OpTypeSampledImage %12
-%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
-%test2D = OpVariable %_ptr_UniformConstant_11 UniformConstant
-%test2DRect = OpVariable %_ptr_UniformConstant_11 UniformConstant
+%11 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%12 = OpTypeSampledImage %11
+%_ptr_UniformConstant_12 = OpTypePointer UniformConstant %12
+%test2D = OpVariable %_ptr_UniformConstant_12 UniformConstant
+%test2DRect = OpVariable %_ptr_UniformConstant_12 UniformConstant
 %void = OpTypeVoid
 %16 = OpTypeFunction %void
 %float_0_5 = OpConstant %float 0.5
@@ -42,13 +42,13 @@ OpDecorate %26 RelaxedPrecision
 %28 = OpConstantComposite %v3float %float_0_5 %float_0_5 %float_0_5
 %main = OpFunction %void None %16
 %17 = OpLabel
-%19 = OpLoad %11 %test2D
+%19 = OpLoad %12 %test2D
 %18 = OpImageSampleImplicitLod %v4float %19 %22
 OpStore %sk_FragColor %18
-%24 = OpLoad %11 %test2DRect
+%24 = OpLoad %12 %test2DRect
 %23 = OpImageSampleImplicitLod %v4float %24 %22
 OpStore %sk_FragColor %23
-%26 = OpLoad %11 %test2DRect
+%26 = OpLoad %12 %test2DRect
 %25 = OpImageSampleProjImplicitLod %v4float %26 %28
 OpStore %sk_FragColor %25
 OpReturn

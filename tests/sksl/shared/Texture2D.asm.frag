@@ -30,10 +30,10 @@ OpDecorate %37 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%12 = OpTypeImage %float 2D 0 0 0 1 Unknown
-%11 = OpTypeSampledImage %12
-%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
-%tex = OpVariable %_ptr_UniformConstant_11 UniformConstant
+%11 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%12 = OpTypeSampledImage %11
+%_ptr_UniformConstant_12 = OpTypePointer UniformConstant %12
+%tex = OpVariable %_ptr_UniformConstant_12 UniformConstant
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
 %_ptr_Function_v4float = OpTypePointer Function %v4float
@@ -46,10 +46,10 @@ OpDecorate %37 RelaxedPrecision
 %16 = OpLabel
 %a = OpVariable %_ptr_Function_v4float Function
 %b = OpVariable %_ptr_Function_v4float Function
-%20 = OpLoad %11 %tex
+%20 = OpLoad %12 %tex
 %19 = OpImageSampleImplicitLod %v4float %20 %23
 OpStore %a %19
-%26 = OpLoad %11 %tex
+%26 = OpLoad %12 %tex
 %25 = OpImageSampleProjImplicitLod %v4float %26 %28
 OpStore %b %25
 %29 = OpLoad %v4float %a

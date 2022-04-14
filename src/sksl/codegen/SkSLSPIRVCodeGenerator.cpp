@@ -83,7 +83,6 @@ bool SPIRVCodeGenerator::Instruction::operator==(const SPIRVCodeGenerator::Instr
     return fOp         == that.fOp &&
            fResultKind == that.fResultKind &&
            fWords      == that.fWords;
-
 }
 
 struct SPIRVCodeGenerator::Instruction::Hash {
@@ -103,6 +102,7 @@ struct SPIRVCodeGenerator::Word {
         kNumber,
         kDefaultPrecisionResult,
         kRelaxedPrecisionResult,
+        kUncachedResult,
     };
 
     Word(SpvId id) : fValue(id), fKind(Kind::kSpvId) {}
@@ -120,6 +120,10 @@ struct SPIRVCodeGenerator::Word {
         Kind kind = ThreadContext::Settings().fForceHighPrecision ? kDefaultPrecisionResult
                                                                   : kRelaxedPrecisionResult;
         return Word{(int32_t)NA, kind};
+    }
+
+    static Word UncachedResult() {
+        return Word{(int32_t)NA, kUncachedResult};
     }
 
     static Word Result() {
@@ -515,10 +519,9 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
     this->writeWord(word8, out);
 }
 
-SpvId SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode,
-                                           const SkTArray<Word>& words,
-                                           OutputStream& out) {
-    // Build up an cache key for this word.
+SPIRVCodeGenerator::Instruction SPIRVCodeGenerator::BuildInstructionKey(
+        SpvOp_ opCode, const SkTArray<Word>& words) {
+    // Assemble a cache key for this instruction.
     Instruction key;
     key.fOp = opCode;
     key.fWords.resize(words.count());
@@ -533,27 +536,52 @@ SpvId SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode,
         }
     }
 
+    return key;
+}
+
+SpvId SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode,
+                                           const SkTArray<Word>& words,
+                                           OutputStream& out) {
+    // If this instruction exists in our op cache, return the cached SpvId.
+    Instruction key = BuildInstructionKey(opCode, words);
+    if (SpvId* cachedOp = fOpCache.find(key)) {
+        return *cachedOp;
+    }
+
     SpvId result = NA;
 
-    if (key.fResultKind != Word::Kind::kNone) {
-        // If this instruction exists in our op cache, return the cached SpvId.
-        if (SpvId* cachedOp = fOpCache.find(key)) {
-            return *cachedOp;
-        }
-        // Consume a new SpvId and cache the instruction.
-        result = fIdCount++;
-        fOpCache.set(key, result);
-        fSpvIdCache.set(result, key);
+    switch (key.fResultKind) {
+        case Word::Kind::kUncachedResult:
+            // The instruction returns a SpvId, but we do not want caching or deduplication.
+            result = fIdCount++;
+            break;
 
-        // Globally-reachable ops are not subject to the whims of flow control.
-        if (!is_globally_reachable_op(opCode)) {
-            fReachableOps.push_back(result);
-        }
-        // If the result is relaxed-precision, add the requisite decoration.
-        if (key.fResultKind == Word::Kind::kRelaxedPrecisionResult) {
-            this->writeInstruction(SpvOpDecorate, result, SpvDecorationRelaxedPrecision,
-                                   fDecorationBuffer);
-        }
+        case Word::Kind::kNone:
+            // The instruction doesn't return a SpvId, but we can still cache and deduplicate it.
+            fOpCache.set(key, result);
+            break;
+
+        case Word::Kind::kDefaultPrecisionResult:
+        case Word::Kind::kRelaxedPrecisionResult:
+            // Consume a new SpvId and cache the instruction.
+            result = fIdCount++;
+            fOpCache.set(key, result);
+            fSpvIdCache.set(result, key);
+
+            // Globally-reachable ops are not subject to the whims of flow control.
+            if (!is_globally_reachable_op(opCode)) {
+                fReachableOps.push_back(result);
+            }
+            // If the result is relaxed-precision, add the requisite decoration.
+            if (key.fResultKind == Word::Kind::kRelaxedPrecisionResult) {
+                this->writeInstruction(SpvOpDecorate, result, SpvDecorationRelaxedPrecision,
+                                       fDecorationBuffer);
+            }
+            break;
+
+        default:
+            SkDEBUGFAIL("unexpected result kind");
+            break;
     }
 
     // Write the requested instruction.
@@ -750,27 +778,30 @@ SpvId SPIRVCodeGenerator::nextId(Precision precision) {
     return fIdCount++;
 }
 
-void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memoryLayout,
-                                     SpvId resultId) {
-    this->writeInstruction(SpvOpName, resultId, type.name(), fNameBuffer);
-    // go ahead and write all of the field types, so we don't inadvertently write them while we're
-    // in the middle of writing the struct instruction
-    std::vector<SpvId> types;
+SpvId SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memoryLayout) {
+    // If we've already written out this struct, return its existing SpvId.
+    if (SpvId* cachedStructId = fStructMap.find(&type)) {
+        return *cachedStructId;
+    }
+
+    // Write all of the field types first, so we don't inadvertently write them while we're in the
+    // middle of writing the struct instruction.
+    Words words;
+    words.push_back(Word::UncachedResult());
     for (const auto& f : type.fields()) {
-        types.push_back(this->getType(*f.fType, memoryLayout));
+        words.push_back(this->getType(*f.fType, memoryLayout));
     }
-    this->writeOpCode(SpvOpTypeStruct, 2 + (int32_t) types.size(), fConstantBuffer);
-    this->writeWord(resultId, fConstantBuffer);
-    for (SpvId id : types) {
-        this->writeWord(id, fConstantBuffer);
-    }
+    SpvId resultId = this->writeInstruction(SpvOpTypeStruct, words, fConstantBuffer);
+    this->writeInstruction(SpvOpName, resultId, type.name(), fNameBuffer);
+    fStructMap.set(&type, resultId);
+
     size_t offset = 0;
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
         const Type::Field& field = type.fields()[i];
         if (!MemoryLayout::LayoutIsSupported(*field.fType)) {
             fContext.fErrors->error(type.fPosition, "type '" + field.fType->displayName() +
-                    "' is not permitted here");
-            return;
+                                                    "' is not permitted here");
+            return resultId;
         }
         size_t size = memoryLayout.size(*field.fType);
         size_t alignment = memoryLayout.alignment(*field.fType);
@@ -782,8 +813,8 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
             }
             if (fieldLayout.fOffset % alignment) {
                 fContext.fErrors->error(field.fPosition,
-                        "offset of field '" + std::string(field.fName) +
-                        "' must be a multiple of " + std::to_string(alignment));
+                                        "offset of field '" + std::string(field.fName) +
+                                        "' must be a multiple of " + std::to_string(alignment));
             }
             offset = fieldLayout.fOffset;
         } else {
@@ -814,6 +845,8 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
             offset += alignment - offset % alignment;
         }
     }
+
+    return resultId;
 }
 
 const Type& SPIRVCodeGenerator::getActualType(const Type& type) {
@@ -845,132 +878,105 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
 }
 
 SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layout) {
-    const Type* type;
-    std::unique_ptr<Type> arrayType;
-    std::string arrayName;
+    const Type* type = &rawType;
 
-    if (rawType.isArray()) {
-        // For arrays, we need to synthesize a temporary Array type using the "actual" component
-        // type. That is, if `short[10]` is passed in, we need to synthesize a `int[10]` Type.
-        // Otherwise, we can end up with two different SpvIds for the same array type.
-        const Type& component = this->getActualType(rawType.componentType());
-        arrayName = component.getArrayName(rawType.columns());
-        arrayType = Type::MakeArrayType(arrayName, component, rawType.columns());
-        type = arrayType.get();
-    } else {
-        // For non-array types, we can simply look up the "actual" type and use it.
-        type = &this->getActualType(rawType);
-    }
-
-    std::string key(type->name());
-    if (type->isStruct() || type->isArray()) {
-        key += std::to_string(layout.fStd);
-#ifdef SK_DEBUG
-        SkASSERT(layout.fStd == MemoryLayout::Standard::k140_Standard ||
-                 layout.fStd == MemoryLayout::Standard::k430_Standard);
-        MemoryLayout::Standard otherStd = layout.fStd == MemoryLayout::Standard::k140_Standard
-                                                  ? MemoryLayout::Standard::k430_Standard
-                                                  : MemoryLayout::Standard::k140_Standard;
-        std::string otherKey = type->displayName() + std::to_string(otherStd);
-        SkASSERT(!fTypeMap.find(otherKey));
-#endif
-    }
-    SpvId* entry = fTypeMap.find(key);
-    if (!entry) {
-        SpvId result = this->nextId(nullptr);
-        switch (type->typeKind()) {
-            case Type::TypeKind::kScalar:
-                if (type->isBoolean()) {
-                    this->writeInstruction(SpvOpTypeBool, result, fConstantBuffer);
-                } else if (type->isSigned()) {
-                    this->writeInstruction(SpvOpTypeInt, result, 32, 1, fConstantBuffer);
-                } else if (type->isUnsigned()) {
-                    this->writeInstruction(SpvOpTypeInt, result, 32, 0, fConstantBuffer);
-                } else if (type->isFloat()) {
-                    this->writeInstruction(SpvOpTypeFloat, result, 32, fConstantBuffer);
-                } else {
-                    SkDEBUGFAILF("unrecognized scalar type '%s'", type->description().c_str());
-                }
-                break;
-            case Type::TypeKind::kVector:
-                this->writeInstruction(SpvOpTypeVector, result,
-                                       this->getType(type->componentType(), layout),
-                                       type->columns(), fConstantBuffer);
-                break;
-            case Type::TypeKind::kMatrix:
-                this->writeInstruction(
-                        SpvOpTypeMatrix,
-                        result,
-                        this->getType(IndexExpression::IndexType(fContext, *type), layout),
-                        type->columns(),
-                        fConstantBuffer);
-                break;
-            case Type::TypeKind::kStruct:
-                this->writeStruct(*type, layout, result);
-                break;
-            case Type::TypeKind::kArray: {
-                if (!MemoryLayout::LayoutIsSupported(*type)) {
-                    fContext.fErrors->error(type->fPosition, "type '" + type->displayName() +
-                            "' is not permitted here");
-                    return this->nextId(nullptr);
-                }
-                if (type->columns() > 0) {
-                    SpvId typeId = this->getType(type->componentType(), layout);
-                    SpvId countId = this->writeLiteral(type->columns(), *fContext.fTypes.fInt);
-                    this->writeInstruction(SpvOpTypeArray, result, typeId, countId,
-                                           fConstantBuffer);
-                    this->writeInstruction(SpvOpDecorate, result, SpvDecorationArrayStride,
-                                           (int32_t) layout.stride(*type),
-                                           fDecorationBuffer);
-                } else {
-                    // We shouldn't have any runtime-sized arrays right now
-                    fContext.fErrors->error(type->fPosition,
-                                            "runtime-sized arrays are not supported in SPIR-V");
-                    this->writeInstruction(SpvOpTypeRuntimeArray, result,
-                                           this->getType(type->componentType(), layout),
-                                           fConstantBuffer);
-                    this->writeInstruction(SpvOpDecorate, result, SpvDecorationArrayStride,
-                                           (int32_t) layout.stride(*type),
-                                           fDecorationBuffer);
-                }
-                break;
-            }
-            case Type::TypeKind::kSampler: {
-                // Subpass inputs should use the Texture type, not a Sampler.
-                SkASSERT(type->dimensions() != SpvDimSubpassData);
-                if (type->dimensions() == SpvDimBuffer) {
-                    fCapabilities |= 1ULL << SpvCapabilitySampledBuffer;
-                }
-                SpvId imageTypeId = this->getType(type->textureType(), layout);
-                this->writeInstruction(SpvOpTypeSampledImage, result, imageTypeId,
-                                       fConstantBuffer);
-                break;
-            }
-            case Type::TypeKind::kSeparateSampler: {
-                this->writeInstruction(SpvOpTypeSampler, result, fConstantBuffer);
-                break;
-            }
-            case Type::TypeKind::kTexture: {
-                this->writeInstruction(SpvOpTypeImage, result,
-                                       this->getType(*fContext.fTypes.fFloat, layout),
-                                       type->dimensions(), type->isDepth(),
-                                       type->isArrayedTexture(), type->isMultisampled(),
-                                       type->isSampled() ? 1 : 2, SpvImageFormatUnknown,
-                                       fConstantBuffer);
-                break;
-            }
-            default:
-                if (type->isVoid()) {
-                    this->writeInstruction(SpvOpTypeVoid, result, fConstantBuffer);
-                } else {
-                    SkDEBUGFAILF("invalid type: %s", type->description().c_str());
-                }
-                break;
+    switch (type->typeKind()) {
+        case Type::TypeKind::kVoid: {
+            return this->writeInstruction(SpvOpTypeVoid, {Word::Result()}, fConstantBuffer);
         }
-        fTypeMap[key] = result;
-        return result;
+        case Type::TypeKind::kScalar:
+        case Type::TypeKind::kLiteral: {
+            if (type->isBoolean()) {
+                return this->writeInstruction(SpvOpTypeBool, {Word::Result()}, fConstantBuffer);
+            }
+            if (type->isSigned()) {
+                return this->writeInstruction(SpvOpTypeInt,
+                                              {Word::Result(), Word::Number(32), Word::Number(1)},
+                                              fConstantBuffer);
+            }
+            if (type->isUnsigned()) {
+                return this->writeInstruction(SpvOpTypeInt,
+                                              {Word::Result(), Word::Number(32), Word::Number(0)},
+                                              fConstantBuffer);
+            }
+            if (type->isFloat()) {
+                return this->writeInstruction(SpvOpTypeFloat,
+                                              {Word::Result(), Word::Number(32)},
+                                              fConstantBuffer);
+            }
+            SkDEBUGFAILF("unrecognized scalar type '%s'", type->description().c_str());
+            return (SpvId)-1;
+        }
+        case Type::TypeKind::kVector: {
+            SpvId scalarTypeId = this->getType(type->componentType(), layout);
+            return this->writeInstruction(
+                    SpvOpTypeVector,
+                    {Word::Result(), scalarTypeId, Word::Number(type->columns())},
+                    fConstantBuffer);
+        }
+        case Type::TypeKind::kMatrix: {
+            SpvId vectorTypeId = this->getType(IndexExpression::IndexType(fContext, *type), layout);
+            return this->writeInstruction(
+                    SpvOpTypeMatrix,
+                    {Word::Result(), vectorTypeId, Word::Number(type->columns())},
+                    fConstantBuffer);
+        }
+        case Type::TypeKind::kArray: {
+            if (!MemoryLayout::LayoutIsSupported(*type)) {
+                fContext.fErrors->error(type->fPosition, "type '" + type->displayName() +
+                                                         "' is not permitted here");
+                return NA;
+            }
+            if (type->columns() == 0) {
+                // We do not support runtime-sized arrays.
+                fContext.fErrors->error(type->fPosition, "runtime-sized arrays are not supported");
+                return NA;
+            }
+            SpvId typeId = this->getType(type->componentType(), layout);
+            SpvId countId = this->writeLiteral(type->columns(), *fContext.fTypes.fInt);
+            SpvId result = this->writeInstruction(SpvOpTypeArray, {Word::Result(), typeId, countId},
+                                                  fConstantBuffer);
+            this->writeInstruction(
+                    SpvOpDecorate,
+                    {result, SpvDecorationArrayStride, Word::Number(layout.stride(*type))},
+                    fDecorationBuffer);
+            return result;
+        }
+        case Type::TypeKind::kStruct: {
+            return this->writeStruct(*type, layout);
+        }
+        case Type::TypeKind::kSeparateSampler: {
+            return this->writeInstruction(SpvOpTypeSampler, {Word::Result()}, fConstantBuffer);
+        }
+        case Type::TypeKind::kSampler: {
+            // Subpass inputs should use the Texture type, not a Sampler.
+            SkASSERT(type->dimensions() != SpvDimSubpassData);
+            if (SpvDimBuffer == type->dimensions()) {
+                fCapabilities |= 1ULL << SpvCapabilitySampledBuffer;
+            }
+            SpvId imageTypeId = this->getType(type->textureType(), layout);
+            return this->writeInstruction(SpvOpTypeSampledImage,
+                                          {Word::Result(), imageTypeId},
+                                          fConstantBuffer);
+        }
+        case Type::TypeKind::kTexture: {
+            SpvId floatTypeId = this->getType(*fContext.fTypes.fFloat, layout);
+            return this->writeInstruction(SpvOpTypeImage,
+                                          {Word::Result(),
+                                           floatTypeId,
+                                           Word::Number(type->dimensions()),
+                                           Word::Number(type->isDepth()),
+                                           Word::Number(type->isArrayedTexture()),
+                                           Word::Number(type->isMultisampled()),
+                                           Word::Number(type->isSampled() ? 1 : 2),
+                                           SpvImageFormatUnknown},
+                                          fConstantBuffer);
+        }
+        default: {
+            SkDEBUGFAILF("invalid type: %s", type->description().c_str());
+            return NA;
+        }
     }
-    return *entry;
 }
 
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
