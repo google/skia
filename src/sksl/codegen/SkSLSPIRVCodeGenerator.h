@@ -180,7 +180,7 @@ private:
 
     void writeFieldLayout(const Layout& layout, SpvId target, int member);
 
-    SpvId writeStruct(const Type& type, const MemoryLayout& memoryLayout);
+    void writeStruct(const Type& type, const MemoryLayout& layout, SpvId resultId);
 
     void writeProgramElement(const ProgramElement& pe, OutputStream& out);
 
@@ -435,8 +435,6 @@ private:
         struct Hash;
     };
 
-    static Instruction BuildInstructionKey(SpvOp_ opCode, const SkTArray<Word>& words);
-
     // The writeOpXxxxx calls will simplify and deduplicate ops where possible.
     SpvId writeOpConstantTrue(const Type& type);
     SpvId writeOpConstantFalse(const Type& type);
@@ -494,6 +492,7 @@ private:
     SkTHashMap<IntrinsicKind, Intrinsic> fIntrinsicMap;
     SkTHashMap<const FunctionDeclaration*, SpvId> fFunctionMap;
     SkTHashMap<const Variable*, SpvId> fVariableMap;
+    SkTHashMap<std::string, SpvId> fTypeMap;
     StringStream fGlobalInitializersBuffer;
     StringStream fConstantBuffer;
     StringStream fVariableBuffer;
