@@ -39,7 +39,7 @@ deps = {
   "third_party/externals/opengl-registry" : "https://skia.googlesource.com/external/github.com/KhronosGroup/OpenGL-Registry@14b80ebeab022b2c78f84a573f01028c96075553",
   "third_party/externals/piex"            : "https://android.googlesource.com/platform/external/piex.git@bb217acdca1cc0c16b704669dd6f91a1b509c406",
   "third_party/externals/sfntly"          : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@b55ff303ea2f9e26702b514cf6a3196a2e3e2974",
-  "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@011bba68c81900f1c80c619ec4dc4b7478304efa",
+  "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@1d450ae99a0f4ade28dd55dac962f8b28d990376",
   # vulkan-deps is a meta-repo containing several interdependent Khronos Vulkan repositories.
   # When the vulkan-deps revision is updated, those repos (spirv-*, vulkan-*) should be updated as well.
   "third_party/externals/vulkan-deps"     : "https://chromium.googlesource.com/vulkan-deps@c9be322642fb4c85bf70615bdbd2d206e60c19f5",
