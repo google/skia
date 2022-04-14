@@ -713,8 +713,6 @@ private:
 
     OpsTask* replaceOpsTaskIfModifiesColor();
 
-    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
-
     const SkSurfaceProps fSurfaceProps;
     const bool fCanUseDynamicMSAA;
 
