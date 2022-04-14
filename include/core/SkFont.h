@@ -331,7 +331,7 @@ public:
         @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
         @param bounds      returns bounding box relative to (0, 0) if not nullptr
-        @return            number of glyphs represented by text of length byteLength
+        @return            the sum of the default advance widths
     */
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkRect* bounds = nullptr) const {
@@ -347,7 +347,7 @@ public:
         @param byteLength  length of character storage in bytes
         @param bounds      returns bounding box relative to (0, 0) if not nullptr
         @param paint       optional; may be nullptr
-        @return            number of glyphs represented by text of length byteLength
+        @return            the sum of the default advance widths
     */
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkRect* bounds, const SkPaint* paint) const;
