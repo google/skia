@@ -57,12 +57,6 @@ sk_sp<SkTypeface> emoji_typeface() {
     return emojiTypeface;
 }
 
-const char* emoji_sample_text() {
-    return "\xF0\x9F\x98\x80"
-           " "
-           "\xE2\x99\xA2";  // 😀 ♢
-}
-
 sk_sp<SkTypeface> sample_user_typeface() {
     SkCustomTypefaceBuilder builder;
     SkFont font;

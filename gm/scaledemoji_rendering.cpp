@@ -18,6 +18,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "src/core/SkEnumerate.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -30,13 +31,30 @@ public:
     ScaledEmojiRenderingGM() {}
 
 protected:
-    sk_sp<SkTypeface> typefaces[4];
-
+    struct Test {
+        enum class Source { Resource, Portable };
+        Source const fontSource;
+        char const * const fontName;
+        char const * const text;
+    };
+    static constexpr char const * const sampleText = ToolUtils::emoji_sample_text();
+    static constexpr const Test tests[] = {
+        { Test::Source::Resource, "fonts/colr.ttf", sampleText },
+        { Test::Source::Resource, "fonts/sbix.ttf", sampleText },
+        { Test::Source::Resource, "fonts/cbdt.ttf", sampleText },
+        { Test::Source::Portable, "Emoji"         , sampleText },
+    };
+    sk_sp<SkTypeface> typefaces[SK_ARRAY_COUNT(tests)];
     void onOnceBeforeDraw() override {
-        typefaces[0] = MakeResourceAsTypeface("fonts/colr.ttf");
-        typefaces[1] = MakeResourceAsTypeface("fonts/sbix.ttf");
-        typefaces[2] = MakeResourceAsTypeface("fonts/cbdt.ttf");
-        typefaces[3] = ToolUtils::create_portable_typeface("Emoji", SkFontStyle());
+        for (auto&& [i, test] : SkMakeEnumerate(tests)) {
+            if (test.fontSource == Test::Source::Resource) {
+                typefaces[i] = MakeResourceAsTypeface(test.fontName);
+            } else if (test.fontSource == Test::Source::Portable) {
+                typefaces[i] = ToolUtils::create_portable_typeface(test.fontName, SkFontStyle());
+            } else {
+                SK_ABORT("Unknown test type");
+            }
+        }
     }
 
     SkString onShortName() override {
@@ -48,15 +66,23 @@ protected:
     void onDraw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorGRAY);
-        SkPaint paint;
-        paint.setColor(SK_ColorCYAN);
+        SkPaint textPaint;
+        textPaint.setColor(SK_ColorCYAN);
+
+        SkPaint boundsPaint;
+        boundsPaint.setStrokeWidth(2);
+        boundsPaint.setStyle(SkPaint::kStroke_Style);
+        boundsPaint.setColor(SK_ColorGREEN);
+
+        SkPaint advancePaint;
+        advancePaint.setColor(SK_ColorRED);
 
         SkScalar y = 0;
-        for (const auto& typeface: typefaces) {
-            SkFont font(typeface);
+        for (auto&& [i, test] : SkMakeEnumerate(tests)) {
+            SkFont font(typefaces[i]);
             font.setEdging(SkFont::Edging::kAlias);
 
-            const char*   text = ToolUtils::emoji_sample_text();
+            const char* text = test.text;
             SkFontMetrics metrics;
 
             for (SkScalar textSize : { 70, 150 }) {
@@ -71,9 +97,16 @@ protected:
                 for (bool fakeBold : { false, true }) {
                     font.setEmbolden(fakeBold);
                     SkRect bounds;
-                    font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds, &paint);
+                    SkScalar advance = font.measureText(text, strlen(text), SkTextEncoding::kUTF8,
+                                                        &bounds, &textPaint);
                     canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8,
-                                           x + bounds.left(), y, font, paint);
+                                           x, y, font, textPaint);
+                    if ((false)) {
+                        bounds.offset(x, y);
+                        canvas->drawRect(bounds, boundsPaint);
+                        SkRect advanceRect = SkRect::MakeLTRB(x, y + 2, x + advance, y + 4);
+                        canvas->drawRect(advanceRect, advancePaint);
+                    }
                     x += bounds.width() * 1.2;
                 }
                 y += metrics.fDescent + metrics.fLeading;

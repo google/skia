@@ -61,7 +61,11 @@ sk_sp<SkTypeface> planet_typeface();
 sk_sp<SkTypeface> emoji_typeface();
 
 /** Sample text for the emoji_typeface font. */
-const char* emoji_sample_text();
+constexpr const char* emoji_sample_text() {
+    return "\xF0\x9F\x98\x80"
+           " "
+           "\xE2\x99\xA2";  // 😀 ♢
+}
 
 /** A simple SkUserTypeface for testing. */
 sk_sp<SkTypeface> sample_user_typeface();
