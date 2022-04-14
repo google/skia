@@ -2572,6 +2572,7 @@ genrule(
         "externals/dawn/generator/templates/dawn/native/dawn_platform.h",
     ],
     outs = [
+        "externals/dawn/src/dawn/native/CacheKey_autogen.cpp",
         "externals/dawn/src/dawn/native/ChainUtils_autogen.cpp",
         "externals/dawn/src/dawn/native/ChainUtils_autogen.h",
         "externals/dawn/src/dawn/native/ObjectType_autogen.cpp",
@@ -2777,6 +2778,7 @@ DAWN_SRCS = [
     "externals/dawn/src/dawn/native/webgpu_absl_format.cpp",
     "externals/dawn/src/dawn/native/webgpu_absl_format.h",
     # From externals/dawn/src/dawn/native/BUILD.gn:utils_gen
+    "externals/dawn/src/dawn/native/CacheKey_autogen.cpp",
     "externals/dawn/src/dawn/native/ChainUtils_autogen.cpp",
     "externals/dawn/src/dawn/native/ChainUtils_autogen.h",
     "externals/dawn/src/dawn/native/ObjectType_autogen.cpp",
@@ -2863,6 +2865,8 @@ DAWN_VULKAN_SRCS = [
     "externals/dawn/src/dawn/native/vulkan/BindGroupVk.h",
     "externals/dawn/src/dawn/native/vulkan/BufferVk.cpp",
     "externals/dawn/src/dawn/native/vulkan/BufferVk.h",
+    "externals/dawn/src/dawn/native/vulkan/CacheKeyVk.cpp",
+    "externals/dawn/src/dawn/native/vulkan/CacheKeyVk.h",
     "externals/dawn/src/dawn/native/vulkan/CommandBufferVk.cpp",
     "externals/dawn/src/dawn/native/vulkan/CommandBufferVk.h",
     "externals/dawn/src/dawn/native/vulkan/CommandRecordingContext.h",
@@ -2934,10 +2938,11 @@ cc_library(
     srcs = DAWN_SRCS + DAWN_VULKAN_SRCS + DAWN_VULKAN_LINUX_SRCS,
     hdrs = DAWN_HDRS,
     copts = [
-        # List this as a copt, so as not to propogate it to dependents
+        # List this as a copt, so as not to propagate it to dependents
         # Skia has its own vulkan headers and we do not want these to
         # interfere/override those.
         "-isystem third_party/externals/vulkan-headers/include",
+        "-isystem third_party/externals/vulkan-tools",
     ],
     defines = DAWN_VULKAN_DEFINES,
     includes = [
@@ -2950,6 +2955,7 @@ cc_library(
         ":tint",
         "@abseil_cpp//absl/strings:str_format",
         ":vulkan_headers",
+        ":vulkan_tools"
     ],
 )
 
@@ -3513,6 +3519,14 @@ cc_library(
         "externals/vulkan-headers/include/vulkan/vk_platform.h",
         "externals/vulkan-headers/include/vulkan/vulkan.h",
         "externals/vulkan-headers/include/vulkan/vulkan_core.h",
+    ],
+    visibility = ["//visibility:private"],  # only used by :dawn
+)
+
+cc_library(
+    name = "vulkan_tools",
+    hdrs = [
+        "externals/vulkan-tools/icd/generated/vk_typemap_helper.h",
     ],
     visibility = ["//visibility:private"],  # only used by :dawn
 )
