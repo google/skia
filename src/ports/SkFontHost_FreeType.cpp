@@ -1313,6 +1313,14 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
                                 SkFixedToScalar(glyph->getSubYFixed()));
                 }
                 SkIRect irect = rect.roundOut();
+                if (!SkTFitsIn<decltype(glyph->fWidth )>(irect.width ()) ||
+                    !SkTFitsIn<decltype(glyph->fHeight)>(irect.height()) ||
+                    !SkTFitsIn<decltype(glyph->fTop   )>(irect.top   ()) ||
+                    !SkTFitsIn<decltype(glyph->fLeft  )>(irect.left  ())  )
+                {
+                    irect = SkIRect::MakeEmpty();
+                }
+
                 glyph->fWidth   = SkToU16(irect.width());
                 glyph->fHeight  = SkToU16(irect.height());
                 glyph->fTop     = SkToS16(irect.top());
