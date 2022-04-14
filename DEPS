@@ -42,12 +42,12 @@ deps = {
   "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@1d450ae99a0f4ade28dd55dac962f8b28d990376",
   # vulkan-deps is a meta-repo containing several interdependent Khronos Vulkan repositories.
   # When the vulkan-deps revision is updated, those repos (spirv-*, vulkan-*) should be updated as well.
-  "third_party/externals/vulkan-deps"     : "https://chromium.googlesource.com/vulkan-deps@7e9ab0686bf4d4fa9c52eeb8def33b2057624987",
+  "third_party/externals/vulkan-deps"     : "https://chromium.googlesource.com/vulkan-deps@565408992c44e7d969af8c417a0f72730a85c880",
   "third_party/externals/spirv-cross"     : "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross@6a67891418a3f08be63f92726e049dc788e46f5b",
   "third_party/externals/spirv-headers"   : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@82becc8a8a92e509d3d8d635889da0a3c17d0606",
-  "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@898ba64d2463bb70a2e21bf86c69dbc44ec9cd5f",
+  "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@cb96abbf7affd986016f17dd09f9f971138a922b",
   "third_party/externals/vulkan-headers"  : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers@76f00ef6cbb1886eb1162d1fa39bee8b51e22ee8",
-  "third_party/externals/vulkan-tools"    : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools@576ce7a50864f83c848337cca413892cf85f00b2",
+  "third_party/externals/vulkan-tools"    : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools@fa288188b574d9eee31cd52c5432780b6a46a412",
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
   "third_party/externals/wuffs"           : "https://skia.googlesource.com/external/github.com/google/wuffs-mirror-release-c.git@600cd96cf47788ee3a74b40a6028b035c9fd6a61",
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@c876c8f87101c5a75f6014b0f832499afeb65b73",
