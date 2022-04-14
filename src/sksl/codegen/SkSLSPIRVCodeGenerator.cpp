@@ -1339,23 +1339,22 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             break;
         }
         case kDFdy_SpecialIntrinsic: {
-            // TODO: This needs to be updated so SKSL_RTFLIP_NAME isn't accessed when
-            // fContext.fConfig->fSettings.fForceNoRTFlip is true. Additionally, the call to
-            // addRTFlipUniform needs to be skipped.
             SpvId fn = this->writeExpression(*arguments[0], out);
             this->writeOpCode(SpvOpDPdy, 4, out);
             this->writeWord(this->getType(callType), out);
             this->writeWord(result, out);
             this->writeWord(fn, out);
-            this->addRTFlipUniform(c.fPosition);
-            using namespace dsl;
-            DSLExpression rtFlip(ThreadContext::Compiler().convertIdentifier(Position(),
-                    SKSL_RTFLIP_NAME));
-            SpvId rtFlipY = this->vectorize(*rtFlip.y().release(), callType.columns(), out);
-            SpvId flipped = this->nextId(&callType);
-            this->writeInstruction(SpvOpFMul, this->getType(callType), flipped, result, rtFlipY,
-                                   out);
-            result = flipped;
+            if (!fProgram.fConfig->fSettings.fForceNoRTFlip) {
+                this->addRTFlipUniform(c.fPosition);
+                using namespace dsl;
+                DSLExpression rtFlip(
+                        ThreadContext::Compiler().convertIdentifier(Position(), SKSL_RTFLIP_NAME));
+                SpvId rtFlipY = this->vectorize(*rtFlip.y().release(), callType.columns(), out);
+                SpvId flipped = this->nextId(&callType);
+                this->writeInstruction(
+                        SpvOpFMul, this->getType(callType), flipped, result, rtFlipY, out);
+                result = flipped;
+            }
             break;
         }
         case kClamp_SpecialIntrinsic: {
@@ -2251,9 +2250,10 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             return NA;
         }
         case SK_FRAGCOORD_BUILTIN: {
-            // TODO: This needs to be updated so SKSL_RTFLIP_NAME isn't accessed when
-            // fContext.fConfig->fSettings.fForceNoRTFlip is true. Additionally, the call to
-            // addRTFlipUniform needs to be skipped.
+            if (fProgram.fConfig->fSettings.fForceNoRTFlip) {
+                dsl::DSLGlobalVar fragCoord("sk_FragCoord");
+                return this->getLValue(*dsl::DSLExpression(fragCoord).release(), out)->load(out);
+            }
 
             // Handle inserting use of uniform to flip y when referencing sk_FragCoord.
             this->addRTFlipUniform(ref.fPosition);
@@ -2291,9 +2291,10 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                          out);
         }
         case SK_CLOCKWISE_BUILTIN: {
-            // TODO: This needs to be updated so SKSL_RTFLIP_NAME isn't accessed when
-            // fContext.fConfig->fSettings.fForceNoRTFlip is true. Additionally, the call to
-            // addRTFlipUniform needs to be skipped.
+            if (fProgram.fConfig->fSettings.fForceNoRTFlip) {
+                dsl::DSLGlobalVar clockwise("sk_Clockwise");
+                return this->getLValue(*dsl::DSLExpression(clockwise).release(), out)->load(out);
+            }
 
             // Handle flipping sk_Clockwise.
             this->addRTFlipUniform(ref.fPosition);
@@ -3675,6 +3676,8 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
 }
 
 void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
+    SkASSERT(!fProgram.fConfig->fSettings.fForceNoRTFlip);
+
     if (fWroteRTFlip) {
         return;
     }
