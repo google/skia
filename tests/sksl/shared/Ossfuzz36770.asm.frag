@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: SPIR-V validation error: Member index 0 is missing a location assignment
+error: SPIR-V validation error: [VUID-StandaloneSpirv-Location-04919] Member index 0 is missing a location assignment
   %T = OpTypeStruct %int
 
 OpCapability Shader
