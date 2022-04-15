@@ -5690,6 +5690,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkBuiltInCodeSnippetID_hdr",
+        "//include/core:SkColor_hdr",
         "//include/core:SkSpan_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkTDArray_hdr",

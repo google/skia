@@ -300,6 +300,10 @@ void add_image_uniform_data(const SkShaderCodeDictionary* dict,
                             SkPipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, kImageShader)
     gatherer->write(imgData.fSubset);
+    gatherer->write(static_cast<int>(imgData.fTileModes[0]));
+    gatherer->write(static_cast<int>(imgData.fTileModes[1]));
+    gatherer->write(0); // manual padding
+    gatherer->write(0); // manual padding
 }
 
 #endif // SK_GRAPHITE_ENABLED
@@ -334,13 +338,7 @@ void AddToKey(const SkKeyContext& keyContext,
 
         auto dict = keyContext.dict();
         builder->beginBlock(SkBuiltInCodeSnippetID::kImageShader);
-
-        // TODO: bytes are overkill for just tilemodes. We could add smaller/bit-width
-        // types.
-        static_assert(SkTFitsIn<uint8_t>(SkTileMode::kLastTileMode));
-        builder->addByte(static_cast<uint8_t>(imgData.fTileModes[0]));
-        builder->addByte(static_cast<uint8_t>(imgData.fTileModes[1]));
-
+        builder->add(SkColors::kTransparent);
         builder->endBlock();
 
         if (gatherer) {

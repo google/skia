@@ -60,8 +60,8 @@ sk_sp<SkShader> create_gradient_shader(SkRect r) {
                                         SkTileMode::kClamp);
 }
 
-sk_sp<SkShader> create_image_shader(const MetaContext& context) {
-    SkImageInfo ii = SkImageInfo::Make(128, 128, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+sk_sp<SkShader> create_image_shader(const MetaContext& context, SkTileMode tmX, SkTileMode tmY) {
+    SkImageInfo ii = SkImageInfo::Make(64, 64, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkBitmap bitmap;
 
     bitmap.allocPixels(ii);
@@ -79,7 +79,7 @@ sk_sp<SkShader> create_image_shader(const MetaContext& context) {
         for (int x = 0; x < 3; ++x) {
             SkPaint paint;
             paint.setColor(colors[y][x]);
-            canvas.drawRect(SkRect::MakeXYWH(x*42, y*42, 43, 43), paint);
+            canvas.drawRect(SkRect::MakeXYWH(x*21, y*21, 22, 22), paint);
         }
     }
 
@@ -89,14 +89,16 @@ sk_sp<SkShader> create_image_shader(const MetaContext& context) {
     sk_sp<SkImage> img = SkImage::MakeFromBitmap(bitmap);
     img = context.makeTextureImage(std::move(img));
 
-    return img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions());
+    return img->makeShader(tmX, tmY, SkSamplingOptions());
 }
 
 sk_sp<SkShader> create_blend_shader(const MetaContext& context, SkBlendMode bm) {
     constexpr SkColor4f kTransYellow = {1.0f, 1.0f, 0.0f, 0.5f};
 
     sk_sp<SkShader> dst = SkShaders::Color(kTransYellow, nullptr);
-    return SkShaders::Blend(bm, std::move(dst), create_image_shader(context));
+    return SkShaders::Blend(bm,
+                            std::move(dst),
+                            create_image_shader(context, SkTileMode::kRepeat, SkTileMode::kRepeat));
 }
 
 void draw_blend_mode_swatches(SkCanvas* canvas, SkRect clipRect) {
@@ -172,13 +174,14 @@ protected:
         // UL corner
         {
             SkPaint p;
-            p.setShader(create_image_shader(context));
+            p.setShader(create_image_shader(context, SkTileMode::kClamp, SkTileMode::kRepeat));
 
             SkPath path;
             path.moveTo(1,   1);
-            path.lineTo(64,  127);
+            path.lineTo(32,  127);
+            path.lineTo(96,  127);
             path.lineTo(127, 1);
-            path.lineTo(63,  63);
+            path.lineTo(63,  32);
             path.close();
 
             canvas->drawPath(path, p);

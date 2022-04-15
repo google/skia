@@ -111,6 +111,23 @@ void SkPaintParamsKeyBuilder::endBlock() {
 #endif
 }
 
+#ifdef SK_DEBUG
+void SkPaintParamsKeyBuilder::checkExpectations(SkPaintParamsKey::DataPayloadType actualType,
+                                                uint32_t actualCount) {
+    const StackFrame& frame = fStack.back();
+    const auto& expectations = frame.fDataPayloadExpectations;
+
+    // TODO: right now we reject writing 'n' bytes one at a time. We could allow it by tracking
+    // the number of bytes written in the stack frame.
+    SkASSERT(frame.fCurDataPayloadEntry < SkTo<int>(expectations.size()) &&
+             expectations.data() &&
+             expectations[frame.fCurDataPayloadEntry].fType == actualType &&
+             expectations[frame.fCurDataPayloadEntry].fCount == actualCount);
+
+    fStack.back().fCurDataPayloadEntry++;
+}
+#endif // SK_DEBUG
+
 void SkPaintParamsKeyBuilder::addBytes(uint32_t numBytes, const uint8_t* data) {
     if (!this->isValid()) {
         return;
@@ -122,24 +139,27 @@ void SkPaintParamsKeyBuilder::addBytes(uint32_t numBytes, const uint8_t* data) {
         return;
     }
 
-#ifdef SK_DEBUG
-    const StackFrame& frame = fStack.back();
-    const auto& expectations = frame.fDataPayloadExpectations;
-
-    // TODO: right now we reject writing 'n' bytes one at a time. We could allow it by tracking
-    // the number of bytes written in the stack frame.
-    SkASSERT(frame.fCurDataPayloadEntry < SkTo<int>(expectations.size()) &&
-             expectations.data() &&
-             expectations[frame.fCurDataPayloadEntry].fType ==
-                                                        SkPaintParamsKey::DataPayloadType::kByte &&
-             expectations[frame.fCurDataPayloadEntry].fCount == numBytes);
-
-    fStack.back().fCurDataPayloadEntry++;
-#endif
-
+    SkDEBUGCODE(this->checkExpectations(SkPaintParamsKey::DataPayloadType::kByte, numBytes);)
     SkASSERT(!this->isLocked());
 
     fData.append(numBytes, data);
+}
+
+void SkPaintParamsKeyBuilder::add(const SkColor4f& color) {
+    if (!this->isValid()) {
+        return;
+    }
+
+    if (fStack.empty()) {
+        // SKGPU_LOG_W("Missing call to 'beginBlock'.");
+        this->makeInvalid();
+        return;
+    }
+
+    SkDEBUGCODE(this->checkExpectations(SkPaintParamsKey::DataPayloadType::kFloat4, 1);)
+    SkASSERT(!this->isLocked());
+
+    fData.append(16, reinterpret_cast<const uint8_t*>(&color));
 }
 
 SkPaintParamsKey SkPaintParamsKeyBuilder::lockAsKey() {

@@ -277,7 +277,7 @@ static constexpr int kFourStopGradient = 4;
 static constexpr int kNumGradientUniforms = 7;
 static constexpr SkUniform kGradientUniforms[kNumGradientUniforms] = {
         { "colors",  SkSLType::kFloat4, kFourStopGradient },
-        { "offsets", SkSLType::kFloat, kFourStopGradient },
+        { "offsets", SkSLType::kFloat,  kFourStopGradient },
         { "point0",  SkSLType::kFloat2 },
         { "point1",  SkSLType::kFloat2 },
         { "radius0", SkSLType::kFloat },
@@ -325,32 +325,62 @@ static const char* kSolidShaderSkSL =
         "}\n";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumImageShaderUniforms = 1;
+static constexpr int kNumImageShaderUniforms = 5;
 static constexpr SkUniform kImageShaderUniforms[kNumImageShaderUniforms] = {
-        { "subset",  SkSLType::kFloat4 },
+        { "subset",    SkSLType::kFloat4 },
+        { "tilemodeX", SkSLType::kInt },
+        { "tilemodeY", SkSLType::kInt },
+        { "pad1",      SkSLType::kInt }, // TODO: add automatic uniform padding
+        { "pad2",      SkSLType::kInt },
 };
 
 static constexpr int kNumImageShaderTexturesAndSamplers = 1;
 static constexpr SkTextureAndSampler kISTexturesAndSamplers[kNumImageShaderTexturesAndSamplers] = {
-        { "sampler" },
+        {"sampler"},
 };
 
-static const char* kImageShaderName = "image_shader";
+static_assert(0 == static_cast<int>(SkTileMode::kClamp),  "ImageShader code depends on SkTileMode");
+static_assert(1 == static_cast<int>(SkTileMode::kRepeat), "ImageShader code depends on SkTileMode");
+static_assert(2 == static_cast<int>(SkTileMode::kMirror), "ImageShader code depends on SkTileMode");
+static_assert(3 == static_cast<int>(SkTileMode::kDecal),  "ImageShader code depends on SkTileMode");
+
+static const char* kImageShaderName = "compute_coords";
 static const char* kImageShaderSkSL =
-        "half4 image_shader(float4 subset) {\n"
-        "    return half4(1, 0, 0, 1);\n"
+        "const int kClamp         = 0;\n"
+        "const int kRepeat        = 1;\n"
+        "const int kMirrorRepeat  = 2;\n"
+        "const int kClampToBorder = 3;\n"
+        "\n"
+        "float tile(int tm, float f, float origin, float length) {\n"
+        "    if (tm == kClamp) {\n"
+        "        return clamp(f, origin, origin+length) / length;"
+        "    } else if (tm == kRepeat) {\n"
+        "        return mod(f - origin, length) / length;\n"
+        "    } else if (tm == kMirrorRepeat) {\n"
+        "        // for now, just repeat\n"
+        "        return mod(f - origin, length) / length;\n"
+        "    } else { // kClampToBorder\n"
+        "        // For now, just clamp\n"
+        "        return clamp(f, origin, origin+length) / length;"
+        "    }\n"
+        "}\n"
+        "\n"
+        "float2 compute_coords(float4 subset, int tmX, int tmY) {\n"
+        "    float2 subsetWH = (subset.zw - subset.xy);\n"
+        "    float2 coords = float2(tile(tmX, sk_FragCoord.x, subset.x, subsetWH.x),\n"
+        "                           tile(tmY, sk_FragCoord.y, subset.y, subsetWH.y));\n"
+        "    return coords;\n"
         "}\n";
 
-static constexpr int kNumImageShaderFields = 2;
+static constexpr int kNumImageShaderFields = 1;
 static constexpr DataPayloadField kImageShaderFields[kNumImageShaderFields] = {
-        { "tilemodeX", SkPaintParamsKey::DataPayloadType::kByte, 1 },
-        { "tilemodeY", SkPaintParamsKey::DataPayloadType::kByte, 1 }
+        { "borderColor", SkPaintParamsKey::DataPayloadType::kFloat4, 1 }
 };
 
 // This is _not_ what we want to do.
-// Ideally the "image_shader" code snippet could just take texture and
-// sampler references. That is going to take more time to figure out though so,
-// for the sake of expediency, we're generating custom code.
+// Ideally the "compute_coords" code snippet could just take texture and
+// sampler references and do everything. That is going to take more time to figure out though so,
+// for the sake of expediency, we're generating custom code to do the sampling.
 std::string GenerateImageShaderGlueCode(const std::string& resultName,
                                         int entryIndex,
                                         const SkPaintParamsKey::BlockReader& reader,
@@ -361,11 +391,19 @@ std::string GenerateImageShaderGlueCode(const std::string& resultName,
 
     std::string samplerName = std::string("sampler_") + std::to_string(entryIndex) + "_0";
 
+    std::string subsetName = reader.entry()->getMangledUniformName(0, entryIndex);
+    std::string tmXName = reader.entry()->getMangledUniformName(1, entryIndex);
+    std::string tmYName = reader.entry()->getMangledUniformName(2, entryIndex);
+
     std::string result;
+
     add_indent(&result, indent);
-    result += "float2 coords = float2(sk_FragCoord.x/128.0, sk_FragCoord.y/128.0);\n";
-    add_indent(&result, indent);
-    result += "coords = clamp(coords, float2(0.0, 0.0), float2(1.0, 1.0));\n";
+    SkSL::String::appendf(&result,
+                          "float2 coords = %s(%s, %s, %s);",
+                          reader.entry()->fStaticFunctionName,
+                          subsetName.c_str(),
+                          tmXName.c_str(),
+                          tmYName.c_str());
 
     add_indent(&result, indent);
     SkSL::String::appendf(&result,
