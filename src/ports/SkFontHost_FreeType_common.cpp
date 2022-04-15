@@ -1660,8 +1660,10 @@ bool generateGlyphPathStatic(FT_Face face, SkPath* path) {
 }
 
 bool generateFacePathStatic(FT_Face face, SkGlyphID glyphID, uint32_t loadGlyphFlags, SkPath* path){
-    loadGlyphFlags |= FT_LOAD_NO_BITMAP; // ignore embedded bitmaps so we're sure to get the outline
-    loadGlyphFlags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
+    loadGlyphFlags |= FT_LOAD_BITMAP_METRICS_ONLY;  // Don't decode any bitmaps.
+    loadGlyphFlags |= FT_LOAD_NO_BITMAP; // Ignore embedded bitmaps.
+    loadGlyphFlags &= ~FT_LOAD_RENDER;  // Don't scan convert.
+    loadGlyphFlags &= ~FT_LOAD_COLOR;  // Ignore SVG.
     if (FT_Load_Glyph(face, glyphID, loadGlyphFlags)) {
         path->reset();
         return false;
@@ -1672,8 +1674,10 @@ bool generateFacePathStatic(FT_Face face, SkGlyphID glyphID, uint32_t loadGlyphF
 #ifdef TT_SUPPORT_COLRV1
 bool generateFacePathCOLRv1(FT_Face face, SkGlyphID glyphID, SkPath* path) {
     uint32_t flags = 0;
-    flags |= FT_LOAD_NO_BITMAP; // ignore embedded bitmaps so we're sure to get the outline
-    flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
+    flags |= FT_LOAD_BITMAP_METRICS_ONLY;  // Don't decode any bitmaps.
+    flags |= FT_LOAD_NO_BITMAP; // Ignore embedded bitmaps.
+    flags &= ~FT_LOAD_RENDER;  // Don't scan convert.
+    flags &= ~FT_LOAD_COLOR;  // Ignore SVG.
     flags |= FT_LOAD_NO_HINTING;
     flags |= FT_LOAD_NO_AUTOHINT;
     flags |= FT_LOAD_IGNORE_TRANSFORM;

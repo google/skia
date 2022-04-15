@@ -1088,7 +1088,7 @@ bool SkScalerContext_FreeType::getCBoxForLetter(char letter, FT_BBox* bbox) {
     if (!glyph_id) {
         return false;
     }
-    if (FT_Load_Glyph(fFace, glyph_id, fLoadGlyphFlags) != 0) {
+    if (FT_Load_Glyph(fFace, glyph_id, fLoadGlyphFlags)) {
         return false;
     }
     if (fFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
@@ -1209,13 +1209,16 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
             FT_LayerIterator layerIterator = { 0, 0, nullptr };
             FT_UInt layerGlyphIndex;
             FT_UInt layerColorIndex;
+            FT_Int32 flags = fLoadGlyphFlags;
+            flags |= FT_LOAD_BITMAP_METRICS_ONLY;  // Don't decode any bitmaps.
+            flags |= FT_LOAD_NO_BITMAP; // Ignore embedded bitmaps.
+            flags &= ~FT_LOAD_RENDER;  // Don't scan convert.
+            flags &= ~FT_LOAD_COLOR;  // Ignore SVG.
             // For COLRv0 compute the glyph bounding box from the union of layer bounding boxes.
             while (FT_Get_Color_Glyph_Layer(fFace, glyph->getGlyphID(), &layerGlyphIndex,
                                             &layerColorIndex, &layerIterator)) {
                 haveLayers = true;
-                if (FT_Load_Glyph(fFace, layerGlyphIndex,
-                                  fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY))
-                {
+                if (FT_Load_Glyph(fFace, layerGlyphIndex, flags)) {
                     glyph->zeroMetrics();
                     return;
                 }
