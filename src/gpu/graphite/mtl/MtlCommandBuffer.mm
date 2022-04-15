@@ -123,12 +123,8 @@ bool MtlCommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
             // Inclusion of a resolve texture implies the client wants to finish the
             // renderpass with a resolve.
             if (@available(macOS 10.12, iOS 10.0, *)) {
-                if (colorAttachment.storeAction == MTLStoreActionStore) {
-                    colorAttachment.storeAction = MTLStoreActionStoreAndMultisampleResolve;
-                } else {
-                    SkASSERT(colorAttachment.storeAction == MTLStoreActionDontCare);
-                    colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
-                }
+                SkASSERT(colorAttachment.storeAction == MTLStoreActionDontCare);
+                colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
             } else {
                 // We expect at least Metal 2
                 // TODO: Add error output

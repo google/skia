@@ -243,6 +243,7 @@ private:
         SkDEBUGCODE(bool performsShading = false;)
         for (int i = 0 ; i < fStepCount; ++i) {
             fSteps[i] = steps[i];
+            fRequiresMSAA |= fSteps[i]->requiresMSAA();
             fDepthStencilFlags |= fSteps[i]->depthStencilFlags();
             SkDEBUGCODE(performsShading |= fSteps[i]->performsShading());
         }

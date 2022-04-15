@@ -484,15 +484,15 @@ TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,
     return info;
 }
 
-TextureInfo MtlCaps::getDefaultMSAATextureInfo(SkColorType colorType,
-                                               uint32_t sampleCount,
-                                               Protected) const {
+TextureInfo MtlCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo) const {
+    const MtlTextureSpec& singleSpec = singleSampledInfo.mtlTextureSpec();
+
     MTLTextureUsage usage = MTLTextureUsageRenderTarget;
 
     MtlTextureInfo info;
-    info.fSampleCount = sampleCount;
+    info.fSampleCount = this->defaultMSAASamples();
     info.fLevelCount = 1;
-    info.fFormat = this->getFormatFromColorType(colorType);
+    info.fFormat = singleSpec.fFormat;
     info.fUsage = usage;
     info.fStorageMode = MTLStorageModePrivate;
     info.fFramebufferOnly = false;

@@ -26,9 +26,7 @@ public:
                                              Protected,
                                              Renderable) const override;
 
-    TextureInfo getDefaultMSAATextureInfo(SkColorType,
-                                          uint32_t sampleCount,
-                                          Protected) const override;
+    TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo) const override;
 
     TextureInfo getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags>,
                                                   uint32_t sampleCount,

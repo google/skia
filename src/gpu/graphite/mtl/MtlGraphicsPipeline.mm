@@ -549,16 +549,17 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     // TODO: I *think* this gets cleaned up by the pipelineDescriptor?
     (*psoDescriptor).vertexDescriptor = create_vertex_descriptor(pipelineDesc.renderStep());
 
-    MtlTextureInfo mtlTexInfo;
-    renderPassDesc.fColorAttachment.fTextureInfo.getMtlTextureInfo(&mtlTexInfo);
-
-    auto mtlColorAttachment = create_color_attachment((MTLPixelFormat)mtlTexInfo.fFormat,
+    const MtlTextureSpec& mtlColorSpec =
+            renderPassDesc.fColorAttachment.fTextureInfo.mtlTextureSpec();
+    auto mtlColorAttachment = create_color_attachment((MTLPixelFormat)mtlColorSpec.fFormat,
                                                       blendInfo);
-
     (*psoDescriptor).colorAttachments[0] = mtlColorAttachment;
 
-    renderPassDesc.fDepthStencilAttachment.fTextureInfo.getMtlTextureInfo(&mtlTexInfo);
-    MTLPixelFormat depthStencilFormat = (MTLPixelFormat)mtlTexInfo.fFormat;
+    (*psoDescriptor).sampleCount = renderPassDesc.fColorAttachment.fTextureInfo.numSamples();
+
+    const MtlTextureSpec& mtlDSSpec =
+            renderPassDesc.fDepthStencilAttachment.fTextureInfo.mtlTextureSpec();
+    MTLPixelFormat depthStencilFormat = (MTLPixelFormat)mtlDSSpec.fFormat;
     if (MtlFormatIsStencil(depthStencilFormat)) {
         (*psoDescriptor).stencilAttachmentPixelFormat = depthStencilFormat;
     } else {

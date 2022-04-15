@@ -64,6 +64,7 @@ public:
 private:
 #ifdef SK_METAL
     friend class MtlCaps;
+    friend class MtlGraphicsPipeline;
     friend class MtlTexture;
     const MtlTextureSpec& mtlTextureSpec() const {
         SkASSERT(fValid && fBackend == BackendApi::kMetal);

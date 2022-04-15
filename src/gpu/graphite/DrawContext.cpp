@@ -118,22 +118,47 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
         return nullptr;
     }
 
+    const Caps* caps = recorder->priv().caps();
+
     // TODO: At this point we would determine all the targets used by the drawPasses,
     // build up the union of them and store them in the RenderPassDesc. However, for
     // the moment we should have only one drawPass.
     SkASSERT(fDrawPasses.size() == 1);
     RenderPassDesc desc;
     auto& drawPass = fDrawPasses[0];
-    desc.fColorAttachment.fTextureInfo = drawPass->target()->textureInfo();
-    std::tie(desc.fColorAttachment.fLoadOp, desc.fColorAttachment.fStoreOp) = drawPass->ops();
+    const TextureInfo& targetInfo = drawPass->target()->textureInfo();
+    auto [loadOp, storeOp] = drawPass->ops();
+    // It doesn't make sense to have a storeOp for our main target not be store. Why are we doing
+    // this DrawPass then
+    SkASSERT(storeOp == StoreOp::kStore);
+    if (drawPass->requiresMSAA()) {
+        desc.fColorAttachment.fTextureInfo = caps->getDefaultMSAATextureInfo(targetInfo);
+        if (loadOp != LoadOp::kClear) {
+            desc.fColorAttachment.fLoadOp = LoadOp::kDiscard;
+        } else {
+            desc.fColorAttachment.fLoadOp = LoadOp::kClear;
+        }
+        desc.fColorAttachment.fStoreOp = StoreOp::kDiscard;
+
+        desc.fColorResolveAttachment.fTextureInfo = targetInfo;
+        if (loadOp != LoadOp::kLoad) {
+            desc.fColorResolveAttachment.fLoadOp = LoadOp::kDiscard;
+        } else {
+            desc.fColorResolveAttachment.fLoadOp = LoadOp::kLoad;
+        }
+        desc.fColorResolveAttachment.fStoreOp = storeOp;
+    } else {
+        desc.fColorAttachment.fTextureInfo = targetInfo;
+        desc.fColorAttachment.fLoadOp = loadOp;
+        desc.fColorAttachment.fStoreOp = storeOp;
+    }
     desc.fClearColor = drawPass->clearColor();
 
     if (drawPass->depthStencilFlags() != DepthStencilFlags::kNone) {
-        const Caps* caps = recorder->priv().caps();
-        desc.fDepthStencilAttachment.fTextureInfo =
-                caps->getDefaultDepthStencilTextureInfo(drawPass->depthStencilFlags(),
-                                                        1 /*sampleCount*/, // TODO: MSAA
-                                                        Protected::kNo);
+        desc.fDepthStencilAttachment.fTextureInfo = caps->getDefaultDepthStencilTextureInfo(
+                drawPass->depthStencilFlags(),
+                desc.fColorAttachment.fTextureInfo.numSamples(),
+                Protected::kNo);
         // Always clear the depth and stencil to 0 at the start of a DrawPass, but discard at the
         // end since their contents do not affect the next frame.
         desc.fDepthStencilAttachment.fLoadOp = LoadOp::kClear;

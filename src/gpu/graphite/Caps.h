@@ -36,9 +36,7 @@ public:
                                                      Protected,
                                                      Renderable) const = 0;
 
-    virtual TextureInfo getDefaultMSAATextureInfo(SkColorType,
-                                                  uint32_t sampleCount,
-                                                  Protected) const = 0;
+    virtual TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo) const = 0;
 
     virtual TextureInfo getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags>,
                                                           uint32_t sampleCount,
@@ -80,6 +78,9 @@ public:
 
 protected:
     Caps();
+
+    // TODO: This value should be set by some context option. For now just making it 4.
+    uint32_t defaultMSAASamples() const { return 4; }
 
     // ColorTypeInfo for a specific format.
     // Used in format tables.
