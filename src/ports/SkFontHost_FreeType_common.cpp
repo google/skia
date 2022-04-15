@@ -1751,28 +1751,14 @@ bool SkScalerContext_FreeType_Base::generateFacePath(FT_Face face,
     return generateFacePathStatic(face, glyphID, loadGlyphFlags, path);
 }
 
+#ifdef TT_SUPPORT_COLRV1
 bool SkScalerContext_FreeType_Base::computeColrV1GlyphBoundingBox(FT_Face face,
                                                                   SkGlyphID glyphID,
-                                                                  FT_BBox* boundingBox) {
-#ifdef TT_SUPPORT_COLRV1
+                                                                  SkRect* bounds) {
     SkMatrix ctm;
-    SkRect bounds = SkRect::MakeEmpty();
+    *bounds = SkRect::MakeEmpty();
     VisitedSet activePaints;
-    if (!colrv1_start_glyph_bounds(&ctm, &bounds, face, glyphID,
-                                   FT_COLOR_INCLUDE_ROOT_TRANSFORM, &activePaints)) {
-        return false;
-    }
-
-    /* Convert back to FT_BBox as caller needs it in this format. */
-    bounds.sort();
-    boundingBox->xMin = SkScalarToFDot6(bounds.left());
-    boundingBox->xMax = SkScalarToFDot6(bounds.right());
-    boundingBox->yMin = SkScalarToFDot6(-bounds.bottom());
-    boundingBox->yMax = SkScalarToFDot6(-bounds.top());
-
-    return true;
-#else
-    SkASSERT(false);
-    return false;
-#endif
+    return colrv1_start_glyph_bounds(&ctm, bounds, face, glyphID,
+                                     FT_COLOR_INCLUDE_ROOT_TRANSFORM, &activePaints);
 }
+#endif

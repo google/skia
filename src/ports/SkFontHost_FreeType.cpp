@@ -467,12 +467,11 @@ private:
     bool      fLCDIsVert;
 
     FT_Error setupSize();
-    bool getBBoxForCurrentGlyph(const SkGlyph* glyph, FT_BBox* bbox,
-                                bool snapToPixelBoundary = false);
-    static void setGlyphBounds(SkGlyph* glyph, FT_BBox& bounds);
+    static bool getBoundsOfCurrentOutlineGlyph(FT_GlyphSlot glyph, SkRect* bounds);
+    static void setGlyphBounds(SkGlyph* glyph, SkRect* bounds, bool subpixel);
     bool getCBoxForLetter(char letter, FT_BBox* bbox);
     // Caller must lock f_t_mutex() before calling this function.
-    void updateGlyphIfLCD(SkGlyph* glyph);
+    void updateGlyphBoundsIfLCD(SkGlyph* glyph);
     // Caller must lock f_t_mutex() before calling this function.
     // update FreeType2 glyph slot with glyph emboldened
     void emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph, SkGlyphID gid);
@@ -1068,47 +1067,19 @@ bool SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
     return true;
 }
 
-bool SkScalerContext_FreeType::getBBoxForCurrentGlyph(const SkGlyph* glyph,
-                                                      FT_BBox* bbox,
-                                                      bool snapToPixelBoundary) {
-    if (0 == fFace->glyph->outline.n_contours) {
+bool SkScalerContext_FreeType::getBoundsOfCurrentOutlineGlyph(FT_GlyphSlot glyph, SkRect* bounds) {
+    if (glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
+        SkASSERT(false);
+        return false;
+    }
+    if (0 == glyph->outline.n_contours) {
         return false;
     }
 
-    FT_Outline_Get_CBox(&fFace->glyph->outline, bbox);
-
-    if (this->isSubpixel()) {
-        int dx = SkFixedToFDot6(glyph->getSubXFixed());
-        int dy = SkFixedToFDot6(glyph->getSubYFixed());
-        // negate dy since freetype-y-goes-up and skia-y-goes-down
-        bbox->xMin += dx;
-        bbox->yMin -= dy;
-        bbox->xMax += dx;
-        bbox->yMax -= dy;
-    }
-
-    // outset the box to integral boundaries
-    if (snapToPixelBoundary) {
-        bbox->xMin &= ~63;
-        bbox->yMin &= ~63;
-        bbox->xMax  = (bbox->xMax + 63) & ~63;
-        bbox->yMax  = (bbox->yMax + 63) & ~63;
-    }
-
-    // Must come after snapToPixelBoundary so that the width and height are
-    // consistent. Otherwise asserts will fire later on when generating the
-    // glyph image.
-    if (this->isVertical()) {
-        FT_Vector vector;
-        vector.x = fFace->glyph->metrics.vertBearingX - fFace->glyph->metrics.horiBearingX;
-        vector.y = -fFace->glyph->metrics.vertBearingY - fFace->glyph->metrics.horiBearingY;
-        FT_Vector_Transform(&vector, &fMatrix22);
-        bbox->xMin += vector.x;
-        bbox->xMax += vector.x;
-        bbox->yMin += vector.y;
-        bbox->yMax += vector.y;
-    }
-
+    FT_BBox bbox;
+    FT_Outline_Get_CBox(&glyph->outline, &bbox);
+    *bounds = SkRect::MakeLTRB(SkFDot6ToScalar(bbox.xMin), -SkFDot6ToScalar(bbox.yMax),
+                               SkFDot6ToScalar(bbox.xMax), -SkFDot6ToScalar(bbox.yMin));
     return true;
 }
 
@@ -1120,38 +1091,43 @@ bool SkScalerContext_FreeType::getCBoxForLetter(char letter, FT_BBox* bbox) {
     if (FT_Load_Glyph(fFace, glyph_id, fLoadGlyphFlags) != 0) {
         return false;
     }
+    if (fFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
+        return false;
+    }
     emboldenIfNeeded(fFace, fFace->glyph, SkTo<SkGlyphID>(glyph_id));
     FT_Outline_Get_CBox(&fFace->glyph->outline, bbox);
     return true;
 }
 
-void SkScalerContext_FreeType::setGlyphBounds(SkGlyph* glyph, FT_BBox& bounds) {
-    // Round out, no longer dot6.
-    bounds.xMin = SkFDot6Floor(bounds.xMin);
-    bounds.yMin = SkFDot6Floor(bounds.yMin);
-    bounds.xMax = SkFDot6Ceil (bounds.xMax);
-    bounds.yMax = SkFDot6Ceil (bounds.yMax);
+void SkScalerContext_FreeType::setGlyphBounds(SkGlyph* glyph, SkRect* bounds, bool subpixel) {
+    SkIRect irect;
+    if (bounds->isEmpty()) {
+        irect = SkIRect::MakeEmpty();
+    } else {
+        if (subpixel) {
+            bounds->offset(SkFixedToScalar(glyph->getSubXFixed()),
+                           SkFixedToScalar(glyph->getSubYFixed()));
+        }
 
-    FT_Pos width  =  bounds.xMax - bounds.xMin;
-    FT_Pos height =  bounds.yMax - bounds.yMin;
-    FT_Pos top    = -bounds.yMax;  // Freetype y-up, Skia y-down.
-    FT_Pos left   =  bounds.xMin;
-    if (!SkTFitsIn<decltype(glyph->fWidth )>(width ) ||
-        !SkTFitsIn<decltype(glyph->fHeight)>(height) ||
-        !SkTFitsIn<decltype(glyph->fTop   )>(top   ) ||
-        !SkTFitsIn<decltype(glyph->fLeft  )>(left  )  )
-    {
-        width = height = top = left = 0;
+        irect = bounds->roundOut();
+        if (!SkTFitsIn<decltype(glyph->fWidth )>(irect.width ()) ||
+            !SkTFitsIn<decltype(glyph->fHeight)>(irect.height()) ||
+            !SkTFitsIn<decltype(glyph->fTop   )>(irect.top   ()) ||
+            !SkTFitsIn<decltype(glyph->fLeft  )>(irect.left  ())  )
+        {
+            irect = SkIRect::MakeEmpty();
+        }
     }
-
-    glyph->fWidth  = SkToU16(width );
-    glyph->fHeight = SkToU16(height);
-    glyph->fTop    = SkToS16(top   );
-    glyph->fLeft   = SkToS16(left  );
+    glyph->fWidth  = SkToU16(irect.width ());
+    glyph->fHeight = SkToU16(irect.height());
+    glyph->fTop    = SkToS16(irect.top   ());
+    glyph->fLeft   = SkToS16(irect.left  ());
 };
 
-void SkScalerContext_FreeType::updateGlyphIfLCD(SkGlyph* glyph) {
-    if (glyph->fMaskFormat == SkMask::kLCD16_Format) {
+void SkScalerContext_FreeType::updateGlyphBoundsIfLCD(SkGlyph* glyph) {
+    if (glyph->fMaskFormat == SkMask::kLCD16_Format &&
+        glyph->fWidth > 0 && glyph->fHeight > 0)
+    {
         if (fLCDIsVert) {
             glyph->fHeight += 2;
             glyph->fTop -= 1;
@@ -1190,9 +1166,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
 #ifdef FT_COLOR_H
     // See https://skbug.com/12945, if the face isn't marked scalable then paths cannot be loaded.
     if (FT_IS_SCALABLE(fFace)) {
-        using FT_PosLimits = std::numeric_limits<FT_Pos>;
-        FT_BBox bounds = { FT_PosLimits::max(), FT_PosLimits::max(),
-                           FT_PosLimits::min(), FT_PosLimits::min() };
+        SkRect bounds = SkRect::MakeEmpty();
 #ifdef TT_SUPPORT_COLRV1
         FT_OpaquePaint opaqueLayerPaint{nullptr, 1};
         if (FT_Get_Color_Glyph_Paint(fFace, glyph->getGlyphID(),
@@ -1204,16 +1178,19 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
             FT_ClipBox clipBox;
             if (FT_Get_Color_Glyph_ClipBox(fFace, glyph->getGlyphID(), &clipBox)) {
                 // Find bounding box of clip box corner points, needed when clipbox is transformed.
-                bounds.xMin = clipBox.bottom_left.x;
-                bounds.xMax = clipBox.bottom_left.x;
-                bounds.yMin = clipBox.bottom_left.y;
-                bounds.yMax = clipBox.bottom_left.y;
+                FT_BBox bbox;
+                bbox.xMin = clipBox.bottom_left.x;
+                bbox.xMax = clipBox.bottom_left.x;
+                bbox.yMin = clipBox.bottom_left.y;
+                bbox.yMax = clipBox.bottom_left.y;
                 for (auto& corner : {clipBox.top_left, clipBox.top_right, clipBox.bottom_right}) {
-                    bounds.xMin = std::min(bounds.xMin, corner.x);
-                    bounds.yMin = std::min(bounds.yMin, corner.y);
-                    bounds.xMax = std::max(bounds.xMax, corner.x);
-                    bounds.yMax = std::max(bounds.yMax, corner.y);
+                    bbox.xMin = std::min(bbox.xMin, corner.x);
+                    bbox.yMin = std::min(bbox.yMin, corner.y);
+                    bbox.xMax = std::max(bbox.xMax, corner.x);
+                    bbox.yMax = std::max(bbox.yMax, corner.y);
                 }
+                bounds = SkRect::MakeLTRB(SkFDot6ToScalar(bbox.xMin), -SkFDot6ToScalar(bbox.yMax),
+                                          SkFDot6ToScalar(bbox.xMax), -SkFDot6ToScalar(bbox.yMin));
             } else {
                 // Traverse the glyph graph with a focus on measuring the required bounding box.
                 // The call to computeColrV1GlyphBoundingBox may modify the face.
@@ -1242,15 +1219,10 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
                     glyph->zeroMetrics();
                     return;
                 }
-                emboldenIfNeeded(fFace, fFace->glyph, layerGlyphIndex);
 
-                FT_BBox bbox;
-                if (getBBoxForCurrentGlyph(glyph, &bbox, true)) {
-                    // Union
-                    bounds.xMin = std::min(bbox.xMin, bounds.xMin);
-                    bounds.yMin = std::min(bbox.yMin, bounds.yMin);
-                    bounds.xMax = std::max(bbox.xMax, bounds.xMax);
-                    bounds.yMax = std::max(bbox.yMax, bounds.yMax);
+                SkRect currentBounds;
+                if (getBoundsOfCurrentOutlineGlyph(fFace->glyph, &currentBounds)) {
+                    bounds.join(currentBounds);
                 }
             }
             if (haveLayers) {
@@ -1261,10 +1233,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
         if (haveLayers) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
             glyph->setPath(alloc, nullptr, false);
-            if (!(bounds.xMin < bounds.xMax && bounds.yMin < bounds.yMax)) {
-                bounds = { 0, 0, 0, 0 };
-            }
-            setGlyphBounds(glyph, bounds);
+            setGlyphBounds(glyph, &bounds, this->isSubpixel());
         }
     }
 #endif  //FT_COLOR_H
@@ -1279,12 +1248,12 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
         emboldenIfNeeded(fFace, fFace->glyph, glyph->getGlyphID());
 
         if (fFace->glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
-            FT_BBox bounds;
-            if (!getBBoxForCurrentGlyph(glyph, &bounds, true)) {
-                bounds = { 0, 0, 0, 0 };
+            SkRect bounds;
+            if (!getBoundsOfCurrentOutlineGlyph(fFace->glyph, &bounds)) {
+                bounds = SkRect::MakeEmpty();
             }
-            setGlyphBounds(glyph, bounds);
-            updateGlyphIfLCD(glyph);
+            setGlyphBounds(glyph, &bounds, this->isSubpixel());
+            updateGlyphBoundsIfLCD(glyph);
 
         } else if (fFace->glyph->format == FT_GLYPH_FORMAT_BITMAP) {
             glyph->setPath(alloc, nullptr, false);
@@ -1302,30 +1271,12 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
                 glyph->fMaskFormat = SkMask::kARGB32_Format;
             }
 
-            {
-                SkRect rect = SkRect::MakeXYWH(SkIntToScalar(fFace->glyph->bitmap_left),
-                                              -SkIntToScalar(fFace->glyph->bitmap_top),
-                                               SkIntToScalar(fFace->glyph->bitmap.width),
-                                               SkIntToScalar(fFace->glyph->bitmap.rows));
-                fMatrix22Scalar.mapRect(&rect);
-                if (this->shouldSubpixelBitmap(*glyph, fMatrix22Scalar)) {
-                    rect.offset(SkFixedToScalar(glyph->getSubXFixed()),
-                                SkFixedToScalar(glyph->getSubYFixed()));
-                }
-                SkIRect irect = rect.roundOut();
-                if (!SkTFitsIn<decltype(glyph->fWidth )>(irect.width ()) ||
-                    !SkTFitsIn<decltype(glyph->fHeight)>(irect.height()) ||
-                    !SkTFitsIn<decltype(glyph->fTop   )>(irect.top   ()) ||
-                    !SkTFitsIn<decltype(glyph->fLeft  )>(irect.left  ())  )
-                {
-                    irect = SkIRect::MakeEmpty();
-                }
-
-                glyph->fWidth   = SkToU16(irect.width());
-                glyph->fHeight  = SkToU16(irect.height());
-                glyph->fTop     = SkToS16(irect.top());
-                glyph->fLeft    = SkToS16(irect.left());
-            }
+            SkRect bounds = SkRect::MakeXYWH(SkIntToScalar(fFace->glyph->bitmap_left ),
+                                            -SkIntToScalar(fFace->glyph->bitmap_top  ),
+                                             SkIntToScalar(fFace->glyph->bitmap.width),
+                                             SkIntToScalar(fFace->glyph->bitmap.rows ));
+            fMatrix22Scalar.mapRect(&bounds);
+            setGlyphBounds(glyph, &bounds, this->shouldSubpixelBitmap(*glyph, fMatrix22Scalar));
         } else {
             SkDEBUGFAIL("unknown glyph format");
             glyph->zeroMetrics();
