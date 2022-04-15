@@ -269,11 +269,11 @@ GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bitmap,
-                                                             GrMipmapped mipMapped,
+                                                             GrMipmapped mipmapped,
                                                              SkBackingFit fit,
                                                              SkBudgeted budgeted) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(fit == SkBackingFit::kExact || mipMapped == GrMipmapped::kNo);
+    SkASSERT(fit == SkBackingFit::kExact || mipmapped == GrMipmapped::kNo);
 
     if (this->isAbandoned()) {
         return nullptr;
@@ -296,12 +296,22 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         if (!bitmap.readPixels(copyBitmap.pixmap())) {
             return nullptr;
         }
+        if (mipmapped == GrMipmapped::kYes && bitmap.fMips) {
+            copyBitmap.fMips = sk_sp<SkMipmap>(SkMipmap::Build(copyBitmap.pixmap(),
+                                                               nullptr,
+                                                               false));
+            for (int i = 0; i < copyBitmap.fMips->countLevels(); ++i) {
+                SkMipmap::Level src, dst;
+                bitmap.fMips->getLevel(i, &src);
+                copyBitmap.fMips->getLevel(i, &dst);
+                src.fPixmap.readPixels(dst.fPixmap);
+            }
+        }
         copyBitmap.setImmutable();
     }
 
     sk_sp<GrTextureProxy> proxy;
-    if (mipMapped == GrMipmapped::kNo ||
-        0 == SkMipmap::ComputeLevelCount(copyBitmap.width(), copyBitmap.height())) {
+    if (mipmapped == GrMipmapped::kNo || !SkMipmap::ComputeLevelCount(copyBitmap.dimensions())) {
         proxy = this->createNonMippedProxyFromBitmap(copyBitmap, fit, budgeted);
     } else {
         proxy = this->createMippedProxyFromBitmap(copyBitmap, budgeted);
@@ -372,9 +382,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
         return nullptr;
     }
 
-    sk_sp<SkMipmap> mipmaps(SkMipmap::Build(bitmap.pixmap(), nullptr));
+    sk_sp<SkMipmap> mipmaps = bitmap.fMips;
     if (!mipmaps) {
-        return nullptr;
+        mipmaps.reset(SkMipmap::Build(bitmap.pixmap(), nullptr));
+        if (!mipmaps) {
+            return nullptr;
+        }
     }
 
     auto dims = bitmap.dimensions();
@@ -404,7 +417,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                         GrRenderable::kNo,
                         1,
                         desc.fBudgeted,
-                        GrMipMapped::kYes,
+                        GrMipmapped::kYes,
                         GrProtected::kNo,
                         texels.get()));
             },
