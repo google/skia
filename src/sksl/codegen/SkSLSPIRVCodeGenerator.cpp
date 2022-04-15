@@ -117,9 +117,7 @@ struct SPIRVCodeGenerator::Word {
     }
 
     static Word RelaxedResult() {
-        Kind kind = ThreadContext::Settings().fForceHighPrecision ? kDefaultPrecisionResult
-                                                                  : kRelaxedPrecisionResult;
-        return Word{(int32_t)NA, kind};
+        return Word{(int32_t)NA, kRelaxedPrecisionResult};
     }
 
     static Word UniqueResult() {
@@ -549,11 +547,12 @@ SpvId SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode,
     }
 
     SpvId result = NA;
+    Precision precision = Precision::kDefault;
 
     switch (key.fResultKind) {
         case Word::Kind::kUniqueResult:
             // The instruction returns a SpvId, but we do not want deduplication.
-            result = fIdCount++;
+            result = this->nextId(Precision::kDefault);
             fSpvIdCache.set(result, key);
             break;
 
@@ -562,21 +561,19 @@ SpvId SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode,
             fOpCache.set(key, result);
             break;
 
-        case Word::Kind::kDefaultPrecisionResult:
         case Word::Kind::kRelaxedPrecisionResult:
-            // Consume a new SpvId and cache the instruction.
-            result = fIdCount++;
+            precision = Precision::kRelaxed;
+            [[fallthrough]];
+
+        case Word::Kind::kDefaultPrecisionResult:
+            // Consume a new SpvId.
+            result = this->nextId(precision);
             fOpCache.set(key, result);
             fSpvIdCache.set(result, key);
 
             // Globally-reachable ops are not subject to the whims of flow control.
             if (!is_globally_reachable_op(opCode)) {
                 fReachableOps.push_back(result);
-            }
-            // If the result is relaxed-precision, add the requisite decoration.
-            if (key.fResultKind == Word::Kind::kRelaxedPrecisionResult) {
-                this->writeInstruction(SpvOpDecorate, result, SpvDecorationRelaxedPrecision,
-                                       fDecorationBuffer);
             }
             break;
 
