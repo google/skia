@@ -214,10 +214,6 @@ private:
     void testingOnly_drawGlyphRunListWithSlug(SkCanvas* canvas,
                                               const SkGlyphRunList& glyphRunList,
                                               const SkPaint& paint);
-
-    void testingOnly_drawGlyphRunListWithSlug(SkCanvas* canvas,
-                                              const SkGlyphRunList& glyphRunList,
-                                              const SkPaint& paint);
 #endif
 
 #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE)
