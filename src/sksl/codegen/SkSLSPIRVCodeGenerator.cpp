@@ -102,7 +102,7 @@ struct SPIRVCodeGenerator::Word {
         kNumber,
         kDefaultPrecisionResult,
         kRelaxedPrecisionResult,
-        kUncachedResult,
+        kUniqueResult,
     };
 
     Word(SpvId id) : fValue(id), fKind(Kind::kSpvId) {}
@@ -122,8 +122,8 @@ struct SPIRVCodeGenerator::Word {
         return Word{(int32_t)NA, kind};
     }
 
-    static Word UncachedResult() {
-        return Word{(int32_t)NA, kUncachedResult};
+    static Word UniqueResult() {
+        return Word{(int32_t)NA, kUniqueResult};
     }
 
     static Word Result() {
@@ -551,9 +551,10 @@ SpvId SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode,
     SpvId result = NA;
 
     switch (key.fResultKind) {
-        case Word::Kind::kUncachedResult:
-            // The instruction returns a SpvId, but we do not want caching or deduplication.
+        case Word::Kind::kUniqueResult:
+            // The instruction returns a SpvId, but we do not want deduplication.
             result = fIdCount++;
+            fSpvIdCache.set(result, key);
             break;
 
         case Word::Kind::kNone:
@@ -787,7 +788,7 @@ SpvId SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memo
     // Write all of the field types first, so we don't inadvertently write them while we're in the
     // middle of writing the struct instruction.
     Words words;
-    words.push_back(Word::UncachedResult());
+    words.push_back(Word::UniqueResult());
     for (const auto& f : type.fields()) {
         words.push_back(this->getType(*f.fType, memoryLayout));
     }
