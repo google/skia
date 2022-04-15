@@ -161,8 +161,6 @@ private:
 
     SpvId nextId(Precision precision);
 
-    const Type& getActualType(const Type& type);
-
     SpvId getType(const Type& type);
 
     SpvId getType(const Type& type, const MemoryLayout& layout);
