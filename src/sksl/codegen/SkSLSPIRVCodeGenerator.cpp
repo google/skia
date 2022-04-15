@@ -2588,9 +2588,11 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
     }
     // overall type we are operating on: float2, int, uint4...
     const Type* operandType;
-    // IR allows mismatched types in expressions (e.g. float2 * float), but they need special
-    // handling in SPIR-V
-    if (!this->getActualType(leftType).matches(this->getActualType(rightType))) {
+    if (this->getActualType(leftType).matches(this->getActualType(rightType))) {
+        operandType = &leftType;
+    } else {
+        // IR allows mismatched types in expressions (e.g. float2 * float), but they need special
+        // handling in SPIR-V
         if (leftType.isVector() && rightType.isNumber()) {
             if (resultType.componentType().isFloat()) {
                 switch (op.kind()) {
@@ -2683,10 +2685,8 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             fContext.fErrors->error(leftType.fPosition, "unsupported mixed-type expression");
             return NA;
         }
-    } else {
-        operandType = &this->getActualType(leftType);
-        SkASSERT(operandType->matches(this->getActualType(rightType)));
     }
+
     switch (op.kind()) {
         case Operator::Kind::EQEQ: {
             if (operandType->isMatrix()) {

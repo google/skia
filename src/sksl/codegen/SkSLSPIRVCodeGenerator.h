@@ -333,9 +333,6 @@ private:
                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt,
                                SpvOp_ ifBool, OutputStream& out);
 
-    SpvId writeBinaryOperation(const BinaryExpression& expr, SpvOp_ ifFloat, SpvOp_ ifInt,
-                               SpvOp_ ifUInt, OutputStream& out);
-
     SpvId writeReciprocal(const Type& type, SpvId value, OutputStream& out);
 
     SpvId writeBinaryExpression(const Type& leftType, SpvId lhs, Operator op,
