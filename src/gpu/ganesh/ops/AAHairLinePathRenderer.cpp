@@ -149,12 +149,11 @@ int get_float_exp(float x) {
 // and dst[1] are the two new conics.
 int split_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
     SkScalar t = SkFindQuadMaxCurvature(src);
-    if (t == 0 || t == 1) {
-        if (dst) {
-            dst[0].set(src, weight);
-        }
-        return 1;
-    } else {
+    // SkFindQuadMaxCurvature() returns either a value in [0, 1) or NaN.
+    // However, passing NaN to conic.chopAt() will assert. Checking to see if
+    // t is in (0,1) will also cover the NaN case since NaN comparisons are always
+    // false, so we'll drop down into the else block in that case.
+    if (0 < t && t < 1) {
         if (dst) {
             SkConic conic;
             conic.set(src, weight);
@@ -164,6 +163,11 @@ int split_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
             }
         }
         return 2;
+    } else {
+        if (dst) {
+            dst[0].set(src, weight);
+        }
+        return 1;
     }
 }
 
