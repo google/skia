@@ -178,7 +178,7 @@ static bool setup_backend_objects(GrDirectContext* dContext,
         constexpr int kSampleCnt = 0;
         sk_sp<GrTexture> tmp = resourceProvider->createTexture(
                 offscreenDims, renderableFormat, GrTextureType::k2D, GrColorType::kRGBA_8888,
-                GrRenderable::kYes, kSampleCnt, SkBudgeted::kNo, GrMipMapped::kNo, GrProtected::kNo,
+                GrRenderable::kYes, kSampleCnt, SkBudgeted::kNo, GrMipmapped::kNo, GrProtected::kNo,
                 &level0);
         if (!tmp || !tmp->asRenderTarget()) {
             fputs("GrTexture is invalid.\n", stderr);

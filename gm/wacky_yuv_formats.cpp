@@ -1214,7 +1214,7 @@ protected:
             auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, pixmaps);
             auto img = SkImage::MakeFromYUVAPixmaps(canvas->recordingContext(),
                                                     yuvaPixmaps,
-                                                    GrMipMapped::kNo,
+                                                    GrMipmapped::kNo,
                                                     /* limit to max tex size */ false,
                                                     /* color space */ nullptr);
             if (img) {

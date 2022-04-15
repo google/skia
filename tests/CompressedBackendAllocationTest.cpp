@@ -264,7 +264,7 @@ static void test_compressed_data_init(GrDirectContext* dContext,
     std::unique_ptr<const char[]> dataNew(
             make_compressed_data(compression, expectedColorsNew, mipMapped));
     size_t dataNewSize =
-            SkCompressedDataSize(compression, {32, 32}, nullptr, mipMapped == GrMipMapped::kYes);
+            SkCompressedDataSize(compression, {32, 32}, nullptr, mipMapped == GrMipmapped::kYes);
 
     bool result = dContext->updateCompressedBackendTexture(backendTex, dataNew.get(), dataNewSize,
                                                            nullptr, nullptr);

@@ -113,7 +113,7 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
     auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps);
     image = SkImage::MakeFromYUVAPixmaps(canvas->recordingContext(),
                                          yuvaPixmaps,
-                                         GrMipMapped::kYes,
+                                         GrMipmapped::kYes,
                                          /* limit to max tex size */ false,
                                          /* color space */ nullptr);
     if (!image) {

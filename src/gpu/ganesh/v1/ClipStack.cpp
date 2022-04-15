@@ -327,7 +327,7 @@ GrSurfaceProxyView render_sw_mask(GrRecordingContext* context,
         skgpu::Swizzle swizzle = context->priv().caps()->getReadSwizzle(format,
                                                                         GrColorType::kAlpha_8);
         auto proxy = proxyProvider->createProxy(format, bounds.size(), GrRenderable::kNo, 1,
-                                                GrMipMapped::kNo, SkBackingFit::kApprox,
+                                                GrMipmapped::kNo, SkBackingFit::kApprox,
                                                 SkBudgeted::kYes, GrProtected::kNo);
 
         // Since this will be rendered on another thread, make a copy of the elements in case

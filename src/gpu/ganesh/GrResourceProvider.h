@@ -92,7 +92,7 @@ public:
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    SkBudgeted budgeted,
-                                   GrMipMapped mipMapped,
+                                   GrMipmapped mipMapped,
                                    GrProtected isProtected,
                                    const GrMipLevel texels[]);
 

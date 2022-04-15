@@ -204,7 +204,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable, reporter, ct
                                                        texDims.height(),
                                                        kRGBA_8888_SkColorType,
                                                        SkColors::kBlue,
-                                                       GrMipMapped::kNo,
+                                                       GrMipmapped::kNo,
                                                        GrRenderable::kYes,
                                                        GrProtected::kNo);
 
@@ -219,7 +219,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable, reporter, ct
                                                   surfaceDims.height(),
                                                   kRGBA_8888_SkColorType,
                                                   SkColors::kRed,
-                                                  GrMipMapped::kNo,
+                                                  GrMipmapped::kNo,
                                                   GrRenderable::kYes,
                                                   GrProtected::kNo);
 
@@ -227,7 +227,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable, reporter, ct
                                                   surfaceDims.height(),
                                                   kRGBA_8888_SkColorType,
                                                   SkColors::kYellow,
-                                                  GrMipMapped::kNo,
+                                                  GrMipmapped::kNo,
                                                   GrRenderable::kYes,
                                                   GrProtected::kNo);
 

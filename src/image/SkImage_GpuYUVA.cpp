@@ -273,7 +273,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
     }
 
     if (!context->priv().caps()->mipmapSupport()) {
-        buildMips = GrMipMapped::kNo;
+        buildMips = GrMipmapped::kNo;
     }
 
     // Resize the pixmaps if necessary.

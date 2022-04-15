@@ -462,7 +462,7 @@ public:
     */
     static sk_sp<SkImage> MakeFromYUVAPixmaps(GrRecordingContext* context,
                                               const SkYUVAPixmaps& pixmaps,
-                                              GrMipMapped buildMips = GrMipmapped::kNo,
+                                              GrMipmapped buildMips = GrMipmapped::kNo,
                                               bool limitToMaxTextureSize = false,
                                               sk_sp<SkColorSpace> imageColorSpace = nullptr);
 

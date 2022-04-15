@@ -316,7 +316,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     data.fRowBytes = textureDataRowBytes;
     sk_sp<GrTexture> tex = resourceProvider->createTexture(kTexDims, format, GrTextureType::k2D,
                                                            colorType, renderable, 1,
-                                                           SkBudgeted::kNo, GrMipMapped::kNo,
+                                                           SkBudgeted::kNo, GrMipmapped::kNo,
                                                            GrProtected::kNo, &data);
     if (!tex) {
         return;

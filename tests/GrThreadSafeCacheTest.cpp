@@ -47,7 +47,7 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> new_SDC(GrRecordingContext
                                                {wh, wh},
                                                SkSurfaceProps(),
                                                1,
-                                               GrMipMapped::kNo,
+                                               GrMipmapped::kNo,
                                                GrProtected::kNo,
                                                kImageOrigin,
                                                SkBudgeted::kYes);
@@ -390,7 +390,7 @@ public:
                                                                  GrRenderable::kNo);
 
         return GrSurface::ComputeSize(format, {wh, wh}, /*colorSamplesPerPixel=*/1,
-                                      GrMipMapped::kNo, /*binSize=*/false);
+                                      GrMipmapped::kNo, /*binSize=*/false);
     }
 
 private:

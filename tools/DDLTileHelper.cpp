@@ -194,7 +194,7 @@ void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, Tile
 
     const SkSurfaceCharacterization& c = tile->fPlaybackChar;
     GrBackendTexture beTex = direct->createBackendTexture(c.width(), c.height(), c.colorType(),
-                                                          GrMipMapped(c.isMipMapped()),
+                                                          GrMipmapped(c.isMipMapped()),
                                                           GrRenderable::kYes);
     tile->fCallbackContext->setBackendTexture(beTex);
 }

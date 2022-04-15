@@ -335,7 +335,7 @@ GrThreadSafeCache::CreateLazyView(GrDirectContext* dContext,
 
     sk_sp<Trampoline> trampoline(new Trampoline);
 
-    GrProxyProvider::TextureInfo texInfo{ GrMipMapped::kNo, GrTextureType::k2D };
+    GrProxyProvider::TextureInfo texInfo{ GrMipmapped::kNo, GrTextureType::k2D };
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [trampoline](
