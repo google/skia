@@ -2102,12 +2102,13 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
 class PointerLValue : public SPIRVCodeGenerator::LValue {
 public:
     PointerLValue(SPIRVCodeGenerator& gen, SpvId pointer, bool isMemoryObject, SpvId type,
-                  SPIRVCodeGenerator::Precision precision)
+                  SPIRVCodeGenerator::Precision precision, SpvStorageClass_ storageClass)
     : fGen(gen)
     , fPointer(pointer)
     , fIsMemoryObject(isMemoryObject)
     , fType(type)
-    , fPrecision(precision) {}
+    , fPrecision(precision)
+    , fStorageClass(storageClass) {}
 
     SpvId getPointer() override {
         return fPointer;
@@ -2133,17 +2134,19 @@ private:
     const bool fIsMemoryObject;
     const SpvId fType;
     const SPIRVCodeGenerator::Precision fPrecision;
+    [[maybe_unused]] const SpvStorageClass_ fStorageClass;
 };
 
 class SwizzleLValue : public SPIRVCodeGenerator::LValue {
 public:
     SwizzleLValue(SPIRVCodeGenerator& gen, SpvId vecPointer, const ComponentArray& components,
-                  const Type& baseType, const Type& swizzleType)
+                  const Type& baseType, const Type& swizzleType, SpvStorageClass_ storageClass)
     : fGen(gen)
     , fVecPointer(vecPointer)
     , fComponents(components)
     , fBaseType(&baseType)
-    , fSwizzleType(&swizzleType) {}
+    , fSwizzleType(&swizzleType)
+    , fStorageClass(storageClass) {}
 
     bool applySwizzle(const ComponentArray& components, const Type& newType) override {
         ComponentArray updatedSwizzle;
@@ -2218,6 +2221,7 @@ private:
     ComponentArray fComponents;
     const Type* fBaseType;
     const Type* fSwizzleType;
+    [[maybe_unused]] const SpvStorageClass_ fStorageClass;
 };
 
 int SPIRVCodeGenerator::findUniformFieldIndex(const Variable& var) const {
@@ -2241,27 +2245,29 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                        uniformIdxId, out);
                 return std::make_unique<PointerLValue>(*this, memberId,
                                                        /*isMemoryObjectPointer=*/true,
-                                                       this->getType(type), precision);
+                                                       this->getType(type), precision,
+                                                       SpvStorageClassUniform);
             }
             SpvId typeId = this->getType(type, this->memoryLayoutForVariable(var));
             SpvId* entry = fVariableMap.find(&var);
             SkASSERTF(entry, "%s", expr.description().c_str());
             return std::make_unique<PointerLValue>(*this, *entry,
                                                    /*isMemoryObjectPointer=*/true,
-                                                   typeId, precision);
+                                                   typeId, precision, get_storage_class(expr));
         }
         case Expression::Kind::kIndex: // fall through
         case Expression::Kind::kFieldAccess: {
             std::vector<SpvId> chain = this->getAccessChain(expr, out);
             SpvId member = this->nextId(nullptr);
+            SpvStorageClass_ storageClass = get_storage_class(expr);
             this->writeOpCode(SpvOpAccessChain, (SpvId) (3 + chain.size()), out);
-            this->writeWord(this->getPointerType(type, get_storage_class(expr)), out);
+            this->writeWord(this->getPointerType(type, storageClass), out);
             this->writeWord(member, out);
             for (SpvId idx : chain) {
                 this->writeWord(idx, out);
             }
             return std::make_unique<PointerLValue>(*this, member, /*isMemoryObjectPointer=*/false,
-                                                   this->getType(type), precision);
+                                                   this->getType(type), precision, storageClass);
         }
         case Expression::Kind::kSwizzle: {
             const Swizzle& swizzle = expr.as<Swizzle>();
@@ -2274,19 +2280,19 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 fContext.fErrors->error(swizzle.fPosition,
                         "unable to retrieve lvalue from swizzle");
             }
+            SpvStorageClass_ storageClass = get_storage_class(*swizzle.base());
             if (swizzle.components().size() == 1) {
                 SpvId member = this->nextId(nullptr);
-                SpvId typeId = this->getPointerType(type, get_storage_class(*swizzle.base()));
+                SpvId typeId = this->getPointerType(type, storageClass);
                 SpvId indexId = this->writeLiteral(swizzle.components()[0], *fContext.fTypes.fInt);
                 this->writeInstruction(SpvOpAccessChain, typeId, member, base, indexId, out);
-                return std::make_unique<PointerLValue>(*this,
-                                                       member,
+                return std::make_unique<PointerLValue>(*this, member,
                                                        /*isMemoryObjectPointer=*/false,
                                                        this->getType(type),
-                                                       precision);
+                                                       precision, storageClass);
             } else {
                 return std::make_unique<SwizzleLValue>(*this, base, swizzle.components(),
-                                                       swizzle.base()->type(), type);
+                                                       swizzle.base()->type(), type, storageClass);
             }
         }
         default: {
@@ -2300,7 +2306,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                    fVariableBuffer);
             this->writeInstruction(SpvOpStore, result, this->writeExpression(expr, out), out);
             return std::make_unique<PointerLValue>(*this, result, /*isMemoryObjectPointer=*/true,
-                                                   this->getType(type), precision);
+                                                   this->getType(type), precision,
+                                                   SpvStorageClassFunction);
         }
     }
 }
