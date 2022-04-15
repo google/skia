@@ -10,16 +10,18 @@
 
 #include "src/gpu/ganesh/GrGpu.h"
 
-#include "webgpu/webgpu_cpp.h"
+#include "include/private/SkTHash.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
 #include "src/gpu/ganesh/GrStagingBufferManager.h"
 #include "src/gpu/ganesh/dawn/GrDawnRingBuffer.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "webgpu/webgpu_cpp.h"
 
 #include <unordered_map>
 
+class GrDawnAsyncWait;
 class GrDawnOpsRenderPass;
 class GrDawnStagingBuffer;
 class GrDirectContext;
@@ -213,6 +215,10 @@ private:
                                         GrXferBarrierFlags renderPassXferBarriers) override;
 
     bool onSubmitToGpu(bool syncCpu) override;
+    void onSubmittedWorkDone(WGPUQueueWorkDoneStatus status);
+
+    GrDawnAsyncWait* createFence();
+    void destroyFence(GrDawnAsyncWait* fence);
 
     void uploadTextureData(GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount,
                            const SkIRect& rect, wgpu::Texture texture);
@@ -226,12 +232,23 @@ private:
     GrDawnRingBuffer                                fUniformRingBuffer;
     wgpu::CommandEncoder                            fCopyEncoder;
     std::vector<wgpu::CommandBuffer>                fCommandBuffers;
+
     GrStagingBufferManager                          fStagingBufferManager;
     std::list<sk_sp<GrGpuBuffer>>                   fBusyStagingBuffers;
     // Temporary array of staging buffers to hold refs on the staging buffers between detaching
     // from the GrStagingManager and moving them to the busy list which must happen after
     // submission.
     std::vector<sk_sp<GrGpuBuffer>>                 fSubmittedStagingBuffers;
+
+    // Every time command buffers are submitted to the queue (in onSubmitToGpu) we register a single
+    // OnSubmittedWorkDone callback which is responsible for signaling all fences added via
+    // `insertFence`.
+    //
+    // NOTE: We use this approach instead of registering an individual callback for each
+    // fence because Dawn currently does not support unregistering a callback to prevent a potential
+    // use-after-free.
+    bool fSubmittedWorkDoneCallbackPending = false;
+    SkTHashSet<GrDawnAsyncWait*> fQueueFences;
 
     struct ProgramDescHash {
         uint32_t operator()(const GrProgramDesc& desc) const {

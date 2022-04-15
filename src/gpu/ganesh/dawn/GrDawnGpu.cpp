@@ -23,6 +23,7 @@
 #include "src/gpu/ganesh/GrStencilSettings.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
+#include "src/gpu/ganesh/dawn/GrDawnAsyncWait.h"
 #include "src/gpu/ganesh/dawn/GrDawnAttachment.h"
 #include "src/gpu/ganesh/dawn/GrDawnBuffer.h"
 #include "src/gpu/ganesh/dawn/GrDawnCaps.h"
@@ -41,32 +42,6 @@
 #endif // !defined(SK_BUILD_FOR_WIN)
 
 static const int kMaxRenderPipelineEntries = 1024;
-
-namespace {
-
-class Fence {
-public:
-    Fence(const wgpu::Device& device)
-      : fDevice(device), fCalled(false) {
-        device.GetQueue().OnSubmittedWorkDone(0, callback, this);
-    }
-
-    static void callback(WGPUQueueWorkDoneStatus status, void* userData) {
-        Fence* fence = static_cast<Fence*>(userData);
-        fence->fCalled = true;
-    }
-
-    bool check() {
-        fDevice.Tick();
-        return fCalled;
-    }
-
-private:
-    wgpu::Device            fDevice;
-    bool                    fCalled;
-};
-
-}
 
 static wgpu::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
     switch (filter) {
@@ -538,8 +513,9 @@ void GrDawnGpu::checkForCompletedStagingBuffers() {
 }
 
 void GrDawnGpu::waitOnAllBusyStagingBuffers() {
+    GrDawnAsyncWait wait(fDevice);
     while (!fBusyStagingBuffers.empty()) {
-        fDevice.Tick();
+        wait.yieldAndCheck();
         this->checkForCompletedStagingBuffers();
     }
 }
@@ -548,24 +524,33 @@ void GrDawnGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
     fSubmittedStagingBuffers.push_back(std::move(buffer));
 }
 
-
-static void callback(WGPUQueueWorkDoneStatus status, void* userData) {
-    *static_cast<bool*>(userData) = true;
-}
-
 bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
     this->flushCopyEncoder();
+
     if (!fCommandBuffers.empty()) {
         fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
         fCommandBuffers.clear();
     }
 
+    // Schedule the queue done callback if it hasn't been scheduled already and if we just submitted
+    // a new batch of recorded commands. If a callback was already registered in a prior call to
+    // onSubmitToGpu then it will include the commands we just submitted.
+    if (!fSubmittedWorkDoneCallbackPending) {
+        auto callback = [](WGPUQueueWorkDoneStatus status, void* userData) {
+            static_cast<GrDawnGpu*>(userData)->onSubmittedWorkDone(status);
+        };
+        fDevice.GetQueue().OnSubmittedWorkDone(0u, callback, this);
+        fSubmittedWorkDoneCallbackPending = true;
+    }
+
     this->moveStagingBuffersToBusyAndMapAsync();
     if (syncCpu) {
-        bool called = false;
-        fDevice.GetQueue().OnSubmittedWorkDone(0, callback, &called);
-        while (!called) {
-            fDevice.Tick();
+        // If no callback was scheduled then there is no pending work and we don't need to spin on a
+        // fence.
+        if (fSubmittedWorkDoneCallbackPending) {
+            GrDawnAsyncWait* fence = this->createFence();
+            fence->busyWait();
+            this->destroyFence(fence);
         }
         fFinishCallbacks.callAll(true);
     }
@@ -573,6 +558,24 @@ bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
     this->checkForCompletedStagingBuffers();
 
     return true;
+}
+
+void GrDawnGpu::onSubmittedWorkDone(WGPUQueueWorkDoneStatus status) {
+    fSubmittedWorkDoneCallbackPending = false;
+    fQueueFences.foreach([](GrDawnAsyncWait* fence) {
+        fence->signal();
+    });
+}
+
+GrDawnAsyncWait* GrDawnGpu::createFence() {
+    auto* fence = new GrDawnAsyncWait(fDevice);
+    fQueueFences.add(fence);
+    return fence;
+}
+
+void GrDawnGpu::destroyFence(GrDawnAsyncWait* fence) {
+    fQueueFences.remove(fence);
+    delete fence;
 }
 
 static wgpu::Texture get_dawn_texture_from_surface(GrSurface* src) {
@@ -604,10 +607,6 @@ bool GrDawnGpu::onCopySurface(GrSurface* dst,
     wgpu::Extent3D copySize = {width, height, 1};
     this->getCopyEncoder().CopyTextureToTexture(&srcTextureView, &dstTextureView, &copySize);
     return true;
-}
-
-static void callback(WGPUBufferMapAsyncStatus status, void* userdata) {
-    *static_cast<bool*>(userdata) = true;
 }
 
 bool GrDawnGpu::onReadPixels(GrSurface* surface,
@@ -646,11 +645,17 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface,
     this->getCopyEncoder().CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
     this->submitToGpu(true);
 
-    bool mapped = false;
-    buf.MapAsync(wgpu::MapMode::Read, 0, 0, callback, &mapped);
-    while (!mapped) {
-        device().Tick();
-    }
+    GrDawnAsyncWait wait(fDevice);
+    buf.MapAsync(
+            wgpu::MapMode::Read, 0, 0,
+            [](WGPUBufferMapAsyncStatus, void* userData) {
+                // TODO(armansito): Check and take action on the operation status instead of
+                // assuming success.
+                static_cast<GrDawnAsyncWait*>(userData)->signal();
+            },
+            &wait);
+    wait.busyWait();
+
     const void* readPixelsPtr = buf.GetConstMappedRange();
 
     if (rowBytes == origRowBytes) {
@@ -807,15 +812,15 @@ void GrDawnGpu::submit(GrOpsRenderPass* renderPass) {
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrDawnGpu::insertFence() {
-    return reinterpret_cast<GrFence>(new Fence(fDevice));
+    return reinterpret_cast<GrFence>(this->createFence());
 }
 
 bool GrDawnGpu::waitFence(GrFence fence) {
-    return reinterpret_cast<Fence*>(fence)->check();
+    return reinterpret_cast<const GrDawnAsyncWait*>(fence)->yieldAndCheck();
 }
 
 void GrDawnGpu::deleteFence(GrFence fence) {
-    delete reinterpret_cast<Fence*>(fence);
+    this->destroyFence(reinterpret_cast<GrDawnAsyncWait*>(fence));
 }
 
 std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrDawnGpu::makeSemaphore(bool isOwned) {
@@ -844,6 +849,14 @@ void GrDawnGpu::checkFinishProcs() {
 
 void GrDawnGpu::finishOutstandingGpuWork() {
     this->waitOnAllBusyStagingBuffers();
+
+    // If a callback is pending then any fence added here is guaranteed to get signaled when the
+    // callback eventually runs.
+    if (fSubmittedWorkDoneCallbackPending) {
+        GrDawnAsyncWait* fence = this->createFence();
+        fence->busyWait();
+        this->destroyFence(fence);
+    }
 }
 
 std::unique_ptr<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {

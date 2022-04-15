@@ -708,6 +708,8 @@ skia_direct3d_sources = [
 skia_dawn_sources = [
   "$_include/gpu/dawn/GrDawnTypes.h",
   "$_include/private/gpu/ganesh/GrDawnTypesPriv.h",
+  "$_src/gpu/ganesh/dawn/GrDawnAsyncWait.cpp",
+  "$_src/gpu/ganesh/dawn/GrDawnAsyncWait.h",
   "$_src/gpu/ganesh/dawn/GrDawnAttachment.cpp",
   "$_src/gpu/ganesh/dawn/GrDawnAttachment.h",
   "$_src/gpu/ganesh/dawn/GrDawnBuffer.cpp",

@@ -75,6 +75,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrDawnRingBuffer_hdr",
+        "//include/private:SkTHash_hdr",
         "//src/core:SkLRUCache_hdr",
         "//src/gpu/ganesh:GrFinishCallbacks_hdr",
         "//src/gpu/ganesh:GrGpu_hdr",
@@ -90,6 +91,7 @@ generated_cc_atom(
     srcs = ["GrDawnGpu.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":GrDawnAsyncWait_hdr",
         ":GrDawnAttachment_hdr",
         ":GrDawnBuffer_hdr",
         ":GrDawnCaps_hdr",
@@ -314,4 +316,21 @@ generated_cc_atom(
     srcs = ["GrDawnUtil.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [":GrDawnUtil_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrDawnAsyncWait_hdr",
+    hdrs = ["GrDawnAsyncWait.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//third_party:dawn"],
+)
+
+generated_cc_atom(
+    name = "GrDawnAsyncWait_src",
+    srcs = ["GrDawnAsyncWait.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrDawnAsyncWait_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
 )
