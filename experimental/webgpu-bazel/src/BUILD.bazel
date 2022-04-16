@@ -6,21 +6,39 @@ BASE_LINKOPTS = [
     "--bind",  # Compiles the source code using the Embind bindings to connect C/C++ and JavaScript
     "-s ALLOW_MEMORY_GROWTH=1",
     "-s USE_PTHREADS=0",  # Disable pthreads
-    "-s ASSERTIONS=0",  # Turn off assertions
     "-s MODULARIZE=1",
     "-s EXPORT_NAME=WebGPUKitInit",
     "-s DISABLE_EXCEPTION_CATCHING=1",  # Disable all exception catching
     "-s NODEJS_CATCH_EXIT=0",  # We don't have a 'main' so disable exit() catching
     "-s WASM=1",
     "-s USE_WEBGPU=1",
+    "-s ASYNCIFY",
 ]
 
 RELEASE_OPTS = [
-    "--closure 1",  # Run the closure compiler
+    "-s ASSERTIONS=0",  # Turn off assertions
+    "-O3",
+
+    # TODO(armansito): The closure compiler doesn't play well with Asyncify such that an
+    # async Embind binding seems to lose its return value if it's awaited on from JS. While it
+    # isn't strictly necessary, our example awaits on `drawWithSkia` and uses the result to the
+    # update the HTML with a status message. Hence, we keep this turned off.
+    "--closure 0",  # Run the closure compiler
 ]
 
 DEBUG_OPTS = [
+    "-s ASSERTIONS=1",  # Turn on assertions
     "--closure 0",  # Do not use closure
+
+    # Building without optimizations causes Chrome to hit a limit when loading the WASM module with
+    # the following error message:
+    #   RuntimeError: Aborted(CompileError: WebAssembly.instantiate():
+    #       Compiling function #6515:"blur_x_radius_3((anonymous namespace)::SkNx<8, ..." failed:
+    #           local count too large @+6422486)
+    #
+    # As a workaround for now, we tell emscripten to enable optimizations while retaining some debug
+    # information.
+    "-O2 -g",
 ]
 
 config_setting(
@@ -44,6 +62,7 @@ cc_binary(
     # This target won't build successfully on its own because of missing emscripten
     # headers etc. Therefore, we hide it from wildcards.
     tags = ["manual"],
+    deps = ["//:skia_core"],
 )
 
 wasm_cc_binary(

@@ -1,12 +1,14 @@
 release:
-	bazel build //experimental/webgpu-bazel/src:hello-world-wasm --compilation_mode opt
+	bazelisk build //experimental/webgpu-bazel/src:hello-world-wasm --compilation_mode opt \
+		--sandbox_base=/dev/shm --gpu_backend=dawn_backend
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/experimental/webgpu-bazel/src/hello-world-wasm/hello-world.js build/hello-world.js
 	cp ../../bazel-bin/experimental/webgpu-bazel/src/hello-world-wasm/hello-world.wasm build/hello-world.wasm
 
 debug:
-	bazel build //experimental/webgpu-bazel/src:hello-world-wasm --compilation_mode dbg
+	bazelisk build //experimental/webgpu-bazel/src:hello-world-wasm --compilation_mode dbg \
+		--sandbox_base=/dev/shm --gpu_backend=dawn_backend
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/experimental/webgpu-bazel/src/hello-world-wasm/hello-world.js build/hello-world.js
