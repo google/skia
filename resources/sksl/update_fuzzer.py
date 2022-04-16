@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2021 Google LLC
 #
@@ -36,7 +36,7 @@ with tempfile.NamedTemporaryFile(suffix='primary.zip', delete=False, mode='w') a
                     # Prepend a number to each output filename to guarantee uniqueness.
                     pathInZip = '%d_%s' % (fileNum, file)
                     fileNum += 1
-                    with open('%s/%s' % (root, file), 'r') as skslFile:
+                    with open('%s/%s' % (root, file), 'rb') as skslFile:
                         # Read the SkSL text as input.
                         inputSkSL = skslFile.read()
                         # Copy the SkSL into our zip archive.
