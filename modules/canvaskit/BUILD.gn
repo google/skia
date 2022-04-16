@@ -78,15 +78,17 @@ action("create_notomono_cpp") {
 
   inputs = [ "fonts/NotoMono-Regular.ttf" ]
 
-  outputs =
-      [ "$root_out_dir/modules/canvaskit/fonts/NotoMono-Regular.ttf.ninja.cpp" ]
+  output_path =
+      "$root_out_dir/modules/canvaskit/fonts/NotoMono-Regular.ttf.ninja.cpp"
+
+  outputs = [ output_path ]
 
   args = [
     "--name=SK_EMBEDDED_FONTS",
     "--input",
     rebase_path("fonts/NotoMono-Regular.ttf"),
     "--output",
-    "modules/canvaskit/fonts/NotoMono-Regular.ttf.ninja.cpp",
+    rebase_path(output_path),
     "--align=4",
   ]
 }

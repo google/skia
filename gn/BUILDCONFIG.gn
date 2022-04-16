@@ -61,7 +61,7 @@ is_ios = current_os == "ios" || current_os == "tvos"
 is_tvos = current_os == "tvos"
 is_linux = current_os == "linux"
 is_mac = current_os == "mac"
-is_wasm = target_os == "wasm"
+is_wasm = current_os == "wasm"
 is_win = current_os == "win"
 
 # This is just to make the Dawn build files happy. Skia itself uses target_os = "linux"
