@@ -27,7 +27,10 @@ class GrTextStrike;
  */
 class GrAtlasManager : public GrOnFlushCallbackObject, public GrDrawOpAtlas::GenerationCounter {
 public:
-    GrAtlasManager(GrProxyProvider*, size_t maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
+    GrAtlasManager(GrProxyProvider*,
+                   size_t maxTextureBytes,
+                   GrDrawOpAtlas::AllowMultitexturing,
+                   bool supportBilerpAtlas);
     ~GrAtlasManager() override;
 
     // if getViews returns nullptr, the client must not try to use other functions on the
@@ -55,7 +58,7 @@ public:
                                              int srcPadding,
                                              GrResourceProvider*,
                                              GrDeferredUploadTarget*,
-                                             bool bilerpPadding = false);
+                                             bool);
 
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current op token along with the GrGlyph.
@@ -142,6 +145,7 @@ private:
     GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
     std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
     static_assert(kMaskFormatCount == 3);
+    bool fSupportBilerpAtlas;
     GrProxyProvider* fProxyProvider;
     sk_sp<const GrCaps> fCaps;
     GrDrawOpAtlasConfig fAtlasConfig;

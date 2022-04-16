@@ -28,6 +28,7 @@ generated_cc_atom(
         "//include/gpu:GrDirectContext_hdr",
         "//src/codec:SkMasks_hdr",
         "//src/core:SkAutoMalloc_hdr",
+        "//src/core:SkDistanceFieldGen_hdr",
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",
         "//src/gpu/ganesh:GrGlyph_hdr",
         "//src/gpu/ganesh:GrImageInfo_hdr",

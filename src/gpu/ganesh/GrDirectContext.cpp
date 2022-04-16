@@ -265,7 +265,8 @@ bool GrDirectContext::init() {
 
     fAtlasManager = std::make_unique<GrAtlasManager>(proxyProvider,
                                                      this->options().fGlyphCacheTextureMaximumBytes,
-                                                     allowMultitexturing);
+                                                     allowMultitexturing,
+                                                     this->options().fSupportBilerpFromGlyphAtlas);
     this->priv().addOnFlushCallbackObject(fAtlasManager.get());
 
     return true;

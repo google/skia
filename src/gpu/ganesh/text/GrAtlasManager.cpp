@@ -10,14 +10,17 @@
 #include "include/core/SkColorSpace.h"
 #include "src/codec/SkMasks.h"
 #include "src/core/SkAutoMalloc.h"
+#include "src/core/SkDistanceFieldGen.h"
 #include "src/gpu/ganesh/GrGlyph.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/text/GrStrikeCache.h"
 
 GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider,
                                size_t maxTextureBytes,
-                               GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
+                               GrDrawOpAtlas::AllowMultitexturing allowMultitexturing,
+                               bool supportBilerpAtlas)
             : fAllowMultitexturing{allowMultitexturing}
+            , fSupportBilerpAtlas{supportBilerpAtlas}
             , fProxyProvider{proxyProvider}
             , fCaps{fProxyProvider->refCaps()}
             , fAtlasConfig{fCaps->maxTextureSize(), maxTextureBytes} { }
@@ -144,7 +147,9 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                          int srcPadding,
                                                          GrResourceProvider* resourceProvider,
                                                          GrDeferredUploadTarget* uploadTarget,
-                                                         bool bilerpPadding) {
+                                                         bool) {
+    SkASSERT(0 <= srcPadding && srcPadding <= SK_DistanceFieldInset);
+
     if (skGlyph.image() == nullptr) {
         return GrDrawOpAtlas::ErrorCode::kError;
     }
@@ -154,8 +159,33 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     GrMaskFormat expectedMaskFormat = this->resolveMaskFormat(glyphFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
 
-    // Add 1 pixel padding around grGlyph if needed.
-    int padding = bilerpPadding ? 1 : 0;
+    int padding;
+    switch (srcPadding) {
+        case 0:
+            // The direct mask/image case.
+            padding = 0;
+            if (fSupportBilerpAtlas) {
+                // Force direct masks (glyph with no padding) to have padding.
+                padding = 1;
+                srcPadding = 1;
+            }
+            break;
+        case 1:
+            // The transformed mask/image case.
+            padding = 1;
+            break;
+        case SK_DistanceFieldInset:
+            // The SDFT case.
+            // If the srcPadding == SK_DistanceFieldInset (SDFT case) then the padding is built
+            // into the image on the glyph; no extra padding needed.
+            // TODO: can the SDFT glyph image in the cache be reduced by the padding?
+            padding = 0;
+            break;
+        default:
+            // The padding is not one of the know forms.
+            return GrDrawOpAtlas::ErrorCode::kError;
+    }
+
     const int width = skGlyph.width() + 2*padding;
     const int height = skGlyph.height() + 2*padding;
     int rowBytes = width * bytesPerPixel;
