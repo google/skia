@@ -146,8 +146,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                          GrGlyph* grGlyph,
                                                          int srcPadding,
                                                          GrResourceProvider* resourceProvider,
-                                                         GrDeferredUploadTarget* uploadTarget,
-                                                         bool) {
+                                                         GrDeferredUploadTarget* uploadTarget) {
     SkASSERT(0 <= srcPadding && srcPadding <= SK_DistanceFieldInset);
 
     if (skGlyph.image() == nullptr) {

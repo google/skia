@@ -1275,7 +1275,7 @@ void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) 
 
 std::tuple<bool, int>
 DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target, false);
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
 }
 
 // The 99% case. No clip. Non-color only.
@@ -1579,7 +1579,7 @@ void TransformedMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *ca
 
 std::tuple<bool, int> TransformedMaskSubRun::regenerateAtlas(int begin, int end,
                                                              GrMeshDrawTarget* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 1, target, false);
+    return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 1, target);
 }
 
 void TransformedMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
@@ -1854,10 +1854,9 @@ void SDFTSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const 
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
-std::tuple<bool, int> SDFTSubRun::regenerateAtlas(
-        int begin, int end, GrMeshDrawTarget *target) const {
-    return fGlyphs.regenerateAtlas(
-            begin, end, kA8_GrMaskFormat, SK_DistanceFieldInset, target, false);
+std::tuple<bool, int>
+SDFTSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget *target) const {
+    return fGlyphs.regenerateAtlas(begin, end, kA8_GrMaskFormat, SK_DistanceFieldInset, target);
 }
 
 size_t SDFTSubRun::vertexStride(const SkMatrix& drawMatrix) const {
@@ -2414,7 +2413,7 @@ void DirectMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *
 
 std::tuple<bool, int>
 DirectMaskSubRunNoCache::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target, false);
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
 }
 
 // The 99% case. No clip. Non-color only.
@@ -2581,7 +2580,7 @@ void TransformedMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCa
 
 std::tuple<bool, int> TransformedMaskSubRunNoCache::regenerateAtlas(
         int begin, int end, GrMeshDrawTarget* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 1, target, false);
+    return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 1, target);
 }
 
 void TransformedMaskSubRunNoCache::fillVertexData(
@@ -2778,7 +2777,7 @@ void SDFTSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache)
 std::tuple<bool, int> SDFTSubRunNoCache::regenerateAtlas(
         int begin, int end, GrMeshDrawTarget *target) const {
 
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, SK_DistanceFieldInset, target, false);
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, SK_DistanceFieldInset, target);
 }
 
 size_t SDFTSubRunNoCache::vertexStride(const SkMatrix& drawMatrix) const {
@@ -3323,7 +3322,7 @@ void DirectMaskSubRunSlug::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cac
 
 std::tuple<bool, int>
 DirectMaskSubRunSlug::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target, false);
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
 }
 
 template<typename Quad, typename VertexData>

@@ -94,7 +94,7 @@ void GrGlyphVector::packedGlyphIDToGrGlyph(GrStrikeCache* cache) {
         }
 
         // This must be pinned for the Atlas filling to work.
-        // TODO(herb): reenable after the cut on 20220414
+        // TODO(herb): re-enable after the cut on 20220414
         // fStrike->verifyPinnedStrike();
 
         // Drop the ref on the strike that was taken in the SkGlyphRunPainter process* methods.
@@ -105,8 +105,7 @@ void GrGlyphVector::packedGlyphIDToGrGlyph(GrStrikeCache* cache) {
 std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
                                                      GrMaskFormat maskFormat,
                                                      int srcPadding,
-                                                     GrMeshDrawTarget* target,
-                                                     bool bilerpPadding) {
+                                                     GrMeshDrawTarget* target) {
     GrAtlasManager* atlasManager = target->atlasManager();
     GrDeferredUploadTarget* uploadTarget = target->deferredUploadTarget();
 
@@ -133,8 +132,7 @@ std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
             if (!atlasManager->hasGlyph(maskFormat, grGlyph)) {
                 const SkGlyph& skGlyph = *metricsAndImages.glyph(grGlyph->fPackedID);
                 auto code = atlasManager->addGlyphToAtlas(
-                        skGlyph, grGlyph, srcPadding, target->resourceProvider(),
-                        uploadTarget, bilerpPadding);
+                        skGlyph, grGlyph, srcPadding, target->resourceProvider(), uploadTarget);
                 if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
                     success = code != GrDrawOpAtlas::ErrorCode::kError;
                     break;

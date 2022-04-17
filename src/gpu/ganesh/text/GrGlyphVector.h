@@ -54,8 +54,7 @@ public:
             int begin, int end,
             GrMaskFormat maskFormat,
             int srcPadding,
-            GrMeshDrawTarget *,
-            bool bilerpPadding = false);
+            GrMeshDrawTarget *);
 
     static size_t GlyphVectorSize(size_t count) {
         return sizeof(Variant) * count;
