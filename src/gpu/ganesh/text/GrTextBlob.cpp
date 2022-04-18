@@ -1002,8 +1002,7 @@ public:
                      const SkGlyphRect& deviceBounds,
                      SkSpan<const DevicePosition> devicePositions,
                      GrGlyphVector&& glyphs,
-                     bool glyphsOutOfBounds,
-                     bool supportBilerpAtlas);
+                     bool glyphsOutOfBounds);
 
     static GrSubRunOwner Make(const GrTextBlob* blob,
                               const SkZip<SkGlyphVariant, SkPoint>& accepted,
@@ -1075,8 +1074,7 @@ DirectMaskSubRun::DirectMaskSubRun(const GrTextReferenceFrame* referenceFrame,
                                    const SkGlyphRect& deviceBounds,
                                    SkSpan<const DevicePosition> devicePositions,
                                    GrGlyphVector&& glyphs,
-                                   bool glyphsOutOfBounds,
-                                   bool supportBilerpAtlas)
+                                   bool glyphsOutOfBounds)
         : fTextReferenceFrame{referenceFrame}
         , fMaskFormat{format}
         , fGlyphDeviceBounds{deviceBounds}
@@ -1127,8 +1125,7 @@ GrSubRunOwner DirectMaskSubRun::Make(const GrTextBlob* blob,
     return alloc->makeUnique<DirectMaskSubRun>(
             blob, format, runBounds, leftTop,
             GrGlyphVector{std::move(strike), {glyphIDs, goodPosCount}},
-            glyphsExcluded,
-            blob->supportBilerpAtlas());
+            glyphsExcluded);
 }
 
 bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
