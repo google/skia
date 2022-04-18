@@ -2235,7 +2235,6 @@ public:
     using DevicePosition = skvx::Vec<2, int16_t>;
 
     DirectMaskSubRunNoCache(GrMaskFormat format,
-                            bool supportBilerpAtlas,
                             const SkRect& bounds,
                             SkSpan<const DevicePosition> devicePositions,
                             GrGlyphVector&& glyphs);
@@ -2243,7 +2242,6 @@ public:
     static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    sk_sp<SkStrike>&& strike,
                                    GrMaskFormat format,
-                                   bool supportBilerpAtlas,
                                    GrSubRunAllocator* alloc);
 
     size_t vertexStride(const SkMatrix& drawMatrix) const override;
@@ -2284,7 +2282,6 @@ private:
 };
 
 DirectMaskSubRunNoCache::DirectMaskSubRunNoCache(GrMaskFormat format,
-                                                 bool supportBilerpAtlas,
                                                  const SkRect& deviceBounds,
                                                  SkSpan<const DevicePosition> devicePositions,
                                                  GrGlyphVector&& glyphs)
@@ -2296,7 +2293,6 @@ DirectMaskSubRunNoCache::DirectMaskSubRunNoCache(GrMaskFormat format,
 GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                                  sk_sp<SkStrike>&& strike,
                                                  GrMaskFormat format,
-                                                 bool supportBilerpAtlas,
                                                  GrSubRunAllocator* alloc) {
     auto glyphLeftTop = alloc->makePODArray<DevicePosition>(accepted.size());
     auto glyphIDs = alloc->makePODArray<GrGlyphVector::Variant>(accepted.size());
@@ -2331,7 +2327,7 @@ GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkP
 
     SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
     return alloc->makeUnique<DirectMaskSubRunNoCache>(
-            format, supportBilerpAtlas, runBounds.rect(), leftTop,
+            format, runBounds.rect(), leftTop,
             GrGlyphVector{std::move(strike), {glyphIDs, goodPosCount}});
 }
 
@@ -2835,10 +2831,7 @@ void GrSubRunNoCachePainter::processDeviceMasks(
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         GrMaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
-        const bool padAtlas =
-                fSDC->recordingContext()->priv().options().fSupportBilerpFromGlyphAtlas;
-        this->draw(DirectMaskSubRunNoCache::Make(
-                accepted, std::move(runStrike), format, padAtlas, fAlloc));
+        this->draw(DirectMaskSubRunNoCache::Make(accepted, std::move(runStrike), format, fAlloc));
     };
 
     add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
