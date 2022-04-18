@@ -79,7 +79,7 @@ public:
     // the same swizzle as the src view.
     static TextureProxyView Copy(Recorder* recorder,
                                  TextureProxyView src,
-                                 Mipmapped mipMapped,
+                                 Mipmapped mipmapped,
                                  SkIRect srcRect,
                                  SkBackingFit fit,
                                  SkBudgeted budgeted) {
@@ -89,10 +89,10 @@ public:
 
     static TextureProxyView Copy(Recorder* recorder,
                                  TextureProxyView src,
-                                 Mipmapped mipMapped,
+                                 Mipmapped mipmapped,
                                  SkBackingFit fit,
                                  SkBudgeted budgeted) {
-        return TextureProxyView::Copy(recorder, src, mipMapped,
+        return TextureProxyView::Copy(recorder, src, mipmapped,
                                       SkIRect::MakeSize(src.proxy()->dimensions()),
                                       fit, budgeted);
     }

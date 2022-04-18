@@ -76,7 +76,7 @@ public:
                                    GrTextureType textureType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
-                                   GrMipmapped mipMapped,
+                                   GrMipmapped mipmapped,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected);
 
@@ -92,7 +92,7 @@ public:
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    SkBudgeted budgeted,
-                                   GrMipmapped mipMapped,
+                                   GrMipmapped mipmapped,
                                    GrProtected isProtected,
                                    const GrMipLevel texels[]);
 

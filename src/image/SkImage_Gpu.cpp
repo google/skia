@@ -515,7 +515,7 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrRecordingContext* rContext,
 
 sk_sp<SkImage> SkImage::MakeTextureFromCompressed(GrDirectContext* direct, sk_sp<SkData> data,
                                                   int width, int height, CompressionType type,
-                                                  GrMipmapped mipMapped,
+                                                  GrMipmapped mipmapped,
                                                   GrProtected isProtected) {
     if (!direct || !data) {
         return nullptr;
@@ -527,12 +527,12 @@ sk_sp<SkImage> SkImage::MakeTextureFromCompressed(GrDirectContext* direct, sk_sp
         if (!tmp) {
             return nullptr;
         }
-        return tmp->makeTextureImage(direct, mipMapped);
+        return tmp->makeTextureImage(direct, mipmapped);
     }
 
     GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->createCompressedTextureProxy(
-            {width, height}, SkBudgeted::kYes, mipMapped, isProtected, type, std::move(data));
+            {width, height}, SkBudgeted::kYes, mipmapped, isProtected, type, std::move(data));
     if (!proxy) {
         return nullptr;
     }
@@ -588,7 +588,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
 sk_sp<SkImage> SkImage::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
                                            const GrBackendFormat& backendFormat,
                                            SkISize dimensions,
-                                           GrMipmapped mipMapped,
+                                           GrMipmapped mipmapped,
                                            GrSurfaceOrigin origin,
                                            SkColorType colorType,
                                            SkAlphaType alphaType,
@@ -626,7 +626,7 @@ sk_sp<SkImage> SkImage::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> threa
     auto proxy = SkImage_GpuBase::MakePromiseImageLazyProxy(threadSafeProxy.get(),
                                                             dimensions,
                                                             backendFormat,
-                                                            mipMapped,
+                                                            mipmapped,
                                                             textureFulfillProc,
                                                             std::move(releaseHelper));
     if (!proxy) {

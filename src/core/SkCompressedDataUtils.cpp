@@ -244,11 +244,11 @@ bool SkDecompress(sk_sp<SkData> data,
 }
 
 size_t SkCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
-                            SkTArray<size_t>* individualMipOffsets, bool mipMapped) {
+                            SkTArray<size_t>* individualMipOffsets, bool mipmapped) {
     SkASSERT(!individualMipOffsets || !individualMipOffsets->count());
 
     int numMipLevels = 1;
-    if (mipMapped) {
+    if (mipmapped) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
@@ -293,6 +293,6 @@ size_t SkCompressedBlockSize(SkImage::CompressionType type) {
 }
 
 size_t SkCompressedFormatDataSize(SkImage::CompressionType compressionType,
-                                  SkISize dimensions, bool mipMapped) {
-    return SkCompressedDataSize(compressionType, dimensions, nullptr, mipMapped);
+                                  SkISize dimensions, bool mipmapped) {
+    return SkCompressedDataSize(compressionType, dimensions, nullptr, mipmapped);
 }

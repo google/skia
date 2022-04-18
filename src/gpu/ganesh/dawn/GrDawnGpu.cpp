@@ -310,7 +310,7 @@ sk_sp<GrAttachment> GrDawnGpu::makeStencilAttachment(const GrBackendFormat& /*co
 GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
                                                    const GrBackendFormat& backendFormat,
                                                    GrRenderable renderable,
-                                                   GrMipmapped mipMapped,
+                                                   GrMipmapped mipmapped,
                                                    GrProtected isProtected) {
     wgpu::TextureFormat format;
     if (!backendFormat.asDawnFormat(&format)) {
@@ -326,7 +326,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
     }
 
     int numMipLevels = 1;
-    if (mipMapped == GrMipmapped::kYes) {
+    if (mipmapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 

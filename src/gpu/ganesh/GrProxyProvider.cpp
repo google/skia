@@ -437,7 +437,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                    SkISize dimensions,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
-                                                   GrMipmapped mipMapped,
+                                                   GrMipmapped mipmapped,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted,
                                                    GrProtected isProtected,
@@ -455,11 +455,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
         return nullptr;
     }
 
-    if (GrMipmapped::kYes == mipMapped) {
+    if (GrMipmapped::kYes == mipmapped) {
         // SkMipmap doesn't include the base level in the level count so we have to add 1
         int mipCount = SkMipmap::ComputeLevelCount(dimensions.fWidth, dimensions.fHeight) + 1;
         if (1 == mipCount) {
-            mipMapped = GrMipmapped::kNo;
+            mipmapped = GrMipmapped::kNo;
         }
     }
 
@@ -467,11 +467,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                      format,
                                      renderable,
                                      renderTargetSampleCnt,
-                                     mipMapped,
+                                     mipmapped,
                                      GrTextureType::k2D)) {
         return nullptr;
     }
-    GrMipmapStatus mipmapStatus = (GrMipmapped::kYes == mipMapped)
+    GrMipmapStatus mipmapStatus = (GrMipmapped::kYes == mipmapped)
             ? GrMipmapStatus::kDirty
             : GrMipmapStatus::kNotAllocated;
     if (renderable == GrRenderable::kYes) {
@@ -484,7 +484,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                                     format,
                                                                     dimensions,
                                                                     renderTargetSampleCnt,
-                                                                    mipMapped,
+                                                                    mipmapped,
                                                                     mipmapStatus,
                                                                     fit,
                                                                     budgeted,
@@ -497,7 +497,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 
     return sk_sp<GrTextureProxy>(new GrTextureProxy(format,
                                                     dimensions,
-                                                    mipMapped,
+                                                    mipmapped,
                                                     mipmapStatus,
                                                     fit,
                                                     budgeted,
@@ -509,7 +509,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
-        SkISize dimensions, SkBudgeted budgeted, GrMipmapped mipMapped, GrProtected isProtected,
+        SkISize dimensions, SkBudgeted budgeted, GrMipmapped mipmapped, GrProtected isProtected,
         SkImage::CompressionType compressionType, sk_sp<SkData> data) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
@@ -522,7 +522,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
         return nullptr;
     }
 
-    GrMipmapStatus mipmapStatus = (GrMipmapped::kYes == mipMapped) ? GrMipmapStatus::kValid
+    GrMipmapStatus mipmapStatus = (GrMipmapped::kYes == mipmapped) ? GrMipmapStatus::kValid
                                                                    : GrMipmapStatus::kNotAllocated;
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
@@ -531,7 +531,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
                         desc.fDimensions, desc.fFormat, desc.fBudgeted, desc.fMipmapped,
                         desc.fProtected, data.get()));
             },
-            format, dimensions, mipMapped, mipmapStatus,GrInternalSurfaceFlags::kReadOnly,
+            format, dimensions, mipmapped, mipmapStatus,GrInternalSurfaceFlags::kReadOnly,
             SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo, UseAllocator::kYes);
 
     if (!proxy) {
@@ -746,7 +746,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::CreatePromiseProxy(GrContextThreadSafePro
                                                           LazyInstantiateCallback&& callback,
                                                           const GrBackendFormat& format,
                                                           SkISize dimensions,
-                                                          GrMipmapped mipMapped) {
+                                                          GrMipmapped mipmapped) {
     if (threadSafeProxy->priv().abandoned()) {
         return nullptr;
     }
@@ -759,7 +759,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::CreatePromiseProxy(GrContextThreadSafePro
     }
     // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
     // mipmaps are fully fleshed out.
-    GrMipmapStatus mipmapStatus = (GrMipmapped::kYes == mipMapped) ? GrMipmapStatus::kValid
+    GrMipmapStatus mipmapStatus = (GrMipmapped::kYes == mipmapped) ? GrMipmapStatus::kValid
                                                                    : GrMipmapStatus::kNotAllocated;
 
     // We pass kReadOnly here since we should treat content of the client's texture as immutable.
@@ -767,7 +767,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::CreatePromiseProxy(GrContextThreadSafePro
     auto proxy = sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(callback),
                                                           format,
                                                           dimensions,
-                                                          mipMapped,
+                                                          mipmapped,
                                                           mipmapStatus,
                                                           SkBackingFit::kExact,
                                                           SkBudgeted::kNo,
@@ -783,7 +783,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::CreatePromiseProxy(GrContextThreadSafePro
 sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&& callback,
                                                        const GrBackendFormat& format,
                                                        SkISize dimensions,
-                                                       GrMipmapped mipMapped,
+                                                       GrMipmapped mipmapped,
                                                        GrMipmapStatus mipmapStatus,
                                                        GrInternalSurfaceFlags surfaceFlags,
                                                        SkBackingFit fit,
@@ -809,7 +809,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
     return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(callback),
                                                     format,
                                                     dimensions,
-                                                    mipMapped,
+                                                    mipmapped,
                                                     mipmapStatus,
                                                     fit,
                                                     budgeted,

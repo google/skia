@@ -111,8 +111,8 @@ GrSurfaceProxy::~GrSurfaceProxy() {
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
                                                    int sampleCnt,
                                                    GrRenderable renderable,
-                                                   GrMipmapped mipMapped) const {
-    SkASSERT(mipMapped == GrMipmapped::kNo || fFit == SkBackingFit::kExact);
+                                                   GrMipmapped mipmapped) const {
+    SkASSERT(mipmapped == GrMipmapped::kNo || fFit == SkBackingFit::kExact);
     SkASSERT(!this->isLazy());
     SkASSERT(!fTarget);
 
@@ -130,7 +130,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
                                                   fFormat.textureType(),
                                                   renderable,
                                                   sampleCnt,
-                                                  mipMapped,
+                                                  mipmapped,
                                                   fBudgeted,
                                                   fIsProtected);
     }
@@ -179,7 +179,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 }
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                     GrRenderable renderable, GrMipmapped mipMapped,
+                                     GrRenderable renderable, GrMipmapped mipmapped,
                                      const skgpu::UniqueKey* uniqueKey) {
     SkASSERT(!this->isLazy());
     if (fTarget) {
@@ -190,7 +190,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, renderable,
-                                                       mipMapped);
+                                                       mipmapped);
     if (!surface) {
         return false;
     }
@@ -221,13 +221,13 @@ void GrSurfaceProxy::computeScratchKey(const GrCaps& caps, skgpu::ScratchKey* ke
     }
 
     const GrTextureProxy* tp = this->asTextureProxy();
-    GrMipmapped mipMapped = GrMipmapped::kNo;
+    GrMipmapped mipmapped = GrMipmapped::kNo;
     if (tp) {
-        mipMapped = tp->mipmapped();
+        mipmapped = tp->mipmapped();
     }
 
     GrTexture::ComputeScratchKey(caps, this->backendFormat(), this->backingStoreDimensions(),
-                                 renderable, sampleCount, mipMapped, fIsProtected, key);
+                                 renderable, sampleCount, mipmapped, fIsProtected, key);
 }
 
 SkISize GrSurfaceProxy::backingStoreDimensions() const {
@@ -263,7 +263,7 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
                                            sk_sp<GrSurfaceProxy> src,
                                            GrSurfaceOrigin origin,
-                                           GrMipmapped mipMapped,
+                                           GrMipmapped mipmapped,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
                                            SkBudgeted budgeted,
@@ -298,7 +298,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
                                                   origin,
                                                   GrRenderable::kNo,
                                                   1,
-                                                  mipMapped,
+                                                  mipmapped,
                                                   src->isProtected(),
                                                   budgeted);
         sk_sp<GrRenderTask> copyTask;
@@ -316,7 +316,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
                                                    fit,
                                                    format,
                                                    1,
-                                                   mipMapped,
+                                                   mipmapped,
                                                    src->isProtected(),
                                                    skgpu::Swizzle::RGBA(),
                                                    skgpu::Swizzle::RGBA(),
@@ -337,7 +337,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            sk_sp<GrSurfaceProxy> src,
                                            GrSurfaceOrigin origin,
-                                           GrMipmapped mipMapped,
+                                           GrMipmapped mipmapped,
                                            SkBackingFit fit,
                                            SkBudgeted budgeted,
                                            sk_sp<GrRenderTask>* outTask) {
@@ -346,7 +346,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     return Copy(context,
                 std::move(src),
                 origin,
-                mipMapped,
+                mipmapped,
                 rect,
                 fit,
                 budgeted,

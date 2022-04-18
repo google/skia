@@ -60,7 +60,7 @@ public:
     sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
                                       int width,
                                       int height,
-                                      GrMipmapped mipMapped,
+                                      GrMipmapped mipmapped,
                                       GrSurfaceOrigin origin,
                                       SkColorType colorType,
                                       SkAlphaType alphaType,

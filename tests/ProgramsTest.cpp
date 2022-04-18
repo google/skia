@@ -247,13 +247,13 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     GrProcessorTestData::ViewInfo views[2];
 
     // setup arbitrary textures
-    GrMipmapped mipMapped = GrMipmapped(caps->mipmapSupport());
+    GrMipmapped mipmapped = GrMipmapped(caps->mipmapSupport());
     {
         static constexpr SkISize kDims = {34, 18};
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                      GrRenderable::kYes);
         auto proxy = proxyProvider->createProxy(format, kDims, GrRenderable::kYes, 1,
-                                                mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
+                                                mipmapped, SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
         skgpu::Swizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
         views[0] = {{std::move(proxy), kBottomLeft_GrSurfaceOrigin, swizzle},
@@ -263,7 +263,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
         static constexpr SkISize kDims = {16, 22};
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                      GrRenderable::kNo);
-        auto proxy = proxyProvider->createProxy(format, kDims, GrRenderable::kNo, 1, mipMapped,
+        auto proxy = proxyProvider->createProxy(format, kDims, GrRenderable::kNo, 1, mipmapped,
                                                 SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
         skgpu::Swizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);

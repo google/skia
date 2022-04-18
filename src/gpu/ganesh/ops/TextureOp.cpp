@@ -1393,9 +1393,9 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
     dims.fHeight = random->nextULessThan(90) + 10;
     dims.fWidth = random->nextULessThan(90) + 10;
     auto origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-    GrMipmapped mipMapped = random->nextBool() ? GrMipmapped::kYes : GrMipmapped::kNo;
+    GrMipmapped mipmapped = random->nextBool() ? GrMipmapped::kYes : GrMipmapped::kNo;
     SkBackingFit fit = SkBackingFit::kExact;
-    if (mipMapped == GrMipmapped::kNo) {
+    if (mipmapped == GrMipmapped::kNo) {
         fit = random->nextBool() ? SkBackingFit::kApprox : SkBackingFit::kExact;
     }
     const GrBackendFormat format =
@@ -1403,7 +1403,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
                                                             GrRenderable::kNo);
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, dims, GrRenderable::kNo, 1, mipMapped, fit, SkBudgeted::kNo, GrProtected::kNo,
+            format, dims, GrRenderable::kNo, 1, mipmapped, fit, SkBudgeted::kNo, GrProtected::kNo,
             GrInternalSurfaceFlags::kNone);
 
     SkRect rect = GrTest::TestRect(random);
@@ -1417,7 +1417,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
     GrSamplerState::Filter filter = (GrSamplerState::Filter)random->nextULessThan(
             static_cast<uint32_t>(GrSamplerState::Filter::kLast) + 1);
     GrSamplerState::MipmapMode mm = GrSamplerState::MipmapMode::kNone;
-    if (mipMapped == GrMipmapped::kYes) {
+    if (mipmapped == GrMipmapped::kYes) {
         mm = (GrSamplerState::MipmapMode)random->nextULessThan(
                 static_cast<uint32_t>(GrSamplerState::MipmapMode::kLast) + 1);
     }

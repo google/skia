@@ -98,8 +98,8 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
             continue;
         }
 
-        for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
-            if (GrMipmapped::kYes == mipMapped && !mtlCaps->mipmapSupport()) {
+        for (auto mipmapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
+            if (GrMipmapped::kYes == mipmapped && !mtlCaps->mipmapSupport()) {
                 continue;
             }
 
@@ -116,17 +116,17 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
                 {
                     auto uninitCreateMtd = [format](GrDirectContext* dContext,
-                                                    GrMipmapped mipMapped,
+                                                    GrMipmapped mipmapped,
                                                     GrRenderable renderable) {
                         return ManagedBackendTexture::MakeWithoutData(dContext,
                                                                       32, 32,
                                                                       format,
-                                                                      mipMapped,
+                                                                      mipmapped,
                                                                       renderable,
                                                                       GrProtected::kNo);
                     };
 
-                    test_wrapping(dContext, reporter, uninitCreateMtd, combo.fColorType, mipMapped,
+                    test_wrapping(dContext, reporter, uninitCreateMtd, combo.fColorType, mipmapped,
                                   renderable);
                 }
 
@@ -156,19 +156,19 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
                     auto createWithColorMtd = [format, swizzle](GrDirectContext* dContext,
                                                                 const SkColor4f& color,
-                                                                GrMipmapped mipMapped,
+                                                                GrMipmapped mipmapped,
                                                                 GrRenderable renderable) {
                         auto swizzledColor = swizzle.applyTo(color);
                         return ManagedBackendTexture::MakeWithData(dContext,
                                                                    32, 32,
                                                                    format,
                                                                    swizzledColor,
-                                                                   mipMapped,
+                                                                   mipmapped,
                                                                    renderable,
                                                                    GrProtected::kNo);
                     };
                     test_color_init(dContext, reporter, createWithColorMtd, combo.fColorType,
-                                    combo.fColor, mipMapped, renderable);
+                                    combo.fColor, mipmapped, renderable);
                 }
             }
         }

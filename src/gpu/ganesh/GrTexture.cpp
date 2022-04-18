@@ -105,7 +105,7 @@ void GrTexture::ComputeScratchKey(const GrCaps& caps,
                                   SkISize dimensions,
                                   GrRenderable renderable,
                                   int sampleCnt,
-                                  GrMipmapped mipMapped,
+                                  GrMipmapped mipmapped,
                                   GrProtected isProtected,
                                   skgpu::ScratchKey* key) {
     static const skgpu::ScratchKey::ResourceType kType = skgpu::ScratchKey::GenerateResourceType();
@@ -113,7 +113,7 @@ void GrTexture::ComputeScratchKey(const GrCaps& caps,
     SkASSERT(sampleCnt > 0);
     SkASSERT(1 == sampleCnt || renderable == GrRenderable::kYes);
 
-    SkASSERT(static_cast<uint32_t>(mipMapped) <= 1);
+    SkASSERT(static_cast<uint32_t>(mipmapped) <= 1);
     SkASSERT(static_cast<uint32_t>(isProtected) <= 1);
     SkASSERT(static_cast<uint32_t>(renderable) <= 1);
     SkASSERT(static_cast<uint32_t>(sampleCnt) < (1 << (32 - 3)));
@@ -125,7 +125,7 @@ void GrTexture::ComputeScratchKey(const GrCaps& caps,
     builder[1] = dimensions.height();
     builder[2] = formatKey & 0xFFFFFFFF;
     builder[3] = (formatKey >> 32) & 0xFFFFFFFF;
-    builder[4] = (static_cast<uint32_t>(mipMapped)   << 0)
+    builder[4] = (static_cast<uint32_t>(mipmapped)   << 0)
                | (static_cast<uint32_t>(isProtected) << 1)
                | (static_cast<uint32_t>(renderable)  << 2)
                | (static_cast<uint32_t>(sampleCnt)   << 3);

@@ -1112,7 +1112,7 @@ void GrGLGpu::uploadTexData(SkISize texDims,
 bool GrGLGpu::uploadCompressedTexData(SkImage::CompressionType compressionType,
                                       GrGLFormat format,
                                       SkISize dimensions,
-                                      GrMipmapped mipMapped,
+                                      GrMipmapped mipmapped,
                                       GrGLenum target,
                                       const void* data, size_t dataSize) {
     SkASSERT(format != GrGLFormat::kUnknown);
@@ -1129,7 +1129,7 @@ bool GrGLGpu::uploadCompressedTexData(SkImage::CompressionType compressionType,
     bool useTexStorage = caps.formatSupportsTexStorage(format);
 
     int numMipLevels = 1;
-    if (mipMapped == GrMipmapped::kYes) {
+    if (mipmapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
     }
 
@@ -1494,7 +1494,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
 sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     const GrBackendFormat& format,
                                                     SkBudgeted budgeted,
-                                                    GrMipmapped mipMapped,
+                                                    GrMipmapped mipmapped,
                                                     GrProtected isProtected,
                                                     const void* data, size_t dataSize) {
     // We don't support protected textures in GL.
@@ -1510,13 +1510,13 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fFormat = format.asGLFormat();
     desc.fID = this->createCompressedTexture2D(desc.fSize, compression, desc.fFormat,
-                                               mipMapped, &initialState);
+                                               mipmapped, &initialState);
     if (!desc.fID) {
         return nullptr;
     }
 
     if (data) {
-        if (!this->uploadCompressedTexData(compression, desc.fFormat, dimensions, mipMapped,
+        if (!this->uploadCompressedTexData(compression, desc.fFormat, dimensions, mipmapped,
                                            GR_GL_TEXTURE_2D, data, dataSize)) {
             GL_CALL(DeleteTextures(1, &desc.fID));
             return nullptr;
@@ -1526,7 +1526,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     // Unbind this texture from the scratch texture unit.
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
 
-    GrMipmapStatus mipmapStatus = mipMapped == GrMipmapped::kYes
+    GrMipmapStatus mipmapStatus = mipmapped == GrMipmapped::kYes
                                                             ? GrMipmapStatus::kValid
                                                             : GrMipmapStatus::kNotAllocated;
 
@@ -1538,7 +1538,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
 }
 
 GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
-        SkISize dimensions, const GrBackendFormat& format, GrMipmapped mipMapped,
+        SkISize dimensions, const GrBackendFormat& format, GrMipmapped mipmapped,
         GrProtected isProtected) {
     // We don't support protected textures in GL.
     if (isProtected == GrProtected::kYes) {
@@ -1560,7 +1560,7 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
     info.fTarget = GR_GL_TEXTURE_2D;
     info.fFormat = GrGLFormatToEnum(glFormat);
     info.fID = this->createCompressedTexture2D(dimensions, compression, glFormat,
-                                               mipMapped, &initialState);
+                                               mipmapped, &initialState);
     if (!info.fID) {
         return {};
     }
@@ -1573,7 +1573,7 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
     parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                     fResetTimestampForTextureParameters);
 
-    return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info,
+    return GrBackendTexture(dimensions.width(), dimensions.height(), mipmapped, info,
                             std::move(parameters));
 }
 
@@ -1591,7 +1591,7 @@ bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
     }
     SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
 
-    GrMipmapped mipMapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
+    GrMipmapped mipmapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
 
     this->bindTextureToScratchUnit(info.fTarget, info.fID);
 
@@ -1616,7 +1616,7 @@ bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
     bool result = this->uploadCompressedTexData(compression,
                                                 glFormat,
                                                 backendTexture.dimensions(),
-                                                mipMapped,
+                                                mipmapped,
                                                 GR_GL_TEXTURE_2D,
                                                 data,
                                                 length);
@@ -1714,7 +1714,7 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
         SkISize dimensions,
         SkImage::CompressionType compression,
         GrGLFormat format,
-        GrMipmapped mipMapped,
+        GrMipmapped mipmapped,
         GrGLTextureParameters::SamplerOverriddenState* initialState) {
     if (format == GrGLFormat::kUnknown) {
         return 0;
@@ -3672,7 +3672,7 @@ void GrGLGpu::insertManualFramebufferBarrier() {
 GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
                                                  GrRenderable renderable,
-                                                 GrMipmapped mipMapped,
+                                                 GrMipmapped mipmapped,
                                                  GrProtected isProtected) {
     this->handleDirtyContext();
 
@@ -3682,7 +3682,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     }
 
     int numMipLevels = 1;
-    if (mipMapped == GrMipmapped::kYes) {
+    if (mipmapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
@@ -3703,7 +3703,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
             info.fTarget = GR_GL_TEXTURE_2D;
             break;
         case GrTextureType::kRectangle:
-            if (!this->glCaps().rectangleTextureSupport() || mipMapped == GrMipmapped::kYes) {
+            if (!this->glCaps().rectangleTextureSupport() || mipmapped == GrMipmapped::kYes) {
                 return {};
             }
             info.fTarget = GR_GL_TEXTURE_RECTANGLE;
@@ -3724,7 +3724,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                     fResetTimestampForTextureParameters);
 
-    return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info,
+    return GrBackendTexture(dimensions.width(), dimensions.height(), mipmapped, info,
                             std::move(parameters));
 }
 

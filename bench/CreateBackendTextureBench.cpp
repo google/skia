@@ -16,8 +16,8 @@ private:
     GrMipmapped fMipmapped;
 
 public:
-    CreateBackendTextureBench(GrMipmapped mipMapped) : fMipmapped(mipMapped) {
-        fName.printf("create_backend_texture%s", mipMapped == GrMipmapped::kYes ? "_mipped" : "");
+    CreateBackendTextureBench(GrMipmapped mipmapped) : fMipmapped(mipmapped) {
+        fName.printf("create_backend_texture%s", mipmapped == GrMipmapped::kYes ? "_mipped" : "");
     }
 
 private:

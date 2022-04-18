@@ -28,14 +28,14 @@ static constexpr bool SkCompressionTypeIsOpaque(SkImage::CompressionType compres
 }
 
 size_t SkCompressedDataSize(SkImage::CompressionType, SkISize baseDimensions,
-                            SkTArray<size_t>* individualMipOffsets, bool mipMapped);
+                            SkTArray<size_t>* individualMipOffsets, bool mipmapped);
 size_t SkCompressedBlockSize(SkImage::CompressionType type);
 
 /**
  * Returns the data size for the given SkImage::CompressionType
  */
 size_t SkCompressedFormatDataSize(SkImage::CompressionType compressionType,
-                                  SkISize dimensions, bool mipMapped);
+                                  SkISize dimensions, bool mipmapped);
 
  /*
   * This method will decompress the bottommost level in 'data' into 'dst'.

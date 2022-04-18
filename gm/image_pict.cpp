@@ -181,7 +181,7 @@ protected:
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext* rContext,
                                          const SkImageInfo& info,
                                          const SkIPoint& origin,
-                                         GrMipmapped mipMapped,
+                                         GrMipmapped mipmapped,
                                          GrImageTexGenPolicy policy) override {
         SkASSERT(rContext);
         SkASSERT(rContext->priv().matches(fRContext.get()));
@@ -197,7 +197,7 @@ protected:
         auto budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted ? SkBudgeted::kNo
                                                                                 : SkBudgeted::kYes;
         return GrSurfaceProxyView::Copy(
-                fRContext.get(), fView, mipMapped,
+                fRContext.get(), fView, mipmapped,
                 SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
                 SkBackingFit::kExact, budgeted);
     }

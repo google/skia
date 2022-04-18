@@ -125,7 +125,7 @@ void GrRenderTask::addDependenciesFromOtherTask(GrRenderTask* otherTask) {
 
 // Convert from a GrSurface-based dependency to a GrRenderTask one
 void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* dependedOn,
-                                 GrMipmapped mipMapped,
+                                 GrMipmapped mipmapped,
                                  GrTextureResolveManager textureResolveManager,
                                  const GrCaps& caps) {
     // If it is still receiving dependencies, this GrRenderTask shouldn't be closed
@@ -136,7 +136,7 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
     if (dependedOnTask == this) {
         // self-read - presumably for dst reads. We don't need to do anything in this case. The
         // XferProcessor will detect what is happening and insert a texture barrier.
-        SkASSERT(GrMipmapped::kNo == mipMapped);
+        SkASSERT(GrMipmapped::kNo == mipmapped);
         // We should never attempt a self-read on a surface that has a separate MSAA renderbuffer.
         SkASSERT(!dependedOn->requiresManualMSAAResolve());
         SkASSERT(!dependedOn->asTextureProxy() ||
@@ -168,12 +168,12 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
     }
 
     GrTextureProxy* textureProxy = dependedOn->asTextureProxy();
-    if (GrMipmapped::kYes == mipMapped) {
+    if (GrMipmapped::kYes == mipmapped) {
         SkASSERT(textureProxy);
         if (GrMipmapped::kYes != textureProxy->mipmapped()) {
             // There are some cases where we might be given a non-mipmapped texture with a mipmap
             // filter. See skbug.com/7094.
-            mipMapped = GrMipmapped::kNo;
+            mipmapped = GrMipmapped::kNo;
         } else if (textureProxy->mipmapsAreDirty()) {
             resolveFlags |= GrSurfaceProxy::ResolveFlags::kMipMaps;
         }

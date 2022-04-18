@@ -186,7 +186,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
         GrRecordingContext* context,
         const SkImageInfo& info,
         const SkIPoint& origin,
-        GrMipmapped mipMapped,
+        GrMipmapped mipmapped,
         GrImageTexGenPolicy texGenPolicy) {
     GrSurfaceProxyView texProxyView = this->makeView(context);
     if (!texProxyView.proxy()) {
@@ -195,7 +195,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
     SkASSERT(texProxyView.asTextureProxy());
 
     if (texGenPolicy == GrImageTexGenPolicy::kDraw && origin.isZero() &&
-        info.dimensions() == this->getInfo().dimensions() && mipMapped == GrMipmapped::kNo) {
+        info.dimensions() == this->getInfo().dimensions() && mipmapped == GrMipmapped::kNo) {
         // If the caller wants the full non-MIP mapped texture we're done.
         return texProxyView;
     }
@@ -206,7 +206,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
                                   ? SkBudgeted::kNo
                                   : SkBudgeted::kYes;
 
-    return GrSurfaceProxyView::Copy(context, std::move(texProxyView), mipMapped, subset,
+    return GrSurfaceProxyView::Copy(context, std::move(texProxyView), mipmapped, subset,
                                     SkBackingFit::kExact, budgeted);
 }
 

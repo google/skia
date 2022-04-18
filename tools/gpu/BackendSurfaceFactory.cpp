@@ -19,7 +19,7 @@ sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext* dContext,
                                            const SkImageInfo& ii,
                                            GrSurfaceOrigin origin,
                                            int sampleCnt,
-                                           GrMipmapped mipMapped,
+                                           GrMipmapped mipmapped,
                                            GrProtected isProtected,
                                            const SkSurfaceProps* props) {
     if (ii.alphaType() == kUnpremul_SkAlphaType) {
@@ -29,7 +29,7 @@ sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext* dContext,
                                                        ii.width(),
                                                        ii.height(),
                                                        ii.colorType(),
-                                                       mipMapped,
+                                                       mipmapped,
                                                        GrRenderable::kYes,
                                                        isProtected);
     if (!mbet) {
@@ -52,12 +52,12 @@ sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext* dContext,
                                            int sampleCnt,
                                            SkColorType colorType,
                                            sk_sp<SkColorSpace> colorSpace,
-                                           GrMipmapped mipMapped,
+                                           GrMipmapped mipmapped,
                                            GrProtected isProtected,
                                            const SkSurfaceProps* props) {
     auto ii = SkImageInfo::Make(dimensions, colorType, kPremul_SkAlphaType, std::move(colorSpace));
     return MakeBackendTextureSurface(
-            dContext, ii, origin, sampleCnt, mipMapped, isProtected, props);
+            dContext, ii, origin, sampleCnt, mipmapped, isProtected, props);
 }
 sk_sp<SkSurface> MakeBackendRenderTargetSurface(GrDirectContext* dContext,
                                                 const SkImageInfo& ii,

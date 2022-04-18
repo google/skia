@@ -175,7 +175,7 @@ private:
             return fCallbackContexts[index];
         }
 
-        GrMipmapped mipMapped(int index) const {
+        GrMipmapped mipmapped(int index) const {
             if (this->isYUV()) {
                 return GrMipmapped::kNo;
             }

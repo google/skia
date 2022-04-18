@@ -99,14 +99,14 @@ public:
     // the same origin and swizzle as the src view.
     static GrSurfaceProxyView Copy(GrRecordingContext* context,
                                    GrSurfaceProxyView src,
-                                   GrMipmapped mipMapped,
+                                   GrMipmapped mipmapped,
                                    SkIRect srcRect,
                                    SkBackingFit fit,
                                    SkBudgeted budgeted) {
         auto copy = GrSurfaceProxy::Copy(context,
                                          src.refProxy(),
                                          src.origin(),
-                                         mipMapped,
+                                         mipmapped,
                                          srcRect,
                                          fit,
                                          budgeted);
@@ -115,13 +115,13 @@ public:
 
     static GrSurfaceProxyView Copy(GrRecordingContext* rContext,
                                    GrSurfaceProxyView src,
-                                   GrMipmapped mipMapped,
+                                   GrMipmapped mipmapped,
                                    SkBackingFit fit,
                                    SkBudgeted budgeted) {
         auto copy = GrSurfaceProxy::Copy(rContext,
                                          src.refProxy(),
                                          src.origin(),
-                                         mipMapped,
+                                         mipmapped,
                                          fit,
                                          budgeted);
         return {std::move(copy), src.origin(), src.swizzle()};

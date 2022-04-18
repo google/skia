@@ -19,7 +19,7 @@
 // Deferred version - no data
 GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrMipmapped mipMapped,
+                               GrMipmapped mipmapped,
                                GrMipmapStatus mipmapStatus,
                                SkBackingFit fit,
                                SkBudgeted budgeted,
@@ -29,7 +29,7 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                GrDDLProvider creatingProvider,
                                std::string_view label)
         : INHERITED(format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator, label)
-        , fMipmapped(mipMapped)
+        , fMipmapped(mipmapped)
         , fMipmapStatus(mipmapStatus)
         SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
         , fCreatingProvider(creatingProvider)
@@ -45,7 +45,7 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrMipmapped mipMapped,
+                               GrMipmapped mipmapped,
                                GrMipmapStatus mipmapStatus,
                                SkBackingFit fit,
                                SkBudgeted budgeted,
@@ -56,7 +56,7 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                std::string_view label)
         : INHERITED(std::move(callback), format, dimensions, fit, budgeted, isProtected,
                     surfaceFlags, useAllocator, label)
-        , fMipmapped(mipMapped)
+        , fMipmapped(mipmapped)
         , fMipmapStatus(mipmapStatus)
         SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
         , fCreatingProvider(creatingProvider)

@@ -275,7 +275,7 @@ public:
         @param width       width of full SkImage
         @param height      height of full SkImage
         @param type        type of compression used
-        @param mipMapped   does 'data' contain data for all the mipmap levels?
+        @param mipmapped   does 'data' contain data for all the mipmap levels?
         @param isProtected do the contents of 'data' require DRM protection (on Vulkan)?
         @return            created SkImage, or nullptr
     */
@@ -283,7 +283,7 @@ public:
                                                     sk_sp<SkData> data,
                                                     int width, int height,
                                                     CompressionType type,
-                                                    GrMipmapped mipMapped = GrMipmapped::kNo,
+                                                    GrMipmapped mipmapped = GrMipmapped::kNo,
                                                     GrProtected isProtected = GrProtected::kNo);
 
     /** User function called when supplied texture may be deleted.
@@ -492,7 +492,7 @@ public:
         @param gpuContextProxy     the thread-safe proxy of the gpu context. required.
         @param backendFormat       format of promised gpu texture
         @param dimensions          width & height of promised gpu texture
-        @param mipMapped           mip mapped state of promised gpu texture
+        @param mipmapped           mip mapped state of promised gpu texture
         @param origin              surface origin of promised gpu texture
         @param colorType           color type of promised gpu texture
         @param alphaType           alpha type of promised gpu texture
@@ -505,7 +505,7 @@ public:
     static sk_sp<SkImage> MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> gpuContextProxy,
                                              const GrBackendFormat& backendFormat,
                                              SkISize dimensions,
-                                             GrMipmapped mipMapped,
+                                             GrMipmapped mipmapped,
                                              GrSurfaceOrigin origin,
                                              SkColorType colorType,
                                              SkAlphaType alphaType,
@@ -1121,14 +1121,14 @@ public:
 #if SK_SUPPORT_GPU
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
         compatible with SkSurface created with dstColorSpace. The returned SkImage respects
-        mipMapped setting; if mipMapped equals GrMipmapped::kYes, the backing texture
+        mipmapped setting; if mipmapped equals GrMipmapped::kYes, the backing texture
         allocates mip map levels.
 
-        The mipMapped parameter is effectively treated as kNo if MIP maps are not supported by the
+        The mipmapped parameter is effectively treated as kNo if MIP maps are not supported by the
         GPU.
 
         Returns original SkImage if the image is already texture-backed, the context matches, and
-        mipMapped is compatible with the backing GPU texture. SkBudgeted is ignored in this case.
+        mipmapped is compatible with the backing GPU texture. SkBudgeted is ignored in this case.
 
         Returns nullptr if context is nullptr, or if SkImage was created with another
         GrDirectContext.
@@ -1147,13 +1147,13 @@ public:
     /** Graphite version of makeTextureImage.
 
         Returns SkImage backed by GPU texture, using Recorder for creation and uploads if necessary.
-        The returned SkImage respects mipMapped setting for non-GPU SkImages; if mipMapped
+        The returned SkImage respects mipmapped setting for non-GPU SkImages; if mipmapped
         equals GrMipmapped::kYes, the backing texture allocates mip map levels.
 
         It is assumed that MIP maps are always supported by the GPU.
 
         Returns original SkImage if the image is already texture-backed, the recorder matches, and
-        mipMapped is compatible with the backing GPU texture. If mipmapped is not compatible,
+        mipmapped is compatible with the backing GPU texture. If mipmapped is not compatible,
         it will return nullptr.
 
         Returns nullptr if recorder is nullptr, or if SkImage was created with another

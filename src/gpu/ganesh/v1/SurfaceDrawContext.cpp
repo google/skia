@@ -160,7 +160,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
         SkISize dimensions,
         const GrBackendFormat& format,
         int sampleCnt,
-        GrMipmapped mipMapped,
+        GrMipmapped mipmapped,
         GrProtected isProtected,
         skgpu::Swizzle readSwizzle,
         skgpu::Swizzle writeSwizzle,
@@ -180,7 +180,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
             dimensions,
             GrRenderable::kYes,
             sampleCnt,
-            mipMapped,
+            mipmapped,
             fit,
             budgeted,
             isProtected);
@@ -209,7 +209,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
         SkISize dimensions,
         const SkSurfaceProps& surfaceProps,
         int sampleCnt,
-        GrMipmapped mipMapped,
+        GrMipmapped mipmapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted) {
@@ -225,7 +225,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
                                                                                 dimensions,
                                                                                 GrRenderable::kYes,
                                                                                 sampleCnt,
-                                                                                mipMapped,
+                                                                                mipmapped,
                                                                                 fit,
                                                                                 budgeted,
                                                                                 isProtected);
@@ -249,7 +249,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::MakeWithFallback(
         SkISize dimensions,
         const SkSurfaceProps& surfaceProps,
         int sampleCnt,
-        GrMipmapped mipMapped,
+        GrMipmapped mipmapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted) {
@@ -259,7 +259,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::MakeWithFallback(
         return nullptr;
     }
     return SurfaceDrawContext::Make(rContext, ct, colorSpace, fit, dimensions, surfaceProps,
-                                    sampleCnt, mipMapped, isProtected, origin, budgeted);
+                                    sampleCnt, mipmapped, isProtected, origin, budgeted);
 }
 
 std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::MakeFromBackendTexture(

@@ -1185,14 +1185,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
     SkDeferredDisplayListRecorder recorder(characterization);
 
     for (GrGLenum target : { GR_GL_TEXTURE_EXTERNAL, GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_2D } ) {
-        for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
+        for (auto mipmapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
             GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
 
             sk_sp<SkImage> image = SkImage::MakePromiseTexture(
                     recorder.getCanvas()->recordingContext()->threadSafeProxy(),
                     format,
                     SkISize::Make(32, 32),
-                    mipMapped,
+                    mipmapped,
                     kTopLeft_GrSurfaceOrigin,
                     kRGBA_8888_SkColorType,
                     kPremul_SkAlphaType,
@@ -1200,7 +1200,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
                     noop_fulfill_proc,
                     /*release proc*/ nullptr,
                     /*context*/nullptr);
-            if (GR_GL_TEXTURE_2D != target && mipMapped == GrMipmapped::kYes) {
+            if (GR_GL_TEXTURE_2D != target && mipmapped == GrMipmapped::kYes) {
                 REPORTER_ASSERT(reporter, !image);
                 continue;
             }
@@ -1208,7 +1208,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
 
             GrTextureProxy* backingProxy = sk_gpu_test::GetTextureImageProxy(image.get(), context);
 
-            REPORTER_ASSERT(reporter, backingProxy->mipmapped() == mipMapped);
+            REPORTER_ASSERT(reporter, backingProxy->mipmapped() == mipmapped);
             if (GR_GL_TEXTURE_2D == target) {
                 REPORTER_ASSERT(reporter, !backingProxy->hasRestrictedSampling());
             } else {

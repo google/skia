@@ -198,7 +198,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         GrContextThreadSafeProxy* tsp,
         SkISize dimensions,
         GrBackendFormat backendFormat,
-        GrMipmapped mipMapped,
+        GrMipmapped mipmapped,
         PromiseImageTextureFulfillProc fulfillProc,
         sk_sp<skgpu::RefCntedCallback> releaseHelper) {
     SkASSERT(tsp);
@@ -209,7 +209,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         return nullptr;
     }
 
-    if (mipMapped == GrMipmapped::kYes &&
+    if (mipmapped == GrMipmapped::kYes &&
         GrTextureTypeHasRestrictedSampling(backendFormat.textureType())) {
         // It is invalid to have a GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE and have mips as
         // well.
@@ -325,5 +325,5 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
     } callback(fulfillProc, std::move(releaseHelper));
 
     return GrProxyProvider::CreatePromiseProxy(tsp, std::move(callback), backendFormat, dimensions,
-                                               mipMapped);
+                                               mipmapped);
 }

@@ -365,7 +365,7 @@ private:
                               const GrMipLevel texels[],
                               int mipLevelCount);
     bool uploadTexDataCompressed(GrVkImage* tex, SkImage::CompressionType compression,
-                                 VkFormat vkFormat, SkISize dimensions, GrMipmapped mipMapped,
+                                 VkFormat vkFormat, SkISize dimensions, GrMipmapped mipmapped,
                                  const void* data, size_t dataSize);
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);

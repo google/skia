@@ -150,14 +150,14 @@ public:
                                    GrTextureType textureType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
-                                   GrMipmapped mipMapped,
+                                   GrMipmapped mipmapped,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected);
 
     sk_sp<GrTexture> createCompressedTexture(SkISize dimensions,
                                              const GrBackendFormat& format,
                                              SkBudgeted budgeted,
-                                             GrMipmapped mipMapped,
+                                             GrMipmapped mipmapped,
                                              GrProtected isProtected,
                                              const void* data, size_t dataSize);
 

@@ -344,7 +344,7 @@ static void copy_compressed_data(char* mapPtr, DXGI_FORMAT dxgiFormat,
 sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
                                                      const GrBackendFormat& format,
                                                      SkBudgeted budgeted,
-                                                     GrMipmapped mipMapped,
+                                                     GrMipmapped mipmapped,
                                                      GrProtected isProtected,
                                                      const void* data, size_t dataSize) {
     DXGI_FORMAT dxgiFormat;
@@ -353,10 +353,10 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
 
     SkDEBUGCODE(SkImage::CompressionType compression = GrBackendFormatToCompressionType(format));
     SkASSERT(dataSize == SkCompressedFormatDataSize(compression, dimensions,
-                                                    mipMapped == GrMipmapped::kYes));
+                                                    mipmapped == GrMipmapped::kYes));
 
     int mipLevelCount = 1;
-    if (mipMapped == GrMipmapped::kYes) {
+    if (mipmapped == GrMipmapped::kYes) {
         mipLevelCount = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
     GrMipmapStatus mipmapStatus = mipLevelCount > 1 ? GrMipmapStatus::kValid
@@ -1271,7 +1271,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
                                                       SkISize dimensions,
                                                       GrTexturable texturable,
                                                       GrRenderable renderable,
-                                                      GrMipmapped mipMapped,
+                                                      GrMipmapped mipmapped,
                                                       int sampleCnt,
                                                       GrD3DTextureResourceInfo* info,
                                                       GrProtected isProtected) {
@@ -1290,7 +1290,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     }
 
     int numMipLevels = 1;
-    if (mipMapped == GrMipmapped::kYes) {
+    if (mipmapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
@@ -1340,7 +1340,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
 GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
                                                   const GrBackendFormat& format,
                                                   GrRenderable renderable,
-                                                  GrMipmapped mipMapped,
+                                                  GrMipmapped mipmapped,
                                                   GrProtected isProtected) {
     const GrD3DCaps& caps = this->d3dCaps();
 
@@ -1360,7 +1360,7 @@ GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
 
     GrD3DTextureResourceInfo info;
     if (!this->createTextureResourceForBackendSurface(dxgiFormat, dimensions, GrTexturable::kYes,
-                                                      renderable, mipMapped, 1, &info,
+                                                      renderable, mipmapped, 1, &info,
                                                       isProtected)) {
         return {};
     }
@@ -1481,9 +1481,9 @@ bool GrD3DGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
 }
 
 GrBackendTexture GrD3DGpu::onCreateCompressedBackendTexture(
-    SkISize dimensions, const GrBackendFormat& format, GrMipmapped mipMapped,
+    SkISize dimensions, const GrBackendFormat& format, GrMipmapped mipmapped,
     GrProtected isProtected) {
-    return this->onCreateBackendTexture(dimensions, format, GrRenderable::kNo, mipMapped,
+    return this->onCreateBackendTexture(dimensions, format, GrRenderable::kNo, mipmapped,
                                         isProtected);
 }
 

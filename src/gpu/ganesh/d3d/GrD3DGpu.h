@@ -281,7 +281,7 @@ private:
                                                 SkISize dimensions,
                                                 GrTexturable texturable,
                                                 GrRenderable renderable,
-                                                GrMipmapped mipMapped,
+                                                GrMipmapped mipmapped,
                                                 int sampleCnt,
                                                 GrD3DTextureResourceInfo* info,
                                                 GrProtected isProtected);
