@@ -32,7 +32,6 @@ OpDecorate %43 RelaxedPrecision
 OpDecorate %45 RelaxedPrecision
 OpDecorate %47 RelaxedPrecision
 OpDecorate %48 RelaxedPrecision
-OpDecorate %49 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -88,6 +87,5 @@ OpStore %h4 %43
 %47 = OpLoad %float %46
 %48 = OpCompositeConstruct %v4float %float_0 %45 %float_0 %47
 OpStore %h4 %48
-%49 = OpLoad %v4float %h4
-OpReturnValue %49
+OpReturnValue %48
 OpFunctionEnd

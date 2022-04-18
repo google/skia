@@ -18,8 +18,6 @@ OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
 OpDecorate %value RelaxedPrecision
-OpDecorate %31 RelaxedPrecision
-OpDecorate %32 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -38,6 +36,7 @@ OpDecorate %32 RelaxedPrecision
 %int_0 = OpConstant %int 0
 %_ptr_Uniform_float = OpTypePointer Uniform %float
 %float_2 = OpConstant %float 2
+%31 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %float_1 = OpConstant %float 1
 %main = OpFunction %void None %14
 %15 = OpLabel
@@ -53,9 +52,7 @@ OpStore %value %float_0
 OpSelectionMerge %30 None
 OpBranchConditional %28 %29 %30
 %29 = OpLabel
-%31 = OpLoad %float %value
-%32 = OpCompositeConstruct %v4float %31 %31 %31 %31
-OpStore %sk_FragColor %32
+OpStore %sk_FragColor %31
 OpBranch %21
 %30 = OpLabel
 OpBranch %23

@@ -21,17 +21,11 @@ OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
 OpDecorate %32 RelaxedPrecision
-OpDecorate %37 RelaxedPrecision
-OpDecorate %39 RelaxedPrecision
 OpDecorate %47 RelaxedPrecision
-OpDecorate %49 RelaxedPrecision
 OpDecorate %50 RelaxedPrecision
 OpDecorate %52 RelaxedPrecision
 OpDecorate %54 RelaxedPrecision
-OpDecorate %57 RelaxedPrecision
-OpDecorate %59 RelaxedPrecision
-OpDecorate %61 RelaxedPrecision
-OpDecorate %62 RelaxedPrecision
+OpDecorate %55 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -76,31 +70,24 @@ OpFunctionEnd
 %32 = OpLoad %float %28
 %33 = OpFUnordNotEqual %bool %32 %float_0
 OpStore %b %33
-%37 = OpLoad %bool %b
-%38 = OpCompositeConstruct %v4bool %37 %37 %37 %37
-OpStore %b4 %38
-%39 = OpLoad %bool %b
-%41 = OpCompositeConstruct %v2bool %39 %39
-%42 = OpCompositeExtract %bool %41 0
-%43 = OpCompositeExtract %bool %41 1
-%46 = OpCompositeConstruct %v4bool %42 %43 %false %true
+%37 = OpCompositeConstruct %v4bool %33 %33 %33 %33
+OpStore %b4 %37
+%39 = OpCompositeConstruct %v2bool %33 %33
+%40 = OpCompositeExtract %bool %39 0
+%41 = OpCompositeExtract %bool %39 1
+%44 = OpCompositeConstruct %v4bool %40 %41 %false %true
+OpStore %b4 %44
+%45 = OpCompositeConstruct %v4bool %false %33 %true %false
+OpStore %b4 %45
+%46 = OpCompositeConstruct %v4bool %false %33 %false %33
 OpStore %b4 %46
-%47 = OpLoad %bool %b
-%48 = OpCompositeConstruct %v4bool %false %47 %true %false
-OpStore %b4 %48
-%49 = OpLoad %bool %b
-%50 = OpLoad %bool %b
-%51 = OpCompositeConstruct %v4bool %false %49 %false %50
-OpStore %b4 %51
-%52 = OpLoad %v4bool %b4
-%53 = OpCompositeExtract %bool %52 0
+%47 = OpSelect %float %false %float_1 %float_0
+%49 = OpCompositeExtract %bool %46 1
+%50 = OpSelect %float %49 %float_1 %float_0
+%51 = OpCompositeExtract %bool %46 2
+%52 = OpSelect %float %51 %float_1 %float_0
+%53 = OpCompositeExtract %bool %46 3
 %54 = OpSelect %float %53 %float_1 %float_0
-%56 = OpCompositeExtract %bool %52 1
-%57 = OpSelect %float %56 %float_1 %float_0
-%58 = OpCompositeExtract %bool %52 2
-%59 = OpSelect %float %58 %float_1 %float_0
-%60 = OpCompositeExtract %bool %52 3
-%61 = OpSelect %float %60 %float_1 %float_0
-%62 = OpCompositeConstruct %v4float %54 %57 %59 %61
-OpReturnValue %62
+%55 = OpCompositeConstruct %v4float %47 %50 %52 %54
+OpReturnValue %55
 OpFunctionEnd

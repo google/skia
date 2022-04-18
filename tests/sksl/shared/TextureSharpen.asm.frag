@@ -31,7 +31,7 @@ OpDecorate %24 RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
 OpDecorate %37 RelaxedPrecision
-OpDecorate %48 RelaxedPrecision
+OpDecorate %44 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -74,16 +74,12 @@ OpStore %c %33
 %37 = OpLoad %16 %two
 %36 = OpImageSampleProjImplicitLod %v4float %37 %39 Bias %float_n0_474999994
 OpStore %d %36
-%40 = OpLoad %v4float %a
-%41 = OpCompositeExtract %float %40 0
-%42 = OpLoad %v4float %b
-%43 = OpCompositeExtract %float %42 0
-%44 = OpLoad %v4float %c
-%45 = OpCompositeExtract %float %44 0
-%46 = OpLoad %v4float %d
-%47 = OpCompositeExtract %float %46 0
-%48 = OpCompositeConstruct %v4float %41 %43 %45 %47
-OpStore %sk_FragColor %48
+%40 = OpCompositeExtract %float %23 0
+%41 = OpCompositeExtract %float %28 0
+%42 = OpCompositeExtract %float %33 0
+%43 = OpCompositeExtract %float %36 0
+%44 = OpCompositeConstruct %v4float %40 %41 %42 %43
+OpStore %sk_FragColor %44
 OpReturn
 OpFunctionEnd
 

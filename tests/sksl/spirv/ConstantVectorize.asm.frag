@@ -20,7 +20,7 @@ OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %39 RelaxedPrecision
+OpDecorate %38 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -62,9 +62,8 @@ OpStore %a %27
 %33 = OpLoad %v2float %24
 %32 = OpExtInst %v2float %1 FMin %33 %30
 OpStore %b %32
-%34 = OpLoad %v2float %b
-OpStore %a %34
-%35 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%39 = OpLoad %v4float %35
-OpReturnValue %39
+OpStore %a %32
+%34 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%38 = OpLoad %v4float %34
+OpReturnValue %38
 OpFunctionEnd

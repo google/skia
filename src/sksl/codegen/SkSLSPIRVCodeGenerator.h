@@ -441,6 +441,8 @@ private:
     SpvId writeOpCompositeExtract(const Type& type, SpvId base, int component, OutputStream& out);
     SpvId writeOpCompositeExtract(const Type& type, SpvId base, int componentA, int componentB,
                                   OutputStream& out);
+    SpvId writeOpLoad(SpvId type, Precision precision, SpvId pointer, OutputStream& out);
+    void writeOpStore(SpvStorageClass_ storageClass, SpvId pointer, SpvId value, OutputStream& out);
 
     // Converts the provided SpvId(s) into an array of scalar OpConstants, if it can be done.
     bool toConstants(SpvId value, SkTArray<SpvId>* constants);
@@ -451,7 +453,12 @@ private:
     int numComponentsForVecInstruction(const Instruction& instr);
     SpvId toComponent(SpvId id, int component);
 
-    void pruneReachableOps(size_t numReachableOps);
+    struct ConditionalOpCounts {
+        size_t numReachableOps;
+        size_t numStoreOps;
+    };
+    ConditionalOpCounts getConditionalOpCounts();
+    void pruneConditionalOps(ConditionalOpCounts ops);
 
     bool isDead(const Variable& var) const;
 
@@ -504,6 +511,7 @@ private:
     // it back to its source).
     SkTHashMap<Instruction, SpvId, Instruction::Hash> fOpCache;  // maps instruction -> SpvId
     SkTHashMap<SpvId, Instruction> fSpvIdCache;                  // maps SpvId -> instruction
+    SkTHashMap<SpvId, SpvId> fStoreCache;                        // maps ptr SpvId -> value SpvId
 
     // "Reachable" ops are instructions which can safely be accessed from the current block.
     // For instance, if our SPIR-V contains `%3 = OpFAdd %1 %2`, we would be able to access and
@@ -513,6 +521,12 @@ private:
     // same logic applies to other control-flow blocks as well. Once an instruction becomes
     // unreachable, we remove it from both op-caches.
     std::vector<SpvId> fReachableOps;
+
+    // The "store-ops" list contains a running list of all the pointers in the store cache. If a
+    // store occurs inside of a conditional block, once that block exits, we no longer know what is
+    // stored in that particular SpvId. At that point, we must remove any associated entry from the
+    // store cache.
+    std::vector<SpvId> fStoreOps;
 
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;

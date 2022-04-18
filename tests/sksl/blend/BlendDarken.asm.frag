@@ -43,9 +43,6 @@ OpDecorate %47 RelaxedPrecision
 OpDecorate %49 RelaxedPrecision
 OpDecorate %50 RelaxedPrecision
 OpDecorate %51 RelaxedPrecision
-OpDecorate %52 RelaxedPrecision
-OpDecorate %53 RelaxedPrecision
-OpDecorate %54 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -94,14 +91,11 @@ OpStore %_0_a %32
 %46 = OpVectorShuffle %v3float %45 %45 0 1 2
 %47 = OpFAdd %v3float %43 %46
 OpStore %_1_b %47
-%49 = OpLoad %v4float %_0_a
-%50 = OpVectorShuffle %v3float %49 %49 0 1 2
-%51 = OpLoad %v3float %_1_b
-%48 = OpExtInst %v3float %1 FMin %50 %51
-%52 = OpLoad %v4float %_0_a
-%53 = OpVectorShuffle %v4float %52 %48 4 5 6 3
-OpStore %_0_a %53
-%54 = OpLoad %v4float %_0_a
-OpStore %sk_FragColor %54
+%49 = OpVectorShuffle %v3float %32 %32 0 1 2
+%48 = OpExtInst %v3float %1 FMin %49 %47
+%50 = OpLoad %v4float %_0_a
+%51 = OpVectorShuffle %v4float %50 %48 4 5 6 3
+OpStore %_0_a %51
+OpStore %sk_FragColor %51
 OpReturn
 OpFunctionEnd

@@ -14,13 +14,7 @@ OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %x RelaxedPrecision
-OpDecorate %33 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
-OpDecorate %35 RelaxedPrecision
-OpDecorate %36 RelaxedPrecision
-OpDecorate %37 RelaxedPrecision
-OpDecorate %38 RelaxedPrecision
-OpDecorate %39 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -43,6 +37,7 @@ OpDecorate %39 RelaxedPrecision
 %29 = OpConstantComposite %v2float %float_0 %float_1
 %30 = OpConstantComposite %v2float %float_2 %float_3
 %31 = OpConstantComposite %mat2v2float %29 %30
+%33 = OpConstantComposite %v4float %float_0 %float_1 %float_2 %float_3
 %_entrypoint_v = OpFunction %void None %12
 %13 = OpLabel
 %17 = OpVariable %_ptr_Function_v2float Function
@@ -57,15 +52,8 @@ OpFunctionEnd
 %x = OpVariable %_ptr_Function_mat2v2float Function
 %y = OpVariable %_ptr_Function_v2float Function
 OpStore %x %31
-%33 = OpLoad %mat2v2float %x
-%34 = OpCompositeExtract %float %33 0 0
-%35 = OpCompositeExtract %float %33 0 1
-%36 = OpCompositeExtract %float %33 1 0
-%37 = OpCompositeExtract %float %33 1 1
-%38 = OpCompositeConstruct %v4float %34 %35 %36 %37
-%39 = OpVectorShuffle %v2float %38 %38 0 1
-OpStore %y %39
-%40 = OpLoad %v2float %y
-%41 = OpVectorShuffle %v4float %40 %40 0 1 0 1
-OpReturnValue %41
+%34 = OpVectorShuffle %v2float %33 %33 0 1
+OpStore %y %34
+%35 = OpVectorShuffle %v4float %34 %34 0 1 0 1
+OpReturnValue %35
 OpFunctionEnd

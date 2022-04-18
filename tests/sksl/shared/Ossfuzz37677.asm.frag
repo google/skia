@@ -22,7 +22,7 @@ OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
 OpDecorate %_arr_int_int_1 ArrayStride 16
-OpDecorate %40 RelaxedPrecision
+OpDecorate %39 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -63,11 +63,10 @@ OpFunctionEnd
 %z = OpVariable %_ptr_Function_int Function
 OpStore %y %int_0
 OpStore %z %int_0
-%35 = OpLoad %int %z
-OpStore %y %35
-%36 = OpAccessChain %_ptr_Function_int %x %35
-%37 = OpLoad %int %36
-%38 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%40 = OpLoad %v4float %38
-OpReturnValue %40
+OpStore %y %int_0
+%35 = OpAccessChain %_ptr_Function_int %x %int_0
+%36 = OpLoad %int %35
+%37 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%39 = OpLoad %v4float %37
+OpReturnValue %39
 OpFunctionEnd

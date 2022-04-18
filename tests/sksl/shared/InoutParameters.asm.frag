@@ -38,12 +38,9 @@ OpDecorate %58 RelaxedPrecision
 OpDecorate %59 RelaxedPrecision
 OpDecorate %61 RelaxedPrecision
 OpDecorate %62 RelaxedPrecision
-OpDecorate %63 RelaxedPrecision
+OpDecorate %64 RelaxedPrecision
 OpDecorate %65 RelaxedPrecision
-OpDecorate %66 RelaxedPrecision
 OpDecorate %67 RelaxedPrecision
-OpDecorate %69 RelaxedPrecision
-OpDecorate %71 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -118,24 +115,21 @@ OpFunctionEnd
 %c = OpVariable %_ptr_Function_v4float Function
 %56 = OpVariable %_ptr_Function_v4float Function
 %59 = OpVariable %_ptr_Function_v4float Function
-%63 = OpVariable %_ptr_Function_v4float Function
-%67 = OpVariable %_ptr_Function_v4float Function
+%62 = OpVariable %_ptr_Function_v4float Function
+%65 = OpVariable %_ptr_Function_v4float Function
 %57 = OpFunctionCall %void %outParameterWrite_vh4 %56
 %58 = OpLoad %v4float %56
 OpStore %c %58
 %60 = OpFunctionCall %void %outParameterWriteIndirect_vh4 %59
 %61 = OpLoad %v4float %59
 OpStore %c %61
-%62 = OpLoad %v4float %c
-OpStore %63 %62
-%64 = OpFunctionCall %void %inoutParameterWrite_vh4 %63
-%65 = OpLoad %v4float %63
-OpStore %c %65
-%66 = OpLoad %v4float %c
-OpStore %67 %66
-%68 = OpFunctionCall %void %inoutParameterWriteIndirect_vh4 %67
-%69 = OpLoad %v4float %67
-OpStore %c %69
-%71 = OpLoad %v4float %c
-OpReturnValue %71
+OpStore %62 %61
+%63 = OpFunctionCall %void %inoutParameterWrite_vh4 %62
+%64 = OpLoad %v4float %62
+OpStore %c %64
+OpStore %65 %64
+%66 = OpFunctionCall %void %inoutParameterWriteIndirect_vh4 %65
+%67 = OpLoad %v4float %65
+OpStore %c %67
+OpReturnValue %67
 OpFunctionEnd

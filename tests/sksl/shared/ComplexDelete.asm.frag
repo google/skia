@@ -56,7 +56,7 @@ OpDecorate %24 RelaxedPrecision
 %38 = OpConstantComposite %mat4v4float %34 %35 %36 %37
 %v4bool = OpTypeVector %bool 4
 %v3float = OpTypeVector %float 3
-%71 = OpConstantComposite %v3float %float_0 %float_0 %float_0
+%70 = OpConstantComposite %v3float %float_0 %float_0 %float_0
 %main = OpFunction %void None %19
 %20 = OpLabel
 %tmpColor = OpVariable %_ptr_Function_v4float Function
@@ -86,32 +86,27 @@ OpBranchConditional %54 %56 %57
 %56 = OpLabel
 %60 = OpAccessChain %_ptr_Uniform_mat4v4float %14 %int_0
 %61 = OpLoad %mat4v4float %60
-%62 = OpLoad %v4float %tmpColor
-%63 = OpVectorShuffle %v3float %62 %62 0 1 2
-%65 = OpCompositeExtract %float %63 0
-%66 = OpCompositeExtract %float %63 1
-%67 = OpCompositeExtract %float %63 2
-%68 = OpCompositeConstruct %v4float %65 %66 %67 %float_1
-%69 = OpMatrixTimesVector %v4float %61 %68
-%70 = OpVectorShuffle %v3float %69 %69 0 1 2
-%72 = OpLoad %v4float %tmpColor
-%73 = OpCompositeExtract %float %72 3
-%74 = OpCompositeConstruct %v3float %73 %73 %73
-%59 = OpExtInst %v3float %1 FClamp %70 %71 %74
-%75 = OpCompositeExtract %float %59 0
-%76 = OpCompositeExtract %float %59 1
-%77 = OpCompositeExtract %float %59 2
-%78 = OpLoad %v4float %tmpColor
-%79 = OpCompositeExtract %float %78 3
-%80 = OpCompositeConstruct %v4float %75 %76 %77 %79
-OpStore %55 %80
+%62 = OpVectorShuffle %v3float %23 %23 0 1 2
+%64 = OpCompositeExtract %float %62 0
+%65 = OpCompositeExtract %float %62 1
+%66 = OpCompositeExtract %float %62 2
+%67 = OpCompositeConstruct %v4float %64 %65 %66 %float_1
+%68 = OpMatrixTimesVector %v4float %61 %67
+%69 = OpVectorShuffle %v3float %68 %68 0 1 2
+%71 = OpCompositeExtract %float %23 3
+%72 = OpCompositeConstruct %v3float %71 %71 %71
+%59 = OpExtInst %v3float %1 FClamp %69 %70 %72
+%73 = OpCompositeExtract %float %59 0
+%74 = OpCompositeExtract %float %59 1
+%75 = OpCompositeExtract %float %59 2
+%76 = OpCompositeConstruct %v4float %73 %74 %75 %71
+OpStore %55 %76
 OpBranch %58
 %57 = OpLabel
-%81 = OpLoad %v4float %tmpColor
-OpStore %55 %81
+OpStore %55 %23
 OpBranch %58
 %58 = OpLabel
-%82 = OpLoad %v4float %55
-OpStore %sk_FragColor %82
+%77 = OpLoad %v4float %55
+OpStore %sk_FragColor %77
 OpReturn
 OpFunctionEnd
