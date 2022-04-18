@@ -917,8 +917,6 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> ty
             loadFlags |= FT_LOAD_VERTICAL_LAYOUT;
         }
 
-        loadFlags |= FT_LOAD_COLOR;
-
         fLoadGlyphFlags = loadFlags;
     }
 
@@ -966,6 +964,14 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> ty
             fMatrix22Scalar.preScale(fScale.x() / x_ppem, fScale.y() / y_ppem);
         }
 
+        // FT_LOAD_COLOR with scalable fonts means allow SVG.
+        // It also implies attempt to render COLR if available, but this is not used.
+#if defined(FT_CONFIG_OPTION_SVG)
+        const bool svgSupport = false;
+        if (svgSupport) {
+            fLoadGlyphFlags |= FT_LOAD_COLOR;
+        }
+#endif
     } else if (FT_HAS_FIXED_SIZES(fFaceRec->fFace)) {
         fStrikeIndex = chooseBitmapStrike(fFaceRec->fFace.get(), scaleY);
         if (fStrikeIndex == -1) {
@@ -997,6 +1003,9 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> ty
         // However, in FreeType 2.5.1 color bitmap only fonts do not ignore this flag.
         // Force this flag off for bitmap only fonts.
         fLoadGlyphFlags &= ~FT_LOAD_NO_BITMAP;
+
+        // Color bitmaps are supported.
+        fLoadGlyphFlags |= FT_LOAD_COLOR;
     } else {
         LOG_INFO("Unknown kind of font \"%s\" size %f.\n", fFaceRec->fFace->family_name, fScale.fY);
         return;
