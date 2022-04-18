@@ -76,12 +76,11 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
     info.preferredLargeHeapBlockSize = 4*1024*1024;
     info.pAllocationCallbacks = nullptr;
     info.pDeviceMemoryCallbacks = nullptr;
-    info.frameInUseCount = 0;
     info.pHeapSizeLimit = nullptr;
     info.pVulkanFunctions = &functions;
-    info.pRecordSettings = nullptr;
     info.instance = instance;
     info.vulkanApiVersion = physicalDeviceVersion;
+    info.pTypeExternalMemoryHandleTypes = nullptr;
 
     VmaAllocator allocator;
     vmaCreateAllocator(&info, &allocator);
@@ -265,15 +264,15 @@ VkResult GrVkAMDMemoryAllocator::invalidateMemory(const GrVkBackendMemory& memor
 }
 
 uint64_t GrVkAMDMemoryAllocator::totalUsedMemory() const {
-    VmaStats stats;
-    vmaCalculateStats(fAllocator, &stats);
-    return stats.total.usedBytes;
+    VmaTotalStatistics stats;
+    vmaCalculateStatistics(fAllocator, &stats);
+    return stats.total.statistics.allocationBytes;
 }
 
 uint64_t GrVkAMDMemoryAllocator::totalAllocatedMemory() const {
-    VmaStats stats;
-    vmaCalculateStats(fAllocator, &stats);
-    return stats.total.usedBytes + stats.total.unusedBytes;
+    VmaTotalStatistics stats;
+    vmaCalculateStatistics(fAllocator, &stats);
+    return stats.total.statistics.blockBytes;
 }
 
 #endif // SK_USE_VMA
