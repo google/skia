@@ -105,15 +105,14 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(const Context& ctx,
         return nullptr;
     }
 
-    static const float kRoundOutInset = 1e-3f;
-    const SkIRect dstIRect = dstRect.makeInset(kRoundOutInset, kRoundOutInset).roundOut();
+    const SkIRect dstIRect = skif::RoundOut(dstRect);
     if (!fSrcRect.width() || !fSrcRect.height() || !dstIRect.width() || !dstIRect.height()) {
         return nullptr;
     }
 
     SkRect srcRect;
     ctx.ctm().mapRect(&srcRect, fSrcRect);
-    SkIRect srcIRect = srcRect.makeInset(kRoundOutInset, kRoundOutInset).roundOut();
+    SkIRect srcIRect = skif::RoundOut(srcRect);
     srcIRect.offset(-inputOffset);
     const SkIRect inputBounds = SkIRect::MakeWH(input->width(), input->height());
 
