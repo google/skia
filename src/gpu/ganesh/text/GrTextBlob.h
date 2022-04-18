@@ -219,7 +219,6 @@ public:
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
                                   const SkPaint& paint,
                                   const SkMatrix& positionMatrix,
-                                  bool supportBilerpAtlas,
                                   const GrSDFTControl& control,
                                   SkGlyphRunListPainter* painter);
 
@@ -253,7 +252,6 @@ public:
 
 private:
     GrTextBlob(int allocSize,
-               bool supportBilerpAtlas,
                const SkMatrix& positionMatrix,
                SkColor initialLuminance);
 

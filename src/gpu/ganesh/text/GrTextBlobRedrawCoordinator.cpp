@@ -53,10 +53,8 @@ void GrTextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
             this->remove(blob.get());
         }
 
-        const bool padAtlas =
-                sdc->recordingContext()->priv().options().fSupportBilerpFromGlyphAtlas;
         blob = GrTextBlob::Make(
-                glyphRunList, paint, positionMatrix, padAtlas, control, sdc->glyphRunPainter());
+                glyphRunList, paint, positionMatrix, control, sdc->glyphRunPainter());
 
         if (canCache) {
             blob->addKey(key);

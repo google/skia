@@ -2061,7 +2061,6 @@ GrTextBlob::~GrTextBlob() = default;
 sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
                                    const SkPaint& paint,
                                    const SkMatrix& positionMatrix,
-                                   bool supportBilerpAtlas,
                                    const GrSDFTControl& control,
                                    SkGlyphRunListPainter* painter) {
     // The difference in alignment from the per-glyph data to the SubRun;
@@ -2084,7 +2083,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
     SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(paint);
     sk_sp<GrTextBlob> blob{
         new (allocation) GrTextBlob(
-                bytesNeededForSubRun, supportBilerpAtlas, positionMatrix, initialLuminance)};
+                bytesNeededForSubRun, positionMatrix, initialLuminance)};
 
     const uint64_t uniqueID = glyphRunList.uniqueID();
     for (auto& glyphRun : glyphRunList) {
@@ -2156,12 +2155,11 @@ const GrAtlasSubRun* GrTextBlob::testingOnlyFirstSubRun() const {
 }
 
 GrTextBlob::GrTextBlob(int allocSize,
-                       bool supportBilerpAtlas,
                        const SkMatrix& positionMatrix,
                        SkColor initialLuminance)
         : fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2}
         , fSize{allocSize}
-        , fSupportBilerpAtlas{supportBilerpAtlas}
+        , fSupportBilerpAtlas{false}
         , fInitialPositionMatrix{positionMatrix}
         , fInitialLuminance{initialLuminance} { }
 
