@@ -57,21 +57,31 @@
 #error "Another copy of this file has already been included."
 #endif
 
-#define TRACE_EMPTY do {} while (0)
+#ifdef SK_DEBUG
+static void skprintf_like_noop(const char format[], ...) SK_PRINTF_LIKE(1, 2);
+static inline void skprintf_like_noop(const char format[], ...) {}
+static inline void sk_noop(...) {}
+#define TRACE_EMPTY(...) do { sk_noop(__VA_ARGS__); } while (0)
+#define TRACE_EMPTY_FMT(fmt, ...) do { skprintf_like_noop(fmt, ##__VA_ARGS__); } while (0)
+#else
+#define TRACE_EMPTY(...) do {} while (0)
+#define TRACE_EMPTY_FMT(fmt, ...) do {} while (0)
+#endif
 
 #ifdef SK_DISABLE_TRACING
 
-#define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
-#define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...) TRACE_EMPTY
-#define TRACE_EVENT0(cg, n) TRACE_EMPTY
-#define TRACE_EVENT0_ALWAYS(cg, n) TRACE_EMPTY
-#define TRACE_EVENT1(cg, n, a1n, a1v) TRACE_EMPTY
-#define TRACE_EVENT2(cg, n, a1n, a1v, a2n, a2v) TRACE_EMPTY
-#define TRACE_EVENT_INSTANT0(cg, n, scope) TRACE_EMPTY
-#define TRACE_EVENT_INSTANT1(cg, n, scope, a1n, a1v) TRACE_EMPTY
-#define TRACE_EVENT_INSTANT2(cg, n, scope, a1n, a1v, a2n, a2v) TRACE_EMPTY
-#define TRACE_COUNTER1(cg, n, value) TRACE_EMPTY
-#define TRACE_COUNTER2(cg, n, v1n, v1v, v2n, v2v) TRACE_EMPTY
+#define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY_FMT(fmt, ##__VA_ARGS__)
+#define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...) TRACE_EMPTY_FMT(fmt, ##__VA_ARGS__)
+#define TRACE_EVENT0(cg, n) TRACE_EMPTY(cg, n)
+#define TRACE_EVENT0_ALWAYS(cg, n) TRACE_EMPTY(cg, n)
+#define TRACE_EVENT1(cg, n, a1n, a1v) TRACE_EMPTY(cg, n, a1n, a1v)
+#define TRACE_EVENT2(cg, n, a1n, a1v, a2n, a2v) TRACE_EMPTY(cg, n, a1n, a1v, a2n, a2v)
+#define TRACE_EVENT_INSTANT0(cg, n, scope) TRACE_EMPTY(cg, n, scope)
+#define TRACE_EVENT_INSTANT1(cg, n, scope, a1n, a1v) TRACE_EMPTY(cg, n, scope, a1n, a1v)
+#define TRACE_EVENT_INSTANT2(cg, n, scope, a1n, a1v, a2n, a2v)  \
+    TRACE_EMPTY(cg, n, scope, a1n, a1v, a2n, a2v)
+#define TRACE_COUNTER1(cg, n, value) TRACE_EMPTY(cg, n, value)
+#define TRACE_COUNTER2(cg, n, v1n, v1v, v2n, v2v) TRACE_EMPTY(cg, n, v1n, v1v, v2n, v2v)
 
 #elif defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 
@@ -181,9 +191,12 @@ public:
     } while (0)
 
 // ATrace has no object tracking
-#define TRACE_EVENT_OBJECT_CREATED_WITH_ID(category_group, name, id) TRACE_EMPTY
-#define TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID(category_group, name, id, snapshot) TRACE_EMPTY
-#define TRACE_EVENT_OBJECT_DELETED_WITH_ID(category_group, name, id) TRACE_EMPTY
+#define TRACE_EVENT_OBJECT_CREATED_WITH_ID(category_group, name, id) \
+    TRACE_EMPTY(category_group, name, id)
+#define TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID(category_group, name, id, snapshot) \
+    TRACE_EMPTY(category_group, name, id, snapshot)
+#define TRACE_EVENT_OBJECT_DELETED_WITH_ID(category_group, name, id) \
+    TRACE_EMPTY(category_group, name, id)
 
 // Macro to efficiently determine if a given category group is enabled.
 // This is only used for some shader text logging that isn't supported in ATrace anyway.
@@ -192,8 +205,8 @@ public:
 
 #else // !SK_BUILD_FOR_ANDROID_FRAMEWORK && !SK_DISABLE_TRACING
 
-#define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
-#define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...) TRACE_EMPTY
+#define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY_FMT(fmt, ##__VA_ARGS__)
+#define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...) TRACE_EMPTY_FMT(fmt, ##__VA_ARGS__)
 
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. If the category is not enabled, then this does nothing.
