@@ -458,12 +458,14 @@ private:
     // Returns false if the final device coordinate space is invalid, in which case the canvas
     // should discard the device
     bool SK_WARN_UNUSED_RESULT setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
+                                                         const SkM44& globalToDevice,
                                                          const SkM44& localToDevice,
-                                                         int bufferOriginX, int bufferOriginY);
+                                                         int bufferOriginX,
+                                                         int bufferOriginY);
     // Convenience to configure the device to be axis-aligned with the root canvas, but with a
     // unique origin.
     void setOrigin(const SkM44& globalCTM, int x, int y) {
-        SkAssertResult(this->setDeviceCoordinateSystem(SkM44(), globalCTM, x, y));
+        SkAssertResult(this->setDeviceCoordinateSystem(SkM44(), SkM44(), globalCTM, x, y));
     }
 
     virtual SkImageFilterCache* getImageFilterCache() { return nullptr; }

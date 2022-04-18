@@ -468,7 +468,8 @@ public:
         SkAssertResult(this->adjustLayerSpace(SkMatrix::Translate(-origin.x(), -origin.y())));
     }
 
-    const SkMatrix& deviceMatrix() const { return fLayerToDevMatrix; }
+    const SkMatrix& layerToDevice() const { return fLayerToDevMatrix; }
+    const SkMatrix& deviceToLayer() const { return fDevToLayerMatrix; }
     const SkMatrix& layerMatrix() const { return fParamToLayerMatrix; }
     SkMatrix totalMatrix() const {
         return SkMatrix::Concat(fLayerToDevMatrix, fParamToLayerMatrix);
