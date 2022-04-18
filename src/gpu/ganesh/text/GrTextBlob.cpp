@@ -2082,8 +2082,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
 
     SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(paint);
     sk_sp<GrTextBlob> blob{
-        new (allocation) GrTextBlob(
-                bytesNeededForSubRun, positionMatrix, initialLuminance)};
+        new (allocation) GrTextBlob(bytesNeededForSubRun, positionMatrix, initialLuminance)};
 
     const uint64_t uniqueID = glyphRunList.uniqueID();
     for (auto& glyphRun : glyphRunList) {
@@ -2159,7 +2158,6 @@ GrTextBlob::GrTextBlob(int allocSize,
                        SkColor initialLuminance)
         : fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2}
         , fSize{allocSize}
-        , fSupportBilerpAtlas{false}
         , fInitialPositionMatrix{positionMatrix}
         , fInitialLuminance{initialLuminance} { }
 
