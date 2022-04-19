@@ -80,7 +80,7 @@ DEF_SIMPLE_GM(imagemasksubset, canvas, 480, 480) {
     const SkImageInfo info = SkImageInfo::MakeA8(kSize.width(), kSize.height());
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(makers); ++i) {
-        sk_sp<SkImage> image = makers[i](canvas, info);
+        sk_sp<SkImage> image = ToolUtils::MakeTextureImage(canvas, makers[i](canvas, info));
         if (image) {
             canvas->drawImageRect(image, SkRect::Make(kSubset), kDest, SkSamplingOptions(),
                                   &paint, SkCanvas::kStrict_SrcRectConstraint);

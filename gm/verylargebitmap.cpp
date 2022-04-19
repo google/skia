@@ -24,6 +24,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
 
 static void draw(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
     const SkPoint center = { SkIntToScalar(width)/2, SkIntToScalar(height)/2 };
@@ -54,7 +55,10 @@ typedef sk_sp<SkImage> (*ImageMakerProc)(int width, int height, SkColor colors[2
 
 static void show_image(SkCanvas* canvas, int width, int height, SkColor colors[2],
                        ImageMakerProc proc) {
-    sk_sp<SkImage> image(proc(width, height, colors));
+    sk_sp<SkImage> image = ToolUtils::MakeTextureImage(canvas, proc(width, height, colors));
+    if (!image) {
+        return;
+    }
 
     SkPaint borderPaint;
 

@@ -21,10 +21,14 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/ports/SkTypeface_win.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkFloatingPoint.h"
 #include "src/core/SkFontPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <cmath>
@@ -515,6 +519,33 @@ void sniff_paths(const char filepath[], std::function<PathSniffCallback> callbac
         }
         skp->playback(&pathSniffer);
     }
+}
+
+sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig) {
+    if (!orig) {
+        return nullptr;
+    }
+
+    if (canvas->recordingContext() && canvas->recordingContext()->asDirectContext()) {
+        GrDirectContext* dContext = canvas->recordingContext()->asDirectContext();
+        const GrCaps* caps = dContext->priv().caps();
+
+        if (orig->width() >= caps->maxTextureSize() || orig->height() >= caps->maxTextureSize()) {
+            // Ganesh is able to tile large SkImage draws. Always forcing SkImages to be uploaded
+            // prevents this feature from being tested by our tools. For now, leave excessively
+            // large SkImages as bitmaps.
+            return orig;
+        }
+
+        return orig->makeTextureImage(dContext);
+    }
+#if SK_GRAPHITE_ENABLED
+    else if (canvas->recorder()) {
+        return orig->makeTextureImage(canvas->recorder());
+    }
+#endif
+
+    return orig;
 }
 
 }  // namespace ToolUtils

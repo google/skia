@@ -268,28 +268,16 @@ protected:
             {  30,  30,  75,  75 }
         };
 
+        auto rContext = canvas->recordingContext();
+        if (rContext && rContext->abandoned()) {
+            *errorMsg = "Direct context abandoned.";
+            return DrawResult::kSkip;
+        }
+
         // These need to be GPU-backed when on the GPU to ensure that the image filters use the GPU
         // code paths (otherwise they may choose to do CPU filtering then upload)
-        sk_sp<SkImage> mainImage, auxImage;
-
-        auto rContext = canvas->recordingContext();
-        // In a DDL context, we can't use the GPU code paths and we will drop the work – skip.
-        auto dContext = GrAsDirectContext(rContext);
-        if (rContext) {
-            if (!dContext) {
-                *errorMsg = "Requires a direct context.";
-                return DrawResult::kSkip;
-            }
-            if (dContext->abandoned()) {
-                *errorMsg = "Direct context abandoned.";
-                return DrawResult::kSkip;
-            }
-            mainImage = fMainImage->makeTextureImage(dContext);
-            auxImage = fAuxImage->makeTextureImage(dContext);
-        } else {
-            mainImage = fMainImage;
-            auxImage = fAuxImage;
-        }
+        sk_sp<SkImage> mainImage = ToolUtils::MakeTextureImage(canvas, fMainImage);
+        sk_sp<SkImage> auxImage = ToolUtils::MakeTextureImage(canvas, fAuxImage);
         if (!mainImage || !auxImage) {
             return DrawResult::kFail;
         }
@@ -382,8 +370,10 @@ private:
             auto rContext = canvas->recordingContext();
             result = mainImage->makeWithFilter(rContext, filter.get(), subset, clip,
                                                &outSubset, &offset);
+            if (!result) {
+                return;
+            }
 
-            SkASSERT(result);
             SkASSERT(mainImage->isTextureBacked() == result->isTextureBacked());
 
             *dstRect = SkIRect::MakeXYWH(offset.x(), offset.y(),

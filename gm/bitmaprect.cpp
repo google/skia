@@ -20,20 +20,21 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
 
-static sk_sp<SkImage> make_image() {
+static sk_sp<SkImage> make_image(SkCanvas* destCanvas) {
     auto surf = SkSurface::MakeRasterN32Premul(64, 64);
-    auto canvas = surf->getCanvas();
+    auto tmpCanvas = surf->getCanvas();
 
-    canvas->drawColor(SK_ColorRED);
+    tmpCanvas->drawColor(SK_ColorRED);
     SkPaint paint;
     paint.setAntiAlias(true);
     const SkPoint pts[] = { { 0, 0 }, { 64, 64 } };
     const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
-    canvas->drawCircle(32, 32, 32, paint);
+    tmpCanvas->drawCircle(32, 32, 32, paint);
 
-    return surf->makeImageSnapshot();
+    return ToolUtils::MakeTextureImage(destCanvas, surf->makeImageSnapshot());
 }
 
 class DrawBitmapRect2 : public skiagm::GM {
@@ -67,7 +68,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         auto sampling = SkSamplingOptions();
 
-        auto image = make_image();
+        auto image = make_image(canvas);
 
         SkRect dstR = { 0, 200, 128, 380 };
 
@@ -152,7 +153,8 @@ protected:
         SkRect srcR = { 0.5f, 0.5f, 2.5f, 2.5f };
         SkRect dstR = { 100, 100, 300, 200 };
 
-        canvas->drawImageRect(bitmap.asImage(), srcR, dstR, SkSamplingOptions(),
+        canvas->drawImageRect(ToolUtils::MakeTextureImage(canvas, bitmap.asImage()),
+                              srcR, dstR, SkSamplingOptions(),
                               nullptr, SkCanvas::kStrict_SrcRectConstraint);
     }
 
@@ -161,7 +163,7 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-static sk_sp<SkImage> make_big_bitmap() {
+static sk_sp<SkImage> make_big_bitmap(SkCanvas* canvas) {
 
     constexpr int gXSize = 4096;
     constexpr int gYSize = 4096;
@@ -180,7 +182,7 @@ static sk_sp<SkImage> make_big_bitmap() {
         }
     }
     bitmap.setImmutable();
-    return bitmap.asImage();
+    return ToolUtils::MakeTextureImage(canvas, bitmap.asImage());
 }
 
 // This GM attempts to reveal any issues we may have when the GPU has to
@@ -207,11 +209,11 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onOnceBeforeDraw() override {
-        fBigImage = make_big_bitmap();
-    }
-
     void onDraw(SkCanvas* canvas) override {
+        if (!fBigImage) {
+            fBigImage = make_big_bitmap(canvas);
+        }
+
         SkPaint paint;
         paint.setAlpha(128);
         paint.setBlendMode(SkBlendMode::kXor);
