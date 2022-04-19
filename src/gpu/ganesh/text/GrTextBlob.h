@@ -284,9 +284,6 @@ private:
     // Overall size of this struct plus vertices and glyphs at the end.
     const int fSize;
 
-    // Support using bilerp for directly mapped sub runs.
-    [[maybe_unused]] const bool fSupportBilerpAtlas{false};
-
     // The initial view matrix combined with the initial origin. Used to determine if a cached
     // subRun can be used in this draw situation.
     const SkMatrix fInitialPositionMatrix;
