@@ -3424,9 +3424,17 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
 // true if only need to translate by integer amount, device rect.
 std::tuple<bool, SkRect>
 DirectMaskSubRunSlug::deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const {
-    SkPoint offset =
-            positionMatrix.mapOrigin() - fReferenceFrame->initialPositionMatrix().mapOrigin();
-    if (positionMatrix.isTranslate() && SkScalarIsInt(offset.x()) && SkScalarIsInt(offset.y())) {
+    const SkMatrix& initialMatrix = fReferenceFrame->initialPositionMatrix();
+    const SkPoint offset = positionMatrix.mapOrigin() - initialMatrix.mapOrigin();
+
+    const bool compatibleMatrix = positionMatrix[0] == initialMatrix[0] &&
+                                  positionMatrix[1] == initialMatrix[1] &&
+                                  positionMatrix[3] == initialMatrix[3] &&
+                                  positionMatrix[4] == initialMatrix[4] &&
+                                  !positionMatrix.hasPerspective() &&
+                                  !initialMatrix.hasPerspective();
+
+    if (compatibleMatrix && SkScalarIsInt(offset.x()) && SkScalarIsInt(offset.y())) {
         // Handle the integer offset case.
         // The offset should be integer, but make sure.
         SkIVector iOffset = {SkScalarRoundToInt(offset.x()), SkScalarRoundToInt(offset.y())};
