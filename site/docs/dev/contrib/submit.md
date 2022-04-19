@@ -31,7 +31,7 @@ If your branch gets out of date, you will need to update it:
 <!--?prettify lang=sh?-->
 
     git pull
-    python2 tools/git-sync-deps
+    python3 tools/git-sync-deps
 
 ## Adding a unit test
 
