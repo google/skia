@@ -276,20 +276,20 @@ void SPIRVCodeGenerator::writeWord(int32_t word, OutputStream& out) {
     out.write((const char*) &word, sizeof(word));
 }
 
-static bool is_float(const Context& context, const Type& type) {
+static bool is_float(const Type& type) {
     return (type.isScalar() || type.isVector() || type.isMatrix()) &&
            type.componentType().isFloat();
 }
 
-static bool is_signed(const Context& context, const Type& type) {
+static bool is_signed(const Type& type) {
     return (type.isScalar() || type.isVector()) && type.componentType().isSigned();
 }
 
-static bool is_unsigned(const Context& context, const Type& type) {
+static bool is_unsigned(const Type& type) {
     return (type.isScalar() || type.isVector()) && type.componentType().isUnsigned();
 }
 
-static bool is_bool(const Context& context, const Type& type) {
+static bool is_bool(const Type& type) {
     return (type.isScalar() || type.isVector()) && type.componentType().isBoolean();
 }
 
@@ -1191,13 +1191,13 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
     int32_t intrinsicId = intrinsic->floatOp;
     if (arguments.size() > 0) {
         const Type& type = arguments[0]->type();
-        if (intrinsic->opKind == kSpecial_IntrinsicOpcodeKind || is_float(fContext, type)) {
+        if (intrinsic->opKind == kSpecial_IntrinsicOpcodeKind || is_float(type)) {
             // Keep the default float op.
-        } else if (is_signed(fContext, type)) {
+        } else if (is_signed(type)) {
             intrinsicId = intrinsic->signedOp;
-        } else if (is_unsigned(fContext, type)) {
+        } else if (is_unsigned(type)) {
             intrinsicId = intrinsic->unsignedOp;
-        } else if (is_bool(fContext, type)) {
+        } else if (is_bool(type)) {
             intrinsicId = intrinsic->boolOp;
         }
     }
@@ -1297,11 +1297,11 @@ void SPIRVCodeGenerator::writeGLSLExtendedInstruction(const Type& type, SpvId id
     this->writeWord(id, out);
     this->writeWord(fGLSLExtendedInstructions, out);
 
-    if (is_float(fContext, type)) {
+    if (is_float(type)) {
         this->writeWord(floatInst, out);
-    } else if (is_signed(fContext, type)) {
+    } else if (is_signed(type)) {
         this->writeWord(signedInst, out);
-    } else if (is_unsigned(fContext, type)) {
+    } else if (is_unsigned(type)) {
         this->writeWord(unsignedInst, out);
     } else {
         SkASSERT(false);
@@ -1432,11 +1432,11 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SkASSERT(args.size() == 2);
             const Type& operandType = arguments[0]->type();
             SpvOp_ op;
-            if (is_float(fContext, operandType)) {
+            if (is_float(operandType)) {
                 op = SpvOpFMod;
-            } else if (is_signed(fContext, operandType)) {
+            } else if (is_signed(operandType)) {
                 op = SpvOpSMod;
-            } else if (is_unsigned(fContext, operandType)) {
+            } else if (is_unsigned(operandType)) {
                 op = SpvOpUMod;
             } else {
                 SkASSERT(false);
@@ -2500,13 +2500,13 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
                                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt,
                                                SpvOp_ ifUInt, SpvOp_ ifBool, OutputStream& out) {
     SpvId result = this->nextId(&resultType);
-    if (is_float(fContext, operandType)) {
+    if (is_float(operandType)) {
         this->writeInstruction(ifFloat, this->getType(resultType), result, lhs, rhs, out);
-    } else if (is_signed(fContext, operandType)) {
+    } else if (is_signed(operandType)) {
         this->writeInstruction(ifInt, this->getType(resultType), result, lhs, rhs, out);
-    } else if (is_unsigned(fContext, operandType)) {
+    } else if (is_unsigned(operandType)) {
         this->writeInstruction(ifUInt, this->getType(resultType), result, lhs, rhs, out);
-    } else if (is_bool(fContext, operandType)) {
+    } else if (is_bool(operandType)) {
         this->writeInstruction(ifBool, this->getType(resultType), result, lhs, rhs, out);
     } else {
         fContext.fErrors->error(operandType.fPosition,
@@ -2529,7 +2529,7 @@ SpvId SPIRVCodeGenerator::writeMatrixComparison(const Type& operandType, SpvId l
                                                 SpvOp_ floatOperator, SpvOp_ intOperator,
                                                 SpvOp_ vectorMergeOperator, SpvOp_ mergeOperator,
                                                 OutputStream& out) {
-    SpvOp_ compareOp = is_float(fContext, operandType) ? floatOperator : intOperator;
+    SpvOp_ compareOp = is_float(operandType) ? floatOperator : intOperator;
     SkASSERT(operandType.isMatrix());
     const Type& columnType = operandType.componentType().toCompound(fContext,
                                                                     operandType.rows(),
@@ -3111,9 +3111,9 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
     const Type& type = p.type();
     if (p.getOperator().kind() == Operator::Kind::MINUS) {
         SpvOp_ negateOp = SpvOpFNegate;
-        if (is_float(fContext, type)) {
+        if (is_float(type)) {
             negateOp = SpvOpFNegate;
-        } else if (is_signed(fContext, type) || is_unsigned(fContext, type)) {
+        } else if (is_signed(type) || is_unsigned(type)) {
             negateOp = SpvOpSNegate;
         } else {
             SkDEBUGFAILF("unsupported prefix expression %s", p.description().c_str());
