@@ -21,6 +21,7 @@ generated_cc_atom(
         "//src/sksl:SkSLUtil_hdr",
         "//src/sksl/ir:SkSLUnresolvedFunction_hdr",
         "//src/sksl/ir:SkSLVarDeclarations_hdr",
+        "//src/utils:SkOSPath_hdr",
         "//src/utils:SkShaderUtils_hdr",
     ],
 )

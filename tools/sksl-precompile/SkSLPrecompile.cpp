@@ -20,6 +20,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/utils/SkOSPath.h"
 #include "src/utils/SkShaderUtils.h"
 
 #include <fstream>
@@ -46,24 +47,6 @@ enum class ResultCode {
     kInputError = 2,
     kOutputError = 3,
 };
-
-// Given the path to a file (e.g. 'src/sksl/sksl_gpu.sksl') and the expected prefix and suffix
-// (e.g. 'sksl_' and '.sksl'), returns the "base name" of the file (in this case, 'gpu').
-// If no match, returns the empty string.
-static std::string base_name(const std::string& fpPath, const char* prefix, const char* suffix) {
-    std::string result;
-    const char* end = &*fpPath.end();
-    const char* fileName = end;
-    // back up until we find a slash
-    while (fileName != fpPath && '/' != *(fileName - 1) && '\\' != *(fileName - 1)) {
-        --fileName;
-    }
-    if (!strncmp(fileName, prefix, strlen(prefix)) &&
-        !strncmp(end - strlen(suffix), suffix, strlen(suffix))) {
-        result.append(fileName + strlen(prefix), end - fileName - strlen(prefix) - strlen(suffix));
-    }
-    return result;
-}
 
 /**
  * Displays a usage banner; used when the command line arguments don't make sense.
@@ -118,7 +101,11 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
     SkSL::Dehydrator dehydrator;
     dehydrator.write(*module.fSymbols);
     dehydrator.write(module.fElements);
-    std::string baseName = base_name(inputPath, "", ".sksl");
+    SkString baseName = SkOSPath::Basename(inputPath.c_str());
+    if (int extension = baseName.findLastOf('.'); extension > 0) {
+        baseName.resize(extension);
+    }
+
     SkSL::StringStream buffer;
     dehydrator.finish(buffer);
     const std::string& data = buffer.str();
