@@ -31,9 +31,9 @@ OpDecorate %_arr_float_int_4 ArrayStride 16
 OpDecorate %h RelaxedPrecision
 OpDecorate %_arr_v3int_int_3 ArrayStride 16
 OpDecorate %_arr_mat2v2float_int_2 ArrayStride 32
-OpDecorate %108 RelaxedPrecision
-OpDecorate %110 RelaxedPrecision
-OpDecorate %111 RelaxedPrecision
+OpDecorate %98 RelaxedPrecision
+OpDecorate %100 RelaxedPrecision
+OpDecorate %101 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -82,7 +82,7 @@ OpDecorate %111 RelaxedPrecision
 %61 = OpConstantComposite %v2float %float_7 %float_8
 %62 = OpConstantComposite %mat2v2float %60 %61
 %false = OpConstantFalse %bool
-%v3bool = OpTypeVector %bool 3
+%true = OpConstantTrue %bool
 %v2bool = OpTypeVector %bool 2
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
@@ -104,7 +104,7 @@ OpFunctionEnd
 %s3 = OpVariable %_ptr_Function__arr_v3int_int_3 Function
 %h2x2 = OpVariable %_ptr_Function__arr_mat2v2float_int_2 Function
 %f2x2 = OpVariable %_ptr_Function__arr_mat2v2float_int_2 Function
-%100 = OpVariable %_ptr_Function_v4float Function
+%90 = OpVariable %_ptr_Function_v4float Function
 %35 = OpCompositeConstruct %_arr_float_int_4 %float_1 %float_2 %float_3 %float_4
 OpStore %f %35
 OpStore %h %35
@@ -120,57 +120,47 @@ OpStore %h2x2 %63
 OpStore %f2x2 %63
 OpStore %f2x2 %63
 OpStore %h2x2 %63
-%66 = OpFOrdEqual %bool %float_1 %float_1
-%67 = OpFOrdEqual %bool %float_2 %float_2
-%68 = OpLogicalAnd %bool %67 %66
-%69 = OpFOrdEqual %bool %float_3 %float_3
-%70 = OpLogicalAnd %bool %69 %68
-%71 = OpFOrdEqual %bool %float_4 %float_4
-%72 = OpLogicalAnd %bool %71 %70
-OpSelectionMerge %74 None
-OpBranchConditional %72 %73 %74
-%73 = OpLabel
-%75 = OpIEqual %v3bool %43 %43
-%77 = OpAll %bool %75
-%78 = OpIEqual %v3bool %45 %45
+%67 = OpLogicalAnd %bool %true %true
+%68 = OpLogicalAnd %bool %true %67
+%69 = OpLogicalAnd %bool %true %68
+OpSelectionMerge %71 None
+OpBranchConditional %69 %70 %71
+%70 = OpLabel
+%72 = OpLogicalAnd %bool %true %true
+%73 = OpLogicalAnd %bool %true %72
+OpBranch %71
+%71 = OpLabel
+%74 = OpPhi %bool %false %25 %73 %70
+OpSelectionMerge %76 None
+OpBranchConditional %74 %75 %76
+%75 = OpLabel
+%78 = OpFOrdEqual %v2bool %53 %53
 %79 = OpAll %bool %78
-%80 = OpLogicalAnd %bool %79 %77
-%81 = OpIEqual %v3bool %46 %46
-%82 = OpAll %bool %81
-%83 = OpLogicalAnd %bool %82 %80
-OpBranch %74
-%74 = OpLabel
-%84 = OpPhi %bool %false %25 %83 %73
-OpSelectionMerge %86 None
-OpBranchConditional %84 %85 %86
-%85 = OpLabel
-%88 = OpFOrdEqual %v2bool %53 %53
-%89 = OpAll %bool %88
-%90 = OpFOrdEqual %v2bool %54 %54
-%91 = OpAll %bool %90
-%92 = OpLogicalAnd %bool %89 %91
-%93 = OpFOrdEqual %v2bool %60 %60
-%94 = OpAll %bool %93
-%95 = OpFOrdEqual %v2bool %61 %61
-%96 = OpAll %bool %95
-%97 = OpLogicalAnd %bool %94 %96
-%98 = OpLogicalAnd %bool %97 %92
-OpBranch %86
-%86 = OpLabel
-%99 = OpPhi %bool %false %74 %98 %85
-OpSelectionMerge %104 None
-OpBranchConditional %99 %102 %103
-%102 = OpLabel
-%105 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%108 = OpLoad %v4float %105
-OpStore %100 %108
-OpBranch %104
-%103 = OpLabel
-%109 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
-%110 = OpLoad %v4float %109
-OpStore %100 %110
-OpBranch %104
-%104 = OpLabel
-%111 = OpLoad %v4float %100
-OpReturnValue %111
+%80 = OpFOrdEqual %v2bool %54 %54
+%81 = OpAll %bool %80
+%82 = OpLogicalAnd %bool %79 %81
+%83 = OpFOrdEqual %v2bool %60 %60
+%84 = OpAll %bool %83
+%85 = OpFOrdEqual %v2bool %61 %61
+%86 = OpAll %bool %85
+%87 = OpLogicalAnd %bool %84 %86
+%88 = OpLogicalAnd %bool %87 %82
+OpBranch %76
+%76 = OpLabel
+%89 = OpPhi %bool %false %71 %88 %75
+OpSelectionMerge %94 None
+OpBranchConditional %89 %92 %93
+%92 = OpLabel
+%95 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%98 = OpLoad %v4float %95
+OpStore %90 %98
+OpBranch %94
+%93 = OpLabel
+%99 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
+%100 = OpLoad %v4float %99
+OpStore %90 %100
+OpBranch %94
+%94 = OpLabel
+%101 = OpLoad %v4float %90
+OpReturnValue %101
 OpFunctionEnd

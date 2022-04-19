@@ -53,6 +53,7 @@ OpDecorate %58 RelaxedPrecision
 %28 = OpTypeFunction %bool %_ptr_Function_float
 %float_2 = OpConstant %float 2
 %false = OpConstantFalse %bool
+%true = OpConstantTrue %bool
 %39 = OpTypeFunction %v4float %_ptr_Function_v2float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
@@ -76,10 +77,9 @@ OpStore %29 %float_2
 OpSelectionMerge %36 None
 OpBranchConditional %34 %35 %36
 %35 = OpLabel
-%37 = OpFOrdEqual %bool %float_2 %float_2
 OpBranch %36
 %36 = OpLabel
-%38 = OpPhi %bool %false %30 %37 %35
+%38 = OpPhi %bool %false %30 %true %35
 OpReturnValue %38
 OpFunctionEnd
 %main = OpFunction %v4float None %39

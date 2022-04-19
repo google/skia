@@ -2760,6 +2760,10 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             } else {
                 tmpType = &resultType;
             }
+            if (lhs == rhs) {
+                // This ignores the effects of NaN.
+                return this->writeOpConstantTrue(*fContext.fTypes.fBool);
+            }
             return this->foldToBool(this->writeBinaryOperation(*tmpType, *operandType, lhs, rhs,
                                                                SpvOpFOrdEqual, SpvOpIEqual,
                                                                SpvOpIEqual, SpvOpLogicalEqual, out),
@@ -2786,6 +2790,10 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                              operandType->rows());
             } else {
                 tmpType = &resultType;
+            }
+            if (lhs == rhs) {
+                // This ignores the effects of NaN.
+                return this->writeOpConstantFalse(*fContext.fTypes.fBool);
             }
             return this->foldToBool(this->writeBinaryOperation(*tmpType, *operandType, lhs, rhs,
                                                                SpvOpFUnordNotEqual, SpvOpINotEqual,
