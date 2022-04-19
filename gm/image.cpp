@@ -46,7 +46,7 @@ const SkSamplingOptions gSamplings[] = {
     SkSamplingOptions(SkCubicResampler::Mitchell()),
 };
 
-static void draw_contents(SkSurface* surface, SkColor fillC) {
+static void drawContents(SkSurface* surface, SkColor fillC) {
     SkSize size = SkSize::Make(SkIntToScalar(surface->width()),
                                SkIntToScalar(surface->height()));
     SkCanvas* canvas = surface->getCanvas();
@@ -67,7 +67,7 @@ static void draw_contents(SkSurface* surface, SkColor fillC) {
 }
 
 static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
-    draw_contents(surf, SK_ColorRED);
+    drawContents(surf, SK_ColorRED);
     sk_sp<SkImage> imgR = surf->makeImageSnapshot();
 
     if (true) {
@@ -75,14 +75,13 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
         SkASSERT(imgR == imgR2);
     }
 
-    imgR = ToolUtils::MakeTextureImage(canvas, std::move(imgR));
-    draw_contents(surf, SK_ColorGREEN);
-    sk_sp<SkImage> imgG = ToolUtils::MakeTextureImage(canvas, surf->makeImageSnapshot());
+    drawContents(surf, SK_ColorGREEN);
+    sk_sp<SkImage> imgG = surf->makeImageSnapshot();
 
     // since we've drawn after we snapped imgR, imgG will be a different obj
     SkASSERT(imgR != imgG);
 
-    draw_contents(surf, SK_ColorBLUE);
+    drawContents(surf, SK_ColorBLUE);
 
     SkSamplingOptions sampling;
     SkPaint paint;

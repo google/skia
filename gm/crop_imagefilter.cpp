@@ -19,7 +19,6 @@
 #include "include/effects/SkImageFilters.h"
 
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
 
 // TODO(michaelludwig) - This will be made public within SkImageFilters.h at some point
 #include "src/effects/imagefilters/SkCropImageFilter.h"
@@ -180,19 +179,16 @@ void draw_example(
     {
         SkRect clippedContentBounds;
         if (clippedContentBounds.intersect(contentBounds, kExampleBounds)) {
-            auto contentImage = ToolUtils::MakeTextureImage(
-                    canvas, image->makeSubset(clippedContentBounds.roundOut()));
-            if (contentImage) {
-                SkPaint tiledPaint;
-                tiledPaint.setShader(contentImage->makeShader(
-                        inputMode, inputMode, SkSamplingOptions(SkFilterMode::kLinear)));
-                tiledPaint.setAlphaf(0.15f);
+            auto contentImage = image->makeSubset(clippedContentBounds.roundOut());
+            SkPaint tiledPaint;
+            tiledPaint.setShader(contentImage->makeShader(
+                    inputMode, inputMode, SkSamplingOptions(SkFilterMode::kLinear)));
+            tiledPaint.setAlphaf(0.15f);
 
-                canvas->save();
-                canvas->translate(clippedContentBounds.fLeft, clippedContentBounds.fTop);
-                canvas->drawPaint(tiledPaint);
-                canvas->restore();
-            }
+            canvas->save();
+            canvas->translate(clippedContentBounds.fLeft, clippedContentBounds.fTop);
+            canvas->drawPaint(tiledPaint);
+            canvas->restore();
         }
     }
 
@@ -208,8 +204,7 @@ void draw_example(
         canvas->clipRect(outputBounds);
         canvas->saveLayer(hintContent ? &contentBounds : nullptr, &layerPaint);
 
-        auto tmp = ToolUtils::MakeTextureImage(canvas, image);
-        canvas->drawImageRect(tmp, contentBounds, contentBounds,
+        canvas->drawImageRect(image.get(), contentBounds, contentBounds,
                               SkSamplingOptions(SkFilterMode::kLinear), nullptr,
                               SkCanvas::kFast_SrcRectConstraint);
         canvas->restore();

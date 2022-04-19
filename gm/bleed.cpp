@@ -33,7 +33,7 @@
 /** Creates an image with two one-pixel wide borders around a checkerboard. The checkerboard is 2x2
     checks where each check has as many pixels as is necessary to fill the interior. It returns
     the image and a src rect that bounds the checkerboard portion. */
-std::tuple<sk_sp<SkImage>, SkRect> make_ringed_image(SkCanvas* canvas, int width, int height) {
+std::tuple<sk_sp<SkImage>, SkRect> make_ringed_image(int width, int height) {
 
     // These are kRGBA_8888_SkColorType values.
     static constexpr uint32_t kOuterRingColor = 0xFFFF0000,
@@ -101,8 +101,7 @@ std::tuple<sk_sp<SkImage>, SkRect> make_ringed_image(SkCanvas* canvas, int width
         scanline[x] = kOuterRingColor;
     }
     bitmap.setImmutable();
-    return { ToolUtils::MakeTextureImage(canvas, bitmap.asImage()),
-             SkRect::Make({2, 2, width - 2, height - 2})};
+    return {bitmap.asImage(), SkRect::Make({2, 2, width - 2, height - 2})};
 }
 
 /**
@@ -128,10 +127,6 @@ protected:
     void drawImage(SkCanvas* canvas, sk_sp<SkImage> image, SkRect srcRect, SkRect dstRect,
                    const SkSamplingOptions& sampling, SkPaint* paint) {
         if (fBatch) {
-            if (!image) {
-                return;
-            }
-
             SkCanvas::ImageSetEntry imageSetEntry[1];
             imageSetEntry[0].fImage = image;
             imageSetEntry[0].fSrcRect = srcRect;
@@ -157,7 +152,7 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        this->drawImage(canvas, fSmallImage, fSmallSrcRect, dst, sampling, &paint);
+        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, sampling, &paint);
     }
 
     // Draw the area of interest of the large image
@@ -170,7 +165,7 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        this->drawImage(canvas, fBigImage, fBigSrcRect, dst, sampling, &paint);
+        drawImage(canvas, fBigImage, fBigSrcRect, dst, sampling, &paint);
     }
 
     // Draw upper-left 1/4 of the area of interest of the large image
@@ -187,7 +182,7 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        this->drawImage(canvas, fBigImage, src, dst, sampling, &paint);
+        drawImage(canvas, fBigImage, src, dst, sampling, &paint);
     }
 
     // Draw the area of interest of the small image with a normal blur
@@ -202,7 +197,7 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        this->drawImage(canvas, fSmallImage, fSmallSrcRect, dst, sampling, &paint);
+        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, sampling, &paint);
     }
 
     // Draw the area of interest of the small image with a outer blur
@@ -217,18 +212,15 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        this->drawImage(canvas, fSmallImage, fSmallSrcRect, dst, sampling, &paint);
+        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, sampling, &paint);
+    }
+
+    void onOnceBeforeDraw() override {
+        std::tie(fBigImage, fBigSrcRect) = make_ringed_image(2*kMaxTextureSize, 2*kMaxTextureSize);
+        std::tie(fSmallImage, fSmallSrcRect) = make_ringed_image(kSmallSize, kSmallSize);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fSmallImage) {
-            std::tie(fBigImage, fBigSrcRect) = make_ringed_image(canvas,
-                                                                 2*kMaxTextureSize,
-                                                                 2*kMaxTextureSize);
-            std::tie(fSmallImage, fSmallSrcRect) = make_ringed_image(canvas,
-                                                                     kSmallSize, kSmallSize);
-        }
-
         canvas->clear(SK_ColorGRAY);
         std::vector<SkMatrix> matrices;
         // Draw with identity
@@ -401,3 +393,5 @@ DEF_SIMPLE_GM(bleed_downscale, canvas, 360, 240) {
         canvas->translate(0, 120);
     }
 }
+
+

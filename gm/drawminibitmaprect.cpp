@@ -25,7 +25,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMathPriv.h"
-#include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> makebm(int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
@@ -91,7 +90,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (nullptr == fImage) {
-            fImage = ToolUtils::MakeTextureImage(canvas, makebm(gSurfaceSize, gSurfaceSize));
+            fImage = makebm(gSurfaceSize, gSurfaceSize);
         }
 
         const SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};

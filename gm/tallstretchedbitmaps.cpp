@@ -17,7 +17,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
-#include "tools/ToolUtils.h"
 
 int make_bm(SkBitmap* bm, int height) {
     constexpr int kRadius = 22;
@@ -94,8 +93,7 @@ protected:
             SkIRect subRect = SkIRect::MakeLTRB(0, startItem * itemHeight,
                                                bmp.width(), bmp.height());
             SkRect dstRect = SkRect::MakeWH(SkIntToScalar(bmp.width()), 10.f * itemHeight);
-            canvas->drawImageRect(ToolUtils::MakeTextureImage(canvas, bmp.asImage()),
-                                  SkRect::Make(subRect), dstRect,
+            canvas->drawImageRect(bmp.asImage(), SkRect::Make(subRect), dstRect,
                                   SkSamplingOptions(SkFilterMode::kLinear), nullptr,
                                   SkCanvas::kStrict_SrcRectConstraint);
             canvas->translate(SkIntToScalar(bmp.width() + 10), 0);

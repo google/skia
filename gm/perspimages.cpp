@@ -17,7 +17,6 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
 
 #include <initializer_list>
 
@@ -83,30 +82,27 @@ protected:
                         SkSamplingOptions(SkFilterMode::kLinear),
                         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
                         SkSamplingOptions(SkCubicResampler::Mitchell())}) {
-                        for (const auto& origImage : fImages) {
-                            sk_sp<SkImage> img = ToolUtils::MakeTextureImage(canvas, origImage);
-                            if (img) {
-                                canvas->save();
-                                canvas->concat(m);
-                                SkRect src = { img->width() / 4.f, img->height() / 4.f,
-                                               3.f * img->width() / 4.f, 3.f * img->height() / 4 };
-                                SkRect dst = { 0, 0,
-                                               3.f / 4.f * img->width(), 3.f / 4.f * img->height()};
-                                switch (type) {
-                                    case DrawType::kDrawImage:
-                                        canvas->drawImage(img, 0, 0, sampling, &paint);
-                                        break;
-                                    case DrawType::kDrawImageRectStrict:
-                                        canvas->drawImageRect(img, src, dst, sampling, &paint,
-                                                              SkCanvas::kStrict_SrcRectConstraint);
-                                        break;
-                                    case DrawType::kDrawImageRectFast:
-                                        canvas->drawImageRect(img, src, dst, sampling, &paint,
-                                                              SkCanvas::kFast_SrcRectConstraint);
-                                        break;
-                                }
-                                canvas->restore();
+                        for (const auto& img : fImages) {
+                            canvas->save();
+                            canvas->concat(m);
+                            SkRect src = {img->width() / 4.f, img->height() / 4.f,
+                                          3.f * img->width() / 4.f, 3.f * img->height() / 4};
+                            SkRect dst = {0, 0,
+                                          3.f / 4.f * img->width(), 3.f / 4.f * img->height()};
+                            switch (type) {
+                                case DrawType::kDrawImage:
+                                    canvas->drawImage(img, 0, 0, sampling, &paint);
+                                    break;
+                                case DrawType::kDrawImageRectStrict:
+                                    canvas->drawImageRect(img, src, dst, sampling, &paint,
+                                                          SkCanvas::kStrict_SrcRectConstraint);
+                                    break;
+                                case DrawType::kDrawImageRectFast:
+                                    canvas->drawImageRect(img, src, dst, sampling, &paint,
+                                                          SkCanvas::kFast_SrcRectConstraint);
+                                    break;
                             }
+                            canvas->restore();
                             ++n;
                             if (n < 8) {
                                 canvas->translate(bounds.width() + 10.f, 0);

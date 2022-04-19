@@ -1357,7 +1357,6 @@ generated_cc_atom(
         "//include/core:SkTileMode_hdr",
         "//include/core:SkTypes_hdr",
         "//include/effects:SkGradientShader_hdr",
-        "//tools:ToolUtils_hdr",
     ],
 )
 
@@ -3150,7 +3149,6 @@ generated_cc_atom(
         "//include/effects:SkImageFilters_hdr",
         "//src/effects/imagefilters:SkCropImageFilter_hdr",
         "//tools:Resources_hdr",
-        "//tools:ToolUtils_hdr",
     ],
 )
 
@@ -3172,7 +3170,6 @@ generated_cc_atom(
         "//include/core:SkSize_hdr",
         "//include/core:SkString_hdr",
         "//include/core:SkSurface_hdr",
-        "//tools:ToolUtils_hdr",
     ],
 )
 
@@ -3506,7 +3503,6 @@ generated_cc_atom(
         "//include/core:SkMatrix_hdr",
         "//include/core:SkRect_hdr",
         "//tools:Resources_hdr",
-        "//tools:ToolUtils_hdr",
     ],
 )
 
@@ -3713,7 +3709,6 @@ generated_cc_atom(
         "//include/effects:SkGradientShader_hdr",
         "//include/utils:SkRandom_hdr",
         "//src/core:SkMathPriv_hdr",
-        "//tools:ToolUtils_hdr",
     ],
 )
 
@@ -6909,7 +6904,6 @@ generated_cc_atom(
         "//include/private:SkTArray_hdr",
         "//include/private:SkTDArray_hdr",
         "//tools:Resources_hdr",
-        "//tools:ToolUtils_hdr",
     ],
 )
 
@@ -8647,7 +8641,6 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/private:SkTo_hdr",
         "//include/utils:SkRandom_hdr",
-        "//tools:ToolUtils_hdr",
     ],
 )
 
@@ -9367,7 +9360,6 @@ generated_cc_atom(
         "//include/core:SkSurface_hdr",
         "//include/core:SkTileMode_hdr",
         "//include/effects:SkGradientShader_hdr",
-        "//tools:ToolUtils_hdr",
     ],
 )
 
