@@ -3215,6 +3215,8 @@ TINT_SRCS = [
     "externals/dawn/src/tint/resolver/resolver.h",
     "externals/dawn/src/tint/resolver/resolver_constants.cc",
     "externals/dawn/src/tint/resolver/resolver_validation.cc",
+    "externals/dawn/src/tint/resolver/sem_helper.cc",
+    "externals/dawn/src/tint/resolver/sem_helper.h",
     "externals/dawn/src/tint/scope_stack.h",
     "externals/dawn/src/tint/source.cc",
     "externals/dawn/src/tint/source.h",
