@@ -217,6 +217,7 @@ generated_cc_atom(
         ":Renderer_hdr",
         ":TextureProxy_hdr",
         ":TextureUtils_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkPathEffect_hdr",
         "//include/core:SkPath_hdr",
         "//include/core:SkStrokeRec_hdr",
