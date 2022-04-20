@@ -116,7 +116,7 @@ public:
      * Search the cache for a scratch texture matching the provided arguments. Failing that
      * it returns null. If non-null, the resulting texture is always budgeted.
      */
-    sk_sp<GrTexture> findAndRefScratchTexture(const skgpu::ScratchKey&);
+    sk_sp<GrTexture> findAndRefScratchTexture(const skgpu::ScratchKey&, std::string_view label);
     sk_sp<GrTexture> findAndRefScratchTexture(SkISize dimensions,
                                               const GrBackendFormat&,
                                               GrTextureType textureType,
@@ -365,7 +365,8 @@ private:
                                                  const GrBackendFormat&,
                                                  int sampleCnt,
                                                  GrProtected,
-                                                 GrMemoryless memoryless);
+                                                 GrMemoryless memoryless,
+                                                 std::string_view label);
 
     // Used to perform any conversions necessary to texel data before creating a texture with
     // existing data or uploading to a scratch texture.

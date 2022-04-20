@@ -307,7 +307,8 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
                                isProtected);
 }
 
-sk_sp<GrTexture> GrResourceProvider::findAndRefScratchTexture(const skgpu::ScratchKey& key) {
+sk_sp<GrTexture> GrResourceProvider::findAndRefScratchTexture(const skgpu::ScratchKey& key,
+                                                              std::string_view label) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(key.isValid());
@@ -315,6 +316,7 @@ sk_sp<GrTexture> GrResourceProvider::findAndRefScratchTexture(const skgpu::Scrat
     if (GrGpuResource* resource = fCache->findAndRefScratchResource(key)) {
         fGpu->stats()->incNumScratchTexturesReused();
         GrSurface* surface = static_cast<GrSurface*>(resource);
+        resource->setLabel(std::move(label));
         return sk_sp<GrTexture>(surface->asTexture());
     }
     return nullptr;
@@ -339,7 +341,7 @@ sk_sp<GrTexture> GrResourceProvider::findAndRefScratchTexture(SkISize dimensions
         skgpu::ScratchKey key;
         GrTexture::ComputeScratchKey(*this->caps(), format, dimensions, renderable,
                                      renderTargetSampleCnt, mipmapped, isProtected, &key);
-        return this->findAndRefScratchTexture(key);
+        return this->findAndRefScratchTexture(key, /*label=*/{});
     }
 
     return nullptr;
@@ -712,7 +714,8 @@ sk_sp<GrAttachment> GrResourceProvider::makeMSAAAttachment(SkISize dimensions,
                                                   format,
                                                   sampleCnt,
                                                   isProtected,
-                                                  memoryless);
+                                                  memoryless,
+                                                  /*label=*/{});
     if (scratch) {
         return scratch;
     }
@@ -724,7 +727,8 @@ sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensi
                                                                  const GrBackendFormat& format,
                                                                  int sampleCnt,
                                                                  GrProtected isProtected,
-                                                                 GrMemoryless memoryless) {
+                                                                 GrMemoryless memoryless,
+                                                                 std::string_view label) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!this->caps()->isFormatCompressed(format));
@@ -743,6 +747,7 @@ sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensi
     if (resource) {
         fGpu->stats()->incNumScratchMSAAAttachmentsReused();
         GrAttachment* attachment = static_cast<GrAttachment*>(resource);
+        resource->setLabel(std::move(label));
         return sk_sp<GrAttachment>(attachment);
     }
 

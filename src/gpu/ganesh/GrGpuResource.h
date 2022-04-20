@@ -176,6 +176,8 @@ public:
 
     std::string_view getLabel() const { return fLabel; }
 
+    void setLabel(std::string_view label) { fLabel = label; }
+
     /**
      * Internal-only helper class used for manipulations of the resource by the cache.
      */
@@ -313,7 +315,7 @@ private:
     GrBudgetedType fBudgetedType = GrBudgetedType::kUnbudgetedUncacheable;
     bool fRefsWrappedObjects = false;
     const UniqueID fUniqueID;
-    const std::string fLabel;
+    std::string fLabel;
 
     using INHERITED = GrIORef<GrGpuResource>;
     friend class GrIORef<GrGpuResource>; // to access notifyRefCntWillBeZero and
