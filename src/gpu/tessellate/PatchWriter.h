@@ -99,6 +99,15 @@ struct AddTrianglesWhenChopping {};
 // render pass will produce equivalent geometry (e.g. middle-out or inner triangulations).
 struct DiscardFlatCurves {};
 
+// Upload lines as a cubic with {a, a, b, b} for control points, instead of the truly linear cubic
+// of {a, 2/3a + 1/3b, 1/3a + 2/3b, b}. Wang's formula will not return an tight lower bound on the
+// number of segments in this case, but it's convenient to detect in the vertex shader and assume
+// only a single segment is required. This bypasses numerical stability issues in Wang's formula
+// when evaluated on the ideal linear cubic for very large control point coordinates. Other curve
+// types with large coordinates do not need this treatment since they would be pre-chopped and
+// culled to lines.
+struct ReplicateLineEndPoints {};
+
 // *** PatchWriter internals ***
 
 // AttribValue exposes a consistent store and write interface for a PatchAttrib's value while
@@ -180,6 +189,7 @@ class PatchWriter {
     static constexpr bool kTrackJoinControlPoints   = has_trait<TrackJoinControlPoints>::value;
     static constexpr bool kAddTrianglesWhenChopping = has_trait<AddTrianglesWhenChopping>::value;
     static constexpr bool kDiscardFlatCurves        = has_trait<DiscardFlatCurves>::value;
+    static constexpr bool kReplicateLineEndPoints   = has_trait<ReplicateLineEndPoints>::value;
 
     // NOTE: MSVC 19.24 cannot compile constexpr fold expressions referenced in templates, so
     // extract everything into constexpr bool's instead of using `req_attrib` directly, etc. :(
@@ -429,7 +439,17 @@ public:
     // Write a line that is automatically converted into an equivalent cubic.
     AI void writeLine(float4 p0p1) {
         // No chopping needed, minimum segments is always at least 1
-        this->writeCubicPatch(p0p1.lo, (p0p1.zwxy() - p0p1) * (1/3.f) + p0p1, p0p1.hi);
+        if constexpr (kReplicateLineEndPoints) {
+            // Visually this cubic is still a line, but 't' does not move linearly over the line,
+            // so Wang's formula is more pessimistic. Shaders should avoid evaluating Wang's
+            // formula when a patch has control points in this arrangement.
+            this->writeCubicPatch(p0p1.lo, p0p1.lo, p0p1.hi, p0p1.hi);
+        } else {
+            // In exact math, this cubic structure should have Wang's formula return 0. Due to
+            // floating point math, this isn't always the case, so shaders need some way to restrict
+            // the number of parametric segments if Wang's formula numerically blows up.
+            this->writeCubicPatch(p0p1.lo, (p0p1.zwxy() - p0p1) * (1/3.f) + p0p1, p0p1.hi);
+        }
     }
     AI void writeLine(float2 p0, float2 p1) { this->writeLine({p0, p1}); }
     AI void writeLine(SkPoint p0, SkPoint p1) {

@@ -64,6 +64,9 @@ using FixedCountStrokeWriter = PatchWriter<GrVertexChunkBuilder,
                                            Optional<PatchAttribs::kColor>,
                                            Optional<PatchAttribs::kWideColorIfEnabled>,
                                            Optional<PatchAttribs::kExplicitCurveType>,
+#if !defined(SK_LEGACY_LINE_TESSELLATION)
+                                           ReplicateLineEndPoints,
+#endif
                                            TrackJoinControlPoints>;
 
 int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,

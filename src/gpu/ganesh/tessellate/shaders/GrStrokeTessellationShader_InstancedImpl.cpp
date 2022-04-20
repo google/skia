@@ -113,7 +113,11 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     // Find how many parametric segments this stroke requires.
     float numParametricSegments;
     if (w < 0) {
-        numParametricSegments = wangs_formula_cubic(PRECISION, p0, p1, p2, p3, AFFINE_MATRIX);
+        if (p0 == p1 && p2 == p3) {
+            numParametricSegments = 1; // a line
+        } else {
+            numParametricSegments = wangs_formula_cubic(PRECISION, p0, p1, p2, p3, AFFINE_MATRIX);
+        }
     } else {
         numParametricSegments = wangs_formula_conic(PRECISION,
                                                     AFFINE_MATRIX * p0,
