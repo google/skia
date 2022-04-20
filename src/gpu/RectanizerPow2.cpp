@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/GrRectanizerPow2.h"
+#include "src/gpu/RectanizerPow2.h"
 
-bool GrRectanizerPow2::addRect(int width, int height, SkIPoint16* loc) {
+namespace skgpu {
+
+bool RectanizerPow2::addRect(int width, int height, SkIPoint16* loc) {
     if ((unsigned)width > (unsigned)this->width() ||
         (unsigned)height > (unsigned)this->height()) {
         return false;
@@ -53,7 +55,9 @@ bool GrRectanizerPow2::addRect(int width, int height, SkIPoint16* loc) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// factory is now in GrRectanizer_skyline.cpp
-//GrRectanizer* GrRectanizer::Factory(int width, int height) {
-//    return new GrRectanizerPow2  (width, height);
+// factory is now in RectanizerSkyline.cpp
+//Rectanizer* Rectanizer::Factory(int width, int height) {
+//    return new RectanizerPow2(width, height);
 //}
+
+}  // End of namespace skgpu

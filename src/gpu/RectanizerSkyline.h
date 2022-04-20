@@ -5,23 +5,25 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrRectanizerSkyline_DEFINED
-#define GrRectanizerSkyline_DEFINED
+#ifndef skgpu_RectanizerSkyline_DEFINED
+#define skgpu_RectanizerSkyline_DEFINED
 
 #include "include/private/SkTDArray.h"
-#include "src/gpu/ganesh/GrRectanizer_impl.h"
+#include "src/gpu/Rectanizer.h"
+
+namespace skgpu {
 
 // Pack rectangles and track the current silhouette
 // Based, in part, on Jukka Jylanki's work at http://clb.demon.fi
 //
 // Mark this class final in an effort to avoid the vtable when this subclass is used explicitly.
-class GrRectanizerSkyline final : public GrRectanizer {
+class RectanizerSkyline final : public Rectanizer {
 public:
-    GrRectanizerSkyline(int w, int h) : INHERITED(w, h) {
+    RectanizerSkyline(int w, int h) : Rectanizer(w, h) {
         this->reset();
     }
 
-    ~GrRectanizerSkyline() final { }
+    ~RectanizerSkyline() final { }
 
     void reset() final {
         fAreaSoFar = 0;
@@ -57,8 +59,8 @@ private:
     // Update the skyline structure to include a width x height rect located
     // at x,y.
     void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
-
-    using INHERITED = GrRectanizer;
 };
+
+} // End of namespace skgpu
 
 #endif

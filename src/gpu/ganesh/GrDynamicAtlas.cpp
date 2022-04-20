@@ -8,22 +8,24 @@
 #include "src/gpu/ganesh/GrDynamicAtlas.h"
 
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/RectanizerPow2.h"
+#include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrRectanizerPow2.h"
-#include "src/gpu/ganesh/GrRectanizerSkyline.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+
+using namespace skgpu;
 
 // Each Node covers a sub-rectangle of the final atlas. When a GrDynamicAtlas runs out of room, we
 // create a new Node the same size as all combined nodes in the atlas as-is, and then place the new
 // Node immediately below or beside the others (thereby doubling the size of the GyDynamicAtlas).
 class GrDynamicAtlas::Node {
 public:
-    Node(Node* previous, GrRectanizer* rectanizer, int x, int y)
+    Node(Node* previous, Rectanizer* rectanizer, int x, int y)
             : fPrevious(previous), fRectanizer(rectanizer), fX(x), fY(y) {}
 
     Node* previous() const { return fPrevious; }
@@ -46,7 +48,7 @@ public:
 
 private:
     Node* const fPrevious;
-    GrRectanizer* const fRectanizer;
+    Rectanizer* const fRectanizer;
     const int fX, fY;
 };
 
@@ -112,9 +114,9 @@ void GrDynamicAtlas::reset(SkISize initialSize, const GrCaps& caps) {
 GrDynamicAtlas::Node* GrDynamicAtlas::makeNode(Node* previous, int l, int t, int r, int b) {
     int width = r - l;
     int height = b - t;
-    GrRectanizer* rectanizer = (fRectanizerAlgorithm == RectanizerAlgorithm::kSkyline)
-            ? (GrRectanizer*)fNodeAllocator.make<GrRectanizerSkyline>(width, height)
-            : fNodeAllocator.make<GrRectanizerPow2>(width, height);
+    Rectanizer* rectanizer = (fRectanizerAlgorithm == RectanizerAlgorithm::kSkyline)
+            ? (Rectanizer*)fNodeAllocator.make<RectanizerSkyline>(width, height)
+            : fNodeAllocator.make<RectanizerPow2>(width, height);
     return fNodeAllocator.make<Node>(previous, rectanizer, l, t);
 }
 

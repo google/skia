@@ -5,21 +5,23 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrRectanizer_DEFINED
-#define GrRectanizer_DEFINED
+#ifndef skgpu_Rectanizer_DEFINED
+#define skgpu_Rectanizer_DEFINED
 
 #include "include/gpu/GrTypes.h"
 
 struct SkIPoint16;
 
-class GrRectanizer {
+namespace skgpu {
+
+class Rectanizer {
 public:
-    GrRectanizer(int width, int height) : fWidth(width), fHeight(height) {
+    Rectanizer(int width, int height) : fWidth(width), fHeight(height) {
         SkASSERT(width >= 0);
         SkASSERT(height >= 0);
     }
 
-    virtual ~GrRectanizer() {}
+    virtual ~Rectanizer() {}
 
     virtual void reset() = 0;
 
@@ -34,11 +36,13 @@ public:
     /**
      *  Our factory, which returns the subclass du jour
      */
-    static GrRectanizer* Factory(int width, int height);
+    static Rectanizer* Factory(int width, int height);
 
 private:
     const int fWidth;
     const int fHeight;
 };
+
+} // End of namespace skgpu
 
 #endif

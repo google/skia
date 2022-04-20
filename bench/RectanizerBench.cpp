@@ -12,11 +12,13 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 
-#include "src/gpu/ganesh/GrRectanizerPow2.h"
-#include "src/gpu/ganesh/GrRectanizerSkyline.h"
+#include "src/gpu/RectanizerPow2.h"
+#include "src/gpu/RectanizerSkyline.h"
+
+using namespace skgpu;
 
 /**
- * This bench exercises Ganesh' GrRectanizer classes. It exercises the following
+ * This bench exercises the GPU backend's Rectanizer classes. It exercises the following
  * rectanizers:
  *      Pow2 Rectanizer
  *      Skyline Rectanizer
@@ -76,10 +78,10 @@ protected:
         SkASSERT(nullptr == fRectanizer.get());
 
         if (kPow2_RectanizerType == fRectanizerType) {
-            fRectanizer = std::make_unique<GrRectanizerPow2>(kWidth, kHeight);
+            fRectanizer = std::make_unique<RectanizerPow2>(kWidth, kHeight);
         } else {
             SkASSERT(kSkyline_RectanizerType == fRectanizerType);
-            fRectanizer = std::make_unique<GrRectanizerSkyline>(kWidth, kHeight);
+            fRectanizer = std::make_unique<RectanizerSkyline>(kWidth, kHeight);
         }
     }
 
@@ -115,7 +117,7 @@ private:
     SkString                    fName;
     RectanizerType              fRectanizerType;
     RectType                    fRectType;
-    std::unique_ptr<GrRectanizer> fRectanizer;
+    std::unique_ptr<Rectanizer> fRectanizer;
 
     using INHERITED = Benchmark;
 };

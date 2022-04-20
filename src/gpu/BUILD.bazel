@@ -5,6 +5,8 @@ licenses(["notice"])
 cc_library(
     name = "core_srcs",
     deps = [
+        ":RectanizerPow2_src",
+        ":RectanizerSkyline_src",
         ":ResourceKey_src",
         ":ShaderErrorHandler_src",
         ":Swizzle_src",
@@ -122,7 +124,7 @@ generated_cc_atom(
     name = "GrRectanizer_hdr",
     hdrs = ["GrRectanizer.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//src/gpu/ganesh:GrRectanizer_impl_hdr"],
+    deps = [":Rectanizer_hdr"],
 )
 
 generated_cc_atom(
@@ -135,4 +137,50 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/private:SkTo_hdr",
     ],
+)
+
+generated_cc_atom(
+    name = "RectanizerPow2_hdr",
+    hdrs = ["RectanizerPow2.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Rectanizer_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//src/core:SkIPoint16_hdr",
+        "//src/core:SkMathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RectanizerPow2_src",
+    srcs = ["RectanizerPow2.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":RectanizerPow2_hdr"],
+)
+
+generated_cc_atom(
+    name = "RectanizerSkyline_hdr",
+    hdrs = ["RectanizerSkyline.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Rectanizer_hdr",
+        "//include/private:SkTDArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RectanizerSkyline_src",
+    srcs = ["RectanizerSkyline.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":RectanizerSkyline_hdr",
+        "//src/core:SkIPoint16_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Rectanizer_hdr",
+    hdrs = ["Rectanizer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/gpu:GrTypes_hdr"],
 )

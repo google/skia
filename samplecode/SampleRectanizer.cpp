@@ -11,15 +11,17 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
-#if SK_SUPPORT_GPU
-#include "src/gpu/ganesh/GrRectanizerPow2.h"
-#include "src/gpu/ganesh/GrRectanizerSkyline.h"
+#if SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED
+#include "src/gpu/RectanizerPow2.h"
+#include "src/gpu/RectanizerSkyline.h"
 
-// This slide visualizes the various GrRectanizer-derived classes behavior
+using namespace skgpu;
+
+// This slide visualizes the various Rectanizer-derived classes behavior
 // for various input sets
 //  'j' will cycle through the various rectanizers
-//          Pow2 -> GrRectanizerPow2
-//          Skyline -> GrRectanizerSkyline
+//          Pow2 -> RectanizerPow2
+//          Skyline -> RectanizerSkyline
 //  'h' will cycle through the various rect sets
 //          Rand -> random rects from 2-256
 //          Pow2Rand -> random power of 2 sized rects from 2-256
@@ -48,9 +50,9 @@ public:
         fCurRects = &fRects[0];
 
         fRectanizers.push_back(
-            std::unique_ptr<GrRectanizer>(new GrRectanizerPow2(kWidth, kHeight)));
+            std::unique_ptr<Rectanizer>(new RectanizerPow2(kWidth, kHeight)));
         fRectanizers.push_back(
-            std::unique_ptr<GrRectanizer>(new GrRectanizerSkyline(kWidth, kHeight)));
+            std::unique_ptr<Rectanizer>(new RectanizerSkyline(kWidth, kHeight)));
     }
 
 protected:
@@ -135,12 +137,12 @@ private:
     static const int kMinRectSize = 2;
     static const int kMaxRectSize = 256;
 
-    int                                     fCurRandRect;
-    SkTDArray<SkISize>                      fRects[3];
-    SkTDArray<SkISize>*                     fCurRects;
-    SkTDArray<SkIPoint16>                   fRectLocations;
-    SkTArray<std::unique_ptr<GrRectanizer>> fRectanizers;
-    int                                     fCurRectanizer;
+    int                                   fCurRandRect;
+    SkTDArray<SkISize>                    fRects[3];
+    SkTDArray<SkISize>*                   fCurRects;
+    SkTDArray<SkIPoint16>                 fRectLocations;
+    SkTArray<std::unique_ptr<Rectanizer>> fRectanizers;
+    int                                   fCurRectanizer;
 
     const char* getRectanizerName() const {
         if (!fCurRectanizer) {

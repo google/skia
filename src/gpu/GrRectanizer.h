@@ -5,7 +5,13 @@
  * found in the LICENSE file.
  */
 
-// TODO: Once we can get Flutter to use the ganesh version of the file we can remove this one. At
-// that time we should also rename the ganesh file to drop the _impl.
-#include "src/gpu/ganesh/GrRectanizer_impl.h"
+#ifndef GrRectanizer_DEFINED
+#define GrRectanizer_DEFINED
+
+// TODO: Once we can get Flutter to use the ganesh version of the file we can remove this one.
+#include "src/gpu/Rectanizer.h"
+
+using GrRectanizer = skgpu::Rectanizer;
+
+#endif
 

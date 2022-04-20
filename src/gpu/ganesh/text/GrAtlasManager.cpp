@@ -341,7 +341,9 @@ bool GrAtlasManager::initAtlas(skgpu::MaskFormat format) {
         const GrBackendFormat backendFormat =
                 fCaps->getDefaultBackendFormat(grColorType, GrRenderable::kNo);
 
-        fAtlases[index] = GrDrawOpAtlas::Make(fProxyProvider, backendFormat, grColorType,
+        fAtlases[index] = GrDrawOpAtlas::Make(fProxyProvider, backendFormat,
+                                              GrColorTypeToSkColorType(grColorType),
+                                              GrColorTypeBytesPerPixel(grColorType),
                                               atlasDimensions.width(), atlasDimensions.height(),
                                               plotDimensions.width(), plotDimensions.height(),
                                               this, fAllowMultitexturing, nullptr);

@@ -2284,8 +2284,8 @@ generated_cc_atom(
         "//include/core:SkSize_hdr",
         "//include/private:SkTDArray_hdr",
         "//include/utils:SkRandom_hdr",
-        "//src/gpu/ganesh:GrRectanizerPow2_hdr",
-        "//src/gpu/ganesh:GrRectanizerSkyline_hdr",
+        "//src/gpu:RectanizerPow2_hdr",
+        "//src/gpu:RectanizerSkyline_hdr",
     ],
 )
 

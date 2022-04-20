@@ -16,8 +16,8 @@
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/AtlasTypes.h"
+#include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
-#include "src/gpu/ganesh/GrRectanizerSkyline.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 class GrOnFlushResourceProvider;
@@ -207,7 +207,8 @@ public:
     /**
      * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
      * should only be used inside of GrMeshDrawOp::onPrepareDraws.
-     *  @param GrColorType      The colorType which this atlas will store
+     *  @param ct               The colorType which this atlas will store
+     *  @param bpp              Size in bytes of each pixel
      *  @param width            width in pixels of the atlas
      *  @param height           height in pixels of the atlas
      *  @param numPlotsX        The number of plots the atlas should be broken up into in the X
@@ -222,7 +223,7 @@ public:
      */
     static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
                                                const GrBackendFormat& format,
-                                               GrColorType,
+                                               SkColorType ct, size_t bpp,
                                                int width, int height,
                                                int plotWidth, int plotHeight,
                                                GenerationCounter* generationCounter,
@@ -366,15 +367,15 @@ public:
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
-    GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrColorType, int width,
-                  int height, int plotWidth, int plotHeight, GenerationCounter* generationCounter,
-                  AllowMultitexturing allowMultitexturing);
+    GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, SkColorType, size_t bpp,
+                  int width, int height, int plotWidth, int plotHeight,
+                  GenerationCounter* generationCounter, AllowMultitexturing allowMultitexturing);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
-     * keep track of subimage placement via their GrRectanizer. A Plot manages the lifetime of its
+     * keep track of subimage placement via their Rectanizer. A Plot manages the lifetime of its
      * data using two tokens, a last use token and a last upload token. Once a Plot is "full" (i.e.
-     * there is no room for the new subimage according to the GrRectanizer), it can no longer be
+     * there is no room for the new subimage according to the Rectanizer), it can no longer be
      * used unless the last use of the Plot has already been flushed through to the gpu.
      */
     class Plot : public SkRefCnt {
@@ -419,7 +420,7 @@ private:
 
     private:
         Plot(int pageIndex, int plotIndex, GenerationCounter* generationCounter,
-             int offX, int offY, int width, int height, GrColorType colorType);
+             int offX, int offY, int width, int height, SkColorType colorType, size_t bpp);
 
         ~Plot() override;
 
@@ -429,7 +430,8 @@ private:
          */
         Plot* clone() const {
             return new Plot(
-                fPageIndex, fPlotIndex, fGenerationCounter, fX, fY, fWidth, fHeight, fColorType);
+                fPageIndex, fPlotIndex, fGenerationCounter, fX, fY, fWidth, fHeight, fColorType,
+                fBytesPerPixel);
         }
 
         GrDeferredUploadToken fLastUpload;
@@ -449,9 +451,9 @@ private:
         const int fHeight;
         const int fX;
         const int fY;
-        GrRectanizerSkyline fRectanizer;
+        skgpu::RectanizerSkyline fRectanizer;
         const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
-        const GrColorType fColorType;
+        const SkColorType fColorType;
         const size_t fBytesPerPixel;
         SkIRect fDirtyRect;
         SkDEBUGCODE(bool fDirty);
@@ -491,7 +493,8 @@ private:
     }
 
     GrBackendFormat       fFormat;
-    GrColorType           fColorType;
+    SkColorType           fColorType;
+    size_t                fBytesPerPixel;
     int                   fTextureWidth;
     int                   fTextureHeight;
     int                   fPlotWidth;

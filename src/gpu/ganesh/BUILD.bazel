@@ -64,8 +64,6 @@ cc_library(
         ":GrProxyProvider_src",
         ":GrRecordingContextPriv_src",
         ":GrRecordingContext_src",
-        ":GrRectanizerPow2_src",
-        ":GrRectanizerSkyline_src",
         ":GrRenderTargetProxy_src",
         ":GrRenderTarget_src",
         ":GrRenderTaskCluster_src",
@@ -1195,13 +1193,13 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrDeferredUpload_hdr",
-        ":GrRectanizerSkyline_hdr",
         ":GrSurfaceProxyView_hdr",
         "//include/gpu:GrBackendSurface_hdr",
         "//include/private:SkTArray_hdr",
         "//src/core:SkIPoint16_hdr",
         "//src/core:SkTInternalLList_hdr",
         "//src/gpu:AtlasTypes_hdr",
+        "//src/gpu:RectanizerSkyline_hdr",
     ],
 )
 
@@ -1352,13 +1350,13 @@ generated_cc_atom(
         ":GrDynamicAtlas_hdr",
         ":GrOnFlushResourceProvider_hdr",
         ":GrProxyProvider_hdr",
-        ":GrRectanizerPow2_hdr",
-        ":GrRectanizerSkyline_hdr",
         ":GrRenderTarget_hdr",
         ":GrResourceProvider_hdr",
         ":GrSurfaceProxyPriv_hdr",
         ":GrSurfaceProxyView_hdr",
         "//src/core:SkIPoint16_hdr",
+        "//src/gpu:RectanizerPow2_hdr",
+        "//src/gpu:RectanizerSkyline_hdr",
     ],
 )
 
@@ -2231,45 +2229,6 @@ generated_cc_atom(
         "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
         "//src/gpu/ganesh/text:GrTextBlob_hdr",
         "//src/utils:SkJSONWriter_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrRectanizerPow2_hdr",
-    hdrs = ["GrRectanizerPow2.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrRectanizer_impl_hdr",
-        "//include/private:SkMalloc_hdr",
-        "//src/core:SkIPoint16_hdr",
-        "//src/core:SkMathPriv_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrRectanizerPow2_src",
-    srcs = ["GrRectanizerPow2.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [":GrRectanizerPow2_hdr"],
-)
-
-generated_cc_atom(
-    name = "GrRectanizerSkyline_hdr",
-    hdrs = ["GrRectanizerSkyline.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrRectanizer_impl_hdr",
-        "//include/private:SkTDArray_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrRectanizerSkyline_src",
-    srcs = ["GrRectanizerSkyline.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrRectanizerSkyline_hdr",
-        "//src/core:SkIPoint16_hdr",
     ],
 )
 
@@ -3508,11 +3467,4 @@ generated_cc_atom(
         "//include/core:SkColorSpace_hdr",
         "//include/core:SkImageInfo_hdr",
     ],
-)
-
-generated_cc_atom(
-    name = "GrRectanizer_impl_hdr",
-    hdrs = ["GrRectanizer_impl.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//include/gpu:GrTypes_hdr"],
 )

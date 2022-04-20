@@ -56,7 +56,7 @@ void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvid
 
 std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvider,
                                                    const GrBackendFormat& format,
-                                                   GrColorType colorType, int width,
+                                                   SkColorType colorType, size_t bpp, int width,
                                                    int height, int plotWidth, int plotHeight,
                                                    GenerationCounter* generationCounter,
                                                    AllowMultitexturing allowMultitexturing,
@@ -65,7 +65,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
         return nullptr;
     }
 
-    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, colorType,
+    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, colorType, bpp,
                                                            width, height, plotWidth, plotHeight,
                                                            generationCounter,
                                                            allowMultitexturing));
@@ -81,7 +81,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
 
 ////////////////////////////////////////////////////////////////////////////////
 GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, GenerationCounter* generationCounter,
-        int offX, int offY, int width, int height, GrColorType colorType)
+        int offX, int offY, int width, int height, SkColorType colorType, size_t bpp)
         : fLastUpload(GrDeferredUploadToken::AlreadyFlushedToken())
         , fLastUse(GrDeferredUploadToken::AlreadyFlushedToken())
         , fFlushesSinceLastUse(0)
@@ -98,7 +98,7 @@ GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, GenerationCounter* gener
         , fRectanizer(width, height)
         , fOffset(SkIPoint16::Make(fX * fWidth, fY * fHeight))
         , fColorType(colorType)
-        , fBytesPerPixel(GrColorTypeBytesPerPixel(colorType))
+        , fBytesPerPixel(bpp)
 #ifdef SK_DEBUG
         , fDirty(false)
 #endif
@@ -179,7 +179,7 @@ void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& 
 
     writePixels(proxy,
                 fDirtyRect.makeOffset(fOffset.fX, fOffset.fY),
-                fColorType,
+                SkColorTypeToGrColorType(fColorType),
                 dataPtr,
                 rowBytes);
     fDirtyRect.setEmpty();
@@ -206,11 +206,12 @@ void GrDrawOpAtlas::Plot::resetRects() {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendFormat& format,
-                             GrColorType colorType, int width, int height,
+                             SkColorType colorType, size_t bpp, int width, int height,
                              int plotWidth, int plotHeight, GenerationCounter* generationCounter,
                              AllowMultitexturing allowMultitexturing)
         : fFormat(format)
         , fColorType(colorType)
+        , fBytesPerPixel(bpp)
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fPlotWidth(plotWidth)
@@ -564,9 +565,11 @@ bool GrDrawOpAtlas::createPages(
     int numPlotsX = fTextureWidth/fPlotWidth;
     int numPlotsY = fTextureHeight/fPlotHeight;
 
+    GrColorType grColorType = SkColorTypeToGrColorType(fColorType);
+
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        skgpu::Swizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, fColorType);
-        if (GrColorTypeIsAlphaOnly(fColorType)) {
+        skgpu::Swizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, grColorType);
+        if (GrColorTypeIsAlphaOnly(grColorType)) {
             swizzle = skgpu::Swizzle::Concat(swizzle, skgpu::Swizzle("aaaa"));
         }
         sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(
@@ -586,7 +589,8 @@ bool GrDrawOpAtlas::createPages(
             for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
                 uint32_t plotIndex = r * numPlotsX + c;
                 currPlot->reset(new Plot(
-                    i, plotIndex, generationCounter, x, y, fPlotWidth, fPlotHeight, fColorType));
+                    i, plotIndex, generationCounter, x, y, fPlotWidth, fPlotHeight, fColorType,
+                    fBytesPerPixel));
 
                 // build LRU list
                 fPages[i].fPlotList.addToHead(currPlot->get());

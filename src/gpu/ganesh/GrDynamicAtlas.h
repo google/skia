@@ -17,9 +17,9 @@ struct SkIPoint16;
 struct SkIRect;
 
 /**
- * This class implements a dynamic size GrRectanizer that grows until it reaches the implementation-
- * dependent max texture size. When finalized, it also creates and stores a GrTextureProxy for the
- * underlying atlas.
+ * This class implements a dynamic size skgpu::Rectanizer that grows until it reaches the
+ * implementation-dependent max texture size. When finalized, it also creates and stores a
+ * GrTextureProxy for the underlying atlas.
  */
 class GrDynamicAtlas {
 public:

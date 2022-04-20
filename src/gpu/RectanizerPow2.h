@@ -5,13 +5,15 @@
 * found in the LICENSE file.
 */
 
-#ifndef GrRectanizerPow2_DEFINED
-#define GrRectanizerPow2_DEFINED
+#ifndef skgpu_RectanizerPow2_DEFINED
+#define skgpu_RectanizerPow2_DEFINED
 
 #include "include/private/SkMalloc.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkMathPriv.h"
-#include "src/gpu/ganesh/GrRectanizer_impl.h"
+#include "src/gpu/Rectanizer.h"
+
+namespace skgpu {
 
 // This Rectanizer quantizes the incoming rects to powers of 2. Each power
 // of two can have, at most, one active row/shelf. Once a row/shelf for
@@ -20,13 +22,13 @@
 // The skyline algorithm almost always provides a better packing.
 //
 // Mark this class final in an effort to avoid the vtable when this subclass is used explicitly.
-class GrRectanizerPow2 final : public GrRectanizer {
+class RectanizerPow2 final : public Rectanizer {
 public:
-    GrRectanizerPow2(int w, int h) : INHERITED(w, h) {
+    RectanizerPow2(int w, int h) : Rectanizer(w, h) {
         this->reset();
     }
 
-    ~GrRectanizerPow2() final {}
+    ~RectanizerPow2() final {}
 
     void reset() final {
         fNextStripY = 0;
@@ -76,8 +78,8 @@ private:
         row->fRowHeight = rowHeight;
         fNextStripY += rowHeight;
     }
-
-    using INHERITED = GrRectanizer;
 };
+
+} // End of namespace skgpu
 
 #endif
