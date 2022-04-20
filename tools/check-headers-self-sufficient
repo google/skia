@@ -56,7 +56,6 @@ ignore = re.compile('|'.join([
     r'third_party/.*',
     r'tools/fiddle/.*',
     r'tools/gpu/vk/.*',
-    r'tools/mdbviz/.*',
     r'tools/sk_app/.*',
     r'tools/viewer/.*',
     ]))
