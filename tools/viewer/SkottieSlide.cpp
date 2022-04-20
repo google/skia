@@ -12,15 +12,18 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkTime.h"
+#include "include/private/SkNoncopyable.h"
 #include "include/private/SkTPin.h"
 #include "modules/audioplayer/SkAudioPlayer.h"
 #include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <cmath>
+#include <vector>
 
 #include "imgui.h"
 
@@ -74,7 +77,119 @@ private:
     using INHERITED = skresources::ResourceProviderProxyBase;
 };
 
+class Decorator : public SkNoncopyable {
+public:
+    virtual ~Decorator() = default;
+
+    virtual void render(SkCanvas*) = 0;
+};
+
+class SimpleMarker final : public Decorator {
+public:
+    ~SimpleMarker() override = default;
+
+    static std::unique_ptr<Decorator> Make() { return std::make_unique<SimpleMarker>(); }
+
+    void render(SkCanvas* canvas) override {
+        SkPaint p;
+        p.setAntiAlias(true);
+
+        p.setColor(SK_ColorGREEN);
+        canvas->drawCircle(0, 0, 5, p);
+
+        p.setColor(SK_ColorRED);
+        p.setStrokeWidth(1.5f);
+        canvas->drawLine(-10, 0, 10, 0, p);
+        canvas->drawLine(0, -10, 0, 10, p);
+    }
+};
+
+static const struct DecoratorRec {
+    const char* fName;
+    std::unique_ptr<Decorator>(*fFactory)();
+} kDecorators[] = {
+    { "Simple marker", SimpleMarker::Make }
+};
+
 } // namespace
+
+class SkottieSlide::TransformTracker : public skottie::PropertyObserver {
+public:
+    void renderUI() {
+        if (ImGui::Begin("Transform Tracker", nullptr)) {
+            if (ImGui::BeginCombo("Transform", fTransformSelect
+                                       ? std::get<0>(*fTransformSelect).c_str()
+                                       : nullptr)) {
+                if (ImGui::Selectable("(none)", true)) {
+                    fTransformSelect = nullptr;
+                }
+                for (const auto& entry : fTransforms) {
+                    const auto* transform_name = std::get<0>(entry).c_str();
+                    if (ImGui::Selectable(transform_name, false)) {
+                        if (!fTransformSelect ||
+                            transform_name != std::get<0>(*fTransformSelect).c_str()) {
+                            fTransformSelect = &entry;
+                            // Reset the decorator on transform change.
+                            fDecorator = fDecoratorSelect->fFactory();
+                        }
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            if (ImGui::BeginCombo("Decoration", fDecoratorSelect->fName)) {
+                for (const auto& dec : kDecorators) {
+                    if (ImGui::Selectable(dec.fName, false)) {
+                        if (dec.fName != fDecoratorSelect->fName) {
+                            fDecoratorSelect = &dec;
+                            fDecorator = fDecoratorSelect->fFactory();
+                        }
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
+        ImGui::End();
+    }
+
+    void renderTracker(SkCanvas* canvas, const SkSize& win_size, const SkSize& anim_size) const {
+        if (!fTransformSelect) {
+            return;
+        }
+
+        const auto tprop = std::get<1>(*fTransformSelect)->get();
+
+        const auto m = SkMatrix::Translate(tprop.fPosition.fX, tprop.fPosition.fY)
+                     * SkMatrix::RotateDeg(tprop.fRotation)
+                     * SkMatrix::Scale    (tprop.fScale.fX*0.01f, tprop.fScale.fY*0.01f)
+                     * SkMatrix::Translate(tprop.fAnchorPoint.fX, tprop.fAnchorPoint.fY);
+
+        const auto viewer_matrix = SkMatrix::RectToRect(SkRect::MakeSize(anim_size),
+                                                        SkRect::MakeSize(win_size),
+                                                        SkMatrix::kCenter_ScaleToFit);
+
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->concat(viewer_matrix);
+        canvas->concat(m);
+
+        SkASSERT(fDecorator);
+        fDecorator->render(canvas);
+    }
+
+private:
+    void onTransformProperty(const char name[],
+                             const LazyHandle<skottie::TransformPropertyHandle>& lh) override {
+
+        fTransforms.push_back(std::make_tuple(SkString(name), lh()));
+    }
+
+    using TransformT = std::tuple<SkString, std::unique_ptr<skottie::TransformPropertyHandle>>;
+
+    std::vector<TransformT>    fTransforms;
+    std::unique_ptr<Decorator> fDecorator;
+    const TransformT*          fTransformSelect = nullptr;
+    const DecoratorRec*        fDecoratorSelect = &kDecorators[0];
+};
 
 static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::Stats& stats) {
     static constexpr SkRect kR = { 10, 10, 280, 120 };
@@ -168,10 +283,14 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     auto precomp_interceptor =
             sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(resource_provider,
                                                                            kInterceptPrefix);
+
+    fTransformTracker = sk_make_sp<TransformTracker>();
+
     fAnimation      = builder
             .setLogger(logger)
             .setResourceProvider(std::move(resource_provider))
             .setPrecompInterceptor(std::move(precomp_interceptor))
+            .setPropertyObserver(fTransformTracker)
             .makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
     fWinSize        = SkSize::Make(w, h);
@@ -217,6 +336,8 @@ void SkottieSlide::draw(SkCanvas* canvas) {
             fFrameTimes[frame_index] = static_cast<float>((SkTime::GetNSecs() - t0) * 1e-6);
         }
 
+        fTransformTracker->renderTracker(canvas, fWinSize, fAnimation->size());
+
         if (fShowAnimationStats) {
             draw_stats_box(canvas, fAnimationStats);
         }
@@ -240,7 +361,9 @@ void SkottieSlide::draw(SkCanvas* canvas) {
         if (fShowUI) {
             this->renderUI();
         }
-
+        if (fShowTrackerUI) {
+            fTransformTracker->renderUI();
+        }
     }
 }
 
@@ -285,6 +408,9 @@ bool SkottieSlide::onChar(SkUnichar c) {
     case 'G':
         fPreferGlyphPaths = !fPreferGlyphPaths;
         this->load(fWinSize.width(), fWinSize.height());
+        return true;
+    case 'T':
+        fShowTrackerUI = !fShowTrackerUI;
         return true;
     }
 
