@@ -46,7 +46,7 @@ const SkSamplingOptions gSamplings[] = {
     SkSamplingOptions(SkCubicResampler::Mitchell()),
 };
 
-static void drawContents(SkSurface* surface, SkColor fillC) {
+static void draw_contents(SkSurface* surface, SkColor fillC) {
     SkSize size = SkSize::Make(SkIntToScalar(surface->width()),
                                SkIntToScalar(surface->height()));
     SkCanvas* canvas = surface->getCanvas();
@@ -67,7 +67,7 @@ static void drawContents(SkSurface* surface, SkColor fillC) {
 }
 
 static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
-    drawContents(surf, SK_ColorRED);
+    draw_contents(surf, SK_ColorRED);
     sk_sp<SkImage> imgR = surf->makeImageSnapshot();
 
     if (true) {
@@ -75,13 +75,15 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
         SkASSERT(imgR == imgR2);
     }
 
-    drawContents(surf, SK_ColorGREEN);
-    sk_sp<SkImage> imgG = surf->makeImageSnapshot();
+    imgR = ToolUtils::MakeTextureImage(canvas, std::move(imgR));
+    draw_contents(surf, SK_ColorGREEN);
+    sk_sp<SkImage> imgG = ToolUtils::MakeTextureImage(canvas, surf->makeImageSnapshot());
 
-    // since we've drawn after we snapped imgR, imgG will be a different obj
-    SkASSERT(imgR != imgG);
+    // since we've drawn after we snapped imgR, imgG will be a different obj unless the
+    // gpu context has been abandoned (in which case they will both be null)
+    SkASSERT(imgR != imgG || (!imgR && !imgG));
 
-    drawContents(surf, SK_ColorBLUE);
+    draw_contents(surf, SK_ColorBLUE);
 
     SkSamplingOptions sampling;
     SkPaint paint;
