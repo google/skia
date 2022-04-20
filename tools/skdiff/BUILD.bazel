@@ -11,7 +11,7 @@ cc_binary(
         ":skdiff_src",
         ":skdiff_utils_src",
         "//:skia_core",
-        "//third_party:skcms",
+        "//third_party/skcms",
         "//tools:Resources_src",
         "//tools:ToolUtils_src",
         "//tools/flags:CommandLineFlags_src",

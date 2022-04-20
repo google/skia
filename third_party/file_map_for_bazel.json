@@ -72,7 +72,7 @@
   "vulkan_macos.h": "//include/third_party/vulkan/vulkan:vulkan_macos_hdr",
   "vulkan_win32.h": "//include/third_party/vulkan/vulkan:vulkan_win32_hdr",
   "vulkan_xcb.h": "//include/third_party/vulkan/vulkan:vulkan_xcb_hdr",
-  "vulkan/vulkan.h": "//include/third_party:skias_vulkan_headers",
+  "vulkan/vulkan.h": "//include/third_party/vulkan:skias_vulkan_headers",
 
   "vulkan_beta.h": "SK_GAZELLE_IGNORE not actually included by us",
   "vulkan_directfb.h": "SK_GAZELLE_IGNORE not actually included by us",
@@ -85,7 +85,7 @@
   "vulkan_xlib.h": "SK_GAZELLE_IGNORE not actually included by us",
   "vulkan_xlib_xrandr.h": "SK_GAZELLE_IGNORE not actually included by us",
 
-  "GrVulkanMemoryAllocator.h": "//third_party:vulkanmemoryallocator",
+  "GrVulkanMemoryAllocator.h": "//third_party/vulkanmemoryallocator",
 
   "wuffs-v0.3.c": "//third_party:wuffs",
 

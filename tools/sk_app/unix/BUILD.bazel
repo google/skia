@@ -8,7 +8,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":WindowContextFactory_unix_hdr",
-        "//include/third_party:skias_vulkan_headers",
+        "//include/third_party/vulkan:skias_vulkan_headers",
         "//src/ports:SkOSLibrary_hdr",
         "//third_party:dawn",
         "//tools/gpu/vk:VkTestUtils_hdr",

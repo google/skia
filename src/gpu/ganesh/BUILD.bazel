@@ -373,7 +373,7 @@ cc_library(
         "//bazel/common_config_settings:webgl_standard": [":webgl_srcs"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:vulkan_with_vma": ["//third_party:vulkanmemoryallocator"],
+        "//bazel/common_config_settings:vulkan_with_vma": ["//third_party/vulkanmemoryallocator"],
         "//conditions:default": [],
     }),
 )

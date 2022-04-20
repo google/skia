@@ -1,0 +1,21 @@
+licenses(["notice"])
+
+cc_library(
+    name = "skcms",
+    srcs = [
+        "skcms.cc",
+        "skcms_internal.h",
+    ],
+    hdrs = [
+        "//include/third_party/skcms:skcms.h",
+    ],
+    copts = [
+        # We cannot use includes because this header is not in this directory.
+        "-isystem include/third_party/skcms/",
+    ],
+    # This header does not compile on its own and is meant to be included from skcms.cc
+    textual_hdrs = [
+        "src/Transform_inl.h",
+    ],
+    visibility = ["//:__subpackages__"],
+)

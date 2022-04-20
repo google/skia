@@ -2,6 +2,11 @@ load("//bazel:macros.bzl", "generated_cc_atom")
 
 licenses(["notice"])
 
+exports_files(
+    ["skcms.h"],
+    ["//third_party/skcms:__pkg__"],
+)
+
 generated_cc_atom(
     name = "skcms_hdr",
     hdrs = ["skcms.h"],

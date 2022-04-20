@@ -2,6 +2,14 @@ load("//bazel:macros.bzl", "generated_cc_atom")
 
 licenses(["notice"])
 
+exports_files(
+    [
+        "vulkan_core.h",
+        "vk_platform.h",
+    ],
+    ["//include/third_party/vulkan:__pkg__"],
+)
+
 generated_cc_atom(
     name = "vk_platform_hdr",
     hdrs = ["vk_platform.h"],
