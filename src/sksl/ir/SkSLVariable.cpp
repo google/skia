@@ -35,7 +35,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos
         Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
         (modifiers.fFlags & Modifiers::kOut_Flag) &&
-        context.fConfig->fKind == ProgramKind::kFragment && name != Compiler::FRAGCOLOR_NAME) {
+        ProgramConfig::IsFragment(context.fConfig->fKind) && name != Compiler::FRAGCOLOR_NAME) {
         context.fErrors->error(modifiersPos,
                 "out location=0, index=0 is reserved for sk_FragColor");
     }

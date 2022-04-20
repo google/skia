@@ -67,13 +67,11 @@ enum class PtrAddressSpace {
 };
 
 std::string_view pipeline_struct_prefix(ProgramKind kind) {
-    switch (kind) {
-        case ProgramKind::kVertex:
-            return "VS";
-        case ProgramKind::kFragment:
-            return "FS";
-        default:
-            break;
+    if (ProgramConfig::IsVertex(kind)) {
+        return "VS";
+    }
+    if (ProgramConfig::IsFragment(kind)) {
+        return "FS";
     }
     return "";
 }
@@ -499,10 +497,10 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     // point always has the same signature and acts as a trampoline to the user-defined main
     // function.
     std::string outputType;
-    if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
+    if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
         this->writeLine("@stage(vertex) fn vertexMain(_stageIn: VSIn) -> VSOut {");
         outputType = "VSOut";
-    } else if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
+    } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
         this->writeLine("@stage(fragment) fn fragmentMain(_stageIn: FSIn) -> FSOut {");
         outputType = "FSOut";
     } else {
@@ -517,7 +515,7 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     this->writeLine(";");
 
     // Generate assignment to sk_FragColor built-in if the user-defined main returns a color.
-    if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
+    if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
         auto symbolTable = top_level_symbol_table(main);
         const Symbol* symbol = (*symbolTable)["sk_FragColor"];
         SkASSERT(symbol);
@@ -801,7 +799,7 @@ void WGSLCodeGenerator::writeStageInputStruct() {
         }
     }
 
-    if (fProgram.fConfig->fKind == ProgramKind::kFragment &&
+    if (ProgramConfig::IsFragment(fProgram.fConfig->fKind) &&
         fRequirements.mainNeedsCoordsArgument && !declaredFragCoordsBuiltin) {
         this->writeLine("@builtin(position) sk_FragCoord: vec4<f32>;");
     }

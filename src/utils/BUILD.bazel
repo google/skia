@@ -634,6 +634,7 @@ generated_cc_atom(
         ":SkShaderUtils_hdr",
         "//include/core:SkString_hdr",
         "//include/private:SkSLString_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
     ],
 )
 

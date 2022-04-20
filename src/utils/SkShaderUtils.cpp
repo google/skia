@@ -9,6 +9,7 @@
 
 #include "include/core/SkString.h"
 #include "include/private/SkSLString.h"
+#include "src/sksl/SkSLProgramSettings.h"
 
 namespace SkShaderUtils {
 
@@ -210,10 +211,10 @@ std::string BuildShaderErrorMessage(const char* shader, const char* errors) {
 
 void PrintShaderBanner(SkSL::ProgramKind programKind) {
     const char* typeName = "Unknown";
-    switch (programKind) {
-        case SkSL::ProgramKind::kVertex:   typeName = "Vertex";   break;
-        case SkSL::ProgramKind::kFragment: typeName = "Fragment"; break;
-        default: break;
+    if (SkSL::ProgramConfig::IsVertex(programKind)) {
+        typeName = "Vertex";
+    } else if (SkSL::ProgramConfig::IsFragment(programKind)) {
+        typeName = "Fragment";
     }
     SkDebugf("---- %s shader ----------------------------------------------------\n", typeName);
 }

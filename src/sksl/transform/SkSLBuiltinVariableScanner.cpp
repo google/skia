@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -102,7 +103,7 @@ void FindAndDeclareBuiltinVariables(const Context& context,
         scanner.addDeclaringElement(Compiler::FRAGCOLOR_NAME);
     }
 
-    if (programKind == ProgramKind::kFragment) {
+    if (ProgramConfig::IsFragment(programKind)) {
         // Vulkan requires certain builtin variables be present, even if they're unused. At one
         // time, validation errors would result if sk_Clockwise was missing. Now, it's just (Adreno)
         // driver bugs that drop or corrupt draws if they're missing.

@@ -415,10 +415,10 @@ DSLStatement Continue(Position pos) {
 
 void Declare(const DSLModifiers& modifiers, Position pos) {
     SkSL::ProgramKind kind = ThreadContext::GetProgramConfig()->fKind;
-    if (kind != ProgramKind::kFragment &&
-        kind != ProgramKind::kVertex) {
+    if (!ProgramConfig::IsFragment(kind) &&
+        !ProgramConfig::IsVertex(kind)) {
         ThreadContext::ReportError("layout qualifiers are not allowed in this kind of program",
-                pos);
+                                   pos);
         return;
     }
     DSLCore::Declare(modifiers);
@@ -453,7 +453,7 @@ void Declare(SkTArray<DSLGlobalVar>& vars, Position pos) {
 }
 
 DSLStatement Discard(Position pos) {
-    if (ThreadContext::GetProgramConfig()->fKind != ProgramKind::kFragment) {
+    if (!ProgramConfig::IsFragment(ThreadContext::GetProgramConfig()->fKind)) {
         ThreadContext::ReportError("discard statement is only permitted in fragment shaders", pos);
     }
     return DSLCore::Discard(pos);
@@ -478,8 +478,8 @@ DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typ
                             SkTArray<DSLField> fields, std::string_view varName, int arraySize,
                             Position pos) {
     SkSL::ProgramKind kind = ThreadContext::GetProgramConfig()->fKind;
-    if (kind != ProgramKind::kFragment &&
-        kind != ProgramKind::kVertex) {
+    if (!ProgramConfig::IsFragment(kind) &&
+        !ProgramConfig::IsVertex(kind)) {
         ThreadContext::ReportError("interface blocks are not allowed in this kind of program", pos);
         return DSLGlobalVar();
     }

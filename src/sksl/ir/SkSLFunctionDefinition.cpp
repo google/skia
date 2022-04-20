@@ -166,7 +166,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     // Early returns from a vertex main() function will bypass sk_Position
                     // normalization, so SkASSERT that we aren't doing that. If this becomes an
                     // issue, we can add normalization before each return statement.
-                    if (fContext.fConfig->fKind == ProgramKind::kVertex && fFunction.isMain()) {
+                    if (ProgramConfig::IsVertex(fContext.fConfig->fKind) && fFunction.isMain()) {
                         fContext.fErrors->error(
                                 stmt.fPosition,
                                 "early returns from vertex programs are not supported");
@@ -255,7 +255,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
 
     FunctionSet referencedBuiltinFunctions;
     Finalizer(context, function, &referencedBuiltinFunctions).visitStatement(*body);
-    if (function.isMain() && context.fConfig->fKind == ProgramKind::kVertex) {
+    if (function.isMain() && ProgramConfig::IsVertex(context.fConfig->fKind)) {
         append_rtadjust_fixup_to_vertex_main(context, function, body->as<Block>());
     }
 

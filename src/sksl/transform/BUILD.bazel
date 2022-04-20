@@ -17,6 +17,7 @@ generated_cc_atom(
         "//src/sksl:SkSLBuiltinTypes_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
         "//src/sksl/analysis:SkSLProgramVisitor_hdr",
         "//src/sksl/ir:SkSLExpression_hdr",

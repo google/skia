@@ -113,7 +113,7 @@ static bool check_parameters(const Context& context,
                     m.fLayout.fBuiltin = kBuiltinColorIDs[builtinColorIndex++];
                     modifiersChanged = true;
                 }
-            } else if (context.fConfig->fKind == ProgramKind::kFragment) {
+            } else if (ProgramConfig::IsFragment(context.fConfig->fKind)) {
                 // For testing purposes, we have .sksl inputs that are treated as both runtime
                 // effects and fragment shaders. To make that work, fragment shaders are allowed to
                 // have a coords parameter.

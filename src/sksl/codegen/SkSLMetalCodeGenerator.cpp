@@ -12,7 +12,6 @@
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
 #include "include/sksl/SkSLErrorReporter.h"
@@ -1887,16 +1886,13 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                           : "";
     const char* separator = "";
     if (f.isMain()) {
-        switch (fProgram.fConfig->fKind) {
-            case ProgramKind::kFragment:
-                this->write("fragment Outputs fragmentMain");
-                break;
-            case ProgramKind::kVertex:
-                this->write("vertex Outputs vertexMain");
-                break;
-            default:
-                fContext.fErrors->error(Position(), "unsupported kind of program");
-                return false;
+        if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
+            this->write("fragment Outputs fragmentMain");
+        } else if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
+            this->write("vertex Outputs vertexMain");
+        } else {
+            fContext.fErrors->error(Position(), "unsupported kind of program");
+            return false;
         }
         this->write("(Inputs _in [[stage_in]]");
         if (-1 != fUniformBuffer) {
@@ -1940,14 +1936,14 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 this->write(")]]");
             }
         }
-        if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
+        if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
             if (fProgram.fInputs.fUseFlipRTUniform && fInterfaceBlockNameMap.empty()) {
                 this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]]");
                 fRTFlipName = "_anonInterface0." SKSL_RTFLIP_NAME;
             }
             this->write(", bool _frontFacing [[front_facing]]");
             this->write(", float4 _fragCoord [[position]]");
-        } else if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
+        } else if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
             this->write(", uint sk_VertexID [[vertex_id]], uint sk_InstanceID [[instance_id]]");
         }
         separator = ", ";
@@ -2308,13 +2304,11 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 
 void MetalCodeGenerator::writeReturnStatementFromMain() {
     // main functions in Metal return a magic _out parameter that doesn't exist in SkSL.
-    switch (fProgram.fConfig->fKind) {
-        case ProgramKind::kVertex:
-        case ProgramKind::kFragment:
-            this->write("return _out;");
-            break;
-        default:
-            SkDEBUGFAIL("unsupported kind of program");
+    if (ProgramConfig::IsVertex(fProgram.fConfig->fKind) ||
+        ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
+        this->write("return _out;");
+    } else {
+        SkDEBUGFAIL("unsupported kind of program");
     }
 }
 
@@ -2392,10 +2386,10 @@ void MetalCodeGenerator::writeInputStruct() {
                 this->write(" ");
                 this->writeName(var.name());
                 if (-1 != var.modifiers().fLayout.fLocation) {
-                    if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
+                    if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
                         this->write("  [[attribute(" +
                                     std::to_string(var.modifiers().fLayout.fLocation) + ")]]");
-                    } else if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
+                    } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
                         this->write("  [[user(locn" +
                                     std::to_string(var.modifiers().fLayout.fLocation) + ")]]");
                     }
@@ -2409,9 +2403,9 @@ void MetalCodeGenerator::writeInputStruct() {
 
 void MetalCodeGenerator::writeOutputStruct() {
     this->write("struct Outputs {\n");
-    if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
+    if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
         this->write("    float4 sk_Position [[position]];\n");
-    } else if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
+    } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
         this->write("    half4 sk_FragColor [[color(0)]];\n");
     }
     for (const ProgramElement* e : fProgram.elements()) {
@@ -2429,9 +2423,9 @@ void MetalCodeGenerator::writeOutputStruct() {
                 if (location < 0) {
                     fContext.fErrors->error(var.fPosition,
                             "Metal out variables must have 'layout(location=...)'");
-                } else if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
+                } else if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
                     this->write(" [[user(locn" + std::to_string(location) + ")]]");
-                } else if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
+                } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
                     this->write(" [[color(" + std::to_string(location) + ")");
                     int colorIndex = var.modifiers().fLayout.fIndex;
                     if (colorIndex) {
@@ -2443,7 +2437,7 @@ void MetalCodeGenerator::writeOutputStruct() {
             }
         }
     }
-    if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
+    if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
         this->write("    float sk_PointSize [[point_size]];\n");
     }
     this->write("};\n");

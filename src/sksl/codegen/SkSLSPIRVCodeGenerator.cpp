@@ -3402,7 +3402,7 @@ bool SPIRVCodeGenerator::isDead(const Variable& var) const {
 void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& varDecl) {
     const Variable& var = varDecl.var();
     if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
-        kind != ProgramKind::kFragment) {
+        !ProgramConfig::IsFragment(kind)) {
         SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
         return;
     }
@@ -3971,15 +3971,12 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     this->writeInstruction(SpvOpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450, out);
     this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().length() + 4) / 4) +
                       (int32_t) interfaceVars.size(), out);
-    switch (program.fConfig->fKind) {
-        case ProgramKind::kVertex:
-            this->writeWord(SpvExecutionModelVertex, out);
-            break;
-        case ProgramKind::kFragment:
-            this->writeWord(SpvExecutionModelFragment, out);
-            break;
-        default:
-            SK_ABORT("cannot write this kind of program to SPIR-V\n");
+    if (ProgramConfig::IsVertex(program.fConfig->fKind)) {
+        this->writeWord(SpvExecutionModelVertex, out);
+    } else if (ProgramConfig::IsFragment(program.fConfig->fKind)) {
+        this->writeWord(SpvExecutionModelFragment, out);
+    } else {
+        SK_ABORT("cannot write this kind of program to SPIR-V\n");
     }
     SpvId entryPoint = fFunctionMap[main];
     this->writeWord(entryPoint, out);
@@ -3987,7 +3984,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     for (int var : interfaceVars) {
         this->writeWord(var, out);
     }
-    if (program.fConfig->fKind == ProgramKind::kFragment) {
+    if (ProgramConfig::IsFragment(program.fConfig->fKind)) {
         this->writeInstruction(SpvOpExecutionMode,
                                fFunctionMap[main],
                                SpvExecutionModeOriginUpperLeft,
