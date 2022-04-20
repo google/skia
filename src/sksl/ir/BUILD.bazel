@@ -501,6 +501,7 @@ generated_cc_atom(
         ":SkSLExpression_hdr",
         ":SkSLSymbolTable_hdr",
         "//include/private:SkSLStatement_hdr",
+        "//include/sksl:SkSLPosition_hdr",
     ],
 )
 

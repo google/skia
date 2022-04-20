@@ -92,6 +92,12 @@ private:
     int32_t fEndOffset;
 };
 
+struct ForLoopPositions {
+    Position initPosition = Position();
+    Position conditionPosition = Position();
+    Position nextPosition = Position();
+};
+
 } // namespace SkSL
 
 #endif

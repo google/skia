@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLStatement.h"
+#include "include/sksl/SkSLPosition.h"
 
 #include <memory>
 #include <utility>
@@ -17,7 +18,6 @@
 namespace SkSL {
 
 class Expression;
-class Position;
 
 namespace dsl {
 
@@ -47,6 +47,16 @@ public:
     ~DSLStatement();
 
     DSLStatement& operator=(DSLStatement&& other) = default;
+
+    Position position() {
+        SkASSERT(this->hasValue());
+        return fStatement->fPosition;
+    }
+
+    void setPosition(Position pos) {
+        SkASSERT(this->hasValue());
+        fStatement->fPosition = pos;
+    }
 
     bool hasValue() { return fStatement != nullptr; }
 

@@ -27,6 +27,7 @@ class Statement;
 class Variable;
 class VariableReference;
 enum class VariableRefKind : int8_t;
+struct ForLoopPositions;
 struct LoadedModule;
 struct LoopUnrollInfo;
 struct Program;
@@ -165,6 +166,7 @@ bool IsConstantIndexExpression(const Expression& expr,
  * null is returned.
  */
 std::unique_ptr<LoopUnrollInfo> GetLoopUnrollInfo(Position pos,
+                                                  const ForLoopPositions& positions,
                                                   const Statement* loopInitializer,
                                                   const Expression* loopTest,
                                                   const Expression* loopNext,

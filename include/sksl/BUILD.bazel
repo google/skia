@@ -108,6 +108,7 @@ generated_cc_atom(
     hdrs = ["DSLStatement.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":SkSLPosition_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkSLStatement_hdr",
     ],

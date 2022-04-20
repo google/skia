@@ -2,7 +2,7 @@
 
 error: 3: missing condition
 void no_condition() { for (int i = 0;;i++) {} }
-                      ^^^^^^^^^^^^^^^^^^^^^^^
+                                     ^
 error: 5: invalid condition
 void unary_cond_op()   { for (int i = 0; !(i > 1); ++i) {} }
                                          ^^^^^^^^

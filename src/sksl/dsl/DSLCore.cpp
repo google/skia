@@ -223,8 +223,9 @@ public:
     }
 
     static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
-                                    DSLExpression next, DSLStatement stmt, Position pos) {
-        return ForStatement::Convert(ThreadContext::Context(), pos,
+                                    DSLExpression next, DSLStatement stmt, Position pos,
+                                    const ForLoopPositions& forLoopPositions) {
+        return ForStatement::Convert(ThreadContext::Context(), pos, forLoopPositions,
                                      initializer.releaseIfPossible(), test.releaseIfPossible(),
                                      next.releaseIfPossible(), stmt.release(),
                                      ThreadContext::SymbolTable());
@@ -464,9 +465,9 @@ DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos) {
 }
 
 DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
-                 DSLStatement stmt, Position pos) {
+                 DSLStatement stmt, Position pos, ForLoopPositions forLoopPositions) {
     return DSLStatement(DSLCore::For(std::move(initializer), std::move(test), std::move(next),
-                                     std::move(stmt), pos), pos);
+                                     std::move(stmt), pos, forLoopPositions), pos);
 }
 
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, Position pos) {

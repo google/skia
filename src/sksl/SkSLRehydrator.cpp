@@ -420,11 +420,11 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             std::unique_ptr<Expression> next = this->expression();
             std::unique_ptr<Statement> body = this->statement();
             std::unique_ptr<LoopUnrollInfo> unrollInfo =
-                    Analysis::GetLoopUnrollInfo(Position(), initializer.get(), test.get(),
-                                                next.get(), body.get(), /*errors=*/nullptr);
-            return ForStatement::Make(this->context(), Position(), std::move(initializer),
-                                      std::move(test), std::move(next), std::move(body),
-                                      std::move(unrollInfo), fSymbolTable);
+                    Analysis::GetLoopUnrollInfo(Position(), ForLoopPositions{},
+                        initializer.get(), test.get(), next.get(), body.get(), /*errors=*/nullptr);
+            return ForStatement::Make(this->context(), Position(), ForLoopPositions{},
+                                      std::move(initializer), std::move(test), std::move(next),
+                                      std::move(body), std::move(unrollInfo), fSymbolTable);
         }
         case Rehydrator::kIf_Command: {
             bool isStatic = this->readU8();

@@ -53,6 +53,7 @@ static int calculate_count(double start, double end, double delta, bool forwards
 }
 
 std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
+                                                            const ForLoopPositions& positions,
                                                             const Statement* loopInitializer,
                                                             const Expression* loopTest,
                                                             const Expression* loopNext,
@@ -66,7 +67,8 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
     // init_declaration has the form: type_specifier identifier = constant_expression
     //
     if (!loopInitializer) {
-        errors.error(loopPos, "missing init declaration");
+        Position pos = positions.initPosition.valid() ? positions.initPosition : loopPos;
+        errors.error(pos, "missing init declaration");
         return nullptr;
     }
     if (!loopInitializer->is<VarDeclaration>()) {
@@ -103,7 +105,8 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
     // condition has the form: loop_index relational_operator constant_expression
     //
     if (!loopTest) {
-        errors.error(loopPos, "missing condition");
+        Position pos = positions.conditionPosition.valid() ? positions.conditionPosition : loopPos;
+        errors.error(pos, "missing condition");
         return nullptr;
     }
     if (!loopTest->is<BinaryExpression>()) {
@@ -144,7 +147,8 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
     // it's an oversight, so we allow those as well.
     //
     if (!loopNext) {
-        errors.error(loopPos, "missing loop expression");
+        Position pos = positions.nextPosition.valid() ? positions.nextPosition : loopPos;
+        errors.error(pos, "missing loop expression");
         return nullptr;
     }
     switch (loopNext->kind()) {
