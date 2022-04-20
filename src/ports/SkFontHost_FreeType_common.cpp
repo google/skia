@@ -725,24 +725,6 @@ bool colrv1_configure_skpaint(FT_Face face,
             };
             startAngle = clampAngleToRange(startAngle);
             endAngle = clampAngleToRange(endAngle);
-#ifdef SK_IGNORE_COLRV1_SWEEP_FIX
-            /* TODO: Spec clarifications on which side of the gradient is to be
-             * painted, repeat modes, how to handle 0 degrees transition, see
-             * https://github.com/googlefonts/colr-gradients-spec/issues/250 */
-            if (startAngle >= endAngle) {
-                endAngle += 360.f;
-            }
-
-            // Skia's angles start from the horizontal x-Axis, rotate left 90
-            // degrees and then mirror horizontally to correct for Skia angles
-            // going clockwise, COLR v1 angles going counterclockwise.
-            SkMatrix angleAdjust = SkMatrix::RotateDeg(-90.f, center);
-            angleAdjust.postScale(-1, 1, center.x(), center.y());
-
-            paint->setShader(SkGradientShader::MakeSweep(
-                    center.x(), center.y(), colors.data(), stops.data(), stops.size(),
-                    SkTileMode::kDecal, startAngle, endAngle, 0, &angleAdjust));
-#else
             SkScalar sectorAngle =
                     endAngle > startAngle ? endAngle - startAngle : endAngle + 360.0f - startAngle;
 
@@ -762,7 +744,6 @@ bool colrv1_configure_skpaint(FT_Face face,
             paint->setShader(SkGradientShader::MakeSweep(
                     center.x(), center.y(), colors.data(), stops.data(), stops.size(),
                     tileMode, 0, sectorAngle, 0, &localMatrix));
-#endif
             return true;
         }
         default: {
@@ -888,11 +869,7 @@ void colrv1_transform(FT_Face face,
             // COLRv1 angles are counter-clockwise, compare
             // https://docs.microsoft.com/en-us/typography/opentype/spec/colr#formats-24-to-27-paintrotate-paintvarrotate-paintrotatearoundcenter-paintvarrotatearoundcenter
             transform = SkMatrix::RotateDeg(
-#ifdef SK_IGNORE_COLRV1_TRANSFORM_FIX
-                    SkFixedToScalar(colrPaint.u.rotate.angle) * 180.0f,
-#else
                     -SkFixedToScalar(colrPaint.u.rotate.angle) * 180.0f,
-#endif
                     SkPoint::Make( SkFixedToScalar(colrPaint.u.rotate.center_x),
                                   -SkFixedToScalar(colrPaint.u.rotate.center_y)));
             break;
@@ -902,11 +879,7 @@ void colrv1_transform(FT_Face face,
             // snaps to 0 for values very close to 0. Do the same here.
 
             SkScalar xDeg = SkFixedToScalar(colrPaint.u.skew.x_skew_angle) * 180.0f;
-#ifdef SK_IGNORE_COLRV1_TRANSFORM_FIX
-            SkScalar xRad = SkDegreesToRadians(-xDeg);
-#else
             SkScalar xRad = SkDegreesToRadians(xDeg);
-#endif
             SkScalar xTan = SkScalarTan(xRad);
             xTan = SkScalarNearlyZero(xTan) ? 0.0f : xTan;
 
