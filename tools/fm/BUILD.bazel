@@ -22,6 +22,7 @@ generated_cc_atom(
         "//modules/skresources/include:SkResources_hdr",
         "//modules/svg/include:SkSVGDOM_hdr",
         "//modules/svg/include:SkSVGNode_hdr",
+        "//modules/svg/include:SkSVGOpenTypeSVGDecoder_hdr",
         "//src/core:SkColorSpacePriv_hdr",
         "//src/core:SkMD5_hdr",
         "//src/core:SkOSFile_hdr",

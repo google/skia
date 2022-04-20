@@ -484,3 +484,15 @@ generated_cc_atom(
         "//include/private:SkNoncopyable_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "SkSVGOpenTypeSVGDecoder_hdr",
+    hdrs = ["SkSVGiOpenTypeSVGDecoder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkOpenTypeSVGDecoder_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)

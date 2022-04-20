@@ -32,6 +32,8 @@ public:
 
     SkSize intrinsicSize(const SkSVGLengthContext&) const;
 
+    void renderNode(const SkSVGRenderContext&, const SkSVGIRI& iri) const;
+
 protected:
     bool onPrepareToRender(SkSVGRenderContext*) const override;
 

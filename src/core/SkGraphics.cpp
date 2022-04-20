@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMath.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkRefCnt.h"
@@ -123,6 +124,19 @@ int SkGraphics::GetFontCacheCountUsed() {
 void SkGraphics::PurgeFontCache() {
     SkStrikeCache::GlobalStrikeCache()->purgeAll();
     SkTypefaceCache::PurgeAll();
+}
+
+static SkGraphics::OpenTypeSVGDecoderFactory gSVGDecoderFactory = nullptr;
+
+SkGraphics::OpenTypeSVGDecoderFactory
+SkGraphics::SetOpenTypeSVGDecoderFactory(OpenTypeSVGDecoderFactory svgDecoderFactory) {
+    OpenTypeSVGDecoderFactory old(gSVGDecoderFactory);
+    gSVGDecoderFactory = svgDecoderFactory;
+    return old;
+}
+
+SkGraphics::OpenTypeSVGDecoderFactory SkGraphics::GetOpenTypeSVGDecoderFactory() {
+    return gSVGDecoderFactory;
 }
 
 extern bool gSkVMAllowJIT;

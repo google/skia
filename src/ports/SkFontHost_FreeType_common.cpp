@@ -10,6 +10,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/pathops/SkPathOps.h"
@@ -36,6 +38,10 @@
 namespace {
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
 }
+
+#if defined(FT_CONFIG_OPTION_SVG)
+#   include <freetype/otsvg.h>
+#endif
 
 #ifdef TT_SUPPORT_COLRV1
 // FT_ClipBox and FT_Get_Color_Glyph_ClipBox introduced VER-2-11-0-18-g47cf8ebf4
@@ -1294,6 +1300,43 @@ bool SkScalerContext_FreeType_Base::drawCOLRv0Glyph(FT_Face face,
 }
 #endif  // FT_COLOR_H
 
+#if defined(FT_CONFIG_OPTION_SVG)
+bool SkScalerContext_FreeType_Base::drawSVGGlyph(FT_Face face,
+                                                 const SkGlyph& glyph,
+                                                 uint32_t loadGlyphFlags,
+                                                 SkSpan<SkColor> palette,
+                                                 SkCanvas* canvas) {
+    SkASSERT(face->glyph->format == FT_GLYPH_FORMAT_SVG);
+
+    FT_SVG_Document ftSvg = (FT_SVG_Document)face->glyph->other;
+    SkMatrix m;
+    FT_Matrix ftMatrix = ftSvg->transform;
+    FT_Vector ftOffset = ftSvg->delta;
+    m.setAll(
+        SkFixedToFloat(ftMatrix.xx), -SkFixedToFloat(ftMatrix.xy),  SkFixedToFloat(ftOffset.x),
+       -SkFixedToFloat(ftMatrix.yx),  SkFixedToFloat(ftMatrix.yy), -SkFixedToFloat(ftOffset.y),
+        0                          ,  0                          ,  1                        );
+    m.postScale(SkFixedToFloat(ftSvg->metrics.x_scale) / 64.0f,
+                SkFixedToFloat(ftSvg->metrics.y_scale) / 64.0f);
+    if (this->isSubpixel()) {
+        m.postTranslate(SkFixedToScalar(glyph.getSubXFixed()),
+                        SkFixedToScalar(glyph.getSubYFixed()));
+    }
+    canvas->concat(m);
+
+    SkGraphics::OpenTypeSVGDecoderFactory svgFactory = SkGraphics::GetOpenTypeSVGDecoderFactory();
+    if (!svgFactory) {
+        return false;
+    }
+    auto svgDecoder = svgFactory(ftSvg->svg_document, ftSvg->svg_document_length);
+    if (!svgDecoder) {
+        return false;
+    }
+    return svgDecoder->render(*canvas, ftSvg->units_per_EM, glyph.getGlyphID(),
+                              fRec.fForegroundColor, palette);
+}
+#endif  // FT_CONFIG_OPTION_SVG
+
 void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
                                                        const SkGlyph& glyph,
                                                        const SkMatrix& bitmapTransform)
@@ -1520,7 +1563,6 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
                     src += dstBitmap.rowBytes();
                 }
             }
-
         } break;
 
         default:

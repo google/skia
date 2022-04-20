@@ -436,6 +436,7 @@ generated_cc_atom(
         "//include/private:SkTo_hdr",
         "//include/utils:SkPaintFilterCanvas_hdr",
         "//misc/cpp:imgui_stdlib_hdr",
+        "//modules/svg/include:SkSVGOpenTypeSVGDecoder_hdr",
         "//src/core:SkAutoPixmapStorage_hdr",
         "//src/core:SkColorSpacePriv_hdr",
         "//src/core:SkGlyphRun_hdr",

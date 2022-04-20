@@ -2284,6 +2284,7 @@ generated_cc_atom(
         "//include/core:SkGraphics_hdr",
         "//include/core:SkMath_hdr",
         "//include/core:SkMatrix_hdr",
+        "//include/core:SkOpenTypeSVGDecoder_hdr",
         "//include/core:SkPathEffect_hdr",
         "//include/core:SkPath_hdr",
         "//include/core:SkRefCnt_hdr",

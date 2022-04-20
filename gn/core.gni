@@ -54,6 +54,7 @@ skia_core_public = [
   "$_include/core/SkMath.h",
   "$_include/core/SkMatrix.h",
   "$_include/core/SkMilestone.h",
+  "$_include/core/SkOpenTypeSVGDecoder.h",
   "$_include/core/SkOverdrawCanvas.h",
   "$_include/core/SkPaint.h",
   "$_include/core/SkPath.h",

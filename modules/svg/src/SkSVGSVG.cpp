@@ -10,6 +10,22 @@
 #include "modules/svg/include/SkSVGSVG.h"
 #include "modules/svg/include/SkSVGValue.h"
 
+void SkSVGSVG::renderNode(const SkSVGRenderContext& ctx, const SkSVGIRI& iri) const {
+    SkSVGRenderContext localContext(ctx, this);
+    SkSVGRenderContext::BorrowedNode node = localContext.findNodeById(iri);
+    if (!node) {
+        return;
+    }
+
+    if (this->onPrepareToRender(&localContext)) {
+        if (this == node.get()) {
+            this->onRender(ctx);
+        } else {
+            node->render(localContext);
+        }
+    }
+}
+
 bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
     // x/y are ignored for outermost svg elements
     const auto x = fType == Type::kInner ? fX : SkSVGLength(0);

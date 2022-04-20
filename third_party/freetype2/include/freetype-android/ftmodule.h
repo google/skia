@@ -28,6 +28,8 @@ FT_USE_MODULE( FT_Renderer_Class, ft_smooth_renderer_class )
 FT_USE_MODULE( FT_Renderer_Class, ft_raster1_renderer_class )
 //FT_USE_MODULE( FT_Renderer_Class, ft_sdf_renderer_class )
 //FT_USE_MODULE( FT_Renderer_Class, ft_bitmap_sdf_renderer_class )
-//FT_USE_MODULE( FT_Renderer_Class, ft_svg_renderer_class )
+#if defined(FT_CONFIG_OPTION_SVG)
+FT_USE_MODULE( FT_Renderer_Class, ft_svg_renderer_class )
+#endif
 
 /* EOF */

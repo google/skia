@@ -57,6 +57,10 @@
     #include "src/utils/mac/SkUniqueCFRef.h"
 #endif
 
+#if defined(SK_ENABLE_SVG)
+    #include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
+#endif
+
 extern bool gSkForceRasterPipelineBlitter;
 extern bool gUseSkVMBlitter;
 extern bool gSkVMAllowJIT;
@@ -1530,6 +1534,9 @@ int main(int argc, char** argv) {
     dump_json();  // It's handy for the bots to assume this is ~never missing.
 
     SkAutoGraphics ag;
+#if defined(SK_ENABLE_SVG)
+    SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
+#endif
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
     if (nullptr == GetResourceAsData("images/color_wheel.png")) {

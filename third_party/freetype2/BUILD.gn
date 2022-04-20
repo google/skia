@@ -9,6 +9,7 @@ declare_args() {
       (is_official_build || !(is_android || sanitize == "MSAN")) &&
       !is_fuchsia && !is_wasm
   skia_use_freetype_woff2 = is_wasm
+  skia_use_freetype_svg = true
 }
 
 import("../third_party.gni")
@@ -21,11 +22,13 @@ if (skia_use_system_freetype2) {
 } else {
   third_party("freetype2") {
     public_defines = [ "SK_FREETYPE_MINIMUM_RUNTIME_VERSION=(((FREETYPE_MAJOR) << 24) | ((FREETYPE_MINOR) << 16) | ((FREETYPE_PATCH) << 8))" ]
-    public_include_dirs = [ "../externals/freetype/include" ]
+    public_include_dirs = [
+      ".",
+      "../externals/freetype/include",
+    ]
 
     deps = [ "//third_party/libpng" ]
 
-    include_dirs = [ "." ]
     defines = [ "FT2_BUILD_LIBRARY" ]
     if (target_cpu == "wasm") {
       defines += [
@@ -73,5 +76,10 @@ if (skia_use_system_freetype2) {
       "../externals/freetype/src/truetype/truetype.c",
       "../externals/freetype/src/type1/type1.c",
     ]
+
+    if (skia_use_freetype_svg) {
+      public_defines += [ "FT_CONFIG_OPTION_SVG" ]
+      sources += [ "../externals/freetype/src/svg/svg.c" ]
+    }
   }
 }
