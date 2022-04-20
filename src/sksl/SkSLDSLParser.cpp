@@ -1842,7 +1842,7 @@ DSLExpression DSLParser::postfixExpression() {
 }
 
 DSLExpression DSLParser::swizzle(Position pos, DSLExpression base,
-        std::string_view swizzleMask) {
+        std::string_view swizzleMask, Position maskPos) {
     SkASSERT(swizzleMask.length() > 0);
     if (!base.type().isVector() && !base.type().isScalar()) {
         return base.field(swizzleMask, pos);
@@ -1851,7 +1851,10 @@ DSLExpression DSLParser::swizzle(Position pos, DSLExpression base,
     SkSL::SwizzleComponent::Type components[4];
     for (int i = 0; i < length; ++i) {
         if (i >= 4) {
-            this->error(pos, "too many components in swizzle mask");
+            Position errorPos = maskPos.valid() ? Position::Range(maskPos.startOffset() + 4,
+                                                                  maskPos.endOffset())
+                                                : pos;
+            this->error(errorPos, "too many components in swizzle mask");
             return DSLExpression::Poison(pos);
         }
         switch (swizzleMask[i]) {
@@ -1873,19 +1876,22 @@ DSLExpression DSLParser::swizzle(Position pos, DSLExpression base,
             case 'w': components[i] = SwizzleComponent::W;    break;
             case 'q': components[i] = SwizzleComponent::Q;    break;
             case 'B': components[i] = SwizzleComponent::UB;   break;
-            default:
-                this->error(pos, String::printf("invalid swizzle component '%c'",
+            default: {
+                Position componentPos = Position::Range(maskPos.startOffset() + i,
+                        maskPos.startOffset() + i + 1);
+                this->error(componentPos, String::printf("invalid swizzle component '%c'",
                         swizzleMask[i]).c_str());
                 return DSLExpression::Poison(pos);
+            }
         }
     }
     switch (length) {
-        case 1: return dsl::Swizzle(std::move(base), components[0], pos);
-        case 2: return dsl::Swizzle(std::move(base), components[0], components[1], pos);
+        case 1: return dsl::Swizzle(std::move(base), components[0], pos, maskPos);
+        case 2: return dsl::Swizzle(std::move(base), components[0], components[1], pos, maskPos);
         case 3: return dsl::Swizzle(std::move(base), components[0], components[1], components[2],
-                                    pos);
+                                    pos, maskPos);
         case 4: return dsl::Swizzle(std::move(base), components[0], components[1], components[2],
-                                    components[3], pos);
+                                    components[3], pos, maskPos);
         default: SkUNREACHABLE;
     }
 }
@@ -1919,7 +1925,8 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
             std::string_view text;
             if (this->identifier(&text)) {
                 Position pos = this->rangeFrom(base.position());
-                return this->swizzle(pos, std::move(base), text);
+                return this->swizzle(pos, std::move(base), text,
+                        this->rangeFrom(this->position(next).after()));
             }
             [[fallthrough]];
         }
@@ -1932,17 +1939,22 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
             // use the next *raw* token so we don't ignore whitespace - we only care about
             // identifiers that directly follow the float
             Position pos = this->rangeFrom(base.position());
+            Position start = this->position(next);
+            // skip past the "."
+            start = Position::Range(start.startOffset() + 1, start.endOffset());
+            Position maskPos = this->rangeFrom(start);
             Token id = this->nextRawToken();
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
                 pos = this->rangeFrom(base.position());
+                maskPos = this->rangeFrom(start);
                 return this->swizzle(pos, std::move(base), std::string(field) +
-                        std::string(this->text(id)));
+                        std::string(this->text(id)), maskPos);
             } else if (field.empty()) {
                 this->error(pos, "expected field name or swizzle mask after '.'");
                 return {{DSLExpression::Poison(pos)}};
             }
             this->pushback(id);
-            return this->swizzle(pos, std::move(base), field);
+            return this->swizzle(pos, std::move(base), field, maskPos);
         }
         case Token::Kind::TK_LPAREN: {
             ExpressionArray args;

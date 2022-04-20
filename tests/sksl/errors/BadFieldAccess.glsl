@@ -11,7 +11,7 @@ void not_a_bvec()     { S s; s.f = bool3(true); }
                              ^^^^^^^^^^^^^^^^^
 error: 6: invalid swizzle component 'm'
 void not_a_struct()   { S s; s.f.missing; }
-                             ^^^^^^^^^^^
+                                 ^
 error: 7: expected array, but found 'float'
 void not_an_array()   { S s; s.f[0]; }
                              ^^^

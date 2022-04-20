@@ -271,7 +271,7 @@ private:
     dsl::DSLExpression postfixExpression();
 
     dsl::DSLExpression swizzle(Position pos, dsl::DSLExpression base,
-            std::string_view swizzleMask);
+            std::string_view swizzleMask, Position maskPos);
 
     dsl::DSLExpression call(Position pos, dsl::DSLExpression base, ExpressionArray args);
 

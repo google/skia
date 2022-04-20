@@ -235,10 +235,12 @@ static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& c
 
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              Position pos,
+                                             Position maskPos,
                                              std::unique_ptr<Expression> base,
                                              std::string_view maskString) {
     ComponentArray components;
-    for (char field : maskString) {
+    for (size_t i = 0; i < maskString.length(); ++i) {
+        char field = maskString[i];
         switch (field) {
             case '0': components.push_back(SwizzleComponent::ZERO); break;
             case '1': components.push_back(SwizzleComponent::ONE);  break;
@@ -259,12 +261,13 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
             case 'q': components.push_back(SwizzleComponent::Q);    break;
             case 'B': components.push_back(SwizzleComponent::UB);   break;
             default:
-                context.fErrors->error(pos,
+                context.fErrors->error(Position::Range(maskPos.startOffset() + i,
+                                                       maskPos.startOffset() + i + 1),
                                        String::printf("invalid swizzle component '%c'", field));
                 return nullptr;
         }
     }
-    return Convert(context, pos, std::move(base), std::move(components));
+    return Convert(context, pos, maskPos, std::move(base), std::move(components));
 }
 
 // Swizzles are complicated due to constant components. The most difficult case is a mask like
@@ -274,10 +277,12 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
 // 'float4(base.xw, 1, 0).xzyw'.
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              Position pos,
+                                             Position rawMaskPos,
                                              std::unique_ptr<Expression> base,
                                              ComponentArray inComponents) {
+    Position maskPos = rawMaskPos.valid() ? rawMaskPos : pos;
     if (!validate_swizzle_domain(inComponents)) {
-        context.fErrors->error(pos, "invalid swizzle mask '" + mask_string(inComponents) + "'");
+        context.fErrors->error(maskPos, "invalid swizzle mask '" + mask_string(inComponents) + "'");
         return nullptr;
     }
 
@@ -290,7 +295,10 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     }
 
     if (inComponents.count() > 4) {
-        context.fErrors->error(pos,
+        Position errorPos = rawMaskPos.valid() ? Position::Range(maskPos.startOffset() + 4,
+                                                                 maskPos.endOffset())
+                                               : pos;
+        context.fErrors->error(errorPos,
                 "too many components in swizzle mask '" + mask_string(inComponents) + "'");
         return nullptr;
     }
@@ -342,14 +350,17 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 [[fallthrough]];
             default:
                 // The swizzle component references a field that doesn't exist in the base type.
-                context.fErrors->error(pos, String::printf("invalid swizzle component '%c'",
-                                                            mask_char(inComponents[i])));
+                context.fErrors->error(
+                        Position::Range(maskPos.startOffset() + i,
+                                        maskPos.startOffset() + i + 1),
+                        String::printf("invalid swizzle component '%c'",
+                                       mask_char(inComponents[i])));
                 return nullptr;
         }
     }
 
     if (!foundXYZW) {
-        context.fErrors->error(pos, "swizzle must refer to base expression");
+        context.fErrors->error(maskPos, "swizzle must refer to base expression");
         return nullptr;
     }
 

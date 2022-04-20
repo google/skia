@@ -214,25 +214,29 @@ DSLStatement While(DSLExpression test, DSLStatement stmt,
  */
 DSLExpression Swizzle(DSLExpression base,
                       SkSL::SwizzleComponent::Type a,
-                      Position pos = {});
+                      Position pos = {},
+                      Position maskPos = {});
 
 DSLExpression Swizzle(DSLExpression base,
                       SkSL::SwizzleComponent::Type a,
                       SkSL::SwizzleComponent::Type b,
-                      Position pos = {});
+                      Position pos = {},
+                      Position maskPos = {});
 
 DSLExpression Swizzle(DSLExpression base,
                       SkSL::SwizzleComponent::Type a,
                       SkSL::SwizzleComponent::Type b,
                       SkSL::SwizzleComponent::Type c,
-                      Position pos = {});
+                      Position pos = {},
+                      Position maskPos = {});
 
 DSLExpression Swizzle(DSLExpression base,
                       SkSL::SwizzleComponent::Type a,
                       SkSL::SwizzleComponent::Type b,
                       SkSL::SwizzleComponent::Type c,
                       SkSL::SwizzleComponent::Type d,
-                      Position pos = {});
+                      Position pos = {},
+                      Position maskPos = {});
 
 /**
  * Returns the absolute value of x. If x is a vector, operates componentwise.
