@@ -74,33 +74,6 @@ enum class GrDDLProvider : bool {
     kYes = true
 };
 
-/**
- *  Formats for masks, used by the font cache. Important that these are 0-based.
- */
-enum GrMaskFormat {
-    kA8_GrMaskFormat,    //!< 1-byte per pixel
-    kA565_GrMaskFormat,  //!< 2-bytes per pixel, RGB represent 3-channel LCD coverage
-    kARGB_GrMaskFormat,  //!< 4-bytes per pixel, color format
-
-    kLast_GrMaskFormat = kARGB_GrMaskFormat
-};
-static const int kMaskFormatCount = kLast_GrMaskFormat + 1;
-
-/**
- *  Return the number of bytes-per-pixel for the specified mask format.
- */
-inline constexpr int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
-    SkASSERT(format < kMaskFormatCount);
-    // kA8   (0) -> 1
-    // kA565 (1) -> 2
-    // kARGB (2) -> 4
-    static_assert(kA8_GrMaskFormat == 0, "enum_order_dependency");
-    static_assert(kA565_GrMaskFormat == 1, "enum_order_dependency");
-    static_assert(kARGB_GrMaskFormat == 2, "enum_order_dependency");
-
-    return SkTo<int>(1u << format);
-}
-
 /** Ownership rules for external GPU resources imported into Skia. */
 enum GrWrapOwnership {
     /** Skia will assume the client will keep the resource alive and Skia will not free it. */
@@ -958,18 +931,6 @@ static constexpr SkColorType GrCompressionTypeToSkColorType(SkImage::Compression
         case SkImage::CompressionType::kBC1_RGBA8_UNORM: return kRGBA_8888_SkColorType;
     }
 
-    SkUNREACHABLE;
-}
-
-static constexpr GrColorType GrMaskFormatToColorType(GrMaskFormat format) {
-    switch (format) {
-        case kA8_GrMaskFormat:
-            return GrColorType::kAlpha_8;
-        case kA565_GrMaskFormat:
-            return GrColorType::kBGR_565;
-        case kARGB_GrMaskFormat:
-            return GrColorType::kRGBA_8888;
-    }
     SkUNREACHABLE;
 }
 

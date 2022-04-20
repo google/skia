@@ -15,10 +15,10 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTInternalLList.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
 #include "src/gpu/ganesh/GrRectanizerSkyline.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/geometry/GrRect.h"
 
 class GrOnFlushResourceProvider;
 class GrProxyProvider;
@@ -162,7 +162,7 @@ public:
             fUVs[2] = (fUVs[2] & 0x1FFF) | page;
         }
 
-        void updateRect(GrIRect16 rect) {
+        void updateRect(skgpu::IRect16 rect) {
             SkASSERT(rect.fLeft <= rect.fRight);
             SkASSERT(rect.fRight <= 0x1FFF);
             fUVs[0] = (fUVs[0] & 0xE000) | rect.fLeft;
@@ -539,8 +539,8 @@ public:
     // For testing only - make minimum sized atlases -- a single plot for ARGB, four for A8
     GrDrawOpAtlasConfig() : GrDrawOpAtlasConfig(kMaxAtlasDim, 0) {}
 
-    SkISize atlasDimensions(GrMaskFormat type) const;
-    SkISize plotDimensions(GrMaskFormat type) const;
+    SkISize atlasDimensions(skgpu::MaskFormat type) const;
+    SkISize plotDimensions(skgpu::MaskFormat type) const;
 
 private:
     // On some systems texture coordinates are represented using half-precision floating point,

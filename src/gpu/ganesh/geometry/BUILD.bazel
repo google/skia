@@ -151,7 +151,6 @@ generated_cc_atom(
         "//include/core:SkMatrix_hdr",
         "//include/core:SkRect_hdr",
         "//include/core:SkTypes_hdr",
-        "//include/private:SkTo_hdr",
     ],
 )
 

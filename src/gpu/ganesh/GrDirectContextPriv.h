@@ -11,6 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/BaseDevice.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
@@ -134,7 +135,7 @@ public:
     /** Get pointer to atlas texture for given mask format. Note that this wraps an
         actively mutating texture in an SkImage. This could yield unexpected results
         if it gets cached or used more generally. */
-    sk_sp<SkImage> testingOnly_getFontAtlasImage(GrMaskFormat format, unsigned int index = 0);
+    sk_sp<SkImage> testingOnly_getFontAtlasImage(skgpu::MaskFormat format, unsigned int index = 0);
 
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif

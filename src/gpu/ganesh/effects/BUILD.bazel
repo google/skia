@@ -75,6 +75,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//src/core:SkArenaAlloc_hdr",
+        "//src/gpu:AtlasTypes_hdr",
         "//src/gpu/ganesh:GrGeometryProcessor_hdr",
         "//src/gpu/ganesh:GrProcessor_hdr",
     ],

@@ -9,6 +9,7 @@
 #define GrBitmapTextGeoProc_DEFINED
 
 #include "src/core/SkArenaAlloc.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 
@@ -32,7 +33,7 @@ public:
                                      const GrSurfaceProxyView* views,
                                      int numActiveViews,
                                      GrSamplerState p,
-                                     GrMaskFormat format,
+                                     skgpu::MaskFormat format,
                                      const SkMatrix& localMatrix,
                                      bool usesW) {
         return arena->make([&](void* ptr) {
@@ -56,7 +57,7 @@ private:
 
     GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&, bool wideColor,
                         const GrSurfaceProxyView* views, int numViews, GrSamplerState params,
-                        GrMaskFormat format, const SkMatrix& localMatrix, bool usesW);
+                        skgpu::MaskFormat format, const SkMatrix& localMatrix, bool usesW);
 
     bool hasVertexColor() const { return fInColor.isInitialized(); }
 
@@ -70,7 +71,7 @@ private:
     Attribute        fInPosition;
     Attribute        fInColor;
     Attribute        fInTextureCoords;
-    GrMaskFormat     fMaskFormat;
+    skgpu::MaskFormat     fMaskFormat;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 

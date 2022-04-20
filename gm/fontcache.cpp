@@ -71,7 +71,7 @@ protected:
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
             if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
-                auto img = dContext->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
+                auto img = dContext->priv().testingOnly_getFontAtlasImage(skgpu::MaskFormat::kA8);
                 canvas->drawImage(img, 0, 0);
             }
         }

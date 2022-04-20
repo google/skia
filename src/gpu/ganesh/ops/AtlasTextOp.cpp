@@ -207,7 +207,7 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
     GrAtlasManager* atlasManager = target->atlasManager();
 
-    GrMaskFormat maskFormat = this->maskFormat();
+    skgpu::MaskFormat maskFormat = this->maskFormat();
 
     unsigned int numActiveViews;
     const GrSurfaceProxyView* views = atlasManager->getViews(maskFormat, &numActiveViews);
@@ -340,7 +340,7 @@ void AtlasTextOp::createDrawForGeneratedGlyphs(GrMeshDrawTarget* target,
     auto atlasManager = target->atlasManager();
 
     GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
-    GrMaskFormat maskFormat = this->maskFormat();
+    skgpu::MaskFormat maskFormat = this->maskFormat();
 
     unsigned int numActiveViews;
     const GrSurfaceProxyView* views = atlasManager->getViews(maskFormat, &numActiveViews);

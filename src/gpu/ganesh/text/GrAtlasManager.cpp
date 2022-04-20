@@ -28,12 +28,12 @@ GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider,
 GrAtlasManager::~GrAtlasManager() = default;
 
 void GrAtlasManager::freeAll() {
-    for (int i = 0; i < kMaskFormatCount; ++i) {
+    for (int i = 0; i < skgpu::kMaskFormatCount; ++i) {
         fAtlases[i] = nullptr;
     }
 }
 
-bool GrAtlasManager::hasGlyph(GrMaskFormat format, GrGlyph* glyph) {
+bool GrAtlasManager::hasGlyph(skgpu::MaskFormat format, GrGlyph* glyph) {
     SkASSERT(glyph);
     return this->getAtlas(format)->hasID(glyph->fAtlasLocator.plotLocator());
 }
@@ -61,19 +61,19 @@ static void expand_bits(INT_TYPE* dst,
 }
 
 static void get_packed_glyph_image(
-        const SkGlyph& glyph, int dstRB, GrMaskFormat expectedMaskFormat, void* dst) {
+        const SkGlyph& glyph, int dstRB, skgpu::MaskFormat expectedMaskFormat, void* dst) {
     const int width = glyph.width();
     const int height = glyph.height();
     const void* src = glyph.image();
     SkASSERT(src != nullptr);
 
-    GrMaskFormat grMaskFormat = GrGlyph::FormatFromSkGlyph(glyph.maskFormat());
-    if (grMaskFormat == expectedMaskFormat) {
+    skgpu::MaskFormat maskFormat = GrGlyph::FormatFromSkGlyph(glyph.maskFormat());
+    if (maskFormat == expectedMaskFormat) {
         int srcRB = glyph.rowBytes();
-        // Notice this comparison is with the glyphs raw mask format, and not its GrMaskFormat.
+        // Notice this comparison is with the glyphs raw mask format, and not its skgpu::MaskFormat.
         if (glyph.maskFormat() != SkMask::kBW_Format) {
             if (srcRB != dstRB) {
-                const int bbp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
+                const int bbp = skgpu::MaskFormatBytesPerPixel(expectedMaskFormat);
                 for (int y = 0; y < height; y++) {
                     memcpy(dst, src, width * bbp);
                     src = (const char*) src + srcRB;
@@ -86,21 +86,22 @@ static void get_packed_glyph_image(
             // Handle 8-bit format by expanding the mask to the expected format.
             const uint8_t* bits = reinterpret_cast<const uint8_t*>(src);
             switch (expectedMaskFormat) {
-                case kA8_GrMaskFormat: {
+                case skgpu::MaskFormat::kA8: {
                     uint8_t* bytes = reinterpret_cast<uint8_t*>(dst);
                     expand_bits(bytes, bits, width, height, dstRB, srcRB);
                     break;
                 }
-                case kA565_GrMaskFormat: {
+                case skgpu::MaskFormat::kA565: {
                     uint16_t* rgb565 = reinterpret_cast<uint16_t*>(dst);
                     expand_bits(rgb565, bits, width, height, dstRB, srcRB);
                     break;
                 }
                 default:
-                    SK_ABORT("Invalid GrMaskFormat");
+                    SK_ABORT("Invalid MaskFormat");
             }
         }
-    } else if (grMaskFormat == kA565_GrMaskFormat && expectedMaskFormat == kARGB_GrMaskFormat) {
+    } else if (maskFormat == skgpu::MaskFormat::kA565 &&
+               expectedMaskFormat == skgpu::MaskFormat::kARGB) {
         // Convert if the glyph uses a 565 mask format since it is using LCD text rendering
         // but the expected format is 8888 (will happen on macOS with Metal since that
         // combination does not support 565).
@@ -110,8 +111,8 @@ static void get_packed_glyph_image(
                 {0b0000'0000'0001'1111,  0, 5},  // Blue
                 {0, 0, 0}                        // Alpha
         };
-        constexpr int a565Bpp = GrMaskFormatBytesPerPixel(kA565_GrMaskFormat);
-        constexpr int argbBpp = GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat);
+        constexpr int a565Bpp = skgpu::MaskFormatBytesPerPixel(skgpu::MaskFormat::kA565);
+        constexpr int argbBpp = skgpu::MaskFormatBytesPerPixel(skgpu::MaskFormat::kARGB);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 uint16_t color565 = 0;
@@ -129,7 +130,7 @@ static void get_packed_glyph_image(
         // crbug:510931
         // Retrieving the image from the cache can actually change the mask format. This case is
         // very uncommon so for now we just draw a clear box for these glyphs.
-        const int bpp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
+        const int bpp = skgpu::MaskFormatBytesPerPixel(expectedMaskFormat);
         for (int y = 0; y < height; y++) {
             sk_bzero(dst, width * bpp);
             dst = (char*)dst + dstRB;
@@ -154,9 +155,9 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     }
     SkASSERT(grGlyph != nullptr);
 
-    GrMaskFormat glyphFormat = GrGlyph::FormatFromSkGlyph(skGlyph.maskFormat());
-    GrMaskFormat expectedMaskFormat = this->resolveMaskFormat(glyphFormat);
-    int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
+    skgpu::MaskFormat glyphFormat = GrGlyph::FormatFromSkGlyph(skGlyph.maskFormat());
+    skgpu::MaskFormat expectedMaskFormat = this->resolveMaskFormat(glyphFormat);
+    int bytesPerPixel = skgpu::MaskFormatBytesPerPixel(expectedMaskFormat);
 
     int padding;
     switch (srcPadding) {
@@ -219,7 +220,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
 // add to texture atlas that matches this format
 GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(GrResourceProvider* resourceProvider,
                                                     GrDeferredUploadTarget* target,
-                                                    GrMaskFormat format,
+                                                    skgpu::MaskFormat format,
                                                     int width, int height, const void* image,
                                                     GrDrawOpAtlas::AtlasLocator* atlasLocator) {
     return this->getAtlas(format)->addToAtlas(resourceProvider, target, width, height, image,
@@ -227,7 +228,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(GrResourceProvider* resource
 }
 
 void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater* updater,
-                                                  GrMaskFormat format, GrGlyph* glyph,
+                                                  skgpu::MaskFormat format, GrGlyph* glyph,
                                                   GrDeferredUploadToken token) {
     SkASSERT(glyph);
     if (updater->add(glyph->fAtlasLocator)) {
@@ -297,7 +298,7 @@ static bool save_pixels(GrDirectContext* dContext, GrSurfaceProxyView view, GrCo
 
 void GrAtlasManager::dump(GrDirectContext* context) const {
     static int gDumpCount = 0;
-    for (int i = 0; i < kMaskFormatCount; ++i) {
+    for (int i = 0; i < skgpu::kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
             const GrSurfaceProxyView* views = fAtlases[i]->getViews();
             for (uint32_t pageIdx = 0; pageIdx < fAtlases[i]->numActivePages(); ++pageIdx) {
@@ -308,8 +309,9 @@ void GrAtlasManager::dump(GrDirectContext* context) const {
 #else
                 filename.printf("fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #endif
-                auto ct = GrMaskFormatToColorType(AtlasIndexToMaskFormat(i));
-                save_pixels(context, views[pageIdx], ct, filename.c_str());
+                SkColorType ct = skgpu::MaskFormatToColorType(AtlasIndexToMaskFormat(i));
+                save_pixels(context, views[pageIdx], SkColorTypeToGrColorType(ct),
+                            filename.c_str());
             }
         }
     }
@@ -320,7 +322,7 @@ void GrAtlasManager::dump(GrDirectContext* context) const {
 void GrAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     // Delete any old atlases.
     // This should be safe to do as long as we are not in the middle of a flush.
-    for (int i = 0; i < kMaskFormatCount; i++) {
+    for (int i = 0; i < skgpu::kMaskFormatCount; i++) {
         fAtlases[i] = nullptr;
     }
 
@@ -328,10 +330,11 @@ void GrAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     new (&fAtlasConfig) GrDrawOpAtlasConfig{};
 }
 
-bool GrAtlasManager::initAtlas(GrMaskFormat format) {
+bool GrAtlasManager::initAtlas(skgpu::MaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
-        GrColorType grColorType = GrMaskFormatToColorType(format);
+        SkColorType colorType = skgpu::MaskFormatToColorType(format);
+        GrColorType grColorType = SkColorTypeToGrColorType(colorType);
         SkISize atlasDimensions = fAtlasConfig.atlasDimensions(format);
         SkISize plotDimensions = fAtlasConfig.plotDimensions(format);
 

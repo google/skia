@@ -1083,6 +1083,7 @@ generated_cc_atom(
         "//include/core:SkSpan_hdr",
         "//include/core:SkSurface_hdr",
         "//include/gpu:GrDirectContext_hdr",
+        "//src/gpu:AtlasTypes_hdr",
     ],
 )
 
@@ -1200,7 +1201,7 @@ generated_cc_atom(
         "//include/private:SkTArray_hdr",
         "//src/core:SkIPoint16_hdr",
         "//src/core:SkTInternalLList_hdr",
-        "//src/gpu/ganesh/geometry:GrRect_hdr",
+        "//src/gpu:AtlasTypes_hdr",
     ],
 )
 

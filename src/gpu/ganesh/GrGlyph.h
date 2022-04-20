@@ -15,19 +15,19 @@
 
 class GrGlyph {
 public:
-    static GrMaskFormat FormatFromSkGlyph(SkMask::Format format) {
+    static skgpu::MaskFormat FormatFromSkGlyph(SkMask::Format format) {
         switch (format) {
             case SkMask::kBW_Format:
             case SkMask::kSDF_Format:
                 // fall through to kA8 -- we store BW and SDF glyphs in our 8-bit cache
             case SkMask::kA8_Format:
-                return kA8_GrMaskFormat;
+                return skgpu::MaskFormat::kA8;
             case SkMask::k3D_Format:
-                return kA8_GrMaskFormat; // ignore the mul and add planes, just use the mask
+                return skgpu::MaskFormat::kA8; // ignore the mul and add planes, just use the mask
             case SkMask::kLCD16_Format:
-                return kA565_GrMaskFormat;
+                return skgpu::MaskFormat::kA565;
             case SkMask::kARGB32_Format:
-                return kARGB_GrMaskFormat;
+                return skgpu::MaskFormat::kARGB;
         }
 
         SkUNREACHABLE;

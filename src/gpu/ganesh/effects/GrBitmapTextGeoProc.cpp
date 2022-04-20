@@ -90,7 +90,7 @@ private:
         append_multitexture_lookup(args, btgp.numTextureSamplers(),
                                    texIdx, uv.fsIn(), "texColor");
 
-        if (btgp.fMaskFormat == kARGB_GrMaskFormat) {
+        if (btgp.fMaskFormat == skgpu::MaskFormat::kARGB) {
             // modulate by color
             fragBuilder->codeAppendf("%s = %s * texColor;", args.fOutputColor, args.fOutputColor);
             fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
@@ -117,7 +117,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
                                          const GrSurfaceProxyView* views,
                                          int numActiveViews,
                                          GrSamplerState params,
-                                         GrMaskFormat format,
+                                         skgpu::MaskFormat format,
                                          const SkMatrix& localMatrix,
                                          bool usesW)
         : INHERITED(kGrBitmapTextGeoProc_ClassID)
@@ -133,8 +133,8 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
     }
 
-    bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
-                          kA565_GrMaskFormat == fMaskFormat;
+    bool hasVertexColor = skgpu::MaskFormat::kA8 == fMaskFormat ||
+                          skgpu::MaskFormat::kA565 == fMaskFormat;
     if (hasVertexColor) {
         fInColor = MakeColorAttribute("inColor", wideColor);
     }
@@ -180,8 +180,8 @@ void GrBitmapTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
 
 void GrBitmapTextGeoProc::addToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const {
     b->addBool(fUsesW, "usesW");
-    static_assert(kLast_GrMaskFormat < (1u << 2));
-    b->addBits(2, fMaskFormat, "maskFormat");
+    static_assert(static_cast<int>(skgpu::MaskFormat::kLast) < (1u << 2));
+    b->addBits(2, static_cast<int>(fMaskFormat), "maskFormat");
     b->addBits(ProgramImpl::kMatrixKeyBits,
                ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix),
                "localMatrixType");
@@ -208,17 +208,17 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
                                                    ? GrSamplerState::Filter::kLinear
                                                    : GrSamplerState::Filter::kNearest);
 
-    GrMaskFormat format;
+    skgpu::MaskFormat format;
     switch (ct) {
         case GrColorType::kAlpha_8:
-            format = kA8_GrMaskFormat;
+            format = skgpu::MaskFormat::kA8;
             break;
         case GrColorType::kBGR_565:
-            format = kA565_GrMaskFormat;
+            format = skgpu::MaskFormat::kA565;
             break;
         case GrColorType::kRGBA_8888:
         default:  // It doesn't really matter that color type and mask format agree.
-            format = kARGB_GrMaskFormat;
+            format = skgpu::MaskFormat::kARGB;
             break;
     }
 

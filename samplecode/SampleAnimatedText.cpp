@@ -71,7 +71,7 @@ class AnimatedTextView : public Sample {
         if (direct) {
             SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNearest);
             sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(
-                                                                GrMaskFormat::kA8_GrMaskFormat);
+                                                                            skgpu::MaskFormat::kA8);
             const SkRect rect = SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0f);
             canvas->drawImageRect(image.get(), rect, rect, sampling, &paint,
                                   SkCanvas::kFast_SrcRectConstraint);

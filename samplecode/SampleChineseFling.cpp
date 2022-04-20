@@ -140,22 +140,22 @@ class ChineseZoomView : public Sample {
             auto direct = GrAsDirectContext(canvas->recordingContext());
             if (direct) {
                 sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(
-                            GrMaskFormat::kA8_GrMaskFormat, 0);
+                            skgpu::MaskFormat::kA8, 0);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 10.0f, 512.0f, 512.0),
                                       SkSamplingOptions(), &paint);
                 image = direct->priv().testingOnly_getFontAtlasImage(
-                        GrMaskFormat::kA8_GrMaskFormat, 1);
+                        skgpu::MaskFormat::kA8, 1);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 10.0f, 512.f, 512.0f),
                                       SkSamplingOptions(), &paint);
                 image = direct->priv().testingOnly_getFontAtlasImage(
-                        GrMaskFormat::kA8_GrMaskFormat, 2);
+                        skgpu::MaskFormat::kA8, 2);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 522.0f, 512.0f, 512.0f),
                                       SkSamplingOptions(), &paint);
                 image = direct->priv().testingOnly_getFontAtlasImage(
-                        GrMaskFormat::kA8_GrMaskFormat, 3);
+                        skgpu::MaskFormat::kA8, 3);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 522.0f, 512.0f, 512.0f),
                                       SkSamplingOptions(), &paint);

@@ -200,7 +200,7 @@ private:
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
                     target->allocator(), *target->caps().shaderCaps(), this->color(), fWideColor,
                     views, numActiveProxies, GrSamplerState::Filter::kNearest,
-                    kA8_GrMaskFormat, invert, false);
+                    skgpu::MaskFormat::kA8, invert, false);
         }
 
         // allocate vertices

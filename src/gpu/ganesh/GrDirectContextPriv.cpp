@@ -158,7 +158,7 @@ void GrDirectContextPriv::printContextStats() const {
 }
 
 /////////////////////////////////////////////////
-sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format,
+sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(skgpu::MaskFormat format,
                                                                   unsigned int index) {
     auto atlasManager = this->getAtlasManager();
     if (!atlasManager) {
@@ -171,7 +171,7 @@ sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat f
         return nullptr;
     }
 
-    SkColorType colorType = GrColorTypeToSkColorType(GrMaskFormatToColorType(format));
+    SkColorType colorType = skgpu::MaskFormatToColorType(format);
     SkASSERT(views[index].proxy()->priv().isExact());
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(this->context()),
                                    kNeedNewImageUniqueID,

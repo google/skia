@@ -103,7 +103,7 @@ void GrGlyphVector::packedGlyphIDToGrGlyph(GrStrikeCache* cache) {
 }
 
 std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
-                                                     GrMaskFormat maskFormat,
+                                                     skgpu::MaskFormat maskFormat,
                                                      int srcPadding,
                                                      GrMeshDrawTarget* target) {
     GrAtlasManager* atlasManager = target->atlasManager();

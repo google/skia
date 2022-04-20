@@ -124,3 +124,15 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = ["//src/gpu/ganesh:GrRectanizer_impl_hdr"],
 )
+
+generated_cc_atom(
+    name = "AtlasTypes_hdr",
+    hdrs = ["AtlasTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColorType_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)

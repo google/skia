@@ -52,7 +52,7 @@ public:
 
     std::tuple<bool, int> regenerateAtlas(
             int begin, int end,
-            GrMaskFormat maskFormat,
+            skgpu::MaskFormat maskFormat,
             int srcPadding,
             GrMeshDrawTarget *);
 
