@@ -102,5 +102,8 @@
   "libavformat/avformat.h": "SK_GAZELLE_IGNORE",
   "libavformat/avio.h": "SK_GAZELLE_IGNORE",
   "libavutil/pixdesc.h": "SK_GAZELLE_IGNORE",
-  "libswscale/swscale.h": "SK_GAZELLE_IGNORE"
+  "libswscale/swscale.h": "SK_GAZELLE_IGNORE",
+
+  "skia.h": "SK_GAZELLE_IGNORE TODO this is a generated file for fiddles",
+  "SkFlattenableSerialization.h": "SK_GAZELLE_IGNORE something in Chrome?"
 }
