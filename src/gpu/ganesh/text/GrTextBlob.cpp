@@ -2787,7 +2787,7 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
             + glyphRunList.runCount() * (sizeof(DirectMaskSubRunSlug) + vertexDataToSubRunPadding),
             alignof(Slug));
 
-    size_t allocationSize = sizeof(GrTextBlob) + bytesNeededForSubRun;
+    size_t allocationSize = sizeof(Slug) + bytesNeededForSubRun;
 
     const SkMatrix positionMatrix =
             position_matrix(viewMatrix.localToDevice(), glyphRunList.origin());
