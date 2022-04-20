@@ -25,6 +25,7 @@
 
 #include <fstream>
 #include <limits.h>
+#include <list>
 #include <optional>
 #include <stdarg.h>
 #include <stdio.h>
@@ -59,19 +60,8 @@ static void show_usage() {
  * Handle a single input.
  */
 ResultCode processCommand(const std::vector<std::string>& paths) {
-    if (paths.size() != 2) {
+    if (paths.size() < 2) {
         show_usage();
-        return ResultCode::kInputError;
-    }
-
-    const std::string& outputPath = paths[0];
-    const std::string& inputPath = paths[1];
-    SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment;
-
-    std::ifstream in(inputPath);
-    std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-    if (in.rdstate()) {
-        printf("error reading '%s'\n", inputPath.c_str());
         return ResultCode::kInputError;
     }
 
@@ -86,18 +76,30 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
     settings.fRTFlipSet     = 0;
     settings.fRTFlipBinding = 0;
 
-    // Load in the input file as a module.
-    SkSL::FileOutputStream out(outputPath.c_str());
+    // Load in each input as a module, from right to left.
+    // Each module inherits the symbols from its parent module.
     SkSL::Compiler compiler(caps);
-    if (!out.isValid()) {
-        printf("error writing '%s'\n", outputPath.c_str());
-        return ResultCode::kOutputError;
-    }
-    SkSL::LoadedModule module =
-            compiler.loadModule(kind, SkSL::Compiler::MakeModulePath(inputPath.c_str()),
-                                /*base=*/nullptr, /*dehydrate=*/true);
+    std::list<SkSL::LoadedModule> modules;
+    std::shared_ptr<SkSL::SymbolTable> inheritedSymbols = nullptr;
+    for (int inputIdx = paths.size() - 1; inputIdx >= 1; --inputIdx) {
+        const std::string& modulePath = paths[inputIdx];
+        std::ifstream in(modulePath);
+        std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        if (in.rdstate()) {
+            printf("error reading '%s'\n", modulePath.c_str());
+            return ResultCode::kInputError;
+        }
 
-    // Dehydrate the input file into a buffer.
+        modules.push_front(compiler.loadModule(SkSL::ProgramKind::kFragment,
+                                               SkSL::Compiler::MakeModulePath(modulePath.c_str()),
+                                               /*base=*/inheritedSymbols,
+                                               /*dehydrate=*/inheritedSymbols == nullptr));
+        inheritedSymbols = modules.front().fSymbols;
+    }
+
+    // Dehydrate the leftmost input file into a buffer.
+    const std::string& inputPath = paths[1];
+    SkSL::LoadedModule& module = modules.front();
     SkSL::Dehydrator dehydrator;
     dehydrator.write(*module.fSymbols);
     dehydrator.write(module.fElements);
@@ -111,6 +113,12 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
     const std::string& data = buffer.str();
 
     // Emit the dehydrated data into our output file.
+    const std::string& outputPath = paths[0];
+    SkSL::FileOutputStream out(outputPath.c_str());
+    if (!out.isValid()) {
+        printf("error writing '%s'\n", outputPath.c_str());
+        return ResultCode::kOutputError;
+    }
     out.printf("static uint8_t SKSL_INCLUDE_%s[] = {", baseName.c_str());
     for (size_t i = 0; i < data.length(); ++i) {
         out.printf("%s%d,", dehydrator.prefixAtOffset(i), uint8_t(data[i]));
