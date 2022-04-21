@@ -42,7 +42,7 @@ deps = {
   "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@71f3089b729c0bd3383905ae43080af1e7946e40",
   # vulkan-deps is a meta-repo containing several interdependent Khronos Vulkan repositories.
   # When the vulkan-deps revision is updated, those repos (spirv-*, vulkan-*) should be updated as well.
-  "third_party/externals/vulkan-deps"     : "https://chromium.googlesource.com/vulkan-deps@87d837a653efe13254512642780e8b3834076359",
+  "third_party/externals/vulkan-deps"     : "https://chromium.googlesource.com/vulkan-deps@df3a617e75565695119c234ec5f82295ef5ae443",
   "third_party/externals/spirv-cross"     : "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross@d7cae5e7cd326ca0ebfb2a7ac4e634a63ecfe19f",
   "third_party/externals/spirv-headers"   : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@46b7918218d02b678b9405da538928a0f2c286bb",
   "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@671f6e633f4233a6e02e66a0b4d54ee1e67fa045",
