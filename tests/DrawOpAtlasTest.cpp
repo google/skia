@@ -40,6 +40,8 @@
 #include <memory>
 #include <utility>
 
+using MaskFormat = skgpu::MaskFormat;
+
 class GrResourceProvider;
 
 static const int kNumPlots = 2;
@@ -240,7 +242,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     // in the preparation of the text op
     auto atlasManager = dContext->priv().getAtlasManager();
     unsigned int numProxies;
-    atlasManager->getViews(skgpu::MaskFormat::kA8, &numProxies);
+    atlasManager->getViews(MaskFormat::kA8, &numProxies);
     atlasManager->setMaxPages_TestingOnly(0);
 
     flushState.setOpArgs(&opArgs);
@@ -250,7 +252,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 #endif // SK_GPU_V1
 
 void test_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, size_t maxBytes,
-                       skgpu::MaskFormat maskFormat, SkISize expectedDimensions,
+                       MaskFormat maskFormat, SkISize expectedDimensions,
                        SkISize expectedPlotDimensions) {
     GrDrawOpAtlasConfig config(maxTextureSize, maxBytes);
     REPORTER_ASSERT(reporter, config.atlasDimensions(maskFormat) == expectedDimensions);
@@ -259,56 +261,56 @@ void test_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, size_t 
 
 DEF_GPUTEST(GrDrawOpAtlasConfig_Basic, reporter, options) {
     // 1/4 MB
-    test_atlas_config(reporter, 65536, 256 * 1024, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 65536, 256 * 1024, MaskFormat::kARGB,
                       { 256, 256 }, { 256, 256 });
-    test_atlas_config(reporter, 65536, 256 * 1024, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 65536, 256 * 1024, MaskFormat::kA8,
                       { 512, 512 }, { 256, 256 });
     // 1/2 MB
-    test_atlas_config(reporter, 65536, 512 * 1024, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 65536, 512 * 1024, MaskFormat::kARGB,
                       { 512, 256 }, { 256, 256 });
-    test_atlas_config(reporter, 65536, 512 * 1024, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 65536, 512 * 1024, MaskFormat::kA8,
                       { 1024, 512 }, { 256, 256 });
     // 1 MB
-    test_atlas_config(reporter, 65536, 1024 * 1024, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 65536, 1024 * 1024, MaskFormat::kARGB,
                       { 512, 512 }, { 256, 256 });
-    test_atlas_config(reporter, 65536, 1024 * 1024, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 65536, 1024 * 1024, MaskFormat::kA8,
                       { 1024, 1024 }, { 256, 256 });
     // 2 MB
-    test_atlas_config(reporter, 65536, 2 * 1024 * 1024, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 65536, 2 * 1024 * 1024, MaskFormat::kARGB,
                       { 1024, 512 }, { 256, 256 });
-    test_atlas_config(reporter, 65536, 2 * 1024 * 1024, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 65536, 2 * 1024 * 1024, MaskFormat::kA8,
                       { 2048, 1024 }, { 512, 256 });
     // 4 MB
-    test_atlas_config(reporter, 65536, 4 * 1024 * 1024, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 65536, 4 * 1024 * 1024, MaskFormat::kARGB,
                       { 1024, 1024 }, { 256, 256 });
-    test_atlas_config(reporter, 65536, 4 * 1024 * 1024, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 65536, 4 * 1024 * 1024, MaskFormat::kA8,
                       { 2048, 2048 }, { 512, 512 });
     // 8 MB
-    test_atlas_config(reporter, 65536, 8 * 1024 * 1024, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 65536, 8 * 1024 * 1024, MaskFormat::kARGB,
                       { 2048, 1024 }, { 256, 256 });
-    test_atlas_config(reporter, 65536, 8 * 1024 * 1024, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 65536, 8 * 1024 * 1024, MaskFormat::kA8,
                       { 2048, 2048 }, { 512, 512 });
     // 16 MB (should be same as 8 MB)
-    test_atlas_config(reporter, 65536, 16 * 1024 * 1024, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 65536, 16 * 1024 * 1024, MaskFormat::kARGB,
                       { 2048, 1024 }, { 256, 256 });
-    test_atlas_config(reporter, 65536, 16 * 1024 * 1024, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 65536, 16 * 1024 * 1024, MaskFormat::kA8,
                       { 2048, 2048 }, { 512, 512 });
 
     // 4MB, restricted texture size
-    test_atlas_config(reporter, 1024, 8 * 1024 * 1024, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 1024, 8 * 1024 * 1024, MaskFormat::kARGB,
                       { 1024, 1024 }, { 256, 256 });
-    test_atlas_config(reporter, 1024, 8 * 1024 * 1024, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 1024, 8 * 1024 * 1024, MaskFormat::kA8,
                       { 1024, 1024 }, { 256, 256 });
 
     // 3 MB (should be same as 2 MB)
-    test_atlas_config(reporter, 65536, 3 * 1024 * 1024, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 65536, 3 * 1024 * 1024, MaskFormat::kARGB,
                       { 1024, 512 }, { 256, 256 });
-    test_atlas_config(reporter, 65536, 3 * 1024 * 1024, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 65536, 3 * 1024 * 1024, MaskFormat::kA8,
                       { 2048, 1024 }, { 512, 256 });
 
     // minimum size
-    test_atlas_config(reporter, 65536, 0, skgpu::MaskFormat::kARGB,
+    test_atlas_config(reporter, 65536, 0, MaskFormat::kARGB,
                       { 256, 256 }, { 256, 256 });
-    test_atlas_config(reporter, 65536, 0, skgpu::MaskFormat::kA8,
+    test_atlas_config(reporter, 65536, 0, MaskFormat::kA8,
                       { 512, 512 }, { 256, 256 });
 }

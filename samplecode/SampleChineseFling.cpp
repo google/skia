@@ -19,6 +19,8 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+
+using MaskFormat = skgpu::MaskFormat;
 #endif
 
 static sk_sp<SkTypeface> chinese_typeface() {
@@ -139,23 +141,20 @@ class ChineseZoomView : public Sample {
 #if SK_SUPPORT_GPU
             auto direct = GrAsDirectContext(canvas->recordingContext());
             if (direct) {
-                sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(
-                            skgpu::MaskFormat::kA8, 0);
+                sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(MaskFormat::kA8,
+                                                                                    0);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 10.0f, 512.0f, 512.0),
                                       SkSamplingOptions(), &paint);
-                image = direct->priv().testingOnly_getFontAtlasImage(
-                        skgpu::MaskFormat::kA8, 1);
+                image = direct->priv().testingOnly_getFontAtlasImage(MaskFormat::kA8, 1);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 10.0f, 512.f, 512.0f),
                                       SkSamplingOptions(), &paint);
-                image = direct->priv().testingOnly_getFontAtlasImage(
-                        skgpu::MaskFormat::kA8, 2);
+                image = direct->priv().testingOnly_getFontAtlasImage(MaskFormat::kA8, 2);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 522.0f, 512.0f, 512.0f),
                                       SkSamplingOptions(), &paint);
-                image = direct->priv().testingOnly_getFontAtlasImage(
-                        skgpu::MaskFormat::kA8, 3);
+                image = direct->priv().testingOnly_getFontAtlasImage(MaskFormat::kA8, 3);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 522.0f, 512.0f, 512.0f),
                                       SkSamplingOptions(), &paint);

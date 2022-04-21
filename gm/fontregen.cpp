@@ -36,6 +36,8 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
+using MaskFormat = skgpu::MaskFormat;
+
 static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
     size_t len = text.size();
     SkAutoTArray<SkScalar>  pos(len);
@@ -100,7 +102,7 @@ class FontRegenGM : public skiagm::GM {
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
-            auto img = dContext->priv().testingOnly_getFontAtlasImage(skgpu::MaskFormat::kA8);
+            auto img = dContext->priv().testingOnly_getFontAtlasImage(MaskFormat::kA8);
             canvas->drawImage(img, 200, 0);
         }
 

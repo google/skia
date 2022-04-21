@@ -29,6 +29,8 @@
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 
+using MaskFormat = skgpu::MaskFormat;
+
 #define ASSERT_OWNED_PROXY(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this->context())
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->context()->singleOwner())
@@ -158,7 +160,7 @@ void GrDirectContextPriv::printContextStats() const {
 }
 
 /////////////////////////////////////////////////
-sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(skgpu::MaskFormat format,
+sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(MaskFormat format,
                                                                   unsigned int index) {
     auto atlasManager = this->getAtlasManager();
     if (!atlasManager) {

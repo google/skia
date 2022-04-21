@@ -14,6 +14,8 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 
+using MaskFormat = skgpu::MaskFormat;
+
 GrGlyphVector::GrGlyphVector(sk_sp<SkStrike>&& strike, SkSpan<Variant> glyphs)
         : fStrike{std::move(strike)}
         , fGlyphs{glyphs} {
@@ -103,7 +105,7 @@ void GrGlyphVector::packedGlyphIDToGrGlyph(GrStrikeCache* cache) {
 }
 
 std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
-                                                     skgpu::MaskFormat maskFormat,
+                                                     MaskFormat maskFormat,
                                                      int srcPadding,
                                                      GrMeshDrawTarget* target) {
     GrAtlasManager* atlasManager = target->atlasManager();

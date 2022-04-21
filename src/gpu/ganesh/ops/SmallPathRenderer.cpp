@@ -32,6 +32,8 @@
 #include "src/gpu/ganesh/ops/SmallPathShapeData.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
+using MaskFormat = skgpu::MaskFormat;
+
 namespace skgpu::v1 {
 
 namespace {
@@ -200,7 +202,7 @@ private:
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
                     target->allocator(), *target->caps().shaderCaps(), this->color(), fWideColor,
                     views, numActiveProxies, GrSamplerState::Filter::kNearest,
-                    skgpu::MaskFormat::kA8, invert, false);
+                    MaskFormat::kA8, invert, false);
         }
 
         // allocate vertices

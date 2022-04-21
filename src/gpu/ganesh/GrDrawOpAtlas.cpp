@@ -21,6 +21,8 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTracing.h"
 
+using MaskFormat = skgpu::MaskFormat;
+
 #ifdef DUMP_ATLAS_DATA
 static bool gDumpAtlasData = false;
 #endif
@@ -674,8 +676,8 @@ GrDrawOpAtlasConfig::GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes) {
     fMaxTextureSize = std::min<int>(maxTextureSize, kMaxAtlasDim);
 }
 
-SkISize GrDrawOpAtlasConfig::atlasDimensions(skgpu::MaskFormat type) const {
-    if (skgpu::MaskFormat::kA8 == type) {
+SkISize GrDrawOpAtlasConfig::atlasDimensions(MaskFormat type) const {
+    if (MaskFormat::kA8 == type) {
         // A8 is always 2x the ARGB dimensions, clamped to the max allowed texture size
         return { std::min<int>(2 * fARGBDimensions.width(), fMaxTextureSize),
                  std::min<int>(2 * fARGBDimensions.height(), fMaxTextureSize) };
@@ -684,8 +686,8 @@ SkISize GrDrawOpAtlasConfig::atlasDimensions(skgpu::MaskFormat type) const {
     }
 }
 
-SkISize GrDrawOpAtlasConfig::plotDimensions(skgpu::MaskFormat type) const {
-    if (skgpu::MaskFormat::kA8 == type) {
+SkISize GrDrawOpAtlasConfig::plotDimensions(MaskFormat type) const {
+    if (MaskFormat::kA8 == type) {
         SkISize atlasDimensions = this->atlasDimensions(type);
         // For A8 we want to grow the plots at larger texture sizes to accept more of the
         // larger SDF glyphs. Since the largest SDF glyph can be 170x170 with padding, this

@@ -41,6 +41,7 @@
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 using AtlasTextOp = skgpu::v1::AtlasTextOp;
+using MaskFormat = skgpu::MaskFormat;
 
 // -- GPU Text -------------------------------------------------------------------------------------
 // There are three broad types of SubRun implementations for drawing text using the GPU.
@@ -101,13 +102,13 @@ void pun_write(SkWriteBuffer& buffer, const T& src) {
 class TransformedMaskVertexFiller {
     struct PositionAndExtent;
 public:
-    TransformedMaskVertexFiller(skgpu::MaskFormat maskFormat,
+    TransformedMaskVertexFiller(MaskFormat maskFormat,
                                 int dstPadding,
                                 SkScalar strikeToSourceScale,
                                 SkRect sourceBounds,
                                 SkSpan<const PositionAndExtent> positionAndExtent);
 
-    static TransformedMaskVertexFiller Make(skgpu::MaskFormat maskType,
+    static TransformedMaskVertexFiller Make(MaskFormat maskType,
                 int dstPadding,
                 SkScalar strikeToSourceScale,
                 const SkZip<SkGlyphVariant, SkPoint>& accepted,
@@ -119,11 +120,11 @@ public:
     void flatten(SkWriteBuffer& buffer) const;
 
     size_t vertexStride(const SkMatrix& matrix) const {
-        if (fMaskType != skgpu::MaskFormat::kARGB) {
-            // For formats skgpu::MaskFormat::kA565 and skgpu::MaskFormat::kA8 where A8 include SDF.
+        if (fMaskType != MaskFormat::kARGB) {
+            // For formats MaskFormat::kA565 and MaskFormat::kA8 where A8 include SDF.
             return matrix.hasPerspective() ? sizeof(Mask3DVertex) : sizeof(Mask2DVertex);
         } else {
-            // For format skgpu::MaskFormat::kARGB
+            // For format MaskFormat::kARGB
             return matrix.hasPerspective() ? sizeof(ARGB3DVertex) : sizeof(ARGB2DVertex);
         }
     }
@@ -138,7 +139,7 @@ public:
                         void* vertexBuffer) const;
 
     AtlasTextOp::MaskType opMaskType() const;
-    skgpu::MaskFormat grMaskType() const {return fMaskType;}
+    MaskFormat grMaskType() const {return fMaskType;}
     int count() const { return SkCount(fPositionAndExtent); }
 
 private:
@@ -194,7 +195,7 @@ private:
                 GrColor color,
                 const SkMatrix& matrix) const;
 
-    const skgpu::MaskFormat fMaskType;
+    const MaskFormat fMaskType;
     const SkPoint fPaddingInset;
     const SkScalar fStrikeToSourceScale;
     const SkRect fSourceBounds;
@@ -202,7 +203,7 @@ private:
 };
 
 TransformedMaskVertexFiller::TransformedMaskVertexFiller(
-    skgpu::MaskFormat maskFormat,
+    MaskFormat maskFormat,
     int dstPadding,
     SkScalar strikeToSourceScale,
     SkRect sourceBounds,
@@ -214,7 +215,7 @@ TransformedMaskVertexFiller::TransformedMaskVertexFiller(
         , fPositionAndExtent{positionAndExtent} {}
 
 TransformedMaskVertexFiller TransformedMaskVertexFiller::Make(
-        skgpu::MaskFormat maskType,
+        MaskFormat maskType,
         int dstPadding,
         SkScalar strikeToSourceScale,
         const SkZip<SkGlyphVariant, SkPoint>& accepted,
@@ -250,7 +251,7 @@ std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFrom
     if (!buffer.validate(0 <= checkingMaskType && checkingMaskType < skgpu::kMaskFormatCount)) {
         return {};
     }
-    skgpu::MaskFormat maskType = (skgpu::MaskFormat)checkingMaskType;
+    MaskFormat maskType = (MaskFormat)checkingMaskType;
     int dstPadding = buffer.readInt();
     if (!buffer.validate(0 <= dstPadding && dstPadding <= 2)) { return {}; }
     SkScalar strikeToSourceScale = buffer.readScalar();
@@ -305,7 +306,7 @@ void TransformedMaskVertexFiller::fillVertexData(int offset, int count,
     };
 
     if (!positionMatrix.hasPerspective()) {
-        if (fMaskType == skgpu::MaskFormat::kARGB) {
+        if (fMaskType == MaskFormat::kARGB) {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
             this->fill2D(quadData((Quad*) vertexBuffer), color, positionMatrix);
@@ -315,7 +316,7 @@ void TransformedMaskVertexFiller::fillVertexData(int offset, int count,
             this->fill2D(quadData((Quad*) vertexBuffer), color, positionMatrix);
         }
     } else {
-        if (fMaskType == skgpu::MaskFormat::kARGB) {
+        if (fMaskType == MaskFormat::kARGB) {
             using Quad = ARGB3DVertex[4];
             SkASSERT(sizeof(ARGB3DVertex) == this->vertexStride(positionMatrix));
             this->fill3D(quadData((Quad*) vertexBuffer), color, positionMatrix);
@@ -380,9 +381,9 @@ void TransformedMaskVertexFiller::fill3D(SkZip<Quad, const GrGlyph*, const Verte
 
 AtlasTextOp::MaskType TransformedMaskVertexFiller::opMaskType() const {
     switch (fMaskType) {
-        case skgpu::MaskFormat::kA8:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
-        case skgpu::MaskFormat::kA565: return AtlasTextOp::MaskType::kLCDCoverage;
-        case skgpu::MaskFormat::kARGB: return AtlasTextOp::MaskType::kColorBitmap;
+        case MaskFormat::kA8:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
+        case MaskFormat::kA565: return AtlasTextOp::MaskType::kLCDCoverage;
+        case MaskFormat::kARGB: return AtlasTextOp::MaskType::kColorBitmap;
     }
     SkUNREACHABLE;
 }
@@ -420,11 +421,11 @@ struct ARGB3DVertex {
     AtlasPt atlasPos;
 };
 
-AtlasTextOp::MaskType op_mask_type(skgpu::MaskFormat maskFormat) {
+AtlasTextOp::MaskType op_mask_type(MaskFormat maskFormat) {
     switch (maskFormat) {
-        case skgpu::MaskFormat::kA8:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
-        case skgpu::MaskFormat::kA565: return AtlasTextOp::MaskType::kLCDCoverage;
-        case skgpu::MaskFormat::kARGB: return AtlasTextOp::MaskType::kColorBitmap;
+        case MaskFormat::kA8:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
+        case MaskFormat::kA565: return AtlasTextOp::MaskType::kLCDCoverage;
+        case MaskFormat::kARGB: return AtlasTextOp::MaskType::kColorBitmap;
     }
     SkUNREACHABLE;
 }
@@ -437,11 +438,11 @@ SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
 SkPMColor4f calculate_colors(skgpu::SurfaceContext* sc,
                              const SkPaint& paint,
                              const SkMatrixProvider& matrix,
-                             skgpu::MaskFormat maskFormat,
+                             MaskFormat maskFormat,
                              GrPaint* grPaint) {
     GrRecordingContext* rContext = sc->recordingContext();
     const GrColorInfo& colorInfo = sc->colorInfo();
-    if (maskFormat == skgpu::MaskFormat::kARGB) {
+    if (maskFormat == MaskFormat::kARGB) {
         SkPaintToGrPaintReplaceShader(rContext, colorInfo, paint, matrix, nullptr, grPaint);
         float a = grPaint->getColor4f().fA;
         return {a, a, a, a};
@@ -973,7 +974,7 @@ public:
     using DevicePosition = skvx::Vec<2, int16_t>;
 
     DirectMaskSubRun(const GrTextReferenceFrame* referenceFrame,
-                     skgpu::MaskFormat format,
+                     MaskFormat format,
                      const SkGlyphRect& deviceBounds,
                      SkSpan<const DevicePosition> devicePositions,
                      GrGlyphVector&& glyphs,
@@ -982,7 +983,7 @@ public:
     static GrSubRunOwner Make(const GrTextBlob* blob,
                               const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               sk_sp<SkStrike>&& strike,
-                              skgpu::MaskFormat format,
+                              MaskFormat format,
                               GrSubRunAllocator* alloc);
 
     void draw(SkCanvas*,
@@ -1032,7 +1033,7 @@ private:
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
     const GrTextReferenceFrame* const fTextReferenceFrame;
-    const skgpu::MaskFormat fMaskFormat;
+    const MaskFormat fMaskFormat;
 
     // The union of all the glyph bounds in device space.
     const SkGlyphRect fGlyphDeviceBounds;
@@ -1045,7 +1046,7 @@ private:
 };
 
 DirectMaskSubRun::DirectMaskSubRun(const GrTextReferenceFrame* referenceFrame,
-                                   skgpu::MaskFormat format,
+                                   MaskFormat format,
                                    const SkGlyphRect& deviceBounds,
                                    SkSpan<const DevicePosition> devicePositions,
                                    GrGlyphVector&& glyphs,
@@ -1060,7 +1061,7 @@ DirectMaskSubRun::DirectMaskSubRun(const GrTextReferenceFrame* referenceFrame,
 GrSubRunOwner DirectMaskSubRun::Make(const GrTextBlob* blob,
                                      const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                      sk_sp<SkStrike>&& strike,
-                                     skgpu::MaskFormat format,
+                                     MaskFormat format,
                                      GrSubRunAllocator* alloc) {
     auto glyphLeftTop = alloc->makePODArray<DevicePosition>(accepted.size());
     auto glyphIDs = alloc->makePODArray<GrGlyphVector::Variant>(accepted.size());
@@ -1117,7 +1118,7 @@ bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMa
 }
 
 size_t DirectMaskSubRun::vertexStride(const SkMatrix&) const {
-    if (fMaskFormat != skgpu::MaskFormat::kARGB) {
+    if (fMaskFormat != MaskFormat::kARGB) {
         return sizeof(Mask2DVertex);
     } else {
         return sizeof(ARGB2DVertex);
@@ -1334,7 +1335,7 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
             positionMatrix.mapOrigin() - fTextReferenceFrame->initialPositionMatrix().mapOrigin();
 
     if (clip.isEmpty()) {
-        if (fMaskFormat != skgpu::MaskFormat::kARGB) {
+        if (fMaskFormat != MaskFormat::kARGB) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
             direct_2D(quadData((Quad*)vertexDst), color, originOffset);
@@ -1344,7 +1345,7 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
             generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset);
         }
     } else {
-        if (fMaskFormat != skgpu::MaskFormat::kARGB) {
+        if (fMaskFormat != MaskFormat::kARGB) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
             generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
@@ -1384,7 +1385,7 @@ public:
                               const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               sk_sp<SkStrike>&& strike,
                               SkScalar strikeToSourceScale,
-                              skgpu::MaskFormat maskType,
+                              MaskFormat maskType,
                               GrSubRunAllocator* alloc);
 
     static GrSubRunOwner MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
@@ -1455,7 +1456,7 @@ GrSubRunOwner TransformedMaskSubRun::Make(const GrTextReferenceFrame* referenceF
                                           const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                           sk_sp<SkStrike>&& strike,
                                           SkScalar strikeToSourceScale,
-                                          skgpu::MaskFormat maskType,
+                                          MaskFormat maskType,
                                           GrSubRunAllocator* alloc) {
     auto vertexFiller = TransformedMaskVertexFiller::Make(
             maskType, 0, strikeToSourceScale, accepted, alloc);
@@ -1688,7 +1689,7 @@ GrSubRunOwner SDFTSubRun::Make(const GrTextReferenceFrame* referenceFrame,
                                const GrSDFTMatrixRange& matrixRange,
                                GrSubRunAllocator* alloc) {
     auto vertexFiller = TransformedMaskVertexFiller::Make(
-            skgpu::MaskFormat::kA8,
+            MaskFormat::kA8,
             SK_DistanceFieldInset,
             strikeToSourceScale,
             accepted,
@@ -1790,7 +1791,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
 
     GrPaint grPaint;
-    SkPMColor4f drawingColor = calculate_colors(sdc, paint, viewMatrix, skgpu::MaskFormat::kA8,
+    SkPMColor4f drawingColor = calculate_colors(sdc, paint, viewMatrix, MaskFormat::kA8,
                                                 &grPaint);
 
     auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
@@ -1829,7 +1830,7 @@ void SDFTSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const 
 
 std::tuple<bool, int>
 SDFTSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget *target) const {
-    return fGlyphs.regenerateAtlas(begin, end, skgpu::MaskFormat::kA8, SK_DistanceFieldInset,
+    return fGlyphs.regenerateAtlas(begin, end, MaskFormat::kA8, SK_DistanceFieldInset,
                                    target);
 }
 
@@ -1873,11 +1874,11 @@ void add_multi_mask_format(
 
     auto glyphSpan = accepted.get<0>();
     const SkGlyph* glyph = glyphSpan[0];
-    skgpu::MaskFormat format = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
+    MaskFormat format = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
     size_t startIndex = 0;
     for (size_t i = 1; i < accepted.size(); i++) {
         glyph = glyphSpan[i];
-        skgpu::MaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
+        MaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
         if (format != nextFormat) {
             auto glyphsWithSameFormat = accepted.subspan(startIndex, i - startIndex);
             // Take a ref on the strike. This should rarely happen.
@@ -2142,7 +2143,7 @@ void GrTextBlob::processDeviceMasks(
         const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
     SkASSERT(strike != nullptr);
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        skgpu::MaskFormat format,
+                                        MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         GrSubRunOwner subRun = DirectMaskSubRun::Make(
                 this, accepted, std::move(runStrike), format, &fAlloc);
@@ -2184,7 +2185,7 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accept
                                     sk_sp<SkStrike>&& strike,
                                     SkScalar strikeToSourceScale) {
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        skgpu::MaskFormat format,
+                                        MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         GrSubRunOwner subRun = TransformedMaskSubRun::Make(
                 this, accepted, std::move(runStrike), strikeToSourceScale, format, &fAlloc);
@@ -2351,7 +2352,7 @@ public:
     using DevicePosition = DirectMaskSubRun::DevicePosition;
 
     DirectMaskSubRunSlug(const GrTextReferenceFrame* referenceFrame,
-                         skgpu::MaskFormat format,
+                         MaskFormat format,
                          SkGlyphRect deviceBounds,
                          SkSpan<const DevicePosition> devicePositions,
                          GrGlyphVector&& glyphs);
@@ -2359,7 +2360,7 @@ public:
     static GrSubRunOwner Make(const GrTextReferenceFrame* referenceFrame,
                               const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               sk_sp<SkStrike>&& strike,
-                              skgpu::MaskFormat format,
+                              MaskFormat format,
                               GrSubRunAllocator* alloc);
 
     static GrSubRunOwner MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
@@ -2415,7 +2416,7 @@ private:
     std::tuple<bool, SkRect> deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const;
 
     const GrTextReferenceFrame* const fReferenceFrame;
-    const skgpu::MaskFormat fMaskFormat;
+    const MaskFormat fMaskFormat;
 
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
     const SkGlyphRect fGlyphDeviceBounds;
@@ -2427,7 +2428,7 @@ private:
 };
 
 DirectMaskSubRunSlug::DirectMaskSubRunSlug(const GrTextReferenceFrame* referenceFrame,
-                                           skgpu::MaskFormat format,
+                                           MaskFormat format,
                                            SkGlyphRect deviceBounds,
                                            SkSpan<const DevicePosition> devicePositions,
                                            GrGlyphVector&& glyphs)
@@ -2440,7 +2441,7 @@ DirectMaskSubRunSlug::DirectMaskSubRunSlug(const GrTextReferenceFrame* reference
 GrSubRunOwner DirectMaskSubRunSlug::Make(const GrTextReferenceFrame* referenceFrame,
                                          const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                          sk_sp<SkStrike>&& strike,
-                                         skgpu::MaskFormat format,
+                                         MaskFormat format,
                                          GrSubRunAllocator* alloc) {
     auto glyphLeftTop = alloc->makePODArray<DevicePosition>(accepted.size());
     auto glyphIDs = alloc->makePODArray<GrGlyphVector::Variant>(accepted.size());
@@ -2483,7 +2484,7 @@ GrSubRunOwner DirectMaskSubRunSlug::MakeFromBuffer(const GrTextReferenceFrame* r
                                                    SkReadBuffer& buffer,
                                                    GrSubRunAllocator* alloc,
                                                    const SkStrikeClient* client) {
-    skgpu::MaskFormat maskType = (skgpu::MaskFormat)buffer.readInt();
+    MaskFormat maskType = (MaskFormat)buffer.readInt();
     SkGlyphRect runBounds;
     pun_read(buffer, &runBounds);
 
@@ -2523,13 +2524,13 @@ int DirectMaskSubRunSlug::unflattenSize() const {
 
 size_t DirectMaskSubRunSlug::vertexStride(const SkMatrix& positionMatrix) const {
     if (!positionMatrix.hasPerspective()) {
-        if (fMaskFormat != skgpu::MaskFormat::kARGB) {
+        if (fMaskFormat != MaskFormat::kARGB) {
             return sizeof(Mask2DVertex);
         } else {
             return sizeof(ARGB2DVertex);
         }
     } else {
-        if (fMaskFormat != skgpu::MaskFormat::kARGB) {
+        if (fMaskFormat != MaskFormat::kARGB) {
             return sizeof(Mask3DVertex);
         } else {
             return sizeof(ARGB3DVertex);
@@ -2679,7 +2680,7 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
 
     if (noTransformNeeded) {
         if (clip.isEmpty()) {
-            if (fMaskFormat != skgpu::MaskFormat::kARGB) {
+            if (fMaskFormat != MaskFormat::kARGB) {
                 using Quad = Mask2DVertex[4];
                 SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
                 direct_2D(quadData((Quad*)vertexDst), color, originOffset);
@@ -2689,7 +2690,7 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
                 generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset);
             }
         } else {
-            if (fMaskFormat != skgpu::MaskFormat::kARGB) {
+            if (fMaskFormat != MaskFormat::kARGB) {
                 using Quad = Mask2DVertex[4];
                 SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
                 generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
@@ -2702,7 +2703,7 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
     } else if (SkMatrix inverse; fReferenceFrame->initialPositionMatrix().invert(&inverse)) {
         SkMatrix viewDifference = SkMatrix::Concat(positionMatrix, inverse);
         if (!viewDifference.hasPerspective()) {
-            if (fMaskFormat != skgpu::MaskFormat::kARGB) {
+            if (fMaskFormat != MaskFormat::kARGB) {
                 using Quad = Mask2DVertex[4];
                 SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
                 transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
@@ -2712,7 +2713,7 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
                 transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
             }
         } else {
-            if (fMaskFormat != skgpu::MaskFormat::kARGB) {
+            if (fMaskFormat != MaskFormat::kARGB) {
                 using Quad = Mask3DVertex[4];
                 SkASSERT(sizeof(Mask3DVertex) == this->vertexStride(positionMatrix));
                 transformed_direct_3D(quadData((Quad*)vertexDst), color, viewDifference);
@@ -2757,7 +2758,7 @@ DirectMaskSubRunSlug::deviceRectAndCheckTransform(const SkMatrix& positionMatrix
 void Slug::processDeviceMasks(
         const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        skgpu::MaskFormat format,
+                                        MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         GrSubRunOwner subRun = DirectMaskSubRunSlug::Make(
                 this, accepted, std::move(runStrike), format, &fAlloc);
@@ -2851,7 +2852,7 @@ void Slug::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               SkScalar strikeToSourceScale) {
 
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        skgpu::MaskFormat format,
+                                        MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         GrSubRunOwner subRun = TransformedMaskSubRun::Make(
                 this, accepted, std::move(runStrike), strikeToSourceScale, format, &fAlloc);

@@ -19,6 +19,8 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+
+using MaskFormat = skgpu::MaskFormat;
 #endif
 
 SkRandom gRand;
@@ -70,8 +72,7 @@ class AnimatedTextView : public Sample {
         auto direct = GrAsDirectContext(canvas->recordingContext());
         if (direct) {
             SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNearest);
-            sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(
-                                                                            skgpu::MaskFormat::kA8);
+            sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(MaskFormat::kA8);
             const SkRect rect = SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0f);
             canvas->drawImageRect(image.get(), rect, rect, sampling, &paint,
                                   SkCanvas::kFast_SrcRectConstraint);

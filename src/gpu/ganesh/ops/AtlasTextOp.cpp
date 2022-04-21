@@ -30,6 +30,8 @@
 #include <new>
 #include <utility>
 
+using MaskFormat = skgpu::MaskFormat;
+
 namespace skgpu::v1 {
 
 inline static constexpr int kVerticesPerGlyph = 4;
@@ -206,7 +208,7 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
     GrAtlasManager* atlasManager = target->atlasManager();
 
-    skgpu::MaskFormat maskFormat = this->maskFormat();
+    MaskFormat maskFormat = this->maskFormat();
 
     unsigned int numActiveViews;
     const GrSurfaceProxyView* views = atlasManager->getViews(maskFormat, &numActiveViews);
@@ -339,7 +341,7 @@ void AtlasTextOp::createDrawForGeneratedGlyphs(GrMeshDrawTarget* target,
     auto atlasManager = target->atlasManager();
 
     GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
-    skgpu::MaskFormat maskFormat = this->maskFormat();
+    MaskFormat maskFormat = this->maskFormat();
 
     unsigned int numActiveViews;
     const GrSurfaceProxyView* views = atlasManager->getViews(maskFormat, &numActiveViews);
