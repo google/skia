@@ -1261,7 +1261,11 @@ optional("skvm_jit") {
   if (skia_vtune_path != "") {
     public_defines += [ "SKVM_JIT_VTUNE" ]
     public_include_dirs = [ "$skia_vtune_path/include" ]
-    libs = [ "$skia_vtune_path/lib64/jitprofiling.lib" ]
+    if (is_win) {
+      libs = [ "$skia_vtune_path/lib64/jitprofiling.lib" ]
+    } else if (is_linux) {
+      libs = [ "$skia_vtune_path/lib64/libjitprofiling.a" ]
+    }
   }
 }
 
