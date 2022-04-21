@@ -13,6 +13,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 
@@ -32,6 +34,11 @@
 // https://github.com/emscripten-core/emscripten/blob/main/system/include/webgpu/webgpu_cpp.h
 // This defines the C++ equivalents to the JS WebGPU API.
 #include <webgpu/webgpu_cpp.h>
+
+// Enable workaround for skbug.com/13266. While this workaround is a hack, it allows us to continue
+// the WebGPU bringup until the bug is fixed. Undefine the macro to reproduce the bug.
+// TODO(skia:13266): Remove this workaround once the bug is fixed.
+#define WORKAROUND_SKBUG_13266
 
 static wgpu::SwapChain getSwapChainForCanvas(wgpu::Device device,
                                              std::string canvasSelector,
@@ -54,41 +61,165 @@ static wgpu::SwapChain getSwapChainForCanvas(wgpu::Device device,
     return device.CreateSwapChain(surface, &swap_chain_desc);
 }
 
-bool drawWithSkia(std::string canvasSelector, int width, int height, bool flipColor) {
-    GrContextOptions ctxOpts;
+enum class DemoKind {
+    SOLID_COLOR,
+    GRADIENT,
+    RUNTIME_EFFECT,
+};
 
-    wgpu::Device device = wgpu::Device::Acquire(emscripten_webgpu_get_device());
-    sk_sp<GrDirectContext> context = GrDirectContext::MakeDawn(device, ctxOpts);
-    if (!context) {
-        SkDebugf("Could not create GrDirectContext\n");
-        return false;
+struct DemoUniforms {
+    float width;
+    float height;
+    float time;
+};
+
+class Demo final {
+public:
+    bool init(std::string canvasSelector, int width, int height) {
+        GrContextOptions ctxOpts;
+
+        wgpu::Device device = wgpu::Device::Acquire(emscripten_webgpu_get_device());
+        sk_sp<GrDirectContext> context = GrDirectContext::MakeDawn(device, ctxOpts);
+        if (!context) {
+            SkDebugf("Could not create GrDirectContext\n");
+            return false;
+        }
+
+        const char* sksl =
+                "uniform float2 iResolution;"
+                "uniform float iTime;"
+                "vec2 d;"
+                "float b(float a) {"
+                "  return step(max(d.x, d.y), a);"
+                "}"
+                "half4 main(float2 C) {"
+                "  vec4 O = vec4(0);"
+                "  C.y = iResolution.y - C.y;"
+                "  for (float i = 0; i < 3; ++i) {"
+                "    vec2 U = C.yx / iResolution.yx;"
+                "    U.y -= .5;"
+                "    U.x = U.x * .4 + U.y * U.y;"
+                "    U.y += U.x * sin(-iTime * 9. + i * 2. + U.x * 25.) * .2;"
+                "    U.x -= asin(sin(U.y * 34.))/20.;"
+                "    d = abs(U);"
+                "    O += .3 * vec4(.8 * b(.3) + b(.2), b(.2), b(.1), -1.);"
+                "  }"
+                "  return O.xyz1;"
+                "}";
+
+        auto [effect, err] = SkRuntimeEffect::MakeForShader(SkString(sksl));
+        if (!effect) {
+            SkDebugf("Failed to compile SkSL: %s\n", err.c_str());
+            return false;
+        }
+
+        fWidth = width;
+        fHeight = height;
+        fCanvasSwapChain = getSwapChainForCanvas(device, canvasSelector, width, height);
+        fContext = context;
+        fEffect = effect;
+
+#ifdef WORKAROUND_SKBUG_13266
+        fCanvasSelector = std::move(canvasSelector);
+#endif  // WORKAROUND_SKBUG_13266
+
+        return true;
     }
 
-    wgpu::SwapChain canvasSwap = getSwapChainForCanvas(device, canvasSelector, width, height);
+    void setKind(DemoKind kind) { fDemoKind = kind; }
 
-    GrDawnRenderTargetInfo rtInfo;
-    rtInfo.fTextureView = canvasSwap.GetCurrentTextureView();
-    rtInfo.fFormat = wgpu::TextureFormat::BGRA8Unorm;
-    rtInfo.fLevelCount = 1;
-    GrBackendRenderTarget backendRenderTarget(width, height, 1, 8, rtInfo);
-    SkSurfaceProps surfaceProps(0, kRGB_H_SkPixelGeometry);
+    void draw(int timestamp) {
+#ifdef WORKAROUND_SKBUG_13266
+        this->init(fCanvasSelector, fWidth, fHeight);
+#endif  // WORKAROUND_SKBUG_13266
 
-    sk_sp<SkSurface> surface = SkSurface::MakeFromBackendRenderTarget(context.get(),
-                                                                      backendRenderTarget,
-                                                                      kTopLeft_GrSurfaceOrigin,
-                                                                      kN32_SkColorType,
-                                                                      nullptr,
-                                                                      &surfaceProps);
+        GrDawnRenderTargetInfo rtInfo;
+        rtInfo.fTextureView = fCanvasSwapChain.GetCurrentTextureView();
+        rtInfo.fFormat = wgpu::TextureFormat::BGRA8Unorm;
+        rtInfo.fLevelCount = 1;
+        GrBackendRenderTarget backendRenderTarget(fWidth, fHeight, 1, 8, rtInfo);
+        SkSurfaceProps surfaceProps(0, kRGB_H_SkPixelGeometry);
 
-    SkPaint paint;
-    paint.setColor(flipColor ? SK_ColorCYAN : SK_ColorMAGENTA);
-    surface->getCanvas()->drawPaint(paint);
+        sk_sp<SkSurface> surface = SkSurface::MakeFromBackendRenderTarget(fContext.get(),
+                                                                          backendRenderTarget,
+                                                                          kTopLeft_GrSurfaceOrigin,
+                                                                          kN32_SkColorType,
+                                                                          nullptr,
+                                                                          &surfaceProps);
 
-    // Schedule the recorded commands and wait until the GPU has executed them.
-    surface->flushAndSubmit(true);
-    return true;
-}
+        SkPaint paint;
+        if (fDemoKind == DemoKind::SOLID_COLOR) {
+            drawSolidColor(&paint);
+        } else if (fDemoKind == DemoKind::GRADIENT) {
+            drawGradient(&paint);
+        } else if (fDemoKind == DemoKind::RUNTIME_EFFECT) {
+            drawRuntimeEffect(&paint, timestamp);
+        }
+
+        // Schedule the recorded commands and wait until the GPU has executed them.
+        surface->getCanvas()->drawPaint(paint);
+        surface->flushAndSubmit(true);
+        fFrameCount++;
+
+#ifdef WORKAROUND_SKBUG_13266
+        // Dropping the context here resets all staging buffers and avoids unmapped buffers
+        // to be reused as described in skbug.com/13266.
+        fContext = nullptr;
+#endif  // WORKAROUND_SKBUG_13266
+    }
+
+    void drawSolidColor(SkPaint* paint) {
+        bool flipColor = fFrameCount % 2 == 0;
+        paint->setColor(flipColor ? SK_ColorCYAN : SK_ColorMAGENTA);
+    }
+
+    void drawGradient(SkPaint* paint) {
+        bool flipColor = fFrameCount % 2 == 0;
+        SkColor colors1[2] = {SK_ColorMAGENTA, SK_ColorCYAN};
+        SkColor colors2[2] = {SK_ColorCYAN, SK_ColorMAGENTA};
+
+        float x = (float)fWidth / 2.f;
+        float y = (float)fHeight / 2.f;
+        paint->setShader(SkGradientShader::MakeRadial(SkPoint::Make(x, y),
+                                                      std::min(x, y),
+                                                      flipColor ? colors1 : colors2,
+                                                      nullptr,
+                                                      2,
+                                                      SkTileMode::kClamp));
+    }
+
+    void drawRuntimeEffect(SkPaint* paint, int timestamp) {
+        DemoUniforms uniforms;
+        uniforms.width = fWidth;
+        uniforms.height = fHeight;
+        uniforms.time = static_cast<float>(timestamp) / 1000.f;
+
+        sk_sp<SkData> uniformData = SkData::MakeWithCopy(&uniforms, sizeof(uniforms));
+        sk_sp<SkShader> shader = fEffect->makeShader(std::move(uniformData), /*children=*/{});
+        paint->setShader(shader);
+    }
+
+private:
+#ifdef WORKAROUND_SKBUG_13266
+    std::string fCanvasSelector;
+#endif  // WORKAROUND_SKBUG_13266
+    int fFrameCount = 0;
+    int fWidth;
+    int fHeight;
+    wgpu::SwapChain fCanvasSwapChain;
+    sk_sp<GrDirectContext> fContext;
+    sk_sp<SkRuntimeEffect> fEffect;
+    DemoKind fDemoKind = DemoKind::SOLID_COLOR;
+};
 
 EMSCRIPTEN_BINDINGS(Skia) {
-    emscripten::function("drawWithSkia", drawWithSkia);
+    emscripten::enum_<DemoKind>("DemoKind")
+            .value("SOLID_COLOR", DemoKind::SOLID_COLOR)
+            .value("GRADIENT", DemoKind::GRADIENT)
+            .value("RUNTIME_EFFECT", DemoKind::RUNTIME_EFFECT);
+    emscripten::class_<Demo>("Demo")
+            .constructor()
+            .function("init", &Demo::init)
+            .function("setKind", &Demo::setKind)
+            .function("draw", &Demo::draw);
 }

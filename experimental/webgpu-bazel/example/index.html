@@ -21,11 +21,25 @@
             color: white;
             font-family: sans-serif;
         }
+        button {
+            margin: 20px;
+            color: white;
+            background-color: black;
+            border: none;
+            text-decoration: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <p id="log"></p>
     <canvas id="webgpu-demo-canvas" width=600 height=600></canvas>
+    <div id="buttons">
+        <button id="solid-color">Solid Color</button>
+        <button id="gradient">Gradient</button>
+        <button id="runtime-effect">Runtime Effect</button>
+    </div>
     <script type="text/javascript" charset="utf-8">
       if (navigator.gpu) {
         log("WebGPU detected")
@@ -47,22 +61,45 @@
         const device = await adapter.requestDevice();
         console.log(adapter, device);
 
-        const wk = await WebGPUKitInit({locateFile: (file) => '/build/'+file});
+        const wk = await WebGPUKitInit({locateFile: (file) => "/build/"+file});
         // https://github.com/emscripten-core/emscripten/issues/12750#issuecomment-725001907
         wk.preinitializedWebGPUDevice = device;
 
-        timestamp = 0;
-        flipColor = false;
+        const demo = new wk.Demo();
+        if (!demo.init("#webgpu-demo-canvas", 600, 600)) {
+            log("Failed to initialize Skia context");
+            return;
+        }
+
+        let demoKind = wk.DemoKind.GRADIENT;
+        demo.setKind(demoKind);
+        document.getElementById("gradient").style["text-decoration"] = "underline";
+
+        document.getElementById("solid-color").onclick = function() {
+          demoKind = wk.DemoKind.SOLID_COLOR;
+          document.getElementById("solid-color").style["text-decoration"] = "underline";
+          document.getElementById("gradient").style["text-decoration"] = "none";
+          document.getElementById("runtime-effect").style["text-decoration"] = "none";
+        };
+        document.getElementById("gradient").onclick = function() {
+          demoKind = wk.DemoKind.GRADIENT;
+          document.getElementById("solid-color").style["text-decoration"] = "none";
+          document.getElementById("gradient").style["text-decoration"] = "underline";
+          document.getElementById("runtime-effect").style["text-decoration"] = "none";
+        };
+        document.getElementById("runtime-effect").onclick = function() {
+          demoKind = wk.DemoKind.RUNTIME_EFFECT;
+          document.getElementById("solid-color").style["text-decoration"] = "none";
+          document.getElementById("gradient").style["text-decoration"] = "none";
+          document.getElementById("runtime-effect").style["text-decoration"] = "underline";
+        };
+
+        let timestamp = 0;
         async function frame(now) {
-          if (timestamp == 0 || now - timestamp >= 1000) {
+          if (demoKind == wk.DemoKind.RUNTIME_EFFECT || timestamp == 0 || now - timestamp >= 1000) {
               timestamp = now;
-              const rv = await wk.drawWithSkia("#webgpu-demo-canvas", 600, 600, flipColor);
-              flipColor = !flipColor;
-              if (rv) {
-                log('Skia drew frame with success');
-              } else {
-                log('Skia encountered an error');
-              }
+              demo.setKind(demoKind);
+              await demo.draw(timestamp);
           }
           requestAnimationFrame(frame);
         }
