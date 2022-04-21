@@ -1,1 +1,124 @@
 // Graphite-specific fragment shader code
+
+half4 sk_error() {
+    return half4(1.0, 0.0, 1.0, 1.0);
+}
+
+half4 sk_solid_shader(float4 colorParam) {
+    return half4(colorParam);
+}
+
+float $tile(int tm, float f, float origin, float length) {
+    const int kClamp         = 0;
+    const int kRepeat        = 1;
+    const int kMirrorRepeat  = 2;
+    const int kClampToBorder = 3;
+
+    if (tm == kClamp) {
+        return clamp(f, origin, origin+length) / length;
+    } else if (tm == kRepeat) {
+        return mod(f - origin, length) / length;
+    } else if (tm == kMirrorRepeat) {
+        // For now, just repeat.
+        return mod(f - origin, length) / length;
+    } else { // kClampToBorder
+        // For now, just clamp.
+        return clamp(f, origin, origin+length) / length;
+    }
+}
+
+float2 sk_compute_coords(float4 subset, int tmX, int tmY) {
+    float2 subsetWH = (subset.zw - subset.xy);
+    return float2($tile(tmX, sk_FragCoord.x, subset.x, subsetWH.x),
+                  $tile(tmY, sk_FragCoord.y, subset.y, subsetWH.y));
+}
+
+half4 sk_linear_grad_4_shader(float4 colorsParam[4],
+                              float offsetsParam[4],
+                              float2 point0Param,
+                              float2 point1Param,
+                              float radius0Param,
+                              float radius1Param,
+                              float2 padding) {
+    // TODO: This should use local coords
+    float2 pos = sk_FragCoord.xy;
+    float2 delta = point1Param - point0Param;
+    float2 pt = pos - point0Param;
+    float t = dot(pt, delta) / dot(delta, delta);
+    float4 result = colorsParam[0];
+    result = mix(result, colorsParam[1],
+                 clamp((t-offsetsParam[0])/(offsetsParam[1]-offsetsParam[0]),
+                       0, 1));
+    result = mix(result, colorsParam[2],
+                 clamp((t-offsetsParam[1])/(offsetsParam[2]-offsetsParam[1]),
+                       0, 1));
+    result = mix(result, colorsParam[3],
+                 clamp((t-offsetsParam[2])/(offsetsParam[3]-offsetsParam[2]),
+                 0, 1));
+    return half4(result);
+}
+
+half4 sk_blend(int mode, half4 src, half4 dst) {
+    const int kClear      = 0;
+    const int kSrc        = 1;
+    const int kDst        = 2;
+    const int kSrcOver    = 3;
+    const int kDstOver    = 4;
+    const int kSrcIn      = 5;
+    const int kDstIn      = 6;
+    const int kSrcOut     = 7;
+    const int kDstOut     = 8;
+    const int kSrcATop    = 9;
+    const int kDstATop    = 10;
+    const int kXor        = 11;
+    const int kPlus       = 12;
+    const int kModulate   = 13;
+    const int kScreen     = 14;
+    const int kOverlay    = 15;
+    const int kDarken     = 16;
+    const int kLighten    = 17;
+    const int kColorDodge = 18;
+    const int kColorBurn  = 19;
+    const int kHardLight  = 20;
+    const int kSoftLight  = 21;
+    const int kDifference = 22;
+    const int kExclusion  = 23;
+    const int kMultiply   = 24;
+    const int kHue        = 25;
+    const int kSaturation = 26;
+    const int kColor      = 27;
+    const int kLuminosity = 28;
+
+    switch (mode) {
+        case kClear:      { return blend_clear(src, dst); }
+        case kSrc:        { return blend_src(src, dst); }
+        case kDst:        { return blend_dst(src, dst); }
+        case kSrcOver:    { return blend_porter_duff(src, dst, half4(1, 0,  0, -1)); }
+        case kDstOver:    { return blend_porter_duff(src, dst, half4(0, 1, -1,  0)); }
+        case kSrcIn:      { return blend_porter_duff(src, dst, half4(0, 0,  1,  0)); }
+        case kDstIn:      { return blend_porter_duff(src, dst, half4(0, 0,  0,  1)); }
+        case kSrcOut:     { return blend_porter_duff(src, dst, half4(0, 0, -1,  0)); }
+        case kDstOut:     { return blend_porter_duff(src, dst, half4(0, 0,  0, -1)); }
+        case kSrcATop:    { return blend_porter_duff(src, dst, half4(0, 0,  1, -1)); }
+        case kDstATop:    { return blend_porter_duff(src, dst, half4(0, 0, -1,  1)); }
+        case kXor:        { return blend_porter_duff(src, dst, half4(0, 0, -1, -1)); }
+        case kPlus:       { return blend_porter_duff(src, dst, half4(1, 1,  0,  0)); }
+        case kModulate:   { return blend_modulate(src, dst); }
+        case kScreen:     { return blend_screen(src, dst); }
+        case kOverlay:    { return blend_overlay(src, dst, /*flip=*/false); }
+        case kDarken:     { return blend_darken(src, dst, /*mode=*/1); }
+        case kLighten:    { return blend_darken(src, dst, /*mode=*/-1); }
+        case kColorDodge: { return blend_color_dodge(src, dst); }
+        case kColorBurn:  { return blend_color_burn(src, dst); }
+        case kHardLight:  { return blend_overlay(src, dst, /*flip=*/true); }
+        case kSoftLight:  { return blend_soft_light(src, dst); }
+        case kDifference: { return blend_difference(src, dst); }
+        case kExclusion:  { return blend_exclusion(src, dst); }
+        case kMultiply:   { return blend_multiply(src, dst); }
+        case kHue:        { return blend_hslc(src, dst, /*flip=*/false, /*saturate=*/true); }
+        case kSaturation: { return blend_hslc(src, dst, /*flip=*/true,  /*saturate=*/true); }
+        case kColor:      { return blend_hslc(src, dst, /*flip=*/false, /*saturate=*/false); }
+        case kLuminosity: { return blend_hslc(src, dst, /*flip=*/true,  /*saturate=*/false); }
+        default: return half4(0);  // Avoids 'blend can exit without returning a value' error
+    }
+}
