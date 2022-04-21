@@ -1204,6 +1204,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
                 REPORTER_ASSERT(reporter, !image);
                 continue;
             }
+            if (!context->priv().caps()->isFormatTexturable(format, format.textureType())) {
+                REPORTER_ASSERT(reporter, !image);
+                continue;
+            }
             REPORTER_ASSERT(reporter, image);
 
             GrTextureProxy* backingProxy = sk_gpu_test::GetTextureImageProxy(image.get(), context);

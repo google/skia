@@ -757,6 +757,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::CreatePromiseProxy(GrContextThreadSafePro
         dimensions.fHeight > threadSafeProxy->priv().caps()->maxTextureSize()) {
         return nullptr;
     }
+    if (!threadSafeProxy->priv().caps()->isFormatTexturable(format, format.textureType())) {
+        return nullptr;
+    }
     // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
     // mipmaps are fully fleshed out.
     GrMipmapStatus mipmapStatus = (GrMipmapped::kYes == mipmapped) ? GrMipmapStatus::kValid
