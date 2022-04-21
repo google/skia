@@ -360,11 +360,14 @@ optional("android_utils") {
     "client_utils/android/BRDAllocator.h",
     "client_utils/android/BitmapRegionDecoder.h",
     "client_utils/android/FrontBufferedStream.h",
+    "client_utils/android/SkCamera.h",
+    "client_utils/android/View3D.h",
   ]
   public_defines = [ "SK_ENABLE_ANDROID_UTILS" ]
   sources = [
     "client_utils/android/BitmapRegionDecoder.cpp",
     "client_utils/android/FrontBufferedStream.cpp",
+    "client_utils/android/View3D.cpp",
   ]
 }
 

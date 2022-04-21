@@ -8,7 +8,6 @@ cc_library(
     deps = [
         ":SkAnimCodecPlayer_src",
         ":SkBase64_src",
-        ":SkCamera_src",
         ":SkCanvasStack_src",
         ":SkCanvasStateUtils_src",
         ":SkCharToGlyphCache_src",
@@ -94,16 +93,6 @@ generated_cc_atom(
     name = "SkCallableTraits_hdr",
     hdrs = ["SkCallableTraits.h"],
     visibility = ["//:__subpackages__"],
-)
-
-generated_cc_atom(
-    name = "SkCamera_src",
-    srcs = ["SkCamera.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/core:SkCanvas_hdr",
-        "//include/utils:SkCamera_hdr",
-    ],
 )
 
 generated_cc_atom(
