@@ -221,6 +221,7 @@ generated_cc_atom(
         "//include/core:SkStrokeRec_hdr",
         "//include/gpu/graphite:Recorder_hdr",
         "//include/gpu/graphite:SkStuff_hdr",
+        "//include/private:SkImageInfoPriv_hdr",
         "//src/core:SkConvertPixels_hdr",
         "//src/core:SkMatrixPriv_hdr",
         "//src/core:SkPaintPriv_hdr",
@@ -230,6 +231,7 @@ generated_cc_atom(
         "//src/gpu/graphite/geom:IntersectionTree_hdr",
         "//src/gpu/graphite/geom:Shape_hdr",
         "//src/gpu/graphite/geom:Transform_graphite_hdr",
+        "//src/shaders:SkImageShader_hdr",
     ],
 )
 

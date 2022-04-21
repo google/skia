@@ -30,12 +30,14 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/private/SkImageInfoPriv.h"
 
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkStroke.h"
+#include "src/shaders/SkImageShader.h"
 
 #include <unordered_map>
 #include <vector>
@@ -68,6 +70,28 @@ bool paint_depends_on_dst(const PaintParams& paintParams) {
 
 SkIRect rect_to_pixelbounds(const Rect& r) {
     return r.makeRoundOut().asSkIRect();
+}
+
+// TODO: this doesn't support the SrcRectConstraint option.
+sk_sp<SkShader> make_img_shader_for_paint(const SkPaint& paint,
+                                          sk_sp<SkImage> image,
+                                          const SkRect& subset,
+                                          SkTileMode tmx, SkTileMode tmy,
+                                          const SkSamplingOptions& sampling,
+                                          const SkMatrix* localMatrix) {
+    bool imageIsAlphaOnly = SkColorTypeIsAlphaOnly(image->colorType());
+
+    auto s = SkImageShader::MakeSubset(std::move(image), subset, tmx, tmy, sampling, localMatrix);
+    if (!s) {
+        return nullptr;
+    }
+    if (imageIsAlphaOnly && paint.getShader()) {
+        // Compose the image shader with the paint's shader. Alpha images+shaders should output the
+        // texture's alpha multiplied by the shader's color. DstIn (d*sa) will achieve this with
+        // the source image and dst shader (MakeBlend takes dst first, src second).
+        s = SkShaders::Blend(SkBlendMode::kDstIn, paint.refShader(), std::move(s));
+    }
+    return s;
 }
 
 } // anonymous namespace
@@ -441,6 +465,54 @@ void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
             this->drawShape(Shape(points[i], points[(i + 1) % count]), paint, stroke);
         }
     }
+}
+
+void Device::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                           const SkSamplingOptions& sampling, const SkPaint& paint,
+                           SkCanvas::SrcRectConstraint constraint) {
+    SkASSERT(dst.isFinite());
+    SkASSERT(dst.isSorted());
+
+    // TODO: All of this logic should be handled in SkCanvas, since it's the same for every backend
+    SkRect tmpSrc, tmpDst = dst;
+    SkRect imgBounds = SkRect::Make(image->bounds());
+
+    if (src) {
+        tmpSrc = *src;
+    } else {
+        tmpSrc = SkRect::Make(image->bounds());
+    }
+    SkMatrix matrix = SkMatrix::RectToRect(tmpSrc, dst);
+
+    // clip the tmpSrc to the bounds of the image, and recompute the dest rect if
+    // needed (i.e., if the src was clipped). No check needed if src==null.
+    if (src) {
+        if (!imgBounds.contains(tmpSrc)) {
+            if (!tmpSrc.intersect(imgBounds)) {
+                return; // nothing to draw
+            }
+            // recompute dst, based on the smaller tmpSrc
+            matrix.mapRect(&tmpDst, tmpSrc);
+            if (!tmpDst.isFinite()) {
+                return;
+            }
+        }
+    }
+
+    // construct a shader, so we can call drawRect with the dst
+    auto s = make_img_shader_for_paint(paint, sk_ref_sp(image), tmpSrc,
+                                       SkTileMode::kClamp, SkTileMode::kClamp,
+                                       sampling, &matrix);
+    if (!s) {
+        return;
+    }
+
+    SkPaint paintWithShader(paint);
+    paintWithShader.setStyle(SkPaint::kFill_Style);
+    paintWithShader.setShader(std::move(s));
+    paintWithShader.setPathEffect(nullptr);  // drawImageRect doesn't support path effects
+
+    this->drawRect(tmpDst, paintWithShader);
 }
 
 void Device::drawShape(const Shape& shape,

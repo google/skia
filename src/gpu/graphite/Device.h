@@ -119,7 +119,7 @@ private:
     // block that drawEdgeAAImageSet will use.
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint&,
-                       SkCanvas::SrcRectConstraint) override {}
+                       SkCanvas::SrcRectConstraint) override;
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, SkFilterMode, const SkPaint&) override {}
     void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
