@@ -8219,6 +8219,7 @@ generated_cc_atom(
         "//include/core:SkTextBlob_hdr",
         "//include/core:SkTypeface_hdr",
         "//include/core:SkTypes_hdr",
+        "//include/gpu:GrContextOptions_hdr",
         "//include/private:SkTDArray_hdr",
         "//include/private/chromium:GrSlug_hdr",
         "//tools:ToolUtils_hdr",

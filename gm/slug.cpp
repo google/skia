@@ -25,14 +25,18 @@
 #include "include/private/chromium/GrSlug.h"
 #include "tools/ToolUtils.h"
 
-#if SK_SUPPORT_GPU && defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
+#if SK_SUPPORT_GPU
+#include "include/gpu/GrContextOptions.h"
+
 class SlugGM : public skiagm::GM {
 public:
-    SlugGM(const char* txt)
-            : fText(txt) {
-    }
+    SlugGM(const char* txt) : fText(txt) {}
 
 protected:
+    void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
+        ctxOptions->fSupportBilerpFromGlyphAtlas = true;
+    }
+
     void onOnceBeforeDraw() override {
         fTypeface = ToolUtils::create_portable_typeface("serif", SkFontStyle());
         SkFont font(fTypeface);
