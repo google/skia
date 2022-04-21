@@ -11,6 +11,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkTHash.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -30,6 +31,8 @@ public:
     const ProgramElement* findAndInclude(const std::string& key);
 
     void resetAlreadyIncluded();
+
+    void foreach(const std::function<void(const std::string&, const ProgramElement&)>& fn) const;
 
 private:
     struct BuiltinElement {

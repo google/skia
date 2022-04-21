@@ -49,4 +49,14 @@ void BuiltinMap::resetAlreadyIncluded() {
     }
 }
 
+void BuiltinMap::foreach(
+        const std::function<void(const std::string&, const ProgramElement&)>& fn) const {
+    fElements.foreach([&](const std::string& name, const BuiltinElement& elem) {
+        fn(name, *elem.fElement);
+    });
+    if (fParent) {
+        fParent->foreach(fn);
+    }
+}
+
 } // namespace SkSL

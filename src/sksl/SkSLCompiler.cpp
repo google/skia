@@ -384,7 +384,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
 
 ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base) {
     LoadedModule module = this->loadModule(kind, data, base.fSymbols, /*dehydrate=*/false);
-    this->optimize(module);
+    this->optimize(module, base);
 
     // For modules that just declare (but don't define) intrinsic functions, there will be no new
     // program elements. In that case, we can share our parent's element map:
@@ -539,7 +539,7 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
     }
 }
 
-bool Compiler::optimize(LoadedModule& module) {
+bool Compiler::optimize(LoadedModule& module, const ParsedModule& base) {
     SkASSERT(!this->errorCount());
 
     // Create a temporary program configuration with default settings.
@@ -552,7 +552,7 @@ bool Compiler::optimize(LoadedModule& module) {
     // Reset the Inliner.
     fInliner.reset();
 
-    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
+    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module, base);
 
     while (this->errorCount() == 0) {
         // Perform inline-candidate analysis and inline any functions deemed suitable.

@@ -249,7 +249,7 @@ private:
     bool finalize(Program& program);
 
     /** Optimize the module. */
-    bool optimize(LoadedModule& module);
+    bool optimize(LoadedModule& module, const ParsedModule& base);
 
     /** Flattens out function calls when it is safe to do so. */
     bool runInliner(const std::vector<std::unique_ptr<ProgramElement>>& elements,
