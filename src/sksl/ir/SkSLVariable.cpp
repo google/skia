@@ -30,7 +30,7 @@ const Expression* Variable::initialValue() const {
 }
 
 std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos,
-        Position modifiersPos, const Modifiers& modifiers, const Type* baseType,
+        Position modifiersPos, const Modifiers& modifiers, const Type* baseType, Position namePos,
         std::string_view name, bool isArray, std::unique_ptr<Expression> arraySize,
         Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
@@ -40,7 +40,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos
                 "out location=0, index=0 is reserved for sk_FragColor");
     }
     if (!context.fConfig->fIsBuiltinCode && skstd::starts_with(name, '$')) {
-        context.fErrors->error(pos, "name '" + std::string(name) + "' is reserved");
+        context.fErrors->error(namePos, "name '" + std::string(name) + "' is reserved");
     }
 
     return Make(context, pos, modifiersPos, modifiers, baseType, name, isArray,

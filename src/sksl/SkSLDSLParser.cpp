@@ -406,7 +406,7 @@ bool DSLParser::declaration() {
     if (this->checkNext(Token::Kind::TK_LPAREN)) {
         return this->functionDeclarationEnd(this->position(start), modifiers, *type, name);
     } else {
-        this->globalVarDeclarationEnd(this->position(start), modifiers, *type, this->text(name));
+        this->globalVarDeclarationEnd(this->position(start), modifiers, *type, name);
         return true;
     }
 }
@@ -521,7 +521,7 @@ bool DSLParser::parseInitializer(Position pos, DSLExpression* initializer) {
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 void DSLParser::globalVarDeclarationEnd(Position pos, const dsl::DSLModifiers& mods,
-        dsl::DSLType baseType, std::string_view name) {
+        dsl::DSLType baseType, Token name) {
     using namespace dsl;
     DSLType type = baseType;
     DSLExpression initializer;
@@ -531,7 +531,8 @@ void DSLParser::globalVarDeclarationEnd(Position pos, const dsl::DSLModifiers& m
     if (!this->parseInitializer(pos, &initializer)) {
         return;
     }
-    DSLGlobalVar first(mods, type, name, std::move(initializer), this->rangeFrom(pos));
+    DSLGlobalVar first(mods, type, this->text(name), std::move(initializer), this->rangeFrom(pos),
+            this->position(name));
     Declare(first);
     AddToSymbolTable(first);
 
@@ -559,7 +560,7 @@ void DSLParser::globalVarDeclarationEnd(Position pos, const dsl::DSLModifiers& m
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 DSLStatement DSLParser::localVarDeclarationEnd(Position pos, const dsl::DSLModifiers& mods,
-        dsl::DSLType baseType, std::string_view name) {
+        dsl::DSLType baseType, Token name) {
     using namespace dsl;
     DSLType type = baseType;
     DSLExpression initializer;
@@ -569,7 +570,8 @@ DSLStatement DSLParser::localVarDeclarationEnd(Position pos, const dsl::DSLModif
     if (!this->parseInitializer(pos, &initializer)) {
         return {};
     }
-    DSLVar first(mods, type, name, std::move(initializer), this->rangeFrom(pos));
+    DSLVar first(mods, type, this->text(name), std::move(initializer), this->rangeFrom(pos),
+            this->position(name));
     DSLStatement result = Declare(first);
     AddToSymbolTable(first);
 
@@ -587,7 +589,7 @@ DSLStatement DSLParser::localVarDeclarationEnd(Position pos, const dsl::DSLModif
             return result;
         }
         DSLVar next(mods, type, this->text(identifierName), std::move(anotherInitializer),
-                this->rangeFrom(identifierName));
+                this->rangeFrom(identifierName), this->position(identifierName));
         DSLWriter::AddVarDeclaration(result, next);
         AddToSymbolTable(next, this->position(identifierName));
     }
@@ -617,7 +619,7 @@ DSLStatement DSLParser::varDeclarationsOrExpressionStatement() {
         if (this->varDeclarationsPrefix(&prefix)) {
             checkpoint.accept();
             return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, prefix.fType,
-                                                this->text(prefix.fName));
+                                                prefix.fName);
         }
 
         // If this statement wasn't actually a vardecl after all, rewind and try parsing it as an
@@ -647,7 +649,7 @@ DSLStatement DSLParser::varDeclarations() {
         return {};
     }
     return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, prefix.fType,
-            this->text(prefix.fName));
+            prefix.fName);
 }
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
@@ -730,8 +732,7 @@ SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(Position start,
     }
     Token name;
     if (this->checkIdentifier(&name)) {
-        this->globalVarDeclarationEnd(this->rangeFrom(name), modifiers, std::move(*type),
-                                      this->text(name));
+        this->globalVarDeclarationEnd(this->rangeFrom(name), modifiers, std::move(*type), name);
     } else {
         this->expect(Token::Kind::TK_SEMICOLON, "';'");
     }
@@ -748,16 +749,19 @@ std::optional<DSLWrapper<DSLParameter>> DSLParser::parameter(size_t paramIndex) 
     }
     Token name;
     std::string_view paramText;
+    Position paramPos;
     if (this->checkIdentifier(&name)) {
         paramText = this->text(name);
+        paramPos = this->position(name);
     } else {
         std::string anonymousName = String::printf("_skAnonymousParam%zu", paramIndex);
         paramText = *CurrentSymbolTable()->takeOwnershipOfString(std::move(anonymousName));
+        paramPos = this->rangeFrom(pos);
     }
     if (!this->parseArrayDimensions(pos, &type.value())) {
         return std::nullopt;
     }
-    return {{DSLParameter(modifiers, *type, paramText, this->rangeFrom(pos))}};
+    return {{DSLParameter(modifiers, *type, paramText, this->rangeFrom(pos), paramPos)}};
 }
 
 /** EQ INT_LITERAL */

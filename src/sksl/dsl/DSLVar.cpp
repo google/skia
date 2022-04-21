@@ -47,20 +47,21 @@ namespace SkSL {
 namespace dsl {
 
 DSLVarBase::DSLVarBase(DSLType type, std::string_view name, DSLExpression initialValue,
-                       Position pos)
-    : DSLVarBase(DSLModifiers(), std::move(type), name, std::move(initialValue), pos) {}
+                       Position pos, Position namePos)
+    : DSLVarBase(DSLModifiers(), std::move(type), name, std::move(initialValue), pos, namePos) {}
 
-DSLVarBase::DSLVarBase(DSLType type, DSLExpression initialValue, Position pos)
-    : DSLVarBase(type, "var", std::move(initialValue), pos) {}
+DSLVarBase::DSLVarBase(DSLType type, DSLExpression initialValue, Position pos, Position namePos)
+    : DSLVarBase(type, "var", std::move(initialValue), pos, namePos) {}
 
 DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, DSLExpression initialValue,
-                       Position pos)
-    : DSLVarBase(modifiers, type, "var", std::move(initialValue), pos) {}
+                       Position pos, Position namePos)
+    : DSLVarBase(modifiers, type, "var", std::move(initialValue), pos, namePos) {}
 
 DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, std::string_view name,
-                       DSLExpression initialValue, Position pos)
+                       DSLExpression initialValue, Position pos, Position namePos)
     : fModifiers(std::move(modifiers))
     , fType(std::move(type))
+    , fNamePosition(namePos)
     , fRawName(name)
     , fName(fType.skslType().isOpaque() ? name : DSLWriter::Name(name))
     , fInitialValue(std::move(initialValue))
@@ -109,6 +110,7 @@ void DSLVarBase::swap(DSLVarBase& other) {
     std::swap(fUniformHandle, other.fUniformHandle);
     std::swap(fDeclaration, other.fDeclaration);
     std::swap(fVar, other.fVar);
+    std::swap(fNamePosition, other.fNamePosition);
     std::swap(fRawName, other.fRawName);
     std::swap(fName, other.fName);
     std::swap(fInitialValue.fExpression, other.fInitialValue.fExpression);
@@ -126,7 +128,7 @@ VariableStorage DSLVar::storage() const {
 }
 
 DSLGlobalVar::DSLGlobalVar(const char* name)
-    : INHERITED(kVoid_Type, name, DSLExpression(), Position()) {
+    : INHERITED(kVoid_Type, name, DSLExpression(), Position(), Position()) {
     fName = name;
     DSLWriter::MarkDeclared(*this);
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)

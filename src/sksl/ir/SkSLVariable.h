@@ -54,8 +54,8 @@ public:
 
     static std::unique_ptr<Variable> Convert(const Context& context, Position pos,
             Position modifiersPos, const Modifiers& modifiers, const Type* baseType,
-            std::string_view name, bool isArray, std::unique_ptr<Expression> arraySize,
-            Variable::Storage storage);
+            Position namePos, std::string_view name, bool isArray,
+            std::unique_ptr<Expression> arraySize, Variable::Storage storage);
 
     static std::unique_ptr<Variable> Make(const Context& context, Position pos,
             Position modifiersPos, const Modifiers& modifiers, const Type* baseType,

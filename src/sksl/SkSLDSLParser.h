@@ -189,10 +189,10 @@ private:
     bool parseInitializer(Position pos, dsl::DSLExpression* initializer);
 
     void globalVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
-            dsl::DSLType baseType, std::string_view name);
+            dsl::DSLType baseType, Token name);
 
     dsl::DSLStatement localVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
-            dsl::DSLType baseType, std::string_view name);
+            dsl::DSLType baseType, Token name);
 
     std::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter(size_t paramIndex);
 
