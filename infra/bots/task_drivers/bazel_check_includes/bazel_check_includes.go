@@ -84,6 +84,7 @@ func bazelCheckIncludes(ctx context.Context, checkoutDir, label string, opts ...
 				"--config=linux-rbe", // Compile using RBE
 				"--features=skia_enforce_iwyu",
 				"--jobs=" + strconv.Itoa(rbeJobs),
+				"--keep_going", // Don't stop after first error
 				label,
 			}, opts...),
 			InheritEnv: true, // Makes sure bazelisk is on PATH
