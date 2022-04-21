@@ -12,7 +12,6 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
-#include "include/private/SkSLSymbol.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
@@ -28,6 +27,7 @@ class Expression;
 class ModifiersPool;
 class ProgramElement;
 class Statement;
+class Symbol;
 class Type;
 struct Program;
 
@@ -174,8 +174,9 @@ private:
     }
 
     template<typename T>
-    T* symbolRef(Symbol::Kind kind) {
+    T* symbolRef() {
         uint16_t result = this->readU16();
+        SkASSERTF(result != kBuiltin_Symbol, "use possiblyBuiltinSymbolRef() instead");
         SkASSERT(fSymbols.size() > result);
         return (T*) fSymbols[result];
     }
