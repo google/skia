@@ -1,0 +1,5 @@
+static uint8_t SKSL_INCLUDE_sksl_graphite_frag[] = {10,0,0,0,
+52,1,0,0,0,0,
+20,
+21,};
+static constexpr size_t SKSL_INCLUDE_sksl_graphite_frag_LENGTH = sizeof(SKSL_INCLUDE_sksl_graphite_frag);

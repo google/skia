@@ -1,4 +1,4 @@
-// defines built-in interfaces supported by SkiaSL fragment shaders
+// defines built-in interfaces supported by SkSL fragment shaders
 
 // See "enum SpvBuiltIn_" in ./spirv.h
 layout(builtin=15) in float4 sk_FragCoord;

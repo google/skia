@@ -432,6 +432,17 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         bench("sksl_compiler_gpu", after - before);
     }
 
+    // Heap used by a compiler with the two main Graphite modules (fragment + vertex) loaded
+    {
+        int before = heap_bytes_used();
+        GrShaderCaps caps;
+        SkSL::Compiler compiler(&caps);
+        compiler.moduleForProgramKind(SkSL::ProgramKind::kGraphiteVertex);
+        compiler.moduleForProgramKind(SkSL::ProgramKind::kGraphiteFragment);
+        int after = heap_bytes_used();
+        bench("sksl_compiler_graphite", after - before);
+    }
+
     // Heap used by a compiler with the runtime shader, color filter and blending modules loaded
     {
         int before = heap_bytes_used();

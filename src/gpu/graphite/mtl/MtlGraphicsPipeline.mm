@@ -507,7 +507,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     ShaderErrorHandler* errorHandler = DefaultShaderErrorHandler();
     if (!SkSLToMSL(gpu,
                    get_sksl_vs(pipelineDesc),
-                   SkSL::ProgramKind::kVertex,
+                   SkSL::ProgramKind::kGraphiteVertex,
                    settings,
                    &msl[kVertex_ShaderType],
                    &inputs[kVertex_ShaderType],
@@ -519,7 +519,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     auto dict = resourceProvider->shaderCodeDictionary();
     if (!SkSLToMSL(gpu,
                    get_sksl_fs(dict, pipelineDesc, &blendInfo),
-                   SkSL::ProgramKind::kFragment,
+                   SkSL::ProgramKind::kGraphiteFragment,
                    settings,
                    &msl[kFragment_ShaderType],
                    &inputs[kFragment_ShaderType],

@@ -634,6 +634,8 @@ if (skia_compile_modules || skia_compile_sksl_tests) {
     sources = [
       "src/sksl/sksl_frag.sksl",
       "src/sksl/sksl_gpu.sksl",
+      "src/sksl/sksl_graphite_frag.sksl",
+      "src/sksl/sksl_graphite_vert.sksl",
       "src/sksl/sksl_public.sksl",
       "src/sksl/sksl_rt_shader.sksl",
       "src/sksl/sksl_vert.sksl",

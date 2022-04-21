@@ -14,8 +14,10 @@ targetDir = sys.argv[2]
 modules = sys.argv[3:]
 
 dependencies = {
-    'sksl_vert': ['sksl_gpu'],
     'sksl_frag': ['sksl_gpu'],
+    'sksl_vert': ['sksl_gpu'],
+    'sksl_graphite_frag': ['sksl_frag', 'sksl_gpu'],
+    'sksl_graphite_vert': ['sksl_vert', 'sksl_gpu'],
     'sksl_rt_shader': ['sksl_public'],
 }
 

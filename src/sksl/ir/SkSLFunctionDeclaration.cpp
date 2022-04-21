@@ -259,7 +259,8 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
         case ProgramKind::kGeneric:
             // No rules apply here
             break;
-        case ProgramKind::kFragment: {
+        case ProgramKind::kFragment:
+        case ProgramKind::kGraphiteFragment: {
             bool validParams = (parameters.size() == 0) ||
                                (parameters.size() == 1 && paramIsCoords(0));
             if (!validParams) {
@@ -269,6 +270,7 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
             break;
         }
         case ProgramKind::kVertex:
+        case ProgramKind::kGraphiteVertex:
             if (parameters.size()) {
                 errors.error(pos, "shader 'main' must have zero parameters");
                 return false;

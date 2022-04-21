@@ -1,4 +1,4 @@
-// defines built-in interfaces supported by SkiaSL vertex shaders
+// defines built-in interfaces supported by SkSL vertex shaders
 
 out sk_PerVertex {
     layout(builtin=0) float4 sk_Position;
