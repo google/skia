@@ -92,24 +92,14 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
 //            1) gathering the correct (mangled) uniforms
 //            2) passing the uniforms and any other parameters to the helper method
 //   The result of the last code snippet is then copied into "sk_FragColor".
-// Note: that each entry's 'fStaticFunctionName' field must match the name of the method defined
-// in the 'fStaticSkSL' field.
+// Note: that each entry's 'fStaticFunctionName' field must match the name of a function in the
+// Graphite pre-compiled module, located at `src/sksl/sksl_graphite_frag.sksl`.
 std::string SkShaderInfo::toSkSL() const {
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     std::string result = skgpu::graphite::GetMtlUniforms(2, "FS", fBlockReaders);
 
     int binding = 0;
     result += skgpu::graphite::GetMtlTexturesAndSamplers(fBlockReaders, &binding);
-
-    std::set<const char*> emittedStaticSnippets;
-    for (const auto& reader : fBlockReaders) {
-        const SkShaderSnippet* e = reader.entry();
-        if (emittedStaticSnippets.find(e->fStaticFunctionName) == emittedStaticSnippets.end()) {
-            result += e->fStaticSkSL;
-            emittedStaticSnippets.insert(e->fStaticFunctionName);
-        }
-    }
-
     result += "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
     result += "void main() {\n";
 
@@ -117,8 +107,7 @@ std::string SkShaderInfo::toSkSL() const {
 
     // TODO: what is the correct initial color to feed in?
     add_indent(&result, 1);
-    SkSL::String::appendf(&result, "half4 %s = half4(0.0, 0.0, 0.0, 0.0);",
-                          lastOutputVar.c_str());
+    SkSL::String::appendf(&result, "    half4 %s = half4(0.0);", lastOutputVar.c_str());
 
     for (int entryIndex = 0; entryIndex < (int) fBlockReaders.size(); ++entryIndex) {
         lastOutputVar = this->emitGlueCodeForEntry(&entryIndex, lastOutputVar, &result, 1);
@@ -286,7 +275,6 @@ static constexpr SkUniform kGradientUniforms[kNumGradientUniforms] = {
 };
 
 static constexpr char kLinearGradient4Name[] = "sk_linear_grad_4_shader";
-static constexpr char kLinearGradient4SkSL[] = "";
 
 //--------------------------------------------------------------------------------------------------
 static constexpr int kNumSolidShaderUniforms = 1;
@@ -295,7 +283,6 @@ static constexpr SkUniform kSolidShaderUniforms[kNumSolidShaderUniforms] = {
 };
 
 static constexpr char kSolidShaderName[] = "sk_solid_shader";
-static constexpr char kSolidShaderSkSL[] = "";
 
 //--------------------------------------------------------------------------------------------------
 static constexpr int kNumImageShaderUniforms = 5;
@@ -318,7 +305,6 @@ static_assert(2 == static_cast<int>(SkTileMode::kMirror), "ImageShader code depe
 static_assert(3 == static_cast<int>(SkTileMode::kDecal),  "ImageShader code depends on SkTileMode");
 
 static constexpr char kImageShaderName[] = "sk_compute_coords";
-static constexpr char kImageShaderSkSL[] = "";
 
 static constexpr int kNumImageShaderFields = 1;
 static constexpr DataPayloadField kImageShaderFields[kNumImageShaderFields] = {
@@ -375,7 +361,6 @@ static constexpr SkUniform kBlendShaderUniforms[kNumBlendShaderUniforms] = {
 static constexpr int kNumBlendShaderChildren = 2;
 
 static constexpr char kBlendHelperName[] = "sk_blend";
-static constexpr char kBlendHelperSkSL[] = "";
 
 std::string GenerateBlendShaderGlueCode(const std::string& resultName,
                                         int entryIndex,
@@ -403,7 +388,6 @@ std::string GenerateBlendShaderGlueCode(const std::string& resultName,
 
 //--------------------------------------------------------------------------------------------------
 static constexpr char kErrorName[] = "sk_error";
-static constexpr char kErrorSkSL[] = "";
 
 //--------------------------------------------------------------------------------------------------
 static constexpr int kNumFixedFunctionBlenderFields = 1;
@@ -488,7 +472,6 @@ int SkShaderCodeDictionary::addUserDefinedSnippet(
     std::unique_ptr<SkShaderSnippet> entry(new SkShaderSnippet({}, // no uniforms
                                                                {}, // no samplers
                                                                name,
-                                                               ";",
                                                                GenerateDefaultGlueCode,
                                                                kNoChildren,
                                                                dataPayloadExpectations));
@@ -508,7 +491,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kDepthStencilOnlyDraw] = {
             { },     // no uniforms
             { },     // no samplers
-            kErrorName, kErrorSkSL,
+            kErrorName,
             GenerateDefaultGlueCode,
             kNoChildren,
             {}
@@ -516,7 +499,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kError] = {
             { },     // no uniforms
             { },     // no samplers
-            kErrorName, kErrorSkSL,
+            kErrorName,
             GenerateDefaultGlueCode,
             kNoChildren,
             {}
@@ -524,7 +507,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSolidColorShader] = {
             SkMakeSpan(kSolidShaderUniforms, kNumSolidShaderUniforms),
             { },     // no samplers
-            kSolidShaderName, kSolidShaderSkSL,
+            kSolidShaderName,
             GenerateDefaultGlueCode,
             kNoChildren,
             {}
@@ -532,7 +515,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kLinearGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
             { },     // no samplers
-            kLinearGradient4Name, kLinearGradient4SkSL,
+            kLinearGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
             { kLinearGrad4Fields, kNumLinearGrad4Fields }
@@ -540,7 +523,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kRadialGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
             { },     // no samplers
-            kLinearGradient4Name, kLinearGradient4SkSL,
+            kLinearGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
             { kLinearGrad4Fields, kNumLinearGrad4Fields }
@@ -548,7 +531,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSweepGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
             { },     // no samplers
-            kLinearGradient4Name, kLinearGradient4SkSL,
+            kLinearGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
             { kLinearGrad4Fields, kNumLinearGrad4Fields }
@@ -556,7 +539,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kConicalGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
             { },     // no samplers
-            kLinearGradient4Name, kLinearGradient4SkSL,
+            kLinearGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
             { kLinearGrad4Fields, kNumLinearGrad4Fields }
@@ -564,7 +547,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kImageShader] = {
             SkMakeSpan(kImageShaderUniforms, kNumImageShaderUniforms),
             SkMakeSpan(kISTexturesAndSamplers, kNumImageShaderTexturesAndSamplers),
-            kImageShaderName, kImageShaderSkSL,
+            kImageShaderName,
             GenerateImageShaderGlueCode,
             kNoChildren,
             { kImageShaderFields, kNumImageShaderFields }
@@ -572,7 +555,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kBlendShader] = {
             { kBlendShaderUniforms, kNumBlendShaderUniforms },
             { },     // no samplers
-            kBlendHelperName, kBlendHelperSkSL,
+            kBlendHelperName,
             GenerateBlendShaderGlueCode,
             kNumBlendShaderChildren,
             {}
@@ -580,7 +563,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kFixedFunctionBlender] = {
             { },     // no uniforms
             { },     // no samplers
-            "FF-blending", "",  // fixed function blending doesn't have any static SkSL
+            "FF-blending",  // fixed function blending doesn't use static SkSL
             GenerateFixedFunctionBlenderGlueCode,
             kNoChildren,
             { kFixedFunctionBlenderFields, kNumFixedFunctionBlenderFields }
@@ -588,7 +571,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kShaderBasedBlender] = {
             { },     // no uniforms
             { },     // no samplers
-            kBlendHelperName, kBlendHelperSkSL,
+            kBlendHelperName,
             GenerateShaderBasedBlenderGlueCode,
             kNoChildren,
             { kShaderBasedBlenderFields, kNumShaderBasedBlenderFields }
