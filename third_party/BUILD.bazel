@@ -2605,6 +2605,8 @@ DAWN_SRCS = [
     "externals/dawn/src/dawn/native/BindGroupTracker.h",
     "externals/dawn/src/dawn/native/BindingInfo.cpp",
     "externals/dawn/src/dawn/native/BindingInfo.h",
+    "externals/dawn/src/dawn/native/BlobCache.cpp",
+    "externals/dawn/src/dawn/native/BlobCache.h",
     "externals/dawn/src/dawn/native/BuddyAllocator.cpp",
     "externals/dawn/src/dawn/native/BuddyAllocator.h",
     "externals/dawn/src/dawn/native/BuddyMemoryAllocator.cpp",
