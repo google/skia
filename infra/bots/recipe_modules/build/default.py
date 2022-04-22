@@ -294,7 +294,7 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_gl'] = 'false'
   if 'iOS' in extra_tokens:
     # Bots use Chromium signing cert.
-    args['skia_ios_identity'] = '".*GS9WA.*"'
+    args['skia_ios_identity'] = '".*83FNP.*"'
     # Get mobileprovision via the CIPD package.
     args['skia_ios_profile'] = '"%s"' % api.vars.workdir.join(
         'provisioning_profile_ios',
