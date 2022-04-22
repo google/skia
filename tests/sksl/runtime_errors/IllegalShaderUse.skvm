@@ -56,7 +56,7 @@ half4  parameter(shader s) { return s.eval(xy); }
                                     ^
 error: 29: functions may not return opaque type 'shader'
 shader returned()          { return s1; }
-^^^^^^^^^^^^^^^^^
+^^^^^^
 error: 30: cannot construct 'shader'
 half4  constructed()       { return shader(s1).eval(xy); }
                                     ^^^^^^^^^^

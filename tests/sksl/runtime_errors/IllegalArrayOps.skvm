@@ -11,10 +11,10 @@ void assign_T() { t1 = t2; }
                   ^^^^^^^
 error: 21: functions may not return structs containing arrays
 S return_S() { return s1; }
-^^^^^^^^^^^^
+^
 error: 22: functions may not return structs containing arrays
 T return_T() { return t1; }
-^^^^^^^^^^^^
+^
 error: 24: operator '==' can not operate on arrays (or structs containing arrays)
 bool equals_A()    { return a1 == a2; }
                             ^^^^^^^^

@@ -12,6 +12,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
+#include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/DSLWrapper.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -70,7 +71,8 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
                                                modifiers.fPosition,
                                                ThreadContext::Modifiers(modifiers.fModifiers),
                                                name == "main" ? name : DSLWriter::Name(name),
-                                               std::move(paramVars), &returnType.skslType());
+                                               std::move(paramVars), returnType.fPosition,
+                                               &returnType.skslType());
     ThreadContext::ReportErrors(pos);
     if (fDecl) {
         for (size_t i = 0; i < params.size(); ++i) {

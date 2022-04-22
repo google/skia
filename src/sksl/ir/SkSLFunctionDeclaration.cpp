@@ -290,6 +290,7 @@ static bool find_existing_declaration(const Context& context,
                                       Position pos,
                                       std::string_view name,
                                       std::vector<std::unique_ptr<Variable>>& parameters,
+                                      Position returnTypePos,
                                       const Type* returnType,
                                       const FunctionDeclaration** outExistingDecl) {
     ErrorReporter& errors = *context.fErrors;
@@ -335,7 +336,7 @@ static bool find_existing_declaration(const Context& context,
                                                 std::move(paramPtrs),
                                                 returnType,
                                                 context.fConfig->fIsBuiltinCode);
-                errors.error(pos,
+                errors.error(returnTypePos,
                              "functions '" + invalidDecl.description() + "' and '" +
                              other->description() + "' differ only in return type");
                 return false;
@@ -381,15 +382,17 @@ const FunctionDeclaration* FunctionDeclaration::Convert(
         const Modifiers* modifiers,
         std::string_view name,
         std::vector<std::unique_ptr<Variable>> parameters,
+        Position returnTypePos,
         const Type* returnType) {
     bool isMain = (name == "main");
 
     const FunctionDeclaration* decl = nullptr;
     if (!check_modifiers(context, modifiersPosition, *modifiers) ||
-        !check_return_type(context, pos, *returnType) ||
+        !check_return_type(context, returnTypePos, *returnType) ||
         !check_parameters(context, parameters, isMain) ||
         (isMain && !check_main_signature(context, pos, *returnType, parameters)) ||
-        !find_existing_declaration(context, symbols, pos, name, parameters, returnType, &decl)) {
+        !find_existing_declaration(context, symbols, pos, name, parameters, returnTypePos,
+                                   returnType, &decl)) {
         return nullptr;
     }
     std::vector<const Variable*> finalParameters;
@@ -400,8 +403,11 @@ const FunctionDeclaration* FunctionDeclaration::Convert(
     if (decl) {
         return decl;
     }
-    auto result = std::make_unique<FunctionDeclaration>(pos, modifiers, name,
-                                                        std::move(finalParameters), returnType,
+    auto result = std::make_unique<FunctionDeclaration>(pos,
+                                                        modifiers,
+                                                        name,
+                                                        std::move(finalParameters),
+                                                        returnType,
                                                         context.fConfig->fIsBuiltinCode);
     return symbols.add(std::move(result));
 }

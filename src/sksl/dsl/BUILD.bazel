@@ -116,6 +116,7 @@ generated_cc_atom(
         "//include/private:SkSLStatement_hdr",
         "//include/private:SkSLString_hdr",
         "//include/sksl:DSLFunction_hdr",
+        "//include/sksl:DSLType_hdr",
         "//include/sksl:DSLVar_hdr",
         "//include/sksl:DSLWrapper_hdr",
         "//src/sksl:SkSLProgramSettings_hdr",

@@ -187,16 +187,18 @@ static const SkSL::Type* get_type_from_type_constant(const Context& context, Typ
     }
 }
 
-DSLType::DSLType(std::string_view name)
-    : fSkSLType(find_type(ThreadContext::Context(), Position(), name)) {}
+DSLType::DSLType(std::string_view name, Position pos)
+    : fSkSLType(find_type(ThreadContext::Context(), pos, name))
+    , fPosition(pos) {}
 
 DSLType::DSLType(std::string_view name, DSLModifiers* modifiers, Position pos)
     : fSkSLType(find_type(ThreadContext::Context(), pos, name, modifiers->fPosition,
-        &modifiers->fModifiers)) {}
+        &modifiers->fModifiers))
+    , fPosition(pos) {}
 
-DSLType::DSLType(const SkSL::Type* type)
-    : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowPrivateTypes=*/true,
-            Position())) {}
+DSLType::DSLType(const SkSL::Type* type, Position pos)
+    : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowPrivateTypes=*/true, pos))
+    , fPosition(pos) {}
 
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();
@@ -278,7 +280,7 @@ DSLType Array(const DSLType& base, int count, Position pos) {
     if (!count) {
         return DSLType(kPoison_Type);
     }
-    return ThreadContext::SymbolTable()->addArrayDimension(&base.skslType(), count);
+    return DSLType(ThreadContext::SymbolTable()->addArrayDimension(&base.skslType(), count), pos);
 }
 
 DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
@@ -317,7 +319,7 @@ DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
     }
     ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(Position(),
             *result));
-    return result;
+    return DSLType(result, pos);
 }
 
 } // namespace dsl

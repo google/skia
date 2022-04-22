@@ -64,7 +64,6 @@ generated_cc_atom(
         ":DSLExpression_hdr",
         ":DSLModifiers_hdr",
         ":DSLStatement_hdr",
-        ":DSLType_hdr",
         ":DSLVar_hdr",
         ":SkSLPosition_hdr",
         "//include/private:SkSLDefines_hdr",
