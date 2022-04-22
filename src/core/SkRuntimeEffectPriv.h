@@ -30,8 +30,8 @@ public:
         return options;
     }
 
-    static void EnableFragCoord(SkRuntimeEffect::Options* options) {
-        options->allowFragCoord = true;
+    static void UsePrivateRTShaderModule(SkRuntimeEffect::Options* options) {
+        options->usePrivateRTShaderModule = true;
     }
 };
 
@@ -57,7 +57,7 @@ inline sk_sp<SkRuntimeEffect> SkMakeRuntimeEffect(
         SkRuntimeEffect::Result (*make)(SkString, const SkRuntimeEffect::Options&),
         const char* sksl,
         SkRuntimeEffect::Options options = SkRuntimeEffect::Options{}) {
-    SkRuntimeEffectPriv::EnableFragCoord(&options);
+    SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
     auto result = make(SkString{sksl}, options);
     SkASSERTF(result.effect, "%s", result.errorText.c_str());
     return result.effect;

@@ -253,7 +253,7 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
                  "unknown identifier 'sk_FragCoord'");
 
     SkRuntimeEffect::Options optionsWithFragCoord;
-    SkRuntimeEffectPriv::EnableFragCoord(&optionsWithFragCoord);
+    SkRuntimeEffectPriv::UsePrivateRTShaderModule(&optionsWithFragCoord);
     test_valid("half4 main(float2 p) { return sk_FragCoord.xy01; }", optionsWithFragCoord);
 
     // Sampling a child shader requires that we pass explicit coords
@@ -310,7 +310,7 @@ public:
 
     void build(const char* src) {
         SkRuntimeEffect::Options options;
-        SkRuntimeEffectPriv::EnableFragCoord(&options);
+        SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
         auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(src), options);
         if (!effect) {
             REPORT_FAILURE(fReporter, "effect",
@@ -901,7 +901,7 @@ DEF_TEST(SkRuntimeEffectThreaded, r) {
     for (auto& thread : threads) {
         thread = std::thread([r]() {
             SkRuntimeEffect::Options options;
-            SkRuntimeEffectPriv::EnableFragCoord(&options);
+            SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
             auto [effect, error] = SkRuntimeEffect::MakeForShader(SkString(kSource), options);
             REPORTER_ASSERT(r, effect);
         });

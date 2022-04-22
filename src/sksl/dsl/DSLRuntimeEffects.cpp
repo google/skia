@@ -26,7 +26,7 @@ namespace dsl {
 #ifndef SKSL_STANDALONE
 
 void StartRuntimeShader(SkSL::Compiler* compiler) {
-    Start(compiler, SkSL::ProgramKind::kRuntimeShader);
+    Start(compiler, SkSL::ProgramKind::kPrivateRuntimeShader);
     SkSL::ProgramSettings& settings = ThreadContext::Context().fConfig->fSettings;
     SkASSERT(settings.fInlineThreshold == SkSL::kDefaultInlineThreshold);
     settings.fInlineThreshold = 0;

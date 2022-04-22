@@ -120,7 +120,7 @@ public:
         // Similarly: Public SkSL does not allow access to sk_FragCoord. The semantics of that
         // variable are confusing, and expose clients to implementation details of saveLayer and
         // image filters.
-        bool allowFragCoord = false;
+        bool usePrivateRTShaderModule = false;
     };
 
     // If the effect is compiled successfully, `effect` will be non-null.

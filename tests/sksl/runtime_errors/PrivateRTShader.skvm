@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 5: expected a type, but found '~'
-~
-^
+error: 2: unknown identifier 'sk_FragCoord'
+    return float4(sk_FragCoord);
+                  ^^^^^^^^^^^^
 1 error

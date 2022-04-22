@@ -238,7 +238,7 @@ private:
     const ParsedModule& loadGraphiteFragmentModule();
     const ParsedModule& loadGraphiteVertexModule();
     const ParsedModule& loadPublicModule();
-    const ParsedModule& loadRuntimeShaderModule();
+    const ParsedModule& loadPrivateRTShaderModule();
 
     std::shared_ptr<SymbolTable> makeRootSymbolTable() const;
     std::shared_ptr<SymbolTable> makeGLSLRootSymbolTable() const;

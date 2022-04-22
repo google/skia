@@ -2,4 +2,6 @@ float4 main(float2 xy) {
     return float4(sk_FragCoord);
 }
 
-~
+/*%%*
+unknown identifier 'sk_FragCoord'
+*%%*/

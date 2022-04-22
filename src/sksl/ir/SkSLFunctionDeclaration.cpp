@@ -199,7 +199,8 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
             }
             break;
         }
-        case ProgramKind::kRuntimeShader: {
+        case ProgramKind::kRuntimeShader:
+        case ProgramKind::kPrivateRuntimeShader: {
             // (half4|float4) main(float2)  -or-  (half4|float4) main(float2, half4|float4)
             if (!typeIsValidForColor(returnType)) {
                 errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");

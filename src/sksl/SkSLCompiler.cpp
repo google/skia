@@ -328,7 +328,7 @@ const ParsedModule& Compiler::loadPublicModule() {
     return fPublicModule;
 }
 
-const ParsedModule& Compiler::loadRuntimeShaderModule() {
+const ParsedModule& Compiler::loadPrivateRTShaderModule() {
     if (!fRuntimeShaderModule.fSymbols) {
         fRuntimeShaderModule = this->parseModule(
                 ProgramKind::kRuntimeShader, MODULE_DATA(rt_shader), this->loadPublicModule());
@@ -338,16 +338,17 @@ const ParsedModule& Compiler::loadRuntimeShaderModule() {
 
 const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
     switch (kind) {
-        case ProgramKind::kVertex:             return this->loadVertexModule();           break;
-        case ProgramKind::kFragment:           return this->loadFragmentModule();         break;
-        case ProgramKind::kGraphiteVertex:     return this->loadGraphiteVertexModule();   break;
-        case ProgramKind::kGraphiteFragment:   return this->loadGraphiteFragmentModule(); break;
-        case ProgramKind::kRuntimeColorFilter: return this->loadPublicModule();           break;
-        case ProgramKind::kRuntimeShader:      return this->loadRuntimeShaderModule();    break;
-        case ProgramKind::kRuntimeBlender:     return this->loadPublicModule();           break;
-        case ProgramKind::kCustomMeshVertex:   return this->loadPublicModule();           break;
-        case ProgramKind::kCustomMeshFragment: return this->loadPublicModule();           break;
-        case ProgramKind::kGeneric:            return this->loadPublicModule();           break;
+        case ProgramKind::kVertex:               return this->loadVertexModule();           break;
+        case ProgramKind::kFragment:             return this->loadFragmentModule();         break;
+        case ProgramKind::kGraphiteVertex:       return this->loadGraphiteVertexModule();   break;
+        case ProgramKind::kGraphiteFragment:     return this->loadGraphiteFragmentModule(); break;
+        case ProgramKind::kRuntimeColorFilter:   return this->loadPublicModule();           break;
+        case ProgramKind::kRuntimeShader:        return this->loadPublicModule();           break;
+        case ProgramKind::kRuntimeBlender:       return this->loadPublicModule();           break;
+        case ProgramKind::kPrivateRuntimeShader: return this->loadPrivateRTShaderModule();  break;
+        case ProgramKind::kCustomMeshVertex:     return this->loadPublicModule();           break;
+        case ProgramKind::kCustomMeshFragment:   return this->loadPublicModule();           break;
+        case ProgramKind::kGeneric:              return this->loadPublicModule();           break;
     }
     SkUNREACHABLE;
 }

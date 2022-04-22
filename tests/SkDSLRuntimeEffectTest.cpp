@@ -61,7 +61,7 @@ public:
 
     void end(bool expectSuccess = true) {
         SkRuntimeEffect::Options options;
-        SkRuntimeEffectPriv::EnableFragCoord(&options);
+        SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
         sk_sp<SkRuntimeEffect> effect = EndRuntimeShader(options);
         REPORTER_ASSERT(fReporter, effect ? expectSuccess : !expectSuccess);
         if (effect) {
