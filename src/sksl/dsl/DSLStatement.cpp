@@ -34,12 +34,13 @@ DSLStatement::DSLStatement(DSLBlock block)
 DSLStatement::DSLStatement(DSLExpression expr) {
     std::unique_ptr<SkSL::Expression> skslExpr = expr.release();
     if (skslExpr) {
-        fStatement = SkSL::ExpressionStatement::Make(ThreadContext::Context(), std::move(skslExpr));
+        fStatement = SkSL::ExpressionStatement::Convert(ThreadContext::Context(),
+                                                        std::move(skslExpr));
     }
 }
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
-    : fStatement(SkSL::ExpressionStatement::Make(ThreadContext::Context(), std::move(expr))) {
+    : fStatement(SkSL::ExpressionStatement::Convert(ThreadContext::Context(), std::move(expr))) {
     SkASSERT(this->hasValue());
 }
 
