@@ -2585,7 +2585,7 @@ bool GrVkGpu::waitFence(GrFence fence) {
     return (VK_SUCCESS == result);
 }
 
-void GrVkGpu::deleteFence(GrFence fence) const {
+void GrVkGpu::deleteFence(GrFence fence) {
     VK_CALL(DestroyFence(this->device(), (VkFence)fence, nullptr));
 }
 

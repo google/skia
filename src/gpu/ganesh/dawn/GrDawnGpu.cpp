@@ -813,7 +813,7 @@ bool GrDawnGpu::waitFence(GrFence fence) {
     return reinterpret_cast<Fence*>(fence)->check();
 }
 
-void GrDawnGpu::deleteFence(GrFence fence) const {
+void GrDawnGpu::deleteFence(GrFence fence) {
     delete reinterpret_cast<Fence*>(fence);
 }
 

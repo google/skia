@@ -4094,7 +4094,7 @@ bool GrGLGpu::waitFence(GrFence fence) {
     return this->waitSync(reinterpret_cast<GrGLsync>(fence), 0, false);
 }
 
-void GrGLGpu::deleteFence(GrFence fence) const {
+void GrGLGpu::deleteFence(GrFence fence) {
     if (this->caps()->fenceSyncSupport()) {
         this->deleteSync(reinterpret_cast<GrGLsync>(fence));
     }
@@ -4154,7 +4154,7 @@ GrGLenum GrGLGpu::getErrorAndCheckForOOM() {
     return error;
 }
 
-void GrGLGpu::deleteSync(GrGLsync sync) const {
+void GrGLGpu::deleteSync(GrGLsync sync) {
     if (this->glCaps().fenceType() == GrGLCaps::FenceType::kNVFence) {
         GrGLuint nvFence = SkToUInt(reinterpret_cast<intptr_t>(sync));
         GL_CALL(DeleteFences(1, &nvFence));

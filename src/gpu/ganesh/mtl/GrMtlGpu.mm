@@ -1555,7 +1555,7 @@ bool GrMtlGpu::waitFence(GrFence fence) {
     return !result;
 }
 
-void GrMtlGpu::deleteFence(GrFence fence) const {
+void GrMtlGpu::deleteFence(GrFence fence) {
     const void* cfFence = (const void*) fence;
     // In this case it's easier to release in CoreFoundation than depend on ARC
     CFRelease(cfFence);
