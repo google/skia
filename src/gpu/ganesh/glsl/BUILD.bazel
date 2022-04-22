@@ -21,6 +21,7 @@ generated_cc_atom(
         ":GrGLSLFragmentShaderBuilder_hdr",
         ":GrGLSLProgramBuilder_hdr",
         "//include/private:SkSLString_hdr",
+        "//src/gpu:Blend_hdr",
     ],
 )
 
@@ -145,11 +146,11 @@ generated_cc_atom(
     srcs = ["GrGLSLShaderBuilder.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":GrGLSLBlend_hdr",
         ":GrGLSLColorSpaceXformHelper_hdr",
         ":GrGLSLProgramBuilder_hdr",
         ":GrGLSLShaderBuilder_hdr",
         "//include/sksl:DSL_hdr",
+        "//src/gpu:Blend_hdr",
         "//src/gpu:Swizzle_hdr",
         "//src/gpu/ganesh:GrShaderCaps_hdr",
         "//src/gpu/ganesh:GrShaderVar_hdr",

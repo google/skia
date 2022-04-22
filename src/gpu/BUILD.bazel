@@ -5,6 +5,7 @@ licenses(["notice"])
 cc_library(
     name = "core_srcs",
     deps = [
+        ":Blend_src",
         ":RectanizerPow2_src",
         ":RectanizerSkyline_src",
         ":ResourceKey_src",
@@ -183,4 +184,14 @@ generated_cc_atom(
     hdrs = ["Rectanizer.h"],
     visibility = ["//:__subpackages__"],
     deps = ["//include/gpu:GrTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "Blend_src",
+    srcs = ["Blend.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Blend_hdr",
+        "//include/core:SkBlendMode_hdr",
+    ],
 )

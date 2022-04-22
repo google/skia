@@ -116,6 +116,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrBlendFragmentProcessor_hdr",
+        "//src/gpu:Blend_hdr",
         "//src/gpu:KeyBuilder_hdr",
         "//src/gpu/ganesh:GrFragmentProcessor_hdr",
         "//src/gpu/ganesh:SkGr_hdr",

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -10,6 +9,8 @@
 #define skgpu_Blend_DEFINED
 
 #include "include/core/SkTypes.h"
+
+enum class SkBlendMode;
 
 namespace skgpu {
 
@@ -46,7 +47,6 @@ enum class BlendEquation : uint8_t {
 };
 
 static const int kBlendEquationCnt = static_cast<int>(BlendEquation::kLast) + 1;
-
 
 /**
  * Coefficients for alpha-blending.
@@ -162,6 +162,11 @@ static constexpr bool BlendAllowsCoverageAsAlpha(BlendEquation equation,
             (BlendCoeff::kOne == dstCoeff || BlendCoeff::kISC == dstCoeff ||
              BlendCoeff::kISA == dstCoeff));
 }
+
+/**
+ * Returns the name of the SkSL built-in blend function for a SkBlendMode.
+ */
+const char* BlendFuncName(SkBlendMode mode);
 
 } // namespace skgpu
 

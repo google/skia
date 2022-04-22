@@ -8,10 +8,10 @@
 #include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 
 #include "include/sksl/DSL.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
-#include "src/gpu/ganesh/glsl/GrGLSLBlend.h"
 #include "src/gpu/ganesh/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/SkSLThreadContext.h"
@@ -139,7 +139,7 @@ void GrGLSLShaderBuilder::appendTextureLookupAndBlend(
         this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
         this->codeAppendf(" * %s)", dst);
     } else {
-        this->codeAppendf("%s(", GrGLSLBlend::BlendFuncName(mode));
+        this->codeAppendf("%s(", skgpu::BlendFuncName(mode));
         this->appendTextureLookup(&lookup, samplerHandle, coordName);
         this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
         this->codeAppendf(", %s)", dst);

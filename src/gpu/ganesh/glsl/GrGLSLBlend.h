@@ -18,11 +18,6 @@ class GrProcessor;
 namespace GrGLSLBlend {
 
 /**
- * Returns the name of the built in blend function for a SkBlendMode.
- */
-const char* BlendFuncName(SkBlendMode mode);
-
-/**
  * Returns an SkSL expression that blends the passed-in srcColor and dstColor values.
  * Matching calls to SetBlendModeUniformData and BlendKey must be made from your GrProcessor.
  */
