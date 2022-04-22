@@ -26,7 +26,10 @@ generated_cc_atom(
     name = "Blend_hdr",
     hdrs = ["Blend.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkTypes_hdr"],
+    deps = [
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
 )
 
 generated_cc_atom(

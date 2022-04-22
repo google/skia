@@ -105,20 +105,20 @@ half4 sk_blend(int mode, half4 src, half4 dst) {
         case kPlus:       { return blend_porter_duff(src, dst, half4(1, 1,  0,  0)); }
         case kModulate:   { return blend_modulate(src, dst); }
         case kScreen:     { return blend_screen(src, dst); }
-        case kOverlay:    { return blend_overlay(src, dst, /*flip=*/false); }
+        case kOverlay:    { return blend_overlay(src, dst, /*flip=*/0); }
         case kDarken:     { return blend_darken(src, dst, /*mode=*/1); }
         case kLighten:    { return blend_darken(src, dst, /*mode=*/-1); }
         case kColorDodge: { return blend_color_dodge(src, dst); }
         case kColorBurn:  { return blend_color_burn(src, dst); }
-        case kHardLight:  { return blend_overlay(src, dst, /*flip=*/true); }
+        case kHardLight:  { return blend_overlay(src, dst, /*flip=*/1); }
         case kSoftLight:  { return blend_soft_light(src, dst); }
         case kDifference: { return blend_difference(src, dst); }
         case kExclusion:  { return blend_exclusion(src, dst); }
         case kMultiply:   { return blend_multiply(src, dst); }
-        case kHue:        { return blend_hslc(src, dst, /*flip=*/false, /*saturate=*/true); }
-        case kSaturation: { return blend_hslc(src, dst, /*flip=*/true,  /*saturate=*/true); }
-        case kColor:      { return blend_hslc(src, dst, /*flip=*/false, /*saturate=*/false); }
-        case kLuminosity: { return blend_hslc(src, dst, /*flip=*/true,  /*saturate=*/false); }
+        case kHue:        { return blend_hslc(src, dst, /*flipSat=*/half2(0, 1)); }
+        case kSaturation: { return blend_hslc(src, dst, /*flipSat=*/half2(1)); }
+        case kColor:      { return blend_hslc(src, dst, /*flipSat=*/half2(0)); }
+        case kLuminosity: { return blend_hslc(src, dst, /*flipSat=*/half2(1, 0)); }
         default: return half4(0);  // Avoids 'blend can exit without returning a value' error
     }
 }
