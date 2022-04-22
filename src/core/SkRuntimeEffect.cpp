@@ -361,10 +361,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
                     type = &type->componentType();
                 }
 
-                if (!init_uniform_type(ctx, type, &uni)) {
-                    RETURN_FAILURE("Invalid uniform type: '%s'", type->displayName().c_str());
-                }
-
+                SkAssertResult(init_uniform_type(ctx, type, &uni));
                 if (var.modifiers().fLayout.fFlags & SkSL::Layout::Flag::kColor_Flag) {
                     uni.flags |= Uniform::kColor_Flag;
                 }

@@ -90,12 +90,25 @@ void VarDeclaration::ErrorCheck(const Context& context,
         if (modifiers.fFlags & Modifiers::kIn_Flag) {
             context.fErrors->error(pos, "'in' variables not permitted in runtime effects");
         }
+        if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+            auto validUniformType = [](const Type& t) {
+                const Type& ct = t.componentType();
+                return t.isEffectChild() ||
+                       ((t.isScalar() || t.isVector()) && ct.isSigned() && ct.bitWidth() == 32) ||
+                       ((t.isScalar() || t.isVector() || t.isMatrix()) && ct.isFloat());
+            };
+            if (!validUniformType(*baseType)) {
+                context.fErrors->error(
+                        pos,
+                        "variables of type '" + baseType->displayName() + "' may not be uniform");
+            }
+        }
     }
     if (baseType->isEffectChild() && !(modifiers.fFlags & Modifiers::kUniform_Flag)) {
         context.fErrors->error(pos,
                 "variables of type '" + baseType->displayName() + "' must be uniform");
     }
-    if (modifiers.fFlags & SkSL::Modifiers::kUniform_Flag &&
+    if (modifiers.fFlags & Modifiers::kUniform_Flag &&
         (context.fConfig->fKind == ProgramKind::kCustomMeshVertex ||
          context.fConfig->fKind == ProgramKind::kCustomMeshFragment)) {
         context.fErrors->error(pos, "uniforms are not permitted in custom mesh shaders");

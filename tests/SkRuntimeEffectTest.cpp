@@ -43,11 +43,6 @@ void test_invalid_effect(skiatest::Reporter* r, const char* src, const char* exp
 
 #define EMPTY_MAIN "half4 main(float2 p) { return half4(0); }"
 
-DEF_TEST(SkRuntimeEffectInvalid_LimitedUniformTypes, r) {
-    // Runtime SkSL supports a limited set of uniform types. No bool, for example:
-    test_invalid_effect(r, "uniform bool b;" EMPTY_MAIN, "uniform");
-}
-
 DEF_TEST(SkRuntimeEffectInvalid_NoInVariables, r) {
     // 'in' variables aren't allowed at all:
     test_invalid_effect(r, "in bool b;"    EMPTY_MAIN, "'in'");

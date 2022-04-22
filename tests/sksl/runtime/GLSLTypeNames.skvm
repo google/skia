@@ -1,5 +1,5 @@
 1 registers, 5 instructions:
-0	r0 = uniform32 ptr0 4
+0	r0 = splat 0 (0)
 loop:
 1	    store32 ptr1 r0
 2	    store32 ptr2 r0

@@ -1,6 +1,6 @@
-uniform half f;
-uniform int i;
-uniform bool b;
+half f;
+int i;
+bool b;
 
 half4 main(float2 xy) {
     // Covers float -> bool, bool -> float, int -> float

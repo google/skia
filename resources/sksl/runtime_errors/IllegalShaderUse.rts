@@ -36,6 +36,7 @@ variables of type 'shader' must be uniform
 'in' variables not permitted in runtime effects
 variables of type 'shader' must be uniform
 opaque type 'shader' is not permitted in a struct
+variables of type 'S' may not be uniform
 opaque type 'shader' may not be used in an array
 type mismatch: '==' cannot operate on 'shader', 'shader'
 type mismatch: '<' cannot operate on 'shader', 'shader'

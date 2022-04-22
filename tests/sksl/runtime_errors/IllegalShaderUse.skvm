@@ -12,6 +12,9 @@ in shader s4;
 error: 13: opaque type 'shader' is not permitted in a struct
 struct S { shader sh; };
            ^^^^^^^^^
+error: 14: variables of type 'S' may not be uniform
+uniform S s5;
+^^^^^^^^^^^^
 error: 15: opaque type 'shader' may not be used in an array
 uniform shader s6[2];
 ^^^^^^^^^^^^^^^^^^^^
@@ -69,4 +72,4 @@ half4  dangling_eval()     { s1.eval; }
 error: 32: function 'dangling_eval' can exit without returning a value
 half4  dangling_eval()     { s1.eval; }
                            ^^^^^^^^^^^^
-23 errors
+24 errors
