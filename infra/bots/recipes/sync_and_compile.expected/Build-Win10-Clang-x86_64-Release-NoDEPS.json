@@ -27,7 +27,7 @@
   },
   {
     "cmd": [
-      "python",
+      "python3",
       "-u",
       "RECIPE_MODULE[depot_tools::git]\\resources\\git_setup.py",
       "--path",
