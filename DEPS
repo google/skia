@@ -42,12 +42,12 @@ deps = {
   "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@71f3089b729c0bd3383905ae43080af1e7946e40",
   # vulkan-deps is a meta-repo containing several interdependent Khronos Vulkan repositories.
   # When the vulkan-deps revision is updated, those repos (spirv-*, vulkan-*) should be updated as well.
-  "third_party/externals/vulkan-deps"     : "https://chromium.googlesource.com/vulkan-deps@f3c177f46465bffad5f582c99ece93a6a30b26aa",
+  "third_party/externals/vulkan-deps"     : "https://chromium.googlesource.com/vulkan-deps@01fd48aca4275bf73c07ef59d0d796e70aaf05c5",
   "third_party/externals/spirv-cross"     : "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross@d7cae5e7cd326ca0ebfb2a7ac4e634a63ecfe19f",
   "third_party/externals/spirv-headers"   : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@46b7918218d02b678b9405da538928a0f2c286bb",
   "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@671f6e633f4233a6e02e66a0b4d54ee1e67fa045",
   "third_party/externals/vulkan-headers"  : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers@8ba8294c86d0e99fcb457bedbd573dd678ccc9b3",
-  "third_party/externals/vulkan-tools"    : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools@ef20059aea7ec24d0842edca2f75255eaa33a7b0",
+  "third_party/externals/vulkan-tools"    : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools@a9d2badae2349c6806116a4dd72b76dbeeeec017",
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
   "third_party/externals/wuffs"           : "https://skia.googlesource.com/external/github.com/google/wuffs-mirror-release-c.git@600cd96cf47788ee3a74b40a6028b035c9fd6a61",
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@c876c8f87101c5a75f6014b0f832499afeb65b73",
