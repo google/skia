@@ -31,6 +31,9 @@ public:
     // return true immediately.
     void signal() { fSignaled.store(true); }
 
+    // Resets this object into its unsignaled state.
+    void reset() { fSignaled.store(false); }
+
 private:
     wgpu::Device fDevice;
     std::atomic_bool fSignaled;

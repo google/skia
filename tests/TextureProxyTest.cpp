@@ -265,17 +265,6 @@ static void invalidation_test(GrDirectContext* dContext,
     // For backends that use buffers to upload lets make sure that work has been submit and done
     // before we try to purge all resources.
     dContext->submit(true);
-
-#ifdef SK_DAWN
-    // The forced cpu sync in dawn doesn't actually mean the async map will finish thus we may
-    // still have a ref on the GrGpuBuffer and it will not get purged by the call below. We dig
-    // deep into the dawn gpu to make sure we wait for the async map to finish.
-    if (dContext->backend() == GrBackendApi::kDawn) {
-        GrDawnGpu* gpu = static_cast<GrDawnGpu*>(dContext->priv().getGpu());
-        gpu->waitOnAllBusyStagingBuffers();
-    }
-#endif
-
     dContext->priv().getResourceCache()->purgeUnlockedResources();
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());

@@ -15,13 +15,13 @@
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
 #include "src/gpu/ganesh/GrStagingBufferManager.h"
+#include "src/gpu/ganesh/dawn/GrDawnAsyncWait.h"
 #include "src/gpu/ganesh/dawn/GrDawnRingBuffer.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "webgpu/webgpu_cpp.h"
 
 #include <unordered_map>
 
-class GrDawnAsyncWait;
 class GrDawnOpsRenderPass;
 class GrDawnStagingBuffer;
 class GrDirectContext;
@@ -102,7 +102,6 @@ public:
     void flushCopyEncoder();
     void appendCommandBuffer(wgpu::CommandBuffer commandBuffer);
 
-    void waitOnAllBusyStagingBuffers();
     std::string SkSLToSPIRV(const char* shaderString,
                             SkSL::ProgramKind,
                             uint32_t rtFlipOffset,
@@ -216,6 +215,7 @@ private:
 
     bool onSubmitToGpu(bool syncCpu) override;
     void onSubmittedWorkDone(WGPUQueueWorkDoneStatus status);
+    void mapPendingStagingBuffers();
 
     GrDawnAsyncWait* createFence();
     void destroyFence(GrDawnAsyncWait* fence);
@@ -223,22 +223,41 @@ private:
     void uploadTextureData(GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount,
                            const SkIRect& rect, wgpu::Texture texture);
 
-    void moveStagingBuffersToBusyAndMapAsync();
-    void checkForCompletedStagingBuffers();
-
     wgpu::Device                                    fDevice;
     wgpu::Queue                                     fQueue;
     std::unique_ptr<GrDawnOpsRenderPass>            fOpsRenderPass;
     GrDawnRingBuffer                                fUniformRingBuffer;
     wgpu::CommandEncoder                            fCopyEncoder;
     std::vector<wgpu::CommandBuffer>                fCommandBuffers;
-
     GrStagingBufferManager                          fStagingBufferManager;
-    std::list<sk_sp<GrGpuBuffer>>                   fBusyStagingBuffers;
-    // Temporary array of staging buffers to hold refs on the staging buffers between detaching
-    // from the GrStagingManager and moving them to the busy list which must happen after
-    // submission.
+
+    // Temporary array of staging buffers to hold refs on the staging buffers after detaching
+    // from the GrStagingManager. During submission, the buffers are requested to asynchronously map
+    // (which Dawn will ensure will happen after the submitted work completes) and this list gets
+    // cleared. The buffers are returned to their backing resource provider by dropping their
+    // reference once the map request completes asynchronously.
+    //
+    // NOTE: In general operation the buffers will be mapped to memory when they are made available.
+    // However, it is possible for the map operation to fail (e.g. due to a lost connection to the
+    // GPU), in which case the buffers will still be made available but in an unmapped state. If a
+    // client requests to map such a buffer, GrDawnBuffer will try to map itself again if necessary.
     std::vector<sk_sp<GrGpuBuffer>>                 fSubmittedStagingBuffers;
+
+    // Fence that tracks the completion of all outstanding asynchronous buffer mapping requests.
+    // This is necessary to ensure a clean shut down since we need to ensure that buffers are not
+    // returned to the resource provider AFTER the provider is destroyed.
+    class PendingMapAsyncRequests {
+    public:
+        explicit PendingMapAsyncRequests(const wgpu::Device& device);
+        void addOne();
+        void completeOne();
+        void waitUntilDone() const;
+
+    private:
+        int fCount = 0;
+        GrDawnAsyncWait wait_;
+    };
+    PendingMapAsyncRequests fPendingMapAsyncRequests;
 
     // Every time command buffers are submitted to the queue (in onSubmitToGpu) we register a single
     // OnSubmittedWorkDone callback which is responsible for signaling all fences added via

@@ -40,6 +40,7 @@ generated_cc_atom(
     srcs = ["GrDawnBuffer.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":GrDawnAsyncWait_hdr",
         ":GrDawnBuffer_hdr",
         ":GrDawnGpu_hdr",
     ],
@@ -76,6 +77,7 @@ generated_cc_atom(
     hdrs = ["GrDawnGpu.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":GrDawnAsyncWait_hdr",
         ":GrDawnRingBuffer_hdr",
         "//include/private:SkTHash_hdr",
         "//src/core:SkLRUCache_hdr",
