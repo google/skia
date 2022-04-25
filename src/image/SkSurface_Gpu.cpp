@@ -8,6 +8,7 @@
 #include "src/image/SkSurface_Gpu.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkCapabilities.h"
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -389,6 +390,10 @@ bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl, SkIPoint offs
 
     direct->priv().createDDLTask(std::move(ddl), view.asRenderTargetProxyRef(), offset);
     return true;
+}
+
+sk_sp<SkCapabilities> SkSurface_Gpu::onCapabilities() {
+    return fDevice->recordingContext()->skCapabilities();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

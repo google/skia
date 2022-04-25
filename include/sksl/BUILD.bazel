@@ -181,3 +181,9 @@ generated_cc_atom(
     hdrs = ["SkSLOperator.h"],
     visibility = ["//:__subpackages__"],
 )
+
+generated_cc_atom(
+    name = "SkSLVersion_hdr",
+    hdrs = ["SkSLVersion.h"],
+    visibility = ["//:__subpackages__"],
+)

@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Caps_DEFINED
 #define skgpu_graphite_Caps_DEFINED
 
+#include "include/core/SkCapabilities.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkEnumBitMask.h"
@@ -30,6 +31,7 @@ class Caps : public SkRefCnt {
 public:
     ~Caps() override;
 
+    sk_sp<SkCapabilities> asSkCapabilities() const;
     const SkSL::ShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
     virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
@@ -103,6 +105,7 @@ protected:
     size_t fRequiredUniformBufferAlignment = 0;
 
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
+    mutable sk_sp<SkCapabilities> fSkCaps;
 
     bool fClampToBorderSupport = true;
 
