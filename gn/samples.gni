@@ -20,6 +20,7 @@ samples_sources = [
   "$_samplecode/SampleArc.cpp",
   "$_samplecode/SampleAtlas.cpp",
   "$_samplecode/SampleAudio.cpp",
+  "$_samplecode/SampleCamera.cpp",
   "$_samplecode/SampleChart.cpp",
   "$_samplecode/SampleChineseFling.cpp",
   "$_samplecode/SampleCircle.cpp",

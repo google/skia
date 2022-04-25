@@ -10,16 +10,13 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint3.h"
 #include "include/pathops/SkPathOps.h"
+#include "include/utils/SkCamera.h"
 #include "include/utils/SkShadowUtils.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkBlurMask.h"
 #include "src/utils/SkUTF.h"
 #include "tools/ToolUtils.h"
 #include "tools/timer/TimeUtils.h"
-
-#ifdef SK_ENABLE_ANDROID_UTILS
-#include "client_utils/android/View3D.h"
-#endif
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -268,13 +265,12 @@ class ShadowsView : public Sample {
         this->drawShadowedPath(canvas, tmpPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
 
-#ifdef SK_ENABLE_ANDROID_UTILS
         // perspective paths
         SkPoint pivot = SkPoint::Make(fWideRectPath.getBounds().width()/2,
                                       fWideRectPath.getBounds().height()/2);
         SkPoint translate = SkPoint::Make(100, 450);
         paint.setColor(SK_ColorWHITE);
-        android::skia::View3D view;
+        Sk3DView view;
         view.save();
         view.rotateX(fAnimAngle);
         SkMatrix persp;
@@ -319,7 +315,6 @@ class ShadowsView : public Sample {
                                       std::max(1.0f, 8 + fZDelta) + SkScalarSin(radians)*pivot.fX);
         this->drawShadowedPath(canvas, fStarPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
-#endif
     }
 
     bool onAnimate(double nanos) override {

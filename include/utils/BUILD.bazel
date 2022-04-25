@@ -17,6 +17,17 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
+    name = "SkCamera_hdr",
+    hdrs = ["SkCamera.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkM44_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/private:SkNoncopyable_hdr",
+    ],
+)
+
+generated_cc_atom(
     name = "SkCanvasStateUtils_hdr",
     hdrs = ["SkCanvasStateUtils.h"],
     visibility = ["//:__subpackages__"],

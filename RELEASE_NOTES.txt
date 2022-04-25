@@ -2,12 +2,6 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
-Milestone 103
--------------
-  * SkCamera, SkPatch3D, Sk3DView have been moved to client_utils/android and renamed to
-    Camera, Patch3D, and View3D respectively.
-
-
 Milestone 102
 -------------
   * Add glGetFloatv and glSamplerParameterf to GrGLInterface.

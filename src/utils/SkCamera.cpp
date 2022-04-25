@@ -5,13 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "client_utils/android/View3D.h"
-
-#include "include/core/SkCanvas.h"
-#include "include/core/SkMatrix.h"
-
-namespace android {
-namespace skia {
+#include "include/utils/SkCamera.h"
 
 static SkScalar SkScalarDotDiv(int count, const SkScalar a[], int step_a,
                                const SkScalar b[], int step_b,
@@ -27,19 +21,19 @@ static SkScalar SkScalarDotDiv(int count, const SkScalar a[], int step_a,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Patch3D::Patch3D() {
+SkPatch3D::SkPatch3D() {
     this->reset();
 }
 
-void Patch3D::reset() {
+void SkPatch3D::reset() {
     fOrigin = {0, 0, 0};
     fU = {SK_Scalar1, 0, 0};
     fV = {0, -SK_Scalar1, 0};
 }
 
-void Patch3D::transform(const SkM44& m, Patch3D* dst) const {
+void SkPatch3D::transform(const SkM44& m, SkPatch3D* dst) const {
     if (dst == nullptr) {
-        dst = (Patch3D*)this;
+        dst = (SkPatch3D*)this;
     }
     dst->fU = m * fU;
     dst->fV = m * fV;
@@ -47,7 +41,7 @@ void Patch3D::transform(const SkM44& m, Patch3D* dst) const {
     dst->fOrigin = {x, y, z};
 }
 
-SkScalar Patch3D::dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const {
+SkScalar SkPatch3D::dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const {
     SkScalar cx = fU.y * fV.z - fU.z * fV.y;
     SkScalar cy = fU.z * fV.x - fU.x * fV.y;
     SkScalar cz = fU.x * fV.y - fU.y * fV.x;
@@ -57,11 +51,11 @@ SkScalar Patch3D::dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Camera3D::Camera3D() {
+SkCamera3D::SkCamera3D() {
     this->reset();
 }
 
-void Camera3D::reset() {
+void SkCamera3D::reset() {
     fLocation = {0, 0, -SkIntToScalar(576)};   // 8 inches backward
     fAxis = {0, 0, SK_Scalar1};                // forward
     fZenith = {0, -SK_Scalar1, 0};             // up
@@ -71,11 +65,11 @@ void Camera3D::reset() {
     fNeedToUpdate = true;
 }
 
-void Camera3D::update() {
+void SkCamera3D::update() {
     fNeedToUpdate = true;
 }
 
-void Camera3D::doUpdate() const {
+void SkCamera3D::doUpdate() const {
     SkV3    axis, zenith, cross;
 
     // construct a orthonormal basis of cross (x), zenith (y), and axis (z)
@@ -116,7 +110,7 @@ void Camera3D::doUpdate() const {
     }
 }
 
-void Camera3D::patchToMatrix(const Patch3D& quilt, SkMatrix* matrix) const {
+void SkCamera3D::patchToMatrix(const SkPatch3D& quilt, SkMatrix* matrix) const {
     if (fNeedToUpdate) {
         this->doUpdate();
         fNeedToUpdate = false;
@@ -155,11 +149,11 @@ void Camera3D::patchToMatrix(const Patch3D& quilt, SkMatrix* matrix) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-View3D::View3D() {
+Sk3DView::Sk3DView() {
     fRec = &fInitialRec;
 }
 
-View3D::~View3D() {
+Sk3DView::~Sk3DView() {
     Rec* rec = fRec;
     while (rec != &fInitialRec) {
         Rec* next = rec->fNext;
@@ -168,21 +162,22 @@ View3D::~View3D() {
     }
 }
 
-void View3D::save() {
+void Sk3DView::save() {
     Rec* rec = new Rec;
     rec->fNext = fRec;
     rec->fMatrix = fRec->fMatrix;
     fRec = rec;
 }
 
-void View3D::restore() {
+void Sk3DView::restore() {
     SkASSERT(fRec != &fInitialRec);
     Rec* next = fRec->fNext;
     delete fRec;
     fRec = next;
 }
 
-void View3D::setCameraLocation(SkScalar x, SkScalar y, SkScalar z) {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+void Sk3DView::setCameraLocation(SkScalar x, SkScalar y, SkScalar z) {
     // the camera location is passed in inches, set in pt
     SkScalar lz = z * 72.0f;
     fCamera.fLocation = {x * 72.0f, y * 72.0f, lz};
@@ -191,54 +186,54 @@ void View3D::setCameraLocation(SkScalar x, SkScalar y, SkScalar z) {
 
 }
 
-SkScalar View3D::getCameraLocationX() const {
+SkScalar Sk3DView::getCameraLocationX() const {
     return fCamera.fLocation.x / 72.0f;
 }
 
-SkScalar View3D::getCameraLocationY() const {
+SkScalar Sk3DView::getCameraLocationY() const {
     return fCamera.fLocation.y / 72.0f;
 }
 
-SkScalar View3D::getCameraLocationZ() const {
+SkScalar Sk3DView::getCameraLocationZ() const {
     return fCamera.fLocation.z / 72.0f;
 }
+#endif
 
-void View3D::translate(SkScalar x, SkScalar y, SkScalar z) {
+void Sk3DView::translate(SkScalar x, SkScalar y, SkScalar z) {
     fRec->fMatrix.preTranslate(x, y, z);
 }
 
-void View3D::rotateX(SkScalar deg) {
+void Sk3DView::rotateX(SkScalar deg) {
     fRec->fMatrix.preConcat(SkM44::Rotate({1, 0, 0}, deg * SK_ScalarPI / 180));
 }
 
-void View3D::rotateY(SkScalar deg) {
+void Sk3DView::rotateY(SkScalar deg) {
     fRec->fMatrix.preConcat(SkM44::Rotate({0,-1, 0}, deg * SK_ScalarPI / 180));
 }
 
-void View3D::rotateZ(SkScalar deg) {
+void Sk3DView::rotateZ(SkScalar deg) {
     fRec->fMatrix.preConcat(SkM44::Rotate({0, 0, 1}, deg * SK_ScalarPI / 180));
 }
 
-SkScalar View3D::dotWithNormal(SkScalar x, SkScalar y, SkScalar z) const {
-    Patch3D   patch;
+SkScalar Sk3DView::dotWithNormal(SkScalar x, SkScalar y, SkScalar z) const {
+    SkPatch3D   patch;
     patch.transform(fRec->fMatrix);
     return patch.dotWith(x, y, z);
 }
 
-void View3D::getMatrix(SkMatrix* matrix) const {
+void Sk3DView::getMatrix(SkMatrix* matrix) const {
     if (matrix != nullptr) {
-        Patch3D   patch;
+        SkPatch3D   patch;
         patch.transform(fRec->fMatrix);
         fCamera.patchToMatrix(patch, matrix);
     }
 }
 
-void View3D::applyToCanvas(SkCanvas* canvas) const {
+#include "include/core/SkCanvas.h"
+
+void Sk3DView::applyToCanvas(SkCanvas* canvas) const {
     SkMatrix    matrix;
 
     this->getMatrix(&matrix);
     canvas->concat(matrix);
 }
-
-} // namespace skia
-} // namespace android

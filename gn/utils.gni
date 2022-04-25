@@ -10,6 +10,7 @@ _include = get_path_info("../include", "abspath")
 skia_utils_public = [
   "$_include/utils/SkAnimCodecPlayer.h",
   "$_include/utils/SkBase64.h",
+  "$_include/utils/SkCamera.h",
   "$_include/utils/SkCanvasStateUtils.h",
   "$_include/utils/SkCustomTypeface.h",
   "$_include/utils/SkEventTracer.h",
@@ -34,6 +35,7 @@ skia_utils_sources = [
   "$_src/utils/SkBlitterTrace.h",
   "$_src/utils/SkBlitterTraceCommon.h",
   "$_src/utils/SkCallableTraits.h",
+  "$_src/utils/SkCamera.cpp",
   "$_src/utils/SkCanvasStack.cpp",
   "$_src/utils/SkCanvasStack.h",
   "$_src/utils/SkCanvasStateUtils.cpp",
