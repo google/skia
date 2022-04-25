@@ -71,6 +71,26 @@ public:
     }
 
 private:
+    class RestoreCurPos {
+    public:
+        explicit RestoreCurPos(SkSVGAttributeParser* self)
+            : fSelf(self), fCurPos(self->fCurPos) {}
+
+        ~RestoreCurPos() {
+            if (fSelf) {
+                fSelf->fCurPos = this->fCurPos;
+            }
+        }
+
+        void clear() { fSelf = nullptr; }
+    private:
+        SkSVGAttributeParser* fSelf;
+        const char* fCurPos;
+
+        RestoreCurPos(           const RestoreCurPos&) = delete;
+        RestoreCurPos& operator=(const RestoreCurPos&) = delete;
+    };
+
     // Stack-only
     void* operator new(size_t) = delete;
     void* operator new(size_t, void*) = delete;
@@ -82,6 +102,7 @@ private:
     bool advanceWhile(F func);
 
     bool matchStringToken(const char* token, const char** newPos = nullptr) const;
+    bool matchHexToken(const char** newPos) const;
 
     bool parseWSToken();
     bool parseEOSToken();
@@ -90,12 +111,16 @@ private:
     bool parseExpectedStringToken(const char*);
     bool parseScalarToken(SkScalar*);
     bool parseInt32Token(int32_t*);
-    bool parseHexToken(uint32_t*);
+    bool parseEscape(SkUnichar*);
+    bool parseIdentToken(SkString*);
     bool parseLengthUnitToken(SkSVGLength::Unit*);
     bool parseNamedColorToken(SkColor*);
     bool parseHexColorToken(SkColor*);
     bool parseColorComponentToken(int32_t*);
+    bool parseColorToken(SkColor*);
     bool parseRGBColorToken(SkColor*);
+    bool parseSVGColor(SkSVGColor*, SkSVGColor::Vars&&);
+    bool parseSVGColorType(SkSVGColorType*);
     bool parseFuncIRI(SkSVGFuncIRI*);
 
     // Transform helpers
@@ -127,6 +152,7 @@ private:
 
     // The current position in the input string.
     const char* fCurPos;
+    const char* fEndPos;
 
     using INHERITED = SkNoncopyable;
 };

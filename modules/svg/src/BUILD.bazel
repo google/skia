@@ -13,6 +13,7 @@ generated_cc_atom(
         "//include/utils:SkParse_hdr",
         "//modules/svg/include:SkSVGAttributeParser_hdr",
         "//modules/svg/include:SkSVGTypes_hdr",
+        "//src/utils:SkUTF_hdr",
     ],
 )
 
@@ -617,5 +618,6 @@ generated_cc_atom(
         "//modules/svg/include:SkSVGRenderContext_hdr",
         "//modules/svg/include:SkSVGSVG_hdr",
         "//modules/svg/include:SkSVGUse_hdr",
+        "//src/core:SkEnumerate_hdr",
     ],
 )

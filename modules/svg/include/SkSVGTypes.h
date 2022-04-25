@@ -13,7 +13,9 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
@@ -178,21 +180,44 @@ public:
         kColor,
         kICCColor,
     };
+    using Vars = SkSTArray<1, SkString>;
 
-    SkSVGColor() : fType(Type::kColor), fColor(SK_ColorBLACK) {}
-    explicit SkSVGColor(Type t) : fType(t), fColor(SK_ColorBLACK) {}
-    explicit SkSVGColor(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
+    SkSVGColor() : SkSVGColor(SK_ColorBLACK) {}
+    explicit SkSVGColor(const SkSVGColorType& c) : fType(Type::kColor), fColor(c), fVars(nullptr) {}
+    explicit SkSVGColor(Type t, Vars&& vars)
+        : fType(t), fColor(SK_ColorBLACK)
+        , fVars(vars.empty() ? nullptr : new RefCntVars(std::move(vars))) {}
+    explicit SkSVGColor(const SkSVGColorType& c, Vars&& vars)
+        : fType(Type::kColor), fColor(c)
+        , fVars(vars.empty() ? nullptr : new RefCntVars(std::move(vars))) {}
+
+    SkSVGColor(const SkSVGColor&)            = default;
+    SkSVGColor& operator=(const SkSVGColor&) = default;
+    SkSVGColor(SkSVGColor&&)                 = default;
+    SkSVGColor& operator=(SkSVGColor&&)      = default;
+
     bool operator==(const SkSVGColor& other) const {
-        return fType == other.fType && fColor == other.fColor;
+        return fType == other.fType && fColor == other.fColor && fVars == other.fVars;
     }
     bool operator!=(const SkSVGColor& other) const { return !(*this == other); }
 
     Type type() const { return fType; }
     const SkSVGColorType& color() const { SkASSERT(fType == Type::kColor); return fColor; }
+    SkSpan<const SkString> vars() const {
+        return fVars ? SkMakeSpan<const Vars>(fVars->fData) : SkSpan<const SkString>{nullptr, 0};
+    }
+    SkSpan<      SkString> vars()       {
+        return fVars ? SkMakeSpan<      Vars>(fVars->fData) : SkSpan<      SkString>{nullptr, 0};
+    }
 
 private:
     Type fType;
     SkSVGColorType fColor;
+    struct RefCntVars : public SkNVRefCnt<RefCntVars> {
+        RefCntVars(Vars&& vars) : fData(std::move(vars)) {}
+        Vars fData;
+    };
+    sk_sp<RefCntVars> fVars;
 };
 
 class SkSVGPaint {
@@ -205,12 +230,14 @@ public:
 
     SkSVGPaint() : fType(Type::kNone), fColor(SK_ColorBLACK) {}
     explicit SkSVGPaint(Type t) : fType(t), fColor(SK_ColorBLACK) {}
-    explicit SkSVGPaint(const SkSVGColor& c) : fType(Type::kColor), fColor(c) {}
-    SkSVGPaint(const SkSVGIRI& iri, const SkSVGColor& fallback_color)
-        : fType(Type::kIRI), fColor(fallback_color), fIRI(iri) {}
+    explicit SkSVGPaint(SkSVGColor c) : fType(Type::kColor), fColor(std::move(c)) {}
+    SkSVGPaint(const SkSVGIRI& iri, SkSVGColor fallback_color)
+        : fType(Type::kIRI), fColor(std::move(fallback_color)), fIRI(iri) {}
 
     SkSVGPaint(const SkSVGPaint&)            = default;
     SkSVGPaint& operator=(const SkSVGPaint&) = default;
+    SkSVGPaint(SkSVGPaint&&)                 = default;
+    SkSVGPaint& operator=(SkSVGPaint&&)      = default;
 
     bool operator==(const SkSVGPaint& other) const {
         return fType == other.fType && fColor == other.fColor && fIRI == other.fIRI;
