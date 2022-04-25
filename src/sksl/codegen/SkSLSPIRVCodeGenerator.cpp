@@ -1011,7 +1011,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
 
     switch (type->typeKind()) {
         case Type::TypeKind::kVoid: {
-            return this->writeInstruction(SpvOpTypeVoid, {Word::Result()}, fConstantBuffer);
+            return this->writeInstruction(SpvOpTypeVoid, Words{Word::Result()}, fConstantBuffer);
         }
         case Type::TypeKind::kScalar:
         case Type::TypeKind::kLiteral: {
@@ -1019,19 +1019,22 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 return this->writeInstruction(SpvOpTypeBool, {Word::Result()}, fConstantBuffer);
             }
             if (type->isSigned()) {
-                return this->writeInstruction(SpvOpTypeInt,
-                                              {Word::Result(), Word::Number(32), Word::Number(1)},
-                                              fConstantBuffer);
+                return this->writeInstruction(
+                        SpvOpTypeInt,
+                        Words{Word::Result(), Word::Number(32), Word::Number(1)},
+                        fConstantBuffer);
             }
             if (type->isUnsigned()) {
-                return this->writeInstruction(SpvOpTypeInt,
-                                              {Word::Result(), Word::Number(32), Word::Number(0)},
-                                              fConstantBuffer);
+                return this->writeInstruction(
+                        SpvOpTypeInt,
+                        Words{Word::Result(), Word::Number(32), Word::Number(0)},
+                        fConstantBuffer);
             }
             if (type->isFloat()) {
-                return this->writeInstruction(SpvOpTypeFloat,
-                                              {Word::Result(), Word::Number(32)},
-                                              fConstantBuffer);
+                return this->writeInstruction(
+                        SpvOpTypeFloat,
+                        Words{Word::Result(), Word::Number(32)},
+                        fConstantBuffer);
             }
             SkDEBUGFAILF("unrecognized scalar type '%s'", type->description().c_str());
             return (SpvId)-1;
@@ -1040,14 +1043,14 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             SpvId scalarTypeId = this->getType(type->componentType(), layout);
             return this->writeInstruction(
                     SpvOpTypeVector,
-                    {Word::Result(), scalarTypeId, Word::Number(type->columns())},
+                    Words{Word::Result(), scalarTypeId, Word::Number(type->columns())},
                     fConstantBuffer);
         }
         case Type::TypeKind::kMatrix: {
             SpvId vectorTypeId = this->getType(IndexExpression::IndexType(fContext, *type), layout);
             return this->writeInstruction(
                     SpvOpTypeMatrix,
-                    {Word::Result(), vectorTypeId, Word::Number(type->columns())},
+                    Words{Word::Result(), vectorTypeId, Word::Number(type->columns())},
                     fConstantBuffer);
         }
         case Type::TypeKind::kArray: {
@@ -1063,8 +1066,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             }
             SpvId typeId = this->getType(type->componentType(), layout);
             SpvId countId = this->writeLiteral(type->columns(), *fContext.fTypes.fInt);
-            SpvId result = this->writeInstruction(SpvOpTypeArray, {Word::Result(), typeId, countId},
-                                                  fConstantBuffer);
+            SpvId result = this->writeInstruction(
+                    SpvOpTypeArray, Words{Word::Result(), typeId, countId}, fConstantBuffer);
             this->writeInstruction(
                     SpvOpDecorate,
                     {result, SpvDecorationArrayStride, Word::Number(layout.stride(*type))},
@@ -1075,7 +1078,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             return this->writeStruct(*type, layout);
         }
         case Type::TypeKind::kSeparateSampler: {
-            return this->writeInstruction(SpvOpTypeSampler, {Word::Result()}, fConstantBuffer);
+            return this->writeInstruction(SpvOpTypeSampler, Words{Word::Result()}, fConstantBuffer);
         }
         case Type::TypeKind::kSampler: {
             // Subpass inputs should use the Texture type, not a Sampler.
@@ -1085,20 +1088,20 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             }
             SpvId imageTypeId = this->getType(type->textureType(), layout);
             return this->writeInstruction(SpvOpTypeSampledImage,
-                                          {Word::Result(), imageTypeId},
+                                          Words{Word::Result(), imageTypeId},
                                           fConstantBuffer);
         }
         case Type::TypeKind::kTexture: {
             SpvId floatTypeId = this->getType(*fContext.fTypes.fFloat, layout);
             return this->writeInstruction(SpvOpTypeImage,
-                                          {Word::Result(),
-                                           floatTypeId,
-                                           Word::Number(type->dimensions()),
-                                           Word::Number(type->isDepth()),
-                                           Word::Number(type->isArrayedTexture()),
-                                           Word::Number(type->isMultisampled()),
-                                           Word::Number(type->isSampled() ? 1 : 2),
-                                           SpvImageFormatUnknown},
+                                          Words{Word::Result(),
+                                                floatTypeId,
+                                                Word::Number(type->dimensions()),
+                                                Word::Number(type->isDepth()),
+                                                Word::Number(type->isArrayedTexture()),
+                                                Word::Number(type->isMultisampled()),
+                                                Word::Number(type->isSampled() ? 1 : 2),
+                                                SpvImageFormatUnknown},
                                           fConstantBuffer);
         }
         default: {
@@ -1146,9 +1149,10 @@ SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ stor
 
 SpvId SPIRVCodeGenerator::getPointerType(const Type& type, const MemoryLayout& layout,
                                          SpvStorageClass_ storageClass) {
-    return this->writeInstruction(SpvOpTypePointer,
-                                  {Word::Result(), Word::Number(storageClass), this->getType(type)},
-                                  fConstantBuffer);
+    return this->writeInstruction(
+            SpvOpTypePointer,
+            Words{Word::Result(), Word::Number(storageClass), this->getType(type)},
+            fConstantBuffer);
 }
 
 SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& out) {
