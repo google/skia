@@ -77,65 +77,9 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd)
 TessellateCurvesRenderStep::~TessellateCurvesRenderStep() {}
 
 const char* TessellateCurvesRenderStep::vertexSkSL() const {
-    // TODO: Share SkSL with GrPathTessellationShader_MiddleOut
-    // TODO: The bulk of this SkSL should migrate into sksl_graphite_vert.
-    return R"(
-        float resolveLevel = resolveLevel_and_idx.x;
-        float idxInResolveLevel = resolveLevel_and_idx.y;
-        float2 localcoord;
-        if (isinf(p23.z)) {
-            // This patch is an exact triangle.
-            localcoord = (resolveLevel != 0)      ? p01.zw
-                       : (idxInResolveLevel != 0) ? p23.xy
-                                                  : p01.xy;
-        } else {
-            float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
-            float w = -1;  // w < 0 tells us to treat the instance as an integral cubic.
-            float maxResolveLevel;
-            if (isinf(p23.w)) {
-                // Conics are 3 points, with the weight in p3.
-                w = p3.x;
-                maxResolveLevel = wangs_formula_conic_log2(4, p0, p1, p2, w);
-                p1 *= w;  // Unproject p1.
-                p3 = p2;  // Duplicate the endpoint for shared code that also runs on cubics.
-            } else {
-                // The patch is an integral cubic.
-                maxResolveLevel = wangs_formula_cubic_log2(4, p0, p1, p2, p3, float2x2(1.0));
-            }
-            if (resolveLevel > maxResolveLevel) {
-                // This vertex is at a higher resolve level than we need. Demote to a lower
-                // resolveLevel, which will produce a degenerate triangle.
-                idxInResolveLevel = floor(ldexp(idxInResolveLevel,
-                                                int(maxResolveLevel - resolveLevel)));
-                resolveLevel = maxResolveLevel;
-            }
-            // Promote our location to a discrete position in the maximum fixed resolve level.
-            // This is extra paranoia to ensure we get the exact same fp32 coordinates for
-            // colocated points from different resolve levels (e.g., the vertices T=3/4 and
-            // T=6/8 should be exactly colocated).
-            float fixedVertexID = floor(.5 + ldexp(idxInResolveLevel, int(5 - resolveLevel)));
-            if (0 < fixedVertexID && fixedVertexID < 32) {
-                float T = fixedVertexID * (1 / 32.0);
-
-                // Evaluate at T. Use De Casteljau's for its accuracy and stability.
-                float2 ab = mix(p0, p1, T);
-                float2 bc = mix(p1, p2, T);
-                float2 cd = mix(p2, p3, T);
-                float2 abc = mix(ab, bc, T);
-                float2 bcd = mix(bc, cd, T);
-                float2 abcd = mix(abc, bcd, T);
-
-                // Evaluate the conic weight at T.
-                float u = mix(1.0, w, T);
-                float v = w + 1 - u;  // == mix(w, 1, T)
-                float uv = mix(u, v, T);
-
-                localcoord = (w < 0) ? /*cubic*/ abcd : /*conic*/ abc/uv;
-            } else {
-                localcoord = (fixedVertexID == 0) ? p0.xy : p3.xy;
-            }
-        }
-        float4 devPosition = float4(localcoord.xy, depth, 1.0);)";
+    return "float4 devPosition = float4("
+               "middle_out_curve(resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23), "
+               "depth, 1.0);\n";
 }
 
 void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometry& geom) const {
