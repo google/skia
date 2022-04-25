@@ -208,7 +208,7 @@
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux:[START_DIR]/linux_vulkan_sdk/lib:[START_DIR]/clang_linux/lib",
       "LIBGL_DRIVERS_PATH": "[START_DIR]/mesa_intel_driver_linux",
-      "LSAN_OPTIONS": "symbolize=1 print_suppressions=1 fast_unwind_on_malloc=0",
+      "LSAN_OPTIONS": "symbolize=1 print_suppressions=1 fast_unwind_on_malloc=0 verbosity=1 log_threads=1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/linux_vulkan_sdk/bin:[START_DIR]/clang_linux/bin",
       "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json",
