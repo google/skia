@@ -70,6 +70,9 @@ public:
                                                 args.fXferBarrierFlags, args.fColorLoadOp);
     }
 
+    // SkSL functions that calculate Wang's formula for cubics or conics.
+    static const char* WangsFormulaSkSL();
+
 private:
     const GrPrimitiveType fPrimitiveType;
     const int fTessellationPatchVertexCount;

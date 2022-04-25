@@ -101,7 +101,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
                               (float)skgpu::kMaxFixedResolveLevel);
             v->defineConstant("MAX_FIXED_SEGMENTS",
                               (float)(skgpu::kMaxParametricSegments));
-            v->insertFunction(skgpu::wangs_formula::as_sksl().c_str());
+            v->insertFunction(GrTessellationShader::WangsFormulaSkSL());
             if (middleOutShader.fAttribs & PatchAttribs::kExplicitCurveType) {
                 v->insertFunction(SkStringPrintf(R"(
                 bool is_conic_curve() {

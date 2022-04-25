@@ -29,7 +29,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     args.fVertBuilder->insertFunction(kCosineBetweenVectorsFn);
     args.fVertBuilder->insertFunction(kMiterExtentFn);
     args.fVertBuilder->insertFunction(kUncheckedMixFn);
-    args.fVertBuilder->insertFunction(skgpu::wangs_formula::as_sksl().c_str());
+    args.fVertBuilder->insertFunction(GrTessellationShader::WangsFormulaSkSL());
 
     // Tessellation control uniforms and/or dynamic attributes.
     if (!shader.hasDynamicStroke()) {

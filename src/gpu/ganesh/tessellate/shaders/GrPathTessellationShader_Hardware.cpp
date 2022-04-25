@@ -77,7 +77,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareWedgeShader::makeProgr
             code.appendf(R"(
             #define PRECISION %f)", skgpu::kTessellationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(skgpu::wangs_formula::as_sksl());
+            code.append(GrTessellationShader::WangsFormulaSkSL());
 
             code.append(R"(
             layout(vertices = 1) out;
@@ -221,7 +221,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareCurveShader::makeProgr
             code.appendf(R"(
             #define PRECISION %f)", skgpu::kTessellationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(skgpu::wangs_formula::as_sksl());
+            code.append(GrTessellationShader::WangsFormulaSkSL());
             code.append(R"(
             layout(vertices = 1) out;
 

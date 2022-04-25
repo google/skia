@@ -350,7 +350,7 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
         code.appendf("#define NUM_RADIAL_SEGMENTS_PER_RADIAN vsStrokeArgs[0].x\n");
     }
 
-    code.append(skgpu::wangs_formula::as_sksl());
+    code.append(GrTessellationShader::WangsFormulaSkSL());
     code.append(kCosineBetweenVectorsFn);
     code.append(kMiterExtentFn);
     code.append(R"(
