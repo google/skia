@@ -117,9 +117,11 @@ DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  O
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSPIRV);)
 
 // This fragment shader is from the third tile on the top row of GM_gradients_2pt_conical_outside.
+// To get an ES2 compatible shader, nonconstantArrayIndexSupport in GrShaderCaps is forced off.
 COMPILER_BENCH(large, R"(
 uniform float3x3 umatrix_S1_c0;
-uniform half4 uthresholds_S1_c1_c0_c0[1];
+uniform half4 uthresholds1_7_S1_c1_c0_c0;
+uniform half4 uthresholds9_13_S1_c1_c0_c0;
 uniform float4 uscale_S1_c1_c0_c0[4];
 uniform float4 ubias_S1_c1_c0_c0[4];
 uniform half uinvR1_S1_c1_c0_c1_c0;
@@ -140,26 +142,42 @@ half4 MatrixEffect_S1_c0(half4 _input, float2 _coords)
 {
 	return TextureEffect_S1_c0_c0(_input, float3x2(umatrix_S1_c0) * _coords.xy1);
 }
-half4 LoopingBinaryColorizer_S1_c1_c0_c0(half4 _input, float2 _coords)
+half4 UnrolledBinaryColorizer_S1_c1_c0_c0(half4 _input, float2 _coords)
 {
 	half4 _tmp_0_inColor = _input;
 	float2 _tmp_1_coords = _coords;
 	half t = half(_tmp_1_coords.x);
-	;
-	;
-	int chunk = 0;
-	;
-	int pos;
-	if (t < uthresholds_S1_c1_c0_c0[chunk].y)
+	float4 s;
+	float4 b;
 	{
-		pos = int(t < uthresholds_S1_c1_c0_c0[chunk].x ? 0 : 1);
+		if (t < uthresholds1_7_S1_c1_c0_c0.y)
+		{
+			if (t < uthresholds1_7_S1_c1_c0_c0.x)
+			{
+				s = uscale_S1_c1_c0_c0[0];
+				b = ubias_S1_c1_c0_c0[0];
+			}
+			else
+			{
+				s = uscale_S1_c1_c0_c0[1];
+				b = ubias_S1_c1_c0_c0[1];
+			}
+		}
+		else
+		{
+			if (t < uthresholds1_7_S1_c1_c0_c0.z)
+			{
+				s = uscale_S1_c1_c0_c0[2];
+				b = ubias_S1_c1_c0_c0[2];
+			}
+			else
+			{
+				s = uscale_S1_c1_c0_c0[3];
+				b = ubias_S1_c1_c0_c0[3];
+			}
+		}
 	}
-	else
-	{
-		pos = int(t < uthresholds_S1_c1_c0_c0[chunk].z ? 2 : 3);
-	}
-	;
-	return half4(half4(float(t) * uscale_S1_c1_c0_c0[pos] + ubias_S1_c1_c0_c0[pos]));
+	return half4(half4(float(t) * s + b));
 }
 half4 TwoPointConicalFocalLayout_S1_c1_c0_c1_c0(half4 _input)
 {
@@ -249,7 +267,7 @@ half4 ClampedGradient_S1_c1_c0(half4 _input)
 	}
 	else
 	{
-		outColor = LoopingBinaryColorizer_S1_c1_c0_c0(_tmp_4_inColor, float2(half2(t.x, 0.0)));
+		outColor = UnrolledBinaryColorizer_S1_c1_c0_c0(_tmp_4_inColor, float2(half2(t.x, 0.0)));
 	}
 	if (bool(int(0)))
 	{
