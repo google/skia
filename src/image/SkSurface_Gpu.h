@@ -57,6 +57,7 @@ public:
                 const SkPaint* paint) override;
     bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
+    sk_sp<SkCapabilities> onCapabilities() override;
     skgpu::BaseDevice* getDevice();
 
 private:

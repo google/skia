@@ -970,3 +970,13 @@ generated_cc_atom(
         ":SkTypes_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "SkCapabilities_hdr",
+    hdrs = ["SkCapabilities.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkRefCnt_hdr",
+        "//include/sksl:SkSLVersion_hdr",
+    ],
+)

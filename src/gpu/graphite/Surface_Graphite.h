@@ -28,6 +28,7 @@ public:
     void onWritePixels(const SkPixmap&, int x, int y) override;
     bool onCopyOnWrite(ContentChangeMode) override;
     bool onReadPixels(Context*, Recorder*, const SkPixmap& dst, int srcX, int srcY);
+    sk_sp<SkCapabilities> onCapabilities() override;
 
 private:
     sk_sp<Device> fDevice;

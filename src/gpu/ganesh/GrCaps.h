@@ -8,6 +8,7 @@
 #ifndef GrCaps_DEFINED
 #define GrCaps_DEFINED
 
+#include "include/core/SkCapabilities.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
@@ -41,6 +42,7 @@ class GrCaps : public SkRefCnt {
 public:
     GrCaps(const GrContextOptions&);
 
+    sk_sp<SkCapabilities> asSkCapabilities() const;
     void dumpJSON(SkJSONWriter*) const;
 
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
@@ -525,6 +527,7 @@ protected:
     virtual bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const { return false; }
 
     std::unique_ptr<GrShaderCaps> fShaderCaps;
+    sk_sp<SkCapabilities> fSkCaps;
 
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipmapSupport                              : 1;

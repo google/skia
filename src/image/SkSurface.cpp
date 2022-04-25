@@ -8,6 +8,7 @@
 #include <atomic>
 #include <cmath>
 #include "include/core/SkCanvas.h"
+#include "include/core/SkCapabilities.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkPaintPriv.h"
@@ -203,6 +204,10 @@ void SkSurface::notifyContentWillChange(ContentChangeMode mode) {
 
 SkCanvas* SkSurface::getCanvas() {
     return asSB(this)->getCachedCanvas();
+}
+
+sk_sp<SkCapabilities> SkSurface::capabilities() {
+    return asSB(this)->onCapabilities();
 }
 
 sk_sp<SkImage> SkSurface::makeImageSnapshot() {
@@ -410,6 +415,10 @@ protected:
     void onWritePixels(const SkPixmap&, int x, int y) override {}
     void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override {}
     bool onCopyOnWrite(ContentChangeMode) override { return true; }
+    sk_sp<SkCapabilities> onCapabilities() override {
+        // Not really, but we have to return *something*
+        return SkCapabilities::RasterBackend();
+    }
 };
 
 sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {

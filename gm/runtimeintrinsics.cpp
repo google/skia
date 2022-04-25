@@ -206,8 +206,8 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_trig_es3,
                            ctx, canvas, errorMsg,
                            columns_to_width(3),
                            rows_to_height(2)) {
-    if (!ctx->priv().caps()->shaderCaps()->supportsSkSLES3()) {
-        *errorMsg = "SkSL ES3 is not supported.";
+    if (ctx->priv().caps()->shaderCaps()->supportedSkSLVerion() < SkSL::Version::k300) {
+        *errorMsg = "SkSL 300 is not supported.";
         return skiagm::DrawResult::kSkip;
     }
 
@@ -317,8 +317,8 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_common_es3,
                            ctx, canvas, errorMsg,
                            columns_to_width(6),
                            rows_to_height(5)) {
-    if (!ctx->priv().caps()->shaderCaps()->supportsSkSLES3()) {
-        *errorMsg = "SkSL ES3 is not supported.";
+    if (ctx->priv().caps()->shaderCaps()->supportedSkSLVerion() < SkSL::Version::k300) {
+        *errorMsg = "SkSL 300 is not supported.";
         return skiagm::DrawResult::kSkip;
     }
 
