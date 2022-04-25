@@ -116,6 +116,14 @@ public:
     // of the slug. If it's off then there may be more allocations needed to unflatten.
     virtual int unflattenSize() const = 0;
 
+    // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
+    // position.
+    virtual bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const = 0;
+
+    // Return the underlying atlas SubRun if it exists. Otherwise, return nullptr.
+    // * Don't use this API. It is only to support testing.
+    virtual const GrAtlasSubRun* testingOnly_atlasSubRun() const = 0;
+
 protected:
     enum SubRunType : int;
     virtual SubRunType subRunType() const = 0;
