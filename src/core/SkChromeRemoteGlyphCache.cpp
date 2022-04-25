@@ -814,7 +814,8 @@ protected:
     #if SK_SUPPORT_GPU
     void onDrawGlyphRunList(SkCanvas*,
                             const SkGlyphRunList& glyphRunList,
-                            const SkPaint& paint) override {
+                            const SkPaint& initialPaint,
+                            const SkPaint& drawingPaint) override {
         GrContextOptions ctxOptions;
         GrSDFTControl control =
                 GrSDFTControl{fDFTSupport,
@@ -829,7 +830,7 @@ protected:
             fPainter.processGlyphRun(nullptr,
                                      glyphRun,
                                      drawMatrix,
-                                     paint,
+                                     drawingPaint,
                                      control,
                                      "Cache Diff",
                                      uniqueID);
@@ -837,7 +838,8 @@ protected:
     }
 
     sk_sp<GrSlug> convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
-                                            const SkPaint& paint) override {
+                                            const SkPaint& initialPaint,
+                                            const SkPaint& drawingPaint) override {
         GrContextOptions ctxOptions;
         GrSDFTControl control =
                 GrSDFTControl{fDFTSupport,
@@ -858,14 +860,18 @@ protected:
             fPainter.processGlyphRun(nullptr,
                                      glyphRun,
                                      positionMatrix,
-                                     paint,
+                                     drawingPaint,
                                      control,
                                      "Convert Slug Analysis");
         }
 
         // Use the glyph strike cache to get actual glyph information.
-        return skgpu::v1::MakeSlug(
-                this->localToDevice(), glyphRunList, paint, control, &fConvertPainter);
+        return skgpu::v1::MakeSlug(this->localToDevice(),
+                                   glyphRunList,
+                                   initialPaint,
+                                   drawingPaint,
+                                   control,
+                                   &fConvertPainter);
     }
     #endif  // SK_SUPPORT_GPU
 

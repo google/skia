@@ -428,25 +428,27 @@ static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatr
 
 void SkBaseDevice::drawGlyphRunList(SkCanvas* canvas,
                                     const SkGlyphRunList& glyphRunList,
-                                    const SkPaint& paint) {
+                                    const SkPaint& initialPaint,
+                                    const SkPaint& drawingPaint) {
     if (!this->localToDevice().isFinite()) {
         return;
     }
 
     if (!glyphRunList.hasRSXForm()) {
-        this->onDrawGlyphRunList(canvas, glyphRunList, paint);
+        this->onDrawGlyphRunList(canvas, glyphRunList, initialPaint, drawingPaint);
     } else {
-        this->simplifyGlyphRunRSXFormAndRedraw(canvas, glyphRunList, paint);
+        this->simplifyGlyphRunRSXFormAndRedraw(canvas, glyphRunList, initialPaint, drawingPaint);
     }
 }
 
 void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
                                                     const SkGlyphRunList& glyphRunList,
-                                                    const SkPaint& paint) {
+                                                    const SkPaint& initialPaint,
+                                                    const SkPaint& drawingPaint) {
     for (const SkGlyphRun& run : glyphRunList) {
         if (run.scaledRotations().empty()) {
-            SkGlyphRunList subList{run, run.sourceBounds(paint), {0, 0}};
-            this->drawGlyphRunList(canvas, subList, paint);
+            SkGlyphRunList subList{run, run.sourceBounds(drawingPaint), {0, 0}};
+            this->drawGlyphRunList(canvas, subList, initialPaint, drawingPaint);
         } else {
             SkPoint origin = glyphRunList.origin();
             SkPoint sharedPos{0, 0};    // we're at the origin
@@ -471,12 +473,13 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
                 // (i.e. the shader that cares about the ctm) so we have to undo our little ctm
                 // trick with a localmatrixshader so that the shader draws as if there was no
                 // change to the ctm.
-                SkPaint invertingPaint{paint};
-                invertingPaint.setShader(make_post_inverse_lm(paint.getShader(), glyphToLocal));
+                SkPaint invertingPaint{drawingPaint};
+                invertingPaint.setShader(
+                        make_post_inverse_lm(drawingPaint.getShader(), glyphToLocal));
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->concat(SkM44(glyphToLocal));
-                SkGlyphRunList subList{glyphRun, glyphRun.sourceBounds(paint), {0, 0}};
-                this->drawGlyphRunList(canvas, subList, invertingPaint);
+                SkGlyphRunList subList{glyphRun, glyphRun.sourceBounds(drawingPaint), {0, 0}};
+                this->drawGlyphRunList(canvas, subList, initialPaint, invertingPaint);
             }
         }
     }
@@ -485,11 +488,12 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
 #if SK_SUPPORT_GPU
 sk_sp<GrSlug> SkBaseDevice::convertGlyphRunListToSlug(
         const SkGlyphRunList& glyphRunList,
-        const SkPaint& paint) {
+        const SkPaint& initialPaint,
+        const SkPaint& drawingPaint) {
     return nullptr;
 }
 
-void SkBaseDevice::drawSlug(SkCanvas*, const GrSlug*) {
+void SkBaseDevice::drawSlug(SkCanvas*, const GrSlug*, const SkPaint&) {
     SK_ABORT("GrSlug drawing not supported.");
 }
 #endif

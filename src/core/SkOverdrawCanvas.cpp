@@ -62,10 +62,12 @@ public:
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkSamplingOptions&, const SkPaint&) const override {}
 
-    void onDrawGlyphRunList(SkCanvas* canvas, const SkGlyphRunList& glyphRunList,
-                            const SkPaint& paint) override {
+    void onDrawGlyphRunList(SkCanvas* canvas,
+                            const SkGlyphRunList& glyphRunList,
+                            const SkPaint& initialPaint,
+                            const SkPaint& drawingPaint) override {
         SkASSERT(!glyphRunList.hasRSXForm());
-        fPainter.drawForBitmapDevice(canvas, this, glyphRunList, paint,
+        fPainter.drawForBitmapDevice(canvas, this, glyphRunList, drawingPaint,
                                      fOverdrawCanvas->getTotalMatrix());
     }
 
@@ -83,12 +85,13 @@ void SkOverdrawCanvas::onDrawTextBlob(
 }
 
 void SkOverdrawCanvas::onDrawGlyphRunList(
-        const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+        const SkGlyphRunList& glyphRunList,
+        const SkPaint& paint) {
     SkSurfaceProps props{0, kUnknown_SkPixelGeometry};
     this->getProps(&props);
     TextDevice device{this, props};
 
-    device.drawGlyphRunList(this, glyphRunList, paint);
+    device.drawGlyphRunList(this, glyphRunList, paint, paint);
 }
 
 void SkOverdrawCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

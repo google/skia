@@ -2338,7 +2338,7 @@ void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPa
     }
     auto layer = this->aboutToDraw(this, paint, &bounds);
     if (layer) {
-        this->topDevice()->drawGlyphRunList(this, glyphRunList, layer->paint());
+        this->topDevice()->drawGlyphRunList(this, glyphRunList, paint, layer->paint());
     }
 }
 
@@ -2358,7 +2358,7 @@ SkCanvas::onConvertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const 
     }
     auto layer = this->aboutToDraw(this, paint, &bounds);
     if (layer) {
-        return this->topDevice()->convertGlyphRunListToSlug(glyphRunList, layer->paint());
+        return this->topDevice()->convertGlyphRunListToSlug(glyphRunList, paint, layer->paint());
     }
     return nullptr;
 }
@@ -2372,11 +2372,14 @@ void SkCanvas::drawSlug(const GrSlug* slug) {
 
 void SkCanvas::onDrawSlug(const GrSlug* slug) {
     SkRect bounds = slug->sourceBounds();
-    if (this->internalQuickReject(bounds, slug->paint())) {
+    if (this->internalQuickReject(bounds, slug->initialPaint())) {
         return;
     }
 
-    this->topDevice()->drawSlug(this, slug);
+    auto layer = this->aboutToDraw(this, slug->initialPaint(), &bounds);
+    if (layer) {
+        this->topDevice()->drawSlug(this, slug, layer->paint());
+    }
 }
 #endif
 

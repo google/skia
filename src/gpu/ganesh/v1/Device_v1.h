@@ -155,13 +155,17 @@ protected:
     void onSave() override { fClip.save(); }
     void onRestore() override { fClip.restore(); }
 
-    void onDrawGlyphRunList(SkCanvas*, const SkGlyphRunList&, const SkPaint&) override;
+    void onDrawGlyphRunList(SkCanvas*,
+                            const SkGlyphRunList&,
+                            const SkPaint& initialPaint,
+                            const SkPaint& drawingPaint) override;
 
     sk_sp<GrSlug> convertGlyphRunListToSlug(
             const SkGlyphRunList& glyphRunList,
-            const SkPaint& paint) override;
+            const SkPaint& initialPaint,
+            const SkPaint& drawingPaint) override;
 
-    void drawSlug(SkCanvas*, const GrSlug* slug) override;
+    void drawSlug(SkCanvas*, const GrSlug* slug, const SkPaint& drawingPaint) override;
 
     void onClipRect(const SkRect& rect, SkClipOp op, bool aa) override {
         SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
@@ -213,19 +217,22 @@ private:
 #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
     void testingOnly_drawGlyphRunListWithSlug(SkCanvas* canvas,
                                               const SkGlyphRunList& glyphRunList,
-                                              const SkPaint& paint);
+                                              const SkPaint& initialPaint,
+                                              const SkPaint& drawingPaint);
 #endif
 
 #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE)
     void testingOnly_drawGlyphRunListWithSerializedSlug(SkCanvas* canvas,
                                                         const SkGlyphRunList& glyphRunList,
-                                                        const SkPaint& paint);
+                                                        const SkPaint& initialPaint,
+                                                        const SkPaint& drawingPaint);
 #endif
 
 #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_STRIKE_SERIALIZE)
     void testingOnly_drawGlyphRunListWithSerializedSlugAndStrike(SkCanvas* canvas,
                                                                  const SkGlyphRunList& glyphRunList,
-                                                                 const SkPaint& paint);
+                                                                 const SkPaint& initialPaint,
+                                                                 const SkPaint& drawingPaint);
 #endif
 
     // If not null, dstClip must be contained inside dst and will also respect the edge AA flags.

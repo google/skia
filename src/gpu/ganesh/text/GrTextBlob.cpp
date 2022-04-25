@@ -2211,7 +2211,8 @@ public:
 
     static sk_sp<Slug> Make(const SkMatrixProvider& viewMatrix,
                             const SkGlyphRunList& glyphRunList,
-                            const SkPaint& paint,
+                            const SkPaint& initialPaint,
+                            const SkPaint& drawingPaint,
                             const GrSDFTControl& control,
                             SkGlyphRunListPainter* painter);
     static sk_sp<GrSlug> MakeFromBuffer(SkReadBuffer& buffer,
@@ -2220,11 +2221,12 @@ public:
     void surfaceDraw(SkCanvas*,
                      const GrClip* clip,
                      const SkMatrixProvider& viewMatrix,
+                     const SkPaint& paint,
                      skgpu::v1::SurfaceDrawContext* sdc) const;
 
     void doFlatten(SkWriteBuffer& buffer) const override;
     SkRect sourceBounds() const override { return fSourceBounds; }
-    const SkPaint& paint() const override { return fPaint; }
+    const SkPaint& initialPaint() const override { return fInitialPaint; }
 
     // SkGlyphRunPainterInterface
     void processDeviceMasks(
@@ -2268,33 +2270,33 @@ private:
     // structure may have pointers into it.
     GrSubRunAllocator fAlloc;
     const SkRect fSourceBounds;
-    const SkPaint fPaint;
+    const SkPaint fInitialPaint;
     const SkMatrix fInitialPositionMatrix;
     const SkPoint fOrigin;
     GrSubRunList fSubRuns;
 };
 
 Slug::Slug(SkRect sourceBounds,
-           const SkPaint& paint,
+           const SkPaint& initialPaint,
            const SkMatrix& positionMatrix,
            SkPoint origin,
            int allocSize)
            : fAlloc {SkTAddOffset<char>(this, sizeof(Slug)), allocSize, allocSize/2}
            , fSourceBounds{sourceBounds}
-           , fPaint{paint}
+           , fInitialPaint{initialPaint}
            , fInitialPositionMatrix{positionMatrix}
            , fOrigin{origin} { }
 
 void Slug::surfaceDraw(SkCanvas* canvas, const GrClip* clip, const SkMatrixProvider& viewMatrix,
-                       skgpu::v1::SurfaceDrawContext* sdc) const {
+                       const SkPaint& drawingPaint, skgpu::v1::SurfaceDrawContext* sdc) const {
     for (const GrSubRun& subRun : fSubRuns) {
-        subRun.draw(canvas, clip, viewMatrix, fOrigin, fPaint, sdc);
+        subRun.draw(canvas, clip, viewMatrix, fOrigin, drawingPaint, sdc);
     }
 }
 
 void Slug::doFlatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fSourceBounds);
-    SkPaintPriv::Flatten(fPaint, buffer);
+    SkPaintPriv::Flatten(fInitialPaint, buffer);
     buffer.writeMatrix(fInitialPositionMatrix);
     buffer.writePoint(fOrigin);
     auto [subRunCount, subRunsUnflattenSizeHint] = this->subRunCountAndUnflattenSizeHint();
@@ -2772,7 +2774,8 @@ void Slug::processDeviceMasks(
 
 sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
                        const SkGlyphRunList& glyphRunList,
-                       const SkPaint& paint,
+                       const SkPaint& initialPaint,
+                       const SkPaint& drawingPaint,
                        const GrSDFTControl& control,
                        SkGlyphRunListPainter* painter) {
     // The difference in alignment from the per-glyph data to the SubRun;
@@ -2795,7 +2798,7 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
 
     sk_sp<Slug> slug{new (::operator new (allocationSize))
                              Slug(glyphRunList.sourceBounds(),
-                                  paint,
+                                  initialPaint,
                                   positionMatrix,
                                   glyphRunList.origin(),
                                   bytesNeededForSubRun)};
@@ -2805,7 +2808,7 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
         painter->processGlyphRun(slug.get(),
                                  glyphRun,
                                  positionMatrix,
-                                 paint,
+                                 drawingPaint,
                                  control,
                                  "Make Slug",
                                  uniqueID);
@@ -2867,19 +2870,22 @@ void Slug::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
 
 namespace skgpu::v1 {
 sk_sp<GrSlug>
-Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
+                                  const SkPaint& initialPaint,
+                                  const SkPaint& drawingPaint) {
     auto recordingContextPriv = this->recordingContext()->priv();
     const GrSDFTControl control = recordingContextPriv.getSDFTControl(
             this->surfaceProps().isUseDeviceIndependentFonts());
 
     return Slug::Make(this->asMatrixProvider(),
                       glyphRunList,
-                      paint,
+                      initialPaint,
+                      drawingPaint,
                       control,
                       fSurfaceDrawContext->glyphRunPainter());
 }
 
-void Device::drawSlug(SkCanvas* canvas, const GrSlug* grSlug) {
+void Device::drawSlug(SkCanvas* canvas, const GrSlug* grSlug, const SkPaint& drawingPaint) {
     const Slug* slug = static_cast<const Slug*>(grSlug);
     auto matrixProvider = this->asMatrixProvider();
 #if defined(SK_DEBUG)
@@ -2893,15 +2899,17 @@ void Device::drawSlug(SkCanvas* canvas, const GrSlug* grSlug) {
         SkASSERT(slugMatrix == positionMatrix);
     }
 #endif
-    slug->surfaceDraw(canvas, this->clip(), matrixProvider, fSurfaceDrawContext.get());
+    slug->surfaceDraw(
+            canvas, this->clip(), matrixProvider, drawingPaint, fSurfaceDrawContext.get());
 }
 
 sk_sp<GrSlug> MakeSlug(const SkMatrixProvider& drawMatrix,
                        const SkGlyphRunList& glyphRunList,
-                       const SkPaint& paint,
+                       const SkPaint& initialPaint,
+                       const SkPaint& drawingPaint,
                        const GrSDFTControl& control,
                        SkGlyphRunListPainter* painter) {
-    return Slug::Make(drawMatrix, glyphRunList, paint, control, painter);
+    return Slug::Make(drawMatrix, glyphRunList, initialPaint, drawingPaint, control, painter);
 }
 }  // namespace skgpu::v1
 

@@ -298,7 +298,8 @@ private:
 namespace skgpu::v1 {
 sk_sp<GrSlug> MakeSlug(const SkMatrixProvider& drawMatrix,
                        const SkGlyphRunList& glyphRunList,
-                       const SkPaint& paint,
+                       const SkPaint& initialPaint,
+                       const SkPaint& drawingPaint,
                        const GrSDFTControl& control,
                        SkGlyphRunListPainter* painter);
 }  // namespace skgpu::v1

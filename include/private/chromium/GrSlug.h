@@ -61,7 +61,11 @@ public:
     void draw(SkCanvas* canvas) const;
 
     virtual SkRect sourceBounds() const = 0;
-    virtual const SkPaint& paint() const = 0;
+
+    // The paint passed into ConvertBlob; this paint is used instead of the paint resulting from
+    // the call to aboutToDraw because when we call draw(), the initial paint is needed to call
+    // aboutToDraw again to get the layer right.
+    virtual const SkPaint& initialPaint() const = 0;
 
     virtual void doFlatten(SkWriteBuffer&) const = 0;
 

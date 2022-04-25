@@ -479,7 +479,7 @@ private:
 #if SK_SUPPORT_GPU
     Bounds bounds(const DrawSlug& op) const {
         SkRect dst = op.slug->sourceBounds();
-        return this->adjustAndMap(dst, &op.slug->paint());
+        return this->adjustAndMap(dst, &op.slug->initialPaint());
     }
 #else
     Bounds bounds(const DrawSlug& op) const {
