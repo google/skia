@@ -358,38 +358,26 @@ void main()
 }
 )");
 
-// This is the fragment shader used to blit the Viewer window when running the software rasterizer.
+// This fragment shader is taken from GM_lcdtext.
 COMPILER_BENCH(small, R"(
-uniform float3x3 umatrix_S1_c0;
-uniform sampler2D uTextureSampler_0_S1;
-flat in half4 vcolor_S0;
-noperspective in float2 vTransformedCoords_3_S0;
+uniform sampler2D uTextureSampler_0_S0;
+noperspective in float2 vTextureCoords_S0;
+flat in float vTexIndex_S0;
+noperspective in half4 vinColor_S0;
 out half4 sk_FragColor;
-half4 TextureEffect_S1_c0_c0(half4 _input)
-{
-	return sample(uTextureSampler_0_S1, vTransformedCoords_3_S0);
-}
-half4 MatrixEffect_S1_c0(half4 _input)
-{
-	return TextureEffect_S1_c0_c0(_input);
-}
-half4 DisableCoverageAsAlpha_S1(half4 _input)
-{
-	_input = MatrixEffect_S1_c0(_input);
-	half4 _tmp_0_inColor = _input;
-	return half4(_input);
-}
 void main()
 {
-	// Stage 0, QuadPerEdgeAAGeometryProcessor
+	// Stage 0, BitmapText
 	half4 outputColor_S0;
-	outputColor_S0 = vcolor_S0;
-	const half4 outputCoverage_S0 = half4(1);
-	half4 output_S1;
-	output_S1 = DisableCoverageAsAlpha_S1(outputColor_S0);
+	outputColor_S0 = vinColor_S0;
+	half4 texColor;
+	{
+		texColor = sample(uTextureSampler_0_S0, vTextureCoords_S0).rrrr;
+	}
+	half4 outputCoverage_S0 = texColor;
 	{
 		// Xfer Processor: Porter Duff
-		sk_FragColor = output_S1 * outputCoverage_S0;
+		sk_FragColor = outputColor_S0 * outputCoverage_S0;
 	}
 }
 )");
