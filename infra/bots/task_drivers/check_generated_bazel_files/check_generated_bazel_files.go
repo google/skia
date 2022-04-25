@@ -152,7 +152,8 @@ func smokeTestBuild(ctx context.Context, checkoutDir string) error {
 			Args: []string{"build",
 				"--config=linux-rbe", // Compile using RBE
 				"--jobs=" + strconv.Itoa(rbeJobs),
-				"//example:hello_world_gl", // This compiles and links, so is a good smoke test
+				"//example:hello_world_gl",  // This compiles and links, so is a good smoke test
+				"--remote_download_minimal", // No need to download the executable.
 			},
 			InheritEnv: true, // Makes sure bazelisk is on PATH
 			Dir:        checkoutDir,
