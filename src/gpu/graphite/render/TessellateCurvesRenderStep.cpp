@@ -78,8 +78,7 @@ TessellateCurvesRenderStep::~TessellateCurvesRenderStep() {}
 
 const char* TessellateCurvesRenderStep::vertexSkSL() const {
     // TODO: Share SkSL with GrPathTessellationShader_MiddleOut
-    // TODO: This SkSL depends on wangs_formula::as_sksl(), which is currently manually added in
-    // MtlGraphicsPipeline but could be handled nicer.
+    // TODO: The bulk of this SkSL should migrate into sksl_graphite_vert.
     return R"(
         float resolveLevel = resolveLevel_and_idx.x;
         float idxInResolveLevel = resolveLevel_and_idx.y;
