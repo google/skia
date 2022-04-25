@@ -164,6 +164,9 @@ ZLIB_COPTS = [
         "-msse4.2",
         "-mpclmul",
     ],
+    "//bazel/common_config_settings:mac_x64": [
+        "-mpclmul",
+    ],
     "@platforms//cpu:arm": ["-march=armv8-a+crc"],
     # If empty list isn't set for wasm, select picks linux_x64
     "//bazel/common_config_settings:cpu_wasm": [],
