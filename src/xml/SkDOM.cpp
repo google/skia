@@ -242,10 +242,10 @@ protected:
     }
 
     bool onEndElement(const char elem[]) override {
-        --fLevel;
         if (fNeedToFlush)
             this->flushAttributes();
         fNeedToFlush = false;
+        --fLevel;
 
         SkDOM::Node* parent;
 
