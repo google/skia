@@ -13,8 +13,8 @@ namespace SkSL {
 
 int Position::line(std::string_view source) const {
     SkASSERT(this->valid());
-    if (fEndOffset == -1) {
-        return fStartOffset;
+    if (fStartOffset == -1) {
+        return -1;
     }
     if (!source.data()) {
         return -1;
