@@ -187,7 +187,7 @@ class DefaultFlavor(object):
       # This may cause a 2-25x slowdown, so use it only when you really need it.
       if name == 'dm' and 'Vulkan' in extra_tokens:
         env['ASAN_OPTIONS'] += ' fast_unwind_on_malloc=0'
-        env['LSAN_OPTIONS'] += ' fast_unwind_on_malloc=0 verbosity=1 log_threads=1'
+        env['LSAN_OPTIONS'] += ' fast_unwind_on_malloc=0'
 
     if 'TSAN' in extra_tokens:
       # We don't care about malloc(), fprintf, etc. used in signal handlers.
