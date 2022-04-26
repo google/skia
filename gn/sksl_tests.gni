@@ -278,6 +278,10 @@ sksl_metal_tests = [
 ]
 
 sksl_spirv_tests = [
+  "/sksl/shared/Switch.sksl",
+  "/sksl/shared/SwitchDefaultOnly.sksl",
+  "/sksl/shared/SwitchWithFallthrough.sksl",
+  "/sksl/shared/SwitchWithLoops.sksl",
   "/sksl/spirv/ConstantVectorFromVector.sksl",
   "/sksl/spirv/ConstantVectorize.sksl",
   "/sksl/spirv/InterfaceBlockPushConstant.sksl",
