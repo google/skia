@@ -15,9 +15,6 @@ using V4f = skvx::Vec<4, float>;
 static bool aa_affects_rect(GrQuadAAFlags edgeFlags, float ql, float qt, float qr, float qb) {
     // Edge coordinates for non-AA edges do not need to be integers; any AA-enabled edge that is
     // at an integer coordinate could be drawn non-AA and be visually identical to non-AA.
-#if defined(SK_USE_LEGACY_EDGE_AA_DOWNGRADE)
-    edgeFlags = GrQuadAAFlags::kAll;
-#endif
     return ((edgeFlags & GrQuadAAFlags::kLeft)   && !SkScalarIsInt(ql)) ||
            ((edgeFlags & GrQuadAAFlags::kRight)  && !SkScalarIsInt(qr)) ||
            ((edgeFlags & GrQuadAAFlags::kTop)    && !SkScalarIsInt(qt)) ||
