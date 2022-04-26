@@ -14,8 +14,8 @@ def skia_select(conditions, results):
     Maybe this is too much paranoia?
 
     Args:
-      conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS, ...]
-      results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS, ...]
+      conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS, CONDITION_WASM, ...]
+      results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS, RESULT_WASM, ....]
     Returns:
       The result matching the active condition.
     """
@@ -423,6 +423,54 @@ PORTS_SRCS_IOS = struct(
     ],
 )
 
+GL_SRCS_WASM = struct(
+    include = [
+        "src/gpu/ganesh/gl/*.cpp",
+        "src/gpu/ganesh/gl/*.h",
+        "src/gpu/ganesh/gl/builders/*.cpp",
+        "src/gpu/ganesh/gl/builders/*.h",
+        "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
+        "src/gpu/ganesh/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+    ],
+    exclude = [
+        "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp",
+    ],
+)
+PORTS_SRCS_WASM = struct(
+    include = [
+        "src/ports/**/*.cpp",
+        "src/ports/**/*.h",
+    ],
+    exclude = [
+        # commented lines below left in because they indicate specifically what is
+        # included here and not in other PORTS_SRCS lists.
+        "src/ports/*FontConfig*",
+        #"src/ports/*FreeType*",
+        "src/ports/*WIC*",
+        "src/ports/*CG*",
+        "src/ports/*android*",
+        "src/ports/*chromium*",
+        "src/ports/*fontconfig*",
+        "src/ports/*mac*",
+        "src/ports/*mozalloc*",
+        "src/ports/*nacl*",
+        "src/ports/*win*",
+        "src/ports/*NDK*",
+        #"src/ports/SkDebug_stdio.cpp",
+        #"src/ports/SkFontMgr_custom.cpp",
+        "src/ports/SkFontMgr_custom_directory.cpp",
+        "src/ports/SkFontMgr_custom_directory_factory.cpp",
+        "src/ports/SkFontMgr_custom_embedded.cpp",
+        "src/ports/SkFontMgr_custom_embedded_factory.cpp",
+        "src/ports/SkFontMgr_custom_empty.cpp",
+        "src/ports/SkFontMgr_custom_empty_factory.cpp",
+        # "src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkFontMgr_fontconfig_factory.cpp",
+        "src/ports/SkFontMgr_fuchsia.cpp",
+        "src/ports/SkImageGenerator_none.cpp",
+    ],
+)
+
 GL_SRCS_FUCHSIA = struct(
     include = [
         "src/gpu/ganesh/vk/*.cpp",
@@ -487,6 +535,7 @@ def ports_srcs(os_conditions):
             skia_glob(PORTS_SRCS_UNIX),
             skia_glob(PORTS_SRCS_ANDROID),
             skia_glob(PORTS_SRCS_IOS),
+            skia_glob(PORTS_SRCS_WASM),
             skia_glob(PORTS_SRCS_FUCHSIA),
             skia_glob(PORTS_SRCS_MACOS),
             skia_glob(PORTS_SRCS_ANDROID_NO_FONT),
@@ -501,6 +550,7 @@ def gl_srcs(os_conditions):
             skia_glob(GL_SRCS_UNIX),
             skia_glob(GL_SRCS_ANDROID),
             skia_glob(GL_SRCS_IOS),
+            skia_glob(GL_SRCS_WASM),
             skia_glob(GL_SRCS_FUCHSIA),
             skia_glob(GL_SRCS_MACOS),
             skia_glob(GL_SRCS_ANDROID),
@@ -584,6 +634,7 @@ def base_copts(os_conditions):
                 "-Wno-error=attributes",
             ],
             [],  # iOS
+            [],  # wasm
             [],  # Fuchsia
             [],  # macOS
         ],
@@ -647,6 +698,20 @@ def base_defines(os_conditions):
                 "SK_ENCODE_JPEG",
                 "SK_HAS_ANDROID_CODEC",
             ],
+            # WASM
+            [
+                "SK_DISABLE_LEGACY_SHADERCONTEXT",
+                "SK_DISABLE_TRACING",
+                "SK_GL",
+                "SK_SUPPORT_GPU=1",
+                "SK_DISABLE_AAA",
+                "SK_DISABLE_EFFECT_DESERIALIZATION",
+                "SK_FORCE_8_BYTE_ALIGNMENT",
+                "SKNX_NO_SIMD",
+                "SK_CODEC_DECODES_JPEG",
+                "SK_ENCODE_JPEG",
+                "SK_HAS_ANDROID_CODEC",
+            ],
             # FUCHSIA
             [
                 "SK_BUILD_FOR_UNIX",
@@ -700,6 +765,7 @@ def base_linkopts(os_conditions):
                 "-framework ImageIO",
                 "-framework MobileCoreServices",
             ],
+            [],  # wasm
             [],  # Fuchsia
             # MACOS
             [
