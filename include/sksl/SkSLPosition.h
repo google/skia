@@ -21,9 +21,11 @@ public:
 
     static Position Range(int startOffset, int endOffset) {
         SkASSERT(startOffset <= endOffset);
+        SkASSERT(startOffset <= 0xFFFFFF);
+        int length = endOffset - startOffset;
         Position result;
         result.fStartOffset = startOffset;
-        result.fLength = endOffset - startOffset;
+        result.fLength = length <= 0xFF ? length : 0xFF;
         return result;
     }
 
@@ -85,8 +87,8 @@ public:
     }
 
 private:
-    int32_t fStartOffset;
-    uint32_t fLength;
+    int32_t fStartOffset : 24;
+    uint32_t fLength : 8;
 };
 
 struct ForLoopPositions {
