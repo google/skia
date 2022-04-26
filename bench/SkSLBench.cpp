@@ -13,6 +13,9 @@
 #include "src/gpu/ganesh/mock/GrMockCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDSLParser.h"
+#include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+
+#include <regex>
 
 class SkSLCompilerStartupBench : public Benchmark {
 protected:
@@ -38,17 +41,23 @@ enum class Output {
     kNone,
     kGLSL,
     kMetal,
-    kSPIRV
+    kSPIRV,
+    kSkVM,     // raw SkVM bytecode
+    kSkVMOpt,  // optimized SkVM bytecode
+    kSkVMJIT,  // optimized native assembly code
 };
 
 class SkSLCompileBench : public Benchmark {
 public:
     static const char* output_string(Output output) {
         switch (output) {
-            case Output::kNone: return "";
-            case Output::kGLSL: return "glsl_";
-            case Output::kMetal: return "metal_";
-            case Output::kSPIRV: return "spirv_";
+            case Output::kNone:    return "";
+            case Output::kGLSL:    return "glsl_";
+            case Output::kMetal:   return "metal_";
+            case Output::kSPIRV:   return "spirv_";
+            case Output::kSkVM:    return "skvm_";
+            case Output::kSkVMOpt: return "skvm_opt_";
+            case Output::kSkVMJIT: return "skvm_jit_";
         }
         SkUNREACHABLE;
     }
@@ -62,9 +71,12 @@ public:
         , fOutput(output) {
             fSettings.fOptimize = optimize;
             fSettings.fDSLMangling = false;
+            fSettings.fEnforceES2Restrictions = false;
             // The test programs we compile don't follow Vulkan rules and thus produce invalid
             // SPIR-V. This is harmless, so long as we don't try to validate them.
             fSettings.fValidateSPIRV = false;
+
+            this->fixUpSource();
         }
 
 protected:
@@ -76,11 +88,38 @@ protected:
         return backend == kNonRendering_Backend;
     }
 
+    bool usesRuntimeShader() const {
+        return fOutput >= Output::kSkVM;
+    }
+
+    void fixUpSource() {
+        auto fixup = [this](const char* input, const char* replacement) {
+            fSrc = std::regex_replace(fSrc, std::regex(input), replacement);
+        };
+
+        // Runtime shaders which have slightly different conventions than fragment shaders.
+        // Perform a handful of fixups to compensate. These are hand-tuned for our current set of
+        // test shaders and will probably need to be updated if we add more.
+        if (this->usesRuntimeShader()) {
+            fixup(R"(void main\(\))",                              "half4 main(float2 xy)");
+            fixup(R"(sk_FragColor =)",                             "return");
+            fixup(R"(sk_FragCoord)",                               "_FragCoord");
+            fixup(R"(out half4 sk_FragColor;)",                    "");
+            fixup(R"(uniform sampler2D )",                         "uniform shader ");
+            fixup(R"((flat |noperspective |)in )",                 "uniform ");
+            fixup(R"(sample\(([A-Za-z0-9_]+), ([A-Za-z0-9_]+)\))", "$01.eval($02)");
+            fSrc = "uniform float4 _FragCoord;\n" + fSrc;
+        }
+    }
+
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
+            const SkSL::ProgramKind kind = this->usesRuntimeShader()
+                                                   ? SkSL::ProgramKind::kRuntimeShader
+                                                   : SkSL::ProgramKind::kFragment;
             std::unique_ptr<SkSL::Program> program = SkSL::DSLParser(&fCompiler,
                                                                      fSettings,
-                                                                     SkSL::ProgramKind::kFragment,
+                                                                     kind,
                                                                      fSrc).program();
             if (fCompiler.errorCount()) {
                 SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
@@ -88,11 +127,27 @@ protected:
             std::string result;
             switch (fOutput) {
                 case Output::kNone:  break;
-                case Output::kGLSL:  SkAssertResult(fCompiler.toGLSL(*program,  &result)); break;
-                case Output::kMetal: SkAssertResult(fCompiler.toMetal(*program, &result)); break;
-                case Output::kSPIRV: SkAssertResult(fCompiler.toSPIRV(*program, &result)); break;
+                case Output::kGLSL:    SkAssertResult(fCompiler.toGLSL(*program,  &result));  break;
+                case Output::kMetal:   SkAssertResult(fCompiler.toMetal(*program, &result));  break;
+                case Output::kSPIRV:   SkAssertResult(fCompiler.toSPIRV(*program, &result));  break;
+                case Output::kSkVM:
+                case Output::kSkVMOpt:
+                case Output::kSkVMJIT: SkAssertResult(CompileToSkVM(*program, fOutput));  break;
             }
         }
+    }
+
+    static bool CompileToSkVM(const SkSL::Program& program, Output mode) {
+        const bool optimize = (mode >= Output::kSkVMOpt);
+        const bool allowJIT = (mode >= Output::kSkVMJIT);
+        skvm::Builder builder{skvm::Features{}};
+        if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder, /*debugTrace=*/nullptr)) {
+            return false;
+        }
+        if (optimize) {
+            builder.done("SkSLBench", allowJIT);
+        }
+        return true;
     }
 
 private:
@@ -108,13 +163,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define COMPILER_BENCH(name, text)                                                               \
-static constexpr char name ## _SRC[] = text;                                                     \
-DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/false, Output::kNone);)  \
-DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kNone);)  \
-DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kGLSL);)  \
-DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kMetal);) \
-DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSPIRV);)
+#define COMPILER_BENCH(name, text)                                                                 \
+static constexpr char name ## _SRC[] = text;                                                       \
+DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/false, Output::kNone);)    \
+DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kNone);)    \
+DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kGLSL);)    \
+DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kMetal);)   \
+DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSPIRV);)   \
+DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSkVM);)    \
+DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSkVMOpt);) \
+DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSkVMJIT);)
 
 // This fragment shader is from the third tile on the top row of GM_gradients_2pt_conical_outside.
 // To get an ES2 compatible shader, nonconstantArrayIndexSupport in GrShaderCaps is forced off.
