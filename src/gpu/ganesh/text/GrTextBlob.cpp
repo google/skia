@@ -895,10 +895,10 @@ GrSubRunOwner make_drawable_sub_run(const SkZip<SkGlyphVariant, SkPoint>& drawab
             DrawableOpSubmitter::Make(drawables, strikeToSourceScale, descriptor, alloc));
 }
 
-// -- DrawableSubRunSlug ---------------------------------------------------------------------------
-class DrawableSubRunSlug : public GrSubRun {
+// -- DrawableSubRun -------------------------------------------------------------------------------
+class DrawableSubRun : public GrSubRun {
 public:
-    DrawableSubRunSlug(DrawableOpSubmitter&& drawingDrawing)
+    DrawableSubRun(DrawableOpSubmitter&& drawingDrawing)
             : fDrawingDrawing(std::move(drawingDrawing)) {}
 
     static GrSubRunOwner MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
@@ -917,14 +917,9 @@ public:
 
     int unflattenSize() const override;
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
-        SK_ABORT("Not Ready Yet!");
-    }
+    bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
 
-    const GrAtlasSubRun* testingOnly_atlasSubRun() const override {
-        return nullptr;
-    }
-
+    const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
 
 protected:
     SubRunType subRunType() const override { return kDrawable; }
@@ -934,205 +929,29 @@ private:
     DrawableOpSubmitter fDrawingDrawing;
 };
 
-int DrawableSubRunSlug::unflattenSize() const {
-    return sizeof(DrawableSubRunSlug) + fDrawingDrawing.unflattenSize();
+int DrawableSubRun::unflattenSize() const {
+    return sizeof(DrawableSubRun) + fDrawingDrawing.unflattenSize();
 }
 
-void DrawableSubRunSlug::doFlatten(SkWriteBuffer& buffer) const {
+void DrawableSubRun::doFlatten(SkWriteBuffer& buffer) const {
     fDrawingDrawing.flatten(buffer);
 }
 
-GrSubRunOwner DrawableSubRunSlug::MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
+GrSubRunOwner DrawableSubRun::MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
                                                  SkReadBuffer& buffer,
                                                  GrSubRunAllocator* alloc,
                                                  const SkStrikeClient* client) {
     auto drawableOpSubmitter = DrawableOpSubmitter::MakeFromBuffer(buffer, alloc, client);
     if (!buffer.validate(drawableOpSubmitter.has_value())) { return nullptr; }
-    return alloc->makeUnique<DrawableSubRunSlug>(std::move(*drawableOpSubmitter));
+    return alloc->makeUnique<DrawableSubRun>(std::move(*drawableOpSubmitter));
 }
 
-// -- DrawableSubRun -------------------------------------------------------------------------------
-class DrawableSubRun final : public DrawableSubRunSlug {
-public:
-    using DrawableSubRunSlug::DrawableSubRunSlug;
-
-    bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
-        return true;
-    }
-    const GrAtlasSubRun* testingOnly_atlasSubRun() const override { return nullptr; }
-};
-
-// -- DirectMaskSubRun -----------------------------------------------------------------------------
-class DirectMaskSubRun final : public GrSubRun, public GrAtlasSubRun {
-public:
-    using DevicePosition = skvx::Vec<2, int16_t>;
-
-    DirectMaskSubRun(const GrTextReferenceFrame* referenceFrame,
-                     MaskFormat format,
-                     const SkGlyphRect& deviceBounds,
-                     SkSpan<const DevicePosition> devicePositions,
-                     GrGlyphVector&& glyphs,
-                     bool glyphsOutOfBounds);
-
-    static GrSubRunOwner Make(const GrTextBlob* blob,
-                              const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                              sk_sp<SkStrike>&& strike,
-                              MaskFormat format,
-                              GrSubRunAllocator* alloc);
-
-    void draw(SkCanvas*,
-              const GrClip*,
-              const SkMatrixProvider& viewMatrix,
-              SkPoint drawOrigin,
-              const SkPaint& paint,
-              skgpu::v1::SurfaceDrawContext*) const override;
-
-    std::tuple<const GrClip*, GrOp::Owner>
-    makeAtlasTextOp(const GrClip* clip,
-                    const SkMatrixProvider& viewMatrix,
-                    SkPoint drawOrigin,
-                    const SkPaint& paint,
-                    skgpu::v1::SurfaceDrawContext* sdc,
-                    GrAtlasSubRunOwner) const override;
-
-    int unflattenSize() const override { return 0; }
-
-    bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
-
-    const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
-
-    size_t vertexStride(const SkMatrix& drawMatrix) const override;
-
-    int glyphCount() const override;
-
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
-
-    std::tuple<bool, int>
-    regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
-
-    void fillVertexData(void* vertexDst, int offset, int count,
-                        GrColor color,
-                        const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                        SkIRect clip) const override;
-
-protected:
-    SubRunType subRunType() const override { return kDirectMask; }
-
-    // TODO: implement
-    void doFlatten(SkWriteBuffer& buffer) const override { }
-
-private:
-    // The rectangle that surrounds all the glyph bounding boxes in device space.
-    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
-
-    const GrTextReferenceFrame* const fTextReferenceFrame;
-    const MaskFormat fMaskFormat;
-
-    // The union of all the glyph bounds in device space.
-    const SkGlyphRect fGlyphDeviceBounds;
-    const SkSpan<const DevicePosition> fLeftTopDevicePos;
-    const bool fSomeGlyphsExcluded;
-
-    // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
-    // be single threaded.
-    mutable GrGlyphVector fGlyphs;
-};
-
-DirectMaskSubRun::DirectMaskSubRun(const GrTextReferenceFrame* referenceFrame,
-                                   MaskFormat format,
-                                   const SkGlyphRect& deviceBounds,
-                                   SkSpan<const DevicePosition> devicePositions,
-                                   GrGlyphVector&& glyphs,
-                                   bool glyphsOutOfBounds)
-        : fTextReferenceFrame{referenceFrame}
-        , fMaskFormat{format}
-        , fGlyphDeviceBounds{deviceBounds}
-        , fLeftTopDevicePos{devicePositions}
-        , fSomeGlyphsExcluded{glyphsOutOfBounds}
-        , fGlyphs{std::move(glyphs)} {}
-
-GrSubRunOwner DirectMaskSubRun::Make(const GrTextBlob* blob,
-                                     const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                     sk_sp<SkStrike>&& strike,
-                                     MaskFormat format,
-                                     GrSubRunAllocator* alloc) {
-    auto glyphLeftTop = alloc->makePODArray<DevicePosition>(accepted.size());
-    auto glyphIDs = alloc->makePODArray<GrGlyphVector::Variant>(accepted.size());
-
-    // Because this is the direct case, the maximum width or height is the size that fits in the
-    // atlas. This boundary is checked below to ensure that the call to SkGlyphRect below will
-    // not overflow.
-    constexpr SkScalar kMaxPos =
-            std::numeric_limits<int16_t>::max() - SkStrikeCommon::kSkSideTooBigForAtlas;
-    SkGlyphRect runBounds = skglyph::empty_rect();
-    size_t goodPosCount = 0;
-    for (auto [variant, pos] : accepted) {
-        auto [x, y] = pos;
-        // Ensure that the .offset() call below does not overflow. And, at this point none of the
-        // rectangles are empty because they were culled before the run was created. Basically,
-        // cull all the glyphs that can't appear on the screen.
-        if (-kMaxPos < x && x < kMaxPos && -kMaxPos  < y && y < kMaxPos) {
-            const SkGlyph* const skGlyph = variant;
-            const SkGlyphRect deviceBounds =
-                    skGlyph->glyphRect().offset(SkScalarRoundToInt(x), SkScalarRoundToInt(y));
-            runBounds = skglyph::rect_union(runBounds, deviceBounds);
-            glyphLeftTop[goodPosCount] = deviceBounds.leftTop();
-            glyphIDs[goodPosCount].packedGlyphID = skGlyph->getPackedID();
-            goodPosCount += 1;
-        }
-    }
-
-    // Wow! no glyphs are in bounds and had non-empty bounds.
-    if (goodPosCount == 0) {
-        return nullptr;
-    }
-
-    // If some glyphs were excluded by the bounds, then this subrun can't be generally be used
-    // for other draws. Mark the subrun as not general.
-    bool glyphsExcluded = goodPosCount != accepted.size();
-    SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
-    return alloc->makeUnique<DirectMaskSubRun>(
-            blob, format, runBounds, leftTop,
-            GrGlyphVector{std::move(strike), {glyphIDs, goodPosCount}},
-            glyphsExcluded);
+bool DrawableSubRun::canReuse( const SkPaint& paint, const SkMatrix& positionMatrix) const {
+    return true;
 }
 
-bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
-    auto [reuse, translation] =
-            can_use_direct(fTextReferenceFrame->initialPositionMatrix(), positionMatrix);
-
-    // If glyphs were excluded because of position bounds, then this subrun can only be reused if
-    // there is no change in position.
-    if (fSomeGlyphsExcluded) {
-        return translation.x() == 0 && translation.y() == 0;
-    }
-
-    return reuse;
-}
-
-size_t DirectMaskSubRun::vertexStride(const SkMatrix&) const {
-    if (fMaskFormat != MaskFormat::kARGB) {
-        return sizeof(Mask2DVertex);
-    } else {
-        return sizeof(ARGB2DVertex);
-    }
-}
-
-int DirectMaskSubRun::glyphCount() const {
-    return SkCount(fGlyphs.glyphs());
-}
-
-void DirectMaskSubRun::draw(SkCanvas*,
-                            const GrClip* clip,
-                            const SkMatrixProvider& viewMatrix,
-                            SkPoint drawOrigin,
-                            const SkPaint& paint,
-                            skgpu::v1::SurfaceDrawContext* sdc) const{
-    auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, drawOrigin, paint, sdc, nullptr);
-    if (op != nullptr) {
-        sdc->addDrawOp(drawingClip, std::move(op));
-    }
+const GrAtlasSubRun* DrawableSubRun::testingOnly_atlasSubRun() const {
+    return nullptr;
 }
 
 namespace {
@@ -1175,79 +994,13 @@ calculate_clip(const GrClip* clip, SkRect deviceBounds, SkRect glyphBounds) {
     }
     return {kGPUClipped, SkIRect::MakeEmpty()};
 }
-}  // namespace
 
-std::tuple<const GrClip*, GrOp::Owner>
-DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip,
-                                  const SkMatrixProvider& viewMatrix,
-                                  SkPoint drawOrigin,
-                                  const SkPaint& paint,
-                                  skgpu::v1::SurfaceDrawContext* sdc,
-                                  GrAtlasSubRunOwner) const {
-    SkASSERT(this->glyphCount() != 0);
-
-    const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-
-    // We can clip geometrically using clipRect and ignore clip when an axis-aligned rectangular
-    // non-AA clip is used. If clipRect is empty, and clip is nullptr, then there is no clipping
-    // needed.
-    const SkRect subRunBounds = this->deviceRect(drawMatrix, drawOrigin);
-    const SkRect deviceBounds = SkRect::MakeWH(sdc->width(), sdc->height());
-    auto [clipMethod, clipRect] = calculate_clip(clip, deviceBounds, subRunBounds);
-
-    switch (clipMethod) {
-        case kClippedOut:
-            // Returning nullptr as op means skip this op.
-            return {nullptr, nullptr};
-        case kUnclipped:
-        case kGeometryClipped:
-            // GPU clip is not needed.
-            clip = nullptr;
-            break;
-        case kGPUClipped:
-            // Use the GPU clip; clipRect is ignored.
-            break;
-    }
-
-    if (!clipRect.isEmpty()) { SkASSERT(clip == nullptr); }
-
-    GrPaint grPaint;
-    const SkPMColor4f drawingColor =
-            calculate_colors(sdc, paint, viewMatrix, fMaskFormat, &grPaint);
-
-    auto geometry = AtlasTextOp::Geometry::MakeForBlob(*this,
-                                                       drawMatrix,
-                                                       drawOrigin,
-                                                       clipRect,
-                                                       sk_ref_sp(fTextReferenceFrame),
-                                                       drawingColor,
-                                                       sdc->arenaAlloc());
-
-    GrRecordingContext* const rContext = sdc->recordingContext();
-    GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
-                                             op_mask_type(fMaskFormat),
-                                             false,
-                                             this->glyphCount(),
-                                             subRunBounds,
-                                             geometry,
-                                             std::move(grPaint));
-
-    return {clip, std::move(op)};
-}
-
-void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
-    fGlyphs.packedGlyphIDToGrGlyph(cache);
-}
-
-std::tuple<bool, int>
-DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
-}
+using DevicePosition = skvx::Vec<2, int16_t>;
 
 // The 99% case. No clip. Non-color only.
 void direct_2D(SkZip<Mask2DVertex[4],
                      const GrGlyph*,
-                     const DirectMaskSubRun::DevicePosition> quadData,
+                     const DevicePosition> quadData,
                GrColor color,
                SkPoint originOffset) {
     for (auto[quad, glyph, leftTop] : quadData) {
@@ -1263,6 +1016,7 @@ void direct_2D(SkZip<Mask2DVertex[4],
         quad[3] = {{dr, db}, color, {ar, ab}};  // R,B
     }
 }
+}  // namespace
 
 template <typename Rect>
 auto ltbr(const Rect& r) {
@@ -1313,58 +1067,444 @@ void generalized_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadDat
     }
 }
 
+// -- DirectMaskSubRun -------------------------------------------------------------------------
+class DirectMaskSubRun final : public GrSubRun, public GrAtlasSubRun {
+public:
+    DirectMaskSubRun(const GrTextReferenceFrame* referenceFrame,
+                         MaskFormat format,
+                         SkGlyphRect deviceBounds,
+                         SkSpan<const DevicePosition> devicePositions,
+                         GrGlyphVector&& glyphs,
+                         bool glyphsOutOfBounds);
+
+    static GrSubRunOwner Make(const GrTextReferenceFrame* referenceFrame,
+                              const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                              sk_sp<SkStrike>&& strike,
+                              MaskFormat format,
+                              GrSubRunAllocator* alloc);
+
+    static GrSubRunOwner MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
+                                        SkReadBuffer& buffer,
+                                        GrSubRunAllocator* alloc,
+                                        const SkStrikeClient* client);
+
+    void draw(SkCanvas*,
+              const GrClip* clip,
+              const SkMatrixProvider& viewMatrix,
+              SkPoint drawOrigin,
+              const SkPaint& paint,
+              skgpu::v1::SurfaceDrawContext* sdc) const override;
+
+    int unflattenSize() const override;
+
+    size_t vertexStride(const SkMatrix& drawMatrix) const override;
+
+    int glyphCount() const override;
+
+    std::tuple<const GrClip*, GrOp::Owner>
+    makeAtlasTextOp(const GrClip*,
+                    const SkMatrixProvider& viewMatrix,
+                    SkPoint,
+                    const SkPaint&,
+                    skgpu::v1::SurfaceDrawContext*,
+                    GrAtlasSubRunOwner) const override;
+
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
+
+    std::tuple<bool, int>
+    regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
+
+    void fillVertexData(void* vertexDst, int offset, int count,
+                        GrColor color,
+                        const SkMatrix& drawMatrix, SkPoint drawOrigin,
+                        SkIRect clip) const override;
+
+    bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
+
+    const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
+
+protected:
+    SubRunType subRunType() const override { return kDirectMask; }
+    void doFlatten(SkWriteBuffer& buffer) const override;
+
+private:
+    // Return true if the positionMatrix represents an integer translation. Return the device
+    // bounding box of all the glyphs. If the bounding box is empty, then something went singular
+    // and this operation should be dropped.
+    std::tuple<bool, SkRect> deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const;
+
+    const GrTextReferenceFrame* const fReferenceFrame;
+    const MaskFormat fMaskFormat;
+
+    // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
+    const SkGlyphRect fGlyphDeviceBounds;
+    const SkSpan<const DevicePosition> fLeftTopDevicePos;
+    const bool fSomeGlyphsExcluded;
+
+    // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
+    // be single threaded.
+    mutable GrGlyphVector fGlyphs;
+};
+
+DirectMaskSubRun::DirectMaskSubRun(const GrTextReferenceFrame* referenceFrame,
+                                           MaskFormat format,
+                                           SkGlyphRect deviceBounds,
+                                           SkSpan<const DevicePosition> devicePositions,
+                                           GrGlyphVector&& glyphs,
+                                           bool glyphsOutOfBounds)
+        : fReferenceFrame{referenceFrame}
+        , fMaskFormat{format}
+        , fGlyphDeviceBounds{deviceBounds}
+        , fLeftTopDevicePos{devicePositions}
+        , fSomeGlyphsExcluded{glyphsOutOfBounds}
+        , fGlyphs{std::move(glyphs)} { }
+
+GrSubRunOwner DirectMaskSubRun::Make(const GrTextReferenceFrame* referenceFrame,
+                                         const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                                         sk_sp<SkStrike>&& strike,
+                                         MaskFormat format,
+                                         GrSubRunAllocator* alloc) {
+    auto glyphLeftTop = alloc->makePODArray<DevicePosition>(accepted.size());
+    auto glyphIDs = alloc->makePODArray<GrGlyphVector::Variant>(accepted.size());
+
+    // Because this is the direct case, the maximum width or height is the size that fits in the
+    // atlas. This boundary is checked below to ensure that the call to SkGlyphRect below will
+    // not overflow.
+    constexpr SkScalar kMaxPos =
+            std::numeric_limits<int16_t>::max() - SkStrikeCommon::kSkSideTooBigForAtlas;
+    SkGlyphRect runBounds = skglyph::empty_rect();
+    size_t goodPosCount = 0;
+    for (auto [variant, pos] : accepted) {
+        auto [x, y] = pos;
+        // Ensure that the .offset() call below does not overflow. And, at this point none of the
+        // rectangles are empty because they were culled before the run was created. Basically,
+        // cull all the glyphs that can't appear on the screen.
+        if (-kMaxPos < x && x < kMaxPos && -kMaxPos  < y && y < kMaxPos) {
+            const SkGlyph* const skGlyph = variant;
+            const SkGlyphRect deviceBounds =
+                    skGlyph->glyphRect().offset(SkScalarRoundToInt(x), SkScalarRoundToInt(y));
+            runBounds = skglyph::rect_union(runBounds, deviceBounds);
+            glyphLeftTop[goodPosCount] = deviceBounds.leftTop();
+            glyphIDs[goodPosCount].packedGlyphID = skGlyph->getPackedID();
+            goodPosCount += 1;
+        }
+    }
+
+    // Wow! no glyphs are in bounds and had non-empty bounds.
+    if (goodPosCount == 0) {
+        return nullptr;
+    }
+
+    // If some glyphs were excluded by the bounds, then this subrun can't be generally be used
+    // for other draws. Mark the subrun as not general.
+    bool glyphsExcluded = goodPosCount != accepted.size();
+    SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
+    return alloc->makeUnique<DirectMaskSubRun>(
+            referenceFrame, format, runBounds, leftTop,
+            GrGlyphVector{std::move(strike), {glyphIDs, goodPosCount}},
+            glyphsExcluded);
+}
+
+bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
+    auto [reuse, translation] =
+            can_use_direct(fReferenceFrame->initialPositionMatrix(), positionMatrix);
+
+    // If glyphs were excluded because of position bounds, then this subrun can only be reused if
+    // there is no change in position.
+    if (fSomeGlyphsExcluded) {
+        return translation.x() == 0 && translation.y() == 0;
+    }
+
+    return reuse;
+}
+
+GrSubRunOwner DirectMaskSubRun::MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
+                                                   SkReadBuffer& buffer,
+                                                   GrSubRunAllocator* alloc,
+                                                   const SkStrikeClient* client) {
+    MaskFormat maskType = (MaskFormat)buffer.readInt();
+    SkGlyphRect runBounds;
+    pun_read(buffer, &runBounds);
+
+    int glyphCount = buffer.readInt();
+    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return nullptr; }
+    if (!buffer.validateCanReadN<DevicePosition>(glyphCount)) { return nullptr; }
+    DevicePosition* positionsData = alloc->makePODArray<DevicePosition>(glyphCount);
+    for (int i = 0; i < glyphCount; ++i) {
+        pun_read(buffer, &positionsData[i]);
+    }
+    SkSpan<DevicePosition> positions(positionsData, glyphCount);
+
+    auto glyphVector = GrGlyphVector::MakeFromBuffer(buffer, client, alloc);
+    if (!buffer.validate(glyphVector.has_value())) { return nullptr; }
+    if (!buffer.validate(SkCount(glyphVector->glyphs()) == glyphCount)) { return nullptr; }
+    SkASSERT(buffer.isValid());
+    return alloc->makeUnique<DirectMaskSubRun>(
+            referenceFrame, maskType, runBounds, positions, std::move(glyphVector.value()), false);
+}
+
+void DirectMaskSubRun::doFlatten(SkWriteBuffer& buffer) const {
+    buffer.writeInt(static_cast<int>(fMaskFormat));
+    pun_write(buffer, fGlyphDeviceBounds);
+    int glyphCount = SkTo<int>(fLeftTopDevicePos.size());
+    buffer.writeInt(glyphCount);
+    for (auto pos : fLeftTopDevicePos) {
+        pun_write(buffer, pos);
+    }
+    fGlyphs.flatten(buffer);
+}
+
+int DirectMaskSubRun::unflattenSize() const {
+    return sizeof(DirectMaskSubRun) +
+           fGlyphs.unflattenSize() +
+           sizeof(DevicePosition) * fGlyphs.glyphs().size();
+}
+
+const GrAtlasSubRun* DirectMaskSubRun::testingOnly_atlasSubRun() const {
+    return this;
+}
+
+size_t DirectMaskSubRun::vertexStride(const SkMatrix& positionMatrix) const {
+    if (!positionMatrix.hasPerspective()) {
+        if (fMaskFormat != MaskFormat::kARGB) {
+            return sizeof(Mask2DVertex);
+        } else {
+            return sizeof(ARGB2DVertex);
+        }
+    } else {
+        if (fMaskFormat != MaskFormat::kARGB) {
+            return sizeof(Mask3DVertex);
+        } else {
+            return sizeof(ARGB3DVertex);
+        }
+    }
+}
+
+int DirectMaskSubRun::glyphCount() const {
+    return SkCount(fGlyphs.glyphs());
+}
+
+void DirectMaskSubRun::draw(SkCanvas*,
+                                const GrClip* clip,
+                                const SkMatrixProvider& viewMatrix,
+                                SkPoint drawOrigin,
+                                const SkPaint& paint,
+                                skgpu::v1::SurfaceDrawContext* sdc) const {
+    auto[drawingClip, op] = this->makeAtlasTextOp(
+            clip, viewMatrix, drawOrigin, paint, sdc, nullptr);
+    if (op != nullptr) {
+        sdc->addDrawOp(drawingClip, std::move(op));
+    }
+}
+
+std::tuple<const GrClip*, GrOp::Owner> DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip,
+                                      const SkMatrixProvider& viewMatrix,
+                                      SkPoint drawOrigin,
+                                      const SkPaint& paint,
+                                      skgpu::v1::SurfaceDrawContext* sdc,
+                                      GrAtlasSubRunOwner subRunOwner) const {
+    SkASSERT(this->glyphCount() != 0);
+    const SkMatrix& drawMatrix = viewMatrix.localToDevice();
+    const SkMatrix& positionMatrix = position_matrix(drawMatrix, drawOrigin);
+
+    auto [integerTranslate, subRunDeviceBounds] = this->deviceRectAndCheckTransform(positionMatrix);
+    if (subRunDeviceBounds.isEmpty()) {
+        return {nullptr, nullptr};
+    }
+    // Rect for optimized bounds clipping when doing an integer translate.
+    SkIRect geometricClipRect = SkIRect::MakeEmpty();
+    if (integerTranslate) {
+        // We can clip geometrically using clipRect and ignore clip when an axis-aligned rectangular
+        // non-AA clip is used. If clipRect is empty, and clip is nullptr, then there is no clipping
+        // needed.
+        const SkRect deviceBounds = SkRect::MakeWH(sdc->width(), sdc->height());
+        auto [clipMethod, clipRect] = calculate_clip(clip, deviceBounds, subRunDeviceBounds);
+
+        switch (clipMethod) {
+            case kClippedOut:
+                // Returning nullptr as op means skip this op.
+                return {nullptr, nullptr};
+            case kUnclipped:
+            case kGeometryClipped:
+                // GPU clip is not needed.
+                clip = nullptr;
+                break;
+            case kGPUClipped:
+                // Use th GPU clip; clipRect is ignored.
+                break;
+        }
+        geometricClipRect = clipRect;
+
+        if (!geometricClipRect.isEmpty()) { SkASSERT(clip == nullptr); }
+    }
+
+    GrPaint grPaint;
+    const SkPMColor4f drawingColor =
+            calculate_colors(sdc, paint, viewMatrix, fMaskFormat, &grPaint);
+
+    auto geometry = AtlasTextOp::Geometry::MakeForBlob(*this,
+                                                       drawMatrix,
+                                                       drawOrigin,
+                                                       geometricClipRect,
+                                                       sk_ref_sp(fReferenceFrame),
+                                                       drawingColor,
+                                                       sdc->arenaAlloc());
+
+    GrRecordingContext* const rContext = sdc->recordingContext();
+    GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
+                                             op_mask_type(fMaskFormat),
+                                             !integerTranslate,
+                                             this->glyphCount(),
+                                             subRunDeviceBounds,
+                                             geometry,
+                                             std::move(grPaint));
+    return {clip, std::move(op)};
+}
+
+void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
+    fGlyphs.packedGlyphIDToGrGlyph(cache);
+}
+
+std::tuple<bool, int> DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
+}
+
+template<typename Quad, typename VertexData>
+void transformed_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                           GrColor color,
+                           const SkMatrix& matrix) {
+    for (auto[quad, glyph, leftTop] : quadData) {
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        SkScalar dl = leftTop[0],
+                 dt = leftTop[1],
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
+        SkPoint lt = matrix.mapXY(dl, dt),
+                lb = matrix.mapXY(dl, db),
+                rt = matrix.mapXY(dr, dt),
+                rb = matrix.mapXY(dr, db);
+        quad[0] = {lt, color, {al, at}};  // L,T
+        quad[1] = {lb, color, {al, ab}};  // L,B
+        quad[2] = {rt, color, {ar, at}};  // R,T
+        quad[3] = {rb, color, {ar, ab}};  // R,B
+    }
+}
+
+template<typename Quad, typename VertexData>
+void transformed_direct_3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                           GrColor color,
+                           const SkMatrix& matrix) {
+    auto mapXYZ = [&](SkScalar x, SkScalar y) {
+        SkPoint pt{x, y};
+        SkPoint3 result;
+        matrix.mapHomogeneousPoints(&result, &pt, 1);
+        return result;
+    };
+    for (auto[quad, glyph, leftTop] : quadData) {
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        SkScalar dl = leftTop[0],
+                 dt = leftTop[1],
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
+        SkPoint3 lt = mapXYZ(dl, dt),
+                 lb = mapXYZ(dl, db),
+                 rt = mapXYZ(dr, dt),
+                 rb = mapXYZ(dr, db);
+        quad[0] = {lt, color, {al, at}};  // L,T
+        quad[1] = {lb, color, {al, ab}};  // L,B
+        quad[2] = {rt, color, {ar, at}};  // R,T
+        quad[3] = {rb, color, {ar, ab}};  // R,B
+    }
+}
+
 void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
-                                      GrColor color,
-                                      const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                                      SkIRect clip) const {
-    const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
+                                          GrColor color,
+                                          const SkMatrix& drawMatrix, SkPoint drawOrigin,
+                                          SkIRect clip) const {
     auto quadData = [&](auto dst) {
         return SkMakeZip(dst,
                          fGlyphs.glyphs().subspan(offset, count),
                          fLeftTopDevicePos.subspan(offset, count));
     };
 
-    SkPoint originOffset =
-            positionMatrix.mapOrigin() - fTextReferenceFrame->initialPositionMatrix().mapOrigin();
+    const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
+    auto [noTransformNeeded, originOffset] =
+            can_use_direct(fReferenceFrame->initialPositionMatrix(), positionMatrix);
 
-    if (clip.isEmpty()) {
-        if (fMaskFormat != MaskFormat::kARGB) {
-            using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
-            direct_2D(quadData((Quad*)vertexDst), color, originOffset);
+    if (noTransformNeeded) {
+        if (clip.isEmpty()) {
+            if (fMaskFormat != MaskFormat::kARGB) {
+                using Quad = Mask2DVertex[4];
+                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
+                direct_2D(quadData((Quad*)vertexDst), color, originOffset);
+            } else {
+                using Quad = ARGB2DVertex[4];
+                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(SkMatrix::I()));
+                generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset);
+            }
         } else {
-            using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
-            generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset);
+            if (fMaskFormat != MaskFormat::kARGB) {
+                using Quad = Mask2DVertex[4];
+                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
+                generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
+            } else {
+                using Quad = ARGB2DVertex[4];
+                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(SkMatrix::I()));
+                generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
+            }
         }
-    } else {
-        if (fMaskFormat != MaskFormat::kARGB) {
-            using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
-            generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
+    } else if (SkMatrix inverse; fReferenceFrame->initialPositionMatrix().invert(&inverse)) {
+        SkMatrix viewDifference = SkMatrix::Concat(positionMatrix, inverse);
+        if (!viewDifference.hasPerspective()) {
+            if (fMaskFormat != MaskFormat::kARGB) {
+                using Quad = Mask2DVertex[4];
+                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
+                transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
+            } else {
+                using Quad = ARGB2DVertex[4];
+                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
+                transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
+            }
         } else {
-            using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
-            generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
+            if (fMaskFormat != MaskFormat::kARGB) {
+                using Quad = Mask3DVertex[4];
+                SkASSERT(sizeof(Mask3DVertex) == this->vertexStride(positionMatrix));
+                transformed_direct_3D(quadData((Quad*)vertexDst), color, viewDifference);
+            } else {
+                using Quad = ARGB3DVertex[4];
+                SkASSERT(sizeof(ARGB3DVertex) == this->vertexStride(positionMatrix));
+                transformed_direct_3D(quadData((Quad*)vertexDst), color, viewDifference);
+            }
         }
     }
 }
 
-SkRect DirectMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
-    SkIRect outBounds = fGlyphDeviceBounds.iRect();
+// true if only need to translate by integer amount, device rect.
+std::tuple<bool, SkRect> DirectMaskSubRun::deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const {
+    const SkMatrix& initialMatrix = fReferenceFrame->initialPositionMatrix();
+    const SkPoint offset = positionMatrix.mapOrigin() - initialMatrix.mapOrigin();
 
-    // Calculate the offset from the initial device origin to the current device origin.
-    SkVector offset = drawMatrix.mapPoint(drawOrigin) -
-                      fTextReferenceFrame->initialPositionMatrix().mapOrigin();
+    const bool compatibleMatrix = positionMatrix[0] == initialMatrix[0] &&
+                                  positionMatrix[1] == initialMatrix[1] &&
+                                  positionMatrix[3] == initialMatrix[3] &&
+                                  positionMatrix[4] == initialMatrix[4] &&
+                                  !positionMatrix.hasPerspective() &&
+                                  !initialMatrix.hasPerspective();
 
-    // The offset should be integer, but make sure.
-    SkIVector iOffset = {SkScalarRoundToInt(offset.x()), SkScalarRoundToInt(offset.y())};
+    if (compatibleMatrix && SkScalarIsInt(offset.x()) && SkScalarIsInt(offset.y())) {
+        // Handle the integer offset case.
+        // The offset should be integer, but make sure.
+        SkIVector iOffset = {SkScalarRoundToInt(offset.x()), SkScalarRoundToInt(offset.y())};
 
-    return SkRect::Make(outBounds.makeOffset(iOffset));
-}
+        SkIRect outBounds = fGlyphDeviceBounds.iRect();
+        return {true, SkRect::Make(outBounds.makeOffset(iOffset))};
+    } else if (SkMatrix inverse; fReferenceFrame->initialPositionMatrix().invert(&inverse)) {
+        SkMatrix viewDifference = SkMatrix::Concat(positionMatrix, inverse);
+        return {false, viewDifference.mapRect(fGlyphDeviceBounds.rect())};
+    }
 
-const GrAtlasSubRun* DirectMaskSubRun::testingOnly_atlasSubRun() const {
-    return this;
+    // initialPositionMatrix is singular. Do nothing.
+    return {false, SkRect::MakeEmpty()};
 }
 
 // -- TransformedMaskSubRun ------------------------------------------------------------------------
@@ -2033,14 +2173,13 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
                                    const GrSDFTControl& control,
                                    SkGlyphRunListPainter* painter) {
     // The difference in alignment from the per-glyph data to the SubRun;
-    constexpr size_t alignDiff =
-            alignof(DirectMaskSubRun) - alignof(DirectMaskSubRun::DevicePosition);
+    constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
     constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
     size_t totalGlyphCount = glyphRunList.totalGlyphCount();
 
     // The neededForSubRun is optimized for DirectMaskSubRun which is by far the most common case.
     size_t bytesNeededForSubRun = GrBagOfBytes::PlatformMinimumSizeWithOverhead(
-            totalGlyphCount * sizeof(DirectMaskSubRun::DevicePosition)
+            totalGlyphCount * sizeof(DevicePosition)
             + GrGlyphVector::GlyphVectorSize(totalGlyphCount)
             + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding),
             alignof(GrTextBlob));
@@ -2339,433 +2478,14 @@ sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* c
     return std::move(slug);
 }
 
-// -- DirectMaskSubRunSlug -------------------------------------------------------------------------
-class DirectMaskSubRunSlug final : public GrSubRun, public GrAtlasSubRun {
-public:
-    using DevicePosition = DirectMaskSubRun::DevicePosition;
 
-    DirectMaskSubRunSlug(const GrTextReferenceFrame* referenceFrame,
-                         MaskFormat format,
-                         SkGlyphRect deviceBounds,
-                         SkSpan<const DevicePosition> devicePositions,
-                         GrGlyphVector&& glyphs);
-
-    static GrSubRunOwner Make(const GrTextReferenceFrame* referenceFrame,
-                              const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                              sk_sp<SkStrike>&& strike,
-                              MaskFormat format,
-                              GrSubRunAllocator* alloc);
-
-    static GrSubRunOwner MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
-                                        SkReadBuffer& buffer,
-                                        GrSubRunAllocator* alloc,
-                                        const SkStrikeClient* client);
-
-    void draw(SkCanvas*,
-              const GrClip* clip,
-              const SkMatrixProvider& viewMatrix,
-              SkPoint drawOrigin,
-              const SkPaint& paint,
-              skgpu::v1::SurfaceDrawContext* sdc) const override {
-        auto [drawingClip, op] = this->makeAtlasTextOp(
-                clip, viewMatrix, drawOrigin, paint, sdc, nullptr);
-        if (op != nullptr) {
-            sdc->addDrawOp(drawingClip, std::move(op));
-        }
-    }
-
-    int unflattenSize() const override;
-
-    size_t vertexStride(const SkMatrix& drawMatrix) const override;
-
-    int glyphCount() const override;
-
-    std::tuple<const GrClip*, GrOp::Owner>
-    makeAtlasTextOp(const GrClip*,
-                    const SkMatrixProvider& viewMatrix,
-                    SkPoint,
-                    const SkPaint&,
-                    skgpu::v1::SurfaceDrawContext*,
-                    GrAtlasSubRunOwner) const override;
-
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
-
-    std::tuple<bool, int>
-    regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
-
-    void fillVertexData(void* vertexDst, int offset, int count,
-                        GrColor color,
-                        const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                        SkIRect clip) const override;
-
-    bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
-
-    const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
-
-protected:
-    SubRunType subRunType() const override { return kDirectMask; }
-    void doFlatten(SkWriteBuffer& buffer) const override;
-
-private:
-    // Return true if the positionMatrix represents an integer translation. Return the device
-    // bounding box of all the glyphs. If the bounding box is empty, then something went singular
-    // and this operation should be dropped.
-    std::tuple<bool, SkRect> deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const;
-
-    const GrTextReferenceFrame* const fReferenceFrame;
-    const MaskFormat fMaskFormat;
-
-    // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
-    const SkGlyphRect fGlyphDeviceBounds;
-    const SkSpan<const DevicePosition> fLeftTopDevicePos;
-
-    // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
-    // be single threaded.
-    mutable GrGlyphVector fGlyphs;
-};
-
-DirectMaskSubRunSlug::DirectMaskSubRunSlug(const GrTextReferenceFrame* referenceFrame,
-                                           MaskFormat format,
-                                           SkGlyphRect deviceBounds,
-                                           SkSpan<const DevicePosition> devicePositions,
-                                           GrGlyphVector&& glyphs)
-        : fReferenceFrame{referenceFrame}
-        , fMaskFormat{format}
-        , fGlyphDeviceBounds{deviceBounds}
-        , fLeftTopDevicePos{devicePositions}
-        , fGlyphs{std::move(glyphs)} { }
-
-GrSubRunOwner DirectMaskSubRunSlug::Make(const GrTextReferenceFrame* referenceFrame,
-                                         const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                         sk_sp<SkStrike>&& strike,
-                                         MaskFormat format,
-                                         GrSubRunAllocator* alloc) {
-    auto glyphLeftTop = alloc->makePODArray<DevicePosition>(accepted.size());
-    auto glyphIDs = alloc->makePODArray<GrGlyphVector::Variant>(accepted.size());
-
-    // Because this is the direct case, the maximum width or height is the size that fits in the
-    // atlas. This boundary is checked below to ensure that the call to SkGlyphRect below will
-    // not overflow.
-    constexpr SkScalar kMaxPos =
-            std::numeric_limits<int16_t>::max() - SkStrikeCommon::kSkSideTooBigForAtlas;
-    SkGlyphRect runBounds = skglyph::empty_rect();
-    size_t goodPosCount = 0;
-    for (auto [variant, pos] : accepted) {
-        auto [x, y] = pos;
-        // Ensure that the .offset() call below does not overflow. And, at this point none of the
-        // rectangles are empty because they were culled before the run was created. Basically,
-        // cull all the glyphs that can't appear on the screen.
-        if (-kMaxPos < x && x < kMaxPos && -kMaxPos  < y && y < kMaxPos) {
-            const SkGlyph* const skGlyph = variant;
-            const SkGlyphRect deviceBounds =
-                    skGlyph->glyphRect().offset(SkScalarRoundToInt(x), SkScalarRoundToInt(y));
-            runBounds = skglyph::rect_union(runBounds, deviceBounds);
-            glyphLeftTop[goodPosCount] = deviceBounds.leftTop();
-            glyphIDs[goodPosCount].packedGlyphID = skGlyph->getPackedID();
-            goodPosCount += 1;
-        }
-    }
-
-    // Wow! no glyphs are in bounds and had non-empty bounds.
-    if (goodPosCount == 0) {
-        return nullptr;
-    }
-
-    SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
-    return alloc->makeUnique<DirectMaskSubRunSlug>(
-            referenceFrame, format, runBounds, leftTop,
-            GrGlyphVector{std::move(strike), {glyphIDs, goodPosCount}});
-}
-
-GrSubRunOwner DirectMaskSubRunSlug::MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
-                                                   SkReadBuffer& buffer,
-                                                   GrSubRunAllocator* alloc,
-                                                   const SkStrikeClient* client) {
-    MaskFormat maskType = (MaskFormat)buffer.readInt();
-    SkGlyphRect runBounds;
-    pun_read(buffer, &runBounds);
-
-    int glyphCount = buffer.readInt();
-    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return nullptr; }
-    if (!buffer.validateCanReadN<DevicePosition>(glyphCount)) { return nullptr; }
-    DevicePosition* positionsData = alloc->makePODArray<DevicePosition>(glyphCount);
-    for (int i = 0; i < glyphCount; ++i) {
-        pun_read(buffer, &positionsData[i]);
-    }
-    SkSpan<DevicePosition> positions(positionsData, glyphCount);
-
-    auto glyphVector = GrGlyphVector::MakeFromBuffer(buffer, client, alloc);
-    if (!buffer.validate(glyphVector.has_value())) { return nullptr; }
-    if (!buffer.validate(SkCount(glyphVector->glyphs()) == glyphCount)) { return nullptr; }
-    SkASSERT(buffer.isValid());
-    return alloc->makeUnique<DirectMaskSubRunSlug>(
-            referenceFrame, maskType, runBounds, positions, std::move(glyphVector.value()));
-}
-
-void DirectMaskSubRunSlug::doFlatten(SkWriteBuffer& buffer) const {
-    buffer.writeInt(static_cast<int>(fMaskFormat));
-    pun_write(buffer, fGlyphDeviceBounds);
-    int glyphCount = SkTo<int>(fLeftTopDevicePos.size());
-    buffer.writeInt(glyphCount);
-    for (auto pos : fLeftTopDevicePos) {
-        pun_write(buffer, pos);
-    }
-    fGlyphs.flatten(buffer);
-}
-
-int DirectMaskSubRunSlug::unflattenSize() const {
-    return sizeof(DirectMaskSubRunSlug) +
-           fGlyphs.unflattenSize() +
-           sizeof(DevicePosition) * fGlyphs.glyphs().size();
-}
-
-bool DirectMaskSubRunSlug::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
-    SK_ABORT("Not Ready Yet!");
-}
-
-const GrAtlasSubRun* DirectMaskSubRunSlug::testingOnly_atlasSubRun() const {
-    return this;
-}
-
-size_t DirectMaskSubRunSlug::vertexStride(const SkMatrix& positionMatrix) const {
-    if (!positionMatrix.hasPerspective()) {
-        if (fMaskFormat != MaskFormat::kARGB) {
-            return sizeof(Mask2DVertex);
-        } else {
-            return sizeof(ARGB2DVertex);
-        }
-    } else {
-        if (fMaskFormat != MaskFormat::kARGB) {
-            return sizeof(Mask3DVertex);
-        } else {
-            return sizeof(ARGB3DVertex);
-        }
-    }
-}
-
-int DirectMaskSubRunSlug::glyphCount() const {
-    return SkCount(fGlyphs.glyphs());
-}
-
-std::tuple<const GrClip*, GrOp::Owner>
-DirectMaskSubRunSlug::makeAtlasTextOp(const GrClip* clip,
-                                      const SkMatrixProvider& viewMatrix,
-                                      SkPoint drawOrigin,
-                                      const SkPaint& paint,
-                                      skgpu::v1::SurfaceDrawContext* sdc,
-                                      GrAtlasSubRunOwner subRunOwner) const {
-    SkASSERT(this->glyphCount() != 0);
-    const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-    const SkMatrix& positionMatrix = position_matrix(drawMatrix, drawOrigin);
-
-    auto [integerTranslate, subRunDeviceBounds] = this->deviceRectAndCheckTransform(positionMatrix);
-    if (subRunDeviceBounds.isEmpty()) {
-        return {nullptr, nullptr};
-    }
-    // Rect for optimized bounds clipping when doing an integer translate.
-    SkIRect geometricClipRect = SkIRect::MakeEmpty();
-    if (integerTranslate) {
-        // We can clip geometrically using clipRect and ignore clip when an axis-aligned rectangular
-        // non-AA clip is used. If clipRect is empty, and clip is nullptr, then there is no clipping
-        // needed.
-        const SkRect deviceBounds = SkRect::MakeWH(sdc->width(), sdc->height());
-        auto [clipMethod, clipRect] = calculate_clip(clip, deviceBounds, subRunDeviceBounds);
-
-        switch (clipMethod) {
-            case kClippedOut:
-                // Returning nullptr as op means skip this op.
-                return {nullptr, nullptr};
-            case kUnclipped:
-            case kGeometryClipped:
-                // GPU clip is not needed.
-                clip = nullptr;
-                break;
-            case kGPUClipped:
-                // Use th GPU clip; clipRect is ignored.
-                break;
-        }
-        geometricClipRect = clipRect;
-
-        if (!geometricClipRect.isEmpty()) { SkASSERT(clip == nullptr); }
-    }
-
-    GrPaint grPaint;
-    const SkPMColor4f drawingColor =
-            calculate_colors(sdc, paint, viewMatrix, fMaskFormat, &grPaint);
-
-    auto geometry = AtlasTextOp::Geometry::MakeForBlob(*this,
-                                                       drawMatrix,
-                                                       drawOrigin,
-                                                       geometricClipRect,
-                                                       sk_ref_sp(fReferenceFrame),
-                                                       drawingColor,
-                                                       sdc->arenaAlloc());
-
-    GrRecordingContext* const rContext = sdc->recordingContext();
-    GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
-                                             op_mask_type(fMaskFormat),
-                                             !integerTranslate,
-                                             this->glyphCount(),
-                                             subRunDeviceBounds,
-                                             geometry,
-                                             std::move(grPaint));
-    return {clip, std::move(op)};
-}
-
-void DirectMaskSubRunSlug::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
-    fGlyphs.packedGlyphIDToGrGlyph(cache);
-}
-
-std::tuple<bool, int>
-DirectMaskSubRunSlug::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
-}
-
-template<typename Quad, typename VertexData>
-void transformed_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
-                           GrColor color,
-                           const SkMatrix& matrix) {
-    for (auto[quad, glyph, leftTop] : quadData) {
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        SkScalar dl = leftTop[0],
-                 dt = leftTop[1],
-                 dr = dl + (ar - al),
-                 db = dt + (ab - at);
-        SkPoint lt = matrix.mapXY(dl, dt),
-                lb = matrix.mapXY(dl, db),
-                rt = matrix.mapXY(dr, dt),
-                rb = matrix.mapXY(dr, db);
-        quad[0] = {lt, color, {al, at}};  // L,T
-        quad[1] = {lb, color, {al, ab}};  // L,B
-        quad[2] = {rt, color, {ar, at}};  // R,T
-        quad[3] = {rb, color, {ar, ab}};  // R,B
-    }
-}
-
-template<typename Quad, typename VertexData>
-void transformed_direct_3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
-                           GrColor color,
-                           const SkMatrix& matrix) {
-    auto mapXYZ = [&](SkScalar x, SkScalar y) {
-        SkPoint pt{x, y};
-        SkPoint3 result;
-        matrix.mapHomogeneousPoints(&result, &pt, 1);
-        return result;
-    };
-    for (auto[quad, glyph, leftTop] : quadData) {
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        SkScalar dl = leftTop[0],
-                 dt = leftTop[1],
-                 dr = dl + (ar - al),
-                 db = dt + (ab - at);
-        SkPoint3 lt = mapXYZ(dl, dt),
-                 lb = mapXYZ(dl, db),
-                 rt = mapXYZ(dr, dt),
-                 rb = mapXYZ(dr, db);
-        quad[0] = {lt, color, {al, at}};  // L,T
-        quad[1] = {lb, color, {al, ab}};  // L,B
-        quad[2] = {rt, color, {ar, at}};  // R,T
-        quad[3] = {rb, color, {ar, ab}};  // R,B
-    }
-}
-
-void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count,
-                                          GrColor color,
-                                          const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                                          SkIRect clip) const {
-    auto quadData = [&](auto dst) {
-        return SkMakeZip(dst,
-                         fGlyphs.glyphs().subspan(offset, count),
-                         fLeftTopDevicePos.subspan(offset, count));
-    };
-
-    const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
-    auto [noTransformNeeded, originOffset] =
-            can_use_direct(fReferenceFrame->initialPositionMatrix(), positionMatrix);
-
-    if (noTransformNeeded) {
-        if (clip.isEmpty()) {
-            if (fMaskFormat != MaskFormat::kARGB) {
-                using Quad = Mask2DVertex[4];
-                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
-                direct_2D(quadData((Quad*)vertexDst), color, originOffset);
-            } else {
-                using Quad = ARGB2DVertex[4];
-                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(SkMatrix::I()));
-                generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset);
-            }
-        } else {
-            if (fMaskFormat != MaskFormat::kARGB) {
-                using Quad = Mask2DVertex[4];
-                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
-                generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
-            } else {
-                using Quad = ARGB2DVertex[4];
-                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(SkMatrix::I()));
-                generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
-            }
-        }
-    } else if (SkMatrix inverse; fReferenceFrame->initialPositionMatrix().invert(&inverse)) {
-        SkMatrix viewDifference = SkMatrix::Concat(positionMatrix, inverse);
-        if (!viewDifference.hasPerspective()) {
-            if (fMaskFormat != MaskFormat::kARGB) {
-                using Quad = Mask2DVertex[4];
-                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
-                transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
-            } else {
-                using Quad = ARGB2DVertex[4];
-                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
-                transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
-            }
-        } else {
-            if (fMaskFormat != MaskFormat::kARGB) {
-                using Quad = Mask3DVertex[4];
-                SkASSERT(sizeof(Mask3DVertex) == this->vertexStride(positionMatrix));
-                transformed_direct_3D(quadData((Quad*)vertexDst), color, viewDifference);
-            } else {
-                using Quad = ARGB3DVertex[4];
-                SkASSERT(sizeof(ARGB3DVertex) == this->vertexStride(positionMatrix));
-                transformed_direct_3D(quadData((Quad*)vertexDst), color, viewDifference);
-            }
-        }
-    }
-}
-
-// true if only need to translate by integer amount, device rect.
-std::tuple<bool, SkRect>
-DirectMaskSubRunSlug::deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const {
-    const SkMatrix& initialMatrix = fReferenceFrame->initialPositionMatrix();
-    const SkPoint offset = positionMatrix.mapOrigin() - initialMatrix.mapOrigin();
-
-    const bool compatibleMatrix = positionMatrix[0] == initialMatrix[0] &&
-                                  positionMatrix[1] == initialMatrix[1] &&
-                                  positionMatrix[3] == initialMatrix[3] &&
-                                  positionMatrix[4] == initialMatrix[4] &&
-                                  !positionMatrix.hasPerspective() &&
-                                  !initialMatrix.hasPerspective();
-
-    if (compatibleMatrix && SkScalarIsInt(offset.x()) && SkScalarIsInt(offset.y())) {
-        // Handle the integer offset case.
-        // The offset should be integer, but make sure.
-        SkIVector iOffset = {SkScalarRoundToInt(offset.x()), SkScalarRoundToInt(offset.y())};
-
-        SkIRect outBounds = fGlyphDeviceBounds.iRect();
-        return {true, SkRect::Make(outBounds.makeOffset(iOffset))};
-    } else if (SkMatrix inverse; fReferenceFrame->initialPositionMatrix().invert(&inverse)) {
-        SkMatrix viewDifference = SkMatrix::Concat(positionMatrix, inverse);
-        return {false, viewDifference.mapRect(fGlyphDeviceBounds.rect())};
-    }
-
-    // initialPositionMatrix is singular. Do nothing.
-    return {false, SkRect::MakeEmpty()};
-}
 
 void Slug::processDeviceMasks(
         const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
-        GrSubRunOwner subRun = DirectMaskSubRunSlug::Make(
+        GrSubRunOwner subRun = DirectMaskSubRun::Make(
                 this, accepted, std::move(runStrike), format, &fAlloc);
         if (subRun != nullptr) {
             fSubRuns.append(std::move(subRun));
@@ -2782,16 +2502,15 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
                        const GrSDFTControl& control,
                        SkGlyphRunListPainter* painter) {
     // The difference in alignment from the per-glyph data to the SubRun;
-    constexpr size_t alignDiff =
-            alignof(DirectMaskSubRun) - alignof(DirectMaskSubRun::DevicePosition);
+    constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
     constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
     size_t totalGlyphCount = glyphRunList.totalGlyphCount();
     // The bytesNeededForSubRun is optimized for DirectMaskSubRun which is by far the most
     // common case.
     size_t bytesNeededForSubRun = GrBagOfBytes::PlatformMinimumSizeWithOverhead(
-            totalGlyphCount * sizeof(DirectMaskSubRunSlug::DevicePosition)
+            totalGlyphCount * sizeof(DevicePosition)
             + GrGlyphVector::GlyphVectorSize(totalGlyphCount)
-            + glyphRunList.runCount() * (sizeof(DirectMaskSubRunSlug) + vertexDataToSubRunPadding),
+            + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding),
             alignof(Slug));
 
     size_t allocationSize = sizeof(Slug) + bytesNeededForSubRun;
@@ -2840,7 +2559,7 @@ void Slug::processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted
                                   const SkFont& runFont,
                                   const SkDescriptor& descriptor,
                                   SkScalar strikeToSourceScale) {
-    fSubRuns.append(make_drawable_sub_run<DrawableSubRunSlug>(
+    fSubRuns.append(make_drawable_sub_run<DrawableSubRun>(
             accepted, strikeToSourceScale, descriptor, &fAlloc));
 }
 
@@ -2933,11 +2652,11 @@ GrSubRunOwner GrSubRun::MakeFromBuffer(const GrTextReferenceFrame* referenceFram
 
     static Maker makers[kSubRunTypeCount] = {
             nullptr,                                             // 0 index is bad.
-            DirectMaskSubRunSlug::MakeFromBuffer,
+            DirectMaskSubRun::MakeFromBuffer,
             SDFTSubRun::MakeFromBuffer,
             TransformedMaskSubRun::MakeFromBuffer,
             PathSubRun::MakeFromBuffer,
-            DrawableSubRunSlug::MakeFromBuffer,
+            DrawableSubRun::MakeFromBuffer,
     };
     int subRunTypeInt = buffer.readInt();
     SkASSERT(kBad < subRunTypeInt && subRunTypeInt < kSubRunTypeCount);
