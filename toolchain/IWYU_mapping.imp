@@ -6,8 +6,11 @@
   { include: ["<__algorithm/remove_if.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/sort.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/stable_sort.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/upper_bound.h>", "private", "<algorithm>", "public"] },
 
   { include: ["<__functional/function.h>", "private", "<functional>", "public"] },
+
+  { include: ["<__iterator/distance.h>", "private", "<iterator>", "public"] },
 
   { include: ["<__locale>", "private", "<locale>", "public"] },
 
