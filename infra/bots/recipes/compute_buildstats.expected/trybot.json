@@ -119,7 +119,8 @@
       "--patch_ref",
       "https://skia.googlesource.com/skia.git@abc123:refs/changes/89/456789/12",
       "--revision",
-      "skia@abc123"
+      "skia@abc123",
+      "--download_topics"
     ],
     "cwd": "[START_DIR]/cache/work",
     "env": {

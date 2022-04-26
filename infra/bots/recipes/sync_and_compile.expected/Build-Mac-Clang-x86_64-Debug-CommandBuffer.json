@@ -71,7 +71,8 @@
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "skia@abc123"
+      "skia@abc123",
+      "--download_topics"
     ],
     "cwd": "[START_DIR]/cache/work",
     "env": {

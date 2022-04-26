@@ -88,7 +88,8 @@
       "--revision",
       "src/flutter@origin/master",
       "--revision",
-      "src/third_party/skia@abc123"
+      "src/third_party/skia@abc123",
+      "--download_topics"
     ],
     "cwd": "[START_DIR]/cache/work/flutter",
     "env": {

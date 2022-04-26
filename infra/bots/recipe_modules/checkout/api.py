@@ -155,6 +155,9 @@ if 'cipd_bin_packages' not in git:
           # always specify patch=True.
           patch=True,
           patch_refs=patch_refs,
+          # Download the patches of all changes with the same Gerrit topic.
+          # For context see go/sk-topics.
+          download_topics=True,
       )
 
     if checkout_chromium or checkout_flutter:
