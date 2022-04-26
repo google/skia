@@ -104,6 +104,7 @@
    nv_driver_bug_5
    Memcheck:Leak
    fun:malloc
+   ...
    obj:*/libGLX_nvidia.so*
 }
 {
