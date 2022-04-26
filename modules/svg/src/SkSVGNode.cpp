@@ -132,8 +132,9 @@ bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
 SkMatrix SkSVGNode::ComputeViewboxMatrix(const SkRect& viewBox,
                                          const SkRect& viewPort,
                                          SkSVGPreserveAspectRatio par) {
-    SkASSERT(!viewBox.isEmpty());
-    SkASSERT(!viewPort.isEmpty());
+    if (viewBox.isEmpty() || viewPort.isEmpty()) {
+        return SkMatrix::Scale(0, 0);
+    }
 
     auto compute_scale = [&]() -> SkV2 {
         const auto sx = viewPort.width()  / viewBox.width(),
