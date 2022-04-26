@@ -77,7 +77,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
 
 static bool is_rendering_and_not_angle_es3(sk_gpu_test::GrContextFactory::ContextType type) {
     if (type == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES3_ContextType ||
-        type == sk_gpu_test::GrContextFactory::kANGLE_GL_ES3_ContextType) {
+        type == sk_gpu_test::GrContextFactory::kANGLE_GL_ES3_ContextType ||
+        type == sk_gpu_test::GrContextFactory::kANGLE_Metal_ES3_ContextType) {
         return false;
     }
     return sk_gpu_test::GrContextFactory::IsRenderingContext(type);

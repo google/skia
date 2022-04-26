@@ -27,6 +27,7 @@
 #define EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE      0x3207
 #define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE     0x3208
 #define EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE    0x320D
+#define EGL_PLATFORM_ANGLE_TYPE_METAL_ANGLE     0x3489
 
 #define EGL_CONTEXT_OPENGL_BACKWARDS_COMPATIBLE_ANGLE 0x3483
 
@@ -82,6 +83,9 @@ void* get_angle_egl_display(void* nativeDisplay, ANGLEBackend type) {
             break;
         case ANGLEBackend::kOpenGL:
             typeNum = EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE;
+            break;
+        case ANGLEBackend::kMetal:
+            typeNum = EGL_PLATFORM_ANGLE_TYPE_METAL_ANGLE;
             break;
     }
     const EGLint attribs[] = { EGL_PLATFORM_ANGLE_TYPE_ANGLE, typeNum, EGL_NONE };
@@ -237,11 +241,11 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     }
 #else
     SkASSERT(EGL_NO_DISPLAY == fDisplay);
-    fDisplay = get_angle_egl_display(EGL_DEFAULT_DISPLAY, type);
+    fDisplay = get_angle_egl_display(reinterpret_cast<void*>(EGL_DEFAULT_DISPLAY), type);
     fOwnsDisplay = true;
 #endif
     if (EGL_NO_DISPLAY == fDisplay) {
-        SkDebugf("Could not create EGL display!");
+        SkDebugf("Could not create ANGLE EGL display!\n");
         return;
     }
 
@@ -351,6 +355,9 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         break;
     case ANGLEBackend::kOpenGL:
         SkASSERT(strstr(renderer, "OpenGL"));
+        break;
+    case ANGLEBackend::kMetal:
+        SkASSERT(strstr(renderer, "Metal"));
         break;
     }
 #endif
@@ -497,10 +504,10 @@ sk_sp<const GrGLInterface> CreateANGLEGLInterface() {
 
     if (nullptr == gLibs.fGLLib) {
         // We load the ANGLE library and never let it go
-#if defined _WIN32
+#if defined(SK_BUILD_FOR_WIN)
         gLibs.fGLLib = SkLoadDynamicLibrary("libGLESv2.dll");
         gLibs.fEGLLib = SkLoadDynamicLibrary("libEGL.dll");
-#elif defined SK_BUILD_FOR_MAC
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         gLibs.fGLLib = SkLoadDynamicLibrary("libGLESv2.dylib");
         gLibs.fEGLLib = SkLoadDynamicLibrary("libEGL.dylib");
 #else
@@ -523,6 +530,19 @@ std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLECont
     // Windows-on-ARM only has D3D11. This will fail correctly, but it produces huge amounts of
     // debug output for every unit test from both ANGLE and our context factory.
     if (ANGLEBackend::kD3D11 != type) {
+        return nullptr;
+    }
+#endif
+
+    // These checks squelch spam when display creation predictably fails
+#if defined(SK_BUILD_FOR_WIN)
+    if (ANGLEBackend::kMetal == type) {
+        return nullptr;
+    }
+#endif
+
+#if defined(SK_BUILD_FOR_MAC)
+    if (ANGLEBackend::kMetal != type) {
         return nullptr;
     }
 #endif

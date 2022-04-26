@@ -21,7 +21,8 @@ sk_sp<const GrGLInterface> CreateANGLEGLInterface();
 enum class ANGLEBackend {
     kD3D9,
     kD3D11,
-    kOpenGL
+    kOpenGL,
+    kMetal
 };
 
 enum class ANGLEContextVersion {

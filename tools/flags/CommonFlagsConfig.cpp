@@ -95,6 +95,8 @@ static const struct {
     { "angle_gl_es3_msaa4",    "gpu", "api=angle_gl_es3,samples=4" },
     { "angle_gl_es3_msaa8",    "gpu", "api=angle_gl_es3,samples=8" },
     { "angle_gl_es3_dmsaa",    "gpu", "api=angle_gl_es3,dmsaa=true" },
+    { "angle_mtl_es2",         "gpu", "api=angle_mtl_es2" },
+    { "angle_mtl_es3",         "gpu", "api=angle_mtl_es3" },
     { "cmdbuffer_es2",         "gpu", "api=cmdbuffer_es2" },
     { "cmdbuffer_es2_dmsaa",   "gpu", "api=cmdbuffer_es2,dmsaa=true" },
     { "cmdbuffer_es3",         "gpu", "api=cmdbuffer_es3" },
@@ -316,6 +318,14 @@ static bool parse_option_gpu_api(const SkString&                      value,
     }
     if (value.equals("angle_gl_es3")) {
         *outContextType = GrContextFactory::kANGLE_GL_ES3_ContextType;
+        return true;
+    }
+    if (value.equals("angle_mtl_es2")) {
+        *outContextType = GrContextFactory::kANGLE_Metal_ES2_ContextType;
+        return true;
+    }
+    if (value.equals("angle_mtl_es3")) {
+        *outContextType = GrContextFactory::kANGLE_Metal_ES3_ContextType;
         return true;
     }
     if (value.equals("cmdbuffer_es2")) {

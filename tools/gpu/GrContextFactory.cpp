@@ -210,6 +210,14 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES3,
                                                  glShareContext).release();
                     break;
+                case kANGLE_Metal_ES2_ContextType:
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kMetal, ANGLEContextVersion::kES2,
+                                                 glShareContext).release();
+                    break;
+                case kANGLE_Metal_ES3_ContextType:
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kMetal, ANGLEContextVersion::kES3,
+                                                 glShareContext).release();
+                    break;
 #endif
 #ifndef SK_NO_COMMAND_BUFFER
                 case kCommandBuffer_ES2_ContextType:
