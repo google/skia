@@ -29,11 +29,11 @@ def executeWorklist(input, worklist):
     worklist.close()
     try:
         output = subprocess.check_output([
-            skslc, worklist.name], stderr=subprocess.STDOUT).decode('utf-8')
+            skslc, worklist.name], stderr=subprocess.STDOUT).decode('utf-8', errors='ignore')
     except subprocess.CalledProcessError as err:
         if err.returncode != 1:
             print("### " + input + " skslc error:\n")
-            print("\n".join(err.output.decode('utf-8').splitlines()))
+            print("\n".join(err.output.decode('utf-8', errors='ignore').splitlines()))
             sys.exit(err.returncode)
         pass  # Compile errors (exit code 1) are expected and normal in test code
 
