@@ -43,9 +43,10 @@ ParagraphBuilderImpl::ParagraphBuilderImpl(
         : ParagraphBuilder(style, fontCollection)
         , fUtf8()
         , fFontCollection(std::move(fontCollection))
+        , fParagraphStyle(style)
         , fUnicode(std::move(unicode)) {
     SkASSERT(fUnicode);
-    this->setParagraphStyle(style);
+    startStyledBlock();
 }
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
@@ -55,48 +56,38 @@ ParagraphBuilderImpl::ParagraphBuilderImpl(
 
 ParagraphBuilderImpl::~ParagraphBuilderImpl() = default;
 
-void ParagraphBuilderImpl::setParagraphStyle(const ParagraphStyle& style) {
-    fParagraphStyle = style;
-    fTextStyles.push(fParagraphStyle.getTextStyle());
-    fStyledBlocks.emplace_back(fUtf8.size(), fUtf8.size(), fParagraphStyle.getTextStyle());
-}
-
 void ParagraphBuilderImpl::pushStyle(const TextStyle& style) {
-    this->endRunIfNeeded();
-
-    fTextStyles.push(style);
+    fTextStyles.push_back(style);
     if (!fStyledBlocks.empty() && fStyledBlocks.back().fRange.end == fUtf8.size() &&
         fStyledBlocks.back().fStyle == style) {
         // Just continue with the same style
     } else {
         // Go with the new style
-        fStyledBlocks.emplace_back(fUtf8.size(), fUtf8.size(), fTextStyles.top());
+        startStyledBlock();
     }
 }
 
 void ParagraphBuilderImpl::pop() {
-    this->endRunIfNeeded();
-
-    if (fTextStyles.size() > 1) {
-        fTextStyles.pop();
+    if (!fTextStyles.empty()) {
+        fTextStyles.pop_back();
     } else {
         // In this case we use paragraph style and skip Pop operation
         SkDEBUGF("SkParagraphBuilder.Pop() called too many times.\n");
     }
 
-    auto top = fTextStyles.top();
-    fStyledBlocks.emplace_back(fUtf8.size(), fUtf8.size(), top);
+    startStyledBlock();
+}
+
+const TextStyle& ParagraphBuilderImpl::internalPeekStyle() {
+    if (fTextStyles.empty()) {
+        return fParagraphStyle.getTextStyle();
+    } else {
+        return fTextStyles.back();
+    }
 }
 
 TextStyle ParagraphBuilderImpl::peekStyle() {
-    this->endRunIfNeeded();
-
-    if (!fTextStyles.empty()) {
-        return fTextStyles.top();
-    } else {
-        SkDebugf("SkParagraphBuilder._styles is empty.\n");
-        return fParagraphStyle.getTextStyle();
-    }
+    return internalPeekStyle();
 }
 
 void ParagraphBuilderImpl::addText(const std::u16string& text) {
@@ -127,7 +118,7 @@ void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderSty
     TextRange textBefore(fPlaceholders.empty() ? 0 : fPlaceholders.back().fRange.end,
                             fUtf8.size());
     auto start = fUtf8.size();
-    auto topStyle = fTextStyles.top();
+    auto topStyle = internalPeekStyle();
     if (!lastOne) {
         pushStyle(topStyle.cloneForPlaceholder());
         addText(std::u16string(1ull, 0xFFFC));
@@ -150,6 +141,11 @@ void ParagraphBuilderImpl::endRunIfNeeded() {
     }
 }
 
+void ParagraphBuilderImpl::startStyledBlock() {
+    endRunIfNeeded();
+    fStyledBlocks.emplace_back(fUtf8.size(), fUtf8.size(), internalPeekStyle());
+}
+
 std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
     if (!fUtf8.isEmpty()) {
         this->endRunIfNeeded();
@@ -162,13 +158,12 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
 }
 
 void ParagraphBuilderImpl::Reset() {
-    std::stack<TextStyle> text_styles;
-    fTextStyles.swap(text_styles);
+    fTextStyles.reset();
     fUtf8.reset();
     fStyledBlocks.reset();
     fPlaceholders.reset();
 
-    this->setParagraphStyle(fParagraphStyle);
+    startStyledBlock();
 }
 
 }  // namespace textlayout

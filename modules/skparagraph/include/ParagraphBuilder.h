@@ -52,8 +52,6 @@ public:
     // Internally, this method adds a single object replacement character (0xFFFC)
     virtual void addPlaceholder(const PlaceholderStyle& placeholderStyle) = 0;
 
-    virtual void setParagraphStyle(const ParagraphStyle& style) = 0;
-
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.
     virtual std::unique_ptr<Paragraph> Build() = 0;
 
