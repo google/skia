@@ -7,6 +7,7 @@
 
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
+#include "include/private/SkTArray.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLNop.h"
@@ -15,10 +16,10 @@
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <memory>
-#include <stack>
 #include <vector>
 
 namespace SkSL {
+
 class Expression;
 
 void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) {
@@ -26,8 +27,8 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
     public:
         UnreachableCodeEliminator(ProgramUsage* usage)
                 : fUsage(usage) {
-            fFoundFunctionExit.push(false);
-            fFoundLoopExit.push(false);
+            fFoundFunctionExit.push_back(false);
+            fFoundLoopExit.push_back(false);
         }
 
         bool visitExpressionPtr(std::unique_ptr<Expression>& expr) override {
@@ -36,7 +37,7 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
         }
 
         bool visitStatementPtr(std::unique_ptr<Statement>& stmt) override {
-            if (fFoundFunctionExit.top() || fFoundLoopExit.top()) {
+            if (fFoundFunctionExit.back() || fFoundLoopExit.back()) {
                 // If we already found an exit in this section, anything beyond it is dead code.
                 if (!stmt->is<Nop>()) {
                     // Eliminate the dead statement by substituting a Nop.
@@ -52,7 +53,7 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
                 case Statement::Kind::kReturn:
                 case Statement::Kind::kDiscard:
                     // We found a function exit on this path.
-                    fFoundFunctionExit.top() = true;
+                    fFoundFunctionExit.back() = true;
                     break;
 
                 case Statement::Kind::kBreak:
@@ -60,7 +61,7 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
                     // We found a loop exit on this path. Note that we skip over switch statements
                     // completely when eliminating code, so any `break` statement would be breaking
                     // out of a loop, not out of a switch.
-                    fFoundLoopExit.top() = true;
+                    fFoundLoopExit.back() = true;
                     break;
 
                 case Statement::Kind::kExpression:
@@ -77,19 +78,19 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
                 case Statement::Kind::kDo: {
                     // Function-exits are allowed to propagate outside of a do-loop, because it
                     // always executes its body at least once.
-                    fFoundLoopExit.push(false);
+                    fFoundLoopExit.push_back(false);
                     bool result = INHERITED::visitStatementPtr(stmt);
-                    fFoundLoopExit.pop();
+                    fFoundLoopExit.pop_back();
                     return result;
                 }
                 case Statement::Kind::kFor: {
                     // Function-exits are not allowed to propagate out, because a for-loop or while-
                     // loop could potentially run zero times.
-                    fFoundFunctionExit.push(false);
-                    fFoundLoopExit.push(false);
+                    fFoundFunctionExit.push_back(false);
+                    fFoundLoopExit.push_back(false);
                     bool result = INHERITED::visitStatementPtr(stmt);
-                    fFoundLoopExit.pop();
-                    fFoundFunctionExit.pop();
+                    fFoundLoopExit.pop_back();
+                    fFoundFunctionExit.pop_back();
                     return result;
                 }
                 case Statement::Kind::kIf: {
@@ -98,24 +99,26 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
                     // propagate out.
                     IfStatement& ifStmt = stmt->as<IfStatement>();
 
-                    fFoundFunctionExit.push(false);
-                    fFoundLoopExit.push(false);
+                    fFoundFunctionExit.push_back(false);
+                    fFoundLoopExit.push_back(false);
                     bool result = (ifStmt.ifTrue() && this->visitStatementPtr(ifStmt.ifTrue()));
-                    bool foundFunctionExitOnTrue = fFoundFunctionExit.top();
-                    bool foundLoopExitOnTrue = fFoundLoopExit.top();
-                    fFoundFunctionExit.pop();
-                    fFoundLoopExit.pop();
+                    bool foundFunctionExitOnTrue = fFoundFunctionExit.back();
+                    bool foundLoopExitOnTrue = fFoundLoopExit.back();
+                    fFoundFunctionExit.pop_back();
+                    fFoundLoopExit.pop_back();
 
-                    fFoundFunctionExit.push(false);
-                    fFoundLoopExit.push(false);
+                    fFoundFunctionExit.push_back(false);
+                    fFoundLoopExit.push_back(false);
                     result |= (ifStmt.ifFalse() && this->visitStatementPtr(ifStmt.ifFalse()));
-                    bool foundFunctionExitOnFalse = fFoundFunctionExit.top();
-                    bool foundLoopExitOnFalse = fFoundLoopExit.top();
-                    fFoundFunctionExit.pop();
-                    fFoundLoopExit.pop();
+                    bool foundFunctionExitOnFalse = fFoundFunctionExit.back();
+                    bool foundLoopExitOnFalse = fFoundLoopExit.back();
+                    fFoundFunctionExit.pop_back();
+                    fFoundLoopExit.pop_back();
 
-                    fFoundFunctionExit.top() |= foundFunctionExitOnTrue && foundFunctionExitOnFalse;
-                    fFoundLoopExit.top() |= foundLoopExitOnTrue && foundLoopExitOnFalse;
+                    fFoundFunctionExit.back() |= foundFunctionExitOnTrue &&
+                                                 foundFunctionExitOnFalse;
+                    fFoundLoopExit.back() |= foundLoopExitOnTrue &&
+                                             foundLoopExitOnFalse;
                     return result;
                 }
                 case Statement::Kind::kSwitch:
@@ -130,8 +133,8 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
         }
 
         ProgramUsage* fUsage;
-        std::stack<bool> fFoundFunctionExit;
-        std::stack<bool> fFoundLoopExit;
+        SkSTArray<32, bool> fFoundFunctionExit;
+        SkSTArray<32, bool> fFoundLoopExit;
 
         using INHERITED = ProgramWriter;
     };

@@ -90,6 +90,7 @@ generated_cc_atom(
         ":SkSLTransform_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLStatement_hdr",
+        "//include/private:SkTArray_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
         "//src/sksl/ir:SkSLIfStatement_hdr",
         "//src/sksl/ir:SkSLNop_hdr",
