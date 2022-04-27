@@ -42,6 +42,7 @@ class ShadowsView : public Sample {
     bool      fShowAmbient = true;
     bool      fShowSpot = true;
     bool      fUseAlt = false;
+    bool      fUseBlur = true;
     bool      fShowObject = true;
     bool      fIgnoreShadowAlpha = false;
     bool      fDoAlphaAnimation = false;
@@ -108,6 +109,10 @@ class ShadowsView : public Sample {
                     fUseAlt = !fUseAlt;
                     handled = true;
                     break;
+                case 'B':
+                    fUseBlur = !fUseBlur;
+                    handled = true;
+                    break;
                 case 'O':
                     fShowObject = !fShowObject;
                     handled = true;
@@ -157,6 +162,9 @@ class ShadowsView : public Sample {
         uint32_t flags = 0;
         if (fUseAlt) {
             flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
+        }
+        if (fUseBlur) {
+            flags |= SkShadowFlags::kConcaveBlurOnly_ShadowFlag;
         }
 
         SkColor ambientColor = SkColorSetARGB(ambientAlpha * 255, 0, 0, 0);
