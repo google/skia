@@ -52,6 +52,7 @@ config("default") {
   cflags = []
   cflags_c = []
   cflags_cc = []
+  cflags_objcc = []
   defines = []
   ldflags = []
   libs = []
@@ -335,6 +336,8 @@ config("default") {
       cflags_cc += [ "-fno-aligned-allocation" ]
     }
   }
+
+  cflags_objcc += cflags_cc
 }
 
 # See skia:9731.
@@ -346,6 +349,7 @@ config("no_exceptions") {
   # Exceptions are disabled by default on Windows.  (Use /EHsc to enable them.)
   if (!is_win) {
     cflags_cc = [ "-fno-exceptions" ]
+    cflags_objcc = cflags_cc
   }
 }
 
@@ -539,6 +543,8 @@ config("warnings") {
       "-Wdeprecated-writable-str",
     ]
   }
+
+  cflags_objcc += cflags_cc
 }
 config("warnings_for_public_headers") {
   if (is_clang) {
@@ -584,6 +590,7 @@ config("no_rtti") {
       cflags_cc = [ "/GR-" ]
     } else {
       cflags_cc = [ "-fno-rtti" ]
+      cflags_objcc = cflags_cc
     }
   }
 }
