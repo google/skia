@@ -51,7 +51,7 @@ bool MtlFormatIsStencil(MTLPixelFormat format) {
     }
 }
 
-MTLPixelFormat MtlDepthStencilFlagsToFormat(Mask<DepthStencilFlags> mask) {
+MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags> mask) {
     // TODO: Decide if we want to change this to always return a combined depth and stencil format
     // to allow more sharing of depth stencil allocations.
     if (mask == DepthStencilFlags::kDepth) {

@@ -518,7 +518,7 @@ void Device::drawImageRect(const SkImage* image, const SkRect* src, const SkRect
 void Device::drawShape(const Shape& shape,
                        const SkPaint& paint,
                        const SkStrokeRec& style,
-                       Mask<DrawFlags> flags) {
+                       SkEnumBitMask<DrawFlags> flags) {
     const Transform& localToDevice = this->localToDeviceTransform();
     if (!localToDevice.valid()) {
         // If the transform is not invertible or not finite then drawing isn't well defined.

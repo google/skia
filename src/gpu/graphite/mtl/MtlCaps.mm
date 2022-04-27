@@ -501,7 +501,9 @@ TextureInfo MtlCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledI
 }
 
 TextureInfo MtlCaps::getDefaultDepthStencilTextureInfo(
-            Mask<DepthStencilFlags> depthStencilType, uint32_t sampleCount, Protected) const {
+            SkEnumBitMask<DepthStencilFlags> depthStencilType,
+            uint32_t sampleCount,
+            Protected) const {
     MtlTextureInfo info;
     info.fSampleCount = sampleCount;
     info.fLevelCount = 1;

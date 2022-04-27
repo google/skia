@@ -67,16 +67,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "MaskTest_src",
-    srcs = ["MaskTest.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//src/gpu/graphite:EnumBitMask_hdr",
-        "//tests:Test_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "RecorderTest_src",
     srcs = ["RecorderTest.cpp"],
     visibility = ["//:__subpackages__"],

@@ -9,10 +9,10 @@
 #define skgpu_Device_DEFINED
 
 #include "src/core/SkDevice.h"
+#include "src/core/SkEnumBitMask.h"
 
 #include "src/gpu/graphite/ClipStack_graphite.h"
 #include "src/gpu/graphite/DrawOrder.h"
-#include "src/gpu/graphite/EnumBitMask.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
@@ -154,7 +154,7 @@ private:
         // - drawShape after it's applied the path effect.
         kIgnorePathEffect = 0b10,
     };
-    SKGPU_DECL_MASK_OPS_FRIENDS(DrawFlags);
+    SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags);
 
     Device(Recorder*, sk_sp<DrawContext>);
 
@@ -163,7 +163,7 @@ private:
     void drawShape(const Shape&,
                    const SkPaint&,
                    const SkStrokeRec&,
-                   Mask<DrawFlags> = DrawFlags::kNone);
+                   SkEnumBitMask<DrawFlags> = DrawFlags::kNone);
     // Lowest level draw recording where everything but Renderer has been decided.
     void recordDraw(const Transform& localToDevice,
                     const Shape& shape,
@@ -196,7 +196,7 @@ private:
     friend class ClipStack; // for recordDraw
 };
 
-SKGPU_MAKE_MASK_OPS(Device::DrawFlags)
+SK_MAKE_BITMASK_OPS(Device::DrawFlags)
 
 } // namespace skgpu
 

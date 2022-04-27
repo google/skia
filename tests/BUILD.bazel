@@ -7220,3 +7220,13 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [":TestHarness_hdr"],
 )
+
+generated_cc_atom(
+    name = "SkEnumBitMaskTest_src",
+    srcs = ["SkEnumBitMaskTest.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Test_hdr",
+        "//src/core:SkEnumBitMask_hdr",
+    ],
+)

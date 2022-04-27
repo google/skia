@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/EnumBitMask.h"
+#include "src/core/SkEnumBitMask.h"
 #include "tests/Test.h"
 
 enum class Flags {
@@ -14,13 +14,10 @@ enum class Flags {
     kB = 2,
     kC = 4
 };
+SK_MAKE_BITMASK_OPS(Flags);
 
-SKGPU_MAKE_MASK_OPS(Flags);
-
-using namespace skgpu::graphite;
-
-DEF_GRAPHITE_TEST(skgpu_Mask, r) {
-    Mask<Flags> flags = Flags::kNone;
+DEF_TEST(skgpu_Mask, r) {
+    SkEnumBitMask<Flags> flags = Flags::kNone;
     REPORTER_ASSERT(r, !flags);
     flags |= Flags::kA;
     REPORTER_ASSERT(r, flags);

@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
@@ -65,7 +66,7 @@ public:
     bool requiresDstTexture() const { return false;            }
     bool requiresMSAA()       const { return fRequiresMSAA;    }
 
-    Mask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
+    SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
 
     size_t vertexBufferSize()  const { return 0; }
     size_t uniformBufferSize() const { return 0; }
@@ -207,7 +208,7 @@ private:
     std::pair<LoadOp, StoreOp> fOps;
     std::array<float, 4>       fClearColor;
 
-    Mask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
+    SkEnumBitMask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
     bool                    fRequiresMSAA = false;
 };
 

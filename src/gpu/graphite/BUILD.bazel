@@ -44,6 +44,7 @@ generated_cc_atom(
         ":ResourceTypes_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkRefCnt_hdr",
+        "//src/core:SkEnumBitMask_hdr",
         "//src/gpu:ResourceKey_hdr",
         "//src/gpu:Swizzle_hdr",
     ],
@@ -190,8 +191,8 @@ generated_cc_atom(
     deps = [
         ":ClipStack_graphite_hdr",
         ":DrawOrder_hdr",
-        ":EnumBitMask_hdr",
         "//src/core:SkDevice_hdr",
+        "//src/core:SkEnumBitMask_hdr",
         "//src/gpu/graphite/geom:Rect_hdr",
         "//src/gpu/graphite/geom:Transform_graphite_hdr",
     ],
@@ -344,6 +345,7 @@ generated_cc_atom(
         "//include/core:SkColor_hdr",
         "//include/core:SkRect_hdr",
         "//include/core:SkRefCnt_hdr",
+        "//src/core:SkEnumBitMask_hdr",
         "//src/core:SkTBlockList_hdr",
     ],
 )
@@ -409,13 +411,6 @@ generated_cc_atom(
         ":DrawWriter_hdr",
         "//src/gpu:BufferWriter_hdr",
     ],
-)
-
-generated_cc_atom(
-    name = "EnumBitMask_hdr",
-    hdrs = ["EnumBitMask.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//include/gpu/graphite:GraphiteTypes_hdr"],
 )
 
 generated_cc_atom(
@@ -587,11 +582,11 @@ generated_cc_atom(
     deps = [
         ":Attribute_hdr",
         ":DrawTypes_hdr",
-        ":EnumBitMask_hdr",
         ":ResourceTypes_hdr",
         "//include/core:SkSpan_hdr",
         "//include/core:SkString_hdr",
         "//include/core:SkTypes_hdr",
+        "//src/core:SkEnumBitMask_hdr",
         "//src/core:SkUniform_hdr",
     ],
 )
@@ -635,8 +630,8 @@ generated_cc_atom(
     hdrs = ["ResourceTypes.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":EnumBitMask_hdr",
         "//include/gpu/graphite:GraphiteTypes_hdr",
+        "//src/core:SkEnumBitMask_hdr",
     ],
 )
 

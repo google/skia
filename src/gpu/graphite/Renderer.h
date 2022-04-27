@@ -8,9 +8,9 @@
 #ifndef skgpu_graphite_Renderer_DEFINED
 #define skgpu_graphite_Renderer_DEFINED
 
+#include "src/core/SkEnumBitMask.h"
 #include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/DrawTypes.h"
-#include "src/gpu/graphite/EnumBitMask.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #include "include/core/SkSpan.h"
@@ -82,7 +82,7 @@ public:
 
     const DepthStencilSettings& depthStencilSettings() const { return fDepthStencilSettings; }
 
-    Mask<DepthStencilFlags> depthStencilFlags() const {
+    SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const {
         return (fDepthStencilSettings.fStencilTestEnabled
                         ? DepthStencilFlags::kStencil : DepthStencilFlags::kNone) |
                (fDepthStencilSettings.fDepthTestEnabled || fDepthStencilSettings.fDepthWriteEnabled
@@ -114,14 +114,14 @@ protected:
         kRequiresMSAA    = 0b001,
         kPerformsShading = 0b010,
     };
-    SKGPU_DECL_MASK_OPS_FRIENDS(Flags);
+    SK_DECL_BITMASK_OPS_FRIENDS(Flags);
 
     // While RenderStep does not define the full program that's run for a draw, it defines the
     // entire vertex layout of the pipeline. This is not allowed to change, so can be provided to
     // the RenderStep constructor by subclasses.
     RenderStep(std::string_view className,
                std::string_view variantName,
-               Mask<Flags> flags,
+               SkEnumBitMask<Flags> flags,
                std::initializer_list<SkUniform> uniforms,
                PrimitiveType primitiveType,
                DepthStencilSettings depthStencilSettings,
@@ -154,8 +154,8 @@ private:
     RenderStep(const RenderStep&) = delete;
     RenderStep(RenderStep&&)      = delete;
 
-    Mask<Flags>   fFlags;
-    PrimitiveType fPrimitiveType;
+    SkEnumBitMask<Flags> fFlags;
+    PrimitiveType        fPrimitiveType;
 
     DepthStencilSettings fDepthStencilSettings;
 
@@ -174,7 +174,7 @@ private:
 
     std::string fName;
 };
-SKGPU_MAKE_MASK_OPS(RenderStep::Flags);
+SK_MAKE_BITMASK_OPS(RenderStep::Flags);
 
 /**
  * The actual technique for rasterizing a high-level draw recorded in a DrawList is handled by a
@@ -218,7 +218,7 @@ public:
     int         numRenderSteps()  const { return fStepCount;       }
     bool        requiresMSAA()    const { return fRequiresMSAA;    }
 
-    Mask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
+    SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
 
 private:
     // max render steps is 4, so just spell the options out for now...
@@ -260,7 +260,7 @@ private:
     int      fStepCount;
     bool     fRequiresMSAA = false;
 
-    Mask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
+    SkEnumBitMask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
 };
 
 } // skgpu namespace::graphite
