@@ -228,7 +228,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     gpu->testingOnly_startCapture();
 #endif
     auto recorder = context->makeRecorder();
-    SkKeyContext keyContext(recorder.get());
+    SkKeyContext keyContext(recorder.get(), {});
     auto resourceProvider = recorder->priv().resourceProvider();
     auto commandBuffer = resourceProvider->createCommandBuffer();
 

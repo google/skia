@@ -19,6 +19,10 @@
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/EnumBitMask.h"
+#endif
+
 // TODO: How to represent the type (e.g., 2D) of texture being sampled?
 class SkTextureAndSampler {
 public:
@@ -29,6 +33,14 @@ public:
 private:
     const char* fName;
 };
+
+enum class SnippetRequirementFlags : uint32_t {
+    kNone = 0x0,
+    kDev2LocalMat = 0x1,
+};
+#ifdef SK_GRAPHITE_ENABLED
+SKGPU_MAKE_MASK_OPS(SnippetRequirementFlags);
+#endif
 
 struct SkShaderSnippet {
     using GenerateGlueCodeForEntry = std::string (*)(const std::string& resultName,
@@ -41,12 +53,14 @@ struct SkShaderSnippet {
     SkShaderSnippet() = default;
 
     SkShaderSnippet(SkSpan<const SkUniform> uniforms,
+                    SnippetRequirementFlags snippetRequirementFlags,
                     SkSpan<const SkTextureAndSampler> texturesAndSamplers,
                     const char* functionName,
                     GenerateGlueCodeForEntry glueCodeGenerator,
                     int numChildren,
                     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations)
             : fUniforms(uniforms)
+            , fSnippetRequirementFlags(snippetRequirementFlags)
             , fTexturesAndSamplers(texturesAndSamplers)
             , fStaticFunctionName(functionName)
             , fGlueCodeGenerator(glueCodeGenerator)
@@ -57,6 +71,7 @@ struct SkShaderSnippet {
     std::string getMangledUniformName(int uniformIndex, int mangleId) const;
 
     SkSpan<const SkUniform> fUniforms;
+    SnippetRequirementFlags fSnippetRequirementFlags;
     SkSpan<const SkTextureAndSampler> fTexturesAndSamplers;
     const char* fStaticFunctionName = nullptr;
     GenerateGlueCodeForEntry fGlueCodeGenerator = nullptr;
@@ -72,6 +87,13 @@ public:
         fBlockReaders.push_back(reader);
     }
 #ifdef SK_GRAPHITE_ENABLED
+    void addFlags(SnippetRequirementFlags flags) {
+        fSnippetRequirementFlags |= flags;
+    }
+    bool needsDev2Local() const {
+        return fSnippetRequirementFlags & SnippetRequirementFlags::kDev2LocalMat;
+    }
+
     void setBlendInfo(const SkPipelineDataGatherer::BlendInfo& blendInfo) {
         fBlendInfo = blendInfo;
     }
@@ -91,6 +113,8 @@ private:
     std::vector<SkPaintParamsKey::BlockReader> fBlockReaders;
 
 #ifdef SK_GRAPHITE_ENABLED
+    skgpu::graphite::Mask<SnippetRequirementFlags> fSnippetRequirementFlags =
+                                                                     SnippetRequirementFlags::kNone;
     // The blendInfo doesn't actually contribute to the program's creation but, it contains the
     // matching fixed-function settings that the program's caller needs to set up.
     SkPipelineDataGatherer::BlendInfo fBlendInfo;
@@ -150,6 +174,9 @@ public:
     const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
     SkSpan<const SkUniform> getUniforms(SkBuiltInCodeSnippetID) const;
+    SnippetRequirementFlags getSnippetRequirementFlags(SkBuiltInCodeSnippetID id) const {
+        return fBuiltInCodeSnippets[(int) id].fSnippetRequirementFlags;
+    }
 
     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations(int snippetID) const;
 

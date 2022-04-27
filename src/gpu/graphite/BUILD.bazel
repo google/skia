@@ -805,8 +805,11 @@ generated_cc_atom(
         ":PaintParams_hdr",
         "//include/core:SkShader_hdr",
         "//src/core:SkBlenderBase_hdr",
+        "//src/core:SkKeyContext_hdr",
         "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkPaintParamsKey_hdr",
+        "//src/core:SkPipelineData_hdr",
+        "//src/core:SkUniform_hdr",
         "//src/shaders:SkShaderBase_hdr",
     ],
 )

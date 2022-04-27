@@ -4862,6 +4862,7 @@ generated_cc_atom(
         "//include/effects:SkGradientShader_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//tools:Resources_hdr",
+        "//tools:ToolUtils_hdr",
     ],
 )
 

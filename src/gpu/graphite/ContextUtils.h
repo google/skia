@@ -10,6 +10,7 @@
 
 #include "src/gpu/graphite/PipelineDataCache.h"
 
+class SkM44;
 class SkPaintParamsKeyBuilder;
 class SkPipelineDataGatherer;
 class SkUniquePaintParamsID;
@@ -25,6 +26,7 @@ std::tuple<SkUniquePaintParamsID, UniformDataCache::Index, TextureDataCache::Ind
 ExtractPaintData(Recorder*,
                  SkPipelineDataGatherer* gatherer,
                  SkPaintParamsKeyBuilder* builder,
+                 const SkM44& dev2local,
                  const PaintParams&);
 
 UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,

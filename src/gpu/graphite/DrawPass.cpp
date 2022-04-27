@@ -323,7 +323,9 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         if (draw.fPaintParams.has_value()) {
             UniformDataCache::Index uniformDataIndex;
             std::tie(shaderID, uniformDataIndex, textureBindingIndex) =
-                    ExtractPaintData(recorder, &gatherer, &builder, draw.fPaintParams.value());
+                    ExtractPaintData(recorder, &gatherer, &builder,
+                                     draw.fGeometry.transform().inverse(),
+                                     draw.fPaintParams.value());
             shadingUniformIndex = shadingUniformBindings.addUniforms(uniformDataIndex);
         } // else depth-only
 

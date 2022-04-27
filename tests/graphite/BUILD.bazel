@@ -123,6 +123,7 @@ generated_cc_atom(
     srcs = ["UniformTest.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkM44_hdr",
         "//include/core:SkPaint_hdr",
         "//include/effects:SkGradientShader_hdr",
         "//include/gpu/graphite:Recorder_hdr",

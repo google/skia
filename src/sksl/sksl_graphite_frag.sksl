@@ -27,10 +27,15 @@ float $tile(int tm, float f, float origin, float length) {
     }
 }
 
-float2 sk_compute_coords(float4 subset, int tmX, int tmY) {
+float2 sk_compute_coords(float4 subset,
+                        int tmX, int tmY,
+                        int pad1, int pad2,
+                        float4x4 dev2Local) {
+    float4 localCoords = dev2Local * sk_FragCoord;
     float2 subsetWH = (subset.zw - subset.xy);
-    return float2($tile(tmX, sk_FragCoord.x, subset.x, subsetWH.x),
-                  $tile(tmY, sk_FragCoord.y, subset.y, subsetWH.y));
+    float2 coords = float2($tile(tmX, localCoords.x, subset.x, subsetWH.x),
+                           $tile(tmY, localCoords.y, subset.y, subsetWH.y));
+    return coords;
 }
 
 half4 sk_linear_grad_4_shader(float4 colorsParam[4],
@@ -39,9 +44,9 @@ half4 sk_linear_grad_4_shader(float4 colorsParam[4],
                               float2 point1Param,
                               float radius0Param,
                               float radius1Param,
-                              float2 padding) {
-    // TODO: This should use local coords
-    float2 pos = sk_FragCoord.xy;
+                              float2 padding,
+                              float4x4 dev2Local) {
+    float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 delta = point1Param - point0Param;
     float2 pt = pos - point0Param;
     float t = dot(pt, delta) / dot(delta, delta);

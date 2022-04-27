@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/graphite/Recorder.h"
@@ -70,7 +71,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     using namespace skgpu::graphite;
 
     auto recorder = context->makeRecorder();
-    SkKeyContext keyContext(recorder.get());
+    SkKeyContext keyContext(recorder.get(), {});
     auto dict = keyContext.dict();
     auto tCache = recorder->priv().textureDataCache();
 
@@ -96,7 +97,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
                 auto [ p, expectedNumTextures ] = create_paint(s, tm, bm);
 
                 auto [ uniqueID1, uIndex, tIndex] = ExtractPaintData(recorder.get(), &gatherer,
-                                                                     &builder, PaintParams(p));
+                                                                     &builder, {}, PaintParams(p));
 
                 SkUniquePaintParamsID uniqueID2 = CreateKey(keyContext, &builder, s, tm, bm);
                 // ExtractPaintData and CreateKey agree
