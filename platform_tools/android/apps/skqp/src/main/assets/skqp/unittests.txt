@@ -1,12 +1,23 @@
-# This file is a list of regular expressions, one per line.
-# Any test name matching an expression will be excluded from the set run by SKQP.
+# This file is a list of tests to be excluded from a given run of SkQP.
+
+# The format of the list is: <regex_match_to_tests>[,<optional_android_API_level>]
+# The optional Android API level allows the test to be run if the the device's first
+# API level is greater than or equal to the provided API level. For example ".*FOO.*,33"
+# will exclude all tests containing FOO on devices older than Android T.
+
+# Android API Conversion Chart
+# -----------|--------------|-----------
+# Version    | Release Code | API Level
+# -----------|--------------|-----------
+# Android 13 |      T       |     33
+
+
 # Empty lines and comments starting with # are ignored.
 # This is parsed by tools/skqp/src/skqp.cpp
 # The sheet at go/skqp-cts-tests was the basis of this file.
 
-# Exclude all unit tests that end with the ES3 suffix because Android does not
-# require ES3 support.
-.+ES3
+# Exclude all unit tests that contain ES3 because Android does not require ES3 support.
+.*ES3.*
 
 SkRemoteGlyphCache_.+
 ApplyGamma
@@ -29,7 +40,7 @@ ImageFilter.+
 MorphologyFilterRadiusWithMirrorCTM_Gpu
 
 # Android doesn't use promise images
-PromiseImage*
+PromiseImage.*
 
 SkipCopyTaskTest
 SkipOpsTaskTest
@@ -39,7 +50,8 @@ SrcSrcOverBatchTest
 # Tests chaining/batching logic, not actual execution
 TextureOpTest
 
-# These tests mostly stress the CPU-side math of triangulating, not the GPU drawing triangles, which hopefully we can trust to just work
+# These tests mostly stress the CPU-side math of triangulating, not the GPU drawing
+# triangles, which hopefully we can trust to just work
 TriangulatingPath.+
 
 VkDRMModifierTest
@@ -66,6 +78,13 @@ XfermodeImageFilterCroppedInput_Gpu
 skbug5221_GPU
 
 # Tests which don't pass on some Qualcomm devices without workarounds b/222736702
-DMSAA_dual_source_blend_disable
-GLBackendAllocationTest
-GrSurfaceRenderability
+DMSAA_dual_source_blend_disable, 33
+GLBackendAllocationTest, 33
+GrSurfaceRenderability, 33
+
+# Test that fail on some existing in-market devices b/229804433
+ES2BlendWithNoTexture, 33
+GLBackendAllocationTest, 33
+GrSurfaceRenderability, 33
+SkRuntimeEffect_Blender_GPU, 33
+SkSLStructsInFunctions_GPU, 33
