@@ -111,7 +111,7 @@ SmallPathShapeData* SmallPathAtlasMgr::findOrCreate(const GrStyledShape& shape,
 GrDrawOpAtlas::ErrorCode SmallPathAtlasMgr::addToAtlas(GrResourceProvider* resourceProvider,
                                                        GrDeferredUploadTarget* target,
                                                        int width, int height, const void* image,
-                                                       GrDrawOpAtlas::AtlasLocator* locator) {
+                                                       skgpu::AtlasLocator* locator) {
     return fAtlas->addToAtlas(resourceProvider, target, width, height, image, locator);
 }
 
@@ -121,7 +121,7 @@ void SmallPathAtlasMgr::setUseToken(SmallPathShapeData* shapeData,
 }
 
 // Callback to clear out internal path cache when eviction occurs
-void SmallPathAtlasMgr::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+void SmallPathAtlasMgr::evict(skgpu::PlotLocator plotLocator) {
     // remove any paths that use this plot
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);

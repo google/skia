@@ -5,6 +5,7 @@ licenses(["notice"])
 cc_library(
     name = "core_srcs",
     deps = [
+        ":AtlasTypes_src",
         ":Blend_src",
         ":RectanizerPow2_src",
         ":RectanizerSkyline_src",
@@ -136,10 +137,13 @@ generated_cc_atom(
     hdrs = ["AtlasTypes.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":RectanizerSkyline_hdr",
         "//include/core:SkColorType_hdr",
         "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkTo_hdr",
+        "//src/core:SkIPoint16_hdr",
     ],
 )
 
@@ -196,5 +200,16 @@ generated_cc_atom(
     deps = [
         ":Blend_hdr",
         "//include/core:SkBlendMode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AtlasTypes_src",
+    srcs = ["AtlasTypes.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AtlasTypes_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//src/core:SkOpts_hdr",
     ],
 )

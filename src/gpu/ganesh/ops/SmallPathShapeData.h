@@ -52,7 +52,7 @@ public:
 
     const SmallPathShapeDataKey fKey;
     SkRect                      fBounds;
-    GrDrawOpAtlas::AtlasLocator fAtlasLocator;
+    skgpu::AtlasLocator         fAtlasLocator;
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(SmallPathShapeData);
 

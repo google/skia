@@ -73,9 +73,9 @@ void GrDrawOpAtlas::setMaxPages_TestingOnly(uint32_t maxPages) {
     fMaxPages = maxPages;
 }
 
-class AssertOnEvict : public GrDrawOpAtlas::EvictionCallback {
+class AssertOnEvict : public skgpu::PlotEvictionCallback {
 public:
-    void evict(GrDrawOpAtlas::PlotLocator) override {
+    void evict(skgpu::PlotLocator) override {
         SkASSERT(0); // The unit test shouldn't exercise this code path
     }
 };
@@ -115,7 +115,7 @@ private:
 static bool fill_plot(GrDrawOpAtlas* atlas,
                       GrResourceProvider* resourceProvider,
                       GrDeferredUploadTarget* target,
-                      GrDrawOpAtlas::AtlasLocator* atlasLocator,
+                      skgpu::AtlasLocator* atlasLocator,
                       int alpha) {
     SkImageInfo ii = SkImageInfo::MakeA8(kPlotSize, kPlotSize);
 
@@ -147,7 +147,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
                                                            GrRenderable::kNo);
 
     AssertOnEvict evictor;
-    GrDrawOpAtlas::GenerationCounter counter;
+    skgpu::AtlasGenerationCounter counter;
 
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
@@ -162,7 +162,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     check(reporter, atlas.get(), 0, 4, 0);
 
     // Fill up the first level
-    GrDrawOpAtlas::AtlasLocator atlasLocators[kNumPlots * kNumPlots];
+    skgpu::AtlasLocator atlasLocators[kNumPlots * kNumPlots];
     for (int i = 0; i < kNumPlots * kNumPlots; ++i) {
         bool result = fill_plot(
                 atlas.get(), resourceProvider, &uploadTarget, &atlasLocators[i], i * 32);
@@ -174,7 +174,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     check(reporter, atlas.get(), 1, 4, 1);
 
     // Force allocation of a second level
-    GrDrawOpAtlas::AtlasLocator atlasLocator;
+    skgpu::AtlasLocator atlasLocator;
     bool result = fill_plot(atlas.get(), resourceProvider, &uploadTarget, &atlasLocator, 4 * 32);
     REPORTER_ASSERT(reporter, result);
     check(reporter, atlas.get(), 2, 4, 2);

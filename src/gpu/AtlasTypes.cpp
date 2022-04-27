@@ -1,0 +1,106 @@
+/*
+ * Copyright 2022 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "src/gpu/AtlasTypes.h"
+
+#include "include/private/SkMalloc.h"
+#include "src/core/SkOpts.h"
+
+namespace skgpu {
+
+Plot::Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCounter,
+           int offX, int offY, int width, int height, SkColorType colorType, size_t bpp)
+        : fPageIndex(pageIndex)
+        , fPlotIndex(plotIndex)
+        , fGenerationCounter(generationCounter)
+        , fGenID(fGenerationCounter->next())
+        , fPlotLocator(fPageIndex, fPlotIndex, fGenID)
+        , fData(nullptr)
+        , fWidth(width)
+        , fHeight(height)
+        , fX(offX)
+        , fY(offY)
+        , fRectanizer(width, height)
+        , fOffset(SkIPoint16::Make(fX * fWidth, fY * fHeight))
+        , fColorType(colorType)
+        , fBytesPerPixel(bpp)
+#ifdef SK_DEBUG
+        , fDirty(false)
+#endif
+{
+    // We expect the allocated dimensions to be a multiple of 4 bytes
+    SkASSERT(((width*fBytesPerPixel) & 0x3) == 0);
+    // The padding for faster uploads only works for 1, 2 and 4 byte texels
+    SkASSERT(fBytesPerPixel != 3 && fBytesPerPixel <= 4);
+    fDirtyRect.setEmpty();
+}
+
+Plot::~Plot() {
+    sk_free(fData);
+}
+
+bool Plot::addSubImage(int width, int height, const void* image, AtlasLocator* atlasLocator) {
+    SkASSERT(width <= fWidth && height <= fHeight);
+
+    SkIPoint16 loc;
+    if (!fRectanizer.addRect(width, height, &loc)) {
+        return false;
+    }
+
+    auto rect = skgpu::IRect16::MakeXYWH(loc.fX, loc.fY, width, height);
+
+    if (!fData) {
+        fData = reinterpret_cast<unsigned char*>(
+                sk_calloc_throw(fBytesPerPixel * fWidth * fHeight));
+    }
+    size_t rowBytes = width * fBytesPerPixel;
+    const unsigned char* imagePtr = (const unsigned char*)image;
+    // point ourselves at the right starting spot
+    unsigned char* dataPtr = fData;
+    dataPtr += fBytesPerPixel * fWidth * rect.fTop;
+    dataPtr += fBytesPerPixel * rect.fLeft;
+    // copy into the data buffer, swizzling as we go if this is ARGB data
+    constexpr bool kBGRAIsNative = kN32_SkColorType == kBGRA_8888_SkColorType;
+    if (4 == fBytesPerPixel && kBGRAIsNative) {
+        for (int i = 0; i < height; ++i) {
+            SkOpts::RGBA_to_BGRA((uint32_t*)dataPtr, (const uint32_t*)imagePtr, width);
+            dataPtr += fBytesPerPixel * fWidth;
+            imagePtr += rowBytes;
+        }
+    } else {
+        for (int i = 0; i < height; ++i) {
+            memcpy(dataPtr, imagePtr, rowBytes);
+            dataPtr += fBytesPerPixel * fWidth;
+            imagePtr += rowBytes;
+        }
+    }
+
+    fDirtyRect.join({rect.fLeft, rect.fTop, rect.fRight, rect.fBottom});
+
+    rect.offset(fOffset.fX, fOffset.fY);
+    atlasLocator->updateRect(rect);
+    SkDEBUGCODE(fDirty = true;)
+
+    return true;
+}
+
+void Plot::resetRects() {
+    fRectanizer.reset();
+
+    fGenID = fGenerationCounter->next();
+    fPlotLocator = PlotLocator(fPageIndex, fPlotIndex, fGenID);
+
+    // zero out the plot
+    if (fData) {
+        sk_bzero(fData, fBytesPerPixel * fWidth * fHeight);
+    }
+
+    fDirtyRect.setEmpty();
+    SkDEBUGCODE(fDirty = false;)
+}
+
+} // namespace skgpu

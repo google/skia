@@ -29,8 +29,8 @@ class SmallPathShapeDataKey;
  * TODO: investigate fusing this class and the GrAtlasManager.
  */
 class SmallPathAtlasMgr final : public GrOnFlushCallbackObject,
-                                public GrDrawOpAtlas::EvictionCallback,
-                                public GrDrawOpAtlas::GenerationCounter {
+                                public skgpu::PlotEvictionCallback,
+                                public skgpu::AtlasGenerationCounter {
 public:
     SmallPathAtlasMgr();
     ~SmallPathAtlasMgr() override;
@@ -45,7 +45,7 @@ public:
     GrDrawOpAtlas::ErrorCode addToAtlas(GrResourceProvider*,
                                         GrDeferredUploadTarget*,
                                         int width, int height, const void* image,
-                                        GrDrawOpAtlas::AtlasLocator*);
+                                        skgpu::AtlasLocator*);
 
     void setUseToken(SmallPathShapeData*, GrDeferredUploadToken);
 
@@ -78,7 +78,7 @@ public:
 private:
     SmallPathShapeData* findOrCreate(const SmallPathShapeDataKey&);
 
-    void evict(GrDrawOpAtlas::PlotLocator) override;
+    void evict(skgpu::PlotLocator) override;
 
     using ShapeCache = SkTDynamicHash<SmallPathShapeData, SmallPathShapeDataKey>;
     typedef SkTInternalLList<SmallPathShapeData> ShapeDataList;

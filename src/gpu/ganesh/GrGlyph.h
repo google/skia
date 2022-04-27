@@ -36,7 +36,7 @@ public:
     GrGlyph(SkPackedGlyphID packedGlyphID) : fPackedID(packedGlyphID) {}
 
     const SkPackedGlyphID       fPackedID;
-    GrDrawOpAtlas::AtlasLocator fAtlasLocator;
+    skgpu::AtlasLocator         fAtlasLocator;
 };
 
 #endif

@@ -65,7 +65,7 @@ private:
     sk_sp<SkStrike> fStrike;
     SkSpan<Variant> fGlyphs;
     sk_sp<GrTextStrike> fGrStrike{nullptr};
-    uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
+    uint64_t fAtlasGeneration{skgpu::AtlasGenerationCounter::kInvalidGeneration};
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
 };
 #endif  // GrGlyphVector_DEFINED

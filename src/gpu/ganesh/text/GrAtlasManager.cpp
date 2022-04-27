@@ -224,7 +224,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(GrResourceProvider* resource
                                                     GrDeferredUploadTarget* target,
                                                     MaskFormat format,
                                                     int width, int height, const void* image,
-                                                    GrDrawOpAtlas::AtlasLocator* atlasLocator) {
+                                                    skgpu::AtlasLocator* atlasLocator) {
     return this->getAtlas(format)->addToAtlas(resourceProvider, target, width, height, image,
                                               atlasLocator);
 }

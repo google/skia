@@ -25,7 +25,7 @@ class GrTextStrike;
  *  This implies that all of the advanced atlasManager functionality (i.e.,
  *  adding glyphs to the atlas) are only available at flush time.
  */
-class GrAtlasManager : public GrOnFlushCallbackObject, public GrDrawOpAtlas::GenerationCounter {
+class GrAtlasManager : public GrOnFlushCallbackObject, public skgpu::AtlasGenerationCounter {
 public:
     GrAtlasManager(GrProxyProvider*,
                    size_t maxTextureBytes,
@@ -74,7 +74,7 @@ public:
     // add to texture atlas that matches this format
     GrDrawOpAtlas::ErrorCode addToAtlas(GrResourceProvider*, GrDeferredUploadTarget*,
                                         skgpu::MaskFormat, int width, int height, const void* image,
-                                        GrDrawOpAtlas::AtlasLocator*);
+                                        skgpu::AtlasLocator*);
 
     // Some clients may wish to verify the integrity of the texture backing store of the
     // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which
