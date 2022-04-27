@@ -9219,7 +9219,6 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",
         "//src/gpu/ganesh:GrDrawingManager_hdr",
         "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
-        "//src/gpu/ganesh/ops:TessellationPathRenderer_hdr",
     ],
 )
 

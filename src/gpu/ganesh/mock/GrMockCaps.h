@@ -35,7 +35,6 @@ public:
         fShaderCaps->fShaderDerivativeSupport = options.fShaderDerivativeSupport;
         fShaderCaps->fDualSourceBlendingSupport = options.fDualSourceBlendingSupport;
         fShaderCaps->fSampleMaskSupport = true;
-        fShaderCaps->fMaxTessellationSegments = options.fMaxTessellationSegments;
 
         this->finishInitialization(contextOptions);
     }

@@ -16,6 +16,11 @@ Milestone 102
     use SkImage::makeSubset() to make a subset image and draw that. The previous GPU behavior is
     similar, though not exactly, equivalent to making a mipmapped image shader from the original
     image and applying that to a rectangle.
+  * Fully disable experimental support for HW tessellation shaders.
+    GrContextOptions::fEnableExperimentalHardwareTessellation is ignored and behaves as if it is
+    false. The culmination of the experiment that does not actually require tessellation shaders is
+    automatically enabled where supported when an SkSurface is created with MSAA, or when
+    GrContextOptions::fInternalMultisampleCount is set to a non-zero value.
 
 * * *
 

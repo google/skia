@@ -972,23 +972,6 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         }
     }
 
-    bool hasTessellationSupport = false;
-    if (GR_IS_GR_GL(standard)) {
-        hasTessellationSupport = version >= GR_GL_VER(4,0) ||
-                                 ctxInfo.hasExtension("GL_ARB_tessellation_shader");
-    } else if (version >= GR_GL_VER(3,2)) {
-        hasTessellationSupport = true;
-    } else if (ctxInfo.hasExtension("GL_OES_tessellation_shader")) {
-        hasTessellationSupport = true;
-        shaderCaps->fTessellationExtensionString = "GL_OES_tessellation_shader";
-    }
-    if (hasTessellationSupport) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_TESS_GEN_LEVEL_OES,
-                          &shaderCaps->fMaxTessellationSegments);
-        // Just in case a driver returns a negative number?
-        shaderCaps->fMaxTessellationSegments = std::max(0, shaderCaps->fMaxTessellationSegments);
-    }
-
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
                                                                   shaderCaps->fGLSLGeneration,
                                                                   fIsCoreProfile);
@@ -4198,35 +4181,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // all matching gpus regardless of driver version.
     if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
         fDisableTessellationPathRenderer = true;
-    }
-
-    // http://skbug.com/9739
-    bool isNVIDIAPascal =
-            ctxInfo.driver() == GrGLDriver::kNVIDIA                              &&
-            ctxInfo.hasExtension("GL_NV_conservative_raster_pre_snap_triangles") &&  // Pascal+.
-            !ctxInfo.hasExtension("GL_NV_conservative_raster_underestimation");      // Volta+.
-    if (isNVIDIAPascal && ctxInfo.driverVersion() < GR_GL_DRIVER_VER(440, 00, 0)) {
-        if (GR_IS_GR_GL(ctxInfo.standard())) {
-            // glMemoryBarrier wasn't around until version 4.2.
-            if (ctxInfo.version() >= GR_GL_VER(4,2)) {
-                fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
-            } else {
-                shaderCaps->fMaxTessellationSegments = 0;
-            }
-        } else {
-            // glMemoryBarrier wasn't around until es version 3.1.
-            if (ctxInfo.version() >= GR_GL_VER(3,1)) {
-                fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
-            } else {
-                shaderCaps->fMaxTessellationSegments = 0;
-            }
-        }
-    }
-
-    if (ctxInfo.driver() == GrGLDriver::kQualcomm) {
-        // Qualcomm fails to link programs with tessellation and does not give an error message.
-        // http://skbug.com/9740
-        shaderCaps->fMaxTessellationSegments = 0;
     }
 
 #ifdef SK_BUILD_FOR_WIN

@@ -246,6 +246,7 @@ struct SK_API GrContextOptions {
 
     /**
      * If true, and if supported, enables hardware tessellation in the caps.
+     * DEPRECATED: This value is ignored; experimental hardware tessellation is always disabled.
      */
     bool fEnableExperimentalHardwareTessellation = false;
 
@@ -294,12 +295,6 @@ struct SK_API GrContextOptions {
     bool fSuppressFramebufferFetch = false;
 
     /**
-     * If greater than zero and less than the actual hardware limit, overrides the maximum number of
-     * tessellation segments supported by the caps.
-     */
-    int  fMaxTessellationSegmentsOverride = 0;
-
-    /**
      * If true, then all paths are processed as if "setIsVolatile" had been called.
      */
     bool fAllPathsVolatile = false;
@@ -336,11 +331,6 @@ struct SK_API GrContextOptions {
      * A value of -1 means use the default limit value.
      */
     int fResourceCacheLimitOverride = -1;
-
-    /**
-     * If true, then always try to use hardware tessellation, regardless of how small a path may be.
-     */
-    bool fAlwaysPreferHardwareTessellation = false;
 
     /**
      * Maximum width and height of internal texture atlases.

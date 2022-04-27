@@ -23,14 +23,6 @@ static DEFINE_bool(cachePathMasks, true,
 static DEFINE_bool(allPathsVolatile, false,
                    "Causes all GPU paths to be processed as if 'setIsVolatile' had been called.");
 
-static DEFINE_bool(hwtess, false, "Enables support for tessellation shaders (if hw allows.).");
-
-static DEFINE_int(maxTessellationSegments, 0,
-                  "Overrides the max number of tessellation segments supported by the caps.");
-
-static DEFINE_bool(alwaysHwTess, false,
-        "Always try to use hardware tessellation, regardless of how small a path may be.");
-
 static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
               "[~]none [~]dashline [~]aahairline [~]aaconvex [~]aalinearizing [~]small [~]tri "
@@ -105,9 +97,6 @@ void SetCtxOptions(GrContextOptions* ctxOptions) {
     ctxOptions->fExecutor                            = gGpuExecutor.get();
     ctxOptions->fAllowPathMaskCaching                = FLAGS_cachePathMasks;
     ctxOptions->fAllPathsVolatile                    = FLAGS_allPathsVolatile;
-    ctxOptions->fEnableExperimentalHardwareTessellation = FLAGS_hwtess;
-    ctxOptions->fMaxTessellationSegmentsOverride     = FLAGS_maxTessellationSegments;
-    ctxOptions->fAlwaysPreferHardwareTessellation    = FLAGS_alwaysHwTess;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
     ctxOptions->fResourceCacheLimitOverride          = FLAGS_gpuResourceCacheLimit;

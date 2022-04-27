@@ -219,10 +219,9 @@ public:
         return this->maxWindowRectangles() > 0 && this->onIsWindowRectanglesSupportedForRT(rt);
     }
 
-    // Hardware tessellation seems to have a fixed upfront cost. If there is a somewhat small number
-    // of verbs, we seem to be faster emulating tessellation with instanced draws instead.
-    int minPathVerbsForHwTessellation() const { return fMinPathVerbsForHwTessellation; }
-    int minStrokeVerbsForHwTessellation() const { return fMinStrokeVerbsForHwTessellation; }
+    // TODO: Should never be called, will be deleted shortly skbug.com/13263.
+    int minPathVerbsForHwTessellation() const { return 0; }
+    int minStrokeVerbsForHwTessellation() const { return 0; }
 
     uint32_t maxPushConstantsSize() const { return fMaxPushConstantsSize; }
 
@@ -611,8 +610,6 @@ protected:
     int fMaxTextureSize;
     int fMaxWindowRectangles;
     int fInternalMultisampleCount;
-    int fMinPathVerbsForHwTessellation = 25;
-    int fMinStrokeVerbsForHwTessellation = 50;
     uint32_t fMaxPushConstantsSize = 0;
     size_t fTransferBufferAlignment = 1;
 

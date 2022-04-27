@@ -97,17 +97,19 @@ struct GrShaderCaps : SkSL::ShaderCaps {
         return fSampleVariablesExtensionString;
     }
 
+    // NOTE: This is never called since tessellationSupport() always returns false; it will be
+    // removed as more HW tessellation code is deleted.
     const char* tessellationExtensionString() const {
         SkASSERT(this->tessellationSupport());
-        return fTessellationExtensionString;
+        return "";
     }
 
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
     // Maximum number of segments a tessellation edge can be divided into.
-    int maxTessellationSegments() const { return fMaxTessellationSegments; }
+    int maxTessellationSegments() const { return 0; }
 
-    bool tessellationSupport() const { return SkToBool(fMaxTessellationSegments);}
+    bool tessellationSupport() const { return false;}
 
     void applyOptionsOverrides(const GrContextOptions& options);
 
@@ -133,12 +135,10 @@ struct GrShaderCaps : SkSL::ShaderCaps {
     const char* fSecondaryOutputExtensionString = nullptr;
     const char* fNoPerspectiveInterpolationExtensionString = nullptr;
     const char* fSampleVariablesExtensionString = nullptr;
-    const char* fTessellationExtensionString = nullptr;
 
     const char* fFBFetchExtensionString = nullptr;
 
     int fMaxFragmentSamplers = 0;
-    int fMaxTessellationSegments = 0;
 };
 
 #endif

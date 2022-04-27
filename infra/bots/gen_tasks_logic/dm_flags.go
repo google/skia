@@ -563,11 +563,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test GPU tessellation path renderer.
 		if b.extraConfig("GpuTess") {
 			configs = []string{glPrefix + "msaa4"}
-			// Use hardware tessellation as much as possible for testing. Use 16 segments max to
-			// verify the chopping logic.
-			args = append(args,
-				"--pr", "atlas", "tess", "--hwtess", "--alwaysHwTess",
-				"--maxTessellationSegments", "16")
+			// Use fixed count tessellation path renderers as much as possible.
+			args = append(args, "--pr", "atlas", "tess")
 		}
 
 		// DDL is a GPU-only feature
@@ -992,7 +989,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.matchGpu("Adreno[3456]") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 3/4/5/6xx GLSL
 		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinctFromGlobal_GPU") // skia:13115
-    }
+	}
 
 	if b.matchGpu("Adreno6") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 6xx GLSL
 		skip(ALL, "tests", ALL, "SkSLIntrinsicIsInf_GPU") // skia:12377
@@ -1024,8 +1021,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchGpu("Intel") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
-		skip(ALL, "tests", ALL, "SkSLReturnsValueOnEveryPathES3_GPU") // skia:12465
-		skip(ALL, "tests", ALL, "SkSLReturnsValueOnEveryPathES3_GPU") // skia:12465
+		skip(ALL, "tests", ALL, "SkSLReturnsValueOnEveryPathES3_GPU")     // skia:12465
+		skip(ALL, "tests", ALL, "SkSLReturnsValueOnEveryPathES3_GPU")     // skia:12465
 		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinctFromGlobal_GPU") // skia:13115
 	}
 
@@ -1072,9 +1069,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.gpu("QuadroP400") && b.matchOs("Win10") && b.matchModel("Golo") {
-	    // Times out with driver 30.0.15.1179
+		// Times out with driver 30.0.15.1179
 		skip("vkmsaa4", "gm", ALL, "shadow_utils")
-    }
+	}
 
 	if b.gpu("PowerVRGE8320") || b.gpu("Tegra3") || b.gpu("Adreno308") {
 		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU") // skia:11919
@@ -1219,7 +1216,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.arch("arm64") && b.extraConfig("ASAN") {
 		// skbug.com/13155 the use of longjmp may cause ASAN stack check issues.
-		skip(ALL, "test", ALL, "SkPDF_JpegIdentification");
+		skip(ALL, "test", ALL, "SkPDF_JpegIdentification")
 	}
 
 	if b.matchOs("Mac") && b.gpu("IntelHD6000") {

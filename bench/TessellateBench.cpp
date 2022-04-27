@@ -27,7 +27,6 @@ constexpr static int kNumCubicsInChalkboard = 47182;
 static sk_sp<GrDirectContext> make_mock_context() {
     GrMockOptions mockOptions;
     mockOptions.fDrawInstancedSupport = true;
-    mockOptions.fMaxTessellationSegments = 64;
     mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
     mockOptions.fConfigOptions[(int)GrColorType::kAlpha_8].fRenderability =
             GrMockOptions::ConfigOptions::Renderability::kMSAA;

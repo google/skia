@@ -125,7 +125,6 @@ struct GrMockOptions {
     int fMaxRenderTargetSize = 2048;
     int fMaxWindowRectangles = 0;
     int fMaxVertexAttributes = 16;
-    int fMaxTessellationSegments = 0;
     ConfigOptions fConfigOptions[kGrColorTypeCnt];
     ConfigOptions fCompressedOptions[SkImage::kCompressionTypeCount];
 
