@@ -160,7 +160,7 @@ protected:
     };
 
     // Performs any work to finalize this renderTask prior to execution. If returning
-    // ExpectedOutcome::kTargetDiry, the caller is also responsible to fill out the area it will
+    // ExpectedOutcome::kTargetDirty, the caller is also responsible to fill out the area it will
     // modify in targetUpdateBounds.
     //
     // targetUpdateBounds must not extend beyond the proxy bounds.
