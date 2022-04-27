@@ -25,8 +25,8 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkSLCheckProgramUnrolledSize_src",
-    srcs = ["SkSLCheckProgramUnrolledSize.cpp"],
+    name = "SkSLCheckProgramStructure_src",
+    srcs = ["SkSLCheckProgramStructure.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLProgramVisitor_hdr",

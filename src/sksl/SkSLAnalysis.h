@@ -66,12 +66,13 @@ bool CallsColorTransformIntrinsics(const Program& program);
 bool ReturnsOpaqueColor(const FunctionDefinition& function);
 
 /**
- * Computes the size of the program in a completely flattened state--loops fully unrolled,
+ * Checks for recursion or overly-deep function-call chains, and rejects programs which have them.
+ * Also, computes the size of the program in a completely flattened state--loops fully unrolled,
  * function calls inlined--and rejects programs that exceed an arbitrary upper bound. This is
  * intended to prevent absurdly large programs from overwhemling SkVM. Only strict-ES2 mode is
  * supported; complex control flow is not SkVM-compatible (and this becomes the halting problem)
  */
-bool CheckProgramUnrolledSize(const Program& program);
+bool CheckProgramStructure(const Program& program);
 
 /**
  * Detect an orphaned variable declaration outside of a scope, e.g. if (true) int a;. Returns

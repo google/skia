@@ -650,7 +650,7 @@ bool Compiler::finalize(Program& program) {
         }
         // Verify that the program size is reasonable after unrolling and inlining. This also
         // issues errors for static recursion and overly-deep function-call chains.
-        Analysis::CheckProgramUnrolledSize(program);
+        Analysis::CheckProgramStructure(program);
     }
 
     return this->errorCount() == 0;

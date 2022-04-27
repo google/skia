@@ -31,7 +31,7 @@
 
 namespace SkSL {
 
-bool Analysis::CheckProgramUnrolledSize(const Program& program) {
+bool Analysis::CheckProgramStructure(const Program& program) {
     // We check the size of strict-ES2 programs since SkVM will completely unroll them.
     // Note that we *cannot* safely check the program size of non-ES2 code at this time, as it is
     // allowed to do things we can't measure (e.g. the program can contain a recursive cycle). We

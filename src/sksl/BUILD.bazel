@@ -44,7 +44,7 @@ cc_library(
         ":SkSLThreadContext_src",
         ":SkSLUtil_src",
         "//src/sksl/analysis:SkSLCanExitWithoutReturningValue_src",
-        "//src/sksl/analysis:SkSLCheckProgramUnrolledSize_src",
+        "//src/sksl/analysis:SkSLCheckProgramStructure_src",
         "//src/sksl/analysis:SkSLFinalizationChecks_src",
         "//src/sksl/analysis:SkSLGetLoopUnrollInfo_src",
         "//src/sksl/analysis:SkSLIsConstantExpression_src",
