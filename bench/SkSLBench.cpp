@@ -117,10 +117,8 @@ protected:
             const SkSL::ProgramKind kind = this->usesRuntimeShader()
                                                    ? SkSL::ProgramKind::kRuntimeShader
                                                    : SkSL::ProgramKind::kFragment;
-            std::unique_ptr<SkSL::Program> program = SkSL::DSLParser(&fCompiler,
-                                                                     fSettings,
-                                                                     kind,
-                                                                     fSrc).program();
+            std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(kind, fSrc,
+                                                                              fSettings);
             if (fCompiler.errorCount()) {
                 SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
             }
