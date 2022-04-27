@@ -14,26 +14,6 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.h"
 
-namespace {
-
-bool can_use_hardware_tessellation(int numVerbs, const GrPipeline& pipeline, const GrCaps& caps) {
-    if (!caps.shaderCaps()->tessellationSupport() ||
-        !caps.shaderCaps()->infinitySupport() /* The hw tessellation shaders use infinity. */) {
-        return false;
-    }
-    if (pipeline.usesLocalCoords()) {
-        // Our back door for HW tessellation shaders isn't currently capable of passing varyings to
-        // the fragment shader, so if the processors have varyings, we need to use instanced draws
-        // instead.
-        return false;
-    }
-    // Only use hardware tessellation if we're drawing a somewhat large number of verbs. Otherwise
-    // we seem to be better off using instanced draws.
-    return numVerbs >= caps.minStrokeVerbsForHwTessellation();
-}
-
-} // anonymous namespace
-
 namespace skgpu::v1 {
 
 StrokeTessellateOp::StrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
@@ -187,29 +167,18 @@ void StrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs
                                                         std::move(fProcessors));
 
     GrStrokeTessellationShader::Mode shaderMode;
-    int maxParametricSegments_log2;
-    if (can_use_hardware_tessellation(fTotalCombinedVerbCnt, *pipeline, caps)) {
-        // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
-        // Otherwise we seem to be better off using instanced draws.
-        fTessellator = arena->make<StrokeHardwareTessellator>(
-                fPatchAttribs, caps.shaderCaps()->maxTessellationSegments());
-        shaderMode = GrStrokeTessellationShader::Mode::kHardwareTessellation;
-        // This sets a limit on the number of binary search iterations inside the shader, so we
-        // round up to the next log2 to guarantee it makes enough.
-        maxParametricSegments_log2 = SkNextLog2(caps.shaderCaps()->maxTessellationSegments());
-    } else {
-        fTessellator = arena->make<StrokeFixedCountTessellator>(fPatchAttribs);
-        shaderMode = GrStrokeTessellationShader::Mode::kFixedCount;
-        maxParametricSegments_log2 = StrokeFixedCountTessellator::kMaxParametricSegments_log2;
-    }
 
-    fTessellationShader = args.fArena->make<GrStrokeTessellationShader>(*caps.shaderCaps(),
-                                                                        shaderMode,
-                                                                        fPatchAttribs,
-                                                                        fViewMatrix,
-                                                                        this->headStroke(),
-                                                                        this->headColor(),
-                                                                        maxParametricSegments_log2);
+    fTessellator = arena->make<StrokeTessellator>(fPatchAttribs);
+    shaderMode = GrStrokeTessellationShader::Mode::kFixedCount;
+
+    fTessellationShader = args.fArena->make<GrStrokeTessellationShader>(
+            *caps.shaderCaps(),
+            shaderMode,
+            fPatchAttribs,
+            fViewMatrix,
+            this->headStroke(),
+            this->headColor(),
+            StrokeTessellator::kMaxParametricSegments_log2);
 
     auto fillStencil = &GrUserStencilSettings::kUnused;
     if (fNeedsStencil) {
