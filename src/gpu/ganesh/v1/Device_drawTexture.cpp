@@ -13,6 +13,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -323,10 +324,10 @@ ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* origSrcRe
  * Checks whether the paint is compatible with using SurfaceDrawContext::drawTexture. It is more
  * efficient than the SkImage general case.
  */
-bool can_use_draw_texture(const SkPaint& paint, bool useCubicResampler, SkMipmapMode mm) {
+bool can_use_draw_texture(const SkPaint& paint, const SkSamplingOptions& sampling) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
-            !paint.getImageFilter() && !paint.getBlender() && !useCubicResampler &&
-            mm == SkMipmapMode::kNone);
+            !paint.getImageFilter() && !paint.getBlender() && !sampling.isAniso() &&
+            !sampling.useCubic && sampling.mipmap == SkMipmapMode::kNone);
 }
 
 SkPMColor4f texture_color(SkColor4f paintColor, float entryAlpha, GrColorType srcColorType,
@@ -426,9 +427,7 @@ void draw_image(GrRecordingContext* rContext,
                 SkSamplingOptions sampling,
                 SkTileMode tm = SkTileMode::kClamp) {
     const SkMatrix& ctm(matrixProvider.localToDevice());
-    if (tm == SkTileMode::kClamp &&
-        !image.isYUVA()          &&
-        can_use_draw_texture(paint, sampling.useCubic, sampling.mipmap)) {
+    if (tm == SkTileMode::kClamp && !image.isYUVA() && can_use_draw_texture(paint, sampling)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
         auto [view, ct] = image.asView(rContext, GrMipmapped::kNo);
@@ -476,7 +475,8 @@ void draw_image(GrRecordingContext* rContext,
 
     // Check for optimization to drop the src rect constraint when using linear filtering.
     // TODO: Just rely on image to handle this.
-    if (!sampling.useCubic                       &&
+    if (sampling.isAniso()                       &&
+        !sampling.useCubic                       &&
         sampling.filter == SkFilterMode::kLinear &&
         restrictToSubset                         &&
         sampling.mipmap == SkMipmapMode::kNone   &&
@@ -579,6 +579,9 @@ void draw_tiled_bitmap(GrRecordingContext* rContext,
                        SkCanvas::SrcRectConstraint constraint,
                        SkSamplingOptions sampling,
                        SkTileMode tileMode) {
+    if (sampling.isAniso()) {
+        sampling = SkSamplingPriv::AnisoFallback(/*imageIsMipped=*/false);
+    }
     SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
 
     int nx = bitmap.width() / tileSize;
@@ -670,7 +673,7 @@ void draw_tiled_bitmap(GrRecordingContext* rContext,
 
 SkFilterMode downgrade_to_filter(const SkSamplingOptions& sampling) {
     SkFilterMode filter = sampling.filter;
-    if (sampling.useCubic || sampling.mipmap != SkMipmapMode::kNone) {
+    if (sampling.isAniso() || sampling.useCubic || sampling.mipmap != SkMipmapMode::kNone) {
         // if we were "fancier" than just bilerp, only do bilerp
         filter = SkFilterMode::kLinear;
     }
@@ -779,10 +782,11 @@ void Device::drawImageQuad(const SkImage* image,
         int tileFilterPad;
         if (sampling.useCubic) {
             tileFilterPad = GrBicubicEffect::kFilterTexelPad;
-        } else if (sampling.filter == SkFilterMode::kNearest) {
-            tileFilterPad = 0;
-        } else {
+        } else if (sampling.filter == SkFilterMode::kLinear || sampling.isAniso()) {
+            // Aniso will fallback to linear filtering in the tiling case.
             tileFilterPad = 1;
+        } else {
+            tileFilterPad = 0;
         }
         int maxTileSize = fContext->priv().caps()->maxTextureSize() - 2*tileFilterPad;
         int tileSize;
@@ -842,7 +846,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                 const SkSamplingOptions& sampling, const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(count > 0);
-    if (!can_use_draw_texture(paint, sampling.useCubic, sampling.mipmap)) {
+    if (!can_use_draw_texture(paint, sampling)) {
         // Send every entry through drawImageQuad() to handle the more complicated paint
         int dstClipIndex = 0;
         for (int i = 0; i < count; ++i) {
