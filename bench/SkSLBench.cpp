@@ -113,10 +113,9 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
+        const SkSL::ProgramKind kind = this->usesRuntimeShader() ? SkSL::ProgramKind::kRuntimeShader
+                                                                 : SkSL::ProgramKind::kFragment;
         for (int i = 0; i < loops; i++) {
-            const SkSL::ProgramKind kind = this->usesRuntimeShader()
-                                                   ? SkSL::ProgramKind::kRuntimeShader
-                                                   : SkSL::ProgramKind::kFragment;
             std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(kind, fSrc,
                                                                               fSettings);
             if (fCompiler.errorCount()) {
@@ -124,13 +123,13 @@ protected:
             }
             std::string result;
             switch (fOutput) {
-                case Output::kNone:  break;
-                case Output::kGLSL:    SkAssertResult(fCompiler.toGLSL(*program,  &result));  break;
-                case Output::kMetal:   SkAssertResult(fCompiler.toMetal(*program, &result));  break;
-                case Output::kSPIRV:   SkAssertResult(fCompiler.toSPIRV(*program, &result));  break;
+                case Output::kNone:    break;
+                case Output::kGLSL:    SkAssertResult(fCompiler.toGLSL(*program,  &result)); break;
+                case Output::kMetal:   SkAssertResult(fCompiler.toMetal(*program, &result)); break;
+                case Output::kSPIRV:   SkAssertResult(fCompiler.toSPIRV(*program, &result)); break;
                 case Output::kSkVM:
                 case Output::kSkVMOpt:
-                case Output::kSkVMJIT: SkAssertResult(CompileToSkVM(*program, fOutput));  break;
+                case Output::kSkVMJIT: SkAssertResult(CompileToSkVM(*program, fOutput)); break;
             }
         }
     }
