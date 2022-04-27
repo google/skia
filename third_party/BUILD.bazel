@@ -3036,6 +3036,7 @@ TINT_SRCS = [
     "externals/dawn/src/tint/ast/discard_statement.h",
     "externals/dawn/src/tint/ast/else_statement.cc",
     "externals/dawn/src/tint/ast/else_statement.h",
+    "externals/dawn/src/tint/ast/enable.cc",
     "externals/dawn/src/tint/ast/enable.h",
     "externals/dawn/src/tint/ast/expression.cc",
     "externals/dawn/src/tint/ast/expression.h",
