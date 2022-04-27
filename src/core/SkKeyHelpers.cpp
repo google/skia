@@ -41,14 +41,6 @@ void validate_block_header(const SkPaintParamsKeyBuilder* builder,
              fullBlockSize);
 }
 
-#ifdef SK_GRAPHITE_ENABLED
-void add_blendmode_to_key(SkPaintParamsKeyBuilder* builder, SkBlendMode bm) {
-    static_assert(SkTFitsIn<uint8_t>(static_cast<int>(SkBlendMode::kLastMode)));
-    builder->addByte(static_cast<uint8_t>(bm));
-}
-
-#endif // SK_GRAPHITE_ENABLED
-
 } // anonymous namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +118,7 @@ namespace GradientShaderBlocks {
 namespace {
 
 #ifdef SK_GRAPHITE_ENABLED
-static const int kBlockDataSize = 1;
+static const int kBlockDataSize = 0;
 
 void add_linear_gradient_uniform_data(const SkShaderCodeDictionary* dict,
                                       const GradientData& gradData,
@@ -283,10 +275,6 @@ void AddToKey(const SkKeyContext& keyContext,
         }
 
         builder->beginBlock(codeSnippetID);
-
-        SkASSERT(static_cast<int>(gradData.fTM) <= std::numeric_limits<uint8_t>::max());
-        builder->addByte(static_cast<uint8_t>(gradData.fTM));
-
         builder->endBlock();
 
         validate_block_header(builder, codeSnippetID, kBlockDataSize);
@@ -354,7 +342,6 @@ void AddToKey(const SkKeyContext& keyContext,
 
         auto dict = keyContext.dict();
         builder->beginBlock(SkBuiltInCodeSnippetID::kImageShader);
-        builder->add(SkColors::kTransparent);
         builder->endBlock();
 
         if (gatherer) {
@@ -493,9 +480,27 @@ const SkPipelineDataGatherer::BlendInfo& get_blend_info(SkBlendMode bm) {
 namespace BlendModeBlock {
 
 #ifdef SK_GRAPHITE_ENABLED
-static const int kFixedFunctionBlockDataSize = 1;
-static const int kShaderBasedBlockDataSize = 1;
-#endif
+static const int kFixedFunctionBlockDataSize = 0;
+static const int kShaderBasedBlockDataSize = 0;
+
+namespace {
+
+void add_shaderbasedblender_uniform_data(const SkShaderCodeDictionary* dict,
+                                         SkBlendMode bm,
+                                         SkPipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, kShaderBasedBlender)
+    gatherer->write(SkTo<int>(bm));
+    gatherer->write(0); // padding - remove
+    gatherer->write(0); // padding - remove
+    gatherer->write(0); // padding - remove
+
+    gatherer->addFlags(
+            dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kShaderBasedBlender));
+}
+
+} // anonymous namespace
+
+#endif // SK_GRAPHITE_ENABLED
 
 void AddToKey(const SkKeyContext& keyContext,
               SkPaintParamsKeyBuilder *builder,
@@ -504,9 +509,10 @@ void AddToKey(const SkKeyContext& keyContext,
 
 #ifdef SK_GRAPHITE_ENABLED
     if (builder->backend() == SkBackend::kGraphite) {
+        auto dict = keyContext.dict();
+
         if (bm <= SkBlendMode::kLastCoeffMode) {
             builder->beginBlock(SkBuiltInCodeSnippetID::kFixedFunctionBlender);
-            add_blendmode_to_key(builder, bm);
             builder->endBlock();
 
             validate_block_header(builder,
@@ -518,7 +524,6 @@ void AddToKey(const SkKeyContext& keyContext,
             }
         } else {
             builder->beginBlock(SkBuiltInCodeSnippetID::kShaderBasedBlender);
-            add_blendmode_to_key(builder, bm);
             builder->endBlock();
 
             validate_block_header(builder,
@@ -526,6 +531,7 @@ void AddToKey(const SkKeyContext& keyContext,
                                   kShaderBasedBlockDataSize);
 
             if (gatherer) {
+                add_shaderbasedblender_uniform_data(dict, bm, gatherer);
                 // TODO: set up the correct blend info
                 gatherer->setBlendInfo(SkPipelineDataGatherer::BlendInfo());
             }

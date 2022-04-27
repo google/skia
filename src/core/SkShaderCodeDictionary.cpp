@@ -260,11 +260,6 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumLinearGrad4Fields = 1;
-static constexpr DataPayloadField kLinearGrad4Fields[kNumLinearGrad4Fields] = {
-        { "tilemode", SkPaintParamsKey::DataPayloadType::kByte, 1 }
-};
-
 static constexpr int kFourStopGradient = 4;
 
 // TODO: For the sprint we unify all the gradient uniforms into a standard set of 6:
@@ -314,11 +309,6 @@ static_assert(2 == static_cast<int>(SkTileMode::kMirror), "ImageShader code depe
 static_assert(3 == static_cast<int>(SkTileMode::kDecal),  "ImageShader code depends on SkTileMode");
 
 static constexpr char kImageShaderName[] = "sk_compute_coords";
-
-static constexpr int kNumImageShaderFields = 1;
-static constexpr DataPayloadField kImageShaderFields[kNumImageShaderFields] = {
-        { "borderColor", SkPaintParamsKey::DataPayloadType::kFloat4, 1 }
-};
 
 // This is _not_ what we want to do.
 // Ideally the "compute_coords" code snippet could just take texture and
@@ -375,6 +365,8 @@ static constexpr int kNumBlendShaderChildren = 2;
 
 static constexpr char kBlendHelperName[] = "sk_blend";
 
+// This exists as custom glue code to handle passing the result of the children into the
+// static function. If this were handled in the default glue code, we could remove this.
 std::string GenerateBlendShaderGlueCode(const std::string& resultName,
                                         int entryIndex,
                                         const SkPaintParamsKey::BlockReader& reader,
@@ -403,11 +395,6 @@ std::string GenerateBlendShaderGlueCode(const std::string& resultName,
 static constexpr char kErrorName[] = "sk_error";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumFixedFunctionBlenderFields = 1;
-static constexpr DataPayloadField kFixedFunctionBlenderFields[kNumFixedFunctionBlenderFields] = {
-        { "blendmode", SkPaintParamsKey::DataPayloadType::kByte, 1 }
-};
-
 // This method generates the glue code for the case where the SkBlendMode-based blending is
 // handled with fixed function blending.
 std::string GenerateFixedFunctionBlenderGlueCode(const std::string& resultName,
@@ -418,7 +405,7 @@ std::string GenerateFixedFunctionBlenderGlueCode(const std::string& resultName,
                                                  int indent) {
     SkASSERT(childNames.empty());
     SkASSERT(reader.entry()->fUniforms.empty());
-    SkASSERT(reader.numDataPayloadFields() == 1);
+    SkASSERT(reader.numDataPayloadFields() == 0);
 
     // The actual blending is set up via the fixed function pipeline so we don't actually
     // need to access the blend mode in the glue code.
@@ -433,13 +420,18 @@ std::string GenerateFixedFunctionBlenderGlueCode(const std::string& resultName,
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumShaderBasedBlenderFields = 1;
-static constexpr DataPayloadField kShaderBasedBlenderFields[kNumShaderBasedBlenderFields] = {
-        { "blendmode", SkPaintParamsKey::DataPayloadType::kByte, 1 }
+static constexpr int kNumShaderBasedBlenderUniforms = 4;
+static constexpr SkUniform kShaderBasedBlenderUniforms[kNumShaderBasedBlenderUniforms] = {
+        { "blendMode", SkSLType::kInt },
+        { "padding1",  SkSLType::kInt }, // TODO: add automatic uniform padding
+        { "padding2",  SkSLType::kInt },
+        { "padding3",  SkSLType::kInt },
 };
 
 // This method generates the glue code for the case where the SkBlendMode-based blending must occur
 // in the shader (i.e., fixed function blending isn't possible).
+// It exists as custom glue code so that we can deal with the dest reads. If that can be
+// standardized (e.g., via a snippets requirement flag) this could be removed.
 std::string GenerateShaderBasedBlenderGlueCode(const std::string& resultName,
                                                int entryIndex,
                                                const SkPaintParamsKey::BlockReader& reader,
@@ -447,26 +439,25 @@ std::string GenerateShaderBasedBlenderGlueCode(const std::string& resultName,
                                                const std::vector<std::string>& childNames,
                                                int indent) {
     SkASSERT(childNames.empty());
-    SkASSERT(reader.entry()->fUniforms.empty());
-    SkASSERT(reader.numDataPayloadFields() == 1);
+    SkASSERT(reader.entry()->fUniforms.size() == 4); // actual blend uniform + 3 padding int
+    SkASSERT(reader.numDataPayloadFields() == 0);
 
-    SkSpan<const uint8_t> blendMode = reader.bytes(0);
-    SkASSERT(blendMode.size() == 1);
-    SkASSERT(blendMode[0] <= static_cast<int>(SkBlendMode::kLastMode));
+    std::string uniformName = reader.entry()->getMangledUniformName(0, entryIndex);
 
     std::string result;
 
     add_indent(&result, indent);
     result += "// Shader-based blending\n";
-    // TODO: emit code to perform dest read
+
+    // TODO: emit code to perform dest read here
     add_indent(&result, indent);
     result += "half4 dummyDst = half4(1.0, 1.0, 1.0, 1.0);\n";
 
     add_indent(&result, indent);
-    SkSL::String::appendf(&result, "%s = %s(%d, %s, dummyDst);",
+    SkSL::String::appendf(&result, "%s = %s(%s, %s, dummyDst);",
                           resultName.c_str(),
                           reader.entry()->fStaticFunctionName,
-                          blendMode[0],
+                          uniformName.c_str(),
                           priorStageOutputName.c_str());
 
     return result;
@@ -518,7 +509,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kErrorName,
             GenerateDefaultGlueCode,
             kNoChildren,
-            {}
+            { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSolidColorShader] = {
             SkMakeSpan(kSolidShaderUniforms, kNumSolidShaderUniforms),
@@ -527,7 +518,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kSolidShaderName,
             GenerateDefaultGlueCode,
             kNoChildren,
-            {}
+            { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kLinearGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
@@ -536,7 +527,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kLinearGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
-            { kLinearGrad4Fields, kNumLinearGrad4Fields }
+            { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kRadialGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
@@ -545,7 +536,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kLinearGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
-            { kLinearGrad4Fields, kNumLinearGrad4Fields }
+            { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSweepGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
@@ -554,7 +545,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kLinearGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
-            { kLinearGrad4Fields, kNumLinearGrad4Fields }
+            { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kConicalGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
@@ -563,7 +554,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kLinearGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
-            { kLinearGrad4Fields, kNumLinearGrad4Fields }
+            { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kImageShader] = {
             SkMakeSpan(kImageShaderUniforms, kNumImageShaderUniforms),
@@ -572,7 +563,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kImageShaderName,
             GenerateImageShaderGlueCode,
             kNoChildren,
-            { kImageShaderFields, kNumImageShaderFields }
+            { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kBlendShader] = {
             { kBlendShaderUniforms, kNumBlendShaderUniforms },
@@ -581,7 +572,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kBlendHelperName,
             GenerateBlendShaderGlueCode,
             kNumBlendShaderChildren,
-            {}
+            { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kFixedFunctionBlender] = {
             { },     // no uniforms
@@ -590,15 +581,15 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             "FF-blending",  // fixed function blending doesn't use static SkSL
             GenerateFixedFunctionBlenderGlueCode,
             kNoChildren,
-            { kFixedFunctionBlenderFields, kNumFixedFunctionBlenderFields }
+            { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kShaderBasedBlender] = {
-            { },     // no uniforms
+            { kShaderBasedBlenderUniforms, kNumShaderBasedBlenderUniforms },
             SnippetRequirementFlags::kNone,
             { },     // no samplers
             kBlendHelperName,
             GenerateShaderBasedBlenderGlueCode,
             kNoChildren,
-            { kShaderBasedBlenderFields, kNumShaderBasedBlenderFields }
+            { }
     };
 }
