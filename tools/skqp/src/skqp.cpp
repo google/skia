@@ -8,17 +8,14 @@
 #include "tools/skqp/src/skqp.h"
 
 #include "gm/gm.h"
-#include "include/core/SkFontStyle.h"
+
 #include "include/core/SkGraphics.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
-#include "src/core/SkStreamPriv.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
@@ -31,9 +28,11 @@
 #include "tools/gpu/vk/VkTestContext.h"
 #endif
 
-#include <limits.h>
+#ifdef SK_BUILD_FOR_ANDROID
+#include <sys/system_properties.h>
+#endif
+
 #include <algorithm>
-#include <cinttypes>
 #include <regex>
 
 static constexpr char kUnitTestReportPath[] = "unit_tests.txt";
@@ -64,31 +63,26 @@ class ExclusionList {
 public:
     ExclusionList() {}
 
-    void initialize(sk_sp<SkData> dat) {
-        fPatterns = {};
-        read_lines(dat->data(), dat->size(), [this](std::string_view line) {
-            if (!line.empty() && line.back() == '\n') {
-                // Strip line endings.
-                line.remove_suffix(1);
-            }
-            if (!line.empty() && line.front() != '#') {
-                // Only add non-empty strings, and ignore comments.
-                fPatterns.emplace_back(std::string(line));
-            }
-        });
-    }
+    void initialize(SkQPAssetManager* assetManager, sk_sp<SkData> dat, int enforcedAndroidAPILevel);
 
     bool isExcluded(const std::string& name) const {
-        for (const auto& pat : fPatterns) {
-            if (std::regex_match(name, pat)) {
-                return true;
+        for (const auto& entry : fEntries) {
+            if (std::regex_match(name, entry.regexPattern)) {
+                return fEnforcedAndroidAPILevel < entry.excludeUntilAndroidAPILevel;
             }
         }
         return false;
     }
 
 private:
-    std::vector<std::regex> fPatterns;
+    int fEnforcedAndroidAPILevel;
+
+    struct ExclusionEntry {
+        std::regex regexPattern;
+        int excludeUntilAndroidAPILevel;
+    };
+
+    std::vector<ExclusionEntry> fEntries;
 };
 }
 
@@ -141,6 +135,67 @@ static std::vector<SkQP::SkSLErrorTest> get_sksl_error_tests(SkQPAssetManager* a
     };
     std::sort(skslErrorTests.begin(), skslErrorTests.end(), lt);
     return skslErrorTests;
+}
+
+void ExclusionList::initialize(SkQPAssetManager* assetManager,
+                               sk_sp<SkData> dat,
+                               int enforcedAndroidAPILevel) {
+    fEnforcedAndroidAPILevel = enforcedAndroidAPILevel;
+    fEntries = {};
+
+    //TODO: explore refactoring this code to collect the test lists only once in SkQP::init
+    ExclusionList noExclusions;
+    const std::vector<SkQP::UnitTest> unitTestList = get_unit_tests(noExclusions);
+    const std::vector<SkQP::SkSLErrorTest> skslTestList = get_sksl_error_tests(assetManager,
+                                                                               noExclusions);
+
+    // function to check whether or not the provided regex matches an existing test
+    auto testExists = [&unitTestList, &skslTestList](const std::regex& exclusionRegex) {
+        for (const auto& test : unitTestList) {
+            if (std::regex_match(std::string(test->fName), exclusionRegex)) {
+                return true;
+            }
+        }
+        for (const auto& test : skslTestList) {
+            if (std::regex_match(test.name, exclusionRegex)) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    read_lines(dat->data(), dat->size(), [this, &testExists](std::string_view line) {
+        if (!line.empty() && line.back() == '\n') {
+            // Strip line endings.
+            line.remove_suffix(1);
+        }
+        // Only add non-empty strings, and ignore comments.
+        if (line.empty() || line.front() == '#') {
+            return;
+        }
+
+        std::string_view testName = line;
+        int excludeUntilAndroidAPILevel = fEnforcedAndroidAPILevel;
+
+        // Check to see if the test has a min Android API level defined
+        auto commaLocation = line.find_first_of(',');
+        if (commaLocation != std::string::npos) {
+            testName = line.substr(0, commaLocation);
+            std::string apiString(line.substr(commaLocation + 1));
+            excludeUntilAndroidAPILevel = std::stoi(apiString);
+        }
+
+        const std::string exclusionString(testName);
+        const std::regex exclusionRegex(exclusionString);
+
+        // Throw an error if there are no unit or sksl tests that match the exclusion
+        if (!testExists(exclusionRegex)) {
+            SK_ABORT("Exclusion list contains tests not found in the test registry: %s",
+                     exclusionString.c_str());
+        }
+
+      fEntries.push_back({exclusionRegex, excludeUntilAndroidAPILevel});
+    });
 }
 
 static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
@@ -239,11 +294,20 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     SkGraphics::Init();
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
 
+    int minAndroidAPILevel = 0;
+#ifdef SK_BUILD_FOR_ANDROID
+    char firstAPIVersionStr[PROP_VALUE_MAX];
+    int strLength = __system_property_get("ro.product.first_api_level", firstAPIVersionStr);
+    // Defaults to zero since most checks care if it is greater than a specific value. So this will
+    // just default to it being less.
+    minAndroidAPILevel = (strLength == 0) ? 0 : atoi(firstAPIVersionStr);
+#endif
+
     // Load the exclusion list `skqp/unittests.txt`, if it exists.
     // The list is checked in at platform_tools/android/apps/skqp/src/main/assets/skqp/unittests.txt
     ExclusionList exclusionList;
     if (sk_sp<SkData> dat = assetManager->open(kUnitTestsPath)) {
-        exclusionList.initialize(dat);
+        exclusionList.initialize(assetManager, dat, minAndroidAPILevel);
     }
 
     fUnitTests = get_unit_tests(exclusionList);
