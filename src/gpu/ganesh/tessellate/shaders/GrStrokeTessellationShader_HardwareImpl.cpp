@@ -54,7 +54,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
         v->declareGlobal(GrShaderVar("vsColor", SkSLType::kHalf4, TypeModifier::Out));
     }
 
-    v->insertFunction(kCosineBetweenVectorsFn);
+    v->insertFunction(kCosineBetweenUnitVectorsFn);
     v->insertFunction(kMiterExtentFn);
     v->insertFunction(kUncheckedMixFn);
     if (shader.hasDynamicStroke()) {
@@ -150,7 +150,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     }
 
     // Calculate the number of segments to chop the join into.
-    float cosTheta = cosine_between_vectors(prevJoinTangent, tan0);
+    float cosTheta = cosine_between_unit_vectors(normalize(prevJoinTangent), normalize(tan0));
     float joinRotation = (cosTheta == 1) ? 0 : acos(cosTheta);
     if (cross_length_2d(prevJoinTangent, tan0) < 0) {
         joinRotation = -joinRotation;
@@ -351,7 +351,7 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
     }
 
     code.append(GrTessellationShader::WangsFormulaSkSL());
-    code.append(kCosineBetweenVectorsFn);
+    code.append(kCosineBetweenUnitVectorsFn);
     code.append(kMiterExtentFn);
     code.append(R"(
     float cross2d(vec2 a, vec2 b) {
@@ -444,7 +444,8 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
 
         // Determine the curve's total rotation. The vertex shader ensures our curve does not rotate
         // more than 180 degrees or inflect, so the inverse cosine has enough range.
-        float cosTheta = cosine_between_vectors(tangents[0], tangents[1]);
+        float cosTheta = cosine_between_unit_vectors(normalize(tangents[0]),
+                                                     normalize(tangents[1]));
         float rotation = acos(cosTheta);
 
         // Adjust sign of rotation to match the direction the curve turns.
@@ -582,6 +583,7 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessEvaluationShaderGLSL(
     uniform vec4 sk_RTAdjust;)");
 
     code.append(kUncheckedMixFn);
+    code.append(kRobustNormalizeDiffFn);
 
     code.append(R"(
     void main() {
@@ -628,7 +630,10 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessEvaluationShaderGLSL(
             numParametricSegments = tcsTessArgs[2].y;
             radsPerSegment = tcsTessArgs[2].z;
         }
-        float2 tan1 = tcsEndPtEndTan.zw;
+        // emitTessellationCode() expects unit vectors for tan0 and tan1
+        tan0 = normalize(tan0);
+        float2 tan1 = normalize(tcsEndPtEndTan.zw);
+
         bool isFinalEdge = (gl_TessCoord.x == 1);
         float w = -1.0;  // w<0 means the curve is an integral cubic.
         if (isinf(p3.y)) {

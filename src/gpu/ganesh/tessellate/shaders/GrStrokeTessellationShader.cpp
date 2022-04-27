@@ -105,12 +105,30 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
     SkASSERT(fAttribs.count() <= kMaxAttribCount);
 }
 
-const char* GrStrokeTessellationShader::Impl::kCosineBetweenVectorsFn = R"(
-float cosine_between_vectors(float2 a, float2 b) {
-    // FIXME(crbug.com/800804,skbug.com/11268): This can overflow if we don't normalize exponents.
-    float ab_cosTheta = dot(a,b);
-    float ab_pow2 = dot(a,a) * dot(b,b);
-    return (ab_pow2 == 0.0) ? 1.0 : clamp(ab_cosTheta * inversesqrt(ab_pow2), -1.0, 1.0);
+const char* GrStrokeTessellationShader::Impl::kRobustNormalizeDiffFn = R"(
+float2 robust_normalize_diff(float2 a, float2 b) {
+    if (a == b) {
+        return float2(0.0, 0.0);
+    } else {
+        float2 magXY = max(abs(a), abs(b));
+        float mag = max(magXY.x, magXY.y);
+        if (mag > 16777216.0) { // 2^24, when f32 loses 1px precision
+            // This brings the components of a and b to be within [-1, 1] before the vector's length
+            // is calculated inside the normalize() call.
+            float2 scaled_diff = (a/mag) - (b/mag);
+            return normalize(scaled_diff);
+        } else {
+            // assume standard f32 precision will be sufficiently accurate
+            return normalize(a - b);
+        }
+    }
+})";
+
+const char* GrStrokeTessellationShader::Impl::kCosineBetweenUnitVectorsFn = R"(
+float cosine_between_unit_vectors(float2 a, float2 b) {
+    // Since a and b are assumed to be normalized, the cosine is equal to the dot product, although
+    // we clamp that to ensure it falls within the expected range of [-1, 1].
+    return clamp(dot(a, b), -1.0, 1.0);
 })";
 
 // Extends the middle radius to either the miter point, or the bevel edge if we surpassed the miter
@@ -163,8 +181,8 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
     //     bool isFinalEdge;
     //     float numParametricSegments;
     //     float radsPerSegment;
-    //     float2 tan0;
-    //     float2 tan1;
+    //     float2 tan0; // Must be pre-normalized
+    //     float2 tan1; // Must be pre-normalized
     //     float strokeOutset;
     //
     code->appendf(R"(
@@ -215,8 +233,6 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         //
         float lastParametricEdgeID = 0.0;
         float maxParametricEdgeID = min(numParametricSegments - 1.0, combinedEdgeID);
-        // FIXME(crbug.com/800804,skbug.com/11268): This normalize() can overflow.
-        float2 tan0norm = normalize(tan0);
         float negAbsRadsPerSegment = -abs(radsPerSegment);
         float maxRotation0 = (1.0 + combinedEdgeID) * abs(radsPerSegment);
         for (int exp = %i - 1; exp >= 0; --exp) {
@@ -225,7 +241,7 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
             if (testParametricID <= maxParametricEdgeID) {
                 float2 testTan = fma(float2(testParametricID), A, B_);
                 testTan = fma(float2(testParametricID), testTan, C_);
-                float cosRotation = dot(normalize(testTan), tan0norm);
+                float cosRotation = dot(normalize(testTan), tan0);
                 float maxRotation = fma(testParametricID, negAbsRadsPerSegment, maxRotation0);
                 maxRotation = min(maxRotation, PI);
                 // Is rotation <= maxRotation? (i.e., is the number of complete radial segments
@@ -244,11 +260,12 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         // combinedEdgeID, the highest radial edge is easy:
         float lastRadialEdgeID = combinedEdgeID - lastParametricEdgeID;
 
-        // Find the angle of tan0, or the angle between tan0norm and the positive x axis.
-        float angle0 = acos(clamp(tan0norm.x, -1.0, 1.0));
-        angle0 = tan0norm.y >= 0.0 ? angle0 : -angle0;
+        // Find the angle of tan0, i.e. the angle between tan0 and the positive x axis.
+        float angle0 = acos(clamp(tan0.x, -1.0, 1.0));
+        angle0 = tan0.y >= 0.0 ? angle0 : -angle0;
 
-        // Find the tangent vector on the edge at lastRadialEdgeID.
+        // Find the tangent vector on the edge at lastRadialEdgeID. By construction it is already
+        // normalized.
         float radialAngle = fma(lastRadialEdgeID, radsPerSegment, angle0);
         tangent = float2(cos(radialAngle), sin(radialAngle));
         float2 norm = float2(-tangent.y, tangent.x);
@@ -304,7 +321,9 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         // tangent found previously. (In the event that parametricT == radialT, we keep the radial
         // tangent.)
         if (T != radialT) {
-            tangent = (w >= 0.0) ? bc*u - ab*v : bcd - abc;
+            // We must re-normalize here because the tangent is determined by the curve coefficients
+            tangent = w >= 0.0 ? robust_normalize_diff(bc*u, ab*v)
+                               : robust_normalize_diff(bcd, abc);
         }
 
         strokeCoord = (w >= 0.0) ? abc/uv : abcd;
@@ -316,8 +335,8 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
     })", shader.maxParametricSegments_log2() /* Parametric/radial sort loop count. */);
 
     code->append(R"(
-    // FIXME(crbug.com/800804,skbug.com/11268): This normalize() can overflow.
-    float2 ortho = normalize(float2(tangent.y, -tangent.x));
+    // At this point 'tangent' is normalized, so the orthogonal vector is also normalized.
+    float2 ortho = float2(tangent.y, -tangent.x);
     strokeCoord += ortho * (STROKE_RADIUS * strokeOutset);)");
 
     if (!shader.stroke().isHairlineStyle()) {
