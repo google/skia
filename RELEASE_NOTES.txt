@@ -18,8 +18,8 @@ Milestone 102
     image and applying that to a rectangle.
   * Fully disable experimental support for HW tessellation shaders.
     GrContextOptions::fEnableExperimentalHardwareTessellation is ignored and behaves as if it is
-    false. The culmination of the experiment that does not actually require tessellation shaders is
-    automatically enabled where supported when an SkSurface is created with MSAA, or when
+    false. The optimized path renderer no longer requires hardware tessellation at all, and
+    is automatically enabled when drawing to an SkSurface created with MSAA, or when
     GrContextOptions::fInternalMultisampleCount is set to a non-zero value.
 
 * * *
