@@ -533,6 +533,7 @@ generated_cc_atom(
         ":PipelineDataCache_hdr",
         ":ResourceProvider_hdr",
         ":TaskGraph_hdr",
+        ":UploadBufferManager_hdr",
         "//include/gpu/graphite:Recorder_hdr",
         "//include/gpu/graphite:Recording_hdr",
         "//src/core:SkPipelineData_hdr",
@@ -934,6 +935,29 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
+    name = "UploadBufferManager_hdr",
+    hdrs = ["UploadBufferManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DrawTypes_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//src/gpu:BufferWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "UploadBufferManager_src",
+    srcs = ["UploadBufferManager.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Buffer_hdr",
+        ":CommandBuffer_hdr",
+        ":ResourceProvider_hdr",
+        ":UploadBufferManager_hdr",
+    ],
+)
+
+generated_cc_atom(
     name = "UploadTask_hdr",
     hdrs = ["UploadTask.h"],
     visibility = ["//:__subpackages__"],
@@ -958,9 +982,9 @@ generated_cc_atom(
         ":ResourceProvider_hdr",
         ":TextureProxy_hdr",
         ":Texture_hdr",
+        ":UploadBufferManager_hdr",
         ":UploadTask_hdr",
         "//include/gpu/graphite:Recorder_hdr",
-        "//src/core:SkConvertPixels_hdr",
         "//src/core:SkTraceEvent_hdr",
     ],
 )

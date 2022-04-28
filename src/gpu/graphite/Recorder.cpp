@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/PipelineDataCache.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/TaskGraph.h"
+#include "src/gpu/graphite/UploadBufferManager.h"
 
 namespace skgpu::graphite {
 
@@ -33,6 +34,7 @@ Recorder::Recorder(sk_sp<Gpu> gpu, sk_sp<GlobalCache> globalCache)
     fResourceProvider = fGpu->makeResourceProvider(std::move(globalCache), this->singleOwner());
     fDrawBufferManager.reset(new DrawBufferManager(fResourceProvider.get(),
                                                    fGpu->caps()->requiredUniformBufferAlignment()));
+    fUploadBufferManager.reset(new UploadBufferManager(fResourceProvider.get()));
     SkASSERT(fResourceProvider);
 }
 
@@ -66,6 +68,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     }
 
     fDrawBufferManager->transferToCommandBuffer(commandBuffer.get());
+    fUploadBufferManager->transferToCommandBuffer(commandBuffer.get());
 
     fGraph->reset();
     std::unique_ptr<Recording> recording(new Recording(std::move(commandBuffer),

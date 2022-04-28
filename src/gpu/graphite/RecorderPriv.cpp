@@ -35,6 +35,10 @@ DrawBufferManager* RecorderPriv::drawBufferManager() const {
     return fRecorder->fDrawBufferManager.get();
 }
 
+UploadBufferManager* RecorderPriv::uploadBufferManager() const {
+    return fRecorder->fUploadBufferManager.get();
+}
+
 void RecorderPriv::add(sk_sp<Task> task) {
     ASSERT_SINGLE_OWNER
     fRecorder->fGraph->add(std::move(task));

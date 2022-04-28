@@ -8,7 +8,6 @@
 #include "src/gpu/graphite/UploadTask.h"
 
 #include "include/gpu/graphite/Recorder.h"
-#include "src/core/SkConvertPixels.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
@@ -18,15 +17,14 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/UploadBufferManager.h"
 
 namespace skgpu::graphite {
 
-UploadInstance::UploadInstance(sk_sp<Buffer> buffer,
+UploadInstance::UploadInstance(const Buffer* buffer,
                                sk_sp<TextureProxy> textureProxy,
                                std::vector<BufferTextureCopyData> copyData)
-    : fBuffer(buffer)
-    , fTextureProxy(textureProxy)
-    , fCopyData(copyData) {}
+        : fBuffer(buffer), fTextureProxy(textureProxy), fCopyData(copyData) {}
 
 size_t compute_combined_buffer_size(int mipLevelCount,
                                     size_t bytesPerPixel,
@@ -98,33 +96,28 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
                                                              dstRect.size(), &individualMipOffsets);
     SkASSERT(combinedBufferSize);
 
-    // TODO: get staging buffer or {void* offset, sk_sp<Buffer> buffer} pair.
-    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
-    sk_sp<Buffer> buffer = resourceProvider->findOrCreateBuffer(combinedBufferSize,
-                                                                BufferType::kXferCpuToGpu,
-                                                                PrioritizeGpuReads::kNo);
+    UploadBufferManager* bufferMgr = recorder->priv().uploadBufferManager();
+    auto [writer, bufferInfo] = bufferMgr->getUploadWriter(combinedBufferSize, minAlignment);
 
     std::vector<BufferTextureCopyData> copyData(mipLevelCount);
 
-    if (!buffer) {
+    if (!bufferInfo.fBuffer) {
         return {};
     }
-    char* bufferData = (char*) buffer->map(); // TODO: get from staging buffer instead
-    size_t baseOffset = 0;
+    size_t baseOffset = bufferInfo.fOffset;
 
     int currentWidth = dstRect.width();
     int currentHeight = dstRect.height();
     for (unsigned int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         const size_t trimRowBytes = currentWidth * bpp;
         const size_t rowBytes = levels[currentMipLevel].fRowBytes;
+        const size_t mipOffset = individualMipOffsets[currentMipLevel];
 
         // copy data into the buffer, skipping any trailing bytes
-        char* dst = bufferData + individualMipOffsets[currentMipLevel];
         const char* src = (const char*)levels[currentMipLevel].fPixels;
-        SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
+        writer.write(mipOffset, src, rowBytes, trimRowBytes, currentHeight);
 
-        copyData[currentMipLevel].fBufferOffset =
-                baseOffset + individualMipOffsets[currentMipLevel];
+        copyData[currentMipLevel].fBufferOffset = baseOffset + mipOffset;
         copyData[currentMipLevel].fBufferRowBytes = trimRowBytes;
         copyData[currentMipLevel].fRect = {
             dstRect.left(), dstRect.top(), // TODO: can we recompute this for mips?
@@ -136,13 +129,11 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
         currentHeight = std::max(1, currentHeight/2);
     }
 
-    buffer->unmap();
-
     ATRACE_ANDROID_FRAMEWORK("Upload %sTexture [%ux%u]",
                              mipLevelCount > 1 ? "MipMap " : "",
                              dstRect.width(), dstRect.height());
 
-    return {std::move(buffer), std::move(textureProxy), std::move(copyData)};
+    return {bufferInfo.fBuffer, std::move(textureProxy), std::move(copyData)};
 }
 
 void UploadInstance::addCommand(ResourceProvider* resourceProvider,
@@ -156,10 +147,10 @@ void UploadInstance::addCommand(ResourceProvider* resourceProvider,
         return;
     }
 
-    commandBuffer->copyBufferToTexture(std::move(fBuffer),
-                                       fTextureProxy->refTexture(),
-                                       fCopyData.data(),
-                                       fCopyData.size());
+    // The CommandBuffer doesn't take ownership of the upload buffer here; it's owned by
+    // UploadBufferManager, which will transfer ownership in transferToCommandBuffer.
+    commandBuffer->copyBufferToTexture(
+            fBuffer, fTextureProxy->refTexture(), fCopyData.data(), fCopyData.size());
 }
 
 //---------------------------------------------------------------------------

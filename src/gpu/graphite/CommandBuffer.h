@@ -149,7 +149,7 @@ public:
                              sk_sp<Buffer>,
                              size_t bufferOffset,
                              size_t bufferRowBytes);
-    bool copyBufferToTexture(sk_sp<Buffer>,
+    bool copyBufferToTexture(const Buffer*,
                              sk_sp<Texture>,
                              const BufferTextureCopyData*,
                              int count);

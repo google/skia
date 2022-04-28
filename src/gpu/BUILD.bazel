@@ -42,6 +42,7 @@ generated_cc_atom(
         "//include/private:SkColorData_hdr",
         "//include/private:SkNx_hdr",
         "//include/private:SkTemplates_hdr",
+        "//src/core:SkConvertPixels_hdr",
     ],
 )
 

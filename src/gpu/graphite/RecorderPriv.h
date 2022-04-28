@@ -20,6 +20,7 @@ public:
     UniformDataCache* uniformDataCache() const;
     TextureDataCache* textureDataCache() const;
     DrawBufferManager* drawBufferManager() const;
+    UploadBufferManager* uploadBufferManager() const;
     const Caps* caps() const;
 
     void flushTrackedDevices();

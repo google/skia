@@ -143,7 +143,7 @@ bool CommandBuffer::copyTextureToBuffer(sk_sp<Texture> texture,
     return true;
 }
 
-bool CommandBuffer::copyBufferToTexture(sk_sp<Buffer> buffer,
+bool CommandBuffer::copyBufferToTexture(const Buffer* buffer,
                                         sk_sp<Texture> texture,
                                         const BufferTextureCopyData* copyData,
                                         int count) {
@@ -151,11 +151,10 @@ bool CommandBuffer::copyBufferToTexture(sk_sp<Buffer> buffer,
     SkASSERT(texture);
     SkASSERT(count > 0 && copyData);
 
-    if (!this->onCopyBufferToTexture(buffer.get(), texture.get(), copyData, count)) {
+    if (!this->onCopyBufferToTexture(buffer, texture.get(), copyData, count)) {
         return false;
     }
 
-    this->trackResource(std::move(buffer));
     this->trackResource(std::move(texture));
 
     SkDEBUGCODE(fHasWork = true;)

@@ -49,9 +49,9 @@ public:
 
 private:
     UploadInstance() {}
-    UploadInstance(sk_sp<Buffer>, sk_sp<TextureProxy>, std::vector<BufferTextureCopyData>);
+    UploadInstance(const Buffer*, sk_sp<TextureProxy>, std::vector<BufferTextureCopyData>);
 
-    sk_sp<Buffer> fBuffer;
+    const Buffer* fBuffer;
     sk_sp<TextureProxy> fTextureProxy;
     std::vector<BufferTextureCopyData> fCopyData;
 };

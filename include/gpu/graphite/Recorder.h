@@ -29,6 +29,7 @@ class Recording;
 class ResourceProvider;
 class Task;
 class TaskGraph;
+class UploadBufferManager;
 
 template<typename StorageT, typename BaseT> class PipelineDataCache;
 using UniformDataCache = PipelineDataCache<SkUniformDataBlockPassThrough, SkUniformDataBlock>;
@@ -89,6 +90,7 @@ private:
     std::unique_ptr<UniformDataCache> fUniformDataCache;
     std::unique_ptr<TextureDataCache> fTextureDataCache;
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;
+    std::unique_ptr<UploadBufferManager> fUploadBufferManager;
     std::vector<Device*> fTrackedDevices;
 
     // In debug builds we guard against improper thread handling
