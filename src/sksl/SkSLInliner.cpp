@@ -111,37 +111,6 @@ static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDe
     return CountReturnsAtEndOfControlFlow{funcDef}.fNumReturns;
 }
 
-static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
-    class ContainsRecursiveCall : public ProgramVisitor {
-    public:
-        bool visit(const FunctionDeclaration& funcDecl) {
-            fFuncDecl = &funcDecl;
-            return funcDecl.definition() ? this->visitProgramElement(*funcDecl.definition())
-                                         : false;
-        }
-
-        bool visitExpression(const Expression& expr) override {
-            if (expr.is<FunctionCall>() && expr.as<FunctionCall>().function().matches(*fFuncDecl)) {
-                return true;
-            }
-            return INHERITED::visitExpression(expr);
-        }
-
-        bool visitStatement(const Statement& stmt) override {
-            if (stmt.is<InlineMarker>() &&
-                stmt.as<InlineMarker>().function().matches(*fFuncDecl)) {
-                return true;
-            }
-            return INHERITED::visitStatement(stmt);
-        }
-
-        const FunctionDeclaration* fFuncDecl;
-        using INHERITED = ProgramVisitor;
-    };
-
-    return ContainsRecursiveCall{}.visit(funcDecl);
-}
-
 static std::unique_ptr<Statement>* find_parent_statement(
         const std::vector<std::unique_ptr<Statement>*>& stmtStack) {
     SkASSERT(!stmtStack.empty());
@@ -1068,9 +1037,7 @@ bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate,
     if (const bool* cachedInlinability = cache->find(&funcDecl)) {
         return *cachedInlinability;
     }
-    // Recursion is forbidden here to avoid an infinite death spiral of inlining.
-    bool inlinability = this->isSafeToInline(funcDecl.definition(), usage) &&
-                        !contains_recursive_call(funcDecl);
+    bool inlinability = this->isSafeToInline(funcDecl.definition(), usage);
     cache->set(&funcDecl, inlinability);
     return inlinability;
 }
