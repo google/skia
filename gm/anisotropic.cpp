@@ -21,39 +21,13 @@ namespace skiagm {
 // This GM exercises anisotropic image scaling.
 class AnisotropicGM : public GM {
 public:
-    enum class Mode { kLinear, kMip, kAniso };
-
-    AnisotropicGM(Mode mode) : fMode(mode) {
-        switch (fMode) {
-            case Mode::kLinear:
-                fSampling = SkSamplingOptions(SkFilterMode::kLinear);
-                break;
-            case Mode::kMip:
-                fSampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear);
-                break;
-            case Mode::kAniso:
-                fSampling = SkSamplingOptions::Aniso(16);
-                break;
-        }
+    AnisotropicGM() : fSampling(SkFilterMode::kLinear, SkMipmapMode::kLinear) {
         this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
-    SkString onShortName() override {
-        SkString name("anisotropic_image_scale_");
-        switch (fMode) {
-            case Mode::kLinear:
-                name += "linear";
-                break;
-            case Mode::kMip:
-                name += "mip";
-                break;
-            case Mode::kAniso:
-                name += "aniso";
-                break;
-        }
-        return name;
-    }
+
+    SkString onShortName() override { return SkString("anisotropic_image_scale_mip"); }
 
     SkISize onISize() override {
         return SkISize::Make(2*kImageSize + 3*kSpacer,
@@ -138,112 +112,11 @@ private:
 
     sk_sp<SkImage>    fImage;
     SkSamplingOptions fSampling;
-    Mode              fMode;
 
     using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new AnisotropicGM(AnisotropicGM::Mode::kLinear);)
-DEF_GM(return new AnisotropicGM(AnisotropicGM::Mode::kMip);)
-DEF_GM(return new AnisotropicGM(AnisotropicGM::Mode::kAniso);)
-
-//////////////////////////////////////////////////////////////////////////////
-
-class AnisoMipsGM : public GM {
-public:
-    AnisoMipsGM() = default;
-
-protected:
-    SkString onShortName() override { return SkString("anisomips"); }
-
-    SkISize onISize() override { return SkISize::Make(520, 260); }
-
-    sk_sp<SkImage> updateImage(SkSurface* surf, SkColor color) {
-        surf->getCanvas()->clear(color);
-        SkPaint paint;
-        paint.setColor(~color | 0xFF000000);
-        surf->getCanvas()->drawRect(SkRect::MakeLTRB(surf->width() *2/5.f,
-                                                     surf->height()*2/5.f,
-                                                     surf->width() *3/5.f,
-                                                     surf->height()*3/5.f),
-                                    paint);
-        return surf->makeImageSnapshot()->withDefaultMipmaps();
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        auto ct = canvas->imageInfo().colorType() == kUnknown_SkColorType
-                          ? kRGBA_8888_SkColorType
-                          : canvas->imageInfo().colorType();
-        auto ii = SkImageInfo::Make(kImageSize,
-                                    kImageSize,
-                                    ct,
-                                    kPremul_SkAlphaType,
-                                    canvas->imageInfo().refColorSpace());
-        // In GPU mode we want a surface that is created with mipmaps to ensure that we exercise the
-        // case where the SkSurface and SkImage share a texture. If the surface texture isn't
-        // created with MIPs then asking for a mipmapped image will cause a copy to a mipped
-        // texture.
-        sk_sp<SkSurface> surface;
-        if (auto rc = canvas->recordingContext()) {
-            surface = SkSurface::MakeRenderTarget(rc,
-                                                  SkBudgeted::kYes,
-                                                  ii,
-                                                  1,
-                                                  kTopLeft_GrSurfaceOrigin,
-                                                  /*surfaceProps=*/nullptr,
-                                                  /*shouldCreateWithMips=*/true);
-        } else {
-            surface = canvas->makeSurface(ii);
-            if (!surface) {  // could be a recording canvas.
-                surface = SkSurface::MakeRaster(ii);
-            }
-        }
-
-        static constexpr float kScales[] = {1.f, 0.5f, 0.25f, 0.125f};
-        SkColor kColors[] = {0xFFF0F0F0, SK_ColorBLUE, SK_ColorGREEN, SK_ColorRED};
-        static const SkSamplingOptions kSampling = SkSamplingOptions::Aniso(16);
-
-        for (bool shader : {false, true}) {
-            int c = 0;
-            canvas->save();
-            for (float sy : kScales) {
-                canvas->save();
-                for (float sx : kScales) {
-                    canvas->save();
-                    canvas->scale(sx, sy);
-                    auto image = this->updateImage(surface.get(), kColors[c]);
-                    if (shader) {
-                        SkPaint paint;
-                        paint.setShader(image->makeShader(kSampling));
-                        canvas->drawRect(SkRect::Make(image->dimensions()), paint);
-                    } else {
-                        canvas->drawImage(image, 0, 0, kSampling);
-                    }
-                    canvas->restore();
-                    canvas->translate(ii.width() * sx + kPad, 0);
-                    c = (c + 1) % SK_ARRAY_COUNT(kColors);
-                }
-                canvas->restore();
-                canvas->translate(0, ii.width() * sy + kPad);
-            }
-            canvas->restore();
-            for (float sx : kScales) {
-                canvas->translate(ii.width() * sx + kPad, 0);
-            }
-        }
-    }
-
-private:
-    inline static constexpr int kImageSize = 128;
-    inline static constexpr int kPad = 5;
-
-    using INHERITED = GM;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new AnisoMipsGM();)
-
+DEF_GM(return new AnisotropicGM;)
 }  // namespace skiagm

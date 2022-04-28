@@ -210,12 +210,6 @@ SkRect SkReadBuffer::readRect() {
 }
 
 SkSamplingOptions SkReadBuffer::readSampling() {
-    if (!this->isVersionLT(SkPicturePriv::kAnisotropicFilter)) {
-        int maxAniso = this->readInt();
-        if (maxAniso != 0) {
-            return SkSamplingOptions::Aniso(maxAniso);
-        }
-    }
     if (this->readBool()) {
         float B = this->readScalar();
         float C = this->readScalar();
