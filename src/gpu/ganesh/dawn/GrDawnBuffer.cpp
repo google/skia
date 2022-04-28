@@ -157,7 +157,7 @@ void GrDawnBuffer::mapAsync(MapAsyncCallback callback) {
     fBuffer.MapAsync(
             (fMappable == Mappable::kReadOnly) ? wgpu::MapMode::Read : wgpu::MapMode::Write,
             0,
-            0,
+            wgpu::kWholeMapSize,
             [](WGPUBufferMapAsyncStatus status, void* userData) {
                 static_cast<GrDawnBuffer*>(userData)->mapAsyncDone(status);
             },

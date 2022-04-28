@@ -35,11 +35,6 @@
 // This defines the C++ equivalents to the JS WebGPU API.
 #include <webgpu/webgpu_cpp.h>
 
-// Enable workaround for skbug.com/13266. While this workaround is a hack, it allows us to continue
-// the WebGPU bringup until the bug is fixed. Undefine the macro to reproduce the bug.
-// TODO(skia:13266): Remove this workaround once the bug is fixed.
-#define WORKAROUND_SKBUG_13266
-
 static wgpu::SwapChain getSwapChainForCanvas(wgpu::Device device,
                                              std::string canvasSelector,
                                              int width,
@@ -119,20 +114,12 @@ public:
         fContext = context;
         fEffect = effect;
 
-#ifdef WORKAROUND_SKBUG_13266
-        fCanvasSelector = std::move(canvasSelector);
-#endif  // WORKAROUND_SKBUG_13266
-
         return true;
     }
 
     void setKind(DemoKind kind) { fDemoKind = kind; }
 
     void draw(int timestamp) {
-#ifdef WORKAROUND_SKBUG_13266
-        this->init(fCanvasSelector, fWidth, fHeight);
-#endif  // WORKAROUND_SKBUG_13266
-
         GrDawnRenderTargetInfo rtInfo;
         rtInfo.fTextureView = fCanvasSwapChain.GetCurrentTextureView();
         rtInfo.fFormat = wgpu::TextureFormat::BGRA8Unorm;
@@ -160,12 +147,6 @@ public:
         surface->getCanvas()->drawPaint(paint);
         surface->flushAndSubmit(true);
         fFrameCount++;
-
-#ifdef WORKAROUND_SKBUG_13266
-        // Dropping the context here resets all staging buffers and avoids unmapped buffers
-        // to be reused as described in skbug.com/13266.
-        fContext = nullptr;
-#endif  // WORKAROUND_SKBUG_13266
     }
 
     void drawSolidColor(SkPaint* paint) {
@@ -200,9 +181,6 @@ public:
     }
 
 private:
-#ifdef WORKAROUND_SKBUG_13266
-    std::string fCanvasSelector;
-#endif  // WORKAROUND_SKBUG_13266
     int fFrameCount = 0;
     int fWidth;
     int fHeight;
