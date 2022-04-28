@@ -72,7 +72,7 @@ bool ReturnsOpaqueColor(const FunctionDefinition& function);
  * intended to prevent absurdly large programs from overwhemling SkVM. Only strict-ES2 mode is
  * supported; complex control flow is not SkVM-compatible (and this becomes the halting problem)
  */
-bool CheckProgramStructure(const Program& program);
+bool CheckProgramStructure(const Program& program, bool enforceSizeLimit);
 
 /**
  * Detect an orphaned variable declaration outside of a scope, e.g. if (true) int a;. Returns

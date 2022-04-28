@@ -641,16 +641,16 @@ bool Compiler::finalize(Program& program) {
     // as errors.
     Analysis::DoFinalizationChecks(program);
 
-    // Verify that the program conforms to ES2 limitations.
     if (fContext->fConfig->strictES2Mode() && this->errorCount() == 0) {
         // Enforce Appendix A, Section 5 of the GLSL ES 1.00 spec -- Indexing. This logic assumes
         // that all loops meet the criteria of Section 4, and if they don't, could crash.
         for (const auto& pe : program.fOwnedElements) {
             Analysis::ValidateIndexingForES2(*pe, this->errorReporter());
         }
-        // Verify that the program size is reasonable after unrolling and inlining. This also
-        // issues errors for static recursion and overly-deep function-call chains.
-        Analysis::CheckProgramStructure(program);
+    }
+    if (this->errorCount() == 0) {
+        bool enforceSizeLimit = ProgramConfig::IsRuntimeEffect(program.fConfig->fKind);
+        Analysis::CheckProgramStructure(program, enforceSizeLimit);
     }
 
     return this->errorCount() == 0;

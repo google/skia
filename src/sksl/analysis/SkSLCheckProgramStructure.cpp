@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
+#include "include/core/SkTypes.h" // IWYU pragma: keep
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTHash.h"
@@ -31,13 +31,11 @@
 
 namespace SkSL {
 
-bool Analysis::CheckProgramStructure(const Program& program) {
-    // We check the size of strict-ES2 programs since SkVM will completely unroll them.
-    // Note that we *cannot* safely check the program size of non-ES2 code at this time, as it is
-    // allowed to do things we can't measure (e.g. the program can contain a recursive cycle). We
-    // could, at best, compute a lower bound.
+bool Analysis::CheckProgramStructure(const Program& program, bool enforceSizeLimit) {
+    // We check the size of strict-ES2 programs; since SkVM will completely unroll them, it's
+    // important to know how large the result will be. For non-ES2 code, we compute an approximate
+    // lower bound by assuming all non-unrollable loops will execute one time only.
     const Context& context = *program.fContext;
-    SkASSERT(context.fConfig->strictES2Mode());
 
     // If we decide that expressions are cheaper than statements, or that certain statements are
     // more expensive than others, etc., we can always tweak these ratios as needed. A very rough
@@ -118,26 +116,34 @@ bool Analysis::CheckProgramStructure(const Program& program) {
             switch (stmt.kind()) {
                 case Statement::Kind::kFor: {
                     // We count a for-loop's unrolled size here. We expect that the init statement
-                    // will be emitted once, and the next-expr and statement will be repeated in the
-                    // output for every iteration of the loop. The test-expr is optimized away
-                    // during the unroll and is not counted at all.
+                    // will be emitted once, and the test-expr, next-expr and statement will be
+                    // repeated in the output for every iteration of the loop.
+                    bool earlyExit = false;
                     const ForStatement& forStmt = stmt.as<ForStatement>();
-                    bool result = this->visitStatement(*forStmt.initializer());
+                    if (forStmt.initializer() && this->visitStatement(*forStmt.initializer())) {
+                        earlyExit = true;
+                    }
 
                     size_t originalFunctionSize = fFunctionSize;
                     fFunctionSize = 0;
 
-                    result = this->visitExpression(*forStmt.next()) ||
-                             this->visitStatement(*forStmt.statement()) || result;
-
-                    if (const LoopUnrollInfo* unrollInfo = forStmt.unrollInfo()) {
-                        fFunctionSize = SkSafeMath::Mul(fFunctionSize, unrollInfo->fCount);
-                    } else {
-                        SkDEBUGFAIL("for-loops should always have unroll info in an ES2 program");
+                    if (forStmt.next() && this->visitExpression(*forStmt.next())) {
+                        earlyExit = true;
+                    }
+                    if (forStmt.test() && this->visitExpression(*forStmt.test())) {
+                        earlyExit = true;
+                    }
+                    if (this->visitStatement(*forStmt.statement())) {
+                        earlyExit = true;
                     }
 
+                    // ES2 programs always have a known unroll count. Non-ES2 programs don't enforce
+                    // a maximum program size, so it's fine to treat the loop as executing once.
+                    if (const LoopUnrollInfo* unrollInfo = forStmt.unrollInfo()) {
+                        fFunctionSize = SkSafeMath::Mul(fFunctionSize, unrollInfo->fCount);
+                    }
                     fFunctionSize = SkSafeMath::Add(fFunctionSize, originalFunctionSize);
-                    return result;
+                    return earlyExit;
                 }
 
                 case Statement::Kind::kExpression:
@@ -151,17 +157,15 @@ bool Analysis::CheckProgramStructure(const Program& program) {
                     // These statements don't directly consume any space in a compiled program.
                     break;
 
-                case Statement::Kind::kDo:
-                    SkDEBUGFAIL("encountered a statement that shouldn't exist in an ES2 program");
-                    break;
-
                 default:
+                    // Note that we don't make any attempt to estimate the number of iterations of
+                    // do-while loops here. Those aren't an ES2 construct so we aren't enforcing
+                    // program size on them.
                     fFunctionSize = SkSafeMath::Add(fFunctionSize, kStatementCost);
                     break;
             }
 
-            bool earlyExit = fFunctionSize > kProgramSizeLimit;
-            return earlyExit || INHERITED::visitStatement(stmt);
+            return INHERITED::visitStatement(stmt);
         }
 
         bool visitExpression(const Expression& expr) override {
@@ -206,7 +210,8 @@ bool Analysis::CheckProgramStructure(const Program& program) {
             // even in unreferenced functions.
             visitor.visitProgramElement(*element);
             // Report an error when main()'s flattened size is larger than our program limit.
-            if (visitor.functionSize() > kProgramSizeLimit &&
+            if (enforceSizeLimit &&
+                visitor.functionSize() > kProgramSizeLimit &&
                 element->as<FunctionDefinition>().declaration().isMain()) {
                 context.fErrors->error(Position(), "program is too large");
             }
