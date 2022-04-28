@@ -397,11 +397,6 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
         pdman.set1f(fTessControlArgsUniform, maxScale);
     }
 
-    if (shader.mode() == GrStrokeTessellationShader::Mode::kFixedCount) {
-        SkASSERT(shader.fixedCountNumTotalEdges() != 0);
-        pdman.set1f(fEdgeCountUniform, (float)shader.fixedCountNumTotalEdges());
-    }
-
     // Set up the view matrix, if any.
     const SkMatrix& m = shader.viewMatrix();
     pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());

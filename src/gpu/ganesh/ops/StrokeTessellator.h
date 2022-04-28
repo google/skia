@@ -44,11 +44,11 @@ public:
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
     //
     // Returns the fixed number of edges the tessellator will draw per patch.
-    int prepare(GrMeshDrawTarget*,
-                const SkMatrix& shaderMatrix,
-                std::array<float,2> matrixMinMaxScales,
-                PathStrokeList*,
-                int totalCombinedStrokeVerbCnt);
+    void prepare(GrMeshDrawTarget*,
+                 const SkMatrix& shaderMatrix,
+                 std::array<float,2> matrixMinMaxScales,
+                 PathStrokeList*,
+                 int totalCombinedStrokeVerbCnt);
 
     // Issues draw calls for the tessellated stroke. The caller is responsible for creating and
     // binding a pipeline that uses this class's shader() before calling draw().
@@ -58,6 +58,7 @@ protected:
     const PatchAttribs fAttribs;
 
     GrVertexChunkArray fVertexChunkArray;
+
     int fFixedEdgeCount = 0;
 
     // Only used if sk_VertexID is not supported.

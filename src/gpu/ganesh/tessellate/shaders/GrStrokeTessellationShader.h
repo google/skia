@@ -44,14 +44,6 @@ public:
     bool hasExplicitCurveType() const { return fPatchAttribs & PatchAttribs::kExplicitCurveType; }
     const SkStrokeRec& stroke() const { return fStroke;}
     int8_t maxParametricSegments_log2() const { return fMaxParametricSegments_log2; }
-    float fixedCountNumTotalEdges() const { return fFixedCountNumTotalEdges;}
-
-    // Used by GrFixedCountTessellator to configure the uniform value that tells the shader how many
-    // total edges are in the triangle strip.
-    void setFixedCountNumTotalEdges(int value) {
-        SkASSERT(fMode == Mode::kFixedCount);
-        fFixedCountNumTotalEdges = value;
-    }
 
 private:
     const char* name() const override {
@@ -74,10 +66,6 @@ private:
 
     constexpr static int kMaxAttribCount = 6;
     SkSTArray<kMaxAttribCount, Attribute> fAttribs;
-
-    // This is a uniform value used when fMode is kFixedCount that tells the shader how many total
-    // edges are in the triangle strip.
-    float fFixedCountNumTotalEdges = 0;
 
     class Impl;
     class HardwareImpl;
@@ -156,7 +144,6 @@ protected:
     GrGLSLUniformHandler::UniformHandle fTessControlArgsUniform;
     GrGLSLUniformHandler::UniformHandle fTranslateUniform;
     GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
-    GrGLSLUniformHandler::UniformHandle fEdgeCountUniform;
     GrGLSLUniformHandler::UniformHandle fColorUniform;
     SkString fDynamicColorName;
 };

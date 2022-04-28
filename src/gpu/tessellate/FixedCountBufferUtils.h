@@ -168,6 +168,12 @@ public:
     // SkSL built-in. And unlike the curve and wedge variants, stroke drawing never relies on an
     // index buffer so those functions are not provided.
 
+    // Don't draw more vertices than can be indexed by a signed short. We just have to draw the line
+    // somewhere and this seems reasonable enough. (There are two vertices per edge, so 2^14 edges
+    // make 2^15 vertices.)
+    static constexpr int kMaxEdges = (1 << 14) - 1;
+    static constexpr int kMaxEdgesNoVertexIDs = 1024;
+
     static constexpr int PreallocCount(int totalCombinedPathVerbCnt) {
         // Over-allocate enough patches for each stroke to chop once, and for 8 extra caps. Since
         // we have to chop at inflections, points of 180 degree rotation, and anywhere a stroke
@@ -175,9 +181,9 @@ public:
         return (totalCombinedPathVerbCnt * 2) + 8/* caps */;
     }
 
-    static constexpr size_t VertexBufferSize(int edgeCount) {
+    static constexpr size_t VertexBufferSize() {
         // Each vertex is a single float (explicit id) and each edge is composed of two vertices.
-        return 2 * edgeCount * sizeof(float);
+        return 2 * kMaxEdgesNoVertexIDs * sizeof(float);
     }
 
     // Initializes the fallback vertex buffer that should be bound when sk_VertexID is not supported

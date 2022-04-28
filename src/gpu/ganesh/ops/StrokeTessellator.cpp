@@ -230,11 +230,11 @@ int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
 
 SKGPU_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
 
-int StrokeTessellator::prepare(GrMeshDrawTarget* target,
-                               const SkMatrix& shaderMatrix,
-                               std::array<float,2> matrixMinMaxScales,
-                               PathStrokeList* pathStrokeList,
-                               int totalCombinedStrokeVerbCnt) {
+void StrokeTessellator::prepare(GrMeshDrawTarget* target,
+                                const SkMatrix& shaderMatrix,
+                                std::array<float,2> matrixMinMaxScales,
+                                PathStrokeList* pathStrokeList,
+                                int totalCombinedStrokeVerbCnt) {
     int preallocCount = FixedCountStrokes::PreallocCount(totalCombinedStrokeVerbCnt);
     FixedCountStrokeWriter patchWriter{fAttribs, kMaxParametricSegments,
                                        target, &fVertexChunkArray, preallocCount};
@@ -244,27 +244,21 @@ int StrokeTessellator::prepare(GrMeshDrawTarget* target,
                                                 matrixMinMaxScales,
                                                 pathStrokeList);
 
-    // Don't draw more vertices than can be indexed by a signed short. We just have to draw the line
-    // somewhere and this seems reasonable enough. (There are two vertices per edge, so 2^14 edges
-    // make 2^15 vertices.)
-    fFixedEdgeCount = std::min(fFixedEdgeCount, (1 << 14) - 1);
+    fFixedEdgeCount = std::min(fFixedEdgeCount, FixedCountStrokes::kMaxEdges);
 
     if (!target->caps().shaderCaps()->vertexIDSupport()) {
         // Our shader won't be able to use sk_VertexID. Bind a fallback vertex buffer with the IDs
         // in it instead.
-        constexpr static int kMaxEdgesInFallbackBuffer = 1024;
-        fFixedEdgeCount = std::min(fFixedEdgeCount, kMaxEdgesInFallbackBuffer);
+        fFixedEdgeCount = std::min(fFixedEdgeCount, FixedCountStrokes::kMaxEdgesNoVertexIDs);
 
         SKGPU_DEFINE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
 
         fVertexBufferIfNoIDSupport = target->resourceProvider()->findOrMakeStaticBuffer(
                 GrGpuBufferType::kVertex,
-                FixedCountStrokes::VertexBufferSize(kMaxEdgesInFallbackBuffer),
+                FixedCountStrokes::VertexBufferSize(),
                 gVertexIDFallbackBufferKey,
                 FixedCountStrokes::WriteVertexBuffer);
     }
-
-    return fFixedEdgeCount;
 }
 
 void StrokeTessellator::draw(GrOpFlushState* flushState) const {
