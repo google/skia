@@ -2296,7 +2296,6 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkCanvas_hdr",
-        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkSurface_hdr",
         "//include/core:SkTypes_hdr",
@@ -6947,7 +6946,6 @@ generated_cc_atom(
         ":Test_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
-        "//include/core:SkColorSpace_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkSurface_hdr",
         "//include/core:SkTypes_hdr",

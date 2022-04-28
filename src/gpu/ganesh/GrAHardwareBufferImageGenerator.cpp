@@ -16,7 +16,6 @@
 
 #include <android/hardware_buffer.h>
 
-#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
