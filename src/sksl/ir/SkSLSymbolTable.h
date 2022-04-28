@@ -140,7 +140,7 @@ public:
 private:
     struct SymbolKey {
         std::string_view fName;
-        uint32_t       fHash;
+        uint32_t         fHash;
 
         bool operator==(const SymbolKey& that) const { return fName == that.fName; }
         bool operator!=(const SymbolKey& that) const { return fName != that.fName; }

@@ -7,11 +7,12 @@
 
 #include "src/sksl/SkSLMangler.h"
 
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLString.h"
 #include "include/private/SkStringView.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
+#include <algorithm>
 #include <ctype.h>
 
 namespace SkSL {
@@ -47,16 +48,28 @@ std::string Mangler::uniqueName(std::string_view baseName, SymbolTable* symbolTa
     // Append a unique numeric prefix to avoid name overlap. Check the symbol table to make sure
     // we're not reusing an existing name. (Note that within a single compilation pass, this check
     // isn't fully comprehensive, as code isn't always generated in top-to-bottom order.)
-    std::string uniqueName;
+
+    // This code is a performance hotspot. Assemble the string manually to save a few cycles.
+    char uniqueName[256];
+    uniqueName[0] = '_';
+    char* uniqueNameEnd = uniqueName + SK_ARRAY_COUNT(uniqueName);
     for (;;) {
-        uniqueName = SkSL::String::printf("_%d_%.*s", fCounter++,
-                                          (int)baseName.size(), baseName.data());
-        if ((*symbolTable)[uniqueName] == nullptr) {
-            break;
+        // _123
+        char* endPtr = SkStrAppendS32(uniqueName + 1, fCounter++);
+
+        // _123_
+        *endPtr++ = '_';
+
+        // _123_baseNameTruncatedToFit (no null terminator, because string_view doesn't require one)
+        int baseNameCopyLength = std::min<int>(baseName.size(), uniqueNameEnd - endPtr);
+        memcpy(endPtr, baseName.data(), baseNameCopyLength);
+        endPtr += baseNameCopyLength;
+
+        std::string_view uniqueNameView(uniqueName, endPtr - uniqueName);
+        if ((*symbolTable)[uniqueNameView] == nullptr) {
+            return std::string(uniqueNameView);
         }
     }
-
-    return uniqueName;
 }
 
 } // namespace SkSL

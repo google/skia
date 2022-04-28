@@ -641,8 +641,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLMangler_hdr",
+        "//include/core:SkString_hdr",
         "//include/core:SkTypes_hdr",
-        "//include/private:SkSLString_hdr",
         "//include/private:SkStringView_hdr",
         "//src/sksl/ir:SkSLSymbolTable_hdr",
     ],
