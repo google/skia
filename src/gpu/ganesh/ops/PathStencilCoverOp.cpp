@@ -163,13 +163,11 @@ void PathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramA
         fTessellator = PathWedgeTessellator::Make(args.fArena,
                                                   args.fCaps->shaderCaps()->infinitySupport());
     }
-    auto* tessShader = GrPathTessellationShader::Make(args.fArena,
+    auto* tessShader = GrPathTessellationShader::Make(*args.fCaps->shaderCaps(),
+                                                      args.fArena,
                                                       shaderMatrix,
                                                       SK_PMColor4fTRANSPARENT,
-                                                      fTotalCombinedPathVerbCnt,
-                                                      *stencilPipeline,
-                                                      fTessellator->patchAttribs(),
-                                                      *args.fCaps);
+                                                      fTessellator->patchAttribs());
     fStencilPathProgram = GrTessellationShader::MakeProgram(args,
                                                             tessShader,
                                                             stencilPipeline,
@@ -263,11 +261,9 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
 
     auto tessShader = &fStencilPathProgram->geomProc().cast<GrPathTessellationShader>();
     fTessellator->prepare(flushState,
-                          tessShader->maxTessellationSegments(*flushState->caps().shaderCaps()),
                           tessShader->viewMatrix(),
                           *fPathDrawList,
-                          fTotalCombinedPathVerbCnt,
-                          tessShader->willUseTessellationShaders());
+                          fTotalCombinedPathVerbCnt);
 
     if (fCoverBBoxProgram) {
         size_t instanceStride = fCoverBBoxProgram->geomProc().instanceStride();
@@ -338,7 +334,7 @@ void PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
     // Stencil the rest of the path.
     SkASSERT(fStencilPathProgram);
     flushState->bindPipelineAndScissorClip(*fStencilPathProgram, this->bounds());
-    fTessellator->draw(flushState, fStencilPathProgram->geomProc().willUseTessellationShaders());
+    fTessellator->draw(flushState);
     if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
         flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
     }

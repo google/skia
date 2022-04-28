@@ -54,32 +54,15 @@ public:
 
     PatchAttribs patchAttribs() const { return fAttribs; }
 
-    // Initializes the internal vertex and index buffers required for drawFixedCount().
-    virtual void prepareFixedCountBuffers(GrMeshDrawTarget*) = 0;
-
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
     virtual void prepare(GrMeshDrawTarget* target,
-                         int maxTessellationSegments,
                          const SkMatrix& shaderMatrix,
                          const PathDrawList& pathDrawList,
-                         int totalCombinedPathVerbCnt,
-                         bool willUseTessellationShaders) = 0;
-
-    // Issues hardware tessellation draw calls over the patches. The caller is responsible for
-    // binding its desired pipeline ahead of time.
-    virtual void drawTessellated(GrOpFlushState*) const = 0;
+                         int totalCombinedPathVerbCnt) = 0;
 
     // Issues fixed-count instanced draw calls over the patches. The caller is responsible for
     // binding its desired pipeline ahead of time.
-    virtual void drawFixedCount(GrOpFlushState*) const = 0;
-
-    void draw(GrOpFlushState* flushState, bool willUseTessellationShaders) {
-        if (willUseTessellationShaders) {
-            this->drawTessellated(flushState);
-        } else {
-            this->drawFixedCount(flushState);
-        }
-    }
+    virtual void draw(GrOpFlushState* flushState) const = 0;
 
 protected:
     PathTessellator(bool infinitySupport, PatchAttribs attribs) : fAttribs(attribs) {
@@ -102,7 +85,6 @@ protected:
 
     GrVertexChunkArray fVertexChunkArray;
 
-    // If using fixed-count rendering, these are the vertex and index buffers.
     sk_sp<const GrGpuBuffer> fFixedVertexBuffer;
     sk_sp<const GrGpuBuffer> fFixedIndexBuffer;
 };
@@ -123,32 +105,23 @@ public:
             : PathTessellator(infinitySupport, attribs) {}
 
     void prepareWithTriangles(GrMeshDrawTarget* target,
-                              int maxTessellationSegments,
                               const SkMatrix& shaderMatrix,
                               GrInnerFanTriangulator::BreadcrumbTriangleList* extraTriangles,
                               const PathDrawList& pathDrawList,
-                              int totalCombinedPathVerbCnt,
-                              bool willUseTessellationShaders);
+                              int totalCombinedPathVerbCnt);
 
     void prepare(GrMeshDrawTarget* target,
-                 int maxTessellationSegments,
                  const SkMatrix& shaderMatrix,
                  const PathDrawList& pathDrawList,
-                 int totalCombinedPathVerbCnt,
-                 bool willUseTessellationShaders) final {
+                 int totalCombinedPathVerbCnt) final {
         this->prepareWithTriangles(target,
-                                   maxTessellationSegments,
                                    shaderMatrix,
                                    nullptr, // no extra triangles by default
                                    pathDrawList,
-                                   totalCombinedPathVerbCnt,
-                                   willUseTessellationShaders);
+                                   totalCombinedPathVerbCnt);
     }
 
-    void prepareFixedCountBuffers(GrMeshDrawTarget*) final;
-
-    void drawTessellated(GrOpFlushState*) const final;
-    void drawFixedCount(GrOpFlushState*) const final;
+    void draw(GrOpFlushState*) const final;
 
     // Draws a 4-point instance for each patch. This method is used for drawing convex hulls over
     // each cubic with GrFillCubicHullShader. The caller is responsible for binding its desired
@@ -174,16 +147,11 @@ public:
     }
 
     void prepare(GrMeshDrawTarget* target,
-                 int maxTessellationSegments,
                  const SkMatrix& shaderMatrix,
                  const PathDrawList& pathDrawList,
-                 int totalCombinedPathVerbCnt,
-                 bool willUseTessellationShaders) final;
+                 int totalCombinedPathVerbCnt) final;
 
-    void prepareFixedCountBuffers(GrMeshDrawTarget*) final;
-
-    void drawTessellated(GrOpFlushState*) const final;
-    void drawFixedCount(GrOpFlushState*) const final;
+    void draw(GrOpFlushState*) const final;
 };
 
 }  // namespace skgpu::v1
