@@ -76,7 +76,7 @@ public:
         kGlobalVar_Command,
         kIf_Command,
         kIndex_Command,
-        kInlineMarker_Command,
+        kUnused_Command,  // was kInlineMarker_Command
         kInterfaceBlock_Command,
         kIntLiteral_Command,
         kLayout_Command,

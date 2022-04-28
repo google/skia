@@ -3462,7 +3462,6 @@ void SPIRVCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, Outp
 
 void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
     switch (s.kind()) {
-        case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
             break;
         case Statement::Kind::kBlock:

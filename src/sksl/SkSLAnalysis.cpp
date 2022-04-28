@@ -589,7 +589,6 @@ template <typename T> bool TProgramVisitor<T>::visitStatement(typename T::Statem
         case Statement::Kind::kBreak:
         case Statement::Kind::kContinue:
         case Statement::Kind::kDiscard:
-        case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
             // Leaf statements just return false
             return false;

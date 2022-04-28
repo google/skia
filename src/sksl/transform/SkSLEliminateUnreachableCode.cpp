@@ -65,7 +65,6 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
                     break;
 
                 case Statement::Kind::kExpression:
-                case Statement::Kind::kInlineMarker:
                 case Statement::Kind::kNop:
                 case Statement::Kind::kVarDeclaration:
                     // These statements don't affect control flow.

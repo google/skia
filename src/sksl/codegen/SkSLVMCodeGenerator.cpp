@@ -2089,7 +2089,6 @@ void SkVMGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kDo:
             SkDEBUGFAIL("Unsupported control flow");
             break;
-        case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
             break;
         default:

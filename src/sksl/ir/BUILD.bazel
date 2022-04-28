@@ -700,17 +700,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkSLInlineMarker_hdr",
-    hdrs = ["SkSLInlineMarker.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkSLFunctionDeclaration_hdr",
-        ":SkSLSymbolTable_hdr",
-        "//include/private:SkSLStatement_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "SkSLInterfaceBlock_hdr",
     hdrs = ["SkSLInterfaceBlock.h"],
     visibility = ["//:__subpackages__"],

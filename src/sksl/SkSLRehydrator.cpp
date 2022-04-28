@@ -49,7 +49,6 @@
 #include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLInlineMarker.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLNop.h"
@@ -427,10 +426,6 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             std::unique_ptr<Statement> ifFalse = this->statement();
             return IfStatement::Make(this->context(), Position(), isStatic, std::move(test),
                                      std::move(ifTrue), std::move(ifFalse));
-        }
-        case Rehydrator::kInlineMarker_Command: {
-            const FunctionDeclaration* funcDecl = this->symbolRef<FunctionDeclaration>();
-            return InlineMarker::Make(funcDecl);
         }
         case Rehydrator::kNop_Command:
             return std::make_unique<SkSL::Nop>();

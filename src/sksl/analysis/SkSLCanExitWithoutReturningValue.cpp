@@ -145,7 +145,6 @@ public:
 
             case Statement::Kind::kDiscard:
             case Statement::Kind::kExpression:
-            case Statement::Kind::kInlineMarker:
             case Statement::Kind::kNop:
             case Statement::Kind::kVarDeclaration:
                 // None of these statements could contain a return.

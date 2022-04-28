@@ -42,7 +42,6 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLInlineMarker.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
@@ -501,7 +500,6 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             return IfStatement::Make(*fContext, pos, i.isStatic(), expr(i.test()),
                                      stmt(i.ifTrue()), stmt(i.ifFalse()));
         }
-        case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
             return statement.clone();
 
@@ -611,13 +609,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     const ReturnComplexity returnComplexity = GetReturnComplexity(function);
 
     StatementArray inlineStatements;
-    int expectedStmtCount = 1 +                      // Inline marker
-                            1 +                      // Result variable
+    int expectedStmtCount = 1 +                      // Result variable
                             arguments.size() +       // Function argument temp-vars
                             body.children().size();  // Inlined code
 
     inlineStatements.reserve_back(expectedStmtCount);
-    inlineStatements.push_back(InlineMarker::Make(&call->function()));
 
     std::unique_ptr<Expression> resultExpr;
     if (returnComplexity > ReturnComplexity::kSingleSafeReturn &&
@@ -806,7 +802,6 @@ public:
             case Statement::Kind::kBreak:
             case Statement::Kind::kContinue:
             case Statement::Kind::kDiscard:
-            case Statement::Kind::kInlineMarker:
             case Statement::Kind::kNop:
                 break;
 

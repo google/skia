@@ -2119,8 +2119,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
                  "layout(location = 0, index = 0, builtin = 10001) out half4 sk_FragColor;"
                  "layout(builtin = 17)in bool sk_Clockwise;"
                  "void main() {"
-                 "/* inlined: sqr */;"
-                 "/* inlined: sqr */;"
+                 ";"
+                 ";"
                  "(sk_FragColor = (4.0 , half4(half(9.0))));"
                  "}");
     REPORTER_ASSERT(r, *program->fSource == source);
@@ -2173,7 +2173,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
             "layout (builtin = 17) in bool sk_Clockwise;"
             "float sqr(float x);"
             "void main() {"
-            "/* inlined: sqr */;"
+            ";"
             "25.0;"
             "}");
     }

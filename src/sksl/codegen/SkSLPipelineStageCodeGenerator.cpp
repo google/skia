@@ -719,7 +719,6 @@ void PipelineStageCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kDiscard:
             SkDEBUGFAIL("Unsupported control flow");
             break;
-        case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
             this->write(";");
             break;

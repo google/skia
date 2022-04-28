@@ -27,7 +27,6 @@ public:
         kExpression,
         kFor,
         kIf,
-        kInlineMarker,
         kNop,
         kReturn,
         kSwitch,

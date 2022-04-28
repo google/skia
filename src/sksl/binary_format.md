@@ -695,16 +695,6 @@ Represents `if (test) ifTrue; else ifFalse;` (or `@if`, if `isStatic` is true).
 
 ---
 
-#### kInlineMarker_Command
-
-| Type                   | Field Name |
-|------------------------|------------|
-| `SymbolId`             | function   |
-
-Represents an `SkSL::InlineMarker`, which is inserted before an inlined function’s code.
-
----
-
 #### kNop_Command
 
 Represents an empty statement (a bare semicolon).
