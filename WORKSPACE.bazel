@@ -9,11 +9,11 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # See https://github.com/emscripten-core/emsdk/tree/85d27a4a2a60d591613a305b14ae438c2bb3ce11/bazel#setup-instructions
 http_archive(
     name = "emsdk",
-    sha256 = "7dc13d967705582e11ff62ae143425dbc63c38372f1a1b14f0cb681fda413714",
-    strip_prefix = "emsdk-3.1.4/bazel",
+    sha256 = "99de90a1827044c5430b926db947bcb266c8bdab1a0f20fe34a62431d9174376",
+    strip_prefix = "emsdk-3.1.9/bazel",
     urls = [
-        "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.4.tar.gz",
-        "https://storage.googleapis.com/skia-world-readable/bazel/7dc13d967705582e11ff62ae143425dbc63c38372f1a1b14f0cb681fda413714.tar.gz",
+        "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.9.tar.gz",
+        "https://storage.googleapis.com/skia-world-readable/bazel/99de90a1827044c5430b926db947bcb266c8bdab1a0f20fe34a62431d9174376.tar.gz",
     ],
 )
 
@@ -25,7 +25,7 @@ emsdk_deps()
 
 load("@emsdk//:emscripten_deps.bzl", emsdk_emscripten_deps = "emscripten_deps")
 
-emsdk_emscripten_deps(emscripten_version = "3.1.4")
+emsdk_emscripten_deps(emscripten_version = "3.1.9")
 
 http_archive(
     name = "bazel_skylib",
