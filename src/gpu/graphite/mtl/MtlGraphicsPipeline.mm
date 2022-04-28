@@ -440,7 +440,7 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
 std::string GetMtlUniforms(int bufferID,
                            const char* name,
                            const std::vector<SkPaintParamsKey::BlockReader>& readers,
-                           bool needsDev2Local) {
+                           bool needsLocalCoords) {
     size_t numUniforms = 0;
     for (auto r : readers) {
         numUniforms += r.entry()->fUniforms.size();
@@ -456,7 +456,7 @@ std::string GetMtlUniforms(int bufferID,
     for (int i = 0; i < (int) readers.size(); ++i) {
         result += get_uniforms(readers[i].entry()->fUniforms, &offset, i);
     }
-    if (needsDev2Local) {
+    if (needsLocalCoords) {
         static constexpr SkUniform kDev2LocalUniform[] = {{ "dev2LocalUni", SkSLType::kFloat4x4 }};
         result += get_uniforms(SkSpan<const SkUniform>(kDev2LocalUniform, 1), &offset, -1);
     }

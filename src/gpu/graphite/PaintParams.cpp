@@ -60,7 +60,7 @@ void PaintParams::toKey(const SkKeyContext& keyContext,
     }
 
     if (gatherer) {
-        if (gatherer->needsDev2Local()) {
+        if (gatherer->needsLocalCoords()) {
 #ifdef SK_DEBUG
             static constexpr SkUniform kDev2LocalUniform[] = {{ "dev2Local", SkSLType::kFloat4x4 }};
             UniformExpectationsValidator uev(gatherer,

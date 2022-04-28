@@ -33,7 +33,7 @@ private:
 
 enum class SnippetRequirementFlags : uint32_t {
     kNone = 0x0,
-    kDev2LocalMat = 0x1,
+    kLocalCoords = 0x1,
 };
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
@@ -84,8 +84,8 @@ public:
     void addFlags(SnippetRequirementFlags flags) {
         fSnippetRequirementFlags |= flags;
     }
-    bool needsDev2Local() const {
-        return fSnippetRequirementFlags & SnippetRequirementFlags::kDev2LocalMat;
+    bool needsLocalCoords() const {
+        return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
     }
 
 #ifdef SK_GRAPHITE_ENABLED
