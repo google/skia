@@ -39,6 +39,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Effects_hdr",
+        "//include/core:SkCanvas_hdr",
         "//include/core:SkPictureRecorder_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
         "//include/private:SkNx_hdr",
@@ -97,6 +98,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Effects_hdr",
+        "//include/core:SkCanvas_hdr",
         "//include/core:SkPictureRecorder_hdr",
         "//include/effects:SkColorMatrix_hdr",
         "//include/effects:SkImageFilters_hdr",
@@ -169,6 +171,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Effects_hdr",
+        "//include/core:SkCanvas_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
         "//include/utils:SkRandom_hdr",
         "//modules/skottie/src:Adapter_hdr",
@@ -388,6 +391,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Effects_hdr",
+        "//include/core:SkCanvas_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
         "//include/private:SkMalloc_hdr",
         "//modules/skottie/src:Adapter_hdr",
@@ -403,6 +407,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Effects_hdr",
+        "//include/core:SkCanvas_hdr",
         "//include/core:SkM44_hdr",
         "//include/core:SkPictureRecorder_hdr",
         "//include/effects:SkRuntimeEffect_hdr",

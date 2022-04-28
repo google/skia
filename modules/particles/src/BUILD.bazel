@@ -9,6 +9,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkColorSpace_hdr",
         "//include/core:SkContourMeasure_hdr",
+        "//include/core:SkFont_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPath_hdr",
         "//include/private:SkTPin_hdr",

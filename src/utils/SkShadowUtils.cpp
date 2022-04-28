@@ -7,15 +7,24 @@
 
 #include "include/utils/SkShadowUtils.h"
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkFlattenable.h"
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkString.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkVertices.h"
-#include "include/private/SkColorData.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkTPin.h"
+#include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkColorFilterBase.h"
@@ -26,16 +35,35 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkResourceCache.h"
-#include "src/core/SkRuntimeEffectPriv.h"
-#include "src/core/SkTLazy.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkShadowTessellator.h"
-#include <new>
+
 #if SK_SUPPORT_GPU
+#include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkRuntimeEffectPriv.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
+
+class GrColorInfo;
+class GrRecordingContext;
 #endif
+
+#include <string.h>
+#include <algorithm>
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <new>
+#include <utility>
+
+class SkArenaAlloc;
+class SkColorInfo;
+class SkRRect;
+class SkReadBuffer;
+class SkWriteBuffer;
 
 /**
 *  Gaussian color filter -- produces a Gaussian ramp based on the color's B value,

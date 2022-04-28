@@ -8,7 +8,7 @@
 #ifndef SKSL_DSL_FPS
 #define SKSL_DSL_FPS
 
-#include "include/core/SkTypes.h" // IWYU pragma: keep
+#include "include/core/SkTypes.h"
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 

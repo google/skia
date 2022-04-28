@@ -7,6 +7,7 @@
 
 #include "modules/skottie/src/SkottiePriv.h"
 
+#include "include/core/SkCanvas.h"
 #include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/SkottieJson.h"

@@ -4,8 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/utils/SkParse.h"
 #include "include/utils/SkParsePath.h"
+#include "src/core/SkGeometry.h"
+
+#include <stdio.h>
 
 static inline bool is_between(int c, int min, int max) {
     return (unsigned)(c - min) <= (unsigned)(max - min);
@@ -220,10 +231,6 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "include/core/SkStream.h"
-#include "include/core/SkString.h"
-#include "src/core/SkGeometry.h"
 
 static void write_scalar(SkWStream* stream, SkScalar value) {
     char buffer[64];

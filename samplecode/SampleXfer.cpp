@@ -7,6 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkString.h"

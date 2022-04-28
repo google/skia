@@ -9,14 +9,14 @@
 #define SkShadowUtils_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkPoint3.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkShadowFlags.h"
 
 class SkCanvas;
 class SkMatrix;
 class SkPath;
-class SkResourceCache;
+struct SkPoint3;
 struct SkRect;
 
 class SK_API SkShadowUtils {

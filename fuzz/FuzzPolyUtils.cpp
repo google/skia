@@ -7,6 +7,8 @@
 
 #include "fuzz/Fuzz.h"
 
+#include "include/core/SkPoint.h"
+#include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/utils/SkPolyUtils.h"
 

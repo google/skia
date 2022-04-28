@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h" // IWYU pragma: keep
+#include "include/core/SkTypes.h"
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)  // Google3 doesn't have etc1.h
 

@@ -129,6 +129,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":ShapeLayer_hdr",
+        "//include/core:SkCanvas_hdr",
         "//include/private:SkTPin_hdr",
         "//modules/skottie/src:Adapter_hdr",
         "//modules/skottie/src:SkottieJson_hdr",

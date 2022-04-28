@@ -8,16 +8,17 @@
 #ifndef SkShaperJSONWriter_DEFINED
 #define SkShaperJSONWriter_DEFINED
 
-#include <cstddef>
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "modules/skshaper/include/SkShaper.h"
+
 #include <cstdint>
 #include <functional>
 #include <string>
 #include <vector>
 
-#include "include/core/SkSpan.h"
-#include "modules/skshaper/include/SkShaper.h"
-
 class SkJSONWriter;
+template <typename T> class SkSpan;
 
 class SkShaperJSONWriter final : public SkShaper::RunHandler {
 public:

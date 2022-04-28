@@ -3055,6 +3055,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Test_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/private:SkTDArray_hdr",
         "//src/utils:SkPolyUtils_hdr",
     ],
 )
@@ -3420,6 +3422,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Test_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/private:SkTDArray_hdr",
         "//src/utils:SkPolyUtils_hdr",
     ],
 )
@@ -4649,6 +4653,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Test_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/private:SkTDArray_hdr",
         "//src/utils:SkPolyUtils_hdr",
     ],
 )
@@ -6110,6 +6116,7 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkColorPriv_hdr",
+        "//include/core:SkStream_hdr",
         "//include/private:SkColorData_hdr",
         "//src/core:SkCpu_hdr",
         "//src/core:SkMSAN_hdr",

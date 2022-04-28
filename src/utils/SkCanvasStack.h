@@ -8,9 +8,22 @@
 #ifndef SkCanvasStack_DEFINED
 #define SkCanvasStack_DEFINED
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/utils/SkNWayCanvas.h"
+
+#include <memory>
+
+class SkPath;
+class SkRRect;
+class SkShader;
+struct SkRect;
 
 /**
  *  Like NWayCanvas, in that it forwards all canvas methods to each sub-canvas that is "pushed".

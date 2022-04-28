@@ -8,7 +8,7 @@
 #ifndef SKSL_DSLWRITER
 #define SKSL_DSLWRITER
 
-#include "include/core/SkTypes.h" // IWYU pragma: keep
+#include "include/core/SkTypes.h"
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"

@@ -7,12 +7,19 @@
 
 #include "src/utils/SkShaperJSONWriter.h"
 
-#include <algorithm>
-#include <limits>
-#include <string>
-
+#include "include/core/SkFont.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTo.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkUTF.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <limits>
+#include <string>
+#include <type_traits>
 
 SkShaperJSONWriter::SkShaperJSONWriter(SkJSONWriter* JSONWriter, const char* utf8, size_t size)
         : fJSONWriter{JSONWriter}

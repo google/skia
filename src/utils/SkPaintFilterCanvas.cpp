@@ -7,11 +7,27 @@
 
 #include "include/utils/SkPaintFilterCanvas.h"
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
-#include "include/core/SkSurface.h"
-#include "src/core/SkCanvasPriv.h"
-#include "src/core/SkTLazy.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSurface.h" // IWYU pragma: keep
+
+#include <optional>
+
+class SkData;
+class SkDrawable;
+class SkGlyphRunList;
+class SkImage;
+class SkPath;
+class SkPicture;
+class SkRRect;
+class SkRegion;
+class SkSurfaceProps;
+class SkTextBlob;
+class SkVertices;
+struct SkDrawShadowRec;
 
 class SkPaintFilterCanvas::AutoPaintFilter {
 public:

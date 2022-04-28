@@ -1,6 +1,8 @@
 [
   { include: ["<__algorithm/copy.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/copy_n.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/equal_range.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/lower_bound.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/max.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/min.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/remove_if.h>", "private", "<algorithm>", "public"] },
@@ -10,6 +12,7 @@
 
   { include: ["<__functional/function.h>", "private", "<functional>", "public"] },
 
+  { include: ["<__iterator/access.h>", "private", "<iterator>", "public"] },
   { include: ["<__iterator/distance.h>", "private", "<iterator>", "public"] },
 
   { include: ["<__locale>", "private", "<locale>", "public"] },
@@ -30,4 +33,6 @@
   { include: ["<__utility/move.h>", "private", "<utility>", "public"] },
   { include: ["<__utility/swap.h>", "private", "<utility>", "public"] },
   { include: ["<__utility/pair.h>", "private", "<utility>", "public"] },
+
+  { symbol: ["std::__bit_reference", "public", "<vector>", "public"] },
 ]

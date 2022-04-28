@@ -26,7 +26,9 @@ else
   # IWYU always outputs something to stderr, which can be noisy if everything is fixed.
   # Otherwise, we send the exact same arguments to include-what-you-use that we would for
   # regular compilation with clang.
+  # We always allow SkTypes.h because
   external/clang_linux_amd64/usr/bin/include-what-you-use \
+      -Xiwyu --keep="include/core/SkTypes.h" \
       -Xiwyu --mapping_file=$MAPPING_FILE $@ 2>/dev/null
   # IWYU returns 2 if everything looks good. It returns some other non-zero exit code otherwise.
   if [ $? -eq 2 ]; then
@@ -36,6 +38,7 @@ else
     # These flags are a little different, but only in ways that affect what was displayed, not the
     # analysis. If we aren't sure why IWYU wants to include something, try changing verbose to 3.
     external/clang_linux_amd64/usr/bin/include-what-you-use \
+        -Xiwyu --keep="include/core/SkTypes.h" \
         -Xiwyu --mapping_file=$MAPPING_FILE -Xiwyu --no_comments \
         -Xiwyu --quoted_includes_first -Xiwyu --verbose=3 $@
     exit 1 # fail the build

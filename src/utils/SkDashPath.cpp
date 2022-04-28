@@ -5,12 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPathMeasure.h"
-#include "include/core/SkStrokeRec.h"
-#include "src/core/SkPathPriv.h"
-#include "src/core/SkPointPriv.h"
 #include "src/utils/SkDashPathPriv.h"
 
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkPathRef.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkPointPriv.h"
+
+#include <algorithm>
+#include <cmath>
 #include <utility>
 
 static inline int is_even(int x) {

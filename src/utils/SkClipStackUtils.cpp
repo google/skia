@@ -5,6 +5,11 @@
 * found in the LICENSE file.
 */
 
+#include "src/utils/SkClipStackUtils.h"
+
+#include "include/core/SkClipOp.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/pathops/SkPathOps.h"
 #include "src/core/SkClipStack.h"
 

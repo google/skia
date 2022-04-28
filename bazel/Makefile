@@ -35,6 +35,9 @@ known_good_builds:
 	bazelisk build //tools/debugger --config=clang --gpu_backend=gl_backend \
 		--features skia_enforce_iwyu
 	bazelisk build //:skia_core --config=clang --features skia_enforce_iwyu
+	bazelisk build //src/utils/... --config=clang --features skia_enforce_iwyu
+	bazelisk build //src/utils/... --config=clang --gpu_backend=gl_backend \
+		--features skia_enforce_iwyu
 
 rbe_known_good_builds:
 	bazelisk build //experimental/bazel_test/... --config=linux-rbe

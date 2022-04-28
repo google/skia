@@ -5,8 +5,17 @@
  * found in the LICENSE file.
  */
 #include "src/utils/SkVMVisualizer.h"
-#include <sstream>
+
+#include "include/core/SkStream.h"
+#include "include/private/SkOpts_spi.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/sksl/tracing/SkVMDebugTrace.h"
+
+#include <algorithm>
+#include <sstream>
+#include <stdarg.h>
+#include <string>
+#include <utility>
 
 namespace {
 

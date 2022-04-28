@@ -5,10 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPath.h"
-#include "include/core/SkTextBlob.h"
 #include "include/utils/SkTextUtils.h"
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTextBlob.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkFontPriv.h"
+
+class SkPaint;
 
 void SkTextUtils::Draw(SkCanvas* canvas, const void* text, size_t size, SkTextEncoding encoding,
                        SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint,

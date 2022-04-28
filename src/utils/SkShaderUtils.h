@@ -8,10 +8,11 @@
 #ifndef SkShaderUtils_DEFINED
 #define SkShaderUtils_DEFINED
 
-#include <functional>
-
+#include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramKind.h"
-#include "include/private/SkSLString.h"
+
+#include <functional>
+#include <string>
 
 namespace SkShaderUtils {
 

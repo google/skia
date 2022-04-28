@@ -4,9 +4,6 @@
 #define SkUTF_DEFINED
 
 #include "include/core/SkTypes.h"
-#include <cstddef>
-#include <cstdint>
-#include <memory>
 
 typedef int32_t SkUnichar;
 

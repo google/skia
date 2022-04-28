@@ -8,15 +8,19 @@
 #ifndef SkMultiPictureDocument_DEFINED
 #define SkMultiPictureDocument_DEFINED
 
-#include "include/core/SkDocument.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
 
 #include <functional>
 
+class SkDocument;
+class SkStreamSeekable;
+class SkWStream;
 struct SkDeserialProcs;
 struct SkSerialProcs;
-class SkStreamSeekable;
+
 /**
  *  Writes into a file format that is similar to SkPicture::serialize()
  *  Accepts a callback for endPage behavior

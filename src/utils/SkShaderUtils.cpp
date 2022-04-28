@@ -9,6 +9,7 @@
 
 #include "include/core/SkString.h"
 #include "include/private/SkSLString.h"
+#include "include/private/SkTArray.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
 namespace SkShaderUtils {

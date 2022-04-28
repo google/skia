@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkStream.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkMSAN.h"

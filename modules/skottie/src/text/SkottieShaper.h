@@ -9,12 +9,17 @@
 #define SkottieShaper_DEFINED
 
 #include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
 #include "include/utils/SkTextUtils.h"
 
 #include <vector>
 
 class SkFontMgr;
 class SkTextBlob;
+class SkTypeface;
+class SkString;
+
+struct SkRect;
 
 namespace skottie {
 

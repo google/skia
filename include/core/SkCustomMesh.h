@@ -8,7 +8,7 @@
 #ifndef SkCustomMesh_DEFINED
 #define SkCustomMesh_DEFINED
 
-#include "include/core/SkTypes.h" // IWYU pragma: keep
+#include "include/core/SkTypes.h"
 
 #ifdef SK_ENABLE_SKSL
 #include "include/core/SkAlphaType.h"

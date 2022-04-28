@@ -6,7 +6,9 @@
  */
 
 #include "bench/Benchmark.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/utils/SkPolyUtils.h"
 

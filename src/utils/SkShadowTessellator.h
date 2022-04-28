@@ -8,15 +8,15 @@
 #ifndef SkShadowTessellator_DEFINED
 #define SkShadowTessellator_DEFINED
 
-#include "include/core/SkColor.h"
-#include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
-#include <functional>  // std::function
+#include "include/core/SkScalar.h"
+
+#include <functional>
 
 class SkMatrix;
 class SkPath;
-struct SkPoint3;
 class SkVertices;
+struct SkPoint3;
 
 namespace SkShadowTessellator {
 

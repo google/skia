@@ -10,15 +10,17 @@
 
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontStyle.h"
-#include "include/core/SkImage.h"
-#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkTypeface.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 
 #include <vector>
 
+class SkImage;
+class SkPaint;
+class SkPicture;
 class SkStream;
+class SkTypeface;
 
 class SkCustomTypefaceBuilder {
 public:

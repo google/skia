@@ -9,6 +9,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPictureRecorder.h"
@@ -18,12 +19,12 @@
 #include "include/effects/Sk1DPathEffect.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/utils/SkParsePath.h"
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 
-#include "include/utils/SkParsePath.h"
 static void testparse() {
     SkRect r;
     r.setLTRB(0, 0, 10, 10.5f);

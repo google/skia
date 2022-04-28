@@ -7,15 +7,23 @@
 
 #include "src/utils/SkPolyUtils.h"
 
-#include <limits>
-
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkTDPQueue.h"
 #include "src/core/SkTInternalLList.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <limits>
+#include <new>
 
 //////////////////////////////////////////////////////////////////////////////////
 // Helper data structures and functions

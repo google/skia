@@ -5,8 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkShader.h"
 #include "src/utils/SkCanvasStack.h"
+
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkTDArray.h"
+#include <utility>
+
+class SkPath;
+class SkRRect;
 
 SkCanvasStack::SkCanvasStack(int width, int height)
         : INHERITED(width, height) {}

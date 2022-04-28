@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkTFitsIn.h"
 #include "src/utils/SkCharToGlyphCache.h"
 
 SkCharToGlyphCache::SkCharToGlyphCache() {

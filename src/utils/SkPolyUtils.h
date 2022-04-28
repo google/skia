@@ -8,12 +8,13 @@
 #ifndef SkOffsetPolygon_DEFINED
 #define SkOffsetPolygon_DEFINED
 
-#include <functional>
-
 #include "include/core/SkPoint.h"
-#include "include/private/SkTDArray.h"
+#include "include/core/SkScalar.h"
+
+#include <stdint.h>
 
 struct SkRect;
+template <typename T> class SkTDArray;
 
 /**
  * Generates a polygon that is inset a constant from the boundary of a given convex polygon.

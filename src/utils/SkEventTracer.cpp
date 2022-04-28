@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkOnce.h"
 #include "include/utils/SkEventTracer.h"
-#include <atomic>
+
+#include "include/private/SkOnce.h"
 
 #include <stdlib.h>
+#include <atomic>
 
 class SkDefaultEventTracer : public SkEventTracer {
     SkEventTracer::Handle

@@ -8,10 +8,39 @@
 #ifndef SkPaintFilterCanvas_DEFINED
 #define SkPaintFilterCanvas_DEFINED
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
 #include "include/utils/SkNWayCanvas.h"
 
-class SkAndroidFrameworkUtils;
+class GrRecordingContext;
+class SkData;
+class SkDrawable;
+class SkGlyphRunList;
+class SkImage;
+class SkMatrix;
+class SkPaint;
+class SkPath;
+class SkPicture;
+class SkPixmap;
+class SkRRect;
+class SkRegion;
+class SkSurface;
+class SkSurfaceProps;
+class SkTextBlob;
+class SkVertices;
+struct SkDrawShadowRec;
+struct SkPoint;
+struct SkRSXform;
+struct SkRect;
 
 /** \class SkPaintFilterCanvas
 

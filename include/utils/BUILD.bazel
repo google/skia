@@ -6,7 +6,12 @@ generated_cc_atom(
     name = "SkAnimCodecPlayer_hdr",
     hdrs = ["SkAnimCodecPlayer.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/codec:SkCodec_hdr"],
+    deps = [
+        "//include/codec:SkCodec_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSize_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -23,6 +28,8 @@ generated_cc_atom(
     deps = [
         "//include/core:SkM44_hdr",
         "//include/core:SkMatrix_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkTypes_hdr",
         "//include/private:SkNoncopyable_hdr",
     ],
 )
@@ -31,7 +38,7 @@ generated_cc_atom(
     name = "SkCanvasStateUtils_hdr",
     hdrs = ["SkCanvasStateUtils.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkCanvas_hdr"],
+    deps = ["//include/core:SkTypes_hdr"],
 )
 
 generated_cc_atom(
@@ -41,11 +48,9 @@ generated_cc_atom(
     deps = [
         "//include/core:SkFontMetrics_hdr",
         "//include/core:SkFontStyle_hdr",
-        "//include/core:SkImage_hdr",
-        "//include/core:SkPaint_hdr",
         "//include/core:SkPath_hdr",
-        "//include/core:SkPicture_hdr",
-        "//include/core:SkTypeface_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkTypes_hdr",
     ],
 )
 
@@ -62,7 +67,16 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkNoDrawCanvas_hdr",
+        "//include/core:SkBlendMode_hdr",
         "//include/core:SkCanvasVirtualEnforcer_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkClipOp_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSamplingOptions_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkTypes_hdr",
         "//include/private:SkTDArray_hdr",
     ],
 )
@@ -81,14 +95,18 @@ generated_cc_atom(
     name = "SkNullCanvas_hdr",
     hdrs = ["SkNullCanvas.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkCanvas_hdr"],
+    deps = ["//include/core:SkTypes_hdr"],
 )
 
 generated_cc_atom(
     name = "SkOrderedFontMgr_hdr",
     hdrs = ["SkOrderedFontMgr.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkFontMgr_hdr"],
+    deps = [
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -97,7 +115,17 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkNWayCanvas_hdr",
+        "//include/core:SkBlendMode_hdr",
         "//include/core:SkCanvasVirtualEnforcer_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSamplingOptions_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkSize_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTDArray_hdr",
     ],
 )
 
@@ -112,7 +140,11 @@ generated_cc_atom(
     name = "SkParse_hdr",
     hdrs = ["SkParse.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkColor_hdr"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -132,8 +164,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkColor_hdr",
-        "//include/core:SkPoint3_hdr",
         "//include/core:SkScalar_hdr",
+        "//include/core:SkTypes_hdr",
         "//include/private:SkShadowFlags_hdr",
     ],
 )
@@ -143,10 +175,9 @@ generated_cc_atom(
     hdrs = ["SkTextUtils.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/core:SkCanvas_hdr",
-        "//include/core:SkFont_hdr",
-        "//include/core:SkPaint_hdr",
-        "//include/core:SkString_hdr",
+        "//include/core:SkFontTypes_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkTypes_hdr",
     ],
 )
 
