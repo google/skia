@@ -104,10 +104,10 @@ char* SkStrAppendU32(char string[], uint32_t dec) {
     } while (dec != 0);
 
     SkASSERT(p >= buffer);
-    char* stop = buffer + sizeof(buffer);
-    while (p < stop) {
-        *string++ = *p++;
-    }
+    size_t cp_len = buffer + sizeof(buffer) - p;
+    memcpy(string, p, cp_len);
+    string += cp_len;
+
     SkASSERT(string - start <= kSkStrAppendU32_MaxSize);
     return string;
 }
