@@ -568,11 +568,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_BUILD_FOR_ANDROID
-    // MSAA CCPR was slow on Android. http://skbug.com/9676
-    fDriverDisableMSAAClipAtlas = true;
-#endif
-
     if (kARM_VkVendor == properties.vendorID) {
         fAvoidWritePixelsFastPath = true; // bugs.skia.org/8064
     }
