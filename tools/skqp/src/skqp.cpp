@@ -174,7 +174,7 @@ void ExclusionList::initialize(SkQPAssetManager* assetManager,
         }
 
         std::string_view testName = line;
-        int excludeUntilAndroidAPILevel = fEnforcedAndroidAPILevel;
+        int excludeUntilAndroidAPILevel = fEnforcedAndroidAPILevel + 1;
 
         // Check to see if the test has a min Android API level defined
         auto commaLocation = line.find_first_of(',');
