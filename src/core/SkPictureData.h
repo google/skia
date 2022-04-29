@@ -87,6 +87,8 @@ public:
     void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*, bool textBlobsOnly=false) const;
     void flatten(SkWriteBuffer&) const;
 
+    const SkPictInfo& info() const { return fInfo; }
+
     const sk_sp<SkData>& opData() const { return fOpData; }
 
 protected:

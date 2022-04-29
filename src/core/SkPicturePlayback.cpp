@@ -42,6 +42,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
 
     SkReadBuffer reader(fPictureData->opData()->bytes(),
                         fPictureData->opData()->size());
+    reader.setVersion(fPictureData->info().getVersion());
 
     // Record this, so we can concat w/ it if we encounter a setMatrix()
     SkM44 initialMatrix = canvas->getLocalToDevice();
