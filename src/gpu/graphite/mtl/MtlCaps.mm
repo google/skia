@@ -276,6 +276,10 @@ void MtlCaps::initShaderCaps() {
     shaderCaps->fFloatIs32Bits = true;
 }
 
+// Define this so we can use it to initialize arrays and work around
+// the fact that MTLPixelFormatB5G6R5Unorm is not always available.
+#define kMTLPixelFormatB5G6R5Unorm MTLPixelFormat(40)
+
 // These are all the valid MTLPixelFormats that we currently support in Skia.  They are roughly
 // ordered from most frequently used to least to improve look up times in arrays.
 static constexpr MTLPixelFormat kMtlFormats[] = {
@@ -283,6 +287,7 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
     MTLPixelFormatR8Unorm,
     MTLPixelFormatA8Unorm,
     MTLPixelFormatBGRA8Unorm,
+    kMTLPixelFormatB5G6R5Unorm,
 
     MTLPixelFormatStencil8,
     MTLPixelFormatDepth32Float,
@@ -334,6 +339,12 @@ size_t MtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
 
 void MtlCaps::initFormatTable() {
     FormatInfo* info;
+
+    if (@available(macOS 11.0, iOS 8.0, *)) {
+        if (this->isApple()) {
+            SkASSERT(kMTLPixelFormatB5G6R5Unorm == MTLPixelFormatB5G6R5Unorm);
+        }
+    }
 
     // Format: RGBA8Unorm
     {
@@ -417,6 +428,23 @@ void MtlCaps::initFormatTable() {
         }
     }
 
+    // Format: B5G6R5Unorm
+    if (@available(macOS 11.0, iOS 8.0, *)) {
+        if (this->isApple()) {
+            info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
+            info->fFlags = FormatInfo::kAllFlags;
+            info->fColorTypeInfoCount = 1;
+            info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+            int ctIdx = 0;
+            // Format: B5G6R5Unorm, Surface: kBGR_565
+            {
+                auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = kRGB_565_SkColorType;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            }
+        }
+    }
+
     /*
      * Non-color formats
      */
@@ -457,6 +485,12 @@ void MtlCaps::initFormatTable() {
 
     this->setColorType(kAlpha_8_SkColorType,          { MTLPixelFormatR8Unorm,
                                                         MTLPixelFormatA8Unorm });
+    if (@available(macOS 11.0, iOS 8.0, *)) {
+        if (this->isApple()) {
+            this->setColorType(kRGB_565_SkColorType, {MTLPixelFormatB5G6R5Unorm});
+        }
+    }
+
     this->setColorType(kRGBA_8888_SkColorType,        { MTLPixelFormatRGBA8Unorm });
     this->setColorType(kRGB_888x_SkColorType,         { MTLPixelFormatRGBA8Unorm });
     this->setColorType(kBGRA_8888_SkColorType,        { MTLPixelFormatBGRA8Unorm });
@@ -473,10 +507,15 @@ TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,
         usage |= MTLTextureUsageRenderTarget;
     }
 
+    MtlPixelFormat format = this->getFormatFromColorType(colorType);
+    if (format == MTLPixelFormatInvalid) {
+        return {};
+    }
+
     MtlTextureInfo info;
     info.fSampleCount = 1;
     info.fLevelCount = levelCount;
-    info.fFormat = this->getFormatFromColorType(colorType);
+    info.fFormat = format;
     info.fUsage = usage;
     info.fStorageMode = MTLStorageModePrivate;
     info.fFramebufferOnly = false;
@@ -518,7 +557,9 @@ TextureInfo MtlCaps::getDefaultDepthStencilTextureInfo(
 const Caps::ColorTypeInfo* MtlCaps::getColorTypeInfo(
         SkColorType ct, const TextureInfo& textureInfo) const {
     MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(textureInfo.mtlTextureSpec().fFormat);
-    SkASSERT(mtlFormat != MTLPixelFormatInvalid);
+    if (mtlFormat == MTLPixelFormatInvalid) {
+        return nullptr;
+    }
 
     const FormatInfo& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
