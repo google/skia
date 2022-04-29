@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "select_multi")
+load("//bazel:macros.bzl", "cc_library", "select_multi")
 
 licenses(["notice"])
 

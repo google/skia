@@ -1,5 +1,7 @@
-load("//bazel:macros.bzl", "enforce_iwyu_on_package", "generated_cc_atom")
+load("//bazel:macros.bzl", "enforce_iwyu_on_package", "exports_files_legacy", "generated_cc_atom")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+
+exports_files_legacy()
 
 licenses(["notice"])
 

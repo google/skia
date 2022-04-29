@@ -1,3 +1,7 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+exports_files_legacy()
+
 licenses(["notice"])
 
 # This rule is a convenient way to build all the task drivers and copy them all into a single

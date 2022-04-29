@@ -1,5 +1,5 @@
-load(":defs.bzl", "bool_flag", "string_flag_with_values")
 load("//bazel:macros.bzl", "selects")
+load(":defs.bzl", "bool_flag", "string_flag_with_values")
 
 licenses(["notice"])
 
@@ -14,7 +14,7 @@ config_setting(
     ],
 )
 
-# Apple devices with intel processors released before the shift to the M1 chip 
+# Apple devices with intel processors released before the shift to the M1 chip
 # will use this config setting. Because M1 chips use the arm cpu instruction set,
 # this flag will not be used.
 config_setting(

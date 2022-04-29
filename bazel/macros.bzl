@@ -102,3 +102,8 @@ def enforce_iwyu_on_package():
 def cc_library(**kwargs):
     """A shim around cc_library that lets us tweak settings for G3 if necessary."""
     native.cc_library(**kwargs)
+
+# buildifier: disable=unnamed-macro
+def exports_files_legacy():
+    """A self-annotating macro to export all files in this package for legacy G3 rules."""
+    pass

@@ -1,4 +1,6 @@
-load("//bazel:macros.bzl", "generated_cc_atom", "py_binary")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "generated_cc_atom", "py_binary")
+
+exports_files_legacy()
 
 licenses(["notice"])
 
