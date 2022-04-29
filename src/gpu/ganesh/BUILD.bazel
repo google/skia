@@ -432,7 +432,6 @@ generated_cc_atom(
         ":GrTextureProxy_hdr",
         ":GrTexture_hdr",
         ":SkGr_hdr",
-        "//include/core:SkColorSpace_hdr",
         "//include/core:SkTypes_hdr",
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu:GrDirectContext_hdr",

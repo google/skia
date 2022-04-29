@@ -242,7 +242,6 @@ generated_cc_atom(
         ":GrD3DTextureRenderTarget_hdr",
         ":GrD3DTexture_hdr",
         ":GrD3DUtil_hdr",
-        "//include/core:SkColorSpace_hdr",
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu/d3d:GrD3DBackendContext_hdr",
         "//src/core:SkConvertPixels_hdr",
