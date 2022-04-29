@@ -3,6 +3,7 @@
 
 #include "tools/skottie_ios_app/SkiaContext.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
 #include "include/gpu/GrBackendSurface.h"

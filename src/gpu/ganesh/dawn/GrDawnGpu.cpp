@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/dawn/GrDawnGpu.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
