@@ -395,7 +395,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkAlphaType_hdr",
-        ":SkColorSpace_hdr",
         ":SkColorType_hdr",
         ":SkMath_hdr",
         ":SkRect_hdr",
