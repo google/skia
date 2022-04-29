@@ -8,10 +8,21 @@
 #include "example/HelloWorld.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/sk_app/DisplayParams.h"
+
+#include <string.h>
 
 using namespace sk_app;
 

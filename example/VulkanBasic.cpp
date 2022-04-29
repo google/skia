@@ -5,16 +5,22 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
-
 #include "tools/gpu/vk/VkTestUtils.h"
 
+#include <string.h>
 #include <vulkan/vulkan_core.h>
-
+#include <functional>
 #include <memory>
 
 #define ACQUIRE_INST_VK_PROC(name)                                                           \

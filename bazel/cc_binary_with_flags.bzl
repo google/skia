@@ -133,6 +133,9 @@ def cc_binary_with_flags(name, set_flags = {}, **kwargs):
         set_flags = set_flags,
         testonly = kwargs.get("testonly", False),
     )
+    tags = kwargs.get("tags", [])
+    tags.append("manual")  # We want to exclude this helper binary from bazel build foo/...
+    kwargs["tags"] = tags
     native.cc_binary(
         name = cc_binary_name,
         **kwargs
