@@ -176,6 +176,7 @@ browser_repositories(
 ###################################################
 # External C++ deps with Bazel support            #
 ###################################################
+# https://bazel.build/reference/be/workspace#local_repository
 local_repository(
     name = "abseil_cpp",
     path = "third_party/externals/abseil-cpp",
@@ -190,4 +191,27 @@ local_repository(
     # This name is important because spirv_tools expects @spirv_headers to exist by that name.
     name = "spirv_headers",
     path = "third_party/externals/spirv-headers",
+)
+
+###################################################
+# External C++ deps with NO Bazel support         #
+# In this case, we need to supply a BUILD file    #
+# and a WORKSPACE file.                           #
+###################################################
+# https://bazel.build/reference/be/workspace#new_local_repository
+new_local_repository(
+    name = "vulkanmemoryallocator",
+    build_file_content = """
+cc_library(
+    name = "hdrs",
+    hdrs = [
+        "include/vk_mem_alloc.h",
+    ],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    # TODO(kjlubick) set copts to avoid noisy warnings/errors
+)
+""",
+    path = "third_party/externals/vulkanmemoryallocator",
+    workspace_file_content = "",  # this DEP has no other deps
 )

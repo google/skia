@@ -1,11 +1,11 @@
+load("//bazel:macros.bzl", "cc_library")
+
 licenses(["notice"])
 
 cc_library(
     name = "vulkanmemoryallocator",
     srcs = [
         "GrVulkanMemoryAllocator.cpp",
-        # TODO(kjlubick) update after https://skia-review.googlesource.com/c/skia/+/531318 lands
-        "include/vk_mem_alloc.h",
     ],
     hdrs = [
         "GrVulkanMemoryAllocator.h",
@@ -16,5 +16,6 @@ cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/third_party/vulkan:skias_vulkan_headers",
+        "@vulkanmemoryallocator//:hdrs",
     ],
 )
