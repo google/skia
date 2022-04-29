@@ -289,13 +289,14 @@ static constexpr SkUniform kSolidShaderUniforms[kNumSolidShaderUniforms] = {
 static constexpr char kSolidShaderName[] = "sk_solid_shader";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumImageShaderUniforms = 5;
+static constexpr int kNumImageShaderUniforms = 6;
 static constexpr SkUniform kImageShaderUniforms[kNumImageShaderUniforms] = {
-        { "subset",    SkSLType::kFloat4 },
-        { "tilemodeX", SkSLType::kInt },
-        { "tilemodeY", SkSLType::kInt },
-        { "pad1",      SkSLType::kInt }, // TODO: add automatic uniform padding
-        { "pad2",      SkSLType::kInt },
+        { "subset",      SkSLType::kFloat4 },
+        { "tilemodeX",   SkSLType::kInt },
+        { "tilemodeY",   SkSLType::kInt },
+        { "imgWidth",    SkSLType::kInt },
+        { "imgHeight",   SkSLType::kInt },
+        { "localMatrix", SkSLType::kFloat4x4 },
 };
 
 static constexpr int kNumImageShaderTexturesAndSamplers = 1;
@@ -327,20 +328,22 @@ std::string GenerateImageShaderGlueCode(const std::string& resultName,
     std::string subsetName = reader.entry()->getMangledUniformName(0, entryIndex);
     std::string tmXName = reader.entry()->getMangledUniformName(1, entryIndex);
     std::string tmYName = reader.entry()->getMangledUniformName(2, entryIndex);
-    std::string pad1Name = reader.entry()->getMangledUniformName(3, entryIndex);
-    std::string pad2Name = reader.entry()->getMangledUniformName(4, entryIndex);
+    std::string imgWidthName = reader.entry()->getMangledUniformName(3, entryIndex);
+    std::string imgHeightName = reader.entry()->getMangledUniformName(4, entryIndex);
+    std::string localMatrixName = reader.entry()->getMangledUniformName(5, entryIndex);
 
     std::string result;
 
     add_indent(&result, indent);
     SkSL::String::appendf(&result,
-                          "float2 coords = %s(%s, %s, %s, %s, %s, dev2LocalUni);",
+                          "float2 coords = %s(%s, %s, %s, %s, %s, dev2LocalUni, %s);",
                           reader.entry()->fStaticFunctionName,
                           subsetName.c_str(),
                           tmXName.c_str(),
                           tmYName.c_str(),
-                          pad1Name.c_str(),
-                          pad2Name.c_str());
+                          imgWidthName.c_str(),
+                          imgHeightName.c_str(),
+                          localMatrixName.c_str());
 
     add_indent(&result, indent);
     SkSL::String::appendf(&result,

@@ -304,8 +304,16 @@ void add_image_uniform_data(const SkShaderCodeDictionary* dict,
     gatherer->write(imgData.fSubset);
     gatherer->write(static_cast<int>(imgData.fTileModes[0]));
     gatherer->write(static_cast<int>(imgData.fTileModes[1]));
-    gatherer->write(0); // manual padding
-    gatherer->write(0); // manual padding
+    gatherer->write(imgData.fTextureProxy->dimensions().fWidth);
+    gatherer->write(imgData.fTextureProxy->dimensions().fHeight);
+
+    SkMatrix lmInverse;
+    bool wasInverted = imgData.fLocalMatrix.invert(&lmInverse);  // TODO: handle failure up stack
+    if (!wasInverted) {
+        lmInverse.setIdentity();
+    }
+
+    gatherer->write(SkM44(lmInverse));
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kImageShader));
 }
@@ -317,10 +325,12 @@ void add_image_uniform_data(const SkShaderCodeDictionary* dict,
 ImageData::ImageData(const SkSamplingOptions& sampling,
                      SkTileMode tileModeX,
                      SkTileMode tileModeY,
-                     SkRect subset)
+                     SkRect subset,
+                     const SkMatrix& localMatrix)
     : fSampling(sampling)
     , fTileModes{tileModeX, tileModeY}
-    , fSubset(subset) {
+    , fSubset(subset)
+    , fLocalMatrix(localMatrix) {
 }
 
 void AddToKey(const SkKeyContext& keyContext,
@@ -347,7 +357,7 @@ void AddToKey(const SkKeyContext& keyContext,
         if (gatherer) {
             gatherer->add(imgData.fSampling,
                           imgData.fTileModes,
-                          std::move(imgData.fTextureProxy));
+                          imgData.fTextureProxy);
 
             add_image_uniform_data(dict, imgData, gatherer);
         }

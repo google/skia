@@ -8,33 +8,36 @@ half4 sk_solid_shader(float4 colorParam) {
     return half4(colorParam);
 }
 
-float $tile(int tm, float f, float origin, float length) {
+float $tile(int tm, float f, float min, float max, float normalizer) {
     const int kClamp         = 0;
     const int kRepeat        = 1;
     const int kMirrorRepeat  = 2;
     const int kClampToBorder = 3;
 
     if (tm == kClamp) {
-        return clamp(f, origin, origin+length) / length;
+        return clamp(f, min, max) / normalizer;
     } else if (tm == kRepeat) {
-        return mod(f - origin, length) / length;
+        float length = max - min;
+        return (mod(f - min, length) + min) / normalizer;
     } else if (tm == kMirrorRepeat) {
-        // For now, just repeat.
-        return mod(f - origin, length) / length;
+        float length = max - min;
+        float length2 = 2 * length;
+        float tmp = mod(f - min, length2);
+        return (mix(tmp, length2 - tmp, step(length, tmp)) + min) / normalizer;
     } else { // kClampToBorder
         // For now, just clamp.
-        return clamp(f, origin, origin+length) / length;
+        return clamp(f, min, max) / normalizer;
     }
 }
 
 float2 sk_compute_coords(float4 subset,
-                        int tmX, int tmY,
-                        int pad1, int pad2,
-                        float4x4 dev2Local) {
-    float4 localCoords = dev2Local * sk_FragCoord;
-    float2 subsetWH = (subset.zw - subset.xy);
-    float2 coords = float2($tile(tmX, localCoords.x, subset.x, subsetWH.x),
-                           $tile(tmY, localCoords.y, subset.y, subsetWH.y));
+                         int tmX, int tmY,
+                         int imgWidth, int imgHeight,
+                         float4x4 dev2Local,
+                         float4x4 localMatrix) {
+    float4 localCoords = localMatrix * dev2Local * sk_FragCoord;
+    float2 coords = float2($tile(tmX, localCoords.x, subset.x, subset.z, float(imgWidth)),
+                           $tile(tmY, localCoords.y, subset.y, subset.w, float(imgHeight)));
     return coords;
 }
 

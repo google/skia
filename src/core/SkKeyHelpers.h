@@ -104,11 +104,13 @@ namespace ImageShaderBlock {
         ImageData(const SkSamplingOptions& sampling,
                   SkTileMode tileModeX,
                   SkTileMode tileModeY,
-                  SkRect subset);
+                  SkRect subset,
+                  const SkMatrix& localMatrix);
 
         SkSamplingOptions fSampling;
         SkTileMode fTileModes[2];
         SkRect fSubset;
+        const SkMatrix& fLocalMatrix;
 
 #ifdef SK_GRAPHITE_ENABLED
         // TODO: Currently this is only filled in when we're generating the key from an actual

@@ -46,9 +46,11 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     canvas.drawPaint(paint);
 }
 
-static void setup(SkPaint* paint, const SkBitmap& bm, SkFilterMode fm,
+static void setup(SkCanvas* canvas, SkPaint* paint, const SkBitmap& bm, SkFilterMode fm,
                   SkTileMode tmx, SkTileMode tmy) {
-    paint->setShader(bm.makeShader(tmx, tmy, SkSamplingOptions(fm)));
+    sk_sp<SkImage> img = SkImage::MakeFromBitmap(bm);
+    img = ToolUtils::MakeTextureImage(canvas, std::move(img));
+    paint->setShader(img->makeShader(tmx, tmy, SkSamplingOptions(fm)));
 }
 
 constexpr SkColorType gColorTypes[] = {
@@ -96,7 +98,7 @@ protected:
 
         SkRect r = { 0, 0, SkIntToScalar(size*2), SkIntToScalar(size*2) };
 
-        const char* gConfigNames[] = { "8888", "565", "4444" };
+        const char* gConfigNames[] = { "8888", "565" };
 
         constexpr SkFilterMode gFilters[] = { SkFilterMode::kNearest, SkFilterMode::kLinear };
         static const char* gFilterNames[] = { "point", "bilinear" };
@@ -136,7 +138,7 @@ protected:
                             makebm(&fTexture[i], gColorTypes[i], size, size);
                         }
 #endif
-                        setup(&paint, fTexture[i], gFilters[j], gModes[kx], gModes[ky]);
+                        setup(canvas, &paint, fTexture[i], gFilters[j], gModes[kx], gModes[ky]);
                         paint.setDither(true);
 
                         canvas->save();
@@ -325,4 +327,3 @@ DEF_SIMPLE_GM(tilemode_decal, canvas, 720, 1100) {
         canvas->translate(r.width() + 10, 0);
     }
 }
-

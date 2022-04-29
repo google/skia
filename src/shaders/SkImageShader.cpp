@@ -377,7 +377,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 void SkImageShader::addToKey(const SkKeyContext& keyContext,
                              SkPaintParamsKeyBuilder* builder,
                              SkPipelineDataGatherer* gatherer) const {
-    ImageShaderBlock::ImageData imgData(fSampling, fTileModeX, fTileModeY, fSubset);
+    ImageShaderBlock::ImageData imgData(fSampling, fTileModeX, fTileModeY, fSubset,
+                                        this->getLocalMatrix());
 
 #ifdef SK_GRAPHITE_ENABLED
     if (as_IB(fImage)->isGraphiteBacked()) {
