@@ -84,7 +84,19 @@ GrSurfaceRenderability, 33
 
 # Test that fail on some existing in-market devices b/229804433
 ES2BlendWithNoTexture, 33
-GLBackendAllocationTest, 33
-GrSurfaceRenderability, 33
 SkRuntimeEffect_Blender_GPU, 33
 SkSLStructsInFunctions_GPU, 33
+
+# Tests known to fail in Skia's infra on existing Android devices
+# see skia.googlesource.com/skia/+/refs/heads/chrome/m100/infra/bots/gen_tasks_logic/dm_flags.go
+ProcessorCloneTest, 33
+Programs, 33
+SkSLCommaSideEffects_GPU, 33
+SkSLInoutParameters_GPU, 33
+SkSLIntrinsicClampFloat_GPU, 33
+SkSLIntrinsicMixFloat_GPU, 33
+SkSLMatrixToVectorCast_GPU, 33
+SkSLOutParams_GPU, 33
+SkSLOutParamsAreDistinctFromGlobal_GPU, 33
+SkSLOutParamsTricky_GPU, 33
+SkSLUnaryPositiveNegative_GPU, 33
