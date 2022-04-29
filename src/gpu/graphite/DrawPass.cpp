@@ -412,6 +412,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         const bool pipelineChange = key.pipeline() != lastPipeline;
         const bool stateChange = geometryUniformChange ||
                                  shadingUniformChange ||
+                                 textureBindingsChange ||
                                  draw.fGeometry.clip().scissor() != lastScissor;
 
         // Update DrawWriter *before* we actually change any state so that accumulated draws from
