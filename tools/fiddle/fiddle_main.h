@@ -28,9 +28,9 @@ class GLTestContext;
 class ManagedBackendTexture;
 }  // namespace sk_gpu_test
 
-extern sk_sp<sk_gpu_test::ManagedBackendTexture> backEndTexture;
+extern GrBackendTexture backEndTexture;
 extern GrBackendRenderTarget backEndRenderTarget;
-extern sk_sp<sk_gpu_test::ManagedBackendTexture> backEndTextureRenderTarget;
+extern GrBackendTexture backEndTextureRenderTarget;
 extern SkBitmap source;
 extern sk_sp<SkImage> image;
 extern double duration; // The total duration of the animation in seconds.

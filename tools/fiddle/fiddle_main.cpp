@@ -31,12 +31,9 @@ static DEFINE_double(frame, 1.0,
 #include "tools/gpu/gl/GLTestContext.h"
 
 // Globals externed in fiddle_main.h
-sk_sp<sk_gpu_test::ManagedBackendTexture> backEndTexture;
-sk_sp<sk_gpu_test::ManagedBackendTexture> backEndTextureRenderTarget;
-
-sk_sp<GrRenderTarget> backingRenderTarget; // not externed
+GrBackendTexture backEndTexture;
 GrBackendRenderTarget backEndRenderTarget;
-
+GrBackendTexture backEndTextureRenderTarget;
 SkBitmap source;
 sk_sp<SkImage> image;
 double duration; // The total duration of the animation in seconds.
@@ -47,6 +44,10 @@ std::ostringstream gTextOutput;
 
 // Global to record the GL driver info via create_direct_context().
 std::ostringstream gGLDriverInfo;
+
+sk_sp<sk_gpu_test::ManagedBackendTexture> managedBackendTextureRenderTarget;
+sk_sp<sk_gpu_test::ManagedBackendTexture> managedBackendTexture;
+sk_sp<GrRenderTarget> backingRenderTarget;
 
 void SkDebugf(const char * fmt, ...) {
     va_list args;
@@ -152,15 +153,17 @@ static bool setup_backend_objects(GrDirectContext* dContext,
             pixmap = &rgbaPixmap;
         }
 
-        backEndTexture = sk_gpu_test::ManagedBackendTexture::MakeFromPixmap(dContext,
-                                                                            *pixmap,
-                                                                            options.fMipMapping,
-                                                                            GrRenderable::kNo,
-                                                                            GrProtected::kNo);
-        if (!backEndTexture) {
+        managedBackendTexture = sk_gpu_test::ManagedBackendTexture::MakeFromPixmap(
+                dContext,
+                *pixmap,
+                options.fMipMapping,
+                GrRenderable::kNo,
+                GrProtected::kNo);
+        if (!managedBackendTexture) {
             fputs("Failed to create backEndTexture.\n", stderr);
             return false;
         }
+        backEndTexture = managedBackendTexture->texture();
     }
 
     {
@@ -195,19 +198,20 @@ static bool setup_backend_objects(GrDirectContext* dContext,
     }
 
     {
-        backEndTextureRenderTarget = sk_gpu_test::ManagedBackendTexture::MakeWithData(
-                                                                    dContext,
-                                                                    options.fOffScreenWidth,
-                                                                    options.fOffScreenHeight,
-                                                                    renderableFormat,
-                                                                    SkColors::kTransparent,
-                                                                    options.fOffScreenMipMapping,
-                                                                    GrRenderable::kYes,
-                                                                    GrProtected::kNo);
-        if (!backEndTextureRenderTarget) {
+        managedBackendTextureRenderTarget = sk_gpu_test::ManagedBackendTexture::MakeWithData(
+            dContext,
+            options.fOffScreenWidth,
+            options.fOffScreenHeight,
+            renderableFormat,
+            SkColors::kTransparent,
+            options.fOffScreenMipMapping,
+            GrRenderable::kYes,
+            GrProtected::kNo);
+        if (!managedBackendTextureRenderTarget) {
             fputs("Failed to create backendTextureRenderTarget.\n", stderr);
             return false;
         }
+        backEndTextureRenderTarget = managedBackendTextureRenderTarget->texture();
     }
 
     return true;
