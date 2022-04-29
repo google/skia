@@ -100,8 +100,6 @@ public:
     // V88: Add blender to ComposeShader and BlendImageFilter
     // V89: Deprecated SkClipOps are no longer supported
     // V90: Private API for backdrop scale factor in SaveLayerRec
-    // V91: Added raw image shaders
-    // V92: Added anisotropic filtering to SkSamplingOptions
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -114,11 +112,10 @@ public:
         kNoExpandingClipOps                 = 89,
         kBackdropScaleFactor                = 90,
         kRawImageShaders                    = 91,
-        kAnisotropicFilter                  = 92,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kAnisotropicFilter
+        kCurrent_Version = kRawImageShaders
     };
 };
 

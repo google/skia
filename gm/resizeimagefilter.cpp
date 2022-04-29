@@ -66,7 +66,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(630, 100);
+        return SkISize::Make(520, 100);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -77,15 +77,20 @@ protected:
             SkSamplingOptions(SkFilterMode::kLinear),
             SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
             SkSamplingOptions(SkCubicResampler::Mitchell()),
-            SkSamplingOptions::Aniso(16),
         };
         const SkRect srcRect = SkRect::MakeWH(96, 96);
         const SkSize deviceSize = SkSize::Make(16, 16);
 
-        for (const auto& sampling : samplings) {
-            this->draw(canvas, srcRect, deviceSize, sampling, nullptr);
-            canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        }
+        this->draw(canvas, srcRect, deviceSize, samplings[0], nullptr);
+
+        canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
+        this->draw(canvas, srcRect, deviceSize, samplings[1], nullptr);
+
+        canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
+        this->draw(canvas, srcRect, deviceSize, samplings[2], nullptr);
+
+        canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
+        this->draw(canvas, srcRect, deviceSize, samplings[3], nullptr);
 
         {
             sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(16, 16));
@@ -104,6 +109,7 @@ protected:
             sk_sp<SkImageFilter> source(
                 SkImageFilters::Image(std::move(image), inRect, outRect,
                                       SkSamplingOptions({1/3.0f, 1/3.0f})));
+            canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
             this->draw(canvas, srcRect, deviceSize, samplings[3], std::move(source));
         }
     }

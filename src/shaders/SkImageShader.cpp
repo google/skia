@@ -220,11 +220,6 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
-    SkSamplingOptions sampling = fSampling;
-    if (sampling.isAniso()) {
-        sampling = SkSamplingPriv::AnisoFallback(fImage->hasMipmaps());
-    }
-
     auto supported = [](const SkSamplingOptions& sampling) {
         const std::tuple<SkFilterMode,SkMipmapMode> supported[] = {
             {SkFilterMode::kNearest, SkMipmapMode::kNone},    // legacy None
@@ -238,7 +233,7 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         }
         return false;
     };
-    if (sampling.useCubic || !supported(sampling)) {
+    if (fSampling.useCubic || !supported(fSampling)) {
         return nullptr;
     }
 
@@ -267,7 +262,7 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
-    return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY, sampling,
+    return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY, fSampling,
                                                  as_IB(fImage.get()), rec, alloc);
 }
 #endif
@@ -476,9 +471,6 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
     // We only support certain sampling options in stages so far
     auto sampling = fSampling;
-    if (sampling.isAniso()) {
-        sampling = SkSamplingPriv::AnisoFallback(fImage->hasMipmaps());
-    }
     if (sampling.mipmap == SkMipmapMode::kLinear) {
         return false;
     }
@@ -785,14 +777,10 @@ skvm::Color SkImageShader::makeProgram(
     baseInv.normalizePerspective();
 
     auto sampling = fSampling;
-    if (sampling.isAniso()) {
-        sampling = SkSamplingPriv::AnisoFallback(fImage->hasMipmaps());
-    }
     auto* access = SkMipmapAccessor::Make(alloc, fImage.get(), baseInv, sampling.mipmap);
     if (!access) {
         return {};
     }
-
     auto [upper, upperInv] = access->level();
     // If we are using a coordShader, then we can't make guesses about the state of the matrix.
     if (!sampling.useCubic && !coordShader) {

@@ -67,7 +67,7 @@ public:
         sampler.fMaxAniso     = SkTPin(maxAniso, 1, kMaxMaxAniso);
         sampler.fFilter       = Filter::kLinear;
         sampler.fMipmapMode   = viewIsMipped == GrMipmapped::kYes ? MipmapMode::kLinear
-                                                                  : MipmapMode::kNone;
+                                                                  : MipmapMode::kNearest;
         return sampler;
     }
 
