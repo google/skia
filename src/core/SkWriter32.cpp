@@ -18,13 +18,16 @@ void SkWriter32::writeMatrix(const SkMatrix& matrix) {
 }
 
 void SkWriter32::writeSampling(const SkSamplingOptions& sampling) {
-    this->writeBool(sampling.useCubic);
-    if (sampling.useCubic) {
-        this->writeScalar(sampling.cubic.B);
-        this->writeScalar(sampling.cubic.C);
-    } else {
-        this->write32((unsigned)sampling.filter);
-        this->write32((unsigned)sampling.mipmap);
+    this->write32(sampling.maxAniso);
+    if (!sampling.isAniso()) {
+        this->writeBool(sampling.useCubic);
+        if (sampling.useCubic) {
+            this->writeScalar(sampling.cubic.B);
+            this->writeScalar(sampling.cubic.C);
+        } else {
+            this->write32((unsigned)sampling.filter);
+            this->write32((unsigned)sampling.mipmap);
+        }
     }
 }
 

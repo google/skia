@@ -121,6 +121,7 @@ generated_cc_atom(
         "//include/gpu:GrYUVABackendTextures_hdr",
         "//src/core:SkAutoPixmapStorage_hdr",
         "//src/core:SkMipmap_hdr",
+        "//src/core:SkSamplingPriv_hdr",
         "//src/core:SkScopeExit_hdr",
         "//src/gpu/ganesh:GrClip_hdr",
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",

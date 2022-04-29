@@ -213,6 +213,7 @@ generated_cc_atom(
         ":JsonWriteBuffer_hdr",
         "//include/core:SkFlattenable_hdr",
         "//include/core:SkPoint_hdr",
+        "//include/core:SkSamplingOptions_hdr",
         "//include/core:SkString_hdr",
         "//src/utils:SkJSONWriter_hdr",
     ],

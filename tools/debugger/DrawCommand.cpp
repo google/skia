@@ -572,6 +572,7 @@ void DrawCommand::MakeJsonRegion(SkJSONWriter& writer, const SkRegion& region) {
 
 void DrawCommand::MakeJsonSampling(SkJSONWriter& writer, const SkSamplingOptions& sampling) {
     writer.beginObject();
+    writer.appendS32("maxAniso", sampling.maxAniso);
     writer.appendBool("useCubic", sampling.useCubic);
     writer.appendS32("filter", (int)sampling.filter);
     writer.appendS32("mipmap", (int)sampling.mipmap);

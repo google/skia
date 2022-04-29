@@ -31,6 +31,7 @@ const SkSamplingOptions gSamplings[] = {
     SkSamplingOptions(SkFilterMode::kLinear),
     SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
     SkSamplingOptions(SkCubicResampler::Mitchell()),
+    SkSamplingOptions::Aniso(16),
 };
 
 static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
@@ -81,7 +82,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(880, 760); }
+    SkISize onISize() override { return SkISize::Make(880, 880); }
 
     void onOnceBeforeDraw() override {
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
@@ -102,7 +103,7 @@ protected:
 
         const char* gColorTypeNames[] = { "8888" , "565", "4444" };
 
-        const char* gFilterNames[] = { "None", "Low", "Medium", "High" };
+        const char* gFilterNames[] = { "Nearest", "Linear", "Trilinear", "Mitchell", "Aniso" };
 
         constexpr SkTileMode gModes[] = {
             SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror };

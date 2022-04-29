@@ -793,6 +793,7 @@ generated_cc_atom(
     deps = [
         ":gm_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorSpace_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPaint_hdr",
