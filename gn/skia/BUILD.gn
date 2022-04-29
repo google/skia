@@ -492,6 +492,7 @@ config("warnings") {
       "-Wno-shadow-field-in-constructor",
       "-Wno-shadow-uncaptured-local",
       "-Wno-zero-as-null-pointer-constant",  # VK_NULL_HANDLE is defined as 0
+      "-Wno-declaration-after-statement",
 
       # https://quuxplusone.github.io/blog/2020/08/26/wrange-loop-analysis/
       # https://bugzilla.mozilla.org/show_bug.cgi?id=1683213
