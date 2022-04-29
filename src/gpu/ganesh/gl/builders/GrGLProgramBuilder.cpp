@@ -278,7 +278,12 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 }
                 GL_CALL(ProgramBinary(programID, binaryFormat, const_cast<void*>(binary), length));
                 if (checkLinked) {
-                    cached = this->checkLinkStatus(programID, errorHandler, nullptr, nullptr);
+                    // Pass nullptr for the error handler. We don't want to treat this as a compile
+                    // failure (we can still recover by compiling the program from source, below).
+                    // Clients won't be directly notified, but they can infer this from the trace
+                    // events, and from the traffic to the persistent cache.
+                    cached = this->checkLinkStatus(
+                            programID, /*errorHandler=*/nullptr, nullptr, nullptr);
                 }
                 if (cached) {
                     this->addInputVars(inputs);
@@ -463,7 +468,7 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
                                          std::string* sksl[], const std::string glsl[]) {
     GrGLint linked = GR_GL_INIT_ZERO;
     GL_CALL(GetProgramiv(programID, GR_GL_LINK_STATUS, &linked));
-    if (!linked) {
+    if (!linked && errorHandler) {
         std::string allShaders;
         if (sksl) {
             SkSL::String::appendf(&allShaders, "// Vertex SKSL\n%s\n"
