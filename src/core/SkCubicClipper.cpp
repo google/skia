@@ -82,7 +82,6 @@ bool SkCubicClipper::ChopMonoAtY(const SkPoint pts[4], SkScalar y, SkScalar* t) 
     }
 
     const SkScalar tol = SK_Scalar1 / 65536;  // 1 for fixed, 1e-5 for float.
-    int iters = 0;
     do {
         SkScalar tMid = (tPos + tNeg) / 2;
         SkScalar y01   = SkScalarInterp(ycrv[0], ycrv[1], tMid);
@@ -97,7 +96,6 @@ bool SkCubicClipper::ChopMonoAtY(const SkPoint pts[4], SkScalar y, SkScalar* t) 
         }
         if (y0123 < 0)  tNeg = tMid;
         else            tPos = tMid;
-        ++iters;
     } while (!(SkScalarAbs(tPos - tNeg) <= tol));   // Nan-safe
 
     *t = (tNeg + tPos) / 2;

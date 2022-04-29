@@ -485,7 +485,6 @@ void Editor::reshapeAll() {
         }
         while (jobCount-- > 0) { semaphore.wait(); }
         #else
-        int i = 0;
         for (TextLine& line : fLines) {
             if (!line.fShaped) {
                 ShapeResult result = Shape(line.fText.begin(), line.fText.size(),
@@ -497,7 +496,6 @@ void Editor::reshapeAll() {
                 line.fHeight         = result.verticalAdvance;
                 line.fShaped = true;
             }
-            ++i;
         }
         #endif
         int y = 0;

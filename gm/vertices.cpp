@@ -172,7 +172,6 @@ protected:
         SkPaint paint;
 
         canvas->translate(4, 4);
-        int x = 0;
         for (auto mode : modes) {
             canvas->save();
             for (float alpha : {1.0f, 0.5f}) {
@@ -194,7 +193,6 @@ protected:
                                                           kMeshIndexCnt, kMeshFan);
                             canvas->drawVertices(v, mode, paint);
                             canvas->translate(40, 0);
-                            ++x;
                         }
                     }
                 }

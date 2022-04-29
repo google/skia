@@ -303,7 +303,6 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
 void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
 
     auto text = fCurrentRun->fOwner->text();
-    size_t unresolvedGlyphs = 0;
 
     GlyphRange block = EMPTY_RANGE;
     bool graphemeResolved = false;
@@ -332,7 +331,6 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
         }
 
         if (!graphemeResolved) { // Unresolved glyph and not control codepoint
-            ++unresolvedGlyphs;
             if (block.start == EMPTY_INDEX) {
                 // Start new unresolved block
                 block.start = i;
