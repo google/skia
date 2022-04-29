@@ -5,9 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include <cstddef>
-#include <cstring>
-#include <type_traits>
+#include "src/image/SkImage_GpuYUVA.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkYUVAPixmaps.h"
@@ -16,6 +14,7 @@
 #include "include/gpu/GrYUVABackendTextures.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipmap.h"
+#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkScopeExit.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -28,7 +27,6 @@
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_Gpu.h"
-#include "src/image/SkImage_GpuYUVA.h"
 
 static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
@@ -191,6 +189,11 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
     if (!fContext->priv().matches(context)) {
         return {};
     }
+    // At least for now we do not attempt aniso filtering on YUVA images.
+    if (sampling.isAniso()) {
+        sampling = SkSamplingPriv::AnisoFallback(fYUVAProxies.mipmapped() == GrMipmapped::kYes);
+    }
+
     auto wmx = SkTileModeToWrapMode(tileModes[0]);
     auto wmy = SkTileModeToWrapMode(tileModes[1]);
     GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);

@@ -2262,9 +2262,13 @@ void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
 static SkSamplingOptions clean_sampling_for_constraint(
         const SkSamplingOptions& sampling,
         SkCanvas::SrcRectConstraint constraint) {
-    if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
-        sampling.mipmap != SkMipmapMode::kNone) {
-        return SkSamplingOptions(sampling.filter);
+    if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
+        if (sampling.mipmap != SkMipmapMode::kNone) {
+            return SkSamplingOptions(sampling.filter);
+        }
+        if (sampling.isAniso()) {
+            return SkSamplingOptions(SkFilterMode::kLinear);
+        }
     }
     return sampling;
 }

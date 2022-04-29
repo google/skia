@@ -32,15 +32,29 @@ enum SkMediumAs {
 
 class SkSamplingPriv {
 public:
-    enum {
-        kFlatSize = 3 * sizeof(uint32_t)  // bool32 + [2 floats | 2 ints]
-    };
+    static size_t FlatSize(const SkSamplingOptions& options) {
+        size_t size = sizeof(uint32_t);  // maxAniso
+        if (!options.isAniso()) {
+            size += 3 * sizeof(uint32_t);  // bool32 + [2 floats | 2 ints]
+        }
+        return size;
+    }
 
     // Returns true if the sampling can be ignored when the CTM is identity.
     static bool NoChangeWithIdentityMatrix(const SkSamplingOptions& sampling) {
         // If B == 0, the cubic resampler should have no effect for identity matrices
         // https://entropymine.com/imageworsener/bicubic/
+        // We assume aniso has no effect with an identity transform.
         return !sampling.useCubic || sampling.cubic.B == 0;
+    }
+
+    // Makes a fallback SkSamplingOptions for cases where anisotropic filtering is not allowed.
+    // anisotropic filtering can access mip levels if present, but we don't add mipmaps to non-
+    // mipmapped images when the user requests anisotropic. So we shouldn't fall back to a
+    // sampling that would trigger mip map creation.
+    static SkSamplingOptions AnisoFallback(bool imageIsMipped) {
+        auto mm = imageIsMipped ? SkMipmapMode::kLinear : SkMipmapMode::kNone;
+        return SkSamplingOptions(SkFilterMode::kLinear, mm);
     }
 
     static SkSamplingOptions FromFQ(SkLegacyFQ, SkMediumAs = kNearest_SkMediumAs);

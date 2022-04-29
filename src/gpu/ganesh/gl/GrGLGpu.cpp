@@ -2702,6 +2702,8 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const skgpu:
 
     if (samplerState.mipmapped() == GrMipmapped::kYes) {
         if (!this->caps()->mipmapSupport() || texture->mipmapped() == GrMipmapped::kNo) {
+            // We should have caught this already.
+            SkASSERT(!samplerState.isAniso());
             samplerState = GrSamplerState(samplerState.wrapModeX(),
                                           samplerState.wrapModeY(),
                                           samplerState.filter(),

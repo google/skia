@@ -9,6 +9,7 @@
 
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkString.h"
 #include "src/utils/SkJSONWriter.h"
 #include "tools/debugger/DrawCommand.h"
