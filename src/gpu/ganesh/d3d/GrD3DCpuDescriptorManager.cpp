@@ -93,6 +93,7 @@ GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createSampler(
         GrD3DGpu* gpu,
         D3D12_FILTER filter,
         float maxLOD,
+        unsigned int maxAnisotropy,
         D3D12_TEXTURE_ADDRESS_MODE addressModeU,
         D3D12_TEXTURE_ADDRESS_MODE addressModeV) {
     const GrD3DDescriptorHeap::CPUHandle& descriptor = fSamplerDescriptorPool.allocateHandle(gpu);
@@ -102,7 +103,7 @@ GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createSampler(
     desc.AddressV = addressModeV;
     desc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
     desc.MipLODBias = 0;
-    desc.MaxAnisotropy = 1;
+    desc.MaxAnisotropy = maxAnisotropy;
     desc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
     // desc.BorderColor initialized to { 0, 0, 0, 0 } by default initializer, above.
     desc.MinLOD = 0;

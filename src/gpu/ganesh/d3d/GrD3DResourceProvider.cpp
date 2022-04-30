@@ -174,10 +174,10 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler
                                                            : 0.f;
     D3D12_TEXTURE_ADDRESS_MODE addressModeU = wrap_mode_to_d3d_address_mode(params.wrapModeX());
     D3D12_TEXTURE_ADDRESS_MODE addressModeV = wrap_mode_to_d3d_address_mode(params.wrapModeY());
-
+    unsigned int maxAnisotropy = params.maxAniso();
     D3D12_CPU_DESCRIPTOR_HANDLE sampler =
             fCpuDescriptorManager.createSampler(
-            fGpu, filter, maxLOD, addressModeU, addressModeV).fHandle;
+            fGpu, filter, maxLOD, maxAnisotropy, addressModeU, addressModeV).fHandle;
     fSamplers.set(key, sampler);
     return sampler;
 }

@@ -41,6 +41,7 @@ public:
     GrD3DDescriptorHeap::CPUHandle createSampler(GrD3DGpu*,
                                                  D3D12_FILTER filter,
                                                  float maxLOD,
+                                                 unsigned int maxAnisotropy,
                                                  D3D12_TEXTURE_ADDRESS_MODE addressModeU,
                                                  D3D12_TEXTURE_ADDRESS_MODE addressModeV);
     void recycleSampler(const GrD3DDescriptorHeap::CPUHandle&);
