@@ -43,7 +43,7 @@ deps = {
   "third_party/externals/vulkanmemoryallocator"  : "https://chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator@7de5cc00de50e71a3aab22dea52fbb7ff4efceb6",
   # vulkan-deps is a meta-repo containing several interdependent Khronos Vulkan repositories.
   # When the vulkan-deps revision is updated, those repos (spirv-*, vulkan-*) should be updated as well.
-  "third_party/externals/vulkan-deps"            : "https://chromium.googlesource.com/vulkan-deps@88693e6bf86c861b6c930ad1b7916746834c0220",
+  "third_party/externals/vulkan-deps"            : "https://chromium.googlesource.com/vulkan-deps@1cde45b8d7aa2282abd706914dc9028e63d8c373",
   "third_party/externals/spirv-cross"            : "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross@a9d23d765238bf9d85974b13705c1f0e5f6a008b",
   "third_party/externals/spirv-headers"          : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@46b7918218d02b678b9405da538928a0f2c286bb",
   "third_party/externals/spirv-tools"            : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@46492aa45ae5da92eb1ec8a8051d6a4a98df70af",
