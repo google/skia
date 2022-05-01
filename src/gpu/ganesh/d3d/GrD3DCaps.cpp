@@ -202,9 +202,6 @@ void GrD3DCaps::initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc,
     fMaxTextureSize = 16384;
     // There's no specific cap for RT size, so use texture size
     fMaxRenderTargetSize = fMaxTextureSize;
-    if (fDriverBugWorkarounds.max_texture_size_limit_4096) {
-        fMaxTextureSize = std::min(fMaxTextureSize, 4096);
-    }
     // Our render targets are always created with textures as the color
     // attachment, hence this min:
     fMaxRenderTargetSize = fMaxTextureSize;
