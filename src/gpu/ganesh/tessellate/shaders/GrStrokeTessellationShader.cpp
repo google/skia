@@ -22,20 +22,12 @@ namespace {
 // if 'a' and/or 'b' have large coordinates.
 static const char* kRobustNormalizeDiffFn = R"(
 float2 robust_normalize_diff(float2 a, float2 b) {
-    if (a == b) {
-        return float2(0.0, 0.0);
+    float2 diff = a - b;
+    if (diff == float2(0.0)) {
+        return float2(0.0);
     } else {
-        float2 magXY = max(abs(a), abs(b));
-        float mag = max(magXY.x, magXY.y);
-        if (mag > 16777216.0) { // 2^24, when f32 loses 1px precision
-            // This brings the components of a and b to be within [-1, 1] before the vector's length
-            // is calculated inside the normalize() call.
-            float2 scaled_diff = (a/mag) - (b/mag);
-            return normalize(scaled_diff);
-        } else {
-            // assume standard f32 precision will be sufficiently accurate
-            return normalize(a - b);
-        }
+        float invMag = 1.0 / max(abs(diff.x), abs(diff.y));
+        return normalize(invMag * diff);
     }
 })";
 
