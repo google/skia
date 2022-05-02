@@ -478,15 +478,15 @@ private:
         SkASSERT(count >= 0);
         SkASSERT(preallocCount > 0);
         SkASSERT(preallocStorage);
-        fCount = count;
+        fCount = SkToU32(count);
         fItemArray = nullptr;
         fReserved = false;
         if (count > preallocCount) {
-            fAllocCount = std::max(count, kMinHeapAllocCount);
+            fAllocCount = SkToU32(std::max(count, kMinHeapAllocCount));
             fItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
             fOwnMemory = true;
         } else {
-            fAllocCount = preallocCount;
+            fAllocCount = SkToU32(preallocCount);
             fItemArray = (T*)preallocStorage;
             fOwnMemory = false;
         }
