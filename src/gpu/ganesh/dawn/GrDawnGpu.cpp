@@ -184,7 +184,7 @@ sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
     if (data && buffer) {
         buffer->updateData(data, size);
     }
-    return buffer;
+    return std::move(buffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
