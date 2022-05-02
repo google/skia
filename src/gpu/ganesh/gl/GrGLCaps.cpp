@@ -4392,6 +4392,36 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.driverVersion()  < GR_GL_DRIVER_VER(1, 26, 0)) {
         fRebindColorAttachmentAfterCheckFramebufferStatus = true;
     }
+
+    // skbug.com/13286
+    // We found that the P30 produces a GL error when setting GL_TEXTURE_MAX_ANISOTROPY as a sampler
+    // parameter but not as a texture parameter. We are disabling anisotropy on drivers that may
+    // be affected.
+    //
+    // FAIL on P30
+    // GL_VENDOR  : ARM
+    // GL_RENDERER: Mali-G76
+    // GL_VERSION : OpenGL ES 3.2 v1.r16p0-01rel0.4aee637066427cbcd25297324dba15f5
+    //
+    // PASS on Pixel6
+    // GL_VENDOR  : ARM
+    // GL_RENDERER: Mali-G78
+    // GL_VERSION : OpenGL ES 3.2 v1.r32p1-00pxl0.b7e5868a59a273f4a9f58d1657ef99de
+    //
+    // PASS on Galaxy S30:
+    // GL_VENDOR  : ARM
+    // GL_RENDERER: Mali-G77
+    // GL_VERSION : OpenGL ES 3.2 v1.r20p0-01rel0.###other-sha0123456789ABCDEF0###
+    //
+    // PASS on Galaxy S9:
+    // GL_VENDOR  : ARM
+    // GL_RENDERER: Mali-G72
+    // GL_VENDOR  : OpenGL ES 3.2 v1.r19p0-01rel0.###other-sha0123456789ABCDEF0###
+    if (ctxInfo.renderer()      == GrGLRenderer::kMaliG &&
+        ctxInfo.driver()        == GrGLDriver::kARM     &&
+        ctxInfo.driverVersion()  < GR_GL_DRIVER_VER(1, 19, 0)) {
+        fAnisoSupport = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
