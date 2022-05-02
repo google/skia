@@ -32,11 +32,11 @@ generated_cc_atom(
         "//src/core:SkAutoMalloc_hdr",
         "//src/core:SkDistanceFieldGen_hdr",
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",
-        "//src/gpu/ganesh:GrGlyph_hdr",
         "//src/gpu/ganesh:GrImageInfo_hdr",
         "//src/gpu/ganesh:GrSurfaceProxy_hdr",
         "//src/gpu/ganesh:GrTextureProxy_hdr",
         "//src/gpu/ganesh:SurfaceContext_hdr",
+        "//src/text/gpu:Glyph_hdr",
     ],
 )
 
@@ -138,7 +138,7 @@ generated_cc_atom(
         ":GrStrikeCache_hdr",
         "//src/core:SkArenaAlloc_hdr",
         "//src/core:SkStrikeSpec_hdr",
-        "//src/gpu/ganesh:GrGlyph_hdr",
+        "//src/text/gpu:Glyph_hdr",
     ],
 )
 
@@ -191,7 +191,6 @@ generated_cc_atom(
         "//src/core:SkStrikeSpec_hdr",
         "//src/gpu/ganesh:GrBlurUtils_hdr",
         "//src/gpu/ganesh:GrClip_hdr",
-        "//src/gpu/ganesh:GrGlyph_hdr",
         "//src/gpu/ganesh:GrMeshDrawTarget_hdr",
         "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
         "//src/gpu/ganesh:GrStyle_hdr",
@@ -202,6 +201,7 @@ generated_cc_atom(
         "//src/gpu/ganesh/ops:AtlasTextOp_hdr",
         "//src/gpu/ganesh/v1:Device_v1_hdr",
         "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
+        "//src/text/gpu:Glyph_hdr",
     ],
 )
 
@@ -239,9 +239,10 @@ generated_cc_atom(
         "//include/core:SkSpan_hdr",
         "//src/core:SkGlyphBuffer_hdr",
         "//src/core:SkGlyph_hdr",
-        "//src/gpu/ganesh:GrGlyph_hdr",
+        "//src/gpu/ganesh:GrDrawOpAtlas_hdr",
         "//src/gpu/ganesh:GrMeshDrawTarget_hdr",
         "//src/gpu/ganesh:GrSubRunAllocator_hdr",
+        "//src/text/gpu:Glyph_hdr",
     ],
 )
 

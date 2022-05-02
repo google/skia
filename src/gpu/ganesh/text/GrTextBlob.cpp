@@ -21,7 +21,6 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/gpu/ganesh/GrClip.h"
-#include "src/gpu/ganesh/GrGlyph.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
@@ -29,11 +28,13 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
+
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/gpu/ganesh/text/GrGlyphVector.h"
 #include "src/gpu/ganesh/text/GrSDFTControl.h"
 #include "src/gpu/ganesh/text/GrStrikeCache.h"
 #include "src/gpu/ganesh/text/GrTextBlob.h"
+#include "src/text/gpu/Glyph.h"
 
 #include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
@@ -41,6 +42,7 @@
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 using AtlasTextOp = skgpu::v1::AtlasTextOp;
+using Glyph = sktext::gpu::Glyph;
 using MaskFormat = skgpu::MaskFormat;
 
 // -- GPU Text -------------------------------------------------------------------------------------
@@ -119,7 +121,7 @@ public:
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
     void fillVertexData(int offset, int count,
-                        SkSpan<const GrGlyph*> glyphs,
+                        SkSpan<const Glyph*> glyphs,
                         GrColor color,
                         const SkMatrix& positionMatrix,
                         SkIRect clip,
@@ -173,12 +175,12 @@ private:
     std::array<SkScalar, 4> sourceRect(PositionAndExtent positionAndExtent) const;
 
     template<typename Quad, typename VertexData>
-    void fill2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+    void fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                 GrColor color,
                 const SkMatrix& matrix) const;
 
     template<typename Quad, typename VertexData>
-    void fill3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+    void fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                 GrColor color,
                 const SkMatrix& matrix) const;
 
@@ -281,7 +283,7 @@ void TransformedMaskVertexFiller::flatten(SkWriteBuffer& buffer) const {
 }
 
 void TransformedMaskVertexFiller::fillVertexData(int offset, int count,
-                                                 SkSpan<const GrGlyph*> glyphs,
+                                                 SkSpan<const Glyph*> glyphs,
                                                  GrColor color,
                                                  const SkMatrix& positionMatrix,
                                                  SkIRect clip,
@@ -325,7 +327,7 @@ TransformedMaskVertexFiller::sourceRect(PositionAndExtent positionAndExtent) con
 }
 
 template<typename Quad, typename VertexData>
-void TransformedMaskVertexFiller::fill2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+void TransformedMaskVertexFiller::fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                                          GrColor color,
                                          const SkMatrix& positionMatrix) const {
     for (auto[quad, glyph, positionAndExtent] : quadData) {
@@ -343,7 +345,7 @@ void TransformedMaskVertexFiller::fill2D(SkZip<Quad, const GrGlyph*, const Verte
 }
 
 template<typename Quad, typename VertexData>
-void TransformedMaskVertexFiller::fill3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+void TransformedMaskVertexFiller::fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                                          GrColor color,
                                          const SkMatrix& positionMatrix) const {
     auto mapXYZ = [&](SkScalar x, SkScalar y) {
@@ -999,7 +1001,7 @@ using DevicePosition = skvx::Vec<2, int16_t>;
 
 // The 99% case. No clip. Non-color only.
 void direct_2D(SkZip<Mask2DVertex[4],
-                     const GrGlyph*,
+                     const Glyph*,
                      const DevicePosition> quadData,
                GrColor color,
                SkPoint originOffset) {
@@ -1025,7 +1027,7 @@ auto ltbr(const Rect& r) {
 
 // Handle any combination of BW or color and clip or no clip.
 template<typename Quad, typename VertexData>
-void generalized_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+void generalized_direct_2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                            GrColor color,
                            SkPoint originOffset,
                            SkIRect* clip = nullptr) {
@@ -1109,7 +1111,7 @@ public:
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
+    void testingOnly_packedGlyphIDToGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int>
     regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
@@ -1361,16 +1363,17 @@ std::tuple<const GrClip*, GrOp::Owner> DirectMaskSubRun::makeAtlasTextOp(const G
     return {clip, std::move(op)};
 }
 
-void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
-    fGlyphs.packedGlyphIDToGrGlyph(cache);
+void DirectMaskSubRun::testingOnly_packedGlyphIDToGlyph(GrStrikeCache *cache) const {
+    fGlyphs.packedGlyphIDToGlyph(cache);
 }
 
-std::tuple<bool, int> DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
+std::tuple<bool, int> DirectMaskSubRun::regenerateAtlas(int begin, int end,
+                                                        GrMeshDrawTarget* target) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
 }
 
 template<typename Quad, typename VertexData>
-void transformed_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+void transformed_direct_2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                            GrColor color,
                            const SkMatrix& matrix) {
     for (auto[quad, glyph, leftTop] : quadData) {
@@ -1391,7 +1394,7 @@ void transformed_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadDat
 }
 
 template<typename Quad, typename VertexData>
-void transformed_direct_3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+void transformed_direct_3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                            GrColor color,
                            const SkMatrix& matrix) {
     auto mapXYZ = [&](SkScalar x, SkScalar y) {
@@ -1480,7 +1483,8 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
 }
 
 // true if only need to translate by integer amount, device rect.
-std::tuple<bool, SkRect> DirectMaskSubRun::deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const {
+std::tuple<bool, SkRect> DirectMaskSubRun::deviceRectAndCheckTransform(
+            const SkMatrix& positionMatrix) const {
     const SkMatrix& initialMatrix = fReferenceFrame->initialPositionMatrix();
     const SkPoint offset = positionMatrix.mapOrigin() - initialMatrix.mapOrigin();
 
@@ -1547,7 +1551,7 @@ public:
 
     const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
+    void testingOnly_packedGlyphIDToGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
@@ -1678,8 +1682,8 @@ bool TransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& posit
     return true;
 }
 
-void TransformedMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
-    fGlyphs.packedGlyphIDToGrGlyph(cache);
+void TransformedMaskSubRun::testingOnly_packedGlyphIDToGlyph(GrStrikeCache *cache) const {
+    fGlyphs.packedGlyphIDToGlyph(cache);
 }
 
 std::tuple<bool, int> TransformedMaskSubRun::regenerateAtlas(int begin, int end,
@@ -1760,7 +1764,7 @@ public:
 
     const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
+    void testingOnly_packedGlyphIDToGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
@@ -1955,8 +1959,8 @@ bool SDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) 
     return fMatrixRange.matrixInRange(positionMatrix);
 }
 
-void SDFTSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
-    fGlyphs.packedGlyphIDToGrGlyph(cache);
+void SDFTSubRun::testingOnly_packedGlyphIDToGlyph(GrStrikeCache *cache) const {
+    fGlyphs.packedGlyphIDToGlyph(cache);
 }
 
 std::tuple<bool, int>
@@ -2005,11 +2009,11 @@ void add_multi_mask_format(
 
     auto glyphSpan = accepted.get<0>();
     const SkGlyph* glyph = glyphSpan[0];
-    MaskFormat format = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
+    MaskFormat format = Glyph::FormatFromSkGlyph(glyph->maskFormat());
     size_t startIndex = 0;
     for (size_t i = 1; i < accepted.size(); i++) {
         glyph = glyphSpan[i];
-        MaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
+        MaskFormat nextFormat = Glyph::FormatFromSkGlyph(glyph->maskFormat());
         if (format != nextFormat) {
             auto glyphsWithSameFormat = accepted.subspan(startIndex, i - startIndex);
             // Take a ref on the strike. This should rarely happen.

@@ -100,7 +100,6 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/GrFragmentProcessor.h",
   "$_src/gpu/ganesh/GrGeometryProcessor.cpp",
   "$_src/gpu/ganesh/GrGeometryProcessor.h",
-  "$_src/gpu/ganesh/GrGlyph.h",
   "$_src/gpu/ganesh/GrGpu.cpp",
   "$_src/gpu/ganesh/GrGpu.h",
   "$_src/gpu/ganesh/GrGpuBuffer.cpp",
@@ -343,6 +342,7 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/text/GrTextBlob.h",
   "$_src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.cpp",
   "$_src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h",
+  "$_src/text/gpu/Glyph.h",
 
   # GLSL
   "$_src/gpu/ganesh/glsl/GrGLSL.cpp",

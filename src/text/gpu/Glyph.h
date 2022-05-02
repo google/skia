@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGlyph_DEFINED
-#define GrGlyph_DEFINED
+#ifndef sktext_gpu_Glyph_DEFINED
+#define sktext_gpu_Glyph_DEFINED
 
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
-#include "src/gpu/ganesh/GrDrawOpAtlas.h"
+#include "src/gpu/AtlasTypes.h"
 
-class GrGlyph {
+namespace sktext::gpu {
+class Glyph {
 public:
     static skgpu::MaskFormat FormatFromSkGlyph(SkMask::Format format) {
         switch (format) {
@@ -33,10 +33,12 @@ public:
         SkUNREACHABLE;
     }
 
-    GrGlyph(SkPackedGlyphID packedGlyphID) : fPackedID(packedGlyphID) {}
+    Glyph(SkPackedGlyphID packedGlyphID) : fPackedID(packedGlyphID) {}
 
     const SkPackedGlyphID       fPackedID;
     skgpu::AtlasLocator         fAtlasLocator;
 };
+
+}
 
 #endif

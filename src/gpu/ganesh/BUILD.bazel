@@ -1500,18 +1500,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "GrGlyph_hdr",
-    hdrs = ["GrGlyph.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrDrawOpAtlas_hdr",
-        "//include/private/gpu/ganesh:GrTypesPriv_hdr",
-        "//src/core:SkGlyph_hdr",
-        "//src/core:SkMask_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "GrGpuBuffer_hdr",
     hdrs = ["GrGpuBuffer.h"],
     visibility = ["//:__subpackages__"],

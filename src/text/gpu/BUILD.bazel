@@ -1,0 +1,12 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "Glyph_hdr",
+    hdrs = ["Glyph.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkGlyph_hdr",
+        "//src/core:SkMask_hdr",
+        "//src/gpu:AtlasTypes_hdr",
+    ],
+)

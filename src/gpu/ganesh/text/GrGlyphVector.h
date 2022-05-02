@@ -11,25 +11,26 @@
 #include "include/core/SkSpan.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphBuffer.h"
-#include "src/gpu/ganesh/GrGlyph.h"
+#include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrSubRunAllocator.h"
 #include "src/gpu/ganesh/text/GrStrikeCache.h"
+#include "src/text/gpu/Glyph.h"
 
 class SkStrikeClient;
 
 // -- GlyphVector ----------------------------------------------------------------------------------
-// GlyphVector provides a way to delay the lookup of GrGlyphs until the code is running on the
-// GPU in single threaded mode. The GlyphVector is created in a multi-threaded environment, but
-// the GrStrikeCache is only single threaded (and must be single threaded because of the atlas).
+// GlyphVector provides a way to delay the lookup of sktext::gpu::Glyphs until the code is running
+// on the GPU in single threaded mode. The GlyphVector is created in a multi-threaded environment,
+// but the GrStrikeCache is only single threaded (and must be single threaded because of the atlas).
 class GrGlyphVector {
 public:
     union Variant {
-        // Initially, filled with packed id, but changed to GrGlyph* in the onPrepare stage.
+        // Initially, filled with packed id, but changed to Glyph* in the onPrepare stage.
         SkPackedGlyphID packedGlyphID;
-        GrGlyph* grGlyph;
+        sktext::gpu::Glyph* glyph;
         // Add ctors to help SkArenaAlloc create arrays.
-        Variant() : grGlyph{nullptr} {}
+        Variant() : glyph{nullptr} {}
         Variant(SkPackedGlyphID id) : packedGlyphID{id} {}
     };
 
@@ -37,7 +38,7 @@ public:
 
     static GrGlyphVector Make(
             sk_sp<SkStrike>&& strike, SkSpan<SkGlyphVariant> glyphs, GrSubRunAllocator* alloc);
-    SkSpan<const GrGlyph*> glyphs() const;
+    SkSpan<const sktext::gpu::Glyph*> glyphs() const;
 
     static std::optional<GrGlyphVector> MakeFromBuffer(SkReadBuffer& buffer,
                                                        const SkStrikeClient* strikeClient,
@@ -48,7 +49,7 @@ public:
     // the sub runs.
     int unflattenSize() const { return GlyphVectorSize(fGlyphs.size()); }
 
-    void packedGlyphIDToGrGlyph(GrStrikeCache* cache);
+    void packedGlyphIDToGlyph(GrStrikeCache* cache);
 
     std::tuple<bool, int> regenerateAtlas(
             int begin, int end,

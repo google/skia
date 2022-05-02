@@ -28,7 +28,6 @@
 
 class GrAtlasManager;
 class GrDeferredUploadTarget;
-class GrGlyph;
 class GrMeshDrawTarget;
 class GrStrikeCache;
 class GrSubRun;
@@ -38,6 +37,10 @@ class SkStrikeClient;
 class SkSurfaceProps;
 class SkTextBlob;
 class SkTextBlobRunIterator;
+
+namespace sktext::gpu {
+class Glyph;
+}
 
 namespace skgpu::v1 { class SurfaceDrawContext; }
 
@@ -80,7 +83,7 @@ public:
             SkPoint drawOrigin,
             SkIRect clip) const = 0;
 
-    virtual void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache* cache) const = 0;
+    virtual void testingOnly_packedGlyphIDToGlyph(GrStrikeCache* cache) const = 0;
 
     // This call is not thread safe. It should only be called from GrDrawOp::onPrepare which
     // is single threaded.
@@ -178,10 +181,10 @@ private:
 // texture coordinates.
 //
 // A GrTextBlob contains a number of SubRuns that are created in the blob's arena. Each SubRun
-// tracks its own GrGlyph* and vertex data. The memory is organized in the arena in the following
-// way so that the pointers for the GrGlyph* and vertex data are known before creating the SubRun.
+// tracks its own Glyph* and vertex data. The memory is organized in the arena in the following
+// way so that the pointers for the Glyph* and vertex data are known before creating the SubRun.
 //
-//  GrGlyph*... | vertexData... | SubRun | GrGlyph*... | vertexData... | SubRun  etc.
+//  Glyph*... | vertexData... | SubRun | Glyph*... | vertexData... | SubRun  etc.
 //
 // In these classes, I'm trying to follow the convention about matrices and origins.
 // * drawMatrix and drawOrigin    - describes transformations for the current draw command.

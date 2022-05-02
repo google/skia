@@ -7,8 +7,10 @@
 
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/gpu/ganesh/GrGlyph.h"
 #include "src/gpu/ganesh/text/GrStrikeCache.h"
+#include "src/text/gpu/Glyph.h"
+
+using Glyph = sktext::gpu::Glyph;
 
 GrStrikeCache::~GrStrikeCache() {
     this->freeAll();
@@ -41,16 +43,16 @@ uint32_t GrStrikeCache::HashTraits::Hash(const SkDescriptor& descriptor) {
 
 GrTextStrike::GrTextStrike(const SkStrikeSpec& strikeSpec) : fStrikeSpec{strikeSpec} {}
 
-GrGlyph* GrTextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {
-    GrGlyph* grGlyph = fCache.findOrNull(packedGlyphID);
-    if (grGlyph == nullptr) {
-        grGlyph = fAlloc.make<GrGlyph>(packedGlyphID);
-        fCache.set(grGlyph);
+Glyph* GrTextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {
+    Glyph* glyph = fCache.findOrNull(packedGlyphID);
+    if (glyph == nullptr) {
+        glyph = fAlloc.make<Glyph>(packedGlyphID);
+        fCache.set(glyph);
     }
-    return grGlyph;
+    return glyph;
 }
 
-const SkPackedGlyphID& GrTextStrike::HashTraits::GetKey(const GrGlyph* glyph) {
+const SkPackedGlyphID& GrTextStrike::HashTraits::GetKey(const Glyph* glyph) {
     return glyph->fPackedID;
 }
 

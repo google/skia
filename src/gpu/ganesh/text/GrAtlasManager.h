@@ -13,7 +13,9 @@
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 
-class GrGlyph;
+namespace sktext::gpu {
+class Glyph;
+}
 class GrResourceProvider;
 class SkGlyph;
 class GrTextStrike;
@@ -49,21 +51,21 @@ public:
 
     void freeAll();
 
-    bool hasGlyph(skgpu::MaskFormat, GrGlyph*);
+    bool hasGlyph(skgpu::MaskFormat, sktext::gpu::Glyph*);
 
     GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
-                                             GrGlyph*,
+                                             sktext::gpu::Glyph*,
                                              int srcPadding,
                                              GrResourceProvider*,
                                              GrDeferredUploadTarget*);
 
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
-    // the client must pass in the current op token along with the GrGlyph.
+    // the client must pass in the current op token along with the sktext::gpu::Glyph.
     // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
     void addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater*, skgpu::MaskFormat,
-                                      GrGlyph*, GrDeferredUploadToken);
+                                      sktext::gpu::Glyph*, GrDeferredUploadToken);
 
     void setUseTokenBulk(const GrDrawOpAtlas::BulkUseTokenUpdater& updater,
                          GrDeferredUploadToken token,

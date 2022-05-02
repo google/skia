@@ -12,11 +12,14 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkStrikeSpec.h"
 
-class GrGlyph;
 class GrStrikeCache;
 
+namespace sktext::gpu {
+class Glyph;
+}
 
-// The GrTextStrike manages an SkArenaAlloc for GrGlyphs. The SkStrike is what actually creates
+
+// The GrTextStrike manages an SkArenaAlloc for Glyphs. The SkStrike is what actually creates
 // the mask. The GrTextStrike may outlive the generating SkStrike. However, it retains a copy
 // of it's SkDescriptor as a key to access (or regenerate) the SkStrike. GrTextStrikes are
 // created by and owned by a GrStrikeCache.
@@ -24,7 +27,7 @@ class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
     GrTextStrike(const SkStrikeSpec& strikeSpec);
 
-    GrGlyph* getGlyph(SkPackedGlyphID);
+    sktext::gpu::Glyph* getGlyph(SkPackedGlyphID);
     const SkStrikeSpec& strikeSpec() const { return fStrikeSpec; }
 
 private:
@@ -32,11 +35,11 @@ private:
     const SkStrikeSpec fStrikeSpec;
 
     struct HashTraits {
-        static const SkPackedGlyphID& GetKey(const GrGlyph* glyph);
+        static const SkPackedGlyphID& GetKey(const sktext::gpu::Glyph* glyph);
         static uint32_t Hash(SkPackedGlyphID key);
     };
-    // Map SkPackedGlyphID -> GrGlyph*.
-    SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
+    // Map SkPackedGlyphID -> Glyph*.
+    SkTHashTable<sktext::gpu::Glyph*, SkPackedGlyphID, HashTraits> fCache;
 
     // Store for the glyph information.
     SkArenaAlloc fAlloc{512};
