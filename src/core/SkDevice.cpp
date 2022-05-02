@@ -45,7 +45,7 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     fGlobalToDevice.setIdentity();
 }
 
-bool SkBaseDevice::setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
+void SkBaseDevice::setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
                                              const SkM44& globalToDevice,
                                              const SkM44& localToDevice,
                                              int bufferOriginX,
@@ -64,7 +64,6 @@ bool SkBaseDevice::setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
     }
     fLocalToDevice33 = fLocalToDevice.asM33();
     fLocalToDeviceDirty = true;
-    return true;
 }
 
 void SkBaseDevice::setGlobalCTM(const SkM44& ctm) {
