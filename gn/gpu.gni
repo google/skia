@@ -316,6 +316,8 @@ skia_gpu_sources = [
   # tessellate/shaders
   "$_src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.cpp",
   "$_src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.h",
+  "$_src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader_Hardware.cpp",
+  "$_src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader_MiddleOut.cpp",
   "$_src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.cpp",
   "$_src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.h",
   "$_src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader_HardwareImpl.cpp",

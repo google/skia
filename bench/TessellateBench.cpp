@@ -139,9 +139,11 @@ DEF_PATH_TESS_BENCH(GrPathCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
     auto tess = PathCurveTessellator::Make(&arena,
                                            fTarget->caps().shaderCaps()->infinitySupport());
     tess->prepare(fTarget.get(),
+                  kMaxParametricSegments,
                   fMatrix,
                   {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},
-                  fPath.countVerbs());
+                  fPath.countVerbs(),
+                  true);
 }
 
 DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
@@ -151,9 +153,11 @@ DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
     auto tess = PathWedgeTessellator::Make(&arena,
                                            fTarget->caps().shaderCaps()->infinitySupport());
     tess->prepare(fTarget.get(),
+                  kMaxParametricSegments,
                   fMatrix,
                   {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},
-                  fPath.countVerbs());
+                  fPath.countVerbs(),
+                  true);
 }
 
 static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {

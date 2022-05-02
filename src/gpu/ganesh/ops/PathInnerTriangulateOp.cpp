@@ -47,6 +47,8 @@ public:
         }
     }
 
+    int maxTessellationSegments(const GrShaderCaps&) const override { SkUNREACHABLE; }
+
 private:
     const char* name() const final { return "tessellate_HullShader"; }
     void addToKey(const GrShaderCaps&, KeyBuilder*) const final {}
@@ -251,11 +253,13 @@ void PathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Prog
     if (!isLinear) {
         fTessellator = PathCurveTessellator::Make(args.fArena,
                                                   args.fCaps->shaderCaps()->infinitySupport());
-        auto* tessShader = GrPathTessellationShader::Make(*args.fCaps->shaderCaps(),
-                                                          args.fArena,
+        auto* tessShader = GrPathTessellationShader::Make(args.fArena,
                                                           fViewMatrix,
                                                           SK_PMColor4fTRANSPARENT,
-                                                          fTessellator->patchAttribs());
+                                                          fPath.countVerbs(),
+                                                          *pipelineForStencils,
+                                                          fTessellator->patchAttribs(),
+                                                          *args.fCaps);
         const GrUserStencilSettings* stencilPathSettings =
                 GrPathTessellationShader::StencilPathSettings(GrFillRuleForSkPath(fPath));
         fStencilCurvesProgram = GrTessellationShader::MakeProgram(args,
@@ -416,11 +420,15 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
 
     if (fTessellator) {
         auto tessShader = &fStencilCurvesProgram->geomProc().cast<GrPathTessellationShader>();
+        int maxSegments = tessShader->maxTessellationSegments(*caps.shaderCaps());
+
         fTessellator->prepareWithTriangles(flushState,
+                                           maxSegments,
                                            tessShader->viewMatrix(),
                                            &fFanBreadcrumbs,
                                            {SkMatrix::I(), fPath, SK_PMColor4fTRANSPARENT},
-                                           fPath.countVerbs());
+                                           fPath.countVerbs(),
+                                           tessShader->willUseTessellationShaders());
     }
 
     if (!caps.shaderCaps()->vertexIDSupport()) {
@@ -444,7 +452,8 @@ void PathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect&
     if (fStencilCurvesProgram) {
         SkASSERT(fTessellator);
         flushState->bindPipelineAndScissorClip(*fStencilCurvesProgram, this->bounds());
-        fTessellator->draw(flushState);
+        fTessellator->draw(flushState,
+                           fStencilCurvesProgram->geomProc().willUseTessellationShaders());
         if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
             flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
         }
