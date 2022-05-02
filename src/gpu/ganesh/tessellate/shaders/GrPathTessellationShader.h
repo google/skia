@@ -19,16 +19,6 @@ public:
                                                               const SkMatrix& viewMatrix,
                                                               const SkPMColor4f&);
 
-    // Creates either a hardware tessellation or middle-out instanced shader, depending on support
-    // and which is expected to perform better.
-    static GrPathTessellationShader* Make(SkArenaAlloc*,
-                                          const SkMatrix& viewMatrix,
-                                          const SkPMColor4f&,
-                                          int totalCombinedPathVerbCnt,
-                                          const GrPipeline&,
-                                          skgpu::PatchAttribs,
-                                          const GrCaps&);
-
     // Uses instanced draws to triangulate curves with a "middle-out" topology. Middle-out draws a
     // triangle with vertices at T=[0, 1/2, 1] and then recurses breadth first:
     //
@@ -44,20 +34,11 @@ public:
     //
     // If PatchAttribs::kFanPoint is set, an additional triangle is added, connecting the base of
     // the curve to the fan point.
-    static GrPathTessellationShader* MakeMiddleOutFixedCountShader(const GrShaderCaps&,
-                                                                   SkArenaAlloc*,
-                                                                   const SkMatrix& viewMatrix,
-                                                                   const SkPMColor4f&,
-                                                                   skgpu::PatchAttribs);
-
-    // Uses GPU tessellation shaders to linearize, triangulate, and render curves.
-    //
-    // If PatchAttribs::kFanPoint is set, an additional triangle is added, connecting the base of
-    // the curve to the fan point.
-    static GrPathTessellationShader* MakeHardwareTessellationShader(SkArenaAlloc*,
-                                                                    const SkMatrix& viewMatrix,
-                                                                    const SkPMColor4f&,
-                                                                    skgpu::PatchAttribs);
+    static GrPathTessellationShader* Make(const GrShaderCaps&,
+                                          SkArenaAlloc*,
+                                          const SkMatrix& viewMatrix,
+                                          const SkPMColor4f&,
+                                          skgpu::PatchAttribs);
 
     // Returns the stencil settings to use for a standard Redbook "stencil" pass.
     static const GrUserStencilSettings* StencilPathSettings(GrFillRule fillRule) {
@@ -119,8 +100,6 @@ public:
             GrAAType,
             const GrAppliedHardClip&,
             GrPipeline::InputFlags = GrPipeline::InputFlags::kNone);
-
-    virtual int maxTessellationSegments(const GrShaderCaps&) const = 0;
 
 protected:
     constexpr static size_t kMiddleOutVertexStride = 2 * sizeof(float);

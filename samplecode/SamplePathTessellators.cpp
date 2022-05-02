@@ -29,9 +29,7 @@ namespace {
 
 enum class Mode {
     kWedgeMiddleOut,
-    kCurveMiddleOut,
-    kWedgeTessellate,
-    kCurveTessellate
+    kCurveMiddleOut
 };
 
 static const char* ModeName(Mode mode) {
@@ -40,10 +38,6 @@ static const char* ModeName(Mode mode) {
             return "MiddleOutShader (kWedges)";
         case Mode::kCurveMiddleOut:
             return "MiddleOutShader (kCurves)";
-        case Mode::kWedgeTessellate:
-            return "HardwareWedgeShader";
-        case Mode::kCurveTessellate:
-            return "HardwareCurveShader";
     }
     SkUNREACHABLE;
 }
@@ -82,33 +76,9 @@ private:
         const SkMatrix& pathMatrix = fMatrix;
         const GrCaps& caps = flushState->caps();
         const GrShaderCaps& shaderCaps = *caps.shaderCaps();
-        int numVerbsToGetMiddleOut = 0;
-        int numVerbsToGetTessellation = caps.minPathVerbsForHwTessellation();
-        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState, std::move(fProcessors),
-                                                                 fPipelineFlags);
-        int numVerbs = (fMode == Mode::kWedgeMiddleOut || fMode == Mode::kCurveMiddleOut) ?
-                        numVerbsToGetMiddleOut : numVerbsToGetTessellation;
-        auto* tessShader = GrPathTessellationShader::Make(alloc,
-                                                          shaderMatrix,
-                                                          kCyan,
-                                                          numVerbs,
-                                                          *pipeline,
-                                                          fTessellator->patchAttribs(),
-                                                          caps);
-        fProgram = GrTessellationShader::MakeProgram({alloc, flushState->writeView(),
-                                                     flushState->usesMSAASurface(),
-                                                     &flushState->dstProxyView(),
-                                                     flushState->renderPassBarriers(),
-                                                     GrLoadOp::kClear, &flushState->caps()},
-                                                     tessShader,
-                                                     pipeline,
-                                                     &GrUserStencilSettings::kUnused);
 
-
-        int maxSegments = tessShader->maxTessellationSegments(*caps.shaderCaps());
         PathTessellator::PathDrawList pathList{pathMatrix, fPath, kCyan};
-
-        if (fMode == Mode::kCurveTessellate || fMode == Mode::kCurveMiddleOut) {
+        if (fMode == Mode::kCurveMiddleOut) {
             // This emulates what PathStencilCoverOp does when using curves, except we include the
             // middle-out triangles directly in the written patches for convenience (normally they
             // use a simple triangle pipeline). But PathCurveTessellator only knows how to read
@@ -126,20 +96,35 @@ private:
             }
 
             auto* tess = PathCurveTessellator::Make(alloc, shaderCaps.infinitySupport());
-            tess->prepareWithTriangles(flushState, maxSegments, shaderMatrix, &triangles, pathList,
-                                       fPath.countVerbs(),tessShader->willUseTessellationShaders());
+            tess->prepareWithTriangles(flushState, shaderMatrix, &triangles, pathList,
+                                       fPath.countVerbs());
             fTessellator = tess;
         } else {
             // This emulates what PathStencilCoverOp does when using wedges.
             fTessellator = PathWedgeTessellator::Make(alloc, shaderCaps.infinitySupport());
-            fTessellator->prepare(flushState, maxSegments, shaderMatrix, pathList,
-                                  fPath.countVerbs(), tessShader->willUseTessellationShaders());
+            fTessellator->prepare(flushState, shaderMatrix, pathList, fPath.countVerbs());
         }
+
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState, std::move(fProcessors),
+                                                                 fPipelineFlags);
+        auto* tessShader = GrPathTessellationShader::Make(*caps.shaderCaps(),
+                                                          alloc,
+                                                          shaderMatrix,
+                                                          kCyan,
+                                                          fTessellator->patchAttribs());
+        fProgram = GrTessellationShader::MakeProgram({alloc, flushState->writeView(),
+                                                     flushState->usesMSAASurface(),
+                                                     &flushState->dstProxyView(),
+                                                     flushState->renderPassBarriers(),
+                                                     GrLoadOp::kClear, &flushState->caps()},
+                                                     tessShader,
+                                                     pipeline,
+                                                     &GrUserStencilSettings::kUnused);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         flushState->bindPipeline(*fProgram, chainBounds);
-        fTessellator->draw(flushState, fProgram->geomProc().willUseTessellationShaders());
+        fTessellator->draw(flushState);
     }
 
     const SkPath fPath;
@@ -206,9 +191,6 @@ void SamplePathTessellators::onDrawContent(SkCanvas* canvas) {
         error = "GPU Only.";
     } else if (!skgpu::v1::TessellationPathRenderer::IsSupported(*ctx->priv().caps())) {
         error = "TessellationPathRenderer not supported.";
-    } else if (fMode >= Mode::kWedgeTessellate &&
-               !ctx->priv().caps()->shaderCaps()->tessellationSupport()) {
-        error.printf("%s requires hardware tessellation support.", ModeName(fMode));
     }
     if (!error.isEmpty()) {
         canvas->clear(SK_ColorRED);
@@ -329,8 +311,6 @@ bool SamplePathTessellators::onChar(SkUnichar unichar) {
             return true;
         case '1':
         case '2':
-        case '3':
-        case '4':
             fMode = (Mode)(unichar - '1');
             return true;
     }

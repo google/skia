@@ -156,16 +156,14 @@ SKGPU_DECLARE_STATIC_UNIQUE_KEY(gFixedCountCurveIndexBufferKey);
 
 void PathCurveTessellator::prepareWithTriangles(
         GrMeshDrawTarget* target,
-        int maxTessellationSegments,
         const SkMatrix& shaderMatrix,
         GrInnerFanTriangulator::BreadcrumbTriangleList* extraTriangles,
         const PathDrawList& pathDrawList,
-        int totalCombinedPathVerbCnt,
-        bool willUseTessellationShaders) {
+        int totalCombinedPathVerbCnt) {
     int patchPreallocCount = FixedCountCurves::PreallocCount(totalCombinedPathVerbCnt) +
                              (extraTriangles ? extraTriangles->count() : 0);
     if (patchPreallocCount) {
-        CurveWriter writer{fAttribs, maxTessellationSegments,
+        CurveWriter writer{fAttribs, skgpu::kMaxParametricSegments,
                            target, &fVertexChunkArray, patchPreallocCount};
 
         // Write out extra space-filling triangles to connect the curve patches with any external
@@ -193,12 +191,7 @@ void PathCurveTessellator::prepareWithTriangles(
         int resolveLevel = write_curve_patches(std::move(writer), shaderMatrix, pathDrawList);
         this->updateResolveLevel(resolveLevel);
     }
-    if (!willUseTessellationShaders) {
-        this->prepareFixedCountBuffers(target);
-    }
-}
 
-void PathCurveTessellator::prepareFixedCountBuffers(GrMeshDrawTarget* target) {
     GrResourceProvider* rp = target->resourceProvider();
 
     SKGPU_DEFINE_STATIC_UNIQUE_KEY(gFixedCountCurveVertexBufferKey);
@@ -216,14 +209,7 @@ void PathCurveTessellator::prepareFixedCountBuffers(GrMeshDrawTarget* target) {
                                                    FixedCountCurves::WriteIndexBuffer);
 }
 
-void PathCurveTessellator::drawTessellated(GrOpFlushState* flushState) const {
-    for (const GrVertexChunk& chunk : fVertexChunkArray) {
-        flushState->bindBuffers(nullptr, nullptr, chunk.fBuffer);
-        flushState->draw(chunk.fCount * 4, chunk.fBase * 4);
-    }
-}
-
-void PathCurveTessellator::drawFixedCount(GrOpFlushState* flushState) const {
+void PathCurveTessellator::draw(GrOpFlushState* flushState) const {
     if (!fFixedVertexBuffer || !fFixedIndexBuffer) {
         return;
     }
@@ -246,7 +232,17 @@ void PathCurveTessellator::drawHullInstances(GrOpFlushState* flushState,
 SKGPU_DECLARE_STATIC_UNIQUE_KEY(gFixedCountWedgesVertexBufferKey);
 SKGPU_DECLARE_STATIC_UNIQUE_KEY(gFixedCountWedgesIndexBufferKey);
 
-void PathWedgeTessellator::prepareFixedCountBuffers(GrMeshDrawTarget* target) {
+void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
+                                   const SkMatrix& shaderMatrix,
+                                   const PathDrawList& pathDrawList,
+                                   int totalCombinedPathVerbCnt) {
+    if (int patchPreallocCount = FixedCountWedges::PreallocCount(totalCombinedPathVerbCnt)) {
+        WedgeWriter writer{fAttribs, skgpu::kMaxParametricSegments,
+                           target, &fVertexChunkArray, patchPreallocCount};
+        int resolveLevel = write_wedge_patches(std::move(writer), shaderMatrix, pathDrawList);
+        this->updateResolveLevel(resolveLevel);
+    }
+
     GrResourceProvider* rp = target->resourceProvider();
 
     SKGPU_DEFINE_STATIC_UNIQUE_KEY(gFixedCountWedgesVertexBufferKey);
@@ -264,31 +260,7 @@ void PathWedgeTessellator::prepareFixedCountBuffers(GrMeshDrawTarget* target) {
                                                    FixedCountWedges::WriteIndexBuffer);
 }
 
-void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
-                                   int maxTessellationSegments,
-                                   const SkMatrix& shaderMatrix,
-                                   const PathDrawList& pathDrawList,
-                                   int totalCombinedPathVerbCnt,
-                                   bool willUseTessellationShaders) {
-    if (int patchPreallocCount = FixedCountWedges::PreallocCount(totalCombinedPathVerbCnt)) {
-        WedgeWriter writer{fAttribs, maxTessellationSegments,
-                           target, &fVertexChunkArray, patchPreallocCount};
-        int resolveLevel = write_wedge_patches(std::move(writer), shaderMatrix, pathDrawList);
-        this->updateResolveLevel(resolveLevel);
-    }
-    if (!willUseTessellationShaders) {
-        this->prepareFixedCountBuffers(target);
-    }
-}
-
-void PathWedgeTessellator::drawTessellated(GrOpFlushState* flushState) const {
-    for (const GrVertexChunk& chunk : fVertexChunkArray) {
-        flushState->bindBuffers(nullptr, nullptr, chunk.fBuffer);
-        flushState->draw(chunk.fCount * 5, chunk.fBase * 5);
-    }
-}
-
-void PathWedgeTessellator::drawFixedCount(GrOpFlushState* flushState) const {
+void PathWedgeTessellator::draw(GrOpFlushState* flushState) const {
     if (!fFixedVertexBuffer || !fFixedIndexBuffer) {
         return;
     }

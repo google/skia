@@ -1215,8 +1215,6 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/ops/TriangulatingPathRenderer.h",
     "src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.cpp",
     "src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.h",
-    "src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader_Hardware.cpp",
-    "src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader_MiddleOut.cpp",
     "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.cpp",
     "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.h",
     "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader_HardwareImpl.cpp",

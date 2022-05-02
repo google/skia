@@ -75,13 +75,11 @@ void PathTessellateOp::prepareTessellator(const GrTessellationShader::ProgramArg
     fTessellator = PathWedgeTessellator::Make(args.fArena,
                                               args.fCaps->shaderCaps()->infinitySupport(),
                                               fPatchAttribs);
-    auto* tessShader = GrPathTessellationShader::Make(args.fArena,
+    auto* tessShader = GrPathTessellationShader::Make(*args.fCaps->shaderCaps(),
+                                                      args.fArena,
                                                       fShaderMatrix,
                                                       this->headDraw().fColor,
-                                                      fTotalCombinedPathVerbCnt,
-                                                      *pipeline,
-                                                      fTessellator->patchAttribs(),
-                                                      *args.fCaps);
+                                                      fTessellator->patchAttribs());
     fTessellationProgram = GrTessellationShader::MakeProgram(args, tessShader, pipeline, fStencil);
 }
 
@@ -108,13 +106,10 @@ void PathTessellateOp::onPrepare(GrOpFlushState* flushState) {
                                  &flushState->caps()}, flushState->detachAppliedClip());
         SkASSERT(fTessellator);
     }
-    auto tessShader = &fTessellationProgram->geomProc().cast<GrPathTessellationShader>();
     fTessellator->prepare(flushState,
-                          tessShader->maxTessellationSegments(*flushState->caps().shaderCaps()),
                           fShaderMatrix,
                           *fPathDrawList,
-                          fTotalCombinedPathVerbCnt,
-                          tessShader->willUseTessellationShaders());
+                          fTotalCombinedPathVerbCnt);
 }
 
 void PathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -123,7 +118,7 @@ void PathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
     flushState->bindPipelineAndScissorClip(*fTessellationProgram, this->bounds());
     flushState->bindTextures(fTessellationProgram->geomProc(), nullptr,
                              fTessellationProgram->pipeline());
-    fTessellator->draw(flushState, fTessellationProgram->geomProc().willUseTessellationShaders());
+    fTessellator->draw(flushState);
 }
 
 } // namespace skgpu::v1

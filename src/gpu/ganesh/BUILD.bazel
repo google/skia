@@ -185,8 +185,6 @@ cc_library(
         "//src/gpu/ganesh/ops:TessellationPathRenderer_src",
         "//src/gpu/ganesh/ops:TextureOp_src",
         "//src/gpu/ganesh/ops:TriangulatingPathRenderer_src",
-        "//src/gpu/ganesh/tessellate/shaders:GrPathTessellationShader_Hardware_src",
-        "//src/gpu/ganesh/tessellate/shaders:GrPathTessellationShader_MiddleOut_src",
         "//src/gpu/ganesh/tessellate/shaders:GrPathTessellationShader_src",
         "//src/gpu/ganesh/tessellate/shaders:GrStrokeTessellationShader_HardwareImpl_src",
         "//src/gpu/ganesh/tessellate/shaders:GrStrokeTessellationShader_InstancedImpl_src",
