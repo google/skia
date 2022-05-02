@@ -599,11 +599,6 @@ func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 		b.output(outputDir)
 	}
 	python := "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}"
-	if b.role("Test", "Perf") && b.matchOs("Win7") && b.matchModel("Golo") {
-		// TODO(borenet): Win7 machines in the Golo seem to be missing a
-		// necessary DLL to make python3 work.
-		python = "cipd_bin_packages/vpython"
-	}
 	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, b.getRecipeProps(), b.cfg.Project)
 	// Most recipes want this isolate; they can override if necessary.
 	b.cas(CAS_RUN_RECIPE)
@@ -768,7 +763,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-19044",
 			"Win2019":    DEFAULT_OS_WIN,
-			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
 			"iOS":        "iOS-13.3.1",
 		}[os]
