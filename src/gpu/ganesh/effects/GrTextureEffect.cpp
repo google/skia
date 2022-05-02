@@ -68,14 +68,26 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
     auto filter = sampler.filter();
     auto mm     = sampler.mipmapMode();
 
-    // TODO: Use HW border color when available.
-    // TODO: Move this back into resolve below when aniso is supported with shader-based subsetting.
-    bool needShaderBorder = false;
-    if ((sampler.wrapModeX() == Wrap::kClampToBorder ||
-         sampler.wrapModeY() == Wrap::kClampToBorder) &&
-        (!caps.clampToBorderSupport() || border[0] || border[1] || border[2] || border[3])) {
-        needShaderBorder = true;
-    }
+    auto canDoWrapInHW = [&](int size, Wrap wrap) {
+        if (alwaysUseShaderTileMode) {
+            return false;
+        }
+        // TODO: Use HW border color when available.
+        if (wrap == Wrap::kClampToBorder &&
+            (!caps.clampToBorderSupport() || border[0] || border[1] || border[2] || border[3])) {
+            return false;
+        }
+        if (wrap != Wrap::kClamp && !caps.npotTextureTileSupport() && !SkIsPow2(size)) {
+            return false;
+        }
+        if (type != GrTextureType::k2D &&
+                   !(wrap == Wrap::kClamp || wrap == Wrap::kClampToBorder)) {
+            return false;
+        }
+        return true;
+    };
+
+    SkISize dim = proxy.isFullyLazy() ? SkISize{-1, -1} : proxy.backingStoreDimensions();
 
     // TODO: Right now if we use shader based subsetting for any reason we just completely drop
     // aniso. Longer term allow shader subsetting, reusing the special repeat mode LOD selection
@@ -87,7 +99,9 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
     if (aniso) {
         bool anisoSubset = !proxy.backingStoreBoundsRect().contains(subset) &&
                            (!domain || !subset.contains(*domain));
-        if (needShaderBorder || anisoSubset) {
+        bool needsShaderWrap = !canDoWrapInHW(dim.width(),  sampler.wrapModeX()) ||
+                               !canDoWrapInHW(dim.height(), sampler.wrapModeY());
+        if (needsShaderWrap || anisoSubset) {
             MipmapMode newMM = proxy.asTextureProxy()->mipmapped() == GrMipmapped::kYes
                                     ? MipmapMode::kLinear
                                     : MipmapMode::kNone;
@@ -101,17 +115,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
 
     auto resolve = [&](int size, Wrap wrap, Span subset, Span domain, float linearFilterInset) {
         Result1D r;
-        bool canDoModeInHW = !alwaysUseShaderTileMode;
-        // TODO: Use HW border color when available.
-        if (wrap == Wrap::kClampToBorder &&
-            (!caps.clampToBorderSupport() || border[0] || border[1] || border[2] || border[3])) {
-            canDoModeInHW = false;
-        } else if (wrap != Wrap::kClamp && !caps.npotTextureTileSupport() && !SkIsPow2(size)) {
-            canDoModeInHW = false;
-        } else if (type != GrTextureType::k2D &&
-                   !(wrap == Wrap::kClamp || wrap == Wrap::kClampToBorder)) {
-            canDoModeInHW = false;
-        }
+        bool canDoModeInHW = canDoWrapInHW(size, wrap);
         if (canDoModeInHW && size > 0 && subset.fA <= 0 && subset.fB >= size) {
             r.fShaderMode = ShaderMode::kNone;
             r.fHWWrap = wrap;
@@ -152,8 +156,6 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
 
     Result1D x, y;
     if (!aniso) {
-        SkISize dim = proxy.isFullyLazy() ? SkISize{-1, -1} : proxy.backingStoreDimensions();
-
         Span subsetX{subset.fLeft, subset.fRight};
         auto domainX = domain ? Span{domain->fLeft, domain->fRight}
                               : Span{SK_FloatNegativeInfinity, SK_FloatInfinity};
