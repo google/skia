@@ -47,14 +47,16 @@ struct SkShaderSnippet {
 
     SkShaderSnippet() = default;
 
-    SkShaderSnippet(SkSpan<const SkUniform> uniforms,
+    SkShaderSnippet(const char* name,
+                    SkSpan<const SkUniform> uniforms,
                     SnippetRequirementFlags snippetRequirementFlags,
                     SkSpan<const SkTextureAndSampler> texturesAndSamplers,
                     const char* functionName,
                     GenerateGlueCodeForEntry glueCodeGenerator,
                     int numChildren,
                     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations)
-            : fUniforms(uniforms)
+            : fName(name)
+            , fUniforms(uniforms)
             , fSnippetRequirementFlags(snippetRequirementFlags)
             , fTexturesAndSamplers(texturesAndSamplers)
             , fStaticFunctionName(functionName)
@@ -65,6 +67,11 @@ struct SkShaderSnippet {
 
     std::string getMangledUniformName(int uniformIndex, int mangleId) const;
 
+    bool needsLocalCoords() const {
+        return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
+    }
+
+    const char* fName = nullptr;
     SkSpan<const SkUniform> fUniforms;
     SnippetRequirementFlags fSnippetRequirementFlags;
     SkSpan<const SkTextureAndSampler> fTexturesAndSamplers;

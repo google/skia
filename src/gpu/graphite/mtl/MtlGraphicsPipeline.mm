@@ -454,10 +454,14 @@ std::string GetMtlUniforms(int bufferID,
 
     std::string result = get_uniform_header(bufferID, name);
     for (int i = 0; i < (int) readers.size(); ++i) {
+        SkSL::String::appendf(&result,
+                              "// %s\n",
+                              readers[i].entry()->fName);
         result += get_uniforms(readers[i].entry()->fUniforms, &offset, i);
     }
     if (needsLocalCoords) {
         static constexpr SkUniform kDev2LocalUniform[] = {{ "dev2LocalUni", SkSLType::kFloat4x4 }};
+        result += "// NeedsLocalCoords\n";
         result += get_uniforms(SkSpan<const SkUniform>(kDev2LocalUniform, 1), &offset, -1);
     }
     result.append("};\n\n");
