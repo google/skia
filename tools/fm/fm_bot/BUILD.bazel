@@ -1,9 +1,9 @@
 load("//bazel:macros.bzl", "exports_files_legacy")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
-exports_files_legacy()
-
 licenses(["notice"])
+
+exports_files_legacy()
 
 go_library(
     name = "fm_bot_lib",

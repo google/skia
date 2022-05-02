@@ -1,8 +1,8 @@
 load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "gazelle", "select_multi", "selects")
 
-exports_files_legacy()
-
 licenses(["notice"])
+
+exports_files_legacy()
 
 package(default_visibility = ["//:__subpackages__"])
 

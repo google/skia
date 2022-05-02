@@ -2,9 +2,9 @@ load("//bazel:macros.bzl", "exports_files_legacy")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain", "cc_toolchain_suite")
 load(":linux_amd64_toolchain_config.bzl", "provide_linux_amd64_toolchain_config")
 
-exports_files_legacy()
-
 licenses(["notice"])
+
+exports_files_legacy()
 
 package(default_visibility = ["//visibility:public"])
 

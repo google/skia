@@ -2,9 +2,9 @@ load("//bazel:macros.bzl", "enforce_iwyu_on_package", "exports_files_legacy", "g
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
-exports_files_legacy()
-
 licenses(["notice"])
+
+exports_files_legacy()
 
 enforce_iwyu_on_package()
 
