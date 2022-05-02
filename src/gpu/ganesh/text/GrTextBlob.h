@@ -181,13 +181,11 @@ private:
 // texture coordinates.
 //
 // A GrTextBlob contains a number of SubRuns that are created in the blob's arena. Each SubRun
-// tracks its own Glyph* and vertex data. The memory is organized in the arena in the following
-// way so that the pointers for the Glyph* and vertex data are known before creating the SubRun.
-//
-//  Glyph*... | vertexData... | SubRun | Glyph*... | vertexData... | SubRun  etc.
+// tracks its own glyph and position data.
 //
 // In these classes, I'm trying to follow the convention about matrices and origins.
-// * drawMatrix and drawOrigin    - describes transformations for the current draw command.
+// * drawMatrix and drawOrigin - describes transformations for the current draw command.
+// * positionMatrix - is equal to drawMatrix * [drawOrigin-as-translation-matrix]
 // * initial Matrix - describes the combined initial matrix and origin the GrTextBlob was created
 //                    with.
 //
@@ -250,7 +248,7 @@ public:
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const;
 
     const Key& key() const;
-    size_t size() const;
+    size_t size() const { return SkTo<size_t>(fSize); }
 
     void draw(SkCanvas*,
               const GrClip* clip,
@@ -261,7 +259,8 @@ public:
     const GrAtlasSubRun* testingOnlyFirstSubRun() const;
 
 private:
-    GrTextBlob(int allocSize,
+    GrTextBlob(GrSubRunAllocator&& alloc,
+               int totalMemorySize,
                const SkMatrix& positionMatrix,
                SkColor initialLuminance);
 

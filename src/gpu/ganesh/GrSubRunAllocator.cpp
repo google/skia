@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <memory>
 #include <new>
+#include <utility>
 
 // -- GrBagOfBytes ---------------------------------------------------------------------------------
 GrBagOfBytes::GrBagOfBytes(char* bytes, size_t size, size_t firstHeapAllocation)

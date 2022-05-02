@@ -2723,6 +2723,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkMath_hdr",
         "//include/core:SkSpan_hdr",
+        "//include/private:SkTemplates_hdr",
         "//src/core:SkArenaAlloc_hdr",
     ],
 )

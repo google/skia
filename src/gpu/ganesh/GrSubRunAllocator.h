@@ -10,16 +10,32 @@
 
 #include "include/core/SkMath.h"
 #include "include/core/SkSpan.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 
 #include <algorithm>
+#include <climits>
 #include <memory>
+#include <tuple>
+#include <utility>
 
 // GrBagOfBytes parcels out bytes with a given size and alignment.
 class GrBagOfBytes {
 public:
     GrBagOfBytes(char* block, size_t blockSize, size_t firstHeapAllocation);
     explicit GrBagOfBytes(size_t firstHeapAllocation = 0);
+    GrBagOfBytes(const GrBagOfBytes&) = delete;
+    GrBagOfBytes& operator=(const GrBagOfBytes&) = delete;
+    GrBagOfBytes(GrBagOfBytes&& that)
+            : fEndByte{std::exchange(that.fEndByte, nullptr)}
+            , fCapacity{that.fCapacity}
+            , fFibProgression{that.fFibProgression} {}
+    GrBagOfBytes& operator=(GrBagOfBytes&& that) {
+        this->~GrBagOfBytes();
+        new (this) GrBagOfBytes{std::move(that)};
+        return *this;
+    }
+
     ~GrBagOfBytes();
 
     // Given a requestedSize round up to the smallest size that accounts for all the per block
@@ -174,6 +190,26 @@ public:
 
     GrSubRunAllocator(char* block, int blockSize, int firstHeapAllocation);
     explicit GrSubRunAllocator(int firstHeapAllocation = 0);
+    GrSubRunAllocator(const GrSubRunAllocator&) = delete;
+    GrSubRunAllocator& operator=(const GrSubRunAllocator&) = delete;
+    GrSubRunAllocator(GrSubRunAllocator&&) = default;
+    GrSubRunAllocator& operator=(GrSubRunAllocator&&) = default;
+
+    template <typename T>
+    static std::tuple<void *, int, GrSubRunAllocator>
+    AllocateClassMemoryAndArena(int allocSizeHint) {
+        SkASSERT_RELEASE(allocSizeHint >= 0);
+        // Round the size after the object the optimal amount.
+        int extraSize = GrBagOfBytes::PlatformMinimumSizeWithOverhead(allocSizeHint, alignof(T));
+
+        // Don't overflow or die.
+        SkASSERT_RELEASE(INT_MAX - SkTo<int>(sizeof(T)) > extraSize);
+        int totalMemorySize = sizeof(T) + extraSize;
+
+        void* memory = ::operator new (totalMemorySize);
+        GrSubRunAllocator alloc{SkTAddOffset<char>(memory, sizeof(T)), extraSize, extraSize/2};
+        return {memory, totalMemorySize, std::move(alloc)};
+    }
 
     template <typename T, typename... Args> T* makePOD(Args&&... args) {
         static_assert(HasNoDestructor<T>, "This is not POD. Use makeUnique.");
