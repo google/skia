@@ -453,6 +453,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				configs = append(configs, "mtlmsaa4")
 			}
 		}
+		if b.extraConfig("Slug") {
+		    // Test slug drawing
+		    configs = []string{"glslug"}
+		}
 		if b.extraConfig("Direct3D") {
 			configs = []string{"d3d"}
 		}
