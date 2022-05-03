@@ -360,34 +360,57 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 		// ANGLE bot *only* runs the angle configs
 		if b.extraConfig("ANGLE") {
-			configs = []string{"angle_d3d11_es2",
-				"angle_gl_es2",
-				"angle_d3d11_es3"}
-			if sampleCount > 0 {
-				configs = append(configs, fmt.Sprintf("angle_d3d11_es2_msaa%d", sampleCount))
-				configs = append(configs, fmt.Sprintf("angle_d3d11_es2_dmsaa"))
-				configs = append(configs, fmt.Sprintf("angle_gl_es2_dmsaa"))
-				configs = append(configs, fmt.Sprintf("angle_d3d11_es3_msaa%d", sampleCount))
-				configs = append(configs, fmt.Sprintf("angle_d3d11_es3_dmsaa"))
-				configs = append(configs, fmt.Sprintf("angle_gl_es3_dmsaa"))
-			}
-			if b.matchGpu("GTX", "Quadro") {
-				// See skia:7823 and chromium:693090.
-				configs = append(configs, "angle_gl_es3")
+			if b.matchOs("Win") {
+				configs = []string{"angle_d3d11_es2",
+					"angle_gl_es2",
+					"angle_d3d11_es3"}
 				if sampleCount > 0 {
-					configs = append(configs, fmt.Sprintf("angle_gl_es2_msaa%d", sampleCount))
+					configs = append(configs, fmt.Sprintf("angle_d3d11_es2_msaa%d", sampleCount))
+					configs = append(configs, fmt.Sprintf("angle_d3d11_es2_dmsaa"))
 					configs = append(configs, fmt.Sprintf("angle_gl_es2_dmsaa"))
-					configs = append(configs, fmt.Sprintf("angle_gl_es3_msaa%d", sampleCount))
+					configs = append(configs, fmt.Sprintf("angle_d3d11_es3_msaa%d", sampleCount))
+					configs = append(configs, fmt.Sprintf("angle_d3d11_es3_dmsaa"))
 					configs = append(configs, fmt.Sprintf("angle_gl_es3_dmsaa"))
 				}
-			}
-			if !b.matchGpu("GTX", "Quadro", "GT610") {
-				// See skia:10149
-				configs = append(configs, "angle_d3d9_es2")
-			}
-			if b.model("NUC5i7RYH") {
-				// skbug.com/7376
-				skip(ALL, "test", ALL, "ProcessorCloneTest")
+				if b.matchGpu("GTX", "Quadro") {
+					// See skia:7823 and chromium:693090.
+					configs = append(configs, "angle_gl_es3")
+					if sampleCount > 0 {
+						configs = append(configs, fmt.Sprintf("angle_gl_es2_msaa%d", sampleCount))
+						configs = append(configs, fmt.Sprintf("angle_gl_es2_dmsaa"))
+						configs = append(configs, fmt.Sprintf("angle_gl_es3_msaa%d", sampleCount))
+						configs = append(configs, fmt.Sprintf("angle_gl_es3_dmsaa"))
+					}
+				}
+				if !b.matchGpu("GTX", "Quadro", "GT610") {
+					// See skia:10149
+					configs = append(configs, "angle_d3d9_es2")
+				}
+				if b.model("NUC5i7RYH") {
+					// skbug.com/7376
+					skip(ALL, "test", ALL, "ProcessorCloneTest")
+				}
+			} else if b.matchOs("Mac") {
+				configs = []string{"angle_mtl_es2", "angle_mtl_es3"}
+
+				// anglebug.com/7145
+				skip(ALL, "test", ALL, "SkSLOutParamsAreDistinctFromGlobal_GPU")
+
+				// anglebug.com/7245
+				skip("angle_mtl_es3", "gm", ALL, "runtime_intrinsics_common_es3")
+
+				if b.gpu("AppleM1") {
+					// M1 Macs fail this test for sRGB color types
+					// skbug.com/13289
+					skip(ALL, "test", ALL, "TransferPixelsToTextureTest")
+				}
+
+				if b.model("MacBookAir7.2") {
+					// This issue may be more widespread?
+					// skbug.com/13290
+					skip(ALL, "test", ALL, "SkSLMatricesNonsquare_GPU")
+					skip(ALL, "test", ALL, "SkSLMatrixScalarMath_GPU")
+				}
 			}
 		}
 
