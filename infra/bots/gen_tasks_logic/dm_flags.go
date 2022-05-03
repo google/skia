@@ -468,7 +468,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				configs = append(configs, "vk1010102")
 				// Decoding transparent images to 1010102 just looks bad
 				skip("vk1010102", "image", ALL, ALL)
-			} else {
+			} else if !b.extraConfig("Dawn") {
 				configs = append(configs, "gl1010102", "gltestpersistentcache", "gltestglslcache", "gltestprecompile")
 				// Decoding transparent images to 1010102 just looks bad
 				skip("gl1010102", "image", ALL, ALL)
