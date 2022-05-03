@@ -20,7 +20,7 @@ sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
 
-SDK_VERSION='1.2.141.0'
+SDK_VERSION='1.3.211.0'
 SDK_URL=('https://sdk.lunarg.com/sdk/download/%s/linux/'
          'vulkansdk-linux-x86_64-%s.tar.gz' % (SDK_VERSION, SDK_VERSION))
 
