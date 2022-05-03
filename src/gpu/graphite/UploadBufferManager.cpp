@@ -44,12 +44,12 @@ std::tuple<UploadWriter, BindBufferInfo> UploadBufferManager::getUploadWriter(
     fReusedBufferOffset = SkAlignTo(fReusedBufferOffset, requiredAlignment);
     if (fReusedBuffer && requiredBytes > fReusedBuffer->size() - fReusedBufferOffset) {
         fUsedBuffers.push_back(std::move(fReusedBuffer));
-        fReusedBufferOffset = 0;
     }
 
     if (!fReusedBuffer) {
         fReusedBuffer = fResourceProvider->findOrCreateBuffer(
                 kReusedBufferSize, BufferType::kXferCpuToGpu, PrioritizeGpuReads::kNo);
+        fReusedBufferOffset = 0;
         if (!fReusedBuffer) {
             return {UploadWriter(), BindBufferInfo()};
         }
