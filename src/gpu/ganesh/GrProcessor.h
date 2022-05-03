@@ -100,8 +100,6 @@ public:
         kTessellate_BoundingBoxShader_ClassID,
         kTessellate_GrModulateAtlasCoverageEffect_ClassID,
         kTessellate_GrStrokeTessellationShader_ClassID,
-        kTessellate_HardwareCurveShader_ClassID,
-        kTessellate_HardwareWedgeShader_ClassID,
         kTessellate_HullShader_ClassID,
         kTessellate_MiddleOutShader_ClassID,
         kTessellate_SimpleTriangleShader_ClassID,

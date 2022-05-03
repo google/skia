@@ -26,7 +26,9 @@ class HullShader : public GrPathTessellationShader {
 public:
     HullShader(const SkMatrix& viewMatrix, SkPMColor4f color, const GrShaderCaps& shaderCaps)
             : GrPathTessellationShader(kTessellate_HullShader_ClassID,
-                                       GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color,
+                                       GrPrimitiveType::kTriangleStrip,
+                                       viewMatrix,
+                                       color,
                                        skgpu::PatchAttribs::kNone) {
         fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, SkSLType::kFloat4);

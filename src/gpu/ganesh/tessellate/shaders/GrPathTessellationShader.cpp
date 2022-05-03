@@ -26,7 +26,9 @@ class SimpleTriangleShader : public GrPathTessellationShader {
 public:
     SimpleTriangleShader(const SkMatrix& viewMatrix, SkPMColor4f color)
             : GrPathTessellationShader(kTessellate_SimpleTriangleShader_ClassID,
-                                       GrPrimitiveType::kTriangles, 0, viewMatrix, color,
+                                       GrPrimitiveType::kTriangles,
+                                       viewMatrix,
+                                       color,
                                        PatchAttribs::kNone) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      SkSLType::kFloat2};
@@ -75,7 +77,7 @@ public:
     MiddleOutShader(const GrShaderCaps& shaderCaps, const SkMatrix& viewMatrix,
                     const SkPMColor4f& color, PatchAttribs attribs)
             : GrPathTessellationShader(kTessellate_MiddleOutShader_ClassID,
-                                       GrPrimitiveType::kTriangles, 0, viewMatrix, color, attribs) {
+                                       GrPrimitiveType::kTriangles, viewMatrix, color, attribs) {
         fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         if (fAttribs & PatchAttribs::kFanPoint) {

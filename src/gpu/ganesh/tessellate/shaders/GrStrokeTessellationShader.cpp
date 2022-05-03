@@ -97,7 +97,7 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
                                                        SkPMColor4f color,
                                                        int8_t maxParametricSegments_log2)
         : GrTessellationShader(kTessellate_GrStrokeTessellationShader_ClassID,
-                               GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color)
+                               GrPrimitiveType::kTriangleStrip, viewMatrix, color)
         , fPatchAttribs(attribs | PatchAttribs::kJoinControlPoint)
         , fStroke(stroke)
         , fMaxParametricSegments_log2(maxParametricSegments_log2) {

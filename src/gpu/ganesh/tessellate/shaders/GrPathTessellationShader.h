@@ -104,11 +104,12 @@ public:
 protected:
     constexpr static size_t kMiddleOutVertexStride = 2 * sizeof(float);
 
-    GrPathTessellationShader(ClassID classID, GrPrimitiveType primitiveType,
-                             int tessellationPatchVertexCount, const SkMatrix& viewMatrix,
-                             const SkPMColor4f& color, skgpu::PatchAttribs attribs)
-            : GrTessellationShader(classID, primitiveType, tessellationPatchVertexCount, viewMatrix,
-                                   color)
+    GrPathTessellationShader(ClassID classID,
+                             GrPrimitiveType primitiveType,
+                             const SkMatrix& viewMatrix,
+                             const SkPMColor4f& color,
+                             skgpu::PatchAttribs attribs)
+            : GrTessellationShader(classID, primitiveType, viewMatrix, color)
             , fAttribs(attribs) {
     }
 
