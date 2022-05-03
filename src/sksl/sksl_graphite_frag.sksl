@@ -73,7 +73,7 @@ half4 sk_linear_grad_4_shader(float4x4 dev2Local,
     return half4(result);
 }
 
-half4 sk_blend(int mode, half4 src, half4 dst) {
+half4 sk_blend(int blendMode, half4 src, half4 dst) {
     const int kClear      = 0;
     const int kSrc        = 1;
     const int kDst        = 2;
@@ -104,7 +104,7 @@ half4 sk_blend(int mode, half4 src, half4 dst) {
     const int kColor      = 27;
     const int kLuminosity = 28;
 
-    switch (mode) {
+    switch (blendMode) {
         case kClear:      { return blend_clear(src, dst); }
         case kSrc:        { return blend_src(src, dst); }
         case kDst:        { return blend_dst(src, dst); }
@@ -136,4 +136,8 @@ half4 sk_blend(int mode, half4 src, half4 dst) {
         case kLuminosity: { return blend_hslc(src, dst, /*flipSat=*/half2(1, 0)); }
         default: return half4(0);  // Avoids 'blend can exit without returning a value' error
     }
+}
+
+half4 sk_blend_shader(int blendMode, int pad0, int pad1, int pad2, half4 child0, half4 child1) {
+    return sk_blend(blendMode, child1, child0);
 }

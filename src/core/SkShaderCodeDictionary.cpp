@@ -286,17 +286,19 @@ namespace {
 using DataPayloadField = SkPaintParamsKey::DataPayloadField;
 
 // The default glue code just calls a helper function with the signature:
-//    half4 fStaticFunctionName(/* all uniforms as parameters */);
+//    half4 fStaticFunctionName(/* all uniforms as parameters */,
+//                              /* all child output variable names as parameters */);
 // and stores the result in a variable named "resultName".
 std::string GenerateDefaultGlueCode(const std::string& resultName,
                                     int entryIndex,
                                     const SkPaintParamsKey::BlockReader& reader,
                                     const std::string& priorStageOutputName,
-                                    const std::vector<std::string>& childNames,
+                                    const std::vector<std::string>& childOutputVarNames,
                                     int indent) {
-    SkASSERT(childNames.empty());
-
     const SkShaderSnippet* entry = reader.entry();
+
+    SkASSERT((int)childOutputVarNames.size() == entry->numExpectedChildren());
+
     if (entry->needsLocalCoords()) {
         // Every snippet that requests local coordinates must have a localMatrix as its first
         // uniform
@@ -320,7 +322,13 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
         } else {
             result += entry->getMangledUniformName(i, entryIndex);
         }
-        if (i+1 < entry->fUniforms.size()) {
+        if (i+1 < entry->fUniforms.size() + childOutputVarNames.size()) {
+            result += ", ";
+        }
+    }
+    for (size_t i = 0; i < childOutputVarNames.size(); ++i) {
+        result += childOutputVarNames[i].c_str();
+        if (i+1 < childOutputVarNames.size()) {
             result += ", ";
         }
     }
@@ -368,33 +376,6 @@ static constexpr SkUniform kLocalMatrixShaderUniforms[kNumLocalMatrixShaderUnifo
 static constexpr int kNumLocalMatrixShaderChildren = 1;
 
 static constexpr char kLocalMatrixShaderName[] = "sk_local_matrix_shader";
-
-// This exists as custom glue code to handle passing the result of the child into the
-// static function. If children were, somehow, handled in the default glue code, we could remove
-// this.
-std::string GenerateLocalMatrixShaderGlueCode(const std::string& resultName,
-                                              int entryIndex,
-                                              const SkPaintParamsKey::BlockReader& reader,
-                                              const std::string& priorStageOutputName,
-                                              const std::vector<std::string>& childOutputVarNames,
-                                              int indent) {
-    SkASSERT(childOutputVarNames.size() == kNumLocalMatrixShaderChildren);
-
-    const SkShaderSnippet* entry = reader.entry();
-
-    std::string localMatrixName = entry->getMangledUniformName(0, entryIndex);
-
-    std::string result;
-
-    add_indent(&result, indent);
-    SkSL::String::appendf(&result,
-                          "%s = %s(%s, %s);\n",
-                          resultName.c_str(),
-                          entry->fStaticFunctionName,
-                          localMatrixName.c_str(),
-                          childOutputVarNames[0].c_str());
-    return result;
-}
 
 //--------------------------------------------------------------------------------------------------
 static constexpr int kNumImageShaderUniforms = 6;
@@ -475,33 +456,7 @@ static constexpr SkUniform kBlendShaderUniforms[kNumBlendShaderUniforms] = {
 
 static constexpr int kNumBlendShaderChildren = 2;
 
-static constexpr char kBlendHelperName[] = "sk_blend";
-
-// This exists as custom glue code to handle passing the result of the children into the
-// static function. If this were, somehow, handled in the default glue code, we could remove this.
-std::string GenerateBlendShaderGlueCode(const std::string& resultName,
-                                        int entryIndex,
-                                        const SkPaintParamsKey::BlockReader& reader,
-                                        const std::string& priorStageOutputName,
-                                        const std::vector<std::string>& childNames,
-                                        int indent) {
-    SkASSERT(childNames.size() == kNumBlendShaderChildren);
-    SkASSERT(reader.entry()->fUniforms.size() == 4); // actual blend uniform + 3 padding int
-
-    std::string blendModeUniformName = reader.entry()->getMangledUniformName(0, entryIndex);
-
-    std::string result;
-
-    add_indent(&result, indent);
-    SkSL::String::appendf(&result, "%s = %s(%s, %s, %s);\n",
-                          resultName.c_str(),
-                          reader.entry()->fStaticFunctionName,
-                          blendModeUniformName.c_str(),
-                          childNames[1].c_str(),
-                          childNames[0].c_str());
-
-    return result;
-}
+static constexpr char kBlendShaderName[] = "sk_blend_shader";
 
 //--------------------------------------------------------------------------------------------------
 static constexpr char kErrorName[] = "sk_error";
@@ -539,6 +494,8 @@ static constexpr SkUniform kShaderBasedBlenderUniforms[kNumShaderBasedBlenderUni
         { "padding2",  SkSLType::kInt },
         { "padding3",  SkSLType::kInt },
 };
+
+static constexpr char kBlendHelperName[] = "sk_blend";
 
 // This method generates the glue code for the case where the SkBlendMode-based blending must occur
 // in the shader (i.e., fixed function blending isn't possible).
@@ -682,7 +639,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kLocalMatrixShaderName,
-            GenerateLocalMatrixShaderGlueCode,
+            GenerateDefaultGlueCode,
             kNumLocalMatrixShaderChildren,
             { }
     };
@@ -701,8 +658,8 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             { kBlendShaderUniforms, kNumBlendShaderUniforms },
             SnippetRequirementFlags::kNone,
             { },     // no samplers
-            kBlendHelperName,
-            GenerateBlendShaderGlueCode,
+            kBlendShaderName,
+            GenerateDefaultGlueCode,
             kNumBlendShaderChildren,
             { }
     };
