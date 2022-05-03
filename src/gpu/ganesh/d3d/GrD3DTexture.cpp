@@ -69,7 +69,8 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeNewTexture(GrD3DGpu* gpu, SkBudgeted budge
                                                  SkISize dimensions,
                                                  const D3D12_RESOURCE_DESC& desc,
                                                  GrProtected isProtected,
-                                                 GrMipmapStatus mipmapStatus) {
+                                                 GrMipmapStatus mipmapStatus,
+                                                 std::string_view label) {
     GrD3DTextureResourceInfo info;
     if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, desc,
                                                        D3D12_RESOURCE_STATE_COPY_DEST,
@@ -86,7 +87,7 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeNewTexture(GrD3DGpu* gpu, SkBudgeted budge
     GrD3DTexture* tex = new GrD3DTexture(gpu, budgeted, dimensions, info, std::move(state),
                                          shaderResourceView,
                                          mipmapStatus,
-                                         /*label=*/{});
+                                         label);
 
     return sk_sp<GrD3DTexture>(tex);
 }

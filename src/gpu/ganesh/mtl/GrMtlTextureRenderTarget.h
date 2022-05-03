@@ -19,7 +19,8 @@ public:
                                                                       int sampleCnt,
                                                                       MTLPixelFormat,
                                                                       uint32_t mipLevels,
-                                                                      GrMipmapStatus);
+                                                                      GrMipmapStatus,
+                                                                      std::string_view label);
 
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
                                                                           SkISize,

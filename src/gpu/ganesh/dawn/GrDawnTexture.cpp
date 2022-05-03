@@ -20,11 +20,15 @@ GrDawnTexture::GrDawnTexture(GrDawnGpu* gpu,
         , GrTexture(gpu, dimensions, GrProtected::kNo, GrTextureType::k2D, mipmapStatus, label)
         , fInfo(info) {}
 
-sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, SkISize dimensions,
+sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu,
+                                         SkISize dimensions,
                                          wgpu::TextureFormat format,
-                                         GrRenderable renderable, int sampleCnt,
-                                         SkBudgeted budgeted, int mipLevels,
-                                         GrMipmapStatus status) {
+                                         GrRenderable renderable,
+                                         int sampleCnt,
+                                         SkBudgeted budgeted,
+                                         int mipLevels,
+                                         GrMipmapStatus status,
+                                         std::string_view label) {
     bool renderTarget = renderable == GrRenderable::kYes;
     wgpu::TextureDescriptor textureDesc;
 
@@ -55,10 +59,10 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, SkISize dimensions,
     sk_sp<GrDawnTexture> result;
     if (renderTarget) {
         result = sk_sp<GrDawnTextureRenderTarget>(new GrDawnTextureRenderTarget(
-                gpu, dimensions, sampleCnt, info, status, /*label=*/{}));
+                gpu, dimensions, sampleCnt, info, status, label));
     } else {
         result = sk_sp<GrDawnTexture>(
-                new GrDawnTexture(gpu, dimensions, info, status, /*label=*/{}));
+                new GrDawnTexture(gpu, dimensions, info, status, label));
     }
     result->registerWithCache(budgeted);
     return result;

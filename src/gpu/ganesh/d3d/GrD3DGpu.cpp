@@ -259,7 +259,8 @@ sk_sp<GrD3DTexture> GrD3DGpu::createD3DTexture(SkISize dimensions,
                                                SkBudgeted budgeted,
                                                GrProtected isProtected,
                                                int mipLevelCount,
-                                               GrMipmapStatus mipmapStatus) {
+                                               GrMipmapStatus mipmapStatus,
+                                               std::string_view label) {
     D3D12_RESOURCE_FLAGS usageFlags = D3D12_RESOURCE_FLAG_NONE;
     if (renderable == GrRenderable::kYes) {
         usageFlags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
@@ -287,10 +288,10 @@ sk_sp<GrD3DTexture> GrD3DGpu::createD3DTexture(SkISize dimensions,
     if (renderable == GrRenderable::kYes) {
         return GrD3DTextureRenderTarget::MakeNewTextureRenderTarget(
                 this, budgeted, dimensions, renderTargetSampleCnt, resourceDesc, isProtected,
-                mipmapStatus);
+                mipmapStatus, label);
     } else {
         return GrD3DTexture::MakeNewTexture(this, budgeted, dimensions, resourceDesc, isProtected,
-                                            mipmapStatus);
+                                            mipmapStatus, label);
     }
 }
 
@@ -301,7 +302,8 @@ sk_sp<GrTexture> GrD3DGpu::onCreateTexture(SkISize dimensions,
                                            SkBudgeted budgeted,
                                            GrProtected isProtected,
                                            int mipLevelCount,
-                                           uint32_t levelClearMask) {
+                                           uint32_t levelClearMask,
+                                           std::string_view label) {
     DXGI_FORMAT dxgiFormat;
     SkAssertResult(format.asDxgiFormat(&dxgiFormat));
     SkASSERT(!GrDxgiFormatIsCompressed(dxgiFormat));
@@ -311,7 +313,7 @@ sk_sp<GrTexture> GrD3DGpu::onCreateTexture(SkISize dimensions,
 
     sk_sp<GrD3DTexture> tex = this->createD3DTexture(dimensions, dxgiFormat, renderable,
                                                      renderTargetSampleCnt, budgeted, isProtected,
-                                                     mipLevelCount, mipmapStatus);
+                                                     mipLevelCount, mipmapStatus, label);
     if (!tex) {
         return nullptr;
     }
@@ -363,9 +365,15 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
     GrMipmapStatus mipmapStatus = mipLevelCount > 1 ? GrMipmapStatus::kValid
                                                     : GrMipmapStatus::kNotAllocated;
 
-    sk_sp<GrD3DTexture> d3dTex = this->createD3DTexture(dimensions, dxgiFormat, GrRenderable::kNo,
-                                                     1, budgeted, isProtected,
-                                                     mipLevelCount, mipmapStatus);
+    sk_sp<GrD3DTexture> d3dTex = this->createD3DTexture(dimensions,
+                                                        dxgiFormat,
+                                                        GrRenderable::kNo,
+                                                        1,
+                                                        budgeted,
+                                                        isProtected,
+                                                        mipLevelCount,
+                                                        mipmapStatus,
+                                                        /*label=*/{});
     if (!d3dTex) {
         return nullptr;
     }
@@ -1089,8 +1097,13 @@ bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
         }
         // TODO: make this a scratch texture
         GrProtected grProtected = tex->isProtected() ? GrProtected::kYes : GrProtected::kNo;
-        uavTexture = GrD3DTexture::MakeNewTexture(this, SkBudgeted::kNo, tex->dimensions(),
-                                                  uavDesc, grProtected, GrMipmapStatus::kDirty);
+        uavTexture = GrD3DTexture::MakeNewTexture(this,
+                                                  SkBudgeted::kNo,
+                                                  tex->dimensions(),
+                                                  uavDesc,
+                                                  grProtected,
+                                                  GrMipmapStatus::kDirty,
+                                                  /*label=*/{});
         if (!uavTexture) {
             return false;
         }

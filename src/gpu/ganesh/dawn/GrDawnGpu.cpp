@@ -235,7 +235,8 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(SkISize dimensions,
                                             SkBudgeted budgeted,
                                             GrProtected,
                                             int mipLevelCount,
-                                            uint32_t levelClearMask) {
+                                            uint32_t levelClearMask,
+                                            std::string_view label) {
     if (levelClearMask) {
         return nullptr;
     }
@@ -249,7 +250,7 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(SkISize dimensions,
         mipLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
 
     return GrDawnTexture::Make(this, dimensions, format, renderable, renderTargetSampleCnt,
-                               budgeted, mipLevelCount, mipmapStatus);
+                               budgeted, mipLevelCount, mipmapStatus, label);
 }
 
 sk_sp<GrTexture> GrDawnGpu::onCreateCompressedTexture(SkISize dimensions, const GrBackendFormat&,

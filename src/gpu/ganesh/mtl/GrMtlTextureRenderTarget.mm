@@ -74,7 +74,8 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
         int sampleCnt,
         MTLPixelFormat format,
         uint32_t mipLevels,
-        GrMipmapStatus mipmapStatus) {
+        GrMipmapStatus mipmapStatus,
+        std::string_view label) {
     sk_sp<GrMtlAttachment> textureAttachment =
             GrMtlAttachment::MakeTexture(gpu, dimensions, format, mipLevels, GrRenderable::kYes,
                                          /*numSamples=*/1, budgeted);
@@ -97,7 +98,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
 
     return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
             gpu, budgeted, dimensions, std::move(textureAttachment), std::move(colorAttachment),
-            std::move(resolveAttachment), mipmapStatus, /*label=*/{}));
+            std::move(resolveAttachment), mipmapStatus, label));
 }
 
 sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(

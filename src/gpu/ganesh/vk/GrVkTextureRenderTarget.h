@@ -34,7 +34,8 @@ public:
             uint32_t mipLevels,
             int sampleCnt,
             GrMipmapStatus mipmapStatus,
-            GrProtected isProtected);
+            GrProtected isProtected,
+            std::string_view label);
 
     static sk_sp<GrVkTextureRenderTarget> MakeWrappedTextureRenderTarget(
             GrVkGpu*,

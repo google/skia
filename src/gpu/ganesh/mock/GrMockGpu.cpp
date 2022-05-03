@@ -98,7 +98,8 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(SkISize dimensions,
                                             SkBudgeted budgeted,
                                             GrProtected isProtected,
                                             int mipLevelCount,
-                                            uint32_t levelClearMask) {
+                                            uint32_t levelClearMask,
+                                            std::string_view label) {
     if (fMockOptions.fFailTextureAllocations) {
         return nullptr;
     }
@@ -119,10 +120,10 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(SkISize dimensions,
                                                               mipmapStatus,
                                                               texInfo,
                                                               rtInfo,
-                                                              /*label=*/{}));
+                                                              label));
     }
     return sk_sp<GrTexture>(new GrMockTexture(
-            this, budgeted, dimensions, isProtected, mipmapStatus, texInfo, /*label=*/{}));
+            this, budgeted, dimensions, isProtected, mipmapStatus, texInfo, label));
 }
 
 // TODO: why no 'isProtected' ?!

@@ -109,7 +109,8 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
         int sampleCnt,
         const D3D12_RESOURCE_DESC& resourceDesc,
         GrProtected isProtected,
-        GrMipmapStatus mipmapStatus) {
+        GrMipmapStatus mipmapStatus,
+        std::string_view label) {
 
     GrD3DTextureResourceInfo info;
     D3D12_RESOURCE_STATES initialState = sampleCnt > 1 ? D3D12_RESOURCE_STATE_RESOLVE_DEST
@@ -157,7 +158,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
                                                                      msaaRenderTargetView,
                                                                      renderTargetView,
                                                                      mipmapStatus,
-                                                                     /*label=*/{});
+                                                                     label);
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(gpu,
@@ -168,7 +169,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
                                                                      shaderResourceView,
                                                                      renderTargetView,
                                                                      mipmapStatus,
-                                                                     /*label=*/{});
+                                                                     label);
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     }
 }

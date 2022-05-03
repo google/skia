@@ -1042,7 +1042,8 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
                                           SkBudgeted budgeted,
                                           GrProtected isProtected,
                                           int mipLevelCount,
-                                          uint32_t levelClearMask) {
+                                          uint32_t levelClearMask,
+                                          std::string_view label) {
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
     SkASSERT(!GrVkFormatIsCompressed(pixelFormat));
@@ -1055,10 +1056,10 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
     if (renderable == GrRenderable::kYes) {
         tex = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
                 this, budgeted, dimensions, pixelFormat, mipLevelCount, renderTargetSampleCnt,
-                mipmapStatus, isProtected);
+                mipmapStatus, isProtected, label);
     } else {
         tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, pixelFormat,
-                                          mipLevelCount, isProtected, mipmapStatus);
+                                          mipLevelCount, isProtected, mipmapStatus, label);
     }
 
     if (!tex) {
@@ -1117,8 +1118,14 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
     GrMipmapStatus mipmapStatus = (mipmapped == GrMipmapped::kYes) ? GrMipmapStatus::kValid
                                                                    : GrMipmapStatus::kNotAllocated;
 
-    auto tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, pixelFormat,
-                                           numMipLevels, isProtected, mipmapStatus);
+    auto tex = GrVkTexture::MakeNewTexture(this,
+                                           budgeted,
+                                           dimensions,
+                                           pixelFormat,
+                                           numMipLevels,
+                                           isProtected,
+                                           mipmapStatus,
+                                           /*label=*/{});
     if (!tex) {
         return nullptr;
     }

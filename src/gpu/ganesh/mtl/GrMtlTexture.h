@@ -21,7 +21,8 @@ public:
                                               SkISize dimensions,
                                               MTLPixelFormat format,
                                               uint32_t mipLevels,
-                                              GrMipmapStatus);
+                                              GrMipmapStatus,
+                                              std::string_view label);
 
     static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*,
                                                   SkISize,

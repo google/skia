@@ -103,7 +103,8 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(SkISize dimensions,
                                             SkBudgeted budgeted,
                                             GrProtected isProtected,
                                             int mipLevelCount,
-                                            uint32_t levelClearMask) {
+                                            uint32_t levelClearMask,
+                                            std::string_view label) {
     if (this->caps()->isFormatCompressed(format)) {
         // Call GrGpu::createCompressedTexture.
         return nullptr;
@@ -133,7 +134,8 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(SkISize dimensions,
                                      budgeted,
                                      isProtected,
                                      mipLevelCount,
-                                     levelClearMask);
+                                     levelClearMask,
+                                     label);
     if (tex) {
         SkASSERT(tex->backendFormat() == format);
         SkASSERT(GrRenderable::kNo == renderable || tex->asRenderTarget());
@@ -173,15 +175,10 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
                                          budgeted,
                                          isProtected,
                                          mipLevelCount,
-                                         levelClearMask);
+                                         levelClearMask,
+                                         label);
     if (tex && mipmapped == GrMipmapped::kYes && levelClearMask) {
         tex->markMipmapsClean();
-    }
-
-    // TODO: plumb label through createTextureCommon to be finally passed to various Gr*Texture
-    // constructors.
-    if (tex) {
-        tex->setLabel(label);
     }
 
     return tex;
@@ -229,7 +226,8 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
                                          budgeted,
                                          isProtected,
                                          texelLevelCount,
-                                         levelClearMask);
+                                         levelClearMask,
+                                         label);
     if (tex) {
         bool markMipLevelsClean = false;
         // Currently if level 0 does not have pixels then no other level may, as enforced by
@@ -253,9 +251,6 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
         if (markMipLevelsClean) {
             tex->markMipmapsClean();
         }
-        // TODO: plumb label through createTextureCommon to be finally passed to various Gr*Texture
-        // constructors.
-        tex->setLabel(label);
     }
     return tex;
 }

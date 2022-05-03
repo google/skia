@@ -82,7 +82,8 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu,
                                                  SkISize dimensions,
                                                  MTLPixelFormat format,
                                                  uint32_t mipLevels,
-                                                 GrMipmapStatus mipmapStatus) {
+                                                 GrMipmapStatus mipmapStatus,
+                                                 std::string_view label) {
     sk_sp<GrMtlAttachment> texture = GrMtlAttachment::MakeTexture(
             gpu, dimensions, format, mipLevels, GrRenderable::kNo, /*numSamples=*/1, budgeted);
 
@@ -90,7 +91,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu,
         return nullptr;
     }
     return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, dimensions, std::move(texture),
-                                                mipmapStatus, /*label=*/{}));
+                                                mipmapStatus, label));
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,

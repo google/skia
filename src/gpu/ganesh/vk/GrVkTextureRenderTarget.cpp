@@ -87,7 +87,8 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeNewTextureRenderTarg
         uint32_t mipLevels,
         int sampleCnt,
         GrMipmapStatus mipmapStatus,
-        GrProtected isProtected) {
+        GrProtected isProtected,
+        std::string_view label) {
     sk_sp<GrVkImage> texture = GrVkImage::MakeTexture(gpu,
                                                       dimensions,
                                                       format,
@@ -115,7 +116,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeNewTextureRenderTarg
                                                                       std::move(colorAttachment),
                                                                       std::move(resolveAttachment),
                                                                       mipmapStatus,
-                                                                      /*label=*/{}));
+                                                                      label));
 }
 
 sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(

@@ -250,7 +250,8 @@ private:
                                      SkBudgeted,
                                      GrProtected,
                                      int mipLevelCount,
-                                     uint32_t levelClearMask) override;
+                                     uint32_t levelClearMask,
+                                     std::string_view label) override;
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
                                                SkBudgeted,

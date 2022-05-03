@@ -106,7 +106,8 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
                                                SkISize dimensions,
                                                VkFormat format, uint32_t mipLevels,
                                                GrProtected isProtected,
-                                               GrMipmapStatus mipmapStatus) {
+                                               GrMipmapStatus mipmapStatus,
+                                               std::string_view label) {
     sk_sp<GrVkImage> texture = GrVkImage::MakeTexture(
             gpu, dimensions, format, mipLevels, GrRenderable::kNo, /*numSamples=*/1, budgeted,
             isProtected);
@@ -115,7 +116,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
         return nullptr;
     }
     return sk_sp<GrVkTexture>(new GrVkTexture(
-            gpu, budgeted, dimensions, std::move(texture), mipmapStatus, /*label=*/{}));
+            gpu, budgeted, dimensions, std::move(texture), mipmapStatus, label));
 }
 
 sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(

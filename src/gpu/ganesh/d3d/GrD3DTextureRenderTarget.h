@@ -30,7 +30,8 @@ public:
                                                                       int sampleCnt,
                                                                       const D3D12_RESOURCE_DESC&,
                                                                       GrProtected isProtected,
-                                                                      GrMipmapStatus);
+                                                                      GrMipmapStatus,
+                                                                      std::string_view label);
 
     static sk_sp<GrD3DTextureRenderTarget> MakeWrappedTextureRenderTarget(
             GrD3DGpu*, SkISize dimensions, int sampleCnt, GrWrapCacheable,
