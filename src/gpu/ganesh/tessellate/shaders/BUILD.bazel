@@ -33,32 +33,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "GrStrokeTessellationShader_HardwareImpl_src",
-    srcs = ["GrStrokeTessellationShader_HardwareImpl.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrStrokeTessellationShader_hdr",
-        "//src/gpu/ganesh/glsl:GrGLSLFragmentShaderBuilder_hdr",
-        "//src/gpu/ganesh/glsl:GrGLSLVarying_hdr",
-        "//src/gpu/ganesh/glsl:GrGLSLVertexGeoBuilder_hdr",
-        "//src/gpu/tessellate:WangsFormula_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrStrokeTessellationShader_InstancedImpl_src",
-    srcs = ["GrStrokeTessellationShader_InstancedImpl.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrStrokeTessellationShader_hdr",
-        "//src/gpu/ganesh/glsl:GrGLSLFragmentShaderBuilder_hdr",
-        "//src/gpu/ganesh/glsl:GrGLSLVertexGeoBuilder_hdr",
-        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
-        "//src/gpu/tessellate:WangsFormula_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "GrStrokeTessellationShader_hdr",
     hdrs = ["GrStrokeTessellationShader.h"],
     visibility = ["//:__subpackages__"],
@@ -81,6 +55,8 @@ generated_cc_atom(
         "//src/gpu/ganesh/glsl:GrGLSLFragmentShaderBuilder_hdr",
         "//src/gpu/ganesh/glsl:GrGLSLVarying_hdr",
         "//src/gpu/ganesh/glsl:GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
+        "//src/gpu/tessellate:WangsFormula_hdr",
     ],
 )
 

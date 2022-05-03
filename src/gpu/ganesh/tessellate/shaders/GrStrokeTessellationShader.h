@@ -26,18 +26,11 @@ class GrStrokeTessellationShader : public GrTessellationShader {
     using PatchAttribs = skgpu::PatchAttribs;
 
 public:
-    // Are we using hardware tessellation or indirect draws?
-    enum class Mode : int8_t {
-        kHardwareTessellation,
-        kLog2Indirect,
-        kFixedCount
-    };
 
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellationShader(const GrShaderCaps&, Mode, PatchAttribs, const SkMatrix& viewMatrix,
+    GrStrokeTessellationShader(const GrShaderCaps&, PatchAttribs, const SkMatrix& viewMatrix,
                                const SkStrokeRec&, SkPMColor4f, int8_t maxParametricSegments_log2);
 
-    Mode mode() const { return fMode; }
     PatchAttribs attribs() const { return fPatchAttribs; }
     bool hasDynamicStroke() const { return fPatchAttribs & PatchAttribs::kStrokeParams; }
     bool hasDynamicColor() const { return fPatchAttribs & PatchAttribs::kColor; }
@@ -46,20 +39,10 @@ public:
     int8_t maxParametricSegments_log2() const { return fMaxParametricSegments_log2; }
 
 private:
-    const char* name() const override {
-        switch (fMode) {
-            case Mode::kHardwareTessellation:
-                return "GrStrokeTessellationShader_HardwareImpl";
-            case Mode::kLog2Indirect:
-            case Mode::kFixedCount:
-                return "GrStrokeTessellationShader_InstancedImpl";
-        }
-        SkUNREACHABLE;
-    }
+    const char* name() const override { return "GrStrokeTessellationShader"; }
     void addToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override;
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
-    const Mode fMode;
     const PatchAttribs fPatchAttribs;
     const SkStrokeRec fStroke;
     const int8_t fMaxParametricSegments_log2;
@@ -68,100 +51,6 @@ private:
     SkSTArray<kMaxAttribCount, Attribute> fAttribs;
 
     class Impl;
-    class HardwareImpl;
-    class InstancedImpl;
-};
-
-// This common base class emits shader code for our parametric/radial stroke tessellation algorithm
-// described above. The subclass emits its own specific setup code before calling into
-// emitTessellationCode and emitFragment code.
-class GrStrokeTessellationShader::Impl : public ProgramImpl {
-protected:
-    // float2 robust_normalize_diff(float2 a, float b) { ... }
-    //
-    // Returns the normalized difference between a and b, i.e. normalize(a - b), with care taken for
-    // if b and/or a have large coordinates.
-    static const char* kRobustNormalizeDiffFn;
-
-    // float cosine_between_unit_vectors(float2 a, float2 b) { ...
-    //
-    // Returns the cosine of the angle between a and b, assuming a and b are unit vectors already.
-    // Guaranteed to be between [-1, 1].
-    static const char* kCosineBetweenUnitVectorsFn;
-
-    // float miter_extent(float cosTheta, float miterLimit) { ...
-    //
-    // Extends the middle radius to either the miter point, or the bevel edge if we surpassed the
-    // miter limit and need to revert to a bevel join.
-    static const char* kMiterExtentFn;
-
-    // float num_radial_segments_per_radian(float maxScale, float strokeRadius) { ...
-    //
-    // Returns the number of radial segments required for each radian of rotation, in order for the
-    // curve to appear "smooth" as defined by the max scale factor.
-    static const char* kNumRadialSegmentsPerRadianFn;
-
-    // float<N> unchecked_mix(float<N> a, float<N> b, float<N> T) { ...
-    //
-    // Unlike mix(), this does not return b when t==1. But it otherwise seems to get better
-    // precision than "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
-    // We override this result anyway when t==1 so it shouldn't be a problem.
-    static const char* kUncheckedMixFn;
-
-    // Emits code that calculates the vertex position and any other inputs to the fragment shader.
-    // The subclass is responsible to define the following symbols before calling this method:
-    //
-    //     // Functions.
-    //     float2 unchecked_mix(float2, float2, float);
-    //     float unchecked_mix(float, float, float);
-    //
-    //     // Values provided by either uniforms or attribs.
-    //     float2 p0, p1, p2, p3;
-    //     float w;
-    //     float STROKE_RADIUS;
-    //     float 2x2 AFFINE_MATRIX;
-    //     float2 TRANSLATE;
-    //
-    //     // Values calculated by the specific subclass.
-    //     float combinedEdgeID;
-    //     bool isFinalEdge;
-    //     float numParametricSegments;
-    //     float radsPerSegment;
-    //     float2 tan0;
-    //     float2 tan1;
-    //     float strokeOutset;
-    //
-    void emitTessellationCode(const GrStrokeTessellationShader& shader, SkString* code,
-                              GrGPArgs* gpArgs, const GrShaderCaps& shaderCaps) const;
-
-    // Emits all necessary fragment code. If using dynamic color, the impl is responsible to set up
-    // a half4 varying for color and provide its name in 'fDynamicColorName'.
-    void emitFragmentCode(const GrStrokeTessellationShader&, const EmitArgs&);
-
-    void setData(const GrGLSLProgramDataManager& pdman, const GrShaderCaps&,
-                 const GrGeometryProcessor&) final;
-
-    GrGLSLUniformHandler::UniformHandle fTessControlArgsUniform;
-    GrGLSLUniformHandler::UniformHandle fTranslateUniform;
-    GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
-    GrGLSLUniformHandler::UniformHandle fColorUniform;
-    SkString fDynamicColorName;
-};
-
-class GrStrokeTessellationShader::InstancedImpl : public GrStrokeTessellationShader::Impl {
-    void onEmitCode(EmitArgs&, GrGPArgs*) override;
-};
-
-class GrStrokeTessellationShader::HardwareImpl : public GrStrokeTessellationShader::Impl {
-    void onEmitCode(EmitArgs&, GrGPArgs*) override;
-    SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
-                                      const char* versionAndExtensionDecls,
-                                      const GrGLSLUniformHandler&,
-                                      const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const GrGeometryProcessor&,
-                                         const char* versionAndExtensionDecls,
-                                         const GrGLSLUniformHandler&,
-                                         const GrShaderCaps&) const override;
 };
 
 #endif

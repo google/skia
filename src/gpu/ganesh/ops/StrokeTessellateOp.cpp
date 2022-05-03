@@ -166,14 +166,9 @@ void StrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs
     auto* pipeline = GrTessellationShader::MakePipeline(args, fAAType, std::move(clip),
                                                         std::move(fProcessors));
 
-    GrStrokeTessellationShader::Mode shaderMode;
-
     fTessellator = arena->make<StrokeTessellator>(fPatchAttribs);
-    shaderMode = GrStrokeTessellationShader::Mode::kFixedCount;
-
     fTessellationShader = args.fArena->make<GrStrokeTessellationShader>(
             *caps.shaderCaps(),
-            shaderMode,
             fPatchAttribs,
             fViewMatrix,
             this->headStroke(),
