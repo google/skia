@@ -230,6 +230,10 @@ def compile_fn(api, checkout_root, out_dir):
         str(skia_dir.join('third_party', 'externals')), '%%(PYTHONPATH)s'])
   if 'ANGLE' in extra_tokens:
     args['skia_use_angle'] = 'true'
+    # ANGLE runs against GLES:
+    args.update({
+      'skia_gl_standard': '""',
+    })
   if 'SwiftShader' in extra_tokens:
     swiftshader_root = skia_dir.join('third_party', 'externals', 'swiftshader')
     swiftshader_out = out_dir.join('swiftshader_out')

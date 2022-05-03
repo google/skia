@@ -100,6 +100,7 @@
   {"name": "Build-Debian11-Clang-x86_64-Release"},
   {"name": "Build-Debian11-Clang-x86_64-Release-ASAN"},
   {"name": "Build-Mac-Clang-arm64-Debug"},
+  {"name": "Build-Mac-Clang-arm64-Debug-ANGLE"},
   {"name": "Build-Mac-Clang-arm64-Debug-Android"},
   {"name": "Build-Mac-Clang-arm64-Debug-Metal"},
   {"name": "Build-Mac-Clang-arm64-Debug-Slug"},
@@ -108,6 +109,7 @@
   {"name": "Build-Mac-Xcode11.4.1-arm64-Debug-iOS_Metal"},
   {"name": "Build-Mac-Xcode11.4.1-arm64-Debug-iOS"},
   {"name": "Build-Mac-Clang-arm64-Release"},
+  {"name": "Build-Mac-Clang-arm64-Release-ANGLE"},
   {"name": "Build-Mac-Clang-arm64-Release-Metal"},
   {"name": "Build-Mac-Clang-arm64-Release-iOS"},
   {"name": "Build-Mac-Clang-arm64-Release-iOS_Metal"},
@@ -115,6 +117,7 @@
   {"name": "Build-Mac-Xcode11.4.1-arm64-Release-iOS"},
   {"name": "Build-Mac-Clang-x64-Release-iOS"},
   {"name": "Build-Mac-Clang-x86_64-Debug"},
+  {"name": "Build-Mac-Clang-x86_64-Debug-ANGLE"},
   {"name": "Build-Mac-Clang-x86_64-Debug-ASAN"},
   {"name": "Build-Mac-Clang-x86_64-Debug-ASAN_Metal"},
   {"name": "Build-Mac-Clang-x86_64-Debug-CommandBuffer"},
@@ -125,6 +128,7 @@
   {"name": "Build-Mac-Clang-x86_64-Release",
    "cq_config": {}
    },
+  {"name": "Build-Mac-Clang-x86_64-Release-ANGLE"},
   {"name": "Build-Mac-Clang-x86_64-Release-CommandBuffer"},
   {"name": "Build-Mac-Clang-x86_64-Release-Graphite",
    "cq_config": {"location_regexes": ["experimental/graphite/.*"]}
