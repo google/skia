@@ -172,7 +172,6 @@ skia_core_sources = [
   "$_src/core/SkCubicMap.cpp",
   "$_src/core/SkCubicSolver.h",
   "$_src/core/SkCustomMesh.cpp",
-  "$_src/core/SkCustomMeshPriv.cpp",
   "$_src/core/SkCustomMeshPriv.h",
   "$_src/core/SkData.cpp",
   "$_src/core/SkDataTable.cpp",

@@ -882,12 +882,12 @@ void Device::drawVertices(const SkVertices* vertices,
                                       skipColorXform);
 }
 
-void Device::drawCustomMesh(SkCustomMesh customMesh,
+void Device::drawCustomMesh(const SkCustomMesh& customMesh,
                             sk_sp<SkBlender> blender,
                             const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawCustomMesh", fContext.get());
-    SkASSERT(customMesh.vb);
+    SkASSERT(customMesh.isValid());
 
     GrPaint grPaint;
     if (!init_vertices_paint(fContext.get(),
@@ -895,14 +895,14 @@ void Device::drawCustomMesh(SkCustomMesh customMesh,
                              paint,
                              this->asMatrixProvider(),
                              std::move(blender),
-                             SkCustomMeshSpecificationPriv::HasColors(*customMesh.spec),
+                             SkCustomMeshSpecificationPriv::HasColors(*customMesh.spec()),
                              &grPaint)) {
         return;
     }
     fSurfaceDrawContext->drawCustomMesh(this->clip(),
                                         std::move(grPaint),
                                         this->asMatrixProvider(),
-                                        std::move(customMesh));
+                                        customMesh);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

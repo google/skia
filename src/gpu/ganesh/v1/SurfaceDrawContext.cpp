@@ -923,7 +923,7 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
 void SurfaceDrawContext::drawCustomMesh(const GrClip* clip,
                                         GrPaint&& paint,
                                         const SkMatrixProvider& matrixProvider,
-                                        SkCustomMesh cm) {
+                                        const SkCustomMesh& cm) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -931,10 +931,10 @@ void SurfaceDrawContext::drawCustomMesh(const GrClip* clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    SkASSERT(SkValidateCustomMesh(cm));
+    SkASSERT(cm.isValid());
 
-    auto xform = GrColorSpaceXform::Make(SkCustomMeshSpecificationPriv::ColorSpace(*cm.spec),
-                                         SkCustomMeshSpecificationPriv::AlphaType(*cm.spec),
+    auto xform = GrColorSpaceXform::Make(SkCustomMeshSpecificationPriv::ColorSpace(*cm.spec()),
+                                         SkCustomMeshSpecificationPriv::AlphaType(*cm.spec()),
                                          this->colorInfo().colorSpace(),
                                          this->colorInfo().alphaType());
     GrAAType aaType = fCanUseDynamicMSAA ? GrAAType::kMSAA : this->chooseAAType(GrAA::kNo);

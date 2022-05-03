@@ -58,13 +58,13 @@
 #include <memory>
 #include <utility>
 
+#if SK_SUPPORT_GPU
+class SkCustomMesh;
+#endif
 class SkBlender;
 class SkVertices;
 struct SkSamplingOptions;
 
-#ifdef SK_ENABLE_SKSL
-#include "include/core/SkCustomMesh.h"
-#endif
 #ifdef SK_CODEC_DECODES_JPEG
 #include "src/codec/SkJpegCodec.h"
 #endif
@@ -1141,7 +1141,7 @@ void SkSVGDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPain
 }
 
 #ifdef SK_ENABLE_SKSL
-void SkSVGDevice::drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) {
+void SkSVGDevice::drawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&) {
     // todo
 }
 #endif

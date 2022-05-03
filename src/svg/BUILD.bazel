@@ -46,7 +46,6 @@ generated_cc_atom(
         "//include/core:SkClipOp_hdr",
         "//include/core:SkColorFilter_hdr",
         "//include/core:SkColor_hdr",
-        "//include/core:SkCustomMesh_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkEncodedImageFormat_hdr",
         "//include/core:SkFontStyle_hdr",

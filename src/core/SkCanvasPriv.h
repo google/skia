@@ -94,7 +94,7 @@ public:
     }
 
     static void DrawCustomMesh(SkCanvas*,
-                               SkCustomMesh cm,
+                               const SkCustomMesh& cm,
                                sk_sp<SkBlender> blender,
                                const SkPaint& paint);
 };

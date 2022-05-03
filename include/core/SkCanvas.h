@@ -59,7 +59,7 @@ class SkPixmap;
 class SkRegion;
 class SkRRect;
 struct SkRSXform;
-struct SkCustomMesh;
+class SkCustomMesh;
 class SkSpecialImage;
 class SkSurface;
 class SkSurface_Base;
@@ -1976,7 +1976,7 @@ public:
                          SkBlendMode::kModulate if nullptr.
         @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
     */
-    void drawCustomMesh(SkCustomMesh cm, sk_sp<SkBlender> blender, const SkPaint& paint);
+    void drawCustomMesh(const SkCustomMesh& cm, sk_sp<SkBlender> blender, const SkPaint& paint);
 #endif
 
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
@@ -2200,7 +2200,7 @@ protected:
 
 #ifndef SK_ENABLE_EXPERIMENTAL_CUSTOM_MESH
     // Define this in protected so we can still access internally for testing.
-    void drawCustomMesh(SkCustomMesh cm, sk_sp<SkBlender> blender, const SkPaint& paint);
+    void drawCustomMesh(const SkCustomMesh& cm, sk_sp<SkBlender> blender, const SkPaint& paint);
 #endif
 
     // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
@@ -2244,7 +2244,7 @@ protected:
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                       const SkPaint& paint);
 #ifdef SK_ENABLE_SKSL
-    virtual void onDrawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&);
+    virtual void onDrawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&);
 #endif
     virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value);
     virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&);

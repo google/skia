@@ -376,18 +376,16 @@ public:
                       bool skipColorXform = false);
 
     /**
-     * Draws vertices with a paint.
+     * Draws a custom mesh with a paint.
      *
      * @param   paint            describes how to color pixels.
-     * @param   viewMatrix       transformation matrix
-     * @param   vertices         specifies the mesh to draw.
-     * @param   overridePrimType primitive type to draw. If NULL, derive prim type from vertices.
-     * @param   effect           runtime effect that will handle custom vertex attributes.
+     * @param   matrixProvider   provides the transformation matrix
+     * @param   cm               the custom mesh to draw.
      */
     void drawCustomMesh(const GrClip*,
                         GrPaint&& paint,
                         const SkMatrixProvider& matrixProvider,
-                        SkCustomMesh);
+                        const SkCustomMesh& cm);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the

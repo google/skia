@@ -419,7 +419,6 @@ BASE_SRCS_ALL = [
     "src/core/SkCubicMap.cpp",
     "src/core/SkCubicSolver.h",
     "src/core/SkCustomMesh.cpp",
-    "src/core/SkCustomMeshPriv.cpp",
     "src/core/SkCustomMeshPriv.h",
     "src/core/SkData.cpp",
     "src/core/SkDataTable.cpp",

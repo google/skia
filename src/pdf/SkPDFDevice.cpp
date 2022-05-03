@@ -973,7 +973,7 @@ void SkPDFDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPain
     // TODO: implement drawVertices
 }
 
-void SkPDFDevice::drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) {
+void SkPDFDevice::drawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&) {
     if (this->hasEmptyClip()) {
         return;
     }

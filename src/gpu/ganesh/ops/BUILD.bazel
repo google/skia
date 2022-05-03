@@ -1309,7 +1309,6 @@ generated_cc_atom(
     deps = [
         ":GrOp_hdr",
         "//include/core:SkCanvas_hdr",
-        "//include/core:SkCustomMesh_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/private/gpu/ganesh:GrTypesPriv_hdr",
     ],
@@ -1323,6 +1322,7 @@ generated_cc_atom(
         ":DrawCustomMeshOp_hdr",
         ":GrSimpleMeshDrawOpHelper_hdr",
         "//include/core:SkCustomMesh_hdr",
+        "//include/core:SkData_hdr",
         "//src/core:SkArenaAlloc_hdr",
         "//src/core:SkCustomMeshPriv_hdr",
         "//src/core:SkVerticesPriv_hdr",

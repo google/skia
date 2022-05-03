@@ -1146,7 +1146,7 @@ void SkXPSDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPain
     //TODO
 }
 
-void SkXPSDevice::drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) {
+void SkXPSDevice::drawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&) {
     // TODO
 }
 

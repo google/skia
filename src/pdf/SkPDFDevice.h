@@ -89,7 +89,7 @@ public:
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint) override;
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
-    void drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) override;
+    void drawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&) override;
 
     // PDF specific methods.
     void drawSprite(const SkBitmap& bitmap, int x, int y,

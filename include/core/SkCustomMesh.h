@@ -20,7 +20,9 @@
 #include <memory>
 #include <vector>
 
+class GrDirectContext;
 class SkColorSpace;
+class SkData;
 
 namespace SkSL { struct Program; }
 
@@ -182,32 +184,111 @@ private:
 };
 
 /**
- * This is a placeholder object. We will want something that allows the client to incrementally
- * update the mesh that can be synchronized with the GPU backend without requiring extra copies.
+ * A vertex buffer, a topology, optionally an index buffer, and a compatible
+ * SkCustomMeshSpecification.
  *
- * A buffer of vertices, a topology, optionally indices, and a compatible SkCustomMeshSpecification.
- * The data in 'vb' is expected to contain the attributes described in 'spec' for 'vcount' vertices.
- * The size of the buffer must be at least spec->stride()*vcount (even if vertex attributes contains
- * pad at the end of the stride). If 'bounds' does not contain all points output by 'spec''s vertex
- * program when applied to the vertices in 'vb' a draw of the custom mesh produces undefined
- * results.
+ * The data in the vertex buffer is expected to contain the attributes described by the spec
+ * for vertexCount vertices beginning at vertexOffset. vertexOffset must be aligned to the
+ * SkCustomMeshSpecification's vertex stride. The size of the buffer must be at least vertexOffset +
+ * spec->stride()*vertexCount (even if vertex attributes contains pad at the end of the stride). If
+ * the specified bounds does not contain all the points output by the spec's vertex program when
+ * applied to the vertices in the custom mesh then the result is undefined.
  *
- * If indices is null then then 'icount' must be <= 0. 'vcount' vertices will be selected from 'vb'
- * to create the topology indicated by 'mode'.
+ * MakeIndexed may be used to create an indexed mesh. indexCount indices are read from the index
+ * buffer at the specified offset which must be aligned to 2. The indices are always unsigned 16bit
+ * integers. The index count must be at least 3.
  *
- * If indices is not null then icount must be >= 3. 'vb' will be indexed by 'icount' successive
- * values in 'indices' to create the topology indicated by 'mode'. The values in 'indices' must be
- * less than 'vcount'
+ * If Make() is used the implicit index sequence is 0, 1, 2, 3, ... and vertexCount must be at least
+ * 3.
  */
-struct SkCustomMesh {
+class SkCustomMesh {
+public:
+    class IndexBuffer  : public SkRefCnt {};
+    class VertexBuffer : public SkRefCnt {};
+
+    SkCustomMesh();
+    ~SkCustomMesh();
+
+    SkCustomMesh(const SkCustomMesh&);
+    SkCustomMesh(SkCustomMesh&&);
+
+    SkCustomMesh& operator=(const SkCustomMesh&);
+    SkCustomMesh& operator=(SkCustomMesh&&);
+
+    /**
+     * Makes an index buffer to be used with SkCustomMeshes. The SkData is used to determine the
+     * size and contents of the buffer.
+     *
+     * @param  GrDirectContext*   currently ignored. May be nullptr.
+     * @param  sk_sp<SkData>      required. The data used to populate the buffer.
+     */
+    static sk_sp<IndexBuffer> MakeIndexBuffer(GrDirectContext*, sk_sp<const SkData>);
+
+    /**
+     * Makes a vertex buffer to be used with SkCustomMeshes. The SkData is used to determine the
+     * size and contents of the buffer.
+     *
+     * @param  GrDirectContext*   currently ignored. May be nullptr.
+     * @param  sk_sp<SkData>      required. The data used to populate the buffer.
+     */
+    static sk_sp<VertexBuffer> MakeVertexBuffer(GrDirectContext*, sk_sp<const SkData>);
+
     enum class Mode { kTriangles, kTriangleStrip };
-    sk_sp<SkCustomMeshSpecification>  spec;
-    Mode                              mode     = Mode::kTriangles;
-    SkRect                            bounds   = SkRect::MakeEmpty();
-    const void*                       vb       = nullptr;
-    int                               vcount   = 0;
-    const uint16_t*                   indices  = nullptr;
-    int                               icount   = 0;
+
+    static SkCustomMesh Make(sk_sp<SkCustomMeshSpecification>,
+                             Mode,
+                             sk_sp<VertexBuffer>,
+                             size_t vertexCount,
+                             size_t vertexOffset,
+                             const SkRect& bounds);
+
+    static SkCustomMesh MakeIndexed(sk_sp<SkCustomMeshSpecification>,
+                                    Mode,
+                                    sk_sp<VertexBuffer>,
+                                    size_t vertexCount,
+                                    size_t vertexOffset,
+                                    sk_sp<IndexBuffer>,
+                                    size_t indexCount,
+                                    size_t indexOffset,
+                                    const SkRect& bounds);
+
+    sk_sp<SkCustomMeshSpecification> spec() const { return fSpec; }
+
+    Mode mode() const { return fMode; }
+
+    sk_sp<VertexBuffer> vertexBuffer() const { return fVB; }
+
+    size_t vertexOffset() const { return fVOffset; }
+    size_t vertexCount()  const { return fVCount;  }
+
+    sk_sp<IndexBuffer> indexBuffer() const { return fIB; }
+
+    size_t indexOffset() const { return fIOffset; }
+    size_t indexCount()  const { return fICount;  }
+
+    SkRect bounds() const { return fBounds; }
+
+    bool isValid() const;
+
+private:
+    friend struct SkCustomMeshPriv;
+
+    bool validate() const;
+
+    sk_sp<SkCustomMeshSpecification> fSpec;
+
+    sk_sp<VertexBuffer> fVB;
+    sk_sp<IndexBuffer>  fIB;
+
+    size_t fVOffset = 0;  // Must be a multiple of spec->stride()
+    size_t fVCount  = 0;
+
+    size_t fIOffset = 0;  // Must be a multiple of sizeof(uint16_t)
+    size_t fICount  = 0;
+
+    Mode fMode = Mode::kTriangles;
+
+    SkRect fBounds = SkRect::MakeEmpty();
 };
 
 #endif  // SK_ENABLE_SKSL

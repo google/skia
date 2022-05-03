@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/ops/DrawCustomMeshOp.h"
 
 #include "include/core/SkCustomMesh.h"
+#include "include/core/SkData.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkCustomMeshPriv.h"
 #include "src/core/SkVerticesPriv.h"
@@ -326,7 +327,7 @@ public:
 
     CustomMeshOp(GrProcessorSet*,
                  const SkPMColor4f&,
-                 SkCustomMesh,
+                 const SkCustomMesh&,
                  GrAAType,
                  sk_sp<GrColorSpaceXform>,
                  const SkMatrixProvider&);
@@ -404,7 +405,9 @@ private:
         }
 
         const uint16_t* indices() const {
-            return this->isFromVertices() ? fVertices->priv().indices() : fCMData.indices;
+            return this->isFromVertices()
+                           ? fVertices->priv().indices()
+                           : SkTAddOffset<const uint16_t>(fCMData.ib->data(), fCMData.ioffset);
         }
 
         int indexCount() const {
@@ -413,10 +416,14 @@ private:
 
     private:
         struct CMData {
-            const char*     vb;
-            const uint16_t* indices;
-            int             vcount;
-            int             icount;
+            sk_sp<const SkData> vb;
+            sk_sp<const SkData> ib;
+
+            size_t vcount = 0;
+            size_t icount = 0;
+
+            size_t voffset = 0;
+            size_t ioffset = 0;
         };
 
         sk_sp<SkVertices> fVertices;
@@ -444,10 +451,15 @@ private:
 };
 
 CustomMeshOp::Mesh::Mesh(const SkCustomMesh& cm) {
-    fCMData.vb       = SkCopyCustomMeshVB(cm).release();
-    fCMData.indices  = SkCopyCustomMeshIB(cm).release();
-    fCMData.vcount   = cm.vcount;
-    fCMData.icount   = cm.icount;
+    new (&fCMData) CMData();
+    fCMData.vb = static_cast<SkCustomMeshPriv::VB*>(cm.vertexBuffer().get())->asData();
+    if (cm.indexBuffer()) {
+        fCMData.ib = static_cast<SkCustomMeshPriv::IB*>(cm.indexBuffer().get())->asData();
+    }
+    fCMData.vcount   = cm.vertexCount();
+    fCMData.voffset  = cm.vertexOffset();
+    fCMData.icount   = cm.indexCount();
+    fCMData.ioffset  = cm.indexOffset();
 }
 
 CustomMeshOp::Mesh::Mesh(sk_sp<SkVertices> vertices, const SkMatrix& viewMatrix)
@@ -455,21 +467,20 @@ CustomMeshOp::Mesh::Mesh(sk_sp<SkVertices> vertices, const SkMatrix& viewMatrix)
     SkASSERT(fVertices);
 }
 
-CustomMeshOp::Mesh::Mesh(Mesh&& m) {
-    fVertices = std::move(m.fVertices);
+CustomMeshOp::Mesh::Mesh(Mesh&& that) {
+    fVertices = std::move(that.fVertices);
     if (fVertices) {
-        fViewMatrix = m.fViewMatrix;
+        fViewMatrix = that.fViewMatrix;
+        // 'that' is now not-a-vertices. Make sure it can be safely destroyed.
+        new (&that.fCMData) CMData();
     } else {
-        fCMData = m.fCMData;
+        fCMData = std::move(that.fCMData);
     }
-    m.fCMData.vb      = nullptr;
-    m.fCMData.indices = nullptr;
 }
 
 CustomMeshOp::Mesh::~Mesh() {
     if (!this->isFromVertices()) {
-        delete[] fCMData.indices;
-        delete[] fCMData.vb;
+        fCMData.~CMData();
     }
 }
 
@@ -496,30 +507,31 @@ void CustomMeshOp::Mesh::writeVertices(skgpu::VertexWriter& writer,
             }
         }
     } else {
-        writer << skgpu::VertexWriter::Array(fCMData.vb, spec.stride()*fCMData.vcount);
+        auto vb = static_cast<const char*>(fCMData.vb->data()) + fCMData.voffset;
+        writer << skgpu::VertexWriter::Array(vb, spec.stride()*fCMData.vcount);
     }
 }
 
 CustomMeshOp::CustomMeshOp(GrProcessorSet*          processorSet,
                            const SkPMColor4f&       color,
-                           SkCustomMesh             cm,
+                           const SkCustomMesh&      cm,
                            GrAAType                 aaType,
                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                            const SkMatrixProvider&  matrixProvider)
         : INHERITED(ClassID())
         , fHelper(processorSet, aaType)
-        , fPrimitiveType(primitive_type(cm.mode))
+        , fPrimitiveType(primitive_type(cm.mode()))
         , fColorSpaceXform(std::move(colorSpaceXform))
         , fColor(color)
         , fViewMatrix(matrixProvider.localToDevice()) {
     fMeshes.emplace_back(cm);
 
-    fSpecification = std::move(cm.spec);
+    fSpecification = cm.spec();
 
     fVertexCount = fMeshes.back().vertexCount();
     fIndexCount  = fMeshes.back().indexCount();
 
-    this->setTransformedBounds(cm.bounds, fViewMatrix, HasAABloat::kNo, IsHairline::kNo);
+    this->setTransformedBounds(cm.bounds(), fViewMatrix, HasAABloat::kNo, IsHairline::kNo);
 }
 
 static sk_sp<SkCustomMeshSpecification> make_vertices_spec(bool hasColors, bool hasTex) {
@@ -834,7 +846,7 @@ namespace skgpu::v1::DrawCustomMeshOp {
 
 GrOp::Owner Make(GrRecordingContext* context,
                  GrPaint&& paint,
-                 SkCustomMesh cm,
+                 const SkCustomMesh& cm,
                  const SkMatrixProvider& matrixProvider,
                  GrAAType aaType,
                  sk_sp<GrColorSpaceXform> colorSpaceXform) {

@@ -30,8 +30,9 @@ class SkRRect;
 class SkSurface;
 class SkSurfaceProps;
 struct SkPoint;
-struct SkCustomMesh;
-
+#ifdef SK_ENABLE_SKSL
+class SkCustomMesh;
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 class SkBitmapDevice : public SkBaseDevice {
 public:
@@ -88,7 +89,7 @@ protected:
 
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
 #ifdef SK_ENABLE_SKSL
-    void drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) override;
+    void drawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&) override;
 #endif
 
     void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,

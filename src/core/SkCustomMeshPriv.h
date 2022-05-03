@@ -11,6 +11,7 @@
 #include "include/core/SkCustomMesh.h"
 
 #ifdef SK_ENABLE_SKSL
+#include "include/core/SkData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkSLTypeShared.h"
 
@@ -80,11 +81,51 @@ struct SkCustomMeshSpecificationPriv {
     }
 };
 
-bool SkValidateCustomMesh(const SkCustomMesh&);
+struct SkCustomMeshPriv {
+    class Buffer {
+    public:
+        virtual ~Buffer() = 0;
 
-std::unique_ptr<const char[]> SkCopyCustomMeshVB(const SkCustomMesh& cm);
+        Buffer() = default;
+        Buffer(const Buffer&) = delete;
 
-std::unique_ptr<const uint16_t[]> SkCopyCustomMeshIB(const SkCustomMesh& cm);
+        Buffer& operator=(const Buffer&) = delete;
+
+        virtual sk_sp<const SkData> asData() const = 0;
+
+        virtual size_t size() const = 0;
+    };
+
+    class IB : public Buffer, public SkCustomMesh::IndexBuffer  {};
+    class VB : public Buffer, public SkCustomMesh::VertexBuffer {};
+
+    template <typename Base> class CpuBuffer final : public Base {
+    public:
+        CpuBuffer()           = default;
+        ~CpuBuffer() override = default;
+
+        static sk_sp<Base> Make(sk_sp<const SkData> data);
+
+        sk_sp<const SkData> asData() const override { return fData; }
+
+        size_t size() const override { return fData->size(); }
+
+    private:
+        sk_sp<const SkData> fData;
+    };
+
+    using CpuIndexBuffer  = CpuBuffer<IB>;
+    using CpuVertexBuffer = CpuBuffer<VB>;
+};
+
+inline SkCustomMeshPriv::Buffer::~Buffer() = default;
+
+template <typename Base>
+sk_sp<Base> SkCustomMeshPriv::CpuBuffer<Base>::Make(sk_sp<const SkData> data) {
+    auto result = new CpuBuffer<Base>;
+    result->fData = std::move(data);
+    return sk_sp<Base>(result);
+}
 
 #endif  // SK_ENABLE_SKSL
 

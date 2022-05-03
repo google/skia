@@ -9,7 +9,6 @@
 #define DrawCustomMeshOp_DEFINED
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkCustomMesh.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
@@ -17,12 +16,13 @@
 class GrColorSpaceXform;
 class GrPaint;
 class GrRecordingContext;
+class SkCustomMesh;
 class SkMatrixProvider;
 
 namespace skgpu::v1::DrawCustomMeshOp {
 GrOp::Owner Make(GrRecordingContext*,
                  GrPaint&&,
-                 SkCustomMesh,
+                 const SkCustomMesh&,
                  const SkMatrixProvider&,
                  GrAAType,
                  sk_sp<GrColorSpaceXform>);
