@@ -55,7 +55,8 @@ static GrSurfaceProxyView create_view(GrDirectContext* dContext,
                                              desc.fBudgeted,
                                              desc.fFit,
                                              desc.fProtected,
-                                             mipLevel);
+                                             mipLevel,
+                                             desc.fLabel);
                 },
                 format, GrRenderable::kNo, 1, GrProtected::kNo, *dContext->priv().caps(),
                 GrSurfaceProxy::UseAllocator::kYes);

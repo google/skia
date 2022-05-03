@@ -179,10 +179,17 @@ static bool setup_backend_objects(GrDirectContext* dContext,
         GrMipLevel level0 = {data.get(), offscreenDims.width()*sizeof(uint32_t), nullptr};
 
         constexpr int kSampleCnt = 0;
-        sk_sp<GrTexture> tmp = resourceProvider->createTexture(
-                offscreenDims, renderableFormat, GrTextureType::k2D, GrColorType::kRGBA_8888,
-                GrRenderable::kYes, kSampleCnt, SkBudgeted::kNo, GrMipmapped::kNo, GrProtected::kNo,
-                &level0);
+        sk_sp<GrTexture> tmp = resourceProvider->createTexture(offscreenDims,
+                                                               renderableFormat,
+                                                               GrTextureType::k2D,
+                                                               GrColorType::kRGBA_8888,
+                                                               GrRenderable::kYes,
+                                                               kSampleCnt,
+                                                               SkBudgeted::kNo,
+                                                               GrMipmapped::kNo,
+                                                               GrProtected::kNo,
+                                                               &level0,
+                                                               /*label=*/{});
         if (!tmp || !tmp->asRenderTarget()) {
             fputs("GrTexture is invalid.\n", stderr);
             return false;

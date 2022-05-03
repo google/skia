@@ -37,9 +37,15 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     static constexpr SkISize kDesc = {256, 256};
     auto format = context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kYes);
-    sk_sp<GrSurface> texRT1 =
-            resourceProvider->createTexture(kDesc, format, GrTextureType::k2D, GrRenderable::kYes,
-                                            1, GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+    sk_sp<GrSurface> texRT1 = resourceProvider->createTexture(kDesc,
+                                                              format,
+                                                              GrTextureType::k2D,
+                                                              GrRenderable::kYes,
+                                                              1,
+                                                              GrMipmapped::kNo,
+                                                              SkBudgeted::kNo,
+                                                              GrProtected::kNo,
+                                                              /*label=*/{});
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asTexture());
@@ -50,9 +56,15 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT1->asRenderTarget()) ==
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
-    sk_sp<GrTexture> tex1 =
-            resourceProvider->createTexture(kDesc, format, GrTextureType::k2D, GrRenderable::kNo, 1,
-                                            GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+    sk_sp<GrTexture> tex1 = resourceProvider->createTexture(kDesc,
+                                                            format,
+                                                            GrTextureType::k2D,
+                                                            GrRenderable::kNo,
+                                                            1,
+                                                            GrMipmapped::kNo,
+                                                            SkBudgeted::kNo,
+                                                            GrProtected::kNo,
+                                                            /*label=*/{});
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
@@ -99,11 +111,23 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             SkColor4f color = {0, 0, 0, 0};
             GrFillInCompressedData(compression, dimensions, GrMipmapped::kNo,
                                    (char*)data->writable_data(), color);
-            return rp->createCompressedTexture(dimensions, format, SkBudgeted::kNo,
-                                               GrMipmapped::kNo, GrProtected::kNo, data.get());
+            return rp->createCompressedTexture(dimensions,
+                                               format,
+                                               SkBudgeted::kNo,
+                                               GrMipmapped::kNo,
+                                               GrProtected::kNo,
+                                               data.get(),
+                                               /*label=*/{});
         } else {
-            return rp->createTexture(dimensions, format, GrTextureType::k2D, renderable, 1,
-                                     GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+            return rp->createTexture(dimensions,
+                                     format,
+                                     GrTextureType::k2D,
+                                     renderable,
+                                     1,
+                                     GrMipmapped::kNo,
+                                     SkBudgeted::kNo,
+                                     GrProtected::kNo,
+                                     /*label=*/{});
         }
     };
 
@@ -154,9 +178,15 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         {
             bool isRenderable = caps->isFormatRenderable(combo.fFormat, 1);
 
-            sk_sp<GrSurface> tex = resourceProvider->createTexture(
-                    kDims, combo.fFormat, GrTextureType::k2D, GrRenderable::kYes, 1,
-                    GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+            sk_sp<GrSurface> tex = resourceProvider->createTexture(kDims,
+                                                                   combo.fFormat,
+                                                                   GrTextureType::k2D,
+                                                                   GrRenderable::kYes,
+                                                                   1,
+                                                                   GrMipmapped::kNo,
+                                                                   SkBudgeted::kNo,
+                                                                   GrProtected::kNo,
+                                                                   /*label=*/{});
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "ct:%s format:%s, tex:%d, isRenderable:%d",
                             GrColorTypeToStr(combo.fColorType), combo.fFormat.toStr().c_str(),
@@ -167,9 +197,15 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         {
             bool isRenderable = caps->isFormatRenderable(combo.fFormat, 2);
 
-            sk_sp<GrSurface> tex = resourceProvider->createTexture(
-                    kDims, combo.fFormat, GrTextureType::k2D, GrRenderable::kYes, 2,
-                    GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+            sk_sp<GrSurface> tex = resourceProvider->createTexture(kDims,
+                                                                   combo.fFormat,
+                                                                   GrTextureType::k2D,
+                                                                   GrRenderable::kYes,
+                                                                   2,
+                                                                   GrMipmapped::kNo,
+                                                                   SkBudgeted::kNo,
+                                                                   GrProtected::kNo,
+                                                                   /*label=*/{});
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "ct:%s format:%s, tex:%d, isRenderable:%d",
                             GrColorTypeToStr(combo.fColorType), combo.fFormat.toStr().c_str(),

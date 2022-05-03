@@ -140,7 +140,8 @@ public:
                                    GrColorType textureColorType,
                                    GrColorType srcColorType,
                                    const GrMipLevel texels[],
-                                   int texelLevelCount);
+                                   int texelLevelCount,
+                                   std::string_view label);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
@@ -152,14 +153,16 @@ public:
                                    int renderTargetSampleCnt,
                                    GrMipmapped mipmapped,
                                    SkBudgeted budgeted,
-                                   GrProtected isProtected);
+                                   GrProtected isProtected,
+                                   std::string_view label);
 
     sk_sp<GrTexture> createCompressedTexture(SkISize dimensions,
                                              const GrBackendFormat& format,
                                              SkBudgeted budgeted,
                                              GrMipmapped mipmapped,
                                              GrProtected isProtected,
-                                             const void* data, size_t dataSize);
+                                             const void* data,
+                                             size_t dataSize);
 
     /**
      * Implements GrResourceProvider::wrapBackendTexture

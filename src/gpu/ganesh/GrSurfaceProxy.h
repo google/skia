@@ -73,6 +73,7 @@ public:
         GrTextureType fTextureType;
         GrProtected fProtected;
         SkBudgeted fBudgeted;
+        std::string_view fLabel;
     };
 
     struct LazyCallbackResult {
@@ -298,6 +299,8 @@ public:
         }
         return fGpuMemorySize;
     }
+
+    std::string_view getLabel() const { return fLabel; }
 
     enum class RectsMustMatch : bool {
         kNo = false,

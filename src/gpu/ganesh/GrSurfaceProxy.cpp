@@ -123,7 +123,8 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
                                                         fFormat.textureType(),
                                                         renderable,
                                                         sampleCnt,
-                                                        fIsProtected);
+                                                        fIsProtected,
+                                                        /*label=*/{});
     } else {
         surface = resourceProvider->createTexture(fDimensions,
                                                   fFormat,
@@ -132,7 +133,8 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
                                                   sampleCnt,
                                                   mipmapped,
                                                   fBudgeted,
-                                                  fIsProtected);
+                                                  fIsProtected,
+                                                  /*label=*/{});
     }
     if (!surface) {
         return nullptr;

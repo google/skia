@@ -127,9 +127,15 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     int srcBufferWidth = caps->transferPixelsToRowBytesSupport() ? 20 : 16;
     const int kBufferHeight = 16;
 
-    sk_sp<GrTexture> tex =
-            resourceProvider->createTexture(kTexDims, backendFormat, GrTextureType::k2D, renderable,
-                                            1, GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+    sk_sp<GrTexture> tex = resourceProvider->createTexture(kTexDims,
+                                                           backendFormat,
+                                                           GrTextureType::k2D,
+                                                           renderable,
+                                                           1,
+                                                           GrMipmapped::kNo,
+                                                           SkBudgeted::kNo,
+                                                           GrProtected::kNo,
+                                                           /*label=*/{});
     if (!tex) {
         ERRORF(reporter, "Could not create texture");
         return;
@@ -314,10 +320,17 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     GrMipLevel data;
     data.fPixels = textureData.get();
     data.fRowBytes = textureDataRowBytes;
-    sk_sp<GrTexture> tex = resourceProvider->createTexture(kTexDims, format, GrTextureType::k2D,
-                                                           colorType, renderable, 1,
-                                                           SkBudgeted::kNo, GrMipmapped::kNo,
-                                                           GrProtected::kNo, &data);
+    sk_sp<GrTexture> tex = resourceProvider->createTexture(kTexDims,
+                                                           format,
+                                                           GrTextureType::k2D,
+                                                           colorType,
+                                                           renderable,
+                                                           1,
+                                                           SkBudgeted::kNo,
+                                                           GrMipmapped::kNo,
+                                                           GrProtected::kNo,
+                                                           &data,
+                                                           /*label=*/{});
     if (!tex) {
         return;
     }

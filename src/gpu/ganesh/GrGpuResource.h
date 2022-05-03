@@ -308,7 +308,7 @@ private:
     skgpu::UniqueKey fUniqueKey;
 
     // This is not ref'ed but abandon() or release() will be called before the GrGpu object
-    // is destroyed. Those calls set will this to NULL.
+    // is destroyed. Those calls will set this to NULL.
     GrGpu* fGpu;
     mutable size_t fGpuMemorySize = kInvalidGpuMemorySize;
 

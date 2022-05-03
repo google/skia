@@ -95,15 +95,16 @@ void GrDynamicAtlas::reset(SkISize initialSize, const GrCaps& caps) {
     fTextureProxy = MakeLazyAtlasProxy(
             [this](GrResourceProvider* resourceProvider, const LazyAtlasDesc& desc) {
                 if (!fBackingTexture) {
-                    fBackingTexture = resourceProvider->createTexture(
-                            fTextureProxy->backingStoreDimensions(),
-                            desc.fFormat,
-                            desc.fTextureType,
-                            desc.fRenderable,
-                            desc.fSampleCnt,
-                            desc.fMipmapped,
-                            desc.fBudgeted,
-                            desc.fProtected);
+                    fBackingTexture =
+                            resourceProvider->createTexture(fTextureProxy->backingStoreDimensions(),
+                                                            desc.fFormat,
+                                                            desc.fTextureType,
+                                                            desc.fRenderable,
+                                                            desc.fSampleCnt,
+                                                            desc.fMipmapped,
+                                                            desc.fBudgeted,
+                                                            desc.fProtected,
+                                                            desc.fLabel);
                 }
                 return GrSurfaceProxy::LazyCallbackResult(fBackingTexture);
             },

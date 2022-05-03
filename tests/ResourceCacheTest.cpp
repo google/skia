@@ -90,9 +90,15 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
                                                int size, int sampleCount, SkBudgeted budgeted) {
     auto format =
             provider->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kYes);
-    sk_sp<GrTexture> tex(provider->createTexture({size, size}, format, GrTextureType::k2D,
-                                                 GrRenderable::kYes, sampleCount, GrMipmapped::kNo,
-                                                 budgeted, GrProtected::kNo));
+    sk_sp<GrTexture> tex(provider->createTexture({size, size},
+                                                 format,
+                                                 GrTextureType::k2D,
+                                                 GrRenderable::kYes,
+                                                 sampleCount,
+                                                 GrMipmapped::kNo,
+                                                 budgeted,
+                                                 GrProtected::kNo,
+                                                 /*label=*/{}));
     if (!tex || !tex->asRenderTarget()) {
         return nullptr;
     }
@@ -1699,8 +1705,15 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                             SkISize dims,
                                             int sampleCnt) {
     auto format = provider->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
-    return provider->createTexture(dims, format, GrTextureType::k2D, renderable, sampleCnt,
-                                   GrMipmapped::kNo, SkBudgeted::kYes, GrProtected::kNo);
+    return provider->createTexture(dims,
+                                   format,
+                                   GrTextureType::k2D,
+                                   renderable,
+                                   sampleCnt,
+                                   GrMipmapped::kNo,
+                                   SkBudgeted::kYes,
+                                   GrProtected::kNo,
+                                   /*label=*/{});
 }
 
 static sk_sp<GrTextureProxy> make_mipmap_proxy(GrRecordingContext* rContext,

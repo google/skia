@@ -150,7 +150,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
                                                     format.textureType(),
                                                     renderable,
                                                     renderTargetSampleCnt,
-                                                    isProtected);
+                                                    isProtected,
+                                                    /*label=*/{});
     } else {
         tex = resourceProvider->createTexture(dimensions,
                                               format,
@@ -159,7 +160,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
                                               renderTargetSampleCnt,
                                               GrMipmapped::kNo,
                                               budgeted,
-                                              isProtected);
+                                              isProtected,
+                                              /*label=*/{});
     }
     if (!tex) {
         return nullptr;
@@ -350,17 +352,17 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
                 SkASSERT(desc.fMipmapped == GrMipmapped::kNo);
                 GrMipLevel mipLevel = {bitmap.getPixels(), bitmap.rowBytes(), nullptr};
                 auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
-                return LazyCallbackResult(resourceProvider->createTexture(
-                        desc.fDimensions,
-                        desc.fFormat,
-                        desc.fTextureType,
-                        colorType,
-                        desc.fRenderable,
-                        desc.fSampleCnt,
-                        desc.fBudgeted,
-                        desc.fFit,
-                        desc.fProtected,
-                        mipLevel));
+                return LazyCallbackResult(resourceProvider->createTexture(desc.fDimensions,
+                                                                          desc.fFormat,
+                                                                          desc.fTextureType,
+                                                                          colorType,
+                                                                          desc.fRenderable,
+                                                                          desc.fSampleCnt,
+                                                                          desc.fBudgeted,
+                                                                          desc.fFit,
+                                                                          desc.fProtected,
+                                                                          mipLevel,
+                                                                          desc.fLabel));
             },
             format, dims, GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
             GrInternalSurfaceFlags::kNone, fit, budgeted, GrProtected::kNo, UseAllocator::kYes);
@@ -409,17 +411,17 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                     SkASSERT(texels[i].fPixels);
                     SkASSERT(generatedMipLevel.fPixmap.colorType() == bitmap.colorType());
                 }
-                return LazyCallbackResult(resourceProvider->createTexture(
-                        desc.fDimensions,
-                        desc.fFormat,
-                        desc.fTextureType,
-                        colorType,
-                        GrRenderable::kNo,
-                        1,
-                        desc.fBudgeted,
-                        GrMipmapped::kYes,
-                        GrProtected::kNo,
-                        texels.get()));
+                return LazyCallbackResult(resourceProvider->createTexture(desc.fDimensions,
+                                                                          desc.fFormat,
+                                                                          desc.fTextureType,
+                                                                          colorType,
+                                                                          GrRenderable::kNo,
+                                                                          1,
+                                                                          desc.fBudgeted,
+                                                                          GrMipmapped::kYes,
+                                                                          GrProtected::kNo,
+                                                                          texels.get(),
+                                                                          desc.fLabel));
             },
             format, dims, GrMipmapped::kYes, GrMipmapStatus::kValid, GrInternalSurfaceFlags::kNone,
             SkBackingFit::kExact, budgeted, GrProtected::kNo, UseAllocator::kYes);
@@ -527,9 +529,14 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [data](GrResourceProvider* resourceProvider, const LazySurfaceDesc& desc) {
-                return LazyCallbackResult(resourceProvider->createCompressedTexture(
-                        desc.fDimensions, desc.fFormat, desc.fBudgeted, desc.fMipmapped,
-                        desc.fProtected, data.get()));
+                return LazyCallbackResult(
+                        resourceProvider->createCompressedTexture(desc.fDimensions,
+                                                                  desc.fFormat,
+                                                                  desc.fBudgeted,
+                                                                  desc.fMipmapped,
+                                                                  desc.fProtected,
+                                                                  data.get(),
+                                                                  desc.fLabel));
             },
             format, dimensions, mipmapped, mipmapStatus,GrInternalSurfaceFlags::kReadOnly,
             SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo, UseAllocator::kYes);

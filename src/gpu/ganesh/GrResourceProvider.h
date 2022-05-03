@@ -68,7 +68,8 @@ public:
                                          GrTextureType textureType,
                                          GrRenderable renderable,
                                          int renderTargetSampleCnt,
-                                         GrProtected isProtected);
+                                         GrProtected isProtected,
+                                         std::string_view label);
 
     /** Create an exact fit texture with no initial data to upload. */
     sk_sp<GrTexture> createTexture(SkISize dimensions,
@@ -78,7 +79,8 @@ public:
                                    int renderTargetSampleCnt,
                                    GrMipmapped mipmapped,
                                    SkBudgeted budgeted,
-                                   GrProtected isProtected);
+                                   GrProtected isProtected,
+                                   std::string_view label);
 
     /**
      * Create an exact fit texture with initial data to upload. The color type must be valid
@@ -94,7 +96,8 @@ public:
                                    SkBudgeted budgeted,
                                    GrMipmapped mipmapped,
                                    GrProtected isProtected,
-                                   const GrMipLevel texels[]);
+                                   const GrMipLevel texels[],
+                                   std::string_view label);
 
     /**
      * Create a potentially loose fit texture with the provided data. The color type must be valid
@@ -110,7 +113,8 @@ public:
                                    SkBudgeted,
                                    SkBackingFit,
                                    GrProtected,
-                                   const GrMipLevel& mipLevel);
+                                   const GrMipLevel& mipLevel,
+                                   std::string_view label);
 
     /**
      * Search the cache for a scratch texture matching the provided arguments. Failing that
@@ -134,7 +138,8 @@ public:
                                              SkBudgeted,
                                              GrMipmapped,
                                              GrProtected,
-                                             SkData* data);
+                                             SkData* data,
+                                             std::string_view label);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
