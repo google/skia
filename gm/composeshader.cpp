@@ -27,6 +27,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkTLazy.h"
+#include "tools/ToolUtils.h"
 
 #include <utility>
 
@@ -169,18 +170,6 @@ public:
     ComposeShaderBitmapGM(bool use_lm) : fUseLocalMatrix(use_lm) {}
 
 protected:
-    void onOnceBeforeDraw() override {
-        draw_color_bm(&fColorBitmap, squareLength);
-        draw_alpha8_bm(&fAlpha8Bitmap, squareLength);
-        SkMatrix s;
-        s.reset();
-        fColorBitmapShader = fColorBitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                                     SkSamplingOptions(), s);
-        fAlpha8BitmapShader = fAlpha8Bitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                                       SkSamplingOptions(), s);
-        fLinearGradientShader = make_linear_gradient_shader(squareLength);
-    }
-
     SkString onShortName() override {
         return SkStringPrintf("composeshader_bitmap%s", fUseLocalMatrix ? "_lm" : "");
     }
@@ -190,6 +179,23 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (!fInitialized) {
+            draw_color_bm(&fColorBitmap, squareLength);
+            sk_sp<SkImage> img = SkImage::MakeFromBitmap(fColorBitmap);
+            img = ToolUtils::MakeTextureImage(canvas, std::move(img));
+            fColorBitmapShader = img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                 SkSamplingOptions(), SkMatrix::I());
+
+            draw_alpha8_bm(&fAlpha8Bitmap, squareLength);
+            img = SkImage::MakeFromBitmap(fAlpha8Bitmap);
+            img = ToolUtils::MakeTextureImage(canvas, std::move(img));
+            fAlpha8BitmapShader = fAlpha8Bitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                           SkSamplingOptions(), SkMatrix::I());
+
+            fLinearGradientShader = make_linear_gradient_shader(squareLength);
+            fInitialized = true;
+        }
+
         SkBlendMode mode = SkBlendMode::kDstOver;
 
         SkMatrix lm = SkMatrix::Translate(0, squareLength * 0.5f);
@@ -235,6 +241,7 @@ private:
 
     const bool fUseLocalMatrix;
 
+    bool fInitialized = false;
     SkBitmap fColorBitmap;
     SkBitmap fAlpha8Bitmap;
     sk_sp<SkShader> fColorBitmapShader;

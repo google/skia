@@ -27,7 +27,7 @@
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     static constexpr SkScalar kSize = 50;
     SkImageInfo info = SkImageInfo::MakeN32Premul(kSize, kSize);
-    auto                      surface = ToolUtils::makeSurface(rootCanvas, info);
+    auto surface(SkSurface::MakeRaster(info));
 
     SkPaint p;
     p.setAntiAlias(true);
@@ -40,7 +40,8 @@ static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     surface->getCanvas()->drawLine(kSize * .25f, kSize * .50f, kSize * .75f, kSize * .50f, p);
     surface->getCanvas()->drawLine(kSize * .50f, kSize * .25f, kSize * .50f, kSize * .75f, p);
 
-    return surface->makeImageSnapshot();
+    sk_sp<SkImage> img = surface->makeImageSnapshot();
+    return ToolUtils::MakeTextureImage(rootCanvas, std::move(img));
 }
 
 DEF_SIMPLE_GM(localmatrixshader_nested, canvas, 450, 1200) {
