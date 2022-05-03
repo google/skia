@@ -46,6 +46,9 @@ static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
 
 DEF_SIMPLE_GM(localmatrixshader_nested, canvas, 450, 1200) {
     auto image = make_image(canvas);
+    if (!image) {
+        return;
+    }
 
     using FactoryT = sk_sp<SkShader> (*)(const sk_sp<SkImage>&,
                                          const SkMatrix& inner,
