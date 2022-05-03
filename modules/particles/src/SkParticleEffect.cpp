@@ -487,8 +487,7 @@ void SkParticleEffect::update(double now) {
 
 void SkParticleEffect::draw(SkCanvas* canvas) {
     if (this->isAlive() && fParams->fDrawable) {
-        SkPaint paint;
-        fParams->fDrawable->draw(canvas, fParticles, fCount, paint);
+        fParams->fDrawable->draw(canvas, fParticles, fCount);
     }
 }
 

@@ -77,8 +77,7 @@ public:
 
     REFLECTED(SkCircleDrawable, SkParticleDrawable)
 
-    void draw(SkCanvas* canvas, const SkParticles& particles, int count,
-              const SkPaint& paint) override {
+    void draw(SkCanvas* canvas, const SkParticles& particles, int count) override {
         int r = std::max(fRadius, 1);
         SkPoint center = { SkIntToScalar(r), SkIntToScalar(r) };
         DrawAtlasArrays arrays(particles, count, center);
@@ -86,9 +85,15 @@ public:
             arrays.fRects[i].setIWH(fImage->width(), fImage->height());
         }
         SkSamplingOptions sampling(SkFilterMode::kLinear);
-        canvas->drawAtlas(fImage.get(), arrays.fXforms.get(), arrays.fRects.get(),
-                          arrays.fColors.get(), count, SkBlendMode::kModulate, sampling,
-                          nullptr, &paint);
+        canvas->drawAtlas(fImage.get(),
+                          arrays.fXforms.get(),
+                          arrays.fRects.get(),
+                          arrays.fColors.get(),
+                          count,
+                          SkBlendMode::kModulate,
+                          sampling,
+                          /*cullRect=*/nullptr,
+                          /*paint=*/nullptr);
     }
 
     void prepare(const skresources::ResourceProvider*) override {
@@ -120,8 +125,7 @@ public:
 
     REFLECTED(SkImageDrawable, SkParticleDrawable)
 
-    void draw(SkCanvas* canvas, const SkParticles& particles, int count,
-              const SkPaint& paint) override {
+    void draw(SkCanvas* canvas, const SkParticles& particles, int count) override {
         int cols = std::max(fCols, 1),
             rows = std::max(fRows, 1);
         SkRect baseRect = SkRect::MakeWH(static_cast<float>(fImage->width()) / cols,
@@ -138,9 +142,15 @@ public:
             int col = frame % cols;
             arrays.fRects[i] = baseRect.makeOffset(col * baseRect.width(), row * baseRect.height());
         }
-        canvas->drawAtlas(fImage.get(), arrays.fXforms.get(), arrays.fRects.get(),
-                          arrays.fColors.get(), count, SkBlendMode::kModulate,
-                          SkSamplingOptions(SkFilterMode::kLinear), nullptr, &paint);
+        canvas->drawAtlas(fImage.get(),
+                          arrays.fXforms.get(),
+                          arrays.fRects.get(),
+                          arrays.fColors.get(),
+                          count,
+                          SkBlendMode::kModulate,
+                          SkSamplingOptions(SkFilterMode::kLinear),
+                          /*cullRect=*/nullptr,
+                          /*paint=*/nullptr);
     }
 
     void prepare(const skresources::ResourceProvider* resourceProvider) override {
