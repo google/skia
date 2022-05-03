@@ -325,6 +325,75 @@ void AddToKey(const SkKeyContext& keyContext,
 } // namespace GradientShaderBlocks
 
 //--------------------------------------------------------------------------------------------------
+namespace LocalMatrixShaderBlock {
+
+namespace {
+
+#ifdef SK_GRAPHITE_ENABLED
+
+void add_localmatrixshader_uniform_data(const SkShaderCodeDictionary* dict,
+                                        const SkM44& localMatrix,
+                                        SkPipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, kLocalMatrixShader)
+
+    SkM44 lmInverse;
+    bool wasInverted = localMatrix.invert(&lmInverse);  // TODO: handle failure up stack
+    if (!wasInverted) {
+        lmInverse.setIdentity();
+    }
+
+    gatherer->write(lmInverse);
+
+    gatherer->addFlags(
+            dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kLocalMatrixShader));
+}
+
+#endif // SK_GRAPHITE_ENABLED
+
+} // anonymous namespace
+
+void AddToKey(const SkKeyContext& keyContext,
+              SkPaintParamsKeyBuilder* builder,
+              SkPipelineDataGatherer* gatherer,
+              const LMShaderData& lmShaderData) {
+
+#ifdef SK_GRAPHITE_ENABLED
+    if (builder->backend() == SkBackend::kGraphite) {
+        auto dict = keyContext.dict();
+        // When extracted into SkShaderInfo::SnippetEntries the children will appear after their
+        // parent. Thus, the parent's uniform data must appear in the uniform block before the
+        // uniform data of the children.
+        if (gatherer) {
+            add_localmatrixshader_uniform_data(dict, lmShaderData.fLocalMatrix, gatherer);
+        }
+
+        builder->beginBlock(SkBuiltInCodeSnippetID::kLocalMatrixShader);
+
+        // Child blocks always go right after the parent block's header
+        // TODO: add startChild/endChild entry points to SkPaintParamsKeyBuilder. They could be
+        // used to compute and store the number of children w/in a block's header.
+        int start = builder->sizeInBytes();
+        as_SB(lmShaderData.fProxyShader)->addToKey(keyContext, builder, gatherer);
+        int childShaderSize = builder->sizeInBytes() - start;
+
+        builder->endBlock();
+
+        validate_block_header(builder,
+                              SkBuiltInCodeSnippetID::kLocalMatrixShader,
+                              childShaderSize);
+        return;
+    }
+#endif // SK_GRAPHITE_ENABLED
+
+    if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
+        // TODO: add implementation for other backends
+        SolidColorShaderBlock::AddToKey(keyContext, builder, gatherer, kErrorColor);
+    }
+}
+
+} // namespace LocalMatrixShaderBlock
+
+//--------------------------------------------------------------------------------------------------
 namespace ImageShaderBlock {
 
 namespace {

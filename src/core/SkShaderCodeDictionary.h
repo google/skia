@@ -109,6 +109,7 @@ public:
 private:
     std::string emitGlueCodeForEntry(int* entryIndex,
                                      const std::string& priorStageOutputName,
+                                     const std::string& parentPreLocalName,
                                      std::string* result,
                                      int indent) const;
 

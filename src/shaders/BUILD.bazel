@@ -212,6 +212,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkLocalMatrixShader_hdr",
+        "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkTLazy_hdr",
         "//src/core:SkVM_hdr",

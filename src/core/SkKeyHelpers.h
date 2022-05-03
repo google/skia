@@ -102,6 +102,25 @@ namespace GradientShaderBlocks {
 
 } // namespace GradientShaderBlocks
 
+namespace LocalMatrixShaderBlock {
+
+    struct LMShaderData {
+        LMShaderData(SkShader* proxyShader, const SkMatrix& localMatrix)
+                : fProxyShader(proxyShader)
+                , fLocalMatrix(localMatrix) {
+        }
+
+        SkShader*   fProxyShader;
+        const SkM44 fLocalMatrix;
+    };
+
+    void AddToKey(const SkKeyContext&,
+                  SkPaintParamsKeyBuilder*,
+                  SkPipelineDataGatherer*,
+                  const LMShaderData&);
+
+} // namespace LocalMatrixShaderBlock
+
 namespace ImageShaderBlock {
 
     struct ImageData {

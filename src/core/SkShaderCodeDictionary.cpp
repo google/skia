@@ -12,15 +12,42 @@
 
 namespace {
 
-#if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
 std::string get_mangled_local_var_name(const char* baseName, int manglingSuffix) {
     return std::string(baseName) + "_" + std::to_string(manglingSuffix);
 }
-#endif
 
 void add_indent(std::string* result, int indent) {
     result->append(4*indent, ' ');
 }
+
+#if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
+std::string generate_default_before_children_glue_code(int entryIndex,
+                                                       const SkPaintParamsKey::BlockReader& reader,
+                                                       const std::string& parentPreLocalName,
+                                                       int indent) {
+    std::string result;
+
+    if (reader.entry()->needsLocalCoords()) {
+        // Every snippet that requests local coordinates must have a preLocalMatrix as its first
+        // uniform
+        SkASSERT(reader.entry()->fUniforms.size() >= 1);
+        SkASSERT(reader.entry()->fUniforms[0].type() == SkSLType::kFloat4x4);
+
+        std::string localMatrixUniformName = reader.entry()->getMangledUniformName(0, entryIndex);
+
+        std::string preLocalMatrixVarName = get_mangled_local_var_name("preLocal", entryIndex);
+
+        add_indent(&result, indent);
+        SkSL::String::appendf(&result,
+                              "float4x4 %s = %s * %s;\n",
+                              preLocalMatrixVarName.c_str(),
+                              parentPreLocalName.c_str(),
+                              localMatrixUniformName.c_str());
+    }
+
+    return result;
+}
+#endif
 
 } // anonymous namespace
 
@@ -62,6 +89,7 @@ std::string GetMtlTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockR
 // Where the %d is filled in with 'entryIndex'.
 std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
                                                const std::string& priorStageOutputName,
+                                               const std::string& parentPreLocalName,
                                                std::string* result,
                                                int indent) const {
     const SkPaintParamsKey::BlockReader& reader = fBlockReaders[*entryIndex];
@@ -77,12 +105,25 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
     add_indent(result, indent);
     *result += "{\n";
 
+    *result += generate_default_before_children_glue_code(curEntryIndex, reader,
+                                                          parentPreLocalName, indent+1);
+
+    // TODO: this could be returned by generate_default_before_children_glue_code
+    std::string currentPreLocalName;
+    if (reader.entry()->needsLocalCoords()) {
+        currentPreLocalName = get_mangled_local_var_name("preLocal", curEntryIndex);
+    } else {
+        currentPreLocalName = parentPreLocalName;
+    }
+
     // Although the children appear after the parent in the shader info they are emitted
     // before the parent
     std::vector<std::string> childOutputVarNames;
     for (int j = 0; j < reader.numChildren(); ++j) {
         *entryIndex += 1;
-        std::string childOutputVar = this->emitGlueCodeForEntry(entryIndex, priorStageOutputName,
+        std::string childOutputVar = this->emitGlueCodeForEntry(entryIndex,
+                                                                priorStageOutputName,
+                                                                currentPreLocalName,
                                                                 result, indent+1);
         childOutputVarNames.push_back(childOutputVar);
     }
@@ -115,6 +156,16 @@ std::string SkShaderInfo::toSkSL() const {
     result += "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
     result += "void main() {\n";
 
+    // TODO: we could have an empty 'parentPreLocal' signal an identity matrix and simplify
+    // the generated code.
+    if (this->needsLocalCoords()) {
+        result += "float4x4 initialPreLocal = float4x4(1, 0, 0, 0, "
+                                                      "0, 1, 0, 0, "
+                                                      "0, 0, 1, 0, "
+                                                      "0, 0, 0, 1);\n";
+    }
+
+    std::string parentPreLocal = "initialPreLocal";
     std::string lastOutputVar = "initialColor";
 
     // TODO: what is the correct initial color to feed in?
@@ -122,7 +173,8 @@ std::string SkShaderInfo::toSkSL() const {
     SkSL::String::appendf(&result, "    half4 %s = half4(0.0);", lastOutputVar.c_str());
 
     for (int entryIndex = 0; entryIndex < (int) fBlockReaders.size(); ++entryIndex) {
-        lastOutputVar = this->emitGlueCodeForEntry(&entryIndex, lastOutputVar, &result, 1);
+        lastOutputVar = this->emitGlueCodeForEntry(&entryIndex, lastOutputVar, parentPreLocal,
+                                                   &result, 1);
     }
 
     SkSL::String::appendf(&result, "    sk_FragColor = %s;\n", lastOutputVar.c_str());
@@ -256,11 +308,14 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
 
     add_indent(&result, indent);
     SkSL::String::appendf(&result,
-                          "%s = %s(", resultName.c_str(),
+                          "%s = %s(",
+                          resultName.c_str(),
                           entry->fStaticFunctionName);
     for (size_t i = 0; i < entry->fUniforms.size(); ++i) {
         if (i == 0 && reader.entry()->needsLocalCoords()) {
-            result += entry->getMangledUniformName(i, entryIndex);
+            std::string preLocalMatrixVarName = get_mangled_local_var_name("preLocal",
+                                                                           entryIndex);
+            result += preLocalMatrixVarName;
             result += " * dev2LocalUni";
         } else {
             result += entry->getMangledUniformName(i, entryIndex);
@@ -305,6 +360,43 @@ static constexpr SkUniform kSolidShaderUniforms[kNumSolidShaderUniforms] = {
 static constexpr char kSolidShaderName[] = "sk_solid_shader";
 
 //--------------------------------------------------------------------------------------------------
+static constexpr int kNumLocalMatrixShaderUniforms = 1;
+static constexpr SkUniform kLocalMatrixShaderUniforms[kNumLocalMatrixShaderUniforms] = {
+        { "localMatrix", SkSLType::kFloat4x4 },
+};
+
+static constexpr int kNumLocalMatrixShaderChildren = 1;
+
+static constexpr char kLocalMatrixShaderName[] = "sk_local_matrix_shader";
+
+// This exists as custom glue code to handle passing the result of the child into the
+// static function. If children were, somehow, handled in the default glue code, we could remove
+// this.
+std::string GenerateLocalMatrixShaderGlueCode(const std::string& resultName,
+                                              int entryIndex,
+                                              const SkPaintParamsKey::BlockReader& reader,
+                                              const std::string& priorStageOutputName,
+                                              const std::vector<std::string>& childOutputVarNames,
+                                              int indent) {
+    SkASSERT(childOutputVarNames.size() == kNumLocalMatrixShaderChildren);
+
+    const SkShaderSnippet* entry = reader.entry();
+
+    std::string localMatrixName = entry->getMangledUniformName(0, entryIndex);
+
+    std::string result;
+
+    add_indent(&result, indent);
+    SkSL::String::appendf(&result,
+                          "%s = %s(%s, %s);\n",
+                          resultName.c_str(),
+                          entry->fStaticFunctionName,
+                          localMatrixName.c_str(),
+                          childOutputVarNames[0].c_str());
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
 static constexpr int kNumImageShaderUniforms = 6;
 static constexpr SkUniform kImageShaderUniforms[kNumImageShaderUniforms] = {
         { "localMatrix", SkSLType::kFloat4x4 },
@@ -340,8 +432,10 @@ std::string GenerateImageShaderGlueCode(const std::string& resultName,
     SkASSERT(childNames.empty());
 
     std::string samplerVarName = std::string("sampler_") + std::to_string(entryIndex) + "_0";
+    std::string preLocalMatrixVarName = get_mangled_local_var_name("preLocal", entryIndex);
 
-    std::string localMatrixName = reader.entry()->getMangledUniformName(0, entryIndex);
+    // Uniform slot 0 is being used for the localMatrix but is handled in
+    // generate_default_before_children_glue_code.
     std::string subsetName = reader.entry()->getMangledUniformName(1, entryIndex);
     std::string tmXName = reader.entry()->getMangledUniformName(2, entryIndex);
     std::string tmYName = reader.entry()->getMangledUniformName(3, entryIndex);
@@ -354,7 +448,7 @@ std::string GenerateImageShaderGlueCode(const std::string& resultName,
     SkSL::String::appendf(&result,
                           "float2 coords = %s(%s * dev2LocalUni, %s, %s, %s, %s, %s);",
                           reader.entry()->fStaticFunctionName,
-                          localMatrixName.c_str(),
+                          preLocalMatrixVarName.c_str(),
                           subsetName.c_str(),
                           tmXName.c_str(),
                           tmYName.c_str(),
@@ -366,7 +460,6 @@ std::string GenerateImageShaderGlueCode(const std::string& resultName,
                           "%s = sample(%s, coords);\n",
                           resultName.c_str(),
                           samplerVarName.c_str());
-
 
     return result;
 }
@@ -385,7 +478,7 @@ static constexpr int kNumBlendShaderChildren = 2;
 static constexpr char kBlendHelperName[] = "sk_blend";
 
 // This exists as custom glue code to handle passing the result of the children into the
-// static function. If this were handled in the default glue code, we could remove this.
+// static function. If this were, somehow, handled in the default glue code, we could remove this.
 std::string GenerateBlendShaderGlueCode(const std::string& resultName,
                                         int entryIndex,
                                         const SkPaintParamsKey::BlockReader& reader,
@@ -581,6 +674,16 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kLinearGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
+            { }
+    };
+    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kLocalMatrixShader] = {
+            "LocalMatrixShader",
+            SkMakeSpan(kLocalMatrixShaderUniforms, kNumLocalMatrixShaderUniforms),
+            SnippetRequirementFlags::kLocalCoords,
+            { },     // no samplers
+            kLocalMatrixShaderName,
+            GenerateLocalMatrixShaderGlueCode,
+            kNumLocalMatrixShaderChildren,
             { }
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kImageShader] = {

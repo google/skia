@@ -28,6 +28,7 @@ enum class SkBuiltInCodeSnippetID : uint8_t {
     kSweepGradientShader,
     kConicalGradientShader,
 
+    kLocalMatrixShader,
     kImageShader,
     kBlendShader,     // aka ComposeShader
 

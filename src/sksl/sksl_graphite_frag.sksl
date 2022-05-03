@@ -8,6 +8,12 @@ half4 sk_solid_shader(float4 colorParam) {
     return half4(colorParam);
 }
 
+// The localMatrix is passed to the child by the glue code. This snippet just needs to bubble the
+// child's output back up. 'localMatrix' is passed in to be consistent w/ the default glue code.
+half4 sk_local_matrix_shader(float4x4 localMatrix, half4 childResult) {
+    return childResult;
+}
+
 float $tile(int tm, float f, float min, float max, float normalizer) {
     const int kClamp         = 0;
     const int kRepeat        = 1;

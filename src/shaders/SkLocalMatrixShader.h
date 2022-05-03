@@ -18,9 +18,9 @@ class SkArenaAlloc;
 class SkLocalMatrixShader final : public SkShaderBase {
 public:
     SkLocalMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
-    : INHERITED(&localMatrix)
-    , fProxyShader(std::move(proxy))
-    {}
+        : INHERITED(&localMatrix)
+        , fProxyShader(std::move(proxy)) {
+    }
 
     GradientType asAGradient(GradientInfo* info) const override {
         return fProxyShader->asAGradient(info);
@@ -28,6 +28,11 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+#endif
+#ifdef SK_ENABLE_SKSL
+    void addToKey(const SkKeyContext&,
+                  SkPaintParamsKeyBuilder*,
+                  SkPipelineDataGatherer*) const override;
 #endif
 
     sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const override {
