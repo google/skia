@@ -4,6 +4,7 @@
 package gen_tasks_logic
 
 import (
+	"fmt"
 	"log"
 	"reflect"
 	"strings"
@@ -182,6 +183,17 @@ type uploadAssetCASCfg struct {
 	alwaysIsolate  bool
 	uploadTaskName string
 	path           string
+}
+
+// assetWithVersion adds the given asset with the given version number to the
+// task as a CIPD package.
+func (b *taskBuilder) assetWithVersion(assetName string, version int) {
+	pkg := &specs.CipdPackage{
+		Name:    fmt.Sprintf("skia/bots/%s", assetName),
+		Path:    assetName,
+		Version: fmt.Sprintf("version:%d", version),
+	}
+	b.cipd(pkg)
 }
 
 // asset adds the given assets to the task as CIPD packages.

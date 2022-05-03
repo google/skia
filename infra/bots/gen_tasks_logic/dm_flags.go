@@ -454,8 +454,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 		}
 		if b.extraConfig("Slug") {
-		    // Test slug drawing
-		    configs = []string{"glslug"}
+			// Test slug drawing
+			configs = []string{"glslug"}
 		}
 		if b.extraConfig("Direct3D") {
 			configs = []string{"d3d"}
@@ -651,6 +651,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("tests")
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
+		removeFromArgs("svg")
+	} else if b.matchExtraConfig("OldestSupportedSkpVersion") {
+		// The OldestSupportedSkpVersion bot only renders skps.
+		removeFromArgs("tests")
+		removeFromArgs("gm")
+		removeFromArgs("image")
+		removeFromArgs("colorImage")
+		removeFromArgs("lottie")
 		removeFromArgs("svg")
 	} else {
 		// No other bots render the .skps.
@@ -1310,6 +1318,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.matchExtraConfig("Lottie") {
 		b.asset("lottie-samples")
 		b.recipeProp("lotties", "true")
+	} else if b.matchExtraConfig("OldestSupportedSkpVersion") {
+		b.recipeProp("skps", "true")
 	} else {
 		b.asset("skimage")
 		b.recipeProp("images", "true")

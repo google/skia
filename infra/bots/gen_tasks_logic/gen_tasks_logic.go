@@ -83,6 +83,11 @@ const (
 
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
+
+	// This will have to kept in sync with the kMin_Version in
+	// src/core/SkPicturePriv.h
+	// See the comment in that file on how to find the version to use here.
+	oldestSupportedSkpVersion = 291
 )
 
 var (
@@ -670,7 +675,8 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"NoGPUThreads", "DDL1", "DDL3", "OOPRDDL", "T8888",
 				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "SkottieTracing", "SkottieWASM",
 				"GpuTess", "DMSAAStats", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
-				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2", "i5"}
+				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2", "i5",
+				"OldestSupportedSkpVersion"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -1545,6 +1551,8 @@ func (b *taskBuilder) commonTestPerfAssets() {
 		b.asset("skp", "mskp")
 	} else if b.os("Android", "ChromeOS", "iOS") {
 		b.asset("skp", "svg", "skimage")
+	} else if b.extraConfig("OldestSupportedSkpVersion") {
+		b.assetWithVersion("skp", oldestSupportedSkpVersion)
 	} else {
 		// for desktop machines
 		b.asset("skimage", "skp", "svg")

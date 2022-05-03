@@ -488,6 +488,7 @@
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
    "cq_config": {}
    },
+  {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-OldestSupportedSkpVersion"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs",
    "cq_config": {}
