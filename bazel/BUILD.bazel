@@ -3,6 +3,9 @@ load("//bazel:macros.bzl", "cc_library", "select_multi")
 licenses(["notice"])
 
 GENERAL_DEFINES = [
+    # The following comment is load-bearing. It will be replace via regex when we build for Google3
+    # Do not remove it or we won't be able to properly define SK_BUILD_FOR_GOOGLE3
+    # REPLACE_WHEN_BUILDING_IN_GOOGLE3
     "SK_HAS_ANDROID_CODEC",
     "SKIA_IMPLEMENTATION=1",
 ] + select({
