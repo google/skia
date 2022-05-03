@@ -485,7 +485,6 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 
 #if GR_TEST_UTILS
 #include "src/gpu/ganesh/GrDrawOpTest.h"
-
 GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
                                              const SkPaint& skPaint,
                                              const SkFont& font,
@@ -519,16 +518,14 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
 
     GrOp::Owner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(
-            nullptr, mtxProvider, glyphRunList.origin(), skPaint, sdc, nullptr);
+            nullptr, mtxProvider, glyphRunList.origin(), skPaint, sdc);
     return op;
 }
-
 #endif
 
 } // namespace skgpu::v1
 
 #if GR_TEST_UTILS
-
 GR_DRAW_OP_TEST_DEFINE(AtlasTextOp) {
     SkMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
 
@@ -555,5 +552,4 @@ GR_DRAW_OP_TEST_DEFINE(AtlasTextOp) {
     return skgpu::v1::AtlasTextOp::CreateOpTestingOnly(sdc, skPaint, font, matrixProvider,
                                                        text, xInt, yInt);
 }
-
 #endif

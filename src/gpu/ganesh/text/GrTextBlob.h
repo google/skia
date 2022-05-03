@@ -73,8 +73,7 @@ public:
             const SkMatrixProvider& viewMatrix,
             SkPoint drawOrigin,
             const SkPaint&,
-            skgpu::v1::SurfaceDrawContext*,
-            GrAtlasSubRunOwner subRun) const = 0;
+            skgpu::v1::SurfaceDrawContext*) const = 0;
 
     virtual void fillVertexData(
             void* vertexDst, int offset, int count,

@@ -1108,8 +1108,7 @@ public:
                     const SkMatrixProvider& viewMatrix,
                     SkPoint,
                     const SkPaint&,
-                    skgpu::v1::SurfaceDrawContext*,
-                    GrAtlasSubRunOwner) const override;
+                    skgpu::v1::SurfaceDrawContext*) const override;
 
     void testingOnly_packedGlyphIDToGlyph(GrStrikeCache *cache) const override;
 
@@ -1292,8 +1291,7 @@ void DirectMaskSubRun::draw(SkCanvas*,
                                 SkPoint drawOrigin,
                                 const SkPaint& paint,
                                 skgpu::v1::SurfaceDrawContext* sdc) const {
-    auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, drawOrigin, paint, sdc, nullptr);
+    auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, drawOrigin, paint, sdc);
     if (op != nullptr) {
         sdc->addDrawOp(drawingClip, std::move(op));
     }
@@ -1303,8 +1301,7 @@ std::tuple<const GrClip*, GrOp::Owner> DirectMaskSubRun::makeAtlasTextOp(const G
                                       const SkMatrixProvider& viewMatrix,
                                       SkPoint drawOrigin,
                                       const SkPaint& paint,
-                                      skgpu::v1::SurfaceDrawContext* sdc,
-                                      GrAtlasSubRunOwner subRunOwner) const {
+                                      skgpu::v1::SurfaceDrawContext* sdc) const {
     SkASSERT(this->glyphCount() != 0);
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
     const SkMatrix& positionMatrix = position_matrix(drawMatrix, drawOrigin);
@@ -1542,8 +1539,7 @@ public:
                     const SkMatrixProvider& viewMatrix,
                     SkPoint drawOrigin,
                     const SkPaint&,
-                    skgpu::v1::SurfaceDrawContext*,
-                    GrAtlasSubRunOwner) const override;
+                    skgpu::v1::SurfaceDrawContext*) const override;
 
     int unflattenSize() const override;
 
@@ -1632,8 +1628,7 @@ void TransformedMaskSubRun::draw(SkCanvas*,
                                  SkPoint drawOrigin,
                                  const SkPaint& paint,
                                  skgpu::v1::SurfaceDrawContext* sdc) const {
-    auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, drawOrigin, paint, sdc, nullptr);
+    auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, drawOrigin, paint, sdc);
     if (op != nullptr) {
         sdc->addDrawOp(drawingClip, std::move(op));
     }
@@ -1644,8 +1639,7 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
                                        const SkMatrixProvider& viewMatrix,
                                        SkPoint drawOrigin,
                                        const SkPaint& paint,
-                                       skgpu::v1::SurfaceDrawContext* sdc,
-                                       GrAtlasSubRunOwner) const {
+                                       skgpu::v1::SurfaceDrawContext* sdc) const {
     SkASSERT(this->glyphCount() != 0);
 
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
@@ -1755,8 +1749,7 @@ public:
                     const SkMatrixProvider& viewMatrix,
                     SkPoint drawOrigin,
                     const SkPaint&,
-                    skgpu::v1::SurfaceDrawContext*,
-                    GrAtlasSubRunOwner) const override;
+                    skgpu::v1::SurfaceDrawContext*) const override;
 
     int unflattenSize() const override;
 
@@ -1879,8 +1872,7 @@ void SDFTSubRun::draw(SkCanvas*,
                       SkPoint drawOrigin,
                       const SkPaint& paint,
                       skgpu::v1::SurfaceDrawContext* sdc) const {
-    auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, drawOrigin, paint, sdc, nullptr);
+    auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, drawOrigin, paint, sdc);
     if (op != nullptr) {
         sdc->addDrawOp(drawingClip, std::move(op));
     }
@@ -1919,8 +1911,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
                             const SkMatrixProvider& viewMatrix,
                             SkPoint drawOrigin,
                             const SkPaint& paint,
-                            skgpu::v1::SurfaceDrawContext* sdc,
-                            GrAtlasSubRunOwner) const {
+                            skgpu::v1::SurfaceDrawContext* sdc) const {
     SkASSERT(this->glyphCount() != 0);
 
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
