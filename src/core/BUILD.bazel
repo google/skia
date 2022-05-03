@@ -5616,6 +5616,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkBlendMode_hdr",
+        "//include/core:SkM44_hdr",
         "//include/core:SkSamplingOptions_hdr",
         "//include/core:SkShader_hdr",
         "//include/core:SkTileMode_hdr",

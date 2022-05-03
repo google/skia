@@ -245,6 +245,12 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
     SkASSERT(childNames.empty());
 
     const SkShaderSnippet* entry = reader.entry();
+    if (entry->needsLocalCoords()) {
+        // Every snippet that requests local coordinates must have a localMatrix as its first
+        // uniform
+        SkASSERT(reader.entry()->fUniforms.size() >= 1);
+        SkASSERT(reader.entry()->fUniforms[0].type() == SkSLType::kFloat4x4);
+    }
 
     std::string result;
 
@@ -253,16 +259,16 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
                           "%s = %s(", resultName.c_str(),
                           entry->fStaticFunctionName);
     for (size_t i = 0; i < entry->fUniforms.size(); ++i) {
-        result += entry->getMangledUniformName(i, entryIndex);
+        if (i == 0 && reader.entry()->needsLocalCoords()) {
+            result += entry->getMangledUniformName(i, entryIndex);
+            result += " * dev2LocalUni";
+        } else {
+            result += entry->getMangledUniformName(i, entryIndex);
+        }
         if (i+1 < entry->fUniforms.size()) {
             result += ", ";
         }
     }
-#ifdef SK_GRAPHITE_ENABLED
-    if (entry->fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords) {
-        result += ", dev2LocalUni";
-    }
-#endif
     result += ");\n";
 
     return result;
@@ -276,15 +282,16 @@ static constexpr int kFourStopGradient = 4;
 //   kMaxStops offsets
 //   2 points
 //   2 radii
-static constexpr int kNumGradientUniforms = 7;
+static constexpr int kNumGradientUniforms = 8;
 static constexpr SkUniform kGradientUniforms[kNumGradientUniforms] = {
-        { "colors",  SkSLType::kFloat4, kFourStopGradient },
-        { "offsets", SkSLType::kFloat,  kFourStopGradient },
-        { "point0",  SkSLType::kFloat2 },
-        { "point1",  SkSLType::kFloat2 },
-        { "radius0", SkSLType::kFloat },
-        { "radius1", SkSLType::kFloat },
-        { "padding", SkSLType::kFloat2 } // TODO: add automatic uniform padding
+        { "localMatrix", SkSLType::kFloat4x4 },
+        { "colors",      SkSLType::kFloat4, kFourStopGradient },
+        { "offsets",     SkSLType::kFloat,  kFourStopGradient },
+        { "point0",      SkSLType::kFloat2 },
+        { "point1",      SkSLType::kFloat2 },
+        { "radius0",     SkSLType::kFloat },
+        { "radius1",     SkSLType::kFloat },
+        { "padding",     SkSLType::kFloat2 } // TODO: add automatic uniform padding
 };
 
 static constexpr char kLinearGradient4Name[] = "sk_linear_grad_4_shader";
@@ -300,12 +307,12 @@ static constexpr char kSolidShaderName[] = "sk_solid_shader";
 //--------------------------------------------------------------------------------------------------
 static constexpr int kNumImageShaderUniforms = 6;
 static constexpr SkUniform kImageShaderUniforms[kNumImageShaderUniforms] = {
+        { "localMatrix", SkSLType::kFloat4x4 },
         { "subset",      SkSLType::kFloat4 },
         { "tilemodeX",   SkSLType::kInt },
         { "tilemodeY",   SkSLType::kInt },
         { "imgWidth",    SkSLType::kInt },
         { "imgHeight",   SkSLType::kInt },
-        { "localMatrix", SkSLType::kFloat4x4 },
 };
 
 static constexpr int kNumImageShaderTexturesAndSamplers = 1;
@@ -334,25 +341,25 @@ std::string GenerateImageShaderGlueCode(const std::string& resultName,
 
     std::string samplerVarName = std::string("sampler_") + std::to_string(entryIndex) + "_0";
 
-    std::string subsetName = reader.entry()->getMangledUniformName(0, entryIndex);
-    std::string tmXName = reader.entry()->getMangledUniformName(1, entryIndex);
-    std::string tmYName = reader.entry()->getMangledUniformName(2, entryIndex);
-    std::string imgWidthName = reader.entry()->getMangledUniformName(3, entryIndex);
-    std::string imgHeightName = reader.entry()->getMangledUniformName(4, entryIndex);
-    std::string localMatrixName = reader.entry()->getMangledUniformName(5, entryIndex);
+    std::string localMatrixName = reader.entry()->getMangledUniformName(0, entryIndex);
+    std::string subsetName = reader.entry()->getMangledUniformName(1, entryIndex);
+    std::string tmXName = reader.entry()->getMangledUniformName(2, entryIndex);
+    std::string tmYName = reader.entry()->getMangledUniformName(3, entryIndex);
+    std::string imgWidthName = reader.entry()->getMangledUniformName(4, entryIndex);
+    std::string imgHeightName = reader.entry()->getMangledUniformName(5, entryIndex);
 
     std::string result;
 
     add_indent(&result, indent);
     SkSL::String::appendf(&result,
-                          "float2 coords = %s(%s, %s, %s, %s, %s, dev2LocalUni, %s);",
+                          "float2 coords = %s(%s * dev2LocalUni, %s, %s, %s, %s, %s);",
                           reader.entry()->fStaticFunctionName,
+                          localMatrixName.c_str(),
                           subsetName.c_str(),
                           tmXName.c_str(),
                           tmYName.c_str(),
                           imgWidthName.c_str(),
-                          imgHeightName.c_str(),
-                          localMatrixName.c_str());
+                          imgHeightName.c_str());
 
     add_indent(&result, indent);
     SkSL::String::appendf(&result,

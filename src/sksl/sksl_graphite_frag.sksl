@@ -30,25 +30,26 @@ float $tile(int tm, float f, float min, float max, float normalizer) {
     }
 }
 
-float2 sk_compute_coords(float4 subset,
-                         int tmX, int tmY,
-                         int imgWidth, int imgHeight,
-                         float4x4 dev2Local,
-                         float4x4 localMatrix) {
-    float4 localCoords = localMatrix * dev2Local * sk_FragCoord;
+float2 sk_compute_coords(float4x4 dev2Local,
+                         float4 subset,
+                         int tmX,
+                         int tmY,
+                         int imgWidth,
+                         int imgHeight) {
+    float4 localCoords = dev2Local * sk_FragCoord;
     float2 coords = float2($tile(tmX, localCoords.x, subset.x, subset.z, float(imgWidth)),
                            $tile(tmY, localCoords.y, subset.y, subset.w, float(imgHeight)));
     return coords;
 }
 
-half4 sk_linear_grad_4_shader(float4 colorsParam[4],
+half4 sk_linear_grad_4_shader(float4x4 dev2Local,
+                              float4 colorsParam[4],
                               float offsetsParam[4],
                               float2 point0Param,
                               float2 point1Param,
                               float radius0Param,
                               float radius1Param,
-                              float2 padding,
-                              float4x4 dev2Local) {
+                              float2 padding) {
     float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 delta = point1Param - point0Param;
     float2 pt = pos - point0Param;

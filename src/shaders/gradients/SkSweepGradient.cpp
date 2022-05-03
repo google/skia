@@ -115,6 +115,7 @@ void SkSweepGradient::addToKey(const SkKeyContext& keyContext,
                                SkPaintParamsKeyBuilder* builder,
                                SkPipelineDataGatherer* gatherer) const {
     GradientShaderBlocks::GradientData data(kSweep_GradientType,
+                                            SkM44(this->getLocalMatrix()),
                                             fCenter, { 0.0f, 0.0f },
                                             0.0, 0.0f,
                                             fTileMode,

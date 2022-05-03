@@ -91,6 +91,7 @@ void SkRadialGradient::addToKey(const SkKeyContext& keyContext,
                                 SkPaintParamsKeyBuilder* builder,
                                 SkPipelineDataGatherer* gatherer) const {
     GradientShaderBlocks::GradientData data(kRadial_GradientType,
+                                            SkM44(this->getLocalMatrix()),
                                             fCenter, { 0.0f, 0.0f },
                                             fRadius, 0.0f,
                                             fTileMode,

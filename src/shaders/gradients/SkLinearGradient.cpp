@@ -113,6 +113,7 @@ void SkLinearGradient::addToKey(const SkKeyContext& keyContext,
                                 SkPaintParamsKeyBuilder* builder,
                                 SkPipelineDataGatherer* gatherer) const {
     GradientShaderBlocks::GradientData data(kLinear_GradientType,
+                                            SkM44(this->getLocalMatrix()),
                                             fStart, fEnd,
                                             0.0f, 0.0f,
                                             fTileMode,
