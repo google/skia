@@ -3,9 +3,9 @@ This file exports the various toolchains for the hosts that we support building 
 
 Supported:
  - Linux amd64
+ - Mac M1
 
 Planned:
- - Mac M1
  - Windows amd64
 
 """
@@ -22,6 +22,14 @@ name_toolchain = {
 }
 
 def download_toolchains_for_skia(*args):
+    """
+    Point Bazel to the correct rules for downloading the different toolchains.
+
+    Args:
+        *args: multiple toolchains, see top of file for
+               list of supported toolchains.
+    """
+
     for toolchain_name in args:
         if toolchain_name not in name_toolchain:
             fail("unrecognized toolchain name " + toolchain_name)

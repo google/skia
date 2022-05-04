@@ -4,7 +4,7 @@ This file assembles a toolchain for an amd64 Linux host using the Clang Compiler
 It downloads the necessary headers, executables, and pre-compiled static/shared libraries to
 the external subfolder of the Bazel cache (the same place third party deps are downloaded with
 http_archive or similar functions in WORKSPACE.bazel). These will be able to be used via our
-custom c++ toolchain configuration (see //toolchain/clang_toolchain_config.bzl)
+custom c++ toolchain configuration (see //toolchain/linux_amd64_toolchain_config.bzl)
 
 Most files are downloaded as .deb files from packages.debian.org (with us acting as the dependency
 resolver) and extracted to

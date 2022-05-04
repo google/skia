@@ -1,13 +1,10 @@
-# All of our clang builds should use the hermetic toolchain
-build:clang --crosstool_top=//toolchain:clang_suite
-
 # We don't have a great way to test the host system in order to use the right
 # version of the toolchain. So we need to have the user specify what their host is.
-build:clang_linux --config=clang
+build:clang_linux --crosstool_top=//toolchain:clang_suite_linux
 build:clang_linux --compiler=host_is_linux_amd64
 
-build:clang_mac --config=clang
-build:clang_mac --compiler=host_is_mac_M1
+build:clang_mac --crosstool_top=//toolchain:clang_suite_mac
+build:clang_mac --compiler=host_is_mac_m1
 
 # =============================================================================
 # Alias to build configurations below. This makes configuring things from
@@ -95,7 +92,7 @@ build:remote --remote_instance_name projects/skia-rbe/instances/default_instance
 # //bazel/rbe/BUILD.bazel.
 build:linux-rbe --config=remote
 # Use our hermetic toolchain instead of the clang in the toolchain.
-build:linux-rbe --crosstool_top=//toolchain:clang_suite
+build:linux-rbe --crosstool_top=//toolchain:clang_suite_linux
 # We want to run on this RBE platform
 build:linux-rbe --extra_execution_platforms=//bazel/rbe:gce_linux_platform
 # On the RBE instances, this Java and C++ toolchain are available

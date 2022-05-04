@@ -52,6 +52,19 @@ If you want to pass one or more flags to `bazel run`, add them on the end after 
 bazel run //example:hello_world_gl --config=clang_linux -- --flag_one=apple --flag_two=cherry
 ```
 
+### Mac Hosts (you are running Bazel on a Mac machine)
+You can run a command like:
+```
+bazel build //example:bazel_test_exe --config=clang_mac
+```
+
+Similar to the Linux guide, this uses the `clang_mac` configuration (defined in `//.bazelrc`).
+
+When building for Mac, we require the user to have Xcode installed on their device so that we can
+use system headers and Mac-specific includes when compiling. Our Bazel toolchain assumes you have
+`xcode-select` in your path so that we may symlink the user's current Xcode directory in the
+toolchain's cache. Make sure `xcode-select -p` returns a valid path.
+
 ## .bazelrc Tips
 You should make a [.bazelrc file](https://bazel.build/docs/bazelrc) in your home directory where
 you can specify settings that apply only to you. These can augment or replace the ones we define

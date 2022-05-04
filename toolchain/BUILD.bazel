@@ -1,6 +1,7 @@
 load("//bazel:macros.bzl", "exports_files_legacy")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain", "cc_toolchain_suite")
 load(":linux_amd64_toolchain_config.bzl", "provide_linux_amd64_toolchain_config")
+load(":mac_m1_toolchain_config.bzl", "provide_mac_m1_toolchain_config")
 
 licenses(["notice"])
 
@@ -9,8 +10,11 @@ exports_files_legacy()
 package(default_visibility = ["//visibility:public"])
 
 # https://bazel.build/reference/be/c-cpp#cc_toolchain_suite
+# cc_toolchain_suite will fetch deps for toolchains it will not use, which
+# is why we split up the suites by OS. When attempting to fetch "@clang_linux_amd64//:all_files",
+# a script compiled for linux to extract ar archives will break on other platforms.
 cc_toolchain_suite(
-    name = "clang_suite",
+    name = "clang_suite_linux",
     toolchains = {
         # The key is target_cpu|compiler
         # compiler appears to be a string we can choose arbitrarily
@@ -18,8 +22,15 @@ cc_toolchain_suite(
         "k8|host_is_linux_amd64": ":linux_amd64_host",
         "x86_64|host_is_linux_amd64": ":linux_amd64_host",
         "k8": ":linux_amd64_host",
-        # TODO(jmbetancourt)
-        # "arm64|host_is_mac_M1": ":mac_M1_host",
+    },
+)
+
+cc_toolchain_suite(
+    name = "clang_suite_mac",
+    toolchains = {
+        "arm64|host_is_mac_m1": ":mac_m1_host",
+        "darwin|host_is_mac_m1": ":mac_m1_host",
+        "darwin_arm64|host_is_mac_m1": ":mac_m1_host",
     },
 )
 
@@ -28,16 +39,30 @@ filegroup(name = "not_implemented")
 filegroup(
     name = "all_linux_amd64_files",
     srcs = [
-        "IWYU_mapping.imp",
-        "ar_trampoline.sh",
-        "clang_trampoline.sh",
-        "lld_trampoline.sh",
+        "linux_trampolines/IWYU_mapping.imp",
+        "linux_trampolines/ar_trampoline_linux.sh",
+        "linux_trampolines/clang_trampoline_linux.sh",
+        "linux_trampolines/lld_trampoline_linux.sh",
         "@clang_linux_amd64//:all_files",
+    ],
+)
+
+filegroup(
+    name = "all_mac_m1_files",
+    srcs = [
+        "mac_trampolines/ar_trampoline_mac.sh",
+        "mac_trampolines/clang_trampoline_mac.sh",
+        "mac_trampolines/lld_trampoline_mac.sh",
+        "@clang_mac_m1//:all_files",
     ],
 )
 
 provide_linux_amd64_toolchain_config(
     name = "linux_amd64_toolchain_config",
+)
+
+provide_mac_m1_toolchain_config(
+    name = "mac_m1_toolchain_config",
 )
 
 # https://bazel.build/reference/be/c-cpp#cc_toolchain
@@ -52,4 +77,17 @@ cc_toolchain(
     strip_files = ":not_implemented",
     supports_param_files = False,
     toolchain_config = ":linux_amd64_toolchain_config",
+)
+
+cc_toolchain(
+    name = "mac_m1_host",
+    all_files = ":all_mac_m1_files",
+    ar_files = ":all_mac_m1_files",
+    compiler_files = ":all_mac_m1_files",
+    dwp_files = ":not_implemented",
+    linker_files = ":all_mac_m1_files",
+    objcopy_files = ":not_implemented",
+    strip_files = ":not_implemented",
+    supports_param_files = False,
+    toolchain_config = ":mac_m1_toolchain_config",
 )
