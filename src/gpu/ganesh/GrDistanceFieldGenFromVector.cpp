@@ -810,10 +810,10 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
 
     // adjust distance based on winding
     for (int row = 0; row < height; ++row) {
-        enum DFSign {
-            kInside = -1,
-            kOutside = 1
-        };
+        using DFSign = int;
+        constexpr DFSign kInside = -1;
+        constexpr DFSign kOutside = 1;
+
         int windingNumber = 0;  // Winding number start from zero for each scanline
         for (int col = 0; col < width; ++col) {
             int idx = (row * width) + col;
