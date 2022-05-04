@@ -97,13 +97,6 @@ struct GrShaderCaps : SkSL::ShaderCaps {
         return fSampleVariablesExtensionString;
     }
 
-    // NOTE: This is never called since tessellationSupport() always returns false; it will be
-    // removed as more HW tessellation code is deleted.
-    const char* tessellationExtensionString() const {
-        SkASSERT(this->tessellationSupport());
-        return "";
-    }
-
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
     // Maximum number of segments a tessellation edge can be divided into.

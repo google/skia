@@ -79,32 +79,24 @@ ProgramImpl::emitCode(EmitArgs& args, const GrPipeline& pipeline) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
 
-    GrShaderVar positionVar = gpArgs.fPositionVar;
-    // skia:12198
-    if (args.fGeomProc.willUseTessellationShaders()) {
-        positionVar = {};
-    }
     FPCoordsMap transformMap = this->collectTransforms(args.fVertBuilder,
                                                        args.fVaryingHandler,
                                                        args.fUniformHandler,
                                                        gpArgs.fLocalCoordShader,
                                                        gpArgs.fLocalCoordVar,
-                                                       positionVar,
+                                                       gpArgs.fPositionVar,
                                                        pipeline);
 
-    // Tessellation shaders are temporarily responsible for integrating their own code strings
-    // while we work out full support.
-    if (!args.fGeomProc.willUseTessellationShaders()) {
-        GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
-        // Emit the vertex position to the hardware in the normalized window coordinates it expects.
-        SkASSERT(SkSLType::kFloat2 == gpArgs.fPositionVar.getType() ||
-                 SkSLType::kFloat3 == gpArgs.fPositionVar.getType());
-        vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(),
-                                           gpArgs.fPositionVar.getType());
-        if (SkSLType::kFloat2 == gpArgs.fPositionVar.getType()) {
-            args.fVaryingHandler->setNoPerspective();
-        }
+    GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
+    // Emit the vertex position to the hardware in the normalized window coordinates it expects.
+    SkASSERT(SkSLType::kFloat2 == gpArgs.fPositionVar.getType() ||
+                SkSLType::kFloat3 == gpArgs.fPositionVar.getType());
+    vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(),
+                                        gpArgs.fPositionVar.getType());
+    if (SkSLType::kFloat2 == gpArgs.fPositionVar.getType()) {
+        args.fVaryingHandler->setNoPerspective();
     }
+
     return {transformMap, gpArgs.fLocalCoordVar};
 }
 

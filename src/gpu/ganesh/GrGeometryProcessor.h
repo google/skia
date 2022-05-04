@@ -194,10 +194,6 @@ public:
     size_t vertexStride() const { return fVertexAttributes.stride(); }
     size_t instanceStride() const { return fInstanceAttributes.stride(); }
 
-    bool willUseTessellationShaders() const {
-        return fShaders & (kTessControl_GrShaderFlag | kTessEvaluation_GrShaderFlag);
-    }
-
     /**
      * Computes a key for the transforms owned by an FP based on the shader code that will be
      * emitted by the primitive processor to implement them.
@@ -242,9 +238,6 @@ protected:
     void setInstanceAttributesWithImplicitOffsets(const Attribute* attrs, int attrCount) {
         SkASSERT(attrCount >= 0);
         fInstanceAttributes.initImplicit(attrs, attrCount);
-    }
-    void setWillUseTessellationShaders() {
-        fShaders |= kTessControl_GrShaderFlag | kTessEvaluation_GrShaderFlag;
     }
     void setTextureSamplerCnt(int cnt) {
         SkASSERT(cnt >= 0);
@@ -347,21 +340,6 @@ public:
     virtual void setData(const GrGLSLProgramDataManager&,
                          const GrShaderCaps&,
                          const GrGeometryProcessor&) = 0;
-
-    // We use these methods as a temporary back door to inject OpenGL tessellation code. Once
-    // tessellation is supported by SkSL we can remove these.
-    virtual SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
-                                              const char* versionAndExtensionDecls,
-                                              const GrGLSLUniformHandler&,
-                                              const GrShaderCaps&) const {
-        SK_ABORT("Not implemented.");
-    }
-    virtual SkString getTessEvaluationShaderGLSL(const GrGeometryProcessor&,
-                                                 const char* versionAndExtensionDecls,
-                                                 const GrGLSLUniformHandler&,
-                                                 const GrShaderCaps&) const {
-        SK_ABORT("Not implemented.");
-    }
 
     // GPs that use writeOutputPosition and/or writeLocalCoord must incorporate the matrix type
     // into their key, and should use this function or one of the other related helpers.

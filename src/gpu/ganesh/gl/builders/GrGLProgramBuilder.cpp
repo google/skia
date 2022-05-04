@@ -373,44 +373,6 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         // This also binds vertex attribute locations.
         this->computeCountsAndStrides(programID, geomProc, true);
 
-        /*
-           Tessellation Shaders
-        */
-        if (fProgramInfo.geomProc().willUseTessellationShaders()) {
-            // Tessellation shaders are not currently supported by SkSL. So here, we temporarily
-            // generate GLSL strings directly using back door methods on GrGeometryProcessor, and
-            // pass those raw strings on to the driver.
-            SkString versionAndExtensionDecls;
-            versionAndExtensionDecls.appendf("%s\n", this->shaderCaps()->versionDeclString());
-            if (const char* extensionString = this->shaderCaps()->tessellationExtensionString()) {
-                versionAndExtensionDecls.appendf("#extension %s : require\n", extensionString);
-            }
-
-            SkString tessControlShader =
-                    fGPImpl->getTessControlShaderGLSL(geomProc,
-                                                      versionAndExtensionDecls.c_str(),
-                                                      fUniformHandler,
-                                                      *this->shaderCaps());
-            if (!this->compileAndAttachShaders(tessControlShader.c_str(), programID,
-                                               GR_GL_TESS_CONTROL_SHADER, &shadersToDelete,
-                                               errorHandler)) {
-                cleanup_program(fGpu, programID, shadersToDelete);
-                return nullptr;
-            }
-
-            SkString tessEvaluationShader =
-                    fGPImpl->getTessEvaluationShaderGLSL(geomProc,
-                                                         versionAndExtensionDecls.c_str(),
-                                                         fUniformHandler,
-                                                         *this->shaderCaps());
-            if (!this->compileAndAttachShaders(tessEvaluationShader.c_str(), programID,
-                                               GR_GL_TESS_EVALUATION_SHADER, &shadersToDelete,
-                                               errorHandler)) {
-                cleanup_program(fGpu, programID, shadersToDelete);
-                return nullptr;
-            }
-        }
-
         this->bindProgramResourceLocations(programID);
 
         {
@@ -428,14 +390,9 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
     cleanup_shaders(fGpu, shadersToDelete);
 
-    // We temporarily can't cache tessellation shaders while using back door GLSL.
-    //
-    // We also can't cache SkSL or GLSL if we were given a precompiled program, but there's not
+    // We can't cache SkSL or GLSL if we were given a precompiled program, but there's not
     // much point in doing so.
-    if (!cached && !geomProc.willUseTessellationShaders() && !precompiledProgram) {
-        // FIXME: Remove the check for tessellation shaders in the above 'if' once the back door
-        // GLSL mechanism is removed.
-        (void)&GrGeometryProcessor::ProgramImpl::getTessControlShaderGLSL;
+    if (!cached && !precompiledProgram) {
         bool isSkSL = false;
         if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
                 GrContextOptions::ShaderCacheStrategy::kSkSL) {

@@ -79,14 +79,8 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
     this->nameExpression(outputCoverage, "outputCoverage");
 
     SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
-    GrShaderFlags rtAdjustVisibility;
-    if (geomProc.willUseTessellationShaders()) {
-        rtAdjustVisibility = kTessEvaluation_GrShaderFlag;
-    } else {
-        rtAdjustVisibility = kVertex_GrShaderFlag;
-    }
     fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(
-            nullptr, rtAdjustVisibility, SkSLType::kFloat4, SkSL::Compiler::RTADJUST_NAME);
+            nullptr, kVertex_GrShaderFlag, SkSLType::kFloat4, SkSL::Compiler::RTADJUST_NAME);
 
     fFS.codeAppendf("// Stage %d, %s\n", fStageIndex, geomProc.name());
     fVS.codeAppendf("// Primitive Processor %s\n", geomProc.name());
