@@ -103,13 +103,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			configs = append(configs, "gles", "srgb-gles")
 		}
 
-		if b.extraConfig("CommandBuffer") {
-			configs = []string{"cmdbuffer_es2"}
-			if !b.matchGpu("Intel") {
-				configs = append(configs, "cmdbuffer_es2_dmsaa")
-			}
-		}
-
 		if b.extraConfig("Vulkan") {
 			configs = []string{"vk"}
 			if b.os("Android") {
@@ -248,9 +241,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	if b.extraConfig("Vulkan") && b.gpu("GTX660") {
 		// skia:8523 skia:9271
 		match = append(match, "~compositing_images")
-	}
-	if b.model("MacBook10.1") && b.extraConfig("CommandBuffer") {
-		match = append(match, "~^desk_micrographygirlsvg.skp_1.1$")
 	}
 	if b.extraConfig("ASAN") && b.cpu() {
 		// floor2int_undef benches undefined behavior, so ASAN correctly complains.

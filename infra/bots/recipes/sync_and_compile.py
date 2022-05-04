@@ -36,8 +36,6 @@ def RunSteps(api):
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
     checkout_root = api.path['start_dir']
-  if 'CommandBuffer' in api.vars.builder_name:
-    checkout_chromium = True
   if 'Flutter' in api.vars.builder_name:
     checkout_root = checkout_root.join('flutter')
     checkout_flutter = True
@@ -94,7 +92,6 @@ for p in psutil.process_iter():
 
 TEST_BUILDERS = [
   'Build-Debian10-Clang-arm-Release-Flutter_Android',
-  'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Win10-Clang-x86_64-Release-NoDEPS',
 ]
 

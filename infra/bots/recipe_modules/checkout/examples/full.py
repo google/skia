@@ -27,8 +27,6 @@ def RunSteps(api):
   checkout_flutter = False
   extra_gclient_env = {}
   flutter_android = False
-  if 'CommandBuffer' in api.vars.builder_name:
-    checkout_chromium = True
   if 'RecreateSKPs' in api.vars.builder_name:
     checkout_chromium = True
     extra_gclient_env['CPPFLAGS'] = (
@@ -52,7 +50,6 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Housekeeper-Weekly-RecreateSKPs',
 ]
 

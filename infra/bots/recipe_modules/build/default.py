@@ -6,16 +6,6 @@
 from . import util
 
 
-def build_command_buffer(api, chrome_dir, skia_dir, out):
-  api.run(api.python, 'build command_buffer',
-      script=skia_dir.join('tools', 'build_command_buffer.py'),
-      args=[
-        '--chrome-dir', chrome_dir,
-        '--output-dir', out,
-        '--extra-gn-args', 'mac_sdk_min="10.13"',
-        '--no-sync', '--no-hooks', '--make-output-dir'])
-
-
 def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
   """Build SwiftShader with CMake.
 
@@ -242,14 +232,6 @@ def compile_fn(api, checkout_root, out_dir):
     extra_cflags.extend(['-DSK_GPU_TOOLS_VK_LIBRARY_NAME=%s' %
         api.vars.swarming_out_dir.join('swiftshader_out', 'libvk_swiftshader.so'),
     ])
-  if 'CommandBuffer' in extra_tokens:
-    # CommandBuffer runs against GLES version of CommandBuffer also, so
-    # include both.
-    args.update({
-      'skia_gl_standard': '""',
-    })
-    chrome_dir = checkout_root
-    api.run.run_once(build_command_buffer, api, chrome_dir, skia_dir, out_dir)
   if 'MSAN' in extra_tokens:
     args['skia_use_fontconfig'] = 'false'
   if 'ASAN' in extra_tokens:

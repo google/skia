@@ -69,7 +69,6 @@ TEST_BUILDERS = [
   "Build-Mac-Clang-arm64-Release-Graphite",
   'Build-Mac-Xcode11.4.1-arm64-Debug-iOS',
   'Build-Mac-Clang-x86_64-Debug-ASAN',
-  'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Debug-Metal',
   'Build-Win-Clang-arm64-Release-Android',
   'Build-Win-Clang-x86-Debug-Exceptions',

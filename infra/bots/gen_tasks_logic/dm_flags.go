@@ -280,14 +280,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("gltestthreading", "gm", ALL, "draw_image_set")
 		}
 
-		// CommandBuffer bot *only* runs the cmdbuffer_es2 configs.
-		if b.extraConfig("CommandBuffer") {
-			configs = []string{"cmdbuffer_es2"}
-			if sampleCount > 0 {
-				configs = append(configs, "cmdbuffer_es2_dmsaa")
-			}
-		}
-
 		// Dawn bot *only* runs the dawn config
 		if b.extraConfig("Dawn") {
 			// tint:1045: Tint doesn't implement MatrixInverse yet.
@@ -426,11 +418,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "ProcessorCloneTest")
 		}
 
-		if b.extraConfig("CommandBuffer") && b.model("MacBook10.1") {
-			// skbug.com/9235
-			skip(ALL, "test", ALL, "Programs")
-		}
-
 		if b.model("Spin513") {
 			// skbug.com/11876
 			skip(ALL, "test", ALL, "Programs")
@@ -442,15 +429,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "ReplaceSurfaceBackendTexture")
 			skip(ALL, "test", ALL, "SurfaceAttachStencil_Gpu")
 			skip(ALL, "test", ALL, "SurfaceWrappedWithRelease_Gpu")
-		}
-
-		if b.extraConfig("CommandBuffer") {
-			// skbug.com/10412
-			skip(ALL, "test", ALL, "GLBackendAllocationTest")
-			skip(ALL, "test", ALL, "InitialTextureClear")
-			// skbug.com/12437
-			skip(ALL, "test", ALL, "GrDDLImage_MakeSubset")
-			skip(ALL, "test", ALL, "GrContext_oomed")
 		}
 
 		// skbug.com/9043 - these devices render this test incorrectly
@@ -650,12 +628,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	// Eventually I'd like these to pass, but for now just skip 'em.
 	if b.extraConfig("SK_FORCE_RASTER_PIPELINE_BLITTER") {
-		removeFromArgs("tests")
-	}
-
-	// Workaround for skbug.com/13040. Eventually, the CommandBuffer bots are going to be
-	// replaced with ANGLE bots, so this is fine as a temporary fix
-	if b.extraConfig("CommandBuffer") {
 		removeFromArgs("tests")
 	}
 
