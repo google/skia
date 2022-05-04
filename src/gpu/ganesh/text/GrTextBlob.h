@@ -230,6 +230,11 @@ public:
                                   const GrSDFTControl& control,
                                   SkGlyphRunListPainter* painter);
 
+    GrTextBlob(GrSubRunAllocator&& alloc,
+               int totalMemorySize,
+               const SkMatrix& positionMatrix,
+               SkColor initialLuminance);
+
     ~GrTextBlob() override;
 
     // Change memory management to handle the data after GrTextBlob, but in the same allocation
@@ -258,11 +263,6 @@ public:
     const GrAtlasSubRun* testingOnlyFirstSubRun() const;
 
 private:
-    GrTextBlob(GrSubRunAllocator&& alloc,
-               int totalMemorySize,
-               const SkMatrix& positionMatrix,
-               SkColor initialLuminance);
-
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             sk_sp<SkStrike>&& strike) override;

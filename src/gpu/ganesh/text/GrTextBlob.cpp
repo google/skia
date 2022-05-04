@@ -2178,13 +2178,11 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
             + GrGlyphVector::GlyphVectorSize(totalGlyphCount)
             + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding);
 
-    auto [memory, totalMemoryAllocated, alloc] =
+    auto [initializer, totalMemoryAllocated, alloc] =
             GrSubRunAllocator::AllocateClassMemoryAndArena<GrTextBlob>(subRunSizeHint);
     SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(paint);
-    sk_sp<GrTextBlob> blob{new (memory) GrTextBlob(std::move(alloc),
-                                                   totalMemoryAllocated,
-                                                   positionMatrix,
-                                                   initialLuminance)};
+    sk_sp<GrTextBlob> blob = sk_sp<GrTextBlob>(initializer.initialize(
+            std::move(alloc), totalMemoryAllocated, positionMatrix, initialLuminance));
 
     const uint64_t uniqueID = glyphRunList.uniqueID();
     for (auto& glyphRun : glyphRunList) {
@@ -2451,13 +2449,11 @@ sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* c
         subRunsSizeHint = 128;
     }
 
-    auto [memory, _, alloc] = GrSubRunAllocator::AllocateClassMemoryAndArena<Slug>(subRunsSizeHint);
+    auto [initializer, _, alloc] =
+            GrSubRunAllocator::AllocateClassMemoryAndArena<Slug>(subRunsSizeHint);
 
-    sk_sp<Slug> slug{new (memory) Slug(std::move(alloc),
-                                       sourceBounds,
-                                       paint,
-                                       positionMatrix,
-                                       origin)};
+    sk_sp<Slug> slug = sk_sp<Slug>(
+            initializer.initialize(std::move(alloc), sourceBounds, paint, positionMatrix, origin));
 
     for (int i = 0; i < subRunCount; ++i) {
         auto subRun = GrSubRun::MakeFromBuffer(slug.get(), buffer, &slug->fAlloc, client);
@@ -2473,8 +2469,6 @@ sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* c
 
     return std::move(slug);
 }
-
-
 
 void Slug::processDeviceMasks(
         const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
@@ -2508,16 +2502,15 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
             + GrGlyphVector::GlyphVectorSize(totalGlyphCount)
             + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding);
 
-    auto [memory, _, alloc] = GrSubRunAllocator::AllocateClassMemoryAndArena<Slug>(subRunSizeHint);
+    auto [initializer, _, alloc] =
+            GrSubRunAllocator::AllocateClassMemoryAndArena<Slug>(subRunSizeHint);
 
     const SkMatrix positionMatrix =
             position_matrix(viewMatrix.localToDevice(), glyphRunList.origin());
 
-    sk_sp<Slug> slug{new (memory) Slug(std::move(alloc),
-                                       glyphRunList.sourceBounds(),
-                                       initialPaint,
-                                       positionMatrix,
-                                       glyphRunList.origin())};
+    sk_sp<Slug> slug = sk_sp<Slug>(initializer.initialize(
+            std::move(alloc), glyphRunList.sourceBounds(), initialPaint, positionMatrix,
+            glyphRunList.origin()));
 
     const uint64_t uniqueID = glyphRunList.uniqueID();
     for (auto& glyphRun : glyphRunList) {

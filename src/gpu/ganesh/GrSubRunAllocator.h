@@ -165,6 +165,21 @@ private:
     SkFibBlockSizes<kMaxByteSize> fFibProgression;
 };
 
+template <typename T>
+class GrSubRunInitializer {
+public:
+    GrSubRunInitializer(void* memory) : fMemory{memory} { SkASSERT(memory != nullptr); }
+    template <typename... Args>
+    T* initialize(Args&&... args) {
+        // Warn on more than one initialization.
+        SkASSERT(fMemory != nullptr);
+        return new (std::exchange(fMemory, nullptr)) T(std::forward<Args>(args)...);
+    }
+
+private:
+    void* fMemory;
+};
+
 // GrSubRunAllocator provides fast allocation where the user takes care of calling the destructors
 // of the returned pointers, and GrSubRunAllocator takes care of deleting the storage. The
 // unique_ptrs returned, are to assist in assuring the object's destructor is called.
@@ -196,7 +211,7 @@ public:
     GrSubRunAllocator& operator=(GrSubRunAllocator&&) = default;
 
     template <typename T>
-    static std::tuple<void *, int, GrSubRunAllocator>
+    static std::tuple<GrSubRunInitializer<T>, int, GrSubRunAllocator>
     AllocateClassMemoryAndArena(int allocSizeHint) {
         SkASSERT_RELEASE(allocSizeHint >= 0);
         // Round the size after the object the optimal amount.
