@@ -29,7 +29,6 @@ def RunSteps(api):
   # Check out code.
   bot_update = True
   checkout_root = api.checkout.default_checkout_root
-  checkout_chromium = False
   checkout_flutter = False
   flutter_android = False
 
@@ -45,7 +44,6 @@ def RunSteps(api):
   if bot_update:
     api.checkout.bot_update(
         checkout_root=checkout_root,
-        checkout_chromium=checkout_chromium,
         checkout_flutter=checkout_flutter,
         flutter_android=flutter_android)
   else:

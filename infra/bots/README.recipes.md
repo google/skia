@@ -89,19 +89,15 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 
 Fail if git is not obtained from CIPD.
 
-&mdash; **def [bot\_update](/infra/bots/recipe_modules/checkout/api.py#48)(self, checkout_root, gclient_cache=None, checkout_chromium=False, checkout_flutter=False, extra_gclient_env=None, flutter_android=False):**
+&mdash; **def [bot\_update](/infra/bots/recipe_modules/checkout/api.py#48)(self, checkout_root, gclient_cache=None, checkout_flutter=False, flutter_android=False):**
 
 Run the steps to obtain a checkout using bot_update.
 
 Args:
   checkout_root: Root directory where the code will be synced.
   gclient_cache: Optional, directory of the gclient cache.
-  checkout_chromium: If True, will check out chromium/src.git in addition
-      to the primary repo.
   checkout_flutter: If True, will checkout flutter in addition to the
       primary repo.
-  extra_gclient_env: Map of extra environment variable names to their values
-      to supply while running gclient.
   flutter_android: Indicates that we're checking out flutter for Android.
 
 &emsp; **@property**<br>&mdash; **def [default\_checkout\_root](/infra/bots/recipe_modules/checkout/api.py#15)(self):**

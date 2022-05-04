@@ -1,8 +1,6 @@
 use_relative_paths = True
 
 vars = {
-  "checkout_chromium": False,
-
   # Three lines of non-changing comments so that
   # the commit queue can handle CLs rolling different
   # dependencies without interference from each other.
@@ -53,11 +51,6 @@ deps = {
   "third_party/externals/wuffs"                  : "https://skia.googlesource.com/external/github.com/google/wuffs-mirror-release-c.git@600cd96cf47788ee3a74b40a6028b035c9fd6a61",
   "third_party/externals/zlib"                   : "https://chromium.googlesource.com/chromium/src/third_party/zlib@c876c8f87101c5a75f6014b0f832499afeb65b73",
 
-  "../src": {
-    "url": "https://chromium.googlesource.com/chromium/src.git@2635a346f46f35623bfb76b72c9cfb00cb1fec52",
-    "condition": "checkout_chromium",
-  },
-
   'bin': {
     'packages': [
       {
@@ -68,9 +61,3 @@ deps = {
     'dep_type': 'cipd',
   },
 }
-
-recursedeps = [
-  "../src",
-]
-
-gclient_gn_args_from = 'src'

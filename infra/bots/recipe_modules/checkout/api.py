@@ -46,27 +46,20 @@ if 'cipd_bin_packages' not in git:
       return self.m.properties['revision']
 
   def bot_update(self, checkout_root, gclient_cache=None,
-                 checkout_chromium=False, checkout_flutter=False,
-                 extra_gclient_env=None,
+                 checkout_flutter=False,
                  flutter_android=False):
     """Run the steps to obtain a checkout using bot_update.
 
     Args:
       checkout_root: Root directory where the code will be synced.
       gclient_cache: Optional, directory of the gclient cache.
-      checkout_chromium: If True, will check out chromium/src.git in addition
-          to the primary repo.
       checkout_flutter: If True, will checkout flutter in addition to the
           primary repo.
-      extra_gclient_env: Map of extra environment variable names to their values
-          to supply while running gclient.
       flutter_android: Indicates that we're checking out flutter for Android.
     """
     self.assert_git_is_from_cipd()
     if not gclient_cache:
       gclient_cache = self.m.vars.cache_dir.join('git')
-    if not extra_gclient_env:
-      extra_gclient_env = {}
 
     cfg_kwargs = {}
 
@@ -126,10 +119,6 @@ if 'cipd_bin_packages' not in git:
       m[skia_dep_path] = 'got_revision'
       patch_root = skia_dep_path
 
-    if checkout_chromium:
-      main.custom_vars['checkout_chromium'] = True
-      extra_gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
-
     # TODO(rmistry): Remove the below block after there is a solution for
     #                crbug.com/616443
     entries_file = checkout_root.join('.gclient_entries')
@@ -160,10 +149,8 @@ if 'cipd_bin_packages' not in git:
           download_topics=True,
       )
 
-    if checkout_chromium or checkout_flutter:
+    if checkout_flutter:
       gclient_env = {'DEPOT_TOOLS_UPDATE': '0'}
-      if extra_gclient_env:
-        gclient_env.update(extra_gclient_env)
       with self.m.context(cwd=checkout_root, env=gclient_env):
         self.m.gclient.runhooks()
     return update_step.presentation.properties['got_revision']
