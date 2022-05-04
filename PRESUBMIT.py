@@ -259,7 +259,7 @@ def _RegenerateAllExamplesCPP(input_api, output_api):
 def _CheckBazelBUILDFiles(input_api, output_api):
   """Makes sure our BUILD.bazel files are compatible with G3."""
   results = []
-  for affected_file in input_api.AffectedFiles():
+  for affected_file in input_api.AffectedFiles(include_deletes=False):
     affected_file_path = affected_file.LocalPath()
     is_bazel = affected_file_path.endswith('BUILD.bazel')
     if is_bazel:
