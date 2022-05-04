@@ -208,8 +208,6 @@ public:
     void bindFramebuffer(GrGLenum fboTarget, GrGLuint fboid);
     void deleteFramebuffer(GrGLuint fboid);
 
-    void insertManualFramebufferBarrier() override;
-
     void flushProgram(sk_sp<GrGLProgram>);
 
     // Version for programs that aren't GrGLProgram.

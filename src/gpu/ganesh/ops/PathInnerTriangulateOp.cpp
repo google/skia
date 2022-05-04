@@ -447,9 +447,6 @@ void PathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect&
         SkASSERT(fTessellator);
         flushState->bindPipelineAndScissorClip(*fStencilCurvesProgram, this->bounds());
         fTessellator->draw(flushState);
-        if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
-            flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
-        }
     }
 
     // Allocation of the fan vertex buffer may have failed but we already pushed back fan programs.

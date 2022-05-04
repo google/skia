@@ -119,11 +119,6 @@ public:
 
     bool avoidWritePixelsFastPath() const { return fAvoidWritePixelsFastPath; }
 
-    // http://skbug.com/9739
-    bool requiresManualFBBarrierAfterTessellatedStencilDraw() const {
-        return fRequiresManualFBBarrierAfterTessellatedStencilDraw;
-    }
-
     // glDrawElementsIndirect fails GrMeshTest on every Win10 Intel bot.
     bool nativeDrawIndexedIndirectIsBroken() const { return fNativeDrawIndexedIndirectIsBroken; }
 
@@ -218,10 +213,6 @@ public:
     bool isWindowRectanglesSupportedForRT(const GrBackendRenderTarget& rt) const {
         return this->maxWindowRectangles() > 0 && this->onIsWindowRectanglesSupportedForRT(rt);
     }
-
-    // TODO: Should never be called, will be deleted shortly skbug.com/13263.
-    int minPathVerbsForHwTessellation() const { return 0; }
-    int minStrokeVerbsForHwTessellation() const { return 0; }
 
     uint32_t maxPushConstantsSize() const { return fMaxPushConstantsSize; }
 
@@ -576,7 +567,6 @@ protected:
     bool fDisableTessellationPathRenderer            : 1;
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
-    bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
     bool fNativeDrawIndexedIndirectIsBroken          : 1;
     bool fAvoidReorderingRenderTasks                 : 1;
     bool fAvoidDithering                             : 1;

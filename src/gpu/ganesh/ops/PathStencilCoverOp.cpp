@@ -335,9 +335,6 @@ void PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
     SkASSERT(fStencilPathProgram);
     flushState->bindPipelineAndScissorClip(*fStencilPathProgram, this->bounds());
     fTessellator->draw(flushState);
-    if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
-        flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
-    }
 
     // Fill in the bounding box (if not in stencil-only mode).
     if (fCoverBBoxProgram) {

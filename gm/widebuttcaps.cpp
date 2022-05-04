@@ -52,15 +52,7 @@ static void draw_strokes(SkCanvas* canvas, SkRandom* rand, const SkPath& path,
 static void draw_test(SkCanvas* canvas) {
     SkRandom rand;
 
-    if (canvas->recordingContext() &&
-        canvas->recordingContext()->priv().caps()->shaderCaps()->tessellationSupport() &&
-        canvas->recordingContext()->priv().caps()->shaderCaps()->maxTessellationSegments() == 5) {
-        // The caller successfully overrode the max tessellation segments to 5. Indicate this in the
-        // background color.
-        canvas->clear(SkColorSetARGB(255, 64, 0, 0));
-    } else {
-        canvas->clear(SK_ColorBLACK);
-    }
+    canvas->clear(SK_ColorBLACK);
 
     SkAutoCanvasRestore arc(canvas, true);
     canvas->translate(60, 60);

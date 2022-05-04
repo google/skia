@@ -3648,11 +3648,6 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     }
 }
 
-void GrGLGpu::insertManualFramebufferBarrier() {
-    SkASSERT(this->caps()->requiresManualFBBarrierAfterTessellatedStencilDraw());
-    GL_CALL(MemoryBarrier(GR_GL_FRAMEBUFFER_BARRIER_BIT));
-}
-
 GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
                                                  GrRenderable renderable,

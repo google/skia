@@ -79,7 +79,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fBufferMapThreshold = options.fBufferMapThreshold;
     fAvoidStencilBuffers = false;
     fAvoidWritePixelsFastPath = false;
-    fRequiresManualFBBarrierAfterTessellatedStencilDraw = false;
     fNativeDrawIndexedIndirectIsBroken = false;
     fAvoidReorderingRenderTasks = false;
     fAvoidDithering = false;
@@ -113,7 +112,6 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fDisableTessellationPathRenderer);
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAvoidWritePixelsFastPath);
-        SkASSERT(!fRequiresManualFBBarrierAfterTessellatedStencilDraw);
         SkASSERT(!fNativeDrawIndexedIndirectIsBroken);
         SkASSERT(!fAdvBlendEqDisableFlags);
         SkASSERT(!fPerformColorClearsAsDraws);
@@ -240,8 +238,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
     writer->appendBool("Avoid stencil buffers [workaround]", fAvoidStencilBuffers);
     writer->appendBool("Avoid writePixels fast path [workaround]", fAvoidWritePixelsFastPath);
-    writer->appendBool("Requires manual FB barrier after tessellated stencilDraw [workaround]",
-                       fRequiresManualFBBarrierAfterTessellatedStencilDraw);
     writer->appendBool("Native draw indexed indirect is broken [workaround]",
                        fNativeDrawIndexedIndirectIsBroken);
     writer->appendBool("Avoid DAG reordering [workaround]", fAvoidReorderingRenderTasks);

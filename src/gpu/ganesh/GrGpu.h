@@ -644,12 +644,6 @@ public:
 
     virtual void storeVkPipelineCacheData() {}
 
-    // http://skbug.com/9739
-    virtual void insertManualFramebufferBarrier() {
-        SkASSERT(!this->caps()->requiresManualFBBarrierAfterTessellatedStencilDraw());
-        SK_ABORT("Manual framebuffer barrier not supported.");
-    }
-
     // Called before certain draws in order to guarantee coherent results from dst reads.
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 

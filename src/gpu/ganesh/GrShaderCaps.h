@@ -99,11 +99,6 @@ struct GrShaderCaps : SkSL::ShaderCaps {
 
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
-    // Maximum number of segments a tessellation edge can be divided into.
-    int maxTessellationSegments() const { return 0; }
-
-    bool tessellationSupport() const { return false;}
-
     void applyOptionsOverrides(const GrContextOptions& options);
 
     bool fDstReadInShaderSupport = false;
