@@ -141,11 +141,8 @@ static wgpu::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primit
             return wgpu::PrimitiveTopology::LineList;
         case GrPrimitiveType::kLineStrip:
             return wgpu::PrimitiveTopology::LineStrip;
-        case GrPrimitiveType::kPath:
-        default:
-            SkASSERT(!"unsupported primitive topology");
-            return wgpu::PrimitiveTopology::TriangleList;
     }
+    SkUNREACHABLE;
 }
 
 static wgpu::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {

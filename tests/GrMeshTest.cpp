@@ -575,7 +575,7 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
                                                        hasVertexBuffer);
 
     GrProgramInfo programInfo(fState->caps(), fState->writeView(), fState->usesMSAASurface(),
-                              pipeline, &GrUserStencilSettings::kUnused, mtp, primitiveType, 0,
+                              pipeline, &GrUserStencilSettings::kUnused, mtp, primitiveType,
                               fState->renderPassBarriers(), fState->colorLoadOp());
 
     fState->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kImageWidth, kImageHeight));

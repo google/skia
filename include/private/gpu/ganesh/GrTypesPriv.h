@@ -45,10 +45,8 @@ enum class GrPrimitiveType : uint8_t {
     kPoints,
     kLines,          // 1 pix wide only
     kLineStrip,      // 1 pix wide only
-    kPatches,
-    kPath
 };
-static constexpr int kNumGrPrimitiveTypes = (int)GrPrimitiveType::kPath + 1;
+static constexpr int kNumGrPrimitiveTypes = (int)GrPrimitiveType::kLineStrip + 1;
 
 static constexpr bool GrIsPrimTypeLines(GrPrimitiveType type) {
     return GrPrimitiveType::kLines == type || GrPrimitiveType::kLineStrip == type;
@@ -280,9 +278,7 @@ static const int kGrShaderTypeCount = kLastkFragment_GrShaderType + 1;
 enum GrShaderFlags {
     kNone_GrShaderFlags          = 0,
     kVertex_GrShaderFlag         = 1 << 0,
-    kTessControl_GrShaderFlag    = 1 << 1,
-    kTessEvaluation_GrShaderFlag = 1 << 2,
-    kFragment_GrShaderFlag       = 1 << 3
+    kFragment_GrShaderFlag       = 1 << 1
 };
 SK_MAKE_BITFIELD_OPS(GrShaderFlags)
 

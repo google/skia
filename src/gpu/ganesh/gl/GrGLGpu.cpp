@@ -619,7 +619,6 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         this->hwBufferState(GrGpuBufferType::kVertex)->invalidate();
         this->hwBufferState(GrGpuBufferType::kIndex)->invalidate();
         this->hwBufferState(GrGpuBufferType::kDrawIndirect)->invalidate();
-        fHWPatchVertexCount = 0;
     }
 
     if (resetBits & kRenderTarget_GrGLBackendState) {
@@ -1926,10 +1925,6 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
 
     this->flushProgram(std::move(program));
 
-    if (GrPrimitiveType::kPatches == programInfo.primitiveType()) {
-        this->flushPatchVertexCount(programInfo.tessellationPatchVertexCount());
-    }
-
     // Swizzle the blend to match what the shader will output.
     this->flushBlendAndColorWrite(programInfo.pipeline().getXferProcessor().getBlendInfo(),
                                   programInfo.pipeline().writeSwizzle());
@@ -2394,11 +2389,6 @@ GrGLenum GrGLGpu::prepareToDraw(GrPrimitiveType primitiveType) {
             return GR_GL_LINES;
         case GrPrimitiveType::kLineStrip:
             return GR_GL_LINE_STRIP;
-        case GrPrimitiveType::kPatches:
-            return GR_GL_PATCHES;
-        case GrPrimitiveType::kPath:
-            SK_ABORT("non-mesh-based GrPrimitiveType");
-            return 0;
     }
     SK_ABORT("invalid GrPrimitiveType");
 }
@@ -2855,14 +2845,6 @@ void GrGLGpu::onResetTextureBindings() {
             }
         }
         fHWTextureUnitBindings[i].invalidateAllTargets(true);
-    }
-}
-
-void GrGLGpu::flushPatchVertexCount(uint8_t count) {
-    SkASSERT(this->caps()->shaderCaps()->tessellationSupport());
-    if (fHWPatchVertexCount != count) {
-        GL_CALL(PatchParameteri(GR_GL_PATCH_VERTICES, count));
-        fHWPatchVertexCount = count;
     }
 }
 

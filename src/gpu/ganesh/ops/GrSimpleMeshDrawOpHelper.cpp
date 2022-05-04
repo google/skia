@@ -205,7 +205,6 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(const GrCaps* caps,
                                           stencilSettings,
                                           geometryProcessor,
                                           primitiveType,
-                                          0,
                                           xferBarrierFlags,
                                           colorLoadOp);
     return tmp;

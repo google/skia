@@ -258,8 +258,6 @@ protected:
 private:
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
 
-    GrShaderFlags fShaders = kVertex_GrShaderFlag | kFragment_GrShaderFlag;
-
     AttributeSet fVertexAttributes;
     AttributeSet fInstanceAttributes;
 

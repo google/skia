@@ -59,7 +59,6 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   userStencilSettings,
                                   fCurrDraw->fGeometryProcessor,
                                   fCurrDraw->fPrimitiveType,
-                                  0,
                                   this->renderPassBarriers(),
                                   this->colorLoadOp());
 

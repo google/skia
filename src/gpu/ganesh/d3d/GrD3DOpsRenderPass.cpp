@@ -129,8 +129,6 @@ void set_primitive_topology(GrD3DGpu* gpu, const GrProgramInfo& info) {
         case GrPrimitiveType::kLineStrip:
             topology = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
             break;
-        case GrPrimitiveType::kPatches: // Unsupported
-        case GrPrimitiveType::kPath: // Unsupported
         default:
             SkUNREACHABLE;
     }

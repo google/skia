@@ -167,7 +167,7 @@ private:
                                   &pipeline,
                                   &GrUserStencilSettings::kUnused,
                                   geomProc,
-                                  GrPrimitiveType::kTriangleStrip, 0,
+                                  GrPrimitiveType::kTriangleStrip,
                                   flushState->renderPassBarriers(),
                                   flushState->colorLoadOp());
 

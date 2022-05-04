@@ -163,7 +163,7 @@ void DrawAtlasPathOp::prepareProgram(const GrCaps& caps, SkArenaAlloc* arena,
                                                    *caps.shaderCaps());
     fProgram = arena->make<GrProgramInfo>(caps, writeView, usesMSAASurface, pipeline,
                                           &GrUserStencilSettings::kUnused, shader,
-                                          GrPrimitiveType::kTriangleStrip, 0,
+                                          GrPrimitiveType::kTriangleStrip,
                                           renderPassXferBarriers, colorLoadOp);
 }
 

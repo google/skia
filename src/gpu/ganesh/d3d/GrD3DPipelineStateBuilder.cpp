@@ -481,8 +481,6 @@ static D3D12_PRIMITIVE_TOPOLOGY_TYPE gr_primitive_type_to_d3d(GrPrimitiveType pr
         case GrPrimitiveType::kLines: // fall through
         case GrPrimitiveType::kLineStrip:
             return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-        case GrPrimitiveType::kPatches: // fall through, unsupported
-        case GrPrimitiveType::kPath: // fall through, unsupported
         default:
             SkUNREACHABLE;
     }

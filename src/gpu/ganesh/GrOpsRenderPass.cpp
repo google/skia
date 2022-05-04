@@ -82,9 +82,6 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
             SkASSERT(stencil->fCCWFace.fWriteMask == stencil->fCWFace.fWriteMask);
         }
     }
-    if (GrPrimitiveType::kPatches == programInfo.primitiveType()) {
-        SkASSERT(this->gpu()->caps()->shaderCaps()->tessellationSupport());
-    }
     programInfo.checkAllInstantiated();
     programInfo.checkMSAAAndMIPSAreResolved();
 #endif

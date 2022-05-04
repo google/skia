@@ -422,8 +422,6 @@ private:
         SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
     };
 
-    void flushPatchVertexCount(uint8_t count);
-
     void flushColorWrite(bool writeColor);
     void flushClearColor(std::array<float, 4>);
 
@@ -673,8 +671,6 @@ private:
         // This is used when we're using a core profile.
         GrGLVertexArray*     fCoreProfileVertexArray;
     } fHWVertexArrayState;
-
-    uint8_t fHWPatchVertexCount;
 
     struct {
         GrGLenum                fGLTarget;

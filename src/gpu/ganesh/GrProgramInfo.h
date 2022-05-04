@@ -23,7 +23,6 @@ public:
                   const GrUserStencilSettings* userStencilSettings,
                   const GrGeometryProcessor* geomProc,
                   GrPrimitiveType primitiveType,
-                  uint8_t tessellationPatchVertexCount,
                   GrXferBarrierFlags renderPassXferBarriers,
                   GrLoadOp colorLoadOp)
             : fNeedsStencil(targetView.asRenderTargetProxy()->needsStencil())
@@ -39,7 +38,6 @@ public:
             , fUserStencilSettings(userStencilSettings)
             , fGeomProc(geomProc)
             , fPrimitiveType(primitiveType)
-            , fTessellationPatchVertexCount(tessellationPatchVertexCount)
             , fRenderPassXferBarriers(renderPassXferBarriers)
             , fColorLoadOp(colorLoadOp) {
         SkASSERT(fTargetsNumSamples > 0);
@@ -47,8 +45,6 @@ public:
         if (fNumSamples == 1 && usesMSAASurface) {
             fNumSamples = caps.internalMultisampleCount(this->backendFormat());
         }
-        SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
-                 (fTessellationPatchVertexCount > 0));
         SkDEBUGCODE(this->validate(false);)
     }
 
@@ -66,10 +62,6 @@ public:
     const GrGeometryProcessor& geomProc() const { return *fGeomProc; }
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
-    uint8_t tessellationPatchVertexCount() const {
-        SkASSERT(GrPrimitiveType::kPatches == fPrimitiveType);
-        return fTessellationPatchVertexCount;
-    }
 
     bool targetHasVkResolveAttachmentWithInput() const {
         return fTargetHasVkResolveAttachmentWithInput;
@@ -82,7 +74,7 @@ public:
     GrLoadOp colorLoadOp() const { return fColorLoadOp; }
 
     uint16_t primitiveTypeKey() const {
-        return ((uint16_t)fPrimitiveType << 8) | fTessellationPatchVertexCount;
+        return (uint16_t) fPrimitiveType;
     }
 
     // For Dawn, Metal and Vulkan the number of stencil bits is known a priori so we can
@@ -110,7 +102,6 @@ private:
     const GrUserStencilSettings*          fUserStencilSettings;
     const GrGeometryProcessor*            fGeomProc;
     GrPrimitiveType                       fPrimitiveType;
-    uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.
     GrXferBarrierFlags                    fRenderPassXferBarriers;
     GrLoadOp                              fColorLoadOp;
 };

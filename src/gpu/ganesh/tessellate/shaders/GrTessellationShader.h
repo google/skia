@@ -48,7 +48,7 @@ public:
                                       const GrPipeline* pipeline,
                                       const GrUserStencilSettings* stencil) {
         return args.fArena->make<GrProgramInfo>(*args.fCaps, args.fWriteView, args.fUsesMSAASurface,
-                                                pipeline, stencil, shader, shader->fPrimitiveType,0,
+                                                pipeline, stencil, shader, shader->fPrimitiveType,
                                                 args.fXferBarrierFlags, args.fColorLoadOp);
     }
 
