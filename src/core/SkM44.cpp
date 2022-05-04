@@ -321,7 +321,11 @@ SkM44 SkM44::RectToRect(const SkRect& src, const SkRect& dst) {
                  0.f, 0.f, 0.f, 1.f};
 }
 
-static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
+static SkV3 normalize(SkV3 v) {
+    const auto vlen = v.length();
+
+    return SkScalarNearlyZero(vlen) ? v : v * (1.0f / vlen);
+}
 
 static SkV4 v4(SkV3 v, SkScalar w) { return {v.x, v.y, v.z, w}; }
 

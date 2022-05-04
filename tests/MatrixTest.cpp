@@ -1042,3 +1042,9 @@ DEF_TEST(Matrix_mapRect_skbug12335, r) {
 DEF_TEST(Matrix_Ctor, r) {
     REPORTER_ASSERT(r, SkMatrix{} == SkMatrix::I());
 }
+
+DEF_TEST(Matrix_LookAt, r) {
+    // Degenerate inputs should not trigger *SAN errors.
+    const auto m = SkM44::LookAt({0,0,0}, {0,0,0}, {0,0,0});
+    REPORTER_ASSERT(r, m == SkM44());
+}
