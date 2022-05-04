@@ -66,6 +66,7 @@ generated_cc_atom(
     hdrs = ["Tessellation.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkPaint_hdr",
         "//include/core:SkPoint_hdr",
         "//include/core:SkStrokeRec_hdr",
         "//include/gpu:GrTypes_hdr",
@@ -117,7 +118,7 @@ generated_cc_atom(
     name = "FixedCountBufferUtils_hdr",
     hdrs = ["FixedCountBufferUtils.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkPaint_hdr"],
+    deps = [":Tessellation_hdr"],
 )
 
 generated_cc_atom(

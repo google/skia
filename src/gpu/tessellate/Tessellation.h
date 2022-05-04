@@ -8,6 +8,7 @@
 #ifndef skgpu_tessellate_Tessellation_DEFINED
 #define skgpu_tessellate_Tessellation_DEFINED
 
+#include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/gpu/GrTypes.h"
@@ -18,8 +19,6 @@ class SkPath;
 struct SkRect;
 
 namespace skgpu {
-
-struct VertexWriter;
 
 // Use familiar type names from SkSL.
 template<int N> using vec = skvx::Vec<N, float>;
@@ -66,7 +65,46 @@ AI constexpr float pow4(float x) { return pow2(x*x); }
 #undef AI
 
 // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
-SK_MAYBE_UNUSED constexpr static float kTessellationPrecision = 4;
+constexpr static float kTessellationPrecision = 4;
+
+// This is the maximum number of subdivisions of a Bezier curve that can be represented in the fixed
+// count vertex and index buffers. If rendering a curve that requires more subdivisions, it must be
+// chopped.
+constexpr static int kMaxFixedResolveLevel = 5;
+
+// This is the maximum number of parametric segments (linear sections) that a curve can be split
+// into. This is the same for path filling and stroking, although fixed-count stroking also uses
+// additional vertices to handle radial segments, joins, and caps. Additionally the fixed-count
+// path filling algorithms snap their dynamic vertex counts to powers-of-two, whereas the stroking
+// algorithm does not.
+constexpr static int kMaxParametricSegments = 1 << kMaxFixedResolveLevel;
+
+// Don't tessellate paths that might have an individual curve that requires more than 1024 segments.
+// (See wangs_formula::worst_case_cubic). If this is the case, call "PreChopPathCurves" first.
+// Standard chopping, when Wang's formula is between kMaxParametricSegments and
+// kMaxTessellationSegmentsPerCurve is handled automatically by PatchWriter. It differs from
+// PreChopPathCurves in that it does no culling of offscreen chopped paths.
+constexpr static float kMaxTessellationSegmentsPerCurve = 1024;
+
+// Returns a new path, equivalent to 'path' within the given viewport, whose verbs can all be drawn
+// with 'maxSegments' tessellation segments or fewer, while staying within '1/tessellationPrecision'
+// pixels of the true curve. Curves and chops that fall completely outside the viewport are
+// flattened into lines.
+SkPath PreChopPathCurves(float tessellationPrecision,
+                         const SkPath&,
+                         const SkMatrix&,
+                         const SkRect& viewport);
+
+// How many triangles are in a curve with 2^resolveLevel line segments?
+// Resolve level defines the tessellation factor for filled paths drawn using curves or wedges.
+constexpr static int NumCurveTrianglesAtResolveLevel(int resolveLevel) {
+    // resolveLevel=0 -> 0 line segments -> 0 triangles
+    // resolveLevel=1 -> 2 line segments -> 1 triangle
+    // resolveLevel=2 -> 4 line segments -> 3 triangles
+    // resolveLevel=3 -> 8 line segments -> 7 triangles
+    // ...
+    return (1 << resolveLevel) - 1;
+}
 
 // Optional attribs that are included in tessellation patches, following the control points and in
 // the same order as they appear here.
@@ -107,19 +145,6 @@ constexpr size_t PatchAttribsStride(PatchAttribs attribs) {
 constexpr size_t PatchStride(PatchAttribs attribs) {
     return 4*sizeof(SkPoint) + PatchAttribsStride(attribs);
 }
-
-// Don't tessellate paths that might have an individual curve that requires more than 1024 segments.
-// (See wangs_formula::worst_case_cubic). If this is the case, call "PreChopPathCurves" first.
-constexpr static float kMaxTessellationSegmentsPerCurve SK_MAYBE_UNUSED = 1024;
-
-// Returns a new path, equivalent to 'path' within the given viewport, whose verbs can all be drawn
-// with 'maxSegments' tessellation segments or fewer, while staying within '1/tessellationPrecision'
-// pixels of the true curve. Curves and chops that fall completely outside the viewport are
-// flattened into lines.
-SkPath PreChopPathCurves(float tessellationPrecision,
-                         const SkPath&,
-                         const SkMatrix&,
-                         const SkRect& viewport);
 
 // Finds 0, 1, or 2 T values at which to chop the given curve in order to guarantee the resulting
 // cubics are convex and rotate no more than 180 degrees.
@@ -175,6 +200,46 @@ struct StrokeParams {
     float fRadius;
     float fJoinType;  // See GetJoinType().
 };
+
+
+// Returns the fixed number of edges that are always emitted with the given join type. If the
+// join is round, the caller needs to account for the additional radial edges on their own.
+// Specifically, each join always emits:
+//
+//   * Two colocated edges at the beginning (a full-width edge to seam with the preceding stroke
+//     and a half-width edge to begin the join).
+//
+//   * An extra edge in the middle for miter joins, or else a variable number of radial edges
+//     for round joins (the caller is responsible for counting radial edges from round joins).
+//
+//   * A half-width edge at the end of the join that will be colocated with the first
+//     (full-width) edge of the stroke.
+//
+constexpr static int NumFixedEdgesInJoin(SkPaint::Join joinType) {
+    switch (joinType) {
+        case SkPaint::kMiter_Join:
+            return 4;
+        case SkPaint::kRound_Join:
+            // The caller is responsible for counting the variable number of middle, radial
+            // segments on round joins.
+            [[fallthrough]];
+        case SkPaint::kBevel_Join:
+            return 3;
+    }
+    SkUNREACHABLE;
+}
+
+// Returns the worst-case number of edges we will need in order to draw a join of the given type.
+constexpr static int WorstCaseEdgesInJoin(SkPaint::Join joinType,
+                                          float numRadialSegmentsPerRadian) {
+    int numEdges = NumFixedEdgesInJoin(joinType);
+    if (joinType == SkPaint::kRound_Join) {
+        // For round joins we need to count the radial edges on our own. Account for a worst-case
+        // join of 180 degrees (SK_ScalarPI radians).
+        numEdges += std::max(SkScalarCeilToInt(numRadialSegmentsPerRadian * SK_ScalarPI) - 1, 0);
+    }
+    return numEdges;
+}
 
 // These tolerances decide the number of parametric and radial segments the tessellator will
 // linearize strokes into. These decisions are made in (pre-viewMatrix) local path space.

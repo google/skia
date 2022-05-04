@@ -235,10 +235,13 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         // The inner fan isn't built into the tessellator. Generate a standard Redbook fan with a
         // middle-out topology.
         GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fFanBuffer, &fFanBaseVertex);
-        int maxCombinedFanEdges = MaxCombinedFanEdgesInPaths(fTotalCombinedPathVerbCnt);
+        // Path fans might have an extra edge from an implicit kClose at the end, but they also
+        // always begin with kMove. So the max possible number of edges in a single path is equal to
+        // the number of verbs. Therefore, the max number of combined fan edges in a path list is
+        // the number of combined verbs from the paths in the list.
         // A single n-sided polygon is fanned by n-2 triangles. Multiple polygons with a combined
         // edge count of n are fanned by strictly fewer triangles.
-        int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
+        int maxTrianglesInFans = std::max(fTotalCombinedPathVerbCnt - 2, 0);
         int fanTriangleCount = 0;
         if (VertexWriter triangleVertexWriter =
                     vertexAlloc.lockWriter(sizeof(SkPoint), maxTrianglesInFans * 3)) {

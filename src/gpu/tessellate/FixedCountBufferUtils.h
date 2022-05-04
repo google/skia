@@ -8,85 +8,10 @@
 #ifndef tessellate_FixedCountBufferUtils_DEFINED
 #define tessellate_FixedCountBufferUtils_DEFINED
 
-#include "include/core/SkPaint.h"
-
-#include <algorithm>
-
+#include "src/gpu/tessellate/Tessellation.h"
 namespace skgpu {
 
 struct VertexWriter;
-
-// This is the maximum number of segments contained in our vertex and index buffers for
-// fixed-count rendering. If rendering in fixed-count mode and a curve requires more segments,
-// it must be chopped.
-constexpr static int kMaxFixedResolveLevel = 5;
-
-// This is the maximum number of parametric segments (linear sections) that a curve can be split
-// into. This is the same for path filling and stroking, although fixed-count stroking also uses
-// additional vertices to handle radial segments, joins, and caps. Additionally the fixed-count
-// path filling algorithms snap their dynamic vertex counts to powers-of-two, whereas the stroking
-// algorithm does not.
-constexpr static int kMaxParametricSegments = 1 << kMaxFixedResolveLevel;
-
-// Returns an upper bound on the number of combined edges there might be from all inner fans in
-// a list of paths (specified by their total combined verb count).
-constexpr static int MaxCombinedFanEdgesInPaths(int totalCombinedPathVerbCnt) {
-    // Path fans might have an extra edge from an implicit kClose at the end, but they also
-    // always begin with kMove. So the max possible number of edges in a single path is equal to
-    // the number of verbs. Therefore, the max number of combined fan edges in a path list is
-    // the number of combined verbs from the paths in the list.
-    return totalCombinedPathVerbCnt;
-}
-
-// How many triangles are in a curve with 2^resolveLevel line segments?
-// Resolve level defines the tessellation factor for filled paths drawn using curves or wedges.
-constexpr static int NumCurveTrianglesAtResolveLevel(int resolveLevel) {
-    // resolveLevel=0 -> 0 line segments -> 0 triangles
-    // resolveLevel=1 -> 2 line segments -> 1 triangle
-    // resolveLevel=2 -> 4 line segments -> 3 triangles
-    // resolveLevel=3 -> 8 line segments -> 7 triangles
-    // ...
-    return (1 << resolveLevel) - 1;
-}
-
-// Returns the fixed number of edges that are always emitted with the given join type. If the
-// join is round, the caller needs to account for the additional radial edges on their own.
-// Specifically, each join always emits:
-//
-//   * Two colocated edges at the beginning (a full-width edge to seam with the preceding stroke
-//     and a half-width edge to begin the join).
-//
-//   * An extra edge in the middle for miter joins, or else a variable number of radial edges
-//     for round joins (the caller is responsible for counting radial edges from round joins).
-//
-//   * A half-width edge at the end of the join that will be colocated with the first
-//     (full-width) edge of the stroke.
-//
-constexpr static int NumFixedEdgesInJoin(SkPaint::Join joinType) {
-    switch (joinType) {
-        case SkPaint::kMiter_Join:
-            return 4;
-        case SkPaint::kRound_Join:
-            // The caller is responsible for counting the variable number of middle, radial
-            // segments on round joins.
-            [[fallthrough]];
-        case SkPaint::kBevel_Join:
-            return 3;
-    }
-    SkUNREACHABLE;
-}
-
-// Returns the worst-case number of edges we will need in order to draw a join of the given type.
-constexpr static int WorstCaseEdgesInJoin(SkPaint::Join joinType,
-                                          float numRadialSegmentsPerRadian) {
-    int numEdges = NumFixedEdgesInJoin(joinType);
-    if (joinType == SkPaint::kRound_Join) {
-        // For round joins we need to count the radial edges on our own. Account for a worst-case
-        // join of 180 degrees (SK_ScalarPI radians).
-        numEdges += std::max(SkScalarCeilToInt(numRadialSegmentsPerRadian * SK_ScalarPI) - 1, 0);
-    }
-    return numEdges;
-}
 
 /**
  * Fixed-count tessellation operates in three modes, two for filling paths, and one for stroking.
@@ -140,7 +65,7 @@ public:
 
     static constexpr int PreallocCount(int totalCombinedPathVerbCnt)  {
         // Over-allocate enough wedges for 1 in 4 to chop, i.e., ceil(maxWedges * 5/4)
-        return (MaxCombinedFanEdgesInPaths(totalCombinedPathVerbCnt) * 5 + 3) / 4;
+        return (totalCombinedPathVerbCnt * 5 + 3) / 4;
     }
 
     static constexpr size_t VertexBufferSize() {

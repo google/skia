@@ -39,8 +39,7 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawGeometr
     // paths to SkPath just to iterate their pts/verbs
     SkPath path = geom.shape().asPath();
 
-    const int maxCombinedFanEdges = MaxCombinedFanEdgesInPaths(path.countVerbs());
-    const int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
+    const int maxTrianglesInFans = std::max(path.countVerbs() - 2, 0);
 
     float depth = geom.order().depthAsFloat();
 

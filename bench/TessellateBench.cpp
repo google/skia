@@ -224,7 +224,7 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
                     ToolUtils::make_star(SkRect::MakeWH(500, 500), kNumCubicsInChalkboard),
                     SkMatrix::I()) {
     // Conservative estimate of triangulation (see PathStencilCoverOp)
-    const int maxVerts = 3 * (MaxCombinedFanEdgesInPaths(kNumCubicsInChalkboard) - 2);
+    const int maxVerts = 3 * (kNumCubicsInChalkboard - 2);
 
     sk_sp<const GrBuffer> buffer;
     int baseVertex;
