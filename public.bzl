@@ -1216,8 +1216,6 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.h",
     "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.cpp",
     "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.h",
-    "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader_HardwareImpl.cpp",
-    "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader_InstancedImpl.cpp",
     "src/gpu/ganesh/tessellate/shaders/GrTessellationShader.cpp",
     "src/gpu/ganesh/tessellate/shaders/GrTessellationShader.h",
     "src/gpu/ganesh/text/GrAtlasManager.cpp",
