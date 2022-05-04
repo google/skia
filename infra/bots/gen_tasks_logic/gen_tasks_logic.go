@@ -87,7 +87,7 @@ const (
 	// This will have to kept in sync with the kMin_Version in
 	// src/core/SkPicturePriv.h
 	// See the comment in that file on how to find the version to use here.
-	oldestSupportedSkpVersion = 291
+	oldestSupportedSkpVersion = 293
 )
 
 var (
