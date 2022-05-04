@@ -1828,8 +1828,6 @@ if (skia_enable_tools) {
     frameworks = []
 
     if (skia_use_gl) {
-      sources +=
-          [ "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp" ]
       if (is_ios) {
         sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
         frameworks += [ "OpenGLES.framework" ]

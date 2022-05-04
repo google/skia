@@ -44,8 +44,6 @@ public:
         kANGLE_GL_ES3_ContextType,       //! ANGLE on OpenGL OpenGL ES 3 context.
         kANGLE_Metal_ES2_ContextType,    //! ANGLE on Metal ES 2 context.
         kANGLE_Metal_ES3_ContextType,    //! ANGLE on Metal ES 3 context.
-        kCommandBuffer_ES2_ContextType,  //! Chromium command buffer OpenGL ES 2 context.
-        kCommandBuffer_ES3_ContextType,  //! Chromium command buffer OpenGL ES 3 context.
         kVulkan_ContextType,             //! Vulkan
         kMetal_ContextType,              //! Metal
         kDirect3D_ContextType,           //! Direct3D 12
@@ -113,10 +111,6 @@ public:
                 return "ANGLE Metal ES2";
             case kANGLE_Metal_ES3_ContextType:
                 return "ANGLE Metal ES3";
-            case kCommandBuffer_ES2_ContextType:
-                return "Command Buffer ES2";
-            case kCommandBuffer_ES3_ContextType:
-                return "Command Buffer ES3";
             case kVulkan_ContextType:
                 return "Vulkan";
             case kMetal_ContextType:

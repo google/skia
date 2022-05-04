@@ -155,7 +155,6 @@ generated_cc_atom(
         "//tools/gpu/dawn:DawnTestContext_hdr",
         "//tools/gpu/gl:GLTestContext_hdr",
         "//tools/gpu/gl/angle:GLTestContext_angle_hdr",
-        "//tools/gpu/gl/command_buffer:GLTestContext_command_buffer_hdr",
         "//tools/gpu/mock:MockTestContext_hdr",
         "//tools/gpu/mtl:MtlTestContext_hdr",
         "//tools/gpu/vk:VkTestContext_hdr",

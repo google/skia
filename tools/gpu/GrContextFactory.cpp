@@ -16,7 +16,6 @@
 #if SK_ANGLE
 #include "tools/gpu/gl/angle/GLTestContext_angle.h"
 #endif
-#include "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.h"
 #ifdef SK_VULKAN
 #include "tools/gpu/vk/VkTestContext.h"
 #endif
@@ -217,14 +216,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 case kANGLE_Metal_ES3_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kMetal, ANGLEContextVersion::kES3,
                                                  glShareContext).release();
-                    break;
-#endif
-#ifndef SK_NO_COMMAND_BUFFER
-                case kCommandBuffer_ES2_ContextType:
-                    glCtx = CommandBufferGLTestContext::Create(2, glShareContext);
-                    break;
-                case kCommandBuffer_ES3_ContextType:
-                    glCtx = CommandBufferGLTestContext::Create(3, glShareContext);
                     break;
 #endif
                 default:

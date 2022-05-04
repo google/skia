@@ -1,6 +1,8 @@
-load("//bazel:macros.bzl", "cc_library", "select_multi")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "select_multi")
 
 licenses(["notice"])
+
+exports_files_legacy()
 
 GENERAL_DEFINES = [
     # The following comment is load-bearing. It will be replace via regex when we build for Google3
@@ -104,7 +106,6 @@ PLATFORM_DEFINES = select({
         "SK_FORCE_8_BYTE_ALIGNMENT",
         "SK_DISABLE_LEGACY_SHADERCONTEXT",
         "SK_DISABLE_AAA",  # This saves about 57KB of code size, uncompressed
-        "SK_NO_COMMAND_BUFFER",  # not a feature CK needs.
     ],
     "//conditions:default": [],
 })

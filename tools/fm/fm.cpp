@@ -514,8 +514,6 @@ int main(int argc, char** argv) {
         { "angle_gl_es3"   , GrContextFactory::kANGLE_GL_ES3_ContextType },
         { "angle_mtl_es2"  , GrContextFactory::kANGLE_Metal_ES2_ContextType },
         { "angle_mtl_es3"  , GrContextFactory::kANGLE_Metal_ES3_ContextType },
-        { "cmdbuffer_es2"  , GrContextFactory::kCommandBuffer_ES2_ContextType },
-        { "cmdbuffer_es3"  , GrContextFactory::kCommandBuffer_ES3_ContextType },
         { "vk"             , GrContextFactory::kVulkan_ContextType },
         { "mtl"            , GrContextFactory::kMetal_ContextType },
         { "mock"           , GrContextFactory::kMock_ContextType },

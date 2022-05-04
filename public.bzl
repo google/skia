@@ -2104,7 +2104,6 @@ def base_defines(os_conditions):
             # IOS
             [
                 "SK_BUILD_FOR_IOS",
-                "SK_NO_COMMAND_BUFFER",  # Test tools that use thread_local.
                 "SK_GL",
                 "SK_CODEC_DECODES_JPEG",
                 "SK_ENCODE_JPEG",

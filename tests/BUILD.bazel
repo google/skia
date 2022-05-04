@@ -19,7 +19,6 @@ cc_library(
         "//src/lazy:SkDiscardableMemoryPool_src",
         "//src/svg:SkSVGCanvas_src",
         "//tools/fonts:TestEmptyTypeface_hdr",
-        "//tools/gpu/gl/command_buffer:GLTestContext_command_buffer_src",
         "//tools/gpu/gl:GLTestContext_src",
         "//tools/gpu:gpu_tool_utils",
         "//tools:RuntimeBlendUtils_src",
