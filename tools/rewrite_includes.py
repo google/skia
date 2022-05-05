@@ -8,10 +8,9 @@
 
 import argparse
 import os
-import six
 import sys
 
-from six import StringIO
+from io import StringIO
 
 
 parser = argparse.ArgumentParser()
