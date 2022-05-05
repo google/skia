@@ -5,6 +5,37 @@ licenses(["notice"])
 exports_files_legacy()
 
 generated_cc_atom(
+    name = "GlyphVector_hdr",
+    hdrs = ["GlyphVector.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Glyph_hdr",
+        ":StrikeCache_hdr",
+        ":SubRunAllocator_hdr",
+        "//include/core:SkSpan_hdr",
+        "//src/core:SkGlyphBuffer_hdr",
+        "//src/core:SkGlyph_hdr",
+        "//src/gpu/ganesh:GrDrawOpAtlas_hdr",
+        "//src/gpu/ganesh:GrMeshDrawTarget_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GlyphVector_src",
+    srcs = ["GlyphVector.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GlyphVector_hdr",
+        "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkStrikeCache_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu/ganesh/text:GrAtlasManager_hdr",
+    ],
+)
+
+generated_cc_atom(
     name = "Glyph_hdr",
     hdrs = ["Glyph.h"],
     visibility = ["//:__subpackages__"],
@@ -12,5 +43,50 @@ generated_cc_atom(
         "//src/core:SkGlyph_hdr",
         "//src/core:SkMask_hdr",
         "//src/gpu:AtlasTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrikeCache_hdr",
+    hdrs = ["StrikeCache.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrikeCache_src",
+    srcs = ["StrikeCache.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Glyph_hdr",
+        ":StrikeCache_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SubRunAllocator_hdr",
+    hdrs = ["SubRunAllocator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkMath_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SubRunAllocator_src",
+    srcs = ["SubRunAllocator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SubRunAllocator_hdr",
+        "//include/core:SkMath_hdr",
     ],
 )

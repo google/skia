@@ -13,8 +13,8 @@
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrNativeRect.h"
-#include "src/gpu/ganesh/GrSubRunAllocator.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/text/gpu/SubRunAllocator.h"
 
 class GrResourceProvider;
 
@@ -32,13 +32,13 @@ public:
     void flush() {
         SkDEBUGCODE(fIsFlushed = true;)
     }
-    GrSubRunAllocator* subRunAlloc() { return &fSubRunAllocator; }
+    sktext::gpu::SubRunAllocator* subRunAlloc() { return &fSubRunAllocator; }
 
 private:
     SkArenaAlloc fArenaAlloc{1024};
     // An allocator specifically designed to minimize the overhead of sub runs. It provides a
     // different dtor semantics than SkArenaAlloc.
-    GrSubRunAllocator fSubRunAllocator{1024};
+    sktext::gpu::SubRunAllocator fSubRunAllocator{1024};
     SkDEBUGCODE(bool fIsFlushed = false;)
 };
 

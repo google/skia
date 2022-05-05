@@ -22,7 +22,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrAtlasManager_hdr",
-        ":GrStrikeCache_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkColorSpace_hdr",
         "//include/core:SkImageEncoder_hdr",
@@ -37,6 +36,7 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrTextureProxy_hdr",
         "//src/gpu/ganesh:SurfaceContext_hdr",
         "//src/text/gpu:Glyph_hdr",
+        "//src/text/gpu:StrikeCache_hdr",
     ],
 )
 
@@ -120,29 +120,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "GrStrikeCache_hdr",
-    hdrs = ["GrStrikeCache.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/private:SkTHash_hdr",
-        "//src/core:SkArenaAlloc_hdr",
-        "//src/core:SkStrikeSpec_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrStrikeCache_src",
-    srcs = ["GrStrikeCache.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrStrikeCache_hdr",
-        "//src/core:SkArenaAlloc_hdr",
-        "//src/core:SkStrikeSpec_hdr",
-        "//src/text/gpu:Glyph_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "GrTextBlob_hdr",
     hdrs = ["GrTextBlob.h"],
     visibility = ["//:__subpackages__"],
@@ -159,8 +136,8 @@ generated_cc_atom(
         "//src/core:SkTInternalLList_hdr",
         "//src/core:SkTLazy_hdr",
         "//src/gpu/ganesh:GrColor_hdr",
-        "//src/gpu/ganesh:GrSubRunAllocator_hdr",
         "//src/gpu/ganesh/ops:GrOp_hdr",
+        "//src/text/gpu:SubRunAllocator_hdr",
     ],
 )
 
@@ -170,9 +147,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrAtlasManager_hdr",
-        ":GrGlyphVector_hdr",
         ":GrSDFTControl_hdr",
-        ":GrStrikeCache_hdr",
         ":GrTextBlob_hdr",
         "//include/core:SkColorFilter_hdr",
         "//include/core:SkScalar_hdr",
@@ -194,14 +169,16 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrMeshDrawTarget_hdr",
         "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
         "//src/gpu/ganesh:GrStyle_hdr",
-        "//src/gpu/ganesh:GrSubRunAllocator_hdr",
         "//src/gpu/ganesh:SkGr_hdr",
         "//src/gpu/ganesh/effects:GrDistanceFieldGeoProc_hdr",
         "//src/gpu/ganesh/geometry:GrStyledShape_hdr",
         "//src/gpu/ganesh/ops:AtlasTextOp_hdr",
         "//src/gpu/ganesh/v1:Device_v1_hdr",
         "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
+        "//src/text/gpu:GlyphVector_hdr",
         "//src/text/gpu:Glyph_hdr",
+        "//src/text/gpu:StrikeCache_hdr",
+        "//src/text/gpu:SubRunAllocator_hdr",
     ],
 )
 
@@ -227,36 +204,5 @@ generated_cc_atom(
     deps = [
         ":GrTextBlobRedrawCoordinator_hdr",
         "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrGlyphVector_hdr",
-    hdrs = ["GrGlyphVector.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrStrikeCache_hdr",
-        "//include/core:SkSpan_hdr",
-        "//src/core:SkGlyphBuffer_hdr",
-        "//src/core:SkGlyph_hdr",
-        "//src/gpu/ganesh:GrDrawOpAtlas_hdr",
-        "//src/gpu/ganesh:GrMeshDrawTarget_hdr",
-        "//src/gpu/ganesh:GrSubRunAllocator_hdr",
-        "//src/text/gpu:Glyph_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrGlyphVector_src",
-    srcs = ["GrGlyphVector.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrAtlasManager_hdr",
-        ":GrGlyphVector_hdr",
-        "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
-        "//src/core:SkReadBuffer_hdr",
-        "//src/core:SkStrikeCache_hdr",
-        "//src/core:SkStrikeSpec_hdr",
-        "//src/core:SkWriteBuffer_hdr",
     ],
 )

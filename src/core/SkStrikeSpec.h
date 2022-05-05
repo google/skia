@@ -17,8 +17,10 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/text/GrSDFTControl.h"
-class GrStrikeCache;
-class GrTextStrike;
+namespace sktext::gpu {
+class StrikeCache;
+class TextStrike;
+}
 #endif
 
 class SkFont;
@@ -78,7 +80,7 @@ public:
             const SkMatrix& deviceMatrix,
             const GrSDFTControl& control);
 
-    sk_sp<GrTextStrike> findOrCreateGrStrike(GrStrikeCache* cache) const;
+    sk_sp<sktext::gpu::TextStrike> findOrCreateTextStrike(sktext::gpu::StrikeCache* cache) const;
 #endif
 
     SkScopedStrikeForGPU findOrCreateScopedStrike(SkStrikeForGPUCacheInterface* cache) const;

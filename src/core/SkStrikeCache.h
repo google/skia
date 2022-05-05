@@ -132,7 +132,8 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextStrike> findOrCreateGrStrike(GrStrikeCache* grStrikeCache) const;
+    sk_sp<sktext::gpu::TextStrike> findOrCreateTextStrike(
+            sktext::gpu::StrikeCache* gpuStrikeCache) const;
 #endif
 
     void prepareForMaskDrawing(

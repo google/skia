@@ -29,7 +29,6 @@ struct GrMockOptions;
 class GrPath;
 class GrResourceCache;
 class GrResourceProvider;
-class GrStrikeCache;
 class GrSurfaceProxy;
 class GrTextureProxy;
 struct GrVkBackendContext;
@@ -44,6 +43,10 @@ class SkTraceMemoryDump;
 namespace skgpu {
 class Swizzle;
 namespace v1 { class SmallPathAtlasMgr; }
+}
+
+namespace sktext::gpu {
+class StrikeCache;
 }
 
 class SK_API GrDirectContext : public GrRecordingContext {
@@ -856,11 +859,11 @@ private:
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
     // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being
     // invoked after objects they depend upon have already been destroyed.
-    std::unique_ptr<SkTaskGroup>            fTaskGroup;
-    std::unique_ptr<GrStrikeCache>          fStrikeCache;
-    sk_sp<GrGpu>                            fGpu;
-    std::unique_ptr<GrResourceCache>        fResourceCache;
-    std::unique_ptr<GrResourceProvider>     fResourceProvider;
+    std::unique_ptr<SkTaskGroup>              fTaskGroup;
+    std::unique_ptr<sktext::gpu::StrikeCache> fStrikeCache;
+    sk_sp<GrGpu>                              fGpu;
+    std::unique_ptr<GrResourceCache>          fResourceCache;
+    std::unique_ptr<GrResourceProvider>       fResourceProvider;
 
     bool                                    fDidTestPMConversions;
     // true if the PM/UPM conversion succeeded; false otherwise

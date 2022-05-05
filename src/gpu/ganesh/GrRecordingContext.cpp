@@ -101,7 +101,7 @@ void GrRecordingContext::destroyDrawingManager() {
 }
 
 GrRecordingContext::Arenas::Arenas(SkArenaAlloc* recordTimeAllocator,
-                                   GrSubRunAllocator* subRunAllocator)
+                                   sktext::gpu::SubRunAllocator* subRunAllocator)
         : fRecordTimeAllocator(recordTimeAllocator)
         , fRecordTimeSubRunAllocator(subRunAllocator) {
     // OwnedArenas should instantiate these before passing the bare pointer off to this struct.
@@ -127,7 +127,7 @@ GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
     }
 
     if (!fRecordTimeSubRunAllocator) {
-        fRecordTimeSubRunAllocator = std::make_unique<GrSubRunAllocator>();
+        fRecordTimeSubRunAllocator = std::make_unique<sktext::gpu::SubRunAllocator>();
     }
 
     return {fRecordTimeAllocator.get(), fRecordTimeSubRunAllocator.get()};

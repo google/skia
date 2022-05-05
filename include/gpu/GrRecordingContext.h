@@ -26,12 +26,15 @@ class GrProgramDesc;
 class GrProgramInfo;
 class GrProxyProvider;
 class GrRecordingContextPriv;
-class GrSubRunAllocator;
 class GrSurfaceProxy;
 class GrTextBlobRedrawCoordinator;
 class GrThreadSafeCache;
 class SkArenaAlloc;
 class SkJSONWriter;
+
+namespace sktext::gpu {
+class SubRunAllocator;
+}
 
 #if GR_TEST_UTILS
 class SkString;
@@ -102,17 +105,19 @@ public:
     // GrRecordingContext. Arenas does not maintain ownership of the pools it groups together.
     class Arenas {
     public:
-        Arenas(SkArenaAlloc*, GrSubRunAllocator*);
+        Arenas(SkArenaAlloc*, sktext::gpu::SubRunAllocator*);
 
         // For storing pipelines and other complex data as-needed by ops
         SkArenaAlloc* recordTimeAllocator() { return fRecordTimeAllocator; }
 
         // For storing GrTextBlob SubRuns
-        GrSubRunAllocator* recordTimeSubRunAllocator() { return fRecordTimeSubRunAllocator; }
+        sktext::gpu::SubRunAllocator* recordTimeSubRunAllocator() {
+            return fRecordTimeSubRunAllocator;
+        }
 
     private:
         SkArenaAlloc* fRecordTimeAllocator;
-        GrSubRunAllocator* fRecordTimeSubRunAllocator;
+        sktext::gpu::SubRunAllocator* fRecordTimeSubRunAllocator;
     };
 
 protected:
@@ -133,7 +138,7 @@ protected:
     private:
         bool fDDLRecording;
         std::unique_ptr<SkArenaAlloc> fRecordTimeAllocator;
-        std::unique_ptr<GrSubRunAllocator> fRecordTimeSubRunAllocator;
+        std::unique_ptr<sktext::gpu::SubRunAllocator> fRecordTimeSubRunAllocator;
     };
 
     GrRecordingContext(sk_sp<GrContextThreadSafeProxy>, bool ddlRecording);

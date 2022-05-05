@@ -16,7 +16,7 @@
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/text/GrSDFMaskFilter.h"
 #include "src/gpu/ganesh/text/GrSDFTControl.h"
-#include "src/gpu/ganesh/text/GrStrikeCache.h"
+#include "src/text/gpu/StrikeCache.h"
 #endif
 
 SkStrikeSpec::SkStrikeSpec(const SkDescriptor& descriptor, sk_sp<SkTypeface> typeface)
@@ -189,7 +189,8 @@ SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
     return std::make_tuple(std::move(strikeSpec), strikeToSourceScale, matrixRange);
 }
 
-sk_sp<GrTextStrike> SkStrikeSpec::findOrCreateGrStrike(GrStrikeCache* cache) const {
+sk_sp<sktext::gpu::TextStrike> SkStrikeSpec::findOrCreateTextStrike(
+            sktext::gpu::StrikeCache* cache) const {
     return cache->findOrCreateStrike(*this);
 }
 #endif

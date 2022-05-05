@@ -23,13 +23,12 @@
 #include "src/core/SkTInternalLList.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/ganesh/GrColor.h"
-#include "src/gpu/ganesh/GrSubRunAllocator.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
+#include "src/text/gpu/SubRunAllocator.h"
 
 class GrAtlasManager;
 class GrDeferredUploadTarget;
 class GrMeshDrawTarget;
-class GrStrikeCache;
 class GrSubRun;
 
 class SkMatrixProvider;
@@ -40,6 +39,7 @@ class SkTextBlobRunIterator;
 
 namespace sktext::gpu {
 class Glyph;
+class StrikeCache;
 }
 
 namespace skgpu::v1 { class SurfaceDrawContext; }
@@ -59,7 +59,7 @@ namespace skgpu::v1 { class SurfaceDrawContext; }
 //        can fit in the atlas; the sizes between direct SubRun, and path SubRun. The destination
 //        rectangles are in source space.
 class GrAtlasSubRun;
-using GrAtlasSubRunOwner = std::unique_ptr<GrAtlasSubRun, GrSubRunAllocator::Destroyer>;
+using GrAtlasSubRunOwner = std::unique_ptr<GrAtlasSubRun, sktext::gpu::SubRunAllocator::Destroyer>;
 class GrAtlasSubRun  {
 public:
     virtual ~GrAtlasSubRun() = default;
@@ -82,7 +82,7 @@ public:
             SkPoint drawOrigin,
             SkIRect clip) const = 0;
 
-    virtual void testingOnly_packedGlyphIDToGlyph(GrStrikeCache* cache) const = 0;
+    virtual void testingOnly_packedGlyphIDToGlyph(sktext::gpu::StrikeCache* cache) const = 0;
 
     // This call is not thread safe. It should only be called from GrDrawOp::onPrepare which
     // is single threaded.
@@ -94,7 +94,7 @@ public:
 // GrSubRun defines the most basic functionality of a SubRun; the ability to draw, and the
 // ability to be in a list.
 class GrSubRun;
-using GrSubRunOwner = std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer>;
+using GrSubRunOwner = std::unique_ptr<GrSubRun, sktext::gpu::SubRunAllocator::Destroyer>;
 class GrBlobSubRun;
 class GrSubRun {
 public:
@@ -111,7 +111,7 @@ public:
     void flatten(SkWriteBuffer& buffer) const;
     static GrSubRunOwner MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
                                         SkReadBuffer& buffer,
-                                        GrSubRunAllocator* alloc,
+                                        sktext::gpu::SubRunAllocator* alloc,
                                         const SkStrikeClient* client);
 
     // Size hint for unflattening this run. If this is accurate, it will help with the allocation
@@ -230,7 +230,7 @@ public:
                                   const GrSDFTControl& control,
                                   SkGlyphRunListPainter* painter);
 
-    GrTextBlob(GrSubRunAllocator&& alloc,
+    GrTextBlob(sktext::gpu::SubRunAllocator&& alloc,
                int totalMemorySize,
                const SkMatrix& positionMatrix,
                SkColor initialLuminance);
@@ -285,7 +285,7 @@ private:
 
     // The allocator must come first because it needs to be destroyed last. Other fields of this
     // structure may have pointers into it.
-    GrSubRunAllocator fAlloc;
+    sktext::gpu::SubRunAllocator fAlloc;
 
     // Owner and list of the SubRun.
     GrSubRunList fSubRunList;

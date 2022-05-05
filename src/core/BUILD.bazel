@@ -4691,7 +4691,7 @@ generated_cc_atom(
         "//include/core:SkTypeface_hdr",
         "//include/private:SkMutex_hdr",
         "//include/private:SkTemplates_hdr",
-        "//src/gpu/ganesh/text:GrStrikeCache_hdr",
+        "//src/text/gpu:StrikeCache_hdr",
     ],
 )
 
@@ -4743,7 +4743,7 @@ generated_cc_atom(
         "//include/core:SkGraphics_hdr",
         "//src/gpu/ganesh/text:GrSDFMaskFilter_hdr",
         "//src/gpu/ganesh/text:GrSDFTControl_hdr",
-        "//src/gpu/ganesh/text:GrStrikeCache_hdr",
+        "//src/text/gpu:StrikeCache_hdr",
     ],
 )
 

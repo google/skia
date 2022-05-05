@@ -13,6 +13,7 @@
 #include "src/gpu/AtlasTypes.h"
 
 namespace sktext::gpu {
+
 class Glyph {
 public:
     static skgpu::MaskFormat FormatFromSkGlyph(SkMask::Format format) {
@@ -39,6 +40,6 @@ public:
     skgpu::AtlasLocator         fAtlasLocator;
 };
 
-}
+}  // namespace sktext::gpu
 
-#endif
+#endif  // sktext_gpu_Glyph_DEFINED

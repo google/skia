@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSubRunAllocator_DEFINED
-#define GrSubRunAllocator_DEFINED
+#ifndef sktext_gpu_SubRunAllocator_DEFINED
+#define sktext_gpu_SubRunAllocator_DEFINED
 
 #include "include/core/SkMath.h"
 #include "include/core/SkSpan.h"
@@ -19,24 +19,26 @@
 #include <tuple>
 #include <utility>
 
-// GrBagOfBytes parcels out bytes with a given size and alignment.
-class GrBagOfBytes {
+namespace sktext::gpu {
+
+// BagOfBytes parcels out bytes with a given size and alignment.
+class BagOfBytes {
 public:
-    GrBagOfBytes(char* block, size_t blockSize, size_t firstHeapAllocation);
-    explicit GrBagOfBytes(size_t firstHeapAllocation = 0);
-    GrBagOfBytes(const GrBagOfBytes&) = delete;
-    GrBagOfBytes& operator=(const GrBagOfBytes&) = delete;
-    GrBagOfBytes(GrBagOfBytes&& that)
+    BagOfBytes(char* block, size_t blockSize, size_t firstHeapAllocation);
+    explicit BagOfBytes(size_t firstHeapAllocation = 0);
+    BagOfBytes(const BagOfBytes&) = delete;
+    BagOfBytes& operator=(const BagOfBytes&) = delete;
+    BagOfBytes(BagOfBytes&& that)
             : fEndByte{std::exchange(that.fEndByte, nullptr)}
             , fCapacity{that.fCapacity}
             , fFibProgression{that.fFibProgression} {}
-    GrBagOfBytes& operator=(GrBagOfBytes&& that) {
-        this->~GrBagOfBytes();
-        new (this) GrBagOfBytes{std::move(that)};
+    BagOfBytes& operator=(BagOfBytes&& that) {
+        this->~BagOfBytes();
+        new (this) BagOfBytes{std::move(that)};
         return *this;
     }
 
-    ~GrBagOfBytes();
+    ~BagOfBytes();
 
     // Given a requestedSize round up to the smallest size that accounts for all the per block
     // overhead and alignment. It crashes if requestedSize is negative or too big.
@@ -166,9 +168,9 @@ private:
 };
 
 template <typename T>
-class GrSubRunInitializer {
+class SubRunInitializer {
 public:
-    GrSubRunInitializer(void* memory) : fMemory{memory} { SkASSERT(memory != nullptr); }
+    SubRunInitializer(void* memory) : fMemory{memory} { SkASSERT(memory != nullptr); }
     template <typename... Args>
     T* initialize(Args&&... args) {
         // Warn on more than one initialization.
@@ -185,7 +187,7 @@ private:
 // unique_ptrs returned, are to assist in assuring the object's destructor is called.
 // A note on zero length arrays: according to the standard a pointer must be returned, and it
 // can't be a nullptr. In such a case, SkArena allocates one byte, but does not initialize it.
-class GrSubRunAllocator {
+class SubRunAllocator {
 public:
     struct Destroyer {
         template <typename T>
@@ -203,26 +205,26 @@ public:
     template<class T>
     inline static constexpr bool HasNoDestructor = std::is_trivially_destructible<T>::value;
 
-    GrSubRunAllocator(char* block, int blockSize, int firstHeapAllocation);
-    explicit GrSubRunAllocator(int firstHeapAllocation = 0);
-    GrSubRunAllocator(const GrSubRunAllocator&) = delete;
-    GrSubRunAllocator& operator=(const GrSubRunAllocator&) = delete;
-    GrSubRunAllocator(GrSubRunAllocator&&) = default;
-    GrSubRunAllocator& operator=(GrSubRunAllocator&&) = default;
+    SubRunAllocator(char* block, int blockSize, int firstHeapAllocation);
+    explicit SubRunAllocator(int firstHeapAllocation = 0);
+    SubRunAllocator(const SubRunAllocator&) = delete;
+    SubRunAllocator& operator=(const SubRunAllocator&) = delete;
+    SubRunAllocator(SubRunAllocator&&) = default;
+    SubRunAllocator& operator=(SubRunAllocator&&) = default;
 
     template <typename T>
-    static std::tuple<GrSubRunInitializer<T>, int, GrSubRunAllocator>
+    static std::tuple<SubRunInitializer<T>, int, SubRunAllocator>
     AllocateClassMemoryAndArena(int allocSizeHint) {
         SkASSERT_RELEASE(allocSizeHint >= 0);
         // Round the size after the object the optimal amount.
-        int extraSize = GrBagOfBytes::PlatformMinimumSizeWithOverhead(allocSizeHint, alignof(T));
+        int extraSize = BagOfBytes::PlatformMinimumSizeWithOverhead(allocSizeHint, alignof(T));
 
         // Don't overflow or die.
         SkASSERT_RELEASE(INT_MAX - SkTo<int>(sizeof(T)) > extraSize);
         int totalMemorySize = sizeof(T) + extraSize;
 
         void* memory = ::operator new (totalMemorySize);
-        GrSubRunAllocator alloc{SkTAddOffset<char>(memory, sizeof(T)), extraSize, extraSize/2};
+        SubRunAllocator alloc{SkTAddOffset<char>(memory, sizeof(T)), extraSize, extraSize/2};
         return {memory, totalMemorySize, std::move(alloc)};
     }
 
@@ -278,6 +280,9 @@ public:
     void* alignedBytes(int size, int alignment);
 
 private:
-    GrBagOfBytes fAlloc;
+    BagOfBytes fAlloc;
 };
-#endif // GrSubRunAllocator_DEFINED
+
+}  // namespace sktext::gpu
+
+#endif // sktext_gpu_SubRunAllocator_DEFINED

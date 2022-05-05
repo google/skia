@@ -14,6 +14,9 @@
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
+using BagOfBytes = sktext::gpu::BagOfBytes;
+using SubRunAllocator = sktext::gpu::SubRunAllocator;
+
 SkBitmap rasterize_blob(SkTextBlob* blob,
                         const SkPaint& paint,
                         GrRecordingContext* rContext,
@@ -143,34 +146,34 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobMoveAround, reporter, ctxInfo) {
     }
 }
 
-DEF_TEST(GrBagOfBytesBasic, r) {
+DEF_TEST(BagOfBytesBasic, r) {
     const int k4K = 1 << 12;
     {
         // GrBagOfBytes::MinimumSizeWithOverhead(-1); // This should fail
-        GrBagOfBytes::PlatformMinimumSizeWithOverhead(0, 16);
-        GrBagOfBytes::PlatformMinimumSizeWithOverhead(
+        BagOfBytes::PlatformMinimumSizeWithOverhead(0, 16);
+        BagOfBytes::PlatformMinimumSizeWithOverhead(
                 std::numeric_limits<int>::max() - k4K - 1, 16);
         // GrBagOfBytes::MinimumSizeWithOverhead(std::numeric_limits<int>::max() - k4K);  // Fail
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(0, 1, 16, 16) == 31);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(1, 1, 16, 16) == 32);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(63, 1, 16, 16) == 94);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(0, 8, 16, 16) == 24);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(1, 8, 16, 16) == 32);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(63, 8, 16, 16) == 88);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(0, 16, 16, 16) == 16);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(1, 16, 16, 16) == 32);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(63, 16, 16, 16) == 80);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(0, 1, 16, 16) == 31);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(1, 1, 16, 16) == 32);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(63, 1, 16, 16) == 94);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(0, 8, 16, 16) == 24);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(1, 8, 16, 16) == 32);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(63, 8, 16, 16) == 88);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(0, 16, 16, 16) == 16);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(1, 16, 16, 16) == 32);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(63, 16, 16, 16) == 80);
 
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(0, 1, 8, 16) == 23);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(1, 1, 8, 16) == 24);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(63, 1, 8, 16) == 86);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(0, 8, 8, 16) == 16);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(1, 8, 8, 16) == 24);
-        REPORTER_ASSERT(r, GrBagOfBytes::MinimumSizeWithOverhead(63, 8, 8, 16) == 80);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(0, 1, 8, 16) == 23);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(1, 1, 8, 16) == 24);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(63, 1, 8, 16) == 86);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(0, 8, 8, 16) == 16);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(1, 8, 8, 16) == 24);
+        REPORTER_ASSERT(r, BagOfBytes::MinimumSizeWithOverhead(63, 8, 8, 16) == 80);
     }
 
     {
-        GrBagOfBytes bob;
+        BagOfBytes bob;
         // bob.alignedBytes(0, 1);  // This should fail
         // bob.alignedBytes(1, 0);  // This should fail
         // bob.alignedBytes(1, 3);  // This should fail
@@ -189,7 +192,7 @@ DEF_TEST(GrBagOfBytesBasic, r) {
 
     // Force multiple block allocation
     {
-        GrBagOfBytes bob;
+        BagOfBytes bob;
         const int k64K = 1 << 16;
         // By default allocation block sizes start at 1K and go up with fib. This should allocate
         // 10 individual blocks.
@@ -200,20 +203,20 @@ DEF_TEST(GrBagOfBytesBasic, r) {
 }
 
 // Helper for defining allocators with inline/reserved storage.
-// For argument declarations, stick to the base type (GrSubRunAllocator).
+// For argument declarations, stick to the base type (SubRunAllocator).
 // Note: Inheriting from the storage first means the storage will outlive the
-// GrSubRunAllocator, letting ~GrSubRunAllocator read it as it calls destructors.
+// SubRunAllocator, letting ~SubRunAllocator read it as it calls destructors.
 // (This is mostly only relevant for strict tools like MSAN.)
 
 template <size_t inlineSize>
-class GrSTSubRunAllocator : private GrBagOfBytes::Storage<inlineSize>, public GrSubRunAllocator {
+class GrSTSubRunAllocator : private BagOfBytes::Storage<inlineSize>, public SubRunAllocator {
 public:
     explicit GrSTSubRunAllocator(int firstHeapAllocation =
-                                    GrBagOfBytes::PlatformMinimumSizeWithOverhead(inlineSize, 1))
-            : GrSubRunAllocator{this->data(), SkTo<int>(this->size()), firstHeapAllocation} {}
+                                     BagOfBytes::PlatformMinimumSizeWithOverhead(inlineSize, 1))
+            : SubRunAllocator{this->data(), SkTo<int>(this->size()), firstHeapAllocation} {}
 };
 
-DEF_TEST(GrSubRunAllocator, r) {
+DEF_TEST(SubRunAllocator, r) {
     static int created = 0;
     static int destroyed = 0;
     struct Foo {
@@ -228,7 +231,7 @@ DEF_TEST(GrSubRunAllocator, r) {
         char buf[10];
     };
 
-    auto exercise = [&](GrSubRunAllocator* alloc) {
+    auto exercise = [&](SubRunAllocator* alloc) {
         created = 0;
         destroyed = 0;
         {
@@ -260,7 +263,7 @@ DEF_TEST(GrSubRunAllocator, r) {
 
     // Exercise default arena
     {
-        GrSubRunAllocator arena{0};
+        SubRunAllocator arena{0};
         exercise(&arena);
     }
 
@@ -273,7 +276,7 @@ DEF_TEST(GrSubRunAllocator, r) {
     // Exercise arena with a heap allocated starting block
     {
         std::unique_ptr<char[]> block{new char[1024]};
-        GrSubRunAllocator arena{block.get(), 1024, 0};
+        SubRunAllocator arena{block.get(), 1024, 0};
         exercise(&arena);
     }
 
@@ -281,16 +284,16 @@ DEF_TEST(GrSubRunAllocator, r) {
     {
         created = 0;
         destroyed = 0;
-        GrSubRunAllocator arena;
+        SubRunAllocator arena;
 
         struct Node {
-            Node(std::unique_ptr<Node, GrSubRunAllocator::Destroyer> next)
+            Node(std::unique_ptr<Node, SubRunAllocator::Destroyer> next)
                     : fNext{std::move(next)} { created++; }
             ~Node() { destroyed++; }
-            std::unique_ptr<Node, GrSubRunAllocator::Destroyer> fNext;
+            std::unique_ptr<Node, SubRunAllocator::Destroyer> fNext;
         };
 
-        std::unique_ptr<Node, GrSubRunAllocator::Destroyer> current = nullptr;
+        std::unique_ptr<Node, SubRunAllocator::Destroyer> current = nullptr;
         for (int i = 0; i < 128; i++) {
             current = arena.makeUnique<Node>(std::move(current));
         }
@@ -315,7 +318,7 @@ DEF_TEST(GrSubRunAllocator, r) {
     }
 
     {
-        GrSubRunAllocator arena(4096);
+        SubRunAllocator arena(4096);
         void* ptr = arena.alignedBytes(4081, 8);
         REPORTER_ASSERT(r, ((intptr_t)ptr & 7) == 0);
     }

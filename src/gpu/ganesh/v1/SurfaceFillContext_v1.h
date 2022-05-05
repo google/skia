@@ -53,7 +53,7 @@ public:
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
 
     SkArenaAlloc* arenaAlloc() { return this->arenas()->arenaAlloc(); }
-    GrSubRunAllocator* subRunAlloc() { return this->arenas()->subRunAlloc(); }
+    sktext::gpu::SubRunAllocator* subRunAlloc() { return this->arenas()->subRunAlloc(); }
 
 #if GR_TEST_UTILS
     OpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }

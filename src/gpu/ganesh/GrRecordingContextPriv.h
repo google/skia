@@ -39,7 +39,7 @@ public:
     GrDrawingManager* drawingManager() { return this->context()->drawingManager(); }
 
     SkArenaAlloc* recordTimeAllocator() { return this->context()->arenas().recordTimeAllocator(); }
-    GrSubRunAllocator* recordTimeSubRunAllocator() {
+    sktext::gpu::SubRunAllocator* recordTimeSubRunAllocator() {
         return this->context()->arenas().recordTimeSubRunAllocator();
     }
     GrRecordingContext::Arenas arenas() { return this->context()->arenas(); }

@@ -191,8 +191,6 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/GrStencilSettings.h",
   "$_src/gpu/ganesh/GrStyle.cpp",
   "$_src/gpu/ganesh/GrStyle.h",
-  "$_src/gpu/ganesh/GrSubRunAllocator.cpp",
-  "$_src/gpu/ganesh/GrSubRunAllocator.h",
   "$_src/gpu/ganesh/GrSurface.cpp",
   "$_src/gpu/ganesh/GrSurface.h",
   "$_src/gpu/ganesh/GrSurfaceInfo.cpp",
@@ -325,20 +323,17 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/text/GrAtlasManager.h",
   "$_src/gpu/ganesh/text/GrDistanceFieldAdjustTable.cpp",
   "$_src/gpu/ganesh/text/GrDistanceFieldAdjustTable.h",
-  "$_src/gpu/ganesh/text/GrGlyphVector.cpp",
-  "$_src/gpu/ganesh/text/GrGlyphVector.h",
   "$_src/gpu/ganesh/text/GrSDFMaskFilter.cpp",
   "$_src/gpu/ganesh/text/GrSDFMaskFilter.h",
   "$_src/gpu/ganesh/text/GrSDFTControl.cpp",
   "$_src/gpu/ganesh/text/GrSDFTControl.h",
   "$_src/gpu/ganesh/text/GrSlug.cpp",
-  "$_src/gpu/ganesh/text/GrStrikeCache.cpp",
-  "$_src/gpu/ganesh/text/GrStrikeCache.h",
   "$_src/gpu/ganesh/text/GrTextBlob.cpp",
   "$_src/gpu/ganesh/text/GrTextBlob.h",
   "$_src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.cpp",
   "$_src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h",
-  "$_src/text/gpu/Glyph.h",
+  "$_src/text/gpu/GlyphVector.cpp",
+  "$_src/text/gpu/GlyphVector.h",
 
   # GLSL
   "$_src/gpu/ganesh/glsl/GrGLSL.cpp",
@@ -832,4 +827,11 @@ skia_shared_gpu_sources = [
   "$_src/gpu/tessellate/Tessellation.cpp",
   "$_src/gpu/tessellate/Tessellation.h",
   "$_src/gpu/tessellate/WangsFormula.h",
+
+  # text
+  "$_src/text/gpu/Glyph.h",
+  "$_src/text/gpu/StrikeCache.cpp",
+  "$_src/text/gpu/StrikeCache.h",
+  "$_src/text/gpu/SubRunAllocator.cpp",
+  "$_src/text/gpu/SubRunAllocator.h",
 ]

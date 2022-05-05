@@ -15,8 +15,8 @@
 #include "src/core/SkUtils.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/text/GrStrikeCache.h"
 #include "src/gpu/ganesh/text/GrTextBlob.h"
+#include "src/text/gpu/StrikeCache.h"
 #include "src/utils/SkUTF.h"
 
 // From Project Guttenberg. This is UTF-8 text.
@@ -77,7 +77,7 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
 
 private:
     sk_sp<GrTextBlob> fBlob;
-    GrStrikeCache fCache;
+    sktext::gpu::StrikeCache fCache;
     std::unique_ptr<char[]> fVertices;
 };
 

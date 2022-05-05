@@ -12,7 +12,6 @@
 #include "src/gpu/ganesh/GrSimpleMesh.h"
 
 class GrAtlasManager;
-class GrStrikeCache;
 class GrThreadSafeCache;
 
 namespace skgpu {
@@ -21,6 +20,10 @@ namespace skgpu {
     struct IndexWriter;
     struct VertexWriter;
 } // namespace skgpu
+
+namespace sktext::gpu {
+class StrikeCache;
+}
 
 /*
  * Abstract interface that supports creating vertices, indices, and meshes, as well as
@@ -139,7 +142,7 @@ public:
     virtual GrResourceProvider* resourceProvider() const = 0;
     uint32_t contextUniqueID() const;
 
-    virtual GrStrikeCache* strikeCache() const = 0;
+    virtual sktext::gpu::StrikeCache* strikeCache() const = 0;
     virtual GrAtlasManager* atlasManager() const = 0;
     virtual skgpu::v1::SmallPathAtlasMgr* smallPathAtlasManager() const = 0;
 

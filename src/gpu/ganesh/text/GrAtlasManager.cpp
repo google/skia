@@ -12,8 +12,9 @@
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
-#include "src/gpu/ganesh/text/GrStrikeCache.h"
 #include "src/text/gpu/Glyph.h"
+#include "src/text/gpu/StrikeCache.h"
+
 
 using Glyph = sktext::gpu::Glyph;
 using MaskFormat = skgpu::MaskFormat;

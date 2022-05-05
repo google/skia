@@ -179,7 +179,7 @@ public:
     GrThreadSafeCache* threadSafeCache() const final;
     GrResourceProvider* resourceProvider() const final { return fResourceProvider; }
 
-    GrStrikeCache* strikeCache() const final;
+    sktext::gpu::StrikeCache* strikeCache() const final;
 
     // At this point we know we're flushing so full access to the GrAtlasManager and
     // SmallPathAtlasMgr is required (and permissible).

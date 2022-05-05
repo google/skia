@@ -19,7 +19,6 @@ class GrCaps;
 class GrMeshDrawTarget;
 class GrOpFlushState;
 struct GrSimpleMesh;
-class GrStrikeCache;
 
 /**
  * Base class for mesh-drawing GrDrawOps.

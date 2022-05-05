@@ -36,7 +36,7 @@ public:
     GrDirectContext* context() { return static_cast<GrDirectContext*>(fContext); }
     const GrDirectContext* context() const { return static_cast<const GrDirectContext*>(fContext); }
 
-    GrStrikeCache* getGrStrikeCache() { return this->context()->fStrikeCache.get(); }
+    sktext::gpu::StrikeCache* getStrikeCache() { return this->context()->fStrikeCache.get(); }
 
     /**
      * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves
