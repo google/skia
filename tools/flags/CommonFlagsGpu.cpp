@@ -20,6 +20,8 @@ namespace CommonFlags {
 
 static DEFINE_bool(cachePathMasks, true,
                    "Allows path mask textures to be cached in GPU configs.");
+static DEFINE_bool(failFlushTimeCallbacks, false,
+                   "Causes all flush-time callbacks to fail.");
 static DEFINE_bool(allPathsVolatile, false,
                    "Causes all GPU paths to be processed as if 'setIsVolatile' had been called.");
 
@@ -96,6 +98,7 @@ void SetCtxOptions(GrContextOptions* ctxOptions) {
 
     ctxOptions->fExecutor                            = gGpuExecutor.get();
     ctxOptions->fAllowPathMaskCaching                = FLAGS_cachePathMasks;
+    ctxOptions->fFailFlushTimeCallbacks              = FLAGS_failFlushTimeCallbacks;
     ctxOptions->fAllPathsVolatile                    = FLAGS_allPathsVolatile;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;

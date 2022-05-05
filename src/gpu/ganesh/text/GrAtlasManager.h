@@ -87,12 +87,19 @@ public:
 
     // GrOnFlushCallbackObject overrides
 
-    void preFlush(GrOnFlushResourceProvider* onFlushRP, SkSpan<const uint32_t>) override {
+    bool preFlush(GrOnFlushResourceProvider* onFlushRP, SkSpan<const uint32_t>) override {
+#if GR_TEST_UTILS
+        if (onFlushRP->failFlushTimeCallbacks()) {
+            return false;
+        }
+#endif
+
         for (int i = 0; i < skgpu::kMaskFormatCount; ++i) {
             if (fAtlases[i]) {
                 fAtlases[i]->instantiate(onFlushRP);
             }
         }
+        return true;
     }
 
     void postFlush(GrDeferredUploadToken startTokenForNextFlush, SkSpan<const uint32_t>) override {

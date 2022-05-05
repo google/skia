@@ -165,6 +165,7 @@ bool GrDrawingManager::flush(
     GrOnFlushResourceProvider onFlushProvider(this);
 
     // Prepare any onFlush op lists (e.g. atlases).
+    bool preFlushSuccessful = true;
     if (!fOnFlushCBObjects.empty()) {
         fFlushingRenderTaskIDs.reserve_back(fDAG.count());
         for (const auto& task : fDAG) {
@@ -174,8 +175,10 @@ bool GrDrawingManager::flush(
         }
 
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-            onFlushCBObject->preFlush(&onFlushProvider, SkMakeSpan(fFlushingRenderTaskIDs));
+            preFlushSuccessful &= onFlushCBObject->preFlush(&onFlushProvider,
+                                                            SkMakeSpan(fFlushingRenderTaskIDs));
         }
+
         for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
             onFlushRenderTask->makeClosed(fContext);
 #ifdef SK_DEBUG
@@ -199,54 +202,59 @@ bool GrDrawingManager::flush(
         }
     }
 
-    bool usingReorderedDAG = false;
-    GrResourceAllocator resourceAllocator(dContext);
-    if (fReduceOpsTaskSplitting) {
-        usingReorderedDAG = this->reorderTasks(&resourceAllocator);
-        if (!usingReorderedDAG) {
-            resourceAllocator.reset();
+    bool cachePurgeNeeded = false;
+
+    if (preFlushSuccessful) {
+        bool usingReorderedDAG = false;
+        GrResourceAllocator resourceAllocator(dContext);
+        if (fReduceOpsTaskSplitting) {
+            usingReorderedDAG = this->reorderTasks(&resourceAllocator);
+            if (!usingReorderedDAG) {
+                resourceAllocator.reset();
+            }
         }
-    }
 
 #if 0
-    // Enable this to print out verbose GrOp information
-    SkDEBUGCODE(SkDebugf("onFlush renderTasks (%d):\n", fOnFlushRenderTasks.count()));
-    for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
-        SkDEBUGCODE(onFlushRenderTask->dump(/* printDependencies */ true);)
-    }
-    SkDEBUGCODE(SkDebugf("Normal renderTasks (%d):\n", fDAG.count()));
-    for (const auto& task : fDAG) {
-        SkDEBUGCODE(task->dump(/* printDependencies */ true);)
-    }
+        // Enable this to print out verbose GrOp information
+        SkDEBUGCODE(SkDebugf("onFlush renderTasks (%d):\n", fOnFlushRenderTasks.count()));
+        for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
+            SkDEBUGCODE(onFlushRenderTask->dump(/* printDependencies */ true);)
+        }
+        SkDEBUGCODE(SkDebugf("Normal renderTasks (%d):\n", fDAG.count()));
+        for (const auto& task : fDAG) {
+            SkDEBUGCODE(task->dump(/* printDependencies */ true);)
+        }
 #endif
 
-    if (!resourceAllocator.failedInstantiation()) {
-        if (!usingReorderedDAG) {
-            for (const auto& task : fDAG) {
-                SkASSERT(task);
-                task->gatherProxyIntervals(&resourceAllocator);
+        if (!resourceAllocator.failedInstantiation()) {
+            if (!usingReorderedDAG) {
+                for (const auto& task : fDAG) {
+                    SkASSERT(task);
+                    task->gatherProxyIntervals(&resourceAllocator);
+                }
+                resourceAllocator.planAssignment();
             }
-            resourceAllocator.planAssignment();
+            resourceAllocator.assign();
         }
-        resourceAllocator.assign();
+
+        cachePurgeNeeded = !resourceAllocator.failedInstantiation() &&
+                           this->executeRenderTasks(&flushState);
     }
-    bool flushed = !resourceAllocator.failedInstantiation() &&
-                    this->executeRenderTasks(&flushState);
     this->removeRenderTasks();
 
     gpu->executeFlushInfo(proxies, access, info, newState);
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
-    if (flushed) {
+    if (cachePurgeNeeded) {
         resourceCache->purgeAsNeeded();
-        flushed = false;
+        cachePurgeNeeded = false;
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
         onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(),
                                    SkMakeSpan(fFlushingRenderTaskIDs));
-        flushed = true;
+        cachePurgeNeeded = true;
     }
-    if (flushed) {
+    if (cachePurgeNeeded) {
         resourceCache->purgeAsNeeded();
     }
     fFlushingRenderTaskIDs.reset();

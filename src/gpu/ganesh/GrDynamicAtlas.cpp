@@ -188,7 +188,7 @@ bool GrDynamicAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
     return true;
 }
 
-void GrDynamicAtlas::instantiate(GrOnFlushResourceProvider* onFlushRP,
+bool GrDynamicAtlas::instantiate(GrOnFlushResourceProvider* onFlushRP,
                                  sk_sp<GrTexture> backingTexture) {
     SkASSERT(!this->isInstantiated());  // This method should only be called once.
     // Caller should have cropped any paths to the destination render target instead of asking for
@@ -211,7 +211,9 @@ void GrDynamicAtlas::instantiate(GrOnFlushResourceProvider* onFlushRP,
         SkASSERT(backingRT->numSamples() == fTextureProxy->asRenderTargetProxy()->numSamples());
         SkASSERT(backingRT->dimensions() == fTextureProxy->backingStoreDimensions());
 #endif
+        // This works bc 'fTextureProxy' is a lazy proxy and, in its LazyInstantiateAtlasCallback,
+        // it will just wrap 'fBackingTexture' if it is non-null.
         fBackingTexture = std::move(backingTexture);
     }
-    onFlushRP->instatiateProxy(fTextureProxy.get());
+    return onFlushRP->instatiateProxy(fTextureProxy.get());
 }

@@ -387,39 +387,52 @@ GrFPResult AtlasPathRenderer::makeAtlasClipEffect(const SurfaceDrawContext* sdc,
                                                                        atlasMatrix, devIBounds));
 }
 
-void AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
+bool AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
                                  SkSpan<const uint32_t> /* taskIDs */) {
     if (fAtlasRenderTasks.empty()) {
         SkASSERT(fAtlasPathCache.count() == 0);
-        return;
+        return true;
     }
 
     // Verify the atlases can all share the same texture.
     SkDEBUGCODE(validate_atlas_dependencies(fAtlasRenderTasks);)
 
-    // Instantiate the first atlas.
-    fAtlasRenderTasks[0]->instantiate(onFlushRP);
+    bool successful;
 
-    // Instantiate the remaining atlases.
-    GrTexture* firstAtlasTexture = fAtlasRenderTasks[0]->atlasProxy()->peekTexture();
-    SkASSERT(firstAtlasTexture);
-    for (int i = 1; i < fAtlasRenderTasks.count(); ++i) {
-        auto atlasTask = fAtlasRenderTasks[i].get();
-        if (atlasTask->atlasProxy()->backingStoreDimensions() == firstAtlasTexture->dimensions()) {
-            atlasTask->instantiate(onFlushRP, sk_ref_sp(firstAtlasTexture));
-        } else {
-            // The atlases are expected to all be full size except possibly the final one.
-            SkASSERT(i == fAtlasRenderTasks.count() - 1);
-            SkASSERT(atlasTask->atlasProxy()->backingStoreDimensions().area() <
-                     firstAtlasTexture->dimensions().area());
-            // TODO: Recycle the larger atlas texture anyway?
-            atlasTask->instantiate(onFlushRP);
+#if GR_TEST_UTILS
+    if (onFlushRP->failFlushTimeCallbacks()) {
+        successful = false;
+    } else
+#endif
+    {
+        // TODO: it seems like this path renderer's backing-texture reuse could be greatly
+        // improved. Please see skbug.com/13298.
+
+        // Instantiate the first atlas.
+        successful = fAtlasRenderTasks[0]->instantiate(onFlushRP);
+
+        // Instantiate the remaining atlases.
+        GrTexture* firstAtlas = fAtlasRenderTasks[0]->atlasProxy()->peekTexture();
+        SkASSERT(firstAtlas);
+        for (int i = 1; successful && i < fAtlasRenderTasks.count(); ++i) {
+            auto atlasTask = fAtlasRenderTasks[i].get();
+            if (atlasTask->atlasProxy()->backingStoreDimensions() == firstAtlas->dimensions()) {
+                successful &= atlasTask->instantiate(onFlushRP, sk_ref_sp(firstAtlas));
+            } else {
+                // The atlases are expected to all be full size except possibly the final one.
+                SkASSERT(i == fAtlasRenderTasks.count() - 1);
+                SkASSERT(atlasTask->atlasProxy()->backingStoreDimensions().area() <
+                         firstAtlas->dimensions().area());
+                // TODO: Recycle the larger atlas texture anyway?
+                successful &= atlasTask->instantiate(onFlushRP);
+            }
         }
     }
 
     // Reset all atlas data.
     fAtlasRenderTasks.reset();
     fAtlasPathCache.reset();
+    return successful;
 }
 
 } // namespace skgpu::v1
