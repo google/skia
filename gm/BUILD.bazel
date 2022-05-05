@@ -3238,7 +3238,9 @@ generated_cc_atom(
         "//include/core:SkData_hdr",
         "//include/core:SkSurface_hdr",
         "//include/effects:SkGradientShader_hdr",
+        "//include/gpu:GrDirectContext_hdr",
         "//src/core:SkCanvasPriv_hdr",
+        "//src/core:SkCustomMeshPriv_hdr",
     ],
 )
 

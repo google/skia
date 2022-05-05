@@ -384,12 +384,30 @@ SkCustomMesh::SkCustomMesh(SkCustomMesh&&)      = default;
 SkCustomMesh& SkCustomMesh::operator=(const SkCustomMesh&) = default;
 SkCustomMesh& SkCustomMesh::operator=(SkCustomMesh&&)      = default;
 
-sk_sp<IndexBuffer> SkCustomMesh::MakeIndexBuffer(GrDirectContext*, sk_sp<const SkData> data) {
-    return SkCustomMeshPriv::CpuIndexBuffer::Make(std::move(data));
+sk_sp<IndexBuffer> SkCustomMesh::MakeIndexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
+    if (!data) {
+        return nullptr;
+    }
+    if (!dc) {
+        return SkCustomMeshPriv::CpuIndexBuffer::Make(std::move(data));
+    }
+#if SK_SUPPORT_GPU
+    return SkCustomMeshPriv::GpuIndexBuffer::Make(dc, std::move(data));
+#endif
+    return nullptr;
 }
 
-sk_sp<VertexBuffer> SkCustomMesh::MakeVertexBuffer(GrDirectContext*, sk_sp<const SkData> data) {
-    return SkCustomMeshPriv::CpuVertexBuffer::Make(std::move(data));
+sk_sp<VertexBuffer> SkCustomMesh::MakeVertexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
+    if (!data) {
+        return nullptr;
+    }
+    if (!dc) {
+        return SkCustomMeshPriv::CpuVertexBuffer::Make(std::move(data));
+    }
+#if SK_SUPPORT_GPU
+    return SkCustomMeshPriv::GpuVertexBuffer::Make(dc, std::move(data));
+#endif
+    return nullptr;
 }
 
 SkCustomMesh SkCustomMesh::Make(sk_sp<SkCustomMeshSpecification> spec,

@@ -396,6 +396,20 @@ private:
 
         bool isFromVertices() const { return SkToBool(fVertices); }
 
+        std::tuple<sk_sp<const GrGpuBuffer>, size_t> gpuVB() const {
+            if (this->isFromVertices()) {
+                return {};
+            }
+            return {fCMData.vb->asGpuBuffer(), fCMData.voffset};
+        }
+
+        std::tuple<sk_sp<const GrGpuBuffer>, size_t> gpuIB() const {
+            if (this->isFromVertices() || !fCMData.ib) {
+                return {};
+            }
+            return {fCMData.ib->asGpuBuffer(), fCMData.ioffset};
+        }
+
         void writeVertices(skgpu::VertexWriter& writer,
                            const SkCustomMeshSpecification& spec,
                            bool transform) const;
@@ -405,9 +419,17 @@ private:
         }
 
         const uint16_t* indices() const {
-            return this->isFromVertices()
-                           ? fVertices->priv().indices()
-                           : SkTAddOffset<const uint16_t>(fCMData.ib->data(), fCMData.ioffset);
+            if (this->isFromVertices()) {
+                return fVertices->priv().indices();
+            }
+            if (!fCMData.ib) {
+                return nullptr;
+            }
+            auto data = fCMData.ib->asData();
+            if (!data) {
+                return nullptr;
+            }
+            return SkTAddOffset<const uint16_t>(data->data(), fCMData.ioffset);
         }
 
         int indexCount() const {
@@ -416,8 +438,8 @@ private:
 
     private:
         struct CMData {
-            sk_sp<const SkData> vb;
-            sk_sp<const SkData> ib;
+            sk_sp<const SkCustomMeshPriv::VB> vb;
+            sk_sp<const SkCustomMeshPriv::IB> ib;
 
             size_t vcount = 0;
             size_t icount = 0;
@@ -452,9 +474,9 @@ private:
 
 CustomMeshOp::Mesh::Mesh(const SkCustomMesh& cm) {
     new (&fCMData) CMData();
-    fCMData.vb = static_cast<SkCustomMeshPriv::VB*>(cm.vertexBuffer().get())->asData();
+    fCMData.vb = sk_ref_sp(static_cast<SkCustomMeshPriv::VB*>(cm.vertexBuffer().get()));
     if (cm.indexBuffer()) {
-        fCMData.ib = static_cast<SkCustomMeshPriv::IB*>(cm.indexBuffer().get())->asData();
+        fCMData.ib = sk_ref_sp(static_cast<SkCustomMeshPriv::IB*>(cm.indexBuffer().get()));
     }
     fCMData.vcount   = cm.vertexCount();
     fCMData.voffset  = cm.vertexOffset();
@@ -507,8 +529,11 @@ void CustomMeshOp::Mesh::writeVertices(skgpu::VertexWriter& writer,
             }
         }
     } else {
-        auto vb = static_cast<const char*>(fCMData.vb->data()) + fCMData.voffset;
-        writer << skgpu::VertexWriter::Array(vb, spec.stride()*fCMData.vcount);
+        sk_sp<const SkData> data = fCMData.vb->asData();
+        if (data) {
+            auto vdata = static_cast<const char*>(data->data()) + fCMData.voffset;
+            writer << skgpu::VertexWriter::Array(vdata, spec.stride() * fCMData.vcount);
+        }
     }
 }
 
@@ -706,25 +731,35 @@ void CustomMeshOp::onCreateProgramInfo(const GrCaps* caps,
 void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
     size_t vertexStride = fSpecification->stride();
     sk_sp<const GrBuffer> vertexBuffer;
-    int firstVertex = 0;
-    skgpu::VertexWriter verts = target->makeVertexWriter(vertexStride,
-                                                         fVertexCount,
-                                                         &vertexBuffer,
-                                                         &firstVertex);
-    if (!verts) {
-        SkDebugf("Could not allocate vertices.\n");
-        return;
-    }
+    int firstVertex;
+    std::tie(vertexBuffer, firstVertex) = fMeshes[0].gpuVB();
 
-    bool transform = fViewMatrix == SkMatrix::InvalidMatrix();
-    for (const auto& m : fMeshes) {
-        m.writeVertices(verts, *fSpecification, transform);
+    if (!vertexBuffer) {
+        skgpu::VertexWriter verts = target->makeVertexWriter(vertexStride,
+                                                             fVertexCount,
+                                                             &vertexBuffer,
+                                                             &firstVertex);
+        if (!verts) {
+            SkDebugf("Could not allocate vertices.\n");
+            return;
+        }
+
+        bool transform = fViewMatrix == SkMatrix::InvalidMatrix();
+        for (const auto& m : fMeshes) {
+            m.writeVertices(verts, *fSpecification, transform);
+        }
+    } else {
+        SkASSERT(fMeshes.count() == 1);
+        SkASSERT(firstVertex % fSpecification->stride() == 0);
+        firstVertex /= fSpecification->stride();
     }
 
     sk_sp<const GrBuffer> indexBuffer;
     int firstIndex = 0;
-    uint16_t* indices = nullptr;
-    if (fIndexCount) {
+
+    std::tie(indexBuffer, firstIndex) = fMeshes[0].gpuIB();
+    if (fIndexCount && !indexBuffer) {
+        uint16_t* indices = nullptr;
         indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
             SkDebugf("Could not allocate indices.\n");
@@ -742,12 +777,16 @@ void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
         }
         SkASSERT(voffset == fVertexCount);
         SkASSERT(ioffset == fIndexCount);
+    } else if (indexBuffer) {
+        SkASSERT(fMeshes.count() == 1);
+        SkASSERT(firstIndex % sizeof(uint16_t) == 0);
+        firstIndex /= sizeof(uint16_t);
     }
 
     SkASSERT(!fMesh);
     fMesh = target->allocMesh();
 
-    if (indices) {
+    if (indexBuffer) {
         fMesh->setIndexed(std::move(indexBuffer),
                           fIndexCount,
                           firstIndex,

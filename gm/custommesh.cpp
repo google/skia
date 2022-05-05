@@ -13,7 +13,9 @@
 #include "include/core/SkData.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/core/SkCustomMeshPriv.h"
 
 #include <memory>
 
@@ -102,31 +104,29 @@ protected:
                                                nullptr,
                                                2,
                                                SkTileMode::kMirror);
-        fColorVB = SkCustomMesh::MakeVertexBuffer(
-                /*GrDirectContext*=*/nullptr,
-                SkData::MakeWithoutCopy(kColorQuad, sizeof(kColorQuad)));
+    }
 
-        // Make this one such that the data is offset into the buffer.
-        auto data = SkData::MakeUninitialized(sizeof(kNoColorQuad) + kNoColorOffset);
-        std::memcpy(SkTAddOffset<void>(data->writable_data(), kNoColorOffset),
-                    kNoColorQuad,
-                    sizeof(kNoColorQuad));
-        fNoColorVB = SkCustomMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr, std::move(data));
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* string) override {
+        this->ensureBuffers();
+        if (!context || context->abandoned()) {
+            return DrawResult::kOk;
+        }
 
-        fColorIndexedVB = SkCustomMesh::MakeVertexBuffer(
-                /*GrDirectContext*=*/nullptr,
-                SkData::MakeWithoutCopy(kColorIndexedQuad, sizeof(kColorIndexedQuad)));
+        fColorVB        = SkCustomMesh::MakeVertexBuffer(context, CpuVBAsData(fColorVB));
+        fColorIndexedVB = SkCustomMesh::MakeVertexBuffer(context, CpuVBAsData(fColorIndexedVB));
+        fIB[1]          = SkCustomMesh::MakeIndexBuffer (context, CpuIBAsData(fIB[0]));
+        if (!fColorVB || !fColorIndexedVB || !fIB[1]) {
+            return DrawResult::kFail;
+        }
+        return DrawResult::kOk;
+    }
 
-        fNoColorIndexedVB = SkCustomMesh::MakeVertexBuffer(
-                /*GrDirectContext*=*/nullptr,
-                SkData::MakeWithoutCopy(kNoColorIndexedQuad, sizeof(kNoColorIndexedQuad)));
-
-        // Also make index buffer with an offset
-        data = SkData::MakeUninitialized(sizeof(kIndices) + kIndexOffset);
-        std::memcpy(SkTAddOffset<void>(data->writable_data(), kIndexOffset),
-                    kIndices,
-                    sizeof(kIndices));
-        fIB = SkCustomMesh::MakeIndexBuffer(/*GrDirectContext*=*/nullptr, std::move(data));
+    void onGpuTeardown() override {
+        // Destroy the GPU buffers and recreate on CPU
+        fColorVB        = nullptr;
+        fColorIndexedVB = nullptr;
+        fIB[1]          = nullptr;
+        this->ensureBuffers();
     }
 
     SkString onShortName() override { return SkString("custommesh"); }
@@ -159,30 +159,30 @@ protected:
                                                 kRect);
                     }
                 } else {
+                    // Alternate between CPU and GPU-backend index buffers.
+                    auto ib = (i%4 == 0) ? fIB[0] : fIB[1];
                     if (colors) {
                         cm = SkCustomMesh::MakeIndexed(fSpecWithColor,
                                                        SkCustomMesh::Mode::kTriangles,
                                                        fColorIndexedVB,
-                                                       /*vertexCount=*/ 6,
-                                                       /*vertexOffset=*/0,
-                                                       fIB,
+                                                       /*vertexCount=*/6,
+                                                       kColorIndexedOffset,
+                                                       std::move(ib),
                                                        /*indexCount=*/6,
                                                        kIndexOffset,
                                                        kRect);
-
                     } else {
                         cm = SkCustomMesh::MakeIndexed(fSpecWithNoColor,
                                                        SkCustomMesh::Mode::kTriangles,
                                                        fNoColorIndexedVB,
                                                        /*vertexCount=*/ 6,
                                                        /*vertexOffset=*/0,
-                                                       fIB,
+                                                       std::move(ib),
                                                        /*indexCount=*/6,
                                                        kIndexOffset,
                                                        kRect);
                     }
                 }
-
                 SkPaint paint;
                 paint.setColor(SK_ColorGREEN);
                 paint.setShader(shader ? fShader : nullptr);
@@ -200,6 +200,66 @@ protected:
     }
 
 private:
+    static sk_sp<const SkData> CpuVBAsData(sk_sp<SkCustomMesh::VertexBuffer> buffer) {
+        auto vb = static_cast<SkCustomMeshPriv::VB*>(buffer.get());
+        SkASSERT(vb->asData());
+        return vb->asData();
+    }
+
+    static sk_sp<const SkData> CpuIBAsData(sk_sp<SkCustomMesh::IndexBuffer> buffer) {
+        auto ib = static_cast<SkCustomMeshPriv::IB*>(buffer.get());
+        SkASSERT(ib->asData());
+        return ib->asData();
+    }
+
+    void ensureBuffers() {
+        if (!fColorVB) {
+            fColorVB = SkCustomMesh::MakeVertexBuffer(
+                    /*GrDirectContext*=*/nullptr,
+                    SkData::MakeWithoutCopy(kColorQuad, sizeof(kColorQuad)));
+        }
+
+        if (!fNoColorVB) {
+            // Make this one such that the data is offset into the buffer.
+            auto data = SkData::MakeUninitialized(sizeof(kNoColorQuad) + kNoColorOffset);
+            std::memcpy(SkTAddOffset<void>(data->writable_data(), kNoColorOffset),
+                        kNoColorQuad,
+                        sizeof(kNoColorQuad));
+            fNoColorVB = SkCustomMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
+                                                        std::move(data));
+        }
+
+        if (!fColorIndexedVB) {
+            // This buffer also has an offset.
+            auto data = SkData::MakeUninitialized(sizeof(kColorIndexedQuad) + kColorIndexedOffset);
+            std::memcpy(SkTAddOffset<void>(data->writable_data(), kColorIndexedOffset),
+                        kColorIndexedQuad,
+                        sizeof(kColorIndexedQuad));
+            fColorIndexedVB = SkCustomMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
+                                                             std::move(data));
+        }
+
+        if (!fNoColorIndexedVB) {
+            fNoColorIndexedVB = SkCustomMesh::MakeVertexBuffer(
+                    /*GrDirectContext*=*/nullptr,
+                    SkData::MakeWithoutCopy(kNoColorIndexedQuad, sizeof(kNoColorIndexedQuad)));
+        }
+
+        if (!fIB[0]) {
+            // The index buffer has an offset.
+            auto data = SkData::MakeUninitialized(sizeof(kIndices) + kIndexOffset);
+            std::memcpy(SkTAddOffset<void>(data->writable_data(), kIndexOffset),
+                        kIndices,
+                        sizeof(kIndices));
+            fIB[0] = SkCustomMesh::MakeIndexBuffer(/*GrDirectContext*=*/nullptr, std::move(data));
+        }
+
+        if (!fIB[1]) {
+            // On CPU we always use the same CPU-backed index buffer.
+            fIB[1] = fIB[0];
+        }
+    }
+
     struct ColorVertex {
         uint32_t pad;
         uint32_t brag;
@@ -249,15 +309,18 @@ private:
 
     static constexpr uint16_t kIndices[]{0, 2, 4, 2, 5, 4};
 
-    static constexpr size_t kNoColorOffset = sizeof(NoColorVertex);
-    static constexpr size_t kIndexOffset   = 6;
+    // For some buffers we add an offset to ensure we're exercising drawing from mid-buffer.
+    static constexpr size_t kNoColorOffset      = sizeof(NoColorVertex);
+    static constexpr size_t kColorIndexedOffset = 2*sizeof(ColorVertex);
+    static constexpr size_t kIndexOffset        = 6;
 
     sk_sp<SkShader> fShader;
 
     sk_sp<SkCustomMeshSpecification> fSpecWithColor;
     sk_sp<SkCustomMeshSpecification> fSpecWithNoColor;
 
-    sk_sp<SkCustomMesh::IndexBuffer> fIB;
+    // On GPU the first IB is a CPU buffer and the second is a GPU buffer.
+    sk_sp<SkCustomMesh::IndexBuffer> fIB[2];
 
     sk_sp<SkCustomMesh::VertexBuffer> fColorVB;
     sk_sp<SkCustomMesh::VertexBuffer> fNoColorVB;

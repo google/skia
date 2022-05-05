@@ -5566,7 +5566,12 @@ generated_cc_atom(
         ":SkSLTypeShared_hdr",
         "//include/core:SkCustomMesh_hdr",
         "//include/core:SkData_hdr",
+        "//include/gpu:GrDirectContext_hdr",
         "//include/private/gpu/ganesh:GrTypesPriv_hdr",
+        "//src/gpu/ganesh:GrDirectContextPriv_hdr",
+        "//src/gpu/ganesh:GrGpuBuffer_hdr",
+        "//src/gpu/ganesh:GrResourceCache_hdr",
+        "//src/gpu/ganesh:GrResourceProvider_hdr",
     ],
 )
 

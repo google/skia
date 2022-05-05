@@ -217,18 +217,26 @@ public:
 
     /**
      * Makes an index buffer to be used with SkCustomMeshes. The SkData is used to determine the
-     * size and contents of the buffer.
+     * size and contents of the buffer. The buffer may be CPU- or GPU-backed depending on whether
+     * GrDirectContext* is nullptr.
      *
-     * @param  GrDirectContext*   currently ignored. May be nullptr.
+     * @param  GrDirectContext*   If nullptr a CPU-backed object is returned that owns the SkData.
+     *                            Otherwise, the data is uploaded to the GPU and a GPU-backed buffer
+     *                            is returned. It may only be used to draw into SkSurfaces that
+     *                            are backed by the passed GrDirectContext.
      * @param  sk_sp<SkData>      required. The data used to populate the buffer.
      */
     static sk_sp<IndexBuffer> MakeIndexBuffer(GrDirectContext*, sk_sp<const SkData>);
 
     /**
      * Makes a vertex buffer to be used with SkCustomMeshes. The SkData is used to determine the
-     * size and contents of the buffer.
+     * size and contents of the buffer.The buffer may be CPU- or GPU-backed depending on whether
+     * GrDirectContext* is nullptr.
      *
-     * @param  GrDirectContext*   currently ignored. May be nullptr.
+     * @param  GrDirectContext*   If nullptr a CPU-backed object is returned that owns the SkData.
+     *                            Otherwise, the data is uploaded to the GPU and a GPU-backed buffer
+     *                            is returned. It may only be used to draw into SkSurfaces that
+     *                            are backed by the passed GrDirectContext.
      * @param  sk_sp<SkData>      required. The data used to populate the buffer.
      */
     static sk_sp<VertexBuffer> MakeVertexBuffer(GrDirectContext*, sk_sp<const SkData>);
