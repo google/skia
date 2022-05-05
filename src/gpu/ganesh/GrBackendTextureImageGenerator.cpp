@@ -24,9 +24,9 @@
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
 
 GrBackendTextureImageGenerator::RefHelper::RefHelper(
-                    GrTexture* texture,
-                    GrDirectContext::DirectContextID owningContextID,
-                    std::unique_ptr<GrSemaphore> semaphore)
+        sk_sp<GrTexture> texture,
+        GrDirectContext::DirectContextID owningContextID,
+        std::unique_ptr<GrSemaphore> semaphore)
         : fOriginalTexture(texture)
         , fOwningContextID(owningContextID)
         , fBorrowingContextReleaseProc(nullptr)
@@ -34,48 +34,43 @@ GrBackendTextureImageGenerator::RefHelper::RefHelper(
 
 GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
     SkASSERT(!fBorrowingContextID.isValid());
-
     // Generator has been freed, and no one is borrowing the texture. Notify the original cache
     // that it can free the last ref, so it happens on the correct thread.
-    GrTextureFreedMessage msg { fOriginalTexture, fOwningContextID };
-    SkMessageBus<GrTextureFreedMessage, GrDirectContext::DirectContextID>::Post(msg);
+    GrResourceCache::ReturnResourceFromThread(std::move(fOriginalTexture), fOwningContextID);
 }
 
 std::unique_ptr<SkImageGenerator>
-GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin origin,
-                                     std::unique_ptr<GrSemaphore> semaphore, SkColorType colorType,
-                                     SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
+GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture,
+                                     GrSurfaceOrigin origin,
+                                     std::unique_ptr<GrSemaphore> semaphore,
+                                     SkColorType colorType,
+                                     SkAlphaType alphaType,
+                                     sk_sp<SkColorSpace> colorSpace) {
     GrDirectContext* dContext = texture->getContext();
 
-    // Attach our texture to this context's resource cache. This ensures that deletion will happen
-    // in the correct thread/context. This adds the only ref to the texture that will persist from
-    // this point. That ref will be released when the generator's RefHelper is freed.
-    dContext->priv().getResourceCache()->insertDelayedTextureUnref(texture.get());
-
-    GrBackendTexture backendTexture = texture->getBackendTexture();
-
     if (!dContext->priv().caps()->areColorTypeAndFormatCompatible(
-            SkColorTypeToGrColorType(colorType), backendTexture.getBackendFormat())) {
+                SkColorTypeToGrColorType(colorType), texture->backendFormat())) {
         return nullptr;
     }
 
-    SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
-                                         std::move(colorSpace));
+    SkColorInfo info(colorType, alphaType, std::move(colorSpace));
     return std::unique_ptr<SkImageGenerator>(new GrBackendTextureImageGenerator(
-          info, texture.get(), origin, dContext->directContextID(),
-          std::move(semaphore), backendTexture));
+            info,
+            std::move(texture),
+            origin,
+            dContext->directContextID(),
+            std::move(semaphore)));
 }
 
 GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(
-                    const SkImageInfo& info,
-                    GrTexture* texture,
-                    GrSurfaceOrigin origin,
-                    GrDirectContext::DirectContextID owningContextID,
-                    std::unique_ptr<GrSemaphore> semaphore,
-                    const GrBackendTexture& backendTex)
-        : INHERITED(info)
+        const SkColorInfo& info,
+        sk_sp<GrTexture> texture,
+        GrSurfaceOrigin origin,
+        GrDirectContext::DirectContextID owningContextID,
+        std::unique_ptr<GrSemaphore> semaphore)
+        : INHERITED(SkImageInfo::Make(texture->dimensions(), info))
         , fRefHelper(new RefHelper(texture, owningContextID, std::move(semaphore)))
-        , fBackendTexture(backendTex)
+        , fBackendTexture(texture->getBackendTexture())
         , fSurfaceOrigin(origin) {}
 
 GrBackendTextureImageGenerator::~GrBackendTextureImageGenerator() {

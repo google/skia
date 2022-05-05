@@ -48,24 +48,23 @@ protected:
                                          GrMipmapped mipmapped, GrImageTexGenPolicy) override;
 
 private:
-    GrBackendTextureImageGenerator(const SkImageInfo& info,
-                                   GrTexture*,
+    GrBackendTextureImageGenerator(const SkColorInfo&,
+                                   sk_sp<GrTexture>,
                                    GrSurfaceOrigin,
                                    GrDirectContext::DirectContextID owningContextID,
-                                   std::unique_ptr<GrSemaphore>,
-                                   const GrBackendTexture&);
+                                   std::unique_ptr<GrSemaphore>);
 
     static void ReleaseRefHelper_TextureReleaseProc(void* ctx);
 
     class RefHelper : public SkNVRefCnt<RefHelper> {
     public:
-        RefHelper(GrTexture*,
+        RefHelper(sk_sp<GrTexture>,
                   GrDirectContext::DirectContextID owningContextID,
                   std::unique_ptr<GrSemaphore>);
 
         ~RefHelper();
 
-        GrTexture*                       fOriginalTexture;
+        sk_sp<GrTexture>                 fOriginalTexture;
         GrDirectContext::DirectContextID fOwningContextID;
 
         // We use this key so that we don't rewrap the GrBackendTexture in a GrTexture for each

@@ -223,10 +223,6 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
      * multiple SkImages. The created GrTexture is given a key based on a unique ID associated with
      * the SkPromiseImageTexture.
      *
-     * The GrTexutre idle proc mechanism is used to call the Release and Done procs. We use this
-     * instead of the GrSurface release proc because the GrTexture is cached and therefore may
-     * outlive the proxy into which this callback is installed.
-     *
      * A key invalidation message is installed on the SkPromiseImageTexture so that the GrTexture
      * is deleted once it can no longer be used to instantiate a proxy.
      */
@@ -249,16 +245,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
         ~PromiseLazyInstantiateCallback() {
             // Our destructor can run on any thread. We trigger the unref of fTexture by message.
-            // This unreffed texture pointer is a real problem! When the context has been
-            // abandoned, the GrTexture pointed to by this pointer is deleted! Due to virtual
-            // inheritance any manipulation of this pointer at that point will cause a crash.
-            // For now we "work around" the problem by just passing it, untouched, into the
-            // message bus but this very fragile.
-            // In the future the GrSurface class hierarchy refactoring should eliminate this
-            // difficulty by removing the virtual inheritance.
             if (fTexture) {
-                GrTextureFreedMessage msg { fTexture, fTextureContextID };
-                SkMessageBus<GrTextureFreedMessage, GrDirectContext::DirectContextID>::Post(msg);
+                GrResourceCache::ReturnResourceFromThread(std::move(fTexture), fTextureContextID);
             }
         }
 
@@ -277,7 +265,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // Our proxy is getting instantiated for the second+ time. We are only allowed to call
             // Fulfill once. So return our cached result.
             if (fTexture) {
-                return {sk_ref_sp(fTexture), kReleaseCallbackOnInstantiation, kKeySyncMode};
+                return {fTexture, kReleaseCallbackOnInstantiation, kKeySyncMode};
             } else if (fFulfillProcFailed) {
                 // We've already called fulfill and it failed. Our contract says that we should only
                 // call each callback once.
@@ -297,29 +285,23 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 return {};
             }
 
-            sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(backendTexture,
-                                                                        kBorrow_GrWrapOwnership,
-                                                                        GrWrapCacheable::kNo,
-                                                                        kRead_GrIOType);
-            if (!tex) {
+            fTexture = resourceProvider->wrapBackendTexture(backendTexture,
+                                                            kBorrow_GrWrapOwnership,
+                                                            GrWrapCacheable::kNo,
+                                                            kRead_GrIOType);
+            if (!fTexture) {
                 return {};
             }
-            tex->setRelease(fReleaseHelper);
-            fTexture = tex.get();
-            // We need to hold on to the GrTexture in case our proxy gets reinstantiated. However,
-            // we can't unref in our destructor because we may be on another thread then. So we
-            // let the cache know it is waiting on an unref message. We will send that message from
-            // our destructor.
+            fTexture->setRelease(fReleaseHelper);
             auto dContext = fTexture->getContext();
-            dContext->priv().getResourceCache()->insertDelayedTextureUnref(fTexture);
             fTextureContextID = dContext->directContextID();
-            return {std::move(tex), kReleaseCallbackOnInstantiation, kKeySyncMode};
+            return {fTexture, kReleaseCallbackOnInstantiation, kKeySyncMode};
         }
 
     private:
         PromiseImageTextureFulfillProc fFulfillProc;
         sk_sp<skgpu::RefCntedCallback> fReleaseHelper;
-        GrTexture* fTexture = nullptr;
+        sk_sp<GrTexture> fTexture;
         GrDirectContext::DirectContextID fTextureContextID;
         bool fFulfillProcFailed = false;
     } callback(fulfillProc, std::move(releaseHelper));
