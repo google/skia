@@ -89,9 +89,6 @@ public:
      */
     bool dependsOn(const GrRenderTask* dependedOn) const;
 
-    virtual void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
-        idArray->push_back(fUniqueID);
-    }
     uint32_t uniqueID() const { return fUniqueID; }
     int numTargets() const { return fTargets.count(); }
     GrSurfaceProxy* target(int i) const { return fTargets[i].get(); }

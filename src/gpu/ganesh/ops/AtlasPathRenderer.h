@@ -87,7 +87,7 @@ private:
 
     // Instantiates texture(s) for all atlases we've created since the last flush. Atlases that are
     // the same size will be instantiated with the same backing texture.
-    bool preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
+    bool preFlush(GrOnFlushResourceProvider*) override;
 
     float fAtlasMaxSize = 0;
     float fAtlasMaxPathWidth = 0;

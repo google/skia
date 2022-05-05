@@ -43,7 +43,7 @@ public:
         REPORTER_ASSERT(fReporter, fHasClipTexture);
     }
 
-    bool preFlush(GrOnFlushResourceProvider* onFlushRP, SkSpan<const uint32_t>) override {
+    bool preFlush(GrOnFlushResourceProvider* onFlushRP) override {
 #if GR_TEST_UTILS
         if (onFlushRP->failFlushTimeCallbacks()) {
             return false;
@@ -55,7 +55,7 @@ public:
         return true;
     }
 
-    void postFlush(GrDeferredUploadToken, SkSpan<const uint32_t>) override {
+    void postFlush(GrDeferredUploadToken) override {
         REPORTER_ASSERT(fReporter, fHasOpTexture);
         REPORTER_ASSERT(fReporter, fHasClipTexture);
     }

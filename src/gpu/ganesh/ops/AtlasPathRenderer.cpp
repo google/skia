@@ -387,8 +387,7 @@ GrFPResult AtlasPathRenderer::makeAtlasClipEffect(const SurfaceDrawContext* sdc,
                                                                        atlasMatrix, devIBounds));
 }
 
-bool AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
-                                 SkSpan<const uint32_t> /* taskIDs */) {
+bool AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP) {
     if (fAtlasRenderTasks.empty()) {
         SkASSERT(fAtlasPathCache.count() == 0);
         return true;

@@ -80,12 +80,6 @@ GrRenderTask::ExpectedOutcome GrDDLTask::onMakeClosed(GrRecordingContext*,
     return ExpectedOutcome::kTargetUnchanged;
 }
 
-void GrDDLTask::gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
-    for (auto& task : fDDL->priv().renderTasks()) {
-        task->gatherIDs(idArray);
-    }
-}
-
 void GrDDLTask::onPrepare(GrOpFlushState* flushState) {
     for (auto& task : fDDL->priv().renderTasks()) {
         task->prepare(flushState);

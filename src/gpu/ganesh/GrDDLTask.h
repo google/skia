@@ -43,8 +43,6 @@ private:
 
     ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) override;
 
-    void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const override;
-
     void onPrePrepare(GrRecordingContext*) override {
         // This entry point is only called when a DDL is snapped off of a recorder.
         // Since DDL tasks should never recursively appear within a DDL this should never
