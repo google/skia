@@ -9,6 +9,7 @@
 #define SkGlyphRun_DEFINED
 
 #include <functional>
+#include <optional>
 #include <vector>
 
 #include "include/core/SkFont.h"
@@ -28,7 +29,6 @@ class SkTextBlobRunIterator;
 
 class SkGlyphRun {
 public:
-    SkGlyphRun() = default;
     SkGlyphRun(const SkFont& font,
                SkSpan<const SkPoint> positions,
                SkSpan<const SkGlyphID> glyphIDs,
@@ -156,7 +156,7 @@ private:
     SkAutoTMalloc<SkVector> fScaledRotations;
 
     std::vector<SkGlyphRun> fGlyphRunListStorage;
-    SkGlyphRunList fGlyphRunList;
+    std::optional<SkGlyphRunList> fGlyphRunList;  // Defaults to no value;
 
     // Used as a temporary for preparing using utfN text. This implies that only one run of
     // glyph ids will ever be needed because blobs are already glyph based.

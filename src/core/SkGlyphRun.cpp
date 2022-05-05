@@ -347,7 +347,6 @@ void SkGlyphRunBuilder::makeGlyphRun(
 
 const SkGlyphRunList& SkGlyphRunBuilder::makeGlyphRunList(
         const SkTextBlob* blob, const SkRect& bounds, SkPoint origin) {
-    fGlyphRunList.~SkGlyphRunList();
-    return *new (&fGlyphRunList)
-            SkGlyphRunList{blob, bounds, origin, SkMakeSpan(fGlyphRunListStorage)};
+    fGlyphRunList.emplace(blob, bounds, origin, SkMakeSpan(fGlyphRunListStorage));
+    return fGlyphRunList.value();
 }
