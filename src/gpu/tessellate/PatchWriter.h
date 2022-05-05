@@ -476,9 +476,27 @@ public:
         }
     }
 
-protected:
-    // TODO: Exposed as protected for StrokeHardwareTessellator's patch writer. Can be made private
-    // if/when the hardware stroker is deleted.
+private:
+    AI void emitPatchAttribs(VertexWriter vertexWriter,
+                             const JoinAttrib& join,
+                             float explicitCurveType) {
+        // NOTE: operator<< overrides automatically handle optional and disabled attribs.
+        vertexWriter << join << fFanPoint << fStrokeParams << fColor << fDepth
+                     << CurveTypeAttrib{fAttribs, explicitCurveType};
+    }
+
+    AI VertexWriter appendPatch() {
+        if constexpr (kTrackJoinControlPoints) {
+            if (fDeferredPatch.fMustDefer) {
+                SkASSERT(!fDeferredPatch.fHasPending);
+                SkASSERT(fPatchAllocator.stride() <= kMaxStride);
+                fDeferredPatch.fHasPending = true;
+                return {fDeferredPatch.fData, fPatchAllocator.stride()};
+            }
+        }
+        return fPatchAllocator.append();
+    }
+
     AI void writePatch(float2 p0, float2 p1, float2 p2, float2 p3, float explicitCurveType) {
         if (VertexWriter vw = this->appendPatch()) {
             // NOTE: fJoin will be undefined if we're writing to a deferred patch. If that's the
@@ -502,27 +520,6 @@ protected:
                 fDeferredPatch.fMustDefer = false;
             }
         }
-    }
-
-private:
-    AI void emitPatchAttribs(VertexWriter vertexWriter,
-                             const JoinAttrib& join,
-                             float explicitCurveType) {
-        // NOTE: operator<< overrides automatically handle optional and disabled attribs.
-        vertexWriter << join << fFanPoint << fStrokeParams << fColor << fDepth
-                     << CurveTypeAttrib{fAttribs, explicitCurveType};
-    }
-
-    AI VertexWriter appendPatch() {
-        if constexpr (kTrackJoinControlPoints) {
-            if (fDeferredPatch.fMustDefer) {
-                SkASSERT(!fDeferredPatch.fHasPending);
-                SkASSERT(fPatchAllocator.stride() <= kMaxStride);
-                fDeferredPatch.fHasPending = true;
-                return {fDeferredPatch.fData, fPatchAllocator.stride()};
-            }
-        }
-        return fPatchAllocator.append();
     }
 
     // Helpers that normalize curves to a generic patch, but do no other work.
