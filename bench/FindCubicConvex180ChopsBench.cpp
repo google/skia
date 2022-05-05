@@ -22,7 +22,7 @@ private:
         bool areCusps;
         int iters = 50000 * loops;
         for (int i = 0; i < iters; ++i) {
-            int count = skgpu::FindCubicConvex180Chops(fPts.data(), T, &areCusps);
+            int count = skgpu::tess::FindCubicConvex180Chops(fPts.data(), T, &areCusps);
             if (T[0] == 200.7f) {
                 // This will never happen. Pretend to use the result to keep the compiler honest.
                 SkDebugf("%i%f%f", count, T[0], T[1]);

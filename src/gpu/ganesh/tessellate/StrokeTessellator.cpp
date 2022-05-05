@@ -20,6 +20,8 @@ namespace skgpu::v1 {
 
 namespace {
 
+using namespace skgpu::tess;
+
 // Calculates and buffers up future values for "numRadialSegmentsPerRadian" using SIMD.
 class alignas(sizeof(float) * 4) StrokeToleranceBuffer {
 public:

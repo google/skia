@@ -78,7 +78,7 @@ float4 unchecked_mix(float4 a, float4 b, float4 T) {
     return fma(b - a, T, a);
 })";
 
-using skgpu::FixedCountStrokes;
+using skgpu::tess::FixedCountStrokes;
 
 } // anonymous namespace
 
@@ -185,7 +185,7 @@ void GrStrokeTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpAr
     args.fVaryingHandler->emitAttributes(shader);
 
     args.fVertBuilder->defineConstant("float", "PI", "3.141592653589793238");
-    args.fVertBuilder->defineConstant("PRECISION", skgpu::kTessellationPrecision);
+    args.fVertBuilder->defineConstant("PRECISION", skgpu::tess::kPrecision);
     // There is an artificial maximum number of edges (compared to the max limit calculated based on
     // the number of radial segments per radian, Wang's formula, and join type). When there is
     // vertex ID support, the limit is what can be represented in a uint16; otherwise the limit is
@@ -250,7 +250,8 @@ void GrStrokeTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpAr
 
     if (shader.hasExplicitCurveType()) {
         args.fVertBuilder->insertFunction(SkStringPrintf(R"(
-        bool is_conic_curve() { return curveTypeAttr != %g; })", skgpu::kCubicCurveType).c_str());
+        bool is_conic_curve() { return curveTypeAttr != %g; })",
+            skgpu::tess::kCubicCurveType).c_str());
     } else {
         args.fVertBuilder->insertFunction(R"(
         bool is_conic_curve() { return isinf(pts23Attr.w); })");
@@ -344,7 +345,7 @@ void GrStrokeTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpAr
     } else {
         args.fVertBuilder->codeAppendf(R"(
         float numEdgesInJoin = %i;)",
-        skgpu::NumFixedEdgesInJoin(joinType));
+        skgpu::tess::NumFixedEdgesInJoin(joinType));
     }
 
     args.fVertBuilder->codeAppend(R"(
@@ -604,7 +605,7 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         // ensures crack-free seaming between instances.
         tangent = (combinedEdgeID == 0) ? tan0 : tan1;
         strokeCoord = (combinedEdgeID == 0) ? p0 : p3;
-    })", skgpu::kMaxFixedResolveLevel /* Parametric/radial sort loop count. */);
+    })", skgpu::tess::kMaxResolveLevel /* Parametric/radial sort loop count. */);
 
     code->append(R"(
     // At this point 'tangent' is normalized, so the orthogonal vector is also normalized.
@@ -656,13 +657,13 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
         const float effectiveMaxScale    = stroke.isHairlineStyle() ? 1.f : maxScale;
         const float effectiveStrokeWidth = stroke.isHairlineStyle() ? 1.f : stroke.getWidth();
         float numRadialSegmentsPerRadian =
-                skgpu::StrokeTolerances::CalcNumRadialSegmentsPerRadian(effectiveMaxScale,
-                                                                        effectiveStrokeWidth);
+                skgpu::tess::StrokeTolerances::CalcNumRadialSegmentsPerRadian(effectiveMaxScale,
+                                                                              effectiveStrokeWidth);
 
         pdman.set4f(fTessControlArgsUniform,
                     maxScale,  // MAX_SCALE
                     numRadialSegmentsPerRadian,  // NUM_RADIAL_SEGMENTS_PER_RADIAN
-                    skgpu::GetJoinType(stroke),  // JOIN_TYPE
+                    skgpu::tess::GetJoinType(stroke),  // JOIN_TYPE
                     0.5f * effectiveStrokeWidth);  // STROKE_RADIUS
     } else {
         SkASSERT(!stroke.isHairlineStyle());

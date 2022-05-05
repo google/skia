@@ -29,7 +29,7 @@ public:
                                        GrPrimitiveType::kTriangleStrip,
                                        viewMatrix,
                                        color,
-                                       skgpu::PatchAttribs::kNone) {
+                                       PatchAttribs::kNone) {
         fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         if (!shaderCaps.infinitySupport()) {
@@ -77,11 +77,12 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
                 })");
             } else {
                 v->insertFunction(SkStringPrintf(R"(
-                bool is_conic_curve() { return curveType != %g; })", kCubicCurveType).c_str());
+                bool is_conic_curve() { return curveType != %g; })",
+                        tess::kCubicCurveType).c_str());
                 v->insertFunction(SkStringPrintf(R"(
                 bool is_non_triangular_conic_curve() {
                     return curveType == %g;
-                })", kConicCurveType).c_str());
+                })", tess::kConicCurveType).c_str());
             }
             v->codeAppend(R"(
             float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;

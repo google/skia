@@ -19,6 +19,8 @@ namespace skgpu::graphite {
 
 namespace {
 
+using namespace skgpu::tess;
+
 // TODO: This is very similar to DrawWriterAllocator in TessellateCurveRenderStep except that the
 // index count is calculated differently. These will be merged once skbug.com/13056 is resolved.
 struct DrawWriterAllocator {
@@ -39,7 +41,7 @@ struct DrawWriterAllocator {
         // PatchWriter's tracked segment count^4.
         // Wedges use one extra triangle to connect to the fan point compared to the curve version.
         static constexpr unsigned int kMaxIndexCount =
-                3 * (1 + NumCurveTrianglesAtResolveLevel(kMaxFixedResolveLevel));
+                3 * (1 + NumCurveTrianglesAtResolveLevel(tess::kMaxResolveLevel));
         return fInstances.append(kMaxIndexCount, 1);
     }
 
@@ -52,6 +54,7 @@ struct DrawWriterAllocator {
 // or we'll add a color-only fast path to RenderStep later.
 static constexpr PatchAttribs kAttribs = PatchAttribs::kFanPoint |
                                          PatchAttribs::kPaintDepth;
+
 using Writer = PatchWriter<DrawWriterAllocator,
                            Required<PatchAttribs::kFanPoint>,
                            Required<PatchAttribs::kPaintDepth>>;

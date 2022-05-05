@@ -15,7 +15,7 @@
 #include "src/core/SkPathPriv.h"
 #include <tuple>
 
-namespace skgpu {
+namespace skgpu::tess {
 
 // This class generates a middle-out triangulation of a polygon. Conceptually, middle-out emits one
 // large triangle with vertices on both endpoints and a middle point, then recurses on both sides of
@@ -237,6 +237,6 @@ private:
     bool fDone = false;
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::tess
 
 #endif  // skgpu_tessellate_MiddleOutPolygonTriangulator_DEFINED

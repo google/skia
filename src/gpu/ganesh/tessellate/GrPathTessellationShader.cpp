@@ -17,9 +17,9 @@
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
-using skgpu::PatchAttribs;
-
 namespace {
+
+using namespace skgpu::tess;
 
 // Draws a simple array of triangles.
 class SimpleTriangleShader : public GrPathTessellationShader {
@@ -102,7 +102,7 @@ public:
                                                        fInstanceAttribs.count());
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribCount);
         SkASSERT(this->instanceStride() ==
-                 sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
+                 sizeof(SkPoint) * 4 + PatchAttribsStride(fAttribs));
 
         constexpr static Attribute kVertexAttrib("resolveLevel_and_idx", kFloat2_GrVertexAttribType,
                                                  SkSLType::kFloat2);
@@ -133,21 +133,21 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
                             GrGLSLVaryingHandler* varyingHandler,
                             GrGPArgs* gpArgs) override {
             const MiddleOutShader& middleOutShader = shader.cast<MiddleOutShader>();
-            v->defineConstant("PRECISION", skgpu::kTessellationPrecision);
+            v->defineConstant("PRECISION", skgpu::tess::kPrecision);
             v->defineConstant("MAX_FIXED_RESOLVE_LEVEL",
-                              (float)skgpu::kMaxFixedResolveLevel);
+                              (float)skgpu::tess::kMaxResolveLevel);
             v->defineConstant("MAX_FIXED_SEGMENTS",
-                              (float)(skgpu::kMaxParametricSegments));
+                              (float)(skgpu::tess::kMaxParametricSegments));
             v->insertFunction(GrTessellationShader::WangsFormulaSkSL());
             if (middleOutShader.fAttribs & PatchAttribs::kExplicitCurveType) {
                 v->insertFunction(SkStringPrintf(R"(
                 bool is_conic_curve() {
                     return curveType != %g;
-                })", skgpu::kCubicCurveType).c_str());
+                })", skgpu::tess::kCubicCurveType).c_str());
                 v->insertFunction(SkStringPrintf(R"(
                 bool is_triangular_conic_curve() {
                     return curveType == %g;
-                })", skgpu::kTriangularConicCurveType).c_str());
+                })", skgpu::tess::kTriangularConicCurveType).c_str());
             } else {
                 SkASSERT(shaderCaps.infinitySupport());
                 v->insertFunction(R"(
@@ -255,7 +255,7 @@ GrPathTessellationShader* GrPathTessellationShader::Make(const GrShaderCaps& sha
                                                          SkArenaAlloc* arena,
                                                          const SkMatrix& viewMatrix,
                                                          const SkPMColor4f& color,
-                                                         skgpu::PatchAttribs attribs) {
+                                                         PatchAttribs attribs) {
     // We should use explicit curve type when, and only when, there isn't infinity support.
     // Otherwise the GPU can infer curve type based on infinity.
     SkASSERT(shaderCaps.infinitySupport() != (attribs & PatchAttribs::kExplicitCurveType));

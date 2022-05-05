@@ -21,6 +21,7 @@ class PathTessellateOp final : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
+    using PatchAttribs = PathTessellator::PatchAttribs;
     using PathDrawList = PathTessellator::PathDrawList;
 
     PathTessellateOp(SkArenaAlloc* arena,

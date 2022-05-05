@@ -23,7 +23,7 @@
 // edges and sorts them into a single quad strip. With this combined set of edges we can stroke any
 // curve, regardless of curvature.
 class GrStrokeTessellationShader : public GrTessellationShader {
-    using PatchAttribs = skgpu::PatchAttribs;
+    using PatchAttribs = skgpu::tess::PatchAttribs;
 
 public:
 

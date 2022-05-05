@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef tessellate_FixedCountBufferUtils_DEFINED
-#define tessellate_FixedCountBufferUtils_DEFINED
+#ifndef skgpu_tessellate_FixedCountBufferUtils_DEFINED
+#define skgpu_tessellate_FixedCountBufferUtils_DEFINED
 
 #include "src/gpu/tessellate/Tessellation.h"
-namespace skgpu {
+namespace skgpu { struct VertexWriter; }
 
-struct VertexWriter;
+namespace skgpu::tess {
 
 /**
  * Fixed-count tessellation operates in three modes, two for filling paths, and one for stroking.
@@ -49,7 +49,7 @@ public:
 
     // As above but for the corresponding index buffer, written via WriteIndexBuffer.
     static constexpr size_t IndexBufferSize() {
-        return NumCurveTrianglesAtResolveLevel(kMaxFixedResolveLevel) * 3 * sizeof(uint16_t);
+        return NumCurveTrianglesAtResolveLevel(kMaxResolveLevel) * 3 * sizeof(uint16_t);
     }
 
     static void WriteVertexBuffer(VertexWriter, size_t bufferSize);
@@ -73,7 +73,7 @@ public:
     }
 
     static constexpr size_t IndexBufferSize() {
-        return (NumCurveTrianglesAtResolveLevel(kMaxFixedResolveLevel) + 1/*fan triangle*/) *
+        return (NumCurveTrianglesAtResolveLevel(kMaxResolveLevel) + 1/*fan triangle*/) *
                3 * sizeof(uint16_t);
     }
 
@@ -115,6 +115,6 @@ public:
     static void WriteVertexBuffer(VertexWriter, size_t bufferSize);
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::tess
 
-#endif // tessellate_FixedCountBufferUtils
+#endif // skgpu_tessellate_FixedCountBufferUtils

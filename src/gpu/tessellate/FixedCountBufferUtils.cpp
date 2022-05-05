@@ -13,7 +13,7 @@
 
 #include <array>
 
-namespace skgpu {
+namespace skgpu::tess {
 
 namespace {
 
@@ -131,4 +131,4 @@ void FixedCountStrokes::WriteVertexBuffer(VertexWriter vertexWriter, size_t buff
     }
 }
 
-}  // namespace skgpu
+}  // namespace skgpu::tess

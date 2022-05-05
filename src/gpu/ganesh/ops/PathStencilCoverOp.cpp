@@ -246,8 +246,8 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         if (VertexWriter triangleVertexWriter =
                     vertexAlloc.lockWriter(sizeof(SkPoint), maxTrianglesInFans * 3)) {
             for (auto [pathMatrix, path, color] : *fPathDrawList) {
-                AffineMatrix m(pathMatrix);
-                for (PathMiddleOutFanIter it(path); !it.done();) {
+                tess::AffineMatrix m(pathMatrix);
+                for (tess::PathMiddleOutFanIter it(path); !it.done();) {
                     for (auto [p0, p1, p2] : it.nextStack()) {
                         triangleVertexWriter << m.map2Points(p0, p1) << m.mapPoint(p2);
                         ++fanTriangleCount;

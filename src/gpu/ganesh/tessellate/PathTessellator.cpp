@@ -22,6 +22,8 @@ namespace skgpu::v1 {
 
 namespace {
 
+using namespace skgpu::tess;
+
 using CurveWriter = PatchWriter<GrVertexChunkBuilder,
                                 Optional<PatchAttribs::kColor>,
                                 Optional<PatchAttribs::kWideColorIfEnabled>,

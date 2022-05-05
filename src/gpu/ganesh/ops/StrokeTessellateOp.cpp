@@ -91,7 +91,7 @@ GrOp::CombineResult StrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkArenaA
 
     auto combinedAttribs = fPatchAttribs | op->fPatchAttribs;
     if (!(combinedAttribs & PatchAttribs::kStrokeParams) &&
-        !StrokeParams::StrokesHaveEqualParams(this->headStroke(), op->headStroke())) {
+        !tess::StrokesHaveEqualParams(this->headStroke(), op->headStroke())) {
         // The paths have different stroke properties. We will need to enable dynamic stroke if we
         // still decide to combine them.
         if (this->headStroke().isHairlineStyle()) {

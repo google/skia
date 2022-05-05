@@ -27,6 +27,7 @@ namespace skgpu::v1 {
 // as degenerate triangles.
 class StrokeTessellator {
 public:
+    using PatchAttribs = tess::PatchAttribs;
 
     struct PathStrokeList {
         PathStrokeList(const SkPath& path, const SkStrokeRec& stroke, const SkPMColor4f& color)

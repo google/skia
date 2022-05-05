@@ -62,8 +62,6 @@ AI int nextlog16(float x) {
 //
 class VectorXform {
 public:
-    using float2 = skvx::Vec<2, float>;
-    using float4 = skvx::Vec<4, float>;
     AI explicit VectorXform() : fType(Type::kIdentity) {}
     AI explicit VectorXform(const SkMatrix& m) { *this = m; }
     AI VectorXform& operator=(const SkMatrix& m) {

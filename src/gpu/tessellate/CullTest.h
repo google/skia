@@ -11,7 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "src/gpu/tessellate/Tessellation.h"
 
-namespace skgpu {
+namespace skgpu::tess {
 
 // This class determines whether the given local-space points will be contained in the cull bounds
 // post transform. For the versions that take >1 point, it returns whether any region of their
@@ -102,6 +102,6 @@ private:
     float4 fCullBounds;  // [l, t, -r, -b]
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::tess
 
 #endif  // skgpu_tessellate_CullTest_DEFINED

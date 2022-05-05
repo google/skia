@@ -25,6 +25,8 @@
 
 namespace {
 
+using namespace skgpu::tess;
+
 GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
                                     SkArenaAlloc* arena,
                                     skgpu::v1::FillPathFlags fillPathFlags,
@@ -129,10 +131,10 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fShape->asPath(&path);
 
     const SkRect pathDevBounds = args.fViewMatrix->mapRect(args.fShape->bounds());
-    float n4 = wangs_formula::worst_case_cubic_pow4(kTessellationPrecision,
+    float n4 = wangs_formula::worst_case_cubic_pow4(tess::kPrecision,
                                                     pathDevBounds.width(),
                                                     pathDevBounds.height());
-    if (n4 > pow4(kMaxTessellationSegmentsPerCurve)) {
+    if (n4 > pow4(tess::kMaxSegmentsPerCurve)) {
         // The path is extremely large. Pre-chop its curves to keep the number of tessellation
         // segments tractable. This will also flatten curves that fall completely outside the
         // viewport.
@@ -152,7 +154,7 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
             }
             viewport.outset(inflationRadius, inflationRadius);
         }
-        path = PreChopPathCurves(kTessellationPrecision, path, *args.fViewMatrix, viewport);
+        path = PreChopPathCurves(tess::kPrecision, path, *args.fViewMatrix, viewport);
     }
 
     // Handle strokes first.
@@ -221,12 +223,12 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    float n4 = wangs_formula::worst_case_cubic_pow4(kTessellationPrecision,
+    float n4 = wangs_formula::worst_case_cubic_pow4(tess::kPrecision,
                                                     pathDevBounds.width(),
                                                     pathDevBounds.height());
-    if (n4 > pow4(kMaxTessellationSegmentsPerCurve)) {
+    if (n4 > pow4(tess::kMaxSegmentsPerCurve)) {
         SkRect viewport = SkRect::Make(*args.fClipConservativeBounds);
-        path = PreChopPathCurves(kTessellationPrecision, path, *args.fViewMatrix, viewport);
+        path = PreChopPathCurves(tess::kPrecision, path, *args.fViewMatrix, viewport);
     }
 
     // Make sure to check 'path' for convexity since it may have been pre-chopped, not 'fShape'.

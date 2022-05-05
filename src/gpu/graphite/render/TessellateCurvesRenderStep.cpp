@@ -19,6 +19,8 @@ namespace skgpu::graphite {
 
 namespace {
 
+using namespace skgpu::tess;
+
 // TODO: This can be shared by the other path tessellators if PatchWriter can provide the correct
 // index count based on its traits (curve, wedge, or stroke).
 // Satisfies API requirements for PatchAllocator template to PatchWriter, using
@@ -40,7 +42,7 @@ struct DrawWriterAllocator {
         // TODO (skbug.com/13056): Actually compute optimal minimum required index count based on
         // PatchWriter's tracked segment count^4.
         static constexpr unsigned int kMaxIndexCount =
-                3 * NumCurveTrianglesAtResolveLevel(kMaxFixedResolveLevel);
+                3 * NumCurveTrianglesAtResolveLevel(tess::kMaxResolveLevel);
         return fInstances.append(kMaxIndexCount, 1);
     }
 

@@ -13,6 +13,9 @@
 
 // This is the base class for shaders in the GPU tessellator that fill paths.
 class GrPathTessellationShader : public GrTessellationShader {
+protected:
+    using PatchAttribs = skgpu::tess::PatchAttribs;
+
 public:
     // Draws a simple array of triangles.
     static GrPathTessellationShader* MakeSimpleTriangleShader(SkArenaAlloc*,
@@ -38,7 +41,7 @@ public:
                                           SkArenaAlloc*,
                                           const SkMatrix& viewMatrix,
                                           const SkPMColor4f&,
-                                          skgpu::PatchAttribs);
+                                          PatchAttribs);
 
     // Returns the stencil settings to use for a standard Redbook "stencil" pass.
     static const GrUserStencilSettings* StencilPathSettings(GrFillRule fillRule) {
@@ -108,7 +111,7 @@ protected:
                              GrPrimitiveType primitiveType,
                              const SkMatrix& viewMatrix,
                              const SkPMColor4f& color,
-                             skgpu::PatchAttribs attribs)
+                             PatchAttribs attribs)
             : GrTessellationShader(classID, primitiveType, viewMatrix, color)
             , fAttribs(attribs) {
     }
@@ -141,7 +144,7 @@ protected:
         SkString fVaryingColorName;
     };
 
-    const skgpu::PatchAttribs fAttribs;
+    const PatchAttribs fAttribs;
 };
 
 #endif

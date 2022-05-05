@@ -10,9 +10,7 @@
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "tests/Test.h"
 
-namespace skgpu {
-
-constexpr static float kPrecision = 4;  // 1/4 pixel max error.
+namespace skgpu::tess {
 
 const SkPoint kSerp[4] = {
         {285.625f, 499.687f}, {411.625f, 808.188f}, {1064.62f, 135.688f}, {1042.63f, 585.187f}};
@@ -523,4 +521,4 @@ DEF_TEST(wangs_formula_conic_vectorXforms, r) {
     }
 }
 
-}  // namespace skgpu
+}  // namespace skgpu::tess

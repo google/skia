@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef tessellate_PatchWriter_DEFINED
-#define tessellate_PatchWriter_DEFINED
+#ifndef skgpu_tessellate_PatchWriter_DEFINED
+#define skgpu_tessellate_PatchWriter_DEFINED
 
 #include "include/private/SkColorData.h"
 #include "src/gpu/BufferWriter.h"
@@ -17,7 +17,7 @@
 #include <type_traits>
 #include <variant>
 
-namespace skgpu {
+namespace skgpu::tess {
 
 /**
  * PatchWriter writes out tessellation patches, formatted with their specific attribs, to a GPU
@@ -348,7 +348,7 @@ public:
     // Write a cubic curve with its four control points.
     AI void writeCubic(float2 p0, float2 p1, float2 p2, float2 p3,
                        const VectorXform& shaderXform) {
-        float n4 = wangs_formula::cubic_pow4(kTessellationPrecision, p0, p1, p2, p3, shaderXform);
+        float n4 = wangs_formula::cubic_pow4(kPrecision, p0, p1, p2, p3, shaderXform);
         if constexpr (kDiscardFlatCurves) {
             if (n4 <= 1.f) {
                 // This cubic only needs one segment (e.g. a line) but we're not filling space with
@@ -360,8 +360,7 @@ public:
             this->writeCubicPatch(p0, p1, p2, p3);
         } else {
             int numPatches = SkScalarCeilToInt(wangs_formula::root4(
-                    std::min(n4, pow4(kMaxTessellationSegmentsPerCurve)) /
-                            pow4(kMaxParametricSegments)));
+                    std::min(n4, pow4(kMaxSegmentsPerCurve)) / pow4(kMaxParametricSegments)));
             this->chopAndWriteCubics(p0, p1, p2, p3, numPatches);
         }
     }
@@ -376,7 +375,7 @@ public:
     // control point signaling a conic by being set to infinity.
     AI void writeConic(float2 p0, float2 p1, float2 p2, float w,
                        const VectorXform& shaderXform) {
-        float n2 = wangs_formula::conic_pow2(kTessellationPrecision, p0, p1, p2, w, shaderXform);
+        float n2 = wangs_formula::conic_pow2(kPrecision, p0, p1, p2, w, shaderXform);
         if constexpr (kDiscardFlatCurves) {
             if (n2 <= 1.f) {
                 // This conic only needs one segment (e.g. a line) but we're not filling space with
@@ -388,8 +387,7 @@ public:
             this->writeConicPatch(p0, p1, p2, w);
         } else {
             int numPatches = SkScalarCeilToInt(sqrtf(
-                    std::min(n2, pow2(kMaxTessellationSegmentsPerCurve)) /
-                            pow2(kMaxParametricSegments)));
+                    std::min(n2, pow2(kMaxSegmentsPerCurve)) / pow2(kMaxParametricSegments)));
             this->chopAndWriteConics(p0, p1, p2, w, numPatches);
         }
     }
@@ -405,7 +403,7 @@ public:
     // equivalent cubic.
     AI void writeQuadratic(float2 p0, float2 p1, float2 p2,
                            const VectorXform& shaderXform) {
-        float n4 = wangs_formula::quadratic_pow4(kTessellationPrecision, p0, p1, p2, shaderXform);
+        float n4 = wangs_formula::quadratic_pow4(kPrecision, p0, p1, p2, shaderXform);
         if constexpr (kDiscardFlatCurves) {
             if (n4 <= 1.f) {
                 // This quad only needs one segment (e.g. a line) but we're not filling space with
@@ -417,8 +415,7 @@ public:
             this->writeQuadPatch(p0, p1, p2);
         } else {
             int numPatches = SkScalarCeilToInt(wangs_formula::root4(
-                    std::min(n4, pow4(kMaxTessellationSegmentsPerCurve)) /
-                            pow4(kMaxParametricSegments)));
+                    std::min(n4, pow4(kMaxSegmentsPerCurve)) / pow4(kMaxParametricSegments)));
             this->chopAndWriteQuads(p0, p1, p2, numPatches);
         }
     }
@@ -699,9 +696,9 @@ private:
     DepthAttrib    fDepth;
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::tess
 
 #undef ENABLE_IF
 #undef AI
 
-#endif  // tessellate_PatchWriter_DEFINED
+#endif  // skgpu_tessellate_PatchWriter_DEFINED

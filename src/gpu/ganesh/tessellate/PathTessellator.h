@@ -25,6 +25,7 @@ namespace skgpu::v1 {
 // the caller may or may not be required to draw the path's inner fan separately.
 class PathTessellator {
 public:
+    using PatchAttribs = tess::PatchAttribs;
 
     struct PathDrawList {
         PathDrawList(const SkMatrix& pathMatrix,
@@ -74,7 +75,7 @@ protected:
     void updateResolveLevel(int resolveLevel) {
         // We should already chopped curves to make sure none needed a higher resolveLevel than
         // kMaxFixedResolveLevel.
-        fFixedResolveLevel = SkTPin(resolveLevel, fFixedResolveLevel, skgpu::kMaxFixedResolveLevel);
+        fFixedResolveLevel = SkTPin(resolveLevel, fFixedResolveLevel, tess::kMaxResolveLevel);
     }
 
     PatchAttribs fAttribs;

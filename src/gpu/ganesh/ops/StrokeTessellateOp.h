@@ -25,7 +25,9 @@ public:
     StrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
 
 private:
+    using PatchAttribs = StrokeTessellator::PatchAttribs;
     using PathStrokeList = StrokeTessellator::PathStrokeList;
+
     DEFINE_OP_CLASS_ID
 
     SkStrokeRec& headStroke() { return fPathStrokeList.fStroke; }

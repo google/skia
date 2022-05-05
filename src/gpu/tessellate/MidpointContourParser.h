@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef tessellate_MidpointContourParser_DEFINED
-#define tessellate_MidpointContourParser_DEFINED
+#ifndef skgpu_tessellate_MidpointContourParser_DEFINED
+#define skgpu_tessellate_MidpointContourParser_DEFINED
 
 #include "include/core/SkPath.h"
 #include "src/core/SkPathPriv.h"
 
-namespace skgpu {
+namespace skgpu::tess {
 
 // Parses out each contour in a path and tracks the midpoint. Example usage:
 //
@@ -112,6 +112,6 @@ private:
     int fMidpointWeight;
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::tess
 
-#endif // tessellate_MidpointContourParser_DEFINED
+#endif // skgpu_tessellate_MidpointContourParser_DEFINED

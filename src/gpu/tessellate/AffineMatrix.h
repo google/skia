@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef tessellate_AffineMatrix_DEFINED
-#define tessellate_AffineMatrix_DEFINED
+#ifndef skgpu_tessellate_AffineMatrix_DEFINED
+#define skgpu_tessellate_AffineMatrix_DEFINED
 
 #include "include/core/SkMatrix.h"
 #include "src/gpu/tessellate/Tessellation.h"
 
-namespace skgpu {
+namespace skgpu::tess {
 
 // Applies an affine 2d transformation to points. Uses SIMD, but takes care to map points
 // identically, regardless of which method is called.
@@ -62,6 +62,6 @@ private:
     float4 fTrans;
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::tess
 
-#endif  // tessellate_AffineMatrix_DEFINED
+#endif  // skgpu_tessellate_AffineMatrix_DEFINED
