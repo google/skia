@@ -24,6 +24,7 @@
 class SkBaseDevice;
 class SkCanvas;
 class SkGlyph;
+class SkGlyphRunBuilder;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
@@ -65,16 +66,18 @@ class SkGlyphRunList {
     SkSpan<const SkGlyphRun> fGlyphRuns;
 
 public:
-    SkGlyphRunList();
     // Blob maybe null.
     SkGlyphRunList(
             const SkTextBlob* blob,
             SkRect bounds,
             SkPoint origin,
-            SkSpan<const SkGlyphRun> glyphRunList);
+            SkSpan<const SkGlyphRun> glyphRunList,
+            SkGlyphRunBuilder* builder);
 
-    SkGlyphRunList(const SkGlyphRun& glyphRun, const SkRect& bounds, SkPoint origin);
-
+    SkGlyphRunList(const SkGlyphRun& glyphRun,
+                   const SkRect& bounds,
+                   SkPoint origin,
+                   SkGlyphRunBuilder* builder);
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
     void temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const;
@@ -101,6 +104,7 @@ public:
     SkPoint origin() const { return fOrigin; }
     SkRect sourceBounds() const { return fSourceBounds; }
     const SkTextBlob* blob() const { return fOriginalTextBlob; }
+    SkGlyphRunBuilder* builder() const { return fBuilder; }
 
     auto begin() -> decltype(fGlyphRuns.begin())               { return fGlyphRuns.begin();      }
     auto end()   -> decltype(fGlyphRuns.end())                 { return fGlyphRuns.end();        }
@@ -111,15 +115,18 @@ public:
     auto operator [] (size_t i) const -> decltype(fGlyphRuns[i]) { return fGlyphRuns[i];         }
 
 private:
-    // The text blob is needed to hookup the call back that the SkTextBlob destructor calls. It
-    // should be used for nothing else
+    // The text blob is needed to hook up the call back that the SkTextBlob destructor calls. It
+    // should be used for nothing else.
     const SkTextBlob* fOriginalTextBlob{nullptr};
     const SkRect fSourceBounds{SkRect::MakeEmpty()};
     const SkPoint fOrigin = {0, 0};
+    SkGlyphRunBuilder* const fBuilder;
 };
 
 class SkGlyphRunBuilder {
 public:
+    SkGlyphRunList makeGlyphRunList(
+            const SkGlyphRun& run, SkRect bounds, SkPoint origin);
     const SkGlyphRunList& textToGlyphRunList(const SkFont& font,
                                              const SkPaint& paint,
                                              const void* bytes,
@@ -147,7 +154,7 @@ private:
             SkSpan<const uint32_t> clusters,
             SkSpan<const SkVector> scaledRotations);
 
-    const SkGlyphRunList& makeGlyphRunList(
+    const SkGlyphRunList& setGlyphRunList(
             const SkTextBlob* blob, const SkRect& bounds, SkPoint origin);
 
     int fMaxTotalRunSize{0};

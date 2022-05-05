@@ -11,7 +11,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkTextBlob.h"
-#include "include/private/SkTo.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkScalerCache.h"
@@ -104,22 +103,27 @@ SkRect SkGlyphRun::sourceBounds(const SkPaint& paint) const {
 }
 
 // -- SkGlyphRunList -------------------------------------------------------------------------------
-SkGlyphRunList::SkGlyphRunList() = default;
 SkGlyphRunList::SkGlyphRunList(
         const SkTextBlob* blob,
         SkRect bounds,
         SkPoint origin,
-        SkSpan<const SkGlyphRun> glyphRunList)
+        SkSpan<const SkGlyphRun> glyphRunList,
+        SkGlyphRunBuilder* builder)
         : fGlyphRuns{glyphRunList}
         , fOriginalTextBlob{blob}
         , fSourceBounds{bounds}
-        , fOrigin{origin} { }
+        , fOrigin{origin}
+        , fBuilder{builder} {}
 
-SkGlyphRunList::SkGlyphRunList(const SkGlyphRun& glyphRun, const SkRect& bounds, SkPoint origin)
+SkGlyphRunList::SkGlyphRunList(const SkGlyphRun& glyphRun,
+                               const SkRect& bounds,
+                               SkPoint origin,
+                               SkGlyphRunBuilder* builder)
         : fGlyphRuns{SkSpan<const SkGlyphRun>{&glyphRun, 1}}
         , fOriginalTextBlob{nullptr}
         , fSourceBounds{bounds}
-        , fOrigin{origin} {}
+        , fOrigin{origin}
+        , fBuilder{builder} {}
 
 uint64_t SkGlyphRunList::uniqueID() const {
     return fOriginalTextBlob != nullptr ? fOriginalTextBlob->uniqueID()
@@ -171,6 +175,11 @@ sk_sp<SkTextBlob> SkGlyphRunList::makeBlob() const {
 }
 
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
+SkGlyphRunList SkGlyphRunBuilder::makeGlyphRunList(
+        const SkGlyphRun& run, SkRect bounds, SkPoint origin) {
+    return SkGlyphRunList{run, bounds, origin, this};
+}
+
 static SkSpan<const SkPoint> draw_text_positions(
         const SkFont& font, SkSpan<const SkGlyphID> glyphIDs, SkPoint origin, SkPoint* buffer) {
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(font);
@@ -204,12 +213,12 @@ const SkGlyphRunList& SkGlyphRunBuilder::textToGlyphRunList(
         bounds = fGlyphRunListStorage.front().sourceBounds(paint);
     }
 
-    return this->makeGlyphRunList(nullptr, bounds.makeOffset(origin), origin);
+    return this->setGlyphRunList(nullptr, bounds.makeOffset(origin), origin);
 }
 
 const SkGlyphRunList& SkGlyphRunBuilder::blobToGlyphRunList(
         const SkTextBlob& blob, SkPoint origin) {
-    // Pre-size all the buffers so they don't move during processing.
+    // Pre-size all the buffers, so they don't move during processing.
     this->initialize(blob);
 
     SkPoint* positionCursor = fPositions;
@@ -263,7 +272,7 @@ const SkGlyphRunList& SkGlyphRunBuilder::blobToGlyphRunList(
                 scaledRotations);
     }
 
-    return this->makeGlyphRunList(&blob, blob.bounds().makeOffset(origin), origin);
+    return this->setGlyphRunList(&blob, blob.bounds().makeOffset(origin), origin);
 }
 
 std::tuple<SkSpan<const SkPoint>, SkSpan<const SkVector>>
@@ -345,8 +354,8 @@ void SkGlyphRunBuilder::makeGlyphRun(
     }
 }
 
-const SkGlyphRunList& SkGlyphRunBuilder::makeGlyphRunList(
+const SkGlyphRunList& SkGlyphRunBuilder::setGlyphRunList(
         const SkTextBlob* blob, const SkRect& bounds, SkPoint origin) {
-    fGlyphRunList.emplace(blob, bounds, origin, SkMakeSpan(fGlyphRunListStorage));
+    fGlyphRunList.emplace(blob, bounds, origin, SkMakeSpan(fGlyphRunListStorage), this);
     return fGlyphRunList.value();
 }

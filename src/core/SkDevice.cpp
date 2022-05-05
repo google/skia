@@ -446,7 +446,8 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
                                                     const SkPaint& drawingPaint) {
     for (const SkGlyphRun& run : glyphRunList) {
         if (run.scaledRotations().empty()) {
-            SkGlyphRunList subList{run, run.sourceBounds(drawingPaint), {0, 0}};
+            auto subList = glyphRunList.builder()->makeGlyphRunList(
+                    run, run.sourceBounds(drawingPaint), {0, 0});
             this->drawGlyphRunList(canvas, subList, initialPaint, drawingPaint);
         } else {
             SkPoint origin = glyphRunList.origin();
@@ -477,7 +478,8 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
                         make_post_inverse_lm(drawingPaint.getShader(), glyphToLocal));
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->concat(SkM44(glyphToLocal));
-                SkGlyphRunList subList{glyphRun, glyphRun.sourceBounds(drawingPaint), {0, 0}};
+                SkGlyphRunList subList = glyphRunList.builder()->makeGlyphRunList(
+                        glyphRun, glyphRun.sourceBounds(drawingPaint), {0, 0});
                 this->drawGlyphRunList(canvas, subList, initialPaint, invertingPaint);
             }
         }

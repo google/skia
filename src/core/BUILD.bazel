@@ -2197,7 +2197,6 @@ generated_cc_atom(
         "//include/core:SkPaint_hdr",
         "//include/core:SkRSXform_hdr",
         "//include/core:SkTextBlob_hdr",
-        "//include/private:SkTo_hdr",
     ],
 )
 

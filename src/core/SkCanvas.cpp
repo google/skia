@@ -2408,11 +2408,8 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* pos
             SkMakeSpan(clusters, count),
             SkSpan<SkVector>()
     };
-    SkGlyphRunList glyphRunList {
-            glyphRun,
-            glyphRun.sourceBounds(paint).makeOffset(origin),
-            origin
-    };
+    SkGlyphRunList glyphRunList = fScratchGlyphRunBuilder->makeGlyphRunList(
+            glyphRun, glyphRun.sourceBounds(paint).makeOffset(origin), origin);
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
@@ -2428,11 +2425,8 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint pos
         SkSpan<const uint32_t>(),
         SkSpan<SkVector>()
     };
-    SkGlyphRunList glyphRunList {
-        glyphRun,
-        glyphRun.sourceBounds(paint).makeOffset(origin),
-        origin
-    };
+    SkGlyphRunList glyphRunList = fScratchGlyphRunBuilder->makeGlyphRunList(
+            glyphRun, glyphRun.sourceBounds(paint).makeOffset(origin), origin);
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
@@ -2451,11 +2445,8 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkRSXform x
             SkSpan<const uint32_t>(),
             rotateScales
     };
-    SkGlyphRunList glyphRunList {
-            glyphRun,
-            glyphRun.sourceBounds(paint).makeOffset(origin),
-            origin
-    };
+    SkGlyphRunList glyphRunList = fScratchGlyphRunBuilder->makeGlyphRunList(
+            glyphRun, glyphRun.sourceBounds(paint).makeOffset(origin), origin);
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
