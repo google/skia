@@ -8,7 +8,7 @@
 #ifndef GrPathTessellationShader_DEFINED
 #define GrPathTessellationShader_DEFINED
 
-#include "src/gpu/ganesh/tessellate/shaders/GrTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 #include "src/gpu/tessellate/Tessellation.h"
 
 // This is the base class for shaders in the GPU tessellator that fill paths.

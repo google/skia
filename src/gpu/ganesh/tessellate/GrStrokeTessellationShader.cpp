@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/GrStrokeTessellationShader.h"
 
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"

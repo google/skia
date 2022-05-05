@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/ops/StrokeTessellator.h"
+#include "src/gpu/ganesh/tessellate/StrokeTessellator.h"
 
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"

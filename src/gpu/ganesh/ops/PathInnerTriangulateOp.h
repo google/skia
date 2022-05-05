@@ -11,7 +11,7 @@
 #include "src/gpu/ganesh/geometry/GrInnerFanTriangulator.h"
 #include "src/gpu/ganesh/ops/FillPathFlags.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
-#include "src/gpu/ganesh/tessellate/shaders/GrTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 
 namespace skgpu::v1 {
 

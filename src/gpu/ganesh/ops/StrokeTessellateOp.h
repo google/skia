@@ -10,8 +10,8 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
-#include "src/gpu/ganesh/ops/StrokeTessellator.h"
-#include "src/gpu/ganesh/tessellate/shaders/GrTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/StrokeTessellator.h"
 
 class GrRecordingContext;
 class GrStrokeTessellationShader;

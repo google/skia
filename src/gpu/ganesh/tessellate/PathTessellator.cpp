@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/ops/PathTessellator.h"
+#include "src/gpu/ganesh/tessellate/PathTessellator.h"
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"

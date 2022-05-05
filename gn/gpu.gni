@@ -310,13 +310,17 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/gradients/GrGradientShader.cpp",
   "$_src/gpu/ganesh/gradients/GrGradientShader.h",
 
-  # tessellate/shaders
-  "$_src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.cpp",
-  "$_src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.h",
-  "$_src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.cpp",
-  "$_src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.h",
-  "$_src/gpu/ganesh/tessellate/shaders/GrTessellationShader.cpp",
-  "$_src/gpu/ganesh/tessellate/shaders/GrTessellationShader.h",
+  # tessellate
+  "$_src/gpu/ganesh/tessellate/GrPathTessellationShader.cpp",
+  "$_src/gpu/ganesh/tessellate/GrPathTessellationShader.h",
+  "$_src/gpu/ganesh/tessellate/GrStrokeTessellationShader.cpp",
+  "$_src/gpu/ganesh/tessellate/GrStrokeTessellationShader.h",
+  "$_src/gpu/ganesh/tessellate/GrTessellationShader.cpp",
+  "$_src/gpu/ganesh/tessellate/GrTessellationShader.h",
+  "$_src/gpu/ganesh/tessellate/PathTessellator.cpp",
+  "$_src/gpu/ganesh/tessellate/PathTessellator.h",
+  "$_src/gpu/ganesh/tessellate/StrokeTessellator.cpp",
+  "$_src/gpu/ganesh/tessellate/StrokeTessellator.h",
 
   # text
   "$_src/gpu/ganesh/text/GrAtlasManager.cpp",
@@ -510,8 +514,6 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/ganesh/ops/PathStencilCoverOp.h",
   "$_src/gpu/ganesh/ops/PathTessellateOp.cpp",
   "$_src/gpu/ganesh/ops/PathTessellateOp.h",
-  "$_src/gpu/ganesh/ops/PathTessellator.cpp",
-  "$_src/gpu/ganesh/ops/PathTessellator.h",
   "$_src/gpu/ganesh/ops/QuadPerEdgeAA.cpp",
   "$_src/gpu/ganesh/ops/QuadPerEdgeAA.h",
   "$_src/gpu/ganesh/ops/RegionOp.cpp",
@@ -530,8 +532,6 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/ganesh/ops/StrokeRectOp.h",
   "$_src/gpu/ganesh/ops/StrokeTessellateOp.cpp",
   "$_src/gpu/ganesh/ops/StrokeTessellateOp.h",
-  "$_src/gpu/ganesh/ops/StrokeTessellator.cpp",
-  "$_src/gpu/ganesh/ops/StrokeTessellator.h",
   "$_src/gpu/ganesh/ops/TessellationPathRenderer.cpp",
   "$_src/gpu/ganesh/ops/TessellationPathRenderer.h",
   "$_src/gpu/ganesh/ops/TextureOp.cpp",

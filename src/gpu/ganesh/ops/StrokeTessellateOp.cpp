@@ -12,7 +12,7 @@
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/tessellate/shaders/GrStrokeTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/GrStrokeTessellationShader.h"
 
 namespace skgpu::v1 {
 

@@ -5,7 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/tessellate/shaders/GrTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
+
 #include "src/gpu/tessellate/WangsFormula.h"
 
 const GrPipeline* GrTessellationShader::MakePipeline(const ProgramArgs& args,

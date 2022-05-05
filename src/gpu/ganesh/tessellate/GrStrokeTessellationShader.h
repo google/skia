@@ -8,7 +8,7 @@
 #ifndef GrStrokeTessellationShader_DEFINED
 #define GrStrokeTessellationShader_DEFINED
 
-#include "src/gpu/ganesh/tessellate/shaders/GrTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/ganesh/GrVx.h"

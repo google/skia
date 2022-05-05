@@ -17,7 +17,7 @@
 #include "src/gpu/ganesh/ops/AtlasRenderTask.h"
 #include "src/gpu/ganesh/ops/DrawAtlasPathOp.h"
 #include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
-#include "src/gpu/ganesh/tessellate/shaders/GrTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 using grvx::float2;

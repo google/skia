@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.h"
+#include "src/gpu/ganesh/tessellate/GrPathTessellationShader.h"
 
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/KeyBuilder.h"

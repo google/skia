@@ -9,8 +9,7 @@
 
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
-#include "src/gpu/ganesh/tessellate/shaders/GrPathTessellationShader.h"
-
+#include "src/gpu/ganesh/tessellate/GrPathTessellationShader.h"
 namespace skgpu::v1 {
 
 void PathTessellateOp::visitProxies(const GrVisitProxyFunc& func) const {
