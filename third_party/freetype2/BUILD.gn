@@ -31,12 +31,12 @@ if (skia_use_system_freetype2) {
 
     defines = [ "FT2_BUILD_LIBRARY" ]
     if (target_cpu == "wasm") {
-      defines += [
+      public_defines += [
         "FT_CONFIG_MODULES_H=<include/freetype-no-type1/ftmodule.h>",
         "FT_CONFIG_OPTIONS_H=<include/freetype-no-type1/ftoption.h>",
       ]
     } else {
-      defines += [
+      public_defines += [
         "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
         "FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>",
       ]
@@ -44,7 +44,7 @@ if (skia_use_system_freetype2) {
 
     if (skia_use_freetype_woff2) {
       deps += [ "//third_party/brotli" ]
-      defines += [ "FT_CONFIG_OPTION_USE_BROTLI" ]
+      public_defines += [ "FT_CONFIG_OPTION_USE_BROTLI" ]
     }
 
     sources = [
