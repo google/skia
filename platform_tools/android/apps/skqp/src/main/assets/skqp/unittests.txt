@@ -97,6 +97,5 @@ SkSLIntrinsicClampFloat_GPU, 33
 SkSLIntrinsicMixFloat_GPU, 33
 SkSLMatrixToVectorCast_GPU, 33
 SkSLOutParams_GPU, 33
-SkSLOutParamsAreDistinctFromGlobal_GPU, 33
 SkSLOutParamsTricky_GPU, 33
 SkSLUnaryPositiveNegative_GPU, 33
