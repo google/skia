@@ -59,6 +59,10 @@
 #include "spirv-tools/libspirv.hpp"
 #endif
 
+#ifdef SK_ENABLE_WGSL_VALIDATION
+#include "tint/tint.h"
+#endif
+
 #ifdef SKSL_STANDALONE
 #define REHYDRATE 0
 #include <fstream>
@@ -821,11 +825,42 @@ bool Compiler::toMetal(Program& program, std::string* out) {
     return result;
 }
 
+#if defined(SK_ENABLE_WGSL_VALIDATION)
+static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl) {
+    tint::Source::File srcFile("", wgsl);
+    tint::Program program(tint::reader::wgsl::Parse(&srcFile));
+    if (program.Diagnostics().count() > 0) {
+        tint::diag::Formatter diagFormatter;
+        std::string diagOutput = diagFormatter.format(program.Diagnostics());
+#if defined(SKSL_STANDALONE)
+        reporter.error(Position(), diagOutput);
+        reporter.reportPendingErrors(Position());
+#else
+        SkDEBUGFAILF("%s", diagOutput.c_str());
+#endif
+        return false;
+    }
+    return true;
+}
+#endif  // defined(SK_ENABLE_WGSL_VALIDATION)
+
 bool Compiler::toWGSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toWGSL");
     AutoSource as(this, *program.fSource);
+#ifdef SK_ENABLE_WGSL_VALIDATION
+    StringStream wgsl;
+    WGSLCodeGenerator cg(fContext.get(), &program, &wgsl);
+    bool result = cg.generateCode();
+    if (result) {
+        std::string wgslString = wgsl.str();
+        result = validate_wgsl(this->errorReporter(), wgslString);
+        out.writeString(wgslString);
+    }
+#else
     WGSLCodeGenerator cg(fContext.get(), &program, &out);
-    return cg.generateCode();
+    bool result = cg.generateCode();
+#endif
+    return result;
 }
 
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED

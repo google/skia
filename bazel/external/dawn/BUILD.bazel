@@ -1079,7 +1079,7 @@ cc_library(
         "",
         "include",
     ],
-    visibility = ["//visibility:private"],  # only used by :dawn
+    visibility = ["//visibility:public"],
     deps = [
         # Tint specifically depends on spirv-tools/BUILD.gn:spirv_opt
         "@spirv_tools//:spirv_tools_opt",

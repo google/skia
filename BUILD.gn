@@ -718,6 +718,7 @@ if (skia_compile_sksl_tests) {
       "SK_DISABLE_TRACING",
       "SK_ENABLE_SPIRV_CROSS",
       "SK_ENABLE_SPIRV_VALIDATION",
+      "SK_ENABLE_WGSL_VALIDATION",
     ]
     sources = skslc_deps
     sources += [ "tools/skslc/Main.cpp" ]
@@ -735,6 +736,7 @@ if (skia_compile_sksl_tests) {
     deps = [
       ":run_sksllex",
       ":skvm_jit",
+      "//third_party/externals/dawn/src/tint:libtint",
       "//third_party/externals/spirv-tools:spvtools",
       "//third_party/externals/spirv-tools:spvtools_val",
       "//third_party/spirv-cross:spirv_cross",

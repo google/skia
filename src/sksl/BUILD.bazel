@@ -324,6 +324,7 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLVariableReference_hdr",
         "//src/sksl/ir:SkSLVariable_hdr",
         "//src/sksl/transform:SkSLTransform_hdr",
+        "@dawn//:tint",
         "@spirv_tools",
     ],
 )
