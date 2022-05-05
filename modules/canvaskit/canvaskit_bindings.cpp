@@ -31,6 +31,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSerialProcs.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
@@ -679,6 +680,10 @@ void castUniforms(void* data, size_t dataLen, const SkRuntimeEffect& effect) {
     }
 }
 #endif
+
+sk_sp<SkData> alwaysSaveTypefaceBytes(SkTypeface* face, void*) {
+    return face->serialize(SkTypeface::SerializeBehavior::kDoIncludeData);
+}
 
 // These objects have private destructors / delete methods - I don't think
 // we need to do anything other than tell emscripten to do nothing.
@@ -1664,9 +1669,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // that clients should ever rely on.  The format may change at anytime and no promises
         // are made for backwards or forward compatibility.
         .function("serialize", optional_override([](SkPicture& self) -> Uint8Array {
-            // Emscripten doesn't play well with optional arguments, which we don't
-            // want to expose anyway.
-            sk_sp<SkData> data = self.serialize();
+            // We want to make sure we always save the underlying data of the Typeface to the
+            // SkPicture. By default, the data for "system" fonts is not saved, just an identifier
+            // (e.g. the family name and style). We do not want the user to have to supply a
+            // FontMgr with the correct fonts by name when deserializing, so we choose to always
+            // serialize the underlying data. This makes the SKPs a bit bigger, but easier to use.
+            SkSerialProcs sp;
+            sp.fTypefaceProc = &alwaysSaveTypefaceBytes;
+
+            sk_sp<SkData> data = self.serialize(&sp);
             if (!data) {
                 return emscripten::val::null();
             }

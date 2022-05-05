@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - If an invalid matrix type is passed in (e.g. not an array, TypedArray, or DOMMatrix), CanvasKit
    will throw instead of drawing incorrectly.
 
+### Fixed
+ - SkParagraph objects no longer have their glyphs garbled when stored to an SkPicture.
+   (skbug.com/13247)
+
 ## [0.33.0] - 2022-02-03
 
 ### Added
