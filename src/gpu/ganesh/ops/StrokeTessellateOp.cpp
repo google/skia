@@ -172,8 +172,7 @@ void StrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs
             fPatchAttribs,
             fViewMatrix,
             this->headStroke(),
-            this->headColor(),
-            StrokeTessellator::kMaxParametricSegments_log2);
+            this->headColor());
 
     auto fillStencil = &GrUserStencilSettings::kUnused;
     if (fNeedsStencil) {

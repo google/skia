@@ -95,8 +95,7 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
             FixedCountCurves::IndexBufferSize);
 
     int patchReserveCount = FixedCountCurves::PreallocCount(path.countVerbs());
-    Writer writer{kAttribs, kMaxParametricSegments,
-                  *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
+    Writer writer{kAttribs, *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
 
     writer.updatePaintDepthAttrib(geom.order().depthAsFloat());
 

@@ -29,14 +29,13 @@ public:
 
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
     GrStrokeTessellationShader(const GrShaderCaps&, PatchAttribs, const SkMatrix& viewMatrix,
-                               const SkStrokeRec&, SkPMColor4f, int8_t maxParametricSegments_log2);
+                               const SkStrokeRec&, SkPMColor4f);
 
     PatchAttribs attribs() const { return fPatchAttribs; }
     bool hasDynamicStroke() const { return fPatchAttribs & PatchAttribs::kStrokeParams; }
     bool hasDynamicColor() const { return fPatchAttribs & PatchAttribs::kColor; }
     bool hasExplicitCurveType() const { return fPatchAttribs & PatchAttribs::kExplicitCurveType; }
     const SkStrokeRec& stroke() const { return fStroke;}
-    int8_t maxParametricSegments_log2() const { return fMaxParametricSegments_log2; }
 
 private:
     const char* name() const override { return "GrStrokeTessellationShader"; }
@@ -45,7 +44,6 @@ private:
 
     const PatchAttribs fPatchAttribs;
     const SkStrokeRec fStroke;
-    const int8_t fMaxParametricSegments_log2;
 
     constexpr static int kMaxAttribCount = 6;
     SkSTArray<kMaxAttribCount, Attribute> fAttribs;

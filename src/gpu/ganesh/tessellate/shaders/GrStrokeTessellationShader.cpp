@@ -86,13 +86,11 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
                                                        PatchAttribs attribs,
                                                        const SkMatrix& viewMatrix,
                                                        const SkStrokeRec& stroke,
-                                                       SkPMColor4f color,
-                                                       int8_t maxParametricSegments_log2)
+                                                       SkPMColor4f color)
         : GrTessellationShader(kTessellate_GrStrokeTessellationShader_ClassID,
                                GrPrimitiveType::kTriangleStrip, viewMatrix, color)
         , fPatchAttribs(attribs | PatchAttribs::kJoinControlPoint)
-        , fStroke(stroke)
-        , fMaxParametricSegments_log2(maxParametricSegments_log2) {
+        , fStroke(stroke) {
     // We should use explicit curve type when, and only when, there isn't infinity support.
     // Otherwise the GPU can infer curve type based on infinity.
     SkASSERT(shaderCaps.infinitySupport() != (attribs & PatchAttribs::kExplicitCurveType));
@@ -606,7 +604,7 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         // ensures crack-free seaming between instances.
         tangent = (combinedEdgeID == 0) ? tan0 : tan1;
         strokeCoord = (combinedEdgeID == 0) ? p0 : p3;
-    })", shader.maxParametricSegments_log2() /* Parametric/radial sort loop count. */);
+    })", skgpu::kMaxFixedResolveLevel /* Parametric/radial sort loop count. */);
 
     code->append(R"(
     // At this point 'tangent' is normalized, so the orthogonal vector is also normalized.
@@ -690,7 +688,6 @@ void GrStrokeTessellationShader::addToKey(const GrShaderCaps&, skgpu::KeyBuilder
     uint32_t key = (uint32_t)(fPatchAttribs & ~PatchAttribs::kColor);
     key = (key << 2) | ((keyNeedsJoin) ? fStroke.getJoin() : 0);
     key = (key << 1) | (uint32_t)fStroke.isHairlineStyle();
-    key = (key << 8) | fMaxParametricSegments_log2;
     b->add32(key);
 }
 

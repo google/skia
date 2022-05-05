@@ -163,8 +163,7 @@ void PathCurveTessellator::prepareWithTriangles(
     int patchPreallocCount = FixedCountCurves::PreallocCount(totalCombinedPathVerbCnt) +
                              (extraTriangles ? extraTriangles->count() : 0);
     if (patchPreallocCount) {
-        CurveWriter writer{fAttribs, skgpu::kMaxParametricSegments,
-                           target, &fVertexChunkArray, patchPreallocCount};
+        CurveWriter writer{fAttribs, target, &fVertexChunkArray, patchPreallocCount};
 
         // Write out extra space-filling triangles to connect the curve patches with any external
         // source of geometry (e.g. inner triangulation that handles winding explicitly).
@@ -237,8 +236,7 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
                                    const PathDrawList& pathDrawList,
                                    int totalCombinedPathVerbCnt) {
     if (int patchPreallocCount = FixedCountWedges::PreallocCount(totalCombinedPathVerbCnt)) {
-        WedgeWriter writer{fAttribs, skgpu::kMaxParametricSegments,
-                           target, &fVertexChunkArray, patchPreallocCount};
+        WedgeWriter writer{fAttribs, target, &fVertexChunkArray, patchPreallocCount};
         int resolveLevel = write_wedge_patches(std::move(writer), shaderMatrix, pathDrawList);
         this->updateResolveLevel(resolveLevel);
     }

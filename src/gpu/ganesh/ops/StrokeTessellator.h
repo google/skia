@@ -27,8 +27,6 @@ namespace skgpu::v1 {
 // as degenerate triangles.
 class StrokeTessellator {
 public:
-   constexpr static int8_t kMaxParametricSegments_log2 =
-            SkNextLog2_portable(kMaxParametricSegments);
 
     struct PathStrokeList {
         PathStrokeList(const SkPath& path, const SkStrokeRec& stroke, const SkPMColor4f& color)

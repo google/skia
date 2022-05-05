@@ -99,8 +99,7 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
             FixedCountWedges::IndexBufferSize);
 
     int patchReserveCount = FixedCountWedges::PreallocCount(path.countVerbs());
-    Writer writer{kAttribs, kMaxParametricSegments,
-                  *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
+    Writer writer{kAttribs, *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
     writer.updatePaintDepthAttrib(geom.order().depthAsFloat());
 
     // TODO: Is it better to pre-transform on the CPU and only have a matrix uniform to compute
