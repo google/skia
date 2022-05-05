@@ -573,6 +573,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--pr", "atlas", "tess")
 		}
 
+		if b.extraConfig("OldestSupportedSkpVersion") {
+			// For triaging convenience, make the old-skp job's output match the size of the DDL jobs' output
+			args = append(args, "--skpViewportSize", "2048")
+		}
 		// DDL is a GPU-only feature
 		if b.extraConfig("DDL1") {
 			// This bot generates comparison images for the large skps and the gms
