@@ -61,13 +61,13 @@ public:
 
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current op token along with the sktext::gpu::Glyph.
-    // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
+    // A BulkUsePlotUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater*, skgpu::MaskFormat,
+    void addGlyphToBulkAndSetUseToken(skgpu::BulkUsePlotUpdater*, skgpu::MaskFormat,
                                       sktext::gpu::Glyph*, GrDeferredUploadToken);
 
-    void setUseTokenBulk(const GrDrawOpAtlas::BulkUseTokenUpdater& updater,
+    void setUseTokenBulk(const skgpu::BulkUsePlotUpdater& updater,
                          GrDeferredUploadToken token,
                          skgpu::MaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);

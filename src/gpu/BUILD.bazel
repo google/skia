@@ -148,6 +148,7 @@ generated_cc_atom(
         "//include/core:SkRect_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkTypes_hdr",
+        "//include/private:SkTArray_hdr",
         "//include/private:SkTo_hdr",
         "//src/core:SkIPoint16_hdr",
     ],

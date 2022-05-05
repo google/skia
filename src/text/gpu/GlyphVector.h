@@ -11,15 +11,15 @@
 #include "include/core/SkSpan.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphBuffer.h"
-#if SK_SUPPORT_GPU
-#include "src/gpu/ganesh/GrDrawOpAtlas.h"
-#include "src/gpu/ganesh/GrMeshDrawTarget.h"
-#endif
+#include "src/gpu/AtlasTypes.h"
 #include "src/text/gpu/Glyph.h"
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
 class SkStrikeClient;
+#if SK_SUPPORT_GPU
+class GrMeshDrawTarget;
+#endif
 
 namespace sktext::gpu {
 
@@ -60,7 +60,7 @@ public:
             int begin, int end,
             skgpu::MaskFormat maskFormat,
             int srcPadding,
-            GrMeshDrawTarget *);
+            GrMeshDrawTarget*);
 #endif
 
     static size_t GlyphVectorSize(size_t count) {
@@ -73,9 +73,7 @@ private:
     SkSpan<Variant> fGlyphs;
     sk_sp<TextStrike> fTextStrike{nullptr};
     uint64_t fAtlasGeneration{skgpu::AtlasGenerationCounter::kInvalidGeneration};
-#if SK_SUPPORT_GPU
-    GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
-#endif
+    skgpu::BulkUsePlotUpdater fBulkUseUpdater;
 };
 
 }  // namespace sktext::gpu

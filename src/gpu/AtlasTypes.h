@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/RectanizerSkyline.h"
@@ -266,6 +267,64 @@ class PlotEvictionCallback {
 public:
     virtual ~PlotEvictionCallback() = default;
     virtual void evict(PlotLocator) = 0;
+};
+
+/**
+ * A class which can be handed back to an atlas for updating plots in bulk.  The
+ * current max number of plots per page an atlas can handle is 32. If in the future
+ * this is insufficient then we can move to a 64 bit int.
+ */
+class BulkUsePlotUpdater {
+public:
+    BulkUsePlotUpdater() {
+        memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated));
+    }
+    BulkUsePlotUpdater(const BulkUsePlotUpdater& that)
+            : fPlotsToUpdate(that.fPlotsToUpdate) {
+        memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated));
+    }
+
+    bool add(const skgpu::AtlasLocator& atlasLocator) {
+        int plotIdx = atlasLocator.plotIndex();
+        int pageIdx = atlasLocator.pageIndex();
+        if (this->find(pageIdx, plotIdx)) {
+            return false;
+        }
+        this->set(pageIdx, plotIdx);
+        return true;
+    }
+
+    void reset() {
+        fPlotsToUpdate.reset();
+        memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated));
+    }
+
+    struct PlotData {
+        PlotData(int pageIdx, int plotIdx) : fPageIndex(pageIdx), fPlotIndex(plotIdx) {}
+        uint32_t fPageIndex;
+        uint32_t fPlotIndex;
+    };
+
+    int count() const { return fPlotsToUpdate.count(); }
+
+    const PlotData& plotData(int index) const { return fPlotsToUpdate[index]; }
+
+private:
+    bool find(int pageIdx, int index) const {
+        SkASSERT(index < skgpu::PlotLocator::kMaxPlots);
+        return (fPlotAlreadyUpdated[pageIdx] >> index) & 1;
+    }
+
+    void set(int pageIdx, int index) {
+        SkASSERT(!this->find(pageIdx, index));
+        fPlotAlreadyUpdated[pageIdx] |= (1 << index);
+        fPlotsToUpdate.push_back(PlotData(pageIdx, index));
+    }
+
+    inline static constexpr int kMinItems = 4;
+    SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
+    // TODO: increase this to uint64_t to allow more plots per page
+    uint32_t fPlotAlreadyUpdated[skgpu::PlotLocator::kMaxMultitexturePages];
 };
 
 /**

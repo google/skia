@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/private/SkTArray.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/AtlasTypes.h"
@@ -136,66 +135,11 @@ public:
 
     uint32_t numActivePages() { return fNumActivePages; }
 
-    /**
-     * A class which can be handed back to GrDrawOpAtlas for updating last use tokens in bulk.  The
-     * current max number of plots per page the GrDrawOpAtlas can handle is 32. If in the future
-     * this is insufficient then we can move to a 64 bit int.
-     */
-    class BulkUseTokenUpdater {
-    public:
-        BulkUseTokenUpdater() {
-            memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated));
-        }
-        BulkUseTokenUpdater(const BulkUseTokenUpdater& that)
-                : fPlotsToUpdate(that.fPlotsToUpdate) {
-            memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated));
-        }
-
-        bool add(const skgpu::AtlasLocator& atlasLocator) {
-            int plotIdx = atlasLocator.plotIndex();
-            int pageIdx = atlasLocator.pageIndex();
-            if (this->find(pageIdx, plotIdx)) {
-                return false;
-            }
-            this->set(pageIdx, plotIdx);
-            return true;
-        }
-
-        void reset() {
-            fPlotsToUpdate.reset();
-            memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated));
-        }
-
-        struct PlotData {
-            PlotData(int pageIdx, int plotIdx) : fPageIndex(pageIdx), fPlotIndex(plotIdx) {}
-            uint32_t fPageIndex;
-            uint32_t fPlotIndex;
-        };
-
-    private:
-        bool find(int pageIdx, int index) const {
-            SkASSERT(index < skgpu::PlotLocator::kMaxPlots);
-            return (fPlotAlreadyUpdated[pageIdx] >> index) & 1;
-        }
-
-        void set(int pageIdx, int index) {
-            SkASSERT(!this->find(pageIdx, index));
-            fPlotAlreadyUpdated[pageIdx] |= (1 << index);
-            fPlotsToUpdate.push_back(PlotData(pageIdx, index));
-        }
-
-        inline static constexpr int kMinItems = 4;
-        SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
-        // TODO: increase this to uint64_t to allow more plots per page
-        uint32_t fPlotAlreadyUpdated[skgpu::PlotLocator::kMaxMultitexturePages];
-
-        friend class GrDrawOpAtlas;
-    };
-
-    void setLastUseTokenBulk(const BulkUseTokenUpdater& updater, GrDeferredUploadToken token) {
-        int count = updater.fPlotsToUpdate.count();
+    void setLastUseTokenBulk(const skgpu::BulkUsePlotUpdater& updater,
+                             GrDeferredUploadToken token) {
+        int count = updater.count();
         for (int i = 0; i < count; i++) {
-            const BulkUseTokenUpdater::PlotData& pd = updater.fPlotsToUpdate[i];
+            const skgpu::BulkUsePlotUpdater::PlotData& pd = updater.plotData(i);
             // it's possible we've added a plot to the updater and subsequently the plot's page
             // was deleted -- so we check to prevent a crash
             if (pd.fPageIndex < fNumActivePages) {

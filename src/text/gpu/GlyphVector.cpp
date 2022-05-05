@@ -10,11 +10,7 @@
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkWriteBuffer.h"
-#if SK_SUPPORT_GPU
-#include "src/gpu/ganesh/text/GrAtlasManager.h"
-#endif
 
 using MaskFormat = skgpu::MaskFormat;
 
@@ -107,70 +103,5 @@ void GlyphVector::packedGlyphIDToGlyph(StrikeCache* cache) {
         fSkStrike = nullptr;
     }
 }
-
-#if SK_SUPPORT_GPU
-std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
-                                                   MaskFormat maskFormat,
-                                                   int srcPadding,
-                                                   GrMeshDrawTarget* target) {
-    GrAtlasManager* atlasManager = target->atlasManager();
-    GrDeferredUploadTarget* uploadTarget = target->deferredUploadTarget();
-
-    uint64_t currentAtlasGen = atlasManager->atlasGeneration(maskFormat);
-
-    this->packedGlyphIDToGlyph(target->strikeCache());
-
-    if (fAtlasGeneration != currentAtlasGen) {
-        // Calculate the texture coordinates for the vertexes during first use (fAtlasGeneration
-        // is set to kInvalidAtlasGeneration) or the atlas has changed in subsequent calls..
-        fBulkUseToken.reset();
-
-        SkBulkGlyphMetricsAndImages metricsAndImages{fTextStrike->strikeSpec()};
-
-        // Update the atlas information in the GrStrike.
-        auto tokenTracker = uploadTarget->tokenTracker();
-        auto glyphs = fGlyphs.subspan(begin, end - begin);
-        int glyphsPlacedInAtlas = 0;
-        bool success = true;
-        for (const Variant& variant : glyphs) {
-            Glyph* gpuGlyph = variant.glyph;
-            SkASSERT(gpuGlyph != nullptr);
-
-            if (!atlasManager->hasGlyph(maskFormat, gpuGlyph)) {
-                const SkGlyph& skGlyph = *metricsAndImages.glyph(gpuGlyph->fPackedID);
-                auto code = atlasManager->addGlyphToAtlas(
-                        skGlyph, gpuGlyph, srcPadding, target->resourceProvider(), uploadTarget);
-                if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
-                    success = code != GrDrawOpAtlas::ErrorCode::kError;
-                    break;
-                }
-            }
-            atlasManager->addGlyphToBulkAndSetUseToken(
-                    &fBulkUseToken, maskFormat, gpuGlyph,
-                    tokenTracker->nextDrawToken());
-            glyphsPlacedInAtlas++;
-        }
-
-        // Update atlas generation if there are no more glyphs to put in the atlas.
-        if (success && begin + glyphsPlacedInAtlas == SkCount(fGlyphs)) {
-            // Need to get the freshest value of the atlas' generation because
-            // updateTextureCoordinates may have changed it.
-            fAtlasGeneration = atlasManager->atlasGeneration(maskFormat);
-        }
-
-        return {success, glyphsPlacedInAtlas};
-    } else {
-        // The atlas hasn't changed, so our texture coordinates are still valid.
-        if (end == SkCount(fGlyphs)) {
-            // The atlas hasn't changed and the texture coordinates are all still valid. Update
-            // all the plots used to the new use token.
-            atlasManager->setUseTokenBulk(fBulkUseToken,
-                                          uploadTarget->tokenTracker()->nextDrawToken(),
-                                          maskFormat);
-        }
-        return {true, end - begin};
-    }
-}
-#endif
 
 }  // namespace sktext::gpu

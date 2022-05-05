@@ -15,8 +15,7 @@ generated_cc_atom(
         "//include/core:SkSpan_hdr",
         "//src/core:SkGlyphBuffer_hdr",
         "//src/core:SkGlyph_hdr",
-        "//src/gpu/ganesh:GrDrawOpAtlas_hdr",
-        "//src/gpu/ganesh:GrMeshDrawTarget_hdr",
+        "//src/gpu:AtlasTypes_hdr",
     ],
 )
 
@@ -29,9 +28,7 @@ generated_cc_atom(
         "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
         "//src/core:SkReadBuffer_hdr",
         "//src/core:SkStrikeCache_hdr",
-        "//src/core:SkStrikeSpec_hdr",
         "//src/core:SkWriteBuffer_hdr",
-        "//src/gpu/ganesh/text:GrAtlasManager_hdr",
     ],
 )
 

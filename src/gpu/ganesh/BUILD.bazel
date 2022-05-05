@@ -1192,7 +1192,6 @@ generated_cc_atom(
         ":GrDeferredUpload_hdr",
         ":GrSurfaceProxyView_hdr",
         "//include/gpu:GrBackendSurface_hdr",
-        "//include/private:SkTArray_hdr",
         "//src/core:SkIPoint16_hdr",
         "//src/core:SkTInternalLList_hdr",
         "//src/gpu:AtlasTypes_hdr",
