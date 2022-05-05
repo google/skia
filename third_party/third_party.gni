@@ -74,9 +74,7 @@ template("third_party") {
       if (is_debug) {
         configs += [ "//gn/skia:optimize" ]
       }
-      if (sanitize == "ASAN") {
-        configs += [ "//gn/skia:recover_pointer_overflow" ]
-      }
+      configs += [ "//gn/skia:recover_pointer_overflow" ]
 
       # "*" clobbers the current scope; append to existing configs
       forward_variables_from(invoker,

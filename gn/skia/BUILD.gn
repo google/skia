@@ -276,7 +276,10 @@ config("default") {
     ldflags += [ "--sysroot=$skia_emsdk_dir/upstream/emscripten/cache/sysroot" ]
   }
 
-  if (sanitize != "" && sanitize != "MSVC") {
+  if (is_win && !is_clang && sanitize == "ASAN") {
+    sanitizers = "address"
+    cflags += [ "/fsanitize=$sanitizers" ]
+  } else if (sanitize != "" && sanitize != "MSVC") {
     # You can either pass the sanitizers directly, e.g. "address,undefined",
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
@@ -342,7 +345,9 @@ config("default") {
 
 # See skia:9731.
 config("recover_pointer_overflow") {
-  cflags = [ "-fsanitize-recover=pointer-overflow" ]
+  if (sanitize == "ASAN" && !(is_win && !is_clang)) {
+    cflags = [ "-fsanitize-recover=pointer-overflow" ]
+  }
 }
 
 config("no_exceptions") {
