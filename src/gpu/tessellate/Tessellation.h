@@ -245,52 +245,13 @@ constexpr int WorstCaseEdgesInJoin(SkPaint::Join joinType,
     return numEdges;
 }
 
-// These tolerances decide the number of parametric and radial segments the tessellator will
-// linearize strokes into. These decisions are made in (pre-viewMatrix) local path space.
-class StrokeTolerances {
-    StrokeTolerances() = delete;
-public:
-    // Decides the number of radial segments the tessellator adds for each curve. (Uniform steps
-    // in tangent angle.) The tessellator will add this number of radial segments for each
-    // radian of rotation in local path space.
-    static float CalcNumRadialSegmentsPerRadian(float matrixMaxScale, float strokeWidth) {
-        float cosTheta = 1.f - (1.f / kPrecision) / (matrixMaxScale * strokeWidth);
-        return .5f / acosf(std::max(cosTheta, -1.f));
-    }
-    template<int N>
-    static vec<N> ApproxNumRadialSegmentsPerRadian(float matrixMaxScale, vec<N> strokeWidths) {
-        vec<N> cosTheta = 1.f - (1.f / kPrecision) / (matrixMaxScale * strokeWidths);
-        // Subtract SKVX_APPROX_ACOS_MAX_ERROR so we never account for too few segments.
-        return .5f / (approx_acos(max(cosTheta, -1.f)) - SKVX_APPROX_ACOS_MAX_ERROR);
-    }
-    // Returns the equivalent stroke width in (pre-viewMatrix) local path space that the
-    // tessellator will use when rendering this stroke. This only differs from the actual stroke
-    // width for hairlines.
-    static float GetLocalStrokeWidth(const float matrixMinMaxScales[2], float strokeWidth) {
-        SkASSERT(strokeWidth >= 0);
-        float localStrokeWidth = strokeWidth;
-        if (localStrokeWidth == 0) {  // Is the stroke a hairline?
-            float matrixMinScale = matrixMinMaxScales[0];
-            float matrixMaxScale = matrixMinMaxScales[1];
-            // If the stroke is hairline then the tessellator will operate in post-transform
-            // space instead. But for the sake of CPU methods that need to conservatively
-            // approximate the number of segments to emit, we use
-            // localStrokeWidth ~= 1/matrixMinScale.
-            float approxScale = matrixMinScale;
-            // If the matrix has strong skew, don't let the scale shoot off to infinity. (This
-            // does not affect the tessellator; only the CPU methods that approximate the number
-            // of segments to emit.)
-            approxScale = std::max(matrixMinScale, matrixMaxScale * .25f);
-            localStrokeWidth = 1/approxScale;
-            if (localStrokeWidth == 0) {
-                // We just can't accidentally return zero from this method because zero means
-                // "hairline". Otherwise return whatever we calculated above.
-                localStrokeWidth = SK_ScalarNearlyZero;
-            }
-        }
-        return localStrokeWidth;
-    }
-};
+// Decides the number of radial segments the tessellator adds for each curve. (Uniform steps
+// in tangent angle.) The tessellator will add this number of radial segments for each
+// radian of rotation in local path space.
+inline float CalcNumRadialSegmentsPerRadian(float approxDevStrokeRadius) {
+    float cosTheta = 1.f - (1.f / kPrecision) / approxDevStrokeRadius;
+    return .5f / acosf(std::max(cosTheta, -1.f));
+}
 
 }  // namespace skgpu::tess
 

@@ -213,13 +213,8 @@ void StrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
                                     &flushState->caps()}, flushState->detachAppliedClip());
     }
     SkASSERT(fTessellator);
-    std::array<float, 2> matrixMinMaxScales;
-    if (!fViewMatrix.getMinMaxScales(matrixMinMaxScales.data())) {
-        matrixMinMaxScales.fill(1);
-    }
     fTessellator->prepare(flushState,
                           fViewMatrix,
-                          matrixMinMaxScales,
                           &fPathStrokeList,
                           fTotalCombinedVerbCnt);
 }

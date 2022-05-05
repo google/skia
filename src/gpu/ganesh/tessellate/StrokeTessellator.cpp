@@ -22,44 +22,6 @@ namespace {
 
 using namespace skgpu::tess;
 
-// Calculates and buffers up future values for "numRadialSegmentsPerRadian" using SIMD.
-class alignas(sizeof(float) * 4) StrokeToleranceBuffer {
-public:
-    using PathStrokeList = StrokeTessellator::PathStrokeList;
-
-    StrokeToleranceBuffer(float matrixMaxScale) : fMatrixMaxScale(matrixMaxScale) {}
-
-    float fetchRadialSegmentsPerRadian(PathStrokeList* head) {
-        // StrokeTessellateOp::onCombineIfPossible does not allow hairlines to become dynamic. If
-        // this changes, we will need to call StrokeTolerances::GetLocalStrokeWidth() for each
-        // stroke.
-        SkASSERT(!head->fStroke.isHairlineStyle());
-        if (fBufferIdx == 4) {
-            // We ran out of values. Peek ahead and buffer up 4 more.
-            PathStrokeList* peekAhead = head;
-            int i = 0;
-            do {
-                fStrokeWidths[i++] = peekAhead->fStroke.getWidth();
-            } while ((peekAhead = peekAhead->fNext) && i < 4);
-            auto tol = StrokeTolerances::ApproxNumRadialSegmentsPerRadian(fMatrixMaxScale,
-                                                                          fStrokeWidths);
-            tol.store(fNumRadialSegmentsPerRadian);
-            fBufferIdx = 0;
-        }
-        SkASSERT(0 <= fBufferIdx && fBufferIdx < 4);
-        SkASSERT(fStrokeWidths[fBufferIdx] == head->fStroke.getWidth());
-        return fNumRadialSegmentsPerRadian[fBufferIdx++];
-    }
-
-private:
-    float4 fStrokeWidths{};  // Must be first for alignment purposes.
-    float fNumRadialSegmentsPerRadian[4];
-    const float fMatrixMaxScale;
-    int fBufferIdx = 4;  // Initialize the buffer as "empty";
-};
-
-// *** Fixed-count tessellation stroking
-
 using FixedCountStrokeWriter = PatchWriter<GrVertexChunkBuilder,
                                            Required<PatchAttribs::kJoinControlPoint>,
                                            Optional<PatchAttribs::kStrokeParams>,
@@ -71,25 +33,22 @@ using FixedCountStrokeWriter = PatchWriter<GrVertexChunkBuilder,
 
 int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
                               const SkMatrix& shaderMatrix,
-                              std::array<float,2> matrixMinMaxScales,
                               StrokeTessellator::PathStrokeList* pathStrokeList) {
     int maxEdgesInJoin = 0;
     float maxRadialSegmentsPerRadian = 0;
-    const float matrixMaxScale = matrixMinMaxScales[1];
+    // getMaxScale() returns -1 if it can't compute a scale factor (e.g. perspective), taking the
+    // absolute value automatically converts that to an identity scale factor for our purposes.
+    float maxScale = std::abs(shaderMatrix.getMaxScale());
+
     if (!(patchWriter.attribs() & PatchAttribs::kStrokeParams)) {
         // Strokes are static. Calculate tolerances once.
         const SkStrokeRec& stroke = pathStrokeList->fStroke;
-        float localStrokeWidth = StrokeTolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
-                                                                       stroke.getWidth());
-        float numRadialSegmentsPerRadian = StrokeTolerances::CalcNumRadialSegmentsPerRadian(
-                matrixMaxScale, localStrokeWidth);
+        float approxDevStrokeWidth = stroke.isHairlineStyle() ? 1.f : maxScale * stroke.getWidth();
+        float numRadialSegmentsPerRadian =
+                CalcNumRadialSegmentsPerRadian(0.5f * approxDevStrokeWidth);
         maxEdgesInJoin = WorstCaseEdgesInJoin(stroke.getJoin(), numRadialSegmentsPerRadian);
         maxRadialSegmentsPerRadian = numRadialSegmentsPerRadian;
     }
-
-    // Fast SIMD queue that buffers up values for "numRadialSegmentsPerRadian". Only used when we
-    // have dynamic stroke.
-    StrokeToleranceBuffer toleranceBuffer(matrixMaxScale);
 
     // The vector xform approximates how the control points are transformed by the shader to
     // more accurately compute how many *parametric* segments are needed.
@@ -98,8 +57,10 @@ int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
         const SkStrokeRec& stroke = pathStroke->fStroke;
         if (patchWriter.attribs() & PatchAttribs::kStrokeParams) {
             // Strokes are dynamic. Calculate tolerances every time.
+            float approxDevStrokeWidth =
+                    stroke.isHairlineStyle() ? 1.f : maxScale * stroke.getWidth();
             float numRadialSegmentsPerRadian =
-                    toleranceBuffer.fetchRadialSegmentsPerRadian(pathStroke);
+                    CalcNumRadialSegmentsPerRadian(0.5f * approxDevStrokeWidth);
             maxEdgesInJoin = std::max(
                     WorstCaseEdgesInJoin(stroke.getJoin(), numRadialSegmentsPerRadian),
                     maxEdgesInJoin);
@@ -234,7 +195,6 @@ SKGPU_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
 
 void StrokeTessellator::prepare(GrMeshDrawTarget* target,
                                 const SkMatrix& shaderMatrix,
-                                std::array<float,2> matrixMinMaxScales,
                                 PathStrokeList* pathStrokeList,
                                 int totalCombinedStrokeVerbCnt) {
     int preallocCount = FixedCountStrokes::PreallocCount(totalCombinedStrokeVerbCnt);
@@ -242,7 +202,6 @@ void StrokeTessellator::prepare(GrMeshDrawTarget* target,
 
     fFixedEdgeCount = write_fixed_count_patches(std::move(patchWriter),
                                                 shaderMatrix,
-                                                matrixMinMaxScales,
                                                 pathStrokeList);
 
     fFixedEdgeCount = std::min(fFixedEdgeCount, FixedCountStrokes::kMaxEdges);

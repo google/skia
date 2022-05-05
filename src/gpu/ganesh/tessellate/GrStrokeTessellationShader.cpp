@@ -53,13 +53,13 @@ float miter_extent(float cosTheta, float miterLimit) {
     return (x * miterLimit * miterLimit >= 1.0) ? inversesqrt(x) : sqrt(x);
 })";
 
-// float num_radial_segments_per_radian(float maxScale, float strokeRadius) { ...
+// float num_radial_segments_per_radian(float approxDevStrokeRadius) { ...
 //
 // Returns the number of radial segments required for each radian of rotation, in order for the
-// curve to appear "smooth" as defined by the max scale factor.
+// curve to appear "smooth" as defined by the approximate device-space stroke radius.
 static const char* kNumRadialSegmentsPerRadianFn = R"(
-float num_radial_segments_per_radian(float maxScale, float strokeRadius) {
-    return .5 / acos(max(1.0 - (1.0 / PRECISION) / (maxScale * strokeRadius), -1.0));
+float num_radial_segments_per_radian(float approxDevStrokeRadius) {
+    return .5 / acos(max(1.0 - (1.0 / PRECISION) / approxDevStrokeRadius, -1.0));
 })";
 
 // float<N> unchecked_mix(float<N> a, float<N> b, float<N> T) { ...
@@ -206,27 +206,30 @@ void GrStrokeTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpAr
 
     // Tessellation control uniforms and/or dynamic attributes.
     if (!shader.hasDynamicStroke()) {
-        // [MAX_SCALE, NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
+        // [NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
         const char* tessArgsName;
         fTessControlArgsUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, SkSLType::kFloat4, "tessControlArgs",
+                nullptr, kVertex_GrShaderFlag, SkSLType::kFloat3, "tessControlArgs",
                 &tessArgsName);
         args.fVertBuilder->codeAppendf(R"(
-        float MAX_SCALE = %s.x;
-        float NUM_RADIAL_SEGMENTS_PER_RADIAN = %s.y;
-        float JOIN_TYPE = %s.z;
-        float STROKE_RADIUS = %s.w;)", tessArgsName, tessArgsName, tessArgsName, tessArgsName);
+        float NUM_RADIAL_SEGMENTS_PER_RADIAN = %s.x;
+        float JOIN_TYPE = %s.y;
+        float STROKE_RADIUS = %s.z;)", tessArgsName, tessArgsName, tessArgsName);
     } else {
+        // The shader does not currently support dynamic hairlines, so this case only needs to
+        // configure NUM_RADIAL_SEGMENTS_PER_RADIAN based on the fixed maxScale and per-instance
+        // stroke radius attribute that's defined in local space.
+        SkASSERT(!shader.stroke().isHairlineStyle());
         const char* maxScaleName;
         fTessControlArgsUniform = args.fUniformHandler->addUniform(
                 nullptr, kVertex_GrShaderFlag, SkSLType::kFloat, "maxScale",
                 &maxScaleName);
         args.fVertBuilder->codeAppendf(R"(
-        float MAX_SCALE = %s;
         float STROKE_RADIUS = dynamicStrokeAttr.x;
+        float JOIN_TYPE = dynamicStrokeAttr.y;
         float NUM_RADIAL_SEGMENTS_PER_RADIAN = num_radial_segments_per_radian(
-                MAX_SCALE, STROKE_RADIUS);
-        float JOIN_TYPE = dynamicStrokeAttr.y;)", maxScaleName);
+                %s * STROKE_RADIUS);)", maxScaleName);
+
     }
 
     if (shader.hasDynamicColor()) {
@@ -650,21 +653,20 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
     const auto& shader = geomProc.cast<GrStrokeTessellationShader>();
     const auto& stroke = shader.stroke();
 
-    const float maxScale = shader.viewMatrix().getMaxScale();
+    // getMaxScale() returns -1 if it can't compute a scale factor (e.g. perspective), taking the
+    // absolute value automatically converts that to an identity scale factor for our purposes.
+    const float maxScale = std::abs(shader.viewMatrix().getMaxScale());
     if (!shader.hasDynamicStroke()) {
         // Set up the tessellation control uniforms. In the hairline case we transform prior to
-        // tessellation, so it uses an identity viewMatrix and a strokeWidth of 1.
-        const float effectiveMaxScale    = stroke.isHairlineStyle() ? 1.f : maxScale;
-        const float effectiveStrokeWidth = stroke.isHairlineStyle() ? 1.f : stroke.getWidth();
-        float numRadialSegmentsPerRadian =
-                skgpu::tess::StrokeTolerances::CalcNumRadialSegmentsPerRadian(effectiveMaxScale,
-                                                                              effectiveStrokeWidth);
+        // tessellation, so it will be defined in device space units instead of local units.
+        const float strokeRadius = 0.5f * (stroke.isHairlineStyle() ? 1.f : stroke.getWidth());
+        float numRadialSegmentsPerRadian = skgpu::tess::CalcNumRadialSegmentsPerRadian(
+                (stroke.isHairlineStyle() ? 1.f : maxScale) * strokeRadius);
 
-        pdman.set4f(fTessControlArgsUniform,
-                    maxScale,  // MAX_SCALE
+        pdman.set3f(fTessControlArgsUniform,
                     numRadialSegmentsPerRadian,  // NUM_RADIAL_SEGMENTS_PER_RADIAN
                     skgpu::tess::GetJoinType(stroke),  // JOIN_TYPE
-                    0.5f * effectiveStrokeWidth);  // STROKE_RADIUS
+                    strokeRadius);  // STROKE_RADIUS
     } else {
         SkASSERT(!stroke.isHairlineStyle());
         pdman.set1f(fTessControlArgsUniform, maxScale);

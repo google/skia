@@ -45,7 +45,6 @@ public:
     // Returns the fixed number of edges the tessellator will draw per patch.
     void prepare(GrMeshDrawTarget*,
                  const SkMatrix& shaderMatrix,
-                 std::array<float,2> matrixMinMaxScales,
                  PathStrokeList*,
                  int totalCombinedStrokeVerbCnt);
 

@@ -346,7 +346,6 @@ private:
         for (int i = 0; i < loops; ++i) {
             fTessellator->prepare(fTarget.get(),
                                   SkMatrix::Scale(fMatrixScale, fMatrixScale),
-                                  {fMatrixScale, fMatrixScale},
                                   fPathStrokes.data(),
                                   fTotalVerbCount);
             fTarget->resetAllocator();
