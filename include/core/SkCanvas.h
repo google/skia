@@ -59,7 +59,7 @@ class SkPixmap;
 class SkRegion;
 class SkRRect;
 struct SkRSXform;
-class SkCustomMesh;
+class SkMesh;
 class SkSpecialImage;
 class SkSurface;
 class SkSurface_Base;
@@ -1960,9 +1960,9 @@ public:
     /**
         Experimental, under active development, and subject to change without notice.
 
-        Draws a mesh using a user-defined specification (see SkCustomMeshSpecification).
+        Draws a mesh using a user-defined specification (see SkMeshSpecification).
 
-        SkBlender is ignored if SkCustomMesh's specification does not output fragment shader color.
+        SkBlender is ignored if SkMesh's specification does not output fragment shader color.
         Otherwise, it combines
             - the SkShader if SkPaint contains SkShader
             - or the opaque SkPaint color if SkPaint does not contain SkShader
@@ -1970,13 +1970,13 @@ public:
 
         SkMaskFilter, SkPathEffect, and antialiasing on SkPaint are ignored.
 
-        @param cm        the custom mesh vertices and compatible specification.
+        @param mesh      the mesh vertices and compatible specification.
         @param blender   combines vertices colors with SkShader if present or SkPaint opaque color
                          if not. Ignored if the custom mesh does not output color. Defaults to
                          SkBlendMode::kModulate if nullptr.
         @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
     */
-    void drawCustomMesh(const SkCustomMesh& cm, sk_sp<SkBlender> blender, const SkPaint& paint);
+    void drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint);
 #endif
 
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
@@ -2200,7 +2200,7 @@ protected:
 
 #ifndef SK_ENABLE_EXPERIMENTAL_CUSTOM_MESH
     // Define this in protected so we can still access internally for testing.
-    void drawCustomMesh(const SkCustomMesh& cm, sk_sp<SkBlender> blender, const SkPaint& paint);
+    void drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint);
 #endif
 
     // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
@@ -2244,7 +2244,7 @@ protected:
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                       const SkPaint& paint);
 #ifdef SK_ENABLE_SKSL
-    virtual void onDrawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&);
+    virtual void onDrawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&);
 #endif
     virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value);
     virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&);

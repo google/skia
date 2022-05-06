@@ -9,24 +9,24 @@
 #include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkCustomMesh.h"
 #include "include/core/SkData.h"
+#include "include/core/SkMesh.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkCustomMeshPriv.h"
+#include "src/core/SkMeshPriv.h"
 
 #include <memory>
 
 namespace skiagm {
-class CustomMeshGM : public skiagm::GM {
+class MeshGM : public skiagm::GM {
 public:
-    CustomMeshGM() {}
+    MeshGM() {}
 
 protected:
-    using Attribute = SkCustomMeshSpecification::Attribute;
-    using Varying   = SkCustomMeshSpecification::Varying;
+    using Attribute = SkMeshSpecification::Attribute;
+    using Varying   = SkMeshSpecification::Varying;
 
     SkISize onISize() override { return {435, 1180}; }
 
@@ -55,12 +55,12 @@ protected:
                         return varyings.uv;
                     }
             )";
-            auto [spec, error] = SkCustomMeshSpecification::Make(
-                    SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
-                    sizeof(ColorVertex),
-                    SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
-                    SkString(kVS),
-                    SkString(kFS));
+            auto[spec, error] =
+                    SkMeshSpecification::Make(SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                                              sizeof(ColorVertex),
+                                              SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                                              SkString(kVS),
+                                              SkString(kFS));
             if (!spec) {
                 SkDebugf("%s\n", error.c_str());
             }
@@ -85,12 +85,12 @@ protected:
                         return helper(varyings.vux2);
                     }
             )";
-            auto [spec, error] = SkCustomMeshSpecification::Make(
-                    SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
-                    sizeof(NoColorVertex),
-                    SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
-                    SkString(kVS),
-                    SkString(kFS));
+            auto[spec, error] =
+                    SkMeshSpecification::Make(SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                                              sizeof(NoColorVertex),
+                                              SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                                              SkString(kVS),
+                                              SkString(kFS));
             if (!spec) {
                 SkDebugf("%s\n", error.c_str());
             }
@@ -112,9 +112,9 @@ protected:
             return DrawResult::kOk;
         }
 
-        fColorVB        = SkCustomMesh::MakeVertexBuffer(context, CpuVBAsData(fColorVB));
-        fColorIndexedVB = SkCustomMesh::MakeVertexBuffer(context, CpuVBAsData(fColorIndexedVB));
-        fIB[1]          = SkCustomMesh::MakeIndexBuffer (context, CpuIBAsData(fIB[0]));
+        fColorVB        = SkMesh::MakeVertexBuffer(context, CpuVBAsData(fColorVB));
+        fColorIndexedVB = SkMesh::MakeVertexBuffer(context, CpuVBAsData(fColorIndexedVB));
+        fIB[1]          = SkMesh::MakeIndexBuffer (context, CpuIBAsData(fIB[0]));
         if (!fColorVB || !fColorIndexedVB || !fIB[1]) {
             return DrawResult::kFail;
         }
@@ -140,47 +140,47 @@ protected:
             for (uint8_t alpha  : {0xFF , 0x40})
             for (bool    colors : {false, true})
             for (bool    shader : {false, true}) {
-                SkCustomMesh cm;
+                SkMesh mesh;
                 // Rather than pile onto the combinatorics we draw every other test case indexed.
                 if ((i & 1) == 0) {
                     if (colors) {
-                        cm = SkCustomMesh::Make(fSpecWithColor,
-                                                SkCustomMesh::Mode::kTriangleStrip,
-                                                fColorVB,
-                                                /*vertexCount= */4,
-                                                /*vertexOffset=*/0,
-                                                kRect);
+                        mesh = SkMesh::Make(fSpecWithColor,
+                                            SkMesh::Mode::kTriangleStrip,
+                                            fColorVB,
+                                            /*vertexCount= */ 4,
+                                            /*vertexOffset=*/ 0,
+                                            kRect);
                     } else {
-                        cm = SkCustomMesh::Make(fSpecWithNoColor,
-                                                SkCustomMesh::Mode::kTriangleStrip,
-                                                fNoColorVB,
-                                                /*vertexCount=*/4,
-                                                kNoColorOffset,
-                                                kRect);
+                        mesh = SkMesh::Make(fSpecWithNoColor,
+                                            SkMesh::Mode::kTriangleStrip,
+                                            fNoColorVB,
+                                            /*vertexCount=*/4,
+                                            kNoColorOffset,
+                                            kRect);
                     }
                 } else {
                     // Alternate between CPU and GPU-backend index buffers.
                     auto ib = (i%4 == 0) ? fIB[0] : fIB[1];
                     if (colors) {
-                        cm = SkCustomMesh::MakeIndexed(fSpecWithColor,
-                                                       SkCustomMesh::Mode::kTriangles,
-                                                       fColorIndexedVB,
-                                                       /*vertexCount=*/6,
-                                                       kColorIndexedOffset,
-                                                       std::move(ib),
-                                                       /*indexCount=*/6,
-                                                       kIndexOffset,
-                                                       kRect);
+                        mesh = SkMesh::MakeIndexed(fSpecWithColor,
+                                                   SkMesh::Mode::kTriangles,
+                                                   fColorIndexedVB,
+                                                   /*vertexCount=*/ 6,
+                                                   kColorIndexedOffset,
+                                                   std::move(ib),
+                                                   /*indexCount=*/6,
+                                                   kIndexOffset,
+                                                   kRect);
                     } else {
-                        cm = SkCustomMesh::MakeIndexed(fSpecWithNoColor,
-                                                       SkCustomMesh::Mode::kTriangles,
-                                                       fNoColorIndexedVB,
-                                                       /*vertexCount=*/ 6,
-                                                       /*vertexOffset=*/0,
-                                                       std::move(ib),
-                                                       /*indexCount=*/6,
-                                                       kIndexOffset,
-                                                       kRect);
+                        mesh = SkMesh::MakeIndexed(fSpecWithNoColor,
+                                                   SkMesh::Mode::kTriangles,
+                                                   fNoColorIndexedVB,
+                                                   /*vertexCount=*/ 6,
+                                                   /*vertexOffset=*/0,
+                                                   std::move(ib),
+                                                   /*indexCount=*/6,
+                                                   kIndexOffset,
+                                                   kRect);
                     }
                 }
                 SkPaint paint;
@@ -188,7 +188,7 @@ protected:
                 paint.setShader(shader ? fShader : nullptr);
                 paint.setAlpha(alpha);
 
-                SkCanvasPriv::DrawCustomMesh(canvas, cm, blender, paint);
+                SkCanvasPriv::DrawMesh(canvas, mesh, blender, paint);
 
                 canvas->translate(0, 150);
                 ++i;
@@ -200,21 +200,21 @@ protected:
     }
 
 private:
-    static sk_sp<const SkData> CpuVBAsData(sk_sp<SkCustomMesh::VertexBuffer> buffer) {
-        auto vb = static_cast<SkCustomMeshPriv::VB*>(buffer.get());
+    static sk_sp<const SkData> CpuVBAsData(sk_sp<SkMesh::VertexBuffer> buffer) {
+        auto vb = static_cast<SkMeshPriv::VB*>(buffer.get());
         SkASSERT(vb->asData());
         return vb->asData();
     }
 
-    static sk_sp<const SkData> CpuIBAsData(sk_sp<SkCustomMesh::IndexBuffer> buffer) {
-        auto ib = static_cast<SkCustomMeshPriv::IB*>(buffer.get());
+    static sk_sp<const SkData> CpuIBAsData(sk_sp<SkMesh::IndexBuffer> buffer) {
+        auto ib = static_cast<SkMeshPriv::IB*>(buffer.get());
         SkASSERT(ib->asData());
         return ib->asData();
     }
 
     void ensureBuffers() {
         if (!fColorVB) {
-            fColorVB = SkCustomMesh::MakeVertexBuffer(
+            fColorVB = SkMesh::MakeVertexBuffer(
                     /*GrDirectContext*=*/nullptr,
                     SkData::MakeWithoutCopy(kColorQuad, sizeof(kColorQuad)));
         }
@@ -225,8 +225,7 @@ private:
             std::memcpy(SkTAddOffset<void>(data->writable_data(), kNoColorOffset),
                         kNoColorQuad,
                         sizeof(kNoColorQuad));
-            fNoColorVB = SkCustomMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
-                                                        std::move(data));
+            fNoColorVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr, std::move(data));
         }
 
         if (!fColorIndexedVB) {
@@ -235,12 +234,12 @@ private:
             std::memcpy(SkTAddOffset<void>(data->writable_data(), kColorIndexedOffset),
                         kColorIndexedQuad,
                         sizeof(kColorIndexedQuad));
-            fColorIndexedVB = SkCustomMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
-                                                             std::move(data));
+            fColorIndexedVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
+                                                       std::move(data));
         }
 
         if (!fNoColorIndexedVB) {
-            fNoColorIndexedVB = SkCustomMesh::MakeVertexBuffer(
+            fNoColorIndexedVB = SkMesh::MakeVertexBuffer(
                     /*GrDirectContext*=*/nullptr,
                     SkData::MakeWithoutCopy(kNoColorIndexedQuad, sizeof(kNoColorIndexedQuad)));
         }
@@ -251,7 +250,7 @@ private:
             std::memcpy(SkTAddOffset<void>(data->writable_data(), kIndexOffset),
                         kIndices,
                         sizeof(kIndices));
-            fIB[0] = SkCustomMesh::MakeIndexBuffer(/*GrDirectContext*=*/nullptr, std::move(data));
+            fIB[0] = SkMesh::MakeIndexBuffer(/*GrDirectContext*=*/nullptr, std::move(data));
         }
 
         if (!fIB[1]) {
@@ -316,27 +315,27 @@ private:
 
     sk_sp<SkShader> fShader;
 
-    sk_sp<SkCustomMeshSpecification> fSpecWithColor;
-    sk_sp<SkCustomMeshSpecification> fSpecWithNoColor;
+    sk_sp<SkMeshSpecification> fSpecWithColor;
+    sk_sp<SkMeshSpecification> fSpecWithNoColor;
 
     // On GPU the first IB is a CPU buffer and the second is a GPU buffer.
-    sk_sp<SkCustomMesh::IndexBuffer> fIB[2];
+    sk_sp<SkMesh::IndexBuffer> fIB[2];
 
-    sk_sp<SkCustomMesh::VertexBuffer> fColorVB;
-    sk_sp<SkCustomMesh::VertexBuffer> fNoColorVB;
-    sk_sp<SkCustomMesh::VertexBuffer> fColorIndexedVB;
-    sk_sp<SkCustomMesh::VertexBuffer> fNoColorIndexedVB;
+    sk_sp<SkMesh::VertexBuffer> fColorVB;
+    sk_sp<SkMesh::VertexBuffer> fNoColorVB;
+    sk_sp<SkMesh::VertexBuffer> fColorIndexedVB;
+    sk_sp<SkMesh::VertexBuffer> fNoColorIndexedVB;
 };
 
-DEF_GM( return new CustomMeshGM; )
+DEF_GM(return new MeshGM;)
 
-class CustomMeshColorSpaceGM : public skiagm::GM {
+class MeshColorSpaceGM : public skiagm::GM {
 public:
-    CustomMeshColorSpaceGM() {}
+    MeshColorSpaceGM() {}
 
 protected:
-    using Attribute = SkCustomMeshSpecification::Attribute;
-    using Varying   = SkCustomMeshSpecification::Varying;
+    using Attribute = SkMeshSpecification::Attribute;
+    using Varying   = SkMeshSpecification::Varying;
 
     SkISize onISize() override { return {468, 258}; }
 
@@ -375,7 +374,7 @@ protected:
                     cs = cs->makeColorSpin();
                 }
 
-                auto [spec, error] = SkCustomMeshSpecification::Make(
+                auto [spec, error] = SkMeshSpecification::Make(
                         SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
                         sizeof(Vertex),
                         SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
@@ -393,8 +392,7 @@ protected:
         SkColor colors[] = {SK_ColorWHITE,    SK_ColorTRANSPARENT};
         fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
 
-        fVB = SkCustomMesh::MakeVertexBuffer(nullptr,
-                                             SkData::MakeWithoutCopy(kQuad, sizeof(kQuad)));
+        fVB = SkMesh::MakeVertexBuffer(nullptr, SkData::MakeWithoutCopy(kQuad, sizeof(kQuad)));
     }
 
     SkString onShortName() override { return SkString("custommesh_cs"); }
@@ -417,20 +415,17 @@ protected:
         for (bool unpremul  : {false, true}) {
             c->save();
             for (bool spin : {false, true}) {
-                SkCustomMesh cm = SkCustomMesh::Make(fSpecs[SpecIndex(unpremul, spin)],
-                                                     SkCustomMesh::Mode::kTriangleStrip,
-                                                     fVB,
-                                                     /*vertexCount=*/ 4,
-                                                     /*vertexOffset=*/0,
-                                                     kRect);
+                SkMesh mesh = SkMesh::Make(fSpecs[SpecIndex(unpremul, spin)],
+                                           SkMesh::Mode::kTriangleStrip,
+                                           fVB,
+                                           /*vertexCount=*/ 4,
+                                           /*vertexOffset=*/0,
+                                           kRect);
 
                 SkPaint paint;
                 paint.setShader(useShader ? fShader : nullptr);
                 SkBlendMode mode = useShader ? SkBlendMode::kModulate : SkBlendMode::kDst;
-                SkCanvasPriv::DrawCustomMesh(c,
-                                             std::move(cm),
-                                             SkBlender::Mode(mode),
-                                             paint);
+                SkCanvasPriv::DrawMesh(c, mesh, SkBlender::Mode(mode), paint);
 
                 c->translate(0, kRect.height() + 10);
             }
@@ -463,13 +458,13 @@ private:
             {{kRect.right(), kRect.bottom()}, {0, 0, 1, 1}},
     };
 
-    sk_sp<SkCustomMesh::VertexBuffer> fVB;
+    sk_sp<SkMesh::VertexBuffer> fVB;
 
-    sk_sp<SkCustomMeshSpecification> fSpecs[4];
+    sk_sp<SkMeshSpecification> fSpecs[4];
 
     sk_sp<SkShader> fShader;
 };
 
-DEF_GM( return new CustomMeshColorSpaceGM; )
+DEF_GM(return new MeshColorSpaceGM;)
 
 }  // namespace skiagm

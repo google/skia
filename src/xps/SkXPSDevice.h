@@ -95,7 +95,7 @@ protected:
     void onDrawGlyphRunList(
             SkCanvas*, const SkGlyphRunList&, const SkPaint&, const SkPaint&) override;
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
-    void drawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&) override;
+    void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
 
 private:

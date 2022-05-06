@@ -102,11 +102,11 @@ void SkCanvasPriv::GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[]
 }
 
 #ifdef SK_ENABLE_SKSL
-void SkCanvasPriv::DrawCustomMesh(SkCanvas* canvas,
-                                  const SkCustomMesh& cm,
-                                  sk_sp<SkBlender> blender,
-                                  const SkPaint& paint) {
-    canvas->drawCustomMesh(cm, std::move(blender), paint);
+void SkCanvasPriv::DrawMesh(SkCanvas* canvas,
+                            const SkMesh& mesh,
+                            sk_sp<SkBlender> blender,
+                            const SkPaint& paint) {
+    canvas->drawMesh(mesh, std::move(blender), paint);
 }
 #endif
 

@@ -100,8 +100,8 @@ static bool check_parameters(const Context& context,
 
         if (isMain) {
             if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind) &&
-                context.fConfig->fKind != ProgramKind::kCustomMeshFragment &&
-                context.fConfig->fKind != ProgramKind::kCustomMeshVertex) {
+                context.fConfig->fKind != ProgramKind::kMeshFragment &&
+                context.fConfig->fKind != ProgramKind::kMeshVertex) {
                 // We verify that the signature is fully correct later. For now, if this is a
                 // runtime effect of any flavor, a float2 param is supposed to be the coords, and a
                 // half4/float parameter is supposed to be the input or destination color:
@@ -230,7 +230,7 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
             }
             break;
         }
-        case ProgramKind::kCustomMeshVertex: {
+        case ProgramKind::kMeshVertex: {
             // float2 main(Attributes, out Varyings)
             if (!returnType.matches(*context.fTypes.fFloat2)) {
                 errors.error(pos, "'main' must return: 'vec2' or 'float2'");
@@ -242,7 +242,7 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
             }
             break;
         }
-        case ProgramKind::kCustomMeshFragment: {
+        case ProgramKind::kMeshFragment: {
             // float2 main(Varyings) -or- float2 main(Varyings, out half4|float4]) -or-
             // void main(Varyings) -or- void main(Varyings, out half4|float4])
             if (!returnType.matches(*context.fTypes.fFloat2) &&

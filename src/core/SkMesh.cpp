@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCustomMesh.h"
+#include "include/core/SkMesh.h"
 
 #ifdef SK_ENABLE_SKSL
 #include "include/core/SkColorSpace.h"
@@ -14,7 +14,7 @@
 #include "include/private/SkOpts_spi.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"
-#include "src/core/SkCustomMeshPriv.h"
+#include "src/core/SkMeshPriv.h"
 #include "src/core/SkSafeMath.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -32,11 +32,11 @@
 #include <type_traits>
 #include <utility>
 
-using Attribute = SkCustomMeshSpecification::Attribute;
-using Varying   = SkCustomMeshSpecification::Varying;
+using Attribute = SkMeshSpecification::Attribute;
+using Varying   = SkMeshSpecification::Varying;
 
-using IndexBuffer  = SkCustomMesh::IndexBuffer;
-using VertexBuffer = SkCustomMesh::VertexBuffer;
+using IndexBuffer  = SkMesh::IndexBuffer;
+using VertexBuffer = SkMesh::VertexBuffer;
 
 #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
 
@@ -57,7 +57,7 @@ static bool has_main(const SkSL::Program& p) {
     return false;
 }
 
-using ColorType = SkCustomMeshSpecificationPriv::ColorType;
+using ColorType = SkMeshSpecificationPriv::ColorType;
 
 static std::tuple<ColorType, bool>
 get_fs_color_type_and_local_coords(const SkSL::Program& fsProgram) {
@@ -67,7 +67,7 @@ get_fs_color_type_and_local_coords(const SkSL::Program& fsProgram) {
             const SkSL::FunctionDeclaration& decl = defn.declaration();
             if (decl.isMain()) {
 
-                SkCustomMeshSpecificationPriv::ColorType ct;
+                SkMeshSpecificationPriv::ColorType ct;
                 SkASSERT(decl.parameters().size() == 1 || decl.parameters().size() == 2);
                 if (decl.parameters().size() == 1) {
                     ct = ColorType::kNone;
@@ -147,35 +147,35 @@ std::tuple<bool, SkString>
 check_vertex_offsets_and_stride(SkSpan<const Attribute> attributes,
                                 size_t                  stride) {
     // Vulkan 1.0 has a minimum maximum attribute count of 2048.
-    static_assert(SkCustomMeshSpecification::kMaxStride       <= 2048);
+    static_assert(SkMeshSpecification::kMaxStride       <= 2048);
     // ES 2 has a max of 8.
-    static_assert(SkCustomMeshSpecification::kMaxAttributes   <= 8);
+    static_assert(SkMeshSpecification::kMaxAttributes   <= 8);
     // Four bytes alignment is required by Metal.
-    static_assert(SkCustomMeshSpecification::kStrideAlignment >= 4);
-    static_assert(SkCustomMeshSpecification::kOffsetAlignment >= 4);
+    static_assert(SkMeshSpecification::kStrideAlignment >= 4);
+    static_assert(SkMeshSpecification::kOffsetAlignment >= 4);
     // ES2 has a minimum maximum of 8. We may need one for a broken gl_FragCoord workaround and
     // one for local coords.
-    static_assert(SkCustomMeshSpecification::kMaxVaryings     <= 6);
+    static_assert(SkMeshSpecification::kMaxVaryings     <= 6);
 
     if (attributes.empty()) {
         RETURN_ERROR("At least 1 attribute is required.");
     }
-    if (attributes.size() > SkCustomMeshSpecification::kMaxAttributes) {
+    if (attributes.size() > SkMeshSpecification::kMaxAttributes) {
         RETURN_ERROR("A maximum of %zu attributes is allowed.",
-                     SkCustomMeshSpecification::kMaxAttributes);
+                     SkMeshSpecification::kMaxAttributes);
     }
-    static_assert(SkIsPow2(SkCustomMeshSpecification::kStrideAlignment));
-    if (stride == 0 || stride & (SkCustomMeshSpecification::kStrideAlignment - 1)) {
+    static_assert(SkIsPow2(SkMeshSpecification::kStrideAlignment));
+    if (stride == 0 || stride & (SkMeshSpecification::kStrideAlignment - 1)) {
         RETURN_ERROR("Vertex stride must be a non-zero multiple of %zu.",
-                     SkCustomMeshSpecification::kStrideAlignment);
+                     SkMeshSpecification::kStrideAlignment);
     }
-    if (stride > SkCustomMeshSpecification::kMaxStride) {
-        RETURN_ERROR("Stride cannot exceed %zu.", SkCustomMeshSpecification::kMaxStride);
+    if (stride > SkMeshSpecification::kMaxStride) {
+        RETURN_ERROR("Stride cannot exceed %zu.", SkMeshSpecification::kMaxStride);
     }
     for (const auto& a : attributes) {
-        if (a.offset & (SkCustomMeshSpecification::kOffsetAlignment - 1)) {
+        if (a.offset & (SkMeshSpecification::kOffsetAlignment - 1)) {
             RETURN_ERROR("Attribute offset must be a multiple of %zu.",
-                         SkCustomMeshSpecification::kOffsetAlignment);
+                         SkMeshSpecification::kOffsetAlignment);
         }
         // This equivalent to vertexAttributeAccessBeyondStride==VK_FALSE in
         // VK_KHR_portability_subset. First check is to avoid overflow in second check.
@@ -186,35 +186,36 @@ check_vertex_offsets_and_stride(SkSpan<const Attribute> attributes,
     RETURN_SUCCESS;
 }
 
-SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(
-        SkSpan<const Attribute> attributes,
-        size_t                  vertexStride,
-        SkSpan<const Varying>   varyings,
-        const SkString&         vs,
-        const SkString&         fs) {
-    return Make(attributes, vertexStride, varyings, vs, fs,
-                SkColorSpace::MakeSRGB(), kPremul_SkAlphaType);
+SkMeshSpecification::Result SkMeshSpecification::Make(SkSpan<const Attribute> attributes,
+                                                      size_t vertexStride,
+                                                      SkSpan<const Varying> varyings,
+                                                      const SkString& vs,
+                                                      const SkString& fs) {
+    return Make(attributes,
+                vertexStride,
+                varyings,
+                vs,
+                fs,
+                SkColorSpace::MakeSRGB(),
+                kPremul_SkAlphaType);
 }
 
-SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(
-        SkSpan<const Attribute> attributes,
-        size_t                  vertexStride,
-        SkSpan<const Varying>   varyings,
-        const SkString&         vs,
-        const SkString&         fs,
-        sk_sp<SkColorSpace>     cs) {
-    return Make(attributes, vertexStride, varyings, vs, fs,
-                std::move(cs), kPremul_SkAlphaType);
+SkMeshSpecification::Result SkMeshSpecification::Make(SkSpan<const Attribute> attributes,
+                                                      size_t vertexStride,
+                                                      SkSpan<const Varying> varyings,
+                                                      const SkString& vs,
+                                                      const SkString& fs,
+                                                      sk_sp<SkColorSpace> cs) {
+    return Make(attributes, vertexStride, varyings, vs, fs, std::move(cs), kPremul_SkAlphaType);
 }
 
-SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(
-        SkSpan<const Attribute> attributes,
-        size_t                  vertexStride,
-        SkSpan<const Varying>   varyings,
-        const SkString&         vs,
-        const SkString&         fs,
-        sk_sp<SkColorSpace>     cs,
-        SkAlphaType             at) {
+SkMeshSpecification::Result SkMeshSpecification::Make(SkSpan<const Attribute> attributes,
+                                                      size_t vertexStride,
+                                                      SkSpan<const Varying> varyings,
+                                                      const SkString& vs,
+                                                      const SkString& fs,
+                                                      sk_sp<SkColorSpace> cs,
+                                                      SkAlphaType at) {
     SkString attributesStruct("struct Attributes {\n");
     for (const auto& a : attributes) {
         attributesStruct.appendf("  %s %s;\n", attribute_type_string(a.type), a.name.c_str());
@@ -249,7 +250,7 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(
                                      at);
 }
 
-SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithStructs(
+SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
         SkSpan<const Attribute> attributes,
         size_t                  stride,
         SkSpan<const Varying>   varyings,
@@ -281,7 +282,7 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
     SkSL::Program::Settings settings;
     settings.fEnforceES2Restrictions = true;
     std::unique_ptr<SkSL::Program> vsProgram = compiler->convertProgram(
-            SkSL::ProgramKind::kCustomMeshVertex,
+            SkSL::ProgramKind::kMeshVertex,
             std::string(vs.c_str()),
             settings);
     if (!vsProgram) {
@@ -295,7 +296,7 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
     }
 
     std::unique_ptr<SkSL::Program> fsProgram = compiler->convertProgram(
-            SkSL::ProgramKind::kCustomMeshFragment,
+            SkSL::ProgramKind::kMeshFragment,
             std::string(fs.c_str()),
             settings);
 
@@ -323,29 +324,29 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
         }
     }
 
-    return {sk_sp<SkCustomMeshSpecification>(new SkCustomMeshSpecification(attributes,
-                                                                           stride,
-                                                                           varyings,
-                                                                           std::move(vsProgram),
-                                                                           std::move(fsProgram),
-                                                                           ct,
-                                                                           hasLocalCoords,
-                                                                           std::move(cs),
-                                                                           at)),
-            /*error=*/ {}};
+    return {sk_sp<SkMeshSpecification>(new SkMeshSpecification(attributes,
+                                                               stride,
+                                                               varyings,
+                                                               std::move(vsProgram),
+                                                               std::move(fsProgram),
+                                                               ct,
+                                                               hasLocalCoords,
+                                                               std::move(cs),
+                                                               at)),
+            /*error=*/{}};
 }
 
-SkCustomMeshSpecification::~SkCustomMeshSpecification() = default;
+SkMeshSpecification::~SkMeshSpecification() = default;
 
-SkCustomMeshSpecification::SkCustomMeshSpecification(SkSpan<const Attribute>        attributes,
-                                                     size_t                         stride,
-                                                     SkSpan<const Varying>          varyings,
-                                                     std::unique_ptr<SkSL::Program> vs,
-                                                     std::unique_ptr<SkSL::Program> fs,
-                                                     ColorType                      ct,
-                                                     bool                           hasLocalCoords,
-                                                     sk_sp<SkColorSpace>            cs,
-                                                     SkAlphaType                    at)
+SkMeshSpecification::SkMeshSpecification(SkSpan<const Attribute>        attributes,
+                                         size_t                         stride,
+                                         SkSpan<const Varying>          varyings,
+                                         std::unique_ptr<SkSL::Program> vs,
+                                         std::unique_ptr<SkSL::Program> fs,
+                                         ColorType                      ct,
+                                         bool                           hasLocalCoords,
+                                         sk_sp<SkColorSpace>            cs,
+                                         SkAlphaType                    at)
         : fAttributes(attributes.begin(), attributes.end())
         , fVaryings(varyings.begin(), varyings.end())
         , fVS(std::move(vs))
@@ -375,67 +376,67 @@ SkCustomMeshSpecification::SkCustomMeshSpecification(SkSpan<const Attribute>    
     fHash = SkOpts::hash_fn(&atInt, sizeof(atInt), fHash);
 }
 
-SkCustomMesh::SkCustomMesh()  = default;
-SkCustomMesh::~SkCustomMesh() = default;
+SkMesh::SkMesh()  = default;
+SkMesh::~SkMesh() = default;
 
-SkCustomMesh::SkCustomMesh(const SkCustomMesh&) = default;
-SkCustomMesh::SkCustomMesh(SkCustomMesh&&)      = default;
+SkMesh::SkMesh(const SkMesh&) = default;
+SkMesh::SkMesh(SkMesh&&)      = default;
 
-SkCustomMesh& SkCustomMesh::operator=(const SkCustomMesh&) = default;
-SkCustomMesh& SkCustomMesh::operator=(SkCustomMesh&&)      = default;
+SkMesh& SkMesh::operator=(const SkMesh&) = default;
+SkMesh& SkMesh::operator=(SkMesh&&)      = default;
 
-sk_sp<IndexBuffer> SkCustomMesh::MakeIndexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
+sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
     if (!data) {
         return nullptr;
     }
     if (!dc) {
-        return SkCustomMeshPriv::CpuIndexBuffer::Make(std::move(data));
+        return SkMeshPriv::CpuIndexBuffer::Make(std::move(data));
     }
 #if SK_SUPPORT_GPU
-    return SkCustomMeshPriv::GpuIndexBuffer::Make(dc, std::move(data));
+    return SkMeshPriv::GpuIndexBuffer::Make(dc, std::move(data));
 #endif
     return nullptr;
 }
 
-sk_sp<VertexBuffer> SkCustomMesh::MakeVertexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
+sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
     if (!data) {
         return nullptr;
     }
     if (!dc) {
-        return SkCustomMeshPriv::CpuVertexBuffer::Make(std::move(data));
+        return SkMeshPriv::CpuVertexBuffer::Make(std::move(data));
     }
 #if SK_SUPPORT_GPU
-    return SkCustomMeshPriv::GpuVertexBuffer::Make(dc, std::move(data));
+    return SkMeshPriv::GpuVertexBuffer::Make(dc, std::move(data));
 #endif
     return nullptr;
 }
 
-SkCustomMesh SkCustomMesh::Make(sk_sp<SkCustomMeshSpecification> spec,
-                                Mode mode,
-                                sk_sp<VertexBuffer> vb,
-                                size_t vertexCount,
-                                size_t vertexOffset,
-                                const SkRect& bounds) {
-    SkCustomMesh cm;
+SkMesh SkMesh::Make(sk_sp<SkMeshSpecification> spec,
+                    Mode mode,
+                    sk_sp<VertexBuffer> vb,
+                    size_t vertexCount,
+                    size_t vertexOffset,
+                    const SkRect& bounds) {
+    SkMesh cm;
     cm.fSpec    = std::move(spec);
     cm.fMode    = mode;
     cm.fVB      = std::move(vb);
     cm.fVCount  = vertexCount;
     cm.fVOffset = vertexOffset;
     cm.fBounds  = bounds;
-    return cm.validate() ? cm : SkCustomMesh{};
+    return cm.validate() ? cm : SkMesh{};
 }
 
-SkCustomMesh SkCustomMesh::MakeIndexed(sk_sp<SkCustomMeshSpecification> spec,
-                                        Mode mode,
-                                        sk_sp<VertexBuffer> vb,
-                                        size_t vertexCount,
-                                        size_t vertexOffset,
-                                        sk_sp<IndexBuffer> ib,
-                                        size_t indexCount,
-                                        size_t indexOffset,
-                                        const SkRect& bounds) {
-    SkCustomMesh cm;
+SkMesh SkMesh::MakeIndexed(sk_sp<SkMeshSpecification> spec,
+                           Mode mode,
+                           sk_sp<VertexBuffer> vb,
+                           size_t vertexCount,
+                           size_t vertexOffset,
+                           sk_sp<IndexBuffer> ib,
+                           size_t indexCount,
+                           size_t indexOffset,
+                           const SkRect& bounds) {
+    SkMesh cm;
     cm.fSpec    = std::move(spec);
     cm.fMode    = mode;
     cm.fVB      = std::move(vb);
@@ -445,24 +446,24 @@ SkCustomMesh SkCustomMesh::MakeIndexed(sk_sp<SkCustomMeshSpecification> spec,
     cm.fICount  = indexCount;
     cm.fIOffset = indexOffset;
     cm.fBounds  = bounds;
-    return cm.validate() ? cm : SkCustomMesh{};
+    return cm.validate() ? cm : SkMesh{};
 }
 
-bool SkCustomMesh::isValid() const {
+bool SkMesh::isValid() const {
     bool valid = SkToBool(fSpec);
     SkASSERT(valid == this->validate());
     return valid;
 }
 
-static size_t min_vcount_for_mode(SkCustomMesh::Mode mode) {
+static size_t min_vcount_for_mode(SkMesh::Mode mode) {
     switch (mode) {
-        case SkCustomMesh::Mode::kTriangles:     return 3;
-        case SkCustomMesh::Mode::kTriangleStrip: return 3;
+        case SkMesh::Mode::kTriangles:     return 3;
+        case SkMesh::Mode::kTriangleStrip: return 3;
     }
     SkUNREACHABLE;
 }
 
-bool SkCustomMesh::validate() const {
+bool SkMesh::validate() const {
     if (!fSpec) {
         return false;
     }
@@ -475,8 +476,8 @@ bool SkCustomMesh::validate() const {
         return false;
     }
 
-    auto vb = static_cast<SkCustomMeshPriv::VB*>(fVB.get());
-    auto ib = static_cast<SkCustomMeshPriv::IB*>(fIB.get());
+    auto vb = static_cast<SkMeshPriv::VB*>(fVB.get());
+    auto ib = static_cast<SkMeshPriv::IB*>(fIB.get());
 
     SkSafeMath sm;
     size_t vsize = sm.mul(fSpec->stride(), fVCount);
@@ -512,4 +513,4 @@ bool SkCustomMesh::validate() const {
     return sm.ok();
 }
 
-#endif //SK_ENABLE_SKSL
+#endif  // SK_ENABLE_SKSL

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/ops/DrawCustomMeshOp.h"
+#include "src/gpu/ganesh/ops/DrawMeshOp.h"
 
-#include "include/core/SkCustomMesh.h"
 #include "include/core/SkData.h"
+#include "include/core/SkMesh.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkCustomMeshPriv.h"
+#include "src/core/SkMeshPriv.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/KeyBuilder.h"
@@ -27,38 +27,38 @@
 
 namespace {
 
-GrPrimitiveType primitive_type(SkCustomMesh::Mode mode) {
+GrPrimitiveType primitive_type(SkMesh::Mode mode) {
     switch (mode) {
-        case SkCustomMesh::Mode::kTriangles:     return GrPrimitiveType::kTriangles;
-        case SkCustomMesh::Mode::kTriangleStrip: return GrPrimitiveType::kTriangleStrip;
+        case SkMesh::Mode::kTriangles:     return GrPrimitiveType::kTriangles;
+        case SkMesh::Mode::kTriangleStrip: return GrPrimitiveType::kTriangleStrip;
     }
     SkUNREACHABLE;
 }
 
-class CustomMeshGP : public GrGeometryProcessor {
+class MeshGP : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
-                                     sk_sp<SkCustomMeshSpecification> spec,
+                                     sk_sp<SkMeshSpecification> spec,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
                                      const SkMatrix& viewMatrix,
                                      const std::optional<SkPMColor4f>& color,
                                      bool needsLocalCoords) {
         return arena->make([&](void* ptr) {
-            return new (ptr) CustomMeshGP(std::move(spec),
-                                          std::move(colorSpaceXform),
-                                          viewMatrix,
-                                          std::move(color),
-                                          needsLocalCoords);
+            return new (ptr) MeshGP(std::move(spec),
+                                    std::move(colorSpaceXform),
+                                    viewMatrix,
+                                    std::move(color),
+                                    needsLocalCoords);
         });
     }
 
-    const char* name() const override { return "CustomMeshGP"; }
+    const char* name() const override { return "MeshGP"; }
 
     void addToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const override {
-        b->add32(SkCustomMeshSpecificationPriv::Hash(*fSpec), "custom mesh spec hash");
+        b->add32(SkMeshSpecificationPriv::Hash(*fSpec), "custom mesh spec hash");
         b->add32(ProgramImpl::ComputeMatrixKey(caps, fViewMatrix), "view matrix key");
-        if (SkCustomMeshSpecificationPriv::GetColorType(*fSpec) !=
-            SkCustomMeshSpecificationPriv::ColorType::kNone) {
+        if (SkMeshSpecificationPriv::GetColorType(*fSpec) !=
+            SkMeshSpecificationPriv::ColorType::kNone) {
             b->add32(GrColorSpaceXform::XformKey(fColorSpaceXform.get()), "colorspace xform key");
         }
     }
@@ -73,7 +73,7 @@ private:
         void setData(const GrGLSLProgramDataManager& pdman,
                      const GrShaderCaps& shaderCaps,
                      const GrGeometryProcessor& geomProc) override {
-            const auto& cmgp = geomProc.cast<CustomMeshGP>();
+            const auto& cmgp = geomProc.cast<MeshGP>();
             SetTransform(pdman, shaderCaps, fViewMatrixUniform, cmgp.fViewMatrix, &fViewMatrix);
             fColorSpaceHelper.setData(pdman, cmgp.fColorSpaceXform.get());
             if (fColorUniform.isValid()) {
@@ -143,7 +143,7 @@ private:
         };
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-            const CustomMeshGP& cmgp = args.fGeomProc.cast<CustomMeshGP>();
+            const MeshGP& cmgp = args.fGeomProc.cast<MeshGP>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -156,7 +156,7 @@ private:
 
             // Define the user's vert function.
             SkString userVertName = vertBuilder->getMangledFunctionName("custom_mesh_vs");
-            const SkSL::Program* customVS = SkCustomMeshSpecificationPriv::VS(*cmgp.fSpec);
+            const SkSL::Program* customVS = SkMeshSpecificationPriv::VS(*cmgp.fSpec);
             MeshCallbacks vsCallbacks(this, vertBuilder, userVertName.c_str(), *customVS->fContext);
             SkSL::PipelineStage::ConvertProgram(*customVS,
                                                 /*sampleCoords=*/"",
@@ -183,9 +183,9 @@ private:
 
             // Unpack the varyings from the struct into individual varyings.
             std::vector<GrGLSLVarying> varyings;
-            varyings.reserve(SkCustomMeshSpecificationPriv::Varyings(*cmgp.fSpec).size());
-            for (const auto& v : SkCustomMeshSpecificationPriv::Varyings(*cmgp.fSpec)) {
-                varyings.emplace_back(SkCustomMeshSpecificationPriv::VaryingTypeAsSLType(v.type));
+            varyings.reserve(SkMeshSpecificationPriv::Varyings(*cmgp.fSpec).size());
+            for (const auto& v : SkMeshSpecificationPriv::Varyings(*cmgp.fSpec)) {
+                varyings.emplace_back(SkMeshSpecificationPriv::VaryingTypeAsSLType(v.type));
                 varyingHandler->addVarying(v.name.c_str(), &varyings.back());
                 vertBuilder->codeAppendf("%s = varyings.%s;",
                                          varyings.back().vsOut(),
@@ -208,7 +208,7 @@ private:
 
             // Define the user's frag function.
             SkString userFragName = fragBuilder->getMangledFunctionName("custom_mesh_fs");
-            const SkSL::Program* customFS = SkCustomMeshSpecificationPriv::FS(*cmgp.fSpec);
+            const SkSL::Program* customFS = SkMeshSpecificationPriv::FS(*cmgp.fSpec);
             MeshCallbacks fsCallbacks(this, fragBuilder, userFragName.c_str(), *customFS->fContext);
             SkSL::PipelineStage::ConvertProgram(*customFS,
                                                 /*sampleCoords=*/"",
@@ -220,13 +220,13 @@ private:
             fragBuilder->codeAppendf("%s varyings;",
                                      fsCallbacks.getMangledName("Varyings").c_str());
             i = 0;
-            for (const auto& varying : SkCustomMeshSpecificationPriv::Varyings(*cmgp.fSpec)) {
+            for (const auto& varying : SkMeshSpecificationPriv::Varyings(*cmgp.fSpec)) {
                 fragBuilder->codeAppendf("varyings.%s = %s;",
                                          varying.name.c_str(),
                                          varyings[i++].vsOut());
             }
-            SkCustomMeshSpecificationPriv::ColorType meshColorType =
-                    SkCustomMeshSpecificationPriv::GetColorType(*cmgp.fSpec);
+            SkMeshSpecificationPriv::ColorType meshColorType =
+                    SkMeshSpecificationPriv::GetColorType(*cmgp.fSpec);
             const char* uniformColorName = nullptr;
             if (cmgp.fColor != SK_PMColor4fILLEGAL) {
                 fColorUniform = uniformHandler->addUniform(nullptr,
@@ -236,11 +236,10 @@ private:
                                                            &uniformColorName);
             }
             SkString localCoordAssignment;
-            if (SkCustomMeshSpecificationPriv::HasLocalCoords(*cmgp.fSpec) &&
-                cmgp.fNeedsLocalCoords) {
+            if (SkMeshSpecificationPriv::HasLocalCoords(*cmgp.fSpec) && cmgp.fNeedsLocalCoords) {
                 localCoordAssignment = "float2 local =";
             }
-            if (meshColorType == SkCustomMeshSpecificationPriv::ColorType::kNone) {
+            if (meshColorType == SkMeshSpecificationPriv::ColorType::kNone) {
                 fragBuilder->codeAppendf("%s %s(varyings);",
                                          localCoordAssignment.c_str(),
                                          userFragName.c_str());
@@ -250,10 +249,10 @@ private:
                 fColorSpaceHelper.emitCode(uniformHandler,
                                            cmgp.fColorSpaceXform.get(),
                                            kFragment_GrShaderFlag);
-                if (meshColorType == SkCustomMeshSpecificationPriv::ColorType::kFloat4) {
+                if (meshColorType == SkMeshSpecificationPriv::ColorType::kFloat4) {
                     fragBuilder->codeAppendf("float4 color;");
                 } else {
-                    SkASSERT(meshColorType == SkCustomMeshSpecificationPriv::ColorType::kHalf4);
+                    SkASSERT(meshColorType == SkMeshSpecificationPriv::ColorType::kHalf4);
                     fragBuilder->codeAppendf("half4 color;");
                 }
 
@@ -268,7 +267,7 @@ private:
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());
             }
             if (cmgp.fNeedsLocalCoords) {
-                if (SkCustomMeshSpecificationPriv::HasLocalCoords(*cmgp.fSpec)) {
+                if (SkMeshSpecificationPriv::HasLocalCoords(*cmgp.fSpec)) {
                     gpArgs->fLocalCoordVar = GrShaderVar("local", SkSLType::kFloat2);
                     gpArgs->fLocalCoordShader = kFragment_GrShaderType;
                 } else {
@@ -287,11 +286,11 @@ private:
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     };
 
-    CustomMeshGP(sk_sp<SkCustomMeshSpecification>    spec,
-                 sk_sp<GrColorSpaceXform>            colorSpaceXform,
-                 const SkMatrix&                     viewMatrix,
-                 const std::optional<SkPMColor4f>& color,
-                 bool                                needsLocalCoords)
+    MeshGP(sk_sp<SkMeshSpecification>        spec,
+           sk_sp<GrColorSpaceXform>          colorSpaceXform,
+           const SkMatrix&                   viewMatrix,
+           const std::optional<SkPMColor4f>& color,
+           bool                              needsLocalCoords)
             : INHERITED(kVerticesGP_ClassID)
             , fSpec(std::move(spec))
             , fViewMatrix(viewMatrix)
@@ -301,46 +300,46 @@ private:
         for (const auto& srcAttr : fSpec->attributes()) {
             fAttributes.emplace_back(
                     srcAttr.name.c_str(),
-                    SkCustomMeshSpecificationPriv::AttrTypeAsVertexAttribType(srcAttr.type),
-                    SkCustomMeshSpecificationPriv::AttrTypeAsSLType(srcAttr.type),
+                    SkMeshSpecificationPriv::AttrTypeAsVertexAttribType(srcAttr.type),
+                    SkMeshSpecificationPriv::AttrTypeAsSLType(srcAttr.type),
                     srcAttr.offset);
         }
         this->setVertexAttributes(fAttributes.data(), fAttributes.size(), fSpec->stride());
     }
 
-    sk_sp<SkCustomMeshSpecification> fSpec;
-    std::vector<Attribute>           fAttributes;
-    SkMatrix                         fViewMatrix;
-    SkPMColor4f                      fColor;
-    sk_sp<GrColorSpaceXform>         fColorSpaceXform;
-    bool                             fNeedsLocalCoords;
+    sk_sp<SkMeshSpecification> fSpec;
+    std::vector<Attribute>     fAttributes;
+    SkMatrix                   fViewMatrix;
+    SkPMColor4f                fColor;
+    sk_sp<GrColorSpaceXform>   fColorSpaceXform;
+    bool                       fNeedsLocalCoords;
 
     using INHERITED = GrGeometryProcessor;
 };
 
-class CustomMeshOp final : public GrMeshDrawOp {
+class MeshOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelper;
 
 public:
     DEFINE_OP_CLASS_ID
 
-    CustomMeshOp(GrProcessorSet*,
-                 const SkPMColor4f&,
-                 const SkCustomMesh&,
-                 GrAAType,
-                 sk_sp<GrColorSpaceXform>,
-                 const SkMatrixProvider&);
+    MeshOp(GrProcessorSet*,
+           const SkPMColor4f&,
+           const SkMesh&,
+           GrAAType,
+           sk_sp<GrColorSpaceXform>,
+           const SkMatrixProvider&);
 
-    CustomMeshOp(GrProcessorSet*,
-                 const SkPMColor4f&,
-                 sk_sp<SkVertices>,
-                 const GrPrimitiveType*,
-                 GrAAType,
-                 sk_sp<GrColorSpaceXform>,
-                 const SkMatrixProvider&);
+    MeshOp(GrProcessorSet*,
+           const SkPMColor4f&,
+           sk_sp<SkVertices>,
+           const GrPrimitiveType*,
+           GrAAType,
+           sk_sp<GrColorSpaceXform>,
+           const SkMatrixProvider&);
 
-    const char* name() const override { return "CustomMeshOp"; }
+    const char* name() const override { return "MeshOp"; }
 
     void visitProxies(const GrVisitProxyFunc& func) const override {
         if (fProgramInfo) {
@@ -377,20 +376,20 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps&) override;
 
     /**
-     * Built either from a SkCustomMesh or a SkVertices. In the former case the data is owned
+     * Built either from a SkMesh or a SkVertices. In the former case the data is owned
      * by Mesh and in the latter it is not. Meshes made from SkVertices can contain a SkMatrix
-     * to enable CPU-based transformation but Meshes made from SkCustomMesh cannot.
+     * to enable CPU-based transformation but Meshes made from SkMesh cannot.
      */
     class Mesh {
     public:
         Mesh() = delete;
-        Mesh(const SkCustomMesh& cm);
+        Mesh(const SkMesh& mesh);
         Mesh(sk_sp<SkVertices>, const SkMatrix& viewMatrix);
         Mesh(const Mesh&) = delete;
         Mesh(Mesh&& m);
 
         Mesh& operator=(const Mesh&) = delete;
-        Mesh& operator=(Mesh&&) = delete; // not used by SkSTArray but could be implemented.
+        Mesh& operator=(Mesh&&) = delete;  // not used by SkSTArray but could be implemented.
 
         ~Mesh();
 
@@ -400,46 +399,46 @@ private:
             if (this->isFromVertices()) {
                 return {};
             }
-            return {fCMData.vb->asGpuBuffer(), fCMData.voffset};
+            return {fMeshData.vb->asGpuBuffer(), fMeshData.voffset};
         }
 
         std::tuple<sk_sp<const GrGpuBuffer>, size_t> gpuIB() const {
-            if (this->isFromVertices() || !fCMData.ib) {
+            if (this->isFromVertices() || !fMeshData.ib) {
                 return {};
             }
-            return {fCMData.ib->asGpuBuffer(), fCMData.ioffset};
+            return {fMeshData.ib->asGpuBuffer(), fMeshData.ioffset};
         }
 
         void writeVertices(skgpu::VertexWriter& writer,
-                           const SkCustomMeshSpecification& spec,
+                           const SkMeshSpecification& spec,
                            bool transform) const;
 
         int vertexCount() const {
-            return this->isFromVertices() ? fVertices->priv().vertexCount() : fCMData.vcount;
+            return this->isFromVertices() ? fVertices->priv().vertexCount() : fMeshData.vcount;
         }
 
         const uint16_t* indices() const {
             if (this->isFromVertices()) {
                 return fVertices->priv().indices();
             }
-            if (!fCMData.ib) {
+            if (!fMeshData.ib) {
                 return nullptr;
             }
-            auto data = fCMData.ib->asData();
+            auto data = fMeshData.ib->asData();
             if (!data) {
                 return nullptr;
             }
-            return SkTAddOffset<const uint16_t>(data->data(), fCMData.ioffset);
+            return SkTAddOffset<const uint16_t>(data->data(), fMeshData.ioffset);
         }
 
         int indexCount() const {
-            return this->isFromVertices() ? fVertices->priv().indexCount() : fCMData.icount;
+            return this->isFromVertices() ? fVertices->priv().indexCount() : fMeshData.icount;
         }
 
     private:
-        struct CMData {
-            sk_sp<const SkCustomMeshPriv::VB> vb;
-            sk_sp<const SkCustomMeshPriv::IB> ib;
+        struct MeshData {
+            sk_sp<const SkMeshPriv::VB> vb;
+            sk_sp<const SkMeshPriv::IB> ib;
 
             size_t vcount = 0;
             size_t icount = 0;
@@ -452,63 +451,63 @@ private:
 
         union {
             SkMatrix fViewMatrix;
-            CMData   fCMData;
+            MeshData fMeshData;
         };
     };
 
-    Helper                           fHelper;
-    sk_sp<SkCustomMeshSpecification> fSpecification;
-    bool                             fIgnoreSpecColor = false;
-    GrPrimitiveType                  fPrimitiveType;
-    SkSTArray<1, Mesh>               fMeshes;
-    sk_sp<GrColorSpaceXform>         fColorSpaceXform;
-    SkPMColor4f                      fColor; // Used if no color from spec or analysis overrides.
-    SkMatrix                         fViewMatrix;
-    int                              fVertexCount;
-    int                              fIndexCount;
-    GrSimpleMesh*                    fMesh = nullptr;
-    GrProgramInfo*                   fProgramInfo = nullptr;
+    Helper                     fHelper;
+    sk_sp<SkMeshSpecification> fSpecification;
+    bool                       fIgnoreSpecColor = false;
+    GrPrimitiveType            fPrimitiveType;
+    SkSTArray<1, Mesh>         fMeshes;
+    sk_sp<GrColorSpaceXform>   fColorSpaceXform;
+    SkPMColor4f                fColor; // Used if no color from spec or analysis overrides.
+    SkMatrix                   fViewMatrix;
+    int                        fVertexCount;
+    int                        fIndexCount;
+    GrSimpleMesh*              fMesh = nullptr;
+    GrProgramInfo*             fProgramInfo = nullptr;
 
     using INHERITED = GrMeshDrawOp;
 };
 
-CustomMeshOp::Mesh::Mesh(const SkCustomMesh& cm) {
-    new (&fCMData) CMData();
-    fCMData.vb = sk_ref_sp(static_cast<SkCustomMeshPriv::VB*>(cm.vertexBuffer().get()));
-    if (cm.indexBuffer()) {
-        fCMData.ib = sk_ref_sp(static_cast<SkCustomMeshPriv::IB*>(cm.indexBuffer().get()));
+MeshOp::Mesh::Mesh(const SkMesh& mesh) {
+    new (&fMeshData) MeshData();
+    fMeshData.vb = sk_ref_sp(static_cast<SkMeshPriv::VB*>(mesh.vertexBuffer().get()));
+    if (mesh.indexBuffer()) {
+        fMeshData.ib = sk_ref_sp(static_cast<SkMeshPriv::IB*>(mesh.indexBuffer().get()));
     }
-    fCMData.vcount   = cm.vertexCount();
-    fCMData.voffset  = cm.vertexOffset();
-    fCMData.icount   = cm.indexCount();
-    fCMData.ioffset  = cm.indexOffset();
+    fMeshData.vcount  = mesh.vertexCount();
+    fMeshData.voffset = mesh.vertexOffset();
+    fMeshData.icount  = mesh.indexCount();
+    fMeshData.ioffset = mesh.indexOffset();
 }
 
-CustomMeshOp::Mesh::Mesh(sk_sp<SkVertices> vertices, const SkMatrix& viewMatrix)
+MeshOp::Mesh::Mesh(sk_sp<SkVertices> vertices, const SkMatrix& viewMatrix)
         : fVertices(std::move(vertices)), fViewMatrix(viewMatrix) {
     SkASSERT(fVertices);
 }
 
-CustomMeshOp::Mesh::Mesh(Mesh&& that) {
+MeshOp::Mesh::Mesh(Mesh&& that) {
     fVertices = std::move(that.fVertices);
     if (fVertices) {
         fViewMatrix = that.fViewMatrix;
         // 'that' is now not-a-vertices. Make sure it can be safely destroyed.
-        new (&that.fCMData) CMData();
+        new (&that.fMeshData) MeshData();
     } else {
-        fCMData = std::move(that.fCMData);
+        fMeshData = std::move(that.fMeshData);
     }
 }
 
-CustomMeshOp::Mesh::~Mesh() {
+MeshOp::Mesh::~Mesh() {
     if (!this->isFromVertices()) {
-        fCMData.~CMData();
+        fMeshData.~MeshData();
     }
 }
 
-void CustomMeshOp::Mesh::writeVertices(skgpu::VertexWriter& writer,
-                                       const SkCustomMeshSpecification& spec,
-                                       bool transform) const {
+void MeshOp::Mesh::writeVertices(skgpu::VertexWriter& writer,
+                                 const SkMeshSpecification& spec,
+                                 bool transform) const {
     SkASSERT(!transform || this->isFromVertices());
     if (this->isFromVertices()) {
         int vertexCount = fVertices->priv().vertexCount();
@@ -519,49 +518,49 @@ void CustomMeshOp::Mesh::writeVertices(skgpu::VertexWriter& writer,
                 fViewMatrix.mapPoints(&pos, 1);
             }
             writer << pos;
-            if (SkCustomMeshSpecificationPriv::HasColors(spec)) {
+            if (SkMeshSpecificationPriv::HasColors(spec)) {
                 SkASSERT(fVertices->priv().hasColors());
                 writer << fVertices->priv().colors()[i];
             }
-            if (SkCustomMeshSpecificationPriv::HasLocalCoords(spec)) {
+            if (SkMeshSpecificationPriv::HasLocalCoords(spec)) {
                 SkASSERT(fVertices->priv().hasTexCoords());
                 writer << fVertices->priv().texCoords()[i];
             }
         }
     } else {
-        sk_sp<const SkData> data = fCMData.vb->asData();
+        sk_sp<const SkData> data = fMeshData.vb->asData();
         if (data) {
-            auto vdata = static_cast<const char*>(data->data()) + fCMData.voffset;
-            writer << skgpu::VertexWriter::Array(vdata, spec.stride() * fCMData.vcount);
+            auto vdata = static_cast<const char*>(data->data()) + fMeshData.voffset;
+            writer << skgpu::VertexWriter::Array(vdata, spec.stride()*fMeshData.vcount);
         }
     }
 }
 
-CustomMeshOp::CustomMeshOp(GrProcessorSet*          processorSet,
-                           const SkPMColor4f&       color,
-                           const SkCustomMesh&      cm,
-                           GrAAType                 aaType,
-                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                           const SkMatrixProvider&  matrixProvider)
+MeshOp::MeshOp(GrProcessorSet*          processorSet,
+               const SkPMColor4f&       color,
+               const SkMesh&            mesh,
+               GrAAType                 aaType,
+               sk_sp<GrColorSpaceXform> colorSpaceXform,
+               const SkMatrixProvider&  matrixProvider)
         : INHERITED(ClassID())
         , fHelper(processorSet, aaType)
-        , fPrimitiveType(primitive_type(cm.mode()))
+        , fPrimitiveType(primitive_type(mesh.mode()))
         , fColorSpaceXform(std::move(colorSpaceXform))
         , fColor(color)
         , fViewMatrix(matrixProvider.localToDevice()) {
-    fMeshes.emplace_back(cm);
+    fMeshes.emplace_back(mesh);
 
-    fSpecification = cm.spec();
+    fSpecification = mesh.spec();
 
     fVertexCount = fMeshes.back().vertexCount();
     fIndexCount  = fMeshes.back().indexCount();
 
-    this->setTransformedBounds(cm.bounds(), fViewMatrix, HasAABloat::kNo, IsHairline::kNo);
+    this->setTransformedBounds(mesh.bounds(), fViewMatrix, HasAABloat::kNo, IsHairline::kNo);
 }
 
-static sk_sp<SkCustomMeshSpecification> make_vertices_spec(bool hasColors, bool hasTex) {
-    using Attribute = SkCustomMeshSpecification::Attribute;
-    using Varying   = SkCustomMeshSpecification::Varying;
+static sk_sp<SkMeshSpecification> make_vertices_spec(bool hasColors, bool hasTex) {
+    using Attribute = SkMeshSpecification::Attribute;
+    using Varying   = SkMeshSpecification::Varying;
     std::vector<Attribute> attributes;
     attributes.reserve(3);
     attributes.push_back({Attribute::Type::kFloat2, 0, SkString{"pos"}});
@@ -594,7 +593,7 @@ static sk_sp<SkCustomMeshSpecification> make_vertices_spec(bool hasColors, bool 
     }
     vs += "return a.pos;\n}";
     fs += "}";
-    auto [spec, error] = SkCustomMeshSpecification::Make(
+    auto [spec, error] = SkMeshSpecification::Make(
             SkMakeSpan(attributes),
             size,
             SkMakeSpan(varyings),
@@ -604,13 +603,13 @@ static sk_sp<SkCustomMeshSpecification> make_vertices_spec(bool hasColors, bool 
     return spec;
 }
 
-CustomMeshOp::CustomMeshOp(GrProcessorSet*          processorSet,
-                           const SkPMColor4f&       color,
-                           sk_sp<SkVertices>        vertices,
-                           const GrPrimitiveType*   overridePrimitiveType,
-                           GrAAType                 aaType,
-                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                           const SkMatrixProvider&  matrixProvider)
+MeshOp::MeshOp(GrProcessorSet*          processorSet,
+               const SkPMColor4f&       color,
+               sk_sp<SkVertices>        vertices,
+               const GrPrimitiveType*   overridePrimitiveType,
+               GrAAType                 aaType,
+               sk_sp<GrColorSpaceXform> colorSpaceXform,
+               const SkMatrixProvider&  matrixProvider)
         : INHERITED(ClassID())
         , fHelper(processorSet, aaType)
         , fColorSpaceXform(std::move(colorSpaceXform))
@@ -670,16 +669,16 @@ CustomMeshOp::CustomMeshOp(GrProcessorSet*          processorSet,
 }
 
 #if GR_TEST_UTILS
-SkString CustomMeshOp::onDumpInfo() const { return {}; }
+SkString MeshOp::onDumpInfo() const { return {}; }
 #endif
 
-GrDrawOp::FixedFunctionFlags CustomMeshOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags MeshOp::fixedFunctionFlags() const {
     return fHelper.fixedFunctionFlags();
 }
 
-GrProcessorSet::Analysis CustomMeshOp::finalize(const GrCaps& caps,
-                                                const GrAppliedClip* clip,
-                                                GrClampType clampType) {
+GrProcessorSet::Analysis MeshOp::finalize(const GrCaps& caps,
+                                          const GrAppliedClip* clip,
+                                          GrClampType clampType) {
     GrProcessorAnalysisColor gpColor;
     gpColor.setToUnknown();
     auto result = fHelper.finalizeProcessors(caps,
@@ -693,29 +692,29 @@ GrProcessorSet::Analysis CustomMeshOp::finalize(const GrCaps& caps,
     return result;
 }
 
-GrGeometryProcessor* CustomMeshOp::makeGP(SkArenaAlloc* arena) {
+GrGeometryProcessor* MeshOp::makeGP(SkArenaAlloc* arena) {
     std::optional<SkPMColor4f> color;
-    if (fIgnoreSpecColor || !SkCustomMeshSpecificationPriv::HasColors(*fSpecification)) {
+    if (fIgnoreSpecColor || !SkMeshSpecificationPriv::HasColors(*fSpecification)) {
         color.emplace(fColor);
     }
     // Check if we're pre-transforming the vertices on the CPU.
     const SkMatrix& vm = fViewMatrix == SkMatrix::InvalidMatrix() ? SkMatrix::I() : fViewMatrix;
-    return CustomMeshGP::Make(arena,
-                              fSpecification,
-                              fColorSpaceXform,
-                              vm,
-                              color,
-                              fHelper.usesLocalCoords());
+    return MeshGP::Make(arena,
+                        fSpecification,
+                        fColorSpaceXform,
+                        vm,
+                        color,
+                        fHelper.usesLocalCoords());
 }
 
-void CustomMeshOp::onCreateProgramInfo(const GrCaps* caps,
-                                       SkArenaAlloc* arena,
-                                       const GrSurfaceProxyView& writeView,
-                                       bool usesMSAASurface,
-                                       GrAppliedClip&& appliedClip,
-                                       const GrDstProxyView& dstProxyView,
-                                       GrXferBarrierFlags renderPassXferBarriers,
-                                       GrLoadOp colorLoadOp) {
+void MeshOp::onCreateProgramInfo(const GrCaps* caps,
+                                 SkArenaAlloc* arena,
+                                 const GrSurfaceProxyView& writeView,
+                                 bool usesMSAASurface,
+                                 GrAppliedClip&& appliedClip,
+                                 const GrDstProxyView& dstProxyView,
+                                 GrXferBarrierFlags renderPassXferBarriers,
+                                 GrLoadOp colorLoadOp) {
     fProgramInfo = fHelper.createProgramInfo(caps,
                                              arena,
                                              writeView,
@@ -728,7 +727,7 @@ void CustomMeshOp::onCreateProgramInfo(const GrCaps* caps,
                                              colorLoadOp);
 }
 
-void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
+void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
     size_t vertexStride = fSpecification->stride();
     sk_sp<const GrBuffer> vertexBuffer;
     int firstVertex;
@@ -800,7 +799,7 @@ void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
     }
 }
 
-void CustomMeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void MeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fProgramInfo) {
         this->createProgramInfo(flushState);
     }
@@ -814,8 +813,8 @@ void CustomMeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
     flushState->drawMesh(*fMesh);
 }
 
-GrOp::CombineResult CustomMeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
-    auto that = t->cast<CustomMeshOp>();
+GrOp::CombineResult MeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
+    auto that = t->cast<MeshOp>();
 
     // Check for a combinable primitive type.
     if (!(fPrimitiveType == GrPrimitiveType::kTriangles ||
@@ -835,12 +834,12 @@ GrOp::CombineResult CustomMeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, co
         return CombineResult::kCannotCombine;
     }
 
-    if (SkCustomMeshSpecificationPriv::Hash(*this->fSpecification) !=
-        SkCustomMeshSpecificationPriv::Hash(*that->fSpecification)) {
+    if (SkMeshSpecificationPriv::Hash(*this->fSpecification) !=
+        SkMeshSpecificationPriv::Hash(*that->fSpecification)) {
         return CombineResult::kCannotCombine;
     }
 
-    if (!SkCustomMeshSpecificationPriv::HasColors(*fSpecification) && fColor != that->fColor) {
+    if (!SkMeshSpecificationPriv::HasColors(*fSpecification) && fColor != that->fColor) {
         return CombineResult::kCannotCombine;
     }
 
@@ -856,7 +855,7 @@ GrOp::CombineResult CustomMeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, co
         // If we use local coords and the local coords come from positions then we can't pre-
         // transform the positions on the CPU.
         if (fHelper.usesLocalCoords() &&
-            !SkCustomMeshSpecificationPriv::HasLocalCoords(*fSpecification)) {
+            !SkMeshSpecificationPriv::HasLocalCoords(*fSpecification)) {
             return CombineResult::kCannotCombine;
         }
         // We only support two-component position attributes. This means we would not get
@@ -881,20 +880,20 @@ GrOp::CombineResult CustomMeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, co
 
 }  // anonymous namespace
 
-namespace skgpu::v1::DrawCustomMeshOp {
+namespace skgpu::v1::DrawMeshOp {
 
 GrOp::Owner Make(GrRecordingContext* context,
                  GrPaint&& paint,
-                 const SkCustomMesh& cm,
+                 const SkMesh& mesh,
                  const SkMatrixProvider& matrixProvider,
                  GrAAType aaType,
                  sk_sp<GrColorSpaceXform> colorSpaceXform) {
-    return GrSimpleMeshDrawOpHelper::FactoryHelper<CustomMeshOp>(context,
-                                                                 std::move(paint),
-                                                                 std::move(cm),
-                                                                 aaType,
-                                                                 std::move(colorSpaceXform),
-                                                                 matrixProvider);
+    return GrSimpleMeshDrawOpHelper::FactoryHelper<MeshOp>(context,
+                                                           std::move(paint),
+                                                           mesh,
+                                                           aaType,
+                                                           std::move(colorSpaceXform),
+                                                           matrixProvider);
 }
 
 GrOp::Owner Make(GrRecordingContext* context,
@@ -904,13 +903,13 @@ GrOp::Owner Make(GrRecordingContext* context,
                  const SkMatrixProvider& matrixProvider,
                  GrAAType aaType,
                  sk_sp<GrColorSpaceXform> colorSpaceXform) {
-    return GrSimpleMeshDrawOpHelper::FactoryHelper<CustomMeshOp>(context,
-                                                                 std::move(paint),
-                                                                 std::move(vertices),
-                                                                 overridePrimitiveType,
-                                                                 aaType,
-                                                                 std::move(colorSpaceXform),
-                                                                 matrixProvider);
+    return GrSimpleMeshDrawOpHelper::FactoryHelper<MeshOp>(context,
+                                                           std::move(paint),
+                                                           std::move(vertices),
+                                                           overridePrimitiveType,
+                                                           aaType,
+                                                           std::move(colorSpaceXform),
+                                                           matrixProvider);
 }
 
-}  // namespace skgpu::v1::DrawCustomMeshOp
+}  // namespace skgpu::v1::DrawMeshOp

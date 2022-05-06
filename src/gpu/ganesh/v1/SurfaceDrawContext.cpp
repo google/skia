@@ -19,13 +19,13 @@
 #include "include/utils/SkShadowUtils.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/core/SkCustomMeshPriv.h"
 #include "src/core/SkDrawProcs.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
+#include "src/core/SkMeshPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrAttachment.h"
@@ -58,7 +58,7 @@
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/ClearOp.h"
 #include "src/gpu/ganesh/ops/DrawAtlasOp.h"
-#include "src/gpu/ganesh/ops/DrawCustomMeshOp.h"
+#include "src/gpu/ganesh/ops/DrawMeshOp.h"
 #include "src/gpu/ganesh/ops/DrawableOp.h"
 #include "src/gpu/ganesh/ops/FillRRectOp.h"
 #include "src/gpu/ganesh/ops/FillRectOp.h"
@@ -910,40 +910,40 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
     SkASSERT(vertices);
     auto xform = skipColorXform ? nullptr : this->colorInfo().refColorSpaceXformFromSRGB();
     GrAAType aaType = fCanUseDynamicMSAA ? GrAAType::kMSAA : this->chooseAAType(GrAA::kNo);
-    GrOp::Owner op = DrawCustomMeshOp::Make(fContext,
-                                            std::move(paint),
-                                            std::move(vertices),
-                                            overridePrimType,
-                                            matrixProvider,
-                                            aaType,
-                                            std::move(xform));
+    GrOp::Owner op = DrawMeshOp::Make(fContext,
+                                      std::move(paint),
+                                      std::move(vertices),
+                                      overridePrimType,
+                                      matrixProvider,
+                                      aaType,
+                                      std::move(xform));
     this->addDrawOp(clip, std::move(op));
 }
 
-void SurfaceDrawContext::drawCustomMesh(const GrClip* clip,
-                                        GrPaint&& paint,
-                                        const SkMatrixProvider& matrixProvider,
-                                        const SkCustomMesh& cm) {
+void SurfaceDrawContext::drawMesh(const GrClip* clip,
+                                  GrPaint&& paint,
+                                  const SkMatrixProvider& matrixProvider,
+                                  const SkMesh& mesh) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceDrawContext", "drawCustomMesh", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceDrawContext", "drawMesh", fContext);
 
     AutoCheckFlush acf(this->drawingManager());
 
-    SkASSERT(cm.isValid());
+    SkASSERT(mesh.isValid());
 
-    auto xform = GrColorSpaceXform::Make(SkCustomMeshSpecificationPriv::ColorSpace(*cm.spec()),
-                                         SkCustomMeshSpecificationPriv::AlphaType(*cm.spec()),
+    auto xform = GrColorSpaceXform::Make(SkMeshSpecificationPriv::ColorSpace(*mesh.spec()),
+                                         SkMeshSpecificationPriv::AlphaType(*mesh.spec()),
                                          this->colorInfo().colorSpace(),
                                          this->colorInfo().alphaType());
     GrAAType aaType = fCanUseDynamicMSAA ? GrAAType::kMSAA : this->chooseAAType(GrAA::kNo);
-    GrOp::Owner op = DrawCustomMeshOp::Make(fContext,
-                                            std::move(paint),
-                                            std::move(cm),
-                                            matrixProvider,
-                                            aaType,
-                                            std::move(xform));
+    GrOp::Owner op = DrawMeshOp::Make(fContext,
+                                      std::move(paint),
+                                      mesh,
+                                      matrixProvider,
+                                      aaType,
+                                      std::move(xform));
     this->addDrawOp(clip, std::move(op));
 }
 

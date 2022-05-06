@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkCustomMesh_DEFINED
-#define SkCustomMesh_DEFINED
+#ifndef SkMesh_DEFINED
+#define SkMesh_DEFINED
 
 #include "include/core/SkTypes.h"
 
@@ -45,7 +45,7 @@ namespace SkSL { struct Program; }
  * coordinate. If the color variant is used it will be blended with SkShader (or SkPaint color in
  * absence of a shader) using the SkBlender provided to the SkCanvas draw call.
  */
-class SkCustomMeshSpecification : public SkNVRefCnt<SkCustomMeshSpecification> {
+class SkMeshSpecification : public SkNVRefCnt<SkMeshSpecification> {
 public:
     /** These values are enforced when creating a specification. */
     static constexpr size_t kMaxStride       = 1024;
@@ -86,11 +86,11 @@ public:
         SkString name;
     };
 
-    ~SkCustomMeshSpecification();
+    ~SkMeshSpecification();
 
     struct Result {
-        sk_sp<SkCustomMeshSpecification> specification;
-        SkString                         error;
+        sk_sp<SkMeshSpecification> specification;
+        SkString                   error;
     };
 
     /**
@@ -139,7 +139,7 @@ public:
     size_t stride() const { return fStride; }
 
 private:
-    friend struct SkCustomMeshSpecificationPriv;
+    friend struct SkMeshSpecificationPriv;
 
     enum class ColorType {
         kNone,
@@ -155,41 +155,40 @@ private:
                                             sk_sp<SkColorSpace>     cs,
                                             SkAlphaType             at);
 
-    SkCustomMeshSpecification(SkSpan<const Attribute>,
-                              size_t,
-                              SkSpan<const Varying>,
-                              std::unique_ptr<SkSL::Program>,
-                              std::unique_ptr<SkSL::Program>,
-                              ColorType,
-                              bool hasLocalCoords,
-                              sk_sp<SkColorSpace>,
-                              SkAlphaType);
+    SkMeshSpecification(SkSpan<const Attribute>,
+                        size_t,
+                        SkSpan<const Varying>,
+                        std::unique_ptr<SkSL::Program>,
+                        std::unique_ptr<SkSL::Program>,
+                        ColorType,
+                        bool hasLocalCoords,
+                        sk_sp<SkColorSpace>,
+                        SkAlphaType);
 
-    SkCustomMeshSpecification(const SkCustomMeshSpecification&) = delete;
-    SkCustomMeshSpecification(SkCustomMeshSpecification&&) = delete;
+    SkMeshSpecification(const SkMeshSpecification&) = delete;
+    SkMeshSpecification(SkMeshSpecification&&) = delete;
 
-    SkCustomMeshSpecification& operator=(const SkCustomMeshSpecification&) = delete;
-    SkCustomMeshSpecification& operator=(SkCustomMeshSpecification&&) = delete;
+    SkMeshSpecification& operator=(const SkMeshSpecification&) = delete;
+    SkMeshSpecification& operator=(SkMeshSpecification&&) = delete;
 
-    const std::vector<Attribute>       fAttributes;
-    const std::vector<Varying>         fVaryings;
-    std::unique_ptr<SkSL::Program>     fVS;
-    std::unique_ptr<SkSL::Program>     fFS;
-    size_t                             fStride;
-    uint32_t                           fHash;
-    ColorType                          fColorType;
-    bool                               fHasLocalCoords;
-    sk_sp<SkColorSpace>                fColorSpace;
-    SkAlphaType                        fAlphaType;
+    const std::vector<Attribute>   fAttributes;
+    const std::vector<Varying>     fVaryings;
+    std::unique_ptr<SkSL::Program> fVS;
+    std::unique_ptr<SkSL::Program> fFS;
+    size_t                         fStride;
+    uint32_t                       fHash;
+    ColorType                      fColorType;
+    bool                           fHasLocalCoords;
+    sk_sp<SkColorSpace>            fColorSpace;
+    SkAlphaType                    fAlphaType;
 };
 
 /**
- * A vertex buffer, a topology, optionally an index buffer, and a compatible
- * SkCustomMeshSpecification.
+ * A vertex buffer, a topology, optionally an index buffer, and a compatible SkMeshSpecification.
  *
  * The data in the vertex buffer is expected to contain the attributes described by the spec
  * for vertexCount vertices beginning at vertexOffset. vertexOffset must be aligned to the
- * SkCustomMeshSpecification's vertex stride. The size of the buffer must be at least vertexOffset +
+ * SkMeshSpecification's vertex stride. The size of the buffer must be at least vertexOffset +
  * spec->stride()*vertexCount (even if vertex attributes contains pad at the end of the stride). If
  * the specified bounds does not contain all the points output by the spec's vertex program when
  * applied to the vertices in the custom mesh then the result is undefined.
@@ -201,22 +200,22 @@ private:
  * If Make() is used the implicit index sequence is 0, 1, 2, 3, ... and vertexCount must be at least
  * 3.
  */
-class SkCustomMesh {
+class SkMesh {
 public:
     class IndexBuffer  : public SkRefCnt {};
     class VertexBuffer : public SkRefCnt {};
 
-    SkCustomMesh();
-    ~SkCustomMesh();
+    SkMesh();
+    ~SkMesh();
 
-    SkCustomMesh(const SkCustomMesh&);
-    SkCustomMesh(SkCustomMesh&&);
+    SkMesh(const SkMesh&);
+    SkMesh(SkMesh&&);
 
-    SkCustomMesh& operator=(const SkCustomMesh&);
-    SkCustomMesh& operator=(SkCustomMesh&&);
+    SkMesh& operator=(const SkMesh&);
+    SkMesh& operator=(SkMesh&&);
 
     /**
-     * Makes an index buffer to be used with SkCustomMeshes. The SkData is used to determine the
+     * Makes an index buffer to be used with SkMeshes. The SkData is used to determine the
      * size and contents of the buffer. The buffer may be CPU- or GPU-backed depending on whether
      * GrDirectContext* is nullptr.
      *
@@ -229,7 +228,7 @@ public:
     static sk_sp<IndexBuffer> MakeIndexBuffer(GrDirectContext*, sk_sp<const SkData>);
 
     /**
-     * Makes a vertex buffer to be used with SkCustomMeshes. The SkData is used to determine the
+     * Makes a vertex buffer to be used with SkMeshes. The SkData is used to determine the
      * size and contents of the buffer.The buffer may be CPU- or GPU-backed depending on whether
      * GrDirectContext* is nullptr.
      *
@@ -243,24 +242,24 @@ public:
 
     enum class Mode { kTriangles, kTriangleStrip };
 
-    static SkCustomMesh Make(sk_sp<SkCustomMeshSpecification>,
-                             Mode,
-                             sk_sp<VertexBuffer>,
-                             size_t vertexCount,
-                             size_t vertexOffset,
-                             const SkRect& bounds);
+    static SkMesh Make(sk_sp<SkMeshSpecification>,
+                       Mode,
+                       sk_sp<VertexBuffer>,
+                       size_t vertexCount,
+                       size_t vertexOffset,
+                       const SkRect& bounds);
 
-    static SkCustomMesh MakeIndexed(sk_sp<SkCustomMeshSpecification>,
-                                    Mode,
-                                    sk_sp<VertexBuffer>,
-                                    size_t vertexCount,
-                                    size_t vertexOffset,
-                                    sk_sp<IndexBuffer>,
-                                    size_t indexCount,
-                                    size_t indexOffset,
-                                    const SkRect& bounds);
+    static SkMesh MakeIndexed(sk_sp<SkMeshSpecification>,
+                              Mode,
+                              sk_sp<VertexBuffer>,
+                              size_t vertexCount,
+                              size_t vertexOffset,
+                              sk_sp<IndexBuffer>,
+                              size_t indexCount,
+                              size_t indexOffset,
+                              const SkRect& bounds);
 
-    sk_sp<SkCustomMeshSpecification> spec() const { return fSpec; }
+    sk_sp<SkMeshSpecification> spec() const { return fSpec; }
 
     Mode mode() const { return fMode; }
 
@@ -279,11 +278,11 @@ public:
     bool isValid() const;
 
 private:
-    friend struct SkCustomMeshPriv;
+    friend struct SkMeshPriv;
 
     bool validate() const;
 
-    sk_sp<SkCustomMeshSpecification> fSpec;
+    sk_sp<SkMeshSpecification> fSpec;
 
     sk_sp<VertexBuffer> fVB;
     sk_sp<IndexBuffer>  fIB;

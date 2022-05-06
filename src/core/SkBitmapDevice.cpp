@@ -542,7 +542,7 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices,
 }
 
 #ifdef SK_ENABLE_SKSL
-void SkBitmapDevice::drawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&) {
+void SkBitmapDevice::drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) {
     // TODO: Implement
 }
 #endif

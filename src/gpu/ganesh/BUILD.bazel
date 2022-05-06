@@ -156,7 +156,7 @@ cc_library(
         "//src/gpu/ganesh/ops:DefaultPathRenderer_src",
         "//src/gpu/ganesh/ops:DrawAtlasOp_src",
         "//src/gpu/ganesh/ops:DrawAtlasPathOp_src",
-        "//src/gpu/ganesh/ops:DrawCustomMeshOp_src",
+        "//src/gpu/ganesh/ops:DrawMeshOp_src",
         "//src/gpu/ganesh/ops:DrawableOp_src",
         "//src/gpu/ganesh/ops:FillRRectOp_src",
         "//src/gpu/ganesh/ops:FillRectOp_src",

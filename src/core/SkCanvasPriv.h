@@ -93,10 +93,10 @@ public:
         rec->fExperimentalBackdropScale = scale;
     }
 
-    static void DrawCustomMesh(SkCanvas*,
-                               const SkCustomMesh& cm,
-                               sk_sp<SkBlender> blender,
-                               const SkPaint& paint);
+    static void DrawMesh(SkCanvas*,
+                         const SkMesh& mesh,
+                         sk_sp<SkBlender> blender,
+                         const SkPaint& paint);
 };
 
 /**

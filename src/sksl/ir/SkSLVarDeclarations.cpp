@@ -108,8 +108,8 @@ void VarDeclaration::ErrorCheck(const Context& context,
                 "variables of type '" + baseType->displayName() + "' must be uniform");
     }
     if (modifiers.fFlags & Modifiers::kUniform_Flag &&
-        (context.fConfig->fKind == ProgramKind::kCustomMeshVertex ||
-         context.fConfig->fKind == ProgramKind::kCustomMeshFragment)) {
+        (context.fConfig->fKind == ProgramKind::kMeshVertex ||
+         context.fConfig->fKind == ProgramKind::kMeshFragment)) {
         context.fErrors->error(pos, "uniforms are not permitted in custom mesh shaders");
     }
     if (modifiers.fLayout.fFlags & Layout::kColor_Flag) {

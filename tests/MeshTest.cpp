@@ -6,19 +6,19 @@
  */
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkCustomMesh.h"
+#include "include/core/SkMesh.h"
 #include "tests/Test.h"
 
-using Attribute = SkCustomMeshSpecification::Attribute;
-using Varying   = SkCustomMeshSpecification::Varying;
+using Attribute = SkMeshSpecification::Attribute;
+using Varying   = SkMeshSpecification::Varying;
 
 static const char* attr_type_str(const Attribute::Type type) {
     switch (type) {
-        case Attribute::Type::kFloat:           return "float";
-        case Attribute::Type::kFloat2:          return "float2";
-        case Attribute::Type::kFloat3:          return "float3";
-        case Attribute::Type::kFloat4:          return "float4";
-        case Attribute::Type::kUByte4_unorm:    return "ubyte4_unorm";
+        case Attribute::Type::kFloat:        return "float";
+        case Attribute::Type::kFloat2:       return "float2";
+        case Attribute::Type::kFloat3:       return "float3";
+        case Attribute::Type::kFloat4:       return "float4";
+        case Attribute::Type::kUByte4_unorm: return "ubyte4_unorm";
     }
     SkUNREACHABLE;
 }
@@ -47,10 +47,7 @@ static SkString make_description(SkSpan<const Attribute> attributes,
     result.appendf("Attributes (count=%zu, stride=%zu):\n", attributes.size(), stride);
     for (size_t i = 0; i < std::min(kMax, attributes.size()); ++i) {
         const auto& a = attributes[i];
-        result.appendf(" {%-10s, %3zu, \"%s\"}\n",
-                       attr_type_str(a.type),
-                       a.offset,
-                       a.name.c_str());
+        result.appendf(" {%-10s, %3zu, \"%s\"}\n", attr_type_str(a.type), a.offset, a.name.c_str());
     }
     if (kMax < attributes.size()) {
         result.append(" ...\n");
@@ -76,7 +73,7 @@ static bool check_for_failure(skiatest::Reporter*     r,
                               SkSpan<const Varying>   varyings,
                               const SkString&         vs,
                               const SkString&         fs) {
-    auto [spec, error] = SkCustomMeshSpecification::Make(attributes, stride, varyings, vs, fs);
+    auto [spec, error] = SkMeshSpecification::Make(attributes, stride, varyings, vs, fs);
     SkString description;
     if (!spec) {
         return true;
@@ -93,7 +90,7 @@ static bool check_for_success(skiatest::Reporter*     r,
                               SkSpan<const Varying>   varyings,
                               const SkString&         vs,
                               const SkString&         fs) {
-    auto [spec, error] = SkCustomMeshSpecification::Make(attributes, stride, varyings, vs, fs);
+    auto [spec, error] = SkMeshSpecification::Make(attributes, stride, varyings, vs, fs);
     if (spec) {
         REPORTER_ASSERT(r, error.isEmpty());
         return true;
@@ -513,7 +510,7 @@ static void test_empty_varying_name(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-DEF_TEST(CustomMeshSpec, reporter) {
+DEF_TEST(MeshSpec, reporter) {
     struct X {};
     test_good(reporter);
     test_bad_sig(reporter);

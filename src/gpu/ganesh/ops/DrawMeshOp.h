@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef DrawCustomMeshOp_DEFINED
-#define DrawCustomMeshOp_DEFINED
+#ifndef DrawMeshOp_DEFINED
+#define DrawMeshOp_DEFINED
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
@@ -16,13 +16,13 @@
 class GrColorSpaceXform;
 class GrPaint;
 class GrRecordingContext;
-class SkCustomMesh;
+class SkMesh;
 class SkMatrixProvider;
 
-namespace skgpu::v1::DrawCustomMeshOp {
+namespace skgpu::v1::DrawMeshOp {
 GrOp::Owner Make(GrRecordingContext*,
                  GrPaint&&,
-                 const SkCustomMesh&,
+                 const SkMesh&,
                  const SkMatrixProvider&,
                  GrAAType,
                  sk_sp<GrColorSpaceXform>);
@@ -34,6 +34,6 @@ GrOp::Owner Make(GrRecordingContext*,
                  const SkMatrixProvider&,
                  GrAAType,
                  sk_sp<GrColorSpaceXform>);
-}  // namespace skgpu::v1::DrawCustomMeshOp
+}  // namespace skgpu::v1::DrawMeshOp
 
-#endif  // DrawCustomMeshOp_DEFINED
+#endif  // DrawMeshOp_DEFINED

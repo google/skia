@@ -119,8 +119,8 @@ struct ProgramConfig {
                 kind == ProgramKind::kRuntimeShader ||
                 kind == ProgramKind::kRuntimeBlender ||
                 kind == ProgramKind::kPrivateRuntimeShader ||
-                kind == ProgramKind::kCustomMeshVertex ||
-                kind == ProgramKind::kCustomMeshFragment);
+                kind == ProgramKind::kMeshVertex ||
+                kind == ProgramKind::kMeshFragment);
     }
 };
 

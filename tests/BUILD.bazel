@@ -1457,17 +1457,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "CustomMeshTest_src",
-    srcs = ["CustomMeshTest.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":Test_hdr",
-        "//include/core:SkCanvas_hdr",
-        "//include/core:SkCustomMesh_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "DMSAATest_src",
     srcs = ["DMSAATest.cpp"],
     visibility = ["//:__subpackages__"],
@@ -7240,5 +7229,16 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//src/core:SkEnumBitMask_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MeshTest_src",
+    srcs = ["MeshTest.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Test_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkMesh_hdr",
     ],
 )

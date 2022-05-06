@@ -21,11 +21,11 @@
 #include "include/private/chromium/GrSlug.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
-#include "src/core/SkCustomMeshPriv.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
+#include "src/core/SkMeshPriv.h"
 #include "src/core/SkPictureData.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -882,12 +882,10 @@ void Device::drawVertices(const SkVertices* vertices,
                                       skipColorXform);
 }
 
-void Device::drawCustomMesh(const SkCustomMesh& customMesh,
-                            sk_sp<SkBlender> blender,
-                            const SkPaint& paint) {
+void Device::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawCustomMesh", fContext.get());
-    SkASSERT(customMesh.isValid());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawMesh", fContext.get());
+    SkASSERT(mesh.isValid());
 
     GrPaint grPaint;
     if (!init_vertices_paint(fContext.get(),
@@ -895,14 +893,11 @@ void Device::drawCustomMesh(const SkCustomMesh& customMesh,
                              paint,
                              this->asMatrixProvider(),
                              std::move(blender),
-                             SkCustomMeshSpecificationPriv::HasColors(*customMesh.spec()),
+                             SkMeshSpecificationPriv::HasColors(*mesh.spec()),
                              &grPaint)) {
         return;
     }
-    fSurfaceDrawContext->drawCustomMesh(this->clip(),
-                                        std::move(grPaint),
-                                        this->asMatrixProvider(),
-                                        customMesh);
+    fSurfaceDrawContext->drawMesh(this->clip(), std::move(grPaint), this->asMatrixProvider(), mesh);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

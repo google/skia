@@ -50,7 +50,6 @@ cc_library(
         ":SkCpu_src",
         ":SkCubicClipper_src",
         ":SkCubicMap_src",
-        ":SkCustomMesh_src",
         ":SkDataTable_src",
         ":SkData_src",
         ":SkDebug_src",
@@ -111,6 +110,7 @@ cc_library(
         ":SkMatrixImageFilter_src",
         ":SkMatrixInvert_src",
         ":SkMatrix_src",
+        ":SkMesh_src",
         ":SkMiniRecorder_src",
         ":SkMipmapAccessor_src",
         ":SkMipmap_src",
@@ -998,7 +998,6 @@ generated_cc_atom(
         ":SkCanvasPriv_hdr",
         ":SkClipStack_hdr",
         ":SkColorFilterBase_hdr",
-        ":SkCustomMeshPriv_hdr",
         ":SkDraw_hdr",
         ":SkGlyphRun_hdr",
         ":SkImageFilterCache_hdr",
@@ -1007,6 +1006,7 @@ generated_cc_atom(
         ":SkMSAN_hdr",
         ":SkMatrixPriv_hdr",
         ":SkMatrixUtils_hdr",
+        ":SkMeshPriv_hdr",
         ":SkPaintPriv_hdr",
         ":SkRasterClip_hdr",
         ":SkSpecialImage_hdr",
@@ -5554,13 +5554,13 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkCustomMeshPriv_hdr",
-    hdrs = ["SkCustomMeshPriv.h"],
+    name = "SkMeshPriv_hdr",
+    hdrs = ["SkMeshPriv.h"],
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLTypeShared_hdr",
-        "//include/core:SkCustomMesh_hdr",
         "//include/core:SkData_hdr",
+        "//include/core:SkMesh_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/private/gpu/ganesh:GrTypesPriv_hdr",
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",
@@ -5571,17 +5571,17 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkCustomMesh_src",
-    srcs = ["SkCustomMesh.cpp"],
+    name = "SkMesh_src",
+    srcs = ["SkMesh.cpp"],
     enforce_iwyu = True,
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkCustomMeshPriv_hdr",
+        ":SkMeshPriv_hdr",
         ":SkSafeMath_hdr",
         "//include/core:SkColorSpace_hdr",
-        "//include/core:SkCustomMesh_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkMath_hdr",
+        "//include/core:SkMesh_hdr",
         "//include/private:SkOpts_spi_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLProgramKind_hdr",

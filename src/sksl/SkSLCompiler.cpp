@@ -346,8 +346,8 @@ const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
         case ProgramKind::kRuntimeShader:        return this->loadPublicModule();           break;
         case ProgramKind::kRuntimeBlender:       return this->loadPublicModule();           break;
         case ProgramKind::kPrivateRuntimeShader: return this->loadPrivateRTShaderModule();  break;
-        case ProgramKind::kCustomMeshVertex:     return this->loadPublicModule();           break;
-        case ProgramKind::kCustomMeshFragment:   return this->loadPublicModule();           break;
+        case ProgramKind::kMeshVertex:           return this->loadPublicModule();           break;
+        case ProgramKind::kMeshFragment:         return this->loadPublicModule();           break;
         case ProgramKind::kGeneric:              return this->loadPublicModule();           break;
     }
     SkUNREACHABLE;

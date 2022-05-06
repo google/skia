@@ -59,7 +59,7 @@
 #include <utility>
 
 #if SK_SUPPORT_GPU
-class SkCustomMesh;
+class SkMesh;
 #endif
 class SkBlender;
 class SkVertices;
@@ -1141,7 +1141,7 @@ void SkSVGDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPain
 }
 
 #ifdef SK_ENABLE_SKSL
-void SkSVGDevice::drawCustomMesh(const SkCustomMesh&, sk_sp<SkBlender>, const SkPaint&) {
+void SkSVGDevice::drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) {
     // todo
 }
 #endif
