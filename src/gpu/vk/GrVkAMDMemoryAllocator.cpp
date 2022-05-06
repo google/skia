@@ -104,7 +104,7 @@ GrVkAMDMemoryAllocator::~GrVkAMDMemoryAllocator() {
 
 VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
                                                      GrVkBackendMemory* backendMemory) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
     VmaAllocationCreateInfo info;
     info.flags = 0;
     info.usage = VMA_MEMORY_USAGE_UNKNOWN;

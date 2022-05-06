@@ -501,16 +501,13 @@ void OpsTask::onPrepare(GrOpFlushState* flushState) {
         (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return;
     }
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
 
     flushState->setSampledProxyArray(&fSampledProxies);
     GrSurfaceProxyView dstView(sk_ref_sp(this->target(0)), fTargetOrigin, fTargetSwizzle);
     // Loop over the ops that haven't yet been prepared.
     for (const auto& chain : fOpChains) {
         if (chain.shouldExecute()) {
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-            TRACE_EVENT0("skia.gpu", chain.head()->name());
-#endif
             GrOpFlushState::OpArgs opArgs(chain.head(),
                                           dstView,
                                           fUsesMSAASurface,
@@ -546,8 +543,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
     if (this->isColorNoOp() || fClippedContentBounds.isEmpty()) {
         return false;
     }
-
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
 
     // Make sure load ops are not kClear if the GPU needs to use draws for clears
     SkASSERT(fColorLoadOp != GrLoadOp::kClear ||
@@ -636,9 +632,6 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
         if (!chain.shouldExecute()) {
             continue;
         }
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        TRACE_EVENT0("skia.gpu", chain.head()->name());
-#endif
 
         GrOpFlushState::OpArgs opArgs(chain.head(),
                                       dstView,
