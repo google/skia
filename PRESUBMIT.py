@@ -90,7 +90,7 @@ def _IfDefChecks(input_api, output_api):
     affected_file_path = affected_file.LocalPath()
     if affected_file_path.endswith('.cpp') or affected_file_path.endswith('.h'):
       f = open(affected_file_path)
-      for line in f.xreadlines():
+      for line in f:
         if is_comment(line) or is_empty_line(line):
           continue
         # The below will be the first real line after comments and newlines.
@@ -137,7 +137,7 @@ def _InfraTests(input_api, output_api):
              for f in input_api.AffectedFiles()):
     return results
 
-  cmd = ['python', os.path.join('infra', 'bots', 'infra_tests.py')]
+  cmd = ['python3', os.path.join('infra', 'bots', 'infra_tests.py')]
   try:
     subprocess.check_output(cmd)
   except subprocess.CalledProcessError as e:
@@ -156,7 +156,7 @@ def _CheckGNFormatted(input_api, output_api):
   if not files:
     return []
 
-  cmd = ['python', os.path.join('bin', 'fetch-gn')]
+  cmd = ['python3', os.path.join('bin', 'fetch-gn')]
   try:
     subprocess.check_output(cmd)
   except subprocess.CalledProcessError as e:
@@ -197,7 +197,7 @@ def _CheckGitConflictMarkers(input_api, output_api):
 def _CheckIncludesFormatted(input_api, output_api):
   """Make sure #includes in files we're changing have been formatted."""
   files = [str(f) for f in input_api.AffectedFiles() if f.Action() != 'D']
-  cmd = ['python',
+  cmd = ['python3',
          'tools/rewrite_includes.py',
          '--dry-run'] + files
   if 0 != subprocess.call(cmd):
@@ -227,7 +227,7 @@ def _CheckDEPSValid(input_api, output_api):
       break
   else:
     return results
-  cmd = ['python', script]
+  cmd = ['python3', script]
   try:
     subprocess.check_output(cmd, stderr=subprocess.STDOUT)
   except subprocess.CalledProcessError as e:
@@ -241,7 +241,7 @@ def _RegenerateAllExamplesCPP(input_api, output_api):
              for f in input_api.AffectedFiles()):
     return []
   command_str = 'tools/fiddle/make_all_examples_cpp.py'
-  cmd = ['python', command_str]
+  cmd = ['python3', command_str]
   if 0 != subprocess.call(cmd):
     return [output_api.PresubmitError('`%s` failed' % ' '.join(cmd))]
 
