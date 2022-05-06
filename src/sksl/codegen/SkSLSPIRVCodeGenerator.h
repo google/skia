@@ -110,9 +110,7 @@ public:
             , fCapabilities(0)
             , fIdCount(1)
             , fCurrentBlock(0)
-            , fSynthetics(fContext, /*builtin=*/true) {
-        this->setupIntrinsics();
-    }
+            , fSynthetics(fContext, /*builtin=*/true) {}
 
     bool generateCode() override;
 
@@ -120,7 +118,8 @@ private:
     enum IntrinsicOpcodeKind {
         kGLSL_STD_450_IntrinsicOpcodeKind,
         kSPIRV_IntrinsicOpcodeKind,
-        kSpecial_IntrinsicOpcodeKind
+        kSpecial_IntrinsicOpcodeKind,
+        kInvalid_IntrinsicOpcodeKind,
     };
 
     enum SpecialIntrinsic {
@@ -150,8 +149,6 @@ private:
         const Type* type;
         std::unique_ptr<SPIRVCodeGenerator::LValue> lvalue;
     };
-
-    void setupIntrinsics();
 
     /**
      * Pass in the type to automatically add a RelaxedPrecision decoration for the id when
@@ -523,7 +520,7 @@ private:
         int32_t unsignedOp;
         int32_t boolOp;
     };
-    SkTHashMap<IntrinsicKind, Intrinsic> fIntrinsicMap;
+    Intrinsic getIntrinsic(IntrinsicKind) const;
     SkTHashMap<const FunctionDeclaration*, SpvId> fFunctionMap;
     SkTHashMap<const Variable*, SpvId> fVariableMap;
     SkTHashMap<const Type*, SpvId> fStructMap;

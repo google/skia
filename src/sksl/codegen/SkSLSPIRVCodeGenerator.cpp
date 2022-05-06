@@ -139,7 +139,8 @@ struct SPIRVCodeGenerator::Word {
 // https://github.com/KhronosGroup/SPIRV-Headers/blob/master/include/spirv/spir-v.xml#L84
 static const int32_t SKSL_MAGIC  = 0x001F0000;
 
-void SPIRVCodeGenerator::setupIntrinsics() {
+SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik) const {
+
 #define ALL_GLSL(x) Intrinsic{kGLSL_STD_450_IntrinsicOpcodeKind, GLSLstd450 ## x, \
                               GLSLstd450 ## x, GLSLstd450 ## x, GLSLstd450 ## x}
 #define BY_TYPE_GLSL(ifFloat, ifInt, ifUInt) Intrinsic{kGLSL_STD_450_IntrinsicOpcodeKind, \
@@ -156,120 +157,135 @@ void SPIRVCodeGenerator::setupIntrinsics() {
 #define SPECIAL(x) Intrinsic{kSpecial_IntrinsicOpcodeKind, k ## x ## _SpecialIntrinsic, \
                              k ## x ## _SpecialIntrinsic, k ## x ## _SpecialIntrinsic,  \
                              k ## x ## _SpecialIntrinsic}
-    fIntrinsicMap[k_round_IntrinsicKind]         = ALL_GLSL(Round);
-    fIntrinsicMap[k_roundEven_IntrinsicKind]     = ALL_GLSL(RoundEven);
-    fIntrinsicMap[k_trunc_IntrinsicKind]         = ALL_GLSL(Trunc);
-    fIntrinsicMap[k_abs_IntrinsicKind]           = BY_TYPE_GLSL(FAbs, SAbs, SAbs);
-    fIntrinsicMap[k_sign_IntrinsicKind]          = BY_TYPE_GLSL(FSign, SSign, SSign);
-    fIntrinsicMap[k_floor_IntrinsicKind]         = ALL_GLSL(Floor);
-    fIntrinsicMap[k_ceil_IntrinsicKind]          = ALL_GLSL(Ceil);
-    fIntrinsicMap[k_fract_IntrinsicKind]         = ALL_GLSL(Fract);
-    fIntrinsicMap[k_radians_IntrinsicKind]       = ALL_GLSL(Radians);
-    fIntrinsicMap[k_degrees_IntrinsicKind]       = ALL_GLSL(Degrees);
-    fIntrinsicMap[k_sin_IntrinsicKind]           = ALL_GLSL(Sin);
-    fIntrinsicMap[k_cos_IntrinsicKind]           = ALL_GLSL(Cos);
-    fIntrinsicMap[k_tan_IntrinsicKind]           = ALL_GLSL(Tan);
-    fIntrinsicMap[k_asin_IntrinsicKind]          = ALL_GLSL(Asin);
-    fIntrinsicMap[k_acos_IntrinsicKind]          = ALL_GLSL(Acos);
-    fIntrinsicMap[k_atan_IntrinsicKind]          = SPECIAL(Atan);
-    fIntrinsicMap[k_sinh_IntrinsicKind]          = ALL_GLSL(Sinh);
-    fIntrinsicMap[k_cosh_IntrinsicKind]          = ALL_GLSL(Cosh);
-    fIntrinsicMap[k_tanh_IntrinsicKind]          = ALL_GLSL(Tanh);
-    fIntrinsicMap[k_asinh_IntrinsicKind]         = ALL_GLSL(Asinh);
-    fIntrinsicMap[k_acosh_IntrinsicKind]         = ALL_GLSL(Acosh);
-    fIntrinsicMap[k_atanh_IntrinsicKind]         = ALL_GLSL(Atanh);
-    fIntrinsicMap[k_pow_IntrinsicKind]           = ALL_GLSL(Pow);
-    fIntrinsicMap[k_exp_IntrinsicKind]           = ALL_GLSL(Exp);
-    fIntrinsicMap[k_log_IntrinsicKind]           = ALL_GLSL(Log);
-    fIntrinsicMap[k_exp2_IntrinsicKind]          = ALL_GLSL(Exp2);
-    fIntrinsicMap[k_log2_IntrinsicKind]          = ALL_GLSL(Log2);
-    fIntrinsicMap[k_sqrt_IntrinsicKind]          = ALL_GLSL(Sqrt);
-    fIntrinsicMap[k_inverse_IntrinsicKind]       = ALL_GLSL(MatrixInverse);
-    fIntrinsicMap[k_outerProduct_IntrinsicKind]  = ALL_SPIRV(OuterProduct);
-    fIntrinsicMap[k_transpose_IntrinsicKind]     = ALL_SPIRV(Transpose);
-    fIntrinsicMap[k_isinf_IntrinsicKind]         = ALL_SPIRV(IsInf);
-    fIntrinsicMap[k_isnan_IntrinsicKind]         = ALL_SPIRV(IsNan);
-    fIntrinsicMap[k_inversesqrt_IntrinsicKind]   = ALL_GLSL(InverseSqrt);
-    fIntrinsicMap[k_determinant_IntrinsicKind]   = ALL_GLSL(Determinant);
-    fIntrinsicMap[k_matrixCompMult_IntrinsicKind] = SPECIAL(MatrixCompMult);
-    fIntrinsicMap[k_matrixInverse_IntrinsicKind] = ALL_GLSL(MatrixInverse);
-    fIntrinsicMap[k_mod_IntrinsicKind]           = SPECIAL(Mod);
-    fIntrinsicMap[k_modf_IntrinsicKind]          = ALL_GLSL(Modf);
-    fIntrinsicMap[k_min_IntrinsicKind]           = SPECIAL(Min);
-    fIntrinsicMap[k_max_IntrinsicKind]           = SPECIAL(Max);
-    fIntrinsicMap[k_clamp_IntrinsicKind]         = SPECIAL(Clamp);
-    fIntrinsicMap[k_saturate_IntrinsicKind]      = SPECIAL(Saturate);
-    fIntrinsicMap[k_dot_IntrinsicKind]           = FLOAT_SPIRV(Dot);
-    fIntrinsicMap[k_mix_IntrinsicKind]           = SPECIAL(Mix);
-    fIntrinsicMap[k_step_IntrinsicKind]          = SPECIAL(Step);
-    fIntrinsicMap[k_smoothstep_IntrinsicKind]    = SPECIAL(SmoothStep);
-    fIntrinsicMap[k_fma_IntrinsicKind]           = ALL_GLSL(Fma);
-    fIntrinsicMap[k_frexp_IntrinsicKind]         = ALL_GLSL(Frexp);
-    fIntrinsicMap[k_ldexp_IntrinsicKind]         = ALL_GLSL(Ldexp);
 
-#define PACK(type) fIntrinsicMap[k_pack##type##_IntrinsicKind] = ALL_GLSL(Pack##type); \
-                   fIntrinsicMap[k_unpack##type##_IntrinsicKind] = ALL_GLSL(Unpack##type)
-    PACK(Snorm4x8);
-    PACK(Unorm4x8);
-    PACK(Snorm2x16);
-    PACK(Unorm2x16);
-    PACK(Half2x16);
-    PACK(Double2x32);
+    switch (ik) {
+        case k_round_IntrinsicKind:          return ALL_GLSL(Round);
+        case k_roundEven_IntrinsicKind:      return ALL_GLSL(RoundEven);
+        case k_trunc_IntrinsicKind:          return ALL_GLSL(Trunc);
+        case k_abs_IntrinsicKind:            return BY_TYPE_GLSL(FAbs, SAbs, SAbs);
+        case k_sign_IntrinsicKind:           return BY_TYPE_GLSL(FSign, SSign, SSign);
+        case k_floor_IntrinsicKind:          return ALL_GLSL(Floor);
+        case k_ceil_IntrinsicKind:           return ALL_GLSL(Ceil);
+        case k_fract_IntrinsicKind:          return ALL_GLSL(Fract);
+        case k_radians_IntrinsicKind:        return ALL_GLSL(Radians);
+        case k_degrees_IntrinsicKind:        return ALL_GLSL(Degrees);
+        case k_sin_IntrinsicKind:            return ALL_GLSL(Sin);
+        case k_cos_IntrinsicKind:            return ALL_GLSL(Cos);
+        case k_tan_IntrinsicKind:            return ALL_GLSL(Tan);
+        case k_asin_IntrinsicKind:           return ALL_GLSL(Asin);
+        case k_acos_IntrinsicKind:           return ALL_GLSL(Acos);
+        case k_atan_IntrinsicKind:           return SPECIAL(Atan);
+        case k_sinh_IntrinsicKind:           return ALL_GLSL(Sinh);
+        case k_cosh_IntrinsicKind:           return ALL_GLSL(Cosh);
+        case k_tanh_IntrinsicKind:           return ALL_GLSL(Tanh);
+        case k_asinh_IntrinsicKind:          return ALL_GLSL(Asinh);
+        case k_acosh_IntrinsicKind:          return ALL_GLSL(Acosh);
+        case k_atanh_IntrinsicKind:          return ALL_GLSL(Atanh);
+        case k_pow_IntrinsicKind:            return ALL_GLSL(Pow);
+        case k_exp_IntrinsicKind:            return ALL_GLSL(Exp);
+        case k_log_IntrinsicKind:            return ALL_GLSL(Log);
+        case k_exp2_IntrinsicKind:           return ALL_GLSL(Exp2);
+        case k_log2_IntrinsicKind:           return ALL_GLSL(Log2);
+        case k_sqrt_IntrinsicKind:           return ALL_GLSL(Sqrt);
+        case k_inverse_IntrinsicKind:        return ALL_GLSL(MatrixInverse);
+        case k_outerProduct_IntrinsicKind:   return ALL_SPIRV(OuterProduct);
+        case k_transpose_IntrinsicKind:      return ALL_SPIRV(Transpose);
+        case k_isinf_IntrinsicKind:          return ALL_SPIRV(IsInf);
+        case k_isnan_IntrinsicKind:          return ALL_SPIRV(IsNan);
+        case k_inversesqrt_IntrinsicKind:    return ALL_GLSL(InverseSqrt);
+        case k_determinant_IntrinsicKind:    return ALL_GLSL(Determinant);
+        case k_matrixCompMult_IntrinsicKind: return SPECIAL(MatrixCompMult);
+        case k_matrixInverse_IntrinsicKind:  return ALL_GLSL(MatrixInverse);
+        case k_mod_IntrinsicKind:            return SPECIAL(Mod);
+        case k_modf_IntrinsicKind:           return ALL_GLSL(Modf);
+        case k_min_IntrinsicKind:            return SPECIAL(Min);
+        case k_max_IntrinsicKind:            return SPECIAL(Max);
+        case k_clamp_IntrinsicKind:          return SPECIAL(Clamp);
+        case k_saturate_IntrinsicKind:       return SPECIAL(Saturate);
+        case k_dot_IntrinsicKind:            return FLOAT_SPIRV(Dot);
+        case k_mix_IntrinsicKind:            return SPECIAL(Mix);
+        case k_step_IntrinsicKind:           return SPECIAL(Step);
+        case k_smoothstep_IntrinsicKind:     return SPECIAL(SmoothStep);
+        case k_fma_IntrinsicKind:            return ALL_GLSL(Fma);
+        case k_frexp_IntrinsicKind:          return ALL_GLSL(Frexp);
+        case k_ldexp_IntrinsicKind:          return ALL_GLSL(Ldexp);
+
+#define PACK(type) case k_pack##type##_IntrinsicKind:   return ALL_GLSL(Pack##type); \
+                   case k_unpack##type##_IntrinsicKind: return ALL_GLSL(Unpack##type)
+        PACK(Snorm4x8);
+        PACK(Unorm4x8);
+        PACK(Snorm2x16);
+        PACK(Unorm2x16);
+        PACK(Half2x16);
+        PACK(Double2x32);
 #undef PACK
-    fIntrinsicMap[k_length_IntrinsicKind]      = ALL_GLSL(Length);
-    fIntrinsicMap[k_distance_IntrinsicKind]    = ALL_GLSL(Distance);
-    fIntrinsicMap[k_cross_IntrinsicKind]       = ALL_GLSL(Cross);
-    fIntrinsicMap[k_normalize_IntrinsicKind]   = ALL_GLSL(Normalize);
-    fIntrinsicMap[k_faceforward_IntrinsicKind] = ALL_GLSL(FaceForward);
-    fIntrinsicMap[k_reflect_IntrinsicKind]     = ALL_GLSL(Reflect);
-    fIntrinsicMap[k_refract_IntrinsicKind]     = ALL_GLSL(Refract);
-    fIntrinsicMap[k_bitCount_IntrinsicKind]    = ALL_SPIRV(BitCount);
-    fIntrinsicMap[k_findLSB_IntrinsicKind]     = ALL_GLSL(FindILsb);
-    fIntrinsicMap[k_findMSB_IntrinsicKind]     = BY_TYPE_GLSL(FindSMsb, FindSMsb, FindUMsb);
-    fIntrinsicMap[k_dFdx_IntrinsicKind]        = FLOAT_SPIRV(DPdx);
-    fIntrinsicMap[k_dFdy_IntrinsicKind]        = SPECIAL(DFdy);
-    fIntrinsicMap[k_fwidth_IntrinsicKind]      = FLOAT_SPIRV(Fwidth);
-    fIntrinsicMap[k_makeSampler2D_IntrinsicKind] = SPECIAL(SampledImage);
 
-    fIntrinsicMap[k_sample_IntrinsicKind]      = SPECIAL(Texture);
-    fIntrinsicMap[k_subpassLoad_IntrinsicKind] = SPECIAL(SubpassLoad);
+        case k_length_IntrinsicKind:        return ALL_GLSL(Length);
+        case k_distance_IntrinsicKind:      return ALL_GLSL(Distance);
+        case k_cross_IntrinsicKind:         return ALL_GLSL(Cross);
+        case k_normalize_IntrinsicKind:     return ALL_GLSL(Normalize);
+        case k_faceforward_IntrinsicKind:   return ALL_GLSL(FaceForward);
+        case k_reflect_IntrinsicKind:       return ALL_GLSL(Reflect);
+        case k_refract_IntrinsicKind:       return ALL_GLSL(Refract);
+        case k_bitCount_IntrinsicKind:      return ALL_SPIRV(BitCount);
+        case k_findLSB_IntrinsicKind:       return ALL_GLSL(FindILsb);
+        case k_findMSB_IntrinsicKind:       return BY_TYPE_GLSL(FindSMsb, FindSMsb, FindUMsb);
+        case k_dFdx_IntrinsicKind:          return FLOAT_SPIRV(DPdx);
+        case k_dFdy_IntrinsicKind:          return SPECIAL(DFdy);
+        case k_fwidth_IntrinsicKind:        return FLOAT_SPIRV(Fwidth);
+        case k_makeSampler2D_IntrinsicKind: return SPECIAL(SampledImage);
 
-    fIntrinsicMap[k_floatBitsToInt_IntrinsicKind]   = ALL_SPIRV(Bitcast);
-    fIntrinsicMap[k_floatBitsToUint_IntrinsicKind]  = ALL_SPIRV(Bitcast);
-    fIntrinsicMap[k_intBitsToFloat_IntrinsicKind]   = ALL_SPIRV(Bitcast);
-    fIntrinsicMap[k_uintBitsToFloat_IntrinsicKind]  = ALL_SPIRV(Bitcast);
+        case k_sample_IntrinsicKind:      return SPECIAL(Texture);
+        case k_subpassLoad_IntrinsicKind: return SPECIAL(SubpassLoad);
 
-    fIntrinsicMap[k_any_IntrinsicKind]              = BOOL_SPIRV(Any);
-    fIntrinsicMap[k_all_IntrinsicKind]              = BOOL_SPIRV(All);
-    fIntrinsicMap[k_not_IntrinsicKind]              = BOOL_SPIRV(LogicalNot);
-    fIntrinsicMap[k_equal_IntrinsicKind]            = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpFOrdEqual, SpvOpIEqual,
-                                                                SpvOpIEqual, SpvOpLogicalEqual};
-    fIntrinsicMap[k_notEqual_IntrinsicKind]         = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpFUnordNotEqual, SpvOpINotEqual,
-                                                                SpvOpINotEqual,
-                                                                SpvOpLogicalNotEqual};
-    fIntrinsicMap[k_lessThan_IntrinsicKind]         = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpFOrdLessThan,
-                                                                SpvOpSLessThan,
-                                                                SpvOpULessThan,
-                                                                SpvOpUndef};
-    fIntrinsicMap[k_lessThanEqual_IntrinsicKind]    = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpFOrdLessThanEqual,
-                                                                SpvOpSLessThanEqual,
-                                                                SpvOpULessThanEqual,
-                                                                SpvOpUndef};
-    fIntrinsicMap[k_greaterThan_IntrinsicKind]      = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpFOrdGreaterThan,
-                                                                SpvOpSGreaterThan,
-                                                                SpvOpUGreaterThan,
-                                                                SpvOpUndef};
-    fIntrinsicMap[k_greaterThanEqual_IntrinsicKind] = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpFOrdGreaterThanEqual,
-                                                                SpvOpSGreaterThanEqual,
-                                                                SpvOpUGreaterThanEqual,
-                                                                SpvOpUndef};
-// interpolateAt* not yet supported...
+        case k_floatBitsToInt_IntrinsicKind:  return ALL_SPIRV(Bitcast);
+        case k_floatBitsToUint_IntrinsicKind: return ALL_SPIRV(Bitcast);
+        case k_intBitsToFloat_IntrinsicKind:  return ALL_SPIRV(Bitcast);
+        case k_uintBitsToFloat_IntrinsicKind: return ALL_SPIRV(Bitcast);
+
+        case k_any_IntrinsicKind:   return BOOL_SPIRV(Any);
+        case k_all_IntrinsicKind:   return BOOL_SPIRV(All);
+        case k_not_IntrinsicKind:   return BOOL_SPIRV(LogicalNot);
+
+        case k_equal_IntrinsicKind:
+            return Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                             SpvOpFOrdEqual,
+                             SpvOpIEqual,
+                             SpvOpIEqual,
+                             SpvOpLogicalEqual};
+        case k_notEqual_IntrinsicKind:
+            return Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                             SpvOpFUnordNotEqual,
+                             SpvOpINotEqual,
+                             SpvOpINotEqual,
+                             SpvOpLogicalNotEqual};
+        case k_lessThan_IntrinsicKind:
+            return Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                             SpvOpFOrdLessThan,
+                             SpvOpSLessThan,
+                             SpvOpULessThan,
+                             SpvOpUndef};
+        case k_lessThanEqual_IntrinsicKind:
+            return Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                             SpvOpFOrdLessThanEqual,
+                             SpvOpSLessThanEqual,
+                             SpvOpULessThanEqual,
+                             SpvOpUndef};
+        case k_greaterThan_IntrinsicKind:
+            return Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                             SpvOpFOrdGreaterThan,
+                             SpvOpSGreaterThan,
+                             SpvOpUGreaterThan,
+                             SpvOpUndef};
+        case k_greaterThanEqual_IntrinsicKind:
+            return Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                             SpvOpFOrdGreaterThanEqual,
+                             SpvOpSGreaterThanEqual,
+                             SpvOpUGreaterThanEqual,
+                             SpvOpUndef};
+        default:
+            return Intrinsic{kInvalid_IntrinsicOpcodeKind, 0, 0, 0, 0};
+    }
 }
 
 void SPIRVCodeGenerator::writeWord(int32_t word, OutputStream& out) {
@@ -1203,24 +1219,24 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
 
 SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream& out) {
     const FunctionDeclaration& function = c.function();
-    Intrinsic* intrinsic = fIntrinsicMap.find(function.intrinsicKind());
-    if (!intrinsic) {
+    Intrinsic intrinsic = this->getIntrinsic(function.intrinsicKind());
+    if (intrinsic.opKind == kInvalid_IntrinsicOpcodeKind) {
         fContext.fErrors->error(c.fPosition, "unsupported intrinsic '" + function.description() +
                 "'");
         return NA;
     }
     const ExpressionArray& arguments = c.arguments();
-    int32_t intrinsicId = intrinsic->floatOp;
+    int32_t intrinsicId = intrinsic.floatOp;
     if (arguments.size() > 0) {
         const Type& type = arguments[0]->type();
-        if (intrinsic->opKind == kSpecial_IntrinsicOpcodeKind) {
+        if (intrinsic.opKind == kSpecial_IntrinsicOpcodeKind) {
             // Keep the default float op.
         } else {
-            intrinsicId = pick_by_type(type, intrinsic->floatOp, intrinsic->signedOp,
-                                       intrinsic->unsignedOp, intrinsic->boolOp);
+            intrinsicId = pick_by_type(type, intrinsic.floatOp, intrinsic.signedOp,
+                                       intrinsic.unsignedOp, intrinsic.boolOp);
         }
     }
-    switch (intrinsic->opKind) {
+    switch (intrinsic.opKind) {
         case kGLSL_STD_450_IntrinsicOpcodeKind: {
             SpvId result = this->nextId(&c.type());
             std::vector<SpvId> argumentIds;
