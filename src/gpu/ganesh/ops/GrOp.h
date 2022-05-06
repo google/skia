@@ -173,7 +173,7 @@ public:
     void prePrepare(GrRecordingContext* context, const GrSurfaceProxyView& dstView,
                     GrAppliedClip* clip, const GrDstProxyView& dstProxyView,
                     GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp) {
-        TRACE_EVENT0("skia.gpu", name());
+        TRACE_EVENT0_ALWAYS("skia.gpu", name());
         this->onPrePrepare(context, dstView, clip, dstProxyView, renderPassXferBarriers,
                            colorLoadOp);
     }
@@ -183,13 +183,13 @@ public:
      * necessary before execute() is called.
      */
     void prepare(GrOpFlushState* state) {
-        TRACE_EVENT0("skia.gpu", name());
+        TRACE_EVENT0_ALWAYS("skia.gpu", name());
         this->onPrepare(state);
     }
 
     /** Issues the op's commands to GrGpu. */
     void execute(GrOpFlushState* state, const SkRect& chainBounds) {
-        TRACE_EVENT0("skia.gpu", name());
+        TRACE_EVENT0_ALWAYS("skia.gpu", name());
         this->onExecute(state, chainBounds);
     }
 
