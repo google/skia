@@ -825,16 +825,8 @@ protected:
 
         SkMatrix drawMatrix = this->localToDevice();
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
-        const uint64_t uniqueID = glyphRunList.uniqueID();
-        for (auto& glyphRun : glyphRunList) {
-            fPainter.processGlyphRun(nullptr,
-                                     glyphRun,
-                                     drawMatrix,
-                                     drawingPaint,
-                                     control,
-                                     "Cache Diff",
-                                     uniqueID);
-        }
+        fPainter.categorizeGlyphRunList(
+                nullptr, glyphRunList, drawMatrix, drawingPaint, control, "Cache Diff");
     }
 
     sk_sp<GrSlug> convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
@@ -856,14 +848,8 @@ protected:
 
         // Use the lightweight strike cache provided by SkRemoteGlyphCache through fPainter to do
         // the analysis.
-        for (auto& glyphRun : glyphRunList) {
-            fPainter.processGlyphRun(nullptr,
-                                     glyphRun,
-                                     positionMatrix,
-                                     drawingPaint,
-                                     control,
-                                     "Convert Slug Analysis");
-        }
+        fPainter.categorizeGlyphRunList(
+            nullptr, glyphRunList, positionMatrix, drawingPaint, control, "Convert Slug Analysis");
 
         // Use the glyph strike cache to get actual glyph information.
         return skgpu::v1::MakeSlug(this->localToDevice(),

@@ -22,7 +22,6 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
@@ -2188,16 +2187,8 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
     sk_sp<GrTextBlob> blob = sk_sp<GrTextBlob>(initializer.initialize(
             std::move(alloc), totalMemoryAllocated, positionMatrix, initialLuminance));
 
-    const uint64_t uniqueID = glyphRunList.uniqueID();
-    for (auto& glyphRun : glyphRunList) {
-        painter->processGlyphRun(blob.get(),
-                                 glyphRun,
-                                 positionMatrix,
-                                 paint,
-                                 control,
-                                 "GrTextBlob",
-                                 uniqueID);
-    }
+    painter->categorizeGlyphRunList(
+            blob.get(), glyphRunList, positionMatrix, paint, control, "GrTextBlob");
 
     return blob;
 }
@@ -2516,16 +2507,8 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
             std::move(alloc), glyphRunList.sourceBounds(), initialPaint, positionMatrix,
             glyphRunList.origin()));
 
-    const uint64_t uniqueID = glyphRunList.uniqueID();
-    for (auto& glyphRun : glyphRunList) {
-        painter->processGlyphRun(slug.get(),
-                                 glyphRun,
-                                 positionMatrix,
-                                 drawingPaint,
-                                 control,
-                                 "Make Slug",
-                                 uniqueID);
-    }
+    painter->categorizeGlyphRunList(
+            slug.get(), glyphRunList, positionMatrix, drawingPaint, control, "Make Slug");
 
     // There is nothing to draw here. This is particularly a problem with RSX form blobs where a
     // single space becomes a run with no glyphs.

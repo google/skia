@@ -85,13 +85,12 @@ public:
     // A nullptr for process means that the calls to the cache will be performed, but none of the
     // callbacks will be called.
     // N.B. The positionMatrix has already been translated to the glyph run list origin.
-    void processGlyphRun(SkGlyphRunPainterInterface* process,
-                         const SkGlyphRun& glyphRun,
-                         const SkMatrix& positionMatrix,
-                         const SkPaint& drawPaint,
-                         const GrSDFTControl& control,
-                         const char* tag = nullptr,
-                         uint64_t blobID = SK_InvalidUniqueID);
+    void categorizeGlyphRunList(SkGlyphRunPainterInterface* process,
+                                const SkGlyphRunList& glyphRunList,
+                                const SkMatrix& positionMatrix,
+                                const SkPaint& drawPaint,
+                                const GrSDFTControl& control,
+                                const char* tag = nullptr);
 #endif  // SK_SUPPORT_GPU
 
 private:

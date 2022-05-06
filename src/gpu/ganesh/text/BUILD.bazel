@@ -169,7 +169,6 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrBlurUtils_hdr",
         "//src/gpu/ganesh:GrClip_hdr",
         "//src/gpu/ganesh:GrMeshDrawTarget_hdr",
-        "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
         "//src/gpu/ganesh:GrStyle_hdr",
         "//src/gpu/ganesh:SkGr_hdr",
         "//src/gpu/ganesh/effects:GrDistanceFieldGeoProc_hdr",
