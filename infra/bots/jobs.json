@@ -523,6 +523,7 @@
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL3_ASAN_Vulkan"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-OOPRDDL_ASAN"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-OOPRDDL_ASAN_Vulkan"},
+  {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-FailFlushTimeCallbacks_ASAN"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-DDL3_TSAN"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-DDL3_TSAN_Vulkan"},
