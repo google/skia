@@ -161,7 +161,7 @@ public:
                                     SkScalar strikeToSourceScale) = 0;
 
     virtual void processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        const SkFont& runFont,
+                                        sk_sp<SkStrike>&& strike,
                                         const SkDescriptor& descriptor,
                                         SkScalar strikeToSourceScale) = 0;
 
