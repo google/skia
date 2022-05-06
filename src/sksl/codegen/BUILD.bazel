@@ -455,6 +455,7 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLLiteral_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
         "//src/sksl/ir:SkSLReturnStatement_hdr",
+        "//src/sksl/ir:SkSLSwizzle_hdr",
         "//src/sksl/ir:SkSLSymbolTable_hdr",
         "//src/sksl/ir:SkSLType_hdr",
         "//src/sksl/ir:SkSLVarDeclarations_hdr",

@@ -305,11 +305,17 @@ sksl_spirv_tests = [
 ]
 
 sksl_wgsl_tests = [
+  "/sksl/wgsl/BuiltinFragmentStageIO.sksl",
+  "/sksl/wgsl/MainHasFragCoordParameter.sksl",
+  "/sksl/wgsl/MainHasVoidReturn.sksl",
+  "/sksl/wgsl/MainDoesNotHaveFragCoordParameter.sksl",
   "/sksl/wgsl/UserDefinedPipelineIO.sksl",
   "/sksl/wgsl/VertexPositionOutputIsAlwaysDeclared.vert",
 
   # Shared tests that are supported so far:
   "/sksl/shared/HelloWorld.sksl",
+  "/sksl/shared/InstanceID.vert",
+  "/sksl/shared/VertexID.vert",
 ]
 
 sksl_shared_tests = [

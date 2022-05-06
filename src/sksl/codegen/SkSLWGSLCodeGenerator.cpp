@@ -46,6 +46,7 @@
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -133,9 +134,9 @@ std::string to_ptr_type(const Type& type,
            ">";
 }
 
-std::string_view to_wgsl_builtin_name(WGSLCodeGenerator::Builtin kind) {
+std::string_view wgsl_builtin_name(WGSLCodeGenerator::Builtin builtin) {
     using Builtin = WGSLCodeGenerator::Builtin;
-    switch (kind) {
+    switch (builtin) {
         case Builtin::kVertexIndex:
             return "vertex_index";
         case Builtin::kInstanceIndex:
@@ -166,6 +167,56 @@ std::string_view to_wgsl_builtin_name(WGSLCodeGenerator::Builtin kind) {
 
     SkDEBUGFAIL("unsupported builtin");
     return "unsupported";
+}
+
+std::string_view wgsl_builtin_type(WGSLCodeGenerator::Builtin builtin) {
+    using Builtin = WGSLCodeGenerator::Builtin;
+    switch (builtin) {
+        case Builtin::kVertexIndex:
+            return "u32";
+        case Builtin::kInstanceIndex:
+            return "u32";
+        case Builtin::kPosition:
+            return "vec4<f32>";
+        case Builtin::kFrontFacing:
+            return "bool";
+        case Builtin::kSampleIndex:
+            return "u32";
+        case Builtin::kFragDepth:
+            return "f32";
+        case Builtin::kSampleMask:
+            return "u32";
+        case Builtin::kLocalInvocationId:
+            return "vec3<u32>";
+        case Builtin::kLocalInvocationIndex:
+            return "u32";
+        case Builtin::kGlobalInvocationId:
+            return "vec3<u32>";
+        case Builtin::kWorkgroupId:
+            return "vec3<u32>";
+        case Builtin::kNumWorkgroups:
+            return "vec3<u32>";
+        default:
+            break;
+    }
+
+    SkDEBUGFAIL("unsupported builtin");
+    return "unsupported";
+}
+
+// Some built-in variables have a type that differs from their SkSL counterpart (e.g. signed vs
+// unsigned integer). We handle these cases with an explicit type conversion during a variable
+// reference. Returns the WGSL type of the conversion target if conversion is needed, otherwise
+// returns std::nullopt.
+std::optional<std::string_view> needs_builtin_type_conversion(const Variable& v) {
+    switch (v.modifiers().fLayout.fBuiltin) {
+        case SK_VERTEXID_BUILTIN:
+        case SK_INSTANCEID_BUILTIN:
+            return {"i32"};
+        default:
+            break;
+    }
+    return std::nullopt;
 }
 
 // Map a SkSL builtin flag to a WGSL builtin kind. Returns std::nullopt if `builtin` is not
@@ -466,14 +517,15 @@ void WGSLCodeGenerator::writeUserDefinedVariableDecl(const Type& type,
 
 void WGSLCodeGenerator::writeBuiltinVariableDecl(const Type& type,
                                                  std::string_view name,
-                                                 Builtin kind,
+                                                 Builtin builtin,
                                                  Delimiter delimiter) {
     this->write("@builtin(");
-    this->write(to_wgsl_builtin_name(kind));
+    this->write(wgsl_builtin_name(builtin));
     this->write(") ");
 
     this->writeName(name);
-    this->write(": " + to_wgsl_type(type));
+    this->write(": ");
+    this->write(wgsl_builtin_type(builtin));
     this->writeLine(delimiter_to_str(delimiter));
 }
 
@@ -705,8 +757,18 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
         case Expression::Kind::kConstructorCompound:
             this->writeConstructorCompound(e.as<ConstructorCompound>(), parentPrecedence);
             break;
+        case Expression::Kind::kConstructorCompoundCast:
+        case Expression::Kind::kConstructorScalarCast:
+            this->writeAnyConstructor(e.asAnyConstructor(), parentPrecedence);
+            break;
         case Expression::Kind::kLiteral:
             this->writeLiteral(e.as<Literal>());
+            break;
+        case Expression::Kind::kSwizzle:
+            this->writeSwizzle(e.as<Swizzle>());
+            break;
+        case Expression::Kind::kVariableReference:
+            this->writeVariableReference(e.as<VariableReference>());
             break;
         default:
             SkDEBUGFAILF("unsupported expression (kind: %d) %s",
@@ -718,7 +780,25 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
 
 void WGSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
-    // TODO(skia:13092): implement
+    const Expression& left = *b.left();
+    const Expression& right = *b.right();
+    Operator op = b.getOperator();
+    Precedence precedence = op.getBinaryPrecedence();
+    bool needParens = precedence >= parentPrecedence;
+
+    if (needParens) {
+        this->write("(");
+    }
+
+    // TODO(skia:13092): Correctly handle the case when lhs is a pointer.
+
+    this->writeExpression(left, precedence);
+    this->write(op.operatorName());
+    this->writeExpression(right, precedence);
+
+    if (needParens) {
+        this->write(")");
+    }
 }
 
 void WGSLCodeGenerator::writeLiteral(const Literal& l) {
@@ -740,6 +820,42 @@ void WGSLCodeGenerator::writeLiteral(const Literal& l) {
         this->write("u");
     } else {
         this->write(std::to_string(l.intValue()));
+    }
+}
+
+void WGSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
+    this->writeExpression(*swizzle.base(), Precedence::kPostfix);
+    this->write(".");
+    for (int c : swizzle.components()) {
+        SkASSERT(c >= 0 && c <= 3);
+        this->write(&("x\0y\0z\0w\0"[c * 2]));
+    }
+}
+
+void WGSLCodeGenerator::writeVariableReference(const VariableReference& r) {
+    // TODO(skia:13902): Correctly handle function parameters.
+    // TODO(skia:13902): Correctly handle RTflip for built-ins.
+    const Variable& v = *r.variable();
+
+    // Insert a conversion expression if this is a built-in variable whose type differs from the
+    // SkSL.
+    std::optional<std::string_view> conversion = needs_builtin_type_conversion(v);
+    if (conversion.has_value()) {
+        this->write(*conversion);
+        this->write("(");
+    }
+    if (v.storage() == Variable::Storage::kGlobal) {
+        if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
+            this->write("_stageIn.");
+        } else if (v.modifiers().fFlags & Modifiers::kOut_Flag) {
+            this->write("(*_stageOut).");
+        }
+    }
+
+    this->writeName(v.name());
+
+    if (conversion.has_value()) {
+        this->write(")");
     }
 }
 

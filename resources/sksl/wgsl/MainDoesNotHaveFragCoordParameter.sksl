@@ -1,0 +1,4 @@
+half4 main() {
+    // sk_FragCoord should be declared in pipeline inputs since it is referenced.
+    return half4(sk_FragCoord.x, 0, 0, 1);
+}
