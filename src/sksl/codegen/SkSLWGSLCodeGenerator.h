@@ -175,6 +175,7 @@ private:
     // TODO(skia:13092): populate this
     SkTHashSet<std::string_view> fReservedWords;
     ProgramRequirements fRequirements;
+    int fPipelineInputCount = 0;
 
     // Output processing state.
     int fIndentation = 0;

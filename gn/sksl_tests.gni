@@ -304,7 +304,12 @@ sksl_spirv_tests = [
   "/sksl/errors/UndefinedFunction.rts",
 ]
 
-sksl_wgsl_tests = [ "/sksl/shared/HelloWorld.sksl" ]
+sksl_wgsl_tests = [
+  "/sksl/wgsl/VertexPositionOutputIsAlwaysDeclared.vert",
+
+  # Shared tests that are supported so far:
+  "/sksl/shared/HelloWorld.sksl",
+]
 
 sksl_shared_tests = [
   "/sksl/intrinsics/AbsFloat.sksl",

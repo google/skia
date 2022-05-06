@@ -320,6 +320,25 @@ WGSLCodeGenerator::ProgramRequirements resolve_program_requirements(const Progra
     return WGSLCodeGenerator::ProgramRequirements(std::move(dependencies), mainNeedsCoordsArgument);
 }
 
+int count_pipeline_inputs(const Program* program) {
+    int inputCount = 0;
+    for (const ProgramElement* e : program->elements()) {
+        if (e->is<GlobalVarDeclaration>()) {
+            const Variable& v =
+                    e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var();
+            if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
+                inputCount++;
+            }
+        } else if (e->is<InterfaceBlock>()) {
+            const Variable& v = e->as<InterfaceBlock>().variable();
+            if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
+                inputCount++;
+            }
+        }
+    }
+    return inputCount;
+}
+
 }  // namespace
 
 bool WGSLCodeGenerator::generateCode() {
@@ -364,6 +383,7 @@ bool WGSLCodeGenerator::generateCode() {
 
 void WGSLCodeGenerator::preprocessProgram() {
     fRequirements = resolve_program_requirements(&fProgram);
+    fPipelineInputCount = count_pipeline_inputs(&fProgram);
 }
 
 void WGSLCodeGenerator::write(std::string_view s) {
@@ -515,10 +535,18 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     // function.
     std::string outputType;
     if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
-        this->writeLine("@stage(vertex) fn vertexMain(_stageIn: VSIn) -> VSOut {");
+        this->write("@stage(vertex) fn vertexMain(");
+        if (fPipelineInputCount > 0) {
+            this->write("_stageIn: VSIn");
+        }
+        this->writeLine(") -> VSOut {");
         outputType = "VSOut";
     } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-        this->writeLine("@stage(fragment) fn fragmentMain(_stageIn: FSIn) -> FSOut {");
+        this->write("@stage(fragment) fn fragmentMain(");
+        if (fPipelineInputCount > 0) {
+            this->write("_stageIn: FSIn");
+        }
+        this->writeLine(") -> FSOut {");
         outputType = "FSOut";
     } else {
         fContext.fErrors->error(Position(), "program kind not supported");
@@ -782,6 +810,11 @@ void WGSLCodeGenerator::writeStageInputStruct() {
         return;
     }
 
+    // It is illegal to declare a struct with no members.
+    if (fPipelineInputCount < 1) {
+        return;
+    }
+
     this->write("struct ");
     this->write(structNamePrefix);
     this->writeLine("In {");
@@ -841,6 +874,7 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
 
     // TODO(skia:13092): Remember all variables that are added to the output struct here so they
     // can be referenced correctly when handling variable references.
+    bool declaredPositionBuiltin = false;
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const Variable& v =
@@ -860,9 +894,17 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
                 for (const auto& f : v.type().fields()) {
                     this->writePipelineIODeclaration(
                             f.fModifiers, *f.fType, f.fName, Delimiter::kComma);
+                    if (f.fModifiers.fLayout.fBuiltin == SK_POSITION_BUILTIN) {
+                        declaredPositionBuiltin = true;
+                    }
                 }
             }
         }
+    }
+
+    // A vertex shader must include the `position` builtin in its return type.
+    if (ProgramConfig::IsVertex(fProgram.fConfig->fKind) && !declaredPositionBuiltin) {
+        this->writeLine("@builtin(position) sk_Position: vec4<f32>,");
     }
 
     fIndentation--;
