@@ -67,7 +67,7 @@ possible to patch the files manually by adding the following to
       {
         'name': 'apply_custom_patch',
         'pattern': '.',
-        'action': ['python2',
+        'action': ['python3',
                    '-c', 'from distutils.dir_util import copy_tree; copy_tree("src/patch/", "src/");'
         ],
       },

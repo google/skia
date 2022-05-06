@@ -30,7 +30,7 @@ def extractIdg(projFileName):
             if "<ItemDefinitionGroup" in pLine:
                 while not "</ItemDefinitionGroup" in pLine:
                     result.append(pLine)
-                    pLine = lines.next()
+                    pLine = next(lines)
                 result.append(pLine)
                 return result
 
@@ -66,7 +66,7 @@ for config in configs:
                 nameObj = re.match(projectNamePattern, projPath)
                 if nameObj:
                     projName = nameObj.group(1).replace('/', '.')
-                    if not allProjects.has_key(projName):
+                    if projName not in allProjects:
                         allProjects[projName] = []
                     allProjects[projName].append((config[0], projPath,
                                                  matchObj.group(3)))
@@ -141,7 +141,7 @@ for projName, projConfigs in allProjects.items():
                 idgLines = []
                 while not "</ItemDefinitionGroup" in line:
                     idgLines.append(line)
-                    line = projLines.next()
+                    line = next(projLines)
                 idgLines.append(line)
                 for projConfig in projConfigs:
                     configIdgLines = extractIdg(os.path.join("out",
@@ -153,10 +153,10 @@ for projName, projConfigs in allProjects.items():
             elif "ProjectConfigurations" in line:
                 newProjLines.append(line)
                 projConfigLines = [
-                    projLines.next(),
-                    projLines.next(),
-                    projLines.next(),
-                    projLines.next() ]
+                    next(projLines),
+                    next(projLines),
+                    next(projLines),
+                    next(projLines) ]
                 for config in configs:
                     for projConfigLine in projConfigLines:
                         newProjLines.append(projConfigLine.replace("GN",

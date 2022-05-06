@@ -8,7 +8,7 @@ system.
 
 <!--?prettify lang=sh?-->
 
-    python2 tools/git-sync-deps
+    python3 tools/git-sync-deps
     bin/gn gen out/Debug
     bin/gn gen out/Release --args='is_debug=false'
 

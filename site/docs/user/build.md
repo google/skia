@@ -74,7 +74,7 @@ bin/gn gen out/Shared --args='is_official_build=true is_component_build=true'
 If you find that you don't have `bin/gn`, make sure you've run:
 
 ```
-python2 tools/git-sync-deps
+python3 tools/git-sync-deps
 ```
 
 For a list of available build arguments, take a look at `gn/skia.gni`, or run:
@@ -366,7 +366,7 @@ the `out` directory. First, create all of your GN configurations as usual. Pass
 `--ide=vs` when running `bin/gn gen` for each one. Then:
 
 ```
-python2 gn/gn_meta_sln.py
+python3 gn/gn_meta_sln.py
 ```
 
 This creates a new dedicated output directory and solution file
