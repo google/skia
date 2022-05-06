@@ -40,24 +40,24 @@ known_good_builds:
 		--features skia_enforce_iwyu
 
 rbe_known_good_builds:
-	bazelisk build //experimental/bazel_test/... --config=linux-rbe
-	bazelisk run //experimental/bazel_test:bazel_test_exe --config=linux-rbe
-	bazelisk build //:skia_core --config=linux-rbe
-	bazelisk build //src/sksl/lex:sksllex --config=linux-rbe
-	bazelisk build //tools/skdiff --config=linux-rbe
-	bazelisk build //tools/skslc --config=linux-rbe
+	bazelisk build //experimental/bazel_test/... --config=linux_rbe
+	bazelisk run //experimental/bazel_test:bazel_test_exe --config=linux_rbe
+	bazelisk build //:skia_core --config=linux_rbe
+	bazelisk build //src/sksl/lex:sksllex --config=linux_rbe
+	bazelisk build //tools/skdiff --config=linux_rbe
+	bazelisk build //tools/skslc --config=linux_rbe
 	# TODO(kjlubick) CanvasKit in release mode (i.e. with Closure) requires
 	# https://github.com/emscripten-core/emscripten/pull/16640 to land
-	bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode dbg --config=linux-rbe \
+	bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode dbg --config=linux_rbe \
 		--jobs 100
 
 	# Test the enforcement of include what you use
-	bazelisk build //example:hello_world_gl --config=linux-rbe --features skia_enforce_iwyu
+	bazelisk build //example:hello_world_gl --config=linux_rbe --features skia_enforce_iwyu
  	# Both with and without a GPU backend should be error free (i.e. IWYU should let us
  	# conditionally import things.
-	bazelisk build //src/svg/... --config=linux-rbe --features skia_enforce_iwyu \
+	bazelisk build //src/svg/... --config=linux_rbe --features skia_enforce_iwyu \
 		--gpu_backend=gl_backend --include_decoder=jpeg_decode_codec
-	bazelisk build //src/svg/... --config=linux-rbe --features skia_enforce_iwyu
-	bazelisk build //tools/debugger --config=linux-rbe --gpu_backend=gl_backend \
+	bazelisk build //src/svg/... --config=linux_rbe --features skia_enforce_iwyu
+	bazelisk build //tools/debugger --config=linux_rbe --gpu_backend=gl_backend \
 		--features skia_enforce_iwyu
-	bazelisk build //:skia_core --config=linux-rbe --features skia_enforce_iwyu
+	bazelisk build //:skia_core --config=linux_rbe --features skia_enforce_iwyu

@@ -17,6 +17,7 @@ exports_files_legacy()
 genrule(
     name = "all_task_drivers",
     srcs = [
+        "//infra/bots/task_drivers/bazel_build",
         "//infra/bots/task_drivers/bazel_check_includes",
         "//infra/bots/task_drivers/check_generated_bazel_files",
         "//infra/bots/task_drivers/codesize",

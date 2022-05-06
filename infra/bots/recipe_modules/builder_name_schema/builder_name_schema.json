@@ -1,5 +1,15 @@
 {
   "builder_name_schema": {
+    "BazelBuild": {
+      "keys": [
+        "label",
+        "config",
+        "host"
+      ],
+      "optional_keys": [
+        "cross"
+      ]
+    },
     "Build": {
       "keys": [
         "os",

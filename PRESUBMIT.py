@@ -264,7 +264,10 @@ def _CheckBazelBUILDFiles(input_api, output_api):
   for affected_file in input_api.AffectedFiles(include_deletes=False):
     affected_file_path = affected_file.LocalPath()
     is_bazel = affected_file_path.endswith('BUILD.bazel')
-    if is_bazel:
+    # This list lines up with the one in autoroller_lib.py (see G3).
+    excluded_paths = ["infra/", "bazel/rbe/"]
+    is_excluded = any(affected_file_path.startswith(n) for n in excluded_paths)
+    if is_bazel and not is_excluded:
       with open(affected_file_path, 'r') as file:
         contents = file.read()
         if 'exports_files_legacy()' not in contents:

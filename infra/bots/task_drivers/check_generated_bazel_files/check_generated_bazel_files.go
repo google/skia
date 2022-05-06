@@ -150,7 +150,7 @@ func smokeTestBuild(ctx context.Context, checkoutDir string) error {
 		runCmd := &sk_exec.Command{
 			Name: "bazelisk",
 			Args: []string{"build",
-				"--config=linux-rbe", // Compile using RBE
+				"--config=linux_rbe", // Compile using RBE
 				"--jobs=" + strconv.Itoa(rbeJobs),
 				"//example:hello_world_gl",  // This compiles and links, so is a good smoke test
 				"--remote_download_minimal", // No need to download the executable.

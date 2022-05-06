@@ -1,0 +1,6 @@
+build:release --compilation_mode=opt
+build:debug --compilation_mode=dbg
+
+# Setting the spawn_strategy like this makes emscripten compiler work faster
+build:ck_release --config=release --spawn_strategy=local
+build:ck_debug --config=debug --spawn_strategy=local

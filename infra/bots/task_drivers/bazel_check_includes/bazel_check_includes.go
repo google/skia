@@ -87,7 +87,7 @@ func bazelCheckIncludes(ctx context.Context, checkoutDir, label string, opts ...
 		runCmd := &sk_exec.Command{
 			Name: "bazelisk",
 			Args: append([]string{"build",
-				"--config=linux-rbe", // Compile using RBE
+				"--config=linux_rbe", // Compile using RBE
 				"--features=skia_enforce_iwyu",
 				"--jobs=" + strconv.Itoa(rbeJobs),
 				"--keep_going",              // Don't stop after first error

@@ -68,9 +68,18 @@ toolchain's cache. Make sure `xcode-select -p` returns a valid path.
 ## .bazelrc Tips
 You should make a [.bazelrc file](https://bazel.build/docs/bazelrc) in your home directory where
 you can specify settings that apply only to you. These can augment or replace the ones we define
-in `//.bazelrc`
+in the `//.bazelrc` configuration file.
 
-You may want some or all of the following entries in your `~/.bazelrc` file.
+Skia defines some [configs](https://bazel.build/docs/bazelrc#config), that is, group of settings
+and features in `//bazel/buildrc`. This file contains configs for builds that we use  regularly
+(for example, in our continuous integration system).
+
+If you want to define Skia-specific configs (and options which do not conflict with other Bazel
+projects), you make a file in `//bazel/user/buildrc` which will automatically be read in. This
+file is covered by a `.gitignore` rule and should not be checked in.
+
+You may want some or all of the following entries in your `~/.bazelrc` or `//bazel/user/buildrc`
+file.
 
 ### Build Skia faster locally
 Many Linux machines have a [RAM disk mounted at /dev/shm](https://www.cyberciti.biz/tips/what-is-devshm-and-its-practical-usage.html)
@@ -84,7 +93,7 @@ build:clang --sandbox_base=/dev/shm
 
 ### Authenticate to RBE on a Linux VM
 We are in the process of setting up Remote Build Execution (RBE) for Bazel. Some users have reported
-errors when trying to use RBE (via `--config=linux-rbe`) on Linux VMs such as:
+errors when trying to use RBE (via `--config=linux_rbe`) on Linux VMs such as:
 ```
 ERROR: Failed to query remote execution capabilities: 
 Error code 404 trying to get security access token from Compute Engine metadata for the default

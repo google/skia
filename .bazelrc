@@ -90,11 +90,19 @@ build:remote --remote_instance_name projects/skia-rbe/instances/default_instance
 # These settings are specific to compiling on our Linux RBE workers. For example,
 # Use the worker pool as specified by the gce_linux_platform platform in
 # //bazel/rbe/BUILD.bazel.
-build:linux-rbe --config=remote
+build:linux_rbe --config=remote
 # Use our hermetic toolchain instead of the clang in the toolchain.
-build:linux-rbe --crosstool_top=//toolchain:clang_suite_linux
+build:linux_rbe --crosstool_top=//toolchain:clang_suite_linux
 # We want to run on this RBE platform
-build:linux-rbe --extra_execution_platforms=//bazel/rbe:gce_linux_platform
+build:linux_rbe --extra_execution_platforms=//bazel/rbe:gce_linux_platform
 # On the RBE instances, this Java and C++ toolchain are available
-build:linux-rbe --extra_toolchains=//bazel/rbe/gce_linux/java:all
-build:linux-rbe --extra_toolchains=//bazel/rbe/gce_linux/config:cc-toolchain
+build:linux_rbe --extra_toolchains=//bazel/rbe/gce_linux/java:all
+build:linux_rbe --extra_toolchains=//bazel/rbe/gce_linux/config:cc-toolchain
+
+# Import our specified build configurations
+# https://docs.bazel.build/versions/main/best-practices.html#using-the-bazelrc-file
+# We chose to split our build configurations into their own file to have better organization
+# because we anticipate that file growing large.
+import %workspace%/bazel/buildrc
+# Import User's custom builds if they have defined any
+try-import %workspace%/bazel/user/buildrc
