@@ -452,6 +452,13 @@ void WGSLCodeGenerator::writeUserDefinedVariableDecl(const Type& type,
                                                      int location,
                                                      Delimiter delimiter) {
     this->write("@location(" + std::to_string(location) + ") ");
+
+    // "User-defined IO of scalar or vector integer type must always be specified as
+    // @interpolate(flat)" (see https://www.w3.org/TR/WGSL/#interpolation)
+    if (type.isInteger() || (type.isVector() && type.componentType().isInteger())) {
+        this->write("@interpolate(flat) ");
+    }
+
     this->writeName(name);
     this->write(": " + to_wgsl_type(type));
     this->writeLine(delimiter_to_str(delimiter));

@@ -1,0 +1,14 @@
+layout(location=1) in float input1;
+layout(location=2) in half input2;
+layout(location=3) in float2 input3;
+layout(location=4) in int input4;
+layout(location=5) in int2 input5;
+
+layout(location=1) out float output1;
+layout(location=2) out half output2;
+layout(location=3) out float2 output3;
+layout(location=4) out int output4;
+layout(location=5) out int2 output5;
+
+void main() {
+}
