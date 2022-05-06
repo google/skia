@@ -46,7 +46,6 @@ namespace SolidColorShaderBlock {
 
 } // namespace SolidColorShaderBlock
 
-// TODO: move this functionality to the SkLinearGradient, SkRadialGradient, etc classes
 namespace GradientShaderBlocks {
 
     struct GradientData {

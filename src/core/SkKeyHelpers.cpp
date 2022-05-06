@@ -159,10 +159,8 @@ void add_radial_gradient_uniform_data(const SkShaderCodeDictionary* dict,
     gatherer->write(gradData.fColor4fs, GradientData::kMaxStops);
     gatherer->write(gradData.fOffsets, GradientData::kMaxStops);
     gatherer->write(gradData.fPoints[0]);
-    gatherer->write(gradData.fPoints[1]);       // unused
     gatherer->write(gradData.fRadii[0]);
-    gatherer->write(gradData.fRadii[1]);        // unused
-    gatherer->write(SkPoint::Make(0.0f, 0.0f)); // padding
+    gatherer->write(0.0f);  // padding
 
     gatherer->addFlags(
             dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kRadialGradientShader));

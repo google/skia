@@ -48,6 +48,20 @@ float2 sk_compute_coords(float4x4 dev2Local,
     return coords;
 }
 
+half4 sk_clamp_grad_4(float4 colorsParam[4], float offsetsParam[4], float t) {
+    float4 result = colorsParam[0];
+    result = mix(result, colorsParam[1],
+                 clamp((t-offsetsParam[0])/(offsetsParam[1]-offsetsParam[0]),
+                       0, 1));
+    result = mix(result, colorsParam[2],
+                 clamp((t-offsetsParam[1])/(offsetsParam[2]-offsetsParam[1]),
+                       0, 1));
+    result = mix(result, colorsParam[3],
+                 clamp((t-offsetsParam[2])/(offsetsParam[3]-offsetsParam[2]),
+                       0, 1));
+    return half4(result);
+}
+
 half4 sk_linear_grad_4_shader(float4x4 dev2Local,
                               float4 colorsParam[4],
                               float offsetsParam[4],
@@ -60,17 +74,19 @@ half4 sk_linear_grad_4_shader(float4x4 dev2Local,
     float2 delta = point1Param - point0Param;
     float2 pt = pos - point0Param;
     float t = dot(pt, delta) / dot(delta, delta);
-    float4 result = colorsParam[0];
-    result = mix(result, colorsParam[1],
-                 clamp((t-offsetsParam[0])/(offsetsParam[1]-offsetsParam[0]),
-                       0, 1));
-    result = mix(result, colorsParam[2],
-                 clamp((t-offsetsParam[1])/(offsetsParam[2]-offsetsParam[1]),
-                       0, 1));
-    result = mix(result, colorsParam[3],
-                 clamp((t-offsetsParam[2])/(offsetsParam[3]-offsetsParam[2]),
-                 0, 1));
-    return half4(result);
+    return sk_clamp_grad_4(colorsParam, offsetsParam, t);
+}
+
+half4 sk_radial_grad_4_shader(float4x4 dev2Local,
+                              float4 colorsParam[4],
+                              float offsetsParam[4],
+                              float2 centerParam,
+                              float radiusParam,
+                              float padding) {
+    float2 pos = (dev2Local * sk_FragCoord).xy;
+    float2 pt = pos - centerParam;
+    float t = length(pt) / radiusParam;
+    return sk_clamp_grad_4(colorsParam, offsetsParam, t);
 }
 
 half4 sk_blend(int blendMode, half4 src, half4 dst) {
