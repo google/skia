@@ -27,6 +27,8 @@ SERVICE_ACCOUNT_SUFFIX = [
         'skia-buildbots.google.com', 'skia-swarming-bots', 'skia-public',
         'skia-corp.google.com', 'chops-service-accounts']]
 
+USE_PYTHON3 = True
+
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
   """Checks that files end with at least one \n (LF)."""

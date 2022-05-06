@@ -127,7 +127,7 @@
   },
   {
     "cmd": [
-      "python",
+      "python3",
       "-u",
       "[START_DIR]/lottie-ci/infra/bots/infra_tests.py"
     ],

@@ -78,7 +78,7 @@
   },
   {
     "cmd": [
-      "python",
+      "python3",
       "-u",
       "[START_DIR]/skia/infra/bots/infra_tests.py"
     ],

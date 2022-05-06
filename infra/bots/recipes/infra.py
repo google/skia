@@ -57,7 +57,7 @@ def RunSteps(api):
     last_exc = None
     for _ in range(3):
       try:
-        api.step('infra_tests', cmd=['python', '-u', infra_tests])
+        api.step('infra_tests', cmd=['python3', '-u', infra_tests])
         break
       except api.step.StepFailure as e:  # pragma: nocover
         last_exc = e
