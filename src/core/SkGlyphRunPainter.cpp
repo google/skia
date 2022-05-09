@@ -26,6 +26,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
@@ -79,7 +80,7 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext
 void SkGlyphRunListPainter::drawForBitmapDevice(
         SkCanvas* canvas, const BitmapDevicePainter* bitmapDevice,
         const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& drawMatrix) {
-    auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList, this->buffers());
+    auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
 
     // TODO: fStrikeCache is only used for GPU, and some compilers complain about it during the no
@@ -294,7 +295,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
                     positionMatrix[0], positionMatrix[1], positionMatrix[2],
                     positionMatrix[3], positionMatrix[4], positionMatrix[5]);
     #endif
-    auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList, this->buffers());
+    auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
     for (auto& glyphRun : glyphRunList) {
         rejected->setSource(glyphRun.source());
@@ -475,13 +476,12 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
 }
 #endif  // SK_SUPPORT_GPU
 
-auto SkSubRunBuffers::EnsureBuffers(const SkGlyphRunList& glyphRunList,
-                                    SkSubRunBuffers* buffers) -> ScopedBuffers {
+auto SkSubRunBuffers::EnsureBuffers(const SkGlyphRunList& glyphRunList) -> ScopedBuffers {
     size_t size = 0;
     for (const SkGlyphRun& run : glyphRunList) {
         size = std::max(run.runSize(), size);
     }
-    return ScopedBuffers(buffers, size);
+    return ScopedBuffers(glyphRunList.buffers(), size);
 }
 
 SkSubRunBuffers::ScopedBuffers::ScopedBuffers(SkSubRunBuffers* buffers, size_t size)

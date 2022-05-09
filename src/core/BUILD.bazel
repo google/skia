@@ -2120,7 +2120,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkDistanceFieldGen_hdr",
-        ":SkGlyphBuffer_hdr",
         ":SkGlyphRun_hdr",
         ":SkScalerContext_hdr",
         ":SkTextBlobPriv_hdr",
@@ -2139,6 +2138,7 @@ generated_cc_atom(
         ":SkDraw_hdr",
         ":SkEnumerate_hdr",
         ":SkFontPriv_hdr",
+        ":SkGlyphBuffer_hdr",
         ":SkGlyphRunPainter_hdr",
         ":SkRasterClip_hdr",
         ":SkScalerCache_hdr",
@@ -2165,6 +2165,7 @@ generated_cc_atom(
     hdrs = ["SkGlyphRun.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":SkGlyphBuffer_hdr",
         ":SkZip_hdr",
         "//include/core:SkFont_hdr",
         "//include/core:SkPaint_hdr",

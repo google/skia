@@ -19,14 +19,36 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkZip.h"
 
 class SkBaseDevice;
 class SkCanvas;
 class SkGlyph;
+class SkGlyphRunList;
 class SkGlyphRunBuilder;
 class SkTextBlob;
 class SkTextBlobRunIterator;
+
+class SkSubRunBuffers {
+public:
+    class ScopedBuffers {
+    public:
+        ScopedBuffers(SkSubRunBuffers* painter, size_t size);
+        ~ScopedBuffers();
+        std::tuple<SkDrawableGlyphBuffer*, SkSourceGlyphBuffer*> buffers() {
+            return {&fBuffers->fAccepted, &fBuffers->fRejected};
+        }
+
+    private:
+        SkSubRunBuffers* const fBuffers;
+    };
+    static ScopedBuffers SK_WARN_UNUSED_RESULT EnsureBuffers(const SkGlyphRunList& glyphRunList);
+
+private:
+    SkDrawableGlyphBuffer fAccepted;
+    SkSourceGlyphBuffer fRejected;
+};
 
 class SkGlyphRun {
 public:
@@ -105,6 +127,7 @@ public:
     SkRect sourceBounds() const { return fSourceBounds; }
     const SkTextBlob* blob() const { return fOriginalTextBlob; }
     SkGlyphRunBuilder* builder() const { return fBuilder; }
+    SkSubRunBuffers* buffers() const;
 
     auto begin() -> decltype(fGlyphRuns.begin())               { return fGlyphRuns.begin();      }
     auto end()   -> decltype(fGlyphRuns.end())                 { return fGlyphRuns.end();        }
@@ -138,6 +161,7 @@ public:
             convertRSXForm(SkSpan<const SkRSXform> xforms);
 
     bool empty() const { return fGlyphRunListStorage.empty(); }
+    SkSubRunBuffers* buffers() { return &fSubRunBuffers; }
 
 private:
     void initialize(const SkTextBlob& blob);
@@ -168,6 +192,10 @@ private:
     // Used as a temporary for preparing using utfN text. This implies that only one run of
     // glyph ids will ever be needed because blobs are already glyph based.
     std::vector<SkGlyphID> fScratchGlyphIDs;
+
+    SkSubRunBuffers fSubRunBuffers;
 };
+
+inline SkSubRunBuffers* SkGlyphRunList::buffers() const { return fBuilder->buffers(); }
 
 #endif  // SkGlyphRun_DEFINED
