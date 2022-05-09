@@ -293,9 +293,8 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
                     positionMatrix[0], positionMatrix[1], positionMatrix[2],
                     positionMatrix[3], positionMatrix[4], positionMatrix[5]);
     #endif
-
+    ScopedBuffers _ = this->ensureBuffers(glyphRunList);
     for (auto& glyphRun : glyphRunList) {
-        ScopedBuffers _ = this->ensureBuffers(glyphRun);
         fRejected.setSource(glyphRun.source());
         const SkFont& runFont = glyphRun.font();
 
@@ -480,10 +479,6 @@ auto SkGlyphRunListPainter::ensureBuffers(const SkGlyphRunList& glyphRunList) ->
         size = std::max(run.runSize(), size);
     }
     return ScopedBuffers(this, size);
-}
-
-auto SkGlyphRunListPainter::ensureBuffers(const SkGlyphRun& glyphRun) -> ScopedBuffers {
-    return ScopedBuffers(this, glyphRun.runSize());
 }
 
 SkGlyphRunListPainter::ScopedBuffers::ScopedBuffers(SkGlyphRunListPainter* painter, size_t size)

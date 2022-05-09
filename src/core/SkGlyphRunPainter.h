@@ -104,7 +104,6 @@ private:
     };
 
     ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRunList& glyphRunList);
-    ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRun& glyphRun);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
