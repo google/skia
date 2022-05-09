@@ -25,6 +25,27 @@ class SkGlyphRunPainterInterface;
 class SkStrikeSpec;
 class GrSDFTMatrixRange;
 
+class SkSubRunBuffers {
+public:
+    class ScopedBuffers {
+    public:
+        ScopedBuffers(SkSubRunBuffers* painter, size_t size);
+        ~ScopedBuffers();
+        std::tuple<SkDrawableGlyphBuffer*, SkSourceGlyphBuffer*> buffers() {
+            return {&fBuffers->fAccepted, &fBuffers->fRejected};
+        }
+
+    private:
+        SkSubRunBuffers* const fBuffers;
+    };
+    static ScopedBuffers SK_WARN_UNUSED_RESULT EnsureBuffers(const SkGlyphRunList& glyphRunList,
+                                                             SkSubRunBuffers* buffers);
+
+private:
+    SkDrawableGlyphBuffer fAccepted;
+    SkSourceGlyphBuffer fRejected;
+};
+
 // round and ignorePositionMask are used to calculate the subpixel position of a glyph.
 // The per component (x or y) calculation is:
 //
@@ -93,17 +114,11 @@ public:
                                 const char* tag = nullptr);
 #endif  // SK_SUPPORT_GPU
 
+    SkSubRunBuffers* buffers() { return &fSubRunBuffers; }
+
 private:
     SkGlyphRunListPainter(const SkSurfaceProps& props, SkColorType colorType,
                           SkScalerContextFlags flags, SkStrikeForGPUCacheInterface* strikeCache);
-
-    struct ScopedBuffers {
-        ScopedBuffers(SkGlyphRunListPainter* painter, size_t size);
-        ~ScopedBuffers();
-        SkGlyphRunListPainter* fPainter;
-    };
-
-    ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRunList& glyphRunList);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
@@ -114,8 +129,7 @@ private:
 
     SkStrikeForGPUCacheInterface* const fStrikeCache;
 
-    SkDrawableGlyphBuffer fAccepted;
-    SkSourceGlyphBuffer fRejected;
+    SkSubRunBuffers fSubRunBuffers;
 };
 
 // SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first
