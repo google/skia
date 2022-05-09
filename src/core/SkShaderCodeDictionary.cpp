@@ -9,6 +9,7 @@
 
 #include "include/private/SkSLString.h"
 #include "src/core/SkOpts.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace {
 
@@ -367,8 +368,21 @@ static constexpr SkUniform kRadialGradientUniforms[kNumRadialGradientUniforms] =
         { "padding",     SkSLType::kFloat } // TODO: add automatic uniform padding
 };
 
+static constexpr int kNumSweepGradientUniforms = 6;
+static constexpr SkUniform kSweepGradientUniforms[kNumSweepGradientUniforms] = {
+        { "localMatrix", SkSLType::kFloat4x4 },
+        { "colors",      SkSLType::kFloat4, kFourStopGradient },
+        { "offsets",     SkSLType::kFloat,  kFourStopGradient },
+        { "center",      SkSLType::kFloat2 },
+        { "bias",        SkSLType::kFloat },
+        { "scale",       SkSLType::kFloat }
+};
+
 static constexpr char kLinearGradient4Name[] = "sk_linear_grad_4_shader";
 static constexpr char kRadialGradient4Name[] = "sk_radial_grad_4_shader";
+static constexpr char kSweepGradient4Name[] = "sk_sweep_grad_4_shader";
+static constexpr char kSweepGradient4AtanWorkaroundName[] =
+        "sk_sweep_grad_4_shader_atan_workaround";
 
 //--------------------------------------------------------------------------------------------------
 static constexpr int kNumSolidShaderUniforms = 1;
@@ -570,7 +584,7 @@ int SkShaderCodeDictionary::addUserDefinedSnippet(
     return kBuiltInCodeSnippetIDCount + fUserDefinedCodeSnippets.size() - 1;
 }
 
-SkShaderCodeDictionary::SkShaderCodeDictionary() {
+SkShaderCodeDictionary::SkShaderCodeDictionary(const SkSL::ShaderCaps* shaderCaps) {
     // The 0th index is reserved as invalid
     fEntryVector.push_back(nullptr);
 
@@ -626,10 +640,11 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSweepGradientShader] = {
             "SweepGradient4",
-            SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
+            SkMakeSpan(kSweepGradientUniforms, kNumSweepGradientUniforms),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
-            kLinearGradient4Name,
+            shaderCaps->atan2ImplementedAsAtanYOverX() ? kSweepGradient4AtanWorkaroundName
+                                                       : kSweepGradient4Name,
             GenerateDefaultGlueCode,
             kNoChildren,
             { }

@@ -5659,6 +5659,7 @@ generated_cc_atom(
         ":SkOpts_hdr",
         ":SkShaderCodeDictionary_hdr",
         "//include/private:SkSLString_hdr",
+        "//src/sksl:SkSLUtil_hdr",
     ],
 )
 

@@ -65,6 +65,7 @@ namespace GradientShaderBlocks {
                      SkM44 localMatrix,
                      SkPoint point0, SkPoint point1,
                      float radius0, float radius1,
+                     float bias, float scale,
                      SkTileMode,
                      int numStops,
                      SkColor4f* colors,
@@ -77,6 +78,8 @@ namespace GradientShaderBlocks {
                    fPoints[1] == rhs.fPoints[1] &&
                    fRadii[0] == rhs.fRadii[0] &&
                    fRadii[1] == rhs.fRadii[1] &&
+                   fBias == rhs.fBias &&
+                   fScale == rhs.fScale &&
                    fTM == rhs.fTM &&
                    fNumStops == rhs.fNumStops &&
                    !memcmp(fColor4fs, rhs.fColor4fs, sizeof(fColor4fs)) &&
@@ -84,10 +87,16 @@ namespace GradientShaderBlocks {
         }
         bool operator!=(const GradientData& rhs) const { return !(*this == rhs); }
 
+        // Layout options.
         SkShader::GradientType fType;
         SkM44                  fLocalMatrix;
         SkPoint                fPoints[2];
         float                  fRadii[2];
+
+        // Layout options for sweep gradient.
+        float                  fBias;
+        float                  fScale;
+
         SkTileMode             fTM;
         int                    fNumStops;
         SkColor4f              fColor4fs[kMaxStops];

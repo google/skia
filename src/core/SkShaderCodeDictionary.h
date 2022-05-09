@@ -20,6 +20,10 @@
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
 
+namespace SkSL {
+struct ShaderCaps;
+}
+
 // TODO: How to represent the type (e.g., 2D) of texture being sampled?
 class SkTextureAndSampler {
 public:
@@ -128,7 +132,7 @@ private:
 
 class SkShaderCodeDictionary {
 public:
-    SkShaderCodeDictionary();
+    SkShaderCodeDictionary(const SkSL::ShaderCaps*);
 
     struct Entry {
     public:
