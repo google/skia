@@ -798,9 +798,8 @@ public:
             : SkNoPixelsDevice(SkIRect::MakeSize(dimensions), props, std::move(colorSpace))
             , fStrikeServerImpl(server)
             , fDFTSupport(DFTSupport)
-            , fPainter{props, kUnknown_SkColorType, imageInfo().colorSpace(), fStrikeServerImpl}
-            , fConvertPainter{props, kUnknown_SkColorType, imageInfo().colorSpace(),
-                              SkStrikeCache::GlobalStrikeCache()} {
+            , fPainter{props, imageInfo().colorSpace(), fStrikeServerImpl}
+            , fConvertPainter{props, imageInfo().colorSpace(), SkStrikeCache::GlobalStrikeCache()} {
         SkASSERT(fStrikeServerImpl != nullptr);
     }
 

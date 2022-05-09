@@ -43,12 +43,12 @@ SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
 }
 
 namespace {
-class TextDevice : public SkNoPixelsDevice, public SkGlyphRunListPainter::BitmapDevicePainter {
+class TextDevice : public SkNoPixelsDevice, public SkGlyphRunListPainterCPU::BitmapDevicePainter {
 public:
     TextDevice(SkCanvas* overdrawCanvas, const SkSurfaceProps& props)
             : SkNoPixelsDevice{SkIRect::MakeWH(32767, 32767), props},
               fOverdrawCanvas{overdrawCanvas},
-              fPainter{props, kN32_SkColorType, nullptr, SkStrikeCache::GlobalStrikeCache()} {}
+              fPainter{props, kN32_SkColorType, nullptr} {}
 
     void paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) const override {
         for (auto t : accepted->accepted()) {
@@ -73,7 +73,7 @@ public:
 
 private:
     SkCanvas* const fOverdrawCanvas;
-    SkGlyphRunListPainter fPainter;
+    SkGlyphRunListPainterCPU fPainter;
 };
 }  // namespace
 

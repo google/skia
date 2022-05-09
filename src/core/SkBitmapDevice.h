@@ -157,7 +157,7 @@ private:
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
-    SkGlyphRunListPainter fGlyphPainter;
+    SkGlyphRunListPainterCPU fGlyphPainter;
 
 
     using INHERITED = SkBaseDevice;

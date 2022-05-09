@@ -106,7 +106,7 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) c
 }
 
 void SkDraw::drawGlyphRunList(SkCanvas* canvas,
-                              SkGlyphRunListPainter* glyphPainter,
+                              SkGlyphRunListPainterCPU* glyphPainter,
                               const SkGlyphRunList& glyphRunList,
                               const SkPaint& paint) const {
 

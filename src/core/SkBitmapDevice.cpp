@@ -215,10 +215,7 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
         : INHERITED(bitmap.info(), SkSurfaceProps())
         , fBitmap(bitmap)
         , fRCStack(bitmap.width(), bitmap.height())
-        , fGlyphPainter(this->surfaceProps(),
-                        bitmap.colorType(),
-                        bitmap.colorSpace(),
-                        SkStrikeCache::GlobalStrikeCache()) {
+        , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), bitmap.colorSpace()) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
 
@@ -232,10 +229,7 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
         , fBitmap(bitmap)
         , fRasterHandle(hndl)
         , fRCStack(bitmap.width(), bitmap.height())
-        , fGlyphPainter(this->surfaceProps(),
-                        bitmap.colorType(),
-                        bitmap.colorSpace(),
-                        SkStrikeCache::GlobalStrikeCache()) {
+        , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), bitmap.colorSpace()) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
 

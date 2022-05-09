@@ -50,21 +50,9 @@ public:
     inline static constexpr uint16_t kSkSideTooBigForAtlas = 256;
 };
 
-class SkGlyphRunListPainter {
+// -- SkGlyphRunListPainterCPU ---------------------------------------------------------------------
+class SkGlyphRunListPainterCPU {
 public:
-    // Constructor for SkBitmpapDevice.
-    SkGlyphRunListPainter(const SkSurfaceProps& props,
-                          SkColorType colorType,
-                          SkColorSpace* cs,
-                          SkStrikeForGPUCacheInterface* strikeCache);
-
-#if SK_SUPPORT_GPU
-    // The following two ctors are used exclusively by the GPU, and will always use the global
-    // strike cache.
-    SkGlyphRunListPainter(const SkSurfaceProps&, const GrColorInfo&);
-    explicit SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext&);
-#endif  // SK_SUPPORT_GPU
-
     class BitmapDevicePainter {
     public:
         BitmapDevicePainter() = default;
@@ -76,9 +64,33 @@ public:
                                 const SkSamplingOptions&, const SkPaint&) const = 0;
     };
 
+    SkGlyphRunListPainterCPU(const SkSurfaceProps& props,
+                             SkColorType colorType,
+                             SkColorSpace* cs);
+
     void drawForBitmapDevice(
             SkCanvas* canvas, const BitmapDevicePainter* bitmapDevice,
             const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& drawMatrix);
+private:
+    // The props as on the actual device.
+    const SkSurfaceProps fDeviceProps;
+
+    // The props for when the bitmap device can't draw LCD text.
+    const SkSurfaceProps fBitmapFallbackProps;
+    const SkColorType fColorType;
+    const SkScalerContextFlags fScalerContextFlags;
+};
+
+class SkGlyphRunListPainter {
+public:
+    SkGlyphRunListPainter(const SkSurfaceProps& props,
+                          const SkColorSpace* colorSpace,
+                          SkStrikeForGPUCacheInterface* strikeCache);
+#if SK_SUPPORT_GPU
+    // The following ctor is used exclusively by the GPU, and will always use the global
+    // strike cache.
+    explicit SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext&);
+#endif  // SK_SUPPORT_GPU
 
 #if SK_SUPPORT_GPU
     // A nullptr for process means that the calls to the cache will be performed, but none of the
@@ -93,17 +105,15 @@ public:
 #endif  // SK_SUPPORT_GPU
 
 private:
-    SkGlyphRunListPainter(const SkSurfaceProps& props, SkColorType colorType,
-                          SkScalerContextFlags flags, SkStrikeForGPUCacheInterface* strikeCache);
+    SkGlyphRunListPainter(const SkSurfaceProps& props,
+                          SkScalerContextFlags flags,
+                          SkStrikeForGPUCacheInterface* strikeCache);
 
     // The props as on the actual device.
-    const SkSurfaceProps fDeviceProps;
-    // The props for when the bitmap device can't draw LCD text.
-    const SkSurfaceProps fBitmapFallbackProps;
-    const SkColorType fColorType;
-    const SkScalerContextFlags fScalerContextFlags;
+    [[maybe_unused]] const SkSurfaceProps fDeviceProps;
+    [[maybe_unused]] const SkScalerContextFlags fScalerContextFlags;
 
-    SkStrikeForGPUCacheInterface* const fStrikeCache;
+    [[maybe_unused]] SkStrikeForGPUCacheInterface* const fStrikeCache;
 };
 
 // SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first

@@ -46,8 +46,7 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         if (canvas) { canvas->getProps(&props); }
 
         auto colorSpace = SkColorSpace::MakeSRGB();
-        SkGlyphRunListPainter painter{props, kUnknown_SkColorType,
-                                      colorSpace.get(), SkStrikeCache::GlobalStrikeCache()};
+        SkGlyphRunListPainter painter{props, colorSpace.get(), SkStrikeCache::GlobalStrikeCache()};
         SkMatrix drawMatrix = view;
         const SkPoint drawOrigin = glyphRunList.origin();
         drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());

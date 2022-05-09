@@ -30,7 +30,7 @@ struct SkRect;
 class SkRRect;
 class SkVertices;
 
-class SkDraw : public SkGlyphRunListPainter::BitmapDevicePainter {
+class SkDraw : public SkGlyphRunListPainterCPU::BitmapDevicePainter {
 public:
     SkDraw();
 
@@ -62,7 +62,7 @@ public:
                        const SkSamplingOptions&, const SkPaint&) const override;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
     void    drawGlyphRunList(SkCanvas* canvas,
-                             SkGlyphRunListPainter* glyphPainter,
+                             SkGlyphRunListPainterCPU* glyphPainter,
                              const SkGlyphRunList& glyphRunList,
                              const SkPaint& paint) const;
     /* If skipColorXform, skips color conversion when assigning per-vertex colors */

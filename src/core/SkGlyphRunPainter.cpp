@@ -37,18 +37,9 @@
 #include <cinttypes>
 #include <climits>
 
-// -- SkGlyphRunListPainter ------------------------------------------------------------------------
-SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
-                                             SkColorType colorType,
-                                             SkScalerContextFlags flags,
-                                             SkStrikeForGPUCacheInterface* strikeCache)
-        : fDeviceProps{props}
-        ,  fBitmapFallbackProps{SkSurfaceProps{props.flags(), kUnknown_SkPixelGeometry}}
-        ,  fColorType{colorType}, fScalerContextFlags{flags}
-        ,  fStrikeCache{strikeCache} {}
-
+namespace {
 // TODO: unify with code in GrSDFTControl.cpp
-static SkScalerContextFlags compute_scaler_context_flags(const SkColorSpace* cs) {
+SkScalerContextFlags compute_scaler_context_flags(const SkColorSpace* cs) {
     // If we're doing linear blending, then we can disable the gamma hacks.
     // Otherwise, leave them on. In either case, we still want the contrast boost:
     // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
@@ -58,40 +49,28 @@ static SkScalerContextFlags compute_scaler_context_flags(const SkColorSpace* cs)
         return SkScalerContextFlags::kFakeGammaAndBoostContrast;
     }
 }
+}  // namespace
 
-SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
-                                             SkColorType colorType,
-                                             SkColorSpace* cs,
-                                             SkStrikeForGPUCacheInterface* strikeCache)
-        : SkGlyphRunListPainter(props, colorType, compute_scaler_context_flags(cs), strikeCache) {}
+// -- SkGlyphRunListPainterCPU ---------------------------------------------------------------------
+SkGlyphRunListPainterCPU::SkGlyphRunListPainterCPU(const SkSurfaceProps& props,
+                                                   SkColorType colorType,
+                                                   SkColorSpace* cs)
+        : fDeviceProps{props}
+        , fBitmapFallbackProps{SkSurfaceProps{props.flags(), kUnknown_SkPixelGeometry}}
+        , fColorType{colorType}
+        , fScalerContextFlags{compute_scaler_context_flags(cs)} {}
 
-#if SK_SUPPORT_GPU
-SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props, const GrColorInfo& csi)
-        : SkGlyphRunListPainter(props,
-                                kUnknown_SkColorType,
-                                compute_scaler_context_flags(csi.colorSpace()),
-                                SkStrikeCache::GlobalStrikeCache()) {}
-
-SkGlyphRunListPainter::SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext& sdc)
-        : SkGlyphRunListPainter{sdc.surfaceProps(), sdc.colorInfo()} {}
-
-#endif // SK_SUPPORT_GPU
-
-void SkGlyphRunListPainter::drawForBitmapDevice(
+void SkGlyphRunListPainterCPU::drawForBitmapDevice(
         SkCanvas* canvas, const BitmapDevicePainter* bitmapDevice,
         const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& drawMatrix) {
     auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
 
-    // TODO: fStrikeCache is only used for GPU, and some compilers complain about it during the no
-    //  gpu build. Remove when SkGlyphRunListPainter is split into GPU and CPU version.
-    (void)fStrikeCache;
-
     // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
     // convert the lcd text into A8 text. The props communicates this to the scaler.
     auto& props = (kN32_SkColorType == fColorType && paint.isSrcOver())
-                  ? fDeviceProps
-                  : fBitmapFallbackProps;
+                          ? fDeviceProps
+                          : fBitmapFallbackProps;
 
     SkPoint drawOrigin = glyphRunList.origin();
     SkMatrix positionMatrix{drawMatrix};
@@ -119,10 +98,10 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             const bool stroking = pathPaint.getStyle() != SkPaint::kFill_Style;
             const bool hairline = pathPaint.getStrokeWidth() == 0;
-            const bool needsExactCTM = pathPaint.getShader()
-                                    || pathPaint.getPathEffect()
-                                    || pathPaint.getMaskFilter()
-                                    || (stroking && !hairline);
+            const bool needsExactCTM = pathPaint.getShader()     ||
+                                       pathPaint.getPathEffect() ||
+                                       pathPaint.getMaskFilter() ||
+                                       (stroking && !hairline);
             if (!needsExactCTM) {
                 for (auto [variant, pos] : accepted->accepted()) {
                     const SkPath* path = variant.glyph()->path();
@@ -135,7 +114,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     canvas->drawPath(*path, pathPaint);
                 }
             } else {
-               for (auto [variant, pos] : accepted->accepted()) {
+                for (auto [variant, pos] : accepted->accepted()) {
                     const SkPath* path = variant.glyph()->path();
                     SkMatrix m;
                     SkPoint translate = drawOrigin + pos;
@@ -247,8 +226,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
                 // Since the glyph in the cache is scaled by maxScale, its top left vector is too
                 // long. Reduce it to find proper positions on the device.
-                SkPoint realPos = srcPos
-                        + SkPoint::Make(mask.fBounds.left(), mask.fBounds.top()) * (1.0f/maxScale);
+                SkPoint realPos =
+                    srcPos + SkPoint::Make(mask.fBounds.left(), mask.fBounds.top())*(1.0f/maxScale);
 
                 // Calculate the preConcat matrix for drawBitmap to get the rectangle from the
                 // glyph cache (which is multiplied by maxScale) to land in the right place.
@@ -269,11 +248,28 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
     }
 }
 
+// -- SkGlyphRunListPainter ------------------------------------------------------------------------
+SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
+                                             SkScalerContextFlags flags,
+                                             SkStrikeForGPUCacheInterface* strikeCache)
+        : fDeviceProps{props}
+        , fScalerContextFlags{flags}
+        , fStrikeCache{strikeCache} {}
+
+SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
+                                             const SkColorSpace* colorSpace,
+                                             SkStrikeForGPUCacheInterface* strikeCache)
+        : SkGlyphRunListPainter{props, compute_scaler_context_flags(colorSpace), strikeCache} {}
+
+#if SK_SUPPORT_GPU
+SkGlyphRunListPainter::SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext& sdc)
+        : SkGlyphRunListPainter{sdc.surfaceProps(),
+                                compute_scaler_context_flags(sdc.colorInfo().colorSpace()),
+                                SkStrikeCache::GlobalStrikeCache()} {}
+
 // Use the following in your args.gn to dump telemetry for diagnosing chrome Renderer/GPU
 // differences.
 // extra_cflags = ["-D", "SK_TRACE_GLYPH_RUN_PROCESS"]
-
-#if SK_SUPPORT_GPU
 void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* process,
                                                    const SkGlyphRunList& glyphRunList,
                                                    const SkMatrix& positionMatrix,

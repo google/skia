@@ -527,7 +527,7 @@ private:
     bool hasSomeAntiAliasing() const;
 
     friend class SkFontPriv;
-    friend class SkGlyphRunListPainter;
+    friend class SkGlyphRunListPainterCPU;
     friend class SkStrikeSpec;
     friend class SkRemoteGlyphCacheTest;
 };
