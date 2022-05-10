@@ -117,6 +117,25 @@ static void test_sect_with_horizontal_needs_pinning() {
     SkSurface::MakeRasterN32Premul(10, 10)->getCanvas()->drawPath(path, paint);
 }
 
+static void test_iterative_intersect_line() {
+    // crbug.com/1320467
+    // SkLineClipper::IntersectLine used to clip against the horizontal segment. Then, if it still
+    // needed clipping, would clip against the vertical segment, but start over from the un-clipped
+    // endpoints. With that version, this draw would trigger an assert.
+    // With the fix (iteratively clipping the intermediate results after the first operation),
+    // this shouldn't assert:
+    SkPath path;
+    path.moveTo(-478.805145f, 153.862549f);
+    path.lineTo(6.27216804e+19f, 6.27216804e+19f);
+    path.lineTo(-666.754272f, 155.086304f);
+    path.close();
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    SkSurface::MakeRasterN32Premul(256, 256)->getCanvas()->drawPath(path, paint);
+
+}
+
 static void test_path_crbug364224() {
     SkPath path;
     SkPaint paint;
@@ -4815,6 +4834,7 @@ DEF_TEST(Paths, reporter) {
     test_fuzz_crbug_647922();
     test_fuzz_crbug_643933();
     test_sect_with_horizontal_needs_pinning();
+    test_iterative_intersect_line();
     test_crbug_629455(reporter);
     test_fuzz_crbug_627414(reporter);
     test_path_crbug364224();
