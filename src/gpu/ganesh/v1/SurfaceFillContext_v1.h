@@ -33,8 +33,7 @@ public:
     SurfaceFillContext(GrRecordingContext*,
                        GrSurfaceProxyView readView,
                        GrSurfaceProxyView writeView,
-                       const GrColorInfo&,
-                       bool flushTimeOpsTask = false);
+                       const GrColorInfo&);
 
     void discard() override;
 
@@ -96,8 +95,6 @@ private:
     // The OpsTask can be closed by some other surface context that has picked it up. For this
     // reason, the OpsTask should only ever be accessed via 'getOpsTask'.
     sk_sp<OpsTask> fOpsTask;
-
-    bool fFlushTimeOpsTask;
 
     using INHERITED = skgpu::SurfaceFillContext;
 };

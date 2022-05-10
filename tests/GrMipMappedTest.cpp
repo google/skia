@@ -390,8 +390,7 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> draw_mipmap_into_new_rende
                                                    std::move(renderTarget),
                                                    nullptr,
                                                    kTopLeft_GrSurfaceOrigin,
-                                                   SkSurfaceProps(),
-                                                   false);
+                                                   SkSurfaceProps());
 
     sdc->drawTexture(nullptr,
                      std::move(mipmapView),
@@ -448,7 +447,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
 
         auto mipmapSDC = skgpu::v1::SurfaceDrawContext::Make(
             dContext.get(), colorType, mipmapProxy, nullptr, kTopLeft_GrSurfaceOrigin,
-            SkSurfaceProps(), false);
+            SkSurfaceProps());
 
         mipmapSDC->clear(SkPMColor4f{.1f, .2f, .3f, .4f});
         REPORTER_ASSERT(reporter, drawingManager->getLastRenderTask(mipmapProxy.get()));

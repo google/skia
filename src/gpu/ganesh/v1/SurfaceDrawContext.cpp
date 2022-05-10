@@ -131,8 +131,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(GrRecordingContext*
                                                              sk_sp<GrSurfaceProxy> proxy,
                                                              sk_sp<SkColorSpace> colorSpace,
                                                              GrSurfaceOrigin origin,
-                                                             const SkSurfaceProps& surfaceProps,
-                                                             bool flushTimeOpsTask) {
+                                                             const SkSurfaceProps& surfaceProps) {
     if (!rContext || !proxy || colorType == GrColorType::kUnknown) {
         return nullptr;
     }
@@ -149,8 +148,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(GrRecordingContext*
                                                 std::move(writeView),
                                                 colorType,
                                                 std::move(colorSpace),
-                                                surfaceProps,
-                                                flushTimeOpsTask);
+                                                surfaceProps);
 }
 
 std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
@@ -292,13 +290,11 @@ SurfaceDrawContext::SurfaceDrawContext(GrRecordingContext* rContext,
                                        GrSurfaceProxyView writeView,
                                        GrColorType colorType,
                                        sk_sp<SkColorSpace> colorSpace,
-                                       const SkSurfaceProps& surfaceProps,
-                                       bool flushTimeOpsTask)
+                                       const SkSurfaceProps& surfaceProps)
         : SurfaceFillContext(rContext,
                              std::move(readView),
                              std::move(writeView),
-                             {colorType, kPremul_SkAlphaType, std::move(colorSpace)},
-                             flushTimeOpsTask)
+                             {colorType, kPremul_SkAlphaType, std::move(colorSpace)})
         , fSurfaceProps(surfaceProps)
         , fCanUseDynamicMSAA(
                 (fSurfaceProps.flags() & SkSurfaceProps::kDynamicMSAA_Flag) &&
