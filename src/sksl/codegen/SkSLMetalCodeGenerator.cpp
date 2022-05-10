@@ -2280,10 +2280,12 @@ void MetalCodeGenerator::writeDoStatement(const DoStatement& d) {
 }
 
 void MetalCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {
-    if (s.expression()->hasSideEffects()) {
-        this->writeExpression(*s.expression(), Precedence::kTopLevel);
-        this->write(";");
+    if (fProgram.fConfig->fSettings.fOptimize && !s.expression()->hasSideEffects()) {
+        // Don't emit dead expressions.
+        return;
     }
+    this->writeExpression(*s.expression(), Precedence::kTopLevel);
+    this->write(";");
 }
 
 void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {

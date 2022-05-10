@@ -1410,10 +1410,12 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
 }
 
 void GLSLCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {
-    if (s.expression()->hasSideEffects()) {
-        this->writeExpression(*s.expression(), Precedence::kTopLevel);
-        this->write(";");
+    if (fProgram.fConfig->fSettings.fOptimize && !s.expression()->hasSideEffects()) {
+        // Don't emit dead expressions.
+        return;
     }
+    this->writeExpression(*s.expression(), Precedence::kTopLevel);
+    this->write(";");
 }
 
 void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {

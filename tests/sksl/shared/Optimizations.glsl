@@ -37,6 +37,7 @@ bool flatten_matching_ternary_b() {
 }
 bool flatten_expr_without_side_effects_b() {
     bool check = true;
+    check;
     return check;
 }
 bool flatten_switch_b() {
