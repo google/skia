@@ -374,7 +374,7 @@ bool SkVideoDecoder::loadStream(std::unique_ptr<SkStream> stream) {
         return false;
     }
 
-    AVCodec* codec;
+    const AVCodec* codec;
     fStreamIndex = av_find_best_stream(fFormatCtx, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
     if (fStreamIndex < 0) {
         SkDebugf("av_find_best_stream failed %d\n", fStreamIndex);
