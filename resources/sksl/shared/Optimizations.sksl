@@ -1,0 +1,62 @@
+/*#pragma settings NoOptimize*/
+
+uniform half4 colorGreen, colorRed;
+
+bool flatten_compound_constructor() {
+    int4 x = int4(int3(int2(1, 2), 3), 4);
+    int4 y = int4(1, int3(2, int2(3, 4)));
+    return x == y;
+}
+
+bool flatten_known_if() {
+    int value;
+    if (true) {
+        value = 1;
+    } else {
+        value = 2;
+    }
+    return value == 1;
+}
+
+bool eliminate_empty_if_else() {
+    bool check = false;
+    if (check = !check /* assignment is intentional! */) {} else {}
+    return check;
+}
+
+bool eliminate_empty_else() {
+    bool check = true;
+    if (check) { return true; } else {}
+    return false;
+}
+
+bool flatten_matching_ternary() {
+    bool check = true;
+    return check ? true : true;
+}
+
+bool flatten_expr_without_side_effects() {
+    bool check = true;
+    check;
+    return check;
+}
+
+bool flatten_switch() {
+    switch (1) {
+        case 0: return false;
+        case 1: return true;
+        case 2: return false;
+    }
+    return false;
+}
+
+half4 main(float2 coords) {
+    return flatten_compound_constructor()
+           && flatten_known_if()
+           && eliminate_empty_if_else()
+           && eliminate_empty_else()
+           && flatten_matching_ternary()
+           && flatten_expr_without_side_effects()
+           && flatten_switch()
+           ? colorGreen : colorRed;
+}

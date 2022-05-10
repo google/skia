@@ -631,6 +631,7 @@ sksl_settings_tests = [
   "/sksl/inliner/ExponentialGrowth.sksl",
   "/sksl/inliner/InlinerCanBeDisabled.sksl",
   "/sksl/shared/Derivatives.sksl",
+  "/sksl/shared/Optimizations.sksl",
   "/sksl/shared/Switch.sksl",
   "/sksl/shared/SwitchDefaultOnly.sksl",
   "/sksl/shared/SwitchWithFallthrough.sksl",
