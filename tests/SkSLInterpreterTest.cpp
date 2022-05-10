@@ -46,8 +46,6 @@ struct ProgramBuilder {
         // The SkSL inliner is well tested in other contexts. Here, we disable inlining entirely,
         // to stress-test the VM generator's handling of function calls with varying signatures.
         settings.fInlineThreshold = 0;
-        // For convenience, so we can test functions other than (and not called by) main.
-        settings.fRemoveDeadFunctions = false;
 
         fProgram = fCompiler.convertProgram(SkSL::ProgramKind::kGeneric, std::string(src),
                                             settings);
