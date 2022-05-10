@@ -10,6 +10,7 @@ import json
 import os
 import platform
 import re
+import shutil
 import stat
 import sys
 import tempfile
@@ -20,9 +21,10 @@ if sys.version_info[0] < 3:
 else:
   from urllib.request import urlopen
 
+
 def sha256sum(path):
   try:
-    with open(path, 'rb') as f:
+    with open(sk_path, 'rb') as f:
       return hashlib.sha256(f.read()).hexdigest()
   except OSError:
     return ''
