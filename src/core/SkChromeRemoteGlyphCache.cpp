@@ -978,13 +978,14 @@ bool SkStrikeClientImpl::ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deseri
 
     return true;
 }
-
+// Change the path count to track the line number of the failing read.
+// TODO: change __LINE__ back to glyphPathsCount when bug chromium:1287356 is closed.
 #define READ_FAILURE                                                        \
     {                                                                       \
         SkDebugf("Bad font data serialization line: %d", __LINE__);         \
         SkStrikeClient::DiscardableHandleManager::ReadFailureData data = {  \
                 memorySize,  deserializer.bytesRead(), typefaceSize,        \
-                strikeCount, glyphImagesCount,         glyphPathsCount};    \
+                strikeCount, glyphImagesCount, __LINE__};                   \
         fDiscardableHandleManager->notifyReadFailure(data);                 \
         return false;                                                       \
     }
