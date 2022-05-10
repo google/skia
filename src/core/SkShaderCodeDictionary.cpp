@@ -139,14 +139,15 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
 }
 
 // The current, incomplete, model for shader construction is:
-//   each static code snippet (which can have an arbitrary signature) gets emitted once as a
-//            preamble
-//   glue code is then generated w/in the "main" method. The glue code is responsible for:
+//   - Static code snippets (which can have an arbitrary signature) live in the Graphite
+//     pre-compiled module, which is located at `src/sksl/sksl_graphite_frag.sksl`.
+//   - Glue code is generated in a `main` method which calls these static code snippets.
+//     The glue code is responsible for:
 //            1) gathering the correct (mangled) uniforms
 //            2) passing the uniforms and any other parameters to the helper method
-//   The result of the last code snippet is then copied into "sk_FragColor".
-// Note: that each entry's 'fStaticFunctionName' field must match the name of a function in the
-// Graphite pre-compiled module, located at `src/sksl/sksl_graphite_frag.sksl`.
+//   - The result of the final code snippet is then copied into "sk_FragColor".
+//   Note: each entry's 'fStaticFunctionName' field is expected to match the name of a function
+//   in the Graphite pre-compiled module.
 std::string SkShaderInfo::toSkSL() const {
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     std::string result = skgpu::graphite::GetMtlUniforms(2, "FS", fBlockReaders,
