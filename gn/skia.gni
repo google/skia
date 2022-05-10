@@ -104,6 +104,10 @@ declare_args() {
   skia_use_libfuzzer_defaults = true
 }
 
+if (skia_use_angle && skia_gl_standard != "gles") {
+  skia_gl_standard = ""
+}
+
 declare_args() {
   skia_pdf_subset_harfbuzz = skia_use_harfbuzz
 }
