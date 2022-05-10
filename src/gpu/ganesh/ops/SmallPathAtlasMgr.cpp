@@ -64,7 +64,9 @@ bool SmallPathAtlasMgr::initAtlas(GrProxyProvider* proxyProvider, const GrCaps* 
                                  GrColorTypeBytesPerPixel(atlasColorType),
                                  size.width(), size.height(),
                                  kPlotWidth, kPlotHeight, this,
-                                 GrDrawOpAtlas::AllowMultitexturing::kYes, this);
+                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
+                                 this,
+                                 /*label=*/"SmallPathAtlas");
 
     return SkToBool(fAtlas);
 }

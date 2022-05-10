@@ -351,7 +351,10 @@ bool GrAtlasManager::initAtlas(MaskFormat format) {
                                               GrColorTypeBytesPerPixel(grColorType),
                                               atlasDimensions.width(), atlasDimensions.height(),
                                               plotDimensions.width(), plotDimensions.height(),
-                                              this, fAllowMultitexturing, nullptr);
+                                              this,
+                                              fAllowMultitexturing,
+                                              nullptr,
+                                              /*label=*/"TextAtlas");
         if (!fAtlases[index]) {
             return false;
         }

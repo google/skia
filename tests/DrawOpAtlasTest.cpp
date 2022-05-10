@@ -158,7 +158,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
                                                 kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
                                                 &counter,
                                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
-                                                &evictor);
+                                                &evictor,
+                                                /*label=*/"BasicDrawOpAtlasTest");
     check(reporter, atlas.get(), 0, 4, 0);
 
     // Fill up the first level

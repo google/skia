@@ -78,7 +78,8 @@ public:
                                                int plotWidth, int plotHeight,
                                                skgpu::AtlasGenerationCounter* generationCounter,
                                                AllowMultitexturing allowMultitexturing,
-                                               skgpu::PlotEvictionCallback* evictor);
+                                               skgpu::PlotEvictionCallback* evictor,
+                                               std::string_view label);
 
     /**
      * Adds a width x height subimage to the atlas. Upon success it returns 'kSucceeded' and returns
@@ -165,7 +166,7 @@ private:
     GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, SkColorType, size_t bpp,
                   int width, int height, int plotWidth, int plotHeight,
                   skgpu::AtlasGenerationCounter* generationCounter,
-                  AllowMultitexturing allowMultitexturing);
+                  AllowMultitexturing allowMultitexturing, std::string_view label);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
@@ -260,6 +261,7 @@ private:
     int                   fPlotWidth;
     int                   fPlotHeight;
     unsigned int          fNumPlots;
+    const std::string     fLabel;
 
     skgpu::AtlasGenerationCounter* const fGenerationCounter;
     uint64_t                      fAtlasGeneration;
