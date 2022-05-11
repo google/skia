@@ -46,9 +46,9 @@ public:
 
     bool hasProperty(Property property) const override { return false; }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new MethodReference(
-                fPosition, this->self()->clone(), this->functions(), &this->type()));
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::unique_ptr<Expression>(new MethodReference(pos, this->self()->clone(),
+                                                               this->functions(), &this->type()));
     }
 
     std::string description() const override {

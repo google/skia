@@ -791,8 +791,8 @@ bool FunctionCall::hasProperty(Property property) const {
     return false;
 }
 
-std::unique_ptr<Expression> FunctionCall::clone() const {
-    return std::make_unique<FunctionCall>(fPosition, &this->type(), &this->function(),
+std::unique_ptr<Expression> FunctionCall::clone(Position pos) const {
+    return std::make_unique<FunctionCall>(pos, &this->type(), &this->function(),
                                           this->arguments().clone());
 }
 

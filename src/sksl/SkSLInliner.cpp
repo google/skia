@@ -417,7 +417,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
             if (remap) {
                 return clone_with_ref_kind(**remap, v.refKind());
             }
-            return v.clone();
+            return expression.clone();
         }
         default:
             SkASSERT(false);

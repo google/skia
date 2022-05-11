@@ -30,7 +30,7 @@ public:
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
+    std::unique_ptr<Expression> clone(Position) const override {
         return std::make_unique<CodeStringExpression>(fCode, &this->type());
     }
 

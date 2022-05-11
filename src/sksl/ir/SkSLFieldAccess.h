@@ -70,11 +70,11 @@ public:
         return this->base()->hasProperty(property);
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FieldAccess(fPosition,
-                                                           this->base()->clone(),
-                                                           this->fieldIndex(),
-                                                           this->ownerKind()));
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<FieldAccess>(pos,
+                                             this->base()->clone(),
+                                             this->fieldIndex(),
+                                             this->ownerKind());
     }
 
     std::string description() const override {

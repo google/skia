@@ -51,8 +51,8 @@ public:
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ExternalFunctionCall>(fPosition, &this->function(),
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<ExternalFunctionCall>(pos, &this->function(),
                                                       this->arguments().clone());
     }
 

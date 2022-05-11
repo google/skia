@@ -25,8 +25,8 @@ public:
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<Poison>(fPosition, &this->type());
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<Poison>(pos, &this->type());
     }
 
     std::string description() const override {

@@ -19,8 +19,8 @@ bool ChildCall::hasProperty(Property property) const {
     return false;
 }
 
-std::unique_ptr<Expression> ChildCall::clone() const {
-    return std::make_unique<ChildCall>(fPosition, &this->type(), &this->child(),
+std::unique_ptr<Expression> ChildCall::clone(Position pos) const {
+    return std::make_unique<ChildCall>(pos, &this->type(), &this->child(),
                                        this->arguments().clone());
 }
 

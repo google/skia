@@ -35,9 +35,8 @@ public:
                                             const Type& type,
                                             ExpressionArray args);
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorArray>(fPosition, this->type(),
-                this->arguments().clone());
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<ConstructorArray>(pos, this->type(), this->arguments().clone());
     }
 
 private:

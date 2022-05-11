@@ -92,7 +92,7 @@ public:
         return this->left()->hasProperty(property) || this->right()->hasProperty(property);
     }
 
-    std::unique_ptr<Expression> clone() const override;
+    std::unique_ptr<Expression> clone(Position pos) const override;
 
     std::string description() const override;
 

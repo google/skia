@@ -77,8 +77,8 @@ public:
                this->ifFalse()->isConstantOrUniform();
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<TernaryExpression>(fPosition, this->test()->clone(),
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<TernaryExpression>(pos, this->test()->clone(),
                                                    this->ifTrue()->clone(),
                                                    this->ifFalse()->clone());
     }

@@ -33,8 +33,8 @@ public:
     static std::unique_ptr<Expression> Convert(const Context& context, Position pos,
                                                const std::string_view& name);
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<Setting>(fPosition, this->name(), &this->type());
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<Setting>(pos, this->name(), &this->type());
     }
 
     const std::string_view& name() const {

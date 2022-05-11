@@ -126,8 +126,8 @@ public:
                        : ComparisonResult::kNotEqual;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<Literal>(fPosition, this->value(), &this->type());
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<Literal>(pos, this->value(), &this->type());
     }
 
     bool supportsConstantValues() const override {

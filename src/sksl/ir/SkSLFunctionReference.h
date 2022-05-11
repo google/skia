@@ -35,8 +35,8 @@ public:
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FunctionReference(fPosition, this->functions(),
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::unique_ptr<Expression>(new FunctionReference(pos, this->functions(),
                                                                  &this->type()));
     }
 

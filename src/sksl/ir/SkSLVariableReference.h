@@ -66,8 +66,8 @@ public:
 
     bool isConstantOrUniform() const override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<VariableReference>(fPosition, this->variable(), this->refKind());
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<VariableReference>(pos, this->variable(), this->refKind());
     }
 
     std::string description() const override;

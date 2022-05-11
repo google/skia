@@ -45,9 +45,8 @@ public:
         return std::string(this->value().name());
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new TypeReference(fPosition, &this->value(),
-                &this->type()));
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::unique_ptr<Expression>(new TypeReference(pos, &this->value(), &this->type()));
     }
 
 private:

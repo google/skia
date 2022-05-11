@@ -43,9 +43,8 @@ public:
                                             const Type& type,
                                             std::unique_ptr<Expression> arg);
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorScalarCast>(fPosition, this->type(),
-                argument()->clone());
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<ConstructorScalarCast>(pos, this->type(), argument()->clone());
     }
 
     bool isCompileTimeConstant() const override {

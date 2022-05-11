@@ -239,8 +239,8 @@ bool BinaryExpression::CheckRef(const Expression& expr) {
     }
 }
 
-std::unique_ptr<Expression> BinaryExpression::clone() const {
-    return std::make_unique<BinaryExpression>(fPosition,
+std::unique_ptr<Expression> BinaryExpression::clone(Position pos) const {
+    return std::make_unique<BinaryExpression>(pos,
                                               this->left()->clone(),
                                               this->getOperator(),
                                               this->right()->clone(),

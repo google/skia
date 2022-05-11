@@ -38,8 +38,8 @@ public:
         return std::string(this->function().name());
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ExternalFunctionReference>(fPosition, &this->function());
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<ExternalFunctionReference>(pos, &this->function());
     }
 
 private:

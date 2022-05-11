@@ -54,9 +54,9 @@ public:
                this->operand()->hasProperty(property);
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<PostfixExpression>(fPosition, this->operand()->clone(),
-                this->getOperator());
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<PostfixExpression>(pos, this->operand()->clone(),
+                                                   this->getOperator());
     }
 
     std::string description() const override {

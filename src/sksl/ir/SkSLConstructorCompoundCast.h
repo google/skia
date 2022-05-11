@@ -39,9 +39,8 @@ public:
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorCompoundCast>(fPosition, this->type(),
-                argument()->clone());
+    std::unique_ptr<Expression> clone(Position pos) const override {
+        return std::make_unique<ConstructorCompoundCast>(pos, this->type(), argument()->clone());
     }
 
 private:
