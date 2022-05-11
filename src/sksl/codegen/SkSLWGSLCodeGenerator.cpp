@@ -39,6 +39,7 @@
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
@@ -489,19 +490,19 @@ void WGSLCodeGenerator::writePipelineIODeclaration(Modifiers modifiers,
     // https://www.w3.org/TR/WGSL/#builtin-inputs-outputs
     int location = modifiers.fLayout.fLocation;
     if (location >= 0) {
-        this->writeUserDefinedVariableDecl(type, name, location, delimiter);
+        this->writeUserDefinedIODecl(type, name, location, delimiter);
     } else if (modifiers.fLayout.fBuiltin >= 0) {
         auto builtin = builtin_from_sksl_name(modifiers.fLayout.fBuiltin);
         if (builtin.has_value()) {
-            this->writeBuiltinVariableDecl(type, name, *builtin, delimiter);
+            this->writeBuiltinIODecl(type, name, *builtin, delimiter);
         }
     }
 }
 
-void WGSLCodeGenerator::writeUserDefinedVariableDecl(const Type& type,
-                                                     std::string_view name,
-                                                     int location,
-                                                     Delimiter delimiter) {
+void WGSLCodeGenerator::writeUserDefinedIODecl(const Type& type,
+                                               std::string_view name,
+                                               int location,
+                                               Delimiter delimiter) {
     this->write("@location(" + std::to_string(location) + ") ");
 
     // "User-defined IO of scalar or vector integer type must always be specified as
@@ -515,10 +516,10 @@ void WGSLCodeGenerator::writeUserDefinedVariableDecl(const Type& type,
     this->writeLine(delimiter_to_str(delimiter));
 }
 
-void WGSLCodeGenerator::writeBuiltinVariableDecl(const Type& type,
-                                                 std::string_view name,
-                                                 Builtin builtin,
-                                                 Delimiter delimiter) {
+void WGSLCodeGenerator::writeBuiltinIODecl(const Type& type,
+                                           std::string_view name,
+                                           Builtin builtin,
+                                           Delimiter delimiter) {
     this->write("@builtin(");
     this->write(wgsl_builtin_name(builtin));
     this->write(") ");
@@ -761,6 +762,9 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
         case Expression::Kind::kConstructorScalarCast:
             this->writeAnyConstructor(e.asAnyConstructor(), parentPrecedence);
             break;
+        case Expression::Kind::kFieldAccess:
+            this->writeFieldAccess(e.as<FieldAccess>());
+            break;
         case Expression::Kind::kLiteral:
             this->writeLiteral(e.as<Literal>());
             break;
@@ -799,6 +803,30 @@ void WGSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (needParens) {
         this->write(")");
     }
+}
+
+void WGSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
+    const Type::Field* field = &f.base()->type().fields()[f.fieldIndex()];
+    if (FieldAccess::OwnerKind::kDefault == f.ownerKind()) {
+        this->writeExpression(*f.base(), Precedence::kPostfix);
+        this->write(".");
+    } else {
+        // We are accessing a field in an anonymous interface block. If the field refers to a
+        // pipeline IO parameter, then we access it via the synthesized IO structs. We make an
+        // explicit exception for `sk_PointSize` which we declare as a placeholder variable in
+        // global scope as it is not supported by WebGPU as a pipeline IO parameter (see comments
+        // in `writeStageOutputStruct`).
+        const Variable& v = *f.base()->as<VariableReference>().variable();
+        if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
+            this->write("_stageIn.");
+        } else if (v.modifiers().fFlags & Modifiers::kOut_Flag && field->fName != "sk_PointSize") {
+            this->write("(*_stageOut).");
+        } else {
+            // TODO(skia:13902): Reference the variable using the base name used for its
+            // uniform/storage block global declaration.
+        }
+    }
+    this->writeName(field->fName);
 }
 
 void WGSLCodeGenerator::writeLiteral(const Literal& l) {
@@ -998,6 +1026,7 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
     // TODO(skia:13092): Remember all variables that are added to the output struct here so they
     // can be referenced correctly when handling variable references.
     bool declaredPositionBuiltin = false;
+    bool requiresPointSizeBuiltin = false;
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const Variable& v =
@@ -1019,19 +1048,34 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
                             f.fModifiers, *f.fType, f.fName, Delimiter::kComma);
                     if (f.fModifiers.fLayout.fBuiltin == SK_POSITION_BUILTIN) {
                         declaredPositionBuiltin = true;
+                    } else if (f.fName == "sk_PointSize") {
+                        // sk_PointSize is explicitly not supported by `builtin_from_sksl_name` so
+                        // writePipelineIODeclaration will never write it. We mark it here if the
+                        // declaration is needed so we can synthesize it below.
+                        requiresPointSizeBuiltin = true;
                     }
                 }
             }
         }
     }
 
-    // A vertex shader must include the `position` builtin in its return type.
+    // A vertex program must include the `position` builtin in its entry point return type.
     if (ProgramConfig::IsVertex(fProgram.fConfig->fKind) && !declaredPositionBuiltin) {
         this->writeLine("@builtin(position) sk_Position: vec4<f32>,");
     }
 
     fIndentation--;
     this->writeLine("};");
+
+    // In WebGPU/WGSL, the vertex stage does not support a point-size output and the size
+    // of a point primitive is always 1 pixel (see https://github.com/gpuweb/gpuweb/issues/332).
+    //
+    // There isn't anything we can do to emulate this correctly at this stage so we
+    // synthesize a placeholder variable that has no effect. Programs should not rely on
+    // sk_PointSize when using the Dawn backend.
+    if (ProgramConfig::IsVertex(fProgram.fConfig->fKind) && requiresPointSizeBuiltin) {
+        this->writeLine("/* unsupported */ var<private> sk_PointSize: f32;");
+    }
 }
 
 }  // namespace SkSL

@@ -448,6 +448,7 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLConstructor_hdr",
         "//src/sksl/ir:SkSLExpressionStatement_hdr",
         "//src/sksl/ir:SkSLExpression_hdr",
+        "//src/sksl/ir:SkSLFieldAccess_hdr",
         "//src/sksl/ir:SkSLFunctionCall_hdr",
         "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",

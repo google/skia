@@ -306,6 +306,7 @@ sksl_spirv_tests = [
 
 sksl_wgsl_tests = [
   "/sksl/wgsl/BuiltinFragmentStageIO.sksl",
+  "/sksl/wgsl/BuiltinVertexStageIO.vert",
   "/sksl/wgsl/MainHasFragCoordParameter.sksl",
   "/sksl/wgsl/MainHasVoidReturn.sksl",
   "/sksl/wgsl/MainDoesNotHaveFragCoordParameter.sksl",
