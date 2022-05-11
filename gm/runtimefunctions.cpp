@@ -15,20 +15,25 @@
 #include "include/effects/SkRuntimeEffect.h"
 
 static const char* RUNTIME_FUNCTIONS_SRC = R"(
-    uniform half4 gColor;
+// Source: @notargs https://twitter.com/notargs/status/1250468645030858753
+uniform half4 iResolution;
+const float iTime = 0;
 
-    half scale(float x) {
-        return x / 255;
-    }
+float f(vec3 p) {
+    p.z -= iTime * 10.;
+    float a = p.z * .1;
+    p.xy *= mat2(cos(a), sin(a), -sin(a), cos(a));
+    return .1 - length(cos(p.xy) + sin(p.yz));
+}
 
-    half4 blackAndWhite(half4 raw) {
-        half value = raw.r * 0.22 + raw.g * 0.67 + raw.b * 0.11;
-        return half4(value.xxx, raw.a);
+half4 main(vec2 fragcoord) {
+    vec3 d = .5 - fragcoord.xy1 / iResolution.y;
+    vec3 p=vec3(0);
+    for (int i = 0; i < 32; i++) {
+      p += f(p) * d;
     }
-
-    half4 main(float2 p) {
-        return blackAndWhite(half4(scale(p.x), scale(p.y), gColor.b, 1));
-    }
+    return ((sin(p) + vec3(2, 5, 9)) / length(p)).xyz1;
+}
 )";
 
 class RuntimeFunctions : public skiagm::GM {
@@ -39,16 +44,16 @@ class RuntimeFunctions : public skiagm::GM {
     SkISize onISize() override { return {256, 256}; }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkRuntimeEffect> gEffect =
-                SkRuntimeEffect::MakeForShader(SkString(RUNTIME_FUNCTIONS_SRC)).effect;
-        SkASSERT(gEffect);
+        SkRuntimeEffect::Result result =
+                SkRuntimeEffect::MakeForShader(SkString(RUNTIME_FUNCTIONS_SRC));
+        SkASSERTF(result.effect, "%s", result.errorText.c_str());
 
         SkMatrix localM;
         localM.setRotate(90, 128, 128);
 
-        SkColor4f inputColor = { 1, 0, 0, 1 };
-        auto shader = gEffect->makeShader(SkData::MakeWithCopy(&inputColor, sizeof(inputColor)),
-                                          nullptr, 0, &localM);
+        SkV4 iResolution = { 255, 255, 0, 0 };
+        auto shader = result.effect->makeShader(
+                SkData::MakeWithCopy(&iResolution, sizeof(iResolution)), nullptr, 0, &localM);
         SkPaint p;
         p.setShader(std::move(shader));
         canvas->drawRect({0, 0, 256, 256}, p);
