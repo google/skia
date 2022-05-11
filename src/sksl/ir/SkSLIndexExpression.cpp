@@ -117,9 +117,7 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                     const ExpressionArray& arguments = arrayCtor.arguments();
                     SkASSERT(arguments.count() == baseType.columns());
 
-                    std::unique_ptr<Expression> result = arguments[indexValue]->clone();
-                    result->fPosition = pos;
-                    return result;
+                    return arguments[indexValue]->clone(pos);
                 }
             }
 

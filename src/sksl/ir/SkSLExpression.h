@@ -209,7 +209,7 @@ public:
     /**
      * Returns a clone with a modified position.
      */
-    std::unique_ptr<Expression> clone(Position pos) {
+    std::unique_ptr<Expression> clone(Position pos) const {
         std::unique_ptr<Expression> result = this->clone();
         result->fPosition = pos;
         return result;

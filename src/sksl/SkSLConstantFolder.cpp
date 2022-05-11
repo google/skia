@@ -56,9 +56,7 @@ static std::unique_ptr<Expression> eliminate_no_op_boolean(Position pos,
         (op.kind() == Operator::Kind::EQEQ       && rightVal)  ||  // (expr == true)  -> (expr)
         (op.kind() == Operator::Kind::NEQ        && !rightVal)) {  // (expr != false) -> (expr)
 
-        std::unique_ptr<Expression> result = left.clone();
-        result->fPosition = pos;
-        return result;
+        return left.clone(pos);
     }
 
     return nullptr;
@@ -74,9 +72,7 @@ static std::unique_ptr<Expression> short_circuit_boolean(Position pos,
     if ((op.kind() == Operator::Kind::LOGICALAND && !leftVal) ||  // (false && expr) -> (false)
         (op.kind() == Operator::Kind::LOGICALOR  && leftVal)) {   // (true  || expr) -> (true)
 
-        std::unique_ptr<Expression> result = left.clone();
-        result->fPosition = pos;
-        return result;
+        return left.clone(pos);
     }
 
     // We can't eliminate the right-side expression via short-circuit, but we might still be able to
@@ -378,8 +374,7 @@ std::unique_ptr<Expression> ConstantFolder::MakeConstantValueForVariable(Positio
         std::unique_ptr<Expression> expr) {
     const Expression* constantExpr = GetConstantValueForVariable(*expr);
     if (constantExpr != expr.get()) {
-        expr = constantExpr->clone();
-        expr->fPosition = pos;
+        expr = constantExpr->clone(pos);
     }
     return expr;
 }
@@ -507,9 +502,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // self-assignment (i.e., `var = var`) and can be reduced to just a variable reference (`var`).
     // This can happen when other parts of the assignment are optimized away.
     if (op.kind() == Operator::Kind::EQ && Analysis::IsSameExpressionTree(*left, *right)) {
-        std::unique_ptr<Expression> result = right->clone();
-        result->fPosition = pos;
-        return result;
+        return right->clone(pos);
     }
 
     // Simplify the expression when both sides are constant Boolean literals.
