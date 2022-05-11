@@ -81,18 +81,16 @@ private:
     const SkScalerContextFlags fScalerContextFlags;
 };
 
+#if SK_SUPPORT_GPU
 class SkGlyphRunListPainter {
 public:
     SkGlyphRunListPainter(const SkSurfaceProps& props,
                           const SkColorSpace* colorSpace,
                           SkStrikeForGPUCacheInterface* strikeCache);
-#if SK_SUPPORT_GPU
     // The following ctor is used exclusively by the GPU, and will always use the global
     // strike cache.
     explicit SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext&);
-#endif  // SK_SUPPORT_GPU
 
-#if SK_SUPPORT_GPU
     // A nullptr for process means that the calls to the cache will be performed, but none of the
     // callbacks will be called.
     // N.B. The positionMatrix has already been translated to the glyph run list origin.
@@ -102,7 +100,6 @@ public:
                                 const SkPaint& drawPaint,
                                 const GrSDFTControl& control,
                                 const char* tag = nullptr);
-#endif  // SK_SUPPORT_GPU
 
 private:
     SkGlyphRunListPainter(const SkSurfaceProps& props,
@@ -155,5 +152,5 @@ public:
                                    const SkFont& runFont,
                                    const GrSDFTMatrixRange& matrixRange) = 0;
 };
-
+#endif  // SK_SUPPORT_GPU
 #endif  // SkGlyphRunPainter_DEFINED

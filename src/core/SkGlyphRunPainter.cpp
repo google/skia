@@ -249,6 +249,7 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(
 }
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
+#if SK_SUPPORT_GPU
 SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
                                              SkScalerContextFlags flags,
                                              SkStrikeForGPUCacheInterface* strikeCache)
@@ -261,7 +262,6 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
                                              SkStrikeForGPUCacheInterface* strikeCache)
         : SkGlyphRunListPainter{props, compute_scaler_context_flags(colorSpace), strikeCache} {}
 
-#if SK_SUPPORT_GPU
 SkGlyphRunListPainter::SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext& sdc)
         : SkGlyphRunListPainter{sdc.surfaceProps(),
                                 compute_scaler_context_flags(sdc.colorInfo().colorSpace()),
