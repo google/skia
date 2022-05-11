@@ -999,6 +999,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLUnaryPositiveNegative_GPU")
 	}
 
+	if b.model("Pixel3") || b.model("Pixel2XL") {
+		skip(ALL, "tests", ALL, "SkSLEmptyBlocksES3_GPU")  // skia:13309
+	}
+
 	if b.matchGpu("Adreno[3456]") { // disable broken tests on Adreno 3/4/5/6xx
 		skip(ALL, "tests", ALL, "SkSLArrayCast_GPU")       // skia:12332
 		skip(ALL, "tests", ALL, "SkSLArrayComparison_GPU") // skia:12332
