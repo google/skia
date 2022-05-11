@@ -2691,6 +2691,7 @@ DAWN_SRCS = [
     "externals/dawn/src/dawn/native/ObjectBase.h",
     "externals/dawn/src/dawn/native/ObjectContentHasher.cpp",
     "externals/dawn/src/dawn/native/ObjectContentHasher.h",
+    "externals/dawn/src/dawn/native/PassResourceUsage.cpp",
     "externals/dawn/src/dawn/native/PassResourceUsage.h",
     "externals/dawn/src/dawn/native/PassResourceUsageTracker.cpp",
     "externals/dawn/src/dawn/native/PassResourceUsageTracker.h",
