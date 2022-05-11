@@ -944,6 +944,7 @@ generated_cc_atom(
     srcs = ["SkSLSwizzle.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":SkSLConstructorCompound_hdr",
         ":SkSLConstructorSplat_hdr",
         ":SkSLConstructor_hdr",
         ":SkSLLiteral_hdr",

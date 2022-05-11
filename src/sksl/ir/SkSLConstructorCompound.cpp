@@ -23,7 +23,9 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
     // A scalar "composite" type with a single scalar argument is a no-op and can be eliminated.
     // (Pedantically, this isn't a composite at all, but it's harmless to allow and simplifies
     // call sites which need to narrow a vector and may sometimes end up with a scalar.)
-    if (type.isScalar() && args.size() == 1 && args.front()->type().matches(type)) {
+    if (type.isScalar() && args.size() == 1) {
+        SkASSERTF(args.front()->type().matches(type), "Creating type '%s' from '%s'",
+                  type.description().c_str(), args.front()->type().description().c_str());
         args.front()->fPosition = pos;
         return std::move(args.front());
     }

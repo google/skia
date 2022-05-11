@@ -12,6 +12,7 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 
@@ -285,7 +286,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
         return nullptr;
     }
 
-    const Type& baseType = base->type();
+    const Type& baseType = base->type().scalarTypeForLiteral();
 
     if (!baseType.isVector() && !baseType.isScalar()) {
         context.fErrors->error(
@@ -364,7 +365,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     }
 
     // Coerce literals in expressions such as `(12345).xxx` to their actual type.
-    base = baseType.scalarTypeForLiteral().coerceExpression(std::move(base), context);
+    base = baseType.coerceExpression(std::move(base), context);
     if (!base) {
         return nullptr;
     }
@@ -395,7 +396,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     // Apply another swizzle to shuffle the constants into the correct place. Any constant values we
     // need are also tacked on to the end of the constructor.
     //   scalar.x0x0 -> type4(type2(x), 0).xyxy
-    //   vector.y111 -> type4(vector.y, 1).xyyy
+    //   vector.y111 -> type2(vector.y, 1).xyyy
     //   vector.z10x -> type4(vector.zx, 1, 0).xzwy
     const Type* scalarType = &baseType.componentType();
     ComponentArray swizzleComponents;
@@ -428,13 +429,11 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
         }
     }
 
-    expr = Constructor::Convert(context, pos,
-                                scalarType->toCompound(context, constantFieldIdx, /*rows=*/1),
-                                std::move(constructorArgs));
-    if (!expr) {
-        return nullptr;
-    }
+    expr = ConstructorCompound::Make(context, pos,
+                                     scalarType->toCompound(context, constantFieldIdx, /*rows=*/1),
+                                     std::move(constructorArgs));
 
+    // Create (and potentially optimize-away) the resulting swizzle-expression.
     return Swizzle::Make(context, pos, std::move(expr), swizzleComponents);
 }
 
