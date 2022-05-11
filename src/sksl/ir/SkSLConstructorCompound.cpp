@@ -24,6 +24,7 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
     // (Pedantically, this isn't a composite at all, but it's harmless to allow and simplifies
     // call sites which need to narrow a vector and may sometimes end up with a scalar.)
     if (type.isScalar() && args.size() == 1 && args.front()->type().matches(type)) {
+        args.front()->fPosition = pos;
         return std::move(args.front());
     }
 
