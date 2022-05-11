@@ -203,12 +203,12 @@ static std::vector<skvm::Val> make_skvm_uniforms(skvm::Builder* p,
     return uniform;
 }
 
-SkSL::ProgramSettings SkRuntimeEffect::MakeSettings(const Options& options, bool optimize) {
+SkSL::ProgramSettings SkRuntimeEffect::MakeSettings(const Options& options) {
     SkSL::ProgramSettings settings;
     settings.fInlineThreshold = 0;
-    settings.fForceNoInline = options.forceNoInline;
+    settings.fForceNoInline = options.forceUnoptimized;
+    settings.fOptimize = !options.forceUnoptimized;
     settings.fEnforceES2Restrictions = options.enforceES2Restrictions;
-    settings.fOptimize = optimize;
     return settings;
 }
 
@@ -225,7 +225,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeFromSource(SkString sksl,
         // calling the Make overload at the end, which creates its own (non-reentrant)
         // SharedCompiler instance
         SkSL::SharedCompiler compiler;
-        SkSL::Program::Settings settings = MakeSettings(options, /*optimize=*/true);
+        SkSL::Program::Settings settings = MakeSettings(options);
         program = compiler->convertProgram(kind, std::string(sksl.c_str(), sksl.size()), settings);
 
         if (!program) {
@@ -395,7 +395,7 @@ sk_sp<SkRuntimeEffect> SkRuntimeEffect::makeUnoptimizedClone() {
     // handled when the original SkRuntimeEffect was made. We don't keep around the Options struct
     // from when it was initially made so we don't know what was originally requested.
     Options options;
-    options.forceNoInline = true;
+    options.forceUnoptimized = true;
     options.enforceES2Restrictions = false;
     options.usePrivateRTShaderModule = true;
 
@@ -411,7 +411,7 @@ sk_sp<SkRuntimeEffect> SkRuntimeEffect::makeUnoptimizedClone() {
         // calling MakeInternal at the end, which creates its own (non-reentrant) SharedCompiler
         // instance.
         SkSL::SharedCompiler compiler;
-        SkSL::Program::Settings settings = MakeSettings(options, /*optimize=*/false);
+        SkSL::Program::Settings settings = MakeSettings(options);
         program = compiler->convertProgram(kind, *fBaseProgram->fSource, settings);
 
         if (!program) {
@@ -587,10 +587,12 @@ SkRuntimeEffect::SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
     // be accounted for in `fHash`. If you've added a new field to Options and caused the static-
     // assert below to trigger, please incorporate your field into `fHash` and update KnownOptions
     // to match the layout of Options.
-    struct KnownOptions { bool forceNoInline, enforceES2Restrictions, usePrivateRTShaderModule; };
+    struct KnownOptions {
+        bool forceUnoptimized, enforceES2Restrictions, usePrivateRTShaderModule;
+    };
     static_assert(sizeof(Options) == sizeof(KnownOptions));
-    fHash = SkOpts::hash_fn(&options.forceNoInline,
-                      sizeof(options.forceNoInline), fHash);
+    fHash = SkOpts::hash_fn(&options.forceUnoptimized,
+                      sizeof(options.forceUnoptimized), fHash);
     fHash = SkOpts::hash_fn(&options.enforceES2Restrictions,
                       sizeof(options.enforceES2Restrictions), fHash);
     fHash = SkOpts::hash_fn(&options.usePrivateRTShaderModule,

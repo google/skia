@@ -99,13 +99,13 @@ static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> codeBytes,
 }
 
 bool FuzzSkRuntimeEffect(sk_sp<SkData> bytes) {
-    // Test once with the inliner disabled...
+    // Test once with optimization disabled...
     SkRuntimeEffect::Options options;
-    options.forceNoInline = true;
+    options.forceUnoptimized = true;
     bool result = FuzzSkRuntimeEffect_Once(bytes, options);
 
-    // ... and then with the inliner enabled.
-    options.forceNoInline = false;
+    // ... and then with optimization enabled.
+    options.forceUnoptimized = false;
     result = FuzzSkRuntimeEffect_Once(bytes, options) || result;
 
     return result;

@@ -205,11 +205,11 @@ static void test_permutations(skiatest::Reporter* r,
                               bool strictES2) {
     SkRuntimeEffect::Options options =
             strictES2 ? SkRuntimeEffect::Options{} : SkRuntimeEffectPriv::ES3Options();
-    options.forceNoInline = false;
+    options.forceUnoptimized = false;
     test_one_permutation(r, surface, testFile, "", options);
 
-    options.forceNoInline = true;
-    test_one_permutation(r, surface, testFile, " (NoInline)", options);
+    options.forceUnoptimized = true;
+    test_one_permutation(r, surface, testFile, " (Unoptimized)", options);
 }
 
 static void test_cpu(skiatest::Reporter* r, const char* testFile, int flags) {

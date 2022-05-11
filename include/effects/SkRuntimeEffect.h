@@ -103,9 +103,10 @@ public:
 
     class Options {
     public:
-        // For testing purposes, completely disable the inliner. (Normally, Runtime Effects don't
-        // run the inliner directly, but they still get an inlining pass once they are painted.)
-        bool forceNoInline = false;
+        // For testing purposes, disables optimization and inlining. (Normally, Runtime Effects
+        // don't run the inliner directly, but they still get an inlining pass once they are
+        // painted.)
+        bool forceUnoptimized = false;
 
     private:
         friend class SkRuntimeEffect;
@@ -295,7 +296,7 @@ private:
                                const Options& options,
                                SkSL::ProgramKind kind);
 
-    static SkSL::ProgramSettings MakeSettings(const Options& options, bool optimize);
+    static SkSL::ProgramSettings MakeSettings(const Options& options);
 
     uint32_t hash() const { return fHash; }
     bool usesSampleCoords()   const { return (fFlags & kUsesSampleCoords_Flag);   }
