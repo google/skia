@@ -2571,13 +2571,13 @@ void Viewer::drawImGui() {
                 // If we are changing the compile mode, we want to reset the cache and redo
                 // everything.
                 static bool sDoDeferredView = false;
-                if (doDump || newOptLevel != fOptLevel) {
+                if (doView || doDump || newOptLevel != fOptLevel) {
                     sksl = doDump || (newOptLevel == kShaderOptLevel_Source);
                     fOptLevel = (ShaderOptLevel)newOptLevel;
                     switch (fOptLevel) {
                         case kShaderOptLevel_Source:
-                            Compiler::EnableOptimizer(OverrideFlag::kDefault);
-                            Compiler::EnableInliner(OverrideFlag::kDefault);
+                            Compiler::EnableOptimizer(OverrideFlag::kOff);
+                            Compiler::EnableInliner(OverrideFlag::kOff);
                             break;
                         case kShaderOptLevel_Compile:
                             Compiler::EnableOptimizer(OverrideFlag::kOff);
