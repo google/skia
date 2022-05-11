@@ -22,6 +22,7 @@ static_library("particles") {
     include_dirs = [ "../../tools/timer" ]
     deps = [
       "../..:skia",
+      "../skottie",
       "../skresources",
     ]
     sources = skia_particle_sources

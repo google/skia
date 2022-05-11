@@ -10,6 +10,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageGenerator.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkOSFile.h"
@@ -58,4 +59,25 @@ sk_sp<SkData> GetResourceAsData(const char* resource) {
 
 sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource, int ttcIndex) {
     return SkTypeface::MakeFromStream(GetResourceAsStream(resource), ttcIndex);
+}
+
+sk_sp<SkData> TestingResourceProvider::load(const char path[], const char name[]) const {
+    auto it = fResources.find(name);
+    if (it != fResources.end()) {
+        return it->second;
+    } else {
+        return GetResourceAsData(SkOSPath::Join(path, name).c_str());
+    }
+}
+
+sk_sp<skresources::ImageAsset> TestingResourceProvider::loadImageAsset(const char resource_path[],
+                                                                       const char resource_name[],
+                                                                       const char /*resource_id*/[])
+                                                                       const {
+    auto data = this->load(resource_path, resource_name);
+    return skresources::MultiFrameImageAsset::Make(data);
+}
+
+void TestingResourceProvider::addPath(const char resource_name[], const SkPath& path) {
+    fResources[resource_name] = path.serialize();
 }

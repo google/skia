@@ -249,6 +249,7 @@ generated_cc_atom(
         "//include/core:SkData_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkString_hdr",
+        "//modules/skresources/include:SkResources_hdr",
     ],
 )
 
@@ -264,6 +265,7 @@ generated_cc_atom(
         "//include/core:SkData_hdr",
         "//include/core:SkImageGenerator_hdr",
         "//include/core:SkImage_hdr",
+        "//include/core:SkPath_hdr",
         "//include/core:SkStream_hdr",
         "//include/core:SkTypeface_hdr",
         "//src/core:SkOSFile_hdr",
