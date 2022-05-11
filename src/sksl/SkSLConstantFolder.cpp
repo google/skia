@@ -13,6 +13,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
@@ -571,11 +572,11 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // Optimize away no-op arithmetic like `x * 1`, `x *= 1`, `x + 0`, `x * 0`, `0 / x`, etc.
     const Type& leftType = left->type();
     const Type& rightType = right->type();
-    if ((leftType.isScalar() || leftType.isVector()) &&
+    if (context.fConfig->fSettings.fOptimize &&
+        (leftType.isScalar() || leftType.isVector()) &&
         (rightType.isScalar() || rightType.isVector())) {
-        std::unique_ptr<Expression> expr = simplify_no_op_arithmetic(context, pos, *left, op,
-                *right, resultType);
-        if (expr) {
+        if (std::unique_ptr<Expression> expr = simplify_no_op_arithmetic(context, pos, *left, op,
+                                                                         *right, resultType)) {
             return expr;
         }
     }

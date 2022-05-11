@@ -347,6 +347,7 @@ generated_cc_atom(
         ":SkSLAnalysis_hdr",
         ":SkSLConstantFolder_hdr",
         ":SkSLContext_hdr",
+        ":SkSLProgramSettings_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkSLModifiers_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
