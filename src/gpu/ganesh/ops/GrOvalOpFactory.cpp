@@ -1811,7 +1811,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EllipseOp : public GrMeshDrawOp {
+class EllipseOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelper;
 
@@ -2103,7 +2103,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class DIEllipseOp : public GrMeshDrawOp {
+class DIEllipseOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelper;
 
@@ -2502,7 +2502,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
 //   each vertex is also given the normalized x & y distance from the interior rect's edge
 //      the GP takes the min of those depths +1 to get the normalized distance to the outer edge
 
-class CircularRRectOp : public GrMeshDrawOp {
+class CircularRRectOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelper;
 
@@ -2867,7 +2867,7 @@ static sk_sp<const GrBuffer> get_rrect_index_buffer(RRectType type,
     }
 }
 
-class EllipticalRRectOp : public GrMeshDrawOp {
+class EllipticalRRectOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelper;
 

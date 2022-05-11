@@ -40,12 +40,10 @@ class SurfaceFillContext;
  *            SurfaceContext
  *                   |
  *          SurfaceFillContext
- *           /               \
- *     v1::SFC               v2::SFC
- *        |                     |
- *        |                     |
- *        |                     |
- *     v1::SDC               v2::SDC
+ *                   |
+ *                v1::SFC
+ *                   |
+ *               v1::SDC
  *
  */
 class SurfaceContext {

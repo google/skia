@@ -12,6 +12,8 @@
 
 namespace skgpu {
 
+// This class is left over from the v1/v2 split. It should be merged back into
+// v1::SurfaceFillContext.
 class SurfaceFillContext : public SurfaceContext {
 public:
 

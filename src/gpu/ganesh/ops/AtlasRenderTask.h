@@ -24,7 +24,7 @@ namespace skgpu::v1 {
 //
 // The atlas texture does not get instantiated automatically. It is the creator's responsibility to
 // call instantiate() at flush time.
-class AtlasRenderTask : public OpsTask {
+class AtlasRenderTask final : public OpsTask {
 public:
     AtlasRenderTask(GrRecordingContext*,
                     sk_sp<GrArenas>,

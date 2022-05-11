@@ -24,14 +24,7 @@ namespace v1 { class SurfaceDrawContext; }
 #endif // SK_GPU_V1
 
 /*
- * The most important thing to remember about this class hierarchy is there is no skgpu::SDC
- * base class so the v1 and v2 Devices privately hold their own version of the SDC. The best
- * the BaseDevice can do is to return the SDC-variant as a generic SFC.
- *
- *                             skgpu::BaseDevice
- *                           /                   \
- *                     v1::Device           v2::Device
- *                       - v1::SDC              - v2::SDC
+ * This class is left over from the initial v1/v2 split. It should be merged into the v1::Device.
  */
 class BaseDevice : public SkBaseDevice {
 public:

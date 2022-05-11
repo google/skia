@@ -10,7 +10,7 @@
 
 #include "src/gpu/ganesh/GrRenderTask.h"
 
-class GrMockRenderTask : public GrRenderTask {
+class GrMockRenderTask final : public GrRenderTask {
 public:
     GrMockRenderTask() : GrRenderTask() {
         // Mock tasks are never "owned" by a drawmgr in the first place.
