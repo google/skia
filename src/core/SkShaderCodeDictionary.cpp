@@ -158,13 +158,8 @@ std::string SkShaderInfo::toSkSL() const {
     result += "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
     result += "void main() {\n";
 
-    // TODO: we could have an empty 'parentPreLocal' signal an identity matrix and simplify
-    // the generated code.
     if (this->needsLocalCoords()) {
-        result += "float4x4 initialPreLocal = float4x4(1, 0, 0, 0, "
-                                                      "0, 1, 0, 0, "
-                                                      "0, 0, 1, 0, "
-                                                      "0, 0, 0, 1);\n";
+        result += "float4x4 initialPreLocal = float4x4(1);\n";
     }
 
     std::string parentPreLocal = "initialPreLocal";
