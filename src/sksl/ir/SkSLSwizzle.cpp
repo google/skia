@@ -12,7 +12,6 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructor.h"
-#include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 
@@ -408,20 +407,16 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
         switch (inComponents[i]) {
             case SwizzleComponent::ZERO:
                 if (constantZeroIdx == -1) {
-                    // Synthesize a 'type(0)' argument at the end of the constructor.
-                    constructorArgs.push_back(ConstructorScalarCast::Make(
-                            context, pos, *scalarType,
-                            Literal::MakeInt(context, pos, /*value=*/0)));
+                    // Synthesize a '0' argument at the end of the constructor.
+                    constructorArgs.push_back(Literal::Make(pos, /*value=*/0, scalarType));
                     constantZeroIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantZeroIdx);
                 break;
             case SwizzleComponent::ONE:
                 if (constantOneIdx == -1) {
-                    // Synthesize a 'type(1)' argument at the end of the constructor.
-                    constructorArgs.push_back(ConstructorScalarCast::Make(
-                            context, pos, *scalarType,
-                            Literal::MakeInt(context, pos, /*value=*/1)));
+                    // Synthesize a '1' argument at the end of the constructor.
+                    constructorArgs.push_back(Literal::Make(pos, /*value=*/1, scalarType));
                     constantOneIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantOneIdx);
