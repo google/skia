@@ -503,14 +503,6 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     const Expression* left = GetConstantValueForVariable(leftExpr);
     const Expression* right = GetConstantValueForVariable(rightExpr);
 
-    // If this is the comma operator, the left side is evaluated but not otherwise used in any way.
-    // So if the left side has no side effects, it can just be eliminated entirely.
-    if (op.kind() == Operator::Kind::COMMA && !left->hasSideEffects()) {
-        std::unique_ptr<Expression> result = right->clone();
-        result->fPosition = pos;
-        return result;
-    }
-
     // If this is the assignment operator, and both sides are the same trivial expression, this is
     // self-assignment (i.e., `var = var`) and can be reduced to just a variable reference (`var`).
     // This can happen when other parts of the assignment are optimized away.

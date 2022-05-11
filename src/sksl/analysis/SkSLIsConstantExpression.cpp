@@ -7,8 +7,10 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLModifiers.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -47,8 +49,14 @@ public:
                 return !fLoopIndices || fLoopIndices->find(v) == fLoopIndices->end();
             }
 
-            // ... expressions composed of both of the above
+            // ... not a sequence expression (skia:13311)...
             case Expression::Kind::kBinary:
+                if (e.as<BinaryExpression>().getOperator().kind() == Operator::Kind::COMMA) {
+                    return true;
+                }
+                [[fallthrough]];
+
+            // ... expressions composed of both of the above
             case Expression::Kind::kConstructorArray:
             case Expression::Kind::kConstructorArrayCast:
             case Expression::Kind::kConstructorCompound:

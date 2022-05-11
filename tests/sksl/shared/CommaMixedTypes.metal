@@ -14,10 +14,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     half4 result;
-    result.x = _uniforms.colorGreen.x;
-    result.y = _uniforms.colorGreen.y;
-    result.z = _uniforms.colorGreen.z;
-    result.w = _uniforms.colorGreen.w;
+    result.x = (_uniforms.unknownInput, _uniforms.colorGreen.x);
+    result.y = (float2(2.0), _uniforms.colorGreen.y);
+    result.z = (half3(3.0h), _uniforms.colorGreen.z);
+    result.w = (float2x2(4.0), _uniforms.colorGreen.w);
     _out.sk_FragColor = result;
     return _out;
 }

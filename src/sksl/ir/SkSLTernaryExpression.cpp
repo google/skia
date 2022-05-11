@@ -82,13 +82,18 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
         }
     }
 
-    // A ternary with matching true- and false-cases can be reduced to `(test, ifTrue)`.
-    // If `test` has no side-effects, it will be optimized away by the constant-folder as well.
+    // A ternary with matching true- and false-cases does not need to branch.
     if (context.fConfig->fSettings.fOptimize) {
         const Expression* ifTrueExpr  = ConstantFolder::GetConstantValueForVariable(*ifTrue);
         const Expression* ifFalseExpr = ConstantFolder::GetConstantValueForVariable(*ifFalse);
 
         if (Analysis::IsSameExpressionTree(*ifTrueExpr, *ifFalseExpr)) {
+            // If `test` has no side-effects, we can eliminate it too, and just return `ifTrue`.
+            if (!test->hasSideEffects()) {
+                ifTrue->fPosition = pos;
+                return ifTrue;
+            }
+            // Return a comma-expression containing `(test, ifTrue)`.
             return BinaryExpression::Make(context, pos, std::move(test),
                                           Operator::Kind::COMMA, std::move(ifTrue));
         }

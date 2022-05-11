@@ -10,6 +10,11 @@ vec4 main() {
     x = (x - x) + ((y * x) * x) * (y - x);
     y = (x / y) / x;
     z = (((z / 2) % 3 << 4) >> 2) << 1;
+    bool b = x > 4.0 == x < 2.0 || 2.0 >= unknownInput && y <= x;
+    bool c = unknownInput > 2.0;
+    bool d = b ^^ c;
+    bool e = b && c;
+    bool f = b || c;
     x += 12.0;
     x -= 12.0;
     x *= (y /= 10.0);
@@ -19,9 +24,9 @@ vec4 main() {
     z >>= 2;
     z <<= 4;
     z %= 5;
-    x = 6.0;
-    y = 6.0;
-    z = 6;
+    x = float((colorGreen.xy, 6));
+    y = ((((float(b) * float(c)) * float(d)) * float(e)) * float(f), 6.0);
+    z = int((colorRed.zw, 6));
     ivec2 w = ivec2(~5);
     w = ~w;
     return (((w.x == 5 && w.y == 5) && x == 6.0) && y == 6.0) && z == 6 ? colorGreen : colorRed;

@@ -5,6 +5,6 @@ vec4 main() {
     int x[1];
     int y = 0;
     int z = 0;
-    x[y = z];
+    (0, x[y = z]);
     return colorGreen;
 }

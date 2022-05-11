@@ -1,0 +1,9 @@
+int a[1, 2];
+int b[(3, 4)];
+const int d = (5, 6);
+
+/*%%*
+array size must be an integer
+array size must be an integer
+'const' variable initializer must be a constant expression
+*%%*/
