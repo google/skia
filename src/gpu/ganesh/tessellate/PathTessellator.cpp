@@ -11,6 +11,7 @@
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/tessellate/VertexChunkPatchAllocator.h"
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
@@ -24,7 +25,7 @@ namespace {
 
 using namespace skgpu::tess;
 
-using CurveWriter = PatchWriter<GrVertexChunkBuilder,
+using CurveWriter = PatchWriter<VertexChunkPatchAllocator,
                                 Optional<PatchAttribs::kColor>,
                                 Optional<PatchAttribs::kWideColorIfEnabled>,
                                 Optional<PatchAttribs::kExplicitCurveType>,
@@ -74,7 +75,7 @@ int write_curve_patches(CurveWriter&& patchWriter,
     return patchWriter.requiredResolveLevel();
 }
 
-using WedgeWriter = PatchWriter<GrVertexChunkBuilder,
+using WedgeWriter = PatchWriter<VertexChunkPatchAllocator,
                                 Required<PatchAttribs::kFanPoint>,
                                 Optional<PatchAttribs::kColor>,
                                 Optional<PatchAttribs::kWideColorIfEnabled>,

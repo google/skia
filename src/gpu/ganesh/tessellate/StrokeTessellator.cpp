@@ -12,6 +12,7 @@
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/tessellate/VertexChunkPatchAllocator.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/StrokeIterator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
@@ -22,7 +23,7 @@ namespace {
 
 using namespace skgpu::tess;
 
-using FixedCountStrokeWriter = PatchWriter<GrVertexChunkBuilder,
+using FixedCountStrokeWriter = PatchWriter<VertexChunkPatchAllocator,
                                            Required<PatchAttribs::kJoinControlPoint>,
                                            Optional<PatchAttribs::kStrokeParams>,
                                            Optional<PatchAttribs::kColor>,

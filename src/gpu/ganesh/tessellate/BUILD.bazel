@@ -101,6 +101,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":PathTessellator_hdr",
+        ":VertexChunkPatchAllocator_hdr",
         "//src/core:SkPathPriv_hdr",
         "//src/gpu/ganesh:GrMeshDrawTarget_hdr",
         "//src/gpu/ganesh:GrOpFlushState_hdr",
@@ -135,6 +136,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":StrokeTessellator_hdr",
+        ":VertexChunkPatchAllocator_hdr",
         "//src/core:SkGeometry_hdr",
         "//src/core:SkPathPriv_hdr",
         "//src/gpu/ganesh:GrMeshDrawTarget_hdr",
@@ -144,4 +146,11 @@ generated_cc_atom(
         "//src/gpu/tessellate:StrokeIterator_hdr",
         "//src/gpu/tessellate:WangsFormula_hdr",
     ],
+)
+
+generated_cc_atom(
+    name = "VertexChunkPatchAllocator_hdr",
+    hdrs = ["VertexChunkPatchAllocator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/ganesh:GrVertexChunkArray_hdr"],
 )
