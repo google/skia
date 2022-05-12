@@ -232,17 +232,9 @@ constexpr int NumFixedEdgesInJoin(SkPaint::Join joinType) {
     }
     SkUNREACHABLE;
 }
-
-// Returns the worst-case number of edges we will need in order to draw a join of the given type.
-constexpr int WorstCaseEdgesInJoin(SkPaint::Join joinType,
-                                   float numRadialSegmentsPerRadian) {
-    int numEdges = NumFixedEdgesInJoin(joinType);
-    if (joinType == SkPaint::kRound_Join) {
-        // For round joins we need to count the radial edges on our own. Account for a worst-case
-        // join of 180 degrees (SK_ScalarPI radians).
-        numEdges += std::max(SkScalarCeilToInt(numRadialSegmentsPerRadian * SK_ScalarPI) - 1, 0);
-    }
-    return numEdges;
+constexpr int NumFixedEdgesInJoin(const StrokeParams& strokeParams) {
+    // The caller is responsible for counting the variable number of segments for round joins.
+    return strokeParams.fJoinType > 0.f ? /* miter */ 4 : /* round or bevel */ 3;
 }
 
 // Decides the number of radial segments the tessellator adds for each curve. (Uniform steps

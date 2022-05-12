@@ -1248,6 +1248,7 @@ BASE_SRCS_ALL = [
     "src/gpu/tessellate/CullTest.h",
     "src/gpu/tessellate/FixedCountBufferUtils.cpp",
     "src/gpu/tessellate/FixedCountBufferUtils.h",
+    "src/gpu/tessellate/LinearTolerances.h",
     "src/gpu/tessellate/MiddleOutPolygonTriangulator.h",
     "src/gpu/tessellate/MidpointContourParser.h",
     "src/gpu/tessellate/PatchWriter.h",

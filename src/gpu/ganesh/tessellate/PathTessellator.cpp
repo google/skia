@@ -35,7 +35,7 @@ using CurveWriter = PatchWriter<VertexChunkPatchAllocator,
 int write_curve_patches(CurveWriter&& patchWriter,
                         const SkMatrix& shaderMatrix,
                         const PathTessellator::PathDrawList& pathDrawList) {
-    wangs_formula::VectorXform shaderXform(shaderMatrix);
+    patchWriter.setShaderTransform(wangs_formula::VectorXform{shaderMatrix});
     for (auto [pathMatrix, path, color] : pathDrawList) {
         AffineMatrix m(pathMatrix);
         if (patchWriter.attribs() & PatchAttribs::kColor) {
@@ -47,7 +47,7 @@ int write_curve_patches(CurveWriter&& patchWriter,
                     auto [p0, p1] = m.map2Points(pts);
                     auto p2 = m.map1Point(pts+2);
 
-                    patchWriter.writeQuadratic(p0, p1, p2, shaderXform);
+                    patchWriter.writeQuadratic(p0, p1, p2);
                     break;
                 }
 
@@ -55,7 +55,7 @@ int write_curve_patches(CurveWriter&& patchWriter,
                     auto [p0, p1] = m.map2Points(pts);
                     auto p2 = m.map1Point(pts+2);
 
-                    patchWriter.writeConic(p0, p1, p2, *w, shaderXform);
+                    patchWriter.writeConic(p0, p1, p2, *w);
                     break;
                 }
 
@@ -63,7 +63,7 @@ int write_curve_patches(CurveWriter&& patchWriter,
                     auto [p0, p1] = m.map2Points(pts);
                     auto [p2, p3] = m.map2Points(pts+2);
 
-                    patchWriter.writeCubic(p0, p1, p2, p3, shaderXform);
+                    patchWriter.writeCubic(p0, p1, p2, p3);
                     break;
                 }
 
@@ -72,7 +72,7 @@ int write_curve_patches(CurveWriter&& patchWriter,
         }
     }
 
-    return patchWriter.requiredResolveLevel();
+    return patchWriter.tolerances().requiredResolveLevel();
 }
 
 using WedgeWriter = PatchWriter<VertexChunkPatchAllocator,
@@ -84,7 +84,7 @@ using WedgeWriter = PatchWriter<VertexChunkPatchAllocator,
 int write_wedge_patches(WedgeWriter&& patchWriter,
                         const SkMatrix& shaderMatrix,
                         const PathTessellator::PathDrawList& pathDrawList) {
-    wangs_formula::VectorXform shaderXform(shaderMatrix);
+    patchWriter.setShaderTransform(wangs_formula::VectorXform{shaderMatrix});
     for (auto [pathMatrix, path, color] : pathDrawList) {
         AffineMatrix m(pathMatrix);
         if (patchWriter.attribs() & PatchAttribs::kColor) {
@@ -114,7 +114,7 @@ int write_wedge_patches(WedgeWriter&& patchWriter,
                         auto [p0, p1] = m.map2Points(pts);
                         auto p2 = m.map1Point(pts+2);
 
-                        patchWriter.writeQuadratic(p0, p1, p2, shaderXform);
+                        patchWriter.writeQuadratic(p0, p1, p2);
                         lastPoint = pts[2];
                         break;
                     }
@@ -123,7 +123,7 @@ int write_wedge_patches(WedgeWriter&& patchWriter,
                         auto [p0, p1] = m.map2Points(pts);
                         auto p2 = m.map1Point(pts+2);
 
-                        patchWriter.writeConic(p0, p1, p2, *w, shaderXform);
+                        patchWriter.writeConic(p0, p1, p2, *w);
                         lastPoint = pts[2];
                         break;
                     }
@@ -132,7 +132,7 @@ int write_wedge_patches(WedgeWriter&& patchWriter,
                         auto [p0, p1] = m.map2Points(pts);
                         auto [p2, p3] = m.map2Points(pts+2);
 
-                        patchWriter.writeCubic(p0, p1, p2, p3, shaderXform);
+                        patchWriter.writeCubic(p0, p1, p2, p3);
                         lastPoint = pts[3];
                         break;
                     }
@@ -149,7 +149,7 @@ int write_wedge_patches(WedgeWriter&& patchWriter,
         }
     }
 
-    return patchWriter.requiredResolveLevel();
+    return patchWriter.tolerances().requiredResolveLevel();
 }
 
 }  // namespace

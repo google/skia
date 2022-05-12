@@ -35,38 +35,21 @@ using FixedCountStrokeWriter = PatchWriter<VertexChunkPatchAllocator,
 int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
                               const SkMatrix& shaderMatrix,
                               StrokeTessellator::PathStrokeList* pathStrokeList) {
-    int maxEdgesInJoin = 0;
-    float maxRadialSegmentsPerRadian = 0;
+    // The vector xform approximates how the control points are transformed by the shader to
+    // more accurately compute how many *parametric* segments are needed.
     // getMaxScale() returns -1 if it can't compute a scale factor (e.g. perspective), taking the
     // absolute value automatically converts that to an identity scale factor for our purposes.
     float maxScale = std::abs(shaderMatrix.getMaxScale());
-
+    patchWriter.setShaderTransform(wangs_formula::VectorXform{shaderMatrix}, maxScale);
     if (!(patchWriter.attribs() & PatchAttribs::kStrokeParams)) {
         // Strokes are static. Calculate tolerances once.
-        const SkStrokeRec& stroke = pathStrokeList->fStroke;
-        float approxDevStrokeWidth = stroke.isHairlineStyle() ? 1.f : maxScale * stroke.getWidth();
-        float numRadialSegmentsPerRadian =
-                CalcNumRadialSegmentsPerRadian(0.5f * approxDevStrokeWidth);
-        maxEdgesInJoin = WorstCaseEdgesInJoin(stroke.getJoin(), numRadialSegmentsPerRadian);
-        maxRadialSegmentsPerRadian = numRadialSegmentsPerRadian;
+        patchWriter.tolerances().accumulateStroke(pathStrokeList->fStroke, maxScale);
     }
 
-    // The vector xform approximates how the control points are transformed by the shader to
-    // more accurately compute how many *parametric* segments are needed.
-    wangs_formula::VectorXform shaderXform{shaderMatrix};
     for (auto* pathStroke = pathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
         const SkStrokeRec& stroke = pathStroke->fStroke;
         if (patchWriter.attribs() & PatchAttribs::kStrokeParams) {
             // Strokes are dynamic. Calculate tolerances every time.
-            float approxDevStrokeWidth =
-                    stroke.isHairlineStyle() ? 1.f : maxScale * stroke.getWidth();
-            float numRadialSegmentsPerRadian =
-                    CalcNumRadialSegmentsPerRadian(0.5f * approxDevStrokeWidth);
-            maxEdgesInJoin = std::max(
-                    WorstCaseEdgesInJoin(stroke.getJoin(), numRadialSegmentsPerRadian),
-                    maxEdgesInJoin);
-            maxRadialSegmentsPerRadian = std::max(numRadialSegmentsPerRadian,
-                                                  maxRadialSegmentsPerRadian);
             patchWriter.updateStrokeParamsAttrib(stroke);
         }
         if (patchWriter.attribs() & PatchAttribs::kColor) {
@@ -103,7 +86,7 @@ int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
                         patchWriter.writeLine(p[0], cusp);
                         patchWriter.writeLine(cusp, p[2]);
                     } else {
-                        patchWriter.writeQuadratic(p, shaderXform);
+                        patchWriter.writeQuadratic(p);
                     }
                     break;
                 case Verb::kConic:
@@ -116,7 +99,7 @@ int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
                         patchWriter.writeLine(p[0], cusp);
                         patchWriter.writeLine(cusp, p[2]);
                     } else {
-                        patchWriter.writeConic(p, strokeIter.w(), shaderXform);
+                        patchWriter.writeConic(p, strokeIter.w());
                     }
                     break;
                 case Verb::kCubic:
@@ -125,7 +108,7 @@ int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
                     bool areCusps;
                     numChops = FindCubicConvex180Chops(p, T, &areCusps);
                     if (numChops == 0) {
-                        patchWriter.writeCubic(p, shaderXform);
+                        patchWriter.writeCubic(p);
                     } else if (numChops == 1) {
                         SkChopCubicAt(p, chops, T[0]);
                         if (areCusps) {
@@ -134,8 +117,8 @@ int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
                             // on a cusp.
                             chops[2] = chops[4] = chops[3];
                         }
-                        patchWriter.writeCubic(chops, shaderXform);
-                        patchWriter.writeCubic(chops + 3, shaderXform);
+                        patchWriter.writeCubic(chops);
+                        patchWriter.writeCubic(chops + 3);
                     } else {
                         SkASSERT(numChops == 2);
                         SkChopCubicAt(p, chops, T[0], T[1]);
@@ -148,9 +131,9 @@ int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
                             patchWriter.writeLine(chops[3], chops[6]);
                             patchWriter.writeLine(chops[6], chops[9]);
                         } else {
-                            patchWriter.writeCubic(chops, shaderXform);
-                            patchWriter.writeCubic(chops + 3, shaderXform);
-                            patchWriter.writeCubic(chops + 6, shaderXform);
+                            patchWriter.writeCubic(chops);
+                            patchWriter.writeCubic(chops + 3);
+                            patchWriter.writeCubic(chops + 6);
                         }
                     }
                     break;
@@ -158,35 +141,7 @@ int write_fixed_count_patches(FixedCountStrokeWriter&& patchWriter,
         }
     }
 
-    // The maximum rotation we can have in a stroke is 180 degrees (SK_ScalarPI radians).
-    int maxRadialSegmentsInStroke =
-            std::max(SkScalarCeilToInt(maxRadialSegmentsPerRadian * SK_ScalarPI), 1);
-
-    int maxParametricSegmentsInStroke = patchWriter.requiredFixedSegments();
-    SkASSERT(maxParametricSegmentsInStroke >= 1);
-
-    // Now calculate the maximum number of edges we will need in the stroke portion of the instance.
-    // The first and last edges in a stroke are shared by both the parametric and radial sets of
-    // edges, so the total number of edges is:
-    //
-    //   numCombinedEdges = numParametricEdges + numRadialEdges - 2
-    //
-    // It's also important to differentiate between the number of edges and segments in a strip:
-    //
-    //   numSegments = numEdges - 1
-    //
-    // So the total number of combined edges in the stroke is:
-    //
-    //   numEdgesInStroke = numParametricSegments + 1 + numRadialSegments + 1 - 2
-    //                    = numParametricSegments + numRadialSegments
-    //
-    int maxEdgesInStroke = maxRadialSegmentsInStroke + maxParametricSegmentsInStroke;
-
-    // Each triangle strip has two sections: It starts with a join then transitions to a stroke. The
-    // number of edges in an instance is the sum of edges from the join and stroke sections both.
-    // NOTE: The final join edge and the first stroke edge are co-located, however we still need to
-    // emit both because the join's edge is half-width and the stroke's is full-width.
-    return maxEdgesInJoin + maxEdgesInStroke;
+    return patchWriter.tolerances().requiredStrokeEdges();
 }
 
 }  // namespace

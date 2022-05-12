@@ -10,6 +10,7 @@
 
 #include "include/private/SkColorData.h"
 #include "src/gpu/BufferWriter.h"
+#include "src/gpu/tessellate/LinearTolerances.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
@@ -231,7 +232,6 @@ class PatchWriter {
             PatchStorage<kMaxStride>, std::monostate>;
     using InnerTriangulator = std::conditional_t<kAddTrianglesWhenChopping,
             MiddleOutPolygonTriangulator, NullTriangulator>;
-    using VectorXform = wangs_formula::VectorXform;
 
     static_assert(!kTrackJoinControlPoints || req_attrib<PatchAttribs::kJoinControlPoint>::value,
                   "Deferred patches and auto-updating joins requires kJoinControlPoint attrib");
@@ -240,7 +240,6 @@ public:
     PatchWriter(PatchAttribs attribs,
                 Args&&... allocArgs)
             : fAttribs(attribs)
-            , fCurrMinSegments_pow4(1.f)
             , fPatchAllocator(PatchStride(attribs), std::forward<Args>(allocArgs)...)
             , fJoin(attribs)
             , fFanPoint(attribs)
@@ -267,13 +266,15 @@ public:
 
     PatchAttribs attribs() const { return fAttribs; }
 
-    // Fast log2 of minimum required # of segments per tracked Wang's formula calculations.
-    int requiredResolveLevel() const {
-        return wangs_formula::nextlog16(fCurrMinSegments_pow4); // log16(n^4) == log2(n)
-    }
-    // Fast minimum required # of segments from tracked Wang's formula calculations.
-    int requiredFixedSegments() const {
-        return SkScalarCeilToInt(wangs_formula::root4(fCurrMinSegments_pow4));
+    LinearTolerances& tolerances() { return fTolerances; }
+    const LinearTolerances& tolerances() const { return fTolerances; }
+
+    // The max scale factor should be derived from the same matrix that 'xform' was. It's only used
+    // in stroking calculations, so can be ignored for path filling.
+    void setShaderTransform(const wangs_formula::VectorXform& xform,
+                            float maxScale = 1.f) {
+        fApproxTransform = xform;
+        fMaxScale = maxScale;
     }
 
     // Completes a closed contour of a stroke by rewriting a deferred patch with now-available
@@ -316,6 +317,7 @@ public:
     ENABLE_IF(StrokeAttrib::kEnabled) updateStrokeParamsAttrib(StrokeParams strokeParams) {
         SkASSERT(fAttribs & PatchAttribs::kStrokeParams);
         fStrokeParams = strokeParams;
+        fTolerances.accumulateStroke(strokeParams, fMaxScale);
     }
 
     // Updates the color that will be written out with each patch.
@@ -346,9 +348,8 @@ public:
      */
 
     // Write a cubic curve with its four control points.
-    AI void writeCubic(float2 p0, float2 p1, float2 p2, float2 p3,
-                       const VectorXform& shaderXform) {
-        float n4 = wangs_formula::cubic_pow4(kPrecision, p0, p1, p2, p3, shaderXform);
+    AI void writeCubic(float2 p0, float2 p1, float2 p2, float2 p3) {
+        float n4 = wangs_formula::cubic_pow4(kPrecision, p0, p1, p2, p3, fApproxTransform);
         if constexpr (kDiscardFlatCurves) {
             if (n4 <= 1.f) {
                 // This cubic only needs one segment (e.g. a line) but we're not filling space with
@@ -356,26 +357,22 @@ public:
                 return;
             }
         }
-        if (this->curveFitsInMaxSegments(n4)) {
-            this->writeCubicPatch(p0, p1, p2, p3);
-        } else {
-            int numPatches = SkScalarCeilToInt(wangs_formula::root4(
-                    std::min(n4, pow4(kMaxSegmentsPerCurve)) / pow4(kMaxParametricSegments)));
+        if (int numPatches = this->accountForCurve(n4)) {
             this->chopAndWriteCubics(p0, p1, p2, p3, numPatches);
+        } else {
+            this->writeCubicPatch(p0, p1, p2, p3);
         }
     }
-    AI void writeCubic(const SkPoint pts[4],
-                       const VectorXform& shaderXform) {
+    AI void writeCubic(const SkPoint pts[4]) {
         float4 p0p1 = float4::Load(pts);
         float4 p2p3 = float4::Load(pts + 2);
-        this->writeCubic(p0p1.lo, p0p1.hi, p2p3.lo, p2p3.hi, shaderXform);
+        this->writeCubic(p0p1.lo, p0p1.hi, p2p3.lo, p2p3.hi);
     }
 
     // Write a conic curve with three control points and 'w', with the last coord of the last
     // control point signaling a conic by being set to infinity.
-    AI void writeConic(float2 p0, float2 p1, float2 p2, float w,
-                       const VectorXform& shaderXform) {
-        float n2 = wangs_formula::conic_pow2(kPrecision, p0, p1, p2, w, shaderXform);
+    AI void writeConic(float2 p0, float2 p1, float2 p2, float w) {
+        float n2 = wangs_formula::conic_pow2(kPrecision, p0, p1, p2, w, fApproxTransform);
         if constexpr (kDiscardFlatCurves) {
             if (n2 <= 1.f) {
                 // This conic only needs one segment (e.g. a line) but we're not filling space with
@@ -383,27 +380,23 @@ public:
                 return;
             }
         }
-        if (this->curveFitsInMaxSegments(n2*n2)) {
-            this->writeConicPatch(p0, p1, p2, w);
-        } else {
-            int numPatches = SkScalarCeilToInt(sqrtf(
-                    std::min(n2, pow2(kMaxSegmentsPerCurve)) / pow2(kMaxParametricSegments)));
+        if (int numPatches = this->accountForCurve(n2 * n2)) {
             this->chopAndWriteConics(p0, p1, p2, w, numPatches);
+        } else {
+            this->writeConicPatch(p0, p1, p2, w);
         }
     }
-    AI void writeConic(const SkPoint pts[3], float w,
-                       const VectorXform& shaderXform) {
+    AI void writeConic(const SkPoint pts[3], float w) {
         this->writeConic(skvx::bit_pun<float2>(pts[0]),
                          skvx::bit_pun<float2>(pts[1]),
                          skvx::bit_pun<float2>(pts[2]),
-                         w, shaderXform);
+                         w);
     }
 
     // Write a quadratic curve that automatically converts its three control points into an
     // equivalent cubic.
-    AI void writeQuadratic(float2 p0, float2 p1, float2 p2,
-                           const VectorXform& shaderXform) {
-        float n4 = wangs_formula::quadratic_pow4(kPrecision, p0, p1, p2, shaderXform);
+    AI void writeQuadratic(float2 p0, float2 p1, float2 p2) {
+        float n4 = wangs_formula::quadratic_pow4(kPrecision, p0, p1, p2, fApproxTransform);
         if constexpr (kDiscardFlatCurves) {
             if (n4 <= 1.f) {
                 // This quad only needs one segment (e.g. a line) but we're not filling space with
@@ -411,25 +404,22 @@ public:
                 return;
             }
         }
-        if (this->curveFitsInMaxSegments(n4)) {
-            this->writeQuadPatch(p0, p1, p2);
-        } else {
-            int numPatches = SkScalarCeilToInt(wangs_formula::root4(
-                    std::min(n4, pow4(kMaxSegmentsPerCurve)) / pow4(kMaxParametricSegments)));
+        if (int numPatches = this->accountForCurve(n4)) {
             this->chopAndWriteQuads(p0, p1, p2, numPatches);
+        } else {
+            this->writeQuadPatch(p0, p1, p2);
         }
     }
-    AI void writeQuadratic(const SkPoint pts[3],
-                           const VectorXform& shaderXform) {
+    AI void writeQuadratic(const SkPoint pts[3]) {
         this->writeQuadratic(skvx::bit_pun<float2>(pts[0]),
                              skvx::bit_pun<float2>(pts[1]),
-                             skvx::bit_pun<float2>(pts[2]),
-                             shaderXform);
+                             skvx::bit_pun<float2>(pts[2]));
     }
 
     // Write a line that is automatically converted into an equivalent cubic.
     AI void writeLine(float4 p0p1) {
-        // No chopping needed, minimum segments is always at least 1
+        // No chopping needed, a line only ever requires one segment (the minimum required already).
+        fTolerances.accumulateParametricSegments(1.f);
         if constexpr (kReplicateLineEndPoints) {
             // Visually this cubic is still a line, but 't' does not move linearly over the line,
             // so Wang's formula is more pessimistic. Shaders should avoid evaluating Wang's
@@ -452,7 +442,8 @@ public:
     AI void writeTriangle(float2 p0, float2 p1, float2 p2) {
         // No chopping needed, the max supported segment count should always support 2 lines
         // (which form a triangle when implicitly closed).
-        SkAssertResult(this->curveFitsInMaxSegments(2.f * 2.f * 2.f * 2.f));
+        static constexpr float kTriangleSegments_pow4 = 2.f * 2.f * 2.f * 2.f;
+        fTolerances.accumulateParametricSegments(kTriangleSegments_pow4);
         this->writePatch(p0, p1, p2, {SK_FloatInfinity, SK_FloatInfinity},
                          kTriangularConicCurveType);
     }
@@ -533,14 +524,17 @@ private:
         this->writePatch(p0, p1, p2, {w, SK_FloatInfinity}, kConicCurveType);
     }
 
-    // Returns true if curve can be written w/o needing to chop (e.g. represented by one instance)
-    bool curveFitsInMaxSegments(float n4) {
+    int accountForCurve(float n4) {
         if (n4 <= pow4(kMaxParametricSegments)) {
-            fCurrMinSegments_pow4 = std::max(n4, fCurrMinSegments_pow4);
-            return true;
+            // Record n^4 and return 0 to signal no chopping
+            fTolerances.accumulateParametricSegments(n4);
+            return 0;
         } else {
-            fCurrMinSegments_pow4 = pow4(kMaxParametricSegments);
-            return false;
+            // Clamp to max allowed segmentation for a patch and return required number of chops
+            // to achieve visual correctness.
+            fTolerances.accumulateParametricSegments(pow4(kMaxParametricSegments));
+            return SkScalarCeilToInt(wangs_formula::root4(std::min(n4, pow4(kMaxSegmentsPerCurve)) /
+                                                          pow4(kMaxParametricSegments)));
         }
     }
 
@@ -683,7 +677,15 @@ private:
     // attribs enabled (e.g. depending on caps or batching).
     const PatchAttribs fAttribs;
 
-    float fCurrMinSegments_pow4;
+    // The 2x2 approximation of the local-to-device transform that will affect subsequently
+    // recorded curves (when fully transformed in the vertex shader).
+    wangs_formula::VectorXform fApproxTransform = {};
+    // A maximum scale factor extracted from the current approximate transform.
+    float fMaxScale = 1.0f;
+    // Tracks the linear tolerances for the worst-case written patches.
+    // TODO: This will change to be just the most-recent patch when accumulation is moved outside
+    // of PatchWriter.
+    LinearTolerances fTolerances;
 
     PatchAllocator fPatchAllocator;
     DeferredPatch  fDeferredPatch; // only usable if kTrackJoinControlPoints is true

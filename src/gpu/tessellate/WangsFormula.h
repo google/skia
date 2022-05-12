@@ -62,7 +62,7 @@ AI int nextlog16(float x) {
 //
 class VectorXform {
 public:
-    AI explicit VectorXform() : fType(Type::kIdentity) {}
+    AI VectorXform() : fType(Type::kIdentity) {}
     AI explicit VectorXform(const SkMatrix& m) { *this = m; }
     AI VectorXform& operator=(const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());

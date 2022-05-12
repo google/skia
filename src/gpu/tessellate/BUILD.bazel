@@ -42,6 +42,7 @@ generated_cc_atom(
     hdrs = ["PatchWriter.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":LinearTolerances_hdr",
         ":MiddleOutPolygonTriangulator_hdr",
         ":Tessellation_hdr",
         ":WangsFormula_hdr",
@@ -130,5 +131,15 @@ generated_cc_atom(
         "//include/private:SkTArray_hdr",
         "//src/core:SkMathPriv_hdr",
         "//src/gpu:BufferWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "LinearTolerances_hdr",
+    hdrs = ["LinearTolerances.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Tessellation_hdr",
+        ":WangsFormula_hdr",
     ],
 )
