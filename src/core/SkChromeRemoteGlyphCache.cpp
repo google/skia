@@ -1050,6 +1050,12 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
             msg.appendf("  Mapped descriptor:\n%s", clientDesc->dumpRec().c_str());
         #endif
         auto strike = fStrikeCache->findStrike(*clientDesc);
+
+        // Make sure strike is pinned
+        if (strike) {
+            strike->verifyPinnedStrike();
+        }
+
         // Metrics are only sent the first time. If the metrics are not initialized, there must
         // be an existing strike.
         if (fontMetricsInitialized && strike == nullptr) READ_FAILURE

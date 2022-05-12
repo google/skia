@@ -96,8 +96,7 @@ void GlyphVector::packedGlyphIDToGlyph(StrikeCache* cache) {
         }
 
         // This must be pinned for the Atlas filling to work.
-        // TODO(herb): re-enable after the cut on 20220414
-        // fSkStrike->verifyPinnedStrike();
+        fSkStrike->verifyPinnedStrike();
 
         // Drop the ref on the strike that was taken in the SkGlyphRunPainter process* methods.
         fSkStrike = nullptr;
