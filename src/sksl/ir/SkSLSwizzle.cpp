@@ -13,6 +13,8 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorCompoundCast.h"
+#include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 
@@ -503,6 +505,18 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
                 context, pos,
                 splat.type().componentType().toCompound(context, components.size(), /*rows=*/1),
                 splat.argument()->clone());
+    }
+
+    // Swizzles on casts, like `half4(myFloat4).zyy`, can optimize to `half3(myFloat4.zyy)`.
+    if (value->is<ConstructorCompoundCast>()) {
+        const ConstructorCompoundCast& cast = value->as<ConstructorCompoundCast>();
+        const Type& castType = cast.type().componentType().toCompound(context, components.size(),
+                                                                      /*rows=*/1);
+        std::unique_ptr<Expression> swizzled = Swizzle::Make(context, pos, cast.argument()->clone(),
+                                                             std::move(components));
+        return (castType.columns() > 1)
+                       ? ConstructorCompoundCast::Make(context, pos, castType, std::move(swizzled))
+                       : ConstructorScalarCast::Make(context, pos, castType, std::move(swizzled));
     }
 
     // Optimize swizzles of constructors.
