@@ -66,10 +66,7 @@ half4 sk_linear_grad_4_shader(float4x4 dev2Local,
                               float4 colorsParam[4],
                               float offsetsParam[4],
                               float2 point0Param,
-                              float2 point1Param,
-                              float radius0Param,
-                              float radius1Param,
-                              float2 padding) {
+                              float2 point1Param) {
     float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 delta = point1Param - point0Param;
     float2 pt = pos - point0Param;
@@ -108,6 +105,138 @@ half4 sk_sweep_grad_4_shader(float4x4 dev2Local,
 
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     float t = (angle * 0.1591549430918 + 0.5 + biasParam) * scaleParam;
+    return sk_clamp_grad_4(colorsParam, offsetsParam, t);
+}
+
+float3x3 $map_to_unit_x(float2 p0, float2 p1) {
+    // Returns a matrix that maps [p0, p1] to [(0, 0), (1, 0)]. Results are undefined if p0 = p1.
+    // From skia/src/core/SkMatrix.cpp, SkMatrix::setPolyToPoly.
+    return float3x3(
+        0, -1,  0,
+        1,  0,  0,
+        0,  0,  1
+    ) * inverse(float3x3(
+        p1.y - p0.y, p0.x - p1.x, 0,
+        p1.x - p0.x, p1.y - p0.y, 0,
+               p0.x,        p0.y, 1
+    ));
+}
+
+half4 sk_conical_grad_4_shader(float4x4 dev2Local,
+                               float4 colorsParam[4],
+                               float offsetsParam[4],
+                               float2 point0Param,
+                               float2 point1Param,
+                               float radius0Param,
+                               float radius1Param,
+                               float2 padding) {
+    float2 pos = (dev2Local * sk_FragCoord).xy;
+    float t;
+
+    const float SK_ScalarNearlyZero = 1.0 / (1 << 12);
+    float dCenter = distance(point0Param, point1Param);
+    float dRadius = radius1Param - radius0Param;
+
+    // Degenerate case: a radial gradient (p0 = p1).
+    bool radial = dCenter < SK_ScalarNearlyZero;
+
+    // Degenerate case: a strip with bandwidth 2r (r0 = r1).
+    bool strip = abs(dRadius) < SK_ScalarNearlyZero;
+
+    if (radial) {
+        if (strip) {
+            // The start and end inputs are the same in both position and radius.
+            // We don't expect to see this input, but just in case we avoid dividing by zero.
+            return half4(0);
+        }
+
+        float scale = 1 / dRadius;
+        float scaleSign = sign(dRadius);
+        float bias = radius0Param / dRadius;
+
+        float2 pt = (pos - point0Param) * scale;
+        t = length(pt) * scaleSign - bias;
+
+    } else if (strip) {
+        float3x3 transform = $map_to_unit_x(point0Param, point1Param);
+        float r = radius0Param / dCenter;
+        float r_2 = r * r;
+
+        float2 pt = (transform * pos.xy1).xy;
+        t = r_2 - pt.y * pt.y;
+        if (t < 0) {
+            return half4(0);
+        }
+        t = pt.x + sqrt(t);
+
+    } else {
+        // See https://skia.org/docs/dev/design/conical/ for details on how this algorithm works.
+        // Calculate f and swap inputs if necessary (steps 1 and 2).
+        float f = radius0Param / (radius0Param - radius1Param);
+
+        bool isSwapped = abs(f - 1) < SK_ScalarNearlyZero;
+        if (isSwapped) {
+            float2 tmpPt = point0Param;
+            point0Param = point1Param;
+            point1Param = tmpPt;
+            f = 0;
+        }
+
+        // Apply mapping from [Cf, C1] to unit x, and apply the precalculations from steps 3 and 4,
+        // all in the same transformation.
+        float2 Cf = point0Param * (1 - f) + point1Param * f;
+        float3x3 transform = $map_to_unit_x(Cf, point1Param);
+
+        float scaleX = abs(1 - f);
+        float scaleY = scaleX;
+        float r1 = abs(radius1Param - radius0Param) / dCenter;
+        bool isFocalOnCircle = abs(r1 - 1) < SK_ScalarNearlyZero;
+        if (isFocalOnCircle) {
+            scaleX *= 0.5;
+            scaleY *= 0.5;
+        } else {
+            scaleX *= r1 / (r1 * r1 - 1);
+            scaleY /= sqrt(abs(r1 * r1 - 1));
+        }
+        transform = float3x3(
+            scaleX, 0, 0,
+            0, scaleY, 0,
+            0, 0, 1
+        ) * transform;
+
+        float2 pt = (transform * pos.xy1).xy;
+
+        // Continue with step 5 onward.
+        float invR1 = 1 / r1;
+        float dRadiusSign = sign(1 - f);
+        bool isWellBehaved = !isFocalOnCircle && r1 > 1;
+
+        float x_t = -1;
+        if (isFocalOnCircle) {
+            x_t = dot(pt, pt) / pt.x;
+        } else if (isWellBehaved) {
+            x_t = length(pt) - pt.x * invR1;
+        } else {
+            float temp = pt.x * pt.x - pt.y * pt.y;
+            if (temp >= 0) {
+                if (isSwapped || dRadiusSign < 0) {
+                    x_t = -sqrt(temp) - pt.x * invR1;
+                } else {
+                    x_t = sqrt(temp) - pt.x * invR1;
+                }
+            }
+        }
+
+        if (!isWellBehaved && x_t < 0) {
+            return half4(0);
+        }
+
+        t = f + dRadiusSign * x_t;
+        if (isSwapped) {
+            t = 1 - t;
+        }
+    }
+
     return sk_clamp_grad_4(colorsParam, offsetsParam, t);
 }
 
