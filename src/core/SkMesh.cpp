@@ -280,7 +280,7 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
 
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
-    settings.fEnforceES2Restrictions = true;
+    // TODO(skia:11209): Add SkCapabilities to the API, check against required version.
     std::unique_ptr<SkSL::Program> vsProgram = compiler->convertProgram(
             SkSL::ProgramKind::kMeshVertex,
             std::string(vs.c_str()),

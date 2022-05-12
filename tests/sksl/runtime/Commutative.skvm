@@ -1,40 +1,40 @@
-$0 = colorGreen (float4 : slot 1/4, L4)
-$1 = colorGreen (float4 : slot 2/4, L4)
-$2 = colorGreen (float4 : slot 3/4, L4)
-$3 = colorGreen (float4 : slot 4/4, L4)
-$4 = colorRed (float4 : slot 1/4, L4)
-$5 = colorRed (float4 : slot 2/4, L4)
-$6 = colorRed (float4 : slot 3/4, L4)
-$7 = colorRed (float4 : slot 4/4, L4)
-$8 = a (int, L5)
-$9 = b (int, L5)
-$10 = c (float, L6)
-$11 = d (float, L6)
-$12 = [main].result (float4 : slot 1/4, L8)
-$13 = [main].result (float4 : slot 2/4, L8)
-$14 = [main].result (float4 : slot 3/4, L8)
-$15 = [main].result (float4 : slot 4/4, L8)
-$16 = xy (float2 : slot 1/2, L8)
-$17 = xy (float2 : slot 2/2, L8)
-$18 = ok (bool, L9)
-$19 = a_and_b (int, L11)
-$20 = b_and_a (int, L12)
-$21 = a_or_b (int, L15)
-$22 = b_or_a (int, L16)
-$23 = a_xor_b (int, L19)
-$24 = b_xor_a (int, L20)
-$25 = a_eq_b (bool, L23)
-$26 = b_eq_a (bool, L24)
-$27 = a_neq_b (bool, L27)
-$28 = b_neq_a (bool, L28)
-$29 = a_add_b (int, L31)
-$30 = b_add_a (int, L32)
-$31 = c_add_d (float, L35)
-$32 = d_add_c (float, L36)
-$33 = a_mul_b (int, L39)
-$34 = b_mul_a (int, L40)
-$35 = c_mul_d (float, L43)
-$36 = d_mul_c (float, L44)
+$0 = colorGreen (float4 : slot 1/4, L6)
+$1 = colorGreen (float4 : slot 2/4, L6)
+$2 = colorGreen (float4 : slot 3/4, L6)
+$3 = colorGreen (float4 : slot 4/4, L6)
+$4 = colorRed (float4 : slot 1/4, L6)
+$5 = colorRed (float4 : slot 2/4, L6)
+$6 = colorRed (float4 : slot 3/4, L6)
+$7 = colorRed (float4 : slot 4/4, L6)
+$8 = a (int, L7)
+$9 = b (int, L7)
+$10 = c (float, L8)
+$11 = d (float, L8)
+$12 = [main].result (float4 : slot 1/4, L10)
+$13 = [main].result (float4 : slot 2/4, L10)
+$14 = [main].result (float4 : slot 3/4, L10)
+$15 = [main].result (float4 : slot 4/4, L10)
+$16 = xy (float2 : slot 1/2, L10)
+$17 = xy (float2 : slot 2/2, L10)
+$18 = ok (bool, L11)
+$19 = a_and_b (int, L13)
+$20 = b_and_a (int, L14)
+$21 = a_or_b (int, L17)
+$22 = b_or_a (int, L18)
+$23 = a_xor_b (int, L21)
+$24 = b_xor_a (int, L22)
+$25 = a_eq_b (bool, L25)
+$26 = b_eq_a (bool, L26)
+$27 = a_neq_b (bool, L29)
+$28 = b_neq_a (bool, L30)
+$29 = a_add_b (int, L33)
+$30 = b_add_a (int, L34)
+$31 = c_add_d (float, L37)
+$32 = d_add_c (float, L38)
+$33 = a_mul_b (int, L41)
+$34 = b_mul_a (int, L42)
+$35 = c_mul_d (float, L45)
+$36 = d_mul_c (float, L46)
 F0 = half4 main(float2 xy)
 
 13 registers, 62 instructions:
@@ -66,35 +66,35 @@ loop:
 24	    r4 = bit_and r4 r0
 25	    trace_enter 0 r4 r4 F0
 26	    trace_scope 0 r4 r4 1
-27	    trace_line 0 r4 r4 L9
-28	    trace_line 0 r4 r4 L11
-29	    trace_line 0 r4 r4 L12
-30	    trace_line 0 r4 r4 L13
-31	    trace_line 0 r4 r4 L15
-32	    trace_line 0 r4 r4 L16
-33	    trace_line 0 r4 r4 L17
-34	    trace_line 0 r4 r4 L19
-35	    trace_line 0 r4 r4 L20
-36	    trace_line 0 r4 r4 L21
-37	    trace_line 0 r4 r4 L23
-38	    trace_line 0 r4 r4 L24
-39	    trace_line 0 r4 r4 L25
-40	    trace_line 0 r4 r4 L27
-41	    trace_line 0 r4 r4 L28
-42	    trace_line 0 r4 r4 L29
-43	    trace_line 0 r4 r4 L31
-44	    trace_line 0 r4 r4 L32
-45	    trace_line 0 r4 r4 L33
-46	    trace_line 0 r4 r4 L35
-47	    trace_line 0 r4 r4 L36
-48	    trace_line 0 r4 r4 L37
-49	    trace_line 0 r4 r4 L39
-50	    trace_line 0 r4 r4 L40
-51	    trace_line 0 r4 r4 L41
-52	    trace_line 0 r4 r4 L43
-53	    trace_line 0 r4 r4 L44
-54	    trace_line 0 r4 r4 L45
-55	    trace_line 0 r4 r4 L47
+27	    trace_line 0 r4 r4 L11
+28	    trace_line 0 r4 r4 L13
+29	    trace_line 0 r4 r4 L14
+30	    trace_line 0 r4 r4 L15
+31	    trace_line 0 r4 r4 L17
+32	    trace_line 0 r4 r4 L18
+33	    trace_line 0 r4 r4 L19
+34	    trace_line 0 r4 r4 L21
+35	    trace_line 0 r4 r4 L22
+36	    trace_line 0 r4 r4 L23
+37	    trace_line 0 r4 r4 L25
+38	    trace_line 0 r4 r4 L26
+39	    trace_line 0 r4 r4 L27
+40	    trace_line 0 r4 r4 L29
+41	    trace_line 0 r4 r4 L30
+42	    trace_line 0 r4 r4 L31
+43	    trace_line 0 r4 r4 L33
+44	    trace_line 0 r4 r4 L34
+45	    trace_line 0 r4 r4 L35
+46	    trace_line 0 r4 r4 L37
+47	    trace_line 0 r4 r4 L38
+48	    trace_line 0 r4 r4 L39
+49	    trace_line 0 r4 r4 L41
+50	    trace_line 0 r4 r4 L42
+51	    trace_line 0 r4 r4 L43
+52	    trace_line 0 r4 r4 L45
+53	    trace_line 0 r4 r4 L46
+54	    trace_line 0 r4 r4 L47
+55	    trace_line 0 r4 r4 L49
 56	    trace_scope 0 r4 r4 -1
 57	    trace_exit 0 r4 r4 F0
 58	    store32 ptr1 r5

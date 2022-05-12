@@ -201,9 +201,6 @@ static bool detect_shader_settings(const std::string& text,
                 if (consume_suffix(&settingsText, " ForceHighPrecision")) {
                     settings->fForceHighPrecision = true;
                 }
-                if (consume_suffix(&settingsText, " NoES2Restrictions")) {
-                    settings->fEnforceES2Restrictions = false;
-                }
                 if (consume_suffix(&settingsText, " NoInline")) {
                     settings->fInlineThreshold = 0;
                 }

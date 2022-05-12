@@ -16,6 +16,7 @@
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
+#include "include/sksl/SkSLVersion.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLModifiersPool.h"
@@ -285,6 +286,7 @@ std::unique_ptr<Program> Rehydrator::program() {
     // well-formed when dehydrated.
     auto config = std::make_unique<ProgramConfig>();
     config->fKind = (ProgramKind)this->readU8();
+    config->fRequiredSkSLVersion = (SkSL::Version)this->readU8();
     config->fSettings.fEnforceES2Restrictions = false;
 
     Context& context = this->context();

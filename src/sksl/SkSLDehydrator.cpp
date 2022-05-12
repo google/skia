@@ -623,6 +623,7 @@ void Dehydrator::write(const std::vector<std::unique_ptr<ProgramElement>>& eleme
 void Dehydrator::write(const Program& program) {
     this->writeCommand(Rehydrator::kProgram_Command);
     this->writeU8((int)program.fConfig->fKind);
+    this->writeU8((int)program.fConfig->fRequiredSkSLVersion);
     this->write(*program.fSymbols);
 
     // Write the elements

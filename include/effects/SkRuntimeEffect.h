@@ -112,6 +112,7 @@ public:
         friend class SkRuntimeEffect;
         friend class SkRuntimeEffectPriv;
 
+        // TODO(skia:11209) - Replace this with a promised SkCapabilities?
         // This flag lifts the ES2 restrictions on Runtime Effects that are gated by the
         // `strictES2Mode` check. Be aware that the software renderer and pipeline-stage effect are
         // still largely ES3-unaware and can still fail or crash if post-ES2 features are used.

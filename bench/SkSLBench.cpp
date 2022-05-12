@@ -71,7 +71,6 @@ public:
         , fOutput(output) {
             fSettings.fOptimize = optimize;
             fSettings.fDSLMangling = false;
-            fSettings.fEnforceES2Restrictions = false;
             // The test programs we compile don't follow Vulkan rules and thus produce invalid
             // SPIR-V. This is harmless, so long as we don't try to validate them.
             fSettings.fValidateSPIRV = false;
@@ -108,7 +107,7 @@ protected:
             fixup(R"(uniform sampler2D )",                         "uniform shader ");
             fixup(R"((flat |noperspective |)in )",                 "uniform ");
             fixup(R"(sample\(([A-Za-z0-9_]+), ([A-Za-z0-9_]+)\))", "$01.eval($02)");
-            fSrc = "uniform float4 _FragCoord;\n" + fSrc;
+            fSrc = "#version 300\nuniform float4 _FragCoord;\n" + fSrc;
         }
     }
 

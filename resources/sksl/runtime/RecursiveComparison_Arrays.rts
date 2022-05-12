@@ -1,4 +1,5 @@
-/*#pragma settings NoES2Restrictions*/
+#version 300
+
 uniform half4 colorGreen, colorRed;
 
 bool test_same_arrays(bool eq, float f1, float f2, float f3) {

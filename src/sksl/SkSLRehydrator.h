@@ -38,7 +38,7 @@ struct Program;
  */
 class Rehydrator {
 public:
-    static constexpr uint16_t kVersion = 10;
+    static constexpr uint16_t kVersion = 11;
 
     // see binary_format.md for a description of the command data
     enum Command {

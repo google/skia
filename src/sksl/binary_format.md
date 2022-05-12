@@ -31,7 +31,7 @@ A binary SkSL file has the following header:
 | `char[stringLength]` | stringData   |
 
 The version number is incremented whenever the file format changes. This document describes version
-8.
+11.
 
 `stringLength` is the total length of all of the string data in the file, including the length bytes
 of the strings, but not counting the `stringLength` field itself. Each string consists of a `uint8`
@@ -57,6 +57,7 @@ byte ordering.
 | `bool`                 | a single byte with the value either 0 (`false`) or 1 (`true`)           |
 | `String`               | a `uint8` length, followed by a `uint16` offset [^1]                    |
 | `ProgramKind`          | a `uint8` mapping to a value in the `SkSL::ProgramKind` enum            |
+| `SkSLVersion`          | a `uint8` mapping to a value in the `SkSL::Version` enum                |
 | `VariableStorage`      | a `uint8` mapping to a value in the `SkSL::VariableStorage` enum        |
 | `Operator`             | a `uint8` mapping to a value in the `SkSL::Operator::Kind` enum         |
 | `FieldAccessOwnerKind` | a `uint8` mapping to a value in the `SkSL::FieldAccessOwnerKind` enum   |
@@ -176,6 +177,7 @@ leaving the other bits as zero.
 | Type                   | Field Name       |
 |------------------------|------------------|
 | `ProgramKind`          | programKind      |
+| `SkSLVersion`          | requiredVersion  |
 | `kSymbolTable_Command` | symbolTable      |
 | `kElements_Command`    | elements         |
 | `bool`                 | useFlipRTUniform |

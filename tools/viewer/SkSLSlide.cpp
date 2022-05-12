@@ -85,6 +85,7 @@ void SkSLSlide::unload() {
 bool SkSLSlide::rebuild() {
     // Some of the standard shadertoy inputs:
     SkString sksl;
+    // TODO(skia:11209): This interferes with user-authored #version directives
     if (fShadertoyUniforms) {
         sksl = "uniform float3 iResolution;\n"
                "uniform float  iTime;\n"

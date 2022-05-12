@@ -173,6 +173,7 @@ struct Program {
 
     std::string description() const {
         std::string result;
+        result += fConfig->versionDescription();
         for (const ProgramElement* e : this->elements()) {
             result += e->description();
         }

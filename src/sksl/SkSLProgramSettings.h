@@ -10,6 +10,7 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLProgramKind.h"
+#include "include/sksl/SkSLVersion.h"
 
 #include <vector>
 
@@ -65,6 +66,7 @@ struct ProgramSettings {
     bool fValidateSPIRV = true;
     // If true, any synthetic uniforms must use push constant syntax
     bool fUsePushConstants = false;
+    // TODO(skia:11209) - Replace this with a "promised" capabilities?
     // If true, configurations which demand strict ES2 conformance (runtime effects, generic
     // programs, and SkVM rendering) will fail during compilation if ES2 restrictions are violated.
     bool fEnforceES2Restrictions = true;
@@ -99,9 +101,30 @@ struct ProgramConfig {
     ProgramKind fKind;
     ProgramSettings fSettings;
 
+    // When enforcesSkSLVersion() is true, this determines the available feature set that will be
+    // enforced. This is set automatically when the `#version` directive is parsed.
+    SkSL::Version fRequiredSkSLVersion = SkSL::Version::k100;
+
+    bool enforcesSkSLVersion() const {
+        return IsRuntimeEffect(fKind) || fKind == ProgramKind::kGeneric;
+    }
+
     bool strictES2Mode() const {
+        // TODO(skia:11209): Remove the first condition - so this is just based on #version.
+        //                   Make it more generic (eg, isVersionLT) checking.
         return fSettings.fEnforceES2Restrictions &&
-               (IsRuntimeEffect(fKind) || fKind == ProgramKind::kGeneric);
+               fRequiredSkSLVersion == Version::k100 &&
+               this->enforcesSkSLVersion();
+    }
+
+    const char* versionDescription() const {
+        if (this->enforcesSkSLVersion()) {
+            switch (fRequiredSkSLVersion) {
+                case Version::k100: return "#version 100\n";
+                case Version::k300: return "#version 300\n";
+            }
+        }
+        return "";
     }
 
     static bool IsFragment(ProgramKind kind) {

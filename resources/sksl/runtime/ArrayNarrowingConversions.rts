@@ -1,4 +1,4 @@
-/*#pragma settings NoES2Restrictions*/
+#version 300
 
 uniform half4 colorGreen, colorRed;
 
