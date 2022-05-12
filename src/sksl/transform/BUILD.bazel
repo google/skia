@@ -68,10 +68,12 @@ generated_cc_atom(
     deps = [
         ":SkSLProgramWriter_hdr",
         ":SkSLTransform_hdr",
+        "//include/core:SkSpan_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLStatement_hdr",
         "//include/private:SkTHash_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLProgramSettings_hdr",
         "//src/sksl/ir:SkSLExpressionStatement_hdr",
         "//src/sksl/ir:SkSLExpression_hdr",
@@ -111,4 +113,5 @@ generated_cc_atom(
     name = "SkSLTransform_hdr",
     hdrs = ["SkSLTransform.h"],
     visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkSpan_hdr"],
 )

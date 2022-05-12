@@ -8,12 +8,14 @@
 #ifndef SKSL_TRANSFORM
 #define SKSL_TRANSFORM
 
+#include "include/core/SkSpan.h"
 #include <memory>
 #include <vector>
 
 namespace SkSL {
 
 class Context;
+struct LoadedModule;
 struct Program;
 class ProgramElement;
 class ProgramUsage;
@@ -44,6 +46,7 @@ bool EliminateDeadFunctions(Program& program, ProgramUsage* usage);
  * Eliminates variables in a program which are never read or written (past their initializer).
  * Preserves side effects from initializers, if any. Returns true if any changes were made.
  */
+bool EliminateDeadLocalVariables(const Context& context, LoadedModule& module, ProgramUsage* usage);
 bool EliminateDeadLocalVariables(Program& program, ProgramUsage* usage);
 bool EliminateDeadGlobalVariables(Program& program, ProgramUsage* usage);
 
