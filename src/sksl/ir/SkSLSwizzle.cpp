@@ -11,7 +11,6 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
@@ -110,7 +109,7 @@ static std::string mask_string(const ComponentArray& components) {
 
 static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& context,
                                                                 Position pos,
-                                                                const AnyConstructor& base,
+                                                                const ConstructorCompound& base,
                                                                 ComponentArray components) {
     auto baseArguments = base.argumentSpan();
     std::unique_ptr<Expression> replacement;
@@ -228,11 +227,11 @@ static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& c
         }
     }
 
-    // Wrap the new argument list in a constructor.
-    return Constructor::Convert(context,
-                                pos,
-                                componentType.toCompound(context, swizzleSize, /*rows=*/1),
-                                std::move(newArgs));
+    // Wrap the new argument list in a compound constructor.
+    return ConstructorCompound::Make(context,
+                                     pos,
+                                     componentType.toCompound(context, swizzleSize, /*rows=*/1),
+                                     std::move(newArgs));
 }
 
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
@@ -519,9 +518,9 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
                        : ConstructorScalarCast::Make(context, pos, castType, std::move(swizzled));
     }
 
-    // Optimize swizzles of constructors.
-    if (value->isAnyConstructor()) {
-        const AnyConstructor& ctor = value->asAnyConstructor();
+    // Swizzles on compound constructors, like `half4(1, 2, 3, 4).yw`, can become `half2(2, 4)`.
+    if (value->is<ConstructorCompound>()) {
+        const ConstructorCompound& ctor = value->as<ConstructorCompound>();
         if (auto replacement = optimize_constructor_swizzle(context, pos, ctor, components)) {
             return replacement;
         }
