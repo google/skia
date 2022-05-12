@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTArray.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLNop.h"
@@ -16,17 +18,16 @@
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <memory>
-#include <vector>
 
 namespace SkSL {
 
 class Expression;
 
-void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) {
+static void eliminate_unreachable_code(SkSpan<std::unique_ptr<ProgramElement>> elements,
+                                       ProgramUsage* usage) {
     class UnreachableCodeEliminator : public ProgramWriter {
     public:
-        UnreachableCodeEliminator(ProgramUsage* usage)
-                : fUsage(usage) {
+        UnreachableCodeEliminator(ProgramUsage* usage) : fUsage(usage) {
             fFoundFunctionExit.push_back(false);
             fFoundLoopExit.push_back(false);
         }
@@ -41,9 +42,7 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
                 // If we already found an exit in this section, anything beyond it is dead code.
                 if (!stmt->is<Nop>()) {
                     // Eliminate the dead statement by substituting a Nop.
-                    if (fUsage) {
-                        fUsage->remove(stmt.get());
-                    }
+                    fUsage->remove(stmt.get());
                     stmt = Nop::Make();
                 }
                 return false;
@@ -138,12 +137,20 @@ void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) 
         using INHERITED = ProgramWriter;
     };
 
-    for (std::unique_ptr<ProgramElement>& pe : program.fOwnedElements) {
+    for (std::unique_ptr<ProgramElement>& pe : elements) {
         if (pe->is<FunctionDefinition>()) {
             UnreachableCodeEliminator visitor{usage};
             visitor.visitStatementPtr(pe->as<FunctionDefinition>().body());
         }
     }
+}
+
+void Transform::EliminateUnreachableCode(LoadedModule& module, ProgramUsage* usage) {
+    return eliminate_unreachable_code(SkMakeSpan(module.fElements), usage);
+}
+
+void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) {
+    return eliminate_unreachable_code(SkMakeSpan(program.fOwnedElements), usage);
 }
 
 }  // namespace SkSL

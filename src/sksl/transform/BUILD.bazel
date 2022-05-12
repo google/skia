@@ -92,9 +92,11 @@ generated_cc_atom(
     deps = [
         ":SkSLProgramWriter_hdr",
         ":SkSLTransform_hdr",
+        "//include/core:SkSpan_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLStatement_hdr",
         "//include/private:SkTArray_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
         "//src/sksl/ir:SkSLIfStatement_hdr",
         "//src/sksl/ir:SkSLNop_hdr",

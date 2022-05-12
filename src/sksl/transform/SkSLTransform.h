@@ -35,7 +35,8 @@ void FindAndDeclareBuiltinVariables(const Context& context, ProgramKind programK
  * Eliminates statements in a block which cannot be reached; for example, a statement
  * immediately after a `return` or `continue` can safely be eliminated.
  */
-void EliminateUnreachableCode(Program& program, ProgramUsage* usage = nullptr);
+void EliminateUnreachableCode(LoadedModule& module, ProgramUsage* usage);
+void EliminateUnreachableCode(Program& program, ProgramUsage* usage);
 
 /**
  * Eliminates functions in a program which are never called. Returns true if any changes were made.
