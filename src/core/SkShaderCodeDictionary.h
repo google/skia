@@ -132,7 +132,7 @@ private:
 
 class SkShaderCodeDictionary {
 public:
-    SkShaderCodeDictionary(const SkSL::ShaderCaps*);
+    SkShaderCodeDictionary();
 
     struct Entry {
     public:

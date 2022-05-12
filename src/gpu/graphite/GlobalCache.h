@@ -22,7 +22,7 @@ namespace skgpu::graphite {
 // we need to go back and add protection around access to any of its memebers.
 class GlobalCache : public SkRefCnt {
 public:
-    GlobalCache(const SkSL::ShaderCaps*);
+    GlobalCache();
     ~GlobalCache() override;
 
     SkShaderCodeDictionary* shaderCodeDictionary() const { return fShaderCodeDictionary.get(); }

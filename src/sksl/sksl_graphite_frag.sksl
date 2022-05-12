@@ -97,27 +97,14 @@ half4 sk_sweep_grad_4_shader(float4x4 dev2Local,
                              float scaleParam) {
     float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 pt = pos - centerParam;
-    float angle = atan(-pt.y, -pt.x);
 
-    // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
-    float t = (angle * 0.1591549430918 + 0.5 + biasParam) * scaleParam;
-    return sk_clamp_grad_4(colorsParam, offsetsParam, t);
-}
-
-// Some devices incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
-// atan2(y,x) = 2 * atan(y / (sqrt(x^2 + y^2) + x)). To work around this we pass in
-// (sqrt(x^2 + y^2) + x) as the second parameter to atan2 in these cases. We let the device handle
-// the undefined behavior if the second parameter is 0, instead of doing the divide ourselves and
-// calling atan with the quotient.
-half4 sk_sweep_grad_4_shader_atan_workaround(float4x4 dev2Local,
-                                             float4 colorsParam[4],
-                                             float offsetsParam[4],
-                                             float2 centerParam,
-                                             float biasParam,
-                                             float scaleParam) {
-    float2 pos = (dev2Local * sk_FragCoord).xy;
-    float2 pt = pos - centerParam;
-    float angle = 2 * atan(-pt.y, length(pt) - pt.x);
+    // Some devices incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
+    // atan2(y,x) = 2 * atan(y / (sqrt(x^2 + y^2) + x)). To work around this we pass in
+    // (sqrt(x^2 + y^2) + x) as the second parameter to atan2 in these cases. We let the device
+    // handle the undefined behavior if the second parameter is 0, instead of doing the divide
+    // ourselves and calling atan with the quotient.
+    float angle = sk_Caps.atan2ImplementedAsAtanYOverX ? 2 * atan(-pt.y, length(pt) - pt.x)
+                                                       : atan(-pt.y, -pt.x);
 
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     float t = (angle * 0.1591549430918 + 0.5 + biasParam) * scaleParam;
