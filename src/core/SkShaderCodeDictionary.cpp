@@ -159,7 +159,7 @@ std::string SkShaderInfo::toSkSL() const {
     result += "void main() {\n";
 
     if (this->needsLocalCoords()) {
-        result += "float4x4 initialPreLocal = float4x4(1);\n";
+        result += "const float4x4 initialPreLocal = float4x4(1);\n";
     }
 
     std::string parentPreLocal = "initialPreLocal";
