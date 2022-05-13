@@ -119,6 +119,7 @@ cc_library(
         "//src/sksl/transform:SkSLEliminateDeadFunctions_src",
         "//src/sksl/transform:SkSLEliminateDeadGlobalVariables_src",
         "//src/sksl/transform:SkSLEliminateDeadLocalVariables_src",
+        "//src/sksl/transform:SkSLEliminateEmptyStatements_src",
         "//src/sksl/transform:SkSLEliminateUnreachableCode_src",
     ],
 )

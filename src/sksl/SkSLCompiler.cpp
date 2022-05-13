@@ -609,6 +609,9 @@ bool Compiler::optimizeModuleForDehydration(LoadedModule& module, const ParsedMo
         // Removing dead variables may cause more variables to become unreferenced. Try again.
     }
 
+    // Save space by eliminating empty statements from the code.
+    Transform::EliminateEmptyStatements(module);
+
     // Note that we intentionally don't attempt to eliminate unreferenced global variables or
     // functions here, since those can be referenced by the finished program even if they're
     // unreferenced now. We also don't run the inliner to avoid growing the program; that is done in
