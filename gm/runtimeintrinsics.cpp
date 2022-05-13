@@ -95,8 +95,9 @@ static SkBitmap draw_shader(SkCanvas* canvas, sk_sp<SkShader> shader,
     'v1' : float2(1)
     'v2' : float2(2)
 */
-static SkString make_unary_sksl_1d(const char* fn) {
+static SkString make_unary_sksl_1d(const char* fn, bool requireES3) {
     return SkStringPrintf(
+            "#version %s\n"
             "uniform float xScale; uniform float xBias;"
             "uniform float yScale; uniform float yBias;"
             "half4 main(float2 p) {"
@@ -109,7 +110,7 @@ static SkString make_unary_sksl_1d(const char* fn) {
             "    float y = float(%s) * yScale + yBias;"
             "    return y.xxx1;"
             "}",
-            fn);
+            requireES3 ? "300" : "100", fn);
 }
 
 // Draws one row of boxes, then advances the canvas translation vertically
@@ -125,9 +126,7 @@ static void plot(SkCanvas* canvas,
 
     draw_label(canvas, label ? label : fn);
 
-    auto [effect, error] = SkRuntimeEffect::MakeForShader(
-            make_unary_sksl_1d(fn),
-            requireES3 ? SkRuntimeEffectPriv::ES3Options() : SkRuntimeEffect::Options{});
+    auto [effect, error] = SkRuntimeEffect::MakeForShader(make_unary_sksl_1d(fn, requireES3));
     if (!effect) {
         SkDebugf("Error: %s\n", error.c_str());
         return;

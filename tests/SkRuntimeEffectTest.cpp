@@ -100,6 +100,17 @@ DEF_TEST(SkRuntimeEffectCanDisableES2Restrictions, r) {
     test_valid_es3     (r, "float f[2] = float[2](0, 1);" EMPTY_MAIN);
 }
 
+DEF_TEST(SkRuntimeEffectCanEnableVersion300, r) {
+    auto test_valid = [](skiatest::Reporter* r, const char* sksl) {
+        auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl));
+        REPORTER_ASSERT(r, effect, "%s", errorText.c_str());
+    };
+
+    test_invalid_effect(r, "#version 100\nfloat f[2] = float[2](0, 1);" EMPTY_MAIN,
+                           "construction of array type");
+    test_valid         (r, "#version 300\nfloat f[2] = float[2](0, 1);" EMPTY_MAIN);
+}
+
 DEF_TEST(SkRuntimeEffectForColorFilter, r) {
     // Tests that the color filter factory rejects or accepts certain SkSL constructs
     auto test_valid = [r](const char* sksl) {

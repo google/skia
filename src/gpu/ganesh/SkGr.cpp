@@ -403,7 +403,7 @@ static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
             // between 0 and alpha to keep the color premultiplied.
             return half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
         }
-    )", SkRuntimeEffectPriv::ES3Options());
+    )");
     return GrSkSLFP::Make(effect,
                           "Dither",
                           std::move(inputFP),

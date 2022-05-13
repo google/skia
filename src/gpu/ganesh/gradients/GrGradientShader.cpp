@@ -277,6 +277,7 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
         // chunk` near the end via an @if statement, as the result will always be in chunk 0.
         int loopCount = SkNextLog2(intervalChunks);
         sksl.appendf(R"(
+        #version 300
         uniform half4 thresholds[%d];
         uniform float4 scale[%d];
         uniform float4 bias[%d];
@@ -317,8 +318,7 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
             /* loopCount: */ loopCount,
             /* @if (loopCount > 0): */ loopCount);
 
-        auto result = SkRuntimeEffect::MakeForShader(std::move(sksl),
-                                                     SkRuntimeEffectPriv::ES3Options());
+        auto result = SkRuntimeEffect::MakeForShader(std::move(sksl));
         SkASSERTF(result.effect, "%s", result.errorText.c_str());
         cacheEntry->effect = std::move(result.effect);
     });
