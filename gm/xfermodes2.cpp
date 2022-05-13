@@ -53,7 +53,7 @@ protected:
         const int W = 6;
 
         SkScalar x = 0, y = 0;
-        for (size_t m = 0; m <= (size_t)SkBlendMode::kLastMode; m++) {
+        for (size_t m = 0; m < kSkBlendModeCount; m++) {
             SkBlendMode mode = static_cast<SkBlendMode>(m);
 
             canvas->save();

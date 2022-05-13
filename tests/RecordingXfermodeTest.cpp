@@ -147,7 +147,7 @@ DEF_TEST(SkRecordingAccuracyXfermode, reporter) {
     SkString errors;
 #endif
 
-    for (int iMode = 0; iMode < int(SkBlendMode::kLastMode); iMode++) {
+    for (int iMode = 0; iMode < kSkBlendModeCount; iMode++) {
         const SkRect& clip = SkRect::MakeXYWH(100, 0, 100, 100);
         SkBlendMode mode = SkBlendMode(iMode);
 

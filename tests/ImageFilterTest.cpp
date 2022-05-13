@@ -1829,10 +1829,9 @@ DEF_TEST(XfermodeImageFilterBounds, reporter) {
     sk_sp<SkImageFilter> background(new FixedBoundsImageFilter(background_rect));
     sk_sp<SkImageFilter> foreground(new FixedBoundsImageFilter(foreground_rect));
 
-    const int kModeCount = static_cast<int>(SkBlendMode::kLastMode) + 1;
-    SkIRect expectedBounds[kModeCount];
+    SkIRect expectedBounds[kSkBlendModeCount];
     // Expect union of input rects by default.
-    for (int i = 0; i < kModeCount; ++i) {
+    for (int i = 0; i < kSkBlendModeCount; ++i) {
         expectedBounds[i] = background_rect;
         expectedBounds[i].join(foreground_rect);
     }
@@ -1849,7 +1848,7 @@ DEF_TEST(XfermodeImageFilterBounds, reporter) {
 
     // The value of this variable doesn't matter because we use inputs with fixed bounds.
     SkIRect src = SkIRect::MakeXYWH(11, 22, 33, 44);
-    for (int i = 0; i < kModeCount; ++i) {
+    for (int i = 0; i < kSkBlendModeCount; ++i) {
         sk_sp<SkImageFilter> xfermode(SkImageFilters::Blend(static_cast<SkBlendMode>(i),
                                                             background, foreground, nullptr));
         auto bounds = xfermode->filterBounds(src, SkMatrix::I(),

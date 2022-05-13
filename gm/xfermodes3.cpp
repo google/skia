@@ -77,7 +77,7 @@ protected:
             {SkPaint::kStroke_Style, SkIntToScalar(kSize) / 2},
         };
         for (size_t s = 0; s < SK_ARRAY_COUNT(kStrokes); ++s) {
-            for (size_t m = 0; m <= (size_t)SkBlendMode::kLastMode; ++m) {
+            for (size_t m = 0; m < kSkBlendModeCount; ++m) {
                 SkBlendMode mode = static_cast<SkBlendMode>(m);
                 canvas->drawString(SkBlendMode_Name(mode),
                                    SkIntToScalar(x),

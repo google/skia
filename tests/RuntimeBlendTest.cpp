@@ -31,7 +31,7 @@ static void test_blend(skiatest::Reporter* r, SkSurface* surface) {
     SkBitmap bitmap;
     REPORTER_ASSERT(r, bitmap.tryAllocPixels(surface->imageInfo()));
 
-    for (int m = 0; m <= (int)SkBlendMode::kLastMode; ++m) {
+    for (int m = 0; m < kSkBlendModeCount; ++m) {
         SkBlendMode mode = (SkBlendMode)m;
         for (int alpha : {0x80, 0xFF}) {
             std::vector<SkColor> colors;

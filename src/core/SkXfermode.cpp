@@ -112,10 +112,8 @@ sk_sp<SkXfermode> SkXfermode::Make(SkBlendMode mode) {
         return nullptr;
     }
 
-    const int COUNT_BLENDMODES = (int)SkBlendMode::kLastMode + 1;
-
-    static SkOnce        once[COUNT_BLENDMODES];
-    static SkXfermode* cached[COUNT_BLENDMODES];
+    static SkOnce        once[kSkBlendModeCount];
+    static SkXfermode* cached[kSkBlendModeCount];
 
     once[(int)mode]([mode] {
         if (auto xfermode = SkOpts::create_xfermode(mode)) {

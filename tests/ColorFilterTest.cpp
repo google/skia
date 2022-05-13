@@ -41,7 +41,7 @@ static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
 DEF_TEST(ColorFilter, reporter) {
     SkRandom rand;
 
-    for (int mode = 0; mode <= (int)SkBlendMode::kLastMode; mode++) {
+    for (int mode = 0; mode < kSkBlendModeCount; mode++) {
         SkColor color = rand.nextU();
 
         // ensure we always get a filter, by avoiding the possibility of a
