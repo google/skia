@@ -298,10 +298,6 @@ void Dehydrator::write(const Expression* e) {
                 SkDEBUGFAIL("unimplemented--not expected to be used from within an include file");
                 break;
 
-            case Expression::Kind::kCodeString:
-                SkDEBUGFAIL("shouldn't be able to receive kCodeString here");
-                break;
-
             case Expression::Kind::kConstructorArray:
                 this->writeCommand(Rehydrator::kConstructorArray_Command);
                 this->write(e->type());

@@ -89,7 +89,6 @@ public:
             case Expression::Kind::kExternalFunctionReference:
             case Expression::Kind::kMethodReference:
             case Expression::Kind::kTypeReference:
-            case Expression::Kind::kCodeString:
                 return true;
 
             default:

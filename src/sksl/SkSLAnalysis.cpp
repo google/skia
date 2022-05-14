@@ -501,7 +501,6 @@ bool ProgramVisitor::visit(const Program& program) {
 
 template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expression& e) {
     switch (e.kind()) {
-        case Expression::Kind::kCodeString:
         case Expression::Kind::kExternalFunctionReference:
         case Expression::Kind::kFunctionReference:
         case Expression::Kind::kLiteral:

@@ -1553,7 +1553,6 @@ BASE_SRCS_ALL = [
     "src/sksl/ir/SkSLBreakStatement.h",
     "src/sksl/ir/SkSLChildCall.cpp",
     "src/sksl/ir/SkSLChildCall.h",
-    "src/sksl/ir/SkSLCodeStringExpression.h",
     "src/sksl/ir/SkSLConstructor.cpp",
     "src/sksl/ir/SkSLConstructor.h",
     "src/sksl/ir/SkSLConstructorArray.cpp",

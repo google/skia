@@ -90,13 +90,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkSLCodeStringExpression_hdr",
-    hdrs = ["SkSLCodeStringExpression.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [":SkSLExpression_hdr"],
-)
-
-generated_cc_atom(
     name = "SkSLConstructorArrayCast_hdr",
     hdrs = ["SkSLConstructorArrayCast.h"],
     visibility = ["//:__subpackages__"],
