@@ -93,13 +93,6 @@ public:
         return ptr;
     }
 
-    template <typename T>
-    const T* takeOwnershipOfIRNode(std::unique_ptr<T> node) {
-        const T* ptr = node.get();
-        fOwnedNodes.push_back(std::move(node));
-        return ptr;
-    }
-
     /**
      * Given type = `float` and arraySize = 5, creates the array type `float[5]` in the symbol
      * table. The created array type is returned. If zero is passed, the base type is returned
@@ -158,7 +151,6 @@ private:
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
     bool fBuiltin = false;
-    std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
     std::forward_list<std::string> fOwnedStrings;
     SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
     const Context& fContext;
