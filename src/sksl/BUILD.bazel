@@ -355,7 +355,6 @@ generated_cc_atom(
         "//include/sksl:SkSLPosition_hdr",
         "//src/sksl/ir:SkSLConstructorCompound_hdr",
         "//src/sksl/ir:SkSLConstructorSplat_hdr",
-        "//src/sksl/ir:SkSLConstructor_hdr",
         "//src/sksl/ir:SkSLExpression_hdr",
         "//src/sksl/ir:SkSLLiteral_hdr",
         "//src/sksl/ir:SkSLPrefixExpression_hdr",

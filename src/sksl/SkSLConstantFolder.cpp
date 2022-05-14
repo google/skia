@@ -14,7 +14,6 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -273,9 +272,9 @@ static std::unique_ptr<Expression> cast_expression(const Context& context,
                                                    Position pos,
                                                    const Expression& expr,
                                                    const Type& type) {
-    ExpressionArray ctorArgs;
-    ctorArgs.push_back(expr.clone());
-    return Constructor::Convert(context, pos, type, std::move(ctorArgs));
+    SkASSERT(type.componentType().matches(expr.type().componentType()));
+    return expr.type().isScalar() ? ConstructorSplat::Make(context, pos, type, expr.clone())
+                                  : expr.clone(pos);
 }
 
 static std::unique_ptr<Expression> negate_expression(const Context& context,
