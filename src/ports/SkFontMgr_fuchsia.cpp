@@ -304,7 +304,9 @@ private:
     mutable fuchsia::fonts::ProviderSyncPtr fFontProvider;
 
     sk_sp<SkFuchsiaFontDataCache> fBufferCache;
-    mutable SkTypefaceCache fTypefaceCache;
+
+    mutable SkMutex fCacheMutex;
+    mutable SkTypefaceCache fTypefaceCache SK_GUARDED_BY(fCacheMutex);
 };
 
 class SkFontStyleSet_Fuchsia : public SkFontStyleSet {
@@ -494,6 +496,8 @@ static bool FindByTypefaceId(SkTypeface* cachedTypeface, void* ctx) {
 
 sk_sp<SkTypeface> SkFontMgr_Fuchsia::GetOrCreateTypeface(TypefaceId id,
                                                          const fuchsia::mem::Buffer& buffer) const {
+    SkAutoMutexExclusive mutexLock(fCacheMutex);
+
     sk_sp<SkTypeface> cached = fTypefaceCache.findByProcAndRef(FindByTypefaceId, &id);
     if (cached) return cached;
 
