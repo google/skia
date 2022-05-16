@@ -227,7 +227,7 @@ public:
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
                                   const SkPaint& paint,
                                   const SkMatrix& positionMatrix,
-                                  const GrSDFTControl& control,
+                                  SkStrikeDeviceInfo strikeDeviceInfo,
                                   SkGlyphRunListPainter* painter);
 
     GrTextBlob(sktext::gpu::SubRunAllocator&& alloc,
@@ -309,7 +309,7 @@ sk_sp<GrSlug> MakeSlug(const SkMatrixProvider& drawMatrix,
                        const SkGlyphRunList& glyphRunList,
                        const SkPaint& initialPaint,
                        const SkPaint& drawingPaint,
-                       const GrSDFTControl& control,
+                       SkStrikeDeviceInfo strikeDeviceInfo,
                        SkGlyphRunListPainter* painter);
 }  // namespace skgpu::v1
 #endif  // GrTextBlob_DEFINED

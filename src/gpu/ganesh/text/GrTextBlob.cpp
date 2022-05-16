@@ -2179,7 +2179,7 @@ GrTextBlob::~GrTextBlob() = default;
 sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
                                    const SkPaint& paint,
                                    const SkMatrix& positionMatrix,
-                                   const GrSDFTControl& control,
+                                   SkStrikeDeviceInfo strikeDeviceInfo,
                                    SkGlyphRunListPainter* painter) {
     // The difference in alignment from the per-glyph data to the SubRun;
     constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
@@ -2199,7 +2199,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
             std::move(alloc), totalMemoryAllocated, positionMatrix, initialLuminance));
 
     painter->categorizeGlyphRunList(
-            blob.get(), glyphRunList, positionMatrix, paint, control, "GrTextBlob");
+            blob.get(), glyphRunList, positionMatrix, paint, strikeDeviceInfo, "GrTextBlob");
 
     return blob;
 }
@@ -2341,7 +2341,7 @@ public:
                             const SkGlyphRunList& glyphRunList,
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint,
-                            const GrSDFTControl& control,
+                            SkStrikeDeviceInfo strikeDeviceInfo,
                             SkGlyphRunListPainter* painter);
     static sk_sp<GrSlug> MakeFromBuffer(SkReadBuffer& buffer,
                                         const SkStrikeClient* client);
@@ -2495,7 +2495,7 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
                        const SkGlyphRunList& glyphRunList,
                        const SkPaint& initialPaint,
                        const SkPaint& drawingPaint,
-                       const GrSDFTControl& control,
+                       SkStrikeDeviceInfo strikeDeviceInfo,
                        SkGlyphRunListPainter* painter) {
     // The difference in alignment from the per-glyph data to the SubRun;
     constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
@@ -2519,7 +2519,7 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
             glyphRunList.origin()));
 
     painter->categorizeGlyphRunList(
-            slug.get(), glyphRunList, positionMatrix, drawingPaint, control, "Make Slug");
+            slug.get(), glyphRunList, positionMatrix, drawingPaint, strikeDeviceInfo, "Make Slug");
 
     // There is nothing to draw here. This is particularly a problem with RSX form blobs where a
     // single space becomes a run with no glyphs.
@@ -2580,15 +2580,11 @@ sk_sp<GrSlug>
 Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
                                   const SkPaint& initialPaint,
                                   const SkPaint& drawingPaint) {
-    auto recordingContextPriv = this->recordingContext()->priv();
-    const GrSDFTControl control = recordingContextPriv.getSDFTControl(
-            this->surfaceProps().isUseDeviceIndependentFonts());
-
     return Slug::Make(this->asMatrixProvider(),
                       glyphRunList,
                       initialPaint,
                       drawingPaint,
-                      control,
+                      this->strikeDeviceInfo(),
                       fSurfaceDrawContext->glyphRunPainter());
 }
 
@@ -2614,9 +2610,10 @@ sk_sp<GrSlug> MakeSlug(const SkMatrixProvider& drawMatrix,
                        const SkGlyphRunList& glyphRunList,
                        const SkPaint& initialPaint,
                        const SkPaint& drawingPaint,
-                       const GrSDFTControl& control,
+                       SkStrikeDeviceInfo strikeDeviceInfo,
                        SkGlyphRunListPainter* painter) {
-    return Slug::Make(drawMatrix, glyphRunList, initialPaint, drawingPaint, control, painter);
+    return Slug::Make(
+            drawMatrix, glyphRunList, initialPaint, drawingPaint, strikeDeviceInfo, painter);
 }
 }  // namespace skgpu::v1
 

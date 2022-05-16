@@ -281,6 +281,7 @@ generated_cc_atom(
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkMeshPriv_hdr",
         "//src/core:SkRRectPriv_hdr",
+        "//src/core:SkStrikeCache_hdr",
         "//src/gpu/ganesh:GrAppliedClip_hdr",
         "//src/gpu/ganesh:GrAttachment_hdr",
         "//src/gpu/ganesh:GrCaps_hdr",

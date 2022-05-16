@@ -1129,8 +1129,12 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
             this->drawSlug(canvas, slug.get(), drawingPaint);
         }
     } else {
-        fSurfaceDrawContext->drawGlyphRunList(
-                canvas, this->clip(), this->asMatrixProvider(), glyphRunList, drawingPaint);
+        fSurfaceDrawContext->drawGlyphRunList(canvas,
+                                              this->clip(),
+                                              this->asMatrixProvider(),
+                                              glyphRunList,
+                                              this->strikeDeviceInfo(),
+                                              drawingPaint);
     }
 #endif
 }

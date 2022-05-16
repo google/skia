@@ -34,6 +34,7 @@ public:
                           const SkMatrixProvider& viewMatrix,
                           const SkGlyphRunList& glyphRunList,
                           const SkPaint& paint,
+                          SkStrikeDeviceInfo strikeDeviceInfo,
                           skgpu::v1::SurfaceDrawContext* sdc);
 
     void freeAll() SK_EXCLUDES(fSpinLock);

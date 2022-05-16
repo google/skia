@@ -27,21 +27,18 @@ void GrTextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
                                                    const SkMatrixProvider& viewMatrix,
                                                    const SkGlyphRunList& glyphRunList,
                                                    const SkPaint& paint,
+                                                   SkStrikeDeviceInfo strikeDeviceInfo,
                                                    skgpu::v1::SurfaceDrawContext* sdc) {
 
     SkMatrix positionMatrix{viewMatrix.localToDevice()};
     positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
-
-    GrSDFTControl control =
-            sdc->recordingContext()->priv().getSDFTControl(
-                    sdc->surfaceProps().isUseDeviceIndependentFonts());
 
     auto [canCache, key] = GrTextBlob::Key::Make(glyphRunList,
                                                  paint,
                                                  sdc->surfaceProps(),
                                                  sdc->colorInfo(),
                                                  positionMatrix,
-                                                 control);
+                                                 *strikeDeviceInfo.fSDFTControl);
     sk_sp<GrTextBlob> blob;
     if (canCache) {
         blob = this->find(key);
@@ -54,7 +51,7 @@ void GrTextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
         }
 
         blob = GrTextBlob::Make(
-                glyphRunList, paint, positionMatrix, control, sdc->glyphRunPainter());
+                glyphRunList, paint, positionMatrix, strikeDeviceInfo, sdc->glyphRunPainter());
 
         if (canCache) {
             blob->addKey(key);

@@ -789,8 +789,8 @@ public:
             : SkNoPixelsDevice(SkIRect::MakeSize(dimensions), props, std::move(colorSpace))
             , fStrikeServerImpl(server)
             , fSDFTControl(SDFTControl)
-            , fPainter{props, imageInfo().colorSpace(), fStrikeServerImpl}
-            , fConvertPainter{props, imageInfo().colorSpace(), SkStrikeCache::GlobalStrikeCache()} {
+            , fPainter{fStrikeServerImpl}
+            , fConvertPainter{SkStrikeCache::GlobalStrikeCache()} {
         SkASSERT(fStrikeServerImpl != nullptr);
     }
 
@@ -815,7 +815,7 @@ protected:
                                         glyphRunList,
                                         drawMatrix,
                                         drawingPaint,
-                                        *this->strikeDeviceInfo().fSDFTControl,
+                                        this->strikeDeviceInfo(),
                                         "Cache Diff");
     }
 
@@ -835,7 +835,7 @@ protected:
                                         glyphRunList,
                                         positionMatrix,
                                         drawingPaint,
-                                        *this->strikeDeviceInfo().fSDFTControl,
+                                        this->strikeDeviceInfo(),
                                         "Convert Slug Analysis");
 
         // Use the glyph strike cache to get actual glyph information.
@@ -843,7 +843,7 @@ protected:
                                    glyphRunList,
                                    initialPaint,
                                    drawingPaint,
-                                   *this->strikeDeviceInfo().fSDFTControl,
+                                   this->strikeDeviceInfo(),
                                    &fConvertPainter);
     }
 

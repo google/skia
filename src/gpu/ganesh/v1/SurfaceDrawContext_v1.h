@@ -486,6 +486,7 @@ public:
                           const GrClip*,
                           const SkMatrixProvider& viewMatrix,
                           const SkGlyphRunList& glyphRunList,
+                          SkStrikeDeviceInfo strikeDeviceInfo,
                           const SkPaint& paint);
 
     /**

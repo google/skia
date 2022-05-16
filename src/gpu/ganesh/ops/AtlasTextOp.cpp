@@ -507,9 +507,13 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
     GrSDFTControl control =
             rContext->priv().getSDFTControl(sdc->surfaceProps().isUseDeviceIndependentFonts());
 
-    SkGlyphRunListPainter* painter = sdc->glyphRunPainter();
+    SkStrikeDeviceInfo strikeDeviceInfo{sdc->surfaceProps(),
+                                        SkScalerContextFlags::kBoostContrast,
+                                        &control};
+
+    SkGlyphRunListPainter painter{SkStrikeCache::GlobalStrikeCache()};
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(
-            glyphRunList, skPaint, drawMatrix, control, painter);
+            glyphRunList, skPaint, drawMatrix, strikeDeviceInfo, &painter);
 
     const GrAtlasSubRun* subRun = blob->testingOnlyFirstSubRun();
     if (!subRun) {

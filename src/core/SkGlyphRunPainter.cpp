@@ -6,6 +6,7 @@
  */
 
 #include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkScalerContext.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/GrColorInfo.h"
@@ -250,22 +251,8 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 #if SK_SUPPORT_GPU
-SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
-                                             SkScalerContextFlags flags,
-                                             SkStrikeForGPUCacheInterface* strikeCache)
-        : fDeviceProps{props}
-        , fScalerContextFlags{flags}
-        , fStrikeCache{strikeCache} {}
-
-SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
-                                             const SkColorSpace* colorSpace,
-                                             SkStrikeForGPUCacheInterface* strikeCache)
-        : SkGlyphRunListPainter{props, compute_scaler_context_flags(colorSpace), strikeCache} {}
-
-SkGlyphRunListPainter::SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext& sdc)
-        : SkGlyphRunListPainter{sdc.surfaceProps(),
-                                compute_scaler_context_flags(sdc.colorInfo().colorSpace()),
-                                SkStrikeCache::GlobalStrikeCache()} {}
+SkGlyphRunListPainter::SkGlyphRunListPainter(SkStrikeForGPUCacheInterface* strikeCache)
+        : fStrikeCache{strikeCache} {}
 
 // Use the following in your args.gn to dump telemetry for diagnosing chrome Renderer/GPU
 // differences.
@@ -281,7 +268,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
                                                    const SkGlyphRunList& glyphRunList,
                                                    const SkMatrix& positionMatrix,
                                                    const SkPaint& runPaint,
-                                                   const GrSDFTControl& control,
+                                                   SkStrikeDeviceInfo strikeDeviceInfo,
                                                    const char* tag) {
     [[maybe_unused]] SkString msg;
     if constexpr (kTrace) {
@@ -298,6 +285,16 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
                     positionMatrix[0], positionMatrix[1], positionMatrix[2],
                     positionMatrix[3], positionMatrix[4], positionMatrix[5]);
     }
+
+    SkASSERT(strikeDeviceInfo.fSDFTControl != nullptr);
+    if (strikeDeviceInfo.fSDFTControl == nullptr) {
+        return;
+    }
+
+    const SkSurfaceProps deviceProps = strikeDeviceInfo.fSurfaceProps;
+    const SkScalerContextFlags scalerContextFlags = strikeDeviceInfo.fScalerContextFlags;
+    const GrSDFTControl SDFTControl = *strikeDeviceInfo.fSDFTControl;
+
     auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
     for (auto& glyphRun : glyphRunList) {
@@ -310,11 +307,11 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
             SkScalar approximateDeviceTextSize =
                     SkFontPriv::ApproximateTransformedTextSize(runFont, positionMatrix);
 
-            if (control.isSDFT(approximateDeviceTextSize, runPaint)) {
+            if (SDFTControl.isSDFT(approximateDeviceTextSize, runPaint)) {
                 // Process SDFT - This should be the .009% case.
                 const auto& [strikeSpec, strikeToSourceScale, matrixRange] =
                     SkStrikeSpec::MakeSDFT(
-                                runFont, runPaint, fDeviceProps, positionMatrix, control);
+                                runFont, runPaint, deviceProps, positionMatrix, SDFTControl);
 
                 if constexpr(kTrace) {
                     msg.appendf("  SDFT case:\n%s", strikeSpec.dump().c_str());
@@ -348,7 +345,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
                 // If things are too big they will be passed along to the drawing of last resort
                 // below.
                 SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
-                        runFont, runPaint, fDeviceProps, fScalerContextFlags, positionMatrix);
+                        runFont, runPaint, deviceProps, scalerContextFlags, positionMatrix);
 
                 if constexpr (kTrace) {
                     msg.appendf("  Mask case:\n%s", strikeSpec.dump().c_str());
@@ -381,7 +378,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
         if (!rejected->source().empty()) {
             // Drawable case - handle big things with that have a drawable.
             auto [strikeSpec, strikeToSourceScale] =
-                    SkStrikeSpec::MakePath(runFont, runPaint, fDeviceProps, fScalerContextFlags);
+                    SkStrikeSpec::MakePath(runFont, runPaint, deviceProps, scalerContextFlags);
 
             if constexpr (kTrace) {
                 msg.appendf("  Drawable case:\n%s", strikeSpec.dump().c_str());
@@ -412,7 +409,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
         if (!rejected->source().empty()) {
             // Path case - handle big things without color and that have a path.
             auto [strikeSpec, strikeToSourceScale] =
-                    SkStrikeSpec::MakePath(runFont, runPaint, fDeviceProps, fScalerContextFlags);
+                    SkStrikeSpec::MakePath(runFont, runPaint, deviceProps, scalerContextFlags);
 
             #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
                 msg.appendf("  Path case:\n%s", strikeSpec.dump().c_str());
@@ -444,8 +441,8 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
         if (!rejected->source().empty() && maxDimensionInSourceSpace != 0) {
             // Draw of last resort. Scale the bitmap to the screen.
             auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeSourceFallback(
-                    runFont, runPaint, fDeviceProps,
-                    fScalerContextFlags, maxDimensionInSourceSpace);
+                    runFont, runPaint, deviceProps,
+                    scalerContextFlags, maxDimensionInSourceSpace);
 
             if constexpr (kTrace) {
                 msg.appendf("Transformed case:\n%s", strikeSpec.dump().c_str());

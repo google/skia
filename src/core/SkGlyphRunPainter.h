@@ -9,6 +9,7 @@
 #define SkGlyphRunPainter_DEFINED
 
 #include "include/core/SkSurfaceProps.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkScalerContext.h"
@@ -84,12 +85,7 @@ private:
 #if SK_SUPPORT_GPU
 class SkGlyphRunListPainter {
 public:
-    SkGlyphRunListPainter(const SkSurfaceProps& props,
-                          const SkColorSpace* colorSpace,
-                          SkStrikeForGPUCacheInterface* strikeCache);
-    // The following ctor is used exclusively by the GPU, and will always use the global
-    // strike cache.
-    explicit SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext&);
+    SkGlyphRunListPainter(SkStrikeForGPUCacheInterface* strikeCache);
 
     // A nullptr for process means that the calls to the cache will be performed, but none of the
     // callbacks will be called.
@@ -98,19 +94,11 @@ public:
                                 const SkGlyphRunList& glyphRunList,
                                 const SkMatrix& positionMatrix,
                                 const SkPaint& drawPaint,
-                                const GrSDFTControl& control,
+                                SkStrikeDeviceInfo strikeDeviceInfo,
                                 const char* tag = nullptr);
 
 private:
-    SkGlyphRunListPainter(const SkSurfaceProps& props,
-                          SkScalerContextFlags flags,
-                          SkStrikeForGPUCacheInterface* strikeCache);
-
-    // The props as on the actual device.
-    [[maybe_unused]] const SkSurfaceProps fDeviceProps;
-    [[maybe_unused]] const SkScalerContextFlags fScalerContextFlags;
-
-    [[maybe_unused]] SkStrikeForGPUCacheInterface* const fStrikeCache;
+    SkStrikeForGPUCacheInterface* const fStrikeCache;
 };
 
 // SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first

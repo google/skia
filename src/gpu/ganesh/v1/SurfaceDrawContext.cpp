@@ -27,6 +27,7 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/core/SkRRectPriv.h"
+#include "src/core/SkStrikeCache.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -299,7 +300,7 @@ SurfaceDrawContext::SurfaceDrawContext(GrRecordingContext* rContext,
         , fCanUseDynamicMSAA(
                 (fSurfaceProps.flags() & SkSurfaceProps::kDynamicMSAA_Flag) &&
                 rContext->priv().caps()->supportsDynamicMSAA(this->asRenderTargetProxy()))
-        , fGlyphPainter(*this) {
+        , fGlyphPainter(SkStrikeCache::GlobalStrikeCache()) {
     SkDEBUGCODE(this->validate();)
 }
 
@@ -327,6 +328,7 @@ void SurfaceDrawContext::drawGlyphRunList(SkCanvas* canvas,
                                           const GrClip* clip,
                                           const SkMatrixProvider& viewMatrix,
                                           const SkGlyphRunList& glyphRunList,
+                                          SkStrikeDeviceInfo strikeDeviceInfo,
                                           const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -341,7 +343,8 @@ void SurfaceDrawContext::drawGlyphRunList(SkCanvas* canvas,
     }
 
     GrTextBlobRedrawCoordinator* textBlobCache = fContext->priv().getTextBlobCache();
-    textBlobCache->drawGlyphRunList(canvas, clip, viewMatrix, glyphRunList, paint, this);
+    textBlobCache->drawGlyphRunList(
+            canvas, clip, viewMatrix, glyphRunList, paint, strikeDeviceInfo, this);
 }
 
 void SurfaceDrawContext::drawPaint(const GrClip* clip,
