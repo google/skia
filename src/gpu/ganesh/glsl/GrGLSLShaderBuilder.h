@@ -117,8 +117,6 @@ public:
 
     void codeAppend(const char* str, size_t length) { this->code().append(str, length); }
 
-    void codeAppend(std::unique_ptr<SkSL::Statement> stmt);
-
     void codePrependf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
        va_list args;
        va_start(args, format);

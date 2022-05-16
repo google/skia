@@ -21,7 +21,6 @@
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/dsl/priv/DSLFPs.h"
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 

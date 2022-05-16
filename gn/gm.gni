@@ -164,7 +164,6 @@ gm_sources = [
   "$_gm/dropshadowimagefilter.cpp",
   "$_gm/drrect.cpp",
   "$_gm/drrect_small_inner.cpp",
-  "$_gm/dsl_processor_test.cpp",
   "$_gm/dstreadshuffle.cpp",
   "$_gm/ducky_yuv_blend.cpp",
   "$_gm/emboss.cpp",

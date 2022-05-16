@@ -8,7 +8,6 @@
 #include "src/sksl/SkSLThreadContext.h"
 
 #include "include/private/SkSLProgramElement.h"
-#include "include/sksl/DSLSymbols.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -20,10 +19,6 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <type_traits>
-
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 namespace SkSL {
 
@@ -108,24 +103,6 @@ const SkSL::Modifiers* ThreadContext::Modifiers(const SkSL::Modifiers& modifiers
 ThreadContext::RTAdjustData& ThreadContext::RTAdjustState() {
     return Instance().fRTAdjust;
 }
-
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-void ThreadContext::StartFragmentProcessor(GrFragmentProcessor::ProgramImpl* processor,
-        GrFragmentProcessor::ProgramImpl::EmitArgs* emitArgs) {
-    ThreadContext& instance = ThreadContext::Instance();
-    instance.fStack.push({processor, emitArgs, StatementArray{}});
-    CurrentEmitArgs()->fFragBuilder->fDeclarations.swap(instance.fStack.top().fSavedDeclarations);
-    dsl::PushSymbolTable();
-}
-
-void ThreadContext::EndFragmentProcessor() {
-    ThreadContext& instance = Instance();
-    SkASSERT(!instance.fStack.empty());
-    CurrentEmitArgs()->fFragBuilder->fDeclarations.swap(instance.fStack.top().fSavedDeclarations);
-    instance.fStack.pop();
-    dsl::PopSymbolTable();
-}
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 void ThreadContext::SetErrorReporter(ErrorReporter* errorReporter) {
     SkASSERT(errorReporter);

@@ -73,8 +73,6 @@ void StartModule(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettin
 }
 
 void End() {
-    SkASSERTF(!ThreadContext::InFragmentProcessor(),
-              "more calls to StartFragmentProcessor than to EndFragmentProcessor");
     ThreadContext::SetInstance(nullptr);
 }
 

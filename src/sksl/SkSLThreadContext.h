@@ -134,44 +134,6 @@ public:
      */
     static RTAdjustData& RTAdjustState();
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-    /**
-     * Returns the fragment processor for which DSL output is being generated for the current
-     * thread.
-     */
-    static GrFragmentProcessor::ProgramImpl* CurrentProcessor() {
-        SkASSERTF(!Instance().fStack.empty(), "This feature requires a FragmentProcessor");
-        return Instance().fStack.top().fProcessor;
-    }
-
-    /**
-     * Returns the EmitArgs for fragment processor output in the current thread.
-     */
-    static GrFragmentProcessor::ProgramImpl::EmitArgs* CurrentEmitArgs() {
-        SkASSERTF(!Instance().fStack.empty(), "This feature requires a FragmentProcessor");
-        return Instance().fStack.top().fEmitArgs;
-    }
-
-    static bool InFragmentProcessor() {
-        return !Instance().fStack.empty();
-    }
-
-    /**
-     * Pushes a new processor / emitArgs pair for the current thread.
-     */
-    static void StartFragmentProcessor(GrFragmentProcessor::ProgramImpl* processor,
-                                       GrFragmentProcessor::ProgramImpl::EmitArgs* emitArgs);
-
-    /**
-     * Pops the processor / emitArgs pair associated with the current thread.
-     */
-    static void EndFragmentProcessor();
-#else
-    static bool InFragmentProcessor() {
-        return false;
-    }
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-
     static const char* Filename() {
         return Instance().fFilename;
     }

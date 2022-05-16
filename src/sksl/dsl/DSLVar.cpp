@@ -9,22 +9,13 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkSLLayout.h"
-#include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
 #include "include/private/SkSLSymbol.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/SkSLOperator.h"
-#include "src/core/SkSLTypeShared.h"
-#include "src/sksl/SkSLBuiltinTypes.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -35,12 +26,6 @@
 #include "src/sksl/ir/SkSLVariable.h"
 
 #include <string>
-#include <type_traits>
-
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#endif
 
 namespace SkSL {
 
@@ -66,33 +51,7 @@ DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, std::string_
     , fName(fType.skslType().isOpaque() ? name : DSLWriter::Name(name))
     , fInitialValue(std::move(initialValue))
     , fDeclared(DSLWriter::MarkVarsDeclared())
-    , fPosition(pos) {
-    if (fModifiers.fModifiers.fFlags & Modifiers::kUniform_Flag) {
-#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
-        if (ThreadContext::InFragmentProcessor()) {
-            const SkSL::Type& skslType = fType.skslType();
-            SkSLType gpuType;
-            int count;
-            if (skslType.isArray()) {
-                SkAssertResult(SkSL::type_to_sksltype(ThreadContext::Context(),
-                                                      skslType.componentType(), &gpuType));
-                count = skslType.columns();
-                SkASSERT(count > 0);
-            } else {
-                SkAssertResult(SkSL::type_to_sksltype(ThreadContext::Context(), skslType,
-                                                      &gpuType));
-                count = 0;
-            }
-            const char* uniformName;
-            SkASSERT(ThreadContext::CurrentEmitArgs());
-            fUniformHandle = ThreadContext::CurrentEmitArgs()->fUniformHandler->addUniformArray(
-                    &ThreadContext::CurrentEmitArgs()->fFp, kFragment_GrShaderFlag, gpuType,
-                    std::string(this->name()).c_str(), count, &uniformName).toIndex();
-            fName = uniformName;
-        }
-#endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
-    }
-}
+    , fPosition(pos) {}
 
 DSLVarBase::~DSLVarBase() {
     if (fDeclaration && !fDeclared) {
@@ -131,32 +90,6 @@ DSLGlobalVar::DSLGlobalVar(const char* name)
     : INHERITED(kVoid_Type, name, DSLExpression(), Position(), Position()) {
     fName = name;
     DSLWriter::MarkDeclared(*this);
-#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
-    if (!strcmp(name, "sk_SampleCoord")) {
-        fName = ThreadContext::CurrentEmitArgs()->fSampleCoord;
-        // The actual sk_SampleCoord variable hasn't been created by GrGLSLFPFragmentBuilder yet, so
-        // if we attempt to look it up in the symbol table we'll get null. As we are currently
-        // converting all DSL code into strings rather than nodes, all we really need is a
-        // correctly-named variable with the right type, so we just create a placeholder for it.
-        // TODO(skia/11330): we'll need to fix this when switching over to nodes.
-        const SkSL::Modifiers* modifiers = ThreadContext::Context().fModifiersPool->add(
-                SkSL::Modifiers(SkSL::Layout(/*flags=*/0, /*location=*/-1, /*offset=*/-1,
-                                             /*binding=*/-1, /*index=*/-1, /*set=*/-1,
-                                             SK_MAIN_COORDS_BUILTIN, /*inputAttachmentIndex=*/-1),
-                                SkSL::Modifiers::kNo_Flag));
-
-        fVar = ThreadContext::SymbolTable()->takeOwnershipOfIRNode(std::make_unique<SkSL::Variable>(
-                /*pos=*/Position(),
-                /*modifiersPosition=*/Position(),
-                modifiers,
-                fName,
-                ThreadContext::Context().fTypes.fFloat2.get(),
-                /*builtin=*/true,
-                SkSL::VariableStorage::kGlobal));
-        fInitialized = true;
-        return;
-    }
-#endif
     const SkSL::Symbol* result = (*ThreadContext::SymbolTable())[fName];
     SkASSERTF(result, "could not find '%.*s' in symbol table", (int)fName.length(), fName.data());
     fVar = &result->as<SkSL::Variable>();

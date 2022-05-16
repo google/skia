@@ -101,7 +101,6 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrXferProcessor_hdr",
         "//src/gpu/ganesh/effects:GrTextureEffect_hdr",
         "//src/sksl:SkSLCompiler_hdr",
-        "//src/sksl/dsl/priv:DSLFPs_hdr",
     ],
 )
 
@@ -151,7 +150,6 @@ generated_cc_atom(
         ":GrGLSLColorSpaceXformHelper_hdr",
         ":GrGLSLProgramBuilder_hdr",
         ":GrGLSLShaderBuilder_hdr",
-        "//include/sksl:DSL_hdr",
         "//src/gpu:Blend_hdr",
         "//src/gpu:Swizzle_hdr",
         "//src/gpu/ganesh:GrShaderCaps_hdr",

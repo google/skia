@@ -7,37 +7,6 @@ exports_files_legacy()
 enforce_iwyu_on_package()
 
 generated_cc_atom(
-    name = "DSLFPs_hdr",
-    hdrs = ["DSLFPs.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/core:SkTypes_hdr",
-        "//include/sksl:DSLExpression_hdr",
-        "//include/sksl:DSLVar_hdr",
-        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
-        "//src/gpu/ganesh/glsl:GrGLSLUniformHandler_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "DSLFPs_src",
-    srcs = ["DSLFPs.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":DSLFPs_hdr",
-        ":DSLWriter_hdr",
-        "//include/core:SkString_hdr",
-        "//include/core:SkTypes_hdr",
-        "//src/sksl:SkSLBuiltinTypes_hdr",
-        "//src/sksl:SkSLContext_hdr",
-        "//src/sksl:SkSLThreadContext_hdr",
-        "//src/sksl/ir:SkSLCodeStringExpression_hdr",
-        "//src/sksl/ir:SkSLExpression_hdr",
-        "//src/sksl/ir:SkSLType_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "DSLWriter_hdr",
     hdrs = ["DSLWriter.h"],
     visibility = ["//:__subpackages__"],

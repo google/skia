@@ -192,7 +192,6 @@ filegroup(
         "dropshadowimagefilter.cpp",
         "drrect.cpp",
         "drrect_small_inner.cpp",
-        "dsl_processor_test.cpp",
         "dstreadshuffle.cpp",
         "ducky_yuv_blend.cpp",
         "emboss.cpp",
@@ -3831,23 +3830,6 @@ generated_cc_atom(
         "//include/core:SkSize_hdr",
         "//include/core:SkString_hdr",
         "//include/core:SkTypes_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "dsl_processor_test_src",
-    srcs = ["dsl_processor_test.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":gm_hdr",
-        "//include/effects:SkRuntimeEffect_hdr",
-        "//include/sksl:DSL_hdr",
-        "//src/core:SkCanvasPriv_hdr",
-        "//src/gpu/ganesh:SurfaceFillContext_hdr",
-        "//src/gpu/ganesh/glsl:GrGLSLFragmentShaderBuilder_hdr",
-        "//src/sksl/dsl/priv:DSLFPs_hdr",
-        "//src/sksl/dsl/priv:DSLWriter_hdr",
-        "//src/sksl/ir:SkSLVariable_hdr",
     ],
 )
 
