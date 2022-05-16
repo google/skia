@@ -39,6 +39,12 @@ private:
     struct ScalerContextBits {
         using value_type = decltype(SkGlyph::fScalerContextBits);
         static const constexpr value_type ForceBW = 1 << 0;
+
+        static const constexpr value_type OUTLINE = 0 << 1;
+        static const constexpr value_type PNG     = 1 << 1;
+        static const constexpr value_type SVG     = 2 << 1;
+        static const constexpr value_type COLR    = 3 << 1;
+        static const constexpr value_type FormatMask = 0x3 << 1;
     };
 
     static void BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph);
@@ -73,14 +79,20 @@ private:
     bool isColorGlyph(const SkGlyph&);
     bool getColorGlyphRun(const SkGlyph&, IDWriteColorGlyphRunEnumerator**);
     bool generateColorMetrics(SkGlyph*);
-    void generateColorGlyphImage(const SkGlyph&);
-    void drawColorGlyphImage(const SkGlyph&, SkCanvas&);
+    bool generateColorGlyphImage(const SkGlyph&);
+    bool drawColorGlyphImage(const SkGlyph&, SkCanvas&);
+
+    bool isSVGGlyph(const SkGlyph&);
+    bool generateSVGMetrics(SkGlyph*);
+    bool generateSVGGlyphImage(const SkGlyph&);
+    bool drawSVGGlyphImage(const SkGlyph&, SkCanvas&);
 
     bool isPngGlyph(const SkGlyph&);
     bool generatePngMetrics(SkGlyph*);
-    void generatePngGlyphImage(const SkGlyph&);
-    void drawPngGlyphImage(const SkGlyph&, SkCanvas&);
+    bool generatePngGlyphImage(const SkGlyph&);
+    bool drawPngGlyphImage(const SkGlyph&, SkCanvas&);
 
+    static void SetGlyphBounds(SkGlyph* glyph, const SkRect& bounds);
 
     SkTDArray<uint8_t> fBits;
     /** The total matrix without the text height scale. */
