@@ -26,7 +26,6 @@
 #endif
 
 class SkCanvas;
-class SkCapabilities;
 class SkDeferredDisplayList;
 class SkPaint;
 class SkSurfaceCharacterization;
@@ -600,12 +599,6 @@ public:
         example: https://fiddle.skia.org/c/@Surface_getCanvas
     */
     SkCanvas* getCanvas();
-
-    /** Returns SkCapabilities that describes the capabilities of the SkSurface's device.
-
-        @return  SkCapabilities of SkSurface's device.
-    */
-    sk_sp<SkCapabilities> capabilities();
 
     /** Returns a compatible SkSurface, or nullptr. Returned SkSurface contains
         the same raster, GPU, or null properties as the original. Returned SkSurface

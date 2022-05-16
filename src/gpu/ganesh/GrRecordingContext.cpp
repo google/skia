@@ -7,7 +7,6 @@
 
 #include "include/gpu/GrRecordingContext.h"
 
-#include "include/core/SkCapabilities.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
@@ -159,10 +158,6 @@ void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlu
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkCapabilities> GrRecordingContext::skCapabilities() const {
-    return this->caps()->asSkCapabilities();
-}
 
 int GrRecordingContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
 

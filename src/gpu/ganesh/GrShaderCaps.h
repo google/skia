@@ -54,6 +54,14 @@ struct GrShaderCaps : SkSL::ShaderCaps {
     // reduce the number of unique shaders generated.
     bool reducedShaderMode() const { return fReducedShaderMode; }
 
+    /**
+     * SkSL ES3 requires support for derivatives, nonsquare matrices and bitwise integer operations.
+     */
+    bool supportsSkSLES3() const {
+        return fShaderDerivativeSupport && fNonsquareMatrixSupport && fIntegerSupport &&
+               fGLSLGeneration >= SkSL::GLSLGeneration::k330;
+    }
+
     // SkSL only.
     bool colorSpaceMathNeedsFloat() const { return fColorSpaceMathNeedsFloat; }
 

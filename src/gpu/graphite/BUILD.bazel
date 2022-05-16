@@ -44,7 +44,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":ResourceTypes_hdr",
-        "//include/core:SkCapabilities_hdr",
         "//include/core:SkImageInfo_hdr",
         "//include/core:SkRefCnt_hdr",
         "//src/core:SkEnumBitMask_hdr",
@@ -59,7 +58,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Caps_hdr",
-        "//include/core:SkCapabilities_hdr",
         "//include/gpu/graphite:TextureInfo_hdr",
         "//src/sksl:SkSLUtil_hdr",
     ],
@@ -675,12 +673,9 @@ generated_cc_atom(
     srcs = ["Surface_Graphite.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":Caps_hdr",
         ":Device_hdr",
         ":Image_Graphite_hdr",
-        ":RecorderPriv_hdr",
         ":Surface_Graphite_hdr",
-        "//include/core:SkCapabilities_hdr",
         "//include/gpu/graphite:Recorder_hdr",
         "//include/gpu/graphite:SkStuff_hdr",
     ],

@@ -5965,7 +5965,6 @@ generated_cc_atom(
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLProgramKind_hdr",
         "//include/sksl:DSLCore_hdr",
-        "//include/sksl:SkSLVersion_hdr",
         "//src/core:SkRuntimeEffectPriv_hdr",
         "//src/gpu/ganesh:GrCaps_hdr",
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",

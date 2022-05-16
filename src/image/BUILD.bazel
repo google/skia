@@ -382,7 +382,6 @@ generated_cc_atom(
         ":SkSurface_Base_hdr",
         ":SkSurface_Gpu_hdr",
         "//include/core:SkCanvas_hdr",
-        "//include/core:SkCapabilities_hdr",
         "//include/core:SkDeferredDisplayList_hdr",
         "//include/core:SkSurfaceCharacterization_hdr",
         "//include/gpu:GrBackendSurface_hdr",
@@ -409,7 +408,6 @@ generated_cc_atom(
     deps = [
         ":SkSurface_Base_hdr",
         "//include/core:SkCanvas_hdr",
-        "//include/core:SkCapabilities_hdr",
         "//include/core:SkMallocPixelRef_hdr",
         "//include/private:SkImageInfoPriv_hdr",
         "//src/core:SkDevice_hdr",
@@ -426,7 +424,6 @@ generated_cc_atom(
         ":SkRescaleAndReadPixels_hdr",
         ":SkSurface_Base_hdr",
         "//include/core:SkCanvas_hdr",
-        "//include/core:SkCapabilities_hdr",
         "//include/gpu:GrBackendSurface_hdr",
         "//include/utils:SkNoDrawCanvas_hdr",
         "//src/core:SkAutoPixmapStorage_hdr",

@@ -7,7 +7,6 @@
 
 #include "src/gpu/graphite/Caps.h"
 
-#include "include/core/SkCapabilities.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/sksl/SkSLUtil.h"
 
@@ -51,14 +50,6 @@ skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const TextureInfo& info) co
     }
 
     return colorTypeInfo->fWriteSwizzle;
-}
-
-sk_sp<SkCapabilities> Caps::asSkCapabilities() const {
-    if (!fSkCaps) {
-        fSkCaps.reset(new SkCapabilities);
-        fSkCaps->fSkSLVersion = this->shaderCaps()->supportedSkSLVerion();
-    }
-    return fSkCaps;
 }
 
 } // namespace skgpu::graphite

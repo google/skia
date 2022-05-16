@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkCapabilities.h"
 #include "include/core/SkMallocPixelRef.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkDevice.h"
@@ -27,7 +26,6 @@ public:
     void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override;
     bool onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
-    sk_sp<SkCapabilities> onCapabilities() override;
 
 private:
     SkBitmap    fBitmap;
@@ -153,10 +151,6 @@ bool SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
         this->getCachedCanvas()->baseDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
     }
     return true;
-}
-
-sk_sp<SkCapabilities> SkSurface_Raster::onCapabilities() {
-    return SkCapabilities::RasterBackend();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

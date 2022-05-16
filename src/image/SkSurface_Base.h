@@ -137,8 +137,6 @@ public:
         return false;
     }
 
-    virtual sk_sp<SkCapabilities> onCapabilities() = 0;
-
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
 

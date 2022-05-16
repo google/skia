@@ -872,7 +872,6 @@ generated_cc_atom(
     deps = [
         ":SkSLGLSL_hdr",
         "//include/core:SkTypes_hdr",
-        "//include/sksl:SkSLVersion_hdr",
         "//src/core:SkSLTypeShared_hdr",
     ],
 )
