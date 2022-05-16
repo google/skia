@@ -329,7 +329,8 @@ DEF_TEST(SubRunAllocator, r) {
 DEF_TEST(KeyEqualityOnPerspective, r) {
     SkTextBlobBuilder builder;
     SkFont font(SkTypeface::MakeDefault(), 16);
-    builder.allocRun(font, 1, 0.0f, 0.0f);
+    auto runBuffer = builder.allocRun(font, 1, 0.0f, 0.0f);
+    runBuffer.glyphs[0] = 3;
     auto blob = builder.make();
     SkGlyphRunBuilder grBuilder;
     auto glyphRunList = grBuilder.blobToGlyphRunList(*blob, {100, 100});
