@@ -785,10 +785,10 @@ class GlyphTrackingDevice final : public SkNoPixelsDevice {
 public:
     GlyphTrackingDevice(
             const SkISize& dimensions, const SkSurfaceProps& props, SkStrikeServerImpl* server,
-            sk_sp<SkColorSpace> colorSpace, bool DFTSupport)
+            sk_sp<SkColorSpace> colorSpace, GrSDFTControl SDFTControl)
             : SkNoPixelsDevice(SkIRect::MakeSize(dimensions), props, std::move(colorSpace))
             , fStrikeServerImpl(server)
-            , fDFTSupport(DFTSupport)
+            , fSDFTControl(SDFTControl)
             , fPainter{props, imageInfo().colorSpace(), fStrikeServerImpl}
             , fConvertPainter{props, imageInfo().colorSpace(), SkStrikeCache::GlobalStrikeCache()} {
         SkASSERT(fStrikeServerImpl != nullptr);
@@ -797,7 +797,11 @@ public:
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
         return new GlyphTrackingDevice(cinfo.fInfo.dimensions(), surfaceProps, fStrikeServerImpl,
-                                       cinfo.fInfo.refColorSpace(), fDFTSupport);
+                                       cinfo.fInfo.refColorSpace(), fSDFTControl);
+    }
+
+    SkStrikeDeviceInfo strikeDeviceInfo() const override {
+        return {this->surfaceProps(), this->scalerContextFlags(), &fSDFTControl};
     }
 
 protected:
@@ -805,29 +809,19 @@ protected:
                             const SkGlyphRunList& glyphRunList,
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint) override {
-        GrContextOptions ctxOptions;
-        GrSDFTControl control =
-                GrSDFTControl{fDFTSupport,
-                              this->surfaceProps().isUseDeviceIndependentFonts(),
-                              ctxOptions.fMinDistanceFieldFontSize,
-                              ctxOptions.fGlyphsAsPathsFontSize};
-
         SkMatrix drawMatrix = this->localToDevice();
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
-        fPainter.categorizeGlyphRunList(
-                nullptr, glyphRunList, drawMatrix, drawingPaint, control, "Cache Diff");
+        fPainter.categorizeGlyphRunList(nullptr,
+                                        glyphRunList,
+                                        drawMatrix,
+                                        drawingPaint,
+                                        *this->strikeDeviceInfo().fSDFTControl,
+                                        "Cache Diff");
     }
 
     sk_sp<GrSlug> convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
                                             const SkPaint& initialPaint,
                                             const SkPaint& drawingPaint) override {
-        GrContextOptions ctxOptions;
-        GrSDFTControl control =
-                GrSDFTControl{fDFTSupport,
-                              this->surfaceProps().isUseDeviceIndependentFonts(),
-                              ctxOptions.fMinDistanceFieldFontSize,
-                              ctxOptions.fGlyphsAsPathsFontSize};
-
         // Full matrix for placing glyphs.
         SkMatrix positionMatrix = this->localToDevice();
         positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
@@ -837,21 +831,25 @@ protected:
 
         // Use the lightweight strike cache provided by SkRemoteGlyphCache through fPainter to do
         // the analysis.
-        fPainter.categorizeGlyphRunList(
-            nullptr, glyphRunList, positionMatrix, drawingPaint, control, "Convert Slug Analysis");
+        fPainter.categorizeGlyphRunList(nullptr,
+                                        glyphRunList,
+                                        positionMatrix,
+                                        drawingPaint,
+                                        *this->strikeDeviceInfo().fSDFTControl,
+                                        "Convert Slug Analysis");
 
         // Use the glyph strike cache to get actual glyph information.
         return skgpu::v1::MakeSlug(this->localToDevice(),
                                    glyphRunList,
                                    initialPaint,
                                    drawingPaint,
-                                   control,
+                                   *this->strikeDeviceInfo().fSDFTControl,
                                    &fConvertPainter);
     }
 
 private:
     SkStrikeServerImpl* const fStrikeServerImpl;
-    const bool fDFTSupport{false};
+    const GrSDFTControl fSDFTControl;
     SkGlyphRunListPainter fPainter;
     SkGlyphRunListPainter fConvertPainter;
 };
@@ -868,10 +866,17 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
                                                              sk_sp<SkColorSpace> colorSpace,
                                                              bool DFTSupport) {
 #if SK_SUPPORT_GPU
-    sk_sp<SkBaseDevice> trackingDevice(new GlyphTrackingDevice(SkISize::Make(width, height),
-                                                               props, this->impl(),
-                                                               std::move(colorSpace),
-                                                               DFTSupport));
+    GrContextOptions ctxOptions;
+    auto control = GrSDFTControl{DFTSupport,
+                                 props.isUseDeviceIndependentFonts(),
+                                 ctxOptions.fMinDistanceFieldFontSize,
+                                 ctxOptions.fGlyphsAsPathsFontSize};
+
+    sk_sp<SkBaseDevice> trackingDevice(new GlyphTrackingDevice(
+            SkISize::Make(width, height),
+            props, this->impl(),
+            std::move(colorSpace),
+            control));
 #else
     sk_sp<SkBaseDevice> trackingDevice(new SkNoPixelsDevice(
             SkIRect::MakeWH(width, height), props, std::move(colorSpace)));

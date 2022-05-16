@@ -101,6 +101,8 @@ public:
     const SurfaceDrawContext* surfaceDrawContext() const;
     skgpu::SurfaceFillContext* surfaceFillContext() override;
 
+    SkStrikeDeviceInfo strikeDeviceInfo() const override;
+
     // set all pixels to 0
     void clearAll();
 
@@ -195,6 +197,8 @@ protected:
     SkIRect onDevClipBounds() const override { return fClip.getConservativeBounds(); }
 
 private:
+    const GrSDFTControl fSDFTControl;
+
     std::unique_ptr<SurfaceDrawContext> fSurfaceDrawContext;
 
     ClipStack fClip;

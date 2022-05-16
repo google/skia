@@ -19,8 +19,10 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
+#include "src/core/SkScalerContext.h"
 #include "src/shaders/SkShaderBase.h"
 
+class GrSDFTControl;
 class SkBitmap;
 class SkColorSpace;
 class SkMesh;
@@ -41,6 +43,13 @@ namespace skgpu::graphite {
 class Device;
 }
 
+struct SkStrikeDeviceInfo {
+    const SkSurfaceProps fSurfaceProps;
+    const SkScalerContextFlags fScalerContextFlags;
+    // This is a pointer so this can be compiled without SK_GPU_SUPPORT.
+    const GrSDFTControl* const fSDFTControl;
+};
+
 class SkBaseDevice : public SkRefCnt, public SkMatrixProvider {
 public:
     SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
@@ -56,6 +65,12 @@ public:
      */
     const SkSurfaceProps& surfaceProps() const {
         return fSurfaceProps;
+    }
+
+    SkScalerContextFlags scalerContextFlags() const;
+
+    virtual SkStrikeDeviceInfo strikeDeviceInfo() const {
+        return {fSurfaceProps, this->scalerContextFlags(), nullptr};
     }
 
     SkIRect bounds() const { return SkIRect::MakeWH(this->width(), this->height()); }

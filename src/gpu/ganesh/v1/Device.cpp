@@ -185,6 +185,8 @@ Device::Device(std::unique_ptr<SurfaceDrawContext> sdc, DeviceFlags flags)
         : INHERITED(sk_ref_sp(sdc->recordingContext()),
                     MakeInfo(sdc.get(), flags),
                     sdc->surfaceProps())
+        , fSDFTControl(sdc->recordingContext()->priv().getSDFTControl(
+                       sdc->surfaceProps().isUseDeviceIndependentFonts()))
         , fSurfaceDrawContext(std::move(sdc))
         , fClip(SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
                 &this->asMatrixProvider(),
@@ -1310,6 +1312,10 @@ bool Device::android_utils_clipWithStencil() {
     sdc->drawRegion(nullptr, std::move(grPaint), aa, SkMatrix::I(), clipRegion,
                     GrStyle::SimpleFill(), &kDrawToStencil);
     return true;
+}
+
+SkStrikeDeviceInfo Device::strikeDeviceInfo() const {
+    return {this->surfaceProps(), this->scalerContextFlags(), &fSDFTControl};
 }
 
 } // namespace skgpu::v1

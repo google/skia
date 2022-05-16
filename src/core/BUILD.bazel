@@ -1508,6 +1508,7 @@ generated_cc_atom(
         ":SkMatrixPriv_hdr",
         ":SkMatrixProvider_hdr",
         ":SkRasterClip_hdr",
+        ":SkScalerContext_hdr",
         "//include/core:SkBlender_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColor_hdr",
