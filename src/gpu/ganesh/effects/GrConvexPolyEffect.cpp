@@ -7,13 +7,11 @@
 
 #include "src/gpu/ganesh/effects/GrConvexPolyEffect.h"
 
-#include "include/sksl/DSL.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#include "src/sksl/dsl/priv/DSLFPs.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -100,31 +98,33 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrConvexPolyEffect::onMakeProg
         void emitCode(EmitArgs& args) override {
             const GrConvexPolyEffect& cpe = args.fFp.cast<GrConvexPolyEffect>();
 
-            using namespace SkSL::dsl;
-            StartFragmentProcessor(this, &args);
-            GlobalVar edgeArray(kUniform_Modifier, Array(kHalf3_Type, cpe.fEdgeCount), "edgeArray");
-            Declare(edgeArray);
-            fEdgeUniform = VarUniformHandle(edgeArray);
-            Var alpha(kHalf_Type, "alpha", 1);
-            Declare(alpha);
-            Var edge(kHalf_Type, "edge");
-            Declare(edge);
+            const char *edgeArrayName;
+            fEdgeUniform = args.fUniformHandler->addUniformArray(&cpe,
+                                                                 kFragment_GrShaderFlag,
+                                                                 SkSLType::kHalf3,
+                                                                 "edgeArray",
+                                                                 cpe.fEdgeCount,
+                                                                 &edgeArrayName);
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            fragBuilder->codeAppend("half alpha = 1.0;\n"
+                                    "half edge;\n");
             for (int i = 0; i < cpe.fEdgeCount; ++i) {
-                edge = Dot(edgeArray[i], Half3(Swizzle(sk_FragCoord(), X, Y, ONE)));
+                fragBuilder->codeAppendf("edge = dot(%s[%d], half3(sk_FragCoord.xy1));\n",
+                                         edgeArrayName, i);
                 if (GrClipEdgeTypeIsAA(cpe.fEdgeType)) {
-                    edge = Saturate(edge);
+                    fragBuilder->codeAppend("alpha *= saturate(edge);\n");
                 } else {
-                    edge = Select(edge >= 0.5, 1.0, 0.0);
+                    fragBuilder->codeAppend("alpha *= step(0.5, edge);\n");
                 }
-                alpha *= edge;
             }
 
             if (GrClipEdgeTypeIsInverseFill(cpe.fEdgeType)) {
-                alpha = 1.0 - alpha;
+                fragBuilder->codeAppend("alpha = 1.0 - alpha;\n");
             }
 
-            Return(SampleChild(0) * alpha);
-            EndFragmentProcessor();
+            SkString inputSample = this->invokeChild(/*childIndex=*/0, args);
+
+            fragBuilder->codeAppendf("return %s * alpha;\n", inputSample.c_str());
         }
 
     private:
