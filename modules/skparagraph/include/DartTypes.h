@@ -92,6 +92,8 @@ template <typename T> struct SkRange {
     SkRange() : start(), end() {}
     SkRange(T s, T e) : start(s), end(e) {}
 
+    using SignedT = std::make_signed_t<T>;
+
     T start, end;
 
     bool operator==(const SkRange<T>& other) const {
@@ -100,7 +102,7 @@ template <typename T> struct SkRange {
 
     T width() const { return end - start; }
 
-    void Shift(T delta) {
+    void Shift(SignedT delta) {
         start += delta;
         end += delta;
     }
