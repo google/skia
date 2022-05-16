@@ -2149,9 +2149,12 @@ bool GrTextBlob::Key::operator==(const GrTextBlob::Key& that) const {
     }
     if (fScalerContextFlags != that.fScalerContextFlags) { return false; }
 
-    // Just punt on perspective.
     if (fPositionMatrix.hasPerspective()) {
-        return false;
+        if (fPositionMatrix[SkMatrix::kMPersp0] != that.fPositionMatrix[SkMatrix::kMPersp0] ||
+            fPositionMatrix[SkMatrix::kMPersp1] != that.fPositionMatrix[SkMatrix::kMPersp1] ||
+            fPositionMatrix[SkMatrix::kMPersp2] != that.fPositionMatrix[SkMatrix::kMPersp2]) {
+                return false;
+        }
     }
 
     if (fHasSomeDirectSubRuns != that.fHasSomeDirectSubRuns) {
