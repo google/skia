@@ -395,7 +395,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     }
     ParsedModule baseModule = {std::move(base), /*fElements=*/nullptr};
     LoadedModule module = DSLParser(this, settings, kind, std::move(text))
-                                  .moduleInheritingFrom(std::move(baseModule));
+                                  .moduleInheritingFrom(baseModule);
     if (this->errorCount()) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
         SkDEBUGFAILF("%s %s\n", data.fPath, this->fErrorText.c_str());
