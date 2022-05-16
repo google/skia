@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright 2017 Google Inc.
 #
@@ -10,7 +10,11 @@ import os
 import shutil
 import stat
 import sys
-import urllib2
+
+if sys.version_info[0] < 3:
+  from urllib2 import urlopen
+else:
+  from urllib.request import urlopen
 
 os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
@@ -21,7 +25,7 @@ def fetch(target):
 
   sha1_path = target_path + '.sha1'
   if not os.path.exists(sha1_path):
-    print sha1_path, 'is missing. Did you run `tools/git-sync-deps`?'
+    print(sha1_path, 'is missing. Did you run `tools/git-sync-deps`?')
     exit(1)
   sha1 = open(sha1_path).read().strip()
 
@@ -35,7 +39,7 @@ def fetch(target):
   if sha1_of_file(target_path) != sha1:
     with open(target_path, 'wb') as f:
       url = 'https://chromium-%s.storage-download.googleapis.com/%s' % (target, sha1)
-      f.write(urllib2.urlopen(url).read())
+      f.write(urlopen(url).read())
 
     os.chmod(target_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
                           stat.S_IRGRP                | stat.S_IXGRP |
