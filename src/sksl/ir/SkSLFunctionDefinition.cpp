@@ -60,10 +60,10 @@ static void append_rtadjust_fixup_to_vertex_main(const Context& context,
         };
 
         auto fixupStmt = DSLStatement(
-            Pos() = Float4(Swizzle(Pos(), X, Y) * Swizzle(Adjust(), X, Z) +
-                           Swizzle(Pos(), W, W) * Swizzle(Adjust(), Y, W),
-                           0,
-                           Pos().w())
+            Pos().assign(Float4(Swizzle(Pos(), X, Y) * Swizzle(Adjust(), X, Z) +
+                                Swizzle(Pos(), W, W) * Swizzle(Adjust(), Y, W),
+                                0,
+                                Pos().w()))
         );
 
         body.children().push_back(fixupStmt.release());

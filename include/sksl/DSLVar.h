@@ -157,6 +157,9 @@ protected:
  * A local variable.
  */
 class DSLVar : public DSLVarBase {
+private:
+    using INHERITED = DSLVarBase;
+
 public:
     DSLVar() = default;
 
@@ -186,25 +189,25 @@ public:
 
     void swap(DSLVar& other);
 
-    DSLPossibleExpression operator=(DSLExpression expr);
+    using INHERITED::assign;
 
-    DSLPossibleExpression operator=(DSLVar& param) {
-        return this->operator=(DSLExpression(param));
+    DSLPossibleExpression assign(DSLVar& param) {
+        return this->assign(DSLExpression(param));
     }
 
     template<class Param>
-    DSLPossibleExpression operator=(Param& param) {
-        return this->operator=(DSLExpression(param));
+    DSLPossibleExpression assign(Param& param) {
+        return this->assign(DSLExpression(param));
     }
-
-private:
-    using INHERITED = DSLVarBase;
 };
 
 /**
  * A global variable.
  */
 class DSLGlobalVar : public DSLVarBase {
+private:
+    using INHERITED = DSLVarBase;
+
 public:
     DSLGlobalVar() = default;
 
@@ -237,15 +240,15 @@ public:
 
     void swap(DSLGlobalVar& other);
 
-    DSLPossibleExpression operator=(DSLExpression expr);
+    using INHERITED::assign;
 
-    DSLPossibleExpression operator=(DSLGlobalVar& param) {
-        return this->operator=(DSLExpression(param));
+    DSLPossibleExpression assign(DSLGlobalVar& param) {
+        return this->assign(DSLExpression(param));
     }
 
     template<class Param>
-    DSLPossibleExpression operator=(Param& param) {
-        return this->operator=(DSLExpression(param));
+    DSLPossibleExpression assign(Param& param) {
+        return this->assign(DSLExpression(param));
     }
 
     /**
@@ -266,14 +269,15 @@ private:
     DSLExpression eval(ExpressionArray args, Position pos);
 
     std::unique_ptr<SkSL::Expression> methodCall(std::string_view methodName, Position pos);
-
-    using INHERITED = DSLVarBase;
 };
 
 /**
  * A function parameter.
  */
 class DSLParameter : public DSLVarBase {
+private:
+    using INHERITED = DSLVarBase;
+
 public:
     DSLParameter() = default;
 
@@ -298,19 +302,16 @@ public:
 
     void swap(DSLParameter& other);
 
-    DSLPossibleExpression operator=(DSLExpression expr);
+    using INHERITED::assign;
 
-    DSLPossibleExpression operator=(DSLParameter& param) {
-        return this->operator=(DSLExpression(param));
+    DSLPossibleExpression assign(DSLParameter& param) {
+        return this->assign(DSLExpression(param));
     }
 
     template<class Param>
-    DSLPossibleExpression operator=(Param& param) {
-        return this->operator=(DSLExpression(param));
+    DSLPossibleExpression assign(Param& param) {
+        return this->assign(DSLExpression(param));
     }
-
-private:
-    using INHERITED = DSLVarBase;
 };
 
 } // namespace dsl
