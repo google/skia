@@ -23,7 +23,6 @@
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
-#include "include/sksl/DSLWrapper.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -1291,7 +1290,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
     {
         DSLExpression sqrt(SkSL::ThreadContext::Compiler().convertIdentifier(SkSL::Position(),
                 "sqrt"));
-        SkTArray<DSLWrapper<DSLExpression>> args;
+        SkTArray<DSLExpression> args;
         args.emplace_back(16);
         EXPECT_EQUAL(sqrt(std::move(args)), "4.0");  // sqrt(16) gets optimized to 4
     }
@@ -1301,7 +1300,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
                 "pow"));
         DSLVar a(kFloat_Type, "a");
         DSLVar b(kFloat_Type, "b");
-        SkTArray<DSLWrapper<DSLExpression>> args;
+        SkTArray<DSLExpression> args;
         args.emplace_back(a);
         args.emplace_back(b);
         EXPECT_EQUAL(pow(std::move(args)), "pow(a, b)");
@@ -2038,19 +2037,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 3);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[2],
                  "struct NestedStruct { int x; SimpleStruct simple; };");
-}
-
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWrapper, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    std::vector<Wrapper<DSLExpression>> exprs;
-    exprs.push_back(DSLExpression(1));
-    exprs.emplace_back(2.0);
-    EXPECT_EQUAL(std::move(*exprs[0]), "1");
-    EXPECT_EQUAL(std::move(*exprs[1]), "2.0");
-
-    std::vector<Wrapper<DSLVar>> vars;
-    vars.emplace_back(DSLVar(kInt_Type, "x"));
-    REPORTER_ASSERT(r, DSLWriter::Var(*vars[0])->name() == "x");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {

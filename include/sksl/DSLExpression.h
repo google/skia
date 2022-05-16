@@ -33,7 +33,6 @@ namespace dsl {
 class DSLPossibleExpression;
 class DSLType;
 class DSLVarBase;
-template <typename T> class DSLWrapper;
 
 /**
  * Represents an expression such as 'cos(x)' or 'a + b'.
@@ -134,11 +133,9 @@ public:
      */
     DSLPossibleExpression operator[](DSLExpression index);
 
-    DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args,
-                                     Position pos = {});
+    DSLPossibleExpression operator()(SkTArray<DSLExpression> args, Position pos = {});
 
-    DSLPossibleExpression operator()(ExpressionArray args,
-                                     Position pos = {});
+    DSLPossibleExpression operator()(ExpressionArray args, Position pos = {});
 
     /**
      * Invokes a prefix operator.
@@ -198,7 +195,6 @@ private:
     friend class DSLType;
     friend class DSLVarBase;
     friend class DSLWriter;
-    template<typename T> friend class DSLWrapper;
 };
 
 DSLPossibleExpression operator+(DSLExpression left, DSLExpression right);
@@ -303,11 +299,9 @@ public:
 
     DSLPossibleExpression operator[](DSLExpression index);
 
-    DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args,
-                                     Position pos = {});
+    DSLPossibleExpression operator()(SkTArray<DSLExpression> args, Position pos = {});
 
-    DSLPossibleExpression operator()(ExpressionArray args,
-                                     Position pos = {});
+    DSLPossibleExpression operator()(ExpressionArray args, Position pos = {});
 
     DSLPossibleExpression operator++();
 

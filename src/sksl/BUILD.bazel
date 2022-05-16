@@ -426,7 +426,6 @@ generated_cc_atom(
         "//include/sksl:DSLFunction_hdr",
         "//include/sksl:DSLSymbols_hdr",
         "//include/sksl:DSLVar_hdr",
-        "//include/sksl:DSLWrapper_hdr",
         "//include/sksl:DSL_hdr",
         "//include/sksl:SkSLOperator_hdr",
         "//src/sksl/dsl/priv:DSLWriter_hdr",
