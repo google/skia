@@ -7,7 +7,6 @@
 
 #include "src/gpu/ganesh/effects/GrGaussianConvolutionFragmentProcessor.h"
 
-#include "include/sksl/DSL.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrTexture.h"
@@ -16,7 +15,6 @@
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#include "src/sksl/dsl/priv/DSLFPs.h"
 
 // For brevity
 using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
@@ -55,14 +53,13 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     const GrGaussianConvolutionFragmentProcessor& ce =
             args.fFp.cast<GrGaussianConvolutionFragmentProcessor>();
 
-    using namespace SkSL::dsl;
-    StartFragmentProcessor(this, &args);
-    GlobalVar increment(kUniform_Modifier, kHalf2_Type, "Increment");
-    Declare(increment);
-    fIncrementUni = VarUniformHandle(increment);
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+
+    const char* increment;
+    fIncrementUni = uniformHandler->addUniform(&ce, kFragment_GrShaderFlag, SkSLType::kHalf2,
+                                               "Increment", &increment);
 
     int width = SkGpuBlurUtils::LinearKernelWidth(ce.fRadius);
-
     LoopType loopType = loop_type(*args.fShaderCaps);
 
     int arrayCount;
@@ -74,49 +71,52 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
         SkASSERT(4 * arrayCount >= width);
     }
 
-    GlobalVar kernel(kUniform_Modifier, Array(kHalf4_Type, arrayCount), "Kernel");
-    Declare(kernel);
-    fKernelUni = VarUniformHandle(kernel);
+    const char* kernel;
+    fKernelUni = uniformHandler->addUniformArray(&ce, kFragment_GrShaderFlag, SkSLType::kHalf4,
+                                                 "Kernel", arrayCount, &kernel);
+    const char* offsets;
+    fOffsetsUni = uniformHandler->addUniformArray(&ce, kFragment_GrShaderFlag, SkSLType::kHalf4,
+                                                 "Offsets", arrayCount, &offsets);
 
-
-    GlobalVar offsets(kUniform_Modifier, Array(kHalf4_Type, arrayCount), "Offsets");
-    Declare(offsets);
-    fOffsetsUni = VarUniformHandle(offsets);
-
-    Var color(kHalf4_Type, "color", Half4(0));
-    Declare(color);
-
-    Var coord(kFloat2_Type, "coord", sk_SampleCoord());
-    Declare(coord);
-
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+    fragBuilder->codeAppendf("half4 color = half4(0);"
+                             "float2 coord = %s;", args.fSampleCoord);
     switch (loopType) {
         case LoopType::kUnrolled:
             for (int i = 0; i < width; i++) {
-                color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
-                         kernel[i / 4][i & 0x3];
+                std::string childCoord = SkSL::String::printf("(coord + %s[%d][%d] * %s)",
+                                                              offsets, i / 4, i & 3, increment);
+                SkString sample = this->invokeChild(/*childIndex=*/0, args, childCoord);
+                fragBuilder->codeAppendf("color += %s * %s[%d][%d];\n",
+                                         sample.c_str(), kernel, i / 4, i & 3);
             }
             break;
         case LoopType::kFixedLength: {
-            Var i(kInt_Type, "i", 0);
-            For(Declare(i), i < width, i++,
-                color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
-                         kernel[i / 4][i & 0x3]);
+            std::string childCoord = SkSL::String::printf("(coord + %s[i / 4][i & 3] * %s)",
+                                                          offsets, increment);
+            SkString sample = this->invokeChild(/*childIndex=*/0, args, childCoord);
+            fragBuilder->codeAppendf("for (int i=0; i<%d; ++i) {\n"
+                                     "    color += %s * %s[i / 4][i & 3];\n"
+                                     "}",
+                                     width, sample.c_str(), kernel);
             break;
         }
         case LoopType::kVariableLength: {
-            GlobalVar kernelWidth(kUniform_Modifier, kInt_Type, "kernelWidth");
-            Declare(kernelWidth);
-            fKernelWidthUni = VarUniformHandle(kernelWidth);
-            Var i(kInt_Type, "i", 0);
-            For(Declare(i), i < kernelWidth, i++,
-                color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
-                         kernel[i / 4][i & 0x3]);
+            const char* kernelWidth;
+            fKernelWidthUni = uniformHandler->addUniform(&ce, kFragment_GrShaderFlag,
+                                                         SkSLType::kInt, "KernelWidth",
+                                                         &kernelWidth);
+            std::string childCoord = SkSL::String::printf("(coord + %s[i / 4][i & 3] * %s)",
+                                                          offsets, increment);
+            SkString sample = this->invokeChild(/*childIndex=*/0, args, childCoord);
+            fragBuilder->codeAppendf("for (int i=0; i<%s; ++i) {\n"
+                                     "    color += %s * %s[i / 4][i & 3];\n"
+                                     "}",
+                                     kernelWidth, sample.c_str(), kernel);
             break;
         }
     }
-
-    Return(color);
-    EndFragmentProcessor();
+    fragBuilder->codeAppendf("return color;\n");
 }
 
 void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgramDataManager& pdman,
