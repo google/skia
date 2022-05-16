@@ -32,9 +32,9 @@ using CurveWriter = PatchWriter<VertexChunkPatchAllocator,
                                 AddTrianglesWhenChopping,
                                 DiscardFlatCurves>;
 
-int write_curve_patches(CurveWriter&& patchWriter,
-                        const SkMatrix& shaderMatrix,
-                        const PathTessellator::PathDrawList& pathDrawList) {
+void write_curve_patches(CurveWriter&& patchWriter,
+                         const SkMatrix& shaderMatrix,
+                         const PathTessellator::PathDrawList& pathDrawList) {
     patchWriter.setShaderTransform(wangs_formula::VectorXform{shaderMatrix});
     for (auto [pathMatrix, path, color] : pathDrawList) {
         AffineMatrix m(pathMatrix);
@@ -71,8 +71,6 @@ int write_curve_patches(CurveWriter&& patchWriter,
             }
         }
     }
-
-    return patchWriter.tolerances().requiredResolveLevel();
 }
 
 using WedgeWriter = PatchWriter<VertexChunkPatchAllocator,
@@ -81,9 +79,9 @@ using WedgeWriter = PatchWriter<VertexChunkPatchAllocator,
                                 Optional<PatchAttribs::kWideColorIfEnabled>,
                                 Optional<PatchAttribs::kExplicitCurveType>>;
 
-int write_wedge_patches(WedgeWriter&& patchWriter,
-                        const SkMatrix& shaderMatrix,
-                        const PathTessellator::PathDrawList& pathDrawList) {
+void write_wedge_patches(WedgeWriter&& patchWriter,
+                         const SkMatrix& shaderMatrix,
+                         const PathTessellator::PathDrawList& pathDrawList) {
     patchWriter.setShaderTransform(wangs_formula::VectorXform{shaderMatrix});
     for (auto [pathMatrix, path, color] : pathDrawList) {
         AffineMatrix m(pathMatrix);
@@ -148,8 +146,6 @@ int write_wedge_patches(WedgeWriter&& patchWriter,
             }
         }
     }
-
-    return patchWriter.tolerances().requiredResolveLevel();
 }
 
 }  // namespace
@@ -166,7 +162,8 @@ void PathCurveTessellator::prepareWithTriangles(
     int patchPreallocCount = FixedCountCurves::PreallocCount(totalCombinedPathVerbCnt) +
                              (extraTriangles ? extraTriangles->count() : 0);
     if (patchPreallocCount) {
-        CurveWriter writer{fAttribs, target, &fVertexChunkArray, patchPreallocCount};
+        LinearTolerances worstCase;
+        CurveWriter writer{fAttribs, &worstCase, target, &fVertexChunkArray, patchPreallocCount};
 
         // Write out extra space-filling triangles to connect the curve patches with any external
         // source of geometry (e.g. inner triangulation that handles winding explicitly).
@@ -190,8 +187,8 @@ void PathCurveTessellator::prepareWithTriangles(
             SkASSERT(breadcrumbCount == extraTriangles->count());
         }
 
-        int resolveLevel = write_curve_patches(std::move(writer), shaderMatrix, pathDrawList);
-        this->updateResolveLevel(resolveLevel);
+        write_curve_patches(std::move(writer), shaderMatrix, pathDrawList);
+        this->updateResolveLevel(worstCase.requiredResolveLevel());
     }
 
     GrResourceProvider* rp = target->resourceProvider();
@@ -239,9 +236,10 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
                                    const PathDrawList& pathDrawList,
                                    int totalCombinedPathVerbCnt) {
     if (int patchPreallocCount = FixedCountWedges::PreallocCount(totalCombinedPathVerbCnt)) {
-        WedgeWriter writer{fAttribs, target, &fVertexChunkArray, patchPreallocCount};
-        int resolveLevel = write_wedge_patches(std::move(writer), shaderMatrix, pathDrawList);
-        this->updateResolveLevel(resolveLevel);
+        LinearTolerances worstCase;
+        WedgeWriter writer{fAttribs, &worstCase, target, &fVertexChunkArray, patchPreallocCount};
+        write_wedge_patches(std::move(writer), shaderMatrix, pathDrawList);
+        this->updateResolveLevel(worstCase.requiredResolveLevel());
     }
 
     GrResourceProvider* rp = target->resourceProvider();

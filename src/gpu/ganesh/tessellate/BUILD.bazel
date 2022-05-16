@@ -152,5 +152,8 @@ generated_cc_atom(
     name = "VertexChunkPatchAllocator_hdr",
     hdrs = ["VertexChunkPatchAllocator.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//src/gpu/ganesh:GrVertexChunkArray_hdr"],
+    deps = [
+        "//src/gpu/ganesh:GrVertexChunkArray_hdr",
+        "//src/gpu/tessellate:LinearTolerances_hdr",
+    ],
 )

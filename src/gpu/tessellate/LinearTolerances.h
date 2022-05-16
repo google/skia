@@ -77,14 +77,12 @@ public:
         return fEdgesInJoins + maxEdgesInStroke;
     }
 
-    // TODO: These will be renamed to setFoo() when accumulation of worst case tolerances is moved
-    // outside of PatchWriter.
-    void accumulateParametricSegments(float n4) {
+    void setParametricSegments(float n4) {
         SkASSERT(n4 >= 0.f);
-        fNumParametricSegments_pow4 = std::max(n4, fNumParametricSegments_pow4);
+        fNumParametricSegments_pow4 = n4;
     }
 
-    void accumulateStroke(const StrokeParams& strokeParams, float maxScale) {
+    void setStroke(const StrokeParams& strokeParams, float maxScale) {
         float approxDeviceStrokeRadius;
         if (strokeParams.fRadius == 0.f) {
             // Hairlines are always 1 px wide
@@ -94,19 +92,27 @@ public:
             approxDeviceStrokeRadius = strokeParams.fRadius * maxScale;
         }
 
-        float numRadialSegmentsPerRadian = CalcNumRadialSegmentsPerRadian(approxDeviceStrokeRadius);
-        fNumRadialSegmentsPerRadian = std::max(fNumRadialSegmentsPerRadian,
-                                               numRadialSegmentsPerRadian);
+        fNumRadialSegmentsPerRadian = CalcNumRadialSegmentsPerRadian(approxDeviceStrokeRadius);
 
-        int edgesInJoins = NumFixedEdgesInJoin(strokeParams);
-        if (strokeParams.fJoinType < 0.f && numRadialSegmentsPerRadian > 0.f) {
+        fEdgesInJoins = NumFixedEdgesInJoin(strokeParams);
+        if (strokeParams.fJoinType < 0.f && fNumRadialSegmentsPerRadian > 0.f) {
             // For round joins we need to count the radial edges on our own. Account for a
             // worst-case join of 180 degrees (SK_ScalarPI radians).
-            edgesInJoins += SkScalarCeilToInt(numRadialSegmentsPerRadian * SK_ScalarPI) - 1;
+            fEdgesInJoins += SkScalarCeilToInt(fNumRadialSegmentsPerRadian * SK_ScalarPI) - 1;
         }
-        fEdgesInJoins = std::max(fEdgesInJoins, edgesInJoins);
     }
 
+    void accumulate(const LinearTolerances& tolerances) {
+        if (tolerances.fNumParametricSegments_pow4 > fNumParametricSegments_pow4) {
+            fNumParametricSegments_pow4 = tolerances.fNumParametricSegments_pow4;
+        }
+        if (tolerances.fNumRadialSegmentsPerRadian > fNumRadialSegmentsPerRadian) {
+            fNumRadialSegmentsPerRadian = tolerances.fNumRadialSegmentsPerRadian;
+        }
+        if (tolerances.fEdgesInJoins > fEdgesInJoins) {
+            fEdgesInJoins = tolerances.fEdgesInJoins;
+        }
+    }
 
 private:
     // Used for both fills and strokes, always at least one parametric segment

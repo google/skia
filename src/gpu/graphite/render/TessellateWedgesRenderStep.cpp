@@ -36,13 +36,13 @@ struct DrawWriterAllocator {
         fInstances.reserve(reserveCount);
     }
 
-    VertexWriter append() {
-        // TODO (skbug.com/13056): Actually compute optimal minimum required index count based on
-        // PatchWriter's tracked segment count^4.
+    VertexWriter append(const LinearTolerances& tolerances) {
+        // TODO (skbug.com/13056): Converting tolerances into an index count for every instance is
+        // wasteful; it only has to be computed when we flush.
         // Wedges use one extra triangle to connect to the fan point compared to the curve version.
-        static constexpr unsigned int kMaxIndexCount =
-                3 * (1 + NumCurveTrianglesAtResolveLevel(tess::kMaxResolveLevel));
-        return fInstances.append(kMaxIndexCount, 1);
+        const unsigned int indexCount =
+                3 * (1 + NumCurveTrianglesAtResolveLevel(tolerances.requiredResolveLevel()));
+        return fInstances.append(indexCount, 1);
     }
 
     DrawWriter::DynamicInstances fInstances;
