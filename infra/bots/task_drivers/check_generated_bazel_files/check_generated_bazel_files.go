@@ -88,7 +88,7 @@ func ensureNoGeneratedDiffs(ctx context.Context, checkoutDir string) error {
 
 		genCmd := &sk_exec.Command{
 			Name:       "make",
-			Args:       []string{"generate_force"},
+			Args:       []string{"generate"},
 			InheritEnv: true, // Makes sure bazelisk is on PATH
 			Dir:        filepath.Join(checkoutDir, "bazel"),
 			LogStdout:  true,

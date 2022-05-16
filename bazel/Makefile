@@ -1,25 +1,5 @@
-# This target should be run when new files are added or includes changed. This should be
-# faster than generate_force because it only runs gazelle on a subset of all Skia files.
+# This target should be run when new files are added or includes changed.
 generate:
-	bazelisk build @org_skia_go_infra//bazel/gazelle:gazelle_cpp
-	# We ask git for any file that has changed when compared to origin/main and have gazelle
-	# look only at those files. If the diff would be empty, we do not want to run gazelle on
-	# every file in Skia, so we add in one folder (example) as a sentinel value. This folder
-	# was chosen because there are only a few files in it, so it should be fast to analyze.
-	cd .. && git diff --name-only origin/main -- include/ src/ tools/ gm/ tests/ \
-		modules/skshaper modules/svg modules/skresources modules/skparagraph modules/skunicode \
-		modules/skottie modules/skresources modules/sksg experimental/ffmpeg \
-		modules/particles \
-		experimental/bazel_test example \
-		modules/canvaskit/go \
-		infra/bots/task_drivers | \
-		xargs bazel-bin/external/org_skia_go_infra/bazel/gazelle/gazelle_cpp_/gazelle_cpp update \
-		--third_party_file_map="third_party/file_map_for_bazel.json" example/
-
-# This will force all the folders we care about to have their build files generated. This should
-# be run by the CI and locally only when we opt-in a new folder. Any changes here should be
-# mirrored in the make generate rule.
-generate_force:
 	bazelisk build @org_skia_go_infra//bazel/gazelle:gazelle_cpp
 	cd .. && bazel-bin/external/org_skia_go_infra/bazel/gazelle/gazelle_cpp_/gazelle_cpp update \
 		--third_party_file_map="third_party/file_map_for_bazel.json" \
