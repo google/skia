@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/render/TessellateStrokesRenderStep.h"
 
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPipelineData.h"
 
 #include "src/gpu/graphite/DrawGeometry.h"
 #include "src/gpu/graphite/DrawTypes.h"
@@ -55,12 +56,13 @@ using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountStrokes>,
 
 }  // namespace
 
-// TODO: specify uniforms
 TessellateStrokesRenderStep::TessellateStrokesRenderStep()
         : RenderStep("TessellateStrokeRenderStep",
                      "",
-                     Flags::kRequiresMSAA,
-                     /*uniforms=*/{},
+                     Flags::kRequiresMSAA | Flags::kPerformsShading,
+                     /*uniforms=*/{{"maxScale", SkSLType::kFloat},
+                                   {"affineMatrix", SkSLType::kFloat4},
+                                   {"translate", SkSLType::kFloat2}},
                      PrimitiveType::kTriangleStrip,
                      kDirectShadingPass,
                      /*vertexAttrs=*/  {},
@@ -199,9 +201,22 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw, const DrawGeomet
     }
 }
 
-void TessellateStrokesRenderStep::writeUniforms(const DrawGeometry&,
-                                                SkPipelineDataGatherer*) const {
-    // TODO: implement this
+void TessellateStrokesRenderStep::writeUniforms(const DrawGeometry& geom,
+                                                SkPipelineDataGatherer* gatherer) const {
+    SkASSERT(geom.transform().type() < Transform::Type::kProjection); // TODO: Implement perspective
+
+    SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
+
+    // maxScale = float, affineMatrix = float4 (2x2 of transform), translate = float2
+    gatherer->write(geom.transform().maxScaleFactor());
+
+    // Column-major 2x2 of the transform.
+    float upper[4] = {geom.transform().matrix().rc(0, 0), geom.transform().matrix().rc(1, 0),
+                      geom.transform().matrix().rc(0, 1), geom.transform().matrix().rc(1, 1)};
+    gatherer->write(upper, 4);
+
+    gatherer->write(SkPoint{geom.transform().matrix().rc(3, 0),
+                            geom.transform().matrix().rc(3, 1)});
 }
 
 }  // namespace skgpu::graphite

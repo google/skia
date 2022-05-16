@@ -138,6 +138,7 @@ generated_cc_atom(
         ":DynamicInstancesPatchAllocator_hdr",
         ":TessellateStrokesRenderStep_hdr",
         "//src/core:SkGeometry_hdr",
+        "//src/core:SkPipelineData_hdr",
         "//src/gpu/graphite:DrawGeometry_hdr",
         "//src/gpu/graphite:DrawTypes_hdr",
         "//src/gpu/graphite:DrawWriter_hdr",
