@@ -10,6 +10,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/gpu:GrTypes_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )

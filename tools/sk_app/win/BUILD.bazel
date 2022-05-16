@@ -36,8 +36,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":WindowContextFactory_win_hdr",
-        "//third_party:dawn",
         "//tools/sk_app:DawnWindowContext_hdr",
+        "@dawn",
     ],
 )
 

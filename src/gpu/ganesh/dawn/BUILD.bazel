@@ -10,7 +10,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//src/gpu/ganesh:GrAttachment_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 
@@ -31,7 +31,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//src/gpu/ganesh:GrGpuBuffer_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 
@@ -86,7 +86,7 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrProgramDesc_hdr",
         "//src/gpu/ganesh:GrStagingBufferManager_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 
@@ -135,7 +135,7 @@ generated_cc_atom(
         "//include/gpu:GrTypes_hdr",
         "//src/gpu/ganesh:GrColor_hdr",
         "//src/gpu/ganesh:GrOpsRenderPass_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 
@@ -171,7 +171,7 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrSPIRVVaryingHandler_hdr",
         "//src/gpu/ganesh/glsl:GrGLSLProgramBuilder_hdr",
         "//src/sksl:SkSLCompiler_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 
@@ -200,7 +200,7 @@ generated_cc_atom(
         "//src/core:SkAutoMalloc_hdr",
         "//src/gpu/ganesh:GrSPIRVUniformHandler_hdr",
         "//src/gpu/ganesh:GrUniformDataManager_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 
@@ -282,7 +282,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//src/gpu/ganesh:GrTexture_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 
@@ -311,7 +311,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/private/gpu/ganesh:GrTypesPriv_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 
@@ -326,7 +326,7 @@ generated_cc_atom(
     name = "GrDawnAsyncWait_hdr",
     hdrs = ["GrDawnAsyncWait.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//third_party:dawn"],
+    deps = ["@dawn"],
 )
 
 generated_cc_atom(

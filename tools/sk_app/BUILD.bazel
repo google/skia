@@ -122,7 +122,7 @@ generated_cc_atom(
         ":WindowContext_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkSurface_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 
@@ -136,7 +136,7 @@ generated_cc_atom(
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//src/core:SkAutoMalloc_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 

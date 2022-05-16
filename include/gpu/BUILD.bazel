@@ -53,7 +53,7 @@ generated_cc_atom(
         "//include/private/gpu/ganesh:GrD3DTypesMinimal_hdr",
         "//include/private/gpu/ganesh:GrGLTypesPriv_hdr",
         "//include/private/gpu/ganesh:GrVkTypesPriv_hdr",
-        "//third_party:dawn",
+        "@dawn",
     ],
 )
 

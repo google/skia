@@ -193,11 +193,15 @@ local_repository(
     path = "third_party/externals/spirv-headers",
 )
 
-###################################################
-# External C++ deps with NO Bazel support         #
-# In this case, we need to supply a BUILD file    #
-# and a WORKSPACE file.                           #
-###################################################
+###############################################################################
+# External C++ deps with NO Bazel support                                     #
+# In this case, we need to supply a BUILD file which exposes targets/files    #
+# we need. If these deps depend on other deps (e.g. @dawn -> @spirv_tools),   #
+# then we need to specify those here as well. The workspace_file_content is   #
+# generally ignored; external repos (i.e. the ones starting with @) will be   #
+# resolved with Skia's version of those repos, which is how Bazel avoids      #
+# multiple versions of the same project being compiled together.              #
+###############################################################################
 # https://bazel.build/reference/be/workspace#new_local_repository
 new_local_repository(
     name = "vulkanmemoryallocator",
@@ -213,5 +217,45 @@ cc_library(
 )
 """,
     path = "third_party/externals/vulkanmemoryallocator",
-    workspace_file_content = "",  # this DEP has no other deps
+    workspace_file_content = "",
+)
+
+new_local_repository(
+    name = "dawn",
+    # This is too complicated for a short inline BUILD file.
+    build_file = "third_party/dawn/BUILD.bazel",
+    path = "third_party/externals/dawn",
+    workspace_file_content = "",
+)
+
+new_local_repository(
+    name = "vulkan_headers",
+    build_file_content = """
+cc_library(
+    name = "vulkan_headers",
+    hdrs = [
+        "include/vulkan/vk_platform.h",
+        "include/vulkan/vulkan.h",
+        "include/vulkan/vulkan_core.h",
+    ],
+    visibility = ["//visibility:public"],
+)
+""",
+    path = "third_party/externals/vulkan-headers",
+    workspace_file_content = "",
+)
+
+new_local_repository(
+    name = "vulkan_tools",
+    build_file_content = """
+cc_library(
+    name = "vulkan_tools",
+    hdrs = [
+        "icd/generated/vk_typemap_helper.h",
+    ],
+    visibility = ["//visibility:public"],
+)
+""",
+    path = "third_party/externals/vulkan-tools",
+    workspace_file_content = "",
 )
