@@ -42,12 +42,12 @@ $r_t = (1-t) \cdot r_0 + t \cdot r_1 > 0$ (note that radius $r_t$ has to be
 _positive_). If there are multiple (at most 2) solutions of $t$, choose the
 bigger one.
 
-There are two degenerated cases:
+There are two degenerate cases:
 
 1. $C_0 = C_1$ so the gradient is essentially a simple radial gradient.
 2. $r_0 = r_1$ so the gradient is a single strip with bandwidth $2 r_0 = 2 r_1$.
 
-<!-- TODO maybe add some fiddle or images here to illustrate the two degenerated cases -->
+<!-- TODO maybe add some fiddle or images here to illustrate the two degenerate cases -->
 
 They are easy to handle so we won't cover them here. From now on, we assume
 $C_0 \neq C_1$ and $r_0
@@ -68,15 +68,15 @@ Assuming that we've done swapping if necessary so $C_1 \neq C_f$, we can then do
 a linear transformation to map $C_f, C_1$ to $(0, 0), (1, 0)$. After the
 transformation:
 
-1. All centers $C_t = (x_t, 0)$ must be on the $x$ axis
+1. All centers $C_t = (x_t, 0)$ must be on the $x$-axis
 2. The radius $r_t$ is $x_t r_1$.
 3. Given $x_t$ , we can derive $t = f + (1 - f) x_t$
 
-From now on, we'll focus on how to quickly computes $x_t$. Note that $r_t > 0$
-so we're only interested positive solution $x_t$. Again, if there are multiple
-$x_t$ solutions, we may want to find the bigger one if $1 - f > 0$, and smaller
-one if $1 - f < 0$, so the corresponding $t$ is always the bigger one (note that
-$f \neq 1$, otherwise we'll swap $C_0, r_0$ with $C_1, r_1$).
+From now on, we'll focus on how to quickly compute $x_t$. Note that $r_t > 0$ so
+we're only interested in positive solutions for $x_t$. Again, if there are
+multiple $x_t$ solutions, we may want to find the bigger one if $1 - f > 0$, and
+smaller one if $1 - f < 0$, so the corresponding $t$ is always the bigger one
+(note that $f \neq 1$, otherwise we'll swap $C_0, r_0$ with $C_1, r_1$).
 
 ## Algorithm
 
@@ -88,13 +88,13 @@ $f \neq 1$, otherwise we'll swap $C_0, r_0$ with $C_1, r_1$).
 3. $\left(\pm \sqrt{(r_1^2 - 1) y ^2 + r_1^2 x^2}  - x\right) / (r_1^2 - 1)$ if
    $r_1 < 1$.
 
-Case 2 always produces a valid $x_t$. Case 1 and 3 requires $x > 0$ to produce
+Case 2 always produces a valid $x_t$. Case 1 and 3 require $x > 0$ to produce
 valid $x_t > 0$. Case 3 may have no solution at all if
 $(r_1^2 - 1) y^2 + r_1^2 x^2 < 0$.
 
-_Proof._ Algebriacally, solving the quadratic equation
-$(x_t - x)^2 + y^2 = (x_t r_1)^2$ and eliminate negative $x_t$ solutions get us
-the theorem.
+_Proof._ Algebraically, solving the quadratic equation
+$(x_t - x)^2 + y^2 = (x_t r_1)^2$ and eliminating negative $x_t$ solutions gets
+us the theorem.
 
 Alternatively, we can also combine Corollary 2., 3., and Lemma 4. in the
 Appendix to geometrically prove the theorem. $\square$
@@ -120,7 +120,7 @@ $(0, 0), (1, 0)$).
 
 For example, let $\hat x, \hat y = |1-f|x, |1-f|y$. Computing $\hat x_t$ with
 respect to $\hat x,
-\hat y$ allow us to have
+\hat y$ allows us to have
 $t = f + (1 - f)x_t = f + \text{sign}(1-f) \cdot \hat x_t$. That saves us one
 multiplication. Applying similar techniques to Theorem 1 gets us:
 
@@ -148,16 +148,14 @@ algorithm:
 4. Let $\hat x = |1 - f|x', \hat y = |1 - f|y'$
 5. If $r_1 = 1$, let $\hat x_t = (\hat x^2 + \hat y^2) / \hat x$
 6. If $r_1 > 1$, let $\hat x_t = \sqrt{\hat x^2 + \hat y^2} - \hat x / r_1$
-7. If $r_1 < 1$
-8. return invalid if $\hat x^2 - \hat y^2 < 0$
-9. let $\hat x_t =  -\sqrt{\hat x^2 - \hat y^2} - \hat x / r_1$ if we've swapped
-   $r_0, r_1$, or if $1 - f < 0$
-
-10. let $\hat x_t =  \sqrt{\hat x^2 - \hat y^2} - \hat x / r_1$ otherwise
-
-11. $t$ is invalid if $\hat x_t < 0$ (this check is unnecessary if $r_1 > 1$)
-12. Let $t = f + \text{sign}(1 - f) \hat x_t$
-13. If swapped, let $t = 1 - t$
+7. If $r_1 < 1$:
+    1. return invalid if $\hat x^2 - \hat y^2 < 0$
+    2. let $\hat x_t =  -\sqrt{\hat x^2 - \hat y^2} - \hat x / r_1$ if we've
+       swapped $r_0, r_1$, or if $1 - f < 0$
+    3. let $\hat x_t =  \sqrt{\hat x^2 - \hat y^2} - \hat x / r_1$ otherwise
+8. $t$ is invalid if $\hat x_t < 0$ (this check is unnecessary if $r_1 > 1$)
+9. Let $t = f + \text{sign}(1 - f) \hat x_t$
+10. If swapped, let $t = 1 - t$
 
 In step 7, we try to select either the smaller or bigger $\hat x_t$ based on
 whether the final $t$ has a negative or positive relationship with $\hat x_t$.
@@ -192,18 +190,18 @@ final $t$ costs 5 more multiplications, 1 more sqrt, and 2 more additions.
 That's a total of 5 additions, 10 multiplications, and 1 sqrt. (Our algorithm
 has 2-4 additions, 3 multiplications, and 1 sqrt.) Even if it saves the
 $0.5 \cdot (1/a), 4a, r_0^2$ and $(r_1 - r_0) r_0$ multiplications, there are
-still 6 multiplications. Moreover, it sends in 4 unitofmrs to the shader while
+still 6 multiplications. Moreover, it sends in 4 uniforms to the shader while
 our algorithm only needs 2 uniforms ($1/r_1$ and $f$).
 
 ## Appendix
 
 **Lemma 1.** Draw a ray from $C_f = (0, 0)$ to $P = (x, y)$. For every
-intersection points $P_1$ between that ray and circle $C_1 = (1, 0), r_1$, there
-exists an $x_t$ that equals to the length of segment $C_f P$ over length of
-segment $C_f P_1$. That is, $x_t = || C_f P || / ||C_f P_1||$
+intersection point $P_1$ between that ray and circle $C_1 = (1, 0), r_1$, there
+exists an $x_t$ that equals the length of segment $C_f P$ over the length of
+segment $C_f P_1$. That is, $x_t = || C_f P || / ||C_f P_1||$.
 
 _Proof._ Draw a line from $P$ that's parallel to $C_1 P_1$. Let it intersect
-with $x$-axis on point $C = (x', y')$.
+with the $x$-axis on point $C = (x', y')$.
 
 <img src="./lemma1.svg"/>
 
@@ -243,16 +241,13 @@ $C_1, r_1$. Therefore
 <img src="./corollary2.3.2.svg" width="30%"/>
 <img src="./corollary2.3.3.svg" width="30%"/>
 
-**Lemma 3.** When solution exists, one such solution is
-
+**Lemma 3.** When solutions exists, one such solution is
 
 $$
-
     x_t = {|| C_f P || \over ||C_f P_1||} = \frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}
-
 $$
 
-_Proof._ As $C_f = (0, 0), P = (x, y)$, we have $||C_f P|| = \sqrt(x^2 + y^2)$.
+_Proof._ As $C_f = (0, 0), P = (x, y)$, we have $||C_f P|| = \sqrt{x^2 + y^2}$.
 So we'll mainly focus on how to compute $||C_f P_1||$.
 
 **When $x \geq 0$:**
@@ -260,7 +255,7 @@ So we'll mainly focus on how to compute $||C_f P_1||$.
 <img src="./lemma3.1.svg"/>
 
 Let $X_P = (x, 0)$ and $H$ be a point on $C_f P_1$ such that $C_1 H$ is
-perpendicular to $C_1
+perpendicular to $C_f
 P_1$. Triangle $\triangle C_1 H C_f$ is similar to triangle
 $\triangle P X_P C_f$. Thus
 $$||C_f H|| = ||C_f C_1|| \cdot (||C_f X_P|| / ||C_f P||) = x / \sqrt{x^2 + y^2}$$
@@ -295,21 +290,15 @@ $-||C_f H||$ instead of $||C_f H||$. That negation cancels out the negation of
 $-x$ so we get the same equation of $||C_f P_1||$ for both $x \geq 0$ and
 $x < 0$ cases:
 
-
 $$
-
     ||C_f P_1|| = \frac{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}{\sqrt{x^2 + y^2}}
-
 $$
 
 Finally
 
-
 $$
-
     x_t = \frac{||C_f P||}{||C_f P_1||} = \frac{\sqrt{x^2 + y^2}}{||C_f P_1||}
         = \frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}
-
 $$ $\square$
 
 **Corollary 2.** If $r_1 = 1$, then the solution
@@ -323,14 +312,26 @@ $x_t = \left(\sqrt{(r_1^2 - 1) y ^2 + r_1^2 x^2}  - x\right) / (r_1^2 - 1)$.
 
 _Proof._ From Lemma 3., we have
 
-\begin{align} x_t &= \frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}
-\\\\\\ &= { (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
-\over \left (x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right ) \left (-x +
-\sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right ) } \\\\\\ &= { (x^2 + y^2) \left (
--x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right ) \over -x^2 + (r_1^2 - 1) y^2 +
-r_1^2 x^2 } \\\\\\ &= { (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2
-x^2} \right ) \over (r_1^2 - 1) (x^2 + y^2) } \\\\\\ &= \left(\sqrt{(r_1^2 - 1)
-y ^2 + r_1^2 x^2} - x\right) / (r_1^2 - 1) \end{align}
+\begin{align}
+    x_t &= \frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}} \\\\\\
+        &= {
+               (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
+           \over
+               \left (x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
+               \left (-x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
+           } \\\\\\
+        &= {
+               (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
+           \over
+               -x^2 + (r_1^2 - 1) y^2 + r_1^2 x^2
+           } \\\\\\
+        &= {
+               (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
+           \over
+               (r_1^2 - 1) (x^2 + y^2)
+           } \\\\\\
+        &= \left(\sqrt{(r_1^2 - 1) y ^2 + r_1^2 x^2}  - x\right) / (r_1^2 - 1)
+\end{align}
 
 The transformation above (multiplying $-x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}$
 to enumerator and denomenator) is always valid because $r_1 > 1$ and it's the
@@ -363,6 +364,3 @@ $\frac{x^2 + y^2}{x - \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}$.
 
 As $r_1 \neq 1$, we can apply the similar transformation in Corollary 3. to get
 the two formula in the lemma. $\square$
-
-$$
-$$
