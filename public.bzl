@@ -1215,6 +1215,7 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/tessellate/StrokeTessellator.h",
     "src/gpu/ganesh/tessellate/PathTessellator.cpp",
     "src/gpu/ganesh/tessellate/PathTessellator.h",
+    "src/gpu/ganesh/tessellate/VertexChunkPatchAllocator.h",
     "src/gpu/ganesh/text/GrAtlasManager.cpp",
     "src/gpu/ganesh/text/GrAtlasManager.h",
     "src/gpu/ganesh/text/GrDistanceFieldAdjustTable.cpp",
