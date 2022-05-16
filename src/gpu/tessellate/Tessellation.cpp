@@ -20,6 +20,9 @@ namespace skgpu::tess {
 
 namespace {
 
+using float2 = skvx::float2;
+using float4 = skvx::float4;
+
 // This value only protects us against getting stuck in infinite recursion due to fp32 precision
 // issues. Mathematically, every curve should reduce to manageable visible sections in O(log N)
 // chops, where N is the the magnitude of its control points.

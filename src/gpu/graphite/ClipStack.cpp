@@ -95,7 +95,7 @@ bool ClipStack::TransformedShape::intersects(const TransformedShape& o) const {
                 // clipped to infinity, so pessimistically assume that they could intersect.
                 return true;
             }
-            if (bounds.contains(Rect::Point(float2::Load(localQuad + i) / localQuad[i].w))) {
+            if (bounds.contains(Rect::Point(skvx::float2::Load(localQuad + i) / localQuad[i].w))) {
                 // If any corner of 'o's bounds are contained then it intersects our bounds
                 return true;
             }
@@ -157,7 +157,7 @@ bool ClipStack::TransformedShape::contains(const TransformedShape& o) const {
                 // to infinity, so it's extremely unlikely that this contains O.
                 return false;
             }
-            if (!fShape.conservativeContains(float2::Load(localQuad + i) / localQuad[i].w)) {
+            if (!fShape.conservativeContains(skvx::float2::Load(localQuad + i) / localQuad[i].w)) {
                 return false;
             }
         }

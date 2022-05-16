@@ -89,12 +89,12 @@ public:
         // fNumRects without failing.
         static_assert(kMaxRectsInList % 4 == 0);
         SkASSERT(fNumRects <= kMaxRectsInList);
-        float4 comp = Rect::ComplementRect(rect).fVals;
+        auto comp = Rect::ComplementRect(rect).fVals;
         for (int i = 0; i < fNumRects; i += 4) {
-            float4 l = float4::Load(fLefts + i);
-            float4 t = float4::Load(fTops + i);
-            float4 nr = float4::Load(fNegRights + i);
-            float4 nb = float4::Load(fNegBots + i);
+            auto l = skvx::float4::Load(fLefts + i);
+            auto t = skvx::float4::Load(fTops + i);
+            auto nr = skvx::float4::Load(fNegRights + i);
+            auto nb = skvx::float4::Load(fNegBots + i);
             if (any((l < comp[0]) &
                     (t < comp[1]) &
                     (nr < comp[2]) &
@@ -128,7 +128,7 @@ private:
     }
 
     Rect loadRect(int i) const {
-        return Rect::FromVals(float4(fLefts[i], fTops[i], fNegRights[i], fNegBots[i]));
+        return Rect::FromVals({fLefts[i], fTops[i], fNegRights[i], fNegBots[i]});
     }
 
     // Splits this node with a new LeafNode, then returns a TreeNode that reuses our "this" pointer
@@ -143,7 +143,7 @@ private:
         //     fSplittableBounds == [maxLeft, maxTop, -minRight, -minBot] == [r, b, -l, -t]
         //
         // Represents the region of splits that guarantee a strict subdivision of our rect list.
-        float2 splittableSize = fSplittableBounds.xy() + fSplittableBounds.zw();  // == [r-l, b-t]
+        auto splittableSize = fSplittableBounds.xy() + fSplittableBounds.zw();  // == [r-l, b-t]
         SkASSERT(max(splittableSize) >= 0);
         SplitType splitType = (splittableSize.x() > splittableSize.y()) ? SplitType::kX
                                                                         : SplitType::kY;
@@ -191,13 +191,13 @@ private:
     }
 
     int fNumRects;
-    float4 fSplittableBounds;  // [maxLeft, maxTop, -minRight, -minBot]
-    float4 fRectValsSum;  // [sum(left), sum(top), -sum(right), -sum(bot)]
-    alignas(float4) float fLefts[kMaxRectsInList];
-    alignas(float4) float fTops[kMaxRectsInList];
-    alignas(float4) float fNegRights[kMaxRectsInList];
-    alignas(float4) float fNegBots[kMaxRectsInList];
-    static_assert((kMaxRectsInList * sizeof(float)) % sizeof(float4) == 0);
+    skvx::float4 fSplittableBounds;  // [maxLeft, maxTop, -minRight, -minBot]
+    skvx::float4 fRectValsSum;  // [sum(left), sum(top), -sum(right), -sum(bot)]
+    alignas(Rect) float fLefts[kMaxRectsInList];
+    alignas(Rect) float fTops[kMaxRectsInList];
+    alignas(Rect) float fNegRights[kMaxRectsInList];
+    alignas(Rect) float fNegBots[kMaxRectsInList];
+    static_assert((kMaxRectsInList * sizeof(float)) % sizeof(Rect) == 0);
 };
 
 IntersectionTree::IntersectionTree()

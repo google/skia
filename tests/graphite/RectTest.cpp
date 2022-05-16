@@ -13,6 +13,9 @@ namespace skgpu::graphite {
 #define CHECK(A) REPORTER_ASSERT(reporter, A)
 
 DEF_GRAPHITE_TEST(skgpu_Rect, reporter) {
+    using float2 = skvx::float2;
+    using float4 = skvx::float4;
+
     const SkRect skRect = SkRect::MakeLTRB(1,-3,4,0);
     const Rect rect = skRect;
     CHECK(rect == rect);

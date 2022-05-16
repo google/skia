@@ -245,6 +245,9 @@ class PatchWriter {
     using InnerTriangulator = std::conditional_t<kAddTrianglesWhenChopping,
             MiddleOutPolygonTriangulator, NullTriangulator>;
 
+    using float2 = skvx::float2;
+    using float4 = skvx::float4;
+
     static_assert(!kTrackJoinControlPoints || req_attrib<PatchAttribs::kJoinControlPoint>::value,
                   "Deferred patches and auto-updating joins requires kJoinControlPoint attrib");
 public:

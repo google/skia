@@ -120,8 +120,8 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
     MidpointContourParser parser{path};
     while (parser.parseNextContour()) {
         writer.updateFanPointAttrib(m.mapPoint(parser.currentMidpoint()));
-        float2 lastPoint = {0, 0};
-        float2 startPoint = {0, 0};
+        skvx::float2 lastPoint = {0, 0};
+        skvx::float2 startPoint = {0, 0};
         for (auto [verb, pts, w] : parser.currentContour()) {
             switch (verb) {
                 case SkPathVerb::kMove: {

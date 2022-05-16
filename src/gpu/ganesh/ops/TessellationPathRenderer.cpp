@@ -7,12 +7,10 @@
 
 #include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 
-#include "include/private/SkVx.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrVx.h"
 #include "src/gpu/ganesh/effects/GrDisableColorXP.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/PathInnerTriangulateOp.h"

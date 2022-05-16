@@ -226,7 +226,6 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/GrUtil.h",
   "$_src/gpu/ganesh/GrVertexChunkArray.cpp",
   "$_src/gpu/ganesh/GrVertexChunkArray.h",
-  "$_src/gpu/ganesh/GrVx.h",
   "$_src/gpu/ganesh/GrWaitRenderTask.cpp",
   "$_src/gpu/ganesh/GrWaitRenderTask.h",
   "$_src/gpu/ganesh/GrWindowRectangles.h",

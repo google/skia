@@ -102,6 +102,7 @@ generated_cc_atom(
         "//include/core:SkPoint_hdr",
         "//include/core:SkString_hdr",
         "//include/private:SkFloatingPoint_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 

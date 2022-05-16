@@ -26,40 +26,41 @@ public:
     AffineMatrix& operator=(const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());
         // Duplicate the matrix in float4.lo and float4.hi so we can map two points at once.
-        fScale = float2(m.getScaleX(), m.getScaleY()).xyxy();
-        fSkew = float2(m.getSkewX(), m.getSkewY()).xyxy();
-        fTrans = float2(m.getTranslateX(), m.getTranslateY()).xyxy();
+        fScale = skvx::float2(m.getScaleX(), m.getScaleY()).xyxy();
+        fSkew = skvx::float2(m.getSkewX(), m.getSkewY()).xyxy();
+        fTrans = skvx::float2(m.getTranslateX(), m.getTranslateY()).xyxy();
         return *this;
     }
 
-    SK_ALWAYS_INLINE float4 map2Points(float4 p0p1) const {
+    SK_ALWAYS_INLINE skvx::float4 map2Points(skvx::float4 p0p1) const {
         return fScale * p0p1 + (fSkew * p0p1.yxwz() + fTrans);
     }
 
-    SK_ALWAYS_INLINE float4 map2Points(const SkPoint pts[2]) const {
-        return this->map2Points(float4::Load(pts));
+    SK_ALWAYS_INLINE skvx::float4 map2Points(const SkPoint pts[2]) const {
+        return this->map2Points(skvx::float4::Load(pts));
     }
 
-    SK_ALWAYS_INLINE float4 map2Points(SkPoint p0, SkPoint p1) const {
-        return this->map2Points(float4(skvx::bit_pun<float2>(p0), skvx::bit_pun<float2>(p1)));
+    SK_ALWAYS_INLINE skvx::float4 map2Points(SkPoint p0, SkPoint p1) const {
+        return this->map2Points(skvx::float4(skvx::bit_pun<skvx::float2>(p0),
+                                             skvx::bit_pun<skvx::float2>(p1)));
     }
 
-    SK_ALWAYS_INLINE float2 mapPoint(float2 p) const {
+    SK_ALWAYS_INLINE skvx::float2 mapPoint(skvx::float2 p) const {
         return fScale.lo * p + (fSkew.lo * p.yx() + fTrans.lo);
     }
 
-    SK_ALWAYS_INLINE float2 map1Point(const SkPoint pt[1]) const {
-        return this->mapPoint(float2::Load(pt));
+    SK_ALWAYS_INLINE skvx::float2 map1Point(const SkPoint pt[1]) const {
+        return this->mapPoint(skvx::float2::Load(pt));
     }
 
     SK_ALWAYS_INLINE SkPoint mapPoint(SkPoint p) const {
-        return skvx::bit_pun<SkPoint>(this->mapPoint(skvx::bit_pun<float2>(p)));
+        return skvx::bit_pun<SkPoint>(this->mapPoint(skvx::bit_pun<skvx::float2>(p)));
     }
 
 private:
-    float4 fScale;
-    float4 fSkew;
-    float4 fTrans;
+    skvx::float4 fScale;
+    skvx::float4 fSkew;
+    skvx::float4 fTrans;
 };
 
 }  // namespace skgpu::tess

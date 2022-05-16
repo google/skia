@@ -790,73 +790,60 @@ SIN Vec<N,uint16_t> mull(const Vec<N,uint8_t>& x,
 }
 #endif
 
-// Allow floating point contraction. e.g., allow a*x + y to be compiled to a single FMA even though
-// it introduces LSB differences on platforms that don't have an FMA instruction.
-#if defined(__clang__)
-#pragma STDC FP_CONTRACT ON
-#endif
-
-// Approximates the inverse cosine of x within 0.96 degrees using the rational polynomial:
-//
-//     acos(x) ~= (bx^3 + ax) / (dx^4 + cx^2 + 1) + pi/2
-//
-// See: https://stackoverflow.com/a/36387954
-//
-// For a proof of max error, see the "SkVx_approx_acos" unit test.
-//
-// NOTE: This function deviates immediately from pi and 0 outside -1 and 1. (The derivatives are
-// infinite at -1 and 1). So the input must still be clamped between -1 and 1.
-#define SKVX_APPROX_ACOS_MAX_ERROR SkDegreesToRadians(.96f)
-SIN Vec<N,float> approx_acos(Vec<N,float> x) {
-    constexpr static float a = -0.939115566365855f;
-    constexpr static float b =  0.9217841528914573f;
-    constexpr static float c = -1.2845906244690837f;
-    constexpr static float d =  0.295624144969963174f;
-    constexpr static float pi_over_2 = 1.5707963267948966f;
-    auto xx = x*x;
-    auto numer = b*xx + a;
-    auto denom = xx*(d*xx + c) + 1;
-    return x * (numer/denom) + pi_over_2;
+SINT T dot(const Vec<N, T>& a, const Vec<N, T>& b) {
+    auto ab = a*b;
+    if constexpr (N == 2) {
+        return ab[0] + ab[1];
+    } else if constexpr (N == 4) {
+        return ab[0] + ab[1] + ab[2] + ab[3];
+    } else {
+        T sum = ab[0];
+        for (int i = 1; i < N; ++i) {
+            sum += ab[i];
+        }
+        return sum;
+    }
 }
 
-#if defined(__clang__)
-#pragma STDC FP_CONTRACT DEFAULT
-#endif
+SI float cross(const Vec<2, float>& a, const Vec<2, float>& b) {
+    auto x = a * shuffle<1,0>(b);
+    return x[0] - x[1];
+}
 
 // De-interleaving load of 4 vectors.
 //
 // WARNING: These are really only supported well on NEON. Consider restructuring your data before
 // resorting to these methods.
 SIT void strided_load4(const T* v,
-                       skvx::Vec<1,T>& a,
-                       skvx::Vec<1,T>& b,
-                       skvx::Vec<1,T>& c,
-                       skvx::Vec<1,T>& d) {
+                       Vec<1,T>& a,
+                       Vec<1,T>& b,
+                       Vec<1,T>& c,
+                       Vec<1,T>& d) {
     a.val = v[0];
     b.val = v[1];
     c.val = v[2];
     d.val = v[3];
 }
 SINT void strided_load4(const T* v,
-                        skvx::Vec<N,T>& a,
-                        skvx::Vec<N,T>& b,
-                        skvx::Vec<N,T>& c,
-                        skvx::Vec<N,T>& d) {
+                        Vec<N,T>& a,
+                        Vec<N,T>& b,
+                        Vec<N,T>& c,
+                        Vec<N,T>& d) {
     strided_load4(v, a.lo, b.lo, c.lo, d.lo);
     strided_load4(v + 4*(N/2), a.hi, b.hi, c.hi, d.hi);
 }
 #if SKVX_USE_SIMD && defined(__ARM_NEON)
 #define IMPL_LOAD4_TRANSPOSED(N, T, VLD) \
 SI void strided_load4(const T* v, \
-                      skvx::Vec<N,T>& a, \
-                      skvx::Vec<N,T>& b, \
-                      skvx::Vec<N,T>& c, \
-                      skvx::Vec<N,T>& d) { \
+                      Vec<N,T>& a, \
+                      Vec<N,T>& b, \
+                      Vec<N,T>& c, \
+                      Vec<N,T>& d) { \
     auto mat = VLD(v); \
-    a = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[0]); \
-    b = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[1]); \
-    c = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[2]); \
-    d = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[3]); \
+    a = bit_pun<Vec<N,T>>(mat.val[0]); \
+    b = bit_pun<Vec<N,T>>(mat.val[1]); \
+    c = bit_pun<Vec<N,T>>(mat.val[2]); \
+    d = bit_pun<Vec<N,T>>(mat.val[3]); \
 }
 IMPL_LOAD4_TRANSPOSED(2, uint32_t, vld4_u32)
 IMPL_LOAD4_TRANSPOSED(4, uint16_t, vld4_u16)
@@ -881,7 +868,6 @@ SI void strided_load4(const float* v,
                       Vec<4,float>& b,
                       Vec<4,float>& c,
                       Vec<4,float>& d) {
-    using skvx::bit_pun;
     __m128 a_ = _mm_loadu_ps(v);
     __m128 b_ = _mm_loadu_ps(v+4);
     __m128 c_ = _mm_loadu_ps(v+8);
@@ -898,20 +884,20 @@ SI void strided_load4(const float* v,
 //
 // WARNING: These are really only supported well on NEON. Consider restructuring your data before
 // resorting to these methods.
-SIT void strided_load2(const T* v, skvx::Vec<1,T>& a, skvx::Vec<1,T>& b) {
+SIT void strided_load2(const T* v, Vec<1,T>& a, Vec<1,T>& b) {
     a.val = v[0];
     b.val = v[1];
 }
-SINT void strided_load2(const T* v, skvx::Vec<N,T>& a, skvx::Vec<N,T>& b) {
+SINT void strided_load2(const T* v, Vec<N,T>& a, Vec<N,T>& b) {
     strided_load2(v, a.lo, b.lo);
     strided_load2(v + 2*(N/2), a.hi, b.hi);
 }
 #if SKVX_USE_SIMD && defined(__ARM_NEON)
 #define IMPL_LOAD2_TRANSPOSED(N, T, VLD) \
-SI void strided_load2(const T* v, skvx::Vec<N,T>& a, skvx::Vec<N,T>& b) { \
+SI void strided_load2(const T* v, Vec<N,T>& a, Vec<N,T>& b) { \
     auto mat = VLD(v); \
-    a = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[0]); \
-    b = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[1]); \
+    a = bit_pun<Vec<N,T>>(mat.val[0]); \
+    b = bit_pun<Vec<N,T>>(mat.val[1]); \
 }
 IMPL_LOAD2_TRANSPOSED(2, uint32_t, vld2_u32)
 IMPL_LOAD2_TRANSPOSED(4, uint16_t, vld2_u16)
@@ -929,6 +915,37 @@ IMPL_LOAD2_TRANSPOSED(16, int8_t, vld2q_s8)
 IMPL_LOAD2_TRANSPOSED(4, float, vld2q_f32)
 #undef IMPL_LOAD2_TRANSPOSED
 #endif
+
+// Define commonly used aliases
+using float2  = Vec< 2, float>;
+using float4  = Vec< 4, float>;
+using float8  = Vec< 8, float>;
+
+using double2 = Vec< 2, double>;
+using double4 = Vec< 4, double>;
+using double8 = Vec< 8, double>;
+
+using byte2   = Vec< 2, uint8_t>;
+using byte4   = Vec< 4, uint8_t>;
+using byte8   = Vec< 8, uint8_t>;
+using byte16  = Vec<16, uint8_t>;
+
+using int2    = Vec< 2, int32_t>;
+using int4    = Vec< 4, int32_t>;
+using int8    = Vec< 8, int32_t>;
+
+using uint2   = Vec< 2, uint32_t>;
+using uint4   = Vec< 4, uint32_t>;
+using uint8   = Vec< 8, uint32_t>;
+
+using long2   = Vec< 2, int64_t>;
+using long4   = Vec< 4, int64_t>;
+using long8   = Vec< 8, int64_t>;
+
+// Use with from_half and to_half to convert between floatX, and use these for storage.
+using half2   = Vec< 2, uint16_t>;
+using half4   = Vec< 4, uint16_t>;
+using half8   = Vec< 8, uint16_t>;
 
 }  // namespace skvx
 

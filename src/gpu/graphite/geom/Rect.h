@@ -9,7 +9,7 @@
 #define skgpu_graphite_geom_Rect_DEFINED
 
 #include "include/core/SkRect.h"
-#include "src/gpu/graphite/geom/VectorTypes.h"
+#include "include/private/SkVx.h"
 
 namespace skgpu::graphite {
 
@@ -25,6 +25,8 @@ namespace skgpu::graphite {
  * intended result. It is the caller's responsibility to check isEmptyOrNegative() if needed.
  */
 class Rect {
+    using float2 = skvx::float2;
+    using float4 = skvx::float4;
 public:
     AI Rect() = default;
     AI Rect(float l, float t, float r, float b) : fVals(NegateBotRight({l,t,r,b})) {}
@@ -139,6 +141,7 @@ public:
 
 private:
     AI static float4 NegateBotRight(float4 vals) {  // Returns [vals.xy, -vals.zw].
+        using uint4 = skvx::uint4;
         return skvx::bit_pun<float4>(skvx::bit_pun<uint4>(vals) ^ uint4(0, 0, 1u << 31, 1u << 31));
     }
 

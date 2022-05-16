@@ -13,8 +13,8 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 
-using V4f = skvx::Vec<4, float>;
-using M4f = skvx::Vec<4, int32_t>;
+using float4 = skvx::float4;
+using mask4  = skvx::int4; // aliased to 'mask' to emphasize that it will hold boolean SIMD masks.
 
 #define AI SK_ALWAYS_INLINE
 
@@ -37,14 +37,14 @@ static AI skvx::Vec<4, T> next_ccw(const skvx::Vec<4, T>& v) {
     return skvx::shuffle<1, 3, 0, 2>(v);
 }
 
-static AI V4f next_diag(const V4f& v) {
+static AI float4 next_diag(const float4& v) {
     // Same as next_ccw(next_ccw(v)), or next_cw(next_cw(v)), e.g. two rotations either direction.
     return skvx::shuffle<3, 2, 1, 0>(v);
 }
 
 // Replaces zero-length 'bad' edge vectors with the reversed opposite edge vector.
 // e3 may be null if only 2D edges need to be corrected for.
-static AI void correct_bad_edges(const M4f& bad, V4f* e1, V4f* e2, V4f* e3) {
+static AI void correct_bad_edges(const mask4& bad, float4* e1, float4* e2, float4* e3) {
     if (any(bad)) {
         // Want opposite edges, L B T R -> R T B L but with flipped sign to preserve winding
         *e1 = if_then_else(bad, -next_diag(*e1), *e1);
@@ -56,7 +56,7 @@ static AI void correct_bad_edges(const M4f& bad, V4f* e1, V4f* e2, V4f* e3) {
 }
 
 // Replace 'bad' coordinates by rotating CCW to get the next point. c3 may be null for 2D points.
-static AI void correct_bad_coords(const M4f& bad, V4f* c1, V4f* c2, V4f* c3) {
+static AI void correct_bad_coords(const mask4& bad, float4* c1, float4* c2, float4* c3) {
     if (any(bad)) {
         *c1 = if_then_else(bad, next_ccw(*c1), *c1);
         *c2 = if_then_else(bad, next_ccw(*c2), *c2);
@@ -238,8 +238,8 @@ static bool is_simple_rect(const GrQuad& quad) {
 // Calculates barycentric coordinates for each point in (testX, testY) in the triangle formed by
 // (x0,y0) - (x1,y1) - (x2, y2) and stores them in u, v, w.
 static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2, float y2,
-                               const V4f& testX, const V4f& testY,
-                               V4f* u, V4f* v, V4f* w) {
+                               const float4& testX, const float4& testY,
+                               float4* u, float4* v, float4* w) {
     // The 32-bit calculations can have catastrophic cancellation if the device-space coordinates
     // are really big, and this code needs to handle that because we evaluate barycentric coords
     // pre-cropping to the render target bounds. This preserves some precision by shrinking the
@@ -295,11 +295,11 @@ static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2,
         invDenom = sk_ieee_float_divide(1.f, invDenom);
     }
 
-    V4f v2x = (scaleX * testX) - x0;
-    V4f v2y = (scaleY * testY) - y0;
+    float4 v2x = (scaleX * testX) - x0;
+    float4 v2y = (scaleY * testY) - y0;
 
-    V4f dot02 = v0x * v2x + v0y * v2y;
-    V4f dot12 = v1x * v2x + v1y * v2y;
+    float4 dot02 = v0x * v2x + v0y * v2y;
+    float4 dot12 = v1x * v2x + v1y * v2y;
 
     // These are relative to the vertices, so there's no need to undo the scale factor
     *u = (dot11 * dot02 - dot01 * dot12) * invDenom;
@@ -309,45 +309,45 @@ static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2,
     return true;
 }
 
-static M4f inside_triangle(const V4f& u, const V4f& v, const V4f& w) {
+static mask4 inside_triangle(const float4& u, const float4& v, const float4& w) {
     return ((u >= 0.f) & (u <= 1.f)) & ((v >= 0.f) & (v <= 1.f)) & ((w >= 0.f) & (w <= 1.f));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkRect GrQuad::projectedBounds() const {
-    V4f xs = this->x4f();
-    V4f ys = this->y4f();
-    V4f ws = this->w4f();
-    M4f clipW = ws < SkPathPriv::kW0PlaneDistance;
+    float4 xs = this->x4f();
+    float4 ys = this->y4f();
+    float4 ws = this->w4f();
+    mask4 clipW = ws < SkPathPriv::kW0PlaneDistance;
     if (any(clipW)) {
-        V4f x2d = xs / ws;
-        V4f y2d = ys / ws;
+        float4 x2d = xs / ws;
+        float4 y2d = ys / ws;
         // Bounds of just the projected points in front of w = epsilon
         SkRect frontBounds = {
-            min(if_then_else(clipW, V4f(SK_ScalarInfinity), x2d)),
-            min(if_then_else(clipW, V4f(SK_ScalarInfinity), y2d)),
-            max(if_then_else(clipW, V4f(SK_ScalarNegativeInfinity), x2d)),
-            max(if_then_else(clipW, V4f(SK_ScalarNegativeInfinity), y2d))
+            min(if_then_else(clipW, float4(SK_ScalarInfinity), x2d)),
+            min(if_then_else(clipW, float4(SK_ScalarInfinity), y2d)),
+            max(if_then_else(clipW, float4(SK_ScalarNegativeInfinity), x2d)),
+            max(if_then_else(clipW, float4(SK_ScalarNegativeInfinity), y2d))
         };
         // Calculate clipped coordinates by following CCW edges, only keeping points where the w
         // actually changes sign between the vertices.
-        V4f t = (SkPathPriv::kW0PlaneDistance - ws) / (next_ccw(ws) - ws);
+        float4 t = (SkPathPriv::kW0PlaneDistance - ws) / (next_ccw(ws) - ws);
         x2d = (t * next_ccw(xs) + (1.f - t) * xs) / SkPathPriv::kW0PlaneDistance;
         y2d = (t * next_ccw(ys) + (1.f - t) * ys) / SkPathPriv::kW0PlaneDistance;
         // True if (w < e) xor (ccw(w) < e), i.e. crosses the w = epsilon plane
         clipW = clipW ^ (next_ccw(ws) < SkPathPriv::kW0PlaneDistance);
         return {
-            min(if_then_else(clipW, x2d, V4f(frontBounds.fLeft))),
-            min(if_then_else(clipW, y2d, V4f(frontBounds.fTop))),
-            max(if_then_else(clipW, x2d, V4f(frontBounds.fRight))),
-            max(if_then_else(clipW, y2d, V4f(frontBounds.fBottom)))
+            min(if_then_else(clipW, x2d, float4(frontBounds.fLeft))),
+            min(if_then_else(clipW, y2d, float4(frontBounds.fTop))),
+            max(if_then_else(clipW, x2d, float4(frontBounds.fRight))),
+            max(if_then_else(clipW, y2d, float4(frontBounds.fBottom)))
         };
     } else {
         // Nothing is behind the viewer, so the projection is straight forward and valid
         ws = 1.f / ws;
-        V4f x2d = xs * ws;
-        V4f y2d = ys * ws;
+        float4 x2d = xs * ws;
+        float4 y2d = ys * ws;
         return {min(x2d), min(y2d), max(x2d), max(y2d)};
     }
 }
@@ -399,7 +399,7 @@ int ClipToW0(DrawQuad* quad, DrawQuad* extraVertices) {
         return 1;
     }
 
-    M4f validW = quad->fDevice.w4f() >= SkPathPriv::kW0PlaneDistance;
+    mask4 validW = quad->fDevice.w4f() >= SkPathPriv::kW0PlaneDistance;
     if (all(validW)) {
         // Nothing to clip, can proceed normally drawing just 'quad'
         return 1;
@@ -425,7 +425,7 @@ int ClipToW0(DrawQuad* quad, DrawQuad* extraVertices) {
     SkASSERT(clipCount >= 1 && clipCount <= 3);
 
     // FIXME de-duplicate from the projectedBounds() calculations.
-    V4f t = (SkPathPriv::kW0PlaneDistance - v.fW) / (next_ccw(v.fW) - v.fW);
+    float4 t = (SkPathPriv::kW0PlaneDistance - v.fW) / (next_ccw(v.fW) - v.fW);
 
     Vertices clip;
     clip.fX = (t * next_ccw(v.fX) + (1.f - t) * v.fX);
@@ -436,8 +436,8 @@ int ClipToW0(DrawQuad* quad, DrawQuad* extraVertices) {
     clip.fV = (t * next_ccw(v.fV) + (1.f - t) * v.fV);
     clip.fR = (t * next_ccw(v.fR) + (1.f - t) * v.fR);
 
-    M4f ccwValid = next_ccw(v.fW) >= SkPathPriv::kW0PlaneDistance;
-    M4f cwValid  = next_cw(v.fW)  >= SkPathPriv::kW0PlaneDistance;
+    mask4 ccwValid = next_ccw(v.fW) >= SkPathPriv::kW0PlaneDistance;
+    mask4 cwValid  = next_cw(v.fW)  >= SkPathPriv::kW0PlaneDistance;
 
     if (clipCount != 1) {
         // Simplest case, replace behind-w0 points with their clipped points by following CCW edge
@@ -583,16 +583,16 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool comput
         return false;
     }
 
-    V4f devX = quad->fDevice.x4f();
-    V4f devY = quad->fDevice.y4f();
+    float4 devX = quad->fDevice.x4f();
+    float4 devY = quad->fDevice.y4f();
 
-    V4f clipX = {cropRect.fLeft, cropRect.fLeft, cropRect.fRight, cropRect.fRight};
-    V4f clipY = {cropRect.fTop, cropRect.fBottom, cropRect.fTop, cropRect.fBottom};
+    float4 clipX = {cropRect.fLeft, cropRect.fLeft, cropRect.fRight, cropRect.fRight};
+    float4 clipY = {cropRect.fTop, cropRect.fBottom, cropRect.fTop, cropRect.fBottom};
 
     // Calculate barycentric coordinates for the 4 rect corners in the 2 triangles that the quad
     // is tessellated into when drawn.
-    V4f u1, v1, w1;
-    V4f u2, v2, w2;
+    float4 u1, v1, w1;
+    float4 u2, v2, w2;
     if (!barycentric_coords(devX[0], devY[0], devX[1], devY[1], devX[2], devY[2], clipX, clipY,
                             &u1, &v1, &w1) ||
         !barycentric_coords(devX[1], devY[1], devX[3], devY[3], devX[2], devY[2], clipX, clipY,
@@ -602,8 +602,8 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool comput
     }
 
     // clipDevRect is completely inside this quad if each corner is in at least one of two triangles
-    M4f inTri1 = inside_triangle(u1, v1, w1);
-    M4f inTri2 = inside_triangle(u2, v2, w2);
+    mask4 inTri1 = inside_triangle(u1, v1, w1);
+    mask4 inTri2 = inside_triangle(u2, v2, w2);
     if (all(inTri1 | inTri2)) {
         // We can crop to exactly the clipDevRect.
         // FIXME (michaelludwig) - there are other ways to have determined quad covering the clip
@@ -663,7 +663,7 @@ void TessellationHelper::EdgeVectors::reset(const skvx::Vec<4, float>& xs,
                                             GrQuad::Type quadType) {
     // Calculate all projected edge vector values for this quad.
     if (quadType == GrQuad::Type::kPerspective) {
-        V4f iw = 1.f / ws;
+        float4 iw = 1.f / ws;
         fX2D = xs * iw;
         fY2D = ys * iw;
     } else {
@@ -694,14 +694,14 @@ void TessellationHelper::EdgeVectors::reset(const skvx::Vec<4, float>& xs,
 //** EdgeEquations implementation
 
 void TessellationHelper::EdgeEquations::reset(const EdgeVectors& edgeVectors) {
-    V4f dx = edgeVectors.fDX;
-    V4f dy = edgeVectors.fDY;
+    float4 dx = edgeVectors.fDX;
+    float4 dy = edgeVectors.fDY;
     // Correct for bad edges by copying adjacent edge information into the bad component
     correct_bad_edges(edgeVectors.fInvLengths >= kInvDistTolerance, &dx, &dy, nullptr);
 
-    V4f c = dx*edgeVectors.fY2D - dy*edgeVectors.fX2D;
+    float4 c = dx*edgeVectors.fY2D - dy*edgeVectors.fX2D;
     // Make sure normals point into the shape
-    V4f test = dy * next_cw(edgeVectors.fX2D) + (-dx * next_cw(edgeVectors.fY2D) + c);
+    float4 test = dy * next_cw(edgeVectors.fX2D) + (-dx * next_cw(edgeVectors.fY2D) + c);
     if (any(test < -kDistTolerance)) {
         fA = -dy;
         fB = dx;
@@ -713,12 +713,13 @@ void TessellationHelper::EdgeEquations::reset(const EdgeVectors& edgeVectors) {
     }
 }
 
-V4f TessellationHelper::EdgeEquations::estimateCoverage(const V4f& x2d, const V4f& y2d) const {
+float4 TessellationHelper::EdgeEquations::estimateCoverage(const float4& x2d,
+                                                           const float4& y2d) const {
     // Calculate distance of the 4 inset points (px, py) to the 4 edges
-    V4f d0 = fA[0]*x2d + (fB[0]*y2d + fC[0]);
-    V4f d1 = fA[1]*x2d + (fB[1]*y2d + fC[1]);
-    V4f d2 = fA[2]*x2d + (fB[2]*y2d + fC[2]);
-    V4f d3 = fA[3]*x2d + (fB[3]*y2d + fC[3]);
+    float4 d0 = fA[0]*x2d + (fB[0]*y2d + fC[0]);
+    float4 d1 = fA[1]*x2d + (fB[1]*y2d + fC[1]);
+    float4 d2 = fA[2]*x2d + (fB[2]*y2d + fC[2]);
+    float4 d3 = fA[3]*x2d + (fB[3]*y2d + fC[3]);
 
     // For each point, pretend that there's a rectangle that touches e0 and e3 on the horizontal
     // axis, so its width is "approximately" d0 + d3, and it touches e1 and e2 on the vertical axis
@@ -727,30 +728,30 @@ V4f TessellationHelper::EdgeEquations::estimateCoverage(const V4f& x2d, const V4
     // accurate calculation of its area clipped to an aligned pixel. For arbitrary quads it is not
     // mathematically accurate but qualitatively provides a stable value proportional to the size of
     // the shape.
-    V4f w = max(0.f, min(1.f, d0 + d3));
-    V4f h = max(0.f, min(1.f, d1 + d2));
+    float4 w = max(0.f, min(1.f, d0 + d3));
+    float4 h = max(0.f, min(1.f, d1 + d2));
     return w * h;
 }
 
-bool TessellationHelper::EdgeEquations::isSubpixel(const V4f& x2d, const V4f& y2d) const {
+bool TessellationHelper::EdgeEquations::isSubpixel(const float4& x2d, const float4& y2d) const {
     // Compute the minimum distances from vertices to opposite edges. If all 4 minimum distances
     // are less than 1px, then the inset geometry would be a point or line and quad rendering
     // will switch to hairline mode.
-    V4f d = min(x2d * skvx::shuffle<1,2,1,2>(fA) + y2d * skvx::shuffle<1,2,1,2>(fB)
-                        + skvx::shuffle<1,2,1,2>(fC),
-                x2d * skvx::shuffle<3,3,0,0>(fA) + y2d * skvx::shuffle<3,3,0,0>(fB)
-                        + skvx::shuffle<3,3,0,0>(fC));
+    float4 d = min(x2d * skvx::shuffle<1,2,1,2>(fA) + y2d * skvx::shuffle<1,2,1,2>(fB)
+                           + skvx::shuffle<1,2,1,2>(fC),
+                   x2d * skvx::shuffle<3,3,0,0>(fA) + y2d * skvx::shuffle<3,3,0,0>(fB)
+                           + skvx::shuffle<3,3,0,0>(fC));
     return all(d < 1.f);
 }
 
-int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEdgeDistances,
-                                                             V4f* x2d, V4f* y2d,
-                                                             M4f* aaMask) const {
+int TessellationHelper::EdgeEquations::computeDegenerateQuad(const float4& signedEdgeDistances,
+                                                             float4* x2d, float4* y2d,
+                                                             mask4* aaMask) const {
     // If the original points form a line in the 2D projection then give up on antialiasing.
     for (int i = 0; i < 4; ++i) {
-        V4f d = (*x2d)*fA[i] + (*y2d)*fB[i] + fC[i];
+        float4 d = (*x2d)*fA[i] + (*y2d)*fB[i] + fC[i];
         if (all(abs(d) < kDistTolerance)) {
-            *aaMask = M4f(0);
+            *aaMask = mask4(0);
             return 4;
         }
     }
@@ -758,25 +759,25 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
     *aaMask = signedEdgeDistances != 0.f;
 
     // Move the edge by the signed edge adjustment.
-    V4f oc = fC + signedEdgeDistances;
+    float4 oc = fC + signedEdgeDistances;
 
     // There are 6 points that we care about to determine the final shape of the polygon, which
     // are the intersections between (e0,e2), (e1,e0), (e2,e3), (e3,e1) (corresponding to the
     // 4 corners), and (e1, e2), (e0, e3) (representing the intersections of opposite edges).
-    V4f denom = fA * next_cw(fB) - fB * next_cw(fA);
-    V4f px = (fB * next_cw(oc) - oc * next_cw(fB)) / denom;
-    V4f py = (oc * next_cw(fA) - fA * next_cw(oc)) / denom;
+    float4 denom = fA * next_cw(fB) - fB * next_cw(fA);
+    float4 px = (fB * next_cw(oc) - oc * next_cw(fB)) / denom;
+    float4 py = (oc * next_cw(fA) - fA * next_cw(oc)) / denom;
     correct_bad_coords(abs(denom) < kTolerance, &px, &py, nullptr);
 
     // Calculate the signed distances from these 4 corners to the other two edges that did not
     // define the intersection. So p(0) is compared to e3,e1, p(1) to e3,e2 , p(2) to e0,e1, and
     // p(3) to e0,e2
-    V4f dists1 = px * skvx::shuffle<3, 3, 0, 0>(fA) +
-                 py * skvx::shuffle<3, 3, 0, 0>(fB) +
-                 skvx::shuffle<3, 3, 0, 0>(oc);
-    V4f dists2 = px * skvx::shuffle<1, 2, 1, 2>(fA) +
-                 py * skvx::shuffle<1, 2, 1, 2>(fB) +
-                 skvx::shuffle<1, 2, 1, 2>(oc);
+    float4 dists1 = px * skvx::shuffle<3, 3, 0, 0>(fA) +
+                    py * skvx::shuffle<3, 3, 0, 0>(fB) +
+                    skvx::shuffle<3, 3, 0, 0>(oc);
+    float4 dists2 = px * skvx::shuffle<1, 2, 1, 2>(fA) +
+                    py * skvx::shuffle<1, 2, 1, 2>(fB) +
+                    skvx::shuffle<1, 2, 1, 2>(oc);
 
     // If all the distances are >= 0, the 4 corners form a valid quadrilateral, so use them as
     // the 4 points. If any point is on the wrong side of both edges, the interior has collapsed
@@ -784,10 +785,10 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
     // wrong side of 1 edge, one edge has crossed over another and we use a line to represent it.
     // Otherwise, use a triangle that replaces the bad points with the intersections of
     // (e1, e2) or (e0, e3) as needed.
-    M4f d1v0 = dists1 < kDistTolerance;
-    M4f d2v0 = dists2 < kDistTolerance;
-    M4f d1And2 = d1v0 & d2v0;
-    M4f d1Or2 = d1v0 | d2v0;
+    mask4 d1v0 = dists1 < kDistTolerance;
+    mask4 d2v0 = dists2 < kDistTolerance;
+    mask4 d1And2 = d1v0 & d2v0;
+    mask4 d1Or2 = d1v0 | d2v0;
 
     if (!any(d1Or2)) {
         // Every dists1 and dists2 >= kTolerance so it's not degenerate, use all 4 corners as-is
@@ -815,12 +816,12 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
             // If edges 0 and 3 crossed then one must have AA but we moved both 2D points on the
             // edge so we need moveTo() to be able to move both 3D points along the shared edge. So
             // ensure both have AA.
-            *aaMask = *aaMask | M4f({1, 0, 0, 1});
+            *aaMask = *aaMask | mask4({1, 0, 0, 1});
         } else {
             // Edges 1 and 2 have crossed over, so make the line from average of (p0,p1) and (p2,p3)
             *x2d = 0.5f * (skvx::shuffle<0, 0, 2, 2>(px) + skvx::shuffle<1, 1, 3, 3>(px));
             *y2d = 0.5f * (skvx::shuffle<0, 0, 2, 2>(py) + skvx::shuffle<1, 1, 3, 3>(py));
-            *aaMask = *aaMask | M4f({0, 1, 1, 0});
+            *aaMask = *aaMask | mask4({0, 1, 1, 0});
         }
         return 2;
     } else {
@@ -841,8 +842,8 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
         V2f ey = (skvx::shuffle<0, 1>(oc) * skvx::shuffle<3, 2>(fA) -
                   skvx::shuffle<0, 1>(fA) * skvx::shuffle<3, 2>(oc)) / eDenom;
 
-        V4f avgX = 0.5f * (skvx::shuffle<0, 1, 0, 2>(px) + skvx::shuffle<2, 3, 1, 3>(px));
-        V4f avgY = 0.5f * (skvx::shuffle<0, 1, 0, 2>(py) + skvx::shuffle<2, 3, 1, 3>(py));
+        float4 avgX = 0.5f * (skvx::shuffle<0, 1, 0, 2>(px) + skvx::shuffle<2, 3, 1, 3>(px));
+        float4 avgY = 0.5f * (skvx::shuffle<0, 1, 0, 2>(py) + skvx::shuffle<2, 3, 1, 3>(py));
         for (int i = 0; i < 4; ++i) {
             // Note that we would not have taken this branch if any point failed both of its edges
             // tests. That is, it can't be the case that d1v0[i] and d2v0[i] are both true.
@@ -914,14 +915,14 @@ void TessellationHelper::OutsetRequest::reset(const EdgeVectors& edgeVectors, Gr
             // (or cos(theta) for the other edge).
 
             // cos(pi - theta) = -cos(theta)
-            V4f halfTanTheta = -edgeVectors.fCosTheta * edgeVectors.fInvSinTheta;
-            V4f edgeAdjust = edgeDistances * (halfTanTheta + next_ccw(halfTanTheta)) +
-                             next_ccw(edgeDistances) * next_ccw(edgeVectors.fInvSinTheta) +
-                             next_cw(edgeDistances) * edgeVectors.fInvSinTheta;
+            float4 halfTanTheta = -edgeVectors.fCosTheta * edgeVectors.fInvSinTheta;
+            float4 edgeAdjust = edgeDistances * (halfTanTheta + next_ccw(halfTanTheta)) +
+                                next_ccw(edgeDistances) * next_ccw(edgeVectors.fInvSinTheta) +
+                                next_cw(edgeDistances) * edgeVectors.fInvSinTheta;
 
             // If either outsetting (plus edgeAdjust) or insetting (minus edgeAdjust) make
             // the edge lengths negative, then it's degenerate.
-            V4f threshold = 0.1f - (1.f / edgeVectors.fInvLengths);
+            float4 threshold = 0.1f - (1.f / edgeVectors.fInvLengths);
             fOutsetDegenerate = any(edgeAdjust < threshold);
             fInsetDegenerate = any(edgeAdjust > -threshold);
         }
@@ -969,7 +970,7 @@ void TessellationHelper::Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type dev
 }
 
 void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
-                                             const V4f& signedEdgeDistances) {
+                                             const float4& signedEdgeDistances) {
     // This shouldn't be called if fInvSinTheta is close to infinity (cosTheta close to 1).
     // FIXME (michaelludwig) - Temporarily allow NaNs on debug builds here, for crbug:224618's GM
     // Once W clipping is implemented, shouldn't see NaNs unless it's actually time to fail.
@@ -981,8 +982,8 @@ void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
     // inwards and the cw-rotated edge points outwards, hence the minus-sign.
     // The edge distances are rotated compared to the corner outsets and (dx, dy), since if
     // the edge is "on" both its corners need to be moved along their other edge vectors.
-    V4f signedOutsets = -edgeVectors.fInvSinTheta * next_cw(signedEdgeDistances);
-    V4f signedOutsetsCW = edgeVectors.fInvSinTheta * signedEdgeDistances;
+    float4 signedOutsets = -edgeVectors.fInvSinTheta * next_cw(signedEdgeDistances);
+    float4 signedOutsetsCW = edgeVectors.fInvSinTheta * signedEdgeDistances;
 
     // x = x + outset * mask * next_cw(xdiff) - outset * next_cw(mask) * xdiff
     fX += signedOutsetsCW * next_cw(edgeVectors.fDX) + signedOutsets * edgeVectors.fDX;
@@ -991,30 +992,30 @@ void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
         // We want to extend the texture coords by the same proportion as the positions.
         signedOutsets *= edgeVectors.fInvLengths;
         signedOutsetsCW *= next_cw(edgeVectors.fInvLengths);
-        V4f du = next_ccw(fU) - fU;
-        V4f dv = next_ccw(fV) - fV;
+        float4 du = next_ccw(fU) - fU;
+        float4 dv = next_ccw(fV) - fV;
         fU += signedOutsetsCW * next_cw(du) + signedOutsets * du;
         fV += signedOutsetsCW * next_cw(dv) + signedOutsets * dv;
         if (fUVRCount == 3) {
-            V4f dr = next_ccw(fR) - fR;
+            float4 dr = next_ccw(fR) - fR;
             fR += signedOutsetsCW * next_cw(dr) + signedOutsets * dr;
         }
     }
 }
 
-void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const M4f& mask) {
+void TessellationHelper::Vertices::moveTo(const float4& x2d, const float4& y2d, const mask4& mask) {
     // Left to right, in device space, for each point
-    V4f e1x = skvx::shuffle<2, 3, 2, 3>(fX) - skvx::shuffle<0, 1, 0, 1>(fX);
-    V4f e1y = skvx::shuffle<2, 3, 2, 3>(fY) - skvx::shuffle<0, 1, 0, 1>(fY);
-    V4f e1w = skvx::shuffle<2, 3, 2, 3>(fW) - skvx::shuffle<0, 1, 0, 1>(fW);
-    M4f e1Bad = e1x*e1x + e1y*e1y < kDist2Tolerance;
+    float4 e1x = skvx::shuffle<2, 3, 2, 3>(fX) - skvx::shuffle<0, 1, 0, 1>(fX);
+    float4 e1y = skvx::shuffle<2, 3, 2, 3>(fY) - skvx::shuffle<0, 1, 0, 1>(fY);
+    float4 e1w = skvx::shuffle<2, 3, 2, 3>(fW) - skvx::shuffle<0, 1, 0, 1>(fW);
+    mask4 e1Bad = e1x*e1x + e1y*e1y < kDist2Tolerance;
     correct_bad_edges(e1Bad, &e1x, &e1y, &e1w);
 
     // // Top to bottom, in device space, for each point
-    V4f e2x = skvx::shuffle<1, 1, 3, 3>(fX) - skvx::shuffle<0, 0, 2, 2>(fX);
-    V4f e2y = skvx::shuffle<1, 1, 3, 3>(fY) - skvx::shuffle<0, 0, 2, 2>(fY);
-    V4f e2w = skvx::shuffle<1, 1, 3, 3>(fW) - skvx::shuffle<0, 0, 2, 2>(fW);
-    M4f e2Bad = e2x*e2x + e2y*e2y < kDist2Tolerance;
+    float4 e2x = skvx::shuffle<1, 1, 3, 3>(fX) - skvx::shuffle<0, 0, 2, 2>(fX);
+    float4 e2y = skvx::shuffle<1, 1, 3, 3>(fY) - skvx::shuffle<0, 0, 2, 2>(fY);
+    float4 e2w = skvx::shuffle<1, 1, 3, 3>(fW) - skvx::shuffle<0, 0, 2, 2>(fW);
+    mask4 e2Bad = e2x*e2x + e2y*e2y < kDist2Tolerance;
     correct_bad_edges(e2Bad, &e2x, &e2y, &e2w);
 
     // Can only move along e1 and e2 to reach the new 2D point, so we have
@@ -1022,15 +1023,15 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
     // y2d = (y + a*e1y + b*e2y) / (w + a*e1w + b*e2w) for some a, b
     // This can be rewritten to a*c1x + b*c2x + c3x = 0; a * c1y + b*c2y + c3y = 0, where
     // the cNx and cNy coefficients are:
-    V4f c1x = e1w * x2d - e1x;
-    V4f c1y = e1w * y2d - e1y;
-    V4f c2x = e2w * x2d - e2x;
-    V4f c2y = e2w * y2d - e2y;
-    V4f c3x = fW * x2d - fX;
-    V4f c3y = fW * y2d - fY;
+    float4 c1x = e1w * x2d - e1x;
+    float4 c1y = e1w * y2d - e1y;
+    float4 c2x = e2w * x2d - e2x;
+    float4 c2y = e2w * y2d - e2y;
+    float4 c3x = fW * x2d - fX;
+    float4 c3y = fW * y2d - fY;
 
     // Solve for a and b
-    V4f a, b, denom;
+    float4 a, b, denom;
     if (all(mask)) {
         // When every edge is outset/inset, each corner can use both edge vectors
         denom = c1x * c2y - c2x * c1y;
@@ -1038,15 +1039,15 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
         b = (c3x * c1y - c1x * c3y) / denom;
     } else {
         // Force a or b to be 0 if that edge cannot be used due to non-AA
-        M4f aMask = skvx::shuffle<0, 0, 3, 3>(mask);
-        M4f bMask = skvx::shuffle<2, 1, 2, 1>(mask);
+        mask4 aMask = skvx::shuffle<0, 0, 3, 3>(mask);
+        mask4 bMask = skvx::shuffle<2, 1, 2, 1>(mask);
 
         // When aMask[i]&bMask[i], then a[i], b[i], denom[i] match the kAll case.
         // When aMask[i]&!bMask[i], then b[i] = 0, a[i] = -c3x/c1x or -c3y/c1y, using better denom
         // When !aMask[i]&bMask[i], then a[i] = 0, b[i] = -c3x/c2x or -c3y/c2y, ""
         // When !aMask[i]&!bMask[i], then both a[i] = 0 and b[i] = 0
-        M4f useC1x = abs(c1x) > abs(c1y);
-        M4f useC2x = abs(c2x) > abs(c2y);
+        mask4 useC1x = abs(c1x) > abs(c1y);
+        mask4 useC2x = abs(c2x) > abs(c2y);
 
         denom = if_then_else(aMask,
                         if_then_else(bMask,
@@ -1054,18 +1055,18 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
                                 if_then_else(useC1x, c1x, c1y)),  /* A & !B  */
                         if_then_else(bMask,
                                 if_then_else(useC2x, c2x, c2y),   /* !A & B  */
-                                V4f(1.f)));                       /* !A & !B */
+                                float4(1.f)));                    /* !A & !B */
 
         a = if_then_else(aMask,
                     if_then_else(bMask,
                             c2x * c3y - c3x * c2y,                /* A & B   */
                             if_then_else(useC1x, -c3x, -c3y)),    /* A & !B  */
-                    V4f(0.f)) / denom;                            /* !A      */
+                    float4(0.f)) / denom;                         /* !A      */
         b = if_then_else(bMask,
                     if_then_else(aMask,
                             c3x * c1y - c1x * c3y,                /* A & B   */
                             if_then_else(useC2x, -c3x, -c3y)),    /* !A & B  */
-                    V4f(0.f)) / denom;                            /* !B      */
+                    float4(0.f)) / denom;                         /* !B      */
     }
 
     fX += a * e1x + b * e2x;
@@ -1078,7 +1079,7 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
     // computed screen space position but moves the 3D point off of the original quad. So far, this
     // seems to be a reasonable compromise.
     if (any(fW < 0.f)) {
-        V4f scale = if_then_else(fW < 0.f, V4f(-1.f), V4f(1.f));
+        float4 scale = if_then_else(fW < 0.f, float4(-1.f), float4(1.f));
         fX *= scale;
         fY *= scale;
         fW *= scale;
@@ -1088,14 +1089,14 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
 
     if (fUVRCount > 0) {
         // Calculate R here so it can be corrected with U and V in case it's needed later
-        V4f e1u = skvx::shuffle<2, 3, 2, 3>(fU) - skvx::shuffle<0, 1, 0, 1>(fU);
-        V4f e1v = skvx::shuffle<2, 3, 2, 3>(fV) - skvx::shuffle<0, 1, 0, 1>(fV);
-        V4f e1r = skvx::shuffle<2, 3, 2, 3>(fR) - skvx::shuffle<0, 1, 0, 1>(fR);
+        float4 e1u = skvx::shuffle<2, 3, 2, 3>(fU) - skvx::shuffle<0, 1, 0, 1>(fU);
+        float4 e1v = skvx::shuffle<2, 3, 2, 3>(fV) - skvx::shuffle<0, 1, 0, 1>(fV);
+        float4 e1r = skvx::shuffle<2, 3, 2, 3>(fR) - skvx::shuffle<0, 1, 0, 1>(fR);
         correct_bad_edges(e1Bad, &e1u, &e1v, &e1r);
 
-        V4f e2u = skvx::shuffle<1, 1, 3, 3>(fU) - skvx::shuffle<0, 0, 2, 2>(fU);
-        V4f e2v = skvx::shuffle<1, 1, 3, 3>(fV) - skvx::shuffle<0, 0, 2, 2>(fV);
-        V4f e2r = skvx::shuffle<1, 1, 3, 3>(fR) - skvx::shuffle<0, 0, 2, 2>(fR);
+        float4 e2u = skvx::shuffle<1, 1, 3, 3>(fU) - skvx::shuffle<0, 0, 2, 2>(fU);
+        float4 e2v = skvx::shuffle<1, 1, 3, 3>(fV) - skvx::shuffle<0, 0, 2, 2>(fV);
+        float4 e2r = skvx::shuffle<1, 1, 3, 3>(fR) - skvx::shuffle<0, 0, 2, 2>(fR);
         correct_bad_edges(e2Bad, &e2u, &e2v, &e2r);
 
         fU += a * e1u + b * e2u;
@@ -1127,8 +1128,8 @@ void TessellationHelper::reset(const GrQuad& deviceQuad, const GrQuad* localQuad
     fVerticesValid = true;
 }
 
-V4f TessellationHelper::inset(const skvx::Vec<4, float>& edgeDistances,
-                              GrQuad* deviceInset, GrQuad* localInset) {
+float4 TessellationHelper::inset(const skvx::Vec<4, float>& edgeDistances,
+                                 GrQuad* deviceInset, GrQuad* localInset) {
     SkASSERT(fVerticesValid);
 
     Vertices inset = fOriginal;
@@ -1243,9 +1244,9 @@ int TessellationHelper::adjustDegenerateVertices(const skvx::Vec<4, float>& sign
         // For rectilinear, degenerate quads, can use moveAlong if the edge distances are adjusted
         // to not cross over each other.
         SkASSERT(all(signedEdgeDistances <= 0.f)); // Only way rectilinear can degenerate is insets
-        V4f halfLengths = -0.5f / next_cw(fEdgeVectors.fInvLengths); // Negate to inset
-        M4f crossedEdges = halfLengths > signedEdgeDistances;
-        V4f safeInsets = if_then_else(crossedEdges, halfLengths, signedEdgeDistances);
+        float4 halfLengths = -0.5f / next_cw(fEdgeVectors.fInvLengths); // Negate to inset
+        mask4 crossedEdges = halfLengths > signedEdgeDistances;
+        float4 safeInsets = if_then_else(crossedEdges, halfLengths, signedEdgeDistances);
         vertices->moveAlong(fEdgeVectors, safeInsets);
 
         // A degenerate rectilinear quad is either a point (both w and h crossed), or a line
@@ -1253,10 +1254,10 @@ int TessellationHelper::adjustDegenerateVertices(const skvx::Vec<4, float>& sign
     } else {
         // Degenerate non-rectangular shape, must go through slowest path (which automatically
         // handles perspective).
-        V4f x2d = fEdgeVectors.fX2D;
-        V4f y2d = fEdgeVectors.fY2D;
+        float4 x2d = fEdgeVectors.fX2D;
+        float4 y2d = fEdgeVectors.fY2D;
 
-        M4f aaMask;
+        mask4 aaMask;
         int vertexCount = this->getEdgeEquations().computeDegenerateQuad(signedEdgeDistances,
                                                                          &x2d, &y2d, &aaMask);
         vertices->moveTo(x2d, y2d, aaMask);

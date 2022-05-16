@@ -69,7 +69,6 @@ generated_cc_atom(
         "//src/core:SkGeometry_hdr",
         "//src/core:SkPathPriv_hdr",
         "//src/gpu:BufferWriter_hdr",
-        "//src/gpu/ganesh:GrVx_hdr",
     ],
 )
 

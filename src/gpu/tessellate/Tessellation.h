@@ -18,36 +18,6 @@ class SkMatrix;
 class SkPath;
 struct SkRect;
 
-namespace skgpu {
-
-// Use familiar type names from SkSL.
-template<int N> using vec = skvx::Vec<N, float>;
-using float2 = vec<2>;
-using float4 = vec<4>;
-
-template<int N> using ivec = skvx::Vec<N, int32_t>;
-using int2 = ivec<2>;
-using int4 = ivec<4>;
-
-template<int N> using uvec = skvx::Vec<N, uint32_t>;
-using uint2 = uvec<2>;
-using uint4 = uvec<4>;
-
-#define AI SK_MAYBE_UNUSED SK_ALWAYS_INLINE
-
-AI float dot(float2 a, float2 b) {
-    float2 ab = a*b;
-    return ab.x() + ab.y();
-}
-
-AI float cross(float2 a, float2 b) {
-    float2 x = a * b.yx();
-    return x[0] - x[1];
-}
-
-#undef AI
-}  // namespace skgpu
-
 namespace skgpu::tess {
 
 // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.

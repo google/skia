@@ -3153,16 +3153,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "GrVx_hdr",
-    hdrs = ["GrVx.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/core:SkTypes_hdr",
-        "//include/private:SkVx_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "GrWaitRenderTask_hdr",
     hdrs = ["GrWaitRenderTask.h"],
     visibility = ["//:__subpackages__"],

@@ -113,7 +113,6 @@ skia_graphite_sources = [
   "$_src/geom/Shape.h",
   "$_src/geom/Transform.cpp",
   "$_src/geom/Transform_graphite.h",
-  "$_src/geom/VectorTypes.h",
   "$_src/render/CoverBoundsRenderStep.cpp",
   "$_src/render/CoverBoundsRenderStep.h",
   "$_src/render/MiddleOutFanRenderStep.cpp",

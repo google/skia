@@ -62,8 +62,7 @@ DEF_GRAPHITE_TEST(skgpu_IntersectionTree, reporter) {
     {
         SimpleIntersectionTree simpleTree;
         IntersectionTree tree;
-        CHECK(tree.add(Rect(float2(-std::numeric_limits<float>::infinity()),
-                                   float2(std::numeric_limits<float>::infinity()))));
+        CHECK(tree.add(Rect::Infinite()));
         CHECK(!tree.add(Rect::WH(1,1)));
         CHECK(!tree.add(Rect::WH(1,std::numeric_limits<float>::infinity())));
         CHECK(tree.add(Rect::WH(0, 0)));

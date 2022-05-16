@@ -5729,10 +5729,10 @@ generated_cc_atom(
         "//include/core:SkSpan_hdr",
         "//include/core:SkTileMode_hdr",
         "//include/private:SkColorData_hdr",
+        "//include/private:SkVx_hdr",
         "//src/gpu:Blend_hdr",
         "//src/gpu/graphite:TextureProxy_hdr",
         "//src/gpu/graphite:UniformManager_hdr",
-        "//src/gpu/graphite/geom:VectorTypes_hdr",
     ],
 )
 

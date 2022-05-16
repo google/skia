@@ -40,8 +40,8 @@ generated_cc_atom(
     hdrs = ["Rect.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":VectorTypes_hdr",
         "//include/core:SkRect_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 
@@ -84,17 +84,6 @@ generated_cc_atom(
     deps = [
         ":Rect_hdr",
         ":Transform_graphite_hdr",
-        ":VectorTypes_hdr",
         "//src/core:SkMatrixPriv_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "VectorTypes_hdr",
-    hdrs = ["VectorTypes.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/gpu/graphite:GraphiteTypes_hdr",
-        "//include/private:SkVx_hdr",
     ],
 )

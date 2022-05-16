@@ -610,7 +610,7 @@ void UniformManager::write(int i) {
     this->write(kType, 1, &i);
 }
 
-void UniformManager::write(float2 v) {
+void UniformManager::write(skvx::float2 v) {
     static const SkSLType kType = SkSLType::kFloat2;
     SkDEBUGCODE(this->checkExpected(kType, 1);)
     this->write(kType, 1, &v);

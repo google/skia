@@ -47,7 +47,7 @@ public:
         // devPt = [x, y, -x, -y] in device space.
         auto devPt = fMatX*p.fX + fMatY*p.fY;
         // i.e., l < x && t < y && r > x && b > y.
-        return skvx::all(fCullBounds < devPt);
+        return all(fCullBounds < devPt);
     }
 
     // Returns whether any region of the bounding box of M * p0..2 will be in the viewport.
@@ -62,13 +62,13 @@ public:
         // At this point: valN = {xN, yN, -xN, -yN} in device space.
 
         // Find the device-space bounding box of p0..2.
-        val0 = skvx::max(val0, val1);
-        val0 = skvx::max(val0, val2);
+        val0 = max(val0, val1);
+        val0 = max(val0, val2);
         // At this point: val0 = [r, b, -l, -t] of the device-space bounding box of p0..2.
 
         // Does fCullBounds intersect the device-space bounding box of p0..2?
         // i.e., l0 < r1 && t0 < b1 && r0 > l1 && b0 > t1.
-        return skvx::all(fCullBounds < val0);
+        return all(fCullBounds < val0);
     }
 
     // Returns whether any region of the bounding box of M * p0..3 will be in the viewport.
@@ -85,21 +85,21 @@ public:
         // At this point: valN = {xN, yN, -xN, -yN} in device space.
 
         // Find the device-space bounding box of p0..3.
-        val0 = skvx::max(val0, val1);
-        val2 = skvx::max(val2, val3);
-        val0 = skvx::max(val0, val2);
+        val0 = max(val0, val1);
+        val2 = max(val2, val3);
+        val0 = max(val0, val2);
         // At this point: val0 = [r, b, -l, -t] of the device-space bounding box of p0..3.
 
         // Does fCullBounds intersect the device-space bounding box of p0..3?
         // i.e., l0 < r1 && t0 < b1 && r0 > l1 && b0 > t1.
-        return skvx::all(fCullBounds < val0);
+        return all(fCullBounds < val0);
     }
 
 private:
     // [fMatX, fMatY] maps path coordinates to the float4 [x, y, -x, -y] in device space.
-    float4 fMatX;
-    float4 fMatY;
-    float4 fCullBounds;  // [l, t, -r, -b]
+    skvx::float4 fMatX;
+    skvx::float4 fMatY;
+    skvx::float4 fCullBounds;  // [l, t, -r, -b]
 };
 
 }  // namespace skgpu::tess

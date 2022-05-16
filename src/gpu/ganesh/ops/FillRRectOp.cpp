@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/ops/FillRRectOp.h"
 
 #include "include/gpu/GrRecordingContext.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/KeyBuilder.h"
@@ -19,7 +20,6 @@
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
-#include "src/gpu/ganesh/GrVx.h"
 #include "src/gpu/ganesh/geometry/GrShape.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
@@ -303,9 +303,9 @@ GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::v1::SurfaceDrawContext*
 
         if (fHeadInstance->fLocalCoords.fType == LocalCoords::Type::kRect) {
             // Update the local rect.
-            auto rect = skvx::bit_pun<grvx::float4>(fHeadInstance->fRRect.rect());
-            auto local = skvx::bit_pun<grvx::float4>(fHeadInstance->fLocalCoords.fRect);
-            auto isect = skvx::bit_pun<grvx::float4>(isectRRect.rect());
+            auto rect = skvx::bit_pun<skvx::float4>(fHeadInstance->fRRect.rect());
+            auto local = skvx::bit_pun<skvx::float4>(fHeadInstance->fLocalCoords.fRect);
+            auto isect = skvx::bit_pun<skvx::float4>(isectRRect.rect());
             auto rectToLocalSize = (local - skvx::shuffle<2,3,0,1>(local)) /
                                    (rect - skvx::shuffle<2,3,0,1>(rect));
             fHeadInstance->fLocalCoords.fRect =
@@ -561,7 +561,7 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
             m.postConcat(i->fViewMatrix);
 
             // Convert the radii to [-1, -1, +1, +1] space and write their attribs.
-            grvx::float4 radiiX, radiiY;
+            skvx::float4 radiiX, radiiY;
             skvx::strided_load2(&SkRRectPriv::GetRadiiArray(i->fRRect)->fX, radiiX, radiiY);
             radiiX *= 2 / (r - l);
             radiiY *= 2 / (b - t);

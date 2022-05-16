@@ -1012,7 +1012,6 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/GrUtil.h",
     "src/gpu/ganesh/GrVertexChunkArray.cpp",
     "src/gpu/ganesh/GrVertexChunkArray.h",
-    "src/gpu/ganesh/GrVx.h",
     "src/gpu/ganesh/GrWaitRenderTask.cpp",
     "src/gpu/ganesh/GrWaitRenderTask.h",
     "src/gpu/ganesh/GrWindowRectangles.h",

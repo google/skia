@@ -12,8 +12,8 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTDArray.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkSLTypeShared.h"
-#include "src/gpu/graphite/geom/VectorTypes.h"
 
 class SkM44;
 struct SkPoint;
@@ -57,7 +57,7 @@ public:
     void write(const float*, int count);
     void write(float f) { this->write(&f, 1); }
     void write(int);
-    void write(float2);
+    void write(skvx::float2);
 
 private:
     SkSLType getUniformTypeForLayout(SkSLType type);

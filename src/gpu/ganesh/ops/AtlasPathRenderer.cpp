@@ -11,7 +11,6 @@
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrVx.h"
 #include "src/gpu/ganesh/effects/GrModulateAtlasCoverageEffect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/AtlasRenderTask.h"
@@ -20,15 +19,13 @@
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
-using grvx::float2;
-using grvx::int2;
-
 namespace {
 
 // Returns the rect [topLeftFloor, botRightCeil], which is the rect [r] rounded out to integer
 // boundaries.
-std::tuple<float2,float2> round_out(const SkRect& r) {
-    return {skvx::floor(float2::Load(&r.fLeft)), skvx::ceil(float2::Load(&r.fRight))};
+std::pair<skvx::float2, skvx::float2> round_out(const SkRect& r) {
+    return {floor(skvx::float2::Load(&r.fLeft)),
+            ceil(skvx::float2::Load(&r.fRight))};
 }
 
 // Returns whether the given proxyOwner uses the atlasProxy.
@@ -46,17 +43,17 @@ template<typename T> bool refs_atlas(const T* proxyOwner, const GrSurfaceProxy* 
 }
 
 bool is_visible(const SkRect& pathDevBounds, const SkIRect& clipBounds) {
-    float2 pathTopLeft = float2::Load(&pathDevBounds.fLeft);
-    float2 pathBotRight = float2::Load(&pathDevBounds.fRight);
+    auto pathTopLeft = skvx::float2::Load(&pathDevBounds.fLeft);
+    auto pathBotRight = skvx::float2::Load(&pathDevBounds.fRight);
     // Empty paths are never visible. Phrase this as a NOT of positive logic so we also return false
     // in the case of NaN.
-    if (!skvx::all(pathTopLeft < pathBotRight)) {
+    if (!all(pathTopLeft < pathBotRight)) {
         return false;
     }
-    float2 clipTopLeft = skvx::cast<float>(int2::Load(&clipBounds.fLeft));
-    float2 clipBotRight = skvx::cast<float>(int2::Load(&clipBounds.fRight));
+    auto clipTopLeft = skvx::cast<float>(skvx::int2::Load(&clipBounds.fLeft));
+    auto clipBotRight = skvx::cast<float>(skvx::int2::Load(&clipBounds.fRight));
     static_assert(sizeof(clipBounds) == sizeof(clipTopLeft) + sizeof(clipBotRight));
-    return skvx::all(pathTopLeft < clipBotRight) && skvx::all(pathBotRight > clipTopLeft);
+    return all(pathTopLeft < clipBotRight) && all(pathBotRight > clipTopLeft);
 }
 
 #ifdef SK_DEBUG
@@ -145,9 +142,9 @@ bool AtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds,
             ? kAtlasMaxPathHeightWithMSAAFallback * kAtlasMaxPathHeightWithMSAAFallback
             : kAtlasMaxPathHeight * kAtlasMaxPathHeight;
     auto [topLeftFloor, botRightCeil] = round_out(pathDevBounds);
-    float2 size = botRightCeil - topLeftFloor;
+    auto size = botRightCeil - topLeftFloor;
     return // Ensure the path's largest dimension fits in the atlas.
-           skvx::all(size <= fAtlasMaxPathWidth) &&
+           all(size <= fAtlasMaxPathWidth) &&
            // Since we will transpose tall skinny paths, limiting to atlasMaxPathHeight^2 pixels
            // guarantees heightInAtlas <= atlasMaxPathHeight, while also allowing paths that are
            // very wide and short.
@@ -155,7 +152,6 @@ bool AtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds,
 }
 
 void AtlasPathRenderer::AtlasPathKey::set(const SkMatrix& m, const SkPath& path) {
-    using grvx::float2;
     fPathGenID = path.getGenerationID();
     fAffineMatrix[0] = m.getScaleX();
     fAffineMatrix[1] = m.getSkewX();
@@ -181,8 +177,8 @@ bool AtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,
     // is_visible() should have guaranteed the path's bounds were representable as ints, since clip
     // bounds within the max render target size are nowhere near INT_MAX.
     auto [topLeftFloor, botRightCeil] = round_out(pathDevBounds);
-    SkASSERT(skvx::all(skvx::cast<float>(int2::Load(&devIBounds->fLeft)) == topLeftFloor));
-    SkASSERT(skvx::all(skvx::cast<float>(int2::Load(&devIBounds->fRight)) == botRightCeil));
+    SkASSERT(all(skvx::cast<float>(skvx::int2::Load(&devIBounds->fLeft)) == topLeftFloor));
+    SkASSERT(all(skvx::cast<float>(skvx::int2::Load(&devIBounds->fRight)) == botRightCeil));
 #endif
 
     int widthInAtlas = devIBounds->width();

@@ -771,8 +771,8 @@ generated_cc_atom(
         "//include/core:SkSpan_hdr",
         "//include/private:SkColorData_hdr",
         "//include/private:SkTDArray_hdr",
+        "//include/private:SkVx_hdr",
         "//src/core:SkSLTypeShared_hdr",
-        "//src/gpu/graphite/geom:VectorTypes_hdr",
     ],
 )
 

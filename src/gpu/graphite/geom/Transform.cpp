@@ -9,7 +9,6 @@
 
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/graphite/geom/Rect.h"
-#include "src/gpu/graphite/geom/VectorTypes.h"
 
 namespace skgpu::graphite {
 
@@ -24,13 +23,13 @@ Rect map_rect(const SkM44& m, const Rect& r) {
 
 void map_points(const SkM44& m, const SkV4* in, SkV4* out, int count) {
     // TODO: These maybe should go into SkM44, since bulk point mapping seems generally useful
-    float4 c0 = float4::Load(SkMatrixPriv::M44ColMajor(m) + 0);
-    float4 c1 = float4::Load(SkMatrixPriv::M44ColMajor(m) + 4);
-    float4 c2 = float4::Load(SkMatrixPriv::M44ColMajor(m) + 8);
-    float4 c3 = float4::Load(SkMatrixPriv::M44ColMajor(m) + 12);
+    auto c0 = skvx::float4::Load(SkMatrixPriv::M44ColMajor(m) + 0);
+    auto c1 = skvx::float4::Load(SkMatrixPriv::M44ColMajor(m) + 4);
+    auto c2 = skvx::float4::Load(SkMatrixPriv::M44ColMajor(m) + 8);
+    auto c3 = skvx::float4::Load(SkMatrixPriv::M44ColMajor(m) + 12);
 
     for (int i = 0; i < count; ++i) {
-        float4 p = (c0 * in[i].x) + (c1 * in[i].y) + (c2 * in[i].z) + (c3 * in[i].w);
+        auto p = (c0 * in[i].x) + (c1 * in[i].y) + (c2 * in[i].z) + (c3 * in[i].w);
         p.store(out + i);
     }
 }
@@ -113,13 +112,13 @@ void Transform::mapPoints(const Rect& localRect, SkV4 deviceOut[4]) const {
 
 void Transform::mapPoints(const SkV2* localIn, SkV4* deviceOut, int count) const {
     // TODO: These maybe should go into SkM44, since bulk point mapping seems generally useful
-    float4 c0 = float4::Load(SkMatrixPriv::M44ColMajor(fM) + 0);
-    float4 c1 = float4::Load(SkMatrixPriv::M44ColMajor(fM) + 4);
+    auto c0 = skvx::float4::Load(SkMatrixPriv::M44ColMajor(fM) + 0);
+    auto c1 = skvx::float4::Load(SkMatrixPriv::M44ColMajor(fM) + 4);
     // skip c2 since localIn's z is assumed to be 0
-    float4 c3 = float4::Load(SkMatrixPriv::M44ColMajor(fM) + 12);
+    auto c3 = skvx::float4::Load(SkMatrixPriv::M44ColMajor(fM) + 12);
 
     for (int i = 0; i < count; ++i) {
-        float4 p = c0 * localIn[i].x + c1 * localIn[i].y /* + c2*0.f */ + c3 /* *1.f */;
+        auto p = c0 * localIn[i].x + c1 * localIn[i].y /* + c2*0.f */ + c3 /* *1.f */;
         p.store(deviceOut + i);
     }
 }

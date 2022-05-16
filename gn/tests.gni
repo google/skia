@@ -111,7 +111,6 @@ tests_sources = [
   "$_tests/GrSurfaceTest.cpp",
   "$_tests/GrTextBlobTest.cpp",
   "$_tests/GrTextureMipMapInvalidationTest.cpp",
-  "$_tests/GrVxTest.cpp",
   "$_tests/GradientTest.cpp",
   "$_tests/HSVRoundTripTest.cpp",
   "$_tests/HashTest.cpp",

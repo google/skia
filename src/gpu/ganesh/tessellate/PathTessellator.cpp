@@ -171,10 +171,10 @@ void PathCurveTessellator::prepareWithTriangles(
             SkDEBUGCODE(int breadcrumbCount = 0;)
             for (const auto* tri = extraTriangles->head(); tri; tri = tri->fNext) {
                 SkDEBUGCODE(++breadcrumbCount;)
-                auto p0 = float2::Load(tri->fPts);
-                auto p1 = float2::Load(tri->fPts + 1);
-                auto p2 = float2::Load(tri->fPts + 2);
-                if (skvx::any((p0 == p1) & (p1 == p2))) {
+                auto p0 = skvx::float2::Load(tri->fPts);
+                auto p1 = skvx::float2::Load(tri->fPts + 1);
+                auto p2 = skvx::float2::Load(tri->fPts + 2);
+                if (any((p0 == p1) & (p1 == p2))) {
                     // Cull completely horizontal or vertical triangles. GrTriangulator can't always
                     // get these breadcrumb edges right when they run parallel to the sweep
                     // direction because their winding is undefined by its current definition.

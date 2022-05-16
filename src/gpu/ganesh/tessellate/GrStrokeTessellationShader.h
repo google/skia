@@ -11,7 +11,6 @@
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 
 #include "include/core/SkStrokeRec.h"
-#include "src/gpu/ganesh/GrVx.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/tessellate/Tessellation.h"
 

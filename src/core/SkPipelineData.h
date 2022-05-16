@@ -18,10 +18,10 @@
 #include "src/core/SkEnumBitMask.h"
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "include/private/SkVx.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
-#include "src/gpu/graphite/geom/VectorTypes.h"
 #endif
 
 class SkArenaAlloc;
@@ -172,7 +172,7 @@ public:
     void write(const float* floats, int count) { fUniformManager.write(floats, count); }
     void write(float f) { fUniformManager.write(&f, 1); }
     void write(int i) { fUniformManager.write(i); }
-    void write(skgpu::graphite::float2 v) { fUniformManager.write(v); }
+    void write(skvx::float2 v) { fUniformManager.write(v); }
 
     bool hasUniforms() const { return fUniformManager.size(); }
 

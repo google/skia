@@ -39,7 +39,6 @@ generated_cc_atom(
     deps = [
         ":GrTessellationShader_hdr",
         "//include/core:SkStrokeRec_hdr",
-        "//src/gpu/ganesh:GrVx_hdr",
         "//src/gpu/ganesh/glsl:GrGLSLVarying_hdr",
         "//src/gpu/tessellate:Tessellation_hdr",
     ],

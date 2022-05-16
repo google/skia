@@ -368,7 +368,6 @@ GPU_TESTS = [
     "GrSurfaceTest.cpp",
     "GrTextBlobTest.cpp",
     "GrTextureMipMapInvalidationTest.cpp",
-    "GrVxTest.cpp",
     "ReadWritePixelsGpuTest.cpp",
     "SkSLDSLErrorLineNumbers.cpp",
     "SkSLDSLOnlyTest.cpp",
@@ -2728,18 +2727,6 @@ generated_cc_atom(
         "//src/gpu/ganesh/ops:GrDrawOp_hdr",
         "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
         "//tools/gpu:ProxyUtils_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrVxTest_src",
-    srcs = ["GrVxTest.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":Test_hdr",
-        "//include/utils:SkRandom_hdr",
-        "//src/core:SkGeometry_hdr",
-        "//src/gpu/ganesh:GrVx_hdr",
     ],
 )
 
@@ -6090,6 +6077,7 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/private:SkVx_hdr",
+        "//include/utils:SkRandom_hdr",
     ],
 )
 

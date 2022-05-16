@@ -37,7 +37,7 @@ bool Shape::conservativeContains(const Rect& rect) const {
     SkUNREACHABLE;
 }
 
-bool Shape::conservativeContains(float2 point) const {
+bool Shape::conservativeContains(skvx::float2 point) const {
     switch (fType) {
         case Type::kEmpty: return false;
         case Type::kLine:  return false;

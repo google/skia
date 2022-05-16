@@ -32,16 +32,16 @@ public:
     inline static constexpr int kTypeCount = static_cast<int>(Type::kPath) + 1;
 
     Shape() {}
-    Shape(const Shape& shape)            { *this = shape; }
+    Shape(const Shape& shape)               { *this = shape; }
     Shape(Shape&&) = delete;
 
-    Shape(SkPoint p0, SkPoint p1)        { this->setLine(p0, p1); }
-    Shape(SkV2 p0, SkV2 p1)              { this->setLine(p0, p1); }
-    Shape(float2 p0, float2 p1)          { this->setLine(p0, p1); }
-    explicit Shape(const Rect& rect)     { this->setRect(rect);   }
-    explicit Shape(const SkRect& rect)   { this->setRect(rect);   }
-    explicit Shape(const SkRRect& rrect) { this->setRRect(rrect); }
-    explicit Shape(const SkPath& path)   { this->setPath(path);   }
+    Shape(SkPoint p0, SkPoint p1)           { this->setLine(p0, p1); }
+    Shape(SkV2 p0, SkV2 p1)                 { this->setLine(p0, p1); }
+    Shape(skvx::float2 p0, skvx::float2 p1) { this->setLine(p0, p1); }
+    explicit Shape(const Rect& rect)        { this->setRect(rect);   }
+    explicit Shape(const SkRect& rect)      { this->setRect(rect);   }
+    explicit Shape(const SkRRect& rrect)    { this->setRRect(rrect); }
+    explicit Shape(const SkPath& path)      { this->setPath(path);   }
 
     ~Shape() { this->reset(); }
 
@@ -84,7 +84,7 @@ public:
     // True if the given bounding box is completely inside the shape, if it's conservatively treated
     // as a filled, closed shape.
     bool conservativeContains(const Rect& rect) const;
-    bool conservativeContains(float2 point) const;
+    bool conservativeContains(skvx::float2 point) const;
 
     // True if the underlying geometry represents a closed shape, without the need for an
     // implicit close.
@@ -102,8 +102,8 @@ public:
 
     // Access the actual geometric description of the shape. May only access the appropriate type
     // based on what was last set.
-    float2         p0()    const { SkASSERT(this->isLine());  return fRect.topLeft();  }
-    float2         p1()    const { SkASSERT(this->isLine());  return fRect.botRight(); }
+    skvx::float2   p0()    const { SkASSERT(this->isLine());  return fRect.topLeft();  }
+    skvx::float2   p1()    const { SkASSERT(this->isLine());  return fRect.botRight(); }
     const Rect&    rect()  const { SkASSERT(this->isRect());  return fRect;            }
     const SkRRect& rrect() const { SkASSERT(this->isRRect()); return fRRect;           }
     const SkPath&  path()  const { SkASSERT(this->isPath());  return fPath;            }
@@ -114,12 +114,12 @@ public:
     //
     // These reset inversion to the default for the geometric type.
     void setLine(SkPoint p0, SkPoint p1) {
-        this->setLine(float2{p0.fX, p0.fY}, float2{p1.fX, p1.fY});
+        this->setLine(skvx::float2{p0.fX, p0.fY}, skvx::float2{p1.fX, p1.fY});
     }
     void setLine(SkV2 p0, SkV2 p1) {
-        this->setLine(float2{p0.x, p0.y}, float2{p1.x, p1.y});
+        this->setLine(skvx::float2{p0.x, p0.y}, skvx::float2{p1.x, p1.y});
     }
-    void setLine(float2 p0, float2 p1) {
+    void setLine(skvx::float2 p0, skvx::float2 p1) {
         this->setType(Type::kLine);
         fRect = Rect(p0, p1);
         fInverted = false;

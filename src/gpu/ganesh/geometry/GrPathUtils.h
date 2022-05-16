@@ -13,7 +13,6 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/ganesh/GrVx.h"
 
 class SkMatrix;
 
