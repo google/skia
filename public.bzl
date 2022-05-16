@@ -1541,8 +1541,6 @@ BASE_SRCS_ALL = [
     "src/sksl/dsl/DSLSymbols.cpp",
     "src/sksl/dsl/DSLType.cpp",
     "src/sksl/dsl/DSLVar.cpp",
-    "src/sksl/dsl/priv/DSLFPs.cpp",
-    "src/sksl/dsl/priv/DSLFPs.h",
     "src/sksl/dsl/priv/DSLWriter.cpp",
     "src/sksl/dsl/priv/DSLWriter.h",
     "src/sksl/dsl/priv/DSL_priv.h",
