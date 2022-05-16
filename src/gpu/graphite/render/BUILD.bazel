@@ -135,9 +135,14 @@ generated_cc_atom(
     srcs = ["TessellateStrokesRenderStep.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":DynamicInstancesPatchAllocator_hdr",
         ":TessellateStrokesRenderStep_hdr",
+        "//src/core:SkGeometry_hdr",
         "//src/gpu/graphite:DrawGeometry_hdr",
         "//src/gpu/graphite:DrawTypes_hdr",
         "//src/gpu/graphite:DrawWriter_hdr",
+        "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
+        "//src/gpu/tessellate:PatchWriter_hdr",
+        "//src/gpu/tessellate:StrokeIterator_hdr",
     ],
 )

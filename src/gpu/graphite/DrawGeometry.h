@@ -50,6 +50,9 @@ public:
                (fJoinLimit == 0.f ? SkPaint::kBevel_Join : SkPaint::kRound_Join);
     }
 
+    // Raw join limit, compatible with tess::StrokeParams
+    float joinLimit() const { return fJoinLimit; }
+
 private:
     float        fHalfWidth; // >0: relative to transform; ==0: hairline, 1px in device space
     float        fJoinLimit; // >0: miter join; ==0: bevel join; <0: round join

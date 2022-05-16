@@ -147,6 +147,7 @@ inline float GetJoinType(const SkStrokeRec& stroke) {
 // This float2 gets written out with each patch/instance if PatchAttribs::kStrokeParams is enabled.
 struct StrokeParams {
     StrokeParams() = default;
+    StrokeParams(float radius, float joinType) : fRadius(radius), fJoinType(joinType) {}
     StrokeParams(const SkStrokeRec& stroke) {
         this->set(stroke);
     }
