@@ -20,7 +20,6 @@
 #include "include/sksl/DSLFunction.h"
 #include "include/sksl/DSLLayout.h"
 #include "include/sksl/DSLModifiers.h"
-#include "include/sksl/DSLRuntimeEffects.h"
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
@@ -2192,29 +2191,4 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiersDeclaration, r, ctxInfo) {
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
             "layout(blend_support_all_equations) out;");
-}
-
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLES3Types, r, ctxInfo) {
-    StartRuntimeShader(ctxInfo.directContext()->priv().getGpu()->shaderCompiler());
-    {
-        ExpectError error(r, "type 'uint' is not supported");
-        Var u(kUInt_Type, "u");
-    }
-    {
-        ExpectError error(r, "type 'float3x2' is not supported");
-        Float3x2(1).release();
-    }
-    {
-        ExpectError error(r, "type 'uint' is not supported");
-        Var u(kUInt_Type, "u");
-    }
-    {
-        ExpectError error(r, "type '$genType' is private");
-        Var g(DSLType("$genType"), "g");
-    }
-    Parameter p(kFloat2_Type, "p");
-    Function(kHalf4_Type, "main", p).define(
-        Return(Half4(0))
-    );
-    EndRuntimeShader();
 }

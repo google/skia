@@ -164,19 +164,6 @@ public:
         return MakeForBlender(std::move(sksl), Options{});
     }
 
-    // DSL entry points
-    static Result MakeForColorFilter(std::unique_ptr<SkSL::Program> program, const Options&);
-    static Result MakeForColorFilter(std::unique_ptr<SkSL::Program> program);
-
-    static Result MakeForShader(std::unique_ptr<SkSL::Program> program, const Options&);
-    static Result MakeForShader(std::unique_ptr<SkSL::Program> program);
-    static sk_sp<SkRuntimeEffect> MakeForShader(std::unique_ptr<SkSL::Program> program,
-                                                const Options&, SkSL::ErrorReporter* errors);
-
-
-    static Result MakeForBlender(std::unique_ptr<SkSL::Program> program, const Options&);
-    static Result MakeForBlender(std::unique_ptr<SkSL::Program> program);
-
     // Object that allows passing a SkShader, SkColorFilter or SkBlender as a child
     class ChildPtr {
     public:
@@ -282,15 +269,6 @@ private:
     sk_sp<SkRuntimeEffect> makeUnoptimizedClone();
 
     static Result MakeFromSource(SkString sksl, const Options& options, SkSL::ProgramKind kind);
-
-    static Result MakeFromDSL(std::unique_ptr<SkSL::Program> program,
-                              const Options& options,
-                              SkSL::ProgramKind kind);
-
-    static sk_sp<SkRuntimeEffect> MakeFromDSL(std::unique_ptr<SkSL::Program> program,
-                                              const Options& options,
-                                              SkSL::ProgramKind kind,
-                                              SkSL::ErrorReporter* errors);
 
     static Result MakeInternal(std::unique_ptr<SkSL::Program> program,
                                const Options& options,

@@ -235,26 +235,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeFromSource(SkString sksl,
     return MakeInternal(std::move(program), options, kind);
 }
 
-SkRuntimeEffect::Result SkRuntimeEffect::MakeFromDSL(std::unique_ptr<SkSL::Program> program,
-                                                     const Options& options,
-                                                     SkSL::ProgramKind kind) {
-    // This factory is used for all DSL runtime effects, which don't have anything stored in the
-    // program's source. Populate it so that we can compute fHash, and serialize these effects.
-    program->fSource = std::make_unique<std::string>(program->description());
-    return MakeInternal(std::move(program), options, kind);
-}
-
-sk_sp<SkRuntimeEffect> SkRuntimeEffect::MakeFromDSL(std::unique_ptr<SkSL::Program> program,
-                                                    const Options& options,
-                                                    SkSL::ProgramKind kind,
-                                                    SkSL::ErrorReporter* errors) {
-    Result result = MakeFromDSL(std::move(program), options, kind);
-    if (!result.effect) {
-        errors->error(result.errorText.c_str(), SkSL::Position());
-    }
-    return std::move(result.effect);
-}
-
 SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Program> program,
                                                       const Options& options,
                                                       SkSL::ProgramKind kind) {
@@ -452,52 +432,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeForBlender(SkString sksl, const Opt
     auto result = MakeFromSource(std::move(sksl), options, SkSL::ProgramKind::kRuntimeBlender);
     SkASSERT(!result.effect || result.effect->allowBlender());
     return result;
-}
-
-SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(std::unique_ptr<SkSL::Program> program,
-                                                            const Options& options) {
-    auto result = MakeFromDSL(std::move(program), options, SkSL::ProgramKind::kRuntimeColorFilter);
-    SkASSERT(!result.effect || result.effect->allowColorFilter());
-    return result;
-}
-
-SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(std::unique_ptr<SkSL::Program> program,
-                                                       const Options& options) {
-    auto programKind = options.usePrivateRTShaderModule ? SkSL::ProgramKind::kPrivateRuntimeShader
-                                                        : SkSL::ProgramKind::kRuntimeShader;
-    auto result = MakeFromDSL(std::move(program), options, programKind);
-    SkASSERT(!result.effect || result.effect->allowShader());
-    return result;
-}
-
-sk_sp<SkRuntimeEffect> SkRuntimeEffect::MakeForShader(std::unique_ptr<SkSL::Program> program,
-                                                      const Options& options,
-                                                      SkSL::ErrorReporter* errors) {
-    auto programKind = options.usePrivateRTShaderModule ? SkSL::ProgramKind::kPrivateRuntimeShader
-                                                        : SkSL::ProgramKind::kRuntimeShader;
-    auto result = MakeFromDSL(std::move(program), options, programKind, errors);
-    SkASSERT(!result || result->allowShader());
-    return result;
-}
-
-SkRuntimeEffect::Result SkRuntimeEffect::MakeForBlender(std::unique_ptr<SkSL::Program> program,
-                                                        const Options& options) {
-    auto result = MakeFromDSL(std::move(program), options, SkSL::ProgramKind::kRuntimeBlender);
-    SkASSERT(!result.effect || result.effect->allowBlender());
-    return result;
-}
-
-SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(
-        std::unique_ptr<SkSL::Program> program) {
-    return MakeForColorFilter(std::move(program), Options{});
-}
-
-SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(std::unique_ptr<SkSL::Program> program) {
-    return MakeForShader(std::move(program), Options{});
-}
-
-SkRuntimeEffect::Result SkRuntimeEffect::MakeForBlender(std::unique_ptr<SkSL::Program> program) {
-    return MakeForBlender(std::move(program), Options{});
 }
 
 sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString sksl),

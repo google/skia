@@ -66,7 +66,6 @@ cc_library(
         "//src/sksl/dsl:DSLExpression_src",
         "//src/sksl/dsl:DSLFunction_src",
         "//src/sksl/dsl:DSLLayout_src",
-        "//src/sksl/dsl:DSLRuntimeEffects_src",
         "//src/sksl/dsl:DSLStatement_src",
         "//src/sksl/dsl:DSLSymbols_src",
         "//src/sksl/dsl:DSLType_src",
