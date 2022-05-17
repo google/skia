@@ -475,10 +475,6 @@
   {"name": "Test-ChromeOS-Clang-Spin513-GPU-Adreno618-arm-Release-All"},
   {"name": "Test-ChromeOS-Clang-Spin514-GPU-RadeonVega3-x86_64-Debug-All"},
   {"name": "Test-ChromeOS-Clang-Spin514-GPU-RadeonVega3-x86_64-Release-All"},
-  {"name": "Test-Debian10-GCC-GCE-CPU-AVX2-x86-Debug-All-Docker"},
-  {"name": "Test-Debian10-GCC-GCE-CPU-AVX2-x86-Release-All-Docker"},
-  {"name": "Test-Debian10-GCC-GCE-CPU-AVX2-x86_64-Debug-All-Docker"},
-  {"name": "Test-Debian10-GCC-GCE-CPU-AVX2-x86_64-Release-All-Docker"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86-Debug-All"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
    "cq_config": {}

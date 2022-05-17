@@ -100,10 +100,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
       "catchsegv",
       "[START_DIR]/build/dm",
       "--resourcePath",
@@ -124,7 +120,6 @@
       "gles",
       "--nocpu"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux",
@@ -132,7 +127,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json"
     },
-    "name": "symbolized dm"
+    "name": "dm"
   },
   {
     "cmd": [
@@ -238,10 +233,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
       "catchsegv",
       "[START_DIR]/build/dm",
       "--resourcePath",
@@ -262,7 +253,6 @@
       "gles",
       "--nocpu"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux",
@@ -270,7 +260,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json"
     },
-    "name": "symbolized dm (2)"
+    "name": "dm (2)"
   },
   {
     "cmd": [
@@ -376,10 +366,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
       "catchsegv",
       "[START_DIR]/build/dm",
       "--resourcePath",
@@ -400,7 +386,6 @@
       "gles",
       "--nocpu"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux",
@@ -408,7 +393,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json"
     },
-    "name": "symbolized dm (3)"
+    "name": "dm (3)"
   },
   {
     "cmd": [

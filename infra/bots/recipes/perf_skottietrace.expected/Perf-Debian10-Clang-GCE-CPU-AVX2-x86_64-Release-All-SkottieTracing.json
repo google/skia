@@ -100,10 +100,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
       "catchsegv",
       "[START_DIR]/build/dm",
       "--resourcePath",
@@ -124,12 +120,11 @@
       "8888",
       "--nogpu"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "symbolized dm"
+    "name": "dm"
   },
   {
     "cmd": [
@@ -235,10 +230,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
       "catchsegv",
       "[START_DIR]/build/dm",
       "--resourcePath",
@@ -259,12 +250,11 @@
       "8888",
       "--nogpu"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "symbolized dm (2)"
+    "name": "dm (2)"
   },
   {
     "cmd": [
@@ -370,10 +360,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
       "catchsegv",
       "[START_DIR]/build/dm",
       "--resourcePath",
@@ -394,12 +380,11 @@
       "8888",
       "--nogpu"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "symbolized dm (3)"
+    "name": "dm (3)"
   },
   {
     "cmd": [

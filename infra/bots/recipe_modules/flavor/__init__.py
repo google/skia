@@ -5,7 +5,6 @@
 PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
-  'docker',
   'env',
   'recipe_engine/context',
   'recipe_engine/file',

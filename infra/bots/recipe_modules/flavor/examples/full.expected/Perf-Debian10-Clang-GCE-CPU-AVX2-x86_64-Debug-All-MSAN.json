@@ -195,20 +195,15 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
       "[START_DIR]/build/nanobench",
       "--some-flag"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/msan:[START_DIR]/clang_linux/lib",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/clang_linux/bin"
     },
-    "name": "symbolized nanobench"
+    "name": "nanobench"
   },
   {
     "name": "$result"

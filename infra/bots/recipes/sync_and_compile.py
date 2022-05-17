@@ -102,10 +102,7 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(
-          api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-      )
+                     swarm_out_dir='[SWARM_OUT_DIR]')
     )
     if 'Win' in builder:
       test += api.platform('win', 64)

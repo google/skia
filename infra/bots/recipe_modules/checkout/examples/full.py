@@ -71,10 +71,7 @@ def GenTests(api):
           patch_set=12,
           patch_ref='refs/changes/89/456789/12',
           patch_repo='https://skia.googlesource.com/skia.git',
-          patch_storage='gerrit') +
-      api.path.exists(
-          api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-      )
+          patch_storage='gerrit')
   )
 
   builder = 'Build-Debian10-Clang-x86_64-Release-NoDEPS'
@@ -106,10 +103,7 @@ def GenTests(api):
           patch_set=12,
           patch_ref='refs/changes/89/456789/12',
           patch_repo='https://skia.googlesource.com/skia.git',
-          patch_storage='gerrit') +
-      api.path.exists(
-          api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-      )
+          patch_storage='gerrit')
   )
   yield (
       api.test('trybot') +
