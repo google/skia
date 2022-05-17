@@ -27,11 +27,10 @@ class GraphiteResourceKey;
 struct RenderPassDesc;
 class TextureInfo;
 
-class Caps : public SkRefCnt {
+class Caps : public SkCapabilities {
 public:
     ~Caps() override;
 
-    sk_sp<SkCapabilities> asSkCapabilities() const;
     const SkSL::ShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
     virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
@@ -82,6 +81,10 @@ public:
 protected:
     Caps();
 
+    // Subclasses must call this at the end of their init method in order to do final processing on
+    // the caps.
+    void finishInitialization();
+
     // TODO: This value should be set by some context option. For now just making it 4.
     uint32_t defaultMSAASamples() const { return 4; }
 
@@ -105,7 +108,6 @@ protected:
     size_t fRequiredUniformBufferAlignment = 0;
 
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
-    mutable sk_sp<SkCapabilities> fSkCaps;
 
     bool fClampToBorderSupport = true;
 

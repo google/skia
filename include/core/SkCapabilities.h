@@ -11,21 +11,20 @@
 #include "include/core/SkRefCnt.h"
 #include "include/sksl/SkSLVersion.h"
 
-namespace skgpu::graphite { class Caps; }
+namespace SkSL { struct ShaderCaps; }
 
-class SK_API SkCapabilities : public SkNVRefCnt<SkCapabilities> {
+class SK_API SkCapabilities : public SkRefCnt {
 public:
-    static sk_sp<SkCapabilities> RasterBackend();
+    static sk_sp<const SkCapabilities> RasterBackend();
 
     SkSL::Version skslVersion() const { return fSkSLVersion; }
 
-private:
+protected:
     SkCapabilities() = default;
 
-    SkSL::Version fSkSLVersion = SkSL::Version::k100;
+    void initSkCaps(const SkSL::ShaderCaps*);
 
-    friend class GrCaps;
-    friend class skgpu::graphite::Caps;
+    SkSL::Version fSkSLVersion = SkSL::Version::k100;
 };
 
 #endif

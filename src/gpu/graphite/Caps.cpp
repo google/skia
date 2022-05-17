@@ -7,14 +7,17 @@
 
 #include "src/gpu/graphite/Caps.h"
 
-#include "include/core/SkCapabilities.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/sksl/SkSLUtil.h"
 
 namespace skgpu::graphite {
 
-Caps::Caps() {}
+Caps::Caps() : fShaderCaps(std::make_unique<SkSL::ShaderCaps>()) {}
 Caps::~Caps() {}
+
+void Caps::finishInitialization() {
+    this->initSkCaps(fShaderCaps.get());
+}
 
 bool Caps::isTexturable(const TextureInfo& info) const {
     if (info.numSamples() > 1) {
@@ -51,14 +54,6 @@ skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const TextureInfo& info) co
     }
 
     return colorTypeInfo->fWriteSwizzle;
-}
-
-sk_sp<SkCapabilities> Caps::asSkCapabilities() const {
-    if (!fSkCaps) {
-        fSkCaps.reset(new SkCapabilities);
-        fSkCaps->fSkSLVersion = this->shaderCaps()->supportedSkSLVerion();
-    }
-    return fSkCaps;
 }
 
 } // namespace skgpu::graphite

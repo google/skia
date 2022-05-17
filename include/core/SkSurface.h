@@ -605,7 +605,7 @@ public:
 
         @return  SkCapabilities of SkSurface's device.
     */
-    sk_sp<SkCapabilities> capabilities();
+    sk_sp<const SkCapabilities> capabilities();
 
     /** Returns a compatible SkSurface, or nullptr. Returned SkSurface contains
         the same raster, GPU, or null properties as the original. Returned SkSurface

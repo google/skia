@@ -392,7 +392,7 @@ bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl, SkIPoint offs
     return true;
 }
 
-sk_sp<SkCapabilities> SkSurface_Gpu::onCapabilities() {
+sk_sp<const SkCapabilities> SkSurface_Gpu::onCapabilities() {
     return fDevice->recordingContext()->skCapabilities();
 }
 

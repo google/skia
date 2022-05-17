@@ -160,7 +160,7 @@ uint32_t SkSurface_Base::newGenerationID() {
     return nextID.fetch_add(1, std::memory_order_relaxed);
 }
 
-sk_sp<SkCapabilities> SkSurface_Base::onCapabilities() {
+sk_sp<const SkCapabilities> SkSurface_Base::onCapabilities() {
     return SkCapabilities::RasterBackend();
 }
 
@@ -210,7 +210,7 @@ SkCanvas* SkSurface::getCanvas() {
     return asSB(this)->getCachedCanvas();
 }
 
-sk_sp<SkCapabilities> SkSurface::capabilities() {
+sk_sp<const SkCapabilities> SkSurface::capabilities() {
     return asSB(this)->onCapabilities();
 }
 
@@ -419,7 +419,7 @@ protected:
     void onWritePixels(const SkPixmap&, int x, int y) override {}
     void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override {}
     bool onCopyOnWrite(ContentChangeMode) override { return true; }
-    sk_sp<SkCapabilities> onCapabilities() override {
+    sk_sp<const SkCapabilities> onCapabilities() override {
         // Not really, but we have to return *something*
         return SkCapabilities::RasterBackend();
     }

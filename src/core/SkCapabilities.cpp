@@ -6,8 +6,9 @@
  */
 
 #include "include/core/SkCapabilities.h"
+#include "src/sksl/SkSLUtil.h"
 
-sk_sp<SkCapabilities> SkCapabilities::RasterBackend() {
+sk_sp<const SkCapabilities> SkCapabilities::RasterBackend() {
     static SkCapabilities* sCaps = [](){
         SkCapabilities* caps = new SkCapabilities;
         caps->fSkSLVersion = SkSL::Version::k100;
@@ -15,4 +16,8 @@ sk_sp<SkCapabilities> SkCapabilities::RasterBackend() {
     }();
 
     return sk_ref_sp(sCaps);
+}
+
+void SkCapabilities::initSkCaps(const SkSL::ShaderCaps* shaderCaps) {
+    this->fSkSLVersion = shaderCaps->supportedSkSLVerion();
 }

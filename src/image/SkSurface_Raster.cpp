@@ -27,7 +27,7 @@ public:
     void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override;
     bool onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
-    sk_sp<SkCapabilities> onCapabilities() override;
+    sk_sp<const SkCapabilities> onCapabilities() override;
 
 private:
     SkBitmap    fBitmap;
@@ -155,7 +155,7 @@ bool SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
     return true;
 }
 
-sk_sp<SkCapabilities> SkSurface_Raster::onCapabilities() {
+sk_sp<const SkCapabilities> SkSurface_Raster::onCapabilities() {
     return SkCapabilities::RasterBackend();
 }
 

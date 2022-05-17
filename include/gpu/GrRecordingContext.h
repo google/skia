@@ -98,7 +98,7 @@ public:
         return INHERITED::maxSurfaceSampleCountForColorType(colorType);
     }
 
-    SK_API sk_sp<SkCapabilities> skCapabilities() const;
+    SK_API sk_sp<const SkCapabilities> skCapabilities() const;
 
     // Provides access to functions that aren't part of the public API.
     GrRecordingContextPriv priv();

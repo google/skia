@@ -19,8 +19,6 @@ namespace skgpu::graphite {
 
 MtlCaps::MtlCaps(const id<MTLDevice> device)
         : Caps() {
-    fShaderCaps = std::make_unique<SkSL::ShaderCaps>();
-
     this->initGPUFamily(device);
     this->initCaps(device);
     this->initShaderCaps();
@@ -28,6 +26,8 @@ MtlCaps::MtlCaps(const id<MTLDevice> device)
     this->initFormatTable();
 
     // Metal-specific MtlCaps
+
+    this->finishInitialization();
 }
 
 // translates from older MTLFeatureSet interface to MTLGPUFamily interface

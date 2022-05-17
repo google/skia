@@ -59,8 +59,8 @@ bool Surface::onReadPixels(Context* context,
     return fDevice->readPixels(context, recorder, dst, srcX, srcY);
 }
 
-sk_sp<SkCapabilities> Surface::onCapabilities() {
-    return fDevice->recorder()->priv().caps()->asSkCapabilities();
+sk_sp<const SkCapabilities> Surface::onCapabilities() {
+    return fDevice->recorder()->priv().refCaps();
 }
 
 } // namespace skgpu::graphite

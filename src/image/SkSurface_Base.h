@@ -139,7 +139,7 @@ public:
 
     // TODO: Remove this (make it pure virtual) after updating Android (which has a class derived
     // from SkSurface_Base).
-    virtual sk_sp<SkCapabilities> onCapabilities();
+    virtual sk_sp<const SkCapabilities> onCapabilities();
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();

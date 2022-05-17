@@ -7,7 +7,6 @@
 
 #include "src/gpu/ganesh/GrCaps.h"
 
-#include "include/core/SkCapabilities.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -105,8 +104,7 @@ void GrCaps::finishInitialization(const GrContextOptions& options) {
     fMaxRenderTargetSize = std::min(fMaxRenderTargetSize, fMaxTextureSize);
     fMaxPreferredRenderTargetSize = std::min(fMaxPreferredRenderTargetSize, fMaxRenderTargetSize);
 
-    fSkCaps.reset(new SkCapabilities);
-    fSkCaps->fSkSLVersion = this->shaderCaps()->supportedSkSLVerion();
+    this->initSkCaps(this->shaderCaps());
 }
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
@@ -483,9 +481,4 @@ std::tuple<GrColorType, GrBackendFormat> GrCaps::getFallbackColorTypeAndFormat(
         ct = color_type_fallback(ct);
     } while (ct != GrColorType::kUnknown);
     return {GrColorType::kUnknown, {}};
-}
-
-sk_sp<SkCapabilities> GrCaps::asSkCapabilities() const {
-    SkASSERTF(fSkCaps, "Calling asSkCapabilities before it's initialized");
-    return fSkCaps;
 }

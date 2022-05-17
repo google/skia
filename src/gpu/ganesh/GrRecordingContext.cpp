@@ -160,8 +160,8 @@ void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlu
 
 ////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkCapabilities> GrRecordingContext::skCapabilities() const {
-    return this->caps()->asSkCapabilities();
+sk_sp<const SkCapabilities> GrRecordingContext::skCapabilities() const {
+    return this->refCaps();
 }
 
 int GrRecordingContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
