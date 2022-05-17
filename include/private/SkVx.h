@@ -149,6 +149,8 @@ struct alignas(N*sizeof(T)) Vec : public VecStorage<N,T> {
 
     using VecStorage<N,T>::VecStorage;
 
+    // NOTE: Vec{x} produces x000..., whereas Vec(x) produces xxxx.... since this constructor fills
+    // unspecified lanes with 0s, whereas the single T constructor fills all lanes with the value.
     SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
         T vals[N] = {0};
         memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)N)*sizeof(T));
