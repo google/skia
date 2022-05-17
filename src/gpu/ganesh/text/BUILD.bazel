@@ -129,6 +129,7 @@ generated_cc_atom(
         "//include/core:SkPoint3_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/private/chromium:GrSlug_hdr",
+        "//src/core:SkDevice_hdr",
         "//src/core:SkGlyphRunPainter_hdr",
         "//src/core:SkIPoint16_hdr",
         "//src/core:SkMaskFilterBase_hdr",

@@ -2059,10 +2059,9 @@ static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
 
 auto GrTextBlob::Key::Make(const SkGlyphRunList& glyphRunList,
                            const SkPaint& paint,
-                           const SkSurfaceProps& surfaceProps,
-                           const GrColorInfo& colorInfo,
                            const SkMatrix& drawMatrix,
-                           const GrSDFTControl& control) -> std::tuple<bool, Key> {
+                           const SkStrikeDeviceInfo& strikeDevice) -> std::tuple<bool, Key> {
+    SkASSERT(strikeDevice.fSDFTControl != nullptr);
     SkMaskFilterBase::BlurRec blurRec;
     // It might be worth caching these things, but its not clear at this time
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
@@ -2071,20 +2070,13 @@ auto GrTextBlob::Key::Make(const SkGlyphRunList& glyphRunList,
                     !(paint.getPathEffect() ||
                         (maskFilter && !as_MFB(maskFilter)->asABlur(&blurRec)));
 
-    // If we're doing linear blending, then we can disable the gamma hacks.
-    // Otherwise, leave them on. In either case, we still want the contrast boost:
-    // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
-    SkScalerContextFlags scalerContextFlags = colorInfo.isLinearlyBlended()
-                                              ? SkScalerContextFlags::kBoostContrast
-                                              : SkScalerContextFlags::kFakeGammaAndBoostContrast;
-
     GrTextBlob::Key key;
     if (canCache) {
         bool hasLCD = glyphRunList.anyRunsLCD();
 
         // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
-        SkPixelGeometry pixelGeometry =
-                hasLCD ? surfaceProps.pixelGeometry() : kUnknown_SkPixelGeometry;
+        SkPixelGeometry pixelGeometry = hasLCD ? strikeDevice.fSurfaceProps.pixelGeometry()
+                                               : kUnknown_SkPixelGeometry;
 
         GrColor canonicalColor = compute_canonical_color(paint, hasLCD);
 
@@ -2101,14 +2093,15 @@ auto GrTextBlob::Key::Make(const SkGlyphRunList& glyphRunList,
             key.fBlurRec = blurRec;
         }
         key.fCanonicalColor = canonicalColor;
-        key.fScalerContextFlags = SkTo<uint32_t>(scalerContextFlags);
+        key.fScalerContextFlags = SkTo<uint32_t>(strikeDevice.fScalerContextFlags);
 
         // Do any runs use direct drawing types?.
         key.fHasSomeDirectSubRuns = false;
         for (auto& run : glyphRunList) {
             SkScalar approximateDeviceTextSize =
                     SkFontPriv::ApproximateTransformedTextSize(run.font(), drawMatrix);
-            key.fHasSomeDirectSubRuns |= control.isDirect(approximateDeviceTextSize, paint);
+            key.fHasSomeDirectSubRuns |=
+                    strikeDevice.fSDFTControl->isDirect(approximateDeviceTextSize, paint);
         }
 
         if (key.fHasSomeDirectSubRuns) {
