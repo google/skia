@@ -14,6 +14,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkTHash.h"
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 
@@ -52,11 +53,6 @@ struct ShaderCombo {
     std::vector<SkTileMode> fTileModes;
 };
 
-struct PaintCombo {
-    std::vector<ShaderCombo> fShaders;
-    std::vector<SkBlendMode> fBlendModes;
-};
-
 // TODO: add SkShaderID and SkColorFilterID too
 class SkBlenderID {
 public:
@@ -74,12 +70,33 @@ public:
 
 private:
     friend class ::SkShaderCodeDictionary;   // for ctor and asUInt access
+    friend class PaintCombinations;          // for asUInt access
 
     SkBlenderID(uint32_t id) : fID(id) {}
 
     uint32_t asUInt() const { return fID; }
 
     uint32_t fID;
+};
+
+class Context;
+
+class PaintCombinations {
+public:
+    PaintCombinations(Context*);
+
+    void add(const ShaderCombo& shaderCombo) { fShaders.push_back(shaderCombo); }
+
+    void add(SkBlendMode);
+    void add(SkBlenderID);
+
+private:
+    friend class Context; // for iterators
+
+    SkShaderCodeDictionary* fDictionary;
+    // TODO: the pattern here will be we will check for duplicates in debug but not in release
+    std::vector<ShaderCombo> fShaders;
+    SkTHashSet<uint32_t> fBlendModes;
 };
 
 class Context final {
@@ -111,7 +128,7 @@ public:
     // TODO: add "SkColorFilterID addUserDefinedColorFilter(sk_sp<SkRuntimeEffect>)" here
     SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
 
-    void preCompile(const PaintCombo&);
+    void preCompile(const PaintCombinations&);
 
     /**
      * Creates a new backend gpu texture matching the dimensinos and TextureInfo. If an invalid
