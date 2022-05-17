@@ -33,14 +33,14 @@ namespace skgpu::tess {
  */
 class LinearTolerances {
 public:
-    float numParametricSegments_pow4() const { return fNumParametricSegments_pow4; }
+    float numParametricSegments_p4() const { return fNumParametricSegments_p4; }
     float numRadialSegmentsPerRadian() const { return fNumRadialSegmentsPerRadian; }
     int   numEdgesInJoins() const { return fEdgesInJoins; }
 
     // Fast log2 of minimum required # of segments per tracked Wang's formula calculations.
     int requiredResolveLevel() const {
         // log16(n^4) == log2(n)
-        return wangs_formula::nextlog16(fNumParametricSegments_pow4);
+        return wangs_formula::nextlog16(fNumParametricSegments_p4);
     }
 
     int requiredStrokeEdges() const {
@@ -49,7 +49,7 @@ public:
                 std::max(SkScalarCeilToInt(fNumRadialSegmentsPerRadian * SK_ScalarPI), 1);
 
         int maxParametricSegmentsInStroke =
-                SkScalarCeilToInt(wangs_formula::root4(fNumParametricSegments_pow4));
+                SkScalarCeilToInt(wangs_formula::root4(fNumParametricSegments_p4));
         SkASSERT(maxParametricSegmentsInStroke >= 1);
 
         // Now calculate the maximum number of edges we will need in the stroke portion of the
@@ -79,7 +79,7 @@ public:
 
     void setParametricSegments(float n4) {
         SkASSERT(n4 >= 0.f);
-        fNumParametricSegments_pow4 = n4;
+        fNumParametricSegments_p4 = n4;
     }
 
     void setStroke(const StrokeParams& strokeParams, float maxScale) {
@@ -103,8 +103,8 @@ public:
     }
 
     void accumulate(const LinearTolerances& tolerances) {
-        if (tolerances.fNumParametricSegments_pow4 > fNumParametricSegments_pow4) {
-            fNumParametricSegments_pow4 = tolerances.fNumParametricSegments_pow4;
+        if (tolerances.fNumParametricSegments_p4 > fNumParametricSegments_p4) {
+            fNumParametricSegments_p4 = tolerances.fNumParametricSegments_p4;
         }
         if (tolerances.fNumRadialSegmentsPerRadian > fNumRadialSegmentsPerRadian) {
             fNumRadialSegmentsPerRadian = tolerances.fNumRadialSegmentsPerRadian;
@@ -116,7 +116,7 @@ public:
 
 private:
     // Used for both fills and strokes, always at least one parametric segment
-    float fNumParametricSegments_pow4 = 1.f;
+    float fNumParametricSegments_p4 = 1.f;
     // Used for strokes, adding additional segments along the curve to account for its rotation
     // TODO: Currently we assume the worst case 180 degree rotation for any curve, but tracking
     // max(radialSegments * patch curvature) would be tighter. This would require computing

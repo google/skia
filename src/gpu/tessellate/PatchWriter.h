@@ -166,17 +166,17 @@ VertexWriter& operator<<(VertexWriter& w, const AttribValue<A, T, Required, Opti
 // Stores state and deferred patch data when TrackJoinControlPoints is used for a PatchWriter.
 template <size_t Stride>
 struct PatchStorage {
-    float fN_pow4    = -1.f; // The parametric segment value to restore on LinearTolerances
+    float fN_p4    = -1.f; // The parametric segment value to restore on LinearTolerances
     bool  fMustDefer = true;  // True means next patch must be deferred
 
     // Holds an entire patch, except with an undefined join control point.
     char fData[Stride];
 
     bool hasPending() const {
-        return fN_pow4 >= 0.f;
+        return fN_p4 >= 0.f;
     }
     void reset() {
-        fN_pow4 = -1.f;
+        fN_p4 = -1.f;
         fMustDefer = true;
     }
 };
@@ -298,7 +298,7 @@ public:
             // Assuming that the stroke parameters aren't changing within a contour, we only have
             // to set the parametric segments in order to recover the LinearTolerances state at the
             // time the deferred patch was recorded.
-            fTolerances.setParametricSegments(fDeferredPatch.fN_pow4);
+            fTolerances.setParametricSegments(fDeferredPatch.fN_p4);
             if (VertexWriter vw = fPatchAllocator.append(fTolerances)) {
                 vw << VertexWriter::Array<char>(fDeferredPatch.fData, fPatchAllocator.stride());
             }
@@ -367,7 +367,7 @@ public:
 
     // Write a cubic curve with its four control points.
     AI void writeCubic(float2 p0, float2 p1, float2 p2, float2 p3) {
-        float n4 = wangs_formula::cubic_pow4(kPrecision, p0, p1, p2, p3, fApproxTransform);
+        float n4 = wangs_formula::cubic_p4(kPrecision, p0, p1, p2, p3, fApproxTransform);
         if constexpr (kDiscardFlatCurves) {
             if (n4 <= 1.f) {
                 // This cubic only needs one segment (e.g. a line) but we're not filling space with
@@ -390,7 +390,7 @@ public:
     // Write a conic curve with three control points and 'w', with the last coord of the last
     // control point signaling a conic by being set to infinity.
     AI void writeConic(float2 p0, float2 p1, float2 p2, float w) {
-        float n2 = wangs_formula::conic_pow2(kPrecision, p0, p1, p2, w, fApproxTransform);
+        float n2 = wangs_formula::conic_p2(kPrecision, p0, p1, p2, w, fApproxTransform);
         if constexpr (kDiscardFlatCurves) {
             if (n2 <= 1.f) {
                 // This conic only needs one segment (e.g. a line) but we're not filling space with
@@ -414,7 +414,7 @@ public:
     // Write a quadratic curve that automatically converts its three control points into an
     // equivalent cubic.
     AI void writeQuadratic(float2 p0, float2 p1, float2 p2) {
-        float n4 = wangs_formula::quadratic_pow4(kPrecision, p0, p1, p2, fApproxTransform);
+        float n4 = wangs_formula::quadratic_p4(kPrecision, p0, p1, p2, fApproxTransform);
         if constexpr (kDiscardFlatCurves) {
             if (n4 <= 1.f) {
                 // This quad only needs one segment (e.g. a line) but we're not filling space with
@@ -460,8 +460,8 @@ public:
     AI void writeTriangle(float2 p0, float2 p1, float2 p2) {
         // No chopping needed, the max supported segment count should always support 2 lines
         // (which form a triangle when implicitly closed).
-        static constexpr float kTriangleSegments_pow4 = 2.f * 2.f * 2.f * 2.f;
-        fTolerances.setParametricSegments(kTriangleSegments_pow4);
+        static constexpr float kTriangleSegments_p4 = 2.f * 2.f * 2.f * 2.f;
+        fTolerances.setParametricSegments(kTriangleSegments_p4);
         this->writePatch(p0, p1, p2, {SK_FloatInfinity, SK_FloatInfinity},
                          kTriangularConicCurveType);
     }
@@ -499,7 +499,7 @@ private:
                 SkASSERT(fPatchAllocator.stride() <= kMaxStride);
                 // Save the computed parametric segment tolerance value so that we can pass that to
                 // the PatchAllocator when flushing the deferred patch.
-                fDeferredPatch.fN_pow4 = fTolerances.numParametricSegments_pow4();
+                fDeferredPatch.fN_p4 = fTolerances.numParametricSegments_p4();
                 return {fDeferredPatch.fData, fPatchAllocator.stride()};
             }
         }
@@ -546,17 +546,25 @@ private:
     }
 
     int accountForCurve(float n4) {
-        if (n4 <= pow4(kMaxParametricSegments)) {
+        if (n4 <= kMaxParametricSegments_p4) {
             // Record n^4 and return 0 to signal no chopping
             fTolerances.setParametricSegments(n4);
             return 0;
         } else {
             // Clamp to max allowed segmentation for a patch and return required number of chops
             // to achieve visual correctness.
-            fTolerances.setParametricSegments(pow4(kMaxParametricSegments));
-            return SkScalarCeilToInt(wangs_formula::root4(std::min(n4, pow4(kMaxSegmentsPerCurve)) /
-                                                          pow4(kMaxParametricSegments)));
+            fTolerances.setParametricSegments(kMaxParametricSegments_p4);
+            return SkScalarCeilToInt(wangs_formula::root4(std::min(n4, kMaxSegmentsPerCurve_p4) /
+                                                          kMaxParametricSegments_p4));
         }
+    }
+
+    // This does not return b when t==1, but it otherwise seems to get better precision than
+    // "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
+    // The responsibility falls on the caller to check that t != 1 before calling.
+    static AI float4 mix(float4 a, float4 b, float4 T) {
+        SkASSERT(all((0 <= T) & (T < 1)));
+        return (b - a)*T + a;
     }
 
     // Helpers that chop the curve type into 'numPatches' parametrically uniform curves. It is

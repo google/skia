@@ -342,7 +342,7 @@ DEF_TEST(wangs_formula_worst_case_cubic, r) {
     }
     // Make sure overflow saturates at infinity (not NaN).
     constexpr static float inf = std::numeric_limits<float>::infinity();
-    REPORTER_ASSERT(r, wangs_formula::worst_case_cubic_pow4(kPrecision, inf, inf) == inf);
+    REPORTER_ASSERT(r, wangs_formula::worst_case_cubic_p4(kPrecision, inf, inf) == inf);
     REPORTER_ASSERT(r, wangs_formula::worst_case_cubic(kPrecision, inf, inf) == inf);
 }
 

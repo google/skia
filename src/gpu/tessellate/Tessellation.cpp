@@ -61,8 +61,8 @@ public:
             if (!fCullTest.areVisible3(p)) {
                 fPath.lineTo(p[2]);
             } else {
-                float n4 = wangs_formula::quadratic_pow4(fTessellationPrecision, p, fVectorXform);
-                if (n4 > pow4(kMaxSegmentsPerCurve) && numChops < kMaxChopsPerCurve) {
+                float n4 = wangs_formula::quadratic_p4(fTessellationPrecision, p, fVectorXform);
+                if (n4 > kMaxSegmentsPerCurve_p4 && numChops < kMaxChopsPerCurve) {
                     SkPoint chops[5];
                     SkChopQuadAtHalf(p, chops);
                     fPointStack.pop_back_n(3);
@@ -90,8 +90,8 @@ public:
             if (!fCullTest.areVisible3(p)) {
                 fPath.lineTo(p[2]);
             } else {
-                float n2 = wangs_formula::conic_pow2(fTessellationPrecision, p, w, fVectorXform);
-                if (n2 > pow2(kMaxSegmentsPerCurve) && numChops < kMaxChopsPerCurve) {
+                float n2 = wangs_formula::conic_p2(fTessellationPrecision, p, w, fVectorXform);
+                if (n2 > kMaxSegmentsPerCurve_p2 && numChops < kMaxChopsPerCurve) {
                     SkConic chops[2];
                     if (!SkConic(p,w).chopAt(.5, chops)) {
                         SkPoint line[2] = {p[0], p[2]};
@@ -125,8 +125,8 @@ public:
             if (!fCullTest.areVisible4(p)) {
                 fPath.lineTo(p[3]);
             } else {
-                float n4 = wangs_formula::cubic_pow4(fTessellationPrecision, p, fVectorXform);
-                if (n4 > pow4(kMaxSegmentsPerCurve) && numChops < kMaxChopsPerCurve) {
+                float n4 = wangs_formula::cubic_p4(fTessellationPrecision, p, fVectorXform);
+                if (n4 > kMaxSegmentsPerCurve_p4 && numChops < kMaxChopsPerCurve) {
                     SkPoint chops[7];
                     SkChopCubicAtHalf(p, chops);
                     fPointStack.pop_back_n(4);

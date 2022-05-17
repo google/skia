@@ -131,10 +131,10 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fShape->asPath(&path);
 
     const SkRect pathDevBounds = args.fViewMatrix->mapRect(args.fShape->bounds());
-    float n4 = wangs_formula::worst_case_cubic_pow4(tess::kPrecision,
-                                                    pathDevBounds.width(),
-                                                    pathDevBounds.height());
-    if (n4 > pow4(tess::kMaxSegmentsPerCurve)) {
+    float n4 = wangs_formula::worst_case_cubic_p4(tess::kPrecision,
+                                                  pathDevBounds.width(),
+                                                  pathDevBounds.height());
+    if (n4 > tess::kMaxSegmentsPerCurve_p4) {
         // The path is extremely large. Pre-chop its curves to keep the number of tessellation
         // segments tractable. This will also flatten curves that fall completely outside the
         // viewport.
@@ -223,10 +223,10 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    float n4 = wangs_formula::worst_case_cubic_pow4(tess::kPrecision,
-                                                    pathDevBounds.width(),
-                                                    pathDevBounds.height());
-    if (n4 > pow4(tess::kMaxSegmentsPerCurve)) {
+    float n4 = wangs_formula::worst_case_cubic_p4(tess::kPrecision,
+                                                  pathDevBounds.width(),
+                                                  pathDevBounds.height());
+    if (n4 > tess::kMaxSegmentsPerCurve_p4) {
         SkRect viewport = SkRect::Make(*args.fClipConservativeBounds);
         path = PreChopPathCurves(tess::kPrecision, path, *args.fViewMatrix, viewport);
     }

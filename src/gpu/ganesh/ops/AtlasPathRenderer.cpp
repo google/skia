@@ -141,7 +141,7 @@ AtlasPathRenderer::AtlasPathRenderer(GrDirectContext* dContext) {
 bool AtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds,
                                         GrAAType fallbackAAType) const {
     SkASSERT(fallbackAAType != GrAAType::kNone);  // The atlas doesn't support non-AA.
-    float atlasMaxPathHeight_pow2 = (fallbackAAType == GrAAType::kMSAA)
+    float atlasMaxPathHeight_p2 = (fallbackAAType == GrAAType::kMSAA)
             ? kAtlasMaxPathHeightWithMSAAFallback * kAtlasMaxPathHeightWithMSAAFallback
             : kAtlasMaxPathHeight * kAtlasMaxPathHeight;
     auto [topLeftFloor, botRightCeil] = round_out(pathDevBounds);
@@ -151,7 +151,7 @@ bool AtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds,
            // Since we will transpose tall skinny paths, limiting to atlasMaxPathHeight^2 pixels
            // guarantees heightInAtlas <= atlasMaxPathHeight, while also allowing paths that are
            // very wide and short.
-           size[0] * size[1] <= atlasMaxPathHeight_pow2;
+           size[0] * size[1] <= atlasMaxPathHeight_p2;
 }
 
 void AtlasPathRenderer::AtlasPathKey::set(const SkMatrix& m, const SkPath& path) {

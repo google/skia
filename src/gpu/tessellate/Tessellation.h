@@ -45,23 +45,6 @@ AI float cross(float2 a, float2 b) {
     return x[0] - x[1];
 }
 
-// This does not return b when t==1, but it otherwise seems to get better precision than
-// "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
-// The responsibility falls on the caller to check that t != 1 before calling.
-template<int N>
-AI vec<N> mix(vec<N> a, vec<N> b, vec<N> T) {
-    SkASSERT(all((0 <= T) & (T < 1)));
-    return (b - a)*T + a;
-}
-
-template<int N>
-AI vec<N> mix(vec<N> a, vec<N> b, float T) {
-    return mix(a, b, vec<N>(T));
-}
-
-AI constexpr float pow2(float x) { return x*x; }
-AI constexpr float pow4(float x) { return pow2(x*x); }
-
 #undef AI
 }  // namespace skgpu
 
@@ -81,6 +64,9 @@ constexpr static int kMaxResolveLevel = 5;
 // path filling algorithms snap their dynamic vertex counts to powers-of-two, whereas the stroking
 // algorithm does not.
 constexpr static int kMaxParametricSegments = 1 << kMaxResolveLevel;
+constexpr static int kMaxParametricSegments_p2 = kMaxParametricSegments * kMaxParametricSegments;
+constexpr static int kMaxParametricSegments_p4 = kMaxParametricSegments_p2 *
+                                                 kMaxParametricSegments_p2;
 
 // Don't tessellate paths that might have an individual curve that requires more than 1024 segments.
 // (See wangs_formula::worst_case_cubic). If this is the case, call "PreChopPathCurves" first.
@@ -88,6 +74,8 @@ constexpr static int kMaxParametricSegments = 1 << kMaxResolveLevel;
 // kMaxTessellationSegmentsPerCurve is handled automatically by PatchWriter. It differs from
 // PreChopPathCurves in that it does no culling of offscreen chopped paths.
 constexpr static float kMaxSegmentsPerCurve = 1024;
+constexpr static float kMaxSegmentsPerCurve_p2 = kMaxSegmentsPerCurve * kMaxSegmentsPerCurve;
+constexpr static float kMaxSegmentsPerCurve_p4 = kMaxSegmentsPerCurve_p2 * kMaxSegmentsPerCurve_p2;
 
 // Returns a new path, equivalent to 'path' within the given viewport, whose verbs can all be drawn
 // with 'maxSegments' tessellation segments or fewer, while staying within '1/tessellationPrecision'

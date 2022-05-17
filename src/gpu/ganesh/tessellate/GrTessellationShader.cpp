@@ -26,27 +26,27 @@ const GrPipeline* GrTessellationShader::MakePipeline(const ProgramArgs& args,
 
 const char* GrTessellationShader::WangsFormulaSkSL() {
     static_assert(skgpu::wangs_formula::length_term<3>(1) == 0.75);
-    static_assert(skgpu::wangs_formula::length_term_pow2<3>(1) == 0.5625);
+    static_assert(skgpu::wangs_formula::length_term_p2<3>(1) == 0.5625);
 
     return R"(
 // Returns the length squared of the largest forward difference from Wang's cubic formula.
-float wangs_formula_max_fdiff_pow2(float2 p0, float2 p1, float2 p2, float2 p3,
-                                   float2x2 matrix) {
+float wangs_formula_max_fdiff_p2(float2 p0, float2 p1, float2 p2, float2 p3,
+                                 float2x2 matrix) {
     float2 d0 = matrix * (fma(float2(-2), p1, p2) + p0);
     float2 d1 = matrix * (fma(float2(-2), p2, p3) + p1);
     return max(dot(d0,d0), dot(d1,d1));
 }
 float wangs_formula_cubic(float _precision_, float2 p0, float2 p1, float2 p2, float2 p3,
                           float2x2 matrix) {
-    float m = wangs_formula_max_fdiff_pow2(p0, p1, p2, p3, matrix);
+    float m = wangs_formula_max_fdiff_p2(p0, p1, p2, p3, matrix);
     return max(ceil(sqrt(0.75 * _precision_ * sqrt(m))), 1.0);
 }
 float wangs_formula_cubic_log2(float _precision_, float2 p0, float2 p1, float2 p2, float2 p3,
                                float2x2 matrix) {
-    float m = wangs_formula_max_fdiff_pow2(p0, p1, p2, p3, matrix);
+    float m = wangs_formula_max_fdiff_p2(p0, p1, p2, p3, matrix);
     return ceil(log2(max(0.5625 * _precision_ * _precision_ * m, 1.0)) * .25);
 }
-float wangs_formula_conic_pow2(float _precision_, float2 p0, float2 p1, float2 p2, float w) {
+float wangs_formula_conic_p2(float _precision_, float2 p0, float2 p1, float2 p2, float w) {
     // Translate the bounding box center to the origin.
     float2 C = (min(min(p0, p1), p2) + max(max(p0, p1), p2)) * 0.5;
     p0 -= C;
@@ -69,11 +69,11 @@ float wangs_formula_conic_pow2(float _precision_, float2 p0, float2 p1, float2 p
     return numer/denom;
 }
 float wangs_formula_conic(float _precision_, float2 p0, float2 p1, float2 p2, float w) {
-    float n2 = wangs_formula_conic_pow2(_precision_, p0, p1, p2, w);
+    float n2 = wangs_formula_conic_p2(_precision_, p0, p1, p2, w);
     return max(ceil(sqrt(n2)), 1.0);
 }
 float wangs_formula_conic_log2(float _precision_, float2 p0, float2 p1, float2 p2, float w) {
-    float n2 = wangs_formula_conic_pow2(_precision_, p0, p1, p2, w);
+    float n2 = wangs_formula_conic_p2(_precision_, p0, p1, p2, w);
     return ceil(log2(max(n2, 1.0)) * .5);
 })";
 }
