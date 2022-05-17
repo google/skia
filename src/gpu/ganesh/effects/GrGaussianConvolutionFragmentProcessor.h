@@ -8,6 +8,7 @@
 #ifndef GrGaussianConvolutionFragmentProcessor_DEFINED
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
+#include "include/core/SkM44.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 
 /**
@@ -78,10 +79,7 @@ private:
 
     inline static constexpr int kMaxKernelWidth = kMaxKernelRadius + 1;
 
-    // The array size must be a multiple of 4 because we pass it as an array of float4 uniform
-    // values.
-    float                 fKernel[SkAlign4(kMaxKernelWidth)];
-    float                 fOffsets[SkAlign4(kMaxKernelWidth)];
+    SkV2                  fOffsetsAndKernel[kMaxKernelWidth];
     int                   fRadius;
     Direction             fDirection;
 

@@ -27,8 +27,7 @@ public:
 private:
     void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
-    UniformHandle fKernelUni;
-    UniformHandle fOffsetsUni;
+    UniformHandle fOffsetsAndKernelUni;
     UniformHandle fKernelWidthUni;
     UniformHandle fIncrementUni;
 };
@@ -40,7 +39,7 @@ enum class LoopType {
 };
 
 static LoopType loop_type(const GrShaderCaps& caps) {
-    // This checks that bitwise integer operations and array indexing by non-consts are allowed.
+    // TODO(johnstiles): determine whether "unrolled" is faster on old hardware; if not, remove it.
     if (caps.generation() < SkSL::GLSLGeneration::k130) {
         return LoopType::kUnrolled;
     }
@@ -64,41 +63,51 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
 
     int arrayCount;
     if (loopType == LoopType::kVariableLength) {
-        // Size the kernel uniform for the maximum width.
-        arrayCount = (SkGpuBlurUtils::LinearKernelWidth(kMaxKernelRadius) + 3) / 4;
+        // For variable-length loops, size the kernel uniform for the maximum width.
+        arrayCount = SkGpuBlurUtils::LinearKernelWidth(kMaxKernelRadius);
     } else {
-        arrayCount = (width + 3) / 4;
-        SkASSERT(4 * arrayCount >= width);
+        // For fixed-length loops, size the kernel uniform based on the amount we need.
+        arrayCount = width;
     }
 
-    const char* kernel;
-    fKernelUni = uniformHandler->addUniformArray(&ce, kFragment_GrShaderFlag, SkSLType::kHalf4,
-                                                 "Kernel", arrayCount, &kernel);
-    const char* offsets;
-    fOffsetsUni = uniformHandler->addUniformArray(&ce, kFragment_GrShaderFlag, SkSLType::kHalf4,
-                                                 "Offsets", arrayCount, &offsets);
+    const char* offsetsAndKernel;
+    fOffsetsAndKernelUni = uniformHandler->addUniformArray(&ce, kFragment_GrShaderFlag,
+                                                           SkSLType::kHalf2, "OffsetsAndKernel",
+                                                           arrayCount, &offsetsAndKernel);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+
+    // Create a "Smooth" helper function that computes one sample from the child using the kernel.
+    SkString smoothFuncName = fragBuilder->getMangledFunctionName("Smooth");
+    const GrShaderVar smoothArgs[] = {{args.fInputColor,  SkSLType::kHalf4},
+                                      {"coord",           SkSLType::kFloat2},
+                                      {"offsetAndKernel", SkSLType::kHalf2}};
+
+    std::string childCoord = SkSL::String::printf("(coord + offsetAndKernel.x * %s)", increment);
+    SkString sample = this->invokeChild(/*childIndex=*/0, args, childCoord);
+
+    std::string smoothBody = SkSL::String::printf("return %s * offsetAndKernel.y;", sample.c_str());
+    fragBuilder->emitFunction(SkSLType::kHalf4, smoothFuncName.c_str(),
+                              {smoothArgs, SK_ARRAY_COUNT(smoothArgs)},
+                              smoothBody.c_str());
+
+    // Implement the main() function.
     fragBuilder->codeAppendf("half4 color = half4(0);"
                              "float2 coord = %s;", args.fSampleCoord);
     switch (loopType) {
         case LoopType::kUnrolled:
             for (int i = 0; i < width; i++) {
-                std::string childCoord = SkSL::String::printf("(coord + %s[%d][%d] * %s)",
-                                                              offsets, i / 4, i & 3, increment);
-                SkString sample = this->invokeChild(/*childIndex=*/0, args, childCoord);
-                fragBuilder->codeAppendf("color += %s * %s[%d][%d];\n",
-                                         sample.c_str(), kernel, i / 4, i & 3);
+                fragBuilder->codeAppendf("color += %s(%s, coord, %s[%d]);",
+                                         smoothFuncName.c_str(), args.fInputColor,
+                                         offsetsAndKernel, i);
             }
             break;
         case LoopType::kFixedLength: {
-            std::string childCoord = SkSL::String::printf("(coord + %s[i / 4][i & 3] * %s)",
-                                                          offsets, increment);
-            SkString sample = this->invokeChild(/*childIndex=*/0, args, childCoord);
-            fragBuilder->codeAppendf("for (int i=0; i<%d; ++i) {\n"
-                                     "    color += %s * %s[i / 4][i & 3];\n"
+            fragBuilder->codeAppendf("for (int i=0; i<%d; ++i) {"
+                                     "    color += %s(%s, coord, %s[i]);"
                                      "}",
-                                     width, sample.c_str(), kernel);
+                                     width, smoothFuncName.c_str(),
+                                     args.fInputColor, offsetsAndKernel);
             break;
         }
         case LoopType::kVariableLength: {
@@ -106,13 +115,11 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
             fKernelWidthUni = uniformHandler->addUniform(&ce, kFragment_GrShaderFlag,
                                                          SkSLType::kInt, "KernelWidth",
                                                          &kernelWidth);
-            std::string childCoord = SkSL::String::printf("(coord + %s[i / 4][i & 3] * %s)",
-                                                          offsets, increment);
-            SkString sample = this->invokeChild(/*childIndex=*/0, args, childCoord);
-            fragBuilder->codeAppendf("for (int i=0; i<%s; ++i) {\n"
-                                     "    color += %s * %s[i / 4][i & 3];\n"
+            fragBuilder->codeAppendf("for (int i=0; i<%s; ++i) {"
+                                     "    color += %s(%s, coord, %s[i]);"
                                      "}",
-                                     kernelWidth, sample.c_str(), kernel);
+                                     kernelWidth, smoothFuncName.c_str(),
+                                     args.fInputColor, offsetsAndKernel);
             break;
         }
     }
@@ -127,15 +134,11 @@ void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgram
     increment[static_cast<int>(conv.fDirection)] = 1;
     pdman.set2fv(fIncrementUni, 1, increment);
 
-    int width = SkGpuBlurUtils::LinearKernelWidth(conv.fRadius);
-    int arrayCount = (width + 3)/4;
-    SkDEBUGCODE(size_t arraySize = 4*arrayCount;)
-    SkASSERT(arraySize >= static_cast<size_t>(width));
-    SkASSERT(arraySize <= SK_ARRAY_COUNT(GrGaussianConvolutionFragmentProcessor::fKernel));
-    pdman.set4fv(fKernelUni, arrayCount, conv.fKernel);
-    pdman.set4fv(fOffsetsUni, arrayCount, conv.fOffsets);
+    int kernelWidth = SkGpuBlurUtils::LinearKernelWidth(conv.fRadius);
+    SkASSERT(kernelWidth <= (int)SK_ARRAY_COUNT(fOffsetsAndKernel));
+    pdman.set2fv(fOffsetsAndKernelUni, kernelWidth, conv.fOffsetsAndKernel[0].ptr());
     if (fKernelWidthUni.isValid()) {
-        pdman.set1i(fKernelWidthUni, width);
+        pdman.set1i(fKernelWidthUni, kernelWidth);
     }
 }
 
@@ -208,8 +211,17 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fDirection(direction) {
     this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
     SkASSERT(radius <= kMaxKernelRadius);
-    SkGpuBlurUtils::Compute1DLinearGaussianKernel(fKernel, fOffsets, gaussianSigma, fRadius);
     this->setUsesSampleCoordsDirectly();
+
+    // Assemble a gaussian kernel and offset list.
+    float kernel[kMaxKernelWidth] = {};
+    float offsets[kMaxKernelWidth] = {};
+    SkGpuBlurUtils::Compute1DLinearGaussianKernel(kernel, offsets, gaussianSigma, fRadius);
+
+    // Interleave the kernel and offset values into an array of SkV2s.
+    for (int index = 0; index < kMaxKernelWidth; ++index) {
+        fOffsetsAndKernel[index] = {offsets[index], kernel[index]};
+    }
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
@@ -217,8 +229,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         : INHERITED(that)
         , fRadius(that.fRadius)
         , fDirection(that.fDirection) {
-    memcpy(fKernel, that.fKernel, SkGpuBlurUtils::LinearKernelWidth(fRadius) * sizeof(float));
-    memcpy(fOffsets, that.fOffsets, SkGpuBlurUtils::LinearKernelWidth(fRadius) * sizeof(float));
+    memcpy(fOffsetsAndKernel, that.fOffsetsAndKernel, sizeof(fOffsetsAndKernel));
 }
 
 void GrGaussianConvolutionFragmentProcessor::onAddToKey(const GrShaderCaps& shaderCaps,
@@ -236,8 +247,9 @@ GrGaussianConvolutionFragmentProcessor::onMakeProgramImpl() const {
 bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor& sBase) const {
     const auto& that = sBase.cast<GrGaussianConvolutionFragmentProcessor>();
     return fRadius == that.fRadius && fDirection == that.fDirection &&
-           std::equal(fKernel, fKernel + SkGpuBlurUtils::LinearKernelWidth(fRadius), that.fKernel) &&
-           std::equal(fOffsets, fOffsets + SkGpuBlurUtils::LinearKernelWidth(fRadius), that.fOffsets);
+           std::equal(fOffsetsAndKernel,
+                      fOffsetsAndKernel + SkGpuBlurUtils::LinearKernelWidth(fRadius),
+                      that.fOffsetsAndKernel);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

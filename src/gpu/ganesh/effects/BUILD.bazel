@@ -272,7 +272,10 @@ generated_cc_atom(
     name = "GrGaussianConvolutionFragmentProcessor_hdr",
     hdrs = ["GrGaussianConvolutionFragmentProcessor.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//src/gpu/ganesh:GrFragmentProcessor_hdr"],
+    deps = [
+        "//include/core:SkM44_hdr",
+        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
+    ],
 )
 
 generated_cc_atom(
