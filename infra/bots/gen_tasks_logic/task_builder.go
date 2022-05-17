@@ -247,6 +247,12 @@ func (b *taskBuilder) usesDocker() {
 	b.dimension("docker_installed:true")
 }
 
+// usesGSUtil adds the gsutil dependency from CIPD and puts it on PATH.
+func (b *taskBuilder) usesGSUtil() {
+	b.asset("gsutil")
+	b.addToPATH("gsutil/gsutil")
+}
+
 // recipeProp adds the given recipe property key/value pair. Panics if
 // getRecipeProps() was already called.
 func (b *taskBuilder) recipeProp(key, value string) {

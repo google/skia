@@ -1439,7 +1439,7 @@ func (b *jobBuilder) infra() {
 		b.kitchenTask("infra", OUTPUT_NONE)
 		b.cas(CAS_WHOLE_REPO)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
-		b.cipd(specs.CIPD_PKGS_GSUTIL...)
+		b.usesGSUtil()
 		b.idempotent()
 		b.usesGo()
 	})
@@ -1475,7 +1475,7 @@ func (b *jobBuilder) buildstats() {
 			b.Name = uploadName
 			b.serviceAccount(b.cfg.ServiceAccountUploadNano)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.cipd(specs.CIPD_PKGS_GSUTIL...)
+			b.usesGSUtil()
 			b.dep(depName)
 		})
 	}
@@ -1573,7 +1573,7 @@ func (b *taskBuilder) commonTestPerfAssets() {
 func (b *taskBuilder) directUpload(gsBucket, serviceAccount string) {
 	b.recipeProp("gs_bucket", gsBucket)
 	b.serviceAccount(serviceAccount)
-	b.cipd(specs.CIPD_PKGS_GSUTIL...)
+	b.usesGSUtil()
 }
 
 // dm generates a Test task using dm.
@@ -1679,7 +1679,7 @@ func (b *jobBuilder) dm() {
 			b.kitchenTask("upload_dm_results", OUTPUT_NONE)
 			b.serviceAccount(b.cfg.ServiceAccountUploadGM)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.cipd(specs.CIPD_PKGS_GSUTIL...)
+			b.usesGSUtil()
 			b.dep(depName)
 		})
 	}
@@ -1867,7 +1867,7 @@ func (b *jobBuilder) puppeteer() {
 		b.Name = uploadName
 		b.serviceAccount(b.cfg.ServiceAccountUploadNano)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-		b.cipd(specs.CIPD_PKGS_GSUTIL...)
+		b.usesGSUtil()
 		b.dep(depName)
 	})
 }
@@ -1964,7 +1964,7 @@ func (b *jobBuilder) perf() {
 			b.Name = uploadName
 			b.serviceAccount(b.cfg.ServiceAccountUploadNano)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.cipd(specs.CIPD_PKGS_GSUTIL...)
+			b.usesGSUtil()
 			b.dep(depName)
 		})
 	}

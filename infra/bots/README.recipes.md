@@ -209,7 +209,11 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 
 Run gsutil with the given args.
 
-&mdash; **def [cp](/infra/bots/recipe_modules/gsutil/api.py#17)(self, name, src, dst, extra_args=None, multithread=False):**
+This assumes there exists an executable called gsutil on the PATH.
+This probably only works for Linux/Mac, but those are the only
+hosts that we try to upload to GCS from anyway.
+
+&mdash; **def [cp](/infra/bots/recipe_modules/gsutil/api.py#20)(self, name, src, dst, extra_args=None, multithread=False):**
 
 Attempt to upload or download files to/from Google Cloud Storage (GCS).
 
