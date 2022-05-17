@@ -6,6 +6,8 @@
  */
 
 #include "src/core/SkBlendModePriv.h"
+
+#include "include/private/SkVx.h"
 #include "src/core/SkRasterPipeline.h"
 
 bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
@@ -129,8 +131,9 @@ SkPMColor4f SkBlendMode_Apply(SkBlendMode mode, const SkPMColor4f& src, const Sk
         case SkBlendMode::kSrc:     return src;
         case SkBlendMode::kDst:     return dst;
         case SkBlendMode::kSrcOver: {
-            Sk4f r = Sk4f::Load(src.vec()) + Sk4f::Load(dst.vec()) * Sk4f(1 - src.fA);
-            return { r[0], r[1], r[2], r[3] };
+            SkPMColor4f r;
+            (skvx::float4::Load(src.vec()) + skvx::float4::Load(dst.vec()) * (1-src.fA)).store(&r);
+            return r;
         }
         default:
             break;

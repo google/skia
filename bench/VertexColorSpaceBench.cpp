@@ -232,11 +232,7 @@ private:
             };
             SkASSERT(sizeof(V) == vertexStride);
             uint64_t color;
-            Sk4h halfColor = SkFloatToHalf_finite_ftz(Sk4f::Load(&fColor4f));
-            color = (uint64_t)halfColor[0] << 48 |
-                    (uint64_t)halfColor[1] << 32 |
-                    (uint64_t)halfColor[2] << 16 |
-                    (uint64_t)halfColor[3] << 0;
+            SkFloatToHalf_finite_ftz(skvx::float4::Load(&fColor4f)).store(&color);
             V* v = (V*)verts;
             for (int i = 0; i < kVertexCount; i += 2) {
                 v[i + 0].fPos.set(dx * i, 0.0f);

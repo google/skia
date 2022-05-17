@@ -12,8 +12,8 @@ generated_cc_atom(
         ":Sk4fGradientPriv_hdr",
         ":SkGradientShaderPriv_hdr",
         "//include/core:SkColor_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTArray_hdr",
+        "//include/private:SkVx_hdr",
         "//src/core:SkMatrixPriv_hdr",
         "//src/shaders:SkShaderBase_hdr",
     ],
@@ -38,7 +38,7 @@ generated_cc_atom(
         "//include/core:SkImageInfo_hdr",
         "//include/private:SkColorData_hdr",
         "//include/private:SkHalf_hdr",
-        "//include/private:SkNx_hdr",
+        "//include/private:SkVx_hdr",
         "//src/core:SkOpts_hdr",
     ],
 )

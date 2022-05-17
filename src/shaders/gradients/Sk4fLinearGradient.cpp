@@ -15,14 +15,14 @@
 namespace {
 
 template<ApplyPremul premul>
-void ramp(const Sk4f& c, const Sk4f& dc, SkPMColor dst[], int n,
-          const Sk4f& bias0, const Sk4f& bias1) {
+void ramp(const skvx::float4& c, const skvx::float4& dc, SkPMColor dst[], int n,
+          const skvx::float4& bias0, const skvx::float4& bias1) {
     SkASSERT(n > 0);
 
-    const Sk4f dc2 = dc + dc,
+    const auto dc2 = dc + dc,
                dc4 = dc2 + dc2;
 
-    Sk4f c0 =  c +      DstTraits<premul>::pre_lerp_bias(bias0),
+    auto c0 =  c +      DstTraits<premul>::pre_lerp_bias(bias0),
          c1 =  c + dc + DstTraits<premul>::pre_lerp_bias(bias1),
          c2 = c0 + dc2,
          c3 = c1 + dc2;
@@ -222,8 +222,8 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y, SkPMColor dst[], int co
                                                    fx,
                                                    dx,
                                                    SkScalarNearlyZero(dx * count));
-    Sk4f bias4f0(bias0),
-         bias4f1(bias1);
+    skvx::float4 bias4f0(bias0),
+                 bias4f1(bias1);
 
     while (count > 0) {
         // What we really want here is SkTPin(advance, 1, count)
@@ -300,8 +300,8 @@ public:
     }
 
     bool currentRampIsZero() const { return fZeroRamp; }
-    const Sk4f& currentColor() const { return fCc; }
-    const Sk4f& currentColorGrad() const { return fDcDx; }
+    const skvx::float4& currentColor() const { return fCc; }
+    const skvx::float4& currentColorGrad() const { return fDcDx; }
 
     void advance(SkScalar advX) {
         SkASSERT(advX > 0);
@@ -312,7 +312,7 @@ public:
         }
         SkASSERT(advX < fAdvX);
 
-        fCc = fCc + fDcDx * Sk4f(advX);
+        fCc = fCc + fDcDx * advX;
         fAdvX -= advX;
     }
 
@@ -320,17 +320,17 @@ private:
     void compute_interval_props(SkScalar t) {
         SkASSERT(in_range(t, fInterval->fT0, fInterval->fT1));
 
-        const Sk4f dc = DstTraits<premul>::load(fInterval->fCg);
-                  fCc = DstTraits<premul>::load(fInterval->fCb) + dc * Sk4f(t);
+        const auto dc = DstTraits<premul>::load(fInterval->fCg);
+                  fCc = DstTraits<premul>::load(fInterval->fCb) + dc * t;
                 fDcDx = dc * fDx;
-            fZeroRamp = fIsVertical || (dc == 0).allTrue();
+            fZeroRamp = fIsVertical || all(dc == 0);
     }
 
     void init_average_props() {
         fAdvX     = SK_ScalarInfinity;
         fZeroRamp = true;
         fDcDx     = 0;
-        fCc       = Sk4f(0);
+        fCc       = 0;
 
         // TODO: precompute the average at interval setup time?
         for (const auto* i = fFirstInterval; i <= fLastInterval; ++i) {
@@ -376,10 +376,10 @@ private:
     }
 
     // Current interval properties.
-    Sk4f            fDcDx;      // dst color gradient (dc/dx)
-    Sk4f            fCc;        // current color, interpolated in dst
-    SkScalar        fAdvX;      // remaining interval advance in dst
-    bool            fZeroRamp;  // current interval color grad is 0
+    skvx::float4 fDcDx;      // dst color gradient (dc/dx)
+    skvx::float4 fCc;        // current color, interpolated in dst
+    SkScalar     fAdvX;      // remaining interval advance in dst
+    bool         fZeroRamp;  // current interval color grad is 0
 
     const Sk4fGradientInterval* fFirstInterval;
     const Sk4fGradientInterval* fLastInterval;

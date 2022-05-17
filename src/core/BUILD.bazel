@@ -681,6 +681,7 @@ generated_cc_atom(
     deps = [
         ":SkBlendModePriv_hdr",
         ":SkRasterPipeline_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 
@@ -2993,7 +2994,6 @@ generated_cc_atom(
         "//include/private:SkColorData_hdr",
         "//include/private:SkHalf_hdr",
         "//include/private:SkImageInfoPriv_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTo_hdr",
         "//include/private:SkVx_hdr",
     ],
@@ -3613,10 +3613,10 @@ generated_cc_atom(
         "//include/private:SkColorData_hdr",
         "//include/private:SkHalf_hdr",
         "//include/private:SkImageInfoPriv_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTPin_hdr",
         "//include/private:SkTemplates_hdr",
         "//include/private:SkTo_hdr",
+        "//include/private:SkVx_hdr",
         "//src/image:SkReadPixelsRec_hdr",
         "//src/shaders:SkImageShader_hdr",
     ],

@@ -64,7 +64,7 @@ DEF_TEST(SkFloatToHalf_finite_ftz, r) {
             alternate = std::signbit(f) ? 0x8000 : 0x0000;
         }
 
-        uint16_t actual = SkFloatToHalf_finite_ftz(Sk4f{f})[0];
+        uint16_t actual = SkFloatToHalf_finite_ftz(skvx::float4{f})[0];
         // _finite_ftz() may truncate instead of rounding, so it may be one too small.
         REPORTER_ASSERT(r, actual == expected  || actual == expected  - 1 ||
                            actual == alternate || actual == alternate - 1);

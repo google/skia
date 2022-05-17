@@ -9,16 +9,16 @@
 #define Sk4fGradientBase_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/gradients/Sk4fGradientPriv.h"
 #include "src/shaders/gradients/SkGradientShaderPriv.h"
 
 struct Sk4fGradientInterval {
-    Sk4fGradientInterval(const Sk4f& c0, SkScalar t0,
-                         const Sk4f& c1, SkScalar t1);
+    Sk4fGradientInterval(const skvx::float4& c0, SkScalar t0,
+                         const skvx::float4& c1, SkScalar t1);
 
     bool contains(SkScalar t) const {
         // True if t is in [p0,p1].  Note: this helper assumes a
@@ -73,7 +73,8 @@ private:
     using INHERITED = Context;
 
     void addMirrorIntervals(const SkGradientShaderBase&,
-                            const Sk4f& componentScale, bool reverse);
+                            const skvx::float4& componentScale,
+                            bool reverse);
 };
 
 #endif // Sk4fGradientBase_DEFINED

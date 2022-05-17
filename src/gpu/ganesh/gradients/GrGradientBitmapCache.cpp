@@ -129,16 +129,13 @@ void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors, const SkScal
     SkHalf* pixelsF16 = reinterpret_cast<SkHalf*>(bitmap->getPixels());
     uint32_t* pixels32 = reinterpret_cast<uint32_t*>(bitmap->getPixels());
 
-    typedef std::function<void(const Sk4f&, int)> pixelWriteFn_t;
+    typedef std::function<void(const skvx::float4&, int)> pixelWriteFn_t;
 
-    pixelWriteFn_t writeF16Pixel = [&](const Sk4f& x, int index) {
-        Sk4h c = SkFloatToHalf_finite_ftz(x);
-        pixelsF16[4*index+0] = c[0];
-        pixelsF16[4*index+1] = c[1];
-        pixelsF16[4*index+2] = c[2];
-        pixelsF16[4*index+3] = c[3];
+    pixelWriteFn_t writeF16Pixel = [&](const skvx::float4& x, int index) {
+        skvx::half4 c = SkFloatToHalf_finite_ftz(x);
+        c.store(pixelsF16 + (4 * index));
     };
-    pixelWriteFn_t write8888Pixel = [&](const Sk4f& c, int index) {
+    pixelWriteFn_t write8888Pixel = [&](const skvx::float4& c, int index) {
         pixels32[index] = Sk4f_toL32(c);
     };
 
@@ -154,11 +151,11 @@ void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors, const SkScal
                                SkIntToScalar(fResolution - 1));
 
         if (nextIndex > prevIndex) {
-            Sk4f          c0 = Sk4f::Load(colors[i - 1].vec()),
-                          c1 = Sk4f::Load(colors[i    ].vec());
+            auto c0 = skvx::float4::Load(colors[i - 1].vec()),
+                 c1 = skvx::float4::Load(colors[i    ].vec());
 
-            Sk4f step = Sk4f(1.0f / static_cast<float>(nextIndex - prevIndex));
-            Sk4f delta = (c1 - c0) * step;
+            auto step = skvx::float4(1.0f / static_cast<float>(nextIndex - prevIndex));
+            auto delta = (c1 - c0) * step;
 
             for (int curIndex = prevIndex; curIndex <= nextIndex; ++curIndex) {
                 writePixel(c0, curIndex);

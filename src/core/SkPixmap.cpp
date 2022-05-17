@@ -15,10 +15,10 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkImageInfoPriv.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMask.h"
@@ -419,29 +419,25 @@ SkColor SkPixmap::getColor(int x, int y) const {
         case kRGBA_F16_SkColorType: {
             const uint64_t* addr =
                 (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
-            Sk4f p4 = SkHalfToFloat_finite_ftz(*addr);
+            skvx::float4 p4 = SkHalfToFloat_finite_ftz(*addr);
             if (p4[3] && needsUnpremul) {
                 float inva = 1 / p4[3];
-                p4 = p4 * Sk4f(inva, inva, inva, 1);
+                p4 = p4 * skvx::float4(inva, inva, inva, 1);
             }
-            SkColor c;
-            SkNx_cast<uint8_t>(p4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
             // p4 is RGBA, but we want BGRA, so we need to swap next
-            return SkSwizzle_RB(c);
+            return Sk4f_toL32(swizzle_rb(p4));
         }
         case kRGBA_F32_SkColorType: {
             const float* rgba =
                 (const float*)fPixels + 4*y*(fRowBytes >> 4) + 4*x;
-            Sk4f p4 = Sk4f::Load(rgba);
+            skvx::float4 p4 = skvx::float4::Load(rgba);
             // From here on, just like F16:
             if (p4[3] && needsUnpremul) {
                 float inva = 1 / p4[3];
-                p4 = p4 * Sk4f(inva, inva, inva, 1);
+                p4 = p4 * skvx::float4(inva, inva, inva, 1);
             }
-            SkColor c;
-            SkNx_cast<uint8_t>(p4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
             // p4 is RGBA, but we want BGRA, so we need to swap next
-            return SkSwizzle_RB(c);
+            return Sk4f_toL32(swizzle_rb(p4));
         }
         case kUnknown_SkColorType:
             break;
@@ -639,4 +635,3 @@ bool SkPixmapPriv::Orient(const SkPixmap& dst, const SkPixmap& src, SkEncodedOri
 SkImageInfo SkPixmapPriv::SwapWidthHeight(const SkImageInfo& info) {
     return info.makeWH(info.height(), info.width());
 }
-

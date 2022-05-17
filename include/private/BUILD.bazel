@@ -28,8 +28,8 @@ generated_cc_atom(
     hdrs = ["SkColorData.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkNx_hdr",
         ":SkTo_hdr",
+        ":SkVx_hdr",
         "//include/core:SkColorPriv_hdr",
         "//include/core:SkColor_hdr",
     ],
@@ -93,7 +93,7 @@ generated_cc_atom(
     hdrs = ["SkHalf.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkNx_hdr",
+        ":SkVx_hdr",
         "//include/core:SkTypes_hdr",
     ],
 )

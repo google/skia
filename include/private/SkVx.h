@@ -463,28 +463,28 @@ SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec
     // Specializations inline here so they can generalize what types the apply to.
     // (This header is used in C++14 contexts, so we have to kind of fake constexpr if.)
 #if SKVX_USE_SIMD && defined(__AVX2__)
-    if /*constexpr*/ (N*sizeof(T) == 32) {
+    if constexpr (N*sizeof(T) == 32) {
         return unchecked_bit_pun<Vec<N,T>>(_mm256_blendv_epi8(unchecked_bit_pun<__m256i>(e),
                                                               unchecked_bit_pun<__m256i>(t),
                                                               unchecked_bit_pun<__m256i>(cond)));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__SSE4_1__)
-    if /*constexpr*/ (N*sizeof(T) == 16) {
+    if constexpr (N*sizeof(T) == 16) {
         return unchecked_bit_pun<Vec<N,T>>(_mm_blendv_epi8(unchecked_bit_pun<__m128i>(e),
                                                            unchecked_bit_pun<__m128i>(t),
                                                            unchecked_bit_pun<__m128i>(cond)));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__ARM_NEON)
-    if /*constexpr*/ (N*sizeof(T) == 16) {
+    if constexpr (N*sizeof(T) == 16) {
         return unchecked_bit_pun<Vec<N,T>>(vbslq_u8(unchecked_bit_pun<uint8x16_t>(cond),
                                                     unchecked_bit_pun<uint8x16_t>(t),
                                                     unchecked_bit_pun<uint8x16_t>(e)));
     }
 #endif
     // Recurse for large vectors to try to hit the specializations above.
-    if /*constexpr*/ (N*sizeof(T) > 16) {
+    if constexpr (N*sizeof(T) > 16) {
         return join(if_then_else(cond.lo, t.lo, e.lo),
                     if_then_else(cond.hi, t.hi, e.hi));
     }
@@ -506,19 +506,19 @@ SINT bool any(const Vec<N,T>& x) {
 SIT  bool all(const Vec<1,T>& x) { return x.val != 0; }
 SINT bool all(const Vec<N,T>& x) {
 #if SKVX_USE_SIMD && defined(__AVX2__)
-    if /*constexpr*/ (N*sizeof(T) == 32) {
+    if constexpr (N*sizeof(T) == 32) {
         return _mm256_testc_si256(unchecked_bit_pun<__m256i>(x),
                                   _mm256_set1_epi32(-1));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__SSE4_1__)
-    if /*constexpr*/ (N*sizeof(T) == 16) {
+    if constexpr (N*sizeof(T) == 16) {
         return _mm_testc_si128(unchecked_bit_pun<__m128i>(x),
                                _mm_set1_epi32(-1));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__wasm_simd128__)
-    if /*constexpr*/ (N == 4 && sizeof(T) == 4) {
+    if constexpr (N == 4 && sizeof(T) == 4) {
         return wasm_i32x4_all_true(unchecked_bit_pun<VExt<4,int>>(x));
     }
 #endif
@@ -622,12 +622,12 @@ SI Vec<1,int> lrint(const Vec<1,float>& x) {
 }
 SIN Vec<N,int> lrint(const Vec<N,float>& x) {
 #if SKVX_USE_SIMD && defined(__AVX__)
-    if /*constexpr*/ (N == 8) {
+    if constexpr (N == 8) {
         return unchecked_bit_pun<Vec<N,int>>(_mm256_cvtps_epi32(unchecked_bit_pun<__m256>(x)));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__SSE__)
-    if /*constexpr*/ (N == 4) {
+    if constexpr (N == 4) {
         return unchecked_bit_pun<Vec<N,int>>(_mm_cvtps_epi32(unchecked_bit_pun<__m128>(x)));
     }
 #endif
@@ -637,8 +637,7 @@ SIN Vec<N,int> lrint(const Vec<N,float>& x) {
 
 SIN Vec<N,float> fract(const Vec<N,float>& x) { return x - floor(x); }
 
-// The default logic for to_half/from_half is borrowed from skcms,
-// and assumes inputs are finite and treat/flush denorm half floats as/to zero.
+// Assumes inputs are finite and treat/flush denorm half floats as/to zero.
 // Key constants to watch for:
 //    - a float is 32-bit, 1-8-23 sign-exponent-mantissa, with 127 exponent bias;
 //    - a half  is 16-bit, 1-5-10 sign-exponent-mantissa, with  15 exponent bias.
@@ -646,17 +645,17 @@ SIN Vec<N,uint16_t> to_half_finite_ftz(const Vec<N,float>& x) {
     Vec<N,uint32_t> sem = bit_pun<Vec<N,uint32_t>>(x),
                     s   = sem & 0x8000'0000,
                      em = sem ^ s,
-              is_denorm =  em < 0x3880'0000;
-    return cast<uint16_t>(if_then_else(is_denorm, Vec<N,uint32_t>(0)
-                                                , (s>>16) + (em>>13) - ((127-15)<<10)));
+                is_norm =  em > 0x387f'd000, // halfway between largest f16 denorm and smallest norm
+                   norm = (em>>13) - ((127-15)<<10);
+    return cast<uint16_t>((s>>16) | (is_norm & norm));
 }
 SIN Vec<N,float> from_half_finite_ftz(const Vec<N,uint16_t>& x) {
     Vec<N,uint32_t> wide = cast<uint32_t>(x),
                       s  = wide & 0x8000,
-                      em = wide ^ s;
-    auto is_denorm = bit_pun<Vec<N,int32_t>>(em < 0x0400);
-    return if_then_else(is_denorm, Vec<N,float>(0)
-                                 , bit_pun<Vec<N,float>>( (s<<16) + (em<<13) + ((127-15)<<23) ));
+                      em = wide ^ s,
+                 is_norm =   em > 0x3ff,
+                    norm = (em<<13) + ((127-15)<<23);
+    return bit_pun<Vec<N,float>>((s<<16) | (is_norm & norm));
 }
 
 // Like if_then_else(), these N=1 base cases won't actually be used unless explicitly called.
@@ -665,18 +664,18 @@ SI Vec<1,float>  from_half(const Vec<1,uint16_t>& x) { return from_half_finite_f
 
 SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
 #if SKVX_USE_SIMD && defined(__F16C__)
-    if /*constexpr*/ (N == 8) {
+    if constexpr (N == 8) {
         return unchecked_bit_pun<Vec<N,uint16_t>>(_mm256_cvtps_ph(unchecked_bit_pun<__m256>(x),
                                                                   _MM_FROUND_CUR_DIRECTION));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__aarch64__)
-    if /*constexpr*/ (N == 4) {
+    if constexpr (N == 4) {
         return unchecked_bit_pun<Vec<N,uint16_t>>(vcvt_f16_f32(unchecked_bit_pun<float32x4_t>(x)));
 
     }
 #endif
-    if /*constexpr*/ (N > 4) {
+    if constexpr (N > 4) {
         return join(to_half(x.lo),
                     to_half(x.hi));
     }
@@ -685,16 +684,16 @@ SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
 
 SIN Vec<N,float> from_half(const Vec<N,uint16_t>& x) {
 #if SKVX_USE_SIMD && defined(__F16C__)
-    if /*constexpr*/ (N == 8) {
+    if constexpr (N == 8) {
         return unchecked_bit_pun<Vec<N,float>>(_mm256_cvtph_ps(unchecked_bit_pun<__m128i>(x)));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__aarch64__)
-    if /*constexpr*/ (N == 4) {
+    if constexpr (N == 4) {
         return unchecked_bit_pun<Vec<N,float>>(vcvt_f32_f16(unchecked_bit_pun<float16x4_t>(x)));
     }
 #endif
-    if /*constexpr*/ (N > 4) {
+    if constexpr (N > 4) {
         return join(from_half(x.lo),
                     from_half(x.hi));
     }
