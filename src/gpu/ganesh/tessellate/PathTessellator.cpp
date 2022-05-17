@@ -188,7 +188,7 @@ void PathCurveTessellator::prepareWithTriangles(
         }
 
         write_curve_patches(std::move(writer), shaderMatrix, pathDrawList);
-        this->updateResolveLevel(worstCase.requiredResolveLevel());
+        fMaxVertexCount = FixedCountCurves::VertexCount(worstCase);
     }
 
     GrResourceProvider* rp = target->resourceProvider();
@@ -212,10 +212,11 @@ void PathCurveTessellator::draw(GrOpFlushState* flushState) const {
     if (!fFixedVertexBuffer || !fFixedIndexBuffer) {
         return;
     }
-    int fixedIndexCount = NumCurveTrianglesAtResolveLevel(fFixedResolveLevel) * 3;
     for (const GrVertexChunk& chunk : fVertexChunkArray) {
         flushState->bindBuffers(fFixedIndexBuffer, chunk.fBuffer, fFixedVertexBuffer);
-        flushState->drawIndexedInstanced(fixedIndexCount, 0, chunk.fCount, chunk.fBase, 0);
+        // The max vertex count is the logical number of vertices that the GPU needs to emit, so
+        // since we're using drawIndexedInstanced, it's provided as the "index count" parameter.
+        flushState->drawIndexedInstanced(fMaxVertexCount, 0, chunk.fCount, chunk.fBase, 0);
     }
 }
 
@@ -239,7 +240,7 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
         LinearTolerances worstCase;
         WedgeWriter writer{fAttribs, &worstCase, target, &fVertexChunkArray, patchPreallocCount};
         write_wedge_patches(std::move(writer), shaderMatrix, pathDrawList);
-        this->updateResolveLevel(worstCase.requiredResolveLevel());
+        fMaxVertexCount = FixedCountWedges::VertexCount(worstCase);
     }
 
     GrResourceProvider* rp = target->resourceProvider();
@@ -263,11 +264,9 @@ void PathWedgeTessellator::draw(GrOpFlushState* flushState) const {
     if (!fFixedVertexBuffer || !fFixedIndexBuffer) {
         return;
     }
-    // Emit 3 vertices per curve triangle, plus 3 more for the fan triangle.
-    int fixedIndexCount = (NumCurveTrianglesAtResolveLevel(fFixedResolveLevel) + 1) * 3;
     for (const GrVertexChunk& chunk : fVertexChunkArray) {
         flushState->bindBuffers(fFixedIndexBuffer, chunk.fBuffer, fFixedVertexBuffer);
-        flushState->drawIndexedInstanced(fixedIndexCount, 0, chunk.fCount, chunk.fBase, 0);
+        flushState->drawIndexedInstanced(fMaxVertexCount, 0, chunk.fCount, chunk.fBase, 0);
     }
 }
 

@@ -8,7 +8,9 @@
 #ifndef skgpu_tessellate_FixedCountBufferUtils_DEFINED
 #define skgpu_tessellate_FixedCountBufferUtils_DEFINED
 
+#include "src/gpu/tessellate/LinearTolerances.h"
 #include "src/gpu/tessellate/Tessellation.h"
+
 namespace skgpu { struct VertexWriter; }
 
 namespace skgpu::tess {
@@ -41,6 +43,15 @@ public:
         return totalCombinedPathVerbCnt + (totalCombinedPathVerbCnt + 3) / 2;
     }
 
+    // Convert the accumulated worst-case tolerances into an index count passed into an instanced,
+    // indexed draw function that uses FixedCountCurves static vertex and index buffers.
+    static int VertexCount(const LinearTolerances& tolerances) {
+        // We should already chopped curves to make sure none needed a higher resolveLevel than
+        // kMaxResolveLevel.
+        int resolveLevel = std::min(tolerances.requiredResolveLevel(), kMaxResolveLevel);
+        return NumCurveTrianglesAtResolveLevel(resolveLevel) * 3;
+    }
+
     // Return the number of bytes to allocate for a buffer filled via WriteVertexBuffer, assuming
     // the shader and curve instances do require more than kMaxParametricSegments segments.
     static constexpr size_t VertexBufferSize() {
@@ -66,6 +77,12 @@ public:
     static constexpr int PreallocCount(int totalCombinedPathVerbCnt)  {
         // Over-allocate enough wedges for 1 in 4 to chop, i.e., ceil(maxWedges * 5/4)
         return (totalCombinedPathVerbCnt * 5 + 3) / 4;
+    }
+
+    static int VertexCount(const LinearTolerances& tolerances) {
+        // Emit 3 vertices per curve triangle, plus 3 more for the wedge fan triangle.
+        int resolveLevel = std::min(tolerances.requiredResolveLevel(), kMaxResolveLevel);
+        return (NumCurveTrianglesAtResolveLevel(resolveLevel) + 1) * 3;
     }
 
     static constexpr size_t VertexBufferSize() {
@@ -104,6 +121,11 @@ public:
         // we have to chop at inflections, points of 180 degree rotation, and anywhere a stroke
         // requires too many parametric segments, many strokes will end up getting choppped.
         return (totalCombinedPathVerbCnt * 2) + 8/* caps */;
+    }
+
+    // Does not account for falling back to kMaxEdgesNoVertexIDs
+    static int VertexCount(const LinearTolerances& tolerances) {
+        return std::min(tolerances.requiredStrokeEdges(), kMaxEdges) * 2;
     }
 
     static constexpr size_t VertexBufferSize() {

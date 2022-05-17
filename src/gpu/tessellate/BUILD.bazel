@@ -119,7 +119,10 @@ generated_cc_atom(
     name = "FixedCountBufferUtils_hdr",
     hdrs = ["FixedCountBufferUtils.h"],
     visibility = ["//:__subpackages__"],
-    deps = [":Tessellation_hdr"],
+    deps = [
+        ":LinearTolerances_hdr",
+        ":Tessellation_hdr",
+    ],
 )
 
 generated_cc_atom(

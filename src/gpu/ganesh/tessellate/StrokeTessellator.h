@@ -57,7 +57,7 @@ protected:
 
     GrVertexChunkArray fVertexChunkArray;
 
-    int fFixedEdgeCount = 0;
+    int fVertexCount = 0;
 
     // Only used if sk_VertexID is not supported.
     sk_sp<const GrGpuBuffer> fVertexBufferIfNoIDSupport;

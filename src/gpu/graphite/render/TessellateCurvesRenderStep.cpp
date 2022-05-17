@@ -41,9 +41,7 @@ struct DrawWriterAllocator {
     VertexWriter append(const LinearTolerances& tolerances) {
         // TODO (skbug.com/13056): Converting tolerances into an index count for every instance is
         // wasteful; it only has to be computed when we flush.
-        const unsigned int indexCount =
-                3 * NumCurveTrianglesAtResolveLevel(tolerances.requiredResolveLevel());
-        return fInstances.append(indexCount, 1);
+        return fInstances.append(FixedCountCurves::VertexCount(tolerances), 1);
     }
 
     DrawWriter::DynamicInstances fInstances;
