@@ -29,6 +29,7 @@ declare_args() {
 
   win_vc = ""
   win_toolchain_version = ""
+  win_vcvars_version = ""
 
   clang_win = ""
   clang_win_version = ""
@@ -158,8 +159,17 @@ if (is_win) {
   if (win_vc == "") {
     win_vc = exec_script("//gn/find_msvc.py", [], "trim string")
   }
-  if (win_vc != "" && win_toolchain_version == "") {
-    win_toolchain_version = exec_script("//gn/highest_version_dir.py", [ "$win_vc/Tools/MSVC", "[0-9]{2}\.[0-9]{2}\.[0-9]{5}" ], "trim string")
+  if (win_vc != "") {
+    if (win_toolchain_version == "") {
+      if (win_vcvars_version != "") {
+        win_toolchain_version = exec_script("//gn/highest_version_dir.py", [ "$win_vc/Tools/MSVC", "$win_vcvars_version[0-9]{1}\.[0-9]{5}" ], "trim string")
+      } else {
+        win_toolchain_version = exec_script("//gn/highest_version_dir.py", [ "$win_vc/Tools/MSVC", "[0-9]{2}\.[0-9]{2}\.[0-9]{5}" ], "trim string")
+      }
+    }
+    if (win_vcvars_version == "") {
+      win_vcvars_version = exec_script("//gn/get_vcvars_version.py", [ win_toolchain_version ], "trim string")
+    }
   }
   if (win_sdk == "") {
     win_sdk = exec_script("//gn/find_winsdk.py", [], "trim string")

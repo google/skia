@@ -98,7 +98,7 @@ toolchain("msvc") {
   if (is_winrt) {
     _target += " uwp"
   }
-  _target += " " + win_sdk_version + " -vcvars_ver=14.2"
+  _target += " " + win_sdk_version + " -vcvars_ver=" + win_vcvars_version
 
   _vcvarsall = "$win_vc/Auxiliary/Build/vcvarsall.bat"
   env_setup = "cmd /c set __VSCMD_ARG_NO_LOGO=1 && set VSCMD_START_DIR=%CD% && \"$_vcvarsall\" $_target && "
