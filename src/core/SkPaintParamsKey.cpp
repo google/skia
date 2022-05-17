@@ -36,7 +36,7 @@ void SkPaintParamsKeyBuilder::beginBlock(int codeSnippetID) {
         return;
     }
 
-    if (codeSnippetID < 0 || codeSnippetID > fDict->maxCodeSnippetID()) {
+    if (!fDict->isValidID(codeSnippetID)) {
         // SKGPU_LOG_W("Unknown code snippet ID.");
         this->makeInvalid();
         return;

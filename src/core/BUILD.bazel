@@ -5662,6 +5662,8 @@ generated_cc_atom(
     deps = [
         ":SkOpts_hdr",
         ":SkShaderCodeDictionary_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/gpu/graphite:Context_hdr",
         "//include/private:SkSLString_hdr",
         "//src/sksl:SkSLUtil_hdr",
     ],

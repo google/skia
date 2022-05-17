@@ -20,9 +20,17 @@
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
 
+#ifdef SK_GRAPHITE_ENABLED
+namespace skgpu::graphite {
+class SkBlenderID;
+}
+#endif
+
 namespace SkSL {
 struct ShaderCaps;
 }
+
+class SkRuntimeEffect;
 
 // TODO: How to represent the type (e.g., 2D) of texture being sampled?
 class SkTextureAndSampler {
@@ -189,23 +197,28 @@ public:
 
     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations(int snippetID) const;
 
+    bool isValidID(int snippetID) const;
+
     // This method can return nullptr
     const SkShaderSnippet* getEntry(int codeSnippetID) const;
     const SkShaderSnippet* getEntry(SkBuiltInCodeSnippetID codeSnippetID) const {
         return this->getEntry(SkTo<int>(codeSnippetID));
     }
+#ifdef SK_GRAPHITE_ENABLED
+    const SkShaderSnippet* getEntry(skgpu::graphite::SkBlenderID) const;
+#endif
 
     void getShaderInfo(SkUniquePaintParamsID, SkShaderInfo*);
-
-    int maxCodeSnippetID() const {
-        return static_cast<int>(SkBuiltInCodeSnippetID::kLast) + fUserDefinedCodeSnippets.size();
-    }
 
     // TODO: this is still experimental but, most likely, it will need to be made thread-safe
     // It returns the code snippet ID to use to identify the supplied user-defined code
     // TODO: add hooks for user to actually provide code.
     int addUserDefinedSnippet(const char* name,
                               SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
+
+#ifdef SK_GRAPHITE_ENABLED
+    skgpu::graphite::SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
+#endif
 
 private:
 #ifdef SK_GRAPHITE_ENABLED

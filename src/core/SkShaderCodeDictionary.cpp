@@ -7,9 +7,18 @@
 
 #include "src/core/SkShaderCodeDictionary.h"
 
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkOpts.h"
 #include "src/sksl/SkSLUtil.h"
+
+#ifdef SK_GRAPHITE_ENABLED
+#include "include/gpu/graphite/Context.h"
+#endif
+
+// We need to ensure that the user-defined snippet ID can't conflict with the SkBlendMode
+// values (since they are used "raw" in the combination system).
+static const int kMinUserDefinedSnippetID = std::max(kBuiltInCodeSnippetIDCount, kSkBlendModeCount);
 
 namespace {
 
@@ -62,8 +71,6 @@ std::string SkShaderSnippet::getMangledUniformName(int uniformIndex, int mangleI
 // TODO: SkShaderInfo::toSkSL needs to work outside of both just graphite and metal. To do
 // so we'll need to switch over to using SkSL's uniform capabilities.
 #if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
-
-#include <set>
 
 // TODO: switch this over to using SkSL's uniform system
 namespace skgpu::graphite {
@@ -253,19 +260,31 @@ SkSpan<const SkPaintParamsKey::DataPayloadField> SkShaderCodeDictionary::dataPay
 }
 
 const SkShaderSnippet* SkShaderCodeDictionary::getEntry(int codeSnippetID) const {
-    SkASSERT(codeSnippetID >= 0 && codeSnippetID <= this->maxCodeSnippetID());
+    if (codeSnippetID < 0) {
+        return nullptr;
+    }
 
     if (codeSnippetID < kBuiltInCodeSnippetIDCount) {
         return &fBuiltInCodeSnippets[codeSnippetID];
     }
 
-    int userDefinedCodeSnippetID = codeSnippetID - kBuiltInCodeSnippetIDCount;
+    if (codeSnippetID < kMinUserDefinedSnippetID) {
+        return nullptr;
+    }
+
+    int userDefinedCodeSnippetID = codeSnippetID - kMinUserDefinedSnippetID;
     if (userDefinedCodeSnippetID < SkTo<int>(fUserDefinedCodeSnippets.size())) {
         return fUserDefinedCodeSnippets[userDefinedCodeSnippetID].get();
     }
 
     return nullptr;
 }
+
+#ifdef SK_GRAPHITE_ENABLED
+const SkShaderSnippet* SkShaderCodeDictionary::getEntry(skgpu::graphite::SkBlenderID id) const {
+    return this->getEntry(id.asUInt());
+}
+#endif
 
 void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkShaderInfo* info) {
     auto entry = this->lookup(uniqueID);
@@ -560,8 +579,26 @@ std::string GenerateShaderBasedBlenderGlueCode(const std::string& resultName,
 
 } // anonymous namespace
 
+bool SkShaderCodeDictionary::isValidID(int snippetID) const {
+    if (snippetID < 0) {
+        return false;
+    }
+
+    if (snippetID < kBuiltInCodeSnippetIDCount) {
+        return true;
+    }
+
+    if (snippetID < kMinUserDefinedSnippetID) {
+        return false;
+    }
+
+    int userDefinedCodeSnippetID = snippetID - kMinUserDefinedSnippetID;
+    return userDefinedCodeSnippetID < SkTo<int>(fUserDefinedCodeSnippets.size());
+}
+
 static constexpr int kNoChildren = 0;
 
+// TODO: this version needs to be removed
 int SkShaderCodeDictionary::addUserDefinedSnippet(
         const char* name,
         SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations) {
@@ -580,8 +617,39 @@ int SkShaderCodeDictionary::addUserDefinedSnippet(
     // 'fHash' and 'fEntryVector'
     fUserDefinedCodeSnippets.push_back(std::move(entry));
 
-    return kBuiltInCodeSnippetIDCount + fUserDefinedCodeSnippets.size() - 1;
+    return kMinUserDefinedSnippetID + fUserDefinedCodeSnippets.size() - 1;
 }
+
+#ifdef SK_GRAPHITE_ENABLED
+skgpu::graphite::SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(
+        sk_sp<SkRuntimeEffect> effect) {
+    if (!effect) {
+        return {};
+    }
+
+    // TODO: at this point we need to extract the uniform definitions, children and helper functions
+    // from the runtime effect in order to create a real SkShaderSnippet
+    // Additionally, we need to hash the provided code to deduplicate the runtime effects in case
+    // the client keeps giving us different rtEffects w/ the same backing SkSL.
+
+    std::unique_ptr<SkShaderSnippet> entry(new SkShaderSnippet("UserDefined",
+                                                               {}, // missing uniforms
+                                                               SnippetRequirementFlags::kNone,
+                                                               {}, // missing samplers
+                                                               "foo",
+                                                               GenerateDefaultGlueCode,
+                                                               kNoChildren,
+                                                               {}));  // missing data payload
+
+    // TODO: the memory for user-defined entries could go in the dictionary's arena but that
+    // would have to be a thread safe allocation since the arena also stores entries for
+    // 'fHash' and 'fEntryVector'
+    fUserDefinedCodeSnippets.push_back(std::move(entry));
+
+    return skgpu::graphite::SkBlenderID(kMinUserDefinedSnippetID +
+                                        fUserDefinedCodeSnippets.size() - 1);
+}
+#endif
 
 SkShaderCodeDictionary::SkShaderCodeDictionary() {
     // The 0th index is reserved as invalid

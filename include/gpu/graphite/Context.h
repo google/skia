@@ -17,6 +17,9 @@
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 
+class SkRuntimeEffect;
+class SkShaderCodeDictionary;
+
 namespace skgpu::graphite {
 
 class BackendTexture;
@@ -54,6 +57,31 @@ struct PaintCombo {
     std::vector<SkBlendMode> fBlendModes;
 };
 
+// TODO: add SkShaderID and SkColorFilterID too
+class SkBlenderID {
+public:
+    SkBlenderID() : fID(0) {}  // 0 is an invalid blender ID
+    SkBlenderID(const SkBlenderID& src) : fID(src.fID) {}
+
+    bool isValid() const { return fID > 0; }
+
+    bool operator==(const SkBlenderID& other) const { return fID == other.fID; }
+
+    SkBlenderID& operator=(const SkBlenderID& src) {
+        fID = src.fID;
+        return *this;
+    }
+
+private:
+    friend class ::SkShaderCodeDictionary;   // for ctor and asUInt access
+
+    SkBlenderID(uint32_t id) : fID(id) {}
+
+    uint32_t asUInt() const { return fID; }
+
+    uint32_t fID;
+};
+
 class Context final {
 public:
     Context(const Context&) = delete;
@@ -78,6 +106,10 @@ public:
      * Checks whether any asynchronous work is complete and if so calls related callbacks.
      */
     void checkAsyncWorkCompletion();
+
+    // TODO: add "SkShaderID addUserDefinedShader(sk_sp<SkRuntimeEffect>)" here
+    // TODO: add "SkColorFilterID addUserDefinedColorFilter(sk_sp<SkRuntimeEffect>)" here
+    SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
 
     void preCompile(const PaintCombo&);
 

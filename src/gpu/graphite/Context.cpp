@@ -8,6 +8,7 @@
 #include "include/gpu/graphite/Context.h"
 
 #include "include/core/SkPathTypes.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
@@ -18,6 +19,7 @@
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/Gpu.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
@@ -85,6 +87,12 @@ void Context::submit(SyncToCpu syncToCpu) {
 
 void Context::checkAsyncWorkCompletion() {
     fGpu->checkForFinishedWork(SyncToCpu::kNo);
+}
+
+SkBlenderID Context::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
+    auto dict = this->priv().shaderCodeDictionary();
+
+    return dict->addUserDefinedBlender(std::move(effect));
 }
 
 void Context::preCompile(const PaintCombo& paintCombo) {
