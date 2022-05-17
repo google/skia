@@ -32,20 +32,10 @@ private:
     UniformHandle fIncrementUni;
 };
 
-enum class LoopType {
-    kUnrolled,
-    kFixedLength,
-    kVariableLength,
-};
-
-static LoopType loop_type(const GrShaderCaps& caps) {
-    // TODO(johnstiles): determine whether "unrolled" is faster on old hardware; if not, remove it.
-    if (caps.generation() < SkSL::GLSLGeneration::k130) {
-        return LoopType::kUnrolled;
-    }
-    // If we're in reduced shader mode and we can have a loop then use a uniform to limit the
-    // number of iterations so we don't need a code variation for each width.
-    return caps.reducedShaderMode() ? LoopType::kVariableLength : LoopType::kFixedLength;
+static bool should_use_variable_length_loop(const GrShaderCaps& caps) {
+    // If we're in reduced-shader mode, and we can use variable length loops, then use a uniform to
+    // limit the number of iterations, so we don't need a code variation for each width.
+    return (caps.generation() >= SkSL::GLSLGeneration::k300es && caps.reducedShaderMode());
 }
 
 void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
@@ -58,17 +48,12 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     fIncrementUni = uniformHandler->addUniform(&ce, kFragment_GrShaderFlag, SkSLType::kHalf2,
                                                "Increment", &increment);
 
+    // For variable-length loops, size the kernel uniform for the maximum width so we can reuse the
+    // same code for any kernel width.
+    bool variableLengthLoop = should_use_variable_length_loop(*args.fShaderCaps);
     int width = SkGpuBlurUtils::LinearKernelWidth(ce.fRadius);
-    LoopType loopType = loop_type(*args.fShaderCaps);
-
-    int arrayCount;
-    if (loopType == LoopType::kVariableLength) {
-        // For variable-length loops, size the kernel uniform for the maximum width.
-        arrayCount = SkGpuBlurUtils::LinearKernelWidth(kMaxKernelRadius);
-    } else {
-        // For fixed-length loops, size the kernel uniform based on the amount we need.
-        arrayCount = width;
-    }
+    int arrayCount = variableLengthLoop ? SkGpuBlurUtils::LinearKernelWidth(kMaxKernelRadius)
+                                        : width;
 
     const char* offsetsAndKernel;
     fOffsetsAndKernelUni = uniformHandler->addUniformArray(&ce, kFragment_GrShaderFlag,
@@ -94,34 +79,21 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     // Implement the main() function.
     fragBuilder->codeAppendf("half4 color = half4(0);"
                              "float2 coord = %s;", args.fSampleCoord);
-    switch (loopType) {
-        case LoopType::kUnrolled:
-            for (int i = 0; i < width; i++) {
-                fragBuilder->codeAppendf("color += %s(%s, coord, %s[%d]);",
-                                         smoothFuncName.c_str(), args.fInputColor,
-                                         offsetsAndKernel, i);
-            }
-            break;
-        case LoopType::kFixedLength: {
-            fragBuilder->codeAppendf("for (int i=0; i<%d; ++i) {"
-                                     "    color += %s(%s, coord, %s[i]);"
-                                     "}",
-                                     width, smoothFuncName.c_str(),
-                                     args.fInputColor, offsetsAndKernel);
-            break;
-        }
-        case LoopType::kVariableLength: {
-            const char* kernelWidth;
-            fKernelWidthUni = uniformHandler->addUniform(&ce, kFragment_GrShaderFlag,
-                                                         SkSLType::kInt, "KernelWidth",
-                                                         &kernelWidth);
-            fragBuilder->codeAppendf("for (int i=0; i<%s; ++i) {"
-                                     "    color += %s(%s, coord, %s[i]);"
-                                     "}",
-                                     kernelWidth, smoothFuncName.c_str(),
-                                     args.fInputColor, offsetsAndKernel);
-            break;
-        }
+    if (variableLengthLoop) {
+        const char* kernelWidth;
+        fKernelWidthUni = uniformHandler->addUniform(&ce, kFragment_GrShaderFlag, SkSLType::kInt,
+                                                     "KernelWidth", &kernelWidth);
+        fragBuilder->codeAppendf("for (int i=0; i<%s; ++i) {"
+                                 "    color += %s(%s, coord, %s[i]);"
+                                 "}",
+                                 kernelWidth, smoothFuncName.c_str(),
+                                 args.fInputColor, offsetsAndKernel);
+    } else {
+        fragBuilder->codeAppendf("for (int i=0; i<%d; ++i) {"
+                                 "    color += %s(%s, coord, %s[i]);"
+                                 "}",
+                                 width, smoothFuncName.c_str(),
+                                 args.fInputColor, offsetsAndKernel);
     }
     fragBuilder->codeAppendf("return color;\n");
 }
@@ -234,7 +206,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
 
 void GrGaussianConvolutionFragmentProcessor::onAddToKey(const GrShaderCaps& shaderCaps,
                                                         skgpu::KeyBuilder* b) const {
-    if (loop_type(shaderCaps) != LoopType::kVariableLength) {
+    if (!should_use_variable_length_loop(shaderCaps)) {
         b->add32(fRadius);
     }
 }
