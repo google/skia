@@ -49,17 +49,20 @@ float2 sk_compute_coords(float4x4 dev2Local,
 }
 
 half4 sk_clamp_grad_4(float4 colorsParam[4], float offsetsParam[4], float t) {
-    float4 result = colorsParam[0];
-    result = mix(result, colorsParam[1],
-                 clamp((t-offsetsParam[0])/(offsetsParam[1]-offsetsParam[0]),
-                       0, 1));
-    result = mix(result, colorsParam[2],
-                 clamp((t-offsetsParam[1])/(offsetsParam[2]-offsetsParam[1]),
-                       0, 1));
-    result = mix(result, colorsParam[3],
-                 clamp((t-offsetsParam[2])/(offsetsParam[3]-offsetsParam[2]),
-                       0, 1));
-    return half4(result);
+    if (t < offsetsParam[0]) {
+        return half4(colorsParam[0]);
+    } else if (t < offsetsParam[1]) {
+        return half4(mix(colorsParam[0], colorsParam[1], (t               - offsetsParam[0]) /
+                                                         (offsetsParam[1] - offsetsParam[0])));
+    } else if (t < offsetsParam[2]) {
+        return half4(mix(colorsParam[1], colorsParam[2], (t               - offsetsParam[1]) /
+                                                         (offsetsParam[2] - offsetsParam[1])));
+    } else if (t < offsetsParam[3]) {
+        return half4(mix(colorsParam[2], colorsParam[3], (t               - offsetsParam[2]) /
+                                                         (offsetsParam[3] - offsetsParam[2])));
+    } else {
+        return half4(colorsParam[3]);
+    }
 }
 
 half4 sk_linear_grad_4_shader(float4x4 dev2Local,
