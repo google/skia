@@ -205,57 +205,28 @@ local_repository(
 # https://bazel.build/reference/be/workspace#new_local_repository
 new_local_repository(
     name = "vulkanmemoryallocator",
-    build_file_content = """
-cc_library(
-    name = "hdrs",
-    hdrs = [
-        "include/vk_mem_alloc.h",
-    ],
-    includes = ["include"],
-    visibility = ["//visibility:public"],
-    # TODO(kjlubick) set copts to avoid noisy warnings/errors
-)
-""",
+    build_file = "bazel/external/vulkanmemoryallocator/BUILD.bazel",
     path = "third_party/externals/vulkanmemoryallocator",
     workspace_file_content = "",
 )
 
 new_local_repository(
     name = "dawn",
-    # This is too complicated for a short inline BUILD file.
-    build_file = "third_party/dawn/BUILD.bazel",
+    build_file = "bazel/external/dawn/BUILD.bazel",
     path = "third_party/externals/dawn",
     workspace_file_content = "",
 )
 
 new_local_repository(
     name = "vulkan_headers",
-    build_file_content = """
-cc_library(
-    name = "vulkan_headers",
-    hdrs = [
-        "include/vulkan/vk_platform.h",
-        "include/vulkan/vulkan.h",
-        "include/vulkan/vulkan_core.h",
-    ],
-    visibility = ["//visibility:public"],
-)
-""",
+    build_file = "bazel/external/vulkan_headers/BUILD.bazel",
     path = "third_party/externals/vulkan-headers",
     workspace_file_content = "",
 )
 
 new_local_repository(
     name = "vulkan_tools",
-    build_file_content = """
-cc_library(
-    name = "vulkan_tools",
-    hdrs = [
-        "icd/generated/vk_typemap_helper.h",
-    ],
-    visibility = ["//visibility:public"],
-)
-""",
+    build_file = "bazel/external/vulkan_tools/BUILD.bazel",
     path = "third_party/externals/vulkan-tools",
     workspace_file_content = "",
 )

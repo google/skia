@@ -1,0 +1,12 @@
+# This file will be copied into //third_party/externals/vulkanmemoryallocator via the
+# new_local_repository rule in WORKSPACE.bazel, so all files should be relative to that path.
+
+cc_library(
+    name = "hdrs",
+    hdrs = [
+        "include/vk_mem_alloc.h",
+    ],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    # TODO(kjlubick) set copts to avoid noisy warnings/errors
+)
