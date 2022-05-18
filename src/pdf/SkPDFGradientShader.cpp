@@ -54,19 +54,31 @@ static void unit_to_points_matrix(const SkPoint pts[2], SkMatrix* matrix) {
 static const int kColorComponents = 3;
 typedef uint8_t ColorTuple[kColorComponents];
 
-/* Assumes t + startOffset is on the stack and does a linear interpolation on t
+/* Assumes t - startOffset is on the stack and does a linear interpolation on t
    between startOffset and endOffset from prevColor to curColor (for each color
    component), leaving the result in component order on the stack. It assumes
    there are always 3 components per color.
-   @param range                  endOffset - startOffset
-   @param curColor[components]   The current color components.
-   @param prevColor[components]  The previous color components.
-   @param result                 The result ps function.
+   @param range       endOffset - startOffset
+   @param beginColor  The previous color.
+   @param endColor    The current color.
+   @param result      The result ps function.
  */
-static void interpolate_color_code(SkScalar range, const ColorTuple& curColor,
-                                   const ColorTuple& prevColor,
+static void interpolate_color_code(SkScalar range, SkColor beginColor, SkColor endColor,
                                    SkDynamicMemoryWStream* result) {
     SkASSERT(range != SkIntToScalar(0));
+
+    /* Linearly interpolate from the previous color to the current.
+       Scale the colors from 0..255 to 0..1 and determine the multipliers for interpolation.
+       C{r,g,b}(t, section) = t - offset_(section-1) + t * Multiplier{r,g,b}.
+     */
+
+    ColorTuple curColor = { SkTo<uint8_t>(SkColorGetR(endColor)),
+                            SkTo<uint8_t>(SkColorGetG(endColor)),
+                            SkTo<uint8_t>(SkColorGetB(endColor)) };
+
+    ColorTuple prevColor = { SkTo<uint8_t>(SkColorGetR(beginColor)),
+                             SkTo<uint8_t>(SkColorGetG(beginColor)),
+                             SkTo<uint8_t>(SkColorGetB(beginColor)) };
 
     // Figure out how to scale each color component.
     SkScalar multiplier[kColorComponents];
@@ -110,89 +122,163 @@ static void interpolate_color_code(SkScalar range, const ColorTuple& curColor,
         }
 
         if (dupInput[i]) {
-            result->writeText("exch\n");
+            result->writeText("exch ");
         }
     }
 }
 
-/* Generate Type 4 function code to map t=[0,1) to the passed gradient,
-   clamping at the edges of the range.  The generated code will be of the form:
-       if (t < 0) {
-           return colorData[0][r,g,b];
-       } else {
-           if (t < info.fColorOffsets[1]) {
-               return linearinterpolation(colorData[0][r,g,b],
-                                          colorData[1][r,g,b]);
-           } else {
-               if (t < info.fColorOffsets[2]) {
-                   return linearinterpolation(colorData[1][r,g,b],
-                                              colorData[2][r,g,b]);
-               } else {
+static void write_gradient_ranges(const SkShader::GradientInfo& info, SkSpan<size_t> rangeEnds,
+                                  bool top, bool first, SkDynamicMemoryWStream* result) {
+    SkASSERT(rangeEnds.size() > 0);
 
-                ...    } else {
-                           return colorData[info.fColorCount - 1][r,g,b];
-                       }
-                ...
-           }
-       }
- */
-static void gradient_function_code(const SkShader::GradientInfo& info,
-                                 SkDynamicMemoryWStream* result) {
-    /* We want to linearly interpolate from the previous color to the next.
-       Scale the colors from 0..255 to 0..1 and determine the multipliers
-       for interpolation.
-       C{r,g,b}(t, section) = t - offset_(section-1) + t * Multiplier{r,g,b}.
-     */
+    size_t rangeEndIndex = rangeEnds[rangeEnds.size() - 1];
+    SkScalar rangeEnd = info.fColorOffsets[rangeEndIndex];
 
-    SkAutoSTMalloc<4, ColorTuple> colorDataAlloc(info.fColorCount);
-    ColorTuple *colorData = colorDataAlloc.get();
-    for (int i = 0; i < info.fColorCount; i++) {
-        colorData[i][0] = SkColorGetR(info.fColors[i]);
-        colorData[i][1] = SkColorGetG(info.fColors[i]);
-        colorData[i][2] = SkColorGetB(info.fColors[i]);
+    // Each range check tests 0 < t <= end.
+    if (top) {
+        SkASSERT(first);
+        // t may have been set to 0 to signal that the answer has already been found.
+        result->writeText("dup dup 0 gt exch ");  // In Preview 11.0 (1033.3) `0. 0 ne` is true.
+        SkPDFUtils::AppendScalar(rangeEnd, result);
+        result->writeText(" le and {\n");
+    } else if (first) {
+        // After the top level check, only t <= end needs to be tested on if (lo) side.
+        result->writeText("dup ");
+        SkPDFUtils::AppendScalar(rangeEnd, result);
+        result->writeText(" le {\n");
+    } else {
+        // The else (hi) side.
+        result->writeText("{\n");
     }
 
-    // Clamp the initial color.
-    result->writeText("dup 0 le {pop ");
-    SkPDFUtils::AppendColorComponent(colorData[0][0], result);
-    result->writeText(" ");
-    SkPDFUtils::AppendColorComponent(colorData[0][1], result);
-    result->writeText(" ");
-    SkPDFUtils::AppendColorComponent(colorData[0][2], result);
-    result->writeText(" }\n");
+    if (rangeEnds.size() == 1) {
+        // Set the stack to [r g b].
+        size_t rangeBeginIndex = rangeEndIndex - 1;
+        SkScalar rangeBegin = info.fColorOffsets[rangeBeginIndex];
+        SkPDFUtils::AppendScalar(rangeBegin, result);
+        result->writeText(" sub ");  // consume t, put t - startOffset on the stack.
+        interpolate_color_code(rangeEnd - rangeBegin,
+                               info.fColors[rangeBeginIndex], info.fColors[rangeEndIndex], result);
+        result->writeText("\n");
+    } else {
+        size_t loCount = rangeEnds.size() / 2;
+        SkSpan<size_t> loSpan = rangeEnds.subspan(0, loCount);
+        write_gradient_ranges(info, loSpan, false, true, result);
 
-    // The gradient colors.
-    int gradients = 0;
-    for (int i = 1 ; i < info.fColorCount; i++) {
-        if (info.fColorOffsets[i] == info.fColorOffsets[i - 1]) {
-            continue;
-        }
-        gradients++;
-
-        result->writeText("{dup ");
-        SkPDFUtils::AppendScalar(info.fColorOffsets[i], result);
-        result->writeText(" le {");
-        if (info.fColorOffsets[i - 1] != 0) {
-            SkPDFUtils::AppendScalar(info.fColorOffsets[i - 1], result);
-            result->writeText(" sub\n");
-        }
-
-        interpolate_color_code(info.fColorOffsets[i] - info.fColorOffsets[i - 1],
-                             colorData[i], colorData[i - 1], result);
-        result->writeText("}\n");
+        SkSpan<size_t> hiSpan = rangeEnds.subspan(loCount, rangeEnds.size() - loCount);
+        write_gradient_ranges(info, hiSpan, false, false, result);
     }
 
-    // Clamp the final color.
-    result->writeText("{pop ");
-    SkPDFUtils::AppendColorComponent(colorData[info.fColorCount - 1][0], result);
-    result->writeText(" ");
-    SkPDFUtils::AppendColorComponent(colorData[info.fColorCount - 1][1], result);
-    result->writeText(" ");
-    SkPDFUtils::AppendColorComponent(colorData[info.fColorCount - 1][2], result);
-
-    for (int i = 0 ; i < gradients + 1; i++) {
+    if (top) {
+        // Put 0 on the stack for t once here instead of after every call to interpolate_color_code.
+        result->writeText("0} if\n");
+    } else if (first) {
+        result->writeText("}");  // The else (hi) side will come next.
+    } else {
         result->writeText("} ifelse\n");
     }
+}
+
+/* Generate Type 4 function code to map t to the passed gradient, clamping at the ends.
+   The types integer, real, and boolean are available.
+   There are no string, array, procedure, variable, or name types available.
+
+   The generated code will be of the following form with all values hard coded.
+
+  if (t <= 0) {
+    ret = color[0];
+    t = 0;
+  }
+  if (t > 0 && t <= stop[4]) {
+    if (t <= stop[2]) {
+      if (t <= stop[1]) {
+        ret = interp(t - stop[0], stop[1] - stop[0], color[0], color[1]);
+      } else {
+        ret = interp(t - stop[1], stop[2] - stop[1], color[1], color[2]);
+      }
+    } else {
+      if (t <= stop[3] {
+        ret = interp(t - stop[2], stop[3] - stop[2], color[2], color[3]);
+      } else {
+        ret = interp(t - stop[3], stop[4] - stop[3], color[3], color[4]);
+      }
+    }
+    t = 0;
+  }
+  if (t > 0) {
+    ret = color[4];
+  }
+
+   which in PDF will be represented like
+
+  dup 0 le {pop 0 0 0 0} if
+  dup dup 0 gt exch 1 le and {
+    dup .5 le {
+      dup .25 le {
+        0 sub 2 mul 0 0
+      }{
+        .25 sub .5 exch 2 mul 0
+      } ifelse
+    }{
+      dup .75 le {
+        .5 sub .5 exch .5 exch 2 mul
+      }{
+        .75 sub dup 2 mul .5 add exch dup 2 mul .5 add exch 2 mul .5 add
+      } ifelse
+    } ifelse
+  0} if
+  0 gt {1 1 1} if
+ */
+static void gradient_function_code(const SkShader::GradientInfo& info,
+                                   SkDynamicMemoryWStream* result) {
+    // While looking for a hit the stack is [t].
+    // After finding a hit the stack is [r g b 0].
+    // The 0 is consumed just before returning.
+
+    // The initial range has no previous and contains a solid color.
+    // Any t <= 0 will be handled by this initial range, so later t == 0 indicates a hit was found.
+    result->writeText("dup 0 le {pop ");
+    SkPDFUtils::AppendColorComponent(SkColorGetR(info.fColors[0]), result);
+    result->writeText(" ");
+    SkPDFUtils::AppendColorComponent(SkColorGetG(info.fColors[0]), result);
+    result->writeText(" ");
+    SkPDFUtils::AppendColorComponent(SkColorGetB(info.fColors[0]), result);
+    result->writeText(" 0} if\n");
+
+    // Optimize out ranges which don't make any visual difference.
+    SkAutoSTMalloc<4, size_t> rangeEnds(info.fColorCount);
+    size_t rangeEndsCount = 0;
+    for (int i = 1; i < info.fColorCount; ++i) {
+        // Ignoring the alpha, is this range the same solid color as the next range?
+        // This optimizes gradients where sometimes only the color or only the alpha is changing.
+        auto eqIgnoringAlpha = [](SkColor a, SkColor b) {
+            return SkColorSetA(a, 0x00) == SkColorSetA(b, 0x00);
+        };
+        bool constantColorBothSides =
+            eqIgnoringAlpha(info.fColors[i-1], info.fColors[i]) &&// This range is a solid color.
+            i != info.fColorCount-1 &&                            // This is not the last range.
+            eqIgnoringAlpha(info.fColors[i], info.fColors[i+1]);  // Next range is same solid color.
+
+        // Does this range have zero size?
+        bool degenerateRange = info.fColorOffsets[i-1] == info.fColorOffsets[i];
+
+        if (!degenerateRange && !constantColorBothSides) {
+            rangeEnds[rangeEndsCount] = i;
+            ++rangeEndsCount;
+        }
+    }
+
+    // If a cap on depth is needed, loop here.
+    write_gradient_ranges(info, SkMakeSpan(rangeEnds.get(), rangeEndsCount), true, true, result);
+
+    // Clamp the final color.
+    result->writeText("0 gt {");
+    SkPDFUtils::AppendColorComponent(SkColorGetR(info.fColors[info.fColorCount - 1]), result);
+    result->writeText(" ");
+    SkPDFUtils::AppendColorComponent(SkColorGetG(info.fColors[info.fColorCount - 1]), result);
+    result->writeText(" ");
+    SkPDFUtils::AppendColorComponent(SkColorGetB(info.fColors[info.fColorCount - 1]), result);
+    result->writeText("} if\n");
 }
 
 static std::unique_ptr<SkPDFDict> createInterpolationFunction(const ColorTuple& color1,
