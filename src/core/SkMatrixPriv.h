@@ -10,7 +10,7 @@
 
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
-#include "include/private/SkNx.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkPointPriv.h"
 
 class SkMatrixPriv {
@@ -49,8 +49,8 @@ public:
         if (mx.getType() <= SkMatrix::kTranslate_Mask) {
             SkScalar tx = mx.getTranslateX();
             SkScalar ty = mx.getTranslateY();
-            Sk4f trans(tx, ty, tx, ty);
-            (Sk4f::Load(&src.fLeft) - trans).store(&dst->fLeft);
+            skvx::float4 trans(tx, ty, tx, ty);
+            (skvx::float4::Load(&src.fLeft) - trans).store(&dst->fLeft);
             return true;
         }
         // Insert other special-cases here (e.g. scale+translate)
@@ -94,9 +94,9 @@ public:
         if (SkMatrix::kTranslate_Mask == tm) {
             const SkScalar tx = mx.getTranslateX();
             const SkScalar ty = mx.getTranslateY();
-            Sk2s trans(tx, ty);
+            skvx::float2 trans(tx, ty);
             for (int i = 0; i < count; ++i) {
-                (Sk2s::Load(&pts->fX) + trans).store(&pts->fX);
+                (skvx::float2::Load(&pts->fX) + trans).store(&pts->fX);
                 pts = (SkPoint*)((intptr_t)pts + stride);
             }
             return;

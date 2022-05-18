@@ -2838,7 +2838,7 @@ generated_cc_atom(
         ":SkPointPriv_hdr",
         "//include/core:SkM44_hdr",
         "//include/core:SkMatrix_hdr",
-        "//include/private:SkNx_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 
@@ -2878,8 +2878,8 @@ generated_cc_atom(
         "//include/core:SkRSXform_hdr",
         "//include/core:SkString_hdr",
         "//include/private:SkFloatBits_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTo_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 
