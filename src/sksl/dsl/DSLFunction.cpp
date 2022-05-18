@@ -70,7 +70,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
                                                pos,
                                                modifiers.fPosition,
                                                ThreadContext::Modifiers(modifiers.fModifiers),
-                                               name == "main" ? name : DSLWriter::Name(name),
+                                               name,
                                                std::move(paramVars), returnType.fPosition,
                                                &returnType.skslType());
     ThreadContext::ReportErrors(pos);

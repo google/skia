@@ -510,7 +510,6 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     this->resetErrors();
     fInliner.reset();
 
-    settings.fDSLMangling = false;
     return DSLParser(this, settings, kind, std::move(text)).program();
 }
 

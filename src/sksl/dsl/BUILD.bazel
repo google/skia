@@ -223,7 +223,6 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLFieldAccess_hdr",
         "//src/sksl/ir:SkSLFunctionCall_hdr",
         "//src/sksl/ir:SkSLSymbolTable_hdr",
-        "//src/sksl/ir:SkSLType_hdr",
         "//src/sksl/ir:SkSLVariable_hdr",
     ],
 )

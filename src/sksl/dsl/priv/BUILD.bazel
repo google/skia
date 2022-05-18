@@ -34,7 +34,6 @@ generated_cc_atom(
         "//include/sksl:DSLType_hdr",
         "//include/sksl:DSLVar_hdr",
         "//include/sksl:SkSLPosition_hdr",
-        "//src/sksl:SkSLMangler_hdr",
         "//src/sksl:SkSLModifiersPool_hdr",
         "//src/sksl:SkSLProgramSettings_hdr",
         "//src/sksl:SkSLThreadContext_hdr",

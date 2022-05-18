@@ -75,8 +75,6 @@ struct ProgramSettings {
     // every temporary value, even ones that would otherwise be optimized away entirely. The other
     // debug opcodes are much less invasive on the generated code.
     bool fAllowTraceVarInSkVMDebugTrace = true;
-    // If true, the DSL should automatically mangle symbol names.
-    bool fDSLMangling = true;
     // If true, the DSL should automatically mark variables declared upon creation.
     bool fDSLMarkVarsDeclared = false;
     // If true, the DSL should install a memory pool when possible.

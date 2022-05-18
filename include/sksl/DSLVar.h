@@ -137,7 +137,6 @@ protected:
     std::unique_ptr<SkSL::Statement> fDeclaration;
     const SkSL::Variable* fVar = nullptr;
     Position fNamePosition;
-    std::string_view fRawName; // for error reporting
     std::string_view fName;
     DSLExpression fInitialValue;
     // true if we have attempted to create the SkSL var

@@ -112,8 +112,6 @@ DSLParser::DSLParser(Compiler* compiler, const ProgramSettings& settings, Progra
     // We don't want to have to worry about manually releasing all of the objects in the event that
     // an error occurs
     fSettings.fAssertDSLObjectsReleased = false;
-    // We manage our symbol tables manually, so no need for name mangling
-    fSettings.fDSLMangling = false;
     fLexer.start(*fText);
 }
 

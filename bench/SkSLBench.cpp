@@ -70,7 +70,6 @@ public:
         , fCompiler(fCaps.shaderCaps())
         , fOutput(output) {
             fSettings.fOptimize = optimize;
-            fSettings.fDSLMangling = false;
             // The test programs we compile don't follow Vulkan rules and thus produce invalid
             // SPIR-V. This is harmless, so long as we don't try to validate them.
             fSettings.fValidateSPIRV = false;

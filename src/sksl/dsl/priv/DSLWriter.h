@@ -15,7 +15,6 @@
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 #include <memory>
-#include <string_view>
 
 namespace SkSL {
 
@@ -35,28 +34,6 @@ class DSLVar;
  */
 class DSLWriter {
 public:
-    /**
-     * Returns whether name mangling is enabled. Mangling is important for the DSL because its
-     * variables normally all go into the same symbol table; for instance if you were to translate
-     * this legal (albeit silly) GLSL code:
-     *     int x;
-     *     {
-     *         int x;
-     *     }
-     *
-     * into DSL, you'd end up with:
-     *     DSLVar x1(kInt_Type, "x");
-     *     DSLVar x2(kInt_Type, "x");
-     *     Declare(x1);
-     *     Block(Declare(x2));
-     *
-     * with x1 and x2 ending up in the same symbol table. This is fine as long as their effective
-     * names are different, so mangling prevents this situation from causing problems.
-     */
-    static bool ManglingEnabled();
-
-    static std::string_view Name(std::string_view name);
-
     /**
      * Returns the SkSL variable corresponding to a DSL var.
      */
