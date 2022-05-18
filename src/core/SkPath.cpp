@@ -3341,7 +3341,7 @@ SkRect SkPath::computeTightBounds() const {
     SkPoint extremas[5]; // big enough to hold worst-case curve type (cubic) extremas + 1
 
     // initial with the first MoveTo, so we don't have to check inside the switch
-    Sk2s min, max;
+    skvx::float2 min, max;
     min = max = from_point(this->getPoint(0));
     for (auto [verb, pts, w] : SkPathPriv::Iterate(*this)) {
         int count = 0;
@@ -3367,9 +3367,9 @@ SkRect SkPath::computeTightBounds() const {
                 break;
         }
         for (int i = 0; i < count; ++i) {
-            Sk2s tmp = from_point(extremas[i]);
-            min = Sk2s::Min(min, tmp);
-            max = Sk2s::Max(max, tmp);
+            skvx::float2 tmp = from_point(extremas[i]);
+            min = skvx::min(min, tmp);
+            max = skvx::max(max, tmp);
         }
     }
     SkRect bounds;

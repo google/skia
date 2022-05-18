@@ -19,9 +19,9 @@
 #include "include/core/SkVertices.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkFloatingPoint.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
@@ -101,10 +101,10 @@ public:
         fDivisions = divisions;
         fCurrent    = 0;
         fMax        = fDivisions + 1;
-        Sk2s h  = Sk2s(1.f / fDivisions);
-        Sk2s h2 = h * h;
-        Sk2s h3 = h2 * h;
-        Sk2s fwDiff3 = Sk2s(6) * fCoefs.fA * h3;
+        skvx::float2 h = 1.f / fDivisions;
+        skvx::float2 h2 = h * h;
+        skvx::float2 h3 = h2 * h;
+        skvx::float2 fwDiff3 = 6 * fCoefs.fA * h3;
         fFwDiff[3] = to_point(fwDiff3);
         fFwDiff[2] = to_point(fwDiff3 + times_2(fCoefs.fB) * h2);
         fFwDiff[1] = to_point(fCoefs.fA * h3 + fCoefs.fB * h2 + fCoefs.fC * h);
@@ -167,10 +167,13 @@ static SkScalar bilerp(SkScalar tx, SkScalar ty, SkScalar c00, SkScalar c10, SkS
     return a * (1.f - ty) + b * ty;
 }
 
-static Sk4f bilerp(SkScalar tx, SkScalar ty,
-                   const Sk4f& c00, const Sk4f& c10, const Sk4f& c01, const Sk4f& c11) {
-    Sk4f a = c00 * (1.f - tx) + c10 * tx;
-    Sk4f b = c01 * (1.f - tx) + c11 * tx;
+static skvx::float4 bilerp(SkScalar tx, SkScalar ty,
+                           const skvx::float4& c00,
+                           const skvx::float4& c10,
+                           const skvx::float4& c01,
+                           const skvx::float4& c11) {
+    auto a = c00 * (1.f - tx) + c10 * tx;
+    auto b = c01 * (1.f - tx) + c11 * tx;
     return a * (1.f - ty) + b * ty;
 }
 
@@ -345,10 +348,10 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
             pos[dataIndex] = s0 + s1 - s2;
 
             if (cornerColors) {
-                bilerp(u, v, Sk4f::Load(cornerColors[kTopLeft_Corner].vec()),
-                             Sk4f::Load(cornerColors[kTopRight_Corner].vec()),
-                             Sk4f::Load(cornerColors[kBottomLeft_Corner].vec()),
-                             Sk4f::Load(cornerColors[kBottomRight_Corner].vec()))
+                bilerp(u, v, skvx::float4::Load(cornerColors[kTopLeft_Corner].vec()),
+                             skvx::float4::Load(cornerColors[kTopRight_Corner].vec()),
+                             skvx::float4::Load(cornerColors[kBottomLeft_Corner].vec()),
+                             skvx::float4::Load(cornerColors[kBottomRight_Corner].vec()))
                     .store(tmpColors[dataIndex].vec());
             }
 

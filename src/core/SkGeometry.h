@@ -9,19 +9,19 @@
 #define SkGeometry_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkNx.h"
+#include "include/private/SkVx.h"
 
-static inline Sk2s from_point(const SkPoint& point) {
-    return Sk2s::Load(&point);
+static inline skvx::float2 from_point(const SkPoint& point) {
+    return skvx::float2::Load(&point);
 }
 
-static inline SkPoint to_point(const Sk2s& x) {
+static inline SkPoint to_point(const skvx::float2& x) {
     SkPoint point;
     x.store(&point);
     return point;
 }
 
-static Sk2s times_2(const Sk2s& value) {
+static skvx::float2 times_2(const skvx::float2& value) {
     return value + value;
 }
 
@@ -388,7 +388,7 @@ namespace {  // NOLINT(google-build-namespaces)
 struct SkQuadCoeff {
     SkQuadCoeff() {}
 
-    SkQuadCoeff(const Sk2s& A, const Sk2s& B, const Sk2s& C)
+    SkQuadCoeff(const skvx::float2& A, const skvx::float2& B, const skvx::float2& C)
         : fA(A)
         , fB(B)
         , fC(C)
@@ -397,47 +397,42 @@ struct SkQuadCoeff {
 
     SkQuadCoeff(const SkPoint src[3]) {
         fC = from_point(src[0]);
-        Sk2s P1 = from_point(src[1]);
-        Sk2s P2 = from_point(src[2]);
+        auto P1 = from_point(src[1]);
+        auto P2 = from_point(src[2]);
         fB = times_2(P1 - fC);
         fA = P2 - times_2(P1) + fC;
     }
 
-    Sk2s eval(SkScalar t) {
-        Sk2s tt(t);
-        return eval(tt);
-    }
-
-    Sk2s eval(const Sk2s& tt) {
+    skvx::float2 eval(const skvx::float2& tt) {
         return (fA * tt + fB) * tt + fC;
     }
 
-    Sk2s fA;
-    Sk2s fB;
-    Sk2s fC;
+    skvx::float2 fA;
+    skvx::float2 fB;
+    skvx::float2 fC;
 };
 
 struct SkConicCoeff {
     SkConicCoeff(const SkConic& conic) {
-        Sk2s p0 = from_point(conic.fPts[0]);
-        Sk2s p1 = from_point(conic.fPts[1]);
-        Sk2s p2 = from_point(conic.fPts[2]);
-        Sk2s ww(conic.fW);
+        skvx::float2 p0 = from_point(conic.fPts[0]);
+        skvx::float2 p1 = from_point(conic.fPts[1]);
+        skvx::float2 p2 = from_point(conic.fPts[2]);
+        skvx::float2 ww(conic.fW);
 
-        Sk2s p1w = p1 * ww;
+        auto p1w = p1 * ww;
         fNumer.fC = p0;
         fNumer.fA = p2 - times_2(p1w) + p0;
         fNumer.fB = times_2(p1w - p0);
 
-        fDenom.fC = Sk2s(1);
+        fDenom.fC = 1;
         fDenom.fB = times_2(ww - fDenom.fC);
-        fDenom.fA = Sk2s(0) - fDenom.fB;
+        fDenom.fA = 0 - fDenom.fB;
     }
 
-    Sk2s eval(SkScalar t) {
-        Sk2s tt(t);
-        Sk2s numer = fNumer.eval(tt);
-        Sk2s denom = fDenom.eval(tt);
+    skvx::float2 eval(SkScalar t) {
+        skvx::float2 tt(t);
+        skvx::float2 numer = fNumer.eval(tt);
+        skvx::float2 denom = fDenom.eval(tt);
         return numer / denom;
     }
 
@@ -447,30 +442,25 @@ struct SkConicCoeff {
 
 struct SkCubicCoeff {
     SkCubicCoeff(const SkPoint src[4]) {
-        Sk2s P0 = from_point(src[0]);
-        Sk2s P1 = from_point(src[1]);
-        Sk2s P2 = from_point(src[2]);
-        Sk2s P3 = from_point(src[3]);
-        Sk2s three(3);
+        skvx::float2 P0 = from_point(src[0]);
+        skvx::float2 P1 = from_point(src[1]);
+        skvx::float2 P2 = from_point(src[2]);
+        skvx::float2 P3 = from_point(src[3]);
+        skvx::float2 three(3);
         fA = P3 + three * (P1 - P2) - P0;
         fB = three * (P2 - times_2(P1) + P0);
         fC = three * (P1 - P0);
         fD = P0;
     }
 
-    Sk2s eval(SkScalar t) {
-        Sk2s tt(t);
-        return eval(tt);
-    }
-
-    Sk2s eval(const Sk2s& t) {
+    skvx::float2 eval(const skvx::float2& t) {
         return ((fA * t + fB) * t + fC) * t + fD;
     }
 
-    Sk2s fA;
-    Sk2s fB;
-    Sk2s fC;
-    Sk2s fD;
+    skvx::float2 fA;
+    skvx::float2 fB;
+    skvx::float2 fC;
+    skvx::float2 fD;
 };
 
 }  // namespace

@@ -478,9 +478,9 @@ static SkScalar quad_error_at(const SkPoint pts[3], SkScalar t, SkScalar u) {
 void GrTriangulator::appendQuadraticToContour(const SkPoint pts[3], SkScalar toleranceSqd,
                                               VertexList* contour) const {
     SkQuadCoeff quad(pts);
-    Sk2s aa = quad.fA * quad.fA;
+    skvx::float2 aa = quad.fA * quad.fA;
     SkScalar denom = 2.0f * (aa[0] + aa[1]);
-    Sk2s ab = quad.fA * quad.fB;
+    skvx::float2 ab = quad.fA * quad.fB;
     SkScalar t = denom ? (-ab[0] - ab[1]) / denom : 0.0f;
     int nPoints = 1;
     SkScalar u = 1.0f;

@@ -17,7 +17,12 @@
 #include <tuple>
 #include <utility>
 
-static SkVector to_vector(const Sk2s& x) {
+namespace {
+
+using float2 = skvx::float2;
+using float4 = skvx::float4;
+
+SkVector to_vector(const float2& x) {
     SkVector vector;
     x.store(&vector);
     return vector;
@@ -25,7 +30,7 @@ static SkVector to_vector(const Sk2s& x) {
 
 ////////////////////////////////////////////////////////////////////////
 
-static int is_not_monotonic(SkScalar a, SkScalar b, SkScalar c) {
+int is_not_monotonic(SkScalar a, SkScalar b, SkScalar c) {
     SkScalar ab = a - b;
     SkScalar bc = b - c;
     if (ab < 0) {
@@ -36,7 +41,7 @@ static int is_not_monotonic(SkScalar a, SkScalar b, SkScalar c) {
 
 ////////////////////////////////////////////////////////////////////////
 
-static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
+int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
     SkASSERT(ratio);
 
     if (numer < 0) {
@@ -62,12 +67,14 @@ static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
 
 // Just returns its argument, but makes it easy to set a break-point to know when
 // SkFindUnitQuadRoots is going to return 0 (an error).
-static int return_check_zero(int value) {
+int return_check_zero(int value) {
     if (value == 0) {
         return 0;
     }
     return value;
 }
+
+} // namespace
 
 /** From Numerical Recipes in C.
 
@@ -138,31 +145,33 @@ SkVector SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
-    Sk2s P0 = from_point(src[0]);
-    Sk2s P1 = from_point(src[1]);
-    Sk2s P2 = from_point(src[2]);
+    float2 P0 = from_point(src[0]);
+    float2 P1 = from_point(src[1]);
+    float2 P2 = from_point(src[2]);
 
-    Sk2s B = P1 - P0;
-    Sk2s A = P2 - P1 - B;
-    Sk2s T = A * Sk2s(t) + B;
+    float2 B = P1 - P0;
+    float2 A = P2 - P1 - B;
+    float2 T = A * t + B;
 
     return to_vector(T + T);
 }
 
-static inline Sk2s interp(const Sk2s& v0, const Sk2s& v1, const Sk2s& t) {
+static inline float2 interp(const float2& v0,
+                            const float2& v1,
+                            const float2& t) {
     return v0 + (v1 - v0) * t;
 }
 
 void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
     SkASSERT(t > 0 && t < SK_Scalar1);
 
-    Sk2s p0 = from_point(src[0]);
-    Sk2s p1 = from_point(src[1]);
-    Sk2s p2 = from_point(src[2]);
-    Sk2s tt(t);
+    float2 p0 = from_point(src[0]);
+    float2 p1 = from_point(src[1]);
+    float2 p2 = from_point(src[2]);
+    float2 tt(t);
 
-    Sk2s p01 = interp(p0, p1, tt);
-    Sk2s p12 = interp(p1, p2, tt);
+    float2 p01 = interp(p0, p1, tt);
+    float2 p12 = interp(p1, p2, tt);
 
     dst[0] = to_point(p0);
     dst[1] = to_point(p01);
@@ -201,9 +210,9 @@ SkVector SkFindBisector(SkVector a, SkVector b) {
         v[1].set(-b.fY, +b.fX);
     }
     // Return "normalize(v[0]) + normalize(v[1])".
-    Sk2f x0_x1, y0_y1;
-    Sk2f::Load2(v.data(), &x0_x1, &y0_y1);
-    Sk2f invLengths = 1.0f / (x0_x1 * x0_x1 + y0_y1 * y0_y1).sqrt();
+    skvx::float2 x0_x1{v[0].fX, v[1].fX};
+    skvx::float2 y0_y1{v[0].fY, v[1].fY};
+    auto invLengths = 1.0f / sqrt(x0_x1 * x0_x1 + y0_y1 * y0_y1);
     x0_x1 *= invLengths;
     y0_y1 *= invLengths;
     return SkPoint{x0_x1[0] + x0_x1[1], y0_y1[0] + y0_y1[1]};
@@ -357,10 +366,10 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]) {
 }
 
 void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]) {
-    Sk2s scale(SkDoubleToScalar(2.0 / 3.0));
-    Sk2s s0 = from_point(src[0]);
-    Sk2s s1 = from_point(src[1]);
-    Sk2s s2 = from_point(src[2]);
+    float2 scale(SkDoubleToScalar(2.0 / 3.0));
+    float2 s0 = from_point(src[0]);
+    float2 s1 = from_point(src[1]);
+    float2 s2 = from_point(src[2]);
 
     dst[0] = to_point(s0);
     dst[1] = to_point(s0 + (s1 - s0) * scale);
@@ -374,26 +383,26 @@ void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]) {
 
 static SkVector eval_cubic_derivative(const SkPoint src[4], SkScalar t) {
     SkQuadCoeff coeff;
-    Sk2s P0 = from_point(src[0]);
-    Sk2s P1 = from_point(src[1]);
-    Sk2s P2 = from_point(src[2]);
-    Sk2s P3 = from_point(src[3]);
+    float2 P0 = from_point(src[0]);
+    float2 P1 = from_point(src[1]);
+    float2 P2 = from_point(src[2]);
+    float2 P3 = from_point(src[3]);
 
-    coeff.fA = P3 + Sk2s(3) * (P1 - P2) - P0;
+    coeff.fA = P3 + 3 * (P1 - P2) - P0;
     coeff.fB = times_2(P2 - times_2(P1) + P0);
     coeff.fC = P1 - P0;
     return to_vector(coeff.eval(t));
 }
 
 static SkVector eval_cubic_2ndDerivative(const SkPoint src[4], SkScalar t) {
-    Sk2s P0 = from_point(src[0]);
-    Sk2s P1 = from_point(src[1]);
-    Sk2s P2 = from_point(src[2]);
-    Sk2s P3 = from_point(src[3]);
-    Sk2s A = P3 + Sk2s(3) * (P1 - P2) - P0;
-    Sk2s B = P2 - times_2(P1) + P0;
+    float2 P0 = from_point(src[0]);
+    float2 P1 = from_point(src[1]);
+    float2 P2 = from_point(src[2]);
+    float2 P3 = from_point(src[3]);
+    float2 A = P3 + 3 * (P1 - P2) - P0;
+    float2 B = P2 - times_2(P1) + P0;
 
-    return to_vector(A * Sk2s(t) + B);
+    return to_vector(A * t + B);
 }
 
 void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* loc,
@@ -452,7 +461,6 @@ inline static skvx::Vec<N,T> unchecked_mix(const skvx::Vec<N,T>& a, const skvx::
 }
 
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
-    using float2 = skvx::Vec<2,float>;
     SkASSERT(0 <= t && t <= 1);
 
     if (t == 1) {
@@ -484,8 +492,6 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
 }
 
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[10], float t0, float t1) {
-    using float4 = skvx::Vec<4,float>;
-    using float2 = skvx::Vec<2,float>;
     SkASSERT(0 <= t0 && t0 <= t1 && t1 <= 1);
 
     if (t1 == 1) {
@@ -524,8 +530,6 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[10], float t0, float t1) {
 
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
                    const SkScalar tValues[], int tCount) {
-    using float2 = skvx::Vec<2,float>;
-
     SkASSERT(std::all_of(tValues, tValues + tCount, [](SkScalar t) { return t >= 0 && t <= 1; }));
     SkASSERT(std::is_sorted(tValues, tValues + tCount));
 
@@ -1284,21 +1288,21 @@ void SkConic::chopAt(SkScalar t1, SkScalar t2, SkConic* dst) const {
         }
     }
     SkConicCoeff coeff(*this);
-    Sk2s tt1(t1);
-    Sk2s aXY = coeff.fNumer.eval(tt1);
-    Sk2s aZZ = coeff.fDenom.eval(tt1);
-    Sk2s midTT((t1 + t2) / 2);
-    Sk2s dXY = coeff.fNumer.eval(midTT);
-    Sk2s dZZ = coeff.fDenom.eval(midTT);
-    Sk2s tt2(t2);
-    Sk2s cXY = coeff.fNumer.eval(tt2);
-    Sk2s cZZ = coeff.fDenom.eval(tt2);
-    Sk2s bXY = times_2(dXY) - (aXY + cXY) * Sk2s(0.5f);
-    Sk2s bZZ = times_2(dZZ) - (aZZ + cZZ) * Sk2s(0.5f);
+    float2 tt1(t1);
+    float2 aXY = coeff.fNumer.eval(tt1);
+    float2 aZZ = coeff.fDenom.eval(tt1);
+    float2 midTT((t1 + t2) / 2);
+    float2 dXY = coeff.fNumer.eval(midTT);
+    float2 dZZ = coeff.fDenom.eval(midTT);
+    float2 tt2(t2);
+    float2 cXY = coeff.fNumer.eval(tt2);
+    float2 cZZ = coeff.fDenom.eval(tt2);
+    float2 bXY = times_2(dXY) - (aXY + cXY) * 0.5f;
+    float2 bZZ = times_2(dZZ) - (aZZ + cZZ) * 0.5f;
     dst->fPts[0] = to_point(aXY / aZZ);
     dst->fPts[1] = to_point(bXY / bZZ);
     dst->fPts[2] = to_point(cXY / cZZ);
-    Sk2s ww = bZZ / (aZZ * cZZ).sqrt();
+    float2 ww = bZZ / sqrt(aZZ * cZZ);
     dst->fW = ww[0];
 }
 
@@ -1313,17 +1317,17 @@ SkVector SkConic::evalTangentAt(SkScalar t) const {
     if ((t == 0 && fPts[0] == fPts[1]) || (t == 1 && fPts[1] == fPts[2])) {
         return fPts[2] - fPts[0];
     }
-    Sk2s p0 = from_point(fPts[0]);
-    Sk2s p1 = from_point(fPts[1]);
-    Sk2s p2 = from_point(fPts[2]);
-    Sk2s ww(fW);
+    float2 p0 = from_point(fPts[0]);
+    float2 p1 = from_point(fPts[1]);
+    float2 p2 = from_point(fPts[2]);
+    float2 ww(fW);
 
-    Sk2s p20 = p2 - p0;
-    Sk2s p10 = p1 - p0;
+    float2 p20 = p2 - p0;
+    float2 p10 = p1 - p0;
 
-    Sk2s C = ww * p10;
-    Sk2s A = ww * p20 - p20;
-    Sk2s B = p20 - C - C;
+    float2 C = ww * p10;
+    float2 A = ww * p20 - p20;
+    float2 B = p20 - C - C;
 
     return to_vector(SkQuadCoeff(A, B, C).eval(t));
 }
@@ -1344,16 +1348,16 @@ static SkScalar subdivide_w_value(SkScalar w) {
 }
 
 void SkConic::chop(SkConic * SK_RESTRICT dst) const {
-    Sk2s scale = Sk2s(SkScalarInvert(SK_Scalar1 + fW));
+    float2 scale = SkScalarInvert(SK_Scalar1 + fW);
     SkScalar newW = subdivide_w_value(fW);
 
-    Sk2s p0 = from_point(fPts[0]);
-    Sk2s p1 = from_point(fPts[1]);
-    Sk2s p2 = from_point(fPts[2]);
-    Sk2s ww(fW);
+    float2 p0 = from_point(fPts[0]);
+    float2 p1 = from_point(fPts[1]);
+    float2 p2 = from_point(fPts[2]);
+    float2 ww(fW);
 
-    Sk2s wp1 = ww * p1;
-    Sk2s m = (p0 + times_2(wp1) + p2) * scale * Sk2s(0.5f);
+    float2 wp1 = ww * p1;
+    float2 m = (p0 + times_2(wp1) + p2) * scale * 0.5f;
     SkPoint mPt = to_point(m);
     if (!mPt.isFinite()) {
         double w_d = fW;

@@ -2064,8 +2064,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/core:SkMatrix_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTemplates_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 
@@ -4069,7 +4069,7 @@ generated_cc_atom(
         "//include/core:SkRect_hdr",
         "//include/core:SkString_hdr",
         "//include/private:SkMalloc_hdr",
-        "//include/private:SkNx_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 
@@ -4417,7 +4417,7 @@ generated_cc_atom(
         ":SkScan_hdr",
         "//include/core:SkPaint_hdr",
         "//include/core:SkPath_hdr",
-        "//include/private:SkNx_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 
