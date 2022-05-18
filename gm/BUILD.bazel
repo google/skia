@@ -4401,6 +4401,7 @@ generated_cc_atom(
         "//include/core:SkTypeface_hdr",
         "//include/core:SkTypes_hdr",
         "//tools:Resources_hdr",
+        "//tools:SkMetaData_hdr",
     ],
 )
 
