@@ -59,11 +59,7 @@ DSLStatement::DSLStatement(DSLPossibleStatement stmt, Position pos) {
     }
 }
 
-DSLStatement::~DSLStatement() {
-    SkASSERTF(!fStatement || !ThreadContext::Settings().fAssertDSLObjectsReleased,
-              "Statement destroyed without being incorporated into program (see "
-              "ProgramSettings::fAssertDSLObjectsReleased)");
-}
+DSLStatement::~DSLStatement() {}
 
 DSLPossibleStatement::DSLPossibleStatement(std::unique_ptr<SkSL::Statement> statement)
     : fStatement(std::move(statement)) {}

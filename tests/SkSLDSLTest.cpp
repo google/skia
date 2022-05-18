@@ -2078,15 +2078,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
     REPORTER_ASSERT(r, *program->fSource == source);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReleaseUnused, r, ctxInfo) {
-    SkSL::ProgramSettings settings = default_settings();
-    settings.fAssertDSLObjectsReleased = false;
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), settings);
-    If(Sqrt(1) > 0, Discard());
-    // Ensure that we can safely destroy statements and expressions despite being unused while
-    // settings.fAssertDSLObjectsReleased is disabled.
-}
-
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     {

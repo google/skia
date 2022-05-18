@@ -110,11 +110,7 @@ DSLExpression DSLExpression::Poison(Position pos) {
     return DSLExpression(SkSL::Poison::Make(pos, ThreadContext::Context()));
 }
 
-DSLExpression::~DSLExpression() {
-    SkASSERTF(!fExpression || !ThreadContext::Settings().fAssertDSLObjectsReleased,
-              "Expression destroyed without being incorporated into program (see "
-              "ProgramSettings::fAssertDSLObjectsReleased)");
-}
+DSLExpression::~DSLExpression() {}
 
 bool DSLExpression::isValid() const {
     return this->hasValue() && !fExpression->is<SkSL::Poison>();

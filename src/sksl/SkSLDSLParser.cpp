@@ -109,9 +109,6 @@ DSLParser::DSLParser(Compiler* compiler, const ProgramSettings& settings, Progra
     , fKind(kind)
     , fText(std::make_unique<std::string>(std::move(text)))
     , fPushback(Token::Kind::TK_NONE, /*offset=*/-1, /*length=*/-1) {
-    // We don't want to have to worry about manually releasing all of the objects in the event that
-    // an error occurs
-    fSettings.fAssertDSLObjectsReleased = false;
     fLexer.start(*fText);
 }
 

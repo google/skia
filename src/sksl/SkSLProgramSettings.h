@@ -77,8 +77,6 @@ struct ProgramSettings {
     bool fAllowTraceVarInSkVMDebugTrace = true;
     // If true, the DSL should install a memory pool when possible.
     bool fDSLUseMemoryPool = true;
-    // If true, DSL objects assert that they were used prior to destruction
-    bool fAssertDSLObjectsReleased = true;
     // If true, VarDeclaration can be cloned for testing purposes. See VarDeclaration::clone for
     // more information.
     bool fAllowVarDeclarationCloneForTesting = false;
