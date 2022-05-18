@@ -12,6 +12,7 @@
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
+#include "include/sksl/DSLWrapper.h"
 #include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -209,11 +210,12 @@ DSLExpression DSLExpression::index(DSLExpression index, Position pos) {
     return DSLExpression(std::move(result), pos);
 }
 
-DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLExpression> args, Position pos) {
+DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args,
+                                                Position pos) {
     ExpressionArray converted;
     converted.reserve_back(args.count());
-    for (DSLExpression& arg : args) {
-        converted.push_back(arg.release());
+    for (DSLWrapper<DSLExpression>& arg : args) {
+        converted.push_back(arg->release());
     }
     return (*this)(std::move(converted), pos);
 }
@@ -413,7 +415,7 @@ DSLPossibleExpression DSLPossibleExpression::operator[](DSLExpression index) {
     return DSLExpression(this->release())[std::move(index)];
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator()(SkTArray<DSLExpression> args,
+DSLPossibleExpression DSLPossibleExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args,
                                                         Position pos) {
     return DSLExpression(this->release())(std::move(args), pos);
 }

@@ -245,6 +245,7 @@ SKIA_PUBLIC_HDRS = [
     "include/sksl/DSLSymbols.h",
     "include/sksl/DSLType.h",
     "include/sksl/DSLVar.h",
+    "include/sksl/DSLWrapper.h",
     "include/sksl/SkSLDebugTrace.h",
     "include/sksl/SkSLErrorReporter.h",
     "include/sksl/SkSLOperator.h",

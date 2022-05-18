@@ -40,6 +40,7 @@ class DSLBlock;
 class DSLCase;
 class DSLGlobalVar;
 class DSLParameter;
+template <typename T> class DSLWrapper;
 
 }
 
@@ -176,7 +177,7 @@ private:
     dsl::DSLStatement localVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
             dsl::DSLType baseType, Token name);
 
-    std::optional<dsl::DSLParameter> parameter(size_t paramIndex);
+    std::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter(size_t paramIndex);
 
     int layoutInt();
 

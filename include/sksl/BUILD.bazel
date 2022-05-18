@@ -137,6 +137,12 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
+    name = "DSLWrapper_hdr",
+    hdrs = ["DSLWrapper.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
     name = "DSL_hdr",
     hdrs = ["DSL.h"],
     visibility = ["//:__subpackages__"],

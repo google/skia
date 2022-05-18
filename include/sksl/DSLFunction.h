@@ -27,6 +27,7 @@ class FunctionDeclaration;
 namespace dsl {
 
 class DSLType;
+template <typename T> class DSLWrapper;
 
 class DSLFunction {
 public:
@@ -86,7 +87,8 @@ public:
     /**
      * Invokes the function with the given arguments.
      */
-    DSLExpression call(SkTArray<DSLExpression> args, Position pos = {});
+    DSLExpression call(SkTArray<DSLWrapper<DSLExpression>> args,
+            Position pos = {});
 
     DSLExpression call(ExpressionArray args, Position pos = {});
 
