@@ -29,7 +29,6 @@ public:
             : fWorstCaseTolerances(worstCaseTolerances)
             , fBuilder(target, chunks, stride, minVerticesPerChunk) {}
 
-    size_t stride() const { return fBuilder.stride(); }
     VertexWriter append(const tess::LinearTolerances& tolerances) {
         fWorstCaseTolerances->accumulate(tolerances);
         return fBuilder.appendVertices(1);

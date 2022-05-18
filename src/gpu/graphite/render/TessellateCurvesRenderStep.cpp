@@ -9,6 +9,7 @@
 
 #include "src/gpu/graphite/DrawGeometry.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/render/DynamicInstancesPatchAllocator.h"
 #include "src/gpu/graphite/render/StencilAndCoverDSS.h"
 
 #include "src/gpu/tessellate/AffineMatrix.h"
@@ -21,38 +22,12 @@ namespace {
 
 using namespace skgpu::tess;
 
-// TODO: This can be shared by the other path tessellators if PatchWriter can provide the correct
-// index count based on its traits (curve, wedge, or stroke).
-// Satisfies API requirements for PatchAllocator template to PatchWriter, using
-// DrawWriter::DynamicInstances.
-struct DrawWriterAllocator {
-    DrawWriterAllocator(size_t stride, // required for PatchAllocator
-                        DrawWriter& writer,
-                        BindBufferInfo fixedVertexBuffer,
-                        BindBufferInfo fixedIndexBuffer,
-                        unsigned int reserveCount)
-            : fInstances(writer, fixedVertexBuffer, fixedIndexBuffer) {
-        SkASSERT(writer.instanceStride() == stride);
-        // TODO: Is it worth re-reserving large chunks after this preallocation is used up? Or will
-        // appending 1 at a time be fine since it's coming from a large vertex buffer alloc anyway?
-        fInstances.reserve(reserveCount);
-    }
-
-    VertexWriter append(const LinearTolerances& tolerances) {
-        // TODO (skbug.com/13056): Converting tolerances into an index count for every instance is
-        // wasteful; it only has to be computed when we flush.
-        return fInstances.append(FixedCountCurves::VertexCount(tolerances), 1);
-    }
-
-    DrawWriter::DynamicInstances fInstances;
-};
-
 // No fan point or stroke params, since this is for filled curves (not strokes or wedges)
 // No explicit curve type, since we assume infinity is supported on GPUs using graphite
 // No color or wide color attribs, since it might always be part of the PaintParams
 // or we'll add a color-only fast path to RenderStep later.
 static constexpr PatchAttribs kAttribs = PatchAttribs::kPaintDepth;
-using Writer = PatchWriter<DrawWriterAllocator,
+using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountCurves>,
                            Required<PatchAttribs::kPaintDepth>,
                            AddTrianglesWhenChopping,
                            DiscardFlatCurves>;

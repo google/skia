@@ -9,6 +9,7 @@
 
 #include "src/gpu/graphite/DrawGeometry.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/render/DynamicInstancesPatchAllocator.h"
 
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
@@ -21,30 +22,6 @@ namespace {
 
 using namespace skgpu::tess;
 
-// TODO: This is very similar to DrawWriterAllocator in TessellateCurveRenderStep except that the
-// index count is calculated differently. These will be merged once skbug.com/13056 is resolved.
-struct DrawWriterAllocator {
-    DrawWriterAllocator(size_t stride, // required for PatchAllocator
-                        DrawWriter& writer,
-                        BindBufferInfo fixedVertexBuffer,
-                        BindBufferInfo fixedIndexBuffer,
-                        unsigned int reserveCount)
-            : fInstances(writer, fixedVertexBuffer, fixedIndexBuffer) {
-        SkASSERT(writer.instanceStride() == stride);
-        // TODO: Is it worth re-reserving large chunks after this preallocation is used up? Or will
-        // appending 1 at a time be fine since it's coming from a large vertex buffer alloc anyway?
-        fInstances.reserve(reserveCount);
-    }
-
-    VertexWriter append(const LinearTolerances& tolerances) {
-        // TODO (skbug.com/13056): Converting tolerances into an index count for every instance is
-        // wasteful; it only has to be computed when we flush.
-        return fInstances.append(FixedCountWedges::VertexCount(tolerances), 1);
-    }
-
-    DrawWriter::DynamicInstances fInstances;
-};
-
 // Only kFanPoint, no stroke params, since this is for filled wedges.
 // No explicit curve type, since we assume infinity is supported on GPUs using graphite
 // No color or wide color attribs, since it might always be part of the PaintParams
@@ -52,7 +29,7 @@ struct DrawWriterAllocator {
 static constexpr PatchAttribs kAttribs = PatchAttribs::kFanPoint |
                                          PatchAttribs::kPaintDepth;
 
-using Writer = PatchWriter<DrawWriterAllocator,
+using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountWedges>,
                            Required<PatchAttribs::kFanPoint>,
                            Required<PatchAttribs::kPaintDepth>>;
 

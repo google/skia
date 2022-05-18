@@ -129,20 +129,37 @@ public:
     // drawIndexedInstanced() (depending on presence of index data in the template). Unlike the
     // Instances mode, the template's index or vertex count is not provided at the time of creation.
     // Instead, DynamicInstances can be used with pipeline programs that can have a flexible number
-    // of vertices per instance. Appended instances specify the minimum index/vertex count they
-    // must be drawn with, but if they are later batched with instances that would use more, the
-    // pipeline's vertex shader knows how to handle it.
+    // of vertices per instance. Appended instances specify a proxy object that can be converted
+    // to the minimum index/vertex count they must be drawn with; but if they are later batched with
+    // instances that would use more, the pipeline's vertex shader knows how to handle it.
+    //
+    // The proxy object serves as a useful point of indirection when the actual index count is
+    // expensive to compute, but can be derived from correlated geometric properties. The proxy
+    // can store those properties and accumulate a "worst-case" and then calculate the index count
+    // when DrawWriter has to flush.
+    //
+    // The VertexCountProxy type must provide:
+    //  - a default constructor and copy assignment, where the initial value represents the minimum
+    //    supported vertex count.
+    //  - an 'unsigned int' operator that converts the proxy to the actual index count that is
+    //    needed in order to dispatch a draw call.
+    //  - operator <<(const V&) where V is any type the caller wants to pass to append() that
+    //    represents the proxy for the about-to-be-written instances. This operator then updates its
+    //    internal state to represent the worst case between what had previously been recorded and
+    //    the latest V value.
     //
     // Usage for drawInstanced (fixedIndices == {}) or drawIndexedInstanced:
-    //    DrawWriter::DynamicInstances instances(writer, fixedVerts, fixedIndices);
-    //    instances.append(minIndexCount1, n1) << ...;
-    //    instances.append(minIndexCount2, n2) << ...;
+    //    DrawWriter::DynamicInstances<ProxyType> instances(writer, fixedVerts, fixedIndices);
+    //    instances.append(minIndexProxy1, n1) << ...;
+    //    instances.append(minIndexProxy2, n2) << ...;
     //
     // In this example, if the two sets of instances were contiguous, a single draw call with
     // (n1 + n2) instances would still be made using max(minIndexCount1, minIndexCount2) as the
-    // index/vertex count. If the available vertex data from the DrawBufferManager forced a flush
-    // after the first, then the second would use minIndexCount2 unless a subsequent compatible
-    // DynamicInstances template appended more contiguous data.
+    // index/vertex count, 'minIndexCountX' was derived from 'minIndexProxyX'. If the available
+    // vertex data from the DrawBufferManager forced a flush after the first, then the second would
+    // use minIndexCount2 unless a subsequent compatible DynamicInstances template appended more
+    // contiguous data.
+    template <typename VertexCountProxy>
     class DynamicInstances;
 
     // Issues a draws with fully specified data. This can be used when all instance data has already
@@ -200,6 +217,7 @@ private:
     void bindAndFlush(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
                       unsigned int templateCount, unsigned int drawCount) {
         SkASSERT(drawCount > 0);
+        SkASSERT(!fAppender); // shouldn't be appending and manually drawing at the same time.
         this->setTemplate(vertices, indices, instances, SkTo<int>(templateCount));
         fPendingBase = 0;
         fPendingCount = drawCount;
@@ -252,7 +270,7 @@ public:
         SkDEBUGCODE(w.fAppender = this;)
     }
 
-    ~Appender() {
+    virtual ~Appender() {
         if (fReservedCount > 0) {
             fDrawer.fManager->returnVertexBytes(fReservedCount * fStride);
         }
@@ -267,6 +285,8 @@ protected:
 
     unsigned int fReservedCount; // in target stride units
     VertexWriter fNextWriter;    // writing to the target buffer binding
+
+    virtual void onFlush() {}
 
     void reserve(unsigned int count) {
         if (fReservedCount >= count) {
@@ -285,6 +305,7 @@ protected:
             reservedChunk.fOffset !=
                     (fTarget.fOffset + (fDrawer.fPendingBase + fDrawer.fPendingCount) * fStride)) {
             // Not contiguous, so flush and update binding to 'reservedChunk'
+            this->onFlush();
             fDrawer.flush();
 
             fTarget = reservedChunk;
@@ -329,6 +350,7 @@ public:
     using Appender::append;
 };
 
+template <typename VertexCountProxy>
 class DrawWriter::DynamicInstances : private DrawWriter::Appender {
 public:
     DynamicInstances(DrawWriter& w,
@@ -338,17 +360,42 @@ public:
         w.setTemplate(vertices, indices, w.fInstances, -1);
     }
 
+    ~DynamicInstances() override {
+        // Persist the template count since the DrawWriter could continue batching if a new
+        // compatible DynamicInstances object is created for the next draw.
+        this->updateTemplateCount();
+    }
+
     using Appender::reserve;
 
-    VertexWriter append(unsigned int indexCount, unsigned int instanceCount) {
-        SkASSERT(indexCount > 0);
+    template <typename V>
+    VertexWriter append(const V& vertexCount, unsigned int instanceCount) {
         VertexWriter w = this->Appender::append(instanceCount);
         // Record index count after appending instance data in case the append triggered a flush
-        // or earlier dynamic instances and the max index count is reset. This ensures that the
-        // just appended instances will be flushed with a template count at least 'indexCount'.
-        fDrawer.fTemplateCount = std::min(fDrawer.fTemplateCount, -SkTo<int>(indexCount) - 1);
+        // and the max index count is reset. However, the contents of 'w' will not have been flushed
+        // so 'fProxy' will account for 'vertexCount' when it is actually drawn.
+        fProxy << vertexCount;
         return w;
     }
+
+private:
+    void updateTemplateCount() {
+        unsigned int count = static_cast<unsigned int>(fProxy);
+        SkASSERT(count > 0);
+        fDrawer.fTemplateCount = std::min(fDrawer.fTemplateCount, -SkTo<int>(count) - 1);
+        // By resetting the proxy after updating the template count, the next batch will start over
+        // with the minimum required vertex count and grow from there.
+        fProxy = {};
+    }
+
+    void onFlush() override {
+        // Update the DrawWriter's template count before its flush() is invoked and the appender
+        // starts recording to a new buffer, which ensures the flush's draw call uses the most
+        // up-to-date vertex count derived from fProxy.
+        this->updateTemplateCount();
+    }
+
+    VertexCountProxy fProxy = {};
 };
 
 } // namespace skgpu::graphite

@@ -78,6 +78,7 @@ generated_cc_atom(
     srcs = ["TessellateCurvesRenderStep.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":DynamicInstancesPatchAllocator_hdr",
         ":StencilAndCoverDSS_hdr",
         ":TessellateCurvesRenderStep_hdr",
         "//src/gpu/graphite:DrawGeometry_hdr",
@@ -100,6 +101,7 @@ generated_cc_atom(
     srcs = ["TessellateWedgesRenderStep.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":DynamicInstancesPatchAllocator_hdr",
         ":TessellateWedgesRenderStep_hdr",
         "//src/gpu/graphite:DrawGeometry_hdr",
         "//src/gpu/graphite:DrawWriter_hdr",
@@ -107,5 +109,16 @@ generated_cc_atom(
         "//src/gpu/tessellate:FixedCountBufferUtils_hdr",
         "//src/gpu/tessellate:MidpointContourParser_hdr",
         "//src/gpu/tessellate:PatchWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DynamicInstancesPatchAllocator_hdr",
+    hdrs = ["DynamicInstancesPatchAllocator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu/graphite:DrawWriter_hdr",
+        "//src/gpu/tessellate:LinearTolerances_hdr",
     ],
 )

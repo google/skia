@@ -56,8 +56,6 @@ namespace skgpu::tess {
  *
  * In addition to variable traits, PatchWriter's first template argument defines the type used for
  * allocating the GPU instance data. The templated "PatchAllocator" can be any type that provides:
- *    // The stride of each instance in bytes
- *    size_t stride() const;
  *    // A GPU-backed vertex writer for a single instance worth of data. The provided
  *    // LinearTolerances value represents the tolerances for the curve that will be written to the
  *    // returned vertex space.
@@ -303,7 +301,7 @@ public:
             // time the deferred patch was recorded.
             fTolerances.setParametricSegments(fDeferredPatch.fN_p4);
             if (VertexWriter vw = fPatchAllocator.append(fTolerances)) {
-                vw << VertexWriter::Array<char>(fDeferredPatch.fData, fPatchAllocator.stride());
+                vw << VertexWriter::Array<char>(fDeferredPatch.fData, PatchStride(fAttribs));
             }
         }
 
@@ -499,11 +497,11 @@ private:
         if constexpr (kTrackJoinControlPoints) {
             if (fDeferredPatch.fMustDefer) {
                 SkASSERT(!fDeferredPatch.hasPending());
-                SkASSERT(fPatchAllocator.stride() <= kMaxStride);
+                SkASSERT(PatchStride(fAttribs) <= kMaxStride);
                 // Save the computed parametric segment tolerance value so that we can pass that to
                 // the PatchAllocator when flushing the deferred patch.
                 fDeferredPatch.fN_p4 = fTolerances.numParametricSegments_p4();
-                return {fDeferredPatch.fData, fPatchAllocator.stride()};
+                return {fDeferredPatch.fData, PatchStride(fAttribs)};
             }
         }
         return fPatchAllocator.append(fTolerances);
