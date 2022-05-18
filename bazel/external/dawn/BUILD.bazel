@@ -772,6 +772,8 @@ TINT_SRCS = [
     "src/tint/program_id.h",
     "src/tint/reader/reader.cc",
     "src/tint/reader/reader.h",
+    "src/tint/resolver/ctor_conv_intrinsic.cc",
+    "src/tint/resolver/ctor_conv_intrinsic.h",
     "src/tint/resolver/dependency_graph.cc",
     "src/tint/resolver/dependency_graph.h",
     "src/tint/resolver/intrinsic_table.cc",
