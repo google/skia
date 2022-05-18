@@ -23,10 +23,14 @@ enum class SkBuiltInCodeSnippetID : uint8_t {
 
     // SkShader code snippets
     kSolidColorShader,
-    kLinearGradientShader,
-    kRadialGradientShader,
-    kSweepGradientShader,
-    kConicalGradientShader,
+    kLinearGradientShader4,
+    kLinearGradientShader8,
+    kRadialGradientShader4,
+    kRadialGradientShader8,
+    kSweepGradientShader4,
+    kSweepGradientShader8,
+    kConicalGradientShader4,
+    kConicalGradientShader8,
 
     kLocalMatrixShader,
     kImageShader,
