@@ -356,13 +356,17 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
 //--------------------------------------------------------------------------------------------------
 static constexpr int kFourStopGradient = 4;
 
-static constexpr int kNumLinearGradientUniforms = 5;
+static constexpr int kNumLinearGradientUniforms = 9;
 static constexpr SkUniform kLinearGradientUniforms[kNumLinearGradientUniforms] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
         { "point0",      SkSLType::kFloat2 },
         { "point1",      SkSLType::kFloat2 },
+        { "tilemode",    SkSLType::kInt },
+        { "padding1",    SkSLType::kFloat }, // TODO: add automatic uniform padding
+        { "padding2",    SkSLType::kFloat },
+        { "padding3",    SkSLType::kFloat },
 };
 
 static constexpr int kNumRadialGradientUniforms = 6;
@@ -372,20 +376,24 @@ static constexpr SkUniform kRadialGradientUniforms[kNumRadialGradientUniforms] =
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
         { "center",      SkSLType::kFloat2 },
         { "radius",      SkSLType::kFloat },
-        { "padding",     SkSLType::kFloat } // TODO: add automatic uniform padding
+        { "tilemode",    SkSLType::kInt },
 };
 
-static constexpr int kNumSweepGradientUniforms = 6;
+static constexpr int kNumSweepGradientUniforms = 10;
 static constexpr SkUniform kSweepGradientUniforms[kNumSweepGradientUniforms] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
         { "center",      SkSLType::kFloat2 },
         { "bias",        SkSLType::kFloat },
-        { "scale",       SkSLType::kFloat }
+        { "scale",       SkSLType::kFloat },
+        { "tilemode",    SkSLType::kInt },
+        { "padding1",    SkSLType::kFloat }, // TODO: add automatic uniform padding
+        { "padding2",    SkSLType::kFloat },
+        { "padding3",    SkSLType::kFloat },
 };
 
-static constexpr int kNumConicalGradientUniforms = 8;
+static constexpr int kNumConicalGradientUniforms = 9;
 static constexpr SkUniform kConicalGradientUniforms[kNumConicalGradientUniforms] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
@@ -394,7 +402,8 @@ static constexpr SkUniform kConicalGradientUniforms[kNumConicalGradientUniforms]
         { "point1",      SkSLType::kFloat2 },
         { "radius0",     SkSLType::kFloat },
         { "radius1",     SkSLType::kFloat },
-        { "padding",     SkSLType::kFloat2 } // TODO: add automatic uniform padding
+        { "tilemode",    SkSLType::kInt },
+        { "padding",     SkSLType::kFloat }, // TODO: add automatic uniform padding
 };
 
 static constexpr char kLinearGradient4Name[] = "sk_linear_grad_4_shader";

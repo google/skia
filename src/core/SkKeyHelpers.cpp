@@ -136,6 +136,10 @@ void add_linear_gradient_uniform_data(const SkShaderCodeDictionary* dict,
     gatherer->write(gradData.fOffsets, GradientData::kMaxStops);
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fPoints[1]);
+    gatherer->write(static_cast<int>(gradData.fTM));
+    gatherer->write(0.0f);  // padding
+    gatherer->write(0.0f);
+    gatherer->write(0.0f);
 
     gatherer->addFlags(
             dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kLinearGradientShader));
@@ -157,7 +161,7 @@ void add_radial_gradient_uniform_data(const SkShaderCodeDictionary* dict,
     gatherer->write(gradData.fOffsets, GradientData::kMaxStops);
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fRadii[0]);
-    gatherer->write(0.0f);  // padding
+    gatherer->write(static_cast<int>(gradData.fTM));
 
     gatherer->addFlags(
             dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kRadialGradientShader));
@@ -180,6 +184,10 @@ void add_sweep_gradient_uniform_data(const SkShaderCodeDictionary* dict,
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fBias);
     gatherer->write(gradData.fScale);
+    gatherer->write(static_cast<int>(gradData.fTM));
+    gatherer->write(0.0f);  // padding
+    gatherer->write(0.0f);
+    gatherer->write(0.0f);
 
     gatherer->addFlags(
             dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kSweepGradientShader));
@@ -203,7 +211,8 @@ void add_conical_gradient_uniform_data(const SkShaderCodeDictionary* dict,
     gatherer->write(gradData.fPoints[1]);
     gatherer->write(gradData.fRadii[0]);
     gatherer->write(gradData.fRadii[1]);
-    gatherer->write(SkPoint::Make(0.0f, 0.0f)); // padding
+    gatherer->write(static_cast<int>(gradData.fTM));
+    gatherer->write(0.0f);  // padding
 
     gatherer->addFlags(
             dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kConicalGradientShader));

@@ -48,67 +48,90 @@ float2 sk_compute_coords(float4x4 dev2Local,
     return coords;
 }
 
-half4 sk_clamp_grad_4(float4 colorsParam[4], float offsetsParam[4], float t) {
-    if (t < offsetsParam[0]) {
+float2 $tile_grad(int tileMode, float2 t) {
+    const int kGradientClamp  = 0;
+    const int kGradientRepeat = 1;
+    const int kGradientMirror = 2;
+    const int kGradientDecal  = 3;
+
+    switch (tileMode) {
+        case kGradientClamp:
+            t.x = clamp(t.x, 0, 1);
+            break;
+
+        case kGradientRepeat:
+            t.x = fract(t.x);
+            break;
+
+        case kGradientMirror: {
+            float t_1 = t.x - 1;
+            t.x = t_1 - 2 * floor(t_1 * 0.5) - 1;
+            if (sk_Caps.mustDoOpBetweenFloorAndAbs) {
+                // At this point the expected value of tiled_t should between -1 and 1, so this
+                // clamp has no effect other than to break up the floor and abs calls and make sure
+                // the compiler doesn't merge them back together.
+                t.x = clamp(t.x, -1, 1);
+            }
+            t.x = abs(t.x);
+            break;
+        }
+
+        case kGradientDecal:
+            if (t.x < 0 || t.x > 1) {
+                return float2(0, -1);
+            }
+            break;
+    }
+
+    return t;
+}
+
+half4 $colorize_grad_4(float4 colorsParam[4], float offsetsParam[4], float2 t) {
+    if (t.y < 0) {
+        return half4(0);
+
+    } else if (t.x <= offsetsParam[0]) {
         return half4(colorsParam[0]);
-    } else if (t < offsetsParam[1]) {
-        return half4(mix(colorsParam[0], colorsParam[1], (t               - offsetsParam[0]) /
+    } else if (t.x < offsetsParam[1]) {
+        return half4(mix(colorsParam[0], colorsParam[1], (t.x             - offsetsParam[0]) /
                                                          (offsetsParam[1] - offsetsParam[0])));
-    } else if (t < offsetsParam[2]) {
-        return half4(mix(colorsParam[1], colorsParam[2], (t               - offsetsParam[1]) /
+    } else if (t.x < offsetsParam[2]) {
+        return half4(mix(colorsParam[1], colorsParam[2], (t.x             - offsetsParam[1]) /
                                                          (offsetsParam[2] - offsetsParam[1])));
-    } else if (t < offsetsParam[3]) {
-        return half4(mix(colorsParam[2], colorsParam[3], (t               - offsetsParam[2]) /
+    } else if (t.x < offsetsParam[3]) {
+        return half4(mix(colorsParam[2], colorsParam[3], (t.x             - offsetsParam[2]) /
                                                          (offsetsParam[3] - offsetsParam[2])));
     } else {
         return half4(colorsParam[3]);
     }
 }
 
-half4 sk_linear_grad_4_shader(float4x4 dev2Local,
-                              float4 colorsParam[4],
-                              float offsetsParam[4],
-                              float2 point0Param,
-                              float2 point1Param) {
-    float2 pos = (dev2Local * sk_FragCoord).xy;
+float2 $linear_grad_layout(float2 point0Param, float2 point1Param, float2 pos) {
+    pos -= point0Param;
     float2 delta = point1Param - point0Param;
-    float2 pt = pos - point0Param;
-    float t = dot(pt, delta) / dot(delta, delta);
-    return sk_clamp_grad_4(colorsParam, offsetsParam, t);
+    float t = dot(pos, delta) / dot(delta, delta);
+    return float2(t, 1);
 }
 
-half4 sk_radial_grad_4_shader(float4x4 dev2Local,
-                              float4 colorsParam[4],
-                              float offsetsParam[4],
-                              float2 centerParam,
-                              float radiusParam,
-                              float padding) {
-    float2 pos = (dev2Local * sk_FragCoord).xy;
-    float2 pt = pos - centerParam;
-    float t = length(pt) / radiusParam;
-    return sk_clamp_grad_4(colorsParam, offsetsParam, t);
+float2 $radial_grad_layout(float2 centerParam, float radiusParam, float2 pos) {
+    float t = distance(pos, centerParam) / radiusParam;
+    return float2(t, 1);
 }
 
-half4 sk_sweep_grad_4_shader(float4x4 dev2Local,
-                             float4 colorsParam[4],
-                             float offsetsParam[4],
-                             float2 centerParam,
-                             float biasParam,
-                             float scaleParam) {
-    float2 pos = (dev2Local * sk_FragCoord).xy;
-    float2 pt = pos - centerParam;
+float2 $sweep_grad_layout(float2 centerParam, float biasParam, float scaleParam, float2 pos) {
+    pos -= centerParam;
 
     // Some devices incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
     // atan2(y,x) = 2 * atan(y / (sqrt(x^2 + y^2) + x)). To work around this we pass in
     // (sqrt(x^2 + y^2) + x) as the second parameter to atan2 in these cases. We let the device
     // handle the undefined behavior if the second parameter is 0, instead of doing the divide
     // ourselves and calling atan with the quotient.
-    float angle = sk_Caps.atan2ImplementedAsAtanYOverX ? 2 * atan(-pt.y, length(pt) - pt.x)
-                                                       : atan(-pt.y, -pt.x);
+    float angle = sk_Caps.atan2ImplementedAsAtanYOverX ? 2 * atan(-pos.y, length(pos) - pos.x)
+                                                       : atan(-pos.y, -pos.x);
 
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     float t = (angle * 0.1591549430918 + 0.5 + biasParam) * scaleParam;
-    return sk_clamp_grad_4(colorsParam, offsetsParam, t);
+    return float2(t, 1);
 }
 
 float3x3 $map_to_unit_x(float2 p0, float2 p1) {
@@ -125,17 +148,11 @@ float3x3 $map_to_unit_x(float2 p0, float2 p1) {
     ));
 }
 
-half4 sk_conical_grad_4_shader(float4x4 dev2Local,
-                               float4 colorsParam[4],
-                               float offsetsParam[4],
-                               float2 point0Param,
-                               float2 point1Param,
-                               float radius0Param,
-                               float radius1Param,
-                               float2 padding) {
-    float2 pos = (dev2Local * sk_FragCoord).xy;
-    float t;
-
+float2 $conical_grad_layout(float2 point0Param,
+                            float2 point1Param,
+                            float radius0Param,
+                            float radius1Param,
+                            float2 pos) {
     const float SK_ScalarNearlyZero = 1.0 / (1 << 12);
     float dCenter = distance(point0Param, point1Param);
     float dRadius = radius1Param - radius0Param;
@@ -150,7 +167,7 @@ half4 sk_conical_grad_4_shader(float4x4 dev2Local,
         if (strip) {
             // The start and end inputs are the same in both position and radius.
             // We don't expect to see this input, but just in case we avoid dividing by zero.
-            return half4(0);
+            return float2(0, -1);
         }
 
         float scale = 1 / dRadius;
@@ -158,7 +175,8 @@ half4 sk_conical_grad_4_shader(float4x4 dev2Local,
         float bias = radius0Param / dRadius;
 
         float2 pt = (pos - point0Param) * scale;
-        t = length(pt) * scaleSign - bias;
+        float t = length(pt) * scaleSign - bias;
+        return float2(t, 1);
 
     } else if (strip) {
         float3x3 transform = $map_to_unit_x(point0Param, point1Param);
@@ -166,11 +184,12 @@ half4 sk_conical_grad_4_shader(float4x4 dev2Local,
         float r_2 = r * r;
 
         float2 pt = (transform * pos.xy1).xy;
-        t = r_2 - pt.y * pt.y;
+        float t = r_2 - pt.y * pt.y;
         if (t < 0) {
-            return half4(0);
+            return float2(0, -1);
         }
         t = pt.x + sqrt(t);
+        return float2(t, 1);
 
     } else {
         // See https://skia.org/docs/dev/design/conical/ for details on how this algorithm works.
@@ -231,16 +250,73 @@ half4 sk_conical_grad_4_shader(float4x4 dev2Local,
         }
 
         if (!isWellBehaved && x_t < 0) {
-            return half4(0);
+            return float2(0, -1);
         }
 
-        t = f + dRadiusSign * x_t;
+        float t = f + dRadiusSign * x_t;
         if (isSwapped) {
             t = 1 - t;
         }
+        return float2(t, 1);
     }
+}
 
-    return sk_clamp_grad_4(colorsParam, offsetsParam, t);
+half4 sk_linear_grad_4_shader(float4x4 dev2Local,
+                              float4 colorsParam[4],
+                              float offsetsParam[4],
+                              float2 point0Param,
+                              float2 point1Param,
+                              int tileMode,
+                              float padding0,
+                              float padding1,
+                              float padding2) {
+    float2 pos = (dev2Local * sk_FragCoord).xy;
+    float2 t = $linear_grad_layout(point0Param, point1Param, pos);
+    t = $tile_grad(tileMode, t);
+    return $colorize_grad_4(colorsParam, offsetsParam, t);
+}
+
+half4 sk_radial_grad_4_shader(float4x4 dev2Local,
+                              float4 colorsParam[4],
+                              float offsetsParam[4],
+                              float2 centerParam,
+                              float radiusParam,
+                              int tileMode) {
+    float2 pos = (dev2Local * sk_FragCoord).xy;
+    float2 t = $radial_grad_layout(centerParam, radiusParam, pos);
+    t = $tile_grad(tileMode, t);
+    return $colorize_grad_4(colorsParam, offsetsParam, t);
+}
+
+half4 sk_sweep_grad_4_shader(float4x4 dev2Local,
+                             float4 colorsParam[4],
+                             float offsetsParam[4],
+                             float2 centerParam,
+                             float biasParam,
+                             float scaleParam,
+                             int tileMode,
+                             float padding0,
+                             float padding1,
+                             float padding2) {
+    float2 pos = (dev2Local * sk_FragCoord).xy;
+    float2 t = $sweep_grad_layout(centerParam, biasParam, scaleParam, pos);
+    t = $tile_grad(tileMode, t);
+    return $colorize_grad_4(colorsParam, offsetsParam, t);
+}
+
+half4 sk_conical_grad_4_shader(float4x4 dev2Local,
+                               float4 colorsParam[4],
+                               float offsetsParam[4],
+                               float2 point0Param,
+                               float2 point1Param,
+                               float radius0Param,
+                               float radius1Param,
+                               int tileMode,
+                               float padding) {
+    float2 pos = (dev2Local * sk_FragCoord).xy;
+    float2 t = $conical_grad_layout(point0Param, point1Param, radius0Param, radius1Param, pos);
+    t = $tile_grad(tileMode, t);
+    return $colorize_grad_4(colorsParam, offsetsParam, t);
 }
 
 half4 sk_blend(int blendMode, half4 src, half4 dst) {
