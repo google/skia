@@ -14,7 +14,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkGlyphRunPainter.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
@@ -553,8 +552,6 @@ public:
 
     int maxWindowRectangles() const;
 
-    SkGlyphRunListPainter* glyphRunPainter() { return &fGlyphPainter; }
-
     /*
      * This unique ID will not change for a given SurfaceDrawContext. However, it is _NOT_
      * guaranteed to match the uniqueID of the underlying GrRenderTarget - beware!
@@ -691,7 +688,6 @@ private:
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
-    SkGlyphRunListPainter fGlyphPainter;
 };
 
 } // namespace skgpu::v1

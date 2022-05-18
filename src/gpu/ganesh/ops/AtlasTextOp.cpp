@@ -511,9 +511,8 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
                                         SkScalerContextFlags::kBoostContrast,
                                         &control};
 
-    SkGlyphRunListPainter painter{SkStrikeCache::GlobalStrikeCache()};
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(
-            glyphRunList, skPaint, drawMatrix, strikeDeviceInfo, &painter);
+        glyphRunList, skPaint, drawMatrix, strikeDeviceInfo, SkStrikeCache::GlobalStrikeCache());
 
     const GrAtlasSubRun* subRun = blob->testingOnlyFirstSubRun();
     if (!subRun) {

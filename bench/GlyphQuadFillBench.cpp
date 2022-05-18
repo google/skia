@@ -53,7 +53,6 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         auto glyphRunList = builder.textToGlyphRunList(font, paint, gText, len, {100, 100});
         SkASSERT(!glyphRunList.empty());
         auto device = SkTestCanvas<FillBench>::GetDevice(canvas);
-        SkGlyphRunListPainter painter{SkStrikeCache::GlobalStrikeCache()};
         SkMatrix drawMatrix = view;
         const SkPoint drawOrigin = glyphRunList.origin();
         drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
@@ -61,7 +60,7 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
                                  paint,
                                  drawMatrix,
                                  device->strikeDeviceInfo(),
-                                 &painter);
+                                 SkStrikeCache::GlobalStrikeCache());
 
         const GrAtlasSubRun* subRun = fBlob->testingOnlyFirstSubRun();
         SkASSERT(subRun);

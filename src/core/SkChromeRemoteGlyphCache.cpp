@@ -788,9 +788,7 @@ public:
             sk_sp<SkColorSpace> colorSpace, sktext::gpu::SDFTControl SDFTControl)
             : SkNoPixelsDevice(SkIRect::MakeSize(dimensions), props, std::move(colorSpace))
             , fStrikeServerImpl(server)
-            , fSDFTControl(SDFTControl)
-            , fPainter{fStrikeServerImpl}
-            , fConvertPainter{SkStrikeCache::GlobalStrikeCache()} {
+            , fSDFTControl(SDFTControl) {
         SkASSERT(fStrikeServerImpl != nullptr);
     }
 
@@ -811,12 +809,13 @@ protected:
                             const SkPaint& drawingPaint) override {
         SkMatrix drawMatrix = this->localToDevice();
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
-        fPainter.categorizeGlyphRunList(nullptr,
-                                        glyphRunList,
-                                        drawMatrix,
-                                        drawingPaint,
-                                        this->strikeDeviceInfo(),
-                                        "Cache Diff");
+        SkGlyphRunListPainter::CategorizeGlyphRunList(nullptr,
+                                                      glyphRunList,
+                                                      drawMatrix,
+                                                      drawingPaint,
+                                                      this->strikeDeviceInfo(),
+                                                      fStrikeServerImpl,
+                                                      "Cache Diff");
     }
 
     sk_sp<GrSlug> convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
@@ -831,12 +830,13 @@ protected:
 
         // Use the lightweight strike cache provided by SkRemoteGlyphCache through fPainter to do
         // the analysis.
-        fPainter.categorizeGlyphRunList(nullptr,
-                                        glyphRunList,
-                                        positionMatrix,
-                                        drawingPaint,
-                                        this->strikeDeviceInfo(),
-                                        "Convert Slug Analysis");
+        SkGlyphRunListPainter::CategorizeGlyphRunList(nullptr,
+                                                      glyphRunList,
+                                                      positionMatrix,
+                                                      drawingPaint,
+                                                      this->strikeDeviceInfo(),
+                                                      fStrikeServerImpl,
+                                                      "Convert Slug Analysis");
 
         // Use the glyph strike cache to get actual glyph information.
         return skgpu::v1::MakeSlug(this->localToDevice(),
@@ -844,14 +844,12 @@ protected:
                                    initialPaint,
                                    drawingPaint,
                                    this->strikeDeviceInfo(),
-                                   &fConvertPainter);
+                                   SkStrikeCache::GlobalStrikeCache());
     }
 
 private:
     SkStrikeServerImpl* const fStrikeServerImpl;
     const sktext::gpu::SDFTControl fSDFTControl;
-    SkGlyphRunListPainter fPainter;
-    SkGlyphRunListPainter fConvertPainter;
 };
 #endif  // SK_SUPPORT_GPU
 

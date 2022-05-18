@@ -251,9 +251,6 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 #if SK_SUPPORT_GPU
-SkGlyphRunListPainter::SkGlyphRunListPainter(SkStrikeForGPUCacheInterface* strikeCache)
-        : fStrikeCache{strikeCache} {}
-
 // Use the following in your args.gn to dump telemetry for diagnosing chrome Renderer/GPU
 // differences.
 // extra_cflags = ["-D", "SK_TRACE_GLYPH_RUN_PROCESS"]
@@ -264,11 +261,12 @@ namespace {
     static const constexpr bool kTrace = false;
 #endif
 }
-void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* process,
+void SkGlyphRunListPainter::CategorizeGlyphRunList(SkGlyphRunPainterInterface* process,
                                                    const SkGlyphRunList& glyphRunList,
                                                    const SkMatrix& positionMatrix,
                                                    const SkPaint& runPaint,
                                                    SkStrikeDeviceInfo strikeDeviceInfo,
+                                                   SkStrikeForGPUCacheInterface* strikeCache,
                                                    const char* tag) {
     [[maybe_unused]] SkString msg;
     if constexpr (kTrace) {
@@ -318,7 +316,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
                 }
 
                 if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                    SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+                    SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                     accepted->startSource(rejected->source());
                     if constexpr (kTrace) {
@@ -351,7 +349,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
                     msg.appendf("  Mask case:\n%s", strikeSpec.dump().c_str());
                 }
 
-                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startDevicePositioning(
                         rejected->source(), positionMatrix, strike->roundingSpec());
@@ -385,7 +383,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
             }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
@@ -416,7 +414,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
             #endif
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
@@ -449,7 +447,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
             }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {

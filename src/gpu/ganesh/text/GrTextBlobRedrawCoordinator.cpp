@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
 
+#include "src/core/SkStrikeCache.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobRedrawCoordinator::PurgeBlobMessage, uint32_t, true)
@@ -47,7 +48,8 @@ void GrTextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
         }
 
         blob = GrTextBlob::Make(
-                glyphRunList, paint, positionMatrix, strikeDeviceInfo, sdc->glyphRunPainter());
+                glyphRunList, paint, positionMatrix,
+                strikeDeviceInfo, SkStrikeCache::GlobalStrikeCache());
 
         if (canCache) {
             blob->addKey(key);

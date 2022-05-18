@@ -21,7 +21,6 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkDrawProcs.h"
 #include "src/core/SkDrawShadowInfo.h"
-#include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
@@ -299,8 +298,7 @@ SurfaceDrawContext::SurfaceDrawContext(GrRecordingContext* rContext,
         , fSurfaceProps(surfaceProps)
         , fCanUseDynamicMSAA(
                 (fSurfaceProps.flags() & SkSurfaceProps::kDynamicMSAA_Flag) &&
-                rContext->priv().caps()->supportsDynamicMSAA(this->asRenderTargetProxy()))
-        , fGlyphPainter(SkStrikeCache::GlobalStrikeCache()) {
+                rContext->priv().caps()->supportsDynamicMSAA(this->asRenderTargetProxy())) {
     SkDEBUGCODE(this->validate();)
 }
 

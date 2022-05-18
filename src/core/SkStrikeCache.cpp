@@ -15,7 +15,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTemplates.h"
-#include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkScalerCache.h"
 
 #if SK_SUPPORT_GPU

@@ -87,20 +87,16 @@ private:
 #if SK_SUPPORT_GPU
 class SkGlyphRunListPainter {
 public:
-    SkGlyphRunListPainter(SkStrikeForGPUCacheInterface* strikeCache);
-
     // A nullptr for process means that the calls to the cache will be performed, but none of the
     // callbacks will be called.
     // N.B. The positionMatrix has already been translated to the glyph run list origin.
-    void categorizeGlyphRunList(SkGlyphRunPainterInterface* process,
-                                const SkGlyphRunList& glyphRunList,
-                                const SkMatrix& positionMatrix,
-                                const SkPaint& drawPaint,
-                                SkStrikeDeviceInfo strikeDeviceInfo,
-                                const char* tag = nullptr);
-
-private:
-    SkStrikeForGPUCacheInterface* const fStrikeCache;
+    static void CategorizeGlyphRunList(SkGlyphRunPainterInterface* process,
+                                       const SkGlyphRunList& glyphRunList,
+                                       const SkMatrix& positionMatrix,
+                                       const SkPaint& drawPaint,
+                                       SkStrikeDeviceInfo strikeDeviceInfo,
+                                       SkStrikeForGPUCacheInterface* strikeCache,
+                                       const char* tag = nullptr);
 };
 
 // SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first

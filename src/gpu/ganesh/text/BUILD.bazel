@@ -138,6 +138,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrTextBlobRedrawCoordinator_hdr",
+        "//src/core:SkStrikeCache_hdr",
         "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
     ],
 )

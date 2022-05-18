@@ -4682,7 +4682,6 @@ generated_cc_atom(
     srcs = ["SkStrikeCache.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkGlyphRunPainter_hdr",
         ":SkScalerCache_hdr",
         ":SkStrikeCache_hdr",
         "//include/core:SkGraphics_hdr",
