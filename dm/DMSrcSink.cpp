@@ -2133,27 +2133,28 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
 
 namespace {
 
-// For the sprint Graphite only handles:
-//    solid colors with src or srcOver
-//    repeated or clamped linear gradients with src or srcOver
 void precompile(skgpu::graphite::Context* context) {
     using ShaderType = skgpu::graphite::ShaderCombo::ShaderType;
 
-    {
-        skgpu::graphite::PaintCombinations c1(context);
-        c1.add(skgpu::graphite::ShaderCombo({ShaderType::kSolidColor}, {SkTileMode::kRepeat}));
-        c1.add(SkBlendMode::kSrcOver);
-        c1.add(SkBlendMode::kSrc);
-        context->preCompile(c1);
-    }
+    skgpu::graphite::CombinationBuilder builder(context);
 
     {
-        skgpu::graphite::PaintCombinations c2(context);
-        c2.add(skgpu::graphite::ShaderCombo({ShaderType::kLinearGradient},
-                                            {SkTileMode::kRepeat, SkTileMode::kClamp}));
-        c2.add(SkBlendMode::kSrcOver);
-        c2.add(SkBlendMode::kSrc);
-        context->preCompile(c2);
+        builder.add(skgpu::graphite::ShaderCombo({ShaderType::kSolidColor}, {SkTileMode::kRepeat}));
+        builder.add(SkBlendMode::kSrcOver);
+        builder.add(SkBlendMode::kSrc);
+
+        context->preCompile(builder);
+    }
+
+    builder.reset();
+
+    {
+        builder.add(skgpu::graphite::ShaderCombo({ShaderType::kLinearGradient},
+                                                 {SkTileMode::kRepeat, SkTileMode::kClamp}));
+        builder.add(SkBlendMode::kSrcOver);
+        builder.add(SkBlendMode::kSrc);
+
+        context->preCompile(builder);
     }
 }
 

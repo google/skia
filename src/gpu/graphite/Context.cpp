@@ -33,18 +33,73 @@
 namespace skgpu::graphite {
 
 //--------------------------------------------------------------------------------------------------
-PaintCombinations::PaintCombinations(Context* context)
+class PaintCombinations {
+public:
+    PaintCombinations() {}
+
+    // SkBlenders
+    void add(SkBlendMode bm) { fBlendModes.add((uint32_t) bm); }
+    void add(SkBlenderID id) { fBlendModes.add(id.asUInt()); }
+    int numBlendModes() const { return fBlendModes.count(); }
+
+    // SkShaders
+    void add(const ShaderCombo& shaderCombo) { fShaders.push_back(shaderCombo); }
+
+private:
+    friend class Context; // for iterators
+
+    std::vector<ShaderCombo> fShaders;
+    SkTHashSet<uint32_t> fBlendModes;
+};
+
+//--------------------------------------------------------------------------------------------------
+CombinationBuilder::CombinationBuilder(Context* context)
         : fDictionary(context->priv().shaderCodeDictionary()) {
+    this->reset();
 }
 
-void PaintCombinations::add(SkBlendMode bm) {
-    SkASSERT(fDictionary->isValidID((uint32_t) bm));
-    fBlendModes.add((uint32_t) bm);
+void CombinationBuilder::add(ShaderCombo shaderCombo) {
+    fCombinations->add(shaderCombo);
 }
 
-void PaintCombinations::add(SkBlenderID id) {
+void CombinationBuilder::add(SkBlendMode bm) {
+    SkASSERT(fDictionary->isValidID((int) bm));
+
+    fCombinations->add(bm);
+}
+
+void CombinationBuilder::add(SkBlendMode rangeStart, SkBlendMode rangeEnd) {
+    for (int i = (int)rangeStart; i <= (int) rangeEnd; ++i) {
+        this->add((SkBlendMode) i);
+    }
+}
+
+void CombinationBuilder::add(BlendModeGroup group) {
+    switch (group) {
+        case BlendModeGroup::kPorterDuff:
+            this->add(SkBlendMode::kClear, SkBlendMode::kScreen);
+            break;
+        case BlendModeGroup::kAdvanced:
+            this->add(SkBlendMode::kOverlay, SkBlendMode::kMultiply);
+            break;
+        case BlendModeGroup::kColorAware:
+            this->add(SkBlendMode::kHue, SkBlendMode::kLuminosity);
+            break;
+        case BlendModeGroup::kAll:
+            this->add(SkBlendMode::kClear, SkBlendMode::kLastMode);
+            break;
+    }
+}
+
+void CombinationBuilder::add(SkBlenderID id) {
     SkASSERT(fDictionary->isValidID(id.asUInt()));
-    fBlendModes.add(id.asUInt());
+
+    fCombinations->add(id);
+}
+
+void CombinationBuilder::reset() {
+    fArena.reset();
+    fCombinations = fArena.make<PaintCombinations>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,7 +166,7 @@ SkBlenderID Context::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
     return dict->addUserDefinedBlender(std::move(effect));
 }
 
-void Context::preCompile(const PaintCombinations& combinations) {
+void Context::preCompile(const CombinationBuilder& combinationBuilder) {
     static const Renderer* kRenderers[] = {
             &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kWinding),
             &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kEvenOdd),
@@ -128,7 +183,7 @@ void Context::preCompile(const PaintCombinations& combinations) {
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
-    for (uint32_t bmVal : combinations.fBlendModes) {
+    for (uint32_t bmVal : combinationBuilder.fCombinations->fBlendModes) {
         SkBlendMode bm;
         if (bmVal < kSkBlendModeCount) {
             bm = (SkBlendMode) bmVal;
@@ -137,7 +192,7 @@ void Context::preCompile(const PaintCombinations& combinations) {
             continue;
         }
 
-        for (const ShaderCombo& shaderCombo : combinations.fShaders) {
+        for (const ShaderCombo& shaderCombo : combinationBuilder.fCombinations->fShaders) {
             for (auto shaderType: shaderCombo.fTypes) {
                 for (auto tm: shaderCombo.fTileModes) {
                     // TODO: expand CreateKey to take either an SkBlendMode or an SkBlendID
