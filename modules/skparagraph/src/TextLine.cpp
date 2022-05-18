@@ -154,7 +154,7 @@ TextLine::TextLine(ParagraphImpl* owner,
     }
 
     // TODO: This is the fix for flutter. Must be removed...
-    for (auto cluster = &start; cluster != &end; ++cluster) {
+    for (auto cluster = &start; cluster <= &end; ++cluster) {
         if (!cluster->run().isPlaceholder()) {
             fShift += cluster->getHalfLetterSpacing();
             break;
