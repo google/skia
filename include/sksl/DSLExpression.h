@@ -106,7 +106,7 @@ public:
     /**
      * Overloads the '=' operator to create an SkSL assignment statement.
      */
-    DSLPossibleExpression assign(DSLExpression other);
+    DSLPossibleExpression operator=(DSLExpression other);
 
     DSLExpression x(Position pos = {});
 
@@ -293,13 +293,13 @@ public:
 
     DSLExpression field(std::string_view name, Position pos = {});
 
-    DSLPossibleExpression assign(DSLExpression expr);
+    DSLPossibleExpression operator=(DSLExpression expr);
 
-    DSLPossibleExpression assign(int expr);
+    DSLPossibleExpression operator=(int expr);
 
-    DSLPossibleExpression assign(float expr);
+    DSLPossibleExpression operator=(float expr);
 
-    DSLPossibleExpression assign(double expr);
+    DSLPossibleExpression operator=(double expr);
 
     DSLPossibleExpression operator[](DSLExpression index);
 

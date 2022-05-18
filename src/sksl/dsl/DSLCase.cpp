@@ -32,7 +32,7 @@ DSLCase::DSLCase(DSLCase&& other)
 DSLCase::~DSLCase() {}
 
 DSLCase& DSLCase::operator=(DSLCase&& other) {
-    fValue.assign(std::move(other.fValue));
+    fValue = std::move(other.fValue);
     fStatements = std::move(other.fStatements);
     return *this;
 }
