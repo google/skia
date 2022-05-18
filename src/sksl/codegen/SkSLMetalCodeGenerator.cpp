@@ -1416,17 +1416,16 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         case SK_POSITION_BUILTIN:
             this->write("_out.sk_Position");
             break;
+        case SK_POINTSIZE_BUILTIN:
+            this->write("_out.sk_PointSize");
+            break;
         default:
-            if (field->fName == "sk_PointSize") {
-                this->write("_out.sk_PointSize");
-            } else {
-                if (FieldAccess::OwnerKind::kAnonymousInterfaceBlock == f.ownerKind()) {
-                    this->write("_globals.");
-                    this->write(fInterfaceBlockNameMap[fInterfaceBlockMap[field]]);
-                    this->write("->");
-                }
-                this->writeName(field->fName);
+            if (FieldAccess::OwnerKind::kAnonymousInterfaceBlock == f.ownerKind()) {
+                this->write("_globals.");
+                this->write(fInterfaceBlockNameMap[fInterfaceBlockMap[field]]);
+                this->write("->");
             }
+            this->writeName(field->fName);
     }
 }
 

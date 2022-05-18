@@ -819,7 +819,8 @@ void WGSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         const Variable& v = *f.base()->as<VariableReference>().variable();
         if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
             this->write("_stageIn.");
-        } else if (v.modifiers().fFlags & Modifiers::kOut_Flag && field->fName != "sk_PointSize") {
+        } else if (v.modifiers().fFlags & Modifiers::kOut_Flag &&
+                   field->fModifiers.fLayout.fBuiltin != SK_POINTSIZE_BUILTIN) {
             this->write("(*_stageOut).");
         } else {
             // TODO(skia:13902): Reference the variable using the base name used for its
@@ -1048,7 +1049,7 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
                             f.fModifiers, *f.fType, f.fName, Delimiter::kComma);
                     if (f.fModifiers.fLayout.fBuiltin == SK_POSITION_BUILTIN) {
                         declaredPositionBuiltin = true;
-                    } else if (f.fName == "sk_PointSize") {
+                    } else if (f.fModifiers.fLayout.fBuiltin == SK_POINTSIZE_BUILTIN) {
                         // sk_PointSize is explicitly not supported by `builtin_from_sksl_name` so
                         // writePipelineIODeclaration will never write it. We mark it here if the
                         // declaration is needed so we can synthesize it below.

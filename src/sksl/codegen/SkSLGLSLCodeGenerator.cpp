@@ -61,7 +61,6 @@
 #include "src/sksl/spirv.h"
 
 #include <memory>
-#include <type_traits>
 #include <vector>
 
 namespace SkSL {
@@ -853,7 +852,8 @@ void GLSLCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
 }
 
 bool is_sk_position(const FieldAccess& f) {
-    return "sk_Position" == f.base()->type().fields()[f.fieldIndex()].fName;
+    return f.base()->type().fields()[f.fieldIndex()].fModifiers.fLayout.fBuiltin ==
+           SK_POSITION_BUILTIN;
 }
 
 void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
@@ -862,10 +862,10 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         this->write(".");
     }
     const Type& baseType = f.base()->type();
-    std::string_view name = baseType.fields()[f.fieldIndex()].fName;
-    if (name == "sk_Position") {
+    int builtin = baseType.fields()[f.fieldIndex()].fModifiers.fLayout.fBuiltin;
+    if (builtin == SK_POSITION_BUILTIN) {
         this->write("gl_Position");
-    } else if (name == "sk_PointSize") {
+    } else if (builtin == SK_POINTSIZE_BUILTIN) {
         this->write("gl_PointSize");
     } else {
         this->write(baseType.fields()[f.fieldIndex()].fName);

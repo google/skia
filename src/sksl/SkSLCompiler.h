@@ -40,6 +40,7 @@
 #define SK_VERTEXID_BUILTIN               42
 #define SK_INSTANCEID_BUILTIN             43
 #define SK_POSITION_BUILTIN                0
+#define SK_POINTSIZE_BUILTIN               1
 
 class SkSLCompileBench;
 
