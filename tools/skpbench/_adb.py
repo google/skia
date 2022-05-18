@@ -27,7 +27,7 @@ class Adb:
     if self.__echo:
       self.__echo_shell_cmd(cmd)
     self.__establish_connection()
-    result = subprocess.check_output(self.__invocation + ['shell', cmd])
+    result = subprocess.check_output(self.__invocation + ['shell', cmd], encoding='utf-8')
     if self.__echo:
       print(result, file=sys.stderr)
     return result

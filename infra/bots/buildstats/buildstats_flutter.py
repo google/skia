@@ -6,7 +6,6 @@
 """Writes a Perf-formated json file with stats about Skia's size in flutter."""
 
 
-from __future__ import print_function
 import json
 import os
 import subprocess
@@ -46,32 +45,36 @@ def main():
   print(magic_seperator)
   print('Report by file, then by symbol with ellided/combined templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
-                                 '-d', 'compileunits,symbols', '-s', 'file',
-                                 '-n', '0', '--tsv', '--demangle=short',
-                                 '--debug-file=%s' % symbols_file])
+                                   '-d', 'compileunits,symbols', '-s', 'file',
+                                   '-n', '0', '--tsv', '--demangle=short',
+                                   '--debug-file=%s' % symbols_file],
+                                  encoding='utf-8')
   grand_total = print_skia_lines_file_symbol(lines)
   print(magic_seperator)
   print('Report by file, then by symbol with full templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
-                                 '-d', 'compileunits,symbols', '-s', 'file',
-                                 '-n', '0', '--tsv', '--demangle=full',
-                                 '--debug-file=%s' % symbols_file])
+                                   '-d', 'compileunits,symbols', '-s', 'file',
+                                   '-n', '0', '--tsv', '--demangle=full',
+                                   '--debug-file=%s' % symbols_file],
+                                  encoding='utf-8')
   print_skia_lines_file_symbol(lines)
   print(magic_seperator)
 
   print('Report by symbol, then by file with ellided/combined templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
-                                 '-d', 'symbols,compileunits', '-s', 'file',
-                                 '-n', '0', '--tsv', '--demangle=short',
-                                 '--debug-file=%s' % symbols_file])
+                                   '-d', 'symbols,compileunits', '-s', 'file',
+                                   '-n', '0', '--tsv', '--demangle=short',
+                                   '--debug-file=%s' % symbols_file],
+                                  encoding='utf-8')
   print_skia_lines_symbol_file(lines)
   print(magic_seperator)
 
   print('Report by symbol, then by file with full templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
-                                 '-d', 'symbols,compileunits', '-s', 'file',
-                                 '-n', '0', '--tsv', '--demangle=full',
-                                 '--debug-file=%s' % symbols_file])
+                                   '-d', 'symbols,compileunits', '-s', 'file',
+                                   '-n', '0', '--tsv', '--demangle=full',
+                                   '--debug-file=%s' % symbols_file],
+                                  encoding='utf-8')
   print_skia_lines_symbol_file(lines)
   print(magic_seperator)
 

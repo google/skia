@@ -183,7 +183,7 @@ class SKPBench:
   def get_header(cls, outfile=sys.stdout):
     commandline = cls.ARGV + ['--duration', '0']
     dump_commandline_if_verbose(commandline)
-    out = subprocess.check_output(commandline, stderr=subprocess.STDOUT)
+    out = subprocess.check_output(commandline, stderr=subprocess.STDOUT, encoding='utf-8')
     return out.rstrip()
 
   @classmethod
@@ -195,10 +195,10 @@ class SKPBench:
                               '--config', config,
                               '--src', 'warmup']
     dump_commandline_if_verbose(commandline)
-    output = subprocess.check_output(commandline, stderr=subprocess.STDOUT)
+    output = subprocess.check_output(commandline, stderr=subprocess.STDOUT, encoding='utf-8')
 
     # validate the warmup run output.
-    for line in output.decode('utf-8').split('\n'):
+    for line in output.split('\n'):
       match = BenchResult.match(line.rstrip())
       if match and match.bench == 'warmup':
         return

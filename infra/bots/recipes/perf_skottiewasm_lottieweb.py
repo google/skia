@@ -287,7 +287,7 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
     raise Exception('Even with 3 loops found only %d frames' %
                     total_completed_frames)
   # Get frame avg/min/max for the middle 25 frames.
-  start = (total_completed_frames - 25)/2
+  start = (total_completed_frames - 25) // 2
   print('Got %d total completed frames. Using indexes [%d, %d).' % (
       total_completed_frames, start, start+25))
   frame_max = 0
@@ -317,7 +317,7 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
     raise Exception('Even with 3 loops found only %d drawn frames' %
                     total_drawn_frames)
   # Get drawn frame avg/min/max from the middle 25 frames.
-  start = (total_drawn_frames - 25)/2
+  start = (total_drawn_frames - 25) // 2
   print('Got %d total drawn frames. Using indexes [%d-%d).' % (
         total_drawn_frames, start, start+25))
   for frame_id, duration in drawn_frame_id_and_duration[start:start+25]:
