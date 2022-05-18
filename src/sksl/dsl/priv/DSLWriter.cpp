@@ -20,7 +20,6 @@
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLModifiersPool.h"
-#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -86,15 +85,6 @@ std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVarBase& var) {
         return SkSL::Nop::Make();
     }
     return std::move(var.fDeclaration);
-}
-
-void DSLWriter::MarkDeclared(DSLVarBase& var) {
-    SkASSERT(!var.fDeclared);
-    var.fDeclared = true;
-}
-
-bool DSLWriter::MarkVarsDeclared() {
-    return ThreadContext::Instance().fSettings.fDSLMarkVarsDeclared;
 }
 
 void DSLWriter::AddVarDeclaration(DSLStatement& existing, DSLVar& additional) {

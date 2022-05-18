@@ -50,18 +50,6 @@ public:
     static std::unique_ptr<SkSL::Statement> Declaration(DSLVarBase& var);
 
     /**
-     * For use in testing only: marks the variable as having been declared, so that it can be
-     * destroyed without generating errors.
-     */
-    static void MarkDeclared(DSLVarBase& var);
-
-    /**
-     * Returns whether DSLVars should automatically be marked declared upon creation. This is used
-     * to simplify testing.
-     */
-    static bool MarkVarsDeclared();
-
-    /**
      * Adds a new declaration into an existing declaration statement. This either turns the original
      * declaration into an unscoped block or, if it already was, appends a new statement to the end
      * of it.

@@ -35,7 +35,7 @@ public:
     /**
      * Creates an empty, unpopulated var. Can be replaced with a real var later via `swap`.
      */
-    DSLVarBase() : fType(kVoid_Type), fDeclared(true) {}
+    DSLVarBase() : fType(kVoid_Type) {}
 
     /**
      * Constructs a new variable with the specified type and name. The name is used (in mangled
@@ -44,7 +44,7 @@ public:
      * parameter is optional.
      */
     DSLVarBase(DSLType type, std::string_view name, DSLExpression initialValue, Position pos,
-            Position namePos);
+               Position namePos);
 
     DSLVarBase(DSLType type, DSLExpression initialValue, Position pos, Position namePos);
 
@@ -139,9 +139,7 @@ protected:
     Position fNamePosition;
     std::string_view fName;
     DSLExpression fInitialValue;
-    // true if we have attempted to create the SkSL var
     bool fInitialized = false;
-    bool fDeclared = false;
     Position fPosition;
 
     friend class DSLCore;
