@@ -28,13 +28,7 @@ public:
     template<class... Statements>
     DSLBlock(Statements... statements) {
         fStatements.reserve_back(sizeof...(statements));
-        // in C++17, we could just do:
-        // (fStatements.push_back(DSLStatement(statements.release()).release()), ...);
-        int unused[] =
-            {0,
-            (static_cast<void>(fStatements.push_back(DSLStatement(statements.release()).release())),
-             0)...};
-        static_cast<void>(unused);
+        ((void)fStatements.push_back(DSLStatement(statements.release()).release()), ...);
     }
 
     DSLBlock(DSLBlock&& other) = default;

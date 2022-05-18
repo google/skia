@@ -142,11 +142,7 @@ public:
     static DSLPossibleExpression Call(const char* name, Args... args) {
         SkSL::ExpressionArray argArray;
         argArray.reserve_back(sizeof...(args));
-
-        // in C++17, we could just do:
-        // (argArray.push_back(args.release()), ...);
-        int unused[] = {0, (static_cast<void>(argArray.push_back(args.release())), 0)...};
-        static_cast<void>(unused);
+        ((void)argArray.push_back(args.release()), ...);
 
         return SkSL::FunctionCall::Convert(ThreadContext::Context(), Position(),
                 ThreadContext::Compiler().convertIdentifier(Position(), name),
