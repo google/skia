@@ -916,11 +916,11 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         // Measure the text
         ClipContext clipContext = this->measureTextInsideOneRun(runStyleTextRange, run, runOffset,
                                                                 textOffsetInRun, false, true);
+        textOffsetInRun += clipContext.clip.width();
         if (clipContext.clip.height() == 0) {
             continue;
         }
         visitor(runStyleTextRange, *prevStyle, clipContext);
-        textOffsetInRun += clipContext.clip.width();
 
         // Start all over again
         prevStyle = style;
