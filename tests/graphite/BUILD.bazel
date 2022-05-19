@@ -111,30 +111,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "UniformTest_src",
-    srcs = ["UniformTest.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/core:SkM44_hdr",
-        "//include/core:SkPaint_hdr",
-        "//include/effects:SkGradientShader_hdr",
-        "//include/gpu/graphite:Recorder_hdr",
-        "//include/private:SkUniquePaintParamsID_hdr",
-        "//src/core:SkKeyContext_hdr",
-        "//src/core:SkKeyHelpers_hdr",
-        "//src/core:SkPipelineData_hdr",
-        "//src/core:SkShaderCodeDictionary_hdr",
-        "//src/gpu/graphite:ContextPriv_hdr",
-        "//src/gpu/graphite:ContextUtils_hdr",
-        "//src/gpu/graphite:GlobalCache_hdr",
-        "//src/gpu/graphite:PaintParams_hdr",
-        "//src/gpu/graphite:RecorderPriv_hdr",
-        "//src/gpu/graphite:ResourceProvider_hdr",
-        "//tests:Test_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "KeyTest_src",
     srcs = ["KeyTest.cpp"],
     visibility = ["//:__subpackages__"],
@@ -186,6 +162,33 @@ generated_cc_atom(
         "//include/gpu/graphite:Context_hdr",
         "//src/core:SkShaderCodeDictionary_hdr",
         "//src/gpu/graphite:ContextPriv_hdr",
+        "//tests:Test_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PaintParamsKeyTest_src",
+    srcs = ["PaintParamsKeyTest.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/effects:SkGradientShader_hdr",
+        "//include/gpu/graphite:Recorder_hdr",
+        "//include/private:SkUniquePaintParamsID_hdr",
+        "//src/core:SkKeyContext_hdr",
+        "//src/core:SkKeyHelpers_hdr",
+        "//src/core:SkPipelineData_hdr",
+        "//src/core:SkShaderCodeDictionary_hdr",
+        "//src/gpu/graphite:ContextPriv_hdr",
+        "//src/gpu/graphite:ContextUtils_hdr",
+        "//src/gpu/graphite:GlobalCache_hdr",
+        "//src/gpu/graphite:PaintParams_hdr",
+        "//src/gpu/graphite:RecorderPriv_hdr",
+        "//src/gpu/graphite:ResourceProvider_hdr",
+        "//src/shaders:SkImageShader_hdr",
         "//tests:Test_hdr",
     ],
 )

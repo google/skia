@@ -2134,7 +2134,7 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
 namespace {
 
 void precompile(skgpu::graphite::Context* context) {
-    using ShaderType = skgpu::graphite::ShaderCombo::ShaderType;
+    using ShaderType = skgpu::graphite::ShaderType;
 
     skgpu::graphite::CombinationBuilder builder(context);
 

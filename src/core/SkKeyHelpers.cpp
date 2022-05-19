@@ -44,7 +44,6 @@ void validate_block_header(const SkPaintParamsKeyBuilder* builder,
 
 } // anonymous namespace
 
-
 //--------------------------------------------------------------------------------------------------
 namespace SolidColorShaderBlock {
 
@@ -666,38 +665,67 @@ void AddToKey(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 #ifdef SK_GRAPHITE_ENABLED
+// TODO: we need to feed the number of stops in the gradients into this method from the
+// combination code
 SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
                                 SkPaintParamsKeyBuilder* builder,
-                                skgpu::graphite::ShaderCombo::ShaderType s,
+                                skgpu::graphite::ShaderType s,
                                 SkTileMode tm,
                                 SkBlendMode bm) {
     SkDEBUGCODE(builder->checkReset());
 
+    using ShaderType = skgpu::graphite::ShaderType;
+
+    // TODO: split out the portion of the block data that is always required from the portion
+    // that is only required to gather uniforms. Right now we're passing in a lot of unused
+    // data and it is unclear what is actually used.
     switch (s) {
-        case skgpu::graphite::ShaderCombo::ShaderType::kSolidColor:
-            SolidColorShaderBlock::AddToKey(keyContext, builder, nullptr, kErrorColor);
+        case ShaderType::kSolidColor:
+            SolidColorShaderBlock::AddToKey(keyContext, builder, nullptr,
+                                            /* unused */ kErrorColor);
             break;
-        case skgpu::graphite::ShaderCombo::ShaderType::kLinearGradient:
+        case ShaderType::kLinearGradient:
             GradientShaderBlocks::AddToKey(keyContext, builder, nullptr,
+                                           // only the type and numStops are used
                                            { SkShader::kLinear_GradientType, tm, 0 });
             break;
-        case skgpu::graphite::ShaderCombo::ShaderType::kRadialGradient:
+        case ShaderType::kRadialGradient:
             GradientShaderBlocks::AddToKey(keyContext, builder, nullptr,
+                                           // only the type and numStops are used
                                            { SkShader::kRadial_GradientType, tm, 0 });
             break;
-        case skgpu::graphite::ShaderCombo::ShaderType::kSweepGradient:
+        case ShaderType::kSweepGradient:
             GradientShaderBlocks::AddToKey(keyContext, builder, nullptr,
+                                           // only the type and numStops are used
                                            { SkShader::kSweep_GradientType, tm, 0 });
             break;
-        case skgpu::graphite::ShaderCombo::ShaderType::kConicalGradient:
+        case ShaderType::kConicalGradient:
             GradientShaderBlocks::AddToKey(keyContext, builder, nullptr,
+                                           // only the type and numStops are used
                                            { SkShader::kConical_GradientType, tm, 0 });
+            break;
+        case ShaderType::kLocalMatrix:
+            LocalMatrixShaderBlock::AddToKey(keyContext, builder, nullptr,
+                                             // only the proxy shader is used
+                                             { nullptr, SkMatrix::I() });
+            break;
+        case ShaderType::kImage:
+            ImageShaderBlock::AddToKey(keyContext, builder, nullptr,
+                                       // none of the ImageData is used
+                                       { SkSamplingOptions(),
+                                         SkTileMode::kClamp, SkTileMode::kClamp,
+                                         SkRect::MakeEmpty(), SkMatrix::I() });
+            break;
+        case ShaderType::kBlendShader:
+            BlendShaderBlock::AddToKey(keyContext, builder, nullptr,
+                                       // both the dst and src are used
+                                       { nullptr, nullptr, SkBlendMode::kSrc });
             break;
     }
 
     // TODO: the blendInfo should be filled in by BlendModeBlock::AddToKey
     SkPipelineDataGatherer::BlendInfo blendInfo = get_blend_info(bm);
-    BlendModeBlock::AddToKey(keyContext, builder, /* pipelineData*/ nullptr, bm);
+    BlendModeBlock::AddToKey(keyContext, builder, /* pipelineData*/ nullptr, bm); // 'bm' is used
     SkPaintParamsKey key = builder->lockAsKey();
 
     auto dict = keyContext.dict();

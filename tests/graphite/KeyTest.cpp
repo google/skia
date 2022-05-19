@@ -32,6 +32,7 @@ SkPaintParamsKey create_key(SkPaintParamsKeyBuilder* builder, int dummySnippetID
 
 } // anonymous namespace
 
+// This is intended to be a unit test of the SkPaintParamsKeyBuilder and SkPaintParamsKey.
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTest, reporter, context) {
 
     auto dict = context->priv().shaderCodeDictionary();

@@ -35,15 +35,20 @@ class Recorder;
 class Recording;
 class TextureInfo;
 
-struct ShaderCombo {
-    enum class ShaderType {
-        kSolidColor,
-        kLinearGradient,
-        kRadialGradient,
-        kSweepGradient,
-        kConicalGradient
-    };
+enum class ShaderType {
+    kSolidColor,
 
+    kLinearGradient,
+    kRadialGradient,
+    kSweepGradient,
+    kConicalGradient,
+
+    kLocalMatrix,
+    kImage,
+    kBlendShader
+};
+
+struct ShaderCombo {
     ShaderCombo() {}
     ShaderCombo(std::vector<ShaderType> types,
                 std::vector<SkTileMode> tileModes)
