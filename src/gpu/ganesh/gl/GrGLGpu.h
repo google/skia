@@ -40,6 +40,8 @@ public:
 
     void disconnect(DisconnectType) override;
 
+    void updateResourceLabel(GrGpuResource*) override;
+
     GrThreadSafePipelineBuilder* pipelineBuilder() override;
     sk_sp<GrThreadSafePipelineBuilder> refPipelineBuilder() override;
 

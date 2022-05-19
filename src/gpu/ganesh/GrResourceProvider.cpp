@@ -111,7 +111,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                tempColorType,
                                tmpTexels.get(),
                                numMipLevels,
-                               /*label=*/{});
+                               /*label=*/label);
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(SkISize dimensions,
@@ -168,7 +168,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                              renderable,
                                              renderTargetSampleCnt,
                                              isProtected,
-                                             /*label=*/{});
+                                             /*label=*/label);
         if (!tex) {
             return nullptr;
         }
@@ -184,7 +184,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                    GrMipmapped::kNo,
                                    isProtected,
                                    &mipLevel,
-                                   /*label=*/{});
+                                   /*label=*/label);
     }
 }
 
@@ -323,7 +323,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
                                GrMipmapped::kNo,
                                SkBudgeted::kYes,
                                isProtected,
-                               /*label=*/{});
+                               /*label=*/label);
 }
 
 sk_sp<GrTexture> GrResourceProvider::findAndRefScratchTexture(const skgpu::ScratchKey& key,
