@@ -841,10 +841,8 @@ generated_cc_atom(
         ":SkSLMangler_hdr",
         ":SkSLProgramSettings_hdr",
         "//include/core:SkTypes_hdr",
-        "//include/private:SkSLDefines_hdr",
         "//include/private:SkSLProgramKind_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
-        "//src/gpu/ganesh:GrFragmentProcessor_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
     ],
 )
