@@ -578,7 +578,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
     REPORTER_ASSERT(r,  DSLType(Array(kFloat_Type, 2)).isArray());
     REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isStruct());
 
-    Var x(kFloat_Type);
+    Var x(kFloat_Type, "x");
     DSLExpression e = x + 1;
     REPORTER_ASSERT(r, e.type().isFloat());
     e.release();
@@ -722,7 +722,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
 
     {
         ExpectError error(r, "'+' cannot operate on 'bool'");
-        Var c(kBool_Type);
+        Var c(kBool_Type, "c");
         DSLExpression(+c).release();
     }
 }
@@ -761,7 +761,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
 
     {
         ExpectError error(r, "'-' cannot operate on 'bool'");
-        Var c(kBool_Type);
+        Var c(kBool_Type, "c");
         DSLExpression(-c).release();
     }
 }
@@ -1677,7 +1677,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
 
     {
         ExpectError error(r, "case value must be a constant integer");
-        Var c(kInt_Type);
+        Var c(kInt_Type, "c");
         DSLStatement(Switch(0, Case(c))).release();
     }
 }

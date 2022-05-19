@@ -30,13 +30,6 @@ DSLVarBase::DSLVarBase(DSLType type, std::string_view name, DSLExpression initia
                        Position pos, Position namePos)
     : DSLVarBase(DSLModifiers(), std::move(type), name, std::move(initialValue), pos, namePos) {}
 
-DSLVarBase::DSLVarBase(DSLType type, DSLExpression initialValue, Position pos, Position namePos)
-    : DSLVarBase(type, "var", std::move(initialValue), pos, namePos) {}
-
-DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, DSLExpression initialValue,
-                       Position pos, Position namePos)
-    : DSLVarBase(modifiers, type, "var", std::move(initialValue), pos, namePos) {}
-
 DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, std::string_view name,
                        DSLExpression initialValue, Position pos, Position namePos)
     : fModifiers(std::move(modifiers))
