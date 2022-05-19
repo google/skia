@@ -11,11 +11,13 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/gpu/ganesh/text/GrSDFMaskFilter.h"
+#include "src/text/gpu/SDFMaskFilter.h"
 
-class GrSDFMaskFilterImpl : public SkMaskFilterBase {
+namespace sktext::gpu {
+
+class SDFMaskFilterImpl : public SkMaskFilterBase {
 public:
-    GrSDFMaskFilterImpl();
+    SDFMaskFilterImpl();
 
     // overrides from SkMaskFilterBase
     //  This method is not exported to java.
@@ -29,21 +31,21 @@ public:
 protected:
 
 private:
-    SK_FLATTENABLE_HOOKS(GrSDFMaskFilterImpl)
+    SK_FLATTENABLE_HOOKS(SDFMaskFilterImpl)
 
     using INHERITED = SkMaskFilter;
-    friend void gr_register_sdf_maskfilter_createproc();
+    friend void register_sdf_maskfilter_createproc();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrSDFMaskFilterImpl::GrSDFMaskFilterImpl() {}
+SDFMaskFilterImpl::SDFMaskFilterImpl() {}
 
-SkMask::Format GrSDFMaskFilterImpl::getFormat() const {
+SkMask::Format SDFMaskFilterImpl::getFormat() const {
     return SkMask::kSDF_Format;
 }
 
-bool GrSDFMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
+bool SDFMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
                                      const SkMatrix& matrix, SkIPoint* margin) const {
     if (src.fFormat != SkMask::kA8_Format
         && src.fFormat != SkMask::kBW_Format
@@ -81,20 +83,22 @@ bool GrSDFMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
     }
 }
 
-void GrSDFMaskFilterImpl::computeFastBounds(const SkRect& src,
+void SDFMaskFilterImpl::computeFastBounds(const SkRect& src,
                                             SkRect* dst) const {
     dst->setLTRB(src.fLeft  - SK_DistanceFieldPad, src.fTop    - SK_DistanceFieldPad,
                  src.fRight + SK_DistanceFieldPad, src.fBottom + SK_DistanceFieldPad);
 }
 
-sk_sp<SkFlattenable> GrSDFMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
-    return GrSDFMaskFilter::Make();
+sk_sp<SkFlattenable> SDFMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
+    return SDFMaskFilter::Make();
 }
 
-void gr_register_sdf_maskfilter_createproc() { SK_REGISTER_FLATTENABLE(GrSDFMaskFilterImpl); }
+void register_sdf_maskfilter_createproc() { SK_REGISTER_FLATTENABLE(SDFMaskFilterImpl); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkMaskFilter> GrSDFMaskFilter::Make() {
-    return sk_sp<SkMaskFilter>(new GrSDFMaskFilterImpl());
+sk_sp<SkMaskFilter> SDFMaskFilter::Make() {
+    return sk_sp<SkMaskFilter>(new SDFMaskFilterImpl());
 }
+
+}  // namespace sktext::gpu

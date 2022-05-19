@@ -339,7 +339,7 @@ DEF_TEST(KeyEqualityOnPerspective, r) {
 
     // Build the strike device.
     SkSurfaceProps props;
-    GrSDFTControl control(false, false, 1, 100);
+    sktext::gpu::SDFTControl control(false, false, 1, 100);
     SkStrikeDeviceInfo strikeDevice{props, SkScalerContextFlags::kBoostContrast, &control};
     SkMatrix matrix1;
     matrix1.setAll(1, 0, 0, 0, 1, 0, 1, 1, 1);

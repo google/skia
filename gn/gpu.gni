@@ -324,12 +324,6 @@ skia_gpu_sources = [
   # text
   "$_src/gpu/ganesh/text/GrAtlasManager.cpp",
   "$_src/gpu/ganesh/text/GrAtlasManager.h",
-  "$_src/gpu/ganesh/text/GrDistanceFieldAdjustTable.cpp",
-  "$_src/gpu/ganesh/text/GrDistanceFieldAdjustTable.h",
-  "$_src/gpu/ganesh/text/GrSDFMaskFilter.cpp",
-  "$_src/gpu/ganesh/text/GrSDFMaskFilter.h",
-  "$_src/gpu/ganesh/text/GrSDFTControl.cpp",
-  "$_src/gpu/ganesh/text/GrSDFTControl.h",
   "$_src/gpu/ganesh/text/GrSlug.cpp",
   "$_src/gpu/ganesh/text/GrTextBlob.cpp",
   "$_src/gpu/ganesh/text/GrTextBlob.h",
@@ -826,9 +820,15 @@ skia_shared_gpu_sources = [
   "$_src/gpu/tessellate/WangsFormula.h",
 
   # text
+  "$_src/text/gpu/DistanceFieldAdjustTable.cpp",
+  "$_src/text/gpu/DistanceFieldAdjustTable.h",
   "$_src/text/gpu/Glyph.h",
   "$_src/text/gpu/GlyphVector.cpp",
   "$_src/text/gpu/GlyphVector.h",
+  "$_src/text/gpu/SDFMaskFilter.cpp",
+  "$_src/text/gpu/SDFMaskFilter.h",
+  "$_src/text/gpu/SDFTControl.cpp",
+  "$_src/text/gpu/SDFTControl.h",
   "$_src/text/gpu/StrikeCache.cpp",
   "$_src/text/gpu/StrikeCache.h",
   "$_src/text/gpu/SubRunAllocator.cpp",

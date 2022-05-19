@@ -1,24 +1,28 @@
 /*
- * Copyright 2018 Google Inc.
+ * Copyright 2022 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef GrSDFMaskFilter_DEFINED
-#define GrSDFMaskFilter_DEFINED
+#ifndef sktext_gpu_SDFMaskFilter_DEFINED
+#define sktext_gpu_SDFMaskFilter_DEFINED
 
 #include "include/core/SkMaskFilter.h"
 
-/** \class GrSDFMaskFilter
+namespace sktext::gpu {
+
+/** \class SDFMaskFilter
 
     This mask filter converts an alpha mask to a signed distance field representation
 */
-class GrSDFMaskFilter : public SkMaskFilter {
+class SDFMaskFilter : public SkMaskFilter {
 public:
     static sk_sp<SkMaskFilter> Make();
 };
 
-extern void gr_register_sdf_maskfilter_createproc();
+extern void register_sdf_maskfilter_createproc();
+
+}  // namespace sktext::gpu
 
 #endif

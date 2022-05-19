@@ -247,8 +247,8 @@ generated_cc_atom(
         "//src/gpu/ganesh/effects:GrBitmapTextGeoProc_hdr",
         "//src/gpu/ganesh/effects:GrDistanceFieldGeoProc_hdr",
         "//src/gpu/ganesh/text:GrAtlasManager_hdr",
-        "//src/gpu/ganesh/text:GrDistanceFieldAdjustTable_hdr",
         "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
+        "//src/text/gpu:DistanceFieldAdjustTable_hdr",
     ],
 )
 

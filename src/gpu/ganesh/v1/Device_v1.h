@@ -197,7 +197,7 @@ protected:
     SkIRect onDevClipBounds() const override { return fClip.getConservativeBounds(); }
 
 private:
-    const GrSDFTControl fSDFTControl;
+    const sktext::gpu::SDFTControl fSDFTControl;
 
     std::unique_ptr<SurfaceDrawContext> fSurfaceDrawContext;
 

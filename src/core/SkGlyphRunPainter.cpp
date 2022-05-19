@@ -11,9 +11,9 @@
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/text/GrSDFTControl.h"
 #include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/text/gpu/SDFTControl.h"
 #endif // SK_SUPPORT_GPU
 
 #include "include/core/SkBitmap.h"
@@ -293,7 +293,7 @@ void SkGlyphRunListPainter::categorizeGlyphRunList(SkGlyphRunPainterInterface* p
 
     const SkSurfaceProps deviceProps = strikeDeviceInfo.fSurfaceProps;
     const SkScalerContextFlags scalerContextFlags = strikeDeviceInfo.fScalerContextFlags;
-    const GrSDFTControl SDFTControl = *strikeDeviceInfo.fSDFTControl;
+    const sktext::gpu::SDFTControl SDFTControl = *strikeDeviceInfo.fSDFTControl;
 
     auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();

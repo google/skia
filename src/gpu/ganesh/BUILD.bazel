@@ -188,9 +188,6 @@ cc_library(
         "//src/gpu/ganesh/tessellate:PathTessellator_src",
         "//src/gpu/ganesh/tessellate:StrokeTessellator_src",
         "//src/gpu/ganesh/text:GrAtlasManager_src",
-        "//src/gpu/ganesh/text:GrDistanceFieldAdjustTable_src",
-        "//src/gpu/ganesh/text:GrSDFMaskFilter_src",
-        "//src/gpu/ganesh/text:GrSDFTControl_src",
         "//src/gpu/ganesh/text:GrSlug_src",
         "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_src",
         "//src/gpu/ganesh/text:GrTextBlob_src",
@@ -1302,8 +1299,8 @@ generated_cc_atom(
         "//src/core:SkTInternalLList_hdr",
         "//src/gpu/ganesh/ops:OpsTask_hdr",
         "//src/gpu/ganesh/ops:SoftwarePathRenderer_hdr",
-        "//src/gpu/ganesh/text:GrSDFTControl_hdr",
         "//src/image:SkSurface_Gpu_hdr",
+        "//src/text/gpu:SDFTControl_hdr",
     ],
 )
 
@@ -2169,7 +2166,7 @@ generated_cc_atom(
         "//include/core:SkPaint_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/gpu:RefCntedCallback_hdr",
-        "//src/gpu/ganesh/text:GrSDFTControl_hdr",
+        "//src/text/gpu:SDFTControl_hdr",
     ],
 )
 

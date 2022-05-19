@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/text/GrSDFTControl.h"
+#include "src/text/gpu/SDFTControl.h"
 
 #include "include/core/SkFont.h"
 #include "include/core/SkGraphics.h"
@@ -18,6 +18,8 @@
 
 #include <tuple>
 
+namespace sktext::gpu {
+
 // DF sizes and thresholds for usage of the small and medium sizes. For example, above
 // kSmallDFFontLimit we will use the medium size. The large size is used up until the size at
 // which we switch over to drawing as paths as controlled by Control.
@@ -28,14 +30,14 @@ static const int kLargeDFFontLimit = 162;
 static const int kExtraLargeDFFontLimit = 256;
 #endif
 
-SkScalar GrSDFTControl::MinSDFTRange(bool useSDFTForSmallText, SkScalar min) {
+SkScalar SDFTControl::MinSDFTRange(bool useSDFTForSmallText, SkScalar min) {
     if (!useSDFTForSmallText) {
         return kLargeDFFontLimit;
     }
     return min;
 }
 
-GrSDFTControl::GrSDFTControl(
+SDFTControl::SDFTControl(
         bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max)
         : fMinDistanceFieldFontSize{MinSDFTRange(useSDFTForSmallText, min)}
         , fMaxDistanceFieldFontSize{max}
@@ -43,12 +45,12 @@ GrSDFTControl::GrSDFTControl(
     SkASSERT_RELEASE(0 < min && min <= max);
 }
 
-bool GrSDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
+bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
     return !isSDFT(approximateDeviceTextSize, paint) &&
             approximateDeviceTextSize < SkStrikeCommon::kSkSideTooBigForAtlas;
 }
 
-bool GrSDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
+bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
     return fAbleToUseSDFT &&
            paint.getMaskFilter() == nullptr &&
            paint.getStyle() == SkPaint::kFill_Style &&
@@ -76,8 +78,8 @@ SkScalar scaled_text_size(const SkScalar textSize, const SkMatrix& viewMatrix) {
     return scaledTextSize;
 }
 
-std::tuple<SkFont, SkScalar, GrSDFTMatrixRange>
-GrSDFTControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix) const {
+std::tuple<SkFont, SkScalar, SDFTMatrixRange>
+SDFTControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix) const {
     SkScalar textSize = font.getSize();
     SkScalar scaledTextSize = scaled_text_size(textSize, viewMatrix);
 
@@ -119,18 +121,20 @@ GrSDFTControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix) const 
     return {dfFont, textSize / dfMaskScaleCeil, {minMatrixScale, maxMatrixScale}};
 }
 
-bool GrSDFTMatrixRange::matrixInRange(const SkMatrix& matrix) const {
+bool SDFTMatrixRange::matrixInRange(const SkMatrix& matrix) const {
     SkScalar maxScale = matrix.getMaxScale();
     return fMatrixMin < maxScale && maxScale <= fMatrixMax;
 }
 
-void GrSDFTMatrixRange::flatten(SkWriteBuffer& buffer) const {
+void SDFTMatrixRange::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fMatrixMin);
     buffer.writeScalar(fMatrixMax);
 }
 
-GrSDFTMatrixRange GrSDFTMatrixRange::MakeFromBuffer(SkReadBuffer& buffer) {
+SDFTMatrixRange SDFTMatrixRange::MakeFromBuffer(SkReadBuffer& buffer) {
     SkScalar min = buffer.readScalar();
     SkScalar max = buffer.readScalar();
-    return GrSDFTMatrixRange{min, max};
+    return SDFTMatrixRange{min, max};
 }
+
+}  // namespace sktext::gpu

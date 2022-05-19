@@ -5,17 +5,19 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDistanceFieldAdjustTable_DEFINED
-#define GrDistanceFieldAdjustTable_DEFINED
+#ifndef sktext_gpu_DistanceFieldAdjustTable_DEFINED
+#define sktext_gpu_DistanceFieldAdjustTable_DEFINED
 
 #include "include/core/SkScalar.h"
 
-// Distance field text needs this table to compute a value for use in the fragment shader.
-class GrDistanceFieldAdjustTable {
-public:
-    static const GrDistanceFieldAdjustTable* Get();
+namespace sktext::gpu {
 
-    ~GrDistanceFieldAdjustTable() {
+// Distance field text needs this table to compute a value for use in the fragment shader.
+class DistanceFieldAdjustTable {
+public:
+    static const DistanceFieldAdjustTable* Get();
+
+    ~DistanceFieldAdjustTable() {
         delete[] fTable;
         delete[] fGammaCorrectTable;
     }
@@ -25,10 +27,12 @@ public:
     }
 
 private:
-    GrDistanceFieldAdjustTable();
+    DistanceFieldAdjustTable();
 
     SkScalar* fTable;
     SkScalar* fGammaCorrectTable;
 };
+
+}  // namespace sktext::gpu
 
 #endif

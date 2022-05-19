@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/text/GrDistanceFieldAdjustTable.h"
+#include "src/text/gpu/DistanceFieldAdjustTable.h"
 
 #include "src/core/SkScalerContext.h"
+
+namespace sktext::gpu {
 
 SkDEBUGCODE(static const int kExpectedDistanceAdjustTableSize = 8;)
 
@@ -98,12 +100,14 @@ SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma)
     return table;
 }
 
-const GrDistanceFieldAdjustTable* GrDistanceFieldAdjustTable::Get() {
-    static const GrDistanceFieldAdjustTable* dfat = new GrDistanceFieldAdjustTable;
+const DistanceFieldAdjustTable* DistanceFieldAdjustTable::Get() {
+    static const DistanceFieldAdjustTable* dfat = new DistanceFieldAdjustTable;
     return dfat;
 }
 
-GrDistanceFieldAdjustTable::GrDistanceFieldAdjustTable() {
+DistanceFieldAdjustTable::DistanceFieldAdjustTable() {
     fTable = build_distance_adjust_table(SK_GAMMA_EXPONENT, SK_GAMMA_EXPONENT);
     fGammaCorrectTable = build_distance_adjust_table(SK_Scalar1, SK_Scalar1);
 }
+
+}  // namespace sktext::gpu

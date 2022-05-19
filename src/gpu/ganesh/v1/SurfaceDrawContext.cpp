@@ -71,9 +71,9 @@
 #include "src/gpu/ganesh/ops/ShadowRRectOp.h"
 #include "src/gpu/ganesh/ops/StrokeRectOp.h"
 #include "src/gpu/ganesh/ops/TextureOp.h"
-#include "src/gpu/ganesh/text/GrSDFTControl.h"
 #include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
 #include "src/gpu/ganesh/v1/PathRenderer.h"
+#include "src/text/gpu/SDFTControl.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER        SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())

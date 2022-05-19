@@ -22,7 +22,6 @@
 #include "src/core/SkScalerContext.h"
 #include "src/shaders/SkShaderBase.h"
 
-class GrSDFTControl;
 class SkBitmap;
 class SkColorSpace;
 class SkMesh;
@@ -42,12 +41,15 @@ class BaseDevice;
 namespace skgpu::graphite {
 class Device;
 }
+namespace sktext::gpu {
+class SDFTControl;
+}
 
 struct SkStrikeDeviceInfo {
     const SkSurfaceProps fSurfaceProps;
     const SkScalerContextFlags fScalerContextFlags;
     // This is a pointer so this can be compiled without SK_GPU_SUPPORT.
-    const GrSDFTControl* const fSDFTControl;
+    const sktext::gpu::SDFTControl* const fSDFTControl;
 };
 
 class SkBaseDevice : public SkRefCnt, public SkMatrixProvider {

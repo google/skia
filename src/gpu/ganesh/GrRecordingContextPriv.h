@@ -13,7 +13,7 @@
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/BaseDevice.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
-#include "src/gpu/ganesh/text/GrSDFTControl.h"
+#include "src/text/gpu/SDFTControl.h"
 
 class GrImageInfo;
 class SkDeferredDisplayList;
@@ -108,7 +108,7 @@ public:
     DMSAAStats& dmsaaStats() { return this->context()->fDMSAAStats; }
 #endif
 
-    GrSDFTControl getSDFTControl(bool useSDFTForSmallText) const;
+    sktext::gpu::SDFTControl getSDFTControl(bool useSDFTForSmallText) const;
 
     /**
      * Create a GrRecordingContext without a resource cache

@@ -5615,7 +5615,7 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrCaps_hdr",
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",
         "//src/gpu/ganesh:GrRecordingContextPriv_hdr",
-        "//src/gpu/ganesh/text:GrSDFTControl_hdr",
+        "//src/text/gpu:SDFTControl_hdr",
         "//tools:Resources_hdr",
         "//tools:ToolUtils_hdr",
         "//tools/fonts:TestEmptyTypeface_hdr",

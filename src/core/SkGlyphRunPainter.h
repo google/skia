@@ -16,14 +16,16 @@
 #include "src/core/SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/ganesh/text/GrSDFTControl.h"
+#include "src/text/gpu/SDFTControl.h"
 class GrColorInfo;
 namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 #endif
 
 class SkGlyphRunPainterInterface;
 class SkStrikeSpec;
-class GrSDFTMatrixRange;
+namespace sktext {
+class SDFTMatrixRange;
+}
 
 // round and ignorePositionMask are used to calculate the subpixel position of a glyph.
 // The per component (x or y) calculation is:
@@ -138,7 +140,7 @@ public:
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
-                                   const GrSDFTMatrixRange& matrixRange) = 0;
+                                   const sktext::gpu::SDFTMatrixRange& matrixRange) = 0;
 };
 #endif  // SK_SUPPORT_GPU
 #endif  // SkGlyphRunPainter_DEFINED

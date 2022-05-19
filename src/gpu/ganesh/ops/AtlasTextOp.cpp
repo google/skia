@@ -24,8 +24,8 @@
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
-#include "src/gpu/ganesh/text/GrDistanceFieldAdjustTable.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/text/gpu/DistanceFieldAdjustTable.h"
 
 #include <new>
 #include <utility>
@@ -444,7 +444,7 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                    const GrSurfaceProxyView* views,
                                                    unsigned int numActiveViews) const {
     static constexpr int kDistanceAdjustLumShift = 5;
-    auto dfAdjustTable = GrDistanceFieldAdjustTable::Get();
+    auto dfAdjustTable = sktext::gpu::DistanceFieldAdjustTable::Get();
 
     // see if we need to create a new effect
     if (this->isLCD()) {
@@ -504,7 +504,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
     }
 
     auto rContext = sdc->recordingContext();
-    GrSDFTControl control =
+    sktext::gpu::SDFTControl control =
             rContext->priv().getSDFTControl(sdc->surfaceProps().isUseDeviceIndependentFonts());
 
     SkStrikeDeviceInfo strikeDeviceInfo{sdc->surfaceProps(),

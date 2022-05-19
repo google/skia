@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSDFTControl_DEFINED
-#define GrSDFTControl_DEFINED
+#ifndef sktext_gpu_SDFTControl_DEFINED
+#define sktext_gpu_SDFTControl_DEFINED
 
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkFont.h"
@@ -17,27 +17,29 @@
 class SkMatrix;
 class SkSurfaceProps;
 
+namespace sktext::gpu {
+
 // Two numbers fMatrixMin and fMatrixMax such that if viewMatrix.getMaxScale() is between them then
 // this SDFT size can be reused.
-class GrSDFTMatrixRange {
+class SDFTMatrixRange {
 public:
-    GrSDFTMatrixRange(SkScalar min, SkScalar max) : fMatrixMin{min}, fMatrixMax{max} {}
+    SDFTMatrixRange(SkScalar min, SkScalar max) : fMatrixMin{min}, fMatrixMax{max} {}
     bool matrixInRange(const SkMatrix& matrix) const;
     void flatten(SkWriteBuffer& buffer) const;
-    static GrSDFTMatrixRange MakeFromBuffer(SkReadBuffer& buffer);
+    static SDFTMatrixRange MakeFromBuffer(SkReadBuffer& buffer);
 
 private:
     const SkScalar fMatrixMin,
                    fMatrixMax;
 };
 
-class GrSDFTControl {
+class SDFTControl {
 public:
-    GrSDFTControl(bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max);
+    SDFTControl(bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max);
 
     // Produce a font, a scale factor from the nominal size to the source space size, and matrix
     // range where this font can be reused.
-    std::tuple<SkFont, SkScalar, GrSDFTMatrixRange>
+    std::tuple<SkFont, SkScalar, SDFTMatrixRange>
     getSDFFont(const SkFont& font, const SkMatrix& viewMatrix) const;
 
     bool isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint) const;
@@ -56,4 +58,6 @@ private:
     const bool fAbleToUseSDFT;
 };
 
-#endif  // GrSDFTControl_DEFINED
+}  // namespace sktext::gpu
+
+#endif  // sktext_SDFTControl_DEFINED

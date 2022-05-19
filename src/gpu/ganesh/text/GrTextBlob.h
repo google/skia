@@ -277,7 +277,7 @@ private:
                            sk_sp<SkStrike>&& strike,
                            SkScalar strikeToSourceScale,
                            const SkFont& runFont,
-                           const GrSDFTMatrixRange& matrixRange) override;
+                           const sktext::gpu::SDFTMatrixRange& matrixRange) override;
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale) override;

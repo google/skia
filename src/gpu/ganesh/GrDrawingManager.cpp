@@ -40,8 +40,8 @@
 #include "src/gpu/ganesh/GrTransferFromRenderTask.h"
 #include "src/gpu/ganesh/GrWaitRenderTask.h"
 #include "src/gpu/ganesh/GrWritePixelsRenderTask.h"
-#include "src/gpu/ganesh/text/GrSDFTControl.h"
 #include "src/image/SkSurface_Gpu.h"
+#include "src/text/gpu/SDFTControl.h"
 
 #if SK_GPU_V1
 #include "src/gpu/ganesh/ops/OpsTask.h"
