@@ -973,12 +973,14 @@ void SkPDFDevice::drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPain
     // TODO: implement drawVertices
 }
 
+#ifdef SK_ENABLE_SKSL
 void SkPDFDevice::drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) {
     if (this->hasEmptyClip()) {
         return;
     }
     // TODO: implement drawMesh
 }
+#endif
 
 void SkPDFDevice::drawFormXObject(SkPDFIndirectReference xObject, SkDynamicMemoryWStream* content) {
     ScopedOutputMarkedContentTags mark(fNodeId, fDocument, content);

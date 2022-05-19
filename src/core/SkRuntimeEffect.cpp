@@ -55,9 +55,9 @@
     #define SK_LENIENT_SKSL_DESERIALIZATION 0
 #endif
 
-using ChildType = SkRuntimeEffect::ChildType;
-
 #ifdef SK_ENABLE_SKSL
+
+using ChildType = SkRuntimeEffect::ChildType;
 
 static bool flattenable_is_valid_as_child(const SkFlattenable* f) {
     if (!f) { return true; }
