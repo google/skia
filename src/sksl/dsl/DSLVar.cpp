@@ -92,7 +92,7 @@ DSLPossibleExpression DSLVarBase::operator[](DSLExpression&& index) {
     return DSLExpression(*this, Position())[std::move(index)];
 }
 
-DSLPossibleExpression DSLVarBase::assign(DSLExpression expr) {
+DSLPossibleExpression DSLVarBase::assignExpression(DSLExpression expr) {
     return BinaryExpression::Convert(ThreadContext::Context(), Position(),
             DSLExpression(*this, Position()).release(), SkSL::Operator::Kind::EQ,
             expr.release());

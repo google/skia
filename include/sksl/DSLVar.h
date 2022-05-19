@@ -114,8 +114,12 @@ public:
         return DSLExpression(*this, Position())--;
     }
 
+    template <class T> DSLPossibleExpression assign(T&& param) {
+        return this->assignExpression(DSLExpression(std::forward<T>(param)));
+    }
+
 protected:
-    DSLPossibleExpression assign(DSLExpression other);
+    DSLPossibleExpression assignExpression(DSLExpression other);
 
     void swap(DSLVarBase& other);
 
@@ -145,9 +149,6 @@ protected:
  * A local variable.
  */
 class DSLVar : public DSLVarBase {
-private:
-    using INHERITED = DSLVarBase;
-
 public:
     DSLVar() = default;
 
@@ -166,25 +167,14 @@ public:
 
     void swap(DSLVar& other);
 
-    using INHERITED::assign;
-
-    DSLPossibleExpression assign(DSLVar& param) {
-        return this->assign(DSLExpression(param));
-    }
-
-    template<class Param>
-    DSLPossibleExpression assign(Param& param) {
-        return this->assign(DSLExpression(param));
-    }
+private:
+    using INHERITED = DSLVarBase;
 };
 
 /**
  * A global variable.
  */
 class DSLGlobalVar : public DSLVarBase {
-private:
-    using INHERITED = DSLVarBase;
-
 public:
     DSLGlobalVar() = default;
 
@@ -204,17 +194,6 @@ public:
 
     void swap(DSLGlobalVar& other);
 
-    using INHERITED::assign;
-
-    DSLPossibleExpression assign(DSLGlobalVar& param) {
-        return this->assign(DSLExpression(param));
-    }
-
-    template<class Param>
-    DSLPossibleExpression assign(Param& param) {
-        return this->assign(DSLExpression(param));
-    }
-
     /**
      * Implements the following method calls:
      *     half4 shader::eval(float2 coords);
@@ -233,15 +212,14 @@ private:
     DSLExpression eval(ExpressionArray args, Position pos);
 
     std::unique_ptr<SkSL::Expression> methodCall(std::string_view methodName, Position pos);
+
+    using INHERITED = DSLVarBase;
 };
 
 /**
  * A function parameter.
  */
 class DSLParameter : public DSLVarBase {
-private:
-    using INHERITED = DSLVarBase;
-
 public:
     DSLParameter() = default;
 
@@ -258,16 +236,8 @@ public:
 
     void swap(DSLParameter& other);
 
-    using INHERITED::assign;
-
-    DSLPossibleExpression assign(DSLParameter& param) {
-        return this->assign(DSLExpression(param));
-    }
-
-    template<class Param>
-    DSLPossibleExpression assign(Param& param) {
-        return this->assign(DSLExpression(param));
-    }
+private:
+    using INHERITED = DSLVarBase;
 };
 
 } // namespace dsl
