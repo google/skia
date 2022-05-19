@@ -43,6 +43,14 @@ DEF_TEST(SkVx, r) {
         REPORTER_ASSERT(r, !all(mask));
     }
 
+    {
+        // Tests that any/all work with non-zero values, not just full bit lanes.
+        REPORTER_ASSERT(r,  all(int4{1,2,3,4}));
+        REPORTER_ASSERT(r, !all(int4{1,2,3}));
+        REPORTER_ASSERT(r,  any(int4{1,2}));
+        REPORTER_ASSERT(r, !any(int4{}));
+    }
+
     REPORTER_ASSERT(r, min(float4{1,2,3,4}) == 1);
     REPORTER_ASSERT(r, max(float4{1,2,3,4}) == 4);
 
