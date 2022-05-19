@@ -37,9 +37,6 @@ std::tuple<SkPaint, int> create_paint(ShaderCombo::ShaderType shaderType,
     sk_sp<SkShader> s;
     int numTextures = 0;
     switch (shaderType) {
-        case ShaderCombo::ShaderType::kNone:
-            SkDEBUGFAIL("kNone cannot be represented as an SkPaint");
-            break;
         case ShaderCombo::ShaderType::kSolidColor:
             break;
         case ShaderCombo::ShaderType::kLinearGradient:

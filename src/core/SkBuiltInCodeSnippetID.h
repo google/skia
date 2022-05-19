@@ -12,10 +12,6 @@
 
 // TODO: this needs to be expanded into a more flexible dictionary (esp. for user-supplied SkSL)
 enum class SkBuiltInCodeSnippetID : uint8_t {
-    // TODO: It seems like this requires some refinement. Fundamentally this doesn't seem like a
-    // draw that originated from a PaintParams.
-    kDepthStencilOnlyDraw,
-
     // This isn't just a signal for a failure during paintparams key creation. It also actually
     // implements the default behavior for an erroneous draw. Currently it just draws solid
     // magenta.

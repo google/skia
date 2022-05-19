@@ -711,16 +711,6 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     // The 0th index is reserved as invalid
     fEntryVector.push_back(nullptr);
 
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kDepthStencilOnlyDraw] = {
-            "DepthStencil",
-            { },     // no uniforms
-            SnippetRequirementFlags::kNone,
-            { },     // no samplers
-            kErrorName,
-            GenerateDefaultGlueCode,
-            kNoChildren,
-            {}
-    };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kError] = {
             "Error",
             { },     // no uniforms

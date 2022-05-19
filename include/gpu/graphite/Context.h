@@ -37,7 +37,6 @@ class TextureInfo;
 
 struct ShaderCombo {
     enum class ShaderType {
-        kNone, // does not modify color buffer, e.g. depth and/or stencil only
         kSolidColor,
         kLinearGradient,
         kRadialGradient,
