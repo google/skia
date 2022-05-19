@@ -133,6 +133,7 @@ generated_cc_atom(
         ":DSLModifiers_hdr",
         ":DSLType_hdr",
         ":SkSLPosition_hdr",
+        "//include/private:SkSLStatement_hdr",
     ],
 )
 

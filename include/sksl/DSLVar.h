@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_VAR
 #define SKSL_DSL_VAR
 
+#include "include/private/SkSLStatement.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLType.h"
@@ -24,7 +25,6 @@ class Expression;
 class ExpressionArray;
 class IRGenerator;
 class SPIRVCodeGenerator;
-class Statement;
 class Variable;
 enum class VariableStorage : int8_t;
 
@@ -33,22 +33,15 @@ namespace dsl {
 class DSLVarBase {
 public:
     /**
-     * Creates an empty, unpopulated var. Can be replaced with a real var later via `swap`.
-     */
-    DSLVarBase() : fType(kVoid_Type) {}
-
-    /**
      * Constructs a new variable with the specified type and name.
      */
-    DSLVarBase(DSLType type, std::string_view name, DSLExpression initialValue, Position pos,
-               Position namePos);
-
-    DSLVarBase(const DSLModifiers& modifiers, DSLType type, std::string_view name,
+    DSLVarBase(VariableStorage storage, DSLType type, std::string_view name,
                DSLExpression initialValue, Position pos, Position namePos);
 
-    DSLVarBase(DSLVarBase&&) = default;
+    DSLVarBase(VariableStorage storage, const DSLModifiers& modifiers, DSLType type,
+               std::string_view name, DSLExpression initialValue, Position pos, Position namePos);
 
-    virtual ~DSLVarBase();
+    DSLVarBase(DSLVarBase&&) = default;
 
     std::string_view name() const {
         return fName;
@@ -58,7 +51,9 @@ public:
         return fModifiers;
     }
 
-    virtual VariableStorage storage() const = 0;
+    VariableStorage storage() const {
+        return fStorage;
+    }
 
     DSLExpression x() {
         return DSLExpression(*this, Position()).x();
@@ -119,6 +114,11 @@ public:
     }
 
 protected:
+    /**
+     * Creates an empty, unpopulated var. Can be replaced with a real var later via `swap`.
+     */
+    DSLVarBase(VariableStorage storage) : fType(kVoid_Type), fStorage(storage) {}
+
     DSLPossibleExpression assignExpression(DSLExpression other);
 
     void swap(DSLVarBase& other);
@@ -134,8 +134,9 @@ protected:
     Position fNamePosition;
     std::string_view fName;
     DSLExpression fInitialValue;
-    bool fInitialized = false;
     Position fPosition;
+    VariableStorage fStorage;
+    bool fInitialized = false;
 
     friend class DSLCore;
     friend class DSLExpression;
@@ -150,20 +151,15 @@ protected:
  */
 class DSLVar : public DSLVarBase {
 public:
-    DSLVar() = default;
+    DSLVar();
 
-    DSLVar(DSLType type, std::string_view name,
-           DSLExpression initialValue = DSLExpression(),
-           Position pos = {}, Position namePos = {})
-        : INHERITED(type, name, std::move(initialValue), pos, namePos) {}
+    DSLVar(DSLType type, std::string_view name, DSLExpression initialValue = DSLExpression(),
+           Position pos = {}, Position namePos = {});
 
     DSLVar(const DSLModifiers& modifiers, DSLType type, std::string_view name,
-           DSLExpression initialValue = DSLExpression(), Position pos = {}, Position namePos = {})
-        : INHERITED(modifiers, type, name, std::move(initialValue), pos, namePos) {}
+           DSLExpression initialValue = DSLExpression(), Position pos = {}, Position namePos = {});
 
     DSLVar(DSLVar&&) = default;
-
-    VariableStorage storage() const override;
 
     void swap(DSLVar& other);
 
@@ -176,21 +172,18 @@ private:
  */
 class DSLGlobalVar : public DSLVarBase {
 public:
-    DSLGlobalVar() = default;
+    DSLGlobalVar();
 
-    DSLGlobalVar(DSLType type, std::string_view name,
-           DSLExpression initialValue = DSLExpression(), Position pos = {}, Position namePos = {})
-        : INHERITED(type, name, std::move(initialValue), pos, namePos) {}
+    DSLGlobalVar(DSLType type, std::string_view name, DSLExpression initialValue = DSLExpression(),
+                 Position pos = {}, Position namePos = {});
 
     DSLGlobalVar(const DSLModifiers& modifiers, DSLType type, std::string_view name,
-           DSLExpression initialValue = DSLExpression(), Position pos = {}, Position namePos = {})
-        : INHERITED(modifiers, type, name, std::move(initialValue), pos, namePos) {}
+                 DSLExpression initialValue = DSLExpression(),
+                 Position pos = {}, Position namePos = {});
 
     DSLGlobalVar(const char* name);
 
     DSLGlobalVar(DSLGlobalVar&&) = default;
-
-    VariableStorage storage() const override;
 
     void swap(DSLGlobalVar& other);
 
@@ -205,8 +198,7 @@ public:
      * Implements the following method call:
      *     half4 blender::eval(half4 src, half4 dst);
      */
-    DSLExpression eval(DSLExpression x, DSLExpression y,
-            Position pos = {});
+    DSLExpression eval(DSLExpression x, DSLExpression y, Position pos = {});
 
 private:
     DSLExpression eval(ExpressionArray args, Position pos);
@@ -221,18 +213,14 @@ private:
  */
 class DSLParameter : public DSLVarBase {
 public:
-    DSLParameter() = default;
+    DSLParameter();
 
-    DSLParameter(DSLType type, std::string_view name, Position pos = {}, Position namePos = {})
-        : INHERITED(type, name, DSLExpression(), pos, namePos) {}
+    DSLParameter(DSLType type, std::string_view name, Position pos = {}, Position namePos = {});
 
     DSLParameter(const DSLModifiers& modifiers, DSLType type, std::string_view name,
-                 Position pos = {}, Position namePos = {})
-        : INHERITED(modifiers, type, name, DSLExpression(), pos, namePos) {}
+                 Position pos = {}, Position namePos = {});
 
     DSLParameter(DSLParameter&&) = default;
-
-    VariableStorage storage() const override;
 
     void swap(DSLParameter& other);
 
