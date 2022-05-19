@@ -237,7 +237,6 @@ public:
                 return;
             }
         }
-
         fShader = SkShaders::Color(SK_ColorWHITE);
     }
 

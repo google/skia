@@ -34,6 +34,8 @@ public:
                  skui::ModifierKey modifiers) override;
 
 private:
+    class TestingResourceProvider;
+
     void loadEffects(const char* dirname);
 
     SkRandom fRandom;
@@ -54,7 +56,7 @@ private:
     };
     SkTArray<RunningEffect> fRunning;
 
-    sk_sp<skresources::ResourceProvider> fResourceProvider;
+    sk_sp<TestingResourceProvider> fResourceProvider;
 };
 
 #endif

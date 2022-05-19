@@ -27,7 +27,23 @@
 
 using namespace sk_app;
 
-class TestingResourceProvider : public skresources::ResourceProvider {
+class MultiFrameAssetDriver {
+public:
+    MultiFrameAssetDriver(sk_sp<skresources::MultiFrameImageAsset> asset,
+                          std::unique_ptr<SkCanvas> canvas)
+            : fMultiFrameImage(std::move(asset))
+            , fImageCanvas(std::move(canvas)) {}
+
+    void update(double now) {
+        auto image = fMultiFrameImage->getFrame(now);
+        fImageCanvas->drawImage(image, 0, 0);
+    }
+private:
+    sk_sp<skresources::MultiFrameImageAsset> fMultiFrameImage;
+    std::unique_ptr<SkCanvas> fImageCanvas;
+};
+
+class ParticlesSlide::TestingResourceProvider : public skresources::ResourceProvider {
 public:
     TestingResourceProvider() {}
 
@@ -40,11 +56,51 @@ public:
         }
     }
 
+// This asset wraps a preallocated SkImage for our hacky mutable SkImages for multiframe bindings
+// It depends on a canvas attached to it with SkCanvas::MakeRasterDirect to draw to the pixels
+class WrapperAsset final : public skresources::ImageAsset {
+public:
+    static sk_sp<WrapperAsset> Make(sk_sp<SkImage> image) {
+        return sk_sp<WrapperAsset>(new WrapperAsset(image));
+    }
+    bool isMultiFrame() override { return true; }
+    sk_sp<SkImage> getFrame(float) override { return fImage; }
+private:
+    explicit WrapperAsset(sk_sp<SkImage> image)
+        : fImage(std::move(image)) {
+    }
+    sk_sp<SkImage> fImage;
+};
+
     sk_sp<skresources::ImageAsset> loadImageAsset(const char resource_path[],
                                                   const char resource_name[],
                                                   const char /*resource_id*/[]) const override {
         auto data = this->load(resource_path, resource_name);
-        return skresources::MultiFrameImageAsset::Make(data);
+        auto asset = skresources::MultiFrameImageAsset::Make(data);
+        // Demo impl. of hijacking pixels of SkImage for multiframe sampling
+        if (asset && asset->isMultiFrame()) {
+            // make imageCanvas to draw directly to allocated pixels
+            auto info = SkImageInfo::MakeN32Premul(asset->getFrame(0)->width(),
+                                                   asset->getFrame(0)->height());
+            auto storage = SkData::MakeUninitialized(info.computeMinByteSize());
+            auto imageCanvas = SkCanvas::MakeRasterDirect(info, storage->writable_data(),
+                                                          info.minRowBytes());
+            // binding needs to make a shader from this image, so we wrap it in a special asset
+            // that always returns the image made from storage
+            auto image = SkImage::MakeRasterData(info, storage, info.minRowBytes());
+            auto wrapper = WrapperAsset::Make(image);
+
+            auto driver = std::make_unique<MultiFrameAssetDriver>(asset, std::move(imageCanvas));
+            fDrivers.push_back(std::move(driver));
+            return std::move(wrapper);
+        }
+        return std::move(asset);
+    }
+
+    void update(double t) {
+        for (auto& driver : fDrivers) {
+            driver->update(t);
+        }
     }
 
     void addPath(const char resource_name[], const SkPath& path) {
@@ -53,6 +109,7 @@ public:
 
 private:
     std::unordered_map<std::string, sk_sp<SkData>> fResources;
+    mutable std::vector<std::unique_ptr<MultiFrameAssetDriver>> fDrivers;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -399,6 +456,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
 bool ParticlesSlide::animate(double nanos) {
     fAnimated = true;
     fAnimationTime = 1e-9 * nanos;
+    fResourceProvider->update(fAnimationTime);
     for (const auto& effect : fRunning) {
         effect.fEffect->update(fAnimationTime);
     }

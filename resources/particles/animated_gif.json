@@ -1,0 +1,36 @@
+{
+   "MaxCount": 4000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 3
+   },
+   "Code": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 4000;",
+      "}",
+      "",
+      "void effectUpdate(inout Effect effect) {",
+      "}",
+      "",
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 1;",
+      "  p.pos = float2(rand(p.seed), rand(p.seed)) * 500;",
+      "  p.vel = float2(rand(p.seed), rand(p.seed)) * 2 - 1;",
+      "  p.vel *= 30;",
+      "  p.scale = 2 * mix(0.25, 1, rand(p.seed));",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.color = img(p.pos / 500);",
+      "}",
+      ""
+   ],
+   "Bindings": [
+      {
+         "Type": "SkImageBinding",
+         "Name": "img",
+         "ImagePath": "images",
+         "ImageName": "flightAnim.gif"
+      }
+   ]
+}
