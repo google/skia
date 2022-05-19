@@ -133,7 +133,6 @@ protected:
     // it to kVoid; in other words, you shouldn't generally be relying on this field to be correct.
     // If you need to determine the variable's type, look at DSLWriter::Var(...)->type() instead.
     DSLType fType;
-    int fUniformHandle = -1;
     std::unique_ptr<SkSL::Statement> fDeclaration;
     const SkSL::Variable* fVar = nullptr;
     Position fNamePosition;

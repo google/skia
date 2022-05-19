@@ -52,7 +52,6 @@ void DSLVarBase::swap(DSLVarBase& other) {
     SkASSERT(this->storage() == other.storage());
     std::swap(fModifiers, other.fModifiers);
     std::swap(fType, other.fType);
-    std::swap(fUniformHandle, other.fUniformHandle);
     std::swap(fDeclaration, other.fDeclaration);
     std::swap(fVar, other.fVar);
     std::swap(fNamePosition, other.fNamePosition);

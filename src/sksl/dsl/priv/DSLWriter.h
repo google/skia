@@ -10,10 +10,6 @@
 
 #include "include/core/SkTypes.h"
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-
 #include <memory>
 
 namespace SkSL {
@@ -23,7 +19,6 @@ class Statement;
 
 namespace dsl {
 
-class DSLGlobalVar;
 class DSLParameter;
 class DSLStatement;
 class DSLVarBase;
@@ -60,10 +55,6 @@ public:
      * Clears any elements or symbols which have been output.
      */
     static void Reset();
-
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-    static GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLGlobalVar& var);
-#endif
 
     friend class DSLCore;
     friend class DSLVar;

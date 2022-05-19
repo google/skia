@@ -106,12 +106,6 @@ void DSLWriter::AddVarDeclaration(DSLStatement& existing, DSLVar& additional) {
     }
 }
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-GrGLSLUniformHandler::UniformHandle DSLWriter::VarUniformHandle(const DSLGlobalVar& var) {
-    return GrGLSLUniformHandler::UniformHandle(var.fUniformHandle);
-}
-#endif
-
 void DSLWriter::Reset() {
     dsl::PopSymbolTable();
     dsl::PushSymbolTable();

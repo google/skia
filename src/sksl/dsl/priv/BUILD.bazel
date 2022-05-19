@@ -10,10 +10,7 @@ generated_cc_atom(
     name = "DSLWriter_hdr",
     hdrs = ["DSLWriter.h"],
     visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/core:SkTypes_hdr",
-        "//src/gpu/ganesh/glsl:GrGLSLUniformHandler_hdr",
-    ],
+    deps = ["//include/core:SkTypes_hdr"],
 )
 
 generated_cc_atom(
