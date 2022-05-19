@@ -18,7 +18,6 @@
 #include "include/sksl/DSLFunction.h"
 #include "include/sksl/DSLSymbols.h"
 #include "include/sksl/DSLVar.h"
-#include "include/sksl/DSLWrapper.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLVersion.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -416,7 +415,8 @@ bool DSLParser::functionDeclarationEnd(Position start,
                                        const DSLModifiers& modifiers,
                                        DSLType type,
                                        const Token& name) {
-    SkTArray<DSLWrapper<DSLParameter>> parameters;
+    // TODO(skia:13339): use SkSTArray<8, DSLParameter> once SkTArray is go/cfi compatible
+    std::vector<DSLParameter> parameters;
     Token lookahead = this->peek();
     if (lookahead.fKind == Token::Kind::TK_RPAREN) {
         // `()` means no parameters at all.
@@ -424,9 +424,10 @@ bool DSLParser::functionDeclarationEnd(Position start,
         // `(void)` also means no parameters at all.
         this->nextToken();
     } else {
+        parameters.reserve(8);
         for (;;) {
             size_t paramIndex = parameters.size();
-            std::optional<DSLWrapper<DSLParameter>> parameter = this->parameter(paramIndex);
+            std::optional<DSLParameter> parameter = this->parameter(paramIndex);
             if (!parameter) {
                 return false;
             }
@@ -439,12 +440,13 @@ bool DSLParser::functionDeclarationEnd(Position start,
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
         return false;
     }
-    SkTArray<DSLParameter*> parameterPointers;
-    for (DSLWrapper<DSLParameter>& param : parameters) {
-        parameterPointers.push_back(&param.get());
+    SkSTArray<8, DSLParameter*> parameterPointers;
+    parameterPointers.reserve_back(parameters.size());
+    for (DSLParameter& param : parameters) {
+        parameterPointers.push_back(&param);
     }
     DSLFunction result(modifiers, type, this->text(name), parameterPointers,
-            this->rangeFrom(start));
+                       this->rangeFrom(start));
     if (!this->checkNext(Token::Kind::TK_SEMICOLON)) {
         AutoDSLSymbolTable symbols;
         for (DSLParameter* var : parameterPointers) {
@@ -740,7 +742,7 @@ SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(Position start,
 }
 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
-std::optional<DSLWrapper<DSLParameter>> DSLParser::parameter(size_t paramIndex) {
+std::optional<DSLParameter> DSLParser::parameter(size_t paramIndex) {
     Position pos = this->position(this->peek());
     DSLModifiers modifiers = this->modifiers();
     std::optional<DSLType> type = this->type(&modifiers);
@@ -761,7 +763,7 @@ std::optional<DSLWrapper<DSLParameter>> DSLParser::parameter(size_t paramIndex) 
     if (!this->parseArrayDimensions(pos, &type.value())) {
         return std::nullopt;
     }
-    return {{DSLParameter(modifiers, *type, paramText, this->rangeFrom(pos), paramPos)}};
+    return DSLParameter(modifiers, *type, paramText, this->rangeFrom(pos), paramPos);
 }
 
 /** EQ INT_LITERAL */

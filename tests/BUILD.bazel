@@ -5745,7 +5745,6 @@ generated_cc_atom(
         "//include/sksl:DSLStatement_hdr",
         "//include/sksl:DSLType_hdr",
         "//include/sksl:DSLVar_hdr",
-        "//include/sksl:DSLWrapper_hdr",
         "//include/sksl:DSL_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
         "//include/sksl:SkSLPosition_hdr",

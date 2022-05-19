@@ -14,7 +14,6 @@
 #include "include/private/SkSLString.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
-#include "include/sksl/DSLWrapper.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -119,11 +118,11 @@ void DSLFunction::define(DSLBlock block, Position pos) {
     ThreadContext::ProgramElements().push_back(std::move(function));
 }
 
-DSLExpression DSLFunction::call(SkTArray<DSLWrapper<DSLExpression>> args, Position pos) {
+DSLExpression DSLFunction::call(SkTArray<DSLExpression> args, Position pos) {
     ExpressionArray released;
     released.reserve_back(args.size());
-    for (DSLWrapper<DSLExpression>& arg : args) {
-        released.push_back(arg->release());
+    for (DSLExpression& arg : args) {
+        released.push_back(arg.release());
     }
     return this->call(std::move(released));
 }
