@@ -188,7 +188,7 @@ DSLExpression DSLExpression::field(std::string_view name, Position pos) {
             *ThreadContext::SymbolTable(), this->release(), name), pos);
 }
 
-DSLPossibleExpression DSLExpression::operator=(DSLExpression right) {
+DSLPossibleExpression DSLExpression::assign(DSLExpression right) {
     Position pos = this->position().rangeThrough(right.position());
     return BinaryExpression::Convert(ThreadContext::Context(), pos, this->release(),
             SkSL::Operator::Kind::EQ, right.release());
@@ -391,20 +391,20 @@ DSLExpression DSLPossibleExpression::field(std::string_view name, Position pos) 
     return DSLExpression(this->release()).field(name, pos);
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator=(DSLExpression expr) {
-    return DSLExpression(this->release()) = std::move(expr);
+DSLPossibleExpression DSLPossibleExpression::assign(DSLExpression expr) {
+    return DSLExpression(this->release()).assign(std::move(expr));
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator=(int expr) {
-    return this->operator=(DSLExpression(expr));
+DSLPossibleExpression DSLPossibleExpression::assign(int expr) {
+    return this->assign(DSLExpression(expr));
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator=(float expr) {
-    return this->operator=(DSLExpression(expr));
+DSLPossibleExpression DSLPossibleExpression::assign(float expr) {
+    return this->assign(DSLExpression(expr));
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator=(double expr) {
-    return this->operator=(DSLExpression(expr));
+DSLPossibleExpression DSLPossibleExpression::assign(double expr) {
+    return this->assign(DSLExpression(expr));
 }
 
 DSLPossibleExpression DSLPossibleExpression::operator[](DSLExpression index) {

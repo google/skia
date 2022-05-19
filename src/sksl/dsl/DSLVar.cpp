@@ -106,18 +106,6 @@ DSLPossibleExpression DSLVarBase::assign(DSLExpression expr) {
             expr.release());
 }
 
-DSLPossibleExpression DSLVar::operator=(DSLExpression expr) {
-    return this->assign(std::move(expr));
-}
-
-DSLPossibleExpression DSLGlobalVar::operator=(DSLExpression expr) {
-    return this->assign(std::move(expr));
-}
-
-DSLPossibleExpression DSLParameter::operator=(DSLExpression expr) {
-    return this->assign(std::move(expr));
-}
-
 std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(std::string_view methodName,
                                                            Position pos) {
     if (!this->fType.isEffectChild()) {
