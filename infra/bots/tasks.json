@@ -82859,35 +82859,35 @@
     "Build-Debian10-GCC-x86_64-Release-Docker": {},
     "Build-Mac-Clang-arm64-Debug-ASAN_Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Build-Mac-Clang-arm64-Debug-Graphite": {},
     "Build-Mac-Clang-arm64-Debug-Graphite_NoGpu": {},
     "Build-Mac-Clang-arm64-Debug-iOS_Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Build-Mac-Clang-arm64-Release-Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Build-Mac-Clang-arm64-Release-iOS_Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Build-Mac-Clang-x86_64-Debug-Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Build-Mac-Clang-x86_64-Release": {},
     "Build-Mac-Clang-x86_64-Release-Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Build-Win-Clang-x86-Debug": {},
@@ -82922,12 +82922,12 @@
     "Housekeeper-PerCommit-RunGnToBp": {},
     "Perf-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Vulkan": {},
@@ -82950,22 +82950,22 @@
     "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-Metal": {},
     "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-ASAN_Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Test-Mac12-Clang-MacBookPro16.2-GPU-IntelIrisPlus-x86_64-Debug-All-Graphite": {
       "location_regexes": [
-        "experimental/graphite/.*"
+        "src/gpu/graphite/.*"
       ]
     },
     "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {},
