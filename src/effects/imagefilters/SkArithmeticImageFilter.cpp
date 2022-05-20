@@ -8,7 +8,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/private/SkNx.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -130,42 +130,38 @@ void SkArithmeticImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static Sk4f pin(float min, const Sk4f& val, float max) {
-    return Sk4f::Max(min, Sk4f::Min(val, max));
-}
-
 template <bool EnforcePMColor>
 void arith_span(const SkV4& k, SkPMColor dst[], const SkPMColor src[], int count) {
-    const Sk4f k1 = k[0] * (1/255.0f),
-               k2 = k[1],
-               k3 = k[2],
-               k4 = k[3] * 255.0f + 0.5f;
+    const skvx::float4 k1 = k[0] * (1/255.0f),
+                       k2 = k[1],
+                       k3 = k[2],
+                       k4 = k[3] * 255.0f + 0.5f;
 
     for (int i = 0; i < count; i++) {
-        Sk4f s = SkNx_cast<float>(Sk4b::Load(src+i)),
-             d = SkNx_cast<float>(Sk4b::Load(dst+i)),
-             r = pin(0, k1*s*d + k2*s + k3*d + k4, 255);
+        skvx::float4 s = skvx::cast<float>(skvx::byte4::Load(src+i)),
+                     d = skvx::cast<float>(skvx::byte4::Load(dst+i)),
+                     r = pin(k1*s*d + k2*s + k3*d + k4, skvx::float4(0.f), skvx::float4(255.f));
         if (EnforcePMColor) {
-            Sk4f a = SkNx_shuffle<3,3,3,3>(r);
-            r = Sk4f::Min(a, r);
+            auto a = skvx::shuffle<3,3,3,3>(r);
+            r = min(a, r);
         }
-        SkNx_cast<uint8_t>(r).store(dst+i);
+        skvx::cast<uint8_t>(r).store(dst+i);
     }
 }
 
 // apply mode to src==transparent (0)
 template<bool EnforcePMColor> void arith_transparent(const SkV4& k, SkPMColor dst[], int count) {
-    const Sk4f k3 = k[2],
-               k4 = k[3] * 255.0f + 0.5f;
+    const skvx::float4 k3 = k[2],
+                       k4 = k[3] * 255.0f + 0.5f;
 
     for (int i = 0; i < count; i++) {
-        Sk4f d = SkNx_cast<float>(Sk4b::Load(dst+i)),
-             r = pin(0, k3*d + k4, 255);
+        skvx::float4 d = skvx::cast<float>(skvx::byte4::Load(dst+i)),
+                     r = pin(k3*d + k4, skvx::float4(0.f), skvx::float4(255.f));
         if (EnforcePMColor) {
-            Sk4f a = SkNx_shuffle<3,3,3,3>(r);
-            r = Sk4f::Min(a, r);
+            auto a = skvx::shuffle<3,3,3,3>(r);
+            r = min(a, r);
         }
-        SkNx_cast<uint8_t>(r).store(dst+i);
+        skvx::cast<uint8_t>(r).store(dst+i);
     }
 }
 

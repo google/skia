@@ -9,10 +9,10 @@
 
 #include "include/core/SkColorPriv.h"
 #include "include/private/SkMalloc.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkGaussFilter.h"
 
@@ -294,7 +294,15 @@ static void argb32_to_a8(uint8_t* a8, const uint8_t* from, int width) {
 }
 using ToA8 = decltype(bw_to_a8);
 
-static Sk8h load(const uint8_t* from, int width, ToA8* toA8) {
+using fp88 = skvx::Vec<8, uint16_t>; // 8-wide fixed point 8.8
+
+static fp88 mulhi(const fp88& a, const fp88& b) {
+    // On NEON, this is optimal; with SSE, clang appears to detect the pattern and convert it to the
+    // optimal single instruction, _mm_mulhi_epu16.
+    return skvx::cast<uint16_t>(mull(a, b) >> 16);
+}
+
+static fp88 load(const uint8_t* from, int width, ToA8* toA8) {
     // Our fast path is a full 8-byte load of A8.
     // So we'll conditionally handle the two slow paths using tmp:
     //    - if we have a function to convert another mask to A8, use it;
@@ -311,11 +319,11 @@ static Sk8h load(const uint8_t* from, int width, ToA8* toA8) {
     }
 
     // Load A8 and convert to 8.8 fixed-point.
-    return SkNx_cast<uint16_t>(Sk8b::Load(from)) << 8;
+    return skvx::cast<uint16_t>(skvx::byte8::Load(from)) << 8;
 }
 
-static void store(uint8_t* to, const Sk8h& v, int width) {
-    Sk8b b = SkNx_cast<uint8_t>(v >> 8);
+static void store(uint8_t* to, const fp88& v, int width) {
+    skvx::byte8 b = skvx::cast<uint8_t>(v >> 8);
     if (width == 8) {
         b.store(to);
     } else {
@@ -410,135 +418,131 @@ static constexpr uint16_t kHalf = 0x80u;
 // Where we rely on the compiler to generate efficient code for the {____, n, ....} notation.
 
 static void blur_x_radius_1(
-        const Sk8h& s0,
-        const Sk8h& g0, const Sk8h& g1, const Sk8h&, const Sk8h&, const Sk8h&,
-        Sk8h* d0, Sk8h* d8) {
+        const fp88& s0,
+        const fp88& g0, const fp88& g1, const fp88&, const fp88&, const fp88&,
+        fp88* d0, fp88* d8) {
 
-    auto v1 = s0.mulHi(g1);
-    auto v0 = s0.mulHi(g0);
+    auto v1 = mulhi(s0, g1);
+    auto v0 = mulhi(s0, g0);
 
     // D[n..n+7]  += S[n..n+7] * G[1]
     *d0 += v1;
 
     //D[n..n+8]  += {0, S[n..n+7] * G[0]}
-    *d0 += Sk8h{_____, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5], v0[6]};
-    *d8 += Sk8h{v0[7], _____, _____, _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5], v0[6]};
+    *d8 += fp88{v0[7], _____, _____, _____, _____, _____, _____, _____};
 
     // D[n..n+9]  += {0, 0, S[n..n+7] * G[1]}
-    *d0 += Sk8h{_____, _____, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5]};
-    *d8 += Sk8h{v1[6], v1[7], _____, _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5]};
+    *d8 += fp88{v1[6], v1[7], _____, _____, _____, _____, _____, _____};
 
 }
 
 static void blur_x_radius_2(
-        const Sk8h& s0,
-        const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h&, const Sk8h&,
-        Sk8h* d0, Sk8h* d8) {
-    auto v0 = s0.mulHi(g0);
-    auto v1 = s0.mulHi(g1);
-    auto v2 = s0.mulHi(g2);
+        const fp88& s0,
+        const fp88& g0, const fp88& g1, const fp88& g2, const fp88&, const fp88&,
+        fp88* d0, fp88* d8) {
+    auto v0 = mulhi(s0, g0);
+    auto v1 = mulhi(s0, g1);
+    auto v2 = mulhi(s0, g2);
 
     // D[n..n+7]  += S[n..n+7] * G[2]
     *d0 += v2;
 
     // D[n..n+8]  += {0, S[n..n+7] * G[1]}
-    *d0 += Sk8h{_____, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5], v1[6]};
-    *d8 += Sk8h{v1[7], _____, _____, _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5], v1[6]};
+    *d8 += fp88{v1[7], _____, _____, _____, _____, _____, _____, _____};
 
     // D[n..n+9]  += {0, 0, S[n..n+7] * G[0]}
-    *d0 += Sk8h{_____, _____, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5]};
-    *d8 += Sk8h{v0[6], v0[7], _____, _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5]};
+    *d8 += fp88{v0[6], v0[7], _____, _____, _____, _____, _____, _____};
 
     // D[n..n+10]  += {0, 0, 0, S[n..n+7] * G[1]}
-    *d0 += Sk8h{_____, _____, _____, v1[0], v1[1], v1[2], v1[3], v1[4]};
-    *d8 += Sk8h{v1[5], v1[6], v1[7], _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, _____, v1[0], v1[1], v1[2], v1[3], v1[4]};
+    *d8 += fp88{v1[5], v1[6], v1[7], _____, _____, _____, _____, _____};
 
     // D[n..n+11]  += {0, 0, 0, 0, S[n..n+7] * G[2]}
-    *d0 += Sk8h{_____, _____, _____, _____, v2[0], v2[1], v2[2], v2[3]};
-    *d8 += Sk8h{v2[4], v2[5], v2[6], v2[7], _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, _____, _____, v2[0], v2[1], v2[2], v2[3]};
+    *d8 += fp88{v2[4], v2[5], v2[6], v2[7], _____, _____, _____, _____};
 }
 
 static void blur_x_radius_3(
-        const Sk8h& s0,
-        const Sk8h& gauss0, const Sk8h& gauss1, const Sk8h& gauss2, const Sk8h& gauss3, const Sk8h&,
-        Sk8h* d0, Sk8h* d8) {
-    auto v0 = s0.mulHi(gauss0);
-    auto v1 = s0.mulHi(gauss1);
-    auto v2 = s0.mulHi(gauss2);
-    auto v3 = s0.mulHi(gauss3);
+        const fp88& s0,
+        const fp88& g0, const fp88& g1, const fp88& g2, const fp88& g3, const fp88&,
+        fp88* d0, fp88* d8) {
+    auto v0 = mulhi(s0, g0);
+    auto v1 = mulhi(s0, g1);
+    auto v2 = mulhi(s0, g2);
+    auto v3 = mulhi(s0, g3);
 
     // D[n..n+7]  += S[n..n+7] * G[3]
     *d0 += v3;
 
     // D[n..n+8]  += {0, S[n..n+7] * G[2]}
-    *d0 += Sk8h{_____, v2[0], v2[1], v2[2], v2[3], v2[4], v2[5], v2[6]};
-    *d8 += Sk8h{v2[7], _____, _____, _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, v2[0], v2[1], v2[2], v2[3], v2[4], v2[5], v2[6]};
+    *d8 += fp88{v2[7], _____, _____, _____, _____, _____, _____, _____};
 
     // D[n..n+9]  += {0, 0, S[n..n+7] * G[1]}
-    *d0 += Sk8h{_____, _____, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5]};
-    *d8 += Sk8h{v1[6], v1[7], _____, _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5]};
+    *d8 += fp88{v1[6], v1[7], _____, _____, _____, _____, _____, _____};
 
     // D[n..n+10]  += {0, 0, 0, S[n..n+7] * G[0]}
-    *d0 += Sk8h{_____, _____, _____, v0[0], v0[1], v0[2], v0[3], v0[4]};
-    *d8 += Sk8h{v0[5], v0[6], v0[7], _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, _____, v0[0], v0[1], v0[2], v0[3], v0[4]};
+    *d8 += fp88{v0[5], v0[6], v0[7], _____, _____, _____, _____, _____};
 
     // D[n..n+11]  += {0, 0, 0, 0, S[n..n+7] * G[1]}
-    *d0 += Sk8h{_____, _____, _____, _____, v1[0], v1[1], v1[2], v1[3]};
-    *d8 += Sk8h{v1[4], v1[5], v1[6], v1[7], _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, _____, _____, v1[0], v1[1], v1[2], v1[3]};
+    *d8 += fp88{v1[4], v1[5], v1[6], v1[7], _____, _____, _____, _____};
 
     // D[n..n+12]  += {0, 0, 0, 0, 0, S[n..n+7] * G[2]}
-    *d0 += Sk8h{_____, _____, _____, _____, _____, v2[0], v2[1], v2[2]};
-    *d8 += Sk8h{v2[3], v2[4], v2[5], v2[6], v2[7], _____, _____, _____};
+    *d0 += fp88{_____, _____, _____, _____, _____, v2[0], v2[1], v2[2]};
+    *d8 += fp88{v2[3], v2[4], v2[5], v2[6], v2[7], _____, _____, _____};
 
     // D[n..n+13]  += {0, 0, 0, 0, 0, 0, S[n..n+7] * G[3]}
-    *d0 += Sk8h{_____, _____, _____, _____, _____, _____, v3[0], v3[1]};
-    *d8 += Sk8h{v3[2], v3[3], v3[4], v3[5], v3[6], v3[7], _____, _____};
+    *d0 += fp88{_____, _____, _____, _____, _____, _____, v3[0], v3[1]};
+    *d8 += fp88{v3[2], v3[3], v3[4], v3[5], v3[6], v3[7], _____, _____};
 }
 
 static void blur_x_radius_4(
-        const Sk8h& s0,
-        const Sk8h& gauss0,
-        const Sk8h& gauss1,
-        const Sk8h& gauss2,
-        const Sk8h& gauss3,
-        const Sk8h& gauss4,
-        Sk8h* d0, Sk8h* d8) {
-    auto v0 = s0.mulHi(gauss0);
-    auto v1 = s0.mulHi(gauss1);
-    auto v2 = s0.mulHi(gauss2);
-    auto v3 = s0.mulHi(gauss3);
-    auto v4 = s0.mulHi(gauss4);
+        const fp88& s0,
+        const fp88& g0, const fp88& g1, const fp88& g2, const fp88& g3, const fp88& g4,
+        fp88* d0, fp88* d8) {
+    auto v0 = mulhi(s0, g0);
+    auto v1 = mulhi(s0, g1);
+    auto v2 = mulhi(s0, g2);
+    auto v3 = mulhi(s0, g3);
+    auto v4 = mulhi(s0, g4);
 
     // D[n..n+7]  += S[n..n+7] * G[4]
     *d0 += v4;
 
     // D[n..n+8]  += {0, S[n..n+7] * G[3]}
-    *d0 += Sk8h{_____, v3[0], v3[1], v3[2], v3[3], v3[4], v3[5], v3[6]};
-    *d8 += Sk8h{v3[7], _____, _____, _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, v3[0], v3[1], v3[2], v3[3], v3[4], v3[5], v3[6]};
+    *d8 += fp88{v3[7], _____, _____, _____, _____, _____, _____, _____};
 
     // D[n..n+9]  += {0, 0, S[n..n+7] * G[2]}
-    *d0 += Sk8h{_____, _____, v2[0], v2[1], v2[2], v2[3], v2[4], v2[5]};
-    *d8 += Sk8h{v2[6], v2[7], _____, _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, v2[0], v2[1], v2[2], v2[3], v2[4], v2[5]};
+    *d8 += fp88{v2[6], v2[7], _____, _____, _____, _____, _____, _____};
 
     // D[n..n+10]  += {0, 0, 0, S[n..n+7] * G[1]}
-    *d0 += Sk8h{_____, _____, _____, v1[0], v1[1], v1[2], v1[3], v1[4]};
-    *d8 += Sk8h{v1[5], v1[6], v1[7], _____, _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, _____, v1[0], v1[1], v1[2], v1[3], v1[4]};
+    *d8 += fp88{v1[5], v1[6], v1[7], _____, _____, _____, _____, _____};
 
     // D[n..n+11]  += {0, 0, 0, 0, S[n..n+7] * G[0]}
-    *d0 += Sk8h{_____, _____, _____, _____, v0[0], v0[1], v0[2], v0[3]};
-    *d8 += Sk8h{v0[4], v0[5], v0[6], v0[7], _____, _____, _____, _____};
+    *d0 += fp88{_____, _____, _____, _____, v0[0], v0[1], v0[2], v0[3]};
+    *d8 += fp88{v0[4], v0[5], v0[6], v0[7], _____, _____, _____, _____};
 
     // D[n..n+12]  += {0, 0, 0, 0, 0, S[n..n+7] * G[1]}
-    *d0 += Sk8h{_____, _____, _____, _____, _____, v1[0], v1[1], v1[2]};
-    *d8 += Sk8h{v1[3], v1[4], v1[5], v1[6], v1[7], _____, _____, _____};
+    *d0 += fp88{_____, _____, _____, _____, _____, v1[0], v1[1], v1[2]};
+    *d8 += fp88{v1[3], v1[4], v1[5], v1[6], v1[7], _____, _____, _____};
 
     // D[n..n+13]  += {0, 0, 0, 0, 0, 0, S[n..n+7] * G[2]}
-    *d0 += Sk8h{_____, _____, _____, _____, _____, _____, v2[0], v2[1]};
-    *d8 += Sk8h{v2[2], v2[3], v2[4], v2[5], v2[6], v2[7], _____, _____};
+    *d0 += fp88{_____, _____, _____, _____, _____, _____, v2[0], v2[1]};
+    *d8 += fp88{v2[2], v2[3], v2[4], v2[5], v2[6], v2[7], _____, _____};
 
     // D[n..n+14]  += {0, 0, 0, 0, 0, 0, 0, S[n..n+7] * G[3]}
-    *d0 += Sk8h{_____, _____, _____, _____, _____, _____, _____, v3[0]};
-    *d8 += Sk8h{v3[1], v3[2], v3[3], v3[4], v3[5], v3[6], v3[7], _____};
+    *d0 += fp88{_____, _____, _____, _____, _____, _____, _____, v3[0]};
+    *d8 += fp88{v3[1], v3[2], v3[3], v3[4], v3[5], v3[6], v3[7], _____};
 
     // D[n..n+15]  += {0, 0, 0, 0, 0, 0, 0, 0, S[n..n+7] * G[4]}
     *d8 += v4;
@@ -549,11 +553,11 @@ using BlurX = decltype(blur_x_radius_1);
 // BlurX will only be one of the functions blur_x_radius_(1|2|3|4).
 static void blur_row(
         BlurX blur,
-        const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h& g3, const Sk8h& g4,
+        const fp88& g0, const fp88& g1, const fp88& g2, const fp88& g3, const fp88& g4,
         const uint8_t* src, int srcW,
               uint8_t* dst, int dstW) {
     // Clear the buffer to handle summing wider than source.
-    Sk8h d0{kHalf}, d8{kHalf};
+    fp88 d0(kHalf), d8(kHalf);
 
     // Go by multiples of 8 in src.
     int x = 0;
@@ -563,7 +567,7 @@ static void blur_row(
         store(dst, d0, 8);
 
         d0 = d8;
-        d8 = Sk8h{kHalf};
+        d8 = fp88(kHalf);
 
         src += 8;
         dst += 8;
@@ -596,11 +600,11 @@ static void blur_x_rect(BlurX blur,
                         const uint8_t* src, size_t srcStride, int srcW,
                         uint8_t* dst, size_t dstStride, int dstW, int dstH) {
 
-    Sk8h g0{gauss[0]},
-         g1{gauss[1]},
-         g2{gauss[2]},
-         g3{gauss[3]},
-         g4{gauss[4]};
+    fp88 g0(gauss[0]),
+         g1(gauss[1]),
+         g2(gauss[2]),
+         g3(gauss[3]),
+         g4(gauss[4]);
 
     // Blur *ALL* the rows.
     for (int y = 0; y < dstH; y++) {
@@ -686,29 +690,29 @@ static void direct_blur_x(int radius, uint16_t* gauss,
 //   d01[0..7]    = d12[0..7] + S[n+0r..n+0r+7]*G[0]
 //   d12[0..7]    =             S[n+0r..n+0r+7]*G[1]
 //   return answer[0..7]
-static Sk8h blur_y_radius_1(
-        const Sk8h& s0,
-        const Sk8h& g0, const Sk8h& g1, const Sk8h&, const Sk8h&, const Sk8h&,
-        Sk8h* d01, Sk8h* d12, Sk8h*, Sk8h*, Sk8h*, Sk8h*, Sk8h*, Sk8h*) {
-    auto v0 = s0.mulHi(g0);
-    auto v1 = s0.mulHi(g1);
+static fp88 blur_y_radius_1(
+        const fp88& s0,
+        const fp88& g0, const fp88& g1, const fp88&, const fp88&, const fp88&,
+        fp88* d01, fp88* d12, fp88*, fp88*, fp88*, fp88*, fp88*, fp88*) {
+    auto v0 = mulhi(s0, g0);
+    auto v1 = mulhi(s0, g1);
 
-    Sk8h answer = *d01 + v1;
+    fp88 answer = *d01 + v1;
            *d01 = *d12 + v0;
            *d12 =        v1 + kHalf;
 
     return answer;
 }
 
-static Sk8h blur_y_radius_2(
-        const Sk8h& s0,
-        const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h&, const Sk8h&,
-        Sk8h* d01, Sk8h* d12, Sk8h* d23, Sk8h* d34, Sk8h*, Sk8h*, Sk8h*, Sk8h*) {
-    auto v0 = s0.mulHi(g0);
-    auto v1 = s0.mulHi(g1);
-    auto v2 = s0.mulHi(g2);
+static fp88 blur_y_radius_2(
+        const fp88& s0,
+        const fp88& g0, const fp88& g1, const fp88& g2, const fp88&, const fp88&,
+        fp88* d01, fp88* d12, fp88* d23, fp88* d34, fp88*, fp88*, fp88*, fp88*) {
+    auto v0 = mulhi(s0, g0);
+    auto v1 = mulhi(s0, g1);
+    auto v2 = mulhi(s0, g2);
 
-    Sk8h answer = *d01 + v2;
+    fp88 answer = *d01 + v2;
            *d01 = *d12 + v1;
            *d12 = *d23 + v0;
            *d23 = *d34 + v1;
@@ -717,16 +721,16 @@ static Sk8h blur_y_radius_2(
     return answer;
 }
 
-static Sk8h blur_y_radius_3(
-        const Sk8h& s0,
-        const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h& g3, const Sk8h&,
-        Sk8h* d01, Sk8h* d12, Sk8h* d23, Sk8h* d34, Sk8h* d45, Sk8h* d56, Sk8h*, Sk8h*) {
-    auto v0 = s0.mulHi(g0);
-    auto v1 = s0.mulHi(g1);
-    auto v2 = s0.mulHi(g2);
-    auto v3 = s0.mulHi(g3);
+static fp88 blur_y_radius_3(
+        const fp88& s0,
+        const fp88& g0, const fp88& g1, const fp88& g2, const fp88& g3, const fp88&,
+        fp88* d01, fp88* d12, fp88* d23, fp88* d34, fp88* d45, fp88* d56, fp88*, fp88*) {
+    auto v0 = mulhi(s0, g0);
+    auto v1 = mulhi(s0, g1);
+    auto v2 = mulhi(s0, g2);
+    auto v3 = mulhi(s0, g3);
 
-    Sk8h answer = *d01 + v3;
+    fp88 answer = *d01 + v3;
            *d01 = *d12 + v2;
            *d12 = *d23 + v1;
            *d23 = *d34 + v0;
@@ -737,17 +741,17 @@ static Sk8h blur_y_radius_3(
     return answer;
 }
 
-static Sk8h blur_y_radius_4(
-    const Sk8h& s0,
-    const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h& g3, const Sk8h& g4,
-    Sk8h* d01, Sk8h* d12, Sk8h* d23, Sk8h* d34, Sk8h* d45, Sk8h* d56, Sk8h* d67, Sk8h* d78) {
-    auto v0 = s0.mulHi(g0);
-    auto v1 = s0.mulHi(g1);
-    auto v2 = s0.mulHi(g2);
-    auto v3 = s0.mulHi(g3);
-    auto v4 = s0.mulHi(g4);
+static fp88 blur_y_radius_4(
+    const fp88& s0,
+    const fp88& g0, const fp88& g1, const fp88& g2, const fp88& g3, const fp88& g4,
+    fp88* d01, fp88* d12, fp88* d23, fp88* d34, fp88* d45, fp88* d56, fp88* d67, fp88* d78) {
+    auto v0 = mulhi(s0, g0);
+    auto v1 = mulhi(s0, g1);
+    auto v2 = mulhi(s0, g2);
+    auto v3 = mulhi(s0, g3);
+    auto v4 = mulhi(s0, g4);
 
-    Sk8h answer = *d01 + v4;
+    fp88 answer = *d01 + v4;
            *d01 = *d12 + v3;
            *d12 = *d23 + v2;
            *d23 = *d34 + v1;
@@ -766,13 +770,13 @@ using BlurY = decltype(blur_y_radius_1);
 static void blur_column(
         ToA8 toA8,
         BlurY blur, int radius, int width,
-        const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h& g3, const Sk8h& g4,
+        const fp88& g0, const fp88& g1, const fp88& g2, const fp88& g3, const fp88& g4,
         const uint8_t* src, size_t srcRB, int srcH,
         uint8_t* dst, size_t dstRB) {
-    Sk8h d01{kHalf}, d12{kHalf}, d23{kHalf}, d34{kHalf},
-         d45{kHalf}, d56{kHalf}, d67{kHalf}, d78{kHalf};
+    fp88 d01(kHalf), d12(kHalf), d23(kHalf), d34(kHalf),
+         d45(kHalf), d56(kHalf), d67(kHalf), d78(kHalf);
 
-    auto flush = [&](uint8_t* to, const Sk8h& v0, const Sk8h& v1) {
+    auto flush = [&](uint8_t* to, const fp88& v0, const fp88& v1) {
         store(to, v0, width);
         to += dstRB;
         store(to, v1, width);
@@ -809,11 +813,11 @@ static void blur_y_rect(ToA8 toA8, const int strideOf8,
                         const uint8_t *src, size_t srcRB, int srcW, int srcH,
                         uint8_t *dst, size_t dstRB) {
 
-    Sk8h g0{gauss[0]},
-         g1{gauss[1]},
-         g2{gauss[2]},
-         g3{gauss[3]},
-         g4{gauss[4]};
+    fp88 g0(gauss[0]),
+         g1(gauss[1]),
+         g2(gauss[2]),
+         g3(gauss[3]),
+         g4(gauss[4]);
 
     int x = 0;
     for (; x <= srcW - 8; x += 8) {

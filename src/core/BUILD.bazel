@@ -2647,10 +2647,10 @@ generated_cc_atom(
         ":SkMaskBlurFilter_hdr",
         "//include/core:SkColorPriv_hdr",
         "//include/private:SkMalloc_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTPin_hdr",
         "//include/private:SkTemplates_hdr",
         "//include/private:SkTo_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 

@@ -798,7 +798,7 @@ private:
 SI Vec<8,uint16_t> mull(const Vec<8,uint8_t>& x,
                         const Vec<8,uint8_t>& y) {
     return to_vec<8,uint16_t>(vmull_u8(to_vext(x),
-                                        to_vext(y)));
+                                       to_vext(y)));
 }
 
 SIN std::enable_if_t<(N < 8), Vec<N,uint16_t>> mull(const Vec<N,uint8_t>& x,
@@ -815,13 +815,37 @@ SIN std::enable_if_t<(N > 8), Vec<N,uint16_t>> mull(const Vec<N,uint8_t>& x,
                 mull(x.hi, y.hi));
 }
 
+// Or do four u16*u16 -> u32 in one instruction, vmull_u16
+SI Vec<4,uint32_t> mull(const Vec<4,uint16_t>& x,
+                        const Vec<4,uint16_t>& y) {
+    return to_vec<4,uint32_t>(vmull_u16(to_vext(x),
+                                        to_vext(y)));
+}
+
+SIN std::enable_if_t<(N < 4), Vec<N,uint32_t>> mull(const Vec<N,uint16_t>& x,
+                                                    const Vec<N,uint16_t>& y) {
+    // N < 4 --> double up data until N == 4, returning the part we need.
+    return mull(join(x,x),
+                join(y,y)).lo;
+}
+
+SIN std::enable_if_t<(N > 4), Vec<N,uint32_t>> mull(const Vec<N,uint16_t>& x,
+                                                    const Vec<N,uint16_t>& y) {
+    // N > 4 --> usual join(lo,hi) strategy to recurse down to N == 4.
+    return join(mull(x.lo, y.lo),
+                mull(x.hi, y.hi));
+}
+
 #else
 
-// Nothing special when we don't have NEON... just cast up to 16-bit and multiply.
+// Nothing special when we don't have NEON... just cast up and multiply.
 SIN Vec<N,uint16_t> mull(const Vec<N,uint8_t>& x,
-                            const Vec<N,uint8_t>& y) {
-    return cast<uint16_t>(x)
-            * cast<uint16_t>(y);
+                         const Vec<N,uint8_t>& y) {
+    return cast<uint16_t>(x) * cast<uint16_t>(y);
+}
+SIN Vec<N,uint32_t> mull(const Vec<N,uint16_t>& x,
+                         const Vec<N,uint16_t>& y) {
+    return cast<uint32_t>(x) * cast<uint32_t>(y);
 }
 #endif
 
