@@ -39,10 +39,6 @@ class SkTextBlob;
 class SkVertices;
 struct SkDrawShadowRec;
 
-#if SK_SUPPORT_GPU
-class GrSlug;
-#endif
-
 SkNWayCanvas::SkNWayCanvas(int width, int height) : INHERITED(width, height) {}
 
 SkNWayCanvas::~SkNWayCanvas() {
@@ -334,7 +330,7 @@ void SkNWayCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y
 }
 
 #if SK_SUPPORT_GPU
-void SkNWayCanvas::onDrawSlug(const GrSlug* slug) {
+void SkNWayCanvas::onDrawSlug(const sktext::gpu::Slug* slug) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawSlug(slug);

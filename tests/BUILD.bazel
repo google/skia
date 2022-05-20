@@ -2582,7 +2582,7 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkTextBlob_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",
         "//tools:ToolUtils_hdr",
     ],
@@ -5602,8 +5602,8 @@ generated_cc_atom(
         "//include/core:SkTextBlob_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/private:SkMutex_hdr",
-        "//include/private/chromium:GrSlug_hdr",
         "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
+        "//include/private/chromium:Slug_hdr",
         "//src/core:SkDraw_hdr",
         "//src/core:SkFontPriv_hdr",
         "//src/core:SkReadBuffer_hdr",

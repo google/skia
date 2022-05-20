@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 
 #include "include/core/SkCanvas.h"
 #include "src/core/SkReadBuffer.h"
@@ -13,21 +13,26 @@
 
 #include <atomic>
 
-GrTextReferenceFrame::~GrTextReferenceFrame() = default;
+namespace sktext::gpu { class Slug; }
+sk_sp<sktext::gpu::Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
 
-GrSlug::~GrSlug() = default;
-sk_sp<GrSlug> GrSlug::ConvertBlob(
+namespace sktext::gpu {
+
+TextReferenceFrame::~TextReferenceFrame() = default;
+
+Slug::~Slug() = default;
+sk_sp<Slug> Slug::ConvertBlob(
         SkCanvas* canvas, const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
     return canvas->convertBlobToSlug(blob, origin, paint);
 }
 
-sk_sp<SkData> GrSlug::serialize() const {
+sk_sp<SkData> Slug::serialize() const {
     SkBinaryWriteBuffer buffer;
     this->doFlatten(buffer);
     return buffer.snapshotAsData();
 }
 
-size_t GrSlug::serialize(void* buffer, size_t size) const {
+size_t Slug::serialize(void* buffer, size_t size) const {
     SkBinaryWriteBuffer writeBuffer{buffer, size};
     this->doFlatten(writeBuffer);
 
@@ -38,26 +43,25 @@ size_t GrSlug::serialize(void* buffer, size_t size) const {
     return writeBuffer.usingInitialStorage() ? writeBuffer.bytesWritten() : 0u;
 }
 
-sk_sp<GrSlug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
-sk_sp<GrSlug> GrSlug::MakeFromBuffer(SkReadBuffer& buffer) {
+sk_sp<Slug> Slug::MakeFromBuffer(SkReadBuffer& buffer) {
     return SkMakeSlugFromBuffer(buffer, nullptr);
 }
 
-sk_sp<GrSlug> GrSlug::Deserialize(const void* data, size_t size, const SkStrikeClient* client) {
+sk_sp<Slug> Slug::Deserialize(const void* data, size_t size, const SkStrikeClient* client) {
     SkReadBuffer buffer{data, size};
     return SkMakeSlugFromBuffer(buffer, client);
 }
 
-void GrSlug::draw(SkCanvas* canvas) const {
+void Slug::draw(SkCanvas* canvas) const {
     canvas->drawSlug(this);
 }
 
-uint32_t GrSlug::NextUniqueID() {
+uint32_t Slug::NextUniqueID() {
     static std::atomic<uint32_t> nextUnique = 1;
     return nextUnique++;
 }
 
-// Most of GrSlug's implementation is in GrTextBlob.cpp to share common code.
+// Most of Slug's implementation is in GrTextBlob.cpp to share common code.
 
-
+}  // namespace sktext::gpu
 

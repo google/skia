@@ -20,6 +20,7 @@ cc_library(
         "//src/text/gpu:GlyphVector_src",
         "//src/text/gpu:SDFMaskFilter_src",
         "//src/text/gpu:SDFTControl_src",
+        "//src/text/gpu:Slug_src",
         "//src/text/gpu:StrikeCache_src",
         "//src/text/gpu:SubRunAllocator_src",
     ],

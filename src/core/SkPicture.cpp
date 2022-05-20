@@ -22,7 +22,7 @@
 #include <atomic>
 
 #if SK_SUPPORT_GPU
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 #endif
 
 // When we read/write the SkPictInfo via a stream, we have a sentinel byte right after the info.

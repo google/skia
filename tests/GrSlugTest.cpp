@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkTextBlob.h"
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
@@ -40,7 +40,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrSlug_empty, reporter, ctxInfo) {
 
     SkPaint p;
     p.setAntiAlias(true);
-    sk_sp<GrSlug> slug = GrSlug::ConvertBlob(canvas, *blob, {10, 10}, p);
+    sk_sp<sktext::gpu::Slug> slug = sktext::gpu::Slug::ConvertBlob(canvas, *blob, {10, 10}, p);
     REPORTER_ASSERT(reporter, slug == nullptr);
 }
 

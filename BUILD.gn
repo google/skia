@@ -862,6 +862,12 @@ optional("gpu_shared") {
 
   deps = []
   public_defines = []
+  if (skia_enable_gpu) {
+    public_defines += [ "SK_SUPPORT_GPU" ]
+  }
+  if (skia_enable_graphite) {
+    public_defines += [ "SK_GRAPHITE_ENABLED" ]
+  }
 
   if (skia_use_direct3d) {
     # Must be defined when 'skia_sksl_gpu_sources' is built, even if the rest of skia_use_direct3d

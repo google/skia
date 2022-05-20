@@ -10,7 +10,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkFontPriv.h"
@@ -606,7 +606,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_SLUG: {
 #if SK_SUPPORT_GPU
-            const GrSlug* slug = fPictureData->getSlug(reader);
+            const sktext::gpu::Slug* slug = fPictureData->getSlug(reader);
             BREAK_ON_READ_ERROR(reader);
 
             slug->draw(canvas);

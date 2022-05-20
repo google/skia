@@ -13,7 +13,7 @@
 
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkIPoint16.h"
@@ -110,7 +110,7 @@ public:
 
     virtual const GrBlobSubRun* blobCast() const;
     void flatten(SkWriteBuffer& buffer) const;
-    static GrSubRunOwner MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
+    static GrSubRunOwner MakeFromBuffer(const sktext::gpu::TextReferenceFrame* referenceFrame,
                                         SkReadBuffer& buffer,
                                         sktext::gpu::SubRunAllocator* alloc,
                                         const SkStrikeClient* client);
@@ -190,7 +190,8 @@ private:
 //                    with.
 //
 //
-class GrTextBlob final : public GrTextReferenceFrame, public SkGlyphRunPainterInterface {
+class GrTextBlob final : public sktext::gpu::TextReferenceFrame,
+                         public SkGlyphRunPainterInterface {
 public:
     // Key is not used as part of a hash map, so the hash is never taken. It's only used in a
     // list search using operator =().
@@ -304,11 +305,11 @@ private:
 };
 
 namespace skgpu::v1 {
-sk_sp<GrSlug> MakeSlug(const SkMatrixProvider& drawMatrix,
-                       const SkGlyphRunList& glyphRunList,
-                       const SkPaint& initialPaint,
-                       const SkPaint& drawingPaint,
-                       SkStrikeDeviceInfo strikeDeviceInfo,
-                       SkStrikeForGPUCacheInterface* strikeCache);
+sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
+                                  const SkGlyphRunList& glyphRunList,
+                                  const SkPaint& initialPaint,
+                                  const SkPaint& drawingPaint,
+                                  SkStrikeDeviceInfo strikeDeviceInfo,
+                                  SkStrikeForGPUCacheInterface* strikeCache);
 }  // namespace skgpu::v1
 #endif  // GrTextBlob_DEFINED

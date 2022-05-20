@@ -8192,7 +8192,7 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/gpu:GrContextOptions_hdr",
         "//include/private:SkTDArray_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
         "//tools:ToolUtils_hdr",
     ],
 )

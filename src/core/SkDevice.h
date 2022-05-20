@@ -336,13 +336,13 @@ protected:
                                     const SkPaint& initialPaint,
                                     const SkPaint& drawingPaint) = 0;
 
-    // GrSlug handling routines.
-#if SK_SUPPORT_GPU
-    virtual sk_sp<GrSlug> convertGlyphRunListToSlug(
+    // Slug handling routines.
+#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
+    virtual sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(
             const SkGlyphRunList& glyphRunList,
             const SkPaint& initialPaint,
             const SkPaint& drawingPaint);
-    virtual void drawSlug(SkCanvas*, const GrSlug* slug, const SkPaint& drawingPaint);
+    virtual void drawSlug(SkCanvas*, const sktext::gpu::Slug* slug, const SkPaint& drawingPaint);
 #endif
 
     /**
@@ -572,7 +572,7 @@ protected:
     void drawFilteredImage(const skif::Mapping&, SkSpecialImage* src, const SkImageFilter*,
                            const SkSamplingOptions&, const SkPaint&) override {}
 #if SK_SUPPORT_GPU
-    void drawSlug(SkCanvas*, const GrSlug*, const SkPaint&) override {}
+    void drawSlug(SkCanvas*, const sktext::gpu::Slug*, const SkPaint&) override {}
 #endif
 
     void onDrawGlyphRunList(

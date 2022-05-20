@@ -18,7 +18,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkShadowFlags.h"
 #include "include/private/SkTo.h"
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
@@ -979,7 +979,7 @@ void Device::testingOnly_drawGlyphRunListWithSerializedSlug(SkCanvas* canvas,
         }
         return;
     }
-    auto srcSlug = GrSlug::ConvertBlob(
+    auto srcSlug = Slug::ConvertBlob(
             canvas, *glyphRunList.blob(), glyphRunList.origin(), initialPaint);
 
     // There is nothing to draw.
@@ -989,7 +989,7 @@ void Device::testingOnly_drawGlyphRunListWithSerializedSlug(SkCanvas* canvas,
 
     auto dstSlugData = srcSlug->serialize();
 
-    auto dstSlug = GrSlug::Deserialize(dstSlugData->data(), dstSlugData->size());
+    auto dstSlug = Slug::Deserialize(dstSlugData->data(), dstSlugData->size());
     SkASSERT(dstSlug != nullptr);
     if (dstSlug != nullptr) {
         this->drawSlug(canvas, dstSlug.get(), drawingPaint);
@@ -1082,7 +1082,7 @@ void Device::testingOnly_drawGlyphRunListWithSerializedSlugAndStrike(
     );
 
     analysisCanvas->setMatrix(canvas->getTotalMatrix());
-    auto srcSlug = GrSlug::ConvertBlob(analysisCanvas.get(),
+    auto srcSlug = Slug::ConvertBlob(analysisCanvas.get(),
                                        *glyphRunList.blob(),
                                        glyphRunList.origin(),
                                        initialPaint);

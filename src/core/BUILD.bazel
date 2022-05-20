@@ -1032,7 +1032,7 @@ generated_cc_atom(
         "//include/effects:SkRuntimeEffect_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/private:SkTo_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
         "//include/utils:SkNoDrawCanvas_hdr",
         "//src/gpu/ganesh:BaseDevice_hdr",
         "//src/gpu/ganesh:GrRenderTargetProxy_hdr",
@@ -1553,7 +1553,7 @@ generated_cc_atom(
         "//include/core:SkShader_hdr",
         "//include/core:SkVertices_hdr",
         "//include/private:SkTo_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/shaders:SkLocalMatrixShader_hdr",
         "//src/utils:SkPatchUtils_hdr",
@@ -3385,7 +3385,7 @@ generated_cc_atom(
         "//include/core:SkStream_hdr",
         "//include/core:SkTypeface_hdr",
         "//include/private:SkTo_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
     ],
 )
 
@@ -3468,7 +3468,7 @@ generated_cc_atom(
         "//include/core:SkTextBlob_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkTDArray_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
         "//src/utils:SkPatchUtils_hdr",
     ],
 )
@@ -3514,7 +3514,7 @@ generated_cc_atom(
         "//include/core:SkRSXform_hdr",
         "//include/core:SkTextBlob_hdr",
         "//include/private:SkTo_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/utils:SkPatchUtils_hdr",
     ],
@@ -3557,7 +3557,7 @@ generated_cc_atom(
         "//include/core:SkPicture_hdr",
         "//include/core:SkSerialProcs_hdr",
         "//include/private:SkTo_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
     ],
 )
 
@@ -3976,7 +3976,7 @@ generated_cc_atom(
         ":SkRecordedDrawable_hdr",
         "//include/core:SkMatrix_hdr",
         "//include/core:SkPictureRecorder_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
     ],
 )
 
@@ -4008,7 +4008,7 @@ generated_cc_atom(
         "//include/core:SkPicture_hdr",
         "//include/core:SkSurface_hdr",
         "//include/private:SkTo_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
         "//src/utils:SkPatchUtils_hdr",
     ],
 )
@@ -4035,7 +4035,7 @@ generated_cc_atom(
         "//include/core:SkString_hdr",
         "//include/core:SkTextBlob_hdr",
         "//include/core:SkVertices_hdr",
-        "//include/private/chromium:GrSlug_hdr",
+        "//include/private/chromium:Slug_hdr",
     ],
 )
 

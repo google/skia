@@ -20,7 +20,7 @@
 #include "src/utils/SkPatchUtils.h"
 
 #if SK_SUPPORT_GPU
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 #endif
 
 #define HEAP_BLOCK_SIZE 4096
@@ -581,7 +581,7 @@ void SkPictureRecord::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScala
 }
 
 #if SK_SUPPORT_GPU
-void SkPictureRecord::onDrawSlug(const GrSlug* slug) {
+void SkPictureRecord::onDrawSlug(const sktext::gpu::Slug* slug) {
     // op + slug id
     size_t size = 2 * kUInt32Size;
     size_t initialOffset = this->addDraw(DRAW_SLUG, &size);
@@ -936,7 +936,7 @@ void SkPictureRecord::addTextBlob(const SkTextBlob* blob) {
 }
 
 #if SK_SUPPORT_GPU
-void SkPictureRecord::addSlug(const GrSlug* slug) {
+void SkPictureRecord::addSlug(const sktext::gpu::Slug* slug) {
     // follow the convention of recording a 1-based index
     this->addInt(find_or_append(fSlugs, slug) + 1);
 }

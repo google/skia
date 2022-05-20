@@ -188,7 +188,6 @@ cc_library(
         "//src/gpu/ganesh/tessellate:PathTessellator_src",
         "//src/gpu/ganesh/tessellate:StrokeTessellator_src",
         "//src/gpu/ganesh/text:GrAtlasManager_src",
-        "//src/gpu/ganesh/text:GrSlug_src",
         "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_src",
         "//src/gpu/ganesh/text:GrTextBlob_src",
     ],

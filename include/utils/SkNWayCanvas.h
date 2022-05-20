@@ -41,7 +41,9 @@ struct SkRSXform;
 struct SkRect;
 
 #if SK_SUPPORT_GPU
-class GrSlug;
+namespace sktext::gpu {
+class Slug;
+}
 #endif
 
 class SK_API SkNWayCanvas : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
@@ -71,7 +73,7 @@ protected:
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
 #if SK_SUPPORT_GPU
-    void onDrawSlug(const GrSlug* slug) override;
+    void onDrawSlug(const sktext::gpu::Slug* slug) override;
 #endif
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint) override;

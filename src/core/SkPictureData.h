@@ -131,7 +131,7 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    const GrSlug* getSlug(SkReadBuffer* reader) const {
+    const sktext::gpu::Slug* getSlug(SkReadBuffer* reader) const {
         return read_index_base_1_or_null(reader, fSlugs);
     }
 #endif
@@ -162,7 +162,7 @@ private:
     SkTArray<sk_sp<const SkVertices>>  fVertices;
     SkTArray<sk_sp<const SkImage>>     fImages;
 #if SK_SUPPORT_GPU
-    SkTArray<sk_sp<const GrSlug>>      fSlugs;
+    SkTArray<sk_sp<const sktext::gpu::Slug>>      fSlugs;
 #endif
 
 

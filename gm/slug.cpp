@@ -22,7 +22,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 #include "tools/ToolUtils.h"
 
 #if SK_SUPPORT_GPU
@@ -61,7 +61,7 @@ protected:
         p.setAntiAlias(true);
         canvas->clipIRect(SkIRect::MakeSize(this->getISize()).makeInset(40, 50));
         canvas->scale(1.3f, 1.3f);
-        sk_sp<GrSlug> slug = GrSlug::ConvertBlob(canvas, *blob, {10, 10}, p);
+        sk_sp<sktext::gpu::Slug> slug = sktext::gpu::Slug::ConvertBlob(canvas, *blob, {10, 10}, p);
         if (slug == nullptr) {
             return;
         }

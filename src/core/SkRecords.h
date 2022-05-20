@@ -27,7 +27,7 @@
 #include "src/core/SkDrawShadowInfo.h"
 
 #if SK_SUPPORT_GPU
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 #endif
 
 namespace SkRecords {
@@ -300,7 +300,7 @@ RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkScalar y);
 #if SK_SUPPORT_GPU
 RECORD(DrawSlug, kDraw_Tag|kHasText_Tag,
-       sk_sp<const GrSlug> slug);
+       sk_sp<const sktext::gpu::Slug> slug);
 #else
 RECORD(DrawSlug, 0)
 #endif

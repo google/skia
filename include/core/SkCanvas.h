@@ -41,7 +41,6 @@
 class AutoLayerForImageFilter;
 class GrBackendRenderTarget;
 class GrRecordingContext;
-class GrSlug;
 class SkBaseDevice;
 class SkBitmap;
 class SkData;
@@ -67,7 +66,13 @@ class SkTextBlob;
 class SkVertices;
 
 namespace skgpu::graphite { class Recorder; }
+namespace sktext::gpu { class Slug; }
 namespace SkRecords { class Draw; }
+
+// TODO:
+// This is not ideal but Chrome is depending on a forward decl of GrSlug here.
+// It should be removed once Chrome has migrated to sktext::gpu::Slug.
+using GrSlug = sktext::gpu::Slug;
 
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -2270,15 +2275,15 @@ protected:
 
     virtual void onDiscard();
 
-#if SK_SUPPORT_GPU
+#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
     /** Experimental
      */
-    virtual sk_sp<GrSlug> onConvertGlyphRunListToSlug(
+    virtual sk_sp<sktext::gpu::Slug> onConvertGlyphRunListToSlug(
             const SkGlyphRunList& glyphRunList, const SkPaint& paint);
 
     /** Experimental
      */
-    virtual void onDrawSlug(const GrSlug* slug);
+    virtual void onDrawSlug(const sktext::gpu::Slug* slug);
 #endif
 
 private:
@@ -2420,17 +2425,18 @@ private:
     SkCanvas& operator=(SkCanvas&&) = delete;
     SkCanvas& operator=(const SkCanvas&) = delete;
 
-#if SK_SUPPORT_GPU
-    friend class GrSlug;
+#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
+    friend class sktext::gpu::Slug;
     /** Experimental
-     * Convert a SkTextBlob to a GrSlug using the current canvas state.
+     * Convert a SkTextBlob to a sktext::gpu::Slug using the current canvas state.
      */
-    sk_sp<GrSlug> convertBlobToSlug(const SkTextBlob& blob, SkPoint origin, const SkPaint& paint);
+    sk_sp<sktext::gpu::Slug> convertBlobToSlug(const SkTextBlob& blob, SkPoint origin,
+                                               const SkPaint& paint);
 
     /** Experimental
-     * Draw an GrSlug given the current canvas state.
+     * Draw an sktext::gpu::Slug given the current canvas state.
      */
-    void drawSlug(const GrSlug* slug);
+    void drawSlug(const sktext::gpu::Slug* slug);
 #endif
 
     /** Experimental

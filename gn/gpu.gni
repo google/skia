@@ -324,7 +324,6 @@ skia_gpu_sources = [
   # text
   "$_src/gpu/ganesh/text/GrAtlasManager.cpp",
   "$_src/gpu/ganesh/text/GrAtlasManager.h",
-  "$_src/gpu/ganesh/text/GrSlug.cpp",
   "$_src/gpu/ganesh/text/GrTextBlob.cpp",
   "$_src/gpu/ganesh/text/GrTextBlob.h",
   "$_src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.cpp",
@@ -820,6 +819,7 @@ skia_shared_gpu_sources = [
   "$_src/gpu/tessellate/WangsFormula.h",
 
   # text
+  "$_include/private/chromium/Slug.h",
   "$_src/text/gpu/DistanceFieldAdjustTable.cpp",
   "$_src/text/gpu/DistanceFieldAdjustTable.h",
   "$_src/text/gpu/Glyph.h",
@@ -829,6 +829,7 @@ skia_shared_gpu_sources = [
   "$_src/text/gpu/SDFMaskFilter.h",
   "$_src/text/gpu/SDFTControl.cpp",
   "$_src/text/gpu/SDFTControl.h",
+  "$_src/text/gpu/Slug.cpp",
   "$_src/text/gpu/StrikeCache.cpp",
   "$_src/text/gpu/StrikeCache.h",
   "$_src/text/gpu/SubRunAllocator.cpp",

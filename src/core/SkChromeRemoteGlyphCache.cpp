@@ -818,9 +818,9 @@ protected:
                                                       "Cache Diff");
     }
 
-    sk_sp<GrSlug> convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
-                                            const SkPaint& initialPaint,
-                                            const SkPaint& drawingPaint) override {
+    sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
+                                                       const SkPaint& initialPaint,
+                                                       const SkPaint& drawingPaint) override {
         // Full matrix for placing glyphs.
         SkMatrix positionMatrix = this->localToDevice();
         positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
@@ -1200,7 +1200,7 @@ bool SkStrikeClient::translateTypefaceID(SkAutoDescriptor* descriptor) const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrSlug> SkStrikeClient::deserializeSlug(const void* data, size_t size) const {
-    return GrSlug::Deserialize(data, size, this);
+sk_sp<sktext::gpu::Slug> SkStrikeClient::deserializeSlug(const void* data, size_t size) const {
+    return sktext::gpu::Slug::Deserialize(data, size, this);
 }
 #endif  // SK_SUPPORT_GPU

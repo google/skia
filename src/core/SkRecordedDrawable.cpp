@@ -14,7 +14,7 @@
 #include "src/core/SkRecordedDrawable.h"
 
 #if SK_SUPPORT_GPU
-#include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/Slug.h"
 #endif
 
 size_t SkRecordedDrawable::onApproximateBytesUsed() {
