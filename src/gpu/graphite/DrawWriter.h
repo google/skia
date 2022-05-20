@@ -343,6 +343,7 @@ public:
               BindBufferInfo indices,
               unsigned int vertexCount)
             : Appender(w, Target::kInstances) {
+        SkASSERT(vertexCount > 0);
         w.setTemplate(vertices, indices, w.fInstances, SkTo<int>(vertexCount));
     }
 
@@ -380,8 +381,7 @@ public:
 
 private:
     void updateTemplateCount() {
-        unsigned int count = static_cast<unsigned int>(fProxy);
-        SkASSERT(count > 0);
+        const unsigned int count = static_cast<unsigned int>(fProxy);
         fDrawer.fTemplateCount = std::min(fDrawer.fTemplateCount, -SkTo<int>(count) - 1);
         // By resetting the proxy after updating the template count, the next batch will start over
         // with the minimum required vertex count and grow from there.

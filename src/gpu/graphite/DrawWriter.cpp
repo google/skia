@@ -83,7 +83,9 @@ void DrawWriter::setTemplate(BindBufferInfo vertices,
 }
 
 void DrawWriter::flush() {
-    if (fPendingCount == 0) {
+    // If nothing was appended, or the only appended data was through dynamic instances and the
+    // final vertex count per instance is 0 (-1 in the sign encoded field), nothing should be drawn.
+    if (fPendingCount == 0 || fTemplateCount == -1) {
         return;
     }
     if (fPendingBufferBinds) {
