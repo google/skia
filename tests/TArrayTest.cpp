@@ -10,18 +10,37 @@
 #include "include/utils/SkRandom.h"
 #include "tests/Test.h"
 
+// This class is used to test SkTArray's behavior with classes containing a vtable.
+
+namespace {
+
+class TestClass {
+public:
+    TestClass() = default;
+    TestClass(const TestClass&) = default;
+    TestClass& operator=(const TestClass&) = default;
+    TestClass(int v) : value(v) {}
+    virtual ~TestClass() {}
+
+    bool operator==(const TestClass& c) const { return value == c.value; }
+
+    int value = 0;
+};
+
+}  // namespace
+
 // Tests the SkTArray<T> class template.
 
-template <bool MEM_MOVE>
+template <typename T, bool MEM_MOVE>
 static void TestTSet_basic(skiatest::Reporter* reporter) {
-    SkTArray<int, MEM_MOVE> a;
+    SkTArray<T, MEM_MOVE> a;
 
     // Starts empty.
     REPORTER_ASSERT(reporter, a.empty());
     REPORTER_ASSERT(reporter, a.count() == 0);
 
     // { }, add a default constructed element
-    a.push_back() = 0;
+    a.push_back() = T{0};
     REPORTER_ASSERT(reporter, !a.empty());
     REPORTER_ASSERT(reporter, a.count() == 1);
 
@@ -31,36 +50,38 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a.count() == 0);
 
     // { }, add a default, add a 1, remove first
-    a.push_back() = 0;
-    REPORTER_ASSERT(reporter, a.push_back() = 1);
+    a.push_back() = T{0};
+    a.push_back() = T{1};
     a.removeShuffle(0);
     REPORTER_ASSERT(reporter, !a.empty());
     REPORTER_ASSERT(reporter, a.count() == 1);
-    REPORTER_ASSERT(reporter, a[0] == 1);
+    REPORTER_ASSERT(reporter, a[0] == T{1});
 
     // { 1 }, replace with new array
-    int b[5] = { 0, 1, 2, 3, 4 };
+    T b[5] = {T{0}, T{1}, T{2}, T{3}, T{4}};
     a.reset(b, SK_ARRAY_COUNT(b));
     REPORTER_ASSERT(reporter, a.count() == SK_ARRAY_COUNT(b));
-    REPORTER_ASSERT(reporter, a[2] == 2);
-    REPORTER_ASSERT(reporter, a[4] == 4);
+    REPORTER_ASSERT(reporter, a[2] == T{2});
+    REPORTER_ASSERT(reporter, a[4] == T{4});
 
     // { 0, 1, 2, 3, 4 }, removeShuffle the last
     a.removeShuffle(4);
     REPORTER_ASSERT(reporter, a.count() == SK_ARRAY_COUNT(b) - 1);
-    REPORTER_ASSERT(reporter, a[3] == 3);
+    REPORTER_ASSERT(reporter, a[3] == T{3});
 
     // { 0, 1, 2, 3 }, remove a middle, note shuffle
     a.removeShuffle(1);
     REPORTER_ASSERT(reporter, a.count() == SK_ARRAY_COUNT(b) - 2);
-    REPORTER_ASSERT(reporter, a[0] == 0);
-    REPORTER_ASSERT(reporter, a[1] == 3);
-    REPORTER_ASSERT(reporter, a[2] == 2);
+    REPORTER_ASSERT(reporter, a[0] == T{0});
+    REPORTER_ASSERT(reporter, a[1] == T{3});
+    REPORTER_ASSERT(reporter, a[2] == T{2});
 
     // { 0, 3, 2 }
 }
 
 template <typename T> static void test_construction(skiatest::Reporter* reporter) {
+    using ValueType = typename T::value_type;
+
     // No arguments: Creates an empty array with no initial storage.
     T arrayNoArgs;
     REPORTER_ASSERT(reporter, arrayNoArgs.empty());
@@ -72,46 +93,46 @@ template <typename T> static void test_construction(skiatest::Reporter* reporter
 
     // Another array, const&: Copies one array to another.
     T arrayInitial;
-    arrayInitial.push_back(1);
-    arrayInitial.push_back(2);
-    arrayInitial.push_back(3);
+    arrayInitial.push_back(ValueType{1});
+    arrayInitial.push_back(ValueType{2});
+    arrayInitial.push_back(ValueType{3});
 
     T arrayCopy(arrayInitial);
     REPORTER_ASSERT(reporter, arrayInitial.size() == 3);
-    REPORTER_ASSERT(reporter, arrayInitial[0] == 1);
-    REPORTER_ASSERT(reporter, arrayInitial[1] == 2);
-    REPORTER_ASSERT(reporter, arrayInitial[2] == 3);
+    REPORTER_ASSERT(reporter, arrayInitial[0] == ValueType{1});
+    REPORTER_ASSERT(reporter, arrayInitial[1] == ValueType{2});
+    REPORTER_ASSERT(reporter, arrayInitial[2] == ValueType{3});
     REPORTER_ASSERT(reporter, arrayCopy.size() == 3);
-    REPORTER_ASSERT(reporter, arrayCopy[0] == 1);
-    REPORTER_ASSERT(reporter, arrayCopy[1] == 2);
-    REPORTER_ASSERT(reporter, arrayCopy[2] == 3);
+    REPORTER_ASSERT(reporter, arrayCopy[0] == ValueType{1});
+    REPORTER_ASSERT(reporter, arrayCopy[1] == ValueType{2});
+    REPORTER_ASSERT(reporter, arrayCopy[2] == ValueType{3});
 
     // Another array, &&: Moves one array to another.
     T arrayMove(std::move(arrayInitial));
     REPORTER_ASSERT(reporter, arrayInitial.empty()); // NOLINT(bugprone-use-after-move)
     REPORTER_ASSERT(reporter, arrayMove.size() == 3);
-    REPORTER_ASSERT(reporter, arrayMove[0] == 1);
-    REPORTER_ASSERT(reporter, arrayMove[1] == 2);
-    REPORTER_ASSERT(reporter, arrayMove[2] == 3);
+    REPORTER_ASSERT(reporter, arrayMove[0] == ValueType{1});
+    REPORTER_ASSERT(reporter, arrayMove[1] == ValueType{2});
+    REPORTER_ASSERT(reporter, arrayMove[2] == ValueType{3});
 
     // Pointer and count: Copies contents of a standard C array.
     typename T::value_type data[3] = { 7, 8, 9 };
     T arrayPtrCount(data, 3);
     REPORTER_ASSERT(reporter, arrayPtrCount.size() == 3);
-    REPORTER_ASSERT(reporter, arrayPtrCount[0] == 7);
-    REPORTER_ASSERT(reporter, arrayPtrCount[1] == 8);
-    REPORTER_ASSERT(reporter, arrayPtrCount[2] == 9);
+    REPORTER_ASSERT(reporter, arrayPtrCount[0] == ValueType{7});
+    REPORTER_ASSERT(reporter, arrayPtrCount[1] == ValueType{8});
+    REPORTER_ASSERT(reporter, arrayPtrCount[2] == ValueType{9});
 
     // Initializer list.
     T arrayInitializer{8, 6, 7, 5, 3, 0, 9};
     REPORTER_ASSERT(reporter, arrayInitializer.size() == 7);
-    REPORTER_ASSERT(reporter, arrayInitializer[0] == 8);
-    REPORTER_ASSERT(reporter, arrayInitializer[1] == 6);
-    REPORTER_ASSERT(reporter, arrayInitializer[2] == 7);
-    REPORTER_ASSERT(reporter, arrayInitializer[3] == 5);
-    REPORTER_ASSERT(reporter, arrayInitializer[4] == 3);
-    REPORTER_ASSERT(reporter, arrayInitializer[5] == 0);
-    REPORTER_ASSERT(reporter, arrayInitializer[6] == 9);
+    REPORTER_ASSERT(reporter, arrayInitializer[0] == ValueType{8});
+    REPORTER_ASSERT(reporter, arrayInitializer[1] == ValueType{6});
+    REPORTER_ASSERT(reporter, arrayInitializer[2] == ValueType{7});
+    REPORTER_ASSERT(reporter, arrayInitializer[3] == ValueType{5});
+    REPORTER_ASSERT(reporter, arrayInitializer[4] == ValueType{3});
+    REPORTER_ASSERT(reporter, arrayInitializer[5] == ValueType{0});
+    REPORTER_ASSERT(reporter, arrayInitializer[6] == ValueType{9});
 }
 
 template <typename T, typename U>
@@ -343,8 +364,13 @@ template<typename Array> static void test_reserve(skiatest::Reporter* reporter) 
 }
 
 DEF_TEST(TArray, reporter) {
-    TestTSet_basic<true>(reporter);
-    TestTSet_basic<false>(reporter);
+    // ints are POD types and can work with either MEM_MOVE=true or false.
+    TestTSet_basic<int, true>(reporter);
+    TestTSet_basic<int, false>(reporter);
+
+    // TestClass has a vtable and can only work with MEM_MOVE=false.
+    TestTSet_basic<TestClass, false>(reporter);
+
     test_swap(reporter);
 
     test_unnecessary_alloc(reporter);
@@ -356,10 +382,17 @@ DEF_TEST(TArray, reporter) {
     test_reserve<SkSTArray<2, int>>(reporter);
     test_reserve<SkSTArray<16, int>>(reporter);
 
+    test_reserve<SkTArray<TestClass>>(reporter);
+    test_reserve<SkSTArray<1, TestClass>>(reporter);
+    test_reserve<SkSTArray<2, TestClass>>(reporter);
+    test_reserve<SkSTArray<16, TestClass>>(reporter);
+
     test_construction<SkTArray<int>>(reporter);
     test_construction<SkTArray<double>>(reporter);
+    test_construction<SkTArray<TestClass>>(reporter);
     test_construction<SkSTArray<1, int>>(reporter);
     test_construction<SkSTArray<5, char>>(reporter);
+    test_construction<SkSTArray<7, TestClass>>(reporter);
     test_construction<SkSTArray<10, float>>(reporter);
 
     test_skstarray_compatibility<SkSTArray<1, int>, SkTArray<int>>(reporter);
