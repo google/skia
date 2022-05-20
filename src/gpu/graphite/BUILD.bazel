@@ -517,13 +517,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "ProgramCache_src",
-    srcs = ["ProgramCache.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//experimental/graphite/src:ProgramCache_hdr"],
-)
-
-generated_cc_atom(
     name = "Recorder_src",
     srcs = ["Recorder.cpp"],
     visibility = ["//:__subpackages__"],
