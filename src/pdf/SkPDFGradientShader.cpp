@@ -300,16 +300,20 @@ static void tileModeCode(SkTileMode mode, SkDynamicMemoryWStream* result) {
     }
 
     if (mode == SkTileMode::kMirror) {
+        // In Preview 11.0 (1033.3) `a n mod r eq` (with a and n both integers, r integer or real)
+        // early aborts the function when false would be put on the stack.
+        // Work around this by re-writing `t 2 mod 1 eq` as `t 2 mod 0 gt`.
+
         // Map t mod 2 into [0, 1, 1, 0].
-        //               Code                     Stack
-        result->writeText("abs "                 // Map negative to positive.
-                          "dup "                 // t.s t.s
-                          "truncate "            // t.s t
-                          "dup "                 // t.s t t
-                          "cvi "                 // t.s t T
-                          "2 mod "               // t.s t (i mod 2)
-                          "1 eq "                // t.s t true|false
-                          "3 1 roll "            // true|false t.s t
+        //                Code                 Stack t
+        result->writeText("abs "                 // +t
+                          "dup "                 // +t.s +t.s
+                          "truncate "            // +t.s +t
+                          "dup "                 // +t.s +t +t
+                          "cvi "                 // +t.s +t +T
+                          "2 mod "               // +t.s +t (+T mod 2)
+              /*"1 eq "*/ "0 gt "                // +t.s +t true|false
+                          "3 1 roll "            // true|false +t.s +t
                           "sub "                 // true|false 0.s
                           "exch "                // 0.s true|false
                           "{1 exch sub} if\n");  // 1 - 0.s|0.s
