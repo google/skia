@@ -144,7 +144,7 @@ static float TFKind_marker(TFKind kind) {
 
 static TFKind classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullptr
                                                        , TF_HLGish* hlg = nullptr) {
-    if (tf.g < 0 && (int)tf.g == tf.g) {
+    if (tf.g < 0 && static_cast<float>(static_cast<int>(tf.g)) == tf.g) {
         // TODO: soundness checks for PQ/HLG like we do for sRGBish?
         switch ((int)tf.g) {
             case -PQish:     if (pq ) { memcpy(pq , &tf.a, sizeof(*pq )); } return PQish;
@@ -235,7 +235,7 @@ static float eval_curve(const skcms_Curve* curve, float x) {
         return skcms_TransferFunction_eval(&curve->parametric, x);
     }
 
-    float ix = fmaxf_(0, fminf_(x, 1)) * (curve->table_entries - 1);
+    float ix = fmaxf_(0, fminf_(x, 1)) * static_cast<float>(curve->table_entries - 1);
     int   lo = (int)                   ix        ,
           hi = (int)(float)minus_1_ulp(ix + 1.0f);
     float t = ix - (float)lo;
@@ -258,10 +258,10 @@ static float eval_curve(const skcms_Curve* curve, float x) {
 
 float skcms_MaxRoundtripError(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
     uint32_t N = curve->table_entries > 256 ? curve->table_entries : 256;
-    const float dx = 1.0f / (N - 1);
+    const float dx = 1.0f / static_cast<float>(N - 1);
     float err = 0;
     for (uint32_t i = 0; i < N; i++) {
-        float x = i * dx,
+        float x = static_cast<float>(i) * dx,
               y = eval_curve(curve, x);
         err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(inv_tf, y)));
     }
@@ -330,7 +330,7 @@ static int32_t read_big_i32(const uint8_t* ptr) {
 }
 
 static float read_big_fixed(const uint8_t* ptr) {
-    return read_big_i32(ptr) * (1.0f / 65536.0f);
+    return static_cast<float>(read_big_i32(ptr)) * (1.0f / 65536.0f);
 }
 
 // Maps to an in-memory profile so that fields line up to the locations specified
@@ -1063,7 +1063,7 @@ static int fit_linear(const skcms_Curve* curve, int N, float tol,
     // Some points' error intervals may intersect the running interval but not lie fully
     // within it.  So we keep track of the last point we saw that is a valid end point candidate,
     // and once the search is done, back up to build the line through *that* point.
-    const float dx = 1.0f / (N - 1);
+    const float dx = 1.0f / static_cast<float>(N - 1);
 
     int lin_points = 1;
 
@@ -1078,7 +1078,7 @@ static int fit_linear(const skcms_Curve* curve, int N, float tol,
     float slope_min = -INFINITY_;
     float slope_max = +INFINITY_;
     for (int i = 1; i < N; ++i) {
-        float x = i * dx;
+        float x = static_cast<float>(i) * dx;
         float y = eval_curve(curve, x);
 
         float slope_max_i = (y + tol - *f) / x,
@@ -1098,7 +1098,7 @@ static int fit_linear(const skcms_Curve* curve, int N, float tol,
     }
 
     // Set D to the last point that met our tolerance.
-    *d = (lin_points - 1) * dx;
+    *d = static_cast<float>(lin_points - 1) * dx;
     return lin_points;
 }
 
@@ -1108,7 +1108,7 @@ static void canonicalize_identity(skcms_Curve* curve) {
         int N = (int)curve->table_entries;
 
         float c = 0.0f, d = 0.0f, f = 0.0f;
-        if (N == fit_linear(curve, N, 1.0f/(2*N), &c,&d,&f)
+        if (N == fit_linear(curve, N, 1.0f/static_cast<float>(2*N), &c,&d,&f)
             && c == 1.0f
             && f == 0.0f) {
             curve->table_entries = 0;
@@ -2031,7 +2031,7 @@ static bool gauss_newton_step(const skcms_Curve* curve,
     //   We want to evaluate Jf only once, but both lhs and rhs involve Jf^T,
     //   so we'll have to update lhs and rhs at the same time.
     for (int i = 0; i < N; i++) {
-        float x = x0 + i*dx;
+        float x = x0 + static_cast<float>(i)*dx;
 
         float dfdP[3] = {0,0,0};
         float resid = rg_nonlinear(x,curve,tf, dfdP);
@@ -2112,7 +2112,7 @@ static bool fit_nonlinear(const skcms_Curve* curve, int L, int N, skcms_Transfer
     }
 
     // No matter where we start, dx should always represent N even steps from 0 to 1.
-    const float dx = 1.0f / (N-1);
+    const float dx = 1.0f / static_cast<float>(N-1);
 
     skcms_TransferFunction best_tf = *tf;
     float best_max_error = INFINITY_;
@@ -2126,7 +2126,7 @@ static bool fit_nonlinear(const skcms_Curve* curve, int L, int N, skcms_Transfer
 
     // As far as we can tell, 1 Gauss-Newton step won't converge, and 3 steps is no better than 2.
     for (int j = 0; j < 8; j++) {
-        if (!gauss_newton_step(curve, tf, L*dx, dx, N-L) || !fixup_tf()) {
+        if (!gauss_newton_step(curve, tf, static_cast<float>(L)*dx, dx, N-L) || !fixup_tf()) {
             *tf = best_tf;
             return isfinitef_(best_max_error);
         }
@@ -2160,7 +2160,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     }
 
     int N = (int)curve->table_entries;
-    const float dx = 1.0f / (N - 1);
+    const float dx = 1.0f / static_cast<float>(N - 1);
 
     *max_error = INFINITY_;
     const float kTolerances[] = { 1.5f / 65535.0f, 1.0f / 512.0f };
@@ -2182,16 +2182,16 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         } else if (L == N - 1) {
             // Degenerate case with only two points in the nonlinear segment. Solve directly.
             tf.g = 1;
-            tf.a = (eval_curve(curve, (N-1)*dx) -
-                    eval_curve(curve, (N-2)*dx))
+            tf.a = (eval_curve(curve, static_cast<float>(N-1)*dx) -
+                    eval_curve(curve, static_cast<float>(N-2)*dx))
                  / dx;
-            tf.b = eval_curve(curve, (N-2)*dx)
-                 - tf.a * (N-2)*dx;
+            tf.b = eval_curve(curve, static_cast<float>(N-2)*dx)
+                 - tf.a * static_cast<float>(N-2)*dx;
             tf.e = 0;
         } else {
             // Start by guessing a gamma-only curve through the midpoint.
             int mid = (L + N) / 2;
-            float mid_x = mid / (N - 1.0f);
+            float mid_x = static_cast<float>(mid) / static_cast<float>(N - 1);
             float mid_y = eval_curve(curve, mid_x);
             tf.g = log2f_(mid_y) / log2f_(mid_x);
             tf.a = 1;
