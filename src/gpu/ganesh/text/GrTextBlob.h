@@ -262,22 +262,22 @@ public:
 
 private:
     // Methods to satisfy SkGlyphRunPainterInterface
-    void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    bool processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             sk_sp<SkStrike>&& strike) override;
-    void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    bool processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkFont& runFont,
                             const SkDescriptor& descriptor,
                             SkScalar strikeToSourceScale) override;
-    void processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    bool processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                 sk_sp<SkStrike>&& strike,
                                 const SkDescriptor& descriptor,
                                 SkScalar strikeToSourceScale) override;
-    void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    bool processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                            sk_sp<SkStrike>&& strike,
                            SkScalar strikeToSourceScale,
                            const SkFont& runFont,
                            const sktext::gpu::SDFTMatrixRange& matrixRange) override;
-    void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    bool processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale) override;
 

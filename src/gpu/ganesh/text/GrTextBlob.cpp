@@ -2194,9 +2194,9 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
     sk_sp<GrTextBlob> blob = sk_sp<GrTextBlob>(initializer.initialize(
             std::move(alloc), totalMemoryAllocated, positionMatrix, initialLuminance));
 
-    SkGlyphRunListPainter::CategorizeGlyphRunList(
-            blob.get(), glyphRunList, positionMatrix, paint,
-            strikeDeviceInfo, strikeCache, "GrTextBlob");
+    blob->fSomeGlyphsExcluded = SkGlyphRunListPainter::CategorizeGlyphRunList(
+            blob.get(), glyphRunList, positionMatrix, paint, strikeDeviceInfo, strikeCache,
+            "GrTextBlob");
 
     return blob;
 }
@@ -2264,9 +2264,10 @@ GrTextBlob::GrTextBlob(SubRunAllocator&& alloc,
         , fInitialPositionMatrix{positionMatrix}
         , fInitialLuminance{initialLuminance} { }
 
-void GrTextBlob::processDeviceMasks(
+bool GrTextBlob::processDeviceMasks(
         const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
     SkASSERT(strike != nullptr);
+    bool someGlyphsExcluded = false;
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
@@ -2275,40 +2276,46 @@ void GrTextBlob::processDeviceMasks(
         if (subRun != nullptr) {
             fSubRunList.append(std::move(subRun));
         } else {
-            fSomeGlyphsExcluded = true;
+            someGlyphsExcluded = true;
         }
     };
     add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
+    return someGlyphsExcluded;
 }
 
-void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+bool GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     const SkFont& runFont,
                                     const SkDescriptor& descriptor,
                                     SkScalar strikeToSourceScale) {
     fSubRunList.append(PathSubRun::Make(
         accepted, has_some_antialiasing(runFont), strikeToSourceScale, descriptor, &fAlloc));
+    return false;
 }
 
-void GrTextBlob::processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+bool GrTextBlob::processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         sk_sp<SkStrike>&& strike,
                                         const SkDescriptor& descriptor,
                                         SkScalar strikeToSourceScale) {
     fSubRunList.append(make_drawable_sub_run<DrawableSubRun>(
             accepted, std::move(strike), strikeToSourceScale, descriptor, &fAlloc));
+    return false;
 }
 
-void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+bool GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
                                    const SDFTMatrixRange& matrixRange) {
     fSubRunList.append(SDFTSubRun::Make(
             this, accepted, runFont, std::move(strike), strikeToSourceScale, matrixRange, &fAlloc));
+    return false;
 }
 
-void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+bool GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     sk_sp<SkStrike>&& strike,
                                     SkScalar strikeToSourceScale) {
+    SkASSERT(strike != nullptr);
+    bool someGlyphsExcluded = false;
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
@@ -2317,14 +2324,15 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accept
         if (subRun != nullptr) {
             fSubRunList.append(std::move(subRun));
         } else {
-            fSomeGlyphsExcluded = true;
+            someGlyphsExcluded = true;
         }
     };
     add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
+    return someGlyphsExcluded;
 }
 
 namespace {
-// -- SlugImpl ------------------------------------------------------------------------------------
+// -- SlugImpl -------------------------------------------------------------------------------------
 class SlugImpl final : public Slug, public SkGlyphRunPainterInterface {
 public:
     SlugImpl(SubRunAllocator&& alloc,
@@ -2354,19 +2362,19 @@ public:
     const SkPaint& initialPaint() const override { return fInitialPaint; }
 
     // SkGlyphRunPainterInterface
-    void processDeviceMasks(
+    bool processDeviceMasks(
             const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) override;
-    void processSourceMasks(
+    bool processSourceMasks(
             const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike,
             SkScalar strikeToSourceScale) override;
-    void processSourcePaths(
+    bool processSourcePaths(
             const SkZip<SkGlyphVariant, SkPoint>& accepted, const SkFont& runFont,
             const SkDescriptor& descriptor, SkScalar strikeToSourceScale) override;
-    void processSourceDrawables(
+    bool processSourceDrawables(
             const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike,
             const SkDescriptor& descriptor,
             SkScalar strikeToSourceScale) override;
-    void processSourceSDFT(
+    bool processSourceSDFT(
             const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike,
             SkScalar strikeToSourceScale, const SkFont& runFont,
             const SDFTMatrixRange& matrixRange) override;
@@ -2473,21 +2481,6 @@ sk_sp<Slug> SlugImpl::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient*
     return std::move(slug);
 }
 
-void SlugImpl::processDeviceMasks(
-        const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        MaskFormat format,
-                                        sk_sp<SkStrike>&& runStrike) {
-        GrSubRunOwner subRun = DirectMaskSubRun::Make(
-                this, accepted, std::move(runStrike), format, &fAlloc);
-        if (subRun != nullptr) {
-            fSubRuns.append(std::move(subRun));
-        }
-    };
-
-    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
-}
-
 sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
                                const SkGlyphRunList& glyphRunList,
                                const SkPaint& initialPaint,
@@ -2526,8 +2519,26 @@ sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
     return slug;
 }
 
-void SlugImpl::processSourcePaths(const SkZip<SkGlyphVariant,
-                                  SkPoint>& accepted,
+bool SlugImpl::processDeviceMasks(
+        const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
+    bool someExcludedGlyphs = false;
+    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                                        MaskFormat format,
+                                        sk_sp<SkStrike>&& runStrike) {
+        GrSubRunOwner subRun = DirectMaskSubRun::Make(
+                this, accepted, std::move(runStrike), format, &fAlloc);
+        if (subRun != nullptr) {
+            fSubRuns.append(std::move(subRun));
+        } else {
+            someExcludedGlyphs = true;
+        }
+    };
+
+    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
+    return someExcludedGlyphs;
+}
+
+bool SlugImpl::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                   const SkFont& runFont,
                                   const SkDescriptor& descriptor,
                                   SkScalar strikeToSourceScale) {
@@ -2536,29 +2547,32 @@ void SlugImpl::processSourcePaths(const SkZip<SkGlyphVariant,
                                      strikeToSourceScale,
                                      descriptor,
                                      &fAlloc));
+    return false;
 }
 
-void SlugImpl::processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+bool SlugImpl::processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                       sk_sp<SkStrike>&& strike,
                                       const SkDescriptor& descriptor,
                                       SkScalar strikeToSourceScale) {
     fSubRuns.append(make_drawable_sub_run<DrawableSubRun>(
             accepted, std::move(strike), strikeToSourceScale, descriptor, &fAlloc));
+    return false;
 }
 
-void SlugImpl::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+bool SlugImpl::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                  sk_sp<SkStrike>&& strike,
                                  SkScalar strikeToSourceScale,
                                  const SkFont& runFont,
                                  const SDFTMatrixRange& matrixRange) {
     fSubRuns.append(SDFTSubRun::Make(
         this, accepted, runFont, std::move(strike), strikeToSourceScale, matrixRange, &fAlloc));
+    return false;
 }
 
-void SlugImpl::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+bool SlugImpl::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                   sk_sp<SkStrike>&& strike,
                                   SkScalar strikeToSourceScale) {
-
+    bool someExcludedGlyphs = false;
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
@@ -2566,10 +2580,13 @@ void SlugImpl::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted
                 this, accepted, std::move(runStrike), strikeToSourceScale, format, &fAlloc);
         if (subRun != nullptr) {
             fSubRuns.append(std::move(subRun));
+        } else {
+            someExcludedGlyphs = true;
         }
     };
 
     add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
+    return someExcludedGlyphs;
 }
 }  // namespace
 

@@ -90,7 +90,7 @@ public:
     // A nullptr for process means that the calls to the cache will be performed, but none of the
     // callbacks will be called.
     // N.B. The positionMatrix has already been translated to the glyph run list origin.
-    static void CategorizeGlyphRunList(SkGlyphRunPainterInterface* process,
+    static bool CategorizeGlyphRunList(SkGlyphRunPainterInterface* process,
                                        const SkGlyphRunList& glyphRunList,
                                        const SkMatrix& positionMatrix,
                                        const SkPaint& drawPaint,
@@ -100,7 +100,8 @@ public:
 };
 
 // SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first
-// distinction is between Device and Source.
+// distinction is between Device and Source. Each of the process* routines returns true if some
+// glyphs are excluded because they are out of bounds.
 // * Device - the data in the cache is scaled to the device. There is no transformation from the
 //   cache to the screen.
 // * Source - the data in the cache needs to be scaled from the cache to source space using the
@@ -115,24 +116,24 @@ class SkGlyphRunPainterInterface {
 public:
     virtual ~SkGlyphRunPainterInterface() = default;
 
-    virtual void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    virtual bool processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     sk_sp<SkStrike>&& strike) = 0;
 
-    virtual void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    virtual bool processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     sk_sp<SkStrike>&& strike,
                                     SkScalar strikeToSourceScale) = 0;
 
-    virtual void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    virtual bool processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     const SkFont& runFont,
                                     const SkDescriptor& descriptor,
                                     SkScalar strikeToSourceScale) = 0;
 
-    virtual void processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    virtual bool processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         sk_sp<SkStrike>&& strike,
                                         const SkDescriptor& descriptor,
                                         SkScalar strikeToSourceScale) = 0;
 
-    virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    virtual bool processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
