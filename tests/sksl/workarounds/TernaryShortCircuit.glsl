@@ -1,10 +1,10 @@
 #version 400
 out vec4 sk_FragColor;
-uniform bool x;
-uniform bool y;
 uniform int i;
 uniform int j;
 void main() {
+    bool x = bool(i);
+    bool y = bool(j);
     bool andXY = x ? y : false;
     bool orXY = x ? true : y;
     bool combo = (x ? y : false) ? true : (x ? true : y);

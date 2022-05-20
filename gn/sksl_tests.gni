@@ -80,6 +80,7 @@ sksl_error_tests = [
   "/sksl/errors/InvalidOutParams.rts",
   "/sksl/errors/InvalidToken.rts",
   "/sksl/errors/InvalidUnary.rts",
+  "/sksl/errors/InvalidUniformTypes.sksl",
   "/sksl/errors/InVarWithInitializerExpression.sksl",
   "/sksl/errors/LayoutInFunctions.sksl",
   "/sksl/errors/LayoutInInterfaceBlock.sksl",
