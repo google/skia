@@ -158,7 +158,6 @@ UNIX_ONLY_TEST(SkText_SelectableText_Navigation_FirstLast, reporter) {
 
     // First position
     auto firstLine = testVisitor.fTestLines.front();
-    auto firstRun = testVisitor.fTestRuns.front();
     auto firstPosition = selectableText->firstPosition(PositionType::kGraphemeCluster);
     REPORTER_ASSERT(reporter, firstPosition.fLineIndex == 0);
     REPORTER_ASSERT(reporter, firstPosition.fTextRange == TextRange(0, 0));

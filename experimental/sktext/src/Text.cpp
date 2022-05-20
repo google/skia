@@ -94,7 +94,7 @@ std::unique_ptr<FontResolvedText> UnicodeText::resolveFonts(SkSpan<FontBlock> bl
         SkDebugf("[%d:%d)\n", f.textRange.fStart, f.textRange.fEnd);
     }
 */
-    return std::move(fontResolvedText);
+    return fontResolvedText;
 }
 
 bool FontResolvedText::resolveChain(UnicodeText* unicodeText, TextRange textRange, const FontChain& fontChain) {
@@ -259,7 +259,6 @@ std::unique_ptr<ShapedText> FontResolvedText::shape(UnicodeText* unicodeText,
     formattingMarks.emplace_back(text8.size()/* UTF8FromUTF16[text16.size() */);
     // Convert fontBlocks from utf16 to utf8
     SkTArray<ResolvedFontBlock, true> fontBlocks8;
-    TextIndex index8 = 0;
     for (auto& fb : fResolvedFonts) {
         TextRange text8(UTF8FromUTF16[fb.textRange.fStart], UTF8FromUTF16[fb.textRange.fEnd]);
         fontBlocks8.emplace_back(text8, fb.typeface, fb.size, fb.style);
@@ -313,7 +312,7 @@ std::unique_ptr<ShapedText> FontResolvedText::shape(UnicodeText* unicodeText,
             logicalRun.setRunType(LogicalRunType::kLineBreak);
         }
     }
-    return std::move(shapedText);
+    return shapedText;
 }
 
 // TODO: Implement the vertical restriction (height) and add ellipsis
@@ -370,9 +369,7 @@ std::unique_ptr<WrappedText> ShapedText::wrap(UnicodeText* unicodeText, float wi
             clusterGlyphs.fEnd = glyphIndex;
             cluster = Stretch(runIndex, clusterGlyphs, clusterText.normalized(), run.calculateWidth(clusterGlyphs), runMetrics);
 
-            auto isSoftLineBreak = unicodeText->isSoftLineBreak(cluster.textStart());
             auto isWhitespaces = unicodeText->isWhitespaces(cluster.textRange());
-            auto isEndOfText = run.leftToRight() ? textIndex == run.fUtf16Range.fEnd : textIndex == run.fUtf16Range.fStart;
             // line + spaces + clusters + cluster
             if (isWhitespaces) {
                 // This is the end of the word
@@ -429,7 +426,7 @@ std::unique_ptr<WrappedText> ShapedText::wrap(UnicodeText* unicodeText, float wi
     }
     this->addLine(wrappedText.get(), unicodeText->getUnicode(), line, spaces, false);
     wrappedText->fActualSize.fWidth = width;
-    return std::move(wrappedText);
+    return wrappedText;
 }
 
 SkTArray<int32_t> ShapedText::getVisualOrder(SkUnicode* unicode, RunIndex startRun, RunIndex endRun) {
@@ -458,7 +455,7 @@ void ShapedText::addLine(WrappedText* wrappedText, SkUnicode* unicode, Stretch& 
     auto startRun = lineStretch.glyphStart().runIndex();
     auto endRun = lineStretch.glyphEnd().runIndex();
     // Reorder and cut (if needed) runs so they fit the line
-    auto visualOrder = std::move(this->getVisualOrder(unicode, startRun, endRun));
+    auto visualOrder = this->getVisualOrder(unicode, startRun, endRun);
     // Walk through the line's runs in visual order
     auto firstRunIndex = startRun;
     auto runStart = wrappedText->fVisualRuns.size();
@@ -547,7 +544,7 @@ std::vector<TextIndex> WrappedText::chunksToBlocks(SkSpan<size_t> chunks) {
         index += chunk;
     }
     blocks.emplace_back(index);
-    return std::move(blocks);
+    return blocks;
 }
 
 SkSpan<TextIndex> WrappedText::limitBlocks(TextRange textRange, SkSpan<TextIndex> blocks) {

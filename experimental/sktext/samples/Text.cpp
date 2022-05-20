@@ -47,9 +47,6 @@ protected:
                   const std::u16string& text,
                   TextAlign align,
                   TextDirection direction = TextDirection::kLtr) {
-        const std::u16string& ellipsis = u"\u2026";
-        SkScalar margin = 20;
-
         SkAutoCanvasRestore acr(canvas, true);
 
         canvas->clipRect(SkRect::MakeWH(w, h));
