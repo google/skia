@@ -108,13 +108,13 @@ AtlasTextOp::AtlasTextOp(MaskType maskType,
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
 }
 
-auto AtlasTextOp::Geometry::MakeForBlob(const sktext::gpu::AtlasSubRun& subRun,
-                                        const SkMatrix& drawMatrix,
-                                        SkPoint drawOrigin,
-                                        SkIRect clipRect,
-                                        sk_sp<SkRefCnt> supportData,
-                                        const SkPMColor4f& color,
-                                        SkArenaAlloc* alloc) -> Geometry* {
+auto AtlasTextOp::Geometry::Make(const sktext::gpu::AtlasSubRun& subRun,
+                                 const SkMatrix& drawMatrix,
+                                 SkPoint drawOrigin,
+                                 SkIRect clipRect,
+                                 sk_sp<SkRefCnt>&& supportData,
+                                 const SkPMColor4f& color,
+                                 SkArenaAlloc* alloc) -> Geometry* {
     // Bypass the automatic dtor behavior in SkArenaAlloc. I'm leaving this up to the Op to run
     // all geometry dtors for now.
     void* geo = alloc->makeBytesAlignedTo(sizeof(Geometry), alignof(Geometry));
@@ -521,7 +521,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
 
     GrOp::Owner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(
-            nullptr, mtxProvider, glyphRunList.origin(), skPaint, sdc);
+            nullptr, mtxProvider, glyphRunList.origin(), skPaint, blob, sdc);
     return op;
 }
 #endif

@@ -79,6 +79,7 @@ public:
             const SkMatrixProvider& viewMatrix,
             SkPoint drawOrigin,
             const SkPaint&,
+            sk_sp<SkRefCnt>&& subRunStorage,
             skgpu::v1::SurfaceDrawContext*) const = 0;
 
     virtual void fillVertexData(
@@ -113,6 +114,7 @@ public:
                       const SkMatrixProvider& viewMatrix,
                       SkPoint drawOrigin,
                       const SkPaint&,
+                      sk_sp<SkRefCnt> subRunStorage,
                       skgpu::v1::SurfaceDrawContext*) const = 0;
 #endif
 
