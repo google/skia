@@ -7,7 +7,6 @@
 
 #include "include/private/SkNx.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/Sk4px.h"
 #include "tests/Test.h"
 
 template <int N>
@@ -183,29 +182,6 @@ DEF_TEST(SkNi_mulHi, r) {
     REPORTER_ASSERT(r, c[1] == q[1]);
     REPORTER_ASSERT(r, c[2] == q[2]);
     REPORTER_ASSERT(r, c[3] == q[3]);
-}
-
-DEF_TEST(Sk4px_muldiv255round, r) {
-    for (int a = 0; a < (1<<8); a++) {
-    for (int b = 0; b < (1<<8); b++) {
-        int exact = (a*b+127)/255;
-
-        // Duplicate a and b 16x each.
-        Sk4px av = Sk16b(a),
-              bv = Sk16b(b);
-
-        // This way should always be exactly correct.
-        int correct = (av * bv).div255()[0];
-        REPORTER_ASSERT(r, correct == exact);
-
-        // We're a bit more flexible on this method: correct for 0 or 255, otherwise off by <=1.
-        int fast = av.approxMulDiv255(bv)[0];
-        REPORTER_ASSERT(r, fast-exact >= -1 && fast-exact <= 1);
-        if (a == 0 || a == 255 || b == 0 || b == 255) {
-            REPORTER_ASSERT(r, fast == exact);
-        }
-    }
-    }
 }
 
 DEF_TEST(SkNx_abs, r) {

@@ -5562,7 +5562,6 @@ generated_cc_atom(
         ":Test_hdr",
         "//include/private:SkNx_hdr",
         "//include/utils:SkRandom_hdr",
-        "//src/core:Sk4px_hdr",
     ],
 )
 

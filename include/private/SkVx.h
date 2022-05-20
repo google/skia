@@ -749,6 +749,31 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
     return cast<uint8_t>( (X*Y+X)/256 );
 }
 
+// saturated_add(x,y) sums values and clamps to the maximum value instead of overflowing.
+SINT std::enable_if_t<std::is_unsigned_v<T>, Vec<N,T>> saturated_add(const Vec<N,T>& x,
+                                                                     const Vec<N,T>& y) {
+#if SKVX_USE_SIMD && (defined(__SSE__) || defined(__ARM_NEON))
+    // Both SSE and ARM have 16-lane saturated adds, so use intrinsics for those and recurse down
+    // or join up to take advantage.
+    if constexpr (N == 16 && sizeof(T) == 1) {
+        #if defined(__SSE__)
+        return unchecked_bit_pun<Vec<N,T>>(_mm_adds_epu8(unchecked_bit_pun<__m128i>(x),
+                                                         unchecked_bit_pun<__m128i>(y)));
+        #else // __ARM_NEON
+        return unchecked_bit_pun<Vec<N,T>>(vqaddq_u8(unchecked_bit_pun<uint8x16_t>(x),
+                                                     unchecked_bit_pun<uint8x16_t>(y)));
+        #endif
+    } else if constexpr (N < 16 && sizeof(T) == 1) {
+        return saturated_add(join(x,x), join(y,y)).lo;
+    } else if constexpr (sizeof(T) == 1) {
+        return join(saturated_add(x.lo, y.lo), saturated_add(x.hi, y.hi));
+    }
+#endif
+    // Otherwise saturate manually
+    auto sum = x + y;
+    return if_then_else(sum < x, Vec<N,T>(std::numeric_limits<T>::max()), sum);
+}
+
 // The ScaledDividerU32 takes a divisor > 1, and creates a function divide(numerator) that
 // calculates a numerator / denominator. For this to be rounded properly, numerator should have
 // half added in:

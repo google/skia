@@ -21,25 +21,6 @@ cc_library(
 )
 
 generated_cc_atom(
-    name = "Sk4px_NEON_hdr",
-    hdrs = ["Sk4px_NEON.h"],
-    visibility = ["//:__subpackages__"],
-)
-
-generated_cc_atom(
-    name = "Sk4px_SSE2_hdr",
-    hdrs = ["Sk4px_SSE2.h"],
-    visibility = ["//:__subpackages__"],
-)
-
-generated_cc_atom(
-    name = "Sk4px_none_hdr",
-    hdrs = ["Sk4px_none.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//src/core:SkUtils_hdr"],
-)
-
-generated_cc_atom(
     name = "SkBitmapProcState_opts_hdr",
     hdrs = ["SkBitmapProcState_opts.h"],
     visibility = ["//:__subpackages__"],
@@ -198,7 +179,6 @@ generated_cc_atom(
     hdrs = ["SkXfermode_opts.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/private:SkNx_hdr",
         "//src/core:Sk4px_hdr",
         "//src/core:SkMSAN_hdr",
         "//src/core:SkXfermodePriv_hdr",

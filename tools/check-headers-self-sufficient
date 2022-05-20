@@ -48,7 +48,6 @@ ignore = re.compile('|'.join([
     r'src/opts/.*_SSSE3\.h',
     r'src/opts/.*_neon\.h',
     r'src/opts/.*_sse\.h',
-    r'src/opts/Sk4px_.*\.h',
     r'src/ports/.*',
     r'src/utils/.*_win\.h',
     r'src/utils/win/.*',
@@ -113,4 +112,3 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv)
-

@@ -8,7 +8,6 @@
 #ifndef Sk4pxXfermode_DEFINED
 #define Sk4pxXfermode_DEFINED
 
-#include "include/private/SkNx.h"
 #include "src/core/Sk4px.h"
 #include "src/core/SkMSAN.h"
 #include "src/core/SkXfermodePriv.h"

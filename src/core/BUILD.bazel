@@ -240,10 +240,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkColor_hdr",
         "//include/private:SkColorData_hdr",
-        "//include/private:SkNx_hdr",
-        "//src/opts:Sk4px_NEON_hdr",
-        "//src/opts:Sk4px_SSE2_hdr",
-        "//src/opts:Sk4px_none_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 
