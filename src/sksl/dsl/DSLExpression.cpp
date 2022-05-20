@@ -324,12 +324,7 @@ DSLPossibleExpression::DSLPossibleExpression(std::unique_ptr<SkSL::Expression> e
 DSLPossibleExpression::DSLPossibleExpression(DSLPossibleExpression&& other)
     : fExpression(std::move(other.fExpression)) {}
 
-DSLPossibleExpression::~DSLPossibleExpression() {
-    if (fExpression) {
-        // this handles incorporating the expression into the output tree
-        DSLExpression(std::move(fExpression));
-    }
-}
+DSLPossibleExpression::~DSLPossibleExpression() {}
 
 void DSLPossibleExpression::reportErrors(Position pos) {
     SkASSERT(!this->valid());

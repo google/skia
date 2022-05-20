@@ -64,12 +64,7 @@ DSLStatement::~DSLStatement() {}
 DSLPossibleStatement::DSLPossibleStatement(std::unique_ptr<SkSL::Statement> statement)
     : fStatement(std::move(statement)) {}
 
-DSLPossibleStatement::~DSLPossibleStatement() {
-    if (fStatement) {
-        // this handles incorporating the expression into the output tree
-        DSLStatement(std::move(fStatement));
-    }
-}
+DSLPossibleStatement::~DSLPossibleStatement() {}
 
 DSLStatement operator,(DSLStatement left, DSLStatement right) {
     Position pos = left.fStatement->fPosition;
