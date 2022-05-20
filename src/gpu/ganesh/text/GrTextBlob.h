@@ -59,8 +59,6 @@ namespace skgpu::v1 { class SurfaceDrawContext; }
 //      * SDFTSubRun* - scaled distance field text handles largish single color glyphs that still
 //        can fit in the atlas; the sizes between direct SubRun, and path SubRun. The destination
 //        rectangles are in source space.
-class GrAtlasSubRun;
-using GrAtlasSubRunOwner = std::unique_ptr<GrAtlasSubRun, sktext::gpu::SubRunAllocator::Destroyer>;
 class GrAtlasSubRun  {
 public:
     virtual ~GrAtlasSubRun() = default;
