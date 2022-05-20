@@ -229,7 +229,7 @@ private:
     sk_sp<skgpu::v1::SoftwarePathRenderer>   fSoftwarePathRenderer;
 #endif
 
-    GrTokenTracker                           fTokenTracker;
+    skgpu::TokenTracker                      fTokenTracker;
     bool                                     fFlushing = false;
     const bool                               fReduceOpsTaskSplitting;
 

@@ -14,7 +14,10 @@ namespace skgpu {
 
 Plot::Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCounter,
            int offX, int offY, int width, int height, SkColorType colorType, size_t bpp)
-        : fPageIndex(pageIndex)
+        : fLastUpload(DrawToken::AlreadyFlushedToken())
+        , fLastUse(DrawToken::AlreadyFlushedToken())
+        , fFlushesSinceLastUse(0)
+        , fPageIndex(pageIndex)
         , fPlotIndex(plotIndex)
         , fGenerationCounter(generationCounter)
         , fGenID(fGenerationCounter->next())
@@ -88,11 +91,35 @@ bool Plot::addSubImage(int width, int height, const void* image, AtlasLocator* a
     return true;
 }
 
+std::pair<const void*, SkIRect> Plot::prepareForUpload() {
+    // We should only be issuing uploads if we are in fact dirty
+    SkASSERT(fDirty && fData);
+    size_t rowBytes = fBytesPerPixel * fWidth;
+    const unsigned char* dataPtr = fData;
+    // Clamp to 4-byte aligned boundaries
+    unsigned int clearBits = 0x3 / fBytesPerPixel;
+    fDirtyRect.fLeft &= ~clearBits;
+    fDirtyRect.fRight += clearBits;
+    fDirtyRect.fRight &= ~clearBits;
+    SkASSERT(fDirtyRect.fRight <= fWidth);
+    // Set up dataPtr
+    dataPtr += rowBytes * fDirtyRect.fTop;
+    dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
+
+    SkIRect offsetRect = fDirtyRect.makeOffset(fOffset.fX, fOffset.fY);
+    fDirtyRect.setEmpty();
+    SkDEBUGCODE(fDirty = false;)
+
+    return { dataPtr, offsetRect };
+}
+
 void Plot::resetRects() {
     fRectanizer.reset();
 
     fGenID = fGenerationCounter->next();
     fPlotLocator = PlotLocator(fPageIndex, fPlotIndex, fGenID);
+    fLastUpload = DrawToken::AlreadyFlushedToken();
+    fLastUse = DrawToken::AlreadyFlushedToken();
 
     // zero out the plot
     if (fData) {

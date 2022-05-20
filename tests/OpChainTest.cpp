@@ -216,7 +216,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
         for (int g = 1; g < kNumOps; ++g) {
             for (int c = 0; c < kNumCombinabilitiesPerGrouping; ++c) {
                 init_combinable(g, &combinable, &random);
-                GrTokenTracker tracker;
+                skgpu::TokenTracker tracker;
                 GrOpFlushState flushState(dContext->priv().getGpu(),
                                           dContext->priv().resourceProvider(),
                                           &tracker);

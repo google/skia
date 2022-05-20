@@ -11,6 +11,7 @@
 #include <functional>
 #include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/AtlasTypes.h"
 
 class GrTextureProxy;
 
@@ -31,85 +32,6 @@ class GrTextureProxy;
  * draw depending on the updated contents. When scheduling an inline upload the op provides the
  * token of the draw that the upload must occur before.
  */
-
-/**
- * GrDeferredUploadToken is used to sequence the uploads relative to each other and to draws.
- */
-class GrDeferredUploadToken {
-public:
-    static GrDeferredUploadToken AlreadyFlushedToken() { return GrDeferredUploadToken(0); }
-
-    GrDeferredUploadToken(const GrDeferredUploadToken&) = default;
-    GrDeferredUploadToken& operator=(const GrDeferredUploadToken&) = default;
-
-    bool operator==(const GrDeferredUploadToken& that) const {
-        return fSequenceNumber == that.fSequenceNumber;
-    }
-    bool operator!=(const GrDeferredUploadToken& that) const { return !(*this == that); }
-    bool operator<(const GrDeferredUploadToken that) const {
-        return fSequenceNumber < that.fSequenceNumber;
-    }
-    bool operator<=(const GrDeferredUploadToken that) const {
-        return fSequenceNumber <= that.fSequenceNumber;
-    }
-    bool operator>(const GrDeferredUploadToken that) const {
-        return fSequenceNumber > that.fSequenceNumber;
-    }
-    bool operator>=(const GrDeferredUploadToken that) const {
-        return fSequenceNumber >= that.fSequenceNumber;
-    }
-
-    GrDeferredUploadToken& operator++() {
-        ++fSequenceNumber;
-        return *this;
-    }
-    GrDeferredUploadToken operator++(int) {
-        auto old = fSequenceNumber;
-        ++fSequenceNumber;
-        return GrDeferredUploadToken(old);
-    }
-
-    GrDeferredUploadToken next() const { return GrDeferredUploadToken(fSequenceNumber + 1); }
-
-    /** Is this token in the [start, end] inclusive interval? */
-    bool inInterval(const GrDeferredUploadToken& start, const GrDeferredUploadToken& end) {
-        return *this >= start && *this <= end;
-    }
-
-private:
-    GrDeferredUploadToken() = delete;
-    explicit GrDeferredUploadToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
-    uint64_t fSequenceNumber;
-};
-
-/*
- * The GrTokenTracker encapsulates the incrementing and distribution of tokens.
- */
-class GrTokenTracker {
-public:
-    /** Gets the token one beyond the last token that has been flushed. */
-    GrDeferredUploadToken nextTokenToFlush() const { return fLastFlushedToken.next(); }
-
-    /** Gets the next draw token that will be issued by this target. This can be used by an op
-        to record that the next draw it issues will use a resource (e.g. texture) while preparing
-        that draw. */
-    GrDeferredUploadToken nextDrawToken() const { return fLastIssuedToken.next(); }
-
-private:
-    // Only these three classes get to increment the token counters
-    friend class SkInternalAtlasTextContext;
-    friend class GrOpFlushState;
-    friend class TestingUploadTarget;
-
-    /** Issues the next token for a draw. */
-    GrDeferredUploadToken issueDrawToken() { return ++fLastIssuedToken; }
-
-    /** Advances the last flushed token by one. */
-    GrDeferredUploadToken flushToken() { return ++fLastFlushedToken; }
-
-    GrDeferredUploadToken fLastIssuedToken = GrDeferredUploadToken::AlreadyFlushedToken();
-    GrDeferredUploadToken fLastFlushedToken = GrDeferredUploadToken::AlreadyFlushedToken();
-};
 
 /**
  * Passed to a deferred upload when it is executed, this method allows the deferred upload to
@@ -135,15 +57,15 @@ class GrDeferredUploadTarget {
 public:
     virtual ~GrDeferredUploadTarget() {}
 
-    virtual const GrTokenTracker* tokenTracker() = 0;
+    virtual const skgpu::TokenTracker* tokenTracker() = 0;
 
     /** Returns the token of the draw that this upload will occur before. */
-    virtual GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) = 0;
+    virtual skgpu::DrawToken addInlineUpload(GrDeferredTextureUploadFn&&) = 0;
 
     /** Returns the token of the draw that this upload will occur before. Since ASAP uploads
         are done first during a flush, this will be the first token since the most recent
         flush. */
-    virtual GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&& upload) = 0;
+    virtual skgpu::DrawToken addASAPUpload(GrDeferredTextureUploadFn&& upload) = 0;
 };
 
 #endif

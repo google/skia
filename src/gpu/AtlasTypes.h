@@ -17,7 +17,11 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkIPoint16.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/RectanizerSkyline.h"
+
+class GrOpFlushState;
+class TestingUploadTarget;
 
 /**
  * This file includes internal types that are used by all of our gpu backends for atlases.
@@ -132,6 +136,84 @@ public:
 
 private:
     uint64_t fGeneration{1};
+};
+
+/**
+ * DrawToken is used to sequence uploads relative to each other and to batches of draws.
+ */
+class DrawToken {
+public:
+    static DrawToken AlreadyFlushedToken() { return DrawToken(0); }
+
+    DrawToken(const DrawToken&) = default;
+    DrawToken& operator=(const DrawToken&) = default;
+
+    bool operator==(const DrawToken& that) const {
+        return fSequenceNumber == that.fSequenceNumber;
+    }
+    bool operator!=(const DrawToken& that) const { return !(*this == that); }
+    bool operator<(const DrawToken that) const {
+        return fSequenceNumber < that.fSequenceNumber;
+    }
+    bool operator<=(const DrawToken that) const {
+        return fSequenceNumber <= that.fSequenceNumber;
+    }
+    bool operator>(const DrawToken that) const {
+        return fSequenceNumber > that.fSequenceNumber;
+    }
+    bool operator>=(const DrawToken that) const {
+        return fSequenceNumber >= that.fSequenceNumber;
+    }
+
+    DrawToken& operator++() {
+        ++fSequenceNumber;
+        return *this;
+    }
+    DrawToken operator++(int) {
+        auto old = fSequenceNumber;
+        ++fSequenceNumber;
+        return DrawToken(old);
+    }
+
+    DrawToken next() const { return DrawToken(fSequenceNumber + 1); }
+
+    /** Is this token in the [start, end] inclusive interval? */
+    bool inInterval(const DrawToken& start, const DrawToken& end) {
+        return *this >= start && *this <= end;
+    }
+
+private:
+    DrawToken() = delete;
+    explicit DrawToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
+    uint64_t fSequenceNumber;
+};
+
+/*
+ * The TokenTracker encapsulates the incrementing and distribution of tokens.
+ */
+class TokenTracker {
+public:
+    /** Gets the token one beyond the last token that has been flushed,
+        either in GrDrawingManager::flush() or Device::flushPendingWorkToRecorder() */
+    DrawToken nextTokenToFlush() const { return fLastFlushedToken.next(); }
+
+    /** Gets the next draw token. This can be used to record that the next draw
+        issued will use a resource (e.g. texture) while preparing that draw. */
+    DrawToken nextDrawToken() const { return fLastIssuedToken.next(); }
+
+private:
+    // Only these classes get to increment the token counters
+    friend class ::GrOpFlushState;
+    friend class ::TestingUploadTarget;
+
+    /** Issues the next token for a draw. */
+    DrawToken issueDrawToken() { return ++fLastIssuedToken; }
+
+    /** Advances the last flushed token by one. */
+    DrawToken flushToken() { return ++fLastFlushedToken; }
+
+    DrawToken fLastIssuedToken = DrawToken::AlreadyFlushedToken();
+    DrawToken fLastFlushedToken = DrawToken::AlreadyFlushedToken();
 };
 
 /**
@@ -333,6 +415,8 @@ private:
  * the atlas class needs to track additional information.
  */
 class Plot : public SkRefCnt {
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(Plot);
+
 public:
     Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCounter,
          int offX, int offY, int width, int height, SkColorType colorType, size_t bpp);
@@ -354,10 +438,48 @@ public:
 
     bool addSubImage(int width, int height, const void* image, AtlasLocator* atlasLocator);
 
+    /**
+     * To manage the lifetime of a plot, we use two tokens. We use the last upload token to
+     * know when we can 'piggy back' uploads, i.e. if the last upload hasn't been flushed to
+     * the gpu, we don't need to issue a new upload even if we update the cpu backing store. We
+     * use lastUse to determine when we can evict a plot from the cache, i.e. if the last use
+     * has already flushed through the gpu then we can reuse the plot.
+     */
+    skgpu::DrawToken lastUploadToken() const { return fLastUpload; }
+    skgpu::DrawToken lastUseToken() const { return fLastUse; }
+    void setLastUploadToken(skgpu::DrawToken token) { fLastUpload = token; }
+    void setLastUseToken(skgpu::DrawToken token) { fLastUse = token; }
+
+    int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
+    void resetFlushesSinceLastUsed() { fFlushesSinceLastUse = 0; }
+    void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
+
+    std::pair<const void*, SkIRect> prepareForUpload();
     void resetRects();
 
-protected:
+    /**
+     * Create a clone of this plot. The cloned plot will take the place of the current plot in
+     * the atlas
+     */
+    sk_sp<Plot> clone() const {
+        return sk_sp<Plot>(new Plot(
+            fPageIndex, fPlotIndex, fGenerationCounter, fX, fY, fWidth, fHeight, fColorType,
+            fBytesPerPixel));
+    }
+
+#ifdef SK_DEBUG
+    void resetListPtrs() {
+        fPrev = fNext = nullptr;
+        fList = nullptr;
+    }
+#endif
+
+private:
     ~Plot() override;
+
+    skgpu::DrawToken fLastUpload;
+    skgpu::DrawToken fLastUse;
+    int              fFlushesSinceLastUse;
 
     struct {
         const uint32_t fPageIndex : 16;
@@ -379,6 +501,8 @@ protected:
     SkDEBUGCODE(bool fDirty);
 };
 
+typedef SkTInternalLList<Plot> PlotList;
+
 } // namespace skgpu
 
-#endif // skgpu_GpuTypesInternal_DEFINED
+#endif // skgpu_AtlasTypes_DEFINED

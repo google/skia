@@ -55,7 +55,7 @@ public:
         return true;
     }
 
-    void postFlush(GrDeferredUploadToken) override {
+    void postFlush(skgpu::DrawToken) override {
         REPORTER_ASSERT(fReporter, fHasOpTexture);
         REPORTER_ASSERT(fReporter, fHasClipTexture);
     }

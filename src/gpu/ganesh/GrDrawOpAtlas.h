@@ -13,7 +13,6 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkIPoint16.h"
-#include "src/core/SkTInternalLList.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
@@ -123,13 +122,13 @@ public:
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    void setLastUseToken(const skgpu::AtlasLocator& atlasLocator, GrDeferredUploadToken token) {
+    void setLastUseToken(const skgpu::AtlasLocator& atlasLocator, skgpu::DrawToken token) {
         SkASSERT(this->hasID(atlasLocator.plotLocator()));
         uint32_t plotIdx = atlasLocator.plotIndex();
         SkASSERT(plotIdx < fNumPlots);
         uint32_t pageIdx = atlasLocator.pageIndex();
         SkASSERT(pageIdx < fNumActivePages);
-        Plot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
+        skgpu::Plot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
         this->makeMRU(plot, pageIdx);
         plot->setLastUseToken(token);
     }
@@ -137,21 +136,21 @@ public:
     uint32_t numActivePages() { return fNumActivePages; }
 
     void setLastUseTokenBulk(const skgpu::BulkUsePlotUpdater& updater,
-                             GrDeferredUploadToken token) {
+                             skgpu::DrawToken token) {
         int count = updater.count();
         for (int i = 0; i < count; i++) {
             const skgpu::BulkUsePlotUpdater::PlotData& pd = updater.plotData(i);
             // it's possible we've added a plot to the updater and subsequently the plot's page
             // was deleted -- so we check to prevent a crash
             if (pd.fPageIndex < fNumActivePages) {
-                Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
+                skgpu::Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
                 this->makeMRU(plot, pd.fPageIndex);
                 plot->setLastUseToken(token);
             }
         }
     }
 
-    void compact(GrDeferredUploadToken startTokenForNextFlush);
+    void compact(skgpu::DrawToken startTokenForNextFlush);
 
     void instantiate(GrOnFlushResourceProvider*);
 
@@ -168,67 +167,9 @@ private:
                   skgpu::AtlasGenerationCounter* generationCounter,
                   AllowMultitexturing allowMultitexturing, std::string_view label);
 
-    /**
-     * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
-     * keep track of subimage placement via their Rectanizer. A Plot manages the lifetime of its
-     * data using two tokens, a last use token and a last upload token. Once a Plot is "full" (i.e.
-     * there is no room for the new subimage according to the Rectanizer), it can no longer be
-     * used unless the last use of the Plot has already been flushed through to the gpu.
-     */
-    class Plot final : public skgpu::Plot {
-        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Plot);
+    inline bool updatePlot(GrDeferredUploadTarget*, skgpu::AtlasLocator*, skgpu::Plot*);
 
-    public:
-        Plot(int pageIndex, int plotIndex, skgpu::AtlasGenerationCounter* generationCounter,
-             int offX, int offY, int width, int height, SkColorType colorType, size_t bpp);
-
-        /**
-         * To manage the lifetime of a plot, we use two tokens. We use the last upload token to
-         * know when we can 'piggy back' uploads, i.e. if the last upload hasn't been flushed to
-         * the gpu, we don't need to issue a new upload even if we update the cpu backing store. We
-         * use lastUse to determine when we can evict a plot from the cache, i.e. if the last use
-         * has already flushed through the gpu then we can reuse the plot.
-         */
-        GrDeferredUploadToken lastUploadToken() const { return fLastUpload; }
-        GrDeferredUploadToken lastUseToken() const { return fLastUse; }
-        void setLastUploadToken(GrDeferredUploadToken token) { fLastUpload = token; }
-        void setLastUseToken(GrDeferredUploadToken token) { fLastUse = token; }
-
-        void uploadToTexture(GrDeferredTextureUploadWritePixelsFn&, GrTextureProxy*);
-        void resetRects();
-
-        int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
-        void resetFlushesSinceLastUsed() { fFlushesSinceLastUse = 0; }
-        void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
-
-        /**
-         * Create a clone of this plot. The cloned plot will take the place of the current plot in
-         * the atlas
-         */
-        Plot* clone() const {
-            return new Plot(
-                fPageIndex, fPlotIndex, fGenerationCounter, fX, fY, fWidth, fHeight, fColorType,
-                fBytesPerPixel);
-        }
-#ifdef SK_DEBUG
-        void resetListPtrs() {
-            fPrev = fNext = nullptr;
-            fList = nullptr;
-        }
-#endif
-
-    private:
-        GrDeferredUploadToken fLastUpload;
-        GrDeferredUploadToken fLastUse;
-        // the number of flushes since this plot has been last used
-        int                   fFlushesSinceLastUse;
-    };
-
-    typedef SkTInternalLList<Plot> PlotList;
-
-    inline bool updatePlot(GrDeferredUploadTarget*, skgpu::AtlasLocator*, Plot*);
-
-    inline void makeMRU(Plot* plot, int pageIdx) {
+    inline void makeMRU(skgpu::Plot* plot, int pageIdx) {
         if (fPages[pageIdx].fPlotList.head() == plot) {
             return;
         }
@@ -243,12 +184,16 @@ private:
     bool uploadToPage(unsigned int pageIdx, GrDeferredUploadTarget*, int width, int height,
                       const void* image, skgpu::AtlasLocator*);
 
+    void uploadPlotToTexture(GrDeferredTextureUploadWritePixelsFn& writePixels,
+                             GrTextureProxy* proxy,
+                             skgpu::Plot* plot);
+
     bool createPages(GrProxyProvider*, skgpu::AtlasGenerationCounter*);
     bool activateNewPage(GrResourceProvider*);
     void deactivateLastPage();
 
     void processEviction(skgpu::PlotLocator);
-    inline void processEvictionAndResetRects(Plot* plot) {
+    inline void processEvictionAndResetRects(skgpu::Plot* plot) {
         this->processEviction(plot->plotLocator());
         plot->resetRects();
     }
@@ -267,7 +212,7 @@ private:
     uint64_t                      fAtlasGeneration;
 
     // nextTokenToFlush() value at the end of the previous flush
-    GrDeferredUploadToken fPrevFlushToken;
+    skgpu::DrawToken fPrevFlushToken;
 
     // the number of flushes since this atlas has been last used
     int                   fFlushesSinceLastUse;
@@ -276,9 +221,9 @@ private:
 
     struct Page {
         // allocated array of Plots
-        std::unique_ptr<sk_sp<Plot>[]> fPlotArray;
+        std::unique_ptr<sk_sp<skgpu::Plot>[]> fPlotArray;
         // LRU list of Plots (MRU at head - LRU at tail)
-        PlotList fPlotList;
+        skgpu::PlotList fPlotList;
     };
     // proxies kept separate to make it easier to pass them up to client
     GrSurfaceProxyView fViews[skgpu::PlotLocator::kMaxMultitexturePages];

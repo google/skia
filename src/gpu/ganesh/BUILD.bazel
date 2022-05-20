@@ -1063,6 +1063,7 @@ generated_cc_atom(
     deps = [
         "//include/gpu:GrTypes_hdr",
         "//include/private/gpu/ganesh:GrTypesPriv_hdr",
+        "//src/gpu:AtlasTypes_hdr",
     ],
 )
 
@@ -1191,7 +1192,6 @@ generated_cc_atom(
         ":GrSurfaceProxyView_hdr",
         "//include/gpu:GrBackendSurface_hdr",
         "//src/core:SkIPoint16_hdr",
-        "//src/core:SkTInternalLList_hdr",
         "//src/gpu:AtlasTypes_hdr",
         "//src/gpu:RectanizerSkyline_hdr",
     ],

@@ -36,7 +36,7 @@ public:
      * Called once flushing is complete. startTokenForNextFlush can be used to track resources
      * used in the current flush.
      */
-    virtual void postFlush(GrDeferredUploadToken startTokenForNextFlush) {}
+    virtual void postFlush(skgpu::DrawToken startTokenForNextFlush) {}
 
     /**
      * Tells the callback owner to hold onto this object when freeing GPU resources.
