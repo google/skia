@@ -406,13 +406,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					// skbug.com/13289
 					skip(ALL, "test", ALL, "TransferPixelsToTextureTest")
 				}
-
-				if b.model("MacBookAir7.2") {
-					// This issue may be more widespread?
-					// skbug.com/13290
-					skip(ALL, "test", ALL, "SkSLMatricesNonsquare_GPU")
-					skip(ALL, "test", ALL, "SkSLMatrixScalarMath_GPU")
-				}
 			}
 		}
 
