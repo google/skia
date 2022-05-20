@@ -7,7 +7,8 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "include/private/SkNx.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkVx.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
@@ -50,13 +51,11 @@ class CCTonerAdapter final : public DiscardableAdapterBase<CCTonerAdapter,
         }
     private:
         static SkColor lerpColor(SkColor c0, SkColor c1, float t) {
-            const auto c0_4f = SkNx_cast<float>(Sk4b::Load(&c0)),
-                       c1_4f = SkNx_cast<float>(Sk4b::Load(&c1)),
+            const auto c0_4f = Sk4f_fromL32(c0),
+                       c1_4f = Sk4f_fromL32(c1),
                        c_4f = c0_4f + (c1_4f - c0_4f) * t;
 
-            SkColor c;
-            SkNx_cast<uint8_t>(Sk4f_round(c_4f)).store(&c);
-            return c;
+            return Sk4f_toL32(c_4f);
         }
 
         void onSync() override {

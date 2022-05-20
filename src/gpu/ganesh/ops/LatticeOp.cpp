@@ -270,20 +270,20 @@ private:
 
             SkIRect srcR;
             SkRect dstR;
-            Sk4f scales(1.f / fView.proxy()->width(), 1.f / fView.proxy()->height(),
-                        1.f / fView.proxy()->width(), 1.f / fView.proxy()->height());
-            static const Sk4f kDomainOffsets(0.5f, 0.5f, -0.5f, -0.5f);
-            static const Sk4f kFlipOffsets(0.f, 1.f, 0.f, 1.f);
-            static const Sk4f kFlipMuls(1.f, -1.f, 1.f, -1.f);
+            skvx::float4 scales(1.f / fView.proxy()->width(), 1.f / fView.proxy()->height(),
+                                1.f / fView.proxy()->width(), 1.f / fView.proxy()->height());
+            static const skvx::float4 kDomainOffsets(0.5f, 0.5f, -0.5f, -0.5f);
+            static const skvx::float4 kFlipOffsets(0.f, 1.f, 0.f, 1.f);
+            static const skvx::float4 kFlipMuls(1.f, -1.f, 1.f, -1.f);
             while (patch.fIter->next(&srcR, &dstR)) {
-                Sk4f coords(SkIntToScalar(srcR.fLeft), SkIntToScalar(srcR.fTop),
-                            SkIntToScalar(srcR.fRight), SkIntToScalar(srcR.fBottom));
-                Sk4f domain = coords + kDomainOffsets;
+                skvx::float4 coords(SkIntToScalar(srcR.fLeft), SkIntToScalar(srcR.fTop),
+                                    SkIntToScalar(srcR.fRight), SkIntToScalar(srcR.fBottom));
+                skvx::float4 domain = coords + kDomainOffsets;
                 coords *= scales;
                 domain *= scales;
                 if (fView.origin() == kBottomLeft_GrSurfaceOrigin) {
                     coords = kFlipMuls * coords + kFlipOffsets;
-                    domain = SkNx_shuffle<0, 3, 2, 1>(kFlipMuls * domain + kFlipOffsets);
+                    domain = skvx::shuffle<0, 3, 2, 1>(kFlipMuls * domain + kFlipOffsets);
                 }
                 SkRect texDomain;
                 SkRect texCoords;

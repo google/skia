@@ -11,8 +11,6 @@
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkXfermodePriv.h"
 
-#include "include/private/SkNx.h"
-
 static void D16_S32X_src(uint16_t dst[], const SkPMColor src[], int count, uint8_t coverage) {
     SkASSERT(coverage == 0xFF);
     for (int i = 0; i < count; ++i) {

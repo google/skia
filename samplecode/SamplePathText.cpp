@@ -8,7 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/private/SkNx.h"
+#include "include/private/SkVx.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkPathPriv.h"
@@ -285,10 +285,10 @@ public:
             const Glyph& glyph = fGlyphs[i];
             const SkMatrix& backMatrix = fBackMatrices[i];
 
-            const Sk2f matrix[3] = {
-                Sk2f(backMatrix.getScaleX(), backMatrix.getSkewY()),
-                Sk2f(backMatrix.getSkewX(), backMatrix.getScaleY()),
-                Sk2f(backMatrix.getTranslateX(), backMatrix.getTranslateY())
+            const skvx::float2 matrix[3] = {
+                skvx::float2(backMatrix.getScaleX(), backMatrix.getSkewY()),
+                skvx::float2(backMatrix.getSkewX(), backMatrix.getScaleY()),
+                skvx::float2(backMatrix.getTranslateX(), backMatrix.getTranslateY())
             };
 
             SkPath* backpath = &fBackPaths[i];
@@ -344,7 +344,7 @@ private:
     class Waves {
     public:
         void reset(SkRandom& rand, int w, int h);
-        SkPoint apply(float tsec, const Sk2f matrix[3], const SkPoint& pt) const;
+        SkPoint apply(float tsec, const skvx::float2 matrix[3], const SkPoint& pt) const;
 
     private:
         constexpr static double kAverageAngle = SK_ScalarPI / 8.0;
@@ -383,7 +383,7 @@ void PathText::WavyGlyphAnimator::Waves::reset(SkRandom& rand, int w, int h) {
     }
 }
 
-SkPoint PathText::WavyGlyphAnimator::Waves::apply(float tsec, const Sk2f matrix[3],
+SkPoint PathText::WavyGlyphAnimator::Waves::apply(float tsec, const skvx::float2 matrix[3],
                                                   const SkPoint& pt) const {
     constexpr static int kTablePeriod = 1 << 12;
     static float sin2table[kTablePeriod + 1];
@@ -395,38 +395,37 @@ SkPoint PathText::WavyGlyphAnimator::Waves::apply(float tsec, const Sk2f matrix[
         }
     });
 
-     const Sk4f amplitudes = Sk4f::Load(fAmplitudes);
-     const Sk4f frequencies = Sk4f::Load(fFrequencies);
-     const Sk4f dirsX = Sk4f::Load(fDirsX);
-     const Sk4f dirsY = Sk4f::Load(fDirsY);
-     const Sk4f speeds = Sk4f::Load(fSpeeds);
-     const Sk4f offsets = Sk4f::Load(fOffsets);
+     const auto amplitudes = skvx::float4::Load(fAmplitudes);
+     const auto frequencies = skvx::float4::Load(fFrequencies);
+     const auto dirsX = skvx::float4::Load(fDirsX);
+     const auto dirsY = skvx::float4::Load(fDirsY);
+     const auto speeds = skvx::float4::Load(fSpeeds);
+     const auto offsets = skvx::float4::Load(fOffsets);
 
     float devicePt[2];
     (matrix[0] * pt.x() + matrix[1] * pt.y() + matrix[2]).store(devicePt);
 
-    const Sk4f t = (frequencies * (dirsX * devicePt[0] + dirsY * devicePt[1]) +
-                    speeds * tsec +
-                    offsets).abs() * (float(kTablePeriod) / float(SK_ScalarPI));
+    const skvx::float4 t = abs(frequencies * (dirsX * devicePt[0] + dirsY * devicePt[1]) +
+                               speeds * tsec + offsets) * (float(kTablePeriod) / SK_ScalarPI);
 
-    const Sk4i ipart = SkNx_cast<int>(t);
-    const Sk4f fpart = t - SkNx_cast<float>(ipart);
+    const skvx::int4 ipart = skvx::cast<int32_t>(t);
+    const skvx::float4 fpart = t - skvx::cast<float>(ipart);
 
     int32_t indices[4];
     (ipart & (kTablePeriod-1)).store(indices);
 
-    const Sk4f left(sin2table[indices[0]], sin2table[indices[1]],
-                    sin2table[indices[2]], sin2table[indices[3]]);
-    const Sk4f right(sin2table[indices[0] + 1], sin2table[indices[1] + 1],
-                     sin2table[indices[2] + 1], sin2table[indices[3] + 1]);
-    const Sk4f height = amplitudes * (left * (1.f - fpart) + right * fpart);
+    const skvx::float4 left(sin2table[indices[0]], sin2table[indices[1]],
+                            sin2table[indices[2]], sin2table[indices[3]]);
+    const skvx::float4 right(sin2table[indices[0] + 1], sin2table[indices[1] + 1],
+                             sin2table[indices[2] + 1], sin2table[indices[3] + 1]);
+    const auto height = amplitudes * (left * (1.f - fpart) + right * fpart);
 
-    Sk4f dy = height * dirsY;
-    Sk4f dx = height * dirsX;
+    auto dy = height * dirsY;
+    auto dx = height * dirsX;
 
     float offsetY[4], offsetX[4];
-    (dy + SkNx_shuffle<2,3,0,1>(dy)).store(offsetY); // accumulate.
-    (dx + SkNx_shuffle<2,3,0,1>(dx)).store(offsetX);
+    (dy + skvx::shuffle<2,3,0,1>(dy)).store(offsetY); // accumulate.
+    (dx + skvx::shuffle<2,3,0,1>(dx)).store(offsetX);
 
     return {devicePt[0] + offsetY[0] + offsetY[1], devicePt[1] - offsetX[0] - offsetX[1]};
 }

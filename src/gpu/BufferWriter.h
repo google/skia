@@ -11,8 +11,8 @@
 #include <type_traits>
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkConvertPixels.h"
 
 namespace skgpu {
@@ -304,7 +304,7 @@ inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::RepeatDesc<
 }
 
 template <>
-SK_MAYBE_UNUSED inline VertexWriter& operator<<(VertexWriter& w, const Sk4f& vector) {
+SK_MAYBE_UNUSED inline VertexWriter& operator<<(VertexWriter& w, const skvx::float4& vector) {
     w.validate(sizeof(vector));
     vector.store(w.fPtr);
     w = w.makeOffset(sizeof(vector));

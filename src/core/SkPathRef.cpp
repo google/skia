@@ -9,9 +9,9 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTo.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkBuffer.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkSafeMath.h"
@@ -663,13 +663,12 @@ bool SkPathRef::isValid() const {
 
     if (!fBoundsIsDirty && !fBounds.isEmpty()) {
         bool isFinite = true;
-        Sk2s leftTop = Sk2s(fBounds.fLeft, fBounds.fTop);
-        Sk2s rightBot = Sk2s(fBounds.fRight, fBounds.fBottom);
+        auto leftTop = skvx::float2(fBounds.fLeft, fBounds.fTop);
+        auto rightBot = skvx::float2(fBounds.fRight, fBounds.fBottom);
         for (int i = 0; i < fPoints.count(); ++i) {
-            Sk2s point = Sk2s(fPoints[i].fX, fPoints[i].fY);
+            auto point = skvx::float2(fPoints[i].fX, fPoints[i].fY);
 #ifdef SK_DEBUG
-            if (fPoints[i].isFinite() &&
-                ((point < leftTop).anyTrue() || (point > rightBot).anyTrue())) {
+            if (fPoints[i].isFinite() && (any(point < leftTop)|| any(point > rightBot))) {
                 SkDebugf("bad SkPathRef bounds: %g %g %g %g\n",
                          fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
                 for (int j = 0; j < fPoints.count(); ++j) {
@@ -682,7 +681,7 @@ bool SkPathRef::isValid() const {
             }
 #endif
 
-            if (fPoints[i].isFinite() && (point < leftTop).anyTrue() && !(point > rightBot).anyTrue())
+            if (fPoints[i].isFinite() && any(point < leftTop) && !any(point > rightBot))
                 return false;
             if (!fPoints[i].isFinite()) {
                 isFinite = false;

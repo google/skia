@@ -8,8 +8,8 @@
 #include "modules/skottie/src/animator/VectorKeyframeAnimator.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTPin.h"
+#include "include/private/SkVx.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
@@ -112,10 +112,12 @@ private:
         bool changed = false;
 
         while (count >= 4) {
-            const auto old_val = Sk4f::Load(dst),
-                       new_val = Lerp(Sk4f::Load(v0), Sk4f::Load(v1), lerp_info.weight);
+            const auto old_val = skvx::float4::Load(dst),
+                       new_val = Lerp(skvx::float4::Load(v0),
+                                      skvx::float4::Load(v1),
+                                      lerp_info.weight);
 
-            changed |= (new_val != old_val).anyTrue();
+            changed |= any(new_val != old_val);
             new_val.store(dst);
 
             v0    += 4;

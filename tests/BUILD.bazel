@@ -281,7 +281,6 @@ CORE_TESTS = [
     "SkGlyphBufferTest.cpp",
     "SkGlyphTest.cpp",
     "SkImageTest.cpp",
-    "SkNxTest.cpp",
     "SkPathRangeIterTest.cpp",
     "SkRasterPipelineTest.cpp",
     "SkRemoteGlyphCacheTest.cpp",
@@ -1437,7 +1436,6 @@ generated_cc_atom(
         "//include/core:SkPoint_hdr",
         "//include/core:SkScalar_hdr",
         "//include/core:SkTypes_hdr",
-        "//include/private:SkNx_hdr",
         "//src/core:SkGeometry_hdr",
         "//src/pathops:SkPathOpsCubic_hdr",
     ],
@@ -5551,17 +5549,6 @@ generated_cc_atom(
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//src/core:SkImagePriv_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "SkNxTest_src",
-    srcs = ["SkNxTest.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":Test_hdr",
-        "//include/private:SkNx_hdr",
-        "//include/utils:SkRandom_hdr",
     ],
 )
 

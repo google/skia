@@ -161,7 +161,7 @@ generated_cc_atom(
     name = "SkUtils_opts_hdr",
     hdrs = ["SkUtils_opts.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/private:SkNx_hdr"],
+    deps = ["//include/private:SkVx_hdr"],
 )
 
 generated_cc_atom(

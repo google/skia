@@ -9,7 +9,7 @@
 #define SkUtils_opts_DEFINED
 
 #include <stdint.h>
-#include "include/private/SkNx.h"
+#include "include/private/SkVx.h"
 
 namespace SK_OPTS_NS {
 
@@ -21,7 +21,7 @@ namespace SK_OPTS_NS {
         static const int N = 16 / sizeof(T);
     #endif
         while (count >= N) {
-            SkNx<N,T>(value).store(buffer);
+            skvx::Vec<N,T>(value).store(buffer);
             buffer += N;
             count  -= N;
         }

@@ -44,7 +44,6 @@ generated_cc_atom(
         "//include/core:SkCanvas_hdr",
         "//include/core:SkPictureRecorder_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
-        "//include/private:SkNx_hdr",
         "//modules/skottie/src:Adapter_hdr",
         "//modules/skottie/src:SkottieValue_hdr",
         "//modules/sksg/include:SkSGPaint_hdr",
@@ -59,7 +58,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Effects_hdr",
-        "//include/private:SkNx_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkVx_hdr",
         "//modules/skottie/src:Adapter_hdr",
         "//modules/skottie/src:SkottieValue_hdr",
         "//modules/sksg/include:SkSGColorFilter_hdr",

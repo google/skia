@@ -51,8 +51,8 @@ generated_cc_atom(
     deps = [
         "//include/core:SkRect_hdr",
         "//include/private:SkColorData_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTemplates_hdr",
+        "//include/private:SkVx_hdr",
         "//src/core:SkConvertPixels_hdr",
     ],
 )

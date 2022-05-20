@@ -7952,7 +7952,6 @@ generated_cc_atom(
         "//include/core:SkScalar_hdr",
         "//include/core:SkSize_hdr",
         "//include/core:SkString_hdr",
-        "//include/private:SkNx_hdr",
         "//src/core:SkMipmapBuilder_hdr",
         "//src/core:SkMipmap_hdr",
         "//tools:Resources_hdr",

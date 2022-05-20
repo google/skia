@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkCubicMap.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTPin.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkOpts.h"
 
 //#define CUBICMAP_TRACK_MAX_ERROR
@@ -84,10 +84,10 @@ SkCubicMap::SkCubicMap(SkPoint p1, SkPoint p2) {
     p1.fX = std::min(std::max(p1.fX, 0.0f), 1.0f);
     p2.fX = std::min(std::max(p2.fX, 0.0f), 1.0f);
 
-    Sk2s s1 = Sk2s::Load(&p1) * 3;
-    Sk2s s2 = Sk2s::Load(&p2) * 3;
+    auto s1 = skvx::float2::Load(&p1) * 3;
+    auto s2 = skvx::float2::Load(&p2) * 3;
 
-    (Sk2s(1) + s1 - s2).store(&fCoeff[0]);
+    (1 + s1 - s2).store(&fCoeff[0]);
     (s2 - s1 - s1).store(&fCoeff[1]);
     s1.store(&fCoeff[2]);
 
@@ -100,9 +100,9 @@ SkCubicMap::SkCubicMap(SkPoint p1, SkPoint p2) {
 }
 
 SkPoint SkCubicMap::computeFromT(float t) const {
-    Sk2s a = Sk2s::Load(&fCoeff[0]);
-    Sk2s b = Sk2s::Load(&fCoeff[1]);
-    Sk2s c = Sk2s::Load(&fCoeff[2]);
+    auto a = skvx::float2::Load(&fCoeff[0]);
+    auto b = skvx::float2::Load(&fCoeff[1]);
+    auto c = skvx::float2::Load(&fCoeff[2]);
 
     SkPoint result;
     (((a * t + b) * t + c) * t).store(&result);

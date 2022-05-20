@@ -10,7 +10,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkNx.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGPaint.h"

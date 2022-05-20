@@ -7,7 +7,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkString.h"
-#include "include/private/SkNx.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoBlitterChoose.h"
 #include "src/core/SkConvertPixels.h"
@@ -28,8 +28,10 @@
 struct Matrix43 {
     float fMat[12];    // column major
 
-    Sk4f map(float x, float y) const {
-        return Sk4f::Load(&fMat[0]) * x + Sk4f::Load(&fMat[4]) * y + Sk4f::Load(&fMat[8]);
+    skvx::float4 map(float x, float y) const {
+        return skvx::float4::Load(&fMat[0]) * x +
+               skvx::float4::Load(&fMat[4]) * y +
+               skvx::float4::Load(&fMat[8]);
     }
 
     // Pass a by value, so we don't have to worry about aliasing with this
@@ -174,9 +176,9 @@ bool SkTriColorShader::update(const SkMatrix& ctmInv, const SkPoint pts[],
 
     fM33.setConcat(im, ctmInv);
 
-    Sk4f c0 = Sk4f::Load(colors[index0].vec()),
-         c1 = Sk4f::Load(colors[index1].vec()),
-         c2 = Sk4f::Load(colors[index2].vec());
+    auto c0 = skvx::float4::Load(colors[index0].vec()),
+         c1 = skvx::float4::Load(colors[index1].vec()),
+         c2 = skvx::float4::Load(colors[index2].vec());
 
     (c1 - c0).store(&fM43.fMat[0]);
     (c2 - c0).store(&fM43.fMat[4]);

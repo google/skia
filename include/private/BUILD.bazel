@@ -153,32 +153,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkNx_hdr",
-    hdrs = ["SkNx.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkNx_neon_hdr",
-        ":SkNx_sse_hdr",
-        ":SkSafe_math_hdr",
-        "//include/core:SkScalar_hdr",
-        "//include/core:SkTypes_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "SkNx_neon_hdr",
-    hdrs = ["SkNx_neon.h"],
-    visibility = ["//:__subpackages__"],
-)
-
-generated_cc_atom(
-    name = "SkNx_sse_hdr",
-    hdrs = ["SkNx_sse.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkTypes_hdr"],
-)
-
-generated_cc_atom(
     name = "SkOnce_hdr",
     hdrs = ["SkOnce.h"],
     visibility = ["//:__subpackages__"],

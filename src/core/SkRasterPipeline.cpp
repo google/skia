@@ -6,8 +6,8 @@
  */
 
 #include "include/private/SkImageInfoPriv.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkVx.h"
 #include "include/third_party/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkOpts.h"
@@ -117,7 +117,7 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
         this->append(white_color);
     } else {
         auto ctx = alloc->make<SkRasterPipeline_UniformColorCtx>();
-        Sk4f color = Sk4f::Load(rgba);
+        skvx::float4 color = skvx::float4::Load(rgba);
         color.store(&ctx->r);
 
         // uniform_color requires colors in range and can go lowp,

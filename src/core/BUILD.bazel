@@ -760,7 +760,6 @@ generated_cc_atom(
         ":SkXfermodePriv_hdr",
         "//include/core:SkShader_hdr",
         "//include/private:SkColorData_hdr",
-        "//include/private:SkNx_hdr",
     ],
 )
 
@@ -1140,7 +1139,6 @@ generated_cc_atom(
         "//include/effects:SkColorMatrix_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
         "//include/private:SkColorData_hdr",
-        "//include/private:SkNx_hdr",
         "//src/gpu/ganesh/effects:GrSkSLFP_hdr",
     ],
 )
@@ -1166,7 +1164,6 @@ generated_cc_atom(
         "//include/core:SkString_hdr",
         "//include/core:SkUnPreMultiply_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTDArray_hdr",
         "//include/third_party/skcms:skcms_hdr",
         "//src/gpu/ganesh:GrColorInfo_hdr",
@@ -1369,8 +1366,8 @@ generated_cc_atom(
     deps = [
         ":SkOpts_hdr",
         "//include/core:SkCubicMap_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTPin_hdr",
+        "//include/private:SkVx_hdr",
         "//src/pathops:SkPathOpsCubic_hdr",
     ],
 )
@@ -1768,7 +1765,7 @@ generated_cc_atom(
         ":SkVerticesPriv_hdr",
         "//include/core:SkColorSpace_hdr",
         "//include/core:SkString_hdr",
-        "//include/private:SkNx_hdr",
+        "//include/private:SkVx_hdr",
         "//src/shaders:SkColorShader_hdr",
         "//src/shaders:SkComposeShader_hdr",
         "//src/shaders:SkShaderBase_hdr",
@@ -2076,7 +2073,6 @@ generated_cc_atom(
         ":SkPointPriv_hdr",
         "//include/core:SkMatrix_hdr",
         "//include/core:SkPoint3_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTPin_hdr",
         "//include/private:SkVx_hdr",
         "//src/pathops:SkPathOpsCubic_hdr",
@@ -3286,10 +3282,10 @@ generated_cc_atom(
         ":SkSafeMath_hdr",
         "//include/core:SkPath_hdr",
         "//include/core:SkRRect_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkOnce_hdr",
         "//include/private:SkPathRef_hdr",
         "//include/private:SkTo_hdr",
+        "//include/private:SkVx_hdr",
     ],
 )
 
@@ -3334,7 +3330,6 @@ generated_cc_atom(
         "//include/core:SkStream_hdr",
         "//include/core:SkString_hdr",
         "//include/private:SkMacros_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkPathRef_hdr",
         "//include/private:SkTo_hdr",
         "//src/pathops:SkPathOpsPoint_hdr",
@@ -3817,8 +3812,8 @@ generated_cc_atom(
         ":SkOpts_hdr",
         ":SkRasterPipeline_hdr",
         "//include/private:SkImageInfoPriv_hdr",
-        "//include/private:SkNx_hdr",
         "//include/private:SkTemplates_hdr",
+        "//include/private:SkVx_hdr",
         "//include/third_party/skcms:skcms_hdr",
     ],
 )

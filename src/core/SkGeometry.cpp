@@ -7,7 +7,6 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint3.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkGeometry.h"
@@ -584,8 +583,8 @@ float SkMeasureNonInflectCubicRotation(const SkPoint pts[4]) {
     return 2*SK_ScalarPI - SkMeasureAngleBetweenVectors(a,-b) - SkMeasureAngleBetweenVectors(b,-c);
 }
 
-static Sk4f fma(const Sk4f& f, float m, const Sk4f& a) {
-    return SkNx_fma(f, Sk4f(m), a);
+static skvx::float4 fma(const skvx::float4& f, float m, const skvx::float4& a) {
+    return skvx::fma(f, skvx::float4(m), a);
 }
 
 // Finds the root nearest 0.5. Returns 0.5 if the roots are undefined or outside 0..1.
@@ -626,16 +625,16 @@ float SkFindCubicMidTangent(const SkPoint src[4]) {
     //                   |.    .  |   |bisector.y|
     //
     // The coeffs for the quadratic equation we need to solve are therefore:  C' * bisector
-    static const Sk4f kM[4] = {Sk4f(-1,  2, -1,  0),
-                               Sk4f( 3, -4,  1,  0),
-                               Sk4f(-3,  2,  0,  0)};
-    Sk4f C_x = fma(kM[0], src[0].fX,
+    static const skvx::float4 kM[4] = {skvx::float4(-1,  2, -1,  0),
+                                       skvx::float4( 3, -4,  1,  0),
+                                       skvx::float4(-3,  2,  0,  0)};
+    auto C_x = fma(kM[0], src[0].fX,
                fma(kM[1], src[1].fX,
-               fma(kM[2], src[2].fX, Sk4f(src[3].fX, 0,0,0))));
-    Sk4f C_y = fma(kM[0], src[0].fY,
+               fma(kM[2], src[2].fX, skvx::float4(src[3].fX, 0,0,0))));
+    auto C_y = fma(kM[0], src[0].fY,
                fma(kM[1], src[1].fY,
-               fma(kM[2], src[2].fY, Sk4f(src[3].fY, 0,0,0))));
-    Sk4f coeffs = C_x * bisector.x() + C_y * bisector.y();
+               fma(kM[2], src[2].fY, skvx::float4(src[3].fY, 0,0,0))));
+    auto coeffs = C_x * bisector.x() + C_y * bisector.y();
 
     // Now solve the quadratic for T.
     float T = 0;

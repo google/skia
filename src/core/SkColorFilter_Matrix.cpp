@@ -11,7 +11,6 @@
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkNx.h"
 #include "src/core/SkColorFilter_Matrix.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"

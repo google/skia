@@ -3290,7 +3290,6 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "include/private/SkNx.h"
 
 static int compute_quad_extremas(const SkPoint src[3], SkPoint extremas[3]) {
     SkScalar ts[2];

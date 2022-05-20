@@ -379,7 +379,7 @@ struct SkConic {
                             const SkMatrix*, SkConic conics[kMaxConicsForArc]);
 };
 
-// inline helpers are contained in a namespace to avoid external leakage to fragile SkNx members
+// inline helpers are contained in a namespace to avoid external leakage to fragile SkVx members
 namespace {  // NOLINT(google-build-namespaces)
 
 /**
