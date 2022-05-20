@@ -422,6 +422,7 @@ generated_cc_atom(
         ":ImageSlide_hdr",
         ":MSKPSlide_hdr",
         ":ParticlesSlide_hdr",
+        ":RiveSlide_hdr",
         ":SKPSlide_hdr",
         ":SampleSlide_hdr",
         ":SkSLDebuggerSlide_hdr",
@@ -496,5 +497,28 @@ generated_cc_atom(
         ":Viewer_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkStream_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RiveSlide_hdr",
+    hdrs = ["RiveSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RiveSlide_src",
+    srcs = ["RiveSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":RiveSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkTime_hdr",
+        "//tools/timer:TimeUtils_hdr",
     ],
 )

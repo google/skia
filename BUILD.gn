@@ -2819,6 +2819,8 @@ if (skia_enable_tools) {
         "tools/viewer/MSKPSlide.h",
         "tools/viewer/ParticlesSlide.cpp",
         "tools/viewer/ParticlesSlide.h",
+        "tools/viewer/RiveSlide.cpp",
+        "tools/viewer/RiveSlide.h",
         "tools/viewer/SKPSlide.cpp",
         "tools/viewer/SKPSlide.h",
         "tools/viewer/SampleSlide.cpp",
@@ -2862,6 +2864,7 @@ if (skia_enable_tools) {
         "modules/sksg:samples",
         "modules/svg",
         "//third_party/imgui",
+        "//third_party/rive",
       ]
       if (skia_use_vulkan) {
         deps += [
