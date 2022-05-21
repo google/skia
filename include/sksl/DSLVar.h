@@ -56,60 +56,60 @@ public:
     }
 
     DSLExpression x() {
-        return DSLExpression(*this, Position()).x();
+        return DSLExpression(*this).x();
     }
 
     DSLExpression y() {
-        return DSLExpression(*this, Position()).y();
+        return DSLExpression(*this).y();
     }
 
     DSLExpression z() {
-        return DSLExpression(*this, Position()).z();
+        return DSLExpression(*this).z();
     }
 
     DSLExpression w() {
-        return DSLExpression(*this, Position()).w();
+        return DSLExpression(*this).w();
     }
 
     DSLExpression r() {
-        return DSLExpression(*this, Position()).r();
+        return DSLExpression(*this).r();
     }
 
     DSLExpression g() {
-        return DSLExpression(*this, Position()).g();
+        return DSLExpression(*this).g();
     }
 
     DSLExpression b() {
-        return DSLExpression(*this, Position()).b();
+        return DSLExpression(*this).b();
     }
 
     DSLExpression a() {
-        return DSLExpression(*this, Position()).a();
+        return DSLExpression(*this).a();
     }
 
     DSLExpression field(std::string_view name) {
-        return DSLExpression(*this, Position()).field(name);
+        return DSLExpression(*this).field(name);
     }
 
-    DSLPossibleExpression operator[](DSLExpression&& index);
+    DSLExpression operator[](DSLExpression&& index);
 
-    DSLPossibleExpression operator++() {
-        return ++DSLExpression(*this, Position());
+    DSLExpression operator++() {
+        return ++DSLExpression(*this);
     }
 
-    DSLPossibleExpression operator++(int) {
-        return DSLExpression(*this, Position())++;
+    DSLExpression operator++(int) {
+        return DSLExpression(*this)++;
     }
 
-    DSLPossibleExpression operator--() {
-        return --DSLExpression(*this, Position());
+    DSLExpression operator--() {
+        return --DSLExpression(*this);
     }
 
-    DSLPossibleExpression operator--(int) {
-        return DSLExpression(*this, Position())--;
+    DSLExpression operator--(int) {
+        return DSLExpression(*this)--;
     }
 
-    template <class T> DSLPossibleExpression assign(T&& param) {
+    template <class T> DSLExpression assign(T&& param) {
         return this->assignExpression(DSLExpression(std::forward<T>(param)));
     }
 
@@ -119,7 +119,7 @@ protected:
      */
     DSLVarBase(VariableStorage storage) : fType(kVoid_Type), fStorage(storage) {}
 
-    DSLPossibleExpression assignExpression(DSLExpression other);
+    DSLExpression assignExpression(DSLExpression other);
 
     void swap(DSLVarBase& other);
 

@@ -155,18 +155,18 @@ public:
     bool isEffectChild() const;
 
     template<typename... Args>
-    static DSLPossibleExpression Construct(DSLType type, DSLVarBase& var, Args&&... args) {
+    static DSLExpression Construct(DSLType type, DSLVarBase& var, Args&&... args) {
         DSLExpression argArray[] = {var, args...};
         return Construct(type, SkMakeSpan(argArray));
     }
 
     template<typename... Args>
-    static DSLPossibleExpression Construct(DSLType type, DSLExpression expr, Args&&... args) {
+    static DSLExpression Construct(DSLType type, DSLExpression expr, Args&&... args) {
         DSLExpression argArray[] = {std::move(expr), std::move(args)...};
         return Construct(type, SkMakeSpan(argArray));
     }
 
-    static DSLPossibleExpression Construct(DSLType type, SkSpan<DSLExpression> argArray);
+    static DSLExpression Construct(DSLType type, SkSpan<DSLExpression> argArray);
 
 private:
     const SkSL::Type& skslType() const;
