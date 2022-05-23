@@ -66,7 +66,7 @@
 #include "src/gpu/graphite/Device.h"
 #endif
 
-#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
+#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
 #include "include/private/chromium/Slug.h"
 #endif
 
@@ -2342,7 +2342,7 @@ void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPa
     }
 }
 
-#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
+#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
 sk_sp<Slug> SkCanvas::convertBlobToSlug(
         const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);

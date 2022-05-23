@@ -2275,7 +2275,7 @@ protected:
 
     virtual void onDiscard();
 
-#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
+#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
     /** Experimental
      */
     virtual sk_sp<sktext::gpu::Slug> onConvertGlyphRunListToSlug(
@@ -2425,7 +2425,7 @@ private:
     SkCanvas& operator=(SkCanvas&&) = delete;
     SkCanvas& operator=(const SkCanvas&) = delete;
 
-#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
+#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
     friend class sktext::gpu::Slug;
     /** Experimental
      * Convert a SkTextBlob to a sktext::gpu::Slug using the current canvas state.

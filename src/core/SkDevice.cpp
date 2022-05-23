@@ -486,7 +486,7 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
     }
 }
 
-#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
+#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
 sk_sp<sktext::gpu::Slug> SkBaseDevice::convertGlyphRunListToSlug(
         const SkGlyphRunList& glyphRunList,
         const SkPaint& initialPaint,

@@ -337,7 +337,7 @@ protected:
                                     const SkPaint& drawingPaint) = 0;
 
     // Slug handling routines.
-#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
+#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
     virtual sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(
             const SkGlyphRunList& glyphRunList,
             const SkPaint& initialPaint,

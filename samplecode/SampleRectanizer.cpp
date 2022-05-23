@@ -11,7 +11,7 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
-#if SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED
+#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #include "src/gpu/RectanizerPow2.h"
 #include "src/gpu/RectanizerSkyline.h"
 

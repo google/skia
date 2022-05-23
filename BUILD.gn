@@ -863,7 +863,7 @@ optional("gpu_shared") {
   deps = []
   public_defines = []
   if (skia_enable_gpu) {
-    public_defines += [ "SK_SUPPORT_GPU" ]
+    public_defines += [ "SK_SUPPORT_GPU=1" ]
   }
   if (skia_enable_graphite) {
     public_defines += [ "SK_GRAPHITE_ENABLED" ]
