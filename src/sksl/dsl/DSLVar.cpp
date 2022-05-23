@@ -61,14 +61,14 @@ void DSLVarBase::swap(DSLVarBase& other) {
     std::swap(fPosition, other.fPosition);
 }
 
-DSLExpression DSLVarBase::operator[](DSLExpression&& index) {
-    return DSLExpression(*this)[std::move(index)];
+DSLPossibleExpression DSLVarBase::operator[](DSLExpression&& index) {
+    return DSLExpression(*this, Position())[std::move(index)];
 }
 
-DSLExpression DSLVarBase::assignExpression(DSLExpression expr) {
-    return DSLExpression(BinaryExpression::Convert(ThreadContext::Context(), Position(),
+DSLPossibleExpression DSLVarBase::assignExpression(DSLExpression expr) {
+    return BinaryExpression::Convert(ThreadContext::Context(), Position(),
             DSLExpression(*this, Position()).release(), SkSL::Operator::Kind::EQ,
-            expr.release()));
+            expr.release());
 }
 
 /**

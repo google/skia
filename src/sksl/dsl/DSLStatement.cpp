@@ -44,6 +44,9 @@ DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     SkASSERT(this->hasValue());
 }
 
+DSLStatement::DSLStatement(DSLPossibleExpression expr, Position pos)
+    : DSLStatement(DSLExpression(std::move(expr), pos)) {}
+
 DSLStatement::DSLStatement(DSLPossibleStatement stmt, Position pos) {
     ThreadContext::ReportErrors(pos);
     if (stmt.hasValue()) {

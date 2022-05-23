@@ -23,6 +23,7 @@ namespace dsl {
 
 class DSLBlock;
 class DSLExpression;
+class DSLPossibleExpression;
 class DSLPossibleStatement;
 
 class DSLStatement {
@@ -30,6 +31,8 @@ public:
     DSLStatement();
 
     DSLStatement(DSLExpression expr);
+
+    DSLStatement(DSLPossibleExpression expr, Position pos = {});
 
     DSLStatement(DSLPossibleStatement stmt, Position pos = {});
 
