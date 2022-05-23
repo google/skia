@@ -51,7 +51,6 @@ using AtlasTextOp = skgpu::v1::AtlasTextOp;
 using MaskFormat = skgpu::MaskFormat;
 
 namespace sktext::gpu {
-
 // -- GPU Text -------------------------------------------------------------------------------------
 // There are three broad types of SubRun implementations for drawing text using the GPU.
 // TextBlob (runs with no postfix) - these runs support drawing for TextBlobs.
@@ -81,7 +80,9 @@ SubRun::~SubRun() = default;
 const BlobSubRun* SubRun::blobCast() const {
     SK_ABORT("This is not a subclass of GrBlobSubRun.");
 }
+}  // namespace sktext::gpu
 
+using namespace sktext::gpu;
 namespace {
 
 template <typename T>
@@ -2654,11 +2655,6 @@ bool SlugImpl::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted
     return someExcludedGlyphs;
 }
 }  // namespace
-
-}  // namespace sktext::gpu
-
-using Slug = sktext::gpu::Slug;
-using SlugImpl = sktext::gpu::SlugImpl;
 
 #if SK_SUPPORT_GPU
 namespace skgpu::v1 {
