@@ -8,6 +8,7 @@
 #include "tests/Test.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCombinationBuilder.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
@@ -44,7 +45,7 @@ sk_sp<SkImage> make_image(Recorder* recorder) {
 }
 
 std::tuple<SkPaint, int> create_paint(Recorder* recorder,
-                                      ShaderType shaderType,
+                                      SkShaderType shaderType,
                                       SkTileMode tm,
                                       SkBlendMode bm) {
     SkPoint pts[2] = {{-100, -100},
@@ -55,35 +56,35 @@ std::tuple<SkPaint, int> create_paint(Recorder* recorder,
     sk_sp<SkShader> s;
     int numTextures = 0;
     switch (shaderType) {
-        case ShaderType::kSolidColor:
+        case SkShaderType::kSolidColor:
             break;
-        case ShaderType::kLinearGradient:
+        case SkShaderType::kLinearGradient:
             s = SkGradientShader::MakeLinear(pts, colors, offsets, 2, tm);
             break;
-        case ShaderType::kRadialGradient:
+        case SkShaderType::kRadialGradient:
             s = SkGradientShader::MakeRadial({0, 0}, 100, colors, offsets, 2, tm);
             break;
-        case ShaderType::kSweepGradient:
+        case SkShaderType::kSweepGradient:
             s = SkGradientShader::MakeSweep(0, 0, colors, offsets, 2, tm,
                                             0, 359, 0, nullptr);
             break;
-        case ShaderType::kConicalGradient:
+        case SkShaderType::kConicalGradient:
             s = SkGradientShader::MakeTwoPointConical({100, 100}, 100,
                                                       {-100, -100}, 100,
                                                       colors, offsets, 2, tm);
             break;
-        case ShaderType::kLocalMatrix: {
+        case SkShaderType::kLocalMatrix: {
             s = SkShaders::Color(SK_ColorYELLOW);
             s = s->makeWithLocalMatrix(SkMatrix::Scale(1.5f, 2.0f));
             break;
         }
-        case ShaderType::kImage: {
+        case SkShaderType::kImage: {
             ++numTextures;
             s = SkImageShader::Make(make_image(recorder), tm, tm,
                                     SkSamplingOptions(), nullptr);
             break;
         }
-        case ShaderType::kBlendShader: {
+        case SkShaderType::kBlendShader: {
             sk_sp<SkShader> src = SkShaders::Color(SK_ColorGREEN);
             sk_sp<SkShader> dst = SkShaders::Color(SK_ColorLTGRAY);
             s = SkShaders::Blend(SkBlendMode::kColorDodge, std::move(dst), std::move(src));
@@ -119,16 +120,16 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
     SkPipelineDataGatherer gatherer(Layout::kMetal);
 
-    for (auto s : { ShaderType::kSolidColor,
-                    ShaderType::kLinearGradient,
-                    ShaderType::kRadialGradient,
-                    ShaderType::kSweepGradient,
-                    ShaderType::kConicalGradient,
-                    ShaderType::kLocalMatrix,
-                    ShaderType::kImage,
-                    ShaderType::kBlendShader }) {
+    for (auto s : { SkShaderType::kSolidColor,
+                    SkShaderType::kLinearGradient,
+                    SkShaderType::kRadialGradient,
+                    SkShaderType::kSweepGradient,
+                    SkShaderType::kConicalGradient,
+                    SkShaderType::kLocalMatrix,
+                    SkShaderType::kImage,
+                    SkShaderType::kBlendShader }) {
 
-        if (s == ShaderType::kLocalMatrix || s == ShaderType::kBlendShader) {
+        if (s == SkShaderType::kLocalMatrix || s == SkShaderType::kBlendShader) {
             // TODO: For these two cases to work we need to create a PaintCombination for
             // CreateKey
             continue;
@@ -138,8 +139,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                         SkTileMode::kRepeat,
                         SkTileMode::kMirror,
                         SkTileMode::kDecal }) {
-            if (s == ShaderType::kSolidColor || s == ShaderType::kLocalMatrix ||
-                s == ShaderType::kBlendShader) {
+            if (s == SkShaderType::kSolidColor || s == SkShaderType::kLocalMatrix ||
+                s == SkShaderType::kBlendShader) {
                 if (tm != SkTileMode::kClamp) {
                     continue;  // the TileMode doesn't matter for these cases
                 }

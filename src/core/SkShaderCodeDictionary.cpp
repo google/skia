@@ -7,6 +7,7 @@
 
 #include "src/core/SkShaderCodeDictionary.h"
 
+#include "include/core/SkCombinationBuilder.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkOpts.h"
@@ -280,11 +281,9 @@ const SkShaderSnippet* SkShaderCodeDictionary::getEntry(int codeSnippetID) const
     return nullptr;
 }
 
-#ifdef SK_GRAPHITE_ENABLED
-const SkShaderSnippet* SkShaderCodeDictionary::getEntry(skgpu::graphite::SkBlenderID id) const {
+const SkShaderSnippet* SkShaderCodeDictionary::getEntry(SkBlenderID id) const {
     return this->getEntry(id.asUInt());
 }
-#endif
 
 void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkShaderInfo* info) {
     auto entry = this->lookup(uniqueID);
@@ -676,9 +675,7 @@ int SkShaderCodeDictionary::addUserDefinedSnippet(
     return kMinUserDefinedSnippetID + fUserDefinedCodeSnippets.size() - 1;
 }
 
-#ifdef SK_GRAPHITE_ENABLED
-skgpu::graphite::SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(
-        sk_sp<SkRuntimeEffect> effect) {
+SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
     if (!effect) {
         return {};
     }
@@ -702,10 +699,8 @@ skgpu::graphite::SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(
     // 'fHash' and 'fEntryVector'
     fUserDefinedCodeSnippets.push_back(std::move(entry));
 
-    return skgpu::graphite::SkBlenderID(kMinUserDefinedSnippetID +
-                                        fUserDefinedCodeSnippets.size() - 1);
+    return SkBlenderID(kMinUserDefinedSnippetID + fUserDefinedCodeSnippets.size() - 1);
 }
-#endif
 
 SkShaderCodeDictionary::SkShaderCodeDictionary() {
     // The 0th index is reserved as invalid

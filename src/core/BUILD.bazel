@@ -5633,6 +5633,7 @@ generated_cc_atom(
         ":SkPipelineData_hdr",
         ":SkShaderCodeDictionary_hdr",
         ":SkUniform_hdr",
+        "//include/core:SkCombinationBuilder_hdr",
         "//src/gpu:Blend_hdr",
         "//src/gpu/graphite:TextureProxy_hdr",
         "//src/gpu/graphite:Texture_hdr",
@@ -5659,6 +5660,7 @@ generated_cc_atom(
     deps = [
         ":SkOpts_hdr",
         ":SkShaderCodeDictionary_hdr",
+        "//include/core:SkCombinationBuilder_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
         "//include/gpu/graphite:Context_hdr",
         "//include/private:SkSLString_hdr",
@@ -5782,5 +5784,19 @@ generated_cc_atom(
     deps = [
         "//include/core:SkCapabilities_hdr",
         "//src/sksl:SkSLUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkCombinationBuilder_src",
+    srcs = ["SkCombinationBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkKeyContext_hdr",
+        ":SkKeyHelpers_hdr",
+        ":SkShaderCodeDictionary_hdr",
+        "//include/core:SkCombinationBuilder_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/gpu/graphite:ContextPriv_hdr",
     ],
 )

@@ -8,18 +8,13 @@
 #ifndef skgpu_graphite_Context_DEFINED
 #define skgpu_graphite_Context_DEFINED
 
-#include <vector>
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
-#include "include/core/SkTileMode.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "include/private/SkNoncopyable.h"
-#include "include/private/SkTHash.h"
-#include "src/core/SkArenaAlloc.h"
 
+class SkBlenderID;
+class SkCombinationBuilder;
 class SkRuntimeEffect;
-class SkShaderCodeDictionary;
 
 namespace skgpu::graphite {
 
@@ -30,91 +25,9 @@ class ContextPriv;
 class GlobalCache;
 class Gpu;
 struct MtlBackendContext;
-class PaintCombinations;
 class Recorder;
 class Recording;
 class TextureInfo;
-
-enum class ShaderType {
-    kSolidColor,
-
-    kLinearGradient,
-    kRadialGradient,
-    kSweepGradient,
-    kConicalGradient,
-
-    kLocalMatrix,
-    kImage,
-    kBlendShader
-};
-
-struct ShaderCombo {
-    ShaderCombo() {}
-    ShaderCombo(std::vector<ShaderType> types,
-                std::vector<SkTileMode> tileModes)
-            : fTypes(std::move(types))
-            , fTileModes(std::move(tileModes)) {
-    }
-    std::vector<ShaderType> fTypes;
-    std::vector<SkTileMode> fTileModes;
-};
-
-// TODO: add SkShaderID and SkColorFilterID too
-class SkBlenderID {
-public:
-    SkBlenderID() : fID(0) {}  // 0 is an invalid blender ID
-    SkBlenderID(const SkBlenderID& src) : fID(src.fID) {}
-
-    bool isValid() const { return fID > 0; }
-
-    bool operator==(const SkBlenderID& other) const { return fID == other.fID; }
-
-    SkBlenderID& operator=(const SkBlenderID& src) {
-        fID = src.fID;
-        return *this;
-    }
-
-private:
-    friend class ::SkShaderCodeDictionary;   // for ctor and asUInt access
-    friend class CombinationBuilder;         // for asUInt access
-    friend class PaintCombinations;          // for asUInt access
-
-    SkBlenderID(uint32_t id) : fID(id) {}
-
-    uint32_t asUInt() const { return fID; }
-
-    uint32_t fID;
-};
-
-class CombinationBuilder {
-public:
-    enum class BlendModeGroup {
-        kPorterDuff,         // [ kClear .. kScreen ]
-        kAdvanced,           // [ kOverlay .. kMultiply ]
-        kColorAware,         // [ kHue .. kLuminosity ]
-        kAll
-    };
-
-    CombinationBuilder(Context*);
-
-    // Blend Modes
-    void add(SkBlendMode);
-    void add(SkBlendMode rangeStart, SkBlendMode rangeEnd); // inclusive
-    void add(BlendModeGroup);
-    void add(SkBlenderID);
-
-    // Shaders
-    void add(ShaderCombo);
-
-    void reset();
-
-private:
-    friend class Context; // for access to fCombinations
-
-    SkShaderCodeDictionary* fDictionary;
-    SkArenaAllocWithReset fArena{64};
-    PaintCombinations* fCombinations;
-};
 
 class Context final {
 public:
@@ -145,7 +58,7 @@ public:
     // TODO: add "SkColorFilterID addUserDefinedColorFilter(sk_sp<SkRuntimeEffect>)" here
     SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
 
-    void preCompile(const CombinationBuilder&);
+    void preCompile(const SkCombinationBuilder&);
 
     /**
      * Creates a new backend gpu texture matching the dimensinos and TextureInfo. If an invalid

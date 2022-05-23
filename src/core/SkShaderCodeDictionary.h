@@ -20,16 +20,11 @@
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
 
-#ifdef SK_GRAPHITE_ENABLED
-namespace skgpu::graphite {
-class SkBlenderID;
-}
-#endif
-
 namespace SkSL {
 struct ShaderCaps;
 }
 
+class SkBlenderID;
 class SkRuntimeEffect;
 
 // TODO: How to represent the type (e.g., 2D) of texture being sampled?
@@ -204,9 +199,7 @@ public:
     const SkShaderSnippet* getEntry(SkBuiltInCodeSnippetID codeSnippetID) const {
         return this->getEntry(SkTo<int>(codeSnippetID));
     }
-#ifdef SK_GRAPHITE_ENABLED
-    const SkShaderSnippet* getEntry(skgpu::graphite::SkBlenderID) const;
-#endif
+    const SkShaderSnippet* getEntry(SkBlenderID) const;
 
     void getShaderInfo(SkUniquePaintParamsID, SkShaderInfo*);
 
@@ -216,9 +209,7 @@ public:
     int addUserDefinedSnippet(const char* name,
                               SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
 
-#ifdef SK_GRAPHITE_ENABLED
-    skgpu::graphite::SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
-#endif
+    SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
 
 private:
 #ifdef SK_GRAPHITE_ENABLED

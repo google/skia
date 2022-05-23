@@ -980,3 +980,13 @@ generated_cc_atom(
         "//include/sksl:SkSLVersion_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "SkCombinationBuilder_hdr",
+    hdrs = ["SkCombinationBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBlendMode_hdr",
+        ":SkTileMode_hdr",
+    ],
+)

@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkCombinationBuilder.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Context.h"
 #include "src/core/SkShaderCodeDictionary.h"
