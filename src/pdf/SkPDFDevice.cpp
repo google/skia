@@ -896,23 +896,14 @@ void SkPDFDevice::internalDrawGlyphRun(
             if (unichar < 0) {
                 return;
             }
-            if (textPtr < textEnd ||                                  // more characters left
-                glyphLimit > index + 1 ||                             // toUnicode wouldn't work
-                unichar != map_glyph(glyphToUnicode, glyphIDs[index]))  // test single Unichar map
+            if (textPtr < textEnd ||                                    // >1 code points in cluster
+                c.fGlyphCount > 1 ||                                    // >1 glyphs in cluster
+                unichar != map_glyph(glyphToUnicode, glyphIDs[index]))  // 1:1 but wrong mapping
             {
                 glyphPositioner.flush();
-                out->writeText("/Span<</ActualText <");
-                SkPDFUtils::WriteUTF16beHex(out, 0xFEFF);  // U+FEFF = BYTE ORDER MARK
-                // the BOM marks this text as UTF-16BE, not PDFDocEncoding.
-                SkPDFUtils::WriteUTF16beHex(out, unichar);  // first char
-                while (textPtr < textEnd) {
-                    unichar = SkUTF::NextUTF8(&textPtr, textEnd);
-                    if (unichar < 0) {
-                        break;
-                    }
-                    SkPDFUtils::WriteUTF16beHex(out, unichar);
-                }
-                out->writeText("> >> BDC\n");  // begin marked-content sequence
+                out->writeText("/Span<</ActualText ");
+                SkPDFWriteTextString(out, c.fUtf8Text, c.fTextByteLength);
+                out->writeText(" >> BDC\n");  // begin marked-content sequence
                                                // with an associated property list.
                 actualText = true;
             }

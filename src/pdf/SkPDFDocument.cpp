@@ -326,7 +326,8 @@ std::unique_ptr<SkPDFArray> SkPDFDocument::getAnnotations() {
         if (link->fType == SkPDFLink::Type::kUrl) {
             std::unique_ptr<SkPDFDict> action = SkPDFMakeDict("Action");
             action->insertName("S", "URI");
-            action->insertString("URI", ToValidUtf8String(*link->fData));
+            // This is documented to be a 7 bit ASCII (byte) string.
+            action->insertByteString("URI", ToValidUtf8String(*link->fData));
             annotation.insertObject("A", std::move(action));
         } else if (link->fType == SkPDFLink::Type::kNamedDestination) {
             annotation.insertName("Dest", ToValidUtf8String(*link->fData));
@@ -507,10 +508,9 @@ static std::unique_ptr<SkPDFArray> make_srgb_output_intents(SkPDFDocument* doc) 
     // sRGB is specified by HTML, CSS, and SVG.
     auto outputIntent = SkPDFMakeDict("OutputIntent");
     outputIntent->insertName("S", "GTS_PDFA1");
-    outputIntent->insertString("RegistryName", "http://www.color.org");
-    outputIntent->insertString("OutputConditionIdentifier",
-                               "Custom");
-    outputIntent->insertString("Info","sRGB IEC61966-2.1");
+    outputIntent->insertTextString("RegistryName", "http://www.color.org");
+    outputIntent->insertTextString("OutputConditionIdentifier", "Custom");
+    outputIntent->insertTextString("Info", "sRGB IEC61966-2.1");
     outputIntent->insertRef("DestOutputProfile", make_srgb_color_profile(doc));
     auto intentArray = SkPDFMakeArray();
     intentArray->appendObject(std::move(outputIntent));

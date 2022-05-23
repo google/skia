@@ -237,8 +237,8 @@ struct WritePDFTextBenchmark : public Benchmark {
         static const char kBinary[] = "\001\002\003\004\005\006";
         while (loops-- > 0) {
             for (int i = 1000; i-- > 0;) {
-                SkPDFWriteString(fWStream.get(), kHello, strlen(kHello));
-                SkPDFWriteString(fWStream.get(), kBinary, strlen(kBinary));
+                SkPDFWriteTextString(fWStream.get(), kHello, strlen(kHello));
+                SkPDFWriteByteString(fWStream.get(), kBinary, strlen(kBinary));
             }
         }
     }

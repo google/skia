@@ -31,7 +31,8 @@ SkPDFUnion::SkPDFUnion(Type t, PDFObject   v) : fObject  (std::move(v)), fType(t
 SkPDFUnion::~SkPDFUnion() {
     switch (fType) {
         case Type::kNameSkS:
-        case Type::kStringSkS:
+        case Type::kByteStringSkS:
+        case Type::kTextStringSkS:
             fSkString.~SkString();
             return;
         case Type::kObject:
@@ -61,11 +62,13 @@ SkPDFUnion::SkPDFUnion(SkPDFUnion&& that) : fType(that.fType) {
             fScalarValue = that.fScalarValue;
             break;
         case Type::kName:
-        case Type::kString:
+        case Type::kByteString:
+        case Type::kTextString:
             fStaticString = that.fStaticString;
             break;
         case Type::kNameSkS:
-        case Type::kStringSkS:
+        case Type::kByteStringSkS:
+        case Type::kTextStringSkS:
             new (&fSkString) SkString(std::move(that.fSkString));
             break;
         case Type::kObject:
@@ -119,50 +122,125 @@ static void write_name_escaped(SkWStream* o, const char* name) {
     }
 }
 
-static void write_string(SkWStream* wStream, const char* cin, size_t len) {
+static void write_literal_byte_string(SkWStream* wStream, const char* cin, size_t len) {
+    wStream->writeText("(");
+    for (size_t i = 0; i < len; i++) {
+        uint8_t c = static_cast<uint8_t>(cin[i]);
+        if (c < ' ' || '~' < c) {
+            uint8_t octal[4] = { '\\',
+                                 (uint8_t)('0' | ( c >> 6        )),
+                                 (uint8_t)('0' | ((c >> 3) & 0x07)),
+                                 (uint8_t)('0' | ( c       & 0x07)) };
+            wStream->write(octal, 4);
+        } else {
+            if (c == '\\' || c == '(' || c == ')') {
+                wStream->writeText("\\");
+            }
+            wStream->write(&c, 1);
+        }
+    }
+    wStream->writeText(")");
+}
+
+static void write_hex_byte_string(SkWStream* wStream, const char* cin, size_t len) {
     SkDEBUGCODE(static const size_t kMaxLen = 65535;)
     SkASSERT(len <= kMaxLen);
 
-    size_t extraCharacterCount = 0;
+    wStream->writeText("<");
     for (size_t i = 0; i < len; i++) {
-        if (cin[i] > '~' || cin[i] < ' ') {
-            extraCharacterCount += 3;
-        } else if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-            ++extraCharacterCount;
-        }
+        uint8_t c = static_cast<uint8_t>(cin[i]);
+        char hexValue[2] = { SkHexadecimalDigits::gUpper[c >> 4],
+                             SkHexadecimalDigits::gUpper[c & 0xF] };
+        wStream->write(hexValue, 2);
     }
-    if (extraCharacterCount <= len) {
-        wStream->writeText("(");
-        for (size_t i = 0; i < len; i++) {
-            if (cin[i] > '~' || cin[i] < ' ') {
-                uint8_t c = static_cast<uint8_t>(cin[i]);
-                uint8_t octal[4] = { '\\',
-                                     (uint8_t)('0' | ( c >> 6        )),
-                                     (uint8_t)('0' | ((c >> 3) & 0x07)),
-                                     (uint8_t)('0' | ( c       & 0x07)) };
-                wStream->write(octal, 4);
-            } else {
-                if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-                    wStream->writeText("\\");
-                }
-                wStream->write(&cin[i], 1);
-            }
-        }
-        wStream->writeText(")");
+    wStream->writeText(">");
+}
+
+static void write_optimized_byte_string(SkWStream* wStream, const char* cin, size_t len,
+                                        size_t literalExtras) {
+    const size_t hexLength     = 2 + 2*len;
+    const size_t literalLength = 2 +   len + literalExtras;
+    if (literalLength <= hexLength) {
+        write_literal_byte_string(wStream, cin, len);
     } else {
-        wStream->writeText("<");
-        for (size_t i = 0; i < len; i++) {
-            uint8_t c = static_cast<uint8_t>(cin[i]);
-            char hexValue[2] = { SkHexadecimalDigits::gUpper[c >> 4],
-                                 SkHexadecimalDigits::gUpper[c & 0xF] };
-            wStream->write(hexValue, 2);
-        }
-        wStream->writeText(">");
+        write_hex_byte_string(wStream, cin, len);
     }
 }
 
-void SkPDFWriteString(SkWStream* wStream, const char* cin, size_t len) {
-    write_string(wStream, cin, len);
+static void write_byte_string(SkWStream* wStream, const char* cin, size_t len) {
+    SkDEBUGCODE(static const size_t kMaxLen = 65535;)
+    SkASSERT(len <= kMaxLen);
+
+    size_t literalExtras = 0;
+    {
+        for (size_t i = 0; i < len; i++) {
+            uint8_t c = static_cast<uint8_t>(cin[i]);
+            if (c < ' ' || '~' < c) {
+                literalExtras += 3;
+            } else if (c == '\\' || c == '(' || c == ')') {
+                ++literalExtras;
+            }
+        }
+    }
+    write_optimized_byte_string(wStream, cin, len, literalExtras);
+}
+
+static void write_text_string(SkWStream* wStream, const char* cin, size_t len) {
+    SkDEBUGCODE(static const size_t kMaxLen = 65535;)
+    SkASSERT(len <= kMaxLen);
+
+    bool inputIsValidUTF8 = true;
+    bool inputIsPDFDocEncoding = true;
+    size_t literalExtras = 0;
+    {
+        const char* textPtr = cin;
+        const char* textEnd = cin + len;
+        while (textPtr < textEnd) {
+            SkUnichar unichar = SkUTF::NextUTF8(&textPtr, textEnd);
+            if (unichar < 0) {
+                inputIsValidUTF8 = false;
+                break;
+            }
+            // See Table D.2 (PDFDocEncoding Character Set) in the PDF3200_2008 spec.
+            // Could convert from UTF-8 to PDFDocEncoding and, if successful, use that.
+            if ((0x15 < unichar && unichar < 0x20) || 0x7E < unichar) {
+                inputIsPDFDocEncoding = false;
+                break;
+            }
+            if (unichar < ' ' || '~' < unichar) {
+                literalExtras += 3;
+            } else if (unichar == '\\' || unichar == '(' || unichar == ')') {
+                ++literalExtras;
+            }
+        }
+    }
+
+    if (!inputIsValidUTF8) {
+        SkDebugf("Invalid UTF8: %.*s\n", (int)len, cin);
+        wStream->writeText("<>");
+        return;
+    }
+
+    if (inputIsPDFDocEncoding) {
+        write_optimized_byte_string(wStream, cin, len, literalExtras);
+        return;
+    }
+
+    wStream->writeText("<FEFF");
+    const char* textPtr = cin;
+    const char* textEnd = cin + len;
+    while (textPtr < textEnd) {
+        SkUnichar unichar = SkUTF::NextUTF8(&textPtr, textEnd);
+        SkPDFUtils::WriteUTF16beHex(wStream, unichar);
+    }
+    wStream->writeText(">");
+}
+
+void SkPDFWriteTextString(SkWStream* wStream, const char* cin, size_t len) {
+    write_text_string(wStream, cin, len);
+}
+void SkPDFWriteByteString(SkWStream* wStream, const char* cin, size_t len) {
+    write_byte_string(wStream, cin, len);
 }
 
 void SkPDFUnion::emitObject(SkWStream* stream) const {
@@ -187,16 +265,23 @@ void SkPDFUnion::emitObject(SkWStream* stream) const {
             SkASSERT(is_valid_name(fStaticString));
             stream->writeText(fStaticString);
             return;
-        case Type::kString:
+        case Type::kByteString:
             SkASSERT(fStaticString);
-            write_string(stream, fStaticString, strlen(fStaticString));
+            write_byte_string(stream, fStaticString, strlen(fStaticString));
+            return;
+        case Type::kTextString:
+            SkASSERT(fStaticString);
+            write_text_string(stream, fStaticString, strlen(fStaticString));
             return;
         case Type::kNameSkS:
             stream->writeText("/");
             write_name_escaped(stream, fSkString.c_str());
             return;
-        case Type::kStringSkS:
-            write_string(stream, fSkString.c_str(), fSkString.size());
+        case Type::kByteStringSkS:
+            write_byte_string(stream, fSkString.c_str(), fSkString.size());
+            return;
+        case Type::kTextStringSkS:
+            write_text_string(stream, fSkString.c_str(), fSkString.size());
             return;
         case Type::kObject:
             fObject->emitObject(stream);
@@ -237,17 +322,26 @@ SkPDFUnion SkPDFUnion::Name(const char* value) {
     return SkPDFUnion(Type::kName, value);
 }
 
-SkPDFUnion SkPDFUnion::String(const char* value) {
+SkPDFUnion SkPDFUnion::ByteString(const char* value) {
     SkASSERT(value);
-    return SkPDFUnion(Type::kString, value);
+    return SkPDFUnion(Type::kByteString, value);
+}
+
+SkPDFUnion SkPDFUnion::TextString(const char* value) {
+    SkASSERT(value);
+    return SkPDFUnion(Type::kTextString, value);
 }
 
 SkPDFUnion SkPDFUnion::Name(SkString s) {
     return SkPDFUnion(Type::kNameSkS, std::move(s));
 }
 
-SkPDFUnion SkPDFUnion::String(SkString s) {
-    return SkPDFUnion(Type::kStringSkS, std::move(s));
+SkPDFUnion SkPDFUnion::ByteString(SkString s) {
+    return SkPDFUnion(Type::kByteStringSkS, std::move(s));
+}
+
+SkPDFUnion SkPDFUnion::TextString(SkString s) {
+    return SkPDFUnion(Type::kTextStringSkS, std::move(s));
 }
 
 SkPDFUnion SkPDFUnion::Object(std::unique_ptr<SkPDFObject> objSp) {
@@ -319,12 +413,20 @@ void SkPDFArray::appendName(SkString name) {
     this->append(SkPDFUnion::Name(std::move(name)));
 }
 
-void SkPDFArray::appendString(SkString value) {
-    this->append(SkPDFUnion::String(std::move(value)));
+void SkPDFArray::appendByteString(SkString value) {
+    this->append(SkPDFUnion::ByteString(std::move(value)));
 }
 
-void SkPDFArray::appendString(const char value[]) {
-    this->append(SkPDFUnion::String(value));
+void SkPDFArray::appendTextString(SkString value) {
+    this->append(SkPDFUnion::TextString(std::move(value)));
+}
+
+void SkPDFArray::appendByteString(const char value[]) {
+    this->append(SkPDFUnion::ByteString(value));
+}
+
+void SkPDFArray::appendTextString(const char value[]) {
+    this->append(SkPDFUnion::TextString(value));
 }
 
 void SkPDFArray::appendObject(std::unique_ptr<SkPDFObject>&& objSp) {
@@ -409,12 +511,20 @@ void SkPDFDict::insertName(const char key[], SkString name) {
     fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Name(std::move(name)));
 }
 
-void SkPDFDict::insertString(const char key[], const char value[]) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::String(value));
+void SkPDFDict::insertByteString(const char key[], const char value[]) {
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::ByteString(value));
 }
 
-void SkPDFDict::insertString(const char key[], SkString value) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::String(std::move(value)));
+void SkPDFDict::insertTextString(const char key[], const char value[]) {
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::TextString(value));
+}
+
+void SkPDFDict::insertByteString(const char key[], SkString value) {
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::ByteString(std::move(value)));
+}
+
+void SkPDFDict::insertTextString(const char key[], SkString value) {
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::TextString(std::move(value)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

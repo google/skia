@@ -372,8 +372,9 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
             SkASSERT(false);
     }
     auto sysInfo = SkPDFMakeDict();
-    sysInfo->insertString("Registry", "Adobe");
-    sysInfo->insertString("Ordering", "Identity");
+    // These are actually ASCII strings.
+    sysInfo->insertByteString("Registry", "Adobe");
+    sysInfo->insertByteString("Ordering", "Identity");
     sysInfo->insertInt("Supplement", 0);
     newCIDFont->insertObject("CIDSystemInfo", std::move(sysInfo));
 

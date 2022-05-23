@@ -88,7 +88,7 @@ inline void AppendScalar(SkScalar value, SkWStream* stream) {
     stream->write(result, len);
 }
 
-inline void WriteUInt16BE(SkDynamicMemoryWStream* wStream, uint16_t value) {
+inline void WriteUInt16BE(SkWStream* wStream, uint16_t value) {
     char result[4] = { SkHexadecimalDigits::gUpper[       value >> 12 ],
                        SkHexadecimalDigits::gUpper[0xF & (value >> 8 )],
                        SkHexadecimalDigits::gUpper[0xF & (value >> 4 )],
@@ -96,13 +96,13 @@ inline void WriteUInt16BE(SkDynamicMemoryWStream* wStream, uint16_t value) {
     wStream->write(result, 4);
 }
 
-inline void WriteUInt8(SkDynamicMemoryWStream* wStream, uint8_t value) {
+inline void WriteUInt8(SkWStream* wStream, uint8_t value) {
     char result[2] = { SkHexadecimalDigits::gUpper[value >> 4],
                        SkHexadecimalDigits::gUpper[value & 0xF] };
     wStream->write(result, 2);
 }
 
-inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
+inline void WriteUTF16beHex(SkWStream* wStream, SkUnichar utf32) {
     uint16_t utf16[2] = {0, 0};
     size_t len = SkUTF::ToUTF16(utf32, utf16);
     SkASSERT(len == 1 || len == 2);

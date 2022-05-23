@@ -107,8 +107,10 @@ public:
     void appendScalar(SkScalar);
     void appendName(const char[]);
     void appendName(SkString);
-    void appendString(const char[]);
-    void appendString(SkString);
+    void appendByteString(const char[]);
+    void appendTextString(const char[]);
+    void appendByteString(SkString);
+    void appendTextString(SkString);
     void appendObject(std::unique_ptr<SkPDFObject>&&);
     void appendRef(SkPDFIndirectReference);
 
@@ -180,8 +182,10 @@ public:
     void insertColorComponentF(const char key[], SkScalar value);
     void insertName(const char key[], const char nameValue[]);
     void insertName(const char key[], SkString nameValue);
-    void insertString(const char key[], const char value[]);
-    void insertString(const char key[], SkString value);
+    void insertByteString(const char key[], const char value[]);
+    void insertTextString(const char key[], const char value[]);
+    void insertByteString(const char key[], SkString value);
+    void insertTextString(const char key[], SkString value);
 
 private:
     std::vector<std::pair<SkPDFUnion, SkPDFUnion>> fRecords;
@@ -196,6 +200,10 @@ static inline std::unique_ptr<SkPDFDict> SkPDFMakeDict(const char* type = nullpt
 #else
     static constexpr bool kSkPDFDefaultDoDeflate = true;
 #endif
+
+// Exposed for unit testing.
+void SkPDFWriteTextString(SkWStream* wStream, const char* cin, size_t len);
+void SkPDFWriteByteString(SkWStream* wStream, const char* cin, size_t len);
 
 SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
                                       std::unique_ptr<SkStreamAsset> stream,
