@@ -717,7 +717,7 @@ public:
         return true;
     }
     const AtlasSubRun* testingOnly_atlasSubRun() const override { return nullptr; }
-    static SubRunOwner MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+    static SubRunOwner MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
@@ -738,7 +738,7 @@ void PathSubRun::doFlatten(SkWriteBuffer& buffer) const {
     fPathDrawing.flatten(buffer);
 }
 
-SubRunOwner PathSubRun::MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+SubRunOwner PathSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                        SkReadBuffer& buffer,
                                        SubRunAllocator* alloc,
                                        const SkStrikeClient* client) {
@@ -937,7 +937,7 @@ public:
     DrawableSubRun(DrawableOpSubmitter&& drawingDrawing)
             : fDrawingDrawing(std::move(drawingDrawing)) {}
 
-    static SubRunOwner MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+    static SubRunOwner MakeFromBuffer(const SkMatrix&,
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
@@ -975,7 +975,7 @@ void DrawableSubRun::doFlatten(SkWriteBuffer& buffer) const {
     fDrawingDrawing.flatten(buffer);
 }
 
-SubRunOwner DrawableSubRun::MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+SubRunOwner DrawableSubRun::MakeFromBuffer(const SkMatrix&,
                                            SkReadBuffer& buffer,
                                            SubRunAllocator* alloc,
                                            const SkStrikeClient* client) {
@@ -1110,20 +1110,20 @@ void generalized_direct_2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
 // -- DirectMaskSubRun -------------------------------------------------------------------------
 class DirectMaskSubRun final : public SubRun, public AtlasSubRun {
 public:
-    DirectMaskSubRun(const TextReferenceFrame* referenceFrame,
-                     MaskFormat format,
+    DirectMaskSubRun(MaskFormat format,
+                     const SkMatrix& initialPositionMatrix,
                      SkGlyphRect deviceBounds,
                      SkSpan<const DevicePosition> devicePositions,
                      GlyphVector&& glyphs,
                      bool glyphsOutOfBounds);
 
-    static SubRunOwner Make(const TextReferenceFrame* referenceFrame,
-                            const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                            const SkMatrix& initialPositionMatrix,
                             sk_sp<SkStrike>&& strike,
                             MaskFormat format,
                             SubRunAllocator* alloc);
 
-    static SubRunOwner MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+    static SubRunOwner MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
@@ -1177,8 +1177,8 @@ private:
     // and this operation should be dropped.
     std::tuple<bool, SkRect> deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const;
 
-    const TextReferenceFrame* const fReferenceFrame;
     const MaskFormat fMaskFormat;
+    const SkMatrix& fInitialPositionMatrix;
 
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
     const SkGlyphRect fGlyphDeviceBounds;
@@ -1190,21 +1190,21 @@ private:
     mutable GlyphVector fGlyphs;
 };
 
-DirectMaskSubRun::DirectMaskSubRun(const TextReferenceFrame* referenceFrame,
-                                   MaskFormat format,
+DirectMaskSubRun::DirectMaskSubRun(MaskFormat format,
+                                   const SkMatrix& initialPositionMatrix,
                                    SkGlyphRect deviceBounds,
                                    SkSpan<const DevicePosition> devicePositions,
                                    GlyphVector&& glyphs,
                                    bool glyphsOutOfBounds)
-        : fReferenceFrame{referenceFrame}
-        , fMaskFormat{format}
+        : fMaskFormat{format}
+        , fInitialPositionMatrix{initialPositionMatrix}
         , fGlyphDeviceBounds{deviceBounds}
         , fLeftTopDevicePos{devicePositions}
         , fSomeGlyphsExcluded{glyphsOutOfBounds}
         , fGlyphs{std::move(glyphs)} { }
 
-SubRunOwner DirectMaskSubRun::Make(const TextReferenceFrame* referenceFrame,
-                                   const SkZip<SkGlyphVariant, SkPoint>& accepted,
+SubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                                   const SkMatrix& initialPositionMatrix,
                                    sk_sp<SkStrike>&& strike,
                                    MaskFormat format,
                                    SubRunAllocator* alloc) {
@@ -1244,14 +1244,14 @@ SubRunOwner DirectMaskSubRun::Make(const TextReferenceFrame* referenceFrame,
     bool glyphsExcluded = goodPosCount != accepted.size();
     SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
     return alloc->makeUnique<DirectMaskSubRun>(
-            referenceFrame, format, runBounds, leftTop,
+            format, initialPositionMatrix, runBounds, leftTop,
             GlyphVector{std::move(strike), {glyphIDs, goodPosCount}},
             glyphsExcluded);
 }
 
 bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
     auto [reuse, translation] =
-            can_use_direct(fReferenceFrame->initialPositionMatrix(), positionMatrix);
+            can_use_direct(fInitialPositionMatrix, positionMatrix);
 
     // If glyphs were excluded because of position bounds, then this subrun can only be reused if
     // there is no change in position.
@@ -1262,7 +1262,7 @@ bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMa
     return reuse;
 }
 
-SubRunOwner DirectMaskSubRun::MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+SubRunOwner DirectMaskSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                              SkReadBuffer& buffer,
                                              SubRunAllocator* alloc,
                                              const SkStrikeClient* client) {
@@ -1284,7 +1284,8 @@ SubRunOwner DirectMaskSubRun::MakeFromBuffer(const TextReferenceFrame* reference
     if (!buffer.validate(SkCount(glyphVector->glyphs()) == glyphCount)) { return nullptr; }
     SkASSERT(buffer.isValid());
     return alloc->makeUnique<DirectMaskSubRun>(
-            referenceFrame, maskType, runBounds, positions, std::move(glyphVector.value()), false);
+            maskType, initialPositionMatrix, runBounds, positions,
+            std::move(glyphVector.value()), false);
 }
 
 void DirectMaskSubRun::doFlatten(SkWriteBuffer& buffer) const {
@@ -1479,7 +1480,7 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
 
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
     auto [noTransformNeeded, originOffset] =
-            can_use_direct(fReferenceFrame->initialPositionMatrix(), positionMatrix);
+            can_use_direct(fInitialPositionMatrix, positionMatrix);
 
     if (noTransformNeeded) {
         if (clip.isEmpty()) {
@@ -1503,7 +1504,7 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
                 generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
             }
         }
-    } else if (SkMatrix inverse; fReferenceFrame->initialPositionMatrix().invert(&inverse)) {
+    } else if (SkMatrix inverse; fInitialPositionMatrix.invert(&inverse)) {
         SkMatrix viewDifference = SkMatrix::Concat(positionMatrix, inverse);
         if (!viewDifference.hasPerspective()) {
             if (fMaskFormat != MaskFormat::kARGB) {
@@ -1533,7 +1534,7 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
 // true if only need to translate by integer amount, device rect.
 std::tuple<bool, SkRect> DirectMaskSubRun::deviceRectAndCheckTransform(
             const SkMatrix& positionMatrix) const {
-    const SkMatrix& initialMatrix = fReferenceFrame->initialPositionMatrix();
+    const SkMatrix& initialMatrix = fInitialPositionMatrix;
     const SkPoint offset = positionMatrix.mapOrigin() - initialMatrix.mapOrigin();
 
     const bool compatibleMatrix = positionMatrix[0] == initialMatrix[0] &&
@@ -1550,7 +1551,7 @@ std::tuple<bool, SkRect> DirectMaskSubRun::deviceRectAndCheckTransform(
 
         SkIRect outBounds = fGlyphDeviceBounds.iRect();
         return {true, SkRect::Make(outBounds.makeOffset(iOffset))};
-    } else if (SkMatrix inverse; fReferenceFrame->initialPositionMatrix().invert(&inverse)) {
+    } else if (SkMatrix inverse; fInitialPositionMatrix.invert(&inverse)) {
         SkMatrix viewDifference = SkMatrix::Concat(positionMatrix, inverse);
         return {false, viewDifference.mapRect(fGlyphDeviceBounds.rect())};
     }
@@ -1562,18 +1563,18 @@ std::tuple<bool, SkRect> DirectMaskSubRun::deviceRectAndCheckTransform(
 // -- TransformedMaskSubRun ------------------------------------------------------------------------
 class TransformedMaskSubRun final : public SubRun, public AtlasSubRun {
 public:
-    TransformedMaskSubRun(const TextReferenceFrame* referenceFrame,
+    TransformedMaskSubRun(const SkMatrix& initialPositionMatrix,
                           TransformedMaskVertexFiller&& vertexFiller,
                           GlyphVector&& glyphs);
 
-    static SubRunOwner Make(const TextReferenceFrame* referenceFrame,
-                            const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                            const SkMatrix& initialPositionMatrix,
                             sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale,
                             MaskFormat maskType,
                             SubRunAllocator* alloc);
 
-    static SubRunOwner MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+    static SubRunOwner MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
@@ -1625,7 +1626,7 @@ private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
-    const TextReferenceFrame* const fReferenceFrame;
+    const SkMatrix& fInitialPositionMatrix;
 
     const TransformedMaskVertexFiller fVertexFiller;
 
@@ -1634,15 +1635,15 @@ private:
     mutable GlyphVector fGlyphs;
 };
 
-TransformedMaskSubRun::TransformedMaskSubRun(const TextReferenceFrame* referenceFrame,
+TransformedMaskSubRun::TransformedMaskSubRun(const SkMatrix& initialPositionMatrix,
                                              TransformedMaskVertexFiller&& vertexFiller,
                                              GlyphVector&& glyphs)
-        : fReferenceFrame{referenceFrame}
+        : fInitialPositionMatrix{initialPositionMatrix}
         , fVertexFiller{std::move(vertexFiller)}
         , fGlyphs{std::move(glyphs)} { }
 
-SubRunOwner TransformedMaskSubRun::Make(const TextReferenceFrame* referenceFrame,
-                                        const SkZip<SkGlyphVariant, SkPoint>& accepted,
+SubRunOwner TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                                        const SkMatrix& initialPositionMatrix,
                                         sk_sp<SkStrike>&& strike,
                                         SkScalar strikeToSourceScale,
                                         MaskFormat maskType,
@@ -1653,10 +1654,10 @@ SubRunOwner TransformedMaskSubRun::Make(const TextReferenceFrame* referenceFrame
     auto glyphVector = GlyphVector::Make(std::move(strike), accepted.get<0>(), alloc);
 
     return alloc->makeUnique<TransformedMaskSubRun>(
-            referenceFrame, std::move(vertexFiller), std::move(glyphVector));
+            initialPositionMatrix, std::move(vertexFiller), std::move(glyphVector));
 }
 
-SubRunOwner TransformedMaskSubRun::MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+SubRunOwner TransformedMaskSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                                   SkReadBuffer& buffer,
                                                   SubRunAllocator* alloc,
                                                   const SkStrikeClient* client) {
@@ -1667,7 +1668,7 @@ SubRunOwner TransformedMaskSubRun::MakeFromBuffer(const TextReferenceFrame* refe
     if (!buffer.validate(glyphVector.has_value())) { return {}; }
     if (!buffer.validate(SkCount(glyphVector->glyphs()) == vertexFiller->count())) { return {}; }
     return alloc->makeUnique<TransformedMaskSubRun>(
-            referenceFrame, std::move(*vertexFiller), std::move(*glyphVector));
+            initialPositionMatrix, std::move(*vertexFiller), std::move(*glyphVector));
 }
 
 int TransformedMaskSubRun::unflattenSize() const {
@@ -1732,7 +1733,7 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
 // If we are not scaling the cache entry to be larger, than a cache with smaller glyphs may be
 // better.
 bool TransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
-    if (fReferenceFrame->initialPositionMatrix().getMaxScale() < 1) {
+    if (fInitialPositionMatrix.getMaxScale() < 1) {
         return false;
     }
     return true;
@@ -1788,13 +1789,13 @@ public:
                GlyphVector&& glyphs);
 
     static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                              const SkFont& runFont,
-                              sk_sp<SkStrike>&& strike,
-                              SkScalar strikeToSourceScale,
-                              const SDFTMatrixRange& matrixRange,
-                              SubRunAllocator* alloc);
+                            const SkFont& runFont,
+                            sk_sp<SkStrike>&& strike,
+                            SkScalar strikeToSourceScale,
+                            const SDFTMatrixRange& matrixRange,
+                            SubRunAllocator* alloc);
 
-    static SubRunOwner MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+    static SubRunOwner MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
@@ -1897,7 +1898,7 @@ SubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
             std::move(glyphVector));
 }
 
-SubRunOwner SDFTSubRun::MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+SubRunOwner SDFTSubRun::MakeFromBuffer(const SkMatrix&,
                                        SkReadBuffer& buffer,
                                        SubRunAllocator* alloc,
                                        const SkStrikeClient* client) {
@@ -2329,7 +2330,7 @@ bool TextBlob::processDeviceMasks(
                                         MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         SubRunOwner subRun = DirectMaskSubRun::Make(
-                this, accepted, std::move(runStrike), format, &fAlloc);
+                accepted,  fInitialPositionMatrix, std::move(runStrike), format, &fAlloc);
         if (subRun != nullptr) {
             fSubRunList.append(std::move(subRun));
         } else {
@@ -2377,7 +2378,8 @@ bool TextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted
                                         MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         SubRunOwner subRun = TransformedMaskSubRun::Make(
-                this, accepted, std::move(runStrike), strikeToSourceScale, format, &fAlloc);
+                accepted, fInitialPositionMatrix, std::move(runStrike),
+                strikeToSourceScale, format, &fAlloc);
         if (subRun != nullptr) {
             fSubRunList.append(std::move(subRun));
         } else {
@@ -2438,7 +2440,7 @@ public:
             SkScalar strikeToSourceScale, const SkFont& runFont,
             const SDFTMatrixRange& matrixRange) override;
 
-    const SkMatrix& initialPositionMatrix() const override { return fInitialPositionMatrix; }
+    const SkMatrix& initialPositionMatrix() const { return fInitialPositionMatrix; }
     SkPoint origin() const { return fOrigin; }
 
     // Change memory management to handle the data after Slug, but in the same allocation
@@ -2528,7 +2530,8 @@ sk_sp<Slug> SlugImpl::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient*
             initializer.initialize(std::move(alloc), sourceBounds, paint, positionMatrix, origin));
 
     for (int i = 0; i < subRunCount; ++i) {
-        auto subRun = SubRun::MakeFromBuffer(slug.get(), buffer, &slug->fAlloc, client);
+        auto subRun = SubRun::MakeFromBuffer(
+                slug->initialPositionMatrix(), buffer, &slug->fAlloc, client);
         if (!buffer.validate(subRun != nullptr)) { return nullptr; }
         if (subRun != nullptr) {
             slug->fSubRuns.append(std::move(subRun));
@@ -2587,7 +2590,7 @@ bool SlugImpl::processDeviceMasks(
                                         MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         SubRunOwner subRun = DirectMaskSubRun::Make(
-                this, accepted, std::move(runStrike), format, &fAlloc);
+                accepted, fInitialPositionMatrix, std::move(runStrike), format, &fAlloc);
         if (subRun != nullptr) {
             fSubRuns.append(std::move(subRun));
         } else {
@@ -2638,7 +2641,8 @@ bool SlugImpl::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted
                                         MaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         SubRunOwner subRun = TransformedMaskSubRun::Make(
-                this, accepted, std::move(runStrike), strikeToSourceScale, format, &fAlloc);
+                accepted, fInitialPositionMatrix, std::move(runStrike), strikeToSourceScale,
+                format, &fAlloc);
         if (subRun != nullptr) {
             fSubRuns.append(std::move(subRun));
         } else {
@@ -2708,11 +2712,11 @@ void SubRun::flatten(SkWriteBuffer& buffer) const {
     this->doFlatten(buffer);
 }
 
-SubRunOwner SubRun::MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+SubRunOwner SubRun::MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                    SkReadBuffer& buffer,
                                    SubRunAllocator* alloc,
                                    const SkStrikeClient* client) {
-    using Maker = SubRunOwner (*)(const TextReferenceFrame*,
+    using Maker = SubRunOwner (*)(const SkMatrix&,
                                   SkReadBuffer&,
                                   SubRunAllocator*,
                                   const SkStrikeClient*);
@@ -2732,7 +2736,7 @@ SubRunOwner SubRun::MakeFromBuffer(const TextReferenceFrame* referenceFrame,
     }
     auto maker = makers[subRunTypeInt];
     if (!buffer.validate(maker != nullptr)) { return nullptr; }
-    return maker(referenceFrame, buffer, alloc, client);
+    return maker(initialPositionMatrix, buffer, alloc, client);
 }
 
 sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {

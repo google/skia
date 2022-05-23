@@ -29,20 +29,12 @@ namespace sktext::gpu {
 // For Skia, add this to your args.gn file.
 //    extra_cflags = ["-D", "SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG"]
 
-// Internal infrastructure for using SubRuns.
-class SK_API TextReferenceFrame : public SkRefCnt {
-public:
-    ~TextReferenceFrame() override;
-    virtual const SkMatrix& initialPositionMatrix() const = 0;
-};
-
 // Slug encapsulates an SkTextBlob at a specific origin, using a specific paint. It can be
 // manipulated using matrix and clip changes to the canvas. If the canvas is transformed, then
 // the Slug will also transform with smaller glyphs using bi-linear interpolation to render. You
 // can think of a Slug as making a rubber stamp out of a SkTextBlob.
-class SK_API Slug : public TextReferenceFrame {
+class SK_API Slug : public SkRefCnt {
 public:
-    ~Slug() override;
     // Return nullptr if the blob would not draw. This is not because of clipping, but because of
     // some paint optimization. The Slug is captured as if drawn using drawTextBlob.
     static sk_sp<Slug> ConvertBlob(

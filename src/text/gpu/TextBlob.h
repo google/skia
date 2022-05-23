@@ -120,7 +120,7 @@ public:
 
     virtual const BlobSubRun* blobCast() const;
     void flatten(SkWriteBuffer& buffer) const;
-    static SubRunOwner MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+    static SubRunOwner MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                       SkReadBuffer& buffer,
                                       sktext::gpu::SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
@@ -200,7 +200,7 @@ private:
 //                    with.
 //
 //
-class TextBlob final : public TextReferenceFrame,
+class TextBlob final : public SkRefCnt,
                        public SkGlyphRunPainterInterface {
 public:
     // Key is not used as part of a hash map, so the hash is never taken. It's only used in a
@@ -257,7 +257,6 @@ public:
 
     void addKey(const Key& key);
     bool hasPerspective() const;
-    const SkMatrix& initialPositionMatrix() const override { return fInitialPositionMatrix; }
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const;
 

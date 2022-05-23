@@ -17,9 +17,6 @@ namespace sktext::gpu {
 class Slug;
 sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
 
-TextReferenceFrame::~TextReferenceFrame() = default;
-
-Slug::~Slug() = default;
 sk_sp<Slug> Slug::ConvertBlob(
         SkCanvas* canvas, const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
     return canvas->convertBlobToSlug(blob, origin, paint);
