@@ -145,10 +145,11 @@
        * @type {StrokeOpts}
        */
       opts = opts || {};
-      opts.width = opts.width || 1;
-      opts.miter_limit = opts.miter_limit || 4;
-      opts.cap = opts.cap || PathKit.StrokeCap.BUTT;
-      opts.join = opts.join || PathKit.StrokeJoin.MITER;
+      opts['width'] = opts['width'] || 1;
+      opts['miter_limit'] = opts['miter_limit'] || 4;
+      opts['cap'] = opts['cap'] || PathKit.StrokeCap.BUTT;
+      opts['join'] = opts['join'] || PathKit.StrokeJoin.MITER;
+      opts['res_scale'] = opts['res_scale'] || 1;
       if (this._stroke(opts)) {
         return this;
       }

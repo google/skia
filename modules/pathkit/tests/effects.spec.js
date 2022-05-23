@@ -117,6 +117,62 @@ describe('PathKit\'s Path Behavior', function() {
                 });
             }));
         });
+
+        it('can use res_scale for more precision', function(done) {
+            LoadPathKit.then(catchException(done, () => {
+                let canvas = document.createElement('canvas');
+                let ctx = canvas.getContext('2d');
+                // Set canvas size and make it a bit bigger to zoom in on the lines
+                standardizedCanvasSize(ctx);
+
+                const circle = PathKit.NewPath();
+                circle.ellipse(0, 0, 1, 1, 0, 0, Math.PI * 2);
+
+                let scales = [1, 3, 5,
+                              10, 30, 100];
+
+                // White background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = 0; i < scales.length; i++) {
+                    ctx.save();
+                    const row = Math.floor(i / 3);
+                    const col = i % 3;
+                    ctx.translate(100 * col + 50, 100 * row + 50);
+                    ctx.scale(30, 30);
+
+                    // Grey circle
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.beginPath();
+                    circle.toCanvas(ctx);
+                    ctx.fill();
+
+                    // Pink stroke, with given res_scale option
+                    const line = circle.copy().stroke({
+                        width: 0.5,
+                        res_scale: scales[i],
+                    });
+                    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                    ctx.beginPath();
+                    line.toCanvas(ctx);
+                    ctx.fill();
+
+                    line.delete();
+                    ctx.restore();
+                }
+                ctx.fillStyle = 'black';
+                ctx.font = '14px serif';
+                ctx.fillText('notice for lower res_scale values, the stroked circles ' +
+                             '(pink) are not round',
+                             10, 200);
+
+                circle.delete();
+                reportCanvas(canvas, 'res_scale').then(() => {
+                    done();
+                }).catch(reportError(done));
+            }));
+        });
     });
 
 });
