@@ -9,8 +9,12 @@
 
 namespace skgpu::graphite {
 
-Texture::Texture(const Gpu* gpu, SkISize dimensions, const TextureInfo& info, Ownership ownership)
-        : Resource(gpu, ownership)
+Texture::Texture(const Gpu* gpu,
+                 SkISize dimensions,
+                 const TextureInfo& info,
+                 Ownership ownership,
+                 SkBudgeted budgeted)
+        : Resource(gpu, ownership, budgeted)
         , fDimensions(dimensions)
         , fInfo(info) {}
 

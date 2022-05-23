@@ -83,8 +83,7 @@ private:
 #endif
 
     std::tuple<TextureProxyView, SkColorType> onAsView(Recorder*,
-                                                       Mipmapped,
-                                                       SkBudgeted) const override;
+                                                       Mipmapped) const override;
 
     TextureProxyView fTextureProxyView;
 };

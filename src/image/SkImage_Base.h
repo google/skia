@@ -133,8 +133,7 @@ public:
     // the data in a texture.
     std::tuple<skgpu::graphite::TextureProxyView, SkColorType> asView(
             skgpu::graphite::Recorder*,
-            skgpu::graphite::Mipmapped mipmapped,
-            SkBudgeted) const;
+            skgpu::graphite::Mipmapped mipmapped) const;
 #endif
 
     virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
@@ -231,8 +230,7 @@ private:
 #ifdef SK_GRAPHITE_ENABLED
     virtual std::tuple<skgpu::graphite::TextureProxyView, SkColorType> onAsView(
             skgpu::graphite::Recorder*,
-            skgpu::graphite::Mipmapped mipmapped,
-            SkBudgeted) const {
+            skgpu::graphite::Mipmapped mipmapped) const {
         return {}; // TODO: once incompatible derived classes are removed make this pure virtual
     }
 #endif

@@ -45,8 +45,9 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::onCreateGraphicsPipeline(
 }
 
 sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,
-                                                  const TextureInfo& info) {
-    return MtlTexture::Make(this->mtlGpu(), dimensions, info);
+                                                  const TextureInfo& info,
+                                                  SkBudgeted budgeted) {
+    return MtlTexture::Make(this->mtlGpu(), dimensions, info, budgeted);
 }
 
 sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& texture) {

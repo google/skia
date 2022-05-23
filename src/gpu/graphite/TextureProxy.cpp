@@ -12,12 +12,13 @@
 
 namespace skgpu::graphite {
 
-TextureProxy::TextureProxy(SkISize dimensions, const TextureInfo& info)
-        : fDimensions(dimensions), fInfo(info) {}
+TextureProxy::TextureProxy(SkISize dimensions, const TextureInfo& info, SkBudgeted budgeted)
+        : fDimensions(dimensions), fInfo(info), fBudgeted(budgeted) {}
 
 TextureProxy::TextureProxy(sk_sp<Texture> texture)
         : fDimensions(texture->dimensions())
         , fInfo(texture->textureInfo())
+        , fBudgeted(texture->budgeted())
         , fTexture(std::move(texture)) {}
 
 TextureProxy::~TextureProxy() {}
@@ -26,7 +27,7 @@ bool TextureProxy::instantiate(ResourceProvider* resourceProvider) {
     if (fTexture) {
         return true;
     }
-    fTexture = resourceProvider->findOrCreateScratchTexture(fDimensions, fInfo);
+    fTexture = resourceProvider->findOrCreateScratchTexture(fDimensions, fInfo, fBudgeted);
     if (!fTexture) {
         return false;
     }

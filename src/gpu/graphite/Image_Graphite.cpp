@@ -46,8 +46,7 @@ bool Image::testingOnly_ReadPixels(Context* context,
 }
 
 std::tuple<TextureProxyView, SkColorType> Image::onAsView(Recorder*,
-                                                          Mipmapped mipmapped,
-                                                          SkBudgeted) const {
+                                                          Mipmapped mipmapped) const {
     if (fTextureProxyView.proxy()->mipmapped() != mipmapped) {
         // We will not generate miplevels
         return {};
@@ -59,8 +58,7 @@ std::tuple<TextureProxyView, SkColorType> Image::onAsView(Recorder*,
 } // namespace skgpu::graphite
 
 sk_sp<SkImage> SkImage::makeTextureImage(skgpu::graphite::Recorder* recorder,
-                                         skgpu::graphite::Mipmapped mipmapped,
-                                         SkBudgeted budgeted) const {
+                                         skgpu::graphite::Mipmapped mipmapped) const {
     if (!recorder) {
         return nullptr;
     }
@@ -74,7 +72,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(skgpu::graphite::Recorder* recorder,
             return sk_ref_sp(const_cast<SkImage*>(image));
         }
     }
-    auto [view, ct] = as_IB(this)->asView(recorder, mipmapped, budgeted);
+    auto [view, ct] = as_IB(this)->asView(recorder, mipmapped);
     if (!view) {
         return nullptr;
     }

@@ -24,7 +24,8 @@ public:
 
     static sk_sp<Texture> Make(const MtlGpu*,
                                SkISize dimensions,
-                               const TextureInfo&);
+                               const TextureInfo&,
+                               SkBudgeted);
 
     static sk_sp<Texture> MakeWrapped(const MtlGpu*,
                                       SkISize dimensions,
@@ -40,7 +41,8 @@ private:
                SkISize dimensions,
                const TextureInfo& info,
                sk_cfp<id<MTLTexture>>,
-               Ownership);
+               Ownership,
+               SkBudgeted);
 
     void freeGpuData() override;
 

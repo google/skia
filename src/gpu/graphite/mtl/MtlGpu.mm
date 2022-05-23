@@ -71,9 +71,6 @@ public:
     void waitUntilFinished(const Gpu*) override {
         return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
     }
-
-private:
-    sk_sp<CommandBuffer> fCommandBuffer;
 };
 
 skgpu::graphite::Gpu::OutstandingSubmission MtlGpu::onSubmit(sk_sp<CommandBuffer> commandBuffer) {

@@ -67,6 +67,9 @@ void ResourceCache::insertResource(Resource* resource) {
     SkASSERT(!resource->wasDestroyed());
     SkASSERT(!resource->isPurgeable());
     SkASSERT(resource->key().isValid());
+    // All resources in the cache are owned. If we track wrapped resources in the cache we'll need
+    // to update this check.
+    SkASSERT(resource->ownership() == Ownership::kOwned);
 
     this->processReturnedResources();
 
@@ -84,11 +87,11 @@ void ResourceCache::insertResource(Resource* resource) {
     if (resource->key().shareable() == Shareable::kYes) {
         fResourceMap.insert(resource->key(), resource);
     }
-
-    // TODO: purge resources if adding this one put us over budget (when we actually have a budget).
+    // TODO: If the resource is budgeted update our memory usage. Then purge resources if adding
+    // this one put us over budget (when we actually have a budget).
 }
 
-Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key) {
+Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key, SkBudgeted budgeted) {
     ASSERT_SINGLE_OWNER
 
     this->processReturnedResources();
@@ -97,11 +100,21 @@ Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key) {
 
     Resource* resource = fResourceMap.find(key);
     if (resource) {
+        // All resources we pull out of the cache for use should be budgeted
+        SkASSERT(resource->budgeted() == SkBudgeted::kYes);
         if (key.shareable() == Shareable::kNo) {
             // If a resource is not shareable (i.e. scratch resource) then we remove it from the map
             // so that it isn't found again.
             fResourceMap.remove(key, resource);
+            if (budgeted == SkBudgeted::kNo) {
+                // TODO: Once we track our budget we also need to decrease our usage here since the
+                // resource no longer counts against the budget.
+                resource->makeUnbudgeted();
+            }
             SkDEBUGCODE(resource->fNonShareableInCache = false;)
+        } else {
+            // Shareable resources should never be requested as non budgeted
+            SkASSERT(budgeted == SkBudgeted::kYes);
         }
         this->refAndMakeResourceMRU(resource);
         this->validate();
@@ -221,6 +234,10 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
         } else {
             SkDEBUGCODE(resource->fNonShareableInCache = true;)
             fResourceMap.insert(resource->key(), resource);
+            if (resource->budgeted() == SkBudgeted::kNo) {
+                // TODO: Update budgeted tracking
+                resource->makeBudgeted();
+            }
         }
     }
 
@@ -389,6 +406,10 @@ void ResourceCache::validate() const {
             // We should always have at least 1 cache ref
             SkASSERT(resource->hasCacheRef());
 
+            // All resources in the cache are owned. If we track wrapped resources in the cache
+            // we'll need to update this check.
+            SkASSERT(resource->ownership() == Ownership::kOwned);
+
             // We track scratch (non-shareable, no usage refs, has been returned to cache) and
             // shareable resources here as those should be the only things in the fResourceMap. A
             // non-shareable resources that does meet the scratch criteria will not be able to be
@@ -399,14 +420,14 @@ void ResourceCache::validate() const {
                 SkASSERT(!resource->hasUsageRef());
                 ++fScratch;
                 SkASSERT(fResourceMap->has(resource, key));
-                SkASSERT(resource->ownership() == Ownership::kOwned);
+                SkASSERT(resource->budgeted() == SkBudgeted::kYes);
             } else if (key.shareable() == Shareable::kNo) {
-                SkASSERT(resource->ownership() == Ownership::kOwned);
                 SkASSERT(!fResourceMap->has(resource, key));
             } else {
                 SkASSERT(key.shareable() == Shareable::kYes);
                 ++fShareable;
                 SkASSERT(fResourceMap->has(resource, key));
+                SkASSERT(resource->budgeted() == SkBudgeted::kYes);
             }
         }
     };
@@ -415,6 +436,7 @@ void ResourceCache::validate() const {
         int count = 0;
         fResourceMap.foreach([&](const Resource& resource) {
             SkASSERT(resource.isUsableAsScratch() || resource.key().shareable() == Shareable::kYes);
+            SkASSERT(resource.budgeted() == SkBudgeted::kYes);
             count++;
         });
         SkASSERT(count == fResourceMap.count());
@@ -464,5 +486,13 @@ bool ResourceCache::isInCache(const Resource* resource) const {
 }
 
 #endif // SK_DEBUG
+
+#if GRAPHITE_TEST_UTILS
+
+int ResourceCache::numFindableResources() const {
+    return fResourceMap.count();
+}
+
+#endif // GRAPHITE_TEST_UTILS
 
 } // namespace skgpu::graphite

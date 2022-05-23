@@ -81,13 +81,15 @@ MtlTexture::MtlTexture(const MtlGpu* gpu,
                        SkISize dimensions,
                        const TextureInfo& info,
                        sk_cfp<id<MTLTexture>> texture,
-                       Ownership ownership)
-        : Texture(gpu, dimensions, info, ownership)
+                       Ownership ownership,
+                       SkBudgeted budgeted)
+        : Texture(gpu, dimensions, info, ownership, budgeted)
         , fTexture(std::move(texture)) {}
 
 sk_sp<Texture> MtlTexture::Make(const MtlGpu* gpu,
                                 SkISize dimensions,
-                                const TextureInfo& info) {
+                                const TextureInfo& info,
+                                SkBudgeted budgeted) {
     sk_cfp<id<MTLTexture>> texture = MakeMtlTexture(gpu, dimensions, info);
     if (!texture) {
         return nullptr;
@@ -96,7 +98,8 @@ sk_sp<Texture> MtlTexture::Make(const MtlGpu* gpu,
                                          dimensions,
                                          info,
                                          std::move(texture),
-                                         Ownership::kOwned));
+                                         Ownership::kOwned,
+                                         budgeted));
 }
 
 sk_sp<Texture> MtlTexture::MakeWrapped(const MtlGpu* gpu,
@@ -107,7 +110,8 @@ sk_sp<Texture> MtlTexture::MakeWrapped(const MtlGpu* gpu,
                                          dimensions,
                                          info,
                                          std::move(texture),
-                                         Ownership::kWrapped));
+                                         Ownership::kWrapped,
+                                         SkBudgeted::kNo));
 }
 
 void MtlTexture::freeGpuData() {

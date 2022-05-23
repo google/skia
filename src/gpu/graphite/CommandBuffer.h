@@ -78,6 +78,8 @@ public:
 #endif
 
     void trackResource(sk_sp<Resource> resource);
+    // Release all tracked Resources
+    void releaseResources();
 
     void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
     void callFinishedProcs(bool success);
@@ -158,8 +160,6 @@ protected:
     CommandBuffer();
 
 private:
-    void releaseResources();
-
     // TODO: Once all buffer use goes through the DrawBufferManager, we likely do not need to track
     // refs every time a buffer is bound, since the DBM will transfer ownership for any used buffer
     // to the CommandBuffer.

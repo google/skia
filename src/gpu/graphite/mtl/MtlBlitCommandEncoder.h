@@ -82,7 +82,8 @@ public:
 private:
     MtlBlitCommandEncoder(const skgpu::graphite::Gpu* gpu,
                           sk_cfp<id<MTLBlitCommandEncoder>> encoder)
-        : Resource(gpu, Ownership::kOwned), fCommandEncoder(std::move(encoder)) {}
+        : Resource(gpu, Ownership::kOwned, SkBudgeted::kYes)
+        , fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override {
         fCommandEncoder.reset();

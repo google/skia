@@ -167,7 +167,7 @@ private:
 #endif
 #ifdef SK_GRAPHITE_ENABLED
     std::tuple<skgpu::graphite::TextureProxyView, SkColorType> onAsView(
-            skgpu::graphite::Recorder*, skgpu::graphite::Mipmapped, SkBudgeted) const override;
+            skgpu::graphite::Recorder*, skgpu::graphite::Mipmapped) const override;
 #endif
 
     SkBitmap fBitmap;
@@ -496,9 +496,8 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Raster::onAsFragmentProcessor(
 #ifdef SK_GRAPHITE_ENABLED
 std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Raster::onAsView(
         skgpu::graphite::Recorder* recorder,
-        skgpu::graphite::Mipmapped mipmapped,
-        SkBudgeted budgeted) const {
-    return MakeBitmapProxyView(recorder, fBitmap, mipmapped, budgeted);
+        skgpu::graphite::Mipmapped mipmapped) const {
+    return MakeBitmapProxyView(recorder, fBitmap, mipmapped, SkBudgeted::kNo);
 }
 
 #endif

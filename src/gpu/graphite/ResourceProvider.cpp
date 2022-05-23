@@ -84,7 +84,8 @@ sk_sp<GraphicsPipeline> ResourceProvider::GraphicsPipelineCache::refPipeline(
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
-                                                            const TextureInfo& info) {
+                                                            const TextureInfo& info,
+                                                            SkBudgeted budgeted) {
     SkASSERT(info.isValid());
 
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
@@ -93,7 +94,7 @@ sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
     // Scratch textures are not shareable
     fGpu->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kNo, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key);
+    return this->findOrCreateTextureWithKey(dimensions, info, key, budgeted);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dimensions,
@@ -108,7 +109,7 @@ sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dime
     // stomping on each other's data.
     fGpu->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key);
+    return this->findOrCreateTextureWithKey(dimensions, info, key, SkBudgeted::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize dimensions,
@@ -124,17 +125,22 @@ sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize d
     // to populate the discardable MSAA texture with data at the start of the render pass.
     fGpu->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key);
+    return this->findOrCreateTextureWithKey(dimensions, info, key, SkBudgeted::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateTextureWithKey(SkISize dimensions,
                                                             const TextureInfo& info,
-                                                            const GraphiteResourceKey& key) {
-    if (Resource* resource = fResourceCache->findAndRefResource(key)) {
+                                                            const GraphiteResourceKey& key,
+                                                            SkBudgeted budgeted) {
+    // If the resource is shareable it should be budgeted since it shouldn't be backing any client
+    // owned object.
+    SkASSERT(key.shareable() == Shareable::kNo || budgeted == SkBudgeted::kYes);
+
+    if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
         return sk_sp<Texture>(static_cast<Texture*>(resource));
     }
 
-    auto tex = this->createTexture(dimensions, info);
+    auto tex = this->createTexture(dimensions, info, budgeted);
     if (!tex) {
         return nullptr;
     }
@@ -177,7 +183,8 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         }
     }
 
-    if (Resource* resource = fResourceCache->findAndRefResource(key)) {
+    SkBudgeted budgeted = SkBudgeted::kYes;
+    if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
         return sk_sp<Buffer>(static_cast<Buffer*>(resource));
     }
     auto buffer = this->createBuffer(size, type, prioritizeGpuReads);

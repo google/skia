@@ -984,6 +984,7 @@ generated_cc_atom(
         ":SkReadBuffer_hdr",
         ":SkWriter32_hdr",
         "//src/gpu/ganesh:BaseDevice_hdr",
+        "//src/gpu/graphite:Device_hdr",
     ],
 )
 

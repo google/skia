@@ -36,7 +36,7 @@ private:
     sk_sp<CommandBuffer> createCommandBuffer() override;
     sk_sp<GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&,
                                                             const RenderPassDesc&) override;
-    sk_sp<Texture> createTexture(SkISize, const TextureInfo&) override;
+    sk_sp<Texture> createTexture(SkISize, const TextureInfo&, SkBudgeted) override;
     sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
 
     sk_sp<Sampler> createSampler(const SkSamplingOptions&,

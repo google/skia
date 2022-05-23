@@ -24,7 +24,7 @@
 using namespace skgpu::graphite;
 
 sk_sp<SkSurface> MakeGraphite(Recorder* recorder, const SkImageInfo& ii) {
-    sk_sp<Device> device = Device::Make(recorder, ii);
+    sk_sp<Device> device = Device::Make(recorder, ii, SkBudgeted::kNo);
     if (!device) {
         return nullptr;
     }

@@ -11,12 +11,17 @@
 
 namespace skgpu::graphite {
 
-Resource::Resource(const Gpu* gpu, Ownership ownership)
+Resource::Resource(const Gpu* gpu, Ownership ownership, SkBudgeted budgeted)
         : fGpu(gpu)
         , fUsageRefCnt(1)
         , fCommandBufferRefCnt(0)
         , fCacheRefCnt(0)
-        , fOwnership(ownership) {}
+        , fOwnership(ownership)
+        , fBudgeted(budgeted) {
+    // If we don't own the resource that must mean its wrapped in a client object. Thus we should
+    // not be budgeted
+    SkASSERT(fOwnership == Ownership::kOwned || fBudgeted == SkBudgeted::kNo);
+}
 
 Resource::~Resource() {
     // The cache should have released or destroyed this resource.

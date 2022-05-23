@@ -260,7 +260,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
                              SkBlendMode::kSrc);
     }
 
-    auto target = sk_sp<TextureProxy>(new TextureProxy(textureSize, textureInfo));
+    auto target = sk_sp<TextureProxy>(new TextureProxy(textureSize, textureInfo, SkBudgeted::kYes));
     REPORTER_ASSERT(reporter, target);
 
     RenderPassDesc renderPassDesc = {};

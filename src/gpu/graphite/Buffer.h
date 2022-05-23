@@ -24,7 +24,7 @@ public:
 
 protected:
     Buffer(const Gpu* gpu, size_t size, BufferType type, PrioritizeGpuReads prioritizeGpuReads)
-        : Resource(gpu, Ownership::kOwned)
+        : Resource(gpu, Ownership::kOwned, SkBudgeted::kYes)
         , fSize(size)
         , fType(type)
         , fPrioritizeGpuReads(prioritizeGpuReads) {}

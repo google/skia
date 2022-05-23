@@ -16,6 +16,7 @@ GpuWorkSubmission::GpuWorkSubmission(sk_sp<CommandBuffer> cmdBuffer)
 
 GpuWorkSubmission::~GpuWorkSubmission() {
     fCommandBuffer->callFinishedProcs(/*success=*/true);
+    fCommandBuffer->releaseResources();
 }
 
 } // namespace skgpu::graphite
