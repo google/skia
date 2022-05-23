@@ -10,6 +10,8 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
+using TextBlob = sktext::gpu::TextBlob;
+
 DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobRedrawCoordinator::PurgeBlobMessage, uint32_t, true)
 
 // This function is captured by the above macro using implementations from SkMessageBus.h
@@ -34,9 +36,9 @@ void GrTextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
     SkMatrix positionMatrix{viewMatrix.localToDevice()};
     positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
-    auto [canCache, key] = GrTextBlob::Key::Make(
+    auto [canCache, key] = TextBlob::Key::Make(
             glyphRunList, paint, positionMatrix, strikeDeviceInfo);
-    sk_sp<GrTextBlob> blob;
+    sk_sp<TextBlob> blob;
     if (canCache) {
         blob = this->find(key);
     }
@@ -47,7 +49,7 @@ void GrTextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
             this->remove(blob.get());
         }
 
-        blob = GrTextBlob::Make(
+        blob = TextBlob::Make(
                 glyphRunList, paint, positionMatrix,
                 strikeDeviceInfo, SkStrikeCache::GlobalStrikeCache());
 
@@ -62,23 +64,23 @@ void GrTextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
     blob->draw(canvas, clip, viewMatrix, glyphRunList.origin(), paint, sdc);
 }
 
-sk_sp<GrTextBlob> GrTextBlobRedrawCoordinator::addOrReturnExisting(
-        const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) {
+sk_sp<TextBlob> GrTextBlobRedrawCoordinator::addOrReturnExisting(
+        const SkGlyphRunList& glyphRunList, sk_sp<TextBlob> blob) {
     SkAutoSpinlock lock{fSpinLock};
     blob = this->internalAdd(std::move(blob));
     glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID);
     return blob;
 }
 
-sk_sp<GrTextBlob> GrTextBlobRedrawCoordinator::find(const GrTextBlob::Key& key) {
+sk_sp<TextBlob> GrTextBlobRedrawCoordinator::find(const TextBlob::Key& key) {
     SkAutoSpinlock lock{fSpinLock};
     const BlobIDCacheEntry* idEntry = fBlobIDCache.find(key.fUniqueID);
     if (idEntry == nullptr) {
         return nullptr;
     }
 
-    sk_sp<GrTextBlob> blob = idEntry->find(key);
-    GrTextBlob* blobPtr = blob.get();
+    sk_sp<TextBlob> blob = idEntry->find(key);
+    TextBlob* blobPtr = blob.get();
     if (blobPtr != nullptr && blobPtr != fBlobList.head()) {
         fBlobList.remove(blobPtr);
         fBlobList.addToHead(blobPtr);
@@ -86,17 +88,17 @@ sk_sp<GrTextBlob> GrTextBlobRedrawCoordinator::find(const GrTextBlob::Key& key) 
     return blob;
 }
 
-void GrTextBlobRedrawCoordinator::remove(GrTextBlob* blob) {
+void GrTextBlobRedrawCoordinator::remove(TextBlob* blob) {
     SkAutoSpinlock lock{fSpinLock};
     this->internalRemove(blob);
 }
 
-void GrTextBlobRedrawCoordinator::internalRemove(GrTextBlob* blob) {
+void GrTextBlobRedrawCoordinator::internalRemove(TextBlob* blob) {
     auto  id      = blob->key().fUniqueID;
     auto* idEntry = fBlobIDCache.find(id);
 
     if (idEntry != nullptr) {
-        sk_sp<GrTextBlob> stillExists = idEntry->find(blob->key());
+        sk_sp<TextBlob> stillExists = idEntry->find(blob->key());
         if (blob == stillExists.get())  {
             fCurrentSize -= blob->size();
             fBlobList.remove(blob);
@@ -157,7 +159,7 @@ bool GrTextBlobRedrawCoordinator::isOverBudget() const {
     return fCurrentSize > fSizeBudget;
 }
 
-void GrTextBlobRedrawCoordinator::internalCheckPurge(GrTextBlob* blob) {
+void GrTextBlobRedrawCoordinator::internalCheckPurge(TextBlob* blob) {
     // First, purge all stale blob IDs.
     this->internalPurgeStaleBlobs();
 
@@ -165,7 +167,7 @@ void GrTextBlobRedrawCoordinator::internalCheckPurge(GrTextBlob* blob) {
     if (fCurrentSize > fSizeBudget) {
         TextBlobList::Iter iter;
         iter.init(fBlobList, TextBlobList::Iter::kTail_IterStart);
-        GrTextBlob* lruBlob = nullptr;
+        TextBlob* lruBlob = nullptr;
         while (fCurrentSize > fSizeBudget && (lruBlob = iter.get()) && lruBlob != blob) {
             // Backup the iterator before removing and unrefing the blob
             iter.prev();
@@ -181,14 +183,14 @@ void GrTextBlobRedrawCoordinator::internalCheckPurge(GrTextBlob* blob) {
     }
 }
 
-sk_sp<GrTextBlob> GrTextBlobRedrawCoordinator::internalAdd(sk_sp<GrTextBlob> blob) {
+sk_sp<TextBlob> GrTextBlobRedrawCoordinator::internalAdd(sk_sp<TextBlob> blob) {
     auto  id      = blob->key().fUniqueID;
     auto* idEntry = fBlobIDCache.find(id);
     if (!idEntry) {
         idEntry = fBlobIDCache.set(id, BlobIDCacheEntry(id));
     }
 
-    if (sk_sp<GrTextBlob> alreadyIn = idEntry->find(blob->key()); alreadyIn) {
+    if (sk_sp<TextBlob> alreadyIn = idEntry->find(blob->key()); alreadyIn) {
         blob = std::move(alreadyIn);
     } else {
         fBlobList.addToHead(blob.get());
@@ -209,7 +211,7 @@ uint32_t GrTextBlobRedrawCoordinator::BlobIDCacheEntry::GetKey(
     return entry.fID;
 }
 
-void GrTextBlobRedrawCoordinator::BlobIDCacheEntry::addBlob(sk_sp<GrTextBlob> blob) {
+void GrTextBlobRedrawCoordinator::BlobIDCacheEntry::addBlob(sk_sp<TextBlob> blob) {
     SkASSERT(blob);
     SkASSERT(blob->key().fUniqueID == fID);
     SkASSERT(!this->find(blob->key()));
@@ -217,7 +219,7 @@ void GrTextBlobRedrawCoordinator::BlobIDCacheEntry::addBlob(sk_sp<GrTextBlob> bl
     fBlobs.emplace_back(std::move(blob));
 }
 
-void GrTextBlobRedrawCoordinator::BlobIDCacheEntry::removeBlob(GrTextBlob* blob) {
+void GrTextBlobRedrawCoordinator::BlobIDCacheEntry::removeBlob(TextBlob* blob) {
     SkASSERT(blob);
     SkASSERT(blob->key().fUniqueID == fID);
 
@@ -227,13 +229,13 @@ void GrTextBlobRedrawCoordinator::BlobIDCacheEntry::removeBlob(GrTextBlob* blob)
     fBlobs.removeShuffle(index);
 }
 
-sk_sp<GrTextBlob>
-GrTextBlobRedrawCoordinator::BlobIDCacheEntry::find(const GrTextBlob::Key& key) const {
+sk_sp<TextBlob>
+GrTextBlobRedrawCoordinator::BlobIDCacheEntry::find(const TextBlob::Key& key) const {
     auto index = this->findBlobIndex(key);
     return index < 0 ? nullptr : fBlobs[index];
 }
 
-int GrTextBlobRedrawCoordinator::BlobIDCacheEntry::findBlobIndex(const GrTextBlob::Key& key) const {
+int GrTextBlobRedrawCoordinator::BlobIDCacheEntry::findBlobIndex(const TextBlob::Key& key) const {
     for (int i = 0; i < fBlobs.count(); ++i) {
         if (fBlobs[i]->key() == key) {
             return i;

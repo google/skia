@@ -23,6 +23,7 @@ cc_library(
         "//src/text/gpu:Slug_src",
         "//src/text/gpu:StrikeCache_src",
         "//src/text/gpu:SubRunAllocator_src",
+        "//src/text/gpu:TextBlob_src",
     ],
 )
 

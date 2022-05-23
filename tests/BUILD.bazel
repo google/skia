@@ -2679,7 +2679,7 @@ generated_cc_atom(
         "//src/core:SkDevice_hdr",
         "//src/core:SkSurfacePriv_hdr",
         "//src/gpu/ganesh:GrColorInfo_hdr",
-        "//src/gpu/ganesh/text:GrTextBlob_hdr",
+        "//src/text/gpu:TextBlob_hdr",
         "//tools:ToolUtils_hdr",
     ],
 )

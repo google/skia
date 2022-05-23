@@ -13,10 +13,9 @@
 
 #include <atomic>
 
-namespace sktext::gpu { class Slug; }
-sk_sp<sktext::gpu::Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
-
 namespace sktext::gpu {
+class Slug;
+sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
 
 TextReferenceFrame::~TextReferenceFrame() = default;
 
@@ -61,7 +60,7 @@ uint32_t Slug::NextUniqueID() {
     return nextUnique++;
 }
 
-// Most of Slug's implementation is in GrTextBlob.cpp to share common code.
+// Most of Slug's implementation is in TextBlob.cpp to share common code.
 
 }  // namespace sktext::gpu
 

@@ -189,7 +189,6 @@ cc_library(
         "//src/gpu/ganesh/tessellate:StrokeTessellator_src",
         "//src/gpu/ganesh/text:GrAtlasManager_src",
         "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_src",
-        "//src/gpu/ganesh/text:GrTextBlob_src",
     ],
 )
 
@@ -2209,7 +2208,7 @@ generated_cc_atom(
         "//src/gpu/ganesh/effects:GrSkSLFP_hdr",
         "//src/gpu/ganesh/ops:AtlasTextOp_hdr",
         "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
-        "//src/gpu/ganesh/text:GrTextBlob_hdr",
+        "//src/text/gpu:TextBlob_hdr",
         "//src/utils:SkJSONWriter_hdr",
     ],
 )

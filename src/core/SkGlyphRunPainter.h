@@ -15,8 +15,11 @@
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkTextBlobPriv.h"
 
-#if SK_SUPPORT_GPU
+#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
 #include "src/text/gpu/SDFTControl.h"
+#endif
+
+#if SK_SUPPORT_GPU
 class GrColorInfo;
 namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 #endif
@@ -84,7 +87,7 @@ private:
     const SkScalerContextFlags fScalerContextFlags;
 };
 
-#if SK_SUPPORT_GPU
+#if (SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED)
 class SkGlyphRunListPainter {
 public:
     // A nullptr for process means that the calls to the cache will be performed, but none of the
@@ -139,5 +142,5 @@ public:
                                    const SkFont& runFont,
                                    const sktext::gpu::SDFTMatrixRange& matrixRange) = 0;
 };
-#endif  // SK_SUPPORT_GPU
+#endif  // SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED
 #endif  // SkGlyphRunPainter_DEFINED

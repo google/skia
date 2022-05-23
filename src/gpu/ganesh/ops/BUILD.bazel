@@ -219,7 +219,7 @@ generated_cc_atom(
         ":GrMeshDrawOp_hdr",
         "//src/gpu:AtlasTypes_hdr",
         "//src/gpu/ganesh/effects:GrDistanceFieldGeoProc_hdr",
-        "//src/gpu/ganesh/text:GrTextBlob_hdr",
+        "//src/text/gpu:TextBlob_hdr",
     ],
 )
 

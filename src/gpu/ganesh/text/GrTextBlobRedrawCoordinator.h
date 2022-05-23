@@ -14,7 +14,7 @@
 #include "include/private/SkTHash.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "src/gpu/ganesh/text/GrTextBlob.h"
+#include "src/text/gpu/TextBlob.h"
 
 #include <functional>
 
@@ -22,7 +22,7 @@
 // to pick the best data for the draw. In addition, it provides a central service for managing
 // resource usage through a messageBus.
 // The draw data is stored in a three-tiered system. The first tier is keyed by the SkTextBlob's
-// uniqueID. The second tier uses the GrTextBlob's key to get a general match for the draw. The
+// uniqueID. The second tier uses the sktext::gpu::TextBlob's key to get a general match for the draw. The
 // last tier queries each sub run using canReuse to determine if each sub run can handle the
 // drawing parameters.
 class GrTextBlobRedrawCoordinator {
@@ -57,7 +57,7 @@ public:
 
 private:
     friend class GrTextBlobTestingPeer;
-    using TextBlobList = SkTInternalLList<GrTextBlob>;
+    using TextBlobList = SkTInternalLList<sktext::gpu::TextBlob>;
 
     struct BlobIDCacheEntry {
         BlobIDCacheEntry();
@@ -65,34 +65,36 @@ private:
 
         static uint32_t GetKey(const BlobIDCacheEntry& entry);
 
-        void addBlob(sk_sp<GrTextBlob> blob);
+        void addBlob(sk_sp<sktext::gpu::TextBlob> blob);
 
-        void removeBlob(GrTextBlob* blob);
+        void removeBlob(sktext::gpu::TextBlob* blob);
 
-        sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) const;
+        sk_sp<sktext::gpu::TextBlob> find(const sktext::gpu::TextBlob::Key& key) const;
 
-        int findBlobIndex(const GrTextBlob::Key& key) const;
+        int findBlobIndex(const sktext::gpu::TextBlob::Key& key) const;
 
         uint32_t fID;
         // Current clients don't generate multiple GrAtlasTextBlobs per SkTextBlob, so an array w/
         // linear search is acceptable.  If usage changes, we should re-evaluate this structure.
-        SkSTArray<1, sk_sp<GrTextBlob>> fBlobs;
+        SkSTArray<1, sk_sp<sktext::gpu::TextBlob>> fBlobs;
     };
 
     // If not already in the cache, then add it else, return the text blob from the cache.
-    sk_sp<GrTextBlob> addOrReturnExisting(
-            const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) SK_EXCLUDES(fSpinLock);
+    sk_sp<sktext::gpu::TextBlob> addOrReturnExisting(
+            const SkGlyphRunList& glyphRunList,
+            sk_sp<sktext::gpu::TextBlob> blob) SK_EXCLUDES(fSpinLock);
 
-    sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) SK_EXCLUDES(fSpinLock);
+    sk_sp<sktext::gpu::TextBlob> find(const sktext::gpu::TextBlob::Key& key) SK_EXCLUDES(fSpinLock);
 
-    void remove(GrTextBlob* blob) SK_EXCLUDES(fSpinLock);
+    void remove(sktext::gpu::TextBlob* blob) SK_EXCLUDES(fSpinLock);
 
     void internalPurgeStaleBlobs() SK_REQUIRES(fSpinLock);
 
-    sk_sp<GrTextBlob> internalAdd(sk_sp<GrTextBlob> blob) SK_REQUIRES(fSpinLock);
-    void internalRemove(GrTextBlob* blob) SK_REQUIRES(fSpinLock);
+    sk_sp<sktext::gpu::TextBlob>
+            internalAdd(sk_sp<sktext::gpu::TextBlob> blob) SK_REQUIRES(fSpinLock);
+    void internalRemove(sktext::gpu::TextBlob* blob) SK_REQUIRES(fSpinLock);
 
-    void internalCheckPurge(GrTextBlob* blob = nullptr) SK_REQUIRES(fSpinLock);
+    void internalCheckPurge(sktext::gpu::TextBlob* blob = nullptr) SK_REQUIRES(fSpinLock);
 
     static const int kDefaultBudget = 1 << 22;
 

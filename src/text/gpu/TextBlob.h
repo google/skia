@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTextBlob_DEFINED
-#define GrTextBlob_DEFINED
+#ifndef sktext_gpu_TextBlob_DEFINED
+#define sktext_gpu_TextBlob_DEFINED
 
 #include <algorithm>
 #include <limits>
@@ -23,14 +23,17 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/core/SkTLazy.h"
+#if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
+#endif
 #include "src/text/gpu/SubRunAllocator.h"
 
+#if SK_SUPPORT_GPU
 class GrAtlasManager;
 class GrDeferredUploadTarget;
 class GrMeshDrawTarget;
-class GrSubRun;
+#endif
 
 class SkMatrixProvider;
 class SkStrikeClient;
@@ -45,9 +48,11 @@ class StrikeCache;
 
 namespace skgpu::v1 { class SurfaceDrawContext; }
 
-// -- GrAtlasSubRun --------------------------------------------------------------------------------
-// GrAtlasSubRun is the API that AtlasTextOp uses to generate vertex data for drawing.
-//     There are three different ways GrAtlasSubRun is specialized.
+namespace sktext::gpu {
+
+// -- AtlasSubRun --------------------------------------------------------------------------------
+// AtlasSubRun is the API that AtlasTextOp uses to generate vertex data for drawing.
+//     There are three different ways AtlasSubRun is specialized.
 //      * DirectMaskSubRun* - this is by far the most common type of SubRun. The mask pixels are
 //        in 1:1 correspondence with the pixels on the device. The destination rectangles in this
 //        SubRun are in device space. This SubRun handles color glyphs.
@@ -59,12 +64,14 @@ namespace skgpu::v1 { class SurfaceDrawContext; }
 //      * SDFTSubRun* - scaled distance field text handles largish single color glyphs that still
 //        can fit in the atlas; the sizes between direct SubRun, and path SubRun. The destination
 //        rectangles are in source space.
-class GrAtlasSubRun  {
+class AtlasSubRun  {
 public:
-    virtual ~GrAtlasSubRun() = default;
+    virtual ~AtlasSubRun() = default;
 
-    virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
     virtual int glyphCount() const = 0;
+
+#if SK_SUPPORT_GPU
+    virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
 
     virtual std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(
@@ -81,23 +88,25 @@ public:
             SkPoint drawOrigin,
             SkIRect clip) const = 0;
 
-    virtual void testingOnly_packedGlyphIDToGlyph(sktext::gpu::StrikeCache* cache) const = 0;
-
     // This call is not thread safe. It should only be called from GrDrawOp::onPrepare which
     // is single threaded.
     virtual std::tuple<bool, int> regenerateAtlas(
             int begin, int end, GrMeshDrawTarget* target) const = 0;
+#endif
+
+    virtual void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const = 0;
 };
 
-// -- GrSubRun -------------------------------------------------------------------------------------
-// GrSubRun defines the most basic functionality of a SubRun; the ability to draw, and the
+// -- SubRun -------------------------------------------------------------------------------------
+// SubRun defines the most basic functionality of a SubRun; the ability to draw, and the
 // ability to be in a list.
-class GrSubRun;
-using GrSubRunOwner = std::unique_ptr<GrSubRun, sktext::gpu::SubRunAllocator::Destroyer>;
-class GrBlobSubRun;
-class GrSubRun {
+class SubRun;
+using SubRunOwner = std::unique_ptr<SubRun, SubRunAllocator::Destroyer>;
+class BlobSubRun;
+class SubRun {
 public:
-    virtual ~GrSubRun();
+    virtual ~SubRun();
+#if SK_SUPPORT_GPU
     // Produce GPU ops for this subRun or just draw them.
     virtual void draw(SkCanvas*,
                       const GrClip*,
@@ -105,13 +114,14 @@ public:
                       SkPoint drawOrigin,
                       const SkPaint&,
                       skgpu::v1::SurfaceDrawContext*) const = 0;
+#endif
 
-    virtual const GrBlobSubRun* blobCast() const;
+    virtual const BlobSubRun* blobCast() const;
     void flatten(SkWriteBuffer& buffer) const;
-    static GrSubRunOwner MakeFromBuffer(const sktext::gpu::TextReferenceFrame* referenceFrame,
-                                        SkReadBuffer& buffer,
-                                        sktext::gpu::SubRunAllocator* alloc,
-                                        const SkStrikeClient* client);
+    static SubRunOwner MakeFromBuffer(const TextReferenceFrame* referenceFrame,
+                                      SkReadBuffer& buffer,
+                                      sktext::gpu::SubRunAllocator* alloc,
+                                      const SkStrikeClient* client);
 
     // Size hint for unflattening this run. If this is accurate, it will help with the allocation
     // of the slug. If it's off then there may be more allocations needed to unflatten.
@@ -123,7 +133,7 @@ public:
 
     // Return the underlying atlas SubRun if it exists. Otherwise, return nullptr.
     // * Don't use this API. It is only to support testing.
-    virtual const GrAtlasSubRun* testingOnly_atlasSubRun() const = 0;
+    virtual const AtlasSubRun* testingOnly_atlasSubRun() const = 0;
 
 protected:
     enum SubRunType : int;
@@ -131,21 +141,21 @@ protected:
     virtual void doFlatten(SkWriteBuffer& buffer) const = 0;
 
 private:
-    friend class GrSubRunList;
-    GrSubRunOwner fNext;
+    friend class SubRunList;
+    SubRunOwner fNext;
 };
 
-// -- GrSubRunList ---------------------------------------------------------------------------------
-class GrSubRunList {
+// -- SubRunList ---------------------------------------------------------------------------------
+class SubRunList {
 public:
     class Iterator {
     public:
-        using value_type = GrSubRun;
+        using value_type = SubRun;
         using difference_type = ptrdiff_t;
         using pointer = value_type*;
         using reference = value_type&;
         using iterator_category = std::input_iterator_tag;
-        Iterator(GrSubRun* subRun) : fPtr{subRun} { }
+        Iterator(SubRun* subRun) : fPtr{subRun} { }
         Iterator& operator++() { fPtr = fPtr->fNext.get(); return *this; }
         Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
         bool operator==(const Iterator& rhs) const { return fPtr == rhs.fPtr; }
@@ -153,11 +163,11 @@ public:
         reference operator*() { return *fPtr; }
 
     private:
-        GrSubRun* fPtr;
+        SubRun* fPtr;
     };
 
-    void append(GrSubRunOwner subRun) {
-        GrSubRunOwner* newTail = &subRun->fNext;
+    void append(SubRunOwner subRun) {
+        SubRunOwner* newTail = &subRun->fNext;
         *fTail = std::move(subRun);
         fTail = newTail;
     }
@@ -166,30 +176,30 @@ public:
     Iterator end() { return Iterator{nullptr}; }
     Iterator begin() const { return Iterator{ fHead.get()}; }
     Iterator end() const { return Iterator{nullptr}; }
-    GrSubRun& front() const {return *fHead; }
+    SubRun& front() const {return *fHead; }
 
 private:
-    GrSubRunOwner fHead{nullptr};
-    GrSubRunOwner* fTail{&fHead};
+    SubRunOwner fHead{nullptr};
+    SubRunOwner* fTail{&fHead};
 };
 
-// -- GrTextBlob -----------------------------------------------------------------------------------
-// A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
+// -- TextBlob -----------------------------------------------------------------------------------
+// A TextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
 // on the GPU.  These are initially created with valid positions and colors, but with invalid
 // texture coordinates.
 //
-// A GrTextBlob contains a number of SubRuns that are created in the blob's arena. Each SubRun
+// A TextBlob contains a number of SubRuns that are created in the blob's arena. Each SubRun
 // tracks its own glyph and position data.
 //
 // In these classes, I'm trying to follow the convention about matrices and origins.
 // * drawMatrix and drawOrigin - describes transformations for the current draw command.
 // * positionMatrix - is equal to drawMatrix * [drawOrigin-as-translation-matrix]
-// * initial Matrix - describes the combined initial matrix and origin the GrTextBlob was created
+// * initial Matrix - describes the combined initial matrix and origin the TextBlob was created
 //                    with.
 //
 //
-class GrTextBlob final : public sktext::gpu::TextReferenceFrame,
-                         public SkGlyphRunPainterInterface {
+class TextBlob final : public TextReferenceFrame,
+                       public SkGlyphRunPainterInterface {
 public:
     // Key is not used as part of a hash map, so the hash is never taken. It's only used in a
     // list search using operator =().
@@ -219,23 +229,23 @@ public:
         bool operator==(const Key& other) const;
     };
 
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(TextBlob);
 
-    // Make a GrTextBlob and its sub runs.
-    static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
-                                  const SkPaint& paint,
-                                  const SkMatrix& positionMatrix,
-                                  SkStrikeDeviceInfo strikeDeviceInfo,
-                                  SkStrikeForGPUCacheInterface* strikeCache);
+    // Make a TextBlob and its sub runs.
+    static sk_sp<TextBlob> Make(const SkGlyphRunList& glyphRunList,
+                                const SkPaint& paint,
+                                const SkMatrix& positionMatrix,
+                                SkStrikeDeviceInfo strikeDeviceInfo,
+                                SkStrikeForGPUCacheInterface* strikeCache);
 
-    GrTextBlob(sktext::gpu::SubRunAllocator&& alloc,
-               int totalMemorySize,
-               const SkMatrix& positionMatrix,
-               SkColor initialLuminance);
+    TextBlob(SubRunAllocator&& alloc,
+             int totalMemorySize,
+             const SkMatrix& positionMatrix,
+             SkColor initialLuminance);
 
-    ~GrTextBlob() override;
+    ~TextBlob() override;
 
-    // Change memory management to handle the data after GrTextBlob, but in the same allocation
+    // Change memory management to handle the data after TextBlob, but in the same allocation
     // of memory. Only allow placement new.
     void operator delete(void* p);
     void* operator new(size_t);
@@ -252,13 +262,15 @@ public:
     const Key& key() const;
     size_t size() const { return SkTo<size_t>(fSize); }
 
+#if SK_SUPPORT_GPU
     void draw(SkCanvas*,
               const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               SkPoint drawOrigin,
               const SkPaint& paint,
               skgpu::v1::SurfaceDrawContext* sdc);
-    const GrAtlasSubRun* testingOnlyFirstSubRun() const;
+#endif
+    const AtlasSubRun* testingOnlyFirstSubRun() const;
 
 private:
     // Methods to satisfy SkGlyphRunPainterInterface
@@ -283,10 +295,10 @@ private:
 
     // The allocator must come first because it needs to be destroyed last. Other fields of this
     // structure may have pointers into it.
-    sktext::gpu::SubRunAllocator fAlloc;
+    SubRunAllocator fAlloc;
 
     // Owner and list of the SubRun.
-    GrSubRunList fSubRunList;
+    SubRunList fSubRunList;
 
     // Overall size of this struct plus vertices and glyphs at the end.
     const int fSize;
@@ -302,6 +314,9 @@ private:
     bool fSomeGlyphsExcluded{false};
 };
 
+}  // namespace sktext::gpu
+
+// TODO: why is this only in v1?
 namespace skgpu::v1 {
 sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
                                   const SkGlyphRunList& glyphRunList,
@@ -310,4 +325,5 @@ sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
                                   SkStrikeDeviceInfo strikeDeviceInfo,
                                   SkStrikeForGPUCacheInterface* strikeCache);
 }  // namespace skgpu::v1
-#endif  // GrTextBlob_DEFINED
+
+#endif  // sktext_gpu_TextBlob_DEFINED

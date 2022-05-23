@@ -21,8 +21,8 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
-#include "src/gpu/ganesh/text/GrTextBlob.h"
 #include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
+#include "src/text/gpu/TextBlob.h"
 
 #if SK_GPU_V1
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"

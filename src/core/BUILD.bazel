@@ -5552,8 +5552,8 @@ generated_cc_atom(
         "//include/private:SkTHash_hdr",
         "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
         "//src/gpu/ganesh:GrDrawOpAtlas_hdr",
-        "//src/gpu/ganesh/text:GrTextBlob_hdr",
         "//src/text/gpu:SDFTControl_hdr",
+        "//src/text/gpu:TextBlob_hdr",
     ],
 )
 
