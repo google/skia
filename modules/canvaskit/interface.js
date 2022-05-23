@@ -748,6 +748,13 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawVertices(verts, mode, paint);
   }
 
+  // getDeviceClipBounds returns an SkIRect
+  CanvasKit.Canvas.prototype.getDeviceClipBounds = function(outputRect) {
+    // _getDeviceClipBounds will copy the values into the pointer.
+    this._getDeviceClipBounds(_scratchIRectPtr);
+    return copyIRectFromWasm(_scratchIRect, outputRect);
+  };
+
   // getLocalToDevice returns a 4x4 matrix.
   CanvasKit.Canvas.prototype.getLocalToDevice = function() {
     // _getLocalToDevice will copy the values into the pointer.

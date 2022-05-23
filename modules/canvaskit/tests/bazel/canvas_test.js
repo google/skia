@@ -836,6 +836,18 @@ describe('Canvas Behavior', () => {
         // TODO(nifong) add more involved test for camera-related math.
     });
 
+    it('can change the device clip bounds to the canvas and read it back', () => {
+        // We need to use the Canvas constructor with a width/height or there is no maximum
+        // clip area, and all clipping will result in a clip of [0, 0, 0, 0]
+        const canvas = new CanvasKit.Canvas(300, 400);
+        let clip = canvas.getDeviceClipBounds();
+        expect(clip).toEqual(Int32Array.of(0, 0, 300, 400));
+
+        canvas.clipRect(CanvasKit.LTRBRect(10, 20, 30, 45), CanvasKit.ClipOp.Intersect, false);
+        canvas.getDeviceClipBounds(clip);
+        expect(clip).toEqual(Int32Array.of(10, 20, 30, 45));
+    });
+
     gm('concat_with4x4_canvas', (canvas) => {
         const path = starPath(CanvasKit, CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
         const paint = new CanvasKit.Paint();

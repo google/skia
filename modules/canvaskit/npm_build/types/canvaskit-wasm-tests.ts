@@ -148,6 +148,8 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     canvas.drawText('foo', 1, 2, paint, font);
     canvas.drawTextBlob(textBlob, 10, 20, paint);
     canvas.drawVertices(verts, CK.BlendMode.DstOut, paint);
+    const irect = canvas.getDeviceClipBounds(); // $ExpectType Int32Array
+    const irect2 = canvas.getDeviceClipBounds(irect); // $ExpectType Int32Array
     const matrTwo = canvas.getLocalToDevice(); // $ExpectType Float32Array
     const sc = canvas.getSaveCount(); // $ExpectType number
     const matrThree = canvas.getTotalMatrix(); // $ExpectType number[]

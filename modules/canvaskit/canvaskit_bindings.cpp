@@ -936,6 +936,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkCanvas>("Canvas")
         .constructor<>()
+        .constructor<SkScalar,SkScalar>()
         .function("_clear", optional_override([](SkCanvas& self, WASMPointerF32 cPtr) {
             self.clear(ptrToSkColor4f(cPtr));
         }))
@@ -1142,6 +1143,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
 #endif
         .function("_drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
+
+        .function("_getDeviceClipBounds", optional_override([](const SkCanvas& self, WASMPointerI32 iPtr) {
+            SkIRect* outputRect = reinterpret_cast<SkIRect*>(iPtr);
+            if (!outputRect) {
+                return; // output pointer cannot be null
+            }
+            self.getDeviceClipBounds(outputRect);
+        }))
         // 4x4 matrix functions
         // Just like with getTotalMatrix, we allocate the buffer for the 16 floats to go in from
         // interface.js, so it can also free them when its done.
