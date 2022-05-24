@@ -11,7 +11,6 @@
 #include "include/private/chromium/Slug.h"
 
 // TODO: Update Chrome to use sktext::gpu classes and remove these
-using GrTextReferenceFrame = sktext::gpu::TextReferenceFrame;
 using GrSlug = sktext::gpu::Slug;
 
 #endif  // GrSlug_DEFINED
