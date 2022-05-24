@@ -217,7 +217,7 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
         auto piece = &this->fParagraph->fRuns.back();
 
         // TODO: Optimize copying
-        auto zero = run->fPositions[glyphs.start];
+        SkPoint zero = {run->fPositions[glyphs.start].fX, 0};
         for (size_t i = glyphs.start; i <= glyphs.end; ++i) {
 
             auto index = i - glyphs.start;
