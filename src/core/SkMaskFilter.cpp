@@ -22,6 +22,8 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#endif
+#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #include "src/text/gpu/SDFMaskFilter.h"
 #endif
 
@@ -377,7 +379,7 @@ SkRect SkMaskFilter::approximateFilteredBounds(const SkRect& src) const {
 
 void SkMaskFilter::RegisterFlattenables() {
     sk_register_blur_maskfilter_createproc();
-#if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
     sktext::gpu::register_sdf_maskfilter_createproc();
 #endif
 }

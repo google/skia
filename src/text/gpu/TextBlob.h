@@ -317,7 +317,6 @@ private:
 
 }  // namespace sktext::gpu
 
-// TODO: why is this only in v1?
 namespace skgpu::v1 {
 sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
                                   const SkGlyphRunList& glyphRunList,

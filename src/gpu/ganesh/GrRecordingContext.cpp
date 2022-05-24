@@ -21,12 +21,14 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
-#include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
 #include "src/text/gpu/TextBlob.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 #if SK_GPU_V1
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #endif
+
+using TextBlobRedrawCoordinator = sktext::gpu::TextBlobRedrawCoordinator;
 
 GrRecordingContext::ProgramData::ProgramData(std::unique_ptr<const GrProgramDesc> desc,
                                              const GrProgramInfo* info)
@@ -138,11 +140,11 @@ GrRecordingContext::OwnedArenas&& GrRecordingContext::detachArenas() {
     return std::move(fArenas);
 }
 
-GrTextBlobRedrawCoordinator* GrRecordingContext::getTextBlobRedrawCoordinator() {
+TextBlobRedrawCoordinator* GrRecordingContext::getTextBlobRedrawCoordinator() {
     return fThreadSafeProxy->priv().getTextBlobRedrawCoordinator();
 }
 
-const GrTextBlobRedrawCoordinator* GrRecordingContext::getTextBlobRedrawCoordinator() const {
+const TextBlobRedrawCoordinator* GrRecordingContext::getTextBlobRedrawCoordinator() const {
     return fThreadSafeProxy->priv().getTextBlobRedrawCoordinator();
 }
 

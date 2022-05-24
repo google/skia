@@ -24,10 +24,10 @@
 #include "src/gpu/ganesh/GrSemaphore.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/text/gpu/StrikeCache.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 #include <algorithm>
 

@@ -185,10 +185,10 @@ generated_cc_atom(
         "//src/gpu/ganesh:GrSemaphore_hdr",
         "//src/gpu/ganesh:GrTexture_hdr",
         "//src/gpu/ganesh:SkGr_hdr",
-        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
         "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
         "//src/image:SkImage_Gpu_hdr",
         "//src/text/gpu:StrikeCache_hdr",
+        "//src/text/gpu:TextBlobRedrawCoordinator_hdr",
     ],
 )
 

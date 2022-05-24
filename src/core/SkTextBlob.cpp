@@ -22,8 +22,8 @@
 #include <limits>
 #include <new>
 
-#if SK_SUPPORT_GPU
-#include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
+#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 #endif
 
 namespace {
@@ -147,9 +147,9 @@ SkTextBlob::SkTextBlob(const SkRect& bounds)
     , fCacheID(SK_InvalidUniqueID) {}
 
 SkTextBlob::~SkTextBlob() {
-#if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
     if (SK_InvalidUniqueID != fCacheID.load()) {
-        GrTextBlobRedrawCoordinator::PostPurgeBlobMessage(fUniqueID, fCacheID);
+        sktext::gpu::TextBlobRedrawCoordinator::PostPurgeBlobMessage(fUniqueID, fCacheID);
     }
 #endif
 

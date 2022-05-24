@@ -25,9 +25,9 @@
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
-#include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 using MaskFormat = skgpu::MaskFormat;
 

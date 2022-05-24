@@ -324,8 +324,8 @@ generated_cc_atom(
         "//src/gpu/ganesh/ops:ShadowRRectOp_hdr",
         "//src/gpu/ganesh/ops:StrokeRectOp_hdr",
         "//src/gpu/ganesh/ops:TextureOp_hdr",
-        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
         "//src/text/gpu:SDFTControl_hdr",
+        "//src/text/gpu:TextBlobRedrawCoordinator_hdr",
     ],
 )
 

@@ -31,7 +31,7 @@
 
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
-#include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;
@@ -55,7 +55,7 @@ static void setup_always_evict_atlas(GrDirectContext* dContext) {
 
 class GrTextBlobTestingPeer {
 public:
-    static void SetBudget(GrTextBlobRedrawCoordinator* cache, size_t budget) {
+    static void SetBudget(sktext::gpu::TextBlobRedrawCoordinator* cache, size_t budget) {
         SkAutoSpinlock lock{cache->fSpinLock};
         cache->fSizeBudget = budget;
         cache->internalCheckPurge();

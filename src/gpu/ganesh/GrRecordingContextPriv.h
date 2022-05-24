@@ -54,7 +54,7 @@ public:
         this->context()->detachProgramData(dst);
     }
 
-    GrTextBlobRedrawCoordinator* getTextBlobCache() {
+    sktext::gpu::TextBlobRedrawCoordinator* getTextBlobCache() {
         return this->context()->getTextBlobRedrawCoordinator();
     }
 

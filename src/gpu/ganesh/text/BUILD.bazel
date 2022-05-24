@@ -41,29 +41,3 @@ generated_cc_atom(
         "//src/text/gpu:StrikeCache_hdr",
     ],
 )
-
-generated_cc_atom(
-    name = "GrTextBlobRedrawCoordinator_hdr",
-    hdrs = ["GrTextBlobRedrawCoordinator.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/core:SkRefCnt_hdr",
-        "//include/private:SkSpinlock_hdr",
-        "//include/private:SkTArray_hdr",
-        "//include/private:SkTHash_hdr",
-        "//src/core:SkMessageBus_hdr",
-        "//src/core:SkTextBlobPriv_hdr",
-        "//src/text/gpu:TextBlob_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrTextBlobRedrawCoordinator_src",
-    srcs = ["GrTextBlobRedrawCoordinator.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrTextBlobRedrawCoordinator_hdr",
-        "//src/core:SkStrikeCache_hdr",
-        "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
-    ],
-)

@@ -188,7 +188,6 @@ cc_library(
         "//src/gpu/ganesh/tessellate:PathTessellator_src",
         "//src/gpu/ganesh/tessellate:StrokeTessellator_src",
         "//src/gpu/ganesh/text:GrAtlasManager_src",
-        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_src",
     ],
 )
 
@@ -874,7 +873,7 @@ generated_cc_atom(
         ":GrCaps_hdr",
         "//include/gpu:GrContextThreadSafeProxy_hdr",
         "//include/private/gpu/ganesh:GrContext_Base_hdr",
-        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
+        "//src/text/gpu:TextBlobRedrawCoordinator_hdr",
     ],
 )
 
@@ -1103,9 +1102,9 @@ generated_cc_atom(
         "//src/gpu/ganesh/effects:GrSkSLFP_hdr",
         "//src/gpu/ganesh/effects:GrTextureEffect_hdr",
         "//src/gpu/ganesh/text:GrAtlasManager_hdr",
-        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/image:SkImage_Gpu_hdr",
+        "//src/text/gpu:TextBlobRedrawCoordinator_hdr",
     ],
 )
 
@@ -2207,7 +2206,7 @@ generated_cc_atom(
         "//src/core:SkArenaAlloc_hdr",
         "//src/gpu/ganesh/effects:GrSkSLFP_hdr",
         "//src/gpu/ganesh/ops:AtlasTextOp_hdr",
-        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
+        "//src/text/gpu:TextBlobRedrawCoordinator_hdr",
         "//src/text/gpu:TextBlob_hdr",
         "//src/utils:SkJSONWriter_hdr",
     ],

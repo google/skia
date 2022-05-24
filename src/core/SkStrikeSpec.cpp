@@ -13,7 +13,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
 
-#if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #include "src/text/gpu/SDFMaskFilter.h"
 #include "src/text/gpu/SDFTControl.h"
 #include "src/text/gpu/StrikeCache.h"
@@ -170,7 +170,7 @@ SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) 
                         SkMatrix::I());
 }
 
-#if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 std::tuple<SkStrikeSpec, SkScalar, sktext::gpu::SDFTMatrixRange>
 SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
                        const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,

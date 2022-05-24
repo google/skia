@@ -11,9 +11,9 @@
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/text/GrTextBlobRedrawCoordinator.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "src/text/gpu/SDFTControl.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 #endif // SK_SUPPORT_GPU
 
 #include "include/core/SkBitmap.h"
@@ -250,7 +250,7 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(
 }
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
-#if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 // Use the following in your args.gn to dump telemetry for diagnosing chrome Renderer/GPU
 // differences.
 // extra_cflags = ["-D", "SK_TRACE_GLYPH_RUN_PROCESS"]

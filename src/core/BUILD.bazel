@@ -2157,9 +2157,9 @@ generated_cc_atom(
         "//include/private:SkTDArray_hdr",
         "//src/gpu/ganesh:GrColorInfo_hdr",
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",
-        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
         "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
         "//src/text/gpu:SDFTControl_hdr",
+        "//src/text/gpu:TextBlobRedrawCoordinator_hdr",
     ],
 )
 
@@ -5021,7 +5021,7 @@ generated_cc_atom(
         "//include/core:SkRSXform_hdr",
         "//include/core:SkTextBlob_hdr",
         "//include/core:SkTypeface_hdr",
-        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
+        "//src/text/gpu:TextBlobRedrawCoordinator_hdr",
     ],
 )
 

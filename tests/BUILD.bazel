@@ -6541,7 +6541,7 @@ generated_cc_atom(
         "//src/core:SkGlyphRun_hdr",
         "//src/gpu/ganesh:GrDirectContextPriv_hdr",
         "//src/gpu/ganesh/text:GrAtlasManager_hdr",
-        "//src/gpu/ganesh/text:GrTextBlobRedrawCoordinator_hdr",
+        "//src/text/gpu:TextBlobRedrawCoordinator_hdr",
         "//tools:ToolUtils_hdr",
         "//tools/fonts:RandomScalerContext_hdr",
     ],
