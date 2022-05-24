@@ -116,9 +116,6 @@ TextLine::TextLine(ParagraphImpl* owner,
 
     for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
         auto b = fOwner->styles().begin() + index;
-        if (b->fStyle.isPlaceholder()) {
-            continue;
-        }
         if (b->fStyle.hasBackground()) {
             fHasBackground = true;
         }
