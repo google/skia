@@ -122,8 +122,9 @@ generated_cc_atom(
     hdrs = ["Swizzle.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkAlphaType_hdr",
+        "//include/core:SkColor_hdr",
         "//include/core:SkString_hdr",
-        "//include/private:SkColorData_hdr",
     ],
 )
 

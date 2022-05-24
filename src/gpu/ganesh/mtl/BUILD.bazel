@@ -172,6 +172,7 @@ generated_cc_atom(
         ":GrMtlSampler_hdr",
         ":GrMtlUniformHandler_hdr",
         ":GrMtlUtil_hdr",
+        "//include/private:SkColorData_hdr",
         "//src/gpu/ganesh:GrSamplerState_hdr",
     ],
 )

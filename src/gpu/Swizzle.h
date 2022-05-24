@@ -8,8 +8,9 @@
 #ifndef skgpu_Swizzle_DEFINED
 #define skgpu_Swizzle_DEFINED
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkString.h"
-#include "include/private/SkColorData.h"
 
 class SkRasterPipeline;
 
