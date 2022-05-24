@@ -5,11 +5,6 @@
         "BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64"
       ]
     },
-    "Build-Debian10-BazelClang-x86_64-Release-IWYU": {
-      "tasks": [
-        "Build-Debian10-BazelClang-x86_64-Release-IWYU"
-      ]
-    },
     "Build-Debian10-Clang-arm-Debug-Android": {
       "tasks": [
         "Build-Debian10-Clang-arm-Debug-Android"
@@ -3204,43 +3199,6 @@
         "--bazel_arg=--config=linux_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "bazelisk"
-        ]
-      },
-      "idempotent": true,
-      "max_attempts": 1,
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Build-Debian10-BazelClang-x86_64-Release-IWYU": {
-      "casSpec": "compile",
-      "cipd_packages": [
-        {
-          "name": "skia/bots/bazelisk",
-          "path": "bazelisk",
-          "version": "version:0"
-        }
-      ],
-      "command": [
-        "./bazel_check_includes",
-        "--project_id",
-        "skia-swarming-bots",
-        "--task_id",
-        "<(TASK_ID)",
-        "--task_name",
-        "Build-Debian10-BazelClang-x86_64-Release-IWYU"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
@@ -82834,14 +82792,6 @@
     }
   },
   "commit_queue": {
-    "Build-Debian10-BazelClang-x86_64-Release-IWYU": {
-      "location_regexes": [
-        "src/sksl/*",
-        "src/svg/*",
-        "src/utils/*",
-        "tools/debugger/*"
-      ]
-    },
     "Build-Debian10-Clang-arm-Debug-Android": {},
     "Build-Debian10-Clang-arm-Release-Android_API26": {},
     "Build-Debian10-Clang-arm64-Debug-Android": {},

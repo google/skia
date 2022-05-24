@@ -12,11 +12,6 @@
    },
   {"name": "Build-Debian10-GCC-x86_64-Release-NoGPU_Docker"},
   {"name": "Build-Debian10-GCC-x86_64-Release-Shared_Docker"},
-  {"name": "Build-Debian10-BazelClang-x86_64-Release-IWYU",
-    "cq_config": {
-      "location_regexes": ["src/sksl/*", "src/svg/*", "src/utils/*", "tools/debugger/*"]
-    }
-   },
   {"name": "Build-Debian10-Clang-arm-Debug-Android",
    "cq_config": {}
    },
