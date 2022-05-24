@@ -2561,7 +2561,7 @@ export interface RuntimeEffect extends EmbindObject<RuntimeEffect> {
      * @param uniforms
      * @param localMatrix
      */
-    makeShader(uniforms: Float32Array | number[],
+    makeShader(uniforms: Float32Array | number[] | MallocObj,
                localMatrix?: InputMatrix): Shader;
 
     /**
@@ -2570,7 +2570,7 @@ export interface RuntimeEffect extends EmbindObject<RuntimeEffect> {
      * @param children
      * @param localMatrix
      */
-    makeShaderWithChildren(uniforms: Float32Array | number[],
+    makeShaderWithChildren(uniforms: Float32Array | number[] | MallocObj,
                            children?: Shader[], localMatrix?: InputMatrix): Shader;
 
     /**

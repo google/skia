@@ -1861,23 +1861,35 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_makeShader", optional_override([](SkRuntimeEffect& self,
                                                       WASMPointerF32 fPtr,
                                                       size_t fLen,
+                                                      bool shouldOwnUniforms,
                                                       WASMPointerF32 mPtr)->sk_sp<SkShader> {
-            void* inputData = reinterpret_cast<void*>(fPtr);
-            castUniforms(inputData, fLen, self);
-            sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
+            void* uniformData = reinterpret_cast<void*>(fPtr);
+            castUniforms(uniformData, fLen, self);
+            sk_sp<SkData> uniforms;
+            if (shouldOwnUniforms) {
+                uniforms = SkData::MakeFromMalloc(uniformData, fLen);
+            } else {
+                uniforms = SkData::MakeWithoutCopy(uniformData, fLen);
+            }
 
             OptionalMatrix localMatrix(mPtr);
-            return self.makeShader(inputs, nullptr, 0, &localMatrix);
+            return self.makeShader(uniforms, nullptr, 0, &localMatrix);
         }))
         .function("_makeShaderWithChildren", optional_override([](SkRuntimeEffect& self,
                                                                   WASMPointerF32 fPtr,
                                                                   size_t fLen,
+                                                                  bool shouldOwnUniforms,
                                                                   WASMPointerU32 cPtrs,
                                                                   size_t cLen,
                                                                   WASMPointerF32 mPtr)->sk_sp<SkShader> {
-            void* inputData = reinterpret_cast<void*>(fPtr);
-            castUniforms(inputData, fLen, self);
-            sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
+            void* uniformData = reinterpret_cast<void*>(fPtr);
+            castUniforms(uniformData, fLen, self);
+            sk_sp<SkData> uniforms;
+            if (shouldOwnUniforms) {
+                uniforms = SkData::MakeFromMalloc(uniformData, fLen);
+            } else {
+                uniforms = SkData::MakeWithoutCopy(uniformData, fLen);
+            }
 
             sk_sp<SkShader>* children = new sk_sp<SkShader>[cLen];
             SkShader** childrenPtrs = reinterpret_cast<SkShader**>(cPtrs);
@@ -1887,7 +1899,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 children[i] = sk_ref_sp<SkShader>(childrenPtrs[i]);
             }
             OptionalMatrix localMatrix(mPtr);
-            auto s = self.makeShader(inputs, children, cLen, &localMatrix);
+            auto s = self.makeShader(uniforms, children, cLen, &localMatrix);
             delete[] children;
             return s;
         }))
