@@ -2326,77 +2326,9 @@ TextBlob::TextBlob(SubRunAllocator&& alloc,
         , fInitialPositionMatrix{positionMatrix}
         , fInitialLuminance{initialLuminance} { }
 
-bool TextBlob::processDeviceMasks(
-        const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
-    SkASSERT(strike != nullptr);
-    bool someGlyphsExcluded = false;
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        MaskFormat format,
-                                        sk_sp<SkStrike>&& runStrike) {
-        SubRunOwner subRun = DirectMaskSubRun::Make(
-                accepted,  fInitialPositionMatrix, std::move(runStrike), format, &fAlloc);
-        if (subRun != nullptr) {
-            fSubRunList.append(std::move(subRun));
-        } else {
-            someGlyphsExcluded = true;
-        }
-    };
-    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
-    return someGlyphsExcluded;
-}
-
-bool TextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                  const SkFont& runFont,
-                                  const SkDescriptor& descriptor,
-                                  SkScalar strikeToSourceScale) {
-    fSubRunList.append(PathSubRun::Make(
-        accepted, has_some_antialiasing(runFont), strikeToSourceScale, descriptor, &fAlloc));
-    return false;
-}
-
-bool TextBlob::processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                      sk_sp<SkStrike>&& strike,
-                                      const SkDescriptor& descriptor,
-                                      SkScalar strikeToSourceScale) {
-    fSubRunList.append(make_drawable_sub_run<DrawableSubRun>(
-            accepted, std::move(strike), strikeToSourceScale, descriptor, &fAlloc));
-    return false;
-}
-
-bool TextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                 sk_sp<SkStrike>&& strike,
-                                 SkScalar strikeToSourceScale,
-                                 const SkFont& runFont,
-                                 const SDFTMatrixRange& matrixRange) {
-    fSubRunList.append(SDFTSubRun::Make(
-            accepted, runFont, std::move(strike), strikeToSourceScale, matrixRange, &fAlloc));
-    return false;
-}
-
-bool TextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                  sk_sp<SkStrike>&& strike,
-                                  SkScalar strikeToSourceScale) {
-    SkASSERT(strike != nullptr);
-    bool someGlyphsExcluded = false;
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        MaskFormat format,
-                                        sk_sp<SkStrike>&& runStrike) {
-        SubRunOwner subRun = TransformedMaskSubRun::Make(
-                accepted, fInitialPositionMatrix, std::move(runStrike),
-                strikeToSourceScale, format, &fAlloc);
-        if (subRun != nullptr) {
-            fSubRunList.append(std::move(subRun));
-        } else {
-            someGlyphsExcluded = true;
-        }
-    };
-    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
-    return someGlyphsExcluded;
-}
-
 namespace {
 // -- SlugImpl -------------------------------------------------------------------------------------
-class SlugImpl final : public Slug, public SkGlyphRunPainterInterface {
+class SlugImpl final : public Slug {
 public:
     SlugImpl(SubRunAllocator&& alloc,
              SkRect sourceBounds,
@@ -2425,24 +2357,6 @@ public:
     void doFlatten(SkWriteBuffer& buffer) const override;
     SkRect sourceBounds() const override { return fSourceBounds; }
     const SkPaint& initialPaint() const override { return fInitialPaint; }
-
-    // SkGlyphRunPainterInterface
-    bool processDeviceMasks(
-            const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) override;
-    bool processSourceMasks(
-            const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike,
-            SkScalar strikeToSourceScale) override;
-    bool processSourcePaths(
-            const SkZip<SkGlyphVariant, SkPoint>& accepted, const SkFont& runFont,
-            const SkDescriptor& descriptor, SkScalar strikeToSourceScale) override;
-    bool processSourceDrawables(
-            const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike,
-            const SkDescriptor& descriptor,
-            SkScalar strikeToSourceScale) override;
-    bool processSourceSDFT(
-            const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike,
-            SkScalar strikeToSourceScale, const SkFont& runFont,
-            const SDFTMatrixRange& matrixRange) override;
 
     const SkMatrix& initialPositionMatrix() const { return fInitialPositionMatrix; }
     SkPoint origin() const { return fOrigin; }
@@ -2586,77 +2500,6 @@ sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
     if (slug->fSubRuns.isEmpty()) { return nullptr; }
 
     return slug;
-}
-
-bool SlugImpl::processDeviceMasks(
-        const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
-    bool someExcludedGlyphs = false;
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        MaskFormat format,
-                                        sk_sp<SkStrike>&& runStrike) {
-        SubRunOwner subRun = DirectMaskSubRun::Make(
-                accepted, fInitialPositionMatrix, std::move(runStrike), format, &fAlloc);
-        if (subRun != nullptr) {
-            fSubRuns.append(std::move(subRun));
-        } else {
-            someExcludedGlyphs = true;
-        }
-    };
-
-    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
-    return someExcludedGlyphs;
-}
-
-bool SlugImpl::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                  const SkFont& runFont,
-                                  const SkDescriptor& descriptor,
-                                  SkScalar strikeToSourceScale) {
-    fSubRuns.append(PathSubRun::Make(accepted,
-                                     has_some_antialiasing(runFont),
-                                     strikeToSourceScale,
-                                     descriptor,
-                                     &fAlloc));
-    return false;
-}
-
-bool SlugImpl::processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                      sk_sp<SkStrike>&& strike,
-                                      const SkDescriptor& descriptor,
-                                      SkScalar strikeToSourceScale) {
-    fSubRuns.append(make_drawable_sub_run<DrawableSubRun>(
-            accepted, std::move(strike), strikeToSourceScale, descriptor, &fAlloc));
-    return false;
-}
-
-bool SlugImpl::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                 sk_sp<SkStrike>&& strike,
-                                 SkScalar strikeToSourceScale,
-                                 const SkFont& runFont,
-                                 const SDFTMatrixRange& matrixRange) {
-    fSubRuns.append(SDFTSubRun::Make(
-        accepted, runFont, std::move(strike), strikeToSourceScale, matrixRange, &fAlloc));
-    return false;
-}
-
-bool SlugImpl::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                  sk_sp<SkStrike>&& strike,
-                                  SkScalar strikeToSourceScale) {
-    bool someExcludedGlyphs = false;
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        MaskFormat format,
-                                        sk_sp<SkStrike>&& runStrike) {
-        SubRunOwner subRun = TransformedMaskSubRun::Make(
-                accepted, fInitialPositionMatrix, std::move(runStrike), strikeToSourceScale,
-                format, &fAlloc);
-        if (subRun != nullptr) {
-            fSubRuns.append(std::move(subRun));
-        } else {
-            someExcludedGlyphs = true;
-        }
-    };
-
-    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
-    return someExcludedGlyphs;
 }
 }  // namespace
 

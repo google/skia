@@ -107,46 +107,5 @@ public:
                                        sktext::gpu::SubRunAllocator* alloc,
                                        const char* tag = nullptr);
 };
-
-// SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first
-// distinction is between Device and Source. Each of the process* routines returns true if some
-// glyphs are excluded because they are out of bounds.
-// * Device - the data in the cache is scaled to the device. There is no transformation from the
-//   cache to the screen.
-// * Source - the data in the cache needs to be scaled from the cache to source space using the
-//   factor cacheToSourceScale. When drawn the system must combine cacheToSourceScale and the
-//   deviceView matrix to transform the cache data onto the screen. This allows zooming and
-//   simple animation to reuse the same glyph data by just changing the transform.
-//
-// In addition to transformation type above, Masks, Paths, SDFT, and Fallback (or really the
-// rendering method of last resort) are the different
-// formats of data used from the cache.
-class SkGlyphRunPainterInterface {
-public:
-    virtual ~SkGlyphRunPainterInterface() = default;
-
-    virtual bool processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                    sk_sp<SkStrike>&& strike) = 0;
-
-    virtual bool processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                    sk_sp<SkStrike>&& strike,
-                                    SkScalar strikeToSourceScale) = 0;
-
-    virtual bool processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                    const SkFont& runFont,
-                                    const SkDescriptor& descriptor,
-                                    SkScalar strikeToSourceScale) = 0;
-
-    virtual bool processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                        sk_sp<SkStrike>&& strike,
-                                        const SkDescriptor& descriptor,
-                                        SkScalar strikeToSourceScale) = 0;
-
-    virtual bool processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                   sk_sp<SkStrike>&& strike,
-                                   SkScalar strikeToSourceScale,
-                                   const SkFont& runFont,
-                                   const sktext::gpu::SDFTMatrixRange& matrixRange) = 0;
-};
 #endif  // SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #endif  // SkGlyphRunPainter_DEFINED

@@ -200,8 +200,7 @@ private:
 //                    with.
 //
 //
-class TextBlob final : public SkRefCnt,
-                       public SkGlyphRunPainterInterface {
+class TextBlob final : public SkRefCnt {
 public:
     // Key is not used as part of a hash map, so the hash is never taken. It's only used in a
     // list search using operator =().
@@ -274,26 +273,6 @@ public:
     const AtlasSubRun* testingOnlyFirstSubRun() const;
 
 private:
-    // Methods to satisfy SkGlyphRunPainterInterface
-    bool processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                            sk_sp<SkStrike>&& strike) override;
-    bool processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                            const SkFont& runFont,
-                            const SkDescriptor& descriptor,
-                            SkScalar strikeToSourceScale) override;
-    bool processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                sk_sp<SkStrike>&& strike,
-                                const SkDescriptor& descriptor,
-                                SkScalar strikeToSourceScale) override;
-    bool processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                           sk_sp<SkStrike>&& strike,
-                           SkScalar strikeToSourceScale,
-                           const SkFont& runFont,
-                           const sktext::gpu::SDFTMatrixRange& matrixRange) override;
-    bool processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                            sk_sp<SkStrike>&& strike,
-                            SkScalar strikeToSourceScale) override;
-
     // The allocator must come first because it needs to be destroyed last. Other fields of this
     // structure may have pointers into it.
     SubRunAllocator fAlloc;
