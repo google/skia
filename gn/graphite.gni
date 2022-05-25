@@ -29,6 +29,7 @@ skia_graphite_sources = [
   "$_src/ClipStack_graphite.h",
   "$_src/CommandBuffer.cpp",
   "$_src/CommandBuffer.h",
+  "$_src/CommandTypes.h",
   "$_src/Context.cpp",
   "$_src/ContextPriv.cpp",
   "$_src/ContextPriv.h",

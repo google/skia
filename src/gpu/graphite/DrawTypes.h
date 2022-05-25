@@ -9,6 +9,9 @@
 #define skgpu_graphite_DrawTypes_DEFINED
 
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/TextureInfo.h"
+
+#include <array>
 
 namespace skgpu::graphite {
 
@@ -47,6 +50,26 @@ enum class StoreOp : uint8_t {
     kLast = kDiscard
 };
 inline static constexpr int kStoreOpCount = (int)(StoreOp::kLast) + 1;
+
+struct AttachmentDesc {
+    TextureInfo fTextureInfo;
+    LoadOp fLoadOp;
+    StoreOp fStoreOp;
+};
+
+struct RenderPassDesc {
+    AttachmentDesc fColorAttachment;
+    std::array<float, 4> fClearColor;
+    AttachmentDesc fColorResolveAttachment;
+
+    AttachmentDesc fDepthStencilAttachment;
+    float fClearDepth;
+    uint32_t fClearStencil;
+
+    // TODO:
+    // * bounds (TBD whether exact bounds vs. granular)
+    // * input attachments
+};
 
 /**
  * Geometric primitives used for drawing.
@@ -176,6 +199,16 @@ struct BindBufferInfo {
     bool operator!=(const BindBufferInfo& o) const {
         return !(*this == o);
     }
+};
+
+enum class UniformSlot {
+    // TODO: Want this?
+    // Meant for uniforms that change rarely to never over the course of a render pass
+    // kStatic,
+    // Meant for uniforms that are defined and used by the RenderStep portion of the pipeline shader
+    kRenderStep,
+    // Meant for uniforms that are defined and used by the paint parameters (ie SkPaint subset)
+    kPaint,
 };
 
 /*

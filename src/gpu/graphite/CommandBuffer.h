@@ -11,12 +11,10 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/graphite/CommandTypes.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
-
-struct SkIRect;
 
 namespace skgpu {
 class RefCntedCallback;
@@ -31,43 +29,6 @@ class Sampler;
 class Texture;
 class TextureProxy;
 
-enum class UniformSlot {
-    // TODO: Want this?
-    // Meant for uniforms that change rarely to never over the course of a render pass
-    // kStatic,
-    // Meant for uniforms that are defined and used by the RenderStep portion of the pipeline shader
-    kRenderStep,
-    // Meant for uniforms that are defined and used by the paint parameters (ie SkPaint subset)
-    kPaint,
-};
-
-struct AttachmentDesc {
-    TextureInfo fTextureInfo;
-    LoadOp fLoadOp;
-    StoreOp fStoreOp;
-};
-
-struct RenderPassDesc {
-    AttachmentDesc fColorAttachment;
-    std::array<float, 4> fClearColor;
-    AttachmentDesc fColorResolveAttachment;
-
-    AttachmentDesc fDepthStencilAttachment;
-    float fClearDepth;
-    uint32_t fClearStencil;
-
-    // TODO:
-    // * bounds (TBD whether exact bounds vs. granular)
-    // * input attachments
-};
-
-// specifies a single region for copying, either from buffer to texture, or vice versa
-struct BufferTextureCopyData {
-    size_t fBufferOffset;
-    size_t fBufferRowBytes;
-    SkIRect fRect;
-    unsigned int fMipLevel;
-};
 
 class CommandBuffer : public SkRefCnt, private DrawDispatcher {
 public:

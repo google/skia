@@ -69,12 +69,12 @@ generated_cc_atom(
     hdrs = ["CommandBuffer.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":CommandTypes_hdr",
         ":DrawTypes_hdr",
         ":DrawWriter_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkRect_hdr",
         "//include/core:SkRefCnt_hdr",
-        "//include/gpu/graphite:TextureInfo_hdr",
         "//include/private:SkTArray_hdr",
     ],
 )
@@ -393,7 +393,10 @@ generated_cc_atom(
     name = "DrawTypes_hdr",
     hdrs = ["DrawTypes.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/gpu/graphite:GraphiteTypes_hdr"],
+    deps = [
+        "//include/gpu/graphite:GraphiteTypes_hdr",
+        "//include/gpu/graphite:TextureInfo_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -1098,5 +1101,15 @@ generated_cc_atom(
         "//src/core:SkRectPriv_hdr",
         "//src/core:SkTLazy_hdr",
         "//src/gpu/graphite/geom:BoundsManager_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommandTypes_hdr",
+    hdrs = ["CommandTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRect_hdr",
+        "//include/gpu/graphite:GraphiteTypes_hdr",
     ],
 )
