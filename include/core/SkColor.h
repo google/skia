@@ -405,6 +405,11 @@ struct SkRGBA4f {
     uint32_t toBytes_RGBA() const;
     static SkRGBA4f FromBytes_RGBA(uint32_t color);
 
+    /**
+      Returns a copy of the SkRGBA4f but with alpha component set to 1.0f.
+
+      @return         opaque color
+    */
     SkRGBA4f makeOpaque() const {
         return { fR, fG, fB, 1.0f };
     }
