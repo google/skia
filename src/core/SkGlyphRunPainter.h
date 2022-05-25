@@ -88,17 +88,23 @@ private:
 };
 
 #if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
+namespace sktext::gpu{
+class SubRunList;
+class SubRunAllocator;
+}
+
 class SkGlyphRunListPainter {
 public:
-    // A nullptr for process means that the calls to the cache will be performed, but none of the
-    // callbacks will be called.
+    // A nullptr for subRunList means that no SubRuns will be created, but the code will go
+    // through all the decisions and strike lookups.
     // N.B. The positionMatrix has already been translated to the glyph run list origin.
-    static bool CategorizeGlyphRunList(SkGlyphRunPainterInterface* process,
-                                       const SkGlyphRunList& glyphRunList,
+    static bool CategorizeGlyphRunList(const SkGlyphRunList& glyphRunList,
                                        const SkMatrix& positionMatrix,
                                        const SkPaint& drawPaint,
                                        SkStrikeDeviceInfo strikeDeviceInfo,
                                        SkStrikeForGPUCacheInterface* strikeCache,
+                                       sktext::gpu::SubRunList* subRunList,
+                                       sktext::gpu::SubRunAllocator* alloc,
                                        const char* tag = nullptr);
 };
 

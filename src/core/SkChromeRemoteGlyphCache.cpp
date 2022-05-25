@@ -809,12 +809,13 @@ protected:
                             const SkPaint& drawingPaint) override {
         SkMatrix drawMatrix = this->localToDevice();
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
-        SkGlyphRunListPainter::CategorizeGlyphRunList(nullptr,
-                                                      glyphRunList,
+        SkGlyphRunListPainter::CategorizeGlyphRunList(glyphRunList,
                                                       drawMatrix,
                                                       drawingPaint,
                                                       this->strikeDeviceInfo(),
                                                       fStrikeServerImpl,
+                                                      nullptr,
+                                                      nullptr,
                                                       "Cache Diff");
     }
 
@@ -830,12 +831,13 @@ protected:
 
         // Use the lightweight strike cache provided by SkRemoteGlyphCache through fPainter to do
         // the analysis.
-        SkGlyphRunListPainter::CategorizeGlyphRunList(nullptr,
-                                                      glyphRunList,
+        SkGlyphRunListPainter::CategorizeGlyphRunList(glyphRunList,
                                                       positionMatrix,
                                                       drawingPaint,
                                                       this->strikeDeviceInfo(),
                                                       fStrikeServerImpl,
+                                                      nullptr,
+                                                      nullptr,
                                                       "Convert Slug Analysis");
 
         // Use the glyph strike cache to get actual glyph information.
