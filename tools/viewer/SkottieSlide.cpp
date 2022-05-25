@@ -110,12 +110,41 @@ public:
     }
 };
 
+class TestingResourceProvider : public skresources::ResourceProvider {
+public:
+    TestingResourceProvider() {}
+
+    sk_sp<SkData> load(const char resource_path[], const char resource_name[]) const override {
+        auto it = fResources.find(resource_name);
+        if (it != fResources.end()) {
+            return it->second;
+        } else {
+            return GetResourceAsData(SkOSPath::Join(resource_path, resource_name).c_str());
+        }
+    }
+
+    sk_sp<skresources::ImageAsset> loadImageAsset(const char resource_path[],
+                                                  const char resource_name[],
+                                                  const char /*resource_id*/[]) const override {
+        auto data = this->load(resource_path, resource_name);
+        return skresources::MultiFrameImageAsset::Make(data);
+    }
+
+    void addPath(const char resource_name[], const SkPath& path) {
+        fResources[resource_name] = path.serialize();
+    }
+
+private:
+    std::unordered_map<std::string, sk_sp<SkData>> fResources;
+};
+
 class ParticleMarker final : public Decorator {
 public:
     ~ParticleMarker() override = default;
 
     static std::unique_ptr<Decorator> MakeConfetti() { return std::make_unique<ParticleMarker>("confetti.json"); }
     static std::unique_ptr<Decorator> MakeSine() { return std::make_unique<ParticleMarker>("sinusoidal_emitter.json"); }
+    static std::unique_ptr<Decorator> MakeSkottie() { return std::make_unique<ParticleMarker>("skottie_particle.json"); }
 
     explicit ParticleMarker(const char* effect_file) {
         SkParticleEffect::RegisterParticleTypes();
@@ -126,9 +155,8 @@ public:
             skjson::DOM dom(static_cast<const char*>(fileData->data()), fileData->size());
             SkFromJsonVisitor fromJson(dom.root());
             params->visitFields(&fromJson);
-            // We can pass in a null pointer because the SkCircleDrawable used in confetti.json
-            // doesn't use the resource provider
-            params->prepare(nullptr);
+            auto provider = sk_make_sp<TestingResourceProvider>();
+            params->prepare(provider.get());
         } else {
             SkDebugf("no particle effect file found at: %s\n", effectJsonPath.c_str());
         }
@@ -157,9 +185,10 @@ static const struct DecoratorRec {
     const char* fName;
     std::unique_ptr<Decorator>(*fFactory)();
 } kDecorators[] = {
-    { "Simple marker", SimpleMarker::Make },
-    { "Confetti",      ParticleMarker::MakeConfetti },
-    { "Sine Wave",     ParticleMarker::MakeSine },
+    { "Simple marker",       SimpleMarker::Make },
+    { "Confetti",            ParticleMarker::MakeConfetti },
+    { "Sine Wave",           ParticleMarker::MakeSine },
+    { "Nested Skotties",     ParticleMarker::MakeSkottie },
 };
 
 } // namespace

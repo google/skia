@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)  // Google3 doesn't build particles module
+#if !defined(SK_BUILD_FOR_SKQP)  // SkQP doesn't need to test particles
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -99,4 +100,5 @@ DEF_GM(return new ParticlesGM("uniforms",     2.0, {250, 250}, {125, 125},
                                                {"spin",  {4.0f}},
                                                {"color", {0.25f, 0.75f, 0.75f}}});)
 
+#endif  // SK_BUILD_FOR_SKQP
 #endif  // SK_BUILD_FOR_GOOGLE3

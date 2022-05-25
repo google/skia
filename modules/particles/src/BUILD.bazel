@@ -42,6 +42,7 @@ generated_cc_atom(
         "//include/private:SkTPin_hdr",
         "//modules/particles/include:SkParticleData_hdr",
         "//modules/particles/include:SkParticleDrawable_hdr",
+        "//modules/skottie/include:Skottie_hdr",
         "//modules/skresources/include:SkResources_hdr",
         "//src/core:SkAutoMalloc_hdr",
     ],

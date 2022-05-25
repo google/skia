@@ -8,6 +8,7 @@ def GetGNArgs(api_level, debug, arch=None, ndk=None, is_android_bp=False):
         'is_debug':                         'true' if debug else 'false',
         'skia_enable_fontmgr_android':      'false',
         'skia_enable_fontmgr_empty':        'true',
+        'skia_enable_particles':            'false',
         'skia_enable_pdf':                  'false',
         'skia_enable_skottie':              'false',
         'skia_enable_skshaper':             'false',
