@@ -63,7 +63,7 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
                                            const ProxyParams& p) {
     const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
     return proxyProvider->createProxy(format, {p.fSize, p.fSize}, p.fRenderable, p.fSampleCnt,
-                                      GrMipmapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo);
+                                      GrMipmapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo, /*label=*/{});
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrDirectContext* dContext, const ProxyParams& p) {

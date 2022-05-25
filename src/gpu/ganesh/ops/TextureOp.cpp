@@ -1402,9 +1402,16 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kNo);
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, dims, GrRenderable::kNo, 1, mipmapped, fit, SkBudgeted::kNo, GrProtected::kNo,
-            GrInternalSurfaceFlags::kNone);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(format,
+                                                             dims,
+                                                             GrRenderable::kNo,
+                                                             1,
+                                                             mipmapped,
+                                                             fit,
+                                                             SkBudgeted::kNo,
+                                                             GrProtected::kNo,
+                                                             /*label=*/{},
+                                                             GrInternalSurfaceFlags::kNone);
 
     SkRect rect = GrTest::TestRect(random);
     SkRect srcRect;

@@ -328,7 +328,7 @@ GrSurfaceProxyView render_sw_mask(GrRecordingContext* context,
                                                                         GrColorType::kAlpha_8);
         auto proxy = proxyProvider->createProxy(format, bounds.size(), GrRenderable::kNo, 1,
                                                 GrMipmapped::kNo, SkBackingFit::kApprox,
-                                                SkBudgeted::kYes, GrProtected::kNo);
+                                                SkBudgeted::kYes, GrProtected::kNo, /*label=*/{});
 
         // Since this will be rendered on another thread, make a copy of the elements in case
         // the clip stack is modified on the main thread

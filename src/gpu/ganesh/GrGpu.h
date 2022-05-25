@@ -88,6 +88,8 @@ public:
     // into an unrecoverable, lost state.
     virtual bool isDeviceLost() const { return false; }
 
+    virtual void updateResourceLabel(GrGpuResource*);
+
     /**
      * The GrGpu object normally assumes that no outsider is setting state
      * within the underlying 3D API's context/device/whatever. This call informs

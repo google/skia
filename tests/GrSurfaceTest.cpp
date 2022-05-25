@@ -167,7 +167,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 
             sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                     combo.fFormat, kDims, GrRenderable::kNo, 1, GrMipmapped::kYes,
-                    SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
+                    SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, /*label=*/{});
             REPORTER_ASSERT(reporter, SkToBool(proxy.get()) == expectedMipMapability,
                             "ct:%s format:%s, tex:%d, expectedMipMapability:%d",
                             GrColorTypeToStr(combo.fColorType), combo.fFormat.toStr().c_str(),
