@@ -48,9 +48,10 @@ struct SkAdvancedTypefaceMetrics {
     FontType fType = kOther_Font;
 
     enum FontFlags : uint8_t {
-        kVariable_FontFlag       = 0x01,  //!<May be true for Type1, CFF, or TrueType fonts.
-        kNotEmbeddable_FontFlag  = 0x02,  //!<May not be embedded.
-        kNotSubsettable_FontFlag = 0x04,  //!<May not be subset.
+        kVariable_FontFlag       = 1 << 0,  //!<May be true for Type1, CFF, or TrueType fonts.
+        kNotEmbeddable_FontFlag  = 1 << 1,  //!<May not be embedded.
+        kNotSubsettable_FontFlag = 1 << 2,  //!<May not be subset.
+        kAltDataFormat_FontFlag  = 1 << 3,  //!<Data compressed. Table access may still work.
     };
     FontFlags fFlags = (FontFlags)0;  // Global font flags.
 

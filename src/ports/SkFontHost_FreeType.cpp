@@ -33,6 +33,8 @@
 #include "src/core/SkTSearch.h"
 #include "src/ports/SkFontHost_FreeType_common.h"
 #include "src/sfnt/SkOTUtils.h"
+#include "src/sfnt/SkSFNTHeader.h"
+#include "src/sfnt/SkTTCFHeader.h"
 #include "src/utils/SkCallableTraits.h"
 #include "src/utils/SkMatrix22.h"
 
@@ -513,6 +515,27 @@ static SkAdvancedTypefaceMetrics::FontType get_font_type(FT_Face face) {
     return SkAdvancedTypefaceMetrics::kOther_Font;
 }
 
+static bool is_opentype_font_data_standard_format(const SkTypeface& typeface) {
+    // FreeType reports TrueType for any data that can be decoded to TrueType or OpenType.
+    // However, there are alternate data formats for OpenType, like wOFF and wOF2.
+    std::unique_ptr<SkStreamAsset> stream = typeface.openStream(nullptr);
+    if (!stream) {
+        return false;
+    }
+    char buffer[4];
+    if (stream->read(buffer, 4) < 4) {
+        return false;
+    }
+
+    SkFourByteTag tag = SkSetFourByteTag(buffer[0], buffer[1], buffer[2], buffer[3]);
+    SK_OT_ULONG otTag = SkEndian_SwapBE32(tag);
+    return otTag == SkSFNTHeader::fontType_WindowsTrueType::TAG ||
+           otTag == SkSFNTHeader::fontType_MacTrueType::TAG ||
+           otTag == SkSFNTHeader::fontType_PostScript::TAG ||
+           otTag == SkSFNTHeader::fontType_OpenTypeCFF::TAG ||
+           otTag == SkTTCFHeader::TAG;
+}
+
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMetrics() const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
@@ -535,6 +558,12 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     }
 
     info->fType = get_font_type(face);
+    if (info->fType == SkAdvancedTypefaceMetrics::kTrueType_Font &&
+        !is_opentype_font_data_standard_format(*this))
+    {
+        info->fFlags |= SkAdvancedTypefaceMetrics::kAltDataFormat_FontFlag;
+    }
+
     info->fStyle = (SkAdvancedTypefaceMetrics::StyleFlags)0;
     if (FT_IS_FIXED_WIDTH(face)) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;

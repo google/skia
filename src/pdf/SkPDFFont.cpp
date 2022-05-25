@@ -171,6 +171,12 @@ const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface* typefac
 SkAdvancedTypefaceMetrics::FontType SkPDFFont::FontType(const SkTypeface& typeface,
                                                         const SkAdvancedTypefaceMetrics& metrics) {
     if (SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kVariable_FontFlag) ||
+        // PDF is actually interested in the encoding of the data, not just the logical format.
+        // If the TrueType is actually wOFF or wOF2 then it should not be directly embedded in PDF.
+        // For now export these as Type3 until the subsetter can handle table based fonts.
+        // See https://github.com/harfbuzz/harfbuzz/issues/3609 and
+        // https://skia-review.googlesource.com/c/skia/+/543485
+        SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kAltDataFormat_FontFlag) ||
         SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag)) {
         // force Type3 fallback.
         return SkAdvancedTypefaceMetrics::kOther_Font;
