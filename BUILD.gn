@@ -1951,6 +1951,14 @@ if (skia_enable_tools) {
       "tools/trace/SkDebugfTracer.cpp",
       "tools/trace/SkDebugfTracer.h",
     ]
+    if (skia_use_perfetto) {
+      deps += [ "//third_party/perfetto" ]
+      sources += [
+        "tools/trace/SkPerfettoTrace.cpp",
+        "tools/trace/SkPerfettoTrace.h",
+      ]
+      defines = [ "SK_USE_PERFETTO" ]
+    }
   }
 
   test_lib("tool_utils") {

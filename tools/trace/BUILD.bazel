@@ -47,6 +47,7 @@ generated_cc_atom(
         ":ChromeTracingTracer_hdr",
         ":EventTracingPriv_hdr",
         ":SkDebugfTracer_hdr",
+        ":SkPerfettoTrace_hdr",
         "//include/utils:SkEventTracer_hdr",
         "//src/core:SkATrace_hdr",
         "//src/core:SkTraceEvent_hdr",
@@ -71,6 +72,28 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkDebugfTracer_hdr",
+        "//src/core:SkTraceEvent_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPerfettoTrace_hdr",
+    hdrs = ["SkPerfettoTrace.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":EventTracingPriv_hdr",
+        "//include/utils:SkEventTracer_hdr",
+        "//third_party/externals/perfetto/sdk:perfetto_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPerfettoTrace_src",
+    srcs = ["SkPerfettoTrace.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPerfettoTrace_hdr",
+        "//src/core:SkTraceEventCommon_hdr",
         "//src/core:SkTraceEvent_hdr",
     ],
 )
