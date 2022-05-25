@@ -10,6 +10,7 @@
 #include "include/core/SkPoint3.h"
 #include "include/core/SkSpan.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"

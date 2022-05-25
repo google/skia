@@ -51,6 +51,7 @@ generated_cc_atom(
         "//src/core:SkDraw_hdr",
         "//src/core:SkEndian_hdr",
         "//src/core:SkGeometry_hdr",
+        "//src/core:SkGlyphRun_hdr",
         "//src/core:SkImagePriv_hdr",
         "//src/core:SkLeanWindows_hdr",
         "//src/core:SkMaskFilterBase_hdr",

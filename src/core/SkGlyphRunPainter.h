@@ -8,27 +8,12 @@
 #ifndef SkGlyphRunPainter_DEFINED
 #define SkGlyphRunPainter_DEFINED
 
+#include "include/core/SkColorType.h"
 #include "include/core/SkSurfaceProps.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkDistanceFieldGen.h"
-#include "src/core/SkGlyphRun.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkTextBlobPriv.h"
 
-#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
-#include "src/text/gpu/SDFTControl.h"
-#endif
-
-#if SK_SUPPORT_GPU
-class GrColorInfo;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
-#endif
-
-class SkGlyphRunPainterInterface;
-class SkStrikeSpec;
-namespace sktext {
-class SDFTMatrixRange;
-}
+class SkGlyphRunList;
 
 class SkStrikeCommon {
 public:

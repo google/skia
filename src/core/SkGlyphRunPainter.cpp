@@ -28,6 +28,7 @@
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyphBuffer.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"

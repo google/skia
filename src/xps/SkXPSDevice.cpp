@@ -39,6 +39,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkRasterClip.h"

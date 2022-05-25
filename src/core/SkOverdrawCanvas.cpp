@@ -16,6 +16,8 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkGlyphBuffer.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkLatticeIter.h"

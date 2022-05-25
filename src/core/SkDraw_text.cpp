@@ -8,6 +8,7 @@
 #include "include/core/SkBitmap.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRasterClip.h"

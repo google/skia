@@ -11,6 +11,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "src/core/SkDevice.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/text/gpu/TextBlob.h"

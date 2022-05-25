@@ -7,6 +7,7 @@
 
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkStrikeCache.h"
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"

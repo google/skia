@@ -207,8 +207,10 @@ generated_cc_atom(
         "//include/private:SkTemplates_hdr",
         "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
         "//include/private/chromium:Slug_hdr",
+        "//src/core:SkDistanceFieldGen_hdr",
         "//src/core:SkEnumerate_hdr",
         "//src/core:SkFontPriv_hdr",
+        "//src/core:SkGlyphRun_hdr",
         "//src/core:SkGlyph_hdr",
         "//src/core:SkMaskFilterBase_hdr",
         "//src/core:SkMatrixProvider_hdr",
@@ -251,6 +253,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":TextBlobRedrawCoordinator_hdr",
+        "//src/core:SkGlyphRun_hdr",
         "//src/core:SkStrikeCache_hdr",
         "//src/gpu/ganesh/v1:SurfaceDrawContext_v1_hdr",
     ],

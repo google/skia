@@ -106,6 +106,7 @@ generated_cc_atom(
         "//src/core:SkCanvasPriv_hdr",
         "//src/core:SkClipStack_hdr",
         "//src/core:SkDraw_hdr",
+        "//src/core:SkGlyphRun_hdr",
         "//src/core:SkImageFilterCache_hdr",
         "//src/core:SkImageFilter_Base_hdr",
         "//src/core:SkLatticeIter_hdr",

@@ -18,6 +18,7 @@
 #include "include/utils/SkRandom.h"
 
 #include "src/core/SkDraw.h"
+#include "src/core/SkPaintPriv.h"
 
 enum Flags {
     kStroke_Flag = 1 << 0,

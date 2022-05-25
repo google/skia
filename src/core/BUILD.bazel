@@ -1011,6 +1011,7 @@ generated_cc_atom(
         ":SkSpecialImage_hdr",
         ":SkStrikeCache_hdr",
         ":SkTLazy_hdr",
+        ":SkTextBlobPriv_hdr",
         ":SkTextFormatParams_hdr",
         ":SkTraceEvent_hdr",
         ":SkVerticesPriv_hdr",
@@ -1735,6 +1736,7 @@ generated_cc_atom(
     deps = [
         ":SkDraw_hdr",
         ":SkFontPriv_hdr",
+        ":SkGlyphRun_hdr",
         ":SkMatrixProvider_hdr",
         ":SkPaintPriv_hdr",
         ":SkRasterClip_hdr",
@@ -2117,12 +2119,9 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkDevice_hdr",
-        ":SkDistanceFieldGen_hdr",
-        ":SkGlyphRun_hdr",
         ":SkScalerContext_hdr",
-        ":SkTextBlobPriv_hdr",
+        "//include/core:SkColorType_hdr",
         "//include/core:SkSurfaceProps_hdr",
-        "//src/text/gpu:SDFTControl_hdr",
     ],
 )
 
@@ -2138,6 +2137,7 @@ generated_cc_atom(
         ":SkFontPriv_hdr",
         ":SkGlyphBuffer_hdr",
         ":SkGlyphRunPainter_hdr",
+        ":SkGlyphRun_hdr",
         ":SkRasterClip_hdr",
         ":SkScalerCache_hdr",
         ":SkScalerContext_hdr",
@@ -3101,7 +3101,9 @@ generated_cc_atom(
     deps = [
         ":SkDevice_hdr",
         ":SkDrawShadowInfo_hdr",
+        ":SkGlyphBuffer_hdr",
         ":SkGlyphRunPainter_hdr",
+        ":SkGlyphRun_hdr",
         ":SkImagePriv_hdr",
         ":SkLatticeIter_hdr",
         ":SkStrikeCache_hdr",
@@ -4262,6 +4264,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkEnumerate_hdr",
+        ":SkGlyphBuffer_hdr",
         ":SkScalerCache_hdr",
         ":SkScalerContext_hdr",
         "//include/core:SkDrawable_hdr",

@@ -233,6 +233,7 @@ generated_cc_atom(
         "//include/core:SkPoint3_hdr",
         "//include/core:SkSpan_hdr",
         "//include/gpu:GrRecordingContext_hdr",
+        "//src/core:SkGlyphRun_hdr",
         "//src/core:SkMathPriv_hdr",
         "//src/core:SkMatrixPriv_hdr",
         "//src/core:SkMatrixProvider_hdr",
