@@ -48,8 +48,6 @@ void GrGpu::initCapsAndCompiler(sk_sp<const GrCaps> caps) {
 
 void GrGpu::disconnect(DisconnectType type) {}
 
-void GrGpu::updateResourceLabel(GrGpuResource* gpu) {}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 static bool validate_texel_levels(SkISize dimensions, GrColorType texelColorType,

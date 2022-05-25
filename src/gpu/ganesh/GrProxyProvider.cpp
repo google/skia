@@ -443,7 +443,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted,
                                                    GrProtected isProtected,
-                                                   std::string_view label,
                                                    GrInternalSurfaceFlags surfaceFlags,
                                                    GrSurfaceProxy::UseAllocator useAllocator) {
     ASSERT_SINGLE_OWNER
@@ -495,7 +494,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                                     surfaceFlags | extraFlags,
                                                                     useAllocator,
                                                                     this->isDDLProvider(),
-                                                                    label));
+                                                                    {}));
     }
 
     return sk_sp<GrTextureProxy>(new GrTextureProxy(format,
@@ -508,7 +507,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                     surfaceFlags,
                                                     useAllocator,
                                                     this->isDDLProvider(),
-                                                    label));
+                                                    {}));
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(

@@ -477,8 +477,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
                                                               GrMipmapped::kNo,
                                                               SkBackingFit::kExact,
                                                               SkBudgeted::kYes,
-                                                              GrProtected::kNo,
-                                                              /*label=*/{});
+                                                              GrProtected::kNo);
 
     do {
         if (random->nextBool()) {

@@ -511,13 +511,6 @@ void GrGLGpu::disconnect(DisconnectType type) {
     fFinishCallbacks.callAll(/* doDelete */ DisconnectType::kCleanup == type);
 }
 
-void GrGLGpu::updateResourceLabel(GrGpuResource* gpu) {
-    const std::string label = "Skia_" + gpu->getLabel();
-    GrGLuint id = 0;
-    GL_CALL(GenTextures(1, &id));
-    GR_GL_CALL(this->glInterface(), ObjectLabel(GR_GL_TEXTURE, id, -1, label.c_str()));
-}
-
 GrThreadSafePipelineBuilder* GrGLGpu::pipelineBuilder() {
     return fProgramCache.get();
 }

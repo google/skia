@@ -425,8 +425,7 @@ bool SurfaceContext::internalWritePixels(GrDirectContext* dContext,
                                                                        GrMipmapped::kNo,
                                                                        SkBackingFit::kApprox,
                                                                        SkBudgeted::kYes,
-                                                                       GrProtected::kNo,
-                                                                       /*label=*/{});
+                                                                       GrProtected::kNo);
         if (!tempProxy) {
             return false;
         }
