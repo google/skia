@@ -8,10 +8,8 @@
 
 class SkData;
 class SkPDFGlyphUse;
+class SkTypeface;
 
-sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData> fontData,
-                              const SkPDFGlyphUse& glyphUsage,
-                              SkPDF::Metadata::Subsetter subsetter,
-                              int ttcIndex);
+sk_sp<SkData> SkPDFSubsetFont(const SkTypeface& typeface, const SkPDFGlyphUse& glyphUsage);
 
 #endif  // SkPDFSubsetFont_DEFINED
