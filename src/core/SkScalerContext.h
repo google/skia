@@ -39,12 +39,6 @@ enum class SkScalerContextFlags : uint32_t {
 };
 SK_MAKE_BITFIELD_OPS(SkScalerContextFlags)
 
-enum class SkAxisAlignment : uint32_t {
-    kNone,
-    kX,
-    kY,
-};
-
 /*
  *  To allow this to be forward-declared, it must be its own typename, rather
  *  than a nested struct inside SkScalerContext (where it started).

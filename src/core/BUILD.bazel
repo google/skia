@@ -2203,7 +2203,6 @@ generated_cc_atom(
     deps = [
         ":SkMask_hdr",
         ":SkMathPriv_hdr",
-        ":SkStrikeForGPU_hdr",
         "//include/core:SkPath_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkChecksum_hdr",

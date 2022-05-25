@@ -16,12 +16,12 @@
 #include "include/private/SkVx.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMathPriv.h"
-#include "src/core/SkStrikeForGPU.h"
 
 class SkArenaAlloc;
 class SkDrawable;
 class SkScalerContext;
 
+// -- SkPackedGlyphID ------------------------------------------------------------------------------
 // A combination of SkGlyphID and sub-pixel position information.
 struct SkPackedGlyphID {
     inline static constexpr uint32_t kImpossibleID = ~0u;
@@ -190,6 +190,34 @@ private:
     }
 
     uint32_t fID;
+};
+
+// -- SkAxisAlignment ------------------------------------------------------------------------------
+// SkAxisAlignment specifies the x component of a glyph's position is rounded when kX, and the y
+// component is rounded when kY. If kNone then neither are rounded.
+enum class SkAxisAlignment : uint32_t {
+    kNone,
+    kX,
+    kY,
+};
+
+// round and ignorePositionMask are used to calculate the subpixel position of a glyph.
+// The per component (x or y) calculation is:
+//
+//   subpixelOffset = (floor((viewportPosition + rounding) & mask) >> 14) & 3
+//
+// where mask is either 0 or ~0, and rounding is either
+// 1/2 for non-subpixel or 1/8 for subpixel.
+struct SkGlyphPositionRoundingSpec {
+    SkGlyphPositionRoundingSpec(bool isSubpixel, SkAxisAlignment axisAlignment);
+    const SkVector halfAxisSampleFreq;
+    const SkIPoint ignorePositionMask;
+    const SkIPoint ignorePositionFieldMask;
+
+private:
+    static SkVector HalfAxisSampleFreq(bool isSubpixel, SkAxisAlignment axisAlignment);
+    static SkIPoint IgnorePositionMask(bool isSubpixel, SkAxisAlignment axisAlignment);
+    static SkIPoint IgnorePositionFieldMask(bool isSubpixel, SkAxisAlignment axisAlignment);
 };
 
 class SkGlyphRect;
