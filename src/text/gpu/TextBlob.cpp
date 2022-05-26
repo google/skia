@@ -2766,9 +2766,9 @@ bool SkGlyphRunListPainter::CategorizeGlyphRunList(const SkGlyphRunList& glyphRu
             auto [strikeSpec, strikeToSourceScale] =
                     SkStrikeSpec::MakePath(runFont, runPaint, deviceProps, scalerContextFlags);
 
-            #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            if constexpr (kTrace) {
                 msg.appendf("  Path case:\n%s", strikeSpec.dump().c_str());
-            #endif
+            }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
                 SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
