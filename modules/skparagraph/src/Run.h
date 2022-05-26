@@ -150,6 +150,9 @@ public:
     SkSpan<const SkPoint> positions() const {
         return SkSpan<const SkPoint>(fPositions.begin(), fPositions.size());
     }
+    SkSpan<const SkPoint> offsets() const {
+        return SkSpan<const SkPoint>(fOffsets.begin(), fOffsets.size());
+    }
     SkSpan<const uint32_t> clusterIndexes() const {
         return SkSpan<const uint32_t>(fClusterIndexes.begin(), fClusterIndexes.size());
     }
@@ -183,11 +186,13 @@ private:
     struct GlyphData {
         SkSTArray<64, SkGlyphID, true> glyphs;
         SkSTArray<64, SkPoint, true> positions;
+        SkSTArray<64, SkPoint, true> offsets;
         SkSTArray<64, uint32_t, true> clusterIndexes;
     };
     std::shared_ptr<GlyphData> fGlyphData;
     SkSTArray<64, SkGlyphID, true>& fGlyphs;
     SkSTArray<64, SkPoint, true>& fPositions;
+    SkSTArray<64, SkPoint, true>& fOffsets;
     SkSTArray<64, uint32_t, true>& fClusterIndexes;
 
     SkSTArray<64, SkPoint, true> fJustificationShifts; // For justification (current and prev shifts)

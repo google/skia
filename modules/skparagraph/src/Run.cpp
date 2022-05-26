@@ -30,6 +30,7 @@ Run::Run(ParagraphImpl* owner,
     , fGlyphData(std::make_shared<GlyphData>())
     , fGlyphs(fGlyphData->glyphs)
     , fPositions(fGlyphData->positions)
+    , fOffsets(fGlyphData->offsets)
     , fClusterIndexes(fGlyphData->clusterIndexes)
     , fHeightMultiplier(heightMultiplier)
     , fUseHalfLeading(useHalfLeading)
@@ -43,6 +44,7 @@ Run::Run(ParagraphImpl* owner,
 
     fGlyphs.push_back_n(info.glyphCount);
     fPositions.push_back_n(info.glyphCount + 1);
+    fOffsets.push_back_n(info.glyphCount + 1);
     fClusterIndexes.push_back_n(info.glyphCount + 1);
     info.fFont.getMetrics(&fFontMetrics);
 
@@ -50,6 +52,7 @@ Run::Run(ParagraphImpl* owner,
 
     // To make edge cases easier:
     fPositions[info.glyphCount] = fOffset + fAdvance;
+    fOffsets[info.glyphCount] = {0, 0};
     fClusterIndexes[info.glyphCount] = this->leftToRight() ? info.utf8Range.end() : info.utf8Range.begin();
     fEllipsis = false;
     fPlaceholderIndex = std::numeric_limits<size_t>::max();
@@ -79,7 +82,7 @@ void Run::calculateMetrics() {
 }
 
 SkShaper::RunHandler::Buffer Run::newRunBuffer() {
-    return {fGlyphs.data(), fPositions.data(), nullptr, fClusterIndexes.data(), fOffset};
+    return {fGlyphs.data(), fPositions.data(), fOffsets.data(), fClusterIndexes.data(), fOffset};
 }
 
 void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size) const {
@@ -87,14 +90,13 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size) const {
     const auto& blobBuffer = builder.allocRunPos(fFont, SkToInt(size));
     sk_careful_memcpy(blobBuffer.glyphs, fGlyphs.data() + pos, size * sizeof(SkGlyphID));
 
-    if (fJustificationShifts.empty()) {
-        sk_careful_memcpy(blobBuffer.points(), fPositions.data() + pos, size * sizeof(SkPoint));
-    } else {
-        for (size_t i = 0; i < size; ++i) {
-            auto point = fPositions[i + pos];
+    for (size_t i = 0; i < size; ++i) {
+        auto point = fPositions[i + pos];
+        if (!fJustificationShifts.empty()) {
             point.fX += fJustificationShifts[i + pos].fX;
-            blobBuffer.points()[i] = point;
         }
+        point += fOffsets[i + pos];
+        blobBuffer.points()[i] = point;
     }
 }
 
