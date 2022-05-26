@@ -118,7 +118,6 @@ public:
                       skgpu::v1::SurfaceDrawContext*) const = 0;
 #endif
 
-    virtual const BlobSubRun* blobCast() const;
     void flatten(SkWriteBuffer& buffer) const;
     static SubRunOwner MakeFromBuffer(const SkMatrix& initialPositionMatrix,
                                       SkReadBuffer& buffer,

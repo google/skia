@@ -54,7 +54,6 @@ using AtlasTextOp = skgpu::v1::AtlasTextOp;
 
 using MaskFormat = skgpu::MaskFormat;
 
-namespace sktext::gpu {
 // -- GPU Text -------------------------------------------------------------------------------------
 // There are three broad types of SubRun implementations for drawing text using the GPU.
 // TextBlob (runs with no postfix) - these runs support drawing for TextBlobs.
@@ -69,6 +68,7 @@ namespace sktext::gpu {
 // Note:
 //   In order to use Slugs, you need to set the fSupportBilerpFromGlyphAtlas on GrContextOptions.
 
+namespace sktext::gpu {
 enum SubRun::SubRunType : int {
     kBad = 0,  // Make this 0 to line up with errors from readInt.
     kDirectMask,
@@ -78,12 +78,6 @@ enum SubRun::SubRunType : int {
     kDrawable,
     kSubRunTypeCount,
 };
-
-// -- SubRun -------------------------------------------------------------------------------------
-SubRun::~SubRun() = default;
-const BlobSubRun* SubRun::blobCast() const {
-    SK_ABORT("This is not a subclass of GrBlobSubRun.");
-}
 }  // namespace sktext::gpu
 
 using namespace sktext::gpu;
@@ -2552,6 +2546,7 @@ sk_sp<Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
 namespace sktext::gpu {
 
 // -- SubRun -------------------------------------------------------------------------------------
+SubRun::~SubRun() = default;
 void SubRun::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(this->subRunType());
     this->doFlatten(buffer);
