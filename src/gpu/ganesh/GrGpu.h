@@ -201,12 +201,12 @@ public:
      * @param size            size of buffer to create.
      * @param intendedType    hint to the graphics subsystem about what the buffer will be used for.
      * @param accessPattern   hint to the graphics subsystem about how the data will be accessed.
-     * @param data            optional data with which to initialize the buffer.
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    sk_sp<GrGpuBuffer> createBuffer(size_t size, GrGpuBufferType intendedType,
-                                    GrAccessPattern accessPattern, const void* data = nullptr);
+    sk_sp<GrGpuBuffer> createBuffer(size_t size,
+                                    GrGpuBufferType intendedType,
+                                    GrAccessPattern accessPattern);
 
     /**
      * Resolves MSAA. The resolveRect must already be in the native destination space.
@@ -727,8 +727,9 @@ private:
     virtual sk_sp<GrRenderTarget> onWrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                                         const GrVkDrawableInfo&);
 
-    virtual sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType intendedType,
-                                              GrAccessPattern, const void* data) = 0;
+    virtual sk_sp<GrGpuBuffer> onCreateBuffer(size_t size,
+                                              GrGpuBufferType intendedType,
+                                              GrAccessPattern) = 0;
 
     // overridden by backend-specific derived class to perform the surface read
     virtual bool onReadPixels(GrSurface*,

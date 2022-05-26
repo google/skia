@@ -926,6 +926,8 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture,
     const size_t trimRowBytes = rect.width() * bpp;
     const void* pixels = (void*)offset;
 
+    SkASSERT(glBuffer->glSizeInBytes() >= offset + rowBytes*(rect.height() - 1) + trimRowBytes);
+
     bool restoreGLRowLength = false;
     if (trimRowBytes != rowBytes) {
         // we should have checked for this support already
@@ -969,7 +971,12 @@ bool GrGLGpu::onTransferPixelsFrom(GrSurface* surface,
                                    sk_sp<GrGpuBuffer> transferBuffer,
                                    size_t offset) {
     auto* glBuffer = static_cast<GrGLBuffer*>(transferBuffer.get());
+    SkASSERT(glBuffer->glSizeInBytes() >= offset + (rect.width() *
+                                                    rect.height()*
+                                                    GrColorTypeBytesPerPixel(dstColorType)));
+
     this->bindBuffer(GrGpuBufferType::kXferGpuToCpu, glBuffer);
+
     auto offsetAsPtr = reinterpret_cast<void*>(offset);
     return this->readOrTransferPixelsFrom(surface,
                                           rect,
@@ -1834,9 +1841,10 @@ sk_sp<GrAttachment> GrGLGpu::makeMSAAAttachment(SkISize dimensions, const GrBack
 
 ////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrGpuBuffer> GrGLGpu::onCreateBuffer(size_t size, GrGpuBufferType intendedType,
-                                           GrAccessPattern accessPattern, const void* data) {
-    return GrGLBuffer::Make(this, size, intendedType, accessPattern, data);
+sk_sp<GrGpuBuffer> GrGLGpu::onCreateBuffer(size_t size,
+                                           GrGpuBufferType intendedType,
+                                           GrAccessPattern accessPattern) {
+    return GrGLBuffer::Make(this, size, intendedType, accessPattern);
 }
 
 void GrGLGpu::flushScissorTest(GrScissorTest scissorTest) {
@@ -3117,8 +3125,11 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
             1, 0,
             1, 1
         };
-        fCopyProgramArrayBuffer = GrGLBuffer::Make(this, sizeof(vdata), GrGpuBufferType::kVertex,
-                                                   kStatic_GrAccessPattern, vdata);
+        fCopyProgramArrayBuffer = GrGLBuffer::Make(this,
+                                                   sizeof(vdata),
+                                                   GrGpuBufferType::kVertex,
+                                                   kStatic_GrAccessPattern);
+        fCopyProgramArrayBuffer->updateData(vdata, sizeof(vdata));
     }
     if (!fCopyProgramArrayBuffer) {
         return false;
@@ -3552,8 +3563,11 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
             1, 0,
             1, 1
         };
-        fMipmapProgramArrayBuffer = GrGLBuffer::Make(this, sizeof(vdata), GrGpuBufferType::kVertex,
-                                                     kStatic_GrAccessPattern, vdata);
+        fMipmapProgramArrayBuffer = GrGLBuffer::Make(this,
+                                                     sizeof(vdata),
+                                                     GrGpuBufferType::kVertex,
+                                                     kStatic_GrAccessPattern);
+        fMipmapProgramArrayBuffer->updateData(vdata, sizeof(vdata));
     }
     if (!fMipmapProgramArrayBuffer) {
         return false;

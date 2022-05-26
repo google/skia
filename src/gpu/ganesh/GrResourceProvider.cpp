@@ -571,14 +571,19 @@ int GrResourceProvider::NumVertsPerAAQuad() { return kVertsPerAAQuad; }
 int GrResourceProvider::NumIndicesPerAAQuad() { return kIndicesPerAAQuad; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType intendedType,
+sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size,
+                                                    GrGpuBufferType intendedType,
                                                     GrAccessPattern accessPattern,
                                                     const void* data) {
     if (this->isAbandoned()) {
         return nullptr;
     }
     if (kDynamic_GrAccessPattern != accessPattern) {
-        return this->gpu()->createBuffer(size, intendedType, accessPattern, data);
+        auto buffer = this->gpu()->createBuffer(size, intendedType, accessPattern);
+        if (buffer && data) {
+            buffer->updateData(data, size);
+        }
+        return buffer;
     }
     // bin by pow2+midpoint with a reasonable min
     static const size_t MIN_SIZE = 1 << 12;

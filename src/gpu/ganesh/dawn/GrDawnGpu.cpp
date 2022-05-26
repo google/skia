@@ -178,13 +178,10 @@ GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
-                                             GrAccessPattern accessPattern, const void* data) {
-    sk_sp<GrDawnBuffer> buffer = GrDawnBuffer::Make(this, size, type, accessPattern, /*label=*/{});
-    if (data && buffer) {
-        buffer->updateData(data, size);
-    }
-    return std::move(buffer);
+sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size,
+                                             GrGpuBufferType type,
+                                             GrAccessPattern accessPattern) {
+    return GrDawnBuffer::Make(this, size, type, accessPattern, /*label=*/{});
 }
 
 ////////////////////////////////////////////////////////////////////////////////

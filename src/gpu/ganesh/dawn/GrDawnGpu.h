@@ -161,8 +161,7 @@ private:
                                           const void* data,
                                           size_t size) override;
 
-    sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType type, GrAccessPattern,
-                                      const void* data) override;
+    sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType type, GrAccessPattern) override;
 
     bool onReadPixels(GrSurface*,
                       SkIRect,

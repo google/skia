@@ -87,8 +87,9 @@ private:
 
     sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) override;
 
-    sk_sp<GrGpuBuffer> onCreateBuffer(size_t sizeInBytes, GrGpuBufferType, GrAccessPattern,
-                                      const void*) override;
+    sk_sp<GrGpuBuffer> onCreateBuffer(size_t sizeInBytes,
+                                      GrGpuBufferType,
+                                      GrAccessPattern) override;
 
     bool onReadPixels(GrSurface*,
                       SkIRect,

@@ -34,16 +34,17 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu, size_t size, GrGpuBufferType intendedType,
-                                   GrAccessPattern accessPattern, const void* data) {
+sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu,
+                                   size_t size,
+                                   GrGpuBufferType intendedType,
+                                   GrAccessPattern accessPattern) {
     if (gpu->glCaps().transferBufferType() == GrGLCaps::TransferBufferType::kNone &&
         (GrGpuBufferType::kXferCpuToGpu == intendedType ||
          GrGpuBufferType::kXferGpuToCpu == intendedType)) {
         return nullptr;
     }
 
-    sk_sp<GrGLBuffer> buffer(
-            new GrGLBuffer(gpu, size, intendedType, accessPattern, data, /*label=*/{}));
+    sk_sp<GrGLBuffer> buffer(new GrGLBuffer(gpu, size, intendedType, accessPattern, /*label=*/{}));
     if (0 == buffer->bufferID()) {
         return nullptr;
     }
@@ -108,7 +109,6 @@ GrGLBuffer::GrGLBuffer(GrGLGpu* gpu,
                        size_t size,
                        GrGpuBufferType intendedType,
                        GrAccessPattern accessPattern,
-                       const void* data,
                        std::string_view label)
         : INHERITED(gpu, size, intendedType, accessPattern, label)
         , fIntendedType(intendedType)
@@ -117,9 +117,11 @@ GrGLBuffer::GrGLBuffer(GrGLGpu* gpu,
         , fGLSizeInBytes(0)
         , fHasAttachedToTexture(false) {
     GL_CALL(GenBuffers(1, &fBufferID));
-    if (fBufferID) {
+    // We only need allocate the buffer if this may be the destination of a transfer. Other use
+    // cases will always get an updateData() or map() call before use.
+    if (fBufferID && fIntendedType == GrGpuBufferType::kXferGpuToCpu) {
         GrGLenum target = gpu->bindBuffer(fIntendedType, this);
-        GrGLenum error = GL_ALLOC_CALL(BufferData(target, (GrGLsizeiptr)size, data, fUsage));
+        GrGLenum error = GL_ALLOC_CALL(BufferData(target, (GrGLsizeiptr)size, nullptr, fUsage));
         if (error != GR_GL_NO_ERROR) {
             GL_CALL(DeleteBuffers(1, &fBufferID));
             fBufferID = 0;

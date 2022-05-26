@@ -445,8 +445,9 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
-                                           GrAccessPattern accessPattern, const void* data) {
+sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size,
+                                           GrGpuBufferType type,
+                                           GrAccessPattern accessPattern) {
 #ifdef SK_DEBUG
     switch (type) {
         case GrGpuBufferType::kVertex:
@@ -467,12 +468,7 @@ sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
             break;
     }
 #endif
-    sk_sp<GrGpuBuffer> buff = GrVkBuffer::Make(this, size, type, accessPattern);
-
-    if (data && buff) {
-        buff->updateData(data, size);
-    }
-    return buff;
+    return GrVkBuffer::Make(this, size, type, accessPattern);
 }
 
 bool GrVkGpu::onWritePixels(GrSurface* surface,

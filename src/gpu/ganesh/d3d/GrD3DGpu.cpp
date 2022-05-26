@@ -1263,14 +1263,10 @@ bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
     return true;
 }
 
-sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,
-                                             GrAccessPattern accessPattern, const void* data) {
-    sk_sp<GrD3DBuffer> buffer = GrD3DBuffer::Make(this, sizeInBytes, type, accessPattern);
-    if (data && buffer) {
-        buffer->updateData(data, sizeInBytes);
-    }
-
-    return std::move(buffer);
+sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes,
+                                            GrGpuBufferType type,
+                                            GrAccessPattern accessPattern) {
+    return GrD3DBuffer::Make(this, sizeInBytes, type, accessPattern);
 }
 
 sk_sp<GrAttachment> GrD3DGpu::makeStencilAttachment(const GrBackendFormat& /*colorFormat*/,
