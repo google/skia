@@ -13,16 +13,12 @@
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/trace/ChromeTracingTracer.h"
 #include "tools/trace/SkDebugfTracer.h"
-#if defined(SK_USE_PERFETTO)
-  #include "tools/trace/SkPerfettoTrace.h"
-#endif
 
 static DEFINE_string(trace,
               "",
               "Log trace events in one of several modes:\n"
               "  debugf     : Show events using SkDebugf\n"
               "  atrace     : Send events to Android ATrace\n"
-              "  perfetto   : Send events to Perfetto (Linux, Android, and Mac only)\n"
               "  <filename> : Any other string is interpreted as a filename. Writes\n"
               "               trace events to specified file as JSON, for viewing\n"
               "               with chrome://tracing");
@@ -45,18 +41,7 @@ void initializeEventTracingForTools(const char* traceFlag) {
         eventTracer = new SkATrace();
     } else if (0 == strcmp(traceFlag, "debugf")) {
         eventTracer = new SkDebugfTracer();
-    }
-    else if (0 == strcmp(traceFlag, "perfetto")) {
-      #if defined(SK_USE_PERFETTO)
-        eventTracer = new SkPerfettoTrace();
-      #else
-        SkDebugf("Perfetto is not enabled (SK_USE_PERFETTO is false). "
-          "Perfetto tracing will not be performed.\n"
-          "Tracing with Perfetto is only enabled for Linux, Android, and Mac.");
-        return;
-      #endif
-    }
-    else {
+    } else {
         eventTracer = new ChromeTracingTracer(traceFlag);
     }
 

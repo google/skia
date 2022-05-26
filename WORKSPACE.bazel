@@ -230,10 +230,3 @@ new_local_repository(
     path = "third_party/externals/vulkan-tools",
     workspace_file_content = "",
 )
-
-new_local_repository(
-    name = "perfetto",
-    build_file = "bazel/external/perfetto/BUILD.bazel",
-    path = "third_party/externals/perfetto",
-    workspace_file_content = "",
-)
