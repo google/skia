@@ -539,10 +539,10 @@ private:
             if (!failFillingIn) {
                 ++fStats->fNumHWCreations;
 
-                sk_sp<GrGpuBuffer> tmp = rp->createBuffer(fVertexData->size(),
+                sk_sp<GrGpuBuffer> tmp = rp->createBuffer(fVertexData->vertices(),
+                                                          fVertexData->size(),
                                                           GrGpuBufferType::kVertex,
-                                                          kStatic_GrAccessPattern,
-                                                          fVertexData->vertices());
+                                                          kStatic_GrAccessPattern);
                 fVertexData->setGpuBuffer(std::move(tmp));
             }
         }

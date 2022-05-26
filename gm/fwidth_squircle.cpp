@@ -224,8 +224,10 @@ private:
             {-1, +1},
             {+1, +1},
         };
-        fVertexBuffer = flushState->resourceProvider()->createBuffer(
-                sizeof(vertices), GrGpuBufferType::kVertex, kStatic_GrAccessPattern, vertices);
+        fVertexBuffer = flushState->resourceProvider()->createBuffer(vertices,
+                                                                     sizeof(vertices),
+                                                                     GrGpuBufferType::kVertex,
+                                                                     kStatic_GrAccessPattern);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) final {

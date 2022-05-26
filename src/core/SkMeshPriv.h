@@ -170,10 +170,10 @@ sk_sp<Base> SkMeshPriv::GpuBuffer<Base, Type>::Make(GrDirectContext* dc,sk_sp<co
     SkASSERT(data);
 
     sk_sp<GrGpuBuffer> buffer = dc->priv().resourceProvider()->createBuffer(
+            data->data(),
             data->size(),
             Type,
-            kStatic_GrAccessPattern,
-            data->data());
+            kStatic_GrAccessPattern);
     if (!buffer) {
         return nullptr;
     }

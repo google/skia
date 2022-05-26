@@ -50,9 +50,10 @@ std::pair<sk_sp<GrGpuBuffer>, bool> GrVkPipelineStateDataManager::uploadUniforms
     } else {
         if (fUniformsDirty) {
             GrResourceProvider* resourceProvider = gpu->getContext()->priv().resourceProvider();
-            fUniformBuffer = resourceProvider->createBuffer(
-                    fUniformSize, GrGpuBufferType::kUniform, kDynamic_GrAccessPattern,
-                    fUniformData.get());
+            fUniformBuffer = resourceProvider->createBuffer(fUniformData.get(),
+                                                            fUniformSize,
+                                                            GrGpuBufferType::kUniform,
+                                                            kDynamic_GrAccessPattern);
             if (!fUniformBuffer) {
                 return std::make_pair(nullptr, false);
             }

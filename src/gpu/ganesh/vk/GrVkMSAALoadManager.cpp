@@ -182,8 +182,10 @@ bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
     // TODO: Is it worth holding onto the last used uniform buffer and tracking the width, height,
     // dst width, and dst height so that we can use the buffer again without having to update the
     // data?
-    sk_sp<GrGpuBuffer> uniformBuffer = resourceProvider->createBuffer(
-            4 * sizeof(float), GrGpuBufferType::kUniform, kDynamic_GrAccessPattern, uniData);
+    sk_sp<GrGpuBuffer> uniformBuffer = resourceProvider->createBuffer(uniData,
+                                                                      sizeof(uniData),
+                                                                      GrGpuBufferType::kUniform,
+                                                                      kDynamic_GrAccessPattern);
     if (!uniformBuffer) {
         return false;
     }

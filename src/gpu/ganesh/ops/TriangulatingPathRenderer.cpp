@@ -297,10 +297,10 @@ private:
 
         if (fVertexData) {
             if (!fVertexData->gpuBuffer()) {
-                sk_sp<GrGpuBuffer> buffer = rp->createBuffer(fVertexData->size(),
+                sk_sp<GrGpuBuffer> buffer = rp->createBuffer(fVertexData->vertices(),
+                                                             fVertexData->size(),
                                                              GrGpuBufferType::kVertex,
-                                                             kStatic_GrAccessPattern,
-                                                             fVertexData->vertices());
+                                                             kStatic_GrAccessPattern);
                 if (!buffer) {
                     return;
                 }

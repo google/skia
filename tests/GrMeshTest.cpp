@@ -537,14 +537,18 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MeshTestProcessor::makeProgram
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<const GrBuffer> DrawMeshHelper::makeIndexBuffer(const uint16_t indices[], int count) {
-    return sk_sp<const GrBuffer>(fState->resourceProvider()->createBuffer(
-            count * sizeof(uint16_t), GrGpuBufferType::kIndex, kDynamic_GrAccessPattern, indices));
+    return fState->resourceProvider()->createBuffer(indices,
+                                                    count*sizeof(uint16_t),
+                                                    GrGpuBufferType::kIndex,
+                                                    kDynamic_GrAccessPattern);
 }
 
 template<typename T>
 sk_sp<const GrBuffer> DrawMeshHelper::makeVertexBuffer(const T* data, int count) {
-    return sk_sp<const GrBuffer>(fState->resourceProvider()->createBuffer(
-            count * sizeof(T), GrGpuBufferType::kVertex, kDynamic_GrAccessPattern, data));
+    return fState->resourceProvider()->createBuffer(data,
+                                                    count*sizeof(T),
+                                                    GrGpuBufferType::kVertex,
+                                                    kDynamic_GrAccessPattern);
 }
 
 sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {

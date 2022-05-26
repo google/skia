@@ -209,8 +209,10 @@ private:
         v[1].color = SK_ColorGREEN;
         v[2].color = SK_ColorYELLOW;
         v[3].color = SK_ColorMAGENTA;
-        fVertexBuffer = flushState->resourceProvider()->createBuffer(
-                sizeof(v), GrGpuBufferType::kVertex, kStatic_GrAccessPattern, v);
+        fVertexBuffer = flushState->resourceProvider()->createBuffer(v,
+                                                                     sizeof(v),
+                                                                     GrGpuBufferType::kVertex,
+                                                                     kStatic_GrAccessPattern);
     }
 
     void onPrepare(GrOpFlushState* flushState) override {

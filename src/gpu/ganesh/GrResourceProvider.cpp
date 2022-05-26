@@ -436,14 +436,19 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrGpuBufferT
     if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(key)) {
         return std::move(buffer);
     }
-    if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern, staticData)) {
-        // We shouldn't bin and/or cache static buffers.
-        SkASSERT(buffer->size() == size);
-        SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
-        buffer->resourcePriv().setUniqueKey(key);
-        return sk_sp<const GrGpuBuffer>(buffer);
+
+    auto buffer = this->createBuffer(staticData, size, intendedType, kStatic_GrAccessPattern);
+    if (!buffer) {
+        return nullptr;
     }
-    return nullptr;
+
+    // We shouldn't bin and/or cache static buffers.
+    SkASSERT(buffer->size() == size);
+    SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
+
+    buffer->resourcePriv().setUniqueKey(key);
+
+    return std::move(buffer);
 }
 
 sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
@@ -454,30 +459,35 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
     if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(uniqueKey)) {
         return std::move(buffer);
     }
-    if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern)) {
-        // We shouldn't bin and/or cache static buffers.
-        SkASSERT(buffer->size() == size);
-        SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
-        buffer->resourcePriv().setUniqueKey(uniqueKey);
 
-        // Map the buffer. Use a staging buffer on the heap if mapping isn't supported.
-        skgpu::VertexWriter vertexWriter = {buffer->map(), size};
-        SkAutoTMalloc<char> stagingBuffer;
-        if (!vertexWriter) {
-            SkASSERT(!buffer->isMapped());
-            vertexWriter = {stagingBuffer.reset(size), size};
-        }
-
-        initializeBufferFn(std::move(vertexWriter), size);
-
-        if (buffer->isMapped()) {
-            buffer->unmap();
-        } else {
-            buffer->updateData(stagingBuffer, size);
-        }
-        return std::move(buffer);
+    auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern);
+    if (!buffer) {
+        return nullptr;
     }
-    return nullptr;
+
+    // We shouldn't bin and/or cache static buffers.
+    SkASSERT(buffer->size() == size);
+    SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
+
+    buffer->resourcePriv().setUniqueKey(uniqueKey);
+
+    // Map the buffer. Use a staging buffer on the heap if mapping isn't supported.
+    skgpu::VertexWriter vertexWriter = {buffer->map(), size};
+    SkAutoTMalloc<char> stagingBuffer;
+    if (!vertexWriter) {
+        SkASSERT(!buffer->isMapped());
+        vertexWriter = {stagingBuffer.reset(size), size};
+    }
+
+    initializeBufferFn(std::move(vertexWriter), size);
+
+    if (buffer->isMapped()) {
+        buffer->unmap();
+    } else {
+        buffer->updateData(stagingBuffer, size);
+    }
+
+    return std::move(buffer);
 }
 
 sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(
@@ -571,19 +581,15 @@ int GrResourceProvider::NumVertsPerAAQuad() { return kVertsPerAAQuad; }
 int GrResourceProvider::NumIndicesPerAAQuad() { return kIndicesPerAAQuad; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size,
                                                     GrGpuBufferType intendedType,
-                                                    GrAccessPattern accessPattern,
-                                                    const void* data) {
+                                                    GrAccessPattern accessPattern) {
     if (this->isAbandoned()) {
         return nullptr;
     }
     if (kDynamic_GrAccessPattern != accessPattern) {
-        auto buffer = this->gpu()->createBuffer(size, intendedType, accessPattern);
-        if (buffer && data) {
-            buffer->updateData(data, size);
-        }
-        return buffer;
+        return this->gpu()->createBuffer(size, intendedType, accessPattern);
     }
     // bin by pow2+midpoint with a reasonable min
     static const size_t MIN_SIZE = 1 << 12;
@@ -602,12 +608,6 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size,
                     key)));
     if (!buffer) {
         buffer = this->gpu()->createBuffer(allocSize, intendedType, kDynamic_GrAccessPattern);
-        if (!buffer) {
-            return nullptr;
-        }
-    }
-    if (data) {
-        buffer->updateData(data, size);
     }
     return buffer;
 }

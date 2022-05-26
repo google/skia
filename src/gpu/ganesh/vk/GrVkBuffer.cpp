@@ -209,7 +209,10 @@ void GrVkBuffer::copyCpuDataToGpuBuffer(const void* src, size_t size) {
     } else {
         GrResourceProvider* resourceProvider = gpu->getContext()->priv().resourceProvider();
         sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
-                size, GrGpuBufferType::kXferCpuToGpu, kDynamic_GrAccessPattern, src);
+                src,
+                size,
+                GrGpuBufferType::kXferCpuToGpu,
+                kDynamic_GrAccessPattern);
         if (!transferBuffer) {
             return;
         }
