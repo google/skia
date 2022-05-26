@@ -796,6 +796,7 @@ cc_library(
         "externals/freetype/include/freetype/internal/ftgloadr.h",
         "externals/freetype/include/freetype/internal/fthash.h",
         "externals/freetype/include/freetype/internal/ftmemory.h",
+        "externals/freetype/include/freetype/internal/ftmmtypes.h",
         "externals/freetype/include/freetype/internal/ftobjs.h",
         "externals/freetype/include/freetype/internal/ftpsprop.h",
         "externals/freetype/include/freetype/internal/ftrfork.h",
