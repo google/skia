@@ -155,7 +155,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                             sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                                     format, dims, GrRenderable::kYes, numSamples, GrMipmapped::kNo,
-                                    fit, budgeted, GrProtected::kNo, /*label=*/{});
+                                    fit, budgeted, GrProtected::kNo);
                             REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                             if (proxy) {
                                 REPORTER_ASSERT(reporter, proxy->asRenderTargetProxy());
@@ -201,7 +201,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                             sk_sp<GrTextureProxy> proxy(proxyProvider->createProxy(
                                     format, dims, GrRenderable::kNo, numSamples, GrMipmapped::kNo,
-                                    fit, budgeted, GrProtected::kNo, /*label=*/{}));
+                                    fit, budgeted, GrProtected::kNo));
                             REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                             if (proxy) {
                                 // This forces the proxy to compute and cache its
@@ -357,7 +357,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(
                             format, {width, height}, renderable, 1, GrMipmapped::kNo, fit,
-                            SkBudgeted::kNo, GrProtected::kNo, /*label=*/{});
+                            SkBudgeted::kNo, GrProtected::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
                 }
             }

@@ -181,8 +181,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
             mipmapped,
             fit,
             budgeted,
-            isProtected,
-            /*label=*/{});
+            isProtected);
     if (!proxy) {
         return nullptr;
     }
@@ -227,8 +226,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
                                                                                 mipmapped,
                                                                                 fit,
                                                                                 budgeted,
-                                                                                isProtected,
-                                                                                /*label=*/{});
+                                                                                isProtected);
     if (!proxy) {
         return nullptr;
     }

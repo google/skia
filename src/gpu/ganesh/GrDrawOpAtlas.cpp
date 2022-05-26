@@ -477,17 +477,10 @@ bool GrDrawOpAtlas::createPages(
         if (GrColorTypeIsAlphaOnly(grColorType)) {
             swizzle = skgpu::Swizzle::Concat(swizzle, skgpu::Swizzle("aaaa"));
         }
-        sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(fFormat,
-                                                                 dims,
-                                                                 GrRenderable::kNo,
-                                                                 1,
-                                                                 GrMipmapped::kNo,
-                                                                 SkBackingFit::kExact,
-                                                                 SkBudgeted::kYes,
-                                                                 GrProtected::kNo,
-                                                                 fLabel,
-                                                                 GrInternalSurfaceFlags::kNone,
-                                                                 GrSurfaceProxy::UseAllocator::kNo);
+        sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(
+                fFormat, dims, GrRenderable::kNo, 1, GrMipmapped::kNo, SkBackingFit::kExact,
+                SkBudgeted::kYes, GrProtected::kNo, GrInternalSurfaceFlags::kNone,
+                GrSurfaceProxy::UseAllocator::kNo);
         if (!proxy) {
             return false;
         }

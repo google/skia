@@ -135,8 +135,7 @@ std::unique_ptr<skgpu::SurfaceContext> GrRecordingContextPriv::makeSC(const GrIm
                                                                      mipmapped,
                                                                      fit,
                                                                      budgeted,
-                                                                     isProtected,
-                                                                     /*label=*/{});
+                                                                     isProtected);
     if (!proxy) {
         return nullptr;
     }
@@ -182,8 +181,7 @@ std::unique_ptr<skgpu::SurfaceFillContext> GrRecordingContextPriv::makeSFC(GrIma
                                                                      mipmapped,
                                                                      fit,
                                                                      budgeted,
-                                                                     isProtected,
-                                                                     /*label=*/{});
+                                                                     isProtected);
     if (!proxy) {
         return nullptr;
     }
@@ -245,8 +243,7 @@ std::unique_ptr<skgpu::SurfaceFillContext> GrRecordingContextPriv::makeSFC(
                                                                      mipmapped,
                                                                      fit,
                                                                      budgeted,
-                                                                     isProtected,
-                                                                     /*label=*/{});
+                                                                     isProtected);
     if (!proxy) {
         return nullptr;
     }

@@ -163,7 +163,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             {
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                         format, kDims, GrRenderable::kNo, 1, GrMipmapped::kNo, SkBackingFit::kExact,
-                        SkBudgeted::kYes, GrProtected::kNo, /*label=*/{});
+                        SkBudgeted::kYes, GrProtected::kNo);
 
                 {
                     SkTArray<GrSurfaceProxyView> views;

@@ -1705,7 +1705,7 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrRecordingContext* rContext,
                                                                  GrRenderable::kNo);
 
     return proxyProvider->createProxy(format, dims, renderable, sampleCnt, GrMipmapped::kYes,
-                                      SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo, /*label=*/{});
+                                      SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,

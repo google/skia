@@ -67,11 +67,6 @@ void GrGpuResource::abandon() {
     fGpuMemorySize = 0;
 }
 
-void GrGpuResource::setLabel(std::string_view label) {
-    fLabel = label;
-    this->getGpu()->updateResourceLabel(this);
-}
-
 void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     if (this->fRefsWrappedObjects && !traceMemoryDump->shouldDumpWrappedObjects()) {
         return;

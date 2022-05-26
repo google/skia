@@ -174,9 +174,9 @@ public:
         associated unique key. */
     const skgpu::UniqueKey& getUniqueKey() const { return fUniqueKey; }
 
-    std::string getLabel() const { return fLabel; }
+    std::string_view getLabel() const { return fLabel; }
 
-    void setLabel(std::string_view label);
+    void setLabel(std::string_view label) { fLabel = label; }
 
     /**
      * Internal-only helper class used for manipulations of the resource by the cache.
