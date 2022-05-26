@@ -184,6 +184,57 @@ private:
     SubRunOwner* fTail{&fHead};
 };
 
+// -- SubRunContainer ------------------------------------------------------------------------------
+class SubRunContainer;
+using SubRunContainerOwner = std::unique_ptr<SubRunContainer, SubRunAllocator::Destroyer>;
+class SubRunContainer {
+public:
+    explicit SubRunContainer(const SkMatrix& initialPositionMatrix);
+    SubRunContainer() = delete;
+    SubRunContainer(const SubRunContainer&) = delete;
+    SubRunContainer& operator=(const SubRunContainer&) = delete;
+
+    // Delete the move operations because the SubRuns contain pointers to fInitialPositionMatrix.
+    SubRunContainer(SubRunContainer&&) = delete;
+    SubRunContainer& operator=(SubRunContainer&&) = delete;
+
+    void flattenAllocSizeHint(SkWriteBuffer& buffer) const;
+    static int AllocSizeHintFromBuffer(SkReadBuffer& buffer);
+
+    void flattenRuns(SkWriteBuffer& buffer) const;
+    static SubRunContainerOwner MakeFromBufferInAlloc(SkReadBuffer& buffer,
+                                                      const SkStrikeClient* client,
+                                                      SubRunAllocator* alloc);
+
+    static std::tuple<bool, SubRunContainerOwner> MakeInAlloc(
+            const SkGlyphRunList& glyphRunList,
+            const SkMatrix& positionMatrix,
+            const SkPaint& runPaint,
+            SkStrikeDeviceInfo strikeDeviceInfo,
+            SkStrikeForGPUCacheInterface* strikeCache,
+            sktext::gpu::SubRunAllocator* alloc,
+            const char* tag);
+
+#if SK_SUPPORT_GPU
+    void draw(SkCanvas* canvas,
+              const GrClip* clip,
+              const SkMatrixProvider& viewMatrix,
+              SkPoint drawOrigin,
+              const SkPaint& paint,
+              const SkRefCnt* subRunStorage,
+              skgpu::v1::SurfaceDrawContext* sdc) const;
+#endif
+
+    const SkMatrix& initialPosition() const { return fInitialPositionMatrix; }
+    bool isEmpty() const { return fSubRuns.isEmpty(); }
+    bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const;
+
+private:
+    friend struct SubRunContainerPeer;
+    const SkMatrix fInitialPositionMatrix;
+    SubRunList fSubRuns;
+};
+
 // -- TextBlob -----------------------------------------------------------------------------------
 // A TextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
 // on the GPU.  These are initially created with valid positions and colors, but with invalid
@@ -239,6 +290,7 @@ public:
                                 SkStrikeForGPUCacheInterface* strikeCache);
 
     TextBlob(SubRunAllocator&& alloc,
+             SubRunContainerOwner subRuns,
              int totalMemorySize,
              const SkMatrix& positionMatrix,
              SkColor initialLuminance);
@@ -276,8 +328,7 @@ private:
     // structure may have pointers into it.
     SubRunAllocator fAlloc;
 
-    // Owner and list of the SubRun.
-    SubRunList fSubRunList;
+    SubRunContainerOwner fSubRuns;
 
     // Overall size of this struct plus vertices and glyphs at the end.
     const int fSize;

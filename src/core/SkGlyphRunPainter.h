@@ -58,20 +58,5 @@ namespace sktext::gpu{
 class SubRunList;
 class SubRunAllocator;
 }
-
-class SkGlyphRunListPainter {
-public:
-    // A nullptr for subRunList means that no SubRuns will be created, but the code will go
-    // through all the decisions and strike lookups.
-    // N.B. The positionMatrix has already been translated to the glyph run list origin.
-    static bool CategorizeGlyphRunList(const SkGlyphRunList& glyphRunList,
-                                       const SkMatrix& positionMatrix,
-                                       const SkPaint& drawPaint,
-                                       SkStrikeDeviceInfo strikeDeviceInfo,
-                                       SkStrikeForGPUCacheInterface* strikeCache,
-                                       sktext::gpu::SubRunList* subRunList,
-                                       sktext::gpu::SubRunAllocator* alloc,
-                                       const char* tag = nullptr);
-};
 #endif  // SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #endif  // SkGlyphRunPainter_DEFINED
