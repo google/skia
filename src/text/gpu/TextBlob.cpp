@@ -4,6 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+// -- GPU Text -------------------------------------------------------------------------------------
+// Naming conventions
+//  * drawMatrix - the CTM from the canvas.
+//  * drawOrigin - the x, y location of the drawTextBlob call.
+//  * positionMatrix - this is the combination of the drawMatrix and the drawOrigin:
+//        positionMatrix = drawMatrix * TranslationMatrix(drawOrigin.x, drawOrigin.y);
+//
+// Note:
+//   In order to transform Slugs, you need to set the fSupportBilerpFromGlyphAtlas on
+//   GrContextOptions.
+
 #include "src/text/gpu/TextBlob.h"
 
 #include "include/core/SkColorFilter.h"
@@ -54,21 +66,8 @@ using AtlasTextOp = skgpu::v1::AtlasTextOp;
 
 using MaskFormat = skgpu::MaskFormat;
 
-// -- GPU Text -------------------------------------------------------------------------------------
-// There are three broad types of SubRun implementations for drawing text using the GPU.
-// TextBlob (runs with no postfix) - these runs support drawing for TextBlobs.
-// sktext::gpu::Slug (Slug postfix) - these runs support drawing of Slugs.
-//
-// Naming conventions
-//  * drawMatrix - the CTM from the canvas.
-//  * drawOrigin - the x, y location of the drawTextBlob call.
-//  * positionMatrix - this is the combination of the drawMatrix and the drawOrigin:
-//        positionMatrix = drawMatrix * TranslationMatrix(drawOrigin.x, drawOrigin.y);
-//
-// Note:
-//   In order to use Slugs, you need to set the fSupportBilerpFromGlyphAtlas on GrContextOptions.
-
 namespace sktext::gpu {
+// -- SubRunType -----------------------------------------------------------------------------------
 enum SubRun::SubRunType : int {
     kBad = 0,  // Make this 0 to line up with errors from readInt.
     kDirectMask,
@@ -82,6 +81,14 @@ enum SubRun::SubRunType : int {
 
 using namespace sktext::gpu;
 namespace {
+// Use the following in your args.gn to dump telemetry for diagnosing chrome Renderer/GPU
+// differences.
+// extra_cflags = ["-D", "SK_TRACE_GLYPH_RUN_PROCESS"]
+#if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+    static const constexpr bool kTrace = true;
+#else
+    static const constexpr bool kTrace = false;
+#endif
 
 template <typename T>
 bool pun_read(SkReadBuffer& buffer, T* dst) {
@@ -2086,10 +2093,6 @@ void add_multi_mask_format(
     addSingleMaskFormat(glyphsWithSameFormat, format, std::move(strike));
 }
 
-}  // namespace
-
-// -- TextBlob::Key ------------------------------------------------------------------------------
-
 static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
     SkColor canonicalColor = SkPaintPriv::ComputeLuminanceColor(paint);
     if (lcd) {
@@ -2115,6 +2118,184 @@ static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
     return canonicalColor;
 }
 
+// -- SlugImpl -------------------------------------------------------------------------------------
+class SlugImpl final : public Slug {
+public:
+    SlugImpl(SubRunAllocator&& alloc,
+             SkRect sourceBounds,
+             const SkPaint& paint,
+             const SkMatrix& positionMatrix,
+             SkPoint origin);
+    ~SlugImpl() override = default;
+
+    static sk_sp<SlugImpl> Make(const SkMatrixProvider& viewMatrix,
+                                const SkGlyphRunList& glyphRunList,
+                                const SkPaint& initialPaint,
+                                const SkPaint& drawingPaint,
+                                SkStrikeDeviceInfo strikeDeviceInfo,
+                                SkStrikeForGPUCacheInterface* strikeCache);
+    static sk_sp<Slug> MakeFromBuffer(SkReadBuffer& buffer,
+                                      const SkStrikeClient* client);
+
+#if SK_SUPPORT_GPU
+    void surfaceDraw(SkCanvas*,
+                     const GrClip* clip,
+                     const SkMatrixProvider& viewMatrix,
+                     const SkPaint& paint,
+                     skgpu::v1::SurfaceDrawContext* sdc) const;
+#endif
+
+    void doFlatten(SkWriteBuffer& buffer) const override;
+    SkRect sourceBounds() const override { return fSourceBounds; }
+    const SkPaint& initialPaint() const override { return fInitialPaint; }
+
+    const SkMatrix& initialPositionMatrix() const { return fInitialPositionMatrix; }
+    SkPoint origin() const { return fOrigin; }
+
+    // Change memory management to handle the data after Slug, but in the same allocation
+    // of memory. Only allow placement new.
+    void operator delete(void* p) { ::operator delete(p); }
+    void* operator new(size_t) { SK_ABORT("All slugs are created by placement new."); }
+    void* operator new(size_t, void* p) { return p; }
+
+    std::tuple<int, int> subRunCountAndUnflattenSizeHint() const {
+        int unflattenSizeHint = 0;
+        int subRunCount = 0;
+        for (auto& subrun : fSubRuns) {
+            subRunCount += 1;
+            unflattenSizeHint += subrun.unflattenSize();
+        }
+        return {subRunCount, unflattenSizeHint};
+    }
+
+private:
+    // The allocator must come first because it needs to be destroyed last. Other fields of this
+    // structure may have pointers into it.
+    SubRunAllocator fAlloc;
+    const SkRect fSourceBounds;
+    const SkPaint fInitialPaint;
+    const SkMatrix fInitialPositionMatrix;
+    const SkPoint fOrigin;
+    SubRunList fSubRuns;
+};
+
+SlugImpl::SlugImpl(SubRunAllocator&& alloc,
+                   SkRect sourceBounds,
+                   const SkPaint& initialPaint,
+                   const SkMatrix& positionMatrix,
+                   SkPoint origin)
+        : fAlloc {std::move(alloc)}
+        , fSourceBounds{sourceBounds}
+        , fInitialPaint{initialPaint}
+        , fInitialPositionMatrix{positionMatrix}
+        , fOrigin{origin} {}
+
+#if SK_SUPPORT_GPU
+void SlugImpl::surfaceDraw(SkCanvas* canvas, const GrClip* clip, const SkMatrixProvider& viewMatrix,
+                           const SkPaint& drawingPaint, skgpu::v1::SurfaceDrawContext* sdc) const {
+    for (const SubRun& subRun : fSubRuns) {
+        subRun.draw(canvas, clip, viewMatrix, fOrigin, drawingPaint, sk_ref_sp(this), sdc);
+    }
+}
+#endif
+
+void SlugImpl::doFlatten(SkWriteBuffer& buffer) const {
+    buffer.writeRect(fSourceBounds);
+    SkPaintPriv::Flatten(fInitialPaint, buffer);
+    buffer.writeMatrix(fInitialPositionMatrix);
+    buffer.writePoint(fOrigin);
+    auto [subRunCount, subRunsUnflattenSizeHint] = this->subRunCountAndUnflattenSizeHint();
+    buffer.writeInt(subRunCount);
+    buffer.writeInt(subRunsUnflattenSizeHint);
+    for (auto& subRun : fSubRuns) {
+        subRun.flatten(buffer);
+    }
+}
+
+sk_sp<Slug> SlugImpl::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
+    SkRect sourceBounds = buffer.readRect();
+    SkASSERT(!sourceBounds.isEmpty());
+    if (!buffer.validate(!sourceBounds.isEmpty())) { return nullptr; }
+
+    SkPaint paint = buffer.readPaint();
+    SkMatrix positionMatrix;
+    buffer.readMatrix(&positionMatrix);
+    SkPoint origin = buffer.readPoint();
+    int subRunCount = buffer.readInt();
+    SkASSERT(subRunCount > 0);
+    if (!buffer.validate(subRunCount > 0)) { return nullptr; }
+    int subRunsSizeHint = buffer.readInt();
+
+    // Since the hint doesn't affect performance, then if it looks fishy just pick a reasonable
+    // value.
+    if (subRunsSizeHint < 0 || (1 << 16) < subRunsSizeHint) {
+        subRunsSizeHint = 128;
+    }
+
+    auto [initializer, _, alloc] =
+            SubRunAllocator::AllocateClassMemoryAndArena<SlugImpl>(subRunsSizeHint);
+
+    sk_sp<SlugImpl> slug = sk_sp<SlugImpl>(
+            initializer.initialize(std::move(alloc), sourceBounds, paint, positionMatrix, origin));
+
+    for (int i = 0; i < subRunCount; ++i) {
+        auto subRun = SubRun::MakeFromBuffer(
+                slug->initialPositionMatrix(), buffer, &slug->fAlloc, client);
+        if (!buffer.validate(subRun != nullptr)) { return nullptr; }
+        if (subRun != nullptr) {
+            slug->fSubRuns.append(std::move(subRun));
+        }
+    }
+
+    // Something went wrong while reading.
+    SkASSERT(buffer.isValid());
+    if (!buffer.isValid()) { return nullptr;}
+
+    return std::move(slug);
+}
+
+sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
+                               const SkGlyphRunList& glyphRunList,
+                               const SkPaint& initialPaint,
+                               const SkPaint& drawingPaint,
+                               SkStrikeDeviceInfo strikeDeviceInfo,
+                               SkStrikeForGPUCacheInterface* strikeCache) {
+    // The difference in alignment from the per-glyph data to the SubRun;
+    constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
+    constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
+    size_t totalGlyphCount = glyphRunList.totalGlyphCount();
+    // The bytesNeededForSubRun is optimized for DirectMaskSubRun which is by far the most
+    // common case.
+    size_t subRunSizeHint =
+            totalGlyphCount * sizeof(DevicePosition)
+            + GlyphVector::GlyphVectorSize(totalGlyphCount)
+            + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding);
+
+    auto [initializer, _, alloc] =
+            SubRunAllocator::AllocateClassMemoryAndArena<SlugImpl>(subRunSizeHint);
+
+    const SkMatrix positionMatrix =
+            position_matrix(viewMatrix.localToDevice(), glyphRunList.origin());
+
+    sk_sp<SlugImpl> slug = sk_sp<SlugImpl>(initializer.initialize(
+            std::move(alloc), glyphRunList.sourceBounds(), initialPaint, positionMatrix,
+            glyphRunList.origin()));
+
+    // Be sure to pass the ref to the initialPositionMatrix that the SubRuns will capture.
+    SkGlyphRunListPainter::CategorizeGlyphRunList(
+            glyphRunList, slug->fInitialPositionMatrix, drawingPaint,
+            strikeDeviceInfo, strikeCache, &slug->fSubRuns, &slug->fAlloc, "Make Slug");
+
+    // There is nothing to draw here. This is particularly a problem with RSX form blobs where a
+    // single space becomes a run with no glyphs.
+    if (slug->fSubRuns.isEmpty()) { return nullptr; }
+
+    return slug;
+}
+}  // namespace
+
+namespace sktext::gpu {
+// -- TextBlob::Key ------------------------------------------------------------------------------
 auto TextBlob::Key::Make(const SkGlyphRunList& glyphRunList,
                          const SkPaint& paint,
                          const SkMatrix& drawMatrix,
@@ -2322,229 +2503,6 @@ TextBlob::TextBlob(SubRunAllocator&& alloc,
         , fInitialPositionMatrix{positionMatrix}
         , fInitialLuminance{initialLuminance} { }
 
-namespace {
-// -- SlugImpl -------------------------------------------------------------------------------------
-class SlugImpl final : public Slug {
-public:
-    SlugImpl(SubRunAllocator&& alloc,
-             SkRect sourceBounds,
-             const SkPaint& paint,
-             const SkMatrix& positionMatrix,
-             SkPoint origin);
-    ~SlugImpl() override = default;
-
-    static sk_sp<SlugImpl> Make(const SkMatrixProvider& viewMatrix,
-                                const SkGlyphRunList& glyphRunList,
-                                const SkPaint& initialPaint,
-                                const SkPaint& drawingPaint,
-                                SkStrikeDeviceInfo strikeDeviceInfo,
-                                SkStrikeForGPUCacheInterface* strikeCache);
-    static sk_sp<Slug> MakeFromBuffer(SkReadBuffer& buffer,
-                                      const SkStrikeClient* client);
-
-#if SK_SUPPORT_GPU
-    void surfaceDraw(SkCanvas*,
-                     const GrClip* clip,
-                     const SkMatrixProvider& viewMatrix,
-                     const SkPaint& paint,
-                     skgpu::v1::SurfaceDrawContext* sdc) const;
-#endif
-
-    void doFlatten(SkWriteBuffer& buffer) const override;
-    SkRect sourceBounds() const override { return fSourceBounds; }
-    const SkPaint& initialPaint() const override { return fInitialPaint; }
-
-    const SkMatrix& initialPositionMatrix() const { return fInitialPositionMatrix; }
-    SkPoint origin() const { return fOrigin; }
-
-    // Change memory management to handle the data after Slug, but in the same allocation
-    // of memory. Only allow placement new.
-    void operator delete(void* p) { ::operator delete(p); }
-    void* operator new(size_t) { SK_ABORT("All slugs are created by placement new."); }
-    void* operator new(size_t, void* p) { return p; }
-
-    std::tuple<int, int> subRunCountAndUnflattenSizeHint() const {
-        int unflattenSizeHint = 0;
-        int subRunCount = 0;
-        for (auto& subrun : fSubRuns) {
-            subRunCount += 1;
-            unflattenSizeHint += subrun.unflattenSize();
-        }
-        return {subRunCount, unflattenSizeHint};
-    }
-
-private:
-    // The allocator must come first because it needs to be destroyed last. Other fields of this
-    // structure may have pointers into it.
-    SubRunAllocator fAlloc;
-    const SkRect fSourceBounds;
-    const SkPaint fInitialPaint;
-    const SkMatrix fInitialPositionMatrix;
-    const SkPoint fOrigin;
-    SubRunList fSubRuns;
-};
-
-SlugImpl::SlugImpl(SubRunAllocator&& alloc,
-                   SkRect sourceBounds,
-                   const SkPaint& initialPaint,
-                   const SkMatrix& positionMatrix,
-                   SkPoint origin)
-    : fAlloc {std::move(alloc)}
-    , fSourceBounds{sourceBounds}
-    , fInitialPaint{initialPaint}
-    , fInitialPositionMatrix{positionMatrix}
-    , fOrigin{origin} {}
-
-#if SK_SUPPORT_GPU
-void SlugImpl::surfaceDraw(SkCanvas* canvas, const GrClip* clip, const SkMatrixProvider& viewMatrix,
-                           const SkPaint& drawingPaint, skgpu::v1::SurfaceDrawContext* sdc) const {
-    for (const SubRun& subRun : fSubRuns) {
-        subRun.draw(canvas, clip, viewMatrix, fOrigin, drawingPaint, sk_ref_sp(this), sdc);
-    }
-}
-#endif
-
-void SlugImpl::doFlatten(SkWriteBuffer& buffer) const {
-    buffer.writeRect(fSourceBounds);
-    SkPaintPriv::Flatten(fInitialPaint, buffer);
-    buffer.writeMatrix(fInitialPositionMatrix);
-    buffer.writePoint(fOrigin);
-    auto [subRunCount, subRunsUnflattenSizeHint] = this->subRunCountAndUnflattenSizeHint();
-    buffer.writeInt(subRunCount);
-    buffer.writeInt(subRunsUnflattenSizeHint);
-    for (auto& subRun : fSubRuns) {
-        subRun.flatten(buffer);
-    }
-}
-
-sk_sp<Slug> SlugImpl::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
-    SkRect sourceBounds = buffer.readRect();
-    SkASSERT(!sourceBounds.isEmpty());
-    if (!buffer.validate(!sourceBounds.isEmpty())) { return nullptr; }
-
-    SkPaint paint = buffer.readPaint();
-    SkMatrix positionMatrix;
-    buffer.readMatrix(&positionMatrix);
-    SkPoint origin = buffer.readPoint();
-    int subRunCount = buffer.readInt();
-    SkASSERT(subRunCount > 0);
-    if (!buffer.validate(subRunCount > 0)) { return nullptr; }
-    int subRunsSizeHint = buffer.readInt();
-
-    // Since the hint doesn't affect performance, then if it looks fishy just pick a reasonable
-    // value.
-    if (subRunsSizeHint < 0 || (1 << 16) < subRunsSizeHint) {
-        subRunsSizeHint = 128;
-    }
-
-    auto [initializer, _, alloc] =
-            SubRunAllocator::AllocateClassMemoryAndArena<SlugImpl>(subRunsSizeHint);
-
-    sk_sp<SlugImpl> slug = sk_sp<SlugImpl>(
-            initializer.initialize(std::move(alloc), sourceBounds, paint, positionMatrix, origin));
-
-    for (int i = 0; i < subRunCount; ++i) {
-        auto subRun = SubRun::MakeFromBuffer(
-                slug->initialPositionMatrix(), buffer, &slug->fAlloc, client);
-        if (!buffer.validate(subRun != nullptr)) { return nullptr; }
-        if (subRun != nullptr) {
-            slug->fSubRuns.append(std::move(subRun));
-        }
-    }
-
-    // Something went wrong while reading.
-    SkASSERT(buffer.isValid());
-    if (!buffer.isValid()) { return nullptr;}
-
-    return std::move(slug);
-}
-
-sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
-                               const SkGlyphRunList& glyphRunList,
-                               const SkPaint& initialPaint,
-                               const SkPaint& drawingPaint,
-                               SkStrikeDeviceInfo strikeDeviceInfo,
-                               SkStrikeForGPUCacheInterface* strikeCache) {
-    // The difference in alignment from the per-glyph data to the SubRun;
-    constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
-    constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
-    size_t totalGlyphCount = glyphRunList.totalGlyphCount();
-    // The bytesNeededForSubRun is optimized for DirectMaskSubRun which is by far the most
-    // common case.
-    size_t subRunSizeHint =
-            totalGlyphCount * sizeof(DevicePosition)
-            + GlyphVector::GlyphVectorSize(totalGlyphCount)
-            + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding);
-
-    auto [initializer, _, alloc] =
-            SubRunAllocator::AllocateClassMemoryAndArena<SlugImpl>(subRunSizeHint);
-
-    const SkMatrix positionMatrix =
-            position_matrix(viewMatrix.localToDevice(), glyphRunList.origin());
-
-    sk_sp<SlugImpl> slug = sk_sp<SlugImpl>(initializer.initialize(
-            std::move(alloc), glyphRunList.sourceBounds(), initialPaint, positionMatrix,
-            glyphRunList.origin()));
-
-    // Be sure to pass the ref to the initialPositionMatrix that the SubRuns will capture.
-    SkGlyphRunListPainter::CategorizeGlyphRunList(
-            glyphRunList, slug->fInitialPositionMatrix, drawingPaint,
-            strikeDeviceInfo, strikeCache, &slug->fSubRuns, &slug->fAlloc, "Make Slug");
-
-    // There is nothing to draw here. This is particularly a problem with RSX form blobs where a
-    // single space becomes a run with no glyphs.
-    if (slug->fSubRuns.isEmpty()) { return nullptr; }
-
-    return slug;
-}
-}  // namespace
-
-#if SK_SUPPORT_GPU
-namespace skgpu::v1 {
-sk_sp<Slug>
-Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
-                                  const SkPaint& initialPaint,
-                                  const SkPaint& drawingPaint) {
-    return SlugImpl::Make(this->asMatrixProvider(),
-                          glyphRunList,
-                          initialPaint,
-                          drawingPaint,
-                          this->strikeDeviceInfo(),
-                          SkStrikeCache::GlobalStrikeCache());
-}
-
-void Device::drawSlug(SkCanvas* canvas, const Slug* slug, const SkPaint& drawingPaint) {
-    const SlugImpl* slugImpl = static_cast<const SlugImpl*>(slug);
-    auto matrixProvider = this->asMatrixProvider();
-#if defined(SK_DEBUG)
-    if (!fContext->priv().options().fSupportBilerpFromGlyphAtlas) {
-        // We can draw a slug if the atlas has padding or if the creation matrix and the
-        // drawing matrix are the same. If they are the same, then the Slug will use the direct
-        // drawing code and not use bi-lerp.
-        SkMatrix slugMatrix = slugImpl->initialPositionMatrix();
-        SkMatrix positionMatrix = matrixProvider.localToDevice();
-        positionMatrix.preTranslate(slugImpl->origin().x(), slugImpl->origin().y());
-        SkASSERT(slugMatrix == positionMatrix);
-    }
-#endif
-    slugImpl->surfaceDraw(
-            canvas, this->clip(), matrixProvider, drawingPaint, fSurfaceDrawContext.get());
-}
-
-sk_sp<Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
-                     const SkGlyphRunList& glyphRunList,
-                     const SkPaint& initialPaint,
-                     const SkPaint& drawingPaint,
-                     SkStrikeDeviceInfo strikeDeviceInfo,
-                     SkStrikeForGPUCacheInterface* strikeCache) {
-    return SlugImpl::Make(
-            drawMatrix, glyphRunList, initialPaint, drawingPaint, strikeDeviceInfo, strikeCache);
-}
-}  // namespace skgpu::v1
-#endif
-
-namespace sktext::gpu {
-
 // -- SubRun -------------------------------------------------------------------------------------
 SubRun::~SubRun() = default;
 void SubRun::flatten(SkWriteBuffer& buffer) const {
@@ -2586,17 +2544,6 @@ sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* cli
 }  // namespace sktext::gpu
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
-// Use the following in your args.gn to dump telemetry for diagnosing chrome Renderer/GPU
-// differences.
-// extra_cflags = ["-D", "SK_TRACE_GLYPH_RUN_PROCESS"]
-namespace {
-#if defined(SK_TRACE_GLYPH_RUN_PROCESS)
-    static const constexpr bool kTrace = true;
-#else
-    static const constexpr bool kTrace = false;
-#endif
-}
-
 bool SkGlyphRunListPainter::CategorizeGlyphRunList(const SkGlyphRunList& glyphRunList,
                                                    const SkMatrix& positionMatrix,
                                                    const SkPaint& runPaint,
@@ -2842,4 +2789,47 @@ bool SkGlyphRunListPainter::CategorizeGlyphRunList(const SkGlyphRunList& glyphRu
     return someGlyphExcluded;
 }
 
+#if SK_SUPPORT_GPU
+namespace skgpu::v1 {
+sk_sp<Slug>
+Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
+                                  const SkPaint& initialPaint,
+                                  const SkPaint& drawingPaint) {
+    return SlugImpl::Make(this->asMatrixProvider(),
+                          glyphRunList,
+                          initialPaint,
+                          drawingPaint,
+                          this->strikeDeviceInfo(),
+                          SkStrikeCache::GlobalStrikeCache());
+}
+
+void Device::drawSlug(SkCanvas* canvas, const Slug* slug, const SkPaint& drawingPaint) {
+    const SlugImpl* slugImpl = static_cast<const SlugImpl*>(slug);
+    auto matrixProvider = this->asMatrixProvider();
+#if defined(SK_DEBUG)
+    if (!fContext->priv().options().fSupportBilerpFromGlyphAtlas) {
+        // We can draw a slug if the atlas has padding or if the creation matrix and the
+        // drawing matrix are the same. If they are the same, then the Slug will use the direct
+        // drawing code and not use bi-lerp.
+        SkMatrix slugMatrix = slugImpl->initialPositionMatrix();
+        SkMatrix positionMatrix = matrixProvider.localToDevice();
+        positionMatrix.preTranslate(slugImpl->origin().x(), slugImpl->origin().y());
+        SkASSERT(slugMatrix == positionMatrix);
+    }
+#endif
+    slugImpl->surfaceDraw(
+            canvas, this->clip(), matrixProvider, drawingPaint, fSurfaceDrawContext.get());
+}
+
+sk_sp<Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
+                     const SkGlyphRunList& glyphRunList,
+                     const SkPaint& initialPaint,
+                     const SkPaint& drawingPaint,
+                     SkStrikeDeviceInfo strikeDeviceInfo,
+                     SkStrikeForGPUCacheInterface* strikeCache) {
+    return SlugImpl::Make(
+            drawMatrix, glyphRunList, initialPaint, drawingPaint, strikeDeviceInfo, strikeCache);
+}
+}  // namespace skgpu::v1
+#endif
 
