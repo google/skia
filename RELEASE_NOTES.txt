@@ -2,6 +2,12 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 104
+-------------
+  * SkRuntimeEffect takes and returns a const SkData.
+
+* * *
+
 Milestone 103
 -------------
   * SkSamplingOptions now includes anisotropic filtering. Implemented on GPU only.

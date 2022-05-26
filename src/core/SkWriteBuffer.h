@@ -28,7 +28,7 @@ public:
     virtual void writePad32(const void* buffer, size_t bytes) = 0;
 
     virtual void writeByteArray(const void* data, size_t size) = 0;
-    void writeDataAsByteArray(SkData* data) {
+    void writeDataAsByteArray(const SkData* data) {
         if (!data) {
             this->write32(0);
         } else {
