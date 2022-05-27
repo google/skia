@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "py_binary", "requirement", "selects")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "py_binary", "selects")
 
 licenses(["notice"])
 
@@ -299,7 +299,7 @@ JPEGTURBO_DEFINES = [
 })
 
 cc_library(
-    name = "libjpeg-turbo",
+    name = "libjpeg_turbo",
     srcs = JPEGTURBO_SRCS,
     hdrs = [
         "externals/libjpeg-turbo/jconfig.h",
@@ -764,7 +764,7 @@ cc_library(
     strip_include_prefix = "externals/dng_sdk/source/",
     visibility = ["//:__subpackages__"],
     deps = [
-        ":libjpeg-turbo",
+        ":libjpeg_turbo",
         ":zlib",
     ],
 )

@@ -1,0 +1,45 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "core_srcs",
+    srcs = [
+        "SkImage.cpp",
+        "SkImage_Base.h",
+        "SkImage_Lazy.cpp",
+        "SkImage_Lazy.h",
+        "SkImage_Raster.cpp",
+        "SkReadPixelsRec.h",
+        "SkRescaleAndReadPixels.cpp",
+        "SkRescaleAndReadPixels.h",
+        "SkSurface.cpp",
+        "SkSurface_Base.h",
+        "SkSurface_Raster.cpp",
+    ],
+)
+
+filegroup(
+    name = "gpu_srcs",
+    srcs = [
+        "SkImage_Gpu.cpp",
+        "SkImage_Gpu.h",
+        "SkImage_GpuBase.cpp",
+        "SkImage_GpuBase.h",
+        "SkImage_GpuYUVA.cpp",
+        "SkImage_GpuYUVA.h",
+        "SkSurface_Gpu.cpp",
+        "SkSurface_Gpu.h",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [":core_srcs"] + select({
+        "//bazel/common_config_settings:has_gpu_backend": [":gpu_srcs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//src:__pkg__"],
+)

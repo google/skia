@@ -8,7 +8,6 @@
 #include "src/sksl/SkSLPool.h"
 
 #include "include/core/SkTypes.h"
-#include "src/gpu/ganesh/GrMemoryPool.h"
 
 #define VLOG(...) // printf(__VA_ARGS__)
 

@@ -1,0 +1,20 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkSLBuiltinVariableScanner.cpp",
+        "SkSLEliminateDeadFunctions.cpp",
+        "SkSLEliminateDeadGlobalVariables.cpp",
+        "SkSLEliminateDeadLocalVariables.cpp",
+        "SkSLEliminateEmptyStatements.cpp",
+        "SkSLEliminateUnreachableCode.cpp",
+        "SkSLProgramWriter.h",
+        "SkSLTransform.h",
+    ],
+    visibility = ["//src/sksl:__pkg__"],
+)

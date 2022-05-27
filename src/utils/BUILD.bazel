@@ -1,0 +1,97 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "core_srcs",
+    srcs = [
+        "SkAnimCodecPlayer.cpp",
+        "SkBase64.cpp",
+        "SkBitSet.h",
+        "SkBlitterTrace.h",
+        "SkBlitterTraceCommon.h",
+        "SkCallableTraits.h",
+        "SkCamera.cpp",
+        "SkCanvasStack.cpp",
+        "SkCanvasStack.h",
+        "SkCanvasStateUtils.cpp",
+        "SkCharToGlyphCache.cpp",
+        "SkCharToGlyphCache.h",
+        "SkClipStackUtils.cpp",
+        "SkClipStackUtils.h",
+        "SkCustomTypeface.cpp",
+        "SkCycles.h",
+        "SkDashPath.cpp",
+        "SkDashPathPriv.h",
+        "SkEventTracer.cpp",
+        "SkFloatToDecimal.cpp",
+        "SkFloatToDecimal.h",
+        "SkFloatUtils.h",
+        "SkJSON.h",
+        "SkJSONWriter.h",
+        "SkMatrix22.cpp",
+        "SkMatrix22.h",
+        "SkMultiPictureDocument.cpp",
+        "SkMultiPictureDocument.h",
+        "SkMultiPictureDocumentPriv.h",
+        "SkNWayCanvas.cpp",
+        "SkNullCanvas.cpp",
+        "SkOSPath.cpp",
+        "SkOSPath.h",
+        "SkOrderedFontMgr.cpp",
+        "SkPaintFilterCanvas.cpp",
+        "SkParse.cpp",
+        "SkParseColor.cpp",
+        "SkParsePath.cpp",
+        "SkPatchUtils.cpp",
+        "SkPatchUtils.h",
+        "SkPolyUtils.cpp",
+        "SkPolyUtils.h",
+        "SkShadowTessellator.cpp",
+        "SkShadowTessellator.h",
+        "SkShadowUtils.cpp",
+        "SkShaperJSONWriter.h",
+        "SkTestCanvas.h",
+        "SkTextUtils.cpp",
+        "SkUTF.cpp",
+        "SkUTF.h",
+        "SkVMVisualizer.cpp",
+        "SkVMVisualizer.h",
+    ],
+)
+
+filegroup(
+    name = "sksl_srcs",
+    srcs = [
+        "SkShaderUtils.cpp",
+        "SkShaderUtils.h",
+    ],
+)
+
+filegroup(
+    name = "json_srcs",
+    srcs = [
+        "SkJSON.cpp",
+        "SkJSON.h",
+        "SkJSONWriter.cpp",
+        "SkJSONWriter.h",
+        "SkShaperJSONWriter.cpp",
+        "SkShaperJSONWriter.h",
+    ],
+    visibility = [
+        "//src/sksl:__pkg__",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":core_srcs",
+    ] + select({
+        "//bazel/common_config_settings:needs_sksl": [":sksl_srcs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//src:__pkg__"],
+)

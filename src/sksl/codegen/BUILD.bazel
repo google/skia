@@ -1,0 +1,52 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "core_srcs",
+    srcs = [
+        "SkSLVMCodeGenerator.cpp",
+        "SkSLVMCodeGenerator.h",
+    ],
+)
+
+filegroup(
+    name = "gpu_srcs",
+    srcs = [
+        "SkSLCodeGenerator.h",
+        "SkSLGLSLCodeGenerator.cpp",
+        "SkSLGLSLCodeGenerator.h",
+        "SkSLMetalCodeGenerator.cpp",
+        "SkSLMetalCodeGenerator.h",
+        "SkSLPipelineStageCodeGenerator.cpp",
+        "SkSLPipelineStageCodeGenerator.h",
+        "SkSLSPIRVCodeGenerator.cpp",
+        "SkSLSPIRVCodeGenerator.h",
+        "SkSLSPIRVtoHLSL.cpp",
+        "SkSLSPIRVtoHLSL.h",
+        "SkSLWGSLCodeGenerator.cpp",
+        "SkSLWGSLCodeGenerator.h",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":core_srcs",
+    ] + select({
+        "//bazel/common_config_settings:has_gpu_backend": [":gpu_srcs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//src/sksl:__pkg__"],
+)
+
+cc_library(
+    name = "deps",
+    visibility = ["//src/sksl:__pkg__"],
+    deps = select({
+        "//bazel/common_config_settings:has_gpu_backend": ["//third_party:spirv_cross"],
+        "//conditions:default": [],
+    }),
+)

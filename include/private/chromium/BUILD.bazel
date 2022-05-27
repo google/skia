@@ -1,0 +1,14 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkChromeRemoteGlyphCache.h",
+        "Slug.h",
+    ],
+    visibility = ["//include/private:__pkg__"],
+)

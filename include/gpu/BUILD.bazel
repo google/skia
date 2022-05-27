@@ -1,0 +1,37 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "GpuTypes.h",
+        "GrBackendDrawableInfo.h",
+        "GrBackendSemaphore.h",
+        "GrBackendSurface.h",
+        "GrBackendSurfaceMutableState.h",
+        "GrConfig.h",
+        "GrContextOptions.h",
+        "GrContextThreadSafeProxy.h",
+        "GrDirectContext.h",
+        "GrDriverBugWorkarounds.h",
+        "GrDriverBugWorkaroundsAutogen.h",
+        "GrRecordingContext.h",
+        "GrSurfaceInfo.h",
+        "GrTypes.h",
+        "GrYUVABackendTextures.h",
+        "ShaderErrorHandler.h",
+        "//include/gpu/mock:hdrs",
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:dawn_backend": ["//include/gpu/dawn:hdrs"],
+            "//bazel/common_config_settings:gl_backend": ["//include/gpu/gl:hdrs"],
+            "//bazel/common_config_settings:vulkan_backend": ["//include/gpu/vulkan:hdrs"],
+            # TODO(kjlubick) mtl and d3d backend
+        },
+        default = [],
+    ),
+    visibility = ["//include:__pkg__"],
+)

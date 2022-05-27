@@ -6,9 +6,6 @@
  */
 
 #include "src/core/SkDescriptor.h"
-#include <string.h>
-
-#include <new>
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"
@@ -16,7 +13,9 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/gpu/ganesh/GrResourceProvider.h"
+
+#include <string.h>
+#include <new>
 
 std::unique_ptr<SkDescriptor> SkDescriptor::Alloc(size_t length) {
     SkASSERT(length >= sizeof(SkDescriptor) && SkAlign4(length) == length);

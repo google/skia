@@ -6,7 +6,10 @@
  */
 
 #include "include/core/SkCapabilities.h"
+
+#ifdef SK_ENABLE_SKSL
 #include "src/sksl/SkSLUtil.h"
+#endif
 
 sk_sp<const SkCapabilities> SkCapabilities::RasterBackend() {
     static SkCapabilities* sCaps = [](){

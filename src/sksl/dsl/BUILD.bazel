@@ -1,0 +1,23 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "DSLBlock.cpp",
+        "DSLCase.cpp",
+        "DSLCore.cpp",
+        "DSLExpression.cpp",
+        "DSLFunction.cpp",
+        "DSLLayout.cpp",
+        "DSLStatement.cpp",
+        "DSLSymbols.cpp",
+        "DSLType.cpp",
+        "DSLVar.cpp",
+        "//src/sksl/dsl/priv:srcs",
+    ],
+    visibility = ["//src/sksl:__pkg__"],
+)

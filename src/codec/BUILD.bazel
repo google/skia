@@ -1,0 +1,177 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "select_multi", "selects")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "core_srcs",
+    srcs = [
+        "SkCodec.cpp",
+        "SkCodecImageGenerator.cpp",
+        "SkCodecImageGenerator.h",
+        "SkCodecPriv.h",
+        "SkColorTable.cpp",
+        "SkColorTable.h",
+        "SkFrameHolder.h",
+        "SkMaskSwizzler.cpp",
+        "SkMaskSwizzler.h",
+        "SkMasks.cpp",
+        "SkMasks.h",
+        "SkSampler.cpp",
+        "SkSampler.h",
+        "SkSwizzler.cpp",
+        "SkSwizzler.h",
+    ],
+)
+
+filegroup(
+    name = "decode_android_srcs",
+    srcs = [
+        "SkAndroidCodec.cpp",
+        "SkAndroidCodecAdapter.cpp",
+        "SkAndroidCodecAdapter.h",
+        "SkSampledCodec.cpp",
+        "SkSampledCodec.h",
+    ],
+)
+
+filegroup(
+    name = "decode_bmp_srcs",
+    srcs = [
+        "SkBmpBaseCodec.cpp",
+        "SkBmpBaseCodec.h",
+        "SkBmpCodec.cpp",
+        "SkBmpCodec.h",
+        "SkBmpMaskCodec.cpp",
+        "SkBmpMaskCodec.h",
+        "SkBmpRLECodec.cpp",
+        "SkBmpRLECodec.h",
+        "SkBmpStandardCodec.cpp",
+        "SkBmpStandardCodec.h",
+        "SkWbmpCodec.cpp",
+        "SkWbmpCodec.h",
+    ],
+)
+
+filegroup(
+    name = "decode_gif_srcs",
+    srcs = [
+        "SkScalingCodec.h",
+        "SkWuffsCodec.cpp",
+        "SkWuffsCodec.h",
+    ],
+)
+
+filegroup(
+    name = "decode_jpeg_srcs",
+    srcs = [
+        "SkEncodedInfo.cpp",
+        "SkJpegCodec.cpp",
+        "SkJpegCodec.h",
+        "SkJpegDecoderMgr.cpp",
+        "SkJpegDecoderMgr.h",
+        "SkJpegUtility.cpp",
+        "SkJpegUtility.h",
+        "SkParseEncodedOrigin.cpp",
+        "SkParseEncodedOrigin.h",
+    ],
+)
+
+filegroup(
+    name = "decode_png_srcs",
+    srcs = [
+        "SkEncodedInfo.cpp",
+        "SkIcoCodec.cpp",
+        "SkIcoCodec.h",
+        "SkPngCodec.cpp",
+        "SkPngCodec.h",
+    ],
+)
+
+filegroup(
+    name = "decode_raw_srcs",
+    srcs = [
+        "SkRawCodec.cpp",
+        "SkRawCodec.h",
+    ],
+)
+
+filegroup(
+    name = "decode_webp_srcs",
+    srcs = [
+        "SkEncodedInfo.cpp",
+        "SkParseEncodedOrigin.cpp",
+        "SkParseEncodedOrigin.h",
+        "SkScalingCodec.h",
+        "SkWebpCodec.cpp",
+        "SkWebpCodec.h",
+    ],
+)
+
+selects.config_setting_group(
+    name = "needs_jpeg",
+    match_any = [
+        "//bazel/common_config_settings:jpeg_decode_codec",
+        "//bazel/common_config_settings:raw_decode_codec",
+    ],
+)
+
+selects.config_setting_group(
+    name = "needs_jpeg_priv",
+    match_any = [
+        ":needs_jpeg",
+        "//bazel/common_config_settings:jpeg_encode_codec",
+    ],
+)
+
+selects.config_setting_group(
+    name = "needs_png_priv",
+    match_any = [
+        "//bazel/common_config_settings:png_decode_codec",
+        "//bazel/common_config_settings:png_encode_codec",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":decode_android_srcs",
+        ":decode_bmp_srcs",
+        ":core_srcs",
+    ] + select({
+        ":needs_jpeg_priv": ["SkJpegPriv.h"],  # used by src/images/SkJPEGWriteUtility
+        "//conditions:default": [],
+    }) + select({
+        ":needs_png_priv": ["SkPngPriv.h"],  # used by src/images/SkPngEncoder
+        "//conditions:default": [],
+    }) + select_multi(
+        {
+            "//bazel/common_config_settings:gif_decode_codec": [":decode_gif_srcs"],
+            ":needs_jpeg": [":decode_jpeg_srcs"],
+            "//bazel/common_config_settings:png_decode_codec": [":decode_png_srcs"],
+            "//bazel/common_config_settings:raw_decode_codec": [":decode_raw_srcs"],
+            "//bazel/common_config_settings:webp_decode_codec": [":decode_webp_srcs"],
+        },
+        default = [],
+    ),
+    visibility = ["//src:__pkg__"],
+)
+
+cc_library(
+    name = "deps",
+    visibility = ["//src:__pkg__"],
+    deps = select_multi(
+        {
+            "//bazel/common_config_settings:gif_decode_codec": ["//third_party:wuffs"],
+            ":needs_jpeg": ["//third_party:libjpeg_turbo"],
+            "//bazel/common_config_settings:png_decode_codec": ["//third_party:libpng"],
+            "//bazel/common_config_settings:raw_decode_codec": [
+                "//third_party:dng_sdk",
+                "//third_party:piex",
+            ],
+            "//bazel/common_config_settings:webp_decode_codec": ["//third_party:libwebp"],
+        },
+        default = [],
+    ),
+)

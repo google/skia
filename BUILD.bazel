@@ -1,0 +1,22 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "gazelle")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_library(
+    name = "skia_core",
+    srcs = [
+        "//include:private_hdrs",
+        "//src:srcs",
+    ],
+    hdrs = ["//include:public_hdrs"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//bazel:defines_from_flags",
+        "//src:deps",
+    ],
+)
+
+# gazelle:prefix go.skia.org/skia
+gazelle(name = "gazelle")

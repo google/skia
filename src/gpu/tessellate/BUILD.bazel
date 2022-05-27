@@ -1,0 +1,24 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "AffineMatrix.h",
+        "CullTest.h",
+        "FixedCountBufferUtils.cpp",
+        "FixedCountBufferUtils.h",
+        "LinearTolerances.h",
+        "MiddleOutPolygonTriangulator.h",
+        "MidpointContourParser.h",
+        "PatchWriter.h",
+        "StrokeIterator.h",
+        "Tessellation.cpp",
+        "Tessellation.h",
+        "WangsFormula.h",
+    ],
+    visibility = ["//src/gpu:__pkg__"],
+)

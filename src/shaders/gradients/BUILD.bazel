@@ -1,0 +1,27 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "Sk4fGradientBase.cpp",
+        "Sk4fGradientBase.h",
+        "Sk4fGradientPriv.h",
+        "Sk4fLinearGradient.cpp",
+        "Sk4fLinearGradient.h",
+        "SkGradientShader.cpp",
+        "SkGradientShaderPriv.h",
+        "SkLinearGradient.cpp",
+        "SkLinearGradient.h",
+        "SkRadialGradient.cpp",
+        "SkRadialGradient.h",
+        "SkSweepGradient.cpp",
+        "SkSweepGradient.h",
+        "SkTwoPointConicalGradient.cpp",
+        "SkTwoPointConicalGradient.h",
+    ],
+    visibility = ["//src/shaders:__pkg__"],
+)

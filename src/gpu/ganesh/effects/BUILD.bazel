@@ -1,0 +1,53 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "GrAtlasedShaderHelpers.h",
+        "GrBezierEffect.cpp",
+        "GrBezierEffect.h",
+        "GrBicubicEffect.cpp",
+        "GrBicubicEffect.h",
+        "GrBitmapTextGeoProc.cpp",
+        "GrBitmapTextGeoProc.h",
+        "GrBlendFragmentProcessor.cpp",
+        "GrBlendFragmentProcessor.h",
+        "GrConvexPolyEffect.cpp",
+        "GrConvexPolyEffect.h",
+        "GrCoverageSetOpXP.cpp",
+        "GrCoverageSetOpXP.h",
+        "GrCustomXfermode.cpp",
+        "GrCustomXfermode.h",
+        "GrDisableColorXP.cpp",
+        "GrDisableColorXP.h",
+        "GrDistanceFieldGeoProc.cpp",
+        "GrDistanceFieldGeoProc.h",
+        "GrGaussianConvolutionFragmentProcessor.cpp",
+        "GrGaussianConvolutionFragmentProcessor.h",
+        "GrMatrixConvolutionEffect.cpp",
+        "GrMatrixConvolutionEffect.h",
+        "GrMatrixEffect.cpp",
+        "GrMatrixEffect.h",
+        "GrModulateAtlasCoverageEffect.cpp",
+        "GrModulateAtlasCoverageEffect.h",
+        "GrOvalEffect.cpp",
+        "GrOvalEffect.h",
+        "GrPorterDuffXferProcessor.cpp",
+        "GrPorterDuffXferProcessor.h",
+        "GrRRectEffect.cpp",
+        "GrRRectEffect.h",
+        "GrShadowGeoProc.cpp",
+        "GrShadowGeoProc.h",
+        "GrSkSLFP.cpp",
+        "GrSkSLFP.h",
+        "GrTextureEffect.cpp",
+        "GrTextureEffect.h",
+        "GrYUVtoRGBEffect.cpp",
+        "GrYUVtoRGBEffect.h",
+    ],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)

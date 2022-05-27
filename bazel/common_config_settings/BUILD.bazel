@@ -83,6 +83,14 @@ selects.config_setting_group(
 )
 
 selects.config_setting_group(
+    name = "needs_sksl",
+    match_any = [
+        ":has_gpu_backend",
+        ":enable_sksl_true",
+    ],
+)
+
+selects.config_setting_group(
     name = "vulkan_with_vma",
     match_all = [
         ":vulkan_backend",
@@ -200,6 +208,11 @@ bool_flag(
 
 bool_flag(
     default = False,
+    flag_name = "enable_sksl",
+)
+
+bool_flag(
+    default = False,
     flag_name = "enable_skslc",
 )
 
@@ -209,7 +222,7 @@ bool_flag(
 )
 
 bool_flag(
-    # See SkTraceVentCommon.h for more on this type of tracing.
+    # See SkTraceEventCommon.h for more on this type of tracing.
     default = True,
     flag_name = "enable_tracing",
 )

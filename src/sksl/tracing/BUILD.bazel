@@ -1,0 +1,32 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "core_srcs",
+    srcs = [
+        "SkVMDebugTrace.cpp",
+        "SkVMDebugTrace.h",
+    ],
+)
+
+filegroup(
+    name = "player_srcs",
+    srcs = [
+        "SkVMDebugTracePlayer.cpp",
+        "SkVMDebugTracePlayer.h",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":core_srcs",
+    ] + select({
+        "//bazel/common_config_settings:enable_sksl_tracing_true": [":player_srcs"],
+        "//bazel/common_config_settings:enable_sksl_tracing_false": [],
+    }),
+    visibility = ["//src/sksl:__pkg__"],
+)

@@ -1,0 +1,193 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "select_multi", "selects")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "typeface_freetype",
+    srcs = [
+        "SkFontHost_FreeType.cpp",
+        "SkFontHost_FreeType_common.cpp",
+        "SkFontHost_FreeType_common.h",
+    ],
+)
+
+# There can only be one FontMgr Factory, but multiple different types of FontMgr compiled into
+# a single build.
+filegroup(
+    name = "fontmgr_factory",
+    srcs = selects.with_or({
+        "//bazel/common_config_settings:custom_directory_fontmgr_factory": [
+            ":fontmgr_custom_directory_factory",
+        ],
+        "//bazel/common_config_settings:custom_embedded_fontmgr_factory": [
+            ":fontmgr_custom_embedded_factory",
+        ],
+        "//bazel/common_config_settings:custom_empty_fontmgr_factory": [
+            ":fontmgr_custom_empty_factory",
+        ],
+        ("//bazel/common_config_settings:empty_fontmgr_factory", "//conditions:default"): [
+            ":fontmgr_empty_factory",
+        ],
+    }),
+)
+
+filegroup(
+    name = "fontmgr",
+    srcs = select_multi(
+        {
+            "//bazel/common_config_settings:custom_directory_fontmgr": [":fontmgr_custom_directory"],
+            "//bazel/common_config_settings:custom_embedded_fontmgr": [":fontmgr_custom_embedded"],
+            "//bazel/common_config_settings:custom_empty_fontmgr": [":fontmgr_custom_empty"],
+        },
+        default = [],
+    ),
+)
+
+filegroup(
+    name = "fontmgr_custom",
+    srcs = [
+        "SkFontMgr_custom.cpp",
+        "SkFontMgr_custom.h",
+        ":typeface_freetype",
+    ],
+)
+
+filegroup(
+    name = "fontmgr_empty_factory",
+    srcs = [
+        "SkFontMgr_empty_factory.cpp",
+    ],
+)
+
+filegroup(
+    name = "fontmgr_custom_directory",
+    srcs = [
+        "SkFontMgr_custom_directory.cpp",
+        ":fontmgr_custom",
+    ],
+)
+
+filegroup(
+    name = "fontmgr_custom_directory_factory",
+    srcs = [
+        "SkFontMgr_custom_directory_factory.cpp",
+        ":fontmgr_custom_directory",
+    ],
+)
+
+filegroup(
+    name = "fontmgr_custom_embedded",
+    srcs = [
+        "SkFontMgr_custom_embedded.cpp",
+        ":fontmgr_custom",
+    ],
+)
+
+filegroup(
+    name = "fontmgr_custom_embedded_factory",
+    srcs = [
+        "SkFontMgr_custom_embedded_factory.cpp",
+        ":fontmgr_custom_embedded",
+    ],
+)
+
+filegroup(
+    name = "fontmgr_custom_empty",
+    srcs = [
+        "SkFontMgr_custom_empty.cpp",
+        ":fontmgr_custom",
+    ],
+)
+
+filegroup(
+    name = "fontmgr_custom_empty_factory",
+    srcs = [
+        "SkFontMgr_custom_empty_factory.cpp",
+        ":fontmgr_custom_empty",
+    ],
+)
+
+filegroup(
+    name = "global_init",
+    srcs = ["SkGlobalInitialization_default.cpp"],
+)
+
+filegroup(
+    name = "image_generator",
+    srcs = ["SkImageGenerator_skia.cpp"],  # TODO(kjlubick) add select() if necessary
+)
+
+filegroup(
+    name = "osfile",
+    srcs = ["SkOSFile_stdio.cpp"] + select({
+        "@platforms//os:windows": ["SkOSFile_win.cpp"],
+        "@platforms//os:ios": [
+            "SkOSFile_ios.h",
+            "SkOSFile_posix.cpp",
+        ],
+        "//conditions:default": ["SkOSFile_posix.cpp"],
+    }),
+    visibility = ["//tools/skslc:__pkg__"],
+)
+
+filegroup(
+    name = "malloc",
+    srcs = ["SkMemory_malloc.cpp"],  # TODO(kjlubick) add select() if necessary
+)
+
+filegroup(
+    name = "load_dynamic_library",
+    srcs = ["SkOSLibrary.h"] + select({
+        "@platforms//os:windows": ["SkOSLibrary_win.cpp"],
+        "//conditions:default": ["SkOSLibrary_posix.cpp"],
+    }),
+)
+
+filegroup(
+    name = "skdebug",
+    srcs = select({
+        "@platforms//os:windows": ["SkDebug_win.cpp"],
+        "@platforms//os:android": ["SkDebug_android.cpp"],
+        "//conditions:default": ["SkDebug_stdio.cpp"],
+    }),
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":fontmgr",
+        ":fontmgr_factory",
+        ":global_init",
+        ":image_generator",
+        ":load_dynamic_library",
+        ":malloc",
+        ":osfile",
+        ":skdebug",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+selects.config_setting_group(
+    name = "any_freetype_fontmgr",
+    match_any = [
+        "//bazel/common_config_settings:custom_directory_fontmgr",
+        "//bazel/common_config_settings:custom_directory_fontmgr_factory",
+        "//bazel/common_config_settings:custom_embedded_fontmgr",
+        "//bazel/common_config_settings:custom_embedded_fontmgr_factory",
+        "//bazel/common_config_settings:custom_empty_fontmgr",
+        "//bazel/common_config_settings:custom_empty_fontmgr_factory",
+    ],
+)
+
+cc_library(
+    name = "deps",
+    visibility = ["//src:__pkg__"],
+    deps = [] + select({
+        ":any_freetype_fontmgr": [
+            "//third_party:freetype2",
+        ],
+        "//conditions:default": [],
+    }),
+)

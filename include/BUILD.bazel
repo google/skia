@@ -1,0 +1,38 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "//include/android:hdrs",
+        "//include/codec:hdrs",
+        "//include/config:hdrs",
+        "//include/core:hdrs",
+        "//include/docs:hdrs",
+        "//include/effects:hdrs",
+        "//include/encode:hdrs",
+        "//include/pathops:hdrs",
+        "//include/ports:hdrs",
+        "//include/svg:hdrs",
+        "//include/third_party/skcms:hdrs",
+        "//include/utils:hdrs",
+    ] + select({
+        "//bazel/common_config_settings:needs_sksl": ["//include/sksl:hdrs"],
+        "//conditions:default": [],
+    }) + select({
+        "//bazel/common_config_settings:has_gpu_backend": ["//include/gpu:hdrs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "//include/private:srcs",
+    ],
+    visibility = ["//:__pkg__"],
+)

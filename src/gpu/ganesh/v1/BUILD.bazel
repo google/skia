@@ -1,0 +1,28 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "ClipStack.cpp",
+        "ClipStack.h",
+        "Device.cpp",
+        "Device_drawTexture.cpp",
+        "Device_v1.h",
+        "PathRenderer.cpp",
+        "PathRenderer.h",
+        "PathRendererChain.cpp",
+        "PathRendererChain.h",
+        "StencilClip.h",
+        "StencilMaskHelper.cpp",
+        "StencilMaskHelper.h",
+        "SurfaceDrawContext.cpp",
+        "SurfaceDrawContext_v1.h",
+        "SurfaceFillContext_v1.cpp",
+        "SurfaceFillContext_v1.h",
+    ],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)

@@ -1,0 +1,34 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkAlphaThresholdImageFilter.cpp",
+        "SkArithmeticImageFilter.cpp",
+        "SkBlendImageFilter.cpp",
+        "SkBlurImageFilter.cpp",
+        "SkColorFilterImageFilter.cpp",
+        "SkComposeImageFilter.cpp",
+        "SkCropImageFilter.cpp",
+        "SkCropImageFilter.h",
+        "SkDisplacementMapImageFilter.cpp",
+        "SkDropShadowImageFilter.cpp",
+        "SkImageImageFilter.cpp",
+        "SkLightingImageFilter.cpp",
+        "SkMagnifierImageFilter.cpp",
+        "SkMatrixConvolutionImageFilter.cpp",
+        "SkMergeImageFilter.cpp",
+        "SkMorphologyImageFilter.cpp",
+        "SkOffsetImageFilter.cpp",
+        "SkPictureImageFilter.cpp",
+        "SkRuntimeImageFilter.cpp",
+        "SkRuntimeImageFilter.h",
+        "SkShaderImageFilter.cpp",
+        "SkTileImageFilter.cpp",
+    ],
+    visibility = ["//src/effects:__pkg__"],
+)

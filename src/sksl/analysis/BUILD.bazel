@@ -1,0 +1,22 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkSLCanExitWithoutReturningValue.cpp",
+        "SkSLCheckProgramStructure.cpp",
+        "SkSLFinalizationChecks.cpp",
+        "SkSLGetLoopUnrollInfo.cpp",
+        "SkSLIsConstantExpression.cpp",
+        "SkSLIsSameExpressionTree.cpp",
+        "SkSLNoOpErrorReporter.h",
+        "SkSLProgramUsage.cpp",
+        "SkSLProgramVisitor.h",
+        "SkSLSwitchCaseContainsExit.cpp",
+    ],
+    visibility = ["//src/sksl:__pkg__"],
+)

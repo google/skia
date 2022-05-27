@@ -1,0 +1,36 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "selects")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkBitmapProcState_opts.h",
+        "SkBlitMask_opts.h",
+        "SkBlitRow_opts.h",
+        "SkChecksum_opts.h",
+        "SkRasterPipeline_opts.h",
+        "SkSwizzler_opts.h",
+        "SkUtils_opts.h",
+        "SkVM_opts.h",
+        "SkXfermode_opts.h",
+    ] + selects.with_or({
+        ("@platforms//cpu:x86_64", "@platforms//cpu:x86_32"): [
+            "SkOpts_avx.cpp",
+            "SkOpts_hsw.cpp",
+            "SkOpts_sse41.cpp",
+            "SkOpts_sse42.cpp",
+            "SkOpts_ssse3.cpp",
+            "SkOpts_skx.cpp",
+        ],
+        "@platforms//cpu:arm64": [
+            "SkOpts_crc32.cpp",
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = ["//src:__pkg__"],
+)
+
+# TODO(kjlubick) add copts, like "-msse2" and "-mssse3" as necessary

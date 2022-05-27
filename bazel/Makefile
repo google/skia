@@ -10,23 +10,23 @@ gazelle_update_repo:
 
 # Run this target to test all known working Bazel builds
 known_good_builds:
-	#bazelisk build //experimental/bazel_test/... --config=clang_linux
-	#bazelisk run //experimental/bazel_test:bazel_test_exe --config=clang_linux
-	#bazelisk build //:skia_core --config=clang_linux
+	bazelisk build //:skia_core --config=clang_linux
+	bazelisk build //experimental/bazel_test/... --config=clang_linux
+	bazelisk run //experimental/bazel_test:bazel_test_exe --config=clang_linux
 	#bazelisk build //src/sksl/lex:sksllex --config=clang_linux
 	#bazelisk build //tools/skdiff --config=clang_linux
 	#bazelisk build //tools/skslc --config=clang_linux
 	#bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode opt --sandbox_base=/dev/shm
 
 rbe_known_good_builds:
-	#bazelisk build //experimental/bazel_test/... --config=linux_rbe
-	#bazelisk run //experimental/bazel_test:bazel_test_exe --config=linux_rbe
-	#bazelisk build //:skia_core --config=linux_rbe
-	#bazelisk build //src/sksl/lex:sksllex --config=linux_rbe
-	#bazelisk build //tools/skdiff --config=linux_rbe
-	#bazelisk build //tools/skslc --config=linux_rbe
+	bazelisk build //:skia_core --config=linux_rbe --remote_download_minimal
+	bazelisk build //experimental/bazel_test/... --config=linux_rbe --remote_download_minimal
+	bazelisk run //experimental/bazel_test:bazel_test_exe --config=linux_rbe --remote_download_toplevel
+	#bazelisk build //src/sksl/lex:sksllex --config=linux_rbe --remote_download_minimal
+	#bazelisk build //tools/skdiff --config=linux_rbe --remote_download_minimal
+	#bazelisk build //tools/skslc --config=linux_rbe --remote_download_minimal
 	## TODO(kjlubick) CanvasKit in release mode (i.e. with Closure) requires
 	## https://github.com/emscripten-core/emscripten/pull/16640 to land
 	#bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode dbg --config=linux_rbe \
-	#	--jobs 100
+	#	--jobs 100 --remote_download_minimal
 

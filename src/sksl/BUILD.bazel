@@ -1,0 +1,109 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "txts",
+    srcs = [
+        "generated/sksl_frag.dehydrated.sksl",
+        "generated/sksl_gpu.dehydrated.sksl",
+        "generated/sksl_graphite_frag.dehydrated.sksl",
+        "generated/sksl_graphite_vert.dehydrated.sksl",
+        "generated/sksl_public.dehydrated.sksl",
+        "generated/sksl_rt_shader.dehydrated.sksl",
+        "generated/sksl_vert.dehydrated.sksl",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+filegroup(
+    name = "core_srcs",
+    srcs = [
+        "SkSLAnalysis.cpp",
+        "SkSLAnalysis.h",
+        "SkSLBuiltinMap.cpp",
+        "SkSLBuiltinMap.h",
+        "SkSLBuiltinTypes.cpp",
+        "SkSLBuiltinTypes.h",
+        "SkSLCompiler.cpp",
+        "SkSLCompiler.h",
+        "SkSLConstantFolder.cpp",
+        "SkSLConstantFolder.h",
+        "SkSLContext.cpp",
+        "SkSLContext.h",
+        "SkSLDSLParser.cpp",
+        "SkSLDSLParser.h",
+        "SkSLDehydrator.cpp",
+        "SkSLDehydrator.h",
+        "SkSLErrorReporter.cpp",
+        "SkSLFileOutputStream.h",
+        "SkSLGLSL.h",
+        "SkSLInliner.cpp",
+        "SkSLInliner.h",
+        "SkSLIntrinsicList.h",
+        "SkSLLexer.cpp",
+        "SkSLLexer.h",
+        "SkSLMangler.cpp",
+        "SkSLMangler.h",
+        "SkSLMemoryLayout.h",
+        "SkSLMemoryPool.h",
+        "SkSLModifiersPool.h",
+        "SkSLOperator.cpp",
+        "SkSLOutputStream.cpp",
+        "SkSLOutputStream.h",
+        "SkSLParsedModule.h",
+        "SkSLPool.cpp",
+        "SkSLPool.h",
+        "SkSLPosition.cpp",
+        "SkSLProgramSettings.h",
+        "SkSLRehydrator.cpp",
+        "SkSLRehydrator.h",
+        "SkSLSampleUsage.cpp",
+        "SkSLSharedCompiler.cpp",
+        "SkSLSharedCompiler.h",
+        "SkSLString.cpp",
+        "SkSLStringStream.h",
+        "SkSLThreadContext.cpp",
+        "SkSLThreadContext.h",
+        "SkSLUtil.cpp",
+        "SkSLUtil.h",
+        "spirv.h",
+    ],
+)
+
+filegroup(
+    name = "gpu_srcs",
+    srcs = [
+        "GLSL.std.450.h",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":core_srcs",
+        "//src/sksl/analysis:srcs",
+        "//src/sksl/codegen:srcs",
+        "//src/sksl/dsl:srcs",
+        "//src/sksl/ir:srcs",
+        "//src/sksl/tracing:srcs",
+        "//src/sksl/transform:srcs",
+    ] + select({
+        "//bazel/common_config_settings:has_gpu_backend": [":gpu_srcs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//src:__pkg__"],
+)
+
+cc_library(
+    name = "deps",
+    textual_hdrs = [
+        ":txts",
+    ],
+    visibility = ["//src:__pkg__"],
+    deps = [
+        "//src/sksl/codegen:deps",
+    ],
+)

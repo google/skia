@@ -1,0 +1,48 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "core_srcs",
+    srcs = [
+        "AtlasTypes.cpp",
+        "AtlasTypes.h",
+        "Blend.cpp",
+        "Blend.h",
+        "BufferWriter.h",
+        "GrAHardwareBufferUtils.h",
+        "GrRectanizer.h",
+        "KeyBuilder.h",
+        "Rectanizer.h",
+        "RectanizerPow2.cpp",
+        "RectanizerPow2.h",
+        "RectanizerSkyline.cpp",
+        "RectanizerSkyline.h",
+        "RefCntedCallback.h",
+        "ResourceKey.cpp",
+        "ResourceKey.h",
+        "ShaderErrorHandler.cpp",
+        "Swizzle.cpp",
+        "Swizzle.h",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":core_srcs",
+        "//src/gpu/ganesh:srcs",
+        "//src/gpu/tessellate:srcs",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+cc_library(
+    name = "deps",
+    visibility = ["//src:__pkg__"],
+    deps = [
+        "//src/ganesh:deps",
+    ],
+)

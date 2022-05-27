@@ -9,7 +9,10 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkOpts_spi.h"
 #include "src/core/SkStreamPriv.h"
+
+#if defined(SK_ENABLE_SKSL)
 #include "src/sksl/tracing/SkVMDebugTrace.h"
+#endif
 
 #include <algorithm>
 #include <sstream>
@@ -30,6 +33,12 @@ size_t get_addr(const char* str) {
 }
 
 namespace skvm::viz {
+
+#if defined(SK_ENABLE_SKSL)
+Visualizer::Visualizer(SkSL::SkVMDebugTrace* debugInfo) : fDebugInfo(debugInfo), fOutput(nullptr) {}
+#else
+Visualizer::Visualizer(SkSL::SkVMDebugTrace* debugInfo) : fOutput(nullptr) {}
+#endif
 
 bool Instruction::operator == (const Instruction& o) const {
     return this->kind == o.kind &&
@@ -284,6 +293,7 @@ void Visualizer::dumpInstruction(int id0) const {
     const int immA = instruction.instruction.immA,
               immB = instruction.instruction.immB,
               immC = instruction.instruction.immC;
+#if defined(SK_ENABLE_SKSL)
     if (instruction.instruction.op == skvm::Op::trace_line) {
         SkASSERT(fDebugInfo != nullptr);
         SkASSERT(immA >= 0 && immB <= (int)fDebugInfo->fSource.size());
@@ -317,6 +327,7 @@ void Visualizer::dumpInstruction(int id0) const {
                 func.c_str());
         return;
     }
+#endif // defined(SK_ENABLE_SKSL)
     // No label, to the operation
     SkString label;
     if ((instruction.kind & InstructionFlags::kHoisted) != 0) {

@@ -53,8 +53,7 @@ namespace skvm::viz {
 
     class Visualizer {
     public:
-        explicit Visualizer(SkSL::SkVMDebugTrace* debugInfo)
-                : fDebugInfo(debugInfo), fOutput(nullptr) {}
+        explicit Visualizer(SkSL::SkVMDebugTrace* debugInfo);
         ~Visualizer() = default;
         void dump(SkWStream* output, const char* code);
         void markAsDeadCode(std::vector<bool>& live, const std::vector<int>& newIds);
@@ -88,8 +87,9 @@ namespace skvm::viz {
         void formatA_VC(int id, const char* op,  int v, int imm) const;
 
         void writeText(const char* format, ...) const SK_PRINTF_LIKE(2, 3);
-
+#if defined(SK_ENABLE_SKSL)
         SkSL::SkVMDebugTrace* fDebugInfo;
+#endif
         SkTHashMap<Instruction, size_t, InstructionHash> fIndex;
         SkTArray<Instruction> fInstructions;
         SkWStream* fOutput;

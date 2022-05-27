@@ -1,0 +1,44 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "select_multi")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "encode_jpeg_srcs",
+    srcs = [
+        "SkJPEGWriteUtility.cpp",
+        "SkJPEGWriteUtility.h",
+        "SkJpegEncoder.cpp",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkImageEncoder.cpp",
+        "SkImageEncoderFns.h",
+        "SkImageEncoderPriv.h",
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:jpeg_encode_codec": [":encode_jpeg_srcs"],
+            "//bazel/common_config_settings:png_encode_codec": ["SkPngEncoder.cpp"],
+            "//bazel/common_config_settings:webp_encode_codec": ["SkWebpEncoder.cpp"],
+        },
+        default = [],
+    ),
+    visibility = ["//src:__pkg__"],
+)
+
+cc_library(
+    name = "deps",
+    visibility = ["//src:__pkg__"],
+    deps = select_multi(
+        {
+            "//bazel/common_config_settings:jpeg_encode_codec": ["//third_party:libjpeg_turbo"],
+            "//bazel/common_config_settings:png_encode_codec": ["//third_party:libpng"],
+            "//bazel/common_config_settings:webp_encode_codec": ["//third_party:libwebp"],
+        },
+        default = [],
+    ),
+)
