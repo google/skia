@@ -36,7 +36,7 @@ filegroup(
     srcs = [
         ":core_srcs",
     ] + select({
-        "//bazel/common_config_settings:has_gpu_backend": [":gpu_srcs"],
+        "//src/sksl:use_sksl_gpu_srcs": [":gpu_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//src/sksl:__pkg__"],
@@ -46,7 +46,7 @@ cc_library(
     name = "deps",
     visibility = ["//src/sksl:__pkg__"],
     deps = select({
-        "//bazel/common_config_settings:has_gpu_backend": ["//third_party:spirv_cross"],
+        "//src/sksl:use_sksl_gpu_srcs": ["//third_party:spirv_cross"],
         "//conditions:default": [],
     }),
 )

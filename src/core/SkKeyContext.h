@@ -8,7 +8,7 @@
 #ifndef SkKeyContext_DEFINED
 #define SkKeyContext_DEFINED
 
-#include "include/gpu/GrTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "include/core/SkM44.h"

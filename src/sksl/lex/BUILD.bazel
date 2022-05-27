@@ -1,0 +1,27 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_binary(
+    name = "sksllex",
+    srcs = [
+        "DFA.h",
+        "DFAState.h",
+        "LexUtil.h",
+        "Main.cpp",
+        "NFA.cpp",
+        "NFA.h",
+        "NFAState.h",
+        "NFAtoDFA.h",
+        "RegexNode.cpp",
+        "RegexNode.h",
+        "RegexParser.cpp",
+        "RegexParser.h",
+        "TransitionTable.cpp",
+        "TransitionTable.h",
+    ],
+)
+
+# TODO(kjlubick) we'll need to have a gen_rule or similar to replace //gn/run_sksllex.py

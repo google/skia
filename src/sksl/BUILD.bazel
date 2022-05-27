@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "selects")
 
 licenses(["notice"])
 
@@ -80,6 +80,14 @@ filegroup(
     ],
 )
 
+selects.config_setting_group(
+    name = "use_sksl_gpu_srcs",
+    match_any = [
+        "//bazel/common_config_settings:has_gpu_backend",
+        "//bazel/common_config_settings:enable_skslc_true",
+    ],
+)
+
 filegroup(
     name = "srcs",
     srcs = [
@@ -91,7 +99,7 @@ filegroup(
         "//src/sksl/tracing:srcs",
         "//src/sksl/transform:srcs",
     ] + select({
-        "//bazel/common_config_settings:has_gpu_backend": [":gpu_srcs"],
+        ":use_sksl_gpu_srcs": [":gpu_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
@@ -105,5 +113,19 @@ cc_library(
     visibility = ["//src:__pkg__"],
     deps = [
         "//src/sksl/codegen:deps",
+    ] + select({
+        "//bazel/common_config_settings:enable_skslc_true": [
+            "@spirv_tools",
+            "@dawn//:tint",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+filegroup(
+    name = "skslc_hdrs",
+    srcs = [
+        "SkSLCompiler.h",
     ],
+    visibility = ["//tools/skslc:__pkg__"],
 )
