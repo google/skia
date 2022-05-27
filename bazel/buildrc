@@ -1,6 +1,33 @@
+# This file contains the build configurations of Skia that we use for testing on the CI.
+# These allow a short-form reference for our supported combinations of build features.
+# https://bazel.build/docs/bazelrc#config
+#
+# For most build configurations, we will want to set the --cc_output_directory_tag [1]
+# with a unique identifier per configuration name.
+#
+# By default, Bazel's "unique target BuildConfiguration" [2] incorporates the compilation_mode,
+# the target platform, and some suffixes to avoid Bazel-caused and user-caused conflicts. [3] [4]
+# For example, a default output directory might look like "k8-fastbuild-ST-6a54c1377847".
+# Inside this output directory is a subfolder for the target (e.g. executable) name.
+#
+# Notably, the flags that we turn on and off via //bazel/common_config_settings do not affect
+# the output directory. The output directory is used to store compiled object files (.o files)
+# and generated dependency files (e.g. the output of clang --write-dependencies [5]), so having
+# these be overwritten unnecessarily will slow down incremental rebuilds when switching between
+# building different configurations of the same targets.
+#
+# [1] https://bazel.build/reference/command-line-reference#flag--cc_output_directory_tag
+# [2] https://bazel.build/docs/output_directories#layout-diagram
+# [3] https://github.com/bazelbuild/bazel/blob/ad37a3748c78e0ee903b56366322c70ab8b22187/CODEBASE.md#the-structure-of-the-output-directory
+# [4] https://github.com/bazelbuild/bazel/blob/e0e589658463beb9605030b4820dcc97e6a36f48/src/main/java/com/google/devtools/build/lib/analysis/config/OutputDirectories.java#L198-L236
+# [5] https://clang.llvm.org/docs/ClangCommandLineReference.html#dependency-file-generation
+
+# These are examples of the syntax to create build configurations. As of May 2022, our
+# Bazel configurations are still being made.
 build:release --compilation_mode=opt
 build:debug --compilation_mode=dbg
 
 # Setting the spawn_strategy like this makes emscripten compiler work faster
 build:ck_release --config=release --spawn_strategy=local
 build:ck_debug --config=debug --spawn_strategy=local
+
