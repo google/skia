@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "py_binary")
 
 licenses(["notice"])
 
@@ -26,4 +26,10 @@ cc_library(
     deps = [
         "//:skia_core",
     ],
+)
+
+py_binary(
+    name = "embed_resources",
+    srcs = ["embed_resources.py"],
+    visibility = ["//:__subpackages__"],
 )

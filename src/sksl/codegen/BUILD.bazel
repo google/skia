@@ -13,6 +13,8 @@ filegroup(
 )
 
 filegroup(
+    # TODO(kjlubick) Could this be split up so we don't need to compile the SkSLMetalCodeGenerator
+    # on platforms that don't support metal (e.g. WebGL, Linux)?
     name = "gpu_srcs",
     srcs = [
         "SkSLCodeGenerator.h",

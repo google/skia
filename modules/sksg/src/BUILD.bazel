@@ -1,0 +1,37 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkSGClipEffect.cpp",
+        "SkSGColorFilter.cpp",
+        "SkSGDraw.cpp",
+        "SkSGEffectNode.cpp",
+        "SkSGGeometryEffect.cpp",
+        "SkSGGeometryNode.cpp",
+        "SkSGGradient.cpp",
+        "SkSGGroup.cpp",
+        "SkSGImage.cpp",
+        "SkSGInvalidationController.cpp",
+        "SkSGMaskEffect.cpp",
+        "SkSGMerge.cpp",
+        "SkSGNode.cpp",
+        "SkSGNodePriv.h",
+        "SkSGOpacityEffect.cpp",
+        "SkSGPaint.cpp",
+        "SkSGPath.cpp",
+        "SkSGPlane.cpp",
+        "SkSGRect.cpp",
+        "SkSGRenderEffect.cpp",
+        "SkSGRenderNode.cpp",
+        "SkSGScene.cpp",
+        "SkSGText.cpp",
+        "SkSGTransform.cpp",
+        "SkSGTransformPriv.h",
+    ],
+    visibility = ["//modules/sksg:__pkg__"],
+)

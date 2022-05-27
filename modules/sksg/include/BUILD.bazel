@@ -1,0 +1,35 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkSGClipEffect.h",
+        "SkSGColorFilter.h",
+        "SkSGDraw.h",
+        "SkSGEffectNode.h",
+        "SkSGGeometryEffect.h",
+        "SkSGGeometryNode.h",
+        "SkSGGradient.h",
+        "SkSGGroup.h",
+        "SkSGImage.h",
+        "SkSGInvalidationController.h",
+        "SkSGMaskEffect.h",
+        "SkSGMerge.h",
+        "SkSGNode.h",
+        "SkSGOpacityEffect.h",
+        "SkSGPaint.h",
+        "SkSGPath.h",
+        "SkSGPlane.h",
+        "SkSGRect.h",
+        "SkSGRenderEffect.h",
+        "SkSGRenderNode.h",
+        "SkSGScene.h",
+        "SkSGText.h",
+        "SkSGTransform.h",
+    ],
+    visibility = ["//modules/sksg:__pkg__"],
+)

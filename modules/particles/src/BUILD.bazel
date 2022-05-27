@@ -1,0 +1,16 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkParticleBinding.cpp",
+        "SkParticleDrawable.cpp",
+        "SkParticleEffect.cpp",
+        "SkReflected.cpp",
+    ],
+    visibility = ["//modules/particles:__pkg__"],
+)

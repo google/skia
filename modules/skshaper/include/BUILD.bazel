@@ -1,0 +1,13 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkShaper.h",
+    ],
+    visibility = ["//modules/skshaper:__pkg__"],
+)

@@ -265,7 +265,8 @@ def _CheckBazelBUILDFiles(input_api, output_api):
     affected_file_path = affected_file.LocalPath()
     is_bazel = affected_file_path.endswith('BUILD.bazel')
     # This list lines up with the one in autoroller_lib.py (see G3).
-    excluded_paths = ["infra/", "bazel/rbe/", "bazel/external/", "bazel/common_config_settings/"]
+    excluded_paths = ["infra/", "bazel/rbe/", "bazel/external/", "bazel/common_config_settings/",
+                      "modules/canvaskit/go/"]
     is_excluded = any(affected_file_path.startswith(n) for n in excluded_paths)
     if is_bazel and not is_excluded:
       with open(affected_file_path, 'r') as file:

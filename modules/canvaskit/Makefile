@@ -119,39 +119,15 @@ typecheck:
 	echo "Make sure you've run cd npm_build && npm ci recently"
 	cd npm_build && npm run dtslint
 
-bazel_gms_release:
-	# We use spawn_strategy=local for "everyday" builds because emscripten assumes there
-	# is a cache in the home directory that it needs to fill with compiled versions of libc etc.
-	# https://emscripten.org/docs/tools_reference/emcc.html
-	# By setting spawn_strategy=local, we can avoid recompiling all of this for every compilation
-	# unit, by letting the cache be used (and not dropped from the sandbox), which gets expensive.
-	# Local testing showed using the local strategy sped up a clean build from 9.5 minutes
-	# to 1 minute. https://docs.bazel.build/versions/main/user-manual.html#strategy-options
-	bazelisk build :wasm_gm_tests --compilation_mode opt --spawn_strategy=local
-	- rm -rf build/
-	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/wasm_gm_tests/wasm_gm_tests.js build/wasm_gm_tests.js
-	cp ../../bazel-bin/modules/canvaskit/wasm_gm_tests/wasm_gm_tests.wasm build/wasm_gm_tests.wasm
-
-bazel_gms_debug:
-	# See above note about spawn_strategy
-	bazelisk build :wasm_gm_tests --compilation_mode dbg --spawn_strategy=local
-	- rm -rf build/
-	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/wasm_gm_tests/wasm_gm_tests.js build/wasm_gm_tests.js
-	cp ../../bazel-bin/modules/canvaskit/wasm_gm_tests/wasm_gm_tests.wasm build/wasm_gm_tests.wasm
-
 bazel_canvaskit_debug:
-	# See above note about spawn_strategy
-	bazelisk build :canvaskit_wasm --compilation_mode dbg --spawn_strategy=local
+	bazelisk build :canvaskit_wasm --config=ck_debug
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.js build/canvaskit.js
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.wasm build/canvaskit.wasm
 
 bazel_canvaskit_release:
-	# See above note about spawn_strategy
-	bazelisk build :canvaskit_wasm --compilation_mode opt --spawn_strategy=local
+	bazelisk build :canvaskit_wasm --config=ck_release
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.js build/canvaskit.js
@@ -159,8 +135,7 @@ bazel_canvaskit_release:
 	ls -l build
 
 bazel_test_canvaskit:
-	bazelisk test :canvaskit_js_wasms --compilation_mode opt --spawn_strategy=local \
- 		--test_output=streamed
+	bazelisk test :canvaskit_js_tests --config=ck_release --test_output=streamed
 	echo "test output in //bazel-testlogs/modules/canvaskit/canvaskit_js_wasms/test.outputs/"
 	ls ../../bazel-testlogs/modules/canvaskit/canvaskit_js_wasms/test.outputs/
 

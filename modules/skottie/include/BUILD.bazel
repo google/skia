@@ -1,0 +1,15 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "ExternalLayer.h",
+        "Skottie.h",
+        "SkottieProperty.h",
+    ],
+    visibility = ["//modules/skottie:__pkg__"],
+)

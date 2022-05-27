@@ -1,0 +1,16 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkUnicode_icu.cpp",
+        "SkUnicode_icu.h",
+        "SkUnicode_icu_builtin.cpp",
+        # TODO(kjlubick, bungeman): add support for SkUnicdoe_icu_runtime.cpp
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)

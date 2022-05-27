@@ -1,0 +1,19 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_library(
+    name = "skparagraph",
+    srcs = ["//modules/skparagraph/src:srcs"],
+    hdrs = ["//modules/skparagraph/include:hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:skia_core",
+        "//modules/skshaper",
+        "//modules/skunicode",
+        "//third_party:harfbuzz",
+        "//third_party:icu",
+    ],
+)

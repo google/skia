@@ -1,0 +1,22 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "Animator.cpp",
+        "Animator.h",
+        "KeyframeAnimator.cpp",
+        "KeyframeAnimator.h",
+        "ScalarKeyframeAnimator.cpp",
+        "ShapeKeyframeAnimator.cpp",
+        "TextKeyframeAnimator.cpp",
+        "Vec2KeyframeAnimator.cpp",
+        "VectorKeyframeAnimator.cpp",
+        "VectorKeyframeAnimator.h",
+    ],
+    visibility = ["//modules/skottie/src:__pkg__"],
+)

@@ -1,0 +1,45 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "BlackAndWhiteEffect.cpp",
+        "BrightnessContrastEffect.cpp",
+        "BuldgeEffect.cpp",
+        "CCTonerEffect.cpp",
+        "CornerPinEffect.cpp",
+        "DirectionalBlur.cpp",
+        "DisplacementMapEffect.cpp",
+        "DropShadowEffect.cpp",
+        "Effects.cpp",
+        "Effects.h",
+        "FillEffect.cpp",
+        "FractalNoiseEffect.cpp",
+        "GaussianBlurEffect.cpp",
+        "GlowStyles.cpp",
+        "GradientEffect.cpp",
+        "HueSaturationEffect.cpp",
+        "InvertEffect.cpp",
+        "LevelsEffect.cpp",
+        "LinearWipeEffect.cpp",
+        "MotionBlurEffect.cpp",
+        "MotionBlurEffect.h",
+        "MotionTileEffect.cpp",
+        "RadialWipeEffect.cpp",
+        "ShadowStyles.cpp",
+        "SharpenEffect.cpp",
+        "ShiftChannelsEffect.cpp",
+        "SkSLEffect.cpp",
+        "SphereEffect.cpp",
+        "ThresholdEffect.cpp",
+        "TintEffect.cpp",
+        "TransformEffect.cpp",
+        "TritoneEffect.cpp",
+        "VenetianBlindsEffect.cpp",
+    ],
+    visibility = ["//modules/skottie/src:__pkg__"],
+)

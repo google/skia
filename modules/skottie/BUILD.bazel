@@ -1,0 +1,32 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_library(
+    name = "skottie",
+    srcs = [
+        "//modules/skottie/src:srcs",
+        "//src/utils:json_srcs",
+    ],
+    hdrs = ["//modules/skottie/include:hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:skia_core",
+        "//modules/skresources",
+        "//modules/sksg",
+        "//modules/skshaper",
+        "//modules/skunicode",
+    ],
+)
+
+cc_library(
+    name = "utils",
+    srcs = ["//modules/skottie/utils:srcs"],
+    hdrs = ["//modules/skottie/utils:hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":skottie",
+    ],
+)

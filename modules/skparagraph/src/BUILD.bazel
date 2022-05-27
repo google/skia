@@ -1,0 +1,34 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "Decorations.cpp",
+        "Decorations.h",
+        "FontArguments.cpp",
+        "FontCollection.cpp",
+        "Iterators.h",
+        "OneLineShaper.cpp",
+        "OneLineShaper.h",
+        "ParagraphBuilderImpl.cpp",
+        "ParagraphBuilderImpl.h",
+        "ParagraphCache.cpp",
+        "ParagraphImpl.cpp",
+        "ParagraphImpl.h",
+        "ParagraphStyle.cpp",
+        "Run.cpp",
+        "Run.h",
+        "TextLine.cpp",
+        "TextLine.h",
+        "TextShadow.cpp",
+        "TextStyle.cpp",
+        "TextWrapper.cpp",
+        "TextWrapper.h",
+        "TypefaceFontProvider.cpp",
+    ],
+    visibility = ["//modules/skparagraph:__pkg__"],
+)

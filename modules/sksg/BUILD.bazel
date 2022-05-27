@@ -1,0 +1,15 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_library(
+    name = "sksg",
+    srcs = ["//modules/sksg/src:srcs"],
+    hdrs = ["//modules/sksg/include:hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:skia_core",
+    ],
+)

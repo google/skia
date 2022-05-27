@@ -1,0 +1,32 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "Adapter.h",
+        "Camera.cpp",
+        "Camera.h",
+        "Composition.cpp",
+        "Composition.h",
+        "Layer.cpp",
+        "Layer.h",
+        "Path.cpp",
+        "Skottie.cpp",
+        "SkottieJson.cpp",
+        "SkottieJson.h",
+        "SkottiePriv.h",
+        "SkottieProperty.cpp",
+        "SkottieValue.h",
+        "Transform.cpp",
+        "Transform.h",
+        "//modules/skottie/src/animator:srcs",
+        "//modules/skottie/src/effects:srcs",
+        "//modules/skottie/src/layers:srcs",
+        "//modules/skottie/src/text:srcs",
+    ],
+    visibility = ["//modules/skottie:__pkg__"],
+)

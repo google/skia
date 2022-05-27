@@ -20,7 +20,7 @@ known_good_builds:
 	bazelisk build //src/sksl/lex:sksllex --config=clang_linux
 	bazelisk build //tools/skdiff --config=clang_linux
 	bazelisk build //tools/skslc --config=clang_linux
-	#bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode opt --sandbox_base=/dev/shm
+	bazelisk build //modules/canvaskit:canvaskit_wasm --config=ck_release
 
 rbe_known_good_builds:
 	bazelisk build //:skia_core --config=linux_rbe --remote_download_minimal
@@ -35,6 +35,6 @@ rbe_known_good_builds:
 	bazelisk build //tools/skslc --config=linux_rbe --remote_download_minimal
 	## TODO(kjlubick) CanvasKit in release mode (i.e. with Closure) requires
 	## https://github.com/emscripten-core/emscripten/pull/16640 to land
-	#bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode dbg --config=linux_rbe \
-	#	--jobs 100 --remote_download_minimal
+	bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode dbg --config=linux_rbe \
+		--remote_download_minimal
 

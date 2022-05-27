@@ -1,0 +1,13 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkResources.cpp",
+    ],
+    visibility = ["//modules/skresources:__pkg__"],
+)

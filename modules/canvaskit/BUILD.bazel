@@ -1,0 +1,393 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "wasm_cc_binary")
+load("//bazel/common_config_settings:defs.bzl", "bool_flag")
+load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+load("//bazel:karma_test.bzl", "karma_test")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+BASE_LINKOPTS = [
+    #"-flto",  # https://github.com/emscripten-core/emsdk/issues/807
+    "--bind",  # Compiles the source code using the Embind bindings to connect C/C++ and JavaScript
+    "--no-entry",
+    "-sALLOW_MEMORY_GROWTH",
+    "-sUSE_PTHREADS=0",  # Disable pthreads
+    "-sMODULARIZE",
+    "-sDISABLE_EXCEPTION_CATCHING",  # Disable all exception catching
+    "-sNODEJS_CATCH_EXIT=0",  # We don't have a 'main' so disable exit() catching
+    "-sWASM",
+    "-sMAX_WEBGL_VERSION=2",
+    "-sUSE_WEBGL2=1",
+    "-sFORCE_FILESYSTEM=0",
+    "-sDYNAMIC_EXECUTION=0",
+    "-sFILESYSTEM=0",
+    "-sEXPORTED_FUNCTIONS=['_malloc','_free']",
+]
+
+RELEASE_OPTS = [
+    "-sASSERTIONS=0",  # Turn off assertions
+    "-Oz",
+]
+
+DEBUG_OPTS = [
+    "--closure 0",  # Do not use closure
+    "-sASSERTIONS",  # Turn on assertions
+    "-sGL_ASSERTIONS",
+    "-O0",
+    "-g3",
+    "--source-map-base=/build/",
+]
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "WasmCommon.h",
+    ],
+)
+
+# See https://stackoverflow.com/a/57499321 for reference.
+genrule(
+    name = "create_notomono_cpp",
+    srcs = ["fonts/NotoMono-Regular.ttf"],
+    outs = ["fonts/NotoMono-Regular.ttf.bazel.cpp"],  # Distinct name from compile.sh's version
+    cmd = "$(location //tools:embed_resources) --name=SK_EMBEDDED_FONTS " +
+          "--input=modules/canvaskit/fonts/NotoMono-Regular.ttf " +
+          # The $@ means substitute in the one and only output location, which will be located
+          # in //bazel-out, not in the fonts subdirectory (although it will be available to clients
+          # in the fonts/ subdirectory as if it had been there all along.
+          "--output=$@ " +
+          "--align=4",
+    tools = ["//tools:embed_resources"],
+)
+
+# Note: These are defines that only impact the _bindings.cpp files in this folder.
+# Any defines that need to effect the entire Skia build should go in //bazel/BUILD.bazel
+CK_DEFINES = [
+    "CK_INCLUDE_PATHOPS",
+] + select({
+    ":enable_fonts_true": ["CK_INCLUDE_PARAGRAPH"],
+    ":enable_fonts_false": ["CK_NO_FONTS"],
+}) + select({
+    ":enable_skp_serialization_true": ["CK_SERIALIZE_SKP=1"],
+    ":enable_skp_serialization_false": [],
+}) + select({
+    ":enable_runtime_effect_true": ["CK_INCLUDE_RUNTIME_EFFECT=1"],
+    ":enable_runtime_effect_false": [],
+})
+
+CK_RELEASE_OPTS = [
+    "--closure 1",  # Run the closure compiler
+    # pass the externs file in
+    "--closure-args=--externs=$(location externs.js)",
+]
+
+CK_OPTS = BASE_LINKOPTS + [
+    "-sEXPORT_NAME=CanvasKitInit",
+    "-sINITIAL_MEMORY=128MB",
+    # The order of these --pre-js flags matters! The preamble is a partially open scope and the
+    # postamble closes it. TODO(kjlubick) do we need to do it this way anymore?
+    "--pre-js",
+    "modules/canvaskit/preamble.js",
+    "--pre-js",
+    "modules/canvaskit/color.js",
+    "--pre-js",
+    "modules/canvaskit/memory.js",
+    "--pre-js",
+    "modules/canvaskit/util.js",
+    "--pre-js",
+    "modules/canvaskit/interface.js",
+    "--pre-js",
+    "modules/canvaskit/pathops.js",
+] + select({
+    "//bazel/common_config_settings:gl_backend": [
+        "--pre-js",
+        "modules/canvaskit/cpu.js",
+        "--pre-js",
+        "modules/canvaskit/gpu.js",
+    ],
+    "//conditions:default": [
+        "--pre-js",
+        "modules/canvaskit/cpu.js",
+    ],
+}) + select({
+    ":enable_fonts_true": [
+        "--pre-js",
+        "modules/canvaskit/font.js",
+        "--pre-js",
+        "modules/canvaskit/paragraph.js",
+    ],
+    ":enable_fonts_false": [],
+}) + select({
+    ":enable_canvas_polyfill_true": [
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/preamble.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/util.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/color.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/font.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/canvas2dcontext.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/htmlcanvas.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/htmlimage.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/imagedata.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/lineargradient.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/path2d.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/pattern.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/radialgradient.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/postamble.js",
+    ],
+    ":enable_canvas_polyfill_false": [],
+}) + select({
+    ":enable_skottie_true": [
+        "--pre-js",
+        "modules/canvaskit/skottie.js",
+    ],
+    ":enable_skottie_false": [],
+}) + select({
+    ":enable_skp_serialization_true": [
+        "--pre-js",
+        "modules/canvaskit/skp.js",
+    ],
+    ":enable_skp_serialization_false": [],
+}) + select({
+    ":enable_particles_true": [
+        "--pre-js",
+        "modules/canvaskit/particles.js",
+    ],
+    ":enable_particles_false": [],
+}) + select({
+    ":enable_runtime_effect_true": [
+        "--pre-js",
+        "modules/canvaskit/rt_shader.js",
+    ],
+    ":enable_runtime_effect_false": [],
+}) + select({
+    ":include_matrix_js_true": [
+        "--pre-js",
+        "modules/canvaskit/matrix.js",
+    ],
+    ":include_matrix_js_false": [],
+}) + [
+    # This must come last
+    "--pre-js",
+    "modules/canvaskit/postamble.js",
+] + select({
+    "//bazel/common_config_settings:debug_build": DEBUG_OPTS + [
+        "--pre-js",
+        "modules/canvaskit/debug.js",
+    ],
+    "//conditions:default": RELEASE_OPTS + CK_RELEASE_OPTS + [
+        "--pre-js",
+        "modules/canvaskit/release.js",
+    ],
+})
+
+# All JS files that could possibly be included via --pre-js or --post-js.
+# Whether they actually will be or not will be controlled above in the construction of CK_OPTS.
+JS_INTERFACE_FILES = [
+    "color.js",
+    "cpu.js",
+    "debug.js",
+    "font.js",
+    "gpu.js",
+    "interface.js",
+    "matrix.js",
+    "memory.js",
+    "paragraph.js",
+    "particles.js",
+    "pathops.js",
+    "postamble.js",
+    "preamble.js",
+    "release.js",
+    "rt_shader.js",
+    "skottie.js",
+    "skp.js",
+    "util.js",
+] + [
+    "htmlcanvas/canvas2dcontext.js",
+    "htmlcanvas/color.js",
+    "htmlcanvas/font.js",
+    "htmlcanvas/htmlcanvas.js",
+    "htmlcanvas/htmlimage.js",
+    "htmlcanvas/imagedata.js",
+    "htmlcanvas/lineargradient.js",
+    "htmlcanvas/path2d.js",
+    "htmlcanvas/pattern.js",
+    "htmlcanvas/postamble.js",
+    "htmlcanvas/preamble.js",
+    "htmlcanvas/radialgradient.js",
+    "htmlcanvas/util.js",
+]
+
+CK_SRCS = [
+    "canvaskit_bindings.cpp",
+    ":hdrs",
+] + select({
+    ":include_embedded_font_true": ["fonts/NotoMono-Regular.ttf.bazel.cpp"],
+    ":include_embedded_font_false": [],
+}) + select({
+    ":enable_fonts_true": [
+        "paragraph_bindings.cpp",
+        "paragraph_bindings_gen.cpp",
+    ],
+    ":enable_fonts_false": [],
+}) + select({
+    ":enable_skottie_true": ["skottie_bindings.cpp"],
+    ":enable_skottie_false": [],
+}) + select({
+    ":enable_particles_true": ["particles_bindings.cpp"],
+    ":enable_particles_false": [],
+})
+
+cc_binary_with_flags(
+    name = "canvaskit.with_flags",
+    srcs = CK_SRCS,
+    additional_linker_inputs = JS_INTERFACE_FILES + ["externs.js"],
+    # wasm_cc_binary makes the canvaskit.js/canvaskit.wasm based on the actual name
+    # of the executable.
+    linkopts = CK_OPTS,
+    local_defines = CK_DEFINES,
+    set_flags = {
+        "disable_tracing": ["True"],
+        "include_decoder": [
+            "jpeg_decode_codec",
+            "png_decode_codec",
+            "webp_decode_codec",
+            "gif_decode_codec",
+        ],
+        "include_encoder": [
+            "jpeg_encode_codec",
+            "png_encode_codec",
+            "webp_encode_codec",
+        ],
+        # TODO(kjlubick) make this optional, depending on enable_fonts
+        "fontmgr_factory": [
+            "custom_embedded_fontmgr_factory",
+        ],
+        "gpu_backend": [
+            "gl_backend",
+        ],
+        "with_gl_standard": [
+            "webgl_standard",
+        ],
+        "use_icu": [
+            "True",
+        ],
+        "enable_sksl_tracing": [
+            "True",
+        ],
+        "shaper_backend": [
+            "harfbuzz_shaper",
+        ],
+    },
+    # This target won't build successfully on its own because of missing emscripten
+    # headers etc. Therefore, we hide it from wildcards.
+    tags = ["manual"],
+    deps = [
+        "//:skia_core",
+    ] + select({
+        ":enable_fonts_true": [
+            "//modules/skparagraph",
+        ],
+        ":enable_fonts_false": [],
+    }) + select({
+        ":enable_skottie_true": [
+            "//modules/skottie",
+            "//modules/skottie:utils",
+        ],
+        ":enable_skottie_false": [],
+    }) + select({
+        ":enable_particles_true": [
+            "//modules/particles",
+        ],
+        ":enable_particles_false": [],
+    }),
+)
+
+wasm_cc_binary(
+    name = "canvaskit_wasm",
+    # Whatever is before the dot will be the name of the output js and wasm, aka "the stem".
+    # https://github.com/emscripten-core/emsdk/blob/82ad00499a42abde16b363239d2bc83bf5d863ab/bazel/emscripten_toolchain/wasm_cc_binary.bzl#L91
+    cc_target = ":canvaskit.with_flags",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_canvas_polyfill",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_fonts",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "include_embedded_font",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_skottie",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_skp_serialization",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_particles",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_runtime_effect",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "include_matrix_js",
+)
+
+karma_test(
+    name = "canvaskit_js_tests",
+    srcs = [
+        ":canvaskit_wasm/canvaskit.js",
+        # We want to make sure the CanvasKit JS is loaded before the loader script
+        "tests/bazel/canvaskitinit.js",
+        "tests/bazel/util.js",
+        "tests/bazel/test_reporter.js",
+        # which is loaded before the tests...
+        "tests/bazel/smoke_test.js",
+        "tests/bazel/canvas_test.js",
+        "tests/bazel/canvas2d_test.js",
+        "tests/bazel/core_test.js",
+        "tests/bazel/font_test.js",
+        "tests/bazel/matrix_test.js",
+        "tests/bazel/paragraph_test.js",
+        "tests/bazel/path_test.js",
+        "tests/bazel/rtshader_test.js",
+        "tests/bazel/skottie_test.js",
+    ],
+    config_file = "karma.bazel.js",
+    # The tests need the Gold server to be up and running so they can make POST requests to
+    # exfiltrate the PNGs they create.
+    env = "//modules/canvaskit/go/gold_test_env:gold_test_env",
+    static_files = [
+        ":canvaskit_wasm/canvaskit.wasm",
+        "//modules/canvaskit/tests/assets:test_assets",
+    ],
+)

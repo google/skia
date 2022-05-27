@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "gold_test_env_lib",
+    srcs = ["gold_test_env.go"],
+    importpath = "go.skia.org/skia/modules/canvaskit/go/gold_test_env",
+    visibility = ["//visibility:private"],
+)
+
+go_binary(
+    name = "gold_test_env",
+    embed = [":gold_test_env_lib"],
+    visibility = ["//visibility:public"],
+)
