@@ -1,0 +1,16 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_library(
+    name = "timer",
+    srcs = [
+        "TimeUtils.h",
+        "Timer.cpp",
+    ],
+    hdrs = ["Timer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//:skia_core"],
+)

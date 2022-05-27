@@ -258,7 +258,7 @@ filegroup(
 
 cc_library(
     name = "deps",
-    visibility = ["//src/ganesh:__pkg__"],
+    visibility = ["//src/gpu:__pkg__"],
     deps = select_multi(
         {
             "//bazel/common_config_settings:dawn_backend": ["//src/gpu/ganesh/dawn:deps"],

@@ -1,7 +1,82 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-# TODO(kjlubick)
+filegroup(
+    name = "core_srcs",
+    srcs = [
+        "GrGLAssembleGLESInterfaceAutogen.cpp",
+        "GrGLAssembleGLInterfaceAutogen.cpp",
+        "GrGLAssembleHelpers.cpp",
+        "GrGLAssembleInterface.cpp",
+        "GrGLAssembleWebGLInterfaceAutogen.cpp",
+        "GrGLAttachment.cpp",
+        "GrGLAttachment.h",
+        "GrGLBuffer.cpp",
+        "GrGLBuffer.h",
+        "GrGLCaps.cpp",
+        "GrGLCaps.h",
+        "GrGLContext.cpp",
+        "GrGLContext.h",
+        "GrGLDefines_impl.h",
+        "GrGLExtensions.cpp",
+        "GrGLGLSL.cpp",
+        "GrGLGLSL.h",
+        "GrGLGpu.cpp",
+        "GrGLGpu.h",
+        "GrGLGpuProgramCache.cpp",
+        "GrGLInterfaceAutogen.cpp",
+        "GrGLOpsRenderPass.cpp",
+        "GrGLOpsRenderPass.h",
+        "GrGLProgram.cpp",
+        "GrGLProgram.h",
+        "GrGLProgramDataManager.cpp",
+        "GrGLProgramDataManager.h",
+        "GrGLRenderTarget.cpp",
+        "GrGLRenderTarget.h",
+        "GrGLSemaphore.cpp",
+        "GrGLSemaphore.h",
+        "GrGLTexture.cpp",
+        "GrGLTexture.h",
+        "GrGLTextureRenderTarget.cpp",
+        "GrGLTextureRenderTarget.h",
+        "GrGLTypesPriv.cpp",
+        "GrGLUniformHandler.cpp",
+        "GrGLUniformHandler.h",
+        "GrGLUtil.cpp",
+        "GrGLUtil.h",
+        "GrGLVaryingHandler.h",
+        "GrGLVertexArray.cpp",
+        "GrGLVertexArray.h",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":core_srcs",
+        "//src/gpu/ganesh/gl/builders:srcs",
+    ] + select({
+        "//bazel/common_config_settings:linux_x64": ["//src/gpu/ganesh/gl/glx:srcs"],
+        "//bazel/common_config_settings:cpu_wasm": ["//src/gpu/ganesh/gl/webgl:srcs"],
+        "@platforms//os:android": ["//src/gpu/ganesh/gl/egl:srcs"],
+        "@platforms//os:ios": ["//src/gpu/ganesh/gl/iOS:srcs"],
+        "@platforms//os:macos": ["//src/gpu/ganesh/gl/mac:srcs"],
+        "@platforms//os:windows": ["//src/gpu/ganesh/gl/win:srcs"],
+        "//conditions:default": [":GrGLMakeNativeInterface_none.cpp"],
+    }),
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+cc_library(
+    name = "deps",
+    linkopts = select({
+        "@platforms//os:android": ["-landroid"],
+        "@platforms//os:linux": ["-lGL"],
+        # TODO(kjlubick) need OpenGL32.lib for non-arm windows
+        "//conditions:default": [],
+    }),
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)

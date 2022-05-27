@@ -1,0 +1,17 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "GrVkBackendContext.h",
+        "GrVkExtensions.h",
+        "GrVkMemoryAllocator.h",
+        "GrVkTypes.h",
+        "GrVkVulkan.h",
+    ],
+    visibility = ["//include/gpu:__pkg__"],
+)

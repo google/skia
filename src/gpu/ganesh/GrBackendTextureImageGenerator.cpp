@@ -21,7 +21,6 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxyPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/gl/GrGLTexture.h"
 
 GrBackendTextureImageGenerator::RefHelper::RefHelper(
         sk_sp<GrTexture> texture,

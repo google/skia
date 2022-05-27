@@ -1,0 +1,52 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "selects")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    testonly = True,
+    srcs = [
+        "RasterWindowContext_unix.cpp",
+        "WindowContextFactory_unix.h",
+        "Window_unix.cpp",
+        "Window_unix.h",
+        "keysym2ucs.c",
+        "keysym2ucs.h",
+        "main_unix.cpp",
+    ] + select({
+        "//bazel/common_config_settings:dawn_backend": ["DawnVulkanWindowContext_unix.cpp"],
+        "//bazel/common_config_settings:gl_backend": ["GLWindowContext_unix.cpp"],
+        "//bazel/common_config_settings:vulkan_backend": ["VulkanWindowContext_unix.cpp"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//tools/sk_app:__pkg__"],
+)
+
+selects.config_setting_group(
+    name = "dawn_or_vulkan",
+    match_any = [
+        "//bazel/common_config_settings:dawn_backend",
+        "//bazel/common_config_settings:vulkan_backend",
+    ],
+)
+
+cc_library(
+    name = "deps",
+    testonly = True,
+    linkopts = [
+        "-lX11",
+        "-lxcb",  # dep of X11
+        "-lXau",  # dep of xcb
+        "-lXdmcp",  # dep of xcb
+    ] + select({
+        ":dawn_or_vulkan": ["-lX11-xcb"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//tools/sk_app:__pkg__"],
+    deps = select({
+        ":dawn_or_vulkan": ["//tools/gpu/vk:testutils"],
+        "//conditions:default": [],
+    }),
+)

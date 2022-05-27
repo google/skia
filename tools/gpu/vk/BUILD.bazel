@@ -1,0 +1,23 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_library(
+    name = "testutils",
+    testonly = True,
+    srcs = [
+        "GrVulkanDefines.h",
+        "VkTestUtils.cpp",
+    ],
+    hdrs = ["VkTestUtils.h"],
+    visibility = [
+        "//example:__subpackages__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:skia_core",
+        "//include/third_party/vulkan",
+    ],
+)

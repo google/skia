@@ -17,7 +17,7 @@ cc_library(
     ],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/third_party/vulkan:skias_vulkan_headers",
+        "//include/third_party/vulkan",
         "@vulkanmemoryallocator//:hdrs",
     ],
 )

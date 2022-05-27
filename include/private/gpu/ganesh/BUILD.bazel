@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi")
 
 licenses(["notice"])
 
@@ -8,14 +8,17 @@ filegroup(
     name = "srcs",
     srcs = [
         "GrContext_Base.h",
-        "GrD3DTypesMinimal.h",
-        "GrDawnTypesPriv.h",
-        "GrGLTypesPriv.h",
         "GrImageContext.h",
         "GrMockTypesPriv.h",
-        "GrMtlTypesPriv.h",
         "GrTypesPriv.h",
-        "GrVkTypesPriv.h",
-    ],
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:dawn_backend": ["GrDawnTypesPriv.h"],
+            "//bazel/common_config_settings:gl_backend": ["GrGLTypesPriv.h"],
+            "//bazel/common_config_settings:vulkan_backend": ["GrVkTypesPriv.h"],
+            # TODO(kjlubick) Direct3D and Metal Backends
+        },
+        default = [],
+    ),
     visibility = ["//include/private/gpu:__pkg__"],
 )

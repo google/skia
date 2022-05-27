@@ -4,6 +4,11 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+exports_files(
+    ["SkBitmaskEnum.h"],
+    visibility = ["//tools/skui:__pkg__"],
+)
+
 filegroup(
     name = "srcs",
     srcs = [

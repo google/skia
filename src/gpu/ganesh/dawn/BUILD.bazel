@@ -1,7 +1,47 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-# TODO(kjlubick)
+filegroup(
+    name = "srcs",
+    srcs = [
+        "GrDawnAsyncWait.cpp",
+        "GrDawnAsyncWait.h",
+        "GrDawnAttachment.cpp",
+        "GrDawnAttachment.h",
+        "GrDawnBuffer.cpp",
+        "GrDawnBuffer.h",
+        "GrDawnCaps.cpp",
+        "GrDawnCaps.h",
+        "GrDawnGpu.cpp",
+        "GrDawnGpu.h",
+        "GrDawnOpsRenderPass.cpp",
+        "GrDawnOpsRenderPass.h",
+        "GrDawnProgramBuilder.cpp",
+        "GrDawnProgramBuilder.h",
+        "GrDawnProgramDataManager.cpp",
+        "GrDawnProgramDataManager.h",
+        "GrDawnRenderTarget.cpp",
+        "GrDawnRenderTarget.h",
+        "GrDawnRingBuffer.cpp",
+        "GrDawnRingBuffer.h",
+        "GrDawnTexture.cpp",
+        "GrDawnTexture.h",
+        "GrDawnTextureRenderTarget.cpp",
+        "GrDawnTextureRenderTarget.h",
+        "GrDawnTypesPriv.cpp",
+        "GrDawnUtil.cpp",
+        "GrDawnUtil.h",
+    ],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+cc_library(
+    name = "deps",
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+    deps = [
+        "@dawn",
+    ],
+)

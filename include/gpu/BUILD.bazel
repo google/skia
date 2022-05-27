@@ -24,11 +24,12 @@ filegroup(
         "GrYUVABackendTextures.h",
         "ShaderErrorHandler.h",
         "//include/gpu/mock:hdrs",
+        # TODO(egdaniel, kjlubick) GrGLTypes.h is used unconditionally by GrBackendSemaphore.h
+        "//include/gpu/gl:hdrs",
     ] + select_multi(
         {
             "//bazel/common_config_settings:dawn_backend": ["//include/gpu/dawn:hdrs"],
-            "//bazel/common_config_settings:gl_backend": ["//include/gpu/gl:hdrs"],
-            "//bazel/common_config_settings:vulkan_backend": ["//include/gpu/vulkan:hdrs"],
+            "//bazel/common_config_settings:vulkan_backend": ["//include/gpu/vk:hdrs"],
             # TODO(kjlubick) mtl and d3d backend
         },
         default = [],

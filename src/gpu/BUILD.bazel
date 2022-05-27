@@ -35,7 +35,10 @@ filegroup(
         ":core_srcs",
         "//src/gpu/ganesh:srcs",
         "//src/gpu/tessellate:srcs",
-    ],
+    ] + select({
+        "//bazel/common_config_settings:vulkan_backend": ["//src/gpu/vk:srcs"],
+        "//conditions:default": [],
+    }),
     visibility = ["//src:__pkg__"],
 )
 
@@ -43,6 +46,6 @@ cc_library(
     name = "deps",
     visibility = ["//src:__pkg__"],
     deps = [
-        "//src/ganesh:deps",
+        "//src/gpu/ganesh:deps",
     ],
 )

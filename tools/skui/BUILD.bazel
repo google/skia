@@ -1,0 +1,16 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_library(
+    name = "skui",
+    srcs = ["//include/private:SkBitmaskEnum.h"],
+    hdrs = [
+        "InputState.h",
+        "Key.h",
+        "ModifierKey.h",
+    ],
+    visibility = ["//:__subpackages__"],
+)

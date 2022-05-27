@@ -39,7 +39,6 @@
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#include "src/gpu/ganesh/gl/GrGLTexture.h"
 
 #include <cstddef>
 #include <cstring>

@@ -13,6 +13,10 @@ known_good_builds:
 	bazelisk build //:skia_core --config=clang_linux
 	bazelisk build //experimental/bazel_test/... --config=clang_linux
 	bazelisk run //experimental/bazel_test:bazel_test_exe --config=clang_linux
+	bazelisk build //example:hello_world_gl --config=clang_linux
+	bazelisk build //example:hello_world_vulkan --config=clang_linux
+	bazelisk build //example:hello_world_dawn --config=clang_linux
+	bazelisk build //example:vulkan_basic --config=clang_linux
 	#bazelisk build //src/sksl/lex:sksllex --config=clang_linux
 	#bazelisk build //tools/skdiff --config=clang_linux
 	#bazelisk build //tools/skslc --config=clang_linux
@@ -22,6 +26,10 @@ rbe_known_good_builds:
 	bazelisk build //:skia_core --config=linux_rbe --remote_download_minimal
 	bazelisk build //experimental/bazel_test/... --config=linux_rbe --remote_download_minimal
 	bazelisk run //experimental/bazel_test:bazel_test_exe --config=linux_rbe --remote_download_toplevel
+	bazelisk build //example:hello_world_gl --config=linux_rbe --remote_download_minimal
+	bazelisk build //example:hello_world_vulkan --config=linux_rbe --remote_download_minimal
+	bazelisk build //example:hello_world_dawn --config=linux_rbe --remote_download_minimal
+	bazelisk build //example:vulkan_basic --config=linux_rbe --remote_download_minimal
 	#bazelisk build //src/sksl/lex:sksllex --config=linux_rbe --remote_download_minimal
 	#bazelisk build //tools/skdiff --config=linux_rbe --remote_download_minimal
 	#bazelisk build //tools/skslc --config=linux_rbe --remote_download_minimal

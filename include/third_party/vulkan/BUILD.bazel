@@ -1,0 +1,19 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_library(
+    name = "vulkan",
+    srcs = [
+        "vulkan/vk_platform.h",
+        "vulkan/vulkan_xcb.h",
+    ],  #TODO(kjlubick) The other files are necessary on different platforms
+    hdrs = [
+        "vulkan/vulkan.h",
+        "vulkan/vulkan_core.h",
+    ],
+    includes = ["."],
+    visibility = ["//:__subpackages__"],
+)

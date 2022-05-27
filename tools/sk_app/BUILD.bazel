@@ -1,0 +1,74 @@
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "select_multi", "selects")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+selects.config_setting_group(
+    name = "dawn_unix",
+    match_all = [
+        "//bazel/common_config_settings:dawn_backend",
+        "@platforms//os:linux",
+    ],
+)
+
+selects.config_setting_group(
+    name = "gl_unix",
+    match_all = [
+        "//bazel/common_config_settings:gl_backend",
+        "@platforms//os:linux",
+    ],
+)
+
+selects.config_setting_group(
+    name = "vulkan_unix",
+    match_all = [
+        "//bazel/common_config_settings:vulkan_backend",
+        "@platforms//os:linux",
+    ],
+)
+
+cc_library(
+    name = "sk_app",
+    testonly = True,
+    srcs = [
+        "Window.cpp",
+        "WindowContext.cpp",
+        "RasterWindowContext.h",
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:dawn_backend": [
+                "DawnWindowContext.h",
+                "DawnWindowContext.cpp",
+            ],
+            "//bazel/common_config_settings:gl_backend": [
+                "GLWindowContext.cpp",
+                "GLWindowContext.h",
+            ],
+            "//bazel/common_config_settings:vulkan_backend": [
+                "VulkanWindowContext.h",
+                "VulkanWindowContext.cpp",
+            ],
+        },
+        default = [],
+    ) + select({
+        "@platforms//os:linux": ["//tools/sk_app/unix:srcs"],
+        "//conditions:default": [],
+        # TODO(kjlubick) add Windows/Mac support
+    }),
+    hdrs = [
+        "Application.h",
+        "DisplayParams.h",
+        "Window.h",
+        "WindowContext.h",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:skia_core",
+        "//tools/skui",
+        "//tools/timer",
+    ] + select({
+        "@platforms//os:linux": ["//tools/sk_app/unix:deps"],
+        "//conditions:default": [],
+    }),
+)

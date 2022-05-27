@@ -2,20 +2,13 @@
 * Copyright 2016 Google Inc.
 *
 * Use of this source code is governed by a BSD-style license that can be
-* f 49
-* Prev
-* Up
-*
-*
 * found in the LICENSE file.
 */
-
-//#include <tchar.h>
 
 #include "tools/sk_app/unix/WindowContextFactory_unix.h"
 
 #include "src/utils/SkUTF.h"
-#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/WindowContext.h"
 #include "tools/sk_app/unix/Window_unix.h"
 #include "tools/skui/ModifierKey.h"
 #include "tools/timer/Timer.h"
