@@ -685,7 +685,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			}
 			ec = keep
 		}
-		if b.os("Android") {
+		if b.matchOs("Android") {
 			if !In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
@@ -765,6 +765,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 	if os, ok := b.parts["os"]; ok {
 		d["os"], ok = map[string]string{
 			"Android":    "Android",
+			"Android12":  "Android",
 			"ChromeOS":   "ChromeOS",
 			"Debian9":    DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
 			"Debian10":   DEFAULT_OS_LINUX_GCE,
@@ -823,6 +824,23 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"Pixel6":          {"oriole", "SD1A.210817.037"},
 				"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
 				"Wembley":         {"wembley", "SP2A.211004.001"},
+			}[b.parts["model"]]
+			if !ok {
+				log.Fatalf("Entry %q not found in Android mapping.", b.parts["model"])
+			}
+			d["device_type"] = deviceInfo[0]
+			d["device_os"] = deviceInfo[1]
+
+			// Tests using Android's HWAddress Sanitizer require an HWASan build of Android.
+			// See https://developer.android.com/ndk/guides/hwasan.
+			if b.extraConfig("HWASAN") {
+				d["android_hwasan_build"] = "1"
+			}
+		} else if b.os("Android12") {
+			// For Android, the device type is a better dimension
+			// than CPU or GPU.
+			deviceInfo, ok := map[string][]string{
+				"Pixel5": {"redfin", "SP2A.220305.012"},
 			}[b.parts["model"]]
 			if !ok {
 				log.Fatalf("Entry %q not found in Android mapping.", b.parts["model"])
@@ -1642,7 +1660,7 @@ func (b *jobBuilder) dm() {
 		if compileTaskName != "" {
 			b.dep(compileTaskName)
 		}
-		if b.os("Android") && b.extraConfig("ASAN") {
+		if b.matchOs("Android") && b.extraConfig("ASAN") {
 			b.asset("android_ndk_linux")
 		}
 		b.commonTestPerfAssets()
@@ -1938,7 +1956,7 @@ func (b *jobBuilder) perf() {
 			b.asset("lottie-samples")
 		}
 
-		if b.os("Android") && b.cpu() {
+		if b.matchOs("Android") && b.cpu() {
 			b.asset("text_blob_traces")
 		}
 		b.maybeAddIosDevImage()

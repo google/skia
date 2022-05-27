@@ -145,7 +145,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	//  - https://skia.googlesource.com/skia/+/ce06e261e68848ae21cac1052abc16bc07b961bf/tests/ProcessorTest.cpp#307
 	// Not MSAN due to:
 	//  - https://skia.googlesource.com/skia/+/0ac06e47269a40c177747310a613d213c95d1d6d/infra/bots/recipe_modules/flavor/gn_flavor.py#80
-	if !b.os("Android") && !b.extraConfig("MSAN") {
+	if !b.matchOs("Android") && !b.extraConfig("MSAN") {
 		args = append(args, "--randomProcessorTest")
 	}
 
@@ -223,7 +223,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Use 4x MSAA for all our testing. It's more consistent and 8x MSAA is nondeterministic (by
 		// design) on NVIDIA hardware. The problem is especially bad on ANGLE.  skia:6813 skia:6545
 		sampleCount = 4
-		if b.os("Android", "iOS") {
+		if b.matchOs("Android") || b.os("iOS") {
 			glPrefix = "gles"
 			// MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
 			// MSAA is disabled on Pixel5 (https://skbug.com/11152).
@@ -805,7 +805,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	// avoid lots of images on Gold.
 	skip(ALL, "image", "gen_platf", "error")
 
-	if b.os("Android", "iOS") {
+	if b.matchOs("Android") || b.os("iOS") {
 		// This test crashes the N9 (perhaps because of large malloc/frees). It also
 		// is fairly slow and not platform-specific. So we just disable it on all of
 		// Android and iOS. skia:5438

@@ -47,7 +47,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		glPrefix := "gl"
 		sampleCount := 8
-		if b.os("Android", "iOS") {
+		if b.matchOs("Android") || b.os("iOS") {
 			sampleCount = 4
 			// The NVIDIA_Shield has a regular OpenGL implementation. We bench that
 			// instead of ES.
@@ -83,7 +83,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		// skia:10644 The fake ES2 config is used to compare highest available ES version to
 		// when we're limited to ES2. We could consider adding a MSAA fake config as well.
-		if b.os("Android") && glPrefix == "gles" {
+		if b.matchOs("Android") && glPrefix == "gles" {
 			// These only support ES2. No point in running twice.
 			if !b.gpu("Mali400MP2", "Tegra3") {
 				configs = append(configs, "glesfakev2")
@@ -105,7 +105,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		if b.extraConfig("Vulkan") {
 			configs = []string{"vk"}
-			if b.os("Android") {
+			if b.matchOs("Android") {
 				// skbug.com/9274
 				if !b.model("Pixel2XL") {
 					configs = append(configs, "vkmsaa4")
@@ -168,7 +168,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 	// Use 4 internal msaa samples on mobile and AppleM1, otherwise 8.
 	args = append(args, "--internalSamples")
-	if b.os("Android") || b.os("iOS") || b.matchGpu("AppleM1") {
+	if b.matchOs("Android") || b.os("iOS") || b.matchGpu("AppleM1") {
 		args = append(args, "4")
 	} else {
 		args = append(args, "8")
@@ -191,7 +191,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	verbose := false
 
 	match := []string{}
-	if b.os("Android") {
+	if b.matchOs("Android") {
 		// Segfaults when run as GPU bench. Very large texture?
 		match = append(match, "~blurroundrect")
 		match = append(match, "~patch_grid") // skia:2847
@@ -332,7 +332,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		b.asset("svg")
 		b.recipeProp("svgs", "true")
 	}
-	if b.cpu() && b.os("Android") {
+	if b.cpu() && b.matchOs("Android") {
 		// TODO(borenet): Where do these come from?
 		b.recipeProp("textTraces", "true")
 	}
