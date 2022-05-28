@@ -1,7 +1,7 @@
 # This target should be run when new files are added or includes changed.
 generate:
 	bazelisk build @org_skia_go_infra//bazel/gazelle:gazelle_cpp
-	cd .. && bazel-bin/external/org_skia_go_infra/bazel/gazelle/gazelle_cpp_/gazelle_cpp update \
+	cd .. && "bazel-bin/external/org_skia_go_infra/bazel/gazelle/gazelle_cpp_/gazelle_cpp" update \
 		--third_party_file_map="third_party/file_map_for_bazel.json" \
 		include src tools gm tests \
 		modules/skshaper modules/svg modules/skresources modules/skparagraph modules/skunicode \
