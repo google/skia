@@ -208,13 +208,15 @@ public:
                 test.release()), pos);
     }
 
-    static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
+    static DSLStatement For(DSLStatement initializer, DSLExpression test,
                                     DSLExpression next, DSLStatement stmt, Position pos,
                                     const ForLoopPositions& forLoopPositions) {
-        return ForStatement::Convert(ThreadContext::Context(), pos, forLoopPositions,
-                                     initializer.releaseIfPossible(), test.releaseIfPossible(),
-                                     next.releaseIfPossible(), stmt.release(),
-                                     ThreadContext::SymbolTable());
+        return DSLStatement(ForStatement::Convert(ThreadContext::Context(), pos, forLoopPositions,
+                                                  initializer.releaseIfPossible(),
+                                                  test.releaseIfPossible(),
+                                                  next.releaseIfPossible(),
+                                                  stmt.release(),
+                                                  ThreadContext::SymbolTable()), pos);
     }
 
     static DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
@@ -344,8 +346,8 @@ public:
         return DSLExpression(std::move(result), pos);
     }
 
-    static DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases,
-                                       bool isStatic) {
+    static DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, bool isStatic,
+                               Position pos) {
         ExpressionArray values;
         values.reserve_back(cases.count());
         StatementArray caseBlocks;
@@ -355,14 +357,18 @@ public:
             caseBlocks.push_back(SkSL::Block::Make(Position(), std::move(c.fStatements),
                                                    Block::Kind::kUnbracedBlock));
         }
-        return SwitchStatement::Convert(ThreadContext::Context(), Position(), isStatic,
-                value.release(), std::move(values), std::move(caseBlocks),
-                ThreadContext::SymbolTable());
+        return DSLStatement(SwitchStatement::Convert(ThreadContext::Context(), pos, isStatic,
+                                                     value.release(),
+                                                     std::move(values),
+                                                     std::move(caseBlocks),
+                                                     ThreadContext::SymbolTable()), pos);
     }
 
-    static DSLPossibleStatement While(DSLExpression test, DSLStatement stmt) {
-        return ForStatement::ConvertWhile(ThreadContext::Context(), Position(), test.release(),
-                                          stmt.release(), ThreadContext::SymbolTable());
+    static DSLStatement While(DSLExpression test, DSLStatement stmt, Position pos) {
+        return DSLStatement(ForStatement::ConvertWhile(ThreadContext::Context(), pos,
+                                                       test.release(),
+                                                       stmt.release(),
+                                                       ThreadContext::SymbolTable()), pos);
     }
 };
 
@@ -447,13 +453,13 @@ DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos) {
 
 DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
                  DSLStatement stmt, Position pos, ForLoopPositions forLoopPositions) {
-    return DSLStatement(DSLCore::For(std::move(initializer), std::move(test), std::move(next),
-                                     std::move(stmt), pos, forLoopPositions), pos);
+    return DSLCore::For(std::move(initializer), std::move(test), std::move(next),
+                        std::move(stmt), pos, forLoopPositions);
 }
 
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, Position pos) {
     return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse), /*isStatic=*/false,
-            pos);
+                       pos);
 }
 
 DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
@@ -483,24 +489,16 @@ DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFa
             pos);
 }
 
-DSLPossibleStatement PossibleStaticSwitch(DSLExpression value, SkTArray<DSLCase> cases) {
-    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/true);
-}
-
 DSLStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases, Position pos) {
-    return DSLStatement(PossibleStaticSwitch(std::move(value), std::move(cases)), pos);
-}
-
-DSLPossibleStatement PossibleSwitch(DSLExpression value, SkTArray<DSLCase> cases) {
-    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/false);
+    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/true, pos);
 }
 
 DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, Position pos) {
-    return DSLStatement(PossibleSwitch(std::move(value), std::move(cases)), pos);
+    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/false, pos);
 }
 
 DSLStatement While(DSLExpression test, DSLStatement stmt, Position pos) {
-    return DSLStatement(DSLCore::While(std::move(test), std::move(stmt)), pos);
+    return DSLCore::While(std::move(test), std::move(stmt), pos);
 }
 
 DSLExpression Abs(DSLExpression x, Position pos) {

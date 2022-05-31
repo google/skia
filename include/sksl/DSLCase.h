@@ -52,7 +52,7 @@ private:
     friend class DSLCore;
 
     template<class... Cases>
-    friend DSLPossibleStatement Switch(DSLExpression value, Cases... cases);
+    friend DSLStatement Switch(DSLExpression value, Cases... cases);
 };
 
 } // namespace dsl

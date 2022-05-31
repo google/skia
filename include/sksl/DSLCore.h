@@ -15,6 +15,7 @@
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLVar.h"
+#include "include/sksl/SkSLPosition.h"
 
 #include <memory>
 #include <string>
@@ -25,8 +26,6 @@ namespace SkSL {
 
 class Compiler;
 class ErrorReporter;
-class Position;
-struct ForLoopPositions;
 struct Program;
 struct ProgramSettings;
 
@@ -171,37 +170,31 @@ DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue,
                       Position pos = {});
 
 // Internal use only
-DSLPossibleStatement PossibleStaticSwitch(DSLExpression value, SkTArray<DSLCase> cases);
-
-DSLStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases,
-                          Position pos = {});
+DSLStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases, Position pos = {});
 
 /**
  * @switch (value) { cases }
  */
 template<class... Cases>
-DSLPossibleStatement StaticSwitch(DSLExpression value, Cases... cases) {
+DSLStatement StaticSwitch(DSLExpression value, Cases... cases) {
     SkTArray<DSLCase> caseArray;
     caseArray.reserve_back(sizeof...(cases));
     (caseArray.push_back(std::move(cases)), ...);
-    return PossibleStaticSwitch(std::move(value), std::move(caseArray));
+    return StaticSwitch(std::move(value), std::move(caseArray), Position{});
 }
 
 // Internal use only
-DSLPossibleStatement PossibleSwitch(DSLExpression value, SkTArray<DSLCase> cases);
-
-DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases,
-                    Position pos = {});
+DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, Position pos = {});
 
 /**
  * switch (value) { cases }
  */
 template<class... Cases>
-DSLPossibleStatement Switch(DSLExpression value, Cases... cases) {
+DSLStatement Switch(DSLExpression value, Cases... cases) {
     SkTArray<DSLCase> caseArray;
     caseArray.reserve_back(sizeof...(cases));
     (caseArray.push_back(std::move(cases)), ...);
-    return PossibleSwitch(std::move(value), std::move(caseArray));
+    return Switch(std::move(value), std::move(caseArray), Position{});
 }
 
 /**

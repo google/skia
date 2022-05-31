@@ -44,24 +44,15 @@ DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     SkASSERT(this->hasValue());
 }
 
-DSLStatement::DSLStatement(DSLPossibleStatement stmt, Position pos) {
+DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt, Position pos)
+        : fStatement(stmt ? std::move(stmt) : SkSL::Nop::Make()) {
     ThreadContext::ReportErrors(pos);
-    if (stmt.hasValue()) {
-        fStatement = std::move(stmt.fStatement);
-    } else {
-        fStatement = SkSL::Nop::Make();
-    }
     if (pos.valid() && !fStatement->fPosition.valid()) {
         fStatement->fPosition = pos;
     }
 }
 
 DSLStatement::~DSLStatement() {}
-
-DSLPossibleStatement::DSLPossibleStatement(std::unique_ptr<SkSL::Statement> statement)
-    : fStatement(std::move(statement)) {}
-
-DSLPossibleStatement::~DSLPossibleStatement() {}
 
 DSLStatement operator,(DSLStatement left, DSLStatement right) {
     Position pos = left.fStatement->fPosition;

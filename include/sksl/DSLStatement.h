@@ -23,7 +23,6 @@ namespace dsl {
 
 class DSLBlock;
 class DSLExpression;
-class DSLPossibleStatement;
 
 class DSLStatement {
 public:
@@ -31,15 +30,15 @@ public:
 
     DSLStatement(DSLExpression expr);
 
-    DSLStatement(DSLPossibleStatement stmt, Position pos = {});
-
     DSLStatement(DSLBlock block);
 
     DSLStatement(DSLStatement&&) = default;
 
-    DSLStatement(std::unique_ptr<SkSL::Statement> stmt);
-
     DSLStatement(std::unique_ptr<SkSL::Expression> expr);
+
+    DSLStatement(std::unique_ptr<SkSL::Statement> stmt, Position pos);
+
+    DSLStatement(std::unique_ptr<SkSL::Statement> stmt);
 
     ~DSLStatement();
 
@@ -72,37 +71,8 @@ private:
     friend class DSLBlock;
     friend class DSLCore;
     friend class DSLExpression;
-    friend class DSLPossibleStatement;
     friend class DSLWriter;
     friend DSLStatement operator,(DSLStatement left, DSLStatement right);
-};
-
-/**
- * Represents a Statement which may have failed and/or have pending errors to report. Converting a
- * PossibleStatement into a Statement requires a Position so that any pending errors can be
- * reported at the correct position.
- *
- * PossibleStatement is used instead of Statement in situations where it is not possible to capture
- * the Position at the time of Statement construction.
- */
-class DSLPossibleStatement {
-public:
-    DSLPossibleStatement(std::unique_ptr<SkSL::Statement> stmt);
-
-    DSLPossibleStatement(DSLPossibleStatement&& other) = default;
-
-    ~DSLPossibleStatement();
-
-    bool hasValue() { return fStatement != nullptr; }
-
-    std::unique_ptr<SkSL::Statement> release() {
-        return DSLStatement(std::move(*this)).release();
-    }
-
-private:
-    std::unique_ptr<SkSL::Statement> fStatement;
-
-    friend class DSLStatement;
 };
 
 DSLStatement operator,(DSLStatement left, DSLStatement right);

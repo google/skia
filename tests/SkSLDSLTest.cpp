@@ -147,7 +147,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
 }
 
 static std::string stringize(DSLStatement& stmt)          { return stmt.release()->description(); }
-static std::string stringize(DSLPossibleStatement& stmt)  { return stmt.release()->description(); }
 static std::string stringize(DSLExpression& expr)         { return expr.release()->description(); }
 static std::string stringize(DSLBlock& blck)              { return blck.release()->description(); }
 static std::string stringize(SkSL::IRNode& node)          { return node.description(); }
