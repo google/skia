@@ -16,6 +16,11 @@
 
 #ifdef SK_ENABLE_SKSL
 
+namespace SkSL {
+class Variable;
+class Context;
+}
+
 class SkRuntimeEffectPriv {
 public:
     // Helper function when creating an effect for a GrSkSLFP that verifies an effect will
@@ -33,6 +38,10 @@ public:
     static void UsePrivateRTShaderModule(SkRuntimeEffect::Options* options) {
         options->usePrivateRTShaderModule = true;
     }
+
+    static SkRuntimeEffect::Uniform VarAsUniform(const SkSL::Variable&,
+                                                 const SkSL::Context&,
+                                                 size_t* offset);
 };
 
 // These internal APIs for creating runtime effects vary from the public API in two ways:

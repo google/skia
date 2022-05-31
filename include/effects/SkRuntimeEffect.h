@@ -68,13 +68,21 @@ public:
         };
 
         enum Flags {
-            // Uniform is an declared as an array. 'count' contains array length.
+            // Uniform is declared as an array. 'count' contains array length.
             kArray_Flag = 0x1,
 
             // Uniform is declared with layout(color). Colors should be supplied as unpremultiplied,
             // extended-range (unclamped) sRGB (ie SkColor4f). The uniform will be automatically
             // transformed to unpremultiplied extended-range working-space colors.
             kColor_Flag = 0x2,
+
+            // When used with SkMeshSpecification, indicates that the uniform is present in the
+            // vertex shader. Not used with SkRuntimeEffect.
+            kVertex_Flag = 0x4,
+
+            // When used with SkMeshSpecification, indicates that the uniform is present in the
+            // fragment shader. Not used with SkRuntimeEffect.
+            kFragment_Flag = 0x8,
         };
 
         SkString  name;

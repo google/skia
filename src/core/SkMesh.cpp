@@ -15,6 +15,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"
 #include "src/core/SkMeshPriv.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkSafeMath.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -24,6 +25,7 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
 #include <locale>
@@ -44,17 +46,64 @@ using VertexBuffer = SkMesh::VertexBuffer;
 
 #define RETURN_SUCCESS return std::make_tuple(true, SkString{})
 
-static bool has_main(const SkSL::Program& p) {
-    for (const SkSL::ProgramElement* elem : p.elements()) {
+using Uniform = SkMeshSpecification::Uniform;
+
+static std::vector<Uniform>::iterator find_uniform(std::vector<Uniform>& uniforms,
+                                                   std::string_view name) {
+    return std::find_if(uniforms.begin(), uniforms.end(),
+                        [name](const SkMeshSpecification::Uniform& u) {
+        return u.name.equals(name.data(), name.size());
+    });
+}
+
+static std::tuple<bool, SkString>
+gather_uniforms_and_check_for_main(const SkSL::Program& program,
+                                   std::vector<Uniform>* uniforms,
+                                   SkMeshSpecification::Uniform::Flags stage,
+                                   size_t* offset) {
+    bool foundMain = false;
+    for (const SkSL::ProgramElement* elem : program.elements()) {
         if (elem->is<SkSL::FunctionDefinition>()) {
             const SkSL::FunctionDefinition& defn = elem->as<SkSL::FunctionDefinition>();
             const SkSL::FunctionDeclaration& decl = defn.declaration();
             if (decl.isMain()) {
-                return true;
+                foundMain = true;
+            }
+        } else if (elem->is<SkSL::GlobalVarDeclaration>()) {
+            const SkSL::GlobalVarDeclaration& global = elem->as<SkSL::GlobalVarDeclaration>();
+            const SkSL::VarDeclaration& varDecl = global.declaration()->as<SkSL::VarDeclaration>();
+            const SkSL::Variable& var = varDecl.var();
+            if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
+                auto iter = find_uniform(*uniforms, var.name());
+                const auto& context = *program.fContext;
+                if (iter == uniforms->end()) {
+                    uniforms->push_back(SkRuntimeEffectPriv::VarAsUniform(var, context, offset));
+                    uniforms->back().flags |= stage;
+                } else {
+                    // Check that the two declarations are equivalent
+                    size_t ignoredOffset = 0;
+                    auto uniform = SkRuntimeEffectPriv::VarAsUniform(var, context, &ignoredOffset);
+                    if (uniform.isArray() != iter->isArray() ||
+                        uniform.type      != iter->type      ||
+                        uniform.count     != iter->count) {
+                        return {false, SkStringPrintf("Uniform %s declared with different types"
+                                                       " in vertex and fragment shaders.",
+                                                       iter->name.c_str())};
+                    }
+                    if (uniform.isColor() != iter->isColor()) {
+                        return {false, SkStringPrintf("Uniform %s declared with different color"
+                                                      " layout in vertex and fragment shaders.",
+                                                      iter->name.c_str())};
+                    }
+                    (*iter).flags |= stage;
+                }
             }
         }
     }
-    return false;
+    if (!foundMain) {
+        return {false, SkString("No main function found.")};
+    }
+    return {true, {}};
 }
 
 using ColorType = SkMeshSpecificationPriv::ColorType;
@@ -278,6 +327,9 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
         }
     }
 
+    std::vector<Uniform> uniforms;
+    size_t offset = 0;
+
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
     // TODO(skia:11209): Add SkCapabilities to the API, check against required version.
@@ -288,9 +340,16 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
     if (!vsProgram) {
         RETURN_FAILURE("VS: %s", compiler->errorText().c_str());
     }
-    if (!has_main(*vsProgram)) {
-        RETURN_FAILURE("Vertex shader must have main function.");
+
+    if (auto [result, error] = gather_uniforms_and_check_for_main(
+                *vsProgram,
+                &uniforms,
+                SkMeshSpecification::Uniform::Flags::kVertex_Flag,
+                &offset);
+        !result) {
+        return {nullptr, std::move(error)};
     }
+
     if (SkSL::Analysis::CallsColorTransformIntrinsics(*vsProgram)) {
         RETURN_FAILURE("Color transform intrinsics are not permitted in custom mesh shaders");
     }
@@ -303,9 +362,16 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
     if (!fsProgram) {
         RETURN_FAILURE("FS: %s", compiler->errorText().c_str());
     }
-    if (!has_main(*fsProgram)) {
-        RETURN_FAILURE("Fragment shader must have main function.");
+
+    if (auto [result, error] = gather_uniforms_and_check_for_main(
+                *fsProgram,
+                &uniforms,
+                SkMeshSpecification::Uniform::Flags::kFragment_Flag,
+                &offset);
+        !result) {
+        return {nullptr, std::move(error)};
     }
+
     if (SkSL::Analysis::CallsColorTransformIntrinsics(*fsProgram)) {
         RETURN_FAILURE("Color transform intrinsics are not permitted in custom mesh shaders");
     }
@@ -327,6 +393,7 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
     return {sk_sp<SkMeshSpecification>(new SkMeshSpecification(attributes,
                                                                stride,
                                                                varyings,
+                                                               std::move(uniforms),
                                                                std::move(vsProgram),
                                                                std::move(fsProgram),
                                                                ct,
@@ -338,17 +405,19 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
 
 SkMeshSpecification::~SkMeshSpecification() = default;
 
-SkMeshSpecification::SkMeshSpecification(SkSpan<const Attribute>        attributes,
-                                         size_t                         stride,
-                                         SkSpan<const Varying>          varyings,
-                                         std::unique_ptr<SkSL::Program> vs,
-                                         std::unique_ptr<SkSL::Program> fs,
-                                         ColorType                      ct,
-                                         bool                           hasLocalCoords,
-                                         sk_sp<SkColorSpace>            cs,
-                                         SkAlphaType                    at)
+SkMeshSpecification::SkMeshSpecification(SkSpan<const Attribute>              attributes,
+                                         size_t                               stride,
+                                         SkSpan<const Varying>                varyings,
+                                         std::vector<Uniform>                 uniforms,
+                                         std::unique_ptr<const SkSL::Program> vs,
+                                         std::unique_ptr<const SkSL::Program> fs,
+                                         ColorType                            ct,
+                                         bool                                 hasLocalCoords,
+                                         sk_sp<SkColorSpace>                  cs,
+                                         SkAlphaType                          at)
         : fAttributes(attributes.begin(), attributes.end())
         , fVaryings(varyings.begin(), varyings.end())
+        , fUniforms(std::move(uniforms))
         , fVS(std::move(vs))
         , fFS(std::move(fs))
         , fStride(stride)
@@ -375,6 +444,22 @@ SkMeshSpecification::SkMeshSpecification(SkSpan<const Attribute>        attribut
     auto atInt = static_cast<uint32_t>(fAlphaType);
     fHash = SkOpts::hash_fn(&atInt, sizeof(atInt), fHash);
 }
+
+size_t SkMeshSpecification::uniformSize() const {
+    return fUniforms.empty() ? 0
+                             : SkAlign4(fUniforms.back().offset + fUniforms.back().sizeInBytes());
+}
+
+const Uniform* SkMeshSpecification::findUniform(const char* name) const {
+    SkASSERT(name);
+    size_t len = strlen(name);
+    auto iter = std::find_if(fUniforms.begin(), fUniforms.end(), [name, len] (const Uniform& u) {
+        return u.name.equals(name, len);
+    });
+    return iter == fUniforms.end() ? nullptr : &(*iter);
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 SkMesh::SkMesh()  = default;
 SkMesh::~SkMesh() = default;

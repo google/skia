@@ -59,30 +59,6 @@
 
 using ChildType = SkRuntimeEffect::ChildType;
 
-static bool flattenable_is_valid_as_child(const SkFlattenable* f) {
-    if (!f) { return true; }
-    switch (f->getFlattenableType()) {
-        case SkFlattenable::kSkShader_Type:
-        case SkFlattenable::kSkColorFilter_Type:
-        case SkFlattenable::kSkBlender_Type:
-            return true;
-        default:
-            return false;
-    }
-}
-
-SkRuntimeEffect::ChildPtr::ChildPtr(sk_sp<SkFlattenable> f) : fChild(std::move(f)) {
-    SkASSERT(flattenable_is_valid_as_child(fChild.get()));
-}
-
-static sk_sp<SkSL::SkVMDebugTrace> make_skvm_debug_trace(SkRuntimeEffect* effect,
-                                                         const SkIPoint& coord) {
-    auto debugTrace = sk_make_sp<SkSL::SkVMDebugTrace>();
-    debugTrace->setSource(effect->source());
-    debugTrace->setTraceCoord(coord);
-    return debugTrace;
-}
-
 static bool init_uniform_type(const SkSL::Context& ctx,
                               const SkSL::Type* type,
                               SkRuntimeEffect::Uniform* v) {
@@ -108,6 +84,60 @@ static bool init_uniform_type(const SkSL::Context& ctx,
     if (type->matches(*ctx.fTypes.fInt4)) { v->type = Type::kInt4; return true; }
 
     return false;
+}
+
+SkRuntimeEffect::Uniform SkRuntimeEffectPriv::VarAsUniform(const SkSL::Variable& var,
+                                                           const SkSL::Context& context,
+                                                           size_t* offset) {
+    using Uniform = SkRuntimeEffect::Uniform;
+    SkASSERT(var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag);
+    Uniform uni;
+    uni.name = SkString(var.name());
+    uni.flags = 0;
+    uni.count = 1;
+
+    const SkSL::Type* type = &var.type();
+    if (type->isArray()) {
+        uni.flags |= Uniform::kArray_Flag;
+        uni.count = type->columns();
+        type = &type->componentType();
+    }
+
+    SkAssertResult(init_uniform_type(context, type, &uni));
+    if (var.modifiers().fLayout.fFlags & SkSL::Layout::Flag::kColor_Flag) {
+        uni.flags |= Uniform::kColor_Flag;
+    }
+
+    uni.offset = *offset;
+    *offset += uni.sizeInBytes();
+    SkASSERT(SkIsAlign4(*offset));
+    return uni;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+static bool flattenable_is_valid_as_child(const SkFlattenable* f) {
+    if (!f) { return true; }
+    switch (f->getFlattenableType()) {
+        case SkFlattenable::kSkShader_Type:
+        case SkFlattenable::kSkColorFilter_Type:
+        case SkFlattenable::kSkBlender_Type:
+            return true;
+        default:
+            return false;
+    }
+}
+
+SkRuntimeEffect::ChildPtr::ChildPtr(sk_sp<SkFlattenable> f) : fChild(std::move(f)) {
+    SkASSERT(flattenable_is_valid_as_child(fChild.get()));
+}
+
+static sk_sp<SkSL::SkVMDebugTrace> make_skvm_debug_trace(SkRuntimeEffect* effect,
+                                                         const SkIPoint& coord) {
+    auto debugTrace = sk_make_sp<SkSL::SkVMDebugTrace>();
+    debugTrace->setSource(effect->source());
+    debugTrace->setTraceCoord(coord);
+    return debugTrace;
 }
 
 static ChildType child_type(const SkSL::Type& type) {
@@ -324,28 +354,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
             }
             // 'uniform' variables
             else if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
-                Uniform uni;
-                uni.name = SkString(var.name());
-                uni.flags = 0;
-                uni.count = 1;
-
-                const SkSL::Type* type = &var.type();
-                if (type->isArray()) {
-                    uni.flags |= Uniform::kArray_Flag;
-                    uni.count = type->columns();
-                    type = &type->componentType();
-                }
-
-                SkAssertResult(init_uniform_type(ctx, type, &uni));
-                if (var.modifiers().fLayout.fFlags & SkSL::Layout::Flag::kColor_Flag) {
-                    uni.flags |= Uniform::kColor_Flag;
-                }
-
-                uni.offset = offset;
-                offset += uni.sizeInBytes();
-                SkASSERT(SkIsAlign4(offset));
-
-                uniforms.push_back(uni);
+                uniforms.push_back(SkRuntimeEffectPriv::VarAsUniform(var, ctx, &offset));
             }
         }
     }

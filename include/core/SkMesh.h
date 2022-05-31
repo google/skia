@@ -16,6 +16,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
+#include "include/effects/SkRuntimeEffect.h"
 
 #include <memory>
 #include <vector>
@@ -44,6 +45,10 @@ namespace SkSL { struct Program; }
  * return type is void then the interpolated position from vertex shader return is used as the local
  * coordinate. If the color variant is used it will be blended with SkShader (or SkPaint color in
  * absence of a shader) using the SkBlender provided to the SkCanvas draw call.
+ *
+ * The vertex and fragment programs may both contain uniforms. Uniforms with the same name are
+ * assumed to be shared between stages. It is an error to specify uniforms in the vertex and
+ * fragment program with the same name but different types, dimensionality, or layouts.
  */
 class SkMeshSpecification : public SkNVRefCnt<SkMeshSpecification> {
 public:
@@ -85,6 +90,8 @@ public:
         Type     type;
         SkString name;
     };
+
+    using Uniform = SkRuntimeEffect::Uniform;
 
     ~SkMeshSpecification();
 
@@ -136,6 +143,13 @@ public:
 
     SkSpan<const Attribute> attributes() const { return SkMakeSpan(fAttributes); }
 
+    size_t uniformSize() const;
+
+    SkSpan<const Uniform> uniforms() const { return SkMakeSpan(fUniforms); }
+
+    /** Returns pointer to the named uniform variable's description, or nullptr if not found. */
+    const Uniform* findUniform(const char* name) const;
+
     size_t stride() const { return fStride; }
 
 private:
@@ -158,8 +172,9 @@ private:
     SkMeshSpecification(SkSpan<const Attribute>,
                         size_t,
                         SkSpan<const Varying>,
-                        std::unique_ptr<SkSL::Program>,
-                        std::unique_ptr<SkSL::Program>,
+                        std::vector<Uniform> uniforms,
+                        std::unique_ptr<const SkSL::Program>,
+                        std::unique_ptr<const SkSL::Program>,
                         ColorType,
                         bool hasLocalCoords,
                         sk_sp<SkColorSpace>,
@@ -171,16 +186,17 @@ private:
     SkMeshSpecification& operator=(const SkMeshSpecification&) = delete;
     SkMeshSpecification& operator=(SkMeshSpecification&&) = delete;
 
-    const std::vector<Attribute>   fAttributes;
-    const std::vector<Varying>     fVaryings;
-    std::unique_ptr<SkSL::Program> fVS;
-    std::unique_ptr<SkSL::Program> fFS;
-    size_t                         fStride;
-    uint32_t                       fHash;
-    ColorType                      fColorType;
-    bool                           fHasLocalCoords;
-    sk_sp<SkColorSpace>            fColorSpace;
-    SkAlphaType                    fAlphaType;
+    const std::vector<Attribute>               fAttributes;
+    const std::vector<Varying>                 fVaryings;
+    const std::vector<Uniform>                 fUniforms;
+    const std::unique_ptr<const SkSL::Program> fVS;
+    const std::unique_ptr<const SkSL::Program> fFS;
+    const size_t                               fStride;
+          uint32_t                             fHash;
+    const ColorType                            fColorType;
+    const bool                                 fHasLocalCoords;
+    const sk_sp<SkColorSpace>                  fColorSpace;
+    const SkAlphaType                          fAlphaType;
 };
 
 /**
