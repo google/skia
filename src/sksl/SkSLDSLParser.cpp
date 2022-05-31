@@ -1948,7 +1948,7 @@ DSLExpression DSLParser::swizzle(Position pos, DSLExpression base,
 }
 
 dsl::DSLExpression DSLParser::call(Position pos, dsl::DSLExpression base, ExpressionArray args) {
-    return DSLExpression(base(std::move(args), pos), pos);
+    return base(std::move(args), pos);
 }
 
 /* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN arguments RPAREN |

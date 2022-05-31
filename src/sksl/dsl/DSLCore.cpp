@@ -139,14 +139,14 @@ public:
     }
 
     template <typename... Args>
-    static DSLPossibleExpression Call(const char* name, Args... args) {
+    static DSLExpression Call(const char* name, Position pos, Args... args) {
         SkSL::ExpressionArray argArray;
         argArray.reserve_back(sizeof...(args));
         ((void)argArray.push_back(args.release()), ...);
 
-        return SkSL::FunctionCall::Convert(ThreadContext::Context(), Position(),
+        return DSLExpression(SkSL::FunctionCall::Convert(ThreadContext::Context(), pos,
                 ThreadContext::Compiler().convertIdentifier(Position(), name),
-                std::move(argArray));
+                std::move(argArray)));
     }
 
     static DSLStatement Break(Position pos) {
@@ -504,183 +504,180 @@ DSLStatement While(DSLExpression test, DSLStatement stmt, Position pos) {
 }
 
 DSLExpression Abs(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("abs", std::move(x)), pos);
+    return DSLCore::Call("abs", pos, std::move(x));
 }
 
 DSLExpression All(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("all", std::move(x)), pos);
+    return DSLCore::Call("all", pos, std::move(x));
 }
 
 DSLExpression Any(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("any", std::move(x)), pos);
+    return DSLCore::Call("any", pos, std::move(x));
 }
 
 DSLExpression Atan(DSLExpression y_over_x, Position pos) {
-    return DSLExpression(DSLCore::Call("atan", std::move(y_over_x)), pos);
+    return DSLCore::Call("atan", pos, std::move(y_over_x));
 }
 
 DSLExpression Atan(DSLExpression y, DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("atan", std::move(y), std::move(x)), pos);
+    return DSLCore::Call("atan", pos, std::move(y), std::move(x));
 }
 
 DSLExpression Ceil(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("ceil", std::move(x)), pos);
+    return DSLCore::Call("ceil", pos, std::move(x));
 }
 
 DSLExpression Clamp(DSLExpression x, DSLExpression min, DSLExpression max, Position pos) {
-    return DSLExpression(DSLCore::Call("clamp", std::move(x), std::move(min), std::move(max)), pos);
+    return DSLCore::Call("clamp", pos, std::move(x), std::move(min), std::move(max));
 }
 
 DSLExpression Cos(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("cos", std::move(x)), pos);
+    return DSLCore::Call("cos", pos, std::move(x));
 }
 
 DSLExpression Cross(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("cross", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("cross", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Degrees(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("degrees", std::move(x)), pos);
+    return DSLCore::Call("degrees", pos, std::move(x));
 }
 
 DSLExpression Distance(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("distance", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("distance", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Dot(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("dot", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("dot", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Equal(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("equal", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("equal", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Exp(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("exp", std::move(x)), pos);
+    return DSLCore::Call("exp", pos, std::move(x));
 }
 
 DSLExpression Exp2(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("exp2", std::move(x)), pos);
+    return DSLCore::Call("exp2", pos, std::move(x));
 }
 
 DSLExpression Faceforward(DSLExpression n, DSLExpression i, DSLExpression nref, Position pos) {
-    return DSLExpression(DSLCore::Call("faceforward", std::move(n), std::move(i), std::move(nref)),
-                         pos);
+    return DSLCore::Call("faceforward", pos, std::move(n), std::move(i), std::move(nref));
 }
 
 DSLExpression Fract(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("fract", std::move(x)), pos);
+    return DSLCore::Call("fract", pos, std::move(x));
 }
 
 DSLExpression Floor(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("floor", std::move(x)), pos);
+    return DSLCore::Call("floor", pos, std::move(x));
 }
 
 DSLExpression GreaterThan(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("greaterThan", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("greaterThan", pos, std::move(x), std::move(y));
 }
 
 DSLExpression GreaterThanEqual(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("greaterThanEqual", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("greaterThanEqual", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Inverse(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("inverse", std::move(x)), pos);
+    return DSLCore::Call("inverse", pos, std::move(x));
 }
 
 DSLExpression Inversesqrt(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("inversesqrt", std::move(x)), pos);
+    return DSLCore::Call("inversesqrt", pos, std::move(x));
 }
 
 DSLExpression Length(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("length", std::move(x)), pos);
+    return DSLCore::Call("length", pos, std::move(x));
 }
 
 DSLExpression LessThan(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("lessThan", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("lessThan", pos, std::move(x), std::move(y));
 }
 
 DSLExpression LessThanEqual(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("lessThanEqual", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("lessThanEqual", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Log(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("log", std::move(x)), pos);
+    return DSLCore::Call("log", pos, std::move(x));
 }
 
 DSLExpression Log2(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("log2", std::move(x)), pos);
+    return DSLCore::Call("log2", pos, std::move(x));
 }
 
 DSLExpression Max(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("max", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("max", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Min(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("min", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("min", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Mix(DSLExpression x, DSLExpression y, DSLExpression a, Position pos) {
-    return DSLExpression(DSLCore::Call("mix", std::move(x), std::move(y), std::move(a)), pos);
+    return DSLCore::Call("mix", pos, std::move(x), std::move(y), std::move(a));
 }
 
 DSLExpression Mod(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("mod", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("mod", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Normalize(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("normalize", std::move(x)), pos);
+    return DSLCore::Call("normalize", pos, std::move(x));
 }
 
 DSLExpression NotEqual(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("notEqual", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("notEqual", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Pow(DSLExpression x, DSLExpression y, Position pos) {
-    return DSLExpression(DSLCore::Call("pow", std::move(x), std::move(y)), pos);
+    return DSLCore::Call("pow", pos, std::move(x), std::move(y));
 }
 
 DSLExpression Radians(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("radians", std::move(x)), pos);
+    return DSLCore::Call("radians", pos, std::move(x));
 }
 
 DSLExpression Reflect(DSLExpression i, DSLExpression n, Position pos) {
-    return DSLExpression(DSLCore::Call("reflect", std::move(i), std::move(n)), pos);
+    return DSLCore::Call("reflect", pos, std::move(i), std::move(n));
 }
 
 DSLExpression Refract(DSLExpression i, DSLExpression n, DSLExpression eta, Position pos) {
-    return DSLExpression(DSLCore::Call("refract", std::move(i), std::move(n), std::move(eta)), pos);
+    return DSLCore::Call("refract", pos, std::move(i), std::move(n), std::move(eta));
 }
 
 DSLExpression Round(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("round", std::move(x)), pos);
+    return DSLCore::Call("round", pos, std::move(x));
 }
 
 DSLExpression Saturate(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("saturate", std::move(x)), pos);
+    return DSLCore::Call("saturate", pos, std::move(x));
 }
 
 DSLExpression Sign(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("sign", std::move(x)), pos);
+    return DSLCore::Call("sign", pos, std::move(x));
 }
 
 DSLExpression Sin(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("sin", std::move(x)), pos);
+    return DSLCore::Call("sin", pos, std::move(x));
 }
 
 DSLExpression Smoothstep(DSLExpression edge1, DSLExpression edge2, DSLExpression x,
                          Position pos) {
-    return DSLExpression(DSLCore::Call("smoothstep", std::move(edge1), std::move(edge2),
-                                       std::move(x)),
-                         pos);
+    return DSLCore::Call("smoothstep", pos, std::move(edge1), std::move(edge2), std::move(x));
 }
 
 DSLExpression Sqrt(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("sqrt", std::move(x)), pos);
+    return DSLCore::Call("sqrt", pos, std::move(x));
 }
 
 DSLExpression Step(DSLExpression edge, DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("step", std::move(edge), std::move(x)), pos);
+    return DSLCore::Call("step", pos, std::move(edge), std::move(x));
 }
 
 DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a,
@@ -716,11 +713,11 @@ DSLExpression Swizzle(DSLExpression base,
 }
 
 DSLExpression Tan(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("tan", std::move(x)), pos);
+    return DSLCore::Call("tan", pos, std::move(x));
 }
 
 DSLExpression Unpremul(DSLExpression x, Position pos) {
-    return DSLExpression(DSLCore::Call("unpremul", std::move(x)), pos);
+    return DSLCore::Call("unpremul", pos, std::move(x));
 }
 
 } // namespace dsl
