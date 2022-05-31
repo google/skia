@@ -1,10 +1,5 @@
 {
   "jobs": {
-    "BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64": {
-      "tasks": [
-        "BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64"
-      ]
-    },
     "Build-Debian10-Clang-arm-Debug-Android": {
       "tasks": [
         "Build-Debian10-Clang-arm-Debug-Android"
@@ -912,11 +907,6 @@
     "Housekeeper-PerCommit-BundleRecipes": {
       "tasks": [
         "Housekeeper-PerCommit-BundleRecipes"
-      ]
-    },
-    "Housekeeper-PerCommit-CheckGeneratedBazelFiles": {
-      "tasks": [
-        "Housekeeper-PerCommit-CheckGeneratedBazelFiles"
       ]
     },
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
@@ -3205,45 +3195,6 @@
     }
   },
   "tasks": {
-    "BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64": {
-      "casSpec": "compile",
-      "cipd_packages": [
-        {
-          "name": "skia/bots/bazelisk",
-          "path": "bazelisk",
-          "version": "version:0"
-        }
-      ],
-      "command": [
-        "./bazel_build",
-        "--project_id=skia-swarming-bots",
-        "--task_id=<(TASK_ID)",
-        "--task_name=BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64",
-        "--label=//modules/canvaskit:canvaskit_wasm",
-        "--config=debug",
-        "--bazel_arg=--config=linux_rbe",
-        "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "bazelisk"
-        ]
-      },
-      "idempotent": true,
-      "max_attempts": 1,
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
     "Build-Debian10-Clang-arm-Debug-Android": {
       "caches": [
         {
@@ -19792,43 +19743,6 @@
         ]
       },
       "idempotent": true
-    },
-    "Housekeeper-PerCommit-CheckGeneratedBazelFiles": {
-      "casSpec": "compile",
-      "cipd_packages": [
-        {
-          "name": "skia/bots/bazelisk",
-          "path": "bazelisk",
-          "version": "version:0"
-        }
-      ],
-      "command": [
-        "./check_generated_bazel_files",
-        "--project_id",
-        "skia-swarming-bots",
-        "--task_id",
-        "<(TASK_ID)",
-        "--task_name",
-        "Housekeeper-PerCommit-CheckGeneratedBazelFiles"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "bazelisk"
-        ]
-      },
-      "idempotent": true,
-      "max_attempts": 1,
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
       "caches": [
@@ -83510,7 +83424,6 @@
     "CodeSize-fm-Debian10-Clang-x86_64-Debug": {},
     "CodeSize-fm-Debian10-Clang-x86_64-Release": {},
     "Housekeeper-OnDemand-Presubmit": {},
-    "Housekeeper-PerCommit-CheckGeneratedBazelFiles": {},
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
       "location_regexes": [
         "src/gpu/effects/generated/.*",
