@@ -183,8 +183,12 @@ selects.config_setting_group(
 
 cc_library(
     name = "deps",
+    linkopts = select({
+        "@platforms//os:linux": ["-ldl"],
+        "//conditions:default": [],
+    }),
     visibility = ["//src:__pkg__"],
-    deps = [] + select({
+    deps = select({
         ":any_freetype_fontmgr": [
             "//third_party:freetype2",
         ],
