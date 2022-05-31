@@ -415,8 +415,7 @@ bool DSLParser::functionDeclarationEnd(Position start,
                                        const DSLModifiers& modifiers,
                                        DSLType type,
                                        const Token& name) {
-    // TODO(skia:13339): use SkSTArray<8, DSLParameter> once SkTArray is go/cfi compatible
-    std::vector<DSLParameter> parameters;
+    SkSTArray<8, DSLParameter> parameters;
     Token lookahead = this->peek();
     if (lookahead.fKind == Token::Kind::TK_RPAREN) {
         // `()` means no parameters at all.
@@ -424,7 +423,6 @@ bool DSLParser::functionDeclarationEnd(Position start,
         // `(void)` also means no parameters at all.
         this->nextToken();
     } else {
-        parameters.reserve(8);
         for (;;) {
             size_t paramIndex = parameters.size();
             std::optional<DSLParameter> parameter = this->parameter(paramIndex);
