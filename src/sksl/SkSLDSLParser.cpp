@@ -240,12 +240,12 @@ Position DSLParser::position(Token t) {
     }
 }
 
-void DSLParser::error(Token token, std::string msg) {
+void DSLParser::error(Token token, std::string_view msg) {
     this->error(this->position(token), msg);
 }
 
-void DSLParser::error(Position position, std::string msg) {
-    GetErrorReporter().error(msg.c_str(), position);
+void DSLParser::error(Position position, std::string_view msg) {
+    GetErrorReporter().error(position, msg);
 }
 
 Position DSLParser::rangeFrom(Position start) {

@@ -68,7 +68,6 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
                                                name,
                                                std::move(paramVars), returnType.fPosition,
                                                &returnType.skslType());
-    ThreadContext::ReportErrors(pos);
     if (fDecl) {
         for (size_t i = 0; i < params.size(); ++i) {
             params[i]->fVar = fDecl->parameters()[i];
@@ -113,7 +112,6 @@ void DSLFunction::define(DSLBlock block, Position pos) {
             *fDecl,
             std::move(body),
             /*builtin=*/false);
-    ThreadContext::ReportErrors(fPosition);
     fDecl->setDefinition(function.get());
     ThreadContext::ProgramElements().push_back(std::move(function));
 }

@@ -429,7 +429,6 @@ bool WGSLCodeGenerator::generateCode() {
 
     write_stringstream(header, *fOut);
     write_stringstream(body, *fOut);
-    fContext.fErrors->reportPendingErrors(Position());
     return fContext.fErrors->errorCount() == 0;
 }
 

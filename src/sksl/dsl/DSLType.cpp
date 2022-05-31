@@ -40,12 +40,11 @@ static const SkSL::Type* verify_type(const Context& context,
                                      Position pos) {
     if (!context.fConfig->fIsBuiltinCode) {
         if (!allowPrivateTypes && type->isPrivate()) {
-            context.fErrors->error("type '" + std::string(type->name()) + "' is private", pos);
+            context.fErrors->error(pos, "type '" + std::string(type->name()) + "' is private");
             return context.fTypes.fPoison.get();
         }
         if (!type->isAllowedInES2(context)) {
-            context.fErrors->error("type '" + std::string(type->name()) + "' is not supported",
-                                   pos);
+            context.fErrors->error(pos, "type '" + std::string(type->name()) +"' is not supported");
             return context.fTypes.fPoison.get();
         }
     }
@@ -57,13 +56,13 @@ static const SkSL::Type* find_type(const Context& context,
                                    std::string_view name) {
     const Symbol* symbol = (*ThreadContext::SymbolTable())[name];
     if (!symbol) {
-        context.fErrors->error(String::printf("no symbol named '%.*s'",
-                                              (int)name.length(), name.data()), pos);
+        context.fErrors->error(pos, String::printf("no symbol named '%.*s'",
+                                                   (int)name.length(), name.data()));
         return context.fTypes.fPoison.get();
     }
     if (!symbol->is<SkSL::Type>()) {
-        context.fErrors->error(String::printf("symbol '%.*s' is not a type",
-                                              (int)name.length(), name.data()), pos);
+        context.fErrors->error(pos, String::printf("symbol '%.*s' is not a type",
+                                                   (int)name.length(), name.data()));
         return context.fTypes.fPoison.get();
     }
     const SkSL::Type* type = &symbol->as<SkSL::Type>();
@@ -78,7 +77,6 @@ static const SkSL::Type* find_type(const Context& context,
     const Type* type = find_type(context, overallPos, name);
     type = type->applyPrecisionQualifiers(context, modifiers, ThreadContext::SymbolTable().get(),
             modifiersPos);
-    ThreadContext::ReportErrors(overallPos);
     return type;
 }
 
@@ -276,7 +274,6 @@ DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
 DSLType Array(const DSLType& base, int count, Position pos) {
     count = base.skslType().convertArraySize(ThreadContext::Context(), pos,
             DSLExpression(count, pos).release());
-    ThreadContext::ReportErrors(pos);
     if (!count) {
         return DSLType(kPoison_Type);
     }

@@ -46,7 +46,6 @@ DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt, Position pos)
         : fStatement(stmt ? std::move(stmt) : SkSL::Nop::Make()) {
-    ThreadContext::ReportErrors(pos);
     if (pos.valid() && !fStatement->fPosition.valid()) {
         fStatement->fPosition = pos;
     }

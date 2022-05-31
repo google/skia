@@ -722,7 +722,6 @@ static bool validate_spirv(ErrorReporter& reporter, std::string_view program) {
             errors.append(disassembly);
         }
         reporter.error(Position(), errors);
-        reporter.reportPendingErrors(Position());
 #else
         SkDEBUGFAILF("%s", errors.c_str());
 #endif
@@ -833,7 +832,6 @@ static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl) {
         std::string diagOutput = diagFormatter.format(program.Diagnostics());
 #if defined(SKSL_STANDALONE)
         reporter.error(Position(), diagOutput);
-        reporter.reportPendingErrors(Position());
 #else
         SkDEBUGFAILF("%s", diagOutput.c_str());
 #endif

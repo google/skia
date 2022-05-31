@@ -58,7 +58,6 @@ void AddToSymbolTable(DSLVarBase& var, Position pos) {
     if (skslVar) {
         CurrentSymbolTable()->addWithoutOwnership(skslVar);
     }
-    ThreadContext::ReportErrors(pos);
 }
 
 } // namespace dsl

@@ -62,7 +62,6 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
                 var.fInitialized = true;
             }
         }
-        ThreadContext::ReportErrors(var.fPosition);
     }
     return var.fVar;
 }

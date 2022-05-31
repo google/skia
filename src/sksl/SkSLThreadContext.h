@@ -151,11 +151,6 @@ public:
      */
     static void ReportError(std::string_view msg, Position pos = {});
 
-    /**
-     * Forwards any pending errors to the DSL ErrorReporter.
-     */
-    static void ReportErrors(Position pos);
-
     static ThreadContext& Instance();
 
     static void SetInstance(std::unique_ptr<ThreadContext> instance);

@@ -13,33 +13,13 @@
 
 namespace SkSL {
 
-void ErrorReporter::error(std::string_view msg, Position position) {
+void ErrorReporter::error(Position position, std::string_view msg) {
     if (skstd::contains(msg, Compiler::POISON_TAG)) {
-        // don't report errors on poison values
+        // Don't report errors on poison values.
         return;
     }
     ++fErrorCount;
     this->handleError(msg, position);
-}
-
-void ErrorReporter::error(Position pos, std::string_view msg) {
-    if (skstd::contains(msg, Compiler::POISON_TAG)) {
-        // don't report errors on poison values
-        return;
-    }
-    if (pos.valid()) {
-        this->error(msg, pos);
-    } else {
-        ++fErrorCount;
-        fPendingErrors.push_back(std::string(msg));
-    }
-}
-
-void ErrorReporter::reportPendingErrors(Position pos) {
-    for (const std::string& msg : fPendingErrors) {
-        this->handleError(msg, pos);
-    }
-    fPendingErrors.clear();
 }
 
 void TestingOnly_AbortErrorReporter::handleError(std::string_view msg, Position pos) {

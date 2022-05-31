@@ -41,8 +41,6 @@ DSLExpression::DSLExpression(DSLExpression&& other)
 DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression, Position pos)
     : fExpression(expression ? std::move(expression)
                              : SkSL::Poison::Make(pos, ThreadContext::Context())) {
-    ThreadContext::ReportErrors(pos);
-
     // If a position was passed in, it must match the expression's position.
     SkASSERTF(!pos.valid() || this->position() == pos,
               "expected expression position (%d-%d), but received (%d-%d)",
