@@ -36,7 +36,7 @@ cc_library(
     deps = select_multi(
         {
             "//bazel/common_config_settings:jpeg_encode_codec": ["//third_party:libjpeg_turbo"],
-            "//bazel/common_config_settings:png_encode_codec": ["//third_party:libpng"],
+            "//bazel/common_config_settings:png_encode_codec": ["@libpng"],
             "//bazel/common_config_settings:webp_encode_codec": ["//third_party:libwebp"],
         },
         default = [],

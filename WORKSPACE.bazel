@@ -204,16 +204,16 @@ local_repository(
 ###############################################################################
 # https://bazel.build/reference/be/workspace#new_local_repository
 new_local_repository(
-    name = "vulkanmemoryallocator",
-    build_file = "bazel/external/vulkanmemoryallocator/BUILD.bazel",
-    path = "third_party/externals/vulkanmemoryallocator",
+    name = "dawn",
+    build_file = "bazel/external/dawn/BUILD.bazel",
+    path = "third_party/externals/dawn",
     workspace_file_content = "",
 )
 
 new_local_repository(
-    name = "dawn",
-    build_file = "bazel/external/dawn/BUILD.bazel",
-    path = "third_party/externals/dawn",
+    name = "libpng",
+    build_file = "bazel/external/libpng/BUILD.bazel",
+    path = "third_party/externals/libpng",
     workspace_file_content = "",
 )
 
@@ -228,5 +228,20 @@ new_local_repository(
     name = "vulkan_tools",
     build_file = "bazel/external/vulkan_tools/BUILD.bazel",
     path = "third_party/externals/vulkan-tools",
+    workspace_file_content = "",
+)
+
+new_local_repository(
+    name = "vulkanmemoryallocator",
+    build_file = "bazel/external/vulkanmemoryallocator/BUILD.bazel",
+    path = "third_party/externals/vulkanmemoryallocator",
+    workspace_file_content = "",
+)
+
+new_local_repository(
+    # Some other dependency downloads zlib but with their own rules
+    name = "zlib_skia",
+    build_file = "bazel/external/zlib/BUILD.bazel",
+    path = "third_party/externals/zlib",
     workspace_file_content = "",
 )

@@ -165,7 +165,7 @@ cc_library(
         {
             "//bazel/common_config_settings:gif_decode_codec": ["//third_party:wuffs"],
             ":needs_jpeg": ["//third_party:libjpeg_turbo"],
-            "//bazel/common_config_settings:png_decode_codec": ["//third_party:libpng"],
+            "//bazel/common_config_settings:png_decode_codec": ["@libpng"],
             "//bazel/common_config_settings:raw_decode_codec": [
                 "//third_party:dng_sdk",
                 "//third_party:piex",

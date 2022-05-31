@@ -13,7 +13,7 @@ cc_binary(
     ],
     deps = [
         "//:skia_core",
-        "//third_party:libpng",
+        "@libpng",
     ],
 )
 

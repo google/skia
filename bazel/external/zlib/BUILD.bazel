@@ -1,0 +1,175 @@
+# This file will be copied into //third_party/externals/zlib via the new_local_repository
+# rule in WORKSPACE.bazel, so all files should be relative to that path.
+
+# We define this here because the emscripten toolchain calls the cpu wasm, whereas the
+# bazelbuild/platforms call it wasm32. https://github.com/emscripten-core/emsdk/issues/919
+config_setting(
+    name = "cpu_wasm",
+    values = {
+        "cpu": "wasm",
+    },
+)
+
+constraint_value(
+    name = "fuchsia",
+    constraint_setting = "@platforms//os:os",
+)
+
+config_setting(
+    name = "fuchsia_arm64",
+    constraint_values = [
+        "@platforms//cpu:arm64",
+        ":fuchsia",
+    ],
+)
+
+config_setting(
+    name = "linux_x64",
+    constraint_values = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+)
+
+config_setting(
+    name = "linux_arm64",
+    constraint_values = [
+        "@platforms//cpu:arm64",
+        "@platforms//os:linux",
+    ],
+)
+
+config_setting(
+    name = "mac_x64",
+    constraint_values = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:macos",
+    ],
+)
+
+config_setting(
+    name = "windows_x64",
+    constraint_values = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:windows",
+    ],
+)
+
+ZLIB_SRCS = [
+    "adler32.c",
+    "compress.c",
+    "contrib/optimizations/insert_string.h",
+    "cpu_features.c",
+    "cpu_features.h",
+    "crc32.h",
+    "crc32.c",
+    "deflate.c",
+    "deflate.h",
+    "gzclose.c",
+    "gzguts.h",
+    "gzlib.c",
+    "gzread.c",
+    "gzwrite.c",
+    "infback.c",
+    "inffast.c",
+    "inffast.h",
+    "inflate.h",
+    "inftrees.c",
+    "inftrees.h",
+    "trees.c",
+    "trees.h",
+    "uncompr.c",
+    "inffixed.h",
+    "zutil.c",
+    "zutil.h",
+] + select({
+    "@platforms//cpu:x86_64": [
+        "adler32_simd.h",
+        "adler32_simd.c",
+        "contrib/optimizations/chunkcopy.h",
+        "contrib/optimizations/inffast_chunk.h",
+        "contrib/optimizations/inffast_chunk.c",
+        "contrib/optimizations/inflate.c",
+        "crc32_simd.h",
+        "crc32_simd.c",
+        "crc_folding.c",
+        "fill_window_sse.c",
+    ],
+    "@platforms//cpu:arm": [
+        "adler32_simd.h",
+        "adler32_simd.c",
+        "contrib/optimizations/chunkcopy.h",
+        "contrib/optimizations/inffast_chunk.h",
+        "contrib/optimizations/inffast_chunk.c",
+        "contrib/optimizations/inflate.c",
+        "crc32_simd.h",
+        "crc32_simd.c",
+    ],
+    # No SIMD support in wasm for now
+    ":cpu_wasm": ["inflate.c"],
+    # The default is to avoid using SIMD
+    "//conditions:default": ["inflate.c"],
+})
+
+ZLIB_DEFINES = ["ZLIB_IMPLEMENTATION"] + select({
+    "@platforms//cpu:x86_64": [
+        "ADLER32_SIMD_SSSE3",
+        "CRC32_SIMD_SSE42_PCLMUL",
+        "INFLATE_CHUNK_READ_64LE",
+        "INFLATE_CHUNK_SIMD_SSE2",
+        "DEFLATE_FILL_WINDOW_SSE2",
+    ],
+    "@platforms//cpu:arm": [
+        "ADLER32_SIMD_NEON",
+        "INFLATE_CHUNK_SIMD_NEON",
+    ],
+    ":cpu_wasm": ["CPU_NO_SIMD"],
+    "//conditions:default": ["CPU_NO_SIMD"],
+}) + select({
+    ":windows_x64": ["X86_WINDOWS"],
+    ":linux_x64": ["X86_NOT_WINDOWS"],
+    ":fuchsia_arm64": [
+        "X86_NOT_WINDOWS",
+        "ARMV8_OS_FUCHSIA",
+    ],
+    # TODO(kjlubick) other arm flavors
+    "//conditions:default": ["X86_NOT_WINDOWS"],
+})
+
+ZLIB_COPTS = [
+    "-Wno-unused-function",
+    "-Wno-deprecated-non-prototype",
+    # no-deprecated-non-prototype was added in Clang 14+, used in emscripten for CanvasKit, but
+    # it is not in Clang 13, currently used for Skia.
+    "-Wno-unknown-warning-option",
+    # Make the headers in contrib available, without exposing them in hdrs.
+    "-isystem third_party/",
+] + select({
+    ":linux_x64": [
+        "-mssse3",
+        "-msse4.2",
+        "-mpclmul",
+    ],
+    ":mac_x64": [
+        "-mpclmul",
+    ],
+    "@platforms//cpu:arm": ["-march=armv8-a+crc"],
+    # If empty list isn't set for wasm, select picks linux_x64
+    ":cpu_wasm": [],
+    "//conditions:default": [],
+})
+
+cc_library(
+    name = "zlib",
+    srcs = ZLIB_SRCS,
+    hdrs = [
+        "chromeconf.h",
+        "zconf.h",
+        "zlib.h",
+    ],
+    copts = ZLIB_COPTS,
+    local_defines = ZLIB_DEFINES,
+    # This allows users of zlib to just do #include "zlib.h"
+    strip_include_prefix = "",
+    visibility = ["//visibility:public"],
+)
