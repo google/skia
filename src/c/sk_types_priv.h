@@ -55,42 +55,44 @@
 //  - C    |  sk_type  |  sk_some_type_t
 //  - Map  |  Name     |  ToSomeType / AsSomeType
 //
-#define DEF_MAP_DECL(SkType, sk_type, Name, Declaration)       \
-    Declaration;                                               \
-    static inline const SkType& As##Name(const sk_type& t) {   \
-        return reinterpret_cast<const SkType&>(t);             \
-    }                                                          \
-    static inline const SkType* As##Name(const sk_type* t) {   \
-        return reinterpret_cast<const SkType*>(t);             \
-    }                                                          \
-    static inline SkType& As##Name(sk_type& t) {               \
-        return reinterpret_cast<SkType&>(t);                   \
-    }                                                          \
-    static inline SkType* As##Name(sk_type* t) {               \
-        return reinterpret_cast<SkType*>(t);                   \
-    }                                                          \
-    static inline const sk_type& To##Name(const SkType& t) {   \
-        return reinterpret_cast<const sk_type&>(t);            \
-    }                                                          \
-    static inline const sk_type* To##Name(const SkType* t) {   \
-        return reinterpret_cast<const sk_type*>(t);            \
-    }                                                          \
-    static inline sk_type& To##Name(SkType& t) {               \
-        return reinterpret_cast<sk_type&>(t);                  \
-    }                                                          \
-    static inline sk_type* To##Name(SkType* t) {               \
-        return reinterpret_cast<sk_type*>(t);                  \
+#define DEF_MAP_DECL(SkType, sk_type, Name, Declaration, Ns)        \
+    Declaration;                                                    \
+    static inline const Ns::SkType& As##Name(const sk_type& t) {    \
+        return reinterpret_cast<const Ns::SkType&>(t);              \
+    }                                                               \
+    static inline const Ns::SkType* As##Name(const sk_type* t) {    \
+        return reinterpret_cast<const Ns::SkType*>(t);              \
+    }                                                               \
+    static inline Ns::SkType& As##Name(sk_type& t) {                \
+        return reinterpret_cast<Ns::SkType&>(t);                    \
+    }                                                               \
+    static inline Ns::SkType* As##Name(sk_type* t) {                \
+        return reinterpret_cast<Ns::SkType*>(t);                    \
+    }                                                               \
+    static inline const sk_type& To##Name(const Ns::SkType& t) {    \
+        return reinterpret_cast<const sk_type&>(t);                 \
+    }                                                               \
+    static inline const sk_type* To##Name(const Ns::SkType* t) {    \
+        return reinterpret_cast<const sk_type*>(t);                 \
+    }                                                               \
+    static inline sk_type& To##Name(Ns::SkType& t) {                \
+        return reinterpret_cast<sk_type&>(t);                       \
+    }                                                               \
+    static inline sk_type* To##Name(Ns::SkType* t) {                \
+        return reinterpret_cast<sk_type*>(t);                       \
     }
 
 #define DEF_CLASS_MAP(SkType, sk_type, Name)                   \
-    DEF_MAP_DECL(SkType, sk_type, Name, class SkType)
+    DEF_MAP_DECL(SkType, sk_type, Name, class SkType, )
+
+#define DEF_CLASS_MAP_WITH_NS(Ns, SkType, sk_type, Name)        \
+    DEF_MAP_DECL(SkType, sk_type, Name, class SkType, Ns)
 
 #define DEF_STRUCT_MAP(SkType, sk_type, Name)                  \
-    DEF_MAP_DECL(SkType, sk_type, Name, struct SkType)
+    DEF_MAP_DECL(SkType, sk_type, Name, struct SkType, )
 
 #define DEF_MAP(SkType, sk_type, Name)                         \
-    DEF_MAP_DECL(SkType, sk_type, Name, )
-
+    DEF_MAP_DECL(SkType, sk_type, Name, ,)
 
 DEF_CLASS_MAP(Sk3DView, sk_3dview_t, 3DView)
 DEF_CLASS_MAP(SkBitmap, sk_bitmap_t, Bitmap)
@@ -320,6 +322,17 @@ static inline SkPDF::Metadata AsDocumentPDFMetadata(const sk_document_pdf_metada
     md.fEncodingQuality = metadata->fEncodingQuality;
     return md;
 }
+
+#include "modules/skottie/include/Skottie.h"
+DEF_CLASS_MAP_WITH_NS(skottie, Animation, skottie_animation_t, SkottieAnimation)
+
+DEF_CLASS_MAP_WITH_NS(skottie, ResourceProvider, skottie_resource_provider_t, SkottieResourceProvider)
+DEF_CLASS_MAP_WITH_NS(skottie, PropertyObserver, skottie_property_observer_t, SkottiePropertyObserver)
+DEF_CLASS_MAP_WITH_NS(skottie, Logger, skottie_logger_t, SkottieLogger)
+DEF_CLASS_MAP_WITH_NS(skottie, MarkerObserver, skottie_marker_observer_t, SkottieMarkerObserver)
+
+#include "modules/sksg/include/SkSGInvalidationController.h"
+DEF_CLASS_MAP_WITH_NS(sksg, InvalidationController, sksg_invalidation_controller_t, SksgInvalidationController)
 
 #if SK_SUPPORT_GPU
 // GPU specific

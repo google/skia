@@ -371,6 +371,10 @@ static_assert ((int)SkRRect::Corner::kUpperRight_Corner   == (int)UPPER_RIGHT_SK
 static_assert ((int)SkRRect::Corner::kLowerRight_Corner   == (int)LOWER_RIGHT_SK_RRECT_CORNER,   ASSERT_MSG(SkRRect::Corner, sk_rrect_corner_t));
 static_assert ((int)SkRRect::Corner::kLowerLeft_Corner    == (int)LOWER_LEFT_SK_RRECT_CORNER,    ASSERT_MSG(SkRRect::Corner, sk_rrect_corner_t));
 
+// skottie_animation_renderflags_t
+static_assert ((int)skottie::Animation::kSkipTopLevelIsolation      == (int)SKIP_TOP_LEVEL_ISOLATION,      ASSERT_MSG(skottie::Animation, skottie_animation_renderflags_t));
+static_assert ((int)skottie::Animation::kDisableTopLevelClipping    == (int)DISABLE_TOP_LEVEL_CLIPPING,    ASSERT_MSG(skottie::Animation, skottie_animation_renderflags_t));
+
 #if SK_SUPPORT_GPU
 
 // gr_surfaceorigin_t

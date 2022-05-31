@@ -3084,6 +3084,7 @@ skiasharp_build("SkiaSharp") {
 
   deps = [
     ":skia",
+    "modules/skottie",
   ]
 
   # clear the sources and add explicitly

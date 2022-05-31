@@ -45,6 +45,11 @@
 #include "include/c/sk_vertices.h"
 #include "include/c/sk_xml.h"
 
+// Skottie
+#include "include/c/skottie_animation.h"
+#include "include/c/sksg_invalidation_controller.h"
+
+
 // Xamarin
 #include "include/xamarin/sk_managedstream.h"
 #include "include/xamarin/sk_manageddrawable.h"
@@ -93,6 +98,11 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_textblob_ref,
         (void*)sk_vertices_unref,
         (void*)sk_graphics_init,
+
+        // Animation
+        (void*)skottie_animation_make_from_stream,
+        (void*)sksg_invalidation_controller_new,
+        (void*)skottie_animation_keepalive,
 
         // Xamarin
         (void*)sk_compatpaint_new,
