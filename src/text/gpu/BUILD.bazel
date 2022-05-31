@@ -19,6 +19,8 @@ GPU_FILES = [
     "StrikeCache.h",
     "SubRunAllocator.cpp",
     "SubRunAllocator.h",
+    "SubRunContainer.cpp",
+    "SubRunContainer.h",
     "TextBlob.cpp",
     "TextBlob.h",
     "TextBlobRedrawCoordinator.cpp",

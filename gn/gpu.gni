@@ -830,6 +830,8 @@ skia_shared_gpu_sources = [
   "$_src/text/gpu/StrikeCache.h",
   "$_src/text/gpu/SubRunAllocator.cpp",
   "$_src/text/gpu/SubRunAllocator.h",
+  "$_src/text/gpu/SubRunContainer.cpp",
+  "$_src/text/gpu/SubRunContainer.h",
   "$_src/text/gpu/TextBlob.cpp",
   "$_src/text/gpu/TextBlob.h",
   "$_src/text/gpu/TextBlobRedrawCoordinator.cpp",
