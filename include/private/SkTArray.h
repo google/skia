@@ -461,6 +461,14 @@ protected:
     }
 
 private:
+    // We disable Control-Flow Integrity sanitization (go/cfi) when updating the item-array buffer.
+    // CFI flags this code as dangerous because we are casting `buffer` to a T* while the buffer's
+    // contents might still be uninitialized memory. When T has a vtable, this is especially risky
+    // because we could hypothetically access a virtual method on fItemArray and jump to an
+    // unpredictable location in memory. Of course, SkTArray won't actually use fItemArray in this
+    // way, and we don't want to construct a T before the user requests one. There's no real risk
+    // here, so disable CFI when doing these casts.
+    SK_ATTRIBUTE(no_sanitize("cfi"))
     void init(int count) {
         fCount = SkToU32(count);
         if (!count) {
@@ -474,6 +482,7 @@ private:
         fReserved = false;
     }
 
+    SK_ATTRIBUTE(no_sanitize("cfi"))
     void initWithPreallocatedStorage(int count, void* preallocStorage, int preallocCount) {
         SkASSERT(count >= 0);
         SkASSERT(preallocCount > 0);
@@ -534,6 +543,7 @@ private:
         return ptr;
     }
 
+    SK_ATTRIBUTE(no_sanitize("cfi"))
     void checkRealloc(int delta, ReallocType reallocType) {
         SkASSERT(fCount >= 0);
         SkASSERT(fAllocCount >= 0);
