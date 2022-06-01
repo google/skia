@@ -2177,6 +2177,18 @@ SubRunContainerOwner SubRunContainer::MakeFromBufferInAlloc(SkReadBuffer& buffer
     return container;
 }
 
+size_t SubRunContainer::EstimateAllocSize(const SkGlyphRunList& glyphRunList) {
+    // The difference in alignment from the per-glyph data to the SubRun;
+    constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
+    constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
+    size_t totalGlyphCount = glyphRunList.totalGlyphCount();
+    // This is optimized for DirectMaskSubRun which is by far the most common case.
+    return totalGlyphCount * sizeof(DevicePosition)
+            + GlyphVector::GlyphVectorSize(totalGlyphCount)
+            + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding)
+            + sizeof(SubRunContainer);
+}
+
 std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
         const SkGlyphRunList& glyphRunList,
         const SkMatrix& positionMatrix,
@@ -2560,18 +2572,7 @@ sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
                                const SkPaint& drawingPaint,
                                SkStrikeDeviceInfo strikeDeviceInfo,
                                SkStrikeForGPUCacheInterface* strikeCache) {
-    // The difference in alignment from the per-glyph data to the SubRun;
-    constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
-    constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
-    size_t totalGlyphCount = glyphRunList.totalGlyphCount();
-    // The bytesNeededForSubRun is optimized for DirectMaskSubRun which is by far the most
-    // common case.
-    size_t subRunSizeHint =
-            totalGlyphCount * sizeof(DevicePosition)
-            + GlyphVector::GlyphVectorSize(totalGlyphCount)
-            + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding)
-            + sizeof(SubRunContainer);
-
+    size_t subRunSizeHint = SubRunContainer::EstimateAllocSize(glyphRunList);
     auto [initializer, _, alloc] =
             SubRunAllocator::AllocateClassMemoryAndArena<SlugImpl>(subRunSizeHint);
 
@@ -2720,18 +2721,7 @@ sk_sp<TextBlob> TextBlob::Make(const SkGlyphRunList& glyphRunList,
                                const SkMatrix& positionMatrix,
                                SkStrikeDeviceInfo strikeDeviceInfo,
                                SkStrikeForGPUCacheInterface* strikeCache) {
-    // The difference in alignment from the per-glyph data to the SubRun;
-    constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
-    constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
-    size_t totalGlyphCount = glyphRunList.totalGlyphCount();
-
-    // The neededForSubRun is optimized for DirectMaskSubRun which is by far the most common case.
-    size_t subRunSizeHint =
-            totalGlyphCount * sizeof(DevicePosition)
-            + GlyphVector::GlyphVectorSize(totalGlyphCount)
-            + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding)
-            + sizeof(SubRunContainer);
-
+    size_t subRunSizeHint = SubRunContainer::EstimateAllocSize(glyphRunList);
     auto [initializer, totalMemoryAllocated, alloc] =
             SubRunAllocator::AllocateClassMemoryAndArena<TextBlob>(subRunSizeHint);
 

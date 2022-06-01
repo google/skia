@@ -215,6 +215,8 @@ public:
             sktext::gpu::SubRunAllocator* alloc,
             const char* tag);
 
+    static size_t EstimateAllocSize(const SkGlyphRunList& glyphRunList);
+
 #if SK_SUPPORT_GPU
     void draw(SkCanvas* canvas,
               const GrClip* clip,
