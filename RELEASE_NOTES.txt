@@ -5,6 +5,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 104
 -------------
   * SkRuntimeEffect takes and returns a const SkData.
+  * SkRasterHandleAllocator::MakeCanvas now takes optional SkSurfaceProps.
+  * SkImage::MakeFromPicture and SkImageGenerator::MakeFromPicture now take an optional
+    SkSurfaceProps to use when rasterizing the picture.
 
 * * *
 

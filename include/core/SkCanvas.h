@@ -2418,7 +2418,7 @@ protected:
     SkCanvas(const SkIRect& bounds);
 private:
     SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
-             SkRasterHandleAllocator::Handle);
+             SkRasterHandleAllocator::Handle, const SkSurfaceProps* props);
 
     SkCanvas(SkCanvas&&) = delete;
     SkCanvas(const SkCanvas&) = delete;

@@ -12,6 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkYUVAPixmaps.h"
 
 #include <optional>
@@ -169,7 +170,8 @@ public:
     static std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&, sk_sp<SkPicture>,
                                                              const SkMatrix*, const SkPaint*,
                                                              SkImage::BitDepth,
-                                                             sk_sp<SkColorSpace>);
+                                                             sk_sp<SkColorSpace>,
+                                                             SkSurfaceProps props = {});
 
 protected:
     static constexpr int kNeedNewImageUniqueID = 0;

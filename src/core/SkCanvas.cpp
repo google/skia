@@ -465,8 +465,10 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
 
 SkCanvas::SkCanvas(const SkBitmap& bitmap,
                    std::unique_ptr<SkRasterHandleAllocator> alloc,
-                   SkRasterHandleAllocator::Handle hndl)
+                   SkRasterHandleAllocator::Handle hndl,
+                   const SkSurfaceProps* props)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
+        , fProps(SkSurfacePropsCopyOrDefault(props))
         , fAllocator(std::move(alloc)) {
     inc_canvas();
 
@@ -474,7 +476,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap,
     this->init(device);
 }
 
-SkCanvas::SkCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap, nullptr, nullptr) {}
+SkCanvas::SkCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap, nullptr, nullptr, nullptr) {}
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 SkCanvas::SkCanvas(const SkBitmap& bitmap, ColorBehavior)
@@ -2868,7 +2870,8 @@ SkRasterHandleAllocator::Handle SkRasterHandleAllocator::allocBitmap(const SkIma
 
 std::unique_ptr<SkCanvas>
 SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> alloc,
-                                    const SkImageInfo& info, const Rec* rec) {
+                                    const SkImageInfo& info, const Rec* rec,
+                                    const SkSurfaceProps* props) {
     if (!alloc || !SkSurfaceValidateRasterInfo(info, rec ? rec->fRowBytes : kIgnoreRowBytesValue)) {
         return nullptr;
     }
@@ -2881,7 +2884,8 @@ SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> all
     } else {
         hndl = alloc->allocBitmap(info, &bm);
     }
-    return hndl ? std::unique_ptr<SkCanvas>(new SkCanvas(bm, std::move(alloc), hndl)) : nullptr;
+    return hndl ? std::unique_ptr<SkCanvas>(new SkCanvas(bm, std::move(alloc), hndl, props))
+                : nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

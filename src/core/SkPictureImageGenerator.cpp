@@ -18,7 +18,7 @@
 class SkPictureImageGenerator : public SkImageGenerator {
 public:
     SkPictureImageGenerator(const SkImageInfo& info, sk_sp<SkPicture>, const SkMatrix*,
-                            const SkPaint*);
+                            const SkPaint*, const SkSurfaceProps& props);
 
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts)
@@ -33,6 +33,7 @@ private:
     sk_sp<SkPicture>    fPicture;
     SkMatrix            fMatrix;
     SkTLazy<SkPaint>    fPaint;
+    SkSurfaceProps      fProps;
 
     using INHERITED = SkImageGenerator;
 };
@@ -42,7 +43,8 @@ private:
 std::unique_ptr<SkImageGenerator>
 SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
                                   const SkMatrix* matrix, const SkPaint* paint,
-                                  SkImage::BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace) {
+                                  SkImage::BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace,
+                                  SkSurfaceProps props) {
     if (!picture || !colorSpace || size.isEmpty()) {
         return nullptr;
     }
@@ -55,15 +57,17 @@ SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
     SkImageInfo info =
             SkImageInfo::Make(size, colorType, kPremul_SkAlphaType, std::move(colorSpace));
     return std::unique_ptr<SkImageGenerator>(
-        new SkPictureImageGenerator(info, std::move(picture), matrix, paint));
+        new SkPictureImageGenerator(info, std::move(picture), matrix, paint, props));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkPictureImageGenerator::SkPictureImageGenerator(const SkImageInfo& info, sk_sp<SkPicture> picture,
-                                                 const SkMatrix* matrix, const SkPaint* paint)
+                                                 const SkMatrix* matrix, const SkPaint* paint,
+                                                 const SkSurfaceProps& props)
     : INHERITED(info)
-    , fPicture(std::move(picture)) {
+    , fPicture(std::move(picture))
+    , fProps(props) {
 
     if (matrix) {
         fMatrix = *matrix;
@@ -78,8 +82,7 @@ SkPictureImageGenerator::SkPictureImageGenerator(const SkImageInfo& info, sk_sp<
 
 bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                           const Options& opts) {
-    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, rowBytes, &props);
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, rowBytes, &fProps);
     if (!canvas) {
         return false;
     }
@@ -102,13 +105,11 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
                                                               GrImageTexGenPolicy texGenPolicy) {
     SkASSERT(ctx);
 
-    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-
     SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                   ? SkBudgeted::kNo
                                   : SkBudgeted::kYes;
     auto surface = SkSurface::MakeRenderTarget(ctx, budgeted, info, 0, kTopLeft_GrSurfaceOrigin,
-                                               &props, mipmapped == GrMipmapped::kYes);
+                                               &fProps, mipmapped == GrMipmapped::kYes);
     if (!surface) {
         return {};
     }
