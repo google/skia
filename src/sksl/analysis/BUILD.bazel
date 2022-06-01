@@ -1,22 +1,35 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+ANALYSIS_FILES = [
+    "SkSLCanExitWithoutReturningValue.cpp",
+    "SkSLCheckProgramStructure.cpp",
+    "SkSLFinalizationChecks.cpp",
+    "SkSLGetLoopUnrollInfo.cpp",
+    "SkSLIsConstantExpression.cpp",
+    "SkSLIsSameExpressionTree.cpp",
+    "SkSLNoOpErrorReporter.h",
+    "SkSLProgramUsage.cpp",
+    "SkSLProgramVisitor.h",
+    "SkSLSwitchCaseContainsExit.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "analysis",
+    files = ANALYSIS_FILES,
+)
+
 filegroup(
     name = "srcs",
-    srcs = [
-        "SkSLCanExitWithoutReturningValue.cpp",
-        "SkSLCheckProgramStructure.cpp",
-        "SkSLFinalizationChecks.cpp",
-        "SkSLGetLoopUnrollInfo.cpp",
-        "SkSLIsConstantExpression.cpp",
-        "SkSLIsSameExpressionTree.cpp",
-        "SkSLNoOpErrorReporter.h",
-        "SkSLProgramUsage.cpp",
-        "SkSLProgramVisitor.h",
-        "SkSLSwitchCaseContainsExit.cpp",
-    ],
+    srcs = [":analysis_srcs"],
+    visibility = ["//src/sksl:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [":analysis_hdrs"],
     visibility = ["//src/sksl:__pkg__"],
 )

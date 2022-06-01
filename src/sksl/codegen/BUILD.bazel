@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -12,33 +12,46 @@ filegroup(
     ],
 )
 
-filegroup(
-    # TODO(kjlubick) Could this be split up so we don't need to compile the SkSLMetalCodeGenerator
-    # on platforms that don't support metal (e.g. WebGL, Linux)?
-    name = "gpu_srcs",
-    srcs = [
-        "SkSLCodeGenerator.h",
-        "SkSLGLSLCodeGenerator.cpp",
-        "SkSLGLSLCodeGenerator.h",
-        "SkSLMetalCodeGenerator.cpp",
-        "SkSLMetalCodeGenerator.h",
-        "SkSLPipelineStageCodeGenerator.cpp",
-        "SkSLPipelineStageCodeGenerator.h",
-        "SkSLSPIRVCodeGenerator.cpp",
-        "SkSLSPIRVCodeGenerator.h",
-        "SkSLSPIRVtoHLSL.cpp",
-        "SkSLSPIRVtoHLSL.h",
-        "SkSLWGSLCodeGenerator.cpp",
-        "SkSLWGSLCodeGenerator.h",
-    ],
+# TODO(kjlubick) Could this be split up so we don't need to compile the SkSLMetalCodeGenerator
+# on platforms that don't support metal (e.g. WebGL, Linux)?
+GPU_SRCS = [
+    "SkSLCodeGenerator.h",
+    "SkSLGLSLCodeGenerator.cpp",
+    "SkSLGLSLCodeGenerator.h",
+    "SkSLMetalCodeGenerator.cpp",
+    "SkSLMetalCodeGenerator.h",
+    "SkSLPipelineStageCodeGenerator.cpp",
+    "SkSLPipelineStageCodeGenerator.h",
+    "SkSLSPIRVCodeGenerator.cpp",
+    "SkSLSPIRVCodeGenerator.h",
+    "SkSLSPIRVtoHLSL.cpp",
+    "SkSLSPIRVtoHLSL.h",
+    "SkSLWGSLCodeGenerator.cpp",
+    "SkSLWGSLCodeGenerator.h",
+]
+
+split_srcs_and_hdrs(
+    name = "gpu",
+    files = GPU_SRCS,
 )
 
 filegroup(
     name = "srcs",
     srcs = [
-        ":core_srcs",
+        "SkSLVMCodeGenerator.cpp",
     ] + select({
         "//src/sksl:use_sksl_gpu_srcs": [":gpu_srcs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//src/sksl:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "SkSLVMCodeGenerator.h",
+    ] + select({
+        "//src/sksl:use_sksl_gpu_srcs": [":gpu_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src/sksl:__pkg__"],

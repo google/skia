@@ -1,112 +1,135 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "select_multi", "selects")
+load(
+    "//bazel:macros.bzl",
+    "cc_library",
+    "exports_files_legacy",
+    "select_multi",
+    "selects",
+    "split_srcs_and_hdrs",
+)
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
-    name = "core_srcs",
-    srcs = [
-        "SkCodec.cpp",
-        "SkCodecImageGenerator.cpp",
-        "SkCodecImageGenerator.h",
-        "SkCodecPriv.h",
-        "SkColorTable.cpp",
-        "SkColorTable.h",
-        "SkFrameHolder.h",
-        "SkMaskSwizzler.cpp",
-        "SkMaskSwizzler.h",
-        "SkMasks.cpp",
-        "SkMasks.h",
-        "SkSampler.cpp",
-        "SkSampler.h",
-        "SkSwizzler.cpp",
-        "SkSwizzler.h",
-    ],
+CORE_FILES = [
+    "SkCodec.cpp",
+    "SkCodecImageGenerator.cpp",
+    "SkCodecImageGenerator.h",
+    "SkCodecPriv.h",
+    "SkColorTable.cpp",
+    "SkColorTable.h",
+    "SkFrameHolder.h",
+    "SkMaskSwizzler.cpp",
+    "SkMaskSwizzler.h",
+    "SkMasks.cpp",
+    "SkMasks.h",
+    "SkSampler.cpp",
+    "SkSampler.h",
+    "SkSwizzler.cpp",
+    "SkSwizzler.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
 )
 
-filegroup(
-    name = "decode_android_srcs",
-    srcs = [
-        "SkAndroidCodec.cpp",
-        "SkAndroidCodecAdapter.cpp",
-        "SkAndroidCodecAdapter.h",
-        "SkSampledCodec.cpp",
-        "SkSampledCodec.h",
-    ],
+DECODE_ANDROID_FILES = [
+    "SkAndroidCodec.cpp",
+    "SkAndroidCodecAdapter.cpp",
+    "SkAndroidCodecAdapter.h",
+    "SkSampledCodec.cpp",
+    "SkSampledCodec.h",
+]
+
+split_srcs_and_hdrs(
+    name = "decode_android",
+    files = DECODE_ANDROID_FILES,
 )
 
-filegroup(
-    name = "decode_bmp_srcs",
-    srcs = [
-        "SkBmpBaseCodec.cpp",
-        "SkBmpBaseCodec.h",
-        "SkBmpCodec.cpp",
-        "SkBmpCodec.h",
-        "SkBmpMaskCodec.cpp",
-        "SkBmpMaskCodec.h",
-        "SkBmpRLECodec.cpp",
-        "SkBmpRLECodec.h",
-        "SkBmpStandardCodec.cpp",
-        "SkBmpStandardCodec.h",
-        "SkWbmpCodec.cpp",
-        "SkWbmpCodec.h",
-    ],
+DECODE_BMP_FILES = [
+    "SkBmpBaseCodec.cpp",
+    "SkBmpBaseCodec.h",
+    "SkBmpCodec.cpp",
+    "SkBmpCodec.h",
+    "SkBmpMaskCodec.cpp",
+    "SkBmpMaskCodec.h",
+    "SkBmpRLECodec.cpp",
+    "SkBmpRLECodec.h",
+    "SkBmpStandardCodec.cpp",
+    "SkBmpStandardCodec.h",
+    "SkWbmpCodec.cpp",
+    "SkWbmpCodec.h",
+]
+
+split_srcs_and_hdrs(
+    name = "decode_bmp",
+    files = DECODE_BMP_FILES,
 )
 
-filegroup(
-    name = "decode_gif_srcs",
-    srcs = [
-        "SkScalingCodec.h",
-        "SkWuffsCodec.cpp",
-        "SkWuffsCodec.h",
-    ],
+DECODE_GIF_FILES = [
+    "SkScalingCodec.h",
+    "SkWuffsCodec.cpp",
+    "SkWuffsCodec.h",
+]
+
+split_srcs_and_hdrs(
+    name = "decode_gif",
+    files = DECODE_GIF_FILES,
 )
 
-filegroup(
-    name = "decode_jpeg_srcs",
-    srcs = [
-        "SkEncodedInfo.cpp",
-        "SkJpegCodec.cpp",
-        "SkJpegCodec.h",
-        "SkJpegDecoderMgr.cpp",
-        "SkJpegDecoderMgr.h",
-        "SkJpegUtility.cpp",
-        "SkJpegUtility.h",
-        "SkParseEncodedOrigin.cpp",
-        "SkParseEncodedOrigin.h",
-    ],
+DECODE_JPEG_FILES = [
+    "SkEncodedInfo.cpp",
+    "SkJpegCodec.cpp",
+    "SkJpegCodec.h",
+    "SkJpegDecoderMgr.cpp",
+    "SkJpegDecoderMgr.h",
+    "SkJpegUtility.cpp",
+    "SkJpegUtility.h",
+    "SkParseEncodedOrigin.cpp",
+    "SkParseEncodedOrigin.h",
+]
+
+split_srcs_and_hdrs(
+    name = "decode_jpeg",
+    files = DECODE_JPEG_FILES,
 )
 
-filegroup(
-    name = "decode_png_srcs",
-    srcs = [
-        "SkEncodedInfo.cpp",
-        "SkIcoCodec.cpp",
-        "SkIcoCodec.h",
-        "SkPngCodec.cpp",
-        "SkPngCodec.h",
-    ],
+DECODE_PNG_FILES = [
+    "SkEncodedInfo.cpp",
+    "SkIcoCodec.cpp",
+    "SkIcoCodec.h",
+    "SkPngCodec.cpp",
+    "SkPngCodec.h",
+]
+
+split_srcs_and_hdrs(
+    name = "decode_png",
+    files = DECODE_PNG_FILES,
 )
 
-filegroup(
-    name = "decode_raw_srcs",
-    srcs = [
-        "SkRawCodec.cpp",
-        "SkRawCodec.h",
-    ],
+DECODE_RAW_FILES = [
+    "SkRawCodec.cpp",
+    "SkRawCodec.h",
+]
+
+split_srcs_and_hdrs(
+    name = "decode_raw",
+    files = DECODE_RAW_FILES,
 )
 
-filegroup(
-    name = "decode_webp_srcs",
-    srcs = [
-        "SkEncodedInfo.cpp",
-        "SkParseEncodedOrigin.cpp",
-        "SkParseEncodedOrigin.h",
-        "SkScalingCodec.h",
-        "SkWebpCodec.cpp",
-        "SkWebpCodec.h",
-    ],
+DECODE_WEBP_FILES = [
+    "SkEncodedInfo.cpp",
+    "SkParseEncodedOrigin.cpp",
+    "SkParseEncodedOrigin.h",
+    "SkScalingCodec.h",
+    "SkWebpCodec.cpp",
+    "SkWebpCodec.h",
+]
+
+split_srcs_and_hdrs(
+    name = "decode_webp",
+    files = DECODE_WEBP_FILES,
 )
 
 selects.config_setting_group(
@@ -139,6 +162,25 @@ filegroup(
         ":decode_android_srcs",
         ":decode_bmp_srcs",
         ":core_srcs",
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:gif_decode_codec": [":decode_gif_srcs"],
+            ":needs_jpeg": [":decode_jpeg_srcs"],
+            "//bazel/common_config_settings:png_decode_codec": [":decode_png_srcs"],
+            "//bazel/common_config_settings:raw_decode_codec": [":decode_raw_srcs"],
+            "//bazel/common_config_settings:webp_decode_codec": [":decode_webp_srcs"],
+        },
+        default = [],
+    ),
+    visibility = ["//src:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        ":decode_android_hdrs",
+        ":decode_bmp_hdrs",
+        ":core_hdrs",
     ] + select({
         ":needs_jpeg_priv": ["SkJpegPriv.h"],  # used by src/images/SkJPEGWriteUtility
         "//conditions:default": [],
@@ -147,11 +189,11 @@ filegroup(
         "//conditions:default": [],
     }) + select_multi(
         {
-            "//bazel/common_config_settings:gif_decode_codec": [":decode_gif_srcs"],
-            ":needs_jpeg": [":decode_jpeg_srcs"],
-            "//bazel/common_config_settings:png_decode_codec": [":decode_png_srcs"],
-            "//bazel/common_config_settings:raw_decode_codec": [":decode_raw_srcs"],
-            "//bazel/common_config_settings:webp_decode_codec": [":decode_webp_srcs"],
+            "//bazel/common_config_settings:gif_decode_codec": [":decode_gif_hdrs"],
+            ":needs_jpeg": [":decode_jpeg_hdrs"],
+            "//bazel/common_config_settings:png_decode_codec": [":decode_png_hdrs"],
+            "//bazel/common_config_settings:raw_decode_codec": [":decode_raw_hdrs"],
+            "//bazel/common_config_settings:webp_decode_codec": [":decode_webp_hdrs"],
         },
         default = [],
     ),

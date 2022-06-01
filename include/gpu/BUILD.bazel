@@ -5,7 +5,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 filegroup(
-    name = "hdrs",
+    name = "public_hdrs",
     srcs = [
         "GpuTypes.h",
         "GrBackendDrawableInfo.h",
@@ -23,13 +23,13 @@ filegroup(
         "GrTypes.h",
         "GrYUVABackendTextures.h",
         "ShaderErrorHandler.h",
-        "//include/gpu/mock:hdrs",
+        "//include/gpu/mock:public_hdrs",
         # TODO(egdaniel, kjlubick) GrGLTypes.h is used unconditionally by GrBackendSemaphore.h
-        "//include/gpu/gl:hdrs",
+        "//include/gpu/gl:public_hdrs",
     ] + select_multi(
         {
-            "//bazel/common_config_settings:dawn_backend": ["//include/gpu/dawn:hdrs"],
-            "//bazel/common_config_settings:vulkan_backend": ["//include/gpu/vk:hdrs"],
+            "//bazel/common_config_settings:dawn_backend": ["//include/gpu/dawn:public_hdrs"],
+            "//bazel/common_config_settings:vulkan_backend": ["//include/gpu/vk:public_hdrs"],
             # TODO(kjlubick) mtl and d3d backend
         },
         default = [],

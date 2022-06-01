@@ -1,40 +1,53 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+DAWN_FILES = [
+    "GrDawnAsyncWait.cpp",
+    "GrDawnAsyncWait.h",
+    "GrDawnAttachment.cpp",
+    "GrDawnAttachment.h",
+    "GrDawnBuffer.cpp",
+    "GrDawnBuffer.h",
+    "GrDawnCaps.cpp",
+    "GrDawnCaps.h",
+    "GrDawnGpu.cpp",
+    "GrDawnGpu.h",
+    "GrDawnOpsRenderPass.cpp",
+    "GrDawnOpsRenderPass.h",
+    "GrDawnProgramBuilder.cpp",
+    "GrDawnProgramBuilder.h",
+    "GrDawnProgramDataManager.cpp",
+    "GrDawnProgramDataManager.h",
+    "GrDawnRenderTarget.cpp",
+    "GrDawnRenderTarget.h",
+    "GrDawnRingBuffer.cpp",
+    "GrDawnRingBuffer.h",
+    "GrDawnTexture.cpp",
+    "GrDawnTexture.h",
+    "GrDawnTextureRenderTarget.cpp",
+    "GrDawnTextureRenderTarget.h",
+    "GrDawnTypesPriv.cpp",
+    "GrDawnUtil.cpp",
+    "GrDawnUtil.h",
+]
+
+split_srcs_and_hdrs(
+    name = "dawn",
+    files = DAWN_FILES,
+)
+
 filegroup(
     name = "srcs",
-    srcs = [
-        "GrDawnAsyncWait.cpp",
-        "GrDawnAsyncWait.h",
-        "GrDawnAttachment.cpp",
-        "GrDawnAttachment.h",
-        "GrDawnBuffer.cpp",
-        "GrDawnBuffer.h",
-        "GrDawnCaps.cpp",
-        "GrDawnCaps.h",
-        "GrDawnGpu.cpp",
-        "GrDawnGpu.h",
-        "GrDawnOpsRenderPass.cpp",
-        "GrDawnOpsRenderPass.h",
-        "GrDawnProgramBuilder.cpp",
-        "GrDawnProgramBuilder.h",
-        "GrDawnProgramDataManager.cpp",
-        "GrDawnProgramDataManager.h",
-        "GrDawnRenderTarget.cpp",
-        "GrDawnRenderTarget.h",
-        "GrDawnRingBuffer.cpp",
-        "GrDawnRingBuffer.h",
-        "GrDawnTexture.cpp",
-        "GrDawnTexture.h",
-        "GrDawnTextureRenderTarget.cpp",
-        "GrDawnTextureRenderTarget.h",
-        "GrDawnTypesPriv.cpp",
-        "GrDawnUtil.cpp",
-        "GrDawnUtil.h",
-    ],
+    srcs = [":dawn_srcs"],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [":dawn_hdrs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 

@@ -24,7 +24,7 @@ cc_library(
     ],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//:skia_core",
+        "//:skia_internal",
     ],
 )
 

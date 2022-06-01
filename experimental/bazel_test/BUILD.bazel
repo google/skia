@@ -12,7 +12,7 @@ cc_binary(
         "bazel_test.cpp",
     ],
     deps = [
-        "//:skia_core",
+        "//:skia_public",
         "@libpng",
     ],
 )

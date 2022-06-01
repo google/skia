@@ -5,7 +5,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 filegroup(
-    name = "hdrs",
+    name = "public_hdrs",
     srcs = ["GrGLMakeGLXInterface.h"],
     visibility = ["//include/gpu/gl:__pkg__"],
 )

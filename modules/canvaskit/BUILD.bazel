@@ -295,7 +295,7 @@ cc_binary_with_flags(
     # headers etc. Therefore, we hide it from wildcards.
     tags = ["manual"],
     deps = [
-        "//:skia_core",
+        "//:skia_public",
     ] + select({
         ":enable_fonts_true": [
             "//modules/skparagraph",

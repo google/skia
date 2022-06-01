@@ -1,23 +1,36 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+TESSELLATE_FILES = [
+    "GrPathTessellationShader.cpp",
+    "GrPathTessellationShader.h",
+    "GrStrokeTessellationShader.cpp",
+    "GrStrokeTessellationShader.h",
+    "GrTessellationShader.cpp",
+    "GrTessellationShader.h",
+    "PathTessellator.cpp",
+    "PathTessellator.h",
+    "StrokeTessellator.cpp",
+    "StrokeTessellator.h",
+    "VertexChunkPatchAllocator.h",
+]
+
+split_srcs_and_hdrs(
+    name = "tessellate",
+    files = TESSELLATE_FILES,
+)
+
 filegroup(
     name = "srcs",
-    srcs = [
-        "GrPathTessellationShader.cpp",
-        "GrPathTessellationShader.h",
-        "GrStrokeTessellationShader.cpp",
-        "GrStrokeTessellationShader.h",
-        "GrTessellationShader.cpp",
-        "GrTessellationShader.h",
-        "PathTessellator.cpp",
-        "PathTessellator.h",
-        "StrokeTessellator.cpp",
-        "StrokeTessellator.h",
-        "VertexChunkPatchAllocator.h",
-    ],
+    srcs = [":tessellate_srcs"],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [":tessellate_hdrs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )

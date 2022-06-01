@@ -21,3 +21,11 @@ filegroup(
     ],
     visibility = ["//src/sksl:__pkg__"],
 )
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "//src/sksl/dsl/priv:private_hdrs",
+    ],
+    visibility = ["//src/sksl:__pkg__"],
+)

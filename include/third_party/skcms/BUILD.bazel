@@ -2,15 +2,13 @@ load("//bazel:macros.bzl", "exports_files_legacy")
 
 licenses(["notice"])
 
-exports_files_legacy()
-
-exports_files(
-    ["skcms.h"],
-    ["//third_party/skcms:__pkg__"],
+exports_files_legacy(
+    label_list = ["skcms.h"],
+    visibility = ["//third_party/skcms:__pkg__"],
 )
 
 filegroup(
-    name = "hdrs",
+    name = "public_hdrs",
     srcs = [
         "skcms.h",
     ],

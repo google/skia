@@ -62,7 +62,7 @@ cc_binary(
     # This target won't build successfully on its own because of missing emscripten
     # headers etc. Therefore, we hide it from wildcards.
     tags = ["manual"],
-    deps = ["//:skia_core"],
+    deps = ["//:skia_public"],
 )
 
 wasm_cc_binary(

@@ -5,9 +5,9 @@ licenses(["notice"])
 exports_files_legacy()
 
 filegroup(
-    name = "srcs",
+    name = "private_hdrs",
     srcs = [
-        "//include/private/gpu/ganesh:srcs",
+        "//include/private/gpu/ganesh:private_hdrs",
     ],  # TODO(kjlubick) add select for graphite
     visibility = ["//include/private:__pkg__"],
 )

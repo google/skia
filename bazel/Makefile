@@ -10,7 +10,8 @@ gazelle_update_repo:
 
 # Run this target to test all known working Bazel builds
 known_good_builds:
-	bazelisk build //:skia_core --config=clang_linux
+	bazelisk build //:skia_public --config=clang_linux
+	bazelisk build //:skia_internal --config=clang_linux
 	bazelisk build //experimental/bazel_test/... --config=clang_linux
 	bazelisk run //experimental/bazel_test:bazel_test_exe --config=clang_linux
 	bazelisk build //example:hello_world_gl --config=clang_linux
@@ -23,7 +24,8 @@ known_good_builds:
 	bazelisk build //modules/canvaskit:canvaskit_wasm --config=ck_release
 
 rbe_known_good_builds:
-	bazelisk build //:skia_core --config=linux_rbe --remote_download_minimal
+	bazelisk build //:skia_public --config=linux_rbe --remote_download_minimal
+	bazelisk build //:skia_internal --config=linux_rbe --remote_download_minimal
 	bazelisk build //experimental/bazel_test/... --config=linux_rbe --remote_download_minimal
 	bazelisk run //experimental/bazel_test:bazel_test_exe --config=linux_rbe --remote_download_toplevel
 	bazelisk build //example:hello_world_gl --config=linux_rbe --remote_download_minimal

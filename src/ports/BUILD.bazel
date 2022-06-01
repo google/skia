@@ -9,7 +9,6 @@ filegroup(
     srcs = [
         "SkFontHost_FreeType.cpp",
         "SkFontHost_FreeType_common.cpp",
-        "SkFontHost_FreeType_common.h",
     ],
 )
 
@@ -49,7 +48,6 @@ filegroup(
     name = "fontmgr_custom",
     srcs = [
         "SkFontMgr_custom.cpp",
-        "SkFontMgr_custom.h",
         ":typeface_freetype",
     ],
 )
@@ -123,10 +121,7 @@ filegroup(
     name = "osfile",
     srcs = ["SkOSFile_stdio.cpp"] + select({
         "@platforms//os:windows": ["SkOSFile_win.cpp"],
-        "@platforms//os:ios": [
-            "SkOSFile_ios.h",
-            "SkOSFile_posix.cpp",
-        ],
+        "@platforms//os:ios": ["SkOSFile_posix.cpp"],
         "//conditions:default": ["SkOSFile_posix.cpp"],
     }),
     visibility = ["//tools/skslc:__pkg__"],
@@ -139,7 +134,7 @@ filegroup(
 
 filegroup(
     name = "load_dynamic_library",
-    srcs = ["SkOSLibrary.h"] + select({
+    srcs = select({
         "@platforms//os:windows": ["SkOSLibrary_win.cpp"],
         "//conditions:default": ["SkOSLibrary_posix.cpp"],
     }),
@@ -166,6 +161,21 @@ filegroup(
         ":osfile",
         ":skdebug",
     ],
+    visibility = ["//src:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = ["SkOSLibrary.h"] + select({
+        ":any_freetype_fontmgr": [
+            "SkFontHost_FreeType_common.h",
+            "SkFontMgr_custom.h",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        "@platforms//os:ios": ["SkOSFile_ios.h"],
+        "//conditions:default": [],
+    }),
     visibility = ["//src:__pkg__"],
 )
 

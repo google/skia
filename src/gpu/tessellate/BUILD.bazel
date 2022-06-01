@@ -1,24 +1,37 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+TESSELLATE_FILES = [
+    "AffineMatrix.h",
+    "CullTest.h",
+    "FixedCountBufferUtils.cpp",
+    "FixedCountBufferUtils.h",
+    "LinearTolerances.h",
+    "MiddleOutPolygonTriangulator.h",
+    "MidpointContourParser.h",
+    "PatchWriter.h",
+    "StrokeIterator.h",
+    "Tessellation.cpp",
+    "Tessellation.h",
+    "WangsFormula.h",
+]
+
+split_srcs_and_hdrs(
+    name = "tessellate",
+    files = TESSELLATE_FILES,
+)
+
 filegroup(
     name = "srcs",
-    srcs = [
-        "AffineMatrix.h",
-        "CullTest.h",
-        "FixedCountBufferUtils.cpp",
-        "FixedCountBufferUtils.h",
-        "LinearTolerances.h",
-        "MiddleOutPolygonTriangulator.h",
-        "MidpointContourParser.h",
-        "PatchWriter.h",
-        "StrokeIterator.h",
-        "Tessellation.cpp",
-        "Tessellation.h",
-        "WangsFormula.h",
-    ],
+    srcs = [":tessellate_srcs"],
+    visibility = ["//src/gpu:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [":tessellate_hdrs"],
     visibility = ["//src/gpu:__pkg__"],
 )

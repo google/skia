@@ -10,6 +10,6 @@ cc_library(
     hdrs = ["//modules/skresources/include:hdrs"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//:skia_core",
+        "//:skia_public",
     ],
 )

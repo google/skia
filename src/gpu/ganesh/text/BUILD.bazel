@@ -8,6 +8,13 @@ filegroup(
     name = "srcs",
     srcs = [
         "GrAtlasManager.cpp",
+    ],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
         "GrAtlasManager.h",
     ],
     visibility = ["//src/gpu/ganesh:__pkg__"],

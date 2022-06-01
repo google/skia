@@ -1,34 +1,47 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+IMAGEFILTERS_FILES = [
+    "SkAlphaThresholdImageFilter.cpp",
+    "SkArithmeticImageFilter.cpp",
+    "SkBlendImageFilter.cpp",
+    "SkBlurImageFilter.cpp",
+    "SkColorFilterImageFilter.cpp",
+    "SkComposeImageFilter.cpp",
+    "SkCropImageFilter.cpp",
+    "SkCropImageFilter.h",
+    "SkDisplacementMapImageFilter.cpp",
+    "SkDropShadowImageFilter.cpp",
+    "SkImageImageFilter.cpp",
+    "SkLightingImageFilter.cpp",
+    "SkMagnifierImageFilter.cpp",
+    "SkMatrixConvolutionImageFilter.cpp",
+    "SkMergeImageFilter.cpp",
+    "SkMorphologyImageFilter.cpp",
+    "SkOffsetImageFilter.cpp",
+    "SkPictureImageFilter.cpp",
+    "SkRuntimeImageFilter.cpp",
+    "SkRuntimeImageFilter.h",
+    "SkShaderImageFilter.cpp",
+    "SkTileImageFilter.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "imagefilters",
+    files = IMAGEFILTERS_FILES,
+)
+
 filegroup(
     name = "srcs",
-    srcs = [
-        "SkAlphaThresholdImageFilter.cpp",
-        "SkArithmeticImageFilter.cpp",
-        "SkBlendImageFilter.cpp",
-        "SkBlurImageFilter.cpp",
-        "SkColorFilterImageFilter.cpp",
-        "SkComposeImageFilter.cpp",
-        "SkCropImageFilter.cpp",
-        "SkCropImageFilter.h",
-        "SkDisplacementMapImageFilter.cpp",
-        "SkDropShadowImageFilter.cpp",
-        "SkImageImageFilter.cpp",
-        "SkLightingImageFilter.cpp",
-        "SkMagnifierImageFilter.cpp",
-        "SkMatrixConvolutionImageFilter.cpp",
-        "SkMergeImageFilter.cpp",
-        "SkMorphologyImageFilter.cpp",
-        "SkOffsetImageFilter.cpp",
-        "SkPictureImageFilter.cpp",
-        "SkRuntimeImageFilter.cpp",
-        "SkRuntimeImageFilter.h",
-        "SkShaderImageFilter.cpp",
-        "SkTileImageFilter.cpp",
-    ],
+    srcs = [":imagefilters_srcs"],
+    visibility = ["//src/effects:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [":imagefilters_hdrs"],
     visibility = ["//src/effects:__pkg__"],
 )

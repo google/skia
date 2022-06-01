@@ -7,23 +7,23 @@ exports_files_legacy()
 filegroup(
     name = "public_hdrs",
     srcs = [
-        "//include/android:hdrs",
-        "//include/codec:hdrs",
-        "//include/config:hdrs",
-        "//include/core:hdrs",
-        "//include/docs:hdrs",
-        "//include/effects:hdrs",
-        "//include/encode:hdrs",
-        "//include/pathops:hdrs",
-        "//include/ports:hdrs",
-        "//include/svg:hdrs",
-        "//include/third_party/skcms:hdrs",
-        "//include/utils:hdrs",
+        "//include/android:public_hdrs",
+        "//include/codec:public_hdrs",
+        "//include/config:public_hdrs",
+        "//include/core:public_hdrs",
+        "//include/docs:public_hdrs",
+        "//include/effects:public_hdrs",
+        "//include/encode:public_hdrs",
+        "//include/pathops:public_hdrs",
+        "//include/ports:public_hdrs",
+        "//include/svg:public_hdrs",
+        "//include/third_party/skcms:public_hdrs",
+        "//include/utils:public_hdrs",
     ] + select({
-        "//bazel/common_config_settings:needs_sksl": ["//include/sksl:hdrs"],
+        "//bazel/common_config_settings:needs_sksl": ["//include/sksl:public_hdrs"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:has_gpu_backend": ["//include/gpu:hdrs"],
+        "//bazel/common_config_settings:has_gpu_backend": ["//include/gpu:public_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],
@@ -32,7 +32,7 @@ filegroup(
 filegroup(
     name = "private_hdrs",
     srcs = [
-        "//include/private:srcs",
+        "//include/private:private_hdrs",
     ],
     visibility = ["//:__pkg__"],
 )

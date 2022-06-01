@@ -266,12 +266,12 @@ def _CheckBazelBUILDFiles(input_api, output_api):
     is_bazel = affected_file_path.endswith('BUILD.bazel')
     # This list lines up with the one in autoroller_lib.py (see G3).
     excluded_paths = ["infra/", "bazel/rbe/", "bazel/external/", "bazel/common_config_settings/",
-                      "modules/canvaskit/go/"]
+                      "modules/canvaskit/go/", "experimental/"]
     is_excluded = any(affected_file_path.startswith(n) for n in excluded_paths)
     if is_bazel and not is_excluded:
       with open(affected_file_path, 'r') as file:
         contents = file.read()
-        if 'exports_files_legacy()' not in contents:
+        if 'exports_files_legacy(' not in contents:
           results.append(output_api.PresubmitError(
             ('%s needs to call exports_files_legacy() to support legacy G3 ' +
              'rules.\nPut this near the top of the file, beneath ' +

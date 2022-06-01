@@ -8,6 +8,13 @@ filegroup(
     name = "srcs",
     srcs = [
         "DSLWriter.cpp",
+    ],
+    visibility = ["//src/sksl/dsl:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
         "DSLWriter.h",
         "DSL_priv.h",
     ],

@@ -1,56 +1,58 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
-    name = "core_srcs",
-    srcs = [
-        "GrGLAssembleGLESInterfaceAutogen.cpp",
-        "GrGLAssembleGLInterfaceAutogen.cpp",
-        "GrGLAssembleHelpers.cpp",
-        "GrGLAssembleInterface.cpp",
-        "GrGLAssembleWebGLInterfaceAutogen.cpp",
-        "GrGLAttachment.cpp",
-        "GrGLAttachment.h",
-        "GrGLBuffer.cpp",
-        "GrGLBuffer.h",
-        "GrGLCaps.cpp",
-        "GrGLCaps.h",
-        "GrGLContext.cpp",
-        "GrGLContext.h",
-        "GrGLDefines_impl.h",
-        "GrGLExtensions.cpp",
-        "GrGLGLSL.cpp",
-        "GrGLGLSL.h",
-        "GrGLGpu.cpp",
-        "GrGLGpu.h",
-        "GrGLGpuProgramCache.cpp",
-        "GrGLInterfaceAutogen.cpp",
-        "GrGLOpsRenderPass.cpp",
-        "GrGLOpsRenderPass.h",
-        "GrGLProgram.cpp",
-        "GrGLProgram.h",
-        "GrGLProgramDataManager.cpp",
-        "GrGLProgramDataManager.h",
-        "GrGLRenderTarget.cpp",
-        "GrGLRenderTarget.h",
-        "GrGLSemaphore.cpp",
-        "GrGLSemaphore.h",
-        "GrGLTexture.cpp",
-        "GrGLTexture.h",
-        "GrGLTextureRenderTarget.cpp",
-        "GrGLTextureRenderTarget.h",
-        "GrGLTypesPriv.cpp",
-        "GrGLUniformHandler.cpp",
-        "GrGLUniformHandler.h",
-        "GrGLUtil.cpp",
-        "GrGLUtil.h",
-        "GrGLVaryingHandler.h",
-        "GrGLVertexArray.cpp",
-        "GrGLVertexArray.h",
-    ],
+CORE_FILES = [
+    "GrGLAssembleGLESInterfaceAutogen.cpp",
+    "GrGLAssembleGLInterfaceAutogen.cpp",
+    "GrGLAssembleHelpers.cpp",
+    "GrGLAssembleInterface.cpp",
+    "GrGLAssembleWebGLInterfaceAutogen.cpp",
+    "GrGLAttachment.cpp",
+    "GrGLAttachment.h",
+    "GrGLBuffer.cpp",
+    "GrGLBuffer.h",
+    "GrGLCaps.cpp",
+    "GrGLCaps.h",
+    "GrGLContext.cpp",
+    "GrGLContext.h",
+    "GrGLDefines_impl.h",
+    "GrGLExtensions.cpp",
+    "GrGLGLSL.cpp",
+    "GrGLGLSL.h",
+    "GrGLGpu.cpp",
+    "GrGLGpu.h",
+    "GrGLGpuProgramCache.cpp",
+    "GrGLInterfaceAutogen.cpp",
+    "GrGLOpsRenderPass.cpp",
+    "GrGLOpsRenderPass.h",
+    "GrGLProgram.cpp",
+    "GrGLProgram.h",
+    "GrGLProgramDataManager.cpp",
+    "GrGLProgramDataManager.h",
+    "GrGLRenderTarget.cpp",
+    "GrGLRenderTarget.h",
+    "GrGLSemaphore.cpp",
+    "GrGLSemaphore.h",
+    "GrGLTexture.cpp",
+    "GrGLTexture.h",
+    "GrGLTextureRenderTarget.cpp",
+    "GrGLTextureRenderTarget.h",
+    "GrGLTypesPriv.cpp",
+    "GrGLUniformHandler.cpp",
+    "GrGLUniformHandler.h",
+    "GrGLUtil.cpp",
+    "GrGLUtil.h",
+    "GrGLVaryingHandler.h",
+    "GrGLVertexArray.cpp",
+    "GrGLVertexArray.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
 )
 
 filegroup(
@@ -67,6 +69,15 @@ filegroup(
         "@platforms//os:windows": ["//src/gpu/ganesh/gl/win:srcs"],
         "//conditions:default": [":GrGLMakeNativeInterface_none.cpp"],
     }),
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        ":core_hdrs",
+        "//src/gpu/ganesh/gl/builders:private_hdrs",
+    ],
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 

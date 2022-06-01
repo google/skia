@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "selects")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "selects", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -18,66 +18,61 @@ filegroup(
     visibility = ["//:__subpackages__"],
 )
 
-filegroup(
-    name = "core_srcs",
-    srcs = [
-        "SkSLAnalysis.cpp",
-        "SkSLAnalysis.h",
-        "SkSLBuiltinMap.cpp",
-        "SkSLBuiltinMap.h",
-        "SkSLBuiltinTypes.cpp",
-        "SkSLBuiltinTypes.h",
-        "SkSLCompiler.cpp",
-        "SkSLCompiler.h",
-        "SkSLConstantFolder.cpp",
-        "SkSLConstantFolder.h",
-        "SkSLContext.cpp",
-        "SkSLContext.h",
-        "SkSLDSLParser.cpp",
-        "SkSLDSLParser.h",
-        "SkSLDehydrator.cpp",
-        "SkSLDehydrator.h",
-        "SkSLErrorReporter.cpp",
-        "SkSLFileOutputStream.h",
-        "SkSLGLSL.h",
-        "SkSLInliner.cpp",
-        "SkSLInliner.h",
-        "SkSLIntrinsicList.h",
-        "SkSLLexer.cpp",
-        "SkSLLexer.h",
-        "SkSLMangler.cpp",
-        "SkSLMangler.h",
-        "SkSLMemoryLayout.h",
-        "SkSLMemoryPool.h",
-        "SkSLModifiersPool.h",
-        "SkSLOperator.cpp",
-        "SkSLOutputStream.cpp",
-        "SkSLOutputStream.h",
-        "SkSLParsedModule.h",
-        "SkSLPool.cpp",
-        "SkSLPool.h",
-        "SkSLPosition.cpp",
-        "SkSLProgramSettings.h",
-        "SkSLRehydrator.cpp",
-        "SkSLRehydrator.h",
-        "SkSLSampleUsage.cpp",
-        "SkSLSharedCompiler.cpp",
-        "SkSLSharedCompiler.h",
-        "SkSLString.cpp",
-        "SkSLStringStream.h",
-        "SkSLThreadContext.cpp",
-        "SkSLThreadContext.h",
-        "SkSLUtil.cpp",
-        "SkSLUtil.h",
-        "spirv.h",
-    ],
-)
+CORE_SRCS = [
+    "SkSLAnalysis.cpp",
+    "SkSLAnalysis.h",
+    "SkSLBuiltinMap.cpp",
+    "SkSLBuiltinMap.h",
+    "SkSLBuiltinTypes.cpp",
+    "SkSLBuiltinTypes.h",
+    "SkSLCompiler.cpp",
+    "SkSLCompiler.h",
+    "SkSLConstantFolder.cpp",
+    "SkSLConstantFolder.h",
+    "SkSLContext.cpp",
+    "SkSLContext.h",
+    "SkSLDSLParser.cpp",
+    "SkSLDSLParser.h",
+    "SkSLDehydrator.cpp",
+    "SkSLDehydrator.h",
+    "SkSLErrorReporter.cpp",
+    "SkSLFileOutputStream.h",
+    "SkSLGLSL.h",
+    "SkSLInliner.cpp",
+    "SkSLInliner.h",
+    "SkSLIntrinsicList.h",
+    "SkSLLexer.cpp",
+    "SkSLLexer.h",
+    "SkSLMangler.cpp",
+    "SkSLMangler.h",
+    "SkSLMemoryLayout.h",
+    "SkSLMemoryPool.h",
+    "SkSLModifiersPool.h",
+    "SkSLOperator.cpp",
+    "SkSLOutputStream.cpp",
+    "SkSLOutputStream.h",
+    "SkSLParsedModule.h",
+    "SkSLPool.cpp",
+    "SkSLPool.h",
+    "SkSLPosition.cpp",
+    "SkSLProgramSettings.h",
+    "SkSLRehydrator.cpp",
+    "SkSLRehydrator.h",
+    "SkSLSampleUsage.cpp",
+    "SkSLSharedCompiler.cpp",
+    "SkSLSharedCompiler.h",
+    "SkSLString.cpp",
+    "SkSLStringStream.h",
+    "SkSLThreadContext.cpp",
+    "SkSLThreadContext.h",
+    "SkSLUtil.cpp",
+    "SkSLUtil.h",
+    "spirv.h",
+]
 
-filegroup(
-    name = "gpu_srcs",
-    srcs = [
-        "GLSL.std.450.h",
-    ],
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_SRCS,
 )
 
 selects.config_setting_group(
@@ -98,8 +93,24 @@ filegroup(
         "//src/sksl/ir:srcs",
         "//src/sksl/tracing:srcs",
         "//src/sksl/transform:srcs",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        ":core_hdrs",
+        "//src/sksl/analysis:private_hdrs",
+        "//src/sksl/codegen:private_hdrs",
+        "//src/sksl/dsl:private_hdrs",
+        "//src/sksl/ir:private_hdrs",
+        "//src/sksl/tracing:private_hdrs",
+        "//src/sksl/transform:private_hdrs",
     ] + select({
-        ":use_sksl_gpu_srcs": [":gpu_srcs"],
+        ":use_sksl_gpu_srcs": [
+            "GLSL.std.450.h",
+        ],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
@@ -120,12 +131,4 @@ cc_library(
         ],
         "//conditions:default": [],
     }),
-)
-
-filegroup(
-    name = "skslc_hdrs",
-    srcs = [
-        "SkSLCompiler.h",
-    ],
-    visibility = ["//tools/skslc:__pkg__"],
 )

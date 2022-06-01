@@ -12,5 +12,5 @@ cc_library(
     ],
     hdrs = ["Timer.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//:skia_core"],
+    deps = ["//:skia_internal"],
 )

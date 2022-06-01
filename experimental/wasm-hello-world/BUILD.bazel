@@ -23,8 +23,7 @@ LINKOPTS = [
 cc_binary_with_flags(
     name = "hello_world.webgl",
     srcs = [
-        "//example:HelloWorld_src",
-        "//tools/sk_app/wasm:main_wasm_src",
+        "//example:HelloWorld.cpp",
     ],
     linkopts = LINKOPTS,
     set_flags = {
@@ -39,7 +38,8 @@ cc_binary_with_flags(
     # headers etc. Therefore, we hide it from wildcards.
     tags = ["manual"],
     deps = [
-        "//:skia_core",
+        "//:skia_public",
+        "//tools/sk_app",
     ],
 )
 

@@ -1,33 +1,51 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+SHADER_FILES = [
+    "SkBitmapProcShader.cpp",
+    "SkBitmapProcShader.h",
+    "SkColorFilterShader.cpp",
+    "SkColorFilterShader.h",
+    "SkColorShader.cpp",
+    "SkColorShader.h",
+    "SkComposeShader.cpp",
+    "SkComposeShader.h",
+    "SkEmptyShader.h",
+    "SkImageShader.cpp",
+    "SkImageShader.h",
+    "SkLocalMatrixShader.cpp",
+    "SkLocalMatrixShader.h",
+    "SkPerlinNoiseShader.cpp",
+    "SkPictureShader.cpp",
+    "SkPictureShader.h",
+    "SkShader.cpp",
+    "SkShaderBase.h",
+    "SkTransformShader.cpp",
+    "SkTransformShader.h",
+]
+
+split_srcs_and_hdrs(
+    name = "shader",
+    files = SHADER_FILES,
+)
+
 filegroup(
     name = "srcs",
     srcs = [
-        "SkBitmapProcShader.cpp",
-        "SkBitmapProcShader.h",
-        "SkColorFilterShader.cpp",
-        "SkColorFilterShader.h",
-        "SkColorShader.cpp",
-        "SkColorShader.h",
-        "SkComposeShader.cpp",
-        "SkComposeShader.h",
-        "SkEmptyShader.h",
-        "SkImageShader.cpp",
-        "SkImageShader.h",
-        "SkLocalMatrixShader.cpp",
-        "SkLocalMatrixShader.h",
-        "SkPerlinNoiseShader.cpp",
-        "SkPictureShader.cpp",
-        "SkPictureShader.h",
-        "SkShader.cpp",
-        "SkShaderBase.h",
-        "SkTransformShader.cpp",
-        "SkTransformShader.h",
+        ":shader_srcs",
         "//src/shaders/gradients:srcs",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        ":shader_hdrs",
+        "//src/shaders/gradients:private_hdrs",
     ],
     visibility = ["//src:__pkg__"],
 )

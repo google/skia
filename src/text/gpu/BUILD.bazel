@@ -1,30 +1,43 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+GPU_FILES = [
+    "DistanceFieldAdjustTable.cpp",
+    "DistanceFieldAdjustTable.h",
+    "Glyph.h",
+    "GlyphVector.cpp",
+    "GlyphVector.h",
+    "SDFMaskFilter.cpp",
+    "SDFMaskFilter.h",
+    "SDFTControl.cpp",
+    "SDFTControl.h",
+    "Slug.cpp",
+    "StrikeCache.cpp",
+    "StrikeCache.h",
+    "SubRunAllocator.cpp",
+    "SubRunAllocator.h",
+    "TextBlob.cpp",
+    "TextBlob.h",
+    "TextBlobRedrawCoordinator.cpp",
+    "TextBlobRedrawCoordinator.h",
+]
+
+split_srcs_and_hdrs(
+    name = "gpu",
+    files = GPU_FILES,
+)
+
 filegroup(
     name = "srcs",
-    srcs = [
-        "DistanceFieldAdjustTable.cpp",
-        "DistanceFieldAdjustTable.h",
-        "Glyph.h",
-        "GlyphVector.cpp",
-        "GlyphVector.h",
-        "SDFMaskFilter.cpp",
-        "SDFMaskFilter.h",
-        "SDFTControl.cpp",
-        "SDFTControl.h",
-        "Slug.cpp",
-        "StrikeCache.cpp",
-        "StrikeCache.h",
-        "SubRunAllocator.cpp",
-        "SubRunAllocator.h",
-        "TextBlob.cpp",
-        "TextBlob.h",
-        "TextBlobRedrawCoordinator.cpp",
-        "TextBlobRedrawCoordinator.h",
-    ],
+    srcs = [":gpu_srcs"],
+    visibility = ["//src:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [":gpu_hdrs"],
     visibility = ["//src:__pkg__"],
 )

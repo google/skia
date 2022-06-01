@@ -2,15 +2,13 @@ load("//bazel:macros.bzl", "exports_files_legacy")
 
 licenses(["notice"])
 
-exports_files_legacy()
-
-exports_files(
-    ["SkBitmaskEnum.h"],
+exports_files_legacy(
+    label_list = ["SkBitmaskEnum.h"],
     visibility = ["//tools/skui:__pkg__"],
 )
 
 filegroup(
-    name = "srcs",
+    name = "private_hdrs",
     srcs = [
         "SingleOwner.h",
         "SkBitmaskEnum.h",
@@ -60,10 +58,10 @@ filegroup(
         "SkUniquePaintParamsID.h",
         "SkVx.h",
         "SkWeakRefCnt.h",
-        "//include/private/chromium:srcs",
+        "//include/private/chromium:private_hdrs",
     ] + select({
         "//bazel/common_config_settings:has_gpu_backend": [
-            "//include/private/gpu:srcs",
+            "//include/private/gpu:private_hdrs",
         ],
         "//conditions:default": [],
     }),

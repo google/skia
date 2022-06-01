@@ -1,37 +1,55 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+EFFECTS_FILES = [
+    "Sk1DPathEffect.cpp",
+    "Sk2DPathEffect.cpp",
+    "SkBlenders.cpp",
+    "SkColorMatrix.cpp",
+    "SkColorMatrixFilter.cpp",
+    "SkCornerPathEffect.cpp",
+    "SkDashImpl.h",
+    "SkDashPathEffect.cpp",
+    "SkDiscretePathEffect.cpp",
+    "SkEmbossMask.cpp",
+    "SkEmbossMask.h",
+    "SkEmbossMaskFilter.cpp",
+    "SkEmbossMaskFilter.h",
+    "SkHighContrastFilter.cpp",
+    "SkLayerDrawLooper.cpp",
+    "SkLumaColorFilter.cpp",
+    "SkOpPE.h",
+    "SkOpPathEffect.cpp",
+    "SkOverdrawColorFilter.cpp",
+    "SkShaderMaskFilter.cpp",
+    "SkTableColorFilter.cpp",
+    "SkTableMaskFilter.cpp",
+    "SkTrimPE.h",
+    "SkTrimPathEffect.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "effects",
+    files = EFFECTS_FILES,
+)
+
 filegroup(
     name = "srcs",
     srcs = [
-        "Sk1DPathEffect.cpp",
-        "Sk2DPathEffect.cpp",
-        "SkBlenders.cpp",
-        "SkColorMatrix.cpp",
-        "SkColorMatrixFilter.cpp",
-        "SkCornerPathEffect.cpp",
-        "SkDashImpl.h",
-        "SkDashPathEffect.cpp",
-        "SkDiscretePathEffect.cpp",
-        "SkEmbossMask.cpp",
-        "SkEmbossMask.h",
-        "SkEmbossMaskFilter.cpp",
-        "SkEmbossMaskFilter.h",
-        "SkHighContrastFilter.cpp",
-        "SkLayerDrawLooper.cpp",
-        "SkLumaColorFilter.cpp",
-        "SkOpPE.h",
-        "SkOpPathEffect.cpp",
-        "SkOverdrawColorFilter.cpp",
-        "SkShaderMaskFilter.cpp",
-        "SkTableColorFilter.cpp",
-        "SkTableMaskFilter.cpp",
-        "SkTrimPE.h",
-        "SkTrimPathEffect.cpp",
+        ":effects_srcs",
         "//src/effects/imagefilters:srcs",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        ":effects_hdrs",
+        "//src/effects/imagefilters:private_hdrs",
     ],
     visibility = ["//src:__pkg__"],
 )

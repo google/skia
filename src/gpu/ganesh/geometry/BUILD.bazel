@@ -1,31 +1,44 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+GEOMETRY_FILES = [
+    "GrAAConvexTessellator.cpp",
+    "GrAAConvexTessellator.h",
+    "GrAATriangulator.cpp",
+    "GrAATriangulator.h",
+    "GrInnerFanTriangulator.h",
+    "GrPathUtils.cpp",
+    "GrPathUtils.h",
+    "GrQuad.cpp",
+    "GrQuad.h",
+    "GrQuadBuffer.h",
+    "GrQuadUtils.cpp",
+    "GrQuadUtils.h",
+    "GrRect.h",
+    "GrShape.cpp",
+    "GrShape.h",
+    "GrStyledShape.cpp",
+    "GrStyledShape.h",
+    "GrTriangulator.cpp",
+    "GrTriangulator.h",
+]
+
+split_srcs_and_hdrs(
+    name = "geometry",
+    files = GEOMETRY_FILES,
+)
+
 filegroup(
     name = "srcs",
-    srcs = [
-        "GrAAConvexTessellator.cpp",
-        "GrAAConvexTessellator.h",
-        "GrAATriangulator.cpp",
-        "GrAATriangulator.h",
-        "GrInnerFanTriangulator.h",
-        "GrPathUtils.cpp",
-        "GrPathUtils.h",
-        "GrQuad.cpp",
-        "GrQuad.h",
-        "GrQuadBuffer.h",
-        "GrQuadUtils.cpp",
-        "GrQuadUtils.h",
-        "GrRect.h",
-        "GrShape.cpp",
-        "GrShape.h",
-        "GrStyledShape.cpp",
-        "GrStyledShape.h",
-        "GrTriangulator.cpp",
-        "GrTriangulator.h",
-    ],
+    srcs = [":geometry_srcs"],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [":geometry_hdrs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )

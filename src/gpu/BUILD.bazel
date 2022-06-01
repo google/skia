@@ -1,32 +1,34 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
-    name = "core_srcs",
-    srcs = [
-        "AtlasTypes.cpp",
-        "AtlasTypes.h",
-        "Blend.cpp",
-        "Blend.h",
-        "BufferWriter.h",
-        "GrAHardwareBufferUtils.h",
-        "GrRectanizer.h",
-        "KeyBuilder.h",
-        "Rectanizer.h",
-        "RectanizerPow2.cpp",
-        "RectanizerPow2.h",
-        "RectanizerSkyline.cpp",
-        "RectanizerSkyline.h",
-        "RefCntedCallback.h",
-        "ResourceKey.cpp",
-        "ResourceKey.h",
-        "ShaderErrorHandler.cpp",
-        "Swizzle.cpp",
-        "Swizzle.h",
-    ],
+CORE_FILES = [
+    "AtlasTypes.cpp",
+    "AtlasTypes.h",
+    "Blend.cpp",
+    "Blend.h",
+    "BufferWriter.h",
+    "GrAHardwareBufferUtils.h",
+    "GrRectanizer.h",
+    "KeyBuilder.h",
+    "Rectanizer.h",
+    "RectanizerPow2.cpp",
+    "RectanizerPow2.h",
+    "RectanizerSkyline.cpp",
+    "RectanizerSkyline.h",
+    "RefCntedCallback.h",
+    "ResourceKey.cpp",
+    "ResourceKey.h",
+    "ShaderErrorHandler.cpp",
+    "Swizzle.cpp",
+    "Swizzle.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
 )
 
 filegroup(
@@ -35,8 +37,18 @@ filegroup(
         ":core_srcs",
         "//src/gpu/ganesh:srcs",
         "//src/gpu/tessellate:srcs",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        ":core_hdrs",
+        "//src/gpu/ganesh:private_hdrs",
+        "//src/gpu/tessellate:private_hdrs",
     ] + select({
-        "//bazel/common_config_settings:vulkan_backend": ["//src/gpu/vk:srcs"],
+        "//bazel/common_config_settings:vulkan_backend": ["//src/gpu/vk:private_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
