@@ -461,7 +461,7 @@ protected:
     }
 
 private:
-    // We disable Control-Flow Integrity sanitization (go/cfi) when updating the item-array buffer.
+    // We disable Control-Flow Integrity sanitization (go/cfi) when casting item-array buffers.
     // CFI flags this code as dangerous because we are casting `buffer` to a T* while the buffer's
     // contents might still be uninitialized memory. When T has a vtable, this is especially risky
     // because we could hypothetically access a virtual method on fItemArray and jump to an
@@ -469,6 +469,10 @@ private:
     // way, and we don't want to construct a T before the user requests one. There's no real risk
     // here, so disable CFI when doing these casts.
     SK_ATTRIBUTE(no_sanitize("cfi"))
+    static T* TCast(void* buffer) {
+        return (T*)buffer;
+    }
+
     void init(int count) {
         fCount = SkToU32(count);
         if (!count) {
@@ -476,13 +480,12 @@ private:
             fItemArray = nullptr;
         } else {
             fAllocCount = SkToU32(std::max(count, kMinHeapAllocCount));
-            fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
+            fItemArray = TCast(sk_malloc_throw((size_t)fAllocCount, sizeof(T)));
         }
         fOwnMemory = true;
         fReserved = false;
     }
 
-    SK_ATTRIBUTE(no_sanitize("cfi"))
     void initWithPreallocatedStorage(int count, void* preallocStorage, int preallocCount) {
         SkASSERT(count >= 0);
         SkASSERT(preallocCount > 0);
@@ -492,11 +495,11 @@ private:
         fReserved = false;
         if (count > preallocCount) {
             fAllocCount = SkToU32(std::max(count, kMinHeapAllocCount));
-            fItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
+            fItemArray = TCast(sk_malloc_throw(fAllocCount, sizeof(T)));
             fOwnMemory = true;
         } else {
             fAllocCount = SkToU32(preallocCount);
-            fItemArray = (T*)preallocStorage;
+            fItemArray = TCast(preallocStorage);
             fOwnMemory = false;
         }
     }
@@ -543,7 +546,6 @@ private:
         return ptr;
     }
 
-    SK_ATTRIBUTE(no_sanitize("cfi"))
     void checkRealloc(int delta, ReallocType reallocType) {
         SkASSERT(fCount >= 0);
         SkASSERT(fAllocCount >= 0);
@@ -577,7 +579,7 @@ private:
 
         fAllocCount = SkToU32(Sk64_pin_to_s32(newAllocCount));
         SkASSERT(fAllocCount >= newCount);
-        T* newItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
+        T* newItemArray = TCast(sk_malloc_throw((size_t)fAllocCount, sizeof(T)));
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);
