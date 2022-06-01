@@ -967,7 +967,7 @@ SpvId SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memo
     size_t offset = 0;
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
         const Type::Field& field = type.fields()[i];
-        if (!MemoryLayout::LayoutIsSupported(*field.fType)) {
+        if (!memoryLayout.isSupported(*field.fType)) {
             fContext.fErrors->error(type.fPosition, "type '" + field.fType->displayName() +
                                                     "' is not permitted here");
             return resultId;
@@ -1070,7 +1070,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                     fConstantBuffer);
         }
         case Type::TypeKind::kArray: {
-            if (!MemoryLayout::LayoutIsSupported(*type)) {
+            if (!layout.isSupported(*type)) {
                 fContext.fErrors->error(type->fPosition, "type '" + type->displayName() +
                                                          "' is not permitted here");
                 return NA;
@@ -3325,7 +3325,7 @@ void SPIRVCodeGenerator::writeFieldLayout(const Layout& layout, SpvId target, in
 
 MemoryLayout SPIRVCodeGenerator::memoryLayoutForVariable(const Variable& v) const {
     bool pushConstant = ((v.modifiers().fLayout.fFlags & Layout::kPushConstant_Flag) != 0);
-    return pushConstant ? MemoryLayout(MemoryLayout::k430_Standard) : fDefaultLayout;
+    return pushConstant ? MemoryLayout(MemoryLayout::Standard::k430) : fDefaultLayout;
 }
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTFlip) {
@@ -3333,7 +3333,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     SpvId result = this->nextId(nullptr);
     const Variable& intfVar = intf.variable();
     const Type& type = intfVar.type();
-    if (!MemoryLayout::LayoutIsSupported(type)) {
+    if (!memoryLayout.isSupported(type)) {
         fContext.fErrors->error(type.fPosition, "type '" + type.displayName() +
                                             "' is not permitted here");
         return this->nextId(nullptr);

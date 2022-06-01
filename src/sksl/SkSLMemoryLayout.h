@@ -16,32 +16,54 @@ namespace SkSL {
 
 class MemoryLayout {
 public:
-    enum Standard {
-        k140_Standard,
-        k430_Standard,
-        kMetal_Standard
+    enum class Standard {
+        // GLSL std140 layout as described in OpenGL Spec v4.5, 7.6.2.2.
+        k140,
+
+        // GLSL std430 layout. This layout is like std140 but with optimizations. This layout can
+        // ONLY be used with shader storage blocks.
+        k430,
+
+        // MSL memory layout.
+        kMetal,
+
+        // WebGPU Shading Language buffer layout constraints for the uniform address space.
+        kWGSLUniform,
+
+        // WebGPU Shading Language buffer layout constraints for the storage address space.
+        kWGSLStorage,
     };
 
     MemoryLayout(Standard std)
     : fStd(std) {}
 
-    static size_t vector_alignment(size_t componentSize, int columns) {
-        return componentSize * (columns + columns % 2);
+    bool isWGSL() const { return fStd == Standard::kWGSLUniform || fStd == Standard::kWGSLStorage; }
+
+    bool isMetal() const { return fStd == Standard::kMetal; }
+
+    /**
+     * WGSL and std140 require various types of variables (structs, arrays, and matrices) in the
+     * uniform address space to be rounded up to the nearest multiple of 16. This function performs
+     * the rounding depending on the given `type` and the current memory layout standard.
+     *
+     * (For WGSL, see https://www.w3.org/TR/WGSL/#address-space-layout-constraints).
+     */
+    size_t roundUpIfNeeded(size_t raw, Type::TypeKind type) const {
+        if (fStd == Standard::k140) {
+            return roundUp16(raw);
+        }
+        // WGSL uniform matrix layout is simply the alignment of the matrix columns and
+        // doesn't have a 16-byte multiple alignment constraint.
+        if (fStd == Standard::kWGSLUniform && type != Type::TypeKind::kMatrix) {
+            return roundUp16(raw);
+        }
+        return raw;
     }
 
     /**
-     * Rounds up to the nearest multiple of 16 if in std140, otherwise returns the parameter
-     * unchanged (std140 requires various things to be rounded up to the nearest multiple of 16,
-     * std430 does not).
+     * Rounds up the integer `n` to the smallest multiple of 16 greater than `n`.
      */
-    size_t roundUpIfNeeded(size_t raw) const {
-        switch (fStd) {
-            case k140_Standard: return (raw + 15) & ~15;
-            case k430_Standard: return raw;
-            case kMetal_Standard: return raw;
-        }
-        SkUNREACHABLE;
-    }
+    size_t roundUp16(size_t n) const { return (n + 15) & ~15; }
 
     /**
      * Returns a type's required alignment when used as a standalone variable.
@@ -52,12 +74,14 @@ public:
             case Type::TypeKind::kScalar:
                 return this->size(type);
             case Type::TypeKind::kVector:
-                return vector_alignment(this->size(type.componentType()), type.columns());
+                return GetVectorAlignment(this->size(type.componentType()), type.columns());
             case Type::TypeKind::kMatrix:
-                return this->roundUpIfNeeded(vector_alignment(this->size(type.componentType()),
-                                                              type.rows()));
+                return this->roundUpIfNeeded(
+                        GetVectorAlignment(this->size(type.componentType()), type.rows()),
+                        type.typeKind());
             case Type::TypeKind::kArray:
-                return this->roundUpIfNeeded(this->alignment(type.componentType()));
+                return this->roundUpIfNeeded(this->alignment(type.componentType()),
+                                             type.typeKind());
             case Type::TypeKind::kStruct: {
                 size_t result = 0;
                 for (const auto& f : type.fields()) {
@@ -66,10 +90,10 @@ public:
                         result = alignment;
                     }
                 }
-                return this->roundUpIfNeeded(result);
+                return this->roundUpIfNeeded(result, type.typeKind());
             }
             default:
-                SK_ABORT("cannot determine size of type %s", type.displayName().c_str());
+                SK_ABORT("cannot determine alignment of type %s", type.displayName().c_str());
         }
     }
 
@@ -79,17 +103,15 @@ public:
      */
     size_t stride(const Type& type) const {
         switch (type.typeKind()) {
-            case Type::TypeKind::kMatrix: {
-                size_t base = vector_alignment(this->size(type.componentType()), type.rows());
-                return this->roundUpIfNeeded(base);
-            }
+            case Type::TypeKind::kMatrix:
+                return this->alignment(type);
             case Type::TypeKind::kArray: {
                 int stride = this->size(type.componentType());
                 if (stride > 0) {
                     int align = this->alignment(type.componentType());
                     stride += align - 1;
                     stride -= stride % align;
-                    stride = this->roundUpIfNeeded(stride);
+                    stride = this->roundUpIfNeeded(stride, type.typeKind());
                 }
                 return stride;
             }
@@ -99,20 +121,24 @@ public:
     }
 
     /**
-     * Returns the size of a type in bytes.
+     * Returns the size of a type in bytes. Returns 0 if the given type is not supported.
      */
     size_t size(const Type& type) const {
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
                 if (type.isBoolean()) {
+                    if (this->isWGSL()) {
+                        return 0;
+                    }
                     return 1;
                 }
-                if (fStd == kMetal_Standard && !type.highPrecision() && type.isNumber()) {
+                if ((this->isMetal() || this->isWGSL()) && !type.highPrecision() &&
+                    type.isNumber()) {
                     return 2;
                 }
                 return 4;
             case Type::TypeKind::kVector:
-                if (fStd == kMetal_Standard && type.columns() == 3) {
+                if (this->isMetal() && type.columns() == 3) {
                     return 4 * this->size(type.componentType());
                 }
                 return type.columns() * this->size(type.componentType());
@@ -142,24 +168,32 @@ public:
     /**
      * Not all types are compatible with memory layout.
      */
-    static size_t LayoutIsSupported(const Type& type) {
+    size_t isSupported(const Type& type) const {
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
+                // bool and short are not host-shareable in WGSL.
+                return !this->isWGSL() ||
+                       (!type.isBoolean() && (type.isFloat() || type.highPrecision()));
+
             case Type::TypeKind::kVector:
             case Type::TypeKind::kMatrix:
-                return true;
-
             case Type::TypeKind::kArray:
-                return LayoutIsSupported(type.componentType());
+                return this->isSupported(type.componentType());
 
             case Type::TypeKind::kStruct:
                 return std::all_of(
-                        type.fields().begin(), type.fields().end(),
-                        [](const Type::Field& f) { return LayoutIsSupported(*f.fType); });
+                        type.fields().begin(), type.fields().end(), [this](const Type::Field& f) {
+                            return this->isSupported(*f.fType);
+                        });
 
             default:
                 return false;
         }
+    }
+
+private:
+    static size_t GetVectorAlignment(size_t componentSize, int columns) {
+        return componentSize * (columns + columns % 2);
     }
 
     const Standard fStd;

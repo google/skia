@@ -2086,12 +2086,12 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
 
 void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, Position parentPos,
         const InterfaceBlock* parentIntf) {
-    MemoryLayout memoryLayout(MemoryLayout::kMetal_Standard);
+    MemoryLayout memoryLayout(MemoryLayout::Standard::kMetal);
     int currentOffset = 0;
     for (const Type::Field& field : fields) {
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
-        if (!MemoryLayout::LayoutIsSupported(*fieldType)) {
+        if (!memoryLayout.isSupported(*fieldType)) {
             fContext.fErrors->error(parentPos, "type '" + std::string(fieldType->name()) +
                                                 "' is not permitted here");
             return;

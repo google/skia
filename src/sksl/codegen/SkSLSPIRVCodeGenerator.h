@@ -102,11 +102,9 @@ public:
         virtual void store(SpvId value, OutputStream& out) = 0;
     };
 
-    SPIRVCodeGenerator(const Context* context,
-                       const Program* program,
-                       OutputStream* out)
+    SPIRVCodeGenerator(const Context* context, const Program* program, OutputStream* out)
             : INHERITED(context, program, out)
-            , fDefaultLayout(MemoryLayout::k140_Standard)
+            , fDefaultLayout(MemoryLayout::Standard::k140)
             , fCapabilities(0)
             , fIdCount(1)
             , fCurrentBlock(0)
