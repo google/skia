@@ -157,6 +157,39 @@ genrule(
     tools = [":dawn_json_generator"],
 )
 
+py_binary(
+    name = "dawn_gpu_info_generator",
+    srcs = [
+        "generator/dawn_gpu_info_generator.py",
+        "generator/generator_lib.py",
+    ],
+    deps = [
+        requirement("jinja2"),
+        # jinja2 has a dep on MarkupSafe. Declaring MarkupSafe here is not necessary, but it makes
+        # the link easier to find than searching the Bazel cache for generated deps.
+        requirement("MarkupSafe"),
+    ],
+)
+
+genrule(
+    name = "generate_gpuinfo",
+    srcs = [
+        "gpu_info.json",
+        "generator/templates/BSD_LICENSE",
+        "generator/templates/dawn/common/GPUInfo.h",
+        "generator/templates/dawn/common/GPUInfo.cpp",
+    ],
+    outs = [
+        "src/dawn/common/GPUInfo_autogen.h",
+        "src/dawn/common/GPUInfo_autogen.cpp",
+    ],
+    cmd = "$(location :dawn_gpu_info_generator) " +
+          "--gpu-info-json $(location gpu_info.json) " +
+          "--template-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
+          "--output-dir $(RULEDIR)",
+    tools = [":dawn_gpu_info_generator"],
+)
+
 DAWN_HDRS = [
     "include/dawn/EnumClassBitmasks.h",
     "include/dawn/dawn_proc.h",
@@ -371,6 +404,8 @@ DAWN_SRCS = [
     "src/dawn/common/DynamicLib.h",
     "src/dawn/common/GPUInfo.cpp",
     "src/dawn/common/GPUInfo.h",
+    "src/dawn/common/GPUInfo_autogen.cpp",
+    "src/dawn/common/GPUInfo_autogen.h",
     "src/dawn/common/HashUtils.h",
     "src/dawn/common/IOKitRef.h",
     "src/dawn/common/LinkedList.h",
