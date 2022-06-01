@@ -136,9 +136,7 @@ static inline unsigned SkDiv255Round(unsigned prod) {
  */
 int SkPopCount_portable(uint32_t n);
 
-#if defined(SK_BUILD_FOR_WIN) && !defined(_M_ARM) && !defined(_M_ARM64)
-    int SkPopCount(uint32_t n);
-#elif defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__) || defined(__clang__)
     static inline int SkPopCount(uint32_t n) {
         return __builtin_popcount(n);
     }
