@@ -637,12 +637,12 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
         // We want to discourage precision modifiers internally. Instead, use the type that
         // corresponds to the precision you need. (e.g. half vs float, short vs int)
         context.fErrors->error(pos, "precision qualifiers are not allowed");
-        return nullptr;
+        return context.fTypes.fPoison.get();
     }
 
     if ((int(lowp) + int(mediump) + int(highp)) != 1) {
         context.fErrors->error(pos, "only one precision qualifier can be used");
-        return nullptr;
+        return context.fTypes.fPoison.get();
     }
 
     // We're going to return a whole new type, so the modifier bits can be cleared out.
@@ -673,7 +673,7 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
                 break;
 
             default:
-                mediumpType = nullptr;
+                mediumpType = context.fTypes.fPoison.get();
                 break;
         }
 
@@ -687,7 +687,7 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
 
     context.fErrors->error(pos, "type '" + this->displayName() +
                                  "' does not support precision qualifiers");
-    return nullptr;
+    return context.fTypes.fPoison.get();
 }
 
 const Type& Type::toCompound(const Context& context, int columns, int rows) const {

@@ -82,9 +82,7 @@ enum TypeConstant : uint8_t {
 
 class DSLType {
 public:
-    DSLType(TypeConstant tc, Position pos = {})
-        : fTypeConstant(tc)
-        , fPosition(pos) {}
+    DSLType(TypeConstant tc, Position pos = {});
 
     DSLType(const SkSL::Type* type, Position pos = {});
 
@@ -169,10 +167,9 @@ public:
     static DSLExpression Construct(DSLType type, SkSpan<DSLExpression> argArray);
 
 private:
-    const SkSL::Type& skslType() const;
+    const SkSL::Type& skslType() const { return *fSkSLType; }
 
     const SkSL::Type* fSkSLType = nullptr;
-    TypeConstant fTypeConstant = kPoison_Type;
     Position fPosition;
 
     friend DSLType Array(const DSLType& base, int count, Position pos);
