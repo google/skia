@@ -1624,6 +1624,8 @@ HARFBUZZ_SRCS = [
     "externals/harfbuzz/src/hb-subset-input.hh",
     "externals/harfbuzz/src/hb-subset-plan.cc",
     "externals/harfbuzz/src/hb-subset-plan.hh",
+    "externals/harfbuzz/src/hb-subset-repacker.cc",
+    "externals/harfbuzz/src/hb-subset-repacker.h",
     "externals/harfbuzz/src/hb-subset.cc",
     "externals/harfbuzz/src/hb-subset.hh",
     "externals/harfbuzz/src/hb-ucd-table.hh",
