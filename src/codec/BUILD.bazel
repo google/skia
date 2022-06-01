@@ -163,14 +163,14 @@ cc_library(
     visibility = ["//src:__pkg__"],
     deps = select_multi(
         {
-            "//bazel/common_config_settings:gif_decode_codec": ["//third_party:wuffs"],
-            ":needs_jpeg": ["//third_party:libjpeg_turbo"],
+            "//bazel/common_config_settings:gif_decode_codec": ["@wuffs"],
+            ":needs_jpeg": ["@libjpeg_turbo"],
             "//bazel/common_config_settings:png_decode_codec": ["@libpng"],
             "//bazel/common_config_settings:raw_decode_codec": [
-                "//third_party:dng_sdk",
-                "//third_party:piex",
+                "@dng_sdk",
+                "@piex",
             ],
-            "//bazel/common_config_settings:webp_decode_codec": ["//third_party:libwebp"],
+            "//bazel/common_config_settings:webp_decode_codec": ["@libwebp"],
         },
         default = [],
     ),

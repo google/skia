@@ -1,0 +1,133 @@
+# This file will be copied into //third_party/externals/libjpeg-turbo via the new_local_repository
+# rule in WORKSPACE.bazel, so all files should be relative to that path.
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+JPEGTURBO_SRCS = [
+    "jaricom.c",
+    "jcapimin.c",
+    "jcapistd.c",
+    "jcarith.c",
+    "jccoefct.c",
+    "jccolor.c",
+    "jcdctmgr.c",
+    "jchuff.c",
+    "jchuff.h",
+    "jcinit.c",
+    "jcmainct.c",
+    "jcmarker.c",
+    "jcmaster.c",
+    "jcomapi.c",
+    "jconfigint.h",
+    "jcparam.c",
+    "jcphuff.c",
+    "jcprepct.c",
+    "jcsample.c",
+    "jdapimin.c",
+    "jdapistd.c",
+    "jdarith.c",
+    "jdcoefct.c",
+    "jdcoefct.h",
+    "jdcolor.c",
+    "jdct.h",
+    "jddctmgr.c",
+    "jdhuff.c",
+    "jdhuff.h",
+    "jdinput.c",
+    "jdmainct.c",
+    "jdmainct.h",
+    "jdmarker.c",
+    "jdmaster.c",
+    "jdmaster.h",
+    "jdmerge.c",
+    "jdmerge.h",
+    "jdphuff.c",
+    "jdpostct.c",
+    "jdsample.c",
+    "jdsample.h",
+    "jerror.c",
+    "jfdctflt.c",
+    "jfdctfst.c",
+    "jfdctint.c",
+    "jidctflt.c",
+    "jidctfst.c",
+    "jidctint.c",
+    "jidctred.c",
+    "jinclude.h",
+    "jmemmgr.c",
+    "jmemnobs.c",
+    "jmemsys.h",
+    "jpeg_nbits_table.c",
+    "jpeg_nbits_table.h",
+    "jpegcomp.h",
+    "jpegint.h",
+    "jquant1.c",
+    "jquant2.c",
+    "jsimd.h",
+    "jsimddct.h",
+    "jutils.c",
+    "jversion.h",
+] + selects.with_or({
+    ("@platforms//cpu:arm", "@platforms//cpu:arm64"): [
+        "simd/arm/jccolor-neon.c",
+        "simd/arm/jcgray-neon.c",
+        "simd/arm/jcphuff-neon.c",
+        "simd/arm/jcsample-neon.c",
+        "simd/arm/jdcolor-neon.c",
+        "simd/arm/jdmerge-neon.c",
+        "simd/arm/jdsample-neon.c",
+        "simd/arm/jfdctfst-neon.c",
+        "simd/arm/jfdctint-neon.c",
+        "simd/arm/jidctfst-neon.c",
+        "simd/arm/jidctint-neon.c",
+        "simd/arm/jidctred-neon.c",
+        "simd/arm/jquanti-neon.c",
+    ],
+    "//conditions:default": ["jsimd_none.c"],
+}) + select({
+    "@platforms//cpu:arm": [
+        "simd/arm/aarch32/jchuff-neon.c",
+        "simd/arm/aarch32/jsimd.c",
+    ],
+    "@platforms//cpu:arm64": [
+        "simd/arm/aarch64/jchuff-neon.c",
+        "simd/arm/aarch64/jsimd.c",
+    ],
+    "//conditions:default": [],
+})
+
+JPEGTURBO_DEFINES = [
+    # Add support for arithmetic encoding (C_) and decoding (D_).
+    # This matches Android. Note that such JPEGs are likely rare, given lack of
+    # support by major browsers.
+    "C_ARITH_CODING_SUPPORTED=1",
+    "D_ARITH_CODING_SUPPORTED=1",
+] + selects.with_or({
+    ("@platforms//cpu:arm", "@platforms//cpu:arm64"): ["NEON_INTRINSICS"],
+    "//conditions:default": [],
+}) + select({
+    "@platforms//os:windows": [],
+    "//conditions:default": ["USE_CLZ_INTRINSIC"],  # Cuts a 64K table.
+})
+
+cc_library(
+    name = "libjpeg_turbo",
+    srcs = JPEGTURBO_SRCS,
+    hdrs = [
+        "jconfig.h",
+        "jerror.h",
+        "jmorecfg.h",
+        "jpeglib.h",
+        "jpeglibmangler.h",
+    ],
+    local_defines = JPEGTURBO_DEFINES,
+    strip_include_prefix = "",
+    textual_hdrs = [
+        "jccolext.c",
+        "jdmrgext.c",
+        "jdcolext.c",
+        "jdcol565.c",
+        "jdmrg565.c",
+        "jstdhuff.c",
+    ],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,25 @@
+# This file will be copied into //third_party/externals/piex via the new_local_repository
+# rule in WORKSPACE.bazel, so all files should be relative to that path.
+
+cc_library(
+    name = "piex",
+    srcs = [
+        "src/binary_parse/cached_paged_byte_array.cc",
+        "src/binary_parse/cached_paged_byte_array.h",
+        "src/binary_parse/range_checked_byte_ptr.cc",
+        "src/binary_parse/range_checked_byte_ptr.h",
+        "src/image_type_recognition/image_type_recognition_lite.cc",
+        "src/image_type_recognition/image_type_recognition_lite.h",
+        "src/piex.cc",
+        "src/tiff_directory/tiff_directory.cc",
+        "src/tiff_directory/tiff_directory.h",
+        "src/tiff_parser.cc",
+        "src/tiff_parser.h",
+    ],
+    hdrs = [
+        "src/piex.h",
+        "src/piex_types.h",
+    ],
+    local_defines = ["BREAK_IF_DEBUGGING_AND_OUT_OF_RANGE"],
+    visibility = ["//visibility:public"],
+)
