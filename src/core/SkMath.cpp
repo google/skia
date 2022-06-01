@@ -39,6 +39,39 @@ int32_t SkSqrtBits(int32_t x, int count) {
     return root;
 }
 
+// Kernighan's method
+int SkPopCount_portable(uint32_t n) {
+    int count = 0;
+
+    while (n) {
+        n &= (n - 1); // Remove the lowest bit in the integer.
+        count++;
+    }
+    return count;
+}
+
+#if defined(SK_BUILD_FOR_WIN) && !defined(_M_ARM) && !defined(_M_ARM64)
+#include <intrin.h>
+
+int SkPopCount(uint32_t n) {
+    static const bool kHasPopCnt = [] {
+        static constexpr int kPopCntBit = 0x1 << 23; // Bit 23 is the popcnt feature bit in ECX
+        static constexpr int kECX = 2;
+        static constexpr int kProcessorInfoAndFeatureBits = 1;
+
+        int info[4];         // contents of the EAX, EBX, ECX, and EDX registers, in that order
+        __cpuid(info, kProcessorInfoAndFeatureBits);
+        return static_cast<bool>(info[kECX] & kPopCntBit);
+    }();
+
+    if (kHasPopCnt) {
+        return __popcnt(n);
+    } else {
+        return SkPopCount_portable(n);
+    }
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkSafeMath::Add(size_t x, size_t y) {

@@ -415,6 +415,46 @@ static void huge_vector_normalize(skiatest::Reporter* reporter) {
     }
 }
 
+DEF_TEST(PopCount, reporter) {
+    {
+        uint32_t testVal = 0;
+        REPORTER_ASSERT(reporter, SkPopCount(testVal) == 0);
+    }
+
+    for (int i = 0; i < 32; ++i) {
+        uint32_t testVal = 0x1 << i;
+        REPORTER_ASSERT(reporter, SkPopCount(testVal) == 1);
+
+        testVal ^= 0xFFFFFFFF;
+        REPORTER_ASSERT(reporter, SkPopCount(testVal) == 31);
+    }
+
+    {
+        uint32_t testVal = 0xFFFFFFFF;
+        REPORTER_ASSERT(reporter, SkPopCount(testVal) == 32);
+    }
+
+    SkRandom rand;
+    for (int i = 0; i < 100; ++i) {
+        int expectedNumSetBits = 0;
+        uint32_t testVal = 0;
+
+        int numTries = rand.nextULessThan(33);
+        for (int j = 0; j < numTries; ++j) {
+            int bit = rand.nextRangeU(0, 31);
+
+            if (testVal & (0x1 << bit)) {
+                continue;
+            }
+
+            ++expectedNumSetBits;
+            testVal |= 0x1 << bit;
+        }
+
+        REPORTER_ASSERT(reporter, SkPopCount(testVal) == expectedNumSetBits);
+    }
+}
+
 DEF_TEST(Math, reporter) {
     int         i;
     SkRandom    rand;
