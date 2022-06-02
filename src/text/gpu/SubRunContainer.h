@@ -92,7 +92,6 @@ public:
 // ability to be in a list.
 class SubRun;
 using SubRunOwner = std::unique_ptr<SubRun, SubRunAllocator::Destroyer>;
-class BlobSubRun;
 class SubRun {
 public:
     virtual ~SubRun();

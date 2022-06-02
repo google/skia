@@ -18,15 +18,12 @@
 
 #include "src/text/gpu/TextBlob.h"
 
-#include "include/core/SkColorFilter.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/private/chromium/Slug.h"
-#include "src/core/SkDistanceFieldGen.h"
-#include "src/core/SkEnumerate.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixProvider.h"
@@ -34,33 +31,17 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkStrikeSpec.h"
-#include "src/text/gpu/Glyph.h"
-#include "src/text/gpu/GlyphVector.h"
-#include "src/text/gpu/SDFTControl.h"
-#include "src/text/gpu/StrikeCache.h"
+#include "src/core/SkWriteBuffer.h"
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 
 #if SK_SUPPORT_GPU  // Ganesh Support
-#include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrClip.h"
-#include "src/gpu/ganesh/GrMeshDrawTarget.h"
-#include "src/gpu/ganesh/GrStyle.h"
-#include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
-#include "src/gpu/ganesh/geometry/GrStyledShape.h"
-#include "src/gpu/ganesh/ops/AtlasTextOp.h"
-#include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/gpu/ganesh/v1/Device_v1.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
-using AtlasTextOp = skgpu::v1::AtlasTextOp;
 #endif
 
-using MaskFormat = skgpu::MaskFormat;
 using namespace sktext::gpu;
-
 namespace {
 SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
     SkMatrix position_matrix = drawMatrix;
@@ -453,8 +434,6 @@ TextBlob::TextBlob(SubRunAllocator&& alloc,
         , fSize(totalMemorySize)
         , fInitialLuminance{initialLuminance} { }
 
-
-
 sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
     return SlugImpl::MakeFromBuffer(buffer, client);
 }
@@ -503,4 +482,3 @@ sk_sp<Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
 }
 }  // namespace skgpu::v1
 #endif
-
