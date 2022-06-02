@@ -126,9 +126,10 @@ TextAnimator::ResolvedProps TextAnimator::modulateProps(const ResolvedProps& pro
     modulated_props.scale    *= SkV3{1,1,1} +
             (static_cast<SkV3>(fTextProps.scale) * 0.01f - SkV3{1,1,1}) * amount;
 
-    // ... as does blur and line spacing
+    // ... as do blur, line spacing, and stroke width.
     modulated_props.blur         += fTextProps.blur         * amount;
     modulated_props.line_spacing += fTextProps.line_spacing * amount;
+    modulated_props.stroke_width += fTextProps.stroke_width * amount;
 
     const auto lerp = [](float v0, float v1, float t) {
         return v0 + (v1 - v0)*t;
@@ -205,6 +206,8 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
     fHasStrokeOpacity = acontainer->bind(*abuilder, jprops["so"], fTextProps.stroke_opacity);
     fHasOpacity       = acontainer->bind(*abuilder, jprops["o" ], fTextProps.opacity       );
     fHasBlur          = acontainer->bind(*abuilder, jprops["bl"], fTextProps.blur          );
+
+    acontainer->bind(*abuilder, jprops["sw"], fTextProps.stroke_width);
 }
 
 } // namespace internal

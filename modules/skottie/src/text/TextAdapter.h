@@ -65,7 +65,7 @@ private:
     };
 
     void reshape();
-    void addFragment(const Shaper::Fragment&, float scale);
+    void addFragment(const Shaper::Fragment&);
     void buildDomainMaps(const Shaper::Result&);
 
     void pushPropsToFragment(const TextAnimator::ResolvedProps&, const FragmentRec&,
@@ -107,6 +107,7 @@ private:
 
     TextValueTracker          fText;
     Vec2Value                 fGroupingAlignment = {0,0};
+    float                     fTextShapingScale  = 1;     // size adjustment from auto-scaling
 
     // Optional text path.
     struct PathInfo;

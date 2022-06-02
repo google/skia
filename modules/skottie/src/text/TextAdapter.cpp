@@ -300,7 +300,7 @@ TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger, AnchorP
 
 TextAdapter::~TextAdapter() = default;
 
-void TextAdapter::addFragment(const Shaper::Fragment& frag, float scale) {
+void TextAdapter::addFragment(const Shaper::Fragment& frag) {
     // For a given shaped fragment, build a corresponding SG fragment:
     //
     //   [TransformEffect] -> [Transform]
@@ -335,7 +335,7 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag, float scale) {
             rec.fStrokeColorNode = sksg::Color::Make(fText->fStrokeColor);
             rec.fStrokeColorNode->setAntiAlias(true);
             rec.fStrokeColorNode->setStyle(SkPaint::kStroke_Style);
-            rec.fStrokeColorNode->setStrokeWidth(fText->fStrokeWidth * scale);
+            rec.fStrokeColorNode->setStrokeWidth(fText->fStrokeWidth * fTextShapingScale);
             rec.fStrokeColorNode->setStrokeJoin(fText->fStrokeJoin);
             draws.push_back(sksg::Draw::Make(blob_node, rec.fStrokeColorNode));
         }
@@ -498,6 +498,9 @@ void TextAdapter::reshape() {
         }
     }
 
+    // Save the text shaping scale for later adjustments.
+    fTextShapingScale = shape_result.fScale;
+
     // Rebuild all fragments.
     // TODO: we can be smarter here and try to reuse the existing SG structure if needed.
 
@@ -505,7 +508,7 @@ void TextAdapter::reshape() {
     fFragments.clear();
 
     for (const auto& frag : shape_result.fFragments) {
-        this->addFragment(frag, shape_result.fScale);
+        this->addFragment(frag);
     }
 
     if (!fAnimators.empty() || fPathInfo) {
@@ -564,6 +567,7 @@ void TextAdapter::onSync() {
     TextAnimator::ResolvedProps seed_props;
     seed_props.fill_color   = fText->fFillColor;
     seed_props.stroke_color = fText->fStrokeColor;
+    seed_props.stroke_width = fText->fStrokeWidth;
 
     TextAnimator::ModulatorBuffer buf;
     buf.resize(fFragments.size(), { seed_props, 0 });
@@ -768,6 +772,7 @@ void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
     }
     if (rec.fStrokeColorNode) {
         rec.fStrokeColorNode->setColor(scale_alpha(props.stroke_color, props.opacity));
+        rec.fStrokeColorNode->setStrokeWidth(props.stroke_width * fTextShapingScale);
     }
     if (rec.fBlur) {
         rec.fBlur->setSigma({ props.blur.x * kBlurSizeToSigma,

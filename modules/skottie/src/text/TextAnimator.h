@@ -43,7 +43,8 @@ public:
         ScalarValue opacity        = 100,
                     fill_opacity   = 100,
                     stroke_opacity = 100,
-                    tracking       = 0;
+                    tracking       = 0,
+                    stroke_width   = 0;
     };
 
     struct ResolvedProps {
@@ -51,7 +52,8 @@ public:
                      scale = { 1, 1, 1 },
                   rotation = { 0, 0, 0 };
         float      opacity = 1,
-                  tracking = 0;
+                  tracking = 0,
+              stroke_width = 0;
         SkColor fill_color = SK_ColorTRANSPARENT,
               stroke_color = SK_ColorTRANSPARENT;
         SkV2          blur = { 0, 0 },
