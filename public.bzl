@@ -1651,6 +1651,8 @@ BASE_SRCS_ALL = [
     "src/text/gpu/StrikeCache.h",
     "src/text/gpu/SubRunAllocator.cpp",
     "src/text/gpu/SubRunAllocator.h",
+    "src/text/gpu/SubRunContainer.cpp",
+    "src/text/gpu/SubRunContainer.h",
     "src/text/gpu/TextBlob.cpp",
     "src/text/gpu/TextBlob.h",
     "src/text/gpu/TextBlobRedrawCoordinator.cpp",
