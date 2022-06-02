@@ -5,7 +5,7 @@ int arrBool[true];
 int unsized_in_expression() { return int[](0)[0]; }
 
 /*%%*
-expected array dimension
+unsized arrays are not permitted here
 array size must be an integer
 array size must be an integer
 missing index in '[]'

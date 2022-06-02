@@ -1,6 +1,6 @@
 ### Compilation failed:
 
 error: 1: unsized arrays are not permitted here
-k{int z;}m[];void main(){}
-           ^
+struct S { float[2][] x; };
+                   ^^
 1 error

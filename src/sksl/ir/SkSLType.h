@@ -58,7 +58,8 @@ class Type : public Symbol {
 public:
     inline static constexpr Kind kSymbolKind = Kind::kType;
     inline static constexpr int kMaxAbbrevLength = 3;
-
+    // Represents unspecified array dimensions, as in `int[]`.
+    inline static constexpr int kUnsizedArray = -1;
     struct Field {
         Field(Position pos, Modifiers modifiers, std::string_view name, const Type* type)
         : fPosition(pos)
@@ -106,7 +107,7 @@ public:
 
     Type(const Type& other) = delete;
 
-    /** Creates an array type. */
+    /** Creates an array type. `columns` may be kUnsizedArray. */
     static std::unique_ptr<Type> MakeArrayType(std::string_view name, const Type& componentType,
                                                int columns);
 
@@ -527,8 +528,13 @@ public:
     bool checkForOutOfRangeLiteral(const Context& context, double value, Position pos) const;
 
     /**
+     * Reports errors and returns false if this type cannot be used as the base type for an array.
+     */
+    bool checkIfUsableInArray(const Context& context, Position arrayPos) const;
+
+    /**
      * Verifies that the expression is a valid constant array size for this type. Returns the array
-     * size, or zero if the expression isn't a valid literal value.
+     * size, or reports errors and returns zero if the expression isn't a valid literal value.
      */
     SKSL_INT convertArraySize(const Context& context, Position arrayPos,
             std::unique_ptr<Expression> size) const;

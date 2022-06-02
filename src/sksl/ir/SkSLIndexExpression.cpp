@@ -20,10 +20,13 @@ namespace SkSL {
 
 static bool index_out_of_range(const Context& context, Position pos, SKSL_INT index,
         const Expression& base) {
-    if (index >= 0 && index < base.type().columns()) {
-        return false;
+    if (index >= 0) {
+        if (base.type().columns() == Type::kUnsizedArray) {
+            return false;
+        } else if (index < base.type().columns()) {
+            return false;
+        }
     }
-
     context.fErrors->error(pos, "index " + std::to_string(index) + " out of range for '" +
             base.type().displayName() + "'");
     return true;

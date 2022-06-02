@@ -1,0 +1,5 @@
+void func() { float[][2] x; }
+
+/*%%*
+unsized arrays are not permitted here
+*%%*/
