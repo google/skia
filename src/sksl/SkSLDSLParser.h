@@ -161,7 +161,7 @@ private:
 
     dsl::DSLStatement varDeclarations();
 
-    std::optional<dsl::DSLType> structDeclaration();
+    dsl::DSLType structDeclaration();
 
     SkTArray<dsl::DSLGlobalVar> structVarDeclaration(Position start,
                                                      const dsl::DSLModifiers& modifiers);
@@ -188,7 +188,7 @@ private:
 
     dsl::DSLStatement statement();
 
-    std::optional<dsl::DSLType> type(dsl::DSLModifiers* modifiers);
+    dsl::DSLType type(dsl::DSLModifiers* modifiers);
 
     bool interfaceBlock(const dsl::DSLModifiers& mods);
 

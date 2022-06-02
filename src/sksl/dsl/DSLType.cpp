@@ -38,7 +38,7 @@ static const SkSL::Type* verify_type(const Context& context,
                                      const SkSL::Type* type,
                                      bool allowPrivateTypes,
                                      Position pos) {
-    if (!context.fConfig->fIsBuiltinCode) {
+    if (!context.fConfig->fIsBuiltinCode && type) {
         if (!allowPrivateTypes && type->isPrivate()) {
             context.fErrors->error(pos, "type '" + std::string(type->name()) + "' is private");
             return context.fTypes.fPoison.get();

@@ -93,6 +93,11 @@ public:
             Position pos = {});
 
     /**
+     * Returns true if the SkSL type is non-null.
+     */
+    bool hasValue() const { return fSkSLType != nullptr; }
+
+    /**
      * Returns true if this type is a bool.
      */
     bool isBoolean() const;
@@ -167,7 +172,10 @@ public:
     static DSLExpression Construct(DSLType type, SkSpan<DSLExpression> argArray);
 
 private:
-    const SkSL::Type& skslType() const { return *fSkSLType; }
+    const SkSL::Type& skslType() const {
+        SkASSERT(fSkSLType);
+        return *fSkSLType;
+    }
 
     const SkSL::Type* fSkSLType = nullptr;
 
