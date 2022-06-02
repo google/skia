@@ -1499,6 +1499,7 @@ BASE_SRCS_ALL = [
     "src/sksl/analysis/SkSLGetLoopUnrollInfo.cpp",
     "src/sksl/analysis/SkSLIsConstantExpression.cpp",
     "src/sksl/analysis/SkSLIsSameExpressionTree.cpp",
+    "src/sksl/analysis/SkSLIsTrivialExpression.cpp",
     "src/sksl/analysis/SkSLNoOpErrorReporter.h",
     "src/sksl/analysis/SkSLProgramUsage.cpp",
     "src/sksl/analysis/SkSLProgramVisitor.h",

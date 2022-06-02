@@ -428,23 +428,6 @@ bool Analysis::UpdateVariableRefKind(Expression* expr,
     return true;
 }
 
-bool Analysis::IsTrivialExpression(const Expression& expr) {
-    return expr.is<Literal>() ||
-           expr.is<VariableReference>() ||
-           (expr.is<Swizzle>() &&
-            IsTrivialExpression(*expr.as<Swizzle>().base())) ||
-           (expr.is<FieldAccess>() &&
-            IsTrivialExpression(*expr.as<FieldAccess>().base())) ||
-           (expr.isAnyConstructor() &&
-            expr.asAnyConstructor().argumentSpan().size() == 1 &&
-            IsTrivialExpression(*expr.asAnyConstructor().argumentSpan().front())) ||
-           (expr.isAnyConstructor() &&
-            expr.isConstantOrUniform()) ||
-           (expr.is<IndexExpression>() &&
-            expr.as<IndexExpression>().index()->isIntLiteral() &&
-            IsTrivialExpression(*expr.as<IndexExpression>().base()));
-}
-
 class ES2IndexingVisitor : public ProgramVisitor {
 public:
     ES2IndexingVisitor(ErrorReporter& errors) : fErrors(errors) {}

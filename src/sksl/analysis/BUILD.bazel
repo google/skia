@@ -11,6 +11,7 @@ ANALYSIS_FILES = [
     "SkSLGetLoopUnrollInfo.cpp",
     "SkSLIsConstantExpression.cpp",
     "SkSLIsSameExpressionTree.cpp",
+    "SkSLIsTrivialExpression.cpp",
     "SkSLNoOpErrorReporter.h",
     "SkSLProgramUsage.cpp",
     "SkSLProgramVisitor.h",
