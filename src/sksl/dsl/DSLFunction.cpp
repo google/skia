@@ -66,7 +66,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
                                                modifiers.fPosition,
                                                ThreadContext::Modifiers(modifiers.fModifiers),
                                                name,
-                                               std::move(paramVars), returnType.fPosition,
+                                               std::move(paramVars), pos,
                                                &returnType.skslType());
     if (fDecl) {
         for (size_t i = 0; i < params.size(); ++i) {

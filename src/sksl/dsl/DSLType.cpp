@@ -186,24 +186,23 @@ static const SkSL::Type* get_type_from_type_constant(TypeConstant tc) {
 }
 
 DSLType::DSLType(TypeConstant tc, Position pos)
-    : fSkSLType(verify_type(ThreadContext::Context(),
-                            get_type_from_type_constant(tc),
-                            /*allowPrivateTypes=*/true,
-                            pos))
-    , fPosition(pos) {}
+        : fSkSLType(verify_type(ThreadContext::Context(),
+                                get_type_from_type_constant(tc),
+                                /*allowPrivateTypes=*/true,
+                                pos)) {}
 
 DSLType::DSLType(std::string_view name, Position pos)
-    : fSkSLType(find_type(ThreadContext::Context(), pos, name))
-    , fPosition(pos) {}
+        : fSkSLType(find_type(ThreadContext::Context(), pos, name)) {}
 
 DSLType::DSLType(std::string_view name, DSLModifiers* modifiers, Position pos)
-    : fSkSLType(find_type(ThreadContext::Context(), pos, name, modifiers->fPosition,
-        &modifiers->fModifiers))
-    , fPosition(pos) {}
+        : fSkSLType(find_type(ThreadContext::Context(),
+                              pos,
+                              name,
+                              modifiers->fPosition,
+                              &modifiers->fModifiers)) {}
 
 DSLType::DSLType(const SkSL::Type* type, Position pos)
-    : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowPrivateTypes=*/true, pos))
-    , fPosition(pos) {}
+        : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowPrivateTypes=*/true, pos)) {}
 
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();

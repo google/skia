@@ -170,7 +170,6 @@ private:
     const SkSL::Type& skslType() const { return *fSkSLType; }
 
     const SkSL::Type* fSkSLType = nullptr;
-    Position fPosition;
 
     friend DSLType Array(const DSLType& base, int count, Position pos);
     friend DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos);
