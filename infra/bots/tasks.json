@@ -3219,24 +3219,27 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "skia/bots/bazel_build_task_driver",
+          "path": "bazel_build_task_driver",
+          "version": "version:0"
+        },
+        {
           "name": "skia/bots/bazelisk",
           "path": "bazelisk",
           "version": "version:0"
         }
       ],
       "command": [
-        "./bazel_build",
+        "bazel_build_task_driver/bazel_build",
         "--project_id=skia-swarming-bots",
         "--task_id=<(TASK_ID)",
         "--task_name=BazelBuild-example_hello_world_dawn-release-linux_x64",
         "--label=//example:hello_world_dawn",
         "--config=release",
+        "--workdir=.",
         "--bazel_arg=--config=linux_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3258,24 +3261,27 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "skia/bots/bazel_build_task_driver",
+          "path": "bazel_build_task_driver",
+          "version": "version:0"
+        },
+        {
           "name": "skia/bots/bazelisk",
           "path": "bazelisk",
           "version": "version:0"
         }
       ],
       "command": [
-        "./bazel_build",
+        "bazel_build_task_driver/bazel_build",
         "--project_id=skia-swarming-bots",
         "--task_id=<(TASK_ID)",
         "--task_name=BazelBuild-example_hello_world_gl-release-linux_x64",
         "--label=//example:hello_world_gl",
         "--config=release",
+        "--workdir=.",
         "--bazel_arg=--config=linux_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3297,24 +3303,27 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "skia/bots/bazel_build_task_driver",
+          "path": "bazel_build_task_driver",
+          "version": "version:0"
+        },
+        {
           "name": "skia/bots/bazelisk",
           "path": "bazelisk",
           "version": "version:0"
         }
       ],
       "command": [
-        "./bazel_build",
+        "bazel_build_task_driver/bazel_build",
         "--project_id=skia-swarming-bots",
         "--task_id=<(TASK_ID)",
         "--task_name=BazelBuild-example_hello_world_vulkan-release-linux_x64",
         "--label=//example:hello_world_vulkan",
         "--config=release",
+        "--workdir=.",
         "--bazel_arg=--config=linux_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3336,24 +3345,27 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "skia/bots/bazel_build_task_driver",
+          "path": "bazel_build_task_driver",
+          "version": "version:0"
+        },
+        {
           "name": "skia/bots/bazelisk",
           "path": "bazelisk",
           "version": "version:0"
         }
       ],
       "command": [
-        "./bazel_build",
+        "bazel_build_task_driver/bazel_build",
         "--project_id=skia-swarming-bots",
         "--task_id=<(TASK_ID)",
         "--task_name=BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64",
         "--label=//modules/canvaskit:canvaskit_wasm",
         "--config=debug",
+        "--workdir=.",
         "--bazel_arg=--config=linux_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
