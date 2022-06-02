@@ -363,10 +363,10 @@ def _CheckBuildifier(input_api, output_api):
     subprocess.check_output(
         ['buildifier', '--version'],
         stderr=subprocess.STDOUT)
-  except subprocess.CalledProcessError:
-    return output_api.PresubmitNotifyResult(
+  except:
+    return [output_api.PresubmitNotifyResult(
       'Skipping buildifier check because it is not on PATH. \n' +
-      'You can download it from https://github.com/bazelbuild/buildtools/releases')
+      'You can download it from https://github.com/bazelbuild/buildtools/releases')]
 
   return _RunCommandAndCheckGitDiff(
     # One can change --lint=warn to --lint=fix to have things automatically fixed where possible.
