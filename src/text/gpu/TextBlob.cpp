@@ -376,7 +376,6 @@ sk_sp<TextBlob> TextBlob::Make(const SkGlyphRunList& glyphRunList,
     sk_sp<TextBlob> blob = sk_sp<TextBlob>(initializer.initialize(std::move(alloc),
                                                                   std::move(container),
                                                                   totalMemoryAllocated,
-                                                                  positionMatrix,
                                                                   initialLuminance));
 
     // Be sure to pass the ref to the matrix that the SubRuns will capture.
@@ -389,14 +388,16 @@ void TextBlob::addKey(const Key& key) {
     fKey = key;
 }
 
-bool TextBlob::hasPerspective() const { return fInitialPositionMatrix.hasPerspective(); }
+bool TextBlob::hasPerspective() const {
+    return fSubRuns->initialPosition().hasPerspective();
+}
 
 bool TextBlob::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
     // A singular matrix will create a TextBlob with no SubRuns, but unknown glyphs can
     // also cause empty runs. If there are no subRuns or some glyphs were excluded or perspective,
     // then regenerate when the matrices don't match.
     if ((fSubRuns->isEmpty() || fSomeGlyphsExcluded || hasPerspective()) &&
-            fInitialPositionMatrix != positionMatrix) {
+        fSubRuns->initialPosition() != positionMatrix) {
         return false;
     }
 
@@ -446,12 +447,10 @@ const AtlasSubRun* TextBlob::testingOnlyFirstSubRun() const {
 TextBlob::TextBlob(SubRunAllocator&& alloc,
                    SubRunContainerOwner subRuns,
                    int totalMemorySize,
-                   const SkMatrix& positionMatrix,
                    SkColor initialLuminance)
         : fAlloc{std::move(alloc)}
         , fSubRuns{std::move(subRuns)}
         , fSize(totalMemorySize)
-        , fInitialPositionMatrix{positionMatrix}
         , fInitialLuminance{initialLuminance} { }
 
 

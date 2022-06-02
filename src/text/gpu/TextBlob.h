@@ -97,7 +97,6 @@ public:
     TextBlob(SubRunAllocator&& alloc,
              SubRunContainerOwner subRuns,
              int totalMemorySize,
-             const SkMatrix& positionMatrix,
              SkColor initialLuminance);
 
     ~TextBlob() override;
@@ -137,10 +136,6 @@ private:
 
     // Overall size of this struct plus vertices and glyphs at the end.
     const int fSize;
-
-    // The initial view matrix combined with the initial origin. Used to determine if a cached
-    // subRun can be used in this draw situation.
-    const SkMatrix fInitialPositionMatrix;
 
     const SkColor fInitialLuminance;
 
