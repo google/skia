@@ -356,7 +356,8 @@ def _CheckBuildifier(input_api, output_api):
   for affected_file in input_api.AffectedFiles(include_deletes=False):
     affected_file_path = affected_file.LocalPath()
     if affected_file_path.endswith('BUILD.bazel') or affected_file_path.endswith('.bzl'):
-      files.append(affected_file_path)
+      if not affected_file_path.endswith('public.bzl'):
+        files.append(affected_file_path)
   if not files:
     return []
   try:
