@@ -1,4 +1,10 @@
 [
+  {"name": "BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64"},
+  {"name": "BazelBuild-example_hello_world_dawn-release-linux_x64",
+   "cq_config": {}
+   },
+  {"name": "BazelBuild-example_hello_world_gl-release-linux_x64"},
+  {"name": "BazelBuild-example_hello_world_vulkan-release-linux_x64"},
   {"name": "Build-Debian9-Clang-arm-Release-Flutter_Android_Docker"},
   {"name": "Build-Debian10-GCC-x86-Debug-Docker"},
   {"name": "Build-Debian10-GCC-x86-Release-Docker"},
