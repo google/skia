@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.1] - 2022-06-02
+
 ### Added
  - `Canvas.getDeviceClipBounds` (skbug.com/13347)
 
