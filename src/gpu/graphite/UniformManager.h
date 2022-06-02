@@ -58,6 +58,7 @@ public:
     void write(float f) { this->write(&f, 1); }
     void write(int);
     void write(skvx::float2);
+    void write(skvx::float4);
 
 private:
     SkSLType getUniformTypeForLayout(SkSLType type);

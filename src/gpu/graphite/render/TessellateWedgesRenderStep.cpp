@@ -59,8 +59,8 @@ TessellateWedgesRenderStep::~TessellateWedgesRenderStep() {}
 
 const char* TessellateWedgesRenderStep::vertexSkSL() const {
     return "float4 devPosition = float4("
-               "middle_out_wedge(resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23, "
-                                "fanPointAttrib), depth, 1.0);\n";
+               "tessellate_filled_wedge(resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23, "
+                                        "fanPointAttrib), depth, 1.0);\n";
 }
 
 void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometry& geom) const {

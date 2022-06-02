@@ -173,6 +173,7 @@ public:
     void write(float f) { fUniformManager.write(&f, 1); }
     void write(int i) { fUniformManager.write(i); }
     void write(skvx::float2 v) { fUniformManager.write(v); }
+    void write(skvx::float4 v) { fUniformManager.write(v); }
 
     bool hasUniforms() const { return fUniformManager.size(); }
 

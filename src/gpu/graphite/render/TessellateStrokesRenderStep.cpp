@@ -44,12 +44,12 @@ static constexpr DepthStencilSettings kDirectShadingPass = {
 // No explicit curve type, since we assume infinity is supported on GPUs using graphite
 // No color or wide color attribs, since it might always be part of the PaintParams
 // or we'll add a color-only fast path to RenderStep later.
-static constexpr PatchAttribs kAttribs = PatchAttribs::kStrokeParams |
-                                         PatchAttribs::kJoinControlPoint |
+static constexpr PatchAttribs kAttribs = PatchAttribs::kJoinControlPoint |
+                                         PatchAttribs::kStrokeParams |
                                          PatchAttribs::kPaintDepth;
 using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountStrokes>,
-                           Required<PatchAttribs::kStrokeParams>,
                            Required<PatchAttribs::kJoinControlPoint>,
+                           Required<PatchAttribs::kStrokeParams>,
                            Required<PatchAttribs::kPaintDepth>,
                            ReplicateLineEndPoints,
                            TrackJoinControlPoints>;
@@ -60,9 +60,9 @@ TessellateStrokesRenderStep::TessellateStrokesRenderStep()
         : RenderStep("TessellateStrokeRenderStep",
                      "",
                      Flags::kRequiresMSAA | Flags::kPerformsShading,
-                     /*uniforms=*/{{"maxScale", SkSLType::kFloat},
-                                   {"affineMatrix", SkSLType::kFloat4},
-                                   {"translate", SkSLType::kFloat2}},
+                     /*uniforms=*/{{"affineMatrix", SkSLType::kFloat4},
+                                   {"translate", SkSLType::kFloat2},
+                                   {"maxScale", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
                      kDirectShadingPass,
                      /*vertexAttrs=*/  {},
@@ -75,12 +75,22 @@ TessellateStrokesRenderStep::TessellateStrokesRenderStep()
 TessellateStrokesRenderStep::~TessellateStrokesRenderStep() {}
 
 const char* TessellateStrokesRenderStep::vertexSkSL() const {
-    SkASSERT(false);
-    return ""; // TODO: implement this
+    // TODO: Assumes vertex ID support for now, max edges must equal
+    // skgpu::tess::FixedCountStrokes::kMaxEdges -> (2^14 - 1) -> 16383
+    return R"(
+        float edgeID = float(sk_VertexID >> 1);
+        if ((sk_VertexID & 1) != 0) {
+            edgeID = -edgeID;
+        }
+        float2x2 affine = float2x2(affineMatrix);
+        float4 devPosition = float4(
+                tessellate_stroked_curve(edgeID, 16383, affine, translate,
+                                         maxScale, p01, p23, prevPoint, stroke),
+                depth, 1.0);)";
 }
 
 void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometry& geom) const {
-    SkPath path = geom.shape().path();
+    SkPath path = geom.shape().asPath(); // TODO: Iterate the Shape directly
 
     int patchReserveCount = FixedCountStrokes::PreallocCount(path.countVerbs());
     // Stroke tessellation does not use fixed indices or vertex data, and only needs the vertex ID
@@ -207,16 +217,22 @@ void TessellateStrokesRenderStep::writeUniforms(const DrawGeometry& geom,
 
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
-    // maxScale = float, affineMatrix = float4 (2x2 of transform), translate = float2
-    gatherer->write(geom.transform().maxScaleFactor());
-
+    // affineMatrix = float4 (2x2 of transform), translate = float2, maxScale = float
     // Column-major 2x2 of the transform.
-    float upper[4] = {geom.transform().matrix().rc(0, 0), geom.transform().matrix().rc(1, 0),
-                      geom.transform().matrix().rc(0, 1), geom.transform().matrix().rc(1, 1)};
-    gatherer->write(upper, 4);
+    skvx::float4 upper = {geom.transform().matrix().rc(0, 0), geom.transform().matrix().rc(1, 0),
+                          geom.transform().matrix().rc(0, 1), geom.transform().matrix().rc(1, 1)};
+    gatherer->write(upper);
 
-    gatherer->write(SkPoint{geom.transform().matrix().rc(3, 0),
-                            geom.transform().matrix().rc(3, 1)});
+    gatherer->write(SkPoint{geom.transform().matrix().rc(0, 3),
+                            geom.transform().matrix().rc(1, 3)});
+
+    gatherer->write(geom.transform().maxScaleFactor());
+}
+
+const Renderer& Renderer::TessellatedStrokes() {
+    static const TessellateStrokesRenderStep kStrokeStep{};
+    static const Renderer kTessellatedStrokeRenderer{"TessellatedStrokes", &kStrokeStep};
+    return kTessellatedStrokeRenderer;
 }
 
 }  // namespace skgpu::graphite

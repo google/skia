@@ -203,9 +203,10 @@ public:
 
     static const Renderer& ConvexTessellatedWedges();
 
-    // TODO: Not on the immediate sprint target, but show what needs to be added for DrawList's API
-    // static const Renderer& StrokePath();
-    // TODO: Will add more of these as primitive rendering etc. is fleshed out
+    static const Renderer& TessellatedStrokes();
+
+    // TODO: Add renderers for primitives (rect, rrect, etc.), special draws (atlas, vertices, text)
+    // and support inverse filled strokes.
 
     // The maximum number of render steps that any Renderer is allowed to have.
     static constexpr int kMaxRenderSteps = 4;

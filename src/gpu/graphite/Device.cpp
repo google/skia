@@ -37,7 +37,6 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/core/SkStroke.h"
 #include "src/shaders/SkImageShader.h"
 
 #include <unordered_map>
@@ -629,40 +628,6 @@ void Device::recordDraw(const Transform& localToDevice,
     // TODO: remove after CPU-transform fallbacks are no longer needed
     static const Transform kIdentity{SkM44()};
 
-    // TODO: For now stroked paths are converted to fills on the CPU since the fixed count
-    // stroke path renderer hasn't been ported to Graphite yet.
-    if (stroke) {
-        SkPath strokeAsPath = shape.asPath();
-        SkStroke stroker;
-        stroker.setCap(stroke->cap());
-        stroker.setJoin(stroke->join());
-        stroker.setMiterLimit(stroke->miterLimit());
-        stroker.setDoFill(false);
-        const Transform* transform;
-        if (stroke->halfWidth() == 0.f) {
-            // Manually transform to device space and then generate a 1px stroke filled path, which
-            // would require applying a local matrix to the paint but we skip that for now since all
-            // of this is temporary anyways and most hairlines aren't spatially-varying.
-            strokeAsPath.transform(localToDevice.matrix().asM33());
-            stroker.setWidth(1.f);
-            stroker.strokePath(strokeAsPath, &strokeAsPath);
-            transform = &kIdentity;
-        } else {
-            stroker.setResScale(localToDevice.maxScaleFactor());
-            stroker.setWidth(stroke->width());
-            stroker.strokePath(strokeAsPath, &strokeAsPath);
-            transform = &localToDevice;
-        }
-        // Strokes as fills shouldn't be inverse filled
-        if (strokeAsPath.isInverseFillType()) {
-            strokeAsPath.toggleInverseFillType();
-        }
-        // Stroked paths with just moveTos may produce an empty path, which shouldn't be sent on
-        if (!strokeAsPath.isEmpty()) {
-            this->recordDraw(*transform, Shape(strokeAsPath), clip, ordering, paint, nullptr);
-        }
-        return;
-    }
     // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
     // device space so we draw something approximately correct (barring local coord issues).
     if (localToDevice.type() == Transform::Type::kProjection) {
@@ -678,7 +643,16 @@ void Device::recordDraw(const Transform& localToDevice,
     // are large enough to exceed the fixed count tessellation limits.
     const Renderer* renderer = nullptr;
 
-    if (shape.convex() && !shape.inverted()) {
+    if (stroke) {
+        // TODO: We treat inverse-filled strokes as regular strokes. We could handle them by
+        // stenciling first with the HW stroke tessellator and then covering their bounds, but
+        // inverse-filled strokes are not well-specified in our public canvas behavior so we may be
+        // able to remove it.
+        // Unlike in Ganesh, the HW stroke tessellator can work with arbitrary paints since the
+        // depth test prevents double-blending when there is transparency, thus we can HW stroke
+        // any path regardless of its paint.
+        renderer = &Renderer::TessellatedStrokes();
+    } else if (shape.convex() && !shape.inverted()) {
         // TODO: Ganesh doesn't have a curve+middle-out triangles option for convex paths, but it
         // would be pretty trivial to spin up.
         renderer = &Renderer::ConvexTessellatedWedges();

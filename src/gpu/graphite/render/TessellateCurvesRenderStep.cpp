@@ -53,7 +53,7 @@ TessellateCurvesRenderStep::~TessellateCurvesRenderStep() {}
 
 const char* TessellateCurvesRenderStep::vertexSkSL() const {
     return "float4 devPosition = float4("
-               "middle_out_curve(resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23), "
+               "tessellate_filled_curve(resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23), "
                "depth, 1.0);\n";
 }
 
