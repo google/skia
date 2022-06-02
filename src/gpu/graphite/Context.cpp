@@ -95,7 +95,7 @@ SkBlenderID Context::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
     return dict->addUserDefinedBlender(std::move(effect));
 }
 
-void Context::preCompile(const SkCombinationBuilder& combinationBuilder) {
+void Context::precompile(const SkCombinationBuilder& combinationBuilder) {
     static const Renderer* kRenderers[] = {
             &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kWinding),
             &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kEvenOdd),
