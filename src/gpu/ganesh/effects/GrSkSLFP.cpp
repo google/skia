@@ -36,13 +36,13 @@ public:
                         const char* inputColor,
                         const SkSL::Context& context,
                         const uint8_t* uniformData,
-                        const GrSkSLFP::UniformFlags* uniformFlags)
+                        const Specialized* specialized)
                     : fSelf(self)
                     , fArgs(args)
                     , fInputColor(inputColor)
                     , fContext(context)
                     , fUniformData(uniformData)
-                    , fUniformFlags(uniformFlags) {}
+                    , fSpecialized(specialized) {}
 
             std::string declareUniform(const SkSL::VarDeclaration* decl) override {
                 const SkSL::Variable& var = decl->var();
@@ -68,7 +68,7 @@ public:
                 SkSLType gpuType;
                 SkAssertResult(SkSL::type_to_sksltype(fContext, *type, &gpuType));
 
-                if (*fUniformFlags++ & GrSkSLFP::kSpecialize_Flag) {
+                if (*fSpecialized++ == Specialized::kYes) {
                     SkASSERTF(!isArray, "specializing array uniforms is not allowed");
                     std::string value = GrGLSLTypeString(gpuType);
                     value.append("(");
@@ -184,7 +184,7 @@ public:
             const char*                   fInputColor;
             const SkSL::Context&          fContext;
             const uint8_t*                fUniformData;
-            const GrSkSLFP::UniformFlags* fUniformFlags;
+            const Specialized*            fSpecialized;
             int                           fUniformIndex = 0;
         };
 
@@ -242,7 +242,7 @@ public:
                               inputColorName.c_str(),
                               *program.fContext,
                               fp.uniformData(),
-                              fp.uniformFlags());
+                              fp.specialized());
         SkSL::PipelineStage::ConvertProgram(
                 program, coords, args.fInputColor, args.fDestColor, &callbacks);
     }
@@ -250,38 +250,11 @@ public:
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
-        using Type = SkRuntimeEffect::Uniform::Type;
-        size_t uniIndex = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
-        const uint8_t* uniformData = outer.uniformData();
-        const GrSkSLFP::UniformFlags* uniformFlags = outer.uniformFlags();
-        for (const auto& v : outer.fEffect->uniforms()) {
-            if (*uniformFlags++ & GrSkSLFP::kSpecialize_Flag) {
-                continue;
-            }
-            const UniformHandle handle = fUniformHandles[uniIndex++];
-            auto floatData = [=] { return SkTAddOffset<const float>(uniformData, v.offset); };
-            auto intData = [=] { return SkTAddOffset<const int>(uniformData, v.offset); };
-            switch (v.type) {
-                case Type::kFloat:  pdman.set1fv(handle, v.count, floatData()); break;
-                case Type::kFloat2: pdman.set2fv(handle, v.count, floatData()); break;
-                case Type::kFloat3: pdman.set3fv(handle, v.count, floatData()); break;
-                case Type::kFloat4: pdman.set4fv(handle, v.count, floatData()); break;
-
-                case Type::kFloat2x2: pdman.setMatrix2fv(handle, v.count, floatData()); break;
-                case Type::kFloat3x3: pdman.setMatrix3fv(handle, v.count, floatData()); break;
-                case Type::kFloat4x4: pdman.setMatrix4fv(handle, v.count, floatData()); break;
-
-                case Type::kInt:  pdman.set1iv(handle, v.count, intData()); break;
-                case Type::kInt2: pdman.set2iv(handle, v.count, intData()); break;
-                case Type::kInt3: pdman.set3iv(handle, v.count, intData()); break;
-                case Type::kInt4: pdman.set4iv(handle, v.count, intData()); break;
-
-                default:
-                    SkDEBUGFAIL("Unsupported uniform type");
-                    break;
-            }
-        }
+        pdman.setRuntimeEffectUniforms(outer.fEffect->uniforms(),
+                                       SkMakeSpan(fUniformHandles),
+                                       SkMakeSpan(outer.specialized(), outer.uniformCount()),
+                                       outer.uniformData());
     }
 
     std::vector<UniformHandle> fUniformHandles;
@@ -299,8 +272,8 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
         return nullptr;
     }
     size_t uniformSize = uniforms->size();
-    size_t uniformFlagSize = effect->uniforms().size() * sizeof(UniformFlags);
-    std::unique_ptr<GrSkSLFP> fp(new (uniformSize + uniformFlagSize)
+    size_t specializedSize = effect->uniforms().size() * sizeof(Specialized);
+    std::unique_ptr<GrSkSLFP> fp(new (uniformSize + specializedSize)
                                          GrSkSLFP(std::move(effect), name, OptFlags::kNone));
     sk_careful_memcpy(fp->uniformData(), uniforms->data(), uniformSize);
     for (auto& childFP : childFPs) {
@@ -327,7 +300,7 @@ GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, OptFlags opt
         , fEffect(std::move(effect))
         , fName(name)
         , fUniformSize(SkToU32(fEffect->uniformSize())) {
-    memset(this->uniformFlags(), 0, fEffect->uniforms().size() * sizeof(UniformFlags));
+    std::fill_n(this->specialized(), this->uniformCount(), Specialized::kNo);
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
     }
@@ -345,9 +318,7 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fDestColorChildIndex(other.fDestColorChildIndex)
         , fToLinearSrgbChildIndex(other.fToLinearSrgbChildIndex)
         , fFromLinearSrgbChildIndex(other.fFromLinearSrgbChildIndex) {
-    sk_careful_memcpy(this->uniformFlags(),
-                      other.uniformFlags(),
-                      fEffect->uniforms().size() * sizeof(UniformFlags));
+    std::copy_n(other.specialized(), this->uniformCount(), this->specialized());
     sk_careful_memcpy(this->uniformData(), other.uniformData(), fUniformSize);
 }
 
@@ -417,13 +388,13 @@ void GrSkSLFP::onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const 
     b->add32(fEffect->hash());
     b->add32(fUniformSize);
 
-    const UniformFlags* flags = this->uniformFlags();
+    const Specialized* specialized = this->specialized();
     const uint8_t* uniformData = this->uniformData();
-    size_t uniformCount = fEffect->uniforms().size();
+    size_t uniformCount = this->uniformCount();
     auto iter = fEffect->uniforms().begin();
 
     for (size_t i = 0; i < uniformCount; ++i, ++iter) {
-        bool specialize = flags[i] & kSpecialize_Flag;
+        bool specialize = specialized[i] == Specialized::kYes;
         b->addBool(specialize, "specialize");
         if (specialize) {
             b->addBytes(iter->sizeInBytes(), uniformData + iter->offset, iter->name.c_str());
@@ -433,12 +404,13 @@ void GrSkSLFP::onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const 
 
 bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSkSLFP& sk = other.cast<GrSkSLFP>();
-    const size_t uniformFlagSize = fEffect->uniforms().size() * sizeof(UniformFlags);
+    const size_t specializedSize = this->uniformCount() * sizeof(Specialized);
     return fEffect->hash() == sk.fEffect->hash() &&
-           fEffect->uniforms().size() == sk.fEffect->uniforms().size() &&
+           this->uniformCount() == sk.uniformCount() &&
            fUniformSize == sk.fUniformSize &&
-           !sk_careful_memcmp(
-                   this->uniformData(), sk.uniformData(), fUniformSize + uniformFlagSize);
+           !sk_careful_memcmp(this->uniformData(),
+                              sk.uniformData(),
+                              fUniformSize + specializedSize);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {

@@ -83,37 +83,10 @@ private:
             if (fColorUniform.isValid()) {
                 pdman.set4fv(fColorUniform, 1, mgp.fColor.vec());
             }
-            if (!mgp.fSpec->uniformSize()) {
-                return;
-            }
-            SkASSERT(mgp.fUniforms);
-            SkASSERT(mgp.fUniforms->size() >= mgp.fSpec->uniformSize());
-            using Type = SkMeshSpecification::Uniform::Type;
-            const void* data = mgp.fUniforms->data();
-            size_t i = 0;
-            for (const auto& u : mgp.fSpec->uniforms()) {
-                const UniformHandle& handle = fSpecUniformHandles[i++];
-                auto floatData = [=] { return SkTAddOffset<const float>(data, u.offset); };
-                auto intData = [=] { return SkTAddOffset<const int>(data, u.offset); };
-                switch (u.type) {
-                    case Type::kFloat:  pdman.set1fv(handle, u.count, floatData()); break;
-                    case Type::kFloat2: pdman.set2fv(handle, u.count, floatData()); break;
-                    case Type::kFloat3: pdman.set3fv(handle, u.count, floatData()); break;
-                    case Type::kFloat4: pdman.set4fv(handle, u.count, floatData()); break;
-
-                    case Type::kFloat2x2: pdman.setMatrix2fv(handle, u.count, floatData()); break;
-                    case Type::kFloat3x3: pdman.setMatrix3fv(handle, u.count, floatData()); break;
-                    case Type::kFloat4x4: pdman.setMatrix4fv(handle, u.count, floatData()); break;
-
-                    case Type::kInt:  pdman.set1iv(handle, u.count, intData()); break;
-                    case Type::kInt2: pdman.set2iv(handle, u.count, intData()); break;
-                    case Type::kInt3: pdman.set3iv(handle, u.count, intData()); break;
-                    case Type::kInt4: pdman.set4iv(handle, u.count, intData()); break;
-
-                    default:
-                        SkDEBUGFAIL("Unsupported uniform type");
-                        break;
-                }
+            if (mgp.fUniforms) {
+                pdman.setRuntimeEffectUniforms(mgp.fSpec->uniforms(),
+                                               SkMakeSpan(fSpecUniformHandles),
+                                               mgp.fUniforms->data());
             }
         }
 

@@ -9,6 +9,7 @@
 #define GrGLSLProgramDataManager_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/gpu/ganesh/GrResourceHandle.h"
 
@@ -19,7 +20,7 @@ class SkM44;
  * The resources are objects the program uses to communicate with the
  * application code.
  */
-class GrGLSLProgramDataManager : SkNoncopyable {
+class GrGLSLProgramDataManager {
 public:
     GR_DEFINE_RESOURCE_HANDLE_CLASS(UniformHandle);
 
@@ -58,10 +59,33 @@ public:
     // convenience method for uploading a SkMatrix to a 4x4 matrix uniform
     void setSkM44(UniformHandle, const SkM44&) const;
 
+    enum class Specialized : bool { kNo = false, kYes = true };
+
+    /**
+     * Sets runtime effect uniform values. The Specialized span is optional. If it is non-empty
+     * then it should be the same size as the Uniform span. Uniforms for which the Specialized value
+     * is kYes will be skipped and the UniformHandle span should have an entry for each
+     * kNo value. If Specialized is empty then the Uniform and UniformHandle spans should have the
+     * same size.
+     */
+    void setRuntimeEffectUniforms(SkSpan<const SkRuntimeEffect::Uniform>,
+                                  SkSpan<const UniformHandle>,
+                                  SkSpan<const Specialized>,
+                                  const void* src) const;
+
+    void setRuntimeEffectUniforms(SkSpan<const SkRuntimeEffect::Uniform> uniforms,
+                                  SkSpan<const UniformHandle>            handles,
+                                  const void*                            src) const {
+        this->setRuntimeEffectUniforms(uniforms, handles, {}, src);
+    }
+
 protected:
     GrGLSLProgramDataManager() {}
 
 private:
+    GrGLSLProgramDataManager(const GrGLSLProgramDataManager&) = delete;
+    GrGLSLProgramDataManager& operator=(const GrGLSLProgramDataManager&) = delete;
+
     using INHERITED = SkNoncopyable;
 };
 

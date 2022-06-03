@@ -158,7 +158,7 @@ public:
         size_t uniformPayloadSize = UniformPayloadSize(effect.get());
         std::unique_ptr<GrSkSLFP> fp(new (uniformPayloadSize)
                                              GrSkSLFP(std::move(effect), name, optFlags));
-        fp->appendArgs(fp->uniformData(), fp->uniformFlags(), std::forward<Args>(args)...);
+        fp->appendArgs(fp->uniformData(), fp->specialized(), std::forward<Args>(args)...);
         if (inputFP) {
             fp->setInput(std::move(inputFP));
         }
@@ -187,57 +187,57 @@ private:
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
 
+    size_t uniformCount() const { return fEffect->uniforms().size(); }
+
     // An instance of GrSkSLFP is always allocated with a payload immediately following the FP.
     // First the values of all the uniforms, and then a set of flags (one per uniform).
     static size_t UniformPayloadSize(const SkRuntimeEffect* effect) {
-        return effect->uniformSize() + effect->uniforms().size() * sizeof(UniformFlags);
+        return effect->uniformSize() + effect->uniforms().size() * sizeof(Specialized);
     }
 
     const uint8_t* uniformData() const { return reinterpret_cast<const uint8_t*>(this + 1); }
           uint8_t* uniformData()       { return reinterpret_cast<      uint8_t*>(this + 1); }
 
-    enum UniformFlags : uint8_t {
-        kSpecialize_Flag = 0x1,
-    };
+    using Specialized = GrGLSLProgramDataManager::Specialized;
 
-    const UniformFlags* uniformFlags() const {
-        return reinterpret_cast<const UniformFlags*>(this->uniformData() + fUniformSize);
+    const Specialized* specialized() const {
+        return reinterpret_cast<const Specialized*>(this->uniformData() + fUniformSize);
     }
-    UniformFlags* uniformFlags() {
-        return reinterpret_cast<UniformFlags*>(this->uniformData() + fUniformSize);
+    Specialized* specialized() {
+        return reinterpret_cast<Specialized*>(this->uniformData() + fUniformSize);
     }
 
     // Helpers to attach variadic template args to a newly constructed FP:
 
-    void appendArgs(uint8_t* uniformDataPtr, UniformFlags* uniformFlagsPtr) {
+    void appendArgs(uint8_t* uniformDataPtr, Specialized* specializedPtr) {
         // Base case -- no more args to append, so we're done
     }
     template <typename... Args>
     void appendArgs(uint8_t* uniformDataPtr,
-                    UniformFlags* uniformFlagsPtr,
+                    Specialized* specializedPtr,
                     const char* name,
                     std::unique_ptr<GrFragmentProcessor>&& child,
                     Args&&... remainder) {
         // Child FP case -- register the child, then continue processing the remaining arguments.
         // Children aren't "uniforms" here, so the data & flags pointers don't advance.
         this->addChild(std::move(child), /*mergeOptFlags=*/true);
-        this->appendArgs(uniformDataPtr, uniformFlagsPtr, std::forward<Args>(remainder)...);
+        this->appendArgs(uniformDataPtr, specializedPtr, std::forward<Args>(remainder)...);
     }
     // As above, but we don't merge in the child's optimization flags
     template <typename... Args>
     void appendArgs(uint8_t* uniformDataPtr,
-                    UniformFlags* uniformFlagsPtr,
+                    Specialized* specializedPtr,
                     const char* name,
                     GrIgnoreOptFlags&& child,
                     Args&&... remainder) {
         // Child FP case -- register the child, then continue processing the remaining arguments.
         // Children aren't "uniforms" here, so the data & flags pointers don't advance.
         this->addChild(std::move(child.child), /*mergeOptFlags=*/false);
-        this->appendArgs(uniformDataPtr, uniformFlagsPtr, std::forward<Args>(remainder)...);
+        this->appendArgs(uniformDataPtr, specializedPtr, std::forward<Args>(remainder)...);
     }
     template <typename T, typename... Args>
     void appendArgs(uint8_t* uniformDataPtr,
-                    UniformFlags* uniformFlagsPtr,
+                    Specialized* specializedPtr,
                     const char* name,
                     const GrSpecializedUniform<T>& val,
                     Args&&... remainder) {
@@ -247,14 +247,14 @@ private:
         // handle copying the data into our uniform block, and advancing the per-value uniform
         // data and flags pointers.
         if (val.specialize) {
-            *uniformFlagsPtr = static_cast<UniformFlags>(*uniformFlagsPtr | kSpecialize_Flag);
+            *specializedPtr = Specialized::kYes;
         }
         this->appendArgs(
-                uniformDataPtr, uniformFlagsPtr, name, val.value, std::forward<Args>(remainder)...);
+                uniformDataPtr, specializedPtr, name, val.value, std::forward<Args>(remainder)...);
     }
     template <typename T, typename... Args>
     void appendArgs(uint8_t* uniformDataPtr,
-                    UniformFlags* uniformFlagsPtr,
+                    Specialized* specializedPtr,
                     const char* name,
                     const GrOptionalUniform<T>& val,
                     Args&&... remainder) {
@@ -263,14 +263,14 @@ private:
         if (val.enabled) {
             memcpy(uniformDataPtr, &val.value, sizeof(val.value));
             uniformDataPtr += sizeof(val.value);
-            uniformFlagsPtr++;
+            specializedPtr++;
         }
 
-        this->appendArgs(uniformDataPtr, uniformFlagsPtr, std::forward<Args>(remainder)...);
+        this->appendArgs(uniformDataPtr, specializedPtr, std::forward<Args>(remainder)...);
     }
     template <typename T, typename... Args>
     void appendArgs(uint8_t* uniformDataPtr,
-                    UniformFlags* uniformFlagsPtr,
+                    Specialized* specializedPtr,
                     const char* name,
                     SkSpan<T> val,
                     Args&&... remainder) {
@@ -278,12 +278,12 @@ private:
         // then advance our uniform data and flags pointers.
         memcpy(uniformDataPtr, val.data(), val.size_bytes());
         uniformDataPtr += val.size_bytes();
-        uniformFlagsPtr++;
-        this->appendArgs(uniformDataPtr, uniformFlagsPtr, std::forward<Args>(remainder)...);
+        specializedPtr++;
+        this->appendArgs(uniformDataPtr, specializedPtr, std::forward<Args>(remainder)...);
     }
     template <typename T, typename... Args>
     void appendArgs(uint8_t* uniformDataPtr,
-                    UniformFlags* uniformFlagsPtr,
+                    Specialized* specializedPtr,
                     const char* name,
                     const T& val,
                     Args&&... remainder) {
@@ -291,8 +291,8 @@ private:
         // then advance our uniform data and flags pointers.
         memcpy(uniformDataPtr, &val, sizeof(val));
         uniformDataPtr += sizeof(val);
-        uniformFlagsPtr++;
-        this->appendArgs(uniformDataPtr, uniformFlagsPtr, std::forward<Args>(remainder)...);
+        specializedPtr++;
+        this->appendArgs(uniformDataPtr, specializedPtr, std::forward<Args>(remainder)...);
     }
 
 #ifdef SK_DEBUG
