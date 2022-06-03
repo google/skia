@@ -137,7 +137,7 @@ func processOne(workDir, url, hash string) error {
 	return skerr.Wrapf(cmd.Run(), "uploading %s to GCS", tmpFile)
 }
 
-var supportedSuffixes = []string{".tar.gz", ".tar.xz", ".deb", ".zip"}
+var supportedSuffixes = []string{".tar.gz", ".tgz", ".tar.xz", ".deb", ".zip"}
 
 // getSuffix returns the filetype suffix of the file if it is in the list of supported suffixes.
 // Otherwise, it returns empty string.
