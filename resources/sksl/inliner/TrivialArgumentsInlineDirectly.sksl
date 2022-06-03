@@ -62,11 +62,11 @@ half4 main(float2 coords) {
     var = func4(half4(s.h));
     var = func4(s.ah4[0].xxxy);
     var = func4(colorGreen);
-    var = func4(half4(testMatrix2x2));  // matrix -> vector cast
-    mat = func2x2(half2x2(colorGreen)); // vector -> matrix cast
 
     // These expressions are considered "non-trivial" and will be placed in a temporary variable
     // when inlining occurs.
+    var = func4(half4(testMatrix2x2));  // matrix -> vector cast
+    mat = func2x2(half2x2(colorGreen)); // vector -> matrix cast
     var = func1(-s.h);
     var = funcb(!b);
 //  var = func2(as[i].h4.yw);  // indexing by non-constant expressions disallowed in ES2

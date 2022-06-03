@@ -30,15 +30,17 @@ vec4 main() {
     var = vec4(s.h) * vec4(s.h);
     var = s.ah4[0].xxxy * s.ah4[0].xxxy;
     var = colorGreen * colorGreen;
-    var = vec4(testMatrix2x2) * vec4(testMatrix2x2);
-    mat = mat2(colorGreen) * mat2(colorGreen)[0].x;
-    float _0_h = -s.h;
-    var = vec4(_0_h) * vec4(_0_h);
-    bool _1_b = !b;
-    var = vec4(float(_1_b), float(_1_b), float(_1_b), float(!_1_b));
-    vec3 _2_h3 = s.h4.yyy + s.h4.zzz;
-    var = _2_h3.xyzx * _2_h3.xyzx;
-    vec4 _3_h4 = vec4(s.h4.y, 0.0, 0.0, 1.0);
-    var = _3_h4 * _3_h4;
+    vec4 _0_h4 = vec4(testMatrix2x2);
+    var = _0_h4 * _0_h4;
+    mat2 _1_m = mat2(colorGreen);
+    mat = _1_m * _1_m[0].x;
+    float _2_h = -s.h;
+    var = vec4(_2_h) * vec4(_2_h);
+    bool _3_b = !b;
+    var = vec4(float(_3_b), float(_3_b), float(_3_b), float(!_3_b));
+    vec3 _4_h3 = s.h4.yyy + s.h4.zzz;
+    var = _4_h3.xyzx * _4_h3.xyzx;
+    vec4 _5_h4 = vec4(s.h4.y, 0.0, 0.0, 1.0);
+    var = _5_h4 * _5_h4;
     return colorGreen;
 }

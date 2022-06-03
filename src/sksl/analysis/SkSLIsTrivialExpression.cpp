@@ -19,20 +19,50 @@
 namespace SkSL {
 
 bool Analysis::IsTrivialExpression(const Expression& expr) {
-    return expr.is<Literal>() ||
-           expr.is<VariableReference>() ||
-           (expr.is<Swizzle>() &&
-            IsTrivialExpression(*expr.as<Swizzle>().base())) ||
-           (expr.is<FieldAccess>() &&
-            IsTrivialExpression(*expr.as<FieldAccess>().base())) ||
-           (expr.isAnyConstructor() &&
-            expr.asAnyConstructor().argumentSpan().size() == 1 &&
-            IsTrivialExpression(*expr.asAnyConstructor().argumentSpan().front())) ||
-           (expr.isAnyConstructor() &&
-            expr.isConstantOrUniform()) ||
-           (expr.is<IndexExpression>() &&
-            expr.as<IndexExpression>().index()->isIntLiteral() &&
-            IsTrivialExpression(*expr.as<IndexExpression>().base()));
+    switch (expr.kind()) {
+        case Expression::Kind::kLiteral:
+        case Expression::Kind::kVariableReference:
+            return true;
+
+        case Expression::Kind::kSwizzle:
+            // All swizzles are considered to be trivial.
+            return IsTrivialExpression(*expr.as<Swizzle>().base());
+
+        case Expression::Kind::kFieldAccess:
+            // Accessing a field is trivial.
+            return IsTrivialExpression(*expr.as<FieldAccess>().base());
+
+        case Expression::Kind::kIndex: {
+            // Accessing a constant array index is trivial.
+            const IndexExpression& inner = expr.as<IndexExpression>();
+            return inner.index()->isIntLiteral() && IsTrivialExpression(*inner.base());
+        }
+        case Expression::Kind::kConstructorArray:
+        case Expression::Kind::kConstructorStruct:
+            // Only consider small arrays/structs of compile-time-constants to be trivial.
+            return expr.type().slotCount() <= 4 && expr.isCompileTimeConstant();
+
+        case Expression::Kind::kConstructorArrayCast:
+        case Expression::Kind::kConstructorMatrixResize:
+            // These operations require function calls in Metal, so they're never trivial.
+            return false;
+
+        case Expression::Kind::kConstructorCompound:
+            // Only compile-time-constant compound constructors are considered to be trivial.
+            return expr.isCompileTimeConstant();
+
+        case Expression::Kind::kConstructorCompoundCast:
+        case Expression::Kind::kConstructorScalarCast:
+        case Expression::Kind::kConstructorSplat:
+        case Expression::Kind::kConstructorDiagonalMatrix: {
+            // Single-argument constructors are trivial when their inner expression is trivial.
+            SkASSERT(expr.asAnyConstructor().argumentSpan().size() == 1);
+            const Expression& inner = *expr.asAnyConstructor().argumentSpan().front();
+            return IsTrivialExpression(inner);
+        }
+        default:
+            return false;
+    }
 }
 
 }  // namespace SkSL
