@@ -164,7 +164,7 @@ static inline uint32_t sksltype_to_size(SkSLType type) {
 uint32_t get_ubo_offset(uint32_t* currentOffset, SkSLType type, int arrayCount) {
     uint32_t alignmentMask = sksltype_to_alignment_mask(type);
     // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
-    if (arrayCount || type == SkSLType::kFloat2x2) {
+    if (arrayCount || type == SkSLType::kFloat2x2 || type == SkSLType::kHalf2x2) {
         alignmentMask = 0xF;
     }
     uint32_t offsetDiff = *currentOffset & alignmentMask;

@@ -1,5 +1,6 @@
 uniform half4 colorGreen;
 uniform half unknownInput;
+uniform half2x2 testMatrix2x2;
 
 struct S {
     half4 ah4[1];
@@ -30,6 +31,10 @@ half4 func4(half4 h4) {
     return h4 * h4;
 }
 
+half2x2 func2x2(half2x2 m) {
+    return m * m[0][0];
+}
+
 half4 main(float2 coords) {
     S s;
     s.ah4[0] = half4(unknownInput);
@@ -46,6 +51,7 @@ half4 main(float2 coords) {
     // These expressions are considered "trivial" and will be cloned directly into the inlined
     // function without a temporary variable.
     half4 var;
+    half2x2 mat;
     var = func1(+s.h);
     var = funcb(b);
     var = func2(s.ah4[0].yw);
@@ -56,6 +62,8 @@ half4 main(float2 coords) {
     var = func4(half4(s.h));
     var = func4(s.ah4[0].xxxy);
     var = func4(colorGreen);
+    var = func4(half4(testMatrix2x2));  // matrix -> vector cast
+    mat = func2x2(half2x2(colorGreen)); // vector -> matrix cast
 
     // These expressions are considered "non-trivial" and will be placed in a temporary variable
     // when inlining occurs.
