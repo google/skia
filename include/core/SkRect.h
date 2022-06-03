@@ -783,7 +783,7 @@ struct SK_API SkRect {
 
         @return  midpoint on x-axis
     */
-    SkScalar centerX() const {
+    constexpr SkScalar centerX() const {
         // don't use SkScalarHalf(fLeft + fBottom) as that might overflow before the 0.5
         return SkScalarHalf(fLeft) + SkScalarHalf(fRight);
     }
@@ -793,10 +793,15 @@ struct SK_API SkRect {
 
         @return  midpoint on y-axis
     */
-    SkScalar centerY() const {
+    constexpr SkScalar centerY() const {
         // don't use SkScalarHalf(fTop + fBottom) as that might overflow before the 0.5
         return SkScalarHalf(fTop) + SkScalarHalf(fBottom);
     }
+
+    /** Returns the point this->centerX(), this->centerY().
+        @return  rectangle center
+     */
+    constexpr SkPoint center() const { return {this->centerX(), this->centerY()}; }
 
     /** Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are
         equal to the corresponding members in b.

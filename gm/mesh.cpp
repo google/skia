@@ -16,6 +16,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMeshPriv.h"
+#include "tools/timer/TimeUtils.h"
 
 #include <memory>
 
@@ -147,8 +148,9 @@ protected:
                         mesh = SkMesh::Make(fSpecWithColor,
                                             SkMesh::Mode::kTriangleStrip,
                                             fColorVB,
-                                            /*vertexCount= */ 4,
-                                            /*vertexOffset=*/ 0,
+                                            /*vertexCount= */4,
+                                            /*vertexOffset=*/0,
+                                            /*uniforms=    */nullptr,
                                             kRect);
                     } else {
                         mesh = SkMesh::Make(fSpecWithNoColor,
@@ -156,6 +158,7 @@ protected:
                                             fNoColorVB,
                                             /*vertexCount=*/4,
                                             kNoColorOffset,
+                                            /*uniforms=*/nullptr,
                                             kRect);
                     }
                 } else {
@@ -165,21 +168,23 @@ protected:
                         mesh = SkMesh::MakeIndexed(fSpecWithColor,
                                                    SkMesh::Mode::kTriangles,
                                                    fColorIndexedVB,
-                                                   /*vertexCount=*/ 6,
+                                                   /*vertexCount=*/6,
                                                    kColorIndexedOffset,
                                                    std::move(ib),
                                                    /*indexCount=*/6,
                                                    kIndexOffset,
+                                                   /*uniforms=*/nullptr,
                                                    kRect);
                     } else {
                         mesh = SkMesh::MakeIndexed(fSpecWithNoColor,
                                                    SkMesh::Mode::kTriangles,
                                                    fNoColorIndexedVB,
-                                                   /*vertexCount=*/ 6,
+                                                   /*vertexCount=*/6,
                                                    /*vertexOffset=*/0,
                                                    std::move(ib),
                                                    /*indexCount=*/6,
                                                    kIndexOffset,
+                                                   /*uniforms=*/nullptr,
                                                    kRect);
                     }
                 }
@@ -418,8 +423,9 @@ protected:
                 SkMesh mesh = SkMesh::Make(fSpecs[SpecIndex(unpremul, spin)],
                                            SkMesh::Mode::kTriangleStrip,
                                            fVB,
-                                           /*vertexCount=*/ 4,
+                                           /*vertexCount= */4,
                                            /*vertexOffset=*/0,
+                                           /*uniforms=    */nullptr,
                                            kRect);
 
                 SkPaint paint;
@@ -466,5 +472,162 @@ private:
 };
 
 DEF_GM(return new MeshColorSpaceGM;)
+
+class MeshUniformsGM : public skiagm::GM {
+public:
+    MeshUniformsGM() { this->onAnimate(0); }
+
+protected:
+    using Attribute = SkMeshSpecification::Attribute;
+    using Varying   = SkMeshSpecification::Varying;
+
+    SkISize onISize() override { return {140, 250}; }
+
+    void onOnceBeforeDraw() override {
+        static const Attribute kAttributes[]{
+                {Attribute::Type::kFloat2, 0, SkString{"pos"}  },
+                {Attribute::Type::kFloat2, 8, SkString{"coords"}},
+        };
+        static const Varying kVaryings[]{
+                {Varying::Type::kFloat2, SkString{"coords"}},
+        };
+        // To exercise shared VS/FS uniforms we have a matrix that is applied twice, once in each
+        // stage.
+        static constexpr char kVS[] = R"(
+                uniform float t[2];
+                uniform half3x3 m;
+                float2 main(in Attributes attributes, out Varyings varyings) {
+                    varyings.coords = (m*float3(attributes.coords + float2(t[0], t[1]), 1)).xy;
+                    return attributes.pos;
+                }
+        )";
+        static constexpr char kFS[] = R"(
+                uniform half3x3 m;
+                layout(color) uniform half4 color;
+                float2 main(Varyings varyings, out half4 c) {
+                    c = color;
+                    return (m*float3(varyings.coords, 1)).xy;
+                }
+        )";
+        auto [spec, error] =
+                SkMeshSpecification::Make(SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                                          sizeof(Vertex),
+                                          SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                                          SkString(kVS),
+                                          SkString(kFS),
+                                          SkColorSpace::MakeSRGB(),
+                                          kPremul_SkAlphaType);
+        if (!spec) {
+            SkDebugf("%s\n", error.c_str());
+        }
+        fSpec = std::move(spec);
+
+        SkColor colors[] = {SK_ColorWHITE, SK_ColorBLACK};
+        fShader = SkGradientShader::MakeRadial(kGradCenter,
+                                               .4f,
+                                               colors,
+                                               nullptr,
+                                               2,
+                                               SkTileMode::kMirror);
+
+        fVB = SkMesh::MakeVertexBuffer(nullptr, SkData::MakeWithoutCopy(kQuad, sizeof(kQuad)));
+    }
+
+    SkString onShortName() override { return SkString("custommesh_uniforms"); }
+
+    DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
+        SkMatrix matrices[] {
+                SkMatrix::MakeAll(-1,  0, 0, // self inverse so no effect.
+                                   0, -1, 0,
+                                   0,  0, 1),
+                SkMatrix::RotateDeg(fDegrees/2.f, {0.5f, 0.5f}),
+        };
+        for (const auto& m : matrices) {
+            auto unis = SkData::MakeUninitialized(fSpec->uniformSize());
+
+            SkPoint trans = -kCoordTrans;
+            static_assert(sizeof(SkPoint) == 2*sizeof(float));
+
+            const SkMeshSpecification::Uniform* u = fSpec->findUniform("t");
+            SkASSERT(u);
+            std::memcpy(SkTAddOffset<void>(unis->writable_data(), u->offset),
+                        (void*)&trans,
+                        2*sizeof(float));
+
+            u = fSpec->findUniform("m");
+            SkASSERT(u);
+            for (size_t offset = u->offset, col = 0; col < 3; ++col) {
+                for (size_t row = 0; row < 3; ++row, offset += sizeof(float)) {
+                    *SkTAddOffset<float>(unis->writable_data(), offset) = m.rc(row, col);
+                }
+            }
+
+            u = fSpec->findUniform("color");
+            SkASSERT(u);
+            std::memcpy(SkTAddOffset<void>(unis->writable_data(), u->offset),
+                        fColor.vec(),
+                        4*sizeof(float));
+
+            SkMesh mesh = SkMesh::Make(fSpec,
+                                       SkMesh::Mode::kTriangleStrip,
+                                       fVB,
+                                       /*vertexCount= */4,
+                                       /*vertexOffset=*/0,
+                                       /*uniforms=    */std::move(unis),
+                                       kRect);
+
+            SkPaint paint;
+            paint.setShader(fShader);
+            SkCanvasPriv::DrawMesh(canvas, mesh, SkBlender::Mode(SkBlendMode::kModulate), paint);
+
+            canvas->translate(0, kRect.height() + 10);
+        }
+        return DrawResult::kOk;
+    }
+
+    bool onAnimate(double nanos) override {
+        fDegrees = TimeUtils::NanosToSeconds(nanos) * 360.f/10.f + 45.f;
+        // prime number periods, like locusts.
+        fColor.fR = TimeUtils::SineWave(nanos, 13.f, 0.f, 0.f, 1.f);
+        fColor.fG = TimeUtils::SineWave(nanos, 23.f, 5.f, 0.f, 1.f);
+        fColor.fB = TimeUtils::SineWave(nanos, 11.f, 0.f, 0.f, 1.f);
+        fColor.fA = 1.f;
+        return true;
+    }
+
+private:
+    struct Vertex {
+        SkPoint pos;
+        SkPoint tex;
+    };
+
+    static constexpr auto kRect = SkRect::MakeLTRB(20, 20, 120, 120);
+
+    // Our logical tex coords are [0..1] but we insert an arbitrary translation that gets undone
+    // with a uniform.
+    static constexpr SkPoint kCoordTrans = {75, -37};
+    static constexpr auto    kCoordRect  = SkRect::MakeXYWH(kCoordTrans.x(), kCoordTrans.y(), 1, 1);
+
+    static constexpr SkPoint kGradCenter = {0.3f, 0.2f};
+
+    static constexpr Vertex kQuad[] {
+            {{kRect.left() , kRect.top()   }, {kCoordRect.left() , kCoordRect.top()}   },
+            {{kRect.right(), kRect.top()   }, {kCoordRect.right(), kCoordRect.top()}   },
+            {{kRect.left() , kRect.bottom()}, {kCoordRect.left() , kCoordRect.bottom()}},
+            {{kRect.right(), kRect.bottom()}, {kCoordRect.right(), kCoordRect.bottom()}},
+    };
+
+    float fDegrees;
+
+    SkColor4f fColor;
+
+    sk_sp<SkMesh::VertexBuffer> fVB;
+
+    sk_sp<SkMeshSpecification> fSpec;
+
+    sk_sp<SkShader> fShader;
+};
+
+DEF_GM(return new MeshUniformsGM())
 
 }  // namespace skiagm

@@ -11,6 +11,7 @@
 #include "include/core/SkMesh.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkMeshPriv.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/KeyBuilder.h"
@@ -24,6 +25,7 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 
 namespace {
 
@@ -42,13 +44,15 @@ public:
                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
                                      const SkMatrix& viewMatrix,
                                      const std::optional<SkPMColor4f>& color,
-                                     bool needsLocalCoords) {
+                                     bool needsLocalCoords,
+                                     sk_sp<const SkData> uniforms) {
         return arena->make([&](void* ptr) {
             return new (ptr) MeshGP(std::move(spec),
                                     std::move(colorSpaceXform),
                                     viewMatrix,
                                     std::move(color),
-                                    needsLocalCoords);
+                                    needsLocalCoords,
+                                    std::move(uniforms));
         });
     }
 
@@ -73,11 +77,43 @@ private:
         void setData(const GrGLSLProgramDataManager& pdman,
                      const GrShaderCaps& shaderCaps,
                      const GrGeometryProcessor& geomProc) override {
-            const auto& cmgp = geomProc.cast<MeshGP>();
-            SetTransform(pdman, shaderCaps, fViewMatrixUniform, cmgp.fViewMatrix, &fViewMatrix);
-            fColorSpaceHelper.setData(pdman, cmgp.fColorSpaceXform.get());
+            const auto& mgp = geomProc.cast<MeshGP>();
+            SetTransform(pdman, shaderCaps, fViewMatrixUniform, mgp.fViewMatrix, &fViewMatrix);
+            fColorSpaceHelper.setData(pdman, mgp.fColorSpaceXform.get());
             if (fColorUniform.isValid()) {
-                pdman.set4fv(fColorUniform, 1, cmgp.fColor.vec());
+                pdman.set4fv(fColorUniform, 1, mgp.fColor.vec());
+            }
+            if (!mgp.fSpec->uniformSize()) {
+                return;
+            }
+            SkASSERT(mgp.fUniforms);
+            SkASSERT(mgp.fUniforms->size() >= mgp.fSpec->uniformSize());
+            using Type = SkMeshSpecification::Uniform::Type;
+            const void* data = mgp.fUniforms->data();
+            size_t i = 0;
+            for (const auto& u : mgp.fSpec->uniforms()) {
+                const UniformHandle& handle = fSpecUniformHandles[i++];
+                auto floatData = [=] { return SkTAddOffset<const float>(data, u.offset); };
+                auto intData = [=] { return SkTAddOffset<const int>(data, u.offset); };
+                switch (u.type) {
+                    case Type::kFloat:  pdman.set1fv(handle, u.count, floatData()); break;
+                    case Type::kFloat2: pdman.set2fv(handle, u.count, floatData()); break;
+                    case Type::kFloat3: pdman.set3fv(handle, u.count, floatData()); break;
+                    case Type::kFloat4: pdman.set4fv(handle, u.count, floatData()); break;
+
+                    case Type::kFloat2x2: pdman.setMatrix2fv(handle, u.count, floatData()); break;
+                    case Type::kFloat3x3: pdman.setMatrix3fv(handle, u.count, floatData()); break;
+                    case Type::kFloat4x4: pdman.setMatrix4fv(handle, u.count, floatData()); break;
+
+                    case Type::kInt:  pdman.set1iv(handle, u.count, intData()); break;
+                    case Type::kInt2: pdman.set2iv(handle, u.count, intData()); break;
+                    case Type::kInt3: pdman.set3iv(handle, u.count, intData()); break;
+                    case Type::kInt4: pdman.set4iv(handle, u.count, intData()); break;
+
+                    default:
+                        SkDEBUGFAIL("Unsupported uniform type");
+                        break;
+                }
             }
         }
 
@@ -85,13 +121,65 @@ private:
         class MeshCallbacks : public SkSL::PipelineStage::Callbacks {
         public:
             MeshCallbacks(Impl* self,
+                          const MeshGP& gp,
                           GrGLSLShaderBuilder* builder,
+                          GrGLSLUniformHandler* uniformHandler,
                           const char* mainName,
                           const SkSL::Context& context)
-                    : fSelf(self), fBuilder(builder), fMainName(mainName), fContext(context) {}
+                    : fSelf(self)
+                    , fGP(gp)
+                    , fBuilder(builder)
+                    , fUniformHandler(uniformHandler)
+                    , fMainName(mainName)
+                    , fContext(context) {}
 
             std::string declareUniform(const SkSL::VarDeclaration* decl) override {
-                SK_ABORT("uniforms not allowed");
+                const SkSL::Variable& var = decl->var();
+                SkASSERT(!var.type().isOpaque());
+
+                const SkSL::Type* type = &var.type();
+                bool isArray = false;
+                if (type->isArray()) {
+                    type = &type->componentType();
+                    isArray = true;
+                }
+
+                SkSLType gpuType;
+                SkAssertResult(SkSL::type_to_sksltype(fContext, *type, &gpuType));
+
+                SkString name(var.name());
+                const SkSpan<const SkMeshSpecification::Uniform> uniforms = fGP.fSpec->uniforms();
+                auto it = std::find_if(uniforms.begin(),
+                                       uniforms.end(),
+                                       [&name](SkMeshSpecification::Uniform uniform) {
+                    return uniform.name == name;
+                });
+                SkASSERT(it != uniforms.end());
+
+                UniformHandle* handle = &fSelf->fSpecUniformHandles[it - uniforms.begin()];
+                if (handle->isValid()) {
+                    const GrShaderVar& uniformVar = fUniformHandler->getUniformVariable(*handle);
+                    return std::string(uniformVar.getName().c_str());
+                }
+
+                const SkMeshSpecification::Uniform& uniform = *it;
+                GrShaderFlags shaderFlags = kNone_GrShaderFlags;
+                if (uniform.flags & SkMeshSpecification::Uniform::Flags::kVertex_Flag) {
+                    shaderFlags |= kVertex_GrShaderFlag;
+                }
+                if (uniform.flags & SkMeshSpecification::Uniform::Flags::kFragment_Flag) {
+                    shaderFlags |= kFragment_GrShaderFlag;
+                }
+                SkASSERT(shaderFlags != kNone_GrShaderFlags);
+
+                const char* mangledName = nullptr;
+                *handle = fUniformHandler->addUniformArray(&fGP,
+                                                           shaderFlags,
+                                                           gpuType,
+                                                           name.c_str(),
+                                                           isArray ? var.type().columns() : 0,
+                                                           &mangledName);
+                return std::string(mangledName);
             }
 
             std::string getMangledName(const char* name) override {
@@ -136,28 +224,38 @@ private:
                 SK_ABORT("Color transform intrinsics not allowed.");
             }
 
-            Impl*                 fSelf;
-            GrGLSLShaderBuilder*  fBuilder;
-            const char*           fMainName;
-            const SkSL::Context&  fContext;
+            Impl*                                            fSelf;
+            const MeshGP&                                    fGP;
+            GrGLSLShaderBuilder*                             fBuilder;
+            GrGLSLUniformHandler*                            fUniformHandler;
+            const char*                                      fMainName;
+            const SkSL::Context&                             fContext;
         };
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-            const MeshGP& cmgp = args.fGeomProc.cast<MeshGP>();
+            const MeshGP& mgp = args.fGeomProc.cast<MeshGP>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
+            SkASSERT(fSpecUniformHandles.empty());
+            fSpecUniformHandles.resize(mgp.fSpec->uniforms().size());
+
             ////// VS
 
             // emit attributes
-            varyingHandler->emitAttributes(cmgp);
+            varyingHandler->emitAttributes(mgp);
 
             // Define the user's vert function.
             SkString userVertName = vertBuilder->getMangledFunctionName("custom_mesh_vs");
-            const SkSL::Program* customVS = SkMeshSpecificationPriv::VS(*cmgp.fSpec);
-            MeshCallbacks vsCallbacks(this, vertBuilder, userVertName.c_str(), *customVS->fContext);
+            const SkSL::Program* customVS = SkMeshSpecificationPriv::VS(*mgp.fSpec);
+            MeshCallbacks vsCallbacks(this,
+                                      mgp,
+                                      vertBuilder,
+                                      uniformHandler,
+                                      userVertName.c_str(),
+                                      *customVS->fContext);
             SkSL::PipelineStage::ConvertProgram(*customVS,
                                                 /*sampleCoords=*/"",
                                                 /*inputColor=*/"",
@@ -168,10 +266,10 @@ private:
             vertBuilder->codeAppendf("%s attributes;",
                                      vsCallbacks.getMangledName("Attributes").c_str());
             size_t i = 0;
-            SkASSERT(cmgp.vertexAttributes().count() == (int)cmgp.fSpec->attributes().size());
-            for (auto attr : cmgp.vertexAttributes()) {
+            SkASSERT(mgp.vertexAttributes().count() == (int)mgp.fSpec->attributes().size());
+            for (auto attr : mgp.vertexAttributes()) {
                 vertBuilder->codeAppendf("attributes.%s = %s;",
-                                         cmgp.fSpec->attributes()[i++].name.c_str(),
+                                         mgp.fSpec->attributes()[i++].name.c_str(),
                                          attr.name());
             }
 
@@ -183,8 +281,8 @@ private:
 
             // Unpack the varyings from the struct into individual varyings.
             std::vector<GrGLSLVarying> varyings;
-            varyings.reserve(SkMeshSpecificationPriv::Varyings(*cmgp.fSpec).size());
-            for (const auto& v : SkMeshSpecificationPriv::Varyings(*cmgp.fSpec)) {
+            varyings.reserve(SkMeshSpecificationPriv::Varyings(*mgp.fSpec).size());
+            for (const auto& v : SkMeshSpecificationPriv::Varyings(*mgp.fSpec)) {
                 varyings.emplace_back(SkMeshSpecificationPriv::VaryingTypeAsSLType(v.type));
                 varyingHandler->addVarying(v.name.c_str(), &varyings.back());
                 vertBuilder->codeAppendf("%s = varyings.%s;",
@@ -198,7 +296,7 @@ private:
                                 *args.fShaderCaps,
                                 gpArgs,
                                 "pos",
-                                cmgp.fViewMatrix,
+                                mgp.fViewMatrix,
                                 &fViewMatrixUniform);
 
             ////// FS
@@ -208,8 +306,13 @@ private:
 
             // Define the user's frag function.
             SkString userFragName = fragBuilder->getMangledFunctionName("custom_mesh_fs");
-            const SkSL::Program* customFS = SkMeshSpecificationPriv::FS(*cmgp.fSpec);
-            MeshCallbacks fsCallbacks(this, fragBuilder, userFragName.c_str(), *customFS->fContext);
+            const SkSL::Program* customFS = SkMeshSpecificationPriv::FS(*mgp.fSpec);
+            MeshCallbacks fsCallbacks(this,
+                                      mgp,
+                                      fragBuilder,
+                                      uniformHandler,
+                                      userFragName.c_str(),
+                                      *customFS->fContext);
             SkSL::PipelineStage::ConvertProgram(*customFS,
                                                 /*sampleCoords=*/"",
                                                 /*inputColor=*/"",
@@ -220,15 +323,15 @@ private:
             fragBuilder->codeAppendf("%s varyings;",
                                      fsCallbacks.getMangledName("Varyings").c_str());
             i = 0;
-            for (const auto& varying : SkMeshSpecificationPriv::Varyings(*cmgp.fSpec)) {
+            for (const auto& varying : SkMeshSpecificationPriv::Varyings(*mgp.fSpec)) {
                 fragBuilder->codeAppendf("varyings.%s = %s;",
                                          varying.name.c_str(),
                                          varyings[i++].vsOut());
             }
             SkMeshSpecificationPriv::ColorType meshColorType =
-                    SkMeshSpecificationPriv::GetColorType(*cmgp.fSpec);
+                    SkMeshSpecificationPriv::GetColorType(*mgp.fSpec);
             const char* uniformColorName = nullptr;
-            if (cmgp.fColor != SK_PMColor4fILLEGAL) {
+            if (mgp.fColor != SK_PMColor4fILLEGAL) {
                 fColorUniform = uniformHandler->addUniform(nullptr,
                                                            kFragment_GrShaderFlag,
                                                            SkSLType::kHalf4,
@@ -236,7 +339,7 @@ private:
                                                            &uniformColorName);
             }
             SkString localCoordAssignment;
-            if (SkMeshSpecificationPriv::HasLocalCoords(*cmgp.fSpec) && cmgp.fNeedsLocalCoords) {
+            if (SkMeshSpecificationPriv::HasLocalCoords(*mgp.fSpec) && mgp.fNeedsLocalCoords) {
                 localCoordAssignment = "float2 local =";
             }
             if (meshColorType == SkMeshSpecificationPriv::ColorType::kNone) {
@@ -247,7 +350,7 @@ private:
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, uniformColorName);
             } else {
                 fColorSpaceHelper.emitCode(uniformHandler,
-                                           cmgp.fColorSpaceXform.get(),
+                                           mgp.fColorSpaceXform.get(),
                                            kFragment_GrShaderFlag);
                 if (meshColorType == SkMeshSpecificationPriv::ColorType::kFloat4) {
                     fragBuilder->codeAppendf("float4 color;");
@@ -266,8 +369,8 @@ private:
                 fragBuilder->appendColorGamutXform(&xformedColor, color, &fColorSpaceHelper);
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());
             }
-            if (cmgp.fNeedsLocalCoords) {
-                if (SkMeshSpecificationPriv::HasLocalCoords(*cmgp.fSpec)) {
+            if (mgp.fNeedsLocalCoords) {
+                if (SkMeshSpecificationPriv::HasLocalCoords(*mgp.fSpec)) {
                     gpArgs->fLocalCoordVar = GrShaderVar("local", SkSLType::kFloat2);
                     gpArgs->fLocalCoordShader = kFragment_GrShaderType;
                 } else {
@@ -280,8 +383,9 @@ private:
     private:
         SkMatrix fViewMatrix = SkMatrix::InvalidMatrix();
 
-        UniformHandle fViewMatrixUniform;
-        UniformHandle fColorUniform;
+        UniformHandle              fViewMatrixUniform;
+        UniformHandle              fColorUniform;
+        std::vector<UniformHandle> fSpecUniformHandles;
 
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     };
@@ -290,9 +394,11 @@ private:
            sk_sp<GrColorSpaceXform>          colorSpaceXform,
            const SkMatrix&                   viewMatrix,
            const std::optional<SkPMColor4f>& color,
-           bool                              needsLocalCoords)
+           bool                              needsLocalCoords,
+           sk_sp<const SkData>               uniforms)
             : INHERITED(kVerticesGP_ClassID)
             , fSpec(std::move(spec))
+            , fUniforms(std::move(uniforms))
             , fViewMatrix(viewMatrix)
             , fColorSpaceXform(std::move(colorSpaceXform))
             , fNeedsLocalCoords(needsLocalCoords) {
@@ -308,6 +414,7 @@ private:
     }
 
     sk_sp<SkMeshSpecification> fSpec;
+    sk_sp<const SkData>        fUniforms;
     std::vector<Attribute>     fAttributes;
     SkMatrix                   fViewMatrix;
     SkPMColor4f                fColor;
@@ -463,6 +570,7 @@ private:
     sk_sp<GrColorSpaceXform>   fColorSpaceXform;
     SkPMColor4f                fColor; // Used if no color from spec or analysis overrides.
     SkMatrix                   fViewMatrix;
+    sk_sp<const SkData>        fUniforms;
     int                        fVertexCount;
     int                        fIndexCount;
     GrSimpleMesh*              fMesh = nullptr;
@@ -551,6 +659,13 @@ MeshOp::MeshOp(GrProcessorSet*          processorSet,
     fMeshes.emplace_back(mesh);
 
     fSpecification = mesh.spec();
+    if (fColorSpaceXform) {
+        fUniforms = SkRuntimeEffectPriv::TransformUniforms(mesh.spec()->uniforms(),
+                                                           mesh.uniforms(),
+                                                           fColorSpaceXform->steps());
+    } else {
+        fUniforms = mesh.uniforms();
+    }
 
     fVertexCount = fMeshes.back().vertexCount();
     fIndexCount  = fMeshes.back().indexCount();
@@ -704,7 +819,8 @@ GrGeometryProcessor* MeshOp::makeGP(SkArenaAlloc* arena) {
                         fColorSpaceXform,
                         vm,
                         color,
-                        fHelper.usesLocalCoords());
+                        fHelper.usesLocalCoords(),
+                        fUniforms);
 }
 
 void MeshOp::onCreateProgramInfo(const GrCaps* caps,
@@ -837,6 +953,17 @@ GrOp::CombineResult MeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const Gr
     if (SkMeshSpecificationPriv::Hash(*this->fSpecification) !=
         SkMeshSpecificationPriv::Hash(*that->fSpecification)) {
         return CombineResult::kCannotCombine;
+    }
+
+    if (fSpecification->uniformSize()) {
+        size_t size = fSpecification->uniformSize();
+        SkASSERT(fUniforms);
+        SkASSERT(fUniforms->size() >= size);
+        SkASSERT(that->fUniforms);
+        SkASSERT(that->fUniforms->size() >= size);
+        if (memcmp(fUniforms->data(), that->fUniforms->data(), size) != 0) {
+            return GrOp::CombineResult::kCannotCombine;
+        }
     }
 
     if (!SkMeshSpecificationPriv::HasColors(*fSpecification) && fColor != that->fColor) {

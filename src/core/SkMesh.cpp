@@ -501,14 +501,16 @@ SkMesh SkMesh::Make(sk_sp<SkMeshSpecification> spec,
                     sk_sp<VertexBuffer> vb,
                     size_t vertexCount,
                     size_t vertexOffset,
+                    sk_sp<const SkData> uniforms,
                     const SkRect& bounds) {
     SkMesh cm;
-    cm.fSpec    = std::move(spec);
-    cm.fMode    = mode;
-    cm.fVB      = std::move(vb);
-    cm.fVCount  = vertexCount;
-    cm.fVOffset = vertexOffset;
-    cm.fBounds  = bounds;
+    cm.fSpec     = std::move(spec);
+    cm.fMode     = mode;
+    cm.fVB       = std::move(vb);
+    cm.fUniforms = std::move(uniforms);
+    cm.fVCount   = vertexCount;
+    cm.fVOffset  = vertexOffset;
+    cm.fBounds   = bounds;
     return cm.validate() ? cm : SkMesh{};
 }
 
@@ -520,17 +522,19 @@ SkMesh SkMesh::MakeIndexed(sk_sp<SkMeshSpecification> spec,
                            sk_sp<IndexBuffer> ib,
                            size_t indexCount,
                            size_t indexOffset,
+                           sk_sp<const SkData> uniforms,
                            const SkRect& bounds) {
     SkMesh cm;
-    cm.fSpec    = std::move(spec);
-    cm.fMode    = mode;
-    cm.fVB      = std::move(vb);
-    cm.fVCount  = vertexCount;
-    cm.fVOffset = vertexOffset;
-    cm.fIB      = std::move(ib);
-    cm.fICount  = indexCount;
-    cm.fIOffset = indexOffset;
-    cm.fBounds  = bounds;
+    cm.fSpec     = std::move(spec);
+    cm.fMode     = mode;
+    cm.fVB       = std::move(vb);
+    cm.fVCount   = vertexCount;
+    cm.fVOffset  = vertexOffset;
+    cm.fIB       = std::move(ib);
+    cm.fUniforms = std::move(uniforms);
+    cm.fICount   = indexCount;
+    cm.fIOffset  = indexOffset;
+    cm.fBounds   = bounds;
     return cm.validate() ? cm : SkMesh{};
 }
 
@@ -572,6 +576,12 @@ bool SkMesh::validate() const {
 
     if (fVOffset%fSpec->stride() != 0) {
         return false;
+    }
+
+    if (size_t uniformSize = fSpec->uniformSize()) {
+        if (!fUniforms || fUniforms->size() < uniformSize) {
+            return false;
+        }
     }
 
     if (ib) {
