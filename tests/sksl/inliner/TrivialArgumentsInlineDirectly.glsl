@@ -1,6 +1,7 @@
 
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
+uniform mat2 testMatrix2x2;
 uniform float unknownInput;
 struct S {
     vec4 ah4[1];
@@ -18,6 +19,7 @@ vec4 main() {
     as[0].ah4[0] = vec4(unknownInput);
     bool b = bool(unknownInput);
     vec4 var;
+    mat2 mat;
     var = vec4(s.h) * vec4(s.h);
     var = vec4(float(b), float(b), float(b), float(!b));
     var = s.ah4[0].ywyw * s.ah4[0].wywy;
@@ -28,6 +30,8 @@ vec4 main() {
     var = vec4(s.h) * vec4(s.h);
     var = s.ah4[0].xxxy * s.ah4[0].xxxy;
     var = colorGreen * colorGreen;
+    var = vec4(testMatrix2x2) * vec4(testMatrix2x2);
+    mat = mat2(colorGreen) * mat2(colorGreen)[0].x;
     float _0_h = -s.h;
     var = vec4(_0_h) * vec4(_0_h);
     bool _1_b = !b;
