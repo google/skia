@@ -199,14 +199,15 @@ void GrGLRenderTarget::bindInternal(GrGLenum fboTarget, bool useMultisampleFBO) 
                                          0 /*mipMapLevel*/));
         }
         if (useMultisampleFBO) {
-            int internalSampleCount =
+            int sampleCount = this->numSamples() > 1 ?
+                    this->numSamples() :
                     this->getGpu()->caps()->internalMultisampleCount(this->backendFormat());
             GL_CALL(FramebufferTexture2DMultisample(fboTarget,
                                                     GR_GL_COLOR_ATTACHMENT0,
                                                     glTex->target(),
                                                     glTex->textureID(),
                                                     0 /*mipMapLevel*/,
-                                                    internalSampleCount));
+                                                    sampleCount));
         } else {
             GL_CALL(FramebufferTexture2D(fboTarget,
                                          GR_GL_COLOR_ATTACHMENT0,
