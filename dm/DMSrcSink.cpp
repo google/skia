@@ -2132,19 +2132,10 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
 
 #ifdef SK_GRAPHITE_ENABLED
 
-namespace {
-
-void precompile(skgpu::graphite::Context* context) {
-
-}
-
-} // anonymous namespace
-
 GraphiteSink::GraphiteSink(const SkCommandLineConfigGraphite* config)
         : fContextType(config->getContextType())
         , fColorType(config->getColorType())
-        , fAlphaType(config->getAlphaType())
-        , fTestPrecompile(config->getTestPrecompile()) {
+        , fAlphaType(config->getAlphaType()) {
 }
 
 Result GraphiteSink::draw(const Src& src,
@@ -2157,10 +2148,6 @@ Result GraphiteSink::draw(const Src& src,
     auto [_, context] = factory.getContextInfo(fContextType);
     if (!context) {
         return Result::Fatal("Could not create a context.");
-    }
-
-    if (fTestPrecompile) {
-        precompile(context);
     }
 
     std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();

@@ -590,7 +590,6 @@ private:
     ContextType fContextType;
     SkColorType fColorType;
     SkAlphaType fAlphaType;
-    bool        fTestPrecompile;
 };
 
 #endif

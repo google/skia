@@ -136,7 +136,7 @@ static const struct {
     { "grd3d",                 "graphite", "api=direct3d" },
 #endif
 #ifdef SK_METAL
-    { "grmtl",                 "graphite", "api=metal,testPrecompile=true" },
+    { "grmtl",                 "graphite", "api=metal" },
 #endif
 #ifdef SK_VULKAN
     { "grvk",                  "graphite", "api=vulkan" },
@@ -644,7 +644,6 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
     ContextType contextType = ContextType::kMetal;
     SkColorType colorType = kRGBA_8888_SkColorType;
     SkAlphaType alphaType = kPremul_SkAlphaType;
-    bool testPrecompile = false;
 
     bool parseSucceeded = false;
     ExtendedOptions extendedOptions(options, &parseSucceeded);
@@ -653,8 +652,7 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
     }
 
     bool validOptions = extendedOptions.get_option_graphite_api("api", &contextType) &&
-                        extendedOptions.get_option_gpu_color("color", &colorType, &alphaType) &&
-                        extendedOptions.get_option_bool("testPrecompile", &testPrecompile);
+                        extendedOptions.get_option_gpu_color("color", &colorType, &alphaType);
     if (!validOptions) {
         return nullptr;
     }
@@ -663,8 +661,7 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
                                            vias,
                                            contextType,
                                            colorType,
-                                           alphaType,
-                                           testPrecompile);
+                                           alphaType);
 }
 
 #endif
