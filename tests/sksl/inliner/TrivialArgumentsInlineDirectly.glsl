@@ -1,8 +1,8 @@
 
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
-uniform mat2 testMatrix2x2;
 uniform float unknownInput;
+uniform mat2 testMatrix2x2;
 struct S {
     vec4 ah4[1];
     float ah[1];

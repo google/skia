@@ -1,6 +1,6 @@
 uniform half4 colorGreen;
-uniform half2x2 testMatrix2x2;
 uniform half unknownInput;
+uniform half2x2 testMatrix2x2;
 
 struct S {
     half4 ah4[1];

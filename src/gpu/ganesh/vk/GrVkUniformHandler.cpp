@@ -168,7 +168,10 @@ static uint32_t get_aligned_offset(uint32_t* currentOffset,
                                    int layout) {
     uint32_t alignmentMask = sksltype_to_alignment_mask(type);
     // For std140 layout we must make arrays align to 16 bytes.
-    if (layout == GrVkUniformHandler::kStd140Layout && (arrayCount || type == SkSLType::kFloat2x2)) {
+    // TODO(skia:13380): make sure 2x3 and 3x2 matrices are handled properly once SkSLType adds
+    // support for non-square matrices
+    if (layout == GrVkUniformHandler::kStd140Layout &&
+        (arrayCount || type == SkSLType::kFloat2x2 || type == SkSLType::kHalf2x2)) {
         alignmentMask = 0xF;
     }
     uint32_t offsetDiff = *currentOffset & alignmentMask;
