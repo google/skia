@@ -28,6 +28,7 @@
 #include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLType.h"
 
 #include <algorithm>
 #include <initializer_list>
@@ -461,12 +462,17 @@ bool DSLParser::functionDeclarationEnd(Position start,
 }
 
 bool DSLParser::arraySize(SKSL_INT* outResult) {
+    // Start out with a safe value that won't generate any errors downstream
+    *outResult = 1;
+    Token next = this->peek();
+    if (next.fKind == Token::Kind::TK_RBRACKET) {
+        this->error(this->position(next), "unsized arrays are not permitted here");
+        return true;
+    }
     DSLExpression sizeExpr = this->expression();
     if (!sizeExpr.hasValue()) {
         return false;
     }
-    // Start out with a safe value that won't generate any errors downstream
-    *outResult = 1;
     if (sizeExpr.isValid()) {
         std::unique_ptr<SkSL::Expression> sizeLiteral = sizeExpr.release();
         SKSL_INT size;
@@ -492,7 +498,7 @@ bool DSLParser::parseArrayDimensions(Position pos, DSLType* type) {
     Token next;
     while (this->checkNext(Token::Kind::TK_LBRACKET, &next)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
-            this->error(this->rangeFrom(next), "expected array dimension");
+            this->error(this->rangeFrom(pos), "unsized arrays are not permitted here");
         } else {
             SKSL_INT size;
             if (!this->arraySize(&size)) {
@@ -967,17 +973,17 @@ DSLType DSLParser::type(DSLModifiers* modifiers) {
         return DSLType(nullptr);
     }
     DSLType result(this->text(type), modifiers, this->position(type));
-    while (this->checkNext(Token::Kind::TK_LBRACKET)) {
-        if (this->peek().fKind != Token::Kind::TK_RBRACKET) {
+    Token bracket;
+    while (this->checkNext(Token::Kind::TK_LBRACKET, &bracket)) {
+        if (this->checkNext(Token::Kind::TK_RBRACKET)) {
+            this->error(this->rangeFrom(bracket), "unsized arrays are not permitted here");
+        } else {
             SKSL_INT size;
             if (!this->arraySize(&size)) {
                 return DSLType(nullptr);
             }
             this->expect(Token::Kind::TK_RBRACKET, "']'");
             result = Array(result, size, this->rangeFrom(type));
-        } else {
-            this->error(this->peek(), "expected array dimension");
-            this->expect(Token::Kind::TK_RBRACKET, "']'");
         }
     }
     return result;
@@ -1023,7 +1029,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
                     }
                     actualType = Array(std::move(actualType), size, this->position(typeName));
                 } else {
-                    this->error(sizeToken, "unsized arrays are not permitted");
+                    this->error(sizeToken, "unsized arrays are not permitted here");
                 }
                 this->expect(Token::Kind::TK_RBRACKET, "']'");
             }

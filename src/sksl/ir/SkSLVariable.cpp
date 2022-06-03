@@ -42,6 +42,9 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos
     if (!context.fConfig->fIsBuiltinCode && skstd::starts_with(name, '$')) {
         context.fErrors->error(namePos, "name '" + std::string(name) + "' is reserved");
     }
+    if (baseType->isArray() && baseType->columns() == Type::kUnsizedArray) {
+        context.fErrors->error(pos, "unsized arrays are not permitted here");
+    }
 
     return Make(context, pos, modifiersPos, modifiers, baseType, name, isArray,
             std::move(arraySize), storage);

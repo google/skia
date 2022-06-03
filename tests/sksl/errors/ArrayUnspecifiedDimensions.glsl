@@ -1,8 +1,8 @@
 ### Compilation failed:
 
-error: 1: expected array dimension
+error: 1: unsized arrays are not permitted here
 int arrUnsized[];
-              ^^
+^^^^^^^^^^^^^^^^
 error: 2: array size must be an integer
 int arrFloat[1.];
              ^^
