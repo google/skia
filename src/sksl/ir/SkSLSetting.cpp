@@ -87,20 +87,11 @@ static const CapsLookupTable& caps_lookup_table() {
     // Create a lookup table that converts strings into the equivalent ShaderCaps methods.
     static CapsLookupTable* sCapsLookupTable = new CapsLookupTable({
     #define CAP(T, name) CapsLookupTable::Pair{#name, new T##CapsLookup{&ShaderCaps::name}}
-        CAP(Bool, fbFetchSupport),
-        CAP(Bool, fbFetchNeedsCustomOutput),
-        CAP(Bool, flatInterpolationSupport),
-        CAP(Bool, noperspectiveInterpolationSupport),
-        CAP(Bool, externalTextureSupport),
-        CAP(Bool, mustEnableAdvBlendEqs),
-        CAP(Bool, mustDeclareFragmentShaderOutput),
         CAP(Bool, mustDoOpBetweenFloorAndAbs),
         CAP(Bool, mustGuardDivisionEvenAfterExplicitZeroCheck),
         CAP(Bool, atan2ImplementedAsAtanYOverX),
-        CAP(Bool, canUseAnyFunctionInShader),
         CAP(Bool, floatIs32Bits),
         CAP(Bool, integerSupport),
-        CAP(Bool, builtinFMASupport),
         CAP(Bool, builtinDeterminantSupport),
         CAP(Bool, rewriteMatrixVectorMultiply),
     #undef CAP

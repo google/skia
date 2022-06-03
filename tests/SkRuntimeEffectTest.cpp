@@ -65,7 +65,7 @@ DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
     // sk_Caps is an internal system. It should not be visible to runtime effects
     test_invalid_effect(
             r,
-            "half4 main(float2 p) { return sk_Caps.integerSupport ? half4(1) : half4(0); }",
+            "half4 main(float2 p) { return sk_Caps.floatIs32Bits ? half4(1) : half4(0); }",
             "unknown identifier 'sk_Caps'");
 }
 

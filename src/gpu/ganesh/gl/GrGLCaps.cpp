@@ -3927,12 +3927,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fFBFetchSupport = false;
     }
 
-    // On the NexusS and GalaxyNexus, the use of 'any' causes the compilation error "Calls to any
-    // function that may require a gradient calculation inside a conditional block may return
-    // undefined results". This appears to be an issue with the 'any' call since even the simple
-    // "result=black; if (any()) result=white;" code fails to compile.
-    shaderCaps->fCanUseAnyFunctionInShader = (ctxInfo.vendor() != GrGLVendor::kImagination);
-
     if (ctxInfo.renderer() == GrGLRenderer::kTegra_PreK1) {
         // The Tegra3 compiler will sometimes never return if we have min(abs(x), 1.0),
         // so we must do the abs first in a separate expression.

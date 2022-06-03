@@ -90,9 +90,6 @@ struct ShaderCaps {
 
     bool usesPrecisionModifiers() const { return fUsesPrecisionModifiers; }
 
-    // Returns whether we can use the glsl function any() in our shader code.
-    bool canUseAnyFunctionInShader() const { return fCanUseAnyFunctionInShader; }
-
     bool canUseMinAndAbsTogether() const { return fCanUseMinAndAbsTogether; }
 
     bool canUseFractForNegativeValues() const { return fCanUseFractForNegativeValues; }
@@ -214,7 +211,6 @@ struct ShaderCaps {
     bool fBuiltinDeterminantSupport = false;
 
     // Used for specific driver bug work arounds
-    bool fCanUseAnyFunctionInShader = true;
     bool fCanUseMinAndAbsTogether = true;
     bool fCanUseFractForNegativeValues = true;
     bool fMustForceNegatedAtanParamToFloat = false;

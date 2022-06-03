@@ -42,10 +42,9 @@ OpStore %x %int_0
 OpStore %y %int_0
 OpStore %z %int_0
 OpStore %x %int_1
-OpStore %z %int_1
 %20 = OpConvertSToF %float %int_1
 %21 = OpConvertSToF %float %int_0
-%22 = OpConvertSToF %float %int_1
+%22 = OpConvertSToF %float %int_0
 %24 = OpCompositeConstruct %v3float %20 %21 %22
 %25 = OpLoad %v4float %sk_FragColor
 %26 = OpVectorShuffle %v4float %25 %24 4 5 6 3

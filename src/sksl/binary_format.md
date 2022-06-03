@@ -575,7 +575,7 @@ Represents applying the prefix operator `op` to `operand`.
 |----------|------------|
 | `String` | name       |
 
-Represents a field of `sk_Caps`, such as `“builtinDeterminantSupport”`.
+Represents a field of `sk_Caps`, such as `“integerSupport”`.
 
 ---
 

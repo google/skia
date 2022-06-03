@@ -24,7 +24,7 @@ class ExternalFunction;
 struct ProgramSettings {
     // If true the destination fragment color is read sk_FragColor. It must be declared inout.
     bool fFragColorIsInOut = false;
-    // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
+    // if true, Setting objects (e.g. sk_Caps.integerSupport) should be replaced with their
     // constant equivalents during compilation
     bool fReplaceSettings = true;
     // if true, all halfs are forced to be floats
