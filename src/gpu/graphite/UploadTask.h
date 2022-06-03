@@ -44,8 +44,10 @@ public:
 
     bool isValid() const { return fBuffer != nullptr; }
 
+    bool prepareResources(ResourceProvider*);
+
     // Adds upload command to the given CommandBuffer
-    void addCommand(ResourceProvider*, CommandBuffer*) const;
+    void addCommand( CommandBuffer*) const;
 
 private:
     UploadInstance() {}
@@ -94,6 +96,8 @@ public:
     static sk_sp<UploadTask> Make(const UploadInstance&);
 
     ~UploadTask() override;
+
+    bool prepareResources(ResourceProvider*) override;
 
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 

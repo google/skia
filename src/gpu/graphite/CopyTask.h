@@ -28,6 +28,8 @@ public:
 
     ~CopyTextureToBufferTask() override;
 
+    bool prepareResources(ResourceProvider*) override { return true; }
+
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:

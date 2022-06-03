@@ -136,16 +136,20 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     return {bufferInfo.fBuffer, std::move(textureProxy), std::move(copyData)};
 }
 
-void UploadInstance::addCommand(ResourceProvider* resourceProvider,
-                                CommandBuffer* commandBuffer) const {
+bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {
     if (!fTextureProxy) {
         SKGPU_LOG_E("No texture proxy specified for UploadTask");
-        return;
+        return false;
     }
     if (!fTextureProxy->instantiate(resourceProvider)) {
         SKGPU_LOG_E("Could not instantiate texture proxy for UploadTask!");
-        return;
+        return false;
     }
+    return true;
+}
+
+void UploadInstance::addCommand(CommandBuffer* commandBuffer) const {
+    SkASSERT(fTextureProxy && fTextureProxy->isInstantiated());
 
     // The CommandBuffer doesn't take ownership of the upload buffer here; it's owned by
     // UploadBufferManager, which will transfer ownership in transferToCommandBuffer.
@@ -192,10 +196,20 @@ UploadTask::UploadTask(const UploadInstance& instance) {
 
 UploadTask::~UploadTask() {}
 
-bool UploadTask::addCommands(ResourceProvider* resourceProvider,
+bool UploadTask::prepareResources(ResourceProvider* resourceProvider) {
+    for (unsigned int i = 0; i < fInstances.size(); ++i) {
+        if (!fInstances[i].prepareResources(resourceProvider)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool UploadTask::addCommands(ResourceProvider*,
                              CommandBuffer* commandBuffer) {
     for (unsigned int i = 0; i < fInstances.size(); ++i) {
-        fInstances[i].addCommand(resourceProvider, commandBuffer);
+        fInstances[i].addCommand(commandBuffer);
     }
 
     return true;

@@ -35,6 +35,8 @@ public:
 
     ~RenderPassTask() override;
 
+    bool prepareResources(ResourceProvider*) override;
+
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:
