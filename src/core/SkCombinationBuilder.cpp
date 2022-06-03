@@ -400,7 +400,7 @@ SkOption* SkCombinationBuilder::allocInArena(Args&&... args) {
 void SkCombinationBuilder::addOption(SkBlendMode bm) {
     SkASSERT(fDictionary->isValidID((int) bm));
 
-    fBlendModes.add((uint32_t) bm);
+    fBlendModes |= (0x1 << (int) bm);
 }
 
 void SkCombinationBuilder::addOption(SkBlendMode rangeStart, SkBlendMode rangeEnd) {
@@ -429,7 +429,7 @@ void SkCombinationBuilder::addOption(BlendModeGroup group) {
 void SkCombinationBuilder::addOption(SkBlenderID id) {
     SkASSERT(fDictionary->isValidID(id.asUInt()));
 
-    fBlendModes.add(id.asUInt());
+    fBlenders.add(id);
 }
 
 SkOption* SkCombinationBuilder::addOptionInternal(SkShaderType shaderType) {
@@ -511,7 +511,8 @@ SkCombinationOption SkCombinationBuilder::addOption(SkShaderType shaderType,
 
 void SkCombinationBuilder::reset() {
     fShaderOptions.reset();
-    fBlendModes.reset();
+    fBlendModes = 0;
+    fBlenders.reset();
     fArena->reset();
     SkDEBUGCODE(++fEpoch;)
 }
@@ -522,7 +523,7 @@ int SkCombinationBuilder::numCombinations() {
         numShaderCombinations += s->numCombinations();
     }
 
-    return numShaderCombinations * fBlendModes.count();
+    return numShaderCombinations * (SkPopCount(fBlendModes) + fBlenders.count());
 }
 
 #ifdef SK_DEBUG
@@ -540,14 +541,12 @@ void SkCombinationBuilder::buildCombinations(
     SkKeyContext keyContext(dict);
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
-    for (uint32_t bmVal : fBlendModes) {
-        SkBlendMode bm;
-        if (bmVal < kSkBlendModeCount) {
-            bm = (SkBlendMode) bmVal;
-        } else {
-            // TODO: add creation of PaintParamKey fragments from runtime effect SkBlenders
+    for (int i = 0; i < kSkBlendModeCount; ++i) {
+        if (!(fBlendModes & (0x1 << i))) {
             continue;
         }
+
+        SkBlendMode bm = (SkBlendMode) i;
 
         // TODO: actually iterate over the SkOption's combinations and have each option add
         // itself to the key.
@@ -560,4 +559,6 @@ void SkCombinationBuilder::buildCombinations(
               func(uniqueID);
         }
     }
+
+    // TODO: need to loop over fBlenders here
 }
