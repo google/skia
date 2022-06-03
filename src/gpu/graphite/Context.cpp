@@ -95,7 +95,7 @@ SkBlenderID Context::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
     return dict->addUserDefinedBlender(std::move(effect));
 }
 
-void Context::precompile(const SkCombinationBuilder& combinationBuilder) {
+void Context::precompile(SkCombinationBuilder* combinationBuilder) {
     static const Renderer* kRenderers[] = {
             &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kWinding),
             &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kEvenOdd),
@@ -109,7 +109,7 @@ void Context::precompile(const SkCombinationBuilder& combinationBuilder) {
 
     SkShaderCodeDictionary* dict = fGlobalCache->shaderCodeDictionary();
 
-    combinationBuilder.buildCombinations(
+    combinationBuilder->buildCombinations(
             dict,
             [&](SkUniquePaintParamsID uniqueID) {
                 GraphicsPipelineDesc desc;

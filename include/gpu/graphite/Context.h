@@ -58,7 +58,7 @@ public:
     // TODO: add "SkColorFilterID addUserDefinedColorFilter(sk_sp<SkRuntimeEffect>)" here
     SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
 
-    void precompile(const SkCombinationBuilder&);
+    void precompile(SkCombinationBuilder*);
 
     /**
      * Creates a new backend gpu texture matching the dimensinos and TextureInfo. If an invalid

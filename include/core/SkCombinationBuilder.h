@@ -95,16 +95,18 @@ public:
                                        SkSpan<SkTileModePair> tileModes);
 
     bool isValid() const { return fDataInArena; }
-    SkShaderType type() const;
-    int numChildSlots() const;
-    SkDEBUGCODE(int epoch() const;)
 
 private:
     friend class SkCombinationBuilder; // for ctor
+    friend class CombinationBuilderTestAccess;
 
     SkCombinationOption(SkCombinationBuilder* builder, SkOption* dataInArena)
             : fBuilder(builder)
             , fDataInArena(dataInArena) {}
+
+    SkShaderType type() const;
+    int numChildSlots() const;
+    SkDEBUGCODE(int epoch() const;)
 
     SkCombinationBuilder* fBuilder;
     SkOption* fDataInArena;
@@ -124,6 +126,7 @@ public:
 #else
     SkCombinationBuilder(SkShaderCodeDictionary*);
 #endif
+    ~SkCombinationBuilder();
 
     // Blend Modes
     void addOption(SkBlendMode);
@@ -140,16 +143,21 @@ public:
 
     void reset();
 
-    int numCombinations();
+private:
+    friend class skgpu::graphite::Context;     // for access to 'buildCombinations'
+    friend class SkCombinationOption;          // for 'addOptionInternal' and 'arena'
+    friend class CombinationBuilderTestAccess; // for 'num*Combinations' and 'epoch'
+
+    int numShaderCombinations() const;
+    int numBlendModeCombinations() const;
+    int numCombinations() {
+        return this->numShaderCombinations() * this->numBlendModeCombinations();
+    }
 
 #ifdef SK_DEBUG
     void dump() const;
     int epoch() const { return fEpoch; }
 #endif
-
-private:
-    friend class skgpu::graphite::Context; // for access to buildCombinations
-    friend class SkCombinationOption;      // for 'addOptionInternal' and 'arena'
 
     SkArenaAllocWithReset* arena() { return fArena.get(); }
 
@@ -161,7 +169,7 @@ private:
     SkOption* addOptionInternal(SkShaderType, SkSpan<SkTileModePair> tileModes);
 
     void buildCombinations(SkShaderCodeDictionary*,
-                           const std::function<void(SkUniquePaintParamsID)>&) const;
+                           const std::function<void(SkUniquePaintParamsID)>&);
 
     SkShaderCodeDictionary* fDictionary;
     std::unique_ptr<SkArenaAllocWithReset> fArena;

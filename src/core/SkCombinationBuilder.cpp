@@ -377,6 +377,9 @@ SkCombinationBuilder::SkCombinationBuilder(SkShaderCodeDictionary* dict)
 }
 #endif
 
+SkCombinationBuilder::~SkCombinationBuilder() = default;
+
+
 template<typename T, typename... Args>
 SkOption* SkCombinationBuilder::allocInArena(Args&&... args) {
     SkOption* arenaObject = fArena->make<T>(T{{ T::kType, T::kNumChildSlots },
@@ -517,13 +520,21 @@ void SkCombinationBuilder::reset() {
     SkDEBUGCODE(++fEpoch;)
 }
 
-int SkCombinationBuilder::numCombinations() {
+int SkCombinationBuilder::numShaderCombinations() const {
     int numShaderCombinations = 0;
     for (SkOption* s : fShaderOptions) {
         numShaderCombinations += s->numCombinations();
     }
 
-    return numShaderCombinations * (SkPopCount(fBlendModes) + fBlenders.count());
+    // If no shader option is specified the builder will add a solid color shader option
+    return numShaderCombinations ? numShaderCombinations : 1;
+}
+
+int SkCombinationBuilder::numBlendModeCombinations() const {
+    int numBlendModeCombinations = SkPopCount(fBlendModes) + fBlenders.count();
+
+    // If no blend mode options are specified the builder will add kSrcOver as an option
+    return numBlendModeCombinations ? numBlendModeCombinations : 1;
 }
 
 #ifdef SK_DEBUG
@@ -537,9 +548,19 @@ void SkCombinationBuilder::dump() const {
 
 void SkCombinationBuilder::buildCombinations(
         SkShaderCodeDictionary* dict,
-        const std::function<void(SkUniquePaintParamsID)>& func) const {
+        const std::function<void(SkUniquePaintParamsID)>& func) {
     SkKeyContext keyContext(dict);
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+
+    // Supply a default kSrcOver if no other blend mode option is provided
+    if (fBlendModes == 0 && fBlenders.empty()) {
+        this->addOption(SkBlendMode::kSrcOver);
+    }
+
+    // Supply a default solid color shader if no other shader option is provided
+    if (fShaderOptions.empty()){
+        this->addOption(SkShaderType::kSolidColor);
+    }
 
     for (int i = 0; i < kSkBlendModeCount; ++i) {
         if (!(fBlendModes & (0x1 << i))) {
