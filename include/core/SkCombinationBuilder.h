@@ -97,6 +97,7 @@ public:
     bool isValid() const { return fDataInArena; }
     SkShaderType type() const;
     int numChildSlots() const;
+    SkDEBUGCODE(int epoch() const;)
 
 private:
     friend class SkCombinationBuilder; // for ctor
@@ -143,6 +144,7 @@ public:
 
 #ifdef SK_DEBUG
     void dump() const;
+    int epoch() const { return fEpoch; }
 #endif
 
 private:
@@ -167,6 +169,8 @@ private:
 
     // TODO: store the SkBlender-based blenders in the arena
     SkTHashSet<uint32_t> fBlendModes;
+
+    SkDEBUGCODE(int fEpoch = 0;)
 };
 
 #endif // SkCombinationBuilder_DEFINED

@@ -2245,6 +2245,24 @@ void precompile(skgpu::graphite::Context* context) {
 
         context->precompile(builder);
     }
+
+#ifdef SK_DEBUG
+    // TODO: move this to CombinationBuilderTest
+    builder.reset();
+
+    // Check that epochs are updated upon builder reset
+    {
+        SkCombinationOption solid_0 = builder.addOption(SkShaderType::kSolidColor);
+
+        int optionEpoch = solid_0.epoch();
+        SkASSERT(optionEpoch == builder.epoch());
+
+        builder.reset();
+
+        SkASSERT(optionEpoch != builder.epoch());
+    }
+#endif
+
 }
 
 } // anonymous namespace
