@@ -60,9 +60,9 @@ void g2() { float x[false]; }
 error: 20: array size must be an integer
 void h2() { float x[int2(2, 2)]; }
                     ^^^^^^^^^^
-error: 21: unsized arrays are not permitted here
+error: 21: expected array dimension
 void i2() { float x[]; }
-            ^^^^^^^^^
+                   ^^
 error: 22: integer is out of range for type 'int': 4000000000
 void j2() { float x[int3(4000000000)]; }
                          ^^^^^^^^^^

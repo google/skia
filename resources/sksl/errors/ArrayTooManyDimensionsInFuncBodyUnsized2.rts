@@ -1,5 +1,0 @@
-void func() { float x[2][]; }
-
-/*%%*
-unsized arrays are not permitted here
-*%%*/

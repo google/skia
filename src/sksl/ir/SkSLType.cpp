@@ -126,7 +126,8 @@ public:
         : INHERITED(name, abbrev, kTypeKind)
         , fComponentType(componentType)
         , fCount(count) {
-        SkASSERT(count > 0 || count == kUnsizedArray);
+        // Only allow explicitly-sized arrays.
+        SkASSERT(count > 0);
         // Disallow multi-dimensional arrays.
         SkASSERT(!componentType.is<ArrayType>());
     }
@@ -156,7 +157,6 @@ public:
     }
 
     size_t slotCount() const override {
-        SkASSERT(fCount != kUnsizedArray);
         SkASSERT(fCount > 0);
         return fCount * fComponentType.slotCount();
     }
@@ -522,9 +522,6 @@ private:
 
 std::string Type::getArrayName(int arraySize) const {
     std::string_view name = this->name();
-    if (arraySize == kUnsizedArray) {
-        return String::printf("%.*s[]", (int)name.size(), name.data());
-    }
     return String::printf("%.*s[%d]", (int)name.size(), name.data(), arraySize);
 }
 
@@ -968,30 +965,23 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, double value, Posit
     return false;
 }
 
-bool Type::checkIfUsableInArray(const Context& context, Position arrayPos) const {
-    if (this->isArray()) {
-        context.fErrors->error(arrayPos, "multi-dimensional arrays are not supported");
-        return false;
-    }
-    if (this->isVoid()) {
-        context.fErrors->error(arrayPos, "type 'void' may not be used in an array");
-        return false;
-    }
-    if (this->isOpaque()) {
-        context.fErrors->error(arrayPos, "opaque type '" + std::string(this->name()) +
-                                         "' may not be used in an array");
-        return false;
-    }
-    return true;
-}
-
 SKSL_INT Type::convertArraySize(const Context& context, Position arrayPos,
         std::unique_ptr<Expression> size) const {
     size = context.fTypes.fInt->coerceExpression(std::move(size), context);
     if (!size) {
         return 0;
     }
-    if (!this->checkIfUsableInArray(context, arrayPos)) {
+    if (this->isArray()) {
+        context.fErrors->error(arrayPos, "multi-dimensional arrays are not supported");
+        return 0;
+    }
+    if (this->isVoid()) {
+        context.fErrors->error(arrayPos, "type 'void' may not be used in an array");
+        return 0;
+    }
+    if (this->isOpaque()) {
+        context.fErrors->error(arrayPos, "opaque type '" + std::string(this->name()) +
+                                         "' may not be used in an array");
         return 0;
     }
     SKSL_INT count;

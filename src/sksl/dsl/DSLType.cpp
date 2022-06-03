@@ -275,11 +275,6 @@ DSLType Array(const DSLType& base, int count, Position pos) {
     return DSLType(ThreadContext::SymbolTable()->addArrayDimension(&base.skslType(), count), pos);
 }
 
-DSLType UnsizedArray(const DSLType& base, Position pos) {
-    return ThreadContext::SymbolTable()->addArrayDimension(&base.skslType(),
-            SkSL::Type::kUnsizedArray);
-}
-
 DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
     std::vector<SkSL::Type::Field> skslFields;
     skslFields.reserve(fields.size());

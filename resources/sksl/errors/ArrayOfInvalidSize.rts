@@ -43,7 +43,7 @@ array size out of bounds
 array size must be an integer
 array size must be an integer
 array size must be an integer
-unsized arrays are not permitted here
+expected array dimension
 integer is out of range for type 'int': 4000000000
 integer is out of range for type 'int': 100000002004087734272
 *%%*/

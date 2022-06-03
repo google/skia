@@ -181,7 +181,6 @@ private:
 
     friend DSLType Array(const DSLType& base, int count, Position pos);
     friend DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos);
-    friend DSLType UnsizedArray(const DSLType& base, Position pos);
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLVarBase;
@@ -228,8 +227,6 @@ MATRIX_TYPE(Half)
 #undef MATRIX_TYPE
 
 DSLType Array(const DSLType& base, int count, Position pos = {});
-
-DSLType UnsizedArray(const DSLType& base, Position pos = {});
 
 class DSLField {
 public:
