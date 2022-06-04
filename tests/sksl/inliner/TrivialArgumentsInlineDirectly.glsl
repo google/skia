@@ -9,6 +9,19 @@ struct S {
     vec4 h4;
     float h;
 };
+struct S4 {
+    float a;
+    float b;
+    float c;
+    float d;
+};
+struct S5 {
+    float a;
+    float b;
+    float c;
+    float d;
+    float e;
+};
 vec4 main() {
     S s;
     s.ah4[0] = vec4(unknownInput);
@@ -30,17 +43,26 @@ vec4 main() {
     var = vec4(s.h) * vec4(s.h);
     var = s.ah4[0].xxxy * s.ah4[0].xxxy;
     var = colorGreen * colorGreen;
+    var = vec4(1.0, 4.0, 9.0, 16.0);
+    var = vec4(S4(1.0, 2.0, 3.0, 4.0).a, S4(1.0, 2.0, 3.0, 4.0).b, S4(1.0, 2.0, 3.0, 4.0).c, 1.0) * S4(1.0, 2.0, 3.0, 4.0).d;
+    mat = mat2(unknownInput) * mat2(unknownInput)[0].x;
     vec4 _0_h4 = vec4(testMatrix2x2);
     var = _0_h4 * _0_h4;
     mat2 _1_m = mat2(colorGreen);
     mat = _1_m * _1_m[0].x;
-    float _2_h = -s.h;
-    var = vec4(_2_h) * vec4(_2_h);
-    bool _3_b = !b;
-    var = vec4(float(_3_b), float(_3_b), float(_3_b), float(!_3_b));
-    vec3 _4_h3 = s.h4.yyy + s.h4.zzz;
-    var = _4_h3.xyzx * _4_h3.xyzx;
-    vec4 _5_h4 = vec4(s.h4.y, 0.0, 0.0, 1.0);
-    var = _5_h4 * _5_h4;
+    mat2 _2_m = mat2(mat3(unknownInput));
+    mat = _2_m * _2_m[0].x;
+    vec4 _3_h4 = vec4(1.0, 2.0, 3.0, unknownInput);
+    var = _3_h4 * _3_h4;
+    S5 _4_s = S5(1.0, 2.0, 3.0, 4.0, 5.0);
+    var = vec4(_4_s.a, _4_s.b, _4_s.c, _4_s.d) * _4_s.e;
+    float _5_h = -s.h;
+    var = vec4(_5_h) * vec4(_5_h);
+    bool _6_b = !b;
+    var = vec4(float(_6_b), float(_6_b), float(_6_b), float(!_6_b));
+    vec3 _7_h3 = s.h4.yyy + s.h4.zzz;
+    var = _7_h3.xyzx * _7_h3.xyzx;
+    vec4 _8_h4 = vec4(s.h4.y, 0.0, 0.0, 1.0);
+    var = _8_h4 * _8_h4;
     return colorGreen;
 }

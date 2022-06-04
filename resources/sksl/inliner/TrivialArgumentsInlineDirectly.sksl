@@ -9,6 +9,14 @@ struct S {
     half h;
 };
 
+struct S4 {
+    half a, b, c, d;
+};
+
+struct S5 {
+    half a, b, c, d, e;
+};
+
 // Each helper function needs to reference the variable multiple times, because if it's only read
 // from once, it is inlined directly whether or not it is trivial.
 half4 funcb(bool b) {
@@ -35,6 +43,14 @@ half2x2 func2x2(half2x2 m) {
     return m * m[0][0];
 }
 
+half4 funcS4(S4 s) {
+    return half4(s.a, s.b, s.c, 1) * s.d;
+}
+
+half4 funcS5(S5 s) {
+    return half4(s.a, s.b, s.c, s.d) * s.e;
+}
+
 half4 main(float2 coords) {
     S s;
     s.ah4[0] = half4(unknownInput);
@@ -52,26 +68,32 @@ half4 main(float2 coords) {
     // function without a temporary variable.
     half4 var;
     half2x2 mat;
-    var = func1(+s.h);
-    var = funcb(b);
-    var = func2(s.ah4[0].yw);
-    var = func2(as[0].ah4[0].xy);
-    var = func3(s.h4.zzz);
-    var = func3(colorGreen.xyz);
-    var = func3(s.h.xxx);
-    var = func4(half4(s.h));
-    var = func4(s.ah4[0].xxxy);
-    var = func4(colorGreen);
+    var = func1(+s.h);                    // field access (unary + is optimized away)
+    var = funcb(b);                       // variable reference
+    var = func2(s.ah4[0].yw);             // var, field access, array index, swizzle
+    var = func2(as[0].ah4[0].xy);         // var, array index, field access, array index, swizzle
+    var = func3(s.h4.zzz);                // var, field access, swizzle
+    var = func3(colorGreen.xyz);          // var, swizzle
+    var = func3(s.h.xxx);                 // var, field access, splat ctor (from scalar swizzle)
+    var = func4(half4(s.h));              // var, splat, field access
+    var = func4(s.ah4[0].xxxy);           // var, field access, array index, swizzle
+    var = func4(colorGreen);              // variable reference
+    var = func4(half4(1, 2, 3, 4));       // compound ctor, compile-time constant
+    var = funcS4(S4(1, 2, 3, 4));         // struct with slotCount <= 4
+    mat = func2x2(half2x2(unknownInput)); // diagonal matrix, variable reference
 
     // These expressions are considered "non-trivial" and will be placed in a temporary variable
     // when inlining occurs.
-    var = func4(half4(testMatrix2x2));  // matrix -> vector cast
-    mat = func2x2(half2x2(colorGreen)); // vector -> matrix cast
-    var = func1(-s.h);
-    var = funcb(!b);
-//  var = func2(as[i].h4.yw);  // indexing by non-constant expressions disallowed in ES2
-    var = func3(s.h4.yyy + s.h4.zzz);
-    var = func4(s.h4.y001);
+    var = func4(half4(testMatrix2x2));             // compound ctor, not compile-time constant
+    mat = func2x2(half2x2(colorGreen));            // compound ctor, not compile-time constant
+    mat = func2x2(half2x2(half3x3(unknownInput))); // matrix resize, diagonal matrix, var
+    var = func4(half4(1, 2, 3, unknownInput));     // compound ctor, not compile-time constant
+    var = funcS5(S5(1, 2, 3, 4, 5));               // struct with slotCount > 4
+    var = func1(-s.h);                             // unary minus, var, field access
+    var = funcb(!b);                               // prefix expression, var
+//  var = func2(as[i].h4.yw);                      // (non-constant array index disallowed in ES2)
+    var = func3(s.h4.yyy + s.h4.zzz);              // binary expression
+    var = func4(s.h4.y001);                        // compound ctor, not compile-time constant
 
     return colorGreen;
 }
