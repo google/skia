@@ -8,7 +8,7 @@ import("../../gn/skia.gni")
 config("vulkanmemoryallocator_public") {
   include_dirs = [
     ".",
-    "//third_party/externals/vulkanmemoryallocator/include",
+    "$skia_vulkan_memory_allocator_dir/include",
   ]
 }
 
