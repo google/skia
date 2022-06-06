@@ -682,9 +682,10 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                                       op, *right);
     }
 
-    // Perform constant folding on pairs of matrices or arrays.
+    // Perform constant folding on pairs of matrices, arrays or structs.
     if ((leftType.isMatrix() && rightType.isMatrix()) ||
-        (leftType.isArray() && rightType.isArray())) {
+        (leftType.isArray() && rightType.isArray()) ||
+        (leftType.isStruct() && rightType.isStruct())) {
         return simplify_constant_equality(context, pos, *left, op, *right);
     }
 
