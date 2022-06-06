@@ -37,3 +37,8 @@ build:debug --compilation_mode=dbg
 build:ck_release --config=release --spawn_strategy=local
 build:ck_debug --config=debug --spawn_strategy=local
 
+# We only want to enforce IWYU on debug builds because we have some things that are only
+# necessary to include in debug mode (e.g. SkDEBUGCODE), but very rarely something that is
+# only needed in release mode. Thus our C++ debug includes should be a superset of the
+# release includes.
+build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu --compilation_mode=dbg

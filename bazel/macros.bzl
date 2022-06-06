@@ -65,12 +65,6 @@ def select_multi(values_map, default):
     return rv
 
 # buildifier: disable=unnamed-macro
-# buildifier: disable=native-package
-def enforce_iwyu_on_package():
-    """A self-annotating macro to set force_iwyu = True on all rules in this package."""
-    native.package(features = ["skia_opt_file_into_iwyu"])
-
-# buildifier: disable=unnamed-macro
 def cc_library(**kwargs):
     """A shim around cc_library that lets us tweak settings for G3 if necessary."""
     native.cc_library(**kwargs)
