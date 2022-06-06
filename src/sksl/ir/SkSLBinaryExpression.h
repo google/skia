@@ -84,10 +84,6 @@ public:
         return fOperator;
     }
 
-    bool isConstantOrUniform() const override {
-        return this->left()->isConstantOrUniform() && this->right()->isConstantOrUniform();
-    }
-
     bool hasProperty(Property property) const override {
         if (property == Property::kSideEffects && this->getOperator().isAssignment()) {
             return true;

@@ -68,15 +68,6 @@ public:
         return true;
     }
 
-    bool isConstantOrUniform() const override {
-        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
-            if (!arg->isConstantOrUniform()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     bool supportsConstantValues() const override { return true; }
     std::optional<double> getConstantValue(int n) const override;
 

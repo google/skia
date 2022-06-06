@@ -153,15 +153,6 @@ public:
         return ComparisonResult::kUnknown;
     }
 
-    /**
-     * Returns true if, given fixed values for uniforms, this expression always evaluates to the
-     * same result with no side effects.
-     */
-    virtual bool isConstantOrUniform() const {
-        SkASSERT(!this->isCompileTimeConstant() || !this->hasSideEffects());
-        return this->isCompileTimeConstant();
-    }
-
     virtual bool hasProperty(Property property) const = 0;
 
     bool hasSideEffects() const {

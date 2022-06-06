@@ -81,11 +81,6 @@ public:
                this->ifFalse()->hasProperty(property);
     }
 
-    bool isConstantOrUniform() const override {
-        return this->test()->isConstantOrUniform() && this->ifTrue()->isConstantOrUniform() &&
-               this->ifFalse()->isConstantOrUniform();
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<TernaryExpression>(pos, this->test()->clone(),
                                                    this->ifTrue()->clone(),

@@ -68,8 +68,6 @@ public:
 
     bool hasProperty(Property property) const override;
 
-    bool isConstantOrUniform() const override;
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<VariableReference>(pos, this->variable(), this->refKind());
     }

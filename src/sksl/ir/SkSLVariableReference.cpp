@@ -30,10 +30,6 @@ bool VariableReference::hasProperty(Property property) const {
     }
 }
 
-bool VariableReference::isConstantOrUniform() const {
-    return (this->variable()->modifiers().fFlags & Modifiers::kUniform_Flag) != 0;
-}
-
 std::string VariableReference::description() const {
     return std::string(this->variable()->name());
 }
