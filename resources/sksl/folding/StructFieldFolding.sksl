@@ -1,0 +1,49 @@
+uniform half4 colorRed, colorGreen;
+
+struct S {
+    int a, b, c;
+};
+
+int globalValue = 0;
+
+noinline int side_effecting(int value) {
+    globalValue++;
+    return value;
+}
+
+void check_array_1(int[1]) {}
+void check_array_2(int[2]) {}
+void check_array_3(int[3]) {}
+
+bool test() {
+    const S x  = S(1, 2, 3);
+    const S xx = S(1, 2, 3);
+    const S y  = S(1, 2, 4);
+
+    // TODO(skia:13387): replace 1, 2, 3 with x.a, x.b, x.c once constant-expression handling works
+    int a[1];
+    int b[2];
+    int c[3];
+    check_array_1(a);
+    check_array_2(b);
+    check_array_3(c);
+
+    // Structs with elements lacking side-effects can be optimized.
+    int two = 2;
+    int flatten0 = S(x.a, two, 3).a;
+    int flatten1 = S(x.a, two, 3).b;
+    int flatten2 = S(x.a, two, 3).c;
+
+    // Structs with elements that have side-effects are not eligible for optimization.
+    int noFlatten0 = (S(--two, side_effecting(2), 3)).a;
+    int noFlatten1 = (S(side_effecting(1), 2, 3)).b;
+    int noFlatten2 = (S(1, ++two, 3)).c;
+
+    return (x == xx) && !(x != xx) && (x != y) && !(x == y) &&
+           (x.a == y.a) &&
+           (flatten0 == noFlatten0) && (flatten1 == noFlatten1) && (flatten2 == noFlatten2);
+}
+
+half4 main(float2 coords) {
+    return test() ? colorGreen : colorRed;
+}
