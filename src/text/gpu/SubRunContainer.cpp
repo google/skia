@@ -70,16 +70,14 @@ void pun_write(SkWriteBuffer& buffer, const T& src) {
 
 // -- TransformedMaskVertexFiller ------------------------------------------------------------------
 class TransformedMaskVertexFiller {
-    struct PositionAndExtent;
 public:
     TransformedMaskVertexFiller(MaskFormat maskFormat,
-                                int dstPadding,
                                 SkScalar strikeToSourceScale,
                                 SkRect sourceBounds,
-                                SkSpan<const PositionAndExtent> positionAndExtent);
+                                SkSpan<const SkPoint> leftTop);
 
     static TransformedMaskVertexFiller Make(MaskFormat maskType,
-                                            int dstPadding,
+                                            int strikePadding,
                                             SkScalar strikeToSourceScale,
                                             const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                             SubRunAllocator* alloc);
@@ -111,16 +109,9 @@ public:
 #endif  // SK_SUPPORT_GPU
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
     MaskFormat grMaskType() const {return fMaskType;}
-    int count() const { return SkCount(fPositionAndExtent); }
+    int count() const { return SkCount(fLeftTop); }
 
 private:
-    struct PositionAndExtent {
-        const SkPoint pos;
-        // The rectangle of the glyphs in strike space. But, for kDirectMask this also implies a
-        // device space rect.
-        skgpu::IRect16 rect;
-    };
-
     struct AtlasPt {
         uint16_t u;
         uint16_t v;
@@ -154,11 +145,7 @@ private:
         SkPoint3 devicePos;
         AtlasPt atlasPos;
     };
-#endif  // SK_SUPPORT_GPU
 
-    std::array<SkScalar, 4> sourceRect(PositionAndExtent positionAndExtent) const;
-
-#if SK_SUPPORT_GPU
     template<typename Quad, typename VertexData>
     void fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                 GrColor color,
@@ -171,49 +158,50 @@ private:
 #endif  // SK_SUPPORT_GPU
 
     const MaskFormat fMaskType;
-    const SkPoint fPaddingInset;
     const SkScalar fStrikeToSourceScale;
     const SkRect fSourceBounds;
-    const SkSpan<const PositionAndExtent> fPositionAndExtent;
+    const SkSpan<const SkPoint> fLeftTop;
 };
 
 TransformedMaskVertexFiller::TransformedMaskVertexFiller(
         MaskFormat maskFormat,
-        int dstPadding,
         SkScalar strikeToSourceScale,
         SkRect sourceBounds,
-        SkSpan<const PositionAndExtent> positionAndExtent)
+        SkSpan<const SkPoint> leftTop)
         : fMaskType{maskFormat}
-        , fPaddingInset{SkPoint::Make(dstPadding, dstPadding)}
         , fStrikeToSourceScale{strikeToSourceScale}
         , fSourceBounds{sourceBounds}
-        , fPositionAndExtent{positionAndExtent} {}
+        , fLeftTop{leftTop} {}
 
 TransformedMaskVertexFiller TransformedMaskVertexFiller::Make(
         MaskFormat maskType,
-        int dstPadding,
+        int strikePadding,
         SkScalar strikeToSourceScale,
         const SkZip<SkGlyphVariant, SkPoint>& accepted,
         SubRunAllocator* alloc) {
     SkRect sourceBounds = SkRectPriv::MakeLargestInverted();
-    SkSpan<PositionAndExtent> positionAndExtent = alloc->makePODArray<PositionAndExtent>(
+    SkSpan<SkPoint> leftTop = alloc->makePODArray<SkPoint>(
             accepted,
-            [&](auto e) {
+            [&](auto e) -> SkPoint {
                 auto [variant, pos] = e;
                 const SkGlyph* skGlyph = variant;
-                int16_t l = skGlyph->left(),
-                        t = skGlyph->top(),
-                        r = l + skGlyph->width(),
-                        b = t + skGlyph->height();
-                SkPoint lt = SkPoint::Make(l, t) * strikeToSourceScale + pos,
-                        rb = SkPoint::Make(r, b) * strikeToSourceScale + pos;
 
-                sourceBounds.joinPossiblyEmptyRect(
-                        SkRect::MakeLTRB(lt.x(), lt.y(), rb.x(), rb.y()));
-                return PositionAndExtent{pos, {l, t, r, b}};
+                // Make the glyphBounds and inset by any padding which may be included in the
+                // strike mask.
+                SkRect glyphBounds = skGlyph->rect();
+                glyphBounds.inset(strikePadding, strikePadding);
+
+                // Scale and position the glyph in source space.
+                SkRect sourceGlyphBounds = SkRect::MakeXYWH(
+                        glyphBounds.left()   * strikeToSourceScale + pos.x(),
+                        glyphBounds.top()    * strikeToSourceScale + pos.y(),
+                        glyphBounds.width()  * strikeToSourceScale,
+                        glyphBounds.height() * strikeToSourceScale);
+
+                sourceBounds.joinPossiblyEmptyRect(sourceGlyphBounds);
+                return {sourceGlyphBounds.left(), sourceGlyphBounds.top()};
             });
-    return TransformedMaskVertexFiller{
-            maskType, dstPadding, strikeToSourceScale, sourceBounds, positionAndExtent};
+    return TransformedMaskVertexFiller{maskType, strikeToSourceScale, sourceBounds, leftTop};
 }
 
 static bool check_glyph_count(SkReadBuffer& buffer, int glyphCount) {
@@ -227,23 +215,20 @@ std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFrom
         return {};
     }
     MaskFormat maskType = (MaskFormat)checkingMaskType;
-    int dstPadding = buffer.readInt();
-    if (!buffer.validate(0 <= dstPadding && dstPadding <= 2)) { return {}; }
     SkScalar strikeToSourceScale = buffer.readScalar();
     if (!buffer.validate(0 < strikeToSourceScale)) { return {}; }
     SkRect sourceBounds = buffer.readRect();
 
     int glyphCount = buffer.readInt();
     if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return {}; }
-    PositionAndExtent* positionAndExtentStorage =
-            alloc->makePODArray<PositionAndExtent>(glyphCount);
+    SkPoint* leftTopStorage =
+            alloc->makePODArray<SkPoint>(glyphCount);
     for (int i = 0; i < glyphCount; ++i) {
-        pun_read(buffer, &positionAndExtentStorage[i]);
+        leftTopStorage[i] = buffer.readPoint();
     }
-    SkSpan<PositionAndExtent> positionAndExtent(positionAndExtentStorage, glyphCount);
+    SkSpan<SkPoint> topLeft(leftTopStorage, glyphCount);
 
-    return {TransformedMaskVertexFiller{
-            maskType, dstPadding, strikeToSourceScale, sourceBounds, positionAndExtent}};
+    return {TransformedMaskVertexFiller{maskType, strikeToSourceScale, sourceBounds, topLeft}};
 }
 
 SkRect TransformedMaskVertexFiller::deviceRect(
@@ -254,27 +239,17 @@ SkRect TransformedMaskVertexFiller::deviceRect(
 }
 
 int TransformedMaskVertexFiller::unflattenSize() const {
-    return fPositionAndExtent.size_bytes();
+    return fLeftTop.size_bytes();
 }
 
 void TransformedMaskVertexFiller::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(static_cast<int>(fMaskType));
-    buffer.writeInt(SkScalarRoundToInt(fPaddingInset.x()));
     buffer.writeScalar(fStrikeToSourceScale);
     buffer.writeRect(fSourceBounds);
-    buffer.writeInt(SkCount(fPositionAndExtent));
-    for (auto posAndExt : fPositionAndExtent) {
-        pun_write(buffer, posAndExt);
+    buffer.writeInt(SkCount(fLeftTop));
+    for (SkPoint leftTop : fLeftTop) {
+        buffer.writePoint(leftTop);
     }
-}
-
-std::array<SkScalar, 4>
-TransformedMaskVertexFiller::sourceRect(PositionAndExtent positionAndExtent) const {
-    auto[pos, rect] = positionAndExtent;
-    auto[l, t, r, b] = rect;
-    SkPoint LT = (SkPoint::Make(l, t) + fPaddingInset) * fStrikeToSourceScale + pos,
-            RB = (SkPoint::Make(r, b) - fPaddingInset) * fStrikeToSourceScale + pos;
-    return {LT.x(), LT.y(), RB.x(), RB.y()};
 }
 
 #if SK_SUPPORT_GPU
@@ -287,7 +262,7 @@ void TransformedMaskVertexFiller::fillVertexData(int offset, int count,
     auto quadData = [&](auto dst) {
         return SkMakeZip(dst,
                          glyphs.subspan(offset, count),
-                         fPositionAndExtent.subspan(offset, count));
+                         fLeftTop.subspan(offset, count));
     };
 
     if (!positionMatrix.hasPerspective()) {
@@ -317,8 +292,11 @@ template<typename Quad, typename VertexData>
 void TransformedMaskVertexFiller::fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                                          GrColor color,
                                          const SkMatrix& positionMatrix) const {
-    for (auto[quad, glyph, positionAndExtent] : quadData) {
-        auto [l, t, r, b] = this->sourceRect(positionAndExtent);
+    for (auto[quad, glyph, leftTop] : quadData) {
+        SkPoint widthHeight = SkPoint::Make(glyph->fAtlasLocator.width() * fStrikeToSourceScale,
+                                            glyph->fAtlasLocator.height() * fStrikeToSourceScale);
+        auto [l, t] = leftTop;
+        auto [r, b] = leftTop + widthHeight;
         SkPoint lt = positionMatrix.mapXY(l, t),
                 lb = positionMatrix.mapXY(l, b),
                 rt = positionMatrix.mapXY(r, t),
@@ -341,8 +319,11 @@ void TransformedMaskVertexFiller::fill3D(SkZip<Quad, const Glyph*, const VertexD
         positionMatrix.mapHomogeneousPoints(&result, &pt, 1);
         return result;
     };
-    for (auto[quad, glyph, positionAndExtent] : quadData) {
-        auto [l, t, r, b] = this->sourceRect(positionAndExtent);
+    for (auto[quad, glyph, leftTop] : quadData) {
+        SkPoint widthHeight = SkPoint::Make(glyph->fAtlasLocator.width() * fStrikeToSourceScale,
+                                            glyph->fAtlasLocator.height() * fStrikeToSourceScale);
+        auto [l, t] = leftTop;
+        auto [r, b] = leftTop + widthHeight;
         SkPoint3 lt = mapXYZ(l, t),
                  lb = mapXYZ(l, b),
                  rt = mapXYZ(r, t),
