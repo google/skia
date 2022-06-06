@@ -1011,7 +1011,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchGpu("Adreno6") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 6xx GLSL
-		skip(ALL, "tests", ALL, "SkSLIntrinsicIsInf_GPU") // skia:12377
+		skip(ALL, "tests", ALL, "SkSLIntrinsicIsInf_GPU")     // skia:12377
+	}
+
+	if b.matchGpu("Adreno[56]") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 5/6xx GLSL
+		skip(ALL, "tests", ALL, "SkSLStructFieldFolding_GPU") // skia:13393
 	}
 
 	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") { // disable broken tests on Adreno 5/6xx Vulkan
@@ -1044,6 +1048,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLReturnsValueOnEveryPathES3_GPU")     // skia:12465
 		skip(ALL, "tests", ALL, "SkSLReturnsValueOnEveryPathES3_GPU")     // skia:12465
 		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinctFromGlobal_GPU") // skia:13115
+		skip(ALL, "tests", ALL, "SkSLStructFieldFolding_GPU")             // skia:13393
 	}
 
 	if b.extraConfig("Vulkan") && b.isLinux() && b.matchGpu("Intel") {
