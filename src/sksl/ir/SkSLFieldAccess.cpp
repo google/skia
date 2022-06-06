@@ -8,10 +8,14 @@
 #include "src/sksl/ir/SkSLFieldAccess.h"
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkSLSymbol.h"
+#include "include/private/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLConstructorStruct.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLMethodReference.h"
 #include "src/sksl/ir/SkSLSetting.h"
@@ -68,6 +72,25 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
     return nullptr;
 }
 
+static std::unique_ptr<Expression> extract_field(Position pos,
+                                                 const ConstructorStruct& ctor,
+                                                 int fieldIndex) {
+    // Confirm that the fields that are being removed are side-effect free.
+    const ExpressionArray& args = ctor.arguments();
+    int numFields = args.count();
+    for (int index = 0; index < numFields; ++index) {
+        if (fieldIndex == index) {
+            continue;
+        }
+        if (args[index]->hasSideEffects()) {
+            return nullptr;
+        }
+    }
+
+    // Return the desired field.
+    return args[fieldIndex]->clone(pos);
+}
+
 std::unique_ptr<Expression> FieldAccess::Make(const Context& context,
                                               Position pos,
                                               std::unique_ptr<Expression> base,
@@ -76,6 +99,16 @@ std::unique_ptr<Expression> FieldAccess::Make(const Context& context,
     SkASSERT(base->type().isStruct());
     SkASSERT(fieldIndex >= 0);
     SkASSERT(fieldIndex < (int) base->type().fields().size());
+
+    // Replace `knownStruct.field` with the field's value if there are no side-effects involved.
+    const Expression* expr = ConstantFolder::GetConstantValueForVariable(*base);
+    if (expr->is<ConstructorStruct>()) {
+        if (std::unique_ptr<Expression> field = extract_field(pos, expr->as<ConstructorStruct>(),
+                                                              fieldIndex)) {
+            return field;
+        }
+    }
+
     return std::make_unique<FieldAccess>(pos, std::move(base), fieldIndex, ownerKind);
 }
 

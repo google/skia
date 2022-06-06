@@ -48,7 +48,7 @@ vec4 main() {
     var = vec4(1.0, 4.0, 9.0, 16.0);
     var = vec4(float(i)) * vec4(float(i));
     var = vec4(i4) * vec4(i4);
-    var = vec4(S4(1.0, 2.0, 3.0, 4.0).a, S4(1.0, 2.0, 3.0, 4.0).b, S4(1.0, 2.0, 3.0, 4.0).c, 1.0) * S4(1.0, 2.0, 3.0, 4.0).d;
+    var = vec4(4.0, 8.0, 12.0, 4.0);
     mat = mat2(unknownInput) * mat2(unknownInput)[0].x;
     vec4 _0_h4 = vec4(testMatrix2x2);
     var = _0_h4 * _0_h4;
