@@ -1,0 +1,33 @@
+#version 300
+
+uniform half4 colorGreen;
+uniform half unknownInput;
+uniform half2x2 testMatrix2x2;
+
+half4 func1(half h) {
+    return h.xxxx * h.xxxx;
+}
+
+half4 funcA4(half a[4]) {
+    return half4(a[0], a[1], a[2], 1) * a[3];
+}
+
+half4 funcA5(half a[5]) {
+    return half4(a[0], a[1], a[2], a[3]) * a[4];
+}
+
+half4 main(float2 coords) {
+    half4 var;
+    int i = int(unknownInput);
+
+    // These expressions are considered "trivial" and will be cloned directly into the inlined
+    // function without a temporary variable.
+    var = funcA4(half[4](1, 2, 3, 4));    // array with slotCount <= 4
+
+    // These expressions are considered "non-trivial" and will be placed in a temporary variable
+    // when inlining occurs.
+    var = func1(colorGreen[i]);           // non-constant indexing
+    var = funcA5(half[5](1, 2, 3, 4, 5)); // array with slotCount > 4
+
+    return colorGreen;
+}

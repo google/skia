@@ -621,6 +621,7 @@ sksl_inliner_tests = [
   "/sksl/inliner/TernaryResultsCannotBeInlined.sksl",
   "/sksl/inliner/TernaryTestCanBeInlined.sksl",
   "/sksl/inliner/TrivialArgumentsInlineDirectly.sksl",
+  "/sksl/inliner/TrivialArgumentsInlineDirectlyES3.sksl",
   "/sksl/inliner/WhileBodyMustBeInlinedIntoAScope.sksl",
   "/sksl/inliner/WhileTestCannotBeInlined.sksl",
 ]

@@ -31,6 +31,8 @@ vec4 main() {
     S as[1];
     as[0].ah4[0] = vec4(unknownInput);
     bool b = bool(unknownInput);
+    int i = int(unknownInput);
+    ivec4 i4 = ivec4(i);
     vec4 var;
     mat2 mat;
     var = vec4(s.h) * vec4(s.h);
@@ -44,6 +46,8 @@ vec4 main() {
     var = s.ah4[0].xxxy * s.ah4[0].xxxy;
     var = colorGreen * colorGreen;
     var = vec4(1.0, 4.0, 9.0, 16.0);
+    var = vec4(float(i)) * vec4(float(i));
+    var = vec4(i4) * vec4(i4);
     var = vec4(S4(1.0, 2.0, 3.0, 4.0).a, S4(1.0, 2.0, 3.0, 4.0).b, S4(1.0, 2.0, 3.0, 4.0).c, 1.0) * S4(1.0, 2.0, 3.0, 4.0).d;
     mat = mat2(unknownInput) * mat2(unknownInput)[0].x;
     vec4 _0_h4 = vec4(testMatrix2x2);

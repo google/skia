@@ -389,6 +389,7 @@ SKSL_TEST(CPU + GPU + SkQP, SwizzleCanBeInlinedDirectly,                      "i
 SKSL_TEST(CPU + GPU + SkQP, TernaryResultsCannotBeInlined,                    "inliner/TernaryResultsCannotBeInlined.sksl")
 SKSL_TEST(CPU + GPU + SkQP, TernaryTestCanBeInlined,                          "inliner/TernaryTestCanBeInlined.sksl")
 SKSL_TEST(CPU + GPU + SkQP, TrivialArgumentsInlineDirectly,                   "inliner/TrivialArgumentsInlineDirectly.sksl")
+SKSL_TEST(GPU_ES3,          TrivialArgumentsInlineDirectlyES3,                "inliner/TrivialArgumentsInlineDirectlyES3.sksl")
 SKSL_TEST(GPU_ES3,          WhileBodyMustBeInlinedIntoAScope,                 "inliner/WhileBodyMustBeInlinedIntoAScope.sksl")
 SKSL_TEST(GPU_ES3,          WhileTestCannotBeInlined,                         "inliner/WhileTestCannotBeInlined.sksl")
 
