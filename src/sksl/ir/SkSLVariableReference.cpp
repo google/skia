@@ -7,10 +7,9 @@
 
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#include "src/sksl/ir/SkSLConstructor.h"
-#include "src/sksl/ir/SkSLLiteral.h"
-#include "src/sksl/ir/SkSLSetting.h"
+#include "include/private/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLVariable.h"
+#include <string_view>
 
 namespace SkSL {
 

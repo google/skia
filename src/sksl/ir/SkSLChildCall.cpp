@@ -5,8 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLChildCall.h"
+
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 namespace SkSL {
 

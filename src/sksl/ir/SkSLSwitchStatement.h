@@ -8,15 +8,19 @@
 #ifndef SKSL_SWITCHSTATEMENT
 #define SKSL_SWITCHSTATEMENT
 
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkSLStatement.h"
-#include "src/sksl/ir/SkSLSwitchCase.h"
+#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLExpression.h"
 
 #include <memory>
-#include <vector>
+#include <string>
+#include <utility>
 
 namespace SkSL {
 
-class Expression;
+class Context;
+class SwitchCase;
 class SymbolTable;
 
 /**

@@ -8,13 +8,17 @@
 #ifndef SKSL_CONSTRUCTOR_COMPOUND_CAST
 #define SKSL_CONSTRUCTOR_COMPOUND_CAST
 
-#include "src/sksl/SkSLContext.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 #include <memory>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
+class Type;
 
 /**
  * Represents the construction of a vector/matrix typecast, such as `half3(myInt3)` or

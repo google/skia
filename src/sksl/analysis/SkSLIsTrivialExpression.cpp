@@ -5,14 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkSpan.h"
+#include "include/core/SkTypes.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/ir/SkSLType.h"
 
 #include <memory>
 

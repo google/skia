@@ -8,10 +8,21 @@
 #ifndef SKSL_FIELDACCESS
 #define SKSL_FIELDACCESS
 
-#include "src/sksl/SkSLUtil.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLType.h"
+
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 namespace SkSL {
+
+class Context;
+class SymbolTable;
 
 enum class FieldAccessOwnerKind : int8_t {
     kDefault,

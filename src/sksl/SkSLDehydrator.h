@@ -9,10 +9,12 @@
 #define SKSL_DEHYDRATOR
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkTFitsIn.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLStringStream.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>

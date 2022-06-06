@@ -7,7 +7,9 @@
 
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
+#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 

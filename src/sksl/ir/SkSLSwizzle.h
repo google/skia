@@ -8,13 +8,21 @@
 #ifndef SKSL_SWIZZLE
 #define SKSL_SWIZZLE
 
+#include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
-#include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLUtil.h"
-#include "src/sksl/ir/SkSLConstructor.h"
+#include "include/private/SkTArray.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLType.h"
+
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
 
 /**
  * Represents a vector swizzle operation such as 'float3(1, 2, 3).zyx'.

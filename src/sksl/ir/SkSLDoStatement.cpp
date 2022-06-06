@@ -7,10 +7,13 @@
 
 #include "src/sksl/ir/SkSLDoStatement.h"
 
+#include "include/core/SkTypes.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
 

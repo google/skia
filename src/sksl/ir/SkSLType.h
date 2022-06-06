@@ -8,19 +8,24 @@
 #ifndef SKSL_TYPE
 #define SKSL_TYPE
 
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
-#include "src/sksl/SkSLUtil.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/spirv.h"
-#include <algorithm>
-#include <climits>
-#include <string_view>
-#include <vector>
+
 #include <memory>
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace SkSL {
 
 class Context;
+class Expression;
 class SymbolTable;
 
 struct CoercionCost {

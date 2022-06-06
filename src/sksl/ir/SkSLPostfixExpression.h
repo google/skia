@@ -9,9 +9,16 @@
 #define SKSL_POSTFIXEXPRESSION
 
 #include "include/sksl/SkSLOperator.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include <memory>
+#include <string>
+#include <utility>
+
 namespace SkSL {
+
+class Context;
 
 /**
  * An expression modified by a unary operator appearing after it, such as 'i++'.

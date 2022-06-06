@@ -9,13 +9,15 @@
 #define SKSL_MODIFIERS
 
 #include "include/private/SkSLLayout.h"
-#include "include/sksl/SkSLPosition.h"
 
-#include <vector>
+#include <cstddef>
+#include <memory>
+#include <string>
 
 namespace SkSL {
 
 class Context;
+class Position;
 
 /**
  * A set of modifier keywords (in, out, uniform, etc.) appearing before a declaration.

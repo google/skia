@@ -11,7 +11,13 @@
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include <memory>
+#include <string>
+#include <utility>
+
 namespace SkSL {
+
+class Context;
 
 /**
  * A lone expression being used as a statement.

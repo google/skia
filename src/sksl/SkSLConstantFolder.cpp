@@ -23,9 +23,10 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#include <math.h>
+#include <cmath>
 #include <limits>
 #include <optional>
+#include <string>
 #include <type_traits>
 #include <utility>
 

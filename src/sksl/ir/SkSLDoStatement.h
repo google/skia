@@ -9,9 +9,16 @@
 #define SKSL_DOSTATEMENT
 
 #include "include/private/SkSLStatement.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include <memory>
+#include <string>
+#include <utility>
+
 namespace SkSL {
+
+class Context;
 
 /**
  * A 'do' statement.

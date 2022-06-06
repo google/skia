@@ -8,9 +8,18 @@
 #ifndef SKSL_CONSTRUCTOR_STRUCT
 #define SKSL_CONSTRUCTOR_STRUCT
 
+#include "include/private/SkSLDefines.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLExpression.h"
+
+#include <memory>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
+class Type;
 
 /**
  * Represents the construction of an struct object, such as "Color(red, green, blue, 1)".

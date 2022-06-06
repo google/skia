@@ -8,14 +8,18 @@
 #ifndef SKSL_CONSTRUCTOR_MATRIX_RESIZE
 #define SKSL_CONSTRUCTOR_MATRIX_RESIZE
 
-#include "src/sksl/SkSLContext.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLLiteral.h"
 
 #include <memory>
+#include <optional>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
+class Type;
 
 /**
  * Represents the construction of a matrix resize operation, such as `mat4x4(myMat2x2)`.

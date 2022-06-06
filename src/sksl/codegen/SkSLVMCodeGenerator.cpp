@@ -25,6 +25,7 @@
 #include "include/private/SkTPin.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -65,6 +66,7 @@
 #include <functional>
 #include <iterator>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 
 namespace {

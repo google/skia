@@ -8,11 +8,19 @@
 #ifndef SKSL_CHILDCALL
 #define SKSL_CHILDCALL
 
-#include "include/private/SkTArray.h"
+#include "include/private/SkSLDefines.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLVariable.h"
+
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
+class Type;
+class Variable;
 
 /**
  * A call to a child effect object (shader, color filter, or blender).

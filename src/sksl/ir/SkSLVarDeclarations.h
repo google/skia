@@ -8,16 +8,23 @@
 #ifndef SKSL_VARDECLARATIONS
 #define SKSL_VARDECLARATIONS
 
+#include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <memory>
+#include <string>
+#include <utility>
+
 namespace SkSL {
 
-namespace dsl {
-    class DSLCore;
-}
+class Context;
+class Position;
+class Type;
+
+struct Modifiers;
 
 /**
  * A single variable declaration statement. Multiple variables declared together are expanded to

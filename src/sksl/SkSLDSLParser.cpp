@@ -28,7 +28,6 @@
 #include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLType.h"
 
 #include <algorithm>
 #include <initializer_list>

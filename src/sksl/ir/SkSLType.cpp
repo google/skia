@@ -7,18 +7,24 @@
 
 #include "src/sksl/ir/SkSLType.h"
 
+#include "include/private/SkSLString.h"
 #include "include/private/SkStringView.h"
+#include "include/private/SkTFitsIn.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
-#include "src/sksl/ir/SkSLType.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <optional>
 #include <string_view>
 

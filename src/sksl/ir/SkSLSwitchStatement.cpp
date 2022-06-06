@@ -7,17 +7,25 @@
 
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 
-#include <forward_list>
-
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLString.h"
+#include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
+#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLNop.h"
+#include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
+
+#include <algorithm>
+#include <forward_list>
+#include <iterator>
 
 namespace SkSL {
 

@@ -7,7 +7,9 @@
 
 #include "include/private/SkSLModifiers.h"
 
+#include "include/core/SkTypes.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLContext.h"
 
 namespace SkSL {

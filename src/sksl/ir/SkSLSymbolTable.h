@@ -8,20 +8,24 @@
 #ifndef SKSL_SYMBOLTABLE
 #define SKSL_SYMBOLTABLE
 
-#include "include/private/SkSLString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkOpts_spi.h"
 #include "include/private/SkSLSymbol.h"
-#include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
-#include "include/sksl/SkSLErrorReporter.h"
 
 #include <forward_list>
 #include <memory>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace SkSL {
 
 class Context;
 class FunctionDeclaration;
+class Type;
 
 /**
  * Maps identifiers to symbols. Functions, in particular, are mapped to either FunctionDeclaration

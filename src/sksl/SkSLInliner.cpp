@@ -57,10 +57,11 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#include <limits.h>
 #include <algorithm>
+#include <climits>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace SkSL {

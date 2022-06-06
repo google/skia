@@ -11,9 +11,16 @@
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
+
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
+class SymbolTable;
+class Variable;
 
 /**
  * The unrollability information for an ES2-compatible loop.

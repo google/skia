@@ -8,14 +8,18 @@
 #ifndef SKSL_CONSTRUCTOR_SCALAR_CAST
 #define SKSL_CONSTRUCTOR_SCALAR_CAST
 
-#include "include/private/SkSLDefines.h"
-#include "src/sksl/SkSLContext.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 #include <memory>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
+class ExpressionArray;
+class Type;
 
 /**
  * Represents the construction of a scalar cast, such as `float(intVariable)`.

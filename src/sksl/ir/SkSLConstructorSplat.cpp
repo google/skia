@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLConstantFolder.h"
-#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+
+#include "src/sksl/SkSLConstantFolder.h"
 
 namespace SkSL {
 

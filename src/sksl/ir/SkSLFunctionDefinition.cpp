@@ -5,7 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
 #include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLStatement.h"
+#include "include/sksl/DSLType.h"
+#include "include/sksl/SkSLErrorReporter.h"
 #include "src/core/SkSafeMath.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinMap.h"
@@ -13,14 +21,24 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/transform/SkSLProgramWriter.h"
 
+#include <algorithm>
 #include <forward_list>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
 
 namespace SkSL {
 

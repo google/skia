@@ -9,9 +9,19 @@
 #define SKSL_CONSTRUCTOR
 
 #include "include/core/SkSpan.h"
+#include "include/private/SkSLDefines.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLType.h"
+
+#include <memory>
+#include <optional>
+#include <string>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
 
 /**
  * Base class representing a constructor with unknown arguments.

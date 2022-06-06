@@ -8,19 +8,19 @@
 #ifndef SKSL_EXPRESSION
 #define SKSL_EXPRESSION
 
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
-#include "include/private/SkTHash.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <memory>
 #include <optional>
-#include <unordered_map>
 
 namespace SkSL {
 
 class AnyConstructor;
-class Expression;
-class IRGenerator;
-class Variable;
+class Context;
 
 /**
  * Abstract supertype of all expressions.

@@ -8,8 +8,14 @@
 #ifndef SKSL_TYPEREFERENCE
 #define SKSL_TYPEREFERENCE
 
+#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLType.h"
+
+#include <memory>
+#include <string>
 
 namespace SkSL {
 

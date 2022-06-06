@@ -7,16 +7,19 @@
 
 #include "src/sksl/ir/SkSLSwizzle.h"
 
+#include "include/core/SkSpan.h"
+#include "include/private/SkSLString.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
-#include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 
+#include <algorithm>
 #include <optional>
 
 namespace SkSL {

@@ -5,8 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLSymbol.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLMethodReference.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"

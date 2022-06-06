@@ -7,14 +7,29 @@
 
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
+#include "include/private/SkSLLayout.h"
+#include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLProgramKind.h"
+#include "include/private/SkSLString.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLType.h"
+
+#include <string_view>
+#include <type_traits>
+#include <vector>
 
 namespace SkSL {
+
+class Symbol;
+
 namespace {
 
 static bool check_valid_uniform_type(Position pos,

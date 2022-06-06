@@ -8,16 +8,19 @@
 #ifndef SKSL_BINARYEXPRESSION
 #define SKSL_BINARYEXPRESSION
 
+#include "include/core/SkTypes.h"
 #include "include/sksl/SkSLOperator.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLTernaryExpression.h"
 
 #include <memory>
+#include <string>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
+class Type;
 
 /**
  * A binary operation.

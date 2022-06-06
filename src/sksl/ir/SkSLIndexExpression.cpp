@@ -5,16 +5,24 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLIndexExpression.h"
+
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
+#include "include/private/SkTArray.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
-#include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
+
+#include <optional>
 
 namespace SkSL {
 

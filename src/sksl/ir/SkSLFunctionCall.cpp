@@ -5,26 +5,41 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLFunctionCall.h"
+
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkSLModifiers.h"
+#include "include/private/SkTArray.h"
+#include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLType.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/core/SkMatrixInvert.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLChildCall.h"
+#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLExternalFunctionCall.h"
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLMethodReference.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
+#include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 
-#include "include/private/SkFloatingPoint.h"
-#include "include/sksl/DSLCore.h"
-#include "src/core/SkMatrixInvert.h"
-
+#include <algorithm>
 #include <array>
+#include <cmath>
+#include <optional>
+#include <string_view>
 
 namespace SkSL {
 

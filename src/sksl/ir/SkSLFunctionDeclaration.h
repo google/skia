@@ -8,19 +8,27 @@
 #ifndef SKSL_FUNCTIONDECLARATION
 #define SKSL_FUNCTIONDECLARATION
 
-#include "include/private/SkSLModifiers.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/private/SkTArray.h"
 #include "src/sksl/SkSLIntrinsicList.h"
-#include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
-#include "src/sksl/ir/SkSLType.h"
-#include "src/sksl/ir/SkSLVariable.h"
+
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace SkSL {
 
+class Context;
+class ExpressionArray;
 class FunctionDefinition;
+class Position;
+class SymbolTable;
+class Type;
+class Variable;
+
+struct Modifiers;
 
 // This enum holds every intrinsic supported by SkSL.
 #define SKSL_INTRINSIC(name) k_##name##_IntrinsicKind,

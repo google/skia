@@ -8,11 +8,15 @@
 #ifndef SKSL_VARIABLEREFERENCE
 #define SKSL_VARIABLEREFERENCE
 
+#include "include/core/SkTypes.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+
+#include <memory>
+#include <string>
 
 namespace SkSL {
 
-class IRGenerator;
 class Variable;
 
 enum class VariableRefKind : int8_t {

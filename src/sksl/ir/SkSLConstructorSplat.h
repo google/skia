@@ -8,13 +8,19 @@
 #ifndef SKSL_CONSTRUCTOR_SPLAT
 #define SKSL_CONSTRUCTOR_SPLAT
 
-#include "src/sksl/SkSLContext.h"
+#include "include/core/SkTypes.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLType.h"
 
 #include <memory>
+#include <optional>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
 
 /**
  * Represents the construction of a vector splat, such as `half3(n)`.

@@ -8,11 +8,18 @@
 #ifndef SKSL_INDEX
 #define SKSL_INDEX
 
-#include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLUtil.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include <memory>
+#include <string>
+#include <utility>
+
 namespace SkSL {
+
+class Context;
+class SymbolTable;
+class Type;
 
 /**
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.

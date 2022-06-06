@@ -5,10 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "include/sksl/SkSLErrorReporter.h"
-#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
+
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLString.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
+#include "src/sksl/ir/SkSLType.h"
+
+#include <algorithm>
+#include <string>
 
 namespace SkSL {
 

@@ -8,10 +8,18 @@
 #ifndef SKSL_SETTING
 #define SKSL_SETTING
 
-#include "src/sksl/SkSLContext.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
+
 namespace SkSL {
+
+class Context;
+class Type;
 
 /**
  * Represents a compile-time constant setting, such as sk_Caps.fbFetchSupport. These IRNodes should

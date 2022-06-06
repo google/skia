@@ -8,11 +8,20 @@
 #ifndef SKSL_FUNCTIONCALL
 #define SKSL_FUNCTIONCALL
 
-#include "include/private/SkTArray.h"
+#include "include/private/SkSLDefines.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLType.h"
+
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace SkSL {
+
+class Context;
+class FunctionDeclaration;
 
 /**
  * A function invocation.

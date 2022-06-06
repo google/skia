@@ -7,7 +7,7 @@
 
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 
-#include "src/sksl/ir/SkSLConstructor.h"
+#include "include/core/SkTypes.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {

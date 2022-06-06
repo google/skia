@@ -5,11 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLConstructorScalarCast.h"
+
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
+#include "include/private/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLConstantFolder.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLConstructorScalarCast.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLLiteral.h"
+#include "src/sksl/ir/SkSLType.h"
+
+#include <string>
 
 namespace SkSL {
 

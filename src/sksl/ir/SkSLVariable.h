@@ -8,15 +8,22 @@
 #ifndef SKSL_VARIABLE
 #define SKSL_VARIABLE
 
+#include "include/core/SkTypes.h"
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
-#include "src/sksl/ir/SkSLExpression.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLType.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
+
+#include <memory>
+#include <string>
+#include <string_view>
 
 namespace SkSL {
 
+class Context;
 class Expression;
+class SymbolTable;
 class VarDeclaration;
 
 namespace dsl {

@@ -7,8 +7,8 @@
 
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 
+#include "include/core/SkTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
-#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {

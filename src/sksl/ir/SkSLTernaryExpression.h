@@ -8,9 +8,18 @@
 #ifndef SKSL_TERNARYEXPRESSION
 #define SKSL_TERNARYEXPRESSION
 
+#include "include/core/SkTypes.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLType.h"
+
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace SkSL {
+
+class Context;
 
 /**
  * A ternary expression (test ? ifTrue : ifFalse).

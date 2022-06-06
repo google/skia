@@ -9,10 +9,18 @@
 #define SKSL_FUNCTIONDEFINITION
 
 #include "include/private/SkSLProgramElement.h"
-#include "src/sksl/ir/SkSLBlock.h"
+#include "include/private/SkSLStatement.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
+#include <memory>
+#include <string>
+#include <unordered_set>
+#include <utility>
+
 namespace SkSL {
+
+class Context;
 
 /**
  * A function definition (a declaration plus an associated block of code).

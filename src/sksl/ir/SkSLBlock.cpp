@@ -6,9 +6,11 @@
  */
 
 #include "src/sksl/ir/SkSLBlock.h"
-#include "src/sksl/ir/SkSLNop.h"
 
-#include <iterator>
+#include "src/sksl/ir/SkSLNop.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+
+#include <type_traits>
 
 namespace SkSL {
 
