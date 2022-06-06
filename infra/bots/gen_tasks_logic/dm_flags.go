@@ -1077,9 +1077,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES2_GPU") // skia:12443
 			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES3_GPU") // skia:12443
 
-			// Nvidia drivers erroneously constant-fold expressions with side-effects in matrix and
-			// vector constructors when compiling GLSL.
-			skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_GPU") // skia:13035
+			// Nvidia drivers erroneously constant-fold expressions with side-effects in
+			// constructors when compiling GLSL.
+			skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_GPU")  // skia:13035
+			skip(ALL, "tests", ALL, "SkSLStructFieldNoFolding_GPU") // skia:13395
 		}
 	}
 

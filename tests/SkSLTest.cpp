@@ -355,6 +355,7 @@ SKSL_TEST(CPU + SkQP,       PreserveSideEffects,             "folding/PreserveSi
 SKSL_TEST(CPU + GPU + SkQP, SelfAssignment,                  "folding/SelfAssignment.sksl")
 SKSL_TEST(CPU + GPU + SkQP, ShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, StructFieldFolding,              "folding/StructFieldFolding.sksl")
+SKSL_TEST(CPU + GPU + SkQP, StructFieldNoFolding,            "folding/StructFieldNoFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SwitchCaseFolding,               "folding/SwitchCaseFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SwizzleFolding,                  "folding/SwizzleFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, TernaryFolding,                  "folding/TernaryFolding.sksl")
