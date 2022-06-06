@@ -1201,8 +1201,6 @@ func (b *jobBuilder) compile() string {
 	name := b.deriveCompileTaskName()
 	if b.extraConfig("WasmGMTests") {
 		b.compileWasmGMTests(name)
-	} else if b.compiler("BazelClang") {
-		b.compileWithBazel(name)
 	} else {
 		b.addTask(name, func(b *taskBuilder) {
 			recipe := "compile"
@@ -1288,28 +1286,6 @@ func (b *jobBuilder) compile() string {
 	return name
 }
 
-// compileWithBazel uses RBE to compile Skia.
-func (b *jobBuilder) compileWithBazel(name string) {
-	if b.extraConfig("IWYU") {
-		b.addTask(name, func(b *taskBuilder) {
-			b.cmd("./bazel_check_includes",
-				"--project_id", "skia-swarming-bots",
-				"--task_id", specs.PLACEHOLDER_TASK_ID,
-				"--task_name", b.Name,
-			)
-			b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-			b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
-			b.addToPATH("bazelisk")
-			b.idempotent()
-			b.cas(CAS_COMPILE)
-			b.dep(b.buildTaskDrivers("linux", "amd64"))
-			b.attempts(1)
-			b.serviceAccount(b.cfg.ServiceAccountCompile)
-		})
-	} else {
-		log.Fatalf("Unsupported Bazel task " + name)
-	}
-}
 
 // recreateSKPs generates a RecreateSKPs task.
 func (b *jobBuilder) recreateSKPs() {
@@ -2079,10 +2055,11 @@ func (b *jobBuilder) runWasmGMTests() {
 // label or "target pattern" https://bazel.build/docs/build#specifying-build-targets
 // The reason we need this mapping is because Buildbucket build names cannot have / or : in them.
 var shorthandToLabel = map[string]string{
-	"modules_canvaskit_canvaskit_wasm": "//modules/canvaskit:canvaskit_wasm",
 	"example_hello_world_dawn":         "//example:hello_world_dawn",
 	"example_hello_world_gl":           "//example:hello_world_gl",
 	"example_hello_world_vulkan":       "//example:hello_world_vulkan",
+	"modules_canvaskit_canvaskit_wasm": "//modules/canvaskit:canvaskit_wasm",
+	"skia_public":                      "//:skia_public",
 }
 
 // bazelBuild adds a task which builds the specified single-target label (//foo:bar) or
