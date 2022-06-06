@@ -579,7 +579,6 @@ sksl_folding_tests = [
   "/sksl/folding/PreserveSideEffects.sksl",
   "/sksl/folding/SelfAssignment.sksl",
   "/sksl/folding/ShortCircuitBoolFolding.sksl",
-  "/sksl/folding/StructFieldFolding.sksl",
   "/sksl/folding/SwizzleFolding.sksl",
   "/sksl/folding/SwitchCaseFolding.sksl",
   "/sksl/folding/TernaryFolding.sksl",
