@@ -16,6 +16,10 @@ fi
 
 supported_files_or_dirs=(
   "experimental/bazel_test/"
+  "src/sksl/"
+  "src/svg/"
+  "src/utils/"
+  "tools/debugger/"
 )
 
 function opted_in_to_IWYU_checks() {

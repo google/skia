@@ -1,4 +1,6 @@
 [
+  { include: ["<__algorithm/all_of.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/any_of.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/copy.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/copy_n.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/equal_range.h>", "private", "<algorithm>", "public"] },
@@ -9,6 +11,11 @@
   { include: ["<__algorithm/sort.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/stable_sort.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/upper_bound.h>", "private", "<algorithm>", "public"] },
+
+  { symbol: ["abs", "public", "<cmath>", "public"]},
+
+  { symbol: ["uint8_t", "public", "<cstdint>", "public"]},
+  { symbol: ["int8_t", "public", "<cstdint>", "public"]},
 
   { include: ["<__functional/function.h>", "private", "<functional>", "public"] },
 

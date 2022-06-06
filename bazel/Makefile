@@ -40,3 +40,26 @@ rbe_known_good_builds:
 	bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode dbg --config=linux_rbe \
 		--remote_download_minimal
 
+iwyu_rbe:
+	bazelisk build //:skia_public --config=linux_rbe --config=enforce_iwyu \
+	 	--keep_going --remote_download_minimal
+	bazelisk build //example:hello_world_gl --config=linux_rbe --config=enforce_iwyu \
+	 	--keep_going --remote_download_minimal
+	bazelisk build //example:hello_world_vulkan --config=linux_rbe --config=enforce_iwyu \
+	 	--keep_going --remote_download_minimal
+	bazelisk build //example:hello_world_dawn --config=linux_rbe --config=enforce_iwyu \
+	 	--keep_going --remote_download_minimal
+	bazelisk build //example:vulkan_basic --config=linux_rbe --config=enforce_iwyu \
+	 	--keep_going --remote_download_minimal
+
+iwyu:
+	bazelisk build //:skia_public --config=clang_linux --config=enforce_iwyu \
+	 	--keep_going
+	bazelisk build //example:hello_world_gl --config=clang_linux --config=enforce_iwyu \
+	 	--keep_going
+	bazelisk build //example:hello_world_vulkan --config=clang_linux --config=enforce_iwyu \
+	 	--keep_going
+	bazelisk build //example:hello_world_dawn --config=clang_linux --config=enforce_iwyu \
+	 	--keep_going
+	bazelisk build //example:vulkan_basic --config=clang_linux --config=enforce_iwyu \
+	 	--keep_going
