@@ -7,7 +7,6 @@
 
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#include "include/private/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include <string_view>
 
