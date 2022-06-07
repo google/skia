@@ -118,11 +118,22 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
 }
 
 const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
-    if (arraySize != 0) {
-        const std::string* arrayName = this->takeOwnershipOfString(type->getArrayName(arraySize));
-        type = this->takeOwnershipOfSymbol(Type::MakeArrayType(*arrayName, *type, arraySize));
+    if (arraySize == 0) {
+        return type;
     }
-    return type;
+    // If this is a builtin type, we add it to the topmost non-builtin symbol table to enable
+    // additional reuse of the array-type.
+    if (type->isInBuiltinTypes() && fParent && !fParent->fBuiltin) {
+        return fParent->addArrayDimension(type, arraySize);
+    }
+    // Reuse an existing array type with this name if one already exists in our symbol table.
+    std::string arrayName = type->getArrayName(arraySize);
+    if (const Symbol* existingType = (*this)[arrayName]) {
+        return &existingType->as<Type>();
+    }
+    // Add a new array type to the symbol table.
+    const std::string* arrayNamePtr = this->takeOwnershipOfString(std::move(arrayName));
+    return this->add(Type::MakeArrayType(*arrayNamePtr, *type, arraySize));
 }
 
 }  // namespace SkSL
