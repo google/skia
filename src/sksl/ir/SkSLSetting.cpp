@@ -22,21 +22,26 @@ namespace SkSL {
 
 namespace {
 
-using CapsFn = bool (ShaderCaps::*)() const;
-using CapsLookupTable = SkTHashMap<std::string_view, CapsFn>;
+using CapsPtr = bool ShaderCaps::*;
+using CapsLookupTable = SkTHashMap<std::string_view, CapsPtr>;
 
 static const CapsLookupTable& caps_lookup_table() {
-    // Create a lookup table that converts strings into the equivalent ShaderCaps methods.
+    // Create a lookup table that converts strings into the equivalent ShaderCaps member-pointers.
     static CapsLookupTable* sCapsLookupTable = new CapsLookupTable({
-    #define CAP(name) CapsLookupTable::Pair{#name, &ShaderCaps::name}
-        CAP(mustDoOpBetweenFloorAndAbs),
-        CAP(mustGuardDivisionEvenAfterExplicitZeroCheck),
-        CAP(atan2ImplementedAsAtanYOverX),
-        CAP(floatIs32Bits),
-        CAP(integerSupport),
-        CAP(builtinDeterminantSupport),
-        CAP(rewriteMatrixVectorMultiply),
-    #undef CAP
+        CapsLookupTable::Pair("mustDoOpBetweenFloorAndAbs",
+                              &ShaderCaps::fMustDoOpBetweenFloorAndAbs),
+        CapsLookupTable::Pair("mustGuardDivisionEvenAfterExplicitZeroCheck",
+                              &ShaderCaps::fMustGuardDivisionEvenAfterExplicitZeroCheck),
+        CapsLookupTable::Pair("atan2ImplementedAsAtanYOverX",
+                              &ShaderCaps::fAtan2ImplementedAsAtanYOverX),
+        CapsLookupTable::Pair("floatIs32Bits",
+                              &ShaderCaps::fFloatIs32Bits),
+        CapsLookupTable::Pair("integerSupport",
+                              &ShaderCaps::fIntegerSupport),
+        CapsLookupTable::Pair("builtinDeterminantSupport",
+                              &ShaderCaps::fBuiltinDeterminantSupport),
+        CapsLookupTable::Pair("rewriteMatrixVectorMultiply",
+                              &ShaderCaps::fRewriteMatrixVectorMultiply),
     });
     return *sCapsLookupTable;
 }
@@ -47,16 +52,15 @@ std::unique_ptr<Expression> Setting::Convert(const Context& context, Position po
                                              const std::string_view& name) {
     SkASSERT(context.fConfig);
 
-    const CapsFn* getCap = caps_lookup_table().find(name);
-
-    if (!getCap) {
+    const CapsPtr* capsPtr = caps_lookup_table().find(name);
+    if (!capsPtr) {
         context.fErrors->error(pos, "unknown capability flag '" + std::string(name) + "'");
         return nullptr;
     }
 
     if (context.fConfig->fSettings.fReplaceSettings) {
         // Insert the settings value directly into the IR.
-        return Literal::MakeBool(context, pos, (context.fCaps.*(*getCap))());
+        return Literal::MakeBool(context, pos, context.fCaps.*(*capsPtr));
     }
 
     // Generate a Setting IRNode.
