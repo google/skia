@@ -666,7 +666,7 @@ static bool check_backend_texture(const GrBackendTexture& backendTex,
         return false;
     }
     if (GR_GL_TEXTURE_EXTERNAL == desc->fTarget) {
-        if (!caps.shaderCaps()->externalTextureSupport()) {
+        if (!caps.shaderCaps()->fExternalTextureSupport) {
             return false;
         }
     } else if (GR_GL_TEXTURE_RECTANGLE == desc->fTarget) {
@@ -3150,7 +3150,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     GrShaderVar oFragColor("o_FragColor", SkSLType::kHalf4, GrShaderVar::TypeModifier::Out);
 
     SkString vshaderTxt;
-    if (shaderCaps->noperspectiveInterpolationSupport()) {
+    if (shaderCaps->fNoPerspectiveInterpolationSupport) {
         if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             vshaderTxt.appendf("#extension %s : require\n", extension);
         }
@@ -3176,7 +3176,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     );
 
     SkString fshaderTxt;
-    if (shaderCaps->noperspectiveInterpolationSupport()) {
+    if (shaderCaps->fNoPerspectiveInterpolationSupport) {
         if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             fshaderTxt.appendf("#extension %s : require\n", extension);
         }
@@ -3257,7 +3257,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     GrShaderVar oFragColor("o_FragColor", SkSLType::kHalf4,GrShaderVar::TypeModifier::Out);
 
     SkString vshaderTxt;
-    if (shaderCaps->noperspectiveInterpolationSupport()) {
+    if (shaderCaps->fNoPerspectiveInterpolationSupport) {
         if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             vshaderTxt.appendf("#extension %s : require\n", extension);
         }
@@ -3310,7 +3310,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     vshaderTxt.append("}");
 
     SkString fshaderTxt;
-    if (shaderCaps->noperspectiveInterpolationSupport()) {
+    if (shaderCaps->fNoPerspectiveInterpolationSupport) {
         if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             fshaderTxt.appendf("#extension %s : require\n", extension);
         }

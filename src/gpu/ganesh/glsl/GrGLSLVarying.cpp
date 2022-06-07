@@ -78,7 +78,7 @@ void GrGLSLVaryingHandler::addAttribute(const GrShaderVar& var) {
 
 void GrGLSLVaryingHandler::setNoPerspective() {
     const GrShaderCaps& caps = *fProgramBuilder->shaderCaps();
-    if (!caps.noperspectiveInterpolationSupport()) {
+    if (!caps.fNoPerspectiveInterpolationSupport) {
         return;
     }
     if (const char* extension = caps.noperspectiveInterpolationExtensionString()) {
@@ -119,7 +119,7 @@ void GrGLSLVaryingHandler::getVertexDecls(SkString* inputDecls, SkString* output
 
 void GrGLSLVaryingHandler::getFragDecls(SkString* inputDecls, SkString* outputDecls) const {
     // We should not have any outputs in the fragment shader when using version 1.10
-    SkASSERT(SkSL::GLSLGeneration::k110 != fProgramBuilder->shaderCaps()->generation() ||
+    SkASSERT(SkSL::GLSLGeneration::k110 != fProgramBuilder->shaderCaps()->fGLSLGeneration ||
              fFragOutputs.empty());
     this->appendDecls(fFragInputs, inputDecls);
     this->appendDecls(fFragOutputs, outputDecls);

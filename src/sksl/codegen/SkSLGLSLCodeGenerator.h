@@ -77,7 +77,7 @@ protected:
 
     virtual void writeHeader();
 
-    virtual bool usesPrecisionModifiers() const;
+    bool usesPrecisionModifiers() const;
 
     virtual std::string getTypeName(const Type& type);
 

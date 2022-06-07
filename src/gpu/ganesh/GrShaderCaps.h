@@ -23,12 +23,12 @@ struct GrShaderCaps : SkSL::ShaderCaps {
     bool supportsDistanceFieldText() const { return fShaderDerivativeSupport; }
 
     const char* noperspectiveInterpolationExtensionString() const {
-        SkASSERT(this->noperspectiveInterpolationSupport());
+        SkASSERT(this->fNoPerspectiveInterpolationSupport);
         return fNoPerspectiveInterpolationExtensionString;
     }
 
     const char* sampleVariablesExtensionString() const {
-        SkASSERT(this->sampleMaskSupport());
+        SkASSERT(this->fSampleMaskSupport);
         return fSampleVariablesExtensionString;
     }
 

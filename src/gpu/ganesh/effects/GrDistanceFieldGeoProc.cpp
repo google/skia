@@ -228,7 +228,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& c
     }
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, SkSLType::kHalf4 };
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? SkSLType::kUShort2 : SkSLType::kFloat2};
+                        caps.fIntegerSupport ? SkSLType::kUShort2 : SkSLType::kFloat2};
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 
     if (numViews) {
@@ -494,7 +494,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
     fInColor = MakeColorAttribute("inColor", wideColor);
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? SkSLType::kUShort2 : SkSLType::kFloat2};
+                        caps.fIntegerSupport ? SkSLType::kUShort2 : SkSLType::kFloat2};
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 
     if (numViews) {
@@ -807,7 +807,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps&
     }
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, SkSLType::kHalf4};
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? SkSLType::kUShort2 : SkSLType::kFloat2};
+                        caps.fIntegerSupport ? SkSLType::kUShort2 : SkSLType::kFloat2};
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 
     if (numViews) {

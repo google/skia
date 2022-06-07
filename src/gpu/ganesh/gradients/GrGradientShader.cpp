@@ -654,7 +654,7 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
         optFlags |= GrSkSLFP::OptFlags::kPreservesOpaqueInput;
     }
     const bool useFloorAbsWorkaround =
-            args.fContext->priv().caps()->shaderCaps()->mustDoOpBetweenFloorAndAbs();
+            args.fContext->priv().caps()->shaderCaps()->fMustDoOpBetweenFloorAndAbs;
 
     return GrSkSLFP::Make(effect, "TiledGradient", /*inputFP=*/nullptr, optFlags,
                           "colorizer", GrSkSLFP::IgnoreOptFlags(std::move(colorizer)),
@@ -811,7 +811,7 @@ std::unique_ptr<GrFragmentProcessor> MakeSweep(const SkSweepGradient& shader,
     // undefined behavior of the second paramenter being 0 instead of doing the divide ourselves and
     // using atan instead.
     int useAtanWorkaround =
-            args.fContext->priv().caps()->shaderCaps()->atan2ImplementedAsAtanYOverX();
+            args.fContext->priv().caps()->shaderCaps()->fAtan2ImplementedAsAtanYOverX;
     static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform half bias;
         uniform half scale;

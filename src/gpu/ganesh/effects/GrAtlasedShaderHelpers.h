@@ -26,7 +26,7 @@ static void append_index_uv_varyings(GrGeometryProcessor::ProgramImpl::EmitArgs&
     // Packing structure: texel coordinates have the 2-bit texture page encoded in bits 13 & 14 of
     // the x coordinate. It would be nice to use bits 14 and 15, but iphone6 has problem with those
     // bits when in gles. Iphone6 works fine with bits 14 and 15 in metal.
-    if (args.fShaderCaps->integerSupport()) {
+    if (args.fShaderCaps->fIntegerSupport) {
         if (numTextureSamplers <= 1) {
             args.fVertBuilder->codeAppendf(R"code(
                 int texIdx = 0;
@@ -64,7 +64,7 @@ static void append_index_uv_varyings(GrGeometryProcessor::ProgramImpl::EmitArgs&
     // it is worse to use a float so for now we always do.
     texIdx->reset(SkSLType::kFloat);
     // If we computed the local var "texIdx" as an int we will need to cast it to float
-    const char* cast = args.fShaderCaps->integerSupport() ? "float" : "";
+    const char* cast = args.fShaderCaps->fIntegerSupport ? "float" : "";
     args.fVaryingHandler->addVarying("TexIndex", texIdx, Interpolation::kCanBeFlat);
     args.fVertBuilder->codeAppendf("%s = %s(texIdx);", texIdx->vsOut(), cast);
 

@@ -141,7 +141,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
     }
 
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? SkSLType::kUShort2 : SkSLType::kFloat2};
+                        caps.fIntegerSupport ? SkSLType::kUShort2 : SkSLType::kFloat2};
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 
     if (numActiveViews) {

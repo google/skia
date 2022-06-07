@@ -1064,8 +1064,8 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
     GrShaderCaps* shaderCaps = static_cast<GrShaderCaps*>(fShaderCaps.get());
 
     bool layoutQualifierSupport = false;
-    if ((GR_IS_GR_GL(fStandard) && shaderCaps->generation() >= SkSL::GLSLGeneration::k140)  ||
-        (GR_IS_GR_GL_ES(fStandard) && shaderCaps->generation() >= SkSL::GLSLGeneration::k300es)) {
+    if ((GR_IS_GR_GL(fStandard) && shaderCaps->fGLSLGeneration >= SkSL::GLSLGeneration::k140) ||
+        (GR_IS_GR_GL_ES(fStandard) && shaderCaps->fGLSLGeneration >= SkSL::GLSLGeneration::k300es)){
         layoutQualifierSupport = true;
     } else if (GR_IS_GR_WEBGL(fStandard)) {
         return;

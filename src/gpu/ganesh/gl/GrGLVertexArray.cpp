@@ -121,7 +121,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                                                stride,
                                                                offsetAsPtr));
         } else {
-            SkASSERT(gpu->caps()->shaderCaps()->integerSupport());
+            SkASSERT(gpu->caps()->shaderCaps()->fIntegerSupport);
             SkASSERT(!layout.fNormalized);
             GR_GL_CALL(gpu->glInterface(), VertexAttribIPointer(index,
                                                                 layout.fCount,

@@ -19,13 +19,13 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
     SkDEBUGCODE(fHasReadDstColorThisStage_DebugOnly = true;)
 
     const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
-    if (shaderCaps->fbFetchSupport()) {
+    if (shaderCaps->fFBFetchSupport) {
         this->addFeature(1 << kFramebufferFetch_GLSLPrivateFeature,
                          shaderCaps->fFBFetchExtensionString);
 
         // Some versions of this extension string require declaring custom color output on ES 3.0+
         const char* fbFetchColorName = "sk_LastFragColor";
-        if (shaderCaps->fbFetchNeedsCustomOutput()) {
+        if (shaderCaps->fFBFetchNeedsCustomOutput) {
             this->enableCustomOutput();
             fCustomColorOutput->setTypeModifier(GrShaderVar::TypeModifier::InOut);
             fbFetchColorName = DeclaredColorOutputName();

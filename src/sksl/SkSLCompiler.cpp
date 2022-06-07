@@ -516,7 +516,7 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
 void Compiler::updateInputsForBuiltinVariable(const Variable& var) {
     switch (var.modifiers().fLayout.fBuiltin) {
         case SK_FRAGCOORD_BUILTIN:
-            if (fContext->fCaps.canUseFragCoord()) {
+            if (fContext->fCaps.fCanUseFragCoord) {
                 ThreadContext::Inputs().fUseFlipRTUniform =
                         !fContext->fConfig->fSettings.fForceNoRTFlip;
             }

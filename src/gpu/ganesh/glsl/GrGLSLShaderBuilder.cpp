@@ -284,7 +284,7 @@ void GrGLSLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const
 }
 
 void GrGLSLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier interface) {
-    SkASSERT(fProgramBuilder->shaderCaps()->generation() >= SkSL::GLSLGeneration::k330 ||
+    SkASSERT(fProgramBuilder->shaderCaps()->fGLSLGeneration >= SkSL::GLSLGeneration::k330 ||
              fProgramBuilder->shaderCaps()->mustEnableAdvBlendEqs());
     fLayoutParams[interface].push_back() = param;
 }

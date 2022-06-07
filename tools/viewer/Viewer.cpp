@@ -1888,9 +1888,9 @@ static std::string build_metal_highlight_shader(const std::string& inShader) {
 }
 
 static std::string build_glsl_highlight_shader(const GrShaderCaps& shaderCaps) {
-    const char* versionDecl = shaderCaps.versionDeclString();
+    const char* versionDecl = shaderCaps.fVersionDeclString;
     std::string highlight = versionDecl ? versionDecl : "";
-    if (shaderCaps.usesPrecisionModifiers()) {
+    if (shaderCaps.fUsesPrecisionModifiers) {
         highlight.append("precision mediump float;\n");
     }
     SkSL::String::appendf(&highlight, "out vec4 sk_FragColor;\n"

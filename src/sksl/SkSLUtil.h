@@ -38,41 +38,6 @@ struct ShaderCaps {
         kLast_AdvBlendEqInteraction = kGeneralEnable_AdvBlendEqInteraction
     };
 
-    //
-    // TODO: Remove these accessors
-    //
-
-    /** Indicates true 32-bit integer support, with unsigned types and bitwise operations */
-    bool integerSupport() const { return fIntegerSupport; }
-
-    /**
-     * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
-     *
-     * TODO: On desktop opengl 4.2+ we can achieve something similar to this effect
-     */
-    bool fbFetchSupport() const { return fFBFetchSupport; }
-
-    bool fbFetchNeedsCustomOutput() const { return fFBFetchNeedsCustomOutput; }
-
-    const char* versionDeclString() const { return fVersionDeclString; }
-
-    const char* fbFetchColorName() const { return fFBFetchColorName; }
-
-    bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
-
-    bool sampleMaskSupport() const { return fSampleMaskSupport; }
-
-    bool externalTextureSupport() const { return fExternalTextureSupport; }
-
-    bool floatIs32Bits() const { return fFloatIs32Bits; }
-
-    // SkSL only.
-    bool builtinFMASupport() const { return fBuiltinFMASupport; }
-
-    bool builtinDeterminantSupport() const { return fBuiltinDeterminantSupport; }
-
-    AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
-
     bool mustEnableAdvBlendEqs() const {
         return fAdvBlendEqInteraction >= kGeneralEnable_AdvBlendEqInteraction;
     }
@@ -80,74 +45,6 @@ struct ShaderCaps {
     bool mustDeclareFragmentShaderOutput() const {
         return fGLSLGeneration > SkSL::GLSLGeneration::k110;
     }
-
-    bool usesPrecisionModifiers() const { return fUsesPrecisionModifiers; }
-
-    bool canUseMinAndAbsTogether() const { return fCanUseMinAndAbsTogether; }
-
-    bool canUseFractForNegativeValues() const { return fCanUseFractForNegativeValues; }
-
-    bool mustForceNegatedAtanParamToFloat() const { return fMustForceNegatedAtanParamToFloat; }
-
-    // http://skbug.com/12076
-    bool mustForceNegatedLdexpParamToMultiply() const {
-        return fMustForceNegatedLdexpParamToMultiply;
-    }
-
-    // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
-    bool atan2ImplementedAsAtanYOverX() const { return fAtan2ImplementedAsAtanYOverX; }
-
-    // If this returns true some operation (could be a no op) must be called between floor and abs
-    // to make sure the driver compiler doesn't inline them together which can cause a driver bug in
-    // the shader.
-    bool mustDoOpBetweenFloorAndAbs() const { return fMustDoOpBetweenFloorAndAbs; }
-
-    // If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord
-    bool canUseFragCoord() const { return fCanUseFragCoord; }
-
-    // If true, short ints can't represent every integer in the 16-bit two's complement range as
-    // required by the spec. SKSL will always emit full ints.
-    bool incompleteShortIntPrecision() const { return fIncompleteShortIntPrecision; }
-
-    // If true, then conditions in for loops need "&& true" to work around driver bugs.
-    bool addAndTrueToLoopCondition() const { return fAddAndTrueToLoopCondition; }
-
-    // If true, then expressions such as "x && y" or "x || y" are rewritten as
-    // ternary to work around driver bugs.
-    bool unfoldShortCircuitAsTernary() const { return fUnfoldShortCircuitAsTernary; }
-
-    bool emulateAbsIntFunction() const { return fEmulateAbsIntFunction; }
-
-    bool rewriteDoWhileLoops() const { return fRewriteDoWhileLoops; }
-
-    bool rewriteSwitchStatements() const { return fRewriteSwitchStatements; }
-
-    bool removePowWithConstantExponent() const { return fRemovePowWithConstantExponent; }
-
-    // The D3D shader compiler, when targeting PS 3.0 (ie within ANGLE) fails to compile certain
-    // constructs. See detailed comments in GrGLCaps.cpp.
-    bool mustGuardDivisionEvenAfterExplicitZeroCheck() const {
-        return fMustGuardDivisionEvenAfterExplicitZeroCheck;
-    }
-
-    // The Android emulator claims samplerExternalOES is an unknown type if a default precision
-    // statement is made for the type.
-    bool noDefaultPrecisionForExternalSamplers() const {
-        return fNoDefaultPrecisionForExternalSamplers;
-    }
-
-    // ARM GPUs calculate `matrix * vector` in SPIR-V at full precision, even when the inputs are
-    // RelaxedPrecision. Rewriting the multiply as a sum of vector*scalar fixes this. (skia:11769)
-    bool rewriteMatrixVectorMultiply() const {
-        return fRewriteMatrixVectorMultiply;
-    }
-
-    // Rewrites matrix equality comparisons to avoid an Adreno driver bug. (skia:11308)
-    bool rewriteMatrixComparisons() const { return fRewriteMatrixComparisons; }
-
-    // By default, SkSL pools IR nodes per-program. To debug memory corruption, it is sometimes
-    // helpful to disable that feature.
-    bool useNodePools() const { return fUseNodePools; }
 
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
@@ -162,12 +59,12 @@ struct ShaderCaps {
     // by secondExternalTextureExtensionString(). If that function returns nullptr, then only one
     // extension is required.
     const char* externalTextureExtensionString() const {
-        SkASSERT(this->externalTextureSupport());
+        SkASSERT(this->fExternalTextureSupport);
         return fExternalTextureExtensionString;
     }
 
     const char* secondExternalTextureExtensionString() const {
-        SkASSERT(this->externalTextureSupport());
+        SkASSERT(this->fExternalTextureSupport);
         return fSecondExternalTextureExtensionString;
     }
 
@@ -182,11 +79,10 @@ struct ShaderCaps {
         return SkSL::Version::k100;
     }
 
-    SkSL::GLSLGeneration generation() const { return fGLSLGeneration; }
-
     SkSL::GLSLGeneration fGLSLGeneration = SkSL::GLSLGeneration::k330;
 
     bool fShaderDerivativeSupport = false;
+    /** Indicates true 32-bit integer support, with unsigned types and bitwise operations */
     bool fIntegerSupport = false;
     bool fNonsquareMatrixSupport = false;
     /** asinh(), acosh(), atanh() */
@@ -208,23 +104,41 @@ struct ShaderCaps {
     bool fCanUseMinAndAbsTogether = true;
     bool fCanUseFractForNegativeValues = true;
     bool fMustForceNegatedAtanParamToFloat = false;
-    bool fMustForceNegatedLdexpParamToMultiply = false;
+    bool fMustForceNegatedLdexpParamToMultiply = false;  // http://skbug.com/12076
+    // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
     bool fAtan2ImplementedAsAtanYOverX = false;
+    // If this returns true some operation (could be a no op) must be called between floor and abs
+    // to make sure the driver compiler doesn't inline them together which can cause a driver bug in
+    // the shader.
     bool fMustDoOpBetweenFloorAndAbs = false;
+    // The D3D shader compiler, when targeting PS 3.0 (ie within ANGLE) fails to compile certain
+    // constructs. See detailed comments in GrGLCaps.cpp.
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
+    // If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord
     bool fCanUseFragCoord = true;
+    // If true, short ints can't represent every integer in the 16-bit two's complement range as
+    // required by the spec. SKSL will always emit full ints.
     bool fIncompleteShortIntPrecision = false;
+    // If true, then conditions in for loops need "&& true" to work around driver bugs.
     bool fAddAndTrueToLoopCondition = false;
+    // If true, then expressions such as "x && y" or "x || y" are rewritten as ternary to work
+    // around driver bugs.
     bool fUnfoldShortCircuitAsTernary = false;
     bool fEmulateAbsIntFunction = false;
     bool fRewriteDoWhileLoops = false;
     bool fRewriteSwitchStatements = false;
     bool fRemovePowWithConstantExponent = false;
+    // The Android emulator claims samplerExternalOES is an unknown type if a default precision
+    // statement is made for the type.
     bool fNoDefaultPrecisionForExternalSamplers = false;
+    // ARM GPUs calculate `matrix * vector` in SPIR-V at full precision, even when the inputs are
+    // RelaxedPrecision. Rewriting the multiply as a sum of vector*scalar fixes this. (skia:11769)
     bool fRewriteMatrixVectorMultiply = false;
+    // Rewrites matrix equality comparisons to avoid an Adreno driver bug. (skia:11308)
     bool fRewriteMatrixComparisons = false;
 
-    // This controls behavior of the SkSL compiler, not the code we generate
+    // This controls behavior of the SkSL compiler, not the code we generate. By default, SkSL pools
+    // IR nodes per-program. To debug memory corruption, it can be helpful to disable that feature.
     bool fUseNodePools = true;
 
     const char* fVersionDeclString = "";
