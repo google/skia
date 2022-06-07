@@ -4215,8 +4215,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // All Adrenos claim to support LUM16F but don't appear to actually do so.
     // The failing devices/gpus were: Nexus5/Adreno330, Nexus5x/Adreno418, Pixel/Adreno530,
     // Pixel2XL/Adreno540 and Pixel3/Adreno630
-    formatWorkarounds->fDisableLuminance16F = ctxInfo.renderer() == GrGLRenderer::kIntelBroadwell ||
-                                              ctxInfo.vendor()   == GrGLVendor::kQualcomm;
+    formatWorkarounds->fDisableLuminance16F =
+            (ctxInfo.renderer() == GrGLRenderer::kIntelBroadwell ||
+             ctxInfo.vendor() == GrGLVendor::kQualcomm) &&
+            ctxInfo.angleBackend() == GrGLANGLEBackend::kUnknown;
 
 #ifdef SK_BUILD_FOR_MAC
     // On a MacBookPro 11.5 running MacOS 10.13 with a Radeon M370X the TransferPixelsFrom test
