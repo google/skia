@@ -7,8 +7,6 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-package(default_visibility = ["//visibility:public"])
-
 # https://bazel.build/reference/be/c-cpp#cc_toolchain_suite
 # cc_toolchain_suite will fetch deps for toolchains it will not use, which
 # is why we split up the suites by OS. When attempting to fetch "@clang_linux_amd64//:all_files",
@@ -37,13 +35,28 @@ cc_toolchain_suite(
 filegroup(name = "not_implemented")
 
 filegroup(
-    name = "all_linux_amd64_files",
+    name = "archive_linux_amd64_files",
+    srcs = [
+        "linux_trampolines/ar_trampoline_linux.sh",
+        "@clang_linux_amd64//:archive_files",
+    ],
+)
+
+filegroup(
+    name = "compile_linux_amd64_files",
     srcs = [
         "linux_trampolines/IWYU_mapping.imp",
-        "linux_trampolines/ar_trampoline_linux.sh",
         "linux_trampolines/clang_trampoline_linux.sh",
-        "linux_trampolines/lld_trampoline_linux.sh",
-        "@clang_linux_amd64//:all_files",
+        "@clang_linux_amd64//:compile_files",
+    ],
+)
+
+filegroup(
+    name = "link_linux_amd64_files",
+    srcs = [
+        # Bazel assumes it is talking to Clang when linking.
+        "linux_trampolines/clang_trampoline_linux.sh",
+        "@clang_linux_amd64//:link_files",
     ],
 )
 
@@ -68,11 +81,11 @@ provide_mac_m1_toolchain_config(
 # https://bazel.build/reference/be/c-cpp#cc_toolchain
 cc_toolchain(
     name = "linux_amd64_host",
-    all_files = ":all_linux_amd64_files",
-    ar_files = ":all_linux_amd64_files",
-    compiler_files = ":all_linux_amd64_files",
+    all_files = ":not_implemented",
+    ar_files = ":archive_linux_amd64_files",
+    compiler_files = ":compile_linux_amd64_files",
     dwp_files = ":not_implemented",
-    linker_files = ":all_linux_amd64_files",
+    linker_files = ":link_linux_amd64_files",
     objcopy_files = ":not_implemented",
     strip_files = ":not_implemented",
     supports_param_files = False,
