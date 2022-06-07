@@ -524,8 +524,6 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fHalfIs32Bits = false;
 
     shaderCaps->fMaxFragmentSamplers = 16;
-
-    shaderCaps->fCanUseFastMath = true;
 }
 
 void GrMtlCaps::applyDriverCorrectnessWorkarounds(const GrContextOptions&, const id<MTLDevice>) {

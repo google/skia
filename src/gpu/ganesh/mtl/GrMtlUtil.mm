@@ -113,9 +113,7 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
         options.languageVersion = MTLLanguageVersion1_2;
 #endif
     }
-    if (gpu->caps()->shaderCaps()->canUseFastMath()) {
-        options.fastMathEnabled = YES;
-    }
+    options.fastMathEnabled = YES;
 
     NSError* error = nil;
 #if defined(SK_BUILD_FOR_MAC)

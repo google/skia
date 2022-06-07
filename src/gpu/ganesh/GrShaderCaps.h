@@ -65,9 +65,6 @@ struct GrShaderCaps : SkSL::ShaderCaps {
     // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
     bool mustWriteToFragColor() const { return fMustWriteToFragColor; }
 
-    // Some GPUs produce poor results when enabling Metal's fastmath option
-    bool canUseFastMath() const { return fCanUseFastMath; }
-
     // When we have the option of using either dFdx or dfDy in a shader, this returns whether we
     // should avoid using dFdx. We have found some drivers have bugs or lower precision when using
     // dFdx.
@@ -104,12 +101,11 @@ struct GrShaderCaps : SkSL::ShaderCaps {
     bool fHasLowFragmentPrecision = false;
     bool fReducedShaderMode = false;
 
-    // Used for specific driver bug work arounds
+    // Used for specific driver bug workarounds
     bool fRequiresLocalOutputColorForFBFetch = false;
     bool fMustObfuscateUniformColor = false;
     bool fMustWriteToFragColor = false;
     bool fColorSpaceMathNeedsFloat = false;
-    bool fCanUseFastMath = false;
     bool fAvoidDfDxForGradientsWhenPossible = false;
 
     const char* fSecondaryOutputExtensionString = nullptr;
