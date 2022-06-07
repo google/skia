@@ -137,7 +137,7 @@ DEF_PATH_TESS_BENCH(GrPathCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
     GrPipeline noVaryingsPipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
                                   skgpu::Swizzle::RGBA());
     auto tess = PathCurveTessellator::Make(&arena,
-                                           fTarget->caps().shaderCaps()->infinitySupport());
+                                           fTarget->caps().shaderCaps()->fInfinitySupport);
     tess->prepare(fTarget.get(),
                   fMatrix,
                   {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},
@@ -149,7 +149,7 @@ DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
     GrPipeline noVaryingsPipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
                                   skgpu::Swizzle::RGBA());
     auto tess = PathWedgeTessellator::Make(&arena,
-                                           fTarget->caps().shaderCaps()->infinitySupport());
+                                           fTarget->caps().shaderCaps()->fInfinitySupport);
     tess->prepare(fTarget.get(),
                   fMatrix,
                   {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},

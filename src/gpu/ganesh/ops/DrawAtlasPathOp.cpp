@@ -31,7 +31,7 @@ public:
             , fAtlasAccess(GrSamplerState::Filter::kNearest,
                            fAtlasHelper->proxy()->backendFormat(),
                            fAtlasHelper->atlasSwizzle()) {
-        if (!shaderCaps.vertexIDSupport()) {
+        if (!shaderCaps.fVertexIDSupport) {
             constexpr static Attribute kUnitCoordAttrib(
                     "unitCoord", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
             this->setVertexAttributesWithImplicitOffsets(&kUnitCoordAttrib, 1);
@@ -82,7 +82,7 @@ private:
         const auto& shader = args.fGeomProc.cast<DrawAtlasPathShader>();
         args.fVaryingHandler->emitAttributes(shader);
 
-        if (args.fShaderCaps->vertexIDSupport()) {
+        if (args.fShaderCaps->fVertexIDSupport) {
             // If we don't have sk_VertexID support then "unitCoord" already came in as a vertex
             // attrib.
             args.fVertBuilder->codeAppendf(R"(
@@ -204,7 +204,7 @@ void DrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
         }
     }
 
-    if (!flushState->caps().shaderCaps()->vertexIDSupport()) {
+    if (!flushState->caps().shaderCaps()->fVertexIDSupport) {
         constexpr static SkPoint kUnitQuad[4] = {{0,0}, {0,1}, {1,0}, {1,1}};
 
         SKGPU_DEFINE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);

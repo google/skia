@@ -65,7 +65,7 @@ public:
                                      const SkMatrix& localMatrix,
                                      bool usesLocalCoords,
                                      uint8_t coverage = 0xff) {
-        if (!caps.shaderCaps()->shaderDerivativeSupport()) {
+        if (!caps.shaderCaps()->fShaderDerivativeSupport) {
             return nullptr;
         }
 
@@ -127,7 +127,7 @@ public:
                                      const SkMatrix& localMatrix,
                                      bool usesLocalCoords,
                                      uint8_t coverage = 0xff) {
-        if (!caps.shaderCaps()->shaderDerivativeSupport()) {
+        if (!caps.shaderCaps()->fShaderDerivativeSupport) {
             return nullptr;
         }
 

@@ -731,8 +731,8 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
     // See comment in MakeSrcOverXferProcessor about color.isOpaque here
     if (isLCD &&
         SkBlendMode::kSrcOver == fBlendMode && color.isConstant() && /*color.isOpaque() &&*/
-        !caps.shaderCaps()->dualSourceBlendingSupport() &&
-        !caps.shaderCaps()->dstReadInShaderSupport()) {
+        !caps.shaderCaps()->fDualSourceBlendingSupport &&
+        !caps.shaderCaps()->fDstReadInShaderSupport) {
         // If we don't have dual source blending or in shader dst reads, we fall back to this
         // trick for rendering SrcOver LCD text instead of doing a dst copy.
         return PDLCDXferProcessor::Make(fBlendMode, color);
@@ -753,7 +753,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
 
     // Skia always saturates after the kPlus blend mode, so it requires shader-based blending when
     // pixels aren't guaranteed to automatically be normalized (i.e. any floating point config).
-    if ((blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) ||
+    if ((blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->fDualSourceBlendingSupport) ||
         (isLCD && (SkBlendMode::kSrcOver != fBlendMode /*|| !color.isOpaque()*/)) ||
         (GrClampType::kAuto != clampType && SkBlendMode::kPlus == fBlendMode)) {
         return sk_sp<const GrXferProcessor>(new ShaderPDXferProcessor(fBlendMode, coverage));
@@ -782,8 +782,8 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
     if (isLCD) {
         // See comment in MakeSrcOverXferProcessor about color.isOpaque here
         if (SkBlendMode::kSrcOver == mode && color.isConstant() && /*color.isOpaque() &&*/
-            !caps.shaderCaps()->dualSourceBlendingSupport() &&
-            !caps.shaderCaps()->dstReadInShaderSupport()) {
+            !caps.shaderCaps()->fDualSourceBlendingSupport &&
+            !caps.shaderCaps()->fDstReadInShaderSupport) {
             props |= AnalysisProperties::kIgnoresInputColor;
         } else {
             // For LCD blending, if the color is not opaque we must read the dst in shader even if
@@ -793,13 +793,13 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
             // do not have dual source blending.
             if (SkBlendMode::kSrcOver != mode ||
                 /*!color.isOpaque() ||*/ // See comment in MakeSrcOverXferProcessor about isOpaque.
-                (formula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport())) {
+                (formula.hasSecondaryOutput() && !caps.shaderCaps()->fDualSourceBlendingSupport)) {
                 props |= AnalysisProperties::kReadsDstInShader;
             }
         }
     } else {
         // With dual-source blending we never need the destination color in the shader.
-        if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
+        if (!caps.shaderCaps()->fDualSourceBlendingSupport) {
             if (formula.hasSecondaryOutput()) {
                 props |= AnalysisProperties::kReadsDstInShader;
             }
@@ -890,8 +890,8 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeSrcOverXferProcessor(
     // This also fixes a chrome bug on macs where we are getting random fuzziness when doing
     // blending in the shader for non opaque sources.
     if (color.isConstant() && /*color.isOpaque() &&*/
-        !caps.shaderCaps()->dualSourceBlendingSupport() &&
-        !caps.shaderCaps()->dstReadInShaderSupport()) {
+        !caps.shaderCaps()->fDualSourceBlendingSupport &&
+        !caps.shaderCaps()->fDstReadInShaderSupport) {
         // If we don't have dual source blending or in shader dst reads, we fall
         // back to this trick for rendering SrcOver LCD text instead of doing a
         // dst copy.
@@ -901,7 +901,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeSrcOverXferProcessor(
     BlendFormula blendFormula = get_lcd_blend_formula(SkBlendMode::kSrcOver);
     // See comment above regarding why the opaque check is commented out here.
     if (/*!color.isOpaque() ||*/
-        (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport())) {
+        (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->fDualSourceBlendingSupport)) {
         return sk_sp<GrXferProcessor>(new ShaderPDXferProcessor(SkBlendMode::kSrcOver, coverage));
     }
     return sk_sp<GrXferProcessor>(new PorterDuffXferProcessor(blendFormula, coverage));

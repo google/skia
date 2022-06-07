@@ -93,7 +93,7 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
         , fStroke(stroke) {
     // We should use explicit curve type when, and only when, there isn't infinity support.
     // Otherwise the GPU can infer curve type based on infinity.
-    SkASSERT(shaderCaps.infinitySupport() != (attribs & PatchAttribs::kExplicitCurveType));
+    SkASSERT(shaderCaps.fInfinitySupport != (attribs & PatchAttribs::kExplicitCurveType));
     // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's a conic
     // with w=p3.x.
     //
@@ -125,7 +125,7 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
 
     this->setInstanceAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.count());
     SkASSERT(this->instanceStride() == sizeof(SkPoint) * 4 + PatchAttribsStride(fPatchAttribs));
-    if (!shaderCaps.vertexIDSupport()) {
+    if (!shaderCaps.fVertexIDSupport) {
         constexpr static Attribute kVertexAttrib("edgeID", kFloat_GrVertexAttribType,
                                                     SkSLType::kFloat);
         this->setVertexAttributesWithImplicitOffsets(&kVertexAttrib, 1);
@@ -190,8 +190,8 @@ void GrStrokeTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpAr
     // the number of radial segments per radian, Wang's formula, and join type). When there is
     // vertex ID support, the limit is what can be represented in a uint16; otherwise the limit is
     // the size of the fallback vertex buffer.
-    float maxEdges = args.fShaderCaps->vertexIDSupport() ? FixedCountStrokes::kMaxEdges
-                                                         : FixedCountStrokes::kMaxEdgesNoVertexIDs;
+    float maxEdges = args.fShaderCaps->fVertexIDSupport ? FixedCountStrokes::kMaxEdges
+                                                        : FixedCountStrokes::kMaxEdgesNoVertexIDs;
     args.fVertBuilder->defineConstant("NUM_TOTAL_EDGES", maxEdges);
 
     // Helper functions.
@@ -312,7 +312,7 @@ void GrStrokeTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpAr
         tan1 = float2(-1,0);
     })");
 
-    if (args.fShaderCaps->vertexIDSupport()) {
+    if (args.fShaderCaps->fVertexIDSupport) {
         // If we don't have sk_VertexID support then "edgeID" already came in as a vertex attrib.
         args.fVertBuilder->codeAppend(R"(
         float edgeID = float(sk_VertexID >> 1);

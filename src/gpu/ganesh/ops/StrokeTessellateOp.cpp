@@ -59,7 +59,7 @@ GrProcessorSet::Analysis StrokeTessellateOp::finalize(const GrCaps& caps,
                                                       GrClampType clampType) {
     // Make sure the finalize happens before combining. We might change fNeedsStencil here.
     SkASSERT(fPathStrokeList.fNext == nullptr);
-    if (!caps.shaderCaps()->infinitySupport()) {
+    if (!caps.shaderCaps()->fInfinitySupport) {
         // The GPU can't infer curve type based in infinity, so we need to send in an attrib
         // explicitly stating the curve type.
         fPatchAttribs |= PatchAttribs::kExplicitCurveType;

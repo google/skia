@@ -33,7 +33,7 @@ DEF_GPUTEST(GrPorterDuff, reporter, /*ctxInfo*/) {
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(&mockOptions, GrContextOptions());
     const GrCaps& caps = *context->priv().getGpu()->caps();
 
-    if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
+    if (!caps.shaderCaps()->fDualSourceBlendingSupport) {
         SK_ABORT("Null context does not support dual source blending.");
     }
 
@@ -91,7 +91,7 @@ public:
                                                    GrClampType::kAuto));
             TEST_ASSERT(!analysis.requiresDstTexture() ||
                         (isLCD &&
-                         !caps.shaderCaps()->dstReadInShaderSupport() &&
+                         !caps.shaderCaps()->fDstReadInShaderSupport &&
                          (SkBlendMode::kSrcOver != xfermode ||
                           !inputColor.isOpaque())));
             // Porter Duff modes currently only use fixed-function or shader blending, and Ganesh
@@ -1069,7 +1069,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
 
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     const GrCaps& caps = *ctx->priv().caps();
-    if (caps.shaderCaps()->dualSourceBlendingSupport()) {
+    if (caps.shaderCaps()->fDualSourceBlendingSupport) {
         SK_ABORT("Mock context failed to honor request for no ARB_blend_func_extended.");
     }
 

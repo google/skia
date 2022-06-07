@@ -860,7 +860,7 @@ bool can_use_hw_derivatives_with_coverage(const skvx::float2& devScale,
 bool can_use_hw_derivatives_with_coverage(const GrShaderCaps& shaderCaps,
                                           const SkMatrix& viewMatrix,
                                           const SkRRect& rrect) {
-    if (!shaderCaps.shaderDerivativeSupport()) {
+    if (!shaderCaps.fShaderDerivativeSupport) {
         return false;
     }
 

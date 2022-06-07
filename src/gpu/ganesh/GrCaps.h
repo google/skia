@@ -166,8 +166,8 @@ public:
         return fMustSyncGpuDuringAbandon;
     }
 
-    // Shortcut for shaderCaps()->reducedShaderMode().
-    bool reducedShaderMode() const { return this->shaderCaps()->reducedShaderMode(); }
+    // Shortcut for shaderCaps()->fReducedShaderMode.
+    bool reducedShaderMode() const { return this->shaderCaps()->fReducedShaderMode; }
 
     /**
      * Indicates whether GPU->CPU memory mapping for GPU resources such as vertex buffers and

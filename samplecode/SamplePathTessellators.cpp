@@ -95,13 +95,13 @@ private:
                 }
             }
 
-            auto* tess = PathCurveTessellator::Make(alloc, shaderCaps.infinitySupport());
+            auto* tess = PathCurveTessellator::Make(alloc, shaderCaps.fInfinitySupport);
             tess->prepareWithTriangles(flushState, shaderMatrix, &triangles, pathList,
                                        fPath.countVerbs());
             fTessellator = tess;
         } else {
             // This emulates what PathStencilCoverOp does when using wedges.
-            fTessellator = PathWedgeTessellator::Make(alloc, shaderCaps.infinitySupport());
+            fTessellator = PathWedgeTessellator::Make(alloc, shaderCaps.fInfinitySupport);
             fTessellator->prepare(flushState, shaderMatrix, pathList, fPath.countVerbs());
         }
 

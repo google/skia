@@ -678,7 +678,7 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     bool usesLocalCoords = d->fRandom->nextBool();
     bool wideColor = d->fRandom->nextBool();
     // Doesn't work without derivative instructions.
-    return d->caps()->shaderCaps()->shaderDerivativeSupport()
+    return d->caps()->shaderCaps()->fShaderDerivativeSupport
                    ? QuadEdgeEffect::Make(d->allocator(), localMatrix, usesLocalCoords, wideColor)
                    : nullptr;
 }
@@ -906,7 +906,7 @@ private:
 PathRenderer::CanDrawPath AAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This check requires convexity and known direction, since the direction is used to build
     // the geometry segments. Degenerate convex paths will fall through to some other path renderer.
-    if (args.fCaps->shaderCaps()->shaderDerivativeSupport() &&
+    if (args.fCaps->shaderCaps()->fShaderDerivativeSupport &&
         (GrAAType::kCoverage == args.fAAType) && args.fShape->style().isSimpleFill() &&
         !args.fShape->inverseFilled() && args.fShape->knownToBeConvex() &&
         args.fShape->knownDirection()) {

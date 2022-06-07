@@ -467,7 +467,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
         // isn't 32-bit, output can be incorrect if the thresholds are too close together. However,
         // the analytic shaders are higher quality, so they can be used with lower precision
         // hardware when the thresholds are not ill-conditioned.
-        if (!caps->floatIs32Bits()) {
+        if (!caps->fFloatIs32Bits) {
             // Could run into problems. Check if thresholds are close together (with a limit of .01,
             // so that scales will be less than 100, which leaves 4 decimals of precision on
             // 16-bit).
@@ -501,8 +501,8 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
         return nullptr;
     };
 
-    int binaryColorizerLimit = caps->nonconstantArrayIndexSupport() ? kMaxLoopingColorCount
-                                                                    : kMaxUnrolledColorCount;
+    int binaryColorizerLimit = caps->fNonconstantArrayIndexSupport ? kMaxLoopingColorCount
+                                                                   : kMaxUnrolledColorCount;
     if ((count <= binaryColorizerLimit) && !intervalsExceedPrecisionLimit()) {
         // The dual-interval colorizer uses the same principles as the binary-search colorizer, but
         // is limited to exactly 2 intervals.
@@ -511,7 +511,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
             return colorizer;
         }
         // Attempt to create an analytic colorizer that uses a binary-search loop.
-        colorizer = caps->nonconstantArrayIndexSupport()
+        colorizer = caps->fNonconstantArrayIndexSupport
                             ? make_looping_binary_colorizer(colors, positions, count)
                             : make_unrolled_binary_colorizer(colors, positions, count);
         if (colorizer) {

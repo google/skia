@@ -271,7 +271,7 @@ private:
 namespace skiagm {
 
 DEF_SIMPLE_GPU_GM_CAN_FAIL(fwidth_squircle, rContext, canvas, errorMsg, 200, 200) {
-    if (!rContext->priv().caps()->shaderCaps()->shaderDerivativeSupport()) {
+    if (!rContext->priv().caps()->shaderCaps()->fShaderDerivativeSupport) {
         *errorMsg = "Shader derivatives not supported.";
         return DrawResult::kSkip;
     }

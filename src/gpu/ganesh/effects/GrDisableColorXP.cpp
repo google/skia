@@ -38,7 +38,7 @@ std::unique_ptr<GrXferProcessor::ProgramImpl> DisableColorXP::makeProgramImpl() 
     class Impl : public ProgramImpl {
     private:
         void emitOutputsForBlendState(const EmitArgs& args) override {
-            if (args.fShaderCaps->mustWriteToFragColor()) {
+            if (args.fShaderCaps->fMustWriteToFragColor) {
                 // This emit code should be empty. However, on the nexus 6 there is a driver bug
                 // where if you do not give gl_FragColor a value, the gl context is lost and we end
                 // up drawing nothing. So this fix just sets the gl_FragColor arbitrarily to 0.

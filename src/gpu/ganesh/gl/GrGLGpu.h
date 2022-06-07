@@ -436,7 +436,7 @@ private:
     void flushWindowRectangles(const GrWindowRectsState&, const GrGLRenderTarget*, GrSurfaceOrigin);
     void disableWindowRectangles();
 
-    int numTextureUnits() const { return this->caps()->shaderCaps()->maxFragmentSamplers(); }
+    int numTextureUnits() const { return this->caps()->shaderCaps()->fMaxFragmentSamplers; }
 
     // Binds a texture to a target on the "scratch" texture unit to use for texture operations
     // other than usual draw flow (i.e. a GrGLProgram derived from a GrPipeline used to draw). It

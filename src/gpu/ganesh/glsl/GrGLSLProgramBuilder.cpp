@@ -418,7 +418,7 @@ GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitInputSampler(
 
 bool GrGLSLProgramBuilder::checkSamplerCounts() {
     const GrShaderCaps& shaderCaps = *this->shaderCaps();
-    if (fNumFragmentSamplers > shaderCaps.maxFragmentSamplers()) {
+    if (fNumFragmentSamplers > shaderCaps.fMaxFragmentSamplers) {
         GrCapsDebugf(this->caps(), "Program would use too many fragment samplers\n");
         return false;
     }

@@ -41,14 +41,9 @@ struct ShaderCaps {
     //
     // TODO: Remove these accessors
     //
-    bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
-    bool nonsquareMatrixSupport() const { return fNonsquareMatrixSupport; }
 
     /** Indicates true 32-bit integer support, with unsigned types and bitwise operations */
     bool integerSupport() const { return fIntegerSupport; }
-
-    /** asinh(), acosh(), atanh() */
-    bool inverseHyperbolicSupport() const { return fInverseHyperbolicSupport; }
 
     /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
@@ -62,8 +57,6 @@ struct ShaderCaps {
     const char* versionDeclString() const { return fVersionDeclString; }
 
     const char* fbFetchColorName() const { return fFBFetchColorName; }
-
-    bool flatInterpolationSupport() const { return fFlatInterpolationSupport; }
 
     bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
 
@@ -160,7 +153,7 @@ struct ShaderCaps {
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
     const char* shaderDerivativeExtensionString() const {
-        SkASSERT(this->shaderDerivativeSupport());
+        SkASSERT(this->fShaderDerivativeSupport);
         return fShaderDerivativeExtensionString;
     }
 
@@ -196,6 +189,7 @@ struct ShaderCaps {
     bool fShaderDerivativeSupport = false;
     bool fIntegerSupport = false;
     bool fNonsquareMatrixSupport = false;
+    /** asinh(), acosh(), atanh() */
     bool fInverseHyperbolicSupport = false;
     bool fFBFetchSupport = false;
     bool fFBFetchNeedsCustomOutput = false;

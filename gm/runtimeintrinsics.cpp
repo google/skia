@@ -218,7 +218,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_trig_es3,
     plot_es3(canvas, "tanh(x)", -2.0f,  2.0f, -1.0f, 1.0f);
     next_row(canvas);
 
-    if (ctx->priv().caps()->shaderCaps()->inverseHyperbolicSupport()) {
+    if (ctx->priv().caps()->shaderCaps()->fInverseHyperbolicSupport) {
         plot_es3(canvas, "asinh(x)", -2.0f, 2.0f, -2.0f, 2.0f);
         plot_es3(canvas, "acosh(x)",  0.0f, 5.0f,  0.0f, 3.0f);
         plot_es3(canvas, "atanh(x)", -1.0f, 1.0f, -4.0f, 4.0f);

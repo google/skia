@@ -1050,7 +1050,7 @@ void AAHairlineOp::makeConicProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
 }
 
 AAHairlineOp::Program AAHairlineOp::predictPrograms(const GrCaps* caps) const {
-    bool convertConicsToQuads = !caps->shaderCaps()->floatIs32Bits();
+    bool convertConicsToQuads = !caps->shaderCaps()->fFloatIs32Bits;
 
     // When predicting the programs we always include the lineProgram bc it is used as a fallback
     // for quads and conics. In non-DDL mode there are cases where it sometimes isn't needed for a
@@ -1172,7 +1172,7 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
     int quadCount = 0;
 
     int instanceCount = fPaths.count();
-    bool convertConicsToQuads = !target->caps().shaderCaps()->floatIs32Bits();
+    bool convertConicsToQuads = !target->caps().shaderCaps()->fFloatIs32Bits;
     for (int i = 0; i < instanceCount; i++) {
         const PathData& args = fPaths[i];
         quadCount += gather_lines_and_quads(args.fPath, args.fViewMatrix, args.fDevClipBounds,
@@ -1323,7 +1323,7 @@ PathRenderer::CanDrawPath AAHairLinePathRenderer::onCanDrawPath(const CanDrawPat
     }
 
     if (SkPath::kLine_SegmentMask == args.fShape->segmentMask() ||
-        args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
+        args.fCaps->shaderCaps()->fShaderDerivativeSupport) {
         return CanDrawPath::kYes;
     }
 

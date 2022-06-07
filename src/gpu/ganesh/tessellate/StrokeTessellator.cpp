@@ -158,7 +158,7 @@ void StrokeTessellator::prepare(GrMeshDrawTarget* target,
     write_fixed_count_patches(std::move(patchWriter), shaderMatrix, pathStrokeList);
     fVertexCount = FixedCountStrokes::VertexCount(worstCase);
 
-    if (!target->caps().shaderCaps()->vertexIDSupport()) {
+    if (!target->caps().shaderCaps()->fVertexIDSupport) {
         // Our shader won't be able to use sk_VertexID. Bind a fallback vertex buffer with the IDs
         // in it instead.
         fVertexCount = std::min(fVertexCount, 2 * FixedCountStrokes::kMaxEdgesNoVertexIDs);
@@ -177,7 +177,7 @@ void StrokeTessellator::draw(GrOpFlushState* flushState) const {
     if (fVertexChunkArray.empty() || fVertexCount <= 0) {
         return;
     }
-    if (!flushState->caps().shaderCaps()->vertexIDSupport() &&
+    if (!flushState->caps().shaderCaps()->fVertexIDSupport &&
         !fVertexBufferIfNoIDSupport) {
         return;
     }

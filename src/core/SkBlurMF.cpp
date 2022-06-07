@@ -944,7 +944,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
                 srcRect.bottom() * scale.height()};
     }
 
-    if (!caps.floatIs32Bits()) {
+    if (!caps.fFloatIs32Bits) {
         // We promote the math that gets us into the Gaussian space to full float when the rect
         // coords are large. If we don't have full float then fail. We could probably clip the rect
         // to an outset device bounds instead.

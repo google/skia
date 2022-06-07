@@ -21,7 +21,7 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
     const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
     if (shaderCaps->fbFetchSupport()) {
         this->addFeature(1 << kFramebufferFetch_GLSLPrivateFeature,
-                         shaderCaps->fbFetchExtensionString());
+                         shaderCaps->fFBFetchExtensionString);
 
         // Some versions of this extension string require declaring custom color output on ES 3.0+
         const char* fbFetchColorName = "sk_LastFragColor";
@@ -61,7 +61,7 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
     SkASSERT(!fHasSecondaryOutput);
     fHasSecondaryOutput = true;
     const GrShaderCaps& caps = *fProgramBuilder->shaderCaps();
-    if (const char* extension = caps.secondaryOutputExtensionString()) {
+    if (const char* extension = caps.fSecondaryOutputExtensionString) {
         this->addFeature(1 << kBlendFuncExtended_GLSLPrivateFeature, extension);
     }
 

@@ -226,7 +226,7 @@ static inline GrGLenum wrap_mode_to_gl_wrap(GrSamplerState::WrapMode wrapMode,
 class GrGLGpu::SamplerObjectCache {
 public:
     SamplerObjectCache(GrGLGpu* gpu) : fGpu(gpu) {
-        fNumTextureUnits = fGpu->glCaps().shaderCaps()->maxFragmentSamplers();
+        fNumTextureUnits = fGpu->glCaps().shaderCaps()->fMaxFragmentSamplers;
         fTextureUnitStates = std::make_unique<UnitState[]>(fNumTextureUnits);
     }
 

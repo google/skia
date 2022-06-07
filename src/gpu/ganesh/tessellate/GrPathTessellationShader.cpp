@@ -149,12 +149,12 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
                     return curveType == %g;
                 })", skgpu::tess::kTriangularConicCurveType).c_str());
             } else {
-                SkASSERT(shaderCaps.infinitySupport());
+                SkASSERT(shaderCaps.fInfinitySupport);
                 v->insertFunction(R"(
                 bool is_conic_curve() { return isinf(p23.w); }
                 bool is_triangular_conic_curve() { return isinf(p23.z); })");
             }
-            if (shaderCaps.bitManipulationSupport()) {
+            if (shaderCaps.fBitManipulationSupport) {
                 v->insertFunction(R"(
                 float ldexp_portable(float x, float p) {
                     return ldexp(x, int(p));
@@ -258,7 +258,7 @@ GrPathTessellationShader* GrPathTessellationShader::Make(const GrShaderCaps& sha
                                                          PatchAttribs attribs) {
     // We should use explicit curve type when, and only when, there isn't infinity support.
     // Otherwise the GPU can infer curve type based on infinity.
-    SkASSERT(shaderCaps.infinitySupport() != (attribs & PatchAttribs::kExplicitCurveType));
+    SkASSERT(shaderCaps.fInfinitySupport != (attribs & PatchAttribs::kExplicitCurveType));
     return arena->make<MiddleOutShader>(shaderCaps, viewMatrix, color, attribs);
 }
 

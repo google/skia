@@ -268,7 +268,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                          int baseVertex = 0;
                          switch (y % 3) {
                              case 0:
-                                 if (dContext->priv().caps()->shaderCaps()->vertexIDSupport()) {
+                                 if (dContext->priv().caps()->shaderCaps()->fVertexIDSupport) {
                                      break;
                                  }
                                  [[fallthrough]];

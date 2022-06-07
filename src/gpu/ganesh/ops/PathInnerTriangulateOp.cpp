@@ -32,7 +32,7 @@ public:
                                        PatchAttribs::kNone) {
         fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
-        if (!shaderCaps.infinitySupport()) {
+        if (!shaderCaps.fInfinitySupport) {
             // A conic curve is written out with p3=[w,Infinity], but GPUs that don't support
             // infinity can't detect this. On these platforms we also write out an extra float with
             // each patch that explicitly tells the shader what type of curve it is.
@@ -42,7 +42,7 @@ public:
                                                        fInstanceAttribs.count());
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribCount);
 
-        if (!shaderCaps.vertexIDSupport()) {
+        if (!shaderCaps.fVertexIDSupport) {
             constexpr static Attribute kVertexIdxAttrib("vertexidx", kFloat_GrVertexAttribType,
                                                         SkSLType::kFloat);
             this->setVertexAttributesWithImplicitOffsets(&kVertexIdxAttrib, 1);
@@ -66,7 +66,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
                             GrGLSLVertexBuilder* v,
                             GrGLSLVaryingHandler*,
                             GrGPArgs* gpArgs) override {
-            if (shaderCaps.infinitySupport()) {
+            if (shaderCaps.fInfinitySupport) {
                 v->insertFunction(R"(
                 bool is_conic_curve() { return isinf(p23.w); }
                 bool is_non_triangular_conic_curve() {
@@ -119,7 +119,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
                 }
             })");
 
-            if (shaderCaps.vertexIDSupport()) {
+            if (shaderCaps.fVertexIDSupport) {
                 // If we don't have sk_VertexID support then "vertexidx" already came in as a
                 // vertex attrib.
                 v->codeAppend(R"(
@@ -253,7 +253,7 @@ void PathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Prog
     // Pass 1: Tessellate the outer curves into the stencil buffer.
     if (!isLinear) {
         fTessellator = PathCurveTessellator::Make(args.fArena,
-                                                  args.fCaps->shaderCaps()->infinitySupport());
+                                                  args.fCaps->shaderCaps()->fInfinitySupport);
         auto* tessShader = GrPathTessellationShader::Make(*args.fCaps->shaderCaps(),
                                                           args.fArena,
                                                           fViewMatrix,
@@ -426,7 +426,7 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
                                            fPath.countVerbs());
     }
 
-    if (!caps.shaderCaps()->vertexIDSupport()) {
+    if (!caps.shaderCaps()->fVertexIDSupport) {
         constexpr static float kStripOrderIDs[4] = {0, 1, 3, 2};
 
         SKGPU_DEFINE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);

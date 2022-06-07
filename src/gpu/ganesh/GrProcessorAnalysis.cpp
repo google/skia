@@ -50,5 +50,5 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
 }
 
 bool GrColorFragmentProcessorAnalysis::requiresDstTexture(const GrCaps& caps) const {
-    return this->willReadDstColor() && !caps.shaderCaps()->dstReadInShaderSupport();
+    return this->willReadDstColor() && !caps.shaderCaps()->fDstReadInShaderSupport;
 }

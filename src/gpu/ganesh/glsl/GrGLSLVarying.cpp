@@ -26,11 +26,10 @@ static bool use_flat_interpolation(GrGLSLVaryingHandler::Interpolation interpola
         case Interpolation::kInterpolated:
             return false;
         case Interpolation::kCanBeFlat:
-            SkASSERT(!shaderCaps.preferFlatInterpolation() ||
-                     shaderCaps.flatInterpolationSupport());
-            return shaderCaps.preferFlatInterpolation();
+            SkASSERT(!shaderCaps.fPreferFlatInterpolation || shaderCaps.fFlatInterpolationSupport);
+            return shaderCaps.fPreferFlatInterpolation;
         case Interpolation::kMustBeFlat:
-            SkASSERT(shaderCaps.flatInterpolationSupport());
+            SkASSERT(shaderCaps.fFlatInterpolationSupport);
             return true;
     }
     SK_ABORT("Invalid interpolation");

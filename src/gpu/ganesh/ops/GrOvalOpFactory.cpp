@@ -636,7 +636,7 @@ private:
             fragBuilder->codeAppend("float grad_dot = dot(grad, grad);");
 
             // avoid calling inversesqrt on zero.
-            if (args.fShaderCaps->floatIs32Bits()) {
+            if (args.fShaderCaps->fFloatIs32Bits) {
                 fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.1755e-38);");
             } else {
                 fragBuilder->codeAppend("grad_dot = max(grad_dot, 6.1036e-5);");
@@ -661,7 +661,7 @@ private:
                     fragBuilder->codeAppendf("grad = 2.0*offset*%s.zw;", ellipseRadii.fsIn());
                 }
                 fragBuilder->codeAppend("grad_dot = dot(grad, grad);");
-                if (!args.fShaderCaps->floatIs32Bits()) {
+                if (!args.fShaderCaps->fFloatIs32Bits) {
                     fragBuilder->codeAppend("grad_dot = max(grad_dot, 6.1036e-5);");
                 }
                 if (egp.fUseScale) {
@@ -824,7 +824,7 @@ private:
 
             fragBuilder->codeAppend("float grad_dot = 4.0*dot(grad, grad);");
             // avoid calling inversesqrt on zero.
-            if (args.fShaderCaps->floatIs32Bits()) {
+            if (args.fShaderCaps->fFloatIs32Bits) {
                 fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.1755e-38);");
             } else {
                 fragBuilder->codeAppend("grad_dot = max(grad_dot, 6.1036e-5);");
@@ -855,7 +855,7 @@ private:
                     fragBuilder->codeAppendf("grad *= %s.z;", offsets0.fsIn());
                 }
                 fragBuilder->codeAppend("grad_dot = 4.0*dot(grad, grad);");
-                if (!args.fShaderCaps->floatIs32Bits()) {
+                if (!args.fShaderCaps->fFloatIs32Bits) {
                     fragBuilder->codeAppend("grad_dot = max(grad_dot, 6.1036e-5);");
                 }
                 fragBuilder->codeAppend("invlen = inversesqrt(grad_dot);");
@@ -1894,7 +1894,7 @@ public:
         // minimum value to avoid divides by zero. With large ovals and low precision this
         // leads to blurring at the edge of the oval.
         const SkScalar kMaxOvalRadius = 16384;
-        if (!context->priv().caps()->shaderCaps()->floatIs32Bits() &&
+        if (!context->priv().caps()->shaderCaps()->fFloatIs32Bits &&
             (params.fXRadius >= kMaxOvalRadius || params.fYRadius >= kMaxOvalRadius)) {
             return nullptr;
         }
@@ -1938,8 +1938,8 @@ public:
 
     GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                       GrClampType clampType) override {
-        fUseScale = !caps.shaderCaps()->floatIs32Bits() &&
-                    !caps.shaderCaps()->hasLowFragmentPrecision();
+        fUseScale = !caps.shaderCaps()->fFloatIs32Bits &&
+                    !caps.shaderCaps()->fHasLowFragmentPrecision;
         SkPMColor4f* color = &fEllipses.front().fColor;
         return fHelper.finalizeProcessors(caps, clip, clampType,
                                           GrProcessorAnalysisCoverage::kSingleChannel, color,
@@ -2179,7 +2179,7 @@ public:
         // minimum value to avoid divides by zero. With large ovals and low precision this
         // leads to blurring at the edge of the oval.
         const SkScalar kMaxOvalRadius = 16384;
-        if (!context->priv().caps()->shaderCaps()->floatIs32Bits() &&
+        if (!context->priv().caps()->shaderCaps()->fFloatIs32Bits &&
             (params.fXRadius >= kMaxOvalRadius || params.fYRadius >= kMaxOvalRadius)) {
             return nullptr;
         }
@@ -2227,8 +2227,8 @@ public:
 
     GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                       GrClampType clampType) override {
-        fUseScale = !caps.shaderCaps()->floatIs32Bits() &&
-                    !caps.shaderCaps()->hasLowFragmentPrecision();
+        fUseScale = !caps.shaderCaps()->fFloatIs32Bits &&
+                    !caps.shaderCaps()->fHasLowFragmentPrecision;
         SkPMColor4f* color = &fEllipses.front().fColor;
         return fHelper.finalizeProcessors(caps, clip, clampType,
                                           GrProcessorAnalysisCoverage::kSingleChannel, color,
@@ -2960,7 +2960,7 @@ public:
 
     GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                       GrClampType clampType) override {
-        fUseScale = !caps.shaderCaps()->floatIs32Bits();
+        fUseScale = !caps.shaderCaps()->fFloatIs32Bits;
         SkPMColor4f* color = &fRRects.front().fColor;
         return fHelper.finalizeProcessors(caps, clip, clampType,
                                           GrProcessorAnalysisCoverage::kSingleChannel, color,
@@ -3361,7 +3361,7 @@ GrOp::Owner GrOvalOpFactory::MakeOvalOp(GrRecordingContext* context,
     }
 
     // Otherwise, if we have shader derivative support, render as device-independent
-    if (shaderCaps->shaderDerivativeSupport()) {
+    if (shaderCaps->fShaderDerivativeSupport) {
         SkScalar a = viewMatrix[SkMatrix::kMScaleX];
         SkScalar b = viewMatrix[SkMatrix::kMSkewX];
         SkScalar c = viewMatrix[SkMatrix::kMSkewY];

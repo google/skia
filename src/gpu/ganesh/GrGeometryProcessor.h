@@ -342,7 +342,7 @@ public:
     // GPs that use writeOutputPosition and/or writeLocalCoord must incorporate the matrix type
     // into their key, and should use this function or one of the other related helpers.
     static uint32_t ComputeMatrixKey(const GrShaderCaps& caps, const SkMatrix& mat) {
-        if (!caps.reducedShaderMode()) {
+        if (!caps.fReducedShaderMode) {
             if (mat.isIdentity()) {
                 return 0b00;
             }

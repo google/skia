@@ -698,7 +698,7 @@ GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inp
                                         SkPoint center,
                                         SkPoint radii,
                                         const GrShaderCaps& caps) {
-    const bool medPrecision = !caps.floatIs32Bits();
+    const bool medPrecision = !caps.fFloatIs32Bits;
 
     // Small radii produce bad results on devices without full float.
     if (medPrecision && (radii.fX < 0.5f || radii.fY < 0.5f)) {
@@ -940,7 +940,7 @@ SkString ProgramImpl::invokeChildWithMatrix(int childIndex,
         // Any parent perspective will have already been applied when evaluated in the FS.
         if (childProc->sampleUsage().hasPerspective()) {
             invocation.appendf(", proj((%s) * %s.xy1)", matrixName.c_str(), args.fSampleCoord);
-        } else if (args.fShaderCaps->nonsquareMatrixSupport()) {
+        } else if (args.fShaderCaps->fNonsquareMatrixSupport) {
             invocation.appendf(", float3x2(%s) * %s.xy1", matrixName.c_str(), args.fSampleCoord);
         } else {
             invocation.appendf(", ((%s) * %s.xy1).xy", matrixName.c_str(), args.fSampleCoord);

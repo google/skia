@@ -243,11 +243,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         return;
     }
     // We allow more error on GPUs with lower precision shader variables.
-    float error = context->priv().caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
+    float error = context->priv().caps()->shaderCaps()->fHalfIs32Bits ? 0.5f : 1.2f;
     // For the all-sRGB case, we allow a small error only for devices that have
     // precision variation because the sRGB data gets converted to linear and back in
     // the shader.
-    float smallError = context->priv().caps()->shaderCaps()->halfIs32Bits() ? 0.0f : 1.f;
+    float smallError = context->priv().caps()->shaderCaps()->fHalfIs32Bits ? 0.0f : 1.f;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Write sRGB data to a sRGB context - no conversion on the write.

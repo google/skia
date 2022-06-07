@@ -297,7 +297,7 @@ void ProgramImpl::emitTransformCode(GrGLSLVertexBuilder* vb, GrGLSLUniformHandle
 
         vb->codeAppend("{\n");
         if (info.varying.type() == SkSLType::kFloat2) {
-            if (vb->getProgramBuilder()->shaderCaps()->nonsquareMatrixSupport()) {
+            if (vb->getProgramBuilder()->shaderCaps()->fNonsquareMatrixSupport) {
                 vb->codeAppendf("%s = float3x2(%s) * %s",
                                 info.varying.vsOut(),
                                 transformExpression.c_str(),
@@ -334,7 +334,7 @@ void ProgramImpl::setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,
                                                "Color",
                                                &stagedLocalVarName);
     fragBuilder->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
-    if (fragBuilder->getProgramBuilder()->shaderCaps()->mustObfuscateUniformColor()) {
+    if (fragBuilder->getProgramBuilder()->shaderCaps()->fMustObfuscateUniformColor) {
         fragBuilder->codeAppendf("%s = max(%s, half4(0));", outputName, outputName);
     }
 }
@@ -351,7 +351,7 @@ void ProgramImpl::SetTransform(const GrGLSLProgramDataManager& pdman,
     if (state) {
         *state = matrix;
     }
-    if (matrix.isScaleTranslate() && !shaderCaps.reducedShaderMode()) {
+    if (matrix.isScaleTranslate() && !shaderCaps.fReducedShaderMode) {
         // ComputeMatrixKey and writeX() assume the uniform is a float4 (can't assert since nothing
         // is exposed on a handle, but should be caught lower down).
         float values[4] = {matrix.getScaleX(), matrix.getTranslateX(),
@@ -385,13 +385,13 @@ static void write_vertex_position(GrGLSLVertexBuilder* vertBuilder,
     SkASSERT(inPos.getType() == SkSLType::kFloat3 || inPos.getType() == SkSLType::kFloat2);
     SkString outName = vertBuilder->newTmpVarName(inPos.getName().c_str());
 
-    if (matrix.isIdentity() && !shaderCaps.reducedShaderMode()) {
+    if (matrix.isIdentity() && !shaderCaps.fReducedShaderMode) {
         write_passthrough_vertex_position(vertBuilder, inPos, outPos);
         return;
     }
     SkASSERT(matrixUniform);
 
-    bool useCompactTransform = matrix.isScaleTranslate() && !shaderCaps.reducedShaderMode();
+    bool useCompactTransform = matrix.isScaleTranslate() && !shaderCaps.fReducedShaderMode;
     const char* mangledMatrixName;
     *matrixUniform = uniformHandler->addUniform(nullptr,
                                                 kVertex_GrShaderFlag,
@@ -433,7 +433,7 @@ static void write_vertex_position(GrGLSLVertexBuilder* vertBuilder,
                                  mangledMatrixName,
                                  inPos.getName().c_str(),
                                  mangledMatrixName);
-    } else if (shaderCaps.nonsquareMatrixSupport()) {
+    } else if (shaderCaps.fNonsquareMatrixSupport) {
         vertBuilder->codeAppendf("float2 %s = float3x2(%s) * %s.xy1;\n",
                                  outName.c_str(),
                                  mangledMatrixName,

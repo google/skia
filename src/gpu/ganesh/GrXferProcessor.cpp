@@ -169,7 +169,7 @@ GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
     }
     SkASSERT(!(result & AnalysisProperties::kRequiresDstTexture));
     if ((result & AnalysisProperties::kReadsDstInShader) &&
-        !caps.shaderCaps()->dstReadInShaderSupport()) {
+        !caps.shaderCaps()->fDstReadInShaderSupport) {
         result |= AnalysisProperties::kRequiresDstTexture |
                   AnalysisProperties::kRequiresNonOverlappingDraws;
     }
@@ -235,7 +235,7 @@ void ProgramImpl::emitCode(const EmitArgs& args) {
                                          args.fInputCoverage);
             }
         } else {
-            needsLocalOutColor = args.fShaderCaps->requiresLocalOutputColorForFBFetch();
+            needsLocalOutColor = args.fShaderCaps->fRequiresLocalOutputColorForFBFetch;
         }
 
         const char* outColor = "_localColorOut";

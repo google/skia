@@ -72,7 +72,7 @@ void PathTessellateOp::prepareTessellator(const GrTessellationShader::ProgramArg
     auto* pipeline = GrTessellationShader::MakePipeline(args, fAAType, std::move(appliedClip),
                                                         std::move(fProcessors));
     fTessellator = PathWedgeTessellator::Make(args.fArena,
-                                              args.fCaps->shaderCaps()->infinitySupport(),
+                                              args.fCaps->shaderCaps()->fInfinitySupport,
                                               fPatchAttribs);
     auto* tessShader = GrPathTessellationShader::Make(*args.fCaps->shaderCaps(),
                                                       args.fArena,

@@ -662,7 +662,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 PathRenderer::CanDrawPath SmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (!args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
+    if (!args.fCaps->shaderCaps()->fShaderDerivativeSupport) {
         return CanDrawPath::kNo;
     }
     // If the shape has no key then we won't get any reuse.

@@ -127,7 +127,7 @@ private:
             // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+            if (args.fShaderCaps->fAvoidDfDxForGradientsWhenPossible) {
                 fragBuilder->codeAppendf(
                         "afwidth = abs(" SK_DistanceFieldAAFactor "*half(dFdy(%s.y)));", st.fsIn());
             } else {
@@ -141,7 +141,7 @@ private:
             // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
             // this gives us a smooth step across approximately one fragment
-            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+            if (args.fShaderCaps->fAvoidDfDxForGradientsWhenPossible) {
                 fragBuilder->codeAppendf("half st_grad_len = length(half2(dFdy(%s)));", st.fsIn());
             } else {
                 fragBuilder->codeAppendf("half st_grad_len = length(half2(dFdx(%s)));", st.fsIn());
@@ -412,7 +412,7 @@ private:
             // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+            if (args.fShaderCaps->fAvoidDfDxForGradientsWhenPossible) {
                 fragBuilder->codeAppendf(
                         "afwidth = abs(" SK_DistanceFieldAAFactor "*half(dFdy(%s.y)));", st.fsIn());
             } else {
@@ -425,7 +425,7 @@ private:
             // to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+            if (args.fShaderCaps->fAvoidDfDxForGradientsWhenPossible) {
                 fragBuilder->codeAppendf("half st_grad_len = half(length(dFdy(%s)));", st.fsIn());
             } else {
                 fragBuilder->codeAppendf("half st_grad_len = half(length(dFdx(%s)));", st.fsIn());
@@ -668,7 +668,7 @@ private:
         fragBuilder->codeAppendf("float2 uv = %s;\n", uv.fsIn());
 
         if (isUniformScale) {
-            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+            if (args.fShaderCaps->fAvoidDfDxForGradientsWhenPossible) {
                 fragBuilder->codeAppendf("half st_grad_len = half(abs(dFdy(%s.y)));", st.fsIn());
             } else {
                 fragBuilder->codeAppendf("half st_grad_len = half(abs(dFdx(%s.x)));", st.fsIn());
@@ -678,7 +678,7 @@ private:
         } else if (isSimilarity) {
             // For a similarity matrix with rotation, the gradient will not be aligned
             // with the texel coordinate axes, so we need to calculate it.
-            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+            if (args.fShaderCaps->fAvoidDfDxForGradientsWhenPossible) {
                 // We use dFdy instead and rotate -90 degrees to get the gradient in the x
                 // direction.
                 fragBuilder->codeAppendf("half2 st_grad = half2(dFdy(%s));", st.fsIn());
