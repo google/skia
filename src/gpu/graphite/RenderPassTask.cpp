@@ -41,7 +41,7 @@ RenderPassTask::~RenderPassTask() = default;
 bool RenderPassTask::prepareResources(ResourceProvider* resourceProvider) {
     SkASSERT(fTarget);
     if (!fTarget->instantiate(resourceProvider)) {
-        SKGPU_LOG_W("Given invalid texture proxy. Will not create renderpass!");
+        SKGPU_LOG_W("Failed to instantiate RenderPassTask target. Will not create renderpass!");
         SKGPU_LOG_W("Dimensions are (%d, %d).",
                     fTarget->dimensions().width(), fTarget->dimensions().height());
         return false;
@@ -110,7 +110,7 @@ bool RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
         // Assuming one draw pass per renderpasstask for now
         SkASSERT(fDrawPasses.size() == 1);
         for (const auto& drawPass: fDrawPasses) {
-            if (!drawPass->addCommands(resourceProvider, commandBuffer)) {
+            if (!drawPass->addCommands(commandBuffer)) {
                 commandBuffer->endRenderPass();
                 return false;
             }

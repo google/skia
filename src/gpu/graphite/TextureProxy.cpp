@@ -13,13 +13,20 @@
 namespace skgpu::graphite {
 
 TextureProxy::TextureProxy(SkISize dimensions, const TextureInfo& info, SkBudgeted budgeted)
-        : fDimensions(dimensions), fInfo(info), fBudgeted(budgeted) {}
+        : fDimensions(dimensions), fInfo(info), fBudgeted(budgeted) {
+    // TODO: Enable this assert once we are correctly handling the creation of all graphite
+    // SkImages. Right now things like makeImageSnapshot create an invalid proxy with an invalid
+    // TextureInfo.
+    // SkASSERT(fInfo.isValid());
+}
 
 TextureProxy::TextureProxy(sk_sp<Texture> texture)
         : fDimensions(texture->dimensions())
         , fInfo(texture->textureInfo())
         , fBudgeted(texture->budgeted())
-        , fTexture(std::move(texture)) {}
+        , fTexture(std::move(texture)) {
+    SkASSERT(fInfo.isValid());
+}
 
 TextureProxy::~TextureProxy() {}
 

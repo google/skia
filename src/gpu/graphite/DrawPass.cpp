@@ -257,10 +257,61 @@ DrawPass::DrawPass(sk_sp<TextureProxy> target,
     // TODO: Tune this estimate and the above "itemPerBlock" value for the command buffer sequence
     // After merging, etc. one pipeline per recorded draw+step combo is likely unnecessary.
     fPipelineDescs.reserve(renderStepCount);
+    // TODO: Figure out how to tune the number of different sampler objects we may have. In general
+    // many draws should be using a similar small set of samplers.
+    static constexpr int kReserveSamplerCnt = 8;
+    fSamplerDescs.reserve(kReserveSamplerCnt);
     fCommands.reserve(renderStepCount);
 }
 
 DrawPass::~DrawPass() = default;
+
+struct SamplerDesc {
+    SkSamplingOptions fSamplingOptions;
+    SkTileMode fTileModes[2];
+
+    bool isEqual(const SkTextureDataBlock::TextureInfo& info) {
+        return fSamplingOptions == info.fSamplingOptions &&
+               fTileModes[0] == info.fTileModes[0] &&
+               fTileModes[1] == info.fTileModes[1];
+    }
+};
+
+namespace {
+
+std::pair<int, int> get_unique_texture_sampler_indices(
+        std::vector<sk_sp<TextureProxy>>& sampledTextures,
+        std::vector<SamplerDesc>& samplerDescs,
+        const SkTextureDataBlock::TextureInfo& info) {
+    int texIndex = -1;
+    for (size_t i = 0; i < sampledTextures.size(); ++i) {
+        if (sampledTextures[i].get() == info.fProxy.get()) {
+            texIndex = i;
+            break;
+        }
+    }
+    if (texIndex == -1) {
+        sampledTextures.push_back(info.fProxy);
+        texIndex = sampledTextures.size() - 1;
+    }
+
+    int samplerIndex = -1;
+    for (size_t i = 0; i < samplerDescs.size(); ++i) {
+        if (samplerDescs[i].isEqual(info)) {
+            samplerIndex = i;
+            break;
+        }
+    }
+    if (samplerIndex == -1) {
+        samplerDescs.push_back({info.fSamplingOptions,
+                                {info.fTileModes[0], info.fTileModes[1]}});
+        samplerIndex = samplerDescs.size() - 1;
+    }
+    SkASSERT(texIndex >=0 && samplerIndex >=0);
+    return std::make_pair(texIndex, samplerIndex);
+}
+
+} // anonymous namespace
 
 std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                          std::unique_ptr<DrawList> draws,
@@ -446,7 +497,20 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             }
             if (textureBindingsChange) {
                 auto textureDataBlock = textureDataCache->lookup(key.textureBindings());
-                drawPass->fCommands.emplace_back(BindTexturesAndSamplers{textureDataBlock});
+                BindTexturesAndSamplers bts;
+                bts.fNumTexSamplers = textureDataBlock->numTextures();
+                // TODO: Remove this assert once BindTexturesAndSamplers doesn't have a fixed size
+                // of textures and samplers arrays.
+                SkASSERT(bts.fNumTexSamplers <= 32);
+                for (int i = 0; i < bts.fNumTexSamplers; ++i) {
+                    auto& info = textureDataBlock->texture(i);
+                    std::tie(bts.fTextureIndices[i], bts.fSamplerIndices[i]) =
+                            get_unique_texture_sampler_indices(drawPass->fSampledTextures,
+                                                               drawPass->fSamplerDescs,
+                                                               info);
+                }
+
+                drawPass->fCommands.push_back(Command(bts));
                 lastTextureBindings = key.textureBindings();
             }
             if (draw.fGeometry.clip().scissor() != lastScissor) {
@@ -478,12 +542,41 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         }
         fFullPipelines.push_back(std::move(pipeline));
     }
+    // The DrawPass may be long lived on a Recording and we no longer need the GraphicPipelineDescs
+    // once we've created pipelines, so we drop the storage for them here.
+    fPipelineDescs.reset();
+
+    for (size_t i = 0; i < fSampledTextures.size(); ++i) {
+        // TODO: We need to remove this check once we are creating valid SkImages from things like
+        // snapshot, save layers, etc. Right now we only support SkImages directly made for graphite
+        // and all others have a TextureProxy with an invalid TextureInfo.
+        if (!fSampledTextures[i]->textureInfo().isValid()) {
+            return false;
+        }
+        if (!fSampledTextures[i]->instantiate(resourceProvider)) {
+            SKGPU_LOG_W("Failed to instantiate sampled texture. Will not create renderpass!");
+            return false;
+        }
+    }
+    for (size_t i = 0; i < fSamplerDescs.size(); ++i) {
+        sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(
+                fSamplerDescs[i].fSamplingOptions,
+                fSamplerDescs[i].fTileModes[0],
+                fSamplerDescs[i].fTileModes[1]);
+        if (!sampler) {
+            SKGPU_LOG_W("Failed to create sampler. Will not create renderpass!");
+            return false;
+        }
+        fSamplers.push_back(std::move(sampler));
+    }
+    // The DrawPass may be long lived on a Recording and we no longer need the SamplerDescs
+    // once we've created Samplers, so we drop the storage for them here.
+    fSamplerDescs.clear();
 
     return true;
 }
 
-bool DrawPass::addCommands(ResourceProvider* resourceProvider,
-                           CommandBuffer* buffer) const {
+bool DrawPass::addCommands(CommandBuffer* buffer) const {
     // TODO: Validate RenderPass state against DrawPass's target and requirements?
     // Generate actual GraphicsPipeline objects combining the target-level properties and each of
     // the GraphicsPipelineDesc's referenced in this DrawPass.
@@ -506,19 +599,14 @@ bool DrawPass::addCommands(ResourceProvider* resourceProvider,
             case CommandType::kBindTexturesAndSamplers: {
                 auto& d = c.fBindTexturesAndSamplers;
 
-                for (int i = 0; i < d.fTextureBlock->numTextures(); ++i) {
-                    const auto &texture = d.fTextureBlock->texture(i);
-                    if (!texture.fProxy->texture()) {
-                        return false;
-                    }
-
-                    sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(
-                            texture.fSamplingOptions, texture.fTileModes[0], texture.fTileModes[1]);
-                    SkASSERT(sampler);
-
-                    buffer->bindTextureAndSampler(texture.fProxy->refTexture(),
-                                                  std::move(sampler),
-                                                  i);
+                for (int i = 0; i < d.fNumTexSamplers; ++i) {
+                    SkASSERT(fSampledTextures[d.fTextureIndices[i]]);
+                    SkASSERT(fSampledTextures[d.fTextureIndices[i]]->texture());
+                    SkASSERT(fSamplers[d.fSamplerIndices[i]]);
+                    buffer->bindTextureAndSampler(
+                            fSampledTextures[d.fTextureIndices[i]]->refTexture(),
+                            fSamplers[d.fSamplerIndices[i]],
+                            i);
                 }
 
             } break;
