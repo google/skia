@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
@@ -465,20 +466,27 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     return drawPass;
 }
 
+bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
+                                const RenderPassDesc& renderPassDesc) {
+    fFullPipelines.reserve(fPipelineDescs.count());
+    for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs.items()) {
+        auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(pipelineDesc,
+                                                                       renderPassDesc);
+        if (!pipeline) {
+            SKGPU_LOG_W("Failed to create GraphicsPipeline for draw in RenderPass. Droping Pass");
+            return false;
+        }
+        fFullPipelines.push_back(std::move(pipeline));
+    }
+
+    return true;
+}
+
 bool DrawPass::addCommands(ResourceProvider* resourceProvider,
-                           CommandBuffer* buffer,
-                           const RenderPassDesc& renderPassDesc) const {
+                           CommandBuffer* buffer) const {
     // TODO: Validate RenderPass state against DrawPass's target and requirements?
     // Generate actual GraphicsPipeline objects combining the target-level properties and each of
     // the GraphicsPipelineDesc's referenced in this DrawPass.
-
-    // Use a vector instead of SkTBlockList for the full pipelines so that random access is fast.
-    std::vector<sk_sp<GraphicsPipeline>> fullPipelines;
-    fullPipelines.reserve(fPipelineDescs.count());
-    for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs.items()) {
-        fullPipelines.push_back(resourceProvider->findOrCreateGraphicsPipeline(pipelineDesc,
-                                                                               renderPassDesc));
-    }
 
     // Set viewport to the entire texture for now (eventually, we may have logically smaller bounds
     // within an approx-sized texture). It is assumed that this also configures the sk_rtAdjust
@@ -489,7 +497,7 @@ bool DrawPass::addCommands(ResourceProvider* resourceProvider,
         switch(c.fType) {
             case CommandType::kBindGraphicsPipeline: {
                 auto& d = c.fBindGraphicsPipeline;
-                buffer->bindGraphicsPipeline(fullPipelines[d.fPipelineIndex]);
+                buffer->bindGraphicsPipeline(fFullPipelines[d.fPipelineIndex]);
             } break;
             case CommandType::kBindUniformBuffer: {
                 auto& d = c.fBindUniformBuffer;

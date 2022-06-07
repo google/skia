@@ -46,6 +46,14 @@ bool RenderPassTask::prepareResources(ResourceProvider* resourceProvider) {
                     fTarget->dimensions().width(), fTarget->dimensions().height());
         return false;
     }
+
+    // Assuming one draw pass per renderpasstask for now
+    SkASSERT(fDrawPasses.size() == 1);
+    for (const auto& drawPass: fDrawPasses) {
+        if (!drawPass->prepareResources(resourceProvider, fRenderPassDesc)) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -102,7 +110,7 @@ bool RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
         // Assuming one draw pass per renderpasstask for now
         SkASSERT(fDrawPasses.size() == 1);
         for (const auto& drawPass: fDrawPasses) {
-            if (!drawPass->addCommands(resourceProvider, commandBuffer, fRenderPassDesc)) {
+            if (!drawPass->addCommands(resourceProvider, commandBuffer)) {
                 commandBuffer->endRenderPass();
                 return false;
             }
