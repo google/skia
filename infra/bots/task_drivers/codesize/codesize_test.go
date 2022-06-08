@@ -12,7 +12,9 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
 	"go.skia.org/infra/go/exec"
 	"go.skia.org/infra/go/gcs"
 	"go.skia.org/infra/go/gcs/test_gcsclient"
@@ -35,14 +37,14 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
 
 	// The revision is assigned deterministically by the GitBuilder in test().
 	const (
-		expectedBloatyFileGCSPath       = "2022/01/31/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/dm.tsv"
-		expectedJSONMetadataFileGCSPath = "2022/01/31/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/dm.json"
+		expectedBloatyFileGCSPath       = "2022/01/31/01/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/dm.tsv"
+		expectedJSONMetadataFileGCSPath = "2022/01/31/01/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/dm.json"
 	)
 
 	// The revision and author are assigned deterministically by the GitBuilder in test().
 	const expectedJSONMetadataFileContents = `{
   "version": 1,
-  "timestamp": "2022-01-31T00:00:00Z",
+  "timestamp": "2022-01-31T01:02:03Z",
   "swarming_task_id": "58dccb0d6a3f0411",
   "swarming_server": "https://chromium-swarm.appspot.com",
   "task_id": "CkPp9ElAaEXyYWNHpXHU",
@@ -80,14 +82,14 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 	}
 
 	const (
-		expectedBloatyFileGCSPath       = "2022/01/31/tryjob/12345/3/CkPp9ElAaEXyYWNHpXHU/Build-Debian10-Clang-x86_64-Release/dm.tsv"
-		expectedJSONMetadataFileGCSPath = "2022/01/31/tryjob/12345/3/CkPp9ElAaEXyYWNHpXHU/Build-Debian10-Clang-x86_64-Release/dm.json"
+		expectedBloatyFileGCSPath       = "2022/01/31/01/tryjob/12345/3/CkPp9ElAaEXyYWNHpXHU/Build-Debian10-Clang-x86_64-Release/dm.tsv"
+		expectedJSONMetadataFileGCSPath = "2022/01/31/01/tryjob/12345/3/CkPp9ElAaEXyYWNHpXHU/Build-Debian10-Clang-x86_64-Release/dm.json"
 	)
 
 	// The revision and author are assigned deterministically by the GitBuilder in test().
 	const expectedJSONMetadataFileContents = `{
   "version": 1,
-  "timestamp": "2022-01-31T00:00:00Z",
+  "timestamp": "2022-01-31T01:02:03Z",
   "swarming_task_id": "58dccb0d6a3f0411",
   "swarming_server": "https://chromium-swarm.appspot.com",
   "task_id": "CkPp9ElAaEXyYWNHpXHU",
@@ -119,7 +121,8 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents string) {
 	const expectedBloatyFileContents = "I'm a fake Bloaty output!"
 
-	fakeNow := time.Date(2022, time.January, 31, 0, 0, 0, 0, time.UTC)
+	// Make sure we use UTC instead of the system timezone.
+	fakeNow := time.Date(2022, time.January, 31, 2, 2, 3, 0, time.FixedZone("UTC+1", 60*60))
 	commitTimestamp := time.Date(2022, time.January, 30, 23, 59, 0, 0, time.UTC)
 
 	repoState := types.RepoState{
@@ -192,8 +195,11 @@ func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedJS
 		testutils.AnyContext,
 		expectedBloatyFileGCSPath,
 		gcs.FILE_WRITE_OPTS_TEXT,
-		[]byte(expectedBloatyFileContents),
-	).Return(nil)
+		mock.Anything,
+	).Run(func(args mock.Arguments) {
+		fileContents := string(args.Get(3).([]byte))
+		assert.Equal(t, expectedBloatyFileContents, fileContents)
+	}).Return(nil)
 
 	// Mock the GCS client call to upload the JSON metadata file.
 	mockGCSClient.On(
@@ -201,8 +207,11 @@ func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedJS
 		testutils.AnyContext,
 		expectedJSONMetadataFileGCSPath,
 		gcs.FILE_WRITE_OPTS_TEXT,
-		[]byte(expectedJSONMetadataFileContents),
-	).Return(nil)
+		mock.Anything,
+	).Run(func(args mock.Arguments) {
+		fileContents := string(args.Get(3).([]byte))
+		assert.Equal(t, expectedJSONMetadataFileContents, fileContents)
+	}).Return(nil)
 
 	// Realistic but arbitrary arguments.
 	args := runStepsArgs{

@@ -195,7 +195,7 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	// Build metadata structure.
 	metadata := &BloatyOutputMetadata{
 		Version:           1,
-		Timestamp:         now.Now(ctx).Format(time.RFC3339),
+		Timestamp:         now.Now(ctx).UTC().Format(time.RFC3339),
 		SwarmingTaskID:    args.swarmingTaskID,
 		SwarmingServer:    args.swarmingServer,
 		TaskID:            args.taskID,
@@ -216,12 +216,10 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 
 	gcsDir := computeTargetGCSDirectory(ctx, args.repoState, args.taskID, args.compileTaskName)
 
-	// Upload Bloaty output TSV file to GCS.
-	if err = uploadFileToGCS(ctx, args.gcsClient, fmt.Sprintf("%s/%s.tsv", gcsDir, args.binaryName), []byte(bloatyOutput)); err != nil {
-		return skerr.Wrap(err)
-	}
-
-	// Upload pretty-printed JSON metadata file to GCS.
+	// Upload pretty-printed JSON metadata file to GCS. It is important to upload the JSON file
+	// first because we index the .tsv file and assume the .json file already has been uploaded.
+	// Pub/Sub notifications are pretty quick, so to avoid a race condition, we should upload
+	// the .json file first (which is ignored) and then the .tsv file (which indexes the .json file)
 	jsonMetadata, err := json.MarshalIndent(metadata, "", "  ")
 	if err != nil {
 		return skerr.Wrap(err)
@@ -230,6 +228,10 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 		return skerr.Wrap(err)
 	}
 
+	// Upload Bloaty output TSV file to GCS.
+	if err = uploadFileToGCS(ctx, args.gcsClient, fmt.Sprintf("%s/%s.tsv", gcsDir, args.binaryName), []byte(bloatyOutput)); err != nil {
+		return skerr.Wrap(err)
+	}
 	return nil
 }
 
@@ -281,13 +283,13 @@ func runBloaty(ctx context.Context, binaryName string) (string, []string, error)
 // computeTargetGCSDirectory computs the target GCS directory where to upload the Bloaty output file
 // and JSON metadata file.
 func computeTargetGCSDirectory(ctx context.Context, repoState types.RepoState, taskID, compileTaskName string) string {
-	yearMonthDate := now.Now(ctx).Format("2006/01/02") // YYYY/MM/DD.
+	timePrefix := now.Now(ctx).UTC().Format("2006/01/02/15") // YYYY/MM/DD/HH.
 	if repoState.IsTryJob() {
-		// Example: 2022/01/31/tryjob/12345/3/CkPp9ElAaEXyYWNHpXHU/Build-Debian10-Clang-x86_64-Release
-		return fmt.Sprintf("%s/tryjob/%s/%s/%s/%s", yearMonthDate, repoState.Patch.Issue, repoState.Patch.Patchset, taskID, compileTaskName)
+		// Example: 2022/01/31/01/tryjob/12345/3/CkPp9ElAaEXyYWNHpXHU/Build-Debian10-Clang-x86_64-Release
+		return fmt.Sprintf("%s/tryjob/%s/%s/%s/%s", timePrefix, repoState.Patch.Issue, repoState.Patch.Patchset, taskID, compileTaskName)
 	} else {
-		// Example: 2022/01/31/033ccea12c0949d0f712471bfcb4ed6daf69aaff/Build-Debian10-Clang-x86_64-Release
-		return fmt.Sprintf("%s/%s/%s", yearMonthDate, repoState.Revision, compileTaskName)
+		// Example: 2022/01/31/01/033ccea12c0949d0f712471bfcb4ed6daf69aaff/Build-Debian10-Clang-x86_64-Release
+		return fmt.Sprintf("%s/%s/%s", timePrefix, repoState.Revision, compileTaskName)
 	}
 }
 
