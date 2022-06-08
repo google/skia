@@ -24,6 +24,9 @@ void SkPaintParamsKeyBuilder::checkReset() {
     SkASSERT(this->sizeInBytes() == 0);
     SkASSERT(fIsValid);
     SkASSERT(fStack.empty());
+#ifdef SK_GRAPHITE_ENABLED
+    SkASSERT(fBlendInfo == skgpu::BlendInfo());
+#endif
 }
 #endif
 

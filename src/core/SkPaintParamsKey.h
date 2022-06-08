@@ -14,6 +14,10 @@
 #include "include/private/SkTDArray.h"
 #include "src/core/SkBuiltInCodeSnippetID.h"
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/Blend.h"
+#endif
+
 #include <array>
 #include <limits>
 
@@ -168,6 +172,13 @@ public:
 
     SkBackend backend() const { return fBackend; }
 
+#ifdef SK_GRAPHITE_ENABLED
+    void setBlendInfo(const skgpu::BlendInfo& blendInfo) {
+        fBlendInfo = blendInfo;
+    }
+    const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
+#endif
+
     void beginBlock(int codeSnippetID);
     void beginBlock(SkBuiltInCodeSnippetID id) { this->beginBlock(static_cast<int>(id)); }
     void endBlock();
@@ -198,6 +209,9 @@ public:
     void unlock() {
         SkASSERT(fLocked);
         fData.rewind();
+#ifdef SK_GRAPHITE_ENABLED
+        fBlendInfo = {};
+#endif
         SkDEBUGCODE(fLocked = false;)
         SkDEBUGCODE(this->checkReset();)
     }
@@ -233,6 +247,10 @@ private:
     // repeated use of the builder will hit a high-water mark and avoid lots of allocations.
     SkTDArray<StackFrame> fStack;
     SkTDArray<uint8_t> fData;
+
+#ifdef SK_GRAPHITE_ENABLED
+    skgpu::BlendInfo fBlendInfo;
+#endif
 };
 
 #endif // SkPaintParamsKey_DEFINED

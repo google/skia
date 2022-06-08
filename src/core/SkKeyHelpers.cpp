@@ -628,17 +628,18 @@ void AddToKey(const SkKeyContext& keyContext,
         auto dict = keyContext.dict();
 
         if (bm <= SkBlendMode::kLastCoeffMode) {
+            builder->setBlendInfo(get_blend_info(bm));
+
             builder->beginBlock(SkBuiltInCodeSnippetID::kFixedFunctionBlender);
             builder->endBlock();
 
             validate_block_header(builder,
                                   SkBuiltInCodeSnippetID::kFixedFunctionBlender,
                                   kFixedFunctionBlockDataSize);
-
-            if (gatherer) {
-                gatherer->setBlendInfo(get_blend_info(bm));
-            }
         } else {
+            // TODO: set up the correct blend info
+            builder->setBlendInfo({});
+
             builder->beginBlock(SkBuiltInCodeSnippetID::kShaderBasedBlender);
             builder->endBlock();
 
@@ -648,8 +649,6 @@ void AddToKey(const SkKeyContext& keyContext,
 
             if (gatherer) {
                 add_shaderbasedblender_uniform_data(dict, bm, gatherer);
-                // TODO: set up the correct blend info
-                gatherer->setBlendInfo({});
             }
         }
         return;
@@ -721,11 +720,6 @@ SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
             break;
     }
 
-    // TODO: the blendInfo should be filled in by BlendModeBlock::AddToKey
-#ifdef SK_GRAPHITE_ENABLED
-    skgpu::BlendInfo blendInfo = get_blend_info(bm);
-#endif
-
     BlendModeBlock::AddToKey(keyContext, builder, /* pipelineData*/ nullptr, bm); // 'bm' is used
     SkPaintParamsKey key = builder->lockAsKey();
 
@@ -734,7 +728,7 @@ SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
     auto entry = dict->findOrCreate(
             key
 #ifdef SK_GRAPHITE_ENABLED
-            , blendInfo
+            , builder->blendInfo()
 #endif
             );
 
