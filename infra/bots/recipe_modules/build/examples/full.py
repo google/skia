@@ -48,6 +48,7 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-x86_64-Debug-Tidy',
   'Build-Debian10-Clang-x86_64-Debug-Vulkan_TSAN',
   'Build-Debian10-Clang-x86_64-Debug-Wuffs',
+  'Build-Debian10-Clang-x86_64-OptimizeForSize',
   'Build-Debian10-Clang-x86_64-Release-ANGLE',
   'Build-Debian10-Clang-x86_64-Release-ASAN',
   'Build-Debian10-Clang-x86_64-Release-CMake',

@@ -189,6 +189,8 @@ def compile_fn(api, checkout_root, out_dir):
 
   if compiler != 'MSVC' and configuration == 'Debug':
     extra_cflags.append('-O1')
+  if compiler != 'MSVC' and configuration == 'OptimizeForSize':
+    extra_cflags.append('-Oz')
 
   if 'Exceptions' in extra_tokens:
     extra_cflags.append('/EHsc')

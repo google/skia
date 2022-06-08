@@ -73,6 +73,7 @@
   {"name": "Build-Debian10-Clang-x86_64-Debug-Wuffs",
    "cq_config": {"location_regexes": ["DEPS", "src/codec/SkWuffs.*"]}
    },
+  {"name": "Build-Debian10-Clang-x86_64-OptimizeForSize"},
   {"name": "Build-Debian10-Clang-x86_64-Release"},
   {"name": "Build-Debian10-Clang-x86_64-Release-ANGLE"},
   {"name": "Build-Debian10-Clang-x86_64-Release-ASAN"},
@@ -227,18 +228,15 @@
   {"name": "Canary-Chromium"},
   {"name": "Canary-Flutter"},
   {"name": "Canary-G3"},
-  {"name": "CodeSize-dm-Debian10-Clang-x86_64-Debug",
+  {"name": "CodeSize-dm-Debian10-Clang-x86_64-OptimizeForSize",
    "cq_config": {}
    },
-  {"name": "CodeSize-dm-Debian10-Clang-x86_64-Release",
+  {"name": "CodeSize-fm-Debian10-Clang-x86_64-OptimizeForSize",
    "cq_config": {}
    },
-  {"name": "CodeSize-fm-Debian10-Clang-x86_64-Debug",
-   "cq_config": {}
-   },
-  {"name": "CodeSize-fm-Debian10-Clang-x86_64-Release",
-   "cq_config": {}
-   },
+  {"name": "CodeSize-skottie_tool-Debian10-Clang-x86_64-OptimizeForSize",
+    "cq_config": {}
+  },
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"},
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN"},
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN"},

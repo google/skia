@@ -220,6 +220,11 @@
         "Build-Debian10-Clang-x86_64-Debug-Wuffs"
       ]
     },
+    "Build-Debian10-Clang-x86_64-OptimizeForSize": {
+      "tasks": [
+        "Build-Debian10-Clang-x86_64-OptimizeForSize"
+      ]
+    },
     "Build-Debian10-Clang-x86_64-Release": {
       "tasks": [
         "Build-Debian10-Clang-x86_64-Release"
@@ -846,24 +851,19 @@
       ],
       "trigger": "on demand"
     },
-    "CodeSize-dm-Debian10-Clang-x86_64-Debug": {
+    "CodeSize-dm-Debian10-Clang-x86_64-OptimizeForSize": {
       "tasks": [
-        "CodeSize-dm-Debian10-Clang-x86_64-Debug"
+        "CodeSize-dm-Debian10-Clang-x86_64-OptimizeForSize"
       ]
     },
-    "CodeSize-dm-Debian10-Clang-x86_64-Release": {
+    "CodeSize-fm-Debian10-Clang-x86_64-OptimizeForSize": {
       "tasks": [
-        "CodeSize-dm-Debian10-Clang-x86_64-Release"
+        "CodeSize-fm-Debian10-Clang-x86_64-OptimizeForSize"
       ]
     },
-    "CodeSize-fm-Debian10-Clang-x86_64-Debug": {
+    "CodeSize-skottie_tool-Debian10-Clang-x86_64-OptimizeForSize": {
       "tasks": [
-        "CodeSize-fm-Debian10-Clang-x86_64-Debug"
-      ]
-    },
-    "CodeSize-fm-Debian10-Clang-x86_64-Release": {
-      "tasks": [
-        "CodeSize-fm-Debian10-Clang-x86_64-Release"
+        "CodeSize-skottie_tool-Debian10-Clang-x86_64-OptimizeForSize"
       ]
     },
     "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
@@ -6866,6 +6866,104 @@
         "${ISOLATED_OUTDIR}",
         "compile",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian10-Clang-x86_64-Debug-Wuffs\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Debian10-Clang-x86_64-OptimizeForSize": {
+      "caches": [
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
+        },
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:2@3.8.10.chromium.19"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
+        },
+        {
+          "name": "infra/tools/luci/vpython-native/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:20"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian10-Clang-x86_64-OptimizeForSize\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -18884,7 +18982,7 @@
       "max_attempts": 1,
       "service_account": "skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "CodeSize-dm-Debian10-Clang-x86_64-Debug": {
+    "CodeSize-dm-Debian10-Clang-x86_64-OptimizeForSize": {
       "caches": [
         {
           "name": "work",
@@ -18912,9 +19010,9 @@
         "--task_id",
         "<(TASK_ID)",
         "--task_name",
-        "CodeSize-dm-Debian10-Clang-x86_64-Debug",
+        "CodeSize-dm-Debian10-Clang-x86_64-OptimizeForSize",
         "--compile_task_name",
-        "Build-Debian10-Clang-x86_64-Debug",
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
         "--binary_name",
         "dm",
         "--bloaty_cipd_version",
@@ -18931,7 +19029,7 @@
         "<(CODEREVIEW_SERVER)"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-x86_64-Debug",
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
         "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
@@ -18946,7 +19044,7 @@
       "max_attempts": 1,
       "service_account": "skia-external-codesize@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "CodeSize-dm-Debian10-Clang-x86_64-Release": {
+    "CodeSize-fm-Debian10-Clang-x86_64-OptimizeForSize": {
       "caches": [
         {
           "name": "work",
@@ -18974,71 +19072,9 @@
         "--task_id",
         "<(TASK_ID)",
         "--task_name",
-        "CodeSize-dm-Debian10-Clang-x86_64-Release",
+        "CodeSize-fm-Debian10-Clang-x86_64-OptimizeForSize",
         "--compile_task_name",
-        "Build-Debian10-Clang-x86_64-Release",
-        "--binary_name",
-        "dm",
-        "--bloaty_cipd_version",
-        "version:1",
-        "--repo",
-        "<(REPO)",
-        "--revision",
-        "<(REVISION)",
-        "--patch_issue",
-        "<(ISSUE)",
-        "--patch_set",
-        "<(PATCHSET)",
-        "--patch_server",
-        "<(CODEREVIEW_SERVER)"
-      ],
-      "dependencies": [
-        "Build-Debian10-Clang-x86_64-Release",
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
-      "max_attempts": 1,
-      "service_account": "skia-external-codesize@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "CodeSize-fm-Debian10-Clang-x86_64-Debug": {
-      "caches": [
-        {
-          "name": "work",
-          "path": "cache/work"
-        }
-      ],
-      "casSpec": "empty",
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
-        },
-        {
-          "name": "skia/bots/bloaty",
-          "path": "bloaty",
-          "version": "version:1"
-        }
-      ],
-      "command": [
-        "./codesize",
-        "--local=false",
-        "--project_id",
-        "skia-swarming-bots",
-        "--task_id",
-        "<(TASK_ID)",
-        "--task_name",
-        "CodeSize-fm-Debian10-Clang-x86_64-Debug",
-        "--compile_task_name",
-        "Build-Debian10-Clang-x86_64-Debug",
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
         "--binary_name",
         "fm",
         "--bloaty_cipd_version",
@@ -19055,7 +19091,7 @@
         "<(CODEREVIEW_SERVER)"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-x86_64-Debug",
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
         "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
@@ -19070,7 +19106,7 @@
       "max_attempts": 1,
       "service_account": "skia-external-codesize@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "CodeSize-fm-Debian10-Clang-x86_64-Release": {
+    "CodeSize-skottie_tool-Debian10-Clang-x86_64-OptimizeForSize": {
       "caches": [
         {
           "name": "work",
@@ -19098,11 +19134,11 @@
         "--task_id",
         "<(TASK_ID)",
         "--task_name",
-        "CodeSize-fm-Debian10-Clang-x86_64-Release",
+        "CodeSize-skottie_tool-Debian10-Clang-x86_64-OptimizeForSize",
         "--compile_task_name",
-        "Build-Debian10-Clang-x86_64-Release",
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
         "--binary_name",
-        "fm",
+        "skottie_tool",
         "--bloaty_cipd_version",
         "version:1",
         "--repo",
@@ -19117,7 +19153,7 @@
         "<(CODEREVIEW_SERVER)"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-x86_64-Release",
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
         "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
@@ -83845,10 +83881,9 @@
     "BuildStats-Debian9-Clang-arm-Release-Flutter_Android_Docker": {
       "experimental": true
     },
-    "CodeSize-dm-Debian10-Clang-x86_64-Debug": {},
-    "CodeSize-dm-Debian10-Clang-x86_64-Release": {},
-    "CodeSize-fm-Debian10-Clang-x86_64-Debug": {},
-    "CodeSize-fm-Debian10-Clang-x86_64-Release": {},
+    "CodeSize-dm-Debian10-Clang-x86_64-OptimizeForSize": {},
+    "CodeSize-fm-Debian10-Clang-x86_64-OptimizeForSize": {},
+    "CodeSize-skottie_tool-Debian10-Clang-x86_64-OptimizeForSize": {},
     "Housekeeper-OnDemand-Presubmit": {},
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
       "location_regexes": [
