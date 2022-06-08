@@ -424,6 +424,7 @@ void TextLine::paintShadow(SkCanvas* canvas,
         if (context.clippingNeeded) {
             canvas->save();
             SkRect clip = extendHeight(context);
+            clip.offset(x, y);
             clip.offset(this->offset());
             canvas->clipRect(clip);
         }
