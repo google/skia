@@ -164,7 +164,7 @@ void GrMtlPipelineState::setBlendConstants(GrMtlRenderCommandEncoder* renderCmdE
         return;
     }
 
-    const GrXferProcessor::BlendInfo& blendInfo = xferProcessor.getBlendInfo();
+    const skgpu::BlendInfo& blendInfo = xferProcessor.getBlendInfo();
     skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
     skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
     if (skgpu::BlendCoeffRefsConstant(srcCoeff) || skgpu::BlendCoeffRefsConstant(dstCoeff)) {

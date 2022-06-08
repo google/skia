@@ -10,8 +10,8 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 
 #include <cinttypes>
@@ -23,6 +23,7 @@ class GrStencilSettings;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkRenderPass;
+class GrXferProcessor;
 struct SkIRect;
 
 namespace skgpu {
@@ -39,7 +40,7 @@ public:
                                     const GrStencilSettings&,
                                     int numSamples,
                                     bool isHWAntialiasState,
-                                    const GrXferProcessor::BlendInfo&,
+                                    const skgpu::BlendInfo&,
                                     bool isWireframe,
                                     bool useConservativeRaster,
                                     uint32_t subpass,

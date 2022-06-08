@@ -80,14 +80,14 @@ void GrPipeline::genKey(skgpu::KeyBuilder* b, const GrCaps& caps) const {
     InputFlags ignoredFlags = InputFlags::kSnapVerticesToPixelCenters;
     b->add32((uint32_t)fFlags & ~(uint32_t)ignoredFlags, "flags");
 
-    const GrXferProcessor::BlendInfo& blendInfo = this->getXferProcessor().getBlendInfo();
+    const skgpu::BlendInfo& blendInfo = this->getXferProcessor().getBlendInfo();
 
     static constexpr uint32_t kBlendCoeffSize = 5;
     static constexpr uint32_t kBlendEquationSize = 5;
     static_assert(static_cast<int>(skgpu::BlendCoeff::kLast) < (1 << kBlendCoeffSize));
     static_assert(static_cast<int>(skgpu::BlendEquation::kLast) < (1 << kBlendEquationSize));
 
-    b->addBool(blendInfo.fWriteColor, "writeColor");
+    b->addBool(blendInfo.fWritesColor, "writesColor");
     b->addBits(kBlendCoeffSize, static_cast<int>(blendInfo.fSrcBlend), "srcBlend");
     b->addBits(kBlendCoeffSize, static_cast<int>(blendInfo.fDstBlend), "dstBlend");
     b->addBits(kBlendEquationSize, static_cast<int>(blendInfo.fEquation), "equation");

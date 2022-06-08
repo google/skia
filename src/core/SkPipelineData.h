@@ -119,24 +119,6 @@ private:
 class SkPipelineDataGatherer {
 public:
 #ifdef SK_GRAPHITE_ENABLED
-    struct BlendInfo {
-        bool operator==(const BlendInfo& other) const {
-            return fEquation == other.fEquation &&
-                   fSrcBlend == other.fSrcBlend &&
-                   fDstBlend == other.fDstBlend &&
-                   fBlendConstant == other.fBlendConstant &&
-                   fWritesColor == other.fWritesColor;
-        }
-
-        skgpu::BlendEquation fEquation = skgpu::BlendEquation::kAdd;
-        skgpu::BlendCoeff    fSrcBlend = skgpu::BlendCoeff::kOne;
-        skgpu::BlendCoeff    fDstBlend = skgpu::BlendCoeff::kZero;
-        SkPMColor4f          fBlendConstant = SK_PMColor4fTRANSPARENT;
-        bool                 fWritesColor = true;
-    };
-#endif
-
-#ifdef SK_GRAPHITE_ENABLED
     SkPipelineDataGatherer(skgpu::graphite::Layout layout);
 #endif
 
@@ -145,10 +127,10 @@ public:
     SkDEBUGCODE(void checkReset();)
 
 #ifdef SK_GRAPHITE_ENABLED
-    void setBlendInfo(const SkPipelineDataGatherer::BlendInfo& blendInfo) {
+    void setBlendInfo(const skgpu::BlendInfo& blendInfo) {
         fBlendInfo = blendInfo;
     }
-    const BlendInfo& blendInfo() const { return fBlendInfo; }
+    const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
     void add(const SkSamplingOptions& sampling,
              const SkTileMode tileModes[2],
@@ -190,7 +172,7 @@ private:
 #endif // SK_DEBUG
 
     SkTextureDataBlock                     fTextureDataBlock;
-    BlendInfo                              fBlendInfo;
+    skgpu::BlendInfo                       fBlendInfo;
     skgpu::graphite::UniformManager        fUniformManager;
 #endif // SK_GRAPHITE_ENABLED
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;

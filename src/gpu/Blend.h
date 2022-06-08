@@ -10,8 +10,10 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkColorData.h"
 
 enum class SkBlendMode;
+class SkString;
 
 namespace skgpu {
 
@@ -73,6 +75,24 @@ enum class BlendCoeff : uint8_t {
     kIllegal,
 
     kLast = kIllegal,
+};
+
+struct BlendInfo {
+    SkDEBUGCODE(SkString dump() const;)
+
+    bool operator==(const BlendInfo& other) const {
+        return fEquation == other.fEquation &&
+               fSrcBlend == other.fSrcBlend &&
+               fDstBlend == other.fDstBlend &&
+               fBlendConstant == other.fBlendConstant &&
+               fWritesColor == other.fWritesColor;
+    }
+
+    skgpu::BlendEquation fEquation = skgpu::BlendEquation::kAdd;
+    skgpu::BlendCoeff    fSrcBlend = skgpu::BlendCoeff::kOne;
+    skgpu::BlendCoeff    fDstBlend = skgpu::BlendCoeff::kZero;
+    SkPMColor4f          fBlendConstant = SK_PMColor4fTRANSPARENT;
+    bool                 fWritesColor = true;
 };
 
 static const int kBlendCoeffCnt = static_cast<int>(BlendCoeff::kLast) + 1;

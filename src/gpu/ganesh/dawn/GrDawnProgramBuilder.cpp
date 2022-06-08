@@ -171,7 +171,7 @@ static wgpu::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {
 }
 
 static wgpu::BlendState create_blend_state(const GrDawnGpu* gpu, const GrPipeline& pipeline) {
-    GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
+    skgpu::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
     skgpu::BlendEquation equation = blendInfo.fEquation;
     skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
     skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
@@ -379,9 +379,9 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     colorTargetState.format = colorFormat;
     colorTargetState.blend = &blendState;
 
-    bool writeColor = pipeline.getXferProcessor().getBlendInfo().fWriteColor;
-    colorTargetState.writeMask = writeColor ? wgpu::ColorWriteMask::All
-                                            : wgpu::ColorWriteMask::None;
+    bool writesColor = pipeline.getXferProcessor().getBlendInfo().fWritesColor;
+    colorTargetState.writeMask = writesColor ? wgpu::ColorWriteMask::All
+                                             : wgpu::ColorWriteMask::None;
 
     wgpu::FragmentState fragmentState;
     fragmentState.module = fsModule;

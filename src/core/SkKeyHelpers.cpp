@@ -553,8 +553,8 @@ void AddToKey(const SkKeyContext& keyContext,
 #ifdef SK_GRAPHITE_ENABLED
 namespace {
 
-constexpr SkPipelineDataGatherer::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
-                                                                  skgpu::BlendCoeff dstCoeff) {
+constexpr skgpu::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
+                                                 skgpu::BlendCoeff dstCoeff) {
     return { skgpu::BlendEquation::kAdd,
              srcCoeff,
              dstCoeff,
@@ -564,7 +564,7 @@ constexpr SkPipelineDataGatherer::BlendInfo make_simple_blendInfo(skgpu::BlendCo
 
 static constexpr int kNumCoeffModes = (int)SkBlendMode::kLastCoeffMode + 1;
 /*>> No coverage, input color unknown <<*/
-static constexpr SkPipelineDataGatherer::BlendInfo gBlendTable[kNumCoeffModes] = {
+static constexpr skgpu::BlendInfo gBlendTable[kNumCoeffModes] = {
         /* clear */      make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kZero),
         /* src */        make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kZero),
         /* dst */        make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
@@ -582,7 +582,7 @@ static constexpr SkPipelineDataGatherer::BlendInfo gBlendTable[kNumCoeffModes] =
         /* screen */     make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC)
 };
 
-const SkPipelineDataGatherer::BlendInfo& get_blend_info(SkBlendMode bm) {
+const skgpu::BlendInfo& get_blend_info(SkBlendMode bm) {
     if (bm <= SkBlendMode::kLastCoeffMode) {
         return gBlendTable[(int) bm];
     }
@@ -649,7 +649,7 @@ void AddToKey(const SkKeyContext& keyContext,
             if (gatherer) {
                 add_shaderbasedblender_uniform_data(dict, bm, gatherer);
                 // TODO: set up the correct blend info
-                gatherer->setBlendInfo(SkPipelineDataGatherer::BlendInfo());
+                gatherer->setBlendInfo({});
             }
         }
         return;
@@ -723,7 +723,7 @@ SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
 
     // TODO: the blendInfo should be filled in by BlendModeBlock::AddToKey
 #ifdef SK_GRAPHITE_ENABLED
-    SkPipelineDataGatherer::BlendInfo blendInfo = get_blend_info(bm);
+    skgpu::BlendInfo blendInfo = get_blend_info(bm);
 #endif
 
     BlendModeBlock::AddToKey(keyContext, builder, /* pipelineData*/ nullptr, bm); // 'bm' is used

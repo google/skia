@@ -105,10 +105,10 @@ public:
     }
 
 #ifdef SK_GRAPHITE_ENABLED
-    void setBlendInfo(const SkPipelineDataGatherer::BlendInfo& blendInfo) {
+    void setBlendInfo(const skgpu::BlendInfo& blendInfo) {
         fBlendInfo = blendInfo;
     }
-    const SkPipelineDataGatherer::BlendInfo& blendInfo() const { return fBlendInfo; }
+    const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 #endif
 
 #if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
@@ -129,7 +129,7 @@ private:
 
     // The blendInfo doesn't actually contribute to the program's creation but, it contains the
     // matching fixed-function settings that the program's caller needs to set up.
-    SkPipelineDataGatherer::BlendInfo fBlendInfo;
+    skgpu::BlendInfo fBlendInfo;
 #endif
 };
 
@@ -145,14 +145,14 @@ public:
         }
         const SkPaintParamsKey& paintParamsKey() const { return fKey; }
 #ifdef SK_GRAPHITE_ENABLED
-        const SkPipelineDataGatherer::BlendInfo& blendInfo() const { return fBlendInfo; }
+        const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 #endif
 
     private:
         friend class SkShaderCodeDictionary;
 
 #ifdef SK_GRAPHITE_ENABLED
-        Entry(const SkPaintParamsKey& key, const SkPipelineDataGatherer::BlendInfo& blendInfo)
+        Entry(const SkPaintParamsKey& key, const skgpu::BlendInfo& blendInfo)
                 : fKey(key.asSpan())
                 , fBlendInfo(blendInfo) {
         }
@@ -172,13 +172,13 @@ public:
         // The BlendInfo isn't used in the hash (that is the key's job) but it does directly vary
         // with the key. It could, theoretically, be recreated from the key but that would add
         // extra complexity.
-        SkPipelineDataGatherer::BlendInfo fBlendInfo;
+        skgpu::BlendInfo fBlendInfo;
 #endif
     };
 
 #ifdef SK_GRAPHITE_ENABLED
     const Entry* findOrCreate(const SkPaintParamsKey&,
-                              const SkPipelineDataGatherer::BlendInfo&) SK_EXCLUDES(fSpinLock);
+                              const skgpu::BlendInfo&) SK_EXCLUDES(fSpinLock);
 #else
     const Entry* findOrCreate(const SkPaintParamsKey&) SK_EXCLUDES(fSpinLock);
 #endif
@@ -213,7 +213,7 @@ public:
 
 private:
 #ifdef SK_GRAPHITE_ENABLED
-    Entry* makeEntry(const SkPaintParamsKey&, const SkPipelineDataGatherer::BlendInfo&);
+    Entry* makeEntry(const SkPaintParamsKey&, const skgpu::BlendInfo&);
 #else
     Entry* makeEntry(const SkPaintParamsKey&);
 #endif

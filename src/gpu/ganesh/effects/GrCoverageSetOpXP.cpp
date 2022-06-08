@@ -30,7 +30,7 @@ public:
 private:
     void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override;
 
-    void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
+    void onGetBlendInfo(skgpu::BlendInfo* blendInfo) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const CoverageSetOpXP& xp = xpBase.cast<CoverageSetOpXP>();
@@ -64,7 +64,7 @@ std::unique_ptr<GrXferProcessor::ProgramImpl> CoverageSetOpXP::makeProgramImpl()
     return std::make_unique<Impl>();
 }
 
-void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
+void CoverageSetOpXP::onGetBlendInfo(skgpu::BlendInfo* blendInfo) const {
     switch (fRegionOp) {
         case SkRegion::kReplace_Op:
             blendInfo->fSrcBlend = skgpu::BlendCoeff::kOne;

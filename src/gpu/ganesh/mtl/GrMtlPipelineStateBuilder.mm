@@ -342,7 +342,7 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
     }
 
     // blending
-    const GrXferProcessor::BlendInfo& blendInfo = pipeline.getXferProcessor().getBlendInfo();
+    const skgpu::BlendInfo& blendInfo = pipeline.getXferProcessor().getBlendInfo();
 
     skgpu::BlendEquation equation = blendInfo.fEquation;
     skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
@@ -370,13 +370,13 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
         }
     }
 
-    if (blendInfo.fWriteColor) {
+    if (blendInfo.fWritesColor) {
         mtlColorAttachment.writeMask = MTLColorWriteMaskAll;
     } else {
         mtlColorAttachment.writeMask = MTLColorWriteMaskNone;
     }
     if (writer) {
-        writer->writeBool(blendInfo.fWriteColor);
+        writer->writeBool(blendInfo.fWritesColor);
     }
     return mtlColorAttachment;
 }

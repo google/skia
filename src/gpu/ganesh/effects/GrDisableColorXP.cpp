@@ -26,8 +26,8 @@ private:
     const char* name() const override { return "Disable Color"; }
     bool onIsEqual(const GrXferProcessor& xpBase) const override { return true; }
     void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override {}
-    void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
-        blendInfo->fWriteColor = false;
+    void onGetBlendInfo(skgpu::BlendInfo* blendInfo) const override {
+        blendInfo->fWritesColor = false;
     }
     std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 

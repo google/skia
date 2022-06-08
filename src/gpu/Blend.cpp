@@ -9,6 +9,10 @@
 
 #include "include/core/SkBlendMode.h"
 
+#ifdef SK_DEBUG
+#include "include/core/SkString.h"
+#endif
+
 namespace skgpu {
 
 const char* BlendFuncName(SkBlendMode mode) {
@@ -95,5 +99,75 @@ ReducedBlendModeInfo GetReducedBlendModeInfo(SkBlendMode mode) {
         default:                       return {BlendFuncName(mode), {}};
     }
 }
+
+#ifdef SK_DEBUG
+
+namespace {
+
+const char *equation_string(skgpu::BlendEquation eq) {
+    switch (eq) {
+        case skgpu::BlendEquation::kAdd:             return "add";
+        case skgpu::BlendEquation::kSubtract:        return "subtract";
+        case skgpu::BlendEquation::kReverseSubtract: return "reverse_subtract";
+        case skgpu::BlendEquation::kScreen:          return "screen";
+        case skgpu::BlendEquation::kOverlay:         return "overlay";
+        case skgpu::BlendEquation::kDarken:          return "darken";
+        case skgpu::BlendEquation::kLighten:         return "lighten";
+        case skgpu::BlendEquation::kColorDodge:      return "color_dodge";
+        case skgpu::BlendEquation::kColorBurn:       return "color_burn";
+        case skgpu::BlendEquation::kHardLight:       return "hard_light";
+        case skgpu::BlendEquation::kSoftLight:       return "soft_light";
+        case skgpu::BlendEquation::kDifference:      return "difference";
+        case skgpu::BlendEquation::kExclusion:       return "exclusion";
+        case skgpu::BlendEquation::kMultiply:        return "multiply";
+        case skgpu::BlendEquation::kHSLHue:          return "hsl_hue";
+        case skgpu::BlendEquation::kHSLSaturation:   return "hsl_saturation";
+        case skgpu::BlendEquation::kHSLColor:        return "hsl_color";
+        case skgpu::BlendEquation::kHSLLuminosity:   return "hsl_luminosity";
+        case skgpu::BlendEquation::kIllegal:
+            SkASSERT(false);
+            return "<illegal>";
+    }
+
+    SkUNREACHABLE;
+}
+
+const char *coeff_string(skgpu::BlendCoeff coeff) {
+    switch (coeff) {
+        case skgpu::BlendCoeff::kZero:    return "zero";
+        case skgpu::BlendCoeff::kOne:     return "one";
+        case skgpu::BlendCoeff::kSC:      return "src_color";
+        case skgpu::BlendCoeff::kISC:     return "inv_src_color";
+        case skgpu::BlendCoeff::kDC:      return "dst_color";
+        case skgpu::BlendCoeff::kIDC:     return "inv_dst_color";
+        case skgpu::BlendCoeff::kSA:      return "src_alpha";
+        case skgpu::BlendCoeff::kISA:     return "inv_src_alpha";
+        case skgpu::BlendCoeff::kDA:      return "dst_alpha";
+        case skgpu::BlendCoeff::kIDA:     return "inv_dst_alpha";
+        case skgpu::BlendCoeff::kConstC:  return "const_color";
+        case skgpu::BlendCoeff::kIConstC: return "inv_const_color";
+        case skgpu::BlendCoeff::kS2C:     return "src2_color";
+        case skgpu::BlendCoeff::kIS2C:    return "inv_src2_color";
+        case skgpu::BlendCoeff::kS2A:     return "src2_alpha";
+        case skgpu::BlendCoeff::kIS2A:    return "inv_src2_alpha";
+        case skgpu::BlendCoeff::kIllegal:
+            SkASSERT(false);
+            return "<illegal>";
+    }
+
+    SkUNREACHABLE;
+}
+
+} // anonymous namespace
+
+SkString BlendInfo::dump() const {
+    SkString out;
+    out.printf("writes_color(%d) equation(%s) src_coeff(%s) dst_coeff:(%s) const(0x%08x)",
+               fWritesColor, equation_string(fEquation), coeff_string(fSrcBlend),
+               coeff_string(fDstBlend), fBlendConstant.toBytes_RGBA());
+    return out;
+}
+
+#endif // SK_DEBUG
 
 }  // namespace skgpu

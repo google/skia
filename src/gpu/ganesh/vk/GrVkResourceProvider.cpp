@@ -301,7 +301,7 @@ sk_sp<const GrVkPipeline> GrVkResourceProvider::findOrCreateMSAALoadPipeline(
                 GrStencilSettings(),
                 numSamples,
                 /*isHWantialiasState=*/false,
-                GrXferProcessor::BlendInfo(),
+                skgpu::BlendInfo(),
                 /*isWireframe=*/false,
                 /*useConservativeRaster=*/false,
                 /*subpass=*/0,

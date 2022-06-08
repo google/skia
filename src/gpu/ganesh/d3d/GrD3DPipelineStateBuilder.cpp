@@ -346,7 +346,7 @@ static void fill_in_blend_state(const GrPipeline& pipeline, D3D12_BLEND_DESC* bl
     blendDesc->AlphaToCoverageEnable = false;
     blendDesc->IndependentBlendEnable = false;
 
-    const GrXferProcessor::BlendInfo& blendInfo = pipeline.getXferProcessor().getBlendInfo();
+    const skgpu::BlendInfo& blendInfo = pipeline.getXferProcessor().getBlendInfo();
 
     skgpu::BlendEquation equation = blendInfo.fEquation;
     skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
@@ -364,7 +364,7 @@ static void fill_in_blend_state(const GrPipeline& pipeline, D3D12_BLEND_DESC* bl
         rtBlend.BlendOpAlpha = blend_equation_to_d3d_op(equation);
     }
 
-    if (!blendInfo.fWriteColor) {
+    if (!blendInfo.fWritesColor) {
         rtBlend.RenderTargetWriteMask = 0;
     } else {
         rtBlend.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;

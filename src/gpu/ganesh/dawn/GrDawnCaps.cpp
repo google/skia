@@ -153,14 +153,14 @@ bool GrDawnCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
 
 // FIXME: taken from GrVkPipelineState; refactor.
 static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
-    GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
+    skgpu::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
 
     static const uint32_t kBlendWriteShift = 1;
     static const uint32_t kBlendCoeffShift = 5;
     static_assert((int)skgpu::BlendCoeff::kLast < (1 << kBlendCoeffShift));
     static_assert((int)skgpu::BlendEquation::kFirstAdvanced - 1 < 4);
 
-    uint32_t key = blendInfo.fWriteColor;
+    uint32_t key = blendInfo.fWritesColor;
     key |= ((int)blendInfo.fSrcBlend << kBlendWriteShift);
     key |= ((int)blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
     key |= ((int)blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));

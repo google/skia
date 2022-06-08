@@ -94,7 +94,7 @@ void set_stencil_ref(GrD3DGpu* gpu, const GrProgramInfo& info) {
 void set_blend_factor(GrD3DGpu* gpu, const GrProgramInfo& info) {
     const GrXferProcessor& xferProcessor = info.pipeline().getXferProcessor();
     const skgpu::Swizzle& swizzle = info.pipeline().writeSwizzle();
-    const GrXferProcessor::BlendInfo& blendInfo = xferProcessor.getBlendInfo();
+    const skgpu::BlendInfo& blendInfo = xferProcessor.getBlendInfo();
     skgpu::BlendCoeff srcCoeff = blendInfo.fSrcBlend;
     skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
     float floatColors[4];

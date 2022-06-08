@@ -141,7 +141,7 @@ void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo
         fPassEncoder.SetStencilReference(get_stencil_ref(programInfo));
     }
     const GrPipeline& pipeline = programInfo.pipeline();
-    GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
+    skgpu::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
     const float* c = blendInfo.fBlendConstant.vec();
     wgpu::Color color{c[0], c[1], c[2], c[3]};
     fPassEncoder.SetBlendConstant(&color);

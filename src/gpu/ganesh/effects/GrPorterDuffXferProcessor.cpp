@@ -414,11 +414,11 @@ private:
 
     bool onHasSecondaryOutput() const override { return fBlendFormula.hasSecondaryOutput(); }
 
-    void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
+    void onGetBlendInfo(skgpu::BlendInfo* blendInfo) const override {
         blendInfo->fEquation = fBlendFormula.equation();
         blendInfo->fSrcBlend = fBlendFormula.srcCoeff();
         blendInfo->fDstBlend = fBlendFormula.dstCoeff();
-        blendInfo->fWriteColor = fBlendFormula.modifiesDst();
+        blendInfo->fWritesColor = fBlendFormula.modifiesDst();
     }
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
@@ -586,7 +586,7 @@ private:
 
     void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override {}
 
-    void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
+    void onGetBlendInfo(skgpu::BlendInfo* blendInfo) const override {
         blendInfo->fSrcBlend = skgpu::BlendCoeff::kConstC;
         blendInfo->fDstBlend = skgpu::BlendCoeff::kISC;
         blendInfo->fBlendConstant = fBlendConstant;

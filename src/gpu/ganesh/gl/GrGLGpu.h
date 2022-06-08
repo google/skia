@@ -361,8 +361,7 @@ private:
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 
-    void flushBlendAndColorWrite(const GrXferProcessor::BlendInfo& blendInfo,
-                                 const skgpu::Swizzle&);
+    void flushBlendAndColorWrite(const skgpu::BlendInfo&, const skgpu::Swizzle&);
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;

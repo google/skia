@@ -19,7 +19,7 @@ SkPipelineDataGatherer::SkPipelineDataGatherer(skgpu::graphite::Layout layout)
 void SkPipelineDataGatherer::reset() {
 #ifdef SK_GRAPHITE_ENABLED
     fTextureDataBlock.reset();
-    fBlendInfo = BlendInfo();
+    fBlendInfo = {};
     fUniformManager.reset();
 #endif
     fSnippetRequirementFlags = SnippetRequirementFlags::kNone;
@@ -29,7 +29,7 @@ void SkPipelineDataGatherer::reset() {
 void SkPipelineDataGatherer::checkReset() {
 #ifdef SK_GRAPHITE_ENABLED
     SkASSERT(fTextureDataBlock.empty());
-    SkASSERT(fBlendInfo == BlendInfo());
+    SkASSERT(fBlendInfo == skgpu::BlendInfo());
     SkDEBUGCODE(fUniformManager.checkReset());
 #endif
     SkASSERT(fSnippetRequirementFlags == SnippetRequirementFlags::kNone);

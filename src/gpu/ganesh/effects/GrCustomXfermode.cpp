@@ -94,7 +94,7 @@ private:
 
     void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override;
 
-    void onGetBlendInfo(BlendInfo*) const override;
+    void onGetBlendInfo(skgpu::BlendInfo*) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override;
 
@@ -185,7 +185,7 @@ GrXferBarrierType CustomXP::xferBarrierType(const GrCaps& caps) const {
     return kNone_GrXferBarrierType;
 }
 
-void CustomXP::onGetBlendInfo(BlendInfo* blendInfo) const {
+void CustomXP::onGetBlendInfo(skgpu::BlendInfo* blendInfo) const {
     if (this->hasHWBlendEquation()) {
         blendInfo->fEquation = fHWBlendEquation;
     }
