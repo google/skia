@@ -116,13 +116,24 @@ static void writeCPP(const DFA& dfa, const char* lexer, const char* token, const
         states = std::max(states, row.size());
     }
     out << "using State = " << (states <= 256 ? "uint8_t" : "uint16_t") << ";\n";
-    // arbitrarily-chosen character which is greater than START_CHAR and should not appear in actual
-    // input
-    out << "static const uint8_t INVALID_CHAR = 18;";
-    out << "static const int8_t kMappings[" << dfa.fCharMappings.size() << "] = {\n    ";
+
+    // Find the first character mapped in our DFA.
+    size_t startChar = 0;
+    for (; startChar < dfa.fCharMappings.size(); ++startChar) {
+        if (dfa.fCharMappings[startChar] != 0) {
+            break;
+        }
+    }
+
+    // Arbitrarily-chosen character which is greater than startChar, and should not appear in actual
+    // input.
+    SkASSERT(startChar < 18);
+    out << "static constexpr uint8_t kInvalidChar = 18;";
+    out << "static constexpr int8_t kMappings[" << dfa.fCharMappings.size() - startChar << "] = {\n"
+           "    ";
     const char* separator = "";
-    for (int m : dfa.fCharMappings) {
-        out << separator << std::to_string(m);
+    for (size_t index = startChar; index < dfa.fCharMappings.size(); ++index) {
+        out << separator << std::to_string(dfa.fCharMappings[index]);
         separator = ", ";
     }
     out << "\n};\n";
@@ -148,20 +159,17 @@ static void writeCPP(const DFA& dfa, const char* lexer, const char* token, const
     // tokens. Our grammar doesn't have this property, so we can simplify the logic
     // a bit.
     int32_t startOffset = fOffset;
-    if (startOffset == (int32_t)fText.length()) {
-        return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0);
-    }
-    State state = 1;
+    State   state = 1;
     for (;;) {
         if (fOffset >= (int32_t)fText.length()) {
-            if (kAccepts[state] == -1) {
-                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
+            if (startOffset == (int32_t)fText.length() || kAccepts[state] == -1) {
+                return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0);
             }
             break;
         }
-        uint8_t c = (uint8_t) fText[fOffset];
-        if (c <= 8 || c >= )" << dfa.fCharMappings.size() << R"() {
-            c = INVALID_CHAR;
+        uint8_t c = (uint8_t)(fText[fOffset] - )" << startChar << R"();
+        if (c >= )" << dfa.fCharMappings.size() - startChar << R"() {
+            c = kInvalidChar;
         }
         State newState = get_transition(kMappings[c], state);
         if (!newState) {

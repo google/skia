@@ -32,9 +32,8 @@ constexpr int kNumValues = (1 << kNumBits) - 1;
 constexpr int kDataPerByte = 8 / kNumBits;
 
 enum IndexType {
-    kZero = 0,
+    kCompactEntry = 0,
     kFullEntry,
-    kCompactEntry,
 };
 struct IndexEntry {
     IndexType type;
@@ -130,11 +129,7 @@ void WriteTransitionTable(std::ofstream& out, const DFA& dfa, size_t states) {
         }
 
         transitionSet.erase(0);
-        if (transitionSet.empty()) {
-            // This transition table was completely empty (every value was zero). No data needed;
-            // zero pages are handled as a special index type.
-            indices.push_back(IndexEntry{kZero, 0});
-        } else if (transitionSet.size() <= kNumValues) {
+        if (transitionSet.size() <= kNumValues) {
             // This table only contained a small number of unique nonzero values.
             // Use a compact representation that squishes each value down to a few bits.
             int index = add_compact_entry(transitionSet, data, &compactEntries);
@@ -155,10 +150,7 @@ void WriteTransitionTable(std::ofstream& out, const DFA& dfa, size_t states) {
     }
 
     // Emit all the structs our transition table will use.
-    out << "struct IndexEntry {\n"
-        << "    uint16_t type : 2;\n"
-        << "    uint16_t pos : 14;\n"
-        << "};\n"
+    out << "using IndexEntry = int16_t;\n"
         << "struct FullEntry {\n"
         << "    State data[" << numTransitions << "];\n"
         << "};\n";
@@ -216,14 +208,19 @@ void WriteTransitionTable(std::ofstream& out, const DFA& dfa, size_t states) {
     out << "};\n"
         << "static constexpr IndexEntry kIndices[] = {\n";
     for (const IndexEntry& entry : indices) {
-        out << "    {" << entry.type << ", " << entry.pos << "},\n";
+        if (entry.type == kFullEntry) {
+            // Bit-not is used so that full entries start at -1 and go down from there.
+            out << ~entry.pos << ", ";
+        } else {
+            // Compact entries start at 0 and go up from there.
+            out << entry.pos << ", ";
+        }
     }
     out << "};\n"
         << "State get_transition(int transition, int state) {\n"
         << "    IndexEntry index = kIndices[state];\n"
-        << "    if (index.type == 0) { return 0; }\n"
-        << "    if (index.type == 1) { return kFull[index.pos].data[transition]; }\n"
-        << "    const CompactEntry& entry = kCompact[index.pos];\n"
+        << "    if (index < 0) { return kFull[~index].data[transition]; }\n"
+        << "    const CompactEntry& entry = kCompact[index];\n"
         << "    int value = entry.data[transition >> " << std::log2(kDataPerByte) << "];\n"
         << "    value >>= " << kNumBits << " * (transition & " << kDataPerByte - 1 << ");\n"
         << "    value &= " << kNumValues << ";\n"
