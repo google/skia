@@ -50,13 +50,15 @@ void PaintParams::toKey(const SkKeyContext& keyContext,
     if (fShader) {
         as_SB(fShader)->addToKey(keyContext, builder, gatherer);
     } else {
-        SolidColorShaderBlock::AddToKey(keyContext, builder, gatherer, fColor.premul());
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, fColor.premul());
+        builder->endBlock();
     }
 
     if (fBlender) {
         as_BB(fBlender)->addToKey(keyContext, builder, gatherer);
     } else {
-        BlendModeBlock::AddToKey(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
+        BlendModeBlock::BeginBlock(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
+        builder->endBlock();
     }
 
     if (gatherer) {

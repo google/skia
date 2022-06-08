@@ -572,10 +572,9 @@ void SkCombinationBuilder::buildCombinations(
         // TODO: actually iterate over the SkOption's combinations and have each option add
         // itself to the key.
         for (SkOption* shaderOption : fShaderOptions) {
-              constexpr SkTileMode tm = SkTileMode::kClamp;
               // TODO: expand CreateKey to take either an SkBlendMode or an SkBlendID
               SkUniquePaintParamsID uniqueID = CreateKey(keyContext, &builder,
-                                                         shaderOption->type(), tm, bm);
+                                                         shaderOption->type(), bm);
 
               func(uniqueID);
         }

@@ -21,6 +21,7 @@
 
 #ifdef SK_ENABLE_SKSL
 #include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
 #endif
 
 namespace {
@@ -199,7 +200,12 @@ void SkShader_Blend::addToKey(const SkKeyContext& keyContext,
     // TODO: add blender support
     SkASSERT(!fBlender);
 
-    BlendShaderBlock::AddToKey(keyContext, builder, gatherer,
-                               { fDst.get(), fSrc.get(), fMode });
+    BlendShaderBlock::BeginBlock(keyContext, builder, gatherer, { fMode });
+
+    as_SB(fDst)->addToKey(keyContext, builder, gatherer);
+
+    as_SB(fSrc)->addToKey(keyContext, builder, gatherer);
+
+    builder->endBlock();
 }
 #endif

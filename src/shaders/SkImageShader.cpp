@@ -32,6 +32,7 @@
 
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
 #endif
 
 SkM44 SkImageShader::CubicResamplerMatrix(float B, float C) {
@@ -396,7 +397,8 @@ void SkImageShader::addToKey(const SkKeyContext& keyContext,
     }
 #endif
 
-    ImageShaderBlock::AddToKey(keyContext, builder, gatherer, imgData);
+    ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, imgData);
+    builder->endBlock();
 }
 #endif
 

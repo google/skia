@@ -18,6 +18,7 @@
 
 #ifdef SK_ENABLE_SKSL
 #include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
 #endif
 
 SkColorShader::SkColorShader(SkColor c) : fColor(c) {}
@@ -144,13 +145,15 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
 void SkColorShader::addToKey(const SkKeyContext& keyContext,
                              SkPaintParamsKeyBuilder* builder,
                              SkPipelineDataGatherer* gatherer) const {
-    SolidColorShaderBlock::AddToKey(keyContext, builder, gatherer,
-                                    SkColor4f::FromColor(fColor).premul());
+    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
+                                      SkColor4f::FromColor(fColor).premul());
+    builder->endBlock();
 }
 
 void SkColor4Shader::addToKey(const SkKeyContext& keyContext,
                               SkPaintParamsKeyBuilder* builder,
                               SkPipelineDataGatherer* gatherer) const {
-    SolidColorShaderBlock::AddToKey(keyContext, builder, gatherer, fColor.premul());
+    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, fColor.premul());
+    builder->endBlock();
 }
 #endif

@@ -257,7 +257,6 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
         uniqueID = CreateKey(keyContext,
                              &builder,
                              SkShaderType::kSolidColor,
-                             SkTileMode::kClamp,
                              SkBlendMode::kSrc);
     }
 

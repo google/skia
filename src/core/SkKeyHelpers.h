@@ -30,20 +30,12 @@ namespace skgpu::graphite { class TextureProxy; }
 
 // The KeyHelpers can be used to manually construct an SkPaintParamsKey
 
-namespace DepthStencilOnlyBlock {
-
-    void AddToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*);
-
-} // namespace DepthStencilOnlyBlock
-
 namespace SolidColorShaderBlock {
 
-    void AddToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*,
-                  const SkPMColor4f&);
+    void BeginBlock(const SkKeyContext&,
+                    SkPaintParamsKeyBuilder*,
+                    SkPipelineDataGatherer*,
+                    const SkPMColor4f&);
 
 } // namespace SolidColorShaderBlock
 
@@ -56,9 +48,7 @@ namespace GradientShaderBlocks {
         // This ctor is used during pre-compilation when we don't have enough information to
         // extract uniform data. However, we must be able to provide enough data to make all the
         // relevant decisions about which code snippets to use.
-        GradientData(SkShader::GradientType,
-                     SkTileMode,
-                     int numStops);
+        GradientData(SkShader::GradientType, int numStops);
 
         // This ctor is used when extracting information from PaintParams. It must provide
         // enough data to generate the uniform data the selected code snippet will require.
@@ -104,29 +94,27 @@ namespace GradientShaderBlocks {
         float                  fOffsets[kMaxStops];
     };
 
-    void AddToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*,
-                  const GradientData&);
+    void BeginBlock(const SkKeyContext&,
+                    SkPaintParamsKeyBuilder*,
+                    SkPipelineDataGatherer*,
+                    const GradientData&);
 
 } // namespace GradientShaderBlocks
 
 namespace LocalMatrixShaderBlock {
 
     struct LMShaderData {
-        LMShaderData(SkShader* proxyShader, const SkMatrix& localMatrix)
-                : fProxyShader(proxyShader)
-                , fLocalMatrix(localMatrix) {
+        LMShaderData(const SkMatrix& localMatrix)
+                : fLocalMatrix(localMatrix) {
         }
 
-        SkShader*   fProxyShader;
         const SkM44 fLocalMatrix;
     };
 
-    void AddToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*,
-                  const LMShaderData&);
+    void BeginBlock(const SkKeyContext&,
+                    SkPaintParamsKeyBuilder*,
+                    SkPipelineDataGatherer*,
+                    const LMShaderData&);
 
 } // namespace LocalMatrixShaderBlock
 
@@ -152,35 +140,33 @@ namespace ImageShaderBlock {
 #endif
     };
 
-    void AddToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*,
-                  const ImageData&);
+    void BeginBlock(const SkKeyContext&,
+                    SkPaintParamsKeyBuilder*,
+                    SkPipelineDataGatherer*,
+                    const ImageData&);
 
 } // namespace ImageShaderBlock
 
 namespace BlendShaderBlock {
 
     struct BlendShaderData {
-        SkShader*   fDst;
-        SkShader*   fSrc;
         // TODO: add support for blenders
         SkBlendMode fBM;
     };
 
-    void AddToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*,
-                  const BlendShaderData&);
+    void BeginBlock(const SkKeyContext&,
+                    SkPaintParamsKeyBuilder*,
+                    SkPipelineDataGatherer*,
+                    const BlendShaderData&);
 
 } // namespace BlendShaderBlock
 
 namespace BlendModeBlock {
 
-    void AddToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*,
-                  SkBlendMode);
+    void BeginBlock(const SkKeyContext&,
+                    SkPaintParamsKeyBuilder*,
+                    SkPipelineDataGatherer*,
+                    SkBlendMode);
 
 } // namespace BlendModeBlock
 
@@ -188,7 +174,6 @@ namespace BlendModeBlock {
 SkUniquePaintParamsID CreateKey(const SkKeyContext&,
                                 SkPaintParamsKeyBuilder*,
                                 SkShaderType,
-                                SkTileMode,
                                 SkBlendMode);
 
 #endif // SkKeyHelpers_DEFINED

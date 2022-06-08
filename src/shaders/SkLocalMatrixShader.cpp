@@ -17,6 +17,7 @@
 
 #ifdef SK_ENABLE_SKSL
 #include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
 #endif
 
 #if SK_SUPPORT_GPU
@@ -29,11 +30,15 @@ std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
 
 #ifdef SK_ENABLE_SKSL
 void SkLocalMatrixShader::addToKey(const SkKeyContext& keyContext,
-                             SkPaintParamsKeyBuilder* builder,
-                             SkPipelineDataGatherer* gatherer) const {
-    LocalMatrixShaderBlock::LMShaderData lmShaderData(fProxyShader.get(), this->getLocalMatrix());
+                                   SkPaintParamsKeyBuilder* builder,
+                                   SkPipelineDataGatherer* gatherer) const {
+    LocalMatrixShaderBlock::LMShaderData lmShaderData(this->getLocalMatrix());
 
-    LocalMatrixShaderBlock::AddToKey(keyContext, builder, gatherer, lmShaderData);
+    LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer, lmShaderData);
+
+    as_SB(fProxyShader)->addToKey(keyContext, builder, gatherer);
+
+    builder->endBlock();
 }
 #endif
 

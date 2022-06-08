@@ -129,12 +129,6 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                     SkShaderType::kImage,
                     SkShaderType::kBlendShader }) {
 
-        if (s == SkShaderType::kLocalMatrix || s == SkShaderType::kBlendShader) {
-            // TODO: For these two cases to work we need to create a PaintCombination for
-            // CreateKey
-            continue;
-        }
-
         for (auto tm: { SkTileMode::kClamp,
                         SkTileMode::kRepeat,
                         SkTileMode::kMirror,
@@ -153,7 +147,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                 auto [ uniqueID1, uIndex, tIndex] = ExtractPaintData(recorder.get(), &gatherer,
                                                                      &builder, {}, PaintParams(p));
 
-                SkUniquePaintParamsID uniqueID2 = CreateKey(keyContext, &builder, s, tm, bm);
+                SkUniquePaintParamsID uniqueID2 = CreateKey(keyContext, &builder, s, bm);
                 // ExtractPaintData and CreateKey agree
                 REPORTER_ASSERT(reporter, uniqueID1 == uniqueID2);
 
