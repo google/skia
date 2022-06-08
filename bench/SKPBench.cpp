@@ -49,7 +49,11 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     bounds.intersect(fPic->cullRect().roundOut());
     SkAssertResult(!bounds.isEmpty());
 
+#if defined(SK_GRAPHITE_ENABLED)
+    const bool gpu = canvas->recordingContext() != nullptr || canvas->recorder() != nullptr;
+#else
     const bool gpu = canvas->recordingContext() != nullptr;
+#endif
     int tileW = gpu ? FLAGS_GPUbenchTileW : FLAGS_CPUbenchTileW,
         tileH = gpu ? FLAGS_GPUbenchTileH : FLAGS_CPUbenchTileH;
 
