@@ -171,6 +171,9 @@ template <typename T>
 class SubRunInitializer {
 public:
     SubRunInitializer(void* memory) : fMemory{memory} { SkASSERT(memory != nullptr); }
+    ~SubRunInitializer() {
+        ::operator delete(fMemory);
+    }
     template <typename... Args>
     T* initialize(Args&&... args) {
         // Warn on more than one initialization.
