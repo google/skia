@@ -164,6 +164,16 @@ bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,
     return true;
 }
 
+void GrGLTexture::onSetLabel() {
+    SkASSERT(fID);
+    SkASSERT(fTextureIDOwnership == GrBackendObjectOwnership::kOwned);
+    GrGLGpu* glGpu = static_cast<GrGLGpu*>(this->getGpu());
+    if (glGpu->glCaps().debugSupport()) {
+        GR_GL_CALL(glGpu->glInterface(),
+                   ObjectLabel(GR_GL_TEXTURE, fID, -1, this->getLabel().c_str()));
+    }
+}
+
 void GrGLTexture::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     // Don't check this->fRefsWrappedObjects, as we might be the base of a GrGLTextureRenderTarget
     // which is multiply inherited from both ourselves and a texture. In these cases, one part

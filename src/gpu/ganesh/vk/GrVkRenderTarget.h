@@ -132,6 +132,8 @@ protected:
     // This returns zero since the memory should all be handled by the attachments
     size_t onGpuMemorySize() const override { return 0; }
 
+    void onSetLabel() override{}
+
 private:
     // For external framebuffers that wrap a secondary command buffer
     GrVkRenderTarget(GrVkGpu* gpu,

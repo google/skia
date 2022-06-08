@@ -96,6 +96,7 @@ private:
     virtual bool onUpdateData(const void* src, size_t srcSizeInBytes) = 0;
 
     size_t onGpuMemorySize() const override { return fSizeInBytes; }
+    void onSetLabel() override{}
     const char* getResourceType() const override { return "Buffer Object"; }
     void computeScratchKey(skgpu::ScratchKey* key) const override;
 

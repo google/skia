@@ -145,3 +145,12 @@ void GrGLAttachment::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
     renderbuffer_id.appendU32(this->renderbufferID());
     traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_renderbuffer", renderbuffer_id.c_str());
 }
+
+void GrGLAttachment::onSetLabel() {
+    SkASSERT(fRenderbufferID);
+    GrGLGpu* glGpu = static_cast<GrGLGpu*>(this->getGpu());
+    if (glGpu->glCaps().debugSupport()) {
+        GR_GL_CALL(glGpu->glInterface(),
+                   ObjectLabel(GR_GL_TEXTURE, fRenderbufferID, -1, this->getLabel().c_str()));
+    }
+}

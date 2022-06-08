@@ -57,6 +57,8 @@ protected:
 private:
     GrDawnTextureInfo        fInfo;
 
+    void onSetLabel() override{}
+
     using INHERITED = GrTexture;
 };
 

@@ -133,6 +133,11 @@ size_t GrGLRenderTarget::onGpuMemorySize() const {
                                   fTotalMemorySamplesPerPixel, GrMipmapped::kNo);
 }
 
+void GrGLRenderTarget::onSetLabel() {
+    SkASSERT(fMSColorRenderbufferID);
+    SkASSERT(fRTFBOOwnership == GrBackendObjectOwnership::kOwned);
+}
+
 bool GrGLRenderTarget::completeStencilAttachment(GrAttachment* stencil, bool useMultisampleFBO) {
     // We defer attaching the new stencil buffer until the next time our framebuffer is bound.
     if (this->getStencilAttachment(useMultisampleFBO) != stencil) {

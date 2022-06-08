@@ -84,6 +84,8 @@ private:
         this->setResourceRelease(std::move(releaseHelper));
     }
 
+    void onSetLabel() override{}
+
     struct SamplerHash {
         uint32_t operator()(GrSamplerState state) const {
             // In D3D anisotropic filtering uses the same field (D3D12_SAMPLER_DESC::Filter) as

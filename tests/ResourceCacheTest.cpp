@@ -330,6 +330,7 @@ private:
     }
 
     size_t onGpuMemorySize() const override { return fSize; }
+    void onSetLabel() override{}
     const char* getResourceType() const override { return "Test"; }
 
     sk_sp<TestResource> fToDelete;
@@ -1705,7 +1706,8 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrRecordingContext* rContext,
                                                                  GrRenderable::kNo);
 
     return proxyProvider->createProxy(format, dims, renderable, sampleCnt, GrMipmapped::kYes,
-                                      SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
+                                      SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo,
+                                      /*label=*/{});
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,

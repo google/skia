@@ -76,6 +76,8 @@ protected:
     }
 
 private:
+    void onSetLabel() override{}
+
     GrMockTextureInfo fInfo;
 
     using INHERITED = GrTexture;
@@ -152,6 +154,8 @@ protected:
             , fInfo(info) {}
 
 private:
+    void onSetLabel() override{}
+
     GrMockRenderTargetInfo fInfo;
 
     using INHERITED = GrRenderTarget;
@@ -220,6 +224,8 @@ private:
         return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
                                       numColorSamples, this->mipmapped());
     }
+
+    void onSetLabel() override{}
 
     // This avoids an inherits via dominance warning on MSVC.
     void computeScratchKey(skgpu::ScratchKey* key) const override {

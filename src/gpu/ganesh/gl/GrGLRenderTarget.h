@@ -128,6 +128,8 @@ private:
 
     size_t onGpuMemorySize() const override;
 
+    void onSetLabel() override;
+
     sk_sp<GrGLAttachment> fDynamicMSAAAttachment;
 
     GrGLuint    fMultisampleFBOID;

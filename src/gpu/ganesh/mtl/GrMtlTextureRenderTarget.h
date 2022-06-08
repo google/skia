@@ -62,6 +62,8 @@ private:
                              std::string_view label);
 
     size_t onGpuMemorySize() const override;
+
+    void onSetLabel() override{}
 };
 
 #endif

@@ -47,7 +47,7 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter,
 
     sk_sp<GrTextureProxy> proxy =
             proxyProvider->createProxy(format, kSize, GrRenderable::kNo, 1, GrMipmapped::kNo, fit,
-                                       SkBudgeted::kYes, GrProtected::kNo);
+                                       SkBudgeted::kYes, GrProtected::kNo, /*label=*/{});
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -63,7 +63,7 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter,
 
     sk_sp<GrTextureProxy> proxy =
             proxyProvider->createProxy(format, kSize, GrRenderable::kYes, 1, GrMipmapped::kNo, fit,
-                                       SkBudgeted::kYes, GrProtected::kNo);
+                                       SkBudgeted::kYes, GrProtected::kNo, /*label=*/{});
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;

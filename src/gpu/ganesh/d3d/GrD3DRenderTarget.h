@@ -111,6 +111,8 @@ private:
 
     GrD3DGpu* getD3DGpu() const;
 
+    void onSetLabel() override{}
+
     bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) override {
         SkASSERT(useMSAASurface == (this->numSamples() > 1));
         return true;

@@ -86,7 +86,8 @@ bool BaseDevice::replaceBackingProxy(SkSurface::ContentChangeMode mode) {
                                                              oldView.mipmapped(),
                                                              SkBackingFit::kExact,
                                                              oldRTP->isBudgeted(),
-                                                             GrProtected::kNo);
+                                                             GrProtected::kNo,
+                                                             /*label=*/{});
     if (!proxy) {
         return false;
     }

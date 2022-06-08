@@ -91,6 +91,7 @@ public:
                                       SkBackingFit,
                                       SkBudgeted,
                                       GrProtected,
+                                      std::string_view label,
                                       GrInternalSurfaceFlags = GrInternalSurfaceFlags::kNone,
                                       UseAllocator useAllocator = UseAllocator::kYes);
 

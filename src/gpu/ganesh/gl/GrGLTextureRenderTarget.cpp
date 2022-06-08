@@ -83,3 +83,7 @@ size_t GrGLTextureRenderTarget::onGpuMemorySize() const {
     return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
                                   this->totalMemorySamplesPerPixel(), this->mipmapped());
 }
+
+void GrGLTextureRenderTarget::onSetLabel() {
+    GrGLTexture::onSetLabel();
+}

@@ -127,7 +127,8 @@ public:
                                               GrRenderable,
                                               int renderTargetSampleCnt,
                                               GrMipmapped,
-                                              GrProtected);
+                                              GrProtected,
+                                              std::string_view label);
 
     /**
      * Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
@@ -367,7 +368,8 @@ private:
                                      int renderTargetSampleCnt,
                                      SkBudgeted,
                                      GrMipmapped,
-                                     GrProtected);
+                                     GrProtected,
+                                     std::string_view label);
 
     // Attempts to find a resource in the cache that exactly matches the SkISize. Failing that
     // it returns null. If non-null, the resulting msaa attachment is always budgeted.

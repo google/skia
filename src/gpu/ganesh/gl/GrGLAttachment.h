@@ -70,6 +70,8 @@ private:
         this->registerWithCache(SkBudgeted::kYes);
     }
 
+    void onSetLabel() override;
+
     GrGLFormat fFormat;
 
     // may be zero for external SBs associated with external RTs

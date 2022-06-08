@@ -84,6 +84,8 @@ private:
                  GrIOType,
                  std::string_view label);
 
+    void onSetLabel() override{}
+
     sk_sp<GrMtlAttachment> fTexture;
 
     using INHERITED = GrTexture;

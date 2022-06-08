@@ -45,6 +45,8 @@ protected:
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;
 
+    void onSetLabel() override{}
+
     bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) override;
     GrDawnRenderTargetInfo fInfo;
     using INHERITED = GrRenderTarget;

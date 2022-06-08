@@ -81,6 +81,8 @@ protected:
 private:
     size_t onGpuMemorySize() const final;
 
+    void onSetLabel() override{}
+
     void computeScratchKey(skgpu::ScratchKey*) const final;
 
     const char* getResourceType() const override {

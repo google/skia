@@ -535,7 +535,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
 
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
                 format, kDims, GrRenderable::kNo, 1, GrMipmapped::kNo, SkBackingFit::kApprox,
-                SkBudgeted::kYes, GrProtected::kNo);
+                SkBudgeted::kYes, GrProtected::kNo, /*label=*/{});
         temp->instantiate(context->priv().resourceProvider());
     }
 

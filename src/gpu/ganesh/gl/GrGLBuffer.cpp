@@ -319,6 +319,15 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     return true;
 }
 
+void GrGLBuffer::onSetLabel() {
+    SkASSERT(fBufferID);
+    GrGLGpu* glGpu = static_cast<GrGLGpu*>(this->getGpu());
+    if (glGpu->glCaps().debugSupport()) {
+        GR_GL_CALL(glGpu->glInterface(),
+                   ObjectLabel(GR_GL_BUFFER, fBufferID, -1, this->getLabel().c_str()));
+    }
+}
+
 void GrGLBuffer::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                                        const SkString& dumpName) const {
     SkString buffer_id;

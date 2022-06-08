@@ -94,6 +94,8 @@ private:
                 bool isExternal,
                 std::string_view label);
 
+    void onSetLabel() override{}
+
     sk_sp<GrVkImage> fTexture;
 
     struct SamplerHash {

@@ -87,6 +87,8 @@ private:
 
     bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) override;
 
+    void onSetLabel() override{}
+
     // We can have a renderpass with and without resolve attachment or stencil attachment,
     // both of these being completely orthogonal. Thus we have a total of 4 types of render passes.
     // We then cache a framebuffer for each type of these render passes.

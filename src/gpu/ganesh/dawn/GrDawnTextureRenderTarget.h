@@ -45,6 +45,8 @@ protected:
 
 private:
     size_t onGpuMemorySize() const override;
+
+    void onSetLabel() override{}
 };
 
 #ifdef SK_BUILD_FOR_WIN

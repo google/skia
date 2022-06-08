@@ -57,6 +57,7 @@ private:
     void onUnmap() override;
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
 
+    void onSetLabel() override;
 #ifdef SK_DEBUG
     void validate() const;
 #endif
