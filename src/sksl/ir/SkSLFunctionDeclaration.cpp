@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLLayout.h"
@@ -305,6 +306,19 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
  * incompatible symbol. Returns true and sets outExistingDecl to point to the existing declaration
  * (or null if none) on success, returns false on error.
  */
+static bool parameters_match(const std::vector<std::unique_ptr<Variable>>& params,
+                             const std::vector<const Variable*>& otherParams) {
+    if (params.size() != otherParams.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < params.size(); i++) {
+        if (!params[i]->type().matches(otherParams[i]->type())) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static bool find_existing_declaration(const Context& context,
                                       SymbolTable& symbols,
                                       Position pos,
@@ -317,13 +331,15 @@ static bool find_existing_declaration(const Context& context,
     const Symbol* entry = symbols[name];
     *outExistingDecl = nullptr;
     if (entry) {
-        std::vector<const FunctionDeclaration*> functions;
+        SkSpan<const FunctionDeclaration* const> functions;
+        const FunctionDeclaration* declPtr;
         switch (entry->kind()) {
             case Symbol::Kind::kUnresolvedFunction:
-                functions = entry->as<UnresolvedFunction>().functions();
+                functions = SkMakeSpan(entry->as<UnresolvedFunction>().functions());
                 break;
             case Symbol::Kind::kFunctionDeclaration:
-                functions.push_back(&entry->as<FunctionDeclaration>());
+                declPtr = &entry->as<FunctionDeclaration>();
+                functions = SkMakeSpan(&declPtr, 1);
                 break;
             default:
                 errors.error(pos, "symbol '" + std::string(name) + "' was already defined");
@@ -331,17 +347,7 @@ static bool find_existing_declaration(const Context& context,
         }
         for (const FunctionDeclaration* other : functions) {
             SkASSERT(name == other->name());
-            if (parameters.size() != other->parameters().size()) {
-                continue;
-            }
-            bool match = true;
-            for (size_t i = 0; i < parameters.size(); i++) {
-                if (!parameters[i]->type().matches(other->parameters()[i]->type())) {
-                    match = false;
-                    break;
-                }
-            }
-            if (!match) {
+            if (!parameters_match(parameters, other->parameters())) {
                 continue;
             }
             if (!returnType->matches(other->returnType())) {
