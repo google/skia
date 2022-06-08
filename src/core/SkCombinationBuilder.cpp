@@ -221,20 +221,20 @@ void SkOption::SkSlot::dump(int indent) const {
 }
 #endif
 
-#define CREATE_ARENA_OBJECT(T, numChildSlots, ...)                                            \
-struct ArenaData_##T : public SkOption {                                                      \
-    static const SkShaderType kType = SkShaderType::k##T;                                     \
-    static const int kNumChildSlots = numChildSlots;                                          \
-    int numIntrinsicCombinationsDerived() const;                                              \
-    void beginBlock(const SkKeyContext&, int intrinsicCombination, SkPaintParamsKeyBuilder*); \
-    __VA_ARGS__                                                                               \
+#define CREATE_ARENA_OBJECT(T, numChildSlots, ...)                                                 \
+struct ArenaData_##T : public SkOption {                                                           \
+    static const SkShaderType kType = SkShaderType::k##T;                                          \
+    static const int kNumChildSlots = numChildSlots;                                               \
+    int numIntrinsicCombinationsDerived() const;                                                   \
+    void beginBlock(const SkKeyContext&, int intrinsicCombination, SkPaintParamsKeyBuilder*) const;\
+    __VA_ARGS__                                                                                    \
 };
 
 CREATE_ARENA_OBJECT(SolidColor,      /* numChildSlots */ 0)
 int ArenaData_SolidColor::numIntrinsicCombinationsDerived() const { return 1; }
 void ArenaData_SolidColor::beginBlock(const SkKeyContext& keyContext,
                                       int intrinsicCombination,
-                                      SkPaintParamsKeyBuilder* builder) {
+                                      SkPaintParamsKeyBuilder* builder) const {
     constexpr SkPMColor4f kUnusedColor = { 1, 0, 0, 1 };
 
     SkASSERT(intrinsicCombination == 0);
@@ -249,7 +249,7 @@ int ArenaData_LinearGradient::numIntrinsicCombinationsDerived() const {
 }
 void ArenaData_LinearGradient::beginBlock(const SkKeyContext& keyContext,
                                           int intrinsicCombination,
-                                          SkPaintParamsKeyBuilder* builder) {
+                                          SkPaintParamsKeyBuilder* builder) const {
     SkASSERT(intrinsicCombination < this->numIntrinsicCombinationsDerived());
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
@@ -265,7 +265,7 @@ int ArenaData_RadialGradient::numIntrinsicCombinationsDerived() const {
 }
 void ArenaData_RadialGradient::beginBlock(const SkKeyContext& keyContext,
                                           int intrinsicCombination,
-                                          SkPaintParamsKeyBuilder* builder) {
+                                          SkPaintParamsKeyBuilder* builder) const {
     SkASSERT(intrinsicCombination < this->numIntrinsicCombinationsDerived());
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
@@ -281,7 +281,7 @@ int ArenaData_SweepGradient::numIntrinsicCombinationsDerived() const {
 }
 void ArenaData_SweepGradient::beginBlock(const SkKeyContext& keyContext,
                                          int intrinsicCombination,
-                                         SkPaintParamsKeyBuilder* builder) {
+                                         SkPaintParamsKeyBuilder* builder) const {
     SkASSERT(intrinsicCombination < this->numIntrinsicCombinationsDerived());
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
@@ -297,7 +297,7 @@ int ArenaData_ConicalGradient::numIntrinsicCombinationsDerived() const {
 }
 void ArenaData_ConicalGradient::beginBlock(const SkKeyContext& keyContext,
                                            int intrinsicCombination,
-                                           SkPaintParamsKeyBuilder* builder) {
+                                           SkPaintParamsKeyBuilder* builder) const {
     SkASSERT(intrinsicCombination < this->numIntrinsicCombinationsDerived());
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
@@ -309,7 +309,7 @@ CREATE_ARENA_OBJECT(LocalMatrix,     /* numChildSlots */ 1)
 int ArenaData_LocalMatrix::numIntrinsicCombinationsDerived() const { return 1; }
 void ArenaData_LocalMatrix::beginBlock(const SkKeyContext& keyContext,
                                        int intrinsicCombination,
-                                       SkPaintParamsKeyBuilder* builder) {
+                                       SkPaintParamsKeyBuilder* builder) const {
     SkASSERT(intrinsicCombination == 0);
 
     LocalMatrixShaderBlock::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
@@ -338,7 +338,7 @@ struct ArenaData_Image : public SkOption {
     }
 
     int numIntrinsicCombinationsDerived() const;
-    void beginBlock(const SkKeyContext&, int intrinsicCombination, SkPaintParamsKeyBuilder*);
+    void beginBlock(const SkKeyContext&, int intrinsicCombination, SkPaintParamsKeyBuilder*) const;
 
     int32_t fTileModeCombos;
 };
@@ -347,7 +347,7 @@ int ArenaData_Image::numIntrinsicCombinationsDerived() const {
 }
 void ArenaData_Image::beginBlock(const SkKeyContext& keyContext,
                                  int intrinsicCombination,
-                                 SkPaintParamsKeyBuilder* builder) {
+                                 SkPaintParamsKeyBuilder* builder) const {
     SkASSERT(intrinsicCombination < this->numIntrinsicCombinationsDerived());
 
     ImageShaderBlock::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
@@ -361,7 +361,7 @@ CREATE_ARENA_OBJECT(BlendShader,     /* numChildSlots */ 2)
 int ArenaData_BlendShader::numIntrinsicCombinationsDerived() const { return 1; }
 void ArenaData_BlendShader::beginBlock(const SkKeyContext& keyContext,
                                        int intrinsicCombination,
-                                       SkPaintParamsKeyBuilder* builder) {
+                                       SkPaintParamsKeyBuilder* builder) const {
     SkASSERT(intrinsicCombination == 0);
 
     BlendShaderBlock::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
@@ -372,14 +372,17 @@ void ArenaData_BlendShader::beginBlock(const SkKeyContext& keyContext,
 int SkOption::numIntrinsicCombinations() const {
     int numIntrinsicCombinations;
 
+#define CASE(T)                                                                             \
+    case SkShaderType::k##T:                                                                \
+        numIntrinsicCombinations =                                                          \
+                static_cast<const ArenaData_##T*>(this)->numIntrinsicCombinationsDerived(); \
+        break;
+
     switch (this->type()) {
-#define CASE(T) case SkShaderType::k##T:                                                   \
-                    numIntrinsicCombinations =                                             \
-                               ((ArenaData_##T*) this)->numIntrinsicCombinationsDerived(); \
-                    break;
         SHADER_TYPES(CASE)
-#undef CASE
     }
+
+#undef CASE
 
     SkASSERT(numIntrinsicCombinations >= 1); // There is always, at least, the existential combo
     return numIntrinsicCombinations;
@@ -388,16 +391,19 @@ int SkOption::numIntrinsicCombinations() const {
 // Here to access the derived ArenaData objects
 void SkOption::beginBlock(const SkKeyContext& keyContext,
                           int intrinsicCombination,
-                          SkPaintParamsKeyBuilder* builder) const{
+                          SkPaintParamsKeyBuilder* builder) const {
+#define CASE(T)                                                                   \
+    case SkShaderType::k##T:                                                      \
+        static_cast<const ArenaData_##T*>(this)->beginBlock(keyContext,           \
+                                                            intrinsicCombination, \
+                                                            builder);             \
+        break;
+
     switch (this->type()) {
-#define CASE(T) case SkShaderType::k##T:                                      \
-                    ((ArenaData_##T*) this)->beginBlock(keyContext,           \
-                                                        intrinsicCombination, \
-                                                        builder);             \
-                    break;
         SHADER_TYPES(CASE)
-#undef CASE
     }
+
+#undef CASE
 }
 
 //--------------------------------------------------------------------------------------------------
