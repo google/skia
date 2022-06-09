@@ -348,8 +348,7 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
 static constexpr int kFourStopGradient = 4;
 static constexpr int kEightStopGradient = 8;
 
-static constexpr int kNumLinearGradientUniforms = 9;
-static constexpr SkUniform kLinearGradientUniforms4[kNumLinearGradientUniforms] = {
+static constexpr SkUniform kLinearGradientUniforms4[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
@@ -360,7 +359,7 @@ static constexpr SkUniform kLinearGradientUniforms4[kNumLinearGradientUniforms] 
         { "padding2",    SkSLType::kFloat },
         { "padding3",    SkSLType::kFloat },
 };
-static constexpr SkUniform kLinearGradientUniforms8[kNumLinearGradientUniforms] = {
+static constexpr SkUniform kLinearGradientUniforms8[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
         { "offsets",     SkSLType::kFloat,  kEightStopGradient },
@@ -372,8 +371,7 @@ static constexpr SkUniform kLinearGradientUniforms8[kNumLinearGradientUniforms] 
         { "padding3",    SkSLType::kFloat },
 };
 
-static constexpr int kNumRadialGradientUniforms = 6;
-static constexpr SkUniform kRadialGradientUniforms4[kNumRadialGradientUniforms] = {
+static constexpr SkUniform kRadialGradientUniforms4[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
@@ -381,7 +379,7 @@ static constexpr SkUniform kRadialGradientUniforms4[kNumRadialGradientUniforms] 
         { "radius",      SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
 };
-static constexpr SkUniform kRadialGradientUniforms8[kNumRadialGradientUniforms] = {
+static constexpr SkUniform kRadialGradientUniforms8[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
         { "offsets",     SkSLType::kFloat,  kEightStopGradient },
@@ -390,8 +388,7 @@ static constexpr SkUniform kRadialGradientUniforms8[kNumRadialGradientUniforms] 
         { "tilemode",    SkSLType::kInt },
 };
 
-static constexpr int kNumSweepGradientUniforms = 10;
-static constexpr SkUniform kSweepGradientUniforms4[kNumSweepGradientUniforms] = {
+static constexpr SkUniform kSweepGradientUniforms4[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
@@ -403,7 +400,7 @@ static constexpr SkUniform kSweepGradientUniforms4[kNumSweepGradientUniforms] = 
         { "padding2",    SkSLType::kFloat },
         { "padding3",    SkSLType::kFloat },
 };
-static constexpr SkUniform kSweepGradientUniforms8[kNumSweepGradientUniforms] = {
+static constexpr SkUniform kSweepGradientUniforms8[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
         { "offsets",     SkSLType::kFloat,  kEightStopGradient },
@@ -416,8 +413,7 @@ static constexpr SkUniform kSweepGradientUniforms8[kNumSweepGradientUniforms] = 
         { "padding3",    SkSLType::kFloat },
 };
 
-static constexpr int kNumConicalGradientUniforms = 9;
-static constexpr SkUniform kConicalGradientUniforms4[kNumConicalGradientUniforms] = {
+static constexpr SkUniform kConicalGradientUniforms4[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
@@ -428,7 +424,7 @@ static constexpr SkUniform kConicalGradientUniforms4[kNumConicalGradientUniforms
         { "tilemode",    SkSLType::kInt },
         { "padding",     SkSLType::kFloat }, // TODO: add automatic uniform padding
 };
-static constexpr SkUniform kConicalGradientUniforms8[kNumConicalGradientUniforms] = {
+static constexpr SkUniform kConicalGradientUniforms8[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
         { "offsets",     SkSLType::kFloat,  kEightStopGradient },
@@ -450,16 +446,14 @@ static constexpr char kConicalGradient4Name[] = "sk_conical_grad_4_shader";
 static constexpr char kConicalGradient8Name[] = "sk_conical_grad_8_shader";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumSolidShaderUniforms = 1;
-static constexpr SkUniform kSolidShaderUniforms[kNumSolidShaderUniforms] = {
+static constexpr SkUniform kSolidShaderUniforms[] = {
         { "color", SkSLType::kFloat4 }
 };
 
 static constexpr char kSolidShaderName[] = "sk_solid_shader";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumLocalMatrixShaderUniforms = 1;
-static constexpr SkUniform kLocalMatrixShaderUniforms[kNumLocalMatrixShaderUniforms] = {
+static constexpr SkUniform kLocalMatrixShaderUniforms[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
 };
 
@@ -468,8 +462,7 @@ static constexpr int kNumLocalMatrixShaderChildren = 1;
 static constexpr char kLocalMatrixShaderName[] = "sk_local_matrix_shader";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumImageShaderUniforms = 6;
-static constexpr SkUniform kImageShaderUniforms[kNumImageShaderUniforms] = {
+static constexpr SkUniform kImageShaderUniforms[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
         { "subset",      SkSLType::kFloat4 },
         { "tilemodeX",   SkSLType::kInt },
@@ -536,8 +529,7 @@ std::string GenerateImageShaderGlueCode(const std::string& resultName,
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumBlendShaderUniforms = 4;
-static constexpr SkUniform kBlendShaderUniforms[kNumBlendShaderUniforms] = {
+static constexpr SkUniform kBlendShaderUniforms[] = {
         { "blendMode", SkSLType::kInt },
         { "padding1",  SkSLType::kInt }, // TODO: add automatic uniform padding
         { "padding2",  SkSLType::kInt },
@@ -577,8 +569,7 @@ std::string GenerateFixedFunctionBlenderGlueCode(const std::string& resultName,
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumShaderBasedBlenderUniforms = 4;
-static constexpr SkUniform kShaderBasedBlenderUniforms[kNumShaderBasedBlenderUniforms] = {
+static constexpr SkUniform kShaderBasedBlenderUniforms[] = {
         { "blendMode", SkSLType::kInt },
         { "padding1",  SkSLType::kInt }, // TODO: add automatic uniform padding
         { "padding2",  SkSLType::kInt },
@@ -706,7 +697,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSolidColorShader] = {
             "SolidColor",
-            SkMakeSpan(kSolidShaderUniforms, kNumSolidShaderUniforms),
+            SkMakeSpan(kSolidShaderUniforms),
             SnippetRequirementFlags::kNone,
             { },     // no samplers
             kSolidShaderName,
@@ -716,7 +707,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kLinearGradientShader4] = {
             "LinearGradient4",
-            SkMakeSpan(kLinearGradientUniforms4, kNumLinearGradientUniforms),
+            SkMakeSpan(kLinearGradientUniforms4),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kLinearGradient4Name,
@@ -726,7 +717,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kLinearGradientShader8] = {
             "LinearGradient8",
-            SkMakeSpan(kLinearGradientUniforms8, kNumLinearGradientUniforms),
+            SkMakeSpan(kLinearGradientUniforms8),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kLinearGradient8Name,
@@ -736,7 +727,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kRadialGradientShader4] = {
             "RadialGradient4",
-            SkMakeSpan(kRadialGradientUniforms4, kNumRadialGradientUniforms),
+            SkMakeSpan(kRadialGradientUniforms4),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kRadialGradient4Name,
@@ -746,7 +737,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kRadialGradientShader8] = {
             "RadialGradient8",
-            SkMakeSpan(kRadialGradientUniforms8, kNumRadialGradientUniforms),
+            SkMakeSpan(kRadialGradientUniforms8),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kRadialGradient8Name,
@@ -756,7 +747,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSweepGradientShader4] = {
             "SweepGradient4",
-            SkMakeSpan(kSweepGradientUniforms4, kNumSweepGradientUniforms),
+            SkMakeSpan(kSweepGradientUniforms4),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kSweepGradient4Name,
@@ -766,7 +757,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSweepGradientShader8] = {
             "SweepGradient8",
-            SkMakeSpan(kSweepGradientUniforms8, kNumSweepGradientUniforms),
+            SkMakeSpan(kSweepGradientUniforms8),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kSweepGradient8Name,
@@ -776,7 +767,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kConicalGradientShader4] = {
             "ConicalGradient4",
-            SkMakeSpan(kConicalGradientUniforms4, kNumConicalGradientUniforms),
+            SkMakeSpan(kConicalGradientUniforms4),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kConicalGradient4Name,
@@ -786,7 +777,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kConicalGradientShader8] = {
             "ConicalGradient8",
-            SkMakeSpan(kConicalGradientUniforms8, kNumConicalGradientUniforms),
+            SkMakeSpan(kConicalGradientUniforms8),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kConicalGradient8Name,
@@ -796,7 +787,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kLocalMatrixShader] = {
             "LocalMatrixShader",
-            SkMakeSpan(kLocalMatrixShaderUniforms, kNumLocalMatrixShaderUniforms),
+            SkMakeSpan(kLocalMatrixShaderUniforms),
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kLocalMatrixShaderName,
@@ -806,7 +797,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kImageShader] = {
             "ImageShader",
-            SkMakeSpan(kImageShaderUniforms, kNumImageShaderUniforms),
+            SkMakeSpan(kImageShaderUniforms),
             SnippetRequirementFlags::kLocalCoords,
             SkMakeSpan(kISTexturesAndSamplers, kNumImageShaderTexturesAndSamplers),
             kImageShaderName,
@@ -816,7 +807,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kBlendShader] = {
             "BlendShader",
-            { kBlendShaderUniforms, kNumBlendShaderUniforms },
+            SkMakeSpan(kBlendShaderUniforms),
             SnippetRequirementFlags::kNone,
             { },     // no samplers
             kBlendShaderName,
@@ -836,7 +827,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kShaderBasedBlender] = {
             "ShaderBasedBlender",
-            { kShaderBasedBlenderUniforms, kNumShaderBasedBlenderUniforms },
+            SkMakeSpan(kShaderBasedBlenderUniforms),
             SnippetRequirementFlags::kNone,
             { },     // no samplers
             kBlendHelperName,
