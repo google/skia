@@ -2320,7 +2320,7 @@ SKOTTIE_LIB_SRCS = [
     "modules/skottie/src/Composition.h",
     "modules/skottie/src/effects/BlackAndWhiteEffect.cpp",
     "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
-    "modules/skottie/src/effects/BuldgeEffect.cpp",
+    "modules/skottie/src/effects/BulgeEffect.cpp",
     "modules/skottie/src/effects/CCTonerEffect.cpp",
     "modules/skottie/src/effects/CornerPinEffect.cpp",
     "modules/skottie/src/effects/DirectionalBlur.cpp",
