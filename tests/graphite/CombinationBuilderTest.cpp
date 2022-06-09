@@ -9,22 +9,9 @@
 
 #include "include/core/SkCombinationBuilder.h"
 
-using namespace::skgpu::graphite;
+#include "tests/graphite/CombinationBuilderTestAccess.h"
 
-class CombinationBuilderTestAccess {
-public:
-    static int NumCombinations(SkCombinationBuilder* builder) {
-        return builder->numCombinations();
-    }
-#ifdef SK_DEBUG
-    static int Epoch(const SkCombinationBuilder& builder) {
-        return builder.epoch();
-    }
-    static int Epoch(const SkCombinationOption& option) {
-        return option.epoch();
-    }
-#endif
-};
+using namespace::skgpu::graphite;
 
 namespace {
 
