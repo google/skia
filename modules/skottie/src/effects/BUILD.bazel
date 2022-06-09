@@ -9,7 +9,7 @@ filegroup(
     srcs = [
         "BlackAndWhiteEffect.cpp",
         "BrightnessContrastEffect.cpp",
-        "BuldgeEffect.cpp",
+        "BulgeEffect.cpp",
         "CCTonerEffect.cpp",
         "CornerPinEffect.cpp",
         "DirectionalBlur.cpp",
