@@ -42,8 +42,14 @@ ExtractPaintData(Recorder* recorder,
     TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
 
     auto entry = dict->findOrCreate(key, builder->blendInfo());
-    UniformDataCache::Index uniformIndex = uniformDataCache->insert(gatherer->peekUniformData());
-    TextureDataCache::Index textureIndex = textureDataCache->insert(gatherer->textureDataBlock());
+    UniformDataCache::Index uniformIndex;
+    if (gatherer->hasUniforms()) {
+        uniformIndex = uniformDataCache->insert(gatherer->peekUniformData());
+    }
+    TextureDataCache::Index textureIndex;
+    if (gatherer->hasTextures()) {
+        textureIndex = textureDataCache->insert(gatherer->textureDataBlock());
+    }
 
     gatherer->reset();
 
