@@ -69,7 +69,7 @@ sk_sp<GrD3DAttachment> GrD3DAttachment::MakeStencil(GrD3DGpu* gpu,
                                                       format, resourceDesc, info,
                                                       std::move(state),
                                                       view,
-                                                      /*label=*/{}));
+                                                      /*label=*/"D3DAttachment_MakeStencil"));
 }
 
 void GrD3DAttachment::onRelease() {

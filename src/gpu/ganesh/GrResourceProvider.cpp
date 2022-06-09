@@ -744,7 +744,7 @@ sk_sp<GrAttachment> GrResourceProvider::makeMSAAAttachment(SkISize dimensions,
                                                   sampleCnt,
                                                   isProtected,
                                                   memoryless,
-                                                  /*label=*/{});
+                                                  /*label=*/"MakeMSAAAttachment");
     if (scratch) {
         return scratch;
     }

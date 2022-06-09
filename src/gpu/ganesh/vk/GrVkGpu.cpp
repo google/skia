@@ -1121,7 +1121,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
                                            numMipLevels,
                                            isProtected,
                                            mipmapStatus,
-                                           /*label=*/{});
+                                           /*label=*/"VkGpu_CreateCompressedTexture");
     if (!tex) {
         return nullptr;
     }

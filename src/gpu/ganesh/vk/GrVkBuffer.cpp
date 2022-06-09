@@ -150,7 +150,8 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
     }
 
     return sk_sp<GrVkBuffer>(new GrVkBuffer(
-            gpu, size, bufferType, accessPattern, buffer, alloc, uniformDescSet, /*label=*/{}));
+            gpu, size, bufferType, accessPattern, buffer, alloc, uniformDescSet,
+            /*label=*/"MakeVkBuffer"));
 }
 
 void GrVkBuffer::vkMap(size_t size) {

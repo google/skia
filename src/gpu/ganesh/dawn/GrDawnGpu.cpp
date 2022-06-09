@@ -181,7 +181,8 @@ GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(
 sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size,
                                              GrGpuBufferType type,
                                              GrAccessPattern accessPattern) {
-    return GrDawnBuffer::Make(this, size, type, accessPattern, /*label=*/{});
+    return GrDawnBuffer::Make(this, size, type, accessPattern,
+                              /*label=*/"DawnGpu_GetOpsRenderPass");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

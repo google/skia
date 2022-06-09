@@ -418,15 +418,16 @@ bool SurfaceContext::internalWritePixels(GrDirectContext* dContext,
         // targets we will use top left and otherwise we will make the origins match.
         GrSurfaceOrigin tempOrigin =
                 this->asFillContext() ? kTopLeft_GrSurfaceOrigin : this->origin();
-        auto tempProxy = dContext->priv().proxyProvider()->createProxy(format,
-                                                                       src[0].dimensions(),
-                                                                       GrRenderable::kNo,
-                                                                       1,
-                                                                       GrMipmapped::kNo,
-                                                                       SkBackingFit::kApprox,
-                                                                       SkBudgeted::kYes,
-                                                                       GrProtected::kNo,
-                                                                       /*label=*/{});
+        auto tempProxy = dContext->priv().proxyProvider()->createProxy(
+                format,
+                src[0].dimensions(),
+                GrRenderable::kNo,
+                1,
+                GrMipmapped::kNo,
+                SkBackingFit::kApprox,
+                SkBudgeted::kYes,
+                GrProtected::kNo,
+                /*label=*/"SurfaceContext_InternalWritePixels");
         if (!tempProxy) {
             return false;
         }

@@ -151,7 +151,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
                                               cacheable,
                                               ioType,
                                               isExternal,
-                                              /*label=*/{}));
+                                              /*label=*/"Vk_MakeWrappedTexture"));
 }
 
 GrVkTexture::~GrVkTexture() {

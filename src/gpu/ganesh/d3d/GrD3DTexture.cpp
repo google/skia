@@ -112,7 +112,7 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeWrappedTexture(GrD3DGpu* gpu,
     return sk_sp<GrD3DTexture>(new GrD3DTexture(gpu, dimensions, info, std::move(state),
                                                 shaderResourceView, mipmapStatus, cacheable,
                                                 ioType,
-                                                /*label=*/{}));
+                                                /*label=*/"D3DWrappedTexture"));
 }
 
 sk_sp<GrD3DTexture> GrD3DTexture::MakeAliasingTexture(GrD3DGpu* gpu,
@@ -136,7 +136,7 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeAliasingTexture(GrD3DGpu* gpu,
     GrD3DTexture* tex = new GrD3DTexture(gpu, SkBudgeted::kNo, originalTexture->dimensions(),
                                          info, std::move(state), shaderResourceView,
                                          originalTexture->mipmapStatus(),
-                                         /*label=*/{});
+                                         /*label=*/"AliasingTexture");
     return sk_sp<GrD3DTexture>(tex);
 }
 

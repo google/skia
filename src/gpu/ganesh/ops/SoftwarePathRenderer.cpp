@@ -94,7 +94,8 @@ GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* rContext,
 
     auto proxy =
             proxyProvider->createProxy(format, dimensions, GrRenderable::kNo, 1, GrMipmapped::kNo,
-                                       fit, SkBudgeted::kYes, GrProtected::kNo, /*label=*/{});
+                                       fit, SkBudgeted::kYes, GrProtected::kNo,
+                                       /*label=*/"MakeDeferredMaskTextureView");
     return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
 }
 

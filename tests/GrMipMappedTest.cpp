@@ -384,7 +384,7 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> draw_mipmap_into_new_rende
                                        SkBackingFit::kApprox,
                                        SkBudgeted::kYes,
                                        GrProtected::kNo,
-                                       /*label=*/{});
+                                       /*label=*/"DrawMipMapViewTest");
 
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(rContext,
                                                    colorType,
@@ -440,7 +440,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
 
         sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createProxy(
                 format, {4, 4}, GrRenderable::kYes, 1, GrMipmapped::kYes, SkBackingFit::kExact,
-                SkBudgeted::kYes, GrProtected::kNo,/*label=*/{});
+                SkBudgeted::kYes, GrProtected::kNo,/*label=*/"ManyDependentsMipMappedTest");
 
         // Mark the mipmaps clean to ensure things still work properly when they won't be marked
         // dirty again until GrRenderTask::makeClosed().

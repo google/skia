@@ -1537,7 +1537,8 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
                                                             ? GrMipmapStatus::kValid
                                                             : GrMipmapStatus::kNotAllocated;
 
-    auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, mipmapStatus, /*label=*/"");
+    auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, mipmapStatus,
+                                       /*label=*/"GLGpuCreateCompressedTexture");
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                            fResetTimestampForTextureParameters);

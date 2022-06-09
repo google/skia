@@ -79,15 +79,16 @@ bool BaseDevice::replaceBackingProxy(SkSurface::ContentChangeMode mode) {
     GrProxyProvider* proxyProvider = fContext->priv().proxyProvider();
     // This entry point is used by SkSurface_Gpu::onCopyOnWrite so it must create a
     // kExact-backed render target proxy
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(format,
-                                                             ii.dimensions(),
-                                                             GrRenderable::kYes,
-                                                             oldRTP->numSamples(),
-                                                             oldView.mipmapped(),
-                                                             SkBackingFit::kExact,
-                                                             oldRTP->isBudgeted(),
-                                                             GrProtected::kNo,
-                                                             /*label=*/{});
+    sk_sp<GrTextureProxy> proxy =
+            proxyProvider->createProxy(format,
+                                       ii.dimensions(),
+                                       GrRenderable::kYes,
+                                       oldRTP->numSamples(),
+                                       oldView.mipmapped(),
+                                       SkBackingFit::kExact,
+                                       oldRTP->isBudgeted(),
+                                       GrProtected::kNo,
+                                       /*label=*/"BaseDevice_ReplaceBackingProxy");
     if (!proxy) {
         return false;
     }

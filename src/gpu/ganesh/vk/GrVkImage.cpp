@@ -170,7 +170,7 @@ sk_sp<GrVkImage> GrVkImage::Make(GrVkGpu* gpu,
                                           std::move(framebufferView),
                                           std::move(textureView),
                                           budgeted,
-                                          /*label=*/{}));
+                                          /*label=*/"MakeVkImage"));
 }
 
 sk_sp<GrVkImage> GrVkImage::MakeWrapped(GrVkGpu* gpu,
@@ -203,7 +203,7 @@ sk_sp<GrVkImage> GrVkImage::MakeWrapped(GrVkGpu* gpu,
                                           backendOwnership,
                                           cacheable,
                                           forSecondaryCB,
-                                          /*label=*/{}));
+                                          /*label=*/"VkImageMakeWrapped"));
 }
 
 GrVkImage::GrVkImage(GrVkGpu* gpu,

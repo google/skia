@@ -114,7 +114,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
                                                                : GrMipmapStatus::kNotAllocated;
     return sk_sp<GrMtlTexture>(
             new GrMtlTexture(gpu, kWrapped, dimensions, std::move(attachment), mipmapStatus,
-                             cacheable, ioType, /*label=*/{}));
+                             cacheable, ioType, /*label=*/"MtlTextureWrappedTexture"));
 }
 
 GrMtlTexture::~GrMtlTexture() {

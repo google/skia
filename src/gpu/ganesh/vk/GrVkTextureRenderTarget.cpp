@@ -159,14 +159,15 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRender
     GrMipmapStatus mipmapStatus =
             info.fLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
 
-    return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(gpu,
-                                                                      dimensions,
-                                                                      std::move(texture),
-                                                                      std::move(colorAttachment),
-                                                                      std::move(resolveAttachment),
-                                                                      mipmapStatus,
-                                                                      cacheable,
-                                                                      /*label=*/{}));
+    return sk_sp<GrVkTextureRenderTarget>(
+            new GrVkTextureRenderTarget(gpu,
+                                        dimensions,
+                                        std::move(texture),
+                                        std::move(colorAttachment),
+                                        std::move(resolveAttachment),
+                                        mipmapStatus,
+                                        cacheable,
+                                        /*label=*/"Vk_MakeWrappedTextureRenderTarget"));
 }
 
 size_t GrVkTextureRenderTarget::onGpuMemorySize() const {

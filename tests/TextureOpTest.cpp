@@ -46,7 +46,8 @@ static sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
                                                                  GrRenderable::kYes);
     return rContext->priv().proxyProvider()->createProxy(
             format, kDimensions, GrRenderable::kYes, 1, GrMipmapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrProtected::kNo, /*label=*/{},GrInternalSurfaceFlags::kNone);
+            SkBudgeted::kNo, GrProtected::kNo, /*label=*/"TextureOpTest",
+            GrInternalSurfaceFlags::kNone);
 }
 
 static GrOp::Owner create_op(GrDirectContext* dContext, SkRect rect,

@@ -133,7 +133,8 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
 
     return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
             gpu, dimensions, std::move(textureAttachment), std::move(colorAttachment),
-            std::move(resolveAttachment), mipmapStatus, cacheable, /*label=*/{}));
+            std::move(resolveAttachment), mipmapStatus, cacheable,
+                      /*label=*/"MtlWrappedTextureRenderTarget"));
 }
 
 size_t GrMtlTextureRenderTarget::onGpuMemorySize() const {

@@ -86,7 +86,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
                                   GrMipmapped::kNo,
                                   SkBudgeted::kNo,
                                   GrProtected::kNo,
-                                  /*label=*/{});
+                                  /*label=*/"TextureBindingsResetTest");
     REPORTER_ASSERT(reporter, tex);
     dContext->resetGLTextureBindings();
     checkBindings();

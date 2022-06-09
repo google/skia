@@ -30,7 +30,7 @@ static sk_sp<GrTextureProxy> make_deferred(GrRecordingContext* rContext) {
                                                                  GrRenderable::kYes);
     return proxyProvider->createProxy(format, {kWidthHeight, kWidthHeight}, GrRenderable::kYes, 1,
                                       GrMipmapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
-                                      GrProtected::kNo, /*label=*/{});
+                                      GrProtected::kNo, /*label=*/"ProxyRefTest");
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrRecordingContext* rContext) {

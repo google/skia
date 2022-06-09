@@ -44,7 +44,8 @@ sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu,
         return nullptr;
     }
 
-    sk_sp<GrGLBuffer> buffer(new GrGLBuffer(gpu, size, intendedType, accessPattern, /*label=*/{}));
+    sk_sp<GrGLBuffer> buffer(new GrGLBuffer(gpu, size, intendedType, accessPattern,
+                                            /*label=*/"MakeGlBuffer"));
     if (0 == buffer->bufferID()) {
         return nullptr;
     }
@@ -321,10 +322,13 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
 
 void GrGLBuffer::onSetLabel() {
     SkASSERT(fBufferID);
-    GrGLGpu* glGpu = static_cast<GrGLGpu*>(this->getGpu());
-    if (glGpu->glCaps().debugSupport()) {
-        GR_GL_CALL(glGpu->glInterface(),
-                   ObjectLabel(GR_GL_BUFFER, fBufferID, -1, this->getLabel().c_str()));
+    if (!this->getLabel().empty()) {
+        const std::string label = "_Skia_" + this->getLabel();
+        GrGLGpu* glGpu = static_cast<GrGLGpu*>(this->getGpu());
+        if (glGpu->glCaps().debugSupport()) {
+            GR_GL_CALL(glGpu->glInterface(),
+                       ObjectLabel(GR_GL_BUFFER, fBufferID, -1, label.c_str()));
+        }
     }
 }
 

@@ -17,7 +17,8 @@ static void make_proxies(int count, SkTArray<sk_sp<GrSurfaceProxy>>* proxies) {
     proxies->reset(count);
     for (int i = 0; i < count; i++) {
         auto name = SkStringPrintf("%c", 'A' + i);
-        proxies->at(i) = sk_make_sp<GrMockSurfaceProxy>(std::move(name), /*label=*/"");
+        proxies->at(i) = sk_make_sp<GrMockSurfaceProxy>(std::move(name),
+        /*label=*/"RenderTaskClusterTest");
     }
 }
 

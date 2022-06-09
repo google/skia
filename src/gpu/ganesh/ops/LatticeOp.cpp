@@ -478,7 +478,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
                                                               SkBackingFit::kExact,
                                                               SkBudgeted::kYes,
                                                               GrProtected::kNo,
-                                                              /*label=*/{});
+                                                              /*label=*/"LatticeOp");
 
     do {
         if (random->nextBool()) {

@@ -32,7 +32,8 @@ public:
                                                          int sampleCnt,
                                                          GrGLFormat format) {
         return sk_sp<GrGLAttachment>(new GrGLAttachment(
-                gpu, renderbufferID, dimensions, supportedUsages, sampleCnt, format, /*label=*/{}));
+                gpu, renderbufferID, dimensions, supportedUsages, sampleCnt, format,
+                /*label=*/"MakeWrappedRenderBuffer"));
     }
 
     GrBackendFormat backendFormat() const override;

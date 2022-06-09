@@ -1410,7 +1410,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
                                                              fit,
                                                              SkBudgeted::kNo,
                                                              GrProtected::kNo,
-                                                             /*label=*/{},
+                                                             /*label=*/"TextureOp",
                                                              GrInternalSurfaceFlags::kNone);
 
     SkRect rect = GrTest::TestRect(random);

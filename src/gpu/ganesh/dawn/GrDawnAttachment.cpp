@@ -54,7 +54,7 @@ sk_sp<GrDawnAttachment> GrDawnAttachment::MakeStencil(GrDawnGpu* gpu,
                                                         sampleCnt,
                                                         texture,
                                                         view,
-                                                        /*label=*/{}));
+                                                        /*label=*/"DawnAttachment_MakeStencil"));
 }
 
 GrDawnAttachment::~GrDawnAttachment() {}

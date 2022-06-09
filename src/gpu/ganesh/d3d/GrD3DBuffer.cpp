@@ -76,7 +76,7 @@ sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType
     return sk_sp<GrD3DBuffer>(new GrD3DBuffer(gpu, size, intendedType, accessPattern,
                                               std::move(resource), std::move(alloc),
                                               resourceState,
-                                              /*label=*/{}));
+                                              /*label=*/"MakeD3DBuffer"));
 }
 
 GrD3DBuffer::GrD3DBuffer(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedType,

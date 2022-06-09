@@ -124,10 +124,11 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state), msInfo,
                                       std::move(msState), msaaRenderTargetView, renderTargetView,
                                       kWrapped,
-                                      /*label=*/{});
+                                      /*label=*/"MakeWrappedRenderTargetWithMSAASurface");
     } else {
         d3dRT = new GrD3DRenderTarget(
-                gpu, dimensions, info, std::move(state), renderTargetView, kWrapped, /*label=*/{});
+                gpu, dimensions, info, std::move(state), renderTargetView, kWrapped,
+                /*label=*/"MakeWrappedRenderTarget");
     }
 
     return sk_sp<GrD3DRenderTarget>(d3dRT);

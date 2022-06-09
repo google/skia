@@ -142,7 +142,8 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::Make(GrMtlGpu* gpu,
 #endif
 
     return sk_sp<GrMtlAttachment>(new GrMtlAttachment(gpu, dimensions, attachmentUsages,
-                                                      texture, budgeted, /*label=*/{}));
+                                                      texture, budgeted,
+                                                      /*label=*/"MakeMtlAttachment"));
 }
 
 sk_sp<GrMtlAttachment> GrMtlAttachment::MakeWrapped(
@@ -153,7 +154,8 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::MakeWrapped(
         GrWrapCacheable cacheable) {
 
     return sk_sp<GrMtlAttachment>(new GrMtlAttachment(gpu, dimensions, attachmentUsages, texture,
-                                                      cacheable, /*label=*/{}));
+                                                      cacheable,
+                                                      /*label=*/"MtlAttachment_MakeWrapped"));
 }
 
 GrMtlAttachment::~GrMtlAttachment() {

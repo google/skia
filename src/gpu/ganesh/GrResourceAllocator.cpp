@@ -115,7 +115,8 @@ GrResourceAllocator::Register::Register(GrSurfaceProxy* originatingProxy,
     SkDEBUGCODE(fUniqueID = CreateUniqueID();)
     if (fScratchKey.isValid()) {
         if (can_proxy_use_scratch(*provider->caps(), originatingProxy)) {
-            fExistingSurface = provider->findAndRefScratchTexture(fScratchKey, /*label=*/{});
+            fExistingSurface = provider->findAndRefScratchTexture(
+                    fScratchKey, /*label=*/"ResourceAllocatorRegister");
         }
     } else {
         SkASSERT(this->uniqueKey().isValid());
