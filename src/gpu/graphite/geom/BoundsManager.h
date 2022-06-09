@@ -19,14 +19,13 @@ namespace skgpu::graphite {
 
 /**
  * BoundsManager is an acceleration structure for device-space related pixel bounds queries.
- * The BoundsManager relies on two related ordinal values: the CompressedPaintersOrder of a draw
- * and the Z/depth value of the draw. The CompressedPaintersOrder enforces a specific submission
- * order of draws to the GPU but can re-arrange draws out of their original painter's order if the
- * GREATER depth test and the draw's Z value resolve out-of-order rendering.
+ * The BoundsManager tracks a single ordinal value per bounds: the CompressedPaintersOrder of a draw
+ * The CompressedPaintersOrder enforces a specific submission order of draws to the GPU but can
+ * re-arrange draws out of their original painter's order if the GREATER depth test and the draw's Z
+ * value resolve out-of-order rendering.
  *
  * It supports querying the most recent draw intersecting a bounding rect (represented as a
- * CompressedPaintersOrder value), recording a (bounds, CompressedPaintersOrder, and Z value) tuple,
- * and querying if a (bounds, Z value) pair is fully occluded by another draw.
+ * CompressedPaintersOrder value), and recording a (bounds, CompressedPaintersOrder) pair.
  */
 class BoundsManager {
 public:
@@ -34,12 +33,7 @@ public:
 
     virtual CompressedPaintersOrder getMostRecentDraw(const Rect& bounds) const = 0;
 
-    virtual bool isOccluded(const Rect& bounds, PaintersDepth z) const = 0;
-
-    virtual void recordDraw(const Rect& bounds,
-                            CompressedPaintersOrder order,
-                            PaintersDepth z,
-                            bool fullyOpaque=false) = 0;
+    virtual void recordDraw(const Rect& bounds, CompressedPaintersOrder order) = 0;
 
     virtual void reset() = 0;
 };
@@ -57,10 +51,8 @@ public:
         return fLatestDraw;
     }
 
-    bool isOccluded(const Rect& bounds, PaintersDepth z) const override { return false; }
 
-    void recordDraw(const Rect& bounds, CompressedPaintersOrder order, PaintersDepth z,
-                    bool fullyOpaque=false) override {
+    void recordDraw(const Rect& bounds, CompressedPaintersOrder order) override {
         if (fLatestDraw < order) {
             fLatestDraw = order;
         }
@@ -81,43 +73,37 @@ public:
     ~BruteForceBoundsManager() override {}
 
     CompressedPaintersOrder getMostRecentDraw(const Rect& bounds) const override {
+        SkASSERT(fRects.count() == fOrders.count());
+
+        Rect::ComplementRect boundsComplement(bounds);
         CompressedPaintersOrder max = CompressedPaintersOrder::First();
-        for (const Record& r : fRects.items()) {
-            if (max < r.fOrder && r.fBounds.intersects(bounds)) {
-                max = r.fOrder;
+        auto orderIter = fOrders.items().begin();
+        for (const Rect& r : fRects.items()) {
+            if (r.intersects(boundsComplement)) {
+                if (max < *orderIter) {
+                    max = *orderIter;
+                }
             }
+            ++orderIter;
         }
         return max;
     }
 
-    bool isOccluded(const Rect& bounds, PaintersDepth z) const override {
-        // Iterate in reverse since the records were likely recorded in increasing Z
-        for (const Record& r : fRects.ritems()) {
-            if (r.fOpaque && z < r.fZ && r.fBounds.contains(bounds)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void recordDraw(const Rect& bounds, CompressedPaintersOrder order, PaintersDepth z,
-                    bool fullyOpaque=false) override {
-        fRects.push_back({bounds, order, z, fullyOpaque});
+    void recordDraw(const Rect& bounds, CompressedPaintersOrder order) override {
+        fRects.push_back(bounds);
+        fOrders.push_back(order);
     }
 
     void reset() override {
         fRects.reset();
+        fOrders.reset();
     }
 
 private:
-    struct Record {
-        Rect fBounds;
-        CompressedPaintersOrder fOrder;
-        PaintersDepth fZ;
-        bool fOpaque;
-    };
-
-    SkTBlockList<Record> fRects{16, SkBlockAllocator::GrowthPolicy::kFibonacci};
+    // fRects and fOrders are parallel, but kept separate to avoid wasting padding since Rect is
+    // an over-aligned type.
+    SkTBlockList<Rect> fRects{16, SkBlockAllocator::GrowthPolicy::kFibonacci};
+    SkTBlockList<CompressedPaintersOrder> fOrders{16, SkBlockAllocator::GrowthPolicy::kFibonacci};
 };
 
 } // namespace skgpu::graphite

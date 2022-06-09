@@ -604,17 +604,16 @@ void Device::drawShape(const Shape& shape,
         this->recordDraw(localToDevice, shape, clip, order, &shading, nullptr);
     }
 
-    // Record the painters order and depth used for this draw
+    // TODO: If 'fullyOpaque' is true, it might be useful to store the draw bounds and Z in a
+    // special occluders list for filtering the DrawList/DrawPass when flushing.
     // TODO: If recordDraw picked a coverage AA renderer, 'dependsOnDst' is out of date.
-    const bool fullyOpaque = !dependsOnDst &&
-                             clipOrder == DrawOrder::kNoIntersection &&
-                             shape.isRect() &&
-                             localToDevice.type() <= Transform::Type::kRectStaysRect;
-    fColorDepthBoundsManager->recordDraw(clip.drawBounds(),
-                                         order.paintOrder(),
-                                         order.depth(),
-                                         fullyOpaque);
+    // const bool fullyOpaque = !dependsOnDst &&
+    //                          clipOrder == DrawOrder::kNoIntersection &&
+    //                          shape.isRect() &&
+    //                          localToDevice.type() <= Transform::Type::kRectStaysRect;
 
+    // Record the painters order and depth used for this draw
+    fColorDepthBoundsManager->recordDraw(clip.drawBounds(), order.paintOrder());
     fCurrentDepth = order.depth();
     fDrawsOverlap |= (prevDraw != DrawOrder::kNoIntersection);
 }
@@ -697,7 +696,7 @@ void Device::flushPendingWorkToRecorder() {
     }
 
     fClip.recordDeferredClipDraws();
-    auto drawTask = fDC->snapRenderPassTask(fRecorder, fColorDepthBoundsManager.get());
+    auto drawTask = fDC->snapRenderPassTask(fRecorder);
     if (drawTask) {
         fRecorder->priv().add(std::move(drawTask));
     }

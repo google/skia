@@ -317,8 +317,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                          std::unique_ptr<DrawList> draws,
                                          sk_sp<TextureProxy> target,
                                          std::pair<LoadOp, StoreOp> ops,
-                                         std::array<float, 4> clearColor,
-                                         const BoundsManager* occlusionCuller) {
+                                         std::array<float, 4> clearColor) {
     // NOTE: This assert is here to ensure SortKey is as tightly packed as possible. Any change to
     // its size should be done with care and good reason. The performance of sorting the keys is
     // heavily tied to the total size.
@@ -361,11 +360,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     SkPipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
 
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
-        if (occlusionCuller && occlusionCuller->isOccluded(draw.fGeometry.clip().drawBounds(),
-                                                           draw.fGeometry.order().depth())) {
-            continue;
-        }
-
         // If we have two different descriptors, such that the uniforms from the PaintParams can be
         // bound independently of those used by the rest of the RenderStep, then we can upload now
         // and remember the location for re-use on any RenderStep that does shading.

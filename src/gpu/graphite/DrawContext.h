@@ -22,7 +22,6 @@ class SkPixmap;
 
 namespace skgpu::graphite {
 
-class BoundsManager;
 class Recorder;
 class Shape;
 class Transform;
@@ -71,11 +70,10 @@ public:
     // appended DrawPasses from a child SDC. A new DrawList is started to record subsequent drawing
     // operations.
     //
-    // If 'occlusionCuller' is null, then culling is skipped when converting the DrawList into a
-    // DrawPass.
+    // TBD - Should this take a special occluder list to filter the DrawList?
     // TBD - should this also return the task so the caller can point to it with its own
     // dependencies? Or will that be mostly automatic based on draws and proxy refs?
-    void snapDrawPass(Recorder*, const BoundsManager* occlusionCuller);
+    void snapDrawPass(Recorder*);
 
     // TBD: snapRenderPassTask() might not need to be public, and could be spec'ed to require that
     // snapDrawPass() must have been called first. A lot of it will depend on how the task graph is
@@ -86,7 +84,7 @@ public:
     // caller is responsible for configuring the returned Tasks's dependencies.
     //
     // Returns null if there are no pending commands or draw passes to move into a task.
-    sk_sp<Task> snapRenderPassTask(Recorder*, const BoundsManager* occlusionCuller);
+    sk_sp<Task> snapRenderPassTask(Recorder*);
 
     // Ends the current UploadList if needed, and moves the accumulated Uploads into an UploadTask
     // that can be drawn and depended on. The caller is responsible for configuring the returned

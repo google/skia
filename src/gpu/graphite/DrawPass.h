@@ -57,8 +57,7 @@ public:
                                           std::unique_ptr<DrawList>,
                                           sk_sp<TextureProxy>,
                                           std::pair<LoadOp, StoreOp>,
-                                          std::array<float, 4> clearColor,
-                                          const BoundsManager* occlusionCuller);
+                                          std::array<float, 4> clearColor);
 
     // Defined relative to the top-left corner of the surface the DrawPass renders to, and is
     // contained within its dimensions.
