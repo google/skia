@@ -21,6 +21,8 @@
 #include <utility>
 #include <vector>
 
+template <typename T> class SkSpan;
+
 namespace SkSL {
 
 class Context;
@@ -152,7 +154,10 @@ private:
 
     const Symbol* lookup(SymbolTable* writableSymbolTable, const SymbolKey& key);
 
-    static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
+    const Symbol* buildOverloadSet(SymbolTable* writableSymbolTable,
+                                   const SymbolKey& key,
+                                   const Symbol* symbol,
+                                   SkSpan<const FunctionDeclaration* const> overloadSet);
 
     bool fBuiltin = false;
     std::forward_list<std::string> fOwnedStrings;

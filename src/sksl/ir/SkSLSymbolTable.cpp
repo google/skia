@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
+#include "include/core/SkSpan.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -15,14 +16,19 @@
 
 namespace SkSL {
 
-std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& s) {
+static SkSpan<const FunctionDeclaration* const> get_overload_set(
+        const Symbol& s,
+        const FunctionDeclaration*& scratchPtr) {
     switch (s.kind()) {
         case Symbol::Kind::kFunctionDeclaration:
-            return { &s.as<FunctionDeclaration>() };
+            scratchPtr = &s.as<FunctionDeclaration>();
+            return SkMakeSpan(&scratchPtr, 1);
+
         case Symbol::Kind::kUnresolvedFunction:
-            return s.as<UnresolvedFunction>().functions();
+            return SkMakeSpan(s.as<UnresolvedFunction>().functions());
+
         default:
-            return std::vector<const FunctionDeclaration*>();
+            return SkSpan<const FunctionDeclaration* const>{};
     }
 }
 
@@ -40,44 +46,75 @@ const Symbol* SymbolTable::lookup(SymbolTable* writableSymbolTable, const Symbol
     }
     const Symbol** symbolPPtr = fSymbols.find(key);
     if (!symbolPPtr) {
-        if (fParent) {
-            return fParent->lookup(writableSymbolTable, key);
-        }
-        return nullptr;
+        // The symbol wasn't found; recurse into the parent symbol table.
+        return fParent ? fParent->lookup(writableSymbolTable, key)
+                       : nullptr;
     }
 
     const Symbol* symbol = *symbolPPtr;
-    if (fParent) {
-        auto functions = GetFunctions(*symbol);
-        if (functions.size() > 0) {
-            bool modified = false;
-            const Symbol* previous = fParent->lookup(writableSymbolTable, key);
-            if (previous) {
-                auto previousFunctions = GetFunctions(*previous);
-                for (const FunctionDeclaration* prev : previousFunctions) {
-                    bool found = false;
-                    for (const FunctionDeclaration* current : functions) {
-                        if (current->matches(*prev)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        functions.push_back(prev);
-                        modified = true;
-                    }
-                }
-                if (modified) {
-                    SkASSERT(functions.size() > 1);
-                    return writableSymbolTable
-                                   ? writableSymbolTable->takeOwnershipOfSymbol(
-                                             std::make_unique<UnresolvedFunction>(functions))
-                                   : nullptr;
-                }
+    if (!fParent) {
+        // We found a symbol at the top level.
+        return symbol;
+    }
+
+    const FunctionDeclaration* scratchPtr;
+    SkSpan<const FunctionDeclaration* const> overloadSet = get_overload_set(*symbol, scratchPtr);
+    if (overloadSet.empty()) {
+        // We found a non-function-related symbol. Return it.
+        return symbol;
+    }
+
+    // We found a function-related symbol. We need to return the complete overload set.
+    return this->buildOverloadSet(writableSymbolTable, key, symbol, overloadSet);
+}
+
+const Symbol* SymbolTable::buildOverloadSet(SymbolTable* writableSymbolTable,
+                                            const SymbolKey& key,
+                                            const Symbol* symbol,
+                                            SkSpan<const FunctionDeclaration* const> overloadSet) {
+    // Scan the parent symbol table for a matching symbol.
+    const Symbol* overloadedSymbol = fParent->lookup(writableSymbolTable, key);
+    if (!overloadedSymbol) {
+        return symbol;
+    }
+
+    const FunctionDeclaration* scratchPtr;
+    SkSpan<const FunctionDeclaration* const> parentOverloadSet = get_overload_set(*overloadedSymbol,
+                                                                                  scratchPtr);
+    if (parentOverloadSet.empty()) {
+        // The parent symbol wasn't function-related. Return the symbol we found.
+        return symbol;
+    }
+
+    // We've found two distinct overload sets; we need to combine them. Start with the initial set.
+    std::vector<const FunctionDeclaration*> combinedOverloadSet{overloadSet.begin(),
+                                                                overloadSet.end()};
+    // Now combine in any unique overloads from the parent overload set.
+    for (const FunctionDeclaration* prev : parentOverloadSet) {
+        bool matchFound = false;
+        for (const FunctionDeclaration* current : combinedOverloadSet) {
+            if (current->matches(*prev)) {
+                matchFound = true;
+                break;
             }
         }
+        if (!matchFound) {
+            combinedOverloadSet.push_back(prev);
+        }
     }
-    return symbol;
+
+    SkASSERT(combinedOverloadSet.size() >= overloadSet.size());
+    if (combinedOverloadSet.size() == overloadSet.size()) {
+        // We didn't add anything to the overload set. Our existing symbol is fine.
+        return symbol;
+    }
+
+    // Add this combined overload set to the symbol table.
+    SkASSERT(combinedOverloadSet.size() > 1);
+    return writableSymbolTable
+                   ? writableSymbolTable->takeOwnershipOfSymbol(
+                             std::make_unique<UnresolvedFunction>(std::move(combinedOverloadSet)))
+                   : nullptr;
 }
 
 const std::string* SymbolTable::takeOwnershipOfString(std::string str) {
