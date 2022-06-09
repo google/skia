@@ -146,6 +146,12 @@ int SkPopCount_portable(uint32_t n);
     }
 #endif
 
+/*
+ * Return the 0-based index of the nth bit set in target
+ * Returns 32 if there is no nth bit set.
+ */
+int SkNthSet(uint32_t target, int n);
+
 //! Returns the number of leading zero bits (0...32)
 // From Hacker's Delight 2nd Edition
 constexpr int SkCLZ_portable(uint32_t x) {

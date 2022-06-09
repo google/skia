@@ -50,6 +50,17 @@ int SkPopCount_portable(uint32_t n) {
     return count;
 }
 
+// Here we strip off the unwanted bits and then return the number of trailing zero bits
+int SkNthSet(uint32_t target, int n) {
+    SkASSERT(n < SkPopCount(target));
+
+    for (int i = 0; i < n; ++i) {
+        target &= (target - 1); // Remove the lowest bit in the integer.
+    }
+
+    return SkCTZ(target);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkSafeMath::Add(size_t x, size_t y) {
