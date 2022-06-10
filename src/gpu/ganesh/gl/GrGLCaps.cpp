@@ -3693,7 +3693,15 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // http://anglebug.com/6030
     if (fMSFBOType == kES_EXT_MsToTexture_MSFBOType &&
         ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
-        fDisallowDynamicMSAA = true;
+        // As GL_EXT_multisampled_render_to_texture supporting issue,
+        // fall back to default dmsaa path
+        if (ctxInfo.vendor()  == GrGLVendor::kIntel) {
+            fMSFBOType = kStandard_MSFBOType;
+            fMSAAResolvesAutomatically = false;
+        }
+        else {
+            fDisallowDynamicMSAA = true;
+        }
     }
 
     // http://skbug.com/12081
