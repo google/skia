@@ -174,7 +174,7 @@ py_binary(
 genrule(
     name = "generate_gpuinfo",
     srcs = [
-        "gpu_info.json",
+        "src/dawn/gpu_info.json",
         "generator/templates/BSD_LICENSE",
         "generator/templates/dawn/common/GPUInfo.h",
         "generator/templates/dawn/common/GPUInfo.cpp",
@@ -184,7 +184,7 @@ genrule(
         "src/dawn/common/GPUInfo_autogen.cpp",
     ],
     cmd = "$(location :dawn_gpu_info_generator) " +
-          "--gpu-info-json $(location gpu_info.json) " +
+          "--gpu-info-json $(location src/dawn/gpu_info.json) " +
           "--template-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
           "--output-dir $(RULEDIR)",
     tools = [":dawn_gpu_info_generator"],
@@ -221,7 +221,7 @@ genrule(
     cmd = "$(location :dawn_version_generator) " +
           "--template-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
           "--dawn-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
-          "--output-dir $(RULEDIR)",
+          "--output-dir $(RULEDIR) 2> /dev/null",
     tools = [":dawn_version_generator"],
 )
 
