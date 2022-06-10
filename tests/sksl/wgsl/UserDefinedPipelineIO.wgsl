@@ -15,7 +15,7 @@ struct FSOut {
 };
 fn main() {
 }
-@stage(fragment) fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;
     main();
     return _stageOut;

@@ -8,7 +8,7 @@ struct VSOut {
 fn main(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
     (*_stageOut).id = i32(_stageIn.sk_VertexID);
 }
-@stage(vertex) fn vertexMain(_stageIn: VSIn) -> VSOut {
+@vertex fn vertexMain(_stageIn: VSIn) -> VSOut {
     var _stageOut: VSOut;
     main(_stageIn, &_stageOut);
     return _stageOut;

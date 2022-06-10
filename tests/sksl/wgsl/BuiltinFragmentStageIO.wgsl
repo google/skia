@@ -10,7 +10,7 @@ fn main(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
     var y: f32 = f32(_stageIn.sk_Clockwise);
     (*_stageOut).sk_FragColor = vec4<f32>(f32(x), f32(y), 1.0, 1.0);
 }
-@stage(fragment) fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;
     main(_stageIn, &_stageOut);
     return _stageOut;

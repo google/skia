@@ -12,7 +12,7 @@ fn main(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
     sk_PointSize = x;
     (*_stageOut).sk_Position = vec4<f32>(x, y, 1.0, 1.0);
 }
-@stage(vertex) fn vertexMain(_stageIn: VSIn) -> VSOut {
+@vertex fn vertexMain(_stageIn: VSIn) -> VSOut {
     var _stageOut: VSOut;
     main(_stageIn, &_stageOut);
     return _stageOut;

@@ -7,7 +7,7 @@ struct FSOut {
 fn main(_stageOut: ptr<function, FSOut>) {
     (*_stageOut).sk_FragColor = vec4<f32>(1.0, 1.0, 1.0, 1.0);
 }
-@stage(fragment) fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;
     main(&_stageOut);
     return _stageOut;

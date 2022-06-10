@@ -8,7 +8,7 @@ struct FSOut {
 fn main(_stageIn: FSIn) -> vec4<f32> {
     return vec4<f32>(f32(_stageIn.sk_FragCoord.x), 0.0, 0.0, 1.0);
 }
-@stage(fragment) fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;
     _stageOut.sk_FragColor = main(_stageIn);
     return _stageOut;

@@ -594,14 +594,14 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     // function.
     std::string outputType;
     if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
-        this->write("@stage(vertex) fn vertexMain(");
+        this->write("@vertex fn vertexMain(");
         if (fPipelineInputCount > 0) {
             this->write("_stageIn: VSIn");
         }
         this->writeLine(") -> VSOut {");
         outputType = "VSOut";
     } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-        this->write("@stage(fragment) fn fragmentMain(");
+        this->write("@fragment fn fragmentMain(");
         if (fPipelineInputCount > 0) {
             this->write("_stageIn: FSIn");
         }
