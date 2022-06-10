@@ -135,6 +135,18 @@ DEF_TEST(SkRuntimeEffectUniformFlags, r) {
                                              SkRuntimeEffect::Uniform::kHalfPrecision_Flag));
 }
 
+DEF_TEST(SkRuntimeEffectValidation, r) {
+    auto es2Effect = SkRuntimeEffect::MakeForShader(SkString("#version 100\n" EMPTY_MAIN)).effect;
+    auto es3Effect = SkRuntimeEffect::MakeForShader(SkString("#version 300\n" EMPTY_MAIN)).effect;
+    REPORTER_ASSERT(r, es2Effect && es3Effect);
+
+    auto es2Caps = SkCapabilities::RasterBackend();
+    REPORTER_ASSERT(r, es2Caps->skslVersion() == SkSL::Version::k100);
+
+    REPORTER_ASSERT(r, SkRuntimeEffectPriv::CanDraw(es2Caps.get(), es2Effect.get()));
+    REPORTER_ASSERT(r, !SkRuntimeEffectPriv::CanDraw(es2Caps.get(), es3Effect.get()));
+}
+
 DEF_TEST(SkRuntimeEffectForColorFilter, r) {
     // Tests that the color filter factory rejects or accepts certain SkSL constructs
     auto test_valid = [r](const char* sksl) {

@@ -7,6 +7,7 @@
 
 #include "include/effects/SkRuntimeEffect.h"
 
+#include "include/core/SkCapabilities.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/core/SkSurface.h"
@@ -171,6 +172,17 @@ sk_sp<const SkData> SkRuntimeEffectPriv::TransformUniforms(
         }
     }
     return data ? data : originalData;
+}
+
+bool SkRuntimeEffectPriv::CanDraw(const SkCapabilities* caps, const SkSL::Program* program) {
+    SkASSERT(caps && program);
+    SkASSERT(program->fConfig->enforcesSkSLVersion());
+    return program->fConfig->fRequiredSkSLVersion <= caps->skslVersion();
+}
+
+bool SkRuntimeEffectPriv::CanDraw(const SkCapabilities* caps, const SkRuntimeEffect* effect) {
+    SkASSERT(effect);
+    return CanDraw(caps, effect->fBaseProgram.get());
 }
 
 //////////////////////////////////////////////////////////////////////////////

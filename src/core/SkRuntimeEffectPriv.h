@@ -17,10 +17,12 @@
 #ifdef SK_ENABLE_SKSL
 
 namespace SkSL {
-class Variable;
 class Context;
+class Variable;
+struct Program;
 }
 
+class SkCapabilities;
 struct SkColorSpaceXformSteps;
 
 class SkRuntimeEffectPriv {
@@ -57,6 +59,9 @@ public:
     static sk_sp<const SkData> TransformUniforms(SkSpan<const SkRuntimeEffect::Uniform> uniforms,
                                                  sk_sp<const SkData> originalData,
                                                  const SkColorSpace* dstCS);
+
+    static bool CanDraw(const SkCapabilities*, const SkSL::Program*);
+    static bool CanDraw(const SkCapabilities*, const SkRuntimeEffect*);
 };
 
 // These internal APIs for creating runtime effects vary from the public API in two ways:
