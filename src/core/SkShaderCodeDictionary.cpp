@@ -207,11 +207,9 @@ size_t SkShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey* key) con
 }
 
 const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
-        const SkPaintParamsKey& key
-#ifdef SK_GRAPHITE_ENABLED
-        , const skgpu::BlendInfo& blendInfo
-#endif
-        ) {
+        SkPaintParamsKeyBuilder* builder) {
+    const SkPaintParamsKey& key = builder->lockAsKey();
+
     SkAutoSpinlock lock{fSpinLock};
 
     auto iter = fHash.find(&key);
@@ -221,7 +219,7 @@ const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
     }
 
 #ifdef SK_GRAPHITE_ENABLED
-    Entry* newEntry = this->makeEntry(key, blendInfo);
+    Entry* newEntry = this->makeEntry(key, builder->blendInfo());
 #else
     Entry* newEntry = this->makeEntry(key);
 #endif

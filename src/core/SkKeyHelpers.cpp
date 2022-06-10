@@ -650,16 +650,9 @@ SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
     BlendModeBlock::BeginBlock(keyContext, builder, /* pipelineData*/ nullptr, bm); // 'bm' is used
     builder->endBlock();
 
-    SkPaintParamsKey key = builder->lockAsKey();
-
     auto dict = keyContext.dict();
 
-    auto entry = dict->findOrCreate(
-            key
-#ifdef SK_GRAPHITE_ENABLED
-            , builder->blendInfo()
-#endif
-            );
+    auto entry = dict->findOrCreate(builder);
 
     return  entry->uniqueID();
 }
