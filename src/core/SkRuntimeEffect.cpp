@@ -1156,9 +1156,7 @@ public:
     void addToKey(const SkKeyContext& keyContext,
                   SkPaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer) const override {
-        // TODO(skia:13405): this is currently displaying solid magenta, not our Runtime Shader
-        constexpr SkPMColor4f kRuntimeShaderColor = {1, 0, 1, 1};
-        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kRuntimeShaderColor);
+        RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
         builder->endBlock();
     }
 

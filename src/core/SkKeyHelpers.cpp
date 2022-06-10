@@ -8,10 +8,13 @@
 #include "src/core/SkKeyHelpers.h"
 
 #include "include/core/SkCombinationBuilder.h"
+#include "include/core/SkData.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkPaintParamsKey.h"
 #include "src/core/SkPipelineData.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkShaderCodeDictionary.h"
 #include "src/core/SkUniform.h"
 
@@ -563,6 +566,53 @@ void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
     }
 }
 
+RuntimeShaderBlock::ShaderData::ShaderData(sk_sp<const SkRuntimeEffect> effect)
+        : fEffect(std::move(effect)) {}
+
+RuntimeShaderBlock::ShaderData::ShaderData(sk_sp<const SkRuntimeEffect> effect,
+                                           sk_sp<const SkData> uniforms)
+        : fEffect(std::move(effect))
+        , fUniforms(std::move(uniforms)) {}
+
+static bool skdata_matches(const SkData* a, const SkData* b) {
+    // Returns true if both SkData objects hold the same contents, or if they are both null.
+    // (SkData::equals supports passing null, and returns false.)
+    return a ? a->equals(b) : (a == b);
+}
+
+bool RuntimeShaderBlock::ShaderData::operator==(const ShaderData& rhs) const {
+    return fEffect == rhs.fEffect &&
+           skdata_matches(fUniforms.get(), rhs.fUniforms.get());
+}
+
+void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+                                    SkPaintParamsKeyBuilder* builder,
+                                    SkPipelineDataGatherer* gatherer,
+                                    const ShaderData& shaderData) {
+    switch (builder->backend()) {
+        case SkBackend::kGraphite: {
+#ifdef SK_GRAPHITE_ENABLED
+            // TODO(skia:13405): add support for uniforms
+            // TODO(skia:13405): add support for child effects
+
+            if (gatherer) {
+                [[maybe_unused]] const SkShaderCodeDictionary* dict = keyContext.dict();
+                VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kRuntimeShader)
+            }
+            // Until we support uniforms here, we don't have much else to do.
+            builder->beginBlock(SkBuiltInCodeSnippetID::kRuntimeShader);
+#endif  // SK_GRAPHITE_ENABLED
+            break;
+        }
+
+        case SkBackend::kSkVM:
+        case SkBackend::kGanesh:
+            // TODO: add implementation for other backends
+            SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);
+            break;
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 // TODO: we need to feed the number of stops in the gradients into this method from the
 // combination code
@@ -646,10 +696,17 @@ SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
             builder->endBlock();
             break;
         case SkShaderType::kRuntimeShader:
-            // TODO(skia:13405): replace with RuntimeShader-specific data
-            SolidColorShaderBlock::BeginBlock(keyContext, builder, nullptr,
-                                              /* unused */ kErrorColor);
-            builder->endBlock();
+            {
+                static sk_sp<SkRuntimeEffect> effect = SkMakeRuntimeEffect(
+                    SkRuntimeEffect::MakeForShader, R"(
+                        half4 main(float2 coords) {
+                            return half4(coords.xy01);
+                        }
+                    )");
+                RuntimeShaderBlock::BeginBlock(keyContext, builder, nullptr,
+                                               {effect, /*uniforms=*/nullptr});
+                builder->endBlock();
+            }
             break;
     }
 

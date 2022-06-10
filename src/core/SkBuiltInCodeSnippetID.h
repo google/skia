@@ -31,6 +31,7 @@ enum class SkBuiltInCodeSnippetID : uint8_t {
     kLocalMatrixShader,
     kImageShader,
     kBlendShader,     // aka ComposeShader
+    kRuntimeShader,
 
     // BlendMode code snippets
     kFixedFunctionBlender,
