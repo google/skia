@@ -78,16 +78,18 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
                     sk_sp<GrMtlAttachment>(static_cast<GrMtlAttachment*>(msaaAttachment.release()));
             mtlRT = new GrMtlRenderTarget(
                     gpu, dimensions, std::move(colorAttachment), std::move(textureAttachment),
-                    kWrapped, /*label=*/{});
+                    kWrapped, /*label=*/"MakeWrappedRenderTargetWithOneTextureSampleCount");
             mtlRT->setRequiresManualMSAAResolve();
         } else {
             SkASSERT(sampleCnt == static_cast<int>([texture sampleCount]));
             mtlRT = new GrMtlRenderTarget(gpu, dimensions, std::move(textureAttachment), nil,
-                                          kWrapped, /*label=*/{});
+                                          kWrapped,
+                                          /*label=*/"MakeWrappedRenderTargetWithManySampleCount");
         }
     } else {
         mtlRT = new GrMtlRenderTarget(gpu, dimensions, std::move(textureAttachment), nil,
-                                      kWrapped, /*label=*/{});
+                                      kWrapped,
+                                      /*label=*/"MakeWrappedRenderTargetWithOneOrLessSampleCount");
     }
 
     return sk_sp<GrMtlRenderTarget>(mtlRT);

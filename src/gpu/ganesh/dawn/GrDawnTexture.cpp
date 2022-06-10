@@ -81,9 +81,11 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, SkISize dimensio
                                                  : GrMipmapStatus::kNotAllocated;
     if (GrRenderable::kYes == renderable) {
         tex = sk_sp<GrDawnTexture>(new GrDawnTextureRenderTarget(
-                gpu, dimensions, sampleCnt, info, status, /*label=*/{}));
+                gpu, dimensions, sampleCnt, info, status,
+                /*label=*/"MakeWrappedDawnTextureRenderTarget"));
     } else {
-        tex = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, dimensions, info, status, /*label=*/{}));
+        tex = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, dimensions, info, status,
+                                                     /*label=*/"MakeWrappedDawnTexture"));
     }
     tex->registerWithCacheWrapped(cacheable);
     if (ioType == kRead_GrIOType) {
