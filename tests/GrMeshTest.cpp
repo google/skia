@@ -115,7 +115,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kImageWidth, kImageHeight}, SkSurfaceProps());
+            {kImageWidth, kImageHeight}, SkSurfaceProps(), /*label=*/{});
     if (!sdc) {
         ERRORF(reporter, "could not create render target context.");
         return;

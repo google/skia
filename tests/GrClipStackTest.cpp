@@ -1725,7 +1725,8 @@ DEF_TEST(ClipStack_DiffRects, r) {
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(&options);
     std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
-            SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps());
+            SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps(),
+            /*label=*/{});
 
     ClipStack cs(kDeviceBounds, &matrixProvider, false);
 
@@ -1879,7 +1880,8 @@ DEF_TEST(ClipStack_Shader, r) {
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
     std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
-            SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps());
+            SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps(),
+            /*label=*/{});
 
     ClipStack cs(kDeviceBounds, &matrixProvider, false);
     cs.save();
@@ -1932,7 +1934,8 @@ DEF_TEST(ClipStack_SimpleApply, r) {
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
     std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
-            SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps());
+            SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps(),
+            /*label=*/{});
 
     ClipStack cs(kDeviceBounds, &matrixProvider, false);
 
@@ -2065,7 +2068,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ClipStack_SWMask,
     GrDirectContext* context = ctxInfo.directContext();
     std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, kDeviceBounds.size(),
-            SkSurfaceProps());
+            SkSurfaceProps(), /*label=*/{});
 
     SkMatrixProvider matrixProvider = SkMatrix::I();
     std::unique_ptr<ClipStack> cs(new ClipStack(kDeviceBounds, &matrixProvider, false));

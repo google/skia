@@ -152,8 +152,8 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> random_surface_draw_contex
 
     return skgpu::v1::SurfaceDrawContext::Make(
             rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderTargetWidth, kRenderTargetHeight}, SkSurfaceProps(), sampleCnt,
-            GrMipmapped::kNo, GrProtected::kNo, origin);
+            {kRenderTargetWidth, kRenderTargetHeight}, SkSurfaceProps(), /*label=*/{},
+            sampleCnt, GrMipmapped::kNo, GrProtected::kNo, origin);
 }
 
 #if GR_TEST_UTILS
@@ -301,7 +301,8 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     // Validate that GrFPs work correctly without an input.
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             direct, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderTargetWidth, kRenderTargetHeight}, SkSurfaceProps());
+            {kRenderTargetWidth, kRenderTargetHeight}, SkSurfaceProps(),
+            /*label=*/{});
     if (!sdc) {
         SkDebugf("Could not allocate a surfaceDrawContext");
         return false;

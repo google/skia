@@ -74,6 +74,7 @@ public:
                                                     SkBackingFit,
                                                     SkISize dimensions,
                                                     const SkSurfaceProps&,
+                                                    std::string_view label,
                                                     int sampleCnt = 1,
                                                     GrMipmapped = GrMipmapped::kNo,
                                                     GrProtected = GrProtected::kNo,
@@ -96,7 +97,8 @@ public:
                                                     skgpu::Swizzle writeSwizzle,
                                                     GrSurfaceOrigin,
                                                     SkBudgeted,
-                                                    const SkSurfaceProps&);
+                                                    const SkSurfaceProps&,
+                                                    std::string_view label);
 
     // Same as previous factory but will try to use fallback GrColorTypes if the one passed in
     // fails. The fallback GrColorType will have at least the number of channels and precision per

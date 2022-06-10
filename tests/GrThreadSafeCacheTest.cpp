@@ -46,6 +46,7 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> new_SDC(GrRecordingContext
                                                SkBackingFit::kExact,
                                                {wh, wh},
                                                SkSurfaceProps(),
+                                               /*label=*/{},
                                                1,
                                                GrMipmapped::kNo,
                                                GrProtected::kNo,

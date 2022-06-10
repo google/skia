@@ -827,7 +827,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) 
     auto ctx = ctxInfo.directContext();
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800},
-            SkSurfaceProps(), 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            SkSurfaceProps(),/*label=*/{}, 1, GrMipmapped::kNo, GrProtected::kNo,
+            kTopLeft_GrSurfaceOrigin);
     if (!sdc) {
         return;
     }

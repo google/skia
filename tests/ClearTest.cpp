@@ -70,7 +70,8 @@ static bool check_rect(GrDirectContext* dContext,
 
 std::unique_ptr<SurfaceDrawContext> newSDC(GrRecordingContext* rContext, int w, int h) {
     return SurfaceDrawContext::Make(rContext, GrColorType::kRGBA_8888, nullptr,
-                                    SkBackingFit::kExact, {w, h}, SkSurfaceProps());
+                                    SkBackingFit::kExact, {w, h}, SkSurfaceProps(),
+                                    /*label=*/{});
 }
 
 static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {

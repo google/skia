@@ -87,7 +87,7 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
         auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
                                                        SkBackingFit::kApprox,
                                                        {kBigSize/2 + 1, kBigSize/2 + 1},
-                                                       SkSurfaceProps());
+                                                       SkSurfaceProps(), /*label=*/{});
 
         sdc->clear(SK_PMColor4fBLACK);
 
@@ -105,7 +105,7 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     {
         auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
                                                        SkBackingFit::kExact, {kBigSize, kBigSize},
-                                                       SkSurfaceProps());
+                                                       SkSurfaceProps(), /*label=*/{});
 
         sdc->clear(SK_PMColor4fBLACK);
 

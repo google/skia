@@ -184,7 +184,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
                                                    nullptr,
                                                    SkBackingFit::kApprox,
                                                    {1, 1},
-                                                   SkSurfaceProps());
+                                                   SkSurfaceProps(),
+                                                   /*label=*/{});
     if (!sdc) {
         ERRORF(reporter, "Could not create render target context.");
         return;

@@ -47,7 +47,8 @@ static void run_test(skiatest::Reporter*, GrDirectContext*,
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkSLCross, reporter, ctxInfo) {
     GrDirectContext* dContext = ctxInfo.directContext();
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                                   SkBackingFit::kExact, {1, 1}, SkSurfaceProps());
+                                                   SkBackingFit::kExact, {1, 1}, SkSurfaceProps(),
+                                                   /*label=*/"SkSLCross_Test");
     if (!sdc) {
         ERRORF(reporter, "could not create render target context.");
         return;
