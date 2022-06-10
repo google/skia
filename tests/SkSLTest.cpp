@@ -63,6 +63,11 @@ namespace SkSLTestFlags {
 
     /** SkQP tests will be run in Android/Fuchsia conformance tests with no driver workarounds. */
     static constexpr int SkQP    = 1 << 4;
+
+    /** UsesNaN tests rely on NaN values, so they are only expected to pass on GPUs that generate
+     *  them (which is not a requirement, even with ES3).
+     */
+    static constexpr int UsesNaN = 1 << 5;
 }
 
 static constexpr bool is_cpu(int flags) {
@@ -103,6 +108,81 @@ static void set_uniform_array(SkRuntimeShaderBuilder* builder, const char* name,
     }
 }
 
+static SkBitmap bitmap_from_shader(skiatest::Reporter* r,
+                                   SkSurface* surface,
+                                   sk_sp<SkRuntimeEffect> effect) {
+    static constexpr float kArray[5] = {1, 2, 3, 4, 5};
+
+    SkRuntimeShaderBuilder builder(effect);
+    set_uniform(&builder, "colorBlack",       SkV4{0, 0, 0, 1});
+    set_uniform(&builder, "colorRed",         SkV4{1, 0, 0, 1});
+    set_uniform(&builder, "colorGreen",       SkV4{0, 1, 0, 1});
+    set_uniform(&builder, "colorBlue",        SkV4{0, 0, 1, 1});
+    set_uniform(&builder, "colorWhite",       SkV4{1, 1, 1, 1});
+    set_uniform(&builder, "testInputs",       SkV4{-1.25, 0, 0.75, 2.25});
+    set_uniform(&builder, "unknownInput",     1.0f);
+    set_uniform(&builder, "testMatrix2x2",    std::array<float,4>{1, 2,
+                                                                  3, 4});
+    set_uniform(&builder, "testMatrix3x3",    std::array<float,9>{1, 2, 3,
+                                                                  4, 5, 6,
+                                                                  7, 8, 9});
+    set_uniform(&builder, "testMatrix4x4",    std::array<float,16>{1,  2,  3,  4,
+                                                                   5,  6,  7,  8,
+                                                                   9,  10, 11, 12,
+                                                                   13, 14, 15, 16});
+    set_uniform_array(&builder, "testArray",  SkMakeSpan(kArray));
+
+    sk_sp<SkShader> shader = builder.makeShader();
+    if (!shader) {
+        return SkBitmap{};
+    }
+
+    surface->getCanvas()->clear(SK_ColorBLACK);
+
+    SkPaint paintShader;
+    paintShader.setShader(shader);
+    surface->getCanvas()->drawRect(SkRect::MakeWH(kWidth, kHeight), paintShader);
+
+    SkBitmap bitmap;
+    REPORTER_ASSERT(r, bitmap.tryAllocPixels(surface->imageInfo()));
+    REPORTER_ASSERT(r, surface->readPixels(bitmap, /*srcX=*/0, /*srcY=*/0));
+    return bitmap;
+}
+
+static bool gpu_generates_nan(skiatest::Reporter* r, GrDirectContext* ctx) {
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+    // The Metal shader compiler (which is also used under-the-hood for some GL/GLES contexts on
+    // these platforms) enables fast-math by default. That prevents NaN-based tests from passing:
+    // https://developer.apple.com/documentation/metal/mtlcompileoptions/1515914-fastmathenabled
+    return false;
+#else
+    // If we don't have infinity support, we definitely won't generate NaNs
+    if (!ctx->priv().caps()->shaderCaps()->fInfinitySupport) {
+        return false;
+    }
+
+    auto effect = SkRuntimeEffect::MakeForShader(SkString(R"(
+        #version 300
+        uniform half4 colorGreen, colorRed;
+
+        half4 main(float2 xy) {
+            return isnan(colorGreen.r / colorGreen.b) ? colorGreen : colorRed;
+        }
+    )")).effect;
+    REPORTER_ASSERT(r, effect);
+
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+
+    SkBitmap bitmap = bitmap_from_shader(r, surface.get(), effect);
+    REPORTER_ASSERT(r, !bitmap.empty());
+
+    SkColor color = bitmap.getColor(0, 0);
+    REPORTER_ASSERT(r, color == SK_ColorGREEN || color == SK_ColorRED);
+    return color == SK_ColorGREEN;
+#endif
+}
+
 static SkString load_source(skiatest::Reporter* r,
                             const char* testFile,
                             const char* permutationSuffix) {
@@ -130,50 +210,18 @@ static void test_one_permutation(skiatest::Reporter* r,
         return;
     }
 
-    static constexpr float kArray[5] = {1, 2, 3, 4, 5};
-
-    SkRuntimeShaderBuilder builder(result.effect);
-    set_uniform(&builder, "colorBlack",       SkV4{0, 0, 0, 1});
-    set_uniform(&builder, "colorRed",         SkV4{1, 0, 0, 1});
-    set_uniform(&builder, "colorGreen",       SkV4{0, 1, 0, 1});
-    set_uniform(&builder, "colorBlue",        SkV4{0, 0, 1, 1});
-    set_uniform(&builder, "colorWhite",       SkV4{1, 1, 1, 1});
-    set_uniform(&builder, "testInputs",       SkV4{-1.25, 0, 0.75, 2.25});
-    set_uniform(&builder, "unknownInput",     1.0f);
-    set_uniform(&builder, "testMatrix2x2",    std::array<float,4>{1, 2,
-                                                                  3, 4});
-    set_uniform(&builder, "testMatrix3x3",    std::array<float,9>{1, 2, 3,
-                                                                  4, 5, 6,
-                                                                  7, 8, 9});
-    set_uniform(&builder, "testMatrix4x4",    std::array<float,16>{1,  2,  3,  4,
-                                                                   5,  6,  7,  8,
-                                                                   9,  10, 11, 12,
-                                                                   13, 14, 15, 16});
-    set_uniform_array(&builder, "testArray",  SkMakeSpan(kArray));
-
-    sk_sp<SkShader> shader = builder.makeShader();
-    if (!shader) {
+    SkBitmap bitmap = bitmap_from_shader(r, surface, result.effect);
+    if (bitmap.empty()) {
         ERRORF(r, "%s%s: Unable to build shader", testFile, permutationSuffix);
         return;
     }
-
-    surface->getCanvas()->clear(SK_ColorBLACK);
-
-    SkPaint paintShader;
-    paintShader.setShader(shader);
-    surface->getCanvas()->drawRect(SkRect::MakeWH(kWidth, kHeight), paintShader);
-
-    SkBitmap bitmap;
-    REPORTER_ASSERT(r, bitmap.tryAllocPixels(surface->imageInfo()));
-    REPORTER_ASSERT(r, surface->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(),
-                                           /*srcX=*/0, /*srcY=*/0));
 
     bool success = true;
     SkColor color[kHeight][kWidth];
     for (int y = 0; y < kHeight; ++y) {
         for (int x = 0; x < kWidth; ++x) {
             color[y][x] = bitmap.getColor(x, y);
-            if (color[y][x] != SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00)) {
+            if (color[y][x] != SK_ColorGREEN) {
                 success = false;
             }
         }
@@ -239,6 +287,14 @@ static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
     if (!shouldRunGPU && !shouldRunGPU_ES3) {
         return;
     }
+
+    // If this is a test that requires the GPU to generate NaN values, check for that first.
+    if (flags & SkSLTestFlags::UsesNaN) {
+        if (!gpu_generates_nan(r, ctx)) {
+            return;
+        }
+    }
+
     // Create a GPU-backed surface.
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
@@ -435,14 +491,10 @@ SKSL_TEST(CPU + GPU + SkQP, LoopInt,                         "runtime/LoopInt.rt
 SKSL_TEST(CPU + GPU + SkQP, QualifierOrder,                  "runtime/QualifierOrder.rts")
 SKSL_TEST(CPU + GPU + SkQP, PrecisionQualifiers,             "runtime/PrecisionQualifiers.rts")
 
-// These tests specifically rely the behavior of NaN values, but some older GPUs do not reliably
-// implement full IEEE support (skia:12977). They also rely on equality operators on array types
-// which are not available in GLSL ES 1.00. Therefore these tests are restricted to run on CPU and
-// with "strict ES2 mode" disabled.
-SKSL_TEST(CPU_ES3,          RecursiveComparison_Arrays,      "runtime/RecursiveComparison_Arrays.rts")
-SKSL_TEST(CPU_ES3,          RecursiveComparison_Structs,     "runtime/RecursiveComparison_Structs.rts")
-SKSL_TEST(CPU_ES3,          RecursiveComparison_Types,       "runtime/RecursiveComparison_Types.rts")
-SKSL_TEST(CPU_ES3,          RecursiveComparison_Vectors,     "runtime/RecursiveComparison_Vectors.rts")
+SKSL_TEST(GPU_ES3 + UsesNaN, RecursiveComparison_Arrays,     "runtime/RecursiveComparison_Arrays.rts")
+SKSL_TEST(GPU_ES3 + UsesNaN, RecursiveComparison_Structs,    "runtime/RecursiveComparison_Structs.rts")
+SKSL_TEST(GPU_ES3 + UsesNaN, RecursiveComparison_Types,      "runtime/RecursiveComparison_Types.rts")
+SKSL_TEST(GPU_ES3 + UsesNaN, RecursiveComparison_Vectors,    "runtime/RecursiveComparison_Vectors.rts")
 
 SKSL_TEST(GPU_ES3,          ArrayCast,                       "shared/ArrayCast.sksl")
 SKSL_TEST(GPU_ES3,          ArrayComparison,                 "shared/ArrayComparison.sksl")
