@@ -645,6 +645,12 @@ SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
 
             builder->endBlock();
             break;
+        case SkShaderType::kRuntimeShader:
+            // TODO(skia:13405): replace with RuntimeShader-specific data
+            SolidColorShaderBlock::BeginBlock(keyContext, builder, nullptr,
+                                              /* unused */ kErrorColor);
+            builder->endBlock();
+            break;
     }
 
     BlendModeBlock::BeginBlock(keyContext, builder, /* pipelineData*/ nullptr, bm); // 'bm' is used
