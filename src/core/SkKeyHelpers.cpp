@@ -592,15 +592,24 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
     switch (builder->backend()) {
         case SkBackend::kGraphite: {
 #ifdef SK_GRAPHITE_ENABLED
-            // TODO(skia:13405): add support for uniforms
             // TODO(skia:13405): add support for child effects
+
+            static constexpr auto kCodeSnippetID = SkBuiltInCodeSnippetID::kRuntimeShader;
 
             if (gatherer) {
                 [[maybe_unused]] const SkShaderCodeDictionary* dict = keyContext.dict();
-                VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kRuntimeShader)
+                VALIDATE_UNIFORMS(gatherer, dict, kCodeSnippetID)
+                gatherer->addFlags(dict->getSnippetRequirementFlags(kCodeSnippetID));
             }
-            // Until we support uniforms here, we don't have much else to do.
-            builder->beginBlock(SkBuiltInCodeSnippetID::kRuntimeShader);
+            // Use the combination of {SkSL program hash, uniform size} as our key.
+            // In the unfortunate event of a hash collision, at least we'll have the right amount of
+            // uniform data available.
+            uint32_t hash = SkRuntimeEffectPriv::Hash(*shaderData.fEffect);
+            uint32_t uniformSize = shaderData.fEffect->uniformSize();
+
+            builder->beginBlock(kCodeSnippetID);
+            builder->addBytes(sizeof(hash), reinterpret_cast<const uint8_t*>(&hash));
+            builder->addBytes(sizeof(uniformSize), reinterpret_cast<const uint8_t*>(&uniformSize));
 #endif  // SK_GRAPHITE_ENABLED
             break;
         }
@@ -611,6 +620,15 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
             SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);
             break;
     }
+}
+
+sk_sp<SkRuntimeEffect> TestingOnly_GetCommonRuntimeEffect() {
+    static sk_sp<SkRuntimeEffect> effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+        half4 main(float2 coords) {
+            return half4(coords.xy01);
+        }
+    )");
+    return effect;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,12 +715,7 @@ SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
             break;
         case SkShaderType::kRuntimeShader:
             {
-                static sk_sp<SkRuntimeEffect> effect = SkMakeRuntimeEffect(
-                    SkRuntimeEffect::MakeForShader, R"(
-                        half4 main(float2 coords) {
-                            return half4(coords.xy01);
-                        }
-                    )");
+                sk_sp<SkRuntimeEffect> effect = TestingOnly_GetCommonRuntimeEffect();
                 RuntimeShaderBlock::BeginBlock(keyContext, builder, nullptr,
                                                {effect, /*uniforms=*/nullptr});
                 builder->endBlock();
@@ -717,5 +730,5 @@ SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
 
     auto entry = dict->findOrCreate(builder);
 
-    return  entry->uniqueID();
+    return entry->uniqueID();
 }

@@ -17,6 +17,9 @@
 #include "include/gpu/graphite/Context.h"
 #endif
 
+using DataPayloadField = SkPaintParamsKey::DataPayloadField;
+using DataPayloadType = SkPaintParamsKey::DataPayloadType;
+
 namespace {
 
 std::string get_mangled_local_var_name(const char* baseName, int manglingSuffix) {
@@ -248,7 +251,7 @@ SkSpan<const SkUniform> SkShaderCodeDictionary::getUniforms(SkBuiltInCodeSnippet
     return fBuiltInCodeSnippets[(int) id].fUniforms;
 }
 
-SkSpan<const SkPaintParamsKey::DataPayloadField> SkShaderCodeDictionary::dataPayloadExpectations(
+SkSpan<const DataPayloadField> SkShaderCodeDictionary::dataPayloadExpectations(
         int codeSnippetID) const {
     // All callers of this entry point should already have ensured that 'codeSnippetID' is valid
     return this->getEntry(codeSnippetID)->fDataPayloadExpectations;
@@ -287,8 +290,6 @@ void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkSha
 
 //--------------------------------------------------------------------------------------------------
 namespace {
-
-using DataPayloadField = SkPaintParamsKey::DataPayloadField;
 
 // The default glue code just calls a helper function with the signature:
 //    half4 fStaticFunctionName(/* all uniforms as parameters */,
@@ -541,6 +542,11 @@ static constexpr char kBlendShaderName[] = "sk_blend_shader";
 //--------------------------------------------------------------------------------------------------
 static constexpr char kRuntimeShaderName[] = "sk_runtime_placeholder";
 
+static constexpr DataPayloadField kRuntimeShaderDataPayload[] = {
+        {"runtime effect hash", DataPayloadType::kByte, 4},
+        {"uniform data size (bytes)", DataPayloadType::kByte, 4},
+};
+
 //--------------------------------------------------------------------------------------------------
 static constexpr char kErrorName[] = "sk_error";
 
@@ -636,7 +642,7 @@ static constexpr int kNoChildren = 0;
 // TODO: this version needs to be removed
 int SkShaderCodeDictionary::addUserDefinedSnippet(
         const char* name,
-        SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations) {
+        SkSpan<const DataPayloadField> dataPayloadExpectations) {
 
     std::unique_ptr<SkShaderSnippet> entry(new SkShaderSnippet("UserDefined",
                                                                {}, // no uniforms
@@ -824,7 +830,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kRuntimeShaderName,
             GenerateDefaultGlueCode,
             kNoChildren,
-            { }
+            SkMakeSpan(kRuntimeShaderDataPayload)
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kFixedFunctionBlender] = {
             "FixedFunctionBlender",

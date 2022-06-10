@@ -31,6 +31,10 @@ public:
         return effect->getFilterColorProgram();
     }
 
+    static uint32_t Hash(const SkRuntimeEffect& effect) {
+        return effect.hash();
+    }
+
     static SkRuntimeEffect::Options ES3Options() {
         SkRuntimeEffect::Options options;
         options.enforceES2Restrictions = false;

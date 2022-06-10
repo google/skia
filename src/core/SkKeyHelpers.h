@@ -193,6 +193,8 @@ struct RuntimeShaderBlock {
 };
 
 // Bridge between the combinations system and the SkPaintParamsKey
+sk_sp<SkRuntimeEffect> TestingOnly_GetCommonRuntimeEffect();
+
 SkUniquePaintParamsID CreateKey(const SkKeyContext&,
                                 SkPaintParamsKeyBuilder*,
                                 SkShaderType,
