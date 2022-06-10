@@ -78,7 +78,7 @@ void SkShaperJSONWriter::commitRunBuffer(const SkShaper::RunHandler::RunInfo& in
     // Font name
     SkString fontName;
     info.fFont.getTypeface()->getFamilyName(&fontName);
-    fJSONWriter->appendString("font name", fontName.c_str());
+    fJSONWriter->appendString("font name", fontName);
 
     // Font size
     fJSONWriter->appendFloat("font size", info.fFont.getSize());
@@ -86,12 +86,12 @@ void SkShaperJSONWriter::commitRunBuffer(const SkShaper::RunHandler::RunInfo& in
     if (info.fBidiLevel > 0) {
         std::string bidiType = info.fBidiLevel % 2 == 0 ? "left-to-right" : "right-to-left";
         std::string bidiOutput = bidiType + " lvl " + std::to_string(info.fBidiLevel);
-        fJSONWriter->appendString("BiDi", bidiOutput.c_str());
+        fJSONWriter->appendString("BiDi", bidiOutput);
     }
 
     if (is_one_to_one(fUTF8.c_str(), info.utf8Range.begin(), info.utf8Range.end(), fClusters)) {
         std::string utf8{&fUTF8[info.utf8Range.begin()], info.utf8Range.size()};
-        fJSONWriter->appendString("UTF8", utf8.c_str());
+        fJSONWriter->appendString("UTF8", utf8);
 
         fJSONWriter->beginArray("glyphs", false);
         for (auto glyphID : fGlyphs) {
@@ -233,7 +233,7 @@ void SkShaperJSONWriter::displayMToN(size_t codePointCount,
     std::string clusterName = "cluster " + nString + " to " + mString;
     fJSONWriter->beginObject(clusterName.c_str(), true);
     std::string utf8String{utf8.data(), utf8.size()};
-    fJSONWriter->appendString("UTF", utf8String.c_str());
+    fJSONWriter->appendString("UTF", utf8String);
     fJSONWriter->beginArray("glyphsIDs", false);
     for (auto glyphID : glyphIDs) {
         fJSONWriter->appendU32(glyphID);

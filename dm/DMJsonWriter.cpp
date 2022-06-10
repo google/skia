@@ -46,12 +46,12 @@ void JsonWriter::DumpJson(const char* dir,
     writer.beginObject(); // root
 
     for (int i = 1; i < properties.count(); i += 2) {
-        writer.appendString(properties[i-1], properties[i]);
+        writer.appendCString(properties[i-1], properties[i]);
     }
 
     writer.beginObject("key");
     for (int i = 1; i < key.count(); i += 2) {
-        writer.appendString(key[i-1], key[i]);
+        writer.appendCString(key[i-1], key[i]);
     }
     writer.endObject();
 
@@ -67,27 +67,27 @@ void JsonWriter::DumpJson(const char* dir,
             writer.beginObject();
 
             writer.beginObject("key");
-            writer.appendString("name"       , gBitmapResults[i].name.c_str());
-            writer.appendString("config"     , gBitmapResults[i].config.c_str());
-            writer.appendString("source_type", gBitmapResults[i].sourceType.c_str());
+            writer.appendString("name"       , gBitmapResults[i].name);
+            writer.appendString("config"     , gBitmapResults[i].config);
+            writer.appendString("source_type", gBitmapResults[i].sourceType);
 
             // Source options only need to be part of the key if they exist.
             // Source type by source type, we either always set options or never set options.
             if (!gBitmapResults[i].sourceOptions.isEmpty()) {
-                writer.appendString("source_options", gBitmapResults[i].sourceOptions.c_str());
+                writer.appendString("source_options", gBitmapResults[i].sourceOptions);
             }
             writer.endObject(); // key
 
             writer.beginObject("options");
-            writer.appendString("ext"  ,       gBitmapResults[i].ext.c_str());
-            writer.appendString("gamut",       gBitmapResults[i].gamut.c_str());
-            writer.appendString("transfer_fn", gBitmapResults[i].transferFn.c_str());
-            writer.appendString("color_type",  gBitmapResults[i].colorType.c_str());
-            writer.appendString("alpha_type",  gBitmapResults[i].alphaType.c_str());
-            writer.appendString("color_depth", gBitmapResults[i].colorDepth.c_str());
+            writer.appendString("ext"  ,       gBitmapResults[i].ext);
+            writer.appendString("gamut",       gBitmapResults[i].gamut);
+            writer.appendString("transfer_fn", gBitmapResults[i].transferFn);
+            writer.appendString("color_type",  gBitmapResults[i].colorType);
+            writer.appendString("alpha_type",  gBitmapResults[i].alphaType);
+            writer.appendString("color_depth", gBitmapResults[i].colorDepth);
             writer.endObject(); // options
 
-            writer.appendString("md5", gBitmapResults[i].md5.c_str());
+            writer.appendString("md5", gBitmapResults[i].md5);
 
             writer.endObject(); // 1 result
         }

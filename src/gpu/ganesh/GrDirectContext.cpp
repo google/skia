@@ -968,7 +968,7 @@ SkString GrDirectContext::dump() const {
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
     writer.beginObject();
 
-    writer.appendString("backend", GrBackendApiToStr(this->backend()));
+    writer.appendCString("backend", GrBackendApiToStr(this->backend()));
 
     writer.appendName("caps");
     this->caps()->dumpJSON(&writer);

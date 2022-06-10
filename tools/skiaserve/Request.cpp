@@ -229,7 +229,7 @@ sk_sp<SkData> Request::getJsonOps() {
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
     writer.beginObject(); // root
 
-    writer.appendString("mode", fGPUEnabled ? "gpu" : "cpu");
+    writer.appendCString("mode", fGPUEnabled ? "gpu" : "cpu");
     writer.appendBool("drawGpuOpBounds", fDebugCanvas->getDrawGpuOpBounds());
     writer.appendS32("colorMode", fColorMode);
     fDebugCanvas->toJSON(writer, fUrlDataManager, canvas);

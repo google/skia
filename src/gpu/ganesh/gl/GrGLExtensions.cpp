@@ -159,7 +159,7 @@ void GrGLExtensions::add(const char ext[]) {
 void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
     writer->beginArray();
     for (int i = 0; i < fStrings.count(); ++i) {
-        writer->appendString(fStrings[i].c_str());
+        writer->appendString(fStrings[i]);
     }
     writer->endArray();
 }

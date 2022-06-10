@@ -78,8 +78,8 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Use node pools", fUseNodePools);
 
     writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
-    writer->appendString("Advanced blend equation interaction",
-                         kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
+    writer->appendCString("Advanced blend equation interaction",
+                          kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
 
     writer->endObject();
 }

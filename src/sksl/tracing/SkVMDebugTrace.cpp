@@ -204,11 +204,11 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
     SkJSONWriter json(w);
 
     json.beginObject(); // root
-    json.appendString("version", kTraceVersion);
+    json.appendNString("version", kTraceVersion);
     json.beginArray("source");
 
     for (const std::string& line : fSource) {
-        json.appendString(line.c_str());
+        json.appendString(line);
     }
 
     json.endArray(); // code
@@ -218,7 +218,7 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
         const SkVMSlotInfo& info = fSlotInfo[index];
 
         json.beginObject();
-        json.appendString("name", info.name.c_str());
+        json.appendString("name", info.name.data(), info.name.size());
         json.appendS32("columns", info.columns);
         json.appendS32("rows", info.rows);
         json.appendS32("index", info.componentIndex);
@@ -240,7 +240,7 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
         const SkVMFunctionInfo& info = fFuncInfo[index];
 
         json.beginObject();
-        json.appendString("name", info.name.c_str());
+        json.appendString("name", info.name);
         json.endObject();
     }
 

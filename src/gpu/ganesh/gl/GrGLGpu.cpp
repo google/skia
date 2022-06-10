@@ -4191,13 +4191,13 @@ void GrGLGpu::onDumpJSON(SkJSONWriter* writer) const {
 
     const GrGLubyte* str;
     GL_CALL_RET(str, GetString(GR_GL_VERSION));
-    writer->appendString("GL_VERSION", (const char*)(str));
+    writer->appendCString("GL_VERSION", (const char*)(str));
     GL_CALL_RET(str, GetString(GR_GL_RENDERER));
-    writer->appendString("GL_RENDERER", (const char*)(str));
+    writer->appendCString("GL_RENDERER", (const char*)(str));
     GL_CALL_RET(str, GetString(GR_GL_VENDOR));
-    writer->appendString("GL_VENDOR", (const char*)(str));
+    writer->appendCString("GL_VENDOR", (const char*)(str));
     GL_CALL_RET(str, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
-    writer->appendString("GL_SHADING_LANGUAGE_VERSION", (const char*)(str));
+    writer->appendCString("GL_SHADING_LANGUAGE_VERSION", (const char*)(str));
 
     writer->appendName("extensions");
     glInterface()->fExtensions.dumpJSON(writer);

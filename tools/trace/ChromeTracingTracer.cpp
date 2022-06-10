@@ -161,11 +161,11 @@ static void trace_value_to_json(SkJSONWriter* writer,
         case TRACE_VALUE_TYPE_INT: writer->appendS64(value.as_int); break;
         case TRACE_VALUE_TYPE_DOUBLE: writer->appendDouble(value.as_double); break;
         case TRACE_VALUE_TYPE_POINTER: writer->appendPointer(value.as_pointer); break;
-        case TRACE_VALUE_TYPE_STRING: writer->appendString(value.as_string); break;
+        case TRACE_VALUE_TYPE_STRING: writer->appendCString(value.as_string); break;
         case TRACE_VALUE_TYPE_COPY_STRING:
-            writer->appendString(stringTableBase + value.as_uint);
+            writer->appendCString(stringTableBase + value.as_uint);
             break;
-        default: writer->appendString("<unknown type>"); break;
+        default: writer->appendNString("<unknown type>"); break;
     }
 }
 
@@ -208,9 +208,8 @@ static void trace_event_to_json(SkJSONWriter*                 writer,
 
     writer->beginObject();
 
-    char phaseString[2] = {traceEvent->fPhase, 0};
-    writer->appendString("ph", phaseString);
-    writer->appendString("name", traceEvent->fName);
+    writer->appendString("ph", &traceEvent->fPhase, 1);
+    writer->appendCString("name", traceEvent->fName);
     if (0 != traceEvent->fID) {
         // IDs are (almost) always pointers
         writer->appendPointer("id", reinterpret_cast<void*>(traceEvent->fID));
@@ -240,7 +239,7 @@ static void trace_event_to_json(SkJSONWriter*                 writer,
             0 != strcmp(*baseTypeResolver->find(traceEvent->fID), traceEvent->fName)) {
             // Special handling for snapshots where the name differs from creation.
             writer->beginObject("snapshot");
-            writer->appendString("base_type", *baseTypeResolver->find(traceEvent->fID));
+            writer->appendCString("base_type", *baseTypeResolver->find(traceEvent->fID));
             addedSnapshot = true;
         }
 

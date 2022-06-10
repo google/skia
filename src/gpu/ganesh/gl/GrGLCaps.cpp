@@ -1193,10 +1193,10 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     static_assert(SK_ARRAY_COUNT(kMapBufferTypeStr) == kLast_MapBufferType + 1);
 
     writer->appendBool("Core Profile", fIsCoreProfile);
-    writer->appendString("MSAA Type", kMSFBOExtStr[fMSFBOType]);
-    writer->appendString("Invalidate FB Type", kInvalidateFBTypeStr[fInvalidateFBType]);
-    writer->appendString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
-    writer->appendString("Multi Draw Type", multi_draw_type_name(fMultiDrawType));
+    writer->appendCString("MSAA Type", kMSFBOExtStr[fMSFBOType]);
+    writer->appendCString("Invalidate FB Type", kInvalidateFBTypeStr[fInvalidateFBType]);
+    writer->appendCString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
+    writer->appendCString("Multi Draw Type", multi_draw_type_name(fMultiDrawType));
     writer->appendS32("Max FS Uniform Vectors", fMaxFragmentUniformVectors);
     writer->appendBool("Pack Flip Y support", fPackFlipYSupport);
 

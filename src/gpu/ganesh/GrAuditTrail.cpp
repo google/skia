@@ -178,7 +178,7 @@ static void skrect_to_json(SkJSONWriter& writer, const char* name, const SkRect&
 
 void GrAuditTrail::Op::toJson(SkJSONWriter& writer) const {
     writer.beginObject();
-    writer.appendString("Name", fName.c_str());
+    writer.appendString("Name", fName);
     writer.appendS32("ClientID", fClientID);
     writer.appendS32("OpsTaskID", fOpsTaskID);
     writer.appendS32("ChildID", fChildID);
@@ -186,7 +186,7 @@ void GrAuditTrail::Op::toJson(SkJSONWriter& writer) const {
     if (fStackTrace.count()) {
         writer.beginArray("Stack");
         for (int i = 0; i < fStackTrace.count(); i++) {
-            writer.appendString(fStackTrace[i].c_str());
+            writer.appendString(fStackTrace[i]);
         }
         writer.endArray();
     }
