@@ -1,16 +1,8 @@
 {
   "branches": [
     {
-      "ref": "refs/heads/main",
-      "owner": "skiabot@google.com"
-    },
-    {
       "ref": "refs/heads/android/next-release",
       "owner": "djsollen@google.com"
-    },
-    {
-      "ref": "refs/heads/chrome/m100",
-      "owner": "hcm@google.com"
     },
     {
       "ref": "refs/heads/chrome/m101",
@@ -23,6 +15,14 @@
     {
       "ref": "refs/heads/chrome/m103",
       "owner": "borenet@google.com"
+    },
+    {
+      "ref": "refs/heads/chrome/m104",
+      "owner": "hcm@google.com"
+    },
+    {
+      "ref": "refs/heads/main",
+      "owner": "skiabot@google.com"
     }
   ]
 }
