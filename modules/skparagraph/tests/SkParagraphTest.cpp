@@ -42,6 +42,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <thread>
 
 struct GrContextOptions;
 
@@ -6923,4 +6924,52 @@ UNIX_ONLY_TEST(SkParagraph_NonMonotonicGlyphsRTL, reporter) {
     }
     REPORTER_ASSERT(reporter, impl->lineNumber() == 1);  // But it's still one line
     paragraph->paint(canvas.get(), 0, 0);
+}
+
+void performGetRectsForRangeConcurrently(skiatest::Reporter* reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) {
+        INFOF(reporter, "No fonts found\n");
+        return;
+    }
+    auto const text = std::u16string(42000, 'x');
+    ParagraphStyle paragraphStyle;
+    TextStyle textStyle;
+    textStyle.setFontFamilies({SkString("Roboto")});
+    textStyle.setFontSize(14);
+    textStyle.setColor(SK_ColorBLACK);
+    textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
+                                       SkFontStyle::kUpright_Slant));
+
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    builder.pushStyle(textStyle);
+    builder.addText(text);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(std::numeric_limits<float>::max());
+
+    RectHeightStyle heightStyle = RectHeightStyle::kMax;
+    RectWidthStyle widthStyle = RectWidthStyle::kMax;
+    auto t1 = std::thread([&] {
+        auto result = paragraph->getRectsForRange(0, 2, heightStyle, widthStyle);
+        REPORTER_ASSERT(reporter, !result.empty());
+    });
+    auto t2 = std::thread([&] {
+        auto result = paragraph->getRectsForRange(5, 10, heightStyle, widthStyle);
+        REPORTER_ASSERT(reporter, !result.empty());
+    });
+    t1.join();
+    t2.join();
+}
+
+UNIX_ONLY_TEST(SkParagraph_GetRectsForRangeConcurrently, reporter) {
+    auto const threads_count = 100;
+    std::thread threads[threads_count];
+    for (auto& thread : threads) {
+        thread = std::thread(performGetRectsForRangeConcurrently, reporter);
+    }
+    for (auto& thread : threads) {
+        thread.join();
+    }
 }
