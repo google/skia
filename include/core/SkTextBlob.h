@@ -251,7 +251,6 @@ private:
     }
 
     friend class SkGlyphRunList;
-    friend class GrTextBlobCache;
     friend class SkTextBlobBuilder;
     friend class SkTextBlobPriv;
     friend class SkTextBlobRunIterator;
