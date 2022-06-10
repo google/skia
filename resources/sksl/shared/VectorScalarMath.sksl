@@ -29,28 +29,28 @@ bool test_half() {
     ok = ok && (x == half4(9, 9, 10, 10));
     x = inputRed.r + inputGreen;
     ok = ok && (x == half4(1, 2, 1, 2));
-    x.xyz = 9 * inputGreen.aga;
-    ok = ok && (x == half4(9, 9, 9, 2));
-    x.xy = 36 / x.zw;
-    ok = ok && (x == half4(4, 18, 9, 2));
+    x.xyz = 8 * inputGreen.aga;
+    ok = ok && (x == half4(8, 8, 8, 2));
+    x.xy = 32 / x.zw;
+    ok = ok && (x == half4(4, 16, 8, 2));
 
     // (Scalar op vector).swizzle
-    x = (36 / x).yxwz;
-    ok = ok && (x == half4(2, 9, 18, 4));
+    x = (32 / x).yxwz;
+    ok = ok && (x == half4(2, 8, 16, 4));
 
     // X op= scalar.
     x += 2;
     x *= 2;
     x -= 4;
     x /= 2;
-    ok = ok && (x == half4(2, 9, 18, 4));
+    ok = ok && (x == half4(2, 8, 16, 4));
 
     // X = X op scalar.
     x  = x + 2;
     x  = x * 2;
     x  = x - 4;
     x  = x / 2;
-    ok = ok && (x == half4(2, 9, 18, 4));
+    ok = ok && (x == half4(2, 8, 16, 4));
 
     return ok;
 }
