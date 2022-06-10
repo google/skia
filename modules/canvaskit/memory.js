@@ -284,7 +284,8 @@ function copy4x4MatrixToWasm(matr) {
     // skip col 2
     wasm4x4Matrix[7] = matr[5];
 
-    // skip row 2
+    // row2 == identity
+    wasm4x4Matrix[10] = 1;
 
     wasm4x4Matrix[12] = matr[6];
     wasm4x4Matrix[13] = matr[7];

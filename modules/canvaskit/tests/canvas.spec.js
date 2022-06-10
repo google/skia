@@ -775,12 +775,12 @@ describe('Canvas Behavior', () => {
         );
         expect3x3MatricesToMatch(expected, matr);
 
-        // The 3x3 should be expanded into a 4x4, with 0s in the 3rd row and column.
+        // The 3x3 should be expanded into a 4x4, with identity in the 3rd row and column.
         matr = canvas.getLocalToDevice();
         expect4x4MatricesToMatch([
             0.707106, -0.707106, 0,  7.071067,
             0.707106,  0.707106, 0, 21.213203,
-            0       ,  0       , 0,  0       ,
+            0       ,  0       , 1,  0       ,
             0       ,  0       , 0,  1       ], matr);
     });
 
@@ -807,13 +807,13 @@ describe('Canvas Behavior', () => {
                             0,    0,  1];
         expect3x3MatricesToMatch(expected, matr);
 
-        // The 3x2 should be expanded into a 4x4, with 0s in the 3rd row and column
+        // The 3x2 should be expanded into a 4x4, with identity in the 3rd row and column
         // and the perspective filled in.
         matr = canvas.getLocalToDevice();
         expect4x4MatricesToMatch([
             1.4, -0.2, 0, 12,
             0.2,  1.4, 0, 24,
-            0  ,  0  , 0,  0,
+            0  ,  0  , 1,  0,
             0  ,  0  , 0,  1], matr);
     });
 
