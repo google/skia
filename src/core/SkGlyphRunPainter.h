@@ -10,9 +10,9 @@
 
 #include "include/core/SkColorType.h"
 #include "include/core/SkSurfaceProps.h"
-#include "src/core/SkDevice.h"
 #include "src/core/SkScalerContext.h"
 
+class SkColorSpace;
 class SkGlyphRunList;
 
 class SkStrikeCommon {
@@ -52,11 +52,4 @@ private:
     const SkColorType fColorType;
     const SkScalerContextFlags fScalerContextFlags;
 };
-
-#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
-namespace sktext::gpu{
-class SubRunList;
-class SubRunAllocator;
-}
-#endif  // SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #endif  // SkGlyphRunPainter_DEFINED

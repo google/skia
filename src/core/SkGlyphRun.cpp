@@ -359,3 +359,22 @@ const SkGlyphRunList& SkGlyphRunBuilder::setGlyphRunList(
     fGlyphRunList.emplace(blob, bounds, origin, SkMakeSpan(fGlyphRunListStorage), this);
     return fGlyphRunList.value();
 }
+
+// -- SkSubRunBuffers ------------------------------------------------------------------------------
+auto SkSubRunBuffers::EnsureBuffers(const SkGlyphRunList& glyphRunList) -> ScopedBuffers {
+    size_t size = 0;
+    for (const SkGlyphRun& run : glyphRunList) {
+        size = std::max(run.runSize(), size);
+    }
+    return ScopedBuffers(glyphRunList.buffers(), size);
+}
+
+SkSubRunBuffers::ScopedBuffers::ScopedBuffers(SkSubRunBuffers* buffers, size_t size)
+        : fBuffers{buffers} {
+    fBuffers->fAccepted.ensureSize(size);
+}
+
+SkSubRunBuffers::ScopedBuffers::~ScopedBuffers() {
+    fBuffers->fAccepted.reset();
+    fBuffers->fRejected.reset();
+}

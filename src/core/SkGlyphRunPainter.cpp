@@ -249,21 +249,3 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(
         //  rejects in a more sophisticated stage.
     }
 }
-
-auto SkSubRunBuffers::EnsureBuffers(const SkGlyphRunList& glyphRunList) -> ScopedBuffers {
-    size_t size = 0;
-    for (const SkGlyphRun& run : glyphRunList) {
-        size = std::max(run.runSize(), size);
-    }
-    return ScopedBuffers(glyphRunList.buffers(), size);
-}
-
-SkSubRunBuffers::ScopedBuffers::ScopedBuffers(SkSubRunBuffers* buffers, size_t size)
-        : fBuffers{buffers} {
-    fBuffers->fAccepted.ensureSize(size);
-}
-
-SkSubRunBuffers::ScopedBuffers::~ScopedBuffers() {
-    fBuffers->fAccepted.reset();
-    fBuffers->fRejected.reset();
-}
