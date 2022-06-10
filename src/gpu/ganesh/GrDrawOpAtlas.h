@@ -40,8 +40,10 @@ class GrTextureProxy;
  * excess space, periodic garbage collection is needed to shift data from the higher index pages to
  * the lower ones, and then eventually remove any pages that are no longer in use. "In use" is
  * determined by using the GrDrawUploadToken system: After a flush each subarea of the page
- * is checked to see whether it was used in that flush; if it is not, a counter is incremented.
- * Once that counter reaches a threshold that subarea is considered to be no longer in use.
+ * is checked to see whether it was used in that flush. If less than a quarter of the plots have
+ * been used recently (within kPlotRecentlyUsedCount iterations) and there are available
+ * plots in lower index pages, the higher index page will be deactivated, and its glyphs will
+ * gradually migrate to other pages via the usual upload system.
  *
  * Garbage collection is initiated by the GrDrawOpAtlas's client via the compact() method. One
  * solution is to make the client a subclass of GrOnFlushCallbackObject, register it with the
@@ -56,21 +58,23 @@ public:
     /**
      * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
      * should only be used inside of GrMeshDrawOp::onPrepareDraws.
-     *  @param ct               The colorType which this atlas will store
-     *  @param bpp              Size in bytes of each pixel
-     *  @param width            width in pixels of the atlas
-     *  @param height           height in pixels of the atlas
-     *  @param numPlotsX        The number of plots the atlas should be broken up into in the X
-     *                          direction
-     *  @param numPlotsY        The number of plots the atlas should be broken up into in the Y
-     *                          direction
-     *  @param atlasGeneration  a pointer to the context's generation counter.
+     *  @param proxyProvider       Used to create the atlas's texture proxies.
+     *  @param format              Backend format for the atlas's textures.
+     *                             Should be compatible with ct.
+     *  @param ct                  The colorType which this atlas will store.
+     *  @param bpp                 Size in bytes of each pixel.
+     *  @param width               Width in pixels of the atlas.
+     *  @param height              Height in pixels of the atlas.
+     *  @param plotWidth           The width of each plot. width/plotWidth should be an integer.
+     *  @param plotWidth           The height of each plot. height/plotHeight should be an integer.
+     *  @param generationCounter   A pointer to the context's generation counter.
      *  @param allowMultitexturing Can the atlas use more than one texture.
-     *  @param evictor          A pointer to an eviction callback class.
+     *  @param evictor             A pointer to an eviction callback class.
+     *  @param label               A label for the atlas texture.
      *
-     *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
+     *  @return                    An initialized DrawAtlas, or nullptr if creation fails.
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
+    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider* proxyProvider,
                                                const GrBackendFormat& format,
                                                SkColorType ct, size_t bpp,
                                                int width, int height,
@@ -92,7 +96,7 @@ public:
      * add the subimage. In this case the op being created should be discarded.
      *
      * NOTE: When the GrDrawOp prepares a draw that reads from the atlas, it must immediately call
-     * 'setUseToken' with the currentToken from the GrDrawOp::Target, otherwise the next call to
+     * 'setLastUseToken' with the currentToken from the GrDrawOp::Target, otherwise the next call to
      * addToAtlas might cause the previous data to be overwritten before it has been read.
      */
 
@@ -208,6 +212,11 @@ private:
     unsigned int          fNumPlots;
     const std::string     fLabel;
 
+    // A counter to track the atlas eviction state for Glyphs. Each Glyph has a PlotLocator
+    // which contains its current generation. When the atlas evicts a plot, it increases
+    // the generation counter. If a Glyph's generation is less than the atlas's
+    // generation, then it knows it's been evicted and is either free to be deleted or
+    // re-added to the atlas if necessary.
     skgpu::AtlasGenerationCounter* const fGenerationCounter;
     uint64_t                      fAtlasGeneration;
 
@@ -236,9 +245,9 @@ private:
 };
 
 // There are three atlases (A8, 565, ARGB) that are kept in relation with one another. In
-// general, the A8 dimensions are 2x the 565 and ARGB dimensions with the constraint that an atlas
-// size will always contain at least one plot. Since the ARGB atlas takes the most space, its
-// dimensions are used to size the other two atlases.
+// general, because A8 is the most frequently used mask format its dimensions are 2x the 565 and
+// ARGB dimensions, with the constraint that an atlas size will always contain at least one plot.
+// Since the ARGB atlas takes the most space, its dimensions are used to size the other two atlases.
 class GrDrawOpAtlasConfig {
 public:
     // The capabilities of the GPU define maxTextureSize. The client provides maxBytes, and this
@@ -253,8 +262,8 @@ public:
     SkISize plotDimensions(skgpu::MaskFormat type) const;
 
 private:
-    // On some systems texture coordinates are represented using half-precision floating point,
-    // which limits the largest atlas dimensions to 2048x2048.
+    // On some systems texture coordinates are represented using half-precision floating point
+    // with 11 significant bits, which limits the largest atlas dimensions to 2048x2048.
     // For simplicity we'll use this constraint for all of our atlas textures.
     // This can be revisited later if we need larger atlases.
     inline static constexpr int kMaxAtlasDim = 2048;

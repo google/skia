@@ -30,8 +30,10 @@ using Plot = skgpu::Plot;
 using PlotList = skgpu::PlotList;
 using PlotLocator = skgpu::PlotLocator;
 
-#ifdef DUMP_ATLAS_DATA
-static bool gDumpAtlasData = false;
+#if defined(DUMP_ATLAS_DATA)
+static const constexpr bool kDumpAtlasData = true;
+#else
+static const constexpr bool kDumpAtlasData = false;
 #endif
 
 #ifdef SK_DEBUG
@@ -349,11 +351,10 @@ void GrDrawOpAtlas::compact(DrawToken startTokenForNextFlush) {
         // For all plots but the last one, update number of flushes since used, and check to see
         // if there are any in the first pages that the last page can safely upload to.
         for (uint32_t pageIndex = 0; pageIndex < lastPageIndex; ++pageIndex) {
-#ifdef DUMP_ATLAS_DATA
-            if (gDumpAtlasData) {
+            if constexpr (kDumpAtlasData) {
                 SkDebugf("page %d: ", pageIndex);
             }
-#endif
+
             plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
             while (Plot* plot = plotIter.get()) {
                 // Update number of flushes since plot was last used
@@ -364,11 +365,10 @@ void GrDrawOpAtlas::compact(DrawToken startTokenForNextFlush) {
                     plot->incFlushesSinceLastUsed();
                 }
 
-#ifdef DUMP_ATLAS_DATA
-                if (gDumpAtlasData) {
+                if constexpr (kDumpAtlasData) {
                     SkDebugf("%d ", plot->flushesSinceLastUsed());
                 }
-#endif
+
                 // Count plots we can potentially upload to in all pages except the last one
                 // (the potential compactee).
                 if (plot->flushesSinceLastUsed() > kPlotRecentlyUsedCount) {
@@ -377,11 +377,10 @@ void GrDrawOpAtlas::compact(DrawToken startTokenForNextFlush) {
 
                 plotIter.next();
             }
-#ifdef DUMP_ATLAS_DATA
-            if (gDumpAtlasData) {
+
+            if constexpr (kDumpAtlasData) {
                 SkDebugf("\n");
             }
-#endif
         }
 
         // Count recently used plots in the last page and evict any that are no longer in use.
@@ -389,22 +388,20 @@ void GrDrawOpAtlas::compact(DrawToken startTokenForNextFlush) {
         // clear out usage of this page unless we have a large need.
         plotIter.init(fPages[lastPageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
         unsigned int usedPlots = 0;
-#ifdef DUMP_ATLAS_DATA
-        if (gDumpAtlasData) {
+        if constexpr (kDumpAtlasData) {
             SkDebugf("page %d: ", lastPageIndex);
         }
-#endif
+
         while (Plot* plot = plotIter.get()) {
             // Update number of flushes since plot was last used
             if (!plot->lastUseToken().inInterval(fPrevFlushToken, startTokenForNextFlush)) {
                 plot->incFlushesSinceLastUsed();
             }
 
-#ifdef DUMP_ATLAS_DATA
-            if (gDumpAtlasData) {
+            if constexpr (kDumpAtlasData) {
                 SkDebugf("%d ", plot->flushesSinceLastUsed());
             }
-#endif
+
             // If this plot was used recently
             if (plot->flushesSinceLastUsed() <= kPlotRecentlyUsedCount) {
                 usedPlots++;
@@ -414,11 +411,10 @@ void GrDrawOpAtlas::compact(DrawToken startTokenForNextFlush) {
             }
             plotIter.next();
         }
-#ifdef DUMP_ATLAS_DATA
-        if (gDumpAtlasData) {
+
+        if constexpr (kDumpAtlasData) {
             SkDebugf("\n");
         }
-#endif
 
         // If recently used plots in the last page are using less than a quarter of the page, try
         // to evict them if there's available space in earlier pages. Since we prioritize uploading
@@ -448,11 +444,10 @@ void GrDrawOpAtlas::compact(DrawToken startTokenForNextFlush) {
 
         // If none of the plots in the last page have been used recently, delete it.
         if (!usedPlots) {
-#ifdef DUMP_ATLAS_DATA
-            if (gDumpAtlasData) {
+            if constexpr (kDumpAtlasData) {
                 SkDebugf("delete %d\n", fNumActivePages-1);
             }
-#endif
+
             this->deactivateLastPage();
             fFlushesSinceLastUse = 0;
         }
@@ -522,11 +517,9 @@ bool GrDrawOpAtlas::activateNewPage(GrResourceProvider* resourceProvider) {
         return false;
     }
 
-#ifdef DUMP_ATLAS_DATA
-    if (gDumpAtlasData) {
+    if constexpr (kDumpAtlasData) {
         SkDebugf("activated page#: %d\n", fNumActivePages);
     }
-#endif
 
     ++fNumActivePages;
     return true;
