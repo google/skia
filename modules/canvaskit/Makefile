@@ -20,6 +20,14 @@ release_cpu:
 	cp ../../out/canvaskit_wasm/canvaskit.js   ./build/
 	cp ../../out/canvaskit_wasm/canvaskit.wasm ./build/
 
+release_webgpu:
+	# Does an incremental build where possible.
+	./compile.sh use_webgpu
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./build/
+
 release_viewer:
 	# Does an incremental build where possible.
 	./compile.sh viewer
@@ -39,6 +47,14 @@ debug:
 debug_cpu:
 	# Does an incremental build where possible.
 	./compile.sh debug_build cpu_only
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./build/
+
+debug_webgpu:
+	# Does an incremental build where possible.
+	./compile.sh debug_build use_webgpu
 	- rm -rf build/
 	mkdir build
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/

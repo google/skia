@@ -63,7 +63,7 @@
 #include <emscripten/bind.h>
 #include <emscripten/html5.h>
 
-#ifdef SK_GL
+#ifdef CK_ENABLE_WEBGL
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
@@ -141,7 +141,7 @@ SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
                              sii.colorSpace ? sii.colorSpace : SkColorSpace::MakeSRGB());
 }
 
-#ifdef SK_GL
+#ifdef CK_ENABLE_WEBGL
 
 // Set the pixel format based on the colortype.
 // These degrees of freedom are removed from canvaskit only to keep the interface simpler.
@@ -221,7 +221,7 @@ sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, SimpleImageIn
                              nullptr, true));
     return surface;
 }
-#endif
+#endif // CK_ENABLE_WEBGL
 
 
 //========================================================================================
@@ -722,7 +722,7 @@ Uint8Array toBytes(sk_sp<SkData> data) {
     ).call<Uint8Array>("slice"); // slice with no args makes a copy of the memory view.
 }
 
-#ifdef SK_GL
+#ifdef CK_ENABLE_WEBGL
 // We need to call into the JS side of things to free webGL contexts. This object will be called
 // with _setTextureCleanup after CanvasKit loads. The object will have one attribute,
 // a function called deleteTexture that takes two ints.
@@ -766,7 +766,7 @@ protected:
         }
 
         GrGLTextureInfo glInfo;
-        // This callback is defined in gpu.js
+        // This callback is defined in webgl.js
         glInfo.fID     = fCallback.call<uint32_t>("makeTexture");
         // The format and target should match how we make the texture on the JS side
         // See the implementation of the makeTexture function.
@@ -815,10 +815,10 @@ sk_sp<SkImage> MakeImageFromGenerator(SimpleImageInfo ii, JSObject callbackObj) 
     auto gen = std::make_unique<WebGLTextureImageGenerator>(toSkImageInfo(ii), callbackObj);
     return SkImage::MakeFromGenerator(std::move(gen));
 }
-#endif // SK_GL
+#endif // CK_ENABLE_WEBGL
 
 EMSCRIPTEN_BINDINGS(Skia) {
-#ifdef SK_GL
+#ifdef CK_ENABLE_WEBGL
     function("_MakeGrContext", &MakeGrContext);
     function("_MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
     function("_MakeRenderTargetWH", select_overload<sk_sp<SkSurface>(sk_sp<GrDirectContext>, int, int)>(&MakeRenderTarget));
@@ -884,7 +884,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
 #endif
 
-#ifdef SK_GL
+#ifdef CK_ENABLE_WEBGL
     class_<GrDirectContext>("GrDirectContext")
         .smart_ptr<sk_sp<GrDirectContext>>("sk_sp<GrDirectContext>")
         .function("getResourceCacheLimitBytes",
@@ -1368,7 +1368,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkImage>("Image")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<Image>")
-#ifdef SK_GL
+#ifdef CK_ENABLE_WEBGL
         .class_function("_makeFromGenerator", &MakeImageFromGenerator)
 #endif
         // Note that this needs to be cleaned up with delete().
@@ -1423,7 +1423,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo ii = toSkImageInfo(sii);
             // TODO(adlai) Migrate CanvasKit API to require DirectContext arg here.
             GrDirectContext* dContext = nullptr;
-#ifdef SK_GL
+#ifdef CK_ENABLE_WEBGL
             dContext = GrAsDirectContext(as_IB(self.get())->context());
 #endif
             return self->readPixels(dContext, ii, pixels, dstRowBytes, srcX, srcY);
@@ -1946,7 +1946,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return {ii.width(), ii.height(), ii.colorType(), ii.alphaType(), ii.refColorSpace()};
         }))
         .function("height", &SkSurface::height)
-#ifdef SK_GL
+#ifdef CK_ENABLE_WEBGL
         .function("_makeImageFromTexture", optional_override([](SkSurface& self,
                                                 uint32_t webglHandle, uint32_t texHandle,
                                                 SimpleImageInfo ii)->sk_sp<SkImage> {
@@ -1977,7 +1977,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_makeSurface", optional_override([](SkSurface& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
             return self.makeSurface(toSkImageInfo(sii));
         }), allow_raw_pointers())
-#ifdef SK_GL
+#ifdef CK_ENABLE_WEBGL
         .function("reportBackendTypeIsGPU", optional_override([](SkSurface& self) -> bool {
             return self.getCanvas()->recordingContext() != nullptr;
         }))
@@ -2196,7 +2196,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Full",   SkFontHinting::kFull);
 
     enum_<SkFont::Edging>("FontEdging")
-#ifndef CANVASKIT_NO_ALIAS_FONT
+#ifndef CK_NO_ALIAS_FONT
         .value("Alias",             SkFont::Edging::kAlias)
 #endif
         .value("AntiAlias",         SkFont::Edging::kAntiAlias)

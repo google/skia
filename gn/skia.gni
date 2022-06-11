@@ -66,6 +66,7 @@ declare_args() {
   skia_use_piex = !is_win && !is_wasm
   skia_use_sfml = false
   skia_use_webgl = is_wasm
+  skia_use_webgpu = is_wasm
   skia_use_wuffs = is_wasm
   skia_use_x11 = is_linux
   skia_use_xps = true

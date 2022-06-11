@@ -184,13 +184,26 @@ skia_wasm_lib("canvaskit") {
   }
   ldflags += [ "-fno-rtti" ]
 
-  if (skia_enable_gpu) {
+  if (skia_canvaskit_enable_webgpu) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("cpu.js"),
+      "--pre-js",
+      rebase_path("webgpu.js"),
+      "-sUSE_WEBGL2=0",
+      "-sUSE_WEBGPU=1",
+      "-sASYNCIFY",
+
+      # TODO(skia:13429): The closure compiler doesn't play well with optimized builds and ASYNCIFY.
+      "--closure=0",
+    ]
+  } else if (skia_canvaskit_enable_webgl) {
     ldflags += [
       "-lGL",
       "--pre-js",
       rebase_path("cpu.js"),
       "--pre-js",
-      rebase_path("gpu.js"),
+      rebase_path("webgl.js"),
       "-sUSE_WEBGL2=1",
       "-sMAX_WEBGL_VERSION=2",
     ]
@@ -355,9 +368,20 @@ skia_wasm_lib("canvaskit") {
   if (skia_enable_gpu) {
     defines += [
       "SK_SUPPORT_GPU=1",
-      "SK_GL",
       "SK_DISABLE_LEGACY_SHADERCONTEXT",
     ]
+    if (skia_canvaskit_enable_webgl) {
+      defines += [
+        "SK_GL",
+        "CK_ENABLE_WEBGL",
+      ]
+    }
+    if (skia_canvaskit_enable_webgpu) {
+      defines += [
+        "SK_DAWN",
+        "CK_ENABLE_WEBGPU",
+      ]
+    }
   } else {
     defines += [
       "SK_SUPPORT_GPU=0",
@@ -372,7 +396,7 @@ skia_wasm_lib("canvaskit") {
     defines += [ "CK_INCLUDE_RUNTIME_EFFECT" ]
   }
   if (!skia_canvaskit_enable_alias_font) {
-    defines += [ "CANVASKIT_NO_ALIAS_FONT" ]
+    defines += [ "CK_NO_ALIAS_FONT" ]
   }
   if (skia_canvaskit_legacy_draw_vertices_blend_mode) {
     # https://github.com/flutter/flutter/issues/98531

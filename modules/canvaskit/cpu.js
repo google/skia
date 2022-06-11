@@ -1,7 +1,7 @@
 // Adds compile-time JS functions to augment the CanvasKit interface.
 // Implementations in this file are considerate of GPU builds, i.e. some
 // behavior is predicated on whether or not this is being compiled alongside
-// gpu.js.
+// webgl.js or webgpu.js.
 (function(CanvasKit){
   CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
   CanvasKit._extraInitializations.push(function() {

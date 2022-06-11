@@ -21,6 +21,8 @@ declare_args() {
   skia_canvaskit_force_tracing = false
   skia_canvaskit_profile_build = false
   skia_canvaskit_legacy_draw_vertices_blend_mode = false
+  skia_canvaskit_enable_webgpu = false
+  skia_canvaskit_enable_webgl = false
 }
 
 # Assert that skia_canvaskit_profile_build implies release mode.
