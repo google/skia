@@ -129,10 +129,6 @@ void GrDawnBuffer::onUnmap() {
 }
 
 bool GrDawnBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
-    if (this->wasDestroyed()) {
-        return false;
-    }
-
     this->map();
     if (!this->isMapped()) {
         return false;
