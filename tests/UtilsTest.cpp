@@ -228,6 +228,23 @@ DEF_TEST(SkSpan, reporter) {
         auto s = SkMakeSpan(v);
         REPORTER_ASSERT(reporter, s.empty());
     }
+
+    {
+        // Uses ordinary SkMakeSpan(Container& c)
+        std::initializer_list<int> il = {1, 2, 3};
+        auto s = SkMakeSpan(il);
+        REPORTER_ASSERT(reporter, s[0] == 1);
+        REPORTER_ASSERT(reporter, s[1] == 2);
+        REPORTER_ASSERT(reporter, s[2] == 3);
+    }
+
+    {
+        // Uses SkMakeSpan(std::initializer_list<T> il)
+        auto s= SkMakeSpan({1, 2, 3});
+        REPORTER_ASSERT(reporter, s[0] == 1);
+        REPORTER_ASSERT(reporter, s[1] == 2);
+        REPORTER_ASSERT(reporter, s[2] == 3);
+    }
 }
 
 DEF_TEST(SkEnumerate, reporter) {
