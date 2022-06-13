@@ -83,6 +83,14 @@ GrMtlBuffer::~GrMtlBuffer() {
 }
 
 bool GrMtlBuffer::onUpdateData(const void* src, size_t sizeInBytes) {
+    if (this->wasDestroyed()) {
+        return false;
+    }
+
+    if (sizeInBytes > this->size()) {
+        return false;
+    }
+
     if (fIsDynamic) {
         this->internalMap(sizeInBytes);
         if (!fMapPtr) {

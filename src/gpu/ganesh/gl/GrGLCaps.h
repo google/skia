@@ -60,6 +60,8 @@ public:
          * GL_MAX_SAMPLES value.
          */
         kES_EXT_MsToTexture_MSFBOType,
+
+        kLast_MSFBOType = kES_EXT_MsToTexture_MSFBOType
     };
 
     enum BlitFramebufferFlags {
@@ -74,21 +76,19 @@ public:
 
     enum InvalidateFBType {
         kNone_InvalidateFBType,
-        kDiscard_InvalidateFBType,     //<! glDiscardFramebuffer()
-        kInvalidate_InvalidateFBType,  //<! glInvalidateFramebuffer()
-    };
+        kDiscard_InvalidateFBType,       //<! glDiscardFramebuffer()
+        kInvalidate_InvalidateFBType,    //<! glInvalidateFramebuffer()
 
-    enum class InvalidateBufferType {
-        kNone,
-        kNullData,   // Call glBufferData with a null data pointer.
-        kInvalidate  // glInvalidateBufferData
+        kLast_InvalidateFBType = kInvalidate_InvalidateFBType
     };
 
     enum MapBufferType {
         kNone_MapBufferType,
-        kMapBuffer_MapBufferType,       // glMapBuffer()
-        kMapBufferRange_MapBufferType,  // glMapBufferRange()
-        kChromium_MapBufferType,        // GL_CHROMIUM_map_sub
+        kMapBuffer_MapBufferType,         // glMapBuffer()
+        kMapBufferRange_MapBufferType,    // glMapBufferRange()
+        kChromium_MapBufferType,          // GL_CHROMIUM_map_sub
+
+        kLast_MapBufferType = kChromium_MapBufferType,
     };
 
     enum class TransferBufferType {
@@ -361,7 +361,7 @@ public:
 
     void onDumpJSON(SkJSONWriter*) const override;
 
-    InvalidateBufferType invalidateBufferType() const { return fInvalidateBufferType; }
+    bool useBufferDataNullHint() const { return fUseBufferDataNullHint; }
 
     // Certain Intel GPUs on Mac fail to clear if the glClearColor is made up of only 1s and 0s.
     bool clearToBoundaryValuesIsBroken() const { return fClearToBoundaryValuesIsBroken; }
@@ -557,13 +557,12 @@ private:
     int fMaxFragmentUniformVectors = 0;
     float fMaxTextureMaxAnisotropy = 1.f;
 
-    MSFBOType            fMSFBOType            = kNone_MSFBOType;
-    InvalidateFBType     fInvalidateFBType     = kNone_InvalidateFBType;
-    InvalidateBufferType fInvalidateBufferType = InvalidateBufferType::kNone;
-    MapBufferType        fMapBufferType        = kNone_MapBufferType;
-    TransferBufferType   fTransferBufferType   = TransferBufferType::kNone;
-    FenceType            fFenceType            = FenceType::kNone;
-    MultiDrawType        fMultiDrawType        = MultiDrawType::kNone;
+    MSFBOType           fMSFBOType          = kNone_MSFBOType;
+    InvalidateFBType    fInvalidateFBType   = kNone_InvalidateFBType;
+    MapBufferType       fMapBufferType      = kNone_MapBufferType;
+    TransferBufferType  fTransferBufferType = TransferBufferType::kNone;
+    FenceType           fFenceType          = FenceType::kNone;
+    MultiDrawType       fMultiDrawType      = MultiDrawType::kNone;
 
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
@@ -579,6 +578,7 @@ private:
     bool fRectangleTextureSupport : 1;
     bool fMipmapLevelControlSupport : 1;
     bool fMipmapLodControlSupport : 1;
+    bool fUseBufferDataNullHint : 1;
     bool fClearTextureSupport : 1;
     bool fProgramBinarySupport : 1;
     bool fProgramParameterSupport : 1;

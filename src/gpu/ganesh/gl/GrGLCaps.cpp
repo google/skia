@@ -47,6 +47,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fBindUniformLocationSupport = false;
     fMipmapLevelControlSupport = false;
     fMipmapLodControlSupport = false;
+    fUseBufferDataNullHint = false;
     fDoManualMipmapping = false;
     fClearToBoundaryValuesIsBroken = false;
     fClearTextureSupport = false;
@@ -310,15 +311,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fMipmapLodControlSupport = false;
     }
 
-    if ((GR_IS_GR_GL_ES(standard) || GR_IS_GR_GL(standard)) &&
-        ctxInfo.hasExtension("GL_ARB_invalidate_subdata")) {
-        fInvalidateBufferType = InvalidateBufferType::kInvalidate;
-    } else if (!GR_IS_GR_WEBGL(standard) && !ctxInfo.isOverCommandBuffer()) {
-        // Chrome's command buffer will push an array of zeros to a buffer if null is passed to
-        // glBufferData (to avoid letting an application see uninitialized memory). This is
-        // expensive so we avoid it. WebGL spec explicitly disallows null values.
-        fInvalidateBufferType = InvalidateBufferType::kNullData;
-    }
+    // Chrome's command buffer will zero out a buffer if null is passed to glBufferData to avoid
+    // letting an application see uninitialized memory. WebGL spec explicitly disallows null values.
+    fUseBufferDataNullHint = !GR_IS_GR_WEBGL(standard) && !ctxInfo.isOverCommandBuffer();
 
     if (GR_IS_GR_GL(standard)) {
         fClearTextureSupport = (version >= GR_GL_VER(4,4) ||
@@ -1161,49 +1156,46 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
     writer->endArray();
 
-    auto msfboStr = [&] {
-        switch (fMSFBOType) {
-            case kNone_MSFBOType:               return "None";
-            case kStandard_MSFBOType:           return "Standard";
-            case kES_Apple_MSFBOType:           return "Apple";
-            case kES_IMG_MsToTexture_MSFBOType: return "IMG MS To Texture";
-            case kES_EXT_MsToTexture_MSFBOType: return "EXT MS To Texture";
-        }
-        SkUNREACHABLE;
+    static const char* kMSFBOExtStr[] = {
+        "None",
+        "Standard",
+        "Apple",
+        "IMG MS To Texture",
+        "EXT MS To Texture",
     };
+    static_assert(0 == kNone_MSFBOType);
+    static_assert(1 == kStandard_MSFBOType);
+    static_assert(2 == kES_Apple_MSFBOType);
+    static_assert(3 == kES_IMG_MsToTexture_MSFBOType);
+    static_assert(4 == kES_EXT_MsToTexture_MSFBOType);
+    static_assert(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
 
-    auto invalidateFBTypeStr = [&] {
-        switch (fInvalidateFBType) {
-            case kNone_InvalidateFBType:       return "None";
-            case kDiscard_InvalidateFBType:    return "Discard";
-            case kInvalidate_InvalidateFBType: return "Invalidate";
-        }
-        SkUNREACHABLE;
+    static const char* kInvalidateFBTypeStr[] = {
+        "None",
+        "Discard",
+        "Invalidate",
     };
+    static_assert(0 == kNone_InvalidateFBType);
+    static_assert(1 == kDiscard_InvalidateFBType);
+    static_assert(2 == kInvalidate_InvalidateFBType);
+    static_assert(SK_ARRAY_COUNT(kInvalidateFBTypeStr) == kLast_InvalidateFBType + 1);
 
-    auto invalidateBufferTypeStr = [&] {
-        switch (fInvalidateBufferType) {
-            case InvalidateBufferType::kNone:       return "None";
-            case InvalidateBufferType::kNullData:   return "Null data hint";
-            case InvalidateBufferType::kInvalidate: return "Invalidate";
-        }
+    static const char* kMapBufferTypeStr[] = {
+        "None",
+        "MapBuffer",
+        "MapBufferRange",
+        "Chromium",
     };
-
-    auto mapBufferTypeStr = [&] {
-        switch (fMapBufferType) {
-            case kNone_MapBufferType:           return "None";
-            case kMapBuffer_MapBufferType:      return "MapBuffer";
-            case kMapBufferRange_MapBufferType: return "MapBufferRange";
-            case kChromium_MapBufferType:       return "Chromium";
-        }
-        SkUNREACHABLE;
-    };
+    static_assert(0 == kNone_MapBufferType);
+    static_assert(1 == kMapBuffer_MapBufferType);
+    static_assert(2 == kMapBufferRange_MapBufferType);
+    static_assert(3 == kChromium_MapBufferType);
+    static_assert(SK_ARRAY_COUNT(kMapBufferTypeStr) == kLast_MapBufferType + 1);
 
     writer->appendBool("Core Profile", fIsCoreProfile);
-    writer->appendCString("MSAA Type", msfboStr());
-    writer->appendCString("Invalidate FB Type", invalidateFBTypeStr());
-    writer->appendCString("Invalidate Buffer Type", invalidateBufferTypeStr());
-    writer->appendCString("Map Buffer Type", mapBufferTypeStr());
+    writer->appendCString("MSAA Type", kMSFBOExtStr[fMSFBOType]);
+    writer->appendCString("Invalidate FB Type", kInvalidateFBTypeStr[fInvalidateFBType]);
+    writer->appendCString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
     writer->appendCString("Multi Draw Type", multi_draw_type_name(fMultiDrawType));
     writer->appendS32("Max FS Uniform Vectors", fMaxFragmentUniformVectors);
     writer->appendBool("Pack Flip Y support", fPackFlipYSupport);
@@ -1219,6 +1211,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Rectangle texture support", fRectangleTextureSupport);
     writer->appendBool("Mipmap LOD control support", fMipmapLodControlSupport);
     writer->appendBool("Mipmap level control support", fMipmapLevelControlSupport);
+    writer->appendBool("Use buffer data null hint", fUseBufferDataNullHint);
     writer->appendBool("Clear texture support", fClearTextureSupport);
     writer->appendBool("Program binary support", fProgramBinarySupport);
     writer->appendBool("Program parameters support", fProgramParameterSupport);

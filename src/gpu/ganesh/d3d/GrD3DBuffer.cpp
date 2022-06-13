@@ -150,6 +150,10 @@ void GrD3DBuffer::onUnmap() {
 }
 
 bool GrD3DBuffer::onUpdateData(const void* src, size_t size) {
+    SkASSERT(src);
+    if (size > this->size()) {
+        return false;
+    }
     if (!fD3DResource) {
         return false;
     }

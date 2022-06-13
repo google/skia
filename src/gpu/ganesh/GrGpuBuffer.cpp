@@ -46,11 +46,7 @@ bool GrGpuBuffer::isMapped() const { return SkToBool(fMapPtr); }
 bool GrGpuBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     SkASSERT(!fHasWrittenToBuffer || fAccessPattern == kDynamic_GrAccessPattern);
     SkASSERT(!this->isMapped());
-    SkASSERT(srcSizeInBytes > 0 && srcSizeInBytes <= fSizeInBytes);
-    SkASSERT(src);
-    if (this->wasDestroyed()) {
-        return false;
-    }
+    SkASSERT(srcSizeInBytes <= fSizeInBytes);
     if (this->intendedType() == GrGpuBufferType::kXferGpuToCpu) {
         return false;
     }
