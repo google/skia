@@ -299,14 +299,6 @@ void GrVkBuffer::onUnmap() {
 }
 
 bool GrVkBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
-    if (this->wasDestroyed()) {
-        return false;
-    }
-
-    if (srcSizeInBytes > this->size()) {
-        return false;
-    }
-
     if (this->isVkMappable()) {
         this->vkMap(srcSizeInBytes);
         if (!fMapPtr) {
