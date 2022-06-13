@@ -4,8 +4,8 @@ half4 sk_error() {
     return half4(1.0, 0.0, 1.0, 1.0);
 }
 
-half4 sk_runtime_placeholder() {
-    // TODO(skia:13405): remove me when RuntimeShader is implemented
+half4 sk_runtime_placeholder(float4x4 dev2Local) {
+    float2 pos = (dev2Local * sk_FragCoord).xy;
     return half4(0.75, 0.0, 1.0, 1.0);
 }
 

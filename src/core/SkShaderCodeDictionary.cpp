@@ -542,6 +542,10 @@ static constexpr char kBlendShaderName[] = "sk_blend_shader";
 //--------------------------------------------------------------------------------------------------
 static constexpr char kRuntimeShaderName[] = "sk_runtime_placeholder";
 
+static constexpr SkUniform kRuntimeShaderUniforms[] = {
+        {"localMatrix", SkSLType::kFloat4x4},
+};
+
 static constexpr DataPayloadField kRuntimeShaderDataPayload[] = {
         {"runtime effect hash", DataPayloadType::kByte, 4},
         {"uniform data size (bytes)", DataPayloadType::kByte, 4},
@@ -824,8 +828,8 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     };
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kRuntimeShader] = {
             "RuntimeShader",
-            { },     // no uniforms
-            SnippetRequirementFlags::kNone,
+            SkMakeSpan(kRuntimeShaderUniforms),
+            SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kRuntimeShaderName,
             GenerateDefaultGlueCode,

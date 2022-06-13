@@ -176,13 +176,16 @@ struct RuntimeShaderBlock {
         ShaderData(sk_sp<const SkRuntimeEffect> effect);
 
         // This ctor is used when extracting information from PaintParams.
-        ShaderData(sk_sp<const SkRuntimeEffect> effect, sk_sp<const SkData> uniforms);
+        ShaderData(sk_sp<const SkRuntimeEffect> effect,
+                   const SkMatrix& localMatrix,
+                   sk_sp<const SkData> uniforms);
 
         bool operator==(const ShaderData& rhs) const;
         bool operator!=(const ShaderData& rhs) const { return !(*this == rhs); }
 
         // Runtime shader data.
         sk_sp<const SkRuntimeEffect> fEffect;
+        SkMatrix                     fLocalMatrix;
         sk_sp<const SkData>          fUniforms;
     };
 

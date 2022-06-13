@@ -1156,7 +1156,8 @@ public:
     void addToKey(const SkKeyContext& keyContext,
                   SkPaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer) const override {
-        RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
+        RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer,
+                                       {fEffect, this->getLocalMatrix(), fUniforms});
         builder->endBlock();
     }
 
