@@ -336,7 +336,7 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
         } else {
             error = GL_ALLOC_CALL(this->glGpu(), BufferData(target,
                                                             this->size(),
-                                                            src,
+                                                            nullptr,
                                                             fUsage));
             fGLSizeInBytes = this->size();
         }
