@@ -511,6 +511,20 @@
   },
 
   {
+    "GL":    [{"min_version": [3, 1], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_copy_buffer"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_NV_copy_buffer"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"},],
+
+    "functions": ["CopyBufferSubData",],
+    // TODO: Remove 'optional' once Chrome sets this function in the interface.
+    "optional": [
+      "CopyBufferSubData",
+    ]
+  },
+
+  {
     "GL":    [{"ext": "GL_NV_framebuffer_mixed_samples"}],
     "GLES":  [{"ext": "GL_CHROMIUM_framebuffer_mixed_samples"},
               {"ext": "GL_NV_framebuffer_mixed_samples"}],

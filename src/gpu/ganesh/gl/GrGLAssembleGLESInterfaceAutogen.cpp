@@ -368,6 +368,12 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC_SUFFIX(PushGroupMarker, EXT);
     }
 
+    if (glVer >= GR_GL_VER(3,0)) {
+        GET_PROC(CopyBufferSubData);
+    } else if (extensions.has("GL_NV_copy_buffer")) {
+        GET_PROC_SUFFIX(CopyBufferSubData, NV);
+    }
+
     if (extensions.has("GL_CHROMIUM_framebuffer_mixed_samples")) {
         GET_PROC_SUFFIX(CoverageModulation, CHROMIUM);
     } else if (extensions.has("GL_NV_framebuffer_mixed_samples")) {
