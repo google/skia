@@ -63,6 +63,7 @@ public:
 
     class BlockReader {
     public:
+        // Returns the combined size of the header, all children, and every data payload.
         uint8_t blockSize() const {
             SkASSERT(fBlock[kBlockSizeOffsetInBytes] == fBlock.size());
             return SkTo<uint8_t>(fBlock.size());
