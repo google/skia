@@ -14,20 +14,24 @@
 
 namespace {
 
-SkPaintParamsKey create_key(SkPaintParamsKeyBuilder* builder, int dummySnippetID, int size) {
-
-    SkASSERT(size <= 1024);
-    static const uint8_t kDummyData[1024] = { 0 };
-
+SkPaintParamsKey create_key_with_data(SkPaintParamsKeyBuilder* builder,
+                                      int snippetID,
+                                      SkSpan<const uint8_t> span) {
     SkDEBUGCODE(builder->checkReset());
 
-    builder->beginBlock(dummySnippetID);
+    builder->beginBlock(snippetID);
 
-    builder->addBytes(size, kDummyData);
+    builder->addBytes(span.size(), span.data());
 
     builder->endBlock();
 
     return builder->lockAsKey();
+}
+
+SkPaintParamsKey create_key(SkPaintParamsKeyBuilder* builder, int snippetID, int size) {
+    SkASSERT(size <= 1024);
+    static constexpr uint8_t kDummyData[1024] = {};
+    return create_key_with_data(builder, snippetID, SkMakeSpan(kDummyData, size));
 }
 
 } // anonymous namespace
@@ -79,4 +83,31 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) {
 
     // Key creation fails.
     REPORTER_ASSERT(reporter, key.isErrorKey());
+}
+
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksData, reporter, context) {
+
+    auto dict = context->priv().shaderCodeDictionary();
+    static const int kBlockDataSize = 4;
+    static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
+            {"data", SkPaintParamsKey::DataPayloadType::kByte, kBlockDataSize},
+    };
+
+    int dummySnippetID = dict->addUserDefinedSnippet("key", SkMakeSpan(kDataFields));
+
+    static constexpr uint8_t kData [4] = {1, 2, 3, 4};
+    static constexpr uint8_t kData2[4] = {1, 2, 3, 99};
+
+    SkPaintParamsKeyBuilder builderA(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builderB(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builderC(dict, SkBackend::kGraphite);
+    SkPaintParamsKey keyA = create_key_with_data(&builderA, dummySnippetID, SkMakeSpan(kData));
+    SkPaintParamsKey keyB = create_key_with_data(&builderB, dummySnippetID, SkMakeSpan(kData));
+    SkPaintParamsKey keyC = create_key_with_data(&builderC, dummySnippetID, SkMakeSpan(kData2));
+
+    // Verify that keyA matches keyB, and that it does not match keyC.
+    REPORTER_ASSERT(reporter, keyA == keyB);
+    REPORTER_ASSERT(reporter, keyA != keyC);
+    REPORTER_ASSERT(reporter, !(keyA == keyC));
+    REPORTER_ASSERT(reporter, !(keyA != keyB));
 }
