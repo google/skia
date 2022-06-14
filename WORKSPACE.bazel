@@ -239,6 +239,13 @@ new_local_repository(
 )
 
 new_local_repository(
+    name = "perfetto",
+    build_file = "bazel/external/perfetto/BUILD.bazel",
+    path = "third_party/externals/perfetto",
+    workspace_file_content = "",
+)
+
+new_local_repository(
     name = "piex",
     build_file = "bazel/external/piex/BUILD.bazel",
     path = "third_party/externals/piex",

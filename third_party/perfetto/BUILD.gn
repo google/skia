@@ -1,0 +1,17 @@
+# Copyright 2022 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+third_party("perfetto") {
+  public_include_dirs = [
+    ".",
+    "../externals/perfetto/sdk",
+  ]
+  sources = [
+    "../externals/perfetto/sdk/perfetto.cc",
+    "../externals/perfetto/sdk/perfetto.h",
+  ]
+}

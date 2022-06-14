@@ -1,0 +1,13 @@
+# This file will be copied into //third_party/externals/perfetto via the
+# new_local_repository rule in WORKSPACE.bazel, so all files should be relative to that path.
+
+cc_library(
+    name = "perfetto",
+    srcs = ["sdk/perfetto.cc"],
+    hdrs = [
+        "sdk/perfetto.h",
+    ],
+    defines = ["SK_USE_PERFETTO"],
+    includes = ["sdk"],
+    visibility = ["//visibility:public"],
+)
