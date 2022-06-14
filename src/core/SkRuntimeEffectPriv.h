@@ -27,7 +27,7 @@ class SkRuntimeEffectPriv {
 public:
     // Helper function when creating an effect for a GrSkSLFP that verifies an effect will
     // implement the constant output for constant input optimization flag.
-    static bool SupportsConstantOutputForConstantInput(sk_sp<SkRuntimeEffect> effect) {
+    static bool SupportsConstantOutputForConstantInput(const SkRuntimeEffect* effect) {
         return effect->getFilterColorProgram();
     }
 
@@ -76,15 +76,16 @@ inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result 
 }
 
 // Internal API that assumes (and asserts) that the shader code is valid, but does no internal
-// caching. Used when the caller will cache the result in a static variable.
-inline sk_sp<SkRuntimeEffect> SkMakeRuntimeEffect(
+// caching. Used when the caller will cache the result in a static variable. Ownership is passed to
+// the caller; the effect will be leaked if it the pointer is not stored or explicitly deleted.
+inline SkRuntimeEffect* SkMakeRuntimeEffect(
         SkRuntimeEffect::Result (*make)(SkString, const SkRuntimeEffect::Options&),
         const char* sksl,
         SkRuntimeEffect::Options options = SkRuntimeEffect::Options{}) {
     SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
     auto result = make(SkString{sksl}, options);
     SkASSERTF(result.effect, "%s", result.errorText.c_str());
-    return result.effect;
+    return result.effect.release();
 }
 
 // This is mostly from skvm's rgb->hsl code, with some GPU-related finesse pulled from

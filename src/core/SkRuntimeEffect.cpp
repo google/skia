@@ -837,7 +837,7 @@ SkPMColor4f SkFilterColorProgram::eval(
     return result;
 }
 
-const SkFilterColorProgram* SkRuntimeEffect::getFilterColorProgram() {
+const SkFilterColorProgram* SkRuntimeEffect::getFilterColorProgram() const {
     return fFilterColorProgram.get();
 }
 

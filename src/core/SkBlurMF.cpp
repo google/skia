@@ -841,7 +841,7 @@ static std::unique_ptr<GrFragmentProcessor> make_circle_blur(GrRecordingContext*
         return nullptr;
     }
 
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform shader blurProfile;
         uniform half4 circleData;
 
@@ -855,7 +855,7 @@ static std::unique_ptr<GrFragmentProcessor> make_circle_blur(GrRecordingContext*
     )");
 
     SkV4 circleData = {circle.centerX(), circle.centerY(), solidRadius, 1.f / textureRadius};
-    return GrSkSLFP::Make(effect, "CircleBlur", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "CircleBlur", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                           "blurProfile", GrSkSLFP::IgnoreOptFlags(std::move(profile)),
                           "circleData", circleData);
@@ -976,7 +976,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
     // rectangle (and similar in y).
     bool isFast = insetRect.isSorted();
 
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         // Effect that is a LUT for integral of normal distribution. The value at x:[0,6*sigma] is
         // the integral from -inf to (3*sigma - x). I.e. x is mapped from [0, 6*sigma] to
         // [3*sigma to -3*sigma]. The flip saves a reversal in the shader.
@@ -1023,7 +1023,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
     )");
 
     std::unique_ptr<GrFragmentProcessor> fp =
-            GrSkSLFP::Make(effect, "RectBlur", /*inputFP=*/nullptr,
+            GrSkSLFP::Make(sk_ref_sp(effect), "RectBlur", /*inputFP=*/nullptr,
                            GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                            "integral", GrSkSLFP::IgnoreOptFlags(std::move(integral)),
                            "rect", insetRect,
@@ -1382,7 +1382,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rrect_blur(GrRecordingContext* 
         return nullptr;
     }
 
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform shader ninePatchFP;
 
         uniform half cornerRadius;
@@ -1434,7 +1434,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rrect_blur(GrRecordingContext* 
     float blurRadius = 3.f * SkScalarCeilToScalar(xformedSigma - 1 / 6.0f);
     SkRect proxyRect = devRRect.getBounds().makeOutset(blurRadius, blurRadius);
 
-    return GrSkSLFP::Make(effect, "RRectBlur", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "RRectBlur", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                           "ninePatchFP", GrSkSLFP::IgnoreOptFlags(std::move(maskFP)),
                           "cornerRadius", cornerRadius,

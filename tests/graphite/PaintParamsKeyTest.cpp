@@ -93,7 +93,7 @@ std::tuple<SkPaint, int> create_paint(Recorder* recorder,
             break;
         }
         case SkShaderType::kRuntimeShader: {
-            sk_sp<SkRuntimeEffect> effect = TestingOnly_GetCommonRuntimeEffect();
+            const SkRuntimeEffect* effect = TestingOnly_GetCommonRuntimeEffect();
             s = effect->makeShader(/*uniforms=*/nullptr, /*children=*/{});
             break;
         }

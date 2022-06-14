@@ -196,7 +196,8 @@ static std::unique_ptr<GrFragmentProcessor> make_premul_effect(
         return nullptr;
     }
 
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         half4 main(half4 halfColor) {
             float4 color = float4(halfColor);
             color = floor(color * 255 + 0.5) / 255;
@@ -205,7 +206,7 @@ static std::unique_ptr<GrFragmentProcessor> make_premul_effect(
         }
     )");
 
-    fp = GrSkSLFP::Make(effect, "ToPremul", std::move(fp), GrSkSLFP::OptFlags::kNone);
+    fp = GrSkSLFP::Make(sk_ref_sp(effect), "ToPremul", std::move(fp), GrSkSLFP::OptFlags::kNone);
     return GrFragmentProcessor::HighPrecision(std::move(fp));
 }
 
@@ -215,7 +216,8 @@ static std::unique_ptr<GrFragmentProcessor> make_unpremul_effect(
         return nullptr;
     }
 
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         half4 main(half4 halfColor) {
             float4 color = float4(halfColor);
             color = floor(color * 255 + 0.5) / 255;
@@ -224,7 +226,7 @@ static std::unique_ptr<GrFragmentProcessor> make_unpremul_effect(
         }
     )");
 
-    fp = GrSkSLFP::Make(effect, "ToUnpremul", std::move(fp), GrSkSLFP::OptFlags::kNone);
+    fp = GrSkSLFP::Make(sk_ref_sp(effect), "ToUnpremul", std::move(fp), GrSkSLFP::OptFlags::kNone);
     return GrFragmentProcessor::HighPrecision(std::move(fp));
 }
 

@@ -295,7 +295,7 @@ private:
     bool usesColorTransform() const { return (fFlags & kUsesColorTransform_Flag); }
     bool alwaysOpaque()       const { return (fFlags & kAlwaysOpaque_Flag);       }
 
-    const SkFilterColorProgram* getFilterColorProgram();
+    const SkFilterColorProgram* getFilterColorProgram() const;
 
 #if SK_SUPPORT_GPU
     friend class GrSkSLFP;             // fBaseProgram, fSampleUsages

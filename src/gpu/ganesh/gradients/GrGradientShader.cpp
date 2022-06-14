@@ -67,7 +67,7 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
 
 static std::unique_ptr<GrFragmentProcessor> make_single_interval_colorizer(const SkPMColor4f& start,
                                                                            const SkPMColor4f& end) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform half4 start;
         uniform half4 end;
         half4 main(float2 coord) {
@@ -76,7 +76,7 @@ static std::unique_ptr<GrFragmentProcessor> make_single_interval_colorizer(const
             return mix(start, end, half(coord.x));
         }
     )");
-    return GrSkSLFP::Make(effect, "SingleIntervalColorizer", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "SingleIntervalColorizer", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kNone,
                           "start", start,
                           "end", end);
@@ -87,7 +87,7 @@ static std::unique_ptr<GrFragmentProcessor> make_dual_interval_colorizer(const S
                                                                          const SkPMColor4f& c2,
                                                                          const SkPMColor4f& c3,
                                                                          float threshold) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform float4 scale[2];
         uniform float4 bias[2];
         uniform half threshold;
@@ -118,7 +118,7 @@ static std::unique_ptr<GrFragmentProcessor> make_dual_interval_colorizer(const S
                            (vc3 - vc2) / (1 - threshold)};
     const Vec4 bias[2]  = {vc0,
                            vc2 - threshold * scale[1]};
-    return GrSkSLFP::Make(effect, "DualIntervalColorizer", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "DualIntervalColorizer", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kNone,
                           "scale", SkMakeSpan(scale),
                           "bias", SkMakeSpan(bias),
@@ -539,7 +539,7 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
         SkPMColor4f rightBorderColor,
         bool makePremul,
         bool colorsAreOpaque) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform shader colorizer;
         uniform shader gradLayout;
 
@@ -585,7 +585,7 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
         optFlags |= GrSkSLFP::OptFlags::kPreservesOpaqueInput;
     }
 
-    return GrSkSLFP::Make(effect, "ClampedGradient", /*inputFP=*/nullptr, optFlags,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "ClampedGradient", /*inputFP=*/nullptr, optFlags,
                           "colorizer", GrSkSLFP::IgnoreOptFlags(std::move(colorizer)),
                           "gradLayout", GrSkSLFP::IgnoreOptFlags(std::move(gradLayout)),
                           "leftBorderColor", leftBorderColor,
@@ -602,7 +602,7 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
         bool mirror,
         bool makePremul,
         bool colorsAreOpaque) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform shader colorizer;
         uniform shader gradLayout;
 
@@ -656,7 +656,7 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
     const bool useFloorAbsWorkaround =
             args.fContext->priv().caps()->shaderCaps()->fMustDoOpBetweenFloorAndAbs;
 
-    return GrSkSLFP::Make(effect, "TiledGradient", /*inputFP=*/nullptr, optFlags,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "TiledGradient", /*inputFP=*/nullptr, optFlags,
                           "colorizer", GrSkSLFP::IgnoreOptFlags(std::move(colorizer)),
                           "gradLayout", GrSkSLFP::IgnoreOptFlags(std::move(gradLayout)),
                           "mirror", GrSkSLFP::Specialize<int>(mirror),
@@ -779,26 +779,26 @@ std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
     // falls at X.5 - delta then we still could get inconsistent results, but that is much less
     // likely. crbug.com/938592
     // If/when we add filtering of the gradient this can be removed.
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         half4 main(float2 coord) {
             return half4(half(coord.x) + 0.00001, 1, 0, 0); // y = 1 for always valid
         }
     )");
     // The linear gradient never rejects a pixel so it doesn't change opacity
-    auto fp = GrSkSLFP::Make(effect, "LinearLayout", /*inputFP=*/nullptr,
+    auto fp = GrSkSLFP::Make(sk_ref_sp(effect), "LinearLayout", /*inputFP=*/nullptr,
                              GrSkSLFP::OptFlags::kPreservesOpaqueInput);
     return make_gradient(shader, args, std::move(fp));
 }
 
 std::unique_ptr<GrFragmentProcessor> MakeRadial(const SkRadialGradient& shader,
                                                 const GrFPArgs& args) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         half4 main(float2 coord) {
             return half4(half(length(coord)), 1, 0, 0); // y = 1 for always valid
         }
     )");
     // The radial gradient never rejects a pixel so it doesn't change opacity
-    auto fp = GrSkSLFP::Make(effect, "RadialLayout", /*inputFP=*/nullptr,
+    auto fp = GrSkSLFP::Make(sk_ref_sp(effect), "RadialLayout", /*inputFP=*/nullptr,
                              GrSkSLFP::OptFlags::kPreservesOpaqueInput);
     return make_gradient(shader, args, std::move(fp));
 }
@@ -812,7 +812,7 @@ std::unique_ptr<GrFragmentProcessor> MakeSweep(const SkSweepGradient& shader,
     // using atan instead.
     int useAtanWorkaround =
             args.fContext->priv().caps()->shaderCaps()->fAtan2ImplementedAsAtanYOverX;
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform half bias;
         uniform half scale;
         uniform int useAtanWorkaround;  // specialized
@@ -828,7 +828,7 @@ std::unique_ptr<GrFragmentProcessor> MakeSweep(const SkSweepGradient& shader,
         }
     )");
     // The sweep gradient never rejects a pixel so it doesn't change opacity
-    auto fp = GrSkSLFP::Make(effect, "SweepLayout", /*inputFP=*/nullptr,
+    auto fp = GrSkSLFP::Make(sk_ref_sp(effect), "SweepLayout", /*inputFP=*/nullptr,
                              GrSkSLFP::OptFlags::kPreservesOpaqueInput,
                              "bias", shader.getTBias(),
                              "scale", shader.getTScale(),
@@ -844,7 +844,8 @@ std::unique_ptr<GrFragmentProcessor> MakeConical(const SkTwoPointConicalGradient
     SkTLazy<SkMatrix> matrix;
     switch (shader.getType()) {
         case SkTwoPointConicalGradient::Type::kStrip: {
-            static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+            static const SkRuntimeEffect* effect =
+                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
                 uniform half r0_2;
                 half4 main(float2 p) {
                     half v = 1; // validation flag, set to negative to discard fragment later
@@ -858,13 +859,14 @@ std::unique_ptr<GrFragmentProcessor> MakeConical(const SkTwoPointConicalGradient
                 }
             )");
             float r0 = shader.getStartRadius() / shader.getCenterX1();
-            fp = GrSkSLFP::Make(effect, "TwoPointConicalStripLayout", /*inputFP=*/nullptr,
-                                GrSkSLFP::OptFlags::kNone,
+            fp = GrSkSLFP::Make(sk_ref_sp(effect), "TwoPointConicalStripLayout",
+                                /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kNone,
                                 "r0_2", r0 * r0);
         } break;
 
         case SkTwoPointConicalGradient::Type::kRadial: {
-            static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+            static const SkRuntimeEffect* effect =
+                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
                 uniform half r0;
                 uniform half lengthScale;
                 half4 main(float2 p) {
@@ -876,8 +878,8 @@ std::unique_ptr<GrFragmentProcessor> MakeConical(const SkTwoPointConicalGradient
             float dr = shader.getDiffRadius();
             float r0 = shader.getStartRadius() / dr;
             bool isRadiusIncreasing = dr >= 0;
-            fp = GrSkSLFP::Make(effect, "TwoPointConicalRadialLayout", /*inputFP=*/nullptr,
-                                GrSkSLFP::OptFlags::kNone,
+            fp = GrSkSLFP::Make(sk_ref_sp(effect), "TwoPointConicalRadialLayout",
+                                /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kNone,
                                 "r0", r0,
                                 "lengthScale", isRadiusIncreasing ? 1.0f : -1.0f);
 
@@ -892,7 +894,8 @@ std::unique_ptr<GrFragmentProcessor> MakeConical(const SkTwoPointConicalGradient
         } break;
 
         case SkTwoPointConicalGradient::Type::kFocal: {
-            static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+            static const SkRuntimeEffect* effect =
+                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
                 // Optimization flags, all specialized:
                 uniform int isRadiusIncreasing;
                 uniform int isFocalOnCircle;
@@ -970,8 +973,8 @@ std::unique_ptr<GrFragmentProcessor> MakeConical(const SkTwoPointConicalGradient
                  isSwapped          = focalData.isSwapped(),
                  isNativelyFocal    = focalData.isNativelyFocal();
 
-            fp = GrSkSLFP::Make(effect, "TwoPointConicalFocalLayout", /*inputFP=*/nullptr,
-                                GrSkSLFP::OptFlags::kNone,
+            fp = GrSkSLFP::Make(sk_ref_sp(effect), "TwoPointConicalFocalLayout",
+                                /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kNone,
                                 "isRadiusIncreasing", GrSkSLFP::Specialize<int>(isRadiusIncreasing),
                                 "isFocalOnCircle",    GrSkSLFP::Specialize<int>(isFocalOnCircle),
                                 "isWellBehaved",      GrSkSLFP::Specialize<int>(isWellBehaved),

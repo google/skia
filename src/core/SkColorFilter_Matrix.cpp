@@ -141,7 +141,8 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
 // [2] http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
 // [3] http://www.chilliant.com/rgb2hsv.html
 static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmentProcessor> child) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         half4 main(half4 c) {
             half4 p = (c.g < c.b) ? half4(c.bg, -1,  2/3.0)
                                   : half4(c.gb,  0, -1/3.0);
@@ -164,8 +165,10 @@ static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmen
         }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(
-            effect, "RgbToHsl", std::move(child), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
+    return GrSkSLFP::Make(sk_ref_sp(effect),
+                          "RgbToHsl",
+                          std::move(child),
+                          GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
 
 // Convert HSLA -> RGBA (including clamp and premul).
@@ -176,7 +179,8 @@ static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmen
 // [2] http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
 // [3] http://www.chilliant.com/rgb2hsv.html
 static std::unique_ptr<GrFragmentProcessor> hsl_to_rgb(std::unique_ptr<GrFragmentProcessor> child) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         half4 main(half4 color) {
             half3   hsl = color.rgb;
 
@@ -191,8 +195,8 @@ static std::unique_ptr<GrFragmentProcessor> hsl_to_rgb(std::unique_ptr<GrFragmen
         }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(
-            effect, "HslToRgb", std::move(child), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
+    return GrSkSLFP::Make(sk_ref_sp(effect), "HslToRgb", std::move(child),
+                          GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
 
 GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp,

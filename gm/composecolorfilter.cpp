@@ -69,7 +69,7 @@ static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi, bool use
             half4 main(half4 c) { return outer.eval(inner.eval(c)); }
         )"));
         SkASSERT(effect);
-        SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
+        SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect.get()));
         sk_sp<SkColorFilter> children[] = { inner, outer };
         return effect->makeColorFilter(nullptr, children, SK_ARRAY_COUNT(children));
     } else {

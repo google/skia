@@ -632,8 +632,8 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
     }
 }
 
-sk_sp<SkRuntimeEffect> TestingOnly_GetCommonRuntimeEffect() {
-    static sk_sp<SkRuntimeEffect> effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+const SkRuntimeEffect* TestingOnly_GetCommonRuntimeEffect() {
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         half4 main(float2 coords) {
             return half4(coords.xy01);
         }
@@ -725,9 +725,10 @@ SkUniquePaintParamsID CreateKey(const SkKeyContext& keyContext,
             break;
         case SkShaderType::kRuntimeShader:
             {
-                sk_sp<SkRuntimeEffect> effect = TestingOnly_GetCommonRuntimeEffect();
-                RuntimeShaderBlock::BeginBlock(keyContext, builder, nullptr,
-                                               {effect, SkMatrix::I(), /*uniforms=*/nullptr});
+                const SkRuntimeEffect* effect = TestingOnly_GetCommonRuntimeEffect();
+                RuntimeShaderBlock::BeginBlock(
+                        keyContext, builder, nullptr,
+                        {sk_ref_sp(effect), SkMatrix::I(), /*uniforms=*/nullptr});
                 builder->endBlock();
             }
             break;

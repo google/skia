@@ -139,7 +139,7 @@ static std::unique_ptr<GrFragmentProcessor> make_alpha_threshold_fp(
         std::unique_ptr<GrFragmentProcessor> maskFP,
         float innerThreshold,
         float outerThreshold) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform shader maskFP;
         uniform half innerThreshold;
         uniform half outerThreshold;
@@ -161,7 +161,7 @@ static std::unique_ptr<GrFragmentProcessor> make_alpha_threshold_fp(
         }
     )");
 
-    return GrSkSLFP::Make(effect, "AlphaThreshold", std::move(inputFP),
+    return GrSkSLFP::Make(sk_ref_sp(effect), "AlphaThreshold", std::move(inputFP),
                           (outerThreshold >= 1.0f) ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                                    : GrSkSLFP::OptFlags::kNone,
                           "maskFP", GrSkSLFP::IgnoreOptFlags(std::move(maskFP)),

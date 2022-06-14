@@ -190,12 +190,13 @@ void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentPro
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeColor(SkPMColor4f color) {
     // Use ColorFilter signature/factory to get the constant output for constant input optimization
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         uniform half4 color;
         half4 main(half4 inColor) { return color; }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(effect, "color_fp", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "color_fp", /*inputFP=*/nullptr,
                           color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                            : GrSkSLFP::OptFlags::kNone,
                           "color", color);
@@ -212,13 +213,14 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ApplyPaintAlpha(
         std::unique_ptr<GrFragmentProcessor> child) {
     SkASSERT(child);
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         uniform colorFilter fp;
         half4 main(half4 inColor) {
             return fp.eval(inColor.rgb1) * inColor.a;
         }
     )");
-    return GrSkSLFP::Make(effect, "ApplyPaintAlpha", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "ApplyPaintAlpha", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput |
                           GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                           "fp", std::move(child));
@@ -234,14 +236,15 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateRGBA(
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampOutput(
         std::unique_ptr<GrFragmentProcessor> fp) {
     SkASSERT(fp);
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         half4 main(half4 inColor) {
             return saturate(inColor);
         }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(
-            effect, "Clamp", std::move(fp), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
+    return GrSkSLFP::Make(sk_ref_sp(effect), "Clamp", std::move(fp),
+                          GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
@@ -319,7 +322,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
     if (!fp) {
         return nullptr;
     }
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
         uniform colorFilter fp;  // Declared as colorFilter so we can pass a color
         uniform half4 color;
         half4 main(half4 inColor) {
@@ -327,7 +330,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
         }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(effect, "OverrideInput", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "OverrideInput", /*inputFP=*/nullptr,
                           color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                            : GrSkSLFP::OptFlags::kNone,
                           "fp", std::move(fp),
@@ -341,11 +344,12 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DisableCoverageAsAlpha
     if (!fp || !fp->compatibleWithCoverageAsAlpha()) {
         return fp;
     }
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         half4 main(half4 inColor) { return inColor; }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(effect, "DisableCoverageAsAlpha", std::move(fp),
+    return GrSkSLFP::Make(sk_ref_sp(effect), "DisableCoverageAsAlpha", std::move(fp),
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
 
@@ -353,13 +357,13 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DisableCoverageAsAlpha
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::UseDestColorAsInput(
         std::unique_ptr<GrFragmentProcessor> fp) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForBlender, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForBlender, R"(
         uniform colorFilter fp;  // Declared as colorFilter so we can pass a color
         half4 main(half4 src, half4 dst) {
             return fp.eval(dst);
         }
     )");
-    return GrSkSLFP::Make(effect, "UseDestColorAsInput", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "UseDestColorAsInput", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kNone, "fp", std::move(fp));
 }
 
@@ -461,7 +465,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ColorMatrix(
         bool unpremulInput,
         bool clampRGBOutput,
         bool premulOutput) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         uniform half4x4 m;
         uniform half4   v;
         uniform int unpremulInput;   // always specialized
@@ -490,7 +495,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ColorMatrix(
               matrix[10], matrix[11], matrix[12], matrix[13],
               matrix[15], matrix[16], matrix[17], matrix[18]);
     SkV4 v4 = {matrix[4], matrix[9], matrix[14], matrix[19]};
-    return GrSkSLFP::Make(effect, "ColorMatrix", std::move(child), GrSkSLFP::OptFlags::kNone,
+    return GrSkSLFP::Make(sk_ref_sp(effect), "ColorMatrix", std::move(child),
+                          GrSkSLFP::OptFlags::kNone,
                           "m", m44,
                           "v", v4,
                           "unpremulInput",  GrSkSLFP::Specialize(unpremulInput  ? 1 : 0),
@@ -605,7 +611,8 @@ static_assert(static_cast<int>(GrClipEdgeType::kInverseFillAA) == 3);
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Rect(
         std::unique_ptr<GrFragmentProcessor> inputFP, GrClipEdgeType edgeType, SkRect rect) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, CLIP_EDGE_SKSL R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+    CLIP_EDGE_SKSL R"(
         uniform int edgeType;  // GrClipEdgeType, specialized
         uniform float4 rectUniform;
 
@@ -637,7 +644,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Rect(
     // to interpolate from 0 at a half pixel inset and 1 at a half pixel outset of rect.
     SkRect rectUniform = GrClipEdgeTypeIsAA(edgeType) ? rect.makeOutset(.5f, .5f) : rect;
 
-    return GrSkSLFP::Make(effect, "Rect", std::move(inputFP),
+    return GrSkSLFP::Make(sk_ref_sp(effect), "Rect", std::move(inputFP),
                           GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                           "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
                           "rectUniform", rectUniform);
@@ -653,7 +660,8 @@ GrFPResult GrFragmentProcessor::Circle(std::unique_ptr<GrFragmentProcessor> inpu
         return GrFPFailure(std::move(inputFP));
     }
 
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, CLIP_EDGE_SKSL R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+    CLIP_EDGE_SKSL R"(
         uniform int edgeType;  // GrClipEdgeType, specialized
         // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
         // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
@@ -687,7 +695,7 @@ GrFPResult GrFragmentProcessor::Circle(std::unique_ptr<GrFragmentProcessor> inpu
     }
     SkV4 circle = {center.fX, center.fY, effectiveRadius, SkScalarInvert(effectiveRadius)};
 
-    return GrFPSuccess(GrSkSLFP::Make(effect, "Circle", std::move(inputFP),
+    return GrFPSuccess(GrSkSLFP::Make(sk_ref_sp(effect), "Circle", std::move(inputFP),
                                       GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                                       "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
                                       "circle", circle));
@@ -713,7 +721,8 @@ GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inp
         return GrFPFailure(std::move(inputFP));
     }
 
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, CLIP_EDGE_SKSL R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+    CLIP_EDGE_SKSL R"(
         uniform int edgeType;      // GrClipEdgeType, specialized
         uniform int medPrecision;  // !sk_Caps.floatIs32Bits, specialized
 
@@ -781,7 +790,7 @@ GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inp
     }
     SkV4 ellipse = {center.fX, center.fY, invRXSqd, invRYSqd};
 
-    return GrFPSuccess(GrSkSLFP::Make(effect, "Ellipse", std::move(inputFP),
+    return GrFPSuccess(GrSkSLFP::Make(sk_ref_sp(effect), "Ellipse", std::move(inputFP),
                                       GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                                       "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
                                       "medPrecision",  GrSkSLFP::Specialize<int>(medPrecision),

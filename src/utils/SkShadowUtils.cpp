@@ -116,7 +116,8 @@ sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
 GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                       GrRecordingContext*,
                                                       const GrColorInfo&) const {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+    R"(
         half4 main(half4 inColor) {
             half factor = 1 - inColor.a;
             factor = exp(-factor * factor * 4) - 0.018;
@@ -124,8 +125,8 @@ GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragment
         }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrFPSuccess(
-            GrSkSLFP::Make(effect, "gaussian_fp", std::move(inputFP), GrSkSLFP::OptFlags::kNone));
+    return GrFPSuccess(GrSkSLFP::Make(
+            sk_ref_sp(effect), "gaussian_fp", std::move(inputFP), GrSkSLFP::OptFlags::kNone));
 }
 #endif
 
