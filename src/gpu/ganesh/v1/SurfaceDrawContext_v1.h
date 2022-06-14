@@ -37,7 +37,6 @@ class GrTextureProxy;
 struct GrTextureSetEntry;
 struct GrUserStencilSettings;
 struct SkDrawShadowRec;
-class SkGlyphRunList;
 struct SkIPoint;
 struct SkIRect;
 class SkLatticeIter;
@@ -52,6 +51,10 @@ class SkRRect;
 struct SkRSXform;
 class SkTextBlob;
 class SkVertices;
+
+namespace sktext {
+class GlyphRunList;
+}
 
 namespace skgpu::v1 {
 
@@ -478,7 +481,7 @@ public:
                           const SkRect& dst);
 
     /**
-     * Draw the text specified by the SkGlyphRunList.
+     * Draw the text specified by the GlyphRunList.
      *
      * @param viewMatrix      transformationMatrix
      * @param glyphRunList    text, text positions, and paint.
@@ -486,7 +489,7 @@ public:
     void drawGlyphRunList(SkCanvas*,
                           const GrClip*,
                           const SkMatrixProvider& viewMatrix,
-                          const SkGlyphRunList& glyphRunList,
+                          const sktext::GlyphRunList& glyphRunList,
                           SkStrikeDeviceInfo strikeDeviceInfo,
                           const SkPaint& paint);
 

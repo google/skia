@@ -7,8 +7,8 @@
 
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
-#include "src/core/SkGlyphRun.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/text/GlyphRun.h"
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #endif
@@ -32,7 +32,7 @@ TextBlobRedrawCoordinator::TextBlobRedrawCoordinator(uint32_t messageBusID)
 void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
                                                  const GrClip* clip,
                                                  const SkMatrixProvider& viewMatrix,
-                                                 const SkGlyphRunList& glyphRunList,
+                                                 const GlyphRunList& glyphRunList,
                                                  const SkPaint& paint,
                                                  SkStrikeDeviceInfo strikeDeviceInfo,
                                                  skgpu::v1::SurfaceDrawContext* sdc) {
@@ -46,7 +46,7 @@ void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
 #if defined(SK_GRAPHITE_ENABLED)
 void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
                                                  const SkMatrixProvider& viewMatrix,
-                                                 const SkGlyphRunList& glyphRunList,
+                                                 const sktext::GlyphRunList& glyphRunList,
                                                  const SkPaint& paint,
                                                  SkStrikeDeviceInfo strikeDeviceInfo,
                                                  skgpu::graphite::Device* device) {
@@ -58,7 +58,7 @@ void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
 #endif
 
 sk_sp<TextBlob> TextBlobRedrawCoordinator::findOrCreateBlob(const SkMatrixProvider& viewMatrix,
-                                                            const SkGlyphRunList& glyphRunList,
+                                                            const GlyphRunList& glyphRunList,
                                                             const SkPaint& paint,
                                                             SkStrikeDeviceInfo strikeDeviceInfo) {
     SkMatrix positionMatrix{viewMatrix.localToDevice()};
@@ -93,7 +93,7 @@ sk_sp<TextBlob> TextBlobRedrawCoordinator::findOrCreateBlob(const SkMatrixProvid
 }
 
 sk_sp<TextBlob> TextBlobRedrawCoordinator::addOrReturnExisting(
-        const SkGlyphRunList& glyphRunList, sk_sp<TextBlob> blob) {
+        const GlyphRunList& glyphRunList, sk_sp<TextBlob> blob) {
     SkAutoSpinlock lock{fSpinLock};
     blob = this->internalAdd(std::move(blob));
     glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID);

@@ -19,8 +19,8 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/core/SkGlyphRun.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/text/GlyphRun.h"
 #include "tools/fonts/RandomScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN

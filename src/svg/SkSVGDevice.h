@@ -17,12 +17,15 @@
 
 #include <memory>
 
+namespace sktext {
+class GlyphRunList;
+}
+
 class SkBaseDevice;
 class SkBitmap;
 class SkBlender;
 class SkClipStack;
 class SkData;
-class SkGlyphRunList;
 class SkImage;
 class SkPaint;
 class SkPath;
@@ -58,7 +61,7 @@ protected:
                   bool pathIsMutable = false) override;
 
     void onDrawGlyphRunList(SkCanvas*,
-                            const SkGlyphRunList&,
+                            const sktext::GlyphRunList&,
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint) override;
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;

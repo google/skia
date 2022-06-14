@@ -109,7 +109,7 @@ protected:
     ///////////////////////////////////////////////////////////////////////////
 
     void onDrawGlyphRunList(SkCanvas*,
-                            const SkGlyphRunList&,
+                            const sktext::GlyphRunList&,
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint) override;
     bool onReadPixels(const SkPixmap&, int x, int y) override;

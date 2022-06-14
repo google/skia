@@ -158,12 +158,12 @@ protected:
     void onRestore() override { fClip.restore(); }
 
     void onDrawGlyphRunList(SkCanvas*,
-                            const SkGlyphRunList&,
+                            const sktext::GlyphRunList&,
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint) override;
 
     sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(
-            const SkGlyphRunList& glyphRunList,
+            const sktext::GlyphRunList& glyphRunList,
             const SkPaint& initialPaint,
             const SkPaint& drawingPaint) override;
 

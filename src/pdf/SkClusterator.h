@@ -7,16 +7,18 @@
 #ifndef SkClusterator_DEFINED
 #define SkClusterator_DEFINED
 
-#include <vector>
 #include <cstdint>
+#include <vector>
 
-class SkGlyphRun;
+namespace sktext {
+class GlyphRun;
+}
 
 /** Given the m-to-n glyph-to-character mapping data (as returned by
     harfbuzz), iterate over the clusters. */
 class SkClusterator {
 public:
-    SkClusterator(const SkGlyphRun& run);
+    SkClusterator(const sktext::GlyphRun& run);
     uint32_t glyphCount() const { return fGlyphCount; }
     bool reversedChars() const { return fReversedChars; }
     struct Cluster {
@@ -42,6 +44,4 @@ private:
     bool const fReversedChars;
     uint32_t fCurrentGlyphIndex = 0;
 };
-
-
 #endif  // SkClusterator_DEFINED

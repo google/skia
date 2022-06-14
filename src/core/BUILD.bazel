@@ -148,8 +148,6 @@ CORE_FILES = [
     "SkGlyph.h",
     "SkGlyphBuffer.cpp",
     "SkGlyphBuffer.h",
-    "SkGlyphRun.cpp",
-    "SkGlyphRun.h",
     "SkGlyphRunPainter.cpp",
     "SkGlyphRunPainter.h",
     "SkGpuBlurUtils.cpp",

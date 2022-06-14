@@ -526,7 +526,7 @@ void Device::drawImageRect(const SkImage* image, const SkRect* src, const SkRect
 }
 
 void Device::onDrawGlyphRunList(SkCanvas* canvas,
-                                const SkGlyphRunList& glyphRunList,
+                                const sktext::GlyphRunList& glyphRunList,
                                 const SkPaint& initialPaint,
                                 const SkPaint& drawingPaint) {
     fRecorder->priv().textBlobCache()->drawGlyphRunList(canvas,

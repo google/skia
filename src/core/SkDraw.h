@@ -63,7 +63,7 @@ public:
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
     void    drawGlyphRunList(SkCanvas* canvas,
                              SkGlyphRunListPainterCPU* glyphPainter,
-                             const SkGlyphRunList& glyphRunList,
+                             const sktext::GlyphRunList& glyphRunList,
                              const SkPaint& paint) const;
     /* If skipColorXform, skips color conversion when assigning per-vertex colors */
     void drawVertices(const SkVertices*,

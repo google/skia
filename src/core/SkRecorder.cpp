@@ -14,7 +14,7 @@
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkGlyphRun.h"
+#include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
 
 #include <memory>
@@ -241,7 +241,8 @@ void SkRecorder::onDrawSlug(const sktext::gpu::Slug* slug) {
 }
 #endif
 
-void SkRecorder::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+void SkRecorder::onDrawGlyphRunList(
+        const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
     sk_sp<SkTextBlob> blob = sk_ref_sp(glyphRunList.blob());
     if (glyphRunList.blob() == nullptr) {
         blob = glyphRunList.makeBlob();

@@ -17,7 +17,6 @@
 #include "include/core/SkVertices.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImagePriv.h"
@@ -32,6 +31,7 @@
 #include "src/core/SkTextBlobPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkLocalMatrixShader.h"
+#include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
 #if SK_SUPPORT_GPU
 #include "include/private/chromium/Slug.h"
@@ -388,7 +388,6 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 #include "src/core/SkUtils.h"
 
-
 // TODO: This does not work for arbitrary shader DAGs (when there is no single leaf local matrix).
 // What we really need is proper post-LM plumbing for shaders.
 static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatrix& m) {
@@ -426,7 +425,7 @@ static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatr
 }
 
 void SkBaseDevice::drawGlyphRunList(SkCanvas* canvas,
-                                    const SkGlyphRunList& glyphRunList,
+                                    const sktext::GlyphRunList& glyphRunList,
                                     const SkPaint& initialPaint,
                                     const SkPaint& drawingPaint) {
     if (!this->localToDevice().isFinite()) {
@@ -441,10 +440,10 @@ void SkBaseDevice::drawGlyphRunList(SkCanvas* canvas,
 }
 
 void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
-                                                    const SkGlyphRunList& glyphRunList,
+                                                    const sktext::GlyphRunList& glyphRunList,
                                                     const SkPaint& initialPaint,
                                                     const SkPaint& drawingPaint) {
-    for (const SkGlyphRun& run : glyphRunList) {
+    for (const sktext::GlyphRun& run : glyphRunList) {
         if (run.scaledRotations().empty()) {
             auto subList = glyphRunList.builder()->makeGlyphRunList(
                     run, run.sourceBounds(drawingPaint), {0, 0});
@@ -453,7 +452,7 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
             SkPoint origin = glyphRunList.origin();
             SkPoint sharedPos{0, 0};    // we're at the origin
             SkGlyphID sharedGlyphID;
-            SkGlyphRun glyphRun {
+            sktext::GlyphRun glyphRun {
                     run.font(),
                     SkSpan<const SkPoint>{&sharedPos, 1},
                     SkSpan<const SkGlyphID>{&sharedGlyphID, 1},
@@ -478,7 +477,7 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
                         make_post_inverse_lm(drawingPaint.getShader(), glyphToLocal));
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->concat(SkM44(glyphToLocal));
-                SkGlyphRunList subList = glyphRunList.builder()->makeGlyphRunList(
+                sktext::GlyphRunList subList = glyphRunList.builder()->makeGlyphRunList(
                         glyphRun, glyphRun.sourceBounds(drawingPaint), {0, 0});
                 this->drawGlyphRunList(canvas, subList, initialPaint, invertingPaint);
             }
@@ -488,7 +487,7 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
 
 #if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
 sk_sp<sktext::gpu::Slug> SkBaseDevice::convertGlyphRunListToSlug(
-        const SkGlyphRunList& glyphRunList,
+        const sktext::GlyphRunList& glyphRunList,
         const SkPaint& initialPaint,
         const SkPaint& drawingPaint) {
     return nullptr;

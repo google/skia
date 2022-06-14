@@ -20,7 +20,6 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -32,11 +31,12 @@
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUnion.h"
 #include "src/pdf/SkPDFUtils.h"
+#include "src/text/GlyphRun.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <memory>
 
 template <typename T>
@@ -384,15 +384,15 @@ DEF_TEST(SkPDF_Primitives_Color, reporter) {
     }
 }
 
-static SkGlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* pos,
+static sktext::GlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* pos,
                            const SkFont& font, const uint32_t* clusters,
                            size_t utf8TextByteLength, const char* utf8Text) {
-    return SkGlyphRun(font,
-                      SkSpan<const SkPoint>{pos, len},
-                      SkSpan<const SkGlyphID>{glyphs, len},
-                      SkSpan<const char>{utf8Text, utf8TextByteLength},
-                      SkSpan<const uint32_t>{clusters, len},
-                      SkSpan<const SkVector>{});
+    return sktext::GlyphRun(font,
+                            SkSpan<const SkPoint>{pos, len},
+                            SkSpan<const SkGlyphID>{glyphs, len},
+                            SkSpan<const char>{utf8Text, utf8TextByteLength},
+                            SkSpan<const uint32_t>{clusters, len},
+                            SkSpan<const SkVector>{});
 }
 
 DEF_TEST(SkPDF_Clusterator, reporter) {
@@ -404,7 +404,7 @@ DEF_TEST(SkPDF_Clusterator, reporter) {
         SkPoint pos[len] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
                                   {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
         const char text[] = "abcdefgh";
-        SkGlyphRun run = make_run(len, glyphs, pos, font, clusters, strlen(text), text);
+        sktext::GlyphRun run = make_run(len, glyphs, pos, font, clusters, strlen(text), text);
         SkClusterator clusterator(run);
         SkClusterator::Cluster expectations[] = {
             {&text[3], 1, 0, 1},
@@ -427,7 +427,7 @@ DEF_TEST(SkPDF_Clusterator, reporter) {
         const SkGlyphID glyphs[len] = { 43, 167, 79, 79, 82, };
         SkPoint pos[len] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
         const char text[] = "Ha\xCC\x8A" "llo";
-        SkGlyphRun run = make_run(len, glyphs, pos, font, clusters, strlen(text), text);
+        sktext::GlyphRun run = make_run(len, glyphs, pos, font, clusters, strlen(text), text);
         SkClusterator clusterator(run);
         SkClusterator::Cluster expectations[] = {
             {&text[0], 1, 0, 1},

@@ -26,7 +26,6 @@
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMaskFilterBase.h"
@@ -47,6 +46,7 @@
 #include "src/pdf/SkPDFShader.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUtils.h"
+#include "src/text/GlyphRun.h"
 #include "src/utils/SkClipStackUtils.h"
 #include "src/utils/SkUTF.h"
 
@@ -753,7 +753,7 @@ static bool contains(const SkRect& r, SkPoint p) {
 }
 
 void SkPDFDevice::drawGlyphRunAsPath(
-        const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint) {
+        const sktext::GlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint) {
     const SkFont& font = glyphRun.font();
     SkPath path;
 
@@ -778,7 +778,7 @@ void SkPDFDevice::drawGlyphRunAsPath(
 
     SkFont transparentFont = glyphRun.font();
     transparentFont.setEmbolden(false); // Stop Recursion
-    SkGlyphRun tmpGlyphRun(glyphRun, transparentFont);
+    sktext::GlyphRun tmpGlyphRun(glyphRun, transparentFont);
 
     SkPaint transparent;
     transparent.setColor(SK_ColorTRANSPARENT);
@@ -809,7 +809,7 @@ static bool needs_new_font(SkPDFFont* font, const SkGlyph* glyph,
 }
 
 void SkPDFDevice::internalDrawGlyphRun(
-        const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint) {
+        const sktext::GlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint) {
 
     const SkGlyphID* glyphIDs = glyphRun.glyphsIDs().data();
     uint32_t glyphCount = SkToU32(glyphRun.glyphsIDs().size());
@@ -948,11 +948,11 @@ void SkPDFDevice::internalDrawGlyphRun(
 }
 
 void SkPDFDevice::onDrawGlyphRunList(SkCanvas*,
-                                     const SkGlyphRunList& glyphRunList,
+                                     const sktext::GlyphRunList& glyphRunList,
                                      const SkPaint& initialPaint,
                                      const SkPaint& drawingPaint) {
     SkASSERT(!glyphRunList.hasRSXForm());
-    for (const SkGlyphRun& glyphRun : glyphRunList) {
+    for (const sktext::GlyphRun& glyphRun : glyphRunList) {
         this->internalDrawGlyphRun(glyphRun, glyphRunList.origin(), drawingPaint);
     }
 }

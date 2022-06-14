@@ -10,7 +10,6 @@
 #include "include/core/SkPoint3.h"
 #include "include/core/SkSpan.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/core/SkGlyphRun.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
@@ -26,6 +25,7 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/text/GlyphRun.h"
 #include "src/text/gpu/DistanceFieldAdjustTable.h"
 
 #include <new>
@@ -498,7 +498,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
     SkMatrix drawMatrix(mtxProvider.localToDevice());
     drawMatrix.preTranslate(x, y);
     auto drawOrigin = SkPoint::Make(x, y);
-    SkGlyphRunBuilder builder;
+    sktext::GlyphRunBuilder builder;
     auto glyphRunList = builder.textToGlyphRunList(font, skPaint, text, textLen, drawOrigin);
     if (glyphRunList.empty()) {
         return nullptr;

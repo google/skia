@@ -8,10 +8,10 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkGlyphBuffer.h"
-#include "src/core/SkGlyphRun.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/text/GlyphRun.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
