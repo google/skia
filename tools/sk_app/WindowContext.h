@@ -58,7 +58,7 @@ protected:
     virtual bool isGpuContext() { return true;  }
 
     sk_sp<GrDirectContext> fContext;
-#if SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE_ENABLED)
     std::unique_ptr<skgpu::graphite::Context> fGraphiteContext;
     std::unique_ptr<skgpu::graphite::Recorder> fGraphiteRecorder;
 #endif

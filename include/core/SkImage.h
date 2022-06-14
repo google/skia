@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrTypes.h"
 #endif
-#if SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE_ENABLED)
 #include "include/gpu/graphite/GraphiteTypes.h"
 #endif
 #include <functional>  // std::function
@@ -50,7 +50,7 @@ class SkYUVAPixmaps;
 
 enum class SkEncodedImageFormat;
 
-#if SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE_ENABLED)
 namespace skgpu::graphite {
 class Recorder;
 };
