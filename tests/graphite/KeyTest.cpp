@@ -85,6 +85,31 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) {
     REPORTER_ASSERT(reporter, key.isErrorKey());
 }
 
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context) {
+
+    auto dict = context->priv().shaderCodeDictionary();
+    static const int kBlockDataSize = 4;
+    static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
+            {"data", SkPaintParamsKey::DataPayloadType::kByte, kBlockDataSize},
+    };
+
+    int dummySnippetID1 = dict->addUserDefinedSnippet("key1", SkMakeSpan(kDataFields));
+    int dummySnippetID2 = dict->addUserDefinedSnippet("key2", SkMakeSpan(kDataFields));
+
+    SkPaintParamsKeyBuilder builderA(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builderB(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builderC(dict, SkBackend::kGraphite);
+    SkPaintParamsKey keyA = create_key(&builderA, dummySnippetID1, kBlockDataSize);
+    SkPaintParamsKey keyB = create_key(&builderB, dummySnippetID1, kBlockDataSize);
+    SkPaintParamsKey keyC = create_key(&builderC, dummySnippetID2, kBlockDataSize);
+
+    // Verify that keyA matches keyB, and that it does not match keyC.
+    REPORTER_ASSERT(reporter, keyA == keyB);
+    REPORTER_ASSERT(reporter, keyA != keyC);
+    REPORTER_ASSERT(reporter, !(keyA == keyC));
+    REPORTER_ASSERT(reporter, !(keyA != keyB));
+}
+
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksData, reporter, context) {
 
     auto dict = context->priv().shaderCodeDictionary();
