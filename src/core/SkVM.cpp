@@ -1617,10 +1617,8 @@ namespace skvm {
             lu = luminance(*r, *g, *b);
 
         auto clip = [&](auto c) {
-            c = select(mn >= 0, c
-                              , lu + ((c-lu)*(  lu)) / (lu-mn));
-            c = select(mx >  a, lu + ((c-lu)*(a-lu)) / (mx-lu)
-                              , c);
+            c = select(mn < 0 & lu != mn, lu + ((c-lu)*(  lu)) / (lu-mn), c);
+            c = select(mx > a & lu != mx, lu + ((c-lu)*(a-lu)) / (mx-lu), c);
             return clamp01(c);  // May be a little negative, or worse, NaN.
         };
         *r = clip(*r);
