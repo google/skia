@@ -175,6 +175,10 @@ DEF_TEST(Utils, reporter) {
     test_autostarray(reporter);
 }
 
+static bool test_function(SkSpan<const int> s) {
+    return s[0] == 1 && s[1] == 2 && s[2] == 3;
+}
+
 DEF_TEST(SkSpan, reporter) {
     // Test constness preservation for SkMakeSpan.
     {
@@ -240,10 +244,7 @@ DEF_TEST(SkSpan, reporter) {
 
     {
         // Uses SkMakeSpan(std::initializer_list<T> il)
-        auto s= SkMakeSpan({1, 2, 3});
-        REPORTER_ASSERT(reporter, s[0] == 1);
-        REPORTER_ASSERT(reporter, s[1] == 2);
-        REPORTER_ASSERT(reporter, s[2] == 3);
+        REPORTER_ASSERT(reporter, test_function(SkMakeSpan({1, 2, 3})));
     }
 }
 
