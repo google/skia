@@ -3246,7 +3246,7 @@
         {
           "name": "skia/bots/bazel_build_task_driver",
           "path": "bazel_build_task_driver",
-          "version": "version:0"
+          "version": "version:1"
         },
         {
           "name": "skia/bots/bazelisk",
@@ -3288,7 +3288,7 @@
         {
           "name": "skia/bots/bazel_build_task_driver",
           "path": "bazel_build_task_driver",
-          "version": "version:0"
+          "version": "version:1"
         },
         {
           "name": "skia/bots/bazelisk",
@@ -3330,7 +3330,7 @@
         {
           "name": "skia/bots/bazel_build_task_driver",
           "path": "bazel_build_task_driver",
-          "version": "version:0"
+          "version": "version:1"
         },
         {
           "name": "skia/bots/bazelisk",
@@ -3372,7 +3372,7 @@
         {
           "name": "skia/bots/bazel_build_task_driver",
           "path": "bazel_build_task_driver",
-          "version": "version:0"
+          "version": "version:1"
         },
         {
           "name": "skia/bots/bazelisk",
@@ -3414,7 +3414,7 @@
         {
           "name": "skia/bots/bazel_build_task_driver",
           "path": "bazel_build_task_driver",
-          "version": "version:0"
+          "version": "version:1"
         },
         {
           "name": "skia/bots/bazelisk",
@@ -3456,7 +3456,7 @@
         {
           "name": "skia/bots/bazel_build_task_driver",
           "path": "bazel_build_task_driver",
-          "version": "version:0"
+          "version": "version:1"
         },
         {
           "name": "skia/bots/bazelisk",
@@ -3498,7 +3498,7 @@
         {
           "name": "skia/bots/bazel_build_task_driver",
           "path": "bazel_build_task_driver",
-          "version": "version:0"
+          "version": "version:1"
         },
         {
           "name": "skia/bots/bazelisk",
@@ -3514,6 +3514,7 @@
         "--label=//modules/canvaskit:canvaskit_wasm",
         "--config=debug",
         "--workdir=.",
+        "--expunge_cache",
         "--bazel_arg=--config=linux_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
@@ -3540,7 +3541,7 @@
         {
           "name": "skia/bots/bazel_build_task_driver",
           "path": "bazel_build_task_driver",
-          "version": "version:0"
+          "version": "version:1"
         },
         {
           "name": "skia/bots/bazelisk",
@@ -3582,7 +3583,7 @@
         {
           "name": "skia/bots/bazel_build_task_driver",
           "path": "bazel_build_task_driver",
-          "version": "version:0"
+          "version": "version:1"
         },
         {
           "name": "skia/bots/bazelisk",

@@ -24,14 +24,15 @@ import (
 
 var (
 	// Required properties for this task.
-	bazelArgs = common.NewMultiStringFlag("bazel_arg", nil, "Additional arguments that should be forwarded directly to the Bazel invocation.")
-	cross     = flag.String("cross", "", "An identifier specifying the target platform that Bazel should build for. If empty, Bazel builds for the host platform (the machine on which this executable is run).")
-	config    = flag.String("config", "", "A custom configuration specified in //bazel/buildrc. This configuration potentially encapsulates many features and options.")
-	projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
-	label     = flag.String("label", "", "An absolute label to the target that should be built.")
-	taskId    = flag.String("task_id", "", "ID of this task.")
-	taskName  = flag.String("task_name", "", "Name of the task.")
-	workdir   = flag.String("workdir", ".", "Working directory, the root directory of a full Skia checkout")
+	bazelArgs    = common.NewMultiStringFlag("bazel_arg", nil, "Additional arguments that should be forwarded directly to the Bazel invocation.")
+	cross        = flag.String("cross", "", "An identifier specifying the target platform that Bazel should build for. If empty, Bazel builds for the host platform (the machine on which this executable is run).")
+	config       = flag.String("config", "", "A custom configuration specified in //bazel/buildrc. This configuration potentially encapsulates many features and options.")
+	expungeCache = flag.Bool("expunge_cache", false, "If set, the Bazel cache will be cleaned with --expunge before execution. We should only have to set this rarely, if something gets messed up.")
+	projectId    = flag.String("project_id", "", "ID of the Google Cloud project.")
+	label        = flag.String("label", "", "An absolute label to the target that should be built.")
+	taskId       = flag.String("task_id", "", "ID of this task.")
+	taskName     = flag.String("task_name", "", "Name of the task.")
+	workdir      = flag.String("workdir", ".", "Working directory, the root directory of a full Skia checkout")
 	// Optional flags.
 	local  = flag.Bool("local", false, "True if running locally (as opposed to on the CI/CQ)")
 	output = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
@@ -67,6 +68,12 @@ func main() {
 		td.Fatal(ctx, fmt.Errorf("cross compilation not yet supported"))
 	}
 
+	if *expungeCache {
+		if err := bazelClean(ctx, skiaDir); err != nil {
+			td.Fatal(ctx, err)
+		}
+	}
+
 	if err := bazelBuild(ctx, skiaDir, *label, *config, *bazelArgs...); err != nil {
 		td.Fatal(ctx, err)
 	}
@@ -85,6 +92,25 @@ func bazelBuild(ctx context.Context, checkoutDir, label, config string, args ...
 				label,
 				"--config=" + config, // Should be defined in //bazel/buildrc
 			}, args...),
+			InheritEnv: true, // Makes sure bazelisk is on PATH
+			Dir:        checkoutDir,
+			LogStdout:  true,
+			LogStderr:  true,
+		}
+		_, err := sk_exec.RunCommand(ctx, runCmd)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+// bazelClean cleans the bazel cache and the external directory via the --expunge flag.
+func bazelClean(ctx context.Context, checkoutDir string) error {
+	return td.Do(ctx, td.Props("Cleaning cache with --expunge"), func(ctx context.Context) error {
+		runCmd := &sk_exec.Command{
+			Name:       "bazelisk",
+			Args:       append([]string{"clean", "--expunge"}),
 			InheritEnv: true, // Makes sure bazelisk is on PATH
 			Dir:        checkoutDir,
 			LogStdout:  true,
