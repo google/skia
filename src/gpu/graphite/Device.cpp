@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/SkStuff.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -26,6 +27,7 @@
 #include "src/gpu/graphite/geom/IntersectionTree.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
+#include "src/gpu/graphite/text/AtlasManager.h"
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPath.h"
@@ -38,6 +40,7 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/shaders/SkImageShader.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 #include <unordered_map>
 #include <vector>
@@ -191,6 +194,8 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         , fDisjointStencilSet(std::make_unique<IntersectionTreeSet>())
         , fCachedLocalToDevice(SkM44())
         , fCurrentDepth(DrawOrder::kClearDepth)
+        // TODO: set this up based on ContextOptions
+        , fSDFTControl(true, false, 18, 324)
         , fDrawsOverlap(false) {
     SkASSERT(SkToBool(fDC) && SkToBool(fRecorder));
     fRecorder->registerDevice(this);
@@ -212,6 +217,10 @@ const Transform& Device::localToDeviceTransform() {
         fCachedLocalToDevice = Transform{this->localToDevice44()};
     }
     return fCachedLocalToDevice;
+}
+
+SkStrikeDeviceInfo Device::strikeDeviceInfo() const {
+    return {this->surfaceProps(), this->scalerContextFlags(), &fSDFTControl};
 }
 
 SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
@@ -515,6 +524,18 @@ void Device::drawImageRect(const SkImage* image, const SkRect* src, const SkRect
     this->drawRect(tmpDst, paintWithShader);
 }
 
+void Device::onDrawGlyphRunList(SkCanvas* canvas,
+                                const SkGlyphRunList& glyphRunList,
+                                const SkPaint& initialPaint,
+                                const SkPaint& drawingPaint) {
+    fRecorder->priv().textBlobCache()->drawGlyphRunList(canvas,
+                                                        this->asMatrixProvider(),
+                                                        glyphRunList,
+                                                        drawingPaint,
+                                                        this->strikeDeviceInfo(),
+                                                        this);
+}
+
 void Device::drawShape(const Shape& shape,
                        const SkPaint& paint,
                        const SkStrokeRec& style,
@@ -682,6 +703,8 @@ void Device::recordDraw(const Transform& localToDevice,
     // so we will need to take into account the previous draw. Since no Renderer uses coverage AA
     // right now, it's not an issue yet.
     fDC->recordDraw(*renderer, localToDevice, shape, clip, ordering, paint, stroke);
+
+    fRecorder->priv().tokenTracker()->issueDrawToken();
 }
 
 void Device::flushPendingWorkToRecorder() {
@@ -689,6 +712,12 @@ void Device::flushPendingWorkToRecorder() {
 
     // TODO: we may need to further split this function up since device->device drawList and
     // DrawPass stealing will need to share some of the same logic w/o becoming a Task.
+
+    // push any pending uploads from the atlasmanager
+    auto atlasManager = fRecorder->priv().atlasManager();
+    if (!atlasManager->recordUploads(fDC.get())) {
+        SKGPU_LOG_E("AtlasManager uploads have failed -- may see invalid results.");
+    }
 
     auto uploadTask = fDC->snapUploadTask(fRecorder);
     if (uploadTask) {
@@ -708,6 +737,8 @@ void Device::flushPendingWorkToRecorder() {
     fCurrentDepth = DrawOrder::kClearDepth;
     // NOTE: fDrawsOverlap is not reset here because that is a persistent property of everything
     // drawn into the Device, and not just the currently accumulating pass.
+
+    fRecorder->priv().tokenTracker()->flushToken();
 }
 
 bool Device::needsFlushBeforeDraw(int numNewDraws) const {

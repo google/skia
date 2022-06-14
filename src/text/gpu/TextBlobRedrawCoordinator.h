@@ -41,6 +41,15 @@ public:
                           SkStrikeDeviceInfo strikeDeviceInfo,
                           skgpu::v1::SurfaceDrawContext* sdc);
 #endif
+#if defined(SK_GRAPHITE_ENABLED)
+    void drawGlyphRunList(SkCanvas* canvas,
+                          const SkMatrixProvider& viewMatrix,
+                          const SkGlyphRunList& glyphRunList,
+                          const SkPaint& paint,
+                          SkStrikeDeviceInfo strikeDeviceInfo,
+                          skgpu::graphite::Device* device);
+#endif
+
     void freeAll() SK_EXCLUDES(fSpinLock);
 
     struct PurgeBlobMessage {

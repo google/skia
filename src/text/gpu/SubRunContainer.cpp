@@ -2412,6 +2412,19 @@ void SubRunContainer::draw(SkCanvas* canvas,
 }
 #endif  // SK_SUPPORT_GPU
 
+#if defined(SK_GRAPHITE_ENABLED)
+void SubRunContainer::draw(SkCanvas* canvas,
+                           const SkMatrixProvider& viewMatrix,
+                           SkPoint drawOrigin,
+                           const SkPaint& paint,
+                           const SkRefCnt* subRunStorage,
+                           skgpu::graphite::Device* device) const {
+    for (auto& subRun : fSubRuns) {
+        subRun.draw(canvas, viewMatrix, drawOrigin, paint, sk_ref_sp(subRunStorage), device);
+    }
+}
+#endif
+
 bool SubRunContainer::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
     for (const SubRun& subRun : fSubRuns) {
         if (!subRun.canReuse(paint, positionMatrix)) {

@@ -23,22 +23,34 @@
 #include "src/gpu/graphite/UploadBufferManager.h"
 #include "src/gpu/graphite/text/AtlasManager.h"
 #include "src/text/gpu/StrikeCache.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
+
+static int32_t next_id() {
+    static std::atomic<int32_t> nextID{1};
+    int32_t id;
+    do {
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
+    } while (id == SK_InvalidGenID);
+    return id;
+}
 
 Recorder::Recorder(sk_sp<Gpu> gpu, sk_sp<GlobalCache> globalCache)
         : fGpu(std::move(gpu))
         , fGraph(new TaskGraph)
         , fUniformDataCache(new UniformDataCache)
         , fTextureDataCache(new TextureDataCache)
+        , fRecorderID(next_id())
         // TODO: add config to control maxTextureBytes
         , fAtlasManager(std::make_unique<AtlasManager>(this, 2048*2048,
                                                        DrawAtlas::AllowMultitexturing::kYes,
                                                        false))
         , fTokenTracker(std::make_unique<TokenTracker>())
-        , fStrikeCache(std::make_unique<sktext::gpu::StrikeCache>()) {
+        , fStrikeCache(std::make_unique<sktext::gpu::StrikeCache>())
+        , fTextBlobCache(std::make_unique<sktext::gpu::TextBlobRedrawCoordinator>(fRecorderID)) {
 
     fResourceProvider = fGpu->makeResourceProvider(std::move(globalCache), this->singleOwner());
     fDrawBufferManager.reset(new DrawBufferManager(fResourceProvider.get(),

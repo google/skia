@@ -22,6 +22,7 @@
 
 class GrOpFlushState;
 class TestingUploadTarget;
+namespace skgpu::graphite { class Device; }
 
 /**
  * This file includes internal types that are used by all of our gpu backends for atlases.
@@ -205,6 +206,7 @@ private:
     // Only these classes get to increment the token counters
     friend class ::GrOpFlushState;
     friend class ::TestingUploadTarget;
+    friend class skgpu::graphite::Device;
 
     /** Issues the next token for a draw. */
     DrawToken issueDrawToken() { return ++fLastIssuedToken; }

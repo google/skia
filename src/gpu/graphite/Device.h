@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
+#include "src/text/gpu/SDFTControl.h"
 
 class SkStrokeRec;
 
@@ -55,6 +56,8 @@ public:
     bool readPixels(Context*, Recorder*, const SkPixmap& dst, int x, int y);
 
     const Transform& localToDeviceTransform();
+
+    SkStrikeDeviceInfo strikeDeviceInfo() const override;
 
 #if GRAPHITE_TEST_UTILS
     TextureProxy* proxy();
@@ -108,6 +111,9 @@ private:
 
     bool onWritePixels(const SkPixmap&, int x, int y) override;
 
+    void onDrawGlyphRunList(SkCanvas*, const SkGlyphRunList&,
+                            const SkPaint&, const SkPaint&) override;
+
     // TODO: This will likely be implemented with the same primitive building block that drawRect
     // and drawRRect will rely on.
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
@@ -133,8 +139,6 @@ private:
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override {}
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override {}
-    void onDrawGlyphRunList(
-            SkCanvas*, const SkGlyphRunList&, const SkPaint&, const SkPaint&) override {}
 
     void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override {}
     void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice,
@@ -194,6 +198,8 @@ private:
 
     // The max depth value sent to the DrawContext, incremented so each draw has a unique value.
     PaintersDepth fCurrentDepth;
+
+    const sktext::gpu::SDFTControl fSDFTControl;
 
     bool fDrawsOverlap;
 

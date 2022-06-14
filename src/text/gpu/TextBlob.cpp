@@ -406,6 +406,16 @@ void TextBlob::draw(SkCanvas* canvas,
 }
 #endif
 
+#if defined(SK_GRAPHITE_ENABLED)
+void TextBlob::draw(SkCanvas* canvas,
+                    const SkMatrixProvider& viewMatrix,
+                    SkPoint drawOrigin,
+                    const SkPaint& paint,
+                    skgpu::graphite::Device* device) {
+    fSubRuns->draw(canvas, viewMatrix, drawOrigin, paint, this, device);
+}
+#endif
+
 #if GR_TEST_UTILS
 struct SubRunContainerPeer {
     static const AtlasSubRun* getAtlasSubRun(const SubRunContainer& subRuns) {
