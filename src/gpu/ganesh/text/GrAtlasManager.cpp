@@ -132,22 +132,11 @@ static void get_packed_glyph_image(
             }
         }
     } else {
-        // crbug:510931
-        // Retrieving the image from the cache can actually change the mask format. This case is
-        // very uncommon so for now we just draw a clear box for these glyphs.
-        const int bpp = MaskFormatBytesPerPixel(expectedMaskFormat);
-        for (int y = 0; y < height; y++) {
-            sk_bzero(dst, width * bpp);
-            dst = (char*)dst + dstRB;
-        }
+        SkUNREACHABLE;
     }
 }
 
-// returns true if glyph successfully added to texture atlas, false otherwise.  If the glyph's
-// mask format has changed, then addGlyphToAtlas will draw a clear box.  This will almost never
-// happen.
-// TODO we can handle some of these cases if we really want to, but the long term solution is to
-// get the actual glyph image itself when we get the glyph metrics.
+// returns true if glyph successfully added to texture atlas, false otherwise.
 GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                          Glyph* glyph,
                                                          int srcPadding,
