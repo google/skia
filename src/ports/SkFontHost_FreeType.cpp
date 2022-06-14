@@ -122,7 +122,7 @@ static_assert(std::is_same<FT_Alloc_size_t, long  >::value ||
 
 extern "C" {
     static void* sk_ft_alloc(FT_Memory, FT_Alloc_size_t size) {
-        return sk_malloc_throw(size);
+        return sk_malloc_canfail(size);
     }
     static void sk_ft_free(FT_Memory, void* block) {
         sk_free(block);
