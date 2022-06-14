@@ -303,7 +303,7 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
                                     int indent) {
     const SkShaderSnippet* entry = reader.entry();
 
-    SkASSERT((int)childOutputVarNames.size() == entry->numExpectedChildren());
+    SkASSERT((int)childOutputVarNames.size() == entry->fNumChildren);
 
     if (entry->needsLocalCoords()) {
         // Every snippet that requests local coordinates must have a localMatrix as its first

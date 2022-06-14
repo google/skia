@@ -78,8 +78,6 @@ struct SkShaderSnippet {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
     }
 
-    int numExpectedChildren() const { return fNumChildren; }
-
     const char* fName = nullptr;
     SkSpan<const SkUniform> fUniforms;
     SnippetRequirementFlags fSnippetRequirementFlags;
