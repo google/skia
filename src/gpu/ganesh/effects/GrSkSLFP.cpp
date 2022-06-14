@@ -252,8 +252,8 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         pdman.setRuntimeEffectUniforms(outer.fEffect->uniforms(),
-                                       SkMakeSpan(fUniformHandles),
-                                       SkMakeSpan(outer.specialized(), outer.uniformCount()),
+                                       SkSpan(fUniformHandles),
+                                       SkSpan(outer.specialized(), outer.uniformCount()),
                                        outer.uniformData());
     }
 

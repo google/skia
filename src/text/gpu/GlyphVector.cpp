@@ -32,7 +32,7 @@ GlyphVector GlyphVector::Make(
         variants[i] = gv.glyph()->getPackedID();
     }
 
-    return GlyphVector{std::move(strike), SkMakeSpan(variants, glyphs.size())};
+    return GlyphVector{std::move(strike), SkSpan(variants, glyphs.size())};
 }
 
 std::optional<GlyphVector> GlyphVector::MakeFromBuffer(SkReadBuffer& buffer,
@@ -64,7 +64,7 @@ std::optional<GlyphVector> GlyphVector::MakeFromBuffer(SkReadBuffer& buffer,
     for (int i = 0; i < glyphCount; i++) {
         variants[i].packedGlyphID = SkPackedGlyphID(buffer.readUInt());
     }
-    return {GlyphVector{std::move(strike), SkMakeSpan(variants, glyphCount)}};
+    return {GlyphVector{std::move(strike), SkSpan(variants, glyphCount)}};
 }
 
 void GlyphVector::flatten(SkWriteBuffer& buffer) {
@@ -82,7 +82,7 @@ void GlyphVector::flatten(SkWriteBuffer& buffer) {
 }
 
 SkSpan<const Glyph*> GlyphVector::glyphs() const {
-    return SkMakeSpan(reinterpret_cast<const Glyph**>(fGlyphs.data()), fGlyphs.size());
+    return SkSpan(reinterpret_cast<const Glyph**>(fGlyphs.data()), fGlyphs.size());
 }
 
 // packedGlyphIDToGlyph must be run in single-threaded mode.

@@ -65,7 +65,7 @@ DEF_TEST(SkShaperTest_cluster, reporter) {
         };
 
         SkShaperJSONWriter::BreakupClusters(
-                0, oneCase.utf8Len, SkMakeSpan(oneCase.clusters), checker);
+                0, oneCase.utf8Len, SkSpan(oneCase.clusters), checker);
         REPORTER_ASSERT(reporter, answerCount == oneCase.answers.size());
     }
 }
@@ -114,8 +114,8 @@ DEF_TEST(SkShaperTest_VisualizeCluster, reporter) {
 
         SkShaperJSONWriter::VisualizeClusters(oneCase.utf8.c_str(),
                                               0, oneCase.utf8.size(),
-                                              SkMakeSpan(oneCase.glyphIDs),
-                                              SkMakeSpan(oneCase.clusters),
+                                              SkSpan(oneCase.glyphIDs),
+                                              SkSpan(oneCase.clusters),
                                               checker);
     }
 }

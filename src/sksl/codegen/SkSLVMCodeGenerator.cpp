@@ -155,7 +155,7 @@ struct Value {
         return fVals[i];
     }
 
-    SkSpan<skvm::Val> asSpan() { return SkMakeSpan(fVals); }
+    SkSpan<skvm::Val> asSpan() { return SkSpan(fVals); }
 
 private:
     SkSTArray<4, skvm::Val, true> fVals;
@@ -1599,7 +1599,7 @@ Value SkVMGenerator::writeFunctionCall(const FunctionCall& call) {
         // This merges currentFunction().fReturned into fConditionMask. Lanes that conditionally
         // returned in the current function would otherwise resume execution within the child.
         ScopedCondition m(this, ~currentFunction().fReturned);
-        returnSlot = this->writeFunction(call, funcDef, SkMakeSpan(argVals));
+        returnSlot = this->writeFunction(call, funcDef, SkSpan(argVals));
     }
 
     // Propagate new values of any 'out' params back to the original arguments
@@ -2153,7 +2153,7 @@ skvm::Color ProgramToSkVM(const Program& program,
     }
 
     SkVMGenerator generator(program, builder, debugTrace, callbacks);
-    generator.writeProgram(uniforms, device, function, {args, argSlots}, SkMakeSpan(result));
+    generator.writeProgram(uniforms, device, function, {args, argSlots}, SkSpan(result));
 
     return skvm::Color{{builder, result[0]},
                        {builder, result[1]},
@@ -2232,7 +2232,7 @@ bool ProgramToSkVM(const Program& program,
     Callbacks callbacks(sampledColor);
 
     SkVMGenerator generator(program, b, debugTrace, &callbacks);
-    generator.writeProgram(uniforms, device, function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
+    generator.writeProgram(uniforms, device, function, SkSpan(argVals), SkSpan(returnVals));
 
     // If the SkSL tried to use any shader, colorFilter, or blender objects - we don't have a
     // mechanism (yet) for binding to those.
@@ -2396,7 +2396,7 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
     skvm::Color destColor = builder->uniformColor(SkColors::kBlack, &uniforms);
 
     skvm::Color result = SkSL::ProgramToSkVM(program, *main, builder, debugTrace,
-                                             SkMakeSpan(uniformVals), device, local, inColor,
+                                             SkSpan(uniformVals), device, local, inColor,
                                              destColor, &callbacks);
 
     storeF(builder->varying<float>(), result.r);

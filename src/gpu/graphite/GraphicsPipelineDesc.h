@@ -30,7 +30,7 @@ class GraphicsPipelineDesc {
 public:
     GraphicsPipelineDesc();
 
-    SkSpan<const uint32_t> asKey() const { return SkMakeSpan(fKey.data(), fKey.size()); }
+    SkSpan<const uint32_t> asKey() const { return SkSpan(fKey.data(), fKey.size()); }
 
     bool operator==(const GraphicsPipelineDesc& that) const {
         return this->fKey == that.fKey;

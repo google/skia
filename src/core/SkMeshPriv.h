@@ -29,7 +29,7 @@ struct SkMeshSpecificationPriv {
     using ColorType = SkMeshSpecification::ColorType;
 
     static SkSpan<const Varying> Varyings(const SkMeshSpecification& spec) {
-        return SkMakeSpan(spec.fVaryings);
+        return SkSpan(spec.fVaryings);
     }
 
     static const SkSL::Program* VS(const SkMeshSpecification& spec) { return spec.fVS.get(); }

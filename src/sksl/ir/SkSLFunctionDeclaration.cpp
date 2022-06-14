@@ -335,11 +335,11 @@ static bool find_existing_declaration(const Context& context,
         const FunctionDeclaration* declPtr;
         switch (entry->kind()) {
             case Symbol::Kind::kUnresolvedFunction:
-                functions = SkMakeSpan(entry->as<UnresolvedFunction>().functions());
+                functions = SkSpan(entry->as<UnresolvedFunction>().functions());
                 break;
             case Symbol::Kind::kFunctionDeclaration:
                 declPtr = &entry->as<FunctionDeclaration>();
-                functions = SkMakeSpan(&declPtr, 1);
+                functions = SkSpan(&declPtr, 1);
                 break;
             default:
                 errors.error(pos, "symbol '" + std::string(name) + "' was already defined");

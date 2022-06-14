@@ -120,8 +120,8 @@ static std::unique_ptr<GrFragmentProcessor> make_dual_interval_colorizer(const S
                            vc2 - threshold * scale[1]};
     return GrSkSLFP::Make(effect, "DualIntervalColorizer", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kNone,
-                          "scale", SkMakeSpan(scale),
-                          "bias", SkMakeSpan(bias),
+                          "scale", SkSpan(scale),
+                          "bias", SkSpan(bias),
                           "threshold", threshold);
 }
 
@@ -235,8 +235,8 @@ static std::unique_ptr<GrFragmentProcessor> make_unrolled_colorizer(int interval
                           /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kNone,
                           "thresholds1_7", thresholds1_7,
                           "thresholds9_13", thresholds9_13,
-                          "scale", SkMakeSpan(scale, intervalCount),
-                          "bias", SkMakeSpan(bias, intervalCount));
+                          "scale", SkSpan(scale, intervalCount),
+                          "bias", SkSpan(bias, intervalCount));
 }
 
 // The "looping" colorizer uses a real loop to binary-search the array of gradient stops.
@@ -325,9 +325,9 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
 
     return GrSkSLFP::Make(cacheEntry->effect, "LoopingBinaryColorizer",
                           /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kNone,
-                          "thresholds", SkMakeSpan((const SkV4*)thresholds, intervalChunks),
-                          "scale", SkMakeSpan(scale, intervalCount),
-                          "bias", SkMakeSpan(bias, intervalCount));
+                          "thresholds", SkSpan((const SkV4*)thresholds, intervalChunks),
+                          "scale", SkSpan(scale, intervalCount),
+                          "bias", SkSpan(bias, intervalCount));
 }
 
 // Converts an input array of {colors, positions} into an array of {scales, biases, thresholds}.

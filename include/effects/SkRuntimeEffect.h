@@ -245,8 +245,8 @@ public:
     // provide an SkData of this size, containing values for all of those variables.
     size_t uniformSize() const;
 
-    SkSpan<const Uniform> uniforms() const { return SkMakeSpan(fUniforms); }
-    SkSpan<const Child> children() const { return SkMakeSpan(fChildren); }
+    SkSpan<const Uniform> uniforms() const { return SkSpan(fUniforms); }
+    SkSpan<const Child> children() const { return SkSpan(fChildren); }
 
     // Returns pointer to the named uniform variable's description, or nullptr if not found
     const Uniform* findUniform(const char* name) const;

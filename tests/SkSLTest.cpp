@@ -130,7 +130,7 @@ static SkBitmap bitmap_from_shader(skiatest::Reporter* r,
                                                                    5,  6,  7,  8,
                                                                    9,  10, 11, 12,
                                                                    13, 14, 15, 16});
-    set_uniform_array(&builder, "testArray",  SkMakeSpan(kArray));
+    set_uniform_array(&builder, "testArray",  SkSpan(kArray));
 
     sk_sp<SkShader> shader = builder.makeShader();
     if (!shader) {

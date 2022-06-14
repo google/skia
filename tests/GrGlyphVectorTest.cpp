@@ -46,7 +46,7 @@ DEF_TEST(GlyphVector_Serialization, r) {
     }
 
     GlyphVector src = GlyphVector::Make(
-            strikeSpec.findOrCreateStrike(), SkMakeSpan(glyphs, N), &alloc);
+            strikeSpec.findOrCreateStrike(), SkSpan(glyphs, N), &alloc);
 
     SkBinaryWriteBuffer wBuffer;
     src.flatten(wBuffer);

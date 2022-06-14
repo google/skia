@@ -22,10 +22,10 @@ static SkSpan<const FunctionDeclaration* const> get_overload_set(
     switch (s.kind()) {
         case Symbol::Kind::kFunctionDeclaration:
             scratchPtr = &s.as<FunctionDeclaration>();
-            return SkMakeSpan(&scratchPtr, 1);
+            return SkSpan(&scratchPtr, 1);
 
         case Symbol::Kind::kUnresolvedFunction:
-            return SkMakeSpan(s.as<UnresolvedFunction>().functions());
+            return SkSpan(s.as<UnresolvedFunction>().functions());
 
         default:
             return SkSpan<const FunctionDeclaration* const>{};

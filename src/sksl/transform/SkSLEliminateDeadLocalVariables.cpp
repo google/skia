@@ -112,13 +112,13 @@ static bool eliminate_dead_local_variables(const Context& context,
 bool Transform::EliminateDeadLocalVariables(const Context& context,
                                             LoadedModule& module,
                                             ProgramUsage* usage) {
-    return eliminate_dead_local_variables(context, SkMakeSpan(module.fElements), usage);
+    return eliminate_dead_local_variables(context, SkSpan(module.fElements), usage);
 }
 
 bool Transform::EliminateDeadLocalVariables(Program& program, ProgramUsage* usage) {
     return program.fConfig->fSettings.fRemoveDeadVariables
                    ? eliminate_dead_local_variables(*program.fContext,
-                                                    SkMakeSpan(program.fOwnedElements),
+                                                    SkSpan(program.fOwnedElements),
                                                     usage)
                    : false;
 }

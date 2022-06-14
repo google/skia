@@ -95,9 +95,9 @@ public:
 
     // The uniforms of a RenderStep are bound to the kRenderStep slot, the rest of the pipeline
     // may still use uniforms bound to other slots.
-    SkSpan<const SkUniform> uniforms()           const { return SkMakeSpan(fUniforms);      }
-    SkSpan<const Attribute> vertexAttributes()   const { return SkMakeSpan(fVertexAttrs);   }
-    SkSpan<const Attribute> instanceAttributes() const { return SkMakeSpan(fInstanceAttrs); }
+    SkSpan<const SkUniform> uniforms()           const { return SkSpan(fUniforms);      }
+    SkSpan<const Attribute> vertexAttributes()   const { return SkSpan(fVertexAttrs);   }
+    SkSpan<const Attribute> instanceAttributes() const { return SkSpan(fInstanceAttrs); }
 
 
     // TODO: Actual API to do things

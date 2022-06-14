@@ -111,7 +111,7 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
     subset.getSetValues([&](unsigned index) {
         glyphIDs.push_back(SkToU16(index));
     });
-    auto glyphs = paths.glyphs(SkMakeSpan(glyphIDs));
+    auto glyphs = paths.glyphs(SkSpan(glyphIDs));
 
 #if defined(SK_PDF_CAN_USE_DW)
     std::vector<int16_t> advances;
@@ -120,7 +120,7 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
         advances.push_back((int16_t)glyph->advanceX());
     }
     std::sort(advances.begin(), advances.end());
-    int16_t modeAdvance = findMode(SkMakeSpan(advances));
+    int16_t modeAdvance = findMode(SkSpan(advances));
     *defaultAdvance = scale_from_font_units(modeAdvance, emSize);
 #else
     *defaultAdvance = 0;

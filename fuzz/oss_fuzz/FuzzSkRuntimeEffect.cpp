@@ -82,7 +82,7 @@ static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> codeBytes,
         }
     }
 
-    sk_sp<SkShader> shader = effect->makeShader(uniformBytes, SkMakeSpan(children));
+    sk_sp<SkShader> shader = effect->makeShader(uniformBytes, SkSpan(children));
     if (!shader) {
         return false;
     }

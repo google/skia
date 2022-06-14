@@ -85,7 +85,7 @@ private:
             }
             if (mgp.fUniforms) {
                 pdman.setRuntimeEffectUniforms(mgp.fSpec->uniforms(),
-                                               SkMakeSpan(fSpecUniformHandles),
+                                               SkSpan(fSpecUniformHandles),
                                                mgp.fUniforms->data());
             }
         }
@@ -682,9 +682,9 @@ static sk_sp<SkMeshSpecification> make_vertices_spec(bool hasColors, bool hasTex
     vs += "return a.pos;\n}";
     fs += "}";
     auto [spec, error] = SkMeshSpecification::Make(
-            SkMakeSpan(attributes),
+            SkSpan(attributes),
             size,
-            SkMakeSpan(varyings),
+            SkSpan(varyings),
             vs,
             fs);
     SkASSERT(spec);

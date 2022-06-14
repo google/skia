@@ -509,7 +509,7 @@ UniformManager::UniformManager(Layout layout) : fLayout(layout) {
 }
 
 SkUniformDataBlock UniformManager::peekData() const {
-    return SkUniformDataBlock(SkMakeSpan(fStorage.begin(), fStorage.count()));
+    return SkUniformDataBlock(SkSpan(fStorage.begin(), fStorage.count()));
 }
 
 void UniformManager::reset() {

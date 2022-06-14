@@ -414,13 +414,13 @@ public:
         // Now draw the image with an identity color cube - it should look like the original
         SkRuntimeEffect::ChildPtr children[] = {fIdentityCube->makeShader(sampling, normalize)};
         paint.setColorFilter(fEffect->makeColorFilter(
-                SkData::MakeWithCopy(uniforms, sizeof(uniforms)), SkMakeSpan(children)));
+                SkData::MakeWithCopy(uniforms, sizeof(uniforms)), SkSpan(children)));
         canvas->drawImage(fMandrill, 256, 0, sampling, &paint);
 
         // ... and with a sepia-tone color cube. This should match the sepia-toned image.
         children[0] = fSepiaCube->makeShader(sampling, normalize);
         paint.setColorFilter(fEffect->makeColorFilter(
-                SkData::MakeWithCopy(uniforms, sizeof(uniforms)), SkMakeSpan(children)));
+                SkData::MakeWithCopy(uniforms, sizeof(uniforms)), SkSpan(children)));
         canvas->drawImage(fMandrill, 256, 256, sampling, &paint);
     }
 };

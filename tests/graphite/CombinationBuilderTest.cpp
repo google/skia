@@ -113,8 +113,7 @@ void big_test(Context *context, skiatest::Reporter* reporter) {
 
                 // only option (imageShader_0)
                 [[maybe_unused]] auto imageShader_0 = blendShader_1.addChildOption(
-                        1, SkShaderType::kImage,
-                        SkMakeSpan(tilingOptions));
+                        1, SkShaderType::kImage, tilingOptions);
             }
         }
     }

@@ -269,7 +269,7 @@ static void gradient_function_code(const SkShader::GradientInfo& info,
     }
 
     // If a cap on depth is needed, loop here.
-    write_gradient_ranges(info, SkMakeSpan(rangeEnds.get(), rangeEndsCount), true, true, result);
+    write_gradient_ranges(info, SkSpan(rangeEnds.get(), rangeEndsCount), true, true, result);
 
     // Clamp the final color.
     result->writeText("0 gt {");

@@ -556,7 +556,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         for (int i = 0; i < 16; ++i) {
             uniforms[i] = b.uniform32(uniformPtr, i * sizeof(int)).id;
         }
-        SkSL::ProgramToSkVM(*program, *fn, &b, /*debugTrace=*/nullptr, SkMakeSpan(uniforms));
+        SkSL::ProgramToSkVM(*program, *fn, &b, /*debugTrace=*/nullptr, SkSpan(uniforms));
         return b.done();
     };
 

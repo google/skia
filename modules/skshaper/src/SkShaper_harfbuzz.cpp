@@ -1375,7 +1375,7 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     }
 
     SkSTArray<32, hb_feature_t> hbFeatures;
-    for (const auto& feature : SkMakeSpan(features, featuresSize)) {
+    for (const auto& feature : SkSpan(features, featuresSize)) {
         if (feature.end < SkTo<size_t>(utf8Start - utf8) ||
                           SkTo<size_t>(utf8End   - utf8)  <= feature.start)
         {

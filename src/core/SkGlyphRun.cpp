@@ -192,7 +192,7 @@ static SkSpan<const SkPoint> draw_text_positions(
         *positionCursor++ = endOfLastGlyph;
         endOfLastGlyph += glyph->advanceVector();
     }
-    return SkMakeSpan(buffer, glyphIDs.size());
+    return SkSpan(buffer, glyphIDs.size());
 }
 
 const SkGlyphRunList& SkGlyphRunBuilder::textToGlyphRunList(
@@ -242,20 +242,20 @@ const SkGlyphRunList& SkGlyphRunBuilder::blobToGlyphRunList(
                 break;
             }
             case SkTextBlobRunIterator::kHorizontal_Positioning: {
-                positions = SkMakeSpan(positionCursor, runSize);
+                positions = SkSpan(positionCursor, runSize);
                 for (auto x : SkSpan<const SkScalar>{it.pos(), glyphIDs.size()}) {
                     *positionCursor++ = SkPoint::Make(x, it.offset().y());
                 }
                 break;
             }
             case SkTextBlobRunIterator::kFull_Positioning: {
-                positions = SkMakeSpan(it.points(), runSize);
+                positions = SkSpan(it.points(), runSize);
                 break;
             }
             case SkTextBlobRunIterator::kRSXform_Positioning: {
-                positions = SkMakeSpan(positionCursor, runSize);
-                scaledRotations = SkMakeSpan(scaledRotationsCursor, runSize);
-                for (const SkRSXform& xform : SkMakeSpan(it.xforms(), runSize)) {
+                positions = SkSpan(positionCursor, runSize);
+                scaledRotations = SkSpan(scaledRotationsCursor, runSize);
+                for (const SkRSXform& xform : SkSpan(it.xforms(), runSize)) {
                     *positionCursor++ = {xform.fTx, xform.fTy};
                     *scaledRotationsCursor++ = {xform.fSCos, xform.fSSin};
                 }
@@ -279,8 +279,8 @@ std::tuple<SkSpan<const SkPoint>, SkSpan<const SkVector>>
 SkGlyphRunBuilder::convertRSXForm(SkSpan<const SkRSXform> xforms) {
     const int count = SkCount(xforms);
     this->prepareBuffers(count, count);
-    auto positions = SkMakeSpan(fPositions.get(), count);
-    auto scaledRotations = SkMakeSpan(fScaledRotations.get(), count);
+    auto positions = SkSpan(fPositions.get(), count);
+    auto scaledRotations = SkSpan(fScaledRotations.get(), count);
     for (auto [pos, sr, xform] : SkMakeZip(positions, scaledRotations, xforms)) {
         auto [scos, ssin, tx, ty] = xform;
         pos = {tx, ty};
@@ -325,7 +325,7 @@ SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
         if (count > 0) {
             fScratchGlyphIDs.resize(count);
             font.textToGlyphs(bytes, byteLength, encoding, fScratchGlyphIDs.data(), count);
-            return SkMakeSpan(fScratchGlyphIDs);
+            return SkSpan(fScratchGlyphIDs);
         } else {
             return SkSpan<const SkGlyphID>();
         }
@@ -356,7 +356,7 @@ void SkGlyphRunBuilder::makeGlyphRun(
 
 const SkGlyphRunList& SkGlyphRunBuilder::setGlyphRunList(
         const SkTextBlob* blob, const SkRect& bounds, SkPoint origin) {
-    fGlyphRunList.emplace(blob, bounds, origin, SkMakeSpan(fGlyphRunListStorage), this);
+    fGlyphRunList.emplace(blob, bounds, origin, SkSpan(fGlyphRunListStorage), this);
     return fGlyphRunList.value();
 }
 

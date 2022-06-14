@@ -57,9 +57,9 @@ protected:
                     }
             )";
             auto[spec, error] =
-                    SkMeshSpecification::Make(SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                    SkMeshSpecification::Make(SkSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
                                               sizeof(ColorVertex),
-                                              SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                                              SkSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
                                               SkString(kVS),
                                               SkString(kFS));
             if (!spec) {
@@ -87,9 +87,9 @@ protected:
                     }
             )";
             auto[spec, error] =
-                    SkMeshSpecification::Make(SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                    SkMeshSpecification::Make(SkSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
                                               sizeof(NoColorVertex),
-                                              SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                                              SkSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
                                               SkString(kVS),
                                               SkString(kFS));
             if (!spec) {
@@ -380,9 +380,9 @@ protected:
                 }
 
                 auto [spec, error] = SkMeshSpecification::Make(
-                        SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                        SkSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
                         sizeof(Vertex),
-                        SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                        SkSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
                         SkString(vs),
                         SkString(kFS),
                         std::move(cs),
@@ -510,9 +510,9 @@ protected:
                 }
         )";
         auto [spec, error] =
-                SkMeshSpecification::Make(SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                SkMeshSpecification::Make(SkSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
                                           sizeof(Vertex),
-                                          SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                                          SkSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
                                           SkString(kVS),
                                           SkString(kFS),
                                           SkColorSpace::MakeSRGB(),

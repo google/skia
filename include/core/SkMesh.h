@@ -141,7 +141,7 @@ public:
                        sk_sp<SkColorSpace>     cs,
                        SkAlphaType             at);
 
-    SkSpan<const Attribute> attributes() const { return SkMakeSpan(fAttributes); }
+    SkSpan<const Attribute> attributes() const { return SkSpan(fAttributes); }
 
     /**
      * Combined size of all 'uniform' variables. When creating a SkMesh with this specification
@@ -154,7 +154,7 @@ public:
      * Provides info about individual uniforms including the offset into an SkData where each
      * uniform value should be placed.
      */
-    SkSpan<const Uniform> uniforms() const { return SkMakeSpan(fUniforms); }
+    SkSpan<const Uniform> uniforms() const { return SkSpan(fUniforms); }
 
     /** Returns pointer to the named uniform variable's description, or nullptr if not found. */
     const Uniform* findUniform(const char* name) const;

@@ -206,14 +206,14 @@ DEF_TEST(SkEnumerate, reporter) {
     REPORTER_ASSERT(reporter, check == 4);
 
     check = 0;
-    for (auto [i, v] : SkMakeEnumerate(SkMakeSpan(vec))) {
+    for (auto [i, v] : SkMakeEnumerate(SkSpan(vec))) {
         REPORTER_ASSERT(reporter, i == check);
         REPORTER_ASSERT(reporter, v == (int)check+1);
         check++;
     }
 
     {
-        auto e = SkMakeEnumerate(SkMakeSpan(vec)).first(2);
+        auto e = SkMakeEnumerate(SkSpan(vec)).first(2);
         for (auto[i, v] : e) {
             REPORTER_ASSERT(reporter, v == (int) i + 1);
         }
@@ -221,7 +221,7 @@ DEF_TEST(SkEnumerate, reporter) {
     }
 
     {
-        auto e = SkMakeEnumerate(SkMakeSpan(vec)).last(2);
+        auto e = SkMakeEnumerate(SkSpan(vec)).last(2);
         for (auto[i, v] : e) {
             REPORTER_ASSERT(reporter, v == (int) i + 1);
         }
@@ -229,7 +229,7 @@ DEF_TEST(SkEnumerate, reporter) {
     }
 
     {
-        auto e = SkMakeEnumerate(SkMakeSpan(vec)).subspan(1, 2);
+        auto e = SkMakeEnumerate(SkSpan(vec)).subspan(1, 2);
         for (auto[i, v] : e) {
             REPORTER_ASSERT(reporter, v == (int) i + 1);
         }
@@ -246,7 +246,7 @@ DEF_TEST(SkEnumerate, reporter) {
         };
 
         I is[10];
-        auto s = SkMakeSpan(is);
+        auto s = SkSpan(is);
         for (auto [i, v] : SkMakeEnumerate(s)) {
             new (&v) I(i);
         }
@@ -260,12 +260,12 @@ DEF_TEST(SkEnumerate, reporter) {
     {
         std::unique_ptr<int> is[10];
         std::unique_ptr<int> os[10];
-        auto s = SkMakeSpan(is);
+        auto s = SkSpan(is);
         for (auto [i, v] : SkMakeEnumerate(s)) {
             v = std::make_unique<int>(i);
         }
 
-        for (auto [i, v] : SkMakeEnumerate(SkMakeSpan(os))) {
+        for (auto [i, v] : SkMakeEnumerate(SkSpan(os))) {
             v = std::move(s[i]);
         }
 
@@ -278,7 +278,7 @@ DEF_TEST(SkEnumerate, reporter) {
     {
         std::unique_ptr<int> is[10];
         std::unique_ptr<int> os[10];
-        auto s = SkMakeSpan(is);
+        auto s = SkSpan(is);
         for (auto [i, v] : SkMakeEnumerate(s)) {
             v = std::make_unique<int>(i);
         }
@@ -299,7 +299,7 @@ DEF_TEST(SkZip, reporter) {
     const float B[] = {10.f, 20.f, 30.f, 40.f};
     std::vector<int> C = {{20, 30, 40, 50}};
     std::array<int, 4> D = {{100, 200, 300, 400}};
-    SkSpan<int> S = SkMakeSpan(C);
+    SkSpan<int> S = SkSpan(C);
 
     // Check SkZip calls
     SkZip<uint16_t, const float, int, int, int>
@@ -472,7 +472,7 @@ DEF_TEST(SkMakeZip, reporter) {
     const float B[] = {10.f, 20.f, 30.f, 40.f};
     const std::vector<int> C = {{20, 30, 40, 50}};
     std::array<int, 4> D = {{100, 200, 300, 400}};
-    SkSpan<const int> S = SkMakeSpan(C);
+    SkSpan<const int> S = SkSpan(C);
     uint16_t* P = &A[0];
     {
         // Check make zip

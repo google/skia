@@ -182,7 +182,7 @@ SkPaintParamsKey SkPaintParamsKeyBuilder::lockAsKey() {
     fIsValid = true;
     fStack.rewind();
 
-    return SkPaintParamsKey(SkMakeSpan(fData.begin(), fData.count()), this);
+    return SkPaintParamsKey(SkSpan(fData.begin(), fData.count()), this);
 }
 
 void SkPaintParamsKeyBuilder::makeInvalid() {
