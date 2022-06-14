@@ -18,7 +18,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkVertices.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRasterClip.h"
@@ -26,6 +25,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
+#include "src/text/GlyphRun.h"
 
 struct Bounder {
     SkRect  fBounds;
@@ -516,7 +516,7 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
 }
 
 void SkBitmapDevice::onDrawGlyphRunList(SkCanvas* canvas,
-                                        const SkGlyphRunList& glyphRunList,
+                                        const sktext::GlyphRunList& glyphRunList,
                                         const SkPaint& initialPaint,
                                         const SkPaint& drawingPaint) {
     SkASSERT(!glyphRunList.hasRSXForm());

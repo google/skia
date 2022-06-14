@@ -18,6 +18,7 @@ filegroup(
         "//src/ports:srcs",
         "//src/sfnt:srcs",
         "//src/shaders:srcs",
+        "//src/text:srcs",
         "//src/utils:srcs",
     ] + select({
         "//bazel/common_config_settings:has_gpu_backend": [
@@ -45,6 +46,7 @@ filegroup(
         "//src/ports:private_hdrs",
         "//src/sfnt:private_hdrs",
         "//src/shaders:private_hdrs",
+        "//src/text:private_hdrs",
         "//src/utils:private_hdrs",
     ] + select({
         "//bazel/common_config_settings:has_gpu_backend": [

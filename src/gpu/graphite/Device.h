@@ -111,7 +111,7 @@ private:
 
     bool onWritePixels(const SkPixmap&, int x, int y) override;
 
-    void onDrawGlyphRunList(SkCanvas*, const SkGlyphRunList&,
+    void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&,
                             const SkPaint&, const SkPaint&) override;
 
     // TODO: This will likely be implemented with the same primitive building block that drawRect

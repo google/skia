@@ -8,13 +8,13 @@
 #include "include/core/SkBitmap.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkGlyphRun.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkUtils.h"
+#include "src/text/GlyphRun.h"
 #include <climits>
 
 // disable warning : local variable used without having been initialized
@@ -108,7 +108,7 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) c
 
 void SkDraw::drawGlyphRunList(SkCanvas* canvas,
                               SkGlyphRunListPainterCPU* glyphPainter,
-                              const SkGlyphRunList& glyphRunList,
+                              const sktext::GlyphRunList& glyphRunList,
                               const SkPaint& paint) const {
 
     SkDEBUGCODE(this->validate();)

@@ -8,7 +8,7 @@
 #include "src/pdf/SkClusterator.h"
 
 #include "include/private/SkTo.h"
-#include "src/core/SkGlyphRun.h"
+#include "src/text/GlyphRun.h"
 #include "src/utils/SkUTF.h"
 
 static bool is_reversed(const uint32_t* clusters, uint32_t count) {
@@ -25,7 +25,7 @@ static bool is_reversed(const uint32_t* clusters, uint32_t count) {
     return true;
 }
 
-SkClusterator::SkClusterator(const SkGlyphRun& run)
+SkClusterator::SkClusterator(const sktext::GlyphRun& run)
     : fClusters(run.clusters().data())
     , fUtf8Text(run.text().data())
     , fGlyphCount(SkToU32(run.glyphsIDs().size()))

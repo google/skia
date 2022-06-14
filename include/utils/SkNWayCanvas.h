@@ -22,9 +22,12 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 
+namespace sktext {
+class GlyphRunList;
+}
+
 class SkData;
 class SkDrawable;
-class SkGlyphRunList;
 class SkImage;
 class SkMatrix;
 class SkPaint;
@@ -69,7 +72,7 @@ protected:
     void didTranslate(SkScalar, SkScalar) override;
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
-    void onDrawGlyphRunList(const SkGlyphRunList&, const SkPaint&) override;
+    void onDrawGlyphRunList(const sktext::GlyphRunList&, const SkPaint&) override;
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
 #if SK_SUPPORT_GPU

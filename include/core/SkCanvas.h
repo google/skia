@@ -38,6 +38,11 @@
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
 #endif
 
+namespace sktext {
+class GlyphRunBuilder;
+class GlyphRunList;
+}
+
 class AutoLayerForImageFilter;
 class GrBackendRenderTarget;
 class GrRecordingContext;
@@ -47,8 +52,6 @@ class SkData;
 class SkDrawable;
 struct SkDrawShadowRec;
 class SkFont;
-class SkGlyphRunBuilder;
-class SkGlyphRunList;
 class SkImage;
 class SkImageFilter;
 class SkPaintFilterCanvas;
@@ -2225,7 +2228,7 @@ protected:
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint);
 
-    virtual void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint);
+    virtual void onDrawGlyphRunList(const sktext::GlyphRunList& glyphRunList, const SkPaint& paint);
 
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
@@ -2279,7 +2282,7 @@ protected:
     /** Experimental
      */
     virtual sk_sp<sktext::gpu::Slug> onConvertGlyphRunListToSlug(
-            const SkGlyphRunList& glyphRunList, const SkPaint& paint);
+            const sktext::GlyphRunList& glyphRunList, const SkPaint& paint);
 
     /** Experimental
      */
@@ -2540,7 +2543,7 @@ private:
     class AutoUpdateQRBounds;
     void validateClip() const;
 
-    std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
+    std::unique_ptr<sktext::GlyphRunBuilder> fScratchGlyphRunBuilder;
 
     using INHERITED = SkRefCnt;
 };

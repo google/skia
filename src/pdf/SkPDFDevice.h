@@ -25,7 +25,11 @@
 
 #include <vector>
 
-class SkGlyphRunList;
+namespace sktext {
+class GlyphRun;
+class GlyphRunList;
+}
+
 class SkKeyedImage;
 class SkPDFArray;
 class SkPDFDevice;
@@ -85,7 +89,7 @@ public:
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
     void onDrawGlyphRunList(SkCanvas*,
-                            const SkGlyphRunList&,
+                            const sktext::GlyphRunList&,
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint) override;
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
@@ -166,8 +170,10 @@ private:
     void finishContentEntry(const SkClipStack*, SkBlendMode, SkPDFIndirectReference, SkPath*);
     bool isContentEmpty();
 
-    void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint);
-    void drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint);
+    void internalDrawGlyphRun(
+            const sktext::GlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint);
+    void drawGlyphRunAsPath(
+            const sktext::GlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint);
 
     void internalDrawImageRect(SkKeyedImage,
                                const SkRect* src,

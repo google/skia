@@ -26,9 +26,12 @@
 
 #include <utility>
 
+namespace sktext {
+class GlyphRunList;
+}
+
 class SkData;
 class SkDrawable;
-class SkGlyphRunList;
 class SkImage;
 class SkPaint;
 class SkPath;
@@ -313,7 +316,7 @@ void SkNWayCanvas::onDrawAtlas2(const SkImage* image, const SkRSXform xform[], c
     }
 }
 
-void SkNWayCanvas::onDrawGlyphRunList(const SkGlyphRunList& list,
+void SkNWayCanvas::onDrawGlyphRunList(const sktext::GlyphRunList& list,
                                       const SkPaint &paint) {
     Iter iter(fList);
     while (iter.next()) {

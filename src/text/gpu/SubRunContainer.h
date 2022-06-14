@@ -13,7 +13,6 @@
 #include "src/core/SkDevice.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
-class SkGlyphRunList;
 class SkMatrix;
 class SkMatrixProvider;
 class SkPaint;
@@ -22,9 +21,12 @@ class SkStrikeClient;
 class SkStrikeForGPUCacheInterface;
 class SkWriteBuffer;
 
-namespace sktext::gpu {
-class Glyph;
-class StrikeCache;
+namespace sktext {
+class GlyphRunList;
+    namespace gpu {
+    class Glyph;
+    class StrikeCache;
+    }
 }
 
 #if SK_SUPPORT_GPU  // Ganesh support
@@ -205,7 +207,7 @@ public:
                                                       SubRunAllocator* alloc);
 
     static std::tuple<bool, SubRunContainerOwner> MakeInAlloc(
-            const SkGlyphRunList& glyphRunList,
+            const GlyphRunList& glyphRunList,
             const SkMatrix& positionMatrix,
             const SkPaint& runPaint,
             SkStrikeDeviceInfo strikeDeviceInfo,
@@ -213,7 +215,7 @@ public:
             sktext::gpu::SubRunAllocator* alloc,
             const char* tag);
 
-    static size_t EstimateAllocSize(const SkGlyphRunList& glyphRunList);
+    static size_t EstimateAllocSize(const GlyphRunList& glyphRunList);
 
 #if SK_SUPPORT_GPU
     void draw(SkCanvas* canvas,
