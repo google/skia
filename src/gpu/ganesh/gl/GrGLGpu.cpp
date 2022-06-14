@@ -926,7 +926,7 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture,
     const size_t trimRowBytes = rect.width() * bpp;
     const void* pixels = (void*)offset;
 
-    SkASSERT(glBuffer->glSizeInBytes() >= offset + rowBytes*(rect.height() - 1) + trimRowBytes);
+    SkASSERT(glBuffer->size() >= offset + rowBytes*(rect.height() - 1) + trimRowBytes);
 
     bool restoreGLRowLength = false;
     if (trimRowBytes != rowBytes) {
@@ -971,9 +971,9 @@ bool GrGLGpu::onTransferPixelsFrom(GrSurface* surface,
                                    sk_sp<GrGpuBuffer> transferBuffer,
                                    size_t offset) {
     auto* glBuffer = static_cast<GrGLBuffer*>(transferBuffer.get());
-    SkASSERT(glBuffer->glSizeInBytes() >= offset + (rect.width() *
-                                                    rect.height()*
-                                                    GrColorTypeBytesPerPixel(dstColorType)));
+    SkASSERT(glBuffer->size() >= offset + (rect.width() *
+                                           rect.height()*
+                                           GrColorTypeBytesPerPixel(dstColorType)));
 
     this->bindBuffer(GrGpuBufferType::kXferGpuToCpu, glBuffer);
 

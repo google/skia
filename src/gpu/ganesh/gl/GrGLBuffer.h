@@ -28,12 +28,6 @@ public:
 
     GrGLuint bufferID() const { return fBufferID; }
 
-    /**
-     * Returns the actual size of the underlying GL buffer object. In certain cases we may make this
-     * smaller than the size reported by GrGpuBuffer.
-     */
-    size_t glSizeInBytes() const { return fGLSizeInBytes; }
-
     void setHasAttachedToTexture() { fHasAttachedToTexture = true; }
     bool hasAttachedToTexture() const { return fHasAttachedToTexture; }
 
@@ -58,14 +52,10 @@ private:
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
 
     void onSetLabel() override;
-#ifdef SK_DEBUG
-    void validate() const;
-#endif
 
     GrGpuBufferType fIntendedType;
     GrGLuint        fBufferID;
     GrGLenum        fUsage;
-    size_t          fGLSizeInBytes;
     bool            fHasAttachedToTexture;
 
     using INHERITED = GrGpuBuffer;
