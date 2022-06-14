@@ -18,7 +18,8 @@
 
 namespace skgpu::graphite {
 
-sk_sp<skgpu::graphite::Gpu> MtlGpu::Make(const MtlBackendContext& context) {
+sk_sp<skgpu::graphite::Gpu> MtlGpu::Make(const MtlBackendContext& context,
+                                         const ContextOptions& options) {
     // TODO: This was taken from GrMtlGpu.mm's Make, does graphite deserve a higher version?
     if (@available(macOS 10.14, iOS 11.0, *)) {
         // no warning needed
@@ -35,9 +36,11 @@ sk_sp<skgpu::graphite::Gpu> MtlGpu::Make(const MtlBackendContext& context) {
     sk_cfp<id<MTLDevice>> device = sk_ret_cfp((id<MTLDevice>)(context.fDevice.get()));
     sk_cfp<id<MTLCommandQueue>> queue = sk_ret_cfp((id<MTLCommandQueue>)(context.fQueue.get()));
 
-    sk_sp<const MtlCaps> caps(new MtlCaps(device.get()));
+    sk_sp<const MtlCaps> caps(new MtlCaps(device.get(), options));
 
-    return sk_sp<skgpu::graphite::Gpu>(new MtlGpu(std::move(device), std::move(queue), std::move(caps)));
+    return sk_sp<skgpu::graphite::Gpu>(new MtlGpu(std::move(device),
+                                                  std::move(queue),
+                                                  std::move(caps)));
 }
 
 MtlGpu::MtlGpu(sk_cfp<id<MTLDevice>> device,

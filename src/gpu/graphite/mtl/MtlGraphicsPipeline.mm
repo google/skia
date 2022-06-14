@@ -509,7 +509,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
 
     settings.fForceNoRTFlip = true;
 
-    ShaderErrorHandler* errorHandler = DefaultShaderErrorHandler();
+    ShaderErrorHandler* errorHandler = gpu->caps()->shaderErrorHandler();
     if (!SkSLToMSL(gpu,
                    get_sksl_vs(pipelineDesc),
                    SkSL::ProgramKind::kGraphiteVertex,

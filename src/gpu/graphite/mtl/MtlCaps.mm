@@ -17,7 +17,7 @@
 
 namespace skgpu::graphite {
 
-MtlCaps::MtlCaps(const id<MTLDevice> device)
+MtlCaps::MtlCaps(const id<MTLDevice> device, const ContextOptions& options)
         : Caps() {
     this->initGPUFamily(device);
     this->initCaps(device);
@@ -27,7 +27,7 @@ MtlCaps::MtlCaps(const id<MTLDevice> device)
 
     // Metal-specific MtlCaps
 
-    this->finishInitialization();
+    this->finishInitialization(options);
 }
 
 // translates from older MTLFeatureSet interface to MTLGPUFamily interface

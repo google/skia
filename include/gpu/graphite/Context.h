@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
+#include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 
 class SkBlenderID;
@@ -39,7 +40,7 @@ public:
     ~Context();
 
 #ifdef SK_METAL
-    static std::unique_ptr<Context> MakeMetal(const skgpu::graphite::MtlBackendContext&);
+    static std::unique_ptr<Context> MakeMetal(const MtlBackendContext&, const ContextOptions&);
 #endif
 
     BackendApi backend() const { return fBackend; }

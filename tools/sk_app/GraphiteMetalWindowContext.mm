@@ -11,6 +11,7 @@
 
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/SkStuff.h"
@@ -53,7 +54,8 @@ void GraphiteMetalWindowContext::initializeContext() {
     skgpu::graphite::MtlBackendContext backendContext = {};
     backendContext.fDevice.retain((skgpu::graphite::MtlHandle)fDevice.get());
     backendContext.fQueue.retain((skgpu::graphite::MtlHandle)fQueue.get());
-    fGraphiteContext = skgpu::graphite::Context::MakeMetal(backendContext);
+    fGraphiteContext = skgpu::graphite::Context::MakeMetal(backendContext,
+                                                           skgpu::graphite::ContextOptions());
     fGraphiteRecorder = fGraphiteContext->makeRecorder();
     // TODO
 //    if (!fGraphiteContext && fDisplayParams.fMSAASampleCount > 1) {

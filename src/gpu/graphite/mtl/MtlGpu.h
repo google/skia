@@ -18,10 +18,11 @@
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
+struct ContextOptions;
 
 class MtlGpu final : public Gpu {
 public:
-    static sk_sp<Gpu> Make(const MtlBackendContext&);
+    static sk_sp<Gpu> Make(const MtlBackendContext&, const ContextOptions&);
     ~MtlGpu() override;
 
     id<MTLDevice> device() const { return fDevice.get(); }

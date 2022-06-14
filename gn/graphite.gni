@@ -11,6 +11,7 @@ _include_private = get_path_info("../include/private/gpu/graphite", "abspath")
 skia_graphite_public = [
   "$_include/BackendTexture.h",
   "$_include/Context.h",
+  "$_include/ContextOptions.h",
   "$_include/GraphiteTypes.h",
   "$_include/Recorder.h",
   "$_include/Recording.h",

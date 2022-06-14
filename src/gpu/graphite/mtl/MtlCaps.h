@@ -15,10 +15,11 @@
 #include "src/gpu/graphite/Caps.h"
 
 namespace skgpu::graphite {
+struct ContextOptions;
 
 class MtlCaps final : public skgpu::graphite::Caps {
 public:
-    MtlCaps(const id<MTLDevice>);
+    MtlCaps(const id<MTLDevice>, const ContextOptions&);
     ~MtlCaps() override {}
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,

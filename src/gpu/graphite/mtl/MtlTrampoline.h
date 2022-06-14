@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 
 namespace skgpu::graphite {
+struct ContextOptions;
 class Gpu;
 struct MtlBackendContext;
 
@@ -20,7 +21,7 @@ struct MtlBackendContext;
  */
 class MtlTrampoline {
 public:
-    static sk_sp<skgpu::graphite::Gpu> MakeGpu(const MtlBackendContext&);
+    static sk_sp<skgpu::graphite::Gpu> MakeGpu(const MtlBackendContext&, const ContextOptions&);
 };
 
 } // namespace skgpu::graphite
