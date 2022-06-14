@@ -20,6 +20,9 @@ class SkStrikeClient;
 #if SK_SUPPORT_GPU
 class GrMeshDrawTarget;
 #endif
+#if defined(SK_GRAPHITE_ENABLED)
+namespace skgpu::graphite { class Recorder; }
+#endif
 
 namespace sktext::gpu {
 
@@ -61,6 +64,14 @@ public:
             skgpu::MaskFormat maskFormat,
             int srcPadding,
             GrMeshDrawTarget*);
+#endif
+
+#if defined(SK_GRAPHITE_ENABLED)
+    std::tuple<bool, int> regenerateAtlas(
+            int begin, int end,
+            skgpu::MaskFormat maskFormat,
+            int srcPadding,
+            skgpu::graphite::Recorder*);
 #endif
 
     static size_t GlyphVectorSize(size_t count) {

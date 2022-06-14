@@ -44,6 +44,18 @@ UploadBufferManager* RecorderPriv::uploadBufferManager() const {
     return fRecorder->fUploadBufferManager.get();
 }
 
+AtlasManager* RecorderPriv::atlasManager() {
+    return fRecorder->fAtlasManager.get();
+}
+
+TokenTracker* RecorderPriv::tokenTracker() {
+    return fRecorder->fTokenTracker.get();
+}
+
+sktext::gpu::StrikeCache* RecorderPriv::strikeCache() {
+    return fRecorder->fStrikeCache.get();
+}
+
 void RecorderPriv::add(sk_sp<Task> task) {
     ASSERT_SINGLE_OWNER
     fRecorder->fGraph->add(std::move(task));

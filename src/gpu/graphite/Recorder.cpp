@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/Recording.h"
 #include "src/core/SkPipelineData.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -20,6 +21,8 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/TaskGraph.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/text/AtlasManager.h"
+#include "src/text/gpu/StrikeCache.h"
 
 namespace skgpu::graphite {
 
@@ -29,7 +32,13 @@ Recorder::Recorder(sk_sp<Gpu> gpu, sk_sp<GlobalCache> globalCache)
         : fGpu(std::move(gpu))
         , fGraph(new TaskGraph)
         , fUniformDataCache(new UniformDataCache)
-        , fTextureDataCache(new TextureDataCache) {
+        , fTextureDataCache(new TextureDataCache)
+        // TODO: add config to control maxTextureBytes
+        , fAtlasManager(std::make_unique<AtlasManager>(this, 2048*2048,
+                                                       DrawAtlas::AllowMultitexturing::kYes,
+                                                       false))
+        , fTokenTracker(std::make_unique<TokenTracker>())
+        , fStrikeCache(std::make_unique<sktext::gpu::StrikeCache>()) {
 
     fResourceProvider = fGpu->makeResourceProvider(std::move(globalCache), this->singleOwner());
     fDrawBufferManager.reset(new DrawBufferManager(fResourceProvider.get(),
@@ -43,6 +52,9 @@ Recorder::~Recorder() {
     for (auto& device : fTrackedDevices) {
         device->abandonRecorder();
     }
+
+    // TODO: needed?
+    fStrikeCache->freeAll();
 }
 
 std::unique_ptr<Recording> Recorder::snap() {

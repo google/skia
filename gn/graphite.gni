@@ -39,6 +39,8 @@ skia_graphite_sources = [
   "$_src/CopyTask.h",
   "$_src/Device.cpp",
   "$_src/Device.h",
+  "$_src/DrawAtlas.cpp",
+  "$_src/DrawAtlas.h",
   "$_src/DrawBufferManager.cpp",
   "$_src/DrawBufferManager.h",
   "$_src/DrawContext.cpp",
@@ -127,6 +129,8 @@ skia_graphite_sources = [
   "$_src/render/TessellateStrokesRenderStep.h",
   "$_src/render/TessellateWedgesRenderStep.cpp",
   "$_src/render/TessellateWedgesRenderStep.h",
+  "$_src/text/AtlasManager.cpp",
+  "$_src/text/AtlasManager.h",
 ]
 
 skia_graphite_mtl_sources = [

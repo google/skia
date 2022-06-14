@@ -17,8 +17,13 @@ class SkTextureDataBlock;
 class SkUniformDataBlock;
 class SkUniformDataBlockPassThrough;  // TODO: remove
 
+namespace skgpu { class TokenTracker; }
+
+namespace sktext::gpu { class StrikeCache; }
+
 namespace skgpu::graphite {
 
+class AtlasManager;
 class Caps;
 class Device;
 class DrawBufferManager;
@@ -92,6 +97,10 @@ private:
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;
     std::unique_ptr<UploadBufferManager> fUploadBufferManager;
     std::vector<Device*> fTrackedDevices;
+
+    std::unique_ptr<AtlasManager> fAtlasManager;
+    std::unique_ptr<TokenTracker> fTokenTracker;
+    std::unique_ptr<sktext::gpu::StrikeCache> fStrikeCache;
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the ResourceCache.

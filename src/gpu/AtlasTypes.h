@@ -454,6 +454,7 @@ public:
     void resetFlushesSinceLastUsed() { fFlushesSinceLastUse = 0; }
     void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
 
+    bool needsUpload() { return !fDirtyRect.isEmpty(); }
     std::pair<const void*, SkIRect> prepareForUpload();
     void resetRects();
 

@@ -21,6 +21,9 @@ public:
     TextureDataCache* textureDataCache() const;
     DrawBufferManager* drawBufferManager() const;
     UploadBufferManager* uploadBufferManager() const;
+    AtlasManager* atlasManager();
+    TokenTracker* tokenTracker();
+    sktext::gpu::StrikeCache* strikeCache();
     const Caps* caps() const;
     sk_sp<const Caps> refCaps() const;
 
