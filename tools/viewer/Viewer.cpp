@@ -19,6 +19,7 @@
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"
@@ -35,7 +36,6 @@
 #include "src/gpu/ganesh/GrPersistentCacheUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/text/GlyphRun.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkShaderUtils.h"
@@ -79,7 +79,7 @@
 #include "tools/viewer/RiveSlide.h"
 
 #if defined(SK_ENABLE_SVG)
-#include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
+    #include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
 #endif
 
 class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
@@ -1390,8 +1390,7 @@ public:
             this->filterTextBlob(paint, blob, &cache), x, y, paint);
     }
 
-    void onDrawGlyphRunList(
-            const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override {
+    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
         sk_sp<SkTextBlob> cache;
         sk_sp<SkTextBlob> blob = glyphRunList.makeBlob();
         this->filterTextBlob(paint, blob.get(), &cache);
@@ -1399,9 +1398,8 @@ public:
             this->SkPaintFilterCanvas::onDrawGlyphRunList(glyphRunList, paint);
             return;
         }
-        sktext::GlyphRunBuilder builder;
-        const sktext::GlyphRunList& filtered =
-                builder.blobToGlyphRunList(*cache, glyphRunList.origin());
+        SkGlyphRunBuilder builder;
+        const SkGlyphRunList& filtered = builder.blobToGlyphRunList(*cache, glyphRunList.origin());
         this->SkPaintFilterCanvas::onDrawGlyphRunList(filtered, paint);
     }
 

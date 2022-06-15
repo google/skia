@@ -22,6 +22,7 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
@@ -48,7 +49,6 @@
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkReadPixelsRec.h"
 #include "src/image/SkSurface_Gpu.h"
-#include "src/text/GlyphRun.h"
 #include "src/utils/SkUTF.h"
 
 #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_STRIKE_SERIALIZE)
@@ -1107,7 +1107,7 @@ void Device::testingOnly_drawGlyphRunListWithSerializedSlugAndStrike(
 #endif
 
 void Device::onDrawGlyphRunList(SkCanvas* canvas,
-                                const sktext::GlyphRunList& glyphRunList,
+                                const SkGlyphRunList& glyphRunList,
                                 const SkPaint& initialPaint,
                                 const SkPaint& drawingPaint) {
     ASSERT_SINGLE_OWNER

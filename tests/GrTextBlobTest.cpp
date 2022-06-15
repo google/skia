@@ -11,9 +11,9 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "src/core/SkDevice.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/text/GlyphRun.h"
 #include "src/text/gpu/TextBlob.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
@@ -336,7 +336,7 @@ DEF_TEST(KeyEqualityOnPerspective, r) {
     auto runBuffer = builder.allocRun(font, 1, 0.0f, 0.0f);
     runBuffer.glyphs[0] = 3;
     auto blob = builder.make();
-    sktext::GlyphRunBuilder grBuilder;
+    SkGlyphRunBuilder grBuilder;
     auto glyphRunList = grBuilder.blobToGlyphRunList(*blob, {100, 100});
     SkPaint paint;
 

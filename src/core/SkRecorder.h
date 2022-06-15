@@ -76,8 +76,7 @@ public:
 #if SK_SUPPORT_GPU
     void onDrawSlug(const sktext::gpu::Slug* slug) override;
 #endif
-    void onDrawGlyphRunList(
-            const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
+    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkBlendMode,
                      const SkPaint& paint) override;

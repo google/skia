@@ -48,14 +48,14 @@
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
-#include "src/text/GlyphRun.h"
 #include "src/xml/SkXMLWriter.h"
 
-#include <memory>
 #include <string>
+#include <memory>
 #include <utility>
 
 #if SK_SUPPORT_GPU
@@ -208,7 +208,7 @@ bool RequiresViewportReset(const SkPaint& paint) {
   return false;
 }
 
-void AddPath(const sktext::GlyphRun& glyphRun, const SkPoint& offset, SkPath* path) {
+void AddPath(const SkGlyphRun& glyphRun, const SkPoint& offset, SkPath* path) {
     struct Rec {
         SkPath*        fPath;
         const SkPoint  fOffset;
@@ -1017,7 +1017,7 @@ void SkSVGDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
 
 class SVGTextBuilder : SkNoncopyable {
 public:
-    SVGTextBuilder(SkPoint origin, const sktext::GlyphRun& glyphRun)
+    SVGTextBuilder(SkPoint origin, const SkGlyphRun& glyphRun)
             : fOrigin(origin) {
         auto runSize = glyphRun.runSize();
         SkAutoSTArray<64, SkUnichar> unichars(runSize);
@@ -1105,7 +1105,7 @@ private:
 };
 
 void SkSVGDevice::onDrawGlyphRunList(SkCanvas* canvas,
-                                     const sktext::GlyphRunList& glyphRunList,
+                                     const SkGlyphRunList& glyphRunList,
                                      const SkPaint& initialPaint,
                                      const SkPaint& drawingPaint)  {
     SkASSERT(!glyphRunList.hasRSXForm());

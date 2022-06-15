@@ -18,6 +18,7 @@
 
 class SkData;
 class SkDrawable;
+class SkGlyphRunList;
 class SkImage;
 class SkPath;
 class SkPicture;
@@ -206,8 +207,7 @@ void SkPaintFilterCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* m
     }
 }
 
-void SkPaintFilterCanvas::onDrawGlyphRunList(
-        const sktext::GlyphRunList& list, const SkPaint& paint) {
+void SkPaintFilterCanvas::onDrawGlyphRunList(const SkGlyphRunList& list, const SkPaint& paint) {
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
         this->SkNWayCanvas::onDrawGlyphRunList(list, apf.paint());

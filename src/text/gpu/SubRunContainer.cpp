@@ -11,11 +11,11 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkGlyphBuffer.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/gpu/AtlasTypes.h"
-#include "src/text/GlyphRun.h"
 #include "src/text/gpu/Glyph.h"
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SubRunAllocator.h"
@@ -2133,7 +2133,7 @@ SubRunContainerOwner SubRunContainer::MakeFromBufferInAlloc(SkReadBuffer& buffer
     return container;
 }
 
-size_t SubRunContainer::EstimateAllocSize(const GlyphRunList& glyphRunList) {
+size_t SubRunContainer::EstimateAllocSize(const SkGlyphRunList& glyphRunList) {
     // The difference in alignment from the per-glyph data to the SubRun;
     constexpr size_t alignDiff = alignof(DirectMaskSubRun) - alignof(DevicePosition);
     constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
@@ -2146,7 +2146,7 @@ size_t SubRunContainer::EstimateAllocSize(const GlyphRunList& glyphRunList) {
 }
 
 std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
-        const GlyphRunList& glyphRunList,
+        const SkGlyphRunList& glyphRunList,
         const SkMatrix& positionMatrix,
         const SkPaint& runPaint,
         SkStrikeDeviceInfo strikeDeviceInfo,

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTextBlob.h"
-
 #include "include/core/SkRSXform.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeMath.h"
@@ -17,7 +17,6 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/text/GlyphRun.h"
 
 #include <atomic>
 #include <limits>
@@ -861,7 +860,7 @@ size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t me
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace {
-int get_glyph_run_intercepts(const sktext::GlyphRun& glyphRun,
+int get_glyph_run_intercepts(const SkGlyphRun& glyphRun,
                              const SkPaint& paint,
                              const SkScalar bounds[2],
                              SkScalar intervals[],
@@ -923,11 +922,11 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
         paint = defaultPaint.get();
     }
 
-    sktext::GlyphRunBuilder builder;
+    SkGlyphRunBuilder builder;
     auto glyphRunList = builder.blobToGlyphRunList(*this, {0, 0});
 
     int intervalCount = 0;
-    for (const sktext::GlyphRun& glyphRun : glyphRunList) {
+    for (const SkGlyphRun& glyphRun : glyphRunList) {
         // Ignore RSXForm runs.
         if (glyphRun.scaledRotations().empty()) {
             intervalCount = get_glyph_run_intercepts(
@@ -948,7 +947,7 @@ std::vector<SkScalar> SkFont::getIntercepts(const SkGlyphID glyphs[], int count,
 
     const SkPaint paint(paintPtr ? *paintPtr : SkPaint());
     const SkScalar bounds[] = {top, bottom};
-    const sktext::GlyphRun run(*this,
+    const SkGlyphRun run(*this,
                          {positions, size_t(count)}, {glyphs, size_t(count)},
                          {nullptr, 0}, {nullptr, 0}, {nullptr, 0});
 

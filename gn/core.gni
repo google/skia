@@ -232,6 +232,8 @@ skia_core_sources = [
   "$_src/core/SkGlyph.h",
   "$_src/core/SkGlyphBuffer.cpp",
   "$_src/core/SkGlyphBuffer.h",
+  "$_src/core/SkGlyphRun.cpp",
+  "$_src/core/SkGlyphRun.h",
   "$_src/core/SkGlyphRunPainter.cpp",
   "$_src/core/SkGlyphRunPainter.h",
   "$_src/core/SkGpuBlurUtils.cpp",
@@ -481,8 +483,6 @@ skia_core_sources = [
   "$_src/shaders/SkShaderBase.h",
   "$_src/shaders/SkTransformShader.cpp",
   "$_src/shaders/SkTransformShader.h",
-  "$_src/text/GlyphRun.cpp",
-  "$_src/text/GlyphRun.h",
 
   # private
   "$_include/private/SkChecksum.h",

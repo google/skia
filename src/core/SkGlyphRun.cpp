@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/text/GlyphRun.h"
+#include "src/core/SkGlyphRun.h"
 
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
@@ -19,27 +19,26 @@
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkUtils.h"
 
-namespace sktext {
-// -- GlyphRun -------------------------------------------------------------------------------------
-GlyphRun::GlyphRun(const SkFont& font,
-                   SkSpan<const SkPoint> positions,
-                   SkSpan<const SkGlyphID> glyphIDs,
-                   SkSpan<const char> text,
-                   SkSpan<const uint32_t> clusters,
-                   SkSpan<const SkVector> scaledRotations)
+// -- SkGlyphRun -----------------------------------------------------------------------------------
+SkGlyphRun::SkGlyphRun(const SkFont& font,
+                       SkSpan<const SkPoint> positions,
+                       SkSpan<const SkGlyphID> glyphIDs,
+                       SkSpan<const char> text,
+                       SkSpan<const uint32_t> clusters,
+                       SkSpan<const SkVector> scaledRotations)
         : fSource{SkMakeZip(glyphIDs, positions)}
         , fText{text}
         , fClusters{clusters}
         , fScaledRotations{scaledRotations}
         , fFont{font} {}
 
-GlyphRun::GlyphRun(const GlyphRun& that, const SkFont& font)
+SkGlyphRun::SkGlyphRun(const SkGlyphRun& that, const SkFont& font)
     : fSource{that.fSource}
     , fText{that.fText}
     , fClusters{that.fClusters}
     , fFont{font} {}
 
-SkRect GlyphRun::sourceBounds(const SkPaint& paint) const {
+SkRect SkGlyphRun::sourceBounds(const SkPaint& paint) const {
     SkASSERT(this->runSize() > 0);
     const SkRect fontBounds = SkFontPriv::GetFontBounds(fFont);
 
@@ -103,34 +102,35 @@ SkRect GlyphRun::sourceBounds(const SkPaint& paint) const {
     }
 }
 
-// -- GlyphRunList ---------------------------------------------------------------------------------
-GlyphRunList::GlyphRunList(const SkTextBlob* blob,
-                           SkRect bounds,
-                           SkPoint origin,
-                           SkSpan<const GlyphRun> glyphRunList,
-                           GlyphRunBuilder* builder)
+// -- SkGlyphRunList -------------------------------------------------------------------------------
+SkGlyphRunList::SkGlyphRunList(
+        const SkTextBlob* blob,
+        SkRect bounds,
+        SkPoint origin,
+        SkSpan<const SkGlyphRun> glyphRunList,
+        SkGlyphRunBuilder* builder)
         : fGlyphRuns{glyphRunList}
         , fOriginalTextBlob{blob}
         , fSourceBounds{bounds}
         , fOrigin{origin}
         , fBuilder{builder} {}
 
-GlyphRunList::GlyphRunList(const GlyphRun& glyphRun,
-                           const SkRect& bounds,
-                           SkPoint origin,
-                           GlyphRunBuilder* builder)
-        : fGlyphRuns{SkSpan<const GlyphRun>{&glyphRun, 1}}
+SkGlyphRunList::SkGlyphRunList(const SkGlyphRun& glyphRun,
+                               const SkRect& bounds,
+                               SkPoint origin,
+                               SkGlyphRunBuilder* builder)
+        : fGlyphRuns{SkSpan<const SkGlyphRun>{&glyphRun, 1}}
         , fOriginalTextBlob{nullptr}
         , fSourceBounds{bounds}
         , fOrigin{origin}
         , fBuilder{builder} {}
 
-uint64_t GlyphRunList::uniqueID() const {
+uint64_t SkGlyphRunList::uniqueID() const {
     return fOriginalTextBlob != nullptr ? fOriginalTextBlob->uniqueID()
                                         : SK_InvalidUniqueID;
 }
 
-bool GlyphRunList::anyRunsLCD() const {
+bool SkGlyphRunList::anyRunsLCD() const {
     for (const auto& r : fGlyphRuns) {
         if (r.font().getEdging() == SkFont::Edging::kSubpixelAntiAlias) {
             return true;
@@ -139,12 +139,12 @@ bool GlyphRunList::anyRunsLCD() const {
     return false;
 }
 
-void GlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
+void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
     SkASSERT(fOriginalTextBlob != nullptr);
     fOriginalTextBlob->notifyAddedToCache(cacheID);
 }
 
-sk_sp<SkTextBlob> GlyphRunList::makeBlob() const {
+sk_sp<SkTextBlob> SkGlyphRunList::makeBlob() const {
     SkTextBlobBuilder builder;
     for (auto& run : *this) {
         SkTextBlobBuilder::RunBuffer buffer;
@@ -174,10 +174,10 @@ sk_sp<SkTextBlob> GlyphRunList::makeBlob() const {
     return builder.make();
 }
 
-// -- GlyphRunBuilder ------------------------------------------------------------------------------
-GlyphRunList GlyphRunBuilder::makeGlyphRunList(
-        const GlyphRun& run, SkRect bounds, SkPoint origin) {
-    return GlyphRunList{run, bounds, origin, this};
+// -- SkGlyphRunBuilder ----------------------------------------------------------------------------
+SkGlyphRunList SkGlyphRunBuilder::makeGlyphRunList(
+        const SkGlyphRun& run, SkRect bounds, SkPoint origin) {
+    return SkGlyphRunList{run, bounds, origin, this};
 }
 
 static SkSpan<const SkPoint> draw_text_positions(
@@ -195,7 +195,7 @@ static SkSpan<const SkPoint> draw_text_positions(
     return SkSpan(buffer, glyphIDs.size());
 }
 
-const GlyphRunList& GlyphRunBuilder::textToGlyphRunList(
+const SkGlyphRunList& SkGlyphRunBuilder::textToGlyphRunList(
         const SkFont& font, const SkPaint& paint,
         const void* bytes, size_t byteLength, SkPoint origin,
         SkTextEncoding encoding) {
@@ -216,7 +216,7 @@ const GlyphRunList& GlyphRunBuilder::textToGlyphRunList(
     return this->setGlyphRunList(nullptr, bounds.makeOffset(origin), origin);
 }
 
-const GlyphRunList& sktext::GlyphRunBuilder::blobToGlyphRunList(
+const SkGlyphRunList& SkGlyphRunBuilder::blobToGlyphRunList(
         const SkTextBlob& blob, SkPoint origin) {
     // Pre-size all the buffers, so they don't move during processing.
     this->initialize(blob);
@@ -276,7 +276,7 @@ const GlyphRunList& sktext::GlyphRunBuilder::blobToGlyphRunList(
 }
 
 std::tuple<SkSpan<const SkPoint>, SkSpan<const SkVector>>
-GlyphRunBuilder::convertRSXForm(SkSpan<const SkRSXform> xforms) {
+SkGlyphRunBuilder::convertRSXForm(SkSpan<const SkRSXform> xforms) {
     const int count = SkCount(xforms);
     this->prepareBuffers(count, count);
     auto positions = SkSpan(fPositions.get(), count);
@@ -289,7 +289,7 @@ GlyphRunBuilder::convertRSXForm(SkSpan<const SkRSXform> xforms) {
     return {positions, scaledRotations};
 }
 
-void GlyphRunBuilder::initialize(const SkTextBlob& blob) {
+void SkGlyphRunBuilder::initialize(const SkTextBlob& blob) {
     int positionCount = 0;
     int rsxFormCount = 0;
     for (SkTextBlobRunIterator it(&blob); !it.done(); it.next()) {
@@ -304,7 +304,7 @@ void GlyphRunBuilder::initialize(const SkTextBlob& blob) {
     prepareBuffers(positionCount, rsxFormCount);
 }
 
-void GlyphRunBuilder::prepareBuffers(int positionCount, int RSXFormCount) {
+void SkGlyphRunBuilder::prepareBuffers(int positionCount, int RSXFormCount) {
     if (positionCount > fMaxTotalRunSize) {
         fMaxTotalRunSize = positionCount;
         fPositions.reset(fMaxTotalRunSize);
@@ -318,7 +318,7 @@ void GlyphRunBuilder::prepareBuffers(int positionCount, int RSXFormCount) {
     fGlyphRunListStorage.clear();
 }
 
-SkSpan<const SkGlyphID> GlyphRunBuilder::textToGlyphIDs(
+SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
         const SkFont& font, const void* bytes, size_t byteLength, SkTextEncoding encoding) {
     if (encoding != SkTextEncoding::kGlyphID) {
         int count = font.countText(bytes, byteLength, encoding);
@@ -334,7 +334,7 @@ SkSpan<const SkGlyphID> GlyphRunBuilder::textToGlyphIDs(
     }
 }
 
-void GlyphRunBuilder::makeGlyphRun(
+void SkGlyphRunBuilder::makeGlyphRun(
         const SkFont& font,
         SkSpan<const SkGlyphID> glyphIDs,
         SkSpan<const SkPoint> positions,
@@ -354,16 +354,16 @@ void GlyphRunBuilder::makeGlyphRun(
     }
 }
 
-const GlyphRunList& sktext::GlyphRunBuilder::setGlyphRunList(
+const SkGlyphRunList& SkGlyphRunBuilder::setGlyphRunList(
         const SkTextBlob* blob, const SkRect& bounds, SkPoint origin) {
     fGlyphRunList.emplace(blob, bounds, origin, SkSpan(fGlyphRunListStorage), this);
     return fGlyphRunList.value();
 }
 
-// -- SKSubRunBuffers ------------------------------------------------------------------------------
-auto SkSubRunBuffers::EnsureBuffers(const GlyphRunList& glyphRunList) -> ScopedBuffers {
+// -- SkSubRunBuffers ------------------------------------------------------------------------------
+auto SkSubRunBuffers::EnsureBuffers(const SkGlyphRunList& glyphRunList) -> ScopedBuffers {
     size_t size = 0;
-    for (const GlyphRun& run : glyphRunList) {
+    for (const SkGlyphRun& run : glyphRunList) {
         size = std::max(run.runSize(), size);
     }
     return ScopedBuffers(glyphRunList.buffers(), size);
@@ -378,4 +378,3 @@ SkSubRunBuffers::ScopedBuffers::~ScopedBuffers() {
     fBuffers->fAccepted.reset();
     fBuffers->fRejected.reset();
 }
-}  // namespace sktext

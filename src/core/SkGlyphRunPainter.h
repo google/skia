@@ -13,9 +13,7 @@
 #include "src/core/SkScalerContext.h"
 
 class SkColorSpace;
-namespace sktext {
-class GlyphRunList;
-}
+class SkGlyphRunList;
 
 class SkStrikeCommon {
 public:
@@ -44,8 +42,7 @@ public:
 
     void drawForBitmapDevice(
             SkCanvas* canvas, const BitmapDevicePainter* bitmapDevice,
-            const sktext::GlyphRunList& glyphRunList, const SkPaint& paint,
-            const SkMatrix& drawMatrix);
+            const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& drawMatrix);
 private:
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;

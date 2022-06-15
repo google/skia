@@ -331,7 +331,7 @@ void SurfaceDrawContext::willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask
 void SurfaceDrawContext::drawGlyphRunList(SkCanvas* canvas,
                                           const GrClip* clip,
                                           const SkMatrixProvider& viewMatrix,
-                                          const sktext::GlyphRunList& glyphRunList,
+                                          const SkGlyphRunList& glyphRunList,
                                           SkStrikeDeviceInfo strikeDeviceInfo,
                                           const SkPaint& paint) {
     ASSERT_SINGLE_OWNER

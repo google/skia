@@ -25,12 +25,10 @@
 class SkBaseDevice;
 class SkCanvas;
 class SkGlyph;
+class SkGlyphRunList;
+class SkGlyphRunBuilder;
 class SkTextBlob;
 class SkTextBlobRunIterator;
-
-namespace sktext {
-class GlyphRunBuilder;
-class GlyphRunList;
 
 class SkSubRunBuffers {
 public:
@@ -45,23 +43,23 @@ public:
     private:
         SkSubRunBuffers* const fBuffers;
     };
-    static ScopedBuffers SK_WARN_UNUSED_RESULT EnsureBuffers(const GlyphRunList& glyphRunList);
+    static ScopedBuffers SK_WARN_UNUSED_RESULT EnsureBuffers(const SkGlyphRunList& glyphRunList);
 
 private:
     SkDrawableGlyphBuffer fAccepted;
     SkSourceGlyphBuffer fRejected;
 };
 
-class GlyphRun {
+class SkGlyphRun {
 public:
-    GlyphRun(const SkFont& font,
-             SkSpan<const SkPoint> positions,
-             SkSpan<const SkGlyphID> glyphIDs,
-             SkSpan<const char> text,
-             SkSpan<const uint32_t> clusters,
-             SkSpan<const SkVector> scaledRotations);
+    SkGlyphRun(const SkFont& font,
+               SkSpan<const SkPoint> positions,
+               SkSpan<const SkGlyphID> glyphIDs,
+               SkSpan<const char> text,
+               SkSpan<const uint32_t> clusters,
+               SkSpan<const SkVector> scaledRotations);
 
-    GlyphRun(const GlyphRun& glyphRun, const SkFont& font);
+    SkGlyphRun(const SkGlyphRun& glyphRun, const SkFont& font);
 
     size_t runSize() const { return fSource.size(); }
     SkSpan<const SkPoint> positions() const { return fSource.get<1>(); }
@@ -86,21 +84,22 @@ private:
     SkFont fFont;
 };
 
-class GlyphRunList {
-    SkSpan<const GlyphRun> fGlyphRuns;
+class SkGlyphRunList {
+    SkSpan<const SkGlyphRun> fGlyphRuns;
 
 public:
     // Blob maybe null.
-    GlyphRunList(const SkTextBlob* blob,
-                 SkRect bounds,
-                 SkPoint origin,
-                 SkSpan<const GlyphRun> glyphRunList,
-                 GlyphRunBuilder* builder);
+    SkGlyphRunList(
+            const SkTextBlob* blob,
+            SkRect bounds,
+            SkPoint origin,
+            SkSpan<const SkGlyphRun> glyphRunList,
+            SkGlyphRunBuilder* builder);
 
-    GlyphRunList(const GlyphRun& glyphRun,
-                 const SkRect& bounds,
-                 SkPoint origin,
-                 GlyphRunBuilder* builder);
+    SkGlyphRunList(const SkGlyphRun& glyphRun,
+                   const SkRect& bounds,
+                   SkPoint origin,
+                   SkGlyphRunBuilder* builder);
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
     void temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const;
@@ -109,14 +108,14 @@ public:
     size_t runCount() const { return fGlyphRuns.size(); }
     size_t totalGlyphCount() const {
         size_t glyphCount = 0;
-        for (const GlyphRun& run : *this) {
+        for (const SkGlyphRun& run : *this) {
             glyphCount += run.runSize();
         }
         return glyphCount;
     }
 
     bool hasRSXForm() const {
-        for (const GlyphRun& run : *this) {
+        for (const SkGlyphRun& run : *this) {
             if (!run.scaledRotations().empty()) { return true; }
         }
         return false;
@@ -127,7 +126,7 @@ public:
     SkPoint origin() const { return fOrigin; }
     SkRect sourceBounds() const { return fSourceBounds; }
     const SkTextBlob* blob() const { return fOriginalTextBlob; }
-    GlyphRunBuilder* builder() const { return fBuilder; }
+    SkGlyphRunBuilder* builder() const { return fBuilder; }
     SkSubRunBuffers* buffers() const;
 
     auto begin() -> decltype(fGlyphRuns.begin())               { return fGlyphRuns.begin();      }
@@ -144,20 +143,20 @@ private:
     const SkTextBlob* fOriginalTextBlob{nullptr};
     const SkRect fSourceBounds{SkRect::MakeEmpty()};
     const SkPoint fOrigin = {0, 0};
-    GlyphRunBuilder* const fBuilder;
+    SkGlyphRunBuilder* const fBuilder;
 };
 
-class GlyphRunBuilder {
+class SkGlyphRunBuilder {
 public:
-    GlyphRunList makeGlyphRunList(
-            const GlyphRun& run, SkRect bounds, SkPoint origin);
-    const GlyphRunList& textToGlyphRunList(const SkFont& font,
-                                           const SkPaint& paint,
-                                           const void* bytes,
-                                           size_t byteLength,
-                                           SkPoint origin,
-                                           SkTextEncoding encoding = SkTextEncoding::kUTF8);
-    const GlyphRunList& blobToGlyphRunList(const SkTextBlob& blob, SkPoint origin);
+    SkGlyphRunList makeGlyphRunList(
+            const SkGlyphRun& run, SkRect bounds, SkPoint origin);
+    const SkGlyphRunList& textToGlyphRunList(const SkFont& font,
+                                             const SkPaint& paint,
+                                             const void* bytes,
+                                             size_t byteLength,
+                                             SkPoint origin,
+                                             SkTextEncoding encoding = SkTextEncoding::kUTF8);
+    const SkGlyphRunList& blobToGlyphRunList(const SkTextBlob& blob, SkPoint origin);
     std::tuple<SkSpan<const SkPoint>, SkSpan<const SkVector>>
             convertRSXForm(SkSpan<const SkRSXform> xforms);
 
@@ -179,7 +178,7 @@ private:
             SkSpan<const uint32_t> clusters,
             SkSpan<const SkVector> scaledRotations);
 
-    const GlyphRunList& setGlyphRunList(
+    const SkGlyphRunList& setGlyphRunList(
             const SkTextBlob* blob, const SkRect& bounds, SkPoint origin);
 
     int fMaxTotalRunSize{0};
@@ -187,8 +186,8 @@ private:
     int fMaxScaledRotations{0};
     SkAutoTMalloc<SkVector> fScaledRotations;
 
-    std::vector<GlyphRun> fGlyphRunListStorage;
-    std::optional<GlyphRunList> fGlyphRunList;  // Defaults to no value;
+    std::vector<SkGlyphRun> fGlyphRunListStorage;
+    std::optional<SkGlyphRunList> fGlyphRunList;  // Defaults to no value;
 
     // Used as a temporary for preparing using utfN text. This implies that only one run of
     // glyph ids will ever be needed because blobs are already glyph based.
@@ -196,7 +195,7 @@ private:
 
     SkSubRunBuffers fSubRunBuffers;
 };
-inline SkSubRunBuffers* GlyphRunList::buffers() const { return fBuilder->buffers(); }
-}  // namespace sktext
+
+inline SkSubRunBuffers* SkGlyphRunList::buffers() const { return fBuilder->buffers(); }
 
 #endif  // SkGlyphRun_DEFINED

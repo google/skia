@@ -9,8 +9,8 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTextBlob.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/text/GlyphRun.h"
 
 #include <cstdint>
 #include <vector>
@@ -32,7 +32,7 @@ class Capture {
 public:
     Capture();
     ~Capture();
-    void capture(const sktext::GlyphRunList&, const SkPaint&);
+    void capture(const SkGlyphRunList&, const SkPaint&);
     // If `dst` is nullptr, write to a file.
     void dump(SkWStream* dst = nullptr) const;
 

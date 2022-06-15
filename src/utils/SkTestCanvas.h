@@ -18,7 +18,7 @@
 #include "include/core/SkSize.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "src/core/SkDevice.h"
-#include "src/text/GlyphRun.h"
+#include "src/core/SkGlyphRun.h"
 
 // You can only make template specializations of SkTestCanvas.
 template <typename Key> class SkTestCanvas;
@@ -29,8 +29,7 @@ template <>
 class SkTestCanvas<SkSlugTestKey> : public SkCanvas {
 public:
     SkTestCanvas(SkCanvas* canvas);
-    void onDrawGlyphRunList(
-            const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
+    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
 };
 
 #endif  // SkTestCanvas_DEFINED

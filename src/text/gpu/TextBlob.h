@@ -17,18 +17,16 @@
 #include "src/core/SkTInternalLList.h"
 #include "src/text/gpu/SubRunContainer.h"
 
+class SkGlyphRunList;
 class SkMatrixProvider;
 class SkStrikeClient;
 class SkSurfaceProps;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
-namespace sktext {
-class GlyphRunList;
-    namespace gpu {
-    class Glyph;
-    class StrikeCache;
-    }
+namespace sktext::gpu {
+class Glyph;
+class StrikeCache;
 }
 
 #if SK_SUPPORT_GPU  // Ganesh support
@@ -62,7 +60,7 @@ public:
     // Key is not used as part of a hash map, so the hash is never taken. It's only used in a
     // list search using operator =().
     struct Key {
-        static std::tuple<bool, Key> Make(const GlyphRunList& glyphRunList,
+        static std::tuple<bool, Key> Make(const SkGlyphRunList& glyphRunList,
                                           const SkPaint& paint,
                                           const SkMatrix& drawMatrix,
                                           const SkStrikeDeviceInfo& strikeDevice);
@@ -90,7 +88,7 @@ public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(TextBlob);
 
     // Make a TextBlob and its sub runs.
-    static sk_sp<TextBlob> Make(const sktext::GlyphRunList& glyphRunList,
+    static sk_sp<TextBlob> Make(const SkGlyphRunList& glyphRunList,
                                 const SkPaint& paint,
                                 const SkMatrix& positionMatrix,
                                 SkStrikeDeviceInfo strikeDeviceInfo,
@@ -157,7 +155,7 @@ private:
 
 namespace skgpu::v1 {
 sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
-                                  const sktext::GlyphRunList& glyphRunList,
+                                  const SkGlyphRunList& glyphRunList,
                                   const SkPaint& initialPaint,
                                   const SkPaint& drawingPaint,
                                   SkStrikeDeviceInfo strikeDeviceInfo,

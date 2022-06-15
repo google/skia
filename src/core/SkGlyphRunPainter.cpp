@@ -28,13 +28,13 @@
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyphBuffer.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/text/GlyphRun.h"
 
 #include <cinttypes>
 #include <climits>
@@ -64,8 +64,8 @@ SkGlyphRunListPainterCPU::SkGlyphRunListPainterCPU(const SkSurfaceProps& props,
 
 void SkGlyphRunListPainterCPU::drawForBitmapDevice(
         SkCanvas* canvas, const BitmapDevicePainter* bitmapDevice,
-        const sktext::GlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& drawMatrix) {
-    auto bufferScope = sktext::SkSubRunBuffers::EnsureBuffers(glyphRunList);
+        const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& drawMatrix) {
+    auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
 
     // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,

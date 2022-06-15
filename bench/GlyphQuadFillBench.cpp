@@ -48,7 +48,7 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
 
         SkMatrix view = SkMatrix::I();
         size_t len = strlen(gText);
-        sktext::GlyphRunBuilder builder;
+        SkGlyphRunBuilder builder;
         SkPaint paint;
         auto glyphRunList = builder.textToGlyphRunList(font, paint, gText, len, {100, 100});
         SkASSERT(!glyphRunList.empty());
