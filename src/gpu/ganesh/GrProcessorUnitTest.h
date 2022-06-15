@@ -128,30 +128,32 @@ private:
 /** GrProcessor subclasses should insert this macro in their declaration to be included in the
  *  program generation unit test.
  */
-#define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                        \
-    static GrGeometryProcessorTestFactory gTestFactory SK_UNUSED; \
+#define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                         \
+    static GrGeometryProcessorTestFactory* gTestFactory SK_UNUSED; \
     static GrGeometryProcessor* TestCreate(GrProcessorTestData*);
 
-#define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                        \
-    static GrFragmentProcessorTestFactory gTestFactory SK_UNUSED; \
+#define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                         \
+    static GrFragmentProcessorTestFactory* gTestFactory SK_UNUSED; \
     static std::unique_ptr<GrFragmentProcessor> TestCreate(GrProcessorTestData*);
 
-#define GR_DECLARE_XP_FACTORY_TEST                                                                 \
-    static GrXPFactoryTestFactory gTestFactory SK_UNUSED;                                          \
+#define GR_DECLARE_XP_FACTORY_TEST                         \
+    static GrXPFactoryTestFactory* gTestFactory SK_UNUSED; \
     static const GrXPFactory* TestGet(GrProcessorTestData*);
 
 /** GrProcessor subclasses should insert this macro in their implementation file. They must then
  *  also implement this static function:
  *      GrProcessor* TestCreate(GrProcessorTestData*);
  */
-#define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Effect) \
-    GrFragmentProcessorTestFactory Effect::gTestFactory(Effect::TestCreate, #Effect)
+#define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Effect)          \
+    GrFragmentProcessorTestFactory* Effect::gTestFactory = \
+            new GrFragmentProcessorTestFactory(Effect::TestCreate, #Effect)
 
-#define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(Effect) \
-    GrGeometryProcessorTestFactory Effect::gTestFactory(Effect::TestCreate, #Effect)
+#define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(Effect)          \
+    GrGeometryProcessorTestFactory* Effect::gTestFactory = \
+            new GrGeometryProcessorTestFactory(Effect::TestCreate, #Effect)
 
-#define GR_DEFINE_XP_FACTORY_TEST(Factory)                                                         \
-    GrXPFactoryTestFactory Factory::gTestFactory(Factory::TestGet)
+#define GR_DEFINE_XP_FACTORY_TEST(Factory) \
+    GrXPFactoryTestFactory* Factory::gTestFactory = new GrXPFactoryTestFactory(Factory::TestGet)
 
 #else // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
