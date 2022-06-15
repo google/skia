@@ -2160,11 +2160,6 @@
         "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader"
       ]
     },
-    "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN": {
-      "tasks": [
-        "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN"
-      ]
-    },
     "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader": {
       "tasks": [
         "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader"
@@ -42406,109 +42401,6 @@
         "test"
       ],
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "casSpec": "test",
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/linux-amd64",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:2@3.8.10.chromium.19"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
-        },
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
-        },
-        {
-          "name": "infra/tools/luci/vpython-native/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
-        },
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:20"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:47"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:382"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:14"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"SwiftShader\\\",\\\"extra_config\\\",\\\"SwiftShader_MSAN\\\",\\\"model\\\",\\\"GCE\\\",\\\"os\\\",\\\"Debian10\\\",\\\"style\\\",\\\"default\\\",\\\"--config\\\",\\\"vk\\\",\\\"vkdmsaa\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"svg\\\",\\\"--skip\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"GrThreadSafeCache16Verts\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"image_subset\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--match\\\",\\\"~Once\\\",\\\"~Shared\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"false\",\"gold_hashes_url\":\"https://gold.skia.org/json/v1/hashes\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Build-Debian10-Clang-x86_64-Debug-SwiftShader_MSAN",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "environment": {
-        "RECIPES_USE_PY3": "true",
-        "VPYTHON_LOG_TRACE": "1"
-      },
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_DEFAULT_SPEC": [
-          "skia/.vpython"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 32400000000000,
-      "max_attempts": 1,
-      "outputs": [
-        "test"
-      ]
     },
     "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader": {
       "caches": [

@@ -512,7 +512,6 @@
   {"name": "Test-Debian10-Clang-GCE-CPU-Rome-x86_64-Debug-All"},
   {"name": "Test-Debian10-Clang-GCE-CPU-Rome-x86_64-Release-All"},
   {"name": "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader"},
-  {"name": "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN"},
   {"name": "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader"},
   {"name": "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All"},
   {"name": "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan"},
