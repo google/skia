@@ -9,6 +9,7 @@
 
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/geom/Shape.h"
 
 namespace skgpu::graphite {
 
@@ -23,20 +24,20 @@ const Transform& DrawList::deduplicateTransform(const Transform& localToDevice) 
 
 void DrawList::recordDraw(const Renderer& renderer,
                           const Transform& localToDevice,
-                          const Shape& shape,
+                          const Geometry& geometry,
                           const Clip& clip,
                           DrawOrder ordering,
                           const PaintParams* paint,
                           const StrokeStyle* stroke) {
     SkASSERT(localToDevice.valid());
-    SkASSERT(!shape.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
+    SkASSERT(!geometry.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
     SkASSERT(!(renderer.depthStencilFlags() & DepthStencilFlags::kStencil) ||
              ordering.stencilIndex() != DrawOrder::kUnassigned);
 
     // TODO: Add validation that the renderer's expected shape type and stroke params match provided
 
     fDraws.push_back({renderer, this->deduplicateTransform(localToDevice),
-                      shape, clip, ordering, paint, stroke});
+                      geometry, clip, ordering, paint, stroke});
     fRenderStepCount += renderer.numRenderSteps();
 }
 

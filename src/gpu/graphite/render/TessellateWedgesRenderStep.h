@@ -20,8 +20,8 @@ public:
     ~TessellateWedgesRenderStep() override;
 
     const char* vertexSkSL() const override;
-    void writeVertices(DrawWriter*, const DrawGeometry&) const override;
-    void writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const override;
+    void writeVertices(DrawWriter*, const DrawParams&) const override;
+    void writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const override;
 
 };
 

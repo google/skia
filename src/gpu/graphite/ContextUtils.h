@@ -17,7 +17,7 @@ class SkUniquePaintParamsID;
 
 namespace skgpu::graphite {
 
-class DrawGeometry;
+class DrawParams;
 class PaintParams;
 class Recorder;
 class RenderStep;
@@ -32,7 +32,7 @@ ExtractPaintData(Recorder*,
 UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
                                               SkPipelineDataGatherer* gatherer,
                                               const RenderStep* step,
-                                              const DrawGeometry& geometry);
+                                              const DrawParams& params);
 
 } // namespace skgpu::graphite
 

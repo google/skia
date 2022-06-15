@@ -22,8 +22,8 @@ class SkPixmap;
 
 namespace skgpu::graphite {
 
+class Geometry;
 class Recorder;
-class Shape;
 class Transform;
 
 class DrawPass;
@@ -53,7 +53,7 @@ public:
 
     void recordDraw(const Renderer& renderer,
                     const Transform& localToDevice,
-                    const Shape& shape,
+                    const Geometry& geometry,
                     const Clip& clip,
                     DrawOrder ordering,
                     const PaintParams* paint,

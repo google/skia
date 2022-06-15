@@ -48,17 +48,6 @@ bool Shape::conservativeContains(skvx::float2 point) const {
     SkUNREACHABLE;
 }
 
-bool Shape::closed() const {
-    switch (fType) {
-        case Type::kEmpty: return true;
-        case Type::kLine:  return false;
-        case Type::kRect:  return true;
-        case Type::kRRect: return true;
-        case Type::kPath:  return SkPathPriv::IsClosedSingleContour(fPath);
-    }
-    SkUNREACHABLE;
-}
-
 bool Shape::convex(bool simpleFill) const {
     if (this->isPath()) {
         // SkPath.isConvex() really means "is this path convex were it to be closed".

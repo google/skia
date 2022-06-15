@@ -86,10 +86,6 @@ public:
     bool conservativeContains(const Rect& rect) const;
     bool conservativeContains(skvx::float2 point) const;
 
-    // True if the underlying geometry represents a closed shape, without the need for an
-    // implicit close.
-    bool closed() const;
-
     // True if the underlying shape is known to be convex, assuming no other styles. If 'simpleFill'
     // is true, it is assumed the contours will be implicitly closed when drawn or used.
     bool convex(bool simpleFill = true) const;

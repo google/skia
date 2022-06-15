@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/render/TessellateCurvesRenderStep.h"
 
-#include "src/gpu/graphite/DrawGeometry.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/render/DynamicInstancesPatchAllocator.h"
 #include "src/gpu/graphite/render/StencilAndCoverDSS.h"
@@ -57,8 +57,8 @@ const char* TessellateCurvesRenderStep::vertexSkSL() const {
                "depth, 1.0);\n";
 }
 
-void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometry& geom) const {
-    SkPath path = geom.shape().asPath(); // TODO: Iterate the Shape directly
+void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawParams& params) const {
+    SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
     BindBufferInfo fixedVertexBuffer = dw->bufferManager()->getStaticBuffer(
             BufferType::kVertex,
@@ -72,7 +72,7 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
     int patchReserveCount = FixedCountCurves::PreallocCount(path.countVerbs());
     Writer writer{kAttribs, *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
 
-    writer.updatePaintDepthAttrib(geom.order().depthAsFloat());
+    writer.updatePaintDepthAttrib(params.order().depthAsFloat());
 
     // TODO: Is it better to pre-transform on the CPU and only have a matrix uniform to compute
     // local coords, or is it better to always transform on the GPU (less CPU usage, more
@@ -83,7 +83,7 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
     // TODO: This doesn't handle perspective yet, and ideally wouldn't go through SkMatrix.
     // It may not be relevant, though, if transforms are applied on the GPU and we only need to
     // determine an approximate 2x2 for 'shaderXform' and Wang's formula evaluation.
-    AffineMatrix m(geom.transform().matrix().asM33());
+    AffineMatrix m(params.transform().matrix().asM33());
 
     // TODO: For filled curves, the path verb loop is simple enough that it's not too big a deal
     // to copy the logic from PathCurveTessellator::write_patches. It may be required if we end
@@ -123,7 +123,7 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
     }
 }
 
-void TessellateCurvesRenderStep::writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const {
+void TessellateCurvesRenderStep::writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 

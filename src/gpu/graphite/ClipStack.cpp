@@ -16,7 +16,7 @@
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/graphite/Device.h"
-#include "src/gpu/graphite/DrawGeometry.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 
 namespace skgpu::graphite {

@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/render/MiddleOutFanRenderStep.h"
 
-#include "src/gpu/graphite/DrawGeometry.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/render/StencilAndCoverDSS.h"
 
@@ -34,14 +34,14 @@ const char* MiddleOutFanRenderStep::vertexSkSL() const {
     return "     float4 devPosition = position;\n";
 }
 
-void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawGeometry& geom) const {
+void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawParams& params) const {
     // TODO: Have Shape provide a path-like iterator so we don't actually have to convert non
     // paths to SkPath just to iterate their pts/verbs
-    SkPath path = geom.shape().asPath();
+    SkPath path = params.geometry().shape().asPath();
 
     const int maxTrianglesInFans = std::max(path.countVerbs() - 2, 0);
 
-    float depth = geom.order().depthAsFloat();
+    float depth = params.order().depthAsFloat();
 
     DrawWriter::Vertices verts{*writer};
     verts.reserve(maxTrianglesInFans * 3);
@@ -50,7 +50,7 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawGeometr
             // TODO: PathMiddleOutFanIter should use SkV2 instead of SkPoint?
             SkV2 p[3] = {{p0.fX, p0.fY}, {p1.fX, p1.fY}, {p2.fX, p2.fY}};
             SkV4 devPoints[3];
-            geom.transform().mapPoints(p, devPoints, 3);
+            params.transform().mapPoints(p, devPoints, 3);
 
             verts.append(3) << devPoints[0].x << devPoints[0].y << depth << devPoints[0].w  // p0
                             << devPoints[1].x << devPoints[1].y << depth << devPoints[1].w  // p1
@@ -59,7 +59,7 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawGeometr
     }
 }
 
-void MiddleOutFanRenderStep::writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const {
+void MiddleOutFanRenderStep::writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 

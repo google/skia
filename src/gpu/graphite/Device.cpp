@@ -15,8 +15,8 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawContext.h"
-#include "src/gpu/graphite/DrawGeometry.h"
 #include "src/gpu/graphite/DrawList.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/Gpu.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -24,6 +24,7 @@
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
+#include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/IntersectionTree.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
@@ -699,10 +700,11 @@ void Device::recordDraw(const Transform& localToDevice,
                                                                  clip.drawBounds());
         ordering.dependsOnStencil(setIndex);
     }
+
     // TODO: if the chosen Renderer uses coverage AA, then 'ordering' depends on painter's order,
     // so we will need to take into account the previous draw. Since no Renderer uses coverage AA
     // right now, it's not an issue yet.
-    fDC->recordDraw(*renderer, localToDevice, shape, clip, ordering, paint, stroke);
+    fDC->recordDraw(*renderer, localToDevice, Geometry{shape}, clip, ordering, paint, stroke);
 
     fRecorder->priv().tokenTracker()->issueDrawToken();
 }

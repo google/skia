@@ -57,7 +57,7 @@ ExtractPaintData(Recorder* recorder,
 UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
                                               SkPipelineDataGatherer* gatherer,
                                               const RenderStep* step,
-                                              const DrawGeometry& geometry) {
+                                              const DrawParams& geometry) {
     SkDEBUGCODE(gatherer->checkReset());
 
     step->writeUniforms(geometry, gatherer);

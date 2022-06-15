@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/render/TessellateWedgesRenderStep.h"
 
-#include "src/gpu/graphite/DrawGeometry.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/render/DynamicInstancesPatchAllocator.h"
 
@@ -63,8 +63,8 @@ const char* TessellateWedgesRenderStep::vertexSkSL() const {
                                         "fanPointAttrib), depth, 1.0);\n";
 }
 
-void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometry& geom) const {
-    SkPath path = geom.shape().asPath(); // TODO: Iterate the Shape directly
+void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw, const DrawParams& geom) const {
+    SkPath path = geom.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
     BindBufferInfo fixedVertexBuffer = dw->bufferManager()->getStaticBuffer(
             BufferType::kVertex,
@@ -154,7 +154,7 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
     }
 }
 
-void TessellateWedgesRenderStep::writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const {
+void TessellateWedgesRenderStep::writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 

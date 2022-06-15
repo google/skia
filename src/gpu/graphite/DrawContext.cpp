@@ -25,7 +25,8 @@
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UploadTask.h"
-#include "src/gpu/graphite/geom/Shape.h"
+#include "src/gpu/graphite/geom/BoundsManager.h"
+#include "src/gpu/graphite/geom/Geometry.h"
 
 namespace skgpu::graphite {
 
@@ -73,13 +74,13 @@ void DrawContext::clear(const SkColor4f& clearColor) {
 
 void DrawContext::recordDraw(const Renderer& renderer,
                              const Transform& localToDevice,
-                             const Shape& shape,
+                             const Geometry& geometry,
                              const Clip& clip,
                              DrawOrder ordering,
                              const PaintParams* paint,
                              const StrokeStyle* stroke) {
     SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(clip.scissor()));
-    fPendingDraws->recordDraw(renderer, localToDevice, shape, clip, ordering, paint, stroke);
+    fPendingDraws->recordDraw(renderer, localToDevice, geometry, clip, ordering, paint, stroke);
 }
 
 bool DrawContext::recordUpload(Recorder* recorder,

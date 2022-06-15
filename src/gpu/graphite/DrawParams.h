@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawGeometry_DEFINED
-#define skgpu_DrawGeometry_DEFINED
+#ifndef skgpu_DrawParams_DEFINED
+#define skgpu_DrawParams_DEFINED
 
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "src/gpu/graphite/DrawOrder.h"
+#include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/Rect.h"
-#include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
 #include <optional>
@@ -84,21 +84,21 @@ private:
 
 // Encapsulates all geometric state for a single high-level draw call. RenderSteps are responsible
 // for transforming this state into actual rendering; shading from PaintParams is handled separately
-class DrawGeometry {
+class DrawParams {
 public:
-    DrawGeometry(const Transform& transform,
-                 const Shape& shape,
-                 const Clip& clip,
-                 DrawOrder drawOrder,
-                 const StrokeStyle* stroke)
+    DrawParams(const Transform& transform,
+               const Geometry& geometry,
+               const Clip& clip,
+               DrawOrder drawOrder,
+               const StrokeStyle* stroke)
             : fTransform(transform)
-            , fShape(shape)
+            , fGeometry(geometry)
             , fClip(clip)
             , fOrder(drawOrder)
             , fStroke(stroke ? std::optional<StrokeStyle>(*stroke) : std::nullopt) {}
 
     const Transform& transform() const { return fTransform; }
-    const Shape&     shape()     const { return fShape;     }
+    const Geometry&  geometry()  const { return fGeometry;  }
     const Clip&      clip()      const { return fClip;      }
     DrawOrder        order()     const { return fOrder;     }
 
@@ -112,7 +112,7 @@ public:
 private:
     const Transform& fTransform; // Lifetime of the transform must be held longer than the geometry
 
-    Shape     fShape;
+    Geometry  fGeometry;
     Clip      fClip;
     DrawOrder fOrder;
 
@@ -121,4 +121,4 @@ private:
 
 }  // namespace skgpu
 
-#endif // skgpu_DrawGeometry_DEFINED
+#endif // skgpu_DrawParams_DEFINED

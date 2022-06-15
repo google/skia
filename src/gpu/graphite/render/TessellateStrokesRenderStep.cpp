@@ -10,7 +10,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPipelineData.h"
 
-#include "src/gpu/graphite/DrawGeometry.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/render/DynamicInstancesPatchAllocator.h"
@@ -89,8 +89,8 @@ const char* TessellateStrokesRenderStep::vertexSkSL() const {
                 depth, 1.0);)";
 }
 
-void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometry& geom) const {
-    SkPath path = geom.shape().asPath(); // TODO: Iterate the Shape directly
+void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw, const DrawParams& params) const {
+    SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
     int patchReserveCount = FixedCountStrokes::PreallocCount(path.countVerbs());
     // Stroke tessellation does not use fixed indices or vertex data, and only needs the vertex ID
@@ -99,29 +99,29 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw, const DrawGeomet
     // we support Vulkan+Swiftshader, we will need the vertex buffer ID fallback unless Swiftshader
     // has figured out how to support vertex IDs before then.
     Writer writer{kAttribs, *dw, kNullBinding, kNullBinding, patchReserveCount};
-    writer.updatePaintDepthAttrib(geom.order().depthAsFloat());
+    writer.updatePaintDepthAttrib(params.order().depthAsFloat());
 
     // The vector xform approximates how the control points are transformed by the shader to
     // more accurately compute how many *parametric* segments are needed.
     // getMaxScale() returns -1 if it can't compute a scale factor (e.g. perspective), taking the
     // absolute value automatically converts that to an identity scale factor for our purposes.
-    writer.setShaderTransform(wangs_formula::VectorXform{geom.transform()},
-                              geom.transform().maxScaleFactor());
+    writer.setShaderTransform(wangs_formula::VectorXform{params.transform()},
+                              params.transform().maxScaleFactor());
 
-    SkASSERT(geom.isStroke());
-    writer.updateStrokeParamsAttrib({geom.strokeStyle().halfWidth(),
-                                     geom.strokeStyle().joinLimit()});
+    SkASSERT(params.isStroke());
+    writer.updateStrokeParamsAttrib({params.strokeStyle().halfWidth(),
+                                     params.strokeStyle().joinLimit()});
 
     // TODO: If PatchWriter can handle adding caps to its deferred patches, and we can convert
     // hairlines to use round caps instead of square, then StrokeIterator can be deleted entirely.
     // Besides being simpler, PatchWriter already has what it needs from the shader matrix and
     // stroke params, so we don't have to re-extract them here.
-    SkMatrix shaderMatrix = geom.transform();
+    SkMatrix shaderMatrix = params.transform();
     SkStrokeRec stroke{SkStrokeRec::kHairline_InitStyle};
-    stroke.setStrokeStyle(geom.strokeStyle().width());
-    stroke.setStrokeParams(geom.strokeStyle().cap(),
-                           geom.strokeStyle().join(),
-                           geom.strokeStyle().miterLimit());
+    stroke.setStrokeStyle(params.strokeStyle().width());
+    stroke.setStrokeParams(params.strokeStyle().cap(),
+                           params.strokeStyle().join(),
+                           params.strokeStyle().miterLimit());
     StrokeIterator strokeIter(path, &stroke, &shaderMatrix);
     while (strokeIter.next()) {
         using Verb = StrokeIterator::Verb;
@@ -211,22 +211,22 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw, const DrawGeomet
     }
 }
 
-void TessellateStrokesRenderStep::writeUniforms(const DrawGeometry& geom,
+void TessellateStrokesRenderStep::writeUniforms(const DrawParams& params,
                                                 SkPipelineDataGatherer* gatherer) const {
-    SkASSERT(geom.transform().type() < Transform::Type::kProjection); // TODO: Implement perspective
+    SkASSERT(params.transform().type() < Transform::Type::kProjection); // TODO: Implement perspective
 
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     // affineMatrix = float4 (2x2 of transform), translate = float2, maxScale = float
     // Column-major 2x2 of the transform.
-    skvx::float4 upper = {geom.transform().matrix().rc(0, 0), geom.transform().matrix().rc(1, 0),
-                          geom.transform().matrix().rc(0, 1), geom.transform().matrix().rc(1, 1)};
+    skvx::float4 upper = {params.transform().matrix().rc(0, 0), params.transform().matrix().rc(1, 0),
+                          params.transform().matrix().rc(0, 1), params.transform().matrix().rc(1, 1)};
     gatherer->write(upper);
 
-    gatherer->write(SkPoint{geom.transform().matrix().rc(0, 3),
-                            geom.transform().matrix().rc(1, 3)});
+    gatherer->write(SkPoint{params.transform().matrix().rc(0, 3),
+                            params.transform().matrix().rc(1, 3)});
 
-    gatherer->write(geom.transform().maxScaleFactor());
+    gatherer->write(params.transform().maxScaleFactor());
 }
 
 const Renderer& Renderer::TessellatedStrokes() {

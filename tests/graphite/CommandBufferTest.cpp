@@ -20,7 +20,7 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawBufferManager.h"
-#include "src/gpu/graphite/DrawGeometry.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/Gpu.h"
@@ -33,6 +33,7 @@
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
@@ -71,13 +72,13 @@ public:
                "float4 devPosition = float4(tmpPosition * scale + translate, 0.0, 1.0);\n";
     }
 
-    void writeVertices(DrawWriter* writer, const DrawGeometry&) const override {
+    void writeVertices(DrawWriter* writer, const DrawParams&) const override {
         // The shape is upload via uniforms, so this just needs to record 4 data-less vertices
         writer->draw({}, 4);
     }
 
-    void writeUniforms(const DrawGeometry& geom, SkPipelineDataGatherer* gatherer) const override {
-        SkASSERT(geom.shape().isRect());
+    void writeUniforms(const DrawParams& params, SkPipelineDataGatherer* gatherer) const override {
+        SkASSERT(params.geometry().shape().isRect());
 
 #ifdef SK_DEBUG
         static constexpr int kNumRectUniforms = 2;
@@ -91,8 +92,8 @@ public:
 
         // TODO: A << API for uniforms would be nice, particularly if it could take pre-computed
         // offsets for each uniform.
-        gatherer->write(geom.shape().rect().size());
-        gatherer->write(geom.shape().rect().topLeft());
+        gatherer->write(params.geometry().shape().rect().size());
+        gatherer->write(params.geometry().shape().rect().topLeft());
     }
 
 private:
@@ -125,8 +126,8 @@ public:
         return "float4 devPosition = float4(position * scale + translate, 0.0, 1.0);\n";
     }
 
-    void writeVertices(DrawWriter* writer, const DrawGeometry& geom) const override {
-        const Shape& shape = geom.shape();
+    void writeVertices(DrawWriter* writer, const DrawParams& params) const override {
+        const Shape& shape = params.geometry().shape();
         DrawBufferManager* bufferMgr = writer->bufferManager();
         auto [vertexWriter, vertices] = bufferMgr->getVertexWriter(4 * this->vertexStride());
         vertexWriter << 0.5f * (shape.rect().left() + 1.f)  << 0.5f * (shape.rect().top() + 1.f)
@@ -142,7 +143,7 @@ public:
         writer->drawIndexed(vertices, indices, 6);
     }
 
-    void writeUniforms(const DrawGeometry&, SkPipelineDataGatherer* gatherer) const override {
+    void writeUniforms(const DrawParams&, SkPipelineDataGatherer* gatherer) const override {
 #ifdef SK_DEBUG
         static constexpr int kNumRectUniforms = 2;
         static constexpr SkUniform kRectUniforms[kNumRectUniforms] = {
@@ -184,8 +185,8 @@ public:
                "float4 devPosition = float4(tmpPosition * dims + position, 0.0, 1.0);\n";
     }
 
-    void writeVertices(DrawWriter* writer, const DrawGeometry& geom) const override {
-        SkASSERT(geom.shape().isRect());
+    void writeVertices(DrawWriter* writer, const DrawParams& params) const override {
+        SkASSERT(params.geometry().shape().isRect());
 
         DrawBufferManager* bufferMgr = writer->bufferManager();
 
@@ -196,10 +197,11 @@ public:
                     << 2 << 1 << 3;
 
         DrawWriter::Instances instances{*writer, {}, indices, 6};
-        instances.append(1) << geom.shape().rect().topLeft() << geom.shape().rect().size();
+        instances.append(1) << params.geometry().shape().rect().topLeft()
+                            << params.geometry().shape().rect().size();
     }
 
-    void writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const override { }
+    void writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const override {}
 
 private:
     InstanceRectDraw()
@@ -328,10 +330,11 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
             drawWriter.newDynamicState();
             Shape shape(d.fRect);
             DrawOrder order(depth);
-            DrawGeometry geom{kIdentity, shape, {shape.bounds(), kBounds}, order, nullptr};
+            DrawParams params{kIdentity, Geometry{shape}, {shape.bounds(), kBounds}, order,
+                              nullptr};
 
             SkDEBUGCODE(gatherer.checkReset());
-            step->writeUniforms(geom, &gatherer);
+            step->writeUniforms(params, &gatherer);
             if (gatherer.hasUniforms()) {
                 SkUniformDataBlock renderStepUniforms = gatherer.peekUniformData();
                 auto [writer, bindInfo] = bufferMgr.getUniformWriter(renderStepUniforms.size());
@@ -349,7 +352,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
                                              sk_ref_sp(bindInfo.fBuffer),
                                              bindInfo.fOffset);
 
-            step->writeVertices(&drawWriter, geom);
+            step->writeVertices(&drawWriter, params);
         }
     };
 
