@@ -45,9 +45,11 @@
     SKSL_INTRINSIC(fma)              \
     SKSL_INTRINSIC(fract)            \
     SKSL_INTRINSIC(frexp)            \
+    SKSL_INTRINSIC(fromLinearSrgb)   \
     SKSL_INTRINSIC(fwidth)           \
     SKSL_INTRINSIC(greaterThanEqual) \
     SKSL_INTRINSIC(greaterThan)      \
+    SKSL_INTRINSIC(height)           \
     SKSL_INTRINSIC(intBitsToFloat)   \
     SKSL_INTRINSIC(inversesqrt)      \
     SKSL_INTRINSIC(inverse)          \
@@ -69,7 +71,7 @@
     SKSL_INTRINSIC(mod)              \
     SKSL_INTRINSIC(normalize)        \
     SKSL_INTRINSIC(notEqual)         \
-    SKSL_INTRINSIC(not )             \
+    SKSL_INTRINSIC(not)              \
     SKSL_INTRINSIC(outerProduct)     \
     SKSL_INTRINSIC(packDouble2x32)   \
     SKSL_INTRINSIC(packHalf2x16)     \
@@ -79,6 +81,7 @@
     SKSL_INTRINSIC(packUnorm4x8)     \
     SKSL_INTRINSIC(pow)              \
     SKSL_INTRINSIC(radians)          \
+    SKSL_INTRINSIC(read)             \
     SKSL_INTRINSIC(reflect)          \
     SKSL_INTRINSIC(refract)          \
     SKSL_INTRINSIC(roundEven)        \
@@ -94,6 +97,7 @@
     SKSL_INTRINSIC(subpassLoad)      \
     SKSL_INTRINSIC(tanh)             \
     SKSL_INTRINSIC(tan)              \
+    SKSL_INTRINSIC(toLinearSrgb)     \
     SKSL_INTRINSIC(transpose)        \
     SKSL_INTRINSIC(trunc)            \
     SKSL_INTRINSIC(uintBitsToFloat)  \
@@ -103,7 +107,6 @@
     SKSL_INTRINSIC(unpackSnorm4x8)   \
     SKSL_INTRINSIC(unpackUnorm2x16)  \
     SKSL_INTRINSIC(unpackUnorm4x8)   \
-    SKSL_INTRINSIC(toLinearSrgb)     \
-    SKSL_INTRINSIC(fromLinearSrgb)
-
+    SKSL_INTRINSIC(width)            \
+    SKSL_INTRINSIC(write)
 #endif

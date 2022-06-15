@@ -1,0 +1,8 @@
+in int[] x;
+
+void main() {
+}
+
+/*%%*
+compute shader in / out variables must have a layout binding and set
+*%%*/

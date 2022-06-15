@@ -7,6 +7,7 @@ exports_files_legacy()
 filegroup(
     name = "txts",
     srcs = [
+        "generated/sksl_compute.dehydrated.sksl",
         "generated/sksl_frag.dehydrated.sksl",
         "generated/sksl_gpu.dehydrated.sksl",
         "generated/sksl_graphite_frag.dehydrated.sksl",

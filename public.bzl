@@ -1496,6 +1496,7 @@ BASE_SRCS_ALL = [
     "src/sksl/analysis/SkSLCanExitWithoutReturningValue.cpp",
     "src/sksl/analysis/SkSLCheckProgramStructure.cpp",
     "src/sksl/analysis/SkSLFinalizationChecks.cpp",
+    "src/sksl/analysis/SkSLGetComputeShaderMainParams.cpp",
     "src/sksl/analysis/SkSLGetLoopUnrollInfo.cpp",
     "src/sksl/analysis/SkSLIsConstantExpression.cpp",
     "src/sksl/analysis/SkSLIsSameExpressionTree.cpp",

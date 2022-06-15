@@ -73,6 +73,7 @@
 #if REHYDRATE
 
 // At runtime, we load the dehydrated sksl data files. The data is a (pointer, size) pair.
+#include "src/sksl/generated/sksl_compute.dehydrated.sksl"
 #include "src/sksl/generated/sksl_frag.dehydrated.sksl"
 #include "src/sksl/generated/sksl_graphite_frag.dehydrated.sksl"
 #include "src/sksl/generated/sksl_graphite_vert.dehydrated.sksl"
@@ -265,6 +266,14 @@ const ParsedModule& Compiler::loadVertexModule() {
     return fVertexModule;
 }
 
+const ParsedModule& Compiler::loadComputeModule() {
+    if (!fComputeModule.fSymbols) {
+        fComputeModule = this->parseModule(ProgramKind::kCompute, MODULE_DATA(compute),
+                                           this->loadGPUModule());
+    }
+    return fComputeModule;
+}
+
 const ParsedModule& Compiler::loadGraphiteFragmentModule() {
     if (!fGraphiteFragmentModule.fSymbols) {
         fGraphiteFragmentModule = this->parseModule(ProgramKind::kGraphiteFragment,
@@ -344,6 +353,7 @@ const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
     switch (kind) {
         case ProgramKind::kVertex:               return this->loadVertexModule();           break;
         case ProgramKind::kFragment:             return this->loadFragmentModule();         break;
+        case ProgramKind::kCompute:              return this->loadComputeModule();          break;
         case ProgramKind::kGraphiteVertex:       return this->loadGraphiteVertexModule();   break;
         case ProgramKind::kGraphiteFragment:     return this->loadGraphiteFragmentModule(); break;
         case ProgramKind::kRuntimeColorFilter:   return this->loadPublicModule();           break;

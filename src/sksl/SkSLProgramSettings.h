@@ -131,6 +131,10 @@ struct ProgramConfig {
                kind == ProgramKind::kGraphiteVertex;
     }
 
+    static bool IsCompute(ProgramKind kind) {
+        return kind == ProgramKind::kCompute;
+    }
+
     static bool IsRuntimeEffect(ProgramKind kind) {
         return (kind == ProgramKind::kRuntimeColorFilter ||
                 kind == ProgramKind::kRuntimeShader ||

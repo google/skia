@@ -9,6 +9,7 @@ ANALYSIS_FILES = [
     "SkSLCheckProgramStructure.cpp",
     "SkSLFinalizationChecks.cpp",
     "SkSLGetLoopUnrollInfo.cpp",
+    "SkSLGetComputeShaderMainParams.cpp",
     "SkSLIsConstantExpression.cpp",
     "SkSLIsSameExpressionTree.cpp",
     "SkSLIsTrivialExpression.cpp",

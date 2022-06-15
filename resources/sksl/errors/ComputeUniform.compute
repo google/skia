@@ -1,0 +1,8 @@
+uniform int x;
+
+void main() {
+}
+
+/*%%*
+'uniform' variables are not permitted in compute shaders
+*%%*/

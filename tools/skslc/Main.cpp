@@ -299,6 +299,8 @@ ResultCode processCommand(const std::vector<std::string>& args) {
         kind = SkSL::ProgramKind::kVertex;
     } else if (skstd::ends_with(inputPath, ".frag") || skstd::ends_with(inputPath, ".sksl")) {
         kind = SkSL::ProgramKind::kFragment;
+    } else if (skstd::ends_with(inputPath, ".compute")) {
+        kind = SkSL::ProgramKind::kCompute;
     } else if (skstd::ends_with(inputPath, ".rtb")) {
         kind = SkSL::ProgramKind::kRuntimeBlender;
     } else if (skstd::ends_with(inputPath, ".rtcf")) {

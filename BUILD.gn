@@ -632,6 +632,7 @@ if (skia_compile_modules || skia_compile_sksl_tests) {
   # Copy the module source files into the out directory.
   copy("sksl_pre_includes") {
     sources = [
+      "src/sksl/sksl_compute.sksl",
       "src/sksl/sksl_frag.sksl",
       "src/sksl/sksl_gpu.sksl",
       "src/sksl/sksl_graphite_frag.sksl",

@@ -458,6 +458,10 @@ public:
         return false;
     }
 
+    virtual bool isUnsizedArray() const {
+        return false;
+    }
+
     virtual bool isStruct() const {
         return false;
     }

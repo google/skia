@@ -106,6 +106,10 @@ public:
         return fTargetType.isArray();
     }
 
+    bool isUnsizedArray() const override {
+        return fTargetType.isUnsizedArray();
+    }
+
     bool isStruct() const override {
         return fTargetType.isStruct();
     }
@@ -139,6 +143,10 @@ public:
 
     bool isArray() const override {
         return true;
+    }
+
+    bool isUnsizedArray() const override {
+        return fCount == kUnsizedArray;
     }
 
     const Type& componentType() const override {

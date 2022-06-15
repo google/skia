@@ -292,6 +292,11 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
         }
         case ProgramKind::kVertex:
         case ProgramKind::kGraphiteVertex:
+        case ProgramKind::kCompute:
+            if (!returnType.matches(*context.fTypes.fVoid)) {
+                errors.error(pos, "'main' must return 'void'");
+                return false;
+            }
             if (parameters.size()) {
                 errors.error(pos, "shader 'main' must have zero parameters");
                 return false;

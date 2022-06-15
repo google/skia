@@ -1,0 +1,8 @@
+// defines built-in interfaces supported by SkSL compute shaders
+
+layout(builtin=28) in uint3 sk_ThreadPosition;
+
+sk_has_side_effects half4 read(texture2D t, uint2 pos);
+sk_has_side_effects void write(texture2D t, uint2 pos, half4 color);
+uint width(texture2D t);
+uint height(texture2D t);

@@ -1,0 +1,9 @@
+layout(set=0, binding=0) in int x;
+layout(set=0, binding=1) out float4 y;
+
+void main() {
+}
+
+/*%%*
+unsupported compute shader in / out type
+*%%*/

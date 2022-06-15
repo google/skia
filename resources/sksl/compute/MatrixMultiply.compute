@@ -1,0 +1,19 @@
+layout(set=0, binding=0) inout int2[3] sizes; // in1, in2, out
+layout(set=0, binding=1) in float data1[];
+layout(set=0, binding=2) in float data2[];
+layout(set=1, binding=0) out float resultData[];
+
+void main() {
+    sizes[2] = int2(sizes[0].x, sizes[1].y);
+
+    int2 resultCell = int2(sk_ThreadPosition.x, sk_ThreadPosition.y);
+    float result = 0.0;
+    for (int i = 0; i < sizes[0].y; ++i) {
+      int a = i + resultCell.x * sizes[0].y;
+      int b = resultCell.y + i * sizes[1].y;
+      result += data1[a] * data2[b];
+    }
+
+    int index = resultCell.y + resultCell.x * sizes[1].y;
+    resultData[index] = result;
+}

@@ -128,9 +128,13 @@ protected:
 
     std::string typeName(const Type& type);
 
+    std::string textureTypeName(const Type& type, const Modifiers& modifiers);
+
     void writeStructDefinition(const StructDefinition& s);
 
     void writeType(const Type& type);
+
+    void writeTextureType(const Type& type, const Modifiers& modifiers);
 
     void writeExtension(const Extension& ext);
 
@@ -275,6 +279,13 @@ protected:
     Requirements requirements(const Expression* e);
 
     Requirements requirements(const Statement* s);
+
+    // Returns true if it wrote anything
+    bool writeComputeShaderMainParams();
+
+    // For compute shader main functions, writes and initializes the _in and _out structs (the
+    // instances, not the types themselves)
+    void writeComputeMainInputsAndOutputs();
 
     int getUniformBinding(const Modifiers& m);
 

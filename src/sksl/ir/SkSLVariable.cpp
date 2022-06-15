@@ -49,8 +49,32 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos
     if (!context.fConfig->fIsBuiltinCode && skstd::starts_with(name, '$')) {
         context.fErrors->error(namePos, "name '" + std::string(name) + "' is reserved");
     }
-    if (baseType->isArray() && baseType->columns() == Type::kUnsizedArray) {
-        context.fErrors->error(pos, "unsized arrays are not permitted here");
+    if (baseType->isUnsizedArray()) {
+        if (!ProgramConfig::IsCompute(ThreadContext::Context().fConfig->fKind)) {
+            context.fErrors->error(pos, "unsized arrays are not permitted here");
+        } else if (storage != Variable::Storage::kGlobal) {
+            context.fErrors->error(pos, "unsized arrays must be global");
+        } else if (!(modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag))) {
+            context.fErrors->error(pos, "unsized arrays must be declared 'in' and/or 'out'");
+        }
+    }
+    if (ProgramConfig::IsCompute(ThreadContext::Context().fConfig->fKind) &&
+            modifiers.fLayout.fBuiltin == -1) {
+        if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+            context.fErrors->error(pos, "'uniform' variables are not permitted in compute shaders");
+        }
+        if (storage == Variable::Storage::kGlobal &&
+                (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag))) {
+            if (baseType->typeKind() != Type::TypeKind::kTexture && !baseType->isArray() &&
+                    !isArray) {
+                context.fErrors->error(pos, "unsupported compute shader in / out type");
+            }
+            if (baseType->typeKind() != Type::TypeKind::kTexture &&
+                    (modifiers.fLayout.fBinding == -1 || modifiers.fLayout.fSet == -1)) {
+                context.fErrors->error(pos,
+                        "compute shader in / out variables must have a layout binding and set");
+            }
+        }
     }
 
     return Make(context, pos, modifiersPos, modifiers, baseType, name, isArray,

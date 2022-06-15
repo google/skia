@@ -1,0 +1,12 @@
+layout(binding=0) inout texture2D tex;
+
+half4 desaturate(half4 color) {
+    color.rgb = half3(dot(color.rgb, half3(0.22, 0.67, 0.11)));
+    return color;
+}
+
+void main() {
+    if (sk_ThreadPosition.x < width(tex) && sk_ThreadPosition.y < height(tex)) {
+        write(tex, sk_ThreadPosition.xy, desaturate(read(tex, sk_ThreadPosition.xy)));
+    }
+}
