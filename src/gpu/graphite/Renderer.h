@@ -27,6 +27,8 @@
 enum class SkPathFillType;
 class SkPipelineDataGatherer;
 
+namespace skgpu { enum class MaskFormat; }
+
 namespace skgpu::graphite {
 class DrawWriter;
 class DrawParams;
@@ -204,6 +206,10 @@ public:
     static const Renderer& ConvexTessellatedWedges();
 
     static const Renderer& TessellatedStrokes();
+
+    static const Renderer& TextDirect(MaskFormat);
+
+    static const Renderer& TextSDF(MaskFormat);
 
     // TODO: Add renderers for primitives (rect, rrect, etc.), special draws (atlas, vertices, text)
     // and support inverse filled strokes.
