@@ -57,9 +57,9 @@ protected:
                     }
             )";
             auto[spec, error] =
-                    SkMeshSpecification::Make(SkSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                    SkMeshSpecification::Make(kAttributes,
                                               sizeof(ColorVertex),
-                                              SkSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                                              kVaryings,
                                               SkString(kVS),
                                               SkString(kFS));
             if (!spec) {
@@ -87,9 +87,9 @@ protected:
                     }
             )";
             auto[spec, error] =
-                    SkMeshSpecification::Make(SkSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                    SkMeshSpecification::Make(kAttributes,
                                               sizeof(NoColorVertex),
-                                              SkSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                                              kVaryings,
                                               SkString(kVS),
                                               SkString(kFS));
             if (!spec) {
@@ -380,9 +380,9 @@ protected:
                 }
 
                 auto [spec, error] = SkMeshSpecification::Make(
-                        SkSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                        kAttributes,
                         sizeof(Vertex),
-                        SkSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                        kVaryings,
                         SkString(vs),
                         SkString(kFS),
                         std::move(cs),
@@ -510,9 +510,9 @@ protected:
                 }
         )";
         auto [spec, error] =
-                SkMeshSpecification::Make(SkSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                SkMeshSpecification::Make(kAttributes,
                                           sizeof(Vertex),
-                                          SkSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                                          kVaryings,
                                           SkString(kVS),
                                           SkString(kFS),
                                           SkColorSpace::MakeSRGB(),
