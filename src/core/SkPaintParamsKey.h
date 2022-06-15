@@ -120,6 +120,10 @@ public:
     const uint8_t* data() const { return fData.data(); }
     int sizeInBytes() const { return SkTo<int>(fData.size()); }
 
+    SkSpan<const void*> pointerSpan() const { return fPointerData; }
+    const void** pointerData() const { return fPointerData.data(); }
+    int numPointers() const { return SkTo<int>(fPointerData.size()); }
+
     bool operator==(const SkPaintParamsKey& that) const;
     bool operator!=(const SkPaintParamsKey& that) const { return !(*this == that); }
 
@@ -134,7 +138,9 @@ private:
     // This ctor is to be used when paintparams keys are being consecutively generated
     // by a key builder. The memory backing this key's span is shared between the
     // builder and its keys.
-    SkPaintParamsKey(SkSpan<const uint8_t> span, SkPaintParamsKeyBuilder* originatingBuilder);
+    SkPaintParamsKey(SkSpan<const uint8_t> span,
+                     SkSpan<const void*> pointerSpan,
+                     SkPaintParamsKeyBuilder* originatingBuilder);
 
     // This ctor is used when this key isn't being created by a builder (i.e., when the key
     // is in the dictionary). In this case the dictionary will own the memory backing the span.
@@ -144,12 +150,15 @@ private:
                                      const SkPaintParamsKey::BlockReader&,
                                      SkShaderInfo*);
 
-    // The memory referenced in 'fData' is always owned by someone else.
-    // If 'fOriginatingBuilder' is null, the dictionary's SkArena owns the memory and no explicit
-    // freeing is required.
-    // If 'fOriginatingBuilder' is non-null then the memory must be explicitly locked (in the ctor)
-    // and unlocked (in the dtor) on the 'fOriginatingBuilder' object.
+    // The memory referenced in 'fData' and 'fPointerData' is always owned by someone else.
+    // If 'fOriginatingBuilder' is null, the dictionary's SkArena owns the 'fData' memory and no
+    // explicit freeing is required.
+    // If 'fOriginatingBuilder' is non-null then the 'fData' memory must be explicitly locked (in
+    // the ctor) and unlocked (in the dtor) on the 'fOriginatingBuilder' object.
+    // The 'fPointerData' memory is always managed external to this class.
     SkSpan<const uint8_t> fData;
+    SkSpan<const void*> fPointerData;
+
     // This class should only ever access the 'lock' and 'unlock' calls on 'fOriginatingBuilder'
     SkPaintParamsKeyBuilder* fOriginatingBuilder;
 };
@@ -190,6 +199,12 @@ public:
     }
     void add(const SkColor4f& color);
 
+    // `addPointer` is optional sidecar data. The pointer data in a PaintParamsKey is not checked at
+    // all when checking the equality of two keys; cached PaintParamsKey objects will not hold
+    // pointer data. However, pointer data will be required for actually painting pixels on the
+    // screen.
+    void addPointer(const void* ptr);
+
 #ifdef SK_DEBUG
     // Check that the builder has been reset to its initial state prior to creating a new key.
     void checkReset();
@@ -199,6 +214,7 @@ public:
     SkPaintParamsKey lockAsKey();
 
     int sizeInBytes() const { return fData.count(); }
+    int numPointers() const { return fPointerData.count(); }
 
     bool isValid() const { return fIsValid; }
 
@@ -210,6 +226,7 @@ public:
     void unlock() {
         SkASSERT(fLocked);
         fData.rewind();
+        fPointerData.rewind();
 #ifdef SK_GRAPHITE_ENABLED
         fBlendInfo = {};
 #endif
@@ -235,6 +252,8 @@ private:
         int fCurDataPayloadEntry = 0;
         int fNumExpectedChildren = 0;
         int fNumActualChildren = 0;
+        int fNumExpectedPointers = 0;
+        int fNumActualPointers = 0;
 #endif
     };
 
@@ -250,6 +269,13 @@ private:
     // repeated use of the builder will hit a high-water mark and avoid lots of allocations.
     SkTDArray<StackFrame> fStack;
     SkTDArray<uint8_t> fData;
+
+    // The pointer data is used by some paint types, when the key data is not sufficient to
+    // reconstruct all the information needed to draw. (For instance, the key for a runtime effect
+    // contains a hash of the shader text, but to draw, we need entire compiled shader program.)
+    // Cached paint-param keys will discard the pointer data. When comparing paint-param keys,
+    // pointer data (if any) will be ignored.
+    SkTDArray<const void*> fPointerData;
 
 #ifdef SK_GRAPHITE_ENABLED
     skgpu::BlendInfo fBlendInfo;

@@ -22,6 +22,7 @@ SkPaintParamsKeyBuilder::SkPaintParamsKeyBuilder(const SkShaderCodeDictionary* d
 void SkPaintParamsKeyBuilder::checkReset() {
     SkASSERT(!this->isLocked());
     SkASSERT(this->sizeInBytes() == 0);
+    SkASSERT(this->numPointers() == 0);
     SkASSERT(fIsValid);
     SkASSERT(fStack.empty());
 #ifdef SK_GRAPHITE_ENABLED
@@ -66,13 +67,17 @@ void SkPaintParamsKeyBuilder::beginBlock(int codeSnippetID) {
                        SkDEBUGCODE(kHeaderExpectations, 0) });
 
     this->addByte(SkTo<uint8_t>(codeSnippetID));
-    this->addByte(0);  // this needs to be patched up with a call to endBlock
+    this->addByte(0);  // this will be filled in when endBlock is called
 
 #ifdef SK_DEBUG
-    fStack.back().fDataPayloadExpectations = fDict->dataPayloadExpectations(codeSnippetID);
+    const SkShaderSnippet* snippet = fDict->getEntry(codeSnippetID);
+
+    fStack.back().fDataPayloadExpectations = snippet->fDataPayloadExpectations;
     fStack.back().fCurDataPayloadEntry = 0;
-    fStack.back().fNumExpectedChildren = fDict->getEntry(codeSnippetID)->fNumChildren;
+    fStack.back().fNumExpectedChildren = snippet->fNumChildren;
     fStack.back().fNumActualChildren = 0;
+    fStack.back().fNumExpectedPointers = snippet->fNumPointers;
+    fStack.back().fNumActualPointers = 0;
 #endif
 }
 
@@ -92,12 +97,13 @@ void SkPaintParamsKeyBuilder::endBlock() {
     SkASSERT(fStack.back().fCurDataPayloadEntry ==
              SkTo<int>(fStack.back().fDataPayloadExpectations.size()));
     SkASSERT(fStack.back().fNumActualChildren == fStack.back().fNumExpectedChildren);
+    SkASSERT(fStack.back().fNumActualPointers == fStack.back().fNumExpectedPointers);
     SkASSERT(!this->isLocked());
 
     int headerOffset = fStack.back().fHeaderOffset;
 
     SkASSERT(fData[headerOffset] == fStack.back().fCodeSnippetID);
-    SkASSERT(fData[headerOffset+SkPaintParamsKey::kBlockSizeOffsetInBytes] == 0);
+    SkASSERT(fData[headerOffset + SkPaintParamsKey::kBlockSizeOffsetInBytes] == 0);
 
     int blockSize = this->sizeInBytes() - headerOffset;
     if (blockSize > SkPaintParamsKey::kMaxBlockSize) {
@@ -106,7 +112,7 @@ void SkPaintParamsKeyBuilder::endBlock() {
         return;
     }
 
-    fData[headerOffset+SkPaintParamsKey::kBlockSizeOffsetInBytes] = blockSize;
+    fData[headerOffset + SkPaintParamsKey::kBlockSizeOffsetInBytes] = blockSize;
 
     fStack.pop();
 
@@ -121,7 +127,7 @@ void SkPaintParamsKeyBuilder::endBlock() {
 #ifdef SK_DEBUG
 void SkPaintParamsKeyBuilder::checkExpectations(SkPaintParamsKey::DataPayloadType actualType,
                                                 uint32_t actualCount) {
-    const StackFrame& frame = fStack.back();
+    StackFrame& frame = fStack.back();
     const auto& expectations = frame.fDataPayloadExpectations;
 
     // TODO: right now we reject writing 'n' bytes one at a time. We could allow it by tracking
@@ -131,7 +137,7 @@ void SkPaintParamsKeyBuilder::checkExpectations(SkPaintParamsKey::DataPayloadTyp
              expectations[frame.fCurDataPayloadEntry].fType == actualType &&
              expectations[frame.fCurDataPayloadEntry].fCount == actualCount);
 
-    fStack.back().fCurDataPayloadEntry++;
+    frame.fCurDataPayloadEntry++;
 }
 #endif // SK_DEBUG
 
@@ -169,6 +175,26 @@ void SkPaintParamsKeyBuilder::add(const SkColor4f& color) {
     fData.append(16, reinterpret_cast<const uint8_t*>(&color));
 }
 
+void SkPaintParamsKeyBuilder::addPointer(const void* ptr) {
+    if (!this->isValid()) {
+        return;
+    }
+
+    if (fStack.empty()) {
+        // SKGPU_LOG_W("Missing call to 'beginBlock'.");
+        this->makeInvalid();
+        return;
+    }
+
+#ifdef SK_DEBUG
+    StackFrame& frame = fStack.back();
+    SkASSERT(frame.fNumActualPointers < frame.fNumExpectedPointers);
+    frame.fNumActualPointers++;
+#endif
+
+    fPointerData.push_back(ptr);
+}
+
 SkPaintParamsKey SkPaintParamsKeyBuilder::lockAsKey() {
     if (!fStack.empty()) {
         // SKGPU_LOG_W("Mismatched beginBlock/endBlocks.");
@@ -182,7 +208,9 @@ SkPaintParamsKey SkPaintParamsKeyBuilder::lockAsKey() {
     fIsValid = true;
     fStack.rewind();
 
-    return SkPaintParamsKey(SkSpan(fData.begin(), fData.count()), this);
+    return SkPaintParamsKey(SkSpan(fData.begin(), fData.count()),
+                            SkSpan(fPointerData.begin(), fPointerData.count()),
+                            this);
 }
 
 void SkPaintParamsKeyBuilder::makeInvalid() {
@@ -191,6 +219,7 @@ void SkPaintParamsKeyBuilder::makeInvalid() {
 
     fStack.rewind();
     fData.rewind();
+    fPointerData.rewind();
     this->beginBlock(SkBuiltInCodeSnippetID::kError);
     this->endBlock();
 
@@ -200,8 +229,10 @@ void SkPaintParamsKeyBuilder::makeInvalid() {
 
 //--------------------------------------------------------------------------------------------------
 SkPaintParamsKey::SkPaintParamsKey(SkSpan<const uint8_t> span,
+                                   SkSpan<const void*> pointerSpan,
                                    SkPaintParamsKeyBuilder* originatingBuilder)
         : fData(span)
+        , fPointerData(pointerSpan)
         , fOriginatingBuilder(originatingBuilder) {
     fOriginatingBuilder->lock();
 }
@@ -218,12 +249,14 @@ SkPaintParamsKey::~SkPaintParamsKey() {
 }
 
 bool SkPaintParamsKey::operator==(const SkPaintParamsKey& that) const {
+    // Pointer data is intentionally ignored here; a cached key will not have pointer data.
     return fData.size() == that.fData.size() &&
            !memcmp(fData.data(), that.fData.data(), fData.size());
 }
 
 SkPaintParamsKey::BlockReader SkPaintParamsKey::reader(const SkShaderCodeDictionary* dict,
                                                        int headerOffset) const {
+    // TODO(skia:13428): block reader needs to provide pointer data
     return BlockReader(dict, fData, headerOffset);
 }
 

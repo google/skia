@@ -202,7 +202,8 @@ public:
     // It returns the code snippet ID to use to identify the supplied user-defined code
     // TODO: add hooks for user to actually provide code.
     int addUserDefinedSnippet(const char* name,
-                              SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
+                              SkSpan<const SkPaintParamsKey::DataPayloadField> expectations,
+                              int numPointers = 0);
 
     SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
 

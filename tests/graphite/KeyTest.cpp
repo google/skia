@@ -16,13 +16,25 @@ namespace {
 
 SkPaintParamsKey create_key_with_data(SkPaintParamsKeyBuilder* builder,
                                       int snippetID,
-                                      SkSpan<const uint8_t> span) {
+                                      SkSpan<const uint8_t> dataPayload) {
     SkDEBUGCODE(builder->checkReset());
 
     builder->beginBlock(snippetID);
+    builder->addBytes(dataPayload.size(), dataPayload.data());
+    builder->endBlock();
 
-    builder->addBytes(span.size(), span.data());
+    return builder->lockAsKey();
+}
 
+SkPaintParamsKey create_key_with_ptr(SkPaintParamsKeyBuilder* builder,
+                                     int snippetID,
+                                     SkSpan<const uint8_t> dataPayload,
+                                     void* pointerData) {
+    SkDEBUGCODE(builder->checkReset());
+
+    builder->beginBlock(snippetID);
+    builder->addBytes(dataPayload.size(), dataPayload.data());
+    builder->addPointer(pointerData);
     builder->endBlock();
 
     return builder->lockAsKey();
@@ -135,6 +147,37 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksData, reporter, context) {
     REPORTER_ASSERT(reporter, keyA != keyC);
     REPORTER_ASSERT(reporter, !(keyA == keyC));
     REPORTER_ASSERT(reporter, !(keyA != keyB));
+}
+
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityDoesNotCheckPointers, reporter, context) {
+
+    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    static const int kBlockDataSize = 4;
+    static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
+            {"data", SkPaintParamsKey::DataPayloadType::kByte, kBlockDataSize},
+    };
+
+    int userSnippetID = dict->addUserDefinedSnippet("key", SkSpan(kDataFields), /*numPointers=*/1);
+
+    static constexpr uint8_t kData[kBlockDataSize] = {1, 2, 3, 4};
+    int arbitraryData1 = 1;
+    int arbitraryData2 = 2;
+
+    SkPaintParamsKeyBuilder builderA(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builderB(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builderC(dict, SkBackend::kGraphite);
+    SkPaintParamsKey keyA = create_key_with_ptr(&builderA, userSnippetID, SkSpan(kData),
+                                                &arbitraryData1);
+    SkPaintParamsKey keyB = create_key_with_ptr(&builderB, userSnippetID, SkSpan(kData),
+                                                &arbitraryData2);
+    SkPaintParamsKey keyC = create_key_with_ptr(&builderC, userSnippetID, SkSpan(kData),
+                                                nullptr);
+
+    // Verify that keyA, keyB, and keyC all match, even though the pointer data does not.
+    REPORTER_ASSERT(reporter, keyA == keyB);
+    REPORTER_ASSERT(reporter, keyB == keyC);
+    REPORTER_ASSERT(reporter, !(keyA != keyB));
+    REPORTER_ASSERT(reporter, !(keyB != keyC));
 }
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyBlockReaderWorks, reporter, context) {

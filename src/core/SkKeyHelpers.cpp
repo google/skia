@@ -620,6 +620,7 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
             builder->beginBlock(kCodeSnippetID);
             builder->addBytes(sizeof(hash), reinterpret_cast<const uint8_t*>(&hash));
             builder->addBytes(sizeof(uniformSize), reinterpret_cast<const uint8_t*>(&uniformSize));
+            builder->addPointer(shaderData.fEffect.get());
 #endif  // SK_GRAPHITE_ENABLED
             break;
         }
