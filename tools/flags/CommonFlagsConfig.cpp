@@ -232,24 +232,28 @@ SkCommandLineConfig::SkCommandLineConfig(const SkString& tag,
                                          const SkString& backend,
                                          const SkTArray<SkString>& viaParts)
         : fTag(tag), fBackend(backend) {
-
-    static std::unordered_map<std::string_view, sk_sp<SkColorSpace>> kColorSpaces = {
-        // 'narrow' has a gamut narrower than sRGB, and different transfer function.
-        { "narrow",  SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50) },
-        { "srgb",    SkColorSpace::MakeSRGB() },
-        { "linear",  SkColorSpace::MakeSRGBLinear() },
-        { "p3",      SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3) },
-        { "spin",    SkColorSpace::MakeSRGB()->makeColorSpin() },
-        { "rec2020", SkColorSpace::MakeRGB(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020) },
+    static const auto* kColorSpaces = new std::unordered_map<std::string_view, SkColorSpace*>{
+        {"narrow", // 'narrow' has a gamut narrower than sRGB, and different transfer function.
+         SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50).release()},
+        {"srgb",
+         SkColorSpace::MakeSRGB().release()},
+        {"linear",
+         SkColorSpace::MakeSRGBLinear().release()},
+        {"p3",
+         SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3).release()},
+        {"spin",
+         SkColorSpace::MakeSRGB()->makeColorSpin().release()},
+        {"rec2020",
+         SkColorSpace::MakeRGB(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020).release()},
     };
 
     // Strip off any via parts that refer to color spaces (and remember the last one we see)
     for (const SkString& via : viaParts) {
-        auto it = kColorSpaces.find(via.c_str());
-        if (it == kColorSpaces.end()) {
+        auto it = kColorSpaces->find(via.c_str());
+        if (it == kColorSpaces->end()) {
             fViaParts.push_back(via);
         } else {
-            fColorSpace = it->second;
+            fColorSpace = sk_ref_sp(it->second);
         }
     }
 }
