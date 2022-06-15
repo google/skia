@@ -135,8 +135,7 @@ static std::unique_ptr<GrFragmentProcessor> make_magnifier_fp(
                           1.f / bounds.width(),
                           1.f / bounds.height()};
 
-    return GrSkSLFP::Make(sk_ref_sp(effect), "magnifier_fp", /*inputFP=*/nullptr,
-                          GrSkSLFP::OptFlags::kNone,
+    return GrSkSLFP::Make(effect, "magnifier_fp", /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kNone,
                           "src", std::move(input),
                           "boundsUniform", boundsUniform,
                           "xInvZoom", xInvZoom,

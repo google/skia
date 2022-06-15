@@ -138,7 +138,7 @@ public:
      * uniform data is directly copied into the footer allocated after the FP.
      */
     template <typename... Args>
-    static std::unique_ptr<GrSkSLFP> Make(sk_sp<SkRuntimeEffect> effect,
+    static std::unique_ptr<GrSkSLFP> Make(const SkRuntimeEffect* effect,
                                           const char* name,
                                           std::unique_ptr<GrFragmentProcessor> inputFP,
                                           OptFlags optFlags,
@@ -155,9 +155,9 @@ public:
         // factory should instead construct an GrColorSpaceXformEffect as part of the FP tree.
         SkASSERT(!effect->usesColorTransform());
 
-        size_t uniformPayloadSize = UniformPayloadSize(effect.get());
-        std::unique_ptr<GrSkSLFP> fp(new (uniformPayloadSize)
-                                             GrSkSLFP(std::move(effect), name, optFlags));
+        size_t uniformPayloadSize = UniformPayloadSize(effect);
+        std::unique_ptr<GrSkSLFP> fp(new (uniformPayloadSize) GrSkSLFP(sk_ref_sp(effect),
+                                                                       name, optFlags));
         fp->appendArgs(fp->uniformData(), fp->specialized(), std::forward<Args>(args)...);
         if (inputFP) {
             fp->setInput(std::move(inputFP));

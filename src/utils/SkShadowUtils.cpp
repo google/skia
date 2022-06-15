@@ -125,8 +125,8 @@ GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragment
         }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrFPSuccess(GrSkSLFP::Make(
-            sk_ref_sp(effect), "gaussian_fp", std::move(inputFP), GrSkSLFP::OptFlags::kNone));
+    return GrFPSuccess(GrSkSLFP::Make(effect, "gaussian_fp", std::move(inputFP),
+                                      GrSkSLFP::OptFlags::kNone));
 }
 #endif
 

@@ -196,7 +196,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeColor(SkPMColor4f 
         half4 main(half4 inColor) { return color; }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(sk_ref_sp(effect), "color_fp", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(effect, "color_fp", /*inputFP=*/nullptr,
                           color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                            : GrSkSLFP::OptFlags::kNone,
                           "color", color);
@@ -220,7 +220,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ApplyPaintAlpha(
             return fp.eval(inColor.rgb1) * inColor.a;
         }
     )");
-    return GrSkSLFP::Make(sk_ref_sp(effect), "ApplyPaintAlpha", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(effect, "ApplyPaintAlpha", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput |
                           GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                           "fp", std::move(child));
@@ -243,7 +243,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampOutput(
         }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(sk_ref_sp(effect), "Clamp", std::move(fp),
+    return GrSkSLFP::Make(effect, "Clamp", std::move(fp),
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
 
@@ -330,7 +330,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
         }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(sk_ref_sp(effect), "OverrideInput", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(effect, "OverrideInput", /*inputFP=*/nullptr,
                           color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                            : GrSkSLFP::OptFlags::kNone,
                           "fp", std::move(fp),
@@ -349,7 +349,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DisableCoverageAsAlpha
         half4 main(half4 inColor) { return inColor; }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-    return GrSkSLFP::Make(sk_ref_sp(effect), "DisableCoverageAsAlpha", std::move(fp),
+    return GrSkSLFP::Make(effect, "DisableCoverageAsAlpha", std::move(fp),
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
 
@@ -363,7 +363,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::UseDestColorAsInput(
             return fp.eval(dst);
         }
     )");
-    return GrSkSLFP::Make(sk_ref_sp(effect), "UseDestColorAsInput", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(effect, "UseDestColorAsInput", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kNone, "fp", std::move(fp));
 }
 
@@ -495,8 +495,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ColorMatrix(
               matrix[10], matrix[11], matrix[12], matrix[13],
               matrix[15], matrix[16], matrix[17], matrix[18]);
     SkV4 v4 = {matrix[4], matrix[9], matrix[14], matrix[19]};
-    return GrSkSLFP::Make(sk_ref_sp(effect), "ColorMatrix", std::move(child),
-                          GrSkSLFP::OptFlags::kNone,
+    return GrSkSLFP::Make(effect, "ColorMatrix", std::move(child), GrSkSLFP::OptFlags::kNone,
                           "m", m44,
                           "v", v4,
                           "unpremulInput",  GrSkSLFP::Specialize(unpremulInput  ? 1 : 0),
@@ -644,7 +643,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Rect(
     // to interpolate from 0 at a half pixel inset and 1 at a half pixel outset of rect.
     SkRect rectUniform = GrClipEdgeTypeIsAA(edgeType) ? rect.makeOutset(.5f, .5f) : rect;
 
-    return GrSkSLFP::Make(sk_ref_sp(effect), "Rect", std::move(inputFP),
+    return GrSkSLFP::Make(effect, "Rect", std::move(inputFP),
                           GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                           "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
                           "rectUniform", rectUniform);
@@ -695,7 +694,7 @@ GrFPResult GrFragmentProcessor::Circle(std::unique_ptr<GrFragmentProcessor> inpu
     }
     SkV4 circle = {center.fX, center.fY, effectiveRadius, SkScalarInvert(effectiveRadius)};
 
-    return GrFPSuccess(GrSkSLFP::Make(sk_ref_sp(effect), "Circle", std::move(inputFP),
+    return GrFPSuccess(GrSkSLFP::Make(effect, "Circle", std::move(inputFP),
                                       GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                                       "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
                                       "circle", circle));
@@ -790,7 +789,7 @@ GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inp
     }
     SkV4 ellipse = {center.fX, center.fY, invRXSqd, invRYSqd};
 
-    return GrFPSuccess(GrSkSLFP::Make(sk_ref_sp(effect), "Ellipse", std::move(inputFP),
+    return GrFPSuccess(GrSkSLFP::Make(effect, "Ellipse", std::move(inputFP),
                                       GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                                       "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
                                       "medPrecision",  GrSkSLFP::Specialize<int>(medPrecision),

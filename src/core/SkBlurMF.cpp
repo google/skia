@@ -855,7 +855,7 @@ static std::unique_ptr<GrFragmentProcessor> make_circle_blur(GrRecordingContext*
     )");
 
     SkV4 circleData = {circle.centerX(), circle.centerY(), solidRadius, 1.f / textureRadius};
-    return GrSkSLFP::Make(sk_ref_sp(effect), "CircleBlur", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(effect, "CircleBlur", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                           "blurProfile", GrSkSLFP::IgnoreOptFlags(std::move(profile)),
                           "circleData", circleData);
@@ -1023,7 +1023,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
     )");
 
     std::unique_ptr<GrFragmentProcessor> fp =
-            GrSkSLFP::Make(sk_ref_sp(effect), "RectBlur", /*inputFP=*/nullptr,
+            GrSkSLFP::Make(effect, "RectBlur", /*inputFP=*/nullptr,
                            GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                            "integral", GrSkSLFP::IgnoreOptFlags(std::move(integral)),
                            "rect", insetRect,
@@ -1434,7 +1434,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rrect_blur(GrRecordingContext* 
     float blurRadius = 3.f * SkScalarCeilToScalar(xformedSigma - 1 / 6.0f);
     SkRect proxyRect = devRRect.getBounds().makeOutset(blurRadius, blurRadius);
 
-    return GrSkSLFP::Make(sk_ref_sp(effect), "RRectBlur", /*inputFP=*/nullptr,
+    return GrSkSLFP::Make(effect, "RRectBlur", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                           "ninePatchFP", GrSkSLFP::IgnoreOptFlags(std::move(maskFP)),
                           "cornerRadius", cornerRadius,

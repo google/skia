@@ -161,7 +161,7 @@ static std::unique_ptr<GrFragmentProcessor> make_alpha_threshold_fp(
         }
     )");
 
-    return GrSkSLFP::Make(sk_ref_sp(effect), "AlphaThreshold", std::move(inputFP),
+    return GrSkSLFP::Make(effect, "AlphaThreshold", std::move(inputFP),
                           (outerThreshold >= 1.0f) ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                                    : GrSkSLFP::OptFlags::kNone,
                           "maskFP", GrSkSLFP::IgnoreOptFlags(std::move(maskFP)),
