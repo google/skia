@@ -54,7 +54,10 @@ filegroup(
 cc_library(
     name = "deps",
     visibility = ["//src/gpu/ganesh:__pkg__"],
-    deps = [
-        "@dawn",
-    ],
+    deps = select({
+        # Dawn headers and symbols are provided by Emscripten in a WASM build. We depend on Dawn
+        # only for native.
+        "//bazel/common_config_settings:cpu_wasm": [],
+        "//conditions:default": ["@dawn"],
+    }),
 )
