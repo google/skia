@@ -226,3 +226,44 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyBlockReaderWorks, reporter, context) {
     REPORTER_ASSERT(reporter, readerBytesZ.size() == kCountZ);
     REPORTER_ASSERT(reporter, 0 == memcmp(readerBytesZ.data(), kDataZ, sizeof(kDataZ)));
 }
+
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyBlockReaderPointersWork, reporter, context) {
+
+    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    static const int kCountX = 3;
+    static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
+            {"PtrIndexA", SkPaintParamsKey::DataPayloadType::kPointerIndex, 1},
+            {"DataX",     SkPaintParamsKey::DataPayloadType::kByte,         kCountX},
+            {"PtrIndexB", SkPaintParamsKey::DataPayloadType::kPointerIndex, 1},
+    };
+
+    int userSnippetID = dict->addUserDefinedSnippet("key", kDataFields);
+    int arbitraryDataA = 123;
+    int arbitraryDataB = 456;
+
+    static constexpr uint8_t kDataX[kCountX] = {1, 2, 3};
+    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+
+    builder.beginBlock(userSnippetID);
+    builder.addPointer(&arbitraryDataA);
+    builder.addBytes(sizeof(kDataX), kDataX);
+    builder.addPointer(&arbitraryDataB);
+    builder.endBlock();
+
+    SkPaintParamsKey key = builder.lockAsKey();
+
+    // Verify that the block reader can extract out our data from the SkPaintParamsKey.
+    SkPaintParamsKey::BlockReader reader = key.reader(dict, /*headerOffset=*/0);
+    REPORTER_ASSERT(reporter, reader.blockSize() == (sizeof(SkPaintParamsKey::Header) +
+                                                     1 + sizeof(kDataX) + 1));
+
+    const void* readerPtrA = reader.pointer(0);
+    REPORTER_ASSERT(reporter, readerPtrA == &arbitraryDataA);
+
+    SkSpan<const uint8_t> readerDataX = reader.bytes(1);
+    REPORTER_ASSERT(reporter, readerDataX.size() == kCountX);
+    REPORTER_ASSERT(reporter, 0 == memcmp(readerDataX.data(), kDataX, sizeof(kDataX)));
+
+    const void* readerPtrB = reader.pointer(2);
+    REPORTER_ASSERT(reporter, readerPtrB == &arbitraryDataB);
+}
