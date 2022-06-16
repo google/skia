@@ -63,7 +63,7 @@
 //Placeholder representation of a GUID from createId.
 #define L_GUID_ID L"XXXXXXXXsXXXXsXXXXsXXXXsXXXXXXXXXXXX"
 //Length of GUID representation from createId, including nullptr terminator.
-#define GUID_ID_LEN SK_ARRAY_COUNT(L_GUID_ID)
+#define GUID_ID_LEN std::size(L_GUID_ID)
 
 /**
    Formats a GUID and places it into buffer.
@@ -170,8 +170,8 @@ HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
 
     SkTScopedComPtr<IOpcPartUri> partUri;
     constexpr size_t size = std::max(
-            SK_ARRAY_COUNT(L"/Documents/1/Metadata/.png") + sk_digits_in<decltype(pageNum)>(),
-            SK_ARRAY_COUNT(L"/Metadata/" L_GUID_ID L".png"));
+            std::size(L"/Documents/1/Metadata/.png") + sk_digits_in<decltype(pageNum)>(),
+            std::size(L"/Metadata/" L_GUID_ID L".png"));
     wchar_t buffer[size];
     if (pageNum > 0) {
         swprintf_s(buffer, size, L"/Documents/1/Metadata/%u.png", pageNum);
@@ -196,7 +196,7 @@ HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
 HRESULT SkXPSDevice::createXpsPage(const XPS_SIZE& pageSize,
                                    IXpsOMPage** page) {
     constexpr size_t size =
-        SK_ARRAY_COUNT(L"/Documents/1/Pages/.fpage")
+        std::size(L"/Documents/1/Pages/.fpage")
         + sk_digits_in<decltype(fCurrentPage)>();
     wchar_t buffer[size];
     swprintf_s(buffer, size, L"/Documents/1/Pages/%u.fpage",
@@ -638,7 +638,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         "Could not create stream from png data.");
 
     const size_t size =
-        SK_ARRAY_COUNT(L"/Documents/1/Resources/Images/" L_GUID_ID L".png");
+        std::size(L"/Documents/1/Resources/Images/" L_GUID_ID L".png");
     wchar_t buffer[size];
     wchar_t id[GUID_ID_LEN];
     HR(this->createId(id, GUID_ID_LEN));
@@ -1238,7 +1238,7 @@ void SkXPSDevice::internalDrawRect(const SkRect& r,
             { r.fRight, r.fTop },
         };
         if (!xpsTransformsPath && transformRect) {
-            this->localToDevice().mapPoints(points, SK_ARRAY_COUNT(points));
+            this->localToDevice().mapPoints(points, std::size(points));
         }
         HRV(this->createXpsQuad(points, stroke, fill, &rectFigure));
     }
@@ -1758,7 +1758,7 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkFont& font,
         "Could not create font stream.");
 
     const size_t size =
-        SK_ARRAY_COUNT(L"/Resources/Fonts/" L_GUID_ID L".odttf");
+        std::size(L"/Resources/Fonts/" L_GUID_ID L".odttf");
     wchar_t buffer[size];
     wchar_t id[GUID_ID_LEN];
     HR(this->createId(id, GUID_ID_LEN));

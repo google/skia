@@ -130,10 +130,10 @@ static const char* cap_map[]  = {
     "round", // kRound_Cap
     "square" // kSquare_Cap
 };
-static_assert(SK_ARRAY_COUNT(cap_map) == SkPaint::kCapCount, "missing_cap_map_entry");
+static_assert(std::size(cap_map) == SkPaint::kCapCount, "missing_cap_map_entry");
 
 static const char* svg_cap(SkPaint::Cap cap) {
-    SkASSERT(cap < SK_ARRAY_COUNT(cap_map));
+    SkASSERT(static_cast<size_t>(cap) < std::size(cap_map));
     return cap_map[cap];
 }
 
@@ -143,10 +143,10 @@ static const char* join_map[] = {
     "round", // kRound_Join
     "bevel"  // kBevel_Join
 };
-static_assert(SK_ARRAY_COUNT(join_map) == SkPaint::kJoinCount, "missing_join_map_entry");
+static_assert(std::size(join_map) == SkPaint::kJoinCount, "missing_join_map_entry");
 
 static const char* svg_join(SkPaint::Join join) {
-    SkASSERT(join < SK_ARRAY_COUNT(join_map));
+    SkASSERT(join < std::size(join_map));
     return join_map[join];
 }
 

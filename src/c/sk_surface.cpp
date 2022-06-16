@@ -37,7 +37,7 @@ const struct {
 
 
 static bool from_c_pixelgeometry(sk_pixelgeometry_t cGeom, SkPixelGeometry* skGeom) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPixelGeometryMap); ++i) {
+    for (size_t i = 0; i < std::size(gPixelGeometryMap); ++i) {
         if (gPixelGeometryMap[i].fC == cGeom) {
             if (skGeom) {
                 *skGeom = gPixelGeometryMap[i].fSK;
@@ -63,7 +63,7 @@ const struct {
 };
 
 static bool from_c_path_direction(sk_path_direction_t cdir, SkPathDirection* dir) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPathDirMap); ++i) {
+    for (size_t i = 0; i < std::size(gPathDirMap); ++i) {
         if (gPathDirMap[i].fC == cdir) {
             if (dir) {
                 *dir = gPathDirMap[i].fSk;

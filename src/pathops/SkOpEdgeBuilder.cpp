@@ -208,10 +208,10 @@ bool SkOpEdgeBuilder::walk() {
                         if (SkChopQuadAtMaxCurvature(pointsPtr, pair) == 1) {
                             goto addOneQuad;
                         }
-                        if (!SkScalarsAreFinite(&pair[0].fX, SK_ARRAY_COUNT(pair) * 2)) {
+                        if (!SkScalarsAreFinite(&pair[0].fX, std::size(pair) * 2)) {
                             return false;
                         }
-                        for (unsigned index = 0; index < SK_ARRAY_COUNT(pair); ++index) {
+                        for (unsigned index = 0; index < std::size(pair); ++index) {
                             pair[index] = force_small_to_zero(pair[index]);
                         }
                         SkPoint cStorage[2][2];
@@ -269,7 +269,7 @@ bool SkOpEdgeBuilder::walk() {
                         fContourBuilder.addCubic(pointsPtr);
                         break;
                     }
-                    SkASSERT(breaks <= (int) SK_ARRAY_COUNT(splitT));
+                    SkASSERT(breaks <= (int) std::size(splitT));
                     struct Splitsville {
                         double fT[2];
                         SkPoint fPts[4];
@@ -277,7 +277,7 @@ bool SkOpEdgeBuilder::walk() {
                         SkPath::Verb fVerb;
                         bool fCanAdd;
                     } splits[4];
-                    SkASSERT(SK_ARRAY_COUNT(splits) == SK_ARRAY_COUNT(splitT) + 1);
+                    SkASSERT(std::size(splits) == std::size(splitT) + 1);
                     SkTQSort(splitT, splitT + breaks);
                     for (int index = 0; index <= breaks; ++index) {
                         Splitsville* split = &splits[index];
@@ -306,7 +306,7 @@ bool SkOpEdgeBuilder::walk() {
                             split->fPts[0] = splits[prior].fPts[0];
                         }
                         int next = index;
-                        int breakLimit = std::min(breaks, (int) SK_ARRAY_COUNT(splits) - 1);
+                        int breakLimit = std::min(breaks, (int) std::size(splits) - 1);
                         while (next < breakLimit && !splits[next + 1].fCanAdd) {
                             ++next;
                         }

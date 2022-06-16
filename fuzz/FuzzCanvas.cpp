@@ -110,7 +110,7 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
         }
         case 3: {
             float array[20];
-            fuzz->nextN(array, SK_ARRAY_COUNT(array));
+            fuzz->nextN(array, std::size(array));
             return SkColorFilters::Matrix(array);
         }
         case 4: {
@@ -132,7 +132,7 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
             return SkLumaColorFilter::Make();
         case 7: {
             uint8_t table[256];
-            fuzz->nextN(table, SK_ARRAY_COUNT(table));
+            fuzz->nextN(table, std::size(table));
             return SkTableColorFilter::Make(table);
         }
         case 8: {
@@ -140,10 +140,10 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
             uint8_t tableR[256];
             uint8_t tableG[256];
             uint8_t tableB[256];
-            fuzz->nextN(tableA, SK_ARRAY_COUNT(tableA));
-            fuzz->nextN(tableR, SK_ARRAY_COUNT(tableR));
-            fuzz->nextN(tableG, SK_ARRAY_COUNT(tableG));
-            fuzz->nextN(tableB, SK_ARRAY_COUNT(tableB));
+            fuzz->nextN(tableA, std::size(tableA));
+            fuzz->nextN(tableR, std::size(tableR));
+            fuzz->nextN(tableG, std::size(tableG));
+            fuzz->nextN(tableB, std::size(tableB));
             return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
         }
         default:
@@ -395,7 +395,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
             fuzz->next(&phase);
             SkScalar intervals[20];
             int count;
-            fuzz->nextRange(&count, 0, (int)SK_ARRAY_COUNT(intervals));
+            fuzz->nextRange(&count, 0, (int)std::size(intervals));
             fuzz->nextN(intervals, count);
             return SkDashPathEffect::Make(intervals, count, phase);
         }
@@ -900,7 +900,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
         {0x0400, 0x0500},
     };
     int32_t count = 0;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(ranges); ++i) {
+    for (size_t i = 0; i < std::size(ranges); ++i) {
         count += (ranges[i][1] - ranges[i][0]);
     }
     constexpr int kMaxLength = kMaxGlyphCount;
@@ -910,7 +910,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
     for (int j = 0; j < length; ++j) {
         int32_t value;
         fuzz->nextRange(&value, 0, count - 1);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(ranges); ++i) {
+        for (size_t i = 0; i < std::size(ranges); ++i) {
             if (value + ranges[i][0] < ranges[i][1]) {
                 buffer[j] = value + ranges[i][0];
                 break;

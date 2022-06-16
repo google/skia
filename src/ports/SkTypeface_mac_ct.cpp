@@ -343,7 +343,7 @@ CGFloat SkCTFontCTWeightForCSSWeight(int fontstyleWeight) {
         }
     });
     static constexpr Interpolator nativeInterpolator(
-            nativeWeightMappings, SK_ARRAY_COUNT(nativeWeightMappings));
+            nativeWeightMappings, std::size(nativeWeightMappings));
 
     return nativeInterpolator.map(fontstyleWeight);
 }
@@ -374,9 +374,9 @@ static int ct_weight_to_fontstyle(CGFloat cgWeight, bool fromDataProvider) {
         }
     });
     static constexpr Interpolator nativeInterpolator(
-            nativeWeightMappings, SK_ARRAY_COUNT(nativeWeightMappings));
+            nativeWeightMappings, std::size(nativeWeightMappings));
     static constexpr Interpolator dataProviderInterpolator(
-            dataProviderWeightMappings, SK_ARRAY_COUNT(dataProviderWeightMappings));
+            dataProviderWeightMappings, std::size(dataProviderWeightMappings));
 
     return fromDataProvider ? dataProviderInterpolator.map(cgWeight)
                             : nativeInterpolator.map(cgWeight);
@@ -392,7 +392,7 @@ CGFloat SkCTFontCTWidthForCSSWidth(int fontstyleWidth) {
         {  0, -0.5 },
         { 10,  0.5 },
     };
-    static constexpr Interpolator interpolator(widthMappings, SK_ARRAY_COUNT(widthMappings));
+    static constexpr Interpolator interpolator(widthMappings, std::size(widthMappings));
     return interpolator.map(fontstyleWidth);
 }
 
@@ -406,7 +406,7 @@ static int ct_width_to_fontstyle(CGFloat cgWidth) {
         { -0.5,  0 },
         {  0.5, 10 },
     };
-    static constexpr Interpolator interpolator(widthMappings, SK_ARRAY_COUNT(widthMappings));
+    static constexpr Interpolator interpolator(widthMappings, std::size(widthMappings));
     return interpolator.map(cgWidth);
 }
 

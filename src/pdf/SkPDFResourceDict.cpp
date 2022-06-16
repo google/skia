@@ -29,7 +29,7 @@ static char* get_resource_name(char dst[kMaxResourceNameLength], SkPDFResourceTy
         'X',  // kXObject
         'F'   // kFont
     };
-    SkASSERT((unsigned)type < SK_ARRAY_COUNT(kResourceTypePrefixes));
+    SkASSERT((unsigned)type < std::size(kResourceTypePrefixes));
     dst[0] = kResourceTypePrefixes[(unsigned)type];
     return SkStrAppendS32(dst + 1, key);
 }
@@ -49,7 +49,7 @@ static const char* resource_name(SkPDFResourceType type) {
         "XObject",
         "Font"
     };
-    SkASSERT((unsigned)type < SK_ARRAY_COUNT(kResourceTypeNames));
+    SkASSERT((unsigned)type < std::size(kResourceTypeNames));
     return kResourceTypeNames[(unsigned)type];
 }
 
@@ -74,7 +74,7 @@ static void add_subdict(const std::vector<SkPDFIndirectReference>& resourceList,
 static std::unique_ptr<SkPDFArray> make_proc_set() {
     auto procSets = SkPDFMakeArray();
     static const char kProcs[][7] = { "PDF", "Text", "ImageB", "ImageC", "ImageI"};
-    procSets->reserve(SK_ARRAY_COUNT(kProcs));
+    procSets->reserve(std::size(kProcs));
     for (const char* proc : kProcs) {
         procSets->appendName(proc);
     }

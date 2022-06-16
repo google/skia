@@ -11,6 +11,8 @@
 #include "include/c/sk_colorspace.h"
 #include "include/c/sk_imageinfo.h"
 
+#include <array>  // for std::size
+
 const struct {
     sk_colortype_t  fC;
     SkColorType     fSK;
@@ -34,7 +36,7 @@ const struct {
 };
 
 static bool from_c_colortype(sk_colortype_t cCT, SkColorType* skCT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypeMap); ++i) {
+    for (size_t i = 0; i < std::size(gColorTypeMap); ++i) {
         if (gColorTypeMap[i].fC == cCT) {
             if (skCT) {
                 *skCT = gColorTypeMap[i].fSK;
@@ -46,7 +48,7 @@ static bool from_c_colortype(sk_colortype_t cCT, SkColorType* skCT) {
 }
 
 static bool to_c_colortype(SkColorType skCT, sk_colortype_t* cCT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypeMap); ++i) {
+    for (size_t i = 0; i < std::size(gColorTypeMap); ++i) {
         if (gColorTypeMap[i].fSK == skCT) {
             if (cCT) {
                 *cCT = gColorTypeMap[i].fC;
@@ -58,7 +60,7 @@ static bool to_c_colortype(SkColorType skCT, sk_colortype_t* cCT) {
 }
 
 static bool from_c_alphatype(sk_alphatype_t cAT, SkAlphaType* skAT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gAlphaTypeMap); ++i) {
+    for (size_t i = 0; i < std::size(gAlphaTypeMap); ++i) {
         if (gAlphaTypeMap[i].fC == cAT) {
             if (skAT) {
                 *skAT = gAlphaTypeMap[i].fSK;
@@ -70,7 +72,7 @@ static bool from_c_alphatype(sk_alphatype_t cAT, SkAlphaType* skAT) {
 }
 
 static bool to_c_alphatype(SkAlphaType skAT, sk_alphatype_t* cAT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gAlphaTypeMap); ++i) {
+    for (size_t i = 0; i < std::size(gAlphaTypeMap); ++i) {
         if (gAlphaTypeMap[i].fSK == skAT) {
             if (cAT) {
                 *cAT = gAlphaTypeMap[i].fC;
