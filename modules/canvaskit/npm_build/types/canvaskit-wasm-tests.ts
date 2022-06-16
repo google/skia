@@ -20,6 +20,7 @@ import CanvasKitInit, {
     TextBlob,
     Typeface,
     Vertices,
+    WebGPUDeviceContext,
 } from "canvaskit-wasm";
 
 CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + file}).then((CK: CanvasKit) => {
@@ -53,6 +54,7 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     typefaceTests(CK);
     vectorTests(CK);
     verticesTests(CK);
+    webGPUTest(CK);
 });
 
 function animatedImageTests(CK: CanvasKit) {
@@ -990,4 +992,28 @@ function verticesTests(CK: CanvasKit) {
     const rect = vertices.bounds(); // $ExpectType Float32Array
     vertices.bounds(rect);
     const id = vertices.uniqueID(); // $ExpectType number
+}
+
+function webGPUTest(CK: CanvasKit, device?: GPUDevice, canvas?: HTMLCanvasElement, texture?: GPUTexture) {
+    if (!device || !canvas || !texture) {
+        return;
+    }
+
+    const gpuContext: WebGPUDeviceContext = CK.MakeGPUDeviceContext(device)!; // $ExpectType GrDirectContext
+
+    // Texture surface.
+    const surface1 = CK.MakeGPUTextureSurface(gpuContext, texture, 800, 600, // $ExpectType Surface | null
+                                              CK.ColorSpace.SRGB);
+
+    // Canvas surfaces.
+    const canvasContext = CK.MakeGPUCanvasContext(gpuContext, canvas, { // $ExpectType WebGPUCanvasContext
+        format: "bgra8unorm",
+        alphaMode: "premultiplied",
+    })!;
+    canvasContext.requestAnimationFrame((canvas: Canvas) => {
+        canvas.clear([0, 0, 0, 0]);
+    });
+
+    const surface2 = CK.MakeGPUCanvasSurface(canvasContext, CK.ColorSpace.SRGB); // $ExpectType Surface | null
+    const surface3 = CK.MakeGPUCanvasSurface(canvasContext, CK.ColorSpace.SRGB, 10, 10); // $ExpectType Surface | null
 }

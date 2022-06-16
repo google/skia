@@ -1,4 +1,6 @@
 // Minimum TypeScript Version: 4.1
+/// <reference types="@webgpu/types" />
+
 export default function CanvasKitInit(opts: CanvasKitInitOptions): Promise<CanvasKit>;
 
 export interface CanvasKitInitOptions {
@@ -185,6 +187,7 @@ export interface CanvasKit {
      * will first try to create a GPU surface and then fallback to a CPU one if that fails. If just
      * the CPU mode has been compiled in, a CPU surface will be created.
      * @param canvas - either the canvas element itself or a string with the DOM id of it.
+     * @deprecated - Use MakeSWCanvasSurface, MakeWebGLCanvasSurface, or MakeGPUCanvasSurface.
      */
     MakeCanvasSurface(canvas: HTMLCanvasElement | string): Surface | null;
 
@@ -237,8 +240,15 @@ export interface CanvasKit {
     /**
      * Creates a GrDirectContext from the given WebGL Context.
      * @param ctx
+     * @deprecated Use MakeWebGLContext instead.
      */
     MakeGrContext(ctx: WebGLContextHandle): GrDirectContext | null;
+
+    /**
+     * Creates a GrDirectContext from the given WebGL Context.
+     * @param ctx
+     */
+    MakeWebGLContext(ctx: WebGLContextHandle): GrDirectContext | null;
 
     /**
      * Creates a Surface that will be drawn to the given GrDirectContext (and show up on screen).
@@ -249,6 +259,47 @@ export interface CanvasKit {
      */
     MakeOnScreenGLSurface(ctx: GrDirectContext, width: number, height: number,
                           colorSpace: ColorSpace): Surface | null;
+
+    /**
+     * Creates a context that operates over the given WebGPU Device.
+     * @param device
+     */
+    MakeGPUDeviceContext(device: GPUDevice): WebGPUDeviceContext | null;
+
+    /**
+     * Creates a Surface that draws to the given GPU texture.
+     * @param ctx
+     * @param texture - A texture that was created on the GPU device associated with `ctx`.
+     * @param width - Width of the visible region in pixels.
+     * @param height - Height of the visible region in pixels.
+     * @param colorSpace
+     */
+    MakeGPUTextureSurface(ctx: WebGPUDeviceContext, texture: GPUTexture, width: number, height: number,
+                          colorSpace: ColorSpace): Surface | null;
+
+    /**
+     * Creates and configures a WebGPU context for the given canvas.
+     * @param ctx
+     * @param canvas
+     * @param opts
+     */
+    MakeGPUCanvasContext(ctx: WebGPUDeviceContext, canvas: HTMLCanvasElement,
+                         opts?: WebGPUCanvasOptions): WebGPUCanvasContext | null;
+
+    /**
+     * Creates a Surface backed by the next available texture in the swapchain associated with the
+     * given WebGPU canvas context. The context must have been already successfully configured using
+     * the same GPUDevice associated with `ctx`.
+     * @param canvasContext - WebGPU context associated with the canvas. The canvas can either be an
+     *                        on-screen HTMLCanvasElement or an OffscreenCanvas.
+     * @param colorSpace
+     * @param width - width of the visible region. If not present, the canvas width from `canvasContext`
+     *                is used.
+     * @param height - height of the visible region. If not present, the canvas width from `canvasContext`
+     *                is used.
+     */
+    MakeGPUCanvasSurface(canvasContext: WebGPUCanvasContext, colorSpace: ColorSpace,
+                         width?: number, height?: number): Surface | null;
 
     /**
      * Returns a (non-visible) Surface on the GPU. It has the given dimensions and uses 8888
@@ -617,6 +668,30 @@ export interface GrDirectContext extends EmbindObject<GrDirectContext> {
     getResourceCacheUsageBytes(): number;
     releaseResourcesAndAbandonContext(): void;
     setResourceCacheLimitBytes(bytes: number): void;
+}
+
+/**
+ * Represents the context backed by a WebGPU device instance.
+ */
+export type WebGPUDeviceContext = GrDirectContext;
+
+/**
+ * Represents the canvas context and swapchain backed by a WebGPU device.
+ */
+export interface WebGPUCanvasContext {
+    /**
+     * A convenient way to draw multiple frames over the swapchain texture sequence associated with
+     * a canvas element. Each call internally constructs a new Surface that targets the current
+     * GPUTexture in swapchain.
+     *
+     * This requires an environment where a global function called requestAnimationFrame is
+     * available (e.g. on the web, not on Node). The internally created surface is flushed and
+     * destroyed automatically by this wrapper once the `drawFrame` callback returns.
+     *
+     * Users can call canvasContext.requestAnimationFrame in the callback function to
+     * draw multiple frames, e.g. of an animation.
+     */
+    requestAnimationFrame(drawFrame: (_: Canvas) => void): void;
 }
 
 /**
@@ -2923,6 +2998,15 @@ export interface WebGLOptions {
     preserveDrawingBuffer?: number;
     renderViaOffscreenBackBuffer?: number;
     stencil?: number;
+}
+
+/**
+ * Options for configuring a canvas WebGPU context. If an option is omitted, a default specified by
+ * the WebGPU standard will be used.
+ */
+export interface WebGPUCanvasOptions {
+    format?: GPUTextureFormat;
+    alphaMode?: GPUCanvasAlphaMode;
 }
 
 export interface DefaultConstructor<T> {
