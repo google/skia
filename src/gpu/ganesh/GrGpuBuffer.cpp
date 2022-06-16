@@ -22,7 +22,6 @@ void* GrGpuBuffer::map() {
     if (this->wasDestroyed()) {
         return nullptr;
     }
-    SkASSERT(!fHasWrittenToBuffer || fAccessPattern == kDynamic_GrAccessPattern);
     if (!fMapPtr) {
         this->onMap();
     }
@@ -36,15 +35,11 @@ void GrGpuBuffer::unmap() {
     SkASSERT(fMapPtr);
     this->onUnmap();
     fMapPtr = nullptr;
-#ifdef SK_DEBUG
-    fHasWrittenToBuffer = true;
-#endif
 }
 
 bool GrGpuBuffer::isMapped() const { return SkToBool(fMapPtr); }
 
 bool GrGpuBuffer::updateData(const void* src, size_t srcSizeInBytes) {
-    SkASSERT(!fHasWrittenToBuffer || fAccessPattern == kDynamic_GrAccessPattern);
     SkASSERT(!this->isMapped());
     SkASSERT(srcSizeInBytes > 0 && srcSizeInBytes <= fSizeInBytes);
     SkASSERT(src);
@@ -54,13 +49,7 @@ bool GrGpuBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     if (this->intendedType() == GrGpuBufferType::kXferGpuToCpu) {
         return false;
     }
-    bool result = this->onUpdateData(src, srcSizeInBytes);
-#ifdef SK_DEBUG
-    if (result) {
-        fHasWrittenToBuffer = true;
-    }
-#endif
-    return result;
+    return this->onUpdateData(src, srcSizeInBytes);
 }
 
 void GrGpuBuffer::ComputeScratchKeyForDynamicBuffer(size_t size,

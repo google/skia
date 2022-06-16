@@ -103,12 +103,6 @@ private:
     size_t            fSizeInBytes;
     GrAccessPattern   fAccessPattern;
     GrGpuBufferType   fIntendedType;
-
-#ifdef SK_DEBUG
-    // Static and stream access buffers are only ever written to once. This is used to track that
-    // and assert it is true.
-    bool              fHasWrittenToBuffer = false;
-#endif
 };
 
 #endif
