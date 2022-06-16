@@ -304,7 +304,7 @@ inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::RepeatDesc<
 }
 
 template <>
-SK_MAYBE_UNUSED inline VertexWriter& operator<<(VertexWriter& w, const skvx::float4& vector) {
+[[maybe_unused]] inline VertexWriter& operator<<(VertexWriter& w, const skvx::float4& vector) {
     w.validate(sizeof(vector));
     vector.store(w.fPtr);
     w = w.makeOffset(sizeof(vector));
@@ -354,7 +354,7 @@ private:
 };
 
 template <>
-SK_MAYBE_UNUSED inline VertexWriter& operator<<(VertexWriter& w, const VertexColor& color) {
+[[maybe_unused]] inline VertexWriter& operator<<(VertexWriter& w, const VertexColor& color) {
     w << color.fColor[0];
     if (color.fWideColor) {
         w << color.fColor[1]

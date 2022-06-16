@@ -15,7 +15,7 @@
 #include "include/private/SkVx.h"
 #include "src/gpu/tessellate/Tessellation.h"
 
-#define AI SK_MAYBE_UNUSED SK_ALWAYS_INLINE
+#define AI [[maybe_unused]] SK_ALWAYS_INLINE
 
 // Wang's formula gives the minimum number of evenly spaced (in the parametric sense) line segments
 // that a bezier curve must be chopped into in order to guarantee all lines stay within a distance

@@ -255,7 +255,7 @@ public:
 
         RECT clip_bounds_RECT = toRECT(clip_bounds);
         HRGN hrgn = CreateRectRgnIndirect(&clip_bounds_RECT);
-        SK_MAYBE_UNUSED int result = SelectClipRgn(hdc, hrgn);
+        [[maybe_unused]] int result = SelectClipRgn(hdc, hrgn);
         SkASSERT(result != ERROR);
         result = DeleteObject(hrgn);
         SkASSERT(result != 0);

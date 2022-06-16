@@ -65,16 +65,16 @@ private:
  * Defines functions that make it possible to use bitwise operators on an enum.
  */
 #define SK_MAKE_BITMASK_OPS(E) \
-    SK_MAYBE_UNUSED constexpr SkEnumBitMask<E> operator|(E a, E b) { \
+    [[maybe_unused]] constexpr SkEnumBitMask<E> operator|(E a, E b) { \
         return SkEnumBitMask<E>(a) | b; \
     } \
-    SK_MAYBE_UNUSED constexpr SkEnumBitMask<E> operator&(E a, E b) { \
+    [[maybe_unused]] constexpr SkEnumBitMask<E> operator&(E a, E b) { \
         return SkEnumBitMask<E>(a) & b; \
     } \
-    SK_MAYBE_UNUSED constexpr SkEnumBitMask<E> operator^(E a, E b) { \
+    [[maybe_unused]] constexpr SkEnumBitMask<E> operator^(E a, E b) { \
         return SkEnumBitMask<E>(a) ^ b; \
     } \
-    SK_MAYBE_UNUSED constexpr SkEnumBitMask<E> operator~(E e) { \
+    [[maybe_unused]] constexpr SkEnumBitMask<E> operator~(E e) { \
         return ~SkEnumBitMask<E>(e); \
     } \
 

@@ -63,7 +63,7 @@ static SkPath make_conic_path() {
     return path;
 }
 
-SK_MAYBE_UNUSED static SkPath make_quad_path(int maxPow2) {
+[[maybe_unused]] static SkPath make_quad_path(int maxPow2) {
     SkRandom rand;
     SkPath path;
     for (int i = 0; i < kNumCubicsInChalkboard; ++i) {
@@ -73,7 +73,7 @@ SK_MAYBE_UNUSED static SkPath make_quad_path(int maxPow2) {
     return path;
 }
 
-SK_MAYBE_UNUSED static SkPath make_line_path(int maxPow2) {
+[[maybe_unused]] static SkPath make_line_path(int maxPow2) {
     SkRandom rand;
     SkPath path;
     for (int i = 0; i < kNumCubicsInChalkboard; ++i) {

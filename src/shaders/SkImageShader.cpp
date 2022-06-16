@@ -79,7 +79,7 @@ static SkTileMode optimize(SkTileMode tm, int dimension) {
 // TODO: currently this only *always* used in asFragmentProcessor(), which is excluded on no-gpu
 // builds. No-gpu builds only use needs_subset() in asserts, so release+no-gpu doesn't use it, which
 // can cause builds to fail if unused warnings are treated as errors.
-SK_MAYBE_UNUSED static bool needs_subset(SkImage* img, const SkRect& subset) {
+[[maybe_unused]] static bool needs_subset(SkImage* img, const SkRect& subset) {
     return subset != SkRect::Make(img->dimensions());
 }
 
