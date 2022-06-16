@@ -11,6 +11,9 @@
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkShaderCodeDictionary.h"
 
+using DataPayloadType  = SkPaintParamsKey::DataPayloadType;
+using DataPayloadField = SkPaintParamsKey::DataPayloadField;
+
 //--------------------------------------------------------------------------------------------------
 SkPaintParamsKeyBuilder::SkPaintParamsKeyBuilder(const SkShaderCodeDictionary* dict,
                                                  SkBackend backend)
@@ -53,12 +56,12 @@ void SkPaintParamsKeyBuilder::beginBlock(int codeSnippetID) {
         fStack.back().fNumActualChildren++;
     }
 
-    static const SkPaintParamsKey::DataPayloadField kHeader[2] = {
-            {"snippetID", SkPaintParamsKey::DataPayloadType::kByte, 1},
-            {"blockSize", SkPaintParamsKey::DataPayloadType::kByte, 1},
+    static constexpr DataPayloadField kHeader[2] = {
+            {"snippetID", DataPayloadType::kByte, 1},
+            {"blockSize", DataPayloadType::kByte, 1},
     };
 
-    static const SkSpan<const SkPaintParamsKey::DataPayloadField> kHeaderExpectations(kHeader, 2);
+    static const SkSpan<const DataPayloadField> kHeaderExpectations(kHeader);
 #endif
 
     SkASSERT(!this->isLocked());
@@ -127,8 +130,7 @@ void SkPaintParamsKeyBuilder::endBlock() {
 }
 
 #ifdef SK_DEBUG
-void SkPaintParamsKeyBuilder::checkExpectations(SkPaintParamsKey::DataPayloadType actualType,
-                                                uint32_t actualCount) {
+void SkPaintParamsKeyBuilder::checkExpectations(DataPayloadType actualType, uint32_t actualCount) {
     StackFrame& frame = fStack.back();
     const auto& expectations = frame.fDataPayloadExpectations;
 
@@ -152,7 +154,7 @@ void SkPaintParamsKeyBuilder::addBytes(uint32_t numBytes, const uint8_t* data) {
         return;
     }
 
-    SkDEBUGCODE(this->checkExpectations(SkPaintParamsKey::DataPayloadType::kByte, numBytes);)
+    SkDEBUGCODE(this->checkExpectations(DataPayloadType::kByte, numBytes);)
     SkASSERT(!this->isLocked());
 
     fData.append(numBytes, data);
@@ -169,7 +171,7 @@ void SkPaintParamsKeyBuilder::add(const SkColor4f& color) {
         return;
     }
 
-    SkDEBUGCODE(this->checkExpectations(SkPaintParamsKey::DataPayloadType::kFloat4, 1);)
+    SkDEBUGCODE(this->checkExpectations(DataPayloadType::kFloat4, 1);)
     SkASSERT(!this->isLocked());
 
     fData.append(16, reinterpret_cast<const uint8_t*>(&color));
@@ -377,18 +379,26 @@ SkSpan<const uint8_t> SkPaintParamsKey::BlockReader::dataPayload() const {
     return fBlock.subspan(payloadOffset, payloadSize);
 }
 
+static int field_size(const DataPayloadField& field) {
+    switch (field.fType) {
+        case DataPayloadType::kByte:
+        case DataPayloadType::kPointerIndex: return field.fCount;
+        case DataPayloadType::kFloat4:       return field.fCount * 16;
+    }
+    SkUNREACHABLE;
+}
+
 SkSpan<const uint8_t> SkPaintParamsKey::BlockReader::bytes(int fieldIndex) const {
     SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fType == DataPayloadType::kByte);
 
     int byteOffsetInPayload = 0;
     for (int i = 0; i < fieldIndex; ++i) {
-        SkASSERT(fEntry->fDataPayloadExpectations[i].fType == DataPayloadType::kByte);
-        byteOffsetInPayload += fEntry->fDataPayloadExpectations[i].fCount;
+        byteOffsetInPayload += field_size(fEntry->fDataPayloadExpectations[i]);
     }
 
     SkSpan<const uint8_t> dataPayload = this->dataPayload();
     return dataPayload.subspan(byteOffsetInPayload,
-                               fEntry->fDataPayloadExpectations[fieldIndex].fCount);
+                               field_size(fEntry->fDataPayloadExpectations[fieldIndex]));
 }
 
 #ifdef SK_DEBUG
