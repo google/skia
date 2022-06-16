@@ -264,8 +264,6 @@ private:
         int fCurDataPayloadEntry = 0;
         int fNumExpectedChildren = 0;
         int fNumActualChildren = 0;
-        int fNumExpectedPointers = 0;
-        int fNumActualPointers = 0;
 #endif
     };
 

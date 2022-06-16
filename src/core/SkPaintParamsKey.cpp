@@ -79,8 +79,6 @@ void SkPaintParamsKeyBuilder::beginBlock(int codeSnippetID) {
     fStack.back().fCurDataPayloadEntry = 0;
     fStack.back().fNumExpectedChildren = snippet->fNumChildren;
     fStack.back().fNumActualChildren = 0;
-    fStack.back().fNumExpectedPointers = snippet->fNumPointers;
-    fStack.back().fNumActualPointers = 0;
 #endif
 }
 
@@ -100,7 +98,6 @@ void SkPaintParamsKeyBuilder::endBlock() {
     SkASSERT(fStack.back().fCurDataPayloadEntry ==
              SkTo<int>(fStack.back().fDataPayloadExpectations.size()));
     SkASSERT(fStack.back().fNumActualChildren == fStack.back().fNumExpectedChildren);
-    SkASSERT(fStack.back().fNumActualPointers == fStack.back().fNumExpectedPointers);
     SkASSERT(!this->isLocked());
 
     int headerOffset = fStack.back().fHeaderOffset;
@@ -187,12 +184,6 @@ void SkPaintParamsKeyBuilder::addPointer(const void* ptr) {
         this->makeInvalid();
         return;
     }
-
-#ifdef SK_DEBUG
-    StackFrame& frame = fStack.back();
-    SkASSERT(frame.fNumActualPointers < frame.fNumExpectedPointers);
-    frame.fNumActualPointers++;
-#endif
 
     SkDEBUGCODE(this->checkExpectations(SkPaintParamsKey::DataPayloadType::kPointerIndex, 1);)
     SkASSERT(!this->isLocked());

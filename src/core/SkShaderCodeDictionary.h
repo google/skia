@@ -61,7 +61,6 @@ struct SkShaderSnippet {
                     const char* functionName,
                     GenerateGlueCodeForEntry glueCodeGenerator,
                     int numChildren,
-                    int numPointers,
                     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations)
             : fName(name)
             , fUniforms(uniforms)
@@ -70,7 +69,6 @@ struct SkShaderSnippet {
             , fStaticFunctionName(functionName)
             , fGlueCodeGenerator(glueCodeGenerator)
             , fNumChildren(numChildren)
-            , fNumPointers(numPointers)
             , fDataPayloadExpectations(dataPayloadExpectations) {}
 
     std::string getMangledUniformName(int uniformIndex, int mangleId) const;
@@ -86,7 +84,6 @@ struct SkShaderSnippet {
     const char* fStaticFunctionName = nullptr;
     GenerateGlueCodeForEntry fGlueCodeGenerator = nullptr;
     int fNumChildren = 0;
-    int fNumPointers = 0;
     SkSpan<const SkPaintParamsKey::DataPayloadField> fDataPayloadExpectations;
 };
 
@@ -202,8 +199,7 @@ public:
     // It returns the code snippet ID to use to identify the supplied user-defined code
     // TODO: add hooks for user to actually provide code.
     int addUserDefinedSnippet(const char* name,
-                              SkSpan<const SkPaintParamsKey::DataPayloadField> expectations,
-                              int numPointers = 0);
+                              SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
 
     SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
 

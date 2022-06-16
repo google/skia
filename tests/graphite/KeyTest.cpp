@@ -158,7 +158,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityDoesNotCheckPointers, reporter, contex
             {"ptrIndex", SkPaintParamsKey::DataPayloadType::kPointerIndex, 1},
     };
 
-    int userSnippetID = dict->addUserDefinedSnippet("key", SkSpan(kDataFields), /*numPointers=*/1);
+    int userSnippetID = dict->addUserDefinedSnippet("key", SkSpan(kDataFields));
 
     static constexpr uint8_t kData[kBlockDataSize] = {1, 2, 3, 4};
     int arbitraryData1 = 1;
