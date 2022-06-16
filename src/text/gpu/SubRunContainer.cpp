@@ -454,15 +454,9 @@ public:
     static std::optional<PathOpSubmitter> MakeFromBuffer(SkReadBuffer& buffer,
                                                          SubRunAllocator* alloc,
                                                          const SkStrikeClient* client);
-
-#if SK_SUPPORT_GPU
-    void submitOps(SkCanvas*,
-                   const GrClip* clip,
-                   const SkMatrixProvider& viewMatrix,
-                   SkPoint drawOrigin,
-                   const SkPaint& paint,
-                   skgpu::v1::SurfaceDrawContext* sdc) const;
-#endif  // SK_SUPPORT_GPU
+    void submitDraws(SkCanvas*,
+                     SkPoint drawOrigin,
+                     const SkPaint& paint) const;
 
 private:
     const bool fIsAntiAliased;
@@ -581,16 +575,11 @@ PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkGlyphVariant, SkPoint>& acce
                            descriptor};
 }
 
-#if SK_SUPPORT_GPU
-void PathOpSubmitter::submitOps(SkCanvas* canvas,
-                                const GrClip* clip,
-                                const SkMatrixProvider& viewMatrix,
-                                SkPoint drawOrigin,
-                                const SkPaint& paint,
-                                skgpu::v1::SurfaceDrawContext* sdc) const {
+void PathOpSubmitter::submitDraws(SkCanvas* canvas,
+                                  SkPoint drawOrigin,
+                                  const SkPaint& paint) const {
     SkPaint runPaint{paint};
     runPaint.setAntiAlias(fIsAntiAliased);
-
 
     SkMaskFilterBase* maskFilter = as_MFB(runPaint.getMaskFilter());
 
@@ -601,9 +590,10 @@ void PathOpSubmitter::submitOps(SkCanvas* canvas,
 
     // If there are shaders, non-blur mask filters or styles, the path must be scaled into source
     // space independently of the CTM. This allows the CTM to be correct for the different effects.
-    GrStyle style(runPaint);
+    SkStrokeRec style(runPaint);
     bool needsExactCTM = runPaint.getShader()
-                         || style.applies()
+                         || runPaint.getPathEffect()
+                         || (!style.isFillStyle() && !style.isHairlineStyle())
                          || (maskFilter != nullptr && !maskFilter->asABlur(nullptr));
     if (!needsExactCTM) {
         SkMaskFilterBase::BlurRec blurRec;
@@ -638,7 +628,6 @@ void PathOpSubmitter::submitOps(SkCanvas* canvas,
         }
     }
 }
-#endif  // SK_SUPPORT_GPU
 
 // -- PathSubRun -----------------------------------------------------------------------------------
 class PathSubRun final : public SubRun {
@@ -657,15 +646,25 @@ public:
 
 #if SK_SUPPORT_GPU
     void draw(SkCanvas* canvas,
-              const GrClip* clip,
+              const GrClip*,
+              const SkMatrixProvider&,
+              SkPoint drawOrigin,
+              const SkPaint& paint,
+              sk_sp<SkRefCnt>,
+              skgpu::v1::SurfaceDrawContext*) const override {
+        fPathDrawing.submitDraws(canvas, drawOrigin, paint);
+    }
+#endif  // SK_SUPPORT_GPU
+#if defined(SK_GRAPHITE_ENABLED)
+    void draw(SkCanvas* canvas,
               const SkMatrixProvider& viewMatrix,
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
-              skgpu::v1::SurfaceDrawContext* sdc) const override {
-        fPathDrawing.submitOps(canvas, clip, viewMatrix, drawOrigin, paint, sdc);
+              skgpu::graphite::Device* device) const override {
+        fPathDrawing.submitDraws(canvas, drawOrigin, paint);
     }
-#endif  // SK_SUPPORT_GPU
+#endif  // SK_GRAPHITE_ENABLED
 
     int unflattenSize() const override;
 
