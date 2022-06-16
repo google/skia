@@ -55,6 +55,8 @@ public:
     enum class DataPayloadType {
         kByte,
         kFloat4,
+        // Represents a position inside the fPointerData span.
+        kPointerIndex,
     };
 
     // A given snippet's data payload is stored as an SkSpan of DataPayloadFields in the

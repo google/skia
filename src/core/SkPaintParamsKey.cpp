@@ -134,10 +134,8 @@ void SkPaintParamsKeyBuilder::checkExpectations(SkPaintParamsKey::DataPayloadTyp
 
     // TODO: right now we reject writing 'n' bytes one at a time. We could allow it by tracking
     // the number of bytes written in the stack frame.
-    SkASSERT(frame.fCurDataPayloadEntry < SkTo<int>(expectations.size()) &&
-             expectations.data() &&
-             expectations[frame.fCurDataPayloadEntry].fType == actualType &&
-             expectations[frame.fCurDataPayloadEntry].fCount == actualCount);
+    SkASSERT(expectations[frame.fCurDataPayloadEntry].fType == actualType);
+    SkASSERT(expectations[frame.fCurDataPayloadEntry].fCount == actualCount);
 
     frame.fCurDataPayloadEntry++;
 }
@@ -194,6 +192,10 @@ void SkPaintParamsKeyBuilder::addPointer(const void* ptr) {
     frame.fNumActualPointers++;
 #endif
 
+    SkDEBUGCODE(this->checkExpectations(SkPaintParamsKey::DataPayloadType::kPointerIndex, 1);)
+    SkASSERT(!this->isLocked());
+    SkASSERT(fPointerData.size() <= 0xFF);
+    fData.append((uint8_t)fPointerData.size());
     fPointerData.push_back(ptr);
 }
 

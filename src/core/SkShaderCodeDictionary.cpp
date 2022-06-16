@@ -549,6 +549,7 @@ static constexpr SkUniform kRuntimeShaderUniforms[] = {
 static constexpr DataPayloadField kRuntimeShaderDataPayload[] = {
         {"runtime effect hash", DataPayloadType::kByte, 4},
         {"uniform data size (bytes)", DataPayloadType::kByte, 4},
+        {"SkRuntimeEffect pointer", DataPayloadType::kPointerIndex, 1},
 };
 
 //--------------------------------------------------------------------------------------------------

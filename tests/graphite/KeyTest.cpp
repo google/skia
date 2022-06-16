@@ -154,7 +154,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityDoesNotCheckPointers, reporter, contex
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     static const int kBlockDataSize = 4;
     static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
-            {"data", SkPaintParamsKey::DataPayloadType::kByte, kBlockDataSize},
+            {"data",     SkPaintParamsKey::DataPayloadType::kByte, kBlockDataSize},
+            {"ptrIndex", SkPaintParamsKey::DataPayloadType::kPointerIndex, 1},
     };
 
     int userSnippetID = dict->addUserDefinedSnippet("key", SkSpan(kDataFields), /*numPointers=*/1);
