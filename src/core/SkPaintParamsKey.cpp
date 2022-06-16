@@ -102,8 +102,10 @@ void SkPaintParamsKeyBuilder::endBlock() {
 
     int headerOffset = fStack.back().fHeaderOffset;
 
-    SkASSERT(fData[headerOffset] == fStack.back().fCodeSnippetID);
-    SkASSERT(fData[headerOffset + SkPaintParamsKey::kBlockSizeOffsetInBytes] == 0);
+    SkPaintParamsKey::Header* header =
+            reinterpret_cast<SkPaintParamsKey::Header*>(&fData[headerOffset]);
+    SkASSERT(header->codeSnippetID == fStack.back().fCodeSnippetID);
+    SkASSERT(header->blockSize == 0);
 
     int blockSize = this->sizeInBytes() - headerOffset;
     if (blockSize > SkPaintParamsKey::kMaxBlockSize) {
@@ -112,7 +114,7 @@ void SkPaintParamsKeyBuilder::endBlock() {
         return;
     }
 
-    fData[headerOffset + SkPaintParamsKey::kBlockSizeOffsetInBytes] = blockSize;
+    header->blockSize = blockSize;
 
     fStack.pop();
 
@@ -306,9 +308,9 @@ void SkPaintParamsKey::toShaderInfo(SkShaderCodeDictionary* dict, SkShaderInfo* 
 
 #if GR_TEST_UTILS
 bool SkPaintParamsKey::isErrorKey() const {
-    return this->sizeInBytes() == SkPaintParamsKey::kBlockHeaderSizeInBytes &&
+    return this->sizeInBytes() == sizeof(Header) &&
            fData[0] == static_cast<int>(SkBuiltInCodeSnippetID::kError) &&
-           fData[1] == SkPaintParamsKey::kBlockHeaderSizeInBytes;
+           fData[1] == sizeof(Header);
 }
 #endif
 
@@ -318,34 +320,31 @@ namespace {
 
 #ifdef SK_DEBUG
 void output_indent(int indent) {
-    for (int i = 0; i < indent; ++i) {
-        SkDebugf("    ");
-    }
+    SkDebugf("%*c", 4 * indent, ' ');
 }
 #endif
 
-std::pair<SkBuiltInCodeSnippetID, uint8_t> read_header(SkSpan<const uint8_t> parentSpan,
-                                                       int headerOffset) {
-    SkASSERT(headerOffset + SkPaintParamsKey::kBlockHeaderSizeInBytes <=
-             SkTo<int>(parentSpan.size()));
+SkPaintParamsKey::Header read_header(SkSpan<const uint8_t> parentSpan, int headerOffset) {
+    SkASSERT(headerOffset + sizeof(SkPaintParamsKey::Header) <= parentSpan.size());
 
-    SkBuiltInCodeSnippetID id = static_cast<SkBuiltInCodeSnippetID>(parentSpan[headerOffset]);
-    uint8_t blockSize = parentSpan[headerOffset+SkPaintParamsKey::kBlockSizeOffsetInBytes];
-    SkASSERT(blockSize >= SkPaintParamsKey::kBlockHeaderSizeInBytes);
-    SkASSERT(headerOffset + blockSize <= static_cast<int>(parentSpan.size()));
+    const SkPaintParamsKey::Header* header =
+            reinterpret_cast<const SkPaintParamsKey::Header*>(&parentSpan[headerOffset]);
+    SkASSERT(header->blockSize >= sizeof(SkPaintParamsKey::Header));
+    SkASSERT(headerOffset + header->blockSize <= static_cast<int>(parentSpan.size()));
 
-    return { id, blockSize };
+    return *header;
 }
 
 } // anonymous namespace
 
+
 SkPaintParamsKey::BlockReader::BlockReader(const SkShaderCodeDictionary* dict,
                                            SkSpan<const uint8_t> parentSpan,
                                            int offsetInParent) {
-    auto [codeSnippetID, blockSize] = read_header(parentSpan, offsetInParent);
+    Header header = read_header(parentSpan, offsetInParent);
 
-    fBlock = parentSpan.subspan(offsetInParent, blockSize);
-    fEntry = dict->getEntry(codeSnippetID);
+    fBlock = parentSpan.subspan(offsetInParent, header.blockSize);
+    fEntry = dict->getEntry(header.codeSnippetID);
     SkASSERT(fEntry);
 }
 
@@ -356,20 +355,20 @@ SkPaintParamsKey::BlockReader SkPaintParamsKey::BlockReader::child(
         int childIndex) const {
     SkASSERT(childIndex < fEntry->fNumChildren);
 
-    int childOffset = kBlockHeaderSizeInBytes;
+    int childOffset = sizeof(Header);
     for (int i = 0; i < childIndex; ++i) {
-        auto [_, childBlockSize] = read_header(fBlock, childOffset);
-        childOffset += childBlockSize;
+        Header header = read_header(fBlock, childOffset);
+        childOffset += header.blockSize;
     }
 
     return BlockReader(dict, fBlock, childOffset);
 }
 
 SkSpan<const uint8_t> SkPaintParamsKey::BlockReader::dataPayload() const {
-    int payloadOffset = kBlockHeaderSizeInBytes;
+    int payloadOffset = sizeof(Header);
     for (int i = 0; i < fEntry->fNumChildren; ++i) {
-        auto [_, childBlockSize] = read_header(fBlock, payloadOffset);
-        payloadOffset += childBlockSize;
+        Header header = read_header(fBlock, payloadOffset);
+        payloadOffset += header.blockSize;
     }
 
     int payloadSize = this->blockSize() - payloadOffset;

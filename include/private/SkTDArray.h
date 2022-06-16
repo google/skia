@@ -107,6 +107,8 @@ public:
      */
     size_t bytes() const { return fCount * sizeof(T); }
 
+    T*        data() { return fArray; }
+    const T*  data() const { return fArray; }
     T*        begin() { return fArray; }
     const T*  begin() const { return fArray; }
     T*        end() { return fArray ? fArray + fCount : nullptr; }

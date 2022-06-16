@@ -66,7 +66,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyValidBlockSizeTest, reporter, context) {
 
     // _Just_ on the edge of being too big
     static const int kMaxBlockDataSize = SkPaintParamsKey::kMaxBlockSize -
-                                         SkPaintParamsKey::kBlockHeaderSizeInBytes;
+                                         sizeof(SkPaintParamsKey::Header);
     static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
             {"data", SkPaintParamsKey::DataPayloadType::kByte, kMaxBlockDataSize},
     };
@@ -85,7 +85,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) {
 
     // Too big by one byte
     static const int kBlockDataSize = SkPaintParamsKey::kMaxBlockSize -
-                                      SkPaintParamsKey::kBlockHeaderSizeInBytes + 1;
+                                      sizeof(SkPaintParamsKey::Header) + 1;
     static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
             {"data", SkPaintParamsKey::DataPayloadType::kByte, kBlockDataSize},
     };
@@ -206,7 +206,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyBlockReaderWorks, reporter, context) {
     // Verify that the block reader can extract out our data from the SkPaintParamsKey.
     SkPaintParamsKey::BlockReader reader = key.reader(dict, /*headerOffset=*/0);
     REPORTER_ASSERT(reporter, reader.blockSize() == kBlockDataSizeX + kBlockDataSizeY +
-                                                    SkPaintParamsKey::kBlockHeaderSizeInBytes);
+                                                    sizeof(SkPaintParamsKey::Header));
 
     SkSpan<const uint8_t> readerBytesX = reader.bytes(0);
     REPORTER_ASSERT(reporter, readerBytesX.size() == kBlockDataSizeX);

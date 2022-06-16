@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkMacros.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkBuiltInCodeSnippetID.h"
 
@@ -33,16 +34,22 @@ struct SkShaderSnippet;
 
 // This class is a compact representation of the shader needed to implement a given
 // PaintParams. Its structure is a series of blocks where each block has a
-// header that consists of 2-bytes:
-//   a 1-byte code-snippet ID
-//   a 1-byte number-of-bytes-in-the-block field (incl. the space for the header)
-// The rest of the data in the block is dependent on the individual code snippet.
-// If a given block has child blocks, they appear in the key right after their
-// parent block's header.
+// Header, consisting of 2 bytes:
+//   1 byte: code-snippet ID
+//   1 byte: size of the block, in bytes (header, plus all data payload bytes)
+// The rest of the data and pointers in the block are dependent on the individual code snippet.
+// If a given block has child blocks, they appear in the key right after their parent
+// block's header.
 class SkPaintParamsKey {
 public:
-    static const int kBlockHeaderSizeInBytes = 2;
-    static const int kBlockSizeOffsetInBytes = 1; // offset to the block size w/in the header
+    SK_BEGIN_REQUIRE_DENSE
+    struct Header {
+        uint8_t codeSnippetID;
+        uint8_t blockSize;
+    };
+    SK_END_REQUIRE_DENSE
+
+    static const int kBlockSizeOffsetInBytes = offsetof(Header, blockSize);
     static const int kMaxBlockSize = std::numeric_limits<uint8_t>::max();
 
     enum class DataPayloadType {
