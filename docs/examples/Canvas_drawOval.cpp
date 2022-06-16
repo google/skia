@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     SkRect bounds = SkRect::MakeWH(80, 70);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setShader(SkGradientShader::MakeLinear(g1Points, g1Colors, pos, SK_ARRAY_COUNT(g1Colors),
+    paint.setShader(SkGradientShader::MakeLinear(g1Points, g1Colors, pos, std::size(g1Colors),
             SkTileMode::kClamp));
     canvas->drawOval(bounds , paint);
 }

@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
         rrect.setRectRadii({20, 20, 180, 70}, radii);
         canvas->drawRRect(rrect, paint);
         canvas->translate(0, 60);
-        matrix.mapVectors(radii, SK_ARRAY_COUNT(radii));
+        matrix.mapVectors(radii, std::size(radii));
     }
 }
 }  // END FIDDLE

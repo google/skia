@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
     SkColor colors[] = { 0xff88ff00, 0xff0088bb, 0xff6600cc, 0xffbb3377 };
     paint.setStrokeWidth(3);
     SkScalar weight = 0.5f;
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(colors); ++i) {
+    for (unsigned i = 0; i < std::size(colors); ++i) {
         SkPath path;
         path.moveTo(conicPts[0]);
         path.conicTo(conicPts[1], conicPts[2], weight);

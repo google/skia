@@ -17,7 +17,7 @@ void draw(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->scale(30, 15);
-    draw_lines(points, SK_ARRAY_COUNT(points), paint);
+    draw_lines(points, std::size(points), paint);
     SkIPoint mod = {4, 1};
     for (auto& point : points) {
         point = point + mod;
@@ -25,6 +25,6 @@ void draw(SkCanvas* canvas) {
         mod.fY += 1;
     }
     paint.setColor(SK_ColorRED);
-    draw_lines(points, SK_ARRAY_COUNT(points), paint);
+    draw_lines(points, std::size(points), paint);
 }
 }  // END FIDDLE

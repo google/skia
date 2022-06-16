@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
             bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
     SkPoint clipPoints[]  = {{30, 130}, {120, 130}, {120, 230} };
     SkPath clipPath;
-    clipPath.addPoly(clipPoints, SK_ARRAY_COUNT(clipPoints), true);
+    clipPath.addPoly(clipPoints, std::size(clipPoints), true);
     canvas->save();
     canvas->clipPath(clipPath);
     bounds = canvas->getDeviceClipBounds();

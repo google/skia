@@ -7,13 +7,13 @@ void draw(SkCanvas* canvas) {
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(horz, colors, nullptr, SK_ARRAY_COUNT(colors),
+    paint.setShader(SkGradientShader::MakeLinear(horz, colors, nullptr, std::size(colors),
             SkTileMode::kClamp));
     canvas->drawPaint(paint);
     paint.setBlendMode(SkBlendMode::kDstIn);
     SkColor alphas[] = { SK_ColorBLACK, SK_ColorTRANSPARENT };
     SkPoint vert[] = { { 0, 0 }, { 0, 256 } };
-    paint.setShader(SkGradientShader::MakeLinear(vert, alphas, nullptr, SK_ARRAY_COUNT(alphas),
+    paint.setShader(SkGradientShader::MakeLinear(vert, alphas, nullptr, std::size(alphas),
             SkTileMode::kClamp));
     canvas->drawPaint(paint);
     canvas->clipRect( { 30, 30, 226, 226 } );

@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     SkRegion region({1, 2, 3, 4});
     SkRegion test;
     SkIRect rects[] = {{4, 2, 5, 3}, {7, 2, 8, 3}};
-    test.setRects(rects, SK_ARRAY_COUNT(rects));
+    test.setRects(rects, std::size(rects));
     SkDebugf("quickReject 1: %s\n", region.quickReject(test) ? "true" : "false");
     region.op({1, 4, 3, 6}, SkRegion::kUnion_Op);
     SkDebugf("quickReject 2: %s\n", region.quickReject(test) ? "true" : "false");

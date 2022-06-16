@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     const SkColor colors[] = {SK_ColorRED,     SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE,
                               SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW};
     const SkPoint pts[] = {{100.f / 4.f, 0.f}, {3.f * 100.f / 4.f, 100.f}};
-    p.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    p.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                              SkTileMode::kMirror));
     const SkPoint cubics[] = {{100, 100}, {150, 50},  {250, 150}, {300, 100},
                               {250, 150}, {350, 250}, {300, 300}, {250, 250},

@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     char alphabet[iterations];
     SkScalar angle = 0;
     SkScalar scale = 1;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(transforms); ++i) {
+    for (size_t i = 0; i < std::size(transforms); ++i) {
         const SkScalar s = SkScalarSin(angle) * scale;
         const SkScalar c = SkScalarCos(angle) * scale;
         transforms[i] = SkRSXform::Make(-c, -s, -s * 16, c * 16);

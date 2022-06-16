@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     SkPoint data[][3] = {{{30,40},{60,60},{90,30}}, {{30,120},{60,100},{90,120}},
                          {{60,100},{60,40},{70,30}}, {{60,40},{50,20},{70,30}}};
     SkPath path;
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(data); ++i) {
+    for (unsigned i = 0; i < std::size(data); ++i) {
         path.moveTo(data[i][0]);
         path.lineTo(data[i][1]);
         path.lineTo(data[i][2]);

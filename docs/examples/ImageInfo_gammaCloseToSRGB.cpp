@@ -18,7 +18,7 @@ void draw(SkCanvas* canvas) {
     SkPoint  gradPoints[] = { { 0, 0 }, { width, 0 }, { width * 2, 0 }, { width * 3, 0 } };
     SkPaint gradPaint;
     gradPaint.setShader(SkGradientShader::MakeLinear(gradPoints, gradColors, nullptr,
-                    SK_ARRAY_COUNT(gradColors), SkShader::kClamp_TileMode));
+                    std::size(gradColors), SkShader::kClamp_TileMode));
     canvas->drawRect(SkRect::MakeWH(width, height), gradPaint);
     drawLabel("canvas", canvas->imageInfo().gammaCloseToSRGB());
     SkBitmap bitmap;

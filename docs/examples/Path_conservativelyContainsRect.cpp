@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
       { 15, 25, 49, 115 },
       { 13, 27, 51, 113 },
     };
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(tests); ++i) {
+    for (unsigned i = 0; i < std::size(tests); ++i) {
       SkPaint paint;
       paint.setColor(SK_ColorRED);
       canvas->drawPath(path, paint);

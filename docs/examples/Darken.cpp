@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     SkColor colors[] = { SK_ColorWHITE, SK_ColorBLACK };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(horz, colors, nullptr, SK_ARRAY_COUNT(colors),
+    paint.setShader(SkGradientShader::MakeLinear(horz, colors, nullptr, std::size(colors),
             SkTileMode::kClamp));
     paint.setBlendMode(SkBlendMode::kDarken);
     canvas->drawPaint(paint);

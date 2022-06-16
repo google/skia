@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     SkPoint  gradPoints[] = { { 0, 0 }, { width, 0 } };
     SkPaint gradPaint;
     gradPaint.setShader(SkGradientShader::MakeLinear(gradPoints, gradColors, nullptr,
-                    SK_ARRAY_COUNT(gradColors), SkTileMode::kClamp));
+                    std::size(gradColors), SkTileMode::kClamp));
     SkBitmap bitmap;
     bitmap.allocPixels(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType));
     SkCanvas offScreen(bitmap);

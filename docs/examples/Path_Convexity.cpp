@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     for (SkScalar x : { 40, 100 } ) {
         SkPath path;
         quad[0].fX = x;
-        path.addPoly(quad, SK_ARRAY_COUNT(quad), true);
+        path.addPoly(quad, std::size(quad), true);
         canvas->drawPath(path, paint);
         canvas->drawString(labels[(int) path.getConvexity()], 30, 100, paint);
         canvas->translate(100, 100);

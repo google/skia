@@ -73,10 +73,10 @@ void draw(SkCanvas* canvas) {
             {562, 58}, {662, 272}, {762, 99},  {862, 759}, {962, 945},
     };
 
-    canvas->drawPath(MakeCubicSplineInterpolation(pts, SK_ARRAY_COUNT(pts)), p);
+    canvas->drawPath(MakeCubicSplineInterpolation(pts, std::size(pts)), p);
 
     p.setStrokeWidth(10);
     p.setColor(SK_ColorBLACK);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, SK_ARRAY_COUNT(pts), pts, p);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, std::size(pts), pts, p);
 }
 }  // END FIDDLE

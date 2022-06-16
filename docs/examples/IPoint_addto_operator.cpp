@@ -17,10 +17,10 @@ void draw(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->scale(30, 15);
-    draw_lines(points, SK_ARRAY_COUNT(points), paint);
+    draw_lines(points, std::size(points), paint);
     points[1] += {1, 1};
     points[2] += {-1, -1};
     paint.setColor(SK_ColorRED);
-    draw_lines(points, SK_ARRAY_COUNT(points), paint);
+    draw_lines(points, std::size(points), paint);
 }
 }  // END FIDDLE

@@ -19,7 +19,7 @@ void draw(SkCanvas* canvas) {
         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
         SkSamplingOptions({1.0f/3, 1.0f/3}),
     };
-    for (unsigned index = 0; index < SK_ARRAY_COUNT(samplings); ++index) {
+    for (unsigned index = 0; index < std::size(samplings); ++index) {
         image->scalePixels(pixmap, samplings[index]);
         sk_sp<SkImage> filtered = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
         canvas->drawImage(filtered, 16 * index, 0);

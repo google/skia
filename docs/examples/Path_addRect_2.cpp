@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     rectPaint.setStyle(SkPaint::kStroke_Style);
     SkPaint arrowPaint(rectPaint);
     SkPath arrowPath;
-    arrowPath.addPoly(arrow, SK_ARRAY_COUNT(arrow), true);
+    arrowPath.addPoly(arrow, std::size(arrow), true);
     arrowPaint.setPathEffect(SkPath1DPathEffect::Make(arrowPath, 176, 0,
                              SkPath1DPathEffect::kRotate_Style));
     for (auto direction : { SkPathDirection::kCW, SkPathDirection::kCCW } ) {

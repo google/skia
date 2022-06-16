@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
     canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);
     paint.setTextEncoding(SkTextEncoding::kUTF32);
     canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);
-    uint16_t glyphs[SK_ARRAY_COUNT(hello32)];
+    uint16_t glyphs[std::size(hello32)];
     paint.textToGlyphs(hello32, sizeof(hello32), glyphs);
     paint.setTextEncoding(SkTextEncoding::kGlyphID);
     canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);

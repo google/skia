@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
         for (auto linearText : { false, true } ) {
             paint.setLinearText(linearText);
             SkString width;
-            width.appendScalar(paint.measureText(testStr, SK_ARRAY_COUNT(testStr), nullptr));
+            width.appendScalar(paint.measureText(testStr, std::size(testStr), nullptr));
             canvas->translate(0, textSize + 4);
             canvas->drawString(testStr, 10, 0, paint);
             canvas->drawString(width, 128, 0, paint);

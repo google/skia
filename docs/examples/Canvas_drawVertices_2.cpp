@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorYELLOW, SK_ColorCYAN };
     paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 4, SkTileMode::kClamp));
     auto vertices = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode,
-            SK_ARRAY_COUNT(points), points, texs, colors);
+            std::size(points), points, texs, colors);
     canvas->drawVertices(vertices, SkBlendMode::kDarken, paint);
 }
 }  // END FIDDLE

@@ -24,7 +24,7 @@ void draw(SkCanvas* canvas) {
     debugster("lineTo", path);
     path.reset();
     const SkPoint pts[] = { {0, 0}, {0, 80}, {80, 80}, {80, 0}, {40, 0}, {20, 0} };
-    path.addPoly(pts, SK_ARRAY_COUNT(pts), false);
+    path.addPoly(pts, std::size(pts), false);
     debugster("addPoly", path);
 }
 }  // END FIDDLE

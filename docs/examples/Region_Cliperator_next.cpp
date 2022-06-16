@@ -6,7 +6,7 @@ REG_FIDDLE(Region_Cliperator_next, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region;
     SkIRect rects[] = {{1, 2, 3, 4}, {5, 6, 7, 8}};
-    region.setRects(rects, SK_ARRAY_COUNT(rects));
+    region.setRects(rects, std::size(rects));
     SkRegion::Cliperator clipper(region, {0, 3, 8, 7});
     do {
         auto r2 = clipper.rect();

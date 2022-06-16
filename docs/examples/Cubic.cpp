@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kStroke_Style);
     SkPoint cubicPts[] = {{20, 150}, {90, 10}, {160, 150}, {230, 10}};
     SkColor colors[] = { 0xff88ff00, 0xff0088bb, 0xff6600cc, 0xffbb3377 };
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(colors); ++i) {
+    for (unsigned i = 0; i < std::size(colors); ++i) {
         paint.setColor(0x7fffffff & colors[i]);
         paint.setStrokeWidth(1);
         for (unsigned j = 0; j < 3; ++j) {

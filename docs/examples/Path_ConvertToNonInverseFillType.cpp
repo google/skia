@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
         nameValue(kInverseWinding),
         nameValue(kInverseEvenOdd),
     };
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(fills); ++i) {
+    for (unsigned i = 0; i < std::size(fills); ++i) {
         if (fills[i].fill != (SkPathFillType) i) {
             SkDebugf("fills array order does not match FillType enum order");
             break;

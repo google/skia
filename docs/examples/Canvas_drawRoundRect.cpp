@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     for (auto style : { SkPaint::kStroke_Style, SkPaint::kFill_Style  } ) {
         paint.setStyle(style );
-        for (size_t i = 0; i < SK_ARRAY_COUNT(radii); ++i) {
+        for (size_t i = 0; i < std::size(radii); ++i) {
            canvas->drawRoundRect({10, 10, 60, 40}, radii[i].fX, radii[i].fY, paint);
            canvas->translate(0, 60);
         }

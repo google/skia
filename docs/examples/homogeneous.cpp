@@ -6,9 +6,9 @@ void draw(SkCanvas* canvas) {
     SkPoint3 src[] = {{3, 3, 1}, {8, 2, 2}, {5, 0, 4}, {0, 1, 3},
                       {3, 7, 1}, {8, 6, 2}, {5, 4, 4}, {0, 5, 3}};
     int lines[] = {0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7};
-    constexpr int count = SK_ARRAY_COUNT(src);
+    constexpr int count = std::size(src);
     auto debugster = [=](SkPoint3 src[]) -> void {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(lines); i += 2) {
+        for (size_t i = 0; i < std::size(lines); i += 2) {
             const SkPoint3& s = src[lines[i]];
             const SkPoint3& e = src[lines[i + 1]];
             SkPaint paint;

@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     for (SkScalar x : { 40, 100 } ) {
         SkPath path;
         quad[0].fX = x;
-        path.addPoly(quad, SK_ARRAY_COUNT(quad), true);
+        path.addPoly(quad, std::size(quad), true);
         path.setConvexity(SkPath::kConvex_Convexity);
         canvas->drawPath(path, paint);
         canvas->drawString(path.isConvex() ? "convex" : "not convex", 30, 100, paint);

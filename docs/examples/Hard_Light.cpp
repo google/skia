@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kHardLight);
     paint.setShader(SkGradientShader::MakeRadial({ 128, 128}, 100, colors,
-         nullptr, SK_ARRAY_COUNT(colors), SkTileMode::kClamp));
+         nullptr, std::size(colors), SkTileMode::kClamp));
     canvas->clipRect({0, 128, 256, 256});
     canvas->drawPaint(paint);
 }

@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     SkVector oxo[] = {{25, 25}, {35, 35}, {25, 35}, {35, 25},
                       {40, 20}, {40, 80}, {60, 20}, {60, 80},
                       {20, 40}, {80, 40}, {20, 60}, {80, 60}};
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(oxo); i += 2) {
+    for (unsigned i = 0; i < std::size(oxo); i += 2) {
         path.moveTo(oxo[i]);
         path.lineTo(oxo[i + 1]);
     }

@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     SkColor     colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     SkPaint     paint;
-    paint.setShader(SkGradientShader::MakeSweep(256, 256, colors, pos, SK_ARRAY_COUNT(colors)));
+    paint.setShader(SkGradientShader::MakeSweep(256, 256, colors, pos, std::size(colors)));
     canvas->drawPaint(paint);
 }
 }  // END FIDDLE

@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     path.addRect({20, 20, 80, 80}, SkPathDirection::kCW, 2);
     path.rMoveTo(25, 2);
     SkVector arrow[] = {{0, -4}, {-20, 0}, {0, -3}, {-5, 5}, {5, 5}, {0, -3}, {20, 0}};
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(arrow); ++i) {
+    for (unsigned i = 0; i < std::size(arrow); ++i) {
         path.rLineTo(arrow[i].fX, arrow[i].fY);
     }
     SkPaint paint;

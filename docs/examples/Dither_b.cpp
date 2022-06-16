@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     SkColor colors[] = {0xFF334455, 0xFF662211 };
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeLinear(
-                     points, colors, nullptr, SK_ARRAY_COUNT(colors),
+                     points, colors, nullptr, std::size(colors),
                      SkTileMode::kClamp));
     paint.setDither(true);
     auto img = bm32.asImage();

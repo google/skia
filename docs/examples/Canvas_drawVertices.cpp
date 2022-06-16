@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     SkPoint points[] = { { 0, 0 }, { 250, 0 }, { 100, 100 }, { 0, 250 } };
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorYELLOW, SK_ColorCYAN };
     auto vertices = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode,
-            SK_ARRAY_COUNT(points), points, nullptr, colors);
+            std::size(points), points, nullptr, colors);
     canvas->drawVertices(vertices.get(), SkBlendMode::kSrc, paint);
 }
 }  // END FIDDLE

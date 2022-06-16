@@ -5,7 +5,7 @@
 REG_FIDDLE(Path_IsLineDegenerate, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint points[] = { {100, 100}, {100.000001f, 100.000001f}, {100.0001f, 100.0001f} };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(points) - 1; ++i) {
+    for (size_t i = 0; i < std::size(points) - 1; ++i) {
         for (bool exact : { false, true } ) {
             SkDebugf("line from (%1.8g,%1.8g) to (%1.8g,%1.8g) is %s" "degenerate, %s\n",
                     points[i].fX, points[i].fY, points[i + 1].fX, points[i + 1].fY,

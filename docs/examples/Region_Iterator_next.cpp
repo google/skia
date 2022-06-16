@@ -6,7 +6,7 @@ REG_FIDDLE(Region_Iterator_next, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region;
     SkIRect rects[] = {{1, 2, 3, 4}, {5, 6, 7, 8}};
-    region.setRects(rects, SK_ARRAY_COUNT(rects));
+    region.setRects(rects, std::size(rects));
     SkRegion::Iterator iter(region);
     do {
         auto r2 = iter.rect();
