@@ -26,6 +26,7 @@ class SkSpan {
 public:
     constexpr SkSpan() : fPtr{nullptr}, fSize{0} {}
     constexpr SkSpan(T* ptr, size_t size) : fPtr{ptr}, fSize{size} {
+        SkASSERT(ptr || size == 0);  // disallow nullptr + a nonzero size
         SkASSERT(size < kMaxSize);
     }
     template <typename U, typename = typename std::enable_if<std::is_same<const U, T>::value>::type>

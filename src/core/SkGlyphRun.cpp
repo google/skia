@@ -263,12 +263,13 @@ const SkGlyphRunList& SkGlyphRunBuilder::blobToGlyphRunList(
             }
         }
 
+        const uint32_t* clusters = it.clusters();
         this->makeGlyphRun(
                 font,
                 glyphIDs,
                 positions,
                 SkSpan<const char>(it.text(), it.textSize()),
-                SkSpan<const uint32_t>(it.clusters(), runSize),
+                SkSpan<const uint32_t>(clusters, clusters ? runSize : 0),
                 scaledRotations);
     }
 
