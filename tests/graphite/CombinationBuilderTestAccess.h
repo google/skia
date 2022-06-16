@@ -9,11 +9,24 @@
 #define CombinationBuilderTestAccess_DEFINED
 
 #include "include/core/SkCombinationBuilder.h"
+#include "include/private/SkUniquePaintParamsID.h"
+
 
 class CombinationBuilderTestAccess {
 public:
     static int NumCombinations(SkCombinationBuilder* builder) {
         return builder->numCombinations();
+    }
+    static std::vector<SkUniquePaintParamsID> BuildCombinations(SkShaderCodeDictionary* dict,
+                                                                SkCombinationBuilder* builder) {
+        std::vector<SkUniquePaintParamsID> uniqueIDs;
+
+        builder->buildCombinations(dict,
+                                   [&](SkUniquePaintParamsID uniqueID) {
+                                       uniqueIDs.push_back(uniqueID);
+                                   });
+
+        return uniqueIDs;
     }
 #ifdef SK_DEBUG
     static int Epoch(const SkCombinationBuilder& builder) {

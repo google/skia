@@ -2167,7 +2167,7 @@ Result GraphiteSink::draw(const Src& src,
             return result;
         }
 
-        // For now we cast and call directly into Surface. Once we have a been idea of
+        // For now we cast and call directly into Surface. Once we have a better idea of
         // what the public API for synchronous graphite readPixels we can update this call to use
         // that instead.
         SkPixmap pm;

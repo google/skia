@@ -195,12 +195,6 @@ struct RuntimeShaderBlock {
                            const ShaderData&);
 };
 
-// Bridge between the combinations system and the SkPaintParamsKey
 const SkRuntimeEffect* TestingOnly_GetCommonRuntimeEffect();
-
-SkUniquePaintParamsID CreateKey(const SkKeyContext&,
-                                SkPaintParamsKeyBuilder*,
-                                SkShaderType,
-                                SkBlendMode);
 
 #endif // SkKeyHelpers_DEFINED

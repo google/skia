@@ -28,6 +28,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/shaders/SkImageShader.h"
+#include "tests/graphite/CombinationBuilderTestAccess.h"
 
 using namespace skgpu::graphite;
 
@@ -106,6 +107,57 @@ std::tuple<SkPaint, int> create_paint(Recorder* recorder,
     return { p, numTextures };
 }
 
+SkUniquePaintParamsID create_key(Context* context,
+                                 SkPaintParamsKeyBuilder* keyBuilder,
+                                 SkShaderType shaderType,
+                                 SkTileMode tileMode,
+                                 SkBlendMode blendMode) {
+    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+
+    SkCombinationBuilder combinationBuilder(context);
+
+    switch (shaderType) {
+        case SkShaderType::kSolidColor:
+            combinationBuilder.addOption(shaderType);
+            break;
+        case SkShaderType::kLinearGradient:         [[fallthrough]];
+        case SkShaderType::kRadialGradient:         [[fallthrough]];
+        case SkShaderType::kSweepGradient:          [[fallthrough]];
+        case SkShaderType::kConicalGradient:
+            combinationBuilder.addOption(shaderType, 2, 2);
+            break;
+        case SkShaderType::kLocalMatrix: {
+            SkCombinationOption option = combinationBuilder.addOption(shaderType);
+            option.addChildOption(0, SkShaderType::kSolidColor);
+        } break;
+        case SkShaderType::kImage: {
+            SkTileModePair tilingOptions[] = { { tileMode,  tileMode } };
+
+            combinationBuilder.addOption(shaderType, tilingOptions);
+        } break;
+        case SkShaderType::kBlendShader: {
+            SkCombinationOption option = combinationBuilder.addOption(shaderType);
+            option.addChildOption(0, SkShaderType::kSolidColor);
+            option.addChildOption(1, SkShaderType::kSolidColor);
+        } break;
+        case SkShaderType::kRuntimeShader: {
+            combinationBuilder.addOption(shaderType);
+            // TODO: this needs to be connected to the runtime effect from
+            // TestingOnly_GetCommonRuntimeEffect. Unfortunately, right now, we only have a
+            // way of adding runtime blenders to the combination system. For now, we skip this
+            // case below
+        } break;
+    }
+
+    combinationBuilder.addOption(blendMode);
+
+    std::vector<SkUniquePaintParamsID> uniqueIDs = CombinationBuilderTestAccess::BuildCombinations(
+            dict, &combinationBuilder);
+
+    SkASSERT(uniqueIDs.size() == 1);
+    return uniqueIDs[0];
+}
+
 } // anonymous namespace
 
 // This is intended to be a smoke test for the agreement between the two ways of creating a
@@ -148,6 +200,12 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                 }
             }
 
+            // TODO: re-enable this combination when we can add runtime shaders to the combination
+            // system.
+            if (s == SkShaderType::kRuntimeShader) {
+                continue;
+            }
+
             // TODO: test out a runtime SkBlender here
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
                 auto [ p, expectedNumTextures ] = create_paint(recorder.get(), s, tm, bm);
@@ -155,7 +213,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                 auto [ uniqueID1, uIndex, tIndex] = ExtractPaintData(recorder.get(), &gatherer,
                                                                      &builder, {}, PaintParams(p));
 
-                SkUniquePaintParamsID uniqueID2 = CreateKey(keyContext, &builder, s, bm);
+                SkUniquePaintParamsID uniqueID2 = create_key(context, &builder, s, tm, bm);
                 // ExtractPaintData and CreateKey agree
                 REPORTER_ASSERT(reporter, uniqueID1 == uniqueID2);
 

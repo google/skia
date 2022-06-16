@@ -97,6 +97,8 @@ public:
 
         int numCombinations() const;
 
+        void addToKey(const SkKeyContext&, int desiredCombination, SkPaintParamsKeyBuilder*);
+
 #ifdef SK_DEBUG
         void dump(int indent) const;
 #endif
@@ -155,6 +157,39 @@ public:
         return this->numIntrinsicCombinations() * this->numChildCombinations();
     }
 
+    void addToKey(const SkKeyContext& keyContext,
+                  int desiredCombination,
+                  SkPaintParamsKeyBuilder* keyBuilder) {
+        SkASSERT(desiredCombination < this->numCombinations());
+
+        int intrinsicCombination = desiredCombination / this->numChildCombinations();
+        int childCombination = desiredCombination % this->numChildCombinations();
+
+        this->beginBlock(keyContext, intrinsicCombination, keyBuilder);
+
+        if (fNumSlots) {
+            int numCombinationsSeen = 0;
+            for (int slotIndex = 0; slotIndex < fNumSlots; ++slotIndex) {
+                SkSlot* slot = this->getSlot(slotIndex);
+
+                numCombinationsSeen += slot->numCombinations();
+                int numCombosLeft = this->numChildCombinations() / numCombinationsSeen;
+
+                int slotCombination;
+                if (slotIndex+1 < fNumSlots) {
+                    slotCombination = childCombination / (numCombosLeft ? numCombosLeft : 1);
+                    childCombination %= numCombosLeft;
+                } else {
+                    slotCombination = childCombination;
+                }
+
+                slot->addToKey(keyContext, slotCombination, keyBuilder);
+            }
+        }
+
+        keyBuilder->endBlock();
+    }
+
 #ifdef SK_DEBUG
     void dump(int indent = 0) const {
         SkDebugf("%s", type_to_str(fType));
@@ -209,6 +244,21 @@ int SkOption::SkSlot::numCombinations() const {
     }
 
     return numCombinations;
+}
+
+void SkOption::SkSlot::addToKey(const SkKeyContext& keyContext,
+                                int desiredCombination,
+                                SkPaintParamsKeyBuilder* keyBuilder) {
+    SkASSERT(desiredCombination < this->numCombinations());
+
+    for (SkOption* option = fHead; option; option = option->fNext) {
+        if (desiredCombination < option->numCombinations()) {
+            option->addToKey(keyContext, desiredCombination, keyBuilder);
+            return;
+        }
+
+        desiredCombination -= option->numCombinations();
+    }
 }
 
 #ifdef SK_DEBUG
@@ -657,6 +707,40 @@ void SkCombinationBuilder::dump() const {
 }
 #endif
 
+void SkCombinationBuilder::createKey(const SkKeyContext& keyContext,
+                                     int desiredCombination,
+                                     SkPaintParamsKeyBuilder* keyBuilder) {
+    SkDEBUGCODE(keyBuilder->checkReset();)
+    SkASSERT(desiredCombination < this->numCombinations());
+
+    int numBlendModeCombos = this->numBlendModeCombinations();
+
+    int desiredShaderCombination = desiredCombination / numBlendModeCombos;
+    int desiredBlendCombination = desiredCombination % numBlendModeCombos;
+
+    for (SkOption* shaderOption : fShaderOptions) {
+        if (desiredShaderCombination < shaderOption->numCombinations()) {
+            shaderOption->addToKey(keyContext, desiredShaderCombination, keyBuilder);
+            break;
+        }
+
+        desiredShaderCombination -= shaderOption->numCombinations();
+    }
+
+    if (desiredBlendCombination < SkPopCount(fBlendModes)) {
+        int ith_set_bit = SkNthSet(fBlendModes, desiredBlendCombination);
+
+        SkASSERT(ith_set_bit < kSkBlendModeCount);
+        SkBlendMode bm = (SkBlendMode) ith_set_bit;
+
+        BlendModeBlock::BeginBlock(keyContext, keyBuilder, /*gatherer=*/nullptr, bm); // bm is used!
+        keyBuilder->endBlock();
+    } else {
+        // TODO: need to handle fBlenders here
+    }
+
+}
+
 void SkCombinationBuilder::buildCombinations(
         SkShaderCodeDictionary* dict,
         const std::function<void(SkUniquePaintParamsID)>& func) {
@@ -673,23 +757,12 @@ void SkCombinationBuilder::buildCombinations(
         this->addOption(SkShaderType::kSolidColor);
     }
 
-    for (int i = 0; i < kSkBlendModeCount; ++i) {
-        if (!(fBlendModes & (0x1 << i))) {
-            continue;
-        }
+    int numCombos = this->numCombinations();
+    for (int i = 0; i < numCombos; ++i) {
+        this->createKey(keyContext, i, &builder);
 
-        SkBlendMode bm = (SkBlendMode) i;
+        auto entry = dict->findOrCreate(&builder);
 
-        // TODO: actually iterate over the SkOption's combinations and have each option add
-        // itself to the key.
-        for (SkOption* shaderOption : fShaderOptions) {
-            // TODO: expand CreateKey to take either an SkBlendMode or an SkBlendID
-            SkUniquePaintParamsID uniqueID = CreateKey(keyContext, &builder,
-                                                       shaderOption->type(), bm);
-
-            func(uniqueID);
-        }
+        func(entry->uniqueID());
     }
-
-    // TODO: need to loop over fBlenders here
 }
