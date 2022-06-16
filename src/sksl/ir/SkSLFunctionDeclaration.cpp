@@ -129,7 +129,7 @@ static bool check_parameters(const Context& context,
                     m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
                     modifiersChanged = true;
                 } else if (typeIsValidForColor(type) &&
-                           builtinColorIndex < SK_ARRAY_COUNT(kBuiltinColorIDs)) {
+                           builtinColorIndex < std::size(kBuiltinColorIDs)) {
                     m.fLayout.fBuiltin = kBuiltinColorIDs[builtinColorIndex++];
                     modifiersChanged = true;
                 }

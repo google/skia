@@ -803,11 +803,11 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     SkString noiseFuncName = fragBuilder->getMangledFunctionName("noiseFuncName");
     if (pne.stitchTiles()) {
         fragBuilder->emitFunction(SkSLType::kHalf, noiseFuncName.c_str(),
-                                  {gPerlinNoiseStitchArgs, SK_ARRAY_COUNT(gPerlinNoiseStitchArgs)},
+                                  {gPerlinNoiseStitchArgs, std::size(gPerlinNoiseStitchArgs)},
                                   noiseCode.c_str());
     } else {
         fragBuilder->emitFunction(SkSLType::kHalf, noiseFuncName.c_str(),
-                                  {gPerlinNoiseArgs, SK_ARRAY_COUNT(gPerlinNoiseArgs)},
+                                  {gPerlinNoiseArgs, std::size(gPerlinNoiseArgs)},
                                   noiseCode.c_str());
     }
 

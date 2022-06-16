@@ -52,7 +52,7 @@ std::string Mangler::uniqueName(std::string_view baseName, SymbolTable* symbolTa
     // This code is a performance hotspot. Assemble the string manually to save a few cycles.
     char uniqueName[256];
     uniqueName[0] = '_';
-    char* uniqueNameEnd = uniqueName + SK_ARRAY_COUNT(uniqueName);
+    char* uniqueNameEnd = uniqueName + std::size(uniqueName);
     for (;;) {
         // _123
         char* endPtr = SkStrAppendS32(uniqueName + 1, fCounter++);
