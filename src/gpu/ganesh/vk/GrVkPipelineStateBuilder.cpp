@@ -279,6 +279,10 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
         }
     }
 
+    // The vulkan spec says that if a subpass has an input attachment, then the input attachment
+    // descriptor set must be bound to all pipelines in that subpass. This includes pipelines that
+    // don't actually use the input attachment. Thus we look at the renderPassBarriers and not just
+    // the DstProxyView barrier flags to determine if we use the input attachment.
     bool usesInput = SkToBool(fProgramInfo.renderPassBarriers() & GrXferBarrierFlags::kTexture);
     uint32_t layoutCount =
         usesInput ? GrVkUniformHandler::kDescSetCount : (GrVkUniformHandler::kDescSetCount - 1);
