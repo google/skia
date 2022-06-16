@@ -44,7 +44,7 @@ public:
 private:
     constexpr MonotonicValue(uint16_t index) : fIndex(index) {}
 
-    uint16_t fIndex = 0;
+    uint16_t fIndex;
 };
 
 /**

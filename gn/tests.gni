@@ -333,6 +333,7 @@ metal_tests_sources = [
 
 graphite_tests_sources = [
   "$_tests/graphite/BackendTextureTest.cpp",
+  "$_tests/graphite/BoundsManagerTest.cpp",
   "$_tests/graphite/CombinationBuilderTest.cpp",
   "$_tests/graphite/CombinationBuilderTestAccess.h",
   "$_tests/graphite/CommandBufferTest.cpp",
