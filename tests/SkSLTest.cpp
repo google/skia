@@ -52,26 +52,23 @@ namespace SkSLTestFlags {
     /** CPU tests must pass on the CPU backend. */
     static constexpr int CPU     = 1 << 0;
 
-    /** CPU_ES3 tests must pass on the CPU backend when "enforce ES2 restrictions" is off. */
-    static constexpr int CPU_ES3 = 1 << 1;
-
     /** GPU tests must pass on all GPU backends. */
-    static constexpr int GPU     = 1 << 2;
+    static constexpr int GPU     = 1 << 1;
 
     /** GPU_ES3 tests must pass on ES3-compatible GPUs when "enforce ES2 restrictions" is off. */
-    static constexpr int GPU_ES3 = 1 << 3;
+    static constexpr int GPU_ES3 = 1 << 2;
 
     /** SkQP tests will be run in Android/Fuchsia conformance tests with no driver workarounds. */
-    static constexpr int SkQP    = 1 << 4;
+    static constexpr int SkQP    = 1 << 3;
 
     /** UsesNaN tests rely on NaN values, so they are only expected to pass on GPUs that generate
      *  them (which is not a requirement, even with ES3).
      */
-    static constexpr int UsesNaN = 1 << 5;
+    static constexpr int UsesNaN = 1 << 4;
 }
 
 static constexpr bool is_cpu(int flags) {
-    return flags & (SkSLTestFlags::CPU | SkSLTestFlags::CPU_ES3);
+    return flags & SkSLTestFlags::CPU;
 }
 
 static constexpr bool is_gpu(int flags) {
@@ -79,7 +76,7 @@ static constexpr bool is_gpu(int flags) {
 }
 
 static constexpr bool is_strict_es2(int flags) {
-    return !(flags & (SkSLTestFlags::CPU_ES3 | SkSLTestFlags::GPU_ES3));
+    return !(flags & SkSLTestFlags::GPU_ES3);
 }
 
 static bool should_run_in_skqp(int flags) {
@@ -262,20 +259,13 @@ static void test_permutations(skiatest::Reporter* r,
 }
 
 static void test_cpu(skiatest::Reporter* r, const char* testFile, int flags) {
-    bool shouldRunCPU = (flags & SkSLTestFlags::CPU);
-    bool shouldRunCPU_ES3 = (flags & SkSLTestFlags::CPU_ES3);
-    SkASSERT(shouldRunCPU || shouldRunCPU_ES3);
+    SkASSERT(flags & SkSLTestFlags::CPU);
 
     // Create a raster-backed surface.
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
 
-    if (shouldRunCPU) {
-        test_permutations(r, surface.get(), testFile, /*strictES2=*/true);
-    }
-    if (shouldRunCPU_ES3) {
-        test_permutations(r, surface.get(), testFile, /*strictES2=*/false);
-    }
+    test_permutations(r, surface.get(), testFile, /*strictES2=*/true);
 }
 
 static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile, int flags) {
@@ -385,7 +375,6 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flag
 /**
  * Test flags:
  * - CPU:     this test should pass on the CPU backend
- * - CPU_ES3: this test should pass on the CPU backend when "enforce ES2 restrictions" is off
  * - GPU:     this test should pass on the GPU backends
  * - GPU_ES3: this test should pass on an ES3-compatible GPU when "enforce ES2 restrictions" is off
  * - SkQP:    Android CTS (go/wtf/cts) enforces that devices must pass this test
@@ -534,9 +523,9 @@ SKSL_TEST(CPU + GPU + SkQP, InoutParamsAreDistinct,          "shared/InoutParams
 SKSL_TEST(CPU + GPU + SkQP, Matrices,                        "shared/Matrices.sksl")
 SKSL_TEST(GPU_ES3,          MatricesNonsquare,               "shared/MatricesNonsquare.sksl")
 // TODO(skia:12443) These tests actually don't work on MANY devices. The GLSL SkQP suite
-// does a terrible job of enforcing this rule. We still test them on CPU.
+// does a terrible job of enforcing this rule. We still test the ES2 variant on CPU.
 SKSL_TEST(CPU,              MatrixConstructorsES2,           "shared/MatrixConstructorsES2.sksl")
-SKSL_TEST(CPU_ES3,          MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
+// SKSL_TEST(GPU_ES3,       MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
 SKSL_TEST(CPU + GPU + SkQP, MatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(CPU + GPU + SkQP, MatrixScalarMath,                "shared/MatrixScalarMath.sksl")
 SKSL_TEST(CPU + GPU + SkQP, MatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
