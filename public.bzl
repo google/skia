@@ -791,6 +791,8 @@ BASE_SRCS_ALL = [
     "src/gpu/GrRectanizer.h",
     "src/gpu/KeyBuilder.h",
     "src/gpu/Rectanizer.h",
+    "src/gpu/RectanizerOptimized.cpp",
+    "src/gpu/RectanizerOptimized.h",
     "src/gpu/RectanizerPow2.cpp",
     "src/gpu/RectanizerPow2.h",
     "src/gpu/RectanizerSkyline.cpp",

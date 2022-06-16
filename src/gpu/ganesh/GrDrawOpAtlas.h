@@ -82,7 +82,8 @@ public:
                                                skgpu::AtlasGenerationCounter* generationCounter,
                                                AllowMultitexturing allowMultitexturing,
                                                skgpu::PlotEvictionCallback* evictor,
-                                               std::string_view label);
+                                               std::string_view label,
+                                               skgpu::PadAllGlyphs padAllGlyphs);
 
     /**
      * Adds a width x height subimage to the atlas. Upon success it returns 'kSucceeded' and returns
@@ -164,12 +165,19 @@ public:
 
     int numAllocated_TestingOnly() const;
     void setMaxPages_TestingOnly(uint32_t maxPages);
+    skgpu::Plot* getPlot_testingOnly(int pageIdx, int plotIdx) {
+        return fPages[pageIdx].fPlotArray[plotIdx].get();
+    }
+    void checkEvictedPlot_testingOnly(skgpu::PlotEvictionCallback* checker) {
+        this->fEvictionCallbacks.emplace_back(checker);
+    }
 
 private:
     GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, SkColorType, size_t bpp,
                   int width, int height, int plotWidth, int plotHeight,
                   skgpu::AtlasGenerationCounter* generationCounter,
-                  AllowMultitexturing allowMultitexturing, std::string_view label);
+                  AllowMultitexturing allowMultitexturing, std::string_view label,
+                  skgpu::PadAllGlyphs padAllGlyphs);
 
     inline bool updatePlot(GrDeferredUploadTarget*, skgpu::AtlasLocator*, skgpu::Plot*);
 
@@ -240,6 +248,8 @@ private:
     uint32_t fMaxPages;
 
     uint32_t fNumActivePages;
+
+    skgpu::PadAllGlyphs fPadAllGlyphs;
 
     SkDEBUGCODE(void validate(const skgpu::AtlasLocator& atlasLocator) const;)
 };

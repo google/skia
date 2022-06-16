@@ -383,7 +383,7 @@ bool DrawAtlas::createPages(AtlasGenerationCounter* generationCounter) {
                 uint32_t plotIndex = r * numPlotsX + c;
                 currPlot->reset(new Plot(
                     i, plotIndex, generationCounter, x, y, fPlotWidth, fPlotHeight, fColorType,
-                    fBytesPerPixel));
+                    fBytesPerPixel, skgpu::PadAllGlyphs::kNo));
 
                 // build LRU list
                 fPages[i].fPlotList.addToHead(currPlot->get());

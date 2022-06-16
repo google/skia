@@ -26,7 +26,6 @@ namespace skgpu::graphite {
 
 AtlasManager::AtlasManager(Recorder* recorder)
         : fRecorder(recorder)
-        , fSupportBilerpAtlas{recorder->priv().caps()->supportBilerpFromGlyphAtlas()}
         , fAtlasConfig{recorder->priv().caps()->maxTextureSize(),
                        recorder->priv().caps()->glyphCacheTextureMaximumBytes()} {
     if (!recorder->priv().caps()->allowMultipleGlyphCacheTextures() ||
@@ -36,6 +35,11 @@ AtlasManager::AtlasManager(Recorder* recorder)
        fAllowMultitexturing = DrawAtlas::AllowMultitexturing::kNo;
     } else {
        fAllowMultitexturing = DrawAtlas::AllowMultitexturing::kYes;
+    }
+    if (recorder->priv().caps()->supportBilerpFromGlyphAtlas()) {
+        fPadAllGlyphs = skgpu::PadAllGlyphs::kYes;
+    } else {
+        fPadAllGlyphs = skgpu::PadAllGlyphs::kNo;
     }
 }
 
@@ -177,7 +181,7 @@ DrawAtlas::ErrorCode AtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
         case 0:
             // The direct mask/image case.
             padding = 0;
-            if (fSupportBilerpAtlas) {
+            if (fPadAllGlyphs == PadAllGlyphs::kYes) {
                 // Force direct masks (glyph with no padding) to have padding.
                 padding = 1;
                 srcPadding = 1;

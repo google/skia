@@ -31,16 +31,13 @@ public:
     ~RectanizerPow2() final {}
 
     void reset() final {
+        Rectanizer::reset();
         fNextStripY = 0;
-        fAreaSoFar = 0;
         sk_bzero(fRows, sizeof(fRows));
     }
 
     bool addRect(int w, int h, SkIPoint16* loc) final;
-
-    float percentFull() const final {
-        return fAreaSoFar / ((float)this->width() * this->height());
-    }
+    PadAllGlyphs padAllGlyphs() const override { return PadAllGlyphs::kNo; }
 
 private:
     static const int kMIN_HEIGHT_POW2 = 2;
@@ -60,7 +57,6 @@ private:
     Row fRows[kMaxExponent];    // 0-th entry will be unused
 
     int fNextStripY;
-    int32_t fAreaSoFar;
 
     static int HeightToRowIndex(int height) {
         SkASSERT(height >= kMIN_HEIGHT_POW2);

@@ -14,6 +14,11 @@ struct SkIPoint16;
 
 namespace skgpu {
 
+enum class PadAllGlyphs : bool {
+    kNo = false,
+    kYes = true
+};
+
 class Rectanizer {
 public:
     Rectanizer(int width, int height) : fWidth(width), fHeight(height) {
@@ -23,24 +28,30 @@ public:
 
     virtual ~Rectanizer() {}
 
-    virtual void reset() = 0;
+    virtual void reset() {
+        fAreaSoFar = 0;
+    }
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    float percentFull() const {
+        return fAreaSoFar / ((float)this->width() * this->height());
+    }
 
     // Attempt to add a rect. Return true on success; false on failure. If
     // successful the position in the atlas is returned in 'loc'.
     virtual bool addRect(int width, int height, SkIPoint16* loc) = 0;
-    virtual float percentFull() const = 0;
-
+    virtual PadAllGlyphs padAllGlyphs() const = 0;
     /**
      *  Our factory, which returns the subclass du jour
      */
     static Rectanizer* Factory(int width, int height);
 
-private:
+protected:
+    friend class RectanizerSkylineTestingPeer;
     const int fWidth;
     const int fHeight;
+    int32_t fAreaSoFar;
 };
 
 } // End of namespace skgpu

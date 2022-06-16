@@ -18,11 +18,12 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTInternalLList.h"
-#include "src/gpu/RectanizerSkyline.h"
 
 class GrOpFlushState;
 class TestingUploadTarget;
 namespace skgpu::graphite { class AtlasManager; }
+namespace skgpu { class Rectanizer; }
+namespace skgpu { enum class PadAllGlyphs : bool; }
 
 /**
  * This file includes internal types that are used by all of our gpu backends for atlases.
@@ -300,6 +301,10 @@ public:
         return {fUVs[0] & 0x1FFF, fUVs[1]};
     }
 
+    SkIPoint bottomRight() const {
+        return {fUVs[2] & 0x1FFF, fUVs[3]};
+    }
+
     uint16_t width() const {
         return fUVs[2] - fUVs[0];
     }
@@ -421,7 +426,8 @@ class Plot : public SkRefCnt {
 
 public:
     Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCounter,
-         int offX, int offY, int width, int height, SkColorType colorType, size_t bpp);
+         int offX, int offY, int width, int height, SkColorType colorType, size_t bpp,
+         PadAllGlyphs padAllGlyphs);
 
     uint32_t pageIndex() const { return fPageIndex; }
 
@@ -438,7 +444,10 @@ public:
     }
     SkDEBUGCODE(size_t bpp() const { return fBytesPerPixel; })
 
-    bool addSubImage(int width, int height, const void* image, AtlasLocator* atlasLocator);
+    bool addSubImage(int width,
+                     int height,
+                     const void* image,
+                     AtlasLocator* atlasLocator);
 
     /**
      * To manage the lifetime of a plot, we use two tokens. We use the last upload token to
@@ -467,8 +476,10 @@ public:
     sk_sp<Plot> clone() const {
         return sk_sp<Plot>(new Plot(
             fPageIndex, fPlotIndex, fGenerationCounter, fX, fY, fWidth, fHeight, fColorType,
-            fBytesPerPixel));
+            fBytesPerPixel, this->padAllGlyphs()));
     }
+
+    PadAllGlyphs padAllGlyphs() const;
 
 #ifdef SK_DEBUG
     void resetListPtrs() {
@@ -478,6 +489,7 @@ public:
 #endif
 
 private:
+    friend class PlotTestingPeer;
     ~Plot() override;
 
     skgpu::DrawToken fLastUpload;
@@ -496,7 +508,7 @@ private:
     const int fHeight;
     const int fX;
     const int fY;
-    skgpu::RectanizerSkyline fRectanizer;
+    std::unique_ptr<skgpu::Rectanizer> fRectanizer;
     const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
     const SkColorType fColorType;
     const size_t fBytesPerPixel;

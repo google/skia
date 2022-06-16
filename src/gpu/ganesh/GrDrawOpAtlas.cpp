@@ -72,7 +72,8 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
                                                    GenerationCounter* generationCounter,
                                                    AllowMultitexturing allowMultitexturing,
                                                    EvictionCallback* evictor,
-                                                   std::string_view label) {
+                                                   std::string_view label,
+                                                   skgpu::PadAllGlyphs padAllGlyphs) {
     if (!format.isValid()) {
         return nullptr;
     }
@@ -80,7 +81,8 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
     std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, colorType, bpp,
                                                            width, height, plotWidth, plotHeight,
                                                            generationCounter,
-                                                           allowMultitexturing, label));
+                                                           allowMultitexturing, label,
+                                                           padAllGlyphs));
     if (!atlas->getViews()[0].proxy()) {
         return nullptr;
     }
@@ -96,7 +98,8 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
 GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendFormat& format,
                              SkColorType colorType, size_t bpp, int width, int height,
                              int plotWidth, int plotHeight, GenerationCounter* generationCounter,
-                             AllowMultitexturing allowMultitexturing, std::string_view label)
+                             AllowMultitexturing allowMultitexturing, std::string_view label,
+                             skgpu::PadAllGlyphs padAllGlyphs)
         : fFormat(format)
         , fColorType(colorType)
         , fBytesPerPixel(bpp)
@@ -111,7 +114,8 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendForm
         , fFlushesSinceLastUse(0)
         , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ?
                             PlotLocator::kMaxMultitexturePages : 1)
-        , fNumActivePages(0) {
+        , fNumActivePages(0)
+        , fPadAllGlyphs(padAllGlyphs) {
     int numPlotsX = width/plotWidth;
     int numPlotsY = height/plotHeight;
     SkASSERT(numPlotsX * numPlotsY <= PlotLocator::kMaxPlots);
@@ -495,9 +499,16 @@ bool GrDrawOpAtlas::createPages(
         for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
             for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
                 uint32_t plotIndex = r * numPlotsX + c;
-                currPlot->reset(new Plot(
-                    i, plotIndex, generationCounter, x, y, fPlotWidth, fPlotHeight, fColorType,
-                    fBytesPerPixel));
+                currPlot->reset(new Plot(i,
+                                         plotIndex,
+                                         generationCounter,
+                                         x,
+                                         y,
+                                         fPlotWidth,
+                                         fPlotHeight,
+                                         fColorType,
+                                         fBytesPerPixel,
+                                         fPadAllGlyphs));
 
                 // build LRU list
                 fPages[i].fPlotList.addToHead(currPlot->get());

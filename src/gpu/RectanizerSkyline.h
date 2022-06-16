@@ -23,10 +23,10 @@ public:
         this->reset();
     }
 
-    ~RectanizerSkyline() final { }
+    ~RectanizerSkyline() override { }
 
-    void reset() final {
-        fAreaSoFar = 0;
+    void reset() override {
+        Rectanizer::reset();
         fSkyline.reset();
         SkylineSegment* seg = fSkyline.append(1);
         seg->fX = 0;
@@ -34,31 +34,26 @@ public:
         seg->fWidth = this->width();
     }
 
-    bool addRect(int w, int h, SkIPoint16* loc) final;
-
-    float percentFull() const final {
-        return fAreaSoFar / ((float)this->width() * this->height());
-    }
+    bool addRect(int w, int h, SkIPoint16* loc) override;
+    PadAllGlyphs padAllGlyphs() const override { return PadAllGlyphs::kNo; }
 
 private:
-    struct SkylineSegment {
-        int  fX;
-        int  fY;
-        int  fWidth;
-    };
-
-    SkTDArray<SkylineSegment> fSkyline;
-
-    int32_t fAreaSoFar;
+    // Update the skyline structure to include a width x height rect located
+    // at x,y.
+    void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
 
     // Can a width x height rectangle fit in the free space represented by
     // the skyline segments >= 'skylineIndex'? If so, return true and fill in
     // 'y' with the y-location at which it fits (the x location is pulled from
     // 'skylineIndex's segment.
     bool rectangleFits(int skylineIndex, int width, int height, int* y) const;
-    // Update the skyline structure to include a width x height rect located
-    // at x,y.
-    void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
+
+    struct SkylineSegment {
+        int  fX;
+        int  fY;
+        int  fWidth;
+    };
+    SkTDArray<SkylineSegment> fSkyline;
 };
 
 } // End of namespace skgpu
