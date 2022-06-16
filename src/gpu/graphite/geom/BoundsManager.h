@@ -81,10 +81,8 @@ public:
         CompressedPaintersOrder max = CompressedPaintersOrder::First();
         auto orderIter = fOrders.items().begin();
         for (const Rect& r : fRects.items()) {
-            if (r.intersects(boundsComplement)) {
-                if (max < *orderIter) {
-                    max = *orderIter;
-                }
+            if (r.intersects(boundsComplement) && max < *orderIter) {
+                max = *orderIter;
             }
             ++orderIter;
         }
@@ -101,6 +99,16 @@ public:
         fOrders.reset();
     }
 
+    int count() const { return fRects.count(); }
+
+    void replayDraws(BoundsManager* manager) const {
+        auto orderIter = fOrders.items().begin();
+        for (const Rect& r : fRects.items()) {
+            manager->recordDraw(r, *orderIter);
+            ++orderIter;
+        }
+    }
+
 private:
     // fRects and fOrders are parallel, but kept separate to avoid wasting padding since Rect is
     // an over-aligned type.
@@ -108,6 +116,7 @@ private:
     SkTBlockList<CompressedPaintersOrder> fOrders{16, SkBlockAllocator::GrowthPolicy::kFibonacci};
 };
 
+// A BoundsManager that tracks highest CompressedPaintersOrder over a uniform spatial grid.
 class GridBoundsManager : public BoundsManager {
 public:
     // 'gridSize' is the number of cells in the X and Y directions, splitting the pixels from [0,0]
@@ -213,6 +222,86 @@ private:
     const int   fGridHeight;
 
     SkAutoTMalloc<CompressedPaintersOrder> fNodes;
+};
+
+// A BoundsManager that first relies on BruteForceBoundsManager for N draw calls, and then switches
+// to the GridBoundsManager if it exceeds its limit. For low N, the brute force approach is
+// surprisingly efficient, has the highest accuracy, and very low memory overhead. Once the draw
+// call count is large enough, the grid's lower performance complexity outweigh its memory cost and
+// reduced accuracy.
+class HybridBoundsManager : public BoundsManager {
+public:
+    HybridBoundsManager(const SkISize& deviceSize,
+                        int gridCellSize,
+                        int maxBruteForceN)
+            : fDeviceSize(deviceSize)
+            , fGridCellSize(gridCellSize)
+            , fMaxBruteForceN(maxBruteForceN)
+            , fCurrentManager(&fBruteForceManager) {
+        SkASSERT(deviceSize.width() >= 1 && deviceSize.height() >= 1 &&
+                 gridCellSize >= 1 && maxBruteForceN >= 1);
+    }
+
+    CompressedPaintersOrder getMostRecentDraw(const Rect& bounds) const override {
+        return fCurrentManager->getMostRecentDraw(bounds);
+    }
+
+    void recordDraw(const Rect& bounds, CompressedPaintersOrder order) override {
+        this->updateCurrentManagerIfNeeded();
+        fCurrentManager->recordDraw(bounds, order);
+    }
+
+    void reset() override {
+        const bool usedGrid = fCurrentManager == fGridManager.get();
+        if (usedGrid) {
+            // Reset the grid manager so it's ready to use next frame, but don't delete it.
+            fGridManager->reset();
+            // Assume brute force manager was reset when we swapped to the grid originally
+            fCurrentManager = &fBruteForceManager;
+        } else {
+            if (fGridManager) {
+                // Clean up the grid manager that was created over a frame ago without being used.
+                // This could lead to re-allocating the grid every-other frame, but it's a simple
+                // way to ensure we don't hold onto the grid in perpetuity if it's not needed.
+                fGridManager = nullptr;
+            }
+            fBruteForceManager.reset();
+            SkASSERT(fCurrentManager == &fBruteForceManager);
+        }
+    }
+
+private:
+    const SkISize fDeviceSize;
+    const int     fGridCellSize;
+    const int     fMaxBruteForceN;
+
+    BoundsManager* fCurrentManager;
+
+    BruteForceBoundsManager                  fBruteForceManager;
+
+    // The grid manager starts out null and is created the first time we exceed fMaxBruteForceN.
+    // However, even if we reset back to the brute force manager, we keep the grid around under the
+    // assumption that the owning Device will have similar frame-to-frame draw counts and will need
+    // to upgrade to the grid manager again.
+    std::unique_ptr<GridBoundsManager>       fGridManager;
+
+    void updateCurrentManagerIfNeeded() {
+        if (fCurrentManager == fGridManager.get() ||
+            fBruteForceManager.count() < fMaxBruteForceN) {
+            // Already using the grid or the about-to-be-recorded draw will not cause us to exceed
+            // the brute force limit, so no need to change the current manager implementation.
+            return;
+        }
+        // Else we need to switch from the brute force manager to the grid manager
+        if (!fGridManager) {
+            fGridManager = GridBoundsManager::MakeRes(fDeviceSize, fGridCellSize);
+        }
+        fCurrentManager = fGridManager.get();
+
+        // Fill out the grid manager with the recorded draws in the brute force manager
+        fBruteForceManager.replayDraws(fCurrentManager);
+        fBruteForceManager.reset();
+    }
 };
 
 } // namespace skgpu::graphite

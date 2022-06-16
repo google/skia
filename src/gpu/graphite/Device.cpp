@@ -186,12 +186,25 @@ sk_sp<Device> Device::Make(Recorder* recorder,
     return sk_sp<Device>(new Device(recorder, std::move(dc)));
 }
 
+// These default tuning numbers for the HybridBoundsManager were chosen from looking at performance
+// and accuracy curves produced by the BoundsManagerBench for random draw bounding boxes. This
+// config will use brute force for the first 64 draw calls to the Device and then switch to a grid
+// that is dynamically sized to produce cells that are 16x16, which seemed to be in the sweet spot
+// for maintaining good performance without becoming too inaccurate.
+// TODO: These could be exposed as context options or surface options, and we may want to have
+// different strategies in place for a base device vs. a layer's device.
+static constexpr int kGridCellSize = 16;
+static constexpr int kMaxBruteForceN = 64;
+
 Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         : SkBaseDevice(dc->imageInfo(), SkSurfaceProps())
         , fRecorder(recorder)
         , fDC(std::move(dc))
         , fClip(this)
-        , fColorDepthBoundsManager(std::make_unique<NaiveBoundsManager>())
+        , fColorDepthBoundsManager(
+                    std::make_unique<HybridBoundsManager>(fDC->imageInfo().dimensions(),
+                                                          kGridCellSize,
+                                                          kMaxBruteForceN))
         , fDisjointStencilSet(std::make_unique<IntersectionTreeSet>())
         , fCachedLocalToDevice(SkM44())
         , fCurrentDepth(DrawOrder::kClearDepth)

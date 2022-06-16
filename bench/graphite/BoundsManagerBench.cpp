@@ -88,7 +88,7 @@ public:
                              int numRandomRects)
             : BoundsManagerBench(std::move(manager))
             , fNumRandomRects(numRandomRects) {
-        fName.printf("BoundsManager_rand%i_%s", numRandomRects, managerName);
+        fName.printf("BoundsManager_rand_%i_%s", numRandomRects, managerName);
     }
 
 private:
@@ -171,10 +171,10 @@ private:
 
 DEF_BOUNDS_MANAGER_BENCH_SET(std::make_unique<skgpu::graphite::NaiveBoundsManager>(),      "naive")
 DEF_BOUNDS_MANAGER_BENCH_SET(std::make_unique<skgpu::graphite::BruteForceBoundsManager>(), "brute")
-DEF_BOUNDS_MANAGER_BENCH_SET(skgpu::graphite::GridBoundsManager::Make({1800, 1800}, 16),  "grid16")
-DEF_BOUNDS_MANAGER_BENCH_SET(skgpu::graphite::GridBoundsManager::Make({1800, 1800}, 64),  "grid64")
 DEF_BOUNDS_MANAGER_BENCH_SET(skgpu::graphite::GridBoundsManager::Make({1800, 1800}, 128), "grid128")
 DEF_BOUNDS_MANAGER_BENCH_SET(skgpu::graphite::GridBoundsManager::Make({1800, 1800}, 512), "grid512")
+DEF_BOUNDS_MANAGER_BENCH_SET(std::make_unique<skgpu::graphite::HybridBoundsManager>(SkISize{1800, 1800}, 16, 64), "hybrid16x16n128")
+DEF_BOUNDS_MANAGER_BENCH_SET(std::make_unique<skgpu::graphite::HybridBoundsManager>(SkISize{1800, 1800}, 16, 128), "hybrid16x16n256")
 // Uncomment and adjust device size to match reported bounds from --boundsManagerFile
 // DEF_BOUNDS_MANAGER_BENCH_SET(skgpu::graphite::GridBoundsManager::MakeRes({w, h}, 8), "gridRes8")
 
