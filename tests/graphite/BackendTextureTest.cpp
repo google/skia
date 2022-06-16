@@ -26,7 +26,7 @@ namespace {
 }
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(BackendTextureTest, reporter, context) {
-    auto caps = context->priv().gpu()->caps();
+    auto caps = context->priv().caps();
 
     TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
                                                           /*levelCount=*/1,
@@ -73,7 +73,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
     // to conver a much broader set of things once we add more support in Graphite for different
     // formats, color types, etc.
 
-    auto caps = context->priv().gpu()->caps();
+    auto caps = context->priv().caps();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,

@@ -14,8 +14,8 @@ class SkShaderCodeDictionary;
 
 namespace skgpu::graphite {
 
+class Caps;
 class GlobalCache;
-class Gpu;
 class ResourceProvider;
 
 /** Class that adds methods to Context that are only intended for use internal to Skia.
@@ -23,8 +23,9 @@ class ResourceProvider;
     data members or virtual methods. */
 class ContextPriv {
 public:
-    Gpu* gpu();
-    const Gpu* gpu() const;
+#if GRAPHITE_TEST_UTILS
+    const Caps* caps() const;
+#endif
 
     SkShaderCodeDictionary* shaderCodeDictionary();
 

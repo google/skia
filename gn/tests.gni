@@ -336,7 +336,6 @@ graphite_tests_sources = [
   "$_tests/graphite/BoundsManagerTest.cpp",
   "$_tests/graphite/CombinationBuilderTest.cpp",
   "$_tests/graphite/CombinationBuilderTestAccess.h",
-  "$_tests/graphite/CommandBufferTest.cpp",
   "$_tests/graphite/GraphiteResourceCacheTest.cpp",
   "$_tests/graphite/IntersectionTreeTest.cpp",
   "$_tests/graphite/KeyTest.cpp",
