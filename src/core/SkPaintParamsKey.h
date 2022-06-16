@@ -83,10 +83,10 @@ public:
         // Return the childIndex-th child's BlockReader
         BlockReader child(const SkShaderCodeDictionary*, int childIndex) const;
 
-        // Retrieve the fieldIndex-th field in the data payload as a span of bytes. The type
-        // being read (bytes in this case) is checked against the data payload's structure.
+        // Retrieve the fieldIndex-th field in the data payload as a span. The type being read
+        // is checked against the data payload's structure.
         SkSpan<const uint8_t> bytes(int fieldIndex) const;
-        // TODO: add more types (as needed) and their corresponding access methods
+        SkSpan<const SkColor4f> colors(int fieldIndex) const;
 
         const SkShaderSnippet* entry() const { return fEntry; }
 
@@ -206,7 +206,10 @@ public:
     void addByte(uint8_t data) {
         this->addBytes(1, &data);
     }
-    void add(const SkColor4f& color);
+    void add(int numColors, const SkColor4f* color);
+    void add(const SkColor4f& color) {
+        this->add(/*numColors=*/1, &color);
+    }
 
     // `addPointer` is optional sidecar data. The pointer data in a PaintParamsKey is not checked at
     // all when checking the equality of two keys; cached PaintParamsKey objects will not hold

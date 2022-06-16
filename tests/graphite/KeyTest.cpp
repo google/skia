@@ -184,36 +184,45 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityDoesNotCheckPointers, reporter, contex
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyBlockReaderWorks, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-    static const int kBlockDataSizeX = 3;
-    static const int kBlockDataSizeY = 7;
+    static const int kCountX = 3;
+    static const int kCountY = 2;
+    static const int kCountZ = 7;
     static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
-            {"DataX", SkPaintParamsKey::DataPayloadType::kByte, kBlockDataSizeX},
-            {"DataY", SkPaintParamsKey::DataPayloadType::kByte, kBlockDataSizeY},
+            {"ByteX",   SkPaintParamsKey::DataPayloadType::kByte,   kCountX},
+            {"Float4Y", SkPaintParamsKey::DataPayloadType::kFloat4, kCountY},
+            {"ByteZ",   SkPaintParamsKey::DataPayloadType::kByte,   kCountZ},
     };
 
     int userSnippetID = dict->addUserDefinedSnippet("key", kDataFields);
 
-    static constexpr uint8_t kDataX[kBlockDataSizeX] = {1, 2, 3};
-    static constexpr uint8_t kDataY[kBlockDataSizeY] = {4, 5, 6, 7, 8, 9, 10};
+    static constexpr uint8_t   kDataX[kCountX] = {1, 2, 3};
+    static constexpr SkColor4f kDataY[kCountY] = {{4, 5, 6, 7}, {8, 9, 10, 11}};
+    static constexpr uint8_t   kDataZ[kCountZ] = {12, 13, 14, 15, 16, 17, 18};
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
     builder.beginBlock(userSnippetID);
-    builder.addBytes(sizeof(kDataX), kDataX);
-    builder.addBytes(sizeof(kDataY), kDataY);
+    builder.addBytes(kCountX, kDataX);
+    builder.add     (kCountY, kDataY);
+    builder.addBytes(kCountZ, kDataZ);
     builder.endBlock();
 
     SkPaintParamsKey key = builder.lockAsKey();
 
     // Verify that the block reader can extract out our data from the SkPaintParamsKey.
     SkPaintParamsKey::BlockReader reader = key.reader(dict, /*headerOffset=*/0);
-    REPORTER_ASSERT(reporter, reader.blockSize() == kBlockDataSizeX + kBlockDataSizeY +
-                                                    sizeof(SkPaintParamsKey::Header));
+    REPORTER_ASSERT(reporter,
+                    reader.blockSize() == (sizeof(SkPaintParamsKey::Header) +
+                                           sizeof(kDataX) + sizeof(kDataY) + sizeof(kDataZ)));
 
-    SkSpan<const uint8_t> readerBytesX = reader.bytes(0);
-    REPORTER_ASSERT(reporter, readerBytesX.size() == kBlockDataSizeX);
-    REPORTER_ASSERT(reporter, 0 == memcmp(readerBytesX.data(), kDataX, kBlockDataSizeX));
+    SkSpan<const uint8_t> readerDataX = reader.bytes(0);
+    REPORTER_ASSERT(reporter, readerDataX.size() == kCountX);
+    REPORTER_ASSERT(reporter, 0 == memcmp(readerDataX.data(), kDataX, sizeof(kDataX)));
 
-    SkSpan<const uint8_t> readerBytesY = reader.bytes(1);
-    REPORTER_ASSERT(reporter, readerBytesY.size() == kBlockDataSizeY);
-    REPORTER_ASSERT(reporter, 0 == memcmp(readerBytesY.data(), kDataY, kBlockDataSizeY));
+    SkSpan<const SkColor4f> readerDataY = reader.colors(1);
+    REPORTER_ASSERT(reporter, readerDataY.size() == kCountY);
+    REPORTER_ASSERT(reporter, 0 == memcmp(readerDataY.data(), kDataY, sizeof(kDataY)));
+
+    SkSpan<const uint8_t> readerBytesZ = reader.bytes(2);
+    REPORTER_ASSERT(reporter, readerBytesZ.size() == kCountZ);
+    REPORTER_ASSERT(reporter, 0 == memcmp(readerBytesZ.data(), kDataZ, sizeof(kDataZ)));
 }

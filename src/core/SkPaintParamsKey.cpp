@@ -160,7 +160,7 @@ void SkPaintParamsKeyBuilder::addBytes(uint32_t numBytes, const uint8_t* data) {
     fData.append(numBytes, data);
 }
 
-void SkPaintParamsKeyBuilder::add(const SkColor4f& color) {
+void SkPaintParamsKeyBuilder::add(int numColors, const SkColor4f* color) {
     if (!this->isValid()) {
         return;
     }
@@ -171,10 +171,10 @@ void SkPaintParamsKeyBuilder::add(const SkColor4f& color) {
         return;
     }
 
-    SkDEBUGCODE(this->checkExpectations(DataPayloadType::kFloat4, 1);)
+    SkDEBUGCODE(this->checkExpectations(DataPayloadType::kFloat4, numColors);)
     SkASSERT(!this->isLocked());
 
-    fData.append(16, reinterpret_cast<const uint8_t*>(&color));
+    fData.append(16 * numColors, reinterpret_cast<const uint8_t*>(color));
 }
 
 void SkPaintParamsKeyBuilder::addPointer(const void* ptr) {
@@ -388,17 +388,34 @@ static int field_size(const DataPayloadField& field) {
     SkUNREACHABLE;
 }
 
+static int field_offset(SkSpan<const DataPayloadField> fields, int fieldIndex) {
+    int byteOffset = 0;
+    for (int i = 0; i < fieldIndex; ++i) {
+        byteOffset += field_size(fields[i]);
+    }
+    return byteOffset;
+}
+
+template <typename T>
+static SkSpan<const T> payload_subspan_for_field(SkSpan<const uint8_t> dataPayload,
+                                                 SkSpan<const DataPayloadField> fields,
+                                                 int fieldIndex) {
+    int offset = field_offset(fields, fieldIndex);
+    return {reinterpret_cast<const T*>(&dataPayload[offset]), fields[fieldIndex].fCount};
+}
+
 SkSpan<const uint8_t> SkPaintParamsKey::BlockReader::bytes(int fieldIndex) const {
     SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fType == DataPayloadType::kByte);
+    return payload_subspan_for_field<uint8_t>(this->dataPayload(),
+                                              fEntry->fDataPayloadExpectations,
+                                              fieldIndex);
+}
 
-    int byteOffsetInPayload = 0;
-    for (int i = 0; i < fieldIndex; ++i) {
-        byteOffsetInPayload += field_size(fEntry->fDataPayloadExpectations[i]);
-    }
-
-    SkSpan<const uint8_t> dataPayload = this->dataPayload();
-    return dataPayload.subspan(byteOffsetInPayload,
-                               field_size(fEntry->fDataPayloadExpectations[fieldIndex]));
+SkSpan<const SkColor4f> SkPaintParamsKey::BlockReader::colors(int fieldIndex) const {
+    SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fType == DataPayloadType::kFloat4);
+    return payload_subspan_for_field<SkColor4f>(this->dataPayload(),
+                                                fEntry->fDataPayloadExpectations,
+                                                fieldIndex);
 }
 
 #ifdef SK_DEBUG
