@@ -298,19 +298,19 @@ private:
     const char* fName;
 };
 
-DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF32, ctext, SK_ARRAY_COUNT(ctext),
+DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF32, ctext, std::size(ctext),
                                 "SkTypefaceUTF32ToGlyphCN");)
-DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF16, ctext, SK_ARRAY_COUNT(ctext),
+DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF16, ctext, std::size(ctext),
                                 "SkTypefaceUTF16ToGlyphCN");)
-DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF8, ctext, SK_ARRAY_COUNT(ctext),
+DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF8, ctext, std::size(ctext),
                                 "SkTypefaceUTF8ToGlyphCN");)
 
 
-DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF32, atext, SK_ARRAY_COUNT(atext),
+DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF32, atext, std::size(atext),
                                 "SkTypefaceUTF32ToGlyphAscii");)
-DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF16, atext, SK_ARRAY_COUNT(atext),
+DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF16, atext, std::size(atext),
                                 "SkTypefaceUTF16ToGlyphAscii");)
-DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF8, atext, SK_ARRAY_COUNT(atext),
+DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF8, atext, std::size(atext),
                                 "SkTypefaceUTF8ToGlyphAscii");)
 
 

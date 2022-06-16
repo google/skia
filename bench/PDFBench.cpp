@@ -210,7 +210,7 @@ struct PDFShaderBench : public Benchmark {
             SK_ColorWHITE, SK_ColorBLACK,
         };
         fShader = SkGradientShader::MakeLinear(
-                pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                pts, colors, nullptr, std::size(colors),
                 SkTileMode::kClamp);
     }
     void onDraw(int loops, SkCanvas*) final {
@@ -372,7 +372,7 @@ void big_pdf_test(SkDocument* doc, const SkBitmap& background) {
     SkCanvas* canvas = nullptr;
     float x = 36;
     float y = 36;
-    constexpr size_t kLineCount = SK_ARRAY_COUNT(kText);
+    constexpr size_t kLineCount = std::size(kText);
     constexpr int kLoopCount = 200;
     SkFont font;
     SkPaint paint;

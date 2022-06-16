@@ -228,7 +228,7 @@ protected:
         SkScalar gSizes[] = {
             SkIntToScalar(7), 0
         };
-        size_t sizes = SK_ARRAY_COUNT(gSizes);
+        size_t sizes = std::size(gSizes);
 
         if (FLAGS_strokeWidth >= 0) {
             gSizes[0] = (SkScalar)FLAGS_strokeWidth;
@@ -279,7 +279,7 @@ protected:
         SkScalar gSizes[] = {
             SkIntToScalar(13), SkIntToScalar(24)
         };
-        size_t sizes = SK_ARRAY_COUNT(gSizes);
+        size_t sizes = std::size(gSizes);
 
         if (FLAGS_strokeWidth >= 0) {
             gSizes[0] = (SkScalar)FLAGS_strokeWidth;

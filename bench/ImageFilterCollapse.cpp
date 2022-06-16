@@ -60,7 +60,7 @@ private:
             SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
             SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
         };
-        paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+        paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                                      SkTileMode::kClamp));
         surf->getCanvas()->drawPaint(paint);
         fImage = surf->makeImageSnapshot();       // shader->makeImage()
@@ -90,7 +90,7 @@ protected:
             SkTableColorFilter::Make(table3),
         };
 
-        this->doPreDraw(colorFilters, SK_ARRAY_COUNT(colorFilters));
+        this->doPreDraw(colorFilters, std::size(colorFilters));
     }
 
 private:
@@ -128,7 +128,7 @@ protected:
             make_brightness(-0.1f),
         };
 
-        this->doPreDraw(colorFilters, SK_ARRAY_COUNT(colorFilters));
+        this->doPreDraw(colorFilters, std::size(colorFilters));
     }
 };
 

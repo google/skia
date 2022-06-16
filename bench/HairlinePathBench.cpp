@@ -87,7 +87,7 @@ public:
     }
     void makePath(SkPath* path) override {
         SkRandom rand;
-        int size = SK_ARRAY_COUNT(points);
+        int size = std::size(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
             int xTrans = 10 + 40 * (i%(kMaxPathSize/2));
@@ -119,7 +119,7 @@ public:
     }
     void makePath(SkPath* path) override {
         SkRandom rand;
-        int size = SK_ARRAY_COUNT(points);
+        int size = std::size(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
             int xTrans = 10 + 40 * (i%(kMaxPathSize/2));
@@ -152,7 +152,7 @@ public:
     void makePath(SkPath* path) override {
         SkRandom rand;
         SkRandom randWeight;
-        int size = SK_ARRAY_COUNT(points);
+        int size = std::size(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
             int xTrans = 10 + 40 * (i%(kMaxPathSize/2));
@@ -187,7 +187,7 @@ public:
     }
     void makePath(SkPath* path) override {
         SkRandom rand;
-        int size = SK_ARRAY_COUNT(points);
+        int size = std::size(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
             int xTrans = 10 + 40 * (i%(kMaxPathSize/2));

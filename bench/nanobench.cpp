@@ -1125,7 +1125,7 @@ public:
                 continue;
             }
 
-            while (fCurrentSampleSize < (int) SK_ARRAY_COUNT(sampleSizes)) {
+            while (fCurrentSampleSize < (int) std::size(sampleSizes)) {
                 int sampleSize = sampleSizes[fCurrentSampleSize];
                 fCurrentSampleSize++;
                 if (10 * sampleSize > std::min(codec->getInfo().width(), codec->getInfo().height())) {
@@ -1165,7 +1165,7 @@ public:
             }
 
             while (fCurrentColorType < fColorTypes.count()) {
-                while (fCurrentSampleSize < (int) SK_ARRAY_COUNT(brdSampleSizes)) {
+                while (fCurrentSampleSize < (int) std::size(brdSampleSizes)) {
                     while (fCurrentSubsetType <= kLastSingle_SubsetType) {
 
                         sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));

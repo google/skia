@@ -341,7 +341,7 @@ protected:
                 SkColorSetARGB(alpha, gray, gray, gray),
                 SK_ColorWHITE };
             paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr,
-                                                         SK_ARRAY_COUNT(colors),
+                                                         std::size(colors),
                                                          SkTileMode::kClamp));
             canvas->drawRect(r, paint);
         }

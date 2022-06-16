@@ -75,7 +75,7 @@ struct Sk4fGradientBench : public Benchmark {
                  b = a + dcdx,
                  c = b + dcdx,
                  d = c + dcdx;
-            for (size_t i = 0; i < SK_ARRAY_COUNT(fDevice); i += 4) {
+            for (size_t i = 0; i < std::size(fDevice); i += 4) {
                 skvx::cast<uint8_t>(a).store(fDevice + i + 0);
                 skvx::cast<uint8_t>(b).store(fDevice + i + 1);
                 skvx::cast<uint8_t>(c).store(fDevice + i + 2);

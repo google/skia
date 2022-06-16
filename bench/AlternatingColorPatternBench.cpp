@@ -52,10 +52,10 @@ static void makebm(SkBitmap* bm, int w, int h) {
 
     SkPaint     paint;
 
-    paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos, SK_ARRAY_COUNT(kColors0),
+    paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos, std::size(kColors0),
                                                  SkTileMode::kClamp));
     canvas.drawPaint(paint);
-    paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos, SK_ARRAY_COUNT(kColors1),
+    paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos, std::size(kColors1),
                                                  SkTileMode::kClamp));
     canvas.drawPaint(paint);
 }

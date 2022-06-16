@@ -580,4 +580,4 @@ TigerPath kTigerPaths[] = {
       {36.856f,98.898f}}},
 };
 
-int kNumTigerPaths = (int)SK_ARRAY_COUNT(kTigerPaths);
+int kNumTigerPaths = (int)std::size(kTigerPaths);

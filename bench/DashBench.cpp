@@ -308,7 +308,7 @@ public:
 
     static const char* LineTypeName(LineType lt) {
         static const char* gNames[] = { "hori", "vert", "diag" };
-        static_assert(kLineTypeCount == SK_ARRAY_COUNT(gNames), "names_wrong_size");
+        static_assert(kLineTypeCount == std::size(gNames), "names_wrong_size");
         return gNames[lt];
     }
 
@@ -319,7 +319,7 @@ public:
         // deliberately pick intervals that won't be caught by asPoints(), so
         // we can test the filterPath code-path.
         const SkScalar intervals[] = { 20, 10, 10, 10 };
-        fPathEffect = SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0);
+        fPathEffect = SkDashPathEffect::Make(intervals, std::size(intervals), 0);
 
         SkScalar cx = 640 / 2;  // center X
         SkScalar cy = 480 / 2;  // center Y
@@ -439,7 +439,7 @@ private:
 
 static const SkScalar gDots[] = { SK_Scalar1, SK_Scalar1 };
 
-#define PARAM(array)    array, SK_ARRAY_COUNT(array)
+#define PARAM(array)    array, std::size(array)
 
 DEF_BENCH( return new DashBench(PARAM(gDots), 0); )
 DEF_BENCH( return new DashBench(PARAM(gDots), 1); )
