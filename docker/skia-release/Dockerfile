@@ -53,9 +53,6 @@ extra_ldflags = [  \n\
   "-Wl,/usr/local/lib"  \n\
 ] ' > /tmp/skia/skia/out/Static/args.gn
 
-# TODO(nicolettep) Delete this manual removal of a broken symlink that comes with the Perfetto
-# checkout once the issue is addressed within the Perfetto respository itself.
-RUN rm -f /tmp/skia/skia/third_party/externals/perfetto/ui/src/gen
 # Build Skia.
 RUN cd /tmp/skia/skia \
   && ./bin/gn gen out/Static \
