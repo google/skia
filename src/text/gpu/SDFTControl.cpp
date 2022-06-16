@@ -38,20 +38,23 @@ SkScalar SDFTControl::MinSDFTRange(bool useSDFTForSmallText, SkScalar min) {
 }
 
 SDFTControl::SDFTControl(
-        bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max)
+        bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max, bool forcePaths)
         : fMinDistanceFieldFontSize{MinSDFTRange(useSDFTForSmallText, min)}
         , fMaxDistanceFieldFontSize{max}
-        , fAbleToUseSDFT{ableToUseSDFT} {
+        , fAbleToUseSDFT{ableToUseSDFT}
+        , fForcePaths{forcePaths} {
     SkASSERT_RELEASE(0 < min && min <= max);
 }
 
 bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
-    return !isSDFT(approximateDeviceTextSize, paint) &&
+    return !fForcePaths &&
+           !isSDFT(approximateDeviceTextSize, paint) &&
             approximateDeviceTextSize < SkStrikeCommon::kSkSideTooBigForAtlas;
 }
 
 bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
-    return fAbleToUseSDFT &&
+    return !fForcePaths &&
+           fAbleToUseSDFT &&
            paint.getMaskFilter() == nullptr &&
            paint.getStyle() == SkPaint::kFill_Style &&
            fMinDistanceFieldFontSize <= approximateDeviceTextSize &&

@@ -2226,7 +2226,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 }
             }
 
-            if (!rejected->source().empty()) {
+            if (!rejected->source().empty() && !SDFTControl.forcePaths()) {
                 // Process masks including ARGB - this should be the 99.99% case.
                 // This will handle medium size emoji that are sharing the run with SDFT drawn text.
                 // If things are too big they will be passed along to the drawing of last resort

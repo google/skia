@@ -196,7 +196,7 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         , fCachedLocalToDevice(SkM44())
         , fCurrentDepth(DrawOrder::kClearDepth)
         // TODO: set this up based on ContextOptions
-        , fSDFTControl(true, false, 18, 324)
+        , fSDFTControl(true, false, 18, 324, true)
         , fDrawsOverlap(false) {
     SkASSERT(SkToBool(fDC) && SkToBool(fRecorder));
     fRecorder->registerDevice(this);
