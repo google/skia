@@ -1389,6 +1389,36 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
+bool GrMtlGpu::onTransferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                            size_t srcOffset,
+                                            sk_sp<GrGpuBuffer> dst,
+                                            size_t dstOffset,
+                                            size_t size) {
+    id<MTLBuffer> GR_NORETAIN mtlSrc =  static_cast<GrMtlBuffer*>(src.get())->mtlBuffer();
+    id<MTLBuffer> GR_NORETAIN mtlDst =  static_cast<GrMtlBuffer*>(dst.get())->mtlBuffer();
+    SkASSERT(mtlSrc);
+    SkASSERT(mtlDst);
+
+    auto cmdBuffer = this->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
+
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    [blitCmdEncoder pushDebugGroup:@"onTransferFromBufferToBuffer"];
+#endif
+    [blitCmdEncoder copyFromBuffer: mtlSrc
+                      sourceOffset: srcOffset
+                          toBuffer: mtlDst
+                 destinationOffset: dstOffset
+                              size: size];
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    [blitCmdEncoder popDebugGroup];
+#endif
+    return true;
+}
+
 bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture,
                                   SkIRect rect,
                                   GrColorType textureColorType,

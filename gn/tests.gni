@@ -98,6 +98,7 @@ tests_sources = [
   "$_tests/GrDDLImageTest.cpp",
   "$_tests/GrFinishedFlushTest.cpp",
   "$_tests/GrGlyphVectorTest.cpp",
+  "$_tests/GrGpuBufferTest.cpp",
   "$_tests/GrMemoryPoolTest.cpp",
   "$_tests/GrOpListFlushTest.cpp",
   "$_tests/GrPorterDuffTest.cpp",

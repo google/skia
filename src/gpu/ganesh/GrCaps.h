@@ -217,7 +217,13 @@ public:
 
     uint32_t maxPushConstantsSize() const { return fMaxPushConstantsSize; }
 
-    size_t transferBufferAlignment() const { return fTransferBufferAlignment; }
+    // Alignment requirement for row bytes in buffer<->texture transfers.
+    size_t transferBufferRowBytesAlignment() const { return fTransferBufferRowBytesAlignment; }
+
+    // Alignment requirement for offsets and size in buffer->buffer transfers.
+    size_t transferFromBufferToBufferAlignment() const {
+        return fTransferFromBufferToBufferAlignment;
+    }
 
     virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
 
@@ -334,6 +340,7 @@ public:
 
     bool transferFromSurfaceToBufferSupport() const { return fTransferFromSurfaceToBufferSupport; }
     bool transferFromBufferToTextureSupport() const { return fTransferFromBufferToTextureSupport; }
+    bool transferFromBufferToBufferSupport()  const { return fTransferFromBufferToBufferSupport;  }
 
     bool suppressPrints() const { return fSuppressPrints; }
 
@@ -558,6 +565,7 @@ protected:
     bool fPerformStencilClearsAsDraws                : 1;
     bool fTransferFromBufferToTextureSupport         : 1;
     bool fTransferFromSurfaceToBufferSupport         : 1;
+    bool fTransferFromBufferToBufferSupport          : 1;
     bool fWritePixelsRowBytesSupport                 : 1;
     bool fTransferPixelsToRowBytesSupport            : 1;
     bool fReadPixelsRowBytesSupport                  : 1;
@@ -598,7 +606,8 @@ protected:
     int fMaxWindowRectangles;
     int fInternalMultisampleCount;
     uint32_t fMaxPushConstantsSize = 0;
-    size_t fTransferBufferAlignment = 1;
+    size_t fTransferBufferRowBytesAlignment = 1;
+    size_t fTransferFromBufferToBufferAlignment = 1;
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 

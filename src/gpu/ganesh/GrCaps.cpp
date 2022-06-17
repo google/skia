@@ -51,6 +51,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fPerformStencilClearsAsDraws = false;
     fTransferFromBufferToTextureSupport = false;
     fTransferFromSurfaceToBufferSupport = false;
+    fTransferFromBufferToBufferSupport = false;
     fWritePixelsRowBytesSupport = false;
     fTransferPixelsToRowBytesSupport = false;
     fReadPixelsRowBytesSupport = false;

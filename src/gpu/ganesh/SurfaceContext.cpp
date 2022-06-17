@@ -763,7 +763,7 @@ void SurfaceContext::asyncReadPixels(GrDirectContext* dContext,
                                             callbackContext,
                                             rect.size(),
                                             colorType,
-                                            this->caps()->transferBufferAlignment(),
+                                            this->caps()->transferBufferRowBytesAlignment(),
                                             mappedBufferManager,
                                             std::move(transferResult)};
     auto finishCallback = [](GrGpuFinishedContext c) {
@@ -996,7 +996,7 @@ void SurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
                                             callbackContext,
                                             dContext->priv().clientMappedBufferManager(),
                                             dstSize,
-                                            this->caps()->transferBufferAlignment(),
+                                            this->caps()->transferBufferRowBytesAlignment(),
                                             std::move(yTransfer),
                                             std::move(uTransfer),
                                             std::move(vTransfer)};
@@ -1265,7 +1265,7 @@ SurfaceContext::PixelTransferResult SurfaceContext::transferPixels(GrColorType d
     }
 
     size_t rowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * rect.width();
-    rowBytes = SkAlignTo(rowBytes, this->caps()->transferBufferAlignment());
+    rowBytes = SkAlignTo(rowBytes, this->caps()->transferBufferRowBytesAlignment());
     size_t size = rowBytes * rect.height();
     // By using kStream_GrAccessPattern here, we are not able to cache and reuse the buffer for
     // multiple reads. Switching to kDynamic_GrAccessPattern would allow for this, however doing

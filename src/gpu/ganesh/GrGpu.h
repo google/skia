@@ -300,6 +300,23 @@ public:
     }
 
     /**
+     * Transfer bytes from one GPU buffer to another. The src buffer must have type kXferCpuToGpu
+     * and the dst buffer must not. Neither buffer may currently be mapped. The offsets and size
+     * must be aligned to GrCaps::transferFromBufferToBufferAlignment.
+     *
+     * @param src        the buffer to read from
+     * @param srcOffset  the aligned offset at the src at which the transfer begins.
+     * @param dst        the buffer to write to
+     * @param dstOffset  the aligned offset in the dst at which the transfer begins
+     * @param size       the aligned number of bytes to transfer;
+     */
+    bool transferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                    size_t srcOffset,
+                                    sk_sp<GrGpuBuffer> dst,
+                                    size_t dstOffset,
+                                    size_t size);
+
+    /**
      * Updates the pixels in a rectangle of a texture using a buffer. If the texture is MIP mapped,
      * the base level is written to.
      *
@@ -445,6 +462,9 @@ public:
         int transfersFromSurface() const { return fTransfersFromSurface; }
         void incTransfersFromSurface() { fTransfersFromSurface++; }
 
+        void incBufferTransfers() { fBufferTransfers++; }
+        int bufferTransfers() const { return fBufferTransfers; }
+
         int stencilAttachmentCreates() const { return fStencilAttachmentCreates; }
         void incStencilAttachmentCreates() { fStencilAttachmentCreates++; }
 
@@ -481,6 +501,7 @@ public:
         int fTextureUploads = 0;
         int fTransfersToTexture = 0;
         int fTransfersFromSurface = 0;
+        int fBufferTransfers = 0;
         int fStencilAttachmentCreates = 0;
         int fMSAAAttachmentCreates = 0;
         int fNumDraws = 0;
@@ -500,6 +521,7 @@ public:
         void incTextureCreates() {}
         void incTextureUploads() {}
         void incTransfersToTexture() {}
+        void incBufferTransfers() {}
         void incTransfersFromSurface() {}
         void incStencilAttachmentCreates() {}
         void incMSAAAttachmentCreates() {}
@@ -748,10 +770,20 @@ private:
                                int mipLevelCount,
                                bool prepForTexSampling) = 0;
 
+    // overridden by backend-specific derived class to perform the buffer transfer
+    virtual bool onTransferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                              size_t srcOffset,
+                                              sk_sp<GrGpuBuffer> dst,
+                                              size_t dstOffset,
+                                              size_t size) {
+        // TODO: Make this pure virtual once it is implemented on all subclasses.
+        return false;
+    }
+
     // overridden by backend-specific derived class to perform the texture transfer
     virtual bool onTransferPixelsTo(GrTexture*,
                                     SkIRect,
-                                    GrColorType textiueColorType,
+                                    GrColorType textureColorType,
                                     GrColorType bufferColorType,
                                     sk_sp<GrGpuBuffer> transferBuffer,
                                     size_t offset,

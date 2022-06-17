@@ -392,6 +392,11 @@ sk_sp<GrGpuBuffer> GrGpu::createBuffer(size_t size,
                                        GrAccessPattern accessPattern) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     this->handleDirtyContext();
+    if ((intendedType == GrGpuBufferType::kXferCpuToGpu ||
+         intendedType == GrGpuBufferType::kXferGpuToCpu) &&
+        accessPattern == kStatic_GrAccessPattern) {
+        return nullptr;
+    }
     sk_sp<GrGpuBuffer> buffer = this->onCreateBuffer(size, intendedType, accessPattern);
     if (!this->caps()->reuseScratchBuffers()) {
         buffer->resourcePriv().removeScratchKey();
@@ -483,18 +488,51 @@ bool GrGpu::writePixels(GrSurface* surface,
     }
 
     this->handleDirtyContext();
-    if (this->onWritePixels(surface,
-                            rect,
-                            surfaceColorType,
-                            srcColorType,
-                            texels,
-                            mipLevelCount,
-                            prepForTexSampling)) {
-        this->didWriteToSurface(surface, kTopLeft_GrSurfaceOrigin, &rect, mipLevelCount);
-        fStats.incTextureUploads();
-        return true;
+    if (!this->onWritePixels(surface,
+                             rect,
+                             surfaceColorType,
+                             srcColorType,
+                             texels,
+                             mipLevelCount,
+                             prepForTexSampling)) {
+        return false;
     }
-    return false;
+
+    this->didWriteToSurface(surface, kTopLeft_GrSurfaceOrigin, &rect, mipLevelCount);
+    fStats.incTextureUploads();
+
+    return true;
+}
+
+bool GrGpu::transferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                       size_t srcOffset,
+                                       sk_sp<GrGpuBuffer> dst,
+                                       size_t dstOffset,
+                                       size_t size) {
+    SkASSERT(src);
+    SkASSERT(dst);
+    SkASSERT(srcOffset % this->caps()->transferFromBufferToBufferAlignment() == 0);
+    SkASSERT(dstOffset % this->caps()->transferFromBufferToBufferAlignment() == 0);
+    SkASSERT(size      % this->caps()->transferFromBufferToBufferAlignment() == 0);
+    SkASSERT(srcOffset + size <= src->size());
+    SkASSERT(dstOffset + size <= dst->size());
+    SkASSERT(src->intendedType() == GrGpuBufferType::kXferCpuToGpu);
+    SkASSERT(dst->intendedType() != GrGpuBufferType::kXferCpuToGpu);
+    SkASSERT(!src->isMapped());
+    SkASSERT(!dst->isMapped());
+
+    this->handleDirtyContext();
+    if (!this->onTransferFromBufferToBuffer(std::move(src),
+                                            srcOffset,
+                                            std::move(dst),
+                                            dstOffset,
+                                            size)) {
+        return false;
+    }
+
+    fStats.incBufferTransfers();
+
+    return true;
 }
 
 bool GrGpu::transferPixelsTo(GrTexture* texture,
@@ -507,6 +545,7 @@ bool GrGpu::transferPixelsTo(GrTexture* texture,
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
     SkASSERT(transferBuffer);
+    SkASSERT(transferBuffer->intendedType() == GrGpuBufferType::kXferCpuToGpu);
 
     if (texture->readOnly()) {
         return false;
@@ -532,19 +571,20 @@ bool GrGpu::transferPixelsTo(GrTexture* texture,
     }
 
     this->handleDirtyContext();
-    if (this->onTransferPixelsTo(texture,
-                                 rect,
-                                 textureColorType,
-                                 bufferColorType,
-                                 std::move(transferBuffer),
-                                 offset,
-                                 rowBytes)) {
-        this->didWriteToSurface(texture, kTopLeft_GrSurfaceOrigin, &rect);
-        fStats.incTransfersToTexture();
-
-        return true;
+    if (!this->onTransferPixelsTo(texture,
+                                  rect,
+                                  textureColorType,
+                                  bufferColorType,
+                                  std::move(transferBuffer),
+                                  offset,
+                                  rowBytes)) {
+        return false;
     }
-    return false;
+
+    this->didWriteToSurface(texture, kTopLeft_GrSurfaceOrigin, &rect);
+    fStats.incTransfersToTexture();
+
+    return true;
 }
 
 bool GrGpu::transferPixelsFrom(GrSurface* surface,
@@ -556,6 +596,7 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface,
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(transferBuffer);
+    SkASSERT(transferBuffer->intendedType() == GrGpuBufferType::kXferGpuToCpu);
     SkASSERT(this->caps()->areColorTypeAndFormatCompatible(surfaceColorType,
                                                            surface->backendFormat()));
 
@@ -572,16 +613,18 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface,
     }
 
     this->handleDirtyContext();
-    if (this->onTransferPixelsFrom(surface,
-                                   rect,
-                                   surfaceColorType,
-                                   bufferColorType,
-                                   std::move(transferBuffer),
-                                   offset)) {
-        fStats.incTransfersFromSurface();
-        return true;
+    if (!this->onTransferPixelsFrom(surface,
+                                    rect,
+                                    surfaceColorType,
+                                    bufferColorType,
+                                    std::move(transferBuffer),
+                                    offset)) {
+        return false;
     }
-    return false;
+
+    fStats.incTransfersFromSurface();
+
+    return true;
 }
 
 bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {

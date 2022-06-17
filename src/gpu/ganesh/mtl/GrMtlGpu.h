@@ -196,6 +196,12 @@ private:
                       void*,
                       size_t rowBytes) override;
 
+    bool onTransferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                      size_t srcOffset,
+                                      sk_sp<GrGpuBuffer> dst,
+                                      size_t dstOffset,
+                                      size_t size) override;
+
     bool onWritePixels(GrSurface*,
                        SkIRect,
                        GrColorType surfaceColorType,
