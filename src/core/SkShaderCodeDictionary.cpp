@@ -157,13 +157,16 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
 //   Note: each entry's 'fStaticFunctionName' field is expected to match the name of a function
 //   in the Graphite pre-compiled module.
 std::string SkShaderInfo::toSkSL() const {
-    // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     std::string preamble = "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
-    std::string mainBody = skgpu::graphite::GetMtlUniforms(/*bufferID=*/2, "FS", fBlockReaders,
-                                                           this->needsLocalCoords());
+
+    // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
+    // TODO: replace hard-coded bufferID of 2 with the backend's paint uniform-buffer index.
+    preamble += skgpu::graphite::GetMtlUniforms(/*bufferID=*/2, "FS", fBlockReaders,
+                                                this->needsLocalCoords());
     int binding = 0;
-    mainBody += skgpu::graphite::GetMtlTexturesAndSamplers(fBlockReaders, &binding);
-    mainBody += "void main() {\n";
+    preamble += skgpu::graphite::GetMtlTexturesAndSamplers(fBlockReaders, &binding);
+
+    std::string mainBody = "void main() {\n";
 
     if (this->needsLocalCoords()) {
         mainBody += "    const float4x4 initialPreLocal = float4x4(1);\n";
