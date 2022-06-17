@@ -209,10 +209,6 @@ void GrD3DBuffer::internalUnmap(size_t size) {
     SkASSERT(this->isMapped());
     VALIDATE();
 
-#ifdef SK_BUILD_FOR_MAC
-    // In both cases the size needs to be 4-byte aligned on Mac
-    sizeInBytes = SkAlign4(sizeInBytes);
-#endif
     if (this->accessPattern() == kStatic_GrAccessPattern) {
         SkASSERT(fStagingBuffer);
         this->setResourceState(this->getD3DGpu(), D3D12_RESOURCE_STATE_COPY_DEST);
