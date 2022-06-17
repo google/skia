@@ -6,12 +6,15 @@
  */
 
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkColorFilterPriv.h"
@@ -127,4 +130,43 @@ DEF_TEST(WorkingFormatFilterFlags, r) {
                                                   &unpremul);
         REPORTER_ASSERT(r, !cf->isAlphaUnchanged());
     }
+}
+
+struct FailureColorFilter : public SkColorFilterBase {
+    skvm::Color onProgram(skvm::Builder*,
+                          skvm::Color c,
+                          const SkColorInfo&,
+                          skvm::Uniforms*,
+                          SkArenaAlloc*) const override {
+        return {};
+    }
+
+    bool onAppendStages(const SkStageRec&, bool) const override { return false; }
+
+    // Only created here, should never be flattened / unflattened.
+    Factory getFactory() const override { return nullptr; }
+    const char* getTypeName() const override { return "FailureColorFilter"; }
+};
+
+DEF_GPUTEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision, r, ctxInfo) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(8, 8);
+    auto surface = SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info);
+    SkPaint paint;
+
+    // Install a non-trivial shader, so the color filter isn't just applied to the paint color:
+    const SkPoint pts[] = {{0, 0}, {100, 100}};
+    const SkColor colors[] = {SK_ColorWHITE, SK_ColorBLACK};
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
+
+    // Our inner (first) color filter does a "blend" (kSrc) against green, *discarding* the input:
+    auto inner = SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kSrc);
+
+    // The outer (second) color filter then fails to generate an FP. There are ways to do this with
+    // the public API, (eg: image shader with a non-invertible local matrix, wrapped in a runtime
+    // color filter). That's significant boilerplate, so we use a helpful "always fail" filter:
+    auto outer = sk_make_sp<FailureColorFilter>();
+    paint.setColorFilter(outer->makeComposed(inner));
+
+    // At one time, this would trigger a use-after-free / crash, when converting the paint to FPs:
+    surface->getCanvas()->drawPaint(paint);
 }

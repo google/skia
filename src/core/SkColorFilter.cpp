@@ -169,21 +169,20 @@ public:
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo) const override {
-        GrFragmentProcessor* originalInputFP = inputFP.get();
+        // Unfortunately, we need to clone the input before we know we need it. This lets us return
+        // the original FP if either internal color filter fails.
+        auto inputClone = inputFP ? inputFP->clone() : nullptr;
 
         auto [innerSuccess, innerFP] =
                 fInner->asFragmentProcessor(std::move(inputFP), context, dstColorInfo);
         if (!innerSuccess) {
-            return GrFPFailure(std::move(innerFP));
+            return GrFPFailure(std::move(inputClone));
         }
 
         auto [outerSuccess, outerFP] =
                 fOuter->asFragmentProcessor(std::move(innerFP), context, dstColorInfo);
         if (!outerSuccess) {
-            // In the rare event that the outer FP cannot be built, we have no good way of
-            // separating the inputFP from the innerFP, so we need to return a cloned inputFP.
-            // This could hypothetically be expensive, but failure here should be extremely rare.
-            return GrFPFailure(originalInputFP->clone());
+            return GrFPFailure(std::move(inputClone));
         }
 
         return GrFPSuccess(std::move(outerFP));
