@@ -62,6 +62,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fTransferFromBufferToTextureSupport = true;
     fTransferFromSurfaceToBufferSupport = true;
+    fTransferFromBufferToBufferSupport  = true;
 
     fMaxRenderTargetSize = 4096; // minimum required by spec
     fMaxTextureSize = 4096; // minimum required by spec

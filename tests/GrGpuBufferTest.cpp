@@ -195,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest, reporter, ctxInfo) {
         return rp->createBuffer(points.get(),
                                 totalVertices*sizeof(SkPoint),
                                 GrGpuBufferType::kXferCpuToGpu,
-                                kStream_GrAccessPattern);
+                                kDynamic_GrAccessPattern);
     };
 
     auto create_vertex_buffer = [&](sk_sp<GrGpuBuffer> srcBuffer,

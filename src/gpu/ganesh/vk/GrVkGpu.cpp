@@ -536,6 +536,55 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     return success;
 }
 
+// If dst is a vertex/index buffer then this functions inserts a mem barrier for that use case.
+// Otherwise, does nothing.
+static void add_dst_buffer_mem_barrier(GrVkGpu* gpu, GrVkBuffer* dst, size_t offset, size_t size) {
+    if (dst->intendedType() != GrGpuBufferType::kIndex &&
+        dst->intendedType() != GrGpuBufferType::kVertex) {
+        return;
+    }
+    VkAccessFlags dstAccessMask = dst->intendedType() == GrGpuBufferType::kIndex
+                                  ? VK_ACCESS_INDEX_READ_BIT
+                                  : VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+    VkBufferMemoryBarrier bufferMemoryBarrier = {
+            VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,  // sType
+            nullptr,                                  // pNext
+            VK_ACCESS_TRANSFER_WRITE_BIT,             // srcAccessMask
+            dstAccessMask,                            // dstAccessMask
+            VK_QUEUE_FAMILY_IGNORED,                  // srcQueueFamilyIndex
+            VK_QUEUE_FAMILY_IGNORED,                  // dstQueueFamilyIndex
+            dst->vkBuffer(),                          // buffer
+            offset,                                   // offset
+            size,                                     // size
+    };
+
+    gpu->addBufferMemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                                /*byRegion=*/false,
+                                &bufferMemoryBarrier);
+
+}
+
+bool GrVkGpu::onTransferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                           size_t srcOffset,
+                                           sk_sp<GrGpuBuffer> dst,
+                                           size_t dstOffset,
+                                           size_t size) {
+    if (!this->currentCommandBuffer()) {
+        return false;
+    }
+
+    VkBufferCopy copyRegion;
+    copyRegion.srcOffset = srcOffset;
+    copyRegion.dstOffset = dstOffset;
+    copyRegion.size = size;
+    this->currentCommandBuffer()->copyBuffer(this, std::move(src), dst, 1, &copyRegion);
+
+    add_dst_buffer_mem_barrier(this, static_cast<GrVkBuffer*>(dst.get()), dstOffset, size);
+
+    return true;
+}
+
 bool GrVkGpu::onTransferPixelsTo(GrTexture* texture,
                                  SkIRect rect,
                                  GrColorType surfaceColorType,
@@ -1137,29 +1186,15 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpu::copyBuffer(sk_sp<GrGpuBuffer> srcBuffer,
-                         sk_sp<GrGpuBuffer> dstBuffer,
-                         VkDeviceSize srcOffset,
-                         VkDeviceSize dstOffset,
-                         VkDeviceSize size) {
-    if (!this->currentCommandBuffer()) {
-        return;
-    }
-    VkBufferCopy copyRegion;
-    copyRegion.srcOffset = srcOffset;
-    copyRegion.dstOffset = dstOffset;
-    copyRegion.size = size;
-    this->currentCommandBuffer()->copyBuffer(this, std::move(srcBuffer), std::move(dstBuffer), 1,
-                                             &copyRegion);
-}
-
 bool GrVkGpu::updateBuffer(sk_sp<GrVkBuffer> buffer, const void* src,
                            VkDeviceSize offset, VkDeviceSize size) {
     if (!this->currentCommandBuffer()) {
         return false;
     }
     // Update the buffer
-    this->currentCommandBuffer()->updateBuffer(this, std::move(buffer), offset, size, src);
+    this->currentCommandBuffer()->updateBuffer(this, buffer, offset, size, src);
+
+    add_dst_buffer_mem_barrier(this, static_cast<GrVkBuffer*>(buffer.get()), offset, size);
 
     return true;
 }

@@ -174,8 +174,6 @@ public:
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
-    void copyBuffer(sk_sp<GrGpuBuffer> srcBuffer, sk_sp<GrGpuBuffer> dstBuffer,
-                    VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size);
     bool updateBuffer(sk_sp<GrVkBuffer> buffer, const void* src, VkDeviceSize offset,
                       VkDeviceSize size);
 
@@ -285,6 +283,12 @@ private:
                        const GrMipLevel[],
                        int mipLevelCount,
                        bool prepForTexSampling) override;
+
+    bool onTransferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                      size_t srcOffset,
+                                      sk_sp<GrGpuBuffer> dst,
+                                      size_t dstOffset,
+                                      size_t size) override;
 
     bool onTransferPixelsTo(GrTexture*,
                             SkIRect,

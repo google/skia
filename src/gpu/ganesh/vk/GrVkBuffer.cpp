@@ -184,19 +184,6 @@ void GrVkBuffer::vkUnmap(size_t size) {
     GrVkMemory::UnmapAlloc(gpu, fAlloc);
 }
 
-static VkAccessFlags buffer_type_to_access_flags(GrGpuBufferType type) {
-    switch (type) {
-        case GrGpuBufferType::kIndex:
-            return VK_ACCESS_INDEX_READ_BIT;
-        case GrGpuBufferType::kVertex:
-            return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
-        default:
-            // This helper is only called for static buffers so we should only ever see index or
-            // vertex buffers types
-            SkUNREACHABLE;
-    }
-}
-
 void GrVkBuffer::copyCpuDataToGpuBuffer(const void* src, size_t size) {
     SkASSERT(src);
 
@@ -220,15 +207,12 @@ void GrVkBuffer::copyCpuDataToGpuBuffer(const void* src, size_t size) {
             return;
         }
 
-        gpu->copyBuffer(std::move(transferBuffer), sk_ref_sp(this), /*srcOffset=*/0,
-                        /*dstOffset=*/0, size);
+        gpu->transferFromBufferToBuffer(std::move(transferBuffer),
+                                        /*srcOffset=*/0,
+                                        sk_ref_sp(this),
+                                        /*dstOffset=*/0,
+                                        size);
     }
-
-    this->addMemoryBarrier(VK_ACCESS_TRANSFER_WRITE_BIT,
-                           buffer_type_to_access_flags(this->intendedType()),
-                           VK_PIPELINE_STAGE_TRANSFER_BIT,
-                           VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-                           /*byRegion=*/false);
 }
 
 void GrVkBuffer::addMemoryBarrier(VkAccessFlags srcAccessMask,
