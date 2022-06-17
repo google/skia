@@ -29,11 +29,8 @@ cc_binary_with_flags(
     },
     deps = [
         "//:skia_public",
-    ] + select({
-        "@platforms//os:macos": ["//tools/sk_app:sk_app_objc"],
-        "@platforms//os:linux": ["//tools/sk_app:sk_app"],
-        "//conditions:default": [],
-    }),
+        "//tools/sk_app",
+    ],
 )
 
 cc_binary_with_flags(

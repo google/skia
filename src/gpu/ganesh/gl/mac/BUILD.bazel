@@ -3,11 +3,3 @@ load("//bazel:macros.bzl", "exports_files_legacy")
 licenses(["notice"])
 
 exports_files_legacy()
-
-filegroup(
-    name = "srcs",
-    srcs = [
-        "GrGLMakeNativeInterface_mac.cpp",
-    ],
-    visibility = ["//src/gpu/ganesh/gl:__pkg__"],
-)
