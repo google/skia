@@ -45,12 +45,14 @@ enum class SnippetRequirementFlags : uint32_t {
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
 struct SkShaderSnippet {
-    using GenerateGlueCodeForEntry = std::string (*)(const std::string& resultName,
-                                                     int entryIndex, // for uniform name mangling
-                                                     const SkPaintParamsKey::BlockReader&,
-                                                     const std::string& priorStageOutputName,
-                                                     const std::vector<std::string>& childNames,
-                                                     int indent);
+    using GenerateGlueCodeForEntry = void (*)(const std::string& resultName,
+                                              int entryIndex,  // for uniform name mangling
+                                              const SkPaintParamsKey::BlockReader&,
+                                              const std::string& priorStageOutputName,
+                                              const std::vector<std::string>& childNames,
+                                              std::string* preamble,
+                                              std::string* mainBody,
+                                              int indent);
 
     SkShaderSnippet() = default;
 
@@ -116,7 +118,8 @@ private:
     std::string emitGlueCodeForEntry(int* entryIndex,
                                      const std::string& priorStageOutputName,
                                      const std::string& parentPreLocalName,
-                                     std::string* result,
+                                     std::string* preamble,
+                                     std::string* mainBody,
                                      int indent) const;
 
     std::vector<SkPaintParamsKey::BlockReader> fBlockReaders;
