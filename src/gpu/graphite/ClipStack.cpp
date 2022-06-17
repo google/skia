@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
+#include "src/gpu/graphite/geom/Geometry.h"
 
 namespace skgpu::graphite {
 
@@ -369,9 +370,7 @@ void ClipStack::RawElement::drawClip(Device* device) {
         // draw directly.
         SkASSERT((fOp == SkClipOp::kDifference && !fShape.inverted()) ||
                  (fOp == SkClipOp::kIntersect && fShape.inverted()));
-        // A null paint implies depth-only rendering, a null stroke style implies fill.
-        device->recordDraw(fLocalToDevice, fShape, Clip{drawBounds, scissor.asSkIRect()}, order,
-                           /*paint=*/nullptr, /*stroke=*/nullptr);
+        device->drawClipShape(fLocalToDevice, fShape, Clip{drawBounds, scissor.asSkIRect()}, order);
     }
 
     // After the clip shape is drawn, reset its state. If the clip element is being popped off the
@@ -1078,7 +1077,7 @@ void ClipStack::clipShape(const Transform& localToDevice,
 std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
         const BoundsManager* boundsManager,
         const Transform& localToDevice,
-        const Shape& shape,
+        const Geometry& geometry,
         const SkStrokeRec& style,
         PaintersDepth z) {
     const SaveRecord& cs = this->currentSaveRecord();
@@ -1092,14 +1091,23 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
 
     // When 'style' isn't fill, 'shape' describes the pre-stroke shape so we can't use it to check
     // against clip elements and this will be set to the bounds of the post-stroked shape instead.
-    SkTCopyOnFirstWrite<Shape> styledShape{shape};
-    Rect drawBounds = shape.bounds();
-    if (shape.inverted()) {
+    SkTCopyOnFirstWrite<Shape> styledShape;
+    if (geometry.isShape()) {
+        styledShape.init(geometry.shape());
+    } else {
+        // The geometry is something special like text or vertices, in which case it's definitely
+        // not a shape that could simplify cleanly with the clip stack.
+        styledShape.writable()->setRect(geometry.bounds());
+    }
+
+    Rect drawBounds; // defined in device space
+    if (styledShape->inverted()) {
         // Inverse-filled shapes always fill the entire device (restricted to the clip).
         drawBounds = deviceBounds;
         styledShape.writable()->setRect(drawBounds);
     } else {
         // Regular filled shapes and strokes get larger based on style and transform
+        drawBounds = styledShape->bounds();
         if (!style.isHairlineStyle()) {
             float localStyleOutset = style.getInflationRadius();
             drawBounds.outset(localStyleOutset);
@@ -1119,9 +1127,11 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
             // localToDevice already.
             styledShape.writable()->setRect(drawBounds);
         }
+
+        // Restrict bounds to the device limits
+        drawBounds.intersect(deviceBounds);
     }
 
-    drawBounds.intersect(deviceBounds);
     if (drawBounds.isEmptyNegativeOrNaN() || cs.state() == ClipState::kWideOpen) {
         // Either the draw is off screen, so it's clipped out regardless of the state of the
         // SaveRecord, or there are no elements to apply to the draw. In both cases, 'drawBounds'

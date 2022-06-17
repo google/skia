@@ -440,28 +440,28 @@ void Device::drawPaint(const SkPaint& paint) {
         return;
     }
     Rect localCoveringBounds = localToDevice.inverseMapRect(fClip.conservativeBounds());
-    this->drawShape(Shape(localCoveringBounds), paint, kFillStyle,
-                    DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
+    this->drawGeometry(Geometry(Shape(localCoveringBounds)), paint, kFillStyle,
+                       DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
 }
 
 void Device::drawRect(const SkRect& r, const SkPaint& paint) {
-    this->drawShape(Shape(r), paint, SkStrokeRec(paint));
+    this->drawGeometry(Geometry(Shape(r)), paint, SkStrokeRec(paint));
 }
 
 void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
     // TODO: This has wasted effort from the SkCanvas level since it instead converts rrects that
     // happen to be ovals into this, only for us to go right back to rrect.
-    this->drawShape(Shape(SkRRect::MakeOval(oval)), paint, SkStrokeRec(paint));
+    this->drawGeometry(Geometry(Shape(SkRRect::MakeOval(oval))), paint, SkStrokeRec(paint));
 }
 
 void Device::drawRRect(const SkRRect& rr, const SkPaint& paint) {
-    this->drawShape(Shape(rr), paint, SkStrokeRec(paint));
+    this->drawGeometry(Geometry(Shape(rr)), paint, SkStrokeRec(paint));
 }
 
 void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
     // TODO: If we do try to inspect the path, it should happen here and possibly after computing
     // the path effect. Alternatively, all that should be handled in SkCanvas.
-    this->drawShape(Shape(path), paint, SkStrokeRec(paint));
+    this->drawGeometry(Geometry(Shape(path)), paint, SkStrokeRec(paint));
 }
 
 void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
@@ -475,9 +475,9 @@ void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
                                                 points[i].fX + radius, points[i].fY + radius);
             // drawOval/drawRect with a forced fill style
             if (paint.getStrokeCap() == SkPaint::kRound_Cap) {
-                this->drawShape(Shape(SkRRect::MakeOval(pointRect)), paint, kFillStyle);
+                this->drawGeometry(Geometry(Shape(SkRRect::MakeOval(pointRect))), paint, kFillStyle);
             } else {
-                this->drawShape(Shape(pointRect), paint, kFillStyle);
+                this->drawGeometry(Geometry(Shape(pointRect)), paint, kFillStyle);
             }
         }
     } else {
@@ -485,7 +485,7 @@ void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
         SkStrokeRec stroke(paint, SkPaint::kStroke_Style);
         size_t inc = (mode == SkCanvas::kLines_PointMode) ? 2 : 1;
         for (size_t i = 0; i < count; i += inc) {
-            this->drawShape(Shape(points[i], points[(i + 1) % count]), paint, stroke);
+            this->drawGeometry(Geometry(Shape(points[i], points[(i + 1) % count])), paint, stroke);
         }
     }
 }
@@ -550,11 +550,14 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
                                                         this);
 }
 
-void Device::drawShape(const Shape& shape,
-                       const SkPaint& paint,
-                       const SkStrokeRec& style,
-                       SkEnumBitMask<DrawFlags> flags) {
-    const Transform& localToDevice = this->localToDeviceTransform();
+void Device::drawGeometry(const Geometry& geometry,
+                          const SkPaint& paint,
+                          const SkStrokeRec& style,
+                          SkEnumBitMask<DrawFlags> flags) {
+    // TODO: remove after perspective transform fallbacks are no longer needed
+    static const Transform kIdentity{SkM44()};
+    const Transform& localToDevice =
+            flags & DrawFlags::kIgnoreTransform ? kIdentity : this->localToDeviceTransform();
     if (!localToDevice.valid()) {
         // If the transform is not invertible or not finite then drawing isn't well defined.
         SKGPU_LOG_W("Skipping draw with non-invertible/non-finite transform.");
@@ -564,20 +567,27 @@ void Device::drawShape(const Shape& shape,
     // Heavy weight paint options like path effects, mask filters, and stroke-and-fill style are
     // applied on the CPU by generating a new shape and recursing on drawShape() with updated flags
     if (!(flags & DrawFlags::kIgnorePathEffect) && paint.getPathEffect()) {
-        // Apply the path effect before anything else
+        // Apply the path effect before anything else, which if we are applying here, means that we
+        // are dealing with a Shape. drawVertices (and a SkVertices geometry) should pass in
+        // kIgnorePathEffect per SkCanvas spec. Text geometry also should pass in kIgnorePathEffect
+        // because the path effect is applied per glyph by the SkStrikeSpec already.
+        SkASSERT(geometry.isShape());
+
         // TODO: If asADash() returns true and the base path matches the dashing fast path, then
         // that should be detected now as well. Maybe add dashPath to Device so canvas can handle it
         SkStrokeRec newStyle = style;
         newStyle.setResScale(localToDevice.maxScaleFactor());
         SkPath dst;
-        if (paint.getPathEffect()->filterPath(&dst, shape.asPath(), &newStyle,
+        if (paint.getPathEffect()->filterPath(&dst, geometry.shape().asPath(), &newStyle,
                                               nullptr, localToDevice)) {
             // Recurse using the path and new style, while disabling downstream path effect handling
-            this->drawShape(Shape(dst), paint, newStyle, flags | DrawFlags::kIgnorePathEffect);
+            this->drawGeometry(Geometry(Shape(dst)), paint, style,
+                               flags | DrawFlags::kIgnorePathEffect);
             return;
         } else {
             SKGPU_LOG_W("Path effect failed to apply, drawing original path.");
-            this->drawShape(shape, paint, style, flags | DrawFlags::kIgnorePathEffect);
+            this->drawGeometry(geometry, paint, style,
+                               flags | DrawFlags::kIgnorePathEffect);
             return;
         }
     }
@@ -586,7 +596,17 @@ void Device::drawShape(const Shape& shape,
         // TODO: Handle mask filters, ignored for the sprint.
         // TODO: Could this be handled by SkCanvas by drawing a mask, blurring, and then sampling
         // with a rect draw? What about fast paths for rrect blur masks...
-        this->drawShape(shape, paint, style, flags | DrawFlags::kIgnoreMaskFilter);
+        this->drawGeometry(geometry, paint, style, flags | DrawFlags::kIgnoreMaskFilter);
+        return;
+    }
+
+    // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
+    // device space so we draw something approximately correct (barring local coord issues).
+    if (geometry.isShape() && localToDevice.type() == Transform::Type::kProjection) {
+        SkPath devicePath = geometry.shape().asPath();
+        devicePath.transform(localToDevice.matrix().asM33());
+        this->drawGeometry(Geometry(Shape(devicePath)), paint, style,
+                           flags | DrawFlags::kIgnoreTransform);
         return;
     }
 
@@ -601,16 +621,24 @@ void Device::drawShape(const Shape& shape,
     SkASSERT(!SkToBool(paint.getMaskFilter()) || (flags & DrawFlags::kIgnoreMaskFilter));
 
     // Check if we have room to record into the current list before determining clipping and order
-    const SkStrokeRec::Style styleType = style.getStyle();
+    SkStrokeRec::Style styleType = style.getStyle();
     if (this->needsFlushBeforeDraw(styleType == SkStrokeRec::kStrokeAndFill_Style ? 2 : 1)) {
         this->flushPendingWorkToRecorder();
     }
 
     DrawOrder order(fCurrentDepth.next());
     auto [clip, clipOrder] = fClip.applyClipToDraw(
-            fColorDepthBoundsManager.get(), localToDevice, shape, style, order.depth());
+            fColorDepthBoundsManager.get(), localToDevice, geometry, style, order.depth());
     if (clip.drawBounds().isEmptyNegativeOrNaN()) {
         // Clipped out, so don't record anything
+        return;
+    }
+    // Some Renderer decisions are based on estimated fill rate, which requires the clipped bounds.
+    // Since the fallbacks shouldn't change the bounds of the draw, it's okay to have evaluated the
+    // clip stack before calling ChooseRenderer.
+    const Renderer* renderer = ChooseRenderer(geometry, clip, style);
+    if (!renderer) {
+        SKGPU_LOG_W("Skipping draw with no supported path renderer.");
         return;
     }
 
@@ -621,75 +649,126 @@ void Device::drawShape(const Shape& shape,
     // order to blend correctly. We always query the most recent draw (even when opaque) because it
     // also lets Device easily track whether or not there are any overlapping draws.
     PaintParams shading{paint};
-    const bool dependsOnDst = paint_depends_on_dst(shading);
+    const bool dependsOnDst = paint_depends_on_dst(shading); // TODO: || renderer->usesCoverageAA();
     CompressedPaintersOrder prevDraw =
             fColorDepthBoundsManager->getMostRecentDraw(clip.drawBounds());
     if (dependsOnDst) {
         order.dependsOnPaintersOrder(prevDraw);
     }
 
+    // Now that the base paint order and draw bounds are finalized, if the Renderer relies on the
+    // stencil attachment, we compute a secondary sorting field to allow disjoint draws to reorder
+    // the RenderSteps across draws instead of in sequence for each draw.
+    if (renderer->depthStencilFlags() & DepthStencilFlags::kStencil) {
+        DisjointStencilIndex setIndex = fDisjointStencilSet->add(order.paintOrder(),
+                                                                 clip.drawBounds());
+        order.dependsOnStencil(setIndex);
+    }
+
     if (styleType == SkStrokeRec::kStroke_Style ||
         styleType == SkStrokeRec::kHairline_Style ||
         styleType == SkStrokeRec::kStrokeAndFill_Style) {
+        // For stroke-and-fill, 'renderer' is used for the fill and we always use the
+        // TessellatedStrokes renderer; for stroke and hairline, 'renderer' is used.
         StrokeStyle stroke(style.getWidth(), style.getMiter(), style.getJoin(), style.getCap());
-        this->recordDraw(localToDevice, shape, clip, order, &shading, &stroke);
+        fDC->recordDraw(styleType == SkStrokeRec::kStrokeAndFill_Style ?
+                                Renderer::TessellatedStrokes() : *renderer,
+                        localToDevice, geometry, clip, order, &shading, &stroke);
     }
     if (styleType == SkStrokeRec::kFill_Style ||
         styleType == SkStrokeRec::kStrokeAndFill_Style) {
-        this->recordDraw(localToDevice, shape, clip, order, &shading, nullptr);
+        fDC->recordDraw(*renderer, localToDevice, geometry, clip, order, &shading, nullptr);
     }
 
     // TODO: If 'fullyOpaque' is true, it might be useful to store the draw bounds and Z in a
     // special occluders list for filtering the DrawList/DrawPass when flushing.
-    // TODO: If recordDraw picked a coverage AA renderer, 'dependsOnDst' is out of date.
     // const bool fullyOpaque = !dependsOnDst &&
     //                          clipOrder == DrawOrder::kNoIntersection &&
     //                          shape.isRect() &&
     //                          localToDevice.type() <= Transform::Type::kRectStaysRect;
 
-    // Record the painters order and depth used for this draw
+    // Post-draw book keeping (update tokens, bounds manager, depth tracking, etc.)
+    fRecorder->priv().tokenTracker()->issueDrawToken();
     fColorDepthBoundsManager->recordDraw(clip.drawBounds(), order.paintOrder());
     fCurrentDepth = order.depth();
     fDrawsOverlap |= (prevDraw != DrawOrder::kNoIntersection);
 }
 
-void Device::recordDraw(const Transform& localToDevice,
-                        const Shape& shape,
-                        const Clip& clip,
-                        DrawOrder ordering,
-                        const PaintParams* paint,
-                        const StrokeStyle* stroke) {
-    // TODO: remove after CPU-transform fallbacks are no longer needed
-    static const Transform kIdentity{SkM44()};
+void Device::drawClipShape(const Transform& localToDevice,
+                           const Shape& shape,
+                           const Clip& clip,
+                           DrawOrder order) {
+    // This call represents one of the deferred clip shapes that's already pessimistically counted
+    // in needsFlushBeforeDraw(), so the DrawContext should have room to add it.
+    SkASSERT(fDC->pendingDrawCount() + 1 < DrawList::kMaxDraws);
 
-    // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
-    // device space so we draw something approximately correct (barring local coord issues).
-    if (localToDevice.type() == Transform::Type::kProjection) {
-        SkPath devicePath = shape.asPath();
-        devicePath.transform(localToDevice.matrix().asM33());
-        this->recordDraw(kIdentity, Shape(devicePath), clip, ordering, paint, nullptr);
+    // A clip draw's state is almost fully defined by the ClipStack. The only thing we need
+    // to account for is selecting a Renderer and tracking the stencil buffer usage.
+    Geometry geometry{shape};
+    const Renderer* renderer = ChooseRenderer(geometry, clip, kFillStyle);
+    if (!renderer) {
+        SKGPU_LOG_W("Skipping clip with no supported path renderer.");
         return;
+    } else if (renderer->depthStencilFlags() & DepthStencilFlags::kStencil) {
+        DisjointStencilIndex setIndex = fDisjointStencilSet->add(order.paintOrder(),
+                                                                 clip.drawBounds());
+        order.dependsOnStencil(setIndex);
     }
 
-    // TODO: Eventually the Renderer selection logic should be lifted to some external
-    // RendererSelector that can be reused between Device and other wrappers around DrawContext.
-    // TODO: All shapes that select a tessellating path renderer need to be "pre-chopped" if they
-    // are large enough to exceed the fixed count tessellation limits.
-    const Renderer* renderer = nullptr;
+    // Clips draws are depth-only (null PaintParams), and filled (null StrokeStyle).
+    // TODO: Remove this CPU-transform once perspective is supported for all path renderers
+    if (localToDevice.type() == Transform::Type::kProjection) {
+        SkPath devicePath = geometry.shape().asPath();
+        devicePath.transform(localToDevice.matrix().asM33());
+        fDC->recordDraw(*renderer, Transform({}), Geometry(Shape(devicePath)), clip, order,
+                        nullptr, nullptr);
+    } else {
+        fDC->recordDraw(*renderer, localToDevice, geometry, clip, order, nullptr, nullptr);
+    }
+}
 
-    if (stroke) {
+const Renderer* Device::ChooseRenderer(const Geometry& geometry,
+                                       const Clip& clip,
+                                       const SkStrokeRec& style) {
+    SkStrokeRec::Style type = style.getStyle();
+
+    if (!geometry.isShape()) {
+        // TODO: Other Geometry types will have pretty specific Renderers
+        return nullptr;
+    }
+
+    // TODO: All shapes that select a tessellating path renderer need to be "pre-chopped" if they
+    // are large enough to exceed the fixed count tessellation limits. Fills are pre-chopped to the
+    // viewport bounds, strokes and stroke-and-fills are pre-chopped to the viewport bounds outset
+    // by the stroke radius (hence taking the whole style and not just its type).
+
+    if (type == SkStrokeRec::kStroke_Style ||
+        type == SkStrokeRec::kHairline_Style) {
+        // Unlike in Ganesh, the HW stroke tessellator can work with arbitrary paints since the
+        // depth test prevents double-blending when there is transparency, thus we can HW stroke
+        // any path regardless of its paint.
         // TODO: We treat inverse-filled strokes as regular strokes. We could handle them by
         // stenciling first with the HW stroke tessellator and then covering their bounds, but
         // inverse-filled strokes are not well-specified in our public canvas behavior so we may be
         // able to remove it.
-        // Unlike in Ganesh, the HW stroke tessellator can work with arbitrary paints since the
-        // depth test prevents double-blending when there is transparency, thus we can HW stroke
-        // any path regardless of its paint.
-        renderer = &Renderer::TessellatedStrokes();
-    } else if (shape.convex() && !shape.inverted()) {
+        // TODO: For non-stroke-and-fill strokes, we may add coverage-AA renderers for primitives
+        // that we want to avoid triggering MSAA on.
+        return &Renderer::TessellatedStrokes();
+    }
+
+    // TODO: stroke-and-fill returns the fill renderer, but if there is ever a case where a shape
+    // can't be stroked with the TessellatedStrokes renderer, we should return null even if we there
+    // is a valid renderer for the fill. Additionally, if we have coverage-AA renderers for filled
+    // primitives to avoid triggering MSAA, we do NOT want to select them for stroke-and-fill or
+    // we'll add AA seams where the separate fill and stroke draws overlap.
+    //
+    // For now, neither of these cases apply so stroke-and-fill and fill are handled the same.
+
+    const Shape& shape = geometry.shape();
+    if (shape.convex() && !shape.inverted()) {
         // TODO: Ganesh doesn't have a curve+middle-out triangles option for convex paths, but it
         // would be pretty trivial to spin up.
-        renderer = &Renderer::ConvexTessellatedWedges();
+        return &Renderer::ConvexTessellatedWedges();
     } else {
         // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose between
         // wedges curves consistently in Graphite and Ganesh.
@@ -697,29 +776,11 @@ void Device::recordDraw(const Transform& localToDevice,
                                    clip.drawBounds().area() <= (256 * 256);
 
         if (preferWedges) {
-            renderer = &Renderer::StencilTessellatedWedges(shape.fillType());
+            return &Renderer::StencilTessellatedWedges(shape.fillType());
         } else {
-            renderer = &Renderer::StencilTessellatedCurvesAndTris(shape.fillType());
+            return &Renderer::StencilTessellatedCurvesAndTris(shape.fillType());
         }
     }
-
-    if (!renderer) {
-        SKGPU_LOG_W("Skipping draw with no supported path renderer.");
-        return;
-    }
-
-    if (renderer->depthStencilFlags() & DepthStencilFlags::kStencil) {
-        DisjointStencilIndex setIndex = fDisjointStencilSet->add(ordering.paintOrder(),
-                                                                 clip.drawBounds());
-        ordering.dependsOnStencil(setIndex);
-    }
-
-    // TODO: if the chosen Renderer uses coverage AA, then 'ordering' depends on painter's order,
-    // so we will need to take into account the previous draw. Since no Renderer uses coverage AA
-    // right now, it's not an issue yet.
-    fDC->recordDraw(*renderer, localToDevice, Geometry{shape}, clip, ordering, paint, stroke);
-
-    fRecorder->priv().tokenTracker()->issueDrawToken();
 }
 
 void Device::flushPendingWorkToRecorder() {

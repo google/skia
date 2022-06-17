@@ -25,8 +25,10 @@ class BoundsManager;
 class Clip;
 class Context;
 class DrawContext;
+class Geometry;
 class PaintParams;
 class Recorder;
+class Renderer;
 class Shape;
 class StrokeStyle;
 class TextureProxy;
@@ -150,17 +152,22 @@ private:
 
     // DrawFlags alters the effects used by drawShape.
     enum class DrawFlags : unsigned {
-        kNone             = 0b00,
+        kNone             = 0b000,
 
         // Any SkMaskFilter on the SkPaint passed into drawShape() is ignored.
         // - drawPaint, drawVertices, drawAtlas
         // - drawShape after it's applied the mask filter.
-        kIgnoreMaskFilter = 0b01,
+        kIgnoreMaskFilter = 0b001,
 
         // Any SkPathEffect on the SkPaint passed into drawShape() is ignored.
         // - drawPaint, drawImageLattice, drawImageRect, drawEdgeAAImageSet, drawVertices, drawAtlas
         // - drawShape after it's applied the path effect.
-        kIgnorePathEffect = 0b10,
+        kIgnorePathEffect = 0b010,
+
+        // Use an identity transform instead of localToDevice().
+        // TODO: This is currently only used to hack in support for perspective, we should remove it
+        // if no additional use cases arise once perspective is handled on the GPU.
+        kIgnoreTransform  = 0b100,
     };
     SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags);
 
@@ -168,17 +175,26 @@ private:
 
     // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
     // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.
-    void drawShape(const Shape&,
-                   const SkPaint&,
-                   const SkStrokeRec&,
-                   SkEnumBitMask<DrawFlags> = DrawFlags::kNone);
-    // Lowest level draw recording where everything but Renderer has been decided.
-    void recordDraw(const Transform& localToDevice,
-                    const Shape& shape,
-                    const Clip& clip,
-                    DrawOrder ordering,
-                    const PaintParams* paint,
-                    const StrokeStyle* stroke);
+    // All overridden SkDevice::draw() functions should bottom-out with calls to drawGeometry().
+    void drawGeometry(const Geometry&,
+                      const SkPaint&,
+                      const SkStrokeRec&,
+                      SkEnumBitMask<DrawFlags> = DrawFlags::kNone);
+
+    // Like drawGeometry() but is Shape-only, depth-only, fill-only, and lets the ClipStack define
+    // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).
+    void drawClipShape(const Transform&, const Shape&, const Clip&, DrawOrder);
+
+    // Returns the Renderer to draw the shape in the given style. If SkStrokeRec is a
+    // stroke-and-fill, this returns the Renderer used for the fill portion and it can be assumed
+    // that Renderer::TessellatedStrokes() will be used for the stroke portion.
+    //
+    // TODO: Renderers may have fallbacks (e.g. pre-chop large paths, or convert stroke to fill).
+    // Are those handled inside ChooseRenderer() where it can modify the shape, stroke? or does it
+    // return a retry error code? or does drawGeometry() handle all the fallbacks, knowing that
+    // a particular shape type needs to be pre-chopped?
+    // TODO: Move this into a RendererSelector object provided by the Context.
+    static const Renderer* ChooseRenderer(const Geometry&, const Clip&, const SkStrokeRec&);
 
     bool needsFlushBeforeDraw(int numNewDraws) const;
 
