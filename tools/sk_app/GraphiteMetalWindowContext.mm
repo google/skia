@@ -106,8 +106,8 @@ void GraphiteMetalWindowContext::swapBuffers() {
         skgpu::graphite::InsertRecordingInfo info;
         info.fRecording = recording.get();
         fGraphiteContext->insertRecording(info);
+        fGraphiteContext->submit(skgpu::graphite::SyncToCpu::kNo);
     }
-    fGraphiteContext->submit(skgpu::graphite::SyncToCpu::kNo);
 
     id<CAMetalDrawable> currentDrawable = (id<CAMetalDrawable>)fDrawableHandle;
 

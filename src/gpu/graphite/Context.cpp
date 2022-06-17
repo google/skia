@@ -73,6 +73,7 @@ void Context::insertRecording(const InsertRecordingInfo& info) {
     // For now we only allow one CommandBuffer. So we just ref it off the InsertRecordingInfo and
     // hold onto it until we submit.
     fCurrentCommandBuffer = info.fRecording->fCommandBuffer;
+    SkASSERT(fCurrentCommandBuffer);
     if (callback) {
         fCurrentCommandBuffer->addFinishedProc(std::move(callback));
     }

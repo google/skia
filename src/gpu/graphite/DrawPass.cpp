@@ -531,7 +531,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(pipelineDesc,
                                                                        renderPassDesc);
         if (!pipeline) {
-            SKGPU_LOG_W("Failed to create GraphicsPipeline for draw in RenderPass. Droping Pass");
+            SKGPU_LOG_W("Failed to create GraphicsPipeline for draw in RenderPass. Dropping pass!");
             return false;
         }
         fFullPipelines.push_back(std::move(pipeline));
@@ -545,6 +545,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         // snapshot, save layers, etc. Right now we only support SkImages directly made for graphite
         // and all others have a TextureProxy with an invalid TextureInfo.
         if (!fSampledTextures[i]->textureInfo().isValid()) {
+            SKGPU_LOG_W("Failed to validate sampled texture. Will not create renderpass!");
             return false;
         }
         if (!fSampledTextures[i]->instantiate(resourceProvider)) {
