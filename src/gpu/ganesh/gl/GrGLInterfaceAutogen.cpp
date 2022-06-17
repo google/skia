@@ -600,7 +600,9 @@ bool GrGLInterface::validate() const {
           fExtensions.has("GL_NV_copy_buffer"))) ||
        (GR_IS_GR_WEBGL(fStandard) && (
           (glVer >= GR_GL_VER(2,0))))) {
-        // all functions were marked optional or test_only
+        if (!fFunctions.fCopyBufferSubData) {
+            RETURN_FALSE_INTERFACE;
+        }
     }
 
     if ((GR_IS_GR_GL(fStandard) && (

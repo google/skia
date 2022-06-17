@@ -518,10 +518,6 @@
     "WebGL": [{"min_version": [2, 0], "ext": "<core>"},],
 
     "functions": ["CopyBufferSubData",],
-    // TODO: Remove 'optional' once Chrome sets this function in the interface.
-    "optional": [
-      "CopyBufferSubData",
-    ]
   },
 
   {
