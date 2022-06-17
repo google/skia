@@ -3087,8 +3087,6 @@ skiasharp_build("SkiaSharp") {
     "modules/skottie",
   ]
 
-  # clear the sources and add explicitly
-  set_sources_assignment_filter([])
   sources = [
     "src/xamarin/sk_compatpaint.cpp",
     "src/xamarin/sk_manageddrawable.cpp",
