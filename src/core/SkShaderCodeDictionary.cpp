@@ -30,7 +30,7 @@ void add_indent(std::string* result, int indent) {
     result->append(4*indent, ' ');
 }
 
-#if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
+#if defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
 std::string generate_default_before_children_glue_code(int entryIndex,
                                                        const SkPaintParamsKey::BlockReader& reader,
                                                        const std::string& parentPreLocalName,
@@ -70,7 +70,7 @@ std::string SkShaderSnippet::getMangledUniformName(int uniformIndex, int mangleI
 
 // TODO: SkShaderInfo::toSkSL needs to work outside of both just graphite and metal. To do
 // so we'll need to switch over to using SkSL's uniform capabilities.
-#if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
+#if defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
 
 // TODO: switch this over to using SkSL's uniform system
 namespace skgpu::graphite {

@@ -193,11 +193,8 @@ std::string get_sksl_fs(SkShaderCodeDictionary* dict,
     dict->getShaderInfo(desc.paintParamsID(), &shaderInfo);
 
     *blendInfo = shaderInfo.blendInfo();
-#if SK_SUPPORT_GPU
+
     return shaderInfo.toSkSL();
-#else
-    return {};
-#endif
 }
 
 inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type) {
