@@ -44,14 +44,15 @@ public:
                                       GrClampType clampType) override {
         static constexpr SkPMColor4f kGreen{0, 1, 0, 1};
         SkPMColor4f color = kGreen;
-        return fProcessorSet.finalize(GrProcessorAnalysisColor::Opaque::kYes,
-                                      GrProcessorAnalysisCoverage::kNone,
-                                      clip,
-                                      &GrUserStencilSettings::kUnused,
-                                      caps,
-                                      clampType,
-                                      &color);
+        auto analysis = fProcessorSet.finalize(GrProcessorAnalysisColor::Opaque::kYes,
+                                               GrProcessorAnalysisCoverage::kNone,
+                                               clip,
+                                               &GrUserStencilSettings::kUnused,
+                                               caps,
+                                               clampType,
+                                               &color);
         SkASSERT(color == kGreen);
+        return analysis;
     }
 
     void visitProxies(const GrVisitProxyFunc& func) const override {
