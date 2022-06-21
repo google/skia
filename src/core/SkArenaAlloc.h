@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkASAN.h"
 
 #include <array>
 #include <cassert>
@@ -127,6 +128,7 @@ public:
         if (std::is_trivially_destructible<T>::value) {
             objStart = this->allocObject(size, alignment);
             fCursor = objStart + size;
+            sk_asan_unpoison_memory_region(objStart, size);
         } else {
             objStart = this->allocObjectWithFooter(size + sizeof(Footer), alignment);
             // Can never be UB because max value is alignof(T).
@@ -134,6 +136,7 @@ public:
 
             // Advance to end of object to install footer.
             fCursor = objStart + size;
+            sk_asan_unpoison_memory_region(objStart, size);
             FooterAction* releaser = [](char* objEnd) {
                 char* objStart = objEnd - (sizeof(T) + sizeof(Footer));
                 ((T*)objStart)->~T();
@@ -187,6 +190,7 @@ public:
         AssertRelease(SkTFitsIn<uint32_t>(size));
         auto objStart = this->allocObject(SkToU32(size), SkToU32(align));
         fCursor = objStart + size;
+        sk_asan_unpoison_memory_region(objStart, size);
         return objStart;
     }
 
@@ -205,6 +209,7 @@ private:
 
     template <typename T>
     void installRaw(const T& val) {
+        sk_asan_unpoison_memory_region(fCursor, sizeof(val));
         memcpy(fCursor, &val, sizeof(val));
         fCursor += sizeof(val);
     }
@@ -245,6 +250,7 @@ private:
         if (std::is_trivially_destructible<T>::value) {
             objStart = this->allocObject(arraySize, alignment);
             fCursor = objStart + arraySize;
+            sk_asan_unpoison_memory_region(objStart, arraySize);
         } else {
             constexpr uint32_t overhead = sizeof(Footer) + sizeof(uint32_t);
             AssertRelease(arraySize <= std::numeric_limits<uint32_t>::max() - overhead);
@@ -256,6 +262,7 @@ private:
 
             // Advance to end of array to install footer.
             fCursor = objStart + arraySize;
+            sk_asan_unpoison_memory_region(objStart, arraySize);
             this->installRaw(SkToU32(count));
             this->installFooter(
                 [](char* footerEnd) {

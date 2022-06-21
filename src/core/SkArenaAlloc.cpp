@@ -11,6 +11,7 @@
 #include <new>
 
 #include "include/private/SkMalloc.h"
+#include "src/core/SkASAN.h"
 
 static char* end_chain(char*) { return nullptr; }
 
@@ -26,6 +27,7 @@ SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
 
     if (fCursor != nullptr) {
         this->installFooter(end_chain, 0);
+        sk_asan_poison_memory_region(fCursor, fEnd - fCursor);
     }
 }
 
@@ -96,6 +98,10 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     fCursor = newBlock;
     fDtorCursor = newBlock;
     fEnd = fCursor + allocationSize;
+
+    // poison the unused bytes in the block.
+    sk_asan_poison_memory_region(fCursor, fEnd - fCursor);
+
     this->installRaw(previousDtor);
     this->installFooter(NextBlock, 0);
 }
