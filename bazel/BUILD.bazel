@@ -42,9 +42,10 @@ GENERAL_DEFINES = [
     ],
     "//conditions:default": [],
 }) + select({
-    "//bazel/common_config_settings:enable_sksl_tracing_true": [
-        "SKSL_ENABLE_TRACING",
-    ],
+    "//bazel/common_config_settings:enable_sksl_tracing_true": ["SKSL_ENABLE_TRACING"],
+    "//conditions:default": [],
+}) + select({
+    "//bazel/common_config_settings:needs_sksl": ["SK_ENABLE_SKSL"],
     "//conditions:default": [],
 })
 
