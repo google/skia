@@ -93,6 +93,12 @@ const char* SkTraceFtrGetError(int e) {
 bool operator==(const FT_OpaquePaint& a, const FT_OpaquePaint& b) {
     return a.p == b.p && a.insert_root_transform == b.insert_root_transform;
 }
+
+// The stop_offset field is being upgraded to a larger representation in FreeType, and changed from
+// 2.14 to 16.16. Adjust the shift factor depending on size type.
+static_assert(sizeof(FT_Fixed) != sizeof(FT_F2Dot14));
+constexpr float kColorStopShift =
+    sizeof(FT_ColorStop::stop_offset) == sizeof(FT_F2Dot14) ? 1 << 14 : 1 << 16;
 #endif
 
 namespace {
@@ -551,7 +557,7 @@ bool colrv1_configure_skpaint(FT_Face face,
         FT_ColorStopIterator mutable_color_stop_iterator = colorStopIterator;
         while (FT_Get_Colorline_Stops(face, &color_stop, &mutable_color_stop_iterator)) {
             FT_UInt index = mutable_color_stop_iterator.current_color_stop - 1;
-            colorStopsSorted[index].pos = color_stop.stop_offset / float(1 << 14);
+            colorStopsSorted[index].pos = color_stop.stop_offset / kColorStopShift;
             FT_UInt16& palette_index = color_stop.color.palette_index;
             if (palette_index == kForegroundColorPaletteIndex) {
                 U8CPU newAlpha = SkColorGetA(foregroundColor) *
