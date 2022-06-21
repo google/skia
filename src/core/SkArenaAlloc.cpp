@@ -6,8 +6,11 @@
  */
 
 #include "src/core/SkArenaAlloc.h"
+
 #include <algorithm>
 #include <new>
+
+#include "include/private/SkMalloc.h"
 
 static char* end_chain(char*) { return nullptr; }
 
@@ -61,10 +64,9 @@ char* SkArenaAlloc::NextBlock(char* footerEnd) {
     char* next;
     memmove(&next, objEnd, sizeof(char*));
     RunDtorsOnBlock(next);
-    delete [] objEnd;
+    sk_free(objEnd);
     return nullptr;
 }
-
 
 void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     constexpr uint32_t headerSize = sizeof(Footer) + sizeof(ptrdiff_t);
@@ -88,7 +90,7 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
-    char* newBlock = new char[allocationSize];
+    char* newBlock = static_cast<char*>(sk_malloc_throw(allocationSize, 1));
 
     auto previousDtor = fDtorCursor;
     fCursor = newBlock;
