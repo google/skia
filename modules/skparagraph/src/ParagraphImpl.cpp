@@ -241,10 +241,18 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     }
 
     // Collect all spaces and some extra information
+    // (and also substitute \t with a space while we are at it)
     fTrailingSpaces = fText.size();
     TextIndex firstWhitespace = EMPTY_INDEX;
     fUnicode->forEachCodepoint(fText.c_str(), fText.size(),
-       [this, &firstWhitespace](SkUnichar unichar, int32_t start, int32_t end, int32_t count) {
+        [this, &firstWhitespace](SkUnichar unichar, int32_t start, int32_t end, int32_t count) {
+            if (unichar == '\t' && end - start == 1) {
+                if (this->paragraphStyle().getReplaceTabCharacters()) {
+                    fText[start] = ' ';
+                    unichar = ' ';
+                }
+            }
+
             if (fUnicode->isWhitespace(unichar)) {
                 for (auto i = start; i < end; ++i) {
                     fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfWhiteSpaceBreak;

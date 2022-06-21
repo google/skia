@@ -83,7 +83,8 @@ struct ParagraphStyle {
                this->fEllipsis == rhs.fEllipsis &&
                this->fEllipsisUtf16 == rhs.fEllipsisUtf16 &&
                this->fTextDirection == rhs.fTextDirection && this->fTextAlign == rhs.fTextAlign &&
-               this->fDefaultTextStyle == rhs.fDefaultTextStyle;
+               this->fDefaultTextStyle == rhs.fDefaultTextStyle &&
+               this->fReplaceTabCharacters == rhs.fReplaceTabCharacters;
     }
 
     const StrutStyle& getStrutStyle() const { return fStrutStyle; }
@@ -120,6 +121,9 @@ struct ParagraphStyle {
     bool hintingIsOn() const { return fHintingIsOn; }
     void turnHintingOff() { fHintingIsOn = false; }
 
+    bool getReplaceTabCharacters() const { return fReplaceTabCharacters; }
+    void setReplaceTabCharacters(bool value) { fReplaceTabCharacters = value; }
+
 private:
     StrutStyle fStrutStyle;
     TextStyle fDefaultTextStyle;
@@ -131,6 +135,7 @@ private:
     SkScalar fHeight;
     TextHeightBehavior fTextHeightBehavior;
     bool fHintingIsOn;
+    bool fReplaceTabCharacters;
 };
 }  // namespace textlayout
 }  // namespace skia

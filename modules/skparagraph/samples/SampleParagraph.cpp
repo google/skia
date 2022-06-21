@@ -3685,6 +3685,44 @@ private:
     using INHERITED = Sample;
 };
 
+class ParagraphView65 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("ParagraphView65"); }
+
+    bool onChar(SkUnichar uni) override {
+            switch (uni) {
+                case 't':
+                    substituteTab = !substituteTab;
+                    return true;
+                default:
+                    break;
+            }
+            return false;
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setReplaceTabCharacters(substituteTab);
+        auto collection = getFontCollection();
+        ParagraphBuilderImpl builder(paragraph_style, collection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(100);
+        builder.pushStyle(text_style);
+        builder.addText("There is a tab>\t<right here");
+        auto paragraph = builder.Build();
+        paragraph->layout(this->width());
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    using INHERITED = Sample;
+    bool substituteTab = false;
+};
+
 
 }  // namespace
 
@@ -3751,3 +3789,4 @@ DEF_SAMPLE(return new ParagraphView61();)
 DEF_SAMPLE(return new ParagraphView62();)
 DEF_SAMPLE(return new ParagraphView63();)
 DEF_SAMPLE(return new ParagraphView64();)
+DEF_SAMPLE(return new ParagraphView65();)
