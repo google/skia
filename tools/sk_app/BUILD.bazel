@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "select_multi", "selects")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "objc_library", "select_multi", "selects")
 
 licenses(["notice"])
 
@@ -17,6 +17,14 @@ selects.config_setting_group(
     match_all = [
         "//bazel/common_config_settings:gl_backend",
         "@platforms//os:linux",
+    ],
+)
+
+selects.config_setting_group(
+    name = "gl_mac",
+    match_all = [
+        "//bazel/common_config_settings:gl_backend",
+        "@platforms//os:macos",
     ],
 )
 
@@ -69,6 +77,52 @@ cc_library(
         "//tools/timer",
     ] + select({
         "@platforms//os:linux": ["//tools/sk_app/unix:deps"],
+        "//conditions:default": [],
+    }),
+)
+
+objc_library(
+    name = "sk_app_objc",
+    testonly = True,
+    srcs = [
+        "Window.cpp",
+        "WindowContext.cpp",
+        "RasterWindowContext.h",
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:gl_backend": [
+                "GLWindowContext.cpp",
+                "GLWindowContext.h",
+            ],
+            #TODO dawn and metal backend
+        },
+        default = [],
+    ) + select({
+        "@platforms//os:macos": ["//tools/sk_app/mac:srcs"],
+        "//conditions:default": [],
+        # TODO ios support
+    }),
+    hdrs = [
+        "Application.h",
+        "DisplayParams.h",
+        "Window.h",
+        "WindowContext.h",
+    ],
+    copts = [
+        "-Wno-deprecated-declarations",
+    ],
+    sdk_frameworks = [
+        "QuartzCore",
+        "Cocoa",
+        "Foundation",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:skia_internal",
+        "//tools/skui",
+        "//tools/timer",
+    ] + select({
+        "@platforms//os:macos": ["//tools/sk_app/mac:deps"],
         "//conditions:default": [],
     }),
 )

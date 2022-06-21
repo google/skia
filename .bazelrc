@@ -4,7 +4,9 @@ build:clang_linux --crosstool_top=//toolchain:clang_suite_linux
 build:clang_linux --compiler=host_is_linux_amd64
 
 build:clang_mac --crosstool_top=//toolchain:clang_suite_mac
+build:clang_mac --apple_crosstool_top=//toolchain:clang_suite_mac
 build:clang_mac --compiler=host_is_mac_m1
+build:clang_mac --apple_platform_type=macos
 
 # =============================================================================
 # Alias to build configurations below. This makes configuring things from

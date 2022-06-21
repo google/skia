@@ -29,6 +29,7 @@ cc_toolchain_suite(
         "arm64|host_is_mac_m1": ":mac_m1_host",
         "darwin|host_is_mac_m1": ":mac_m1_host",
         "darwin_arm64|host_is_mac_m1": ":mac_m1_host",
+        "darwin_x86_64": ":mac_m1_host",
     },
 )
 

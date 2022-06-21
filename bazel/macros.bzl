@@ -70,6 +70,11 @@ def cc_library(**kwargs):
     native.cc_library(**kwargs)
 
 # buildifier: disable=unnamed-macro
+def objc_library(**kwargs):
+    """A shim around objc_library that lets us tweak settings for G3 if necessary."""
+    native.objc_library(**kwargs)
+
+# buildifier: disable=unnamed-macro
 def exports_files_legacy(label_list = None, visibility = None):
     """A self-annotating macro to export all files in this package for legacy G3 rules.
 
