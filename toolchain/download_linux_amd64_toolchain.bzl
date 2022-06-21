@@ -150,14 +150,20 @@ debs_to_install = [
 def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):
     """Downloads a debian file and extracts the data into the provided output directory"""
 
-    # https://bazel.build/rules/lib/repository_ctx#download_and_extract
-    # A .deb file has a data.tar.xz and a control.tar.xz, but the important contents
-    # (i.e. the headers or libs) are in the data.tar.xz
-    ctx.download_and_extract(
+    # https://bazel.build/rules/lib/repository_ctx#download
+    # .deb files are also .ar archives.
+    ctx.download(
         url = _mirror([deb, mirror_prefix + sha256 + ".deb"]),
-        output = "tmp",
+        output = "tmp/deb.ar",
         sha256 = sha256,
     )
+
+    # https://bazel.build/rules/lib/repository_ctx#execute
+    # This uses the statically built binary from the infra repo
+    res = ctx.execute(["bin/open_ar", "--input", "tmp/deb.ar", "--output_dir", "tmp"], quiet = False)
+    if res.return_code != 0:
+        # Run it again to display the error
+        fail("Could not open deb.ar from " + deb)
 
     # https://bazel.build/rules/lib/repository_ctx#extract
     ctx.extract(
@@ -170,6 +176,16 @@ def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):
     ctx.delete("tmp")
 
 def _download_linux_amd64_toolchain_impl(ctx):
+    # Workaround for Bazel not yet supporting .ar files
+    # See https://skia-review.googlesource.com/c/buildbot/+/524764
+    # https://bazel.build/rules/lib/repository_ctx#download
+    ctx.download(
+        url = mirror_prefix + "open_ar_v1",
+        sha256 = "55bb74d9ce5d6fa06e390b2319a410ec595dbb591a3ce650da356efe970f86d3",
+        executable = True,
+        output = "bin/open_ar",
+    )
+
     # Download the clang toolchain (the extraction can take a while)
     # https://bazel.build/rules/lib/repository_ctx#download_and_extract
     ctx.download_and_extract(
