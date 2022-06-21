@@ -89,13 +89,15 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
     bufInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufInfo.flags = 0;
     bufInfo.size = size;
+    // To support SkMesh buffer updates we make Vertex and Index buffers capable of being transfer
+    // dsts.
     switch (bufferType) {
         case GrGpuBufferType::kVertex:
-            bufInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            bufInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             allocUsage = requiresMappable ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
             break;
         case GrGpuBufferType::kIndex:
-            bufInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+            bufInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             allocUsage = requiresMappable ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
             break;
         case GrGpuBufferType::kDrawIndirect:
