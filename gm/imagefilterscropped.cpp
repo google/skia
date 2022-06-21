@@ -154,9 +154,9 @@ protected:
         SkScalar DY = r.height() + MARGIN;
 
         canvas->translate(MARGIN, MARGIN);
-        for (size_t j = 0; j < SK_ARRAY_COUNT(drawProc); ++j) {
+        for (size_t j = 0; j < std::size(drawProc); ++j) {
             canvas->save();
-            for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+            for (size_t i = 0; i < std::size(filters); ++i) {
                 SkPaint paint;
                 canvas->drawImage(fCheckerboard, 0, 0);
                 drawProc[j](canvas, r, filters[i]);

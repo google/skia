@@ -72,7 +72,7 @@ static void draw_text_set(SkCanvas* canvas, const SkPaint& paint, const SkFont& 
 
     canvas->translate(200, 0);
     SkPaint p(paint);
-    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), phase));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), phase));
     draw_text_stroked(canvas, p, font, 10);
 }
 
@@ -110,7 +110,7 @@ DEF_SIMPLE_GM_CAN_FAIL(stroketext_native, canvas, msg, 650, 420) {
             { SkSetFourByteTag('w','g','h','t'), 721.0f },
         };
         SkFontArguments params;
-        params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+        params.setVariationDesignPosition({position, std::size(position)});
         return SkFontMgr::RefDefault()->makeFromStream(std::move(variableStream), params);
     }();
 

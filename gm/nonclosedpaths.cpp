@@ -79,7 +79,7 @@ protected:
         // 0(may use hairline rendering), 10(common case for stroke-style)
         // 40 and 50(>= geometry width/height, make the contour filled in fact)
         constexpr int kStrokeWidth[] = {0, 10, 40, 50};
-        int numWidths = SK_ARRAY_COUNT(kStrokeWidth);
+        int numWidths = std::size(kStrokeWidth);
 
         constexpr SkPaint::Style kStyle[] = {
             SkPaint::kStroke_Style, SkPaint::kStrokeAndFill_Style
@@ -103,9 +103,9 @@ protected:
 
         // For stroke style painter and fill-and-stroke style painter
         for (size_t type = 0; type < kClosureTypeCount; ++type) {
-            for (size_t style = 0; style < SK_ARRAY_COUNT(kStyle); ++style) {
-                for (size_t cap = 0; cap < SK_ARRAY_COUNT(kCap); ++cap) {
-                    for (size_t join = 0; join < SK_ARRAY_COUNT(kJoin); ++join) {
+            for (size_t style = 0; style < std::size(kStyle); ++style) {
+                for (size_t cap = 0; cap < std::size(kCap); ++cap) {
+                    for (size_t join = 0; join < std::size(kJoin); ++join) {
                         for (int width = 0; width < numWidths; ++width) {
                             canvas->save();
                             SetLocation(canvas, counter, SkPaint::kJoinCount * numWidths);

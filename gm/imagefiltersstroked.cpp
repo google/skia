@@ -78,10 +78,10 @@ protected:
         paint.setStrokeWidth(10);
         paint.setStyle(SkPaint::kStroke_Style);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(drawProc); ++i) {
+        for (size_t i = 0; i < std::size(drawProc); ++i) {
             canvas->translate(0, margin);
             canvas->save();
-            for (size_t j = 0; j < SK_ARRAY_COUNT(filters); ++j) {
+            for (size_t j = 0; j < std::size(filters); ++j) {
                 canvas->translate(margin, 0);
                 canvas->save();
                 if (2 == j) {

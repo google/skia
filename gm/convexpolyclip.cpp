@@ -61,7 +61,7 @@ static sk_sp<SkImage> make_img(int w, int h) {
         paint.setShader(SkGradientShader::MakeRadial(
                         pt, radius,
                         colors, pos,
-                        SK_ARRAY_COUNT(colors),
+                        std::size(colors),
                         SkTileMode::kRepeat,
                         0, &mat));
         canvas->drawRect(rect, paint);
@@ -76,12 +76,12 @@ static sk_sp<SkImage> make_img(int w, int h) {
     paint.setColor(SK_ColorLTGRAY);
     constexpr char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + font.getSize() / 2.5f };
-    canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
+    canvas->drawSimpleText(kTxt, std::size(kTxt)-1, SkTextEncoding::kUTF8,
                            texPos.fX, texPos.fY, font, paint);
     paint.setColor(SK_ColorBLACK);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SK_Scalar1);
-    canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
+    canvas->drawSimpleText(kTxt, std::size(kTxt)-1, SkTextEncoding::kUTF8,
                            texPos.fX, texPos.fY, font, paint);
     return surf->makeImageSnapshot();
 }
@@ -165,7 +165,7 @@ protected:
 
         constexpr char kTxt[] = "Clip Me!";
         SkFont         font(ToolUtils::create_portable_typeface(), 23);
-        SkScalar textW = font.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8);
+        SkScalar textW = font.measureText(kTxt, std::size(kTxt)-1, SkTextEncoding::kUTF8);
         SkPaint txtPaint;
         txtPaint.setColor(SK_ColorDKGRAY);
 
@@ -212,7 +212,7 @@ protected:
                     canvas->drawPath(closedClipPath, clipOutlinePaint);
                     clip.setOnCanvas(canvas, SkClipOp::kIntersect, SkToBool(aa));
                     canvas->scale(1.f, 1.8f);
-                    canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
+                    canvas->drawSimpleText(kTxt, std::size(kTxt)-1, SkTextEncoding::kUTF8,
                                      0, 1.5f * font.getSize(), font, txtPaint);
                     canvas->restore();
                     x += textW + 2 * kMargin;

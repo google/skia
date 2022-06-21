@@ -254,7 +254,7 @@ protected:
         SkPoint center = SkPoint::Make(SkIntToScalar(0), SkIntToScalar(0));
         SkColor colors[] = { SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN };
         SkScalar pos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
-        auto shader = SkGradientShader::MakeRadial(center, 20, colors, pos, SK_ARRAY_COUNT(colors),
+        auto shader = SkGradientShader::MakeRadial(center, 20, colors, pos, std::size(colors),
                                                    SkTileMode::kClamp);
 
         for (int i = 0; i < fPaints.count(); ++i) {

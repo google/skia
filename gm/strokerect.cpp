@@ -96,12 +96,12 @@ protected:
         };
 
         for (int doFill = 0; doFill <= 1; ++doFill) {
-            for (size_t i = 0; i < SK_ARRAY_COUNT(gJoins); ++i) {
+            for (size_t i = 0; i < std::size(gJoins); ++i) {
                 SkPaint::Join join = gJoins[i];
                 paint.setStrokeJoin(join);
 
                 SkAutoCanvasRestore acr(canvas, true);
-                for (size_t j = 0; j < SK_ARRAY_COUNT(gRects); ++j) {
+                for (size_t j = 0; j < std::size(gRects); ++j) {
                     const SkRect& r = gRects[j];
 
                     SkPath path, fillPath;

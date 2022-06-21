@@ -295,7 +295,7 @@ constexpr MakePathProc gProcs[] = {
     make_sawtooth_3,
 };
 
-#define N   SK_ARRAY_COUNT(gProcs)
+#define N   std::size(gProcs)
 
 class PathFillGM : public skiagm::GM {
     SkPath  fPath[N];

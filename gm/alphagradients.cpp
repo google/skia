@@ -71,7 +71,7 @@ protected:
 
         for (int doPreMul = 0; doPreMul <= 1; ++doPreMul) {
             canvas->save();
-            for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+            for (size_t i = 0; i < std::size(gRec); ++i) {
                 draw_grad(canvas, r, gRec[i].fColor0, gRec[i].fColor1, SkToBool(doPreMul));
                 canvas->translate(0, r.height() + 8);
             }

@@ -173,7 +173,7 @@ static TileRenderer kTileSets[] = {
     [](SkCanvas* canvas) { draw_color_tiles(canvas, /* multicolor */true); },
 };
 static const char* kTileSetNames[] = { "Local", "Aligned", "Green", "Multicolor" };
-static_assert(SK_ARRAY_COUNT(kTileSets) == SK_ARRAY_COUNT(kTileSetNames), "Count mismatch");
+static_assert(std::size(kTileSets) == std::size(kTileSetNames), "Count mismatch");
 
 namespace skiagm {
 
@@ -205,12 +205,12 @@ private:
         SkAssertResult(rowMatrices[4].setPolyToPoly(src, dst, 4));
         rowMatrices[4].preTranslate(0.f, +10.f);
         static const char* matrixNames[] = { "Identity", "T+S", "Rotate", "Skew", "Perspective" };
-        static_assert(SK_ARRAY_COUNT(matrixNames) == SK_ARRAY_COUNT(rowMatrices), "Count mismatch");
+        static_assert(std::size(matrixNames) == std::size(rowMatrices), "Count mismatch");
 
         // Print a column header
         canvas->save();
         canvas->translate(110.f, 20.f);
-        for (size_t j = 0; j < SK_ARRAY_COUNT(kTileSetNames); ++j) {
+        for (size_t j = 0; j < std::size(kTileSetNames); ++j) {
             draw_text(canvas, kTileSetNames[j]);
             canvas->translate(kColCount * kTileWidth + 30.f, 0.f);
         }
@@ -218,13 +218,13 @@ private:
         canvas->translate(0.f, 40.f);
 
         // Render all tile variations
-        for (size_t i = 0; i < SK_ARRAY_COUNT(rowMatrices); ++i) {
+        for (size_t i = 0; i < std::size(rowMatrices); ++i) {
             canvas->save();
             canvas->translate(10.f, 0.5f * kRowCount * kTileHeight);
             draw_text(canvas, matrixNames[i]);
 
             canvas->translate(100.f, -0.5f * kRowCount * kTileHeight);
-            for (size_t j = 0; j < SK_ARRAY_COUNT(kTileSets); ++j) {
+            for (size_t j = 0; j < std::size(kTileSets); ++j) {
                 canvas->save();
                 draw_tile_boundaries(canvas, rowMatrices[i]);
 

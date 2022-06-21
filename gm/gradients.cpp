@@ -204,9 +204,9 @@ protected:
         paint.setDither(fDither);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
+        for (size_t i = 0; i < std::size(gGradData); i++) {
             canvas->save();
-            for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
+            for (size_t j = 0; j < std::size(gGradMakers); j++) {
                 SkMatrix scale = SkMatrix::I();
 
                 if (i == 5) { // if the clamp case
@@ -261,9 +261,9 @@ private:
         paint.setDither(fDither);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
+        for (size_t i = 0; i < std::size(gGradData); i++) {
             canvas->save();
-            for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers4f); j++) {
+            for (size_t j = 0; j < std::size(gGradMakers4f); j++) {
                 SkMatrix scale = SkMatrix::I();
 
                 if (i == 5) { // if the clamp case
@@ -313,9 +313,9 @@ private:
         paint.setDither(fDither);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
+        for (size_t i = 0; i < std::size(gGradData); i++) {
             canvas->save();
-            for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
+            for (size_t j = 0; j < std::size(gGradMakers); j++) {
                 // apply an increasing y perspective as we move to the right
                 SkMatrix perspective;
                 perspective.setIdentity();
@@ -405,7 +405,7 @@ private:
         SkScalar r1 = SkIntToScalar(150);
         SkPaint paint;
         paint.setShader(SkGradientShader::MakeTwoPointConical(c0, r0, c1, r1, colors,
-                                                              pos, SK_ARRAY_COUNT(pos),
+                                                              pos, std::size(pos),
                                                               SkTileMode::kClamp));
         paint.setDither(fDither);
         canvas->drawPaint(paint);
@@ -446,7 +446,7 @@ DEF_SIMPLE_GM(small_color_stop, canvas, 100, 150) {
     paint.setColor(SK_ColorYELLOW);
     canvas->drawRect(SkRect::MakeWH(100, 150), paint);
     paint.setShader(SkGradientShader::MakeTwoPointConical(c0, r0, c1, r1, colors, pos,
-                                                          SK_ARRAY_COUNT(pos),
+                                                          std::size(pos),
                                                           SkTileMode::kClamp));
     canvas->drawRect(SkRect::MakeWH(100, 150), paint);
 }
@@ -511,7 +511,7 @@ class RadialGradientGM : public skiagm::GM {
                              0.35f,
                              1.0f };
         paint.setShader(SkGradientShader::MakeRadial(center, radius, colors, pos,
-                                                     SK_ARRAY_COUNT(pos),
+                                                     std::size(pos),
                                                      SkTileMode::kClamp));
         SkRect r = {
             0, 0, SkIntToScalar(dim.width()), SkIntToScalar(dim.height())
@@ -552,16 +552,16 @@ private:
         // or premultiply the endpoints first, avoiding the need to premultiply each point (cheap).
         const uint32_t flags[] = { 0, SkGradientShader::kInterpolateColorsInPremul_Flag };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(flags); i++) {
+        for (size_t i = 0; i < std::size(flags); i++) {
             paint1.setShader(SkGradientShader::MakeSweep(cx, cy, sweep_colors,
-                                                         nullptr, SK_ARRAY_COUNT(sweep_colors),
+                                                         nullptr, std::size(sweep_colors),
                                                          flags[i], nullptr));
             paint2.setShader(SkGradientShader::MakeRadial(center, radius, colors1,
-                                                          nullptr, SK_ARRAY_COUNT(colors1),
+                                                          nullptr, std::size(colors1),
                                                           SkTileMode::kClamp,
                                                           flags[i], nullptr));
             paint3.setShader(SkGradientShader::MakeRadial(center, radius, colors2,
-                                                          nullptr, SK_ARRAY_COUNT(colors2),
+                                                          nullptr, std::size(colors2),
                                                           SkTileMode::kClamp,
                                                           flags[i], nullptr));
             paint1.setDither(fDither);
@@ -640,7 +640,7 @@ private:
                 SK_ColorRED };
         const SkScalar pos[] = { 0, .4f, .4f, .8f, .8f, 1 };
         fShader = SkGradientShader::MakeRadial(center, kRadius, colors, pos,
-                                               SK_ARRAY_COUNT(gColors), SkTileMode::kClamp);
+                                               std::size(gColors), SkTileMode::kClamp);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -682,13 +682,13 @@ private:
         const SkScalar unitPos[] = { 0, 50, 70, 500, 540 };
         SkScalar pos[6];
         pos[5] = 1;
-        for (int index = 0; index < (int) SK_ARRAY_COUNT(fShader); ++index) {
+        for (int index = 0; index < (int) std::size(fShader); ++index) {
             pts[1].fX = 500.f + index * kWidthBump;
-            for (int inner = 0; inner < (int) SK_ARRAY_COUNT(unitPos); ++inner) {
+            for (int inner = 0; inner < (int) std::size(unitPos); ++inner) {
                 pos[inner] = unitPos[inner] / (kMinWidth + index * kWidthBump);
             }
             fShader[index] = SkGradientShader::MakeLinear(pts, colors, pos,
-                    SK_ARRAY_COUNT(gColors), SkTileMode::kClamp);
+                    std::size(gColors), SkTileMode::kClamp);
         }
     }
 
@@ -696,7 +696,7 @@ private:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setDither(fDither);
-        for (int index = 0; index < (int) SK_ARRAY_COUNT(fShader); ++index) {
+        for (int index = 0; index < (int) std::size(fShader); ++index) {
             paint.setShader(fShader[index]);
             canvas->drawRect(SkRect::MakeLTRB(0, index * kHeight, kMinWidth + index * kWidthBump,
                     (index + 1) * kHeight), paint);
@@ -744,7 +744,7 @@ class LinearGradientTinyGM : public skiagm::GM {
         };
 
         SkPaint paint;
-        for (unsigned i = 0; i < SK_ARRAY_COUNT(configs); ++i) {
+        for (unsigned i = 0; i < std::size(configs); ++i) {
             SkAutoCanvasRestore acr(canvas, true);
             paint.setShader(SkGradientShader::MakeLinear(configs[i].pts, colors, configs[i].pos,
                                                          kStopCount, SkTileMode::kClamp,
@@ -867,7 +867,7 @@ static void draw_many_stops(SkCanvas* canvas) {
 
     SkPaint p;
     p.setShader(SkGradientShader::MakeLinear(
-        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkTileMode::kClamp));
+        pts, colors, nullptr, std::size(colors), SkTileMode::kClamp));
 
     canvas->drawRect(SkRect::MakeXYWH(0, 0, 500, 500), p);
 }
@@ -901,8 +901,8 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
                               0x00000000, 0x00000000,
                               0xff000000, 0xff000000 };
         SkScalar pos[] = { 0, .25f, .25f, .75f, .75f, 1 };
-        static_assert(SK_ARRAY_COUNT(colors1) == SK_ARRAY_COUNT(pos), "color/pos size mismatch");
-        static_assert(SK_ARRAY_COUNT(colors2) == SK_ARRAY_COUNT(pos), "color/pos size mismatch");
+        static_assert(std::size(colors1) == std::size(pos), "color/pos size mismatch");
+        static_assert(std::size(colors2) == std::size(pos), "color/pos size mismatch");
 
         SkPictureRecorder recorder;
         recorder.beginRecording(SkRect::MakeWH(kTileSize, kTileSize));
@@ -910,12 +910,12 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
         SkPaint p;
 
         SkPoint pts1[] = { { 0, 0 }, { kTileSize, kTileSize }};
-        p.setShader(SkGradientShader::MakeLinear(pts1, colors1, pos, SK_ARRAY_COUNT(colors1),
+        p.setShader(SkGradientShader::MakeLinear(pts1, colors1, pos, std::size(colors1),
                                                  SkTileMode::kClamp, 0, nullptr));
         recorder.getRecordingCanvas()->drawPaint(p);
 
         SkPoint pts2[] = { { 0, kTileSize }, { kTileSize, 0 }};
-        p.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos, SK_ARRAY_COUNT(colors2),
+        p.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos, std::size(colors2),
                                                  SkTileMode::kClamp, 0, nullptr));
         recorder.getRecordingCanvas()->drawPaint(p);
 
@@ -934,11 +934,11 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
                              0xff000000, 0xff000000,
                              0xffffffff, 0xffffffff };
         SkScalar pos[] = { 0, .25f, .25f, .5f, .5f, .75f, .75f, 1 };
-        static_assert(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(pos), "color/pos size mismatch");
+        static_assert(std::size(colors) == std::size(pos), "color/pos size mismatch");
 
         SkPaint p;
         p.setShader(SkGradientShader::MakeSweep(kTileSize / 2, kTileSize / 2,
-                                                colors, pos, SK_ARRAY_COUNT(colors), 0, nullptr));
+                                                colors, pos, std::size(colors), 0, nullptr));
         SkPictureRecorder recorder;
         recorder.beginRecording(SkRect::MakeWH(kTileSize, kTileSize))->drawPaint(p);
 
@@ -954,27 +954,27 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
         SkColor colors[] = { a, a, b, b, a, a, b, b, a, a, b, b, a, a, b, b};
         SkScalar pos[] = { 0, .125f, .125f, .25f, .25f, .375f, .375f, .5f, .5f,
                            .625f, .625f, .75f, .75f, .875f, .875f, 1};
-        static_assert(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(pos), "color/pos size mismatch");
+        static_assert(std::size(colors) == std::size(pos), "color/pos size mismatch");
 
         SkPoint center = { 650, 150 };
         sk_sp<SkShader> sweep1 = SkGradientShader::MakeSweep(center.x(), center.y(), colors, pos,
-                                                             SK_ARRAY_COUNT(colors), 0, nullptr);
+                                                             std::size(colors), 0, nullptr);
         SkMatrix m = SkMatrix::I();
         m.preRotate(22.5f, center.x(), center.y());
         sk_sp<SkShader> sweep2 = SkGradientShader::MakeSweep(center.x(), center.y(), colors, pos,
-                                                             SK_ARRAY_COUNT(colors), 0, &m);
+                                                             std::size(colors), 0, &m);
 
         sk_sp<SkShader> sweep(SkShaders::Blend(SkBlendMode::kExclusion, sweep1, sweep2));
 
         SkScalar radialPos[] = { 0, .02f, .02f, .04f, .04f, .08f, .08f, .16f, .16f, .31f, .31f,
                                  .62f, .62f, 1, 1, 1 };
-        static_assert(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(radialPos),
+        static_assert(std::size(colors) == std::size(radialPos),
                       "color/pos size mismatch");
 
         return SkShaders::Blend(SkBlendMode::kExclusion, sweep,
                                 SkGradientShader::MakeRadial(center, 100, colors,
                                                              radialPos,
-                                                             SK_ARRAY_COUNT(radialPos),
+                                                             std::size(radialPos),
                                                              SkTileMode::kClamp));
     });
 }
@@ -983,7 +983,7 @@ DEF_SIMPLE_GM(sweep_tiling, canvas, 690, 512) {
     static constexpr SkScalar size = 160;
     static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN };
     static constexpr SkScalar   pos[] = { 0, .25f, .50f };
-    static_assert(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(pos), "size mismatch");
+    static_assert(std::size(colors) == std::size(pos), "size mismatch");
 
     static constexpr SkTileMode modes[] = { SkTileMode::kClamp,
                                             SkTileMode::kRepeat,
@@ -1007,7 +1007,7 @@ DEF_SIMPLE_GM(sweep_tiling, canvas, 690, 512) {
 
             for (auto angle : angles) {
                 p.setShader(SkGradientShader::MakeSweep(size / 2, size / 2, colors, pos,
-                                                        SK_ARRAY_COUNT(colors), mode,
+                                                        std::size(colors), mode,
                                                         angle.start, angle.end, 0, nullptr));
 
                 canvas->drawRect(r, p);

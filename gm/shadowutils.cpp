@@ -242,7 +242,7 @@ DEF_SIMPLE_GM(shadow_utils_gaussian_colorfilter, canvas, 512, 256) {
 
     const SkColor colors[] = { 0, 0xFF000000 };
     auto sh = SkGradientShader::MakeRadial({r.centerX(), r.centerY()}, r.width(),
-                                           colors, nullptr, SK_ARRAY_COUNT(colors),
+                                           colors, nullptr, std::size(colors),
                                            SkTileMode::kClamp);
 
     SkPaint redPaint;

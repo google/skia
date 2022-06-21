@@ -76,14 +76,14 @@ protected:
             {SkPaint::kFill_Style, 0},
             {SkPaint::kStroke_Style, SkIntToScalar(kSize) / 2},
         };
-        for (size_t s = 0; s < SK_ARRAY_COUNT(kStrokes); ++s) {
+        for (size_t s = 0; s < std::size(kStrokes); ++s) {
             for (size_t m = 0; m < kSkBlendModeCount; ++m) {
                 SkBlendMode mode = static_cast<SkBlendMode>(m);
                 canvas->drawString(SkBlendMode_Name(mode),
                                    SkIntToScalar(x),
                                    SkIntToScalar(y + kSize + 3) + font.getSize(),
                                    font, labelP);
-                for (size_t c = 0; c < SK_ARRAY_COUNT(kSolidColors); ++c) {
+                for (size_t c = 0; c < std::size(kSolidColors); ++c) {
                     SkPaint modePaint;
                     modePaint.setBlendMode(mode);
                     modePaint.setColor(kSolidColors[c]);
@@ -99,7 +99,7 @@ protected:
                         y += kSize + 30;
                     }
                 }
-                for (size_t a = 0; a < SK_ARRAY_COUNT(kBmpAlphas); ++a) {
+                for (size_t a = 0; a < std::size(kBmpAlphas); ++a) {
                     SkPaint modePaint;
                     modePaint.setBlendMode(mode);
                     modePaint.setAlpha(kBmpAlphas[a]);
@@ -195,7 +195,7 @@ private:
             SK_ColorTRANSPARENT, 0x80800000, 0xF020F060, SK_ColorWHITE
         };
         bmpPaint.setShader(SkGradientShader::MakeRadial(kCenter, 3 * SkIntToScalar(kSize) / 4,
-                                                        kColors, nullptr, SK_ARRAY_COUNT(kColors),
+                                                        kColors, nullptr, std::size(kColors),
                                                         SkTileMode::kRepeat));
 
         SkBitmap bmp;

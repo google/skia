@@ -51,7 +51,7 @@ protected:
         for (int i = 0; i < 8; ++i) {
             canvas->save();
             canvas->translate(i*0.125f, i*30.0f);
-            for (size_t j = 0; j < SK_ARRAY_COUNT(gStrokeWidths); ++j) {
+            for (size_t j = 0; j < std::size(gStrokeWidths); ++j) {
                 paint.setStrokeWidth(gStrokeWidths[j]);
                 canvas->drawRect(rect, paint);
                 canvas->translate(15, 0);
@@ -66,7 +66,7 @@ protected:
             canvas->save();
             canvas->translate(i*0.125f, i*30.0f);
             canvas->scale(0.5f, 0.5f);
-            for (size_t j = 0; j < SK_ARRAY_COUNT(gStrokeWidths); ++j) {
+            for (size_t j = 0; j < std::size(gStrokeWidths); ++j) {
                 paint.setStrokeWidth(2.0f * gStrokeWidths[j]);
                 canvas->drawRect(rect2, paint);
                 canvas->translate(30, 0);

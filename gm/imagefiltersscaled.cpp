@@ -123,9 +123,9 @@ protected:
         SkRect bounds = r;
         bounds.outset(margin, margin);
 
-        for (size_t j = 0; j < SK_ARRAY_COUNT(scales); ++j) {
+        for (size_t j = 0; j < std::size(scales); ++j) {
             canvas->save();
-            for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+            for (size_t i = 0; i < std::size(filters); ++i) {
                 SkPaint paint;
                 paint.setColor(SK_ColorBLUE);
                 paint.setImageFilter(filters[i]);

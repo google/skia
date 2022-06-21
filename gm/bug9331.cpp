@@ -26,7 +26,7 @@ DEF_SIMPLE_GM(bug9331, canvas, 256, 256) {
         paint.setColor(color);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(10);
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), phase));
+        paint.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), phase));
 
         canvas->save();
             canvas->clipRect(clip);

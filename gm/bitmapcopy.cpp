@@ -60,7 +60,7 @@ constexpr SkColorType gColorTypes[] = {
     kN32_SkColorType,
 };
 
-#define NUM_CONFIGS SK_ARRAY_COUNT(gColorTypes)
+#define NUM_CONFIGS std::size(gColorTypes)
 
 static void draw_checks(SkCanvas* canvas, int width, int height) {
     SkPaint paint;

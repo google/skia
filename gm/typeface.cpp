@@ -89,7 +89,7 @@ static constexpr SkFontStyle gStyles[] = {
     SkFontStyle::BoldItalic(),
 };
 
-constexpr int gStylesCount = SK_ARRAY_COUNT(gStyles);
+constexpr int gStylesCount = std::size(gStyles);
 
 class TypefaceStylesGM : public skiagm::GM {
     sk_sp<SkTypeface> fFaces[gStylesCount];

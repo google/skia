@@ -131,7 +131,7 @@ protected:
 
         SkScalar y = kTestPad;
         // Rows are filter modes.
-        for (uint32_t i = 0; i < SK_ARRAY_COUNT(kFilters); ++i) {
+        for (uint32_t i = 0; i < std::size(kFilters); ++i) {
             SkScalar x = kTestPad;
             // Columns are non-subsetted followed by subsetted with each WrapMode in a row
             for (uint32_t j = 0; j < GrSamplerState::kWrapModeCount + 1; ++j) {

@@ -97,35 +97,35 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkScalar gScales[] = { 0.9f, 0.8f, 0.75f, 0.6f, 0.5f, 0.4f, 0.25f, 0.2f, 0.1f };
 
-        SkASSERT(kNumVertImages-1 == (int)SK_ARRAY_COUNT(gScales)/2);
+        SkASSERT(kNumVertImages-1 == (int)std::size(gScales)/2);
 
         // Minimize vertically
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(gScales); ++i) {
+        for (int i = 0; i < (int)std::size(gScales); ++i) {
             int height = SkScalarFloorToInt(fImage->height() * gScales[i]);
 
             int yOff;
-            if (i <= (int)SK_ARRAY_COUNT(gScales)/2) {
+            if (i <= (int)std::size(gScales)/2) {
                 yOff = kSpacer + i * (fImage->height() + kSpacer);
             } else {
                 // Position the more highly squashed images with their less squashed counterparts
-                yOff = (SK_ARRAY_COUNT(gScales) - i) * (fImage->height() + kSpacer) - height;
+                yOff = (std::size(gScales) - i) * (fImage->height() + kSpacer) - height;
             }
 
             this->draw(canvas, kSpacer, yOff, fImage->width(), height);
         }
 
         // Minimize horizontally
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(gScales); ++i) {
+        for (int i = 0; i < (int)std::size(gScales); ++i) {
             int width = SkScalarFloorToInt(fImage->width() * gScales[i]);
 
             int xOff, yOff;
-            if (i <= (int)SK_ARRAY_COUNT(gScales)/2) {
+            if (i <= (int)std::size(gScales)/2) {
                 xOff = fImage->width() + 2*kSpacer;
                 yOff = kSpacer + i * (fImage->height() + kSpacer);
             } else {
                 // Position the more highly squashed images with their less squashed counterparts
                 xOff = fImage->width() + 2*kSpacer + fImage->width() - width;
-                yOff = kSpacer + (SK_ARRAY_COUNT(gScales) - i - 1) * (fImage->height() + kSpacer);
+                yOff = kSpacer + (std::size(gScales) - i - 1) * (fImage->height() + kSpacer);
             }
 
             this->draw(canvas, xOff, yOff, width, fImage->height());
@@ -228,7 +228,7 @@ protected:
                     }
                     canvas->restore();
                     canvas->translate(ii.width() * sx + kPad, 0);
-                    c = (c + 1) % SK_ARRAY_COUNT(kColors);
+                    c = (c + 1) % std::size(kColors);
                 }
                 canvas->restore();
                 canvas->translate(0, ii.width() * sy + kPad);

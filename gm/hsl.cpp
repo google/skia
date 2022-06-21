@@ -203,7 +203,7 @@ static sk_sp<SkShader> make_grad(SkScalar width) {
     };
     SkPoint pts[] = {{0, 0}, {width, 0}};
 
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                         SkTileMode::kClamp);
 }
 

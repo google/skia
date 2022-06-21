@@ -156,7 +156,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
     // the optimization applied.
 
     SkColor shapeColor = SkColorSetARGB(255, 0, 255, 0);
-    for (size_t k = 0; k < SK_ARRAY_COUNT(funcs); ++k) {
+    for (size_t k = 0; k < std::size(funcs); ++k) {
         canvas->save();
 
         TestVariantSequence drawTestSequence = funcs[k];
@@ -198,11 +198,11 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
         install_detector_color_filter
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(shapeColors); ++i) {
+    for (size_t i = 0; i < std::size(shapeColors); ++i) {
         shapeColor = shapeColors[i];
-        for (size_t j = 0; j < SK_ARRAY_COUNT(detectorInstallFuncs); ++j) {
+        for (size_t j = 0; j < std::size(detectorInstallFuncs); ++j) {
             InstallDetectorFunc detectorInstallFunc = detectorInstallFuncs[j];
-            for (size_t k = 0; k < SK_ARRAY_COUNT(funcs); ++k) {
+            for (size_t k = 0; k < std::size(funcs); ++k) {
                 TestVariantSequence drawTestSequence = funcs[k];
                 canvas->save();
                 drawTestSequence(canvas, shapeColor, detectorInstallFunc);

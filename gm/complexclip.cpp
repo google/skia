@@ -118,7 +118,7 @@ protected:
 
         for (int invBits = 0; invBits < 4; ++invBits) {
             canvas->save();
-            for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
+            for (size_t op = 0; op < std::size(gOps); ++op) {
                 this->drawHairlines(canvas, path, clipA, clipB);
 
                 bool doInvA = SkToBool(invBits & 1);
@@ -430,7 +430,7 @@ DEF_SIMPLE_GM(clip_shader_persp, canvas, 1370, 1030) {
 
     canvas->translate(10.f, 10.f);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(matches); ++i) {
+    for (size_t i = 0; i < std::size(matches); ++i) {
         canvas->save();
         canvas->translate(-grid.fLeft, -grid.fTop);
         drawConfig(matches[i][0]);

@@ -142,7 +142,7 @@ protected:
                 }
                 canvas->translate(kLabelSpacing + kShapeSpacing/2, 0);
 
-                for (size_t colorIdx = 0; colorIdx < SK_ARRAY_COUNT(kShapeColors); colorIdx++) {
+                for (size_t colorIdx = 0; colorIdx < std::size(kShapeColors); colorIdx++) {
                     SkPaint paint;
                     this->setupShapePaint(canvas, kShapeColors[colorIdx], mode, &paint);
                     SkASSERT(colorIdx == 0 || 255 == paint.getAlpha());

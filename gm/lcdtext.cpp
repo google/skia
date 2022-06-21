@@ -91,7 +91,7 @@ class LcdTextSizeGM : public skiagm::GM {
             { { 160, 100 }, kLCDTextSizeLimit / 2, 2.01f,  gray_text },
         };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
+        for (size_t i = 0; i < std::size(rec); ++i) {
             const SkPoint loc = rec[i].fLoc;
             SkAutoCanvasRestore acr(canvas, true);
 

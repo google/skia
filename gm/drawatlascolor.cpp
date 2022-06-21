@@ -124,9 +124,9 @@ protected:
             0x88000088          // transparent blue
         };
 
-        const int numModes = SK_ARRAY_COUNT(gModes);
+        const int numModes = std::size(gModes);
         SkASSERT(numModes == kNumXferModes);
-        const int numColors = SK_ARRAY_COUNT(gColors);
+        const int numColors = std::size(gColors);
         SkASSERT(numColors == kNumColors);
         SkRSXform xforms[numColors];
         SkRect rects[numColors];

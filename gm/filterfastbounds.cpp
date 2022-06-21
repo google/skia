@@ -165,7 +165,7 @@ protected:
     SkString onShortName() override { return SkString("filterfastbounds"); }
 
     SkISize onISize() override {
-        return SkISize::Make((SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols) * kTileWidth,
+        return SkISize::Make((std::size(gDrawMthds) + kNumXtraCols) * kTileWidth,
                              kNumVertTiles * kTileHeight);
     }
 
@@ -279,12 +279,12 @@ protected:
         for (int i = 1; i < paints.count(); ++i) {
             canvas->drawLine(0,
                              i*SkIntToScalar(kTileHeight),
-                             SkIntToScalar((SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols)*kTileWidth),
+                             SkIntToScalar((std::size(gDrawMthds) + kNumXtraCols)*kTileWidth),
                              i*SkIntToScalar(kTileHeight),
                              blackFill);
         }
         // vertical separators
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols; ++i) {
+        for (int i = 0; i < (int)std::size(gDrawMthds) + kNumXtraCols; ++i) {
             canvas->drawLine(SkIntToScalar(i * kTileWidth),
                              0,
                              SkIntToScalar(i * kTileWidth),
@@ -305,7 +305,7 @@ protected:
         }
 
         // Multiple columns with different geometry
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(gDrawMthds); ++i) {
+        for (int i = 0; i < (int)std::size(gDrawMthds); ++i) {
             for (int j = 0; j < paints.count(); ++j) {
                 draw_geom_with_paint(*gDrawMthds[i],
                                      SkIPoint::Make((i+kNumXtraCols) * kTileWidth, j*kTileHeight),

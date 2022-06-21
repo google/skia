@@ -134,13 +134,13 @@ protected:
         SkPaint paint;
         int idx = 0;
         const int kRectsPerRow = std::max(this->getISize().fWidth / kRectWidth, 1);
-        for (size_t cfm = 0; cfm < SK_ARRAY_COUNT(modes); ++cfm) {
-            for (size_t cfc = 0; cfc < SK_ARRAY_COUNT(colors); ++cfc) {
+        for (size_t cfm = 0; cfm < std::size(modes); ++cfm) {
+            for (size_t cfc = 0; cfc < std::size(colors); ++cfc) {
                 paint.setColorFilter(SkColorFilters::Blend(colors[cfc], modes[cfm]));
-                for (size_t s = 0; s < SK_ARRAY_COUNT(shaders); ++s) {
+                for (size_t s = 0; s < std::size(shaders); ++s) {
                     paint.setShader(shaders[s]);
                     bool hasShader = nullptr == paint.getShader();
-                    int paintColorCnt = hasShader ? SK_ARRAY_COUNT(alphas) : SK_ARRAY_COUNT(colors);
+                    int paintColorCnt = hasShader ? std::size(alphas) : std::size(colors);
                     SkColor* paintColors = hasShader ? alphas : colors;
                     for (int pc = 0; pc < paintColorCnt; ++pc) {
                         paint.setColor(paintColors[pc]);

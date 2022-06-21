@@ -75,7 +75,7 @@ DEF_SIMPLE_GM(path_append_extend, canvas, 400, 400) {
         { 10, 50 }, {30, 70}, {50, 50},
     };
 
-    const SkPath path1 = SkPath::Polygon(p1, SK_ARRAY_COUNT(p1), false);
+    const SkPath path1 = SkPath::Polygon(p1, std::size(p1), false);
 
     SkPaint paint;
     paint.setStroke(true);
@@ -92,7 +92,7 @@ DEF_SIMPLE_GM(path_append_extend, canvas, 400, 400) {
         for (auto proc : {old_school_polygon, new_school_polygon}) {
             canvas->save();
 
-            SkPath path0 = proc(p0, SK_ARRAY_COUNT(p0), isClosed);
+            SkPath path0 = proc(p0, std::size(p0), isClosed);
 
             canvas->drawPath(path0, paint);
             canvas->drawPath(path1, paint);

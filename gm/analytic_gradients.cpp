@@ -91,7 +91,7 @@ const int* INTERVAL_COLOR_COUNTS[] = {
     INT7_COLOR_COUNTS,
     INT8_COLOR_COUNTS
 };
-const int COLOR_COUNT = SK_ARRAY_COUNT(COLORS);
+const int COLOR_COUNT = std::size(COLORS);
 
 const int* M_POSITIONS[] = {
     M1_POSITIONS,

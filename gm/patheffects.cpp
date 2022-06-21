@@ -58,7 +58,7 @@ static void stroke_pe(SkPaint* paint) {
 static void dash_pe(SkPaint* paint) {
     SkScalar inter[] = { 20, 10, 10, 10 };
     paint->setStrokeWidth(12);
-    paint->setPathEffect(SkDashPathEffect::Make(inter, SK_ARRAY_COUNT(inter), 0));
+    paint->setPathEffect(SkDashPathEffect::Make(inter, std::size(inter), 0));
     compose_pe(paint);
 }
 
@@ -75,7 +75,7 @@ static SkPath scale(const SkPath& path, SkScalar scale) {
 static void one_d_pe(SkPaint* paint) {
     SkPathBuilder b;
     b.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
-    for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2) {
+    for (unsigned i = 2; i < std::size(gXY); i += 2) {
         b.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
     }
     b.close().offset(SkIntToScalar(-6), 0);
@@ -137,7 +137,7 @@ protected:
         }, false);
 
         canvas->save();
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
+        for (size_t i = 0; i < std::size(gPE); i++) {
             gPE[i](&paint);
             canvas->drawPath(path, paint);
             canvas->translate(0, 75);
@@ -151,14 +151,14 @@ protected:
                               .detach();
 
         canvas->translate(320, 20);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gPE2); i++) {
+        for (size_t i = 0; i < std::size(gPE2); i++) {
             gPE2[i](&paint);
             canvas->drawPath(path, paint);
             canvas->translate(0, 160);
         }
 
         const SkIRect rect = SkIRect::MakeXYWH(20, 20, 60, 60);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
+        for (size_t i = 0; i < std::size(gPE); i++) {
             SkPaint p;
             p.setAntiAlias(true);
             p.setStyle(SkPaint::kFill_Style);
@@ -251,7 +251,7 @@ DEF_SIMPLE_GM(stroke_and_fill_patheffect, canvas, 900, 450) {
             const SkPoint pts[] = {
                 {0, 0}, {100, 100}, {0, 100}, {100, 0},
             };
-            return SkPath::Polygon(pts, SK_ARRAY_COUNT(pts), true);
+            return SkPath::Polygon(pts, std::size(pts), true);
         },
     };
 

@@ -194,17 +194,17 @@ class CubicPathGM : public skiagm::GM {
         canvas->save();
         canvas->translate(10 * SK_Scalar1, 30 * SK_Scalar1);
         canvas->save();
-        for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
+        for (size_t cap = 0; cap < std::size(gCaps); ++cap) {
             if (0 < cap) {
-                canvas->translate((rect.width() + 40 * SK_Scalar1) * SK_ARRAY_COUNT(gStyles), 0);
+                canvas->translate((rect.width() + 40 * SK_Scalar1) * std::size(gStyles), 0);
             }
             canvas->save();
-            for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
+            for (size_t fill = 0; fill < std::size(gFills); ++fill) {
                 if (0 < fill) {
                     canvas->translate(0, rect.height() + 40 * SK_Scalar1);
                 }
                 canvas->save();
-                for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
+                for (size_t style = 0; style < std::size(gStyles); ++style) {
                     if (0 < style) {
                         canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
                     }
@@ -314,17 +314,17 @@ class CubicClosePathGM : public skiagm::GM {
         canvas->save();
         canvas->translate(10 * SK_Scalar1, 30 * SK_Scalar1);
         canvas->save();
-        for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
+        for (size_t cap = 0; cap < std::size(gCaps); ++cap) {
             if (0 < cap) {
-                canvas->translate((rect.width() + 40 * SK_Scalar1) * SK_ARRAY_COUNT(gStyles), 0);
+                canvas->translate((rect.width() + 40 * SK_Scalar1) * std::size(gStyles), 0);
             }
             canvas->save();
-            for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
+            for (size_t fill = 0; fill < std::size(gFills); ++fill) {
                 if (0 < fill) {
                     canvas->translate(0, rect.height() + 40 * SK_Scalar1);
                 }
                 canvas->save();
-                for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
+                for (size_t style = 0; style < std::size(gStyles); ++style) {
                     if (0 < style) {
                         canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
                     }

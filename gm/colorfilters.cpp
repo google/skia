@@ -34,7 +34,7 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK,
         SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW,
     };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                         SkTileMode::kClamp);
 }
 
@@ -73,7 +73,7 @@ class ColorFiltersGM : public skiagm::GM {
         };
 
         canvas->translate(10, 10);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
+        for (size_t i = 0; i < std::size(rec); ++i) {
             rec[i].fProc(&paint, rec[i].fData0, rec[i].fData1);
             canvas->drawRect(r, paint);
             canvas->translate(0, r.height() + 10);
@@ -102,7 +102,7 @@ protected:
 
         for (const auto& cols : gGrads) {
             fShaders.push_back(SkGradientShader::MakeSweep(kWheelSize / 2, kWheelSize / 2,
-                                                           cols, nullptr, SK_ARRAY_COUNT(cols),
+                                                           cols, nullptr, std::size(cols),
                                                            SkTileMode::kRepeat, -90, 270, 0,
                                                            nullptr));
         }

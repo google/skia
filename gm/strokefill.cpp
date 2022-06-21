@@ -228,7 +228,7 @@ static SkPath papyrus_hello() {
 /* Generated on a Mac with:
  * paint.setTypeface(SkTypeface::CreateByName("Hiragino Maru Gothic Pro"));
  * const unsigned char hyphen[] = { 0xE3, 0x83, 0xBC };
- * paint.getTextPath(hyphen, SK_ARRAY_COUNT(hyphen), 400, 80, &textPath);
+ * paint.getTextPath(hyphen, std::size(hyphen), 400, 80, &textPath);
  */
 static SkPath hiragino_maru_gothic_pro_dash() {
     SkPath path;

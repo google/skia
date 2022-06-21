@@ -42,7 +42,7 @@ DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, 0xFFDDDDDD) {
 
     canvas->translate(SkIntToScalar(-40), SkIntToScalar(0));
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRecs); i++) {
+    for (size_t i = 0; i < std::size(gRecs); i++) {
         if (gRecs[i].fStyle != NONE) {
             paint.setMaskFilter(SkMaskFilter::MakeBlur(gRecs[i].fStyle,
                                    SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(20))));

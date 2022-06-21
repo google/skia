@@ -63,7 +63,7 @@ protected:
         SkScalar w = SkIntToScalar(size.fWidth);
         SkScalar h = SkIntToScalar(size.fHeight);
 
-        static_assert(4 == SK_ARRAY_COUNT(fTypefaces), "typeface_cnt");
+        SkASSERTF(4 == std::size(fTypefaces), "typeface_cnt");
         fTypefaces[0] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle());
         fTypefaces[1] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
         fTypefaces[2] = ToolUtils::create_portable_typeface("serif", SkFontStyle());
@@ -87,7 +87,7 @@ protected:
 
             fPtSizes[i] = random.nextRangeScalar(kMinPtSize, kMaxPtSize);
 
-            fTypefaceIndices[i] = random.nextULessThan(SK_ARRAY_COUNT(fTypefaces));
+            fTypefaceIndices[i] = random.nextULessThan(std::size(fTypefaces));
 
             SkRect r;
             fPaint.setColor(fColors[i]);

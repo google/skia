@@ -35,8 +35,8 @@ static void make_transparency(SkCanvas* canvas, SkScalar width, SkScalar height)
             SK_ColorBLUE,
             SK_ColorMAGENTA,
     };
-    const SkScalar kRowHeight = height / SK_ARRAY_COUNT(kColors);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kColors); ++i) {
+    const SkScalar kRowHeight = height / std::size(kColors);
+    for (size_t i = 0; i < std::size(kColors); ++i) {
         SkColor shaderColors[2];
         shaderColors[0] = SK_AlphaTRANSPARENT;
         shaderColors[1] = kColors[i];

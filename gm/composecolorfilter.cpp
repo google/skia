@@ -71,7 +71,7 @@ static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi, bool use
         SkASSERT(effect);
         SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect.get()));
         sk_sp<SkColorFilter> children[] = { inner, outer };
-        return effect->makeColorFilter(nullptr, children, SK_ARRAY_COUNT(children));
+        return effect->makeColorFilter(nullptr, children, std::size(children));
     } else {
         return outer->makeComposed(inner);
     }
@@ -83,7 +83,7 @@ DEF_SIMPLE_GM(composeCF, canvas, 200, 200) {
     SkPaint paint;
     const SkColor gradient_colors[] = {SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED};
     paint.setShader(SkGradientShader::MakeSweep(
-            50, 50, gradient_colors, nullptr, SK_ARRAY_COUNT(gradient_colors)));
+            50, 50, gradient_colors, nullptr, std::size(gradient_colors)));
 
     canvas->save();
     for (bool useSkSL : {false, true}) {

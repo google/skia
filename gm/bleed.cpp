@@ -138,7 +138,7 @@ protected:
             imageSetEntry[0].fDstRect = dstRect;
             imageSetEntry[0].fAAFlags = paint->isAntiAlias() ? SkCanvas::kAll_QuadAAFlags
                                                              : SkCanvas::kNone_QuadAAFlags;
-            canvas->experimental_DrawEdgeAAImageSet(imageSetEntry, SK_ARRAY_COUNT(imageSetEntry),
+            canvas->experimental_DrawEdgeAAImageSet(imageSetEntry, std::size(imageSetEntry),
                                                     /*dstClips=*/nullptr,
                                                     /*preViewMatrices=*/nullptr,
                                                     sampling, paint, fConstraint);

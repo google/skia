@@ -40,7 +40,7 @@ static sk_sp<SkImage> make_src(int w, int h) {
         SK_ColorTRANSPARENT, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE,
     };
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                                  SkTileMode::kClamp));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
@@ -56,7 +56,7 @@ static sk_sp<SkImage> make_dst(int w, int h) {
         SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN,
         SK_ColorGRAY,
     };
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                                  SkTileMode::kClamp));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
@@ -106,7 +106,7 @@ class ArithmodeGM : public skiagm::GM {
         };
 
         const SkScalar* k = K;
-        const SkScalar* stop = k + SK_ARRAY_COUNT(K);
+        const SkScalar* stop = k + std::size(K);
         const SkRect rect = SkRect::MakeWH(WW, HH);
         SkScalar gap = SkIntToScalar(WW + 20);
         while (k < stop) {

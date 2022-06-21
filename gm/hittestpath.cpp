@@ -49,7 +49,7 @@ DEF_SIMPLE_GM_CAN_FAIL(hittestpath, canvas, errorMsg, 700, 460) {
     for (int i = 0; i < 4; ++i) {
         // get the random values deterministically
         SkScalar randoms[12];
-        for (int index = 0; index < (int) SK_ARRAY_COUNT(randoms); ++index) {
+        for (int index = 0; index < (int) std::size(randoms); ++index) {
             randoms[index] = rand.nextUScalar1();
         }
         b.lineTo(randoms[0] * scale, randoms[1] * scale)

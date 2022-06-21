@@ -47,7 +47,7 @@ struct Style {
 
 sk_sp<SkPathEffect> make_dash() {
     constexpr SkScalar kIntervals[] = { 4.f, 3.f };
-    return SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 0);
+    return SkDashPathEffect::Make(kIntervals, std::size(kIntervals), 0);
 }
 
 Style styles[] {
@@ -96,16 +96,16 @@ DEF_SIMPLE_GM(inverse_paths, canvas, 800, 1200) {
     outlinePaint.setStyle(SkPaint::kStroke_Style);
     outlinePaint.setStrokeWidth(SkIntToScalar(0));
 
-    for (size_t styleIndex = 0; styleIndex < SK_ARRAY_COUNT(styles);
+    for (size_t styleIndex = 0; styleIndex < std::size(styles);
             styleIndex++) {
-        for (size_t sizeIndex = 0; sizeIndex < SK_ARRAY_COUNT(pathSizes);
+        for (size_t sizeIndex = 0; sizeIndex < std::size(pathSizes);
                 sizeIndex++) {
             SkScalar size = pathSizes[sizeIndex];
 
             canvas->save();
 
             for (size_t widthIndex = 0;
-                    widthIndex < SK_ARRAY_COUNT(strokeWidths);
+                    widthIndex < std::size(strokeWidths);
                     widthIndex++) {
                 SkPaint paint;
                 paint.setColor(0xff007000);
@@ -114,7 +114,7 @@ DEF_SIMPLE_GM(inverse_paths, canvas, 800, 1200) {
                 paint.setPathEffect(styles[styleIndex].fPathEffect);
 
                 for (size_t pathIndex = 0;
-                        pathIndex < SK_ARRAY_COUNT(paths);
+                        pathIndex < std::size(paths);
                         pathIndex++) {
                     canvas->drawRect(clipRect, clipPaint);
 

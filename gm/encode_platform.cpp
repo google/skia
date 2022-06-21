@@ -104,7 +104,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(256 * SK_ARRAY_COUNT(gRecs), 256 * 3);
+        return SkISize::Make(256 * std::size(gRecs), 256 * 3);
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {

@@ -173,13 +173,13 @@ protected:
             { 4, 4 }, { 7, 4 },
             { 4, 4 }, { 4, 7 },
         };
-        canvas->drawPoints(SkCanvas::kLines_PointMode, SK_ARRAY_COUNT(lines), lines, paint);
+        canvas->drawPoints(SkCanvas::kLines_PointMode, std::size(lines), lines, paint);
 
         const SkPoint pts[] = {
             { 4, 3 }, { 4, 4, }, { 3, 3 }, { 3, 4 },
         };
         paint.setColor(SK_ColorBLUE);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, SK_ARRAY_COUNT(pts), pts, paint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, std::size(pts), pts, paint);
 
         paint.setColor(SK_ColorRED);
         canvas->drawRect(rect, paint);

@@ -39,7 +39,7 @@ static void identity_paintproc(SkPaint* paint) {
 static void gradient_paintproc(SkPaint* paint) {
     const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
     const SkPoint pts[] = { { 0, 0 }, { W, H } };
-    paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                                   SkTileMode::kClamp));
 }
 
@@ -101,12 +101,12 @@ class SrcModeGM : public skiagm::GM {
             paint.setAntiAlias(SkToBool(aa));
             font.setEdging(SkToBool(aa) ? SkFont::Edging::kAntiAlias : SkFont::Edging::kAlias);
             canvas->save();
-            for (size_t i = 0; i < SK_ARRAY_COUNT(paintProcs); ++i) {
+            for (size_t i = 0; i < std::size(paintProcs); ++i) {
                 paintProcs[i](&paint);
-                for (size_t x = 0; x < SK_ARRAY_COUNT(modes); ++x) {
+                for (size_t x = 0; x < std::size(modes); ++x) {
                     paint.setBlendMode(modes[x]);
                     canvas->save();
-                    for (size_t y = 0; y < SK_ARRAY_COUNT(procs); ++y) {
+                    for (size_t y = 0; y < std::size(procs); ++y) {
                         procs[y](canvas, paint, font);
                         canvas->translate(0, H * 5 / 4);
                     }
@@ -115,7 +115,7 @@ class SrcModeGM : public skiagm::GM {
                 }
             }
             canvas->restore();
-            canvas->translate(0, (H * 5 / 4) * SK_ARRAY_COUNT(procs));
+            canvas->translate(0, (H * 5 / 4) * std::size(procs));
         }
     }
 

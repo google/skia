@@ -113,7 +113,7 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
     const char test[] = "aAjJgGyY_|{-(~[,]qQ}pP}zZ";
     const SkPoint blobOffset = { 10, 80 };
 
-    for (size_t font = 0; font < SK_ARRAY_COUNT(fam); ++font) {
+    for (size_t font = 0; font < std::size(fam); ++font) {
         for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
             SkFont skFont(ToolUtils::create_portable_typeface(fam[font], SkFontStyle()), textSize);
             const SkScalar uWidth = textSize / 15;

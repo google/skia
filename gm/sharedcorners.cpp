@@ -42,7 +42,7 @@ protected:
 
     SkISize onISize() override {
         constexpr int numRows = 3 * 2;
-        constexpr int numCols = (1 + SK_ARRAY_COUNT(kJitters)) * 2;
+        constexpr int numCols = (1 + std::size(kJitters)) * 2;
         return SkISize::Make(numCols * (kBoxSize + kPadSize) + kPadSize,
                              numRows * (kBoxSize + kPadSize) + kPadSize);
     }

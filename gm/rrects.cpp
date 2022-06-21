@@ -193,7 +193,7 @@ protected:
 
         // The first complex case needs special handling since it is a square
         fRRects[kNumSimpleCases].setRectRadii(SkRect::MakeWH(kTileY-2, kTileY-2), gRadii[0]);
-        for (size_t i = 1; i < SK_ARRAY_COUNT(gRadii); ++i) {
+        for (size_t i = 1; i < std::size(gRadii); ++i) {
             fRRects[kNumSimpleCases+i].setRectRadii(SkRect::MakeWH(kTileX-2, kTileY-2), gRadii[i]);
         }
         // The last case is larger than kTileX-2 x kTileY-2 but will be drawn at an offset

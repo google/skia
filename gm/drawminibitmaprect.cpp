@@ -52,7 +52,7 @@ static sk_sp<SkImage> makebm(int w, int h) {
                                       5 * SK_Scalar1 / 6,
                                       SK_Scalar1};
 
-    SkASSERT(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(pos));
+    SkASSERT(std::size(colors) == std::size(pos));
     SkPaint     paint;
     SkRect rect = SkRect::MakeWH(wScalar, hScalar);
     SkMatrix mat = SkMatrix::I();
@@ -60,7 +60,7 @@ static sk_sp<SkImage> makebm(int w, int h) {
         paint.setShader(SkGradientShader::MakeRadial(
                         pt, radius,
                         colors, pos,
-                        SK_ARRAY_COUNT(colors),
+                        std::size(colors),
                         SkTileMode::kRepeat,
                         0, &mat));
         canvas->drawRect(rect, paint);

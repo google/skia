@@ -90,7 +90,7 @@ protected:
 
         int x = 0, y = 0;
         sk_sp<SkImageFilter> background(SkImageFilters::Image(fCheckerboard));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
+        for (size_t i = 0; i < std::size(gModes); i++) {
             paint.setImageFilter(SkImageFilters::Blend(gModes[i], background));
             DrawClippedBitmap(canvas, fBitmap, paint, x, y);
             x += fBitmap.width() + MARGIN;

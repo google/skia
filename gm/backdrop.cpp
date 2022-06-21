@@ -29,7 +29,7 @@ static sk_sp<SkShader> make_shader(SkScalar cx, SkScalar cy, SkScalar rad) {
         SK_ColorRED, SK_ColorRED, SK_ColorBLUE, SK_ColorBLUE, SK_ColorGREEN, SK_ColorGREEN,
         SK_ColorRED, SK_ColorRED, SK_ColorBLUE, SK_ColorBLUE, SK_ColorGREEN, SK_ColorGREEN,
     };
-    constexpr int count = SK_ARRAY_COUNT(colors);
+    constexpr int count = std::size(colors);
     SkScalar pos[count] = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6 };
     for (int i = 0; i < count; ++i) {
         pos[i] *= 1.0f/6;

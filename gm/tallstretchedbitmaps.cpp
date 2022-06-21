@@ -76,7 +76,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fTallBmps); ++i) {
+        for (size_t i = 0; i < std::size(fTallBmps); ++i) {
             int h = SkToInt((4 + i) * 1024);
 
             fTallBmps[i].fItemCnt = make_bm(&fTallBmps[i].fBmp, h);
@@ -85,7 +85,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(1.3f, 1.3f);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fTallBmps); ++i) {
+        for (size_t i = 0; i < std::size(fTallBmps); ++i) {
             SkASSERT(fTallBmps[i].fItemCnt > 10);
             SkBitmap bmp = fTallBmps[i].fBmp;
             // Draw the last 10 elements of the bitmap.

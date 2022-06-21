@@ -60,7 +60,7 @@ private:
 
     void onDraw(SkCanvas* canvas) override {
         const SkColor colors[] = { 0xFF555555, 0xFF444444 };
-        const int colorCount = SK_ARRAY_COUNT(colors);
+        const int colorCount = std::size(colors);
 
         SkRect r = { 0, 0, this->width(), this->height() };
         SkSize size = SkSize::Make(r.width(), r.height());

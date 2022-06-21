@@ -245,9 +245,9 @@ protected:
         SkScalar DY = r.height() + MARGIN;
 
         canvas->translate(MARGIN, MARGIN);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(drawProc); ++i) {
+        for (size_t i = 0; i < std::size(drawProc); ++i) {
             canvas->save();
-            for (size_t j = 0; j < SK_ARRAY_COUNT(filters); ++j) {
+            for (size_t j = 0; j < std::size(filters); ++j) {
                 drawProc[i](canvas, fAtlas.get(), r, filters[j]);
 
                 draw_frame(canvas, r);

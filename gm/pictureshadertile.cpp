@@ -114,7 +114,7 @@ protected:
         draw_scene(pictureCanvas, kPictureSize);
         sk_sp<SkPicture> offsetPicture(recorder.finishRecordingAsPicture());
 
-        for (unsigned i = 0; i < SK_ARRAY_COUNT(tiles); ++i) {
+        for (unsigned i = 0; i < std::size(tiles); ++i) {
             SkRect tile = SkRect::MakeXYWH(tiles[i].x * kPictureSize,
                                            tiles[i].y * kPictureSize,
                                            tiles[i].w * kPictureSize,
@@ -145,7 +145,7 @@ protected:
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
 
-        for (unsigned i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
+        for (unsigned i = 0; i < std::size(fShaders); ++i) {
             paint.setShader(fShaders[i]);
 
             canvas->save();
@@ -157,7 +157,7 @@ protected:
     }
 
 private:
-    sk_sp<SkShader> fShaders[SK_ARRAY_COUNT(tiles)];
+    sk_sp<SkShader> fShaders[std::size(tiles)];
 
     using INHERITED = GM;
 };

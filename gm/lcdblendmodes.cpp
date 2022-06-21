@@ -41,7 +41,7 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
     const SkColor colors[] = {
         SK_ColorRED, SK_ColorGREEN,
     };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                         SkTileMode::kRepeat);
 }
 
@@ -126,7 +126,7 @@ protected:
         backgroundPaint.setColor(backgroundColor);
         canvas->drawRect(SkRect::MakeIWH(kColWidth, kHeight), backgroundPaint);
         SkScalar y = fTextHeight;
-        for (size_t m = 0; m < SK_ARRAY_COUNT(gModes); m++) {
+        for (size_t m = 0; m < std::size(gModes); m++) {
             SkPaint paint;
             paint.setColor(textColor);
             paint.setBlendMode(gModes[m]);

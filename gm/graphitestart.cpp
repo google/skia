@@ -24,7 +24,7 @@ sk_sp<SkShader> create_gradient_shader(SkRect r) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     float offsets[] = { 0.0f, 0.75f, 1.0f };
 
-    return SkGradientShader::MakeLinear(pts, colors, offsets, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::MakeLinear(pts, colors, offsets, std::size(colors),
                                         SkTileMode::kClamp);
 }
 

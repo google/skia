@@ -374,19 +374,19 @@ const SkPoint* gConvexPoints[] = {
 };
 
 const size_t gConvexSizes[] = {
-    SK_ARRAY_COUNT(gPoints0),
-    SK_ARRAY_COUNT(gPoints1),
-    SK_ARRAY_COUNT(gPoints2),
-    SK_ARRAY_COUNT(gPoints3),
-    SK_ARRAY_COUNT(gPoints4),
-    SK_ARRAY_COUNT(gPoints5),
-    SK_ARRAY_COUNT(gPoints6),
-    SK_ARRAY_COUNT(gPoints7),
-    SK_ARRAY_COUNT(gPoints8),
-    SK_ARRAY_COUNT(gPoints9),
-    SK_ARRAY_COUNT(gPoints10),
+    std::size(gPoints0),
+    std::size(gPoints1),
+    std::size(gPoints2),
+    std::size(gPoints3),
+    std::size(gPoints4),
+    std::size(gPoints5),
+    std::size(gPoints6),
+    std::size(gPoints7),
+    std::size(gPoints8),
+    std::size(gPoints9),
+    std::size(gPoints10),
 };
-static_assert(SK_ARRAY_COUNT(gConvexSizes) == SK_ARRAY_COUNT(gConvexPoints), "array_mismatch");
+static_assert(std::size(gConvexSizes) == std::size(gConvexPoints), "array_mismatch");
 
 const SkPoint* gSimplePoints[] = {
     gPoints0, gPoints1, gPoints2, gPoints4, gPoints5, gPoints7,
@@ -395,23 +395,23 @@ const SkPoint* gSimplePoints[] = {
 };
 
 const size_t gSimpleSizes[] = {
-    SK_ARRAY_COUNT(gPoints0),
-    SK_ARRAY_COUNT(gPoints1),
-    SK_ARRAY_COUNT(gPoints2),
-    SK_ARRAY_COUNT(gPoints4),
-    SK_ARRAY_COUNT(gPoints5),
-    SK_ARRAY_COUNT(gPoints7),
-    SK_ARRAY_COUNT(gPoints8),
-    SK_ARRAY_COUNT(gPoints11),
-    SK_ARRAY_COUNT(gPoints12),
-    SK_ARRAY_COUNT(gPoints13),
-    SK_ARRAY_COUNT(gPoints14),
-    SK_ARRAY_COUNT(gPoints15),
-    SK_ARRAY_COUNT(gPoints16),
-    SK_ARRAY_COUNT(gPoints17),
-    SK_ARRAY_COUNT(gPoints18),
+    std::size(gPoints0),
+    std::size(gPoints1),
+    std::size(gPoints2),
+    std::size(gPoints4),
+    std::size(gPoints5),
+    std::size(gPoints7),
+    std::size(gPoints8),
+    std::size(gPoints11),
+    std::size(gPoints12),
+    std::size(gPoints13),
+    std::size(gPoints14),
+    std::size(gPoints15),
+    std::size(gPoints16),
+    std::size(gPoints17),
+    std::size(gPoints18),
 };
-static_assert(SK_ARRAY_COUNT(gSimpleSizes) == SK_ARRAY_COUNT(gSimplePoints), "array_mismatch");
+static_assert(std::size(gSimpleSizes) == std::size(gSimplePoints), "array_mismatch");
 
 }  // namespace PolygonOffsetData
 
@@ -440,7 +440,7 @@ protected:
 
     static void GetConvexPolygon(int index, SkPathDirection dir,
                                  std::unique_ptr<SkPoint[]>* data, int* numPts) {
-        if (index < (int)SK_ARRAY_COUNT(PolygonOffsetData::gConvexPoints)) {
+        if (index < (int)std::size(PolygonOffsetData::gConvexPoints)) {
             // manually specified
             *numPts = (int)PolygonOffsetData::gConvexSizes[index];
             *data = std::make_unique<SkPoint[]>(*numPts);
@@ -459,8 +459,8 @@ protected:
             SkScalar height = kMaxPathHeight / 2;
             int numPtsArray[] = { 3, 4, 5, 5, 6, 8, 8, 20, 100 };
 
-            size_t arrayIndex = index - SK_ARRAY_COUNT(PolygonOffsetData::gConvexPoints);
-            SkASSERT(arrayIndex < SK_ARRAY_COUNT(numPtsArray));
+            size_t arrayIndex = index - std::size(PolygonOffsetData::gConvexPoints);
+            SkASSERT(arrayIndex < std::size(numPtsArray));
             *numPts = numPtsArray[arrayIndex];
             if (arrayIndex == 3 || arrayIndex == 6) {
                 // squashed pentagon and octagon
@@ -475,7 +475,7 @@ protected:
 
     static void GetSimplePolygon(int index, SkPathDirection dir,
                                  std::unique_ptr<SkPoint[]>* data, int* numPts) {
-        if (index < (int)SK_ARRAY_COUNT(PolygonOffsetData::gSimplePoints)) {
+        if (index < (int)std::size(PolygonOffsetData::gSimplePoints)) {
             // manually specified
             *numPts = (int)PolygonOffsetData::gSimpleSizes[index];
             *data = std::make_unique<SkPoint[]>(*numPts);
@@ -494,9 +494,9 @@ protected:
             SkScalar height = kMaxPathHeight / 2;
             int numPtsArray[] = { 5, 7, 8, 20, 100 };
 
-            size_t arrayIndex = index - SK_ARRAY_COUNT(PolygonOffsetData::gSimplePoints);
-            arrayIndex = std::min(arrayIndex, SK_ARRAY_COUNT(numPtsArray) - 1);
-            SkASSERT(arrayIndex < SK_ARRAY_COUNT(numPtsArray));
+            size_t arrayIndex = index - std::size(PolygonOffsetData::gSimplePoints);
+            arrayIndex = std::min(arrayIndex, std::size(numPtsArray) - 1);
+            SkASSERT(arrayIndex < std::size(numPtsArray));
             *numPts = numPtsArray[arrayIndex];
             // squash horizontally
             width = kMaxPathHeight / 5;
@@ -565,7 +565,7 @@ protected:
         }
 
         SkTDArray<SkPoint> offsetPoly;
-        size_t count = fConvexOnly ? SK_ARRAY_COUNT(insets) : SK_ARRAY_COUNT(offsets);
+        size_t count = fConvexOnly ? std::size(insets) : std::size(offsets);
         for (size_t i = 0; i < count; ++i) {
             SkScalar offset = fConvexOnly ? insets[i] : offsets[i];
             std::function<SkScalar(const SkPoint&)> offsetFunc;

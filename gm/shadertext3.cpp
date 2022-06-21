@@ -44,10 +44,10 @@ static void makebm(SkBitmap* bm, int w, int h) {
     SkPaint     paint;
 
     paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos,
-                    SK_ARRAY_COUNT(kColors0), SkTileMode::kClamp));
+                    std::size(kColors0), SkTileMode::kClamp));
     canvas.drawPaint(paint);
     paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos,
-                    SK_ARRAY_COUNT(kColors1), SkTileMode::kClamp));
+                    std::size(kColors1), SkTileMode::kClamp));
     canvas.drawPaint(paint);
 }
 
@@ -107,8 +107,8 @@ protected:
 
         canvas->save();
         int i = 0;
-        for (size_t tm0 = 0; tm0 < SK_ARRAY_COUNT(kTileModes); ++tm0) {
-            for (size_t tm1 = 0; tm1 < SK_ARRAY_COUNT(kTileModes); ++tm1) {
+        for (size_t tm0 = 0; tm0 < std::size(kTileModes); ++tm0) {
+            for (size_t tm1 = 0; tm1 < std::size(kTileModes); ++tm1) {
                 SkMatrix localM;
                 localM.setTranslate(5.f, 5.f);
                 localM.postRotate(20);

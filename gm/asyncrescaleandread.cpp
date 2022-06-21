@@ -388,7 +388,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_alpha_type, canvas, errorMsg, 512,
                                                colors,
                                                nullptr,
                                                nullptr,
-                                               SK_ARRAY_COUNT(colors),
+                                               std::size(colors),
                                                SkTileMode::kRepeat);
     SkPaint paint;
     paint.setShader(std::move(shader));

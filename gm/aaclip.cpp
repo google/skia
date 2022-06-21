@@ -148,7 +148,7 @@ DEF_SIMPLE_GM(cgimage, canvas, 800, 250) {
             { kBGRA_8888_SkColorType, kOpaque_SkAlphaType },
         };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
+        for (size_t i = 0; i < std::size(rec); ++i) {
             SkImageInfo info = SkImageInfo::Make(100, 100, rec[i].fCT, rec[i].fAT);
             test_image(canvas, info);
             canvas->translate(info.width() + 10, 0);

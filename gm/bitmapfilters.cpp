@@ -25,7 +25,7 @@ static void make_bm(SkBitmap* bm) {
         SK_ColorBLUE, SK_ColorWHITE
     };
     SkPMColor colorsPM[4];
-    for (size_t i = 0; i < SK_ARRAY_COUNT(colors); ++i) {
+    for (size_t i = 0; i < std::size(colors); ++i) {
         colorsPM[i] = SkPreMultiplyColor(colors[i]);
     }
     bm->allocN32Pixels(2, 2, true);

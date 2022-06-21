@@ -32,8 +32,8 @@ DEF_SIMPLE_GM(imageblur2, canvas, kWidth, kHeight) {
         "dog.{}!%^&",
         "*()+=-\\'\"/",
     };
-    constexpr int sigmaCount = SK_ARRAY_COUNT(kBlurSigmas);
-    constexpr int testStringCount = SK_ARRAY_COUNT(kTestStrings);
+    constexpr int sigmaCount = std::size(kBlurSigmas);
+    constexpr int testStringCount = std::size(kTestStrings);
     constexpr SkScalar dx = kWidth / sigmaCount;
     constexpr SkScalar dy = kHeight / sigmaCount;
     constexpr SkScalar textSize = 12;

@@ -98,7 +98,7 @@ protected:
         for (int i = 0; i < kRows; ++i) {
             for (int j = 0; j < kCols; ++j) {
                 for (int k = 0; k < 5; ++k) {
-                    fOps[j*kRows+i][k] = ops[r.nextU() % SK_ARRAY_COUNT(ops)];
+                    fOps[j*kRows+i][k] = ops[r.nextU() % std::size(ops)];
                 }
             }
         }

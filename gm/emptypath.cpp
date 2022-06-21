@@ -76,8 +76,8 @@ class EmptyPathGM : public GM {
         canvas->save();
         canvas->translate(10 * SK_Scalar1, 0);
         canvas->save();
-        for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
-            for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
+        for (size_t style = 0; style < std::size(gStyles); ++style) {
+            for (size_t fill = 0; fill < std::size(gFills); ++fill) {
                 if (0 == i % 4) {
                     canvas->restore();
                     canvas->translate(0, rect.height() + 40 * SK_Scalar1);

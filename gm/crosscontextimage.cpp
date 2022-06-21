@@ -47,7 +47,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, rContext, canvas, errorMsg,
 
     canvas->translate(10, 10);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(images); ++i) {
+    for (size_t i = 0; i < std::size(images); ++i) {
         canvas->save();
 
         canvas->drawImage(images[i], 0, 0);

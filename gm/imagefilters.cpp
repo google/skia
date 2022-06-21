@@ -77,7 +77,7 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
             SkBlendMode::kSrcATop, SkBlendMode::kDstIn
         };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(modes); ++i) {
+        for (size_t i = 0; i < std::size(modes); ++i) {
             canvas->save();
             do_draw(canvas, modes[i], nullptr);
             canvas->translate(240, 0);
@@ -186,7 +186,7 @@ protected:
             canvas->translate(xform.fTx, xform.fTy);
             canvas->scale(xform.fSx, xform.fSy);
             canvas->drawImage(image, 0, 0, sampling, nullptr);
-            draw_set(canvas, filters, SK_ARRAY_COUNT(filters));
+            draw_set(canvas, filters, std::size(filters));
             canvas->restore();
         }
     }

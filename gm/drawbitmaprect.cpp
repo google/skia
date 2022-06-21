@@ -83,7 +83,7 @@ static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, in
         paint.setShader(SkGradientShader::MakeRadial(
                         pt, radius,
                         colors, pos,
-                        SK_ARRAY_COUNT(colors),
+                        std::size(colors),
                         SkTileMode::kRepeat,
                         0, &mat));
         canvas->drawRect(rect, paint);

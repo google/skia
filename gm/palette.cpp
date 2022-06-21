@@ -58,9 +58,9 @@ constexpr SkFontArguments::Palette::Override kColorOverridesOne[] = {
 constexpr SkFontArguments::Palette kLightPaletteOverride{2, nullptr, 0};
 constexpr SkFontArguments::Palette kDarkPaletteOverride{1, nullptr, 0};
 constexpr SkFontArguments::Palette kOnePaletteOverride{
-        0, kColorOverridesOne, SK_ARRAY_COUNT(kColorOverridesOne)};
+        0, kColorOverridesOne, std::size(kColorOverridesOne)};
 constexpr SkFontArguments::Palette kAllPaletteOverride{
-        0, kColorOverridesAll, SK_ARRAY_COUNT(kColorOverridesAll)};
+        0, kColorOverridesAll, std::size(kColorOverridesAll)};
 
 constexpr uint16_t kTestGlyphs[] = {56, 57};
 
@@ -122,7 +122,7 @@ protected:
             paint.setColor(SK_ColorGRAY);
             // Draw the default palette on the left, for COLRv0 and COLRv1.
             canvas->drawSimpleText(kTestGlyphs,
-                                   SK_ARRAY_COUNT(kTestGlyphs) * sizeof(uint16_t),
+                                   std::size(kTestGlyphs) * sizeof(uint16_t),
                                    SkTextEncoding::kGlyphID,
                                    0,
                                    y,
@@ -130,7 +130,7 @@ protected:
                                    paint);
             // Draw the overriden palette on the right.
             canvas->drawSimpleText(kTestGlyphs,
-                                   SK_ARRAY_COUNT(kTestGlyphs) * sizeof(uint16_t),
+                                   std::size(kTestGlyphs) * sizeof(uint16_t),
                                    SkTextEncoding::kGlyphID,
                                    440,
                                    y,

@@ -73,7 +73,7 @@ protected:
         SkRect dstR = { 0, 200, 128, 380 };
 
         canvas->translate(16, 40);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(src); i++) {
+        for (size_t i = 0; i < std::size(src); i++) {
             SkRect srcR;
             srcR.set(src[i]);
 

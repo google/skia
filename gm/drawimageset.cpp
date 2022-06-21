@@ -145,7 +145,7 @@ private:
             setPaint.setBlendMode(SkBlendMode::kSrcOver);
             SkSamplingOptions sampling(fm);
 
-            for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
+            for (size_t m = 0; m < std::size(matrices); ++m) {
                 // Draw grid of red lines at interior tile boundaries.
                 static constexpr SkScalar kLineOutset = 10.f;
                 SkPaint paint;
@@ -245,7 +245,7 @@ private:
         for (SkScalar frac : {0.f, 0.5f}) {
             canvas->save();
             canvas->translate(frac, frac);
-            for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
+            for (size_t m = 0; m < std::size(matrices); ++m) {
                 canvas->save();
                 canvas->concat(matrices[m]);
                 canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr,
@@ -269,7 +269,7 @@ private:
                 scaledSet[i].fDstRect.fBottom *= scale.fY;
                 scaledSet[i].fAlpha = 0 == (i % 3) ? 0.4f : 1.f;
             }
-            for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
+            for (size_t m = 0; m < std::size(matrices); ++m) {
                 canvas->save();
                 canvas->concat(matrices[m]);
                 canvas->experimental_DrawEdgeAAImageSet(scaledSet, kM * kN, nullptr, nullptr,

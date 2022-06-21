@@ -29,7 +29,7 @@ namespace {
 static sk_sp<SkShader> make_grad(SkScalar width) {
     SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                         SkTileMode::kMirror);
 }
 
@@ -37,7 +37,7 @@ static sk_sp<SkShader> make_grad(SkScalar width) {
 static sk_sp<SkShader> make_grad2(SkScalar width) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                         SkTileMode::kMirror);
 }
 

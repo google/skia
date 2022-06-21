@@ -141,7 +141,7 @@ protected:
 
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gProcs); ++i) {
+        for (size_t i = 0; i < std::size(gProcs); ++i) {
             sk_sp<SkImage> image(gProcs[i](canvas->recordingContext(), fPicture.get(), info));
             if (image) {
                 this->testImage(canvas, image.get());

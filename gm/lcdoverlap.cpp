@@ -63,10 +63,10 @@ protected:
                 SK_ColorMAGENTA,
         };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(colors); i++) {
+        for (size_t i = 0; i < std::size(colors); i++) {
             canvas->save();
             canvas->translate(x, y);
-            canvas->rotate(360.0f / SK_ARRAY_COUNT(colors) * i);
+            canvas->rotate(360.0f / std::size(colors) * i);
             canvas->translate(-fBlob->bounds().width() / 2.0f - fBlob->bounds().left() + 0.5f, 0);
 
             SkPaint textPaint;

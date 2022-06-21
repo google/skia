@@ -108,7 +108,7 @@ DEF_SIMPLE_GM(localmatrixshader_nested, canvas, 450, 1200) {
 
     {
         SkAutoCanvasRestore acr(canvas, true);
-        canvas->translate(0, rect.height() * SK_ARRAY_COUNT(gFactories) * 1.5f);
+        canvas->translate(0, rect.height() * std::size(gFactories) * 1.5f);
         drawColumn();
     }
 

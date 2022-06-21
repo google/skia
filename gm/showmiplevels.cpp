@@ -41,7 +41,7 @@ class ShowMipLevels3 : public skiagm::GM {
         SkMipmapBuilder builder(fImg->imageInfo());
         for (int i = 0; i < builder.countLevels(); ++i) {
             auto surf = SkSurface::MakeRasterDirect(builder.level(i));
-            surf->getCanvas()->drawColor(colors[i % SK_ARRAY_COUNT(colors)]);
+            surf->getCanvas()->drawColor(colors[i % std::size(colors)]);
         }
         fImg = builder.attachTo(fImg.get());
     }

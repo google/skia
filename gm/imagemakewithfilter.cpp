@@ -45,7 +45,7 @@ static void show_bounds(SkCanvas* canvas, const SkIRect* clip, const SkIRect* in
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(rects); ++i) {
+    for (size_t i = 0; i < std::size(rects); ++i) {
         // Skip null bounds rects, since not all methods have subsets
         if (rects[i]) {
             paint.setColor(colors[i]);
@@ -257,7 +257,7 @@ protected:
             "Lighting",
             "Tile"
         };
-        static_assert(SK_ARRAY_COUNT(filters) == SK_ARRAY_COUNT(filterNames), "filter name length");
+        static_assert(std::size(filters) == std::size(filterNames), "filter name length");
 
         SkIRect clipBounds[] {
             { -20, -20, 100, 100 },
@@ -300,7 +300,7 @@ protected:
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
         SkFont font(nullptr, 12);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(filterNames); ++i) {
+        for (size_t i = 0; i < std::size(filterNames); ++i) {
             canvas->drawString(filterNames[i], DX * i + MARGIN, 15, font, textPaint);
         }
 
@@ -308,7 +308,7 @@ protected:
 
         for (auto clipBound : clipBounds) {
             canvas->save();
-            for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+            for (size_t i = 0; i < std::size(filters); ++i) {
                 SkIRect subset = SkIRect::MakeXYWH(25, 25, 50, 50);
                 SkIRect outSubset;
 

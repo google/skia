@@ -21,7 +21,7 @@ static SK_UNUSED void path_measure_explosion(SkCanvas* canvas) {
     p.setAntiAlias(false);
     float intervals[] = { 0, 10e9f };
     p.setStyle(SkPaint::kStroke_Style);
-    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
 
     int quadratic_at[] = {
         13, 68, 258, 1053, 1323, 2608, 10018, 15668, 59838, 557493, 696873, 871098, 4153813,

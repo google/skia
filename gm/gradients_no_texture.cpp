@@ -117,10 +117,10 @@ protected:
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         constexpr uint8_t kAlphas[] = { 0xff, 0x40 };
-        for (size_t a = 0; a < SK_ARRAY_COUNT(kAlphas); ++a) {
-            for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); ++i) {
+        for (size_t a = 0; a < std::size(kAlphas); ++a) {
+            for (size_t i = 0; i < std::size(gGradData); ++i) {
                 canvas->save();
-                for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); ++j) {
+                for (size_t j = 0; j < std::size(gGradMakers); ++j) {
                     paint.setShader(gGradMakers[j](kPts, gGradData[i], kTM));
                     paint.setAlpha(kAlphas[a]);
                     canvas->drawRect(kRect, paint);
@@ -185,7 +185,7 @@ height: 30px;
         71.89166004442, 74.45795382765857, 76.45795382765857, 82.78364610713776,
         84.78364610713776, 94.52743647737229, 96.52743647737229, 96.03934633331295,
     };
-    const int N = SK_ARRAY_COUNT(percent);
+    const int N = std::size(percent);
     SkScalar pos[N];
     for (int i = 0; i < N; ++i) {
         pos[i] = SkDoubleToScalar(percent[i] / 100);
@@ -199,7 +199,7 @@ static void make1(ColorPos* rec) {
         SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE,
         SK_ColorBLACK,
     };
-    rec->construct(colors, nullptr, SK_ARRAY_COUNT(colors));
+    rec->construct(colors, nullptr, std::size(colors));
 }
 
 static void make2(ColorPos* rec) {
@@ -208,7 +208,7 @@ static void make2(ColorPos* rec) {
         SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE,
         SK_ColorBLACK,
     };
-    const int N = SK_ARRAY_COUNT(colors);
+    const int N = std::size(colors);
     SkScalar pos[N];
     for (int i = 0; i < N; ++i) {
         pos[i] = SK_Scalar1 * i / (N - 1);
@@ -223,7 +223,7 @@ static void make3(ColorPos* rec) {
     const SkScalar pos[] = {
         0, 0, 0.5f, 0.5, 1, 1,
     };
-    rec->construct(colors, pos, SK_ARRAY_COUNT(colors));
+    rec->construct(colors, pos, std::size(colors));
 }
 
 class GradientsManyColorsGM : public GM {
@@ -266,7 +266,7 @@ protected:
 
         // expand the drawing rect so we exercise clampping in the gradients
         const SkRect drawR = r.makeOutset(20, 0);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(procs); ++i) {
+        for (size_t i = 0; i < std::size(procs); ++i) {
             ColorPos rec;
             procs[i](&rec);
             paint.setShader(SkGradientShader::MakeLinear(pts, rec.fColors, rec.fPos, rec.fCount,

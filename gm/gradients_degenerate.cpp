@@ -28,14 +28,14 @@
 static const SkColor COLORS[] = { SK_ColorRED, SK_ColorWHITE, SK_ColorBLUE,
                                   SK_ColorBLACK, SK_ColorGREEN };
 static const SkScalar POS[] = { 0.0, 0.0, 0.5, 1.0, 1.0 };
-static const int COLOR_CT = SK_ARRAY_COUNT(COLORS);
+static const int COLOR_CT = std::size(COLORS);
 
 static const SkTileMode TILE_MODES[] = { SkTileMode::kDecal,
                                          SkTileMode::kRepeat,
                                          SkTileMode::kMirror,
                                          SkTileMode::kClamp };
 static const char* TILE_NAMES[] = { "decal", "repeat", "mirror", "clamp" };
-static const int TILE_MODE_CT = SK_ARRAY_COUNT(TILE_MODES);
+static const int TILE_MODE_CT = std::size(TILE_MODES);
 
 static constexpr int TILE_SIZE = 100;
 static constexpr int TILE_GAP = 10;

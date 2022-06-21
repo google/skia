@@ -72,7 +72,7 @@ protected:
                                                      SkIntToScalar(100),
                                                      colors,
                                                      pos,
-                                                     SK_ARRAY_COUNT(colors),
+                                                     std::size(colors),
                                                      SkTileMode::kClamp));
         paint.setAntiAlias(aa);
 
@@ -101,7 +101,7 @@ protected:
                                                       SkIntToScalar(1000),
                                                       colors,
                                                       pos,
-                                                      SK_ARRAY_COUNT(colors),
+                                                      std::size(colors),
                                                       SkTileMode::kClamp));
         canvas->save();
             canvas->translate(SkIntToScalar(100), SkIntToScalar(100));

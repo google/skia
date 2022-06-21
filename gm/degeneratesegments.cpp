@@ -304,10 +304,10 @@ class DegenerateSegmentsGM : public GM {
         canvas->save();
         canvas->translate(2*SK_Scalar1, 30 * SK_Scalar1); // The title
         canvas->save();
-        unsigned numSegments = SK_ARRAY_COUNT(gSegmentFunctions);
-        unsigned numCaps = SK_ARRAY_COUNT(gCaps);
-        unsigned numStyles = SK_ARRAY_COUNT(gStyles);
-        unsigned numFills = SK_ARRAY_COUNT(gFills);
+        unsigned numSegments = std::size(gSegmentFunctions);
+        unsigned numCaps = std::size(gCaps);
+        unsigned numStyles = std::size(gStyles);
+        unsigned numFills = std::size(gFills);
         for (size_t row = 0; row < 6; ++row) {
             if (0 < row) {
                 canvas->translate(0, rect.height() + 100*SK_Scalar1);

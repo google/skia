@@ -113,7 +113,7 @@ protected:
         SkPaint paint;
         for (int p = 0; p < fPaths.count(); ++p) {
             canvas->save();
-            for (size_t a = 0; a < SK_ARRAY_COUNT(kAlphaValue); ++a) {
+            for (size_t a = 0; a < std::size(kAlphaValue); ++a) {
                 paint.setARGB(kAlphaValue[a], 0, 0, 0);
                 for (int aa = 0; aa < 2; ++aa) {
                     paint.setAntiAlias(SkToBool(aa));

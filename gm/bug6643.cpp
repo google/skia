@@ -22,7 +22,7 @@ DEF_SIMPLE_GM(bug6643, canvas, 200, 200) {
 
     SkPaint p;
     p.setAntiAlias(true);
-    p.setShader(SkGradientShader::MakeSweep(100, 100, colors, nullptr, SK_ARRAY_COUNT(colors),
+    p.setShader(SkGradientShader::MakeSweep(100, 100, colors, nullptr, std::size(colors),
                                             SkGradientShader::kInterpolateColorsInPremul_Flag,
                                             nullptr));
 

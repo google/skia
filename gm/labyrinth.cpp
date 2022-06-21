@@ -53,16 +53,16 @@ static void draw_labyrinth(SkCanvas* canvas, SkPaint::Cap cap) {
     };
 
     SkPathBuilder maze;
-    for (size_t y = 0; y < SK_ARRAY_COUNT(kRows); ++y) {
-        for (size_t x = 0; x < SK_ARRAY_COUNT(kRows[0]); ++x) {
+    for (size_t y = 0; y < std::size(kRows); ++y) {
+        for (size_t x = 0; x < std::size(kRows[0]); ++x) {
             if (kRows[y][x]) {
                 maze.moveTo(x, y);
                 maze.lineTo(x+1, y);
             }
         }
     }
-    for (size_t x = 0; x < SK_ARRAY_COUNT(kCols); ++x) {
-        for (size_t y = 0; y < SK_ARRAY_COUNT(kCols[0]); ++y) {
+    for (size_t x = 0; x < std::size(kCols); ++x) {
+        for (size_t y = 0; y < std::size(kCols[0]); ++y) {
             if (kCols[x][y]) {
                 maze.moveTo(x, y);
                 maze.lineTo(x, y+1);

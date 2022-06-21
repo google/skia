@@ -29,7 +29,7 @@ static sk_sp<SkShader> make_shader() {
     };
     const SkPoint pts[] = { { 100.f / 4.f, 0.f }, { 3.f * 100.f / 4.f, 100.f } };
 
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                         SkTileMode::kMirror);
 }
 

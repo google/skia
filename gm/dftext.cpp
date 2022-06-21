@@ -85,7 +85,7 @@ protected:
         // check scaling up
         SkScalar x = SkIntToScalar(0);
         SkScalar y = SkIntToScalar(78);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(textSizes); ++i) {
+        for (size_t i = 0; i < std::size(textSizes); ++i) {
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(x, y);
             canvas->scale(scales[i], scales[i]);
@@ -113,7 +113,7 @@ protected:
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         x = SkIntToScalar(680);
         y = SkIntToScalar(20);
-        size_t arraySize = SK_ARRAY_COUNT(textSizes);
+        size_t arraySize = std::size(textSizes);
         for (size_t i = 0; i < arraySize; ++i) {
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(x, y);
@@ -157,7 +157,7 @@ protected:
         x = SkIntToScalar(680);
         y = SkIntToScalar(235);
         font.setSize(SkIntToScalar(19));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
+        for (size_t i = 0; i < std::size(fg); ++i) {
             paint.setColor(fg[i]);
 
             canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, x, y, font, paint);
@@ -171,7 +171,7 @@ protected:
         x = SkIntToScalar(830);
         y = SkIntToScalar(235);
         font.setSize(SkIntToScalar(19));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
+        for (size_t i = 0; i < std::size(fg); ++i) {
             paint.setColor(fg[i]);
 
             canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, x, y, font, paint);

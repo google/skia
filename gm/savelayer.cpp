@@ -152,7 +152,7 @@ DEF_SIMPLE_GM(savelayer_f16, canvas, 900, 300) {
 
     const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
     paint.setShader(SkGradientShader::MakeSweep(r.centerX(), r.centerY(),
-                                                colors, nullptr, SK_ARRAY_COUNT(colors)));
+                                                colors, nullptr, std::size(colors)));
 
     canvas->drawOval(r, paint);
 

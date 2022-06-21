@@ -150,7 +150,7 @@ DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
     SkFont font;
     font.setTypeface(SkTypeface::MakeFromName("Times", SkFontStyle()));
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(colors); i += 2) {
+    for (size_t i = 0; i < std::size(colors); i += 2) {
         canvas->save();
 
         SkPaint paint;

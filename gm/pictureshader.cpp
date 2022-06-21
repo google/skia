@@ -156,7 +156,7 @@ private:
 
     void drawScene(SkCanvas* canvas, const SkMatrix& matrix, const SkMatrix& localMatrix,
                    unsigned tileMode) {
-        SkASSERT(tileMode < SK_ARRAY_COUNT(kTileConfigs));
+        SkASSERT(tileMode < std::size(kTileConfigs));
 
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);

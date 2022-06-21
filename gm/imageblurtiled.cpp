@@ -57,7 +57,7 @@ protected:
                 };
                 SkFont font(ToolUtils::create_portable_typeface(), 100);
                 int posY = 0;
-                for (unsigned i = 0; i < SK_ARRAY_COUNT(str); i++) {
+                for (unsigned i = 0; i < std::size(str); i++) {
                     posY += 100;
                     canvas->drawString(str[i], 0, SkIntToScalar(posY), font, SkPaint());
                 }

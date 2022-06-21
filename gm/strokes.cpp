@@ -415,7 +415,7 @@ protected:
         SkScalar dx = bounds.width() * 4/3;
         SkScalar dy = bounds.height() * 5;
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(procs); ++i) {
+        for (size_t i = 0; i < std::size(procs); ++i) {
             SkPath orig;
             SkString str;
             procs[i](&orig, bounds, &str);
@@ -604,7 +604,7 @@ DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
     skeletonPaint.setColor(SK_ColorRED);
 
     canvas->translate(0, 50);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(pathPoints) / 3; i++) {
+    for (size_t i = 0; i < std::size(pathPoints) / 3; i++) {
         auto path = SkPath::Polygon(pathPoints + i * 3, 3, false);
         canvas->drawPath(path, pathPaint);
 

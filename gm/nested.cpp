@@ -102,7 +102,7 @@ protected:
         SkScalar xOff = 2, yOff = 2;
         for (int outerShape = 0; outerShape < kShapeCount; ++outerShape) {
             for (int innerShape = 0; innerShape < kShapeCount; ++innerShape) {
-                for (size_t innerRect = 0; innerRect < SK_ARRAY_COUNT(innerRects); ++innerRect) {
+                for (size_t innerRect = 0; innerRect < std::size(innerRects); ++innerRect) {
                     SkPathBuilder builder;
 
                     AddShape(&builder, outerRect, (Shapes) outerShape, SkPathDirection::kCW);

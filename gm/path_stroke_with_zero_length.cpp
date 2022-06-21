@@ -117,12 +117,12 @@ static const int kCellWidth = 50;
 static const int kCellHeight = 20;
 static const int kCellPad = 2;
 
-static const int kNumRows = SK_ARRAY_COUNT(kCaps) * SK_ARRAY_COUNT(kWidths);
-static const int kNumColumns = SK_ARRAY_COUNT(kAllVerbs);
+static const int kNumRows = std::size(kCaps) * std::size(kWidths);
+static const int kNumColumns = std::size(kAllVerbs);
 static const int kTotalWidth = kNumColumns * (kCellWidth + kCellPad) + kCellPad;
 static const int kTotalHeight = kNumRows * (kCellHeight + kCellPad) + kCellPad;
 
-static const int kDblContourNumColums = SK_ARRAY_COUNT(kSomeVerbs) * SK_ARRAY_COUNT(kSomeVerbs);
+static const int kDblContourNumColums = std::size(kSomeVerbs) * std::size(kSomeVerbs);
 static const int kDblContourTotalWidth = kDblContourNumColums * (kCellWidth + kCellPad) + kCellPad;
 
 // 50% transparent versions of the colors used for positive/negative triage icons on gold.skia.org

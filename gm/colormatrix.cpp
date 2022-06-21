@@ -95,7 +95,7 @@ protected:
         paint.setBlendMode(SkBlendMode::kSrc);
         const SkImage* bmps[] = { fSolidImg.get(), fTransparentImg.get() };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(bmps); ++i) {
+        for (size_t i = 0; i < std::size(bmps); ++i) {
             matrix.setIdentity();
             set_color_matrix(&paint, matrix);
             canvas->drawImage(bmps[i], 0, 0, SkSamplingOptions(), &paint);

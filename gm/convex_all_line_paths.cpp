@@ -148,19 +148,19 @@ const SkPoint* gPoints[] = {
 };
 
 const size_t gSizes[] = {
-    SK_ARRAY_COUNT(gPoints0),
-    SK_ARRAY_COUNT(gPoints1),
-    SK_ARRAY_COUNT(gPoints2),
-    SK_ARRAY_COUNT(gPoints3),
-    SK_ARRAY_COUNT(gPoints4),
-    SK_ARRAY_COUNT(gPoints5),
-    SK_ARRAY_COUNT(gPoints6),
-    SK_ARRAY_COUNT(gPoints7),
-    SK_ARRAY_COUNT(gPoints8),
-    SK_ARRAY_COUNT(gPoints9),
-    SK_ARRAY_COUNT(gPoints10),
+    std::size(gPoints0),
+    std::size(gPoints1),
+    std::size(gPoints2),
+    std::size(gPoints3),
+    std::size(gPoints4),
+    std::size(gPoints5),
+    std::size(gPoints6),
+    std::size(gPoints7),
+    std::size(gPoints8),
+    std::size(gPoints9),
+    std::size(gPoints10),
 };
-static_assert(SK_ARRAY_COUNT(gSizes) == SK_ARRAY_COUNT(gPoints), "array_mismatch");
+static_assert(std::size(gSizes) == std::size(gPoints), "array_mismatch");
 }  // namespace ConvexLineOnlyData
 
 namespace skiagm {
@@ -187,7 +187,7 @@ protected:
         std::unique_ptr<SkPoint[]> data(nullptr);
         const SkPoint* points;
         int numPts;
-        if (index < (int) SK_ARRAY_COUNT(ConvexLineOnlyData::gPoints)) {
+        if (index < (int) std::size(ConvexLineOnlyData::gPoints)) {
             // manually specified
             points = ConvexLineOnlyData::gPoints[index];
             numPts = (int)ConvexLineOnlyData::gSizes[index];
@@ -195,7 +195,7 @@ protected:
             // procedurally generated
             SkScalar width = kMaxPathHeight/2;
             SkScalar height = kMaxPathHeight/2;
-            switch (index-SK_ARRAY_COUNT(ConvexLineOnlyData::gPoints)) {
+            switch (index-std::size(ConvexLineOnlyData::gPoints)) {
             case 0:
                 numPts = 3;
                 break;
@@ -299,7 +299,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(scales); ++i) {
+        for (size_t i = 0; i < std::size(scales); ++i) {
             SkPath path = GetPath(index, dirs[i%2]);
             if (fDoStrokeAndFill) {
                 paint.setStyle(SkPaint::kStrokeAndFill_Style);

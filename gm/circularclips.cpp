@@ -73,7 +73,7 @@ protected:
             }
 
             canvas->save();
-            for (size_t op = 0; op < SK_ARRAY_COUNT(ops); op++) {
+            for (size_t op = 0; op < std::size(ops); op++) {
                 canvas->save();
 
                 canvas->clipPath(fCircle1);

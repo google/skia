@@ -35,7 +35,7 @@ static sk_sp<SkShader> make_shader0(int w, int h) {
         SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
     };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                         SkTileMode::kClamp);
 }
 static void make_bm0(SkBitmap* bm) {
@@ -56,7 +56,7 @@ static sk_sp<SkShader> make_shader1(int w, int h) {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
     };
     return SkGradientShader::MakeRadial(SkPoint::Make(cx, cy), cx, colors, nullptr,
-                                        SK_ARRAY_COUNT(colors), SkTileMode::kClamp);
+                                        std::size(colors), SkTileMode::kClamp);
 }
 static void make_bm1(SkBitmap* bm) {
     int W = 120;
@@ -157,7 +157,7 @@ protected:
         //  22
 
         SkScalar x = 0, y = 0;
-        for (size_t bitmapMaker = 0; bitmapMaker < SK_ARRAY_COUNT(gBitmapMakers); ++bitmapMaker) {
+        for (size_t bitmapMaker = 0; bitmapMaker < std::size(gBitmapMakers); ++bitmapMaker) {
             SkBitmap bm;
             gBitmapMakers[bitmapMaker](&bm);
 
@@ -173,7 +173,7 @@ protected:
 
             // Draws the rest of the first line for this bitmap
             // each draw being at xOffset of the previous one
-            for (unsigned i = 1; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
+            for (unsigned i = 1; i < std::size(gColorFilterMakers); ++i) {
                 x += xOffset;
                 paint.setColorFilter(gColorFilterMakers[i]());
                 canvas->drawImage(bm.asImage(), x, y, sampling, &paint);
@@ -181,7 +181,7 @@ protected:
 
             paint.setColorFilter(nullptr);
 
-            for (unsigned i = 0; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
+            for (unsigned i = 0; i < std::size(gColorFilterMakers); ++i) {
                 sk_sp<SkColorFilter> colorFilter1(gColorFilterMakers[i]());
                 sk_sp<SkImageFilter> imageFilter1(SkImageFilters::ColorFilter(
                         std::move(colorFilter1), nullptr));
@@ -190,7 +190,7 @@ protected:
                 // each draw being at xOffset of the previous one
                 y += yOffset;
                 x = 0;
-                for (unsigned j = 1; j < SK_ARRAY_COUNT(gColorFilterMakers); ++j) {
+                for (unsigned j = 1; j < std::size(gColorFilterMakers); ++j) {
                     sk_sp<SkColorFilter> colorFilter2(gColorFilterMakers[j]());
                     sk_sp<SkImageFilter> imageFilter2(SkImageFilters::ColorFilter(
                             std::move(colorFilter2), imageFilter1, nullptr));

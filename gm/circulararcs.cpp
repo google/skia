@@ -208,7 +208,7 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
     SkPaint linePaint;
     linePaint.setAntiAlias(true);
     linePaint.setColor(SK_ColorRED);
-    SkScalar midX   = SK_ARRAY_COUNT(arcs) * (kS + kPad) - kPad/2.f;
+    SkScalar midX   = std::size(arcs) * (kS + kPad) - kPad/2.f;
     SkScalar height = paints.count() * (kS + kPad);
     canvas->drawLine(midX, -kPad, midX, height, linePaint);
 

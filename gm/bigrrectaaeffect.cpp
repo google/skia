@@ -79,7 +79,7 @@ protected:
             GrClipEdgeType::kInverseFillAA,
         };
         SkRect testBounds = SkRect::MakeIWH(fTestWidth, fTestHeight);
-        for (size_t et = 0; et < SK_ARRAY_COUNT(kEdgeTypes); ++et) {
+        for (size_t et = 0; et < std::size(kEdgeTypes); ++et) {
             GrClipEdgeType edgeType = kEdgeTypes[et];
             canvas->save();
                 canvas->translate(SkIntToScalar(x), SkIntToScalar(y));

@@ -75,16 +75,16 @@ private:
         colors[0] = SK_ColorRED;
         colors[1] = SK_ColorGREEN;
 
-        SkScalar pos[SK_ARRAY_COUNT(colors)];
-        for (unsigned i = 0; i < SK_ARRAY_COUNT(pos); ++i) {
-            pos[i] = (float)i / (SK_ARRAY_COUNT(pos) - 1);
+        SkScalar pos[std::size(colors)];
+        for (unsigned i = 0; i < std::size(pos); ++i) {
+            pos[i] = (float)i / (std::size(pos) - 1);
         }
 
         SkISize sz = this->onISize();
         fShader = SkGradientShader::MakeRadial(SkPoint::Make(SkIntToScalar(sz.width() / 2),
                                                SkIntToScalar(sz.height() / 2)),
                                                sz.width() * .66f, colors, pos,
-                                               SK_ARRAY_COUNT(colors),
+                                               std::size(colors),
                                                SkTileMode::kRepeat);
     }
 

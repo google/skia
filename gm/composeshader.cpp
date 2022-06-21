@@ -104,7 +104,7 @@ protected:
 
         const SkRect r = SkRect::MakeXYWH(5, 5, 100, 100);
 
-        for (size_t y = 0; y < SK_ARRAY_COUNT(shaders); ++y) {
+        for (size_t y = 0; y < std::size(shaders); ++y) {
             canvas->save();
             for (int alpha = 0xFF; alpha > 0; alpha -= 0x28) {
                 paint.setAlphaf(1.0f);
@@ -207,7 +207,7 @@ protected:
             SkShaders::Blend(mode, fLinearGradientShader, fAlpha8BitmapShader),
         };
         if (fUseLocalMatrix) {
-            for (unsigned i = 0; i < SK_ARRAY_COUNT(shaders); ++i) {
+            for (unsigned i = 0; i < std::size(shaders); ++i) {
                 shaders[i] = shaders[i]->makeWithLocalMatrix(lm);
             }
         }
@@ -217,7 +217,7 @@ protected:
 
         const SkRect r = SkRect::MakeIWH(squareLength, squareLength);
 
-        for (size_t y = 0; y < SK_ARRAY_COUNT(shaders); ++y) {
+        for (size_t y = 0; y < std::size(shaders); ++y) {
             canvas->save();
             for (int alpha = 0xFF; alpha > 0; alpha -= 0x28) {
                 paint.setAlpha(alpha);

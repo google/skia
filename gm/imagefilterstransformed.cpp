@@ -93,7 +93,7 @@ protected:
         for (size_t j = 0; j < 3; j++) {
             canvas->save();
             canvas->translate(margin, 0);
-            for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+            for (size_t i = 0; i < std::size(filters); ++i) {
                 SkPaint paint;
                 paint.setColor(SK_ColorWHITE);
                 paint.setImageFilter(filters[i]);

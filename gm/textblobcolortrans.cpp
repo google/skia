@@ -79,7 +79,7 @@ protected:
         // create masks.  For A8 there are 8 of them.
         SkColor colors[] = {SK_ColorCYAN, SK_ColorLTGRAY, SK_ColorYELLOW, SK_ColorWHITE};
 
-        size_t count = SK_ARRAY_COUNT(colors);
+        size_t count = std::size(colors);
         size_t colorIndex = 0;
         for (int y = 0; y + SkScalarFloorToInt(bounds.height()) < kHeight;
              y += SkScalarFloorToInt(bounds.height())) {
