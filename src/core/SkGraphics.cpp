@@ -139,6 +139,21 @@ SkGraphics::OpenTypeSVGDecoderFactory SkGraphics::GetOpenTypeSVGDecoderFactory()
     return gSVGDecoderFactory;
 }
 
+static SkGraphics::VariableColrV1EnabledFunc gVariableCOLRv1EnabledFunc = nullptr;
+
+/* static */
+SkGraphics::VariableColrV1EnabledFunc SkGraphics::SetVariableColrV1EnabledFunc(
+        VariableColrV1EnabledFunc variableCOLRV1EnabledFunc) {
+    VariableColrV1EnabledFunc old = gVariableCOLRv1EnabledFunc;
+    gVariableCOLRv1EnabledFunc = variableCOLRV1EnabledFunc;
+    return old;
+}
+
+/* static */
+bool SkGraphics::GetVariableColrV1Enabled() {
+    return gVariableCOLRv1EnabledFunc ? gVariableCOLRv1EnabledFunc() : false;
+}
+
 extern bool gSkVMAllowJIT;
 
 void SkGraphics::AllowJIT() {
