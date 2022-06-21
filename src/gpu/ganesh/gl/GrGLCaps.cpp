@@ -544,6 +544,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fTransferFromSurfaceToBufferSupport = false;
     }
 
+    if (GR_IS_GR_GL(standard) &&
+        (version >= GR_GL_VER(3, 1) || ctxInfo.hasExtension("GL_ARB_copy_buffer"))) {
+        fTransferFromBufferToBufferSupport = true;
+    } else if (GR_IS_GR_GL_ES(standard) &&
+               (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_NV_copy_buffer"))) {
+        fTransferFromBufferToBufferSupport = true;
+    } else if (GR_IS_GR_WEBGL(standard) && version >= GR_GL_VER(2,0)) {
+        fTransferFromBufferToBufferSupport = true;
+    }
+
     // On many GPUs, map memory is very expensive, so we effectively disable it here by setting the
     // threshold to the maximum unless the client gives us a hint that map memory is cheap.
     if (fBufferMapThreshold < 0) {
@@ -3691,6 +3701,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDisallowDynamicMSAA = true;
     }
 
+    // Below we are aggressive about turning off all mapping/transfer functionality together. This
+    // could be finer grained if code paths and tests were adjusted to check more specific caps.
+    // For example it might be possible to support buffer to buffer transfers even if buffer mapping
+    // or buffer to surface transfers don't work.
 #if defined(__has_feature)
 #if defined(SK_BUILD_FOR_MAC) && __has_feature(thread_sanitizer)
     // See skbug.com/7058
@@ -3698,6 +3712,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     fMapBufferFlags = kNone_MapFlags;
     fTransferFromBufferToTextureSupport = false;
     fTransferFromSurfaceToBufferSupport = false;
+    fTransferFromBufferToBufferSupport  = false;
     fTransferBufferType = TransferBufferType::kNone;
 #endif
 #endif
@@ -3712,6 +3727,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMapBufferFlags = kNone_MapFlags;
         fTransferFromBufferToTextureSupport = false;
         fTransferFromSurfaceToBufferSupport = false;
+        fTransferFromBufferToBufferSupport  = false;
         fTransferBufferType = TransferBufferType::kNone;
     }
 

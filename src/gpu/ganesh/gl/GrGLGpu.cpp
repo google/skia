@@ -895,6 +895,28 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
                                         mipLevelCount);
 }
 
+bool GrGLGpu::onTransferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                           size_t srcOffset,
+                                           sk_sp<GrGpuBuffer> dst,
+                                           size_t dstOffset,
+                                           size_t size) {
+    auto glSrc = static_cast<const GrGLBuffer*>(src.get());
+    auto glDst = static_cast<const GrGLBuffer*>(dst.get());
+
+    // If we refactored bindBuffer() to use something other than GrGpuBufferType to indicate the
+    // binding target then we could use the COPY_READ and COPY_WRITE targets here. But
+    // CopyBufferSubData is documented to work with all the targets so it's not clear it's worth it.
+    this->bindBuffer(GrGpuBufferType::kXferCpuToGpu, glSrc);
+    this->bindBuffer(GrGpuBufferType::kXferGpuToCpu, glDst);
+
+    GL_CALL(CopyBufferSubData(GR_GL_PIXEL_UNPACK_BUFFER,
+                              GR_GL_PIXEL_PACK_BUFFER,
+                              srcOffset,
+                              dstOffset,
+                              size));
+    return true;
+}
+
 bool GrGLGpu::onTransferPixelsTo(GrTexture* texture,
                                  SkIRect rect,
                                  GrColorType textureColorType,

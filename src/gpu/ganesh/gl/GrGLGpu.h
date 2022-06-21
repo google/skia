@@ -322,6 +322,12 @@ private:
                        int mipLevelCount,
                        bool prepForTexSampling) override;
 
+    bool onTransferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                      size_t srcOffset,
+                                      sk_sp<GrGpuBuffer> dst,
+                                      size_t dstOffset,
+                                      size_t size) override;
+
     bool onTransferPixelsTo(GrTexture*,
                             SkIRect,
                             GrColorType textureColorType,
