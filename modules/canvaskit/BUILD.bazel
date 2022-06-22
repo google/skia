@@ -74,6 +74,9 @@ CK_DEFINES = [
 }) + select({
     ":enable_runtime_effect_true": ["CK_INCLUDE_RUNTIME_EFFECT=1"],
     ":enable_runtime_effect_false": [],
+}) + select({
+    "//bazel/common_config_settings:gl_backend": ["CK_ENABLE_WEBGL"],
+    "//conditions:default": [],
 })
 
 CK_RELEASE_OPTS = [
@@ -200,8 +203,6 @@ JS_INTERFACE_FILES = [
     "cpu.js",
     "debug.js",
     "font.js",
-    "webgl.js",
-    "webgpu.js",
     "interface.js",
     "matrix.js",
     "memory.js",
@@ -215,6 +216,8 @@ JS_INTERFACE_FILES = [
     "skottie.js",
     "skp.js",
     "util.js",
+    "webgl.js",
+    "webgpu.js",
 ] + [
     "htmlcanvas/canvas2dcontext.js",
     "htmlcanvas/color.js",

@@ -1,14 +1,14 @@
 """
-This file specifies a clang toolchain that can run on a Mac host.
+This file specifies a clang toolchain that can run on a Mac host (with either M1 or Intel CPU).
 
 Hermetic toolchains still need access to Xcode for sys headers included in Skia's codebase.
 
-See download_mac_m1_toolchain.bzl for more details on the creation of the toolchain.
+See download_mac_toolchain.bzl for more details on the creation of the toolchain.
 
 It uses the usr subfolder of the built toolchain as a sysroot
 
 It follows the example of:
- - lunix_amd64_toolchain_config.bzl
+ - linux_amd64_toolchain_config.bzl
 """
 
 load(
@@ -25,13 +25,13 @@ load(
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 
 # The location of the created clang toolchain.
-EXTERNAL_TOOLCHAIN = "external/clang_mac_m1"
+EXTERNAL_TOOLCHAIN = "external/clang_mac"
 
 # Symlink location.
-# Must be the same as where the symlink points to in download_mac_m1_toolchain.bzl
+# Must be the same as where the symlink points to in download_mac_toolchain.bzl
 XCODE_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK/usr"
 
-def _mac_m1_toolchain_info(ctx):
+def _mac_toolchain_info(ctx):
     action_configs = _make_action_configs()
     features = []
     features += _make_default_flags()
@@ -56,10 +56,10 @@ def _mac_m1_toolchain_info(ctx):
         toolchain_identifier = "clang-toolchain",
     )
 
-provide_mac_m1_toolchain_config = rule(
+provide_mac_toolchain_config = rule(
     attrs = {},
     provides = [CcToolchainConfigInfo],
-    implementation = _mac_m1_toolchain_info,
+    implementation = _mac_toolchain_info,
 )
 
 def _make_action_configs():

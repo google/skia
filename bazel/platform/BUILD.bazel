@@ -1,0 +1,48 @@
+# https://bazel.build/concepts/platforms-intro
+# https://bazel.build/docs/platforms
+platform(
+    name = "linux_x64_hermetic",
+    constraint_values = [
+        "@platforms//os:linux",  # https://github.com/bazelbuild/platforms/blob/main/os/BUILD
+        "@platforms//cpu:x86_64",  # https://github.com/bazelbuild/platforms/blob/main/cpu/BUILD
+        ":use_hermetic_toolchain",
+    ],
+)
+
+platform(
+    name = "mac_x64_hermetic",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:x86_64",
+        ":use_hermetic_toolchain",
+    ],
+)
+
+platform(
+    name = "mac_arm64_hermetic",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:arm64",
+        ":use_hermetic_toolchain",
+    ],
+)
+
+platform(
+    name = "host_with_hermetic_toolchain",
+    constraint_values = [
+        ":use_hermetic_toolchain",
+    ],
+    parents = ["@local_config_platform//:host"],
+)
+
+# This constraint allows us to force Bazel to resolve our hermetic toolchain to build
+# the target and not a default one (e.g. on the Linux RBE instance). We do this by
+# adding the constraint to our platforms that describe the target we want Bazel to build for.
+# https://bazel.build/reference/be/platform#constraint_setting
+constraint_setting(name = "skia_hermetic_toolchain")
+
+constraint_value(
+    name = "use_hermetic_toolchain",
+    constraint_setting = ":skia_hermetic_toolchain",
+    visibility = ["//visibility:public"],
+)

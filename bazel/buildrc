@@ -27,15 +27,9 @@
 build:release --compilation_mode=opt
 build:debug --compilation_mode=dbg
 
-# We use spawn_strategy=local for CanvasKit builds because emscripten assumes there
-# is a cache in the home directory that it needs to fill with compiled versions of libc etc.
-# https://emscripten.org/docs/tools_reference/emcc.html
-# By setting spawn_strategy=local, we can avoid recompiling all of this for every compilation
-# unit, by letting the cache be used (and not dropped from the sandbox), which gets expensive.
-# Local testing showed using the local strategy sped up a clean build from 9.5 minutes
-# to 1 minute. https://bazel.build/docs/user-manual#execution-strategy
-build:ck_release --config=release --spawn_strategy=local
-build:ck_debug --config=debug --spawn_strategy=local
+# See also https://github.com/emscripten-core/emsdk/issues/984 for disabling cc_toolchain_resolution
+build:ck_release --config=release --noincompatible_enable_cc_toolchain_resolution
+build:ck_debug --config=debug --noincompatible_enable_cc_toolchain_resolution
 
 # We only want to enforce IWYU on debug builds because we have some things that are only
 # necessary to include in debug mode (e.g. SkDEBUGCODE), but very rarely something that is

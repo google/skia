@@ -30,9 +30,9 @@
         "BazelBuild-example_hello_world_vulkan-release-linux_x64"
       ]
     },
-    "BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64": {
+    "BazelBuild-modules_canvaskit_canvaskit_wasm-ck_debug-linux_x64": {
       "tasks": [
-        "BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64"
+        "BazelBuild-modules_canvaskit_canvaskit_wasm-ck_debug-linux_x64"
       ]
     },
     "BazelBuild-skia_public-enforce_iwyu-linux_x64": {
@@ -3257,7 +3257,7 @@
         "--label=//example:hello_world_dawn",
         "--config=enforce_iwyu",
         "--workdir=.",
-        "--bazel_arg=--config=linux_rbe",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
       ],
@@ -3299,7 +3299,7 @@
         "--label=//example:hello_world_dawn",
         "--config=release",
         "--workdir=.",
-        "--bazel_arg=--config=linux_rbe",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
       ],
@@ -3341,7 +3341,7 @@
         "--label=//example:hello_world_gl",
         "--config=enforce_iwyu",
         "--workdir=.",
-        "--bazel_arg=--config=linux_rbe",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
       ],
@@ -3383,7 +3383,7 @@
         "--label=//example:hello_world_gl",
         "--config=release",
         "--workdir=.",
-        "--bazel_arg=--config=linux_rbe",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
       ],
@@ -3425,7 +3425,7 @@
         "--label=//example:hello_world_vulkan",
         "--config=enforce_iwyu",
         "--workdir=.",
-        "--bazel_arg=--config=linux_rbe",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
       ],
@@ -3467,7 +3467,7 @@
         "--label=//example:hello_world_vulkan",
         "--config=release",
         "--workdir=.",
-        "--bazel_arg=--config=linux_rbe",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
       ],
@@ -3487,7 +3487,7 @@
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64": {
+    "BazelBuild-modules_canvaskit_canvaskit_wasm-ck_debug-linux_x64": {
       "casSpec": "compile",
       "cipd_packages": [
         {
@@ -3505,12 +3505,12 @@
         "bazel_build_task_driver/bazel_build",
         "--project_id=skia-swarming-bots",
         "--task_id=<(TASK_ID)",
-        "--task_name=BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64",
+        "--task_name=BazelBuild-modules_canvaskit_canvaskit_wasm-ck_debug-linux_x64",
         "--label=//modules/canvaskit:canvaskit_wasm",
-        "--config=debug",
+        "--config=ck_debug",
         "--workdir=.",
         "--expunge_cache",
-        "--bazel_arg=--config=linux_rbe",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
       ],
@@ -3552,7 +3552,7 @@
         "--label=//:skia_public",
         "--config=enforce_iwyu",
         "--workdir=.",
-        "--bazel_arg=--config=linux_rbe",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
       ],
@@ -3594,7 +3594,7 @@
         "--label=//:skia_public",
         "--config=release",
         "--workdir=.",
-        "--bazel_arg=--config=linux_rbe",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
       ],

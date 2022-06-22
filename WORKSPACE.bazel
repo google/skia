@@ -2,7 +2,7 @@ workspace(name = "skia")
 
 load("//toolchain:download_toolchains.bzl", "download_toolchains_for_skia")
 
-download_toolchains_for_skia("clang_linux_amd64", "clang_mac_m1")
+download_toolchains_for_skia("clang_linux_amd64", "clang_mac")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

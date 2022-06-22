@@ -1,5 +1,5 @@
 [
-  {"name": "BazelBuild-modules_canvaskit_canvaskit_wasm-debug-linux_x64"},
+  {"name": "BazelBuild-modules_canvaskit_canvaskit_wasm-ck_debug-linux_x64"},
   {"name": "BazelBuild-example_hello_world_dawn-enforce_iwyu-linux_x64"},
   {"name": "BazelBuild-example_hello_world_dawn-release-linux_x64",
    "cq_config": {}

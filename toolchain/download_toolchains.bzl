@@ -3,7 +3,7 @@ This file exports the various toolchains for the hosts that we support building 
 
 Supported:
  - Linux amd64
- - Mac M1
+ - Mac (one toolchain for both M1 and Intel CPUs)
 
 Planned:
  - Windows amd64
@@ -11,14 +11,14 @@ Planned:
 """
 
 load(":download_linux_amd64_toolchain.bzl", "download_linux_amd64_toolchain")
-load(":download_mac_m1_toolchain.bzl", "download_mac_m1_toolchain")
+load(":download_mac_toolchain.bzl", "download_mac_toolchain")
 
 # This key in this dictionary (and thus the name passed into the rule) controls what the subfolder
 # will be called in the external directory. It must match what we use in the appropriate
 # toolchain_config.bzl file or it will not be able to locate the sysroot to build with.
 name_toolchain = {
     "clang_linux_amd64": download_linux_amd64_toolchain,
-    "clang_mac_m1": download_mac_m1_toolchain,
+    "clang_mac": download_mac_toolchain,
 }
 
 def download_toolchains_for_skia(*args):

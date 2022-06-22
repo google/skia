@@ -1,12 +1,39 @@
-# We don't have a great way to test the host system in order to use the right
-# version of the toolchain. So we need to have the user specify what their host is.
-build:clang_linux --crosstool_top=//toolchain:clang_suite_linux
-build:clang_linux --compiler=host_is_linux_amd64
+# https://bazel.build/concepts/platforms-intro#cxx
+# This forces Bazel's C++ rules use platforms to select toolchains instead of the default
+# --crosstool_top, --compiler, etc.
+build --incompatible_enable_cc_toolchain_resolution
 
-build:clang_mac --crosstool_top=//toolchain:clang_suite_mac
-build:clang_mac --apple_crosstool_top=//toolchain:clang_suite_mac
-build:clang_mac --compiler=host_is_mac_m1
-build:clang_mac --apple_platform_type=macos
+# We do not want Bazel to detect any C++ toolchains on the local machine
+# https://github.com/bazelbuild/bazel/blob/4ccc21f2f089971e5f4032397764a4be3549c40a/tools/cpp/cc_configure.bzl#L47
+build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+
+# We would like developers to not upload to the remote build cache, only the RBE workers themselves.
+build --remote_upload_local_results=false
+
+# This tells Bazel that the host platform can use the hermetic toolchain. This is a small lie until
+# Windows support is added.
+build --host_platform=//bazel/platform:host_with_hermetic_toolchain
+
+# Register our toolchains. We do this here, and not in WORKSPACE.bazel because
+# --extra_toolchains has priority over register_toolchains and we conditionally add some toolchains
+# for RBE.
+build --extra_toolchains=//toolchain:clang_linux_x64_toolchain
+build --extra_toolchains=//toolchain:clang_mac_x64_toolchain
+build --extra_toolchains=//toolchain:clang_mac_arm64_toolchain
+
+# --platforms refers to the target for which we are compiling. By setting the target to be a
+# platform which has our own custom constraint_setting and constraint_value
+# (skia_hermetic_toolchain=use_hermetic_toolchain), this causes Bazel to resolve the toolchain
+# to be our hermetic one because our hermetic toolchains have that same constraint set in their
+# target_compatible_with list.
+build:for_linux_x64 --platforms=//bazel/platform:linux_x64_hermetic
+build:for_linux_x64_with_rbe --config=linux_rbe --platforms=//bazel/platform:linux_x64_hermetic
+
+build:for_mac_arm64 --platforms=//bazel/platform:mac_arm64_hermetic
+build:for_mac_x64 --platforms=//bazel/platform:mac_x64_hermetic
+# some aliases using more common lingo
+build:for_mac_m1 --config=for_mac_arm64
+build:for_mac_intel --config=for_mac_x64
 
 # =============================================================================
 # Alias to build configurations below. This makes configuring things from
@@ -57,15 +84,8 @@ build:remote --jobs=50
 build:remote --java_runtime_version=rbe_jdk
 build:remote --tool_java_runtime_version=rbe_jdk
 
-build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
-# Platform flags:
-# The toolchain container used for execution is defined in the target indicated
-# by "extra_execution_platforms", "host_platform" and "platforms".
-# More about platforms: https://docs.bazel.build/versions/master/platforms.html
-
-# Starting with Bazel 0.27.0 strategies do not need to be explicitly
-# defined. See https://github.com/bazelbuild/bazel/issues/7480
-build:remote --define=EXECUTOR=remote
+# When a remote configuration is chosen, add "remote" to the list of spawn_strategies.
+build:remote --spawn_strategy=remote,sandboxed
 
 # Enable remote execution so actions are performed on the remote systems.
 build:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
@@ -83,6 +103,7 @@ build:remote --remote_timeout=180
 # default. You can use --google_credentials=some_file.json to use a service
 # account credential instead.
 # See https://developers.google.com/remote-build-execution/docs/authentication
+# To authenticate, you should run gcloud auth application-default login
 build:remote --google_default_credentials=true
 
 # End of the copied RBE settings
@@ -91,17 +112,17 @@ build:remote --google_default_credentials=true
 # Use the RBE instance on the skia-rbe GCP project.
 build:remote --remote_instance_name projects/skia-rbe/instances/default_instance
 
-# These settings are specific to compiling on our Linux RBE workers. For example,
-# Use the worker pool as specified by the gce_linux_platform platform in
-# //bazel/rbe/BUILD.bazel.
+# The linxu_rbe config will build on RBE and default to compiling for linux_x64 using
+# the hermetic toolchain.
 build:linux_rbe --config=remote
-# Use our hermetic toolchain instead of the clang in the toolchain.
-build:linux_rbe --crosstool_top=//toolchain:clang_suite_linux
-# We want to run on this RBE platform
-build:linux_rbe --extra_execution_platforms=//bazel/rbe:gce_linux_platform
-# On the RBE instances, this Java and C++ toolchain are available
+# On the RBE instances, we also have the Java and C++ toolchain from the Docker image available.
+# These need to come after the --extra_toolchains flags (above) that register our hermetic
+# toolchains, because we only want these backup toolchains to be used by Bazel internals,
+# if at all.
 build:linux_rbe --extra_toolchains=//bazel/rbe/gce_linux/java:all
 build:linux_rbe --extra_toolchains=//bazel/rbe/gce_linux/config:cc-toolchain
+# Make the RBE platform available for selection as an Execution platform.
+build:linux_rbe --extra_execution_platforms=//bazel/rbe:gce_linux_platform
 
 # Import our specified build configurations
 # https://docs.bazel.build/versions/main/best-practices.html#using-the-bazelrc-file
