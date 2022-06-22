@@ -466,6 +466,9 @@ static inline bool skpaint_to_grpaint_impl(
             paintFP = as_BB(primColorBlender)->asFragmentProcessor(std::move(paintFP),
                                                                    /*dstFP=*/nullptr,
                                                                    fpArgs);
+            if (!paintFP) {
+                return false;
+            }
 
             // We can ignore origColor here - alpha is unchanged by gamma
             float paintAlpha = skPaint.getColor4f().fA;
@@ -508,6 +511,9 @@ static inline bool skpaint_to_grpaint_impl(
                 paintFP = as_BB(primColorBlender)->asFragmentProcessor(std::move(paintFP),
                                                                        /*dstFP=*/nullptr,
                                                                        fpArgs);
+                if (!paintFP) {
+                    return false;
+                }
             }
 
             // The paint's *alpha* is applied after the paint/primitive color blend:
@@ -575,6 +581,9 @@ static inline bool skpaint_to_grpaint_impl(
                 std::move(paintFP),
                 GrFragmentProcessor::SurfaceColor(),
                 fpArgs);
+        if (!paintFP) {
+            return false;
+        }
         grPaint->setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
     }
 
