@@ -131,7 +131,7 @@ class ArcsView : public Sample {
             225, 90
         };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gAngles); i += 2) {
+        for (size_t i = 0; i < std::size(gAngles); i += 2) {
             paint.setColor(SK_ColorBLACK);
             DrawRectWithLines(canvas, r, paint);
 

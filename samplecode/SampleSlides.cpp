@@ -56,7 +56,7 @@ static void stroke_pe(SkPaint* paint) {
 static void dash_pe(SkPaint* paint) {
     SkScalar inter[] = { 20, 10, 10, 10 };
     paint->setStrokeWidth(12);
-    paint->setPathEffect(SkDashPathEffect::Make(inter, SK_ARRAY_COUNT(inter), 0));
+    paint->setPathEffect(SkDashPathEffect::Make(inter, std::size(inter), 0));
     compose_pe(paint);
 }
 
@@ -73,7 +73,7 @@ static void scale(SkPath* path, SkScalar scale) {
 static void one_d_pe(SkPaint* paint) {
     SkPath  path;
     path.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
-    for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2)
+    for (unsigned i = 2; i < std::size(gXY); i += 2)
         path.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
     path.close();
     path.offset(SkIntToScalar(-6), 0);
@@ -126,7 +126,7 @@ static void patheffect_slide(SkCanvas* canvas) {
 
     size_t i;
     canvas->save();
-    for (i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
+    for (i = 0; i < std::size(gPE); i++) {
         gPE[i](&paint);
         canvas->drawPath(path, paint);
         canvas->translate(0, 75);
@@ -140,7 +140,7 @@ static void patheffect_slide(SkCanvas* canvas) {
     path.addRect(r, SkPathDirection::kCCW);
 
     canvas->translate(320, 20);
-    for (i = 0; i < SK_ARRAY_COUNT(gPE2); i++) {
+    for (i = 0; i < std::size(gPE2); i++) {
         gPE2[i](&paint);
         canvas->drawPath(path, paint);
         canvas->translate(0, 160);
@@ -221,9 +221,9 @@ static void gradient_slide(SkCanvas* canvas) {
     paint.setDither(true);
 
     canvas->translate(SkIntToScalar(20), SkIntToScalar(10));
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
+    for (size_t i = 0; i < std::size(gGradData); i++) {
         canvas->save();
-        for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
+        for (size_t j = 0; j < std::size(gGradMakers); j++) {
             paint.setShader(gGradMakers[j](pts, gGradData[i], tm));
             canvas->drawRect(r, paint);
             canvas->translate(0, SkIntToScalar(120));
@@ -253,7 +253,7 @@ static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
     return SkGradientShader::MakeLinear(pts, colors, nullptr,
-                                          SK_ARRAY_COUNT(colors), SkTileMode::kMirror);
+                                          std::size(colors), SkTileMode::kMirror);
 }
 
 class Rec {
@@ -363,7 +363,7 @@ static void mesh_slide(SkCanvas* canvas) {
     SkPaint paint;
     paint.setDither(true);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
+    for (size_t i = 0; i < std::size(fRecs); i++) {
         auto verts = SkVertices::MakeCopy(fRecs[i].fMode, fRecs[i].fCount,
                                           fRecs[i].fVerts, fRecs[i].fTexs, nullptr);
         canvas->save();
@@ -421,7 +421,7 @@ public:
         SkCanvas canvas(bm);
         SkScalar s = SkIntToScalar(1024) / 640;
         canvas.scale(s, s);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gProc); i++) {
+        for (size_t i = 0; i < std::size(gProc); i++) {
             canvas.save();
             canvas.drawColor(BG_COLOR);
             gProc[i](&canvas);
@@ -443,7 +443,7 @@ protected:
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         this->init();
-        fIndex = (fIndex + 1) % SK_ARRAY_COUNT(gProc);
+        fIndex = (fIndex + 1) % std::size(gProc);
         return nullptr;
     }
 

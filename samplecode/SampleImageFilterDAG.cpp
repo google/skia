@@ -138,7 +138,7 @@ static void draw_node(SkCanvas* canvas, const FilterNode& node) {
     static const SkColor kColors[2] = {SK_ColorGREEN, SK_ColorWHITE};
     SkPoint points[2] = { {content.fLeft + 15.f, content.fTop + 15.f},
                           {content.fRight - 15.f, content.fBottom - 15.f} };
-    paint.setShader(SkGradientShader::MakeLinear(points, kColors, nullptr, SK_ARRAY_COUNT(kColors),
+    paint.setShader(SkGradientShader::MakeLinear(points, kColors, nullptr, std::size(kColors),
                                                  SkTileMode::kRepeat));
 
     SkPaint line;

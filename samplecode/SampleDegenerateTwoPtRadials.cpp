@@ -28,7 +28,7 @@ static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta)
     SkScalar r1 = 2 * w / 5;
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeTwoPointConical(c0, r0, c1, r1, colors,
-                                                          pos, SK_ARRAY_COUNT(pos),
+                                                          pos, std::size(pos),
                                                           SkTileMode::kClamp));
     canvas->drawRect(rect, paint);
 }

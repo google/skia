@@ -43,7 +43,7 @@ static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
     return SkGradientShader::MakeLinear(pts, colors, nullptr,
-                    SK_ARRAY_COUNT(colors), SkTileMode::kMirror);
+                    std::size(colors), SkTileMode::kMirror);
 }
 
 class VerticesView : public Sample {
@@ -75,7 +75,7 @@ protected:
         SkPaint paint;
         paint.setDither(true);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
+        for (size_t i = 0; i < std::size(fRecs); i++) {
             auto verts = SkVertices::MakeCopy(fRecs[i].fMode, fRecs[i].fCount,
                                               fRecs[i].fVerts, fRecs[i].fTexs,
                                               nullptr);

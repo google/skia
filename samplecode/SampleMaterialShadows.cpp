@@ -72,7 +72,7 @@ class MaterialShadowsView : public Sample {
         paint.setColor(SK_ColorWHITE);
         canvas->save();
         canvas->translate(80, 80);
-        for (unsigned int i = 0; i < SK_ARRAY_COUNT(elevations); ++i) {
+        for (unsigned int i = 0; i < std::size(elevations); ++i) {
             zPlaneParams.fZ = elevations[i];
             this->drawShadowedPath(canvas, fCirclePath, zPlaneParams, paint, kAmbientAlpha,
                                    lightPos, kLightRadius, kSpotAlpha);
@@ -82,7 +82,7 @@ class MaterialShadowsView : public Sample {
 
         canvas->save();
         canvas->translate(120, 175);
-        for (unsigned int i = 0; i < SK_ARRAY_COUNT(elevations); ++i) {
+        for (unsigned int i = 0; i < std::size(elevations); ++i) {
             zPlaneParams.fZ = elevations[i];
             this->drawShadowedPath(canvas, fCapsulePath, zPlaneParams, paint, kAmbientAlpha,
                                    lightPos, kLightRadius, kSpotAlpha);
@@ -92,7 +92,7 @@ class MaterialShadowsView : public Sample {
 
         canvas->save();
         canvas->translate(120, 320);
-        for (unsigned int i = 0; i < SK_ARRAY_COUNT(elevations); ++i) {
+        for (unsigned int i = 0; i < std::size(elevations); ++i) {
             zPlaneParams.fZ = elevations[i];
             this->drawShadowedPath(canvas, fLargeRRPath, zPlaneParams, paint, kAmbientAlpha,
                                    lightPos, kLightRadius, kSpotAlpha);
@@ -102,7 +102,7 @@ class MaterialShadowsView : public Sample {
 
         canvas->save();
         canvas->translate(100, 475);
-        for (unsigned int i = 0; i < SK_ARRAY_COUNT(elevations); ++i) {
+        for (unsigned int i = 0; i < std::size(elevations); ++i) {
             zPlaneParams.fZ = elevations[i];
             this->drawShadowedPath(canvas, fSmallRRPath, zPlaneParams, paint, kAmbientAlpha,
                                    lightPos, kLightRadius, kSpotAlpha);
@@ -112,7 +112,7 @@ class MaterialShadowsView : public Sample {
 
         canvas->save();
         canvas->translate(100, 600);
-        for (unsigned int i = 0; i < SK_ARRAY_COUNT(elevations); ++i) {
+        for (unsigned int i = 0; i < std::size(elevations); ++i) {
             canvas->save();
             zPlaneParams.fZ = elevations[i];
             canvas->rotate(10);
@@ -125,7 +125,7 @@ class MaterialShadowsView : public Sample {
 
         canvas->save();
         canvas->translate(100, 725);
-        for (unsigned int i = 0; i < SK_ARRAY_COUNT(elevations); ++i) {
+        for (unsigned int i = 0; i < std::size(elevations); ++i) {
             canvas->save();
             zPlaneParams.fZ = elevations[i];
             canvas->rotate(45);

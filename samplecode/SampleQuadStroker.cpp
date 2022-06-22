@@ -715,55 +715,55 @@ protected:
     };
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); ++i) {
+        for (size_t i = 0; i < std::size(fPts); ++i) {
             if (hittest(fPts[i], x, y)) {
                 return new MyClick((int)i);
             }
         }
         const SkRect& rectPt = SkRect::MakeXYWH(x, y, 1, 1);
         if (fWeightControl.contains(rectPt)) {
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 1);
+            return new MyClick((int) std::size(fPts) + 1);
         }
         if (fRadiusControl.contains(rectPt)) {
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 2);
+            return new MyClick((int) std::size(fPts) + 2);
         }
 #ifdef SK_DEBUG
         if (fErrorControl.contains(rectPt)) {
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 3);
+            return new MyClick((int) std::size(fPts) + 3);
         }
 #endif
         if (fWidthControl.contains(rectPt)) {
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 4);
+            return new MyClick((int) std::size(fPts) + 4);
         }
         if (fCubicButton.fBounds.contains(rectPt)) {
             fCubicButton.fEnabled ^= true;
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 5);
+            return new MyClick((int) std::size(fPts) + 5);
         }
         if (fConicButton.fBounds.contains(rectPt)) {
             fConicButton.fEnabled ^= true;
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 6);
+            return new MyClick((int) std::size(fPts) + 6);
         }
         if (fQuadButton.fBounds.contains(rectPt)) {
             fQuadButton.fEnabled ^= true;
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 7);
+            return new MyClick((int) std::size(fPts) + 7);
         }
         if (fArcButton.fBounds.contains(rectPt)) {
             fArcButton.fEnabled ^= true;
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 8);
+            return new MyClick((int) std::size(fPts) + 8);
         }
         if (fRRectButton.fBounds.contains(rectPt)) {
             fRRectButton.fEnabled ^= true;
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 9);
+            return new MyClick((int) std::size(fPts) + 9);
         }
         if (fCircleButton.fBounds.contains(rectPt)) {
             bool wasEnabled = fCircleButton.fEnabled;
             fCircleButton.fEnabled = !fCircleButton.fFill;
             fCircleButton.fFill = wasEnabled && !fCircleButton.fFill;
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 10);
+            return new MyClick((int) std::size(fPts) + 10);
         }
         if (fTextButton.fBounds.contains(rectPt)) {
             fTextButton.fEnabled ^= true;
-            return new MyClick((int) SK_ARRAY_COUNT(fPts) + 11);
+            return new MyClick((int) std::size(fPts) + 11);
         }
         return nullptr;
     }
@@ -775,22 +775,22 @@ protected:
 
     bool onClick(Click* click) override {
         int index = ((MyClick*)click)->fIndex;
-        if (index < (int) SK_ARRAY_COUNT(fPts)) {
+        if (index < (int) std::size(fPts)) {
             fPts[index].offset(click->fCurr.fX - click->fPrev.fX,
                                click->fCurr.fY - click->fPrev.fY);
-        } else if (index == (int) SK_ARRAY_COUNT(fPts) + 1) {
+        } else if (index == (int) std::size(fPts) + 1) {
             fWeight = MapScreenYtoValue(click->fCurr.fY, fWeightControl, 0, 5);
-        } else if (index == (int) SK_ARRAY_COUNT(fPts) + 2) {
+        } else if (index == (int) std::size(fPts) + 2) {
             fRadius = MapScreenYtoValue(click->fCurr.fY, fRadiusControl, 0, 500);
         }
 #ifdef SK_DEBUG
-        else if (index == (int) SK_ARRAY_COUNT(fPts) + 3) {
+        else if (index == (int) std::size(fPts) + 3) {
             gDebugStrokerError = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY,
                     fErrorControl, kStrokerErrorMin, kStrokerErrorMax));
             gDebugStrokerErrorSet = true;
         }
 #endif
-        else if (index == (int) SK_ARRAY_COUNT(fPts) + 4) {
+        else if (index == (int) std::size(fPts) + 4) {
             fWidth = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY, fWidthControl,
                     kWidthMin, kWidthMax));
             fAnimate = fWidth <= kWidthMin;

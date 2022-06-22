@@ -452,7 +452,7 @@ public:
             "skottie/skottie-motiontile-effect-phase.json",
 
         };
-        for (unsigned i = 0; i < SK_ARRAY_COUNT(files); ++i) {
+        for (unsigned i = 0; i < std::size(files); ++i) {
             if (auto stream = GetResourceAsStream(files[i])) {
                 fAnim[i] = skottie::Animation::Make(stream.get());
             }

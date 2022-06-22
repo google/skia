@@ -106,7 +106,7 @@ static const SkColor4f kScaleGradientColors[] =
                   { 0.8f,  0.1f, 0.f,  1.f } }; // Severe upscaling,   s > 8,   log(s) > 3
 static const SkScalar kLogScaleFactors[] = { -3.f, -1.f, 0.f, 1.f, 3.f };
 static const SkScalar kGradientStops[] = { 0.f, 0.33333f, 0.5f, 0.66667f, 1.f };
-static const int kStopCount = (int) SK_ARRAY_COUNT(kScaleGradientColors);
+static const int kStopCount = (int) std::size(kScaleGradientColors);
 
 static void draw_scale_key(SkCanvas* canvas, float y) {
     SkRect key = SkRect::MakeXYWH(15.f, y + 30.f, 15.f, 100.f);

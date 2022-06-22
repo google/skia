@@ -334,7 +334,7 @@ struct SBIXView : public Sample {
             canvas->drawPoint(advance, 0, paint);
 
             paint.setStrokeWidth(SkIntToScalar(kPointSize));
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, SK_ARRAY_COUNT(fPts), fPts, paint);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, std::size(fPts), fPts, paint);
 
             canvas->translate(kFontSize, 0);
         }
@@ -353,7 +353,7 @@ struct SBIXView : public Sample {
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         x -= DX;
         y -= DY;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
+        for (size_t i = 0; i < std::size(fPts); i++) {
             if (hittest(fPts[i], x, y)) {
                 return new PtClick((int)i);
             }

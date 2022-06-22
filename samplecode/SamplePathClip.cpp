@@ -250,7 +250,7 @@ protected:
     public:
         DragPolyClick(SkPoint poly[], int count) : fPoly(poly), fCount(count)
         {
-            SkASSERT((size_t)count <= SK_ARRAY_COUNT(fSrc));
+            SkASSERT((size_t)count <= std::size(fSrc));
             memcpy(fSrc, poly, count * sizeof(SkPoint));
         }
         void handleMove() override {

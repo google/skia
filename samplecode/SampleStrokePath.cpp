@@ -128,7 +128,7 @@ protected:
     void drawSet(SkCanvas* canvas, SkPaint* paint) {
         SkAutoCanvasRestore acr(canvas, true);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+        for (size_t i = 0; i < std::size(gRec); i++) {
             paint->setStyle(gRec[i].fStyle);
             paint->setStrokeJoin(gRec[i].fJoin);
             paint->setStrokeWidth(SkIntToScalar(gRec[i].fStrokeWidth));

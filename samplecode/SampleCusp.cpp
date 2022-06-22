@@ -97,7 +97,7 @@ struct data {
 {{{0x43480000,0x43960000},{0x436f0222,0x4328051c},{0x435c2222,0x43810f5c},{0x435ae000,0x4351e664},}},
 };
 
-size_t datCount = SK_ARRAY_COUNT(dat);
+size_t datCount = std::size(dat);
 
 class CuspView : public Sample {
 public:

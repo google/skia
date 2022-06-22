@@ -86,8 +86,8 @@ class ComplexClipView : public Sample {
         canvas->save();
 
         for (int invA = 0; invA < 2; ++invA) {
-            for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
-                size_t idx = invA * SK_ARRAY_COUNT(gOps) + op;
+            for (size_t op = 0; op < std::size(gOps); ++op) {
+                size_t idx = invA * std::size(gOps) + op;
                 if (!(idx % 3)) {
                     canvas->restore();
                     canvas->translate(0, SkIntToScalar(250));

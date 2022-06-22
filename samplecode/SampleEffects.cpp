@@ -35,7 +35,7 @@ static void paint_proc2(SkPaint* paint) {
 static void paint_proc3(SkPaint* paint) {
     SkColor colors[] = { SK_ColorRED, COLOR, SK_ColorBLUE };
     SkPoint pts[] = { { 3, 0 }, { 7, 5 } };
-    paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
                                                   SkTileMode::kMirror));
 }
 
@@ -58,7 +58,7 @@ const PaintProc gPaintProcs[] = {
 class EffectsView : public Sample {
 public:
     SkPath fPath;
-    SkPaint fPaint[SK_ARRAY_COUNT(gPaintProcs)];
+    SkPaint fPaint[std::size(gPaintProcs)];
 
     EffectsView() {
         size_t i;
@@ -72,11 +72,11 @@ public:
             0, -10
         };
         fPath.moveTo(pts[0], pts[1]);
-        for (i = 2; i < SK_ARRAY_COUNT(pts); i += 2) {
+        for (i = 2; i < std::size(pts); i += 2) {
             fPath.lineTo(pts[i], pts[i+1]);
         }
 
-        for (i = 0; i < SK_ARRAY_COUNT(gPaintProcs); i++) {
+        for (i = 0; i < std::size(gPaintProcs); i++) {
             fPaint[i].setAntiAlias(true);
             fPaint[i].setColor(COLOR);
             gPaintProcs[i](&fPaint[i]);
@@ -91,7 +91,7 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         canvas->scale(3, 3);
         canvas->translate(10, 30);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fPaint); i++) {
+        for (size_t i = 0; i < std::size(fPaint); i++) {
             canvas->drawPath(fPath, fPaint[i]);
             canvas->translate(32, 0);
         }

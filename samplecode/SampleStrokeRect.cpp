@@ -39,11 +39,11 @@ protected:
         };
 
         canvas->translate(paint.getStrokeWidth(), paint.getStrokeWidth());
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gJoin); ++i) {
+        for (size_t i = 0; i < std::size(gJoin); ++i) {
             paint.setStrokeJoin(gJoin[i]);
 
             canvas->save();
-            for (size_t j = 0; j < SK_ARRAY_COUNT(gSize); ++j) {
+            for (size_t j = 0; j < std::size(gSize); ++j) {
                 SkRect r = SkRect::MakeWH(SkIntToScalar(gSize[j].fWidth),
                                           SkIntToScalar(gSize[j].fHeight));
                 canvas->drawRect(r, paint);

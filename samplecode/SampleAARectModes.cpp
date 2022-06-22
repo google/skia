@@ -84,7 +84,7 @@ class AARectsModesView : public Sample {
         for (int alpha = 0; alpha < 4; ++alpha) {
             canvas->save();
             canvas->save();
-            for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); ++i) {
+            for (size_t i = 0; i < std::size(gModes); ++i) {
                 if (6 == i) {
                     canvas->restore();
                     canvas->translate(W * 5, 0);

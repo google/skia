@@ -32,7 +32,7 @@ static sk_sp<SkPathEffect> make_pe(int flags, SkScalar phase) {
 
     SkPath  path;
     path.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
-    for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2)
+    for (unsigned i = 2; i < std::size(gXY); i += 2)
         path.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
     path.close();
     path.offset(SkIntToScalar(-6), 0);
@@ -50,7 +50,7 @@ static sk_sp<SkPathEffect> make_pe(int flags, SkScalar phase) {
 static sk_sp<SkPathEffect> make_warp_pe(SkScalar phase) {
     SkPath  path;
     path.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
-    for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2) {
+    for (unsigned i = 2; i < std::size(gXY); i += 2) {
         path.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
     }
     path.close();

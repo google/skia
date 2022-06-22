@@ -28,7 +28,7 @@ const SkBlendMode gModes[] = {
     SkBlendMode::kDstOut,
     SkBlendMode::kDstATop,
 };
-const int N_Modes = SK_ARRAY_COUNT(gModes);
+const int N_Modes = std::size(gModes);
 
 static SkRandom gRand;
 

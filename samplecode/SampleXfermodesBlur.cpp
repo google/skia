@@ -109,7 +109,7 @@ protected:
         SkScalar x0 = 0;
         for (int twice = 0; twice < 2; twice++) {
             SkScalar x = x0, y = 0;
-            for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
+            for (size_t i = 0; i < std::size(gModes); i++) {
                 SkRect r;
                 r.setLTRB(x, y, x+w, y+h);
 

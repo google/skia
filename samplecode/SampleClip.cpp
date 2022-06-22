@@ -117,7 +117,7 @@ class ClipView : public Sample {
 
         for (int aa = 0; aa <= 1; ++aa) {
             canvas->save();
-            for (size_t i = 0; i < SK_ARRAY_COUNT(gProc); ++i) {
+            for (size_t i = 0; i < std::size(gProc); ++i) {
                 canvas->save();
                 canvas->clipPath(clipPath, SkClipOp::kIntersect, SkToBool(aa));
 //                canvas->drawColor(SK_ColorWHITE);

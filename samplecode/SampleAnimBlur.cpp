@@ -36,7 +36,7 @@ class AnimBlurView : public Sample {
         };
         SkRandom random;
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gStyles); ++i) {
+        for (size_t i = 0; i < std::size(gStyles); ++i) {
             SkPaint paint;
             paint.setMaskFilter(SkMaskFilter::MakeBlur(gStyles[i],
                                                        fBlurSigma));

@@ -165,9 +165,9 @@ protected:
             SkPaint::kRound_Join
         };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gJoins); i++) {
+        for (size_t i = 0; i < std::size(gJoins); i++) {
             canvas->save();
-            for (size_t j = 0; j < SK_ARRAY_COUNT(fPath); j++) {
+            for (size_t j = 0; j < std::size(fPath); j++) {
                 this->drawPath(canvas, fPath[j], gJoins[i]);
                 canvas->translate(200, 0);
             }
