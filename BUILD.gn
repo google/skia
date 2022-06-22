@@ -2172,6 +2172,12 @@ if (skia_enable_tools) {
       test_app("skottie_tool") {
         deps = [ "modules/skottie:tool" ]
       }
+      test_app("skottie_tool_cpu") {
+        deps = [ "modules/skottie:tool_cpu" ]
+      }
+      test_app("skottie_tool_gpu") {
+        deps = [ "modules/skottie:tool_gpu" ]
+      }
     }
     test_app("svg_tool") {
       deps = [ "modules/svg:tool" ]
