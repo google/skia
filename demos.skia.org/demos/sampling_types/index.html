@@ -6,6 +6,9 @@
 <script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/canvaskit.js"></script>
 
 <style>
+    #draw {
+        border: 1px dashed grey;
+    }
     figcaption {
         max-width: 800px;
     }
@@ -20,11 +23,12 @@
   </div>
 
   <figure>
+      <!-- width/height hard-coded for grid of 256px images. -->
       <div ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
-          <canvas id="draw" width=2048 height=1600></canvas>
+          <canvas id="draw" width=868 height=592></canvas>
       </div>
     <figcaption>
-        Drop an Image onto the page (above)
+        Drop an Image onto the rectangle above
     </figcaption>
   </figure>
 
