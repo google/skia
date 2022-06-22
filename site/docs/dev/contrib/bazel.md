@@ -61,9 +61,12 @@ bazel build //example:bazel_test_exe --config=clang_mac
 Similar to the Linux guide, this uses the `clang_mac` configuration (defined in `//.bazelrc`).
 
 When building for Mac, we require the user to have Xcode installed on their device so that we can
-use system headers and Mac-specific includes when compiling. Our Bazel toolchain assumes you have
-`xcode-select` in your path so that we may symlink the user's current Xcode directory in the
-toolchain's cache. Make sure `xcode-select -p` returns a valid path.
+use system headers and Mac-specific includes when compiling. Googlers, as per usual, follow the
+instructions at [go/skia-corp-xcode](http://go/skia-corp-xcode) to install Xcode.
+
+Our Bazel toolchain assumes you have `xcode-select` in your path so that we may symlink the
+user's current Xcode directory in the toolchain's cache. Make sure `xcode-select -p`
+returns a valid path.
 
 Your Xcode path should resemble `/Applications/Xcode.app/Contents/Developer/`. Either move your
 Xcode or use `xcode-select` to use the Xcode in this location.

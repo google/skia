@@ -255,6 +255,9 @@ sudo mount -i -o remount,exec /home/chronos
 Mac users may want to pass `--ide=xcode` to `bin/gn gen` to generate an Xcode
 project.
 
+Googlers should see [go/skia-corp-xcode](http://go/skia-corp-xcode) for
+instructions on setting up Xcode on a corp machine.
+
 ## iOS
 
 Run GN to generate your build files. Set `target_os="ios"` to build for iOS.
