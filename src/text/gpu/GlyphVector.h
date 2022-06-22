@@ -8,9 +8,11 @@
 #ifndef sktext_gpu_GlyphVector_DEFINED
 #define sktext_gpu_GlyphVector_DEFINED
 
+#include <variant>
 #include "include/core/SkSpan.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphBuffer.h"
+#include "src/core/SkStrikeForGPU.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/text/gpu/Glyph.h"
 #include "src/text/gpu/StrikeCache.h"
@@ -42,9 +44,13 @@ public:
     };
 
     GlyphVector(sk_sp<SkStrike>&& strike, SkSpan<Variant> glyphs);
+    GlyphVector(SkStrikeForGPU* strike, SkSpan<Variant> glyphs);
 
     static GlyphVector Make(
             sk_sp<SkStrike>&& strike, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
+    static GlyphVector Make(
+            SkStrikeForGPU* strike, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
+
     SkSpan<const Glyph*> glyphs() const;
 
     static std::optional<GlyphVector> MakeFromBuffer(SkReadBuffer& buffer,
@@ -80,7 +86,13 @@ public:
 
 private:
     friend class TestingPeer;
-    sk_sp<SkStrike> fSkStrike;
+
+    static Variant* MakeGlyphs(SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
+
+    // A glyph run can hold a pointer from a remote glyph cache which is of type SkStrikeForGPU
+    // or it can hold an actual ref to an actual SkStrike. When in monostate, the sk_sp<SkStrike>
+    // has been released after converting glyph ids to atlas locations.
+    std::variant<std::monostate, SkStrikeForGPU*, sk_sp<SkStrike>> fStrike;
     SkSpan<Variant> fGlyphs;
     sk_sp<TextStrike> fTextStrike{nullptr};
     uint64_t fAtlasGeneration{skgpu::AtlasGenerationCounter::kInvalidGeneration};
