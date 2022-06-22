@@ -1,7 +1,6 @@
 // This file is type-checked by the Typescript definitions. It is not actually executed.
 // Test it by running `npm run dtslint` in the parent directory.
-import {
-    CanvasKitInit,
+import CanvasKitInit, {
     AnimatedImage,
     Canvas,
     CanvasKit,
@@ -278,7 +277,7 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
     const s2 = mm.makeShaderOptions(CK.TileMode.Decal, CK.TileMode.Repeat, // $ExpectType Shader
         CK.FilterMode.Nearest, CK.MipmapMode.Linear,
         CK.Matrix.identity());
-    const pixels = img.readPixels(85, 1000, { // $ExpectType Float32Array | Uint8Array | null
+    const pixels = img.readPixels(85, 1000, { // $ExpectType Uint8Array | Float32Array | null
         width: 79,
         height: 205,
         colorType: CK.ColorType.RGBA_8888,
@@ -512,8 +511,8 @@ function paragraphTests(CK: CanvasKit, p?: Paragraph) {
     const g = p.getMaxIntrinsicWidth(); // $ExpectType number
     const h = p.getMaxWidth(); // $ExpectType number
     const i = p.getMinIntrinsicWidth(); // $ExpectType number
-    const j = p.getRectsForPlaceholders(); // $ExpectType Float32Array
-    const k = p.getRectsForRange(2, 10, CK.RectHeightStyle.Max,  // $ExpectType Float32Array
+    const j = p.getRectsForPlaceholders(); // $ExpectType Float32Array[]
+    const k = p.getRectsForRange(2, 10, CK.RectHeightStyle.Max,  // $ExpectType Float32Array[]
         CK.RectWidthStyle.Tight);
     const l = p.getWordBoundary(10); // $ExpectType URange
     p.layout(300);

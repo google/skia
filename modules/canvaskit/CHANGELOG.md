@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+ - Minor bug fixes in the TypeScript type declaration.
+
 ## [0.34.1] - 2022-06-02
 
 ### Added
