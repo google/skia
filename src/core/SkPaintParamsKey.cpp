@@ -140,24 +140,19 @@ void SkPaintParamsKeyBuilder::checkExpectations(DataPayloadType actualType, uint
 }
 #endif // SK_DEBUG
 
-void SkPaintParamsKeyBuilder::addBytes(uint32_t numBytes, const uint8_t* data) {
-    if (!this->isValid()) {
-        return;
+static int field_size(DataPayloadType type) {
+    switch (type) {
+        case DataPayloadType::kByte:
+        case DataPayloadType::kPointerIndex: return 1;
+        case DataPayloadType::kInt:          return 4;
+        case DataPayloadType::kFloat4:       return 16;
     }
-
-    if (fStack.empty()) {
-        // SKGPU_LOG_W("Missing call to 'beginBlock'.");
-        this->makeInvalid();
-        return;
-    }
-
-    SkDEBUGCODE(this->checkExpectations(DataPayloadType::kByte, numBytes);)
-    SkASSERT(!this->isLocked());
-
-    fData.append(numBytes, data);
+    SkUNREACHABLE;
 }
 
-void SkPaintParamsKeyBuilder::add(int numColors, const SkColor4f* color) {
+void SkPaintParamsKeyBuilder::addToKey(uint32_t count,
+                                       const void* data,
+                                       DataPayloadType payloadType) {
     if (!this->isValid()) {
         return;
     }
@@ -168,27 +163,29 @@ void SkPaintParamsKeyBuilder::add(int numColors, const SkColor4f* color) {
         return;
     }
 
-    SkDEBUGCODE(this->checkExpectations(DataPayloadType::kFloat4, numColors);)
+    SkDEBUGCODE(this->checkExpectations(payloadType, count);)
     SkASSERT(!this->isLocked());
 
-    fData.append(16 * numColors, reinterpret_cast<const uint8_t*>(color));
+    fData.append(field_size(payloadType) * count, reinterpret_cast<const uint8_t*>(data));
+}
+
+void SkPaintParamsKeyBuilder::addBytes(uint32_t numBytes, const uint8_t* data) {
+    this->addToKey(numBytes, data, DataPayloadType::kByte);
+}
+
+void SkPaintParamsKeyBuilder::addInts(uint32_t numInts, const int32_t* data) {
+    this->addToKey(numInts, data, DataPayloadType::kInt);
+}
+
+void SkPaintParamsKeyBuilder::add(int numColors, const SkColor4f* colors) {
+    this->addToKey(numColors, colors, DataPayloadType::kFloat4);
 }
 
 void SkPaintParamsKeyBuilder::addPointer(const void* ptr) {
-    if (!this->isValid()) {
-        return;
-    }
-
-    if (fStack.empty()) {
-        // SKGPU_LOG_W("Missing call to 'beginBlock'.");
-        this->makeInvalid();
-        return;
-    }
-
-    SkDEBUGCODE(this->checkExpectations(SkPaintParamsKey::DataPayloadType::kPointerIndex, 1);)
-    SkASSERT(!this->isLocked());
     SkASSERT(fPointerData.size() <= 0xFF);
-    fData.push_back((uint8_t)fPointerData.size());
+    uint8_t pointerIndex = (uint8_t)fPointerData.size();
+
+    this->addToKey(1, &pointerIndex, DataPayloadType::kPointerIndex);
     fPointerData.push_back(ptr);
 }
 
@@ -369,19 +366,10 @@ SkSpan<const uint8_t> SkPaintParamsKey::BlockReader::dataPayload() const {
     return fBlock.subspan(payloadOffset, payloadSize);
 }
 
-static int field_size(const DataPayloadField& field) {
-    switch (field.fType) {
-        case DataPayloadType::kByte:
-        case DataPayloadType::kPointerIndex: return field.fCount;
-        case DataPayloadType::kFloat4:       return field.fCount * 16;
-    }
-    SkUNREACHABLE;
-}
-
 static int field_offset(SkSpan<const DataPayloadField> fields, int fieldIndex) {
     int byteOffset = 0;
     for (int i = 0; i < fieldIndex; ++i) {
-        byteOffset += field_size(fields[i]);
+        byteOffset += field_size(fields[i].fType) * fields[i].fCount;
     }
     return byteOffset;
 }
@@ -397,6 +385,13 @@ static SkSpan<const T> payload_subspan_for_field(SkSpan<const uint8_t> dataPaylo
 SkSpan<const uint8_t> SkPaintParamsKey::BlockReader::bytes(int fieldIndex) const {
     SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fType == DataPayloadType::kByte);
     return payload_subspan_for_field<uint8_t>(this->dataPayload(),
+                                              fEntry->fDataPayloadExpectations,
+                                              fieldIndex);
+}
+
+SkSpan<const int32_t> SkPaintParamsKey::BlockReader::ints(int fieldIndex) const {
+    SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fType == DataPayloadType::kInt);
+    return payload_subspan_for_field<int32_t>(this->dataPayload(),
                                               fEntry->fDataPayloadExpectations,
                                               fieldIndex);
 }

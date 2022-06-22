@@ -54,6 +54,7 @@ public:
 
     enum class DataPayloadType {
         kByte,
+        kInt,
         kFloat4,
         // Represents a position inside the fPointerData span.
         kPointerIndex,
@@ -86,6 +87,7 @@ public:
         // Retrieve the fieldIndex-th field in the data payload as a span. The type being read
         // is checked against the data payload's structure.
         SkSpan<const uint8_t> bytes(int fieldIndex) const;
+        SkSpan<const int32_t> ints(int fieldIndex) const;
         SkSpan<const SkColor4f> colors(int fieldIndex) const;
         const void* pointer(int fieldIndex) const;
 
@@ -209,7 +211,11 @@ public:
     void addByte(uint8_t data) {
         this->addBytes(1, &data);
     }
-    void add(int numColors, const SkColor4f* color);
+    void addInts(uint32_t numInts, const int32_t* data);
+    void addInt(int32_t data) {
+        this->addInts(1, &data);
+    }
+    void add(int numColors, const SkColor4f* colors);
     void add(const SkColor4f& color) {
         this->add(/*numColors=*/1, &color);
     }
@@ -252,6 +258,7 @@ public:
     SkDEBUGCODE(bool isLocked() const { return fLocked; })
 
 private:
+    void addToKey(uint32_t count, const void* data, SkPaintParamsKey::DataPayloadType payloadType);
     void makeInvalid();
 
 #ifdef SK_DEBUG

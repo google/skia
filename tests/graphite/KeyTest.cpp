@@ -190,20 +190,20 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyBlockReaderWorks, reporter, context) {
     static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
             {"ByteX",   SkPaintParamsKey::DataPayloadType::kByte,   kCountX},
             {"Float4Y", SkPaintParamsKey::DataPayloadType::kFloat4, kCountY},
-            {"ByteZ",   SkPaintParamsKey::DataPayloadType::kByte,   kCountZ},
+            {"IntZ",    SkPaintParamsKey::DataPayloadType::kInt,    kCountZ},
     };
 
     int userSnippetID = dict->addUserDefinedSnippet("key", kDataFields);
 
     static constexpr uint8_t   kDataX[kCountX] = {1, 2, 3};
     static constexpr SkColor4f kDataY[kCountY] = {{4, 5, 6, 7}, {8, 9, 10, 11}};
-    static constexpr uint8_t   kDataZ[kCountZ] = {12, 13, 14, 15, 16, 17, 18};
+    static constexpr int32_t   kDataZ[kCountZ] = {-1234567, 13, 14, 15, 16, 17, 7654321};
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
     builder.beginBlock(userSnippetID);
     builder.addBytes(kCountX, kDataX);
     builder.add     (kCountY, kDataY);
-    builder.addBytes(kCountZ, kDataZ);
+    builder.addInts (kCountZ, kDataZ);
     builder.endBlock();
 
     SkPaintParamsKey key = builder.lockAsKey();
@@ -222,7 +222,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyBlockReaderWorks, reporter, context) {
     REPORTER_ASSERT(reporter, readerDataY.size() == kCountY);
     REPORTER_ASSERT(reporter, 0 == memcmp(readerDataY.data(), kDataY, sizeof(kDataY)));
 
-    SkSpan<const uint8_t> readerBytesZ = reader.bytes(2);
+    SkSpan<const int32_t> readerBytesZ = reader.ints(2);
     REPORTER_ASSERT(reporter, readerBytesZ.size() == kCountZ);
     REPORTER_ASSERT(reporter, 0 == memcmp(readerBytesZ.data(), kDataZ, sizeof(kDataZ)));
 }
