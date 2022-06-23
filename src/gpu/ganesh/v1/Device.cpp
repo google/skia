@@ -688,7 +688,8 @@ sk_sp<SkSpecialImage> Device::makeSpecial(const SkBitmap& bitmap) {
 
     // TODO: this makes a tight copy of 'bitmap' but it doesn't have to be (given SkSpecialImage's
     // semantics). Since this is cached we would have to bake the fit into the cache key though.
-    auto view = std::get<0>(GrMakeCachedBitmapProxyView(fContext.get(), bitmap));
+    auto view = std::get<0>(
+            GrMakeCachedBitmapProxyView(fContext.get(), bitmap, /*label=*/"Device_MakeSpecial"));
     if (!view) {
         return nullptr;
     }
@@ -756,7 +757,8 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
                                         GrMipmapped::kNo,  // Don't auto generate mips
                                         subset,
                                         SkBackingFit::kApprox,
-                                        SkBudgeted::kYes);  // Always budgeted
+                                        SkBudgeted::kYes,
+                                        /*label=*/"Device_SnapSpecial");  // Always budgeted
         if (!view) {
             return nullptr;
         }

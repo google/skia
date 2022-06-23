@@ -102,14 +102,16 @@ public:
                                    GrMipmapped mipmapped,
                                    SkIRect srcRect,
                                    SkBackingFit fit,
-                                   SkBudgeted budgeted) {
+                                   SkBudgeted budgeted,
+                                   std::string_view label) {
         auto copy = GrSurfaceProxy::Copy(context,
                                          src.refProxy(),
                                          src.origin(),
                                          mipmapped,
                                          srcRect,
                                          fit,
-                                         budgeted);
+                                         budgeted,
+                                         label);
         return {std::move(copy), src.origin(), src.swizzle()};
     }
 
@@ -117,13 +119,15 @@ public:
                                    GrSurfaceProxyView src,
                                    GrMipmapped mipmapped,
                                    SkBackingFit fit,
-                                   SkBudgeted budgeted) {
+                                   SkBudgeted budgeted,
+                                   std::string_view label) {
         auto copy = GrSurfaceProxy::Copy(rContext,
                                          src.refProxy(),
                                          src.origin(),
                                          mipmapped,
                                          fit,
-                                         budgeted);
+                                         budgeted,
+                                         label);
         return {std::move(copy), src.origin(), src.swizzle()};
     }
 

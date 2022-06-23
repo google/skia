@@ -955,8 +955,12 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     const SkBitmap& permutationsBitmap = paintingData->getPermutationsBitmap();
     const SkBitmap& noiseBitmap        = paintingData->getNoiseBitmap();
 
-    auto permutationsView = std::get<0>(GrMakeCachedBitmapProxyView(context, permutationsBitmap));
-    auto noiseView        = std::get<0>(GrMakeCachedBitmapProxyView(context, noiseBitmap));
+    auto permutationsView = std::get<0>(GrMakeCachedBitmapProxyView(
+            context,
+            permutationsBitmap,
+            /*label=*/"PerlinNoiseShader_FragmentProcessor_PermutationsView"));
+    auto noiseView = std::get<0>(GrMakeCachedBitmapProxyView(
+            context, noiseBitmap, /*label=*/"PerlinNoiseShader_FragmentProcessor_NoiseView"));
 
     if (permutationsView && noiseView) {
         return GrPerlinNoise2Effect::Make(fType,

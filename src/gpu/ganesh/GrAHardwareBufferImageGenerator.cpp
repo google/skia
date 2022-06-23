@@ -207,8 +207,13 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
                                   ? SkBudgeted::kNo
                                   : SkBudgeted::kYes;
 
-    return GrSurfaceProxyView::Copy(context, std::move(texProxyView), mipmapped, subset,
-                                    SkBackingFit::kExact, budgeted);
+    return GrSurfaceProxyView::Copy(context,
+                                    std::move(texProxyView),
+                                    mipmapped,
+                                    subset,
+                                    SkBackingFit::kExact,
+                                    budgeted,
+                                    /*label=*/"AHardwareBufferImageGenerator_GenerateTexture");
 }
 
 bool GrAHardwareBufferImageGenerator::onIsValid(GrRecordingContext* context) const {

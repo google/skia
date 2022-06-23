@@ -2090,6 +2090,7 @@ bool SurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
                                      copyRect,
                                      fit,
                                      SkBudgeted::kYes,
+                                     /*label=*/{},
                                      restrictions.fRectsMustMatch);
     SkASSERT(copy);
 

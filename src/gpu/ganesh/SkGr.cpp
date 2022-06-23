@@ -98,6 +98,7 @@ sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(skgpu::UniqueKey* 
 sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
                                                      sk_sp<GrSurfaceProxy> baseProxy,
                                                      GrSurfaceOrigin origin,
+                                                     std::string_view label,
                                                      SkBudgeted budgeted) {
     SkASSERT(baseProxy);
 
@@ -110,7 +111,7 @@ sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
         return nullptr;
     }
     auto copy = GrSurfaceProxy::Copy(ctx, std::move(baseProxy), origin, GrMipmapped::kYes,
-                                     SkBackingFit::kExact, budgeted);
+                                     SkBackingFit::kExact, budgeted, label);
     if (!copy) {
         return nullptr;
     }
@@ -124,7 +125,10 @@ GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext* context,
     auto origin = src.origin();
     auto swizzle = src.swizzle();
     auto proxy = src.refProxy();
-    return {GrCopyBaseMipMapToTextureProxy(context, proxy, origin, budgeted), origin, swizzle};
+    return {GrCopyBaseMipMapToTextureProxy(
+                    context, proxy, origin, /*label=*/"CopyBaseMipMapToView", budgeted),
+            origin,
+            swizzle};
 }
 
 static GrMipmapped adjust_mipmapped(GrMipmapped mipmapped,
@@ -169,6 +173,7 @@ static sk_sp<GrTextureProxy> make_bmp_proxy(GrProxyProvider* proxyProvider,
 std::tuple<GrSurfaceProxyView, GrColorType>
 GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
                             const SkBitmap& bitmap,
+                            std::string_view label,
                             GrMipmapped mipmapped) {
     if (!bitmap.peekPixels(nullptr)) {
         return {};
@@ -214,7 +219,8 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
     // We need a mipped proxy, but we found a proxy earlier that wasn't mipped. Thus we generate
     // a new mipped surface and copy the original proxy into the base layer. We will then let
     // the gpu generate the rest of the mips.
-    auto mippedProxy = GrCopyBaseMipMapToTextureProxy(rContext, proxy, kTopLeft_GrSurfaceOrigin);
+    auto mippedProxy = GrCopyBaseMipMapToTextureProxy(
+            rContext, proxy, kTopLeft_GrSurfaceOrigin, /*label=*/"MakeCachedBitmapProxyView");
     if (!mippedProxy) {
         // We failed to make a mipped proxy with the base copied into it. This could have
         // been from failure to make the proxy or failure to do the copy. Thus we will fall
@@ -386,7 +392,8 @@ static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
     // Pixel 4           Adreno640       500    110ms        221ms (2.01x)     214ms (1.95x)
     // Galaxy S20 FE     Mali-G77 MP11   600    165ms        360ms (2.18x)     260ms (1.58x)
     static const SkBitmap gLUT = make_dither_lut();
-    auto [tex, ct] = GrMakeCachedBitmapProxyView(rContext, gLUT, GrMipmapped::kNo);
+    auto [tex, ct] = GrMakeCachedBitmapProxyView(
+            rContext, gLUT, /*label=*/"MakeDitherEffect", GrMipmapped::kNo);
     if (!tex) {
         return inputFP;
     }

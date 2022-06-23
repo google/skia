@@ -240,7 +240,8 @@ public:
 #if SK_SUPPORT_GPU
     GrSurfaceProxyView onView(GrRecordingContext* context) const override {
         if (context) {
-            return std::get<0>(GrMakeCachedBitmapProxyView(context, fBitmap, GrMipmapped::kNo));
+            return std::get<0>(GrMakeCachedBitmapProxyView(
+                    context, fBitmap, /*label=*/"SpecialImageRaster_OnView", GrMipmapped::kNo));
         }
 
         return {};
@@ -454,8 +455,13 @@ public:
                                            fColorSpace);
             }
 
-            auto subsetView = GrSurfaceProxyView::Copy(fContext, fView, GrMipmapped::kNo, *subset,
-                                                       SkBackingFit::kExact, SkBudgeted::kYes);
+            auto subsetView = GrSurfaceProxyView::Copy(fContext,
+                                                       fView,
+                                                       GrMipmapped::kNo,
+                                                       *subset,
+                                                       SkBackingFit::kExact,
+                                                       SkBudgeted::kYes,
+                                                       /*label=*/"SkSpecialImage_AsImage");
             if (!subsetView) {
                 return nullptr;
             }

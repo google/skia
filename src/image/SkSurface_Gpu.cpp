@@ -132,8 +132,13 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         }
         auto rect = subset ? *subset : SkIRect::MakeSize(srcView.dimensions());
         GrMipmapped mipmapped = srcView.mipmapped();
-        srcView = GrSurfaceProxyView::Copy(rContext, std::move(srcView), mipmapped, rect,
-                                           SkBackingFit::kExact, budgeted);
+        srcView = GrSurfaceProxyView::Copy(rContext,
+                                           std::move(srcView),
+                                           mipmapped,
+                                           rect,
+                                           SkBackingFit::kExact,
+                                           budgeted,
+                                           /*label=*/"SurfaceGpu_NewImageSnapshot");
     }
 
     const SkImageInfo info = fDevice->imageInfo();

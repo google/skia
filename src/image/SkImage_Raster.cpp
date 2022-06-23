@@ -236,9 +236,11 @@ bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        std::tie(fPinnedView, fPinnedColorType) = GrMakeCachedBitmapProxyView(rContext,
-                                                                              fBitmap,
-                                                                              GrMipmapped::kNo);
+        std::tie(fPinnedView, fPinnedColorType) =
+                GrMakeCachedBitmapProxyView(rContext,
+                                            fBitmap,
+                                            /*label=*/"SkImageRaster_PinAsTexture",
+                                            GrMipmapped::kNo);
         if (!fPinnedView) {
             fPinnedColorType = GrColorType::kUnknown;
             return false;
@@ -450,7 +452,12 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         // if mipmapping is desired (skbug.com/10411)
         mipmapped = GrMipmapped::kNo;
         if (policy != GrImageTexGenPolicy::kDraw) {
-            return {CopyView(rContext, fPinnedView, mipmapped, policy), fPinnedColorType};
+            return {CopyView(rContext,
+                             fPinnedView,
+                             mipmapped,
+                             policy,
+                             /*label=*/"TextureForImageRasterWithPolicyNotEqualKDraw"),
+                    fPinnedColorType};
         }
         return {fPinnedView, fPinnedColorType};
     }
@@ -462,7 +469,10 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         if (this->hasMipmaps()) {
             mipmapped = GrMipmapped::kYes;
         }
-        return GrMakeCachedBitmapProxyView(rContext, fBitmap, mipmapped);
+        return GrMakeCachedBitmapProxyView(rContext,
+                                           fBitmap,
+                                           /*label=*/"TextureForImageRasterWithPolicyEqualKDraw",
+                                           mipmapped);
     }
     auto budgeted = (policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted)
             ? SkBudgeted::kNo

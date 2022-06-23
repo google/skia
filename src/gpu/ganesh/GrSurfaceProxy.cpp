@@ -269,6 +269,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
                                            SkBudgeted budgeted,
+                                           std::string_view label,
                                            RectsMustMatch rectsMustMatch,
                                            sk_sp<GrRenderTask>* outTask) {
     SkASSERT(!src->isFullyLazy());
@@ -342,6 +343,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            GrMipmapped mipmapped,
                                            SkBackingFit fit,
                                            SkBudgeted budgeted,
+                                           std::string_view label,
                                            sk_sp<GrRenderTask>* outTask) {
     SkASSERT(!src->isFullyLazy());
     auto rect = SkIRect::MakeSize(src->dimensions());
@@ -352,6 +354,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                 rect,
                 fit,
                 budgeted,
+                label,
                 RectsMustMatch::kNo,
                 outTask);
 }

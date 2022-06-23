@@ -189,7 +189,8 @@ protected:
     static GrSurfaceProxyView CopyView(GrRecordingContext*,
                                        GrSurfaceProxyView src,
                                        GrMipmapped,
-                                       GrImageTexGenPolicy);
+                                       GrImageTexGenPolicy,
+                                       std::string_view label);
 
     static std::unique_ptr<GrFragmentProcessor> MakeFragmentProcessorFromView(GrRecordingContext*,
                                                                               GrSurfaceProxyView,
@@ -256,7 +257,8 @@ static inline const SkImage_Base* as_IB(const SkImage* image) {
 inline GrSurfaceProxyView SkImage_Base::CopyView(GrRecordingContext* context,
                                                  GrSurfaceProxyView src,
                                                  GrMipmapped mipmapped,
-                                                 GrImageTexGenPolicy policy) {
+                                                 GrImageTexGenPolicy policy,
+                                                 std::string_view label) {
     SkBudgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
                           ? SkBudgeted::kYes
                           : SkBudgeted::kNo;
@@ -264,7 +266,8 @@ inline GrSurfaceProxyView SkImage_Base::CopyView(GrRecordingContext* context,
                                     std::move(src),
                                     mipmapped,
                                     SkBackingFit::kExact,
-                                    budgeted);
+                                    budgeted,
+                                    /*label=*/label);
 }
 #endif
 

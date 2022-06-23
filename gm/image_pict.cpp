@@ -197,9 +197,13 @@ protected:
         auto budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted ? SkBudgeted::kNo
                                                                                 : SkBudgeted::kYes;
         return GrSurfaceProxyView::Copy(
-                fRContext.get(), fView, mipmapped,
+                fRContext.get(),
+                fView,
+                mipmapped,
                 SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
-                SkBackingFit::kExact, budgeted);
+                SkBackingFit::kExact,
+                budgeted,
+                /*label=*/"SurfaceProxyView_GenerateTexture");
     }
 
 private:

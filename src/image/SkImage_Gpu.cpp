@@ -198,6 +198,7 @@ sk_sp<SkImage> SkImage_Gpu::MakeWithVolatileSrc(sk_sp<GrRecordingContext> rConte
                                      mm,
                                      SkBackingFit::kExact,
                                      SkBudgeted::kYes,
+                                     /*label=*/"ImageGpu_MakeWithVolatileSrc",
                                      &copyTask);
     if (!copy) {
         return nullptr;
@@ -846,7 +847,11 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Gpu::onAsView(
         return {};
     }
     if (policy != GrImageTexGenPolicy::kDraw) {
-        return {CopyView(recordingContext, this->makeView(recordingContext), mipmapped, policy),
+        return {CopyView(recordingContext,
+                         this->makeView(recordingContext),
+                         mipmapped,
+                         policy,
+                         /*label=*/"SkImageGpu_AsView"),
                 SkColorTypeToGrColorType(this->colorType())};
     }
     GrSurfaceProxyView view = this->makeView(recordingContext);

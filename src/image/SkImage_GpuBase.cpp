@@ -145,7 +145,8 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
                                              GrMipmapped::kNo,
                                              subset,
                                              SkBackingFit::kExact,
-                                             isBudgeted);
+                                             isBudgeted,
+                                             /*label=*/"ImageGpuBase_MakeSubset");
 
     if (!copyView) {
         return nullptr;

@@ -149,6 +149,7 @@ enum class GrImageTexGenPolicy : int {
 sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
                                                      sk_sp<GrSurfaceProxy> baseProxy,
                                                      GrSurfaceOrigin origin,
+                                                     std::string_view label,
                                                      SkBudgeted = SkBudgeted::kYes);
 /**
  * Same as GrCopyBaseMipMapToTextureProxy but takes the src as a view and returns a view with same
@@ -169,6 +170,7 @@ GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext*,
 std::tuple<GrSurfaceProxyView, GrColorType>
 GrMakeCachedBitmapProxyView(GrRecordingContext*,
                             const SkBitmap&,
+                            std::string_view label,
                             GrMipmapped = GrMipmapped::kNo);
 
 /**

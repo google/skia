@@ -325,6 +325,7 @@ public:
                                       SkIRect srcRect,
                                       SkBackingFit,
                                       SkBudgeted,
+                                      std::string_view label,
                                       RectsMustMatch = RectsMustMatch::kNo,
                                       sk_sp<GrRenderTask>* outTask = nullptr);
 
@@ -335,6 +336,7 @@ public:
                                       GrMipmapped,
                                       SkBackingFit,
                                       SkBudgeted,
+                                      std::string_view label,
                                       sk_sp<GrRenderTask>* outTask = nullptr);
 
 #if GR_TEST_UTILS

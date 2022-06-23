@@ -230,7 +230,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                                          mipmapped,
                                          subset,
                                          SkBackingFit::kExact,
-                                         budgeted);
+                                         budgeted,
+                                         /*label=*/"BackendTextureImageGenerator_GenerateTexture");
         return {std::move(copy), fSurfaceOrigin, readSwizzle};
     }
 }

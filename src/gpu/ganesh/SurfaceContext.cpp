@@ -190,7 +190,8 @@ bool SurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoin
                                             this->origin(),
                                             kMipMapped,
                                             kFit,
-                                            kBudgeted);
+                                            kBudgeted,
+                                            /*label=*/"SurfaceContext_ReadPixelsWithCopyWholeSrc");
             } else {
                 auto srcRect = SkIRect::MakePtSize(pt, dst.dimensions());
                 copy = GrSurfaceProxy::Copy(fContext,
@@ -200,6 +201,7 @@ bool SurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoin
                                             srcRect,
                                             kFit,
                                             kBudgeted,
+                                            /*label=*/"SurfaceContext_ReadPixels",
                                             restrictions.fRectsMustMatch);
                 pt = {0, 0};
             }
@@ -850,7 +852,8 @@ void SurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
                                            GrMipmapped::kNo,
                                            srcRect,
                                            SkBackingFit::kApprox,
-                                           SkBudgeted::kYes);
+                                           SkBudgeted::kYes,
+                                           /*label=*/"SurfaceContext_AsyncRescaleAndReadPixelsYUV420");
         if (!srcView) {
             // If we can't get a texture copy of the contents then give up.
             callback(callbackContext, nullptr);
@@ -1108,7 +1111,9 @@ bool SurfaceContext::rescaleInto(skgpu::SurfaceFillContext* dst,
         // TODO: If copying supported specifying a renderable copy then we could return the copy
         // when there are no other conversions.
         texView = GrSurfaceProxyView::Copy(fContext, std::move(texView), GrMipmapped::kNo, srcRect,
-                                           SkBackingFit::kApprox, SkBudgeted::kNo);
+                                           SkBackingFit::kApprox,
+                                           SkBudgeted::kNo,
+                                           /*label=*/"SurfaceContext_RescaleInto");
         if (!texView) {
             return false;
         }
