@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 
 // TODO: this needs to be expanded into a more flexible dictionary (esp. for user-supplied SkSL)
-enum class SkBuiltInCodeSnippetID : uint8_t {
+enum class SkBuiltInCodeSnippetID : int32_t {
     // This isn't just a signal for a failure during paintparams key creation. It also actually
     // implements the default behavior for an erroneous draw. Currently it just draws solid
     // magenta.

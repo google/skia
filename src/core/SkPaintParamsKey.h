@@ -35,19 +35,19 @@ struct SkShaderSnippet;
 // This class is a compact representation of the shader needed to implement a given
 // PaintParams. Its structure is a series of blocks where each block has a
 // Header, consisting of 2 bytes:
-//   1 byte: code-snippet ID
+//   4 bytes: code-snippet ID
 //   1 byte: size of the block, in bytes (header, plus all data payload bytes)
 // The rest of the data and pointers in the block are dependent on the individual code snippet.
 // If a given block has child blocks, they appear in the key right after their parent
 // block's header.
 class SkPaintParamsKey {
 public:
-    SK_BEGIN_REQUIRE_DENSE
+    #pragma pack(push, 1)
     struct Header {
-        uint8_t codeSnippetID;
+        int32_t codeSnippetID;
         uint8_t blockSize;
     };
-    SK_END_REQUIRE_DENSE
+    #pragma pack(pop)
 
     static const int kBlockSizeOffsetInBytes = offsetof(Header, blockSize);
     static const int kMaxBlockSize = std::numeric_limits<uint8_t>::max();
@@ -106,9 +106,7 @@ public:
                     SkSpan<const void*> pointerSpan,
                     int offsetInParent);
 
-        SkBuiltInCodeSnippetID codeSnippetId() const {
-            return static_cast<SkBuiltInCodeSnippetID>(fBlock[0]);
-        }
+        int32_t codeSnippetId() const;
 
         // The data payload appears after any children and occupies the remainder of the
         // block's space.
@@ -203,8 +201,8 @@ public:
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 #endif
 
-    void beginBlock(int codeSnippetID);
-    void beginBlock(SkBuiltInCodeSnippetID id) { this->beginBlock(static_cast<int>(id)); }
+    void beginBlock(int32_t codeSnippetID);
+    void beginBlock(SkBuiltInCodeSnippetID id) { this->beginBlock(static_cast<int32_t>(id)); }
     void endBlock();
 
     void addBytes(uint32_t numBytes, const uint8_t* data);

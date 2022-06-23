@@ -15,11 +15,22 @@ using DataPayloadType  = SkPaintParamsKey::DataPayloadType;
 using DataPayloadField = SkPaintParamsKey::DataPayloadField;
 
 //--------------------------------------------------------------------------------------------------
+static SkPaintParamsKey::Header read_header(SkSpan<const uint8_t> parentSpan, int headerOffset) {
+    SkASSERT(headerOffset + sizeof(SkPaintParamsKey::Header) <= parentSpan.size());
+
+    SkPaintParamsKey::Header header;
+    memcpy(&header, &parentSpan[headerOffset], sizeof(SkPaintParamsKey::Header));
+    SkASSERT(header.blockSize >= sizeof(SkPaintParamsKey::Header));
+    SkASSERT(headerOffset + header.blockSize <= static_cast<int>(parentSpan.size()));
+
+    return header;
+}
+
+//--------------------------------------------------------------------------------------------------
 SkPaintParamsKeyBuilder::SkPaintParamsKeyBuilder(const SkShaderCodeDictionary* dict,
                                                  SkBackend backend)
         : fDict(dict)
-        , fBackend(backend) {
-}
+        , fBackend(backend) {}
 
 #ifdef SK_DEBUG
 void SkPaintParamsKeyBuilder::checkReset() {
@@ -35,10 +46,10 @@ void SkPaintParamsKeyBuilder::checkReset() {
 #endif
 
 // Block headers have the following structure:
-//  1st byte: codeSnippetID
-//  2nd byte: total blockSize in bytes
+//   4 bytes: code-snippet ID
+//   1 byte: size of the block, in bytes (header, plus all data payload bytes)
 // This call stores the header's offset in the key on the stack to be used in 'endBlock'
-void SkPaintParamsKeyBuilder::beginBlock(int codeSnippetID) {
+void SkPaintParamsKeyBuilder::beginBlock(int32_t codeSnippetID) {
     if (!this->isValid()) {
         return;
     }
@@ -57,7 +68,7 @@ void SkPaintParamsKeyBuilder::beginBlock(int codeSnippetID) {
     }
 
     static constexpr DataPayloadField kHeader[2] = {
-            {"snippetID", DataPayloadType::kByte, 1},
+            {"snippetID", DataPayloadType::kInt, 1},
             {"blockSize", DataPayloadType::kByte, 1},
     };
 
@@ -69,7 +80,7 @@ void SkPaintParamsKeyBuilder::beginBlock(int codeSnippetID) {
     fStack.push_back({ codeSnippetID, this->sizeInBytes(),
                        SkDEBUGCODE(kHeaderExpectations, 0) });
 
-    this->addByte(SkTo<uint8_t>(codeSnippetID));
+    this->addInt(codeSnippetID);
     this->addByte(0);  // this will be filled in when endBlock is called
 
 #ifdef SK_DEBUG
@@ -102,10 +113,13 @@ void SkPaintParamsKeyBuilder::endBlock() {
 
     int headerOffset = fStack.back().fHeaderOffset;
 
-    SkPaintParamsKey::Header* header =
-            reinterpret_cast<SkPaintParamsKey::Header*>(&fData[headerOffset]);
-    SkASSERT(header->codeSnippetID == fStack.back().fCodeSnippetID);
-    SkASSERT(header->blockSize == 0);
+#ifdef SK_DEBUG
+    // We don't use `read_header` here because the header block size isn't valid yet.
+    SkPaintParamsKey::Header header;
+    memcpy(&header, &fData[headerOffset], sizeof(SkPaintParamsKey::Header));
+    SkASSERT(header.codeSnippetID == fStack.back().fCodeSnippetID);
+    SkASSERT(header.blockSize == 0);
+#endif
 
     int blockSize = this->sizeInBytes() - headerOffset;
     if (blockSize > SkPaintParamsKey::kMaxBlockSize) {
@@ -114,7 +128,7 @@ void SkPaintParamsKeyBuilder::endBlock() {
         return;
     }
 
-    header->blockSize = blockSize;
+    fData[headerOffset + SkPaintParamsKey::kBlockSizeOffsetInBytes] = blockSize;
 
     fStack.pop();
 
@@ -275,7 +289,7 @@ void SkPaintParamsKey::AddBlockToShaderInfo(SkShaderCodeDictionary* dict,
 
     result->add(reader);
 #ifdef SK_GRAPHITE_ENABLED
-    result->addFlags(dict->getSnippetRequirementFlags(reader.codeSnippetId()));
+    result->addFlags(dict->getEntry(reader.codeSnippetId())->fSnippetRequirementFlags);
 #endif
 
     // The child blocks appear right after the parent block's header in the key and go
@@ -299,33 +313,16 @@ void SkPaintParamsKey::toShaderInfo(SkShaderCodeDictionary* dict, SkShaderInfo* 
 
 #if GR_TEST_UTILS
 bool SkPaintParamsKey::isErrorKey() const {
-    return this->sizeInBytes() == sizeof(Header) &&
-           fData[0] == static_cast<int>(SkBuiltInCodeSnippetID::kError) &&
-           fData[1] == sizeof(Header);
+    if (this->sizeInBytes() != sizeof(Header)) {
+        return false;
+    }
+    Header header = read_header(this->asSpan(), /*headerOffset=*/0);
+    return header.codeSnippetID == (int32_t)SkBuiltInCodeSnippetID::kError &&
+           header.blockSize == sizeof(Header);
 }
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace {
-
-[[maybe_unused]] void output_indent(int indent) {
-    SkDebugf("%*c", 4 * indent, ' ');
-}
-
-SkPaintParamsKey::Header read_header(SkSpan<const uint8_t> parentSpan, int headerOffset) {
-    SkASSERT(headerOffset + sizeof(SkPaintParamsKey::Header) <= parentSpan.size());
-
-    const SkPaintParamsKey::Header* header =
-            reinterpret_cast<const SkPaintParamsKey::Header*>(&parentSpan[headerOffset]);
-    SkASSERT(header->blockSize >= sizeof(SkPaintParamsKey::Header));
-    SkASSERT(headerOffset + header->blockSize <= static_cast<int>(parentSpan.size()));
-
-    return *header;
-}
-
-} // anonymous namespace
-
 
 SkPaintParamsKey::BlockReader::BlockReader(const SkShaderCodeDictionary* dict,
                                            SkSpan<const uint8_t> parentSpan,
@@ -353,6 +350,11 @@ SkPaintParamsKey::BlockReader SkPaintParamsKey::BlockReader::child(
     }
 
     return BlockReader(dict, fBlock, fPointerSpan, childOffset);
+}
+
+int32_t SkPaintParamsKey::BlockReader::codeSnippetId() const {
+    Header header = read_header(fBlock, 0);
+    return header.codeSnippetID;
 }
 
 SkSpan<const uint8_t> SkPaintParamsKey::BlockReader::dataPayload() const {
@@ -416,6 +418,10 @@ const void* SkPaintParamsKey::BlockReader::pointer(int fieldIndex) const {
 
 int SkPaintParamsKey::BlockReader::numDataPayloadFields() const {
     return fEntry->fDataPayloadExpectations.size();
+}
+
+static void output_indent(int indent) {
+    SkDebugf("%*c", 4 * indent, ' ');
 }
 
 void SkPaintParamsKey::BlockReader::dump(const SkShaderCodeDictionary* dict, int indent) const {
