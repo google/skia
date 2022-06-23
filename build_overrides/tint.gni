@@ -13,3 +13,5 @@ tint_build_spv_reader = true
 tint_build_spv_writer = true
 tint_build_wgsl_reader = true
 tint_build_wgsl_writer = true
+
+tint_build_unittests = false
