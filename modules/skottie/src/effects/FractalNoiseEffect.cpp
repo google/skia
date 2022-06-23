@@ -216,8 +216,8 @@ sk_sp<SkRuntimeEffect> noise_effect() {
         gFractalTurbulentSharpSkSL
     };
 
-    static_assert(static_cast<size_t>(FILTER)  < SK_ARRAY_COUNT(gFilters));
-    static_assert(static_cast<size_t>(FRACTAL) < SK_ARRAY_COUNT(gFractals));
+    static_assert(static_cast<size_t>(FILTER)  < std::size(gFilters));
+    static_assert(static_cast<size_t>(FRACTAL) < std::size(gFractals));
 
     static const SkRuntimeEffect* effect =
             make_noise_effect(LOOPS,

@@ -162,8 +162,8 @@ SkMatrix SkSVGNode::ComputeViewboxMatrix(const SkRect& viewBox,
         const size_t x_coeff = par.fAlign >> 0 & 0x03,
                      y_coeff = par.fAlign >> 2 & 0x03;
 
-        SkASSERT(x_coeff < SK_ARRAY_COUNT(gAlignCoeffs) &&
-                 y_coeff < SK_ARRAY_COUNT(gAlignCoeffs));
+        SkASSERT(x_coeff < std::size(gAlignCoeffs) &&
+                 y_coeff < std::size(gAlignCoeffs));
 
         const auto tx = -viewBox.x() * scale.x,
                    ty = -viewBox.y() * scale.y,

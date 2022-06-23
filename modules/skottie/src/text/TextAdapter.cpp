@@ -216,7 +216,7 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
         AnchorPointGrouping::kAll,       // 'g': 4
     };
     const auto apg = jm
-            ? SkTPin<int>(ParseDefault<int>((*jm)["g"], 1), 1, SK_ARRAY_COUNT(gGroupingMap))
+            ? SkTPin<int>(ParseDefault<int>((*jm)["g"], 1), 1, std::size(gGroupingMap))
             : 1;
 
     auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr),

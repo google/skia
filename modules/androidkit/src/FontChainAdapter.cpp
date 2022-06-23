@@ -85,6 +85,6 @@ int register_androidkit_FontChain(JNIEnv* env) {
     };
 
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }

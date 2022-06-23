@@ -49,7 +49,7 @@ public:
             };
             this->node()->setStrokeJoin(
                         gJoins[std::min<size_t>(ParseDefault<size_t>(jpaint["lj"], 1) - 1,
-                                              SK_ARRAY_COUNT(gJoins) - 1)]);
+                                              std::size(gJoins) - 1)]);
 
             static constexpr SkPaint::Cap gCaps[] = {
                 SkPaint::kButt_Cap,
@@ -58,7 +58,7 @@ public:
             };
             this->node()->setStrokeCap(
                         gCaps[std::min<size_t>(ParseDefault<size_t>(jpaint["lc"], 1) - 1,
-                                             SK_ARRAY_COUNT(gCaps) - 1)]);
+                                             std::size(gCaps) - 1)]);
         }
 
         if (fShaderType == ShaderType::kColor) {

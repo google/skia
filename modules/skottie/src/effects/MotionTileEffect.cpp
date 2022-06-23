@@ -108,7 +108,7 @@ protected:
                                      tile.y() + 2 * (tile.height() - phase_vec.fY) }};
 
             auto mask_shader = SkGradientShader::MakeLinear(pts, colors, pos,
-                                                            SK_ARRAY_COUNT(colors),
+                                                            std::size(colors),
                                                             SkTileMode::kRepeat);
 
             // First drawing pass: in-place masked layer content.

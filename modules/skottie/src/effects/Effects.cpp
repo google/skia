@@ -158,8 +158,8 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachStyles(const skjson::ArrayValue& js
 
         const auto style_type =
                 ParseDefault<size_t>((*jstyle)["ty"], std::numeric_limits<size_t>::max());
-        auto builder = style_type < SK_ARRAY_COUNT(gStyleBuilders) ? gStyleBuilders[style_type]
-                                                                   : nullptr;
+        auto builder = style_type < std::size(gStyleBuilders) ? gStyleBuilders[style_type]
+                                                              : nullptr;
 
         if (!builder) {
             fBuilder->log(Logger::Level::kWarning, jstyle, "Unsupported layer style.");

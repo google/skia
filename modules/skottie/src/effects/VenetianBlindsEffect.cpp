@@ -128,7 +128,7 @@ private:
             1 - df1 - df0,  // fp3
             1,
         };
-        static_assert(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(pos), "");
+        static_assert(std::size(colors) == std::size(pos), "");
 
         const auto center = SkPoint::Make(0.5f * this->layerSize().width(),
                                           0.5f * this->layerSize().height()),
@@ -141,7 +141,7 @@ private:
         };
 
         return {
-            SkGradientShader::MakeLinear(pts, colors, pos, SK_ARRAY_COUNT(colors),
+            SkGradientShader::MakeLinear(pts, colors, pos, std::size(colors),
                                          SkTileMode::kRepeat),
             true
         };

@@ -46,7 +46,7 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
         SkTextUtils::kCenter_Align // 'j': 2
     };
     v->fHAlign = gAlignMap[std::min<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
-                                            SK_ARRAY_COUNT(gAlignMap) - 1)];
+                                            std::size(gAlignMap) - 1)];
 
     // Optional text box size.
     if (const skjson::ArrayValue* jsz = (*jtxt)["sz"]) {
@@ -72,7 +72,7 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
     // TODO: remove "sk_rs" support after migrating clients.
     v->fResize = gResizeMap[std::min(std::max(ParseDefault<size_t>((*jtxt)[   "rs"], 0),
                                               ParseDefault<size_t>((*jtxt)["sk_rs"], 0)),
-                                     SK_ARRAY_COUNT(gResizeMap) - 1)];
+                                     std::size(gResizeMap) - 1)];
 
     // Optional min/max font size and line count (used when aute-resizing)
     v->fMinTextSize = ParseDefault<SkScalar>((*jtxt)["mf"], 0.0f);
@@ -100,7 +100,7 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
         Shaper::Capitalization::kUpperCase, // 'ca': 1
     };
     v->fCapitalization = gCapMap[std::min<size_t>(ParseDefault<size_t>((*jtxt)["ca"], 0),
-                                                  SK_ARRAY_COUNT(gCapMap) - 1)];
+                                                  std::size(gCapMap) - 1)];
 
     // In point mode, the text is baseline-aligned.
     v->fVAlign = v->fBox.isEmpty() ? Shaper::VAlign::kTopBaseline
@@ -114,7 +114,7 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
     size_t vj;
     if (skottie::Parse((*jtxt)[   "vj"], &vj) ||
         skottie::Parse((*jtxt)["sk_vj"], &vj)) { // TODO: remove after migrating clients.
-        if (vj < SK_ARRAY_COUNT(gVAlignMap)) {
+        if (vj < std::size(gVAlignMap)) {
             v->fVAlign = gVAlignMap[vj];
         } else {
             // Legacy sk_vj values.
@@ -168,7 +168,7 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
             SkPaint::kBevel_Join,  // lj: 3
         };
         v->fStrokeJoin = gJoins[std::min<size_t>(ParseDefault<size_t>((*jtxt)["lj"], 1) - 1,
-                                                 SK_ARRAY_COUNT(gJoins) - 1)];
+                                                 std::size(gJoins) - 1)];
     }
 
     return true;

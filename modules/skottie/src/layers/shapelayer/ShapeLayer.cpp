@@ -67,7 +67,7 @@ static constexpr GeometryEffectAttacherT gPaintGeometryAdjusters[] = {
     nullptr,                             // gradient fill
     ShapeBuilder::AdjustStrokeGeometry,  // gradient stroke
 };
-static_assert(SK_ARRAY_COUNT(gPaintGeometryAdjusters) == SK_ARRAY_COUNT(gPaintAttachers), "");
+static_assert(std::size(gPaintGeometryAdjusters) == std::size(gPaintAttachers), "");
 
 using DrawEffectAttacherT =
     std::vector<sk_sp<sksg::RenderNode>> (*)(const skjson::ObjectValue&,
@@ -126,7 +126,7 @@ const ShapeInfo* FindShapeInfo(const skjson::ObjectValue& jshape) {
 
     const auto* info = bsearch(type->begin(),
                                gShapeInfo,
-                               SK_ARRAY_COUNT(gShapeInfo),
+                               std::size(gShapeInfo),
                                sizeof(ShapeInfo),
                                [](const void* key, const void* info) {
                                   return strcmp(static_cast<const char*>(key),
@@ -210,7 +210,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
             jtransform = shape;
             break;
         case ShapeType::kGeometryEffect:
-            SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
+            SkASSERT(info->fAttacherIndex < std::size(gGeometryEffectAttachers));
             ctx->fGeometryEffectStack->push_back(
                 { *shape, gGeometryEffectAttachers[info->fAttacherIndex] });
             break;
@@ -237,14 +237,14 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
 
         switch (rec->fInfo.fShapeType) {
         case ShapeType::kGeometry: {
-            SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gGeometryAttachers));
+            SkASSERT(rec->fInfo.fAttacherIndex < std::size(gGeometryAttachers));
             if (auto geo = gGeometryAttachers[rec->fInfo.fAttacherIndex](rec->fJson, this)) {
                 geos.push_back(std::move(geo));
             }
         } break;
         case ShapeType::kGeometryEffect: {
             // Apply the current effect and pop from the stack.
-            SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
+            SkASSERT(rec->fInfo.fAttacherIndex < std::size(gGeometryEffectAttachers));
             if (!geos.empty()) {
                 geos = gGeometryEffectAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
                                                                            this,
@@ -268,7 +268,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
             }
         } break;
         case ShapeType::kPaint: {
-            SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gPaintAttachers));
+            SkASSERT(rec->fInfo.fAttacherIndex < std::size(gPaintAttachers));
             auto paint = gPaintAttachers[rec->fInfo.fAttacherIndex](rec->fJson, this);
             if (!paint || geos.empty() || rec->fSuppressed)
                 break;
@@ -282,7 +282,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
             }
 
             // Apply local paint geometry adjustments (e.g. dashing).
-            SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gPaintGeometryAdjusters));
+            SkASSERT(rec->fInfo.fAttacherIndex < std::size(gPaintGeometryAdjusters));
             if (const auto adjuster = gPaintGeometryAdjusters[rec->fInfo.fAttacherIndex]) {
                 drawGeos = adjuster(rec->fJson, this, std::move(drawGeos));
             }
@@ -297,7 +297,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
             ctx->fCommittedAnimators = fCurrentAnimatorScope->size();
         } break;
         case ShapeType::kDrawEffect: {
-            SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gDrawEffectAttachers));
+            SkASSERT(rec->fInfo.fAttacherIndex < std::size(gDrawEffectAttachers));
             if (!draws.empty()) {
                 draws = gDrawEffectAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
                                                                         this,

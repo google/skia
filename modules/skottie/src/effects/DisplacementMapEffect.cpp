@@ -153,7 +153,7 @@ private:
         };
 
         const auto i = static_cast<size_t>(sel);
-        SkASSERT(i < SK_ARRAY_COUNT(gCoeffs));
+        SkASSERT(i < std::size(gCoeffs));
 
         return gCoeffs[i];
     }

@@ -75,7 +75,7 @@ protected:
 
             fMaskShader = SkGradientShader::MakeSweep(fWipeCenter.x(), fWipeCenter.y(),
                                                       grad_colors, grad_pos,
-                                                      SK_ARRAY_COUNT(grad_colors),
+                                                      std::size(grad_colors),
                                                       SkTileMode::kClamp,
                                                       a0, a1, 0, nullptr);
 

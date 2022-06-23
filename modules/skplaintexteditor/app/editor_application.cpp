@@ -80,7 +80,7 @@ struct Timer {
 
 static constexpr float kFontSize = 18;
 static const char* kTypefaces[3] = {"sans-serif", "serif", "monospace"};
-static constexpr size_t kTypefaceCount = SK_ARRAY_COUNT(kTypefaces);
+static constexpr size_t kTypefaceCount = std::size(kTypefaces);
 
 static constexpr SkFontStyle::Weight kFontWeight = SkFontStyle::kNormal_Weight;
 static constexpr SkFontStyle::Width  kFontWidth  = SkFontStyle::kNormal_Width;

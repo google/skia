@@ -86,6 +86,6 @@ int register_androidkit_SkottieAnimation(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/SkottieAnimation");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }

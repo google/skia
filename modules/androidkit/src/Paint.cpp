@@ -122,6 +122,6 @@ int register_androidkit_Paint(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/Paint");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }

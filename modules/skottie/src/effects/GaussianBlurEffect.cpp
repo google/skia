@@ -55,7 +55,7 @@ private:
         };
 
         const auto dim_index = SkTPin<size_t>(static_cast<size_t>(fDimensions),
-                                              1, SK_ARRAY_COUNT(kDimensionsMap)) - 1;
+                                              1, std::size(kDimensionsMap)) - 1;
 
         const auto sigma = fBlurriness * kBlurSizeToSigma;
 
@@ -68,7 +68,7 @@ private:
         };
 
         const auto repeat_index = SkTPin<size_t>(static_cast<size_t>(fRepeatEdge),
-                                                 0, SK_ARRAY_COUNT(kRepeatEdgeMap) - 1);
+                                                 0, std::size(kRepeatEdgeMap) - 1);
         fBlur->setTileMode(kRepeatEdgeMap[repeat_index]);
     }
 

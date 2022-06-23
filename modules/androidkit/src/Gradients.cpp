@@ -132,7 +132,7 @@ int register_androidkit_LinearGradient(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/LinearGradient");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }
 
@@ -143,7 +143,7 @@ int register_androidkit_RadialGradient(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/RadialGradient");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }
 
@@ -154,7 +154,7 @@ int register_androidkit_TwoPointConicalGradient(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/TwoPointConicalGradient");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }
 
@@ -165,6 +165,6 @@ int register_androidkit_SweepGradient(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/SweepGradient");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }

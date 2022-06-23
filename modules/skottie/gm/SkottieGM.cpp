@@ -148,7 +148,7 @@ protected:
         };
 
         if (uni == 'c') {
-            fColorIndex = (fColorIndex + 1) % SK_ARRAY_COUNT(kColors);
+            fColorIndex = (fColorIndex + 1) % std::size(kColors);
             for (const auto& prop : fColorProps) {
                 fPropManager->setColor(prop, kColors[fColorIndex]);
             }

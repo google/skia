@@ -55,10 +55,10 @@ private:
                                { fUR.x, fUR.y},
                                { fLR.x, fLR.y},
                                { fLL.x, fLL.y}};
-        static_assert(SK_ARRAY_COUNT(src) == SK_ARRAY_COUNT(dst));
+        static_assert(std::size(src) == std::size(dst));
 
         SkMatrix m;
-        if (m.setPolyToPoly(src, dst, SK_ARRAY_COUNT(src))) {
+        if (m.setPolyToPoly(src, dst, std::size(src))) {
             fMatrixNode->setMatrix(m);
         }
     }

@@ -48,7 +48,7 @@ int register_androidkit_ColorFilter(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/ColorFilter");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }
 
@@ -59,7 +59,7 @@ int register_androidkit_MatrixColorFilter(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/MatrixColorFilter");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }
 
@@ -70,7 +70,7 @@ int register_androidkit_HSLAMatrixColorFilter(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/HSLAMatrixColorFilter");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }
 
@@ -81,6 +81,6 @@ int register_androidkit_ComposeColorFilter(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/ComposeColorFilter");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }

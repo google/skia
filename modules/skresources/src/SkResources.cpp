@@ -287,7 +287,7 @@ static sk_sp<SkData> decode_datauri(const char prefix[], const char uri[]) {
         return nullptr;
     }
 
-    const char* b64Data = encoding + SK_ARRAY_COUNT(kDataURIEncodingStr) - 1;
+    const char* b64Data = encoding + std::size(kDataURIEncodingStr) - 1;
     size_t b64DataLen = strlen(b64Data);
     size_t dataLen;
     if (SkBase64::Decode(b64Data, b64DataLen, nullptr, &dataLen) != SkBase64::kNoError) {

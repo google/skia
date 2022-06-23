@@ -90,7 +90,7 @@ sk_sp<sksg::GeometryNode> ShapeBuilder::AttachPolystarGeometry(const skjson::Obj
     };
 
     const auto type = ParseDefault<size_t>(jstar["sy"], 0) - 1;
-    if (type >= SK_ARRAY_COUNT(gTypes)) {
+    if (type >= std::size(gTypes)) {
         abuilder->log(Logger::Level::kError, &jstar, "Unknown polystar type.");
         return nullptr;
     }

@@ -109,7 +109,7 @@ bool SkSVGAttributeParser::parse(SkSVGSpreadMethod* spread) {
     };
 
     bool parsedValue = false;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gSpreadInfo); ++i) {
+    for (size_t i = 0; i < std::size(gSpreadInfo); ++i) {
         if (this->parseExpectedStringToken(gSpreadInfo[i].fName)) {
             *spread = SkSVGSpreadMethod(gSpreadInfo[i].fType);
             parsedValue = true;

@@ -75,6 +75,6 @@ int register_androidkit_Image(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/Image");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }

@@ -229,7 +229,7 @@ bool SkSVGAttributeParser::parseLengthUnitToken(SkSVGLength::Unit* unit) {
         { "pc", SkSVGLength::Unit::kPC         },
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gUnitInfo); ++i) {
+    for (size_t i = 0; i < std::size(gUnitInfo); ++i) {
         if (this->parseExpectedStringToken(gUnitInfo[i].fUnitName)) {
             *unit = gUnitInfo[i].fUnit;
             return true;
@@ -745,7 +745,7 @@ bool SkSVGAttributeParser::parse(SkSVGLineCap* cap) {
     };
 
     bool parsedValue = false;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gCapInfo); ++i) {
+    for (size_t i = 0; i < std::size(gCapInfo); ++i) {
         if (this->parseExpectedStringToken(gCapInfo[i].fName)) {
             *cap = SkSVGLineCap(gCapInfo[i].fType);
             parsedValue = true;
@@ -770,7 +770,7 @@ bool SkSVGAttributeParser::parse(SkSVGLineJoin* join) {
     };
 
     bool parsedValue = false;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gJoinInfo); ++i) {
+    for (size_t i = 0; i < std::size(gJoinInfo); ++i) {
         if (this->parseExpectedStringToken(gJoinInfo[i].fName)) {
             *join = SkSVGLineJoin(gJoinInfo[i].fType);
             parsedValue = true;
@@ -859,7 +859,7 @@ bool SkSVGAttributeParser::parse(SkSVGFillRule* fillRule) {
     };
 
     bool parsedValue = false;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gFillRuleInfo); ++i) {
+    for (size_t i = 0; i < std::size(gFillRuleInfo); ++i) {
         if (this->parseExpectedStringToken(gFillRuleInfo[i].fName)) {
             *fillRule = SkSVGFillRule(gFillRuleInfo[i].fType);
             parsedValue = true;

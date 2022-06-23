@@ -115,7 +115,7 @@ static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
     };
 
     const size_t bm_index = ParseDefault<size_t>(jobject["bm"], 0);
-    if (bm_index >= SK_ARRAY_COUNT(kBlendModeMap)) {
+    if (bm_index >= std::size(kBlendModeMap)) {
         abuilder->log(Logger::Level::kWarning, &jobject, "Unsupported blend mode %zu\n", bm_index);
         return SkBlendMode::kSrcOver;
     }

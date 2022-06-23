@@ -35,6 +35,6 @@ int register_androidkit_Font(JNIEnv* env) {
 
     const auto clazz = env->FindClass("org/skia/androidkit/Font");
     return clazz
-        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        ? env->RegisterNatives(clazz, methods, std::size(methods))
         : JNI_ERR;
 }

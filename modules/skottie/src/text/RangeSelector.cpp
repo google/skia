@@ -28,7 +28,7 @@ T ParseEnum(const TArray& arr, const skjson::Value& jenum,
 
     const auto idx = ParseDefault<int>(jenum, 1);
 
-    if (idx > 0 && SkToSizeT(idx) <= SK_ARRAY_COUNT(arr)) {
+    if (idx > 0 && SkToSizeT(idx) <= std::size(arr)) {
         return arr[idx - 1];
     }
 
@@ -39,7 +39,7 @@ T ParseEnum(const TArray& arr, const skjson::Value& jenum,
                       "Ignoring unknown range selector %s '%d'", warn_name, idx);
     }
 
-    static_assert(SK_ARRAY_COUNT(arr) > 0, "");
+    SkASSERT(std::size(arr) > 0);
     return arr[0];
 }
 
@@ -363,7 +363,7 @@ void RangeSelector::modulateCoverage(const TextAnimator::DomainMaps& maps,
     auto          r0 = std::get<0>(range),
                  len = std::max(std::get<1>(range) - r0, std::numeric_limits<float>::epsilon());
 
-    SkASSERT(static_cast<size_t>(fShape) < SK_ARRAY_COUNT(gShapeInfo));
+    SkASSERT(static_cast<size_t>(fShape) < std::size(gShapeInfo));
     ShapeGenerator gen(gShapeInfo[static_cast<size_t>(fShape)], ease_lo, ease_hi);
 
     if (fShape == Shape::kSquare) {
