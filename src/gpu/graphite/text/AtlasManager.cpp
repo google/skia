@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/text/gpu/Glyph.h"
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/StrikeCache.h"
@@ -23,14 +24,20 @@ using Glyph = sktext::gpu::Glyph;
 
 namespace skgpu::graphite {
 
-AtlasManager::AtlasManager(Recorder* recorder,
-                           size_t maxTextureBytes,
-                           DrawAtlas::AllowMultitexturing allowMultitexturing,
-                           bool supportBilerpAtlas)
+AtlasManager::AtlasManager(Recorder* recorder)
         : fRecorder(recorder)
-        , fAllowMultitexturing{allowMultitexturing}
-        , fSupportBilerpAtlas{supportBilerpAtlas}
-        , fAtlasConfig{recorder->priv().caps()->maxTextureSize(), maxTextureBytes} { }
+        , fSupportBilerpAtlas{recorder->priv().caps()->supportBilerpFromGlyphAtlas()}
+        , fAtlasConfig{recorder->priv().caps()->maxTextureSize(),
+                       recorder->priv().caps()->glyphCacheTextureMaximumBytes()} {
+    if (!recorder->priv().caps()->allowMultipleGlyphCacheTextures() ||
+        // multitexturing supported only if range can represent the index + texcoords fully
+        !(recorder->priv().caps()->shaderCaps()->fFloatIs32Bits ||
+          recorder->priv().caps()->shaderCaps()->fIntegerSupport)) {
+       fAllowMultitexturing = DrawAtlas::AllowMultitexturing::kNo;
+    } else {
+       fAllowMultitexturing = DrawAtlas::AllowMultitexturing::kYes;
+    }
+}
 
 AtlasManager::~AtlasManager() = default;
 

@@ -81,6 +81,14 @@ public:
 
     skgpu::ShaderErrorHandler* shaderErrorHandler() const { return fShaderErrorHandler; }
 
+    float minDistanceFieldFontSize() const { return fMinDistanceFieldFontSize; }
+    float glyphsAsPathsFontSize() const { return fGlyphsAsPathsFontSize; }
+
+    size_t glyphCacheTextureMaximumBytes() const { return fGlyphCacheTextureMaximumBytes; }
+
+    bool allowMultipleGlyphCacheTextures() const { return fAllowMultipleGlyphCacheTextures; }
+    bool supportBilerpFromGlyphAtlas() const { return fSupportBilerpFromGlyphAtlas; }
+
 protected:
     Caps();
 
@@ -122,6 +130,17 @@ protected:
      * via SkDebugf and assert.
      */
     ShaderErrorHandler* fShaderErrorHandler = nullptr;
+
+#if GRAPHITE_TEST_UTILS
+    int  fMaxTextureAtlasSize = 2048;
+#endif
+    size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
+
+    float fMinDistanceFieldFontSize = 18;
+    float fGlyphsAsPathsFontSize = 324;
+
+    bool fAllowMultipleGlyphCacheTextures = true;
+    bool fSupportBilerpFromGlyphAtlas = false;
 
 private:
     virtual bool onIsTexturable(const TextureInfo&) const = 0;

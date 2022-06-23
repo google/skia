@@ -79,6 +79,8 @@ struct ShaderCaps {
         return SkSL::Version::k100;
     }
 
+    bool supportsDistanceFieldText() const { return fShaderDerivativeSupport; }
+
     SkSL::GLSLGeneration fGLSLGeneration = SkSL::GLSLGeneration::k330;
 
     bool fShaderDerivativeSupport = false;

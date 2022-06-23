@@ -44,10 +44,7 @@ Recorder::Recorder(sk_sp<Gpu> gpu, sk_sp<GlobalCache> globalCache)
         , fUniformDataCache(new UniformDataCache)
         , fTextureDataCache(new TextureDataCache)
         , fRecorderID(next_id())
-        // TODO: add config to control maxTextureBytes
-        , fAtlasManager(std::make_unique<AtlasManager>(this, 2048*2048,
-                                                       DrawAtlas::AllowMultitexturing::kYes,
-                                                       false))
+        , fAtlasManager(std::make_unique<AtlasManager>(this))
         , fTokenTracker(std::make_unique<TokenTracker>())
         , fStrikeCache(std::make_unique<sktext::gpu::StrikeCache>())
         , fTextBlobCache(std::make_unique<sktext::gpu::TextBlobRedrawCoordinator>(fRecorderID)) {

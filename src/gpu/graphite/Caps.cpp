@@ -25,6 +25,15 @@ void Caps::finishInitialization(const ContextOptions& options) {
     } else {
         fShaderErrorHandler = DefaultShaderErrorHandler();
     }
+
+#if GRAPHITE_TEST_UTILS
+    fMaxTextureAtlasSize = options.fMaxTextureAtlasSize;
+#endif
+    fGlyphCacheTextureMaximumBytes = options.fGlyphCacheTextureMaximumBytes;
+    fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
+    fGlyphsAsPathsFontSize = options.fGlyphsAsPathsFontSize;
+    fAllowMultipleGlyphCacheTextures = options.fAllowMultipleGlyphCacheTextures;
+    fSupportBilerpFromGlyphAtlas = options.fSupportBilerpFromGlyphAtlas;
 }
 
 bool Caps::isTexturable(const TextureInfo& info) const {

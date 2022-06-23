@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/Gpu.h"
 #include "src/gpu/graphite/TaskGraph.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace skgpu::graphite {
 
@@ -58,6 +59,15 @@ sktext::gpu::StrikeCache* RecorderPriv::strikeCache() {
 
 sktext::gpu::TextBlobRedrawCoordinator* RecorderPriv::textBlobCache() {
     return fRecorder->fTextBlobCache.get();
+}
+
+sktext::gpu::SDFTControl RecorderPriv::getSDFTControl(bool useSDFTForSmallText) const {
+    return sktext::gpu::SDFTControl{
+            this->caps()->shaderCaps()->supportsDistanceFieldText(),
+            useSDFTForSmallText,
+            this->caps()->minDistanceFieldFontSize(),
+            this->caps()->glyphsAsPathsFontSize(),
+            true /*forcePaths*/};
 }
 
 void RecorderPriv::add(sk_sp<Task> task) {

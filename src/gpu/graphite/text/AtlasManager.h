@@ -28,10 +28,7 @@ class Recorder;
  */
 class AtlasManager : public AtlasGenerationCounter {
 public:
-    AtlasManager(Recorder*,
-                 size_t maxTextureBytes,
-                 DrawAtlas::AllowMultitexturing,
-                 bool supportBilerpAtlas);
+    AtlasManager(Recorder*);
     ~AtlasManager();
 
     // Used to get proxies for test rendering

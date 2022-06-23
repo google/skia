@@ -20,8 +20,6 @@ struct GrShaderCaps : SkSL::ShaderCaps {
 
     void dumpJSON(SkJSONWriter*) const;
 
-    bool supportsDistanceFieldText() const { return fShaderDerivativeSupport; }
-
     const char* noperspectiveInterpolationExtensionString() const {
         SkASSERT(this->fNoPerspectiveInterpolationSupport);
         return fNoPerspectiveInterpolationExtensionString;
