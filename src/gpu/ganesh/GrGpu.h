@@ -775,10 +775,7 @@ private:
                                               size_t srcOffset,
                                               sk_sp<GrGpuBuffer> dst,
                                               size_t dstOffset,
-                                              size_t size) {
-        // TODO: Make this pure virtual once it is implemented on all subclasses.
-        return false;
-    }
+                                              size_t size) = 0;
 
     // overridden by backend-specific derived class to perform the texture transfer
     virtual bool onTransferPixelsTo(GrTexture*,

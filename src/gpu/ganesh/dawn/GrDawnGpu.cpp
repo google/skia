@@ -204,6 +204,16 @@ bool GrDawnGpu::onWritePixels(GrSurface* surface,
     return true;
 }
 
+bool GrDawnGpu::onTransferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
+                                             size_t srcOffset,
+                                             sk_sp<GrGpuBuffer> dst,
+                                             size_t dstOffset,
+                                             size_t size) {
+    // skbug.com/13453
+    SkASSERT(!"unimplemented");
+    return false;
+}
+
 bool GrDawnGpu::onTransferPixelsTo(GrTexture* texture,
                                    SkIRect rect,
                                    GrColorType textureColorType,
@@ -211,6 +221,7 @@ bool GrDawnGpu::onTransferPixelsTo(GrTexture* texture,
                                    sk_sp<GrGpuBuffer> transferBuffer,
                                    size_t bufferOffset,
                                    size_t rowBytes) {
+    // skbug.com/13453
     SkASSERT(!"unimplemented");
     return false;
 }
@@ -221,6 +232,7 @@ bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface,
                                      GrColorType bufferColorType,
                                      sk_sp<GrGpuBuffer> transferBuffer,
                                      size_t offset) {
+    // skbug.com/13453
     SkASSERT(!"unimplemented");
     return false;
 }
