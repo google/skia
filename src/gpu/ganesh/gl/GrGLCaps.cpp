@@ -514,6 +514,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fMapBufferFlags = kNone_MapFlags;
     }
 
+    // Buffers have more restrictions in WebGL than GLES. For example,
+    // https://www.khronos.org/registry/webgl/specs/latest/2.0/#BUFFER_OBJECT_BINDING
+    // We therefore haven't attempted to support mapping or transfers between buffers and surfaces
+    // or between buffers.
+
     if (GR_IS_GR_GL(standard)) {
         if (version >= GR_GL_VER(2, 1) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object") ||
             ctxInfo.hasExtension("GL_EXT_pixel_buffer_object")) {
@@ -539,9 +544,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 //            fTransferFromSurfaceToBufferSupport = false;
 //            fTransferBufferType = TransferBufferType::kChromium;
         }
-    } else if (GR_IS_GR_WEBGL(standard)) {
-        fTransferFromBufferToTextureSupport = false;
-        fTransferFromSurfaceToBufferSupport = false;
     }
 
     if (GR_IS_GR_GL(standard) &&
@@ -549,8 +551,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fTransferFromBufferToBufferSupport = true;
     } else if (GR_IS_GR_GL_ES(standard) &&
                (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_NV_copy_buffer"))) {
-        fTransferFromBufferToBufferSupport = true;
-    } else if (GR_IS_GR_WEBGL(standard) && version >= GR_GL_VER(2,0)) {
         fTransferFromBufferToBufferSupport = true;
     }
 
