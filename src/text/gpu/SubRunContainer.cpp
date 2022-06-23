@@ -212,15 +212,15 @@ std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFrom
         SkReadBuffer& buffer, SubRunAllocator* alloc) {
     int checkingMaskType = buffer.readInt();
     if (!buffer.validate(0 <= checkingMaskType && checkingMaskType < skgpu::kMaskFormatCount)) {
-        return {};
+        return std::nullopt;
     }
     MaskFormat maskType = (MaskFormat)checkingMaskType;
     SkScalar strikeToSourceScale = buffer.readScalar();
-    if (!buffer.validate(0 < strikeToSourceScale)) { return {}; }
+    if (!buffer.validate(0 < strikeToSourceScale)) { return std::nullopt; }
     SkRect sourceBounds = buffer.readRect();
 
     int glyphCount = buffer.readInt();
-    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return {}; }
+    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return std::nullopt; }
     SkPoint* leftTopStorage =
             alloc->makePODArray<SkPoint>(glyphCount);
     for (int i = 0; i < glyphCount; ++i) {
@@ -491,30 +491,30 @@ std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buf
     SkScalar strikeToSourceScale = buffer.readScalar();
 
     int glyphCount = buffer.readInt();
-    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return {}; }
-    if (!buffer.validateCanReadN<SkPoint>(glyphCount)) { return {}; }
+    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return std::nullopt; }
+    if (!buffer.validateCanReadN<SkPoint>(glyphCount)) { return std::nullopt; }
     SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
     for (int i = 0; i < glyphCount; ++i) {
         positions[i] = buffer.readPoint();
     }
 
     // Remember, we stored an int for glyph id.
-    if (!buffer.validateCanReadN<int>(glyphCount)) { return {}; }
+    if (!buffer.validateCanReadN<int>(glyphCount)) { return std::nullopt; }
     SkGlyphID* glyphIDs = alloc->makePODArray<SkGlyphID>(glyphCount);
     for (int i = 0; i < glyphCount; ++i) {
         glyphIDs[i] = SkTo<SkGlyphID>(buffer.readInt());
     }
 
     auto descriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
-    if (!buffer.validate(descriptor.has_value())) { return {}; }
+    if (!buffer.validate(descriptor.has_value())) { return std::nullopt; }
 
     // Translate the TypefaceID if this was transferred from the GPU process.
     if (client != nullptr) {
-        if (!client->translateTypefaceID(&descriptor.value())) { return {}; }
+        if (!client->translateTypefaceID(&descriptor.value())) { return std::nullopt; }
     }
 
     auto strike = SkStrikeCache::GlobalStrikeCache()->findStrike(*descriptor->getDesc());
-    if (!buffer.validate(strike != nullptr)) { return {}; }
+    if (!buffer.validate(strike != nullptr)) { return std::nullopt; }
 
     auto paths = alloc->makeUniqueArray<SkPath>(glyphCount);
     SkBulkGlyphMetricsAndPaths pathGetter{std::move(strike)};
@@ -522,7 +522,7 @@ std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buf
     for (auto [i, glyphID] : SkMakeEnumerate(SkSpan(glyphIDs, glyphCount))) {
         const SkPath* path = pathGetter.glyph(glyphID)->path();
         // There should never be missing paths in a sub run.
-        if (path == nullptr) { return {}; }
+        if (path == nullptr) { return std::nullopt; }
         paths[i] = *path;
     }
 
@@ -765,30 +765,30 @@ std::optional<DrawableOpSubmitter> DrawableOpSubmitter::MakeFromBuffer(
     SkScalar strikeToSourceScale = buffer.readScalar();
 
     int glyphCount = buffer.readInt();
-    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return {}; }
-    if (!buffer.validateCanReadN<SkPoint>(glyphCount)) { return {}; }
+    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return std::nullopt; }
+    if (!buffer.validateCanReadN<SkPoint>(glyphCount)) { return std::nullopt; }
     SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
     for (int i = 0; i < glyphCount; ++i) {
         positions[i] = buffer.readPoint();
     }
 
     // Remember, we stored an int for glyph id.
-    if (!buffer.validateCanReadN<int>(glyphCount)) { return {}; }
+    if (!buffer.validateCanReadN<int>(glyphCount)) { return std::nullopt; }
     SkGlyphID* glyphIDs = alloc->makePODArray<SkGlyphID>(glyphCount);
     for (int i = 0; i < glyphCount; ++i) {
         glyphIDs[i] = SkTo<SkGlyphID>(buffer.readInt());
     }
 
     auto descriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
-    if (!buffer.validate(descriptor.has_value())) { return {}; }
+    if (!buffer.validate(descriptor.has_value())) { return std::nullopt; }
 
     // Translate the TypefaceID if this was transferred from the GPU process.
     if (client != nullptr) {
-        if (!client->translateTypefaceID(&descriptor.value())) { return {}; }
+        if (!client->translateTypefaceID(&descriptor.value())) { return std::nullopt; }
     }
 
     auto strike = SkStrikeCache::GlobalStrikeCache()->findStrike(*descriptor->getDesc());
-    if (!buffer.validate(strike != nullptr)) { return {}; }
+    if (!buffer.validate(strike != nullptr)) { return std::nullopt; }
 
     auto drawables = alloc->makePODArray<SkDrawable*>(glyphCount);
     SkBulkGlyphMetricsAndDrawables drawableGetter(sk_sp<SkStrike>{strike});
@@ -1614,11 +1614,13 @@ SubRunOwner TransformedMaskSubRun::MakeFromBuffer(const SkMatrix& initialPositio
                                                   SubRunAllocator* alloc,
                                                   const SkStrikeClient* client) {
     auto vertexFiller = TransformedMaskVertexFiller::MakeFromBuffer(buffer, alloc);
-    if (!buffer.validate(vertexFiller.has_value())) { return {}; }
+    if (!buffer.validate(vertexFiller.has_value())) { return nullptr; }
 
     auto glyphVector = GlyphVector::MakeFromBuffer(buffer, client, alloc);
-    if (!buffer.validate(glyphVector.has_value())) { return {}; }
-    if (!buffer.validate(SkCount(glyphVector->glyphs()) == vertexFiller->count())) { return {}; }
+    if (!buffer.validate(glyphVector.has_value())) { return nullptr; }
+    if (!buffer.validate(SkCount(glyphVector->glyphs()) == vertexFiller->count())) {
+        return nullptr;
+    }
     return alloc->makeUnique<TransformedMaskSubRun>(
             initialPositionMatrix, std::move(*vertexFiller), std::move(*glyphVector));
 }
@@ -1858,10 +1860,12 @@ SubRunOwner SDFTSubRun::MakeFromBuffer(const SkMatrix&,
     int isAntiAliased = buffer.readInt();
     SDFTMatrixRange matrixRange = SDFTMatrixRange::MakeFromBuffer(buffer);
     auto vertexFiller = TransformedMaskVertexFiller::MakeFromBuffer(buffer, alloc);
-    if (!buffer.validate(vertexFiller.has_value())) { return {}; }
+    if (!buffer.validate(vertexFiller.has_value())) { return nullptr; }
     auto glyphVector = GlyphVector::MakeFromBuffer(buffer, client, alloc);
-    if (!buffer.validate(glyphVector.has_value())) { return {}; }
-    if (!buffer.validate(SkCount(glyphVector->glyphs()) == vertexFiller->count())) { return {}; }
+    if (!buffer.validate(glyphVector.has_value())) { return nullptr; }
+    if (!buffer.validate(SkCount(glyphVector->glyphs()) == vertexFiller->count())) {
+        return nullptr;
+    }
     return alloc->makeUnique<SDFTSubRun>(useLCD,
                                          isAntiAliased,
                                          matrixRange,
