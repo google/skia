@@ -643,26 +643,42 @@ bool SkShaderCodeDictionary::isValidID(int snippetID) const {
 
 static constexpr int kNoChildren = 0;
 
+int SkShaderCodeDictionary::addUserDefinedSnippet(
+        const char* name,
+        SkSpan<const SkUniform> uniforms,
+        SnippetRequirementFlags snippetRequirementFlags,
+        SkSpan<const SkTextureAndSampler> texturesAndSamplers,
+        const char* functionName,
+        SkShaderSnippet::GenerateGlueCodeForEntry glueCodeGenerator,
+        int numChildren,
+        SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations) {
+    // TODO: the memory for user-defined entries could go in the dictionary's arena but that
+    // would have to be a thread safe allocation since the arena also stores entries for
+    // 'fHash' and 'fEntryVector'
+    fUserDefinedCodeSnippets.push_back(std::make_unique<SkShaderSnippet>(name,
+                                                                         uniforms,
+                                                                         snippetRequirementFlags,
+                                                                         texturesAndSamplers,
+                                                                         functionName,
+                                                                         glueCodeGenerator,
+                                                                         numChildren,
+                                                                         dataPayloadExpectations));
+
+    return kBuiltInCodeSnippetIDCount + fUserDefinedCodeSnippets.size() - 1;
+}
+
 // TODO: this version needs to be removed
 int SkShaderCodeDictionary::addUserDefinedSnippet(
         const char* name,
         SkSpan<const DataPayloadField> dataPayloadExpectations) {
-
-    std::unique_ptr<SkShaderSnippet> entry(new SkShaderSnippet("UserDefined",
-                                                               {}, // no uniforms
-                                                               SnippetRequirementFlags::kNone,
-                                                               {}, // no samplers
-                                                               name,
-                                                               GenerateDefaultGlueCode,
-                                                               kNoChildren,
-                                                               dataPayloadExpectations));
-
-    // TODO: the memory for user-defined entries could go in the dictionary's arena but that
-    // would have to be a thread safe allocation since the arena also stores entries for
-    // 'fHash' and 'fEntryVector'
-    fUserDefinedCodeSnippets.push_back(std::move(entry));
-
-    return kBuiltInCodeSnippetIDCount + fUserDefinedCodeSnippets.size() - 1;
+    return this->addUserDefinedSnippet("UserDefined",
+                                       {},  // no uniforms
+                                       SnippetRequirementFlags::kNone,
+                                       {},  // no samplers
+                                       name,
+                                       GenerateDefaultGlueCode,
+                                       kNoChildren,
+                                       dataPayloadExpectations);
 }
 
 SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
@@ -674,22 +690,15 @@ SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(sk_sp<SkRuntimeEffect>
     // from the runtime effect in order to create a real SkShaderSnippet
     // Additionally, we need to hash the provided code to deduplicate the runtime effects in case
     // the client keeps giving us different rtEffects w/ the same backing SkSL.
-
-    std::unique_ptr<SkShaderSnippet> entry(new SkShaderSnippet("UserDefined",
-                                                               {}, // missing uniforms
-                                                               SnippetRequirementFlags::kNone,
-                                                               {}, // missing samplers
-                                                               "foo",
-                                                               GenerateDefaultGlueCode,
-                                                               kNoChildren,
-                                                               /*dataPayloadExpectations=*/{}));
-
-    // TODO: the memory for user-defined entries could go in the dictionary's arena but that
-    // would have to be a thread safe allocation since the arena also stores entries for
-    // 'fHash' and 'fEntryVector'
-    fUserDefinedCodeSnippets.push_back(std::move(entry));
-
-    return SkBlenderID(kBuiltInCodeSnippetIDCount + fUserDefinedCodeSnippets.size() - 1);
+    int codeSnippetID = this->addUserDefinedSnippet("UserDefined",
+                                                    {},  // missing uniforms
+                                                    SnippetRequirementFlags::kNone,
+                                                    {},  // missing samplers
+                                                    "foo",
+                                                    GenerateDefaultGlueCode,
+                                                    kNoChildren,
+                                                    /*dataPayloadExpectations=*/{});
+    return SkBlenderID(codeSnippetID);
 }
 
 void SkShaderCodeDictionary::removeUserDefinedSnippet(int codeSnippetID) {

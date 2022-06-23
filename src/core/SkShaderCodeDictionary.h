@@ -200,7 +200,16 @@ public:
 
     // TODO: this is still experimental but, most likely, it will need to be made thread-safe
     // It returns the code snippet ID to use to identify the supplied user-defined code
-    // TODO: add hooks for user to actually provide code.
+    int addUserDefinedSnippet(
+            const char* name,
+            SkSpan<const SkUniform> uniforms,
+            SnippetRequirementFlags snippetRequirementFlags,
+            SkSpan<const SkTextureAndSampler> texturesAndSamplers,
+            const char* functionName,
+            SkShaderSnippet::GenerateGlueCodeForEntry glueCodeGenerator,
+            int numChildren,
+            SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations);
+
     int addUserDefinedSnippet(const char* name,
                               SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
 
