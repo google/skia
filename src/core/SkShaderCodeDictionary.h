@@ -206,6 +206,8 @@ public:
 
     SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
 
+    void removeUserDefinedSnippet(int codeSnippetID);
+
 private:
 #ifdef SK_GRAPHITE_ENABLED
     Entry* makeEntry(const SkPaintParamsKey&, const skgpu::BlendInfo&);
