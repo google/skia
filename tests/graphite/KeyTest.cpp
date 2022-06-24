@@ -72,8 +72,6 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyValidBlockSizeTest, reporter, context) {
     };
 
     int userSnippetID = dict->addUserDefinedSnippet("keyAlmostTooBig", kDataFields);
-    REPORTER_ASSERT(reporter, dict->isValidID(userSnippetID));
-
     SkPaintParamsKey key = create_key(&builder, userSnippetID, kMaxBlockDataSize);
 
     // Key is created successfully.
@@ -92,39 +90,11 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) {
             {"data", SkPaintParamsKey::DataPayloadType::kByte, kBlockDataSize},
     };
 
-    // Snippet creation succeeds
     int userSnippetID = dict->addUserDefinedSnippet("keyTooBig", kDataFields);
-    REPORTER_ASSERT(reporter, dict->isValidID(userSnippetID));
-
     SkPaintParamsKey key = create_key(&builder, userSnippetID, kBlockDataSize);
 
     // Key creation fails.
     REPORTER_ASSERT(reporter, key.isErrorKey());
-}
-
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(CanRemoveUserDefinedSnippet, reporter, context) {
-
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
-
-    static constexpr int kDataSize = 1;
-    static constexpr SkPaintParamsKey::DataPayloadField kDataFields[] = {
-            {"Data", SkPaintParamsKey::DataPayloadType::kByte, kDataSize},
-    };
-
-    // After adding a user defined snippet, it has a valid ID and can be used to create keys.
-    int userSnippetID = dict->addUserDefinedSnippet("userSnippet", kDataFields);
-    REPORTER_ASSERT(reporter, dict->isValidID(userSnippetID));
-
-    SkPaintParamsKey key = create_key(&builder, userSnippetID, kDataSize);
-    REPORTER_ASSERT(reporter, !key.isErrorKey());
-
-    // After removing the snippet, its ID becomes invalid and it can't create keys anymore.
-    dict->removeUserDefinedSnippet(userSnippetID);
-    REPORTER_ASSERT(reporter, !dict->isValidID(userSnippetID));
-
-    SkPaintParamsKey key2 = create_key(&builder, userSnippetID, kDataSize);
-    REPORTER_ASSERT(reporter, key2.isErrorKey());
 }
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context) {
