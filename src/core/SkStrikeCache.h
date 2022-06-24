@@ -160,6 +160,12 @@ public:
         this->updateDelta(increase);
     }
 
+    SkScalar findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) override {
+        auto [maxDimension, increase] = fScalerCache.findMaximumGlyphDimension(glyphs);
+        this->updateDelta(increase);
+        return maxDimension;
+    }
+
     void onAboutToExitScope() override {
         this->unref();
     }

@@ -52,6 +52,9 @@ public:
     // Return underlying SkStrike for building SubRuns while processing glyph runs.
     virtual sk_sp<SkStrike> getUnderlyingStrike() const = 0;
 
+    // Return the maximum dimension of a span of glyphs.
+    virtual SkScalar findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) = 0;
+
     // Common categories for glyph types used by GPU.
     static bool CanDrawAsMask(const SkGlyph& glyph);
     static bool CanDrawAsSDFT(const SkGlyph& glyph);

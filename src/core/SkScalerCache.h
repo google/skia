@@ -87,6 +87,9 @@ public:
     size_t prepareForDrawableDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) SK_EXCLUDES(fMu);
 
+    std::tuple<SkScalar, size_t>
+            findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) SK_EXCLUDES(fMu);
+
     void dump() const SK_EXCLUDES(fMu);
 
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
