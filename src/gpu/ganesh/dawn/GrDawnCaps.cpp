@@ -33,6 +33,10 @@ GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(conte
     fShaderCaps->fMaxFragmentSamplers = 6;
     fShaderCaps->fShaderDerivativeSupport = true;
 
+    // We haven't yet implemented GrGpu::transferFromBufferToBuffer for Dawn but GrDawnBuffer uses
+    // transfers to implement buffer mapping and updates and transfers must be 4 byte aligned.
+    fTransferFromBufferToBufferAlignment = 4;
+
     this->finishInitialization(contextOptions);
 }
 

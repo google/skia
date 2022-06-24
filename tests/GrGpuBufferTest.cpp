@@ -252,7 +252,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest, reporter, ctxInfo) {
 
     auto pm = GrPixmap::Allocate(sdc->imageInfo().makeColorType(GrColorType::kRGBA_F32));
 
-    for (bool byteAtATime : {false, true}) {
+    for (bool minSizedTransfers : {false, true}) {
         for (int srcBaseVertex : {0, 5}) {
             auto src = create_cpu_to_gpu_buffer(srcBaseVertex);
             if (!src) {
@@ -260,7 +260,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest, reporter, ctxInfo) {
                 return;
             }
             for (int vbBaseVertex : {0, 2}) {
-                auto vb  = create_vertex_buffer(src, srcBaseVertex, vbBaseVertex, byteAtATime);
+                auto vb = create_vertex_buffer(src, srcBaseVertex, vbBaseVertex, minSizedTransfers);
                 if (!vb) {
                     ERRORF(reporter, "Could not create vertex buffer");
                     return;
@@ -289,11 +289,69 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest, reporter, ctxInfo) {
 
                 REPORTER_ASSERT(reporter, *color == kGreen, "src base vertex: %d, "
                                                             "vb base vertex: %d, "
-                                                            "byteAtATime: %d",
+                                                            "minSizedTransfers: %d",
                                                             srcBaseVertex,
                                                             vbBaseVertex,
-                                                            byteAtATime);
+                                                            minSizedTransfers);
             }
         }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferUpdateDataTest, reporter, ctxInfo) {
+    GrDirectContext* dc = ctxInfo.directContext();
+
+    GrGpu* gpu = ctxInfo.directContext()->priv().getGpu();
+
+    static constexpr SkPoint kUnitQuad[] {{0, 0}, {0, 1}, {1, 0},
+                                          {1, 0}, {0, 1}, {1, 1}};
+
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dc,
+                                                   GrColorType::kRGBA_8888,
+                                                   nullptr,
+                                                   SkBackingFit::kExact,
+                                                   {1, 1},
+                                                   SkSurfaceProps{},
+                                                   std::string_view{});
+    if (!sdc) {
+        ERRORF(reporter, "Could not create draw context");
+        return;
+    }
+
+    for (bool oversizedBuffer : {false, true}) {
+        auto pm = GrPixmap::Allocate(sdc->imageInfo().makeColorType(GrColorType::kRGBA_F32));
+
+        // Go direct to GrGpu to avoid caching/size adjustments at GrResourceProvider level.
+        auto vb = gpu->createBuffer(sizeof(kUnitQuad) + (oversizedBuffer ? 7 : 0),
+                                    GrGpuBufferType::kVertex,
+                                    kDynamic_GrAccessPattern);
+        if (!vb) {
+            ERRORF(reporter, "Could not create vertex buffer");
+            return;
+        }
+
+        if (!vb->updateData(kUnitQuad, sizeof(kUnitQuad))) {
+            ERRORF(reporter, "GrGpuBuffer::updateData returned false.");
+            return;
+        }
+
+        static constexpr SkColor4f kRed{1, 0, 0, 1};
+
+        static constexpr SkRect kBounds{0, 0, 1, 1};
+
+        sdc->clear(kRed);
+
+        sdc->addDrawOp(nullptr, TestVertexOp::Make(dc, vb, 0, std::size(kUnitQuad), kBounds));
+
+        auto color = static_cast<SkPMColor4f*>(pm.addr());
+        *color = kRed.premul();
+        if (!sdc->readPixels(dc, pm, {0, 0})) {
+            ERRORF(reporter, "Read back failed.");
+            return;
+        }
+
+        static constexpr SkPMColor4f kGreen{0, 1, 0, 1};
+
+        REPORTER_ASSERT(reporter, *color == kGreen);
     }
 }

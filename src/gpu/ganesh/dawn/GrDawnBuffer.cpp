@@ -46,6 +46,15 @@ sk_sp<GrDawnBuffer> GrDawnBuffer::Make(GrDawnGpu* gpu,
         mappable = Mappable::kWriteOnly;
     }
 
+    if (mappable == Mappable::kNot) {
+        // onMap can still succeed by using a staging buffer that gets transferred to the real
+        // buffer. updateData will use this same mechanism ("map", copy to staging buffer, "unmap").
+        // The transfer must be 4 byte aligned. So ensure the real size of the buffer is 4 byte
+        // aligned.
+        bufferDesc.size = SkAlign4(bufferDesc.size);
+        SkASSERT(gpu->caps()->transferFromBufferToBufferAlignment() == 4);
+    }
+
     wgpu::Buffer buffer;
     void* mapPtr = nullptr;
     if (mappable == Mappable::kNot || mappable == Mappable::kReadOnly) {
@@ -102,7 +111,7 @@ void GrDawnBuffer::onMap() {
     if (fMappable == Mappable::kNot) {
         GrStagingBufferManager::Slice slice =
                 this->getDawnGpu()->stagingBufferManager()->allocateStagingBufferSlice(
-                        this->size());
+                        this->size(), /*requiredAlignment=*/4);
         fStagingBuffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
         fStagingOffset = slice.fOffset;
         fMapPtr = slice.fOffsetMapPtr;
@@ -120,8 +129,9 @@ void GrDawnBuffer::onUnmap() {
     }
 
     if (fMappable == Mappable::kNot) {
+        size_t actualSize = SkAlign4(this->size());
         this->getDawnGpu()->getCopyEncoder().CopyBufferToBuffer(fStagingBuffer, fStagingOffset,
-                                                                fBuffer, 0, this->size());
+                                                                fBuffer, 0, actualSize);
     } else {
         fBuffer.Unmap();
         fUnmapped = true;
