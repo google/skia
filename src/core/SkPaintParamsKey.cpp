@@ -36,7 +36,6 @@ SkPaintParamsKeyBuilder::SkPaintParamsKeyBuilder(const SkShaderCodeDictionary* d
 void SkPaintParamsKeyBuilder::checkReset() {
     SkASSERT(!this->isLocked());
     SkASSERT(this->sizeInBytes() == 0);
-    SkASSERT(this->numPointers() == 0);
     SkASSERT(fIsValid);
     SkASSERT(fStack.empty());
 #ifdef SK_GRAPHITE_ENABLED
@@ -156,10 +155,9 @@ void SkPaintParamsKeyBuilder::checkExpectations(DataPayloadType actualType, uint
 
 static int field_size(DataPayloadType type) {
     switch (type) {
-        case DataPayloadType::kByte:
-        case DataPayloadType::kPointerIndex: return 1;
-        case DataPayloadType::kInt:          return 4;
-        case DataPayloadType::kFloat4:       return 16;
+        case DataPayloadType::kByte:   return 1;
+        case DataPayloadType::kInt:    return 4;
+        case DataPayloadType::kFloat4: return 16;
     }
     SkUNREACHABLE;
 }
@@ -195,14 +193,6 @@ void SkPaintParamsKeyBuilder::add(int numColors, const SkColor4f* colors) {
     this->addToKey(numColors, colors, DataPayloadType::kFloat4);
 }
 
-void SkPaintParamsKeyBuilder::addPointer(const void* ptr) {
-    SkASSERT(fPointerData.size() <= 0xFF);
-    uint8_t pointerIndex = (uint8_t)fPointerData.size();
-
-    this->addToKey(1, &pointerIndex, DataPayloadType::kPointerIndex);
-    fPointerData.push_back(ptr);
-}
-
 SkPaintParamsKey SkPaintParamsKeyBuilder::lockAsKey() {
     if (!fStack.empty()) {
         // SKGPU_LOG_W("Mismatched beginBlock/endBlocks.");
@@ -216,9 +206,7 @@ SkPaintParamsKey SkPaintParamsKeyBuilder::lockAsKey() {
     fIsValid = true;
     fStack.rewind();
 
-    return SkPaintParamsKey(SkSpan(fData.begin(), fData.count()),
-                            SkSpan(fPointerData.begin(), fPointerData.count()),
-                            this);
+    return SkPaintParamsKey(SkSpan(fData.begin(), fData.count()), this);
 }
 
 void SkPaintParamsKeyBuilder::makeInvalid() {
@@ -227,7 +215,6 @@ void SkPaintParamsKeyBuilder::makeInvalid() {
 
     fStack.rewind();
     fData.rewind();
-    fPointerData.rewind();
     this->beginBlock(SkBuiltInCodeSnippetID::kError);
     this->endBlock();
 
@@ -237,10 +224,8 @@ void SkPaintParamsKeyBuilder::makeInvalid() {
 
 //--------------------------------------------------------------------------------------------------
 SkPaintParamsKey::SkPaintParamsKey(SkSpan<const uint8_t> span,
-                                   SkSpan<const void*> pointerSpan,
                                    SkPaintParamsKeyBuilder* originatingBuilder)
         : fData(span)
-        , fPointerData(pointerSpan)
         , fOriginatingBuilder(originatingBuilder) {
     fOriginatingBuilder->lock();
 }
@@ -257,14 +242,13 @@ SkPaintParamsKey::~SkPaintParamsKey() {
 }
 
 bool SkPaintParamsKey::operator==(const SkPaintParamsKey& that) const {
-    // Pointer data is intentionally ignored here; a cached key will not have pointer data.
     return fData.size() == that.fData.size() &&
            !memcmp(fData.data(), that.fData.data(), fData.size());
 }
 
 SkPaintParamsKey::BlockReader SkPaintParamsKey::reader(const SkShaderCodeDictionary* dict,
                                                        int headerOffset) const {
-    return BlockReader(dict, fData, fPointerData, headerOffset);
+    return BlockReader(dict, fData, headerOffset);
 }
 
 #ifdef SK_DEBUG
@@ -326,12 +310,10 @@ bool SkPaintParamsKey::isErrorKey() const {
 
 SkPaintParamsKey::BlockReader::BlockReader(const SkShaderCodeDictionary* dict,
                                            SkSpan<const uint8_t> parentSpan,
-                                           SkSpan<const void*> pointerSpan,
                                            int offsetInParent) {
     Header header = read_header(parentSpan, offsetInParent);
 
     fBlock = parentSpan.subspan(offsetInParent, header.blockSize);
-    fPointerSpan = pointerSpan;
     fEntry = dict->getEntry(header.codeSnippetID);
     SkASSERT(fEntry);
 }
@@ -349,7 +331,7 @@ SkPaintParamsKey::BlockReader SkPaintParamsKey::BlockReader::child(
         childOffset += header.blockSize;
     }
 
-    return BlockReader(dict, fBlock, fPointerSpan, childOffset);
+    return BlockReader(dict, fBlock, childOffset);
 }
 
 int32_t SkPaintParamsKey::BlockReader::codeSnippetId() const {
@@ -403,15 +385,6 @@ SkSpan<const SkColor4f> SkPaintParamsKey::BlockReader::colors(int fieldIndex) co
     return payload_subspan_for_field<SkColor4f>(this->dataPayload(),
                                                 fEntry->fDataPayloadExpectations,
                                                 fieldIndex);
-}
-
-const void* SkPaintParamsKey::BlockReader::pointer(int fieldIndex) const {
-    SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fType == DataPayloadType::kPointerIndex);
-    SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fCount == 1);
-    SkSpan dataSpan = payload_subspan_for_field<uint8_t>(this->dataPayload(),
-                                                         fEntry->fDataPayloadExpectations,
-                                                         fieldIndex);
-    return fPointerSpan[dataSpan[0]];
 }
 
 #ifdef SK_DEBUG
