@@ -197,6 +197,8 @@ public:
     void resetScalerContext();
 
 private:
+    SkGlyphDigest digest(SkPackedGlyphID);
+
     template <typename Rejector>
     void commonMaskLoop(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected, Rejector&& reject);
@@ -399,24 +401,28 @@ void RemoteStrike::writeGlyphDrawable(const SkGlyph& glyph, Serializer* serializ
     memcpy(serializer->allocate(data->size(), kDrawableAlignment), data->data(), data->size());
 }
 
+SkGlyphDigest RemoteStrike::digest(SkPackedGlyphID packedID) {
+    SkGlyphDigest* digest = fSentGlyphs.find(packedID);
+    if (digest == nullptr) {
+        // Put the new SkGlyph in the glyphs to send.
+        this->ensureScalerContext();
+        fMasksToSend.emplace_back(fContext->makeGlyph(packedID, &fAlloc));
+        SkGlyph* glyph = &fMasksToSend.back();
+
+        SkGlyphDigest newDigest{0, *glyph};
+        digest = fSentGlyphs.set(packedID, newDigest);
+    }
+    return *digest;
+}
+
 template <typename Rejector>
 void RemoteStrike::commonMaskLoop(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected, Rejector&& reject) {
     accepted->forEachInput(
             [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
-                SkGlyphDigest* digest = fSentGlyphs.find(packedID);
-                if (digest == nullptr) {
-                    // Put the new SkGlyph in the glyphs to send.
-                    this->ensureScalerContext();
-                    fMasksToSend.emplace_back(fContext->makeGlyph(packedID, &fAlloc));
-                    SkGlyph* glyph = &fMasksToSend.back();
-
-                    SkGlyphDigest newDigest{0, *glyph};
-                    digest = fSentGlyphs.set(packedID, newDigest);
-                }
-
+                SkGlyphDigest digest = this->digest(packedID);
                 // Reject things that are too big.
-                if (reject(*digest)) {
+                if (reject(digest)) {
                     rejected->reject(i);
                 }
             });
@@ -427,23 +433,12 @@ void RemoteStrike::prepareForMaskDrawing(
     for (auto [i, variant, _] : SkMakeEnumerate(accepted->input())) {
         SkPackedGlyphID packedID = variant.packedID();
 
-        SkGlyphDigest* digest = fSentGlyphs.find(packedID);
-        if (digest == nullptr) {
-
-            // Put the new SkGlyph in the glyphs to send.
-            this->ensureScalerContext();
-            fMasksToSend.emplace_back(fContext->makeGlyph(packedID, &fAlloc));
-            SkGlyph* glyph = &fMasksToSend.back();
-
-            SkGlyphDigest newDigest{0, *glyph};
-
-            digest = fSentGlyphs.set(packedID, newDigest);
-        }
+        SkGlyphDigest digest = this->digest(packedID);
 
         // Reject things that are too big.
         // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
-        if (!digest->canDrawAsMask()) {
-            rejected->reject(i, digest->maxDimension());
+        if (!digest.canDrawAsMask()) {
+            rejected->reject(i, digest.maxDimension());
         }
     }
 }
