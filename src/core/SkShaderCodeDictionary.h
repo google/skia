@@ -13,6 +13,7 @@
 #include <vector>
 #include "include/core/SkSpan.h"
 #include "include/private/SkSpinlock.h"
+#include "include/private/SkTHash.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkEnumBitMask.h"
@@ -222,16 +223,6 @@ private:
     Entry* makeEntry(const SkPaintParamsKey&);
 #endif
 
-    struct Hash {
-        size_t operator()(const SkPaintParamsKey*) const;
-    };
-
-    struct KeyEqual {
-        bool operator()(const SkPaintParamsKey* k1, const SkPaintParamsKey* k2) const {
-            return k1->operator==(*k2);
-        }
-    };
-
     std::array<SkShaderSnippet, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
 
     // The value returned from 'getEntry' must be stable so, hold the user-defined code snippet
@@ -241,7 +232,18 @@ private:
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
     mutable SkSpinlock fSpinLock;
 
-    using PaintHashMap = std::unordered_map<const SkPaintParamsKey*, Entry*, Hash, KeyEqual>;
+    struct SkPaintParamsKeyPtr {
+        const SkPaintParamsKey* fKey;
+
+        bool operator==(SkPaintParamsKeyPtr rhs) const {
+            return *fKey == *rhs.fKey;
+        }
+        struct Hash {
+            size_t operator()(SkPaintParamsKeyPtr) const;
+        };
+    };
+
+    using PaintHashMap = SkTHashMap<SkPaintParamsKeyPtr, Entry*, SkPaintParamsKeyPtr::Hash>;
 
     PaintHashMap fHash SK_GUARDED_BY(fSpinLock);
     std::vector<Entry*> fEntryVector SK_GUARDED_BY(fSpinLock);

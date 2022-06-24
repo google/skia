@@ -208,8 +208,8 @@ SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(
 #endif
 }
 
-size_t SkShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey* key) const {
-    return SkOpts::hash_fn(key->data(), key->sizeInBytes(), 0);
+size_t SkShaderCodeDictionary::SkPaintParamsKeyPtr::Hash::operator()(SkPaintParamsKeyPtr p) const {
+    return SkOpts::hash_fn(p.fKey->data(), p.fKey->sizeInBytes(), 0);
 }
 
 const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
@@ -218,10 +218,10 @@ const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
 
     SkAutoSpinlock lock{fSpinLock};
 
-    auto iter = fHash.find(&key);
-    if (iter != fHash.end()) {
-        SkASSERT(fEntryVector[iter->second->uniqueID().asUInt()] == iter->second);
-        return iter->second;
+    Entry** existingEntry = fHash.find(SkPaintParamsKeyPtr{&key});
+    if (existingEntry) {
+        SkASSERT(fEntryVector[(*existingEntry)->uniqueID().asUInt()] == *existingEntry);
+        return *existingEntry;
     }
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -230,7 +230,7 @@ const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
     Entry* newEntry = this->makeEntry(key);
 #endif
     newEntry->setUniqueID(fEntryVector.size());
-    fHash.insert(std::make_pair(&newEntry->paintParamsKey(), newEntry));
+    fHash.set(SkPaintParamsKeyPtr{&newEntry->paintParamsKey()}, newEntry);
     fEntryVector.push_back(newEntry);
 
     return newEntry;
