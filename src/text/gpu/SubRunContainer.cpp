@@ -7,6 +7,7 @@
 
 #include "src/text/gpu/SubRunContainer.h"
 
+#include "include/core/SkScalar.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkDistanceFieldGen.h"
@@ -2388,11 +2389,6 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
             }
         }
 
-        // Glyphs are generated in different scales relative to the source space. Masks are drawn
-        // in device space, and SDFT and Paths are draw in a fixed constant space. The
-        // maxDimensionInSourceSpace is used to calculate the factor from strike space to source
-        // space.
-        SkScalar maxDimensionInSourceSpace = 0.0;
         if (!rejected->source().empty()) {
             // Drawable case - handle big things with that have a drawable.
             auto [strikeSpec, strikeToSourceScale] =
@@ -2411,8 +2407,6 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 }
                 strike->prepareForDrawableDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
-                auto [minHint, maxHint] = rejected->maxDimensionHint();
-                maxDimensionInSourceSpace = SkScalarCeilToScalar(maxHint * strikeToSourceScale);
 
                 if (container && !accepted->empty()) {
                     container->fSubRuns.append(
@@ -2442,8 +2436,6 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 }
                 strike->prepareForPathDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
-                auto [minHint, maxHint] = rejected->maxDimensionHint();
-                maxDimensionInSourceSpace = SkScalarCeilToScalar(maxHint * strikeToSourceScale);
 
                 if (container && !accepted->empty()) {
                     container->fSubRuns.append(PathSubRun::Make(accepted->accepted(),
@@ -2455,19 +2447,45 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
             }
         }
 
-        if (!rejected->source().empty() && maxDimensionInSourceSpace != 0) {
-            // Draw of last resort. Scale the bitmap to the screen.
-            auto [strikeSpec, strikeToSourceScaleTemp] = SkStrikeSpec::MakeSourceFallback(
-                    runFont, runPaint, deviceProps,
-                    scalerContextFlags, maxDimensionInSourceSpace);
+        if (!rejected->source().empty()) {
+            // Drawing of last resort - Scale masks that fit in the atlas to the screen using
+            // bilerp.
 
-            if constexpr (kTrace) {
-                msg.appendf("Transformed case:\n%s", strikeSpec.dump().c_str());
-            }
-            // Get around fake binding from structural decomposition. Bad c++.
-            auto strikeToSourceScale = strikeToSourceScaleTemp;
+            // Gauge the scale factor needed to reduce the font size by.
+            SkStrikeSpec gaugingStrikeSpec = SkStrikeSpec::MakeTransformMask(
+                    runFont, runPaint, deviceProps, scalerContextFlags, positionMatrix);
+
+            // A strike that is too big, but will give an accurate maximum glyph dimension.
+            SkScopedStrikeForGPU gaugingStrike =
+                    gaugingStrikeSpec.findOrCreateScopedStrike(strikeCache);
+
+            // Get the raw glyph IDs to simulate device drawing to figure the maximum device
+            // dimension.
+            SkSpan<const SkGlyphID> glyphs = rejected->source().get<0>();
+
+            // Remember, this will be an integer.
+            const SkScalar maxGlyphDimension =
+                    gaugingStrike->findMaximumGlyphDimension(glyphs);
+
+            // Remember, this will be an integer. Reduce to make a one pixel border for the
+            // bilerp padding.
+            static const constexpr SkScalar maxBilerpAtlasDimension =
+                    SkStrikeCommon::kSkSideTooBigForAtlas - 2;
+
+            // The scale factor needed to transform the mask from the cache to source space.
+            SkScalar strikeToSourceScale = maxGlyphDimension / maxBilerpAtlasDimension;
+
+            SkScalar reducedFontSize = runFont.getSize() / strikeToSourceScale;
+
+            SkFont reducedRunFont{runFont};
+            reducedRunFont.setSize(reducedFontSize);
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
+                SkStrikeSpec strikeSpec = SkStrikeSpec::MakeTransformMask(
+                        reducedRunFont, runPaint, deviceProps, scalerContextFlags, positionMatrix);
+                if constexpr (kTrace) {
+                    msg.appendf("Transformed case:\n%s", strikeSpec.dump().c_str());
+                }
                 SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
