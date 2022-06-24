@@ -10,7 +10,7 @@ cc_library(
     hdrs = ["//modules/skunicode/include:hdrs"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//:skia_public",
+        "//:skia_internal",
         "//third_party:icu",
     ],
 )

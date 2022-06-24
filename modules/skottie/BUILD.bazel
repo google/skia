@@ -13,7 +13,7 @@ cc_library(
     hdrs = ["//modules/skottie/include:hdrs"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//:skia_public",
+        "//:skia_internal",
         "//modules/skresources",
         "//modules/sksg",
         "//modules/skshaper",

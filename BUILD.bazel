@@ -34,6 +34,7 @@ cc_library(
     ],
     visibility = [
         "//dm:__subpackages__",
+        "//modules:__subpackages__",
         "//tests:__subpackages__",
         "//tools:__subpackages__",
     ],
