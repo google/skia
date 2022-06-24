@@ -981,7 +981,7 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
         SkAutoDescriptor ad;
         if (!deserializer.readDescriptor(&ad)) READ_FAILURE
         #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
-            msg.appendf("  Received descriptor:\n%s", sourceAd.getDesc()->dumpRec().c_str());
+            msg.appendf("  Received descriptor:\n%s", ad.getDesc()->dumpRec().c_str());
         #endif
 
         bool fontMetricsInitialized;
