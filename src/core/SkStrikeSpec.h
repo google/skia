@@ -47,6 +47,15 @@ public:
             SkScalerContextFlags scalerContextFlags,
             const SkMatrix& deviceMatrix);
 
+    // A strike for finding the max size for transforming masks. This is used to calculate the
+    // maximum dimension of a SubRun of text.
+    static SkStrikeSpec MakeTransformMask(
+            const SkFont& font,
+            const SkPaint& paint,
+            const SkSurfaceProps& surfaceProps,
+            SkScalerContextFlags scalerContextFlags,
+            const SkMatrix& deviceMatrix);
+
     // Create a strike spec for path style cache entries.
     static std::tuple<SkStrikeSpec, SkScalar> MakePath(
             const SkFont& font,

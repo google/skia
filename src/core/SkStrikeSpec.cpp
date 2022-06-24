@@ -35,6 +35,16 @@ SkStrikeSpec SkStrikeSpec::MakeMask(const SkFont& font, const SkPaint& paint,
     return SkStrikeSpec(font, paint, surfaceProps, scalerContextFlags, deviceMatrix);
 }
 
+SkStrikeSpec SkStrikeSpec::MakeTransformMask(const SkFont& font,
+                                             const SkPaint& paint,
+                                             const SkSurfaceProps& surfaceProps,
+                                             SkScalerContextFlags scalerContextFlags,
+                                             const SkMatrix& deviceMatrix) {
+    SkFont sourceFont{font};
+    sourceFont.setSubpixel(false);
+    return SkStrikeSpec(sourceFont, paint, surfaceProps, scalerContextFlags, deviceMatrix);
+}
+
 std::tuple<SkStrikeSpec, SkScalar> SkStrikeSpec::MakePath(
         const SkFont& font, const SkPaint& paint,
         const SkSurfaceProps& surfaceProps,
