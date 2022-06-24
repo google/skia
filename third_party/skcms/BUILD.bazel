@@ -13,9 +13,12 @@ cc_library(
     hdrs = [
         "//include/third_party/skcms:skcms.h",
     ],
+    # The following comment will be replaced with G3-specific settings
+    # SKCMS_REPLACE_IN_GOOGLE3_COMPATIBLE_WITH
     copts = [
         # We cannot use includes because this header is not in this directory.
         "-isystem include/third_party/skcms/",
+        # SKCMS_REPLACE_IN_GOOGLE3_COPTS
     ],
     # This header does not compile on its own and is meant to be included from skcms.cc
     textual_hdrs = [
