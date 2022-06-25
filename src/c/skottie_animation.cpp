@@ -28,8 +28,11 @@ void skottie_animation_unref(skottie_animation_t* instance) {
 }
 
 skottie_animation_t* skottie_animation_make_from_string(const char* data, size_t length) {
-    auto animation = skottie::Animation::Make(data, length);
-    return ToSkottieAnimation(animation.release());
+    return ToSkottieAnimation(skottie::Animation::Make(data, length).release());
+}
+
+skottie_animation_t* skottie_animation_make_from_data(const char* data, size_t length) {
+    return ToSkottieAnimation(skottie::Animation::Make(data, length).release());
 }
 
 skottie_animation_t* skottie_animation_make_from_stream(sk_stream_t* stream) {

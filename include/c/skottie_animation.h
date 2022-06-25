@@ -20,6 +20,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 SK_C_API void skottie_animation_keepalive();
 
 SK_C_API skottie_animation_t* skottie_animation_make_from_string(const char* data, size_t length);
+SK_C_API skottie_animation_t* skottie_animation_make_from_data(const char* data, size_t length);
 SK_C_API skottie_animation_t* skottie_animation_make_from_stream(sk_stream_t* stream);
 SK_C_API skottie_animation_t* skottie_animation_make_from_file(const char* path);
 
