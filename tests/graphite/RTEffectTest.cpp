@@ -10,6 +10,7 @@
 #include "include/core/SkCombinationBuilder.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Context.h"
+#include "src/core/SkKeyHelpers.h"
 #include "src/core/SkShaderCodeDictionary.h"
 #include "src/gpu/graphite/ContextPriv.h"
 
@@ -92,7 +93,7 @@ static sk_sp<SkBlender> get_blender(sk_sp<SkRuntimeEffect> comboEffect,
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(RTEffectTest, reporter, context) {
-    auto dict = context->priv().shaderCodeDictionary();
+    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     sk_sp<SkRuntimeEffect> comboEffect = get_combo_effect();
     sk_sp<SkRuntimeEffect> redEffect = get_red_effect();
@@ -124,4 +125,24 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(RTEffectTest, reporter, context) {
 
     // TODO:
     //   check that the uniforms can be extracted from 'blender' correctly
+}
+
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(FindOrCreateSnippetForRuntimeEffectWorks, reporter, context) {
+    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+
+    const SkRuntimeEffect* effect = TestingOnly_GetCommonRuntimeEffect();
+
+    // Create a new runtime-effect snippet.
+    int snippetID = dict->findOrCreateRuntimeEffectSnippet(effect);
+    REPORTER_ASSERT(reporter, snippetID >= kBuiltInCodeSnippetIDCount);
+
+    // Verify that it can be looked up and its name is 'RuntimeEffect'. (The name isn't meaningful,
+    // but this is an easy way to verify that we didn't get an unrelated snippet.)
+    const SkShaderSnippet* snippet = dict->getEntry(snippetID);
+    REPORTER_ASSERT(reporter, snippet);
+    REPORTER_ASSERT(reporter, std::string_view(snippet->fName) == "RuntimeEffect");
+
+    // If we pass the same effect again, we should get the same snippet ID as before.
+    int foundSnippetID = dict->findOrCreateRuntimeEffectSnippet(effect);
+    REPORTER_ASSERT(reporter, foundSnippetID == snippetID);
 }

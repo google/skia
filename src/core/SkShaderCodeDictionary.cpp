@@ -11,6 +11,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/sksl/SkSLUtil.h"
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -210,6 +211,10 @@ SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(
 
 size_t SkShaderCodeDictionary::SkPaintParamsKeyPtr::Hash::operator()(SkPaintParamsKeyPtr p) const {
     return SkOpts::hash_fn(p.fKey->data(), p.fKey->sizeInBytes(), 0);
+}
+
+size_t SkShaderCodeDictionary::RuntimeEffectKey::Hash::operator()(RuntimeEffectKey k) const {
+    return SkOpts::hash_fn(&k, sizeof(k), 0);
 }
 
 const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
@@ -694,6 +699,46 @@ SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(sk_sp<SkRuntimeEffect>
                                                     kNoChildren,
                                                     /*dataPayloadExpectations=*/{});
     return SkBlenderID(codeSnippetID);
+}
+
+int SkShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect) {
+    // Use the combination of {SkSL program hash, uniform size} as our key.
+    // In the unfortunate event of a hash collision, at least we'll have the right amount of
+    // uniform data available.
+    RuntimeEffectKey key;
+    key.fHash = SkRuntimeEffectPriv::Hash(*effect);
+    key.fUniformSize = effect->uniformSize();
+
+    SkAutoSpinlock lock{fSpinLock};
+
+    int32_t* existingCodeSnippetID = fRuntimeEffectMap.find(key);
+    if (existingCodeSnippetID) {
+        return *existingCodeSnippetID;
+    }
+
+    // TODO(skia:13457): Convert effect uniforms from Runtime Effect format to Graphite.
+    // For now, just hard-code the required local-matrix field.
+    static constexpr SkUniform kUniforms[] = {
+            {"localMatrix", SkSLType::kFloat4x4},
+    };
+
+    // TODO(skia:13405): consider removing these data fields, they don't seem to add value anymore
+    static constexpr DataPayloadField kRuntimeShaderDataPayload[] = {
+            {"runtime effect hash", DataPayloadType::kInt, 1},
+            {"uniform data size (bytes)", DataPayloadType::kInt, 1},
+    };
+
+    // TODO(skia:13405): arguments to `addUserDefinedSnippet` here are placeholder
+    int newCodeSnippetID = this->addUserDefinedSnippet("RuntimeEffect",
+                                                       SkSpan(kUniforms),
+                                                       SnippetRequirementFlags::kLocalCoords,
+                                                       /*texturesAndSamplers=*/{},
+                                                       "sk_runtime_placeholder",
+                                                       GenerateDefaultGlueCode,
+                                                       /*numChildren=*/0,
+                                                       SkSpan(kRuntimeShaderDataPayload));
+    fRuntimeEffectMap.set(key, newCodeSnippetID);
+    return newCodeSnippetID;
 }
 
 SkShaderCodeDictionary::SkShaderCodeDictionary() {
