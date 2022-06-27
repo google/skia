@@ -194,6 +194,9 @@ skia_wasm_lib("canvaskit") {
       "-sUSE_WEBGPU=1",
       "-sASYNCIFY",
 
+      # Modules from html5_webgpu for JS<->WASM interop
+      "-sEXPORTED_RUNTIME_METHODS=WebGPU,JsValStore",
+
       # TODO(skia:13429): The closure compiler doesn't play well with optimized builds and ASYNCIFY.
       "--closure=0",
     ]

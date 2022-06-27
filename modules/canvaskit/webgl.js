@@ -64,7 +64,7 @@
         },
       });
 
-      CanvasKit.MakeGrContext = function(ctx) {
+      CanvasKit.MakeWebGLContext = function(ctx) {
         // Make sure we are pointing at the right WebGL context.
         if (!this.setCurrentContext(ctx)) {
           return null;
@@ -77,6 +77,8 @@
         grCtx._context = ctx;
         return grCtx;
       }
+
+      CanvasKit.MakeGrContext = CanvasKit.MakeWebGLContext;
 
       CanvasKit.MakeOnScreenGLSurface = function(grCtx, w, h, colorspace) {
         if (!this.setCurrentContext(grCtx._context)) {

@@ -934,7 +934,7 @@ CanvasKit.onRuntimeInitialized = function() {
     return s;
   };
 
-  CanvasKit.Surface.prototype.requestAnimationFrame = function(callback, dirtyRect) {
+  CanvasKit.Surface.prototype._requestAnimationFrameInternal = function(callback, dirtyRect) {
     if (!this._cached_canvas) {
       this._cached_canvas = this.getCanvas();
     }
@@ -949,10 +949,14 @@ CanvasKit.onRuntimeInitialized = function() {
       this.flush(dirtyRect);
     }.bind(this));
   };
+  if (!CanvasKit.Surface.prototype.requestAnimationFrame) {
+    CanvasKit.Surface.prototype.requestAnimationFrame =
+          CanvasKit.Surface.prototype._requestAnimationFrameInternal;
+  }
 
   // drawOnce will dispose of the surface after drawing the frame using the provided
   // callback.
-  CanvasKit.Surface.prototype.drawOnce = function(callback, dirtyRect) {
+  CanvasKit.Surface.prototype._drawOnceInternal = function(callback, dirtyRect) {
     if (!this._cached_canvas) {
       this._cached_canvas = this.getCanvas();
     }
@@ -964,6 +968,9 @@ CanvasKit.onRuntimeInitialized = function() {
       this.dispose();
     }.bind(this));
   };
+  if (!CanvasKit.Surface.prototype.drawOnce) {
+    CanvasKit.Surface.prototype.drawOnce = CanvasKit.Surface.prototype._drawOnceInternal;
+  }
 
   CanvasKit.PathEffect.MakeDash = function(intervals, phase) {
     if (!phase) {

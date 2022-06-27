@@ -63,9 +63,16 @@
 #include <emscripten/bind.h>
 #include <emscripten/html5.h>
 
+#if defined(CK_ENABLE_WEBGL) || defined(CK_ENABLE_WEBGPU)
+#define ENABLE_GPU
+#endif
+
+#ifdef ENABLE_GPU
+#include "include/gpu/GrDirectContext.h"
+#endif // ENABLE_GPU
+
 #ifdef CK_ENABLE_WEBGL
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -74,7 +81,13 @@
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 
 #include <webgl/webgl1.h>
-#endif
+#endif // CK_ENABLE_WEBGL
+
+#ifdef CK_ENABLE_WEBGPU
+#include <emscripten/html5_webgpu.h>
+#include <webgpu/webgpu.h>
+#include <webgpu/webgpu_cpp.h>
+#endif // CK_ENABLE_WEBGPU
 
 #ifndef CK_NO_FONTS
 #include "include/core/SkFont.h"
@@ -223,6 +236,69 @@ sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, SimpleImageIn
 }
 #endif // CK_ENABLE_WEBGL
 
+#ifdef CK_ENABLE_WEBGPU
+
+sk_sp<GrDirectContext> MakeGrContext() {
+    GrContextOptions options;
+    wgpu::Device device = wgpu::Device::Acquire(emscripten_webgpu_get_device());
+    return GrDirectContext::MakeDawn(device, options);
+}
+
+sk_sp<SkSurface> MakeGPUTextureSurface(sk_sp<GrDirectContext> dContext,
+                                       uint32_t textureHandle, uint32_t textureFormat,
+                                       int width, int height, sk_sp<SkColorSpace> colorSpace) {
+    if (!colorSpace) {
+      colorSpace = SkColorSpace::MakeSRGB();
+    }
+
+    wgpu::TextureFormat format = static_cast<wgpu::TextureFormat>(textureFormat);
+    wgpu::Texture texture(emscripten_webgpu_import_texture(textureHandle));
+    emscripten_webgpu_release_js_handle(textureHandle);
+
+    // GrDawnRenderTargetInfo currently only supports a 1-mip TextureView.
+    constexpr uint32_t mipLevelCount = 1;
+    constexpr uint32_t sampleCount = 1;
+
+    GrDawnTextureInfo info;
+    info.fTexture = texture;
+    info.fFormat = format;
+    info.fLevelCount = mipLevelCount;
+
+    GrBackendTexture target(width, height, info);
+    return SkSurface::MakeFromBackendTexture(
+            dContext.get(), target, kTopLeft_GrSurfaceOrigin, sampleCount,
+            colorSpace->isSRGB() ? kRGBA_8888_SkColorType : kRGBA_F16_SkColorType,
+            colorSpace, nullptr);
+}
+
+bool ReplaceBackendTexture(SkSurface& surface, uint32_t textureHandle, uint32_t textureFormat,
+                           int width, int height) {
+    wgpu::TextureFormat format = static_cast<wgpu::TextureFormat>(textureFormat);
+    wgpu::Texture texture(emscripten_webgpu_import_texture(textureHandle));
+    emscripten_webgpu_release_js_handle(textureHandle);
+
+    GrDawnTextureInfo info;
+    info.fTexture = texture;
+    info.fFormat = format;
+    info.fLevelCount = 1;
+
+    // Use kDiscard_ContentChangeMode to discard the contents of the old backing texture. This not
+    // only avoids an unnecessary blit, we also don't support copying the contents of a swapchain
+    // texture due to the default GPUCanvasConfiguration usage bits we used when configuring the
+    // GPUCanvasContext in JS.
+    //
+    // The default usage bits only contain GPUTextureUsage.RENDER_ATTACHMENT. To support a copy we
+    // would need to also set GPUTextureUsage.TEXTURE_BINDING (to sample it in a shader) or
+    // GPUTextureUsage.COPY_SRC (for a copy command).
+    //
+    // See https://www.w3.org/TR/webgpu/#namespacedef-gputextureusage and
+    // https://www.w3.org/TR/webgpu/#dictdef-gpucanvasconfiguration.
+    GrBackendTexture target(width, height, info);
+    return surface.replaceBackendTexture(target, kTopLeft_GrSurfaceOrigin,
+                                         SkSurface::kDiscard_ContentChangeMode);
+}
+
+#endif // CK_ENABLE_WEBGPU
 
 //========================================================================================
 // Path things
@@ -818,14 +894,22 @@ sk_sp<SkImage> MakeImageFromGenerator(SimpleImageInfo ii, JSObject callbackObj) 
 #endif // CK_ENABLE_WEBGL
 
 EMSCRIPTEN_BINDINGS(Skia) {
-#ifdef CK_ENABLE_WEBGL
+#ifdef ENABLE_GPU
+    constant("gpu", true);
     function("_MakeGrContext", &MakeGrContext);
+#endif // ENABLE_GPU
+
+#ifdef CK_ENABLE_WEBGL
     function("_MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
     function("_MakeRenderTargetWH", select_overload<sk_sp<SkSurface>(sk_sp<GrDirectContext>, int, int)>(&MakeRenderTarget));
     function("_MakeRenderTargetII", select_overload<sk_sp<SkSurface>(sk_sp<GrDirectContext>, SimpleImageInfo)>(&MakeRenderTarget));
+#endif // CK_ENABLE_WEBGL
 
-    constant("gpu", true);
-#endif
+#ifdef CK_ENABLE_WEBGPU
+    constant("webgpu", true);
+    function("_MakeGPUTextureSurface", &MakeGPUTextureSurface);
+#endif  // CK_ENABLE_WEBGPU
+
     function("getDecodeCacheLimitBytes", &SkResourceCache::GetTotalByteLimit);
     function("setDecodeCacheLimitBytes", &SkResourceCache::SetTotalByteLimit);
     function("getDecodeCacheUsedBytes" , &SkResourceCache::GetTotalBytesUsed);
@@ -884,7 +968,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
 #endif
 
-#ifdef CK_ENABLE_WEBGL
+#ifdef ENABLE_GPU
     class_<GrDirectContext>("GrDirectContext")
         .smart_ptr<sk_sp<GrDirectContext>>("sk_sp<GrDirectContext>")
         .function("getResourceCacheLimitBytes",
@@ -910,7 +994,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.getResourceCacheLimits(&maxResources, &currMax);
             self.setResourceCacheLimits(maxResources, maxResourceBytes);
         }));
-
+#endif  // ENABLE_GPU
+#ifdef CK_ENABLE_WEBGL
     // This allows us to give the C++ code a JS callback to delete textures that
     // have been passed in via makeImageFromTexture and makeImageFromTextureSource.
     function("_setTextureCleanup", optional_override([](JSObject callbackObj)->void {
@@ -1423,7 +1508,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo ii = toSkImageInfo(sii);
             // TODO(adlai) Migrate CanvasKit API to require DirectContext arg here.
             GrDirectContext* dContext = nullptr;
-#ifdef CK_ENABLE_WEBGL
+#ifdef ENABLE_GPU
             dContext = GrAsDirectContext(as_IB(self.get())->context());
 #endif
             return self->readPixels(dContext, ii, pixels, dstRowBytes, srcX, srcY);
@@ -1966,7 +2051,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
                              deleteJSTexture,
                              releaseCtx);
          }))
- #endif
+#endif  // CK_ENABLE_WEBGL
+#ifdef CK_ENABLE_WEBGPU
+        .function("_replaceBackendTexture", optional_override([](SkSurface& self,
+                                                uint32_t texHandle, uint32_t texFormat,
+                                                int width, int height) {
+            return ReplaceBackendTexture(self, texHandle, texFormat, width, height);
+         }))
+#endif  // CK_ENABLE_WEBGPU
         .function("_makeImageSnapshot",  optional_override([](SkSurface& self, WASMPointerU32 iPtr)->sk_sp<SkImage> {
             SkIRect* bounds = reinterpret_cast<SkIRect*>(iPtr);
             if (!bounds) {
@@ -1977,7 +2069,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_makeSurface", optional_override([](SkSurface& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
             return self.makeSurface(toSkImageInfo(sii));
         }), allow_raw_pointers())
-#ifdef CK_ENABLE_WEBGL
+#ifdef ENABLE_GPU
         .function("reportBackendTypeIsGPU", optional_override([](SkSurface& self) -> bool {
             return self.getCanvas()->recordingContext() != nullptr;
         }))
