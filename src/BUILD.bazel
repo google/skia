@@ -29,6 +29,12 @@ filegroup(
     }) + select({
         "//bazel/common_config_settings:needs_sksl": ["//src/sksl:srcs"],
         "//conditions:default": [],
+    }) + select({
+        "//bazel/common_config_settings:enable_svg_canvas_true": [
+            "//src/svg:srcs",
+            "//src/xml:srcs",
+        ],
+        "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],
 )
@@ -57,6 +63,12 @@ filegroup(
     }) + select({
         "//bazel/common_config_settings:needs_sksl": ["//src/sksl:private_hdrs"],
         "//conditions:default": [],
+    }) + select({
+        "//bazel/common_config_settings:enable_svg_canvas_true": [
+            "//src/svg:private_hdrs",
+            "//src/xml:private_hdrs",
+        ],
+        "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],
 )
@@ -74,6 +86,11 @@ cc_library(
         "//conditions:default": [],
     }) + select({
         "//bazel/common_config_settings:needs_sksl": ["//src/sksl:deps"],
+        "//conditions:default": [],
+    }) + select({
+        "//bazel/common_config_settings:enable_svg_canvas_true": [
+            "//src/xml:deps",
+        ],
         "//conditions:default": [],
     }),
 )

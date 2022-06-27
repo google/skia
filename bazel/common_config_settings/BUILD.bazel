@@ -229,6 +229,11 @@ bool_flag(
 
 bool_flag(
     default = False,
+    flag_name = "enable_svg_canvas",
+)
+
+bool_flag(
+    default = False,
     flag_name = "is_skia_dev_build",
 )
 

@@ -1,0 +1,68 @@
+# This file will be copied into //third_party/externals/libjpeg-turbo via the new_local_repository
+# rule in WORKSPACE.bazel, so all files should be relative to that path.
+
+genrule(
+    name = "create_expat_config_file",
+    srcs = [],
+    outs = ["include/expat_config.h"],
+    cmd = """cat > $@ << 'EOF'
+#define HAVE_INTTYPES_H 1
+#define HAVE_MEMORY_H 1
+#define HAVE_STDINT_H 1
+#define HAVE_STDLIB_H 1
+#define HAVE_STRING_H 1
+#define STDC_HEADERS 1
+#define XML_CONTEXT_BYTES 1024
+#define XML_DTD 1
+#define XML_NS 1
+EOF""",
+)
+
+EXPAT_HDRS = [
+    "expat/lib/expat.h",
+]
+
+EXPAT_SRCS = [
+    "expat/lib/ascii.h",
+    "expat/lib/asciitab.h",
+    "expat/lib/expat.h",
+    "expat/lib/expat_external.h",
+    "expat/lib/iasciitab.h",
+    "expat/lib/internal.h",
+    "expat/lib/latin1tab.h",
+    "expat/lib/nametab.h",
+    "expat/lib/siphash.h",
+    "expat/lib/utf8tab.h",
+    "expat/lib/winconfig.h",
+    "expat/lib/xmlparse.c",
+    "expat/lib/xmlrole.c",
+    "expat/lib/xmlrole.h",
+    "expat/lib/xmltok.c",
+    "expat/lib/xmltok.h",
+    "expat/lib/xmltok_impl.h",
+    # Our generated configuration file
+    "include/expat_config.h",
+]
+
+TEXTUAL_HDRS = [
+    "expat/lib/xmltok_impl.c",
+    "expat/lib/xmltok_ns.c",
+]
+
+cc_library(
+    name = "expat",
+    srcs = EXPAT_SRCS,
+    hdrs = EXPAT_HDRS,
+    defines = [
+        "HAVE_MEMMOVE",
+        "XML_DEV_URANDOM",
+        "XML_STATIC",
+    ],
+    includes = [
+        "expat/lib",
+        "include",
+    ],
+    # strip_include_prefix = "expat/lib",
+    textual_hdrs = TEXTUAL_HDRS,
+    visibility = ["//visibility:public"],
+)

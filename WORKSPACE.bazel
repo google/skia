@@ -218,6 +218,13 @@ new_local_repository(
 )
 
 new_local_repository(
+    name = "expat",
+    build_file = "bazel/external/expat/BUILD.bazel",
+    path = "third_party/externals/expat",
+    workspace_file_content = "",
+)
+
+new_local_repository(
     name = "libjpeg_turbo",
     build_file = "bazel/external/libjpeg_turbo/BUILD.bazel",
     path = "third_party/externals/libjpeg-turbo",

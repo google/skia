@@ -120,7 +120,6 @@ cc_library(
         "jpeglibmangler.h",
     ],
     local_defines = JPEGTURBO_DEFINES,
-    strip_include_prefix = "",
     textual_hdrs = [
         "jccolext.c",
         "jdmrgext.c",

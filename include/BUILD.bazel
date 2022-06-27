@@ -16,7 +16,6 @@ filegroup(
         "//include/encode:public_hdrs",
         "//include/pathops:public_hdrs",
         "//include/ports:public_hdrs",
-        "//include/svg:public_hdrs",
         "//include/third_party/skcms:public_hdrs",
         "//include/utils:public_hdrs",
     ] + select({
@@ -24,6 +23,9 @@ filegroup(
         "//conditions:default": [],
     }) + select({
         "//bazel/common_config_settings:has_gpu_backend": ["//include/gpu:public_hdrs"],
+        "//conditions:default": [],
+    }) + select({
+        "//bazel/common_config_settings:enable_svg_canvas_true": ["//include/svg:public_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],
