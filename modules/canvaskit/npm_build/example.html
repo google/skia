@@ -15,7 +15,7 @@
 
 </style>
 
-<h2>Drop in replacement for HTML Canvas (e.g. node.js)</h2>
+<h2> Drop in replacement for HTML Canvas (e.g. node.js)</h2>
 <img id=api1 width=300 height=300>
 <canvas id=api1_c width=300 height=300></canvas>
 <img id=api2 width=300 height=300>
@@ -33,27 +33,27 @@
 <img id=api8 width=300 height=300>
 <canvas id=api8_c width=300 height=300></canvas>
 
-<h2> CanvasKit expands the functionality of a stock HTML canvas</h2>
+<h2 id=title1> CanvasKit expands the functionality of a stock HTML canvas</h2>
 <canvas id=vertex1 width=300 height=300></canvas>
 <canvas id=gradient1 width=300 height=300></canvas>
 <canvas id=patheffect width=300 height=300></canvas>
-<canvas id=paths width=200 height=200></canvas>
+<canvas id=paths width=300 height=300></canvas>
 <canvas id=pathperson width=300 height=300></canvas>
 <canvas id=ink width=300 height=300></canvas>
 <canvas id=surfaces width=300 height=300></canvas>
 <canvas id=atlas width=300 height=300></canvas>
 <canvas id=decode width=300 height=300></canvas>
 
-<h2> CanvasKit can allow for text measurement/placement (e.g. breaking, kerning)</h2>
+<h2 id=title2> CanvasKit can allow for text measurement/placement (e.g. breaking, kerning)</h2>
 <canvas id=textonpath width=300 height=300></canvas>
 <canvas id=drawGlyphs width=300 height=300></canvas>
 
-<h2> Interactive drawPatch</h2>
+<h2 id=title3> Interactive drawPatch</h2>
 <canvas id=interdrawpatch width=512 height=512></canvas>
 
 <script type="text/javascript" src="/build/canvaskit.js"></script>
 
-<script type="text/javascript" charset="utf-8">
+<script type="text/javascript" charset="utf-8" async>
 
   var CanvasKit = null;
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
@@ -64,17 +64,41 @@
   const loadNotoSerif = fetch(cdn + 'NotoSerif-Regular.ttf').then((response) => response.arrayBuffer());
   const loadTestImage = fetch(cdn + 'test.png').then((response) => response.arrayBuffer());
 
+  async function initWebGpu(CK) {
+    if (navigator.gpu && CK.webgpu) {
+      const adapter = await navigator.gpu.requestAdapter();
+      const device = await adapter.requestDevice();
+      var gpu = CK.MakeGPUDeviceContext(device);
+      if (!gpu) {
+        console.error('Failed to initialize WebGPU device context');
+      }
+      return gpu;
+    }
+    return null;
+  }
+
+  const ready = async function() {
+    let CK = await ckLoaded;
+    let gpu = await initWebGpu(CK);
+    return [CK, gpu];
+  }();
+
   // Examples which only require canvaskit
-  ckLoaded.then((CK) => {
+  ready.then((initData) => {
+    const [CK, gpu] = initData;
+    if (gpu) {
+      let titles = ['title1', 'title2', 'title3'];
+      titles.forEach((title) => document.getElementById(title).innerText += " (using WebGPU)");
+    }
     CanvasKit = CK;
     PathExample(CanvasKit);
-    InkExample(CanvasKit);
-    PathPersonExample(CanvasKit);
-    VertexAPI1(CanvasKit);
-    GradiantAPI1(CanvasKit);
-    TextOnPathAPI1(CanvasKit);
-    DrawGlyphsAPI1(CanvasKit);
-    SurfaceAPI1(CanvasKit);
+    InkExample(CanvasKit, gpu);
+    PathPersonExample(CanvasKit, gpu);
+    VertexAPI1(CanvasKit, gpu);
+    GradientAPI1(CanvasKit, gpu);
+    TextOnPathAPI1(CanvasKit, gpu);
+    DrawGlyphsAPI1(CanvasKit, gpu);
+    SurfaceAPI1(CanvasKit, gpu);
     if (CanvasKit.MakeCanvas){
       CanvasAPI1(CanvasKit);
       CanvasAPI2(CanvasKit);
@@ -87,19 +111,38 @@
     } else {
       console.log("Skipping CanvasAPI1 because it's not compiled in");
     }
-    InteractivePatch(CanvasKit);
+    InteractivePatch(CanvasKit, gpu);
   });
 
   // Examples requiring external resources
-  Promise.all([ckLoaded, loadRoboto]).then((results) => {DrawingExample(...results)});
-  Promise.all([ckLoaded, loadTestImage]).then((results) => {AtlasAPI1(...results)});
+  Promise.all([ready, loadRoboto]).then((results) => {DrawingExample(...results.flat())});
+  Promise.all([ready, loadTestImage]).then((results) => {AtlasAPI1(...results.flat())});
   Promise.all([ckLoaded, loadTestImage]).then((results) => {DecodeAPI(...results)});
 
-  function DrawingExample(CanvasKit, robotoData) {
+  // Helper function to create an optional WebGPU canvas surface, if WebGPU is supported. Falls back
+  // to CanvasKit.MakeCanvasSurface for SW/WebGL otherwise.
+  function MakeCanvasSurface(CanvasKit, gpu, canvasId) {
+    if (gpu) {
+      const canvasContext = CanvasKit.MakeGPUCanvasContext(
+          gpu, document.getElementById(canvasId));
+      if (!canvasContext) {
+        console.error('Failed to configure WebGPU canvas context');
+        return;
+      }
+      const surface = CanvasKit.MakeGPUCanvasSurface(canvasContext);
+      if (!surface) {
+        console.error('Failed to initialize current swapchain Surface');
+      }
+      return surface;
+    }
+    return CanvasKit.MakeCanvasSurface(canvasId);
+  }
+
+  function DrawingExample(CanvasKit, gpu, robotoData) {
     if (!robotoData || !CanvasKit) {
       return;
     }
-    const surface = CanvasKit.MakeCanvasSurface('patheffect');
+    const surface = MakeCanvasSurface(CanvasKit, gpu, 'patheffect');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -161,9 +204,9 @@
     // textFont.delete();
   }
 
-   function InteractivePatch(CanvasKit) {
+   function InteractivePatch(CanvasKit, gpu) {
      const ELEM = 'interdrawpatch';
-     const surface = CanvasKit.MakeCanvasSurface(ELEM);
+     const surface = MakeCanvasSurface(CanvasKit, gpu, ELEM);
      if (!surface) {
        console.error('Could not make surface');
        return;
@@ -221,10 +264,8 @@
              canvas.drawPoints(CanvasKit.PointMode.Polygon, live_corner, line_paint);
          }
          canvas.drawPoints(CanvasKit.PointMode.Points, cubics, pts_paint);
-
          surface.requestAnimationFrame(drawFrame);
      }
-
      surface.requestAnimationFrame(drawFrame);
 
      function length2(x, y) {
@@ -274,8 +315,8 @@
      preventScrolling(document.getElementById(ELEM));
    }
 
-  function PathPersonExample(CanvasKit) {
-    const surface = CanvasKit.MakeSWCanvasSurface('pathperson');
+  function PathPersonExample(CanvasKit, gpu) {
+    const surface = MakeCanvasSurface(CanvasKit, gpu, 'pathperson');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -366,8 +407,8 @@
     });
   }
 
-  function InkExample(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('ink');
+  function InkExample(CanvasKit, gpu) {
+    const surface = MakeCanvasSurface(CanvasKit, gpu, 'ink');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -974,8 +1015,8 @@
     skcanvas.dispose();
   }
 
-  function VertexAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('vertex1');
+  function VertexAPI1(CanvasKit, gpu) {
+    const surface = MakeCanvasSurface(CanvasKit, gpu, 'vertex1');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -1013,10 +1054,11 @@
     shader.delete();
     paint.delete();
     surface.delete();
+    vertices.delete();
   }
 
-  function GradiantAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeSWCanvasSurface('gradient1');
+  function GradientAPI1(CanvasKit, gpu) {
+    const surface = MakeCanvasSurface(CanvasKit, gpu, 'gradient1');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -1039,14 +1081,16 @@
     const textBlob = CanvasKit.TextBlob.MakeFromText('Radial', textFont);
 
     canvas.drawTextBlob(textBlob, 10, 200, paint);
+    surface.flush();
     paint.delete();
     textFont.delete();
     textBlob.delete();
-    surface.flush();
+    shader.delete();
+    surface.delete();
   }
 
-  function TextOnPathAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeSWCanvasSurface('textonpath');
+  function TextOnPathAPI1(CanvasKit, gpu) {
+    const surface = MakeCanvasSurface(CanvasKit, gpu, 'textonpath');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -1074,6 +1118,7 @@
 
     surface.flush();
 
+    surface.delete();
     textBlob.delete();
     arc.delete();
     paint.delete();
@@ -1081,34 +1126,35 @@
     fontPaint.delete();
   }
 
-    function DrawGlyphsAPI1(CanvasKit) {
-        const surface = CanvasKit.MakeSWCanvasSurface('drawGlyphs');
-        if (!surface) {
-            console.error('Could not make surface');
-            return;
-        }
-        const canvas = surface.getCanvas();
-        const paint = new CanvasKit.Paint();
-        const font = new CanvasKit.Font(null, 16);
-        paint.setAntiAlias(true);
-
-        let glyphs = [];
-        let positions = [];
-        for (let i = 0; i < 256; ++i) {
-            glyphs.push(i);
-            positions.push((i % 16) * 16);
-            positions.push(Math.round(i/16) * 16);
-        }
-        canvas.drawGlyphs(glyphs, positions, 16, 20, font, paint);
-
-        surface.flush();
-
-        paint.delete();
-        font.delete();
+  function DrawGlyphsAPI1(CanvasKit, gpu) {
+    const surface = MakeCanvasSurface(CanvasKit, gpu, 'drawGlyphs');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
     }
+    const canvas = surface.getCanvas();
+    const paint = new CanvasKit.Paint();
+    const font = new CanvasKit.Font(null, 16);
+    paint.setAntiAlias(true);
 
-  function SurfaceAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('surfaces');
+    let glyphs = [];
+    let positions = [];
+    for (let i = 0; i < 256; ++i) {
+      glyphs.push(i);
+      positions.push((i % 16) * 16);
+      positions.push(Math.round(i/16) * 16);
+    }
+    canvas.drawGlyphs(glyphs, positions, 16, 20, font, paint);
+
+    surface.flush();
+
+    surface.delete();
+    paint.delete();
+    font.delete();
+  }
+
+  function SurfaceAPI1(CanvasKit, gpu) {
+    const surface = MakeCanvasSurface(CanvasKit, gpu, 'surfaces');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -1161,28 +1207,27 @@
     patternPaint.setShader(pattern);
 
     let i = 0;
-
     function drawFrame(canvas) {
       i++;
       canvas.clear(CanvasKit.WHITE);
-
       canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);
   }
 
-  function AtlasAPI1(CanvasKit, imgData) {
+  function AtlasAPI1(CanvasKit, gpu, imgData) {
     if (!CanvasKit || !imgData) {
       return;
     }
-    const surface = CanvasKit.MakeCanvasSurface('atlas');
+
+    const surface = MakeCanvasSurface(CanvasKit, gpu, 'atlas');
     if (!surface) {
       console.error('Could not make surface');
       return;
     }
-    const img = CanvasKit.MakeImageFromEncoded(imgData);
 
+    const img = CanvasKit.MakeImageFromEncoded(imgData);
     const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
 
@@ -1225,7 +1270,6 @@
       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);
-
   }
 
   async function DecodeAPI(CanvasKit, imgData) {
