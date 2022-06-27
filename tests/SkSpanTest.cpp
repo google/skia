@@ -64,10 +64,10 @@ DEF_TEST(SkSpanBasicTemplateGuide, reporter) {
         REPORTER_ASSERT(reporter, s.empty());
     }
 
-    {
-        auto s = SkSpan({1, 2, 3});
-        REPORTER_ASSERT(reporter, s.size() == 3);
-    }
+    auto routine = [&](SkSpan<const int> a) {
+        REPORTER_ASSERT(reporter, a.size() == 4);
+    };
+    routine({1,2,3,4});
 }
 
 static bool test_span_parameter(SkSpan<const int> s) {
