@@ -9474,7 +9474,7 @@ static struct TestDesc tests[] = {
     TEST(cubicOp1d),
 };
 
-static const size_t testCount = SK_ARRAY_COUNT(tests);
+static const size_t testCount = std::size(tests);
 
 static struct TestDesc subTests[] = {
     TEST(loops47i),
@@ -9483,7 +9483,7 @@ static struct TestDesc subTests[] = {
     TEST(issue3517),
 };
 
-static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
+static const size_t subTestCount = std::size(subTests);
 
 static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
@@ -12523,7 +12523,7 @@ static struct TestDesc failTests[] = {
     TEST(bufferOverflow),
 };
 
-static const size_t failTestCount = SK_ARRAY_COUNT(failTests);
+static const size_t failTestCount = std::size(failTests);
 
 DEF_TEST(PathOpsFailOp, reporter) {
     RunTestSet(reporter, failTests, failTestCount, nullptr, nullptr, nullptr, false);
@@ -12538,5 +12538,5 @@ DEF_TEST(PathOpsRepOp, reporter) {
         return;
     }
   for (int index = 0; index < 1; ++index)
-    RunTestSet(reporter, repTests, SK_ARRAY_COUNT(repTests), nullptr, nullptr, nullptr, false);
+    RunTestSet(reporter, repTests, std::size(repTests), nullptr, nullptr, nullptr, false);
 }

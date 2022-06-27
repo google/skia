@@ -665,9 +665,9 @@ static void test_collapse(skiatest::Reporter* reporter) {
     PFEmitMC gMCs[] = { emit_clip_and_mat, emit_mat_and_clip,
                         emit_double_mat_and_clip, emit_mat_clip_clip };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gStructure); ++i) {
-        for (size_t j = 0; j < SK_ARRAY_COUNT(gBody); ++j) {
-            for (size_t k = 0; k < SK_ARRAY_COUNT(gMCs); ++k) {
+    for (size_t i = 0; i < std::size(gStructure); ++i) {
+        for (size_t j = 0; j < std::size(gBody); ++j) {
+            for (size_t k = 0; k < std::size(gMCs); ++k) {
                 for (int l = 0; l < kMatTypeCount; ++l) {
                     for (int m = 0; m < kClipTypeCount; ++m) {
                         for (int n = 0; n < kNonSaveLayerDrawOpTypeCount; ++n) {

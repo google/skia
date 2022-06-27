@@ -382,10 +382,10 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
             {kBGRA_8888_SkColorType, kPremul_SkAlphaType},
             {kBGRA_8888_SkColorType, kUnpremul_SkAlphaType},
     };
-    for (size_t r = 0; r < SK_ARRAY_COUNT(testRects); ++r) {
+    for (size_t r = 0; r < std::size(testRects); ++r) {
         const SkIRect& rect = testRects[r];
         for (int tightBmp = 0; tightBmp < 2; ++tightBmp) {
-            for (size_t c = 0; c < SK_ARRAY_COUNT(gSrcConfigs); ++c) {
+            for (size_t c = 0; c < std::size(gSrcConfigs); ++c) {
                 const SkColorType ct = gSrcConfigs[c].fColorType;
                 const SkAlphaType at = gSrcConfigs[c].fAlphaType;
 

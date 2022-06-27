@@ -65,7 +65,7 @@ static void test_strokerect(skiatest::Reporter* reporter) {
         SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(joins); ++i) {
+    for (size_t i = 0; i < std::size(joins); ++i) {
         paint.setStrokeJoin(joins[i]);
 
         SkPath path, fillPath;

@@ -250,10 +250,10 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
 
     SkMatrix baseMats[] = {scale, rot90Scale, rotate,
                            translate, perspX, perspY};
-    SkMatrix mats[2*SK_ARRAY_COUNT(baseMats)];
-    for (size_t i = 0; i < SK_ARRAY_COUNT(baseMats); ++i) {
+    SkMatrix mats[2*std::size(baseMats)];
+    for (size_t i = 0; i < std::size(baseMats); ++i) {
         mats[i] = baseMats[i];
-        bool invertible = mats[i].invert(&mats[i + SK_ARRAY_COUNT(baseMats)]);
+        bool invertible = mats[i].invert(&mats[i + std::size(baseMats)]);
         REPORTER_ASSERT(reporter, invertible);
     }
     SkRandom rand;
@@ -261,7 +261,7 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
         SkMatrix mat;
         mat.reset();
         for (int i = 0; i < 4; ++i) {
-            int x = rand.nextU() % SK_ARRAY_COUNT(mats);
+            int x = rand.nextU() % std::size(mats);
             mat.postConcat(mats[x]);
         }
 
@@ -285,7 +285,7 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
         static const SkScalar gCloseScaleTol = (97 * SK_Scalar1) / 100;
         SkScalar max = 0, min = SK_ScalarMax;
         SkVector vectors[1000];
-        for (size_t i = 0; i < SK_ARRAY_COUNT(vectors); ++i) {
+        for (size_t i = 0; i < std::size(vectors); ++i) {
             vectors[i].fX = rand.nextSScalar1();
             vectors[i].fY = rand.nextSScalar1();
             if (!vectors[i].normalize()) {
@@ -293,8 +293,8 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
                 continue;
             }
         }
-        mat.mapVectors(vectors, SK_ARRAY_COUNT(vectors));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(vectors); ++i) {
+        mat.mapVectors(vectors, std::size(vectors));
+        for (size_t i = 0; i < std::size(vectors); ++i) {
             SkScalar d = vectors[i].length();
             REPORTER_ASSERT(reporter, d / maxScale < gVectorScaleTol);
             REPORTER_ASSERT(reporter, minScale / d < gVectorScaleTol);
@@ -909,7 +909,7 @@ DEF_TEST(Matrix, reporter) {
             { 1, 1, 1, 1, false }
         };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gRectStaysRectSamples); i++) {
+        for (size_t i = 0; i < std::size(gRectStaysRectSamples); i++) {
             SkMatrix    m;
 
             m.reset();

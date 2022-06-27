@@ -34,7 +34,7 @@ DEF_TEST(GetColor, reporter) {
     const SkColor initColor = 0xFF0000FF;
     const SkIRect area = { 1, 1, 3, 3 };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+    for (size_t i = 0; i < std::size(gRec); i++) {
         SkImageInfo info = SkImageInfo::Make(2, 2, gRec[i].fColorType,
                                              kPremul_SkAlphaType);
         SkBitmap bm;

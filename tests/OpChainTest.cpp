@@ -27,7 +27,7 @@ struct Range {
 
 static constexpr int kNumOpPositions = 4;
 static constexpr Range kRanges[] = {{0, 4,}, {1, 2}};
-static constexpr int kNumRanges = (int)SK_ARRAY_COUNT(kRanges);
+static constexpr int kNumRanges = (int)std::size(kRanges);
 static constexpr int kNumRepeats = 2;
 static constexpr int kNumOps = kNumRepeats * kNumOpPositions * kNumRanges;
 

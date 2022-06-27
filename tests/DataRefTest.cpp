@@ -57,7 +57,7 @@ static void test_emptytable(skiatest::Reporter* reporter) {
 
 static void test_simpletable(skiatest::Reporter* reporter) {
     const int idata[] = { 1, 4, 9, 16, 25, 63 };
-    int icount = SK_ARRAY_COUNT(idata);
+    int icount = std::size(idata);
     sk_sp<SkDataTable> itable(SkDataTable::MakeCopyArray(idata, sizeof(idata[0]), icount));
     REPORTER_ASSERT(reporter, itable->count() == icount);
     for (int i = 0; i < icount; ++i) {
@@ -72,8 +72,8 @@ static void test_vartable(skiatest::Reporter* reporter) {
     const char* str[] = {
         "", "a", "be", "see", "deigh", "ef", "ggggggggggggggggggggggggggg"
     };
-    int count = SK_ARRAY_COUNT(str);
-    size_t sizes[SK_ARRAY_COUNT(str)];
+    int count = std::size(str);
+    size_t sizes[std::size(str)];
     for (int i = 0; i < count; ++i) {
         sizes[i] = strlen(str[i]) + 1;
     }
@@ -97,7 +97,7 @@ static void test_globaltable(skiatest::Reporter* reporter) {
     static const int gData[] = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
     };
-    int count = SK_ARRAY_COUNT(gData);
+    int count = std::size(gData);
 
     sk_sp<SkDataTable> table(
         SkDataTable::MakeArrayProc(gData, sizeof(gData[0]), count, nullptr, nullptr));
@@ -216,7 +216,7 @@ DEF_TEST(Data_empty, reporter) {
         SkData::MakeWithProc(nullptr, 0, [](const void*, void*){}, nullptr),
         SkData::MakeWithoutCopy(nullptr, 0),
     };
-    constexpr int N = SK_ARRAY_COUNT(array);
+    constexpr int N = std::size(array);
 
     for (int i = 0; i < N; ++i) {
         REPORTER_ASSERT(reporter, array[i]->size() == 0);

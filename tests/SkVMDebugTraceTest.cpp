@@ -169,8 +169,8 @@ DEF_TEST(SkVMDebugTraceGetSlotComponentSuffix, r) {
                                      "[2][0]", "[2][1]", "[2][2]", "[2][3]",
                                      "[3][0]", "[3][1]", "[3][2]", "[3][3]"};
 
-    REPORTER_ASSERT(r, i.fSlotInfo.size() == SK_ARRAY_COUNT(kExpected));
-    for (size_t index = 0; index < SK_ARRAY_COUNT(kExpected); ++index) {
+    REPORTER_ASSERT(r, i.fSlotInfo.size() == std::size(kExpected));
+    for (size_t index = 0; index < std::size(kExpected); ++index) {
         REPORTER_ASSERT(r, kExpected[index] == i.getSlotComponentSuffix(index));
     }
 }

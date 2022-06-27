@@ -237,7 +237,7 @@ DEF_TEST(Region, reporter) {
         { 0, 0, 1, 1 },
         { 2, 2, 3, 3 },
     };
-    REPORTER_ASSERT(reporter, test_rects(r2, SK_ARRAY_COUNT(r2)));
+    REPORTER_ASSERT(reporter, test_rects(r2, std::size(r2)));
 
     const SkIRect rects[] = {
         { 0, 0, 1, 2 },
@@ -245,7 +245,7 @@ DEF_TEST(Region, reporter) {
         { 4, 0, 5, 1 },
         { 6, 0, 7, 4 },
     };
-    REPORTER_ASSERT(reporter, test_rects(rects, SK_ARRAY_COUNT(rects)));
+    REPORTER_ASSERT(reporter, test_rects(rects, std::size(rects)));
 
     SkRandom rand;
     for (int i = 0; i < 1000; i++) {

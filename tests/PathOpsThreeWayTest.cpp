@@ -33,11 +33,11 @@ static const struct TestSet {
     const Curve* tests;
     int testCount;
 } testSets[] = {
-    { testSet0, (int) SK_ARRAY_COUNT(testSet0) },
-    { testSet1, (int) SK_ARRAY_COUNT(testSet1) },
+    { testSet0, (int) std::size(testSet0) },
+    { testSet1, (int) std::size(testSet1) },
 };
 
-static const int testSetsCount = (int) SK_ARRAY_COUNT(testSets);
+static const int testSetsCount = (int) std::size(testSets);
 
 static void testSetTest(skiatest::Reporter* reporter, int index) {
     const TestSet& testSet = testSets[index];

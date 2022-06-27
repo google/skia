@@ -42,7 +42,7 @@ static struct {
 };
 
 DEF_TEST(ParsePath, reporter) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+    for (size_t i = 0; i < std::size(gRec); i++) {
         SkPath  path;
         bool success = SkParsePath::FromSVGString(gRec[i].fStr, &path);
         REPORTER_ASSERT(reporter, success);
@@ -122,7 +122,7 @@ DEF_TEST(ParsePathOptionalCommand, r) {
     };
 
     SkPath path;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); ++i) {
+    for (size_t i = 0; i < std::size(gTests); ++i) {
         REPORTER_ASSERT(r, SkParsePath::FromSVGString(gTests[i].fStr, &path));
         REPORTER_ASSERT(r, path.countVerbs() == gTests[i].fVerbs);
         REPORTER_ASSERT(r, path.countPoints() == gTests[i].fPoints);

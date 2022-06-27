@@ -178,7 +178,7 @@ static TestDesc tests[] = {
     TEST(chalkboard_threaded),
 };
 
-static const size_t testCount = SK_ARRAY_COUNT(tests);
+static const size_t testCount = std::size(tests);
 static bool runReverse = false;
 
 DEF_TEST(PathOpsChalkboard, reporter) {

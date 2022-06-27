@@ -133,7 +133,7 @@ DEF_TEST(Point, reporter) {
         { 0.6f, 0.8f, SK_Scalar1 },
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+    for (size_t i = 0; i < std::size(gRec); ++i) {
         test_length(reporter, gRec[i].fX, gRec[i].fY, gRec[i].fLength);
     }
 
@@ -147,7 +147,7 @@ DEF_TEST(Point_setLengthFast, reporter) {
     const float tests[] = { 1.0f, 0.0f, 1.0e-37f, 3.4e38f, 42.0f, 0.00012f };
 
     const SkPoint kOne = {1.0f, 1.0f};
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(tests); i++) {
+    for (unsigned i = 0; i < std::size(tests); i++) {
         SkPoint slow = kOne, fast = kOne;
 
         slow.setLength(tests[i]);

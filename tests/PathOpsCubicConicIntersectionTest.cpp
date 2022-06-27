@@ -40,7 +40,7 @@ static struct cubicConic {
         {231.80000305175781, 2084.800048828125}}}, 0.707107008f}},
 };
 
-static const int cubicConicTests_count = (int) SK_ARRAY_COUNT(cubicConicTests);
+static const int cubicConicTests_count = (int) std::size(cubicConicTests);
 
 static void cubicConicIntersection(skiatest::Reporter* reporter, int index) {
     const CubicPts& cu = cubicConicTests[index].cubic;

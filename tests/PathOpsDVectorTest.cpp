@@ -18,7 +18,7 @@ static const SkDPoint tests[] = {
     {2, 2}
 };
 
-static const size_t tests_count = SK_ARRAY_COUNT(tests);
+static const size_t tests_count = std::size(tests);
 
 DEF_TEST(PathOpsDVector, reporter) {
     for (size_t index = 0; index < tests_count - 1; ++index) {

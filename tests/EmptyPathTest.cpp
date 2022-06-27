@@ -77,9 +77,9 @@ static void iter_paint(skiatest::Reporter* reporter, const SkPath& path, bool sh
         SkPaint::kStroke_Style,
         SkPaint::kStrokeAndFill_Style
     };
-    for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
-        for (size_t join = 0; join < SK_ARRAY_COUNT(gJoins); ++join) {
-            for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
+    for (size_t cap = 0; cap < std::size(gCaps); ++cap) {
+        for (size_t join = 0; join < std::size(gJoins); ++join) {
+            for (size_t style = 0; style < std::size(gStyles); ++style) {
                 if (drawCaps && SkPaint::kButt_Cap != gCaps[cap]
                         && SkPaint::kFill_Style != gStyles[style]) {
                     continue;
@@ -133,7 +133,7 @@ static void test_emptydrawing(skiatest::Reporter* reporter) {
         SkPathFillType::kInverseEvenOdd
     };
     for (int doClose = 0; doClose < 2; ++doClose) {
-        for  (size_t i = 0; i < SK_ARRAY_COUNT(gMakeProc); ++i) {
+        for  (size_t i = 0; i < std::size(gMakeProc); ++i) {
             SkPath path;
             gMakeProc[i](&path);
             if (doClose) {
@@ -143,7 +143,7 @@ static void test_emptydrawing(skiatest::Reporter* reporter) {
             bool allowCaps = make_L == gMakeProc[i] || make_Q == gMakeProc[i]
                     || make_C == gMakeProc[i] || make_MZM == gMakeProc[i];
             allowCaps |= SkToBool(doClose);
-            for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
+            for (size_t fill = 0; fill < std::size(gFills); ++fill) {
                 path.setFillType(gFills[fill]);
                 bool shouldDraw = path.isInverseFillType();
                 iter_paint(reporter, path, shouldDraw, allowCaps ? kDrawCaps : kDontDrawCaps);

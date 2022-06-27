@@ -258,10 +258,10 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
         for (auto outerF : filters) {
             bool outerNoOped = !outerF;
             for (auto innerF : filters) {
-                for (size_t i = 0; i < SK_ARRAY_COUNT(firstBounds); ++ i) {
-                    for (size_t j = 0; j < SK_ARRAY_COUNT(firstPaints); ++j) {
-                        for (size_t k = 0; k < SK_ARRAY_COUNT(secondBounds); ++k) {
-                            for (size_t m = 0; m < SK_ARRAY_COUNT(secondPaints); ++m) {
+                for (size_t i = 0; i < std::size(firstBounds); ++ i) {
+                    for (size_t j = 0; j < std::size(firstPaints); ++j) {
+                        for (size_t k = 0; k < std::size(secondBounds); ++k) {
+                            for (size_t m = 0; m < std::size(secondPaints); ++m) {
                                 bool innerNoOped = !secondBounds[k] && !secondPaints[m] && !innerF;
 
                                 recorder.saveLayer({firstBounds[i], firstPaints[j], outerF, 0});
@@ -305,7 +305,7 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
         { &alphaOnlyLayerPaint, &colorFilterPaint }
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(noChangeTests); ++i) {
+    for (size_t i = 0; i < std::size(noChangeTests); ++i) {
         recorder.saveLayer(nullptr, noChangeTests[i].firstPaint);
         recorder.save();
         recorder.clipRect(clip);

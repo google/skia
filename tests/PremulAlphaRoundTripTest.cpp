@@ -62,7 +62,7 @@ static void fill_surface(SkSurface* surf, SkColorType colorType, PackUnpremulPro
 }
 
 static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface* surf) {
-    for (size_t upmaIdx = 0; upmaIdx < SK_ARRAY_COUNT(gUnpremul); ++upmaIdx) {
+    for (size_t upmaIdx = 0; upmaIdx < std::size(gUnpremul); ++upmaIdx) {
         fill_surface(surf, gUnpremul[upmaIdx].fColorType, gUnpremul[upmaIdx].fPackProc);
 
         const SkImageInfo info = SkImageInfo::Make(256, 256, gUnpremul[upmaIdx].fColorType,

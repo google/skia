@@ -57,16 +57,16 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
         int            fCount;
         bool           fIsFinite;
     } gSets[] = {
-        { gF0, SK_ARRAY_COUNT(gF0), true },
-        { gF1, SK_ARRAY_COUNT(gF1), true },
+        { gF0, std::size(gF0), true },
+        { gF1, std::size(gF1), true },
 
-        { gI0, SK_ARRAY_COUNT(gI0), false },
-        { gI1, SK_ARRAY_COUNT(gI1), false },
-        { gI2, SK_ARRAY_COUNT(gI2), false },
-        { gI3, SK_ARRAY_COUNT(gI3), false },
+        { gI0, std::size(gI0), false },
+        { gI1, std::size(gI1), false },
+        { gI2, std::size(gI2), false },
+        { gI3, std::size(gI3), false },
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gSets); ++i) {
+    for (size_t i = 0; i < std::size(gSets); ++i) {
         SkRect r;
         r.setBounds(gSets[i].fPts, gSets[i].fCount);
         bool rectIsFinite = !r.isEmpty();
@@ -165,10 +165,10 @@ static void test_isfinite(skiatest::Reporter* reporter) {
         isFinite2_mulzeroadd
     };
 
-    size_t i, n = SK_ARRAY_COUNT(data);
+    size_t i, n = std::size(data);
 
     for (i = 0; i < n; ++i) {
-        for (size_t k = 0; k < SK_ARRAY_COUNT(gProc1); ++k) {
+        for (size_t k = 0; k < std::size(gProc1); ++k) {
             const Rec& rec = data[i];
             bool finite = gProc1[k](rec.fValue);
             REPORTER_ASSERT(reporter, rec.fIsFinite == finite);
@@ -179,10 +179,10 @@ static void test_isfinite(skiatest::Reporter* reporter) {
         const Rec& rec0 = data[i];
         for (size_t j = 0; j < n; ++j) {
             const Rec& rec1 = data[j];
-            for (size_t k = 0; k < SK_ARRAY_COUNT(gProc1); ++k) {
+            for (size_t k = 0; k < std::size(gProc1); ++k) {
                 IsFiniteProc1 proc1 = gProc1[k];
 
-                for (size_t m = 0; m < SK_ARRAY_COUNT(gProc2); ++m) {
+                for (size_t m = 0; m < std::size(gProc2); ++m) {
                     bool finite = gProc2[m](rec0.fValue, rec1.fValue, proc1);
                     bool finite2 = rec0.fIsFinite && rec1.fIsFinite;
                     REPORTER_ASSERT(reporter, finite2 == finite);

@@ -54,7 +54,7 @@ DEF_TEST(MetaData, reporter) {
     while ((name = iter.next(&t, &count)) != nullptr)
     {
         int match = 0;
-        for (unsigned i = 0; i < SK_ARRAY_COUNT(gElems); i++)
+        for (unsigned i = 0; i < std::size(gElems); i++)
         {
             if (!strcmp(name, gElems[i].fName))
             {
@@ -66,7 +66,7 @@ DEF_TEST(MetaData, reporter) {
         REPORTER_ASSERT(reporter, match == 1);
         loop += 1;
     }
-    REPORTER_ASSERT(reporter, loop == SK_ARRAY_COUNT(gElems));
+    REPORTER_ASSERT(reporter, loop == std::size(gElems));
 
     REPORTER_ASSERT(reporter, m1.removeS32("int"));
     REPORTER_ASSERT(reporter, m1.removeScalar("scalar"));

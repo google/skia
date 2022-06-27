@@ -136,7 +136,7 @@ DEF_TEST(Point3, reporter) {
         { 3.4e38f, 0.0f, 0.0f, 3.4e38f }         // overflows
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+    for (size_t i = 0; i < std::size(gRec); ++i) {
         test_length(reporter, gRec[i].fX, gRec[i].fY, gRec[i].fZ, gRec[i].fLength);
         test_normalize(reporter, gRec[i].fX, gRec[i].fY, gRec[i].fZ, gRec[i].fLength);
     }

@@ -38,7 +38,7 @@ DEF_TEST(FontMgr_Font, reporter) {
     for (const auto glyph : glyphs) { REPORTER_ASSERT(reporter, glyph == 0); }
 
     SkAssertResult(font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, glyphs,
-                                     SK_ARRAY_COUNT(glyphs)) == count);
+                                     std::size(glyphs)) == count);
 
     for (int i = 0; i < count; ++i) {
         REPORTER_ASSERT(reporter, 0 != glyphs[i]);
@@ -62,7 +62,7 @@ DEF_TEST(FontMgr_AliasNames, reporter) {
         "sans", "sans-serif", "serif", "monospace", "times", "helvetica"
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(inNames); ++i) {
+    for (size_t i = 0; i < std::size(inNames); ++i) {
         sk_sp<SkTypeface> first(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
         if (nullptr == first.get()) {
             continue;

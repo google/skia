@@ -238,7 +238,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
          kDontShare},
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(overlappingTests); i++) {
+    for (size_t i = 0; i < std::size(overlappingTests); i++) {
         const TestCase& test = overlappingTests[i];
         sk_sp<GrSurfaceProxy> p1 = make_proxy(dContext, test.fP1);
         sk_sp<GrSurfaceProxy> p2 = make_proxy(dContext, test.fP2);
@@ -307,7 +307,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
          kDontShare}
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(nonOverlappingTests); i++) {
+    for (size_t i = 0; i < std::size(nonOverlappingTests); i++) {
         const TestCase& test = nonOverlappingTests[i];
         sk_sp<GrSurfaceProxy> p1 = make_proxy(dContext, test.fP1);
         sk_sp<GrSurfaceProxy> p2 = make_proxy(dContext, test.fP2);
@@ -496,7 +496,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorMemoryBudgetTest, reporter, 
             }},
     };
     SkString match("");
-    for (size_t i = 0; i < SK_ARRAY_COUNT(tests); i++) {
+    for (size_t i = 0; i < std::size(tests); i++) {
         TestCase& test = tests[i];
         if (match.isEmpty() || match == SkString(test.fName)) {
             // Create proxies

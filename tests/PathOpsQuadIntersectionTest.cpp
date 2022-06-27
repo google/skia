@@ -330,7 +330,7 @@ static const QuadPts testSet[] = {
     {{{8, 8}, {9, 9}, {10, 8}}}
 };
 
-const size_t testSetCount = SK_ARRAY_COUNT(testSet);
+const size_t testSetCount = std::size(testSet);
 
 static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner) {
     const QuadPts& q1 = testSet[outer];
@@ -382,7 +382,7 @@ static const QuadPts coincidentTestSet[] = {
     {{{8, -10}, {10, 10}, {8, 8}}},
 };
 
-static const int coincidentTestSetCount = (int) SK_ARRAY_COUNT(coincidentTestSet);
+static const int coincidentTestSetCount = (int) std::size(coincidentTestSet);
 
 static void coincidentTestOne(skiatest::Reporter* reporter, int test1, int test2) {
     const QuadPts& q1 = coincidentTestSet[test1];

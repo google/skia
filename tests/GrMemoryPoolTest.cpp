@@ -129,14 +129,14 @@ class E : public A {
 public:
     E() {}
     void setValues(int v) override {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fIntArray); ++i) {
+        for (size_t i = 0; i < std::size(fIntArray); ++i) {
             fIntArray[i] = v;
         }
         this->INHERITED::setValues(v);
     }
     bool checkValues(int v) override {
         bool ok = true;
-        for (size_t i = 0; ok && i < SK_ARRAY_COUNT(fIntArray); ++i) {
+        for (size_t i = 0; ok && i < std::size(fIntArray); ++i) {
             if (fIntArray[i] != v) {
                 ok = false;
             }
@@ -192,10 +192,10 @@ DEF_TEST(GrMemoryPool, reporter) {
     static const int kCheckPeriod = 500;
 
     SkRandom r;
-    for (size_t s = 0; s < SK_ARRAY_COUNT(gSizes); ++s) {
+    for (size_t s = 0; s < std::size(gSizes); ++s) {
         A::SetAllocator(gSizes[s][0], gSizes[s][1]);
         A::ValidatePool();
-        for (size_t c = 0; c < SK_ARRAY_COUNT(gCreateFraction); ++c) {
+        for (size_t c = 0; c < std::size(gCreateFraction); ++c) {
             SkTDArray<Rec> instanceRecs;
             for (int i = 0; i < kNumIters; ++i) {
                 float createOrDestroy = r.nextUScalar1();

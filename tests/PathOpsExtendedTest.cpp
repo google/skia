@@ -250,7 +250,7 @@ static SkTDArray<SkPathOp> gTestOp;
 static void showPathOpPath(const char* testName, const SkPath& one, const SkPath& two,
         const SkPath& a, const SkPath& b, const SkPath& scaledOne, const SkPath& scaledTwo,
         const SkPathOp shapeOp, const SkMatrix& scale) {
-    SkASSERT((unsigned) shapeOp < SK_ARRAY_COUNT(opStrs));
+    SkASSERT((unsigned) shapeOp < std::size(opStrs));
     if (!testName) {
         testName = "xOp";
     }
@@ -668,7 +668,7 @@ void PathOpsThreadState::outputProgress(const char* pathStr, SkPathFillType path
 
 void PathOpsThreadState::outputProgress(const char* pathStr, SkPathOp op) {
     const char testFunction[] = "testOp(path);";
-    SkASSERT((size_t) op < SK_ARRAY_COUNT(opSuffixes));
+    SkASSERT((size_t) op < std::size(opSuffixes));
     const char* nameSuffix = opSuffixes[op];
     appendTest(pathStr, nullptr, nameSuffix, testFunction, true, fPathStr);
 }

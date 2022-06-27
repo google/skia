@@ -24,7 +24,7 @@ static lineCubic failLineCubicTests[] = {
             {{{40.625,-5.7890625}, {37.7109375,1.3515625}}}},
 };
 
-static const size_t failLineCubicTests_count = SK_ARRAY_COUNT(failLineCubicTests);
+static const size_t failLineCubicTests_count = std::size(failLineCubicTests);
 
 static void testFail(skiatest::Reporter* reporter, int iIndex) {
     const CubicPts& cuPts = failLineCubicTests[iIndex].cubic;
@@ -98,7 +98,7 @@ static lineCubic lineCubicTests[] = {
     {{{{0, 0}, {0, 1}, {0, 1}, {1, 1}}}, {{{0, 1}, {1, 0}}}},
 };
 
-static const size_t lineCubicTests_count = SK_ARRAY_COUNT(lineCubicTests);
+static const size_t lineCubicTests_count = std::size(lineCubicTests);
 
 static int doIntersect(SkIntersections& intersections, const SkDCubic& cubic, const SkDLine& line) {
     int result;

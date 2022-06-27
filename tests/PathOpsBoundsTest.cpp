@@ -20,14 +20,14 @@ static const SkRect sectTests[][2] = {
     {{2, 0, 4, 1}, {4, 1, 5, 2}},  // touching just on a corner is OK
 };
 
-static const size_t sectTestsCount = SK_ARRAY_COUNT(sectTests);
+static const size_t sectTestsCount = std::size(sectTests);
 
 static const SkRect noSectTests[][2] = {
     {{2, 0, 4, 1}, {5, 0, 6, 1}},
     {{2, 0, 4, 1}, {3, 2, 5, 2}},
 };
 
-static const size_t noSectTestsCount = SK_ARRAY_COUNT(noSectTests);
+static const size_t noSectTestsCount = std::size(noSectTests);
 
 DEF_TEST(PathOpsBounds, reporter) {
     for (size_t index = 0; index < sectTestsCount; ++index) {

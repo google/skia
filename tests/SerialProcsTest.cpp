@@ -66,7 +66,7 @@ DEF_TEST(serial_procs_image, reporter) {
     SkDeserialProcs dproc;
     dproc.fImageCtx  = &state;
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(sprocs); ++i) {
+    for (size_t i = 0; i < std::size(sprocs); ++i) {
         sproc.fImageProc = sprocs[i];
         auto data = pic->serialize(&sproc);
         REPORTER_ASSERT(reporter, data);

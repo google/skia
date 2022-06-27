@@ -87,7 +87,7 @@ static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream, int 
         SkDebugf("[%d:%d] '%s'\n", ttcIndex, i, str.c_str());
 #endif
         size_t size = SkFontStream::GetTableSize(stream, ttcIndex, array[i]);
-        for (size_t j = 0; j < SK_ARRAY_COUNT(gKnownTableSizes); ++j) {
+        for (size_t j = 0; j < std::size(gKnownTableSizes); ++j) {
             if (gKnownTableSizes[j].fTag == array[i]) {
                 REPORTER_ASSERT(reporter, gKnownTableSizes[j].fSize == size);
             }
@@ -152,7 +152,7 @@ static void test_tables(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& f
         SkDebugf("%s %d\n", name, size);
 #endif
 
-        for (size_t j = 0; j < SK_ARRAY_COUNT(gKnownTableSizes); ++j) {
+        for (size_t j = 0; j < std::size(gKnownTableSizes); ++j) {
             if (gKnownTableSizes[j].fTag == tags[i]) {
                 REPORTER_ASSERT(reporter, gKnownTableSizes[j].fSize == size);
             }
@@ -180,7 +180,7 @@ static void test_tables(skiatest::Reporter* reporter) {
         "Hiragino Mincho ProN", "MS PGothic",
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {
+    for (size_t i = 0; i < std::size(gNames); ++i) {
         sk_sp<SkTypeface> face(SkTypeface::MakeFromName(gNames[i], SkFontStyle()));
         if (face) {
 #ifdef DUMP_TABLES
@@ -235,15 +235,15 @@ static void test_advances(skiatest::Reporter* reporter) {
     char const * const txt = "long.text.with.lots.of.dots.";
     size_t textLen = strlen(txt);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
+    for (size_t i = 0; i < std::size(faces); i++) {
         font.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
 
-        for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
+        for (size_t j = 0; j  < std::size(settings); j++) {
             font.setHinting(settings[j].hinting);
             font.setLinearMetrics(settings[j].linear);
             font.setSubpixel(settings[j].subpixel);
 
-            for (size_t k = 0; k < SK_ARRAY_COUNT(gScaleRec); ++k) {
+            for (size_t k = 0; k < std::size(gScaleRec); ++k) {
                 font.setScaleX(gScaleRec[k].fScaleX);
                 font.setSkewX(gScaleRec[k].fSkewX);
 

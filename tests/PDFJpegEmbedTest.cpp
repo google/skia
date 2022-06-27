@@ -118,7 +118,7 @@ DEF_TEST(SkPDF_JpegIdentification, r) {
                   {"images/grayscale.jpg", true, SkJFIFInfo::kGrayscale},
                   {"images/mandrill_512_q075.jpg", true, SkJFIFInfo::kYCbCr},
                   {"images/randPixels.jpg", true, SkJFIFInfo::kYCbCr}};
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kTests); ++i) {
+    for (size_t i = 0; i < std::size(kTests); ++i) {
         sk_sp<SkData> data(load_resource(r, "JpegIdentification", kTests[i].path));
         if (!data) {
             continue;

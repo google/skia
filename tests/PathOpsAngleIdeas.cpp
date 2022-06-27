@@ -267,7 +267,7 @@ static double maxDist(const SkDQuad& quad) {
         { bounds.fRight - quad[0].fX, bounds.fBottom - quad[0].fY }
     };
     double max = 0;
-    for (unsigned index = 0; index < SK_ARRAY_COUNT(corner); ++index) {
+    for (unsigned index = 0; index < std::size(corner); ++index) {
         max = std::max(max, corner[index].length());
     }
     return max;
@@ -481,7 +481,7 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
     double maxWidth = 0;
     bool useIntersect = false;
     double smallestTs[] = {1, 1};
-    for (unsigned index = 0; index < SK_ARRAY_COUNT(quads); ++index) {
+    for (unsigned index = 0; index < std::size(quads); ++index) {
         const SkDQuad& q = *quads[index];
         midSpokes[index] = q.ptAtT(0.5) - origin;
         minX = std::min(std::min(std::min(minX, origin.fX), q[1].fX), q[2].fX);
@@ -561,7 +561,7 @@ DEF_TEST(PathOpsAngleOverlapHullsOne, reporter) {
 {{{939.4808349609375, 914.355224609375}, {-357.7921142578125, 590.842529296875}, {736.8936767578125, -350.717529296875}}},
 {{{939.4808349609375, 914.355224609375}, {-182.85418701171875, 634.4552001953125}, {-509.62615966796875, 576.1182861328125}}}
     };
-    for (int index = 0; index < (int) SK_ARRAY_COUNT(quads); index += 2) {
+    for (int index = 0; index < (int) std::size(quads); index += 2) {
         SkDQuad quad0, quad1;
         quad0.debugSet(quads[index].fPts);
         quad1.debugSet(quads[index + 1].fPts);
@@ -657,8 +657,8 @@ DEF_TEST(PathOpsAngleBruteTOne, reporter) {
 {{{598.857421875, 846.345458984375}, {715.7142333984375, 955.3599853515625}, {-919.9478759765625, 691.611328125}}},
     };
     TRange lowerRange, upperRange;
-    SkDQuad quads[SK_ARRAY_COUNT(qPts)];
-    for (int index = 0; index < (int) SK_ARRAY_COUNT(qPts); ++index) {
+    SkDQuad quads[std::size(qPts)];
+    for (int index = 0; index < (int) std::size(qPts); ++index) {
         quads[index].debugSet(qPts[index].fPts);
     }
     bruteMinT(reporter, quads[0], quads[1], &lowerRange, &upperRange);
@@ -807,7 +807,7 @@ DEF_TEST(PathOpsAngleExtreme, reporter) {
         return;
     }
     double maxR = SK_ScalarMax;
-    for (int index = 0; index < (int) SK_ARRAY_COUNT(extremeTests); ++index) {
+    for (int index = 0; index < (int) std::size(extremeTests); ++index) {
         const QuadPts& qu1 = extremeTests[index][0];
         const QuadPts& qu2 = extremeTests[index][1];
         SkDQuad quad1, quad2;

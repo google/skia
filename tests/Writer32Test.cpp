@@ -43,7 +43,7 @@ static void test_rewind(skiatest::Reporter* reporter) {
     int32_t array[3] = { 1, 2, 4 };
 
     REPORTER_ASSERT(reporter, 0 == swriter.bytesWritten());
-    for (size_t i = 0; i < SK_ARRAY_COUNT(array); ++i) {
+    for (size_t i = 0; i < std::size(array); ++i) {
         swriter.writeInt(array[i]);
     }
     check_contents(reporter, swriter, array, sizeof(array));
@@ -70,7 +70,7 @@ static void test_rewind(skiatest::Reporter* reporter) {
 
 static void test1(skiatest::Reporter* reporter, SkWriter32* writer) {
     const uint32_t data[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(data); ++i) {
+    for (size_t i = 0; i < std::size(data); ++i) {
         REPORTER_ASSERT(reporter, i*4 == writer->bytesWritten());
         writer->write32(data[i]);
         REPORTER_ASSERT(reporter, data[i] == writer->readTAt<uint32_t>(i * 4));

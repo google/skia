@@ -35,7 +35,7 @@ static const double answers[][2] = {
     {1.5894571940104115e-07, 7.9472859700520577e-08},
 };
 
-static const size_t tests_count = SK_ARRAY_COUNT(tests);
+static const size_t tests_count = std::size(tests);
 
 DEF_TEST(PathOpsLineParameters, reporter) {
     for (size_t index = 0; index < tests_count; ++index) {

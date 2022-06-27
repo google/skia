@@ -25,8 +25,8 @@ static const CubicPts cubicTests[] = {
     {{{3, 0}, {2, 1}, {3, 2}, {1, 1}}},
 };
 
-static const size_t quadTests_count = SK_ARRAY_COUNT(quadTests);
-static const size_t cubicTests_count = SK_ARRAY_COUNT(cubicTests);
+static const size_t quadTests_count = std::size(quadTests);
+static const size_t cubicTests_count = std::size(cubicTests);
 
 static void setRawBounds(const SkDQuad& quad, SkDRect* rect) {
     rect->set(quad[0]);

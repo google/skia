@@ -29,7 +29,7 @@ static struct lineConic {
     },
 };
 
-static size_t lineConicTests_count = SK_ARRAY_COUNT(lineConicTests);
+static size_t lineConicTests_count = std::size(lineConicTests);
 
 static int doIntersect(SkIntersections& intersections, const SkDConic& conic, const SkDLine& line,
                        bool& flipped) {
@@ -68,7 +68,7 @@ static struct oneLineConic {
       {{{25.6499996,20.6499996}, {45.6500015,20.6499996}}}}
 };
 
-static size_t oneOffs_count = SK_ARRAY_COUNT(oneOffs);
+static size_t oneOffs_count = std::size(oneOffs);
 
 static void testOneOffs(skiatest::Reporter* reporter) {
     bool flipped = false;

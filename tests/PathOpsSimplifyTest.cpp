@@ -9830,14 +9830,14 @@ static TestDesc tests[] = {
     TEST(testLine1),
 };
 
-static const size_t testCount = SK_ARRAY_COUNT(tests);
+static const size_t testCount = std::size(tests);
 
 static TestDesc subTests[] = {
     TEST(fuzz994s_3414),
     TEST(fuzz994s_11),
 };
 
-static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
+static const size_t subTestCount = std::size(subTests);
 
 static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = nullptr;
 

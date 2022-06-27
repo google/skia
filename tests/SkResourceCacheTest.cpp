@@ -187,7 +187,7 @@ DEF_TEST(BitmapCache_discarded_image, reporter) {
         SkMatrix::Scale(1.7f, 0.5f),
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(xforms); ++i) {
+    for (size_t i = 0; i < std::size(xforms); ++i) {
         test_discarded_image(reporter, xforms[i], []() {
             auto surface(SkSurface::MakeRasterN32Premul(10, 10));
             surface->getCanvas()->clear(SK_ColorCYAN);

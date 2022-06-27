@@ -74,7 +74,7 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
     mats[2].setTranslate(10.0f, 10.0f);
 
     for (int i = 0; i < kNumMats; ++i) {
-        for (int j = 0; j < (int)SK_ARRAY_COUNT(testCases); ++j) {
+        for (int j = 0; j < (int)std::size(testCases); ++j) {
             for (int k = 0; k < 2; ++k) {  // exercise alternating endpoints
                 SkPathEffectBase::PointData results;
                 SkPath src;
@@ -121,7 +121,7 @@ DEF_TEST(DashPathEffectTest_asPoints_limit, r) {
     // force the bounds to outset by a large amount
     p.setStrokeWidth(5.0e10f);
     const SkScalar intervals[] = { 1, 1 };
-    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
     canvas->drawLine(1, 1, 1, 5.0e10f, p);
 }
 
@@ -129,7 +129,7 @@ DEF_TEST(DashPathEffectTest_asPoints_limit, r) {
 // trying to substract a smal value from a large one in floats.
 DEF_TEST(DashCrazy_crbug_875494, r) {
     SkScalar vals[] = { 98, 94, 2888458849.f, 227, 0, 197 };
-    const int N = SK_ARRAY_COUNT(vals);
+    const int N = std::size(vals);
 
     SkRect cull = SkRect::MakeXYWH(43,236,57,149);
     SkPath path;

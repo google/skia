@@ -16,7 +16,7 @@ DEF_TEST(Checksum, r) {
     const size_t kBytes = SkAlign4(128);
     SkRandom rand;
     uint32_t data[kBytes/4], tweaked[kBytes/4];
-    for (size_t i = 0; i < SK_ARRAY_COUNT(tweaked); ++i) {
+    for (size_t i = 0; i < std::size(tweaked); ++i) {
         data[i] = tweaked[i] = rand.nextU();
     }
 
@@ -28,7 +28,7 @@ DEF_TEST(Checksum, r) {
     REPORTER_ASSERT(r, hash == SkOpts::hash(data, kBytes));
 
     // Changing any single element should change the hash.
-    for (size_t j = 0; j < SK_ARRAY_COUNT(tweaked); ++j) {
+    for (size_t j = 0; j < std::size(tweaked); ++j) {
         const uint32_t saved = tweaked[j];
         tweaked[j] = rand.nextU();
         const uint32_t tweakedHash = SkOpts::hash(tweaked, kBytes);

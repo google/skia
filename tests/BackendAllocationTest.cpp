@@ -597,7 +597,7 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
         { kR8_unorm_SkColorType,          { .25f, 0, 0, 1 }        },
     };
 
-    static_assert(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));
+    static_assert(kLastEnum_SkColorType == std::size(combinations));
 
     for (auto combo : combinations) {
         SkColorType colorType = combo.fColorType;

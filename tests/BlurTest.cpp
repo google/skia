@@ -133,7 +133,7 @@ DEF_TEST(BlurDrawing, reporter) {
         for (bool respectCTM : { false, true }) {
             paint.setMaskFilter(SkMaskFilter::MakeBlur(blurStyle, sigma, respectCTM));
 
-            for (size_t test = 0; test < SK_ARRAY_COUNT(tests); ++test) {
+            for (size_t test = 0; test < std::size(tests); ++test) {
                 SkPath path;
                 tests[test].addPath(&path);
                 SkPath strokedPath;
@@ -323,7 +323,7 @@ DEF_TEST(BlurSigmaRange, reporter) {
         { 2.3f, 50.3f }     // a little divet to throw off the rect special case
     };
     SkPath polyPath;
-    polyPath.addPoly(polyPts, SK_ARRAY_COUNT(polyPts), true);
+    polyPath.addPoly(polyPts, std::size(polyPts), true);
 
     int rectSpecialCaseResult[kSize];
     int generalCaseResult[kSize];
@@ -367,9 +367,9 @@ DEF_TEST(BlurAsABlur, reporter) {
 
     // Test asABlur for SkBlurMaskFilter
     //
-    for (size_t i = 0; i < SK_ARRAY_COUNT(styles); ++i) {
+    for (size_t i = 0; i < std::size(styles); ++i) {
         const SkBlurStyle style = styles[i];
-        for (size_t j = 0; j < SK_ARRAY_COUNT(sigmas); ++j) {
+        for (size_t j = 0; j < std::size(sigmas); ++j) {
             const SkScalar sigma = sigmas[j];
             for (bool respectCTM : { false, true }) {
                 sk_sp<SkMaskFilter> mf(SkMaskFilter::MakeBlur(style, sigma, respectCTM));
@@ -404,7 +404,7 @@ DEF_TEST(BlurAsABlur, reporter) {
         SkEmbossMaskFilter::Light light = {
             { 1, 1, 1 }, 0, 127, 127
         };
-        for (size_t j = 0; j < SK_ARRAY_COUNT(sigmas); ++j) {
+        for (size_t j = 0; j < std::size(sigmas); ++j) {
             const SkScalar sigma = sigmas[j];
             auto mf(SkEmbossMaskFilter::Make(sigma, light));
             if (mf) {

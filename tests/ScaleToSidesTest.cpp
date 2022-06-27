@@ -44,7 +44,7 @@ DEF_TEST(ScaleToSides, reporter) {
         170141244307698042686698575557637963776.0,
     };
 
-    int numInterestingValues = (int)SK_ARRAY_COUNT(interestingValues);
+    int numInterestingValues = (int)std::size(interestingValues);
 
     for (int s = 0; s <= numInterestingValues; s++) {
         for (int i = 0; i < numInterestingValues; i++) {

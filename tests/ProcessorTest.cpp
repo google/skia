@@ -331,7 +331,7 @@ class TestFPGenerator {
             // it's called. Call `reroll` to get a different FP.
             SkRandom random{fRandomSeed};
             GrProcessorTestData testData{&random, fContext, randomTreeDepth,
-                                         SK_ARRAY_COUNT(fTestViews), fTestViews,
+                                         static_cast<int>(std::size(fTestViews)), fTestViews,
                                          std::move(inputFP)};
             return GrFragmentProcessorTestFactory::MakeIdx(type, &testData);
         }

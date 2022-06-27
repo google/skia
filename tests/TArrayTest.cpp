@@ -59,19 +59,19 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
 
     // { 1 }, replace with new array
     T b[5] = {T{0}, T{1}, T{2}, T{3}, T{4}};
-    a.reset(b, SK_ARRAY_COUNT(b));
-    REPORTER_ASSERT(reporter, a.count() == SK_ARRAY_COUNT(b));
+    a.reset(b, std::size(b));
+    REPORTER_ASSERT(reporter, a.count() == std::size(b));
     REPORTER_ASSERT(reporter, a[2] == T{2});
     REPORTER_ASSERT(reporter, a[4] == T{4});
 
     // { 0, 1, 2, 3, 4 }, removeShuffle the last
     a.removeShuffle(4);
-    REPORTER_ASSERT(reporter, a.count() == SK_ARRAY_COUNT(b) - 1);
+    REPORTER_ASSERT(reporter, a.count() == std::size(b) - 1);
     REPORTER_ASSERT(reporter, a[3] == T{3});
 
     // { 0, 1, 2, 3 }, remove a middle, note shuffle
     a.removeShuffle(1);
-    REPORTER_ASSERT(reporter, a.count() == SK_ARRAY_COUNT(b) - 2);
+    REPORTER_ASSERT(reporter, a.count() == std::size(b) - 2);
     REPORTER_ASSERT(reporter, a[0] == T{0});
     REPORTER_ASSERT(reporter, a[1] == T{3});
     REPORTER_ASSERT(reporter, a[2] == T{2});

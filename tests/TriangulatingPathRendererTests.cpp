@@ -786,7 +786,7 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
-        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkTileMode::kClamp);
+        pts, colors, nullptr, std::size(colors), SkTileMode::kClamp);
     GrColorInfo colorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
     SkMatrixProvider matrixProvider(SkMatrix::I());
     return as_SB(shader)->asFragmentProcessor({rContext, matrixProvider, &colorInfo});
@@ -1111,7 +1111,7 @@ DEF_TEST(GrInnerFanTriangulator, r) {
     verify_simple_inner_polygons(r, "overlapping rects with horizontal collinear edges", SkPath()
             .lineTo(2,0).lineTo(2,1).lineTo(0,1)
             .moveTo(1,0).lineTo(3,0).lineTo(3,1).lineTo(1,1).close());
-    for (int i = 0; i < (int)SK_ARRAY_COUNT(kNonEdgeAAPaths); ++i) {
+    for (int i = 0; i < (int)std::size(kNonEdgeAAPaths); ++i) {
         verify_simple_inner_polygons(r, SkStringPrintf("kNonEdgeAAPaths[%i]", i).c_str(),
                                      kNonEdgeAAPaths[i]());
     }

@@ -102,14 +102,14 @@ DEF_TEST(pathbuilder_missing_move, reporter) {
     const SkPoint pts0[] = {
         {0, 0}, {10, 10}, {20, 30},
     };
-    REPORTER_ASSERT(reporter, check_points(b.snapshot(), pts0, SK_ARRAY_COUNT(pts0)));
+    REPORTER_ASSERT(reporter, check_points(b.snapshot(), pts0, std::size(pts0)));
 
     b.reset().moveTo(20, 20).lineTo(10, 10).lineTo(20, 30).close().lineTo(60, 60);
     const SkPoint pts1[] = {
         {20, 20}, {10, 10}, {20, 30},
         {20, 20}, {60, 60},
     };
-    REPORTER_ASSERT(reporter, check_points(b.snapshot(), pts1, SK_ARRAY_COUNT(pts1)));
+    REPORTER_ASSERT(reporter, check_points(b.snapshot(), pts1, std::size(pts1)));
 }
 
 DEF_TEST(pathbuilder_addRect, reporter) {
@@ -281,7 +281,7 @@ DEF_TEST(pathbuilder_addPolygon, reporter) {
     };
 
     for (bool isClosed : {false, true}) {
-        for (size_t i = 0; i <= SK_ARRAY_COUNT(pts); ++i) {
+        for (size_t i = 0; i <= std::size(pts); ++i) {
             auto path0 = SkPathBuilder().addPolygon(pts, i, isClosed).detach();
             auto path1 = addpoly(pts, i, isClosed);
             REPORTER_ASSERT(reporter, path0 == path1);
@@ -331,7 +331,7 @@ DEF_TEST(pathbuilder_lastmoveindex, reporter) {
     const SkPoint pts[] = {
         {0, 1}, {2, 3}, {4, 5},
     };
-    constexpr int N = (int)SK_ARRAY_COUNT(pts);
+    constexpr int N = (int)std::size(pts);
 
     for (int ctrCount = 1; ctrCount < 4; ++ctrCount) {
         const int lastMoveToIndex = (ctrCount - 1) * N;

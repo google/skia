@@ -9,7 +9,7 @@
 #include "tests/Test.h"
 
 static bool digests_equal(const SkMD5::Digest& expectedDigest, const SkMD5::Digest& computedDigest) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(expectedDigest.data); ++i) {
+    for (size_t i = 0; i < std::size(expectedDigest.data); ++i) {
         if (expectedDigest.data[i] != computedDigest.data[i]) {
             return false;
         }
@@ -58,7 +58,7 @@ static struct MD5Test {
 };
 
 DEF_TEST(MD5, reporter) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(md5_tests); ++i) {
+    for (size_t i = 0; i < std::size(md5_tests); ++i) {
         md5_test(md5_tests[i].message, md5_tests[i].digest, reporter);
     }
 }

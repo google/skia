@@ -1674,7 +1674,7 @@ static struct TestDesc tests[] = {
     TEST(issue3651_3),
 };
 
-static const size_t testCount = SK_ARRAY_COUNT(tests);
+static const size_t testCount = std::size(tests);
 
 static bool runReverse = false;
 

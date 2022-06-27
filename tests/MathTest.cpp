@@ -88,7 +88,7 @@ static void test_floor(skiatest::Reporter* reporter) {
         0, 1, 1.1f, 1.01f, 1.001f, 1.0001f, 1.00001f, 1.000001f, 1.0000001f
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gVals); ++i) {
+    for (size_t i = 0; i < std::size(gVals); ++i) {
         test_floor_value(reporter, gVals[i]);
 //        test_floor_value(reporter, -gVals[i]);
     }
@@ -202,7 +202,7 @@ static void unittest_half(skiatest::Reporter* reporter) {
         -0.f, -1.f, -0.5f, -0.499999f, -0.5000001f, -1.f/3
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gFloats); ++i) {
+    for (size_t i = 0; i < std::size(gFloats); ++i) {
         SkHalf h = SkFloatToHalf(gFloats[i]);
         float f = SkHalfToFloat(h);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(f, gFloats[i]));
@@ -375,7 +375,7 @@ static void test_copysign(skiatest::Reporter* reporter) {
         -1, 1, 1,
         -1, -1, -1,
     };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTriples); i += 3) {
+    for (size_t i = 0; i < std::size(gTriples); i += 3) {
         REPORTER_ASSERT(reporter,
                         SkCopySign32(gTriples[i], gTriples[i+1]) == gTriples[i+2]);
         float x = (float)gTriples[i];
@@ -639,13 +639,13 @@ DEF_TEST(TestEndian, reporter) {
     REPORTER_ASSERT(reporter, 0x11223344 == SkTEndianSwap32<0x44332211>::value);
     REPORTER_ASSERT(reporter, 0x1122334455667788ULL == SkTEndianSwap64<0x8877665544332211ULL>::value);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(g16); ++i) {
+    for (size_t i = 0; i < std::size(g16); ++i) {
         REPORTER_ASSERT(reporter, g16[i].fYang == SkEndianSwap16(g16[i].fYin));
     }
-    for (size_t i = 0; i < SK_ARRAY_COUNT(g32); ++i) {
+    for (size_t i = 0; i < std::size(g32); ++i) {
         REPORTER_ASSERT(reporter, g32[i].fYang == SkEndianSwap32(g32[i].fYin));
     }
-    for (size_t i = 0; i < SK_ARRAY_COUNT(g64); ++i) {
+    for (size_t i = 0; i < std::size(g64); ++i) {
         REPORTER_ASSERT(reporter, g64[i].fYang == SkEndianSwap64(g64[i].fYin));
     }
 }
@@ -667,7 +667,7 @@ static void test_divmod(skiatest::Reporter* r) {
         {(T)-17, (T)-4},
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kEdgeCases); i++) {
+    for (size_t i = 0; i < std::size(kEdgeCases); i++) {
         const T numer = kEdgeCases[i].numer;
         const T denom = kEdgeCases[i].denom;
         T div, mod;
@@ -856,7 +856,7 @@ DEF_TEST(DoubleSaturate32, reporter) {
 DEF_TEST(unit_floats, r) {
     // pick a non-trivial, non-pow-2 value, to test the loop
     float v[13];
-    constexpr int N = SK_ARRAY_COUNT(v);
+    constexpr int N = std::size(v);
 
     // empty array reports true
     REPORTER_ASSERT(r, sk_floats_are_unit(v, 0));

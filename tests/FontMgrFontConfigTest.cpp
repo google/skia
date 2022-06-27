@@ -103,7 +103,7 @@ DEF_TEST(FontMgrFontConfig, reporter) {
         SkFontArguments::VariationPosition::Coordinate
             coordinates[] = {{tag, styleValue}};
         SkFontArguments::VariationPosition
-            position = {coordinates, SK_ARRAY_COUNT(coordinates)};
+            position = {coordinates, std::size(coordinates)};
 
         SkFont fontStream(
             fontMgr->makeFromStream(distortableStream->duplicate(),

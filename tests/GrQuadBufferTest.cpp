@@ -89,8 +89,8 @@ TEST(Append) {
         GrQuad::Type::kGeneral, GrQuad::Type::kGeneral, GrQuad::Type::kRectilinear,
         GrQuad::Type::kRectilinear, GrQuad::Type::kAxisAligned, GrQuad::Type::kAxisAligned
     };
-    static_assert(SK_ARRAY_COUNT(kDeviceTypes) == kQuadCount, "device quad count");
-    static_assert(SK_ARRAY_COUNT(kLocalTypes) == kQuadCount, "local quad count");
+    static_assert(std::size(kDeviceTypes) == kQuadCount, "device quad count");
+    static_assert(std::size(kLocalTypes) == kQuadCount, "local quad count");
 
     std::vector<GrQuad> expectedDeviceQuads = generate_quads(1.f, kQuadCount, kDeviceTypes);
     std::vector<GrQuad> expectedLocalQuads = generate_quads(2.f, kQuadCount, kLocalTypes);
@@ -134,8 +134,8 @@ TEST(Concat) {
     static const int kQuadCount = 2;
     static const GrQuad::Type kTypesA[] = { GrQuad::Type::kAxisAligned, GrQuad::Type::kRectilinear };
     static const GrQuad::Type kTypesB[] = { GrQuad::Type::kGeneral, GrQuad::Type::kPerspective };
-    static_assert(SK_ARRAY_COUNT(kTypesA) == kQuadCount, "quadsA count");
-    static_assert(SK_ARRAY_COUNT(kTypesB) == kQuadCount, "quadsB count");
+    static_assert(std::size(kTypesA) == kQuadCount, "quadsA count");
+    static_assert(std::size(kTypesB) == kQuadCount, "quadsB count");
 
     std::vector<GrQuad> quadsA = generate_quads(1.f, kQuadCount, kTypesA);
     std::vector<GrQuad> quadsB = generate_quads(2.f, kQuadCount, kTypesB);

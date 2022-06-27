@@ -11,7 +11,7 @@ static const double roughlyTests[][2] = {
     {5.0402503619650929e-005, 4.3178054475078825e-005}
 };
 
-static const size_t roughlyTestsCount = SK_ARRAY_COUNT(roughlyTests);
+static const size_t roughlyTestsCount = std::size(roughlyTests);
 
 DEF_TEST(PathOpsRoughly, reporter) {
     for (size_t index = 0; index < roughlyTestsCount; ++index) {

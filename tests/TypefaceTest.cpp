@@ -255,7 +255,7 @@ DEF_TEST(TypefaceAxes, reporter) {
             { SkSetFourByteTag('w','g','h','t'), 600.0f },
         };
         SkFontArguments params;
-        params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+        params.setVariationDesignPosition({position, std::size(position)});
         sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(dupTags), params);
         test(typeface.get(), Variation{&position[1], 2}, 1);
     }
@@ -275,7 +275,7 @@ DEF_TEST(TypefaceAxes, reporter) {
             { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 },
         };
         SkFontArguments params;
-        params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+        params.setVariationDesignPosition({position, std::size(position)});
         sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
         test(typeface.get(), Variation{&position[1], 1}, -1);
 
@@ -312,7 +312,7 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
     }
 
     SkFontArguments::VariationPosition::Coordinate positionRead[1];
-    count = typeface->getVariationDesignPosition(positionRead, SK_ARRAY_COUNT(positionRead));
+    count = typeface->getVariationDesignPosition(positionRead, std::size(positionRead));
     if (count == -1) {
         return;
     }
@@ -439,7 +439,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
             Axis(SkSetFourByteTag('w','d','t','h'),  50.0f, 100.0f, 200.0f, false),
         };
         sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(variable), 0);
-        test(typeface.get(), &expected[0], SK_ARRAY_COUNT(expected), -1);
+        test(typeface.get(), &expected[0], std::size(expected), -1);
     }
 
     // Multiple axes with the same tag (and min, max, default) works.
@@ -457,7 +457,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
             Axis(SkSetFourByteTag('w','g','h','t'), 100.0f, 400.0f, 900.0f, false),
         };
         sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(dupTags), 0);
-        test(typeface.get(), &expected[0], SK_ARRAY_COUNT(expected), 1);
+        test(typeface.get(), &expected[0], std::size(expected), 1);
     }
 
     // Simple single axis GX variable font.
@@ -471,7 +471,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
             Axis(SkSetFourByteTag('w','g','h','t'), 0.5f, 1.0f, 2.0f, true),
         };
         sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), 0);
-        test(typeface.get(), &expected[0], SK_ARRAY_COUNT(expected), -1);
+        test(typeface.get(), &expected[0], std::size(expected), -1);
     }
 }
 

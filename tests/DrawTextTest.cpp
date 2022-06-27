@@ -96,7 +96,7 @@ DEF_TEST(DrawText_dashout, reporter) {
     paint.setStrokeWidth(2);
     constexpr SkScalar bigInterval = 10000;
     static constexpr SkScalar intervals[] = { 1, bigInterval };
-    paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 2));
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 2));
 
     drawDashedTextCanvas.drawColor(SK_ColorWHITE);
     drawDashedTextCanvas.drawString("A", point.fX, point.fY, font, paint);

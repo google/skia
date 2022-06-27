@@ -421,7 +421,7 @@ struct PtSet {
 };
 
 DEF_TEST(IsPolyConvex_experimental, r) {
-    #define PTSET(array)    {array, SK_ARRAY_COUNT(array)}
+    #define PTSET(array)    {array, std::size(array)}
 
     const SkPoint g0[] = { {0, 0}, {10, 0}, {10, 10}, {0, 10} };
     const PtSet convex[] = { PTSET(g0) };

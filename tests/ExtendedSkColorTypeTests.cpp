@@ -299,7 +299,7 @@ static void gpu_tests(GrDirectContext* dContext,
 }
 
 DEF_TEST(ExtendedSkColorTypeTests_raster, reporter) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); ++i) {
+    for (size_t i = 0; i < std::size(gTests); ++i) {
         raster_tests(reporter, gTests[i]);
     }
 }
@@ -307,7 +307,7 @@ DEF_TEST(ExtendedSkColorTypeTests_raster, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ExtendedSkColorTypeTests_gpu, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); ++i) {
+    for (size_t i = 0; i < std::size(gTests); ++i) {
         gpu_tests(context, reporter, gTests[i]);
     }
 }

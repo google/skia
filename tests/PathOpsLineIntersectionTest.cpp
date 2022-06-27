@@ -41,7 +41,7 @@ static const SkDLine tests[][2] = {
      {{{166.86960700313026, 112.6965477747386}, {166.86925794355412, 112.69656471103423}}}}
 };
 
-static const size_t tests_count = SK_ARRAY_COUNT(tests);
+static const size_t tests_count = std::size(tests);
 
 static const SkDLine noIntersect[][2] = {
    {{{{(double) (2 - 1e-6f),2}, {(double) (2 - 1e-6f),4}}},
@@ -54,7 +54,7 @@ static const SkDLine noIntersect[][2] = {
     {{{{1, 1}, {2, 2}}}, {{{4, 4}, {3, 3}}}},
 };
 
-static const size_t noIntersect_count = SK_ARRAY_COUNT(noIntersect);
+static const size_t noIntersect_count = std::size(noIntersect);
 
 static const SkDLine coincidentTests[][2] = {
    {{{ {-1.48383003e-006,-83}, {4.2268899e-014,-60} }},
@@ -82,7 +82,7 @@ static const SkDLine coincidentTests[][2] = {
      {{{286.695129, 291.000000}, {229.304855, 561.000000}}}},
 };
 
-static const size_t coincidentTests_count = SK_ARRAY_COUNT(coincidentTests);
+static const size_t coincidentTests_count = std::size(coincidentTests);
 
 static void check_results(skiatest::Reporter* reporter, const SkDLine& line1, const SkDLine& line2,
                           const SkIntersections& ts, bool nearAllowed) {

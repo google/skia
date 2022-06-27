@@ -378,7 +378,7 @@ DEF_TEST(JSON_DOM_build, reporter) {
     check_value<ArrayValue>(reporter, v9, "[]");
 
     const Value values0[] = { v0, v3, v9 };
-    const auto v10 = ArrayValue(values0, SK_ARRAY_COUNT(values0), alloc);
+    const auto v10 = ArrayValue(values0, std::size(values0), alloc);
     check_value<ArrayValue>(reporter, v10, "[null,0,[]]");
 
     const auto v11 = ObjectValue(nullptr, 0, alloc);
@@ -389,7 +389,7 @@ DEF_TEST(JSON_DOM_build, reporter) {
         { StringValue("key_1", 5, alloc), v4  },
         { StringValue("key_2", 5, alloc), v11 },
     };
-    const auto v12 = ObjectValue(members0, SK_ARRAY_COUNT(members0), alloc);
+    const auto v12 = ObjectValue(members0, std::size(members0), alloc);
     check_value<ObjectValue>(reporter, v12, "{"
                                                 "\"key_0\":true,"
                                                 "\"key_1\":42,"
@@ -397,7 +397,7 @@ DEF_TEST(JSON_DOM_build, reporter) {
                                             "}");
 
     const Value values1[] = { v2, v6, v12 };
-    const auto v13 = ArrayValue(values1, SK_ARRAY_COUNT(values1), alloc);
+    const auto v13 = ArrayValue(values1, std::size(values1), alloc);
     check_value<ArrayValue>(reporter, v13, "["
                                                "false,"
                                                "\"\","
@@ -413,7 +413,7 @@ DEF_TEST(JSON_DOM_build, reporter) {
         { StringValue("key_01", 6, alloc), v7  },
         { StringValue("key_02", 6, alloc), v13 },
     };
-    const auto v14 = ObjectValue(members1, SK_ARRAY_COUNT(members1), alloc);
+    const auto v14 = ObjectValue(members1, std::size(members1), alloc);
     check_value<ObjectValue>(reporter, v14, "{"
                                                 "\"key_00\":42.75,"
                                                 "\"key_01\":\" foo \","

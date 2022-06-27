@@ -759,12 +759,12 @@ void TestCase::compare(skiatest::Reporter* r, const TestCase& that,
 static sk_sp<SkPathEffect> make_dash() {
     static const SkScalar kIntervals[] = { 0.25, 3.f, 0.5, 2.f };
     static const SkScalar kPhase = 0.75;
-    return SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), kPhase);
+    return SkDashPathEffect::Make(kIntervals, std::size(kIntervals), kPhase);
 }
 
 static sk_sp<SkPathEffect> make_null_dash() {
     static const SkScalar kNullIntervals[] = {0, 0, 0, 0, 0, 0};
-    return SkDashPathEffect::Make(kNullIntervals, SK_ARRAY_COUNT(kNullIntervals), 0.f);
+    return SkDashPathEffect::Make(kNullIntervals, std::size(kNullIntervals), 0.f);
 }
 
 // We make enough TestCases, and they're large enough, that on Google3 builds we exceed
@@ -1664,7 +1664,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     strokeRecs[kStrokeAndFill].setStrokeParams(SkPaint::kButt_Cap, SkPaint::kBevel_Join, 1.f);
     sk_sp<SkPathEffect> dashEffect = make_dash();
 
-    static constexpr Style kStyleCnt = static_cast<Style>(SK_ARRAY_COUNT(strokeRecs));
+    static constexpr Style kStyleCnt = static_cast<Style>(std::size(strokeRecs));
 
     auto index = [](bool inverted,
                     SkPathDirection dir,
@@ -2001,10 +2001,10 @@ DEF_TEST(GrStyledShape_lines, r) {
 
 DEF_TEST(GrStyledShape_stroked_lines, r) {
     static constexpr SkScalar kIntervals1[] = {1.f, 0.f};
-    auto dash1 = SkDashPathEffect::Make(kIntervals1, SK_ARRAY_COUNT(kIntervals1), 0.f);
+    auto dash1 = SkDashPathEffect::Make(kIntervals1, std::size(kIntervals1), 0.f);
     REPORTER_ASSERT(r, dash1);
     static constexpr SkScalar kIntervals2[] = {10.f, 0.f, 5.f, 0.f};
-    auto dash2 = SkDashPathEffect::Make(kIntervals2, SK_ARRAY_COUNT(kIntervals2), 10.f);
+    auto dash2 = SkDashPathEffect::Make(kIntervals2, std::size(kIntervals2), 10.f);
     REPORTER_ASSERT(r, dash2);
 
     sk_sp<SkPathEffect> pathEffects[] = {nullptr, std::move(dash1), std::move(dash2)};
@@ -2290,7 +2290,7 @@ DEF_TEST(GrStyledShape_arcs, reporter) {
     roundStrokeAndFill.setStrokeStyle(2.f, true);
 
     static constexpr SkScalar kIntervals[] = {1, 2};
-    auto dash = SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 1.5f);
+    auto dash = SkDashPathEffect::Make(kIntervals, std::size(kIntervals), 1.5f);
 
     SkTArray<GrStyle> styles;
     styles.push_back(GrStyle::SimpleFill());

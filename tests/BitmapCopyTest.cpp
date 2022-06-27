@@ -82,7 +82,7 @@ static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
 
 DEF_TEST(BitmapCopy_extractSubset, reporter) {
     const int W = 20;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
+    for (size_t i = 0; i < std::size(gPairs); i++) {
         SkBitmap srcOpaque, srcPremul;
         setup_src_bitmaps(&srcOpaque, &srcPremul, gPairs[i].fColorType);
 
@@ -99,7 +99,7 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
             REPORTER_ASSERT(reporter, subset.alphaType() == bitmap.alphaType());
 
             // Test copying an extracted subset.
-            for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
+            for (size_t j = 0; j < std::size(gPairs); j++) {
                 SkBitmap copy;
                 bool     success = ToolUtils::copy_to(&copy, gPairs[j].fColorType, subset);
                 if (!success) {
@@ -186,7 +186,7 @@ DEF_TEST(BitmapReadPixels, reporter) {
         { false, {-1,-1 }, { 1, 1 }, { 0, 0 }, { 0, 0, 0, 0 } },
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+    for (size_t i = 0; i < std::size(gRec); ++i) {
         clear_4x4_pixels(dstPixels);
 
         dstInfo = dstInfo.makeDimensions(gRec[i].fRequestedDstSize);

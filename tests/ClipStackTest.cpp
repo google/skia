@@ -149,7 +149,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
         { 60, 60, 100, 100 }
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRects); i++) {
+    for (size_t i = 0; i < std::size(gRects); i++) {
         // the difference op will prevent these from being fused together
         stack.clipRect(gRects[i], SkMatrix::I(), SkClipOp::kDifference, false);
     }
@@ -249,7 +249,7 @@ static void test_bounds(skiatest::Reporter* reporter,
     int testCase = 0;
     int numBitTests = SkClipStack::Element::DeviceSpaceType::kPath == primType ? 4 : 1;
     for (int invBits = 0; invBits < numBitTests; ++invBits) {
-        for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
+        for (size_t op = 0; op < std::size(gOps); ++op) {
 
             stack.save();
             bool doInvA = SkToBool(invBits & 1);
@@ -860,7 +860,7 @@ DEF_TEST(ClipStack, reporter) {
         { 0, 0, 1000, 1000 },
         { 0, 0, 75, 75 }
     };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRects); i++) {
+    for (size_t i = 0; i < std::size(gRects); i++) {
         stack.clipDevRect(gRects[i], SkClipOp::kIntersect);
     }
 

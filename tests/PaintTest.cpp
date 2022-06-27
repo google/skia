@@ -97,7 +97,7 @@ DEF_TEST(Paint_flattening, reporter) {
     };
 
 #define FOR_SETUP(index, array, setter)                                 \
-    for (size_t index = 0; index < SK_ARRAY_COUNT(array); ++index) {    \
+    for (size_t index = 0; index < std::size(array); ++index) {         \
         paint.setter(array[index]);
 
     SkPaint paint;

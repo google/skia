@@ -274,7 +274,7 @@ static bool supports_partial_scanlines(const char path[]) {
         "JPG", "JPEG", "PNG", "WEBP"
     };
 
-    for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
+    for (uint32_t i = 0; i < std::size(exts); i++) {
         if (SkStrEndsWith(path, exts[i])) {
             return true;
         }
@@ -790,7 +790,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
     };
 
     png_set_keep_unknown_chunks(png, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"npOl\0npLb\0npTc\0", 3);
-    png_set_unknown_chunks(png, info, gUnknowns, SK_ARRAY_COUNT(gUnknowns));
+    png_set_unknown_chunks(png, info, gUnknowns, std::size(gUnknowns));
 #if PNG_LIBPNG_VER < 10600
     /* Deal with unknown chunk location bug in 1.5.x and earlier */
     png_set_unknown_chunk_location(png, info, 0, PNG_HAVE_IHDR);
@@ -815,7 +815,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
         }
 
         bool readChunk(const char tag[], const void* data, size_t length) override {
-            for (size_t i = 0; i < SK_ARRAY_COUNT(gUnknowns); ++i) {
+            for (size_t i = 0; i < std::size(gUnknowns); ++i) {
                 if (!strcmp(tag, (const char*) gUnknowns[i].name)) {
                     // Tag matches. This should have been the first time we see it.
                     REPORTER_ASSERT(fReporter, !fSeen[i]);

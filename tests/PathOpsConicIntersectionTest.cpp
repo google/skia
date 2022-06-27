@@ -42,7 +42,7 @@ static const ConicPts testSet[] = {
 
 };
 
-const int testSetCount = (int) SK_ARRAY_COUNT(testSet);
+const int testSetCount = (int) std::size(testSet);
 
 static void chopCompare(const SkConic chopped[2], const SkDConic dChopped[2]) {
     SkASSERT(roughly_equal(chopped[0].fW, dChopped[0].fWeight));
@@ -229,16 +229,16 @@ const SkDConic* frames[] = {
     frame0, frame1, frame2, frame3, frame4, frame5, frame6
 };
 
-const int frameSizes[] = { (int) SK_ARRAY_COUNT(frame0), (int) SK_ARRAY_COUNT(frame1),
-        (int) SK_ARRAY_COUNT(frame2), (int) SK_ARRAY_COUNT(frame3),
-        (int) SK_ARRAY_COUNT(frame4), (int) SK_ARRAY_COUNT(frame5),
-        (int) SK_ARRAY_COUNT(frame6),
+const int frameSizes[] = { (int) std::size(frame0), (int) std::size(frame1),
+        (int) std::size(frame2), (int) std::size(frame3),
+        (int) std::size(frame4), (int) std::size(frame5),
+        (int) std::size(frame6),
 };
 
 static void writeFrames() {
     const int scale = 5;
 
-    for (int index = 0; index < (int) SK_ARRAY_COUNT(frameSizes); ++index) {
+    for (int index = 0; index < (int) std::size(frameSizes); ++index) {
         SkDRect bounds;
         bool boundsSet = false;
         int frameSize = frameSizes[index];

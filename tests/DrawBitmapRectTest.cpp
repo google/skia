@@ -190,7 +190,7 @@ static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
         { 0x7f, 0xFFFF },   // should draw, test max height
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); ++i) {
+    for (size_t i = 0; i < std::size(gTests); ++i) {
         test_wacky_bitmapshader(reporter,
                                 gTests[i].fWidth, gTests[i].fHeight);
     }

@@ -15,7 +15,7 @@ static const QuadPts testSet[] = {
     {{{1, 0}, {2, 6}, {3, 0}}}
 };
 
-static const size_t testSetCount = SK_ARRAY_COUNT(testSet);
+static const size_t testSetCount = std::size(testSet);
 
 static void oneOffTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < testSetCount; ++index) {

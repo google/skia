@@ -29,7 +29,7 @@ static struct conicQuad {
     {{{494.355774f, 224.605927f}, {494.363708f, 224.631714f}, {494.370148f, 224.657471f}}}},
 };
 
-static const int conicQuadTests_count = (int) SK_ARRAY_COUNT(conicQuadTests);
+static const int conicQuadTests_count = (int) std::size(conicQuadTests);
 
 static void conicQuadIntersection(skiatest::Reporter* reporter, int index) {
     const ConicPts& c = conicQuadTests[index].conic;

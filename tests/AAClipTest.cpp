@@ -386,12 +386,12 @@ static void test_nearly_integral(skiatest::Reporter* reporter) {
     static const SkScalar gSafeX[] = {
         0, SK_Scalar1/1000, SK_Scalar1/100, SK_Scalar1/10,
     };
-    did_dx_affect(reporter, gSafeX, SK_ARRAY_COUNT(gSafeX), false);
+    did_dx_affect(reporter, gSafeX, std::size(gSafeX), false);
 
     static const SkScalar gUnsafeX[] = {
         SK_Scalar1/4, SK_Scalar1/3,
     };
-    did_dx_affect(reporter, gUnsafeX, SK_ARRAY_COUNT(gUnsafeX), true);
+    did_dx_affect(reporter, gUnsafeX, std::size(gUnsafeX), true);
 }
 
 static void test_regressions() {

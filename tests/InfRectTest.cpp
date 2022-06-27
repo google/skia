@@ -32,7 +32,7 @@ DEF_TEST(InfRect, reporter) {
     REPORTER_ASSERT(reporter, rect.isFinite());
 
     const SkScalar invalid[] = { nan, inf, -inf };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(invalid); ++i) {
+    for (size_t i = 0; i < std::size(invalid); ++i) {
         check_invalid(reporter, small, small, big, invalid[i]);
         check_invalid(reporter, small, small, invalid[i], big);
         check_invalid(reporter, small, invalid[i], big, big);

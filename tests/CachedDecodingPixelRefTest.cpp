@@ -96,7 +96,7 @@ DEF_TEST(Image_NewFromGenerator, r) {
         kN32_SkColorType,
         kRGB_565_SkColorType
     };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(testTypes); ++i) {
+    for (size_t i = 0; i < std::size(testTypes); ++i) {
         TestImageGenerator::TestType test = testTypes[i];
         for (const SkColorType testColorType : testColorTypes) {
             auto gen = std::make_unique<TestImageGenerator>(test, r, testColorType);

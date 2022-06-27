@@ -271,7 +271,7 @@ DEF_TEST(Image_RetainSnapshot, reporter) {
 
     sk_sp<SkImage> image1(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image1->readPixels(nullptr, dstInfo, pixels, dstRowBytes, 0, 0));
-    for (size_t i = 0; i < SK_ARRAY_COUNT(pixels); ++i) {
+    for (size_t i = 0; i < std::size(pixels); ++i) {
         REPORTER_ASSERT(reporter, pixels[i] == green);
     }
 
@@ -311,7 +311,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
         { make_bitmap_immutable,    true,   true,  false },
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
+    for (size_t i = 0; i < std::size(rec); ++i) {
         SkBitmap bm;
         rec[i].fMakeProc(&bm);
 

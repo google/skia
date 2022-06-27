@@ -71,7 +71,7 @@ static void test_empty(skiatest::Reporter* reporter) {
 
     SkRRect r;
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(oooRects); ++i) {
+    for (size_t i = 0; i < std::size(oooRects); ++i) {
         r.setRect(oooRects[i]);
         REPORTER_ASSERT(reporter, !r.isEmpty());
         REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
@@ -93,7 +93,7 @@ static void test_empty(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
     }
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(emptyRects); ++i) {
+    for (size_t i = 0; i < std::size(emptyRects); ++i) {
         r.setRect(emptyRects[i]);
         REPORTER_ASSERT(reporter, r.isEmpty());
         REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
@@ -428,7 +428,7 @@ static void test_round_rect_contains_rect(skiatest::Reporter* reporter) {
     };
 
     for (int i = 0; i < kNumRRects; ++i) {
-        for (size_t j = 0; j < SK_ARRAY_COUNT(easyOuts); ++j) {
+        for (size_t j = 0; j < std::size(easyOuts); ++j) {
             REPORTER_ASSERT(reporter, !rrects[i].contains(easyOuts[j]));
         }
     }

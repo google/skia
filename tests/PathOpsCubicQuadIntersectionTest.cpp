@@ -49,7 +49,7 @@ static struct quadCubic {
      {{{12.342399597167969,228.3424072265625}, {10,230.68629455566406}, {10,234}}}},
 };
 
-static const int quadCubicTests_count = (int) SK_ARRAY_COUNT(quadCubicTests);
+static const int quadCubicTests_count = (int) std::size(quadCubicTests);
 
 static void cubicQuadIntersection(skiatest::Reporter* reporter, int index) {
     int iIndex = static_cast<int>(index);

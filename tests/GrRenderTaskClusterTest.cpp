@@ -128,7 +128,7 @@ DEF_TEST(GrRenderTaskCluster, reporter) {
         create_graph3
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(tests); ++i) {
+    for (size_t i = 0; i < std::size(tests); ++i) {
         SkTArray<sk_sp<GrMockRenderTask>> graph;
         SkTArray<sk_sp<GrMockRenderTask>> expectedOutput;
 

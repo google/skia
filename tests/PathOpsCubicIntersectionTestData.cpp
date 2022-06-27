@@ -45,7 +45,7 @@ const CubicPts pointDegenerates[] = {
     {{{1, 1}, {2, 2}, {2, 2+N}, {1, 1}}},
 };
 
-const size_t pointDegenerates_count = SK_ARRAY_COUNT(pointDegenerates);
+const size_t pointDegenerates_count = std::size(pointDegenerates);
 
 const CubicPts notPointDegenerates[] = {
     {{{1 + FLT_EPSILON * 8, 1}, {1, FLT_EPSILON * 8}, {1, 1}, {1, 1}}},
@@ -53,7 +53,7 @@ const CubicPts notPointDegenerates[] = {
 };
 
 const size_t notPointDegenerates_count =
-        SK_ARRAY_COUNT(notPointDegenerates);
+        std::size(notPointDegenerates);
 
 // from http://www.truetex.com/bezint.htm
 const CubicPts tests[][2] = {
@@ -109,7 +109,7 @@ const CubicPts tests[][2] = {
     }
 };
 
-const size_t tests_count = SK_ARRAY_COUNT(tests);
+const size_t tests_count = std::size(tests);
 
 const CubicPts lines[] = {
     {{{0, 0}, {0, 0}, {0, 0}, {1, 0}}},  // 0: horizontal
@@ -144,7 +144,7 @@ const CubicPts lines[] = {
     {{{2, 2}, {4, 4}, {3, 3}, {1, 1}}},
 };
 
-const size_t lines_count = SK_ARRAY_COUNT(lines);
+const size_t lines_count = std::size(lines);
 
 // 'not a line' tries to fool the line detection code
 const CubicPts notLines[] = {
@@ -156,7 +156,7 @@ const CubicPts notLines[] = {
     {{{0, 1}, {1, 0}, {0, 0}, {0, 0}}},
 };
 
-const size_t notLines_count = SK_ARRAY_COUNT(notLines);
+const size_t notLines_count = std::size(notLines);
 
 static const double E = FLT_EPSILON * 8;
 static const double F = FLT_EPSILON * 8;
@@ -202,7 +202,7 @@ const CubicPts modEpsilonLines[] = {
     {{{2, 2}, {4, 4}, {3, 3}, {1, 1+E}}},
 };
 
-const size_t modEpsilonLines_count = SK_ARRAY_COUNT(modEpsilonLines);
+const size_t modEpsilonLines_count = std::size(modEpsilonLines);
 
 const CubicPts lessEpsilonLines[] = {
     {{{0, D}, {0, 0}, {0, 0}, {1, 0}}},  // horizontal
@@ -238,7 +238,7 @@ const CubicPts lessEpsilonLines[] = {
     {{{2, 2}, {4, 4}, {3, 3}, {1, 1+D}}},
 };
 
-const size_t lessEpsilonLines_count = SK_ARRAY_COUNT(lessEpsilonLines);
+const size_t lessEpsilonLines_count = std::size(lessEpsilonLines);
 
 const CubicPts negEpsilonLines[] = {
     {{{0, N}, {0, 0}, {0, 0}, {1, 0}}},  // horizontal
@@ -274,6 +274,6 @@ const CubicPts negEpsilonLines[] = {
     {{{2, 2}, {4, 4}, {3, 3}, {1, 1+N}}},
 };
 
-const size_t negEpsilonLines_count = SK_ARRAY_COUNT(negEpsilonLines);
+const size_t negEpsilonLines_count = std::size(negEpsilonLines);
 
 }  // namespace PathOpsCubicIntersectionTestData

@@ -167,7 +167,7 @@ static const CubicPts testSet[] = {
         {56.4860195, 60.529264}}},
 };
 
-const int testSetCount = (int) SK_ARRAY_COUNT(testSet);
+const int testSetCount = (int) std::size(testSet);
 
 static const CubicPts newTestSet[] = {
 
@@ -386,7 +386,7 @@ static const CubicPts newTestSet[] = {
 {{{0, 3}, {0, 1}, {2, 0}, {1, 0}}},
 };
 
-const int newTestSetCount = (int) SK_ARRAY_COUNT(newTestSet);
+const int newTestSetCount = (int) std::size(newTestSet);
 static void oneOff(skiatest::Reporter* reporter, const CubicPts& cubic1, const CubicPts& cubic2,
         bool coin) {
     SkDCubic c1, c2;
@@ -637,7 +637,7 @@ static const CubicPts selfSet[] = {
     {{{12.81, 7.27}, {7.22, 6.98}, {12.49, 8.97}, {11.42, 6.18}}},
 };
 
-int selfSetCount = (int) SK_ARRAY_COUNT(selfSet);
+int selfSetCount = (int) std::size(selfSet);
 
 static void selfOneOff(skiatest::Reporter* reporter, int setIdx) {
     const CubicPts& cubic = selfSet[setIdx];
@@ -694,7 +694,7 @@ static const CubicPts coinSet[] = {
             {324.71566772460937, 714.62060546875}, {325, 714.9990234375}}},
 };
 
-static int coinSetCount = (int) SK_ARRAY_COUNT(coinSet);
+static int coinSetCount = (int) std::size(coinSet);
 
 static void coinOneOff(skiatest::Reporter* reporter, int index) {
     const CubicPts& cubic1 = coinSet[index];

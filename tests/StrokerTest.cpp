@@ -27,7 +27,7 @@ const SkScalar widths[] = {-FLT_MAX, -1, -0.1f, -FLT_EPSILON, 0, FLT_EPSILON,
         0.0000001f, 0.000001f, 0.00001f, 0.0001f, 0.001f, 0.01f,
         0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 1, 1.1f, 2, 10, 10e2f, 10e3f, 10e4f, 10e5f, 10e6f, 10e7f,
         10e8f, 10e9f, 10e10f, 10e20f,  FLT_MAX };
-size_t widths_count = SK_ARRAY_COUNT(widths);
+size_t widths_count = std::size(widths);
 
 static void pathTest(const SkPath& path) {
     SkPaint p;

@@ -17,7 +17,7 @@ static const SkDLine tests[] = {
     {{{3, 2}, {1, 1}}},
 };
 
-static const size_t tests_count = SK_ARRAY_COUNT(tests);
+static const size_t tests_count = std::size(tests);
 
 DEF_TEST(PathOpsLineUtilities, reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
