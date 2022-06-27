@@ -43,7 +43,7 @@ public:
 #endif
 #if defined(SK_GRAPHITE_ENABLED)
     void drawGlyphRunList(SkCanvas* canvas,
-                          const SkMatrixProvider& viewMatrix,
+                          const SkMatrix& viewMatrix,
                           const GlyphRunList& glyphRunList,
                           const SkPaint& paint,
                           SkStrikeDeviceInfo strikeDeviceInfo,

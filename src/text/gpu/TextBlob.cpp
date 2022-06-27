@@ -408,7 +408,7 @@ void TextBlob::draw(SkCanvas* canvas,
 
 #if defined(SK_GRAPHITE_ENABLED)
 void TextBlob::draw(SkCanvas* canvas,
-                    const SkMatrixProvider& viewMatrix,
+                    const SkMatrix& viewMatrix,
                     SkPoint drawOrigin,
                     const SkPaint& paint,
                     skgpu::graphite::Device* device) {

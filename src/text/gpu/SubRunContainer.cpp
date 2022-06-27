@@ -29,6 +29,10 @@
 using AtlasTextOp = skgpu::v1::AtlasTextOp;
 #endif  // SK_SUPPORT_GPU
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/Device.h"
+#endif
+
 #include <cinttypes>
 
 namespace sktext::gpu {
@@ -47,6 +51,11 @@ enum SubRun::SubRunType : int {
 using MaskFormat = skgpu::MaskFormat;
 
 using namespace sktext::gpu;
+
+#if defined(SK_GRAPHITE_ENABLED)
+using Device = skgpu::graphite::Device;
+using Recorder = skgpu::graphite::Recorder;
+#endif
 
 namespace {
 // Use the following in your args.gn to dump telemetry for diagnosing chrome Renderer/GPU
@@ -657,11 +666,11 @@ public:
 #endif  // SK_SUPPORT_GPU
 #if defined(SK_GRAPHITE_ENABLED)
     void draw(SkCanvas* canvas,
-              const SkMatrixProvider& viewMatrix,
+              const SkMatrix& viewMatrix,
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
-              skgpu::graphite::Device* device) const override {
+              Device* device) const override {
         fPathDrawing.submitDraws(canvas, drawOrigin, paint);
     }
 #endif  // SK_GRAPHITE_ENABLED
@@ -907,6 +916,16 @@ public:
         fDrawingDrawing.submitOps(canvas, clip, viewMatrix, drawOrigin, paint, sdc);
     }
 #endif  // SK_SUPPORT_GPU
+#if defined(SK_GRAPHITE_ENABLED)
+    void draw(SkCanvas* canvas,
+              const SkMatrix& viewMatrix,
+              SkPoint drawOrigin,
+              const SkPaint& paint,
+              sk_sp<SkRefCnt> subRunStorage,
+              Device* device) const override {
+        // TODO
+    }
+#endif  // SK_SUPPORT_GPU
 
     int unflattenSize() const override;
 
@@ -1089,6 +1108,15 @@ public:
               skgpu::v1::SurfaceDrawContext* sdc) const override;
 #endif  // SK_SUPPORT_GPU
 
+#ifdef SK_GRAPHITE_ENABLED
+    void draw(SkCanvas*,
+              const SkMatrix& viewMatrix,
+              SkPoint drawOrigin,
+              const SkPaint&,
+              sk_sp<SkRefCnt> subRunStorage,
+              Device*) const override;
+#endif
+
     int unflattenSize() const override;
 
     int glyphCount() const override;
@@ -1114,6 +1142,11 @@ public:
                         const SkMatrix& drawMatrix, SkPoint drawOrigin,
                         SkIRect clip) const override;
 #endif  // SK_SUPPORT_GPU
+
+#if defined(SK_GRAPHITE_ENABLED)
+    std::tuple<bool, int>
+    regenerateAtlas(int begin, int end, Recorder*) const override;
+#endif
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
 
@@ -1362,6 +1395,18 @@ std::tuple<const GrClip*, GrOp::Owner> DirectMaskSubRun::makeAtlasTextOp(
 }
 #endif  // SK_SUPPORT_GPU
 
+#ifdef SK_GRAPHITE_ENABLED
+void DirectMaskSubRun::draw(SkCanvas*,
+                            const SkMatrix& viewMatrix,
+                            SkPoint drawOrigin,
+                            const SkPaint& paint,
+                            sk_sp<SkRefCnt> subRunStorage,
+                            Device* device) const {
+    // TODO: see makeAtlasTextOp for Geometry set up
+    device->drawAtlasSubRun(this, viewMatrix, drawOrigin, paint, std::move(subRunStorage));
+}
+#endif
+
 void DirectMaskSubRun::testingOnly_packedGlyphIDToGlyph(StrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGlyph(cache);
 }
@@ -1483,6 +1528,13 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
 }
 #endif  // SK_SUPPORT_GPU
 
+#if defined(SK_GRAPHITE_ENABLED)
+std::tuple<bool, int> DirectMaskSubRun::regenerateAtlas(int begin, int end,
+                                                        Recorder* recorder) const {
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, recorder);
+}
+#endif
+
 // true if only need to translate by integer amount, device rect.
 std::tuple<bool, SkRect> DirectMaskSubRun::deviceRectAndCheckTransform(
         const SkMatrix& positionMatrix) const {
@@ -1547,6 +1599,14 @@ public:
                     sk_sp<SkRefCnt>&& subRunStorage,
                     skgpu::v1::SurfaceDrawContext*) const override;
 #endif  // SK_SUPPORT_GPU
+#if defined(SK_GRAPHITE_ENABLED)
+    void draw(SkCanvas*,
+              const SkMatrix& viewMatrix,
+              SkPoint drawOrigin,
+              const SkPaint&,
+              sk_sp<SkRefCnt> subRunStorage,
+              Device*) const override;
+#endif
 
     int unflattenSize() const override;
 
@@ -1567,6 +1627,9 @@ public:
 
     size_t vertexStride(const SkMatrix& drawMatrix) const override;
 #endif  // SK_SUPPORT_GPU
+#if defined(SK_GRAPHITE_ENABLED)
+    std::tuple<bool, int> regenerateAtlas(int begin, int end, Recorder*) const override;
+#endif
 
     int glyphCount() const override;
 
@@ -1684,6 +1747,17 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
 }
 #endif  // SK_SUPPORT_GPU
 
+#if defined(SK_GRAPHITE_ENABLED)
+void TransformedMaskSubRun::draw(SkCanvas*,
+                                 const SkMatrix& viewMatrix,
+                                 SkPoint drawOrigin,
+                                 const SkPaint& paint,
+                                 sk_sp<SkRefCnt> subRunStorage,
+                                 Device* device) const {
+    // TODO: see makeAtlasTextOp for Geometry set up
+    device->drawAtlasSubRun(this, viewMatrix, drawOrigin, paint, std::move(subRunStorage));
+}
+#endif
 // If we are not scaling the cache entry to be larger, than a cache with smaller glyphs may be
 // better.
 bool TransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
@@ -1720,6 +1794,13 @@ size_t TransformedMaskSubRun::vertexStride(const SkMatrix& drawMatrix) const {
     return fVertexFiller.vertexStride(drawMatrix);
 }
 #endif  // SK_SUPPORT_GPU
+
+#if defined(SK_GRAPHITE_ENABLED)
+std::tuple<bool, int> TransformedMaskSubRun::regenerateAtlas(int begin, int end,
+                                                             Recorder* recorder) const {
+    return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 1, recorder);
+}
+#endif
 
 int TransformedMaskSubRun::glyphCount() const {
     return SkCount(fGlyphs.glyphs());
@@ -1770,6 +1851,14 @@ public:
                     sk_sp<SkRefCnt>&& subRunStorage,
                     skgpu::v1::SurfaceDrawContext*) const override;
 #endif  // SK_SUPPORT_GPU
+#if defined(SK_GRAPHITE_ENABLED)
+    void draw(SkCanvas*,
+              const SkMatrix& viewMatrix,
+              SkPoint drawOrigin,
+              const SkPaint&,
+              sk_sp<SkRefCnt> subRunStorage,
+              Device*) const override;
+#endif
 
     int unflattenSize() const override;
 
@@ -1790,6 +1879,9 @@ public:
 
     size_t vertexStride(const SkMatrix& drawMatrix) const override;
 #endif  // SK_SUPPORT_GPU
+#if defined(SK_GRAPHITE_ENABLED)
+    std::tuple<bool, int> regenerateAtlas(int begin, int end, Recorder*) const override;
+#endif
 
     int glyphCount() const override;
 
@@ -1970,6 +2062,18 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
 }
 #endif  // SK_SUPPORT_GPU
 
+#ifdef SK_GRAPHITE_ENABLED
+void SDFTSubRun::draw(SkCanvas*,
+                      const SkMatrix& viewMatrix,
+                      SkPoint drawOrigin,
+                      const SkPaint& paint,
+                      sk_sp<SkRefCnt> subRunStorage,
+                      Device* device) const {
+    // TODO: see makeAtlasTextOp for Geometry set up
+    device->drawAtlasSubRun(this, viewMatrix, drawOrigin, paint, std::move(subRunStorage));
+}
+#endif
+
 bool SDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
     return fMatrixRange.matrixInRange(positionMatrix);
 }
@@ -2004,6 +2108,14 @@ void SDFTSubRun::fillVertexData(
                                  vertexDst);
 }
 #endif  // SK_SUPPORT_GPU
+
+#if defined(SK_GRAPHITE_ENABLED)
+std::tuple<bool, int>
+SDFTSubRun::regenerateAtlas(int begin, int end, Recorder *recorder) const {
+    return fGlyphs.regenerateAtlas(begin, end, MaskFormat::kA8, SK_DistanceFieldInset,
+                                   recorder);
+}
+#endif
 
 int SDFTSubRun::glyphCount() const {
     return fVertexFiller.count();
@@ -2417,7 +2529,7 @@ void SubRunContainer::draw(SkCanvas* canvas,
 
 #if defined(SK_GRAPHITE_ENABLED)
 void SubRunContainer::draw(SkCanvas* canvas,
-                           const SkMatrixProvider& viewMatrix,
+                           const SkMatrix& viewMatrix,
                            SkPoint drawOrigin,
                            const SkPaint& paint,
                            const SkRefCnt* subRunStorage,

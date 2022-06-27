@@ -129,7 +129,7 @@ public:
 #endif
 #if defined(SK_GRAPHITE_ENABLED)
     void draw(SkCanvas*,
-              const SkMatrixProvider& viewMatrix,
+              const SkMatrix& viewMatrix,
               SkPoint drawOrigin,
               const SkPaint& paint,
               skgpu::graphite::Device* device);

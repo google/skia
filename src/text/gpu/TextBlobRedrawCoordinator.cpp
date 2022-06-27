@@ -45,7 +45,7 @@ void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
 
 #if defined(SK_GRAPHITE_ENABLED)
 void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
-                                                 const SkMatrixProvider& viewMatrix,
+                                                 const SkMatrix& viewMatrix,
                                                  const sktext::GlyphRunList& glyphRunList,
                                                  const SkPaint& paint,
                                                  SkStrikeDeviceInfo strikeDeviceInfo,

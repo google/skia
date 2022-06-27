@@ -16,8 +16,17 @@
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 #include "src/text/gpu/SDFTControl.h"
+#include "src/text/gpu/SubRunContainer.h"
 
 class SkStrokeRec;
+
+namespace {
+class DirectMaskSubRun;
+class TransformedMaskSubRun;
+class SDFTSubRun;
+}
+
+namespace sktext::gpu { class AtlasSubRun; }
 
 namespace skgpu::graphite {
 
@@ -185,6 +194,13 @@ private:
     // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).
     void drawClipShape(const Transform&, const Shape&, const Clip&, DrawOrder);
 
+    // Handles primitive processing for atlas-based text
+    void drawAtlasSubRun(const sktext::gpu::AtlasSubRun*,
+                         const SkMatrix& viewMatrix,
+                         SkPoint drawOrigin,
+                         const SkPaint& paint,
+                         sk_sp<SkRefCnt> subRunStorage);
+
     // Returns the Renderer to draw the shape in the given style. If SkStrokeRec is a
     // stroke-and-fill, this returns the Renderer used for the fill portion and it can be assumed
     // that Renderer::TessellatedStrokes() will be used for the stroke portion.
@@ -220,6 +236,9 @@ private:
     bool fDrawsOverlap;
 
     friend class ClipStack; // for recordDraw
+    friend class ::DirectMaskSubRun; // for drawAtlasSubRun
+    friend class ::TransformedMaskSubRun; // for drawAtlasSubRun
+    friend class ::SDFTSubRun; // for drawAtlasSubRun
 };
 
 SK_MAKE_BITMASK_OPS(Device::DrawFlags)
