@@ -65,37 +65,6 @@ std::tuple<SkStrikeSpec, SkScalar> SkStrikeSpec::MakePath(
             strikeToSourceScale};
 }
 
-std::tuple<SkStrikeSpec, SkScalar> SkStrikeSpec::MakeSourceFallback(
-        const SkFont& font,
-        const SkPaint& paint,
-        const SkSurfaceProps& surfaceProps,
-        SkScalerContextFlags scalerContextFlags,
-        SkScalar maxSourceGlyphDimension) {
-
-    // Subtract 2 to account for the bilerp pad around the glyph
-    SkScalar maxAtlasDimension = SkStrikeCommon::kSkSideTooBigForAtlas - 2;
-
-    SkScalar runFontTextSize = font.getSize();
-    SkScalar fallbackTextSize = runFontTextSize;
-    if (maxSourceGlyphDimension > maxAtlasDimension) {
-        // Scale the text size down so the long side of all the glyphs will fit in the atlas.
-        fallbackTextSize = SkScalarFloorToScalar(
-                (maxAtlasDimension / maxSourceGlyphDimension) * runFontTextSize);
-    }
-
-    SkFont fallbackFont{font};
-    fallbackFont.setSize(fallbackTextSize);
-
-    // No sub-pixel needed. The transform to the screen will take care of sub-pixel positioning.
-    fallbackFont.setSubpixel(false);
-
-    // The scale factor to go from strike size to the source size for glyphs.
-    SkScalar strikeToSourceScale = runFontTextSize / fallbackTextSize;
-
-    return {SkStrikeSpec(fallbackFont, paint, surfaceProps, scalerContextFlags, SkMatrix::I()),
-            strikeToSourceScale};
-}
-
 std::tuple<SkStrikeSpec, SkScalar> SkStrikeSpec::MakeCanonicalized(
         const SkFont& font, const SkPaint* paint) {
     SkPaint canonicalizedPaint;

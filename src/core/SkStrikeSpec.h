@@ -63,13 +63,6 @@ public:
             const SkSurfaceProps& surfaceProps,
             SkScalerContextFlags scalerContextFlags);
 
-    static std::tuple<SkStrikeSpec, SkScalar> MakeSourceFallback(
-            const SkFont& font,
-            const SkPaint& paint,
-            const SkSurfaceProps& surfaceProps,
-            SkScalerContextFlags scalerContextFlags,
-            SkScalar maxSourceGlyphDimension);
-
     // Create a canonical strike spec for device-less measurements.
     static std::tuple<SkStrikeSpec, SkScalar> MakeCanonicalized(
             const SkFont& font, const SkPaint* paint = nullptr);
