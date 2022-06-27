@@ -258,7 +258,7 @@ size_t SkScalerCache::prepareForMaskDrawing(
             if (digest.canDrawAsMask()) {
                 accepted->accept(fGlyphForIndex[digest.index()], i);
             } else {
-                rejected->reject(i, digest.maxDimension());
+                rejected->reject(i);
             }
         });
 
@@ -295,7 +295,7 @@ size_t SkScalerCache::prepareForPathDrawing(
                 accepted->accept(glyph, i);
             } else {
                 // Glyph does not have a path.
-                rejected->reject(i, digest.maxDimension());
+                rejected->reject(i);
             }
         });
 
@@ -316,7 +316,7 @@ size_t SkScalerCache::prepareForDrawableDrawing(
                 accepted->accept(glyph, i);
             } else {
                 // Glyph does not have a drawable.
-                rejected->reject(i, glyph->maxDimension());
+                rejected->reject(i);
             }
         });
 

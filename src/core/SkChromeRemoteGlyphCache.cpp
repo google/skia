@@ -452,7 +452,7 @@ void RemoteStrike::prepareForMaskDrawing(
         // Reject things that are too big.
         // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
         if (!digest.canDrawAsMask()) {
-            rejected->reject(i, digest.maxDimension());
+            rejected->reject(i);
         }
     }
 }
@@ -486,7 +486,7 @@ void RemoteStrike::prepareForPathDrawing(
                 }
 
                 if (summary->maxDimensionOrPath != PathSummary::kIsPath) {
-                    rejected->reject(i, (int)summary->maxDimensionOrPath);
+                    rejected->reject(i);
                 }
             });
 }
@@ -515,7 +515,7 @@ void RemoteStrike::prepareForDrawableDrawing(
                 }
 
                 if (summary->maxDimensionOrDrawable != DrawableSummary::kIsDrawable) {
-                    rejected->reject(i, (int)summary->maxDimensionOrDrawable);
+                    rejected->reject(i);
                 }
             });
 }
