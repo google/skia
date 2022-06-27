@@ -110,6 +110,7 @@ objc_library(
     ],
     copts = [
         "-Wno-deprecated-declarations",
+        "-DGL_SILENCE_DEPRECATION",
     ],
     sdk_frameworks = [
         "QuartzCore",

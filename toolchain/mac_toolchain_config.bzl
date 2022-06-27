@@ -11,6 +11,7 @@ It follows the example of:
  - linux_amd64_toolchain_config.bzl
 """
 
+# https://github.com/bazelbuild/bazel/blob/master/tools/cpp/cc_toolchain_config_lib.bzl
 load(
     "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "action_config",
@@ -31,11 +32,17 @@ EXTERNAL_TOOLCHAIN = "external/clang_mac"
 # Must be the same as where the symlink points to in download_mac_toolchain.bzl
 XCODE_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK/usr"
 
+_platform_constraints_to_import = {
+    "@platforms//cpu:arm64": "_arm64_cpu",
+    "@platforms//cpu:x86_64": "_x86_64_cpu",
+}
+
 def _mac_toolchain_info(ctx):
     action_configs = _make_action_configs()
     features = []
     features += _make_default_flags()
     features += _make_diagnostic_flags()
+    features += _make_target_specific_flags(ctx)
 
     # https://docs.bazel.build/versions/main/skylark/lib/cc_common.html#create_cc_toolchain_config_info
     # Note, this rule is defined in Java code, not Starlark
@@ -56,8 +63,31 @@ def _mac_toolchain_info(ctx):
         toolchain_identifier = "clang-toolchain",
     )
 
+def _import_platform_constraints():
+    # In order to "import" constraint values so they can be passed in as parameters to
+    # ctx.target_platform_has_constraint(), we need to list them as a default value on a
+    # private attributes. It doesn't really matter what we call these private attributes,
+    # but to make it easier to read elsewhere, we create a mapping between the "official"
+    # name of the constraints and the private name. Then, we can refer to the official name
+    # without having to remember the secondary name.
+    # https://bazel.build/rules/rules#private_attributes_and_implicit_dependencies
+    # https://github.com/bazelbuild/proposals/blob/91579f36031f768bcf68b18a86b8df8b43cc590b/designs/2019-11-11-target-platform-constraints.md
+    rule_attributes = {}
+    for constraint in _platform_constraints_to_import:
+        private_attr = _platform_constraints_to_import[constraint]
+        rule_attributes[private_attr] = attr.label(default = constraint)
+    return rule_attributes
+
+def _has_platform_constraint(ctx, official_constraint_name):
+    # ctx is of type https://bazel.build/rules/lib/ctx
+    # This pattern is from
+    # https://github.com/bazelbuild/proposals/blob/91579f36031f768bcf68b18a86b8df8b43cc590b/designs/2019-11-11-target-platform-constraints.md
+    private_attr = _platform_constraints_to_import[official_constraint_name]
+    constraint = getattr(ctx.attr, private_attr)[platform_common.ConstraintValueInfo]
+    return ctx.target_platform_has_constraint(constraint)
+
 provide_mac_toolchain_config = rule(
-    attrs = {},
+    attrs = _import_platform_constraints(),
     provides = [CcToolchainConfigInfo],
     implementation = _mac_toolchain_info,
 )
@@ -268,6 +298,22 @@ def _make_default_flags():
         ],
     )
 
+    # copts and --copts appear to not automatically be set
+    # https://bazel.build/docs/cc-toolchain-config-reference#cctoolchainconfiginfo-build-variables
+    # https://github.com/bazelbuild/bazel/blob/5ad4a6126be2bdc53ee7e2457e076c90efe86d56/tools/cpp/cc_toolchain_config_lib.bzl#L200-L209
+    objc_compile_flags = flag_set(
+        actions = [
+            ACTION_NAMES.objc_compile,
+            ACTION_NAMES.objcpp_compile,
+        ],
+        flag_groups = [
+            flag_group(
+                iterate_over = "user_compile_flags",
+                flags = ["%{user_compile_flags}"],
+            ),
+        ],
+    )
+
     link_exe_flags = flag_set(
         actions = [ACTION_NAMES.cpp_link_executable],
         flag_groups = [
@@ -289,15 +335,7 @@ def _make_default_flags():
                     # Tell the linker where to look for libraries.
                     "-L",
                     XCODE_SYMLINK + "/lib",
-                    # We statically include these libc++ libraries so they do not need to be
-                    # on a developer's machine (they can be tricky to get).
-                    EXTERNAL_TOOLCHAIN + "/lib/libc++.a",
-                    EXTERNAL_TOOLCHAIN + "/lib/libc++abi.a",
-                    EXTERNAL_TOOLCHAIN + "/lib/libunwind.a",
-                    # Dynamically Link in the other parts of glibc (not needed in glibc 2.34+)
-                    "-lpthread",
-                    "-lm",
-                    "-ldl",
+                    "-lstdc++",
                 ],
             ),
         ],
@@ -310,6 +348,7 @@ def _make_default_flags():
             cxx_compile_includes,
             cpp_compile_includes,
             link_exe_flags,
+            objc_compile_flags,
         ],
     )]
 
@@ -373,3 +412,62 @@ def _make_diagnostic_flags():
             ],
         ),
     ]
+
+# The parameter is of type https://bazel.build/rules/lib/ctx
+def _make_target_specific_flags(ctx):
+    m1_mac_target = flag_set(
+        actions = [
+            ACTION_NAMES.assemble,
+            ACTION_NAMES.c_compile,
+            ACTION_NAMES.cpp_compile,
+            ACTION_NAMES.objc_compile,
+            ACTION_NAMES.objcpp_compile,
+            ACTION_NAMES.cpp_link_executable,
+            ACTION_NAMES.cpp_link_dynamic_library,
+        ],
+        flag_groups = [
+            flag_group(
+                flags = [
+                    "--target=arm64-apple-macos11",
+                ],
+            ),
+        ],
+    )
+    intel_mac_target = flag_set(
+        actions = [
+            ACTION_NAMES.assemble,
+            ACTION_NAMES.c_compile,
+            ACTION_NAMES.cpp_compile,
+            ACTION_NAMES.objc_compile,
+            ACTION_NAMES.objcpp_compile,
+            ACTION_NAMES.cpp_link_executable,
+            ACTION_NAMES.cpp_link_dynamic_library,
+        ],
+        flag_groups = [
+            flag_group(
+                flags = [
+                    "--target=x86_64-apple-macos11",
+                ],
+            ),
+        ],
+    )
+
+    target_specific_features = []
+    if _has_platform_constraint(ctx, "@platforms//cpu:arm64"):
+        target_specific_features.append(
+            feature(
+                name = "_m1_mac_target",
+                enabled = True,
+                flag_sets = [m1_mac_target],
+            ),
+        )
+    elif _has_platform_constraint(ctx, "@platforms//cpu:x86_64"):
+        target_specific_features.append(
+            feature(
+                name = "_intel_mac_target",
+                enabled = True,
+                flag_sets = [intel_mac_target],
+            ),
+        )
+
+    return target_specific_features
