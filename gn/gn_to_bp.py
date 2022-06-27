@@ -546,6 +546,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['skia_use_fixed_gamma_text'] = 'true'
     d['skia_enable_fontmgr_custom_empty'] = 'true'
     d['skia_use_wuffs'] = 'true'
+    d['skia_enable_skottie'] = 'true'
 
   return d
 
