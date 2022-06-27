@@ -228,6 +228,8 @@ bool AtlasManager::recordUploads(DrawContext* dc) {
             return false;
         }
     }
+
+    fRecorder->priv().tokenTracker()->issueFlushToken();
     return true;
 }
 
@@ -325,7 +327,7 @@ std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
             }
             atlasManager->addGlyphToBulkAndSetUseToken(
                     &fBulkUseUpdater, maskFormat, gpuGlyph,
-                    tokenTracker->nextDrawToken());
+                    tokenTracker->nextTokenToFlush());
             glyphsPlacedInAtlas++;
         }
 
@@ -343,7 +345,7 @@ std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
             // The atlas hasn't changed and the texture coordinates are all still valid. Update
             // all the plots used to the new use token.
             atlasManager->setUseTokenBulk(fBulkUseUpdater,
-                                          tokenTracker->nextDrawToken(),
+                                          tokenTracker->nextTokenToFlush(),
                                           maskFormat);
         }
         return {true, end - begin};

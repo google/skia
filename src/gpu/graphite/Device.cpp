@@ -580,8 +580,11 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
 
         if (subRunCursor < subRunEnd) {
             // Flush if not all the glyphs are handled because the atlas is out of space.
+            // We flush every Device because the glyphs that are being flushed/referenced are not
+            // necessarily specific to this Device. This addresses both multiple SkSurfaces within
+            // a Recorder, and nested layers.
             ATRACE_ANDROID_FRAMEWORK_ALWAYS("Atlas full");
-            this->flushPendingWorkToRecorder();
+            fRecorder->priv().flushTrackedDevices();
         }
     }
 }
@@ -723,8 +726,7 @@ void Device::drawGeometry(const Geometry& geometry,
     //                          shape.isRect() &&
     //                          localToDevice.type() <= Transform::Type::kRectStaysRect;
 
-    // Post-draw book keeping (update tokens, bounds manager, depth tracking, etc.)
-    fRecorder->priv().tokenTracker()->issueDrawToken();
+    // Post-draw book keeping (bounds manager, depth tracking, etc.)
     fColorDepthBoundsManager->recordDraw(clip.drawBounds(), order.paintOrder());
     fCurrentDepth = order.depth();
     fDrawsOverlap |= (prevDraw != DrawOrder::kNoIntersection);
@@ -849,8 +851,6 @@ void Device::flushPendingWorkToRecorder() {
     fCurrentDepth = DrawOrder::kClearDepth;
     // NOTE: fDrawsOverlap is not reset here because that is a persistent property of everything
     // drawn into the Device, and not just the currently accumulating pass.
-
-    fRecorder->priv().tokenTracker()->flushToken();
 }
 
 bool Device::needsFlushBeforeDraw(int numNewDraws) const {

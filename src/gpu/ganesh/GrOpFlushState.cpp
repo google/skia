@@ -69,7 +69,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             this->drawMesh(fCurrDraw->fMeshes[i]);
         }
 
-        fTokenTracker->flushToken();
+        fTokenTracker->issueFlushToken();
         ++fCurrDraw;
     }
 }
