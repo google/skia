@@ -36,5 +36,5 @@ def gcs_mirror_url(url, sha256):
     if extension == "":
         fail("URL %s has an unsupported suffix." % url)
 
-    mirror_url = "%s/%s.%s" % (_GCS_MIRROR_PREFIX, sha256, extension)
+    mirror_url = "%s/%s%s" % (_GCS_MIRROR_PREFIX, sha256, extension)
     return [mirror_url] if _TEST_GCS_MIRROR else [url, mirror_url]
