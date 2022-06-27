@@ -1,7 +1,10 @@
 // Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
+#include "include/svg/SkSVGCanvas.h"
 
 #include "png.h"
 
@@ -21,6 +24,10 @@ int main(int argc, char** argv) {
     if (png_access_version_number() == 10638) {
         printf("PASS\n"); // This tells the human the test passed.
         return 0; // This tells Bazel the test passed.
+    }
+    if (argc < -10) {
+        std::unique_ptr<SkCanvas> not_used = SkSVGCanvas::Make({}, nullptr, 0);
+        not_used->save();
     }
     printf("FAIL\n"); // This tells the human the test failed.
     return 1; // This tells Bazel the test failed.

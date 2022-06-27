@@ -10,6 +10,7 @@ _bool_flags = [
     "//bazel/common_config_settings:enable_sksl",
     "//bazel/common_config_settings:enable_sksl_tracing",
     "//bazel/common_config_settings:enable_skslc",
+    "//bazel/common_config_settings:enable_svg_canvas",
     "//bazel/common_config_settings:is_skia_dev_build",
     "//bazel/common_config_settings:use_icu",
 ]
@@ -58,7 +59,7 @@ def _flag_transition_impl(settings, attr):
     return rv
 
 # This defines a Starlark transition and which flags it reads and writes.
-_flag_transition = transition(
+with_flags_transition = transition(
     implementation = _flag_transition_impl,
     inputs = _flags,
     outputs = _flags,
@@ -94,13 +95,13 @@ transition_rule = rule(
         # set_flags is a dictionary with the keys being the short-form of a flag name
         # (e.g. the part that comes after the colon) and the value being a list of values
         # that the flag should be set to, regardless of the relevant CLI flags.
-        # https://docs.bazel.build/versions/main/skylark/lib/attr.html#string_list_dict
+        # https://bazel.build/rules/lib/attr#string_list_dict
         "set_flags": attr.string_list_dict(),
         # This is the cc_binary whose deps will select() on that feature.
         # Note specifically how it is modified with _flag_transition, which
         # ensures that the flags propagates down the graph.
-        # https://docs.bazel.build/versions/main/skylark/lib/attr.html#label
-        "actual_binary": attr.label(cfg = _flag_transition),
+        # https://bazel.build/rules/lib/attr#label
+        "actual_binary": attr.label(cfg = with_flags_transition),
         # This is a stock Bazel requirement for any rule that uses Starlark
         # transitions. It's okay to copy the below verbatim for all such rules.
         #
