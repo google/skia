@@ -3,14 +3,14 @@
 using namespace metal;
 struct Inputs {
     uint3 sk_ThreadPosition;
-    device array<int2, 3>& sizes;
+    device int2* sizes;
     device float* data1;
     device float* data2;
 };
 struct Outputs {
     device float* resultData;
 };
-kernel void computeMain(device array<int2, 3> sizes, device float* data1, device float* data2, device float* resultData, uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
+kernel void computeMain(device int2* sizes, device float* data1, device float* data2, device float* resultData, uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
     Inputs _in = { sk_ThreadPosition, sizes, data1, data2 };
     Outputs _out = { resultData };
     _in.sizes[2] = int2(_in.sizes[0].x, _in.sizes[1].y);

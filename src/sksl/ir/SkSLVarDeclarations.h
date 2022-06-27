@@ -58,7 +58,7 @@ public:
     // errors if needed. This method is implicitly called during Convert(), but is also explicitly
     // called while processing interface block fields.
     static void ErrorCheck(const Context& context, Position pos, Position modifiersPosition,
-            const Modifiers& modifiers, const Type* baseType, Variable::Storage storage);
+            const Modifiers& modifiers, const Type* type, Variable::Storage storage);
 
     // Does proper error checking and type coercion; reports errors via ErrorReporter.
     static std::unique_ptr<Statement> Convert(const Context& context, std::unique_ptr<Variable> var,

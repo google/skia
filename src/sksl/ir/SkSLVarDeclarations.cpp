@@ -127,8 +127,12 @@ void VarDeclaration::ErrorCheck(const Context& context,
                                 Position pos,
                                 Position modifiersPosition,
                                 const Modifiers& modifiers,
-                                const Type* baseType,
+                                const Type* type,
                                 Variable::Storage storage) {
+    const Type* baseType = type;
+    if (baseType->isArray()) {
+        baseType = &baseType->componentType();
+    }
     SkASSERT(!baseType->isArray());
 
     if (baseType->matches(*context.fTypes.fInvalid)) {
@@ -149,6 +153,12 @@ void VarDeclaration::ErrorCheck(const Context& context,
     }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
         context.fErrors->error(pos, "'in uniform' variables not permitted");
+    }
+    if (ProgramConfig::IsCompute(context.fConfig->fKind) &&
+        (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) &&
+        type->isArray() && !type->isUnsizedArray()) {
+        // TODO(skia:13471): remove this restriction
+        context.fErrors->error(pos, "compute shader in / out arrays must be unsized");
     }
     if ((modifiers.fFlags & Modifiers::kUniform_Flag)) {
         check_valid_uniform_type(pos, baseType, context);
@@ -210,11 +220,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
 
 bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable& var,
         std::unique_ptr<Expression>& value) {
-    const Type* baseType = &var.type();
-    if (baseType->isArray()) {
-        baseType = &baseType->componentType();
-    }
-    ErrorCheck(context, var.fPosition, var.modifiersPosition(), var.modifiers(), baseType,
+    ErrorCheck(context, var.fPosition, var.modifiersPosition(), var.modifiers(), &var.type(),
             var.storage());
     if (value) {
         if (var.type().isOpaque()) {

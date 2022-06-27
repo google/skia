@@ -1,4 +1,4 @@
-layout(set=0, binding=0) inout int2[3] sizes; // in1, in2, out
+layout(set=0, binding=0) inout int2[] sizes; // in1, in2, out
 layout(set=0, binding=1) in float data1[];
 layout(set=0, binding=2) in float data2[];
 layout(set=1, binding=0) out float resultData[];
