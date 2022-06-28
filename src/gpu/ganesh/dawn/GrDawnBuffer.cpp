@@ -138,6 +138,20 @@ void GrDawnBuffer::onUnmap() {
     }
 }
 
+void GrDawnBuffer::onRelease() {
+    if (this->wasDestroyed()) {
+        return;
+    }
+
+    if (fMapPtr && fMappable != Mappable::kNot) {
+        fBuffer.Unmap();
+        fMapPtr = nullptr;
+        fUnmapped = true;
+    }
+
+    this->GrGpuBuffer::onRelease();
+}
+
 bool GrDawnBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     this->map();
     if (!this->isMapped()) {

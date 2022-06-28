@@ -73,6 +73,7 @@ public:
 
     void onMap() override;
     void onUnmap() override;
+    void onRelease() override;
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
 
     GrDawnGpu* getDawnGpu() const;
