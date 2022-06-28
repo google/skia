@@ -960,7 +960,7 @@ void Device::drawAtlas(const SkRSXform xform[],
 
 #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
 void Device::testingOnly_drawGlyphRunListWithSlug(SkCanvas* canvas,
-                                                  const SkGlyphRunList& glyphRunList,
+                                                  const sktext::GlyphRunList& glyphRunList,
                                                   const SkPaint& initialPaint,
                                                   const SkPaint& drawingPaint) {
     auto slug = this->convertGlyphRunListToSlug(glyphRunList, initialPaint, drawingPaint);
@@ -971,10 +971,11 @@ void Device::testingOnly_drawGlyphRunListWithSlug(SkCanvas* canvas,
 #endif
 
 #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE)
-void Device::testingOnly_drawGlyphRunListWithSerializedSlug(SkCanvas* canvas,
-                                                            const SkGlyphRunList& glyphRunList,
-                                                            const SkPaint& initialPaint,
-                                                            const SkPaint& drawingPaint) {
+void Device::testingOnly_drawGlyphRunListWithSerializedSlug(
+        SkCanvas* canvas,
+        const sktext::GlyphRunList& glyphRunList,
+        const SkPaint& initialPaint,
+        const SkPaint& drawingPaint) {
     // This is not a text blob draw. Handle using glyphRunList conversion.
     if (glyphRunList.blob() == nullptr) {
         auto slug = this->convertGlyphRunListToSlug(glyphRunList, initialPaint, drawingPaint);
@@ -1057,7 +1058,7 @@ private:
 
 void Device::testingOnly_drawGlyphRunListWithSerializedSlugAndStrike(
         SkCanvas* canvas,
-        const SkGlyphRunList& glyphRunList,
+        const sktext::GlyphRunList& glyphRunList,
         const SkPaint& initialPaint,
         const SkPaint& drawingPaint) {
     if (glyphRunList.blob() == nullptr) {
