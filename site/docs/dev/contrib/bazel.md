@@ -32,33 +32,31 @@ third_party deps using `./tools/git-sync-deps`.
 ### Linux Hosts (you are running Bazel on a Linux machine)
 You can run a command like:
 ```
-bazel build //example:hello_world_gl --config=clang_linux
+bazel build //example:hello_world_gl
 ```
 
-This uses the `clang_linux` configuration (defined in `//.bazelrc`), which is a hermetic C++
-toolchain we put together to compile Skia on a Linux host (implementation is in `//toolchain`.
-It builds the _target_ defined in `//examples/BUILD.bazel` named "hello_world_gl", which uses
-the `sk_app` framework we designed to make simple applications using Skia.
+This uses a hermetic C++ toolchain we put together to compile Skia on a Linux host
+(implementation is in `//toolchain`. It builds the _target_ defined in
+`//examples/BUILD.bazel` named "hello_world_gl", which uses the `sk_app` framework
+we designed to make simple applications using Skia.
 
 Bazel will put this executable in `//bazel-bin/example/hello_world_gl` and tell you it did so in
 the logs. You can run this executable yourself, or have Bazel run it by modifying the command to
 be:
 ```
-bazel run //example:hello_world_gl --config=clang_linux
+bazel run //example:hello_world_gl
 ```
 
 If you want to pass one or more flags to `bazel run`, add them on the end after a `--` like:
 ```
-bazel run //example:hello_world_gl --config=clang_linux -- --flag_one=apple --flag_two=cherry
+bazel run //example:hello_world_gl -- --flag_one=apple --flag_two=cherry
 ```
 
 ### Mac Hosts (you are running Bazel on a Mac machine)
 You can run a command like:
 ```
-bazel build //example:bazel_test_exe --config=clang_mac
+bazel build //example:bazel_test_exe
 ```
-
-Similar to the Linux guide, this uses the `clang_mac` configuration (defined in `//.bazelrc`).
 
 When building for Mac, we require the user to have Xcode installed on their device so that we can
 use system headers and Mac-specific includes when compiling. Googlers, as per usual, follow the
