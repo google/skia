@@ -10,9 +10,11 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SingleOwner.h"
+#include "include/private/SkTHash.h"
 
 #include <vector>
 
+class SkRuntimeEffect;
 class SkTextureDataBlock;
 class SkUniformDataBlock;
 class SkUniformDataBlockPassThrough;  // TODO: remove
@@ -106,6 +108,11 @@ private:
     std::unique_ptr<TokenTracker> fTokenTracker;
     std::unique_ptr<sktext::gpu::StrikeCache> fStrikeCache;
     std::unique_ptr<sktext::gpu::TextBlobRedrawCoordinator> fTextBlobCache;
+
+    // We keep track of all SkRuntimeEffects that are connected to a Recorder, along with their code
+    // snippet ID. This ensures that we have a live reference to every effect that we're going to
+    // paint, and gives us a way to retrieve their shader text when we see an their code-snippet ID.
+    SkTHashMap<int, sk_sp<const SkRuntimeEffect>> fRuntimeEffectMap;
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the ResourceCache.

@@ -20,6 +20,7 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/Blend.h"
+#include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
@@ -598,6 +599,11 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
             // TODO(skia:13405): add support for child effects
 
             static constexpr auto kCodeSnippetID = SkBuiltInCodeSnippetID::kRuntimeShader;
+
+            // TODO(skia:13405): add the runtime effect to the recorder once we have distinct
+            // code-snippet IDs per unique SkRuntimeEffect.
+            //skgpu::graphite::Recorder* recorder = keyContext.recorder();
+            //recorder->priv().addRuntimeEffect(codeSnippetID, shaderData.fEffect);
 
             if (gatherer) {
                 [[maybe_unused]] const SkShaderCodeDictionary* dict = keyContext.dict();

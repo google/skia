@@ -7,6 +7,7 @@
 
 #include "include/gpu/graphite/Recorder.h"
 
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Recording.h"
 #include "src/core/SkPipelineData.h"
 #include "src/gpu/AtlasTypes.h"
@@ -107,6 +108,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     fUploadBufferManager->transferToCommandBuffer(commandBuffer.get());
 
     fGraph->reset();
+    fRuntimeEffectMap.reset();
     std::unique_ptr<Recording> recording(new Recording(std::move(commandBuffer),
                                                        std::move(fTextureDataCache)));
     fTextureDataCache = std::make_unique<TextureDataCache>();
