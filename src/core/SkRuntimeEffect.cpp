@@ -105,6 +105,10 @@ SkRuntimeEffect::Uniform SkRuntimeEffectPriv::VarAsUniform(const SkSL::Variable&
         type = &type->componentType();
     }
 
+    if (type->hasPrecision() && !type->highPrecision()) {
+        uni.flags |= Uniform::kHalfPrecision_Flag;
+    }
+
     SkAssertResult(init_uniform_type(context, type, &uni));
     if (var.modifiers().fLayout.fFlags & SkSL::Layout::Flag::kColor_Flag) {
         uni.flags |= Uniform::kColor_Flag;

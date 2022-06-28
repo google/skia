@@ -277,6 +277,7 @@ static void test_good_uniforms(skiatest::Reporter* r) {
     constexpr Flags kVS    = Uniform::kVertex_Flag;
     constexpr Flags kFS    = Uniform::kFragment_Flag;
     constexpr Flags kColor = Uniform::kColor_Flag;
+    constexpr Flags kHalfP = Uniform::kHalfPrecision_Flag;
 
     auto make_uni = [](Type type, const char* name, size_t offset, uint32_t flags, int count = 0) {
         if (count) {
@@ -354,8 +355,8 @@ static void test_good_uniforms(skiatest::Reporter* r) {
                         "uniform half x[2];",
                 },
                 {
-                        make_uni(Type::kFloat, "x",  0, kVS|kFS, 2),
-                        make_uni(Type::kInt,   "y",  8, kVS    , 0)
+                        make_uni(Type::kFloat, "x",  0, kVS|kFS|kHalfP, 2),
+                        make_uni(Type::kInt,   "y",  8, kVS           , 0)
                 }
             },
 
@@ -384,8 +385,8 @@ static void test_good_uniforms(skiatest::Reporter* r) {
                             "uniform int3    i3[1];",
                     },
                     {
-                            make_uni(Type::kFloat4x4, "m",    0, kVS|kFS, 4),
-                            make_uni(Type::kInt3,     "i3", 256, kFS    , 1)
+                            make_uni(Type::kFloat4x4, "m",    0, kVS|kFS|kHalfP, 4),
+                            make_uni(Type::kInt3,     "i3", 256, kFS           , 1)
                     }
             },
 
@@ -406,14 +407,14 @@ static void test_good_uniforms(skiatest::Reporter* r) {
                              "uniform int     i;"
                     },
                     {
-                             make_uni(Type::kFloat,    "x" ,   0, kVS    , 0),
-                             make_uni(Type::kFloat4x4, "m" ,   4, kVS|kFS, 4),
-                             make_uni(Type::kInt2,     "i2", 260, kVS    , 2),
-                             make_uni(Type::kFloat3,   "v" , 276, kVS|kFS, 8),
-                             make_uni(Type::kInt3,     "i3", 372, kVS    , 0),
-                             make_uni(Type::kFloat,    "y" , 384, kFS    , 0),
-                             make_uni(Type::kInt4,     "i4", 388, kFS    , 2),
-                             make_uni(Type::kInt,      "i" , 420, kFS    , 0),
+                             make_uni(Type::kFloat,    "x" ,   0, kVS           , 0),
+                             make_uni(Type::kFloat4x4, "m" ,   4, kVS|kFS|kHalfP, 4),
+                             make_uni(Type::kInt2,     "i2", 260, kVS           , 2),
+                             make_uni(Type::kFloat3,   "v" , 276, kVS|kFS       , 8),
+                             make_uni(Type::kInt3,     "i3", 372, kVS           , 0),
+                             make_uni(Type::kFloat,    "y" , 384, kFS           , 0),
+                             make_uni(Type::kInt4,     "i4", 388, kFS           , 2),
+                             make_uni(Type::kInt,      "i" , 420, kFS           , 0),
                     }
             },
     };

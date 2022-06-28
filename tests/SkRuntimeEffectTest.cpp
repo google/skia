@@ -111,6 +111,30 @@ DEF_TEST(SkRuntimeEffectCanEnableVersion300, r) {
     test_valid         (r, "#version 300\nfloat f[2] = float[2](0, 1);" EMPTY_MAIN);
 }
 
+DEF_TEST(SkRuntimeEffectUniformFlags, r) {
+    auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(R"(
+        uniform int simple;                      // should have no flags
+        uniform float arrayOfOne[1];             // should have kArray_Flag
+        uniform float arrayOfMultiple[2];        // should have kArray_Flag
+        layout(color) uniform float4 color;      // should have kColor_Flag
+        uniform half3 halfPrecisionFloat;        // should have kHalfPrecision_Flag
+        layout(color) uniform half4 allFlags[2]; // should have Array | Color | HalfPrecision
+    )"  EMPTY_MAIN));
+    REPORTER_ASSERT(r, effect, "%s", errorText.c_str());
+
+    SkSpan<const SkRuntimeEffect::Uniform> uniforms = effect->uniforms();
+    REPORTER_ASSERT(r, uniforms.size() == 6);
+
+    REPORTER_ASSERT(r, uniforms[0].flags == 0);
+    REPORTER_ASSERT(r, uniforms[1].flags == SkRuntimeEffect::Uniform::kArray_Flag);
+    REPORTER_ASSERT(r, uniforms[2].flags == SkRuntimeEffect::Uniform::kArray_Flag);
+    REPORTER_ASSERT(r, uniforms[3].flags == SkRuntimeEffect::Uniform::kColor_Flag);
+    REPORTER_ASSERT(r, uniforms[4].flags == SkRuntimeEffect::Uniform::kHalfPrecision_Flag);
+    REPORTER_ASSERT(r, uniforms[5].flags == (SkRuntimeEffect::Uniform::kArray_Flag |
+                                             SkRuntimeEffect::Uniform::kColor_Flag |
+                                             SkRuntimeEffect::Uniform::kHalfPrecision_Flag));
+}
+
 DEF_TEST(SkRuntimeEffectForColorFilter, r) {
     // Tests that the color filter factory rejects or accepts certain SkSL constructs
     auto test_valid = [r](const char* sksl) {
