@@ -21,6 +21,8 @@ namespace {
                 return wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc;
             case GrGpuBufferType::kXferGpuToCpu:
                 return wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst;
+            case GrGpuBufferType::kUniform:
+                return wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst;
             default:
                 SkASSERT(!"buffer type not supported by Dawn");
                 return wgpu::BufferUsage::Vertex;

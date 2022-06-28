@@ -14,9 +14,9 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
+#include "src/gpu/ganesh/GrRingBuffer.h"
 #include "src/gpu/ganesh/GrStagingBufferManager.h"
 #include "src/gpu/ganesh/dawn/GrDawnAsyncWait.h"
-#include "src/gpu/ganesh/dawn/GrDawnRingBuffer.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "webgpu/webgpu_cpp.h"
 
@@ -97,7 +97,7 @@ public:
 
     wgpu::Sampler getOrCreateSampler(GrSamplerState samplerState);
 
-    GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
+    GrRingBuffer::Slice allocateUniformRingBufferSlice(int size);
     wgpu::CommandEncoder getCopyEncoder();
     void flushCopyEncoder();
     void appendCommandBuffer(wgpu::CommandBuffer commandBuffer);
@@ -232,7 +232,7 @@ private:
     wgpu::Device                                    fDevice;
     wgpu::Queue                                     fQueue;
     std::unique_ptr<GrDawnOpsRenderPass>            fOpsRenderPass;
-    GrDawnRingBuffer                                fUniformRingBuffer;
+    GrRingBuffer                                    fUniformsRingBuffer;
     wgpu::CommandEncoder                            fCopyEncoder;
     std::vector<wgpu::CommandBuffer>                fCommandBuffers;
     GrStagingBufferManager                          fStagingBufferManager;

@@ -128,7 +128,7 @@ GrDawnGpu::GrDawnGpu(GrDirectContext* direct,
         : INHERITED(direct)
         , fDevice(device)
         , fQueue(device.GetQueue())
-        , fUniformRingBuffer(this, wgpu::BufferUsage::Uniform)
+        , fUniformsRingBuffer(this, 128 * 1024, 256, GrGpuBufferType::kUniform)
         , fStagingBufferManager(this)
         , fPendingMapAsyncRequests(device)
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
@@ -962,8 +962,8 @@ wgpu::Sampler GrDawnGpu::getOrCreateSampler(GrSamplerState samplerState) {
     return sampler;
 }
 
-GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
-    return fUniformRingBuffer.allocate(size);
+GrRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
+    return fUniformsRingBuffer.suballocate(size);
 }
 
 void GrDawnGpu::appendCommandBuffer(wgpu::CommandBuffer commandBuffer) {

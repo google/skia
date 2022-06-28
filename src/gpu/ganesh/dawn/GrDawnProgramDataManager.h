@@ -11,7 +11,6 @@
 #include "src/gpu/ganesh/GrUniformDataManager.h"
 
 #include "src/gpu/ganesh/GrSPIRVUniformHandler.h"
-#include "src/gpu/ganesh/dawn/GrDawnRingBuffer.h"
 #include "webgpu/webgpu_cpp.h"
 
 #include "src/core/SkAutoMalloc.h"

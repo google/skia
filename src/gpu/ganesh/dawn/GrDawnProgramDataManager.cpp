@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/dawn/GrDawnProgramDataManager.h"
 
+#include "src/gpu/ganesh/dawn/GrDawnBuffer.h"
 #include "src/gpu/ganesh/dawn/GrDawnGpu.h"
 
 GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& uniforms,
@@ -43,11 +44,12 @@ wgpu::BindGroup GrDawnProgramDataManager::uploadUniformBuffers(GrDawnGpu* gpu,
                                                                wgpu::BindGroupLayout layout) {
     if (fUniformsDirty && 0 != fUniformSize) {
         std::vector<wgpu::BindGroupEntry> bindings;
-        GrDawnRingBuffer::Slice slice;
-        slice = gpu->allocateUniformRingBufferSlice(fUniformSize);
-        gpu->queue().WriteBuffer(slice.fBuffer, slice.fOffset, fUniformData.get(), fUniformSize);
+
+        GrRingBuffer::Slice slice = gpu->allocateUniformRingBufferSlice(fUniformSize);
+        GrDawnBuffer* buffer = static_cast<GrDawnBuffer*>(slice.fBuffer);
+        gpu->queue().WriteBuffer(buffer->get(), slice.fOffset, fUniformData.get(), fUniformSize);
         bindings.push_back(make_bind_group_entry(GrSPIRVUniformHandler::kUniformBinding,
-                                                 slice.fBuffer, slice.fOffset,
+                                                 buffer->get(), slice.fOffset,
                                                  fUniformSize));
         wgpu::BindGroupDescriptor descriptor;
         descriptor.layout = layout;

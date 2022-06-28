@@ -23,8 +23,6 @@ DAWN_FILES = [
     "GrDawnProgramDataManager.h",
     "GrDawnRenderTarget.cpp",
     "GrDawnRenderTarget.h",
-    "GrDawnRingBuffer.cpp",
-    "GrDawnRingBuffer.h",
     "GrDawnTexture.cpp",
     "GrDawnTexture.h",
     "GrDawnTextureRenderTarget.cpp",
