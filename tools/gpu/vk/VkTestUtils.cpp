@@ -105,7 +105,7 @@ static int should_include_debug_layer(const char* layerName,
 static void print_backtrace() {
 #if defined(SK_BUILD_FOR_UNIX)
     void* stack[64];
-    int count = backtrace(stack, SK_ARRAY_COUNT(stack));
+    int count = backtrace(stack, std::size(stack));
     backtrace_symbols_fd(stack, count, 2);
 #else
     // Please add implementations for other platforms.
@@ -186,7 +186,7 @@ static bool init_instance_extensions_and_layers(PFN_vkGetInstanceProcAddr getIns
     }
 
     uint32_t nonPatchVersion = remove_patch_version(specVersion);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
+    for (size_t i = 0; i < std::size(kDebugLayerNames); ++i) {
         int idx = should_include_debug_layer(kDebugLayerNames[i], layerCount, layers,
                                              nonPatchVersion);
         if (idx != -1) {
@@ -275,7 +275,7 @@ static bool init_device_extensions_and_layers(GrVkGetProc getProc, uint32_t spec
     }
 
     uint32_t nonPatchVersion = remove_patch_version(specVersion);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
+    for (size_t i = 0; i < std::size(kDebugLayerNames); ++i) {
         int idx = should_include_debug_layer(kDebugLayerNames[i], layerCount, layers,
                                              nonPatchVersion);
         if (idx != -1) {

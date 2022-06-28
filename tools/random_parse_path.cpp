@@ -36,7 +36,7 @@ static void add_white(SkRandom* rand, SkString* atom) {
     }
     int reps = rand->nextRangeU(0, 2);
     for (int rep = 0; rep < reps; ++rep) {
-        int index = rand->nextRangeU(0, (int) SK_ARRAY_COUNT(gWhiteSpace) - 1);
+        int index = rand->nextRangeU(0, (int) std::size(gWhiteSpace) - 1);
         if (gWhiteSpace[index]) {
             atom->append(&gWhiteSpace[index], 1);
         }
@@ -67,7 +67,7 @@ static void add_some_white(SkRandom* rand, SkString* atom) {
 
 SkString MakeRandomParsePathPiece(SkRandom* rand) {
     SkString atom;
-    int legalIndex = rand->nextRangeU(0, (int) SK_ARRAY_COUNT(gLegal) - 1);
+    int legalIndex = rand->nextRangeU(0, (int) std::size(gLegal) - 1);
     const Legal& legal = gLegal[legalIndex];
     gEasy ? atom.append("\n") : add_white(rand, &atom);
     char symbol = legal.fSymbol | (rand->nextBool() ? 0x20 : 0);

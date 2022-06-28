@@ -237,7 +237,7 @@ static skui::Key get_key(unsigned short vk) {
         { kVK_ANSI_Z,        skui::Key::kZ },
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
+    for (size_t i = 0; i < std::size(gPair); i++) {
         if (gPair[i].fVK == vk) {
             return gPair[i].fKey;
         }

@@ -43,7 +43,7 @@ void GraphiteTestContext::submitRecordingAndWaitOnSync(skgpu::graphite::Context*
 
     context->submit(skgpu::graphite::SyncToCpu::kNo);
 
-    fCurrentFlushIdx = (fCurrentFlushIdx + 1) % SK_ARRAY_COUNT(fFinishTrackers);
+    fCurrentFlushIdx = (fCurrentFlushIdx + 1) % std::size(fFinishTrackers);
 }
 
 }  // namespace skiatest::graphite

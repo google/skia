@@ -74,7 +74,7 @@ bool Window_unix::initWindow(Display* display) {
     };
     SkASSERT(nullptr == fVisualInfo);
     if (fRequestedDisplayParams.fMSAASampleCount > 1) {
-        static const GLint kChooseFBConifgAttCnt = SK_ARRAY_COUNT(kChooseFBConfigAtt);
+        static const GLint kChooseFBConifgAttCnt = std::size(kChooseFBConfigAtt);
         GLint msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 4];
         memcpy(msaaChooseFBConfigAtt, kChooseFBConfigAtt, sizeof(kChooseFBConfigAtt));
         SkASSERT(None == msaaChooseFBConfigAtt[kChooseFBConifgAttCnt - 1]);
@@ -88,7 +88,7 @@ bool Window_unix::initWindow(Display* display) {
         if (n > 0) {
             fVisualInfo = glXGetVisualFromFBConfig(fDisplay, *fFBConfig);
         } else {
-            static const GLint kChooseVisualAttCnt = SK_ARRAY_COUNT(chooseVisualAtt);
+            static const GLint kChooseVisualAttCnt = std::size(chooseVisualAtt);
             GLint msaaChooseVisualAtt[kChooseVisualAttCnt + 4];
             memcpy(msaaChooseVisualAtt, chooseVisualAtt, sizeof(chooseVisualAtt));
             SkASSERT(None == msaaChooseVisualAtt[kChooseVisualAttCnt - 1]);
@@ -219,7 +219,7 @@ static skui::Key get_key(KeySym keysym) {
         { 'y',          skui::Key::kY        },
         { 'z',          skui::Key::kZ        },
     };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
+    for (size_t i = 0; i < std::size(gPair); i++) {
         if (gPair[i].fXK == keysym) {
             return gPair[i].fKey;
         }
@@ -238,7 +238,7 @@ static skui::ModifierKey get_modifiers(const XEvent& event) {
     };
 
     skui::ModifierKey modifiers = skui::ModifierKey::kNone;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gModifiers); ++i) {
+    for (size_t i = 0; i < std::size(gModifiers); ++i) {
         if (event.xkey.state & gModifiers[i].fXMask) {
             modifiers |= gModifiers[i].fSkMask;
         }

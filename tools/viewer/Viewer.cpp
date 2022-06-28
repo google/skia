@@ -1075,7 +1075,7 @@ void Viewer::updateTitle() {
 
     if (ColorMode::kLegacy != fColorMode) {
         int curPrimaries = -1;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gNamedPrimaries); ++i) {
+        for (size_t i = 0; i < std::size(gNamedPrimaries); ++i) {
             if (primaries_equal(*gNamedPrimaries[i].fPrimaries, fColorSpacePrimaries)) {
                 curPrimaries = i;
                 break;
@@ -2467,7 +2467,7 @@ void Viewer::drawImGui() {
 
                 // Pick from common gamuts:
                 int primariesIdx = 4; // Default: Custom
-                for (size_t i = 0; i < SK_ARRAY_COUNT(gNamedPrimaries); ++i) {
+                for (size_t i = 0; i < std::size(gNamedPrimaries); ++i) {
                     if (primaries_equal(*gNamedPrimaries[i].fPrimaries, fColorSpacePrimaries)) {
                         primariesIdx = i;
                         break;

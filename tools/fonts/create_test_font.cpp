@@ -254,7 +254,7 @@ static void output_font(sk_sp<SkTypeface> face, const char* identifier, FILE* ou
     widthsStr = strip_final(widthsStr);
     fprintf(out, "%s\n};\n\n", widthsStr.c_str());
 
-    fprintf(out, "const size_t %sCharCodesCount = SK_ARRAY_COUNT(%sCharCodes);\n\n",
+    fprintf(out, "const size_t %sCharCodesCount = std::size(%sCharCodes);\n\n",
             identifier, identifier);
 
     SkFontMetrics metrics;

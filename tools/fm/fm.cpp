@@ -209,7 +209,7 @@ static void init(Source* source, sk_sp<skottie::Animation> animation) {
         // Draw frames in a shuffled order to exercise nonlinear frame progression.
         // The film strip will still be in time order, just drawn out of order.
         const int order[] = { 4, 0, 3, 1, 2 };
-        const int tiles = SK_ARRAY_COUNT(order);
+        const int tiles = std::size(order);
         const float dim = 1000.0f / tiles;
 
         const float dt = 1.0f / (tiles*tiles - 1);

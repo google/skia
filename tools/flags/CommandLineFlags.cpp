@@ -76,12 +76,12 @@ static bool string_is_in(const char* target, const char* set[], size_t len) {
  */
 static bool parse_bool_arg(const char* string, bool* result) {
     static const char* trueValues[] = {"1", "TRUE", "true"};
-    if (string_is_in(string, trueValues, SK_ARRAY_COUNT(trueValues))) {
+    if (string_is_in(string, trueValues, std::size(trueValues))) {
         *result = true;
         return true;
     }
     static const char* falseValues[] = {"0", "FALSE", "false"};
-    if (string_is_in(string, falseValues, SK_ARRAY_COUNT(falseValues))) {
+    if (string_is_in(string, falseValues, std::size(falseValues))) {
         *result = false;
         return true;
     }

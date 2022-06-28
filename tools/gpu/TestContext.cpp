@@ -55,7 +55,7 @@ void TestContext::flushAndWaitOnSync(GrDirectContext* context) {
     context->flush(flushInfo);
     context->submit();
 
-    fCurrentFlushIdx = (fCurrentFlushIdx + 1) % SK_ARRAY_COUNT(fFinishTrackers);
+    fCurrentFlushIdx = (fCurrentFlushIdx + 1) % std::size(fFinishTrackers);
 }
 
 void TestContext::testAbandon() {

@@ -760,6 +760,6 @@ sk_gpu_test::FlushFinishTracker* GpuSync::newFlushTracker(GrDirectContext* conte
     // callback on the flush call. The finish callback will unref the tracker when called.
     tracker->ref();
 
-    fCurrentFlushIdx = (fCurrentFlushIdx + 1) % SK_ARRAY_COUNT(fFinishTrackers);
+    fCurrentFlushIdx = (fCurrentFlushIdx + 1) % std::size(fFinishTrackers);
     return tracker;
 }

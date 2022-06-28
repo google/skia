@@ -214,7 +214,7 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
         // "--atrace",
     };
 
-    skiaAndroidApp->fApp = Application::Create(SK_ARRAY_COUNT(gCmdLine),
+    skiaAndroidApp->fApp = Application::Create(std::size(gCmdLine),
                                                const_cast<char**>(gCmdLine),
                                                skiaAndroidApp);
 

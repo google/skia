@@ -34,7 +34,7 @@ void SkSLDebuggerSlide::unload() {
 }
 
 void SkSLDebuggerSlide::showLoadTraceGUI() {
-    ImGui::InputText("Trace Path", fTraceFile, SK_ARRAY_COUNT(fTraceFile));
+    ImGui::InputText("Trace Path", fTraceFile, std::size(fTraceFile));
     bool load = ImGui::Button("Load Debug Trace");
 
     if (load) {

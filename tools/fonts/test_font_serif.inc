@@ -1261,7 +1261,7 @@ const SkFixed LiberationSerifNormalWidths[] = {
 0x000071a0, 0x00007ae0, 0x00003340, 0x00007ae0, 0x00008a80
 };
 
-const size_t LiberationSerifNormalCharCodesCount = SK_ARRAY_COUNT(LiberationSerifNormalCharCodes);
+const size_t LiberationSerifNormalCharCodesCount = std::size(LiberationSerifNormalCharCodes);
 
 const SkFontMetrics LiberationSerifNormalMetrics = {
 0x0000000f, -0.981445f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.567383f, 1.18359f,
@@ -2511,7 +2511,7 @@ const SkFixed LiberationSerifBoldWidths[] = {
 0x000071a0, 0x000064e0, 0x00003860, 0x000064e0, 0x00008520
 };
 
-const size_t LiberationSerifBoldCharCodesCount = SK_ARRAY_COUNT(LiberationSerifBoldCharCodes);
+const size_t LiberationSerifBoldCharCodesCount = std::size(LiberationSerifBoldCharCodes);
 
 const SkFontMetrics LiberationSerifBoldMetrics = {
 0x0000000f, -1.00781f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.59375f, 1.26709f,
@@ -3829,7 +3829,7 @@ const SkFixed LiberationSerifItalicWidths[] = {
 0x000063a0, 0x00006660, 0x00004660, 0x00006660, 0x00008a80
 };
 
-const size_t LiberationSerifItalicCharCodesCount = SK_ARRAY_COUNT(LiberationSerifItalicCharCodes);
+const size_t LiberationSerifItalicCharCodesCount = std::size(LiberationSerifItalicCharCodes);
 
 const SkFontMetrics LiberationSerifItalicMetrics = {
 0x0000000f, -0.980957f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.559082f, 1.26465f,
@@ -5141,7 +5141,8 @@ const SkFixed LiberationSerifBoldItalicWidths[] = {
 0x000063a0, 0x00005920, 0x00003860, 0x00005920, 0x000091e0
 };
 
-const size_t LiberationSerifBoldItalicCharCodesCount = SK_ARRAY_COUNT(LiberationSerifBoldItalicCharCodes);
+const size_t LiberationSerifBoldItalicCharCodesCount
+        = std::size(LiberationSerifBoldItalicCharCodes);
 
 const SkFontMetrics LiberationSerifBoldItalicMetrics = {
 0x0000000f, -0.980957f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.578125f, 1.32861f,

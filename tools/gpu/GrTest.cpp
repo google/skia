@@ -94,7 +94,7 @@ void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPain
             DRAW_OP_TEST_ENTRY(TriangulatingPathOp),
     };
 
-    static constexpr size_t kTotal = SK_ARRAY_COUNT(gFactories);
+    static constexpr size_t kTotal = std::size(gFactories);
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(kTotal));
     auto op = gFactories[index](std::move(paint),
                                 random,

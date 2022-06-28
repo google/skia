@@ -33,7 +33,7 @@ void android_main(struct android_app* state) {
         // "--atrace",
     };
 
-    std::unique_ptr<Application> vkApp(Application::Create(SK_ARRAY_COUNT(gCmdLine),
+    std::unique_ptr<Application> vkApp(Application::Create(std::size(gCmdLine),
                                                            const_cast<char**>(gCmdLine),
                                                            state));
 

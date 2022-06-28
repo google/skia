@@ -83,7 +83,7 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
         kGLES_GrGLStandard,
     };
 
-    size_t apiLimit = SK_ARRAY_COUNT(kStandards);
+    size_t apiLimit = std::size(kStandards);
     size_t api = 0;
     if (forcedGpuAPI == kGL_GrGLStandard) {
         apiLimit = 1;

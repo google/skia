@@ -211,7 +211,7 @@ std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(SkYUVAPixmaps pixmaps,
 sk_sp<SkImage> LazyYUVImage::refImage(GrRecordingContext* rContext, Type type) {
     if (this->ensureYUVImage(rContext, type)) {
         size_t idx = static_cast<size_t>(type);
-        SkASSERT(idx < SK_ARRAY_COUNT(fYUVImage));
+        SkASSERT(idx < std::size(fYUVImage));
         return fYUVImage[idx];
     } else {
         return nullptr;
@@ -261,7 +261,7 @@ bool LazyYUVImage::reset(SkYUVAPixmaps pixmaps, GrMipmapped mipmapped, sk_sp<SkC
 
 bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
     size_t idx = static_cast<size_t>(type);
-    SkASSERT(idx < SK_ARRAY_COUNT(fYUVImage));
+    SkASSERT(idx < std::size(fYUVImage));
     if (fYUVImage[idx] && fYUVImage[idx]->isValid(rContext)) {
         return true;  // Have already made a YUV image valid for this context.
     }

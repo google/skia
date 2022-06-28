@@ -62,9 +62,9 @@ struct Stats {
             double s = samples[i];
             s -= min;
             s /= (max - min);
-            s *= (SK_ARRAY_COUNT(kBars) - 1);
+            s *= (std::size(kBars) - 1);
             const size_t bar = (size_t)(s + 0.5);
-            SkASSERT_RELEASE(bar < SK_ARRAY_COUNT(kBars));
+            SkASSERT_RELEASE(bar < std::size(kBars));
             plot.append(kBars[bar]);
         }
     }
