@@ -735,6 +735,13 @@ static SkSLType uniform_type_to_sksl_type(const SkRuntimeEffect::Uniform& u) {
     SkUNREACHABLE;
 }
 
+const char* SkShaderCodeDictionary::addTextToArena(std::string_view text) {
+    char* textInArena = fArena.makeArrayDefault<char>(text.size() + 1);
+    memcpy(textInArena, text.data(), text.size());
+    textInArena[text.size()] = '\0';
+    return textInArena;
+}
+
 SkSpan<const SkUniform> SkShaderCodeDictionary::convertUniforms(const SkRuntimeEffect* effect) {
     using Uniform = SkRuntimeEffect::Uniform;
     SkSpan<const Uniform> uniforms = effect->uniforms();
@@ -751,14 +758,12 @@ SkSpan<const SkUniform> SkShaderCodeDictionary::convertUniforms(const SkRuntimeE
         // The existing uniform names are in SkStrings and may disappear. Copy them into fArena.
         // (It's safe to do this within makeInitializedArray; the entire array is allocated in one
         // big slab before any initialization calls are done.)
-        int lengthWithNullTerminator = u.name.size() + 1;
-        char* nameInArena = fArena.makeArrayDefault<char>(lengthWithNullTerminator);
-        memcpy(nameInArena, u.name.c_str(), lengthWithNullTerminator);
+        const char* name = this->addTextToArena(std::string_view(u.name.c_str(), u.name.size()));
 
         // Add one SkUniform to our array.
         SkSLType type = uniform_type_to_sksl_type(u);
-        return (u.flags & Uniform::kArray_Flag) ? SkUniform(nameInArena, type, u.count)
-                                                : SkUniform(nameInArena, type);
+        return (u.flags & Uniform::kArray_Flag) ? SkUniform(name, type, u.count)
+                                                : SkUniform(name, type);
     });
 
     return SkSpan<const SkUniform>(uniformArray, numUniforms);

@@ -225,6 +225,8 @@ private:
             int numChildren,
             SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations);
 
+    const char* addTextToArena(std::string_view text);
+
     SkSpan<const SkUniform> convertUniforms(const SkRuntimeEffect* effect);
 
     std::array<SkShaderSnippet, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
