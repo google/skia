@@ -62,32 +62,6 @@ std::unique_ptr<ResourceProvider> MtlGpu::makeResourceProvider(
                                                                      singleOwner));
 }
 
-class WorkSubmission final : public GpuWorkSubmission {
-public:
-    WorkSubmission(sk_sp<CommandBuffer> cmdBuffer)
-        : GpuWorkSubmission(std::move(cmdBuffer)) {}
-    ~WorkSubmission() override {}
-
-    bool isFinished() override {
-        return static_cast<MtlCommandBuffer*>(this->commandBuffer())->isFinished();
-    }
-    void waitUntilFinished(const Gpu*) override {
-        return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
-    }
-};
-
-skgpu::graphite::Gpu::OutstandingSubmission MtlGpu::onSubmit(sk_sp<CommandBuffer> commandBuffer) {
-    SkASSERT(commandBuffer);
-    MtlCommandBuffer* mtlCmdBuffer = static_cast<MtlCommandBuffer*>(commandBuffer.get());
-    if (!mtlCmdBuffer->commit()) {
-        commandBuffer->callFinishedProcs(/*success=*/false);
-        return nullptr;
-    }
-
-    std::unique_ptr<GpuWorkSubmission> submission(new WorkSubmission(std::move(commandBuffer)));
-    return submission;
-}
-
 BackendTexture MtlGpu::onCreateBackendTexture(SkISize dimensions, const TextureInfo& info) {
     sk_cfp<id<MTLTexture>> texture = MtlTexture::MakeMtlTexture(this, dimensions, info);
     if (!texture) {

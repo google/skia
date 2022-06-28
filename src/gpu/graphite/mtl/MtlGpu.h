@@ -36,8 +36,6 @@ public:
 private:
     MtlGpu(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const MtlCaps>);
 
-    Gpu::OutstandingSubmission onSubmit(sk_sp<CommandBuffer>) override;
-
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
     void onDeleteBackendTexture(BackendTexture&) override;
 

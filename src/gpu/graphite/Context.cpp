@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/Gpu.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 
@@ -32,8 +33,9 @@
 namespace skgpu::graphite {
 
 //--------------------------------------------------------------------------------------------------
-Context::Context(sk_sp<Gpu> gpu, BackendApi backend)
+Context::Context(sk_sp<Gpu> gpu, std::unique_ptr<QueueManager> queueManager, BackendApi backend)
         : fGpu(std::move(gpu))
+        , fQueueManager(std::move(queueManager))
         , fGlobalCache(sk_make_sp<GlobalCache>())
         , fBackend(backend) {
 }
@@ -47,7 +49,14 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
         return nullptr;
     }
 
-    return std::unique_ptr<Context>(new Context(std::move(gpu), BackendApi::kMetal));
+    auto queueManager = MtlTrampoline::MakeQueueManager(gpu.get());
+    if (!queueManager) {
+        return nullptr;
+    }
+
+    return std::unique_ptr<Context>(new Context(std::move(gpu),
+                                                std::move(queueManager),
+                                                BackendApi::kMetal));
 }
 #endif
 
@@ -69,26 +78,19 @@ void Context::insertRecording(const InsertRecordingInfo& info) {
         return;
     }
 
-    SkASSERT(!fCurrentCommandBuffer);
-    // For now we only allow one CommandBuffer. So we just ref it off the InsertRecordingInfo and
-    // hold onto it until we submit.
-    fCurrentCommandBuffer = info.fRecording->fCommandBuffer;
-    SkASSERT(fCurrentCommandBuffer);
+    fQueueManager->setCurrentCommandBuffer(info.fRecording->fCommandBuffer);
     if (callback) {
-        fCurrentCommandBuffer->addFinishedProc(std::move(callback));
+        info.fRecording->fCommandBuffer->addFinishedProc(std::move(callback));
     }
 }
 
 void Context::submit(SyncToCpu syncToCpu) {
-    SkASSERT(fCurrentCommandBuffer);
-
-    fGpu->submit(std::move(fCurrentCommandBuffer));
-
-    fGpu->checkForFinishedWork(syncToCpu);
+    fQueueManager->submitToGpu();
+    fQueueManager->checkForFinishedWork(syncToCpu);
 }
 
 void Context::checkAsyncWorkCompletion() {
-    fGpu->checkForFinishedWork(SyncToCpu::kNo);
+    fQueueManager->checkForFinishedWork(SyncToCpu::kNo);
 }
 
 SkBlenderID Context::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {

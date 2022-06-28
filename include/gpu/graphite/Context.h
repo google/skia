@@ -13,6 +13,8 @@
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 
+#include <memory>
+
 class SkBlenderID;
 class SkCombinationBuilder;
 class SkRuntimeEffect;
@@ -20,12 +22,12 @@ class SkRuntimeEffect;
 namespace skgpu::graphite {
 
 class BackendTexture;
-class CommandBuffer;
 class Context;
 class ContextPriv;
 class GlobalCache;
 class Gpu;
 struct MtlBackendContext;
+class QueueManager;
 class Recorder;
 class Recording;
 class TextureInfo;
@@ -87,14 +89,13 @@ public:
     const ContextPriv priv() const;  // NOLINT(readability-const-return-type)
 
 protected:
-    Context(sk_sp<Gpu>, BackendApi);
+    Context(sk_sp<Gpu>, std::unique_ptr<QueueManager>, BackendApi);
 
 private:
     friend class ContextPriv;
 
-    sk_sp<CommandBuffer> fCurrentCommandBuffer;
-
     sk_sp<Gpu> fGpu;
+    std::unique_ptr<QueueManager> fQueueManager;
     sk_sp<GlobalCache> fGlobalCache;
     BackendApi fBackend;
 };
