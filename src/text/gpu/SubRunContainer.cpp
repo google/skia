@@ -2451,18 +2451,15 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
             // Drawing of last resort - Scale masks that fit in the atlas to the screen using
             // bilerp.
 
-            SkMatrix gaugingMatrix;
-            if (!positionMatrix.hasPerspective()) {
-                gaugingMatrix = positionMatrix;
-            } else {
-                SkScalar maxScale = positionMatrix.getMaxScale();
-                gaugingMatrix = SkMatrix::Scale(maxScale, maxScale);
+            const SkMatrix* gaugingMatrix = &positionMatrix;
+            if (positionMatrix.hasPerspective()) {
+                // The Scaler can't take perspective matrices, so use I as our best guess.
+                gaugingMatrix = &SkMatrix::I();
             }
-
 
             // Gauge the scale factor needed to reduce the font size by.
             SkStrikeSpec gaugingStrikeSpec = SkStrikeSpec::MakeTransformMask(
-                    runFont, runPaint, deviceProps, scalerContextFlags, gaugingMatrix);
+                    runFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
 
             // A strike that is too big, but will give an accurate maximum glyph dimension.
             SkScopedStrikeForGPU gaugingStrike =
@@ -2491,7 +2488,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
                 SkStrikeSpec strikeSpec = SkStrikeSpec::MakeTransformMask(
-                        reducedRunFont, runPaint, deviceProps, scalerContextFlags, gaugingMatrix);
+                        reducedRunFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
                 if constexpr (kTrace) {
                     msg.appendf("Transformed case:\n%s", strikeSpec.dump().c_str());
                 }
