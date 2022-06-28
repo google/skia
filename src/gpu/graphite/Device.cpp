@@ -441,28 +441,32 @@ void Device::drawPaint(const SkPaint& paint) {
         return;
     }
     Rect localCoveringBounds = localToDevice.inverseMapRect(fClip.conservativeBounds());
-    this->drawGeometry(Geometry(Shape(localCoveringBounds)), paint, kFillStyle,
+    this->drawGeometry(localToDevice, Geometry(Shape(localCoveringBounds)), paint, kFillStyle,
                        DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
 }
 
 void Device::drawRect(const SkRect& r, const SkPaint& paint) {
-    this->drawGeometry(Geometry(Shape(r)), paint, SkStrokeRec(paint));
+    this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(r)),
+                       paint, SkStrokeRec(paint));
 }
 
 void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
     // TODO: This has wasted effort from the SkCanvas level since it instead converts rrects that
     // happen to be ovals into this, only for us to go right back to rrect.
-    this->drawGeometry(Geometry(Shape(SkRRect::MakeOval(oval))), paint, SkStrokeRec(paint));
+    this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(SkRRect::MakeOval(oval))),
+                       paint, SkStrokeRec(paint));
 }
 
 void Device::drawRRect(const SkRRect& rr, const SkPaint& paint) {
-    this->drawGeometry(Geometry(Shape(rr)), paint, SkStrokeRec(paint));
+    this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(rr)),
+                       paint, SkStrokeRec(paint));
 }
 
 void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
     // TODO: If we do try to inspect the path, it should happen here and possibly after computing
     // the path effect. Alternatively, all that should be handled in SkCanvas.
-    this->drawGeometry(Geometry(Shape(path)), paint, SkStrokeRec(paint));
+    this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(path)),
+                       paint, SkStrokeRec(paint));
 }
 
 void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
@@ -476,9 +480,12 @@ void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
                                                 points[i].fX + radius, points[i].fY + radius);
             // drawOval/drawRect with a forced fill style
             if (paint.getStrokeCap() == SkPaint::kRound_Cap) {
-                this->drawGeometry(Geometry(Shape(SkRRect::MakeOval(pointRect))), paint, kFillStyle);
+                this->drawGeometry(this->localToDeviceTransform(),
+                                   Geometry(Shape(SkRRect::MakeOval(pointRect))),
+                                   paint, kFillStyle);
             } else {
-                this->drawGeometry(Geometry(Shape(pointRect)), paint, kFillStyle);
+                this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(pointRect)),
+                                   paint, kFillStyle);
             }
         }
     } else {
@@ -486,7 +493,9 @@ void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
         SkStrokeRec stroke(paint, SkPaint::kStroke_Style);
         size_t inc = (mode == SkCanvas::kLines_PointMode) ? 2 : 1;
         for (size_t i = 0; i < count; i += inc) {
-            this->drawGeometry(Geometry(Shape(points[i], points[(i + 1) % count])), paint, stroke);
+            this->drawGeometry(this->localToDeviceTransform(),
+                               Geometry(Shape(points[i], points[(i + 1) % count])),
+                               paint, stroke);
         }
     }
 }
@@ -588,14 +597,11 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
     }
 }
 
-void Device::drawGeometry(const Geometry& geometry,
+void Device::drawGeometry(const Transform& localToDevice,
+                          const Geometry& geometry,
                           const SkPaint& paint,
                           const SkStrokeRec& style,
                           SkEnumBitMask<DrawFlags> flags) {
-    // TODO: remove after perspective transform fallbacks are no longer needed
-    static const Transform kIdentity{SkM44()};
-    const Transform& localToDevice =
-            flags & DrawFlags::kIgnoreTransform ? kIdentity : this->localToDeviceTransform();
     if (!localToDevice.valid()) {
         // If the transform is not invertible or not finite then drawing isn't well defined.
         SKGPU_LOG_W("Skipping draw with non-invertible/non-finite transform.");
@@ -619,12 +625,12 @@ void Device::drawGeometry(const Geometry& geometry,
         if (paint.getPathEffect()->filterPath(&dst, geometry.shape().asPath(), &newStyle,
                                               nullptr, localToDevice)) {
             // Recurse using the path and new style, while disabling downstream path effect handling
-            this->drawGeometry(Geometry(Shape(dst)), paint, style,
+            this->drawGeometry(localToDevice, Geometry(Shape(dst)), paint, style,
                                flags | DrawFlags::kIgnorePathEffect);
             return;
         } else {
             SKGPU_LOG_W("Path effect failed to apply, drawing original path.");
-            this->drawGeometry(geometry, paint, style,
+            this->drawGeometry(localToDevice, geometry, paint, style,
                                flags | DrawFlags::kIgnorePathEffect);
             return;
         }
@@ -634,17 +640,18 @@ void Device::drawGeometry(const Geometry& geometry,
         // TODO: Handle mask filters, ignored for the sprint.
         // TODO: Could this be handled by SkCanvas by drawing a mask, blurring, and then sampling
         // with a rect draw? What about fast paths for rrect blur masks...
-        this->drawGeometry(geometry, paint, style, flags | DrawFlags::kIgnoreMaskFilter);
+        this->drawGeometry(localToDevice, geometry, paint, style,
+                           flags | DrawFlags::kIgnoreMaskFilter);
         return;
     }
 
     // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
     // device space so we draw something approximately correct (barring local coord issues).
     if (geometry.isShape() && localToDevice.type() == Transform::Type::kProjection) {
+        static const Transform kIdentity{SkM44()};
         SkPath devicePath = geometry.shape().asPath();
         devicePath.transform(localToDevice.matrix().asM33());
-        this->drawGeometry(Geometry(Shape(devicePath)), paint, style,
-                           flags | DrawFlags::kIgnoreTransform);
+        this->drawGeometry(kIdentity, Geometry(Shape(devicePath)), paint, style, flags);
         return;
     }
 
