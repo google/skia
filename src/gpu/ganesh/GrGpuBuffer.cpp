@@ -23,7 +23,7 @@ void* GrGpuBuffer::map() {
         return nullptr;
     }
     if (!fMapPtr) {
-        this->onMap();
+        this->onMap(this->mapType());
     }
     return fMapPtr;
 }
@@ -33,7 +33,7 @@ void GrGpuBuffer::unmap() {
         return;
     }
     SkASSERT(fMapPtr);
-    this->onUnmap();
+    this->onUnmap(this->mapType());
     fMapPtr = nullptr;
 }
 

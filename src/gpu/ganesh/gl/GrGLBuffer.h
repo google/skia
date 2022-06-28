@@ -47,8 +47,8 @@ private:
     GrGLGpu* glGpu() const;
     const GrGLCaps& glCaps() const;
 
-    void onMap() override;
-    void onUnmap() override;
+    void onMap(MapType) override;
+    void onUnmap(MapType) override;
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
 
     void onSetLabel() override;

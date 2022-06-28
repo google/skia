@@ -175,13 +175,10 @@ static inline GrGLenum SK_WARN_UNUSED_RESULT invalidate_buffer(GrGLGpu* gpu,
     SkUNREACHABLE;
 }
 
-void GrGLBuffer::onMap() {
+void GrGLBuffer::onMap(MapType type) {
     SkASSERT(fBufferID);
     SkASSERT(!this->wasDestroyed());
     SkASSERT(!this->isMapped());
-
-    // TODO: Make this a function parameter.
-    bool readOnly = (GrGpuBufferType::kXferGpuToCpu == fIntendedType);
 
     // Handling dirty context is done in the bindBuffer call
     switch (this->glCaps().mapBufferType()) {
@@ -189,7 +186,7 @@ void GrGLBuffer::onMap() {
             return;
         case GrGLCaps::kMapBuffer_MapBufferType: {
             GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
-            if (!readOnly) {
+            if (type == MapType::kWriteDiscard) {
                 GrGLenum error = invalidate_buffer(this->glGpu(),
                                                    target,
                                                    fUsage,
@@ -199,45 +196,39 @@ void GrGLBuffer::onMap() {
                     return;
                 }
             }
-            GL_CALL_RET(fMapPtr, MapBuffer(target, readOnly ? GR_GL_READ_ONLY : GR_GL_WRITE_ONLY));
+            GrGLenum access = type == MapType::kRead ? GR_GL_READ_ONLY : GR_GL_WRITE_ONLY;
+            GL_CALL_RET(fMapPtr, MapBuffer(target, access));
             break;
         }
         case GrGLCaps::kMapBufferRange_MapBufferType: {
             GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
             GrGLbitfield access;
-            if (readOnly) {
-                access = GR_GL_MAP_READ_BIT;
-            } else {
-                access = GR_GL_MAP_WRITE_BIT;
-                if (GrGpuBufferType::kXferCpuToGpu != fIntendedType) {
-                    // TODO: Make this a function parameter.
-                    access |= GR_GL_MAP_INVALIDATE_BUFFER_BIT;
-                }
+            switch (type) {
+                case MapType::kRead:
+                    access = GR_GL_MAP_READ_BIT;
+                    break;
+                case MapType::kWriteDiscard:
+                    access = GR_GL_MAP_WRITE_BIT | GR_GL_MAP_INVALIDATE_BUFFER_BIT;
+                    break;
             }
             GL_CALL_RET(fMapPtr, MapBufferRange(target, 0, this->size(), access));
             break;
         }
         case GrGLCaps::kChromium_MapBufferType: {
             GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
-            GL_CALL_RET(fMapPtr, MapBufferSubData(target, 0, this->size(),
-                                                  readOnly ? GR_GL_READ_ONLY : GR_GL_WRITE_ONLY));
+            GrGLenum access = type == MapType::kRead ? GR_GL_READ_ONLY : GR_GL_WRITE_ONLY;
+            GL_CALL_RET(fMapPtr, MapBufferSubData(target, 0, this->size(), access));
             break;
         }
     }
 }
 
-void GrGLBuffer::onUnmap() {
+void GrGLBuffer::onUnmap(MapType) {
     SkASSERT(fBufferID);
-    SkASSERT(this->isMapped());
-    if (0 == fBufferID) {
-        fMapPtr = nullptr;
-        return;
-    }
     // bind buffer handles the dirty context
     switch (this->glCaps().mapBufferType()) {
         case GrGLCaps::kNone_MapBufferType:
-            SkDEBUGFAIL("Shouldn't get here.");
-            return;
+            SkUNREACHABLE;
         case GrGLCaps::kMapBuffer_MapBufferType: // fall through
         case GrGLCaps::kMapBufferRange_MapBufferType: {
             GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);

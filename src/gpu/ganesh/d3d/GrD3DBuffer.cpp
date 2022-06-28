@@ -121,8 +121,7 @@ void GrD3DBuffer::releaseResource() {
     }
 
     if (fMapPtr) {
-        this->internalUnmap(this->size());
-        fMapPtr = nullptr;
+        this->unmap();
     }
 
     SkASSERT(fD3DResource);
@@ -141,12 +140,12 @@ void GrD3DBuffer::onAbandon() {
     this->INHERITED::onAbandon();
 }
 
-void GrD3DBuffer::onMap() {
-    this->internalMap(this->size());
+void GrD3DBuffer::onMap(MapType type) {
+    fMapPtr = this->internalMap(type, 0, this->size());
 }
 
-void GrD3DBuffer::onUnmap() {
-    this->internalUnmap(this->size());
+void GrD3DBuffer::onUnmap(MapType type) {
+    this->internalUnmap(type, 0, this->size());
 }
 
 bool GrD3DBuffer::onUpdateData(const void* src, size_t size) {
@@ -154,8 +153,8 @@ bool GrD3DBuffer::onUpdateData(const void* src, size_t size) {
         return false;
     }
 
-    this->internalMap(size);
-    if (!fMapPtr) {
+    void* ptr = this->internalMap(MapType::kWriteDiscard, 0, size);
+    if (!ptr) {
         return false;
     }
     if (this->accessPattern() == kStatic_GrAccessPattern) {
@@ -163,68 +162,75 @@ bool GrD3DBuffer::onUpdateData(const void* src, size_t size) {
         SkASSERT(!this->getD3DGpu()->protectedContext());
         //*** any alignment restrictions?
     }
-    memcpy(fMapPtr, src, size);
-    this->internalUnmap(size);
+    memcpy(ptr, src, size);
+    this->internalUnmap(MapType::kWriteDiscard, 0, size);
 
     return true;
 }
 
-void GrD3DBuffer::internalMap(size_t size) {
+void* GrD3DBuffer::internalMap(MapType type, size_t offset, size_t size) {
     // TODO: if UPLOAD heap type, could be persistently mapped (i.e., this would be a no-op)
-    if (this->wasDestroyed()) {
-        return;
-    }
     SkASSERT(fD3DResource);
     SkASSERT(!this->isMapped());
-    SkASSERT(this->size() >= size);
+    SkASSERT(offset + size <= this->size());
 
     VALIDATE();
 
     if (this->accessPattern() == kStatic_GrAccessPattern) {
+        if (type == MapType::kRead) {
+            return nullptr;
+        }
         SkASSERT(!fStagingBuffer);
         GrStagingBufferManager::Slice slice =
                 this->getD3DGpu()->stagingBufferManager()->allocateStagingBufferSlice(size);
         if (!slice.fBuffer) {
-            return;
+            return nullptr;
         }
         fStagingBuffer = static_cast<const GrD3DBuffer*>(slice.fBuffer)->d3dResource();
         fStagingOffset = slice.fOffset;
-        fMapPtr = slice.fOffsetMapPtr;
-    } else {
-        D3D12_RANGE range;
-        range.Begin = 0;
-        range.End = size;
-        fD3DResource->Map(0, &range, &fMapPtr);
+        VALIDATE();
+        return slice.fOffsetMapPtr;
     }
 
+    D3D12_RANGE range;
+    range.Begin = offset;
+    // The range passed here indicates the portion of the resource that may be
+    // read. If we're only writing then pass an empty range.
+    range.End = type == MapType::kRead ? offset + size : offset;
+    void* result;
+    fD3DResource->Map(0, &range, &result);
+    if (result) {
+        result = SkTAddOffset<void>(result, offset);
+    }
     VALIDATE();
+    return result;
 }
 
-void GrD3DBuffer::internalUnmap(size_t size) {
+void GrD3DBuffer::internalUnmap(MapType type, size_t offset, size_t size) {
     // TODO: if UPLOAD heap type, could be persistently mapped (i.e., this would be a no-op)
-    if (this->wasDestroyed()) {
-        return;
-    }
     SkASSERT(fD3DResource);
-    SkASSERT(this->isMapped());
+    SkASSERT(offset + size <= this->size());
     VALIDATE();
 
     if (this->accessPattern() == kStatic_GrAccessPattern) {
+        SkASSERT(type != GrGpuBuffer::MapType::kRead);
         SkASSERT(fStagingBuffer);
         this->setResourceState(this->getD3DGpu(), D3D12_RESOURCE_STATE_COPY_DEST);
         this->getD3DGpu()->currentCommandList()->copyBufferToBuffer(
-                sk_ref_sp<GrD3DBuffer>(this), 0, fStagingBuffer, fStagingOffset, size);
+                sk_ref_sp<GrD3DBuffer>(this),
+                offset,
+                fStagingBuffer,
+                fStagingOffset,
+                size);
         fStagingBuffer = nullptr;
     } else {
         D3D12_RANGE range;
-        range.Begin = 0;
+        range.Begin = offset;
+        range.End = type == MapType::kWriteDiscard ? offset + size : offset;
         // For READBACK heaps, unmap requires an empty range
-        range.End = fResourceState == D3D12_RESOURCE_STATE_COPY_DEST ? 0 : size;
-        SkASSERT(this->size() >= size);
+        SkASSERT(fResourceState != D3D12_RESOURCE_STATE_COPY_DEST || range.Begin == range.End);
         fD3DResource->Unmap(0, &range);
     }
-
-    fMapPtr = nullptr;
 
     VALIDATE();
 }

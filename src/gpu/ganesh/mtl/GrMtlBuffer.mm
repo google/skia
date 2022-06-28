@@ -35,14 +35,15 @@ NSString* kBufferTypeNames[kGrGpuBufferTypeCount] = {
 };
 #endif
 
-sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
-                                     GrAccessPattern accessPattern, const void* data) {
-    sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern,
+sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu,
+                                     size_t size,
+                                     GrGpuBufferType intendedType,
+                                     GrAccessPattern accessPattern) {
+    return sk_sp<GrMtlBuffer>(new GrMtlBuffer(gpu,
+                                              size,
+                                              intendedType,
+                                              accessPattern,
                                               /*label=*/"MakeMtlBuffer"));
-    if (data && !buffer->onUpdateData(data, size)) {
-        return nullptr;
-    }
-    return buffer;
 }
 
 GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
@@ -84,12 +85,12 @@ GrMtlBuffer::~GrMtlBuffer() {
 
 bool GrMtlBuffer::onUpdateData(const void* src, size_t sizeInBytes) {
     if (fIsDynamic) {
-        this->internalMap(sizeInBytes);
+        this->internalMap();
         if (!fMapPtr) {
             return false;
         }
         memcpy(fMapPtr, src, sizeInBytes);
-        this->internalUnmap(sizeInBytes);
+        this->internalUnmap(0, sizeInBytes);
     } else {
         // copy data to gpu buffer
         GrStagingBufferManager::Slice slice;
@@ -139,41 +140,38 @@ void GrMtlBuffer::onRelease() {
     INHERITED::onRelease();
 }
 
-void GrMtlBuffer::internalMap(size_t sizeInBytes) {
+void GrMtlBuffer::internalMap() {
     if (fIsDynamic) {
         VALIDATE();
-        SkASSERT(sizeInBytes <= this->size());
         SkASSERT(!this->isMapped());
         fMapPtr = static_cast<char*>(fMtlBuffer.contents);
         VALIDATE();
     }
 }
 
-void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
+void GrMtlBuffer::internalUnmap(size_t writtenOffset, size_t writtenSize) {
     SkASSERT(fMtlBuffer);
     if (fIsDynamic) {
         VALIDATE();
-        SkASSERT(sizeInBytes <= this->size());
+        SkASSERT(writtenOffset + writtenSize <= this->size());
         SkASSERT(this->isMapped());
 #ifdef SK_BUILD_FOR_MAC
-        if (this->mtlGpu()->mtlCaps().isMac()) {
-            [fMtlBuffer didModifyRange: NSMakeRange(0, sizeInBytes)];
+        if (this->mtlGpu()->mtlCaps().isMac() && writtenSize) {
+            // We should never write to this type of buffer on the CPU.
+            SkASSERT(this->intendedType() != GrGpuBufferType::kXferGpuToCpu);
+            [fMtlBuffer didModifyRange: NSMakeRange(writtenOffset, writtenSize)];
         }
 #endif
         fMapPtr = nullptr;
     }
 }
 
-void GrMtlBuffer::onMap() {
-    if (!this->wasDestroyed()) {
-        this->internalMap(this->size());
-    }
+void GrMtlBuffer::onMap(MapType) {
+    this->internalMap();
 }
 
-void GrMtlBuffer::onUnmap() {
-    if (!this->wasDestroyed()) {
-        this->internalUnmap(this->size());
-    }
+void GrMtlBuffer::onUnmap(MapType type) {
+    this->internalUnmap(0, type == MapType::kWriteDiscard ? this-> size() : 0);
 }
 
 #ifdef SK_DEBUG

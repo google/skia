@@ -17,9 +17,9 @@ class GrVkGpu;
 class GrVkBuffer : public GrGpuBuffer {
 public:
     static sk_sp<GrVkBuffer> Make(GrVkGpu* gpu,
-                                   size_t size,
-                                   GrGpuBufferType bufferType,
-                                   GrAccessPattern accessPattern);
+                                  size_t size,
+                                  GrGpuBufferType bufferType,
+                                  GrAccessPattern accessPattern);
 
     VkBuffer vkBuffer() const { return fBuffer; }
 
@@ -35,24 +35,23 @@ public:
 
 private:
     GrVkBuffer(GrVkGpu* gpu,
-                size_t sizeInBytes,
-                GrGpuBufferType bufferType,
-                GrAccessPattern accessPattern,
-                VkBuffer buffer,
-                const GrVkAlloc& alloc,
+               size_t sizeInBytes,
+               GrGpuBufferType bufferType,
+               GrAccessPattern accessPattern,
+               VkBuffer buffer,
+               const GrVkAlloc& alloc,
                const GrVkDescriptorSet* uniformDescriptorSet,
                std::string_view label);
 
     bool isVkMappable() const { return fAlloc.fFlags & GrVkAlloc::kMappable_Flag; }
 
     bool vkIsMapped() const { return SkToBool(fMapPtr); }
-    void vkMap(size_t size);
-    void vkUnmap(size_t size);
+    void vkMap(size_t readOffset, size_t readSize);
+    void vkUnmap(size_t flushOffset, size_t flushSize);
     void copyCpuDataToGpuBuffer(const void* srcData, size_t size);
 
-
-    void onMap() override;
-    void onUnmap() override;
+    void onMap(MapType) override;
+    void onUnmap(MapType) override;
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
 
     void vkRelease();

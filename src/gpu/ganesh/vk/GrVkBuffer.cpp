@@ -18,11 +18,11 @@
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
 GrVkBuffer::GrVkBuffer(GrVkGpu* gpu,
-                         size_t sizeInBytes,
-                         GrGpuBufferType bufferType,
-                         GrAccessPattern accessPattern,
-                         VkBuffer buffer,
-                         const GrVkAlloc& alloc,
+                       size_t sizeInBytes,
+                       GrGpuBufferType bufferType,
+                       GrAccessPattern accessPattern,
+                       VkBuffer buffer,
+                       const GrVkAlloc& alloc,
                        const GrVkDescriptorSet* uniformDescriptorSet,
                        std::string_view label)
         : GrGpuBuffer(gpu, sizeInBytes, bufferType, accessPattern, label)
@@ -66,9 +66,9 @@ static const GrVkDescriptorSet* make_uniform_desc_set(GrVkGpu* gpu, VkBuffer buf
 }
 
 sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
-                                     size_t size,
-                                     GrGpuBufferType bufferType,
-                                     GrAccessPattern accessPattern) {
+                                   size_t size,
+                                   GrGpuBufferType bufferType,
+                                   GrAccessPattern accessPattern) {
     VkBuffer buffer;
     GrVkAlloc alloc;
 
@@ -156,7 +156,7 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
             /*label=*/"MakeVkBuffer"));
 }
 
-void GrVkBuffer::vkMap(size_t size) {
+void GrVkBuffer::vkMap(size_t readOffset, size_t readSize) {
     SkASSERT(!fMapPtr);
     if (this->isVkMappable()) {
         // Not every buffer will use command buffer usage refs and instead the command buffer just
@@ -165,22 +165,24 @@ void GrVkBuffer::vkMap(size_t size) {
         // there isn't a buffer with just a command buffer usage that is trying to be mapped.
         SkASSERT(this->internalHasNoCommandBufferUsages());
         SkASSERT(fAlloc.fSize > 0);
-        SkASSERT(fAlloc.fSize >= size);
+        SkASSERT(fAlloc.fSize >= readOffset + readSize);
         fMapPtr = GrVkMemory::MapAlloc(this->getVkGpu(), fAlloc);
-        if (fMapPtr && this->intendedType() == GrGpuBufferType::kXferGpuToCpu) {
-            GrVkMemory::InvalidateMappedAlloc(this->getVkGpu(), fAlloc, 0, size);
+        if (fMapPtr && readSize != 0) {
+            // "Invalidate" here means make device writes visible to the host. That is, it makes
+            // sure any GPU writes are finished in the range we might read from.
+            GrVkMemory::InvalidateMappedAlloc(this->getVkGpu(), fAlloc, readOffset, readSize);
         }
     }
 }
 
-void GrVkBuffer::vkUnmap(size_t size) {
+void GrVkBuffer::vkUnmap(size_t flushOffset, size_t flushSize) {
     SkASSERT(fMapPtr && this->isVkMappable());
 
     SkASSERT(fAlloc.fSize > 0);
-    SkASSERT(fAlloc.fSize >= size);
+    SkASSERT(fAlloc.fSize >= flushOffset + flushSize);
 
     GrVkGpu* gpu = this->getVkGpu();
-    GrVkMemory::FlushMappedAlloc(gpu, fAlloc, 0, size);
+    GrVkMemory::FlushMappedAlloc(gpu, fAlloc, flushOffset, flushSize);
     GrVkMemory::UnmapAlloc(gpu, fAlloc);
 }
 
@@ -243,7 +245,7 @@ void GrVkBuffer::vkRelease() {
     }
 
     if (fMapPtr) {
-        this->vkUnmap(this->size());
+        this->vkUnmap(0, this->size());
         fMapPtr = nullptr;
     }
 
@@ -272,26 +274,24 @@ void GrVkBuffer::onAbandon() {
     this->GrGpuBuffer::onAbandon();
 }
 
-void GrVkBuffer::onMap() {
-    if (!this->wasDestroyed()) {
-        this->vkMap(this->size());
-    }
+void GrVkBuffer::onMap(MapType type) {
+    this->vkMap(0, type == MapType::kRead ? this->size() : 0);
 }
 
-void GrVkBuffer::onUnmap() {
-    if (!this->wasDestroyed()) {
-        this->vkUnmap(this->size());
-    }
+void GrVkBuffer::onUnmap(MapType type) {
+    this->vkUnmap(0, type == MapType::kWriteDiscard ? this->size() : 0);
 }
 
 bool GrVkBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     if (this->isVkMappable()) {
-        this->vkMap(srcSizeInBytes);
+        // We won't be reading the mapped memory so pass an empty range.
+        this->vkMap(0, 0);
         if (!fMapPtr) {
             return false;
         }
         memcpy(fMapPtr, src, srcSizeInBytes);
-        this->vkUnmap(srcSizeInBytes);
+        // We only need to flush the updated portion to the GPU so pass the true range here.
+        this->vkUnmap(0, srcSizeInBytes);
         fMapPtr = nullptr;
     } else {
         this->copyCpuDataToGpuBuffer(src, srcSizeInBytes);

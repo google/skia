@@ -71,8 +71,8 @@ public:
                                     std::string_view label);
     ~GrDawnBuffer() override = default;
 
-    void onMap() override;
-    void onUnmap() override;
+    void onMap(MapType) override;
+    void onUnmap(MapType) override;
     void onRelease() override;
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
 
