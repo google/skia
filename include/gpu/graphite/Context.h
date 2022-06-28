@@ -12,6 +12,7 @@
 #include "include/core/SkShader.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/private/SingleOwner.h"
 
 #include <memory>
 
@@ -30,6 +31,7 @@ struct MtlBackendContext;
 class QueueManager;
 class Recorder;
 class Recording;
+class ResourceProvider;
 class TextureInfo;
 
 class Context final {
@@ -94,10 +96,17 @@ protected:
 private:
     friend class ContextPriv;
 
+    SingleOwner* singleOwner() const { return &fSingleOwner; }
+
     sk_sp<Gpu> fGpu;
+    std::unique_ptr<ResourceProvider> fResourceProvider;
     std::unique_ptr<QueueManager> fQueueManager;
     sk_sp<GlobalCache> fGlobalCache;
     BackendApi fBackend;
+
+    // In debug builds we guard against improper thread handling. This guard is passed to the
+    // ResourceCache for the Context.
+    mutable SingleOwner fSingleOwner;
 };
 
 } // namespace skgpu::graphite
