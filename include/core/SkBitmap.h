@@ -860,6 +860,23 @@ public:
         return this->pixmap().getColor(x, y);
     }
 
+    /** Returns pixel at (x, y) as unpremultiplied float color.
+        Returns black with alpha if SkColorType is kAlpha_8_SkColorType.
+
+        Input is not validated: out of bounds values of x or y trigger an assert() if
+        built with SK_DEBUG defined; and returns undefined values or may crash if
+        SK_RELEASE is defined. Fails if SkColorType is kUnknown_SkColorType or
+        pixel address is nullptr.
+
+        SkColorSpace in SkImageInfo is ignored. Some color precision may be lost in the
+        conversion to unpremultiplied color.
+
+        @param x  column index, zero or greater, and less than width()
+        @param y  row index, zero or greater, and less than height()
+        @return   pixel converted to unpremultiplied color
+    */
+    SkColor4f getColor4f(int x, int y) const { return this->pixmap().getColor4f(x, y); }
+
     /** Look up the pixel at (x,y) and return its alpha component, normalized to [0..1].
         This is roughly equivalent to SkGetColorA(getColor()), but can be more efficent
         (and more precise if the pixels store more than 8 bits per component).

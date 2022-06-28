@@ -446,6 +446,180 @@ SkColor SkPixmap::getColor(int x, int y) const {
     return SkColorSetARGB(0, 0, 0, 0);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkColor4f SkPixmap::getColor4f(int x, int y) const {
+    SkASSERT(this->addr());
+    SkASSERT((unsigned)x < (unsigned)this->width());
+    SkASSERT((unsigned)y < (unsigned)this->height());
+
+    const bool needsUnpremul = (kPremul_SkAlphaType == fInfo.alphaType());
+    auto toColor = [needsUnpremul](uint32_t maybePremulColor) {
+        return needsUnpremul ? SkUnPreMultiply::PMColorToColor(maybePremulColor)
+                             : SkSwizzle_BGRA_to_PMColor(maybePremulColor);
+    };
+
+    switch (this->colorType()) {
+        case kGray_8_SkColorType: {
+            float value = *this->addr8(x, y) / 255.0f;
+            return SkColor4f{value, value, value, 1.0};
+        }
+        case kR8_unorm_SkColorType: {
+            float value = *this->addr8(x, y) / 255.0f;
+            return SkColor4f{value, 0.0f, 0.0f, 1.0f};
+        }
+        case kAlpha_8_SkColorType: {
+            float value = *this->addr8(x, y) / 255.0f;
+            return SkColor4f{0.0f, 0.0f, 0.0f, value};
+        }
+        case kA16_unorm_SkColorType: {
+            float value = *this->addr16(x, y) / 65535.0f;
+            return SkColor4f{0.0f, 0.0f, 0.0f, value};
+        }
+        case kA16_float_SkColorType: {
+            SkHalf value = *this->addr16(x, y);
+            return SkColor4f{0.0f, 0.0f, 0.0f, SkHalfToFloat(value)};
+        }
+        case kRGB_565_SkColorType: {
+            SkColor c = SkPixel16ToColor(*this->addr16(x, y));
+            return SkColor4f::FromColor(c);
+        }
+        case kARGB_4444_SkColorType: {
+            uint16_t value = *this->addr16(x, y);
+            SkPMColor c = SkPixel4444ToPixel32(value);
+            return SkColor4f::FromColor(toColor(c));
+        }
+        case kR8G8_unorm_SkColorType: {
+            uint16_t value = *this->addr16(x, y);
+            SkColor c = (uint32_t)(((value >> 0) & 0xff)) << 16 |
+                        (uint32_t)(((value >> 8) & 0xff)) << 8 | 0xff000000;
+            return SkColor4f::FromColor(c);
+        }
+        case kR16G16_unorm_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            SkColor c = (uint32_t)(((value >> 0) & 0xffff) * (255 / 65535.0f)) << 16 |
+                        (uint32_t)(((value >> 16) & 0xffff) * (255 / 65535.0f)) << 8 | 0xff000000;
+            return SkColor4f::FromColor(c);
+        }
+        case kR16G16_float_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            float r = SkHalfToFloat((value >> 0) & 0xffff);
+            float g = SkHalfToFloat((value >> 16) & 0xffff);
+            return SkColor4f{r, g, 0.0, 1.0};
+        }
+        case kRGB_888x_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            SkColor c = SkSwizzle_RB(value | 0xff000000);
+            return SkColor4f::FromColor(c);
+        }
+        case kBGRA_8888_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            SkPMColor c = SkSwizzle_BGRA_to_PMColor(value);
+            return SkColor4f::FromColor(toColor(c));
+        }
+        case kRGBA_8888_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            SkPMColor c = SkSwizzle_RGBA_to_PMColor(value);
+            return SkColor4f::FromColor(toColor(c));
+        }
+        case kSRGBA_8888_SkColorType: {
+            auto srgb_to_linear = [](float x) {
+                return (x <= 0.04045f) ? x * (1 / 12.92f)
+                                       : sk_float_pow(x * (1 / 1.055f) + (0.055f / 1.055f), 2.4f);
+            };
+
+            uint32_t value = *this->addr32(x, y);
+            float r = ((value >> 0) & 0xff) * (1 / 255.0f),
+                  g = ((value >> 8) & 0xff) * (1 / 255.0f),
+                  b = ((value >> 16) & 0xff) * (1 / 255.0f),
+                  a = ((value >> 24) & 0xff) * (1 / 255.0f);
+            r = srgb_to_linear(r);
+            g = srgb_to_linear(g);
+            b = srgb_to_linear(b);
+            if (a != 0 && needsUnpremul) {
+                r = SkTPin(r / a, 0.0f, 1.0f);
+                g = SkTPin(g / a, 0.0f, 1.0f);
+                b = SkTPin(b / a, 0.0f, 1.0f);
+            }
+            return SkColor4f{r, g, b, a};
+        }
+        case kRGB_101010x_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            // Convert 10-bit rgb to float rgb, and mask in 0xff alpha at the top.
+            float r = (uint32_t)((value >> 0) & 0x3ff) / (1023.0f);
+            float g = (uint32_t)((value >> 10) & 0x3ff) / (1023.0f);
+            float b = (uint32_t)((value >> 20) & 0x3ff) / (1023.0f);
+            float a = 1.0f;
+            return SkColor4f{r, g, b, a};
+        }
+        case kBGR_101010x_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            // Convert 10-bit bgr to float rgb, and mask in 0xff alpha at the top.
+            float r = (uint32_t)((value >> 20) & 0x3ff) / (1023.0f);
+            float g = (uint32_t)((value >> 10) & 0x3ff) / (1023.0f);
+            float b = (uint32_t)((value >> 0) & 0x3ff) / (1023.0f);
+            float a = 1.0f;
+            return SkColor4f{r, g, b, a};
+        }
+        case kRGBA_1010102_SkColorType:
+        case kBGRA_1010102_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+
+            float r = ((value >> 0) & 0x3ff) * (1 / 1023.0f),
+                  g = ((value >> 10) & 0x3ff) * (1 / 1023.0f),
+                  b = ((value >> 20) & 0x3ff) * (1 / 1023.0f),
+                  a = ((value >> 30) & 0x3) * (1 / 3.0f);
+            if (this->colorType() == kBGRA_1010102_SkColorType) {
+                std::swap(r, b);
+            }
+            if (a != 0 && needsUnpremul) {
+                r = SkTPin(r / a, 0.0f, 1.0f);
+                g = SkTPin(g / a, 0.0f, 1.0f);
+                b = SkTPin(b / a, 0.0f, 1.0f);
+            }
+            return SkColor4f{r, g, b, a};
+        }
+        case kR16G16B16A16_unorm_SkColorType: {
+            uint64_t value = *this->addr64(x, y);
+
+            float r = ((value)&0xffff) * (1 / 65535.0f),
+                  g = ((value >> 16) & 0xffff) * (1 / 65535.0f),
+                  b = ((value >> 32) & 0xffff) * (1 / 65535.0f),
+                  a = ((value >> 48) & 0xffff) * (1 / 65535.0f);
+            if (a != 0 && needsUnpremul) {
+                r *= (1.0f / a);
+                g *= (1.0f / a);
+                b *= (1.0f / a);
+            }
+            return SkColor4f{r, g, b, a};
+        }
+        case kRGBA_F16Norm_SkColorType:
+        case kRGBA_F16_SkColorType: {
+            const uint64_t* addr = (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
+            skvx::float4 p4 = SkHalfToFloat_finite_ftz(*addr);
+            if (p4[3] && needsUnpremul) {
+                float inva = 1 / p4[3];
+                p4 = p4 * skvx::float4(inva, inva, inva, 1);
+            }
+            return SkColor4f{p4[0], p4[1], p4[2], p4[3]};
+        }
+        case kRGBA_F32_SkColorType: {
+            const float* rgba = (const float*)fPixels + 4 * y * (fRowBytes >> 4) + 4 * x;
+            skvx::float4 p4 = skvx::float4::Load(rgba);
+            // From here on, just like F16:
+            if (p4[3] && needsUnpremul) {
+                float inva = 1 / p4[3];
+                p4 = p4 * skvx::float4(inva, inva, inva, 1);
+            }
+            return SkColor4f{p4[0], p4[1], p4[2], p4[3]};
+        }
+        case kUnknown_SkColorType:
+            break;
+    }
+    SkDEBUGFAIL("");
+    return SkColors::kTransparent;
+}
+
 bool SkPixmap::computeIsOpaque() const {
     const int height = this->height();
     const int width = this->width();
