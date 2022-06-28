@@ -225,6 +225,8 @@ private:
             int numChildren,
             SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations);
 
+    SkSpan<const SkUniform> convertUniforms(const SkRuntimeEffect* effect);
+
     std::array<SkShaderSnippet, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
 
     // The value returned from 'getEntry' must be stable so, hold the user-defined code snippet
@@ -274,7 +276,9 @@ private:
     RuntimeEffectMap fRuntimeEffectMap SK_GUARDED_BY(fSpinLock);
 
     // This arena holds:
-    //    the Entries held in 'fHash' and 'fEntryVector' - thus, guarded by 'fSpinLock'
+    //   - the Entries held in `fHash` and `fEntryVector`
+    //   - SkUniform data created by `findOrCreateRuntimeEffectSnippet`
+    // and in all cases is guarded by `fSpinLock`
     SkArenaAlloc fArena{256};
 };
 

@@ -701,6 +701,69 @@ SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(sk_sp<SkRuntimeEffect>
     return SkBlenderID(codeSnippetID);
 }
 
+static SkSLType uniform_type_to_sksl_type(const SkRuntimeEffect::Uniform& u) {
+    using Type = SkRuntimeEffect::Uniform::Type;
+    if (u.flags & SkRuntimeEffect::Uniform::kHalfPrecision_Flag) {
+        switch (u.type) {
+            case Type::kFloat:    return SkSLType::kHalf;
+            case Type::kFloat2:   return SkSLType::kHalf2;
+            case Type::kFloat3:   return SkSLType::kHalf3;
+            case Type::kFloat4:   return SkSLType::kHalf4;
+            case Type::kFloat2x2: return SkSLType::kHalf2x2;
+            case Type::kFloat3x3: return SkSLType::kHalf3x3;
+            case Type::kFloat4x4: return SkSLType::kHalf4x4;
+            case Type::kInt:      return SkSLType::kShort;
+            case Type::kInt2:     return SkSLType::kShort2;
+            case Type::kInt3:     return SkSLType::kShort3;
+            case Type::kInt4:     return SkSLType::kShort4;
+        }
+    } else {
+        switch (u.type) {
+            case Type::kFloat:    return SkSLType::kFloat;
+            case Type::kFloat2:   return SkSLType::kFloat2;
+            case Type::kFloat3:   return SkSLType::kFloat3;
+            case Type::kFloat4:   return SkSLType::kFloat4;
+            case Type::kFloat2x2: return SkSLType::kFloat2x2;
+            case Type::kFloat3x3: return SkSLType::kFloat3x3;
+            case Type::kFloat4x4: return SkSLType::kFloat4x4;
+            case Type::kInt:      return SkSLType::kInt;
+            case Type::kInt2:     return SkSLType::kInt2;
+            case Type::kInt3:     return SkSLType::kInt3;
+            case Type::kInt4:     return SkSLType::kInt4;
+        }
+    }
+    SkUNREACHABLE;
+}
+
+SkSpan<const SkUniform> SkShaderCodeDictionary::convertUniforms(const SkRuntimeEffect* effect) {
+    using Uniform = SkRuntimeEffect::Uniform;
+    SkSpan<const Uniform> uniforms = effect->uniforms();
+
+    // Convert the SkRuntimeEffect::Uniform array into its SkUniform equivalent.
+    int numUniforms = uniforms.size() + 1;
+    SkUniform* uniformArray = fArena.makeInitializedArray<SkUniform>(numUniforms, [&](int index) {
+        // Graphite wants a `localMatrix` float4x4 uniform at the front of the uniform list.
+        if (index == 0) {
+            return SkUniform("localMatrix", SkSLType::kFloat4x4);
+        }
+        const Uniform& u = uniforms[index - 1];
+
+        // The existing uniform names are in SkStrings and may disappear. Copy them into fArena.
+        // (It's safe to do this within makeInitializedArray; the entire array is allocated in one
+        // big slab before any initialization calls are done.)
+        int lengthWithNullTerminator = u.name.size() + 1;
+        char* nameInArena = fArena.makeArrayDefault<char>(lengthWithNullTerminator);
+        memcpy(nameInArena, u.name.c_str(), lengthWithNullTerminator);
+
+        // Add one SkUniform to our array.
+        SkSLType type = uniform_type_to_sksl_type(u);
+        return (u.flags & Uniform::kArray_Flag) ? SkUniform(nameInArena, type, u.count)
+                                                : SkUniform(nameInArena, type);
+    });
+
+    return SkSpan<const SkUniform>(uniformArray, numUniforms);
+}
+
 int SkShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect) {
     // Use the combination of {SkSL program hash, uniform size} as our key.
     // In the unfortunate event of a hash collision, at least we'll have the right amount of
@@ -716,12 +779,6 @@ int SkShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffe
         return *existingCodeSnippetID;
     }
 
-    // TODO(skia:13457): Convert effect uniforms from Runtime Effect format to Graphite.
-    // For now, just hard-code the required local-matrix field.
-    static constexpr SkUniform kUniforms[] = {
-            {"localMatrix", SkSLType::kFloat4x4},
-    };
-
     // TODO(skia:13405): consider removing these data fields, they don't seem to add value anymore
     static constexpr DataPayloadField kRuntimeShaderDataPayload[] = {
             {"runtime effect hash", DataPayloadType::kInt, 1},
@@ -730,7 +787,7 @@ int SkShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffe
 
     // TODO(skia:13405): arguments to `addUserDefinedSnippet` here are placeholder
     int newCodeSnippetID = this->addUserDefinedSnippet("RuntimeEffect",
-                                                       SkSpan(kUniforms),
+                                                       this->convertUniforms(effect),
                                                        SnippetRequirementFlags::kLocalCoords,
                                                        /*texturesAndSamplers=*/{},
                                                        "sk_runtime_placeholder",
