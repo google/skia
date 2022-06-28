@@ -195,19 +195,12 @@ struct Vec<1,T> {
     }
 };
 
-// Ideally we'd only use bit_pun(), but until this file is always built as C++17 with constexpr if,
-// we'll sometimes find need to use unchecked_bit_pun().  Please do check the call sites yourself!
 template <typename D, typename S>
-SI D unchecked_bit_pun(const S& s) {
+SI D bit_pun(const S& s) {
+    static_assert(sizeof(D) == sizeof(S));
     D d;
     memcpy(&d, &s, sizeof(D));
     return d;
-}
-
-template <typename D, typename S>
-SI D bit_pun(const S& s) {
-    static_assert(sizeof(D) == sizeof(S), "");
-    return unchecked_bit_pun<D>(s);
 }
 
 // Translate from a value type T to its corresponding Mask, the result of a comparison.
@@ -463,23 +456,23 @@ SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec
     // Specializations inline here so they can generalize what types the apply to.
 #if SKVX_USE_SIMD && defined(__AVX2__)
     if constexpr (N*sizeof(T) == 32) {
-        return unchecked_bit_pun<Vec<N,T>>(_mm256_blendv_epi8(unchecked_bit_pun<__m256i>(e),
-                                                              unchecked_bit_pun<__m256i>(t),
-                                                              unchecked_bit_pun<__m256i>(cond)));
+        return bit_pun<Vec<N,T>>(_mm256_blendv_epi8(bit_pun<__m256i>(e),
+                                                    bit_pun<__m256i>(t),
+                                                    bit_pun<__m256i>(cond)));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__SSE4_1__)
     if constexpr (N*sizeof(T) == 16) {
-        return unchecked_bit_pun<Vec<N,T>>(_mm_blendv_epi8(unchecked_bit_pun<__m128i>(e),
-                                                           unchecked_bit_pun<__m128i>(t),
-                                                           unchecked_bit_pun<__m128i>(cond)));
+        return bit_pun<Vec<N,T>>(_mm_blendv_epi8(bit_pun<__m128i>(e),
+                                                 bit_pun<__m128i>(t),
+                                                 bit_pun<__m128i>(cond)));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__ARM_NEON)
     if constexpr (N*sizeof(T) == 16) {
-        return unchecked_bit_pun<Vec<N,T>>(vbslq_u8(unchecked_bit_pun<uint8x16_t>(cond),
-                                                    unchecked_bit_pun<uint8x16_t>(t),
-                                                    unchecked_bit_pun<uint8x16_t>(e)));
+        return bit_pun<Vec<N,T>>(vbslq_u8(bit_pun<uint8x16_t>(cond),
+                                          bit_pun<uint8x16_t>(t),
+                                          bit_pun<uint8x16_t>(e)));
     }
 #endif
     // Recurse for large vectors to try to hit the specializations above.
@@ -497,12 +490,12 @@ SINT bool any(const Vec<N,T>& x) {
     // lower latency compared to _mm_movemask + _mm_compneq on plain SSE.
 #if SKVX_USE_SIMD && defined(__AVX2__)
     if constexpr (N*sizeof(T) == 32) {
-        return !_mm256_testz_si256(unchecked_bit_pun<__m256i>(x), _mm256_set1_epi32(-1));
+        return !_mm256_testz_si256(bit_pun<__m256i>(x), _mm256_set1_epi32(-1));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__SSE_4_1__)
     if constexpr (N*sizeof(T) == 16) {
-        return !_mm_testz_si128(unchecked_bit_pun<__m128i>(x), _mm_set1_epi32(-1));
+        return !_mm_testz_si128(bit_pun<__m128i>(x), _mm_set1_epi32(-1));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__SSE__)
@@ -510,20 +503,19 @@ SINT bool any(const Vec<N,T>& x) {
         // On SSE, movemask checks only the MSB in each lane, which is fine if the lanes were set
         // directly from a comparison op (which sets all bits to 1 when true), but skvx::Vec<>
         // treats any non-zero value as true, so we have to compare 'x' to 0 before calling movemask
-        return _mm_movemask_ps(_mm_cmpneq_ps(unchecked_bit_pun<__m128>(x),
-                                             _mm_set1_ps(0))) != 0b0000;
+        return _mm_movemask_ps(_mm_cmpneq_ps(bit_pun<__m128>(x), _mm_set1_ps(0))) != 0b0000;
     }
 #endif
 #if SKVX_USE_SIMD && defined(__aarch64__)
     // On 64-bit NEON, take the max across lanes, which will be non-zero if any lane was true.
     // The specific lane-size doesn't really matter in this case since it's really any set bit
     // that we're looking for.
-    if constexpr (N*sizeof(T) == 8 ) { return vmaxv_u8 (unchecked_bit_pun<uint8x8_t> (x)) > 0; }
-    if constexpr (N*sizeof(T) == 16) { return vmaxvq_u8(unchecked_bit_pun<uint8x16_t>(x)) > 0; }
+    if constexpr (N*sizeof(T) == 8 ) { return vmaxv_u8 (bit_pun<uint8x8_t> (x)) > 0; }
+    if constexpr (N*sizeof(T) == 16) { return vmaxvq_u8(bit_pun<uint8x16_t>(x)) > 0; }
 #endif
 #if SKVX_USE_SIMD && defined(__wasm_simd128__)
     if constexpr (N == 4 && sizeof(T) == 4) {
-        return wasm_i32x4_any_true(unchecked_bit_pun<VExt<4,int>>(x));
+        return wasm_i32x4_any_true(bit_pun<VExt<4,int>>(x));
     }
 #endif
     return any(x.lo)
@@ -538,22 +530,21 @@ SINT bool all(const Vec<N,T>& x) {
     // Unfortunately, the _mm_testc intrinsics don't let us avoid the comparison to 0 for all()'s
     // correctness, so always just use the plain SSE version.
     if constexpr (N == 4 && sizeof(T) == 4) {
-        return _mm_movemask_ps(_mm_cmpneq_ps(unchecked_bit_pun<__m128>(x),
-                                             _mm_set1_ps(0))) == 0b1111;
+        return _mm_movemask_ps(_mm_cmpneq_ps(bit_pun<__m128>(x), _mm_set1_ps(0))) == 0b1111;
     }
 #endif
 #if SKVX_USE_SIMD && defined(__aarch64__)
     // On 64-bit NEON, take the min across the lanes, which will be non-zero if all lanes are != 0.
-    if constexpr (sizeof(T)==1 && N==8)  {return vminv_u8  (unchecked_bit_pun<uint8x8_t> (x)) > 0;}
-    if constexpr (sizeof(T)==1 && N==16) {return vminvq_u8 (unchecked_bit_pun<uint8x16_t>(x)) > 0;}
-    if constexpr (sizeof(T)==2 && N==4)  {return vminv_u16 (unchecked_bit_pun<uint16x4_t>(x)) > 0;}
-    if constexpr (sizeof(T)==2 && N==8)  {return vminvq_u16(unchecked_bit_pun<uint16x8_t>(x)) > 0;}
-    if constexpr (sizeof(T)==4 && N==2)  {return vminv_u32 (unchecked_bit_pun<uint32x2_t>(x)) > 0;}
-    if constexpr (sizeof(T)==4 && N==4)  {return vminvq_u32(unchecked_bit_pun<uint32x4_t>(x)) > 0;}
+    if constexpr (sizeof(T)==1 && N==8)  {return vminv_u8  (bit_pun<uint8x8_t> (x)) > 0;}
+    if constexpr (sizeof(T)==1 && N==16) {return vminvq_u8 (bit_pun<uint8x16_t>(x)) > 0;}
+    if constexpr (sizeof(T)==2 && N==4)  {return vminv_u16 (bit_pun<uint16x4_t>(x)) > 0;}
+    if constexpr (sizeof(T)==2 && N==8)  {return vminvq_u16(bit_pun<uint16x8_t>(x)) > 0;}
+    if constexpr (sizeof(T)==4 && N==2)  {return vminv_u32 (bit_pun<uint32x2_t>(x)) > 0;}
+    if constexpr (sizeof(T)==4 && N==4)  {return vminvq_u32(bit_pun<uint32x4_t>(x)) > 0;}
 #endif
 #if SKVX_USE_SIMD && defined(__wasm_simd128__)
     if constexpr (N == 4 && sizeof(T) == 4) {
-        return wasm_i32x4_all_true(unchecked_bit_pun<VExt<4,int>>(x));
+        return wasm_i32x4_all_true(bit_pun<VExt<4,int>>(x));
     }
 #endif
     return all(x.lo)
@@ -657,12 +648,12 @@ SI Vec<1,int> lrint(const Vec<1,float>& x) {
 SIN Vec<N,int> lrint(const Vec<N,float>& x) {
 #if SKVX_USE_SIMD && defined(__AVX__)
     if constexpr (N == 8) {
-        return unchecked_bit_pun<Vec<N,int>>(_mm256_cvtps_epi32(unchecked_bit_pun<__m256>(x)));
+        return bit_pun<Vec<N,int>>(_mm256_cvtps_epi32(bit_pun<__m256>(x)));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__SSE__)
     if constexpr (N == 4) {
-        return unchecked_bit_pun<Vec<N,int>>(_mm_cvtps_epi32(unchecked_bit_pun<__m128>(x)));
+        return bit_pun<Vec<N,int>>(_mm_cvtps_epi32(bit_pun<__m128>(x)));
     }
 #endif
     return join(lrint(x.lo),
@@ -699,13 +690,13 @@ SI Vec<1,float>  from_half(const Vec<1,uint16_t>& x) { return from_half_finite_f
 SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
 #if SKVX_USE_SIMD && defined(__F16C__)
     if constexpr (N == 8) {
-        return unchecked_bit_pun<Vec<N,uint16_t>>(_mm256_cvtps_ph(unchecked_bit_pun<__m256>(x),
-                                                                  _MM_FROUND_CUR_DIRECTION));
+        return bit_pun<Vec<N,uint16_t>>(_mm256_cvtps_ph(bit_pun<__m256>(x),
+                                                        _MM_FROUND_CUR_DIRECTION));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__aarch64__)
     if constexpr (N == 4) {
-        return unchecked_bit_pun<Vec<N,uint16_t>>(vcvt_f16_f32(unchecked_bit_pun<float32x4_t>(x)));
+        return bit_pun<Vec<N,uint16_t>>(vcvt_f16_f32(bit_pun<float32x4_t>(x)));
 
     }
 #endif
@@ -719,12 +710,12 @@ SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
 SIN Vec<N,float> from_half(const Vec<N,uint16_t>& x) {
 #if SKVX_USE_SIMD && defined(__F16C__)
     if constexpr (N == 8) {
-        return unchecked_bit_pun<Vec<N,float>>(_mm256_cvtph_ps(unchecked_bit_pun<__m128i>(x)));
+        return bit_pun<Vec<N,float>>(_mm256_cvtph_ps(bit_pun<__m128i>(x)));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__aarch64__)
     if constexpr (N == 4) {
-        return unchecked_bit_pun<Vec<N,float>>(vcvt_f32_f16(unchecked_bit_pun<float16x4_t>(x)));
+        return bit_pun<Vec<N,float>>(vcvt_f32_f16(bit_pun<float16x4_t>(x)));
     }
 #endif
     if constexpr (N > 4) {
@@ -757,11 +748,9 @@ SINT std::enable_if_t<std::is_unsigned_v<T>, Vec<N,T>> saturated_add(const Vec<N
     // or join up to take advantage.
     if constexpr (N == 16 && sizeof(T) == 1) {
         #if defined(__SSE__)
-        return unchecked_bit_pun<Vec<N,T>>(_mm_adds_epu8(unchecked_bit_pun<__m128i>(x),
-                                                         unchecked_bit_pun<__m128i>(y)));
-        #else // __ARM_NEON
-        return unchecked_bit_pun<Vec<N,T>>(vqaddq_u8(unchecked_bit_pun<uint8x16_t>(x),
-                                                     unchecked_bit_pun<uint8x16_t>(y)));
+        return bit_pun<Vec<N,T>>(_mm_adds_epu8(bit_pun<__m128i>(x), bit_pun<__m128i>(y)));
+        #else  // __ARM_NEON
+        return bit_pun<Vec<N,T>>(vqaddq_u8(bit_pun<uint8x16_t>(x), bit_pun<uint8x16_t>(y)));
         #endif
     } else if constexpr (N < 16 && sizeof(T) == 1) {
         return saturated_add(join(x,x), join(y,y)).lo;
