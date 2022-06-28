@@ -17,7 +17,8 @@ cc_library(
     # SKCMS_REPLACE_IN_GOOGLE3_COMPATIBLE_WITH
     copts = [
         # We cannot use includes because this header is not in this directory.
-        "-isystem include/third_party/skcms/",
+        # TODO(kjlubick, brianosman): reorganize the skcms code
+        "-Iinclude/third_party/skcms/",
         # SKCMS_REPLACE_IN_GOOGLE3_COPTS
     ],
     # This header does not compile on its own and is meant to be included from skcms.cc

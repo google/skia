@@ -172,7 +172,6 @@ WEBP_SRCS = [
 
 WEBP_COPTS = [
     "-Wno-unused-but-set-variable",
-    "-isystem third_party/",
 ] + select({
     "@platforms//cpu:x86_64": ["-msse4.1"],
     ":cpu_wasm": [],  # not sure why wasm doesn't use default

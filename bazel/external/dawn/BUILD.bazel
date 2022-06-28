@@ -584,7 +584,7 @@ cc_library(
         # List this as a copt, so as not to propagate it to dependents
         # Skia has its own vulkan headers and we do not want these to
         # interfere/override those.
-        "-isystem external/vulkan_headers/include",
+        "-Iexternal/vulkan_headers/include",
     ],
     defines = DAWN_VULKAN_DEFINES,
     includes = [

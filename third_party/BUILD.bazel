@@ -275,8 +275,8 @@ cc_library(
         "externals/freetype/include/ft2build.h",
     ],
     copts = [
-        "-isystem third_party/externals/freetype/include",
-        "-isystem third_party/freetype2",
+        "-Ithird_party/externals/freetype/include",
+        "-Ithird_party/freetype2",
     ],
     defines = [
         # Make this define available to any client that has freetype2 as a dep.
