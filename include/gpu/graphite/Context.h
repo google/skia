@@ -59,11 +59,13 @@ public:
      */
     void checkAsyncWorkCompletion();
 
+#ifdef SK_ENABLE_PRECOMPILE
     // TODO: add "SkShaderID addUserDefinedShader(sk_sp<SkRuntimeEffect>)" here
     // TODO: add "SkColorFilterID addUserDefinedColorFilter(sk_sp<SkRuntimeEffect>)" here
     SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
 
     void precompile(SkCombinationBuilder*);
+#endif
 
     /**
      * Creates a new backend gpu texture matching the dimensinos and TextureInfo. If an invalid

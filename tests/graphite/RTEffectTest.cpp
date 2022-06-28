@@ -17,6 +17,8 @@
 
 using namespace skgpu::graphite;
 
+#ifdef SK_ENABLE_PRECOMPILE
+
 namespace {
 
 // combines two child blenders using 'blendFrac'
@@ -127,6 +129,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(RTEffectTest, reporter, context) {
     // TODO:
     //   check that the uniforms can be extracted from 'blender' correctly
 }
+
+#endif // SK_ENABLE_PRECOMPILE
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(FindOrCreateSnippetForRuntimeEffectWorks, reporter, context) {
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();

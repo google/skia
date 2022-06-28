@@ -234,6 +234,8 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_fontconfig'] = 'false'
   if 'ASAN' in extra_tokens:
     args['skia_enable_spirv_validation'] = 'false'
+  if 'NoPrecompile' in extra_tokens:
+    args['skia_enable_precompile'] = 'false'
   if 'Graphite' in extra_tokens:
     args['skia_enable_graphite'] = 'true'
     args['skia_use_metal'] = 'true'

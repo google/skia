@@ -22,7 +22,6 @@ skia_core_public = [
   "$_include/core/SkColorFilter.h",
   "$_include/core/SkColorPriv.h",
   "$_include/core/SkColorSpace.h",
-  "$_include/core/SkCombinationBuilder.h",
   "$_include/core/SkContourMeasure.h",
   "$_include/core/SkCoverageMode.h",
   "$_include/core/SkCubicMap.h",
@@ -162,7 +161,6 @@ skia_core_sources = [
   "$_src/core/SkColorFilter_Matrix.h",
   "$_src/core/SkColorSpace.cpp",
   "$_src/core/SkColorSpaceXformSteps.cpp",
-  "$_src/core/SkCombinationBuilder.cpp",
   "$_src/core/SkCompressedDataUtils.cpp",
   "$_src/core/SkCompressedDataUtils.h",
   "$_src/core/SkContourMeasure.cpp",
@@ -212,8 +210,6 @@ skia_core_sources = [
   "$_src/core/SkEnumerate.h",
   "$_src/core/SkExecutor.cpp",
   "$_src/core/SkFDot6.h",
-  "$_src/core/SkFactoryFunctions.cpp",
-  "$_src/core/SkFactoryFunctions.h",
   "$_src/core/SkFlattenable.cpp",
   "$_src/core/SkFont.cpp",
   "$_src/core/SkFontDescriptor.cpp",
@@ -319,7 +315,6 @@ skia_core_sources = [
   "$_src/core/SkPixmap.cpp",
   "$_src/core/SkPoint.cpp",
   "$_src/core/SkPoint3.cpp",
-  "$_src/core/SkPrecompile.h",
   "$_src/core/SkPromiseImageTexture.cpp",
   "$_src/core/SkPtrRecorder.cpp",
   "$_src/core/SkPtrRecorder.h",
@@ -579,6 +574,15 @@ skia_pathops_sources = [
   "$_src/pathops/SkPathWriter.h",
   "$_src/pathops/SkReduceOrder.cpp",
   "$_src/pathops/SkReduceOrder.h",
+]
+
+skia_precompile_public = [ "$_include/core/SkCombinationBuilder.h" ]
+
+skia_precompile_sources = [
+  "$_src/core/SkCombinationBuilder.cpp",
+  "$_src/core/SkFactoryFunctions.cpp",
+  "$_src/core/SkFactoryFunctions.h",
+  "$_src/core/SkPrecompile.h",
 ]
 
 skia_skpicture_public = [

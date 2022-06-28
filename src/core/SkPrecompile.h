@@ -8,6 +8,10 @@
 #ifndef SkPrecompile_DEFINED
 #define SkPrecompile_DEFINED
 
+#include "include/core/SkTypes.h"
+
+#ifdef SK_ENABLE_PRECOMPILE
+
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
@@ -16,8 +20,6 @@
 #include <vector>
 
 class SkRuntimeEffect;
-
-// TODO: wrap this in an  SK_PRECOMPILE check
 
 //--------------------------------------------------------------------------------------------------
 class SkPrecompileShader : public SkRefCnt {
@@ -84,5 +86,7 @@ private:
     std::vector<sk_sp<SkPrecompileImageFilter>> fImageFilters;
     std::vector<sk_sp<SkPrecompileBlender>> fBlenders;
 };
+
+#endif // SK_ENABLE_PRECOMPILE
 
 #endif // SkPrecompile_DEFINED
