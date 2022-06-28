@@ -169,7 +169,7 @@ public:
     void initIfNeeded(Args&&... args) {
         if (!fObj) {
             SkASSERT(!fLazy.has_value());
-            fObj = fLazy.emplace(std::forward<Args>(args)...);
+            fObj = &fLazy.emplace(std::forward<Args>(args)...);
         }
     }
 
