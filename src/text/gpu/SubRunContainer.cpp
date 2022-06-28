@@ -2518,38 +2518,57 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 gaugingMatrix = &SkMatrix::I();
             }
 
-            // Gauge the scale factor needed to reduce the font size by.
-            SkStrikeSpec gaugingStrikeSpec = SkStrikeSpec::MakeTransformMask(
-                    runFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
-
-            // A strike that is too big, but will give an accurate maximum glyph dimension.
-            SkScopedStrikeForGPU gaugingStrike =
-                    gaugingStrikeSpec.findOrCreateScopedStrike(strikeCache);
+            // Remember, this will be an integer. Reduce to make a one pixel border for the
+            // bilerp padding.
+            static const constexpr SkScalar kMaxBilerpAtlasDimension =
+                    SkStrikeCommon::kSkSideTooBigForAtlas - 2;
 
             // Get the raw glyph IDs to simulate device drawing to figure the maximum device
             // dimension.
-            SkSpan<const SkGlyphID> glyphs = rejected->source().get<0>();
+            const SkSpan<const SkGlyphID> glyphs = rejected->source().get<0>();
 
-            // Remember, this will be an integer.
-            const SkScalar maxGlyphDimension =
-                    gaugingStrike->findMaximumGlyphDimension(glyphs);
+            // For glyphs that won't fit in the atlas, calculating the amount to reduce the size
+            // can't be done using simple ratios. This is because the SkScaler forces glyph width
+            // and height to integer amounts causing the ratio to be too high if it rounds up.
+            // If it does round up, you need to try again to find the maximum glyph dimensions
+            // and scale factor.
+            SkScalar strikeToSourceScale = 1;
+            SkFont reducedFont = runFont;
+            SkScalar maxGlyphDimension;
+            do {
+                reducedFont.setSize(reducedFont.getSize() / strikeToSourceScale);
 
-            // Remember, this will be an integer. Reduce to make a one pixel border for the
-            // bilerp padding.
-            static const constexpr SkScalar maxBilerpAtlasDimension =
-                    SkStrikeCommon::kSkSideTooBigForAtlas - 2;
+                // Gauge the scale factor needed to reduce the font size by.
+                SkStrikeSpec gaugingStrikeSpec = SkStrikeSpec::MakeTransformMask(
+                        reducedFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
 
-            // The scale factor needed to transform the mask from the cache to source space.
-            SkScalar strikeToSourceScale = maxGlyphDimension / maxBilerpAtlasDimension;
+                // A strike that is too big, but will give an accurate maximum glyph dimension.
+                SkScopedStrikeForGPU gaugingStrike =
+                        gaugingStrikeSpec.findOrCreateScopedStrike(strikeCache);
 
-            SkScalar reducedFontSize = runFont.getSize() / strikeToSourceScale;
+                // Remember, this will be an integer.
+                maxGlyphDimension = gaugingStrike->findMaximumGlyphDimension(glyphs);
 
-            SkFont reducedRunFont{runFont};
-            reducedRunFont.setSize(reducedFontSize);
+                // If the glyphs are too big we need to calculate a scaling factor to allow the
+                // image of the glyph to fit in the atlas.
+                if (kMaxBilerpAtlasDimension < maxGlyphDimension) {
+                    SkScalar candidateStrikeToSourceScale =
+                            maxGlyphDimension / kMaxBilerpAtlasDimension;
+                    // Be sure that strikeToSourceCache is always getting bigger to avoid an
+                    // infinite loop.
+                    if (candidateStrikeToSourceScale > strikeToSourceScale) {
+                        // Yep. Getting bigger.
+                        strikeToSourceScale = candidateStrikeToSourceScale;
+                    } else {
+                        // Force it bigger.
+                        strikeToSourceScale *= 1.01f;
+                    }
+                }
+            } while (kMaxBilerpAtlasDimension < maxGlyphDimension);
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
                 SkStrikeSpec strikeSpec = SkStrikeSpec::MakeTransformMask(
-                        reducedRunFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
+                        reducedFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
                 if constexpr (kTrace) {
                     msg.appendf("Transformed case:\n%s", strikeSpec.dump().c_str());
                 }
