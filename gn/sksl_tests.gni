@@ -307,6 +307,7 @@ sksl_metal_tests = [
   "/sksl/metal/NumericGlobals.sksl",
   "/sksl/metal/OpaqueTypeInInterfaceBlock.sksl",
   "/sksl/metal/OpaqueTypeInStruct.sksl",
+  "/sksl/metal/Ossfuzz48371.sksl",
   "/sksl/metal/OutParams.sksl",
   "/sksl/metal/OutVarsRequireLocation.sksl",
   "/sksl/metal/SamplerGlobals.sksl",
