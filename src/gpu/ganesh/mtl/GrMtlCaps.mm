@@ -343,6 +343,8 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
     // https://developer.apple.com/documentation/metal/mtlblitcommandencoder/1400767-copyfrombuffer
     if (this->isMac()) {
         fTransferFromBufferToBufferAlignment = 4;
+        // Buffer updates are sometimes implemented through transfers in GrMtlBuffer.
+        fBufferUpdateDataPreserveAlignment = 4;
     }
 
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
