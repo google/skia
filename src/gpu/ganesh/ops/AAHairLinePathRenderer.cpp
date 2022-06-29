@@ -72,7 +72,7 @@ static const uint16_t kQuadIdxBufPattern[] = {
     1, 4, 2
 };
 
-static const int kIdxsPerQuad = SK_ARRAY_COUNT(kQuadIdxBufPattern);
+static const int kIdxsPerQuad = std::size(kQuadIdxBufPattern);
 static const int kQuadNumVertices = 5;
 static const int kQuadsNumInIdxBuffer = 256;
 SKGPU_DECLARE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
@@ -105,7 +105,7 @@ static const uint16_t kLineSegIdxBufPattern[] = {
     1, 5, 3
 };
 
-static const int kIdxsPerLineSeg = SK_ARRAY_COUNT(kLineSegIdxBufPattern);
+static const int kIdxsPerLineSeg = std::size(kLineSegIdxBufPattern);
 static const int kLineSegNumVertices = 6;
 static const int kLineSegsNumInIdxBuffer = 256;
 

@@ -193,7 +193,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         }
         body.append("return s * x;");
         SkString funcName = this->getMangledFunctionName(name);
-        this->emitFunction(SkSLType::kHalf, funcName.c_str(), {gTFArgs, SK_ARRAY_COUNT(gTFArgs)},
+        this->emitFunction(SkSLType::kHalf, funcName.c_str(), {gTFArgs, std::size(gTFArgs)},
                            body.c_str());
         return funcName;
     };
@@ -219,7 +219,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         body.append("return color;");
         gamutXformFuncName = this->getMangledFunctionName("gamut_xform");
         this->emitFunction(SkSLType::kHalf4, gamutXformFuncName.c_str(),
-                           {gGamutXformArgs, SK_ARRAY_COUNT(gGamutXformArgs)}, body.c_str());
+                           {gGamutXformArgs, std::size(gGamutXformArgs)}, body.c_str());
     }
 
     // Now define a wrapper function that applies all the intermediate steps
@@ -255,7 +255,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         body.append("return half4(color);");
         SkString colorXformFuncName = this->getMangledFunctionName("color_xform");
         this->emitFunction(SkSLType::kHalf4, colorXformFuncName.c_str(),
-                           {gColorXformArgs, SK_ARRAY_COUNT(gColorXformArgs)}, body.c_str());
+                           {gColorXformArgs, std::size(gColorXformArgs)}, body.c_str());
         out->appendf("%s(%s)", colorXformFuncName.c_str(), srcColor);
     }
 }
@@ -309,7 +309,7 @@ void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
 
     static_assert(0 == GrGLSLShaderBuilder::kIn_InterfaceQualifier);
     static_assert(1 == GrGLSLShaderBuilder::kOut_InterfaceQualifier);
-    static_assert(SK_ARRAY_COUNT(interfaceQualifierNames) == kLastInterfaceQualifier + 1);
+    static_assert(std::size(interfaceQualifierNames) == kLastInterfaceQualifier + 1);
 }
 
 void GrGLSLShaderBuilder::finalize(uint32_t visibility) {

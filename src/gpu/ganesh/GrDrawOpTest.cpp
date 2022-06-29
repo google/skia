@@ -54,7 +54,7 @@ const GrUserStencilSettings* GrGetRandomStencil(SkRandom* random, GrContext_Base
             &kWrites,
             &kReadsAndWrites,
     };
-    return kStencilSettings[random->nextULessThan(SK_ARRAY_COUNT(kStencilSettings))];
+    return kStencilSettings[random->nextULessThan(std::size(kStencilSettings))];
 }
 
 #endif

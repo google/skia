@@ -93,7 +93,7 @@ bool MtlCommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
     static_assert((int)LoadOp::kLoad == 0);
     static_assert((int)LoadOp::kClear == 1);
     static_assert((int)LoadOp::kDiscard == 2);
-    static_assert(SK_ARRAY_COUNT(mtlLoadAction) == kLoadOpCount);
+    static_assert(std::size(mtlLoadAction) == kLoadOpCount);
 
     const static MTLStoreAction mtlStoreAction[] {
         MTLStoreActionStore,
@@ -101,7 +101,7 @@ bool MtlCommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
     };
     static_assert((int)StoreOp::kStore == 0);
     static_assert((int)StoreOp::kDiscard == 1);
-    static_assert(SK_ARRAY_COUNT(mtlStoreAction) == kStoreOpCount);
+    static_assert(std::size(mtlStoreAction) == kStoreOpCount);
 
     sk_cfp<MTLRenderPassDescriptor*> descriptor([[MTLRenderPassDescriptor alloc] init]);
     // Set up color attachment.

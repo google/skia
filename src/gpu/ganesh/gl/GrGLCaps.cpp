@@ -3385,7 +3385,7 @@ void GrGLCaps::setupSampleCounts(const GrGLContextInfo& ctxInfo, const GrGLInter
                 maxSampleCnt = std::max(1, maxSampleCnt);
 
                 static constexpr int kDefaultSamples[] = {1, 2, 4, 8};
-                int count = SK_ARRAY_COUNT(kDefaultSamples);
+                int count = std::size(kDefaultSamples);
                 for (; count > 0; --count) {
                     if (kDefaultSamples[count - 1] <= maxSampleCnt) {
                         break;

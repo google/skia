@@ -40,7 +40,7 @@ static const SkMatrix& test_matrix(SkRandom* random,
         gMatrices[4].set(SkMatrix::kMPersp1, -0.000039f);
     }
 
-    uint32_t count = static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices));
+    uint32_t count = static_cast<uint32_t>(std::size(gMatrices));
     if (includeNonPerspective && includePerspective) {
         return gMatrices[random->nextULessThan(count)];
     } else if (!includeNonPerspective) {
@@ -73,11 +73,11 @@ const SkMatrix& TestMatrixPreservesRightAngles(SkRandom* random) {
         gMatrices[4].setScale(SkIntToScalar(-1), SkIntToScalar(-1));
         gMatrices[4].setRotate(47);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gMatrices); i++) {
+        for (size_t i = 0; i < std::size(gMatrices); i++) {
             SkASSERT(gMatrices[i].preservesRightAngles());
         }
     }
-    return gMatrices[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices)))];
+    return gMatrices[random->nextULessThan(static_cast<uint32_t>(std::size(gMatrices)))];
 }
 
 const SkMatrix& TestMatrixRectStaysRect(SkRandom* random) {
@@ -99,11 +99,11 @@ const SkMatrix& TestMatrixRectStaysRect(SkRandom* random) {
         // 90 degress rotation
         gMatrices[5].setRotate(90);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gMatrices); i++) {
+        for (size_t i = 0; i < std::size(gMatrices); i++) {
             SkASSERT(gMatrices[i].rectStaysRect());
         }
     }
-    return gMatrices[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices)))];
+    return gMatrices[random->nextULessThan(static_cast<uint32_t>(std::size(gMatrices)))];
 }
 
 const SkMatrix& TestMatrixInvertible(SkRandom* random) { return test_matrix(random, true, false); }
@@ -115,8 +115,8 @@ void TestWrapModes(SkRandom* random, GrSamplerState::WrapMode wrapModes[2]) {
             GrSamplerState::WrapMode::kRepeat,
             GrSamplerState::WrapMode::kMirrorRepeat,
     };
-    wrapModes[0] = kWrapModes[random->nextULessThan(SK_ARRAY_COUNT(kWrapModes))];
-    wrapModes[1] = kWrapModes[random->nextULessThan(SK_ARRAY_COUNT(kWrapModes))];
+    wrapModes[0] = kWrapModes[random->nextULessThan(std::size(kWrapModes))];
+    wrapModes[1] = kWrapModes[random->nextULessThan(std::size(kWrapModes))];
 }
 const SkRect& TestRect(SkRandom* random) {
     static SkRect gRects[7];
@@ -130,7 +130,7 @@ const SkRect& TestRect(SkRandom* random) {
         gRects[4] = SkRect::MakeLTRB(-65535.0f, -65535.0f, 65535.0f, 65535.0f);
         gRects[5] = SkRect::MakeLTRB(-10.0f, -10.0f, 10.0f, 10.0f);
     }
-    return gRects[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gRects)))];
+    return gRects[random->nextULessThan(static_cast<uint32_t>(std::size(gRects)))];
 }
 
 // Just some simple rects for code which expects its input very sanitized
@@ -142,7 +142,7 @@ const SkRect& TestSquare(SkRandom* random) {
         gRects[0] = SkRect::MakeWH(128.f, 128.f);
         gRects[1] = SkRect::MakeWH(256.0f, 256.0f);
     }
-    return gRects[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gRects)))];
+    return gRects[random->nextULessThan(static_cast<uint32_t>(std::size(gRects)))];
 }
 
 const SkRRect& TestRRectSimple(SkRandom* random) {
@@ -156,11 +156,11 @@ const SkRRect& TestRRectSimple(SkRandom* random) {
         // true round rect with elliptical corners
         gRRect[1].setRectXY(rectangle, 2.0f, 1.0f);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gRRect); i++) {
+        for (size_t i = 0; i < std::size(gRRect); i++) {
             SkASSERT(gRRect[i].isSimple());
         }
     }
-    return gRRect[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gRRect)))];
+    return gRRect[random->nextULessThan(static_cast<uint32_t>(std::size(gRRect)))];
 }
 
 const SkPath& TestPath(SkRandom* random) {
@@ -208,7 +208,7 @@ const SkPath& TestPath(SkRandom* random) {
                                   .detach();
     }
 
-    return gPath[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gPath)))];
+    return gPath[random->nextULessThan(static_cast<uint32_t>(std::size(gPath)))];
 }
 
 const SkPath& TestPathConvex(SkRandom* random) {
@@ -237,12 +237,12 @@ const SkPath& TestPathConvex(SkRandom* random) {
                                     {-40.0f,  50.0f},
                                     {-50.0f,  31.0f}}, false);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gPath); i++) {
+        for (size_t i = 0; i < std::size(gPath); i++) {
             SkASSERT(gPath[i].isConvex());
         }
     }
 
-    return gPath[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gPath)))];
+    return gPath[random->nextULessThan(static_cast<uint32_t>(std::size(gPath)))];
 }
 
 static void randomize_stroke_rec(SkStrokeRec* rec, SkRandom* random) {
@@ -321,7 +321,7 @@ sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
         gColorSpaces[1] = SkColorSpace::MakeSRGB();
         gColorSpaces[2] = SkColorSpace::MakeSRGB()->makeColorSpin();
     }
-    return gColorSpaces[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gColorSpaces)))];
+    return gColorSpaces[random->nextULessThan(static_cast<uint32_t>(std::size(gColorSpaces)))];
 }
 
 sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
@@ -339,7 +339,7 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
         gXforms[2] = GrColorSpaceXform::Make(spin.get(), kPremul_SkAlphaType,
                                              srgb.get(), kPremul_SkAlphaType);
     }
-    return gXforms[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gXforms)))];
+    return gXforms[random->nextULessThan(static_cast<uint32_t>(std::size(gXforms)))];
 }
 
 TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)

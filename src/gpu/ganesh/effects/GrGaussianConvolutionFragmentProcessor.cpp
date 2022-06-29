@@ -73,7 +73,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
 
     std::string smoothBody = SkSL::String::printf("return %s * offsetAndKernel.y;", sample.c_str());
     fragBuilder->emitFunction(SkSLType::kHalf4, smoothFuncName.c_str(),
-                              {smoothArgs, SK_ARRAY_COUNT(smoothArgs)},
+                              {smoothArgs, std::size(smoothArgs)},
                               smoothBody.c_str());
 
     // Implement the main() function.
@@ -107,7 +107,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgram
     pdman.set2fv(fIncrementUni, 1, increment);
 
     int kernelWidth = SkGpuBlurUtils::LinearKernelWidth(conv.fRadius);
-    SkASSERT(kernelWidth <= (int)SK_ARRAY_COUNT(fOffsetsAndKernel));
+    SkASSERT(kernelWidth <= kMaxKernelWidth);
     pdman.set2fv(fOffsetsAndKernelUni, kernelWidth, conv.fOffsetsAndKernel[0].ptr());
     if (fKernelWidthUni.isValid()) {
         pdman.set1i(fKernelWidthUni, kernelWidth);

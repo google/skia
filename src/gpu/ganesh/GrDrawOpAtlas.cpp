@@ -567,7 +567,7 @@ GrDrawOpAtlasConfig::GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes) {
     maxBytes >>= 18;
     // Take the floor of the log to get the index
     int index = maxBytes > 0
-        ? SkTPin<int>(SkPrevLog2(maxBytes), 0, SK_ARRAY_COUNT(kARGBDimensions) - 1)
+        ? SkTPin<int>(SkPrevLog2(maxBytes), 0, std::size(kARGBDimensions) - 1)
         : 0;
 
     SkASSERT(kARGBDimensions[index].width() <= kMaxAtlasDim);

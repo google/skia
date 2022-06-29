@@ -259,7 +259,7 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
     };
 
     static EffectCacheEntry effectCache[kMaxLoopingIntervalCount / 4];
-    SkASSERT(cacheIndex >= 0 && cacheIndex < (int)SK_ARRAY_COUNT(effectCache));
+    SkASSERT(cacheIndex >= 0 && cacheIndex < (int)std::size(effectCache));
     EffectCacheEntry* cacheEntry = &effectCache[cacheIndex];
 
     cacheEntry->once([intervalCount, intervalChunks, cacheEntry] {

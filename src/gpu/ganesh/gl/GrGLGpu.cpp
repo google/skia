@@ -109,7 +109,7 @@ static_assert(14 == (int)skgpu::BlendEquation::kHSLHue);
 static_assert(15 == (int)skgpu::BlendEquation::kHSLSaturation);
 static_assert(16 == (int)skgpu::BlendEquation::kHSLColor);
 static_assert(17 == (int)skgpu::BlendEquation::kHSLLuminosity);
-static_assert(SK_ARRAY_COUNT(gXfermodeEquation2Blend) == skgpu::kBlendEquationCnt);
+static_assert(std::size(gXfermodeEquation2Blend) == skgpu::kBlendEquationCnt);
 
 static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ZERO,
@@ -403,7 +403,6 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* dContext)
     for (int i = 0; i < kGrGpuBufferTypeCount; ++i) {
         fHWBufferState[i].invalidate();
     }
-    static_assert(kGrGpuBufferTypeCount == SK_ARRAY_COUNT(fHWBufferState));
 
     if (this->glCaps().useSamplerObjects()) {
         fSamplerObjectCache = std::make_unique<SamplerObjectCache>(this);
@@ -436,13 +435,13 @@ GrGLGpu::~GrGLGpu() {
         this->deleteFramebuffer(fStencilClearFBOID);
     }
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
+    for (size_t i = 0; i < std::size(fCopyPrograms); ++i) {
         if (0 != fCopyPrograms[i].fProgram) {
             GL_CALL(DeleteProgram(fCopyPrograms[i].fProgram));
         }
     }
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fMipmapPrograms); ++i) {
+    for (size_t i = 0; i < std::size(fMipmapPrograms); ++i) {
         if (0 != fMipmapPrograms[i].fProgram) {
             GL_CALL(DeleteProgram(fMipmapPrograms[i].fProgram));
         }
@@ -468,12 +467,12 @@ void GrGLGpu::disconnect(DisconnectType type) {
         if (fStencilClearFBOID) {
             this->deleteFramebuffer(fStencilClearFBOID);
         }
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
+        for (size_t i = 0; i < std::size(fCopyPrograms); ++i) {
             if (fCopyPrograms[i].fProgram) {
                 GL_CALL(DeleteProgram(fCopyPrograms[i].fProgram));
             }
         }
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fMipmapPrograms); ++i) {
+        for (size_t i = 0; i < std::size(fMipmapPrograms); ++i) {
             if (fMipmapPrograms[i].fProgram) {
                 GL_CALL(DeleteProgram(fMipmapPrograms[i].fProgram));
             }
@@ -500,11 +499,11 @@ void GrGLGpu::disconnect(DisconnectType type) {
     fTempDstFBOID = 0;
     fStencilClearFBOID = 0;
     fCopyProgramArrayBuffer.reset();
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
+    for (size_t i = 0; i < std::size(fCopyPrograms); ++i) {
         fCopyPrograms[i].fProgram = 0;
     }
     fMipmapProgramArrayBuffer.reset();
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fMipmapPrograms); ++i) {
+    for (size_t i = 0; i < std::size(fMipmapPrograms); ++i) {
         fMipmapPrograms[i].fProgram = 0;
     }
 

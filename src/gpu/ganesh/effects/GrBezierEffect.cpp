@@ -177,7 +177,7 @@ GrConicEffect::GrConicEffect(const SkPMColor4f& color, const SkMatrix& viewMatri
         , fLocalMatrix(viewMatrix)
         , fUsesLocalCoords(usesLocalCoords)
         , fCoverageScale(coverage) {
-    this->setVertexAttributesWithImplicitOffsets(kAttributes, SK_ARRAY_COUNT(kAttributes));
+    this->setVertexAttributesWithImplicitOffsets(kAttributes, std::size(kAttributes));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -330,7 +330,7 @@ GrQuadEffect::GrQuadEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix,
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fCoverageScale(coverage) {
-    this->setVertexAttributesWithImplicitOffsets(kAttributes, SK_ARRAY_COUNT(kAttributes));
+    this->setVertexAttributesWithImplicitOffsets(kAttributes, std::size(kAttributes));
 }
 
 //////////////////////////////////////////////////////////////////////////////

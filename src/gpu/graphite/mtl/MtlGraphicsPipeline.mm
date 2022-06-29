@@ -392,7 +392,7 @@ static MTLBlendOperation blend_equation_to_mtl_blend_op(skgpu::BlendEquation equ
             MTLBlendOperationSubtract,         // skgpu::BlendEquation::kSubtract
             MTLBlendOperationReverseSubtract,  // skgpu::BlendEquation::kReverseSubtract
     };
-    static_assert(SK_ARRAY_COUNT(gTable) == (int)skgpu::BlendEquation::kFirstAdvanced);
+    static_assert(std::size(gTable) == (int)skgpu::BlendEquation::kFirstAdvanced);
     static_assert(0 == (int)skgpu::BlendEquation::kAdd);
     static_assert(1 == (int)skgpu::BlendEquation::kSubtract);
     static_assert(2 == (int)skgpu::BlendEquation::kReverseSubtract);

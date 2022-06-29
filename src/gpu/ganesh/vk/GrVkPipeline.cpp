@@ -178,7 +178,7 @@ static VkStencilOp stencil_op_to_vk_stencil_op(GrStencilOp op) {
         VK_STENCIL_OP_INCREMENT_AND_CLAMP,  // kIncClamp
         VK_STENCIL_OP_DECREMENT_AND_CLAMP,  // kDecClamp
     };
-    static_assert(SK_ARRAY_COUNT(gTable) == kGrStencilOpCount);
+    static_assert(std::size(gTable) == kGrStencilOpCount);
     static_assert(0 == (int)GrStencilOp::kKeep);
     static_assert(1 == (int)GrStencilOp::kZero);
     static_assert(2 == (int)GrStencilOp::kReplace);
@@ -202,7 +202,7 @@ static VkCompareOp stencil_func_to_vk_compare_op(GrStencilTest test) {
         VK_COMPARE_OP_EQUAL,               // kEqual
         VK_COMPARE_OP_NOT_EQUAL,           // kNotEqual
     };
-    static_assert(SK_ARRAY_COUNT(gTable) == kGrStencilTestCount);
+    static_assert(std::size(gTable) == kGrStencilTestCount);
     static_assert(0 == (int)GrStencilTest::kAlways);
     static_assert(1 == (int)GrStencilTest::kNever);
     static_assert(2 == (int)GrStencilTest::kGreater);
@@ -371,7 +371,7 @@ static VkBlendOp blend_equation_to_vk_blend_op(skgpu::BlendEquation equation) {
     static_assert(15 == (int)skgpu::BlendEquation::kHSLSaturation);
     static_assert(16 == (int)skgpu::BlendEquation::kHSLColor);
     static_assert(17 == (int)skgpu::BlendEquation::kHSLLuminosity);
-    static_assert(SK_ARRAY_COUNT(gTable) == skgpu::kBlendEquationCnt);
+    static_assert(std::size(gTable) == skgpu::kBlendEquationCnt);
 
     SkASSERT((unsigned)equation < skgpu::kBlendEquationCnt);
     return gTable[(int)equation];

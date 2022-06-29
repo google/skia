@@ -423,7 +423,7 @@ private:
             };
             SkString fnName = fragBuilder->getMangledFunctionName("coverage_from_dash_edge");
             fragBuilder->emitFunction(SkSLType::kFloat, fnName.c_str(),
-                                      {fnArgs, SK_ARRAY_COUNT(fnArgs)}, R"(
+                                      {fnArgs, std::size(fnArgs)}, R"(
                     float linearDist;
                     angleToEdge = clamp(angleToEdge, -3.1415, 3.1415);
                     linearDist = diameter * sin(angleToEdge / 2);
@@ -956,8 +956,8 @@ static constexpr SkPoint kOctagonInner[] = {
     SkPoint::Make(-kCosPi8, -kSinPi8),
 };
 
-static const int kIndicesPerFillCircle = SK_ARRAY_COUNT(gFillCircleIndices);
-static const int kIndicesPerStrokeCircle = SK_ARRAY_COUNT(gStrokeCircleIndices);
+static const int kIndicesPerFillCircle = std::size(gFillCircleIndices);
+static const int kIndicesPerStrokeCircle = std::size(gStrokeCircleIndices);
 static const int kVertsPerStrokeCircle = 16;
 static const int kVertsPerFillCircle = 9;
 
@@ -2443,7 +2443,7 @@ static const uint16_t gOverstrokeRRectIndices[] = {
 static const uint16_t* gStandardRRectIndices = gOverstrokeRRectIndices + 6 * 4;
 
 // overstroke count is arraysize minus the center indices
-static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gOverstrokeRRectIndices) - 6;
+static const int kIndicesPerOverstrokeRRect = std::size(gOverstrokeRRectIndices) - 6;
 // fill count skips overstroke indices and includes center
 static const int kIndicesPerFillRRect = kIndicesPerOverstrokeRRect - 6 * 4 + 6;
 // stroke count is fill count minus center indices

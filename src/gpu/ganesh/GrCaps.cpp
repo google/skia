@@ -265,7 +265,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     static_assert(0 == kBasic_BlendEquationSupport);
     static_assert(1 == kAdvanced_BlendEquationSupport);
     static_assert(2 == kAdvancedCoherent_BlendEquationSupport);
-    static_assert(SK_ARRAY_COUNT(kBlendEquationSupportNames) == kLast_BlendEquationSupport + 1);
+    static_assert(std::size(kBlendEquationSupportNames) == kLast_BlendEquationSupport + 1);
 
     writer->appendCString("Blend Equation Support",
                           kBlendEquationSupportNames[fBlendEquationSupport]);

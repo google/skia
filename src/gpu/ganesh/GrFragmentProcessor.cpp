@@ -435,7 +435,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
     inputColor.setToUnknown();
 
     std::unique_ptr<GrFragmentProcessor> series[2] = {std::move(g), std::move(f)};
-    GrColorFragmentProcessorAnalysis info(inputColor, series, SK_ARRAY_COUNT(series));
+    GrColorFragmentProcessorAnalysis info(inputColor, series, std::size(series));
 
     SkPMColor4f knownColor;
     int leadingFPsToEliminate = info.initialProcessorsToEliminate(&knownColor);

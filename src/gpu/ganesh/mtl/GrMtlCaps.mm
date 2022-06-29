@@ -607,7 +607,7 @@ void GrMtlCaps::setColorType(GrColorType colorType, std::initializer_list<MTLPix
 }
 
 size_t GrMtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
-    static_assert(SK_ARRAY_COUNT(kMtlFormats) == GrMtlCaps::kNumMtlFormats,
+    static_assert(std::size(kMtlFormats) == GrMtlCaps::kNumMtlFormats,
                   "Size of kMtlFormats array must match static value in header");
     for (size_t i = 0; i < GrMtlCaps::kNumMtlFormats; ++i) {
         if (kMtlFormats[i] == pixelFormat) {

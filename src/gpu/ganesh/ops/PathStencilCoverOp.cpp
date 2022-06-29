@@ -43,7 +43,7 @@ public:
             {"pathBounds", kFloat4_GrVertexAttribType, SkSLType::kFloat4}
         };
         this->setInstanceAttributesWithImplicitOffsets(kInstanceAttribs,
-                                                       SK_ARRAY_COUNT(kInstanceAttribs));
+                                                       std::size(kInstanceAttribs));
     }
 
 private:

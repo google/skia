@@ -694,7 +694,7 @@ sk_sp<const GrGpuBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* reso
             3 + 8, 0 + 8, 4 + 8, 4 + 8, 7 + 8, 3 + 8,
         };
         // clang-format on
-        static_assert(SK_ARRAY_COUNT(gMiterIndices) == kMiterIndexCnt);
+        static_assert(std::size(gMiterIndices) == kMiterIndexCnt);
         SKGPU_DEFINE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
         return resourceProvider->findOrCreatePatternedIndexBuffer(
                 gMiterIndices, kMiterIndexCnt, kNumMiterRectsInIndexBuffer, kMiterVertexCnt,
@@ -758,7 +758,7 @@ sk_sp<const GrGpuBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* reso
             3 + 16, 0 + 16, 4 + 16, 4 + 16, 7 + 16, 3 + 16,
         };
         // clang-format on
-        static_assert(SK_ARRAY_COUNT(gBevelIndices) == kBevelIndexCnt);
+        static_assert(std::size(gBevelIndices) == kBevelIndexCnt);
 
         SKGPU_DEFINE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
         return resourceProvider->findOrCreatePatternedIndexBuffer(

@@ -547,7 +547,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createNonAAQuadIndexBuffer() {
         0, 1, 2, 2, 1, 3
     };
 
-    static_assert(SK_ARRAY_COUNT(kNonAAQuadIndexPattern) == kIndicesPerNonAAQuad);
+    static_assert(std::size(kNonAAQuadIndexPattern) == kIndicesPerNonAAQuad);
 
     return this->createPatternedIndexBuffer(kNonAAQuadIndexPattern, kIndicesPerNonAAQuad,
                                             kMaxNumNonAAQuads, kVertsPerNonAAQuad, nullptr);
@@ -575,7 +575,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createAAQuadIndexBuffer() {
     };
     // clang-format on
 
-    static_assert(SK_ARRAY_COUNT(kAAQuadIndexPattern) == kIndicesPerAAQuad);
+    static_assert(std::size(kAAQuadIndexPattern) == kIndicesPerAAQuad);
 
     return this->createPatternedIndexBuffer(kAAQuadIndexPattern, kIndicesPerAAQuad,
                                             kMaxNumAAQuads, kVertsPerAAQuad, nullptr);

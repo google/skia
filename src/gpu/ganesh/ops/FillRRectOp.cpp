@@ -375,8 +375,7 @@ private:
     Processor(GrAAType aaType, ProcessorFlags flags)
             : GrGeometryProcessor(kGrFillRRectOp_Processor_ClassID)
             , fFlags(flags) {
-        this->setVertexAttributesWithImplicitOffsets(kVertexAttribs,
-                                                     SK_ARRAY_COUNT(kVertexAttribs));
+        this->setVertexAttributesWithImplicitOffsets(kVertexAttribs, std::size(kVertexAttribs));
 
         fInstanceAttribs.emplace_back("radii_x", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         fInstanceAttribs.emplace_back("radii_y", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
@@ -834,8 +833,7 @@ void FillRRectOpImpl::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
     flushState->bindBuffers(std::move(fIndexBuffer), std::move(fInstanceBuffer),
                             std::move(fVertexBuffer));
-    flushState->drawIndexedInstanced(SK_ARRAY_COUNT(kIndexData), 0, fInstanceCount, fBaseInstance,
-                                     0);
+    flushState->drawIndexedInstanced(std::size(kIndexData), 0, fInstanceCount, fBaseInstance, 0);
 }
 
 // Will the given corner look good if we use HW derivatives?

@@ -53,8 +53,8 @@ static const uint16_t gStrokeCircleIndices[] = {
         // clang-format on
 };
 
-static const int kIndicesPerFillCircle = SK_ARRAY_COUNT(gFillCircleIndices);
-static const int kIndicesPerStrokeCircle = SK_ARRAY_COUNT(gStrokeCircleIndices);
+static const int kIndicesPerFillCircle = std::size(gFillCircleIndices);
+static const int kIndicesPerStrokeCircle = std::size(gStrokeCircleIndices);
 static const int kVertsPerStrokeCircle = 16;
 static const int kVertsPerFillCircle = 9;
 
@@ -137,7 +137,7 @@ static const uint16_t gRRectIndices[] = {
 };
 
 // overstroke count
-static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gRRectIndices) - 6;
+static const int kIndicesPerOverstrokeRRect = std::size(gRRectIndices) - 6;
 // simple stroke count skips overstroke indices
 static const int kIndicesPerStrokeRRect = kIndicesPerOverstrokeRRect - 6*4;
 // fill count adds final quad to stroke count

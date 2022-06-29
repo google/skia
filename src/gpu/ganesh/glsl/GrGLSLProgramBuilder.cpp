@@ -275,7 +275,7 @@ void GrGLSLProgramBuilder::writeFPFunction(const GrFragmentProcessor& fp,
         }
     }
 
-    SkASSERT(numParams <= (int)SK_ARRAY_COUNT(params));
+    SkASSERT(numParams <= (int)std::size(params));
 
     // First, emit every child's function. This needs to happen (even for children that aren't
     // sampled), so that all of the expected uniforms are registered.
