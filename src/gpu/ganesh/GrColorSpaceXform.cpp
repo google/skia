@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 
 #include "include/core/SkString.h"
-#include "include/third_party/skcms/skcms.h"
+#include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrColorInfo.h"

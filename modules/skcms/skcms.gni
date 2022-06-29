@@ -1,0 +1,14 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# This file is deprecated - clients should use //modules/skcms/skcms.gni
+
+skcms_public_headers = [ "skcms.h" ]
+
+skcms_sources = [
+  "skcms.cc",
+  "skcms_internal.h",
+  "src/Transform_inl.h",
+]

@@ -4,13 +4,5 @@ licenses(["notice"])
 
 exports_files_legacy(
     label_list = ["skcms.h"],
-    visibility = ["//third_party/skcms:__pkg__"],
-)
-
-filegroup(
-    name = "public_hdrs",
-    srcs = [
-        "skcms.h",
-    ],
-    visibility = ["//include:__pkg__"],
+    visibility = ["//modules/skcms:__pkg__"],
 )

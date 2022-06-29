@@ -9,7 +9,7 @@
 #define SkColorSpaceXformSteps_DEFINED
 
 #include "include/core/SkAlphaType.h"
-#include "include/third_party/skcms/skcms.h"
+#include "modules/skcms/skcms.h"
 #include "src/core/SkVM.h"
 #include <stdint.h>
 

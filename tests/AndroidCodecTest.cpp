@@ -18,7 +18,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/third_party/skcms/skcms.h"
+#include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/core/SkPixmapPriv.h"
 #include "tests/Test.h"

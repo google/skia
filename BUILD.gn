@@ -1206,21 +1206,6 @@ optional("raw") {
   sources = [ "src/codec/SkRawCodec.cpp" ]
 }
 
-import("third_party/skcms/skcms.gni")
-skia_source_set("skcms") {
-  cflags = []
-  if (!is_win || is_clang) {
-    cflags += [
-      "-w",
-      "-std=c11",
-    ]
-  }
-
-  public = [ "include/third_party/skcms/skcms.h" ]
-  include_dirs = [ "include/third_party/skcms" ]
-  sources = rebase_path(skcms_sources, ".", "third_party/skcms")
-}
-
 optional("typeface_freetype") {
   enabled = skia_use_freetype
 
@@ -1321,7 +1306,6 @@ skia_component("skia") {
     ":gpu",
     ":graphite",
     ":pdf",
-    ":skcms",
     ":xps",
   ]
 
@@ -1353,6 +1337,7 @@ skia_component("skia") {
     ":webp_encode",
     ":wuffs",
     ":xml",
+    "modules/skcms",
   ]
 
   public = skia_core_public
@@ -2233,8 +2218,8 @@ if (skia_enable_tools) {
     test_app("imgcvt") {
       sources = [ "tools/imgcvt.cpp" ]
       deps = [
-        ":skcms",
         ":skia",
+        "modules/skcms",
       ]
     }
     test_app("fm") {

@@ -72,9 +72,9 @@ template("third_party") {
         configs = []
       }
       if (is_debug) {
-        configs += [ "//gn/skia:optimize" ]
+        configs += [ "../../gn/skia:optimize" ]
       }
-      configs += [ "//gn/skia:recover_pointer_overflow" ]
+      configs += [ "../../gn/skia:recover_pointer_overflow" ]
 
       # "*" clobbers the current scope; append to existing configs
       forward_variables_from(invoker,
@@ -89,10 +89,13 @@ template("third_party") {
       public_configs = [ ":" + target_name + "_public" ]
 
       # Warnings are just noise if we're not maintaining the code.
+      if (!defined(cflags)) {
+        cflags = []
+      }
       if (is_win) {
-        cflags = [ "/w" ]
+        cflags += [ "/w" ]
       } else {
-        cflags = [ "-w" ]
+        cflags += [ "-w" ]
       }
     }
   }

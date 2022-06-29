@@ -16,7 +16,6 @@ filegroup(
         "//include/encode:public_hdrs",
         "//include/pathops:public_hdrs",
         "//include/ports:public_hdrs",
-        "//include/third_party/skcms:public_hdrs",
         "//include/utils:public_hdrs",
     ] + select({
         "//bazel/common_config_settings:needs_sksl": ["//include/sksl:public_hdrs"],

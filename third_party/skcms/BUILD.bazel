@@ -1,29 +1,5 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy")
 
 licenses(["notice"])
 
 exports_files_legacy()
-
-cc_library(
-    name = "skcms",
-    srcs = [
-        "skcms.cc",
-        "skcms_internal.h",
-    ],
-    hdrs = [
-        "//include/third_party/skcms:skcms.h",
-    ],
-    # The following comment will be replaced with G3-specific settings
-    # SKCMS_REPLACE_IN_GOOGLE3_COMPATIBLE_WITH
-    copts = [
-        # We cannot use includes because this header is not in this directory.
-        # TODO(kjlubick, brianosman): reorganize the skcms code
-        "-Iinclude/third_party/skcms/",
-        # SKCMS_REPLACE_IN_GOOGLE3_COPTS
-    ],
-    # This header does not compile on its own and is meant to be included from skcms.cc
-    textual_hdrs = [
-        "src/Transform_inl.h",
-    ],
-    visibility = ["//:__subpackages__"],
-)

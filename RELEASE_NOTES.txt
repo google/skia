@@ -9,6 +9,7 @@ Milestone 104
   * SkRasterHandleAllocator::MakeCanvas now takes optional SkSurfaceProps.
   * SkImage::MakeFromPicture and SkImageGenerator::MakeFromPicture now take an optional
     SkSurfaceProps to use when rasterizing the picture.
+  * skcms.h has been relocated to //modules/skcms/skcms.h (was //include/third_party/skcms/skcms.h)
 
 * * *
 

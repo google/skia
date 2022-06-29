@@ -45,6 +45,7 @@ ignorelist = [
   'include/third_party/vulkan',
   # Some node_modules/ files (used by CanvasKit et al) have c++ code which we should ignore.
   'node_modules',
+  'include/third_party/skcms',
 ]
 
 assert '/' in [os.sep, os.altsep]
@@ -80,6 +81,7 @@ for file_path in to_rewrite():
   if ('/generated/' in file_path or
       'tests/sksl/' in file_path or
       'third_party/skcms' in file_path or
+      'modules/skcms' in file_path or
       file_path.startswith('bazel/rbe')):
     continue
   if (file_path.endswith('.h') or

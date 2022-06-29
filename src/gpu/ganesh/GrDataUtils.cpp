@@ -9,7 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/private/SkTPin.h"
-#include "include/third_party/skcms/skcms.h"
+#include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
