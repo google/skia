@@ -225,6 +225,12 @@ public:
         return fTransferFromBufferToBufferAlignment;
     }
 
+    // Alignment requirement for offset and size passed to in GrGpuBuffer::updateData when the
+    // preserve param is true.
+    size_t bufferUpdateDataPreserveAlignment() const {
+        return fBufferUpdateDataPreserveAlignment;
+    }
+
     virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
 
     bool isFormatCompressed(const GrBackendFormat& format) const;
@@ -608,6 +614,7 @@ protected:
     uint32_t fMaxPushConstantsSize = 0;
     size_t fTransferBufferRowBytesAlignment = 1;
     size_t fTransferFromBufferToBufferAlignment = 1;
+    size_t fBufferUpdateDataPreserveAlignment = 1;
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 

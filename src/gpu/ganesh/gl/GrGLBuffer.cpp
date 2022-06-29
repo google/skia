@@ -243,14 +243,16 @@ void GrGLBuffer::onUnmap(MapType) {
     fMapPtr = nullptr;
 }
 
-bool GrGLBuffer::onUpdateData(const void* src, size_t offset, size_t size) {
+bool GrGLBuffer::onUpdateData(const void* src, size_t offset, size_t size, bool preserve) {
     SkASSERT(fBufferID);
 
     // bindbuffer handles dirty context
     GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
-    GrGLenum error = invalidate_buffer(this->glGpu(), target, fUsage, fBufferID, this->size());
-    if (error != GR_GL_NO_ERROR) {
-        return false;
+    if (!preserve) {
+        GrGLenum error = invalidate_buffer(this->glGpu(), target, fUsage, fBufferID, this->size());
+        if (error != GR_GL_NO_ERROR) {
+            return false;
+        }
     }
     GL_CALL(BufferSubData(target, offset, size, src));
     return true;

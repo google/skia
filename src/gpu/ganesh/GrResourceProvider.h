@@ -298,11 +298,7 @@ public:
     sk_sp<GrGpuBuffer> createBuffer(const void* data,
                                     size_t size,
                                     GrGpuBufferType type,
-                                    GrAccessPattern pattern) {
-        SkASSERT(data);
-        auto buffer = this->createBuffer(size, type, pattern);
-        return buffer && buffer->updateData(data, /*offset=*/ 0, size) ? buffer : nullptr;
-    }
+                                    GrAccessPattern pattern);
 
     /**
      * If passed in render target already has a stencil buffer on the specified surface, return

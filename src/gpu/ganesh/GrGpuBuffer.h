@@ -66,8 +66,10 @@ public:
      * Updates the buffer data.
      *
      * The size of the buffer will be preserved. The src data will be
-     * placed at offset and any remaining content before/after the
-     * range [offset, offset+size) becomes undefined.
+     * placed at offset. If preserve is false then any remaining content
+     * before/after the range [offset, offset+size) becomes undefined.
+     * Preserving updates will fail if the size and offset are not aligned
+     * to GrCaps::bufferUpdateDataPreserveAlignment().
      *
      * The buffer must not be mapped.
      *
@@ -78,7 +80,7 @@ public:
      *
      * @return returns true if the update succeeds, false otherwise.
      */
-    bool updateData(const void* src, size_t offset, size_t size);
+    bool updateData(const void* src, size_t offset, size_t size, bool preserve);
 
     GrGpuBufferType intendedType() const { return fIntendedType; }
 
@@ -111,7 +113,7 @@ private:
 
     virtual void onMap(MapType) = 0;
     virtual void onUnmap(MapType) = 0;
-    virtual bool onUpdateData(const void* src, size_t offset, size_t size) = 0;
+    virtual bool onUpdateData(const void* src, size_t offset, size_t size, bool preserve) = 0;
 
     size_t onGpuMemorySize() const override { return fSizeInBytes; }
     void onSetLabel() override{}

@@ -36,6 +36,8 @@ GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(conte
     // We haven't yet implemented GrGpu::transferFromBufferToBuffer for Dawn but GrDawnBuffer uses
     // transfers to implement buffer mapping and updates and transfers must be 4 byte aligned.
     fTransferFromBufferToBufferAlignment = 4;
+    // Buffer updates are sometimes implemented through transfers in GrDawnBuffer.
+    fBufferUpdateDataPreserveAlignment = 4;
 
     this->finishInitialization(contextOptions);
 }
