@@ -524,19 +524,11 @@ int SkCombinationOption::numChildSlots() const { return fDataInArena->numSlots()
 SkDEBUGCODE(int SkCombinationOption::epoch() const { return fDataInArena->epoch(); })
 
 //--------------------------------------------------------------------------------------------------
-#ifdef SK_GRAPHITE_ENABLED
-SkCombinationBuilder::SkCombinationBuilder(skgpu::graphite::Context* context)
-        : fDictionary(context->priv().shaderCodeDictionary()) {
-    fArena = std::make_unique<SkArenaAllocWithReset>(64);
-    this->reset();
-}
-#else
 SkCombinationBuilder::SkCombinationBuilder(SkShaderCodeDictionary* dict)
         : fDictionary(dict) {
     fArena = std::make_unique<SkArenaAllocWithReset>(64);
     this->reset();
 }
-#endif
 
 SkCombinationBuilder::~SkCombinationBuilder() = default;
 

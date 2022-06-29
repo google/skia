@@ -7,7 +7,6 @@
 
 #include "src/core/SkShaderCodeDictionary.h"
 
-#include "include/core/SkCombinationBuilder.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkOpts.h"
@@ -16,6 +15,10 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "include/gpu/graphite/Context.h"
+#endif
+
+#ifdef SK_ENABLE_PRECOMPILE
+#include "include/core/SkCombinationBuilder.h"
 #endif
 
 using DataPayloadField = SkPaintParamsKey::DataPayloadField;
@@ -280,10 +283,6 @@ const SkShaderSnippet* SkShaderCodeDictionary::getEntry(int codeSnippetID) const
     }
 
     return nullptr;
-}
-
-const SkShaderSnippet* SkShaderCodeDictionary::getEntry(SkBlenderID id) const {
-    return this->getEntry(id.asUInt());
 }
 
 void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkShaderInfo* info) {
@@ -715,6 +714,7 @@ int SkShaderCodeDictionary::addUserDefinedSnippet(
                                        dataPayloadExpectations);
 }
 
+#ifdef SK_ENABLE_PRECOMPILE
 SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
     if (!effect) {
         return {};
@@ -734,6 +734,12 @@ SkBlenderID SkShaderCodeDictionary::addUserDefinedBlender(sk_sp<SkRuntimeEffect>
                                                     /*dataPayloadExpectations=*/{});
     return SkBlenderID(codeSnippetID);
 }
+
+const SkShaderSnippet* SkShaderCodeDictionary::getEntry(SkBlenderID id) const {
+    return this->getEntry(id.asUInt());
+}
+
+#endif // SK_ENABLE_PRECOMPILE
 
 static SkSLType uniform_type_to_sksl_type(const SkRuntimeEffect::Uniform& u) {
     using Type = SkRuntimeEffect::Uniform::Type;

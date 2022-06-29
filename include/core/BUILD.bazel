@@ -23,7 +23,6 @@ filegroup(
         "SkColorPriv.h",
         "SkColorSpace.h",
         "SkColorType.h",
-        "SkCombinationBuilder.h",
         "SkContourMeasure.h",
         "SkCoverageMode.h",
         "SkCubicMap.h",

@@ -153,6 +153,7 @@
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite_NoGpu",
    "cq_config": {}
    },
+  {"name": "Build-Mac-Clang-arm64-Debug-Graphite_NoPrecompile"},
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN"},
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN_Graphite",
    "cq_config": {"location_regexes": ["src/gpu/graphite/.*"]}

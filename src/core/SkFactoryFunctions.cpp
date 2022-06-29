@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+
+#ifdef SK_ENABLE_PRECOMPILE
+
 #include "src/core/SkFactoryFunctions.h"
 
 #include "src/core/SkPrecompile.h"
@@ -109,3 +113,5 @@ sk_sp<SkPrecompileImageFilter> SkPrecompileImageFilters::Image() {
 }
 
 //--------------------------------------------------------------------------------------------------
+
+#endif // SK_ENABLE_PRECOMPILE
