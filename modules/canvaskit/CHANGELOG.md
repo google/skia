@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - WebGPU support. Introduced `CanvasKit.MakeGPUDeviceContext`, `CanvasKit.MakeGPUCanvasContext`,
+   `CanvasKit.MakeGPUCanvasSurface`, and `CanvasKit.MakeGPUTextureSurface` which are compatible with
+   WebGPU `GPUDevice` and `GPUTexture` objects.
+ - Typescript definitions for WebGPU API functions that are compatible with `@webgpu/types`
+   (https://www.npmjs.com/package/@webgpu/types).
+ - `CanvasKit.MakeCanvasSurface` is now deprecated. Clients should specify a backend target
+   explicitly using `CanvasKit.MakeSWCanvasSurface`, `CanvasKit.MakeOnScreenGLSurface`,
+   `CanvasKit.MakeGPUCanvasSurface`, and `CanvasKit.MakeGPUTextureSurface`.
+ - `CanvasKit.MakeGrContext` is now deprecated. Clients should use `CanvasKit.MakeWebGLContext` and
+   `CanvasKit.MakeGPUDeviceContext` instead.
+
 ### Fixed
  - Minor bug fixes in the TypeScript type declaration.
  - Creating a Premul Image from a TextureSource should upload the texture to WebGL correctly.
