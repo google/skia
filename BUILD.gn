@@ -45,9 +45,6 @@ config("skia_public") {
   if (skia_enable_sksl) {
     defines += [ "SK_ENABLE_SKSL" ]
   }
-  if (skia_enable_precompile) {
-    defines += [ "SK_ENABLE_PRECOMPILE" ]
-  }
   if (is_fuchsia) {
     defines += fuchsia_defines
   }
@@ -1410,11 +1407,6 @@ skia_component("skia") {
     }
   }
 
-  if (skia_enable_precompile) {
-    public += skia_precompile_public
-    sources += skia_precompile_sources
-  }
-
   if (skia_build_for_debugger) {
     defines += [ "SK_BUILD_FOR_DEBUGGER" ]
   }
@@ -2134,9 +2126,6 @@ if (skia_enable_tools) {
     }
     if (!skia_enable_skgpu_v1) {
       sources -= skgpu_v1_tests_sources
-    }
-    if (skia_enable_precompile) {
-      sources += precompile_tests_sources
     }
     deps = [
       ":flags",

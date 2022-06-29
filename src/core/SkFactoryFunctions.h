@@ -8,10 +8,6 @@
 #ifndef SkFactoryFunctions_DEFINED
 #define SkFactoryFunctions_DEFINED
 
-#include "include/core/SkTypes.h"
-
-#ifdef SK_ENABLE_PRECOMPILE
-
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
@@ -24,6 +20,8 @@ class SkPrecompileShader;
 class SkRuntimeEffect;
 
 // All of these factory functions will be moved elsewhere once the pre-compile API becomes public
+
+// TODO: wrap this in an  SK_PRECOMPILE check
 
 //--------------------------------------------------------------------------------------------------
 // This will move to be beside SkShaders in include/core/SkShader.h
@@ -88,7 +86,5 @@ public:
 private:
     SkPrecompileImageFilters() = delete;
 };
-
-#endif // SK_ENABLE_PRECOMPILE
 
 #endif // SkFactoryFunctions_DEFINED

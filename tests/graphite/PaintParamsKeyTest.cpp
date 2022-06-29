@@ -7,8 +7,6 @@
 
 #include "tests/Test.h"
 
-#ifdef SK_GRAPHITE_ENABLED
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCombinationBuilder.h"
 #include "include/core/SkM44.h"
@@ -116,7 +114,7 @@ SkUniquePaintParamsID create_key(Context* context,
                                  SkBlendMode blendMode) {
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
-    SkCombinationBuilder combinationBuilder(context->priv().shaderCodeDictionary());
+    SkCombinationBuilder combinationBuilder(context);
 
     switch (shaderType) {
         case SkShaderType::kSolidColor:
@@ -233,5 +231,3 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
         }
     }
 }
-
-#endif // SK_GRAPHITE_ENABLED

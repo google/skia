@@ -8,10 +8,6 @@
 #ifndef SkCombinationBuilder_DEFINED
 #define SkCombinationBuilder_DEFINED
 
-#include "include/core/SkTypes.h"
-
-#ifdef SK_ENABLE_PRECOMPILE
-
 #include <functional>
 #include <memory>
 #include <vector>
@@ -127,7 +123,11 @@ public:
         kAll
     };
 
+#ifdef SK_GRAPHITE_ENABLED
+    SkCombinationBuilder(skgpu::graphite::Context*);
+#else
     SkCombinationBuilder(SkShaderCodeDictionary*);
+#endif
     ~SkCombinationBuilder();
 
     // Blend Modes
@@ -186,7 +186,5 @@ private:
 
     SkDEBUGCODE(int fEpoch = 0;)
 };
-
-#endif // SK_ENABLE_PRECOMPILE
 
 #endif // SkCombinationBuilder_DEFINED

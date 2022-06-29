@@ -195,6 +195,7 @@ public:
     const SkShaderSnippet* getEntry(SkBuiltInCodeSnippetID codeSnippetID) const {
         return this->getEntry(SkTo<int>(codeSnippetID));
     }
+    const SkShaderSnippet* getEntry(SkBlenderID) const;
 
     void getShaderInfo(SkUniquePaintParamsID, SkShaderInfo*);
 
@@ -203,10 +204,7 @@ public:
     int addUserDefinedSnippet(const char* name,
                               SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
 
-#ifdef SK_ENABLE_PRECOMPILE
     SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
-    const SkShaderSnippet* getEntry(SkBlenderID) const;
-#endif
 
 private:
 #ifdef SK_GRAPHITE_ENABLED

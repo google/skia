@@ -7,12 +7,9 @@
 
 #include "tests/Test.h"
 
-#ifdef SK_GRAPHITE_ENABLED
-
 #include "include/core/SkCombinationBuilder.h"
 #include "src/core/SkFactoryFunctions.h"
 #include "src/core/SkPrecompile.h"
-#include "src/gpu/graphite/ContextPriv.h"
 #include "tests/graphite/CombinationBuilderTestAccess.h"
 
 #include <array>
@@ -23,16 +20,16 @@ namespace {
 
 // For an entirely empty combination builder, both solid color shader and kSrcOver options
 // will be added
-void empty_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
+void empty_test(Context* context, skiatest::Reporter* reporter) {
+    SkCombinationBuilder builder(context);
 
     REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 1);
 }
 
 // It is expected that the builder will supply a default solid color shader if no other shader
 // option is provided
-void no_shader_option_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
+void no_shader_option_test(Context* context, skiatest::Reporter* reporter) {
+    SkCombinationBuilder builder(context);
 
     builder.addOption(SkBlendMode::kSrcOver);
 
@@ -41,15 +38,15 @@ void no_shader_option_test(SkShaderCodeDictionary* dict, skiatest::Reporter* rep
 
 // It is expected that the builder will supply a default kSrcOver blend mode if no other
 // options are added
-void no_blend_mode_option_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
+void no_blend_mode_option_test(Context* context, skiatest::Reporter* reporter) {
+    SkCombinationBuilder builder(context);
 
     builder.addOption(SkShaderType::kSolidColor);
 
     REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 1);
 }
 
-void big_test_new(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
+void big_test_new(Context* context, skiatest::Reporter* reporter) {
 
     // paintOptions
     //  |- sweepGrad_0 | blendShader_0
@@ -104,8 +101,8 @@ void big_test_new(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
 //    context->precompile({paintOptions});
 }
 
-void big_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
+void big_test(Context* context, skiatest::Reporter* reporter) {
+    SkCombinationBuilder builder(context);
 
     static constexpr int kMinNumStops = 4;
     static constexpr int kMaxNumStops = 8;
@@ -189,8 +186,8 @@ void big_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
 }
 
 #ifdef SK_DEBUG
-void epoch_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
+void epoch_test(Context* context, skiatest::Reporter* reporter) {
+    SkCombinationBuilder builder(context);
 
     // Check that epochs are updated upon builder reset
     {
@@ -209,15 +206,11 @@ void epoch_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(CombinationBuilderTest, reporter, context) {
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    big_test_new(context, reporter);
 
-    big_test_new(dict, reporter);
-
-    empty_test(dict, reporter);
-    no_shader_option_test(dict, reporter);
-    no_blend_mode_option_test(dict, reporter);
-    big_test(dict, reporter);
-    SkDEBUGCODE(epoch_test(dict, reporter));
+    empty_test(context, reporter);
+    no_shader_option_test(context, reporter);
+    no_blend_mode_option_test(context, reporter);
+    big_test(context, reporter);
+    SkDEBUGCODE(epoch_test(context, reporter));
 }
-
-#endif // SK_GRAPHITE_ENABLED
