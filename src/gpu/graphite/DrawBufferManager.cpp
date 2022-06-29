@@ -7,8 +7,9 @@
 
 #include "src/gpu/graphite/DrawBufferManager.h"
 
+#include "include/gpu/graphite/Recording.h"
 #include "src/gpu/graphite/Buffer.h"
-#include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 
 namespace skgpu::graphite {
@@ -171,10 +172,10 @@ BindBufferInfo DrawBufferManager::getStaticBuffer(BufferType type,
     return {buffer.get(), 0};
 }
 
-void DrawBufferManager::transferToCommandBuffer(CommandBuffer* commandBuffer) {
+void DrawBufferManager::transferToRecording(Recording* recording) {
     for (auto& buffer : fUsedBuffers) {
         buffer->unmap();
-        commandBuffer->trackResource(std::move(buffer));
+        recording->priv().addResourceRef(std::move(buffer));
     }
     fUsedBuffers.clear();
 
@@ -182,22 +183,22 @@ void DrawBufferManager::transferToCommandBuffer(CommandBuffer* commandBuffer) {
     // so we need to handle them as well.
     if (fCurrentVertexBuffer) {
         fCurrentVertexBuffer->unmap();
-        commandBuffer->trackResource(std::move(fCurrentVertexBuffer));
+        recording->priv().addResourceRef(std::move(fCurrentVertexBuffer));
     }
     if (fCurrentIndexBuffer) {
         fCurrentIndexBuffer->unmap();
-        commandBuffer->trackResource(std::move(fCurrentIndexBuffer));
+        recording->priv().addResourceRef(std::move(fCurrentIndexBuffer));
     }
     if (fCurrentUniformBuffer) {
         fCurrentUniformBuffer->unmap();
-        commandBuffer->trackResource(std::move(fCurrentUniformBuffer));
+        recording->priv().addResourceRef(std::move(fCurrentUniformBuffer));
     }
     // Assume all static buffers were used, but don't lose our ref
     // TODO(skbug:13059) - If static buffers are stored in the ResourceProvider and queried on each
     // draw or owned by the RenderStep, we still need a way to track the static buffer *once* per
     // frame that relies on it.
     for (auto [_, buffer] : fStaticBuffers) {
-        commandBuffer->trackResource(buffer);
+        recording->priv().addResourceRef(buffer);
     }
 }
 

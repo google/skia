@@ -80,6 +80,7 @@ skia_graphite_sources = [
   "$_src/RecorderPriv.cpp",
   "$_src/RecorderPriv.h",
   "$_src/Recording.cpp",
+  "$_src/RecordingPriv.h",
   "$_src/RenderPassTask.cpp",
   "$_src/RenderPassTask.h",
   "$_src/Renderer.h",

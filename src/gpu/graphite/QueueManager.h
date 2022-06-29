@@ -17,25 +17,18 @@ namespace skgpu::graphite {
 class CommandBuffer;
 class Gpu;
 class GpuWorkSubmission;
-class Recording;
+struct InsertRecordingInfo;
+class ResourceProvider;
 
 class QueueManager {
 public:
     virtual ~QueueManager();
 
     // Adds the commands from the passed in Recording to the current CommandBuffer
-    // TODO: Implement
-    bool addRecording(const Recording*) {
-        SkASSERT(false);
-        return false;
-    }
+    void addRecording(const InsertRecordingInfo&, ResourceProvider*);
 
     bool submitToGpu();
     void checkForFinishedWork(SyncToCpu);
-
-    // TODO: This is a temporary api until we move Recordings to not make/hold CommandBuffers
-    // themselves. This will be removed soon.
-    void setCurrentCommandBuffer(sk_sp<CommandBuffer>);
 
 protected:
     QueueManager(Gpu* gpu);

@@ -19,7 +19,7 @@
 namespace skgpu::graphite {
 
 class Buffer;
-class CommandBuffer;
+class Recording;
 class ResourceProvider;
 
 class DrawBufferManager {
@@ -48,8 +48,8 @@ public:
                                    InitializeBufferFn,
                                    BufferSizeFn);
 
-    // Finalizes all buffers and transfers ownership of them to the CommandBuffer.
-    void transferToCommandBuffer(CommandBuffer*);
+    // Finalizes all buffers and transfers ownership of them to a Recording.
+    void transferToRecording(Recording*);
 
 private:
     ResourceProvider* fResourceProvider;

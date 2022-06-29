@@ -17,7 +17,7 @@
 namespace skgpu::graphite {
 
 class Buffer;
-class CommandBuffer;
+class Recording;
 class ResourceProvider;
 
 class UploadBufferManager {
@@ -28,8 +28,8 @@ public:
     std::tuple<UploadWriter, BindBufferInfo> getUploadWriter(size_t requiredBytes,
                                                              size_t requiredAlignment);
 
-    // Finalizes all buffers and transfers ownership of them to the CommandBuffer.
-    void transferToCommandBuffer(CommandBuffer*);
+    // Finalizes all buffers and transfers ownership of them to a Recording.
+    void transferToRecording(Recording*);
 
 private:
     ResourceProvider* fResourceProvider;

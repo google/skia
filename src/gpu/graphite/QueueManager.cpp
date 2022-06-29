@@ -7,9 +7,12 @@
 
 #include "src/gpu/graphite/QueueManager.h"
 
+#include "include/gpu/graphite/Recording.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RecordingPriv.h"
 
 namespace skgpu::graphite {
 
@@ -28,10 +31,42 @@ QueueManager::~QueueManager() {
     this->checkForFinishedWork(SyncToCpu::kYes);
 }
 
-void QueueManager::setCurrentCommandBuffer(sk_sp<CommandBuffer> commandBuffer) {
-    SkASSERT(!fCurrentCommandBuffer);
-    SkASSERT(commandBuffer);
-    fCurrentCommandBuffer = std::move(commandBuffer);
+void QueueManager::addRecording(const InsertRecordingInfo& info,
+                                ResourceProvider* resourceProvider) {
+    sk_sp<RefCntedCallback> callback;
+    if (info.fFinishedProc) {
+        callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
+    }
+
+    SkASSERT(info.fRecording);
+    if (!info.fRecording) {
+        if (callback) {
+            callback->setFailureResult();
+        }
+        SKGPU_LOG_W("No valid Recording passed into addRecording call");
+        return;
+    }
+
+    if (!fCurrentCommandBuffer) {
+        fCurrentCommandBuffer = this->getNewCommandBuffer();
+    }
+    if (!fCurrentCommandBuffer) {
+        if (callback) {
+            callback->setFailureResult();
+        }
+        return;
+    }
+
+    if (!info.fRecording->priv().addCommands(resourceProvider, fCurrentCommandBuffer.get())) {
+        if (callback) {
+            callback->setFailureResult();
+        }
+        return;
+    }
+
+    if (callback) {
+        fCurrentCommandBuffer->addFinishedProc(std::move(callback));
+    }
 }
 
 bool QueueManager::submitToGpu() {

@@ -191,6 +191,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, context)
     insertInfo.fRecording = recording.get();
     context->insertRecording(insertInfo);
     context->submit(SyncToCpu::kYes);
+    recording.reset();
     imageGpu.reset();
     resourceCache->forceProcessReturnedResources();
 
