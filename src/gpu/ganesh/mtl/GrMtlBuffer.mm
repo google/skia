@@ -83,38 +83,46 @@ GrMtlBuffer::~GrMtlBuffer() {
     SkASSERT(!fMapPtr);
 }
 
-bool GrMtlBuffer::onUpdateData(const void* src, size_t sizeInBytes) {
+bool GrMtlBuffer::onUpdateData(const void *src, size_t offset, size_t size) {
     if (fIsDynamic) {
         this->internalMap();
         if (!fMapPtr) {
             return false;
         }
-        memcpy(fMapPtr, src, sizeInBytes);
-        this->internalUnmap(0, sizeInBytes);
-    } else {
-        // copy data to gpu buffer
-        GrStagingBufferManager::Slice slice;
-        slice = this->mtlGpu()->stagingBufferManager()->allocateStagingBufferSlice(
-                sizeInBytes, this->mtlGpu()->mtlCaps().getMinBufferAlignment());
-        if (!slice.fBuffer) {
-            return false;
-        }
-        memcpy(slice.fOffsetMapPtr, src, sizeInBytes);
-
-        GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
-        id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
-        if (!blitCmdEncoder) {
-            return false;
-        }
-        GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
-        id<MTLBuffer> transferBuffer = mtlBuffer->mtlBuffer();
-        [blitCmdEncoder copyFromBuffer: transferBuffer
-                          sourceOffset: slice.fOffset
-                              toBuffer: fMtlBuffer
-                     destinationOffset: 0
-                                  size: sizeInBytes];
+        memcpy(SkTAddOffset<void>(fMapPtr, offset), src, size);
+        this->internalUnmap(offset, size);
+        return true;
     }
+    // Update via transfer buffer.
 
+    // We have to respect the transfer alignment. So we may transfer some extra bytes before and
+    // after the region to be updated.
+    size_t transferAlignment = this->getGpu()->caps()->transferFromBufferToBufferAlignment();
+    size_t r = offset%transferAlignment;
+
+    offset -= r;
+    size_t transferSize = SkAlignTo(size + r, transferAlignment);
+
+    GrStagingBufferManager::Slice slice;
+    slice = this->mtlGpu()->stagingBufferManager()->allocateStagingBufferSlice(
+            transferSize, this->mtlGpu()->mtlCaps().getMinBufferAlignment());
+    if (!slice.fBuffer) {
+        return false;
+    }
+    memcpy(SkTAddOffset<void>(slice.fOffsetMapPtr, r), src, size);
+
+    GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
+    GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
+    id<MTLBuffer> transferBuffer = mtlBuffer->mtlBuffer();
+    [blitCmdEncoder copyFromBuffer: transferBuffer
+                      sourceOffset: slice.fOffset
+                          toBuffer: fMtlBuffer
+                 destinationOffset: offset
+                              size: transferSize];
     return true;
 }
 

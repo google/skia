@@ -48,11 +48,11 @@ private:
     bool vkIsMapped() const { return SkToBool(fMapPtr); }
     void vkMap(size_t readOffset, size_t readSize);
     void vkUnmap(size_t flushOffset, size_t flushSize);
-    void copyCpuDataToGpuBuffer(const void* srcData, size_t size);
+    void copyCpuDataToGpuBuffer(const void* srcData, size_t offset, size_t size);
 
     void onMap(MapType) override;
     void onUnmap(MapType) override;
-    bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
+    bool onUpdateData(const void* src, size_t offset, size_t size) override;
 
     void vkRelease();
 

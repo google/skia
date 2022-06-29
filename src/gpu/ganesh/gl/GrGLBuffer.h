@@ -49,7 +49,7 @@ private:
 
     void onMap(MapType) override;
     void onUnmap(MapType) override;
-    bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
+    bool onUpdateData(const void* src, size_t offset, size_t size) override;
 
     void onSetLabel() override;
 

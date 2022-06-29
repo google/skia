@@ -28,7 +28,7 @@ private:
         }
     }
     void onUnmap(MapType) override { sk_free(fMapPtr); }
-    bool onUpdateData(const void* src, size_t srcSizeInBytes) override { return true; }
+    bool onUpdateData(const void* src, size_t offset, size_t size) override { return true; }
 
     using INHERITED = GrGpuBuffer;
 };

@@ -243,7 +243,7 @@ void GrGLBuffer::onUnmap(MapType) {
     fMapPtr = nullptr;
 }
 
-bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
+bool GrGLBuffer::onUpdateData(const void* src, size_t offset, size_t size) {
     SkASSERT(fBufferID);
 
     // bindbuffer handles dirty context
@@ -252,7 +252,7 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     if (error != GR_GL_NO_ERROR) {
         return false;
     }
-    GL_CALL(BufferSubData(target, 0, (GrGLsizeiptr)srcSizeInBytes, src));
+    GL_CALL(BufferSubData(target, offset, size, src));
     return true;
 }
 

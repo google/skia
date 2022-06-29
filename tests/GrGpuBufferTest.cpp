@@ -318,40 +318,63 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferUpdateDataTest, reporter, ctxInfo)
         return;
     }
 
-    for (bool oversizedBuffer : {false, true}) {
-        auto pm = GrPixmap::Allocate(sdc->imageInfo().makeColorType(GrColorType::kRGBA_F32));
+    auto pm = GrPixmap::Allocate(sdc->imageInfo().makeColorType(GrColorType::kRGBA_F32));
 
-        // Go direct to GrGpu to avoid caching/size adjustments at GrResourceProvider level.
-        auto vb = gpu->createBuffer(sizeof(kUnitQuad) + (oversizedBuffer ? 7 : 0),
-                                    GrGpuBufferType::kVertex,
-                                    kDynamic_GrAccessPattern);
-        if (!vb) {
-            ERRORF(reporter, "Could not create vertex buffer");
-            return;
+    for (size_t offset : {size_t{0}, 4*sizeof(SkPoint), size_t{1}, size_t{27}}) {
+        for (auto accessPattern : {kStatic_GrAccessPattern,
+                                   //  kStream_GrAccessPattern,  GrVkGpu asserts VBs aren't kStream
+                                   kDynamic_GrAccessPattern}) {
+            // Go direct to GrGpu to avoid caching/size adjustments at GrResourceProvider level.
+            // We add an extra size(SkPoint) to ensure that everything fits when we align the first
+            // point's location in the vb below.
+            auto vb = gpu->createBuffer(sizeof(kUnitQuad) + offset + sizeof(SkPoint),
+                                        GrGpuBufferType::kVertex,
+                                        accessPattern);
+            if (!vb) {
+                ERRORF(reporter, "Could not create vertex buffer");
+                return;
+            }
+
+            const void* src = kUnitQuad;
+            size_t updateSize = sizeof(kUnitQuad);
+            // The vertices in the VB must be aligned to the size of a vertex (because our draw call
+            // takes a base vertex index rather than a byte offset). So if we want our upload to
+            // begin at a non-aligned byte we shift the data in the src buffer so that it falls at a
+            // vertex alignment in the vb.
+            std::unique_ptr<char[]> tempSrc;
+            size_t baseVertex = offset/sizeof(SkPoint);
+            if (size_t r = offset%sizeof(SkPoint); r != 0) {
+                size_t pad = sizeof(SkPoint) - r;
+                updateSize += pad;
+                ++baseVertex;
+                tempSrc.reset(new char[updateSize]);
+                std::memcpy(tempSrc.get() + pad, kUnitQuad, sizeof(kUnitQuad));
+                src = tempSrc.get();
+            }
+            if (!vb->updateData(src, offset, updateSize)) {
+                ERRORF(reporter, "GrGpuBuffer::updateData returned false.");
+                return;
+            }
+
+            static constexpr SkColor4f kRed{1, 0, 0, 1};
+
+            static constexpr SkRect kBounds{0, 0, 1, 1};
+
+            sdc->clear(kRed);
+
+            sdc->addDrawOp(nullptr,
+                           TestVertexOp::Make(dc, vb, baseVertex, std::size(kUnitQuad), kBounds));
+
+            auto color = static_cast<SkPMColor4f*>(pm.addr());
+            *color = kRed.premul();
+            if (!sdc->readPixels(dc, pm, {0, 0})) {
+                ERRORF(reporter, "Read back failed.");
+                return;
+            }
+
+            static constexpr SkPMColor4f kGreen{0, 1, 0, 1};
+
+            REPORTER_ASSERT(reporter, *color == kGreen, "offset: %zu", offset);
         }
-
-        if (!vb->updateData(kUnitQuad, sizeof(kUnitQuad))) {
-            ERRORF(reporter, "GrGpuBuffer::updateData returned false.");
-            return;
-        }
-
-        static constexpr SkColor4f kRed{1, 0, 0, 1};
-
-        static constexpr SkRect kBounds{0, 0, 1, 1};
-
-        sdc->clear(kRed);
-
-        sdc->addDrawOp(nullptr, TestVertexOp::Make(dc, vb, 0, std::size(kUnitQuad), kBounds));
-
-        auto color = static_cast<SkPMColor4f*>(pm.addr());
-        *color = kRed.premul();
-        if (!sdc->readPixels(dc, pm, {0, 0})) {
-            ERRORF(reporter, "Read back failed.");
-            return;
-        }
-
-        static constexpr SkPMColor4f kGreen{0, 1, 0, 1};
-
-        REPORTER_ASSERT(reporter, *color == kGreen);
     }
 }

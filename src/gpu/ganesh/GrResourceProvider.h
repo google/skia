@@ -301,7 +301,7 @@ public:
                                     GrAccessPattern pattern) {
         SkASSERT(data);
         auto buffer = this->createBuffer(size, type, pattern);
-        return buffer && buffer->updateData(data, size) ? buffer : nullptr;
+        return buffer && buffer->updateData(data, /*offset=*/ 0, size) ? buffer : nullptr;
     }
 
     /**

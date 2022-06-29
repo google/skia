@@ -489,7 +489,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
     if (buffer->isMapped()) {
         buffer->unmap();
     } else {
-        buffer->updateData(stagingBuffer, size);
+        buffer->updateData(stagingBuffer, /*offset=*/0, size);
     }
 
     return std::move(buffer);
@@ -522,7 +522,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(
         }
     }
     if (temp.get()) {
-        if (!buffer->updateData(data, bufferSize)) {
+        if (!buffer->updateData(data, /*offset=*/0, bufferSize)) {
             return nullptr;
         }
     } else {

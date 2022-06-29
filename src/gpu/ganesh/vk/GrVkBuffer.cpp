@@ -186,7 +186,7 @@ void GrVkBuffer::vkUnmap(size_t flushOffset, size_t flushSize) {
     GrVkMemory::UnmapAlloc(gpu, fAlloc);
 }
 
-void GrVkBuffer::copyCpuDataToGpuBuffer(const void* src, size_t size) {
+void GrVkBuffer::copyCpuDataToGpuBuffer(const void* src, size_t offset, size_t size) {
     SkASSERT(src);
 
     GrVkGpu* gpu = this->getVkGpu();
@@ -195,9 +195,10 @@ void GrVkBuffer::copyCpuDataToGpuBuffer(const void* src, size_t size) {
     SkASSERT(!gpu->protectedContext());
 
     // The vulkan api restricts the use of vkCmdUpdateBuffer to updates that are less than or equal
-    // to 65536 bytes and a size the is 4 byte aligned.
-    if ((size <= 65536) && (0 == (size & 0x3)) && !gpu->vkCaps().avoidUpdateBuffers()) {
-        gpu->updateBuffer(sk_ref_sp(this), src, /*offset=*/0, size);
+    // to 65536 bytes and a size and offset that are both 4 byte aligned.
+    if ((size <= 65536) && SkIsAlign4(size) && SkIsAlign4(offset) &&
+        !gpu->vkCaps().avoidUpdateBuffers()) {
+        gpu->updateBuffer(sk_ref_sp(this), src, offset, size);
     } else {
         GrResourceProvider* resourceProvider = gpu->getContext()->priv().resourceProvider();
         sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
@@ -212,7 +213,7 @@ void GrVkBuffer::copyCpuDataToGpuBuffer(const void* src, size_t size) {
         gpu->transferFromBufferToBuffer(std::move(transferBuffer),
                                         /*srcOffset=*/0,
                                         sk_ref_sp(this),
-                                        /*dstOffset=*/0,
+                                        offset,
                                         size);
     }
 }
@@ -282,19 +283,19 @@ void GrVkBuffer::onUnmap(MapType type) {
     this->vkUnmap(0, type == MapType::kWriteDiscard ? this->size() : 0);
 }
 
-bool GrVkBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
+bool GrVkBuffer::onUpdateData(const void* src, size_t offset, size_t size) {
     if (this->isVkMappable()) {
         // We won't be reading the mapped memory so pass an empty range.
         this->vkMap(0, 0);
         if (!fMapPtr) {
             return false;
         }
-        memcpy(fMapPtr, src, srcSizeInBytes);
-        // We only need to flush the updated portion to the GPU so pass the true range here.
-        this->vkUnmap(0, srcSizeInBytes);
+        memcpy(SkTAddOffset<void>(fMapPtr, offset), src, size);
+        // We only need to flush the updated portion so pass the true range here.
+        this->vkUnmap(offset, size);
         fMapPtr = nullptr;
     } else {
-        this->copyCpuDataToGpuBuffer(src, srcSizeInBytes);
+        this->copyCpuDataToGpuBuffer(src, offset, size);
     }
     return true;
 }

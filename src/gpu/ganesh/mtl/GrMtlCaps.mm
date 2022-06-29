@@ -341,7 +341,7 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
     // This is documented to be 4 for all Macs. However, on Apple GPUs on Mac it appears there is
     // no actual alignment requirement
     // https://developer.apple.com/documentation/metal/mtlblitcommandencoder/1400767-copyfrombuffer
-    if (this->isMac() && fFamilyGroup < 7) {
+    if (this->isMac()) {
         fTransferFromBufferToBufferAlignment = 4;
     }
 

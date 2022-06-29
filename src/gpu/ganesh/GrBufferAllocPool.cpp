@@ -402,7 +402,7 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
             return;
         }
     }
-    buffer->updateData(fBufferPtr, flushSize);
+    buffer->updateData(fBufferPtr, /*offset=*/0, flushSize);
     VALIDATE(true);
 }
 
