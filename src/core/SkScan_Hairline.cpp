@@ -252,7 +252,7 @@ static void hair_quad(const SkPoint pts[3], const SkRegion* clip,
     float2 dt(SK_Scalar1 / lines);
 
     SkPoint tmp[(1 << kMaxQuadSubdivideLevel) + 1];
-    SkASSERT((unsigned)lines < SK_ARRAY_COUNT(tmp));
+    SkASSERT((unsigned)lines < std::size(tmp));
 
     tmp[0] = pts[0];
     float2 A = coeff.fA;
@@ -379,7 +379,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     float2 t(0);
 
     SkPoint tmp[(1 << kMaxCubicSubdivideLevel) + 1];
-    SkASSERT((unsigned)lines < SK_ARRAY_COUNT(tmp));
+    SkASSERT((unsigned)lines < std::size(tmp));
 
     tmp[0] = pts[0];
     float2 A = coeff.fA;

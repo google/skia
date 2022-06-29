@@ -80,7 +80,7 @@ void SkGraphics::SetFlags(const char* flags) {
             paramEnd = nextSemi;
         }
         size_t paramLen = paramEnd - flags;
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(gFlags); ++i) {
+        for (int i = 0; i < (int)std::size(gFlags); ++i) {
             if (paramLen != gFlags[i].fLen) {
                 continue;
             }

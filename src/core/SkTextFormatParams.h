@@ -24,8 +24,8 @@ static const SkScalar kStdFakeBoldInterpValues[] = {
     SK_Scalar1/24,
     SK_Scalar1/32,
 };
-static_assert(SK_ARRAY_COUNT(kStdFakeBoldInterpKeys) == SK_ARRAY_COUNT(kStdFakeBoldInterpValues),
+static_assert(std::size(kStdFakeBoldInterpKeys) == std::size(kStdFakeBoldInterpValues),
               "mismatched_array_size");
-static const int kStdFakeBoldInterpLength = SK_ARRAY_COUNT(kStdFakeBoldInterpKeys);
+static const int kStdFakeBoldInterpLength = std::size(kStdFakeBoldInterpKeys);
 
 #endif  //SkTextFormatParams_DEFINES

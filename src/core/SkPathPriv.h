@@ -304,7 +304,7 @@ public:
             0   // kDone
         };
 
-        SkASSERT(verb < SK_ARRAY_COUNT(gPtsInVerb));
+        SkASSERT(verb < std::size(gPtsInVerb));
         return gPtsInVerb[verb];
     }
 
@@ -321,7 +321,7 @@ public:
             0   // kDone
         };
 
-        SkASSERT(verb < SK_ARRAY_COUNT(gPtsInVerb));
+        SkASSERT(verb < std::size(gPtsInVerb));
         return gPtsInVerb[verb];
     }
 

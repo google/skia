@@ -253,7 +253,7 @@ static unsigned verb_to_initial_last_index(unsigned verb) {
         0,  //  kClose_Verb
         0   //  kDone_Verb
     };
-    SkASSERT((unsigned)verb < SK_ARRAY_COUNT(gPathVerbToInitialLastIndex));
+    SkASSERT((unsigned)verb < std::size(gPathVerbToInitialLastIndex));
     return gPathVerbToInitialLastIndex[verb];
 }
 
@@ -267,7 +267,7 @@ static unsigned verb_to_max_edges(unsigned verb) {
         0,  //  kClose_Verb
         0   //  kDone_Verb
     };
-    SkASSERT((unsigned)verb < SK_ARRAY_COUNT(gPathVerbToMaxEdges));
+    SkASSERT((unsigned)verb < std::size(gPathVerbToMaxEdges));
     return gPathVerbToMaxEdges[verb];
 }
 

@@ -484,7 +484,7 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 
     sk_sp<SkColorFilter> inputs[] = {cf0,cf1};
     return effect->makeColorFilter(SkData::MakeWithCopy(&weight, sizeof(weight)),
-                                   inputs, SK_ARRAY_COUNT(inputs));
+                                   inputs, std::size(inputs));
 #else
     // TODO(skia:12197)
     return nullptr;

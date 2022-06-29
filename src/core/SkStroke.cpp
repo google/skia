@@ -33,11 +33,11 @@ static const int kRecursiveLimits[] = { 5*3, 24, 11*3, 11*3 };
 
 static_assert(0 == kTangent_RecursiveLimit, "cubic_stroke_relies_on_tangent_equalling_zero");
 static_assert(1 == kCubic_RecursiveLimit, "cubic_stroke_relies_on_cubic_equalling_one");
-static_assert(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
+static_assert(std::size(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
               "recursive_limits_mismatch");
 
 #if defined SK_DEBUG && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
-    int gMaxRecursion[SK_ARRAY_COUNT(kRecursiveLimits)] = { 0 };
+    int gMaxRecursion[std::size(kRecursiveLimits)] = { 0 };
 #endif
 #ifndef DEBUG_QUAD_STROKER
     #define DEBUG_QUAD_STROKER 0

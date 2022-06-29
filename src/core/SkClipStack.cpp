@@ -972,7 +972,7 @@ void SkClipStack::Element::dump() const {
     static_assert(2 == static_cast<int>(DeviceSpaceType::kRRect), "enum mismatch");
     static_assert(3 == static_cast<int>(DeviceSpaceType::kPath), "enum mismatch");
     static_assert(4 == static_cast<int>(DeviceSpaceType::kShader), "enum mismatch");
-    static_assert(SK_ARRAY_COUNT(kTypeStrings) == kTypeCnt, "enum mismatch");
+    static_assert(std::size(kTypeStrings) == kTypeCnt, "enum mismatch");
 
     const char* opName = this->isReplaceOp() ? "replace" :
             (fOp == SkClipOp::kDifference ? "difference" : "intersect");

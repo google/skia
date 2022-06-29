@@ -367,7 +367,7 @@ static bool radii_are_nine_patch(const SkVector radii[4]) {
 void SkRRect::computeType() {
     if (fRect.isEmpty()) {
         SkASSERT(fRect.isSorted());
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fRadii); ++i) {
+        for (size_t i = 0; i < std::size(fRadii); ++i) {
             SkASSERT((fRadii[i] == SkVector{0, 0}));
         }
         fType = kEmpty_Type;

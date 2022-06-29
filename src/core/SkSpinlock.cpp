@@ -15,7 +15,7 @@
 
     static void debug_trace() {
         void* stack[64];
-        int len = backtrace(stack, SK_ARRAY_COUNT(stack));
+        int len = backtrace(stack, std::size(stack));
 
         // As you might imagine, we can't use an SkSpinlock here...
         static SkMutex lock;

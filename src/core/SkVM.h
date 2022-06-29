@@ -558,7 +558,7 @@ namespace skvm {
             for (int bits : ints) {
                 buf.push_back(bits);
             }
-            return {base, (int)( sizeof(int)*(buf.size() - SK_ARRAY_COUNT(ints)) )};
+            return {base, (int)( sizeof(int)*(buf.size() - std::size(ints)) )};
         }
 
         Uniform pushArray(int32_t a[]) {

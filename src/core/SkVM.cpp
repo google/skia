@@ -3476,7 +3476,7 @@ namespace skvm {
 
         *registers_used = 0;  // We'll update this as we go.
 
-        if (SK_ARRAY_COUNT(arg) < fImpl->strides.size()) {
+        if (std::size(arg) < fImpl->strides.size()) {
             return false;
         }
 

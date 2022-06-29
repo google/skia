@@ -105,10 +105,10 @@
             }
 
             const char kMongoose3[] = "0x00000000531f0020";  // 53 == Samsung.
-            char buf[SK_ARRAY_COUNT(kMongoose3) - 1];  // No need for the terminating \0.
+            char buf[std::size(kMongoose3) - 1];  // No need for the terminating \0.
 
-            if (SK_ARRAY_COUNT(buf) != midr_el1.read(buf, SK_ARRAY_COUNT(buf))
-                          || 0 == memcmp(kMongoose3, buf, SK_ARRAY_COUNT(buf))) {
+            if (std::size(buf) != midr_el1.read(buf, std::size(buf))
+                          || 0 == memcmp(kMongoose3, buf, std::size(buf))) {
                 features &= ~(SkCpu::ASIMDHP);
             }
         }

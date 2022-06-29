@@ -297,8 +297,8 @@ SkBlitRow::Proc32 SkBlitRow::Factory32(unsigned flags) {
         blit_row_s32a_blend
     };
 
-    SkASSERT(flags < SK_ARRAY_COUNT(kProcs));
-    flags &= SK_ARRAY_COUNT(kProcs) - 1;  // just to be safe
+    SkASSERT(flags < std::size(kProcs));
+    flags &= std::size(kProcs) - 1;  // just to be safe
 
     return flags == 2 ? SkOpts::blit_row_s32a_opaque
                       : kProcs[flags];

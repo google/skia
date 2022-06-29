@@ -97,7 +97,7 @@ static const int gMaskFormatToShift[] = {
 };
 
 static int maskFormatToShift(SkMask::Format format) {
-    SkASSERT((unsigned)format < SK_ARRAY_COUNT(gMaskFormatToShift));
+    SkASSERT((unsigned)format < std::size(gMaskFormatToShift));
     SkASSERT(SkMask::kBW_Format != format);
     return gMaskFormatToShift[format];
 }
