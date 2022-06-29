@@ -41,6 +41,8 @@ namespace skgpu::v1 { class SurfaceDrawContext; }
 #endif
 
 #if defined(SK_GRAPHITE_ENABLED)
+#include "src/gpu/graphite/geom/SubRunData.h"
+
 namespace skgpu::graphite { class Recorder; }
 #endif
 
@@ -91,6 +93,9 @@ public:
 #endif
 
 #if defined(SK_GRAPHITE_ENABLED)
+    // bounds of the stored data
+    virtual SkRect bounds() const = 0;
+
 //    virtual void fillVertexData(
 //            void* vertexDst, int offset, int count,
 //            SkColor color,
@@ -126,7 +131,6 @@ public:
 #if defined(SK_GRAPHITE_ENABLED)
     // Produce uploads and draws for this subRun
     virtual void draw(SkCanvas*,
-                      const SkMatrix& viewMatrix,
                       SkPoint drawOrigin,
                       const SkPaint&,
                       sk_sp<SkRefCnt> subRunStorage,
@@ -243,7 +247,6 @@ public:
 #endif
 #ifdef SK_GRAPHITE_ENABLED
     void draw(SkCanvas*,
-              const SkMatrix& viewMatrix,
               SkPoint drawOrigin,
               const SkPaint&,
               const SkRefCnt* subRunStorage,

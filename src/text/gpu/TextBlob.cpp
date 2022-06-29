@@ -397,22 +397,21 @@ const TextBlob::Key& TextBlob::key() const { return fKey; }
 
 #if SK_SUPPORT_GPU
 void TextBlob::draw(SkCanvas* canvas,
-                      const GrClip* clip,
-                      const SkMatrixProvider& viewMatrix,
-                      SkPoint drawOrigin,
-                      const SkPaint& paint,
-                      skgpu::v1::SurfaceDrawContext* sdc) {
+                    const GrClip* clip,
+                    const SkMatrixProvider& viewMatrix,
+                    SkPoint drawOrigin,
+                    const SkPaint& paint,
+                    skgpu::v1::SurfaceDrawContext* sdc) {
     fSubRuns->draw(canvas, clip, viewMatrix, drawOrigin, paint, this, sdc);
 }
 #endif
 
 #if defined(SK_GRAPHITE_ENABLED)
 void TextBlob::draw(SkCanvas* canvas,
-                    const SkMatrix& viewMatrix,
                     SkPoint drawOrigin,
                     const SkPaint& paint,
                     skgpu::graphite::Device* device) {
-    fSubRuns->draw(canvas, viewMatrix, drawOrigin, paint, this, device);
+    fSubRuns->draw(canvas, drawOrigin, paint, this, device);
 }
 #endif
 

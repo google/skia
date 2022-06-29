@@ -561,11 +561,15 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
 }
 
 void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
-                             const SkMatrix& viewMatrix,
                              SkPoint drawOrigin,
                              const SkPaint& paint,
                              sk_sp<SkRefCnt> subRunStorage) {
     // TODO: This exercises the glyph uploads but still needs work for rendering.
+
+    // TODO: We should get the Transform from the SubRun as some store pre-transformed data.
+    SkM44 positionMatrix = this->localToDevice44();
+    positionMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+    Transform transform{positionMatrix};
     const int subRunEnd = subRun->glyphCount();
     for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
         // For the remainder of the run, add any atlas uploads to the Recorder's AtlasManager
@@ -574,16 +578,15 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
         if (!ok) {
             return;
         }
-#if 0
         if (glyphsRegenerated) {
-            // TODO: create Geometry for SubRun, using subRunCursor and glyphsRegenerated.
-            // Geometry will draw glyphs in this range.
-            this->drawGeometry(geometry,
+            this->drawGeometry(transform,
+                               Geometry(SubRunData(subRun, std::move(subRunStorage),
+                                                   subRun->bounds(), subRunCursor,
+                                                   glyphsRegenerated)),
                                paint,
                                kFillStyle,
                                DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
         }
-#endif
         subRunCursor += glyphsRegenerated;
 
         if (subRunCursor < subRunEnd) {
