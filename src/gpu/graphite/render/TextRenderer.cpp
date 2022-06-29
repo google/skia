@@ -30,20 +30,19 @@ const Renderer& Renderer::TextDirect(MaskFormat maskFormat) {
     SkUNREACHABLE;
 }
 
-const Renderer& Renderer::TextSDF(MaskFormat maskFormat) {
+const Renderer& Renderer::TextSDF(bool useLCDText) {
     static const TextSDFRenderStep kA8{false};
-    static const TextSDFRenderStep k565{true};
+    static const TextSDFRenderStep kLCD{true};
 
     static const Renderer kTextSDFA8Renderer{"TextSDFA8Renderer",
                                              &kA8};
-    static const Renderer kTextSDF565Renderer{"TextSDF565Renderer",
-                                              &k565};
+    static const Renderer kTextSDFLCDRenderer{"TextSDFLCDRenderer",
+                                              &kLCD};
 
-    switch(maskFormat) {
-        case MaskFormat::kA8: return kTextSDFA8Renderer;
-        case MaskFormat::kA565: return kTextSDF565Renderer;
-            // ARGB is not valid
-        case MaskFormat::kARGB: SkUNREACHABLE;
+    if (useLCDText) {
+        return kTextSDFLCDRenderer;
+    } else {
+        return kTextSDFA8Renderer;
     }
     SkUNREACHABLE;
 }

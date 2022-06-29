@@ -8,7 +8,6 @@
 #ifndef skgpu_graphite_geom_Geometry_DEFINED
 #define skgpu_graphite_geom_Geometry_DEFINED
 
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkVertices.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Shape.h"

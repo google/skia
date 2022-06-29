@@ -566,10 +566,6 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                              sk_sp<SkRefCnt> subRunStorage) {
     // TODO: This exercises the glyph uploads but still needs work for rendering.
 
-    // TODO: We should get the Transform from the SubRun as some store pre-transformed data.
-    SkM44 positionMatrix = this->localToDevice44();
-    positionMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-    Transform transform{positionMatrix};
     const int subRunEnd = subRun->glyphCount();
     for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
         // For the remainder of the run, add any atlas uploads to the Recorder's AtlasManager
@@ -579,10 +575,11 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
             return;
         }
         if (glyphsRegenerated) {
-            this->drawGeometry(transform,
+            auto [bounds, localToDevice] = subRun->boundsAndDeviceMatrix(
+                                                   this->localToDeviceTransform(), drawOrigin);
+            this->drawGeometry(localToDevice,
                                Geometry(SubRunData(subRun, std::move(subRunStorage),
-                                                   subRun->bounds(), subRunCursor,
-                                                   glyphsRegenerated)),
+                                                   bounds, subRunCursor, glyphsRegenerated)),
                                paint,
                                kFillStyle,
                                DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
@@ -686,7 +683,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // clip stack before calling ChooseRenderer.
     const Renderer* renderer = ChooseRenderer(geometry, clip, style);
     if (!renderer) {
-        SKGPU_LOG_W("Skipping draw with no supported path renderer.");
+        SKGPU_LOG_W("Skipping draw with no supported renderer.");
         return;
     }
 
@@ -778,6 +775,10 @@ const Renderer* Device::ChooseRenderer(const Geometry& geometry,
                                        const Clip& clip,
                                        const SkStrokeRec& style) {
     SkStrokeRec::Style type = style.getStyle();
+
+    if (geometry.isSubRun()) {
+        return geometry.subRunData().subRun()->renderer();
+    }
 
     if (!geometry.isShape()) {
         // TODO: Other Geometry types will have pretty specific Renderers

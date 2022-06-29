@@ -32,6 +32,7 @@ using AtlasTextOp = skgpu::v1::AtlasTextOp;
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/Device.h"
+#include "src/gpu/graphite/Renderer.h"
 #endif
 
 #include <cinttypes>
@@ -55,7 +56,10 @@ using namespace sktext::gpu;
 
 #if defined(SK_GRAPHITE_ENABLED)
 using Device = skgpu::graphite::Device;
+using Rect = skgpu::graphite::Rect;
 using Recorder = skgpu::graphite::Recorder;
+using Renderer = skgpu::graphite::Renderer;
+using Transform = skgpu::graphite::Transform;
 #endif
 
 namespace {
@@ -1148,7 +1152,10 @@ public:
     std::tuple<bool, int>
     regenerateAtlas(int begin, int end, Recorder*) const override;
 
-    SkRect bounds() const override { return fGlyphDeviceBounds.rect(); }
+    std::tuple<Rect, Transform> boundsAndDeviceMatrix(const Transform&,
+                                                      SkPoint drawOrigin) const override;
+
+    const Renderer* renderer() const override { return &Renderer::TextDirect(fMaskFormat); }
 #endif
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
@@ -1535,6 +1542,37 @@ std::tuple<bool, int> DirectMaskSubRun::regenerateAtlas(int begin, int end,
                                                         Recorder* recorder) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, recorder);
 }
+
+std::tuple<Rect, Transform> DirectMaskSubRun::boundsAndDeviceMatrix(const Transform& localToDevice,
+                                                                    SkPoint drawOrigin) const {
+    SkM44 positionMatrix(localToDevice.matrix());
+    positionMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+    SkM44 initialMatrix(fInitialPositionMatrix);
+    const SkPoint offset = {positionMatrix.rc(0,3) - initialMatrix.rc(0,3),
+                            positionMatrix.rc(1,3) - initialMatrix.rc(1,3)};
+
+    const bool compatibleMatrix = positionMatrix.rc(0,0) == initialMatrix.rc(0,0) &&
+                                  positionMatrix.rc(0,1) == initialMatrix.rc(0,1) &&
+                                  positionMatrix.rc(1,0) == initialMatrix.rc(1,0) &&
+                                  positionMatrix.rc(1,1) == initialMatrix.rc(1,1) &&
+                                  localToDevice.type() != Transform::Type::kProjection &&
+                                  !fInitialPositionMatrix.hasPerspective();
+
+    if (compatibleMatrix && SkScalarIsInt(offset.x()) && SkScalarIsInt(offset.y())) {
+        // Handle the integer offset case.
+        // The offset should be integer, but make sure.
+        SkM44 translate = SkM44::Translate(SkScalarRoundToInt(offset.x()),
+                                           SkScalarRoundToInt(offset.y()));
+        return {Rect(fGlyphDeviceBounds.rect()), Transform(translate)};
+    } else if (SkM44 inverse; initialMatrix.invert(&inverse)) {
+        SkM44 viewDifference = positionMatrix * inverse;
+        return {Rect(fGlyphDeviceBounds.rect()), Transform(viewDifference)};
+    }
+
+    // initialPositionMatrix is singular. Do nothing.
+    static const Transform kInvalid{SkM44(SkM44::kNaN_Constructor)};
+    return {Rect::InfiniteInverted(), kInvalid};
+}
 #endif
 
 // true if only need to translate by integer amount, device rect.
@@ -1607,8 +1645,6 @@ public:
               const SkPaint&,
               sk_sp<SkRefCnt> subRunStorage,
               Device*) const override;
-
-    SkRect bounds() const override { return fVertexFiller.localRect(); }
 #endif
 
     int unflattenSize() const override;
@@ -1632,6 +1668,13 @@ public:
 #endif  // SK_SUPPORT_GPU
 #if defined(SK_GRAPHITE_ENABLED)
     std::tuple<bool, int> regenerateAtlas(int begin, int end, Recorder*) const override;
+
+    std::tuple<Rect, Transform> boundsAndDeviceMatrix(const Transform&,
+                                                      SkPoint drawOrigin) const override;
+
+    const Renderer* renderer() const override {
+        return &Renderer::TextDirect(fVertexFiller.grMaskType());
+    }
 #endif
 
     int glyphCount() const override;
@@ -1802,6 +1845,13 @@ std::tuple<bool, int> TransformedMaskSubRun::regenerateAtlas(int begin, int end,
                                                              Recorder* recorder) const {
     return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 1, recorder);
 }
+
+std::tuple<Rect, Transform> TransformedMaskSubRun::boundsAndDeviceMatrix(
+        const Transform& localToDevice, SkPoint drawOrigin) const {
+    SkM44 positionMatrix(localToDevice.matrix());
+    positionMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+    return {Rect(fVertexFiller.localRect()), Transform(positionMatrix)};
+}
 #endif
 
 int TransformedMaskSubRun::glyphCount() const {
@@ -1859,8 +1909,6 @@ public:
               const SkPaint&,
               sk_sp<SkRefCnt> subRunStorage,
               Device*) const override;
-
-    SkRect bounds() const override { return fVertexFiller.localRect(); }
 #endif
 
     int unflattenSize() const override;
@@ -1884,6 +1932,11 @@ public:
 #endif  // SK_SUPPORT_GPU
 #if defined(SK_GRAPHITE_ENABLED)
     std::tuple<bool, int> regenerateAtlas(int begin, int end, Recorder*) const override;
+
+    std::tuple<Rect, Transform> boundsAndDeviceMatrix(const Transform&,
+                                                      SkPoint drawOrigin) const override;
+
+    const Renderer* renderer() const override { return &Renderer::TextSDF(fUseLCDText); }
 #endif
 
     int glyphCount() const override;
@@ -2116,6 +2169,13 @@ std::tuple<bool, int>
 SDFTSubRun::regenerateAtlas(int begin, int end, Recorder *recorder) const {
     return fGlyphs.regenerateAtlas(begin, end, MaskFormat::kA8, SK_DistanceFieldInset,
                                    recorder);
+}
+
+std::tuple<Rect, Transform> SDFTSubRun::boundsAndDeviceMatrix(const Transform& localToDevice,
+                                                              SkPoint drawOrigin) const {
+    SkM44 positionMatrix(localToDevice.matrix());
+    positionMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+    return {Rect(fVertexFiller.localRect()), Transform(positionMatrix)};
 }
 #endif
 

@@ -43,9 +43,9 @@ public:
     Rect bounds() const { return fBounds; }
 
     // Access the individual elements of the subrun data.
-    const sktext::gpu::AtlasSubRun* subRun() { return fSubRun; }
-    int startGlyphIndex() { return fStartGlyphIndex; }
-    int glyphCount() { return fGlyphCount; }
+    const sktext::gpu::AtlasSubRun* subRun() const { return fSubRun; }
+    int startGlyphIndex() const { return fStartGlyphIndex; }
+    int glyphCount() const { return fGlyphCount; }
 
 private:
     const sktext::gpu::AtlasSubRun* fSubRun;

@@ -20,6 +20,7 @@ skia_graphite_public = [
 ]
 
 skia_graphite_sources = [
+  "$_src/AttachmentTypes.h",
   "$_src/Attribute.h",
   "$_src/BackendTexture.cpp",
   "$_src/Buffer.cpp",

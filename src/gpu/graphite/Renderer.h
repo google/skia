@@ -209,7 +209,7 @@ public:
 
     static const Renderer& TextDirect(MaskFormat);
 
-    static const Renderer& TextSDF(MaskFormat);
+    static const Renderer& TextSDF(bool useLCDText);
 
     // TODO: Add renderers for primitives (rect, rrect, etc.), special draws (atlas, vertices, text)
     // and support inverse filled strokes.
