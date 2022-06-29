@@ -93,6 +93,15 @@ Transform::Transform(const SkM44& m) : fM(m) {
     fType = get_matrix_info(m, &fInvM, &fScale);
 }
 
+const Transform& Transform::Identity() {
+    static const Transform kIdentity{SkM44()};
+    return kIdentity;
+}
+const Transform& Transform::Invalid() {
+    static const Transform kInvalid{SkM44(SkM44::kNaN_Constructor)};
+    return kInvalid;
+}
+
 bool Transform::operator==(const Transform& t) const {
     // Checking fM should be sufficient as all other values are computed from it.
     SkASSERT(fM != t.fM || (fInvM == t.fInvM && fType == t.fType && fScale == t.fScale));
@@ -129,6 +138,52 @@ void Transform::mapPoints(const SkV4* localIn, SkV4* deviceOut, int count) const
 
 void Transform::inverseMapPoints(const SkV4* deviceIn, SkV4* localOut, int count) const {
     return map_points(fInvM, deviceIn, localOut, count);
+}
+
+Transform Transform::preTranslate(float x, float y) const {
+    Transform t = *this;
+    t.fM.preTranslate(x, y);
+    t.fInvM.postTranslate(-x, -y);
+
+    // Under normal conditions, type and scale won't change, but if we've overflown the translation
+    // components, mark the matrix as invalid.
+    if (!t.fM.isFinite() || !t.fInvM.isFinite()) {
+        t.fType = Type::kInvalid;
+    }
+    return t;
+}
+
+Transform Transform::postTranslate(float x, float y) const {
+    Transform t = *this;
+    t.fM.postTranslate(x, y);
+    t.fInvM.preTranslate(-x, -y);
+    if (!t.fM.isFinite() || !t.fInvM.isFinite()) {
+        t.fType = Type::kInvalid;
+    }
+    return t;
+}
+
+Transform Transform::concat(const Transform& t) const {
+    Transform c = {fM * t.fM, t.fInvM * fInvM, std::max(fType, t.fType), {fScale * t.fScale}};
+    if (!c.fM.isFinite() || !c.fInvM.isFinite()) {
+        c.fType = Type::kInvalid;
+    }
+    return c;
+}
+
+Transform Transform::concatInverse(const Transform& t) const {
+    Transform c = {fM * t.fInvM, t.fM * fInvM, std::max(fType, t.fType), {fScale * (1.f/t.fScale)}};
+    if (!c.fM.isFinite() || !c.fInvM.isFinite()) {
+        c.fType = Type::kInvalid;
+    }
+    return c;
+}
+
+Transform Transform::concatInverse(const SkM44& t) const {
+    // saves a multiply compared to inverting just t and then computing fM*t^-1 and t*fInvM, if we
+    // instead start with (t*fInvM) and swap definition of computed fM and fInvM.
+    Transform inverse{t * fInvM};
+    return {inverse.fInvM, inverse.fM, inverse.fType, 1.f / inverse.fScale};
 }
 
 } // namespace skgpu::graphite

@@ -44,6 +44,9 @@ public:
     explicit Transform(const SkM44& m);
     Transform(const Transform& t) = default;
 
+    static const Transform& Identity();
+    static const Transform& Invalid();
+
     Transform& operator=(const Transform& t) = default;
 
     operator const SkM44&() const { return fM; }
@@ -70,7 +73,22 @@ public:
     void mapPoints(const SkV4* localIn, SkV4* deviceOut, int count) const;
     void inverseMapPoints(const SkV4* deviceIn, SkV4* localOut, int count) const;
 
+    // Returns a transform equal to the pre- or post-translating this matrix
+    Transform preTranslate(float x, float y) const;
+    Transform postTranslate(float x, float y) const;
+
+    // Returns a transform equal to (this * t)
+    Transform concat(const Transform& t) const;
+    Transform concat(const SkM44& t) const { return Transform(fM * t); }
+
+    // Returns a transform equal to (this * t^-1)
+    Transform concatInverse(const Transform& t) const;
+    Transform concatInverse(const SkM44& t) const;
+
 private:
+    Transform(const SkM44& m, const SkM44& invM, Type type, const SkV2 scale)
+            : fM(m), fInvM(invM), fType(type), fScale(scale) {}
+
     SkM44 fM;
     SkM44 fInvM; // M^-1
     Type  fType;
