@@ -46,23 +46,33 @@ VkYcbcrSamplerHelper::~VkYcbcrSamplerHelper() {
 bool VkYcbcrSamplerHelper::isYCbCrSupported() {
     GrVkGpu* vkGpu = this->vkGpu();
 
-    return vkGpu->vkCaps().supportsYcbcrConversion();
-}
+    if (!vkGpu->vkCaps().supportsYcbcrConversion()) {
+        return false;
+    }
 
-bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height) {
-    GrVkGpu* vkGpu = this->vkGpu();
-    VkResult result;
-
+    // The createBackendTexture call (which is the point of this helper class) requires linear
+    // support for VK_FORMAT_G8_B8R8_2PLANE_420_UNORM including sampling and cosited chroma.
     // Verify that the image format is supported.
     VkFormatProperties formatProperties;
     GR_VK_CALL(vkGpu->vkInterface(),
                GetPhysicalDeviceFormatProperties(vkGpu->physicalDevice(),
                                                  VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
                                                  &formatProperties));
-    if (!(formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)) {
+    auto linFlags = formatProperties.linearTilingFeatures;
+    if (!(linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) ||
+        !(linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) ||
+        !(linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT) ||
+        !(linFlags & VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT)) {
         // VK_FORMAT_G8_B8R8_2PLANE_420_UNORM is not supported
         return false;
     }
+
+    return true;
+}
+
+bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height) {
+    GrVkGpu* vkGpu = this->vkGpu();
+    VkResult result;
 
     // Create YCbCr image.
     VkImageCreateInfo vkImageInfo = {};
@@ -176,6 +186,17 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
     }
 
     // Wrap the image into SkImage.
+    VkFormatProperties formatProperties;
+    GR_VK_CALL(vkGpu->vkInterface(),
+               GetPhysicalDeviceFormatProperties(vkGpu->physicalDevice(),
+                                                 VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
+                                                 &formatProperties));
+    SkDEBUGCODE(auto linFlags = formatProperties.linearTilingFeatures;)
+    SkASSERT((linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) &&
+             (linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) &&
+             (linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT) &&
+             (linFlags & VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT));
+
     GrVkYcbcrConversionInfo ycbcrInfo = {vkImageInfo.format,
                                          /*externalFormat=*/0,
                                          VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
