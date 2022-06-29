@@ -30,6 +30,7 @@ bool Modifiers::checkPermitted(const Context& context, Position pos, int permitt
         { Modifiers::kMediump_Flag,        "mediump" },
         { Modifiers::kLowp_Flag,           "lowp" },
         { Modifiers::kES3_Flag,            "$es3" },
+        { Modifiers::kThreadgroup_Flag,    "threadgroup" },
     };
 
     bool success = true;

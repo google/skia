@@ -60,6 +60,7 @@ static int parse_modifier_token(Token::Kind token) {
         case Token::Kind::TK_MEDIUMP:        return Modifiers::kMediump_Flag;
         case Token::Kind::TK_LOWP:           return Modifiers::kLowp_Flag;
         case Token::Kind::TK_ES3:            return Modifiers::kES3_Flag;
+        case Token::Kind::TK_THREADGROUP:    return Modifiers::kThreadgroup_Flag;
         default:                             return 0;
     }
 }
@@ -896,7 +897,7 @@ DSLLayout DSLParser::layout() {
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
-            VARYING | INLINE)* */
+            VARYING | INLINE | THREADGROUP)* */
 DSLModifiers DSLParser::modifiers() {
     int start = this->peek().fOffset;
     DSLLayout layout = this->layout();

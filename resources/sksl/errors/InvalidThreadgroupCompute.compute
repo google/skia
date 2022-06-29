@@ -1,0 +1,18 @@
+layout(set=0, binding=0) in threadgroup float x[];
+layout(set=0, binding=1) out threadgroup float y[];
+
+threadgroup texture2D tex;
+
+threadgroup void a() {}
+
+void b(threadgroup int b) {}
+
+void c() {
+    threadgroup bool x;
+}
+
+/*%%*
+in / out variables may not be declared threadgroup
+'threadgroup' is not permitted here
+expected expression, but found 'threadgroup'
+*%%*/

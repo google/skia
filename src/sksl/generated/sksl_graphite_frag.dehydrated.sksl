@@ -1,4 +1,4 @@
-static uint8_t SKSL_INCLUDE_sksl_graphite_frag[] = {11,0,196,6,
+static uint8_t SKSL_INCLUDE_sksl_graphite_frag[] = {12,0,196,6,
 8,115,107,95,101,114,114,111,114,
 5,104,97,108,102,52,
 10,99,111,108,111,114,80,97,114,97,109,

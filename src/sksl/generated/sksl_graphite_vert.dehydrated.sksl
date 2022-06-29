@@ -1,4 +1,4 @@
-static uint8_t SKSL_INCLUDE_sksl_graphite_vert[] = {11,0,162,5,
+static uint8_t SKSL_INCLUDE_sksl_graphite_vert[] = {12,0,162,5,
 3,36,80,73,
 5,102,108,111,97,116,
 7,36,68,101,103,114,101,101,

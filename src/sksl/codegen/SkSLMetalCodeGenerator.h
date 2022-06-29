@@ -85,15 +85,19 @@ protected:
     using Precedence = Operator::Precedence;
 
     typedef int Requirements;
-    inline static constexpr Requirements kNo_Requirements       = 0;
-    inline static constexpr Requirements kInputs_Requirement    = 1 << 0;
-    inline static constexpr Requirements kOutputs_Requirement   = 1 << 1;
-    inline static constexpr Requirements kUniforms_Requirement  = 1 << 2;
-    inline static constexpr Requirements kGlobals_Requirement   = 1 << 3;
-    inline static constexpr Requirements kFragCoord_Requirement = 1 << 4;
+    inline static constexpr Requirements kNo_Requirements          = 0;
+    inline static constexpr Requirements kInputs_Requirement       = 1 << 0;
+    inline static constexpr Requirements kOutputs_Requirement      = 1 << 1;
+    inline static constexpr Requirements kUniforms_Requirement     = 1 << 2;
+    inline static constexpr Requirements kGlobals_Requirement      = 1 << 3;
+    inline static constexpr Requirements kFragCoord_Requirement    = 1 << 4;
+    inline static constexpr Requirements kThreadgroups_Requirement = 1 << 5;
 
     class GlobalStructVisitor;
     void visitGlobalStruct(GlobalStructVisitor* visitor);
+
+    class ThreadgroupStructVisitor;
+    void visitThreadgroupStruct(ThreadgroupStructVisitor* visitor);
 
     void write(std::string_view s);
 
@@ -123,6 +127,10 @@ protected:
     void writeGlobalStruct();
 
     void writeGlobalInit();
+
+    void writeThreadgroupStruct();
+
+    void writeThreadgroupInit();
 
     void writePrecisionModifier();
 

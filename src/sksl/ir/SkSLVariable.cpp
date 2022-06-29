@@ -60,9 +60,6 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos
     }
     if (ProgramConfig::IsCompute(ThreadContext::Context().fConfig->fKind) &&
             modifiers.fLayout.fBuiltin == -1) {
-        if (modifiers.fFlags & Modifiers::kUniform_Flag) {
-            context.fErrors->error(pos, "'uniform' variables are not permitted in compute shaders");
-        }
         if (storage == Variable::Storage::kGlobal &&
                 (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag))) {
             if (baseType->typeKind() != Type::TypeKind::kTexture && !baseType->isArray() &&

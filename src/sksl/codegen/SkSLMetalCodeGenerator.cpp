@@ -87,6 +87,12 @@ public:
     virtual void visitVariable(const Variable& var, const Expression* value) = 0;
 };
 
+class MetalCodeGenerator::ThreadgroupStructVisitor {
+public:
+    virtual ~ThreadgroupStructVisitor() = default;
+    virtual void visitVariable(const Variable& var) = 0;
+};
+
 void MetalCodeGenerator::write(std::string_view s) {
     if (s.empty()) {
         return;
@@ -249,7 +255,7 @@ static bool pass_by_reference(const Modifiers& modifiers, const Type& type) {
 
 // returns true if we need to specify an address space modifier
 static bool needs_address_space(const Modifiers& modifiers, const Type& type) {
-    return type.isArray() || pass_by_reference(modifiers, type);
+    return type.isUnsizedArray() || pass_by_reference(modifiers, type);
 }
 
 std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
@@ -1026,6 +1032,10 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write(")");
             return true;
         }
+        case k_threadgroupBarrier_IntrinsicKind:
+            this->write("threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup | "
+                                            "mem_flags::mem_texture)");
+            return true;
         default:
             return false;
     }
@@ -1432,6 +1442,11 @@ static bool is_output(const Variable& var) {
             var.type().typeKind() != Type::TypeKind::kTexture;
 }
 
+// true if the var is part of the Threadgroups struct
+static bool is_threadgroup(const Variable& var) {
+    return var.modifiers().fFlags & Modifiers::kThreadgroup_Flag;
+}
+
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
     // When assembling out-param helper functions, we copy variables into local clones with matching
     // names. We never want to prepend "_in." or "_globals." when writing these variables since
@@ -1473,6 +1488,8 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
                 } else if (var.modifiers().fFlags & Modifiers::kUniform_Flag &&
                            var.type().typeKind() != Type::TypeKind::kSampler) {
                     this->write("_uniforms.");
+                } else if (is_threadgroup(var)) {
+                    this->write("_threadgroups.");
                 } else {
                     this->write("_globals.");
                 }
@@ -1919,6 +1936,11 @@ void MetalCodeGenerator::writeFunctionRequirementArgs(const FunctionDeclaration&
         this->write("_fragCoord");
         separator = ", ";
     }
+    if (requirements & kThreadgroups_Requirement) {
+        this->write(separator);
+        this->write("_threadgroups");
+        separator = ", ";
+    }
 }
 
 void MetalCodeGenerator::writeFunctionRequirementParams(const FunctionDeclaration& f,
@@ -1947,6 +1969,11 @@ void MetalCodeGenerator::writeFunctionRequirementParams(const FunctionDeclaratio
     if (requirements & kFragCoord_Requirement) {
         this->write(separator);
         this->write("float4 _fragCoord");
+        separator = ", ";
+    }
+    if (requirements & kThreadgroups_Requirement) {
+        this->write(separator);
+        this->write("threadgroup Threadgroups& _threadgroups");
         separator = ", ";
     }
 }
@@ -2179,6 +2206,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     if (f.declaration().isMain()) {
         this->writeGlobalInit();
         if (ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
+            this->writeThreadgroupInit();
             this->writeComputeMainInputsAndOutputs();
         }
         else {
@@ -2681,7 +2709,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
             continue;
         }
         if (!(var.modifiers().fFlags & ~Modifiers::kConst_Flag) &&
-            -1 == var.modifiers().fLayout.fBuiltin) {
+            var.modifiers().fLayout.fBuiltin == -1) {
             // Visit a regular variable.
             visitor->visitVariable(var, decl.value().get());
         }
@@ -2794,6 +2822,85 @@ void MetalCodeGenerator::writeGlobalInit() {
     visitor.finish();
 }
 
+void MetalCodeGenerator::visitThreadgroupStruct(ThreadgroupStructVisitor* visitor) {
+    for (const ProgramElement* element : fProgram.elements()) {
+        if (!element->is<GlobalVarDeclaration>()) {
+            continue;
+        }
+        const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
+        const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+        const Variable& var = decl.var();
+        if (var.modifiers().fFlags & Modifiers::kThreadgroup_Flag) {
+            SkASSERT(!decl.value());
+            visitor->visitVariable(var);
+        }
+    }
+}
+
+void MetalCodeGenerator::writeThreadgroupStruct() {
+    class : public ThreadgroupStructVisitor {
+    public:
+        void visitVariable(const Variable& var) override {
+            this->addElement();
+            fCodeGen->write("    ");
+            fCodeGen->writeModifiers(var.modifiers());
+            fCodeGen->writeType(var.type());
+            fCodeGen->write(" ");
+            fCodeGen->writeName(var.name());
+            fCodeGen->write(";\n");
+        }
+        void addElement() {
+            if (fFirst) {
+                fCodeGen->write("struct Threadgroups {\n");
+                fFirst = false;
+            }
+        }
+        void finish() {
+            if (!fFirst) {
+                fCodeGen->writeLine("};");
+                fFirst = true;
+            }
+        }
+
+        MetalCodeGenerator* fCodeGen = nullptr;
+        bool fFirst = true;
+    } visitor;
+
+    visitor.fCodeGen = this;
+    this->visitThreadgroupStruct(&visitor);
+    visitor.finish();
+}
+
+void MetalCodeGenerator::writeThreadgroupInit() {
+    class : public ThreadgroupStructVisitor {
+    public:
+        void visitVariable(const Variable& var) override {
+            this->addElement();
+            fCodeGen->write("{}");
+        }
+        void addElement() {
+            if (fFirst) {
+                fCodeGen->write("    threadgroup Threadgroups _threadgroups{");
+                fFirst = false;
+            } else {
+                fCodeGen->write(", ");
+            }
+        }
+        void finish() {
+            if (!fFirst) {
+                fCodeGen->writeLine("};");
+                fCodeGen->writeLine("    (void)_threadgroups;");
+            }
+        }
+        MetalCodeGenerator* fCodeGen = nullptr;
+        bool fFirst = true;
+    } visitor;
+
+    visitor.fCodeGen = this;
+    this->visitThreadgroupStruct(&visitor);
+    visitor.finish();
+}
+
 void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.kind()) {
         case ProgramElement::Kind::kExtension:
@@ -2891,6 +2998,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
                 } else if (modifiers.fFlags & Modifiers::kUniform_Flag &&
                            v.variable()->type().typeKind() != Type::TypeKind::kSampler) {
                     result = kUniforms_Requirement;
+                } else if (modifiers.fFlags & Modifiers::kThreadgroup_Flag) {
+                    result = kThreadgroups_Requirement;
                 } else {
                     result = kGlobals_Requirement;
                 }
@@ -2987,6 +3096,7 @@ bool MetalCodeGenerator::generateCode() {
         this->writeOutputStruct();
         this->writeInterfaceBlocks();
         this->writeGlobalStruct();
+        this->writeThreadgroupStruct();
     }
     StringStream body;
     {

@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'uniform' variables are not permitted in compute shaders
+error: 1: 'uniform' is not permitted here
 uniform int x;
-^^^^^^^^^^^^^
+^^^^^^^
 1 error

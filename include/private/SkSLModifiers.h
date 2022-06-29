@@ -46,11 +46,13 @@ struct Modifiers {
         kHighp_Flag          = 1 <<  6,
         kMediump_Flag        = 1 <<  7,
         kLowp_Flag           = 1 <<  8,
+        // We use the Metal name for this one (corresponds to the GLSL 'shared' modifier)
+        kThreadgroup_Flag    = 1 <<  9,
         // SkSL extensions, not present in GLSL
-        kES3_Flag            = 1 <<  9,
-        kHasSideEffects_Flag = 1 <<  10,
-        kInline_Flag         = 1 <<  11,
-        kNoInline_Flag       = 1 <<  12,
+        kES3_Flag            = 1 << 10,
+        kHasSideEffects_Flag = 1 << 11,
+        kInline_Flag         = 1 << 12,
+        kNoInline_Flag       = 1 << 13,
     };
 
     Modifiers()
@@ -103,6 +105,11 @@ struct Modifiers {
         }
         if (fFlags & kLowp_Flag) {
             result += "lowp ";
+        }
+
+        // We're using a non-GLSL name for this one; the GLSL equivalent is "shared"
+        if (fFlags & kThreadgroup_Flag) {
+            result += "threadgroup ";
         }
 
         return result;
