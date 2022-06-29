@@ -267,6 +267,12 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
       alphaType: CK.AlphaType.Premul,
       colorType: CK.ColorType.RGBA_8888,
     });
+    const img6 = CK.MakeLazyImageFromTextureSource(imgElement, {
+      width: 1,
+      height: 1,
+      alphaType: CK.AlphaType.Premul,
+      colorType: CK.ColorType.RGBA_8888,
+    }, true);
     if (!img) return;
     const dOne = img.encodeToBytes(); // $ExpectType Uint8Array | null
     const dTwo = img.encodeToBytes(CK.ImageFormat.JPEG, 97);
@@ -277,7 +283,7 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
     const s2 = mm.makeShaderOptions(CK.TileMode.Decal, CK.TileMode.Repeat, // $ExpectType Shader
         CK.FilterMode.Nearest, CK.MipmapMode.Linear,
         CK.Matrix.identity());
-    const pixels = img.readPixels(85, 1000, { // $ExpectType Uint8Array | Float32Array | null
+    const pixels = img.readPixels(85, 1000, { // $ExpectType Float32Array | Uint8Array | null
         width: 79,
         height: 205,
         colorType: CK.ColorType.RGBA_8888,
@@ -886,7 +892,12 @@ function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
       alphaType: CK.AlphaType.Unpremul,
     });
     const img6 = surfaceFour.makeImageFromTextureSource(new ImageData(40, 80)); // $ExpectType Image | null
-
+    const img7 = surfaceFour.makeImageFromTextureSource(videoEle, {
+      height: 40,
+      width: 80,
+      colorType: CK.ColorType.RGBA_8888,
+      alphaType: CK.AlphaType.Premul,
+    }, true);
     surfaceSeven.delete();
 
     const ctx = CK.GetWebGLContext(canvasEl); // $ExpectType number
@@ -911,6 +922,7 @@ function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
     surfaceFour.drawOnce(drawFrame);
 
     surfaceFour.updateTextureFromSource(img5!, videoEle);
+    surfaceFour.updateTextureFromSource(img5!, videoEle, true);
 }
 
 function textBlobTests(CK: CanvasKit, font?: Font, path?: Path) {

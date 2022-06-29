@@ -196,13 +196,32 @@
         return src['naturalWidth'] || src['videoWidth'] || src['displayWidth'] || src['width'];
       }
 
-      CanvasKit.Surface.prototype.makeImageFromTextureSource = function(src, info) {
+      function setupTexture(glCtx, newTex, imageInfo, srcIsPremul) {
+        glCtx.bindTexture(glCtx.TEXTURE_2D, newTex);
+        // See https://github.com/flutter/flutter/issues/106433#issuecomment-1169102945
+        // for an example of what can happen if we do not set this.
+        if (!srcIsPremul && imageInfo['alphaType'] === CanvasKit.AlphaType.Premul) {
+          glCtx.pixelStorei(glCtx.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        }
+        return newTex;
+      }
+
+      function resetTexture(glCtx, imageInfo, srcIsPremul) {
+        // If we set this earlier, we want to unset it now.
+        if (!srcIsPremul && imageInfo['alphaType'] === CanvasKit.AlphaType.Premul) {
+          glCtx.pixelStorei(glCtx.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        }
+        glCtx.bindTexture(glCtx.TEXTURE_2D, null);
+      }
+
+      CanvasKit.Surface.prototype.makeImageFromTextureSource = function(src, info, srcIsPremul) {
         if (!info) {
+          // If the user didn't specify the image info, use some sensible defaults.
           info = {
             'height': getHeight(src),
             'width': getWidth(src),
             'colorType': CanvasKit.ColorType.RGBA_8888,
-            'alphaType': CanvasKit.AlphaType.Unpremul,
+            'alphaType': srcIsPremul ? CanvasKit.AlphaType.Premul: CanvasKit.AlphaType.Unpremul,
           };
         }
         if (!info['colorSpace']) {
@@ -215,40 +234,38 @@
         // We want to be pointing at the context associated with this surface.
         CanvasKit.setCurrentContext(this._context);
         var glCtx = GL.currentContext.GLctx;
-        var newTex = glCtx.createTexture();
-        glCtx.bindTexture(glCtx.TEXTURE_2D, newTex);
+        var newTex = setupTexture(glCtx, glCtx.createTexture(), info, srcIsPremul);
         if (GL.currentContext.version === 2) {
           glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, info['width'], info['height'], 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         } else {
           glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         }
-        glCtx.bindTexture(glCtx.TEXTURE_2D, null);
+        resetTexture(glCtx, info);
         return this.makeImageFromTexture(newTex, info);
       };
 
-      CanvasKit.Surface.prototype.updateTextureFromSource = function(img, src) {
+      CanvasKit.Surface.prototype.updateTextureFromSource = function(img, src, srcIsPremul) {
         if (!img._tex) {
           Debug('Image is not backed by a user-provided texture');
           return;
         }
         CanvasKit.setCurrentContext(this._context);
+        var ii = img.getImageInfo();
         var glCtx = GL.currentContext.GLctx;
         // Copy the contents of src over the texture associated with this image.
-        var tex = GL.textures[img._tex];
-        glCtx.bindTexture(glCtx.TEXTURE_2D, tex);
+        var tex = setupTexture(glCtx, GL.textures[img._tex], ii, srcIsPremul);
         if (GL.currentContext.version === 2) {
           glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, getWidth(src), getHeight(src), 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         } else {
           glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         }
-        glCtx.bindTexture(glCtx.TEXTURE_2D, null);
+        resetTexture(glCtx, ii, srcIsPremul);
         // Tell Skia we messed with the currently bound texture.
         this._resetContext();
         // Create a new texture entry and put null into the old slot. This keeps our texture alive,
         // otherwise it will be deleted when we delete the old Image.
         GL.textures[img._tex] = null;
         img._tex = pushTexture(tex);
-        var ii = img.getImageInfo();
         ii['colorSpace'] = img.getColorSpace();
         // Skia may cache parts of the image, and some places assume images are immutable. In order
         // to make things work, we create a new SkImage based on the same texture as the old image.
@@ -274,13 +291,13 @@
         ii['colorSpace'].delete();
       }
 
-      CanvasKit.MakeLazyImageFromTextureSource = function(src, info) {
+      CanvasKit.MakeLazyImageFromTextureSource = function(src, info, srcIsPremul) {
         if (!info) {
           info = {
             'height': getHeight(src),
             'width': getWidth(src),
             'colorType': CanvasKit.ColorType.RGBA_8888,
-            'alphaType': CanvasKit.AlphaType.Unpremul,
+            'alphaType': srcIsPremul ? CanvasKit.AlphaType.Premul : CanvasKit.AlphaType.Unpremul,
           };
         }
         if (!info['colorSpace']) {
@@ -298,14 +315,13 @@
             // This is a lot easier than needing to pass the surface handle from the C++ side here.
             var ctx = GL.currentContext;
             var glCtx = ctx.GLctx;
-            var newTex = glCtx.createTexture();
-            glCtx.bindTexture(glCtx.TEXTURE_2D, newTex);
+            var newTex = setupTexture(glCtx, glCtx.createTexture(), info, srcIsPremul);
             if (ctx.version === 2) {
               glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, info['width'], info['height'], 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
             } else {
               glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
             }
-            glCtx.bindTexture(glCtx.TEXTURE_2D, null);
+            resetTexture(glCtx, info, srcIsPremul);
             return pushTexture(newTex);
           },
           'freeSrc': function() {

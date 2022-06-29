@@ -1396,7 +1396,7 @@ describe('Core canvas behavior', () => {
               'height': 4,
               'alphaType': CanvasKit.AlphaType.Premul,
               'colorType': CanvasKit.ColorType.RGBA_8888,
-            });
+            }, /*srcIsPremul = */true);
         canvas.drawImage(img, 1, 1, null);
 
         const info = img.getImageInfo();
@@ -1468,18 +1468,21 @@ describe('Core canvas behavior', () => {
             return;
         }
         // This makes an offscreen <img> with the provided source.
+        // flutter_106433.png has transparent pixels, which is required to test the Premul
+        // behavior. https://github.com/flutter/flutter/issues/106433
         const imageEle = new Image();
-        imageEle.src = '/assets/mandrill_512.png';
+        imageEle.src = '/assets/flutter_106433.png';
 
         // We need to wait until the image is loaded before the texture can use it. For good
         // measure, we also wait for it to be decoded.
         return imageEle.decode().then(() => {
             const img = CanvasKit.MakeLazyImageFromTextureSource(imageEle, {
-              'width': 400,
-              'height': 400,
+              'width': 183,
+              'height': 180,
               'alphaType': CanvasKit.AlphaType.Premul,
               'colorType': CanvasKit.ColorType.RGBA_8888,
             });
+            canvas.clear(CanvasKit.RED);
             canvas.drawImage(img, 20, 20, null);
 
             img.delete();
