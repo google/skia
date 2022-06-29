@@ -107,6 +107,8 @@ public:
         // successful, subsequent attempts to delete the same handle are invalid.
         virtual bool deleteHandle(SkDiscardableHandleId) = 0;
 
+        virtual void assertHandleValid(SkDiscardableHandleId) {}
+
         virtual void notifyCacheMiss(CacheMissType type, int fontSize) = 0;
 
         struct ReadFailureData {

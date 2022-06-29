@@ -36,6 +36,7 @@ class SkStrikePinner {
 public:
     virtual ~SkStrikePinner() = default;
     virtual bool canDelete() = 0;
+    virtual void assertValid() {}
 };
 
 class SkStrike final : public SkRefCnt, public SkStrikeForGPU {
@@ -128,7 +129,9 @@ public:
     }
 
     void verifyPinnedStrike() const {
-        SkASSERT_RELEASE(fPinner == nullptr || !fPinner->canDelete());
+        if (fPinner != nullptr) {
+            fPinner->assertValid();
+        }
     }
 
 #if SK_SUPPORT_GPU

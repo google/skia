@@ -878,6 +878,7 @@ public:
 
     ~DiscardableStrikePinner() override = default;
     bool canDelete() override { return fManager->deleteHandle(fDiscardableHandleId); }
+    void assertValid() override { fManager->assertHandleValid(fDiscardableHandleId); }
 
 private:
     const SkDiscardableHandleId fDiscardableHandleId;
