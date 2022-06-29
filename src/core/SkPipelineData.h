@@ -149,6 +149,7 @@ public:
     void write(int i) { fUniformManager.write(i); }
     void write(skvx::float2 v) { fUniformManager.write(v); }
     void write(skvx::float4 v) { fUniformManager.write(v); }
+    void write(SkSLType t, unsigned int cnt, const void* v) { fUniformManager.write(t, cnt, v); }
 
     bool hasUniforms() const { return fUniformManager.size(); }
 

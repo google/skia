@@ -59,10 +59,10 @@ public:
     void write(int);
     void write(skvx::float2);
     void write(skvx::float4);
+    void write(SkSLType type, unsigned int count, const void* src);
 
 private:
     SkSLType getUniformTypeForLayout(SkSLType type);
-    void write(SkSLType type, unsigned int count, const void* src);
 
     using WriteUniformFn = uint32_t(*)(SkSLType type,
                                        CType ctype,

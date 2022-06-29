@@ -559,9 +559,12 @@ void UniformManager::doneWithExpectedUniforms() {
 #endif // SK_DEBUG
 
 void UniformManager::write(SkSLType type, unsigned int count, const void* src) {
+    SkDEBUGCODE(this->checkExpected(type, (count == SkUniform::kNonArray) ? 1 : count);)
+
     SkSLType revisedType = this->getUniformTypeForLayout(type);
 
-    uint32_t bytesNeeded = fWriteUniform(revisedType, CType::kDefault, nullptr, count, nullptr);
+    uint32_t bytesNeeded = fWriteUniform(revisedType, CType::kDefault,
+                                         /*dest=*/nullptr, count, /*src=*/nullptr);
     char* dst = fStorage.append(bytesNeeded);
     uint32_t bytesWritten = fWriteUniform(revisedType, CType::kDefault, dst, count, src);
     SkASSERT(bytesNeeded == bytesWritten);
@@ -569,56 +572,47 @@ void UniformManager::write(SkSLType type, unsigned int count, const void* src) {
 }
 
 void UniformManager::write(const SkM44& mat) {
-    static const SkSLType kType = SkSLType::kFloat4x4;
-    SkDEBUGCODE(this->checkExpected(kType, 1);)
+    static constexpr SkSLType kType = SkSLType::kFloat4x4;
     this->write(kType, 1, &mat);
 }
 
 void UniformManager::write(const SkColor4f* colors, int count) {
-    static const SkSLType kType = SkSLType::kFloat4;
-    SkDEBUGCODE(this->checkExpected(kType, count);)
+    static constexpr SkSLType kType = SkSLType::kFloat4;
     this->write(kType, count, colors);
 }
 
 void UniformManager::write(const SkPMColor4f* premulColors, int count) {
-    static const SkSLType kType = SkSLType::kFloat4;
-    SkDEBUGCODE(this->checkExpected(kType, count);)
+    static constexpr SkSLType kType = SkSLType::kFloat4;
     this->write(kType, count, premulColors);
 }
 
 void UniformManager::write(const SkRect& rect) {
-    static const SkSLType kType = SkSLType::kFloat4;
-    SkDEBUGCODE(this->checkExpected(kType, 1);)
+    static constexpr SkSLType kType = SkSLType::kFloat4;
     this->write(kType, 1, &rect);
 }
 
 void UniformManager::write(SkPoint point) {
-    static const SkSLType kType = SkSLType::kFloat2;
-    SkDEBUGCODE(this->checkExpected(kType, 1);)
+    static constexpr SkSLType kType = SkSLType::kFloat2;
     this->write(kType, 1, &point);
 }
 
 void UniformManager::write(const float* floats, int count) {
-    static const SkSLType kType = SkSLType::kFloat;
-    SkDEBUGCODE(this->checkExpected(kType, count);)
+    static constexpr SkSLType kType = SkSLType::kFloat;
     this->write(kType, count, floats);
 }
 
 void UniformManager::write(int i) {
-    static const SkSLType kType = SkSLType::kInt;
-    SkDEBUGCODE(this->checkExpected(kType, 1);)
+    static constexpr SkSLType kType = SkSLType::kInt;
     this->write(kType, 1, &i);
 }
 
 void UniformManager::write(skvx::float2 v) {
-    static const SkSLType kType = SkSLType::kFloat2;
-    SkDEBUGCODE(this->checkExpected(kType, 1);)
+    static constexpr SkSLType kType = SkSLType::kFloat2;
     this->write(kType, 1, &v);
 }
 
 void UniformManager::write(skvx::float4 v) {
-    static const SkSLType kType = SkSLType::kFloat4;
-    SkDEBUGCODE(this->checkExpected(kType, 1);)
+    static constexpr SkSLType kType = SkSLType::kFloat4;
     this->write(kType, 1, &v);
 }
 
