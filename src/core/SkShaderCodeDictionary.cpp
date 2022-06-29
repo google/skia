@@ -23,7 +23,7 @@ using DataPayloadType = SkPaintParamsKey::DataPayloadType;
 
 namespace {
 
-std::string get_mangled_local_var_name(const char* baseName, int manglingSuffix) {
+std::string get_mangled_name(const char* baseName, int manglingSuffix) {
     return std::string(baseName) + "_" + std::to_string(manglingSuffix);
 }
 
@@ -46,7 +46,7 @@ std::string generate_default_before_children_glue_code(int entryIndex,
 
         std::string localMatrixUniformName = reader.entry()->getMangledUniformName(0, entryIndex);
 
-        std::string preLocalMatrixVarName = get_mangled_local_var_name("preLocal", entryIndex);
+        std::string preLocalMatrixVarName = get_mangled_name("preLocal", entryIndex);
 
         add_indent(&result, indent);
         SkSL::String::appendf(&result,
@@ -105,7 +105,7 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
     const SkPaintParamsKey::BlockReader& reader = fBlockReaders[*entryIndex];
     int curEntryIndex = *entryIndex;
 
-    std::string scopeOutputVar = get_mangled_local_var_name("outColor", curEntryIndex);
+    std::string scopeOutputVar = get_mangled_name("outColor", curEntryIndex);
 
     add_indent(mainBody, indent);
     SkSL::String::appendf(mainBody,
@@ -121,7 +121,7 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
     // TODO: this could be returned by generate_default_before_children_glue_code
     std::string currentPreLocalName;
     if (reader.entry()->needsLocalCoords()) {
-        currentPreLocalName = get_mangled_local_var_name("preLocal", curEntryIndex);
+        currentPreLocalName = get_mangled_name("preLocal", curEntryIndex);
     } else {
         currentPreLocalName = parentPreLocalName;
     }
@@ -333,7 +333,7 @@ void GenerateDefaultGlueCode(const std::string& resultName,
         separator = ", ";
 
         if (i == 0 && reader.entry()->needsLocalCoords()) {
-            *mainBody += get_mangled_local_var_name("preLocal", entryIndex);
+            *mainBody += get_mangled_name("preLocal", entryIndex);
             *mainBody += " * dev2LocalUni";
         } else {
             *mainBody += entry->getMangledUniformName(i, entryIndex);
@@ -502,7 +502,7 @@ void GenerateImageShaderGlueCode(const std::string& resultName,
     SkASSERT(childNames.empty());
 
     std::string samplerVarName = std::string("sampler_") + std::to_string(entryIndex) + "_0";
-    std::string preLocalMatrixVarName = get_mangled_local_var_name("preLocal", entryIndex);
+    std::string preLocalMatrixVarName = get_mangled_name("preLocal", entryIndex);
 
     // Uniform slot 0 is being used for the localMatrix but is handled in
     // generate_default_before_children_glue_code.
@@ -543,7 +543,7 @@ static constexpr int kNumBlendShaderChildren = 2;
 static constexpr char kBlendShaderName[] = "sk_blend_shader";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr char kRuntimeShaderName[] = "sk_runtime_placeholder";
+static constexpr char kRuntimeShaderName[] = "RuntimeEffect";
 
 static constexpr SkUniform kRuntimeShaderUniforms[] = {
         {"localMatrix", SkSLType::kFloat4x4},
@@ -553,6 +553,40 @@ static constexpr DataPayloadField kRuntimeShaderDataPayload[] = {
         {"runtime effect hash", DataPayloadType::kByte, 4},
         {"uniform data size (bytes)", DataPayloadType::kByte, 4},
 };
+
+void GenerateRuntimeShaderGlueCode(const std::string& resultName,
+                                   int entryIndex,
+                                   const SkPaintParamsKey::BlockReader& reader,
+                                   const std::string& priorStageOutputName,
+                                   const std::vector<std::string>& childOutputVarNames,
+                                   std::string* preamble,
+                                   std::string* mainBody,
+                                   int indent) {
+    const SkShaderSnippet* entry = reader.entry();
+
+    // We prepend a preLocalMatrix as the first uniform, ahead of the runtime effect's uniforms.
+    // TODO: we can eliminate this uniform entirely if it's the identity matrix.
+    // TODO: if we could inherit the parent's transform, this could be removed entirely.
+    SkASSERT(entry->needsLocalCoords());
+    SkASSERT(reader.entry()->fUniforms[0].type() == SkSLType::kFloat4x4);
+
+    SkSL::String::appendf(preamble, R"(
+half4 %s_%d(float2 coords, half4 color) {
+    // TODO: Runtime effect code goes here
+    return half4(0.75, 0.0, 1.0, 1.0);
+}
+)", entry->fName, entryIndex);
+
+    std::string preLocalMatrixVarName = get_mangled_name("preLocal", entryIndex);
+
+    add_indent(mainBody, indent);
+    SkSL::String::appendf(mainBody,
+                          "%s = %s_%d((%s * dev2LocalUni * sk_FragCoord).xy, (%s));\n",
+                          resultName.c_str(),
+                          entry->fName, entryIndex,
+                          preLocalMatrixVarName.c_str(),
+                          priorStageOutputName.c_str());
+}
 
 //--------------------------------------------------------------------------------------------------
 static constexpr char kErrorName[] = "sk_error";
@@ -795,8 +829,8 @@ int SkShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffe
                                                        this->convertUniforms(effect),
                                                        SnippetRequirementFlags::kLocalCoords,
                                                        /*texturesAndSamplers=*/{},
-                                                       "sk_runtime_placeholder",
-                                                       GenerateDefaultGlueCode,
+                                                       kRuntimeShaderName,
+                                                       GenerateRuntimeShaderGlueCode,
                                                        /*numChildren=*/0,
                                                        SkSpan(kRuntimeShaderDataPayload));
     fRuntimeEffectMap.set(key, newCodeSnippetID);
@@ -943,7 +977,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kRuntimeShaderName,
-            GenerateDefaultGlueCode,
+            GenerateRuntimeShaderGlueCode,
             kNoChildren,
             SkSpan(kRuntimeShaderDataPayload)
     };

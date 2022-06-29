@@ -4,11 +4,6 @@ half4 sk_error() {
     return half4(1.0, 0.0, 1.0, 1.0);
 }
 
-half4 sk_runtime_placeholder(float4x4 dev2Local) {
-    float2 pos = (dev2Local * sk_FragCoord).xy;
-    return half4(0.75, 0.0, 1.0, 1.0);
-}
-
 half4 sk_solid_shader(float4 colorParam) {
     return half4(colorParam);
 }
