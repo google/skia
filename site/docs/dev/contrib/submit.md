@@ -98,8 +98,8 @@ Google account. It does not have to match the email address you configured using
 `git config --global user.email` above, but it can.
 
 The command output should include a URL, similar to
-(https://skia-review.googlesource.com/c/4559/), indicating where your changelist
-can be reviewed.
+([https://skia-review.googlesource.com/c/4559/](https://skia-review.googlesource.com/c/4559/)),
+indicating where your changelist can be reviewed.
 
 ### Submit try jobs
 
