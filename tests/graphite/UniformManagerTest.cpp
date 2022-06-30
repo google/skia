@@ -41,6 +41,16 @@ static constexpr SkHalf kHalfs[16] = { 0x3C00, 0x4000, 0x4200, 0x4400,
                                        0x4880, 0x4900, 0x4980, 0x4A00,
                                        0x4A80, 0x4B00, 0x4B80, 0x4C00 };
 
+static constexpr int16_t kShorts[16] = { 1,  -2,  3,  -4,
+                                         5,  -6,  7,  -8,
+                                         9, -10, 11, -12,
+                                        13, -14, 15, -16 };
+
+static constexpr int32_t kInts[16] = { 1,  -2,  3,  -4,
+                                       5,  -6,  7,  -8,
+                                       9, -10, 11, -12,
+                                      13, -14, 15, -16 };
+
 DEF_TEST(UniformManagerCheckSingleUniform, r) {
     // Verify that the uniform manager can hold all the basic uniform types, in every layout.
     for (Layout layout : kLayouts) {
@@ -86,6 +96,43 @@ DEF_TEST(UniformManagerCheckFloatEncoding, r) {
                 REPORTER_ASSERT(r, uniformData.size() >= vecLength * sizeof(float));
                 REPORTER_ASSERT(r, 0 == memcmp(kFloats, uniformData.data(),
                                                vecLength * sizeof(float)),
+                                "Layout:%d Type:%d encoding failed", (int)layout, (int)type);
+            }
+
+            mgr.reset();
+        }
+    }
+}
+
+DEF_TEST(UniformManagerCheckIntEncoding, r) {
+    // Verify that the uniform manager encodes int data properly.
+    for (Layout layout : kLayouts) {
+        UniformManager mgr(layout);
+
+        for (SkSLType type : kTypes) {
+            if (!SkSLTypeIsIntegralType(type)) {
+                continue;
+            }
+
+            // Write our uniform int scalar/vector.
+            const SkUniform expectations[] = {{"uniform", type}};
+            mgr.setExpectedUniforms(SkSpan(expectations));
+            mgr.write(type, 1, kInts);
+
+            // Read back the uniform data.
+            SkUniformDataBlock uniformData = mgr.peekData();
+            int vecLength = SkSLTypeVecLength(type);
+            if (layout == Layout::kMetal && !SkSLTypeIsFullPrecisionNumericType(type)) {
+                // Metal should encode short uniforms in 16 bits.
+                REPORTER_ASSERT(r, uniformData.size() >= vecLength * sizeof(int16_t));
+                REPORTER_ASSERT(r, 0 == memcmp(kShorts, uniformData.data(),
+                                               vecLength * sizeof(int16_t)),
+                                "Layout:%d Type:%d encoding failed", (int)layout, (int)type);
+            } else {
+                // Other layouts should always encode int uniforms in 32 bits.
+                REPORTER_ASSERT(r, uniformData.size() >= vecLength * sizeof(int32_t));
+                REPORTER_ASSERT(r, 0 == memcmp(kInts, uniformData.data(),
+                                               vecLength * sizeof(int32_t)),
                                 "Layout:%d Type:%d encoding failed", (int)layout, (int)type);
             }
 
