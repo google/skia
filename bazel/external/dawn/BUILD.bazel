@@ -46,7 +46,7 @@ genrule(
           "--template-dir $$(dirname $(location generator/templates/api_cpp.h)) " +
           "--targets cpp_headers " +
           "--output-dir $(RULEDIR)",
-    tools = [":dawn_json_generator"],
+    exec_tools = [":dawn_json_generator"],
 )
 
 genrule(
@@ -68,7 +68,7 @@ genrule(
           "--template-dir $$(dirname $(location generator/templates/api.h)) " +
           "--targets headers " +
           "--output-dir $(RULEDIR)",
-    tools = [":dawn_json_generator"],
+    exec_tools = [":dawn_json_generator"],
 )
 
 genrule(
@@ -90,7 +90,7 @@ genrule(
           "--template-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
           "--targets proc " +
           "--output-dir $(RULEDIR)",
-    tools = [":dawn_json_generator"],
+    exec_tools = [":dawn_json_generator"],
 )
 
 genrule(
@@ -110,7 +110,7 @@ genrule(
           "--template-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
           "--targets cpp " +
           "--output-dir $(RULEDIR)",
-    tools = [":dawn_json_generator"],
+    exec_tools = [":dawn_json_generator"],
 )
 
 genrule(
@@ -154,7 +154,7 @@ genrule(
           "--template-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
           "--targets native_utils " +
           "--output-dir $(RULEDIR)",
-    tools = [":dawn_json_generator"],
+    exec_tools = [":dawn_json_generator"],
 )
 
 py_binary(
@@ -187,7 +187,7 @@ genrule(
           "--gpu-info-json $(location src/dawn/gpu_info.json) " +
           "--template-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
           "--output-dir $(RULEDIR)",
-    tools = [":dawn_gpu_info_generator"],
+    exec_tools = [":dawn_gpu_info_generator"],
 )
 
 py_binary(
@@ -222,7 +222,7 @@ genrule(
           "--template-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
           "--dawn-dir $$(dirname $(location generator/templates/BSD_LICENSE)) " +
           "--output-dir $(RULEDIR) 2> /dev/null",
-    tools = [":dawn_version_generator"],
+    exec_tools = [":dawn_version_generator"],
 )
 
 DAWN_HDRS = [

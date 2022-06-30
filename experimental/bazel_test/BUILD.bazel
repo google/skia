@@ -1,5 +1,6 @@
 load("//bazel:macros.bzl", "cc_binary", "exports_files_legacy", "go_binary", "go_library")
 load("//bazel:cc_library_with_flags.bzl", "cc_library_with_flags")
+load("@rules_python//python:defs.bzl", "py_binary")
 
 licenses(["notice"])
 
@@ -35,4 +36,19 @@ go_library(
     srcs = ["hello_world.go"],
     importpath = "go.skia.org/skia/experimental/bazel_test",
     visibility = ["//visibility:private"],
+)
+
+py_binary(
+    name = "print_os",
+    srcs = ["print_os.py"],
+)
+
+genrule(
+    name = "generate_file",
+    srcs = [],
+    outs = [
+        "some_file.txt",
+    ],
+    cmd = "$(location :print_os) $@",
+    exec_tools = [":print_os"],
 )

@@ -1355,7 +1355,7 @@ genrule(
           # The $@ means substitute in the one and only output location, which will be located
           # in //bazel-out.
           "$@",
-    tools = [":make_data_cpp"],
+    exec_tools = [":make_data_cpp"],
 )
 
 # We need to make a separate genrule per input because cmd cannot be based on a select()
@@ -1369,7 +1369,7 @@ genrule(
           # The $@ means substitute in the one and only output location, which will be located
           # in //bazel-out.
           "$@",
-    tools = [":make_data_assembly"],
+    exec_tools = [":make_data_assembly"],
 )
 
 genrule(
@@ -1382,7 +1382,7 @@ genrule(
           # The $@ means substitute in the one and only output location, which will be located
           # in //bazel-out.
           "$@",
-    tools = [":make_data_assembly"],
+    exec_tools = [":make_data_assembly"],
 )
 
 genrule(
@@ -1395,7 +1395,7 @@ genrule(
           # The $@ means substitute in the one and only output location, which will be located
           # in //bazel-out.
           "$@",
-    tools = [":make_data_assembly"],
+    exec_tools = [":make_data_assembly"],
 )
 
 py_binary(
