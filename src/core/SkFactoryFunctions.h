@@ -15,13 +15,14 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
+#include "include/effects/SkRuntimeEffect.h"
 
+class SkPrecompileBase;
 class SkPrecompileBlender;
 class SkPrecompileColorFilter;
 class SkPrecompileImageFilter;
 class SkPrecompileMaskFilter;
 class SkPrecompileShader;
-class SkRuntimeEffect;
 
 // All of these factory functions will be moved elsewhere once the pre-compile API becomes public
 
@@ -88,6 +89,48 @@ public:
 private:
     SkPrecompileImageFilters() = delete;
 };
+
+//--------------------------------------------------------------------------------------------------
+// Object that allows passing a SkPrecompileShader, SkPrecompileColorFilter or
+// SkPrecompileBlender as a child
+//
+// This will moved to be on SkRuntimeEffect
+class SkPrecompileChildPtr {
+public:
+    SkPrecompileChildPtr() = default;
+    SkPrecompileChildPtr(sk_sp<SkPrecompileShader>);
+    SkPrecompileChildPtr(sk_sp<SkPrecompileColorFilter>);
+    SkPrecompileChildPtr(sk_sp<SkPrecompileBlender>);
+
+    // Asserts that the SkPrecompileBase is either null, or one of the legal derived types
+    SkPrecompileChildPtr(sk_sp<SkPrecompileBase>);
+
+    std::optional<SkRuntimeEffect::ChildType> type() const;
+
+    SkPrecompileShader* shader() const;
+    SkPrecompileColorFilter* colorFilter() const;
+    SkPrecompileBlender* blender() const;
+    SkPrecompileBase* base() const { return fChild.get(); }
+
+private:
+    sk_sp<SkPrecompileBase> fChild;
+};
+
+using SkPrecompileChildOptions = SkSpan<const SkPrecompileChildPtr>;
+
+// These will move to be on SkRuntimeEffect to parallel makeShader, makeColorFilter and
+// makeBlender
+sk_sp<SkPrecompileShader> MakePrecompileShader(
+        sk_sp<SkRuntimeEffect> effect,
+        SkSpan<const SkPrecompileChildOptions> childOptions = {});
+
+sk_sp<SkPrecompileColorFilter> MakePrecompileColorFilter(
+        sk_sp<SkRuntimeEffect> effect,
+        SkSpan<const SkPrecompileChildOptions> childOptions = {});
+
+sk_sp<SkPrecompileBlender> MakePrecompileBlender(
+        sk_sp<SkRuntimeEffect> effect,
+        SkSpan<const SkPrecompileChildOptions> childOptions = {});
 
 #endif // SK_ENABLE_PRECOMPILE
 

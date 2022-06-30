@@ -21,33 +21,53 @@
 
 class SkRuntimeEffect;
 
+class SkPrecompileBase : public SkRefCnt {
+public:
+    enum class Type {
+        kBlender,
+        kColorFilter,
+        kImageFilter,
+        kMaskFilter,
+        kShader,
+        // TODO: add others: kDrawable, kPathEffect (?!)
+    };
+
+    SkPrecompileBase(Type type) : fType(type) {}
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+};
+
 //--------------------------------------------------------------------------------------------------
-class SkPrecompileShader : public SkRefCnt {
+class SkPrecompileShader : public SkPrecompileBase {
 public:
-    // TODO: add a type enum to each of these base classes
+    SkPrecompileShader() : SkPrecompileBase(Type::kShader) {}
 };
 
-class SkPrecompileMaskFilter : public SkRefCnt {
+class SkPrecompileMaskFilter : public SkPrecompileBase {
 public:
-
+    SkPrecompileMaskFilter() : SkPrecompileBase(Type::kMaskFilter) {}
 };
 
-class SkPrecompileColorFilter : public SkRefCnt {
+class SkPrecompileColorFilter : public SkPrecompileBase {
 public:
-
+    SkPrecompileColorFilter() : SkPrecompileBase(Type::kColorFilter) {}
 };
 
-class SkPrecompileImageFilter : public SkRefCnt {
+class SkPrecompileImageFilter : public SkPrecompileBase {
 public:
-
+    SkPrecompileImageFilter() : SkPrecompileBase(Type::kImageFilter) {}
 };
 
-class SkPrecompileBlender : public SkRefCnt {
+class SkPrecompileBlender : public SkPrecompileBase {
 public:
+    SkPrecompileBlender() : SkPrecompileBase(Type::kBlender) {}
+
     virtual std::optional<SkBlendMode> asBlendMode() const { return {}; }
 
     static sk_sp<SkPrecompileBlender> Mode(SkBlendMode blendMode);
-
 };
 
 //--------------------------------------------------------------------------------------------------
