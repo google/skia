@@ -168,6 +168,17 @@ private:
             return;
         }
 
+        if constexpr (std::is_same<MemType, int32_t>::value &&
+                      std::is_same<UniformType, int16_t>::value) {
+            // Convert ints to short.
+            const int32_t* intBits = static_cast<const int32_t*>(src);
+            int16_t* shortBits = static_cast<int16_t*>(dst);
+            while (numUniforms-- > 0) {
+                *shortBits++ = int16_t(*intBits++);
+            }
+            return;
+        }
+
         SK_ABORT("implement conversion from MemType to UniformType");
     }
 
@@ -227,6 +238,18 @@ public:
                                  const void *src) {
         SkASSERT(n >= 1 || n == SkUniform::kNonArray);
         switch (type) {
+            case SkSLType::kShort:
+                return Write<int32_t, int16_t>(dest, n, static_cast<const int32_t *>(src));
+
+            case SkSLType::kShort2:
+                return Write<int32_t, int16_t, 2>(dest, n, static_cast<const int32_t *>(src));
+
+            case SkSLType::kShort3:
+                return Write<int32_t, int16_t, 3>(dest, n, static_cast<const int32_t *>(src));
+
+            case SkSLType::kShort4:
+                return Write<int32_t, int16_t, 4>(dest, n, static_cast<const int32_t *>(src));
+
             case SkSLType::kInt:
                 return Write<int32_t, int32_t>(dest, n, static_cast<const int32_t *>(src));
 
