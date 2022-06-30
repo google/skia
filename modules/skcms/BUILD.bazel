@@ -17,6 +17,12 @@ cc_library(
     ],
     # The following comment will be replaced with G3-specific settings
     # SKCMS_REPLACE_IN_GOOGLE3_COMPATIBLE_WITH
+    copts = select({
+        "//bazel/common_config_settings:release_build": [],
+        # Some clients have a constrained stack-size, and building skcms with -O0 (the default for debug) can
+        # go over that limit. Thus, we have a slightly more optimized build to make that fit.
+        "//conditions:default": ["-O1"],
+    }),
     includes = ["."],
     # This header does not compile on its own and is meant to be included from skcms.cc
     textual_hdrs = [
