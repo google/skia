@@ -2527,44 +2527,58 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
             // dimension.
             const SkSpan<const SkGlyphID> glyphs = rejected->source().get<0>();
 
-            // For glyphs that won't fit in the atlas, calculating the amount to reduce the size
-            // can't be done using simple ratios. This is because the SkScaler forces glyph width
-            // and height to integer amounts causing the ratio to be too high if it rounds up.
-            // If it does round up, you need to try again to find the maximum glyph dimensions
-            // and scale factor.
+            // It could be that this font produces glyphs that won't fit in the atlas. Find the
+            // largest glyph dimension for the glyph run.
+            SkStrikeSpec gaugingStrikeSpec = SkStrikeSpec::MakeTransformMask(
+                    runFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
+            SkScopedStrikeForGPU gaugingStrike =
+                    gaugingStrikeSpec.findOrCreateScopedStrike(strikeCache);
+
+            // Remember, this will be an integer.
+            const SkScalar originalMaxGlyphDimension =
+                    gaugingStrike->findMaximumGlyphDimension(glyphs);
+
             SkScalar strikeToSourceScale = 1;
             SkFont reducedFont = runFont;
-            SkScalar maxGlyphDimension;
-            do {
-                reducedFont.setSize(reducedFont.getSize() / strikeToSourceScale);
+            if (originalMaxGlyphDimension > kMaxBilerpAtlasDimension) {
+                // For glyphs that won't fit in the atlas, calculating the amount to reduce the
+                // size can't be done using simple ratios. This is because the SkScaler forces
+                // glyph width and height to integer amounts causing the ratio to be too high if
+                // it rounds up. If it does round up, you need to try again to find the maximum
+                // glyph dimensions and scale factor.
+                SkScalar maxGlyphDimension = originalMaxGlyphDimension;
+                SkScalar reductionFactor = kMaxBilerpAtlasDimension / maxGlyphDimension;
 
-                // Gauge the scale factor needed to reduce the font size by.
-                SkStrikeSpec gaugingStrikeSpec = SkStrikeSpec::MakeTransformMask(
-                        reducedFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
+                // Find a new reducedFont that produces a maximum glyph dimension that is
+                // <= kMaxBilerpAtlasDimension.
+                do {
+                    // Make a smaller font that will hopefully fit in the atlas.
+                    reducedFont.setSize(runFont.getSize() * reductionFactor);
 
-                // A strike that is too big, but will give an accurate maximum glyph dimension.
-                SkScopedStrikeForGPU gaugingStrike =
-                        gaugingStrikeSpec.findOrCreateScopedStrike(strikeCache);
+                    // Create a strike to calculate the new reduced maximum glyph dimension.
+                    SkStrikeSpec reducingStrikeSpec = SkStrikeSpec::MakeTransformMask(
+                            reducedFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
+                    SkScopedStrikeForGPU reducingStrike =
+                            reducingStrikeSpec.findOrCreateScopedStrike(strikeCache);
 
-                // Remember, this will be an integer.
-                maxGlyphDimension = gaugingStrike->findMaximumGlyphDimension(glyphs);
+                    // Remember, this will be an integer.
+                    maxGlyphDimension = reducingStrike->findMaximumGlyphDimension(glyphs);
 
-                // If the glyphs are too big we need to calculate a scaling factor to allow the
-                // image of the glyph to fit in the atlas.
-                if (kMaxBilerpAtlasDimension < maxGlyphDimension) {
-                    SkScalar candidateStrikeToSourceScale =
-                            maxGlyphDimension / kMaxBilerpAtlasDimension;
-                    // Be sure that strikeToSourceCache is always getting bigger to avoid an
-                    // infinite loop.
-                    if (candidateStrikeToSourceScale > strikeToSourceScale) {
-                        // Yep. Getting bigger.
-                        strikeToSourceScale = candidateStrikeToSourceScale;
-                    } else {
-                        // Force it bigger.
-                        strikeToSourceScale *= 1.01f;
-                    }
-                }
-            } while (kMaxBilerpAtlasDimension < maxGlyphDimension);
+                    // The largest reduction factor allowed for each iteration. Smaller reduction
+                    // factors reduce the font size faster.
+                    static constexpr SkScalar kMaximumReduction =
+                            1.0f - 1.0f / kMaxBilerpAtlasDimension;
+
+                    // Make the reduction smaller by at least kMaximumReduction in case the
+                    // maximum glyph dimension is too big.
+                    reductionFactor *=
+                            std::min(kMaximumReduction, kMaxBilerpAtlasDimension/maxGlyphDimension);
+                } while (maxGlyphDimension > kMaxBilerpAtlasDimension);
+
+                // Calculate the factor to make the maximum dimension of the reduced font be the
+                // same size as the maximum dimension from the original runFont.
+                strikeToSourceScale = originalMaxGlyphDimension / maxGlyphDimension;
+            }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
                 SkStrikeSpec strikeSpec = SkStrikeSpec::MakeTransformMask(
