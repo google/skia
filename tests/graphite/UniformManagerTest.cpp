@@ -162,3 +162,34 @@ DEF_TEST(UniformManagerCheckScalarVectorPacking, r) {
         }
     }
 }
+
+DEF_TEST(UniformManagerCheckMatrixPacking, r) {
+    // Verify that the uniform manager can pack matrices correctly.
+    for (Layout layout : kLayouts) {
+        UniformManager mgr(layout);
+
+        for (SkSLType type : kTypes) {
+            int matrixSize = SkSLTypeMatrixSize(type);
+            if (matrixSize < 2) {
+                continue;
+            }
+
+            // Write three matching uniforms.
+            const SkUniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
+            mgr.setExpectedUniforms(SkSpan(expectations));
+            mgr.write(type, SkUniform::kNonArray, kFloats);
+            mgr.write(type, SkUniform::kNonArray, kFloats);
+            mgr.write(type, SkUniform::kNonArray, kFloats);
+            mgr.doneWithExpectedUniforms();
+
+            // Verify that the uniform data was packed as tight as it should be.
+            SkUniformDataBlock uniformData = mgr.peekData();
+            size_t elementSize = element_size(layout, type);
+            // In all layouts, mat3s should burn 12 elements, not 9.
+            size_t numElements = (matrixSize == 3) ? 12 : (matrixSize * matrixSize);
+            REPORTER_ASSERT(r, uniformData.size() == elementSize * numElements * 3,
+                            "Layout:%d Type:%d matrix packing failed", (int)layout, (int)type);
+            mgr.reset();
+        }
+    }
+}

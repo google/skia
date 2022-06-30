@@ -281,6 +281,61 @@ static constexpr int SkSLTypeVecLength(SkSLType type) {
     SkUNREACHABLE;
 }
 
+/** If the type represents a square matrix, return its size; otherwise, -1. */
+static constexpr int SkSLTypeMatrixSize(SkSLType type) {
+    switch (type) {
+        case SkSLType::kFloat2x2:
+        case SkSLType::kHalf2x2:
+            return 2;
+
+        case SkSLType::kFloat3x3:
+        case SkSLType::kHalf3x3:
+            return 3;
+
+        case SkSLType::kFloat4x4:
+        case SkSLType::kHalf4x4:
+            return 4;
+
+        case SkSLType::kFloat:
+        case SkSLType::kHalf:
+        case SkSLType::kBool:
+        case SkSLType::kShort:
+        case SkSLType::kUShort:
+        case SkSLType::kInt:
+        case SkSLType::kUInt:
+        case SkSLType::kFloat2:
+        case SkSLType::kHalf2:
+        case SkSLType::kBool2:
+        case SkSLType::kShort2:
+        case SkSLType::kUShort2:
+        case SkSLType::kInt2:
+        case SkSLType::kUInt2:
+        case SkSLType::kFloat3:
+        case SkSLType::kHalf3:
+        case SkSLType::kBool3:
+        case SkSLType::kShort3:
+        case SkSLType::kUShort3:
+        case SkSLType::kInt3:
+        case SkSLType::kUInt3:
+        case SkSLType::kFloat4:
+        case SkSLType::kHalf4:
+        case SkSLType::kBool4:
+        case SkSLType::kShort4:
+        case SkSLType::kUShort4:
+        case SkSLType::kInt4:
+        case SkSLType::kUInt4:
+        case SkSLType::kVoid:
+        case SkSLType::kTexture2DSampler:
+        case SkSLType::kTextureExternalSampler:
+        case SkSLType::kTexture2DRectSampler:
+        case SkSLType::kTexture2D:
+        case SkSLType::kSampler:
+        case SkSLType::kInput:
+            return -1;
+    }
+    SkUNREACHABLE;
+}
+
 static constexpr bool SkSLTypeIsCombinedSamplerType(SkSLType type) {
     switch (type) {
         case SkSLType::kTexture2DSampler:

@@ -77,7 +77,7 @@ struct Rules140 {
         if (Cols != 1) {
             // This is a matrix or array of matrices. We return the stride between columns.
             SkASSERT(RowsOrVecLength > 1);
-            return Rules140<BaseType, RowsOrVecLength>::Stride(1);
+            return Rules140<BaseType, RowsOrVecLength>::Stride(SkUniform::kNonArray);
         }
 
         // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
@@ -113,7 +113,7 @@ struct Rules430 {
         if (Cols != 1) {
             // This is a matrix or array of matrices. We return the stride between columns.
             SkASSERT(RowsOrVecLength > 1);
-            return Rules430<BaseType, RowsOrVecLength>::Stride(1);
+            return Rules430<BaseType, RowsOrVecLength>::Stride(SkUniform::kNonArray);
         }
 
         // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
@@ -140,7 +140,7 @@ struct RulesMetal {
         if (Cols != 1) {
             // This is a matrix or array of matrices. We return the stride between columns.
             SkASSERT(RowsOrVecLength > 1);
-            return RulesMetal<BaseType, RowsOrVecLength>::Stride(1);
+            return RulesMetal<BaseType, RowsOrVecLength>::Stride(SkUniform::kNonArray);
         }
 
         // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
@@ -494,27 +494,27 @@ SkSLType UniformManager::getUniformTypeForLayout(SkSLType type) {
     if (fLayout != Layout::kMetal) {
         // GL/Vk expect uniforms in 32-bit precision. Convert lower-precision types to 32-bit.
         switch (type) {
-            case SkSLType::kShort:            return SkSLType::kInt;
-            case SkSLType::kUShort:           return SkSLType::kUInt;
-            case SkSLType::kHalf:             return SkSLType::kFloat;
+            case SkSLType::kShort:      return SkSLType::kInt;
+            case SkSLType::kUShort:     return SkSLType::kUInt;
+            case SkSLType::kHalf:       return SkSLType::kFloat;
 
-            case SkSLType::kShort2:           return SkSLType::kInt2;
-            case SkSLType::kUShort2:          return SkSLType::kUInt2;
-            case SkSLType::kHalf2:            return SkSLType::kFloat2;
+            case SkSLType::kShort2:     return SkSLType::kInt2;
+            case SkSLType::kUShort2:    return SkSLType::kUInt2;
+            case SkSLType::kHalf2:      return SkSLType::kFloat2;
 
-            case SkSLType::kShort3:           return SkSLType::kInt3;
-            case SkSLType::kUShort3:          return SkSLType::kUInt3;
-            case SkSLType::kHalf3:            return SkSLType::kFloat3;
+            case SkSLType::kShort3:     return SkSLType::kInt3;
+            case SkSLType::kUShort3:    return SkSLType::kUInt3;
+            case SkSLType::kHalf3:      return SkSLType::kFloat3;
 
-            case SkSLType::kShort4:           return SkSLType::kInt4;
-            case SkSLType::kUShort4:          return SkSLType::kUInt4;
-            case SkSLType::kHalf4:            return SkSLType::kFloat4;
+            case SkSLType::kShort4:     return SkSLType::kInt4;
+            case SkSLType::kUShort4:    return SkSLType::kUInt4;
+            case SkSLType::kHalf4:      return SkSLType::kFloat4;
 
-            case SkSLType::kHalf2x2:          return SkSLType::kFloat2x2;
-            case SkSLType::kHalf3x3:          return SkSLType::kFloat3x3;
-            case SkSLType::kHalf4x4:          return SkSLType::kFloat4x4;
+            case SkSLType::kHalf2x2:    return SkSLType::kFloat2x2;
+            case SkSLType::kHalf3x3:    return SkSLType::kFloat3x3;
+            case SkSLType::kHalf4x4:    return SkSLType::kFloat4x4;
 
-            default:                        break;
+            default:                    break;
         }
     }
 
