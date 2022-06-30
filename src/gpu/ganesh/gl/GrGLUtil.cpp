@@ -588,6 +588,8 @@ static std::tuple<GrGLANGLEBackend, SkString> get_angle_backend(const char* rend
             return {GrGLANGLEBackend::kD3D11, std::move(innerString)};
         } else if (strstr(rendererString, "Direct3D9")) {
             return {GrGLANGLEBackend::kD3D9, std::move(innerString)};
+        } else if (strstr(rendererString, "Metal")) {
+            return {GrGLANGLEBackend::kMetal, std::move(innerString)};
         } else if (strstr(rendererString, "OpenGL")) {
             return {GrGLANGLEBackend::kOpenGL, std::move(innerString)};
         }

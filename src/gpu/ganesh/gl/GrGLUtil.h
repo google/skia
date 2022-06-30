@@ -230,6 +230,7 @@ enum class GrGLANGLEBackend {
     kUnknown,
     kD3D9,
     kD3D11,
+    kMetal,
     kOpenGL
 };
 
