@@ -544,7 +544,6 @@ void UniformManager::reset() {
     fStorage.rewind();
 }
 
-#ifdef SK_DEBUG
 void UniformManager::checkReset() const {
     SkASSERT(fCurUBOOffset == 0);
     SkASSERT(fCurUBOMaxAlignment == 0);
@@ -553,8 +552,8 @@ void UniformManager::checkReset() const {
 }
 
 void UniformManager::setExpectedUniforms(SkSpan<const SkUniform> expectedUniforms) {
-    fExpectedUniforms = expectedUniforms;
-    fExpectedUniformIndex = 0;
+    SkDEBUGCODE(fExpectedUniforms = expectedUniforms;)
+    SkDEBUGCODE(fExpectedUniformIndex = 0;)
 }
 
 void UniformManager::checkExpected(SkSLType type, unsigned int count) {
@@ -564,6 +563,7 @@ void UniformManager::checkExpected(SkSLType type, unsigned int count) {
     SkASSERT(fExpectedUniforms[fExpectedUniformIndex].type() == type);
     SkASSERT((fExpectedUniforms[fExpectedUniformIndex].count() == 0 && count == 1) ||
              fExpectedUniforms[fExpectedUniformIndex].count() == count);
+#ifdef SK_DEBUG
     fExpectedUniformIndex++;
 
     SkSLType revisedType = this->getUniformTypeForLayout(type);
@@ -573,13 +573,13 @@ void UniformManager::checkExpected(SkSLType type, unsigned int count) {
                                                   revisedType,
                                                   count);
     SkASSERT(debugOffset == fOffset);
+#endif
 }
 
 void UniformManager::doneWithExpectedUniforms() {
     SkASSERT(fExpectedUniformIndex == static_cast<int>(fExpectedUniforms.size()));
-    fExpectedUniforms = {};
+    SkDEBUGCODE(fExpectedUniforms = {};)
 }
-#endif // SK_DEBUG
 
 void UniformManager::write(SkSLType type, unsigned int count, const void* src) {
     SkDEBUGCODE(this->checkExpected(type, (count == SkUniform::kNonArray) ? 1 : count);)

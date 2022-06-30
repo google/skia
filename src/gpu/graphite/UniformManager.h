@@ -40,12 +40,11 @@ public:
     int size() const { return fStorage.count(); }
 
     void reset();
-#ifdef SK_DEBUG
+
     void checkReset() const;
     void setExpectedUniforms(SkSpan<const SkUniform>);
     void checkExpected(SkSLType, unsigned int count);
     void doneWithExpectedUniforms();
-#endif
 
     // TODO: do we need to add a 'makeArray' parameter to these?
     void write(const SkM44&);
