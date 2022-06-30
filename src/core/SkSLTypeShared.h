@@ -162,6 +162,60 @@ static constexpr bool SkSLTypeIsIntegralType(SkSLType type) {
     SkUNREACHABLE;
 }
 
+/** Is the shading language type full precision? */
+static constexpr bool SkSLTypeIsFullPrecisionNumericType(SkSLType type) {
+    switch (type) {
+        // Half-precision types:
+        case SkSLType::kShort:
+        case SkSLType::kShort2:
+        case SkSLType::kShort3:
+        case SkSLType::kShort4:
+        case SkSLType::kUShort:
+        case SkSLType::kUShort2:
+        case SkSLType::kUShort3:
+        case SkSLType::kUShort4:
+        case SkSLType::kHalf:
+        case SkSLType::kHalf2:
+        case SkSLType::kHalf3:
+        case SkSLType::kHalf4:
+        case SkSLType::kHalf2x2:
+        case SkSLType::kHalf3x3:
+        case SkSLType::kHalf4x4:
+        // Non-numeric types:
+        case SkSLType::kVoid:
+        case SkSLType::kTexture2DSampler:
+        case SkSLType::kTextureExternalSampler:
+        case SkSLType::kTexture2DRectSampler:
+        case SkSLType::kTexture2D:
+        case SkSLType::kSampler:
+        case SkSLType::kInput:
+        case SkSLType::kBool:
+        case SkSLType::kBool2:
+        case SkSLType::kBool3:
+        case SkSLType::kBool4:
+            return false;
+
+        // Full-precision numeric types:
+        case SkSLType::kInt:
+        case SkSLType::kInt2:
+        case SkSLType::kInt3:
+        case SkSLType::kInt4:
+        case SkSLType::kUInt:
+        case SkSLType::kUInt2:
+        case SkSLType::kUInt3:
+        case SkSLType::kUInt4:
+        case SkSLType::kFloat:
+        case SkSLType::kFloat2:
+        case SkSLType::kFloat3:
+        case SkSLType::kFloat4:
+        case SkSLType::kFloat2x2:
+        case SkSLType::kFloat3x3:
+        case SkSLType::kFloat4x4:
+            return true;
+    }
+    SkUNREACHABLE;
+}
+
 /**
  * Is the shading language type supported as a uniform (ie, does it have a corresponding set
  * function on GrGLSLProgramDataManager)?
