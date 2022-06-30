@@ -134,10 +134,7 @@ public:
         if (fCanMapVB) {
             fVertexBuffer->unmap();
         } else {
-            fVertexBuffer->updateData(fVertices,
-                                      /*offset=*/0,
-                                      /*size=*/actualCount*fLockStride,
-                                      /*preserve=*/false);
+            fVertexBuffer->updateData(fVertices, /*offset=*/0, actualCount*fLockStride);
             sk_free(fVertices);
         }
 

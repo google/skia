@@ -52,7 +52,7 @@ private:
 
     void onMap(MapType) override;
     void onUnmap(MapType) override;
-    bool onUpdateData(const void* src, size_t offset, size_t size, bool preserve) override;
+    bool onUpdateData(const void* src, size_t offset, size_t size) override;
 
     void vkRelease();
 

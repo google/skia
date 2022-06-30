@@ -94,50 +94,38 @@ GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu,
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-void* GrDawnBuffer::internalMap(MapType type, size_t offset, size_t size) {
+void GrDawnBuffer::onMap(MapType type) {
     if (fUnmapped) {
         SkASSERT(fMappable != Mappable::kNot);
-        void* ptr = this->blockingMap(offset, size);
-        if (!ptr) {
+        if (!this->blockingMap()) {
             SkDebugf("GrDawnBuffer: failed to map buffer\n");
-            return nullptr;
+            return;
         }
         fUnmapped = false;
-        return SkTAddOffset<void>(ptr, offset);
     }
 
     if (fMappable == Mappable::kNot) {
-        // Dawn requires that the offset and size be 4 byte aligned. If the offset is not
-        // then we logically align the staging slice with the previous aligned value, adjust
-        // the pointer into the slice that we return. We'll do the same adjustment when issuing the
-        // transfer in internalUnmap so that the data winds up at the right offset.
-        size_t r = offset & 0x3;
-        size   += r;
         SkASSERT(type == MapType::kWriteDiscard);
         GrStagingBufferManager::Slice slice =
                 this->getDawnGpu()->stagingBufferManager()->allocateStagingBufferSlice(
-                        size, /*requiredAlignment=*/4);
+                        this->size(), /*requiredAlignment=*/4);
         fStagingBuffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
         fStagingOffset = slice.fOffset;
-        return SkTAddOffset<void>(slice.fOffsetMapPtr, r);
+        fMapPtr = slice.fOffsetMapPtr;
+    } else {
+        // We always create this buffers mapped or if they've been used on the gpu before we use the
+        // async map callback to know when it is safe to reuse them. Thus by the time we get here
+        // the buffer should always be mapped.
+        SkASSERT(this->isMapped());
     }
-
-    // We always create this buffers mapped or if they've been used on the gpu before we use the
-    // async map callback to know when it is safe to reuse them. Thus by the time we get here
-    // the buffer should always be mapped.
-    SkASSERT(this->isMapped());
-    return SkTAddOffset<void>(fMapPtr, offset);
 }
 
-void GrDawnBuffer::internalUnmap(MapType type, size_t offset, size_t size) {
+void GrDawnBuffer::onUnmap(MapType type) {
     if (fMappable == Mappable::kNot) {
         SkASSERT(type == MapType::kWriteDiscard);
-        // See comment in internalMap() about this adjustment.
-        size_t r = offset & 0x3;
-        offset -= r;
-        size = SkAlign4(size + r);
+        size_t actualSize = SkAlign4(this->size());
         this->getDawnGpu()->getCopyEncoder().CopyBufferToBuffer(fStagingBuffer, fStagingOffset,
-                                                                fBuffer, offset, size);
+                                                                fBuffer, 0, actualSize);
     } else {
         fBuffer.Unmap();
         fUnmapped = true;
@@ -158,25 +146,14 @@ void GrDawnBuffer::onRelease() {
     this->GrGpuBuffer::onRelease();
 }
 
-void GrDawnBuffer::onMap(MapType type) {
-    fMapPtr = this->internalMap(type, 0, this->size());
-}
-
-void GrDawnBuffer::onUnmap(MapType type) {
-    this->internalUnmap(type, 0, this->size());
-}
-
-bool GrDawnBuffer::onUpdateData(const void* src, size_t offset, size_t size, bool /*preserve*/) {
-    // Note that this subclass's impl of kWriteDiscard never actually discards.
-    void* ptr = this->internalMap(MapType::kWriteDiscard, offset, size);
-    if (!ptr) {
+bool GrDawnBuffer::onUpdateData(const void *src, size_t offset, size_t size) {
+    this->map();
+    if (!this->isMapped()) {
         return false;
     }
 
-    memcpy(ptr, src, size);
-
-    this->internalUnmap(MapType::kWriteDiscard, offset, size);
-
+    memcpy(SkTAddOffset<void>(fMapPtr, offset), src, size);
+    this->unmap();
     return true;
 }
 
@@ -226,49 +203,12 @@ void GrDawnBuffer::mapAsyncDone(WGPUBufferMapAsyncStatus status) {
     callback(this->isMapped());
 }
 
-void* GrDawnBuffer::blockingMap(size_t offset, size_t size) {
+bool GrDawnBuffer::blockingMap() {
     SkASSERT(fMappable != Mappable::kNot);
 
-    struct Context {
-        GrDawnBuffer*    buffer;
-        void*            result;
-        GrDawnAsyncWait  wait;
-    };
+    GrDawnAsyncWait wait(this->getDawnGpu()->device());
+    this->mapAsync([&wait](bool) { wait.signal(); });
+    wait.busyWait();
 
-    Context context{this, nullptr, GrDawnAsyncWait{this->getDawnGpu()->device()}};
-
-    // The offset must be a multiple of 8. If not back it up to the previous 8 byte multiple
-    // and compensate by extending the size. In either case size must be a multiple of 4.
-    SkASSERT(SkIsAlign4(offset));
-    size_t r = offset & 0x7;
-    offset -= r;
-    size = SkAlign4(size + r);
-
-    fBuffer.MapAsync(
-            (fMappable == Mappable::kReadOnly) ? wgpu::MapMode::Read : wgpu::MapMode::Write,
-            offset,
-            size,
-            [](WGPUBufferMapAsyncStatus status, void* userData) {
-                auto* context = static_cast<Context*>(userData);
-                if (status != WGPUBufferMapAsyncStatus_Success) {
-                    context->result = nullptr;
-                    context->wait.signal();
-                    return;
-                }
-                auto* wgpuBuffer = &context->buffer->fBuffer;
-                if (context->buffer->fMappable == Mappable::kReadOnly) {
-                    context->result = const_cast<void*>(wgpuBuffer->GetConstMappedRange());
-                } else {
-                    context->result = wgpuBuffer->GetMappedRange();
-                }
-                if (context->result) {
-                    context->buffer->fUnmapped = false;
-                }
-                context->wait.signal();
-            },
-            &context);
-
-    context.wait.busyWait();
-
-    return context.result ? SkTAddOffset<void>(context.result, r) : nullptr;
+    return this->isMapped();
 }

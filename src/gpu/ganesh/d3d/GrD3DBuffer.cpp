@@ -148,7 +148,7 @@ void GrD3DBuffer::onUnmap(MapType type) {
     this->internalUnmap(type, 0, this->size());
 }
 
-bool GrD3DBuffer::onUpdateData(const void* src, size_t offset, size_t size, bool /*preserve*/) {
+bool GrD3DBuffer::onUpdateData(const void* src, size_t offset, size_t size) {
     if (!fD3DResource) {
         return false;
     }

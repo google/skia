@@ -489,7 +489,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
     if (buffer->isMapped()) {
         buffer->unmap();
     } else {
-        buffer->updateData(stagingBuffer, /*offset=*/0, size, /*preserve=*/false);
+        buffer->updateData(stagingBuffer, /*offset=*/0, size);
     }
 
     return std::move(buffer);
@@ -522,7 +522,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(
         }
     }
     if (temp.get()) {
-        if (!buffer->updateData(data, /*offset=*/0, bufferSize, /*preserve=*/false)) {
+        if (!buffer->updateData(data, /*offset=*/0, bufferSize)) {
             return nullptr;
         }
     } else {
@@ -613,21 +613,6 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size,
                     key)));
     if (!buffer) {
         buffer = this->gpu()->createBuffer(allocSize, intendedType, kDynamic_GrAccessPattern);
-    }
-    return buffer;
-}
-
-sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(const void* data,
-                                                    size_t size,
-                                                    GrGpuBufferType type,
-                                                    GrAccessPattern pattern) {
-    SkASSERT(data);
-    auto buffer = this->createBuffer(size, type, pattern);
-    if (!buffer) {
-        return nullptr;
-    }
-    if (!buffer->updateData(data, /*offset=*/0, size, /*preserve=*/false)) {
-        return nullptr;
     }
     return buffer;
 }

@@ -83,7 +83,7 @@ GrMtlBuffer::~GrMtlBuffer() {
     SkASSERT(!fMapPtr);
 }
 
-bool GrMtlBuffer::onUpdateData(const void *src, size_t offset, size_t size, bool preserve) {
+bool GrMtlBuffer::onUpdateData(const void *src, size_t offset, size_t size) {
     if (fIsDynamic) {
         this->internalMap();
         if (!fMapPtr) {
@@ -99,7 +99,6 @@ bool GrMtlBuffer::onUpdateData(const void *src, size_t offset, size_t size, bool
     // after the region to be updated.
     size_t transferAlignment = this->getGpu()->caps()->transferFromBufferToBufferAlignment();
     size_t r = offset%transferAlignment;
-    SkASSERT(!preserve || r == 0);  // We can't push extra bytes when preserving.
 
     offset -= r;
     size_t transferSize = SkAlignTo(size + r, transferAlignment);
