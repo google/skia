@@ -31,7 +31,7 @@ class Texture;
 class TextureProxy;
 
 
-class CommandBuffer : public SkRefCnt, private DrawDispatcher {
+class CommandBuffer : public SkRefCnt {
 public:
     ~CommandBuffer() override;
 
@@ -60,7 +60,7 @@ public:
 
     void bindDrawBuffers(BindBufferInfo vertices,
                          BindBufferInfo instances,
-                         BindBufferInfo indices) final;
+                         BindBufferInfo indices);
 
     void bindTextureAndSampler(sk_sp<Texture>, sk_sp<Sampler>, int bindIndex);
 
@@ -78,32 +78,27 @@ public:
         this->onSetBlendConstants(blendConstants);
     }
 
-    void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) final {
+    void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) {
         this->onDraw(type, baseVertex, vertexCount);
         SkDEBUGCODE(fHasWork = true;)
     }
     void drawIndexed(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
-                     unsigned int baseVertex) final {
+                     unsigned int baseVertex) {
         this->onDrawIndexed(type, baseIndex, indexCount, baseVertex);
         SkDEBUGCODE(fHasWork = true;)
     }
     void drawInstanced(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount,
-                       unsigned int baseInstance, unsigned int instanceCount) final {
+                       unsigned int baseInstance, unsigned int instanceCount) {
         this->onDrawInstanced(type, baseVertex, vertexCount, baseInstance, instanceCount);
         SkDEBUGCODE(fHasWork = true;)
     }
     void drawIndexedInstanced(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
                               unsigned int baseVertex, unsigned int baseInstance,
-                              unsigned int instanceCount) final {
+                              unsigned int instanceCount) {
         this->onDrawIndexedInstanced(type, baseIndex, indexCount, baseVertex, baseInstance,
                                      instanceCount);
         SkDEBUGCODE(fHasWork = true;)
     }
-
-    // When using a DrawWriter dispatching directly to a CommandBuffer, binding of pipelines and
-    // uniforms must be coordinated with forNewPipeline() and forDynamicStateChange(). The direct
-    // draw calls and vertex buffer binding calls on CB should not be intermingled with the writer.
-    DrawDispatcher* asDrawDispatcher() { return this; }
 
     //---------------------------------------------------------------
     // Can only be used outside renderpasses
