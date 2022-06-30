@@ -579,7 +579,7 @@ UniqueKey MtlCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineD
         static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain = UniqueKey::GenerateDomain();
         SkSpan<const uint32_t> pipelineDescKey = pipelineDesc.asKey();
         UniqueKey::Builder builder(&pipelineKey, kGraphicsPipelineDomain,
-                                   pipelineDescKey.size() + 1, "GraphicsPipeline");
+                                   pipelineDescKey.size() + 2, "GraphicsPipeline");
         // add graphicspipelinedesc key
         for (unsigned int i = 0; i < pipelineDescKey.size(); ++i) {
             builder[i] = pipelineDescKey[i];
@@ -589,8 +589,10 @@ UniqueKey MtlCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineD
         renderPassDesc.fColorAttachment.fTextureInfo.getMtlTextureInfo(&colorInfo);
         renderPassDesc.fDepthStencilAttachment.fTextureInfo.getMtlTextureInfo(&depthStencilInfo);
         SkASSERT(colorInfo.fFormat < 65535 && depthStencilInfo.fFormat < 65535);
-        uint32_t renderPassKey = colorInfo.fFormat << 16 | depthStencilInfo.fFormat;
-        builder[pipelineDescKey.size()] = renderPassKey;
+        uint32_t colorAttachmentKey = colorInfo.fFormat << 16 | colorInfo.fSampleCount;
+        uint32_t dsAttachmentKey = depthStencilInfo.fFormat << 16 | depthStencilInfo.fSampleCount;
+        builder[pipelineDescKey.size()] = colorAttachmentKey;
+        builder[pipelineDescKey.size()+1] = dsAttachmentKey;
         builder.finish();
     }
 
