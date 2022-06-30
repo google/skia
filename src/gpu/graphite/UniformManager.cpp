@@ -79,17 +79,17 @@ struct Rules140 {
             SkASSERT(RowsOrVecLength > 1);
             return Rules140<BaseType, RowsOrVecLength>::Stride(1);
         }
+
+        // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
+        int n = RowsOrVecLength == 3 ? 4 : RowsOrVecLength;
         if (count == 0) {
-            // Stride doesn't matter for a non-array.
-            return RowsOrVecLength * sizeof(BaseType);
+            return n * sizeof(BaseType);
         }
 
         // Rule 4.
 
         // Alignment of vec4 by Rule 2.
         constexpr size_t kVec4Alignment = tight_vec_size<float>(4);
-        // Get alignment of a single vector of BaseType by Rule 1, 2, or 3
-        int n = RowsOrVecLength == 3 ? 4 : RowsOrVecLength;
         size_t kElementAlignment = tight_vec_size<BaseType>(n);
         // Round kElementAlignment up to multiple of kVec4Alignment.
         size_t m = (kElementAlignment + kVec4Alignment - 1) / kVec4Alignment;
@@ -115,12 +115,15 @@ struct Rules430 {
             SkASSERT(RowsOrVecLength > 1);
             return Rules430<BaseType, RowsOrVecLength>::Stride(1);
         }
+
+        // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
+        int n = RowsOrVecLength == 3 ? 4 : RowsOrVecLength;
         if (count == 0) {
-            // Stride doesn't matter for a non-array.
-            return RowsOrVecLength * sizeof(BaseType);
+            return n * sizeof(BaseType);
         }
+
         // Rule 4 without the round up to a multiple of align-of vec4.
-        return tight_vec_size<BaseType>(RowsOrVecLength == 3 ? 4 : RowsOrVecLength);
+        return tight_vec_size<BaseType>(n);
     }
 };
 
@@ -133,16 +136,20 @@ struct RulesMetal {
         SkASSERT(count >= 1 || count == SkUniform::kNonArray);
         static_assert(RowsOrVecLength >= 1 && RowsOrVecLength <= 4);
         static_assert(Cols >= 1 && Cols <= 4);
+
         if (Cols != 1) {
             // This is a matrix or array of matrices. We return the stride between columns.
             SkASSERT(RowsOrVecLength > 1);
             return RulesMetal<BaseType, RowsOrVecLength>::Stride(1);
         }
+
+        // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
+        int n = RowsOrVecLength == 3 ? 4 : RowsOrVecLength;
         if (count == 0) {
-            // Stride doesn't matter for a non-array.
-            return RowsOrVecLength * sizeof(BaseType);
+            return n * sizeof(BaseType);
         }
-        return tight_vec_size<BaseType>(RowsOrVecLength == 3 ? 4 : RowsOrVecLength);
+
+        return tight_vec_size<BaseType>(n);
     }
 };
 

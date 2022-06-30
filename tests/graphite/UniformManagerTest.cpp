@@ -65,7 +65,7 @@ DEF_TEST(UniformManagerCheckSingleUniform, r) {
         for (SkSLType type : kTypes) {
             const SkUniform expectations[] = {{"uniform", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
-            mgr.write(type, 1, kFloats);
+            mgr.write(type, SkUniform::kNonArray, kFloats);
             mgr.doneWithExpectedUniforms();
             REPORTER_ASSERT(r, mgr.size() > 0);
             mgr.reset();
@@ -81,14 +81,14 @@ DEF_TEST(UniformManagerCheckFloatEncoding, r) {
         for (SkSLType type : kTypes) {
             // Only test scalar and vector floats. (Matrices can introduce padding between values.)
             int vecLength = SkSLTypeVecLength(type);
-            if (!SkSLTypeIsFloatType(type) || vecLength < 0) {
+            if (!SkSLTypeIsFloatType(type) || vecLength < 1) {
                 continue;
             }
 
             // Write our uniform float scalar/vector.
             const SkUniform expectations[] = {{"uniform", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
-            mgr.write(type, 1, kFloats);
+            mgr.write(type, SkUniform::kNonArray, kFloats);
             mgr.doneWithExpectedUniforms();
 
             // Read back the uniform data.
@@ -116,7 +116,7 @@ DEF_TEST(UniformManagerCheckIntEncoding, r) {
             // Write our uniform int scalar/vector.
             const SkUniform expectations[] = {{"uniform", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
-            mgr.write(type, 1, kInts);
+            mgr.write(type, SkUniform::kNonArray, kInts);
             mgr.doneWithExpectedUniforms();
 
             // Read back the uniform data.
@@ -127,6 +127,37 @@ DEF_TEST(UniformManagerCheckIntEncoding, r) {
             REPORTER_ASSERT(r, uniformData.size() >= vecLength * elementSize);
             REPORTER_ASSERT(r, 0 == memcmp(validData, uniformData.data(), vecLength * elementSize),
                             "Layout:%d Type:%d int encoding failed", (int)layout, (int)type);
+            mgr.reset();
+        }
+    }
+}
+
+DEF_TEST(UniformManagerCheckScalarVectorPacking, r) {
+    // Verify that the uniform manager can pack scalars and vectors of identical type correctly.
+    for (Layout layout : kLayouts) {
+        UniformManager mgr(layout);
+
+        for (SkSLType type : kTypes) {
+            int vecLength = SkSLTypeVecLength(type);
+            if (vecLength < 1) {
+                continue;
+            }
+
+            // Write three matching uniforms.
+            const SkUniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
+            mgr.setExpectedUniforms(SkSpan(expectations));
+            mgr.write(type, SkUniform::kNonArray, kFloats);
+            mgr.write(type, SkUniform::kNonArray, kFloats);
+            mgr.write(type, SkUniform::kNonArray, kFloats);
+            mgr.doneWithExpectedUniforms();
+
+            // Verify that the uniform data was packed as tight as it should be.
+            SkUniformDataBlock uniformData = mgr.peekData();
+            size_t elementSize = element_size(layout, type);
+            // Vec3s should be packed as if they were vec4s.
+            size_t effectiveVecLength = (vecLength == 3) ? 4 : vecLength;
+            REPORTER_ASSERT(r, uniformData.size() == elementSize * effectiveVecLength * 3,
+                            "Layout:%d Type:%d tight packing failed", (int)layout, (int)type);
             mgr.reset();
         }
     }
