@@ -71,14 +71,12 @@ private:
 
     WriteUniformFn fWriteUniform;
     Layout fLayout;  // TODO: eventually 'fLayout' will not need to be stored
+    uint32_t fCurUBOOffset = 0;
 #ifdef SK_DEBUG
-    uint32_t fCurUBOOffset;
-    uint32_t fCurUBOMaxAlignment;
-
     SkSpan<const SkUniform> fExpectedUniforms;
     int fExpectedUniformIndex = 0;
 #endif // SK_DEBUG
-    uint32_t fOffset;
+    uint32_t fOffset = 0;
 
     SkTDArray<char> fStorage;
 };

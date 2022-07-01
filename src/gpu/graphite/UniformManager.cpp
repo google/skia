@@ -329,7 +329,6 @@ public:
     }
 };
 
-#ifdef SK_DEBUG
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
@@ -468,19 +467,20 @@ inline uint32_t sksltype_to_mtl_size(SkSLType type) {
 // taking into consideration all alignment requirements. The uniformOffset is set to the offset for
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
 static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
-                                       uint32_t* maxAlignment,
                                        SkSLType type,
                                        int arrayCount) {
+    // TODO(skia:13478): these alignments are currently Metal-specific; we are likely to need
+    // fixes for other Layout types.
     uint32_t alignmentMask = sksltype_to_alignment_mask(type);
-    if (alignmentMask > *maxAlignment) {
-        *maxAlignment = alignmentMask;
-    }
     uint32_t offsetDiff = *currentOffset & alignmentMask;
     if (offsetDiff != 0) {
         offsetDiff = alignmentMask - offsetDiff + 1;
     }
     uint32_t uniformOffset = *currentOffset + offsetDiff;
     SkASSERT(sizeof(float) == 4);
+
+    // TODO(skia:13478): these size calculations are currently Metal-specific; we are likely to need
+    // fixes for other Layout types.
     if (arrayCount) {
         *currentOffset = uniformOffset + sksltype_to_mtl_size(type) * arrayCount;
     } else {
@@ -488,7 +488,6 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
     }
     return uniformOffset;
 }
-#endif // SK_DEBUG
 
 SkSLType UniformManager::getUniformTypeForLayout(SkSLType type) {
     if (fLayout != Layout::kMetal) {
@@ -543,17 +542,13 @@ SkUniformDataBlock UniformManager::peekData() const {
 }
 
 void UniformManager::reset() {
-#ifdef SK_DEBUG
     fCurUBOOffset = 0;
-    fCurUBOMaxAlignment = 0;
-#endif
     fOffset = 0;
     fStorage.rewind();
 }
 
 void UniformManager::checkReset() const {
     SkASSERT(fCurUBOOffset == 0);
-    SkASSERT(fCurUBOMaxAlignment == 0);
     SkASSERT(fOffset == 0);
     SkASSERT(fStorage.empty());
 }
@@ -570,17 +565,7 @@ void UniformManager::checkExpected(SkSLType type, unsigned int count) {
     SkASSERT(fExpectedUniforms[fExpectedUniformIndex].type() == type);
     SkASSERT((fExpectedUniforms[fExpectedUniformIndex].count() == 0 && count == 1) ||
              fExpectedUniforms[fExpectedUniformIndex].count() == count);
-#ifdef SK_DEBUG
-    fExpectedUniformIndex++;
-
-    SkSLType revisedType = this->getUniformTypeForLayout(type);
-
-    uint32_t debugOffset = get_ubo_aligned_offset(&fCurUBOOffset,
-                                                  &fCurUBOMaxAlignment,
-                                                  revisedType,
-                                                  count);
-    SkASSERT(debugOffset == fOffset);
-#endif
+    SkDEBUGCODE(fExpectedUniformIndex++;)
 }
 
 void UniformManager::doneWithExpectedUniforms() {
@@ -589,9 +574,17 @@ void UniformManager::doneWithExpectedUniforms() {
 }
 
 void UniformManager::write(SkSLType type, unsigned int count, const void* src) {
-    SkDEBUGCODE(this->checkExpected(type, (count == SkUniform::kNonArray) ? 1 : count);)
+    this->checkExpected(type, (count == SkUniform::kNonArray) ? 1 : count);
 
     SkSLType revisedType = this->getUniformTypeForLayout(type);
+
+    // Insert padding as needed to get the correct uniform alignment.
+    uint32_t alignedOffset = get_ubo_aligned_offset(&fCurUBOOffset, revisedType, count);
+    SkASSERT(alignedOffset >= fOffset);
+    if (alignedOffset > fOffset) {
+        fStorage.append(alignedOffset - fOffset);
+        fOffset = alignedOffset;
+    }
 
     uint32_t bytesNeeded = fWriteUniform(revisedType, CType::kDefault,
                                          /*dest=*/nullptr, count, /*src=*/nullptr);
