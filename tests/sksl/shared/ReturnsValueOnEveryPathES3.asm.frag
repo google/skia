@@ -115,8 +115,6 @@ OpLoopMerge %56 %55 None
 OpBranch %53
 %53 = OpLabel
 OpReturnValue %true
-%54 = OpLabel
-OpBranch %55
 %55 = OpLabel
 OpBranchConditional %true %52 %56
 %56 = OpLabel
@@ -145,8 +143,6 @@ OpLoopMerge %68 %67 None
 OpBranch %65
 %65 = OpLabel
 OpBranch %68
-%66 = OpLabel
-OpBranch %67
 %67 = OpLabel
 OpBranchConditional %true %64 %68
 %68 = OpLabel
