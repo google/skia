@@ -564,7 +564,7 @@ void SkOpGlobalState::debugAddToGlobalCoinDicts() {
 #if DEBUG_T_SECT_LOOP_COUNT
 void SkOpGlobalState::debugAddLoopCount(SkIntersections* i, const SkIntersectionHelper& wt,
         const SkIntersectionHelper& wn) {
-    for (int index = 0; index < (int) std::size(fDebugLoopCount); ++index) {
+    for (int index = 0; index < (int) SK_ARRAY_COUNT(fDebugLoopCount); ++index) {
         SkIntersections::DebugLoop looper = (SkIntersections::DebugLoop) index;
         if (fDebugLoopCount[index] >= i->debugLoopCount(looper)) {
             continue;
@@ -584,7 +584,7 @@ void SkOpGlobalState::debugAddLoopCount(SkIntersections* i, const SkIntersection
 }
 
 void SkOpGlobalState::debugDoYourWorst(SkOpGlobalState* local) {
-    for (int index = 0; index < (int) std::size(fDebugLoopCount); ++index) {
+    for (int index = 0; index < (int) SK_ARRAY_COUNT(fDebugLoopCount); ++index) {
         if (fDebugLoopCount[index] >= local->fDebugLoopCount[index]) {
             continue;
         }
@@ -627,7 +627,7 @@ static void dump_curve(SkPath::Verb verb, const SkPoint& pts, float weight) {
 void SkOpGlobalState::debugLoopReport() {
     const char* loops[] = { "iterations", "coinChecks", "perpCalcs" };
     SkDebugf("\n");
-    for (int index = 0; index < (int) std::size(fDebugLoopCount); ++index) {
+    for (int index = 0; index < (int) SK_ARRAY_COUNT(fDebugLoopCount); ++index) {
         SkDebugf("%s: %d\n", loops[index], fDebugLoopCount[index]);
         dump_curve(fDebugWorstVerb[index * 2], fDebugWorstPts[index * 2 * 4],
                 fDebugWorstWeight[index * 2]);

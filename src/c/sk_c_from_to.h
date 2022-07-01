@@ -6,7 +6,7 @@
  */
 
 static bool find_sk(CType from, SKType* to) {
-    for (size_t i = 0; i < std::size(CTypeSkTypeMap); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(CTypeSkTypeMap); ++i) {
         if (CTypeSkTypeMap[i].fC == from) {
             if (to) {
                 *to = CTypeSkTypeMap[i].fSK;
@@ -18,7 +18,7 @@ static bool find_sk(CType from, SKType* to) {
 }
 
 static bool find_c(SKType from, CType* to) {
-    for (size_t i = 0; i < std::size(CTypeSkTypeMap); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(CTypeSkTypeMap); ++i) {
         if (CTypeSkTypeMap[i].fSK == from) {
             if (to) {
                 *to = CTypeSkTypeMap[i].fC;

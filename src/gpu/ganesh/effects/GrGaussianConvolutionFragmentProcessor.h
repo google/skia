@@ -77,7 +77,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    inline static const constexpr int kMaxKernelWidth = kMaxKernelRadius + 1;
+    inline static constexpr int kMaxKernelWidth = kMaxKernelRadius + 1;
 
     SkV2                  fOffsetsAndKernel[kMaxKernelWidth];
     int                   fRadius;

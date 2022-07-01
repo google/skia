@@ -95,7 +95,7 @@ static const char* escape_char(char c, char storage[2]) {
     };
 
     const char** array = gEscapeChars;
-    for (unsigned i = 0; i < std::size(gEscapeChars); i++) {
+    for (unsigned i = 0; i < SK_ARRAY_COUNT(gEscapeChars); i++) {
         if (array[i][0] == c) {
             return &array[i][1];
         }

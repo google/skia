@@ -78,7 +78,7 @@ std::string SkVMDebugTrace::slotValueToString(int slotIndex, double value) const
         }
         default: {
             char buffer[32];
-            snprintf(buffer, std::size(buffer), "%.8g", value);
+            snprintf(buffer, SK_ARRAY_COUNT(buffer), "%.8g", value);
             return buffer;
         }
     }
@@ -253,7 +253,7 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
         json.appendS32((int)trace.op);
 
         // Skip trailing zeros in the data (since most ops only use one value).
-        int lastDataIdx = std::size(trace.data) - 1;
+        int lastDataIdx = SK_ARRAY_COUNT(trace.data) - 1;
         while (lastDataIdx >= 0 && !trace.data[lastDataIdx]) {
             --lastDataIdx;
         }
@@ -367,7 +367,7 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
         fTraceInfo.push_back(SkVMTraceInfo{});
         SkVMTraceInfo& info = fTraceInfo.back();
 
-        if (!element || element->size() < 1 || element->size() > (1 + std::size(info.data))) {
+        if (!element || element->size() < 1 || element->size() > (1 + SK_ARRAY_COUNT(info.data))) {
             return false;
         }
         const skjson::NumberValue* opVal = (*element)[0];

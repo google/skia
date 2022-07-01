@@ -169,7 +169,7 @@ SkFontMgr_Custom::SkFontMgr_Custom(const SystemFontLoader& loader) : fDefaultFam
     static const char* defaultNames[] = {
         "Arial", "Verdana", "Times New Roman", "Droid Sans", nullptr
     };
-    for (size_t i = 0; i < std::size(defaultNames); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(defaultNames); ++i) {
         sk_sp<SkFontStyleSet_Custom> set(this->onMatchFamily(defaultNames[i]));
         if (nullptr == set) {
             continue;

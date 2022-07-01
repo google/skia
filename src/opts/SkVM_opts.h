@@ -74,7 +74,7 @@ namespace SkVMInterpreterTypes {
 
         Slot* r = few_regs;
 
-        if (nregs > (int)std::size(few_regs)) {
+        if (nregs > (int)SK_ARRAY_COUNT(few_regs)) {
             // Annoyingly we can't trust that malloc() or new will work with Slot because
             // the skvx::Vec types may have alignment greater than what they provide.
             // We'll overallocate one extra register so we can align manually.
@@ -272,7 +272,7 @@ namespace SkVMInterpreterTypes {
                                             16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,
                                             32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,
                                             48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63 };
-                        static_assert(K <= std::size(iota), "");
+                        static_assert(K <= SK_ARRAY_COUNT(iota), "");
 
                         r[d].i32 = n - I32::Load(iota);
                     } break;

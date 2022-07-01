@@ -200,7 +200,7 @@ public:
     }
 
     void setMax(int max) {
-        SkASSERT(max <= (int) std::size(fPt));
+        SkASSERT(max <= (int) SK_ARRAY_COUNT(fPt));
         fMax = max;
     }
 

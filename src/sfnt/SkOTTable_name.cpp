@@ -574,7 +574,7 @@ bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
     // Handle format 0 languages, translating them into BCP 47.
     const BCP47FromLanguageId target = { languageID, "" };
     int languageIndex = SkTSearch<BCP47FromLanguageId, BCP47FromLanguageIdLess>(
-        BCP47FromLanguageID, std::size(BCP47FromLanguageID), target, sizeof(target));
+        BCP47FromLanguageID, SK_ARRAY_COUNT(BCP47FromLanguageID), target, sizeof(target));
     if (languageIndex >= 0) {
         record.language = BCP47FromLanguageID[languageIndex].bcp47;
         return true;

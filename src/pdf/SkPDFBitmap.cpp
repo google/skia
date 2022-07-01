@@ -114,7 +114,7 @@ static void do_deflated_alpha(const SkPixmap& pm, SkPDFDocument* doc, SkPDFIndir
         const uint32_t* stop = ptr + pm.height() * pm.width();
 
         uint8_t byteBuffer[4092];
-        uint8_t* bufferStop = byteBuffer + std::size(byteBuffer);
+        uint8_t* bufferStop = byteBuffer + SK_ARRAY_COUNT(byteBuffer);
         uint8_t* dst = byteBuffer;
         while (ptr != stop) {
             *dst++ = 0xFF & ((*ptr++) >> SK_BGRA_A32_SHIFT);
@@ -162,8 +162,8 @@ static void do_deflated_image(const SkPixmap& pm,
             SkASSERT(pm.colorType() == kBGRA_8888_SkColorType);
             SkASSERT(pm.rowBytes() == (size_t)pm.width() * 4);
             uint8_t byteBuffer[3072];
-            static_assert(std::size(byteBuffer) % 3 == 0, "");
-            uint8_t* bufferStop = byteBuffer + std::size(byteBuffer);
+            static_assert(SK_ARRAY_COUNT(byteBuffer) % 3 == 0, "");
+            uint8_t* bufferStop = byteBuffer + SK_ARRAY_COUNT(byteBuffer);
             uint8_t* dst = byteBuffer;
             for (int y = 0; y < pm.height(); ++y) {
                 const SkColor* src = pm.addr32(0, y);

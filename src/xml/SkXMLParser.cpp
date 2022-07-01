@@ -41,7 +41,7 @@ void SkXMLParserError::getErrorString(SkString* str) const
     SkASSERT(str);
     SkString temp;
     if (fCode != kNoError) {
-        if ((unsigned)fCode < std::size(gErrorStrings))
+        if ((unsigned)fCode < SK_ARRAY_COUNT(gErrorStrings))
             temp.set(gErrorStrings[fCode - 1]);
         temp.append(fNoun);
     } else

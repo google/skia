@@ -191,7 +191,7 @@ sk_sp<SkOTUtils::LocalizedStrings_NameTable>
 SkOTUtils::LocalizedStrings_NameTable::MakeForFamilyNames(const SkTypeface& typeface) {
     return Make(typeface,
                 SkOTUtils::LocalizedStrings_NameTable::familyNameTypes,
-                std::size(SkOTUtils::LocalizedStrings_NameTable::familyNameTypes));
+                SK_ARRAY_COUNT(SkOTUtils::LocalizedStrings_NameTable::familyNameTypes));
 }
 
 bool SkOTUtils::LocalizedStrings_NameTable::next(SkTypeface::LocalizedString* localizedString) {

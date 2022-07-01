@@ -27,7 +27,7 @@ const struct {
 };
 
 static bool from_c_tilemode(sk_shader_tilemode_t cMode, SkTileMode* skMode) {
-    for (size_t i = 0; i < std::size(gTileModeMap); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gTileModeMap); ++i) {
         if (cMode == gTileModeMap[i].fC) {
             if (skMode) {
                 *skMode = gTileModeMap[i].fSK;
@@ -158,7 +158,7 @@ const struct {
 };
 
 static bool find_blurstyle(sk_blurstyle_t csrc, SkBlurStyle* dst) {
-    for (size_t i = 0; i < std::size(gBlurStylePairs); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gBlurStylePairs); ++i) {
         if (gBlurStylePairs[i].fC == csrc) {
             if (dst) {
                 *dst = gBlurStylePairs[i].fSk;

@@ -289,7 +289,7 @@ static inline float pow10(int32_t exp) {
        1.e+025f, 1.e+026f, 1.e+027f, 1.e+028f, 1.e+029f, 1.e+030f, 1.e+031f
     };
 
-    static constexpr int32_t k_exp_offset = std::size(g_pow10_table) / 2;
+    static constexpr int32_t k_exp_offset = SK_ARRAY_COUNT(g_pow10_table) / 2;
 
     // We only support negative exponents for now.
     SkASSERT(exp <= 0);

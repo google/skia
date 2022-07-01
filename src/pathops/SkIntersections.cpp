@@ -100,7 +100,7 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
     fT[0][index] = one;
     fT[1][index] = two;
     ++fUsed;
-    SkASSERT(fUsed <= std::size(fPt));
+    SkASSERT(fUsed <= SK_ARRAY_COUNT(fPt));
     return index;
 }
 

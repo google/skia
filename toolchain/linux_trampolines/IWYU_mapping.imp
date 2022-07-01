@@ -22,20 +22,6 @@
   { include: ["<__iterator/access.h>", "private", "<iterator>", "public"] },
   { include: ["<__iterator/distance.h>", "private", "<iterator>", "public"] },
 
-  { include: ["<__iterator/size.h>", "private", "<array>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<deque>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<forward_list>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<iterator>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<list>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<map>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<regex>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<set>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<string>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<string_view>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<unordered_map>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<unordered_set>", "public"] },
-  { include: ["<__iterator/size.h>", "private", "<vector>", "public"] },
-
   { include: ["<__locale>", "private", "<locale>", "public"] },
 
   { include: ["<__memory/shared_ptr.h>", "private", "<memory>", "public"] },

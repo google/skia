@@ -1341,7 +1341,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
     const size_t nargs = c.arguments().size();
     const size_t kMaxArgs = 3;  // eg: clamp, mix, smoothstep
     Value args[kMaxArgs];
-    SkASSERT(nargs >= 1 && nargs <= std::size(args));
+    SkASSERT(nargs >= 1 && nargs <= SK_ARRAY_COUNT(args));
 
     // All other intrinsics have at most three args, and those can all be evaluated up front:
     for (size_t i = 0; i < nargs; ++i) {
@@ -2118,13 +2118,13 @@ skvm::Color ProgramToSkVM(const Program& program,
         switch (param->modifiers().fLayout.fBuiltin) {
             case SK_MAIN_COORDS_BUILTIN:
                 SkASSERT(param->type().slotCount() == 2);
-                SkASSERT((argSlots + 2) <= std::size(args));
+                SkASSERT((argSlots + 2) <= SK_ARRAY_COUNT(args));
                 args[argSlots++] = local.x.id;
                 args[argSlots++] = local.y.id;
                 break;
             case SK_INPUT_COLOR_BUILTIN:
                 SkASSERT(param->type().slotCount() == 4);
-                SkASSERT((argSlots + 4) <= std::size(args));
+                SkASSERT((argSlots + 4) <= SK_ARRAY_COUNT(args));
                 args[argSlots++] = inputColor.r.id;
                 args[argSlots++] = inputColor.g.id;
                 args[argSlots++] = inputColor.b.id;
@@ -2132,7 +2132,7 @@ skvm::Color ProgramToSkVM(const Program& program,
                 break;
             case SK_DEST_COLOR_BUILTIN:
                 SkASSERT(param->type().slotCount() == 4);
-                SkASSERT((argSlots + 4) <= std::size(args));
+                SkASSERT((argSlots + 4) <= SK_ARRAY_COUNT(args));
                 args[argSlots++] = destColor.r.id;
                 args[argSlots++] = destColor.g.id;
                 args[argSlots++] = destColor.b.id;
@@ -2143,7 +2143,7 @@ skvm::Color ProgramToSkVM(const Program& program,
                 return {};
         }
     }
-    SkASSERT(argSlots <= std::size(args));
+    SkASSERT(argSlots <= SK_ARRAY_COUNT(args));
 
     // Make sure that the SkVMDebugTrace starts from a clean slate.
     if (debugTrace) {

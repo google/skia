@@ -1785,7 +1785,7 @@ void LightingEffect::ImplBase::emitCode(EmitArgs& args) {
     SkString sobelFuncName = fragBuilder->getMangledFunctionName("sobel");
     fragBuilder->emitFunction(SkSLType::kHalf,
                               sobelFuncName.c_str(),
-                              {gSobelArgs, std::size(gSobelArgs)},
+                              {gSobelArgs, SK_ARRAY_COUNT(gSobelArgs)},
                               "return (-a + b - 2.0 * c + 2.0 * d -e + f) * scale;");
     const GrShaderVar gPointToNormalArgs[] = {
         GrShaderVar("x", SkSLType::kHalf),
@@ -1795,7 +1795,7 @@ void LightingEffect::ImplBase::emitCode(EmitArgs& args) {
     SkString pointToNormalName = fragBuilder->getMangledFunctionName("pointToNormal");
     fragBuilder->emitFunction(SkSLType::kHalf3,
                               pointToNormalName.c_str(),
-                              {gPointToNormalArgs, std::size(gPointToNormalArgs)},
+                              {gPointToNormalArgs, SK_ARRAY_COUNT(gPointToNormalArgs)},
                               "return normalize(half3(-x * scale, -y * scale, 1));");
 
     const GrShaderVar gInteriorNormalArgs[] = {
@@ -1808,7 +1808,7 @@ void LightingEffect::ImplBase::emitCode(EmitArgs& args) {
     SkString normalName = fragBuilder->getMangledFunctionName("normal");
     fragBuilder->emitFunction(SkSLType::kHalf3,
                               normalName.c_str(),
-                              {gInteriorNormalArgs, std::size(gInteriorNormalArgs)},
+                              {gInteriorNormalArgs, SK_ARRAY_COUNT(gInteriorNormalArgs)},
                               normalBody.c_str());
 
     fragBuilder->codeAppendf("float2 coord = %s;", args.fSampleCoord);
@@ -1872,7 +1872,7 @@ void DiffuseLightingEffect::Impl::emitLightFunc(const GrFragmentProcessor* owner
     *funcName = fragBuilder->getMangledFunctionName("light");
     fragBuilder->emitFunction(SkSLType::kHalf4,
                               funcName->c_str(),
-                              {gLightArgs, std::size(gLightArgs)},
+                              {gLightArgs, SK_ARRAY_COUNT(gLightArgs)},
                               lightBody.c_str());
 }
 
@@ -1979,7 +1979,7 @@ void SpecularLightingEffect::Impl::emitLightFunc(const GrFragmentProcessor* owne
     *funcName = fragBuilder->getMangledFunctionName("light");
     fragBuilder->emitFunction(SkSLType::kHalf4,
                               funcName->c_str(),
-                              {gLightArgs, std::size(gLightArgs)},
+                              {gLightArgs, SK_ARRAY_COUNT(gLightArgs)},
                               lightBody.c_str());
 }
 
@@ -2119,7 +2119,7 @@ void GpuSpotLight::emitLightColor(const GrFragmentProcessor* owner,
     fLightColorFunc = fragBuilder->getMangledFunctionName("lightColor");
     fragBuilder->emitFunction(SkSLType::kHalf3,
                               fLightColorFunc.c_str(),
-                              {gLightColorArgs, std::size(gLightColorArgs)},
+                              {gLightColorArgs, SK_ARRAY_COUNT(gLightColorArgs)},
                               lightColorBody.c_str());
 
     fragBuilder->codeAppendf("%s(%s)", fLightColorFunc.c_str(), surfaceToLight);

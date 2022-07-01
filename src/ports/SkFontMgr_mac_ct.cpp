@@ -216,7 +216,7 @@ static const char* map_css_names(const char* name) {
         { "monospace",  "Courier"   }
     };
 
-    for (size_t i = 0; i < std::size(gPairs); i++) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
         if (strcmp(name, gPairs[i].fFrom) == 0) {
             return gPairs[i].fTo;
         }

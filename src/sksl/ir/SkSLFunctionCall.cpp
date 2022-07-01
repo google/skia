@@ -755,7 +755,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             }
 
             double dmat[16];
-            std::copy(mat, mat + std::size(mat), dmat);
+            std::copy(mat, mat + SK_ARRAY_COUNT(mat), dmat);
             return assemble_compound(context, arguments[0]->fPosition, returnType, dmat);
         }
         // 8.7 : Vector Relational Functions

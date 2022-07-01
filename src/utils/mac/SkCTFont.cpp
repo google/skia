@@ -229,7 +229,7 @@ SkCTFontSmoothBehavior SkCTFontGetSmoothBehavior() {
                                       colorspace.get(), kBitmapInfoRGB));
 
         SkUniqueCFRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(
-                kCFAllocatorDefault, kSpiderSymbol_ttf, std::size(kSpiderSymbol_ttf),
+                kCFAllocatorDefault, kSpiderSymbol_ttf, SK_ARRAY_COUNT(kSpiderSymbol_ttf),
                 kCFAllocatorNull));
         SkUniqueCFRef<CTFontDescriptorRef> desc(
                 CTFontManagerCreateFontDescriptorFromData(data.get()));
@@ -298,7 +298,7 @@ SkCTFontWeightMapping& SkCTFontGetNSFontWeightMapping() {
         SK_KIT_FONT_WEIGHT_PREFIX "FontWeightHeavy",
         SK_KIT_FONT_WEIGHT_PREFIX "FontWeightBlack",
     };
-    static_assert(std::size(nsFontWeightNames) == 9, "");
+    static_assert(SK_ARRAY_COUNT(nsFontWeightNames) == 9, "");
 
     static CGFloat nsFontWeights[11];
     static const CGFloat (*selectedNSFontWeights)[11] = &defaultNSFontWeights;
@@ -330,7 +330,7 @@ SkCTFontWeightMapping& SkCTFontGetDataFontWeightMapping() {
     static CGFloat dataFontWeights[11];
     static SkOnce once;
     once([&] {
-        constexpr size_t dataSize = std::size(kSpiderSymbol_ttf);
+        constexpr size_t dataSize = SK_ARRAY_COUNT(kSpiderSymbol_ttf);
         sk_sp<SkData> data = SkData::MakeWithCopy(kSpiderSymbol_ttf, dataSize);
         const SkSFNTHeader* sfntHeader = reinterpret_cast<const SkSFNTHeader*>(data->data());
         const SkSFNTHeader::TableDirectoryEntry* tableEntry =
