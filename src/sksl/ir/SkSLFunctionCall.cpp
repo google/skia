@@ -38,6 +38,8 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string_view>
 

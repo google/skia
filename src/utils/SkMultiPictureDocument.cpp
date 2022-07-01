@@ -21,10 +21,12 @@
 #include "include/utils/SkNWayCanvas.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 
-#include <limits.h>
-#include <string.h>
 #include <algorithm>
+#include <climits>
+#include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <string>
 
 /*
   File format:

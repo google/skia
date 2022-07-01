@@ -5,6 +5,9 @@
 
 #include "include/core/SkTypes.h"
 
+#include <cstddef>
+#include <cstdint>
+
 typedef int32_t SkUnichar;
 
 namespace SkUTF {

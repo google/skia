@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
 
+#include <cstdint>
 #include <optional>
 
 namespace SkSL {

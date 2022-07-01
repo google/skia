@@ -63,6 +63,7 @@
 #include "src/sksl/spirv.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <functional>
 #include <limits>
 #include <memory>

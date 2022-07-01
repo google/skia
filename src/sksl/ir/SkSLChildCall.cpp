@@ -14,6 +14,8 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <cstddef>
+
 namespace SkSL {
 
 bool ChildCall::hasProperty(Property property) const {

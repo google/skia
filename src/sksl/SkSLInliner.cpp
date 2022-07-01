@@ -59,6 +59,7 @@
 
 #include <algorithm>
 #include <climits>
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <string_view>

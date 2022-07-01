@@ -12,6 +12,8 @@
 #include "include/private/SkTArray.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
+#include <cstddef>
+
 namespace SkShaderUtils {
 
 class GLSLPrettyPrint {

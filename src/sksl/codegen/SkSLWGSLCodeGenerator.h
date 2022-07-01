@@ -8,15 +8,15 @@
 #ifndef SKSL_WGSLCODEGENERATOR
 #define SKSL_WGSLCODEGENERATOR
 
-#include <stdint.h>
-#include <string_view>
-#include <type_traits>
-#include <utility>
-
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkTHash.h"
 #include "include/sksl/SkSLOperator.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
+
+#include <cstdint>
+#include <string_view>
+#include <type_traits>
+#include <utility>
 
 namespace sknonstd {
 template <typename T> struct is_bitmask_enum;

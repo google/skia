@@ -22,6 +22,8 @@
 #include "src/core/SkWriter32.h"
 #include "src/utils/SkCanvasStack.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <utility>
 
 /*

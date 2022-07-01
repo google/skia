@@ -21,6 +21,8 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNWayCanvas.h"
 
+#include <cstddef>
+
 namespace sktext {
 class GlyphRunList;
 }

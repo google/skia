@@ -16,7 +16,7 @@
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLType.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <initializer_list>
 #include <set>
 #include <string>

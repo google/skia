@@ -10,7 +10,7 @@
 
 #include "src/sksl/SkSLMemoryPool.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 
 namespace SkSL {

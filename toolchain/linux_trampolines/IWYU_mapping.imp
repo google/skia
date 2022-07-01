@@ -12,16 +12,34 @@
   { include: ["<__algorithm/stable_sort.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/upper_bound.h>", "private", "<algorithm>", "public"] },
 
+  { symbol: ["INT32_MAX", "public", "<climits>", "public"]},
+
   { symbol: ["abs", "public", "<cmath>", "public"]},
 
-  { symbol: ["uint8_t", "public", "<cstdint>", "public"]},
+  # The first of these is the preferred include, but the others are acceptable.
+  { symbol: ["size_t", "public", "<cstddef>", "public"]},
+  { symbol: ["size_t", "public", "<cstdio>", "public"]},
+  { symbol: ["size_t", "public", "<cstdlib>", "public"]},
+  { symbol: ["size_t", "public", "<cstring>", "public"]},
+  { symbol: ["size_t", "public", "<ctime>", "public"]},
+  { symbol: ["size_t", "public", "<cuchar>", "public"]},
+  { symbol: ["size_t", "public", "<cwchar>", "public"]},
+
   { symbol: ["int8_t", "public", "<cstdint>", "public"]},
+  { symbol: ["int16_t", "public", "<cstdint>", "public"]},
+  { symbol: ["int32_t", "public", "<cstdint>", "public"]},
+  { symbol: ["int64_t", "public", "<cstdint>", "public"]},
+  { symbol: ["uint8_t", "public", "<cstdint>", "public"]},
+  { symbol: ["uint16_t", "public", "<cstdint>", "public"]},
+  { symbol: ["uint32_t", "public", "<cstdint>", "public"]},
+  { symbol: ["uint64_t", "public", "<cstdint>", "public"]},
 
   { include: ["<__functional/function.h>", "private", "<functional>", "public"] },
 
   { include: ["<__iterator/access.h>", "private", "<iterator>", "public"] },
   { include: ["<__iterator/distance.h>", "private", "<iterator>", "public"] },
 
+  # The first of these is the preferred include, but the others are acceptable.
   { include: ["<__iterator/size.h>", "private", "<array>", "public"] },
   { include: ["<__iterator/size.h>", "private", "<deque>", "public"] },
   { include: ["<__iterator/size.h>", "private", "<forward_list>", "public"] },
@@ -43,9 +61,17 @@
 
   { include: ["<__tree>", "private", "<set>", "public"] },
 
+  { symbol: ["std::istringstream", "public", "<sstream>", "public"] },
+  { symbol: ["std::ostringstream", "public", "<sstream>", "public"] },
+  { symbol: ["std::stringstream", "public", "<sstream>", "public"] },
+  { symbol: ["std::stringbuf", "public", "<sstream>", "public"] },
+  { symbol: ["std::basic_istringstream", "public", "<sstream>", "public"] },
+  { symbol: ["std::basic_ostringstream", "public", "<sstream>", "public"] },
+  { symbol: ["std::basic_stringstream", "public", "<sstream>", "public"] },
+  { symbol: ["std::basic_stringbuf", "public", "<sstream>", "public"] },
+
   { symbol: ["va_list", "public", "<stdarg.h>", "public"] },
 
-  { include: ["<string.h>", "public", "<string>", "public"] },
   { symbol: ["std::string", "public", "<string>", "public"] },
 
   { include: ["<__hash_table>", "private", "<unordered_map>", "public"] },
@@ -56,4 +82,61 @@
   { include: ["<__utility/pair.h>", "private", "<utility>", "public"] },
 
   { symbol: ["std::__bit_reference", "public", "<vector>", "public"] },
+
+  # Without these, IWYU won't accept the C++ wrappers and throws
+  # a mysterious "cyclical import" error.
+  # https://github.com/include-what-you-use/include-what-you-use/blob/4c0f39615982c57a9cb313c971c6f45fca1cc1fe/iwyu_include_picker.cc#L573
+  { include: ["<assert.h>", "public", "<cassert>", "public"] },
+  { include: ["<complex.h>", "public", "<ccomplex>", "public"] },
+  { include: ["<ctype.h>", "public", "<cctype>", "public"] },
+  { include: ["<errno.h>", "public", "<cerrno>", "public"] },
+  { include: ["<fenv.h>", "public", "<cfenv>", "public"] },
+  { include: ["<float.h>", "public", "<cfloat>", "public"] },
+  { include: ["<inttypes.h>", "public", "<cinttypes>", "public"] },
+  { include: ["<iso646.h>", "public", "<ciso646>", "public"] },
+  { include: ["<limits.h>", "public", "<climits>", "public"] },
+  { include: ["<locale.h>", "public", "<clocale>", "public"] },
+  { include: ["<math.h>", "public", "<cmath>", "public"] },
+  { include: ["<setjmp.h>", "public", "<csetjmp>", "public"] },
+  { include: ["<signal.h>", "public", "<csignal>", "public"] },
+  { include: ["<stdalign.h>", "public", "<cstdalign>", "public"] },
+  { include: ["<stdarg.h>", "public", "<cstdarg>", "public"] },
+  { include: ["<stdbool.h>", "public", "<cstdbool>", "public"] },
+  { include: ["<stddef.h>", "public", "<cstddef>", "public"] },
+  { include: ["<stdint.h>", "public", "<cstdint>", "public"] },
+  { include: ["<stdio.h>", "public", "<cstdio>", "public"] },
+  { include: ["<stdlib.h>", "public", "<cstdlib>", "public"] },
+  { include: ["<string.h>", "public", "<string>", "public"] },
+  { include: ["<string.h>", "public", "<cstring>", "public"] },
+  { include: ["<tgmath.h>", "public", "<ctgmath>", "public"] },
+  { include: ["<time.h>", "public", "<ctime>", "public"] },
+  { include: ["<uchar.h>", "public", "<cuchar>", "public"] },
+  { include: ["<wchar.h>", "public", "<cwchar>", "public"] },
+  { include: ["<wctype.h>", "public", "<cwctype>", "public"] },
+
+  # From https://github.com/include-what-you-use/include-what-you-use/blob/4c0f39615982c57a9cb313c971c6f45fca1cc1fe/iwyu_include_picker.cc#L327
+  { symbol: ["std::allocator", "private", "<memory>", "public"] },
+  { symbol: ["std::allocator", "private", "<string>", "public"] },
+  { symbol: ["std::allocator", "private", "<vector>", "public"] },
+  { symbol: ["std::allocator", "private", "<map>", "public"] },
+  { symbol: ["std::allocator", "private", "<set>", "public"] },
+  { symbol: ["std::char_traits", "private", "<string>", "public"] },
+  { symbol: ["std::char_traits", "private", "<ostream>", "public"] },
+  { symbol: ["std::char_traits", "private", "<istream>", "public"] },
+
+  # We are pretty forgiving with iostream headers. If we specify
+  # any of them, that is generally sufficient.
+  # https://github.com/include-what-you-use/include-what-you-use/blob/4c0f39615982c57a9cb313c971c6f45fca1cc1fe/iwyu_include_picker.cc#L995
+  {include: ["<ios>", "public", "<istream>", "public"] },
+  {include: ["<ios>", "public", "<ostream>", "public"] },
+  {include: ["<iosfwd>", "public", "<ios>", "public"] },
+  {include: ["<iosfwd>", "public", "<streambuf>", "public"] },
+  {include: ["<istream>", "public", "<fstream>", "public"] },
+  {include: ["<istream>", "public", "<iostream>", "public"] },
+  {include: ["<istream>", "public", "<sstream>", "public"] },
+  {include: ["<ostream>", "public", "<fstream>", "public"] },
+  {include: ["<ostream>", "public", "<iostream>", "public"] },
+  {include: ["<ostream>", "public", "<istream>", "public"] },
+  {include: ["<ostream>", "public", "<sstream>", "public"] },
+  {include: ["<streambuf>", "public", "<ios>", "public"] },
 ]

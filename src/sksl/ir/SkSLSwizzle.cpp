@@ -20,6 +20,8 @@
 #include "src/sksl/ir/SkSLLiteral.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <optional>
 
 namespace SkSL {

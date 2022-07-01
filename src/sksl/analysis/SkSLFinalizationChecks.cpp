@@ -30,6 +30,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>

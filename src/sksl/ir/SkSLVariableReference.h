@@ -12,6 +12,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
 

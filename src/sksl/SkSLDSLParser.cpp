@@ -30,6 +30,7 @@
 #include "src/sksl/ir/SkSLProgram.h"
 
 #include <algorithm>
+#include <climits>
 #include <initializer_list>
 #include <memory>
 #include <type_traits>

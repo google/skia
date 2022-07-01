@@ -25,6 +25,7 @@
 #include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>

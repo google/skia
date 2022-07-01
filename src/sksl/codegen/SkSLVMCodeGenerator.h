@@ -11,6 +11,7 @@
 #include "src/core/SkVM.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>

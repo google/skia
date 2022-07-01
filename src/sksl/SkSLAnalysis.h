@@ -11,7 +11,7 @@
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkTArray.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <memory>
 #include <set>
 

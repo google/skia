@@ -10,7 +10,9 @@
 
 #include "include/core/SkTypes.h"
 
-#include <stdarg.h>
+#include <cstdarg>
+#include <cstddef>
+#include <cstdint>
 #include <string>
 
 namespace SkSL {

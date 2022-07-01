@@ -33,8 +33,10 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkScalerContext.h"
 
-#include <string.h>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 

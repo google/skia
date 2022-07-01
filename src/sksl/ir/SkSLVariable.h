@@ -15,6 +15,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>

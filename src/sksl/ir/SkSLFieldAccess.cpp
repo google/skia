@@ -22,6 +22,8 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
+#include <cstddef>
+
 namespace SkSL {
 
 std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,

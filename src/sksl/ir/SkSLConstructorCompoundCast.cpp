@@ -17,6 +17,7 @@
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstddef>
 #include <optional>
 
 namespace SkSL {

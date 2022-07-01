@@ -11,7 +11,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 struct SkRect;
 template <typename T> class SkTDArray;

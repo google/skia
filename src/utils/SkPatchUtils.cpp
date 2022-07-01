@@ -27,8 +27,9 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkGeometry.h"
 
-#include <string.h>
 #include <algorithm>
+#include <cstdint>
+#include <string>
 
 namespace {
     enum CubicCtrlPts {

@@ -51,12 +51,12 @@ class GrColorInfo;
 class GrRecordingContext;
 #endif
 
-#include <string.h>
 #include <algorithm>
-#include <cstdint>
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <new>
+#include <string>
 #include <utility>
 
 class SkArenaAlloc;

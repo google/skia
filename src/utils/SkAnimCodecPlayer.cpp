@@ -24,6 +24,7 @@
 #include "src/codec/SkCodecImageGenerator.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <memory>
 #include <utility>
 #include <vector>

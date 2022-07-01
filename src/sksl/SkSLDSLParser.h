@@ -25,6 +25,7 @@
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
+#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>

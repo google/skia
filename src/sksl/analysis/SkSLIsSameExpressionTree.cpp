@@ -21,6 +21,7 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
+#include <cstddef>
 #include <memory>
 
 namespace SkSL {

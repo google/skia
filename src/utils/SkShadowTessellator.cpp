@@ -27,6 +27,8 @@
 #include "src/utils/SkPolyUtils.h"
 
 #include <algorithm>
+#include <cstdint>
+
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"

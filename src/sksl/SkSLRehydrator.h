@@ -15,6 +15,8 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string_view>
 #include <string>

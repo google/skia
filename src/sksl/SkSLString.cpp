@@ -7,13 +7,13 @@
 
 #include "include/private/SkSLString.h"
 
+#include <cerrno>
 #include <cmath>
-#include <errno.h>
+#include <cstdio>
+#include <cstdlib>
 #include <locale>
 #include <memory>
 #include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string>
 
 std::string skstd::to_string(float value) {

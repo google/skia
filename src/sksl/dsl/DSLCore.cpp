@@ -49,6 +49,7 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
+#include <cstddef>
 #include <type_traits>
 #include <vector>
 

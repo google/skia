@@ -60,6 +60,7 @@ else
   # not consistent with detecting that.
   external/clang_linux_amd64/usr/bin/include-what-you-use \
       -Xiwyu --keep="include/core/SkTypes.h" \
+      -Xiwyu --no_default_mappings \
       -Xiwyu --mapping_file=$MAPPING_FILE $@ 2>/dev/null
   # IWYU returns 2 if everything looks good. It returns some other non-zero exit code otherwise.
   if [ $? -eq 2 ]; then
@@ -70,6 +71,7 @@ else
     # analysis. If we aren't sure why IWYU wants to include something, try changing verbose to 3.
     external/clang_linux_amd64/usr/bin/include-what-you-use \
         -Xiwyu --keep="include/core/SkTypes.h" \
+        -Xiwyu --no_default_mappings \
         -Xiwyu --mapping_file=$MAPPING_FILE -Xiwyu --no_comments \
         -Xiwyu --quoted_includes_first -Xiwyu --verbose=3 $@
     exit 1 # fail the build

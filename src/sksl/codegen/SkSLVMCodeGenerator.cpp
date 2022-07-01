@@ -62,7 +62,7 @@
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 
 #include <algorithm>
-#include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <string_view>

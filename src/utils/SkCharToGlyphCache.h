@@ -12,6 +12,8 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTo.h"
 
+#include <cstdint>
+
 class SkCharToGlyphCache {
 public:
     SkCharToGlyphCache();

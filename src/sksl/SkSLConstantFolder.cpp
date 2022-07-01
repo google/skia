@@ -24,6 +24,7 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #include <cmath>
+#include <cstdint>
 #include <limits>
 #include <optional>
 #include <string>

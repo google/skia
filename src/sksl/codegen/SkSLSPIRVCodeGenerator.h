@@ -25,10 +25,10 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/spirv.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <stack>
-#include <string>
 #include <string_view>
 #include <vector>
 

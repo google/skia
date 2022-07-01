@@ -35,6 +35,7 @@
 #include "src/sksl/transform/SkSLProgramWriter.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <forward_list>
 #include <string_view>
 #include <unordered_map>

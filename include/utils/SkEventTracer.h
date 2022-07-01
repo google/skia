@@ -18,6 +18,8 @@
 
 #include "include/core/SkTypes.h"
 
+#include <cstdint>
+
 class SK_API SkEventTracer {
 public:
 

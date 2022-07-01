@@ -14,7 +14,7 @@
 #include "include/sksl/DSLType.h"
 #include "include/sksl/SkSLPosition.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <memory>
 #include <string_view>
 #include <utility>

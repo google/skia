@@ -28,6 +28,7 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <cstddef>
 #include <initializer_list>
 #include <utility>
 

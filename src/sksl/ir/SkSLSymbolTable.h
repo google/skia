@@ -13,6 +13,8 @@
 #include "include/private/SkSLSymbol.h"
 #include "include/private/SkTHash.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <forward_list>
 #include <memory>
 #include <string>

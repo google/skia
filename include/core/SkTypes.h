@@ -193,9 +193,9 @@
 #else
     #include "include/config/SkUserConfig.h"
 #endif
+// IWYU pragma: end_exports
 #include <stddef.h>
 #include <stdint.h>
-// IWYU pragma: end_exports
 
 // Post SkUserConfig.h checks and such.
 #if !defined(SK_DEBUG) && !defined(SK_RELEASE)
