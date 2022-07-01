@@ -14,8 +14,8 @@
 namespace skgpu::graphite {
 
 const Renderer& Renderer::TextDirect(MaskFormat maskFormat) {
-    static const TextDirectRenderStep kMask{false};
-    static const TextDirectRenderStep kBitmap{true};
+    static const TextDirectRenderStep kMask{true};
+    static const TextDirectRenderStep kBitmap{false};
 
     static const Renderer kTextMaskRenderer{"TextMaskRenderer",
                                             &kMask};

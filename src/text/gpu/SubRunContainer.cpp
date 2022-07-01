@@ -32,6 +32,7 @@ using AtlasTextOp = skgpu::v1::AtlasTextOp;
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/Device.h"
+#include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/Renderer.h"
 #endif
 
@@ -56,6 +57,7 @@ using namespace sktext::gpu;
 
 #if defined(SK_GRAPHITE_ENABLED)
 using Device = skgpu::graphite::Device;
+using DrawWriter = skgpu::graphite::DrawWriter;
 using Rect = skgpu::graphite::Rect;
 using Recorder = skgpu::graphite::Recorder;
 using Renderer = skgpu::graphite::Renderer;
@@ -1156,6 +1158,11 @@ public:
                                                       SkPoint drawOrigin) const override;
 
     const Renderer* renderer() const override { return &Renderer::TextDirect(fMaskFormat); }
+
+    void fillVertexData(DrawWriter*,
+                        int offset, int count,
+                        SkColor color, SkScalar depth,
+                        const skgpu::graphite::Transform& transform) const override;
 #endif
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
@@ -1573,6 +1580,95 @@ std::tuple<Rect, Transform> DirectMaskSubRun::boundsAndDeviceMatrix(const Transf
     static const Transform kInvalid{SkM44(SkM44::kNaN_Constructor)};
     return {Rect::InfiniteInverted(), kInvalid};
 }
+
+template<typename VertexData>
+void direct_2D_mask_dw(DrawWriter* dw,
+                       SkZip<const Glyph*, const VertexData> quadData,
+                       SkColor color, SkScalar depth) {
+    DrawWriter::Vertices verts{*dw};
+    for (auto [glyph, leftTop]: quadData) {
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        SkScalar dl = leftTop[0],
+                 dt = leftTop[1],
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
+        // TODO: this should be drawn with indices but there doesn't seem to be a way to do that.
+        // TODO: we should really use instances as well.
+        verts.append(6) << SkPoint{dl, dt} << depth << color << AtlasPt{al, at}  // L,T
+                        << SkPoint{dl, db} << depth << color << AtlasPt{al, ab}  // L,B
+                        << SkPoint{dr, dt} << depth << color << AtlasPt{ar, at}  // R,T
+                        << SkPoint{dl, db} << depth << color << AtlasPt{al, ab}  // L,B
+                        << SkPoint{dr, db} << depth << color << AtlasPt{ar, ab}  // R,B
+                        << SkPoint{dr, dt} << depth << color << AtlasPt{ar, at}; // R,T
+    }
+}
+
+template<typename VertexData>
+void direct_2D_rgba_dw(DrawWriter* dw,
+                       SkZip<const Glyph*, const VertexData> quadData,
+                       SkScalar depth) {
+    DrawWriter::Vertices verts{*dw};
+    for (auto [glyph, leftTop]: quadData) {
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        SkScalar dl = leftTop[0],
+                 dt = leftTop[1],
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
+        // TODO: this should be drawn with indices but there doesn't seem to be a way to do that.
+        // TODO: we should really use instances as well.
+        verts.append(6) << SkPoint{dl, dt} << depth << AtlasPt{al, at}  // L,T
+                        << SkPoint{dl, db} << depth << AtlasPt{al, ab}  // L,B
+                        << SkPoint{dr, dt} << depth << AtlasPt{ar, at}  // R,T
+                        << SkPoint{dl, db} << depth << AtlasPt{al, ab}  // L,B
+                        << SkPoint{dr, db} << depth << AtlasPt{ar, ab}  // R,B
+                        << SkPoint{dr, dt} << depth << AtlasPt{ar, at}; // R,T
+    }
+}
+
+template<typename VertexData>
+void transformed_direct_2D_mask_dw(DrawWriter* dw,
+                                   SkZip<const Glyph*, const VertexData> quadData,
+                                   SkColor color, SkScalar depth,
+                                   const Transform& transform) {
+    // TODO
+}
+
+template<typename VertexData>
+void transformed_direct_2D_rgba_dw(DrawWriter* dw,
+                                   SkZip<const Glyph*, const VertexData> quadData,
+                                   SkScalar depth,
+                                   const Transform& transform) {
+    // TODO
+}
+
+void DirectMaskSubRun::fillVertexData(DrawWriter* dw,
+                                      int offset, int count,
+                                      SkColor color, SkScalar depth,
+                                      const skgpu::graphite::Transform& toDevice) const {
+    auto quadData = [&]() {
+        return SkMakeZip(fGlyphs.glyphs().subspan(offset, count),
+                         fLeftTopDevicePos.subspan(offset, count));
+    };
+
+    bool noTransformNeeded = (toDevice.type() == Transform::Type::kIdentity);
+    if (noTransformNeeded) {
+        if (fMaskFormat != MaskFormat::kARGB) {
+            direct_2D_mask_dw(dw, quadData(), color, depth);
+        } else {
+            direct_2D_rgba_dw(dw, quadData(), depth);
+        }
+    } else {
+        if (toDevice.type() == Transform::Type::kProjection) {
+            // TODO: handle float3 position data
+        } else {
+            if (fMaskFormat != MaskFormat::kARGB) {
+                transformed_direct_2D_mask_dw(dw, quadData(), color, depth, toDevice);
+            } else {
+                transformed_direct_2D_rgba_dw(dw, quadData(), depth, toDevice);
+            }
+        }
+    }
+}
 #endif
 
 // true if only need to translate by integer amount, device rect.
@@ -1675,6 +1771,11 @@ public:
     const Renderer* renderer() const override {
         return &Renderer::TextDirect(fVertexFiller.grMaskType());
     }
+
+    void fillVertexData(DrawWriter*,
+                        int offset, int count,
+                        SkColor color, SkScalar depth,
+                        const skgpu::graphite::Transform& transform) const override;
 #endif
 
     int glyphCount() const override;
@@ -1852,6 +1953,13 @@ std::tuple<Rect, Transform> TransformedMaskSubRun::boundsAndDeviceMatrix(
     positionMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
     return {Rect(fVertexFiller.localRect()), Transform(positionMatrix)};
 }
+
+void TransformedMaskSubRun::fillVertexData(DrawWriter*,
+                                           int offset, int count,
+                                           SkColor color, SkScalar depth,
+                                           const skgpu::graphite::Transform& transform) const {
+    // TODO
+}
 #endif
 
 int TransformedMaskSubRun::glyphCount() const {
@@ -1937,6 +2045,11 @@ public:
                                                       SkPoint drawOrigin) const override;
 
     const Renderer* renderer() const override { return &Renderer::TextSDF(fUseLCDText); }
+
+    void fillVertexData(DrawWriter*,
+                        int offset, int count,
+                        SkColor color, SkScalar depth,
+                        const skgpu::graphite::Transform& transform) const override;
 #endif
 
     int glyphCount() const override;
@@ -2176,6 +2289,13 @@ std::tuple<Rect, Transform> SDFTSubRun::boundsAndDeviceMatrix(const Transform& l
     SkM44 positionMatrix(localToDevice.matrix());
     positionMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
     return {Rect(fVertexFiller.localRect()), Transform(positionMatrix)};
+}
+
+void SDFTSubRun::fillVertexData(DrawWriter*,
+                                int offset, int count,
+                                SkColor color, SkScalar depth,
+                                const skgpu::graphite::Transform& transform) const {
+    // TODO
 }
 #endif
 

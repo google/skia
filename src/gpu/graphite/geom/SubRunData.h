@@ -53,7 +53,6 @@ private:
     sk_sp<SkRefCnt> fSupportDataKeepAlive;
 
     Rect fBounds;  // bounds of the data stored in the SubRun
-    // TODO: Remove the attributes when the members are actually used
     int fStartGlyphIndex;
     int fGlyphCount;
 };

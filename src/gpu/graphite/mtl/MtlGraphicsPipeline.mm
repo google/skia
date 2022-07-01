@@ -124,6 +124,9 @@ std::string emit_SkSL_attributes(SkSpan<const Attribute> vertexAttrs,
                 case SkSLType::kHalf4:
                     result.append("half4");
                     break;
+                case SkSLType::kUShort2:
+                    result.append("ushort2");
+                    break;
                 default:
                     SkASSERT(0);
             }
