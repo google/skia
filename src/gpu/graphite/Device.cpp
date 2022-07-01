@@ -648,10 +648,9 @@ void Device::drawGeometry(const Transform& localToDevice,
     // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
     // device space so we draw something approximately correct (barring local coord issues).
     if (geometry.isShape() && localToDevice.type() == Transform::Type::kProjection) {
-        static const Transform kIdentity{SkM44()};
         SkPath devicePath = geometry.shape().asPath();
         devicePath.transform(localToDevice.matrix().asM33());
-        this->drawGeometry(kIdentity, Geometry(Shape(devicePath)), paint, style, flags);
+        this->drawGeometry(Transform::Identity(), Geometry(Shape(devicePath)), paint, style, flags);
         return;
     }
 
@@ -764,7 +763,7 @@ void Device::drawClipShape(const Transform& localToDevice,
     if (localToDevice.type() == Transform::Type::kProjection) {
         SkPath devicePath = geometry.shape().asPath();
         devicePath.transform(localToDevice.matrix().asM33());
-        fDC->recordDraw(*renderer, Transform({}), Geometry(Shape(devicePath)), clip, order,
+        fDC->recordDraw(*renderer, Transform::Identity(), Geometry(Shape(devicePath)), clip, order,
                         nullptr, nullptr);
     } else {
         fDC->recordDraw(*renderer, localToDevice, geometry, clip, order, nullptr, nullptr);
