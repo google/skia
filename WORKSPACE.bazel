@@ -9,11 +9,11 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # See https://github.com/emscripten-core/emsdk/tree/85d27a4a2a60d591613a305b14ae438c2bb3ce11/bazel#setup-instructions
 http_archive(
     name = "emsdk",
-    sha256 = "99de90a1827044c5430b926db947bcb266c8bdab1a0f20fe34a62431d9174376",
-    strip_prefix = "emsdk-3.1.9/bazel",
+    sha256 = "74c7c54b3544555ec38d1e9dcc7e90b9f49ed0e04f2cc3fd44663c598af24124",
+    strip_prefix = "emsdk-3.1.15/bazel",
     urls = [
-        "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.9.tar.gz",
-        "https://storage.googleapis.com/skia-world-readable/bazel/99de90a1827044c5430b926db947bcb266c8bdab1a0f20fe34a62431d9174376.tar.gz",
+        "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.15.tar.gz",
+        "https://storage.googleapis.com/skia-world-readable/bazel/74c7c54b3544555ec38d1e9dcc7e90b9f49ed0e04f2cc3fd44663c598af24124.tar.gz",
     ],
 )
 
