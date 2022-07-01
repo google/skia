@@ -35,4 +35,5 @@ build:ck_debug --config=debug --noincompatible_enable_cc_toolchain_resolution
 # necessary to include in debug mode (e.g. SkDEBUGCODE), but very rarely something that is
 # only needed in release mode. Thus our C++ debug includes should be a superset of the
 # release includes.
-build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu --compilation_mode=dbg
+build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
+                   --compilation_mode=dbg --keep_going
