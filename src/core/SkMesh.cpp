@@ -470,15 +470,35 @@ SkMesh::SkMesh(SkMesh&&)      = default;
 SkMesh& SkMesh::operator=(const SkMesh&) = default;
 SkMesh& SkMesh::operator=(SkMesh&&)      = default;
 
-sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
+sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, const void* data, size_t size) {
     if (!data) {
         return nullptr;
     }
     if (!dc) {
-        return SkMeshPriv::CpuIndexBuffer::Make(std::move(data));
+        return SkMeshPriv::CpuIndexBuffer::Make(data, size);
     }
 #if SK_SUPPORT_GPU
-    return SkMeshPriv::GpuIndexBuffer::Make(dc, std::move(data));
+    return SkMeshPriv::GpuIndexBuffer::Make(dc, data, size);
+#endif
+    return nullptr;
+}
+
+sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
+    if (!data) {
+        return nullptr;
+    }
+    return MakeIndexBuffer(dc, data->data(), data->size());
+}
+
+sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, const void* data, size_t size) {
+    if (!data) {
+        return nullptr;
+    }
+    if (!dc) {
+        return SkMeshPriv::CpuVertexBuffer::Make(data, size);
+    }
+#if SK_SUPPORT_GPU
+    return SkMeshPriv::GpuVertexBuffer::Make(dc, data, size);
 #endif
     return nullptr;
 }
@@ -487,13 +507,7 @@ sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, sk_sp<const Sk
     if (!data) {
         return nullptr;
     }
-    if (!dc) {
-        return SkMeshPriv::CpuVertexBuffer::Make(std::move(data));
-    }
-#if SK_SUPPORT_GPU
-    return SkMeshPriv::GpuVertexBuffer::Make(dc, std::move(data));
-#endif
-    return nullptr;
+    return MakeVertexBuffer(dc, data->data(), data->size());
 }
 
 SkMesh SkMesh::Make(sk_sp<SkMeshSpecification> spec,

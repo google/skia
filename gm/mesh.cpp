@@ -107,15 +107,17 @@ protected:
                                                SkTileMode::kMirror);
     }
 
-    DrawResult onGpuSetup(GrDirectContext* context, SkString* string) override {
+    DrawResult onGpuSetup(GrDirectContext* dc, SkString* string) override {
         this->ensureBuffers();
-        if (!context || context->abandoned()) {
+        if (!dc || dc->abandoned()) {
             return DrawResult::kOk;
         }
 
-        fColorVB        = SkMesh::MakeVertexBuffer(context, CpuVBAsData(fColorVB));
-        fColorIndexedVB = SkMesh::MakeVertexBuffer(context, CpuVBAsData(fColorIndexedVB));
-        fIB[1]          = SkMesh::MakeIndexBuffer (context, CpuIBAsData(fIB[0]));
+        fColorVB        = SkMesh::MakeVertexBuffer(dc, CpuVBPeek(fColorVB), fColorVB->size());
+        fColorIndexedVB = SkMesh::MakeVertexBuffer(dc,
+                                                   CpuVBPeek(fColorIndexedVB),
+                                                   fColorIndexedVB->size());
+        fIB[1]          = SkMesh::MakeIndexBuffer (dc, CpuIBPeek(fIB[0]), fIB[0]->size());
         if (!fColorVB || !fColorIndexedVB || !fIB[1]) {
             return DrawResult::kFail;
         }
@@ -205,23 +207,23 @@ protected:
     }
 
 private:
-    static sk_sp<const SkData> CpuVBAsData(sk_sp<SkMesh::VertexBuffer> buffer) {
+    static const void* CpuVBPeek(sk_sp<SkMesh::VertexBuffer> buffer) {
         auto vb = static_cast<SkMeshPriv::VB*>(buffer.get());
-        SkASSERT(vb->asData());
-        return vb->asData();
+        SkASSERT(vb->peek());
+        return vb->peek();
     }
 
-    static sk_sp<const SkData> CpuIBAsData(sk_sp<SkMesh::IndexBuffer> buffer) {
+    static const void* CpuIBPeek(sk_sp<SkMesh::IndexBuffer> buffer) {
         auto ib = static_cast<SkMeshPriv::IB*>(buffer.get());
-        SkASSERT(ib->asData());
-        return ib->asData();
+        SkASSERT(ib->peek());
+        return ib->peek();
     }
 
     void ensureBuffers() {
         if (!fColorVB) {
-            fColorVB = SkMesh::MakeVertexBuffer(
-                    /*GrDirectContext*=*/nullptr,
-                    SkData::MakeWithoutCopy(kColorQuad, sizeof(kColorQuad)));
+            fColorVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
+                                                kColorQuad,
+                                                sizeof(kColorQuad));
         }
 
         if (!fNoColorVB) {
@@ -230,7 +232,9 @@ private:
             std::memcpy(SkTAddOffset<void>(data->writable_data(), kNoColorOffset),
                         kNoColorQuad,
                         sizeof(kNoColorQuad));
-            fNoColorVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr, std::move(data));
+            fNoColorVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
+                                                  data->data(),
+                                                  data->size());
         }
 
         if (!fColorIndexedVB) {
@@ -240,13 +244,14 @@ private:
                         kColorIndexedQuad,
                         sizeof(kColorIndexedQuad));
             fColorIndexedVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
-                                                       std::move(data));
+                                                       data->data(),
+                                                       data->size());
         }
 
         if (!fNoColorIndexedVB) {
-            fNoColorIndexedVB = SkMesh::MakeVertexBuffer(
-                    /*GrDirectContext*=*/nullptr,
-                    SkData::MakeWithoutCopy(kNoColorIndexedQuad, sizeof(kNoColorIndexedQuad)));
+            fNoColorIndexedVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
+                                                         kNoColorIndexedQuad,
+                                                         sizeof(kNoColorIndexedQuad));
         }
 
         if (!fIB[0]) {
@@ -255,7 +260,9 @@ private:
             std::memcpy(SkTAddOffset<void>(data->writable_data(), kIndexOffset),
                         kIndices,
                         sizeof(kIndices));
-            fIB[0] = SkMesh::MakeIndexBuffer(/*GrDirectContext*=*/nullptr, std::move(data));
+            fIB[0] = SkMesh::MakeIndexBuffer(/*GrDirectContext*=*/nullptr,
+                                             data->data(),
+                                             data->size());
         }
 
         if (!fIB[1]) {
@@ -397,7 +404,7 @@ protected:
         SkColor colors[] = {SK_ColorWHITE,    SK_ColorTRANSPARENT};
         fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
 
-        fVB = SkMesh::MakeVertexBuffer(nullptr, SkData::MakeWithoutCopy(kQuad, sizeof(kQuad)));
+        fVB = SkMesh::MakeVertexBuffer(nullptr, kQuad, sizeof(kQuad));
     }
 
     SkString onShortName() override { return SkString("custommesh_cs"); }
@@ -530,7 +537,7 @@ protected:
                                                2,
                                                SkTileMode::kMirror);
 
-        fVB = SkMesh::MakeVertexBuffer(nullptr, SkData::MakeWithoutCopy(kQuad, sizeof(kQuad)));
+        fVB = SkMesh::MakeVertexBuffer(nullptr, kQuad, sizeof(kQuad));
     }
 
     SkString onShortName() override { return SkString("custommesh_uniforms"); }
