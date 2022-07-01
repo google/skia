@@ -3701,7 +3701,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
         // As GL_EXT_multisampled_render_to_texture supporting issue,
         // fall back to default dmsaa path
-        if (ctxInfo.vendor()  == GrGLVendor::kIntel) {
+        if ((ctxInfo.vendor()  == GrGLVendor::kIntel ||
+             ctxInfo.angleVendor() == GrGLVendor::kIntel) &&
+             ctxInfo.renderer() >= GrGLRenderer::kIntelIceLake) {
             fMSFBOType = kStandard_MSFBOType;
             fMSAAResolvesAutomatically = false;
         }
