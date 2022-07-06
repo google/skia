@@ -196,7 +196,6 @@ DEF_TEST(UniformManagerCheckMatrixPacking, r) {
 
 DEF_TEST(UniformManagerCheckPaddingScalarVector, r) {
     // Verify that the uniform manager properly adds padding between pairs of scalar/vector.
-    // This test doesn't check mixed 16/32-bit padding yet.
     for (Layout layout : kLayouts) {
         UniformManager mgr(layout);
 
@@ -219,10 +218,11 @@ DEF_TEST(UniformManagerCheckPaddingScalarVector, r) {
                 mgr.write(type2, SkUniform::kNonArray, kFloats);
                 mgr.doneWithExpectedUniforms();
 
-                // Verify that all elements are the same size.
+                // The expected packing varies depending on the bit-widths of each element.
                 const size_t elementSize1 = element_size(layout, type1);
                 const size_t elementSize2 = element_size(layout, type2);
                 if (elementSize1 == elementSize2) {
+                    // Elements in the array correspond to the element size (either 16 or 32 bits).
                     // The expected uniform layout is listed as strings below.
                     // A/B: uniform values.
                     // a/b: padding as part of the uniform type (vec3 takes 4 slots)
@@ -240,6 +240,44 @@ DEF_TEST(UniformManagerCheckPaddingScalarVector, r) {
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout:%d Types:%d %d padding test failed",
                                     (int)layout, (int)type1, (int)type2);
+                } else if (elementSize1 == 2 && elementSize2 == 4) {
+                    // Elements in the array below correspond to 16 bits apiece.
+                    // The expected uniform layout is listed as strings below.
+                    // A/B: uniform values.
+                    // a/b: padding as part of the uniform type (vec3 takes 4 slots)
+                    // _  : padding between uniforms for alignment
+                    static constexpr const char* kExpectedLayout[5][5] = {
+                        { "", "",      "",       "",         ""         },
+                        { "", "A_BB",   "A___BBBB", "A_______BBBBBBbb", "A_______BBBBBBBB" },
+                        { "", "AABB",   "AA__BBBB", "AA______BBBBBBbb", "AA______BBBBBBBB" },
+                        { "", "AAAaBB", "AAAaBBBB", "AAAa____BBBBBBbb", "AAAa____BBBBBBBB" },
+                        { "", "AAAABB", "AAAABBBB", "AAAA____BBBBBBbb", "AAAA____BBBBBBBB" },
+                    };
+                    const size_t size = strlen(kExpectedLayout[vecLength1][vecLength2]) * 2;
+                    SkUniformDataBlock uniformData = mgr.peekData();
+                    REPORTER_ASSERT(r, uniformData.size() == size,
+                                    "Layout:%d Types:%d %d padding test failed",
+                                    (int)layout, (int)type1, (int)type2);
+                } else if (elementSize1 == 4 && elementSize2 == 2) {
+                    // Elements in the array below correspond to 16 bits apiece.
+                    // The expected uniform layout is listed as strings below.
+                    // A/B: uniform values.
+                    // a/b: padding as part of the uniform type (vec3 takes 4 slots)
+                    // _  : padding between uniforms for alignment
+                    static constexpr const char* kExpectedLayout[5][5] = {
+                        { "", "",          "",           "",             ""         },
+                        { "", "AAB",       "AABB",       "AA__BBBb",     "AA__BBBB" },
+                        { "", "AAAAB",     "AAAABB",     "AAAABBBb",     "AAAABBBB" },
+                        { "", "AAAAAAaaB", "AAAAAAaaBB", "AAAAAAaaBBBb", "AAAAAAaaBBBB" },
+                        { "", "AAAAAAAAB", "AAAAAAAABB", "AAAAAAAABBBb", "AAAAAAAABBBB" },
+                    };
+                    const size_t size = strlen(kExpectedLayout[vecLength1][vecLength2]) * 2;
+                    SkUniformDataBlock uniformData = mgr.peekData();
+                    REPORTER_ASSERT(r, uniformData.size() == size,
+                                    "Layout:%d Types:%d %d padding test failed",
+                                    (int)layout, (int)type1, (int)type2);
+                } else {
+                    ERRORF(r, "Unexpected element sizes: %zu %zu", elementSize1, elementSize2);
                 }
                 mgr.reset();
             }
