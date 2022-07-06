@@ -206,20 +206,6 @@ DEF_TEST(BagOfBytesBasic, r) {
     }
 }
 
-// Helper for defining allocators with inline/reserved storage.
-// For argument declarations, stick to the base type (SubRunAllocator).
-// Note: Inheriting from the storage first means the storage will outlive the
-// SubRunAllocator, letting ~SubRunAllocator read it as it calls destructors.
-// (This is mostly only relevant for strict tools like MSAN.)
-
-template <size_t inlineSize>
-class GrSTSubRunAllocator : private BagOfBytes::Storage<inlineSize>, public SubRunAllocator {
-public:
-    explicit GrSTSubRunAllocator(int firstHeapAllocation =
-                                     BagOfBytes::PlatformMinimumSizeWithOverhead(inlineSize, 1))
-            : SubRunAllocator{this->data(), SkTo<int>(this->size()), firstHeapAllocation} {}
-};
-
 DEF_TEST(SubRunAllocator, r) {
     static int created = 0;
     static int destroyed = 0;
@@ -273,7 +259,7 @@ DEF_TEST(SubRunAllocator, r) {
 
     // Exercise on stack arena
     {
-        GrSTSubRunAllocator<64> arena;
+        sktext::gpu::STSubRunAllocator<64, 16> arena;
         exercise(&arena);
     }
 
@@ -314,7 +300,7 @@ DEF_TEST(SubRunAllocator, r) {
             ~I() {}
             int i;
         };
-        GrSTSubRunAllocator<64> arena;
+        sktext::gpu::STSubRunAllocator<64, 16> arena;
         auto a = arena.makeUniqueArray<I>(8, [](size_t i) { return i; });
         for (size_t i = 0; i < 8; i++) {
             REPORTER_ASSERT(r, a[i].i == (int)i);

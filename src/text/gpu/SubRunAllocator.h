@@ -286,6 +286,20 @@ private:
     BagOfBytes fAlloc;
 };
 
+// Helper for defining allocators with inline/reserved storage.
+// For argument declarations, stick to the base type (SubRunAllocator).
+// Note: Inheriting from the storage first means the storage will outlive the
+// SubRunAllocator, letting ~SubRunAllocator read it as it calls destructors.
+// (This is mostly only relevant for strict tools like MSAN.)
+template <size_t InlineStorageSize, size_t InlineStorageAlignment>
+class STSubRunAllocator : private std::array<char,
+                                             BagOfBytes::PlatformMinimumSizeWithOverhead(
+                                                     InlineStorageSize, InlineStorageAlignment)>,
+                          public SubRunAllocator {
+public:
+    explicit STSubRunAllocator(size_t firstHeapAllocation = InlineStorageSize)
+            : SubRunAllocator{this->data(), SkToInt(this->size()), SkToInt(firstHeapAllocation)} {}
+};
 }  // namespace sktext::gpu
 
 #endif // sktext_gpu_SubRunAllocator_DEFINED
