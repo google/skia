@@ -1087,7 +1087,7 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
 #ifdef SK_GL
         srcHelper.reset(new EGLTestHelper(options));
 #else
-        SkASSERT(false, "SrcType::kEGL used without OpenGL support.");
+        SkASSERTF(false, "SrcType::kEGL used without OpenGL support.");
 #endif
     }
     if (srcHelper) {
@@ -1104,7 +1104,7 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
         SkASSERT(DstType::kEGL == dstType);
         dstHelper.reset(new EGLTestHelper(options));
 #else
-        SkASSERT(false, "DstType::kEGL used without OpenGL support.");
+        SkASSERTF(false, "DstType::kEGL used without OpenGL support.");
 #endif
     }
     if (dstHelper) {
