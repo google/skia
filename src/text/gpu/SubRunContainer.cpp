@@ -2470,7 +2470,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
 
     SkASSERT(strikeDeviceInfo.fSDFTControl != nullptr);
     if (strikeDeviceInfo.fSDFTControl == nullptr) {
-        return {true, nullptr};
+        return {true /* some glyphs excluded */, nullptr};
     }
 
     SubRunContainerOwner container{nullptr};
@@ -2660,6 +2660,11 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
             const SkScalar originalMaxGlyphDimension =
                     gaugingStrike->findMaximumGlyphDimension(glyphs);
 
+            // If there are no pixels to change then don't create a SubRun.
+            if (originalMaxGlyphDimension == 0) {
+                return {true /* some glyphs excluded */, nullptr};
+            }
+
             SkScalar strikeToSourceScale = 1;
             SkFont reducedFont = runFont;
             if (originalMaxGlyphDimension > kMaxBilerpAtlasDimension) {
@@ -2685,6 +2690,11 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
 
                     // Remember, this will be an integer.
                     maxGlyphDimension = reducingStrike->findMaximumGlyphDimension(glyphs);
+
+                    // Guard against divide-by-zero below.
+                    if (maxGlyphDimension == 0) {
+                        return {true /* some glyphs excluded */, nullptr};
+                    }
 
                     // The largest reduction factor allowed for each iteration. Smaller reduction
                     // factors reduce the font size faster.
