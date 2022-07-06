@@ -704,6 +704,8 @@ skia_dawn_sources = [
   "$_src/gpu/ganesh/dawn/GrDawnProgramDataManager.h",
   "$_src/gpu/ganesh/dawn/GrDawnRenderTarget.cpp",
   "$_src/gpu/ganesh/dawn/GrDawnRenderTarget.h",
+  "$_src/gpu/ganesh/dawn/GrDawnRingBuffer.cpp",
+  "$_src/gpu/ganesh/dawn/GrDawnRingBuffer.h",
   "$_src/gpu/ganesh/dawn/GrDawnTexture.cpp",
   "$_src/gpu/ganesh/dawn/GrDawnTexture.h",
   "$_src/gpu/ganesh/dawn/GrDawnTextureRenderTarget.cpp",
