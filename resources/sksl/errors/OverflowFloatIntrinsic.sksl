@@ -1,0 +1,13 @@
+uniform half4 colorRed, colorGreen;
+uniform float unknownInput;
+
+half4 main(float2 coords) {
+    const float val = pow(1e38, 2);
+    float4 y = val.xxxx;
+
+    return (y.x == val) ? colorGreen : colorRed;
+}
+
+/*%%*
+'const' variable initializer must be a constant expression
+*%%*/

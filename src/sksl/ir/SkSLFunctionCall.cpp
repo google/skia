@@ -38,6 +38,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cfloat>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -135,8 +136,10 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
 
         value = coalesce(value, *arg0Value, *arg1Value);
 
-        // If coalescing the intrinsic yields a non-finite value, do not optimize.
-        if (!std::isfinite(value)) {
+        if (value >= -FLT_MAX && value <= FLT_MAX) {
+            // This result will fit inside a float Literal.
+        } else {
+            // The value is outside the float range or is NaN (all if-checks fail); do not optimize.
             return nullptr;
         }
     }
@@ -254,8 +257,10 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
 
         array[index] = eval(*arg0Value, *arg1Value, *arg2Value);
 
-        // If evaluation of the intrinsic yields a non-finite value, do not optimize.
-        if (!std::isfinite(array[index])) {
+        if (array[index] >= -FLT_MAX && array[index] <= FLT_MAX) {
+            // This result will fit inside a float Literal.
+        } else {
+            // The value is outside the float range or is NaN (all if-checks fail); do not optimize.
             return nullptr;
         }
     }
