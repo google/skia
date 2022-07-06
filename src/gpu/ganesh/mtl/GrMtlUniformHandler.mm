@@ -156,13 +156,9 @@ static inline uint32_t sksltype_to_mtl_size(SkSLType type) {
 // taking into consideration all alignment requirements. The uniformOffset is set to the offset for
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
 static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
-                                       uint32_t* maxAlignment,
                                        SkSLType type,
                                        int arrayCount) {
     uint32_t alignmentMask = sksltype_to_alignment_mask(type);
-    if (alignmentMask > *maxAlignment) {
-        *maxAlignment = alignmentMask;
-    }
     uint32_t offsetDiff = *currentOffset & alignmentMask;
     if (offsetDiff != 0) {
         offsetDiff = alignmentMask - offsetDiff + 1;
@@ -200,8 +196,7 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
     }
     SkString resolvedName = fProgramBuilder->nameVariable(prefix, name, mangleName);
 
-    uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, &fCurrentUBOMaxAlignment,
-                                             type, arrayCount);
+    uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, type, arrayCount);
     SkString layoutQualifier;
     layoutQualifier.appendf("offset=%d", offset);
 
