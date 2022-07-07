@@ -58,7 +58,9 @@ private:
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
-        , fCurrentUBOOffset(0) {}
+        , fCurrentUBOOffset(0)
+        , fCurrentUBOMaxAlignment(0x0) {
+    }
 
     UniformHandle internalAddUniformArray(const GrProcessor* owner,
                                           uint32_t visibility,
@@ -96,6 +98,7 @@ private:
     SkTArray<skgpu::Swizzle> fSamplerSwizzles;
 
     uint32_t            fCurrentUBOOffset;
+    uint32_t            fCurrentUBOMaxAlignment;
 
     friend class GrMtlPipelineStateBuilder;
 

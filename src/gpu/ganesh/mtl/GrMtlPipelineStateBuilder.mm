@@ -381,15 +381,12 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
     return mtlColorAttachment;
 }
 
-static uint32_t buffer_size(uint32_t offset) {
-    // Metal uses C++ padding rules, so we round up the buffer size if it's not evenly divisible by
-    // eight. The padding is dictated by the highest-bit-width basic type in the struct.
-    // In practice, this will probably be four (float), but on the off chance we ever use a double
-    // or a pointer, we pad to eight.
-    constexpr uint32_t kMaxAlignment = 7;
-    uint32_t offsetDiff = offset & kMaxAlignment;
+static uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
+    // Metal expects the buffer to be padded at the end according to the alignment
+    // of the largest element in the buffer.
+    uint32_t offsetDiff = offset & maxAlignment;
     if (offsetDiff != 0) {
-        offsetDiff = kMaxAlignment - offsetDiff + 1;
+        offsetDiff = maxAlignment - offsetDiff + 1;
     }
     return offset + offsetDiff;
 }
@@ -716,12 +713,14 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
 
     sk_sp<GrMtlRenderPipeline> renderPipeline = GrMtlRenderPipeline::Make(pipelineState);
 
+    uint32_t bufferSize = buffer_size(fUniformHandler.fCurrentUBOOffset,
+                                      fUniformHandler.fCurrentUBOMaxAlignment);
     return new GrMtlPipelineState(fGpu,
                                   std::move(renderPipeline),
                                   pipelineDescriptor.colorAttachments[0].pixelFormat,
                                   fUniformHandles,
                                   fUniformHandler.fUniforms,
-                                  buffer_size(fUniformHandler.fCurrentUBOOffset),
+                                  bufferSize,
                                   (uint32_t)fUniformHandler.numSamplers(),
                                   std::move(fGPImpl),
                                   std::move(fXPImpl),
