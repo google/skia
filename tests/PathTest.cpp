@@ -3976,6 +3976,10 @@ static void test_arcTo(skiatest::Reporter* reporter) {
       REPORTER_ASSERT(reporter, p.getPoint(0) == p.getPoint(n - 1));
     }
 #endif
+
+    // This test, if improperly handled, can create an infinite loop in angles_to_unit_vectors
+    p.reset();
+    p.arcTo(SkRect::MakeXYWH(0, 0, 10, 10), -2.61488527e+33f, 359.992157f, false);
 }
 
 static void test_addPath(skiatest::Reporter* reporter) {

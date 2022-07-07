@@ -1145,6 +1145,8 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
         return *this;
     }
 
+    startAngle = SkScalarMod(startAngle, 360.0f);
+
     if (fPathRef->countVerbs() == 0) {
         forceMoveTo = true;
     }
