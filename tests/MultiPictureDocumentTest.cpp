@@ -303,8 +303,8 @@ static sk_sp<SkImage> makeAHardwareBufferTestImage(
     sk_sp<SkImage> image = SkImage::MakeFromTexture(
         context, texture, kTopLeft_GrSurfaceOrigin, colorType, kPremul_SkAlphaType,
         SkColorSpace::MakeSRGB(),
-        nullptr, // no release proc
-        nullptr // context for release proc
+        deleteProc,
+        imageCtx
     );
 
     REPORTER_ASSERT(reporter, image);
