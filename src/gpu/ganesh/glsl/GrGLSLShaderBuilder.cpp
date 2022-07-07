@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
@@ -50,7 +51,7 @@ SkString GrGLSLShaderBuilder::getMangledFunctionName(const char* baseName) {
 void GrGLSLShaderBuilder::appendFunctionDecl(SkSLType returnType,
                                              const char* mangledName,
                                              SkSpan<const GrShaderVar> args) {
-    this->functions().appendf("%s %s(", GrGLSLTypeString(returnType), mangledName);
+    this->functions().appendf("%s %s(", SkSLTypeString(returnType), mangledName);
     for (size_t i = 0; i < args.size(); ++i) {
         if (i > 0) {
             this->functions().append(", ");

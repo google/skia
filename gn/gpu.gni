@@ -327,8 +327,6 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/text/GrAtlasManager.h",
 
   # GLSL
-  "$_src/gpu/ganesh/glsl/GrGLSL.cpp",
-  "$_src/gpu/ganesh/glsl/GrGLSL.h",
   "$_src/gpu/ganesh/glsl/GrGLSLBlend.cpp",
   "$_src/gpu/ganesh/glsl/GrGLSLBlend.h",
   "$_src/gpu/ganesh/glsl/GrGLSLColorSpaceXformHelper.h",

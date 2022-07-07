@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/gl/GrGLGLSL.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
+#include "src/sksl/SkSLGLSL.h"
 
 bool GrGLGetGLSLGeneration(const GrGLDriverInfo& info, SkSL::GLSLGeneration* generation) {
     SkASSERT(generation);

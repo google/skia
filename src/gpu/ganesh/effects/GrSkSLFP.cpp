@@ -12,6 +12,7 @@
 #include "include/private/gpu/ganesh/GrContext_Base.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/core/SkVM.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"
@@ -70,7 +71,7 @@ public:
 
                 if (*fSpecialized++ == Specialized::kYes) {
                     SkASSERTF(!isArray, "specializing array uniforms is not allowed");
-                    std::string value = GrGLSLTypeString(gpuType);
+                    std::string value = SkSLTypeString(gpuType);
                     value.append("(");
 
                     bool isFloat = SkSLTypeIsFloatType(gpuType);

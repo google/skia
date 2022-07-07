@@ -60,6 +60,9 @@ enum class SkSLType : char {
 };
 static const int kSkSLTypeCount = static_cast<int>(SkSLType::kLast) + 1;
 
+/** Returns the SkSL typename for this type. */
+const char* SkSLTypeString(SkSLType t);
+
 /** Is the shading language type float (including vectors/matrices)? */
 static constexpr bool SkSLTypeIsFloatType(SkSLType type) {
     switch (type) {
@@ -162,69 +165,7 @@ static constexpr bool SkSLTypeIsIntegralType(SkSLType type) {
     SkUNREACHABLE;
 }
 
-/** Is the shading language type full precision? */
-static constexpr bool SkSLTypeIsFullPrecisionNumericType(SkSLType type) {
-    switch (type) {
-        // Half-precision types:
-        case SkSLType::kShort:
-        case SkSLType::kShort2:
-        case SkSLType::kShort3:
-        case SkSLType::kShort4:
-        case SkSLType::kUShort:
-        case SkSLType::kUShort2:
-        case SkSLType::kUShort3:
-        case SkSLType::kUShort4:
-        case SkSLType::kHalf:
-        case SkSLType::kHalf2:
-        case SkSLType::kHalf3:
-        case SkSLType::kHalf4:
-        case SkSLType::kHalf2x2:
-        case SkSLType::kHalf3x3:
-        case SkSLType::kHalf4x4:
-        // Non-numeric types:
-        case SkSLType::kVoid:
-        case SkSLType::kTexture2DSampler:
-        case SkSLType::kTextureExternalSampler:
-        case SkSLType::kTexture2DRectSampler:
-        case SkSLType::kTexture2D:
-        case SkSLType::kSampler:
-        case SkSLType::kInput:
-        case SkSLType::kBool:
-        case SkSLType::kBool2:
-        case SkSLType::kBool3:
-        case SkSLType::kBool4:
-            return false;
-
-        // Full-precision numeric types:
-        case SkSLType::kInt:
-        case SkSLType::kInt2:
-        case SkSLType::kInt3:
-        case SkSLType::kInt4:
-        case SkSLType::kUInt:
-        case SkSLType::kUInt2:
-        case SkSLType::kUInt3:
-        case SkSLType::kUInt4:
-        case SkSLType::kFloat:
-        case SkSLType::kFloat2:
-        case SkSLType::kFloat3:
-        case SkSLType::kFloat4:
-        case SkSLType::kFloat2x2:
-        case SkSLType::kFloat3x3:
-        case SkSLType::kFloat4x4:
-            return true;
-    }
-    SkUNREACHABLE;
-}
-
-/**
- * Is the shading language type supported as a uniform (ie, does it have a corresponding set
- * function on GrGLSLProgramDataManager)?
- */
-static constexpr bool SkSLTypeCanBeUniformValue(SkSLType type) {
-    return SkSLTypeIsFloatType(type) || SkSLTypeIsIntegralType(type);
-}
-
-/** If the type represents a single value or vector return the vector length, else -1. */
+/** If the type represents a single value or vector return the vector length; otherwise, -1. */
 static constexpr int SkSLTypeVecLength(SkSLType type) {
     switch (type) {
         case SkSLType::kFloat:
@@ -281,109 +222,21 @@ static constexpr int SkSLTypeVecLength(SkSLType type) {
     SkUNREACHABLE;
 }
 
+/**
+ * Is the shading language type supported as a uniform (ie, does it have a corresponding set
+ * function on GrGLSLProgramDataManager)?
+ */
+static constexpr bool SkSLTypeCanBeUniformValue(SkSLType type) {
+    return SkSLTypeIsFloatType(type) || SkSLTypeIsIntegralType(type);
+}
+
+/** Is the shading language type full precision? */
+bool SkSLTypeIsFullPrecisionNumericType(SkSLType type);
+
 /** If the type represents a square matrix, return its size; otherwise, -1. */
-static constexpr int SkSLTypeMatrixSize(SkSLType type) {
-    switch (type) {
-        case SkSLType::kFloat2x2:
-        case SkSLType::kHalf2x2:
-            return 2;
+int SkSLTypeMatrixSize(SkSLType type);
 
-        case SkSLType::kFloat3x3:
-        case SkSLType::kHalf3x3:
-            return 3;
-
-        case SkSLType::kFloat4x4:
-        case SkSLType::kHalf4x4:
-            return 4;
-
-        case SkSLType::kFloat:
-        case SkSLType::kHalf:
-        case SkSLType::kBool:
-        case SkSLType::kShort:
-        case SkSLType::kUShort:
-        case SkSLType::kInt:
-        case SkSLType::kUInt:
-        case SkSLType::kFloat2:
-        case SkSLType::kHalf2:
-        case SkSLType::kBool2:
-        case SkSLType::kShort2:
-        case SkSLType::kUShort2:
-        case SkSLType::kInt2:
-        case SkSLType::kUInt2:
-        case SkSLType::kFloat3:
-        case SkSLType::kHalf3:
-        case SkSLType::kBool3:
-        case SkSLType::kShort3:
-        case SkSLType::kUShort3:
-        case SkSLType::kInt3:
-        case SkSLType::kUInt3:
-        case SkSLType::kFloat4:
-        case SkSLType::kHalf4:
-        case SkSLType::kBool4:
-        case SkSLType::kShort4:
-        case SkSLType::kUShort4:
-        case SkSLType::kInt4:
-        case SkSLType::kUInt4:
-        case SkSLType::kVoid:
-        case SkSLType::kTexture2DSampler:
-        case SkSLType::kTextureExternalSampler:
-        case SkSLType::kTexture2DRectSampler:
-        case SkSLType::kTexture2D:
-        case SkSLType::kSampler:
-        case SkSLType::kInput:
-            return -1;
-    }
-    SkUNREACHABLE;
-}
-
-static constexpr bool SkSLTypeIsCombinedSamplerType(SkSLType type) {
-    switch (type) {
-        case SkSLType::kTexture2DSampler:
-        case SkSLType::kTextureExternalSampler:
-        case SkSLType::kTexture2DRectSampler:
-            return true;
-
-        case SkSLType::kVoid:
-        case SkSLType::kFloat:
-        case SkSLType::kFloat2:
-        case SkSLType::kFloat3:
-        case SkSLType::kFloat4:
-        case SkSLType::kFloat2x2:
-        case SkSLType::kFloat3x3:
-        case SkSLType::kFloat4x4:
-        case SkSLType::kHalf:
-        case SkSLType::kHalf2:
-        case SkSLType::kHalf3:
-        case SkSLType::kHalf4:
-        case SkSLType::kHalf2x2:
-        case SkSLType::kHalf3x3:
-        case SkSLType::kHalf4x4:
-        case SkSLType::kInt:
-        case SkSLType::kInt2:
-        case SkSLType::kInt3:
-        case SkSLType::kInt4:
-        case SkSLType::kUInt:
-        case SkSLType::kUInt2:
-        case SkSLType::kUInt3:
-        case SkSLType::kUInt4:
-        case SkSLType::kBool:
-        case SkSLType::kBool2:
-        case SkSLType::kBool3:
-        case SkSLType::kBool4:
-        case SkSLType::kShort:
-        case SkSLType::kShort2:
-        case SkSLType::kShort3:
-        case SkSLType::kShort4:
-        case SkSLType::kUShort:
-        case SkSLType::kUShort2:
-        case SkSLType::kUShort3:
-        case SkSLType::kUShort4:
-        case SkSLType::kTexture2D:
-        case SkSLType::kSampler:
-        case SkSLType::kInput:
-            return false;
-    }
-    SkUNREACHABLE;
-}
+/** If the type represents a square matrix, return its size; otherwise, -1. */
+bool SkSLTypeIsCombinedSamplerType(SkSLType type);
 
 #endif // SkSLTypeShared_DEFINED

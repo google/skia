@@ -13,7 +13,6 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
-#include "src/gpu/ganesh/glsl/GrGLSL.h"
 
 struct GrContextOptions;
 

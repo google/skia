@@ -9,7 +9,6 @@
 #define GrShaderCaps_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/gpu/ganesh/glsl/GrGLSL.h"
 #include "src/sksl/SkSLUtil.h"
 
 struct GrContextOptions;

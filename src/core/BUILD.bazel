@@ -410,6 +410,7 @@ SKSL_FILES = [
     "SkPaintParamsKey.cpp",
     "SkPaintParamsKey.h",
     "SkRuntimeEffect.cpp",
+    "SkSLTypeShared.cpp",
     "SkSLTypeShared.h",
     "SkScopeExit.h",
     "SkShaderCodeDictionary.cpp",

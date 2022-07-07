@@ -8,7 +8,7 @@
 #ifndef GrGLGLSL_DEFINED
 #define GrGLGLSL_DEFINED
 
-#include "src/gpu/ganesh/glsl/GrGLSL.h"
+#include "src/sksl/SkSLGLSL.h"
 
 struct GrGLDriverInfo;
 

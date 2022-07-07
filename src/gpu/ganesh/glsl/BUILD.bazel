@@ -5,8 +5,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 GLSL_FILES = [
-    "GrGLSL.cpp",
-    "GrGLSL.h",
     "GrGLSLBlend.cpp",
     "GrGLSLBlend.h",
     "GrGLSLColorSpaceXformHelper.h",

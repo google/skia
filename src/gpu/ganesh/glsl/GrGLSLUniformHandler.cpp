@@ -7,7 +7,6 @@
 
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
-#include "src/gpu/ganesh/glsl/GrGLSL.h"
 #include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 
 GrShaderVar GrGLSLUniformHandler::getUniformMapping(const GrProcessor& owner,
