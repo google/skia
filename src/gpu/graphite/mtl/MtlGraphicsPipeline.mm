@@ -40,33 +40,10 @@ std::string get_uniforms(SkSpan<const SkUniform> uniforms, int* offset, int mang
     UniformOffsetCalculator offsetter(Layout::kMetal, *offset);
 
     for (const SkUniform& u : uniforms) {
-        SkSL::String::appendf(&result, "    layout(offset=%zu) ",
-                              offsetter.calculateOffset(u.type(), u.count()));
-        switch (u.type()) {
-            case SkSLType::kFloat4:
-                result.append("float4");
-                break;
-            case SkSLType::kFloat2:
-                result.append("float2");
-                break;
-            case SkSLType::kFloat:
-                result.append("float");
-                break;
-            case SkSLType::kFloat4x4:
-                result.append("float4x4");
-                break;
-            case SkSLType::kHalf4:
-                result.append("half4");
-                break;
-            case SkSLType::kInt:
-                result.append("int");
-                break;
-            default:
-                SkUNREACHABLE;
-        }
-
-        result.append(" ");
-        result.append(u.name());
+        SkSL::String::appendf(&result, "    layout(offset=%zu) %s %s",
+                              offsetter.calculateOffset(u.type(), u.count()),
+                              SkSLTypeString(u.type()),
+                              u.name());
         if (manglingSuffix >= 0) {
             result.append("_");
             result.append(std::to_string(manglingSuffix));
