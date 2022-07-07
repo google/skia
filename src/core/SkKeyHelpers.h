@@ -195,6 +195,4 @@ struct RuntimeShaderBlock {
                            const ShaderData&);
 };
 
-const SkRuntimeEffect* TestingOnly_GetCommonRuntimeEffect();
-
 #endif // SkKeyHelpers_DEFINED

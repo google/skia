@@ -637,12 +637,3 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
             break;
     }
 }
-
-const SkRuntimeEffect* TestingOnly_GetCommonRuntimeEffect() {
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        half4 main(float2 coords) {
-            return half4(coords.xy01);
-        }
-    )");
-    return effect;
-}

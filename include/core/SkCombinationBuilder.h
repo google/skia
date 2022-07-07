@@ -44,9 +44,8 @@ enum class SkShaderType : uint32_t {
     kLocalMatrix,
     kImage,
     kBlendShader,
-    kRuntimeShader,
 
-    kLast          = kRuntimeShader
+    kLast          = kBlendShader
 };
 
 static constexpr int kSkShaderTypeCount = static_cast<int>(SkShaderType::kLast) + 1;

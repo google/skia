@@ -26,16 +26,14 @@
                                     \
     M(LocalMatrix)                  \
     M(Image)                        \
-    M(BlendShader)                  \
-    M(RuntimeShader)
+    M(BlendShader)
 
 // To keep the SHADER_TYPES list and SkShaderType aligned, we create a hidden enum class
 // and check it against SkShaderType
 #define MAKE_ENUM(T) k##T,
 enum class UnusedShaderType { SHADER_TYPES(MAKE_ENUM) };
 #undef MAKE_ENUM
-static constexpr int kUnusedShaderTypeCount =
-        static_cast<int>(UnusedShaderType::kRuntimeShader) + 1;
+static constexpr int kUnusedShaderTypeCount = static_cast<int>(UnusedShaderType::kBlendShader) + 1;
 
 #define STATIC_ASSERT(T) static_assert((int) SkShaderType::k##T == (int) UnusedShaderType::k##T);
    SHADER_TYPES(STATIC_ASSERT)
@@ -418,18 +416,6 @@ void ArenaData_BlendShader::beginBlock(const SkKeyContext& keyContext,
 
     BlendShaderBlock::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
                                  { SkBlendMode::kSrc });  // the blendmode is unused
-}
-
-CREATE_ARENA_OBJECT(RuntimeShader, /* numChildSlots */ 0)
-int ArenaData_RuntimeShader::numIntrinsicCombinationsDerived() const { return 1; }
-void ArenaData_RuntimeShader::beginBlock(const SkKeyContext& keyContext,
-                                         int intrinsicCombination,
-                                         SkPaintParamsKeyBuilder* builder) const {
-    // TODO(skia:13405): replace with RuntimeShader-specific data
-    constexpr SkPMColor4f kUnusedColor = {1, 0, 1, 1};
-
-    SkASSERT(intrinsicCombination == 0);
-    SolidColorShaderBlock::BeginBlock(keyContext, builder, /*gatherer=*/nullptr, kUnusedColor);
 }
 
 // Here to access the derived ArenaData objects
