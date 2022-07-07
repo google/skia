@@ -209,6 +209,7 @@ sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
                                                       strikeDeviceInfo,
                                                       strikeCache,
                                                       &alloc,
+                                                      SubRunContainer::kAddSubRuns,
                                                       "Make Slug");
 
     sk_sp<SlugImpl> slug = sk_sp<SlugImpl>(initializer.initialize(
@@ -351,7 +352,7 @@ sk_sp<TextBlob> TextBlob::Make(const GlyphRunList& glyphRunList,
 
     auto [someGlyphExcluded, container] = SubRunContainer::MakeInAlloc(
             glyphRunList, positionMatrix, paint,
-            strikeDeviceInfo, strikeCache, &alloc, "TextBlob");
+            strikeDeviceInfo, strikeCache, &alloc, SubRunContainer::kAddSubRuns, "TextBlob");
 
     SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(paint);
     sk_sp<TextBlob> blob = sk_sp<TextBlob>(initializer.initialize(std::move(alloc),

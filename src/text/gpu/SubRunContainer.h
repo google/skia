@@ -234,13 +234,17 @@ public:
                                                       const SkStrikeClient* client,
                                                       SubRunAllocator* alloc);
 
-    static std::tuple<bool, SubRunContainerOwner> MakeInAlloc(
+    enum SubRunCreationBehavior {kAddSubRuns, kStrikeCalculationsOnly};
+    // The returned SubRunContainerOwner will never be null. If subRunCreation ==
+    // kStrikeCalculationsOnly, then the returned container will be empty.
+    static SK_WARN_UNUSED_RESULT std::tuple<bool, SubRunContainerOwner> MakeInAlloc(
             const GlyphRunList& glyphRunList,
             const SkMatrix& positionMatrix,
             const SkPaint& runPaint,
             SkStrikeDeviceInfo strikeDeviceInfo,
             SkStrikeForGPUCacheInterface* strikeCache,
             sktext::gpu::SubRunAllocator* alloc,
+            SubRunCreationBehavior creationBehavior,
             const char* tag);
 
     static size_t EstimateAllocSize(const GlyphRunList& glyphRunList);

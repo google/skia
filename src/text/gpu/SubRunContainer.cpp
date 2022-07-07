@@ -2451,7 +2451,9 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
         SkStrikeDeviceInfo strikeDeviceInfo,
         SkStrikeForGPUCacheInterface* strikeCache,
         SubRunAllocator* alloc,
+        SubRunCreationBehavior creationBehavior,
         const char* tag) {
+    SkASSERT(alloc != nullptr);
     [[maybe_unused]] SkString msg;
     if constexpr (kTrace) {
         const uint64_t uniqueID = glyphRunList.uniqueID();
@@ -2468,14 +2470,11 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                     positionMatrix[3], positionMatrix[4], positionMatrix[5]);
     }
 
+    SubRunContainerOwner container = alloc->makeUnique<SubRunContainer>(positionMatrix);
     SkASSERT(strikeDeviceInfo.fSDFTControl != nullptr);
     if (strikeDeviceInfo.fSDFTControl == nullptr) {
-        return {true, nullptr};
-    }
-
-    SubRunContainerOwner container{nullptr};
-    if (alloc != nullptr) {
-        container = alloc->makeUnique<SubRunContainer>(positionMatrix);
+        // Return empty container.
+        return {true, std::move(container)};
     }
 
     const SkSurfaceProps deviceProps = strikeDeviceInfo.fSurfaceProps;
@@ -2515,7 +2514,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                     strike->prepareForSDFTDrawing(accepted, rejected);
                     rejected->flipRejectsToSource();
 
-                    if (container && !accepted->empty()) {
+                    if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                         container->fSubRuns.append(SDFTSubRun::Make(
                                 accepted->accepted(),
                                 runFont,
@@ -2548,7 +2547,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 strike->prepareForMaskDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
 
-                if (container && !accepted->empty()) {
+                if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     auto addGlyphsWithSameFormat =
                             [&](const SkZip<SkGlyphVariant, SkPoint>& acceptedGlyphsAndLocations,
                                 MaskFormat format,
@@ -2620,7 +2619,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 strike->prepareForPathDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
 
-                if (container && !accepted->empty()) {
+                if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     container->fSubRuns.append(PathSubRun::Make(accepted->accepted(),
                                                                 has_some_antialiasing(runFont),
                                                                 strikeToSourceScale,
@@ -2718,7 +2717,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 rejected->flipRejectsToSource();
                 SkASSERT(rejected->source().empty());
 
-                if (container && !accepted->empty()) {
+                if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     auto addGlyphsWithSameFormat =
                             [&](const SkZip<SkGlyphVariant, SkPoint>& acceptedGlyphsAndLocations,
                                 MaskFormat format,
