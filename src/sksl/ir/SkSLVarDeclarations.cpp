@@ -43,9 +43,20 @@ static bool check_valid_uniform_type(Position pos,
     {
         bool error = false;
         if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
-            if (t->isEffectChild() ||
-                ((t->isScalar() || t->isVector()) && ct.isSigned() && ct.bitWidth() == 32) ||
-                ((t->isScalar() || t->isVector() || t->isMatrix()) && ct.isFloat())) {
+            // `shader`, `blender`, `colorFilter`
+            if (t->isEffectChild()) {
+                return true;
+            }
+
+            // `int`, `int2`, `int3`, `int4`
+            if (ct.isSigned() && ct.bitWidth() == 32 && (t->isScalar() || t->isVector())) {
+                return true;
+            }
+
+            // `float`, `float2`, `float3`, `float4`, `float2x2`, `float3x3`, `float4x4`
+            // `half`, `half2`, `half3`, `half4`, `half2x2`, `half3x3`, `half4x4`
+            if (ct.isFloat() &&
+                (t->isScalar() || t->isVector() || (t->isMatrix() && t->rows() == t->columns()))) {
                 return true;
             }
 

@@ -1,0 +1,52 @@
+#version 300
+
+uniform uint  u;
+uniform uint2 u2;
+uniform uint3 u3;
+uniform uint4 u4;
+
+uniform ushort  us;
+uniform ushort2 us2;
+uniform ushort3 us3;
+uniform ushort4 us4;
+
+uniform float2x3 f23;
+uniform float2x4 f24;
+uniform float3x2 f32;
+uniform float3x4 f34;
+uniform float4x2 f42;
+uniform float4x3 f43;
+
+uniform half2x3 h23;
+uniform half2x4 h24;
+uniform half3x2 h32;
+uniform half3x4 h34;
+uniform half4x2 h42;
+uniform half4x3 h43;
+
+half4 main(float2 xy) {
+    return half4(0);
+}
+
+/*%%*
+variables of type 'uint' may not be uniform
+variables of type 'uint2' may not be uniform
+variables of type 'uint3' may not be uniform
+variables of type 'uint4' may not be uniform
+variables of type 'ushort' may not be uniform
+variables of type 'ushort2' may not be uniform
+variables of type 'ushort3' may not be uniform
+variables of type 'ushort4' may not be uniform
+variables of type 'float2x3' may not be uniform
+variables of type 'float2x4' may not be uniform
+variables of type 'float3x2' may not be uniform
+variables of type 'float3x4' may not be uniform
+variables of type 'float4x2' may not be uniform
+variables of type 'float4x3' may not be uniform
+variables of type 'half2x3' may not be uniform
+variables of type 'half2x4' may not be uniform
+variables of type 'half3x2' may not be uniform
+variables of type 'half3x4' may not be uniform
+variables of type 'half4x2' may not be uniform
+variables of type 'half4x3' may not be uniform
+*%%*/

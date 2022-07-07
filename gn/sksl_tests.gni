@@ -754,6 +754,7 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/InvalidColorFilterMain.rtcf",
   "/sksl/runtime_errors/InvalidShaderMain.rts",
   "/sksl/runtime_errors/InvalidUniformTypes.rts",
+  "/sksl/runtime_errors/InvalidUniformTypesES3.rts",
   "/sksl/runtime_errors/LoopConditionErrors.rts",
   "/sksl/runtime_errors/LoopExpressionErrors.rts",
   "/sksl/runtime_errors/LoopInitializerErrors.rts",

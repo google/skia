@@ -1,0 +1,63 @@
+### Compilation failed:
+
+error: 3: variables of type 'uint' may not be uniform
+uniform uint  u;
+^^^^^^^^^^^^^^^
+error: 4: variables of type 'uint2' may not be uniform
+uniform uint2 u2;
+^^^^^^^^^^^^^^^^
+error: 5: variables of type 'uint3' may not be uniform
+uniform uint3 u3;
+^^^^^^^^^^^^^^^^
+error: 6: variables of type 'uint4' may not be uniform
+uniform uint4 u4;
+^^^^^^^^^^^^^^^^
+error: 8: variables of type 'ushort' may not be uniform
+uniform ushort  us;
+^^^^^^^^^^^^^^^^^^
+error: 9: variables of type 'ushort2' may not be uniform
+uniform ushort2 us2;
+^^^^^^^^^^^^^^^^^^^
+error: 10: variables of type 'ushort3' may not be uniform
+uniform ushort3 us3;
+^^^^^^^^^^^^^^^^^^^
+error: 11: variables of type 'ushort4' may not be uniform
+uniform ushort4 us4;
+^^^^^^^^^^^^^^^^^^^
+error: 13: variables of type 'float2x3' may not be uniform
+uniform float2x3 f23;
+^^^^^^^^^^^^^^^^^^^^
+error: 14: variables of type 'float2x4' may not be uniform
+uniform float2x4 f24;
+^^^^^^^^^^^^^^^^^^^^
+error: 15: variables of type 'float3x2' may not be uniform
+uniform float3x2 f32;
+^^^^^^^^^^^^^^^^^^^^
+error: 16: variables of type 'float3x4' may not be uniform
+uniform float3x4 f34;
+^^^^^^^^^^^^^^^^^^^^
+error: 17: variables of type 'float4x2' may not be uniform
+uniform float4x2 f42;
+^^^^^^^^^^^^^^^^^^^^
+error: 18: variables of type 'float4x3' may not be uniform
+uniform float4x3 f43;
+^^^^^^^^^^^^^^^^^^^^
+error: 20: variables of type 'half2x3' may not be uniform
+uniform half2x3 h23;
+^^^^^^^^^^^^^^^^^^^
+error: 21: variables of type 'half2x4' may not be uniform
+uniform half2x4 h24;
+^^^^^^^^^^^^^^^^^^^
+error: 22: variables of type 'half3x2' may not be uniform
+uniform half3x2 h32;
+^^^^^^^^^^^^^^^^^^^
+error: 23: variables of type 'half3x4' may not be uniform
+uniform half3x4 h34;
+^^^^^^^^^^^^^^^^^^^
+error: 24: variables of type 'half4x2' may not be uniform
+uniform half4x2 h42;
+^^^^^^^^^^^^^^^^^^^
+error: 25: variables of type 'half4x3' may not be uniform
+uniform half4x3 h43;
+^^^^^^^^^^^^^^^^^^^
+20 errors
