@@ -555,6 +555,7 @@ sksl_shared_tests = [
   "/sksl/shared/Structs.sksl",
   "/sksl/shared/StructsInFunctions.sksl",
   "/sksl/shared/StructMaxDepth.sksl",
+  "/sksl/shared/SwitchWithEarlyReturn.sksl",
   "/sksl/shared/SwizzleBoolConstants.sksl",
   "/sksl/shared/SwizzleByConstantIndex.sksl",
   "/sksl/shared/SwizzleByIndex.sksl",

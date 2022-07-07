@@ -1,0 +1,86 @@
+uniform half4 colorGreen, colorRed;
+
+bool return_in_one_case(int x) {
+    int val = 0;
+    switch (x) {
+        case 1:
+            ++val;
+            return false;
+            ++val;  // unreachable
+        default: ++val;
+    }
+
+    // reachable
+    return val == 1;
+}
+
+bool return_in_default(int x) {
+    int val = 0;
+    switch (x) {
+        default: return true;
+    }
+
+    // unreachable
+    ++val;
+    return val == 1;
+}
+
+bool return_in_every_case(int x) {
+    int val = 0;
+    switch (x) {
+        case 1: return false;
+        default: return true;
+    }
+
+    // unreachable
+    ++val;
+    return val == 1;
+}
+
+bool return_in_every_case_no_default(int x) {
+    int val = 0;
+    switch (x) {
+        case 1: return false;
+        case 2: return true;
+    }
+
+    // reachable:
+    ++val;
+    return val == 1;
+}
+
+bool return_in_some_cases(int x) {
+    int val = 0;
+    switch (x) {
+        case 1: return false;
+        case 2: return true;
+        default: break;
+    }
+
+    // reachable:
+    ++val;
+    return val == 1;
+}
+
+bool return_with_fallthrough(int x) {
+    int val = 0;
+    switch (x) {
+        case 1:
+        case 2: return true;
+        default: break;
+    }
+
+    // reachable, since we don't eliminate unreachable code in fallthrough cases
+    ++val;
+    return val == 1;
+}
+
+half4 main(float2 coords) {
+    int x = int(colorGreen.g);
+    return (return_in_one_case(x) &&
+            return_in_default(x) &&
+            return_in_every_case(x) &&
+            return_in_every_case_no_default(x) &&
+            return_in_some_cases(x) &&
+            return_with_fallthrough(x)) ? colorGreen : colorRed;
+}

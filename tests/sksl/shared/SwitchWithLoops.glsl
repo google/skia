@@ -10,7 +10,6 @@ bool switch_with_continue_in_loop_bi(int x) {
             for (int i = 0;i < 10; ++i) {
                 ++val;
                 continue;
-                ++val;
             }
             _tmpSwitchFallthrough0 = 1;
         }
@@ -43,7 +42,6 @@ vec4 main() {
             for (int _1_i = 0;_1_i < 10; ++_1_i) {
                 ++_0_val;
                 break;
-                ++_0_val;
             }
             _tmpSwitchFallthrough6 = 1;
         }

@@ -3523,11 +3523,6 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
 void SPIRVCodeGenerator::writeBlock(const Block& b, OutputStream& out) {
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
         this->writeStatement(*stmt, out);
-
-        // Do not write out any unreachable statements following a continue or break.
-        if (stmt->kind() == Statement::Kind::kContinue || stmt->kind() == Statement::Kind::kBreak) {
-            break;
-        }
     }
 }
 
