@@ -358,9 +358,6 @@ static constexpr SkUniform kLinearGradientUniforms4[] = {
         { "point0",      SkSLType::kFloat2 },
         { "point1",      SkSLType::kFloat2 },
         { "tilemode",    SkSLType::kInt },
-        { "padding1",    SkSLType::kFloat }, // TODO: add automatic uniform padding
-        { "padding2",    SkSLType::kFloat },
-        { "padding3",    SkSLType::kFloat },
 };
 static constexpr SkUniform kLinearGradientUniforms8[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
@@ -369,9 +366,6 @@ static constexpr SkUniform kLinearGradientUniforms8[] = {
         { "point0",      SkSLType::kFloat2 },
         { "point1",      SkSLType::kFloat2 },
         { "tilemode",    SkSLType::kInt },
-        { "padding1",    SkSLType::kFloat }, // TODO: add automatic uniform padding
-        { "padding2",    SkSLType::kFloat },
-        { "padding3",    SkSLType::kFloat },
 };
 
 static constexpr SkUniform kRadialGradientUniforms4[] = {
@@ -399,9 +393,6 @@ static constexpr SkUniform kSweepGradientUniforms4[] = {
         { "bias",        SkSLType::kFloat },
         { "scale",       SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
-        { "padding1",    SkSLType::kFloat }, // TODO: add automatic uniform padding
-        { "padding2",    SkSLType::kFloat },
-        { "padding3",    SkSLType::kFloat },
 };
 static constexpr SkUniform kSweepGradientUniforms8[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
@@ -411,9 +402,6 @@ static constexpr SkUniform kSweepGradientUniforms8[] = {
         { "bias",        SkSLType::kFloat },
         { "scale",       SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
-        { "padding1",    SkSLType::kFloat }, // TODO: add automatic uniform padding
-        { "padding2",    SkSLType::kFloat },
-        { "padding3",    SkSLType::kFloat },
 };
 
 static constexpr SkUniform kConicalGradientUniforms4[] = {
@@ -425,7 +413,6 @@ static constexpr SkUniform kConicalGradientUniforms4[] = {
         { "radius0",     SkSLType::kFloat },
         { "radius1",     SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
-        { "padding",     SkSLType::kFloat }, // TODO: add automatic uniform padding
 };
 static constexpr SkUniform kConicalGradientUniforms8[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
@@ -436,7 +423,6 @@ static constexpr SkUniform kConicalGradientUniforms8[] = {
         { "radius0",     SkSLType::kFloat },
         { "radius1",     SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
-        { "padding",     SkSLType::kFloat }, // TODO: add automatic uniform padding
 };
 
 static constexpr char kLinearGradient4Name[] = "sk_linear_grad_4_shader";
@@ -532,9 +518,6 @@ void GenerateImageShaderGlueCode(const std::string& resultName,
 //--------------------------------------------------------------------------------------------------
 static constexpr SkUniform kBlendShaderUniforms[] = {
         { "blendMode", SkSLType::kInt },
-        { "padding1",  SkSLType::kInt }, // TODO: add automatic uniform padding
-        { "padding2",  SkSLType::kInt },
-        { "padding3",  SkSLType::kInt },
 };
 
 static constexpr int kNumBlendShaderChildren = 2;
@@ -617,9 +600,6 @@ void GenerateFixedFunctionBlenderGlueCode(const std::string& resultName,
 //--------------------------------------------------------------------------------------------------
 static constexpr SkUniform kShaderBasedBlenderUniforms[] = {
         { "blendMode", SkSLType::kInt },
-        { "padding1",  SkSLType::kInt }, // TODO: add automatic uniform padding
-        { "padding2",  SkSLType::kInt },
-        { "padding3",  SkSLType::kInt },
 };
 
 static constexpr char kBlendHelperName[] = "sk_blend";
@@ -637,7 +617,7 @@ void GenerateShaderBasedBlenderGlueCode(const std::string& resultName,
                                         std::string* mainBody,
                                         int indent) {
     SkASSERT(childNames.empty());
-    SkASSERT(reader.entry()->fUniforms.size() == 4); // actual blend uniform + 3 padding int
+    SkASSERT(reader.entry()->fUniforms.size() == 1);
     SkASSERT(reader.numDataPayloadFields() == 0);
 
     std::string uniformName = reader.entry()->getMangledUniformName(0, entryIndex);

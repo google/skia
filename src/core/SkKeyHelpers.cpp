@@ -98,9 +98,6 @@ void add_linear_gradient_uniform_data(const SkShaderCodeDictionary* dict,
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fPoints[1]);
     gatherer->write(static_cast<int>(gradData.fTM));
-    gatherer->write(0.0f);  // padding
-    gatherer->write(0.0f);
-    gatherer->write(0.0f);
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(codeSnippetID));
 };
@@ -148,9 +145,6 @@ void add_sweep_gradient_uniform_data(const SkShaderCodeDictionary* dict,
     gatherer->write(gradData.fBias);
     gatherer->write(gradData.fScale);
     gatherer->write(static_cast<int>(gradData.fTM));
-    gatherer->write(0.0f);  // padding
-    gatherer->write(0.0f);
-    gatherer->write(0.0f);
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(codeSnippetID));
 };
@@ -176,7 +170,6 @@ void add_conical_gradient_uniform_data(const SkShaderCodeDictionary* dict,
     gatherer->write(gradData.fRadii[0]);
     gatherer->write(gradData.fRadii[1]);
     gatherer->write(static_cast<int>(gradData.fTM));
-    gatherer->write(0.0f);  // padding
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(codeSnippetID));
 };
@@ -439,9 +432,6 @@ void add_blendshader_uniform_data(const SkShaderCodeDictionary* dict,
                                   SkPipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kBlendShader)
     gatherer->write(SkTo<int>(bm));
-    gatherer->write(0); // padding - remove
-    gatherer->write(0); // padding - remove
-    gatherer->write(0); // padding - remove
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kBlendShader));
 }
@@ -521,9 +511,6 @@ void add_shaderbasedblender_uniform_data(const SkShaderCodeDictionary* dict,
                                          SkPipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kShaderBasedBlender)
     gatherer->write(SkTo<int>(bm));
-    gatherer->write(0); // padding - remove
-    gatherer->write(0); // padding - remove
-    gatherer->write(0); // padding - remove
 
     gatherer->addFlags(
             dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kShaderBasedBlender));

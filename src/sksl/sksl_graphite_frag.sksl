@@ -319,10 +319,7 @@ half4 sk_linear_grad_4_shader(float4x4 dev2Local,
                               float offsetsParam[4],
                               float2 point0Param,
                               float2 point1Param,
-                              int tileMode,
-                              float padding0,
-                              float padding1,
-                              float padding2) {
+                              int tileMode) {
     float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 t = $linear_grad_layout(point0Param, point1Param, pos);
     t = $tile_grad(tileMode, t);
@@ -334,10 +331,7 @@ half4 sk_linear_grad_8_shader(float4x4 dev2Local,
                               float offsetsParam[8],
                               float2 point0Param,
                               float2 point1Param,
-                              int tileMode,
-                              float padding0,
-                              float padding1,
-                              float padding2) {
+                              int tileMode) {
     float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 t = $linear_grad_layout(point0Param, point1Param, pos);
     t = $tile_grad(tileMode, t);
@@ -374,10 +368,7 @@ half4 sk_sweep_grad_4_shader(float4x4 dev2Local,
                              float2 centerParam,
                              float biasParam,
                              float scaleParam,
-                             int tileMode,
-                             float padding0,
-                             float padding1,
-                             float padding2) {
+                             int tileMode) {
     float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 t = $sweep_grad_layout(centerParam, biasParam, scaleParam, pos);
     t = $tile_grad(tileMode, t);
@@ -390,10 +381,7 @@ half4 sk_sweep_grad_8_shader(float4x4 dev2Local,
                              float2 centerParam,
                              float biasParam,
                              float scaleParam,
-                             int tileMode,
-                             float padding0,
-                             float padding1,
-                             float padding2) {
+                             int tileMode) {
     float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 t = $sweep_grad_layout(centerParam, biasParam, scaleParam, pos);
     t = $tile_grad(tileMode, t);
@@ -407,8 +395,7 @@ half4 sk_conical_grad_4_shader(float4x4 dev2Local,
                                float2 point1Param,
                                float radius0Param,
                                float radius1Param,
-                               int tileMode,
-                               float padding) {
+                               int tileMode) {
     float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 t = $conical_grad_layout(point0Param, point1Param, radius0Param, radius1Param, pos);
     t = $tile_grad(tileMode, t);
@@ -422,8 +409,7 @@ half4 sk_conical_grad_8_shader(float4x4 dev2Local,
                                float2 point1Param,
                                float radius0Param,
                                float radius1Param,
-                               int tileMode,
-                               float padding) {
+                               int tileMode) {
     float2 pos = (dev2Local * sk_FragCoord).xy;
     float2 t = $conical_grad_layout(point0Param, point1Param, radius0Param, radius1Param, pos);
     t = $tile_grad(tileMode, t);
@@ -495,6 +481,6 @@ half4 sk_blend(int blendMode, half4 src, half4 dst) {
     }
 }
 
-half4 sk_blend_shader(int blendMode, int pad0, int pad1, int pad2, half4 child0, half4 child1) {
+half4 sk_blend_shader(int blendMode, half4 child0, half4 child1) {
     return sk_blend(blendMode, child1, child0);
 }
