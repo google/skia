@@ -84,7 +84,8 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                       GrGLFormat format,
                                                       int sampleCount,
                                                       const IDs& idDesc,
-                                                      int stencilBits) {
+                                                      int stencilBits,
+                                                      std::string_view label) {
     sk_sp<GrGLAttachment> sb;
     if (stencilBits) {
         // We pick a "fake" actual format that matches the number of stencil bits. When wrapping
@@ -105,8 +106,7 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                      sFmt);
     }
     return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(
-            gpu, dimensions, format, sampleCount, idDesc, std::move(sb),
-            /*label=*/"GLRenderTargetMakeWrapped"));
+            gpu, dimensions, format, sampleCount, idDesc, std::move(sb), label));
 }
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {

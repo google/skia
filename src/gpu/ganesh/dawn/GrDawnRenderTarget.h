@@ -18,7 +18,8 @@ public:
     static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*,
                                                  SkISize dimensions,
                                                  int sampleCnt,
-                                                 const GrDawnRenderTargetInfo&);
+                                                 const GrDawnRenderTargetInfo&,
+                                                 std::string_view label);
 
     ~GrDawnRenderTarget() override;
 

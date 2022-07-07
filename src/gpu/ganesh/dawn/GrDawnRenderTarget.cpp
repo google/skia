@@ -23,10 +23,10 @@ GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
 sk_sp<GrDawnRenderTarget> GrDawnRenderTarget::MakeWrapped(GrDawnGpu* gpu,
                                                           SkISize dimensions,
                                                           int sampleCnt,
-                                                          const GrDawnRenderTargetInfo& info) {
+                                                          const GrDawnRenderTargetInfo& info,
+                                                          std::string_view label) {
     sk_sp<GrDawnRenderTarget> rt(
-            new GrDawnRenderTarget(gpu, dimensions, sampleCnt, info,
-                                   /*label=*/"DawnRenderTarget_MakeWrapped"));
+            new GrDawnRenderTarget(gpu, dimensions, sampleCnt, info, label));
     rt->registerWithCacheWrapped(GrWrapCacheable::kNo);
     return rt;
 }

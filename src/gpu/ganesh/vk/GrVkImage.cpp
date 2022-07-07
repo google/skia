@@ -180,6 +180,7 @@ sk_sp<GrVkImage> GrVkImage::MakeWrapped(GrVkGpu* gpu,
                                         UsageFlags attachmentUsages,
                                         GrWrapOwnership ownership,
                                         GrWrapCacheable cacheable,
+                                        std::string_view label,
                                         bool forSecondaryCB) {
     sk_sp<const GrVkImageView> framebufferView;
     sk_sp<const GrVkImageView> textureView;
@@ -203,7 +204,7 @@ sk_sp<GrVkImage> GrVkImage::MakeWrapped(GrVkGpu* gpu,
                                           backendOwnership,
                                           cacheable,
                                           forSecondaryCB,
-                                          /*label=*/"VkImageMakeWrapped"));
+                                          label));
 }
 
 GrVkImage::GrVkImage(GrVkGpu* gpu,

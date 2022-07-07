@@ -105,7 +105,8 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
     }
     sk_sp<GrMtlAttachment> attachment =
             GrMtlAttachment::MakeWrapped(gpu, dimensions, texture,
-                                         GrAttachment::UsageFlags::kTexture, cacheable);
+                                         GrAttachment::UsageFlags::kTexture, cacheable,
+                                         /*label=*/"MtlAttachment_MakeWrapped");
     if (!attachment) {
         return nullptr;
     }

@@ -802,7 +802,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
 
     sk_sp<GrGLTextureRenderTarget> texRT(GrGLTextureRenderTarget::MakeWrapped(
             this, sampleCnt, desc, backendTex.getGLTextureParams(), rtIDs, cacheable,
-            mipmapStatus));
+            mipmapStatus, backendTex.getLabel()));
     texRT->baseLevelWasBoundToFBO();
     return std::move(texRT);
 }
@@ -837,8 +837,13 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
     rtIDs.fTotalMemorySamplesPerPixel = sampleCount;
 
-    return GrGLRenderTarget::MakeWrapped(this, backendRT.dimensions(), format, sampleCount, rtIDs,
-                                         backendRT.stencilBits());
+    return GrGLRenderTarget::MakeWrapped(this,
+                                         backendRT.dimensions(),
+                                         format,
+                                         sampleCount,
+                                         rtIDs,
+                                         backendRT.stencilBits(),
+                                         /*label=*/"GLGpu_WrapBackendRenderTarget");
 }
 
 static bool check_write_and_transfer_input(GrGLTexture* glTex) {

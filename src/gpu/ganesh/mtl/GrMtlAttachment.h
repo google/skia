@@ -39,7 +39,8 @@ public:
                                               SkISize dimensions,
                                               id<MTLTexture>,
                                               UsageFlags attachmentUsages,
-                                              GrWrapCacheable);
+                                              GrWrapCacheable,
+                                              std::string_view label);
 
     ~GrMtlAttachment() override;
 

@@ -133,7 +133,8 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
                                                       std::move(mutableState),
                                                       GrAttachment::UsageFlags::kTexture,
                                                       wrapOwnership,
-                                                      cacheable);
+                                                      cacheable,
+                                                      "VkImage_MakeWrappedTexture");
     if (!texture) {
         return nullptr;
     }

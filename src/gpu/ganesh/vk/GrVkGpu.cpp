@@ -1860,6 +1860,7 @@ bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
                                                       GrVkImage::UsageFlags::kColorAttachment,
                                                       kBorrow_GrWrapOwnership,
                                                       GrWrapCacheable::kNo,
+                                                      "VkGpu_SetBackendSurfaceState",
                                                       /*forSecondaryCB=*/false);
     SkASSERT(texture);
     if (!texture) {

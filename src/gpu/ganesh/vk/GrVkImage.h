@@ -58,6 +58,7 @@ public:
                                         UsageFlags attachmentUsages,
                                         GrWrapOwnership,
                                         GrWrapCacheable,
+                                        std::string_view label,
                                         bool forSecondaryCB = false);
 
     ~GrVkImage() override;

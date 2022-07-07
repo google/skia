@@ -58,7 +58,8 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
     sk_sp<GrMtlAttachment> textureAttachment =
             GrMtlAttachment::MakeWrapped(gpu, dimensions, texture,
                                          GrAttachment::UsageFlags::kColorAttachment,
-                                         GrWrapCacheable::kNo);
+                                         GrWrapCacheable::kNo,
+                                         /*label=*/"MtlAttachment_TextureAttachment");
 
     GrMtlRenderTarget* mtlRT;
     if (sampleCnt > 1) {

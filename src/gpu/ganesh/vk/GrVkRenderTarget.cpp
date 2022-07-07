@@ -146,7 +146,8 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
                                    std::move(mutableState),
                                    GrAttachment::UsageFlags::kColorAttachment,
                                    kBorrow_GrWrapOwnership,
-                                   GrWrapCacheable::kNo);
+                                   GrWrapCacheable::kNo,
+                                   /*label=*/"VkImage_WrappedAttachment");
     if (!wrappedAttachment) {
         return nullptr;
     }
@@ -198,6 +199,7 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
                                    GrAttachment::UsageFlags::kColorAttachment,
                                    kBorrow_GrWrapOwnership,
                                    GrWrapCacheable::kNo,
+                                   "VkImage_ColorAttachment",
                                    true);
 
     std::unique_ptr<GrVkSecondaryCommandBuffer> scb(

@@ -40,7 +40,8 @@ public:
                                                GrGLFormat,
                                                int sampleCount,
                                                const IDs&,
-                                               int stencilBits);
+                                               int stencilBits,
+                                               std::string_view label);
 
     bool isFBO0(bool multisample) const {
         return (multisample ? fMultisampleFBOID : fSingleSampleFBOID) == 0;

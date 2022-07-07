@@ -142,7 +142,8 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRender
                                                       std::move(mutableState),
                                                       textureUsageFlags,
                                                       wrapOwnership,
-                                                      cacheable);
+                                                      cacheable,
+                                                      "VkImage_MakeWrappedTextureRenderTarget");
     if (!texture) {
         return nullptr;
     }

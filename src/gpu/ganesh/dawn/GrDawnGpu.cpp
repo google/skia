@@ -281,7 +281,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapBackendTexture(const GrBackendTexture& backend
 
     SkISize dimensions = { backendTex.width(), backendTex.height() };
     return GrDawnTexture::MakeWrapped(this, dimensions, GrRenderable::kNo, 1, cacheable, ioType,
-                                      info);
+                                      info, backendTex.getLabel());
 }
 
 sk_sp<GrTexture> GrDawnGpu::onWrapCompressedBackendTexture(const GrBackendTexture& backendTex,
@@ -306,7 +306,8 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     }
 
     sk_sp<GrTexture> result = GrDawnTexture::MakeWrapped(this, dimensions, GrRenderable::kYes,
-                                                         sampleCnt, cacheable, kRW_GrIOType, info);
+                                                         sampleCnt, cacheable, kRW_GrIOType, info,
+                                                         tex.getLabel());
     result->markMipmapsDirty();
     return result;
 }
@@ -319,7 +320,8 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRender
 
     SkISize dimensions = { rt.width(), rt.height() };
     int sampleCnt = 1;
-    return GrDawnRenderTarget::MakeWrapped(this, dimensions, sampleCnt, info);
+    return GrDawnRenderTarget::MakeWrapped(
+            this, dimensions, sampleCnt, info, /*label=*/"DawnGpu_WrapBackendRenderTarget");
 }
 
 sk_sp<GrAttachment> GrDawnGpu::makeStencilAttachment(const GrBackendFormat& /*colorFormat*/,

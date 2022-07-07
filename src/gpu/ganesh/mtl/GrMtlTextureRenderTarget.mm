@@ -117,7 +117,8 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
     GrAttachment::UsageFlags textureUsageFlags = GrAttachment::UsageFlags::kTexture |
                                                  GrAttachment::UsageFlags::kColorAttachment;
     sk_sp<GrMtlAttachment> textureAttachment =
-            GrMtlAttachment::MakeWrapped(gpu, dimensions, texture, textureUsageFlags, cacheable);
+            GrMtlAttachment::MakeWrapped(gpu, dimensions, texture, textureUsageFlags, cacheable,
+                                         /*label=*/"MtlAttachment_TextureAttachment");
     if (!textureAttachment) {
         return nullptr;
     }

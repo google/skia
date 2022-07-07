@@ -27,7 +27,7 @@ public:
 
     static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, SkISize dimensions, GrRenderable,
                                             int sampleCnt, GrWrapCacheable, GrIOType,
-                                            const GrDawnTextureInfo&);
+                                            const GrDawnTextureInfo&, std::string_view label);
 
     ~GrDawnTexture() override;
 

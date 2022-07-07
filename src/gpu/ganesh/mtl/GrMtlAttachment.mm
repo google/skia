@@ -151,11 +151,11 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::MakeWrapped(
         SkISize dimensions,
         id<MTLTexture> texture,
         UsageFlags attachmentUsages,
-        GrWrapCacheable cacheable) {
+        GrWrapCacheable cacheable,
+        std::string_view label) {
 
     return sk_sp<GrMtlAttachment>(new GrMtlAttachment(gpu, dimensions, attachmentUsages, texture,
-                                                      cacheable,
-                                                      /*label=*/"MtlAttachment_MakeWrapped"));
+                                                      cacheable, label));
 }
 
 GrMtlAttachment::~GrMtlAttachment() {
