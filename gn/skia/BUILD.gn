@@ -286,7 +286,7 @@ config("default") {
 
     if (sanitize == "ASAN") {
       # ASAN implicitly runs all UBSAN checks also.
-      sanitizers = "undefined,address"
+      sanitizers = "undefined,address,float-divide-by-zero"
 
       if (is_android) {
         # TODO(skia:13344): work out UBSAN link errors
