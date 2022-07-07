@@ -20,6 +20,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
@@ -28,6 +29,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkTInternalLList.h"
+#include "tools/SkMetaData.h"
 
 class SkBitmap;
 class SkCanvas;
@@ -303,6 +305,37 @@ void sniff_paths(const char filepath[], std::function<PathSniffCallback>);
 #if SK_SUPPORT_GPU
 sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig);
 #endif
+
+// Initialised with a font, this class can be called to setup GM UI with sliders for font
+// variations, and returns a set of variation coordinates that matches what the sliders in the UI
+// are set to. Useful for testing variable font properties, see colrv1.cpp.
+class VariationSliders {
+public:
+    VariationSliders() {}
+
+    VariationSliders(SkTypeface*);
+
+    bool writeControls(SkMetaData* controls);
+
+    /* Scans controls for information about the variation axes that the user may have configured.
+     * Optionally pass in a boolean to receive information on whether the axes were updated. */
+    void readControls(const SkMetaData& controls, bool* changed = nullptr);
+
+    SkSpan<const SkFontArguments::VariationPosition::Coordinate> getCoordinates();
+
+private:
+    static SkString tagToString(SkFourByteTag tag);
+
+    struct AxisSlider {
+        SkScalar current;
+        SkFontParameters::Variation::Axis axis;
+        SkString name;
+    };
+
+    std::vector<AxisSlider> fAxisSliders;
+    std::unique_ptr<SkFontArguments::VariationPosition::Coordinate[]> fCoords;
+    static constexpr size_t kAxisVarsSize = 3;
+};
 
 }  // namespace ToolUtils
 
