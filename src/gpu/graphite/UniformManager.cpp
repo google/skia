@@ -485,7 +485,7 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
     return uniformOffset;
 }
 
-SkSLType UniformManager::getUniformTypeForLayout(SkSLType type) {
+SkSLType UniformOffsetCalculator::getUniformTypeForLayout(SkSLType type) {
     if (fLayout != Layout::kMetal) {
         // GL/Vk expect uniforms in 32-bit precision. Convert lower-precision types to 32-bit.
         switch (type) {
@@ -516,7 +516,10 @@ SkSLType UniformManager::getUniformTypeForLayout(SkSLType type) {
     return type;
 }
 
-UniformManager::UniformManager(Layout layout) : fLayout(layout) {
+UniformOffsetCalculator::UniformOffsetCalculator(Layout layout, uint32_t startingOffset)
+        : fLayout(layout)
+        , fOffset(startingOffset)
+        , fCurUBOOffset(startingOffset) {
 
     switch (layout) {
         case Layout::kStd140:
@@ -529,8 +532,20 @@ UniformManager::UniformManager(Layout layout) : fLayout(layout) {
             fWriteUniform = Writer<RulesMetal>::WriteUniform;
             break;
     }
+}
 
-    this->reset();
+size_t UniformOffsetCalculator::calculateOffset(SkSLType type, unsigned int count) {
+    SkSLType revisedType = this->getUniformTypeForLayout(type);
+
+    // Insert padding as needed to get the correct uniform alignment.
+    uint32_t alignedOffset = get_ubo_aligned_offset(&fCurUBOOffset, revisedType, count);
+    SkASSERT(alignedOffset >= fOffset);
+
+    // Append the uniform size to our offset, then return the uniform start position.
+    uint32_t uniformSize = fWriteUniform(revisedType, CType::kDefault,
+                                         /*dest=*/nullptr, count, /*src=*/nullptr);
+    fOffset = alignedOffset + uniformSize;
+    return alignedOffset;
 }
 
 SkUniformDataBlock UniformManager::peekData() const {

@@ -31,13 +31,35 @@ enum class Layout {
     kMetal, /** This is our own self-imposed layout we use for Metal. */
 };
 
-// TODO: This is only used in the SkPipelineDataGatherer - maybe hide it better.
-class UniformManager {
+class UniformOffsetCalculator {
 public:
-    UniformManager(Layout layout);
+    UniformOffsetCalculator(Layout layout, uint32_t startingOffset);
+
+    size_t size() const { return fCurUBOOffset; }
+
+    size_t calculateOffset(SkSLType type, unsigned int count);
+
+protected:
+    SkSLType getUniformTypeForLayout(SkSLType type);
+
+    using WriteUniformFn = uint32_t (*)(SkSLType type,
+                                        CType ctype,
+                                        void *dest,
+                                        int n,
+                                        const void *src);
+
+    WriteUniformFn fWriteUniform;
+    Layout fLayout;  // TODO: eventually 'fLayout' will not need to be stored
+    uint32_t fOffset = 0;
+    uint32_t fCurUBOOffset = 0;
+};
+
+class UniformManager : public UniformOffsetCalculator {
+public:
+    UniformManager(Layout layout) : UniformOffsetCalculator(layout, /*startingOffset=*/0) {}
 
     SkUniformDataBlock peekData() const;
-    int size() const { return fStorage.count(); }
+    size_t size() const { return fStorage.size(); }
 
     void reset();
 
@@ -61,22 +83,10 @@ public:
     void write(SkSLType type, unsigned int count, const void* src);
 
 private:
-    SkSLType getUniformTypeForLayout(SkSLType type);
-
-    using WriteUniformFn = uint32_t(*)(SkSLType type,
-                                       CType ctype,
-                                       void *dest,
-                                       int n,
-                                       const void *src);
-
-    WriteUniformFn fWriteUniform;
-    Layout fLayout;  // TODO: eventually 'fLayout' will not need to be stored
-    uint32_t fCurUBOOffset = 0;
 #ifdef SK_DEBUG
     SkSpan<const SkUniform> fExpectedUniforms;
     int fExpectedUniformIndex = 0;
 #endif // SK_DEBUG
-    uint32_t fOffset = 0;
 
     SkTDArray<char> fStorage;
 };

@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/mtl/MtlGpu.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
@@ -36,39 +37,32 @@ std::string get_uniform_header(int bufferID, const char* name) {
 
 std::string get_uniforms(SkSpan<const SkUniform> uniforms, int* offset, int manglingSuffix) {
     std::string result;
+    UniformOffsetCalculator offsetter(Layout::kMetal, *offset);
 
-    for (auto u : uniforms) {
-        int count = u.count() ? u.count() : 1;
-        // TODO: this is sufficient for the sprint but should be changed to use SkSL's
-        // machinery
-        SkSL::String::appendf(&result, "    layout(offset=%d) ", *offset);
+    for (const SkUniform& u : uniforms) {
+        SkSL::String::appendf(&result, "    layout(offset=%zu) ",
+                              offsetter.calculateOffset(u.type(), u.count()));
         switch (u.type()) {
             case SkSLType::kFloat4:
                 result.append("float4");
-                *offset += 16 * count;
                 break;
             case SkSLType::kFloat2:
                 result.append("float2");
-                *offset += 8 * count;
                 break;
             case SkSLType::kFloat:
                 result.append("float");
-                *offset += 4 * count;
                 break;
             case SkSLType::kFloat4x4:
                 result.append("float4x4");
-                *offset += 64 * count;
                 break;
             case SkSLType::kHalf4:
                 result.append("half4");
-                *offset += 8 * count;
                 break;
             case SkSLType::kInt:
                 result.append("int");
-                *offset += 4 * count;
                 break;
             default:
-                SkASSERT(0);
+                SkUNREACHABLE;
         }
 
         result.append(" ");
@@ -85,10 +79,11 @@ std::string get_uniforms(SkSpan<const SkUniform> uniforms, int* offset, int mang
         result.append(";\n");
     }
 
+    *offset = offsetter.size();
     return result;
 }
 
-std::string emit_SKSL_uniforms(int bufferID, const char* name, SkSpan<const SkUniform> uniforms) {
+std::string emit_SkSL_uniforms(int bufferID, const char* name, SkSpan<const SkUniform> uniforms) {
     int offset = 0;
 
     std::string result = get_uniform_header(bufferID, name);
@@ -170,7 +165,7 @@ std::string get_sksl_vs(const GraphicsPipelineDesc& desc) {
 
     // Uniforms needed by RenderStep
     if (step->numUniforms() > 0) {
-        sksl += emit_SKSL_uniforms(1, "Step", step->uniforms());
+        sksl += emit_SkSL_uniforms(1, "Step", step->uniforms());
     }
 
     // Vertex shader function declaration
