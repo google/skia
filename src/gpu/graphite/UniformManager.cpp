@@ -397,8 +397,8 @@ static uint32_t sksltype_to_alignment_mask(SkSLType type) {
     SK_ABORT("Unexpected type");
 }
 
-/** Returns the size in bytes taken up in Metal buffers for SkSLTypes. */
-inline uint32_t sksltype_to_mtl_size(SkSLType type) {
+/** Returns the size in bytes taken up in uniform buffers for SkSLTypes. */
+inline uint32_t sksltype_to_size(SkSLType type) {
     switch (type) {
         case SkSLType::kInt:
         case SkSLType::kUInt:
@@ -469,22 +469,18 @@ inline uint32_t sksltype_to_mtl_size(SkSLType type) {
 static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
                                        SkSLType type,
                                        int arrayCount) {
-    // TODO(skia:13478): these alignments are currently Metal-specific; we are likely to need
-    // fixes for other Layout types.
     uint32_t alignmentMask = sksltype_to_alignment_mask(type);
     uint32_t offsetDiff = *currentOffset & alignmentMask;
     if (offsetDiff != 0) {
         offsetDiff = alignmentMask - offsetDiff + 1;
     }
     uint32_t uniformOffset = *currentOffset + offsetDiff;
-    SkASSERT(sizeof(float) == 4);
 
-    // TODO(skia:13478): these size calculations are currently Metal-specific; we are likely to need
-    // fixes for other Layout types.
     if (arrayCount) {
-        *currentOffset = uniformOffset + sksltype_to_mtl_size(type) * arrayCount;
+        // TODO(skia:13478): array size calculations currently do not honor std140 layout.
+        *currentOffset = uniformOffset + sksltype_to_size(type) * arrayCount;
     } else {
-        *currentOffset = uniformOffset + sksltype_to_mtl_size(type);
+        *currentOffset = uniformOffset + sksltype_to_size(type);
     }
     return uniformOffset;
 }
