@@ -54,7 +54,8 @@ public:
                                           GrMipmapStatus,
                                           const Desc&,
                                           sk_sp<GrGLTextureParameters>,
-                                          GrWrapCacheable, GrIOType);
+                                          GrWrapCacheable, GrIOType,
+                                          std::string_view label);
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 

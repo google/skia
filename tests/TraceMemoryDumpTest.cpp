@@ -117,9 +117,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLTexture, report
 
     auto params = sk_make_sp<GrGLTextureParameters>();
 
-    auto texture =
-            GrGLTexture::MakeWrapped(gpu, GrMipmapStatus::kNotAllocated, desc, std::move(params),
-                                     GrWrapCacheable::kNo, kRead_GrIOType);
+    auto texture = GrGLTexture::MakeWrapped(gpu,
+                                            GrMipmapStatus::kNotAllocated,
+                                            desc,
+                                            std::move(params),
+                                            GrWrapCacheable::kNo,
+                                            kRead_GrIOType,
+                                            /*label=*/{});
 
     ValidateMemoryDumps(reporter, dContext, 2, texture->gpuMemorySize(), false /* isOwned */);
 }

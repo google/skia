@@ -462,10 +462,12 @@ GrBackendTexture::GrBackendTexture() : fIsValid(false) {}
 #ifdef SK_DAWN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   const GrDawnTextureInfo& dawnInfo)
+                                   const GrDawnTextureInfo& dawnInfo,
+                                   std::string_view label)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
+        , fLabel(label)
         , fMipmapped(GrMipmapped(dawnInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kDawn)
         , fTextureType(GrTextureType::k2D)
@@ -473,11 +475,17 @@ GrBackendTexture::GrBackendTexture(int width,
 #endif
 
 #ifdef SK_VULKAN
-GrBackendTexture::GrBackendTexture(int width, int height, const GrVkImageInfo& vkInfo)
-        : GrBackendTexture(width, height, vkInfo,
-                           sk_sp<GrBackendSurfaceMutableStateImpl>(
-                                   new GrBackendSurfaceMutableStateImpl(
-                                        vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily))) {}
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   const GrVkImageInfo& vkInfo,
+                                   std::string_view label)
+        : GrBackendTexture(
+                  width,
+                  height,
+                  vkInfo,
+                  sk_sp<GrBackendSurfaceMutableStateImpl>(new GrBackendSurfaceMutableStateImpl(
+                          vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily)),
+                  label) {}
 
 static const VkImageUsageFlags kDefaultUsageFlags =
         VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
@@ -508,10 +516,12 @@ static GrTextureType vk_image_info_to_texture_type(const GrVkImageInfo& info) {
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo,
-                                   sk_sp<GrBackendSurfaceMutableStateImpl> mutableState)
+                                   sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                                   std::string_view label)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
+        , fLabel(label)
         , fMipmapped(GrMipmapped(vkInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kVulkan)
         , fTextureType(vk_image_info_to_texture_type(vkInfo))
@@ -524,10 +534,12 @@ GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipmapped mipmapped,
                                    const GrGLTextureInfo glInfo,
-                                   sk_sp<GrGLTextureParameters> params)
+                                   sk_sp<GrGLTextureParameters> params,
+                                   std::string_view label)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
+        , fLabel(label)
         , fMipmapped(mipmapped)
         , fBackend(GrBackendApi::kOpenGL)
         , fTextureType(gl_target_to_gr_target(glInfo.fTarget))
@@ -545,10 +557,12 @@ sk_sp<GrGLTextureParameters> GrBackendTexture::getGLTextureParams() const {
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipmapped mipmapped,
-                                   const GrMtlTextureInfo& mtlInfo)
+                                   const GrMtlTextureInfo& mtlInfo,
+                                   std::string_view label)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
+        , fLabel(label)
         , fMipmapped(mipmapped)
         , fBackend(GrBackendApi::kMetal)
         , fTextureType(GrTextureType::k2D)
@@ -556,19 +570,26 @@ GrBackendTexture::GrBackendTexture(int width,
 #endif
 
 #ifdef SK_DIRECT3D
-GrBackendTexture::GrBackendTexture(int width, int height, const GrD3DTextureResourceInfo& d3dInfo)
-        : GrBackendTexture(
-                width, height, d3dInfo,
-                sk_sp<GrD3DResourceState>(new GrD3DResourceState(
-                        static_cast<D3D12_RESOURCE_STATES>(d3dInfo.fResourceState)))) {}
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   const GrD3DTextureResourceInfo& d3dInfo,
+                                   std::string_view label)
+        : GrBackendTexture(width,
+                           height,
+                           d3dInfo,
+                           sk_sp<GrD3DResourceState>(new GrD3DResourceState(
+                                   static_cast<D3D12_RESOURCE_STATES>(d3dInfo.fResourceState))),
+                           label) {}
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrD3DTextureResourceInfo& d3dInfo,
-                                   sk_sp<GrD3DResourceState> state)
+                                   sk_sp<GrD3DResourceState> state,
+                                   std::string_view label)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
+        , fLabel(label)
         , fMipmapped(GrMipmapped(d3dInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kDirect3D)
         , fTextureType(GrTextureType::k2D)
@@ -579,8 +600,10 @@ GrBackendTexture::GrBackendTexture(int width,
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipmapped mipmapped,
-                                   const GrGLTextureInfo& glInfo)
-        : GrBackendTexture(width, height, mipmapped, glInfo, sk_make_sp<GrGLTextureParameters>()) {
+                                   const GrGLTextureInfo& glInfo,
+                                   std::string_view label)
+        : GrBackendTexture(
+                  width, height, mipmapped, glInfo, sk_make_sp<GrGLTextureParameters>(), label) {
     // Make no assumptions about client's texture's parameters.
     this->glTextureParametersModified();
 }
@@ -589,10 +612,12 @@ GrBackendTexture::GrBackendTexture(int width,
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipmapped mipmapped,
-                                   const GrMockTextureInfo& mockInfo)
+                                   const GrMockTextureInfo& mockInfo,
+                                   std::string_view label)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
+        , fLabel(label)
         , fMipmapped(mipmapped)
         , fBackend(GrBackendApi::kMock)
         , fTextureType(GrTextureType::k2D)
