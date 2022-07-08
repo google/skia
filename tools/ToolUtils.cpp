@@ -554,4 +554,74 @@ sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig) {
 }
 #endif
 
+VariationSliders::VariationSliders(SkTypeface* typeface) {
+    if (!typeface) {
+        return;
+    }
+
+    int numAxes = typeface->getVariationDesignParameters(nullptr, 0);
+    if (numAxes < 0) {
+        return;
+    }
+
+    std::unique_ptr<SkFontParameters::Variation::Axis[]> copiedAxes =
+            std::make_unique<SkFontParameters::Variation::Axis[]>(numAxes);
+
+    numAxes = typeface->getVariationDesignParameters(copiedAxes.get(), numAxes);
+    if (numAxes < 0) {
+        return;
+    }
+
+    fAxisSliders.resize(numAxes);
+    for (int i = 0; i < numAxes; ++i) {
+        fAxisSliders[i].axis = copiedAxes[i];
+        fAxisSliders[i].current = copiedAxes[i].def;
+        fAxisSliders[i].name = tagToString(fAxisSliders[i].axis.tag);
+    }
+    fCoords = std::make_unique<SkFontArguments::VariationPosition::Coordinate[]>(numAxes);
+}
+
+/* static */
+SkString VariationSliders::tagToString(SkFourByteTag tag) {
+    char tagAsString[5];
+    tagAsString[4] = 0;
+    tagAsString[0] = (char)(uint8_t)(tag >> 24);
+    tagAsString[1] = (char)(uint8_t)(tag >> 16);
+    tagAsString[2] = (char)(uint8_t)(tag >> 8);
+    tagAsString[3] = (char)(uint8_t)(tag >> 0);
+    return SkString(tagAsString);
+}
+
+bool VariationSliders::writeControls(SkMetaData* controls) {
+    for (size_t i = 0; i < fAxisSliders.size(); ++i) {
+        SkScalar axisVars[kAxisVarsSize];
+
+        axisVars[0] = fAxisSliders[i].current;
+        axisVars[1] = fAxisSliders[i].axis.min;
+        axisVars[2] = fAxisSliders[i].axis.max;
+        controls->setScalars(fAxisSliders[i].name.c_str(), kAxisVarsSize, axisVars);
+    }
+    return true;
+}
+
+void VariationSliders::readControls(const SkMetaData& controls, bool* changed) {
+    for (size_t i = 0; i < fAxisSliders.size(); ++i) {
+        SkScalar axisVars[kAxisVarsSize] = {0};
+        int resultAxisVarsSize = 0;
+        SkASSERT_RELEASE(controls.findScalars(
+                tagToString(fAxisSliders[i].axis.tag).c_str(), &resultAxisVarsSize, axisVars));
+        SkASSERT_RELEASE(resultAxisVarsSize == kAxisVarsSize);
+        if (changed) {
+            *changed |= fAxisSliders[i].current != axisVars[0];
+        }
+        fAxisSliders[i].current = axisVars[0];
+        fCoords[i] = { fAxisSliders[i].axis.tag, fAxisSliders[i].current };
+    }
+}
+
+SkSpan<const SkFontArguments::VariationPosition::Coordinate> VariationSliders::getCoordinates() {
+    return SkSpan<const SkFontArguments::VariationPosition::Coordinate>{fCoords.get(),
+                                                                        fAxisSliders.size()};
+}
+
 }  // namespace ToolUtils
