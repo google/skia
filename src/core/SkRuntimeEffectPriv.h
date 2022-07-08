@@ -37,6 +37,10 @@ public:
         return effect.hash();
     }
 
+    static const SkSL::Program& Program(const SkRuntimeEffect& effect) {
+        return *effect.fBaseProgram;
+    }
+
     static SkRuntimeEffect::Options ES3Options() {
         SkRuntimeEffect::Options options;
         options.enforceES2Restrictions = false;
