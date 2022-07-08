@@ -34,6 +34,9 @@ protected:
                 }
                 distance += delta;
             }
+            if (governor < 0) {
+                return false;
+            }
         } while (meas.nextContour());
         return true;
     }
