@@ -15,6 +15,8 @@ cc_library(
         "//tools/flags:core_srcs",
         # TODO(kjlubick, bungeman): We should split out the font stuff into its own set of files
         "//tools/fonts:test_font_manager_srcs",
+        "SkMetaData.h",
+        "SkMetaData.cpp",
     ],
     hdrs = [
         "ToolUtils.h",

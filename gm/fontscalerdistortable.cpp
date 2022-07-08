@@ -22,6 +22,7 @@
 #include "include/core/SkTypes.h"
 #include "tools/Resources.h"
 #include "tools/SkMetaData.h"
+#include "tools/ToolUtils.h"
 
 #include <string.h>
 #include <memory>
@@ -48,20 +49,11 @@ private:
     bool fDirty = true;
     bool fOverride = false;
 
-    size_t fAxisSliderCount = 0;
-    struct AxisSlider {
-        SkFourByteTag axis;
-        SkScalar control[3];
-        SkString name;
-    };
-    std::unique_ptr<AxisSlider[]> fAxisSliders;
+    ToolUtils::VariationSliders fVariationSliders;
 
     bool onGetControls(SkMetaData* controls) override {
         controls->setBool("Override", fOverride);
-        for (size_t i = 0; i < fAxisSliderCount; ++i) {
-            controls->setScalars(fAxisSliders[i].name.c_str(), 3, fAxisSliders[i].control);
-        }
-        return true;
+        return fVariationSliders.writeControls(controls);
     }
 
     void onSetControls(const SkMetaData& controls) override {
@@ -71,13 +63,7 @@ private:
             fDirty = true;
         }
 
-        for (size_t i = 0; i < fAxisSliderCount; ++i) {
-            SkScalar oldValue = fAxisSliders[i].control[0];
-            controls.findScalars(fAxisSliders[i].name.c_str(), nullptr, fAxisSliders[i].control);
-            if (oldValue != fAxisSliders[i].control[0]) {
-                fDirty = true;
-            }
-        }
+        return fVariationSliders.readControls(controls, &fDirty);
     }
 
     struct Info {
@@ -99,23 +85,7 @@ private:
         };
 
         if (fInfo.distortable) {
-            int axisCount = fInfo.distortable->getVariationDesignParameters(nullptr, 0);
-            if (axisCount > 0) {
-                auto axes = std::make_unique<SkFontParameters::Variation::Axis[]>(axisCount);
-                axisCount = fInfo.distortable->getVariationDesignParameters(axes.get(), axisCount);
-                if (axisCount > 0) {
-                    fAxisSliders = std::make_unique<AxisSlider[]>(axisCount);
-                    for (int i = 0; i < axisCount; ++i) {
-                        fAxisSliders[i].axis = axes[i].tag;
-                        fAxisSliders[i].control[0] = axes[i].def;
-                        fAxisSliders[i].control[1] = axes[i].min;
-                        fAxisSliders[i].control[2] = axes[i].max;
-                        fAxisSliders[i].name.append((const char *)&axes[i].tag, 4);
-                        fAxisSliders[i].name.appendS32(i);
-                    }
-                    fAxisSliderCount = axisCount;
-                }
-            }
+            fVariationSliders = ToolUtils::VariationSliders(fInfo.distortable.get());
         }
     }
 
@@ -132,24 +102,21 @@ private:
         for (int row = 0; row < rows; ++row) {
             for (int col = 0; col < cols; ++col) {
                 using Coordinate = SkFontArguments::VariationPosition::Coordinate;
-                int coordinateCount;
-                std::unique_ptr<Coordinate[]> coordinates;
+                SkFontArguments::VariationPosition position;
+                Coordinate coordinates[2];
+
                 if (fOverride) {
-                    coordinateCount = fAxisSliderCount;
-                    coordinates = std::make_unique<Coordinate[]>(coordinateCount);
-                    for (size_t i = 0; i < fAxisSliderCount; ++i) {
-                        coordinates[i].axis = fAxisSliders[i].axis;
-                        coordinates[i].value = fAxisSliders[i].control[0];
-                    }
+                    SkSpan<const Coordinate> user_coordinates = fVariationSliders.getCoordinates();
+                    position = {user_coordinates.data(), static_cast<int>(user_coordinates.size())};
+
                 } else {
-                    coordinateCount = 2;
-                    coordinates = std::make_unique<Coordinate[]>(coordinateCount);
+                    const int coordinateCount = 2;
                     SkScalar styleValue = SkScalarInterp(fInfo.axisMin, fInfo.axisMax,
                                                          SkScalar(row*cols + col) / (rows*cols));
                     coordinates[0] = {fInfo.axisTag, styleValue};
                     coordinates[1] = {fInfo.axisTag, styleValue};
+                    position = {coordinates, static_cast<int>(coordinateCount)};
                 }
-                SkFontArguments::VariationPosition position = {coordinates.get(), coordinateCount};
 
                 typeface[row][col] = [&]() -> sk_sp<SkTypeface> {
                     if (row == 0 && fInfo.distortable) {
