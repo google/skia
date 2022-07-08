@@ -10,7 +10,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
-#include "include/core/SkGraphics.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -24,10 +23,6 @@
 #include <initializer_list>
 
 namespace skiagm {
-
-namespace {
-bool ColrV1VariationsEnabledForTest() { return true; }
-}
 
 class ColrV1GM : public GM {
 public:
@@ -50,11 +45,7 @@ public:
   };
 
   ColrV1GM(ColrV1TestType testType, SkScalar skewX, SkScalar rotateDeg)
-          : fSkewX(skewX), fRotateDeg(rotateDeg), fTestType(testType) {
-      fPreviousFlagFunc = SkGraphics::SetVariableColrV1EnabledFunc(ColrV1VariationsEnabledForTest);
-  }
-
-  ~ColrV1GM() override { SkGraphics::SetVariableColrV1EnabledFunc(fPreviousFlagFunc); }
+          : fSkewX(skewX), fRotateDeg(rotateDeg), fTestType(testType) {}
 
 protected:
     static SkString testTypeToString(ColrV1TestType testType) {
@@ -146,8 +137,6 @@ protected:
                 fEmojiFont.fGlyphs = {73, 74, 75, 76, 77, 78, 79, 80};
                 break;
         }
-
-        fVariationSliders = ToolUtils::VariationSliders(fEmojiFont.fTypeface.get());
     }
 
     SkString onShortName() override {
@@ -161,14 +150,6 @@ protected:
             gm_name.append("_rotate");
         }
         return gm_name;
-    }
-
-    bool onGetControls(SkMetaData* controls) override {
-        return fVariationSliders.writeControls(controls);
-    }
-
-    void onSetControls(const SkMetaData& controls) override {
-        return fVariationSliders.readControls(controls);
     }
 
     SkISize onISize() override { return SkISize::Make(1400, 600); }
@@ -187,14 +168,7 @@ protected:
         canvas->rotate(fRotateDeg);
         canvas->skew(fSkewX, 0);
 
-        SkSpan<const SkFontArguments::VariationPosition::Coordinate> coords =
-                fVariationSliders.getCoordinates();
-        SkFontArguments::VariationPosition varPos = {coords.data(),
-                                                     static_cast<int>(coords.size())};
-        SkFontArguments args;
-        args.setVariationDesignPosition(varPos);
-        sk_sp<SkTypeface> axisAppliedTypeface = fEmojiFont.fTypeface->makeClone(args);
-        SkFont font(axisAppliedTypeface);
+        SkFont font(fEmojiFont.fTypeface);
 
         SkFontMetrics metrics;
         SkScalar y = 0;
@@ -218,12 +192,9 @@ protected:
 
 private:
     using INHERITED = GM;
-
     SkScalar fSkewX;
     SkScalar fRotateDeg;
     ColrV1TestType fTestType;
-    ToolUtils::VariationSliders fVariationSliders;
-    SkGraphics::VariableColrV1EnabledFunc fPreviousFlagFunc;
 };
 
 DEF_GM(return new ColrV1GM(ColrV1GM::kSkiaSampleFont, 0.f, 0.f);)
