@@ -584,6 +584,15 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fTextureBarrierSupport = false;
     }
 
+#ifdef SK_BUILD_FOR_WIN
+    // Gen 12 Intel devices running on windows has issues using barriers for dst reads. This is seen
+    // when running the unit tests SkRuntimeEffect_Blender_GPU and DMSAA_aa_dst_read_after_dmsaa.
+    if (kIntel_VkVendor == properties.vendorID &&
+        GetIntelGen(GetIntelGPUType(properties.deviceID)) == 12) {
+        fTextureBarrierSupport = false;
+    }
+#endif
+
     // On ARM indirect draws are broken on Android 9 and earlier. This was tested on a P30 and
     // Mate 20x running android 9.
     if (properties.vendorID == kARM_VkVendor && androidAPIVersion <= 28) {
