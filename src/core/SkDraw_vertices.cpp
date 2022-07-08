@@ -283,7 +283,7 @@ static void fill_triangle_3(const VertState& state, SkBlitter* blitter, const Sk
         const int count = SkTo<int>(outP - outPoints);
         SkASSERT(count == 0 || count == 3 || count == 4);
         for (int i = 0; i < count; ++i) {
-            float scale = 1.0f / outPoints[i].fZ;
+            float scale = sk_ieee_float_divide(1.0f, outPoints[i].fZ);
             dst[i].set(outPoints[i].fX * scale, outPoints[i].fY * scale);
         }
         return count;
