@@ -6,6 +6,7 @@
  */
 
 #include "src/text/gpu/GlyphVector.h"
+#include <optional>
 #include <variant>
 
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
@@ -16,17 +17,67 @@
 using MaskFormat = skgpu::MaskFormat;
 
 namespace sktext::gpu {
-GlyphVector::GlyphVector(sk_sp<SkStrike>&& strike, SkSpan<Variant> glyphs)
-        : fStrike{std::move(strike)}
-        , fGlyphs{glyphs} {
+// -- StrikeRef ------------------------------------------------------------------------------------
+StrikeRef::StrikeRef(sk_sp<SkStrike>&& strike) : fStrike{std::move(strike)} {
     SkASSERT(std::get<sk_sp<SkStrike>>(fStrike) != nullptr);
-    SkASSERT(fGlyphs.size() > 0);
 }
 
-GlyphVector::GlyphVector(SkStrikeForGPU* strike, SkSpan<Variant> glyphs)
-        : fStrike{strike}
-        , fGlyphs{glyphs} {
+StrikeRef::StrikeRef(SkStrikeForGPU* strike) : fStrike {strike} {
     SkASSERT(std::get<SkStrikeForGPU*>(fStrike) != nullptr);
+}
+
+StrikeRef::StrikeRef(StrikeRef&&) = default;
+StrikeRef& StrikeRef::operator=(StrikeRef&&) = default;
+
+void StrikeRef::flatten(SkWriteBuffer& buffer) const {
+    if (std::holds_alternative<std::monostate>(fStrike)) {
+        SK_ABORT("Can't flatten. getStrikeAndSetToNullptr has already been called.");
+    }
+
+    if (const sk_sp<SkStrike>* strikePtr = std::get_if<sk_sp<SkStrike>>(&fStrike)) {
+        (*strikePtr)->getDescriptor().flatten(buffer);
+    } else if (SkStrikeForGPU*const* GPUstrikePtr = std::get_if<SkStrikeForGPU*>(&fStrike)) {
+        (*GPUstrikePtr)->getDescriptor().flatten(buffer);
+    }
+}
+
+std::optional<StrikeRef> StrikeRef::MakeFromBuffer(SkReadBuffer& buffer,
+                                                   const SkStrikeClient* client) {
+    auto descriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
+    if (!buffer.validate(descriptor.has_value())) {
+        return std::nullopt;
+    }
+
+    // If there is a client, then this from a different process. Translate the typeface id from
+    // that process to this process.
+    if (client != nullptr) {
+        if (!client->translateTypefaceID(&descriptor.value())) {
+            return std::nullopt;
+        }
+    }
+
+    sk_sp<SkStrike> strike = SkStrikeCache::GlobalStrikeCache()->findStrike(*descriptor->getDesc());
+    if (!buffer.validate(strike != nullptr)) {
+        return std::nullopt;
+    }
+
+    return StrikeRef{std::move(strike)};
+}
+
+sk_sp<SkStrike> StrikeRef::getStrikeAndSetToNullptr() {
+    if (std::holds_alternative<sk_sp<SkStrike>>(fStrike)) {
+        // Force a copy out of the variant because there is no more efficient way to do it.
+        sk_sp<SkStrike> strike = std::get<sk_sp<SkStrike>>(fStrike);
+        fStrike = std::monostate();
+        return strike;
+    }
+    return nullptr;
+}
+
+// -- GlyphVector ----------------------------------------------------------------------------------
+GlyphVector::GlyphVector(sktext::gpu::StrikeRef&& strikeRef, SkSpan<Variant> glyphs)
+        : fStrikeRef{std::move(strikeRef)}
+        , fGlyphs{glyphs} {
     SkASSERT(fGlyphs.size() > 0);
 }
 
@@ -58,19 +109,8 @@ GlyphVector GlyphVector::Make(
 std::optional<GlyphVector> GlyphVector::MakeFromBuffer(SkReadBuffer& buffer,
                                                        const SkStrikeClient* client,
                                                        SubRunAllocator* alloc) {
-    auto descriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
-    if (!buffer.validate(descriptor.has_value())) {
-        return std::nullopt;
-    }
-
-    if (client != nullptr) {
-        if (!client->translateTypefaceID(&descriptor.value())) {
-            return std::nullopt;
-        }
-    }
-
-    sk_sp<SkStrike> strike = SkStrikeCache::GlobalStrikeCache()->findStrike(*descriptor->getDesc());
-    if (!buffer.validate(strike != nullptr)) {
+    std::optional<StrikeRef> strikeRef = StrikeRef::MakeFromBuffer(buffer, client);
+    if (!buffer.validate(strikeRef.has_value())) {
         return std::nullopt;
     }
 
@@ -96,21 +136,13 @@ std::optional<GlyphVector> GlyphVector::MakeFromBuffer(SkReadBuffer& buffer,
     for (int i = 0; i < glyphCount; i++) {
         variants[i].packedGlyphID = SkPackedGlyphID(buffer.readUInt());
     }
-    return GlyphVector{std::move(strike), SkSpan(variants, glyphCount)};
+    return GlyphVector{std::move(strikeRef.value()), SkSpan(variants, glyphCount)};
 }
 
 void GlyphVector::flatten(SkWriteBuffer& buffer) const {
     // There should never be a glyph vector with zero glyphs.
     SkASSERT(fGlyphs.size() != 0);
-    if (std::holds_alternative<std::monostate>(fStrike)) {
-        SK_ABORT("Can't flatten with already drawn.");
-    }
-
-    if (const sk_sp<SkStrike>* strikePtr = std::get_if<sk_sp<SkStrike>>(&fStrike)) {
-        (*strikePtr)->getDescriptor().flatten(buffer);
-    } else if (SkStrikeForGPU*const* GPUStrikePtr = std::get_if<SkStrikeForGPU*>(&fStrike)) {
-        (*GPUStrikePtr)->getDescriptor().flatten(buffer);
-    }
+    fStrikeRef.flatten(buffer);
 
     // Write out the span of packedGlyphIDs.
     buffer.write32(SkTo<int32_t>(fGlyphs.size()));
@@ -126,8 +158,7 @@ SkSpan<const Glyph*> GlyphVector::glyphs() const {
 // packedGlyphIDToGlyph must be run in single-threaded mode.
 // If fSkStrike is not sk_sp<SkStrike> then the conversion to Glyph* has not happened.
 void GlyphVector::packedGlyphIDToGlyph(StrikeCache* cache) {
-    if (std::holds_alternative<sk_sp<SkStrike>>(fStrike)) {
-        SkStrike* strike = std::get<sk_sp<SkStrike>>(fStrike).get();
+    if (sk_sp<SkStrike> strike = fStrikeRef.getStrikeAndSetToNullptr()) {
         fTextStrike = cache->findOrCreateStrike(strike->strikeSpec());
 
         for (Variant& variant : fGlyphs) {
@@ -136,9 +167,6 @@ void GlyphVector::packedGlyphIDToGlyph(StrikeCache* cache) {
 
         // This must be pinned for the Atlas filling to work.
         strike->verifyPinnedStrike();
-
-        // Drop the ref on the strike that was taken in the SkGlyphRunPainter process* methods.
-        fStrike = std::monostate();
     }
 }
 }  // namespace sktext::gpu

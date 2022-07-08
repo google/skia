@@ -5,6 +5,7 @@
 * found in the LICENSE file.
  */
 
+#include "src/core/SkDescriptor.h"
 #include "src/core/SkGlyph.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 
@@ -22,10 +23,17 @@ using SubRunAllocator = sktext::gpu::SubRunAllocator;
 
 namespace sktext::gpu {
 
+class StrikeRefTestingPeer {
+public:
+    static const SkDescriptor& GetDescriptor(const StrikeRef& strikeRef) {
+        return std::get<sk_sp<SkStrike>>(strikeRef.fStrike)->getDescriptor();
+    }
+};
+
 class GlyphVectorTestingPeer {
 public:
     static const SkDescriptor& GetDescriptor(const GlyphVector& v) {
-        return std::get<sk_sp<SkStrike>>(v.fStrike)->getDescriptor();
+        return StrikeRefTestingPeer::GetDescriptor(v.fStrikeRef);
     }
     static SkSpan<GlyphVector::Variant> GetGlyphs(const GlyphVector& v) {
         return v.fGlyphs;
