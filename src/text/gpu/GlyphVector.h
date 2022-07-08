@@ -85,7 +85,7 @@ public:
     }
 
 private:
-    friend class TestingPeer;
+    friend class GlyphVectorTestingPeer;
 
     static Variant* MakeGlyphs(SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
 
