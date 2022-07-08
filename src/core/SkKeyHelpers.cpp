@@ -20,6 +20,7 @@
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
@@ -588,8 +589,8 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
             int codeSnippetID = dict->findOrCreateRuntimeEffectSnippet(shaderData.fEffect.get());
 
             skgpu::graphite::Recorder* recorder = keyContext.recorder();
-            recorder->priv().addRuntimeEffect(codeSnippetID, shaderData.fEffect);
-
+            recorder->priv().resourceProvider()->runtimeEffectDictionary()->set(codeSnippetID,
+                                                                                shaderData.fEffect);
             if (gatherer) {
                 const SkShaderSnippet* entry = dict->getEntry(codeSnippetID);
                 SkASSERT(entry);

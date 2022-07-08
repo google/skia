@@ -197,5 +197,8 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
     return buffer;
 }
 
+void ResourceProvider::resetAfterSnap() {
+    fRuntimeEffectDictionary.reset();
+}
 
 } // namespace skgpu::graphite

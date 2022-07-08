@@ -84,7 +84,7 @@ std::unique_ptr<Recording> Recorder::snap() {
         fTextureDataCache = std::make_unique<TextureDataCache>();
         // We leave the UniformDataCache alone
         fGraph->reset();
-        fRuntimeEffectMap.reset();
+        fResourceProvider->resetAfterSnap();
         return nullptr;
     }
 
@@ -93,7 +93,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     fUploadBufferManager->transferToRecording(recording.get());
 
     fGraph = std::make_unique<TaskGraph>();
-    fRuntimeEffectMap.reset();
+    fResourceProvider->resetAfterSnap();
     fTextureDataCache = std::make_unique<TextureDataCache>();
     return recording;
 }

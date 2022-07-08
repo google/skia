@@ -16,7 +16,6 @@ namespace skgpu::graphite {
 class RecorderPriv {
 public:
     void add(sk_sp<Task>);
-    void addRuntimeEffect(int codeSnippetID, sk_sp<const SkRuntimeEffect>);
 
     ResourceProvider* resourceProvider() const;
     UniformDataCache* uniformDataCache() const;

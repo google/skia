@@ -76,15 +76,6 @@ void RecorderPriv::add(sk_sp<Task> task) {
     fRecorder->fGraph->add(std::move(task));
 }
 
-void RecorderPriv::addRuntimeEffect(int codeSnippetID, sk_sp<const SkRuntimeEffect> effect) {
-    ASSERT_SINGLE_OWNER
-    // The same code-snippet ID should never refer to two different effects.
-    SkASSERT(!fRecorder->fRuntimeEffectMap.find(codeSnippetID) ||
-             (SkRuntimeEffectPriv::Hash(*fRecorder->fRuntimeEffectMap[codeSnippetID]) ==
-              SkRuntimeEffectPriv::Hash(*effect)));
-    fRecorder->fRuntimeEffectMap.set(codeSnippetID, std::move(effect));
-}
-
 void RecorderPriv::flushTrackedDevices() {
     ASSERT_SINGLE_OWNER
     for (Device* device : fRecorder->fTrackedDevices) {
