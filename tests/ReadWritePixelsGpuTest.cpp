@@ -1208,9 +1208,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
 
                         auto skCT = GrColorTypeToSkColorType(info.colorType());
                         int rgbBits = std::min(min_rgb_channel_bits(skCT), 8);
-                        float rgbTol = 2.f / ((1 << rgbBits) - 1);
+                        float rgbTol = (rgbBits == 0) ? 1.f : 2.f / ((1 << rgbBits) - 1);
                         int alphaBits = std::min(alpha_channel_bits(skCT), 8);
-                        float alphaTol = 2.f / ((1 << alphaBits) - 1);
+                        float alphaTol = (alphaBits == 0) ? 1.f : 2.f / ((1 << alphaBits) - 1);
                         float tol[] = {rgbTol, rgbTol, rgbTol, alphaTol};
 
                         GrCPixmap a = levels[i];
