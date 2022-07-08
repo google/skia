@@ -99,17 +99,17 @@ std::optional<GlyphVector> GlyphVector::MakeFromBuffer(SkReadBuffer& buffer,
     return GlyphVector{std::move(strike), SkSpan(variants, glyphCount)};
 }
 
-void GlyphVector::flatten(SkWriteBuffer& buffer) {
+void GlyphVector::flatten(SkWriteBuffer& buffer) const {
     // There should never be a glyph vector with zero glyphs.
     SkASSERT(fGlyphs.size() != 0);
     if (std::holds_alternative<std::monostate>(fStrike)) {
         SK_ABORT("Can't flatten with already drawn.");
     }
 
-    if (sk_sp<SkStrike>* strikePtr = std::get_if<sk_sp<SkStrike>>(&fStrike)) {
+    if (const sk_sp<SkStrike>* strikePtr = std::get_if<sk_sp<SkStrike>>(&fStrike)) {
         (*strikePtr)->getDescriptor().flatten(buffer);
-    } else if (SkStrikeForGPU** GPUstrikePtr = std::get_if<SkStrikeForGPU*>(&fStrike)) {
-        (*GPUstrikePtr)->getDescriptor().flatten(buffer);
+    } else if (SkStrikeForGPU*const* GPUStrikePtr = std::get_if<SkStrikeForGPU*>(&fStrike)) {
+        (*GPUStrikePtr)->getDescriptor().flatten(buffer);
     }
 
     // Write out the span of packedGlyphIDs.
