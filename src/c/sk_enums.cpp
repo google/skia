@@ -217,6 +217,7 @@ static_assert ((int)SkEncodedImageFormat::kKTX       == (int)KTX_SK_ENCODED_FORM
 static_assert ((int)SkEncodedImageFormat::kASTC      == (int)ASTC_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
 static_assert ((int)SkEncodedImageFormat::kDNG       == (int)DNG_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
 static_assert ((int)SkEncodedImageFormat::kHEIF      == (int)HEIF_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kAVIF      == (int)AVIF_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
 
 // SK_ENCODED_ORIGIN_t
 static_assert ((int)SkEncodedOrigin::kTopLeft_SkEncodedOrigin       == (int)TOP_LEFT_SK_ENCODED_ORIGIN,         ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));

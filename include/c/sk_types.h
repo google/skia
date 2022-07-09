@@ -470,6 +470,7 @@ typedef enum {
     ASTC_SK_ENCODED_FORMAT,
     DNG_SK_ENCODED_FORMAT,
     HEIF_SK_ENCODED_FORMAT,
+    AVIF_SK_ENCODED_FORMAT,
 } sk_encoded_image_format_t;
 
 typedef enum {
