@@ -96,14 +96,19 @@ struct SkShaderSnippet {
 // for program creation and its invocation.
 class SkShaderInfo {
 public:
+    SkShaderInfo(SkRuntimeEffectDictionary* rteDict = nullptr)
+            : fRuntimeEffectDictionary(rteDict) {}
+    ~SkShaderInfo() = default;
+    SkShaderInfo(SkShaderInfo&&) = default;
+    SkShaderInfo& operator=(SkShaderInfo&&) = default;
+    SkShaderInfo(const SkShaderInfo&) = delete;
+    SkShaderInfo& operator=(const SkShaderInfo&) = delete;
+
     void add(const SkPaintParamsKey::BlockReader& reader) {
         fBlockReaders.push_back(reader);
     }
     void addFlags(SnippetRequirementFlags flags) {
         fSnippetRequirementFlags |= flags;
-    }
-    void addRuntimeEffectDictionary(SkRuntimeEffectDictionary* dict) {
-        fRuntimeEffectDictionary = dict;
     }
     bool needsLocalCoords() const {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;

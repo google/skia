@@ -164,11 +164,10 @@ std::string get_sksl_fs(SkShaderCodeDictionary* dict,
         return {};
     }
 
-    SkShaderInfo shaderInfo;
+    SkShaderInfo shaderInfo(rteDict);
 
     dict->getShaderInfo(desc.paintParamsID(), &shaderInfo);
     *blendInfo = shaderInfo.blendInfo();
-    shaderInfo.addRuntimeEffectDictionary(rteDict);
 
     return shaderInfo.toSkSL();
 }
