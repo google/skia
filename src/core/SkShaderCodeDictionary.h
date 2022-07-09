@@ -27,6 +27,7 @@ struct ShaderCaps;
 
 class SkBlenderID;
 class SkRuntimeEffect;
+class SkRuntimeEffectDictionary;
 
 // TODO: How to represent the type (e.g., 2D) of texture being sampled?
 class SkTextureAndSampler {
@@ -49,6 +50,7 @@ struct SkShaderSnippet {
     using GenerateGlueCodeForEntry = void (*)(const std::string& resultName,
                                               int entryIndex,  // for uniform name mangling
                                               const SkPaintParamsKey::BlockReader&,
+                                              const SkRuntimeEffectDictionary*,
                                               const std::string& priorStageOutputName,
                                               const std::vector<std::string>& childNames,
                                               std::string* preamble,
@@ -100,6 +102,9 @@ public:
     void addFlags(SnippetRequirementFlags flags) {
         fSnippetRequirementFlags |= flags;
     }
+    void addRuntimeEffectDictionary(SkRuntimeEffectDictionary* dict) {
+        fRuntimeEffectDictionary = dict;
+    }
     bool needsLocalCoords() const {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
     }
@@ -126,8 +131,9 @@ private:
     std::vector<SkPaintParamsKey::BlockReader> fBlockReaders;
 
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags =SnippetRequirementFlags::kNone;
-#ifdef SK_GRAPHITE_ENABLED
+    SkRuntimeEffectDictionary* fRuntimeEffectDictionary = nullptr;
 
+#ifdef SK_GRAPHITE_ENABLED
     // The blendInfo doesn't actually contribute to the program's creation but, it contains the
     // matching fixed-function settings that the program's caller needs to set up.
     skgpu::BlendInfo fBlendInfo;

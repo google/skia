@@ -10,6 +10,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/sksl/SkSLUtil.h"
 
@@ -142,8 +143,8 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
     }
 
     (reader.entry()->fGlueCodeGenerator)(scopeOutputVar, curEntryIndex, reader,
-                                         priorStageOutputName, childOutputVarNames,
-                                         preamble, mainBody, indent + 1);
+                                         fRuntimeEffectDictionary, priorStageOutputName,
+                                         childOutputVarNames, preamble, mainBody, indent + 1);
     add_indent(mainBody, indent);
     *mainBody += "}\n";
 
@@ -305,6 +306,7 @@ namespace {
 void GenerateDefaultGlueCode(const std::string& resultName,
                              int entryIndex,
                              const SkPaintParamsKey::BlockReader& reader,
+                             const SkRuntimeEffectDictionary*,
                              const std::string& priorStageOutputName,
                              const std::vector<std::string>& childOutputVarNames,
                              std::string* preamble,
@@ -479,6 +481,7 @@ static constexpr char kImageShaderName[] = "sk_compute_coords";
 void GenerateImageShaderGlueCode(const std::string& resultName,
                                  int entryIndex,
                                  const SkPaintParamsKey::BlockReader& reader,
+                                 const SkRuntimeEffectDictionary*,
                                  const std::string& priorStageOutputName,
                                  const std::vector<std::string>& childNames,
                                  std::string* preamble,
@@ -530,12 +533,17 @@ static constexpr char kRuntimeShaderName[] = "RuntimeEffect";
 void GenerateRuntimeShaderGlueCode(const std::string& resultName,
                                    int entryIndex,
                                    const SkPaintParamsKey::BlockReader& reader,
+                                   const SkRuntimeEffectDictionary* rteDict,
                                    const std::string& priorStageOutputName,
                                    const std::vector<std::string>& childOutputVarNames,
                                    std::string* preamble,
                                    std::string* mainBody,
                                    int indent) {
     const SkShaderSnippet* entry = reader.entry();
+
+    // Find this runtime effect in the runtime-effect dictionary.
+    [[maybe_unused]] const SkRuntimeEffect* effect = rteDict->find(reader.codeSnippetId());
+    SkASSERT(effect);
 
     // We prepend a preLocalMatrix as the first uniform, ahead of the runtime effect's uniforms.
     // TODO: we can eliminate this uniform entirely if it's the identity matrix.
@@ -570,6 +578,7 @@ static constexpr char kErrorName[] = "sk_error";
 void GenerateFixedFunctionBlenderGlueCode(const std::string& resultName,
                                           int entryIndex,
                                           const SkPaintParamsKey::BlockReader& reader,
+                                          const SkRuntimeEffectDictionary*,
                                           const std::string& priorStageOutputName,
                                           const std::vector<std::string>& childNames,
                                           std::string* preamble,
@@ -602,6 +611,7 @@ static constexpr char kBlendHelperName[] = "sk_blend";
 void GenerateShaderBasedBlenderGlueCode(const std::string& resultName,
                                         int entryIndex,
                                         const SkPaintParamsKey::BlockReader& reader,
+                                        const SkRuntimeEffectDictionary*,
                                         const std::string& priorStageOutputName,
                                         const std::vector<std::string>& childNames,
                                         std::string* preamble,

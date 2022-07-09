@@ -79,6 +79,9 @@ public:
 
         int numChildren() const;
 
+        // Returns the code-snippet ID of this block.
+        int32_t codeSnippetId() const;
+
         // Return the childIndex-th child's BlockReader
         BlockReader child(const SkShaderCodeDictionary*, int childIndex) const;
 
@@ -101,8 +104,6 @@ public:
         BlockReader(const SkShaderCodeDictionary*,
                     SkSpan<const uint8_t> parentSpan,
                     int offsetInParent);
-
-        int32_t codeSnippetId() const;
 
         // The data payload appears after any children and occupies the remainder of the
         // block's space.

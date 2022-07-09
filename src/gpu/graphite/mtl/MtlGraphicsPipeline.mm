@@ -156,6 +156,7 @@ std::string get_sksl_vs(const GraphicsPipelineDesc& desc) {
 }
 
 std::string get_sksl_fs(SkShaderCodeDictionary* dict,
+                        SkRuntimeEffectDictionary* rteDict,
                         const GraphicsPipelineDesc& desc,
                         BlendInfo* blendInfo) {
     if (!desc.paintParamsID().isValid()) {
@@ -166,8 +167,8 @@ std::string get_sksl_fs(SkShaderCodeDictionary* dict,
     SkShaderInfo shaderInfo;
 
     dict->getShaderInfo(desc.paintParamsID(), &shaderInfo);
-
     *blendInfo = shaderInfo.blendInfo();
+    shaderInfo.addRuntimeEffectDictionary(rteDict);
 
     return shaderInfo.toSkSL();
 }
@@ -495,7 +496,8 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     BlendInfo blendInfo;
     auto dict = resourceProvider->shaderCodeDictionary();
     if (!SkSLToMSL(gpu,
-                   get_sksl_fs(dict, pipelineDesc, &blendInfo),
+                   get_sksl_fs(dict, resourceProvider->runtimeEffectDictionary(),
+                               pipelineDesc, &blendInfo),
                    SkSL::ProgramKind::kGraphiteFragment,
                    settings,
                    &msl[kFragment_ShaderType],
