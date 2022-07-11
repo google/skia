@@ -155,6 +155,22 @@ static bool is_whitespace(Token::Kind kind) {
     }
 }
 
+bool DSLParser::expectNewline() {
+    Token token = this->nextRawToken();
+    if (token.fKind == Token::Kind::TK_WHITESPACE) {
+        // The lexer doesn't distinguish newlines from other forms of whitespace, so we check
+        // for newlines by searching through the token text.
+        std::string_view tokenText = this->text(token);
+        if (tokenText.find_first_of('\r') != std::string_view::npos ||
+            tokenText.find_first_of('\n') != std::string_view::npos) {
+            return true;
+        }
+    }
+    // We didn't find a newline.
+    this->pushback(token);
+    return false;
+}
+
 Token DSLParser::nextToken() {
     for (;;) {
         Token token = this->nextRawToken();
@@ -318,7 +334,8 @@ void DSLParser::declarations() {
     }
 }
 
-/* DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
+/* DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER NEWLINE |
+   DIRECTIVE(#version) INTLITERAL NEWLINE */
 void DSLParser::directive(bool allowVersion) {
     Token start;
     if (!this->expect(Token::Kind::TK_DIRECTIVE, "a directive", &start)) {
@@ -339,14 +356,19 @@ void DSLParser::directive(bool allowVersion) {
             return;
         }
         std::string_view behaviorText = this->text(behavior);
-        if (behaviorText == "disable") {
-            return;
+        if (behaviorText != "disable") {
+            if (behaviorText == "require" || behaviorText == "enable" || behaviorText == "warn") {
+                // We don't currently do anything different between require, enable, and warn
+                dsl::AddExtension(this->text(name));
+            } else {
+                this->error(behavior, "expected 'require', 'enable', 'warn', or 'disable'");
+            }
         }
-        if (behaviorText != "require" && behaviorText != "enable" && behaviorText != "warn") {
-            this->error(behavior, "expected 'require', 'enable', 'warn', or 'disable'");
+
+        // We expect a newline after an #extension directive.
+        if (!this->expectNewline()) {
+            this->error(start, "invalid #extension directive");
         }
-        // We don't currently do anything different between require, enable, and warn
-        dsl::AddExtension(this->text(name));
     } else if (text == "#version") {
         if (!allowVersion) {
             this->error(start, "#version directive must appear before anything else");
@@ -366,6 +388,10 @@ void DSLParser::directive(bool allowVersion) {
             default:
                 this->error(start, "unsupported version number");
                 return;
+        }
+        // We expect a newline after a #version directive.
+        if (!this->expectNewline()) {
+            this->error(start, "invalid #version directive");
         }
     } else {
         this->error(start, "unsupported directive '" + std::string(this->text(start)) + "'");

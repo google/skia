@@ -118,6 +118,9 @@ private:
      */
     bool expectIdentifier(Token* result);
 
+    /** If the next token is a newline, consumes it and returns true. If not, returns false. */
+    bool expectNewline();
+
     void error(Token token, std::string_view msg);
     void error(Position position, std::string_view msg);
 

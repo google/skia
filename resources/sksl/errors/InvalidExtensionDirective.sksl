@@ -1,0 +1,5 @@
+#extension foo : disable disable
+
+/*%%*
+invalid #extension directive
+*%%*/

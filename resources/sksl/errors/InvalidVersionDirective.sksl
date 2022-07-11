@@ -1,0 +1,5 @@
+#version 300 void test() {}
+
+/*%%*
+invalid #version directive
+*%%*/
