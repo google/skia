@@ -705,8 +705,8 @@ bool OneLineShaper::shape() {
                     LangIterator langIter(unresolvedText, blockSpan,
                                       fParagraph->paragraphStyle().getTextStyle());
                     SkShaper::TrivialBiDiRunIterator bidiIter(defaultBidiLevel, unresolvedText.size());
-                    auto scriptIter = SkShaper::MakeSkUnicodeHbScriptRunIterator
-                                     (fParagraph->getUnicode(), unresolvedText.begin(), unresolvedText.size());
+                    auto scriptIter = SkShaper::MakeSkUnicodeHbScriptRunIterator(
+                            unresolvedText.begin(), unresolvedText.size());
                     fCurrentText = unresolvedRange;
 
                     // Map the block's features to subranges within the unresolved range.

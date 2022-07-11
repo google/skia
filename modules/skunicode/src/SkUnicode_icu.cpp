@@ -223,25 +223,6 @@ class SkIcuBreakIteratorCache {
     }
 };
 
-class SkScriptIterator_icu : public SkScriptIterator {
- public:
-   bool getScript(SkUnichar u, ScriptID* script) override {
-        UErrorCode status = U_ZERO_ERROR;
-        UScriptCode scriptCode = sk_uscript_getScript(u, &status);
-        if (U_FAILURE (status)) {
-            return false;
-        }
-        if (script) {
-            *script = (ScriptID)scriptCode;
-        }
-        return true;
-   }
-
-   static std::unique_ptr<SkScriptIterator> makeScriptIterator() {
-        return std::unique_ptr<SkScriptIterator>(new SkScriptIterator_icu());
-   }
-};
-
 class SkUnicode_icu : public SkUnicode {
     static bool extractBidi(const char utf8[],
                             int utf8Units,
@@ -414,9 +395,6 @@ public:
     }
     std::unique_ptr<SkBreakIterator> makeBreakIterator(BreakType breakType) override {
         return makeBreakIterator(sk_uloc_getDefault(), breakType);
-    }
-    std::unique_ptr<SkScriptIterator> makeScriptIterator() override {
-        return SkScriptIterator_icu::makeScriptIterator();
     }
 
     static bool isHardLineBreak(SkUnichar utf8) {
