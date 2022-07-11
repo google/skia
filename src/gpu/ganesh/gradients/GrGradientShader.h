@@ -21,6 +21,11 @@
 #endif
 
 namespace GrGradientShader {
+    std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& shader,
+                                                        const GrFPArgs& args,
+                                                        std::unique_ptr<GrFragmentProcessor> layout,
+                                                        const SkMatrix* overrideMatrix = nullptr);
+
     std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
                                                     const GrFPArgs& args);
 

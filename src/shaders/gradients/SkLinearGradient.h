@@ -12,7 +12,7 @@
 
 class SkShaderCodeDictionary;
 
-class SkLinearGradient : public SkGradientShaderBase {
+class SkLinearGradient final : public SkGradientShaderBase {
 public:
     SkLinearGradient(const SkPoint pts[2], const Descriptor&);
 

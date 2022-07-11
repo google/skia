@@ -59,7 +59,7 @@ sk_sp<SkFlattenable> SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
 }
 
 void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
+    this->SkGradientShaderBase::flatten(buffer);
     buffer.writePoint(fCenter);
     buffer.writeScalar(fRadius);
 }
