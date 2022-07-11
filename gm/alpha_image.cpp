@@ -17,6 +17,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
+#include "tools/Resources.h"
 
 static SkBitmap make_alpha_image(int w, int h) {
     SkBitmap bm;
@@ -84,3 +85,41 @@ DEF_SIMPLE_GM(alpha_image_alpha_tint, canvas, 152, 80) {
     paint.setShader(image->makeShader(SkSamplingOptions()));
     canvas->drawRect({ 0, 0, 64, 64 }, paint);
 }
+
+#if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
+// For a long time, the CPU backend treated A8 bitmaps as coverage, rather than alpha. This was
+// inconsistent with the GPU backend (skbug.com/9692). When this was fixed, it altered behavior
+// for some Android apps (b/231400686). This GM verifies that our Android framework workaround
+// produces the old result (mandrill with a round-rect border).
+DEF_SIMPLE_GM(alpha_bitmap_is_coverage_ANDROID, canvas, 128, 128) {
+    SkBitmap maskBitmap;
+    maskBitmap.allocPixels(SkImageInfo::MakeA8(128, 128));
+    {
+        SkCanvas maskCanvas(maskBitmap);
+        maskCanvas.clear(SK_ColorWHITE);
+
+        SkPaint maskPaint;
+        maskPaint.setAntiAlias(true);
+        maskPaint.setColor(SK_ColorWHITE);
+        maskPaint.setBlendMode(SkBlendMode::kClear);
+        maskCanvas.drawRoundRect({0, 0, 128, 128}, 16, 16, maskPaint);
+    }
+
+    SkBitmap offscreenBitmap;
+    offscreenBitmap.allocN32Pixels(128, 128);
+    {
+        SkCanvas offscreenCanvas(offscreenBitmap);
+        offscreenCanvas.drawImage(GetResourceAsImage("images/mandrill_128.png"), 0, 0);
+
+        SkPaint clearPaint;
+        clearPaint.setAntiAlias(true);
+        clearPaint.setBlendMode(SkBlendMode::kClear);
+        // At tip-of-tree (or at any time on the GPU backend), this draw produces full coverage,
+        // completely erasing the mandrill. With the workaround enabled, the alpha border is treated
+        // as coverage, so we only apply kClear to those pixels, just erasing the outer border.
+        offscreenCanvas.drawImage(maskBitmap.asImage(), 0, 0, SkSamplingOptions{}, &clearPaint);
+    }
+
+    canvas->drawImage(offscreenBitmap.asImage(), 0, 0);
+}
+#endif
