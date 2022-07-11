@@ -207,7 +207,7 @@ public:
 
     static const Renderer& TessellatedStrokes();
 
-    static const Renderer& TextDirect(MaskFormat);
+    static const Renderer& TextDirect();
 
     static const Renderer& TextSDF(bool useLCDText);
 

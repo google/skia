@@ -1157,11 +1157,11 @@ public:
     std::tuple<Rect, Transform> boundsAndDeviceMatrix(const Transform&,
                                                       SkPoint drawOrigin) const override;
 
-    const Renderer* renderer() const override { return &Renderer::TextDirect(fMaskFormat); }
+    const Renderer* renderer() const override { return &Renderer::TextDirect(); }
 
     void fillVertexData(DrawWriter*,
                         int offset, int count,
-                        SkColor color, SkScalar depth,
+                        SkScalar depth,
                         const skgpu::graphite::Transform& transform) const override;
 #endif
 
@@ -1586,9 +1586,9 @@ std::tuple<Rect, Transform> DirectMaskSubRun::boundsAndDeviceMatrix(const Transf
 }
 
 template<typename VertexData>
-void direct_2D_mask_dw(DrawWriter* dw,
-                       SkZip<const Glyph*, const VertexData> quadData,
-                       SkColor color, SkScalar depth) {
+void direct_dw(DrawWriter* dw,
+               SkZip<const Glyph*, const VertexData> quadData,
+               SkScalar depth) {
     DrawWriter::Vertices verts{*dw};
     for (auto [glyph, leftTop]: quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
@@ -1596,29 +1596,7 @@ void direct_2D_mask_dw(DrawWriter* dw,
                  dt = leftTop[1],
                  dr = dl + (ar - al),
                  db = dt + (ab - at);
-        // TODO: this should be drawn with indices but there doesn't seem to be a way to do that.
-        // TODO: we should really use instances as well.
-        verts.append(6) << SkPoint{dl, dt} << depth << color << AtlasPt{al, at}  // L,T
-                        << SkPoint{dl, db} << depth << color << AtlasPt{al, ab}  // L,B
-                        << SkPoint{dr, dt} << depth << color << AtlasPt{ar, at}  // R,T
-                        << SkPoint{dl, db} << depth << color << AtlasPt{al, ab}  // L,B
-                        << SkPoint{dr, db} << depth << color << AtlasPt{ar, ab}  // R,B
-                        << SkPoint{dr, dt} << depth << color << AtlasPt{ar, at}; // R,T
-    }
-}
-
-template<typename VertexData>
-void direct_2D_rgba_dw(DrawWriter* dw,
-                       SkZip<const Glyph*, const VertexData> quadData,
-                       SkScalar depth) {
-    DrawWriter::Vertices verts{*dw};
-    for (auto [glyph, leftTop]: quadData) {
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        SkScalar dl = leftTop[0],
-                 dt = leftTop[1],
-                 dr = dl + (ar - al),
-                 db = dt + (ab - at);
-        // TODO: this should be drawn with indices but there doesn't seem to be a way to do that.
+        // TODO: Ganesh uses indices but that's not available with dynamic vertex data
         // TODO: we should really use instances as well.
         verts.append(6) << SkPoint{dl, dt} << depth << AtlasPt{al, at}  // L,T
                         << SkPoint{dl, db} << depth << AtlasPt{al, ab}  // L,B
@@ -1630,24 +1608,15 @@ void direct_2D_rgba_dw(DrawWriter* dw,
 }
 
 template<typename VertexData>
-void transformed_direct_2D_mask_dw(DrawWriter* dw,
-                                   SkZip<const Glyph*, const VertexData> quadData,
-                                   SkColor color, SkScalar depth,
-                                   const Transform& transform) {
-    // TODO
-}
-
-template<typename VertexData>
-void transformed_direct_2D_rgba_dw(DrawWriter* dw,
-                                   SkZip<const Glyph*, const VertexData> quadData,
-                                   SkScalar depth,
-                                   const Transform& transform) {
+void transformed_direct_dw(DrawWriter* dw,
+                           SkZip<const Glyph*, const VertexData> quadData,
+                           SkScalar depth, const Transform& transform) {
     // TODO
 }
 
 void DirectMaskSubRun::fillVertexData(DrawWriter* dw,
                                       int offset, int count,
-                                      SkColor color, SkScalar depth,
+                                      SkScalar depth,
                                       const skgpu::graphite::Transform& toDevice) const {
     auto quadData = [&]() {
         return SkMakeZip(fGlyphs.glyphs().subspan(offset, count),
@@ -1656,21 +1625,9 @@ void DirectMaskSubRun::fillVertexData(DrawWriter* dw,
 
     bool noTransformNeeded = (toDevice.type() == Transform::Type::kIdentity);
     if (noTransformNeeded) {
-        if (fMaskFormat != MaskFormat::kARGB) {
-            direct_2D_mask_dw(dw, quadData(), color, depth);
-        } else {
-            direct_2D_rgba_dw(dw, quadData(), depth);
-        }
+        direct_dw(dw, quadData(), depth);
     } else {
-        if (toDevice.type() == Transform::Type::kProjection) {
-            // TODO: handle float3 position data
-        } else {
-            if (fMaskFormat != MaskFormat::kARGB) {
-                transformed_direct_2D_mask_dw(dw, quadData(), color, depth, toDevice);
-            } else {
-                transformed_direct_2D_rgba_dw(dw, quadData(), depth, toDevice);
-            }
-        }
+        transformed_direct_dw(dw, quadData(), depth, toDevice);
     }
 }
 #endif
@@ -1773,12 +1730,12 @@ public:
                                                       SkPoint drawOrigin) const override;
 
     const Renderer* renderer() const override {
-        return &Renderer::TextDirect(fVertexFiller.grMaskType());
+        return &Renderer::TextDirect();
     }
 
     void fillVertexData(DrawWriter*,
                         int offset, int count,
-                        SkColor color, SkScalar depth,
+                        SkScalar depth,
                         const skgpu::graphite::Transform& transform) const override;
 #endif
 
@@ -1959,7 +1916,7 @@ std::tuple<Rect, Transform> TransformedMaskSubRun::boundsAndDeviceMatrix(
 
 void TransformedMaskSubRun::fillVertexData(DrawWriter*,
                                            int offset, int count,
-                                           SkColor color, SkScalar depth,
+                                           SkScalar depth,
                                            const skgpu::graphite::Transform& transform) const {
     // TODO
 }
@@ -2051,7 +2008,7 @@ public:
 
     void fillVertexData(DrawWriter*,
                         int offset, int count,
-                        SkColor color, SkScalar depth,
+                        SkScalar depth,
                         const skgpu::graphite::Transform& transform) const override;
 #endif
 
@@ -2295,7 +2252,7 @@ std::tuple<Rect, Transform> SDFTSubRun::boundsAndDeviceMatrix(const Transform& l
 
 void SDFTSubRun::fillVertexData(DrawWriter*,
                                 int offset, int count,
-                                SkColor color, SkScalar depth,
+                                SkScalar depth,
                                 const skgpu::graphite::Transform& transform) const {
     // TODO
 }
