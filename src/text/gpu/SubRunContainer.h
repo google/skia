@@ -22,10 +22,10 @@ class SkWriteBuffer;
 
 namespace sktext {
 class GlyphRunList;
+class StrikeForGPUCacheInterface;
     namespace gpu {
     class Glyph;
     class StrikeCache;
-    class StrikeForGPUCacheInterface;
     }
 }
 

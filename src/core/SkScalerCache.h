@@ -16,7 +16,6 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRunPainter.h"
-#include "src/core/SkStrikeForGPU.h"
 #include <memory>
 
 class SkScalerContext;

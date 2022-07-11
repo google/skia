@@ -16,8 +16,8 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkScalerCache.h"
-#include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/text/StrikeForGPU.h"
 
 class SkTraceMemoryDump;
 class SkStrikeCache;
@@ -39,7 +39,7 @@ public:
     virtual void assertValid() {}
 };
 
-class SkStrike final : public SkRefCnt, public sktext::gpu::StrikeForGPU {
+class SkStrike final : public SkRefCnt, public sktext::StrikeForGPU {
 public:
     SkStrike(SkStrikeCache* strikeCache,
              const SkStrikeSpec& strikeSpec,
@@ -189,7 +189,7 @@ public:
     bool                            fRemoved{false};
 };  // SkStrike
 
-class SkStrikeCache final : public sktext::gpu::StrikeForGPUCacheInterface {
+class SkStrikeCache final : public sktext::StrikeForGPUCacheInterface {
 public:
     SkStrikeCache() = default;
 
@@ -204,7 +204,7 @@ public:
 
     sk_sp<SkStrike> findOrCreateStrike(const SkStrikeSpec& strikeSpec) SK_EXCLUDES(fLock);
 
-    sktext::gpu::ScopedStrikeForGPU findOrCreateScopedStrike(
+    sktext::ScopedStrikeForGPU findOrCreateScopedStrike(
             const SkStrikeSpec& strikeSpec) override SK_EXCLUDES(fLock);
 
     static void PurgeAll();

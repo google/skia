@@ -7,7 +7,7 @@
 
 #include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkGlyphRunPainter.h"
-#include "src/core/SkStrikeForGPU.h"
+#include "src/text/StrikeForGPU.h"
 
 void SkSourceGlyphBuffer::reset() {
     fRejectedGlyphIDs.reset();

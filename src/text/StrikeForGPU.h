@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkStrikeInterface_DEFINED
-#define SkStrikeInterface_DEFINED
+#ifndef sktext_StrikeForGPU_DEFINED
+#define sktext_StrikeForGPU_DEFINED
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
@@ -27,7 +27,7 @@ class SkTypeface;
 struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
 
-namespace sktext::gpu {
+namespace sktext {
 class StrikeForGPU {
 public:
     virtual ~StrikeForGPU() = default;
@@ -70,5 +70,5 @@ public:
     virtual ~StrikeForGPUCacheInterface() = default;
     virtual ScopedStrikeForGPU findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) = 0;
 };
-}  // namespace sktext::gpu
-#endif  //SkStrikeInterface_DEFINED
+}  // namespace sktext
+#endif  // sktext_StrikeForGPU_DEFINED

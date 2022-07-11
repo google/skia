@@ -107,7 +107,7 @@ public:
                                 const SkPaint& initialPaint,
                                 const SkPaint& drawingPaint,
                                 SkStrikeDeviceInfo strikeDeviceInfo,
-                                StrikeForGPUCacheInterface* strikeCache);
+                                sktext::StrikeForGPUCacheInterface* strikeCache);
     static sk_sp<Slug> MakeFromBuffer(SkReadBuffer& buffer,
                                       const SkStrikeClient* client);
     void doFlatten(SkWriteBuffer& buffer) const override;
@@ -195,7 +195,7 @@ sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
                                const SkPaint& initialPaint,
                                const SkPaint& drawingPaint,
                                SkStrikeDeviceInfo strikeDeviceInfo,
-                               StrikeForGPUCacheInterface* strikeCache) {
+                               sktext::StrikeForGPUCacheInterface* strikeCache) {
     size_t subRunSizeHint = SubRunContainer::EstimateAllocSize(glyphRunList);
     auto [initializer, _, alloc] =
             SubRunAllocator::AllocateClassMemoryAndArena<SlugImpl>(subRunSizeHint);
@@ -486,7 +486,7 @@ sk_sp<Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
                      const SkPaint& initialPaint,
                      const SkPaint& drawingPaint,
                      SkStrikeDeviceInfo strikeDeviceInfo,
-                     StrikeForGPUCacheInterface* strikeCache) {
+                     sktext::StrikeForGPUCacheInterface* strikeCache) {
     return SlugImpl::Make(
             drawMatrix, glyphRunList, initialPaint, drawingPaint, strikeDeviceInfo, strikeCache);
 }

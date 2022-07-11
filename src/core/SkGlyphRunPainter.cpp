@@ -31,10 +31,10 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/text/GlyphRun.h"
+#include "src/text/StrikeForGPU.h"
 
 #include <cinttypes>
 #include <climits>

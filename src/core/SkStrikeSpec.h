@@ -10,13 +10,15 @@
 
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkDescriptor.h"
-#include "src/core/SkStrikeForGPU.h"
+#include "src/text/StrikeForGPU.h"
 
 #include <tuple>
 
 #if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #include "src/text/gpu/SDFTControl.h"
+
 namespace sktext::gpu {
 class StrikeCache;
 class TextStrike;
@@ -25,6 +27,7 @@ class TextStrike;
 
 class SkFont;
 class SkPaint;
+class SkStrike;
 class SkStrikeCache;
 class SkSurfaceProps;
 
@@ -85,8 +88,8 @@ public:
     sk_sp<sktext::gpu::TextStrike> findOrCreateTextStrike(sktext::gpu::StrikeCache* cache) const;
 #endif
 
-    sktext::gpu::ScopedStrikeForGPU findOrCreateScopedStrike(
-            sktext::gpu::StrikeForGPUCacheInterface* cache) const;
+    sktext::ScopedStrikeForGPU findOrCreateScopedStrike(
+            sktext::StrikeForGPUCacheInterface* cache) const;
 
     sk_sp<SkStrike> findOrCreateStrike() const;
 
