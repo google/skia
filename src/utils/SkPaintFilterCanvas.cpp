@@ -165,8 +165,8 @@ void SkPaintFilterCanvas::onDrawVerticesObject(const SkVertices* vertices,
     }
 }
 
-void SkPaintFilterCanvas::onDrawPatch(const SkPoint cubics[], const SkColor colors[],
-                                      const SkPoint texCoords[], SkBlendMode bmode,
+void SkPaintFilterCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                                      const SkPoint texCoords[4], SkBlendMode bmode,
                                       const SkPaint& paint) {
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {

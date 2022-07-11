@@ -172,7 +172,7 @@ static bool is_between_unsorted(SkScalar value,
 }
 #endif
 
-int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip, SkPoint lines[],
+int SkLineClipper::ClipLine(const SkPoint pts[2], const SkRect& clip, SkPoint lines[kMaxPoints],
                             bool canCullToTheRight) {
     int index0, index1;
 

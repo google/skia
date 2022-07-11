@@ -62,13 +62,13 @@ void SkMatrix::doNormalizePerspective() {
 
 SkMatrix& SkMatrix::reset() { *this = SkMatrix(); return *this; }
 
-SkMatrix& SkMatrix::set9(const SkScalar buffer[]) {
+SkMatrix& SkMatrix::set9(const SkScalar buffer[9]) {
     memcpy(fMat, buffer, 9 * sizeof(SkScalar));
     this->setTypeMask(kUnknown_Mask);
     return *this;
 }
 
-SkMatrix& SkMatrix::setAffine(const SkScalar buffer[]) {
+SkMatrix& SkMatrix::setAffine(const SkScalar buffer[6]) {
     fMat[kMScaleX] = buffer[kAScaleX];
     fMat[kMSkewX]  = buffer[kASkewX];
     fMat[kMTransX] = buffer[kATransX];

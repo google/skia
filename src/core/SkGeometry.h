@@ -75,7 +75,7 @@ inline float SkMeasureQuadRotation(const SkPoint pts[3]) {
 /** Given a src quadratic bezier, returns the T value whose tangent angle is halfway between the
     tangents at p0 and p3.
 */
-float SkFindQuadMidTangent(const SkPoint src[4]);
+float SkFindQuadMidTangent(const SkPoint src[3]);
 
 /** Given a src quadratic bezier, chop it at the tangent whose angle is halfway between the
     tangents at p0 and p2. The new quads are returned in dst[0..2] and dst[2..4].

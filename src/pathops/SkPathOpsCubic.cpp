@@ -514,7 +514,7 @@ SkDVector SkDCubic::dxdyAtT(double t) const {
 }
 
 // OPTIMIZE? share code with formulate_F1DotF2
-int SkDCubic::findInflections(double tValues[]) const {
+int SkDCubic::findInflections(double tValues[2]) const {
     double Ax = fPts[1].fX - fPts[0].fX;
     double Ay = fPts[1].fY - fPts[0].fY;
     double Bx = fPts[2].fX - 2 * fPts[1].fX + fPts[0].fX;
