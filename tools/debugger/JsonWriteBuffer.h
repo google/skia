@@ -14,6 +14,8 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkWriteBuffer.h"
 
+#include <string_view>
+
 class SkFlattenable;
 class SkImage;
 class SkJSONWriter;
@@ -43,7 +45,7 @@ public:
     void writeInt(int32_t value) override;
     void writeIntArray(const int32_t* value, uint32_t count) override;
     void writeUInt(uint32_t value) override;
-    void writeString(const char* value) override;
+    void writeString(std::string_view value) override;
 
     void   writeFlattenable(const SkFlattenable* flattenable) override;
     void   writeColor(SkColor color) override;

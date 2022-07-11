@@ -68,8 +68,8 @@ void SkBinaryWriteBuffer::writeUInt(uint32_t value) {
     fWriter.write32(value);
 }
 
-void SkBinaryWriteBuffer::writeString(const char* value) {
-    fWriter.writeString(value);
+void SkBinaryWriteBuffer::writeString(std::string_view value) {
+    fWriter.writeString(value.data(), value.size());
 }
 
 void SkBinaryWriteBuffer::writeColor(SkColor color) {

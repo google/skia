@@ -89,9 +89,9 @@ void JsonWriteBuffer::writeUInt(uint32_t value) {
     fWriter->appendU32(value);
 }
 
-void JsonWriteBuffer::writeString(const char* value) {
+void JsonWriteBuffer::writeString(std::string_view value) {
     this->append("string");
-    fWriter->appendCString(value);
+    fWriter->appendString(value.data(), value.size());
 }
 
 void JsonWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {

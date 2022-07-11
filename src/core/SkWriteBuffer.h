@@ -14,6 +14,8 @@
 #include "include/private/SkTHash.h"
 #include "src/core/SkWriter32.h"
 
+#include <string_view>
+
 class SkFactorySet;
 class SkImage;
 class SkM44;
@@ -45,7 +47,7 @@ public:
     void write32(int32_t value) {
         this->writeInt(value);
     }
-    virtual void writeString(const char* value) = 0;
+    virtual void writeString(std::string_view value) = 0;
 
     virtual void writeFlattenable(const SkFlattenable* flattenable) = 0;
     virtual void writeColor(SkColor color) = 0;
@@ -108,7 +110,7 @@ public:
     void writeInt(int32_t value) override;
     void writeIntArray(const int32_t* value, uint32_t count) override;
     void writeUInt(uint32_t value) override;
-    void writeString(const char* value) override;
+    void writeString(std::string_view value) override;
 
     void writeFlattenable(const SkFlattenable* flattenable) override;
     void writeColor(SkColor color) override;
