@@ -2380,6 +2380,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // supported. This is for simplicity, but a more granular approach is possible.
         bool lum16FSupported = false;
         bool lum16FSizedFormatSupported = false;
+        GrGLenum lumHalfFloatType = halfFloatType;
         if (GR_IS_GR_GL(standard)) {
             if (!fIsCoreProfile && ctxInfo.hasExtension("GL_ARB_texture_float")) {
                 lum16FSupported = true;
@@ -2389,6 +2390,11 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             if (ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
                 ctxInfo.hasExtension("GL_OES_texture_half_float")) {
                 lum16FSupported = true;
+                // Even in ES 3.0+ LUMINANCE and GL_HALF_FLOAT are not listed as a valid
+                // combination. Thus we must use GL_HALF_FLOAT_OES provided by the extension
+                // GL_OES_texture_half_float. Note: these two types are not defined to be the same
+                // value.
+                lumHalfFloatType = GR_GL_HALF_FLOAT_OES;
                 // Even on ES3 this extension is required to define LUMINANCE16F.
                 lum16FSizedFormatSupported = ctxInfo.hasExtension("GL_EXT_texture_storage");
             }
@@ -2402,7 +2408,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fFormatType = FormatType::kFloat;
         info.fInternalFormatForRenderbuffer = GR_GL_LUMINANCE16F;
         info.fDefaultExternalFormat = GR_GL_LUMINANCE;
-        info.fDefaultExternalType = halfFloatType;
+        info.fDefaultExternalType = lumHalfFloatType;
         info.fDefaultColorType = GrColorType::kGray_F16;
 
         if (lum16FSupported) {
@@ -2442,7 +2448,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 {
                     auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
                     ioFormat.fColorType = GrColorType::kAlpha_F16;
-                    ioFormat.fExternalType = halfFloatType;
+                    ioFormat.fExternalType = lumHalfFloatType;
                     ioFormat.fExternalTexImageFormat = GR_GL_LUMINANCE;
                     ioFormat.fExternalReadFormat = 0;
                 }
