@@ -25,7 +25,7 @@ class GlyphRunList;
     namespace gpu {
     class Glyph;
     class StrikeCache;
-    class SkStrikeForGPUCacheInterface;
+    class StrikeForGPUCacheInterface;
     }
 }
 
@@ -241,7 +241,7 @@ public:
             const SkMatrix& positionMatrix,
             const SkPaint& runPaint,
             SkStrikeDeviceInfo strikeDeviceInfo,
-            SkStrikeForGPUCacheInterface* strikeCache,
+            StrikeForGPUCacheInterface* strikeCache,
             sktext::gpu::SubRunAllocator* alloc,
             SubRunCreationBehavior creationBehavior,
             const char* tag);

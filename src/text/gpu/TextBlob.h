@@ -94,7 +94,7 @@ public:
                                 const SkPaint& paint,
                                 const SkMatrix& positionMatrix,
                                 SkStrikeDeviceInfo strikeDeviceInfo,
-                                SkStrikeForGPUCacheInterface* strikeCache);
+                                StrikeForGPUCacheInterface* strikeCache);
 
     TextBlob(SubRunAllocator&& alloc,
              SubRunContainerOwner subRuns,
@@ -160,6 +160,6 @@ sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
                                   const SkPaint& initialPaint,
                                   const SkPaint& drawingPaint,
                                   SkStrikeDeviceInfo strikeDeviceInfo,
-                                  sktext::gpu::SkStrikeForGPUCacheInterface* strikeCache);
+                                  sktext::gpu::StrikeForGPUCacheInterface* strikeCache);
 }  // namespace skgpu::v1
 #endif  // sktext_gpu_TextBlob_DEFINED

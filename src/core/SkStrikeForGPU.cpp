@@ -10,20 +10,20 @@
 #include "src/core/SkGlyphRunPainter.h"
 
 namespace sktext::gpu {
-bool SkStrikeForGPU::CanDrawAsMask(const SkGlyph& glyph) {
+bool StrikeForGPU::CanDrawAsMask(const SkGlyph& glyph) {
     return FitsInAtlas(glyph);
 }
 
-bool SkStrikeForGPU::CanDrawAsSDFT(const SkGlyph& glyph) {
+bool StrikeForGPU::CanDrawAsSDFT(const SkGlyph& glyph) {
     return FitsInAtlas(glyph) && glyph.maskFormat() == SkMask::kSDF_Format;
 }
 
-bool SkStrikeForGPU::CanDrawAsPath(const SkGlyph& glyph) {
+bool StrikeForGPU::CanDrawAsPath(const SkGlyph& glyph) {
     SkASSERT(glyph.setPathHasBeenCalled());
     return glyph.path() != nullptr;
 }
 
-bool SkStrikeForGPU::FitsInAtlas(const SkGlyph& glyph) {
+bool StrikeForGPU::FitsInAtlas(const SkGlyph& glyph) {
     return glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas;
 }
 }  // namespace sktext::gpu

@@ -19,7 +19,7 @@ class SkPath;
 class SkDrawable;
 
 namespace sktext::gpu {
-class SkStrikeForGPU;
+class StrikeForGPU;
 }  // namespace sktext::gpu
 
 // SkSourceGlyphBuffer is the source of glyphs between the different stages of glyph drawing.

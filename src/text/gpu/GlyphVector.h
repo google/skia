@@ -34,7 +34,7 @@ class StrikeRef {
 public:
     StrikeRef() = delete;
     StrikeRef(sk_sp<SkStrike>&& strike);
-    StrikeRef(SkStrikeForGPU* strike);
+    StrikeRef(StrikeForGPU* strike);
     StrikeRef(const StrikeRef&) = delete;
     const StrikeRef& operator=(const StrikeRef&) = delete;
     StrikeRef(StrikeRef&&);
@@ -57,7 +57,7 @@ private:
     friend class StrikeRefTestingPeer;
     // A StrikeRef can hold a pointer from a RemoteStrike which is of type SkStrikeForGPU,
     // or it can hold an actual ref to an actual SkStrike.
-    std::variant<std::monostate, SkStrikeForGPU*, sk_sp<SkStrike>> fStrike;
+    std::variant<std::monostate, StrikeForGPU*, sk_sp<SkStrike>> fStrike;
 };
 
 // -- GlyphVector ----------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ public:
     static GlyphVector Make(
             sk_sp<SkStrike>&& strike, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
     static GlyphVector Make(
-            SkStrikeForGPU* strike, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
+            StrikeForGPU* strike, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
 
     SkSpan<const Glyph*> glyphs() const;
 
