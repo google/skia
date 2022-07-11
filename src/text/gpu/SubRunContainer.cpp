@@ -2320,11 +2320,15 @@ std::tuple<Rect, Transform> SDFTSubRun::boundsAndDeviceMatrix(const Transform& l
             localToDevice.preTranslate(drawOrigin.x(), drawOrigin.y())};
 }
 
-void SDFTSubRun::fillVertexData(DrawWriter*,
+void SDFTSubRun::fillVertexData(DrawWriter* dw,
                                 int offset, int count,
                                 SkScalar depth,
                                 const skgpu::graphite::Transform& transform) const {
-    // TODO
+    fVertexFiller.fillVertexData(dw,
+                                 offset, count,
+                                 fGlyphs.glyphs(),
+                                 depth,
+                                 transform);
 }
 #endif
 
