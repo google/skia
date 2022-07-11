@@ -67,11 +67,12 @@ Below is a brief summary of what the gardener does for each task:
 
 ### Triage
 
-You should triage Chromium and Skia bugs that show up under "Untriaged Bugs" on
+You should triage Chromium, Skia, and OSS-fuzz bugs that show up under "Untriaged Bugs" on
 the [status page](https://status.skia.org). The Android Gardener will triage the
-untriaged Android Bugs. The GPU Gardener will triage the untriaged OSS-Fuzz
-Bugs. For a more detailed view of bugs see
+untriaged Android Bugs. For a more detailed view of bugs see
 [Skia Bugs Central](https://bugs-central.skia.org/).
+
+To access the oss-fuzz bugs, see [go/skia-fuzz](http://go/skia-fuzz).
 
 <a name="blamer"></a>
 
