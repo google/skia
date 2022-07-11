@@ -183,7 +183,7 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
     };
 
     if (gUseSkVMBlitter || !rpblit()) {
-        auto updateShader = as_SB(atlasShader)->updatableShader(&alloc);
+        SkUpdatableShader* updateShader = as_SB(atlasShader)->updatableShader(&alloc);
         UpdatableColorShader* colorShader = nullptr;
         sk_sp<SkShader> shader;
         if (colors) {

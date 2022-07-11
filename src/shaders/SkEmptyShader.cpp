@@ -1,16 +1,14 @@
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2022 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef SkEmptyShader_DEFINED
-#define SkEmptyShader_DEFINED
-
 #include "src/shaders/SkShaderBase.h"
 
-// TODO: move this to private, as there is a public factory on SkShader
+#include "include/core/SkFlattenable.h"
+#include "src/core/SkVM.h"
 
 /**
  *  \class SkEmptyShader
@@ -42,9 +40,24 @@ protected:
                           skvm::Uniforms*, SkArenaAlloc*) const override;
 
 private:
+    friend void ::SkRegisterEmptyShaderFlattenable();
     SK_FLATTENABLE_HOOKS(SkEmptyShader)
 
     using INHERITED = SkShaderBase;
 };
 
-#endif
+skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, skvm::Color,
+                                     const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
+                                     skvm::Uniforms*, SkArenaAlloc*) const {
+    return {};  // signal failure
+}
+
+sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
+    return SkShaders::Empty();
+}
+
+sk_sp<SkShader> SkShaders::Empty() { return sk_make_sp<SkEmptyShader>(); }
+
+void SkRegisterEmptyShaderFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkEmptyShader);
+}

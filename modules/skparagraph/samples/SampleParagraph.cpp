@@ -21,7 +21,6 @@
 #include "modules/skparagraph/utils/TestFontCollection.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
-#include "src/shaders/SkColorShader.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"

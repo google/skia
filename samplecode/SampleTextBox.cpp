@@ -21,7 +21,6 @@
 #include "include/utils/SkRandom.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkOSFile.h"
-#include "src/shaders/SkColorShader.h"
 #include "src/utils/SkUTF.h"
 
 typedef std::unique_ptr<SkShaper> (*ShaperFactory)();

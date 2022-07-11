@@ -21,7 +21,6 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkBitmapProcShader.h"
-#include "src/shaders/SkEmptyShader.h"
 #include "src/shaders/SkTransformShader.h"
 
 #ifdef SK_ENABLE_SKSL
@@ -301,7 +300,7 @@ sk_sp<SkShader> SkImageShader::MakeRaw(sk_sp<SkImage> image,
         return nullptr;
     }
     if (!image) {
-        return sk_make_sp<SkEmptyShader>();
+        return SkShaders::Empty();
     }
     return sk_sp<SkShader>{new SkImageShader(
             image, SkRect::Make(image->dimensions()), tmx, tmy, options, localMatrix,
@@ -323,7 +322,7 @@ sk_sp<SkShader> SkImageShader::MakeSubset(sk_sp<SkImage> image,
         }
     }
     if (!image || subset.isEmpty()) {
-        return sk_make_sp<SkEmptyShader>();
+        return SkShaders::Empty();
     }
 
     // Validate subset and check if we can drop it

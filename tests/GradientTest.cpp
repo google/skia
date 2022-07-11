@@ -16,7 +16,6 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/shaders/SkColorShader.h"
 #include "tests/Test.h"
 
 // https://code.google.com/p/chromium/issues/detail?id=448299
@@ -77,7 +76,7 @@ static void none_gradproc(skiatest::Reporter* reporter, const GradRec&, const Gr
 }
 
 static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec, const GradRec&) {
-    sk_sp<SkShader> s(new SkColorShader(rec.fColors[0]));
+    sk_sp<SkShader> s(SkShaders::Color(rec.fColors[0]));
     REPORTER_ASSERT(reporter, SkShader::kColor_GradientType == s->asAGradient(nullptr));
 
     SkShader::GradientInfo info;

@@ -304,4 +304,9 @@ inline const SkShaderBase* as_SB(const sk_sp<SkShader>& shader) {
     return static_cast<SkShaderBase*>(shader.get());
 }
 
+void SkRegisterColor4ShaderFlattenable();
+void SkRegisterColorShaderFlattenable();
+void SkRegisterComposeShaderFlattenable();
+void SkRegisterEmptyShaderFlattenable();
+
 #endif // SkShaderBase_DEFINED

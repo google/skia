@@ -10,7 +10,6 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-#include "src/shaders/SkColorShader.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
@@ -85,12 +84,12 @@ static void test_gradient(skiatest::Reporter* reporter) {
 }
 
 static void test_color(skiatest::Reporter* reporter) {
-    SkColorShader colorShader1(SkColorSetARGB(0,0,0,0));
-    REPORTER_ASSERT(reporter, !colorShader1.isOpaque());
-    SkColorShader colorShader2(SkColorSetARGB(0xFF,0,0,0));
-    REPORTER_ASSERT(reporter, colorShader2.isOpaque());
-    SkColorShader colorShader3(SkColorSetARGB(0x7F,0,0,0));
-    REPORTER_ASSERT(reporter, !colorShader3.isOpaque());
+    sk_sp<SkShader> colorShader1 = SkShaders::Color(SkColorSetARGB(0,0,0,0));
+    REPORTER_ASSERT(reporter, !colorShader1->isOpaque());
+    sk_sp<SkShader> colorShader2 = SkShaders::Color(SkColorSetARGB(0xFF,0,0,0));
+    REPORTER_ASSERT(reporter, colorShader2->isOpaque());
+    sk_sp<SkShader> colorShader3 = SkShaders::Color(SkColorSetARGB(0x7F,0,0,0));
+    REPORTER_ASSERT(reporter, !colorShader3->isOpaque());
 }
 
 DEF_TEST(ShaderOpacity, reporter) {

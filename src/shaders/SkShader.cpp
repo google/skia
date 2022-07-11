@@ -7,7 +7,6 @@
 
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPicture.h"
 #include "include/core/SkScalar.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -16,13 +15,9 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTLazy.h"
-#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkBitmapProcShader.h"
-#include "src/shaders/SkColorShader.h"
-#include "src/shaders/SkEmptyShader.h"
 #include "src/shaders/SkImageShader.h"
-#include "src/shaders/SkPictureShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/SkTransformShader.h"
 
@@ -163,9 +158,6 @@ void SkShaderBase::addToKey(const SkKeyContext& keyContext,
 }
 #endif
 
-sk_sp<SkShader> SkShaders::Empty() { return sk_make_sp<SkEmptyShader>(); }
-sk_sp<SkShader> SkShaders::Color(SkColor color) { return sk_make_sp<SkColorShader>(color); }
-
 sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy,
                                      const SkSamplingOptions& sampling,
                                      const SkMatrix* lm) const {
@@ -288,16 +280,4 @@ skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
         }
     }
     return {x,y};
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, skvm::Color,
-                                     const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
-                                     skvm::Uniforms*, SkArenaAlloc*) const {
-    return {};  // signal failure
-}
-
-sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
-    return SkShaders::Empty();
 }
