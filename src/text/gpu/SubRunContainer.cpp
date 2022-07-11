@@ -125,6 +125,12 @@ public:
 #endif  // SK_SUPPORT_GPU
 #if defined(SK_GRAPHITE_ENABLED)
     SkRect localRect() const { return fSourceBounds; }
+
+    void fillVertexData(DrawWriter* dw,
+                        int offset, int count,
+                        SkSpan<const Glyph*> glyphs,
+                        SkScalar depth,
+                        const skgpu::graphite::Transform& toDevice) const;
 #endif
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
     MaskFormat grMaskType() const {return fMaskType;}
@@ -364,6 +370,44 @@ AtlasTextOp::MaskType TransformedMaskVertexFiller::opMaskType() const {
     SkUNREACHABLE;
 }
 #endif  // SK_SUPPORT_GPU
+
+#if defined(SK_GRAPHITE_ENABLED)
+void TransformedMaskVertexFiller::fillVertexData(DrawWriter* dw,
+                                                 int offset, int count,
+                                                 SkSpan<const Glyph*> glyphs,
+                                                 SkScalar depth,
+                                                 const Transform& toDevice) const {
+    auto quadData = [&]() {
+        return SkMakeZip(glyphs.subspan(offset, count),
+                         fLeftTop.subspan(offset, count));
+    };
+
+    // TODO: can't handle perspective right now
+    if (toDevice.type() == Transform::Type::kProjection) {
+        return;
+    }
+
+    DrawWriter::Vertices verts{*dw};
+    for (auto [glyph, leftTop]: quadData()) {
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        SkPoint widthHeight = SkPoint::Make(glyph->fAtlasLocator.width() * fStrikeToSourceScale,
+                                            glyph->fAtlasLocator.height() * fStrikeToSourceScale);
+        auto [l, t] = leftTop;
+        auto [r, b] = leftTop + widthHeight;
+        SkV2 localCorners[4] = {{l, t}, {r, t}, {r, b}, {l, b}};
+        SkV4 devOut[4];
+        toDevice.mapPoints(localCorners, devOut, 4);
+        // TODO: Ganesh uses indices but that's not available with dynamic vertex data
+        // TODO: we should really use instances as well.
+        verts.append(6) << SkPoint{devOut[0].x, devOut[0].y} << depth << AtlasPt{al, at}  // L,T
+                        << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
+                        << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
+                        << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
+                        << SkPoint{devOut[2].x, devOut[2].y} << depth << AtlasPt{ar, ab}  // R,B
+                        << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}; // R,T
+    }
+}
+#endif
 
 
 struct AtlasPt {
@@ -1611,7 +1655,25 @@ template<typename VertexData>
 void transformed_direct_dw(DrawWriter* dw,
                            SkZip<const Glyph*, const VertexData> quadData,
                            SkScalar depth, const Transform& transform) {
-    // TODO
+    DrawWriter::Vertices verts{*dw};
+    for (auto [glyph, leftTop]: quadData) {
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        SkScalar dl = leftTop[0],
+                 dt = leftTop[1],
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
+        SkV2 localCorners[4] = {{dl, dt}, {dr, dt}, {dr, db}, {dl, db}};
+        SkV4 devOut[4];
+        transform.mapPoints(localCorners, devOut, 4);
+        // TODO: Ganesh uses indices but that's not available with dynamic vertex data
+        // TODO: we should really use instances as well.
+        verts.append(6) << SkPoint{devOut[0].x, devOut[0].y} << depth << AtlasPt{al, at}  // L,T
+                        << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
+                        << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
+                        << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
+                        << SkPoint{devOut[2].x, devOut[2].y} << depth << AtlasPt{ar, ab}  // R,B
+                        << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}; // R,T
+    }
 }
 
 void DirectMaskSubRun::fillVertexData(DrawWriter* dw,
@@ -1623,6 +1685,10 @@ void DirectMaskSubRun::fillVertexData(DrawWriter* dw,
                          fLeftTopDevicePos.subspan(offset, count));
     };
 
+    // TODO: Can't handle perspective right now
+    if (toDevice.type() == Transform::Type::kProjection) {
+        return;
+    }
     bool noTransformNeeded = (toDevice.type() == Transform::Type::kIdentity);
     if (noTransformNeeded) {
         direct_dw(dw, quadData(), depth);
@@ -1914,11 +1980,15 @@ std::tuple<Rect, Transform> TransformedMaskSubRun::boundsAndDeviceMatrix(
             localToDevice.preTranslate(drawOrigin.x(), drawOrigin.y())};
 }
 
-void TransformedMaskSubRun::fillVertexData(DrawWriter*,
+void TransformedMaskSubRun::fillVertexData(DrawWriter* dw,
                                            int offset, int count,
                                            SkScalar depth,
-                                           const skgpu::graphite::Transform& transform) const {
-    // TODO
+                                           const Transform& transform) const {
+    fVertexFiller.fillVertexData(dw,
+                                 offset, count,
+                                 fGlyphs.glyphs(),
+                                 depth,
+                                 transform);
 }
 #endif
 
