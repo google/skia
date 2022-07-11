@@ -162,4 +162,9 @@ size_t GrMtlTextureRenderTarget::onGpuMemorySize() const {
                                   1 /*colorSamplesPerPixel*/, this->mipmapped());
 }
 
+void GrMtlTextureRenderTarget::onSetLabel() {
+    GrMtlRenderTarget::onSetLabel();
+    GrMtlTexture::onSetLabel();
+}
+
 GR_NORETAIN_END

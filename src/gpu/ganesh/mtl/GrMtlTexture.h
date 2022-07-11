@@ -65,6 +65,8 @@ protected:
          return false;
      }
 
+    void onSetLabel() override;
+
 private:
     enum Wrapped { kWrapped };
 
@@ -83,8 +85,6 @@ private:
                  GrWrapCacheable,
                  GrIOType,
                  std::string_view label);
-
-    void onSetLabel() override{}
 
     sk_sp<GrMtlAttachment> fTexture;
 

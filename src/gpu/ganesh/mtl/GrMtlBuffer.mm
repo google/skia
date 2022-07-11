@@ -196,4 +196,12 @@ void GrMtlBuffer::validate() const {
 }
 #endif
 
+void GrMtlBuffer::onSetLabel() {
+    SkASSERT(fMtlBuffer);
+    if (!this->getLabel().empty()) {
+        NSString* labelStr = @(this->getLabel().c_str());
+        fMtlBuffer.label = [@"_Skia_" stringByAppendingString:labelStr];
+    }
+}
+
 GR_NORETAIN_END

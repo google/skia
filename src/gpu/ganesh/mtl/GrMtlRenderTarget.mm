@@ -166,4 +166,19 @@ bool GrMtlRenderTarget::completeStencilAttachment(GrAttachment* stencil, bool us
     return true;
 }
 
+void GrMtlRenderTarget::onSetLabel() {
+    SkASSERT(fColorAttachment);
+    if (!this->getLabel().empty()) {
+        NSString* labelStr = @(this->getLabel().c_str());
+        if (fResolveAttachment) {
+            fColorAttachment->mtlTexture().label =
+                    [@"_Skia_MSAA_" stringByAppendingString:labelStr];
+            fResolveAttachment->mtlTexture().label =
+                    [@"_Skia_Resolve_" stringByAppendingString:labelStr];
+        } else {
+            fColorAttachment->mtlTexture().label = [@"_Skia_" stringByAppendingString:labelStr];
+        }
+    }
+}
+
 GR_NORETAIN_END

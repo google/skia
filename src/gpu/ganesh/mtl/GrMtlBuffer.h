@@ -51,6 +51,8 @@ private:
     void validate() const;
 #endif
 
+    void onSetLabel() override;
+
     bool fIsDynamic;
     id<MTLBuffer> fMtlBuffer;
 

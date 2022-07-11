@@ -63,7 +63,7 @@ private:
 
     size_t onGpuMemorySize() const override;
 
-    void onSetLabel() override{}
+    void onSetLabel() override;
 };
 
 #endif

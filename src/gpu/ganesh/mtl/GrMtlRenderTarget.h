@@ -72,6 +72,8 @@ protected:
     // This returns zero since the memory should all be handled by the attachments
     size_t onGpuMemorySize() const override { return 0; }
 
+    void onSetLabel() override;
+
     sk_sp<GrMtlAttachment> fColorAttachment;
     sk_sp<GrMtlAttachment> fResolveAttachment;
 
@@ -86,8 +88,6 @@ private:
                       std::string_view label);
 
     bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) override;
-
-    void onSetLabel() override{}
 
     // We can have a renderpass with and without resolve attachment or stencil attachment,
     // both of these being completely orthogonal. Thus we have a total of 4 types of render passes.
