@@ -22,7 +22,7 @@ public:
         SkASSERT(fBitsUsed == 0);
     }
 
-    virtual void addBits(uint32_t numBits, uint32_t val, const char* label) {
+    virtual void addBits(uint32_t numBits, uint32_t val, std::string_view label) {
         SkASSERT(numBits > 0 && numBits <= 32);
         SkASSERT(numBits == 32 || (val < (1u << numBits)));
 
@@ -40,18 +40,18 @@ public:
         SkASSERT(fCurValue < (1u << fBitsUsed));
     }
 
-    void addBytes(uint32_t numBytes, const void* data, const char* label) {
+    void addBytes(uint32_t numBytes, const void* data, std::string_view label) {
         const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
         for (; numBytes --> 0; bytes++) {
             this->addBits(8, *bytes, label);
         }
     }
 
-    void addBool(bool b, const char* label) {
+    void addBool(bool b, std::string_view label) {
         this->addBits(1, b, label);
     }
 
-    void add32(uint32_t v, const char* label = "unknown") {
+    void add32(uint32_t v, std::string_view label = "unknown") {
         this->addBits(32, v, label);
     }
 
@@ -77,9 +77,9 @@ class StringKeyBuilder : public KeyBuilder {
 public:
     StringKeyBuilder(SkTArray<uint32_t, true>* data) : KeyBuilder(data) {}
 
-    void addBits(uint32_t numBits, uint32_t val, const char* label) override {
+    void addBits(uint32_t numBits, uint32_t val, std::string_view label) override {
         KeyBuilder::addBits(numBits, val, label);
-        fDescription.appendf("%s: %u\n", label, val);
+        fDescription.appendf("%.*s: %u\n", (int)label.size(), label.data(), val);
     }
 
     void appendComment(const char* comment) override {
