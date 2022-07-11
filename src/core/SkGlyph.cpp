@@ -402,12 +402,29 @@ SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
         : fIndex{SkTo<uint32_t>(index)}
         , fIsEmpty(glyph.isEmpty())
         , fIsColor(glyph.isColor())
-        , fCanDrawAsMask{sktext::gpu::StrikeForGPU::CanDrawAsMask(glyph)}
-        , fCanDrawAsSDFT{sktext::gpu::StrikeForGPU::CanDrawAsSDFT(glyph)}
+        , fCanDrawAsMask{CanDrawAsMask(glyph)}
+        , fCanDrawAsSDFT{CanDrawAsSDFT(glyph)}
         , fLeft{SkTo<int16_t>(glyph.left())}
         , fTop{SkTo<int16_t>(glyph.top())}
         , fWidth{SkTo<uint16_t>(glyph.width())}
         , fHeight{SkTo<uint16_t>(glyph.height())} {}
+
+bool SkGlyphDigest::CanDrawAsMask(const SkGlyph& glyph) {
+    return FitsInAtlas(glyph);
+}
+
+bool SkGlyphDigest::CanDrawAsSDFT(const SkGlyph& glyph) {
+    return FitsInAtlas(glyph) && glyph.maskFormat() == SkMask::kSDF_Format;
+}
+
+bool SkGlyphDigest::CanDrawAsPath(const SkGlyph& glyph) {
+    SkASSERT(glyph.setPathHasBeenCalled());
+    return glyph.path() != nullptr;
+}
+
+bool SkGlyphDigest::FitsInAtlas(const SkGlyph& glyph) {
+    return glyph.maxDimension() <= kSkSideTooBigForAtlas;
+}
 
 // -- SkGlyphPositionRoundingSpec ------------------------------------------------------------------
 SkVector SkGlyphPositionRoundingSpec::HalfAxisSampleFreq(

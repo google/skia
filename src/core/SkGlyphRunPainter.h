@@ -17,13 +17,6 @@ namespace sktext {
 class GlyphRunList;
 }
 
-class SkStrikeCommon {
-public:
-    // An atlas consists of plots, and plots hold glyphs. The minimum a plot can be is 256x256.
-    // This means that the maximum size a glyph can be is 256x256.
-    inline static constexpr uint16_t kSkSideTooBigForAtlas = 256;
-};
-
 // -- SkGlyphRunListPainterCPU ---------------------------------------------------------------------
 class SkGlyphRunListPainterCPU {
 public:

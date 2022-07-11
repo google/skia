@@ -285,6 +285,10 @@ class SkGlyph;
 // SkGlyphDigest is the only information that needs to be stored in the cache.
 class SkGlyphDigest {
 public:
+    // An atlas consists of plots, and plots hold glyphs. The minimum a plot can be is 256x256.
+    // This means that the maximum size a glyph can be is 256x256.
+    static constexpr uint16_t kSkSideTooBigForAtlas = 256;
+
     // Default ctor is only needed for the hash table.
     SkGlyphDigest() = default;
     SkGlyphDigest(size_t index, const SkGlyph& glyph);
@@ -296,6 +300,12 @@ public:
     uint16_t maxDimension()  const {
         return std::max(fWidth, fHeight);
     }
+
+    // Common categories for glyph types used by GPU.
+    static bool CanDrawAsMask(const SkGlyph& glyph);
+    static bool CanDrawAsSDFT(const SkGlyph& glyph);
+    static bool CanDrawAsPath(const SkGlyph& glyph);
+    static bool FitsInAtlas(const SkGlyph& glyph);
 
 private:
     static_assert(SkPackedGlyphID::kEndData == 20);

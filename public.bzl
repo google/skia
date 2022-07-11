@@ -664,7 +664,6 @@ BASE_SRCS_ALL = [
     "src/core/SkStreamPriv.h",
     "src/core/SkStrikeCache.cpp",
     "src/core/SkStrikeCache.h",
-    "src/core/SkStrikeForGPU.cpp",
     "src/core/SkStrikeForGPU.h",
     "src/core/SkStrikeSpec.cpp",
     "src/core/SkStrikeSpec.h",

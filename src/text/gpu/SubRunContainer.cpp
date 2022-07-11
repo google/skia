@@ -1261,7 +1261,7 @@ SubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepte
     // atlas. This boundary is checked below to ensure that the call to SkGlyphRect below will
     // not overflow.
     constexpr SkScalar kMaxPos =
-            std::numeric_limits<int16_t>::max() - SkStrikeCommon::kSkSideTooBigForAtlas;
+            std::numeric_limits<int16_t>::max() - SkGlyphDigest::kSkSideTooBigForAtlas;
     SkGlyphRect runBounds = skglyph::empty_rect();
     size_t goodPosCount = 0;
     for (auto [variant, pos] : accepted) {
@@ -2673,7 +2673,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
             // Remember, this will be an integer. Reduce to make a one pixel border for the
             // bilerp padding.
             static const constexpr SkScalar kMaxBilerpAtlasDimension =
-                    SkStrikeCommon::kSkSideTooBigForAtlas - 2;
+                    SkGlyphDigest::kSkSideTooBigForAtlas - 2;
 
             // Get the raw glyph IDs to simulate device drawing to figure the maximum device
             // dimension.

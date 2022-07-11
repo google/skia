@@ -325,7 +325,6 @@ CORE_FILES = [
     "SkStreamPriv.h",
     "SkStrikeCache.cpp",
     "SkStrikeCache.h",
-    "SkStrikeForGPU.cpp",
     "SkStrikeForGPU.h",
     "SkStrikeSpec.cpp",
     "SkStrikeSpec.h",

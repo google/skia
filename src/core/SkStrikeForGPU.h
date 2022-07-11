@@ -56,13 +56,6 @@ public:
     // Return the maximum dimension of a span of glyphs.
     virtual SkScalar findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) = 0;
 
-    // Common categories for glyph types used by GPU.
-    static bool CanDrawAsMask(const SkGlyph& glyph);
-    static bool CanDrawAsSDFT(const SkGlyph& glyph);
-    static bool CanDrawAsPath(const SkGlyph& glyph);
-    static bool FitsInAtlas(const SkGlyph& glyph);
-
-
     struct Deleter {
         void operator()(StrikeForGPU* ptr) const {
             ptr->onAboutToExitScope();

@@ -49,7 +49,7 @@ SDFTControl::SDFTControl(
 bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
     return !fForcePaths &&
            !isSDFT(approximateDeviceTextSize, paint) &&
-            approximateDeviceTextSize < SkStrikeCommon::kSkSideTooBigForAtlas;
+            approximateDeviceTextSize < SkGlyphDigest::kSkSideTooBigForAtlas;
 }
 
 bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {

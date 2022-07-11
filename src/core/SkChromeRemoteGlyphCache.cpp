@@ -329,7 +329,7 @@ void RemoteStrike::writePendingGlyphs(Serializer* serializer) {
 
         write_glyph(glyph, serializer);
         auto imageSize = glyph.imageSize();
-        if (imageSize > 0 && FitsInAtlas(glyph)) {
+        if (imageSize > 0 && SkGlyphDigest::FitsInAtlas(glyph)) {
             glyph.setImage(serializer->allocate(imageSize, glyph.formatAlignment()));
             fContext->getImage(glyph);
         }
@@ -1052,7 +1052,7 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
             SkTLazy<SkGlyph> glyph;
             if (!ReadGlyph(glyph, &deserializer)) READ_FAILURE
 
-            if (!glyph->isEmpty() && StrikeForGPU::FitsInAtlas(*glyph)) {
+            if (!glyph->isEmpty() && SkGlyphDigest::FitsInAtlas(*glyph)) {
                 const volatile void* image =
                         deserializer.read(glyph->imageSize(), glyph->formatAlignment());
                 if (!image) READ_FAILURE
