@@ -85,7 +85,8 @@ public:
     sk_sp<sktext::gpu::TextStrike> findOrCreateTextStrike(sktext::gpu::StrikeCache* cache) const;
 #endif
 
-    SkScopedStrikeForGPU findOrCreateScopedStrike(SkStrikeForGPUCacheInterface* cache) const;
+    sktext::gpu::SkScopedStrikeForGPU findOrCreateScopedStrike(
+            sktext::gpu::SkStrikeForGPUCacheInterface* cache) const;
 
     sk_sp<SkStrike> findOrCreateStrike() const;
 

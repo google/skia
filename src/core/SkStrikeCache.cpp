@@ -42,8 +42,9 @@ auto SkStrikeCache::findOrCreateStrike(const SkStrikeSpec& strikeSpec) -> sk_sp<
     return strike;
 }
 
-SkScopedStrikeForGPU SkStrikeCache::findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) {
-    return SkScopedStrikeForGPU{this->findOrCreateStrike(strikeSpec).release()};
+sktext::gpu::SkScopedStrikeForGPU SkStrikeCache::findOrCreateScopedStrike(
+        const SkStrikeSpec& strikeSpec) {
+    return sktext::gpu::SkScopedStrikeForGPU{this->findOrCreateStrike(strikeSpec).release()};
 }
 
 void SkStrikeCache::PurgeAll() {

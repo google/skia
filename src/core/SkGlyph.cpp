@@ -402,8 +402,8 @@ SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
         : fIndex{SkTo<uint32_t>(index)}
         , fIsEmpty(glyph.isEmpty())
         , fIsColor(glyph.isColor())
-        , fCanDrawAsMask{SkStrikeForGPU::CanDrawAsMask(glyph)}
-        , fCanDrawAsSDFT{SkStrikeForGPU::CanDrawAsSDFT(glyph)}
+        , fCanDrawAsMask{sktext::gpu::SkStrikeForGPU::CanDrawAsMask(glyph)}
+        , fCanDrawAsSDFT{sktext::gpu::SkStrikeForGPU::CanDrawAsSDFT(glyph)}
         , fLeft{SkTo<int16_t>(glyph.left())}
         , fTop{SkTo<int16_t>(glyph.top())}
         , fWidth{SkTo<uint16_t>(glyph.width())}

@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "src/core/SkStrikeForGPU.h"
 
 #include "src/core/SkGlyphRunPainter.h"
 
+namespace sktext::gpu {
 bool SkStrikeForGPU::CanDrawAsMask(const SkGlyph& glyph) {
     return FitsInAtlas(glyph);
 }
@@ -27,4 +26,4 @@ bool SkStrikeForGPU::CanDrawAsPath(const SkGlyph& glyph) {
 bool SkStrikeForGPU::FitsInAtlas(const SkGlyph& glyph) {
     return glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas;
 }
-
+}  // namespace sktext::gpu

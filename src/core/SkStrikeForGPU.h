@@ -27,6 +27,7 @@ class SkTypeface;
 struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
 
+namespace sktext::gpu {
 class SkStrikeForGPU {
 public:
     virtual ~SkStrikeForGPU() = default;
@@ -76,4 +77,5 @@ public:
     virtual ~SkStrikeForGPUCacheInterface() = default;
     virtual SkScopedStrikeForGPU findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) = 0;
 };
+}  // namespace sktext::gpu
 #endif  //SkStrikeInterface_DEFINED

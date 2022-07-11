@@ -18,7 +18,6 @@ class SkMatrixProvider;
 class SkPaint;
 class SkReadBuffer;
 class SkStrikeClient;
-class SkStrikeForGPUCacheInterface;
 class SkWriteBuffer;
 
 namespace sktext {
@@ -26,6 +25,7 @@ class GlyphRunList;
     namespace gpu {
     class Glyph;
     class StrikeCache;
+    class SkStrikeForGPUCacheInterface;
     }
 }
 
