@@ -41,6 +41,7 @@
    "cq_config": {}
    },
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_API30"},
+  {"name": "Build-Debian10-Clang-arm64-Debug-Android_FrameworkWorkarounds"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_HWASAN"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_Vulkan"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android"},
@@ -474,6 +475,7 @@
   {"name": "Test-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Vulkan"},
   {"name": "Test-Android12-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android"},
   {"name": "Test-Android12-Clang-Pixel5-GPU-Adreno620-arm64-Debug-All-Android"},
+  {"name": "Test-Android12-Clang-Pixel5-GPU-Adreno620-arm64-Debug-All-Android_FrameworkWorkarounds"},
   {"name": "Test-Android12-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android"},
   {"name": "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Debug-All-Android"},
