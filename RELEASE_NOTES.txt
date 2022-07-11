@@ -10,6 +10,9 @@ Milestone 104
   * SkImage::MakeFromPicture and SkImageGenerator::MakeFromPicture now take an optional
     SkSurfaceProps to use when rasterizing the picture.
   * skcms.h has been relocated to //modules/skcms/skcms.h (was //include/third_party/skcms/skcms.h)
+  * New functions SkCanvas::getBaseProps and SkCanvas::getTopProps; SkCanvas::getBaseProps is a
+    direct replacement for the (now deprecated) SkCanvas::getProps function, while getTopProps is
+    a variant that returns the SkSurfaceProps that are active in the current layer.
 
 * * *
 

@@ -13,6 +13,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h" // IWYU pragma: keep
+#include "include/core/SkSurfaceProps.h"
 
 #include <optional>
 
@@ -23,7 +24,6 @@ class SkPath;
 class SkPicture;
 class SkRRect;
 class SkRegion;
-class SkSurfaceProps;
 class SkTextBlob;
 class SkVertices;
 struct SkDrawShadowRec;
@@ -292,6 +292,9 @@ SkImageInfo SkPaintFilterCanvas::onImageInfo() const {
     return this->proxy()->imageInfo();
 }
 
-bool SkPaintFilterCanvas::onGetProps(SkSurfaceProps* props) const {
-    return this->proxy()->getProps(props);
+bool SkPaintFilterCanvas::onGetProps(SkSurfaceProps* props, bool top) const {
+    if (props) {
+        *props = top ? this->proxy()->getTopProps() : this->proxy()->getBaseProps();
+    }
+    return true;
 }
