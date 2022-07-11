@@ -59,6 +59,7 @@ sksl_error_tests = [
   "/sksl/errors/BitShiftFloatVector.rts",
   "/sksl/errors/BooleanArithmetic.sksl",
   "/sksl/errors/BreakOutsideLoop.rts",
+  "/sksl/errors/CallMain.rts",
   "/sksl/errors/CallNonFunction.rts",
   "/sksl/errors/CanExitWithoutReturningValue.sksl",
   "/sksl/errors/CommasAsConstantExpressions.rts",

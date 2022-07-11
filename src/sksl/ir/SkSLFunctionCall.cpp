@@ -1007,6 +1007,11 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         }
     }
 
+    if (function.isMain()) {
+        context.fErrors->error(pos, "call to 'main' is not allowed");
+        return nullptr;
+    }
+
     if (function.intrinsicKind() == k_eval_IntrinsicKind) {
         // This is a method call on an effect child. Translate it into a ChildCall, which simplifies
         // handling in the generators and analysis code.

@@ -1,0 +1,9 @@
+half4 main(float2 coords);
+
+void func(float2 coords) {
+    main(coords);
+}
+
+/*%%*
+call to 'main' is not allowed
+*%%*/

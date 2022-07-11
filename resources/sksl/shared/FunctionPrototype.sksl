@@ -4,6 +4,7 @@ float this_function_is_prototyped_at_the_start_and_never_defined();
 half4 this_function_is_defined_before_use(half4 x);
 half4 this_function_is_defined_after_use(half4 x);
 half4 this_function_is_defined_near_the_end(half4 x);
+half4 main(float2 coords); // prototyping main is allowed (although not particularly useful)
 
 half4 this_function_is_defined_before_use(half4 x) {
     return -this_function_is_defined_near_the_end(x);
