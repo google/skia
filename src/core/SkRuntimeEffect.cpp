@@ -309,7 +309,7 @@ SkSL::ProgramSettings SkRuntimeEffect::MakeSettings(const Options& options) {
     settings.fInlineThreshold = 0;
     settings.fForceNoInline = options.forceUnoptimized;
     settings.fOptimize = !options.forceUnoptimized;
-    settings.fEnforceES2Restrictions = options.enforceES2Restrictions;
+    settings.fMaxVersionAllowed = options.maxVersionAllowed;
     return settings;
 }
 
@@ -456,7 +456,7 @@ sk_sp<SkRuntimeEffect> SkRuntimeEffect::makeUnoptimizedClone() {
     // from when it was initially made so we don't know what was originally requested.
     Options options;
     options.forceUnoptimized = true;
-    options.enforceES2Restrictions = false;
+    options.maxVersionAllowed = SkSL::Version::k300;
     options.usePrivateRTShaderModule = true;
 
     // We do know the original ProgramKind, so we don't need to re-derive it.
@@ -602,15 +602,16 @@ SkRuntimeEffect::SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
     // assert below to trigger, please incorporate your field into `fHash` and update KnownOptions
     // to match the layout of Options.
     struct KnownOptions {
-        bool forceUnoptimized, enforceES2Restrictions, usePrivateRTShaderModule;
+        bool forceUnoptimized, usePrivateRTShaderModule;
+        SkSL::Version maxVersionAllowed;
     };
     static_assert(sizeof(Options) == sizeof(KnownOptions));
     fHash = SkOpts::hash_fn(&options.forceUnoptimized,
                       sizeof(options.forceUnoptimized), fHash);
-    fHash = SkOpts::hash_fn(&options.enforceES2Restrictions,
-                      sizeof(options.enforceES2Restrictions), fHash);
     fHash = SkOpts::hash_fn(&options.usePrivateRTShaderModule,
                       sizeof(options.usePrivateRTShaderModule), fHash);
+    fHash = SkOpts::hash_fn(&options.maxVersionAllowed,
+                      sizeof(options.maxVersionAllowed), fHash);
 
     fFilterColorProgram = SkFilterColorProgram::Make(this);
 }

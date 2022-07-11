@@ -306,7 +306,7 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, int flags) {
     SkSL::Program::Settings settings;
     settings.fAllowVarDeclarationCloneForTesting = true;
     // TODO(skia:11209): Can we just put the correct #version in the source files that need this?
-    settings.fEnforceES2Restrictions = is_strict_es2(flags);
+    settings.fMaxVersionAllowed = is_strict_es2(flags) ? SkSL::Version::k100 : SkSL::Version::k300;
     SkSL::Compiler compiler(caps.get());
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
             SkSL::ProgramKind::kRuntimeShader, shaderString.c_str(), settings);
@@ -335,7 +335,7 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flag
     SkSL::Compiler compiler(caps.get());
     SkSL::Program::Settings settings;
     // TODO(skia:11209): Can we just put the correct #version in the source files that need this?
-    settings.fEnforceES2Restrictions = is_strict_es2(flags);
+    settings.fMaxVersionAllowed = is_strict_es2(flags) ? SkSL::Version::k100 : SkSL::Version::k300;
     // Inlining causes problems because it can create expressions like bool(1) that can't be
     // directly instantiated. After a dehydrate/recycle pass, that expression simply becomes "true"
     // due to optimization - which is fine, but would cause us to fail an equality comparison. We

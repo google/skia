@@ -287,7 +287,7 @@ std::unique_ptr<Program> Rehydrator::program() {
     auto config = std::make_unique<ProgramConfig>();
     config->fKind = (ProgramKind)this->readU8();
     config->fRequiredSkSLVersion = (SkSL::Version)this->readU8();
-    config->fSettings.fEnforceES2Restrictions = false;
+    config->fSettings.fMaxVersionAllowed = SkSL::Version::k300;
 
     Context& context = this->context();
     ProgramConfig* oldConfig = context.fConfig;

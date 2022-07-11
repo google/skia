@@ -43,7 +43,7 @@ public:
 
     static SkRuntimeEffect::Options ES3Options() {
         SkRuntimeEffect::Options options;
-        options.enforceES2Restrictions = false;
+        options.maxVersionAllowed = SkSL::Version::k300;
         return options;
     }
 

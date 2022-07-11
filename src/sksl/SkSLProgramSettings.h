@@ -67,9 +67,10 @@ struct ProgramSettings {
     // If true, any synthetic uniforms must use push constant syntax
     bool fUsePushConstants = false;
     // TODO(skia:11209) - Replace this with a "promised" capabilities?
-    // If true, configurations which demand strict ES2 conformance (runtime effects, generic
-    // programs, and SkVM rendering) will fail during compilation if ES2 restrictions are violated.
-    bool fEnforceES2Restrictions = true;
+    // Sets a maximum SkSL version. Compilation will fail if the program uses features that aren't
+    // allowed at the requested version. For instance, a valid program must have fully-unrollable
+    // `for` loops at version 100, but any loop structure is allowed at version 300.
+    SkSL::Version fMaxVersionAllowed = SkSL::Version::k100;
     // If true, SkVM debug traces will contain the `trace_var` opcode. This opcode can cause the
     // generated code to contain a lot of extra computations, because we need to explicitly compute
     // every temporary value, even ones that would otherwise be optimized away entirely. The other
@@ -106,7 +107,7 @@ struct ProgramConfig {
     bool strictES2Mode() const {
         // TODO(skia:11209): Remove the first condition - so this is just based on #version.
         //                   Make it more generic (eg, isVersionLT) checking.
-        return fSettings.fEnforceES2Restrictions &&
+        return fSettings.fMaxVersionAllowed == Version::k100 &&
                fRequiredSkSLVersion == Version::k100 &&
                this->enforcesSkSLVersion();
     }
