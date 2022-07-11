@@ -413,7 +413,9 @@ static inline skvx::float4 Sk4f_fromL32(uint32_t px) {
 
 static inline uint32_t Sk4f_toL32(const skvx::float4& px) {
     uint32_t l32;
-    skvx::cast<uint8_t>(pin(lrint(px * 255.f), skvx::int4(0), skvx::int4(255))).store(&l32);
+    // For the expected positive color values, the +0.5 before the pin and cast effectively rounds
+    // to the nearest int without having to call round() or lrint().
+    skvx::cast<uint8_t>(pin(px * 255.f + 0.5f, skvx::float4(0.f), skvx::float4(255.f))).store(&l32);
     return l32;
 }
 

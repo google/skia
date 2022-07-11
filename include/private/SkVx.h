@@ -691,7 +691,7 @@ SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
 #if SKVX_USE_SIMD && defined(__F16C__)
     if constexpr (N == 8) {
         return bit_pun<Vec<N,uint16_t>>(_mm256_cvtps_ph(bit_pun<__m256>(x),
-                                                        _MM_FROUND_CUR_DIRECTION));
+                                                        _MM_FROUND_TO_NEAREST_INT));
     }
 #endif
 #if SKVX_USE_SIMD && defined(__aarch64__)
