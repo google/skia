@@ -14,6 +14,7 @@ The to build skia for android are at https://skia.org/user/build#android and rep
 Download the Android NDK
 
 ```
+./bin/fetch-sk
 ./bin/sk asset download android_ndk_linux /tmp/ndk
 ```
 
