@@ -13,6 +13,7 @@
 #include "src/core/SkScalerContext.h"
 
 class SkColorSpace;
+class SkDrawableGlyphBuffer;
 namespace sktext {
 class GlyphRunList;
 }

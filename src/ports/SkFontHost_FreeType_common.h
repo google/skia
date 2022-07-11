@@ -9,6 +9,7 @@
 #ifndef SKFONTHOST_FREETYPE_COMMON_H_
 #define SKFONTHOST_FREETYPE_COMMON_H_
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMutex.h"
