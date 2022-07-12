@@ -51,9 +51,7 @@ using Uniform = SkMeshSpecification::Uniform;
 static std::vector<Uniform>::iterator find_uniform(std::vector<Uniform>& uniforms,
                                                    std::string_view name) {
     return std::find_if(uniforms.begin(), uniforms.end(),
-                        [name](const SkMeshSpecification::Uniform& u) {
-        return u.name.equals(name.data(), name.size());
-    });
+                        [name](const SkMeshSpecification::Uniform& u) { return u.name == name; });
 }
 
 static std::tuple<bool, SkString>
@@ -86,14 +84,14 @@ gather_uniforms_and_check_for_main(const SkSL::Program& program,
                     if (uniform.isArray() != iter->isArray() ||
                         uniform.type      != iter->type      ||
                         uniform.count     != iter->count) {
-                        return {false, SkStringPrintf("Uniform %s declared with different types"
-                                                       " in vertex and fragment shaders.",
-                                                       iter->name.c_str())};
+                        return {false, SkStringPrintf("Uniform %.*s declared with different types"
+                                                      " in vertex and fragment shaders.",
+                                                      (int)iter->name.size(), iter->name.data())};
                     }
                     if (uniform.isColor() != iter->isColor()) {
-                        return {false, SkStringPrintf("Uniform %s declared with different color"
+                        return {false, SkStringPrintf("Uniform %.*s declared with different color"
                                                       " layout in vertex and fragment shaders.",
-                                                      iter->name.c_str())};
+                                                      (int)iter->name.size(), iter->name.data())};
                     }
                     (*iter).flags |= stage;
                 }
@@ -450,11 +448,9 @@ size_t SkMeshSpecification::uniformSize() const {
                              : SkAlign4(fUniforms.back().offset + fUniforms.back().sizeInBytes());
 }
 
-const Uniform* SkMeshSpecification::findUniform(const char* name) const {
-    SkASSERT(name);
-    size_t len = strlen(name);
-    auto iter = std::find_if(fUniforms.begin(), fUniforms.end(), [name, len] (const Uniform& u) {
-        return u.name.equals(name, len);
+const Uniform* SkMeshSpecification::findUniform(std::string_view name) const {
+    auto iter = std::find_if(fUniforms.begin(), fUniforms.end(), [name] (const Uniform& u) {
+        return u.name == name;
     });
     return iter == fUniforms.end() ? nullptr : &(*iter);
 }

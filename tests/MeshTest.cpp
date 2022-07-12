@@ -279,12 +279,16 @@ static void test_good_uniforms(skiatest::Reporter* r) {
     constexpr Flags kColor = Uniform::kColor_Flag;
     constexpr Flags kHalfP = Uniform::kHalfPrecision_Flag;
 
-    auto make_uni = [](Type type, const char* name, size_t offset, uint32_t flags, int count = 0) {
+    auto make_uni = [](Type type,
+                       std::string_view name,
+                       size_t offset,
+                       uint32_t flags,
+                       int count = 0) {
         if (count) {
-            return Uniform{SkString(name), offset, type, count, flags | Uniform::kArray_Flag};
+            return Uniform{name, offset, type, count, flags | Uniform::kArray_Flag};
         } else {
             SkASSERT(!(flags & Uniform::kArray_Flag));
-            return Uniform{SkString(name), offset, type, 1, flags};
+            return Uniform{name, offset, type, 1, flags};
         }
     };
 
@@ -441,7 +445,7 @@ static void test_good_uniforms(skiatest::Reporter* r) {
             return;
         }
         SkString desc = make_description(attrs, kValidStride, varys, vs, fs);
-        auto uniforms = spec->uniforms();
+        SkSpan<const Uniform> uniforms = spec->uniforms();
         if (uniforms.size() != c.expectations.size()) {
             ERRORF(r,
                    "Expected %zu uniforms but actually %zu:\n%s",
@@ -451,18 +455,18 @@ static void test_good_uniforms(skiatest::Reporter* r) {
             return;
         }
         for (const auto& [actual, expected] : SkMakeZip(uniforms, c.expectations)) {
-            if (actual.name != expected.name) {
+            std::string name = std::string(actual.name);
+            if (name != expected.name) {
                 ERRORF(r,
-                       "Actual uniform name (%s) does not match expected name (%s)",
-                       actual.name.c_str(),
-                       expected.name.c_str());
+                       "Actual uniform name (%s) does not match expected name (%.*s)",
+                       name.c_str(),
+                       (int)expected.name.size(), expected.name.data());
                 return;
             }
-            const char* name = actual.name.c_str();
             if (actual.type != expected.type) {
                 ERRORF(r,
                        "Uniform %s: Actual type (%d) does not match expected type (%d)",
-                       name,
+                       name.c_str(),
                        static_cast<int>(actual.type),
                        static_cast<int>(expected.type));
                 return;
@@ -470,7 +474,7 @@ static void test_good_uniforms(skiatest::Reporter* r) {
             if (actual.count != expected.count) {
                 ERRORF(r,
                        "Uniform %s: Actual count (%d) does not match expected count (%d)",
-                       name,
+                       name.c_str(),
                        actual.count,
                        expected.count);
                 return;
@@ -478,7 +482,7 @@ static void test_good_uniforms(skiatest::Reporter* r) {
             if (actual.flags != expected.flags) {
                 ERRORF(r,
                        "Uniform %s: Actual flags (0x%04x) do not match expected flags (0x%04x)",
-                       name,
+                       name.c_str(),
                        actual.flags,
                        expected.flags);
                 return;
@@ -486,7 +490,7 @@ static void test_good_uniforms(skiatest::Reporter* r) {
             if (actual.offset != expected.offset) {
                 ERRORF(r,
                        "Uniform %s: Actual offset (%zu) does not match expected offset (%zu)",
-                       name,
+                       name.c_str(),
                        actual.offset,
                        expected.offset);
                 return;

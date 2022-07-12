@@ -171,17 +171,17 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     fMousePos.z = abs(fMousePos.z) * (ImGui::IsMouseDown(0)    ? 1 : -1);
     fMousePos.w = abs(fMousePos.w) * (ImGui::IsMouseClicked(0) ? 1 : -1);
 
-    for (const auto& v : fEffect->uniforms()) {
+    for (const SkRuntimeEffect::Uniform& v : fEffect->uniforms()) {
         char* data = fInputs.get() + v.offset;
-        if (v.name.equals("iResolution")) {
+        if (v.name == "iResolution") {
             memcpy(data, &fResolution, sizeof(fResolution));
             continue;
         }
-        if (v.name.equals("iTime")) {
+        if (v.name == "iTime") {
             memcpy(data, &fSeconds, sizeof(fSeconds));
             continue;
         }
-        if (v.name.equals("iMouse")) {
+        if (v.name == "iMouse") {
             memcpy(data, &fMousePos, sizeof(fMousePos));
             continue;
         }
@@ -193,8 +193,9 @@ void SkSLSlide::draw(SkCanvas* canvas) {
                 int rows = ((int)v.type - (int)SkRuntimeEffect::Uniform::Type::kFloat) + 1;
                 float* f = reinterpret_cast<float*>(data);
                 for (int c = 0; c < v.count; ++c, f += rows) {
-                    SkString name = v.isArray() ? SkStringPrintf("%s[%d]", v.name.c_str(), c)
-                                                : v.name;
+                    SkString name = v.isArray()
+                            ? SkStringPrintf("%.*s[%d]", (int)v.name.size(), v.name.data(), c)
+                            : SkString(v.name);
                     ImGui::PushID(c);
                     ImGui::DragScalarN(name.c_str(), ImGuiDataType_Float, f, rows, 1.0f);
                     ImGui::PopID();
@@ -210,8 +211,8 @@ void SkSLSlide::draw(SkCanvas* canvas) {
                 for (int e = 0; e < v.count; ++e) {
                     for (int c = 0; c < cols; ++c, f += rows) {
                         SkString name = v.isArray()
-                            ? SkStringPrintf("%s[%d][%d]", v.name.c_str(), e, c)
-                            : SkStringPrintf("%s[%d]", v.name.c_str(), c);
+                           ? SkStringPrintf("%.*s[%d][%d]", (int)v.name.size(), v.name.data(), e, c)
+                           : SkStringPrintf("%.*s[%d]", (int)v.name.size(), v.name.data(), c);
                         ImGui::DragScalarN(name.c_str(), ImGuiDataType_Float, f, rows, 1.0f);
                     }
                 }
@@ -224,8 +225,9 @@ void SkSLSlide::draw(SkCanvas* canvas) {
                 int rows = ((int)v.type - (int)SkRuntimeEffect::Uniform::Type::kInt) + 1;
                 int* i = reinterpret_cast<int*>(data);
                 for (int c = 0; c < v.count; ++c, i += rows) {
-                    SkString name = v.isArray() ? SkStringPrintf("%s[%d]", v.name.c_str(), c)
-                                                : v.name;
+                    SkString name = v.isArray()
+                            ? SkStringPrintf("%.*s[%d]", (int)v.name.size(), v.name.data(), c)
+                            : SkString(v.name);
                     ImGui::PushID(c);
                     ImGui::DragScalarN(name.c_str(), ImGuiDataType_S32, i, rows, 1.0f);
                     ImGui::PopID();

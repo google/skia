@@ -157,7 +157,7 @@ public:
     SkSpan<const Uniform> uniforms() const { return SkSpan(fUniforms); }
 
     /** Returns pointer to the named uniform variable's description, or nullptr if not found. */
-    const Uniform* findUniform(const char* name) const;
+    const Uniform* findUniform(std::string_view name) const;
 
     size_t stride() const { return fStride; }
 

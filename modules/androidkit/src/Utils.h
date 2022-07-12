@@ -28,13 +28,13 @@ public:
         fEnv->ReleaseStringUTFChars(fJString, fCString);
     }
 
+    const char* str() const { return fCString; }
     operator const char*() const { return fCString; }
 
 private:
     JNIEnv*        fEnv;
     const jstring& fJString;
     const char*    fCString;
-
 
     CString(CString&&) = delete;
     CString(const CString&) = delete;

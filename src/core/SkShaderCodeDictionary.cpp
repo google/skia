@@ -849,10 +849,10 @@ SkSpan<const SkUniform> SkShaderCodeDictionary::convertUniforms(const SkRuntimeE
         }
         const Uniform& u = uniforms[index - 1];
 
-        // The existing uniform names are in SkStrings and may disappear. Copy them into fArena.
-        // (It's safe to do this within makeInitializedArray; the entire array is allocated in one
-        // big slab before any initialization calls are done.)
-        const char* name = this->addTextToArena(std::string_view(u.name.c_str(), u.name.size()));
+        // The existing uniform names live in the passed-in SkRuntimeEffect and may eventually
+        // disappear. Copy them into fArena. (It's safe to do this within makeInitializedArray; the
+        // entire array is allocated in one big slab before any initialization calls are done.)
+        const char* name = this->addTextToArena(u.name);
 
         // Add one SkUniform to our array.
         SkSLType type = uniform_type_to_sksl_type(u);

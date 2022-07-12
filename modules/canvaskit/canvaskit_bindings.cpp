@@ -1996,7 +1996,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .function("getUniformName", optional_override([](SkRuntimeEffect& self, int i)->JSString {
             auto it = self.uniforms().begin() + i;
-            return emscripten::val(it->name.c_str());
+            return emscripten::val(std::string(it->name).c_str());
         }))
         .function("getUniform", optional_override([](SkRuntimeEffect& self, int i)->RuntimeEffectUniform {
             auto it = self.uniforms().begin() + i;

@@ -125,7 +125,7 @@ private:
                 auto it = std::find_if(uniforms.begin(),
                                        uniforms.end(),
                                        [&name](SkMeshSpecification::Uniform uniform) {
-                    return uniform.name == name;
+                    return uniform.name == std::string_view(name.c_str(), name.size());
                 });
                 SkASSERT(it != uniforms.end());
 

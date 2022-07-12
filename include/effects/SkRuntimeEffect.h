@@ -91,11 +91,11 @@ public:
             kHalfPrecision_Flag = 0x10,
         };
 
-        SkString  name;
-        size_t    offset;
-        Type      type;
-        int       count;
-        uint32_t  flags;
+        std::string_view name;
+        size_t           offset;
+        Type             type;
+        int              count;
+        uint32_t         flags;
 
         bool isArray() const { return SkToBool(this->flags & kArray_Flag); }
         bool isColor() const { return SkToBool(this->flags & kColor_Flag); }
@@ -254,7 +254,7 @@ public:
     SkSpan<const Child> children() const { return SkSpan(fChildren); }
 
     // Returns pointer to the named uniform variable's description, or nullptr if not found
-    const Uniform* findUniform(const char* name) const;
+    const Uniform* findUniform(std::string_view name) const;
 
     // Returns pointer to the named child's description, or nullptr if not found
     const Child* findChild(const char* name) const;
@@ -410,7 +410,7 @@ public:
 
     const SkRuntimeEffect* effect() const { return fEffect.get(); }
 
-    BuilderUniform uniform(const char* name) { return { this, fEffect->findUniform(name) }; }
+    BuilderUniform uniform(std::string_view name) { return { this, fEffect->findUniform(name) }; }
     BuilderChild child(const char* name) {
         const SkRuntimeEffect::Child* child = fEffect->findChild(name);
         return { this, child };
