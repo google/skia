@@ -110,9 +110,9 @@ public:
     };
 
     struct Child {
-        SkString  name;
-        ChildType type;
-        int       index;
+        std::string_view name;
+        ChildType        type;
+        int              index;
     };
 
     class Options {
@@ -257,7 +257,7 @@ public:
     const Uniform* findUniform(std::string_view name) const;
 
     // Returns pointer to the named child's description, or nullptr if not found
-    const Child* findChild(const char* name) const;
+    const Child* findChild(std::string_view name) const;
 
     static void RegisterFlattenables();
     ~SkRuntimeEffect() override;
@@ -411,10 +411,7 @@ public:
     const SkRuntimeEffect* effect() const { return fEffect.get(); }
 
     BuilderUniform uniform(std::string_view name) { return { this, fEffect->findUniform(name) }; }
-    BuilderChild child(const char* name) {
-        const SkRuntimeEffect::Child* child = fEffect->findChild(name);
-        return { this, child };
-    }
+    BuilderChild child(std::string_view name) { return { this, fEffect->findChild(name) }; }
 
 protected:
     SkRuntimeEffectBuilder() = delete;

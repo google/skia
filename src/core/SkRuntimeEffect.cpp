@@ -418,7 +418,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
             // Child effects that can be sampled ('shader', 'colorFilter', 'blender')
             if (varType.isEffectChild()) {
                 Child c;
-                c.name  = SkString(var.name());
+                c.name  = var.name();
                 c.type  = child_type(varType);
                 c.index = children.size();
                 children.push_back(c);
@@ -642,11 +642,9 @@ const SkRuntimeEffect::Uniform* SkRuntimeEffect::findUniform(std::string_view na
     return iter == fUniforms.end() ? nullptr : &(*iter);
 }
 
-const SkRuntimeEffect::Child* SkRuntimeEffect::findChild(const char* name) const {
-    SkASSERT(name);
-    size_t len = strlen(name);
-    auto iter = std::find_if(fChildren.begin(), fChildren.end(), [name, len](const Child& c) {
-        return c.name.equals(name, len);
+const SkRuntimeEffect::Child* SkRuntimeEffect::findChild(std::string_view name) const {
+    auto iter = std::find_if(fChildren.begin(), fChildren.end(), [name](const Child& c) {
+        return c.name == name;
     });
     return iter == fChildren.end() ? nullptr : &(*iter);
 }

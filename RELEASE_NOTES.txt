@@ -12,6 +12,10 @@ Milestone 104
   * SkRuntimeEffect::Uniform now stores the uniform name as a string_view, rather than a
     SkString. Related methods SkRuntimeEffect::findUniform and SkRuntimeEffectBuilder::uniform
     also take std::string_view instead of const char*.
+  * SkRuntimeEffect::Child now stores the child name as a string_view, rather than a SkString.
+    Related methods SkRuntimeEffect::findChild and SkRuntimeEffectBuilder::child also take
+    std::string_view instead of const char*. Also, SkImageFilters::RuntimeShader now takes the
+    child-name array as a std::string_view[] instead of const char*[].
   * skcms.h has been relocated to //modules/skcms/skcms.h (was //include/third_party/skcms/skcms.h)
   * New functions SkCanvas::getBaseProps and SkCanvas::getTopProps; SkCanvas::getBaseProps is a
     direct replacement for the (now deprecated) SkCanvas::getProps function, while getTopProps is
