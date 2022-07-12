@@ -425,6 +425,10 @@ void SkBitmap::erase(SkColor c, const SkIRect& area) const {
     this->erase(SkColor4f::FromColor(c), nullptr, area);
 }
 
+void SkBitmap::erase(SkColor4f c, const SkIRect& area) const {
+    this->erase(c, nullptr, area);
+}
+
 void SkBitmap::eraseColor(SkColor4f c, SkColorSpace* colorSpace) const {
     this->erase(c, colorSpace, SkIRect::MakeWH(this->width(), this->height()));
 }
