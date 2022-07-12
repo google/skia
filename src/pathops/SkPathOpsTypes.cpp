@@ -123,7 +123,10 @@ bool AlmostDequalUlps(double a, double b) {
     if (fabs(a) < SK_ScalarMax && fabs(b) < SK_ScalarMax) {
         return AlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
     }
-    return fabs(a - b) / std::max(fabs(a), fabs(b)) < FLT_EPSILON * 16;
+    // We allow divide-by-zero here. It only happens if one of a,b is zero, and the other is NaN.
+    // (Otherwise, we'd hit the condition above). Thus, if std::max returns 0, we compute NaN / 0,
+    // which will produce NaN. The comparison will return false, which is the correct answer.
+    return sk_ieee_double_divide(fabs(a - b), std::max(fabs(a), fabs(b))) < FLT_EPSILON * 16;
 }
 
 bool AlmostEqualUlps(float a, float b) {
