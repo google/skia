@@ -224,22 +224,19 @@ static bool child_is_shader(const SkRuntimeEffect::Child* child) {
 }
 
 sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
-                                                   const char* childShaderName,
+                                                   std::string_view childShaderName,
                                                    sk_sp<SkImageFilter> input) {
     // If no childShaderName is provided, check to see if we can implicitly assign it to the only
     // child in the effect.
-    std::string_view childShaderNameView;
-    if (childShaderName != nullptr) {
-        childShaderNameView = childShaderName;
-    } else {
+    if (childShaderName.empty()) {
         auto children = builder.effect()->children();
         if (children.size() != 1) {
             return nullptr;
         }
-        childShaderNameView = children.front().name;
+        childShaderName = children.front().name;
     }
 
-    return SkImageFilters::RuntimeShader(builder, &childShaderNameView, &input, 1);
+    return SkImageFilters::RuntimeShader(builder, &childShaderName, &input, 1);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
