@@ -39,7 +39,11 @@ TextSDFRenderStep::TextSDFRenderStep(bool isA8)
                      {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
                       {"texCoords", VertexAttribType::kUShort2, SkSLType::kUShort2}},
-                     /*instanceAttrs=*/{}) {
+                     /*instanceAttrs=*/{},
+                     /*varyings=*/
+                     {{"unormTexCoords", SkSLType::kFloat2},
+                      {"textureCoords", SkSLType::kFloat2},
+                      {"texIndex", SkSLType::kFloat}}) {
     // TODO: store if it's A8?
 }
 
@@ -50,10 +54,9 @@ const char* TextSDFRenderStep::vertexSkSL() const {
         int2 coords = int2(texCoords.x, texCoords.y);
         int texIdx = coords.x >> 13;
 
-        // TODO: these should be varyings
-        float2 unormTexCoords = float2(coords.x & 0x1FFF, coords.y);
-        float2 textureCoords = unormTexCoords * atlasSizeInv;
-        float texIndex = float(texIdx);
+        unormTexCoords = float2(coords.x & 0x1FFF, coords.y);
+        textureCoords = unormTexCoords * atlasSizeInv;
+        texIndex = float(texIdx);
 
         float4 devPosition = float4(position, depth, 1);
         )";

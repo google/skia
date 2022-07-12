@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkPipelineData.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/core/SkShaderCodeDictionary.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
@@ -77,32 +78,8 @@ std::string emit_SkSL_attributes(SkSpan<const Attribute> vertexAttrs,
     int attr = 0;
     auto add_attrs = [&](SkSpan<const Attribute> attrs) {
         for (auto a : attrs) {
-            // TODO: this is sufficient for the sprint but should be changed to use SkSL's
-            // machinery
             SkSL::String::appendf(&result, "    layout(location=%d) in ", attr++);
-            switch (a.gpuType()) {
-                case SkSLType::kFloat4:
-                    result.append("float4");
-                    break;
-                case SkSLType::kFloat2:
-                    result.append("float2");
-                    break;
-                case SkSLType::kFloat3:
-                    result.append("float3");
-                    break;
-                case SkSLType::kFloat:
-                    result.append("float");
-                    break;
-                case SkSLType::kHalf4:
-                    result.append("half4");
-                    break;
-                case SkSLType::kUShort2:
-                    result.append("ushort2");
-                    break;
-                default:
-                    SkASSERT(0);
-            }
-
+            result.append(SkSLTypeString(a.gpuType()));
             SkSL::String::appendf(&result, " %s;\n", a.name());
         }
     };
@@ -114,6 +91,19 @@ std::string emit_SkSL_attributes(SkSpan<const Attribute> vertexAttrs,
     if (!instanceAttrs.empty()) {
         result.append("// instance attrs\n");
         add_attrs(instanceAttrs);
+    }
+
+    return result;
+}
+
+std::string emit_SkSL_varyings(SkSpan<const Varying> varyings, const char* direction) {
+    std::string result;
+
+    int location = 0;
+    for (auto v : varyings) {
+        SkSL::String::appendf(&result, "    layout(location=%d) %s ", location++, direction);
+        result.append(SkSLTypeString(v.fType));
+        SkSL::String::appendf(&result, " %s;\n", v.fName);
     }
 
     return result;
@@ -145,6 +135,11 @@ std::string get_sksl_vs(const GraphicsPipelineDesc& desc) {
         sksl += emit_SkSL_uniforms(1, "Step", step->uniforms());
     }
 
+    // Varyings needed by RenderStep
+    if (step->numVaryings() > 0) {
+        sksl += emit_SkSL_varyings(step->varyings(), "out");
+    }
+
     // Vertex shader function declaration
     sksl += "void main() {\n";
     // Vertex shader body
@@ -169,7 +164,17 @@ std::string get_sksl_fs(SkShaderCodeDictionary* dict,
     dict->getShaderInfo(desc.paintParamsID(), &shaderInfo);
     *blendInfo = shaderInfo.blendInfo();
 
-    return shaderInfo.toSkSL();
+    std::string sksl;
+    const RenderStep* step = desc.renderStep();
+
+    // Varyings needed by RenderStep
+    if (step->numVaryings() > 0) {
+        sksl += emit_SkSL_varyings(step->varyings(), "in");
+    }
+
+    sksl += shaderInfo.toSkSL();
+
+    return sksl;
 }
 
 inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type) {

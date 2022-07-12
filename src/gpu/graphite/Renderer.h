@@ -34,6 +34,12 @@ class DrawWriter;
 class DrawParams;
 class ResourceProvider;
 
+struct Varying {
+    const char* fName;
+    SkSLType fType;
+    // TODO: add modifier (e.g., flat and noperspective) support
+};
+
 class RenderStep {
 public:
     virtual ~RenderStep() = default;
@@ -94,13 +100,14 @@ public:
     size_t numUniforms()            const { return fUniforms.size();      }
     size_t numVertexAttributes()    const { return fVertexAttrs.size();   }
     size_t numInstanceAttributes()  const { return fInstanceAttrs.size(); }
+    size_t numVaryings()            const { return fVaryings.size(); }
 
     // The uniforms of a RenderStep are bound to the kRenderStep slot, the rest of the pipeline
     // may still use uniforms bound to other slots.
     SkSpan<const SkUniform> uniforms()           const { return SkSpan(fUniforms);      }
     SkSpan<const Attribute> vertexAttributes()   const { return SkSpan(fVertexAttrs);   }
     SkSpan<const Attribute> instanceAttributes() const { return SkSpan(fInstanceAttrs); }
-
+    SkSpan<const Varying>   varyings()           const { return SkSpan(fVaryings);      }
 
     // TODO: Actual API to do things
     // 6. Some Renderers benefit from being able to share vertices between RenderSteps. Must find a
@@ -128,13 +135,15 @@ protected:
                PrimitiveType primitiveType,
                DepthStencilSettings depthStencilSettings,
                std::initializer_list<Attribute> vertexAttrs,
-               std::initializer_list<Attribute> instanceAttrs)
+               std::initializer_list<Attribute> instanceAttrs,
+               std::initializer_list<Varying> varyings = {})
             : fFlags(flags)
             , fPrimitiveType(primitiveType)
             , fDepthStencilSettings(depthStencilSettings)
             , fUniforms(uniforms)
             , fVertexAttrs(vertexAttrs)
             , fInstanceAttrs(instanceAttrs)
+            , fVaryings(varyings)
             , fVertexStride(0)
             , fInstanceStride(0)
             , fName(className) {
@@ -170,6 +179,7 @@ private:
     std::vector<SkUniform> fUniforms;
     std::vector<Attribute> fVertexAttrs;
     std::vector<Attribute> fInstanceAttrs;
+    std::vector<Varying>   fVaryings;
 
     size_t fVertexStride;   // derived from vertex attribute set
     size_t fInstanceStride; // derived from instance attribute set

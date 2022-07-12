@@ -40,7 +40,10 @@ TextDirectRenderStep::TextDirectRenderStep()
                      {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
                       {"texCoords", VertexAttribType::kUShort2, SkSLType::kUShort2}},
-                     /*instanceAttrs=*/{}) {}
+                     /*instanceAttrs=*/{},
+                     /*varyings=*/
+                     {{"textureCoords", SkSLType::kFloat2},
+                      {"texIndex", SkSLType::kFloat}}){}
 
 TextDirectRenderStep::~TextDirectRenderStep() {}
 
@@ -50,9 +53,8 @@ const char* TextDirectRenderStep::vertexSkSL() const {
         int texIdx = coords.x >> 13;
         float2 unormTexCoords = float2(coords.x & 0x1FFF, coords.y);
 
-        // TODO: these should be varyings
-        float2 textureCoords = unormTexCoords * atlasSizeInv;
-        float texIndex = float(texIdx);
+        textureCoords = unormTexCoords * atlasSizeInv;
+        texIndex = float(texIdx);
 
         float4 devPosition = float4(position, depth, 1);
         )";
