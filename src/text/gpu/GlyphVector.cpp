@@ -6,17 +6,20 @@
  */
 
 #include "src/text/gpu/GlyphVector.h"
-#include <optional>
-#include <variant>
+
 
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/text/StrikeForGPU.h"
+
+#include <optional>
+#include <variant>
 
 using MaskFormat = skgpu::MaskFormat;
 
-namespace sktext::gpu {
+namespace sktext {
 // -- StrikeRef ------------------------------------------------------------------------------------
 StrikeRef::StrikeRef(sk_sp<SkStrike>&& strike) : fStrike{std::move(strike)} {
     SkASSERT(std::get<sk_sp<SkStrike>>(fStrike) != nullptr);
@@ -73,9 +76,11 @@ sk_sp<SkStrike> StrikeRef::getStrikeAndSetToNullptr() {
     }
     return nullptr;
 }
+}  // namespace sktext
 
+namespace sktext::gpu {
 // -- GlyphVector ----------------------------------------------------------------------------------
-GlyphVector::GlyphVector(sktext::gpu::StrikeRef&& strikeRef, SkSpan<Variant> glyphs)
+GlyphVector::GlyphVector(StrikeRef&& strikeRef, SkSpan<Variant> glyphs)
         : fStrikeRef{std::move(strikeRef)}
         , fGlyphs{glyphs} {
     SkASSERT(fGlyphs.size() > 0);

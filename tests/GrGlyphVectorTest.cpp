@@ -14,6 +14,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/text/StrikeForGPU.h"
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SubRunAllocator.h"
 #include "tests/Test.h"
@@ -21,15 +22,16 @@
 using GlyphVector = sktext::gpu::GlyphVector;
 using SubRunAllocator = sktext::gpu::SubRunAllocator;
 
-namespace sktext::gpu {
-
+namespace sktext {
 class StrikeRefTestingPeer {
 public:
     static const SkDescriptor& GetDescriptor(const StrikeRef& strikeRef) {
         return std::get<sk_sp<SkStrike>>(strikeRef.fStrike)->getDescriptor();
     }
 };
+}  // namespace sktext;
 
+namespace sktext::gpu {
 class GlyphVectorTestingPeer {
 public:
     static const SkDescriptor& GetDescriptor(const GlyphVector& v) {
