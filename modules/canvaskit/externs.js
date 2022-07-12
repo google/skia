@@ -426,12 +426,24 @@ var CanvasKit = {
   },
 
   ImageFilter: {
+    MakeBlend: function() {},
     MakeBlur: function() {},
     MakeColorFilter: function() {},
     MakeCompose: function() {},
+    MakeDilate: function() {},
+    MakeDisplacementMap: function() {},
+    MakeDropShadow: function() {},
+    MakeDropShadowOnly: function() {},
+    MakeErode: function() {},
+    MakeImage: function() {},
     MakeMatrixTransform: function() {},
+    MakeOffset: function() {},
 
     // private API
+    _MakeDropShadow: function() {},
+    _MakeDropShadowOnly: function() {},
+    _MakeImageCubic: function() {},
+    _MakeImageOptions: function() {},
     _MakeMatrixTransformCubic: function() {},
     _MakeMatrixTransformOptions: function() {},
   },

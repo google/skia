@@ -1605,4 +1605,172 @@ describe('Core canvas behavior', () => {
         effect.delete();
         paint.delete();
     });
+
+    gm('ImageFilter_MakeBlend', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+        const redCF = CanvasKit.ColorFilter.MakeBlend(
+                CanvasKit.Color(255, 0, 0, 0.4), CanvasKit.BlendMode.SrcOver);
+        const redIF = CanvasKit.ImageFilter.MakeColorFilter(redCF, null);
+        const blueCF = CanvasKit.ColorFilter.MakeBlend(
+                CanvasKit.Color(0, 0, 255, 0.7), CanvasKit.BlendMode.SrcOver);
+        const blueIF = CanvasKit.ImageFilter.MakeColorFilter(blueCF, null);
+
+        const BOX_SIZE = 100;
+        const SWATCH_SIZE = 80;
+        const MARGIN = (BOX_SIZE - SWATCH_SIZE) / 2;
+        const COLS_PER_ROW = CANVAS_WIDTH / BOX_SIZE;
+        const blends = ['Clear', 'Src', 'Dst', 'SrcOver', 'DstOver', 'SrcIn', 'DstIn', 'SrcOut',
+                        'DstOut', 'SrcATop', 'DstATop', 'Xor', 'Plus', 'Modulate', 'Screen',
+                        'Overlay', 'Darken', 'Lighten', 'ColorDodge', 'ColorBurn', 'HardLight',
+                        'SoftLight', 'Difference', 'Exclusion', 'Multiply', 'Hue', 'Saturation',
+                        'Color', 'Luminosity'];
+        const paint = new CanvasKit.Paint();
+        // Put a dark green on the paint itself.
+        paint.setColor(CanvasKit.Color(0, 255, 0, 0.2));
+
+        const font = new CanvasKit.Font(null, 10);
+        const textPaint = new CanvasKit.Paint();
+        textPaint.setColor(CanvasKit.BLACK);
+
+        for (let i = 0; i < blends.length; i++) {
+            const filter = CanvasKit.ImageFilter.MakeBlend(CanvasKit.BlendMode[blends[i]],
+                                                           redIF, blueIF);
+            const col = i % COLS_PER_ROW, row = Math.floor(i / COLS_PER_ROW);
+
+            paint.setImageFilter(filter);
+            canvas.save();
+
+            canvas.clipRect(CanvasKit.XYWHRect(col * BOX_SIZE + MARGIN, row * BOX_SIZE + MARGIN, SWATCH_SIZE, SWATCH_SIZE),
+                            CanvasKit.ClipOp.Intersect);
+            canvas.drawPaint(paint);
+            canvas.restore();
+
+            canvas.drawText(blends[i], col * BOX_SIZE + 30, row * BOX_SIZE + BOX_SIZE, textPaint, font);
+            filter.delete();
+        }
+        redCF.delete();
+        redIF.delete();
+        blueCF.delete();
+        blueIF.delete();
+        paint.delete();
+    });
+
+    gm('ImageFilter_MakeDilate', (canvas, fetchedByteBuffers) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const paint = new CanvasKit.Paint();
+        const dilate = CanvasKit.ImageFilter.MakeDilate(2, 10, null);
+        paint.setImageFilter(dilate);
+
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+        canvas.drawImage(img, 10, 20, paint);
+
+        img.delete();
+        paint.delete();
+        dilate.delete();
+    }, '/assets/mandrill_512.png');
+
+    gm('ImageFilter_MakeErode', (canvas, fetchedByteBuffers) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const paint = new CanvasKit.Paint();
+        const erode = CanvasKit.ImageFilter.MakeErode(2, 10, null);
+        paint.setImageFilter(erode);
+
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+        canvas.drawImage(img, 10, 20, paint);
+
+        img.delete();
+        paint.delete();
+        erode.delete();
+    }, '/assets/mandrill_512.png');
+
+    gm('ImageFilter_MakeDisplacementMap', (canvas, fetchedByteBuffers) => {
+        // See https://www.smashingmagazine.com/2021/09/deep-dive-wonderful-world-svg-displacement-filtering/
+        // for a good writeup of displacement filters.
+        canvas.clear(CanvasKit.WHITE);
+
+        const DISPLACEMENT_SIZE = 255;
+        const pixels = [];
+        for (let y = 0; y < DISPLACEMENT_SIZE; y++) {
+            for (let x = 0; x < DISPLACEMENT_SIZE; x++) {
+                pixels.push(255, 255, 0, 255);
+            }
+        }
+        const mapImg = CanvasKit.MakeImage({
+            width: DISPLACEMENT_SIZE,
+            height: DISPLACEMENT_SIZE,
+            alphaType: CanvasKit.AlphaType.Unpremul,
+            colorType: CanvasKit.ColorType.RGBA_8888,
+            colorSpace: CanvasKit.ColorSpace.SRGB,
+        }, Uint8ClampedArray.from(pixels), 4 * DISPLACEMENT_SIZE);
+        const map = CanvasKit.ImageFilter.MakeImage(mapImg, {C: 1/3, B:1/3});
+
+        const paint = new CanvasKit.Paint();
+
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+        // TODO(michaelludwig, kjlubick) Investigate why this doesn't render quite right.
+        //canvas.drawImage(img, 10, 20, paint);
+        //canvas.drawImage(mapImg, 0, 0, paint);
+
+        const displaced = CanvasKit.ImageFilter.MakeDisplacementMap(CanvasKit.ColorChannel.Red,
+                                CanvasKit.ColorChannel.Green, 512, map, null);
+        paint.setImageFilter(displaced);
+        canvas.drawImage(img, 10, 20, paint);
+
+        mapImg.delete();
+        img.delete();
+        map.delete();
+        paint.delete();
+        displaced.delete();
+    }, '/assets/mandrill_512.png');
+
+    gm('ImageFilter_MakeDropShadow', (canvas, fetchedByteBuffers) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+
+        const drop = CanvasKit.ImageFilter.MakeDropShadow(10, -30, 4.0, 2.0, CanvasKit.MAGENTA, null);
+        const paint = new CanvasKit.Paint();
+        paint.setImageFilter(drop)
+        canvas.drawImage(img, 50, 50, paint);
+
+        img.delete();
+        paint.delete();
+        drop.delete();
+    }, '/assets/mandrill_512.png');
+
+    gm('ImageFilter_MakeDropShadowOnly', (canvas, fetchedByteBuffers) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+
+        const drop = CanvasKit.ImageFilter.MakeDropShadowOnly(10, -30, 4.0, 2.0, CanvasKit.MAGENTA, null);
+        const paint = new CanvasKit.Paint();
+        paint.setImageFilter(drop)
+        canvas.drawImage(img, 50, 50, paint);
+        img.delete();
+        paint.delete();
+        drop.delete();
+    }, '/assets/mandrill_512.png');
+
+    gm('ImageFilter_MakeOffset', (canvas, fetchedByteBuffers) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+
+        const offset = CanvasKit.ImageFilter.MakeOffset(30, -130, null);
+        const paint = new CanvasKit.Paint();
+        paint.setImageFilter(offset);
+        canvas.drawImage(img, 50, 50, paint);
+        img.delete();
+        paint.delete();
+        offset.delete();
+    }, '/assets/mandrill_512.png');
 });

@@ -307,8 +307,8 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
     img.delete();
 }
 
-function imageFilterTests(CK: CanvasKit, colorFilter?: ColorFilter) {
-    if (!colorFilter) return;
+function imageFilterTests(CK: CanvasKit, colorFilter?: ColorFilter, img?: Image) {
+    if (!colorFilter || !img) return;
     const imgf = CK.ImageFilter; // less typing
     const filter = imgf.MakeBlur(2, 4, CK.TileMode.Mirror, null); // $ExpectType ImageFilter
     const filter1 = imgf.MakeBlur(2, 4, CK.TileMode.Decal, filter); // $ExpectType ImageFilter
@@ -325,6 +325,27 @@ function imageFilterTests(CK: CanvasKit, colorFilter?: ColorFilter) {
     const filter9 = imgf.MakeMatrixTransform(CK.M44.identity(),
                                              { filter: CK.FilterMode.Nearest },
                                              filter6);
+    let filter10 = imgf.MakeBlend(CK.BlendMode.SrcOver, filter8, filter9); // $ExpectType ImageFilter
+    filter10 = imgf.MakeBlend(CK.BlendMode.Xor, null, null);
+    let filter11 = imgf.MakeDilate(2, 10, null); // $ExpectType ImageFilter
+    filter11 = imgf.MakeDilate(2, 10, filter11);
+    let filter12 = imgf.MakeErode(2, 10, null); // $ExpectType ImageFilter
+    filter12 = imgf.MakeErode(2, 10, filter12);
+    let filter13 = imgf.MakeDisplacementMap(// $ExpectType ImageFilter
+        CK.ColorChannel.Red, CK.ColorChannel.Alpha, 3.2, filter11, filter12);
+    filter13 = imgf.MakeDisplacementMap(
+        CK.ColorChannel.Blue, CK.ColorChannel.Green, 512, null, null);
+    let filter14 = imgf.MakeDropShadow(10, -30, 4.0, 2.0, CK.MAGENTA, null); // $ExpectType ImageFilter
+    filter14 = imgf.MakeDropShadow(10, -30, 4.0, 2.0, CK.MAGENTA, filter14);
+    filter14 = imgf.MakeDropShadowOnly(10, -30, 4.0, 2.0, CK.CYAN, null);
+    filter14 = imgf.MakeDropShadowOnly(10, -30, 4.0, 2.0, CK.CYAN, filter14);
+
+    let filter15 = imgf.MakeImage(img, { B: 1 / 3, C: 1 / 3 }); // $ExpectType ImageFilter | null
+    filter15 = imgf.MakeImage(img, { filter: CK.FilterMode.Linear },
+                              CK.LTRBRect(1, 2, 3, 4), CK.XYWHRect(5, 6, 7, 8));
+
+    let filter16 = imgf.MakeOffset(5, 3, null); // $ExpectType ImageFilter
+    filter16 = imgf.MakeOffset(-100.3, -18, filter16);
 }
 
 function fontTests(CK: CanvasKit, face?: Typeface, paint?: Paint) {

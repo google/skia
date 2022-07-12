@@ -154,7 +154,8 @@ public:
      *  @param yChannelSelector RGBA channel that encodes the y displacement per pixel.
      *  @param scale            Scale applied to displacement extracted from image.
      *  @param displacement     The filter defining the displacement image, or null to use source.
-     *  @param color            The filter providing the color pixels to be displaced.
+     *  @param color            The filter providing the color pixels to be displaced. If null,
+     *                          it will use the source.
      *  @param cropRect         Optional rectangle that crops the color input and output.
      */
     static sk_sp<SkImageFilter> DisplacementMap(SkColorChannel xChannelSelector,
