@@ -285,7 +285,8 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
     const s2 = mm.makeShaderOptions(CK.TileMode.Decal, CK.TileMode.Repeat, // $ExpectType Shader
         CK.FilterMode.Nearest, CK.MipmapMode.Linear,
         CK.Matrix.identity());
-    const pixels = img.readPixels(85, 1000, { // $ExpectType Float32Array | Uint8Array | null
+    // See https://github.com/microsoft/dtslint/issues/191#issuecomment-1108307671 for below
+    const pixels = img.readPixels(85, 1000, { // $ExpectType Float32Array | Uint8Array | null || Uint8Array | Float32Array | null
         width: 79,
         height: 205,
         colorType: CK.ColorType.RGBA_8888,

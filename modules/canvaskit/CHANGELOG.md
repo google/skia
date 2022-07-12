@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - Updated `dtslint`, `typescript`, and `@webgpu/types` versions, used for testing index.d.ts types.
+
 ## [0.35.0] - 2022-06-30
 
 ### Fixed
