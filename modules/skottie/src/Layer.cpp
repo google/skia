@@ -364,12 +364,9 @@ sk_sp<sksg::Transform> LayerBuilder::getParentTransform(const AnimationBuilder& 
         return parent_builder->getTransform(abuilder, cbuilder, ttype);
     }
 
-    if (ttype == TransformType::k3D) {
-        // During camera transform attachment, cbuilder->getCameraTransform() is null.
-        // This prevents camera->camera transform chain cycles.
-        SkASSERT(!this->isCamera() || !cbuilder->getCameraTransform());
-
-        // 3D transform chains are implicitly rooted onto the camera.
+    // Camera layers have no implicit parent transform,
+    // while regular 3D transform chains are implicitly rooted onto the camera.
+    if (ttype == TransformType::k3D && !this->isCamera()) {
         return cbuilder->getCameraTransform();
     }
 
