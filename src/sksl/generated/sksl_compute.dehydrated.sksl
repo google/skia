@@ -1,4 +1,4 @@
-static uint8_t SKSL_INCLUDE_sksl_compute[] = {12,0,111,0,
+static constexpr uint8_t SKSL_INCLUDE_sksl_compute[] = {12,0,111,0,
 17,115,107,95,84,104,114,101,97,100,80,111,115,105,116,105,111,110,
 5,117,105,110,116,51,
 1,116,

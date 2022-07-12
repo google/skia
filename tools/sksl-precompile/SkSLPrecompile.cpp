@@ -119,7 +119,7 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
         printf("error writing '%s'\n", outputPath.c_str());
         return ResultCode::kOutputError;
     }
-    out.printf("static uint8_t SKSL_INCLUDE_%s[] = {", baseName.c_str());
+    out.printf("static constexpr uint8_t SKSL_INCLUDE_%s[] = {", baseName.c_str());
     for (size_t i = 0; i < data.length(); ++i) {
         out.printf("%s%d,", dehydrator.prefixAtOffset(i), uint8_t(data[i]));
     }
