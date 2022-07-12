@@ -896,7 +896,7 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
             // Convert a SkBlender into a child FP.
             auto childFP = as_BB(child.blender())->asFragmentProcessor(
                     /*srcFP=*/nullptr,
-                    GrFragmentProcessor::UseDestColorAsInput(/*dstFP=*/nullptr),
+                    GrFragmentProcessor::DestColor(),
                     childArgs);
             if (!childFP) {
                 return GrFPFailure(std::move(inputFP));

@@ -94,12 +94,10 @@ public:
             std::unique_ptr<GrFragmentProcessor>);
 
     /**
-     *  Returns a fragment processor which samples the passed-in fragment processor using
-     *  `args.fDestColor` as its input color. Pass a null FP to access `args.fDestColor` directly.
-     *  (This is only meaningful in contexts like blenders, which use a source and dest color.)
+     *  Returns a fragment processor which returns `args.fDestColor`. This is only meaningful in
+     *  contexts like blenders, which use a source and dest color.)
      */
-    static std::unique_ptr<GrFragmentProcessor> UseDestColorAsInput(
-            std::unique_ptr<GrFragmentProcessor>);
+    static std::unique_ptr<GrFragmentProcessor> DestColor();
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
