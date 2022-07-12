@@ -10,7 +10,7 @@
 
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/shaders/gradients/SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkGradientShaderBase.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
 #include "src/shaders/gradients/SkRadialGradient.h"
 #include "src/shaders/gradients/SkSweepGradient.h"

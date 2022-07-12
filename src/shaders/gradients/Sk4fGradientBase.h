@@ -14,7 +14,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/gradients/Sk4fGradientPriv.h"
-#include "src/shaders/gradients/SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkGradientShaderBase.h"
 
 struct Sk4fGradientInterval {
     Sk4fGradientInterval(const skvx::float4& c0, SkScalar t0,

@@ -8,7 +8,7 @@
 #ifndef SkTwoPointConicalGradient_DEFINED
 #define SkTwoPointConicalGradient_DEFINED
 
-#include "src/shaders/gradients/SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkGradientShaderBase.h"
 
 class SkShaderCodeDictionary;
 

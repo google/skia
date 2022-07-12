@@ -8,7 +8,7 @@
 #ifndef SkSweepGradient_DEFINED
 #define SkSweepGradient_DEFINED
 
-#include "src/shaders/gradients/SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkGradientShaderBase.h"
 
 class SkShaderCodeDictionary;
 
