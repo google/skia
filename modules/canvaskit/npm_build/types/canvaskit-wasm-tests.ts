@@ -308,8 +308,8 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
     img.delete();
 }
 
-function imageFilterTests(CK: CanvasKit, colorFilter?: ColorFilter, img?: Image) {
-    if (!colorFilter || !img) return;
+function imageFilterTests(CK: CanvasKit, colorFilter?: ColorFilter, img?: Image, shader?: Shader) {
+    if (!colorFilter || !img || !shader) return;
     const imgf = CK.ImageFilter; // less typing
     const filter = imgf.MakeBlur(2, 4, CK.TileMode.Mirror, null); // $ExpectType ImageFilter
     const filter1 = imgf.MakeBlur(2, 4, CK.TileMode.Decal, filter); // $ExpectType ImageFilter
@@ -347,6 +347,7 @@ function imageFilterTests(CK: CanvasKit, colorFilter?: ColorFilter, img?: Image)
 
     let filter16 = imgf.MakeOffset(5, 3, null); // $ExpectType ImageFilter
     filter16 = imgf.MakeOffset(-100.3, -18, filter16);
+    imgf.MakeShader(shader); // $ExpectType ImageFilter
 }
 
 function fontTests(CK: CanvasKit, face?: Typeface, paint?: Paint) {

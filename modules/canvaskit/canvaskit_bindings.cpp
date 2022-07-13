@@ -1543,6 +1543,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkImageFilters::DisplacementMap(xChannelSelector, yChannelSelector,
                                                    scale, displacement, color);
         }))
+        .class_function("MakeShader", optional_override([](sk_sp<SkShader> shader)->sk_sp<SkImageFilter> {
+            return SkImageFilters::Shader(shader);
+        }))
         .class_function("_MakeDropShadow", optional_override([](SkScalar dx, SkScalar dy,
                                                                SkScalar sigmaX, SkScalar sigmaY,
                                                                WASMPointerF32 cPtr, sk_sp<SkImageFilter> input)->sk_sp<SkImageFilter> {

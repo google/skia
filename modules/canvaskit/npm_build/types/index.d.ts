@@ -3490,6 +3490,14 @@ export interface ImageFilterFactory {
      *  @param input    The input that will be moved, if null, will use the dynamic source image.
      */
     MakeOffset(dx: number, dy: number, input: ImageFilter | null): ImageFilter;
+
+
+    /**
+     * Transforms a shader into an image filter
+     *
+     * @param shader - The Shader to be transformed
+     */
+   MakeShader(shader: Shader): ImageFilter;
 }
 
 /**

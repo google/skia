@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - The following ImageFilter factory methods: `MakeBlend`, `MakeDilate`, `MakeDisplacementMap`, 
-   `MakeDropShadow`, `MakeDropShadowOnly`, `MakeErode`, `MakeImage`, and `MakeOffset`.
+   `MakeDropShadow`, `MakeDropShadowOnly`, `MakeErode`, `MakeImage`, `MakeOffset`, and `MakeShader`.
  - The `MakeLuma` ColorFilter factory method.
 
 ### Changed

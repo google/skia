@@ -1803,4 +1803,24 @@ describe('Core canvas behavior', () => {
         paint.delete();
         offset.delete();
     }, '/assets/mandrill_512.png');
+
+    gm('ImageFilter_MakeShader', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const rt = CanvasKit.RuntimeEffect.Make(`
+uniform float4 color;
+half4 main(vec2 fragcoord) {
+    return vec4(color);
+}
+`);
+        const shader = rt.makeShader([0.0, 0.0, 1.0, 0.5]);
+        const filter = CanvasKit.ImageFilter.MakeShader(shader);
+        const paint = new CanvasKit.Paint();
+        paint.setImageFilter(filter);
+        canvas.drawPaint(paint);
+        paint.delete();
+        filter.delete();
+        shader.delete();
+        rt.delete();
+    });
 });
