@@ -361,8 +361,7 @@ void GenerateDefaultGlueCode(const SkShaderInfo* shaderInfo,
         separator = ", ";
 
         if (i == 0 && reader.entry()->needsLocalCoords()) {
-            *mainBody += get_mangled_name("preLocal", entryIndex);
-            *mainBody += " * dev2LocalUni";
+            *mainBody += currentPreLocalName + " * dev2LocalUni";
         } else {
             *mainBody += entry->getMangledUniformName(i, entryIndex);
         }
@@ -517,7 +516,6 @@ void GenerateImageShaderGlueCode(const SkShaderInfo*,
                                  int indent) {
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
     std::string samplerVarName = std::string("sampler_") + std::to_string(entryIndex) + "_0";
-    std::string preLocalMatrixVarName = get_mangled_name("preLocal", entryIndex);
 
     // Uniform slot 0 is used to make the preLocalMatrix; it's handled in emit_glue_code_for_entry.
     std::string subsetName = reader.entry()->getMangledUniformName(1, entryIndex);
@@ -530,7 +528,7 @@ void GenerateImageShaderGlueCode(const SkShaderInfo*,
     SkSL::String::appendf(mainBody,
                           "float2 coords = %s(%s * dev2LocalUni, %s, %s, %s, %s, %s);",
                           reader.entry()->fStaticFunctionName,
-                          preLocalMatrixVarName.c_str(),
+                          currentPreLocalName.c_str(),
                           subsetName.c_str(),
                           tmXName.c_str(),
                           tmYName.c_str(),
@@ -653,14 +651,12 @@ void GenerateRuntimeShaderGlueCode(const SkShaderInfo* shaderInfo,
     SkASSERT(entry->needsLocalCoords());
     SkASSERT(reader.entry()->fUniforms[0].type() == SkSLType::kFloat4x4);
 
-    std::string preLocalMatrixVarName = get_mangled_name("preLocal", entryIndex);
-
     add_indent(mainBody, indent);
     SkSL::String::appendf(mainBody,
                           "%s = %s_%d((%s * dev2LocalUni * sk_FragCoord).xy, (%s));\n",
                           resultName.c_str(),
                           entry->fName, entryIndex,
-                          preLocalMatrixVarName.c_str(),
+                          currentPreLocalName.c_str(),
                           priorStageOutputName.c_str());
 #endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
 }
