@@ -765,6 +765,18 @@ describe('Core canvas behavior', () => {
         textFont.delete();
     });
 
+    gm('luma_filter', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+        const paint = new CanvasKit.Paint();
+        paint.setAntiAlias(true);
+        const lumaCF = CanvasKit.ColorFilter.MakeLuma();
+        paint.setColor(CanvasKit.BLUE);
+        paint.setColorFilter(lumaCF);
+        canvas.drawCircle(256, 256, 256, paint);
+        paint.delete();
+        lumaCF.delete();
+    });
+
     gm('combined_filters', (canvas, fetchedByteBuffers) => {
         const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(img).toBeTruthy();

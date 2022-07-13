@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - The following ImageFilter factory methods: `MakeBlend`, `MakeDilate`, `MakeDisplacementMap`, 
    `MakeDropShadow`, `MakeDropShadowOnly`, `MakeErode`, `MakeImage`, and `MakeOffset`.
+ - The `MakeLuma` ColorFilter factory method.
 
 ### Changed
  - Updated `dtslint`, `typescript`, and `@webgpu/types` versions, used for testing index.d.ts types.

@@ -236,6 +236,7 @@ function colorFilterTests(CK: CanvasKit) {
     CK.ColorMatrix.postTranslate(cm, 20, 0, -10, 0);
 
     const filterSix = CK.ColorFilter.MakeMatrix(cm); // $ExpectType ColorFilter
+    const luma = CK.ColorFilter.MakeLumaColorFilter(); // $ExpectType ColorFilter
 }
 
 function contourMeasureTests(CK: CanvasKit, path?: Path) {

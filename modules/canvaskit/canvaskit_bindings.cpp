@@ -47,6 +47,7 @@
 #include "include/effects/SkDiscretePathEffect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/effects/SkLumaColorFilter.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
@@ -1307,7 +1308,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             float* twentyFloats = reinterpret_cast<float*>(fPtr);
             return SkColorFilters::Matrix(twentyFloats);
         }))
-        .class_function("MakeSRGBToLinearGamma", &SkColorFilters::SRGBToLinearGamma);
+        .class_function("MakeSRGBToLinearGamma", &SkColorFilters::SRGBToLinearGamma)
+        .class_function("MakeLuma", &SkLumaColorFilter::Make);
 
     class_<SkContourMeasureIter>("ContourMeasureIter")
         .constructor<const SkPath&, bool, SkScalar>()
