@@ -236,6 +236,10 @@ void VarDeclaration::ErrorCheck(const Context& context,
         permittedLayoutFlags &= ~Layout::kBinding_Flag;
         permittedLayoutFlags &= ~Layout::kSet_Flag;
     }
+    if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
+        // Disallow all layout flags except 'color' in runtime effects
+        permittedLayoutFlags &= Layout::kColor_Flag;
+    }
     modifiers.checkPermitted(context, modifiersPosition, permitted, permittedLayoutFlags);
 }
 

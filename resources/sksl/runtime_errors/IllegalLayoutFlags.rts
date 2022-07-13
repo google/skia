@@ -1,0 +1,30 @@
+layout(builtin=15)    float4 sk_FragCoord;
+layout(builtin=17)    bool sk_Clockwise;
+layout(builtin=10010) half4 input_color;
+
+layout(origin_upper_left)        float upper_left;
+layout(push_constant)            float push_constant;
+layout(location=0)               float location;
+layout(offset=0)                 float offset;
+layout(binding=0)                float binding;
+layout(index=0)                  float index;
+layout(set=0)                    float set;
+layout(input_attachment_index=0) float input_attachment_index;
+
+float4 main(float2 xy) {
+    return sk_FragCoord;
+}
+
+/*%%*
+layout qualifier 'builtin' is not permitted here
+layout qualifier 'builtin' is not permitted here
+layout qualifier 'builtin' is not permitted here
+layout qualifier 'origin_upper_left' is not permitted here
+layout qualifier 'push_constant' is not permitted here
+layout qualifier 'location' is not permitted here
+layout qualifier 'offset' is not permitted here
+layout qualifier 'binding' is not permitted here
+layout qualifier 'index' is not permitted here
+layout qualifier 'set' is not permitted here
+layout qualifier 'input_attachment_index' is not permitted here
+*%%*/
