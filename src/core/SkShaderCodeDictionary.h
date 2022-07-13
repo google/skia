@@ -47,12 +47,12 @@ enum class SnippetRequirementFlags : uint32_t {
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
 struct SkShaderSnippet {
-    using GenerateGlueCodeForEntry = void (*)(const std::string& resultName,
+    using GenerateGlueCodeForEntry = void (*)(const SkShaderInfo* shaderInfo,
+                                              const std::string& resultName,
                                               int entryIndex,  // for uniform name mangling
                                               const SkPaintParamsKey::BlockReader&,
-                                              const SkRuntimeEffectDictionary*,
                                               const std::string& priorStageOutputName,
-                                              const std::vector<std::string>& childNames,
+                                              const std::string& currentPreLocalName,
                                               std::string* preamble,
                                               std::string* mainBody,
                                               int indent);
@@ -113,6 +113,12 @@ public:
     bool needsLocalCoords() const {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
     }
+    const SkPaintParamsKey::BlockReader& blockReader(int index) const {
+        return fBlockReaders[index];
+    }
+    const SkRuntimeEffectDictionary* runtimeEffectDictionary() const {
+        return fRuntimeEffectDictionary;
+    }
 
 #ifdef SK_GRAPHITE_ENABLED
     void setBlendInfo(const skgpu::BlendInfo& blendInfo) {
@@ -126,13 +132,6 @@ public:
 #endif
 
 private:
-    std::string emitGlueCodeForEntry(int* entryIndex,
-                                     const std::string& priorStageOutputName,
-                                     const std::string& parentPreLocalName,
-                                     std::string* preamble,
-                                     std::string* mainBody,
-                                     int indent) const;
-
     std::vector<SkPaintParamsKey::BlockReader> fBlockReaders;
 
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags =SnippetRequirementFlags::kNone;
