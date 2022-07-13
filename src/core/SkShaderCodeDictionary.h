@@ -47,7 +47,7 @@ enum class SnippetRequirementFlags : uint32_t {
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
 struct SkShaderSnippet {
-    using GenerateGlueCodeForEntry = void (*)(const SkShaderInfo* shaderInfo,
+    using GenerateGlueCodeForEntry = void (*)(const SkShaderInfo& shaderInfo,
                                               const std::string& resultName,
                                               int entryIndex,  // for uniform name mangling
                                               const SkPaintParamsKey::BlockReader&,
