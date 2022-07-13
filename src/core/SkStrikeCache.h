@@ -207,6 +207,9 @@ public:
     sktext::ScopedStrikeForGPU findOrCreateScopedStrike(
             const SkStrikeSpec& strikeSpec) override SK_EXCLUDES(fLock);
 
+    sktext::StrikeRef findOrCreateStrikeRef(
+            const SkStrikeSpec& strikeSpec) override SK_EXCLUDES(fLock);
+
     static void PurgeAll();
     static void Dump();
 

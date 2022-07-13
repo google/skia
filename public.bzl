@@ -1633,6 +1633,7 @@ BASE_SRCS_ALL = [
     "src/sksl/transform/SkSLTransform.h",
     "src/text/GlyphRun.cpp",
     "src/text/GlyphRun.h",
+    "src/text/StrikeForGPU.cpp",
     "src/text/StrikeForGPU.h",
     "src/text/gpu/DistanceFieldAdjustTable.cpp",
     "src/text/gpu/DistanceFieldAdjustTable.h",
