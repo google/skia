@@ -37,33 +37,6 @@ std::string get_mangled_name(const std::string& baseName, int manglingSuffix) {
 void add_indent(std::string* result, int indent) {
     result->append(4*indent, ' ');
 }
-
-std::string generate_default_before_children_glue_code(int entryIndex,
-                                                       const SkPaintParamsKey::BlockReader& reader,
-                                                       const std::string& parentPreLocalName,
-                                                       int indent) {
-    std::string result;
-
-    if (reader.entry()->needsLocalCoords()) {
-        // Every snippet that requests local coordinates must have a preLocalMatrix as its first
-        // uniform
-        SkASSERT(reader.entry()->fUniforms.size() >= 1);
-        SkASSERT(reader.entry()->fUniforms[0].type() == SkSLType::kFloat4x4);
-
-        std::string localMatrixUniformName = reader.entry()->getMangledUniformName(0, entryIndex);
-
-        std::string preLocalMatrixVarName = get_mangled_name("preLocal", entryIndex);
-
-        add_indent(&result, indent);
-        SkSL::String::appendf(&result,
-                              "float4x4 %s = %s * %s;\n",
-                              preLocalMatrixVarName.c_str(),
-                              parentPreLocalName.c_str(),
-                              localMatrixUniformName.c_str());
-    }
-
-    return result;
-}
 #endif
 
 } // anonymous namespace
@@ -88,6 +61,25 @@ std::string GetMtlUniforms(int bufferID,
 std::string GetMtlTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockReader>&,
                                       int* binding);
 } // namespace skgpu::graphite
+
+// Returns an expression to calculate the pre-local matrix for a given entry.
+
+static std::string pre_local_matrix_for_entry(const SkShaderInfo* shaderInfo,
+                                              int entryIndex,
+                                              const std::string& parentMatrix) {
+    const SkPaintParamsKey::BlockReader& reader = shaderInfo->blockReader(entryIndex);
+    if (!reader.entry()->needsLocalCoords()) {
+        // Return the parent matrix as-is.
+        return parentMatrix;
+    }
+
+    // The snippet requested local coordinates, so the pre-local matrix must be its first uniform.
+    SkASSERT(reader.entry()->fUniforms.size() >= 1);
+    SkASSERT(reader.entry()->fUniforms.front().type() == SkSLType::kFloat4x4);
+
+    std::string localMatrixUniformName = reader.entry()->getMangledUniformName(0, entryIndex);
+    return SkSL::String::printf("(%s * %s)", parentMatrix.c_str(), localMatrixUniformName.c_str());
+}
 
 // Emit the glue code needed to invoke a single static helper isolated within its own scope.
 // Glue code will assign the resulting color into a variable `half4 outColor%d`, where the %d is
@@ -128,14 +120,19 @@ static std::string emit_glue_code_for_entry(const SkShaderInfo* shaderInfo,
     add_indent(mainBody, indent);
     *mainBody += "{\n";
 
-    *mainBody += generate_default_before_children_glue_code(curEntryIndex, reader,
-                                                            parentPreLocalName, indent + 1);
-
-    // TODO: this could be returned by generate_default_before_children_glue_code
     std::string currentPreLocalName;
     if (reader.entry()->needsLocalCoords()) {
         currentPreLocalName = get_mangled_name("preLocal", curEntryIndex);
+        std::string preLocalExpression = pre_local_matrix_for_entry(shaderInfo,
+                                                                    *entryIndex,
+                                                                    parentPreLocalName);
+        add_indent(mainBody, indent + 1);
+        SkSL::String::appendf(mainBody,
+                              "float4x4 %s = %s;\n",
+                              currentPreLocalName.c_str(),
+                              preLocalExpression.c_str());
     } else {
+        // Inherit the parent matrix; reuse the same variable instead of introducing a new one.
         currentPreLocalName = parentPreLocalName;
     }
 
@@ -522,8 +519,7 @@ void GenerateImageShaderGlueCode(const SkShaderInfo*,
     std::string samplerVarName = std::string("sampler_") + std::to_string(entryIndex) + "_0";
     std::string preLocalMatrixVarName = get_mangled_name("preLocal", entryIndex);
 
-    // Uniform slot 0 is being used for the localMatrix but is handled in
-    // generate_default_before_children_glue_code.
+    // Uniform slot 0 is used to make the preLocalMatrix; it's handled in emit_glue_code_for_entry.
     std::string subsetName = reader.entry()->getMangledUniformName(1, entryIndex);
     std::string tmXName = reader.entry()->getMangledUniformName(2, entryIndex);
     std::string tmYName = reader.entry()->getMangledUniformName(3, entryIndex);
