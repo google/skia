@@ -1702,36 +1702,54 @@ describe('Core canvas behavior', () => {
     gm('ImageFilter_MakeDisplacementMap', (canvas, fetchedByteBuffers) => {
         // See https://www.smashingmagazine.com/2021/09/deep-dive-wonderful-world-svg-displacement-filtering/
         // for a good writeup of displacement filters.
+        // https://jsfiddle.skia.org/canvaskit/27ba8450861fd4ec9632276dcdb2edd0d967070c2bb44e60f803597ff78ccda2
+        // is a way to play with how the color and scale interact.
         canvas.clear(CanvasKit.WHITE);
 
-        const DISPLACEMENT_SIZE = 255;
+        // As implemented, if the displacement map is smaller than the image * scale, things can
+        // look strange, with a copy of the image in the background. Making it the size
+        // of the canvas will at least mask the "ghost" image that shows up in the background.
+        const DISPLACEMENT_SIZE = CANVAS_HEIGHT;
+        const IMAGE_SIZE = 512;
+        const SCALE = 30;
         const pixels = [];
+        // Create a soft, oblong grid shape. This sort of makes it look like there is some warbly
+        // glass in front of the mandrill image.
         for (let y = 0; y < DISPLACEMENT_SIZE; y++) {
             for (let x = 0; x < DISPLACEMENT_SIZE; x++) {
-                pixels.push(255, 255, 0, 255);
+                if (x < SCALE/2 || y < SCALE/2 || x >= IMAGE_SIZE - SCALE/2 || y >= IMAGE_SIZE - SCALE/2) {
+                    // grey means no displacement. If we displace off the edge of the image, we'll
+                    // see strange transparent pixels showing up around the edges.
+                    pixels.push(127, 127, 127, 255);
+                } else {
+                    // Scale our sine wave from [-1, 1] to [0, 255] (which will be scaled by the
+                    // DisplacementMap back to [-1, 1].
+                    // Setting the alpha to be 255 doesn't impact the translation, but does
+                    // let us draw the image if we like.
+                    pixels.push(Math.sin(x/5)*255+127, Math.sin(y/3)*255+127, 0, 255);
+                }
             }
         }
         const mapImg = CanvasKit.MakeImage({
             width: DISPLACEMENT_SIZE,
             height: DISPLACEMENT_SIZE,
-            alphaType: CanvasKit.AlphaType.Unpremul,
+            // Premul is important - we do not want further division of our channels.
+            alphaType: CanvasKit.AlphaType.Premul,
             colorType: CanvasKit.ColorType.RGBA_8888,
             colorSpace: CanvasKit.ColorSpace.SRGB,
         }, Uint8ClampedArray.from(pixels), 4 * DISPLACEMENT_SIZE);
+        // To see just the displacement map, uncomment the lines below
+        // canvas.drawImage(mapImg, 0, 0, null);
+        // return;
         const map = CanvasKit.ImageFilter.MakeImage(mapImg, {C: 1/3, B:1/3});
 
+        const displaced = CanvasKit.ImageFilter.MakeDisplacementMap(CanvasKit.ColorChannel.Red,
+                                CanvasKit.ColorChannel.Green, SCALE, map, null);
         const paint = new CanvasKit.Paint();
-
+        paint.setImageFilter(displaced);
         const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(img).toBeTruthy();
-        // TODO(michaelludwig, kjlubick) Investigate why this doesn't render quite right.
-        //canvas.drawImage(img, 10, 20, paint);
-        //canvas.drawImage(mapImg, 0, 0, paint);
-
-        const displaced = CanvasKit.ImageFilter.MakeDisplacementMap(CanvasKit.ColorChannel.Red,
-                                CanvasKit.ColorChannel.Green, 512, map, null);
-        paint.setImageFilter(displaced);
-        canvas.drawImage(img, 10, 20, paint);
+        canvas.drawImage(img, 0, 0, paint);
 
         mapImg.delete();
         img.delete();
