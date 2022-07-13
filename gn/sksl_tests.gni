@@ -749,6 +749,7 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/IllegalArrayOps.rts",
   "/sksl/runtime_errors/IllegalIndexing.rts",
   "/sksl/runtime_errors/IllegalLayoutFlags.rts",
+  "/sksl/runtime_errors/IllegalModifiers.rts",
   "/sksl/runtime_errors/IllegalOperators.rts",
   "/sksl/runtime_errors/IllegalPrecisionQualifiers.rts",
   "/sksl/runtime_errors/IllegalShaderSampling.rts",

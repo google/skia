@@ -33,8 +33,8 @@ half4  dangling_eval()     { s1.eval; }
 
 /*%%*
 variables of type 'shader' must be uniform
-'in' variables not permitted in runtime effects
 variables of type 'shader' must be uniform
+'in' is not permitted here
 opaque type 'shader' is not permitted in a struct
 variables of type 'S' may not be uniform
 opaque type 'shader' may not be used in an array

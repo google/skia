@@ -940,8 +940,14 @@ DSLModifiers DSLParser::modifiers() {
         if (!tokenFlag) {
             break;
         }
+        Token modifier = this->nextToken();
+        // We have to check for this (internal) modifier here. It's automatically added to user
+        // functions before the IR is built, so testing for it in Convert gives false positives.
+        if (tokenFlag == Modifiers::kHasSideEffects_Flag && !ThreadContext::IsModule()) {
+            this->error(modifier, "'sk_has_side_effects' is not permitted here");
+        }
         flags |= tokenFlag;
-        end = this->position(this->nextToken()).endOffset();
+        end = this->position(modifier).endOffset();
     }
     return DSLModifiers(std::move(layout), flags, Position::Range(start, end));
 }

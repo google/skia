@@ -179,11 +179,6 @@ void VarDeclaration::ErrorCheck(const Context& context,
     if ((modifiers.fFlags & Modifiers::kUniform_Flag)) {
         check_valid_uniform_type(pos, baseType, context);
     }
-    if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
-        if (modifiers.fFlags & Modifiers::kIn_Flag) {
-            context.fErrors->error(pos, "'in' variables not permitted in runtime effects");
-        }
-    }
     if (baseType->isEffectChild() && !(modifiers.fFlags & Modifiers::kUniform_Flag)) {
         context.fErrors->error(pos,
                 "variables of type '" + baseType->displayName() + "' must be uniform");
@@ -213,14 +208,25 @@ void VarDeclaration::ErrorCheck(const Context& context,
     int permitted = Modifiers::kConst_Flag | Modifiers::kHighp_Flag | Modifiers::kMediump_Flag |
                     Modifiers::kLowp_Flag;
     if (storage == Variable::Storage::kGlobal) {
-        permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag;
         if (!ProgramConfig::IsCompute(context.fConfig->fKind)) {
-            permitted |= Modifiers::kUniform_Flag | Modifiers::kFlat_Flag |
-                    Modifiers::kNoPerspective_Flag;
-        } else if (!baseType->isOpaque()) {
-            permitted |= Modifiers::kThreadgroup_Flag;
+            permitted |= Modifiers::kUniform_Flag;
+        }
+
+        // No other modifiers are allowed in runtime effects
+        if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
+            permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag;
+            if (!ProgramConfig::IsCompute(context.fConfig->fKind)) {
+                permitted |= Modifiers::kFlat_Flag | Modifiers::kNoPerspective_Flag;
+            } else if (!baseType->isOpaque()) {
+                permitted |= Modifiers::kThreadgroup_Flag;
+            }
         }
     }
+    // This modifier isn't actually allowed on variables, at all. However, it's restricted to only
+    // appear in module code by the parser. We "allow" it here, to avoid double-reporting errors.
+    // This means that module code could put it on a variable (to no effect). We'll live with that.
+    permitted |= Modifiers::kHasSideEffects_Flag;
+
     // TODO(skbug.com/11301): Migrate above checks into building a mask of permitted layout flags
 
     int permittedLayoutFlags = ~0;
