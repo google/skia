@@ -12,7 +12,6 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/shaders/gradients/SkGradientShaderBase.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
-#include "src/shaders/gradients/SkRadialGradient.h"
 #include "src/shaders/gradients/SkSweepGradient.h"
 #include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 
@@ -27,9 +26,6 @@ namespace GrGradientShader {
                                                         const SkMatrix* overrideMatrix = nullptr);
 
     std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
-                                                    const GrFPArgs& args);
-
-    std::unique_ptr<GrFragmentProcessor> MakeRadial(const SkRadialGradient& shader,
                                                     const GrFPArgs& args);
 
     std::unique_ptr<GrFragmentProcessor> MakeSweep(const SkSweepGradient& shader,

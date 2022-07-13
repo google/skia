@@ -174,4 +174,6 @@ struct SkColor4fXformer {
     SkSTArray<4, SkColor4f, true> fStorage;
 };
 
+void SkRegisterRadialGradientShaderFlattenable();
+
 #endif
