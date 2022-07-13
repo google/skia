@@ -411,6 +411,7 @@ DAWN_SRCS = [
     "src/dawn/native/ToBackend.h",
     "src/dawn/native/Toggles.cpp",
     "src/dawn/native/Toggles.h",
+    "src/dawn/native/UsageValidationMode.h",
     "src/dawn/native/VertexFormat.cpp",
     "src/dawn/native/VertexFormat.h",
     "src/dawn/native/dawn_platform.h",
