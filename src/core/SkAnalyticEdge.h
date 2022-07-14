@@ -41,6 +41,8 @@ struct SkAnalyticEdge {
     SkFixed fSavedY;        // For deferred blitting
     SkFixed fSavedDY;       // For deferred blitting
 
+    Type    fEdgeType;      // Remembers the *initial* edge type
+
     int8_t  fCurveCount;    // only used by kQuad(+) and kCubic(-)
     uint8_t fCurveShift;    // appled to all Dx/DDx/DDDx except for fCubicDShift exception
     uint8_t fCubicDShift;   // applied to fCDx and fCDy only in cubic

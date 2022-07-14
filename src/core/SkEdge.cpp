@@ -52,8 +52,7 @@ void SkEdge::dump() const {
 }
 #endif
 
-int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
-                    int shift) {
+int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip, int shift) {
     SkFDot6 x0, y0, x1, y1;
 
     {
@@ -99,6 +98,7 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
     fDX         = slope;
     fFirstY     = top;
     fLastY      = bot - 1;
+    fEdgeType   = kLine_Type;
     fCurveCount = 0;
     fWinding    = SkToS8(winding);
     fCurveShift = 0;
@@ -255,6 +255,7 @@ bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift)
 
     fWinding    = SkToS8(winding);
     //fCubicDShift only set for cubics
+    fEdgeType   = kQuad_Type;
     fCurveCount = SkToS8(1 << shift);
 
     /*
@@ -439,6 +440,7 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool so
     }
 
     fWinding    = SkToS8(winding);
+    fEdgeType   = kCubic_Type;
     fCurveCount = SkToS8(SkLeftShift(-1, shift));
     fCurveShift = SkToU8(shift);
     fCubicDShift = SkToU8(downShift);

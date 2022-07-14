@@ -5911,3 +5911,22 @@ DEF_TEST(path_moveto_twopass_convexity, r) {
     pathWithExtraMoveTo.addPath(path);
     REPORTER_ASSERT(r, !pathWithExtraMoveTo.isConvex());
 }
+
+// crbug.com/1154864
+DEF_TEST(path_walk_simple_edges_1154864, r) {
+    // Drawing this path triggered an assert in walk_simple_edges:
+    auto surface = SkSurface::MakeRasterN32Premul(32, 32);
+
+    SkPath path;
+    path.setFillType(SkPathFillType::kWinding);
+    path.moveTo(0.00665998459f, 2);
+    path.quadTo(0.00665998459f, 4, -1.99334002f, 4);
+    path.quadTo(-3.99334002f, 4, -3.99334002f, 2);
+    path.quadTo(-3.99334002f, 0, -1.99334002f, 0);
+    path.quadTo(0.00665998459f, 0, 0.00665998459f, 2);
+    path.close();
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    surface->getCanvas()->drawPath(path, paint);
+}

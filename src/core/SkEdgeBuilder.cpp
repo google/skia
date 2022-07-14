@@ -17,7 +17,9 @@
 #include "src/core/SkSafeMath.h"
 
 SkEdgeBuilder::Combine SkBasicEdgeBuilder::combineVertical(const SkEdge* edge, SkEdge* last) {
-    if (last->fCurveCount || last->fDX || edge->fX != last->fX) {
+    // We only consider edges that were originally lines to be vertical to avoid numerical issues
+    // (crbug.com/1154864).
+    if (last->fEdgeType != SkEdge::kLine_Type || last->fDX || edge->fX != last->fX) {
         return kNo_Combine;
     }
     if (edge->fWinding == last->fWinding) {
@@ -63,7 +65,9 @@ SkEdgeBuilder::Combine SkAnalyticEdgeBuilder::combineVertical(const SkAnalyticEd
         return SkAbs32(a - b) < 0x100;
     };
 
-    if (last->fCurveCount || last->fDX || edge->fX != last->fX) {
+    // We only consider edges that were originally lines to be vertical to avoid numerical issues
+    // (crbug.com/1154864).
+    if (last->fEdgeType != SkAnalyticEdge::kLine_Type || last->fDX || edge->fX != last->fX) {
         return kNo_Combine;
     }
     if (edge->fWinding == last->fWinding) {
@@ -109,8 +113,10 @@ SkEdgeBuilder::Combine SkAnalyticEdgeBuilder::combineVertical(const SkAnalyticEd
 
 template <typename Edge>
 static bool is_vertical(const Edge* edge) {
-    return edge->fDX         == 0
-        && edge->fCurveCount == 0;
+    // We only consider edges that were originally lines to be vertical to avoid numerical issues
+    // (crbug.com/1154864).
+    return edge->fDX       == 0
+        && edge->fEdgeType == Edge::kLine_Type;
 }
 
 // TODO: we can deallocate the edge if edge->setFoo() fails

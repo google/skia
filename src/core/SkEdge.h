@@ -32,7 +32,8 @@ struct SkEdge {
     SkFixed fDX;
     int32_t fFirstY;
     int32_t fLastY;
-    int8_t fCurveCount;    // only used by kQuad(+) and kCubic(-)
+    Type    fEdgeType;      // Remembers the *initial* edge type
+    int8_t  fCurveCount;    // only used by kQuad(+) and kCubic(-)
     uint8_t fCurveShift;    // appled to all Dx/DDx/DDDx except for fCubicDShift exception
     uint8_t fCubicDShift;   // applied to fCDx and fCDy only in cubic
     int8_t  fWinding;       // 1 or -1
@@ -126,6 +127,7 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     fDX         = slope;
     fFirstY     = top;
     fLastY      = bot - 1;
+    fEdgeType   = kLine_Type;
     fCurveCount = 0;
     fWinding    = SkToS8(winding);
     fCurveShift = 0;

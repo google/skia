@@ -270,6 +270,7 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
     fDY         = dx == 0 || slope == 0 ? SK_MaxS32 : absSlope < kInverseTableSize
                                                     ? quick_inverse(absSlope)
                                                     : SkAbs32(quick_div(dy, dx));
+    fEdgeType   = kLine_Type;
     fCurveCount = 0;
     fWinding    = SkToS8(winding);
     fCurveShift = 0;
@@ -352,6 +353,7 @@ bool SkAnalyticQuadraticEdge::setQuadratic(const SkPoint pts[3]) {
     fQEdge.fQLastY = SnapY(fQEdge.fQLastY);
 
     fWinding = fQEdge.fWinding;
+    fEdgeType = kQuad_Type;
     fCurveCount = fQEdge.fCurveCount;
     fCurveShift = fQEdge.fCurveShift;
 
@@ -444,6 +446,7 @@ bool SkAnalyticCubicEdge::setCubic(const SkPoint pts[4], bool sortY) {
     fCEdge.fCLastY = SnapY(fCEdge.fCLastY);
 
     fWinding = fCEdge.fWinding;
+    fEdgeType = kCubic_Type;
     fCurveCount = fCEdge.fCurveCount;
     fCurveShift = fCEdge.fCurveShift;
     fCubicDShift = fCEdge.fCubicDShift;
