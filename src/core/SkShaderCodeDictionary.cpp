@@ -315,9 +315,40 @@ void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkSha
 //--------------------------------------------------------------------------------------------------
 namespace {
 
+#if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
+static std::string append_default_snippet_arguments(const SkShaderSnippet* entry,
+                                                    int entryIndex,
+                                                    const std::string& currentPreLocalName,
+                                                    SkSpan<const std::string> childOutputs) {
+    std::string code = "(";
+
+    // Append uniform names.
+    const char* separator = "";
+    for (size_t i = 0; i < entry->fUniforms.size(); ++i) {
+        code += separator;
+        separator = ", ";
+
+        if (i == 0 && entry->needsLocalCoords()) {
+            code += currentPreLocalName + " * dev2LocalUni";
+        } else {
+            code += entry->getMangledUniformName(i, entryIndex);
+        }
+    }
+
+    // Append child output names.
+    for (const std::string& childOutputVar : childOutputs) {
+        code += separator;
+        separator = ", ";
+        code += childOutputVar;
+    }
+    code.push_back(')');
+
+    return code;
+}
+#endif
+
 // The default glue code just calls a helper function with the signature:
-//    half4 fStaticFunctionName(/* all uniforms as parameters */,
-//                              /* all child output variable names as parameters */);
+//    half4 BuiltinFunctionName(/* all uniforms as parameters */);
 // and stores the result in a variable named "resultName".
 void GenerateDefaultGlueCode(const SkShaderInfo& shaderInfo,
                              const std::string& resultName,
@@ -330,9 +361,47 @@ void GenerateDefaultGlueCode(const SkShaderInfo& shaderInfo,
                              int indent) {
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
     const SkShaderSnippet* entry = reader.entry();
-    int curEntryIndex = *entryIndex;
+    SkASSERT(entry->fNumChildren == 0);
+
+    if (entry->needsLocalCoords()) {
+        // Any snippet that requests local coordinates must have a localMatrix as its first uniform.
+        SkASSERT(entry->fUniforms.size() >= 1);
+        SkASSERT(entry->fUniforms.front().type() == SkSLType::kFloat4x4);
+    }
+
+    add_indent(mainBody, indent);
+    SkSL::String::appendf(mainBody, "%s = %s", resultName.c_str(), entry->fStaticFunctionName);
+    *mainBody += append_default_snippet_arguments(entry, *entryIndex, currentPreLocalName,
+                                                  /*childOutputs=*/{});
+    *mainBody += ";\n";
+#endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
+}
+
+// The default-with-children glue code just calls a helper function with the signature:
+//    half4 BuiltinFunctionName(/* all uniforms as parameters */,
+//                              /* all child output variable names as parameters */);
+// and stores the result in a variable named "resultName".
+void GenerateDefaultGlueCodeWithChildren(const SkShaderInfo& shaderInfo,
+                                         const std::string& resultName,
+                                         int* entryIndex,
+                                         const SkPaintParamsKey::BlockReader& reader,
+                                         const std::string& priorStageOutputName,
+                                         const std::string& currentPreLocalName,
+                                         std::string* preamble,
+                                         std::string* mainBody,
+                                         int indent) {
+#if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
+    const SkShaderSnippet* entry = reader.entry();
+    SkASSERT(entry->fNumChildren > 0);
+
+    if (entry->needsLocalCoords()) {
+        // Any snippet that requests local coordinates must have a localMatrix as its first uniform.
+        SkASSERT(entry->fUniforms.size() >= 1);
+        SkASSERT(entry->fUniforms.front().type() == SkSLType::kFloat4x4);
+    }
 
     // Invoke all children ahead of this entry's glue code.
+    int curEntryIndex = *entryIndex;
     std::vector<std::string> childOutputVarNames = emit_child_glue_code(shaderInfo,
                                                                         entryIndex,
                                                                         priorStageOutputName,
@@ -342,36 +411,11 @@ void GenerateDefaultGlueCode(const SkShaderInfo& shaderInfo,
                                                                         indent);
     SkASSERT((int)childOutputVarNames.size() == entry->fNumChildren);
 
-    if (entry->needsLocalCoords()) {
-        // Every snippet that requests local coordinates must have a localMatrix as its first
-        // uniform
-        SkASSERT(reader.entry()->fUniforms.size() >= 1);
-        SkASSERT(reader.entry()->fUniforms[0].type() == SkSLType::kFloat4x4);
-    }
-
     add_indent(mainBody, indent);
-    SkSL::String::appendf(mainBody,
-                          "%s = %s(",
-                          resultName.c_str(),
-                          entry->fStaticFunctionName);
-    const char* separator = "";
-    for (size_t i = 0; i < entry->fUniforms.size(); ++i) {
-        *mainBody += separator;
-        separator = ", ";
-
-        if (i == 0 && reader.entry()->needsLocalCoords()) {
-            *mainBody += currentPreLocalName + " * dev2LocalUni";
-        } else {
-            *mainBody += entry->getMangledUniformName(i, curEntryIndex);
-        }
-    }
-    for (size_t i = 0; i < childOutputVarNames.size(); ++i) {
-        *mainBody += separator;
-        separator = ", ";
-
-        *mainBody += childOutputVarNames[i];
-    }
-    *mainBody += ");\n";
+    SkSL::String::appendf(mainBody, "%s = %s", resultName.c_str(), entry->fStaticFunctionName);
+    *mainBody += append_default_snippet_arguments(entry, curEntryIndex, currentPreLocalName,
+                                                  childOutputVarNames);
+    *mainBody += ";\n";
 #endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
 }
 
@@ -1020,7 +1064,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             SnippetRequirementFlags::kLocalCoords,
             { },     // no samplers
             kLocalMatrixShaderName,
-            GenerateDefaultGlueCode,
+            GenerateDefaultGlueCodeWithChildren,
             kNumLocalMatrixShaderChildren,
             { }      // no data payload
     };
@@ -1040,7 +1084,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             SnippetRequirementFlags::kNone,
             { },     // no samplers
             kBlendShaderName,
-            GenerateDefaultGlueCode,
+            GenerateDefaultGlueCodeWithChildren,
             kNumBlendShaderChildren,
             { }      // no data payload
     };
