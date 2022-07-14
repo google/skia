@@ -318,6 +318,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
     SkPipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
 
+    int maxTexturesInSingleDraw = 0;
+
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
         // If we have two different descriptors, such that the uniforms from the PaintParams can be
         // bound independently of those used by the rest of the RenderStep, then we can upload now
@@ -371,6 +373,13 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 pipelineIndex = pipelineLookup->second;
             }
 
+
+            if (stepTextureBindingIndex.isValid()) {
+                auto textureDataBlock = textureDataCache->lookup(stepTextureBindingIndex);
+                int numTextures = textureDataBlock->numTextures();
+                maxTexturesInSingleDraw = std::max(maxTexturesInSingleDraw, numTextures);
+            }
+
             keys.push_back({&draw, stepIndex, pipelineIndex,
                             geometryUniformIndex,
                             stepShadingUniformIndex,
@@ -401,6 +410,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     TextureDataCache::Index lastTextureBindings;
     UniformDataCache::Index lastGeometryUniforms;
     SkIRect lastScissor = SkIRect::MakeSize(drawPass->fTarget->dimensions());
+    // We will reuse these vectors for all the draws as they are just meant for temporary storage
+    // as we are creating commands on the fCommandList.
+    std::vector<int> textureIndices(maxTexturesInSingleDraw);
+    std::vector<int> samplerIndices(maxTexturesInSingleDraw);
 
     // Set viewport to the entire texture for now (eventually, we may have logically smaller bounds
     // within an approx-sized texture). It is assumed that this also configures the sk_rtAdjust
@@ -454,8 +467,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 auto textureDataBlock = textureDataCache->lookup(key.textureBindings());
 
                 int numTextures = textureDataBlock->numTextures();
-                std::vector<int> textureIndices(numTextures);
-                std::vector<int> samplerIndices(numTextures);
+                SkASSERT(numTextures <= maxTexturesInSingleDraw);
                 for (int i = 0; i < numTextures; ++i) {
                     auto& info = textureDataBlock->texture(i);
                     std::tie(textureIndices[i], samplerIndices[i]) =
