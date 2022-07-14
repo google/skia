@@ -69,4 +69,14 @@ sk_sp<SkStrike> StrikeRef::getStrikeAndSetToNullptr() {
     }
     return nullptr;
 }
+
+StrikeForGPU* StrikeRef::asStrikeForGPU() {
+    if (sk_sp<SkStrike>* skStrike = std::get_if<sk_sp<SkStrike>>(&fStrike)) {
+        return skStrike->get();
+    } else if (StrikeForGPU** remoteStrike = std::get_if<StrikeForGPU*>(&fStrike)) {
+        return *remoteStrike;
+    }
+
+    SK_ABORT("Variant must be sk_sp<SkStrike> or StrikeForGPU*.");
+}
 }  // namespace sktext
