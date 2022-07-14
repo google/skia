@@ -12,7 +12,6 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/DrawTypes.h"
-#include "src/gpu/graphite/DrawWriter.h"
 
 namespace skgpu::graphite {
 
@@ -124,10 +123,10 @@ SKGPU_DRAW_PASS_COMMAND_TYPES(ASSERT_TRIV_DES)
 SKGPU_DRAW_PASS_COMMAND_TYPES(ASSERT_TRIV_CPY)
 #undef ASSERT_TRIV_CPY
 
-class List final : public DrawDispatcher {
+class List {
 public:
     List() = default;
-    ~List() override = default;
+    ~List() = default;
 
     void bindGraphicsPipeline(uint32_t pipelineIndex) {
         this->add<BindGraphicsPipeline>(pipelineIndex);
@@ -159,32 +158,31 @@ public:
         this->add<SetScissor>(scissor);
     }
 
-    // DrawDispatcher overrides
     void bindDrawBuffers(BindBufferInfo vertexAttribs,
                          BindBufferInfo instanceAttribs,
-                         BindBufferInfo indices) override {
+                         BindBufferInfo indices) {
         this->add<BindDrawBuffers>(vertexAttribs, instanceAttribs, indices);
     }
 
-    void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) override {
+    void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) {
         this->add<Draw>(type, baseVertex, vertexCount);
     }
 
     void drawIndexed(PrimitiveType type, unsigned int baseIndex,
-                     unsigned int indexCount, unsigned int baseVertex) override {
+                     unsigned int indexCount, unsigned int baseVertex) {
         this->add<DrawIndexed>(type, baseIndex, indexCount, baseVertex);
     }
 
     void drawInstanced(PrimitiveType type,
                        unsigned int baseVertex, unsigned int vertexCount,
-                       unsigned int baseInstance, unsigned int instanceCount) override {
+                       unsigned int baseInstance, unsigned int instanceCount) {
         this->add<DrawInstanced>(type, baseVertex, vertexCount, baseInstance, instanceCount);
     }
 
     void drawIndexedInstanced(PrimitiveType type,
                               unsigned int baseIndex, unsigned int indexCount,
                               unsigned int baseVertex, unsigned int baseInstance,
-                              unsigned int instanceCount) override {
+                              unsigned int instanceCount) {
         this->add<DrawIndexedInstanced>(type,
                                         baseIndex,
                                         indexCount,

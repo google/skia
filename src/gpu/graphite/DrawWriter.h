@@ -14,7 +14,9 @@
 
 namespace skgpu::graphite {
 
-class DrawDispatcher; // Forward declaration, handles virtual dispatch of binds/draws
+namespace DrawPassCommands {
+class List;
+}
 
 /**
  * DrawWriter is a helper around recording draws (to a temporary buffer or directly to a
@@ -53,10 +55,7 @@ class DrawWriter {
 public:
     // NOTE: This constructor creates a writer that defaults 0 vertex and instance stride, so
     // 'newPipelineState()' must be called once the pipeline properties are known before it's used.
-    DrawWriter(DrawDispatcher*, DrawBufferManager*);
-
-    DrawWriter(DrawDispatcher*, DrawBufferManager*,
-               PrimitiveType type, size_t vertexStride, size_t instanceStride);
+    DrawWriter(DrawPassCommands::List*, DrawBufferManager*);
 
     // Cannot move or copy
     DrawWriter(const DrawWriter&) = delete;
@@ -189,7 +188,7 @@ public:
 
 private:
     // Both of these pointers must outlive the DrawWriter.
-    DrawDispatcher*    fDispatcher;
+    DrawPassCommands::List* fCommandList;
     DrawBufferManager* fManager;
 
     // Pipeline state matching currently bound pipeline
@@ -228,29 +227,6 @@ private:
     // draws until the Appender is destructed).
     class Appender;
     SkDEBUGCODE(const Appender* fAppender = nullptr;)
-};
-
-// Mirrors the CommandBuffer API, since a DrawWriter is meant to aggregate and then map onto
-// CommandBuffer commands, although these are virtual to allow for recording to intermediate
-// storage before a CommandBuffer is available.
-class DrawDispatcher {
-public:
-    virtual ~DrawDispatcher() = default;
-
-    virtual void bindDrawBuffers(BindBufferInfo vertexAttribs,
-                                 BindBufferInfo instanceAttribs,
-                                 BindBufferInfo indices) = 0;
-
-    virtual void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) = 0;
-    virtual void drawIndexed(PrimitiveType type, unsigned int baseIndex,
-                             unsigned int indexCount, unsigned int baseVertex) = 0;
-    virtual void drawInstanced(PrimitiveType type,
-                               unsigned int baseVertex, unsigned int vertexCount,
-                               unsigned int baseInstance, unsigned int instanceCount) = 0;
-    virtual void drawIndexedInstanced(PrimitiveType type,
-                                      unsigned int baseIndex, unsigned int indexCount,
-                                      unsigned int baseVertex, unsigned int baseInstance,
-                                      unsigned int instanceCount) = 0;
 };
 
 // Appender implementations for DrawWriter that set the template on creation and provide a

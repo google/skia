@@ -9,22 +9,16 @@
 
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/DrawBufferManager.h"
+#include "src/gpu/graphite/DrawCommands.h"
 
 namespace skgpu::graphite {
 
-DrawWriter::DrawWriter(DrawDispatcher* dispatcher, DrawBufferManager* bufferManager)
-        : DrawWriter(dispatcher, bufferManager, PrimitiveType::kTriangles, 0, 0) {}
-
-DrawWriter::DrawWriter(DrawDispatcher* dispatcher,
-                       DrawBufferManager* bufferManager,
-                       PrimitiveType primitiveType,
-                       size_t vertexStride,
-                       size_t instanceStride)
-        : fDispatcher(dispatcher)
+DrawWriter::DrawWriter(DrawPassCommands::List* commandList, DrawBufferManager* bufferManager)
+        : fCommandList(commandList)
         , fManager(bufferManager)
-        , fPrimitiveType(primitiveType)
-        , fVertexStride(vertexStride)
-        , fInstanceStride(instanceStride)
+        , fPrimitiveType(PrimitiveType::kTriangles)
+        , fVertexStride(0)
+        , fInstanceStride(0)
         , fVertices()
         , fIndices()
         , fInstances()
@@ -32,7 +26,7 @@ DrawWriter::DrawWriter(DrawDispatcher* dispatcher,
         , fPendingCount(0)
         , fPendingBase(0)
         , fPendingBufferBinds(true) {
-    SkASSERT(dispatcher && bufferManager);
+    SkASSERT(commandList && bufferManager);
 }
 
 void DrawWriter::setTemplate(BindBufferInfo vertices,
@@ -89,7 +83,7 @@ void DrawWriter::flush() {
         return;
     }
     if (fPendingBufferBinds) {
-        fDispatcher->bindDrawBuffers(fVertices, fInstances, fIndices);
+        fCommandList->bindDrawBuffers(fVertices, fInstances, fIndices);
         fPendingBufferBinds = false;
     }
 
@@ -104,18 +98,18 @@ void DrawWriter::flush() {
         }
 
         if (fIndices) {
-            fDispatcher->drawIndexedInstanced(fPrimitiveType, 0, realVertexCount, 0,
-                                              fPendingBase, fPendingCount);
+            fCommandList->drawIndexedInstanced(fPrimitiveType, 0, realVertexCount, 0,
+                                               fPendingBase, fPendingCount);
         } else {
-            fDispatcher->drawInstanced(fPrimitiveType, 0, realVertexCount,
-                                       fPendingBase, fPendingCount);
+            fCommandList->drawInstanced(fPrimitiveType, 0, realVertexCount,
+                                        fPendingBase, fPendingCount);
         }
     } else {
         SkASSERT(!fInstances);
         if (fIndices) {
-            fDispatcher->drawIndexed(fPrimitiveType, 0, fPendingCount, fPendingBase);
+            fCommandList->drawIndexed(fPrimitiveType, 0, fPendingCount, fPendingBase);
         } else {
-            fDispatcher->draw(fPrimitiveType, fPendingBase, fPendingCount);
+            fCommandList->draw(fPrimitiveType, fPendingBase, fPendingCount);
         }
     }
 
