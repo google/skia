@@ -1543,7 +1543,13 @@ func (b *taskBuilder) commonTestPerfAssets() {
 			b.asset("linux_vulkan_sdk")
 		}
 		if b.matchGpu("Intel") {
-			b.asset("mesa_intel_driver_linux")
+			if b.matchGpu("IrisXe") {
+				b.asset("mesa_intel_driver_linux_22")
+			} else {
+				// Use this for legacy drivers that were culled in v22 of Mesa.
+				// https://www.phoronix.com/scan.php?page=news_item&px=Mesa-22.0-Drops-OpenSWR
+				b.asset("mesa_intel_driver_linux")
+			}
 		}
 	}
 }
