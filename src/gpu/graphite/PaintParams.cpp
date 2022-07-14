@@ -9,6 +9,7 @@
 
 #include "include/core/SkShader.h"
 #include "src/core/SkBlenderBase.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkPaintParamsKey.h"
@@ -20,15 +21,18 @@ namespace skgpu::graphite {
 
 PaintParams::PaintParams(const SkColor4f& color,
                          sk_sp<SkBlender> blender,
-                         sk_sp<SkShader> shader)
+                         sk_sp<SkShader> shader,
+                         sk_sp<SkColorFilter> colorFilter)
         : fColor(color)
         , fBlender(std::move(blender))
-        , fShader(std::move(shader)) {}
+        , fShader(std::move(shader))
+        , fColorFilter(std::move(colorFilter)) {}
 
 PaintParams::PaintParams(const SkPaint& paint)
         : fColor(paint.getColor4f())
         , fBlender(paint.refBlender())
-        , fShader(paint.refShader()) {}
+        , fShader(paint.refShader())
+        , fColorFilter(paint.refColorFilter()) {}
 
 PaintParams::PaintParams(const PaintParams& other) = default;
 PaintParams::~PaintParams() = default;
@@ -43,6 +47,8 @@ sk_sp<SkBlender> PaintParams::refBlender() const { return fBlender; }
 
 sk_sp<SkShader> PaintParams::refShader() const { return fShader; }
 
+sk_sp<SkColorFilter> PaintParams::refColorFilter() const { return fColorFilter; }
+
 void PaintParams::toKey(const SkKeyContext& keyContext,
                         SkPaintParamsKeyBuilder* builder,
                         SkPipelineDataGatherer* gatherer) const {
@@ -52,6 +58,10 @@ void PaintParams::toKey(const SkKeyContext& keyContext,
     } else {
         SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, fColor.premul());
         builder->endBlock();
+    }
+
+    if (fColorFilter) {
+        as_CFB(fColorFilter)->addToKey(keyContext, builder, gatherer);
     }
 
     if (fBlender) {

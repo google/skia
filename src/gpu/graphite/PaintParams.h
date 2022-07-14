@@ -27,7 +27,7 @@ namespace skgpu::graphite {
 // assumed to be anti-aliased.
 class PaintParams {
 public:
-    PaintParams(const SkColor4f& color, sk_sp<SkBlender>, sk_sp<SkShader>);
+    PaintParams(const SkColor4f& color, sk_sp<SkBlender>, sk_sp<SkShader>, sk_sp<SkColorFilter>);
     explicit PaintParams(const SkPaint&);
 
     PaintParams(const PaintParams&);
@@ -44,14 +44,19 @@ public:
     SkShader* shader() const { return fShader.get(); }
     sk_sp<SkShader> refShader() const;
 
+    SkColorFilter* colorFilter() const { return fColorFilter.get(); }
+    sk_sp<SkColorFilter> refColorFilter() const;
+
     void toKey(const SkKeyContext&,
                SkPaintParamsKeyBuilder*,
                SkPipelineDataGatherer*) const;
 
 private:
-    SkColor4f        fColor;
-    sk_sp<SkBlender> fBlender; // A nullptr here means SrcOver blending
-    sk_sp<SkShader>  fShader; // For now only use SkShader::asAGradient() when converting to GPU
+    SkColor4f            fColor;
+    sk_sp<SkBlender>     fBlender; // A nullptr here means SrcOver blending
+    sk_sp<SkShader>      fShader;
+    sk_sp<SkColorFilter> fColorFilter;
+
     // TODO: Will also store ColorFilter, dither, and any extra shader from an
     // active clipShader().
 };

@@ -18,6 +18,9 @@ class GrRecordingContext;
 class SkArenaAlloc;
 class SkBitmap;
 class SkColorSpace;
+class SkKeyContext;
+class SkPaintParamsKeyBuilder;
+class SkPipelineDataGatherer;
 class SkRuntimeEffect;
 struct SkStageRec;
 using GrFPResult = std::tuple<bool, std::unique_ptr<GrFragmentProcessor>>;
@@ -74,6 +77,20 @@ public:
     }
 
     virtual SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const;
+
+#ifdef SK_ENABLE_SKSL
+    /**
+        Add implementation details, for the specified backend, of this SkColorFilter to the
+        provided key.
+
+        @param keyContext backend context for key creation
+        @param builder    builder for creating the key for this SkShader
+        @param gatherer   if non-null, storage for this colorFilter's data
+    */
+    virtual void addToKey(const SkKeyContext& keyContext,
+                          SkPaintParamsKeyBuilder* builder,
+                          SkPipelineDataGatherer* gatherer) const {}
+#endif
 
 protected:
     SkColorFilterBase() {}
