@@ -46,12 +46,16 @@ void CommandBuffer::callFinishedProcs(bool success) {
     fFinishedProcs.reset();
 }
 
-bool CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
-                                    sk_sp<Texture> colorTexture,
-                                    sk_sp<Texture> resolveTexture,
-                                    sk_sp<Texture> depthStencilTexture) {
-    if (!this->onBeginRenderPass(renderPassDesc, colorTexture.get(), resolveTexture.get(),
-                                 depthStencilTexture.get())) {
+bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
+                                  sk_sp<Texture> colorTexture,
+                                  sk_sp<Texture> resolveTexture,
+                                  sk_sp<Texture> depthStencilTexture,
+                                  const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
+    if (!this->onAddRenderPass(renderPassDesc,
+                               colorTexture.get(),
+                               resolveTexture.get(),
+                               depthStencilTexture.get(),
+                               drawPasses)) {
         return false;
     }
 
@@ -64,62 +68,12 @@ bool CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     if (depthStencilTexture) {
         this->trackResource(std::move(depthStencilTexture));
     }
-#ifdef SK_DEBUG
-    if (renderPassDesc.fColorAttachment.fLoadOp == LoadOp::kClear &&
-        (renderPassDesc.fColorAttachment.fStoreOp == StoreOp::kStore ||
-         renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore)) {
-        fHasWork = true;
-    }
-#endif
+    // We just assume if you are adding a render pass that the render pass will actually do work. In
+    // theory we could have a discard load that doesn't submit any draws, clears, etc. But hopefully
+    // something so trivial would be caught before getting here.
+    SkDEBUGCODE(fHasWork = true;)
 
     return true;
-}
-
-void CommandBuffer::bindGraphicsPipeline(sk_sp<GraphicsPipeline> graphicsPipeline) {
-    this->onBindGraphicsPipeline(graphicsPipeline.get());
-    this->trackResource(std::move(graphicsPipeline));
-}
-
-void CommandBuffer::bindUniformBuffer(UniformSlot slot,
-                                      sk_sp<Buffer> uniformBuffer,
-                                      size_t offset) {
-    this->onBindUniformBuffer(slot, uniformBuffer.get(), offset);
-    this->trackResource(std::move(uniformBuffer));
-}
-
-void CommandBuffer::bindVertexBuffers(sk_sp<Buffer> vertexBuffer, size_t vertexOffset,
-                                      sk_sp<Buffer> instanceBuffer, size_t instanceOffset) {
-    this->onBindVertexBuffers(vertexBuffer.get(), vertexOffset,
-                              instanceBuffer.get(), instanceOffset);
-    if (vertexBuffer) {
-        this->trackResource(std::move(vertexBuffer));
-    }
-    if (instanceBuffer) {
-        this->trackResource(std::move(instanceBuffer));
-    }
-}
-
-void CommandBuffer::bindIndexBuffer(sk_sp<Buffer> indexBuffer, size_t bufferOffset) {
-    this->onBindIndexBuffer(indexBuffer.get(), bufferOffset);
-    if (indexBuffer) {
-        this->trackResource(std::move(indexBuffer));
-    }
-}
-
-void CommandBuffer::bindDrawBuffers(BindBufferInfo vertices,
-                                    BindBufferInfo instances,
-                                    BindBufferInfo indices) {
-    this->bindVertexBuffers(sk_ref_sp(vertices.fBuffer), vertices.fOffset,
-                            sk_ref_sp(instances.fBuffer), instances.fOffset);
-    this->bindIndexBuffer(sk_ref_sp(indices.fBuffer), indices.fOffset);
-}
-
-void CommandBuffer::bindTextureAndSampler(sk_sp<Texture> texture,
-                                          sk_sp<Sampler> sampler,
-                                          int bindIndex) {
-    this->onBindTextureAndSampler(texture, sampler, bindIndex);
-    this->trackResource(std::move(texture));
-    this->trackResource(std::move(sampler));
 }
 
 bool CommandBuffer::copyTextureToBuffer(sk_sp<Texture> texture,

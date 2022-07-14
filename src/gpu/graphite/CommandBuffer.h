@@ -23,6 +23,7 @@ class RefCntedCallback;
 
 namespace skgpu::graphite {
 class Buffer;
+class DrawPass;
 class Gpu;
 class GraphicsPipeline;
 class Resource;
@@ -46,59 +47,11 @@ public:
     void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
     void callFinishedProcs(bool success);
 
-    bool beginRenderPass(const RenderPassDesc&,
-                         sk_sp<Texture> colorTexture,
-                         sk_sp<Texture> resolveTexture,
-                         sk_sp<Texture> depthStencilTexture);
-    virtual void endRenderPass() = 0;
-
-    //---------------------------------------------------------------
-    // Can only be used within renderpasses
-    //---------------------------------------------------------------
-    void bindGraphicsPipeline(sk_sp<GraphicsPipeline> graphicsPipeline);
-    void bindUniformBuffer(UniformSlot, sk_sp<Buffer>, size_t bufferOffset);
-
-    void bindDrawBuffers(BindBufferInfo vertices,
-                         BindBufferInfo instances,
-                         BindBufferInfo indices);
-
-    void bindTextureAndSampler(sk_sp<Texture>, sk_sp<Sampler>, int bindIndex);
-
-    // TODO: do we want to handle multiple scissor rects and viewports?
-    void setScissor(unsigned int left, unsigned int top, unsigned int width, unsigned int height) {
-        this->onSetScissor(left, top, width, height);
-    }
-
-    void setViewport(float x, float y, float width, float height,
-                     float minDepth = 0, float maxDepth = 1) {
-        this->onSetViewport(x, y, width, height, minDepth, maxDepth);
-    }
-
-    void setBlendConstants(std::array<float, 4> blendConstants) {
-        this->onSetBlendConstants(blendConstants);
-    }
-
-    void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) {
-        this->onDraw(type, baseVertex, vertexCount);
-        SkDEBUGCODE(fHasWork = true;)
-    }
-    void drawIndexed(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
-                     unsigned int baseVertex) {
-        this->onDrawIndexed(type, baseIndex, indexCount, baseVertex);
-        SkDEBUGCODE(fHasWork = true;)
-    }
-    void drawInstanced(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount,
-                       unsigned int baseInstance, unsigned int instanceCount) {
-        this->onDrawInstanced(type, baseVertex, vertexCount, baseInstance, instanceCount);
-        SkDEBUGCODE(fHasWork = true;)
-    }
-    void drawIndexedInstanced(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
-                              unsigned int baseVertex, unsigned int baseInstance,
-                              unsigned int instanceCount) {
-        this->onDrawIndexedInstanced(type, baseIndex, indexCount, baseVertex, baseInstance,
-                                     instanceCount);
-        SkDEBUGCODE(fHasWork = true;)
-    }
+    bool addRenderPass(const RenderPassDesc&,
+                       sk_sp<Texture> colorTexture,
+                       sk_sp<Texture> resolveTexture,
+                       sk_sp<Texture> depthStencilTexture,
+                       const std::vector<std::unique_ptr<DrawPass>>& drawPasses);
 
     //---------------------------------------------------------------
     // Can only be used outside renderpasses
@@ -117,43 +70,11 @@ protected:
     CommandBuffer();
 
 private:
-    // TODO: Once all buffer use goes through the DrawBufferManager, we likely do not need to track
-    // refs every time a buffer is bound, since the DBM will transfer ownership for any used buffer
-    // to the CommandBuffer.
-    void bindVertexBuffers(sk_sp<Buffer> vertexBuffer, size_t vertexOffset,
-                           sk_sp<Buffer> instanceBuffer, size_t instanceOffset);
-    void bindIndexBuffer(sk_sp<Buffer> indexBuffer, size_t bufferOffset);
-
-    virtual bool onBeginRenderPass(const RenderPassDesc&,
-                                   const Texture* colorTexture,
-                                   const Texture* resolveTexture,
-                                   const Texture* depthStencilTexture) = 0;
-
-    virtual void onBindGraphicsPipeline(const GraphicsPipeline*) = 0;
-    virtual void onBindUniformBuffer(UniformSlot, const Buffer*, size_t bufferOffset) = 0;
-    virtual void onBindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
-                                     const Buffer* instanceBuffer, size_t instanceOffset) = 0;
-    virtual void onBindIndexBuffer(const Buffer* indexBuffer, size_t bufferOffset) = 0;
-
-    virtual void onBindTextureAndSampler(sk_sp<Texture>,
-                                         sk_sp<Sampler>,
-                                         unsigned int bindIndex) = 0;
-
-    virtual void onSetScissor(unsigned int left, unsigned int top,
-                              unsigned int width, unsigned int height) = 0;
-    virtual void onSetViewport(float x, float y, float width, float height,
-                               float minDepth, float maxDepth) = 0;
-    virtual void onSetBlendConstants(std::array<float, 4> blendConstants) = 0;
-
-    virtual void onDraw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) = 0;
-    virtual void onDrawIndexed(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
-                               unsigned int baseVertex) = 0;
-    virtual void onDrawInstanced(PrimitiveType type,
-                                 unsigned int baseVertex, unsigned int vertexCount,
-                                 unsigned int baseInstance, unsigned int instanceCount) = 0;
-    virtual void onDrawIndexedInstanced(PrimitiveType type, unsigned int baseIndex,
-                                        unsigned int indexCount, unsigned int baseVertex,
-                                        unsigned int baseInstance, unsigned int instanceCount) = 0;
+    virtual bool onAddRenderPass(const RenderPassDesc&,
+                                 const Texture* colorTexture,
+                                 const Texture* resolveTexture,
+                                 const Texture* depthStencilTexture,
+                                 const std::vector<std::unique_ptr<DrawPass>>& drawPasses) = 0;
 
     virtual bool onCopyTextureToBuffer(const Texture*,
                                        SkIRect srcRect,

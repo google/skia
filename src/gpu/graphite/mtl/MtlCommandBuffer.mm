@@ -72,10 +72,27 @@ bool MtlCommandBuffer::commit() {
     return ((*fCommandBuffer).status != MTLCommandBufferStatusError);
 }
 
-bool MtlCommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
-                                         const Texture* colorTexture,
-                                         const Texture* resolveTexture,
-                                         const Texture* depthStencilTexture) {
+bool MtlCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
+                                       const Texture* colorTexture,
+                                       const Texture* resolveTexture,
+                                       const Texture* depthStencilTexture,
+                                       const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
+    if (!this->beginRenderPass(renderPassDesc, colorTexture, resolveTexture, depthStencilTexture)) {
+        return false;
+    }
+
+    for (size_t i = 0; i < drawPasses.size(); ++i) {
+        this->addDrawPass(drawPasses[i].get());
+    }
+
+    this->endRenderPass();
+    return true;
+}
+
+bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
+                                       const Texture* colorTexture,
+                                       const Texture* resolveTexture,
+                                       const Texture* depthStencilTexture) {
     SkASSERT(!fActiveRenderCommandEncoder);
     this->endBlitCommandEncoder();
 #ifdef SK_BUILD_FOR_IOS
@@ -175,6 +192,92 @@ void MtlCommandBuffer::endRenderPass() {
     fActiveRenderCommandEncoder.reset();
 }
 
+void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
+    drawPass->addResourceRefs(this);
+
+    for (auto[type, cmdPtr] : drawPass->commands()) {
+        switch (type) {
+            case DrawPassCommands::Type::kBindGraphicsPipeline: {
+                auto bgp = static_cast<DrawPassCommands::BindGraphicsPipeline*>(cmdPtr);
+                this->bindGraphicsPipeline(drawPass->getPipeline(bgp->fPipelineIndex));
+                break;
+            }
+            case DrawPassCommands::Type::kSetBlendConstants: {
+                auto sbc = static_cast<DrawPassCommands::SetBlendConstants*>(cmdPtr);
+                this->setBlendConstants(sbc->fBlendConstants);
+                break;
+            }
+            case DrawPassCommands::Type::kBindUniformBuffer: {
+                auto bub = static_cast<DrawPassCommands::BindUniformBuffer*>(cmdPtr);
+                this->bindUniformBuffer(bub->fInfo, bub->fSlot);
+                break;
+            }
+            case DrawPassCommands::Type::kBindDrawBuffers: {
+                auto bdb = static_cast<DrawPassCommands::BindDrawBuffers*>(cmdPtr);
+                this->bindDrawBuffers(bdb->fVertices, bdb->fInstances, bdb->fIndices);
+                break;
+            }
+            case DrawPassCommands::Type::kBindTexturesAndSamplers: {
+                auto bts = static_cast<DrawPassCommands::BindTexturesAndSamplers*>(cmdPtr);
+                for (int j = 0; j < bts->fNumTexSamplers; ++j) {
+                    this->bindTextureAndSampler(drawPass->getTexture(bts->fTextureIndices[j]),
+                                                drawPass->getSampler(bts->fSamplerIndices[j]),
+                                                j);
+                }
+                break;
+            }
+            case DrawPassCommands::Type::kSetViewport: {
+                auto sv = static_cast<DrawPassCommands::SetViewport*>(cmdPtr);
+                this->setViewport(sv->fViewport.fLeft,
+                                  sv->fViewport.fTop,
+                                  sv->fViewport.width(),
+                                  sv->fViewport.height(),
+                                  sv->fMinDepth,
+                                  sv->fMaxDepth);
+                break;
+            }
+            case DrawPassCommands::Type::kSetScissor: {
+                auto ss = static_cast<DrawPassCommands::SetScissor*>(cmdPtr);
+                const SkIRect& rect = ss->fScissor;
+                this->setScissor(rect.fLeft, rect.fTop, rect.width(), rect.height());
+                break;
+            }
+            case DrawPassCommands::Type::kDraw: {
+                auto draw = static_cast<DrawPassCommands::Draw*>(cmdPtr);
+                this->draw(draw->fType, draw->fBaseVertex, draw->fVertexCount);
+                break;
+            }
+            case DrawPassCommands::Type::kDrawIndexed: {
+                auto draw = static_cast<DrawPassCommands::DrawIndexed*>(cmdPtr);
+                this->drawIndexed(draw->fType,
+                                  draw->fBaseIndex,
+                                  draw->fIndexCount,
+                                  draw->fBaseVertex);
+                break;
+            }
+            case DrawPassCommands::Type::kDrawInstanced: {
+                auto draw = static_cast<DrawPassCommands::DrawInstanced*>(cmdPtr);
+                this->drawInstanced(draw->fType,
+                                    draw->fBaseVertex,
+                                    draw->fVertexCount,
+                                    draw->fBaseInstance,
+                                    draw->fInstanceCount);
+                break;
+            }
+            case DrawPassCommands::Type::kDrawIndexedInstanced: {
+                auto draw = static_cast<DrawPassCommands::DrawIndexedInstanced*>(cmdPtr);
+                this->drawIndexedInstanced(draw->fType,
+                                           draw->fBaseIndex,
+                                           draw->fIndexCount,
+                                           draw->fBaseVertex,
+                                           draw->fBaseInstance,
+                                           draw->fInstanceCount);
+                break;
+            }
+        }
+    }
+}
+
 MtlBlitCommandEncoder* MtlCommandBuffer::getBlitCommandEncoder() {
     if (fActiveBlitCommandEncoder) {
         return fActiveBlitCommandEncoder.get();
@@ -205,7 +308,7 @@ void MtlCommandBuffer::endBlitCommandEncoder() {
     }
 }
 
-void MtlCommandBuffer::onBindGraphicsPipeline(const GraphicsPipeline* graphicsPipeline) {
+void MtlCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPipeline) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     auto mtlPipeline = static_cast<const MtlGraphicsPipeline*>(graphicsPipeline);
@@ -220,13 +323,11 @@ void MtlCommandBuffer::onBindGraphicsPipeline(const GraphicsPipeline* graphicsPi
     fCurrentInstanceStride = mtlPipeline->instanceStride();
 }
 
-void MtlCommandBuffer::onBindUniformBuffer(UniformSlot slot,
-                                           const Buffer* uniformBuffer,
-                                           size_t uniformOffset) {
+void MtlCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot slot) {
     SkASSERT(fActiveRenderCommandEncoder);
 
-    id<MTLBuffer> mtlBuffer = uniformBuffer ?
-            static_cast<const MtlBuffer*>(uniformBuffer)->mtlBuffer() : nullptr;
+    id<MTLBuffer> mtlBuffer = info.fBuffer ?
+            static_cast<const MtlBuffer*>(info.fBuffer)->mtlBuffer() : nullptr;
 
     unsigned int bufferIndex;
     switch(slot) {
@@ -238,14 +339,24 @@ void MtlCommandBuffer::onBindUniformBuffer(UniformSlot slot,
             break;
     }
 
-    fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, uniformOffset, bufferIndex);
-    fActiveRenderCommandEncoder->setFragmentBuffer(mtlBuffer, uniformOffset, bufferIndex);
+    fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, info.fOffset, bufferIndex);
+    fActiveRenderCommandEncoder->setFragmentBuffer(mtlBuffer, info.fOffset, bufferIndex);
 }
 
-void MtlCommandBuffer::onBindVertexBuffers(const Buffer* vertexBuffer,
-                                           size_t vertexOffset,
-                                           const Buffer* instanceBuffer,
-                                           size_t instanceOffset) {
+void MtlCommandBuffer::bindDrawBuffers(const BindBufferInfo& vertices,
+                                       const BindBufferInfo& instances,
+                                       const BindBufferInfo& indices) {
+    this->bindVertexBuffers(vertices.fBuffer,
+                            vertices.fOffset,
+                            instances.fBuffer,
+                            instances.fOffset);
+    this->bindIndexBuffer(indices.fBuffer, indices.fOffset);
+}
+
+void MtlCommandBuffer::bindVertexBuffers(const Buffer* vertexBuffer,
+                                         size_t vertexOffset,
+                                         const Buffer* instanceBuffer,
+                                         size_t instanceOffset) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     if (vertexBuffer) {
@@ -264,7 +375,7 @@ void MtlCommandBuffer::onBindVertexBuffers(const Buffer* vertexBuffer,
     }
 }
 
-void MtlCommandBuffer::onBindIndexBuffer(const Buffer* indexBuffer, size_t offset) {
+void MtlCommandBuffer::bindIndexBuffer(const Buffer* indexBuffer, size_t offset) {
     if (indexBuffer) {
         fCurrentIndexBuffer = static_cast<const MtlBuffer*>(indexBuffer)->mtlBuffer();
         fCurrentIndexBufferOffset = offset;
@@ -274,26 +385,26 @@ void MtlCommandBuffer::onBindIndexBuffer(const Buffer* indexBuffer, size_t offse
     }
 }
 
-void MtlCommandBuffer::onBindTextureAndSampler(sk_sp<Texture> texture,
-                                               sk_sp<Sampler> sampler,
-                                               unsigned int bindIndex) {
+void MtlCommandBuffer::bindTextureAndSampler(const Texture* texture,
+                                             const Sampler* sampler,
+                                             unsigned int bindIndex) {
     SkASSERT(texture && sampler);
 
-    id<MTLTexture> mtlTexture = ((MtlTexture*)texture.get())->mtlTexture();
-    id<MTLSamplerState> mtlSamplerState = ((MtlSampler*)sampler.get())->mtlSamplerState();
+    id<MTLTexture> mtlTexture = ((const MtlTexture*)texture)->mtlTexture();
+    id<MTLSamplerState> mtlSamplerState = ((const MtlSampler*)sampler)->mtlSamplerState();
     fActiveRenderCommandEncoder->setFragmentTexture(mtlTexture, bindIndex);
     fActiveRenderCommandEncoder->setFragmentSamplerState(mtlSamplerState, bindIndex);
 }
 
-void MtlCommandBuffer::onSetScissor(unsigned int left, unsigned int top,
-                                    unsigned int width, unsigned int height) {
+void MtlCommandBuffer::setScissor(unsigned int left, unsigned int top,
+                                  unsigned int width, unsigned int height) {
     SkASSERT(fActiveRenderCommandEncoder);
     MTLScissorRect scissorRect = { left, top, width, height };
     fActiveRenderCommandEncoder->setScissorRect(scissorRect);
 }
 
-void MtlCommandBuffer::onSetViewport(float x, float y, float width, float height,
-                                     float minDepth, float maxDepth) {
+void MtlCommandBuffer::setViewport(float x, float y, float width, float height,
+                                   float minDepth, float maxDepth) {
     SkASSERT(fActiveRenderCommandEncoder);
     MTLViewport viewport = { x, y, width, height, minDepth, maxDepth };
     fActiveRenderCommandEncoder->setViewport(viewport);
@@ -308,10 +419,10 @@ void MtlCommandBuffer::onSetViewport(float x, float y, float width, float height
                                                 MtlGraphicsPipeline::kIntrinsicUniformBufferIndex);
 }
 
-void MtlCommandBuffer::onSetBlendConstants(std::array<float, 4> blendConstants) {
+void MtlCommandBuffer::setBlendConstants(float* blendConstants) {
     SkASSERT(fActiveRenderCommandEncoder);
 
-    fActiveRenderCommandEncoder->setBlendColor(blendConstants.data());
+    fActiveRenderCommandEncoder->setBlendColor(blendConstants);
 }
 
 static MTLPrimitiveType graphite_to_mtl_primitive(PrimitiveType primitiveType) {
@@ -328,9 +439,9 @@ static MTLPrimitiveType graphite_to_mtl_primitive(PrimitiveType primitiveType) {
     return mtlPrimitiveType[static_cast<int>(primitiveType)];
 }
 
-void MtlCommandBuffer::onDraw(PrimitiveType type,
-                              unsigned int baseVertex,
-                              unsigned int vertexCount) {
+void MtlCommandBuffer::draw(PrimitiveType type,
+                            unsigned int baseVertex,
+                            unsigned int vertexCount) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
@@ -338,8 +449,8 @@ void MtlCommandBuffer::onDraw(PrimitiveType type,
     fActiveRenderCommandEncoder->drawPrimitives(mtlPrimitiveType, baseVertex, vertexCount);
 }
 
-void MtlCommandBuffer::onDrawIndexed(PrimitiveType type, unsigned int baseIndex,
-                                     unsigned int indexCount, unsigned int baseVertex) {
+void MtlCommandBuffer::drawIndexed(PrimitiveType type, unsigned int baseIndex,
+                                   unsigned int indexCount, unsigned int baseVertex) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
@@ -357,9 +468,9 @@ void MtlCommandBuffer::onDrawIndexed(PrimitiveType type, unsigned int baseIndex,
     }
 }
 
-void MtlCommandBuffer::onDrawInstanced(PrimitiveType type, unsigned int baseVertex,
-                                       unsigned int vertexCount, unsigned int baseInstance,
-                                       unsigned int instanceCount) {
+void MtlCommandBuffer::drawInstanced(PrimitiveType type, unsigned int baseVertex,
+                                     unsigned int vertexCount, unsigned int baseInstance,
+                                     unsigned int instanceCount) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
@@ -369,12 +480,12 @@ void MtlCommandBuffer::onDrawInstanced(PrimitiveType type, unsigned int baseVert
                                                 instanceCount, baseInstance);
 }
 
-void MtlCommandBuffer::onDrawIndexedInstanced(PrimitiveType type,
-                                              unsigned int baseIndex,
-                                              unsigned int indexCount,
-                                              unsigned int baseVertex,
-                                              unsigned int baseInstance,
-                                              unsigned int instanceCount) {
+void MtlCommandBuffer::drawIndexedInstanced(PrimitiveType type,
+                                            unsigned int baseIndex,
+                                            unsigned int indexCount,
+                                            unsigned int baseVertex,
+                                            unsigned int baseInstance,
+                                            unsigned int instanceCount) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     if (@available(macOS 10.11, iOS 9.0, *)) {

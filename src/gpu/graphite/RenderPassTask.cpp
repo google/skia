@@ -103,23 +103,11 @@ bool RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
     // single sample resolve as an input attachment in that subpass, and then do a draw. The big
     // thing with Vulkan is that this input attachment and subpass means we also need to update
     // the fRenderPassDesc here.
-    if (commandBuffer->beginRenderPass(fRenderPassDesc,
-                                       std::move(colorAttachment),
-                                       std::move(resolveAttachment),
-                                       std::move(depthStencilAttachment))) {
-        // Assuming one draw pass per renderpasstask for now
-        SkASSERT(fDrawPasses.size() == 1);
-        for (const auto& drawPass: fDrawPasses) {
-            if (!drawPass->addCommands(commandBuffer)) {
-                commandBuffer->endRenderPass();
-                return false;
-            }
-        }
-
-        commandBuffer->endRenderPass();
-    }
-
-    return true;
+    return commandBuffer->addRenderPass(fRenderPassDesc,
+                                        std::move(colorAttachment),
+                                        std::move(resolveAttachment),
+                                        std::move(depthStencilAttachment),
+                                        fDrawPasses);
 }
 
 } // namespace skgpu::graphite

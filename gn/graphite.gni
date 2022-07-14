@@ -45,6 +45,7 @@ skia_graphite_sources = [
   "$_src/DrawAtlas.h",
   "$_src/DrawBufferManager.cpp",
   "$_src/DrawBufferManager.h",
+  "$_src/DrawCommands.h",
   "$_src/DrawContext.cpp",
   "$_src/DrawContext.h",
   "$_src/DrawList.cpp",
