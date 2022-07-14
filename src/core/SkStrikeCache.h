@@ -157,6 +157,11 @@ public:
         this->updateDelta(increase);
     }
 
+    void glyphIDsToPaths(SkSpan<sktext::IDOrPath> idsOrPaths) {
+        size_t increase = fScalerCache.glyphIDsToPaths(idsOrPaths);
+        this->updateDelta(increase);
+    }
+
     void prepareForDrawableDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override {
         size_t increase = fScalerCache.prepareForDrawableDrawing(accepted, rejected);

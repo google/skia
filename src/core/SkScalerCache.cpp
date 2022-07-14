@@ -14,6 +14,7 @@
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkScalerContext.h"
+#include "src/text/StrikeForGPU.h"
 
 static SkFontMetrics use_or_generate_metrics(
         const SkFontMetrics* metrics, SkScalerContext* context) {
@@ -171,6 +172,18 @@ std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::preparePaths(
     SkAutoMutexExclusive lock{fMu};
     auto [glyphs, delta] = this->internalPrepare(glyphIDs, kMetricsAndPath, results);
     return {glyphs, delta};
+}
+
+size_t SkScalerCache::glyphIDsToPaths(SkSpan<sktext::IDOrPath> idsOrPaths) {
+    size_t increase = 0;
+    SkAutoMutexExclusive lock{fMu};
+    for (sktext::IDOrPath& idOrPath : idsOrPaths) {
+        auto [glyph, size] = this->glyph(SkPackedGlyphID{idOrPath.fGlyphID});
+        increase += size;
+        increase += this->preparePath(glyph);
+        new (&idOrPath.fPath) SkPath{*glyph->path()};
+    }
+    return increase;
 }
 
 std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::prepareImages(
