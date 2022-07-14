@@ -47,15 +47,13 @@ enum class SnippetRequirementFlags : uint32_t {
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
 struct SkShaderSnippet {
-    using GenerateGlueCodeForEntry = void (*)(const SkShaderInfo& shaderInfo,
-                                              const std::string& resultName,
-                                              int* entryIndex,  // for uniform name mangling
-                                              const SkPaintParamsKey::BlockReader&,
-                                              const std::string& priorStageOutputName,
-                                              const std::string& currentPreLocalName,
-                                              std::string* preamble,
-                                              std::string* mainBody,
-                                              int indent);
+    using GenerateExpressionForSnippetFn =
+            std::string (*)(const SkShaderInfo& shaderInfo,
+                            int* entryIndex,  // for uniform name mangling
+                            const SkPaintParamsKey::BlockReader&,
+                            const std::string& priorStageOutputName,
+                            const std::string& currentPreLocalName,
+                            std::string* preamble);
 
     SkShaderSnippet() = default;
 
@@ -64,7 +62,7 @@ struct SkShaderSnippet {
                     SnippetRequirementFlags snippetRequirementFlags,
                     SkSpan<const SkTextureAndSampler> texturesAndSamplers,
                     const char* functionName,
-                    GenerateGlueCodeForEntry glueCodeGenerator,
+                    GenerateExpressionForSnippetFn expressionGenerator,
                     int numChildren,
                     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations)
             : fName(name)
@@ -72,7 +70,7 @@ struct SkShaderSnippet {
             , fSnippetRequirementFlags(snippetRequirementFlags)
             , fTexturesAndSamplers(texturesAndSamplers)
             , fStaticFunctionName(functionName)
-            , fGlueCodeGenerator(glueCodeGenerator)
+            , fExpressionGenerator(expressionGenerator)
             , fNumChildren(numChildren)
             , fDataPayloadExpectations(dataPayloadExpectations) {}
 
@@ -87,7 +85,7 @@ struct SkShaderSnippet {
     SnippetRequirementFlags fSnippetRequirementFlags;
     SkSpan<const SkTextureAndSampler> fTexturesAndSamplers;
     const char* fStaticFunctionName = nullptr;
-    GenerateGlueCodeForEntry fGlueCodeGenerator = nullptr;
+    GenerateExpressionForSnippetFn fExpressionGenerator = nullptr;
     int fNumChildren = 0;
     SkSpan<const SkPaintParamsKey::DataPayloadField> fDataPayloadExpectations;
 };
@@ -233,7 +231,7 @@ private:
             SnippetRequirementFlags snippetRequirementFlags,
             SkSpan<const SkTextureAndSampler> texturesAndSamplers,
             const char* functionName,
-            SkShaderSnippet::GenerateGlueCodeForEntry glueCodeGenerator,
+            SkShaderSnippet::GenerateExpressionForSnippetFn expressionGenerator,
             int numChildren,
             SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations);
 
