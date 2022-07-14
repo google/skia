@@ -1570,6 +1570,71 @@ describe('Core canvas behavior', () => {
         paint.delete();
     });
 
+    gm('Can_Interpolate_Path', (canvas) => {
+        const paint = new CanvasKit.Paint();
+        paint.setAntiAlias(true);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        paint.setStrokeWidth(2);
+        const path = new CanvasKit.Path()
+        const path2 = new CanvasKit.Path();
+        const path3 = new CanvasKit.Path();
+        path3.addCircle(30, 30, 10);
+        path.moveTo(20, 20);
+        path.lineTo(40, 40);
+        path.lineTo(20, 40);
+        path.lineTo(40, 20);
+        path.close();
+        path2.addRect([20, 20, 40, 40]);
+        path2.transform(CanvasKit.Matrix.translated(40, 0));
+        const canInterpolate1 = CanvasKit.Path.CanInterpolate(path, path2);
+        expect(canInterpolate1).toBe(true);
+        const canInterpolate2 = CanvasKit.Path.CanInterpolate(path, path3);
+        expect(canInterpolate2).toBe(false);
+        canvas.drawPath(path, paint);
+        canvas.drawPath(path2, paint);
+        path3.transform(CanvasKit.Matrix.translated(80, 0));
+        canvas.drawPath(path3, paint);
+        path.delete();
+        path2.delete();
+        path3.delete();
+        paint.delete();
+    });
+
+    gm('Interpolate_Paths', (canvas) => {
+        const paint = new CanvasKit.Paint();
+        paint.setAntiAlias(true);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        paint.setStrokeWidth(2);
+        const path = new CanvasKit.Path()
+        const path2 = new CanvasKit.Path();
+        path.moveTo(20, 20);
+        path.lineTo(40, 40);
+        path.lineTo(20, 40);
+        path.lineTo(40, 20);
+        path.close();
+        path2.addRect([20, 20, 40, 40]);
+        for (let i = 0; i <= 1; i += 1.0 / 6) {
+          const interp = CanvasKit.Path.MakeFromPathInterpolation(path, path2, i);
+          canvas.drawPath(interp, paint);
+          interp.delete();
+          canvas.translate(30, 0);
+        }
+        path.delete();
+        path2.delete();
+        paint.delete();
+    });
+
+    gm('Draw_Circle', (canvas) => {
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.Color(59, 53, 94, 1));
+        const path = new CanvasKit.Path();
+        path.moveTo(256, 256);
+        path.addCircle(256, 256, 256);
+        canvas.drawPath(path, paint);
+        path.delete();
+        paint.delete();
+    });
+
     gm('PathEffect_MakePath2D', (canvas) => {
         // Based off //docs/examples/skpaint_path_2d_path_effect.cpp
         canvas.clear(CanvasKit.WHITE);

@@ -2154,6 +2154,17 @@ export interface Path extends EmbindObject<Path> {
      */
     addArc(oval: InputRect, startAngle: AngleInDegrees, sweepAngle: AngleInDegrees): Path;
 
+    /** Adds circle centered at (x, y) of size radius to the path.
+      Has no effect if radius is zero or negative.
+
+      @param x       center of circle
+      @param y       center of circle
+      @param radius  distance from center to edge
+      @param isCCW - if the path should be drawn counter-clockwise or not
+      @return        reference to SkPath
+    */
+    addCircle(x: number, y: number, r: number, isCCW?: boolean): Path;
+
     /**
      * Adds oval to Path, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
      * Oval is upright ellipse bounded by Rect oval with radii equal to half oval width
@@ -3517,6 +3528,15 @@ export interface MaskFilterFactory {
  * Contains the ways to create an Path.
  */
 export interface PathConstructorAndFactory extends DefaultConstructor<Path> {
+
+    /**
+     * Returns true if the two paths contain equal verbs and equal weights.
+     * @param path1 first path to compate
+     * @param path2 second path to compare
+     * @return      true if Path can be interpolated equivalent
+     */
+     CanInterpolate(path1: Path, path2: Path): boolean;
+
     /**
      * Creates a new path from the given list of path commands. If this fails, null will be
      * returned instead.
@@ -3532,6 +3552,29 @@ export interface PathConstructorAndFactory extends DefaultConstructor<Path> {
      * @param op
      */
     MakeFromOp(one: Path, two: Path, op: PathOp): Path | null;
+
+
+    /**
+     * Interpolates between Path with point array of equal size.
+     * Copy verb array and weights to result, and set result path to a weighted
+     * average of this path array and ending path.
+
+     *  weight is most useful when between zero (ending path) and
+        one (this path); will work with values outside of this
+        range.
+
+     * interpolate() returns undefined if path is not
+     * the same size as ending path. Call isInterpolatable() to check Path
+     * compatibility prior to calling interpolate().
+
+     * @param starting path to interpolate from
+     * @param ending  path to interpolate with
+     * @param weight  contribution of this path, and
+     *                 one minus contribution of ending path
+     * @return        Path replaced by interpolated averages or null if
+     *                not interpolatable
+     */
+    MakeFromPathInterpolation(start: Path, end: Path, weight: number): Path | null;
 
     /**
      * Creates a new path from the provided SVG string. If this fails, null will be

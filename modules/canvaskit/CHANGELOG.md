@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+ - The following path methods: `addCircle`, `Path::CanInterpolate`, and `Path::MakeFromPathInterpolation`.
  - The following ImageFilter factory methods: `MakeBlend`, `MakeDilate`, `MakeDisplacementMap`, 
    `MakeDropShadow`, `MakeDropShadowOnly`, `MakeErode`, `MakeImage`, `MakeOffset`, and `MakeShader`.
  - The `MakeLuma` ColorFilter factory method.

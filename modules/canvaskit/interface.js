@@ -78,6 +78,11 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  CanvasKit.Path.prototype.addCircle = function(x, y, r, isCCW) {
+    this._addCircle(x, y, r, !!isCCW);
+    return this;
+  };
+
   CanvasKit.Path.prototype.addOval = function(oval, isCCW, startIndex) {
     if (startIndex === undefined) {
       startIndex = 1;
@@ -360,6 +365,7 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     return this;
   };
+
   // isComplement is optional, defaults to false
   CanvasKit.Path.prototype.trim = function(startT, stopT, isComplement) {
     if (this._trim(startT, stopT, !!isComplement)) {
