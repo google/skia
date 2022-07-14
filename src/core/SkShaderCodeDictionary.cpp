@@ -187,11 +187,8 @@ std::string SkShaderInfo::toSkSL() const {
     int binding = 0;
     preamble += skgpu::graphite::GetMtlTexturesAndSamplers(fBlockReaders, &binding);
 
-    std::string mainBody = "void main() {\n";
-
-    if (this->needsLocalCoords()) {
-        mainBody += "    const float4x4 initialPreLocal = float4x4(1);\n";
-    }
+    std::string mainBody = "void main() {\n"
+                           "    const float4x4 initialPreLocal = float4x4(1.0);\n";
 
     std::string parentPreLocal = "initialPreLocal";
     std::string lastOutputVar = "initialColor";
@@ -347,7 +344,7 @@ static std::string append_default_snippet_arguments(const SkShaderSnippet* entry
 }
 #endif
 
-// The default glue code just calls a helper function with the signature:
+// The default glue code just calls a built-in function with the signature:
 //    half4 BuiltinFunctionName(/* all uniforms as parameters */);
 // and stores the result in a variable named "resultName".
 void GenerateDefaultGlueCode(const SkShaderInfo& shaderInfo,
@@ -377,10 +374,12 @@ void GenerateDefaultGlueCode(const SkShaderInfo& shaderInfo,
 #endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
 }
 
-// The default-with-children glue code just calls a helper function with the signature:
-//    half4 BuiltinFunctionName(/* all uniforms as parameters */,
-//                              /* all child output variable names as parameters */);
-// and stores the result in a variable named "resultName".
+// The default-with-children glue code creates a function in the preamble with a signature of:
+//     half4 BuiltinFunctionName_N(half4 inColor, float4x4 preLocal) { ... }
+// This function invokes each child in sequence, and then calls the built-in function, passing all
+// uniforms and child outputs along:
+//     half4 BuiltinFunctionName(/* all uniforms as parameters */,
+//                               /* all child output variable names as parameters */);
 void GenerateDefaultGlueCodeWithChildren(const SkShaderInfo& shaderInfo,
                                          const std::string& resultName,
                                          int* entryIndex,
@@ -400,22 +399,38 @@ void GenerateDefaultGlueCodeWithChildren(const SkShaderInfo& shaderInfo,
         SkASSERT(entry->fUniforms.front().type() == SkSLType::kFloat4x4);
     }
 
-    // Invoke all children ahead of this entry's glue code.
+    // Create a helper function that invokes each of the children, then calls the snippet.
     int curEntryIndex = *entryIndex;
+    std::string helperFnName = get_mangled_name(entry->fStaticFunctionName, curEntryIndex);
+    std::string helperFn = SkSL::String::printf("half4 %s(half4 inColor, float4x4 preLocal) {",
+                                                helperFnName.c_str());
+    // Invoke all children from inside the helper function.
     std::vector<std::string> childOutputVarNames = emit_child_glue_code(shaderInfo,
                                                                         entryIndex,
-                                                                        priorStageOutputName,
-                                                                        currentPreLocalName,
+                                                                        "inColor",
+                                                                        "preLocal",
                                                                         preamble,
-                                                                        mainBody,
-                                                                        indent);
+                                                                        &helperFn,
+                                                                        /*indent=*/0);
     SkASSERT((int)childOutputVarNames.size() == entry->fNumChildren);
 
+    // Finally, invoke the snippet from the helper function, passing uniforms and child outputs.
+    SkSL::String::appendf(&helperFn, "    return %s", entry->fStaticFunctionName);
+    helperFn += append_default_snippet_arguments(entry, curEntryIndex, "preLocal",
+                                                 childOutputVarNames);
+    helperFn += ";\n"
+                "}\n";
+    // Add the helper function to the bottom of the preamble.
+    *preamble += helperFn;
+
+    // Invoke the helper function from the main body.
     add_indent(mainBody, indent);
-    SkSL::String::appendf(mainBody, "%s = %s", resultName.c_str(), entry->fStaticFunctionName);
-    *mainBody += append_default_snippet_arguments(entry, curEntryIndex, currentPreLocalName,
-                                                  childOutputVarNames);
-    *mainBody += ";\n";
+    SkSL::String::appendf(mainBody,
+                          "%s = %s(%s, %s);",
+                          resultName.c_str(),
+                          helperFnName.c_str(),
+                          priorStageOutputName.c_str(),
+                          currentPreLocalName.c_str());
 #endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
 }
 
@@ -612,8 +627,14 @@ public:
 
     void defineFunction(const char* decl, const char* body, bool isMain) override {
         if (isMain) {
-            SkSL::String::appendf(fPreamble, "half4 %s_%d(float2 coords, half4 inColor) {\n%s}\n",
-                                  kRuntimeShaderName, fEntryIndex, body);
+            SkSL::String::appendf(fPreamble,
+                                  "half4 %s_%d(float4x4 preLocal, half4 inColor) {\n"
+                                  "    float2 coords=(preLocal * dev2LocalUni * sk_FragCoord).xy;\n"
+                                  "%s"
+                                  "}\n",
+                                  kRuntimeShaderName,
+                                  fEntryIndex,
+                                  body);
         } else {
             SkSL::String::appendf(fPreamble, "%s {\n%s}\n", decl, body);
         }
@@ -695,8 +716,7 @@ void GenerateRuntimeShaderGlueCode(const SkShaderInfo& shaderInfo,
     SkASSERT(reader.entry()->fUniforms[0].type() == SkSLType::kFloat4x4);
 
     add_indent(mainBody, indent);
-    SkSL::String::appendf(mainBody,
-                          "%s = %s_%d((%s * dev2LocalUni * sk_FragCoord).xy, (%s));\n",
+    SkSL::String::appendf(mainBody, "%s = %s_%d(%s, %s);\n",
                           resultName.c_str(),
                           entry->fName, *entryIndex,
                           currentPreLocalName.c_str(),
