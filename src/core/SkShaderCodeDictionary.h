@@ -49,7 +49,7 @@ SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 struct SkShaderSnippet {
     using GenerateGlueCodeForEntry = void (*)(const SkShaderInfo& shaderInfo,
                                               const std::string& resultName,
-                                              int entryIndex,  // for uniform name mangling
+                                              int* entryIndex,  // for uniform name mangling
                                               const SkPaintParamsKey::BlockReader&,
                                               const std::string& priorStageOutputName,
                                               const std::string& currentPreLocalName,
