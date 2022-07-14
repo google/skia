@@ -352,7 +352,7 @@ public:
 
     size_t bufferMapThreshold() const {
         SkASSERT(fBufferMapThreshold >= 0);
-        return fBufferMapThreshold;
+        return static_cast<size_t>(fBufferMapThreshold);
     }
 
     /** True in environments that will issue errors if memory uploaded to buffers

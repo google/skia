@@ -113,7 +113,7 @@ private:
         int fID;       // ID that can be used to track down leaks by clients.
 #endif
 #if defined(SK_DEBUG) || defined(SK_SANITIZE_ADDRESS)
-        int fSentinel; // set to a known value to check for memory stomping; poisoned in ASAN mode
+        uint32_t fSentinel; // set to a known value to check for memory stomping; poisoned in ASAN mode
 #endif
     };
 

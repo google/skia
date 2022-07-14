@@ -161,7 +161,7 @@ constexpr int SkCLZ_portable(uint32_t x) {
              y = x >>  4; if (y != 0) {n -=  4; x = y;}
              y = x >>  2; if (y != 0) {n -=  2; x = y;}
              y = x >>  1; if (y != 0) {return n - 2;}
-    return n - x;
+    return n - static_cast<int>(x);
 }
 
 static_assert(32 == SkCLZ_portable(0));
@@ -279,12 +279,12 @@ constexpr int SkPrevLog2_portable(uint32_t value) {
  */
 static inline int SkNextPow2(int value) {
     SkASSERT(value > 0);
-    return 1 << SkNextLog2(value);
+    return 1 << SkNextLog2(static_cast<uint32_t>(value));
 }
 
 constexpr int SkNextPow2_portable(int value) {
     SkASSERT(value > 0);
-    return 1 << SkNextLog2_portable(value);
+    return 1 << SkNextLog2_portable(static_cast<uint32_t>(value));
 }
 
 /**
@@ -294,12 +294,12 @@ constexpr int SkNextPow2_portable(int value) {
 */
 static inline int SkPrevPow2(int value) {
     SkASSERT(value > 0);
-    return 1 << SkPrevLog2(value);
+    return 1 << SkPrevLog2(static_cast<uint32_t>(value));
 }
 
 constexpr int SkPrevPow2_portable(int value) {
     SkASSERT(value > 0);
-    return 1 << SkPrevLog2_portable(value);
+    return 1 << SkPrevLog2_portable(static_cast<uint32_t>(value));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

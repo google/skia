@@ -154,7 +154,7 @@ public:
             this->poisonRange(kDataStart, fSize);
         }
 
-        SkDEBUGCODE(int fSentinel;) // known value to check for bad back pointers to blocks
+        SkDEBUGCODE(uint32_t fSentinel;)  // known value to check for bad back pointers to blocks
 
         Block*          fNext;      // doubly-linked list of blocks
         Block*          fPrev;
@@ -403,8 +403,8 @@ public:
     inline BlockIter<false, true> rblocks() const;
 
 #ifdef SK_DEBUG
-    inline static constexpr int kAssignedMarker = 0xBEEFFACE;
-    inline static constexpr int kFreedMarker    = 0xCAFEBABE;
+    inline static constexpr uint32_t kAssignedMarker = 0xBEEFFACE;
+    inline static constexpr uint32_t kFreedMarker = 0xCAFEBABE;
 
     void validate() const;
 #endif
