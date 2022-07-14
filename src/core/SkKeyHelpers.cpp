@@ -618,15 +618,7 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                 }
             }
 
-            // Use the combination of {SkSL program hash, uniform size} as our key.
-            // In the unfortunate event of a hash collision, at least we'll have the right amount of
-            // uniform data available.
-            uint32_t hash = SkRuntimeEffectPriv::Hash(*shaderData.fEffect);
-            uint32_t uniformSize = shaderData.fEffect->uniformSize();
-
             builder->beginBlock(codeSnippetID);
-            builder->addInt(hash);
-            builder->addInt(uniformSize);
 #endif  // SK_GRAPHITE_ENABLED
             break;
         }
