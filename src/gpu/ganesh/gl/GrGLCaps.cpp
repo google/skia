@@ -3954,7 +3954,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // https://b.corp.google.com/issues/188410972
-    if (ctxInfo.renderer() == GrGLRenderer::kVirgl) {
+    if (ctxInfo.isRunningOverVirgl()) {
         fDrawInstancedSupport = false;
     }
 
