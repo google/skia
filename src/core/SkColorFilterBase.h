@@ -17,6 +17,7 @@ class GrFragmentProcessor;
 class GrRecordingContext;
 class SkArenaAlloc;
 class SkBitmap;
+class SkColorInfo;
 class SkColorSpace;
 class SkKeyContext;
 class SkPaintParamsKeyBuilder;

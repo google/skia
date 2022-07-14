@@ -65,9 +65,9 @@ bool paint_depends_on_dst(const PaintParams& paintParams) {
         return false;
     } else if (bm.value() == SkBlendMode::kSrcOver) {
         // src-over does not depend on dst if src is opaque (a = 1)
-        // TODO: This will get more complicated when PaintParams has color filters and blenders
         return !paintParams.color().isOpaque() ||
-               (paintParams.shader() && !paintParams.shader()->isOpaque());
+               (paintParams.shader() && !paintParams.shader()->isOpaque()) ||
+               (paintParams.colorFilter() && !paintParams.colorFilter()->isAlphaUnchanged());
     } else {
         // TODO: Are their other modes that don't depend on dst that can be trivially detected?
         return true;

@@ -5,19 +5,25 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkColorFilter_Matrix.h"
+
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkColorFilter_Matrix.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+
+#ifdef SK_ENABLE_SKSL
+#include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
+#endif // SK_ENABLE_SKSL
 
 static bool is_alpha_unchanged(const float matrix[20]) {
     const float* srcA = matrix + 15;
@@ -140,6 +146,8 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
 // [1] http://lolengine.net/blog/2013/01/13/fast-rgb-to-hsv
 // [2] http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
 // [3] http://www.chilliant.com/rgb2hsv.html
+//
+// Keep in sync w/ the version in sksl_graphite_frag.sksl
 static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmentProcessor> child) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
     R"(
@@ -153,13 +161,13 @@ static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmen
             // q.yz -> 2nd/3rd channel values (unsorted)
             // q.w  -> bias value dependent on max channel selection
 
-            half eps = 0.0001;
+            const half kEps = 0.0001;
             half pmV = q.x;
             half pmC = pmV - min(q.y, q.z);
             half pmL = pmV - pmC * 0.5;
-            half   H = abs(q.w + (q.y - q.z) / (pmC * 6 + eps));
-            half   S = pmC / (c.a + eps - abs(pmL * 2 - c.a));
-            half   L = pmL / (c.a + eps);
+            half   H = abs(q.w + (q.y - q.z) / (pmC * 6 + kEps));
+            half   S = pmC / (c.a + kEps - abs(pmL * 2 - c.a));
+            half   L = pmL / (c.a + kEps);
 
             return half4(H, S, L, c.a);
         }
@@ -176,6 +184,8 @@ static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmen
 // [1] http://lolengine.net/blog/2013/01/13/fast-rgb-to-hsv
 // [2] http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
 // [3] http://www.chilliant.com/rgb2hsv.html
+//
+// Keep in sync w/ the version in sksl_graphite_frag.sksl
 static std::unique_ptr<GrFragmentProcessor> hsl_to_rgb(std::unique_ptr<GrFragmentProcessor> child) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
     R"(
@@ -221,7 +231,19 @@ GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentP
     return GrFPSuccess(std::move(fp));
 }
 
-#endif
+#endif // SK_SUPPORT_GPU
+
+#ifdef SK_ENABLE_SKSL
+void SkColorFilter_Matrix::addToKey(const SkKeyContext& keyContext,
+                                    SkPaintParamsKeyBuilder* builder,
+                                    SkPipelineDataGatherer* gatherer) const {
+    MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(fMatrix,
+                                                               fDomain == Domain::kHSLA);
+
+    MatrixColorFilterBlock::BeginBlock(keyContext, builder, gatherer, matrixCFData);
+    builder->endBlock();
+}
+#endif // SK_ENABLE_SKSL
 
 ///////////////////////////////////////////////////////////////////////////////
 

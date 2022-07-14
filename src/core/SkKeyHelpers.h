@@ -162,6 +162,29 @@ struct BlendShaderBlock {
 
 };
 
+struct MatrixColorFilterBlock {
+    struct MatrixColorFilterData {
+        MatrixColorFilterData(const float matrix[20],
+                              bool inHSLA)
+                : fMatrix(matrix[ 0], matrix[ 1], matrix[ 2], matrix[ 3],
+                          matrix[ 5], matrix[ 6], matrix[ 7], matrix[ 8],
+                          matrix[10], matrix[11], matrix[12], matrix[13],
+                          matrix[15], matrix[16], matrix[17], matrix[18])
+                , fTranslate(matrix[4], matrix[9], matrix[14], matrix[19])
+                , fInHSLA(inHSLA) {
+        }
+
+        SkM44        fMatrix;
+        skvx::float4 fTranslate;
+        bool         fInHSLA;
+    };
+
+    static void BeginBlock(const SkKeyContext&,
+                           SkPaintParamsKeyBuilder*,
+                           SkPipelineDataGatherer*,
+                           const MatrixColorFilterData&);
+};
+
 struct BlendModeBlock {
     static void BeginBlock(const SkKeyContext&,
                            SkPaintParamsKeyBuilder*,

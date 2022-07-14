@@ -43,6 +43,7 @@ private:
 enum class SnippetRequirementFlags : uint32_t {
     kNone = 0x0,
     kLocalCoords = 0x1,
+    kPriorStageOutput = 0x2
 };
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
@@ -78,6 +79,9 @@ struct SkShaderSnippet {
 
     bool needsLocalCoords() const {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
+    }
+    bool needsPriorStageOutput() const {
+        return fSnippetRequirementFlags & SnippetRequirementFlags::kPriorStageOutput;
     }
 
     const char* fName = nullptr;
