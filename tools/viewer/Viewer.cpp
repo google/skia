@@ -405,6 +405,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             GrContextOptions::ShaderCacheStrategy::kSkSL;
     displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
     displayParams.fGrContextOptions.fSuppressPrints = true;
+    displayParams.fGrContextOptions.fSupportBilerpFromGlyphAtlas = true;
     if (FLAGS_dmsaa) {
         displayParams.fSurfaceProps = SkSurfaceProps(
                 displayParams.fSurfaceProps.flags() | SkSurfaceProps::kDynamicMSAA_Flag,
