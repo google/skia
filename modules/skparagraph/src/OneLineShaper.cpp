@@ -494,13 +494,30 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
             const char* ch = unresolvedText.begin();
             // We have the global cache for all already found typefaces for SkUnichar
             // but we still need to keep track of all SkUnichars used in this unresolved block
-            SkTHashSet<SkUnichar> alreadyTried;
-            SkUnichar unicode = nextUtf8Unit(&ch, unresolvedText.end());
+            SkTHashSet<SkUnichar> alreadyTriedCodepoints;
+            SkTHashSet<SkTypefaceID> alreadyTriedTypefaces;
             while (true) {
 
-                sk_sp<SkTypeface> typeface;
+                if (ch == unresolvedText.end()) {
+                    // Not a single codepoint could be resolved but we finished the block
+                    hopelessBlocks.push_back(fUnresolvedBlocks.front());
+                    fUnresolvedBlocks.pop_front();
+                    break;
+                }
+
+                // See if we can switch to the next DIFFERENT codepoint
+                SkUnichar unicode = -1;
+                while (ch != unresolvedText.end()) {
+                    unicode = nextUtf8Unit(&ch, unresolvedText.end());
+                    if (!alreadyTriedCodepoints.contains(unicode)) {
+                        alreadyTriedCodepoints.add(unicode);
+                        break;
+                    }
+                }
+                SkASSERT(unicode != -1);
 
                 // First try to find in in a cache
+                sk_sp<SkTypeface> typeface;
                 FontKey fontKey(unicode, textStyle.getFontStyle(), textStyle.getLocale());
                 auto found = fFallbackFonts.find(fontKey);
                 if (found != nullptr) {
@@ -515,35 +532,36 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                     fFallbackFonts.set(fontKey, typeface);
                 }
 
+                // Check if we already tried this font on this text range
+                if (!alreadyTriedTypefaces.contains(typeface->uniqueID())) {
+                    alreadyTriedTypefaces.add(typeface->uniqueID());
+                } else {
+                    continue;
+                }
+
+                auto resolvedBlocksBefore = fResolvedBlocks.size();
                 auto resolved = visitor(typeface);
                 if (resolved == Resolved::Everything) {
-                    // Resolved everything, no need to try another font
-                    return;
+                    if (hopelessBlocks.empty()) {
+                        // Resolved everything, no need to try another font
+                        return;
+                    } else if (resolvedBlocksBefore < fResolvedBlocks.size()) {
+                        // There are some resolved blocks
+                        resolved = Resolved::Something;
+                    } else {
+                        // All blocks are hopeless
+                        resolved = Resolved::Nothing;
+                    }
                 }
 
                 if (resolved == Resolved::Something) {
                     // Resolved something, no need to try another codepoint
                     break;
                 }
-
-                if (ch == unresolvedText.end()) {
-                    // Not a single codepoint could be resolved but we finished the block
-                    hopelessBlocks.push_back(fUnresolvedBlocks.front());
-                    fUnresolvedBlocks.pop_front();
-                    break;
-                }
-
-                // We can stop here or we can switch to another DIFFERENT codepoint
-                while (ch != unresolvedText.end()) {
-                    unicode = nextUtf8Unit(&ch, unresolvedText.end());
-                    if (alreadyTried.find(unicode) == nullptr) {
-                        alreadyTried.add(unicode);
-                        break;
-                    }
-                }
             }
         }
 
+        // Return hopeless blocks back
         for (auto& block : hopelessBlocks) {
             fUnresolvedBlocks.emplace_front(block);
         }
@@ -713,6 +731,8 @@ bool OneLineShaper::shape() {
                 }
 
                 if (fUnresolvedBlocks.empty()) {
+                    // In some cases it does not mean everything
+                    // (when we excluded some hopeless blocks from the list)
                     return Resolved::Everything;
                 } else if (resolvedCount < fResolvedBlocks.size()) {
                     return Resolved::Something;

@@ -3688,30 +3688,22 @@ class ParagraphView65 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("ParagraphView65"); }
 
-    bool onChar(SkUnichar uni) override {
-            switch (uni) {
-                case 't':
-                    substituteTab = !substituteTab;
-                    return true;
-                default:
-                    break;
-            }
-            return false;
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
         ParagraphStyle paragraph_style;
         paragraph_style.setReplaceTabCharacters(substituteTab);
-        auto collection = getFontCollection();
-        ParagraphBuilderImpl builder(paragraph_style, collection);
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
+        // "Noto Sans Thai"
         text_style.setFontFamilies({SkString("Roboto")});
         text_style.setFontSize(100);
         builder.pushStyle(text_style);
-        builder.addText("There is a tab>\t<right here");
+        builder.addText(u"\u0eb9\u0952\u0301\u0e51A");
         auto paragraph = builder.Build();
         paragraph->layout(this->width());
         paragraph->paint(canvas, 0, 0);
