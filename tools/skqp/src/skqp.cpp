@@ -65,6 +65,15 @@ public:
     void initialize(SkQPAssetManager* assetManager, sk_sp<SkData> dat, int enforcedAndroidAPILevel);
 
     bool isExcluded(const std::string& name) const {
+#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_BUILD_FOR_SKQP)
+        // Exclude all unit tests from enforcement if ALL the following conditions are true:
+        //  1) We are building the CTS variant of SkQP (guarded by the SK_BUILD_FOR_SKQP define).
+        //  2) The enforced Android API level is older than when this test suite was introduced
+        //     into CTS in Android T (API level 33).
+        if (fEnforcedAndroidAPILevel < 33) {
+            return true;
+        }
+#endif
         for (const auto& entry : fEntries) {
             if (std::regex_match(name, entry.regexPattern)) {
                 return fEnforcedAndroidAPILevel < entry.excludeUntilAndroidAPILevel;
@@ -293,13 +302,29 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     SkGraphics::Init();
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
 
-    int minAndroidAPILevel = 0;
-#ifdef SK_BUILD_FOR_ANDROID
-    char firstAPIVersionStr[PROP_VALUE_MAX];
-    int strLength = __system_property_get("ro.product.first_api_level", firstAPIVersionStr);
     // Defaults to zero since most checks care if it is greater than a specific value. So this will
     // just default to it being less.
-    minAndroidAPILevel = (strLength == 0) ? 0 : atoi(firstAPIVersionStr);
+    int minAndroidAPILevel = 0;
+#ifdef SK_BUILD_FOR_ANDROID
+    // check for the minAPI level based on the order defined in
+    // docs.partner.android.com/gms/building/integrating/extending-os-upgrade-support-windows
+    //  1. board's current api level (for boards that have been upgraded by the SoC vendor)
+    //  2. board's first api level (for devices that initially shipped with an older version)
+    //  3. product's first api level
+    //  4. product's current api level
+    const auto propertyIds = { "ro.board.api_level",
+                               "ro.board.first_api_level",
+                               "ro.product.first_api_level",
+                               "ro.build.version.sdk" };
+
+    char minAPIVersionStr[PROP_VALUE_MAX];
+    for (const char* property : propertyIds) {
+        int strLength = __system_property_get(property, minAPIVersionStr);
+        if (strLength != 0) {
+            minAndroidAPILevel = atoi(minAPIVersionStr);
+            break;
+        }
+    }
 #endif
 
     // Load the exclusion list `skqp/unittests.txt`, if it exists.
