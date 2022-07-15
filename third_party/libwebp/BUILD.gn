@@ -62,6 +62,12 @@ if (skia_use_system_libwebp) {
 
     configs = [ ":libwebp_defines" ]
     sources = [
+      "../externals/libwebp/sharpyuv/sharpyuv.c",
+      "../externals/libwebp/sharpyuv/sharpyuv_csp.c",
+      "../externals/libwebp/sharpyuv/sharpyuv_dsp.c",
+      "../externals/libwebp/sharpyuv/sharpyuv_gamma.c",
+      "../externals/libwebp/sharpyuv/sharpyuv_neon.c",
+      "../externals/libwebp/sharpyuv/sharpyuv_sse2.c",
       "../externals/libwebp/src/dec/alpha_dec.c",
       "../externals/libwebp/src/dec/buffer_dec.c",
       "../externals/libwebp/src/dec/frame_dec.c",
