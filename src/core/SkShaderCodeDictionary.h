@@ -48,13 +48,15 @@ enum class SnippetRequirementFlags : uint32_t {
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
 struct SkShaderSnippet {
-    using GenerateExpressionForSnippetFn =
-            std::string (*)(const SkShaderInfo& shaderInfo,
-                            int* entryIndex,  // for uniform name mangling
-                            const SkPaintParamsKey::BlockReader&,
-                            const std::string& priorStageOutputName,
-                            const std::string& currentPreLocalName,
-                            std::string* preamble);
+    using GeneratePreambleForSnippetFn = void (*)(const SkShaderInfo& shaderInfo,
+                                                  int* entryIndex,
+                                                  const SkPaintParamsKey::BlockReader&,
+                                                  std::string* preamble);
+    using GenerateExpressionForSnippetFn = std::string (*)(const SkShaderInfo& shaderInfo,
+                                                           int entryIndex,
+                                                           const SkPaintParamsKey::BlockReader&,
+                                                           const std::string& priorStageOutputName,
+                                                           const std::string& currentPreLocalName);
 
     SkShaderSnippet() = default;
 
@@ -64,6 +66,7 @@ struct SkShaderSnippet {
                     SkSpan<const SkTextureAndSampler> texturesAndSamplers,
                     const char* functionName,
                     GenerateExpressionForSnippetFn expressionGenerator,
+                    GeneratePreambleForSnippetFn preambleGenerator,
                     int numChildren,
                     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations)
             : fName(name)
@@ -72,6 +75,7 @@ struct SkShaderSnippet {
             , fTexturesAndSamplers(texturesAndSamplers)
             , fStaticFunctionName(functionName)
             , fExpressionGenerator(expressionGenerator)
+            , fPreambleGenerator(preambleGenerator)
             , fNumChildren(numChildren)
             , fDataPayloadExpectations(dataPayloadExpectations) {}
 
@@ -90,6 +94,7 @@ struct SkShaderSnippet {
     SkSpan<const SkTextureAndSampler> fTexturesAndSamplers;
     const char* fStaticFunctionName = nullptr;
     GenerateExpressionForSnippetFn fExpressionGenerator = nullptr;
+    GeneratePreambleForSnippetFn fPreambleGenerator = nullptr;
     int fNumChildren = 0;
     SkSpan<const SkPaintParamsKey::DataPayloadField> fDataPayloadExpectations;
 };
@@ -136,7 +141,7 @@ public:
 private:
     std::vector<SkPaintParamsKey::BlockReader> fBlockReaders;
 
-    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags =SnippetRequirementFlags::kNone;
+    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags{SnippetRequirementFlags::kNone};
     SkRuntimeEffectDictionary* fRuntimeEffectDictionary = nullptr;
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -236,6 +241,7 @@ private:
             SkSpan<const SkTextureAndSampler> texturesAndSamplers,
             const char* functionName,
             SkShaderSnippet::GenerateExpressionForSnippetFn expressionGenerator,
+            SkShaderSnippet::GeneratePreambleForSnippetFn preambleGenerator,
             int numChildren,
             SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations);
 
