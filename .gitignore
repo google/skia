@@ -1,6 +1,7 @@
 *.pyc
 *.swp
 *.iml
+*.perfetto-trace
 .DS_Store
 .android_config
 .gclient*
