@@ -683,8 +683,13 @@ void GenerateRuntimeShaderPreamble(const SkShaderInfo& shaderInfo,
     SkASSERT(std::string_view(entry->fName) == kRuntimeShaderName);  // the callbacks assume this
     SkSL::PipelineStage::ConvertProgram(program, "coords", "inColor", "half4(1)", &callbacks);
 
-    // We don't support children here yet.
+    // Advance over the parent entry.
     *entryIndex += 1;
+
+    // Emit the preambles for all of our child effects (and advance the entry-index past them).
+    for (int j = 0; j < entry->fNumChildren; ++j) {
+        emit_preamble_for_entry(shaderInfo, entryIndex, preamble);
+    }
 #endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
 }
 
@@ -951,7 +956,7 @@ int SkShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffe
                                                        kRuntimeShaderName,
                                                        GenerateRuntimeShaderExpression,
                                                        GenerateRuntimeShaderPreamble,
-                                                       /*numChildren=*/0,
+                                                       (int)effect->children().size(),
                                                        /*dataPayloadExpectations=*/{});
     fRuntimeEffectMap.set(key, newCodeSnippetID);
     return newCodeSnippetID;

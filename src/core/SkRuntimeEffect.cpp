@@ -1186,6 +1186,22 @@ public:
                   SkPipelineDataGatherer* gatherer) const override {
         RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer,
                                        {fEffect, this->getLocalMatrix(), fUniforms});
+
+        for (const SkRuntimeEffect::ChildPtr& child : fChildren) {
+            std::optional<ChildType> type = child.type();
+            if (type == ChildType::kShader) {
+                as_SB(child.shader())->addToKey(keyContext, builder, gatherer);
+            } else if (type == ChildType::kColorFilter) {
+                as_CFB(child.colorFilter())->addToKey(keyContext, builder, gatherer);
+            } else if (type == ChildType::kBlender) {
+                as_BB(child.blender())->addToKey(keyContext, builder, gatherer);
+            } else {
+                // Patch in a "passthrough" child effect that returns the input color as-is.
+                PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+                builder->endBlock();
+            }
+        }
+
         builder->endBlock();
     }
 
