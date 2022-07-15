@@ -19,6 +19,7 @@
 
 // TODO: merge EffectNode.h with this header
 
+class SkBlender;
 class SkImageFilter;
 class SkMaskFilter;
 class SkShader;
@@ -225,25 +226,24 @@ private:
 };
 
 /**
- * Applies a SkBlendMode to descendant render nodes.
+ * Applies an SkBlender to descendant render nodes.
  */
-class BlendModeEffect final : public EffectNode {
+class BlenderEffect final : public EffectNode {
 public:
-    ~BlendModeEffect() override;
+    ~BlenderEffect() override;
 
-    static sk_sp<BlendModeEffect> Make(sk_sp<RenderNode> child,
-                                       SkBlendMode = SkBlendMode::kSrcOver);
+    static sk_sp<BlenderEffect> Make(sk_sp<RenderNode> child, sk_sp<SkBlender> = nullptr);
 
-    SG_ATTRIBUTE(Mode, SkBlendMode, fMode)
+    SG_ATTRIBUTE(Blender, sk_sp<SkBlender>, fBlender)
 
 protected:
     void onRender(SkCanvas*, const RenderContext*) const override;
     const RenderNode* onNodeAt(const SkPoint&)     const override;
 
 private:
-    BlendModeEffect(sk_sp<RenderNode>, SkBlendMode);
+    BlenderEffect(sk_sp<RenderNode>, sk_sp<SkBlender>);
 
-    SkBlendMode fMode;
+    sk_sp<SkBlender> fBlender;
 
     using INHERITED = EffectNode;
 };

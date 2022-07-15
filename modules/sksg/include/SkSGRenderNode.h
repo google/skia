@@ -10,7 +10,7 @@
 
 #include "modules/sksg/include/SkSGNode.h"
 
-#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkShader.h"
 
@@ -53,10 +53,10 @@ protected:
         sk_sp<SkColorFilter> fColorFilter;
         sk_sp<SkShader>      fShader;
         sk_sp<SkShader>      fMaskShader;
+        sk_sp<SkBlender>     fBlender;
         SkMatrix             fShaderCTM = SkMatrix::I(),
                              fMaskCTM   = SkMatrix::I();
         float                fOpacity   = 1;
-        SkBlendMode          fBlendMode = SkBlendMode::kSrcOver;
 
         // Returns true if the paint overrides require a layer when applied to non-atomic draws.
         bool requiresIsolation() const;
@@ -91,7 +91,7 @@ protected:
         ScopedRenderContext&& modulateColorFilter(sk_sp<SkColorFilter>);
         ScopedRenderContext&& modulateShader(sk_sp<SkShader>, const SkMatrix& shader_ctm);
         ScopedRenderContext&& modulateMaskShader(sk_sp<SkShader>, const SkMatrix& ms_ctm);
-        ScopedRenderContext&& modulateBlendMode(SkBlendMode);
+        ScopedRenderContext&& modulateBlender(sk_sp<SkBlender>);
 
         // Force content isolation for a node sub-DAG by applying the RenderContext
         // overrides via a layer.

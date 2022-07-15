@@ -222,13 +222,13 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
     ScopedRenderContext frame_ctx(canvas, ctx);
     SkPaint             frame_paint;
 
-    const bool isolate_frames = frame_ctx->fBlendMode != SkBlendMode::kSrcOver;
+    const bool isolate_frames = !!frame_ctx->fBlender;
     if (isolate_frames) {
         frame_paint.setAlphaf(frame_alpha);
         frame_paint.setBlendMode(SkBlendMode::kPlus);
     } else {
         frame_ctx = frame_ctx.modulateOpacity(frame_alpha)
-                             .modulateBlendMode(SkBlendMode::kPlus);
+                             .modulateBlender(SkBlender::Mode(SkBlendMode::kPlus));
     }
 
     SkDEBUGCODE(size_t frames_rendered = 0;)

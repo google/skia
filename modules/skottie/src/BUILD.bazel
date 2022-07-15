@@ -8,6 +8,7 @@ filegroup(
     name = "srcs",
     srcs = [
         "Adapter.h",
+        "BlendModes.cpp",
         "Camera.cpp",
         "Camera.h",
         "Composition.cpp",

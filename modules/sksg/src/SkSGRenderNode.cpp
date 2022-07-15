@@ -88,7 +88,7 @@ bool RenderNode::RenderContext::requiresIsolation() const {
     return ScaleAlpha(SK_AlphaOPAQUE, fOpacity) != SK_AlphaOPAQUE
         || fColorFilter
         || fMaskShader
-        || fBlendMode != SkBlendMode::kSrcOver;
+        || fBlender;
 }
 
 void RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* paint,
@@ -98,8 +98,8 @@ void RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* pain
     if (fShader) {
         paint->setShader(LocalShader(fShader, fShaderCTM, ctm));
     }
-    if (fBlendMode != SkBlendMode::kSrcOver) {
-        paint->setBlendMode(fBlendMode);
+    if (fBlender) {
+        paint->setBlender(fBlender);
     }
 
     // Only apply the shader mask for regular paints.  Isolation layers require
@@ -177,8 +177,8 @@ RenderNode::ScopedRenderContext::modulateMaskShader(sk_sp<SkShader> ms, const Sk
 }
 
 RenderNode::ScopedRenderContext&&
-RenderNode::ScopedRenderContext::modulateBlendMode(SkBlendMode mode) {
-    fCtx.fBlendMode = mode;
+RenderNode::ScopedRenderContext::modulateBlender(sk_sp<SkBlender> blender) {
+    fCtx.fBlender = std::move(blender);
     return std::move(*this);
 }
 
@@ -198,8 +198,8 @@ RenderNode::ScopedRenderContext::setIsolation(const SkRect& bounds, const SkMatr
         // Reset only the props applied via isolation layers.
         fCtx.fColorFilter = nullptr;
         fCtx.fMaskShader  = nullptr;
+        fCtx.fBlender     = nullptr;
         fCtx.fOpacity     = 1;
-        fCtx.fBlendMode   = SkBlendMode::kSrcOver;
     }
 
     return std::move(*this);

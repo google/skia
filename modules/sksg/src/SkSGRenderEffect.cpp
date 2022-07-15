@@ -7,6 +7,7 @@
 
 #include "modules/sksg/include/SkSGRenderEffect.h"
 
+#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkShader.h"
@@ -202,24 +203,24 @@ sk_sp<SkImageFilter> BlurImageFilter::onRevalidateFilter() {
     return SkImageFilters::Blur(fSigma.x(), fSigma.y(), fTileMode, this->refInput(0));
 }
 
-sk_sp<BlendModeEffect> BlendModeEffect::Make(sk_sp<RenderNode> child, SkBlendMode mode) {
-    return child ? sk_sp<BlendModeEffect>(new BlendModeEffect(std::move(child), mode))
+sk_sp<BlenderEffect> BlenderEffect::Make(sk_sp<RenderNode> child, sk_sp<SkBlender> blender) {
+    return child ? sk_sp<BlenderEffect>(new BlenderEffect(std::move(child), std::move(blender)))
                  : nullptr;
 }
 
-BlendModeEffect::BlendModeEffect(sk_sp<RenderNode> child, SkBlendMode mode)
+BlenderEffect::BlenderEffect(sk_sp<RenderNode> child, sk_sp<SkBlender> blender)
     : INHERITED(std::move(child))
-    , fMode(mode) {}
+    , fBlender (std::move(blender)) {}
 
-BlendModeEffect::~BlendModeEffect() = default;
+BlenderEffect::~BlenderEffect() = default;
 
-void BlendModeEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    const auto local_ctx = ScopedRenderContext(canvas, ctx).modulateBlendMode(fMode);
+void BlenderEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+    const auto local_ctx = ScopedRenderContext(canvas, ctx).modulateBlender(fBlender);
 
     this->INHERITED::onRender(canvas, local_ctx);
 }
 
-const RenderNode* BlendModeEffect::onNodeAt(const SkPoint& p) const {
+const RenderNode* BlenderEffect::onNodeAt(const SkPoint& p) const {
     // TODO: we likely need to do something more sophisticated than delegate to descendants here.
     return this->INHERITED::onNodeAt(p);
 }
