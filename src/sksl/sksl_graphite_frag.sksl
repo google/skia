@@ -4,6 +4,10 @@ half4 sk_error() {
     return half4(1.0, 0.0, 1.0, 1.0);
 }
 
+half4 sk_passthrough(half4 color) {
+    return color;
+}
+
 half4 sk_solid_shader(float4 colorParam) {
     return half4(colorParam);
 }

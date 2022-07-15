@@ -32,6 +32,14 @@ namespace skgpu::graphite { class TextureProxy; }
 
 // The KeyHelpers can be used to manually construct an SkPaintParamsKey
 
+struct PassthroughShaderBlock {
+
+    static void BeginBlock(const SkKeyContext&,
+                           SkPaintParamsKeyBuilder*,
+                           SkPipelineDataGatherer*);
+
+};
+
 struct SolidColorShaderBlock {
 
     static void BeginBlock(const SkKeyContext&,

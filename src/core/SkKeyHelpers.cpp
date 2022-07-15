@@ -33,6 +33,23 @@ constexpr SkPMColor4f kErrorColor = { 1, 0, 0, 1 };
 
 //--------------------------------------------------------------------------------------------------
 
+void PassthroughShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+                                        SkPaintParamsKeyBuilder* builder,
+                                        SkPipelineDataGatherer* gatherer) {
+#ifdef SK_GRAPHITE_ENABLED
+    if (builder->backend() == SkBackend::kGraphite) {
+        builder->beginBlock(SkBuiltInCodeSnippetID::kPassthroughShader);
+        return;
+    }
+#endif // SK_GRAPHITE_ENABLED
+
+    if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
+        // TODO: add implementation of other backends
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 #ifdef SK_GRAPHITE_ENABLED
 
 namespace {
@@ -71,7 +88,6 @@ void SolidColorShaderBlock::BeginBlock(const SkKeyContext& keyContext,
     if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
         // TODO: add implementation of other backends
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
