@@ -22,6 +22,11 @@ public:
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext*, const GrColorInfo&) const override;
 #endif
+#ifdef SK_ENABLE_SKSL
+    void addToKey(const SkKeyContext& keyContext,
+                  SkPaintParamsKeyBuilder* builder,
+                  SkPipelineDataGatherer* gatherer) const override;
+#endif
 
     SK_FLATTENABLE_HOOKS(SkModeColorFilter)
 

@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkModeColorFilter.h"
+
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkString.h"
 #include "include/private/SkColorData.h"
@@ -14,7 +16,6 @@
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
-#include "src/core/SkModeColorFilter.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
@@ -121,6 +122,22 @@ GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProc
 
 #endif
 
+#ifdef SK_ENABLE_SKSL
+
+#include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
+
+void SkModeColorFilter::addToKey(const SkKeyContext& keyContext,
+                                 SkPaintParamsKeyBuilder* builder,
+                                 SkPipelineDataGatherer* gatherer) const {
+    BlendColorFilterBlock::BlendColorFilterData data(fMode, SkColor4f::FromColor(fColor).premul());
+
+    BlendColorFilterBlock::BeginBlock(keyContext, builder, gatherer, data);
+    builder->endBlock();
+}
+
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkColorFilter> SkColorFilters::Blend(SkColor color, SkBlendMode mode) {
@@ -130,7 +147,7 @@ sk_sp<SkColorFilter> SkColorFilters::Blend(SkColor color, SkBlendMode mode) {
 
     unsigned alpha = SkColorGetA(color);
 
-    // first collaps some modes if possible
+    // first collapse some modes if possible
 
     if (SkBlendMode::kClear == mode) {
         color = 0;

@@ -574,3 +574,7 @@ half4 sk_blend(int blendMode, half4 src, half4 dst) {
 half4 sk_blend_shader(int blendMode, half4 child0, half4 child1) {
     return sk_blend(blendMode, child1, child0);
 }
+
+half4 sk_blend_colorfilter(half4 dstColor, int blendMode, float4 srcColor) {
+    return sk_blend(blendMode, half4(srcColor), dstColor);
+}
