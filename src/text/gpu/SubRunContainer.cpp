@@ -2514,6 +2514,20 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
     auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
     bool someGlyphExcluded = false;
+    std::vector<SkPackedGlyphID> packedGlyphIDs;
+    SkSpan<SkPoint> positions;
+    // This rearranging of arrays is temporary until the updated buffer system is
+    // in place.
+    auto convertToGlyphIDs = [&](SkZip<SkGlyphVariant, SkPoint> good)
+            -> SkZip<SkPackedGlyphID, SkPoint> {
+        positions = good.get<1>();
+        packedGlyphIDs.resize(positions.size());
+
+        for (auto [packedGlyphID, variant] : SkMakeZip(packedGlyphIDs, good.get<0>())) {
+            packedGlyphID = variant.glyph()->getPackedID();
+        }
+        return SkMakeZip(packedGlyphIDs, positions);
+    };
     for (auto& glyphRun : glyphRunList) {
         rejected->setSource(glyphRun.source());
         const SkFont& runFont = glyphRun.font();
@@ -2650,19 +2664,9 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 strikeRef.asStrikeForGPU()->prepareForPathDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
 
-                // This rearranging of arrays is temporary until the updated buffer system is
-                // in place.
-                SkZip<SkGlyphVariant, SkPoint> temp = accepted->accepted();
-                SkSpan<SkPoint> positions = temp.get<1>();
-                std::vector<SkPackedGlyphID> packedGlyphIDs(positions.size());
-
-                for (auto [packedGlyphID, variant] : SkMakeZip(packedGlyphIDs, temp.get<0>())) {
-                    packedGlyphID = variant.glyph()->getPackedID();
-                }
-
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     container->fSubRuns.append(
-                            PathSubRun::Make(SkMakeZip(packedGlyphIDs, positions),
+                            PathSubRun::Make(convertToGlyphIDs(accepted->accepted()),
                                              has_some_antialiasing(runFont),
                                              strikeToSourceScale,
                                              std::move(strikeRef),
