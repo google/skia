@@ -11,19 +11,15 @@
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkDistanceFieldGen.h"
-#include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/text/GlyphRun.h"
-#include "src/text/StrikeForGPU.h"
 #include "src/text/gpu/Glyph.h"
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SubRunAllocator.h"
-
-#include <optional>
 
 #if SK_SUPPORT_GPU  // Ganesh Support
 #include "src/gpu/ganesh/GrClip.h"
@@ -57,7 +53,6 @@ enum SubRun::SubRunType : int {
 
 using MaskFormat = skgpu::MaskFormat;
 
-using namespace sktext;
 using namespace sktext::gpu;
 
 #if defined(SK_GRAPHITE_ENABLED)
@@ -499,39 +494,22 @@ std::tuple<bool, SkVector> can_use_direct(
 }
 
 // -- PathOpSubmitter ------------------------------------------------------------------------------
-// PathOpSubmitter holds glyph ids until ready to draw. During drawing, the glyph ids are
-// converted to SkPaths. PathOpSubmitter can only be serialized when it is holding glyph ids;
-// it can only be serialized before submitDraws has been called.
+// Shared code for submitting GPU ops for drawing glyphs as paths.
 class PathOpSubmitter {
+    union Variant;
+
 public:
-    PathOpSubmitter() = delete;
-    PathOpSubmitter(const PathOpSubmitter&) = delete;
-    const PathOpSubmitter& operator=(const PathOpSubmitter&) = delete;
-    PathOpSubmitter(PathOpSubmitter&& that)
-            // Transfer ownership of fIDsOrPaths from that to this.
-            : fIDsOrPaths{std::exchange(
-                      const_cast<SkSpan<IDOrPath>&>(that.fIDsOrPaths), SkSpan<IDOrPath>{})}
-            , fPositions{that.fPositions}
-            , fStrikeToSourceScale{that.fStrikeToSourceScale}
-            , fIsAntiAliased{that.fIsAntiAliased}
-            , fStrikeRef{std::move(that.fStrikeRef)} {}
-    PathOpSubmitter& operator=(PathOpSubmitter&& that) {
-        this->~PathOpSubmitter();
-        new (this) PathOpSubmitter{std::move(that)};
-        return *this;
-    }
     PathOpSubmitter(bool isAntiAliased,
                     SkScalar strikeToSourceScale,
                     SkSpan<SkPoint> positions,
-                    SkSpan<IDOrPath> idsOrPaths,
-                    StrikeRef&& strikeRef);
+                    SkSpan<SkGlyphID> glyphIDs,
+                    std::unique_ptr<SkPath[], SubRunAllocator::ArrayDestroyer> paths,
+                    const SkDescriptor& descriptor);
 
-    ~PathOpSubmitter();
-
-    static PathOpSubmitter Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
+    static PathOpSubmitter Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                 bool isAntiAliased,
                                 SkScalar strikeToSourceScale,
-                                StrikeRef&& strikeRef,
+                                const SkDescriptor& descriptor,
                                 SubRunAllocator* alloc);
 
     int unflattenSize() const;
@@ -539,51 +517,39 @@ public:
     static std::optional<PathOpSubmitter> MakeFromBuffer(SkReadBuffer& buffer,
                                                          SubRunAllocator* alloc,
                                                          const SkStrikeClient* client);
-
-    // submitDraws is not thread safe. It only occurs the single thread drawing portion of the GPU
-    // rendering.
     void submitDraws(SkCanvas*,
                      SkPoint drawOrigin,
                      const SkPaint& paint) const;
 
 private:
-    // When PathOpSubmitter is created only the glyphIDs are needed, during the submitDraws call,
-    // the glyphIDs are converted to SkPaths.
-    const SkSpan<IDOrPath> fIDsOrPaths;
-    const SkSpan<const SkPoint> fPositions;
-    const SkScalar fStrikeToSourceScale;
     const bool fIsAntiAliased;
-
-    // If fStrikeRef.getStrikeAndSetToNullptr() is nullptr, then fIDsOrPaths holds SkPaths.
-    mutable StrikeRef fStrikeRef;
+    const SkScalar fStrikeToSourceScale;
+    const SkSpan<const SkPoint> fPositions;
+    const SkSpan<const SkGlyphID> fGlyphIDs;
+    std::unique_ptr<SkPath[], SubRunAllocator::ArrayDestroyer> fPaths;
+    const SkAutoDescriptor fDescriptor;
 };
 
 int PathOpSubmitter::unflattenSize() const {
-    return fPositions.size_bytes() + fIDsOrPaths.size_bytes();
+    return fPositions.size_bytes() + fGlyphIDs.size_bytes() + SkCount(fGlyphIDs) * sizeof(SkPath);
 }
 
 void PathOpSubmitter::flatten(SkWriteBuffer& buffer) const {
-    fStrikeRef.flatten(buffer);
-
     buffer.writeInt(fIsAntiAliased);
     buffer.writeScalar(fStrikeToSourceScale);
     buffer.writeInt(SkCount(fPositions));
     for (auto pos : fPositions) {
         buffer.writePoint(pos);
     }
-    for (IDOrPath& idOrPath : fIDsOrPaths) {
-        buffer.writeInt(idOrPath.fGlyphID);
+    for (SkGlyphID glyphID : fGlyphIDs) {
+        buffer.writeInt(glyphID);
     }
+    fDescriptor.getDesc()->flatten(buffer);
 }
 
 std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buffer,
                                                                SubRunAllocator* alloc,
                                                                const SkStrikeClient* client) {
-    std::optional<StrikeRef> strikeRef = StrikeRef::MakeFromBuffer(buffer, client);
-    if (!buffer.validate(strikeRef.has_value())) {
-        return std::nullopt;
-    }
-
     bool isAntiAlias = buffer.readInt();
     SkScalar strikeToSourceScale = buffer.readScalar();
 
@@ -597,75 +563,84 @@ std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buf
 
     // Remember, we stored an int for glyph id.
     if (!buffer.validateCanReadN<int>(glyphCount)) { return std::nullopt; }
-    auto idsOrPaths = SkSpan(alloc->makeUniqueArray<IDOrPath>(glyphCount).release(), glyphCount);
-    for (auto& idOrPath : idsOrPaths) {
-        idOrPath.fGlyphID = SkTo<SkGlyphID>(buffer.readInt());
+    SkGlyphID* glyphIDs = alloc->makePODArray<SkGlyphID>(glyphCount);
+    for (int i = 0; i < glyphCount; ++i) {
+        glyphIDs[i] = SkTo<SkGlyphID>(buffer.readInt());
     }
 
-    if (!buffer.isValid()) {
-        return std::nullopt;
+    auto descriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
+    if (!buffer.validate(descriptor.has_value())) { return std::nullopt; }
+
+    // Translate the TypefaceID if this was transferred from the GPU process.
+    if (client != nullptr) {
+        if (!client->translateTypefaceID(&descriptor.value())) { return std::nullopt; }
     }
 
-    return PathOpSubmitter{isAntiAlias,
-                           strikeToSourceScale,
-                           SkSpan(positions, glyphCount),
-                           idsOrPaths,
-                           std::move(strikeRef.value())};
+    auto strike = SkStrikeCache::GlobalStrikeCache()->findStrike(*descriptor->getDesc());
+    if (!buffer.validate(strike != nullptr)) { return std::nullopt; }
+
+    auto paths = alloc->makeUniqueArray<SkPath>(glyphCount);
+    SkBulkGlyphMetricsAndPaths pathGetter{std::move(strike)};
+
+    for (auto [i, glyphID] : SkMakeEnumerate(SkSpan(glyphIDs, glyphCount))) {
+        const SkPath* path = pathGetter.glyph(glyphID)->path();
+        // There should never be missing paths in a sub run.
+        if (path == nullptr) { return std::nullopt; }
+        paths[i] = *path;
+    }
+
+    SkASSERT(buffer.isValid());
+    return {PathOpSubmitter{isAntiAlias,
+                            strikeToSourceScale,
+                            SkSpan(positions, glyphCount),
+                            SkSpan(glyphIDs, glyphCount),
+                            std::move(paths),
+                            *descriptor->getDesc()}};
 }
 
 PathOpSubmitter::PathOpSubmitter(
         bool isAntiAliased,
         SkScalar strikeToSourceScale,
         SkSpan<SkPoint> positions,
-        SkSpan<IDOrPath> idsOrPaths,
-        StrikeRef&& strikeRef)
-        : fIDsOrPaths{idsOrPaths}
-        , fPositions{positions}
+        SkSpan<SkGlyphID> glyphIDs,
+        std::unique_ptr<SkPath[], SubRunAllocator::ArrayDestroyer> paths,
+        const SkDescriptor& descriptor)
+        : fIsAntiAliased{isAntiAliased}
         , fStrikeToSourceScale{strikeToSourceScale}
-        , fIsAntiAliased{isAntiAliased}
-        , fStrikeRef{std::move(strikeRef)} {
+        , fPositions{positions}
+        , fGlyphIDs{glyphIDs}
+        , fPaths{std::move(paths)}
+        , fDescriptor{descriptor} {
     SkASSERT(!fPositions.empty());
 }
 
-PathOpSubmitter::~PathOpSubmitter() noexcept {
-    // If we have converted glyph IDs to paths, then clean up the SkPaths.
-    if (fStrikeRef.getStrikeAndSetToNullptr() == nullptr) {
-        for (auto& idOrPath : fIDsOrPaths) {
-            idOrPath.fPath.~SkPath();
-        }
-    }
-}
-
-PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
+PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                       bool isAntiAliased,
                                       SkScalar strikeToSourceScale,
-                                      StrikeRef&& strikeRef,
+                                      const SkDescriptor& descriptor,
                                       SubRunAllocator* alloc) {
     int glyphCount = SkCount(accepted);
     SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
-    IDOrPath* idsOrPaths = alloc->makeUniqueArray<IDOrPath>(glyphCount).release();
+    SkGlyphID* glyphIDs = alloc->makePODArray<SkGlyphID>(glyphCount);
+    auto paths = alloc->makeUniqueArray<SkPath>(glyphCount);
 
-    for (auto [dstIdOrPath, dstPosition, srcPackedGlyphID, srcPosition] :
-            SkMakeZip(idsOrPaths, positions, accepted.get<0>(), accepted.get<1>())) {
-        dstPosition = srcPosition;
-        dstIdOrPath.fGlyphID = srcPackedGlyphID.glyphID();
+    for (auto [i, variant, pos] : SkMakeEnumerate(accepted)) {
+        positions[i] = pos;
+        glyphIDs[i] = variant.glyph()->getGlyphID();
+        paths[i] = *variant.glyph()->path();
     }
 
     return PathOpSubmitter{isAntiAliased,
                            strikeToSourceScale,
                            SkSpan(positions, glyphCount),
-                           SkSpan(idsOrPaths, glyphCount),
-                           std::move(strikeRef)};
+                           SkSpan(glyphIDs, glyphCount),
+                           std::move(paths),
+                           descriptor};
 }
 
 void PathOpSubmitter::submitDraws(SkCanvas* canvas,
                                   SkPoint drawOrigin,
                                   const SkPaint& paint) const {
-    // Convert all the SkGlyphIDs to SkPaths
-    if (sk_sp<SkStrike> strike = fStrikeRef.getStrikeAndSetToNullptr()) {
-        strike->glyphIDsToPaths(fIDsOrPaths);
-    }
-
     SkPaint runPaint{paint};
     runPaint.setAntiAlias(fIsAntiAliased);
 
@@ -692,25 +667,25 @@ void PathOpSubmitter::submitDraws(SkCanvas* canvas,
             runPaint.setMaskFilter(
                     SkMaskFilter::MakeBlur(blurRec.fStyle, blurRec.fSigma / fStrikeToSourceScale));
         }
-        for (auto [idOrPath, pos] : SkMakeZip(fIDsOrPaths, fPositions)) {
+        for (auto [path, pos] : SkMakeZip(fPaths.get(), fPositions)) {
             // Transform the glyph to source space.
             SkMatrix pathMatrix = strikeToSource;
             pathMatrix.postTranslate(pos.x(), pos.y());
 
             SkAutoCanvasRestore acr(canvas, true);
             canvas->concat(pathMatrix);
-            canvas->drawPath(idOrPath.fPath, runPaint);
+            canvas->drawPath(path, runPaint);
         }
     } else {
         // Transform the path to device because the deviceMatrix must be unchanged to
         // draw effect, filter or shader paths.
-        for (auto [idOrPath, pos] : SkMakeZip(fIDsOrPaths, fPositions)) {
+        for (auto [path, pos] : SkMakeZip(fPaths.get(), fPositions)) {
             // Transform the glyph to source space.
             SkMatrix pathMatrix = strikeToSource;
             pathMatrix.postTranslate(pos.x(), pos.y());
 
             SkPath deviceOutline;
-            idOrPath.fPath.transform(pathMatrix, &deviceOutline);
+            path.transform(pathMatrix, &deviceOutline);
             deviceOutline.setIsVolatile(true);
             canvas->drawPath(deviceOutline, runPaint);
         }
@@ -722,14 +697,14 @@ class PathSubRun final : public SubRun {
 public:
     PathSubRun(PathOpSubmitter&& pathDrawing) : fPathDrawing(std::move(pathDrawing)) {}
 
-    static SubRunOwner Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
+    static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             bool isAntiAliased,
                             SkScalar strikeToSourceScale,
-                            StrikeRef&& strikeRef,
+                            const SkDescriptor& descriptor,
                             SubRunAllocator* alloc) {
         return alloc->makeUnique<PathSubRun>(
                 PathOpSubmitter::Make(
-                        accepted, isAntiAliased, strikeToSourceScale, std::move(strikeRef), alloc));
+                        accepted, isAntiAliased, strikeToSourceScale, descriptor, alloc));
     }
 
 #if SK_SUPPORT_GPU
@@ -2119,7 +2094,7 @@ private:
 
     const bool fUseLCDText;
     const bool fAntiAliased;
-    const SDFTMatrixRange fMatrixRange;
+    const sktext::gpu::SDFTMatrixRange fMatrixRange;
 
     const TransformedMaskVertexFiller fVertexFiller;
 
@@ -2535,7 +2510,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
 
     const SkSurfaceProps deviceProps = strikeDeviceInfo.fSurfaceProps;
     const SkScalerContextFlags scalerContextFlags = strikeDeviceInfo.fScalerContextFlags;
-    const SDFTControl SDFTControl = *strikeDeviceInfo.fSDFTControl;
+    const sktext::gpu::SDFTControl SDFTControl = *strikeDeviceInfo.fSDFTControl;
 
     auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
@@ -2666,33 +2641,21 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
             }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                StrikeRef strikeRef = strikeCache->findOrCreateStrikeRef(strikeSpec);
+                ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-
-                strikeRef.asStrikeForGPU()->prepareForPathDrawing(accepted, rejected);
+                strike->prepareForPathDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
 
-                // This rearranging of arrays is temporary until the updated buffer system is
-                // in place.
-                SkZip<SkGlyphVariant, SkPoint> temp = accepted->accepted();
-                SkSpan<SkPoint> positions = temp.get<1>();
-                std::vector<SkPackedGlyphID> packedGlyphIDs(positions.size());
-
-                for (auto [packedGlyphID, variant] : SkMakeZip(packedGlyphIDs, temp.get<0>())) {
-                    packedGlyphID = variant.glyph()->getPackedID();
-                }
-
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
-                    container->fSubRuns.append(
-                            PathSubRun::Make(SkMakeZip(packedGlyphIDs, positions),
-                                             has_some_antialiasing(runFont),
-                                             strikeToSourceScale,
-                                             std::move(strikeRef),
-                                             alloc));
+                    container->fSubRuns.append(PathSubRun::Make(accepted->accepted(),
+                                                                has_some_antialiasing(runFont),
+                                                                strikeToSourceScale,
+                                                                strikeSpec.descriptor(),
+                                                                alloc));
                 }
             }
         }
@@ -2867,4 +2830,5 @@ bool SubRunContainer::canReuse(const SkPaint& paint, const SkMatrix& positionMat
     }
     return true;
 }
+
 }  // namespace sktext::gpu

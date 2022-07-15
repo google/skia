@@ -71,12 +71,11 @@ using ScopedStrikeForGPU = std::unique_ptr<StrikeForGPU, StrikeForGPU::Deleter>;
 
 // prepareForPathDrawing uses this union to convert glyph ids to paths.
 union IDOrPath {
-    IDOrPath() {}
+    SkGlyphID fGlyphID;
+    SkPath fPath;
 
     // PathOpSubmitter takes care of destroying the paths.
     ~IDOrPath() {}
-    SkGlyphID fGlyphID;
-    SkPath fPath;
 };
 
 // -- StrikeRef ------------------------------------------------------------------------------------
