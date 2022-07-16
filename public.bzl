@@ -2313,6 +2313,7 @@ SKOTTIE_LIB_SRCS = [
     "modules/skottie/src/animator/Vec2KeyframeAnimator.cpp",
     "modules/skottie/src/animator/VectorKeyframeAnimator.cpp",
     "modules/skottie/src/animator/VectorKeyframeAnimator.h",
+    "modules/skottie/src/BlendModes.cpp",
     "modules/skottie/src/Camera.cpp",
     "modules/skottie/src/Camera.h",
     "modules/skottie/src/Composition.cpp",
