@@ -26,6 +26,7 @@
 
 enum class SkPathFillType;
 class SkPipelineDataGatherer;
+class SkTextureDataBlock;
 
 namespace skgpu { enum class MaskFormat; }
 
@@ -60,6 +61,10 @@ public:
     // UniformCache handles making an sk_sp if we need to assign a new unique ID to the uniform data
     virtual void writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const = 0;
 
+    // Write out the textures and samplers that depend on the RenderStep.
+    // E.g., atlas textures and samplers for text rendering.
+    virtual void writeTextures(const DrawParams&, SkPipelineDataGatherer*) const {}
+
     // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
     // and variant is a unique term describing instance's specific configuration.
     const char* name() const { return fName.c_str(); }
@@ -81,8 +86,9 @@ public:
     // and then including the function bodies returned here.
     virtual const char* vertexSkSL() const = 0;
 
-    bool          requiresMSAA()    const { return fFlags & Flags::kRequiresMSAA;    }
-    bool          performsShading() const { return fFlags & Flags::kPerformsShading; }
+    bool          requiresMSAA()    const { return fFlags & Flags::kRequiresMSAA;      }
+    bool          performsShading() const { return fFlags & Flags::kPerformsShading;   }
+    bool          hasTextures()     const { return fFlags & Flags::kHasTextures; }
 
     PrimitiveType primitiveType()   const { return fPrimitiveType;  }
     size_t        vertexStride()    const { return fVertexStride;   }
@@ -122,6 +128,7 @@ protected:
         kNone            = 0b000,
         kRequiresMSAA    = 0b001,
         kPerformsShading = 0b010,
+        kHasTextures     = 0b100,
     };
     SK_DECL_BITMASK_OPS_FRIENDS(Flags);
 

@@ -54,19 +54,27 @@ ExtractPaintData(Recorder* recorder,
     return { entry->uniqueID(), uniformIndex, textureIndex };
 }
 
-UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
-                                              SkPipelineDataGatherer* gatherer,
-                                              const RenderStep* step,
-                                              const DrawParams& geometry) {
+std::tuple<UniformDataCache::Index, TextureDataCache::Index>
+ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
+                      TextureDataCache* textureDataCache,
+                      SkPipelineDataGatherer* gatherer,
+                      const RenderStep* step,
+                      const DrawParams& params) {
     SkDEBUGCODE(gatherer->checkReset());
 
-    step->writeUniforms(geometry, gatherer);
+    step->writeUniforms(params, gatherer);
 
     UniformDataCache::Index uIndex = geometryUniformDataCache->insert(gatherer->peekUniformData());
 
+    TextureDataCache::Index textureIndex;
+    if (step->hasTextures()) {
+        step->writeTextures(params, gatherer);
+        textureIndex = textureDataCache->insert(gatherer->textureDataBlock());
+    }
+
     gatherer->reset();
 
-    return uIndex;
+    return { uIndex, textureIndex };
 }
 
 } // namespace skgpu::graphite

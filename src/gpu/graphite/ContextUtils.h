@@ -29,10 +29,12 @@ ExtractPaintData(Recorder*,
                  const SkM44& dev2local,
                  const PaintParams&);
 
-UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
-                                              SkPipelineDataGatherer* gatherer,
-                                              const RenderStep* step,
-                                              const DrawParams& params);
+std::tuple<UniformDataCache::Index, TextureDataCache::Index>
+ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
+                      TextureDataCache* textureDataCache,
+                      SkPipelineDataGatherer* gatherer,
+                      const RenderStep* step,
+                      const DrawParams& params);
 
 } // namespace skgpu::graphite
 
