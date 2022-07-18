@@ -23,6 +23,6 @@ bool local_variable_hides_global_variable_b() {
 }
 vec4 main() {
     glob = 2;
-    bool _0_var = true;
+    const bool _0_var = true;
     return (((_0_var && block_variable_hides_global_variable_b()) && local_variable_hides_struct_b()) && local_struct_variable_hides_struct_type_b()) && local_variable_hides_global_variable_b() ? colorGreen : colorRed;
 }

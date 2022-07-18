@@ -15,14 +15,27 @@
 namespace SkSL {
 
 class Context;
+class Expression;
 struct LoadedModule;
+struct Modifiers;
 struct Program;
 class ProgramElement;
 class ProgramUsage;
 class Statement;
+class Variable;
 enum class ProgramKind : int8_t;
 
 namespace Transform {
+
+/**
+ * Checks to see if it would be safe to add `const` to the modifiers of a variable. If so, returns
+ * the modifiers with `const` applied; if not, returns the existing modifiers as-is. Adding `const`
+ * allows the inliner to fold away more values and generate tighter code.
+ */
+const Modifiers* AddConstToVarModifiers(const Context& context,
+                                        const Variable& var,
+                                        const Expression* initialValue,
+                                        const ProgramUsage* usage);
 
 /**
  * Scans the finished program for built-in variables like `sk_FragColor` and adds them to the

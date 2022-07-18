@@ -39,7 +39,5 @@ bool flatten_switch_b() {
     }
 }
 vec4 main() {
-    ivec4 _0_x = ivec4(1, 2, 3, 4);
-    ivec4 _1_y = ivec4(1, 2, 3, 4);
-    return ((((((_0_x == _1_y && flatten_known_if_b()) && eliminate_empty_if_else_b()) && eliminate_empty_else_b()) && flatten_matching_ternary_b()) && flatten_expr_without_side_effects_b()) && eliminate_no_op_arithmetic_b()) && flatten_switch_b() ? colorGreen : colorRed;
+    return ((((((true && flatten_known_if_b()) && eliminate_empty_if_else_b()) && eliminate_empty_else_b()) && flatten_matching_ternary_b()) && flatten_expr_without_side_effects_b()) && eliminate_no_op_arithmetic_b()) && flatten_switch_b() ? colorGreen : colorRed;
 }

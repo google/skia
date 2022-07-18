@@ -1625,6 +1625,7 @@ BASE_SRCS_ALL = [
     "src/sksl/tracing/SkVMDebugTrace.h",
     "src/sksl/tracing/SkVMDebugTracePlayer.cpp",
     "src/sksl/tracing/SkVMDebugTracePlayer.h",
+    "src/sksl/transform/SkSLAddConstToVarModifiers.cpp",
     "src/sksl/transform/SkSLBuiltinVariableScanner.cpp",
     "src/sksl/transform/SkSLEliminateDeadFunctions.cpp",
     "src/sksl/transform/SkSLEliminateDeadGlobalVariables.cpp",

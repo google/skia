@@ -15,11 +15,6 @@ vec4 main() {
     float _11_z = testInputs.z;
     float _12_w = testInputs.w;
     vec4 b = vec4(_9_x, _10_y, _11_z, _12_w);
-    vec4 _13_v = vec4(0.0, 1.0, 2.0, 3.0);
-    float _14_x = _13_v.x;
-    float _15_y = _13_v.y;
-    float _16_z = _13_v.z;
-    float _17_w = _13_v.w;
-    vec4 c = vec4(_14_x, _15_y, _16_z, _17_w);
+    vec4 c = vec4(0.0, 1.0, 2.0, 3.0);
     return (a == vec4(-1.25, 0.0, 0.75, 2.25) && b == vec4(-1.25, 0.0, 0.75, 2.25)) && c == vec4(0.0, 1.0, 2.0, 3.0) ? colorGreen : colorRed;
 }

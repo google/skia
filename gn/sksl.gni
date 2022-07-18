@@ -204,6 +204,7 @@ skia_sksl_sources = [
   "$_src/sksl/spirv.h",
   "$_src/sksl/tracing/SkVMDebugTrace.cpp",
   "$_src/sksl/tracing/SkVMDebugTrace.h",
+  "$_src/sksl/transform/SkSLAddConstToVarModifiers.cpp",
   "$_src/sksl/transform/SkSLBuiltinVariableScanner.cpp",
   "$_src/sksl/transform/SkSLEliminateDeadFunctions.cpp",
   "$_src/sksl/transform/SkSLEliminateDeadGlobalVariables.cpp",

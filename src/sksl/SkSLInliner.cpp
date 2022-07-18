@@ -56,6 +56,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
 #include <climits>
@@ -433,11 +434,12 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                                                     std::unique_ptr<Expression>* resultExpr,
                                                     ReturnComplexity returnComplexity,
                                                     const Statement& statement,
+                                                    const ProgramUsage& usage,
                                                     bool isBuiltinCode) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
             return this->inlineStatement(pos, varMap, symbolTableForStatement, resultExpr,
-                                         returnComplexity, *s, isBuiltinCode);
+                                         returnComplexity, *s, usage, isBuiltinCode);
         }
         return nullptr;
     };
@@ -454,6 +456,10 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             return this->inlineExpression(pos, varMap, symbolTableForStatement, *e);
         }
         return nullptr;
+    };
+    auto variableModifiers = [&](const Variable& variable,
+                                 const Expression* initialValue) -> const Modifiers* {
+        return Transform::AddConstToVarModifiers(*fContext, variable, initialValue, &usage);
     };
 
     ++fInlinedStatementCounter;
@@ -563,13 +569,13 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             const std::string* name = symbolTableForStatement->takeOwnershipOfString(
                     fContext->fMangler->uniqueName(variable.name(), symbolTableForStatement));
             auto clonedVar = std::make_unique<Variable>(
-                                                     pos,
-                                                     variable.modifiersPosition(),
-                                                     &variable.modifiers(),
-                                                     name->c_str(),
-                                                     variable.type().clone(symbolTableForStatement),
-                                                     isBuiltinCode,
-                                                     variable.storage());
+                    pos,
+                    variable.modifiersPosition(),
+                    variableModifiers(variable, initialValue.get()),
+                    name->c_str(),
+                    variable.type().clone(symbolTableForStatement),
+                    isBuiltinCode,
+                    variable.storage());
             varMap->set(&variable, VariableReference::Make(pos, clonedVar.get()));
             auto result = VarDeclaration::Make(*fContext,
                                                clonedVar.get(),
@@ -664,7 +670,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineStatements.push_back(this->inlineStatement(pos, &varMap, symbolTable.get(),
                                                          &resultExpr, returnComplexity, *stmt,
-                                                         caller->isBuiltin()));
+                                                         usage, caller->isBuiltin()));
     }
 
     SkASSERT(inlineStatements.count() <= expectedStmtCount);

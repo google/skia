@@ -73,6 +73,7 @@ private:
                                                std::unique_ptr<Expression>* resultExpr,
                                                ReturnComplexity returnComplexity,
                                                const Statement& statement,
+                                               const ProgramUsage& usage,
                                                bool isBuiltinCode);
 
     /**
