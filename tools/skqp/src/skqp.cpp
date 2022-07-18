@@ -306,24 +306,16 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     // just default to it being less.
     int minAndroidAPILevel = 0;
 #ifdef SK_BUILD_FOR_ANDROID
-    // check for the minAPI level based on the order defined in
+    // ro.vendor.api_level contains the minAPI level based on the order defined in
     // docs.partner.android.com/gms/building/integrating/extending-os-upgrade-support-windows
     //  1. board's current api level (for boards that have been upgraded by the SoC vendor)
     //  2. board's first api level (for devices that initially shipped with an older version)
     //  3. product's first api level
     //  4. product's current api level
-    const auto propertyIds = { "ro.board.api_level",
-                               "ro.board.first_api_level",
-                               "ro.product.first_api_level",
-                               "ro.build.version.sdk" };
-
     char minAPIVersionStr[PROP_VALUE_MAX];
-    for (const char* property : propertyIds) {
-        int strLength = __system_property_get(property, minAPIVersionStr);
-        if (strLength != 0) {
-            minAndroidAPILevel = atoi(minAPIVersionStr);
-            break;
-        }
+    int strLength = __system_property_get("ro.vendor.api_level", minAPIVersionStr);
+    if (strLength != 0) {
+        minAndroidAPILevel = atoi(minAPIVersionStr);
     }
 #endif
 
