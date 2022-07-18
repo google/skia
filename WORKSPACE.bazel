@@ -286,6 +286,13 @@ new_local_repository(
 )
 
 new_local_repository(
+    name = "spirv_cross",
+    build_file = "bazel/external/spirv_cross/BUILD.bazel",
+    path = "third_party/externals/spirv-cross",
+    workspace_file_content = "",
+)
+
+new_local_repository(
     name = "perfetto",
     build_file = "bazel/external/perfetto/BUILD.bazel",
     path = "third_party/externals/perfetto",

@@ -61,7 +61,7 @@ cc_library(
     name = "deps",
     visibility = ["//src/sksl:__pkg__"],
     deps = select({
-        "//src/sksl:use_sksl_gpu_srcs": ["//third_party:spirv_cross"],
+        "//src/sksl:use_sksl_gpu_srcs": ["@spirv_cross"],
         "//conditions:default": [],
     }),
 )

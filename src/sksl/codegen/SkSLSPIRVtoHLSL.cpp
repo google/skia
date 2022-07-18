@@ -9,7 +9,7 @@
 
 #if defined(SK_ENABLE_SPIRV_CROSS)
 
-#include "third_party/externals/spirv-cross/spirv_hlsl.hpp"
+#include <spirv_hlsl.hpp>
 
 /*
  * This translation unit serves as a bridge between Skia/SkSL and SPIRV-Cross.
