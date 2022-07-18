@@ -33,6 +33,25 @@ static inline SkFixed SkFDot6ToFixedDiv2(SkFDot6 value) {
 
 /////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_DEBUG
+void SkEdge::dump() const {
+    int realLastY = SkScalarToFixed(fLastY);
+    if (fCurveCount > 0) {
+        realLastY = static_cast<const SkQuadraticEdge*>(this)->fQLastY;
+    } else if (fCurveCount < 0) {
+        realLastY = static_cast<const SkCubicEdge*>(this)->fCLastY;
+    }
+    SkDebugf("edge (%c): firstY:%d lastY:%d (%g) x:%g dx:%g w:%d\n",
+             fCurveCount > 0 ? 'Q' : (fCurveCount < 0 ? 'C' : 'L'),
+             fFirstY,
+             fLastY,
+             SkFixedToFloat(realLastY),
+             SkFixedToFloat(fX),
+             SkFixedToFloat(fDX),
+             fWinding);
+}
+#endif
+
 int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
                     int shift) {
     SkFDot6 x0, y0, x1, y1;

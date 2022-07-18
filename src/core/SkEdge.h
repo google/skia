@@ -49,10 +49,7 @@ struct SkEdge {
     }
 
 #ifdef SK_DEBUG
-    void dump() const {
-        SkDebugf("edge: firstY:%d lastY:%d x:%g dx:%g w:%d\n", fFirstY, fLastY, SkFixedToFloat(fX), SkFixedToFloat(fDX), fWinding);
-    }
-
+    void dump() const;
     void validate() const {
         SkASSERT(fPrev && fNext);
         SkASSERT(fPrev->fNext == this);
