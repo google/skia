@@ -11,6 +11,6 @@ cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",
-        "//third_party:icu",
+        "@icu",
     ],
 )

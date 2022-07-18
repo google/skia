@@ -241,6 +241,18 @@ local_repository(
 )
 
 new_local_repository(
+    name = "icu",
+    build_file = "bazel/external/icu/BUILD.bazel",
+    path = "third_party/externals/icu",
+    workspace_file_content = "",
+)
+
+local_repository(
+    name = "icu_utils",
+    path = "bazel/external/icu/utils",
+)
+
+new_local_repository(
     name = "libjpeg_turbo",
     build_file = "bazel/external/libjpeg_turbo/BUILD.bazel",
     path = "third_party/externals/libjpeg-turbo",
