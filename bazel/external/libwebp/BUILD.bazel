@@ -11,6 +11,14 @@ config_setting(
 )
 
 WEBP_SRCS = [
+    "sharpyuv/sharpyuv.c",
+    "sharpyuv/sharpyuv.h",
+    "sharpyuv/sharpyuv_csp.c",
+    "sharpyuv/sharpyuv_csp.h",
+    "sharpyuv/sharpyuv_dsp.c",
+    "sharpyuv/sharpyuv_dsp.h",
+    "sharpyuv/sharpyuv_gamma.c",
+    "sharpyuv/sharpyuv_gamma.h",
     "src/dec/alpha_dec.c",
     "src/dec/alphai_dec.h",
     "src/dec/buffer_dec.c",
@@ -41,6 +49,7 @@ WEBP_SRCS = [
     "src/dsp/cost_neon.c",
     "src/dsp/cost_sse2.c",
     "src/dsp/cpu.c",
+    "src/dsp/cpu.h",
     "src/dsp/dec.c",
     "src/dsp/dec_clip_tables.c",
     "src/dsp/dec_mips32.c",
