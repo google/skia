@@ -199,9 +199,7 @@ cc_library(
     }),
     visibility = ["//src:__pkg__"],
     deps = select({
-        ":any_freetype_fontmgr": [
-            "//third_party:freetype2",
-        ],
+        ":any_freetype_fontmgr": ["@freetype//:freetype"],
         "//conditions:default": [],
     }),
 )

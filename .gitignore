@@ -8,6 +8,7 @@
 .gradle
 .idea
 .cproject
+.clwb/
 .project
 .recipe_deps/
 .settings/

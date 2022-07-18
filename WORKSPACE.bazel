@@ -64,9 +64,9 @@ http_archive(
     sha256 = "5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29",
     strip_prefix = "rules_python-0.9.0",
     urls = [
-    "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.9.0.tar.gz",
-    "https://storage.googleapis.com/skia-world-readable/bazel/5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29.tar.gz",
-    ]
+        "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.9.0.tar.gz",
+        "https://storage.googleapis.com/skia-world-readable/bazel/5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29.tar.gz",
+    ],
 )
 
 # This sets up a hermetic python3, rather than depending on what is installed.
@@ -222,6 +222,22 @@ new_local_repository(
     build_file = "bazel/external/expat/BUILD.bazel",
     path = "third_party/externals/expat",
     workspace_file_content = "",
+)
+
+new_local_repository(
+    name = "freetype",
+    build_file = "bazel/external/freetype/BUILD.bazel",
+    path = "third_party/externals/freetype",
+    workspace_file_content = "",
+)
+
+# In order to copy the Freetype configurations into the checked out Freetype folder,
+# it is easiest to treat them as a third-party dependency from the perspective of Freetype.
+# To do that, we put them in their own Bazel workspace and then have our injected BUILD.bazel
+# for Freetype reference this workspace.
+local_repository(
+    name = "freetype_config",
+    path = "bazel/external/freetype/config",
 )
 
 new_local_repository(
