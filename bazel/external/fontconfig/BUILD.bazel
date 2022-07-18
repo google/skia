@@ -1,0 +1,10 @@
+# We currently do not build fontconfig from source, but dynamically link against a precompiled
+# version. This precompiled version is downloaded as part of the hermetic toolchain.
+#
+# Instead of inlining this linkopts setting, we have this as its own rule so we can link
+# against a different target when rolling into G3.
+cc_library(
+    name = "fontconfig",
+    linkopts = ["-lfontconfig"],
+    visibility = ["//:__subpackages__"],
+)

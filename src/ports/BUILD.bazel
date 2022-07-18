@@ -26,6 +26,9 @@ filegroup(
         "//bazel/common_config_settings:custom_empty_fontmgr_factory": [
             ":fontmgr_custom_empty_factory",
         ],
+        "//bazel/common_config_settings:fontconfig_fontmgr_factory": [
+            ":fontmgr_fontconfig_factory",
+        ],
         ("//bazel/common_config_settings:empty_fontmgr_factory", "//conditions:default"): [
             ":fontmgr_empty_factory",
         ],
@@ -39,6 +42,7 @@ filegroup(
             "//bazel/common_config_settings:custom_directory_fontmgr": [":fontmgr_custom_directory"],
             "//bazel/common_config_settings:custom_embedded_fontmgr": [":fontmgr_custom_embedded"],
             "//bazel/common_config_settings:custom_empty_fontmgr": [":fontmgr_custom_empty"],
+            "//bazel/common_config_settings:fontconfig_fontmgr": [":fontmgr_fontconfig"],
         },
         default = [],
     ),
@@ -108,6 +112,22 @@ filegroup(
 )
 
 filegroup(
+    name = "fontmgr_fontconfig",
+    srcs = [
+        "SkFontMgr_fontconfig.cpp",
+        ":typeface_freetype",
+    ],
+)
+
+filegroup(
+    name = "fontmgr_fontconfig_factory",
+    srcs = [
+        "SkFontMgr_fontconfig_factory.cpp",
+        ":fontmgr_fontconfig",
+    ],
+)
+
+filegroup(
     name = "global_init",
     srcs = ["SkGlobalInitialization_default.cpp"],
 )
@@ -167,7 +187,7 @@ filegroup(
 filegroup(
     name = "private_hdrs",
     srcs = ["SkOSLibrary.h"] + select({
-        ":any_freetype_fontmgr": [
+        ":uses_freetype": [
             "SkFontHost_FreeType_common.h",
             "SkFontMgr_custom.h",
         ],
@@ -180,7 +200,7 @@ filegroup(
 )
 
 selects.config_setting_group(
-    name = "any_freetype_fontmgr",
+    name = "uses_freetype",
     match_any = [
         "//bazel/common_config_settings:custom_directory_fontmgr",
         "//bazel/common_config_settings:custom_directory_fontmgr_factory",
@@ -188,6 +208,16 @@ selects.config_setting_group(
         "//bazel/common_config_settings:custom_embedded_fontmgr_factory",
         "//bazel/common_config_settings:custom_empty_fontmgr",
         "//bazel/common_config_settings:custom_empty_fontmgr_factory",
+        "//bazel/common_config_settings:fontconfig_fontmgr",
+        "//bazel/common_config_settings:fontconfig_fontmgr_factory",
+    ],
+)
+
+selects.config_setting_group(
+    name = "uses_fontconfig",
+    match_any = [
+        "//bazel/common_config_settings:fontconfig_fontmgr",
+        "//bazel/common_config_settings:fontconfig_fontmgr_factory",
     ],
 )
 
@@ -199,7 +229,10 @@ cc_library(
     }),
     visibility = ["//src:__pkg__"],
     deps = select({
-        ":any_freetype_fontmgr": ["@freetype//:freetype"],
+        ":uses_freetype": ["@freetype"],
+        "//conditions:default": [],
+    }) + select({
+        ":uses_fontconfig": ["//bazel/external/fontconfig:fontconfig"],
         "//conditions:default": [],
     }),
 )

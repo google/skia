@@ -148,6 +148,7 @@ string_flag_with_values(
         "custom_empty_fontmgr_factory",
         # Makes the default SkFontMgr return null. Typically used when font support is not desired.
         "empty_fontmgr_factory",
+        "fontconfig_fontmgr_factory",
     ],
 )
 
@@ -167,6 +168,7 @@ string_flag_with_values(
         "custom_embedded_fontmgr",
         # Allows the construction of an SkFontMgr which returns empty fonts.
         "custom_empty_fontmgr",
+        "fontconfig_fontmgr",
     ],
 )
 
