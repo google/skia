@@ -13,7 +13,7 @@ cc_library(
         "//:skia_internal",
         "//modules/skshaper",
         "//modules/skunicode",
-        "//third_party:harfbuzz",
+        "@harfbuzz",
         "@icu",
     ],
 )

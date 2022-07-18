@@ -241,6 +241,18 @@ local_repository(
 )
 
 new_local_repository(
+    name = "harfbuzz",
+    build_file = "bazel/external/harfbuzz/BUILD.bazel",
+    path = "third_party/externals/harfbuzz",
+    workspace_file_content = "",
+)
+
+local_repository(
+    name = "harfbuzz_config",
+    path = "bazel/external/harfbuzz/config",
+)
+
+new_local_repository(
     name = "icu",
     build_file = "bazel/external/icu/BUILD.bazel",
     path = "third_party/externals/icu",

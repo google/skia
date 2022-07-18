@@ -13,7 +13,7 @@ cc_library(
         "//:skia_internal",
     ] + select({
         "//bazel/common_config_settings:harfbuzz_shaper": [
-            "//third_party:harfbuzz",
+            "@harfbuzz",
             "//modules/skunicode",
         ],
         "//conditions:default": [],
