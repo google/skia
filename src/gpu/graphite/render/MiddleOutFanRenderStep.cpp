@@ -59,7 +59,8 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer, const DrawParams&
     }
 }
 
-void MiddleOutFanRenderStep::writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const {
+void MiddleOutFanRenderStep::writeUniformsAndTextures(const DrawParams&,
+                                                      SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 

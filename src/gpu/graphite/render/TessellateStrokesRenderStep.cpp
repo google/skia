@@ -211,8 +211,8 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw, const DrawParams
     }
 }
 
-void TessellateStrokesRenderStep::writeUniforms(const DrawParams& params,
-                                                SkPipelineDataGatherer* gatherer) const {
+void TessellateStrokesRenderStep::writeUniformsAndTextures(const DrawParams& params,
+                                                           SkPipelineDataGatherer* gatherer) const {
     SkASSERT(params.transform().type() < Transform::Type::kProjection); // TODO: Implement perspective
 
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)

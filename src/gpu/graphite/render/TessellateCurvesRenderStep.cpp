@@ -123,7 +123,8 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawParams&
     }
 }
 
-void TessellateCurvesRenderStep::writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const {
+void TessellateCurvesRenderStep::writeUniformsAndTextures(const DrawParams&,
+                                                          SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 

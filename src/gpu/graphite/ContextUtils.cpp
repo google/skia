@@ -62,13 +62,12 @@ ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
                       const DrawParams& params) {
     SkDEBUGCODE(gatherer->checkReset());
 
-    step->writeUniforms(params, gatherer);
+    step->writeUniformsAndTextures(params, gatherer);
 
     UniformDataCache::Index uIndex = geometryUniformDataCache->insert(gatherer->peekUniformData());
 
     TextureDataCache::Index textureIndex;
     if (step->hasTextures()) {
-        step->writeTextures(params, gatherer);
         textureIndex = textureDataCache->insert(gatherer->textureDataBlock());
     }
 

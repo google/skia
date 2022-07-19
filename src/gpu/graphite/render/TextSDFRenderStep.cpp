@@ -68,8 +68,8 @@ void TextSDFRenderStep::writeVertices(DrawWriter* dw, const DrawParams& params) 
                                         params.order().depthAsFloat(), params.transform());
 }
 
-void TextSDFRenderStep::writeUniforms(const DrawParams& params,
-                                      SkPipelineDataGatherer* gatherer) const {
+void TextSDFRenderStep::writeUniformsAndTextures(const DrawParams& params,
+                                                 SkPipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     // TODO: get this from the actual texture size via the SubRunData

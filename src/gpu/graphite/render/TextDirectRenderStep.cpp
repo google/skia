@@ -71,8 +71,8 @@ void TextDirectRenderStep::writeVertices(DrawWriter* dw, const DrawParams& param
                                         params.transform());
 }
 
-void TextDirectRenderStep::writeUniforms(const DrawParams& params,
-                                         SkPipelineDataGatherer* gatherer) const {
+void TextDirectRenderStep::writeUniformsAndTextures(const DrawParams& params,
+                                                    SkPipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     const SubRunData& subRunData = params.geometry().subRunData();
@@ -83,21 +83,12 @@ void TextDirectRenderStep::writeUniforms(const DrawParams& params,
                                                         &numProxies);
     SkASSERT(proxies && numProxies > 0);
 
+    // write uniforms
     skvx::float2 atlasDimensionsInverse = {1.f/proxies[0]->dimensions().width(),
                                            1.f/proxies[0]->dimensions().height()};
     gatherer->write(atlasDimensionsInverse);
-}
 
-void TextDirectRenderStep::writeTextures(const DrawParams& params,
-                                         SkPipelineDataGatherer* gatherer) const {
-    const SubRunData& subRunData = params.geometry().subRunData();
-
-    unsigned int numProxies;
-    Recorder* recorder = subRunData.recorder();
-    const sk_sp<TextureProxy>* proxies =
-            recorder->priv().atlasManager()->getProxies(subRunData.subRun()->maskFormat(),
-                                                        &numProxies);
-    SkASSERT(proxies && numProxies > 0);
+    // write textures and samplers
     const SkSamplingOptions samplingOptions(SkFilterMode::kNearest);
     const SkTileMode tileModes[2] = { SkTileMode::kClamp, SkTileMode::kClamp };
     for (unsigned int i = 0; i < numProxies; ++i) {

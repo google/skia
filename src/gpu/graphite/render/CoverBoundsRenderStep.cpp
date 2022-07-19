@@ -56,7 +56,8 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer, const DrawParams& 
                     << devPoints[2].x << devPoints[2].y << depth << devPoints[2].w;// BR
 }
 
-void CoverBoundsRenderStep::writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const {
+void CoverBoundsRenderStep::writeUniformsAndTextures(const DrawParams&,
+                                                     SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 

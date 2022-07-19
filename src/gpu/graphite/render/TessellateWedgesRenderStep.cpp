@@ -154,7 +154,8 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw, const DrawParams&
     }
 }
 
-void TessellateWedgesRenderStep::writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const {
+void TessellateWedgesRenderStep::writeUniformsAndTextures(const DrawParams&,
+                                                          SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 

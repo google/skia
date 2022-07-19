@@ -50,20 +50,17 @@ public:
     // this RenderStep.
     virtual void writeVertices(DrawWriter*, const DrawParams&) const = 0;
 
-    // Write out the uniform values (aligned for the layout). These values will be de-duplicated
-    // across all draws using the RenderStep before uploading to the GPU, but it can be assumed the
-    // uniforms will be bound before the draws recorded in 'writeVertices' are executed.
+    // Write out the uniform values (aligned for the layout), textures, and samplers. The uniform
+    // values will be de-duplicated across all draws using the RenderStep before uploading to the
+    // GPU, but it can be assumed the uniforms will be bound before the draws recorded in
+    // 'writeVertices' are executed.
     // TODO: We definitely want this to return CPU memory since it's better for the caller to handle
     // the de-duplication and GPU upload/binding (DrawPass tracks all this). However, a RenderStep's
     // uniforms aren't going to change, and the Layout won't change during a process, so it would be
     // nice if we could remember the offsets for the layout/gpu and reuse them across draws.
     // Similarly, it would be nice if this could write into reusable storage and then DrawPass or
     // UniformCache handles making an sk_sp if we need to assign a new unique ID to the uniform data
-    virtual void writeUniforms(const DrawParams&, SkPipelineDataGatherer*) const = 0;
-
-    // Write out the textures and samplers that depend on the RenderStep.
-    // E.g., atlas textures and samplers for text rendering.
-    virtual void writeTextures(const DrawParams&, SkPipelineDataGatherer*) const {}
+    virtual void writeUniformsAndTextures(const DrawParams&, SkPipelineDataGatherer*) const = 0;
 
     // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
     // and variant is a unique term describing instance's specific configuration.
