@@ -1169,8 +1169,7 @@ public:
                      const SkMatrix& initialPositionMatrix,
                      SkGlyphRect deviceBounds,
                      SkSpan<const SkPoint> devicePositions,
-                     GlyphVector&& glyphs,
-                     bool glyphsOutOfBounds);
+                     GlyphVector&& glyphs);
 
     static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkMatrix& initialPositionMatrix,
@@ -1263,7 +1262,6 @@ private:
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
     const SkGlyphRect fGlyphDeviceBounds;
     const SkSpan<const SkPoint> fLeftTopDevicePos;
-    const bool fSomeGlyphsExcluded;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
@@ -1274,13 +1272,11 @@ DirectMaskSubRun::DirectMaskSubRun(MaskFormat format,
                                    const SkMatrix& initialPositionMatrix,
                                    SkGlyphRect deviceBounds,
                                    SkSpan<const SkPoint> devicePositions,
-                                   GlyphVector&& glyphs,
-                                   bool glyphsOutOfBounds)
+                                   GlyphVector&& glyphs)
         : fMaskFormat{format}
         , fInitialPositionMatrix{initialPositionMatrix}
         , fGlyphDeviceBounds{deviceBounds}
         , fLeftTopDevicePos{devicePositions}
-        , fSomeGlyphsExcluded{glyphsOutOfBounds}
         , fGlyphs{std::move(glyphs)} {}
 
 SubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
@@ -1300,24 +1296,14 @@ SubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepte
         glyphIDs[i].packedGlyphID = skGlyph->getPackedID();
     }
 
-    // TODO: since excluded is now always false, remove all that stuff from TextBlob and Slug.
     SkSpan<const SkPoint> leftTop{glyphLeftTop, accepted.size()};
     return alloc->makeUnique<DirectMaskSubRun>(
             format, initialPositionMatrix, runBounds, leftTop,
-            GlyphVector{std::move(strike), {glyphIDs, accepted.size()}},
-            false);
+            GlyphVector{std::move(strike), {glyphIDs, accepted.size()}});
 }
 
 bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
-    auto [reuse, translation] =
-            can_use_direct(fInitialPositionMatrix, positionMatrix);
-
-    // If glyphs were excluded because of position bounds, then this subrun can only be reused if
-    // there is no change in position.
-    if (fSomeGlyphsExcluded) {
-        return translation.x() == 0 && translation.y() == 0;
-    }
-
+    auto [reuse, _] = can_use_direct(fInitialPositionMatrix, positionMatrix);
     return reuse;
 }
 
@@ -1344,7 +1330,7 @@ SubRunOwner DirectMaskSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatr
     SkASSERT(buffer.isValid());
     return alloc->makeUnique<DirectMaskSubRun>(
             maskType, initialPositionMatrix, runBounds, positions,
-            std::move(glyphVector.value()), false);
+            std::move(glyphVector.value()));
 }
 
 void DirectMaskSubRun::doFlatten(SkWriteBuffer& buffer) const {
