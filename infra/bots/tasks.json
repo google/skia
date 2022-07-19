@@ -876,6 +876,16 @@
         "CodeSize-skottie_tool-Debian10-Clang-x86_64-OptimizeForSize"
       ]
     },
+    "CodeSize-skottie_tool_cpu-Debian10-Clang-x86_64-OptimizeForSize": {
+      "tasks": [
+        "CodeSize-skottie_tool_cpu-Debian10-Clang-x86_64-OptimizeForSize"
+      ]
+    },
+    "CodeSize-skottie_tool_gpu-Debian10-Clang-x86_64-OptimizeForSize": {
+      "tasks": [
+        "CodeSize-skottie_tool_gpu-Debian10-Clang-x86_64-OptimizeForSize"
+      ]
+    },
     "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
@@ -19370,6 +19380,130 @@
         "Build-Debian10-Clang-x86_64-OptimizeForSize",
         "--binary_name",
         "skottie_tool",
+        "--bloaty_cipd_version",
+        "version:1",
+        "--repo",
+        "<(REPO)",
+        "--revision",
+        "<(REVISION)",
+        "--patch_issue",
+        "<(ISSUE)",
+        "--patch_set",
+        "<(PATCHSET)",
+        "--patch_server",
+        "<(CODEREVIEW_SERVER)"
+      ],
+      "dependencies": [
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 1200000000000,
+      "io_timeout_ns": 1200000000000,
+      "max_attempts": 1,
+      "service_account": "skia-external-codesize@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "CodeSize-skottie_tool_cpu-Debian10-Clang-x86_64-OptimizeForSize": {
+      "caches": [
+        {
+          "name": "work",
+          "path": "cache/work"
+        }
+      ],
+      "casSpec": "empty",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
+        },
+        {
+          "name": "skia/bots/bloaty",
+          "path": "bloaty",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "./codesize",
+        "--local=false",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "CodeSize-skottie_tool_cpu-Debian10-Clang-x86_64-OptimizeForSize",
+        "--compile_task_name",
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
+        "--binary_name",
+        "skottie_tool_cpu",
+        "--bloaty_cipd_version",
+        "version:1",
+        "--repo",
+        "<(REPO)",
+        "--revision",
+        "<(REVISION)",
+        "--patch_issue",
+        "<(ISSUE)",
+        "--patch_set",
+        "<(PATCHSET)",
+        "--patch_server",
+        "<(CODEREVIEW_SERVER)"
+      ],
+      "dependencies": [
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 1200000000000,
+      "io_timeout_ns": 1200000000000,
+      "max_attempts": 1,
+      "service_account": "skia-external-codesize@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "CodeSize-skottie_tool_gpu-Debian10-Clang-x86_64-OptimizeForSize": {
+      "caches": [
+        {
+          "name": "work",
+          "path": "cache/work"
+        }
+      ],
+      "casSpec": "empty",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
+        },
+        {
+          "name": "skia/bots/bloaty",
+          "path": "bloaty",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "./codesize",
+        "--local=false",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "CodeSize-skottie_tool_gpu-Debian10-Clang-x86_64-OptimizeForSize",
+        "--compile_task_name",
+        "Build-Debian10-Clang-x86_64-OptimizeForSize",
+        "--binary_name",
+        "skottie_tool_gpu",
         "--bloaty_cipd_version",
         "version:1",
         "--repo",

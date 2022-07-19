@@ -239,8 +239,8 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Graphite' in extra_tokens:
     args['skia_enable_graphite'] = 'true'
     args['skia_use_metal'] = 'true'
-    if 'NoGpu' in extra_tokens:
-      args['skia_enable_gpu'] = 'false'
+  if 'NoGpu' in extra_tokens:
+    args['skia_enable_gpu'] = 'false'
   if 'NoDEPS' in extra_tokens:
     args.update({
       'is_official_build':             'true',
@@ -349,12 +349,16 @@ def copy_build_products(api, src, dst):
   util.copy_listed_files(api, src, dst, util.DEFAULT_BUILD_PRODUCTS)
   extra_tokens  = api.vars.extra_tokens
   os            = api.vars.builder_cfg.get('os', '')
+  configuration = api.vars.builder_cfg.get('configuration', '')
 
   if 'SwiftShader' in extra_tokens:
     util.copy_listed_files(api,
         src.join('swiftshader_out'),
         api.vars.swarming_out_dir.join('swiftshader_out'),
         util.DEFAULT_BUILD_PRODUCTS)
+
+  if configuration == 'OptimizeForSize':
+    util.copy_listed_files(api, src, dst, ['skottie_tool_cpu', 'skottie_tool_gpu'])
 
   if os == 'Mac' and any('SAN' in t for t in extra_tokens):
     # The XSAN dylibs are in
