@@ -32,7 +32,7 @@
 // A tint filter maps colors to a given range (gradient), based on the input luminance:
 //
 //   c' = lerp(lo, hi, luma(c))
-static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi, bool useSkSL) {
+static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi) {
     const auto r_lo = SkColorGetR(lo),
     g_lo = SkColorGetG(lo),
     b_lo = SkColorGetB(lo),
@@ -61,43 +61,23 @@ static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi, bool use
     sk_sp<SkColorFilter> inner = SkLumaColorFilter::Make(),
                          outer = SkColorFilters::Matrix(tint_matrix);
 
-    // Prove that we can implement compose-color-filter using runtime effects
-    if (useSkSL) {
-        auto [effect, error] = SkRuntimeEffect::MakeForColorFilter(SkString(R"(
-            uniform colorFilter inner;
-            uniform colorFilter outer;
-            half4 main(half4 c) { return outer.eval(inner.eval(c)); }
-        )"));
-        SkASSERT(effect);
-        SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect.get()));
-        sk_sp<SkColorFilter> children[] = { inner, outer };
-        return effect->makeColorFilter(nullptr, children, std::size(children));
-    } else {
-        return outer->makeComposed(inner);
-    }
+    return outer->makeComposed(inner);
 }
 
 DEF_SIMPLE_GM(composeCF, canvas, 200, 200) {
-    // This GM draws a simple color-filter network, using the existing "makeComposed" API, and also
-    // using a runtime color filter that does the same thing.
+    // This GM draws a simple color-filter network using the "makeComposed" API
     SkPaint paint;
     const SkColor gradient_colors[] = {SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED};
     paint.setShader(SkGradientShader::MakeSweep(
             50, 50, gradient_colors, nullptr, std::size(gradient_colors)));
 
-    canvas->save();
-    for (bool useSkSL : {false, true}) {
-        auto cf0 = MakeTintColorFilter(0xff300000, 0xffa00000, useSkSL);  // red tint
-        auto cf1 = MakeTintColorFilter(0xff003000, 0xff00a000, useSkSL);  // green tint
+    auto cf0 = MakeTintColorFilter(0xff300000, 0xffa00000);  // red tint
+    auto cf1 = MakeTintColorFilter(0xff003000, 0xff00a000);  // green tint
 
-        paint.setColorFilter(cf0);
-        canvas->drawRect({0, 0, 100, 100}, paint);
-        canvas->translate(100, 0);
+    paint.setColorFilter(cf0);
+    canvas->drawRect({0, 0, 100, 100}, paint);
+    canvas->translate(100, 0);
 
-        paint.setColorFilter(cf1);
-        canvas->drawRect({0, 0, 100, 100}, paint);
-
-        canvas->restore();
-        canvas->translate(0, 100);
-    }
+    paint.setColorFilter(cf1);
+    canvas->drawRect({0, 0, 100, 100}, paint);
 }
