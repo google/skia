@@ -17,7 +17,6 @@ GRADIENT_FILES = [
     "SkLinearGradient.h",
     "SkRadialGradient.cpp",
     "SkSweepGradient.cpp",
-    "SkSweepGradient.h",
     "SkTwoPointConicalGradient.cpp",
     "SkTwoPointConicalGradient.h",
 ]

@@ -1435,7 +1435,6 @@ BASE_SRCS_ALL = [
     "src/shaders/gradients/SkLinearGradient.h",
     "src/shaders/gradients/SkRadialGradient.cpp",
     "src/shaders/gradients/SkSweepGradient.cpp",
-    "src/shaders/gradients/SkSweepGradient.h",
     "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
     "src/shaders/gradients/SkTwoPointConicalGradient.h",
     "src/sksl/GLSL.std.450.h",

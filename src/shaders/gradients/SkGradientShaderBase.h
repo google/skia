@@ -175,5 +175,6 @@ struct SkColor4fXformer {
 };
 
 void SkRegisterRadialGradientShaderFlattenable();
+void SkRegisterSweepGradientShaderFlattenable();
 
 #endif

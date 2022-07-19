@@ -790,39 +790,6 @@ std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
     return MakeGradientFP(shader, args, std::move(fp));
 }
 
-std::unique_ptr<GrFragmentProcessor> MakeSweep(const SkSweepGradient& shader,
-                                               const GrFPArgs& args) {
-    // On some devices they incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
-    // atan2(y,x) = 2 * atan(y / (sqrt(x^2 + y^2) + x)). So to work around this we pass in (sqrt(x^2
-    // + y^2) + x) as the second parameter to atan2 in these cases. We let the device handle the
-    // undefined behavior of the second paramenter being 0 instead of doing the divide ourselves and
-    // using atan instead.
-    int useAtanWorkaround =
-            args.fContext->priv().caps()->shaderCaps()->fAtan2ImplementedAsAtanYOverX;
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform half bias;
-        uniform half scale;
-        uniform int useAtanWorkaround;  // specialized
-
-        half4 main(float2 coord) {
-            half angle = bool(useAtanWorkaround)
-                    ? half(2 * atan(-coord.y, length(coord) - coord.x))
-                    : half(atan(-coord.y, -coord.x));
-
-            // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
-            half t = (angle * 0.1591549430918 + 0.5 + bias) * scale;
-            return half4(t, 1, 0, 0); // y = 1 for always valid
-        }
-    )");
-    // The sweep gradient never rejects a pixel so it doesn't change opacity
-    auto fp = GrSkSLFP::Make(effect, "SweepLayout", /*inputFP=*/nullptr,
-                             GrSkSLFP::OptFlags::kPreservesOpaqueInput,
-                             "bias", shader.getTBias(),
-                             "scale", shader.getTScale(),
-                             "useAtanWorkaround", GrSkSLFP::Specialize(useAtanWorkaround));
-    return MakeGradientFP(shader, args, std::move(fp));
-}
-
 std::unique_ptr<GrFragmentProcessor> MakeConical(const SkTwoPointConicalGradient& shader,
                                                  const GrFPArgs& args) {
     // The 2 point conical gradient can reject a pixel so it does change opacity even if the input

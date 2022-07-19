@@ -11,7 +11,6 @@
 #include "include/private/SkTArray.h"
 #include "src/shaders/gradients/SkGradientShaderBase.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
-#include "src/shaders/gradients/SkSweepGradient.h"
 #include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -235,66 +234,11 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
     return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count, 0, nullptr);
 }
 
-sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
-                                            const SkColor4f colors[],
-                                            sk_sp<SkColorSpace> colorSpace,
-                                            const SkScalar pos[],
-                                            int colorCount,
-                                            SkTileMode mode,
-                                            SkScalar startAngle,
-                                            SkScalar endAngle,
-                                            uint32_t flags,
-                                            const SkMatrix* localMatrix) {
-    if (!SkGradientShaderBase::ValidGradient(colors, pos, colorCount, mode)) {
-        return nullptr;
-    }
-    if (1 == colorCount) {
-        return SkShaders::Color(colors[0], std::move(colorSpace));
-    }
-    if (!SkScalarIsFinite(startAngle) || !SkScalarIsFinite(endAngle) || startAngle > endAngle) {
-        return nullptr;
-    }
-    if (localMatrix && !localMatrix->invert(nullptr)) {
-        return nullptr;
-    }
-
-    if (SkScalarNearlyEqual(startAngle, endAngle, SkGradientShaderBase::kDegenerateThreshold)) {
-        // Degenerate gradient, which should follow default degenerate behavior unless it is
-        // clamped and the angle is greater than 0.
-        if (mode == SkTileMode::kClamp && endAngle > SkGradientShaderBase::kDegenerateThreshold) {
-            // In this case, the first color is repeated from 0 to the angle, then a hardstop
-            // switches to the last color (all other colors are compressed to the infinitely thin
-            // interpolation region).
-            static constexpr SkScalar clampPos[3] = {0, 1, 1};
-            SkColor4f reColors[3] = {colors[0], colors[0], colors[colorCount - 1]};
-            return MakeSweep(cx, cy, reColors, std::move(colorSpace), clampPos, 3, mode, 0,
-                             endAngle, flags, localMatrix);
-        } else {
-            return SkGradientShaderBase::MakeDegenerateGradient(colors, pos, colorCount,
-                                                                std::move(colorSpace), mode);
-        }
-    }
-
-    if (startAngle <= 0 && endAngle >= 360) {
-        // If the t-range includes [0,1], then we can always use clamping (presumably faster).
-        mode = SkTileMode::kClamp;
-    }
-
-    SkGradientShaderBase::ColorStopOptimizer opt(colors, pos, colorCount, mode);
-
-    SkGradientShaderBase::Descriptor desc(opt.fColors, std::move(colorSpace), opt.fPos,
-                                          opt.fCount, mode, flags, localMatrix);
-
-    const SkScalar t0 = startAngle / 360,
-                   t1 =   endAngle / 360;
-
-    return sk_make_sp<SkSweepGradient>(SkPoint::Make(cx, cy), t0, t1, desc);
-}
 
 // TODO: flatten this into SkFlattenable::PrivateInitializer::InitEffects
 void SkGradientShader::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkLinearGradient);
     SkRegisterRadialGradientShaderFlattenable();
-    SK_REGISTER_FLATTENABLE(SkSweepGradient);
+    SkRegisterSweepGradientShaderFlattenable();
     SK_REGISTER_FLATTENABLE(SkTwoPointConicalGradient);
 }
