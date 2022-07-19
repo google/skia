@@ -66,11 +66,7 @@ bool SmallPathAtlasMgr::initAtlas(GrProxyProvider* proxyProvider, const GrCaps* 
                                  kPlotWidth, kPlotHeight, this,
                                  GrDrawOpAtlas::AllowMultitexturing::kYes,
                                  this,
-                                 /*label=*/"SmallPathAtlas",
-    // TODO: Investigate if this is reall the right choice. The truly small paths are uploaded
-    //  as bitmaps and rendered with Nearest sampling. It's a question how many are falling
-    //  back to SDF at this point, as opposed to using one of Chris's path renderers.
-                                 skgpu::PadAllGlyphs::kYes);
+                                 /*label=*/"SmallPathAtlas");
 
     return SkToBool(fAtlas);
 }

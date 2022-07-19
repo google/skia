@@ -23,9 +23,9 @@ using MaskFormat = skgpu::MaskFormat;
 GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider,
                                size_t maxTextureBytes,
                                GrDrawOpAtlas::AllowMultitexturing allowMultitexturing,
-                               skgpu::PadAllGlyphs padAllGlyphs)
+                               bool supportBilerpAtlas)
             : fAllowMultitexturing{allowMultitexturing}
-            , fPadAllGlyphs{padAllGlyphs}
+            , fSupportBilerpAtlas{supportBilerpAtlas}
             , fProxyProvider{proxyProvider}
             , fCaps{fProxyProvider->refCaps()}
             , fAtlasConfig{fCaps->maxTextureSize(), maxTextureBytes} { }
@@ -158,7 +158,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
         case 0:
             // The direct mask/image case.
             padding = 0;
-            if (fPadAllGlyphs == skgpu::PadAllGlyphs::kYes) {
+            if (fSupportBilerpAtlas) {
                 // Force direct masks (glyph with no padding) to have padding.
                 padding = 1;
                 srcPadding = 1;
@@ -343,8 +343,7 @@ bool GrAtlasManager::initAtlas(MaskFormat format) {
                                               this,
                                               fAllowMultitexturing,
                                               nullptr,
-                                              /*label=*/"TextAtlas",
-                                              fPadAllGlyphs);
+                                              /*label=*/"TextAtlas");
         if (!fAtlases[index]) {
             return false;
         }

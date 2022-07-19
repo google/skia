@@ -118,4 +118,10 @@ void RectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int widt
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+Rectanizer* Rectanizer::Factory(int width, int height) {
+    return new RectanizerSkyline(width, height);
+}
+
 } // End of namespace skgpu

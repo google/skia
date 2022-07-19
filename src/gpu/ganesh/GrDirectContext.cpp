@@ -262,19 +262,13 @@ bool GrDirectContext::init() {
     } else {
         allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
     }
-    skgpu::PadAllGlyphs padAllGlyphs;
-    if (this->options().fSupportBilerpFromGlyphAtlas) {
-        padAllGlyphs = skgpu::PadAllGlyphs::kYes;
-    } else {
-        padAllGlyphs = skgpu::PadAllGlyphs::kNo;
-    }
 
     GrProxyProvider* proxyProvider = this->priv().proxyProvider();
 
     fAtlasManager = std::make_unique<GrAtlasManager>(proxyProvider,
                                                      this->options().fGlyphCacheTextureMaximumBytes,
                                                      allowMultitexturing,
-                                                     padAllGlyphs);
+                                                     this->options().fSupportBilerpFromGlyphAtlas);
     this->priv().addOnFlushCallbackObject(fAtlasManager.get());
 
     return true;

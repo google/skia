@@ -108,7 +108,7 @@ private:
     DrawAtlas::AllowMultitexturing fAllowMultitexturing;
     std::unique_ptr<DrawAtlas> fAtlases[kMaskFormatCount];
     static_assert(kMaskFormatCount == 3);
-    PadAllGlyphs fPadAllGlyphs;
+    bool fSupportBilerpAtlas;
     DrawAtlasConfig fAtlasConfig;
 };
 

@@ -32,7 +32,7 @@ public:
     GrAtlasManager(GrProxyProvider*,
                    size_t maxTextureBytes,
                    GrDrawOpAtlas::AllowMultitexturing,
-                   skgpu::PadAllGlyphs padAllGlyphs);
+                   bool supportBilerpAtlas);
     ~GrAtlasManager() override;
 
     // if getViews returns nullptr, the client must not try to use other functions on the
@@ -122,12 +122,6 @@ public:
 
     void setAtlasDimensionsToMinimum_ForTesting();
     void setMaxPages_TestingOnly(uint32_t maxPages);
-    GrDrawOpAtlas* getAtlas_TestingOnly(skgpu::MaskFormat format) {
-        format = this->resolveMaskFormat(format);
-        int atlasIndex = MaskFormatToAtlasIndex(format);
-        SkASSERT(fAtlases[atlasIndex]);
-        return fAtlases[atlasIndex].get();
-    }
 
 private:
     bool initAtlas(skgpu::MaskFormat);
@@ -161,7 +155,7 @@ private:
     GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
     std::unique_ptr<GrDrawOpAtlas> fAtlases[skgpu::kMaskFormatCount];
     static_assert(skgpu::kMaskFormatCount == 3);
-    skgpu::PadAllGlyphs fPadAllGlyphs;
+    bool fSupportBilerpAtlas;
     GrProxyProvider* fProxyProvider;
     sk_sp<const GrCaps> fCaps;
     GrDrawOpAtlasConfig fAtlasConfig;

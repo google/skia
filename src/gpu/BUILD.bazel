@@ -16,8 +16,6 @@ CORE_FILES = [
     "Rectanizer.h",
     "RectanizerPow2.cpp",
     "RectanizerPow2.h",
-    "RectanizerOptimized.cpp",
-    "RectanizerOptimized.h",
     "RectanizerSkyline.cpp",
     "RectanizerSkyline.h",
     "RefCntedCallback.h",
