@@ -12,7 +12,6 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/shaders/gradients/SkGradientShaderBase.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
-#include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 
 #if GR_TEST_UTILS
 #include "include/utils/SkRandom.h"
@@ -26,9 +25,6 @@ namespace GrGradientShader {
 
     std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
                                                     const GrFPArgs& args);
-
-    std::unique_ptr<GrFragmentProcessor> MakeConical(const SkTwoPointConicalGradient& shader,
-                                                     const GrFPArgs& args);
 
 #if GR_TEST_UTILS
     /** Helper struct that stores (and populates) parameters to construct a random gradient.
