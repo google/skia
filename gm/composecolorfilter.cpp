@@ -64,7 +64,7 @@ static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi) {
     return outer->makeComposed(inner);
 }
 
-DEF_SIMPLE_GM(composeCF, canvas, 200, 200) {
+DEF_SIMPLE_GM(composeCF, canvas, 200, 100) {
     // This GM draws a simple color-filter network using the "makeComposed" API
     SkPaint paint;
     const SkColor gradient_colors[] = {SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED};
