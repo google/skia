@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2016 Google Inc.
 #
@@ -9,7 +9,6 @@
 """Run all infrastructure-related tests."""
 
 
-from __future__ import print_function
 import os
 import subprocess
 import sys
@@ -30,14 +29,14 @@ def python_unit_tests(train):
   if train:
     return None
   return test(
-      ['python', '-u', '-m', 'unittest', 'discover', '-s', '.', '-p',
+      [sys.executable, '-u', '-m', 'unittest', 'discover', '-s', '.', '-p',
        '*_test.py'],
       INFRA_BOTS_DIR)
 
 
 def recipe_test(train):
   cmd = [
-      'python', '-u', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test']
+      sys.executable, '-u', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test']
   if train:
     cmd.append('train')
   else:

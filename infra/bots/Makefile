@@ -1,5 +1,5 @@
 test:
-	python infra_tests.py
+	./infra_tests.py
 
 train:
-	python infra_tests.py --train
+	./infra_tests.py --train
