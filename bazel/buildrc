@@ -28,8 +28,10 @@ build:release --compilation_mode=opt
 build:debug --compilation_mode=dbg
 
 # See also https://github.com/emscripten-core/emsdk/issues/984 for disabling cc_toolchain_resolution
-build:ck_release --config=release --noincompatible_enable_cc_toolchain_resolution
-build:ck_debug --config=debug --noincompatible_enable_cc_toolchain_resolution
+build:webgl2_release --config=release --noincompatible_enable_cc_toolchain_resolution
+build:webgl2_debug --config=debug --noincompatible_enable_cc_toolchain_resolution
+# TODO(kjlubick) We should be able to configure testing on Chrome or Firefox with this.
+build:webgl2_release_chrome --config=webgl2_release
 
 # We only want to enforce IWYU on debug builds because we have some things that are only
 # necessary to include in debug mode (e.g. SkDEBUGCODE), but very rarely something that is

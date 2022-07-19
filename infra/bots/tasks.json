@@ -30,9 +30,9 @@
         "BazelBuild-example_hello_world_vulkan-release-linux_x64"
       ]
     },
-    "BazelBuild-modules_canvaskit_canvaskit_wasm-ck_debug-linux_x64": {
+    "BazelBuild-modules_canvaskit_canvaskit_wasm-webgl2_debug-linux_x64": {
       "tasks": [
-        "BazelBuild-modules_canvaskit_canvaskit_wasm-ck_debug-linux_x64"
+        "BazelBuild-modules_canvaskit_canvaskit_wasm-webgl2_debug-linux_x64"
       ]
     },
     "BazelBuild-skia_public-enforce_iwyu-linux_x64": {
@@ -43,6 +43,11 @@
     "BazelBuild-skia_public-release-linux_x64": {
       "tasks": [
         "BazelBuild-skia_public-release-linux_x64"
+      ]
+    },
+    "BazelTest-canvaskit_gold-webgl2_release_chrome-linux_x64": {
+      "tasks": [
+        "BazelTest-canvaskit_gold-webgl2_release_chrome-linux_x64"
       ]
     },
     "Build-Debian10-Clang-arm-Debug-Android": {
@@ -3542,7 +3547,7 @@
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "BazelBuild-modules_canvaskit_canvaskit_wasm-ck_debug-linux_x64": {
+    "BazelBuild-modules_canvaskit_canvaskit_wasm-webgl2_debug-linux_x64": {
       "casSpec": "compile",
       "cipd_packages": [
         {
@@ -3560,9 +3565,9 @@
         "bazel_build_task_driver/bazel_build",
         "--project_id=skia-swarming-bots",
         "--task_id=<(TASK_ID)",
-        "--task_name=BazelBuild-modules_canvaskit_canvaskit_wasm-ck_debug-linux_x64",
+        "--task_name=BazelBuild-modules_canvaskit_canvaskit_wasm-webgl2_debug-linux_x64",
         "--label=//modules/canvaskit:canvaskit_wasm",
-        "--config=ck_debug",
+        "--config=webgl2_debug",
         "--workdir=.",
         "--expunge_cache",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
@@ -3652,6 +3657,52 @@
         "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-standard-16",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "bazelisk"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "BazelTest-canvaskit_gold-webgl2_release_chrome-linux_x64": {
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/bazelisk",
+          "path": "bazelisk",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/tools/goldctl/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:34ecdc8775563915792e05ba9d921342808ae2dc"
+        }
+      ],
+      "command": [
+        "./canvaskit_gold",
+        "--project_id=skia-swarming-bots",
+        "--task_id=<(TASK_ID)",
+        "--task_name=BazelTest-canvaskit_gold-webgl2_release_chrome-linux_x64",
+        "--test_config=webgl2_release_chrome",
+        "--workdir=.",
+        "--goldctl_path=./cipd_bin_packages/goldctl",
+        "--git_commit=<(REVISION)",
+        "--changelist_id=<(ISSUE)",
+        "--patchset_order=<(PATCHSET)",
+        "--tryjob_id=<(BUILDBUCKET_BUILD_ID)"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -85075,6 +85126,8 @@
         "skia/infra/canvaskit",
         "skia/infra/pathkit",
         "skia/modules",
+        "skia/package-lock.json",
+        "skia/package.json",
         "skia/platform_tools/android/apps/skottie/skottielib/src/main/cpp/native-lib.cpp",
         "skia/platform_tools/android/launcher/skia_launcher.cpp",
         "skia/platform_tools/android/vulkan/Skia_Vulkan_Android.h",

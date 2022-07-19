@@ -219,6 +219,11 @@ func (b *jobBuilder) genTasksForJob() {
 		return
 	}
 
+	if b.role("BazelTest") {
+		b.bazelTest()
+		return
+	}
+
 	log.Fatalf("Don't know how to handle job %q", b.Name)
 }
 

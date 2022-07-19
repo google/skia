@@ -67,6 +67,8 @@ var (
 		"infra/bots/task_drivers",
 		"infra/canvaskit",
 		"infra/pathkit",
+		"package.json",
+		"package-lock.json",
 		"requirements.txt",
 		"resources",
 		"third_party/externals",

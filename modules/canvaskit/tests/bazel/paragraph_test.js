@@ -124,7 +124,6 @@ describe('Paragraph Behavior', function() {
         expect(flm.left).toBeCloseTo(13.818, 3);
         expect(flm.baseline).toBeCloseTo(21.141, 3);
 
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -157,8 +156,6 @@ describe('Paragraph Behavior', function() {
             'This text has a red foregroundColor and a blue backgroundColor.');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         fontMgr.delete();
@@ -195,8 +192,6 @@ describe('Paragraph Behavior', function() {
             'This text is stroked in black and has no fill');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
         // Again 5px to the right so you can tell the fill is transparent
         canvas.drawParagraph(paragraph, 15, 10);
@@ -231,8 +226,6 @@ describe('Paragraph Behavior', function() {
             'This text should have a lot of space between the letters and words.');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         fontMgr.delete();
@@ -262,8 +255,6 @@ describe('Paragraph Behavior', function() {
         builder.addText('This text should have a shadow behind it.');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         fontMgr.delete();
@@ -334,8 +325,6 @@ describe('Paragraph Behavior', function() {
 
         const paragraph2 = builder2.build();
         paragraph2.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
         canvas.drawParagraph(paragraph2, 220, 10);
 
@@ -363,8 +352,6 @@ describe('Paragraph Behavior', function() {
         builder.addText('This Text Should Be In Small Caps');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         fontMgr.delete();
@@ -404,8 +391,6 @@ describe('Paragraph Behavior', function() {
         paragraph.layout(300);
 
         let rects = paragraph.getRectsForPlaceholders();
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         for (const rect of rects) {
@@ -488,7 +473,6 @@ describe('Paragraph Behavior', function() {
                 color: CanvasKit.Color(0, 200, 200),
             }
         ];
-        canvas.clear(CanvasKit.WHITE);
         // Move it down a bit so we can see the rects that go above 0,0
         canvas.translate(10, 10);
         canvas.drawParagraph(paragraph, 0, 0);
@@ -551,8 +535,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         const paint = new CanvasKit.Paint();
@@ -585,8 +567,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.translate(10, 10);
         canvas.drawParagraph(paragraph, 0, 0);
 
@@ -667,8 +647,6 @@ describe('Paragraph Behavior', function() {
 
         paragraph.layout(wrapTo);
 
-        canvas.clear(CanvasKit.WHITE);
-
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -723,8 +701,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
 
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
         canvas.drawParagraph(paragraph, 10, 10);
@@ -795,8 +771,6 @@ describe('Paragraph Behavior', function() {
             start: 25,
             end: 26,
         });
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -839,7 +813,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 0, 0);
 
         fontMgr.delete();
@@ -851,7 +824,6 @@ describe('Paragraph Behavior', function() {
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
-        canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.RED);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -921,8 +893,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -972,8 +942,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -985,8 +953,7 @@ describe('Paragraph Behavior', function() {
         builder.delete();
     });
 
-    gm('paragraph builder with reset', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
+    gm('paragraph_builder_with_reset', (canvas) => {
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
 
         const wrapTo = 250;
@@ -1032,8 +999,7 @@ describe('Paragraph Behavior', function() {
     });
 
     // This helped find and resolve skbug.com/13247
-    gm('paragraph saved to skpicture', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
+    gm('paragraph_saved_to_skpicture', (canvas) => {
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
 
         const wrapTo = 250;

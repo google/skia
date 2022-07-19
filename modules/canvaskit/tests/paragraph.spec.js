@@ -984,7 +984,7 @@ describe('Paragraph Behavior', function() {
         builder.delete();
     });
 
-    gm('paragraph builder with reset', (canvas) => {
+    gm('paragraph_builder_with_reset', (canvas) => {
         canvas.clear(CanvasKit.WHITE);
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
 

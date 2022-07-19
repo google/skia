@@ -217,7 +217,6 @@ half4 main(float2 xy) {
                 expect(surface).toBeTruthy('Could not make surface');
                 const canvas = surface.getCanvas();
                 const paint = new CanvasKit.Paint();
-                canvas.clear(CanvasKit.WHITE);
 
                 paint.setShader(blendShader);
                 canvas.drawRect(CanvasKit.LTRBRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT), paint);

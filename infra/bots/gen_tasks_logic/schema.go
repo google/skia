@@ -249,10 +249,16 @@ func (p parts) isLinux() bool {
 	return p.matchOs("Debian", "Ubuntu")
 }
 
-// bazelParts returns all parts from the BazelBuild schema. label, config, and host are required;
-// cross is optional.
+// bazelBuildParts returns all parts from the BazelBuild schema. label, config, and host are
+// required; cross is optional.
 func (p parts) bazelBuildParts() (label string, config string, host string, cross string) {
 	return p["label"], p["config"], p["host"], p["cross"]
+}
+
+// bazelTestParts returns all parts from the BazelTest schema. task_driver, config, and host are
+// required; cross is optional.
+func (p parts) bazelTestParts() (taskDriver string, config string, host string, cross string) {
+	return p["task_driver"], p["config"], p["host"], p["cross"]
 }
 
 // TODO(borenet): The below really belongs in its own file, probably next to the

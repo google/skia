@@ -216,7 +216,6 @@ describe('Core canvas behavior', () => {
     }, '/assets/flightAnim.gif');
 
     gm('exif_orientation', (canvas, fetchedByteBuffers) => {
-        canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();
         const font = new CanvasKit.Font(null, 14);
         canvas.drawText('The following heart should be rotated 90 CCW due to exif.',
@@ -234,7 +233,6 @@ describe('Core canvas behavior', () => {
     }, '/assets/exif_rotated_heart.jpg');
 
     gm('1x4_from_scratch', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();
 
         // This creates and draws an Image that is 1 pixel wide, 4 pixels tall with
@@ -272,7 +270,6 @@ describe('Core canvas behavior', () => {
     gm('draw_atlas_with_builders', (canvas, fetchedByteBuffers) => {
         const atlas = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(atlas).toBeTruthy();
-        canvas.clear(CanvasKit.WHITE);
 
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
@@ -316,7 +313,6 @@ describe('Core canvas behavior', () => {
     gm('draw_atlas_with_arrays', (canvas, fetchedByteBuffers) => {
         const atlas = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(atlas).toBeTruthy();
-        canvas.clear(CanvasKit.WHITE);
 
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
@@ -371,7 +367,6 @@ describe('Core canvas behavior', () => {
     gm('draw_patch', (canvas, fetchedByteBuffers) => {
         const image = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(image).toBeTruthy();
-        canvas.clear(CanvasKit.WHITE);
 
         const paint = new CanvasKit.Paint();
         const shader = image.makeShaderOptions(CanvasKit.TileMode.Clamp,
@@ -401,8 +396,7 @@ describe('Core canvas behavior', () => {
         paint.delete();
     }, '/assets/mandrill_16.png');
 
-    gm('draw_glyphs', (canvas, fetchedByteBuffers) => {
-        canvas.clear(CanvasKit.WHITE);
+    gm('draw_glyphs', (canvas) => {
 
         const paint = new CanvasKit.Paint();
         const font = new CanvasKit.Font(null, 24);
@@ -424,7 +418,6 @@ describe('Core canvas behavior', () => {
     });
 
     gm('image_decoding_methods', async (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
 
         const IMAGE_FILE_PATHS = [
             '/assets/brickwork-texture.jpg',
@@ -515,7 +508,6 @@ describe('Core canvas behavior', () => {
     // It would be best to deduplicate that in a nice DAMP way.
     // Inspired by https://fiddle.skia.org/c/b29ce50a341510784ac7d5281586d076
     gm('linear_gradients', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
         canvas.scale(2, 2);
         const strokePaint = new CanvasKit.Paint();
         strokePaint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -593,7 +585,6 @@ describe('Core canvas behavior', () => {
     });
 
     gm('radial_gradients', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
         canvas.scale(2, 2);
         const strokePaint = new CanvasKit.Paint();
         strokePaint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -663,7 +654,6 @@ describe('Core canvas behavior', () => {
     });
 
     gm('conical_gradients', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
         canvas.scale(2, 2);
         const strokePaint = new CanvasKit.Paint();
         strokePaint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -765,11 +755,20 @@ describe('Core canvas behavior', () => {
         textFont.delete();
     });
 
+    gm('luma_filter', (canvas) => {
+        const paint = new CanvasKit.Paint();
+        paint.setAntiAlias(true);
+        const lumaCF = CanvasKit.ColorFilter.MakeLuma();
+        paint.setColor(CanvasKit.BLUE);
+        paint.setColorFilter(lumaCF);
+        canvas.drawCircle(256, 256, 256, paint);
+        paint.delete();
+        lumaCF.delete();
+    });
+
     gm('combined_filters', (canvas, fetchedByteBuffers) => {
         const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(img).toBeTruthy();
-
-        canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.Color(0, 255, 0, 1.0));
@@ -803,7 +802,6 @@ describe('Core canvas behavior', () => {
         expect(img).toBeTruthy();
         img.decodeNextFrame();
         img.decodeNextFrame();
-        canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.Color(0, 255, 0, 1.0));
@@ -829,8 +827,6 @@ describe('Core canvas behavior', () => {
     gm('drawImageVariants', (canvas, fetchedByteBuffers) => {
         const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(img).toBeTruthy();
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.scale(2, 2);
         const paint = new CanvasKit.Paint();
         const clipTo = (x, y) => {
@@ -864,8 +860,6 @@ describe('Core canvas behavior', () => {
     gm('drawImageRectVariants', (canvas, fetchedByteBuffers) => {
         const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(img).toBeTruthy();
-
-        canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();
         const src = CanvasKit.XYWHRect(100, 100, 128, 128);
         canvas.drawImageRect(img, src, CanvasKit.XYWHRect(0, 0, 256, 256), paint);
@@ -882,8 +876,8 @@ describe('Core canvas behavior', () => {
     }, '/assets/mandrill_512.png');
 
     gm('drawImage_skp', (canvas, fetchedByteBuffers) => {
-        const pic = CanvasKit.MakePicture(fetchedByteBuffers[0]);
         canvas.clear(CanvasKit.TRANSPARENT);
+        const pic = CanvasKit.MakePicture(fetchedByteBuffers[0]);
         canvas.drawPicture(pic);
         // The asset below can be re-downloaded from
         // https://fiddle.skia.org/c/cbb8dee39e9f1576cd97c2d504db8eee
@@ -1010,7 +1004,7 @@ describe('Core canvas behavior', () => {
         expect(paint.getColor()).toEqual(Float32Array.of(0, 0, 0, 1.0));
     });
 
-    gm('draw shadow', (canvas) => {
+    gm('draw_shadow', (canvas) => {
         const lightRadius = 20;
         const lightPos = [500,500,20];
         const zPlaneParams = [0,0,1];
@@ -1256,7 +1250,6 @@ describe('Core canvas behavior', () => {
             const path = starPath(CanvasKit, CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
             const paint = new CanvasKit.Paint();
             paint.setAntiAlias(true);
-            canvas.clear(CanvasKit.WHITE);
             canvas.concat(new DOMMatrix().translate(CANVAS_WIDTH/2, 0, 0));
             canvas.concat(new DOMMatrix().rotateAxisAngle(1, 0, 0, radiansToDegrees(Math.PI/3)));
             canvas.concat(new DOMMatrix().rotateAxisAngle(0, 1, 0, radiansToDegrees(Math.PI/4)));
@@ -1539,7 +1532,6 @@ describe('Core canvas behavior', () => {
 
     gm('PathEffect_MakePath1D', (canvas) => {
         // Based off //docs/examples/skpaint_path_1d_path_effect.cpp
-        canvas.clear(CanvasKit.WHITE);
 
         const path = new CanvasKit.Path();
         path.addOval(CanvasKit.XYWHRect(0, 0, 16, 6));
@@ -1558,9 +1550,73 @@ describe('Core canvas behavior', () => {
         paint.delete();
     });
 
+    gm('Can_Interpolate_Path', (canvas) => {
+        const paint = new CanvasKit.Paint();
+        paint.setAntiAlias(true);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        paint.setStrokeWidth(2);
+        const path = new CanvasKit.Path()
+        const path2 = new CanvasKit.Path();
+        const path3 = new CanvasKit.Path();
+        path3.addCircle(30, 30, 10);
+        path.moveTo(20, 20);
+        path.lineTo(40, 40);
+        path.lineTo(20, 40);
+        path.lineTo(40, 20);
+        path.close();
+        path2.addRect([20, 20, 40, 40]);
+        path2.transform(CanvasKit.Matrix.translated(40, 0));
+        const canInterpolate1 = CanvasKit.Path.CanInterpolate(path, path2);
+        expect(canInterpolate1).toBe(true);
+        const canInterpolate2 = CanvasKit.Path.CanInterpolate(path, path3);
+        expect(canInterpolate2).toBe(false);
+        canvas.drawPath(path, paint);
+        canvas.drawPath(path2, paint);
+        path3.transform(CanvasKit.Matrix.translated(80, 0));
+        canvas.drawPath(path3, paint);
+        path.delete();
+        path2.delete();
+        path3.delete();
+        paint.delete();
+    });
+
+    gm('Interpolate_Paths', (canvas) => {
+        const paint = new CanvasKit.Paint();
+        paint.setAntiAlias(true);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        paint.setStrokeWidth(2);
+        const path = new CanvasKit.Path()
+        const path2 = new CanvasKit.Path();
+        path.moveTo(20, 20);
+        path.lineTo(40, 40);
+        path.lineTo(20, 40);
+        path.lineTo(40, 20);
+        path.close();
+        path2.addRect([20, 20, 40, 40]);
+        for (let i = 0; i <= 1; i += 1.0 / 6) {
+          const interp = CanvasKit.Path.MakeFromPathInterpolation(path, path2, i);
+          canvas.drawPath(interp, paint);
+          interp.delete();
+          canvas.translate(30, 0);
+        }
+        path.delete();
+        path2.delete();
+        paint.delete();
+    });
+
+    gm('Draw_Circle', (canvas) => {
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.Color(59, 53, 94, 1));
+        const path = new CanvasKit.Path();
+        path.moveTo(256, 256);
+        path.addCircle(256, 256, 256);
+        canvas.drawPath(path, paint);
+        path.delete();
+        paint.delete();
+    });
+
     gm('PathEffect_MakePath2D', (canvas) => {
         // Based off //docs/examples/skpaint_path_2d_path_effect.cpp
-        canvas.clear(CanvasKit.WHITE);
 
         const path = new CanvasKit.Path();
         path.moveTo(20, 30);
@@ -1586,7 +1642,6 @@ describe('Core canvas behavior', () => {
 
     gm('PathEffect_MakeLine2D', (canvas) => {
         // Based off //docs/examples/skpaint_line_2d_path_effect.cpp
-        canvas.clear(CanvasKit.WHITE);
 
         const lattice = CanvasKit.Matrix.multiply(
             CanvasKit.Matrix.scaled(8, 8),
@@ -1607,7 +1662,6 @@ describe('Core canvas behavior', () => {
     });
 
     gm('ImageFilter_MakeBlend', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
         const redCF = CanvasKit.ColorFilter.MakeBlend(
                 CanvasKit.Color(255, 0, 0, 0.4), CanvasKit.BlendMode.SrcOver);
         const redIF = CanvasKit.ImageFilter.MakeColorFilter(redCF, null);
@@ -1656,7 +1710,6 @@ describe('Core canvas behavior', () => {
     });
 
     gm('ImageFilter_MakeDilate', (canvas, fetchedByteBuffers) => {
-        canvas.clear(CanvasKit.WHITE);
 
         const paint = new CanvasKit.Paint();
         const dilate = CanvasKit.ImageFilter.MakeDilate(2, 10, null);
@@ -1672,7 +1725,6 @@ describe('Core canvas behavior', () => {
     }, '/assets/mandrill_512.png');
 
     gm('ImageFilter_MakeErode', (canvas, fetchedByteBuffers) => {
-        canvas.clear(CanvasKit.WHITE);
 
         const paint = new CanvasKit.Paint();
         const erode = CanvasKit.ImageFilter.MakeErode(2, 10, null);
@@ -1692,7 +1744,6 @@ describe('Core canvas behavior', () => {
         // for a good writeup of displacement filters.
         // https://jsfiddle.skia.org/canvaskit/27ba8450861fd4ec9632276dcdb2edd0d967070c2bb44e60f803597ff78ccda2
         // is a way to play with how the color and scale interact.
-        canvas.clear(CanvasKit.WHITE);
 
         // As implemented, if the displacement map is smaller than the image * scale, things can
         // look strange, with a copy of the image in the background. Making it the size
@@ -1747,7 +1798,6 @@ describe('Core canvas behavior', () => {
     }, '/assets/mandrill_512.png');
 
     gm('ImageFilter_MakeDropShadow', (canvas, fetchedByteBuffers) => {
-        canvas.clear(CanvasKit.WHITE);
 
         const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(img).toBeTruthy();
@@ -1763,7 +1813,6 @@ describe('Core canvas behavior', () => {
     }, '/assets/mandrill_512.png');
 
     gm('ImageFilter_MakeDropShadowOnly', (canvas, fetchedByteBuffers) => {
-        canvas.clear(CanvasKit.WHITE);
 
         const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(img).toBeTruthy();
@@ -1778,7 +1827,6 @@ describe('Core canvas behavior', () => {
     }, '/assets/mandrill_512.png');
 
     gm('ImageFilter_MakeOffset', (canvas, fetchedByteBuffers) => {
-        canvas.clear(CanvasKit.WHITE);
 
         const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
         expect(img).toBeTruthy();
@@ -1791,4 +1839,23 @@ describe('Core canvas behavior', () => {
         paint.delete();
         offset.delete();
     }, '/assets/mandrill_512.png');
+
+    gm('ImageFilter_MakeShader', (canvas) => {
+
+        const rt = CanvasKit.RuntimeEffect.Make(`
+uniform float4 color;
+half4 main(vec2 fragcoord) {
+    return vec4(color);
+}
+`);
+        const shader = rt.makeShader([0.0, 0.0, 1.0, 0.5]);
+        const filter = CanvasKit.ImageFilter.MakeShader(shader);
+        const paint = new CanvasKit.Paint();
+        paint.setImageFilter(filter);
+        canvas.drawPaint(paint);
+        paint.delete();
+        filter.delete();
+        shader.delete();
+        rt.delete();
+    });
 });

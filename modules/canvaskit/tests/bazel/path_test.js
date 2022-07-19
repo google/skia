@@ -262,8 +262,6 @@ describe('Path Behavior', () => {
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.BLACK);
 
-        canvas.clear(CanvasKit.WHITE);
-
         canvas.drawPath(path, paint);
         path.offset(80, 40);
         canvas.drawPath(path, paint);
@@ -279,8 +277,6 @@ describe('Path Behavior', () => {
         paint.setStrokeWidth(5.0);
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.BLACK);
-
-        canvas.clear(CanvasKit.WHITE);
 
         const path = new CanvasKit.Path();
         path.moveTo(5, 5);
@@ -301,8 +297,6 @@ describe('Path Behavior', () => {
         paint.setStrokeWidth(5.0);
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.BLACK);
-
-        canvas.clear(CanvasKit.WHITE);
 
         const path = new CanvasKit.Path();
         // Arbitrary points to make an interesting curve.
@@ -334,8 +328,6 @@ describe('Path Behavior', () => {
         paint.setStrokeWidth(5.0);
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.BLACK);
-
-        canvas.clear(CanvasKit.WHITE);
 
         const path = new CanvasKit.Path();
 
@@ -454,7 +446,6 @@ describe('Path Behavior', () => {
 
     // Test trim, adding paths to paths, and a bunch of other path methods.
     gm('trim_path', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
 
         const paint = new CanvasKit.Paint();
         paint.setStrokeWidth(1.0);

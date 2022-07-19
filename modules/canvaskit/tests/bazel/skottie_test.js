@@ -44,7 +44,6 @@ describe('Skottie behavior', () => {
         const size = animation.size();
         expectArrayCloseTo(size, Float32Array.of(800, 600), 4);
 
-        canvas.clear(CanvasKit.WHITE);
         animation.render(canvas, bounds);
 
         // We intentionally make the length of this array 5 and add a sentinel value
@@ -69,7 +68,6 @@ describe('Skottie behavior', () => {
         }
         expect(promises[0]).not.toBe('NOT FOUND');
         const bounds = CanvasKit.LTRBRect(0, 0, 500, 500);
-        canvas.clear(CanvasKit.WHITE);
 
         const animation = CanvasKit.MakeManagedAnimation(promises[0]);
         expect(animation).toBeTruthy();

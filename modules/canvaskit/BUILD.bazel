@@ -255,7 +255,7 @@ CK_SRCS = [
 })
 
 cc_binary_with_flags(
-    name = "canvaskit.with_flags",
+    name = "canvaskit.webgl",
     srcs = CK_SRCS,
     additional_linker_inputs = JS_INTERFACE_FILES + ["externs.js"],
     # wasm_cc_binary makes the canvaskit.js/canvaskit.wasm based on the actual name
@@ -320,10 +320,10 @@ cc_binary_with_flags(
 )
 
 wasm_cc_binary(
-    name = "canvaskit_wasm",
+    name = "canvaskit_webgl",
     # Whatever is before the dot will be the name of the output js and wasm, aka "the stem".
     # https://github.com/emscripten-core/emsdk/blob/82ad00499a42abde16b363239d2bc83bf5d863ab/bazel/emscripten_toolchain/wasm_cc_binary.bzl#L91
-    cc_target = ":canvaskit.with_flags",
+    cc_target = ":canvaskit.webgl",
 )
 
 bool_flag(
@@ -369,7 +369,9 @@ bool_flag(
 karma_test(
     name = "canvaskit_js_tests",
     srcs = [
-        ":canvaskit_wasm/canvaskit.js",
+        # TODO(kjlubick) add an intermediate rule that renames this file to something consistent
+        #   so we can support multiple build variants easier.
+        ":canvaskit_webgl/canvaskit.js",
         # We want to make sure the CanvasKit JS is loaded before the loader script
         "tests/bazel/canvaskitinit.js",
         "tests/bazel/util.js",
@@ -391,7 +393,7 @@ karma_test(
     # exfiltrate the PNGs they create.
     env = "//modules/canvaskit/go/gold_test_env:gold_test_env",
     static_files = [
-        ":canvaskit_wasm/canvaskit.wasm",
+        ":canvaskit_webgl/canvaskit.wasm",
         "//modules/canvaskit/tests/assets:test_assets",
     ],
 )

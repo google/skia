@@ -132,7 +132,6 @@ describe('Font Behavior', () => {
     });
 
     gm('textblobs_with_glyphs', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
         const notoSerif = CanvasKit.Typeface.MakeFreeTypeFaceFromData(notoSerifFontBuffer);
 
         const font = new CanvasKit.Font(notoSerif, 24);
@@ -303,7 +302,6 @@ describe('Font Behavior', () => {
     gm('font_edging', (canvas) => {
         // Draw a small font scaled up to see the aliasing artifacts.
         canvas.scale(8, 8);
-        canvas.clear(CanvasKit.WHITE);
         const notoSerif = CanvasKit.Typeface.MakeFreeTypeFaceFromData(notoSerifFontBuffer);
 
         const textPaint = new CanvasKit.Paint();
@@ -424,7 +422,6 @@ describe('Font Behavior', () => {
 
     gm('colrv1_gradients', (canvas) => {
         // Inspired by gm/colrv1.cpp, specifically the kColorFontsRepoGradients one.
-        canvas.clear(CanvasKit.WHITE);
         const colrFace = CanvasKit.Typeface.MakeFreeTypeFaceFromData(colrv1FontBuffer);
 
         const textPaint = new CanvasKit.Paint();

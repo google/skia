@@ -136,24 +136,24 @@ typecheck:
 	cd npm_build && npm run dtslint
 
 bazel_canvaskit_debug:
-	bazelisk build :canvaskit_wasm --config=ck_debug
+	bazelisk build :canvaskit_webgl --config=webgl2_debug
 	- rm -rf build/
 	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.js build/canvaskit.js
-	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.wasm build/canvaskit.wasm
+	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.js build/canvaskit.js
+	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.wasm build/canvaskit.wasm
 
 bazel_canvaskit_release:
-	bazelisk build :canvaskit_wasm --config=ck_release
+	bazelisk build :canvaskit_webgl --config=webgl2_release
 	- rm -rf build/
 	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.js build/canvaskit.js
-	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.wasm build/canvaskit.wasm
+	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.js build/canvaskit.js
+	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.wasm build/canvaskit.wasm
 	ls -l build
 
 bazel_test_canvaskit:
-	bazelisk test :canvaskit_js_tests --config=ck_release --test_output=streamed
-	echo "test output in //bazel-testlogs/modules/canvaskit/canvaskit_js_wasms/test.outputs/"
-	ls ../../bazel-testlogs/modules/canvaskit/canvaskit_js_wasms/test.outputs/
+	bazelisk test :canvaskit_js_tests --config=webgl2_release_chrome --test_output=streamed
+	echo "test output in //bazel-testlogs/modules/canvaskit/canvaskit_js_tests/test.outputs/"
+	cd ../../bazel-testlogs/modules/canvaskit/canvaskit_js_tests/test.outputs/ && unzip -qo outputs.zip && ls
 
 with_debugger:
 	# Does an incremental build where possible.

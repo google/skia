@@ -588,7 +588,7 @@ describe('Canvas Behavior', () => {
         paint.delete();
     });
 
-    gm('drawPoints in different modes', (canvas) => {
+    gm('drawPoints_in_different_modes', (canvas) => {
         canvas.clear(CanvasKit.WHITE);
         // From https://bugs.chromium.org/p/skia/issues/detail?id=11012
         const boxPaint = new CanvasKit.Paint();

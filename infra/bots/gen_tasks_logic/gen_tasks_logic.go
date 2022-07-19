@@ -167,7 +167,7 @@ var (
 	// TODO(borenet): This hacky and bad.
 	CIPD_PKG_LUCI_AUTH = cipd.MustGetPackage("infra/tools/luci-auth/${platform}")
 
-	CIPD_PKGS_GOLDCTL = []*specs.CipdPackage{cipd.MustGetPackage("skia/tools/goldctl/${platform}")}
+	CIPD_PKGS_GOLDCTL = cipd.MustGetPackage("skia/tools/goldctl/${platform}")
 
 	CIPD_PKGS_XCODE = []*specs.CipdPackage{
 		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
@@ -2024,7 +2024,7 @@ func (b *jobBuilder) runWasmGMTests() {
 		b.usesNode()
 		b.swarmDimensions()
 		b.cipd(CIPD_PKG_LUCI_AUTH)
-		b.cipd(CIPD_PKGS_GOLDCTL...)
+		b.cipd(CIPD_PKGS_GOLDCTL)
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(compileTaskName)
 		b.timeout(60 * time.Minute)
@@ -2117,6 +2117,56 @@ func (b *jobBuilder) bazelBuild() {
 			cmd = append(cmd, "--bazel_arg=--config=for_linux_x64_with_rbe")
 			cmd = append(cmd, "--bazel_arg=--jobs=100")
 			cmd = append(cmd, "--bazel_arg=--remote_download_minimal")
+		} else {
+			panic("unsupported Bazel host " + host)
+		}
+		b.cmd(cmd...)
+
+		// TODO(kjlubick) I believe this bazelisk package is just the Linux one. To support
+		//   more hosts, we need to have platform-specific bazelisk binaries.
+		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
+		b.addToPATH("bazelisk")
+		b.idempotent()
+		b.cas(CAS_COMPILE)
+		b.attempts(1)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
+	})
+}
+
+func (b *jobBuilder) bazelTest() {
+	taskdriverName, config, host, cross := b.parts.bazelTestParts()
+
+	b.addTask(b.Name, func(b *taskBuilder) {
+		cmd := []string{"./" + taskdriverName,
+			"--project_id=skia-swarming-bots",
+			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
+			"--task_name=" + b.Name,
+			"--test_config=" + config,
+			"--workdir=.",
+		}
+
+		switch taskdriverName {
+		case "canvaskit_gold":
+			// TODO(kjlubick) pass in appropriate keys (e.g. webgl vs webgpu vs cpu)
+			cmd = append(cmd,
+				"--goldctl_path=./cipd_bin_packages/goldctl",
+				"--git_commit="+specs.PLACEHOLDER_REVISION,
+				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
+				"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
+				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
+			b.cipd(CIPD_PKGS_GOLDCTL)
+			break
+		}
+
+		if cross != "" {
+			// The cross (and host) platform is expected to be defined in
+			// //bazel/common_config_settings/BUILD.bazel
+			cross = "//bazel/common_config_settings:" + cross
+			cmd = append(cmd, "--cross="+cross)
+		}
+		if host == "linux_x64" {
+			b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+			b.dep(b.buildTaskDrivers("linux", "amd64"))
 		} else {
 			panic("unsupported Bazel host " + host)
 		}

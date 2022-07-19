@@ -82,6 +82,8 @@ func beginTestManagementLogic(listener net.Listener) {
 	//   test_002
 	//   outputs.zip   # contains test_001 and test_002
 	// This environment var is documented in https://bazel.build/reference/test-encyclopedia
+	// Note that Bazel expects a zip executable to be present on this machine in order to do this.
+	// https://github.com/bazelbuild/bazel/blob/b9ffc16b94c1ee101031b0c010453847bdc532d1/tools/test/test-setup.sh#L425
 	outPath := os.Getenv("TEST_UNDECLARED_OUTPUTS_DIR")
 	if outPath == "" {
 		panic("output directory was not configured")
@@ -103,11 +105,16 @@ func beginTestManagementLogic(listener net.Listener) {
 		// Write the data in the POST to the special Bazel output directory
 		fileContents, err := base64.StdEncoding.DecodeString(payload.Base64Data)
 		if err != nil {
-		    fmt.Printf("Invalid base64 data: %s\n", err.Error())
+			fmt.Printf("Invalid base64 data: %s\n", err.Error())
 			http.Error(w, "Invalid base64 data "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		fp := filepath.Join(outPath, payload.TestName)
+		fileName := payload.TestName
+		if payload.Config != "" {
+			fileName += "." + payload.Config
+		}
+
+		fp := filepath.Join(outPath, fileName+".png")
 		// Two newlines here makes the log stick out more.
 		fmt.Printf("Writing test data to %s\n\n", fp)
 		out, err := os.Create(fp)
@@ -137,6 +144,11 @@ func beginTestManagementLogic(listener net.Listener) {
 type testPayload struct {
 	TestName   string `json:"name"`
 	Base64Data string `json:"b64_data"`
+	// Config, if set, will be added as a suffix before the .png in the file name
+	// e.g. test_name.html_canvas.png. This will be parsed before uploading to Gold to be used
+	// as the value for the "config" key. This allows us to have different variants of the same
+	// test to compare and contrast.
+	Config string `json:"config"`
 }
 
 // readPayload reads the body of the given request as JSON and parses it into a testPayload struct.
