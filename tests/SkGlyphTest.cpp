@@ -8,7 +8,7 @@
 #include "src/core/SkGlyph.h"
 #include "tests/Test.h"
 
-DEF_TEST(SkGlyphRectBasic, reporter) {
+DEF_TEST(SkGlyphRect16Basic, reporter) {
     using namespace skglyph;
     SkGlyphRect16 r{1, 1, 10, 10};
     REPORTER_ASSERT(reporter, !r.empty());
@@ -35,4 +35,33 @@ DEF_TEST(SkGlyphRectBasic, reporter) {
         }
     }
     REPORTER_ASSERT(reporter, acc.iRect() == SkIRect::MakeLTRB(-10, -10, 29, 29));
+}
+
+DEF_TEST(SkGlyphRectBasic, reporter) {
+    using namespace skglyph;
+    SkGlyphRect r{1, 1, 10, 10};
+    REPORTER_ASSERT(reporter, !r.empty());
+    SkGlyphRect a = rect_union(r, empty_rect());
+    REPORTER_ASSERT(reporter, a.rect() == SkRect::MakeLTRB(1, 1, 10, 10));
+    auto widthHeight = a.widthHeight();
+    REPORTER_ASSERT(reporter, widthHeight.x() == 9 && widthHeight.y() == 9);
+
+    a = rect_intersection(r, full_rect());
+    REPORTER_ASSERT(reporter, a.rect() == SkRect::MakeLTRB(1, 1, 10, 10));
+
+    SkGlyphRect acc = full_rect();
+    for (int x = -10; x < 10; x++) {
+        for(int y = -10; y < 10; y++) {
+            acc = rect_intersection(acc, SkGlyphRect(x, y, x + 20, y + 20));
+        }
+    }
+    REPORTER_ASSERT(reporter, acc.rect() == SkRect::MakeLTRB(9, 9, 10, 10));
+
+    acc = empty_rect();
+    for (int x = -10; x < 10; x++) {
+        for(int y = -10; y < 10; y++) {
+            acc = rect_union(acc, SkGlyphRect(x, y, x + 20, y + 20));
+        }
+    }
+    REPORTER_ASSERT(reporter, acc.rect() == SkRect::MakeLTRB(-10, -10, 29, 29));
 }
