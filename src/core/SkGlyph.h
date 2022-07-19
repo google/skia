@@ -465,9 +465,8 @@ public:
     int maxDimension() const { return std::max(fWidth, fHeight); }
     SkIRect iRect() const { return SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight); }
     SkRect rect()   const { return SkRect::MakeXYWH(fLeft, fTop, fWidth, fHeight);  }
-    SkGlyphRect16 glyphRect() const {
-        return {fLeft, fTop,
-                SkTo<int16_t>(fLeft + fWidth), SkTo<int16_t>(fTop + fHeight)};
+    SkGlyphRect glyphRect() const {
+        return SkGlyphRect(fLeft, fTop, fLeft + fWidth, fTop + fHeight);
     }
     int left()   const { return fLeft;   }
     int top()    const { return fTop;    }
