@@ -765,6 +765,7 @@ TINT_SRCS = [
     "src/tint/ast/multisampled_texture.h",
     "src/tint/ast/node.cc",
     "src/tint/ast/node.h",
+    "src/tint/ast/node_id.h",
     "src/tint/ast/override.cc",
     "src/tint/ast/override.h",
     "src/tint/ast/parameter.cc",
