@@ -67,6 +67,7 @@ using DrawWriter = skgpu::graphite::DrawWriter;
 using Rect = skgpu::graphite::Rect;
 using Recorder = skgpu::graphite::Recorder;
 using Renderer = skgpu::graphite::Renderer;
+using TextureProxy = skgpu::graphite::TextureProxy;
 using Transform = skgpu::graphite::Transform;
 #endif
 
@@ -1239,6 +1240,8 @@ public:
                         int offset, int count,
                         SkScalar depth,
                         const skgpu::graphite::Transform& transform) const override;
+
+    MaskFormat maskFormat() const override { return fMaskFormat; }
 #endif
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
@@ -1835,6 +1838,8 @@ public:
                         int offset, int count,
                         SkScalar depth,
                         const skgpu::graphite::Transform& transform) const override;
+
+    MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 #endif
 
     int glyphCount() const override;
@@ -2112,6 +2117,8 @@ public:
                         int offset, int count,
                         SkScalar depth,
                         const skgpu::graphite::Transform& transform) const override;
+
+    MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 #endif
 
     int glyphCount() const override;

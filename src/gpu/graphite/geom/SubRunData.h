@@ -14,6 +14,8 @@ namespace sktext::gpu { class AtlasSubRun; }
 
 namespace skgpu::graphite {
 
+class Recorder;
+
 /**
  * SubRunData contains all the data we need to render AtlasSubRuns
  */
@@ -25,12 +27,16 @@ public:
 
     SubRunData(const sktext::gpu::AtlasSubRun* subRun,
                sk_sp<SkRefCnt> supportDataKeepAlive,
-               Rect deviceBounds, int startGlyphIndex, int glyphCount)
+               Rect deviceBounds,
+               int startGlyphIndex,
+               int glyphCount,
+               Recorder* recorder)
         : fSubRun(subRun)
         , fSupportDataKeepAlive(std::move(supportDataKeepAlive))
         , fBounds(deviceBounds)
         , fStartGlyphIndex(startGlyphIndex)
-        , fGlyphCount(glyphCount) {}
+        , fGlyphCount(glyphCount)
+        , fRecorder(recorder) {}
 
     ~SubRunData() = default;
 
@@ -46,6 +52,7 @@ public:
     const sktext::gpu::AtlasSubRun* subRun() const { return fSubRun; }
     int startGlyphIndex() const { return fStartGlyphIndex; }
     int glyphCount() const { return fGlyphCount; }
+    Recorder* recorder() const { return fRecorder; }
 
 private:
     const sktext::gpu::AtlasSubRun* fSubRun;
@@ -55,6 +62,7 @@ private:
     Rect fBounds;  // bounds of the data stored in the SubRun
     int fStartGlyphIndex;
     int fGlyphCount;
+    Recorder* fRecorder; // this SubRun can only be associated with this Recorder's atlas
 };
 
 } // namespace skgpu::graphite

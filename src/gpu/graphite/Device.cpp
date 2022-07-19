@@ -579,7 +579,8 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                                                    this->localToDeviceTransform(), drawOrigin);
             this->drawGeometry(localToDevice,
                                Geometry(SubRunData(subRun, std::move(subRunStorage),
-                                                   bounds, subRunCursor, glyphsRegenerated)),
+                                                   bounds, subRunCursor, glyphsRegenerated,
+                                                   fRecorder)),
                                paint,
                                kFillStyle,
                                DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);

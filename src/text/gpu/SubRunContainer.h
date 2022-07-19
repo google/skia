@@ -45,6 +45,10 @@ namespace skgpu::v1 { class SurfaceDrawContext; }
 #include "src/gpu/graphite/geom/SubRunData.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
+namespace skgpu {
+enum class MaskFormat : int;
+}
+
 namespace skgpu::graphite {
 class DrawWriter;
 class Recorder;
@@ -113,6 +117,8 @@ public:
             int offset, int count,
             SkScalar depth,
             const skgpu::graphite::Transform& transform) const = 0;
+
+    virtual skgpu::MaskFormat maskFormat() const = 0;
 #endif
 
     virtual void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const = 0;
