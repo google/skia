@@ -90,7 +90,7 @@ public:
     */
     virtual void addToKey(const SkKeyContext& keyContext,
                           SkPaintParamsKeyBuilder* builder,
-                          SkPipelineDataGatherer* gatherer) const {}
+                          SkPipelineDataGatherer* gatherer) const;
 #endif
 
 protected:

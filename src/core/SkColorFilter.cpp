@@ -29,6 +29,11 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #endif
 
+#ifdef SK_ENABLE_SKSL
+#include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
+#endif
+
 bool SkColorFilter::asAColorMode(SkColor* color, SkBlendMode* mode) const {
     return as_CFB(this)->onAsAColorMode(color, mode);
 }
@@ -139,6 +144,16 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     SkASSERT(false);
     return SkPMColor4f{0,0,0,0};
 }
+
+#ifdef SK_ENABLE_SKSL
+void SkColorFilterBase::addToKey(const SkKeyContext& keyContext,
+                                 SkPaintParamsKeyBuilder* builder,
+                                 SkPipelineDataGatherer* gatherer) const {
+    // Return the input color as-is.
+    PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+    builder->endBlock();
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
