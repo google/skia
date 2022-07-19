@@ -10,28 +10,28 @@
 
 DEF_TEST(SkGlyphRectBasic, reporter) {
     using namespace skglyph;
-    SkGlyphRect r{1, 1, 10, 10};
+    SkGlyphRect16 r{1, 1, 10, 10};
     REPORTER_ASSERT(reporter, !r.empty());
-    SkGlyphRect a = rect_union(r, empty_rect());
+    SkGlyphRect16 a = rect16_union(r, empty_rect16());
     REPORTER_ASSERT(reporter, a.iRect() == SkIRect::MakeLTRB(1, 1, 10, 10));
     auto widthHeight = a.widthHeight();
     REPORTER_ASSERT(reporter, widthHeight[0] == 9 && widthHeight[1] == 9);
 
-    a = rect_intersection(r, full_rect());
+    a = rect16_intersection(r, full_rect16());
     REPORTER_ASSERT(reporter, a.iRect() == SkIRect::MakeLTRB(1, 1, 10, 10));
 
-    SkGlyphRect acc = full_rect();
+    SkGlyphRect16 acc = full_rect16();
     for (int x = -10; x < 10; x++) {
         for(int y = -10; y < 10; y++) {
-            acc = rect_intersection(acc, SkGlyphRect(x, y, x + 20, y + 20));
+            acc = rect16_intersection(acc, SkGlyphRect16(x, y, x + 20, y + 20));
         }
     }
     REPORTER_ASSERT(reporter, acc.iRect() == SkIRect::MakeLTRB(9, 9, 10, 10));
 
-    acc = empty_rect();
+    acc = empty_rect16();
     for (int x = -10; x < 10; x++) {
         for(int y = -10; y < 10; y++) {
-            acc = rect_union(acc, SkGlyphRect(x, y, x + 20, y + 20));
+            acc = rect16_union(acc, SkGlyphRect16(x, y, x + 20, y + 20));
         }
     }
     REPORTER_ASSERT(reporter, acc.iRect() == SkIRect::MakeLTRB(-10, -10, 29, 29));

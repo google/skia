@@ -220,18 +220,18 @@ private:
     static SkIPoint IgnorePositionFieldMask(bool isSubpixel, SkAxisAlignment axisAlignment);
 };
 
-class SkGlyphRect;
+class SkGlyphRect16;
 namespace skglyph {
-SkGlyphRect rect_union(SkGlyphRect, SkGlyphRect);
-SkGlyphRect rect_intersection(SkGlyphRect, SkGlyphRect);
+SkGlyphRect16 rect16_union(SkGlyphRect16, SkGlyphRect16);
+SkGlyphRect16 rect16_intersection(SkGlyphRect16, SkGlyphRect16);
 }  // namespace skglyph
 
-// SkGlyphRect encodes rectangles with coordinates on [-32767, 32767]. It is specialized for
+// SkGlyphRect16 encodes rectangles with coordinates on [-32767, 32767]. It is specialized for
 // rectangle union and intersection operations.
-class SkGlyphRect {
+class SkGlyphRect16 {
 public:
-    SkGlyphRect() = default;
-    SkGlyphRect(int16_t left, int16_t top, int16_t right, int16_t bottom)
+    SkGlyphRect16() = default;
+    SkGlyphRect16(int16_t left, int16_t top, int16_t right, int16_t bottom)
             : fRect{(int16_t)-left, (int16_t)-top, right, bottom} {
         SkDEBUGCODE(const int32_t min = std::numeric_limits<int16_t>::min());
         SkASSERT(left != min && top != min && right != min && bottom != min);
@@ -245,35 +245,35 @@ public:
     SkIRect iRect() const {
         return SkIRect::MakeLTRB(-fRect[0], -fRect[1], fRect[2], fRect[3]);
     }
-    SkGlyphRect offset(int16_t x, int16_t y) const {
-        return SkGlyphRect{fRect + Storage{SkTo<int16_t>(-x), SkTo<int16_t>(-y), x, y}};
+    SkGlyphRect16 offset(int16_t x, int16_t y) const {
+        return SkGlyphRect16{fRect + Storage{SkTo<int16_t>(-x), SkTo<int16_t>(-y), x, y}};
     }
     skvx::Vec<2, int16_t> leftTop() const { return -this->negLeftTop(); }
     skvx::Vec<2, int16_t> rightBottom() const { return {fRect[2], fRect[3]}; }
     skvx::Vec<2, int16_t> widthHeight() const { return this->rightBottom() + negLeftTop(); }
-    friend SkGlyphRect skglyph::rect_union(SkGlyphRect, SkGlyphRect);
-    friend SkGlyphRect skglyph::rect_intersection(SkGlyphRect, SkGlyphRect);
+    friend SkGlyphRect16 skglyph::rect16_union(SkGlyphRect16, SkGlyphRect16);
+    friend SkGlyphRect16 skglyph::rect16_intersection(SkGlyphRect16, SkGlyphRect16);
 
 private:
     skvx::Vec<2, int16_t> negLeftTop() const { return {fRect[0], fRect[1]}; }
     using Storage = skvx::Vec<4, int16_t>;
-    SkGlyphRect(Storage rect) : fRect{rect} { }
+    SkGlyphRect16(Storage rect) : fRect{rect} { }
     Storage fRect;
 };
 
 namespace skglyph {
-inline SkGlyphRect empty_rect() {
+inline SkGlyphRect16 empty_rect16() {
     constexpr int16_t max = std::numeric_limits<int16_t>::max();
     return {max, max, -max, -max};
 }
-inline SkGlyphRect full_rect() {
+inline SkGlyphRect16 full_rect16() {
     constexpr int16_t max = std::numeric_limits<int16_t>::max();
     return {-max, -max, max, max};
 }
-inline SkGlyphRect rect_union(SkGlyphRect a, SkGlyphRect b) {
+inline SkGlyphRect16 rect16_union(SkGlyphRect16 a, SkGlyphRect16 b) {
     return skvx::max(a.fRect, b.fRect);
 }
-inline SkGlyphRect rect_intersection(SkGlyphRect a, SkGlyphRect b) {
+inline SkGlyphRect16 rect16_intersection(SkGlyphRect16 a, SkGlyphRect16 b) {
     return skvx::min(a.fRect, b.fRect);
 }
 }  // namespace skglyph
@@ -412,7 +412,7 @@ public:
     int maxDimension() const { return std::max(fWidth, fHeight); }
     SkIRect iRect() const { return SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight); }
     SkRect rect()   const { return SkRect::MakeXYWH(fLeft, fTop, fWidth, fHeight);  }
-    SkGlyphRect glyphRect() const {
+    SkGlyphRect16 glyphRect() const {
         return {fLeft, fTop,
                 SkTo<int16_t>(fLeft + fWidth), SkTo<int16_t>(fTop + fHeight)};
     }

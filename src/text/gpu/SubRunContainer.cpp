@@ -1167,7 +1167,7 @@ class DirectMaskSubRun final : public SubRun, public AtlasSubRun {
 public:
     DirectMaskSubRun(MaskFormat format,
                      const SkMatrix& initialPositionMatrix,
-                     SkGlyphRect deviceBounds,
+                     SkGlyphRect16 deviceBounds,
                      SkSpan<const DevicePosition> devicePositions,
                      GlyphVector&& glyphs,
                      bool glyphsOutOfBounds);
@@ -1259,7 +1259,7 @@ private:
     const SkMatrix& fInitialPositionMatrix;
 
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
-    const SkGlyphRect fGlyphDeviceBounds;
+    const SkGlyphRect16 fGlyphDeviceBounds;
     const SkSpan<const DevicePosition> fLeftTopDevicePos;
     const bool fSomeGlyphsExcluded;
 
@@ -1270,7 +1270,7 @@ private:
 
 DirectMaskSubRun::DirectMaskSubRun(MaskFormat format,
                                    const SkMatrix& initialPositionMatrix,
-                                   SkGlyphRect deviceBounds,
+                                   SkGlyphRect16 deviceBounds,
                                    SkSpan<const DevicePosition> devicePositions,
                                    GlyphVector&& glyphs,
                                    bool glyphsOutOfBounds)
@@ -1294,7 +1294,7 @@ SubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepte
     // not overflow.
     constexpr SkScalar kMaxPos =
             std::numeric_limits<int16_t>::max() - SkGlyphDigest::kSkSideTooBigForAtlas;
-    SkGlyphRect runBounds = skglyph::empty_rect();
+    SkGlyphRect16 runBounds = skglyph::empty_rect16();
     size_t goodPosCount = 0;
     for (auto [variant, pos] : accepted) {
         auto [x, y] = pos;
@@ -1303,9 +1303,9 @@ SubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepte
         // cull all the glyphs that can't appear on the screen.
         if (-kMaxPos < x && x < kMaxPos && -kMaxPos  < y && y < kMaxPos) {
             const SkGlyph* const skGlyph = variant;
-            const SkGlyphRect deviceBounds =
+            const SkGlyphRect16 deviceBounds =
                     skGlyph->glyphRect().offset(SkScalarRoundToInt(x), SkScalarRoundToInt(y));
-            runBounds = skglyph::rect_union(runBounds, deviceBounds);
+            runBounds = skglyph::rect16_union(runBounds, deviceBounds);
             glyphLeftTop[goodPosCount] = deviceBounds.leftTop();
             glyphIDs[goodPosCount].packedGlyphID = skGlyph->getPackedID();
             goodPosCount += 1;
@@ -1345,7 +1345,7 @@ SubRunOwner DirectMaskSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatr
                                              SubRunAllocator* alloc,
                                              const SkStrikeClient* client) {
     MaskFormat maskType = (MaskFormat)buffer.readInt();
-    SkGlyphRect runBounds;
+    SkGlyphRect16 runBounds;
     pun_read(buffer, &runBounds);
 
     int glyphCount = buffer.readInt();
