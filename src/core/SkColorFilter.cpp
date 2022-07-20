@@ -214,14 +214,14 @@ sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) con
     }
 
 #ifdef SK_ENABLE_SKSL
-    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(
+    static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(
         SkRuntimeEffect::MakeForColorFilter,
         "uniform colorFilter outer;"
         "uniform colorFilter inner;"
         "half4 main(half4 color) {"
             "return outer.eval(inner.eval(color));"
         "}"
-    );
+    ).release();
     SkASSERT(effect);
 
     sk_sp<SkColorFilter> inputs[] = {sk_ref_sp(this), std::move(inner)};
@@ -477,7 +477,7 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
         return cf1;
     }
 
-    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(
+    static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(
         SkRuntimeEffect::MakeForColorFilter,
         "uniform colorFilter cf0;"
         "uniform colorFilter cf1;"
@@ -485,7 +485,7 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
         "half4 main(half4 color) {"
             "return mix(cf0.eval(color), cf1.eval(color), weight);"
         "}"
-    );
+    ).release();
     SkASSERT(effect);
 
     sk_sp<SkColorFilter> inputs[] = {cf0,cf1};

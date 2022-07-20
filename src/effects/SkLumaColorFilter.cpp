@@ -12,12 +12,12 @@
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
 #ifdef SK_ENABLE_SKSL
-    const char* code =
+    static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(
+        SkRuntimeEffect::MakeForColorFilter,
         "half4 main(half4 inColor) {"
-            "return saturate(dot(half3(0.2126, 0.7152, 0.0722), inColor.rgb)).000r;"
-        "}";
-    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-                                                              code);
+        "    return saturate(dot(half3(0.2126, 0.7152, 0.0722), inColor.rgb)).000r;"
+        "}"
+    ).release();
     SkASSERT(effect);
 
     return effect->makeColorFilter(SkData::MakeEmpty());

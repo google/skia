@@ -21,31 +21,33 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
 
     struct Uniforms { float grayscale, invertStyle, contrast; };
 
-    SkString code{R"(
-        uniform half grayscale, invertStyle, contrast;
-    )"};
-    code += kRGB_to_HSL_sksl;
-    code += kHSL_to_RGB_sksl;
-    code += R"(
-        half4 main(half4 inColor) {
-            half4 c = inColor;  // linear unpremul RGBA in dst gamut.
-            if (grayscale == 1) {
-                c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;
-            }
-            if (invertStyle == 1/*brightness*/) {
-                c.rgb = 1 - c.rgb;
-            } else if (invertStyle == 2/*lightness*/) {
-                c.rgb = rgb_to_hsl(c.rgb);
-                c.b = 1 - c.b;
-                c.rgb = hsl_to_rgb(c.rgb);
-            }
-            c.rgb = mix(half3(0.5), c.rgb, contrast);
-            return half4(saturate(c.rgb), c.a);
-        }
-    )";
+    auto high_contrast_filter_code = []() -> SkString {
+        SkString code("uniform half grayscale, invertStyle, contrast;");
+        code += kRGB_to_HSL_sksl;
+        code += kHSL_to_RGB_sksl;
+        code += "half4 main(half4 inColor) {"
+                "    half4 c = inColor;"  // linear unpremul RGBA in dst gamut
+                "    if (grayscale == 1) {"
+                "        c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;"
+                "    }"
+                "    if (invertStyle == 1) {"  // brightness
+                "        c.rgb = 1 - c.rgb;"
+                "    } else if (invertStyle == 2) {"  // lightness
+                "        c.rgb = rgb_to_hsl(c.rgb);"
+                "        c.b = 1 - c.b;"
+                "        c.rgb = hsl_to_rgb(c.rgb);"
+                "    }"
+                "    c.rgb = mix(half3(0.5), c.rgb, contrast);"
+                "    return half4(saturate(c.rgb), c.a);"
+                "}";
+        return code;
+    };
 
-    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-                                                              std::move(code));
+    static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(
+        SkRuntimeEffect::MakeForColorFilter,
+        high_contrast_filter_code()
+    ).release();
+
     SkASSERT(effect);
 
     // A contrast setting of exactly +1 would divide by zero (1+c)/(1-c), so pull in to +1-ε.
