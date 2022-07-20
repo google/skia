@@ -2065,11 +2065,11 @@ func (b *jobBuilder) runWasmGMTests() {
 // label or "target pattern" https://bazel.build/docs/build#specifying-build-targets
 // The reason we need this mapping is because Buildbucket build names cannot have / or : in them.
 var shorthandToLabel = map[string]string{
-	"example_hello_world_dawn":         "//example:hello_world_dawn",
-	"example_hello_world_gl":           "//example:hello_world_gl",
-	"example_hello_world_vulkan":       "//example:hello_world_vulkan",
-	"modules_canvaskit_canvaskit_wasm": "//modules/canvaskit:canvaskit_wasm",
-	"skia_public":                      "//:skia_public",
+	"example_hello_world_dawn":   "//example:hello_world_dawn",
+	"example_hello_world_gl":     "//example:hello_world_gl",
+	"example_hello_world_vulkan": "//example:hello_world_vulkan",
+	"modules_canvaskit_webgl":    "//modules/canvaskit:canvaskit_webgl",
+	"skia_public":                "//:skia_public",
 }
 
 // bazelBuild adds a task which builds the specified single-target label (//foo:bar) or
@@ -2095,13 +2095,6 @@ func (b *jobBuilder) bazelBuild() {
 			// //bazel/common_config_settings/BUILD.bazel
 			cross = "//bazel/common_config_settings:" + cross
 			cmd = append(cmd, "--cross="+cross)
-		}
-		// When we updated to Bazel 5.2.0, a bug with 5.0.0 with respect to npm install's
-		// handling of packages starting with @ surfaced. Locally, if we expunge the cache
-		// and re-install things, it fixed things. We can remove this work around
-		// the next time we update emsdk, which should force a re-download of things anyway.
-		if shorthand == "modules_canvaskit_canvaskit_wasm" {
-			cmd = append(cmd, "--expunge_cache")
 		}
 		if host == "linux_x64" {
 			b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)

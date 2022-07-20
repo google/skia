@@ -35,16 +35,16 @@ var (
 	testConfig = flag.String("test_config", "release", "The config name (defined in //bazel/buildrc), which indicates how CanvasKit should be compiled and tested.")
 	cross      = flag.String("cross", "", "[not yet supported] For use with cross-compiling.")
 	// goldctl data
-	goldctlPath   = flag.String("goldctl_path", "", "The path to the golctl binary on disk.")
-	gitCommit     = flag.String("git_commit", "", "The git hash to which the data should be associated. This will be used when changelist_id and patchset_order are not set to report data to Gold that belongs on the primary branch.")
-	changelistID  = flag.String("changelist_id", "", "Should be non-empty only when run on the CQ.")
-	patchsetOrder = flag.Int("patchset_order", 0, "Should be non-zero only when run on the CQ.")
-	tryjobID      = flag.String("tryjob_id", "", "Should be non-zero only when run on the CQ.")
+	goldctlPath      = flag.String("goldctl_path", "", "The path to the golctl binary on disk.")
+	gitCommit        = flag.String("git_commit", "", "The git hash to which the data should be associated. This will be used when changelist_id and patchset_order are not set to report data to Gold that belongs on the primary branch.")
+	changelistID     = flag.String("changelist_id", "", "Should be non-empty only when run on the CQ.")
+	patchsetOrderStr = flag.String("patchset_order", "", "Should be non-zero only when run on the CQ.")
+	tryjobID         = flag.String("tryjob_id", "", "Should be non-zero only when run on the CQ.")
 
 	// Optional flags.
 	bazelCacheDir = flag.String("bazel_cache_dir", "/mnt/pd0/bazel_cache", "Override the Bazel cache directory with this path")
-	local  = flag.Bool("local", false, "True if running locally (as opposed to on the CI/CQ)")
-	output = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
+	local         = flag.Bool("local", false, "True if running locally (as opposed to on the CI/CQ)")
+	output        = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
 )
 
 func main() {
@@ -54,6 +54,15 @@ func main() {
 	goldctlAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *goldctlPath, "gold_ctl_path")
 	wd := td.MustGetAbsolutePathOfFlag(ctx, *workdir, "workdir")
 	skiaDir := filepath.Join(wd, "skia")
+	patchsetOrder := 0
+	if *patchsetOrderStr != "" {
+		var err error
+		patchsetOrder, err = strconv.Atoi(*patchsetOrderStr)
+		if err != nil {
+			fmt.Println("Non-integer value passed in to --patchset_order")
+			td.Fatal(ctx, err)
+		}
+	}
 
 	opts := bazel.BazelOptions{
 		// We want the cache to be on a bigger disk than default. The root disk, where the home
@@ -76,7 +85,7 @@ func main() {
 		goldctlPath:   goldctlAbsPath,
 		gitCommit:     *gitCommit,
 		changelistID:  *changelistID,
-		patchsetOrder: *patchsetOrder,
+		patchsetOrder: patchsetOrder,
 		tryjobID:      *tryjobID,
 		corpus:        "canvaskit",
 		keys: map[string]string{
@@ -165,17 +174,6 @@ func extractZip(ctx context.Context, zipPath, targetDir string) error {
 		LogStderr: true,
 	}
 	_, err := sk_exec.RunCommand(ctx, runCmd)
-	if err != nil {
-		return err
-	}
-	// FIXME(kjlubick) remove this debugging step.
-	runCmd = &sk_exec.Command{
-		Name:      "ls",
-		Args:      []string{"-ahl", targetDir},
-		LogStdout: true,
-		LogStderr: true,
-	}
-	_, err = sk_exec.RunCommand(ctx, runCmd)
 	if err != nil {
 		return err
 	}

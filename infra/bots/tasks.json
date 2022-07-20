@@ -30,9 +30,9 @@
         "BazelBuild-example_hello_world_vulkan-release-linux_x64"
       ]
     },
-    "BazelBuild-modules_canvaskit_canvaskit_wasm-webgl2_debug-linux_x64": {
+    "BazelBuild-modules_canvaskit_webgl-webgl2_debug-linux_x64": {
       "tasks": [
-        "BazelBuild-modules_canvaskit_canvaskit_wasm-webgl2_debug-linux_x64"
+        "BazelBuild-modules_canvaskit_webgl-webgl2_debug-linux_x64"
       ]
     },
     "BazelBuild-skia_public-enforce_iwyu-linux_x64": {
@@ -3547,7 +3547,7 @@
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "BazelBuild-modules_canvaskit_canvaskit_wasm-webgl2_debug-linux_x64": {
+    "BazelBuild-modules_canvaskit_webgl-webgl2_debug-linux_x64": {
       "casSpec": "compile",
       "cipd_packages": [
         {
@@ -3565,11 +3565,10 @@
         "bazel_build_task_driver/bazel_build",
         "--project_id=skia-swarming-bots",
         "--task_id=<(TASK_ID)",
-        "--task_name=BazelBuild-modules_canvaskit_canvaskit_wasm-webgl2_debug-linux_x64",
-        "--label=//modules/canvaskit:canvaskit_wasm",
+        "--task_name=BazelBuild-modules_canvaskit_webgl-webgl2_debug-linux_x64",
+        "--label=//modules/canvaskit:canvaskit_webgl",
         "--config=webgl2_debug",
         "--workdir=.",
-        "--expunge_cache",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
         "--bazel_arg=--remote_download_minimal"
