@@ -204,6 +204,19 @@ public:
     }
 #endif
 
+#ifdef SK_ENABLE_SKSL
+    void addToKey(const SkKeyContext& keyContext,
+                  SkPaintParamsKeyBuilder* builder,
+                  SkPipelineDataGatherer* gatherer) const override {
+        ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
+
+        as_CFB(fInner)->addToKey(keyContext, builder, gatherer);
+        as_CFB(fOuter)->addToKey(keyContext, builder, gatherer);
+
+        builder->endBlock();
+    }
+#endif // SK_ENABLE_SKSL
+
     SK_FLATTENABLE_HOOKS(SkComposeColorFilter)
 
 protected:
