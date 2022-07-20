@@ -710,7 +710,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // order to blend correctly. We always query the most recent draw (even when opaque) because it
     // also lets Device easily track whether or not there are any overlapping draws.
     PaintParams shading{paint};
-    const bool dependsOnDst = paint_depends_on_dst(shading); // TODO: || renderer->usesCoverageAA();
+    const bool dependsOnDst = renderer->emitsCoverage() || paint_depends_on_dst(shading);
     CompressedPaintersOrder prevDraw =
             fColorDepthBoundsManager->getMostRecentDraw(clip.drawBounds());
     if (dependsOnDst) {

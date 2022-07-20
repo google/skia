@@ -35,7 +35,7 @@ static constexpr DepthStencilSettings kDirectShadingPass = {
 TextDirectRenderStep::TextDirectRenderStep()
         : RenderStep("TextDirectRenderStep",
                      "",
-                     Flags::kPerformsShading | Flags::kHasTextures,
+                     Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
                      /*uniforms=*/{{"atlasSizeInv", SkSLType::kFloat2}},
                      PrimitiveType::kTriangles,
                      kDirectShadingPass,
