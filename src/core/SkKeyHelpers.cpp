@@ -567,57 +567,6 @@ void BlendColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
 }
 
 //--------------------------------------------------------------------------------------------------
-
-#ifdef SK_GRAPHITE_ENABLED
-
-namespace {
-
-void add_table_colorfilter_uniform_data(const SkShaderCodeDictionary* dict,
-                                        const TableColorFilterBlock::TableColorFilterData& data,
-                                        SkPipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kTableColorFilter)
-
-    gatherer->addFlags(dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kTableColorFilter));
-}
-
-} // anonymous namespace
-
-#endif // SK_GRAPHITE_ENABLED
-
-TableColorFilterBlock::TableColorFilterData::TableColorFilterData() {}
-
-void TableColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
-                                       SkPaintParamsKeyBuilder* builder,
-                                       SkPipelineDataGatherer* gatherer,
-                                       const TableColorFilterData& data) {
-#ifdef SK_GRAPHITE_ENABLED
-    if (builder->backend() == SkBackend::kGraphite) {
-        auto dict = keyContext.dict();
-
-        if (gatherer) {
-            if (!data.fTextureProxy) {
-                // We're dropping the color filter here!
-                PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
-                return;
-            }
-
-            static const SkTileMode kTileModes[2] = { SkTileMode::kClamp, SkTileMode::kClamp };
-            gatherer->add(SkSamplingOptions(), kTileModes, data.fTextureProxy);
-
-            add_table_colorfilter_uniform_data(dict, data, gatherer);
-        }
-
-        builder->beginBlock(SkBuiltInCodeSnippetID::kTableColorFilter);
-    }
-#endif // SK_GRAPHITE_ENABLED
-
-    if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
-        // TODO: add implementation for other backends
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void ComposeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                          SkPaintParamsKeyBuilder* builder,
                                          SkPipelineDataGatherer* gatherer) {

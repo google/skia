@@ -40,8 +40,8 @@ private:
     sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
 
     sk_sp<Sampler> createSampler(const SkSamplingOptions&,
-                                 SkTileMode xTileMode,
-                                 SkTileMode yTileMode) override;
+                                        SkTileMode xTileMode,
+                                        SkTileMode yTileMode) override;
 
     SkTHashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>> fDepthStencilStates;
 };
