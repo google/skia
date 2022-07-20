@@ -734,11 +734,11 @@ static void add_effect_to_recorder(skgpu::graphite::Recorder* recorder,
                                                                         std::move(effect));
 }
 
-void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform> rtsUniforms,
-                                    SkSpan<const SkUniform> graphiteUniforms,
-                                    int graphiteStartingIndex,
-                                    const SkData* uniformData,
-                                    SkPipelineDataGatherer* gatherer) {
+static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform> rtsUniforms,
+                                           SkSpan<const SkUniform> graphiteUniforms,
+                                           int graphiteStartingIndex,
+                                           const SkData* uniformData,
+                                           SkPipelineDataGatherer* gatherer) {
     // Collect all the other uniforms from the provided SkData.
     const uint8_t* uniformBase = uniformData->bytes();
     for (size_t index = 0; index < rtsUniforms.size(); ++index) {
