@@ -687,6 +687,22 @@ void Device::drawGeometry(const Transform& localToDevice,
         return;
     }
 
+#if defined(SK_DEBUG)
+    // Renderers and their component RenderSteps have flexibility in defining their
+    // DepthStencilSettings. However, the clipping and ordering managed between Device and ClipStack
+    // requires that only GREATER or GEQUAL depth tests are used for draws recorded through the
+    // client-facing, painters-order-oriented API. We assert here vs. in Renderer's constructor to
+    // allow internal-oriented Renderers that are never selected for a "regular" draw call to have
+    // more flexibility in their settings.
+    for (const RenderStep* step : renderer->steps()) {
+        auto dss = step->depthStencilSettings();
+        SkASSERT((!step->performsShading() || dss.fDepthTestEnabled) &&
+                 (!dss.fDepthTestEnabled ||
+                  dss.fDepthCompareOp == CompareOp::kGreater ||
+                  dss.fDepthCompareOp == CompareOp::kGEqual));
+    }
+#endif
+
     // A draw's order always depends on the clips that must be drawn before it
     order.dependsOnPaintersOrder(clipOrder);
 
@@ -768,6 +784,11 @@ void Device::drawClipShape(const Transform& localToDevice,
                         nullptr, nullptr);
     } else {
         fDC->recordDraw(*renderer, localToDevice, geometry, clip, order, nullptr, nullptr);
+    }
+    // This ensures that draws recorded after this clip shape has been popped off the stack will
+    // be unaffected by the Z value the clip shape wrote to the depth attachment.
+    if (order.depth() > fCurrentDepth) {
+        fCurrentDepth = order.depth();
     }
 }
 

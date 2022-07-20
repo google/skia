@@ -362,9 +362,10 @@ void ClipStack::RawElement::drawClip(Device* device) {
     if (!drawBounds.isEmptyNegativeOrNaN()) {
         // Although we are recording this clip draw after all the draws it affects, 'fOrder' was
         // determined at the first usage, so after sorting by DrawOrder the clip draw will be in the
-        // right place. Unlike regular draws that use their own "Z", by writing the max Z this clip
-        // affects, it will cause those draws to fail depth tests where they need to be clipped.
-        DrawOrder order{fMaxZ, fOrder};
+        // right place. Unlike regular draws that use their own "Z", by writing (1 + max Z this clip
+        // affects), it will cause those draws to fail either GREATER and GEQUAL depth tests where
+        // they need to be clipped.
+        DrawOrder order{fMaxZ.next(), fOrder};
         // An element's clip op is encoded in the shape's fill type. Inverse fills are intersect ops
         // and regular fills are difference ops. This means fShape is already in the right state to
         // draw directly.
