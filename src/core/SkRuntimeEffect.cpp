@@ -919,6 +919,28 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
 }
 #endif
 
+static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children,
+                                const SkKeyContext& keyContext,
+                                SkPaintParamsKeyBuilder* builder,
+                                SkPipelineDataGatherer* gatherer) {
+    for (const SkRuntimeEffect::ChildPtr& child : children) {
+        std::optional<ChildType> type = child.type();
+        if (type == ChildType::kShader) {
+            as_SB(child.shader())->addToKey(keyContext, builder, gatherer);
+        } else if (type == ChildType::kColorFilter) {
+            as_CFB(child.colorFilter())->addToKey(keyContext, builder, gatherer);
+        } else if (type == ChildType::kBlender) {
+            as_BB(child.blender())->addToKey(keyContext, builder, gatherer);
+        } else {
+            // Patch in a "passthrough" child effect that returns the input color as-is.
+            // TODO(skia:13508): if the child is a blender, we should blend the two inputs using
+            // SrcOver, not pass through the source color.
+            PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+            builder->endBlock();
+        }
+    }
+}
+
 class RuntimeEffectVMCallbacks : public SkSL::SkVMCallbacks {
 public:
     RuntimeEffectVMCallbacks(skvm::Builder* builder,
@@ -1015,6 +1037,16 @@ public:
                               childArgs);
     }
 #endif
+
+    void addToKey(const SkKeyContext& keyContext,
+                  SkPaintParamsKeyBuilder* builder,
+                  SkPipelineDataGatherer* gatherer) const override {
+        RuntimeColorFilterBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
+
+        add_children_to_key(fChildren, keyContext, builder, gatherer);
+
+        builder->endBlock();
+    }
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         return false;
@@ -1187,22 +1219,7 @@ public:
         RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer,
                                        {fEffect, this->getLocalMatrix(), fUniforms});
 
-        for (const SkRuntimeEffect::ChildPtr& child : fChildren) {
-            std::optional<ChildType> type = child.type();
-            if (type == ChildType::kShader) {
-                as_SB(child.shader())->addToKey(keyContext, builder, gatherer);
-            } else if (type == ChildType::kColorFilter) {
-                as_CFB(child.colorFilter())->addToKey(keyContext, builder, gatherer);
-            } else if (type == ChildType::kBlender) {
-                as_BB(child.blender())->addToKey(keyContext, builder, gatherer);
-            } else {
-                // Patch in a "passthrough" child effect that returns the input color as-is.
-                // TODO(skia:13508): if the child is a blender, we should blend the two inputs using
-                // SrcOver, not pass through the source color.
-                PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
-                builder->endBlock();
-            }
-        }
+        add_children_to_key(fChildren, keyContext, builder, gatherer);
 
         builder->endBlock();
     }

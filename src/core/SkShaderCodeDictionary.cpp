@@ -939,24 +939,31 @@ SkSpan<const SkUniform> SkShaderCodeDictionary::convertUniforms(const SkRuntimeE
     using Uniform = SkRuntimeEffect::Uniform;
     SkSpan<const Uniform> uniforms = effect->uniforms();
 
+    bool addLocalMatrixUniform = effect->allowShader();
+
     // Convert the SkRuntimeEffect::Uniform array into its SkUniform equivalent.
-    int numUniforms = uniforms.size() + 1;
+    int numUniforms = uniforms.size() + (addLocalMatrixUniform ? 1 : 0);
     SkUniform* uniformArray = fArena.makeInitializedArray<SkUniform>(numUniforms, [&](int index) {
         // Graphite wants a `localMatrix` float4x4 uniform at the front of the uniform list.
-        if (index == 0) {
-            return SkUniform("localMatrix", SkSLType::kFloat4x4);
+        const Uniform* u;
+        if (addLocalMatrixUniform) {
+            if (index == 0) {
+                return SkUniform("localMatrix", SkSLType::kFloat4x4);
+            }
+            u = &uniforms[index - 1];
+        } else {
+            u = &uniforms[index];
         }
-        const Uniform& u = uniforms[index - 1];
 
         // The existing uniform names live in the passed-in SkRuntimeEffect and may eventually
         // disappear. Copy them into fArena. (It's safe to do this within makeInitializedArray; the
         // entire array is allocated in one big slab before any initialization calls are done.)
-        const char* name = this->addTextToArena(u.name);
+        const char* name = this->addTextToArena(u->name);
 
         // Add one SkUniform to our array.
-        SkSLType type = uniform_type_to_sksl_type(u);
-        return (u.flags & Uniform::kArray_Flag) ? SkUniform(name, type, u.count)
-                                                : SkUniform(name, type);
+        SkSLType type = uniform_type_to_sksl_type(*u);
+        return (u->flags & Uniform::kArray_Flag) ? SkUniform(name, type, u->count)
+                                                 : SkUniform(name, type);
     });
 
     return SkSpan<const SkUniform>(uniformArray, numUniforms);
@@ -977,9 +984,12 @@ int SkShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffe
         return *existingCodeSnippetID;
     }
 
+    const SnippetRequirementFlags snippetFlags = effect->allowShader()
+                                                         ? SnippetRequirementFlags::kLocalCoords
+                                                         : SnippetRequirementFlags::kNone;
     int newCodeSnippetID = this->addUserDefinedSnippet("RuntimeEffect",
                                                        this->convertUniforms(effect),
-                                                       SnippetRequirementFlags::kLocalCoords,
+                                                       snippetFlags,
                                                        /*texturesAndSamplers=*/{},
                                                        kRuntimeShaderName,
                                                        GenerateRuntimeShaderExpression,

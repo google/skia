@@ -259,6 +259,11 @@ public:
     // Returns pointer to the named child's description, or nullptr if not found
     const Child* findChild(std::string_view name) const;
 
+    // Allows the runtime effect type to be identified.
+    bool allowShader()        const { return (fFlags & kAllowShader_Flag);        }
+    bool allowColorFilter()   const { return (fFlags & kAllowColorFilter_Flag);   }
+    bool allowBlender()       const { return (fFlags & kAllowBlender_Flag);       }
+
     static void RegisterFlattenables();
     ~SkRuntimeEffect() override;
 
@@ -293,9 +298,6 @@ private:
 
     uint32_t hash() const { return fHash; }
     bool usesSampleCoords()   const { return (fFlags & kUsesSampleCoords_Flag);   }
-    bool allowShader()        const { return (fFlags & kAllowShader_Flag);        }
-    bool allowColorFilter()   const { return (fFlags & kAllowColorFilter_Flag);   }
-    bool allowBlender()       const { return (fFlags & kAllowBlender_Flag);       }
     bool samplesOutsideMain() const { return (fFlags & kSamplesOutsideMain_Flag); }
     bool usesColorTransform() const { return (fFlags & kUsesColorTransform_Flag); }
     bool alwaysOpaque()       const { return (fFlags & kAlwaysOpaque_Flag);       }

@@ -243,4 +243,27 @@ struct RuntimeShaderBlock {
                            const ShaderData&);
 };
 
+struct RuntimeColorFilterBlock {
+    struct ColorFilterData {
+        // This ctor is used during pre-compilation when we don't have enough information to
+        // extract uniform data.
+        ColorFilterData(sk_sp<const SkRuntimeEffect> effect);
+
+        // This ctor is used when extracting information from PaintParams.
+        ColorFilterData(sk_sp<const SkRuntimeEffect> effect, sk_sp<const SkData> uniforms);
+
+        bool operator==(const ColorFilterData& rhs) const;
+        bool operator!=(const ColorFilterData& rhs) const { return !(*this == rhs); }
+
+        // Runtime shader data.
+        sk_sp<const SkRuntimeEffect> fEffect;
+        sk_sp<const SkData>          fUniforms;
+    };
+
+    static void BeginBlock(const SkKeyContext&,
+                           SkPaintParamsKeyBuilder*,
+                           SkPipelineDataGatherer*,
+                           const ColorFilterData&);
+};
+
 #endif // SkKeyHelpers_DEFINED
