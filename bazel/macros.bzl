@@ -79,7 +79,20 @@ def cc_library(**kwargs):
 
 # buildifier: disable=unnamed-macro
 def objc_library(**kwargs):
-    """A shim around objc_library that lets us tweak settings for G3 if necessary."""
+    """A shim around objc_library that lets us tweak settings for G3 if necessary.
+
+    Args:
+          **kwargs: Normal arguments to objc_library
+    """
+
+    # Internally, we need to combine sdk_frameworks and deps, but we can only
+    # do that if both are lists
+    # https://github.com/bazelbuild/bazel/issues/14157
+    sdks = kwargs.get("sdk_frameworks", None)
+    deps = kwargs.get("deps", [])
+    if type(sdks) != "NoneType":
+        if type(sdks) != "list" or type(deps) != "list":
+            fail("skd_frameworks and deps must both be normal lists, not selects")
     native.objc_library(**kwargs)
 
 # buildifier: disable=unnamed-macro

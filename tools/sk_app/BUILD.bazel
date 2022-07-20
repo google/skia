@@ -119,10 +119,17 @@ objc_library(
     ],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":platform_deps",
         "//:skia_internal",
         "//tools/skui",
         "//tools/timer",
-    ] + select({
+    ],
+)
+
+objc_library(
+    name = "platform_deps",
+    testonly = True,
+    deps = select({
         "@platforms//os:macos": ["//tools/sk_app/mac:deps"],
         "//conditions:default": [],
     }),
