@@ -598,9 +598,14 @@ static constexpr char kRuntimeShaderName[] = "RuntimeEffect";
 
 class GraphitePipelineCallbacks : public SkSL::PipelineStage::Callbacks {
 public:
-    GraphitePipelineCallbacks(std::string* preamble, int entryIndex)
-            : fPreamble(preamble)
-            , fEntryIndex(entryIndex) {}
+    GraphitePipelineCallbacks(const SkShaderInfo& shaderInfo,
+                              int entryIndex,
+                              const std::vector<int>& childEntryIndices,
+                              std::string* preamble)
+            : fShaderInfo(shaderInfo)
+            , fEntryIndex(entryIndex)
+            , fChildEntryIndices(childEntryIndices)
+            , fPreamble(preamble) {}
 
     std::string declareUniform(const SkSL::VarDeclaration* decl) override {
         return get_mangled_name(std::string(decl->var().name()), fEntryIndex);
@@ -634,13 +639,15 @@ public:
     }
 
     std::string sampleShader(int index, std::string coords) override {
-        // TODO(skia:13508): implement child shaders
-        return "half4(0)";
+        SkASSERT(index >= 0 && index < (int)fChildEntryIndices.size());
+        return emit_expression_for_entry(fShaderInfo, fChildEntryIndices[index],
+                                         "inColor", "float4(" + coords + ",0,1)", "float4x4(1.0)");
     }
 
     std::string sampleColorFilter(int index, std::string color) override {
-        // TODO(skia:13508): implement child color-filters
-        return "half4(0)";
+        SkASSERT(index >= 0 && index < (int)fChildEntryIndices.size());
+        return emit_expression_for_entry(fShaderInfo, fChildEntryIndices[index],
+                                         color, "coords", "float4x4(1.0)");
     }
 
     std::string sampleBlender(int index, std::string src, std::string dst) override {
@@ -662,8 +669,10 @@ public:
     }
 
 private:
-    std::string* fPreamble;
+    const SkShaderInfo& fShaderInfo;
     int fEntryIndex;
+    const std::vector<int>& fChildEntryIndices;
+    std::string* fPreamble;
 };
 
 #endif
@@ -673,13 +682,20 @@ void GenerateRuntimeShaderPreamble(const SkShaderInfo& shaderInfo,
                                    const SkPaintParamsKey::BlockReader& reader,
                                    std::string* preamble) {
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
-    [[maybe_unused]] const SkShaderSnippet* entry = reader.entry();
+    const SkShaderSnippet* entry = reader.entry();
 
-    // We prepend a preLocalMatrix as the first uniform, ahead of the runtime effect's uniforms.
-    // TODO: we can eliminate this uniform entirely if it's the identity matrix.
-    // TODO: if we could inherit the parent's transform, this could be removed entirely.
-    SkASSERT(entry->needsLocalCoords());
-    SkASSERT(entry->fUniforms.front().type() == SkSLType::kFloat4x4);
+    // Advance over the parent entry.
+    int curEntryIndex = *entryIndex;
+    *entryIndex += 1;
+
+    // Emit the preambles for all of our child effects (and advance the entry-index past them).
+    // This computes the indices of our child effects, which we use when invoking them below.
+    std::vector<int> childEntryIndices;
+    childEntryIndices.reserve(entry->fNumChildren);
+    for (int j = 0; j < entry->fNumChildren; ++j) {
+        childEntryIndices.push_back(*entryIndex);
+        emit_preamble_for_entry(shaderInfo, entryIndex, preamble);
+    }
 
     // Find this runtime effect in the runtime-effect dictionary.
     const int codeSnippetId = reader.codeSnippetId();
@@ -687,17 +703,9 @@ void GenerateRuntimeShaderPreamble(const SkShaderInfo& shaderInfo,
     SkASSERT(effect);
     const SkSL::Program& program = SkRuntimeEffectPriv::Program(*effect);
 
-    GraphitePipelineCallbacks callbacks{preamble, *entryIndex};
+    GraphitePipelineCallbacks callbacks{shaderInfo, curEntryIndex, childEntryIndices, preamble};
     SkASSERT(std::string_view(entry->fName) == kRuntimeShaderName);  // the callbacks assume this
     SkSL::PipelineStage::ConvertProgram(program, "pos", "inColor", "half4(1)", &callbacks);
-
-    // Advance over the parent entry.
-    *entryIndex += 1;
-
-    // Emit the preambles for all of our child effects (and advance the entry-index past them).
-    for (int j = 0; j < entry->fNumChildren; ++j) {
-        emit_preamble_for_entry(shaderInfo, entryIndex, preamble);
-    }
 #endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
 }
 
