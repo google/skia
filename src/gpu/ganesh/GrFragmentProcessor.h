@@ -656,5 +656,9 @@ static inline GrFPResult GrFPSuccess(std::unique_ptr<GrFragmentProcessor> fp) {
     SkASSERT(fp);
     return {true, std::move(fp)};
 }
+// Equivalent to GrFPSuccess except it allows the returned fragment processor to be null.
+static inline GrFPResult GrFPNullableSuccess(std::unique_ptr<GrFragmentProcessor> fp) {
+    return {true, std::move(fp)};
+}
 
 #endif
