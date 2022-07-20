@@ -18,6 +18,7 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "include/gpu/graphite/Context.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #endif
 
 #ifdef SK_ENABLE_PRECOMPILE
@@ -47,16 +48,6 @@ std::string SkShaderSnippet::getMangledUniformName(int uniformIndex, int mangleI
 // TODO: SkShaderInfo::toSkSL needs to work outside of both just graphite and metal. To do
 // so we'll need to switch over to using SkSL's uniform capabilities.
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
-
-// TODO: switch this over to using SkSL's uniform system
-namespace skgpu::graphite {
-std::string GetMtlUniforms(int bufferID,
-                           const char* name,
-                           const std::vector<SkPaintParamsKey::BlockReader>&,
-                           bool needsDev2Local);
-std::string GetMtlTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockReader>&,
-                                      int* binding);
-} // namespace skgpu::graphite
 
 // Returns an expression to invoke this entry, passing along an updated pre-local matrix.
 static std::string emit_expression_for_entry(const SkShaderInfo& shaderInfo,
@@ -134,10 +125,10 @@ std::string SkShaderInfo::toSkSL() const {
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     // TODO: replace hard-coded bufferID of 2 with the backend's paint uniform-buffer index.
-    preamble += skgpu::graphite::GetMtlUniforms(/*bufferID=*/2, "FS", fBlockReaders,
-                                                this->needsLocalCoords());
+    preamble += skgpu::graphite::EmitPaintParamsUniforms(/*bufferID=*/2, "FS", fBlockReaders,
+                                                         this->needsLocalCoords());
     int binding = 0;
-    preamble += skgpu::graphite::GetMtlTexturesAndSamplers(fBlockReaders, &binding);
+    preamble += skgpu::graphite::EmitTexturesAndSamplers(fBlockReaders, &binding);
 
     std::string mainBody = SkSL::String::printf("void main() {\n"
                                                 "    float4 coords = %s sk_FragCoord;\n",
