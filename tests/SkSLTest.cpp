@@ -393,6 +393,7 @@ SKSL_TEST(GPU_ES3,          IntFoldingES3,                   "folding/IntFolding
 SKSL_TEST(CPU + GPU + SkQP, FloatFolding,                    "folding/FloatFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, MatrixFoldingES2,                "folding/MatrixFoldingES2.sksl")
 SKSL_TEST(GPU_ES3,          MatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
+SKSL_TEST(CPU + GPU + SkQP, MatrixNoOpFolding,               "folding/MatrixNoOpFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, Negation,                        "folding/Negation.sksl")
 // TODO(skia:13035): This test fails on Nvidia GPUs on OpenGL but passes Vulkan. Re-enable the test
 // on Vulkan when granular GPU backend selection is supported.
