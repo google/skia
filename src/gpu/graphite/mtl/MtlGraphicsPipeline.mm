@@ -431,10 +431,12 @@ std::string GetMtlUniforms(int bufferID,
 
     std::string result = get_uniform_header(bufferID, name);
     for (int i = 0; i < (int) readers.size(); ++i) {
-        SkSL::String::appendf(&result,
-                              "// %s\n",
-                              readers[i].entry()->fName);
-        result += get_uniforms(readers[i].entry()->fUniforms, &offset, i);
+        SkSpan<const SkUniform> uniforms = readers[i].entry()->fUniforms;
+
+        if (!uniforms.empty()) {
+            SkSL::String::appendf(&result, "// %s uniforms\n", readers[i].entry()->fName);
+            result += get_uniforms(uniforms, &offset, i);
+        }
     }
     if (needsLocalCoords) {
         static constexpr SkUniform kDev2LocalUniform[] = {{ "dev2LocalUni", SkSLType::kFloat4x4 }};
@@ -451,14 +453,16 @@ std::string GetMtlTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockR
 
     std::string result;
     for (int i = 0; i < (int) readers.size(); ++i) {
-        auto texturesAndSamplers = readers[i].entry()->fTexturesAndSamplers;
+        SkSpan<const SkTextureAndSampler> samplers = readers[i].entry()->fTexturesAndSamplers;
 
-        for (int j = 0; j < (int) texturesAndSamplers.size(); ++j) {
-            const SkTextureAndSampler& t = texturesAndSamplers[j];
-            SkSL::String::appendf(&result,
-                                  "layout(binding=%d) uniform sampler2D %s_%d_%d;\n",
-                                  *binding, t.name(), i, j);
-            (*binding)++;
+        if (!samplers.empty()) {
+            SkSL::String::appendf(&result, "// %s samplers\n", readers[i].entry()->fName);
+            for (const SkTextureAndSampler& t : samplers) {
+                SkSL::String::appendf(&result,
+                                      "layout(binding=%d) uniform sampler2D %s_%d;\n",
+                                      *binding, t.name(), i);
+                (*binding)++;
+            }
         }
     }
 

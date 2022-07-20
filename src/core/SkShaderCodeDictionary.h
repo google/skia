@@ -80,7 +80,8 @@ struct SkShaderSnippet {
             , fNumChildren(numChildren)
             , fDataPayloadExpectations(dataPayloadExpectations) {}
 
-    std::string getMangledUniformName(int uniformIndex, int mangleId) const;
+    std::string getMangledUniformName(int uniformIdx, int mangleId) const;
+    std::string getMangledSamplerName(int samplerIdx, int mangleId) const;
 
     bool needsLocalCoords() const {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
