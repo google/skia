@@ -220,64 +220,6 @@ private:
     static SkIPoint IgnorePositionFieldMask(bool isSubpixel, SkAxisAlignment axisAlignment);
 };
 
-class SkGlyphRect16;
-namespace skglyph {
-SkGlyphRect16 rect16_union(SkGlyphRect16, SkGlyphRect16);
-SkGlyphRect16 rect16_intersection(SkGlyphRect16, SkGlyphRect16);
-}  // namespace skglyph
-
-// SkGlyphRect16 encodes rectangles with coordinates in [-32767, 32767]. It is specialized for
-// rectangle union and intersection operations.
-class SkGlyphRect16 {
-public:
-    SkGlyphRect16() = default;
-    SkGlyphRect16(int16_t left, int16_t top, int16_t right, int16_t bottom)
-            : fRect{(int16_t)-left, (int16_t)-top, right, bottom} {
-        SkDEBUGCODE(const int32_t min = std::numeric_limits<int16_t>::min());
-        SkASSERT(left != min && top != min && right != min && bottom != min);
-    }
-    bool empty() const {
-        return -fRect[0] >= fRect[2] || -fRect[1] >= fRect[3];
-    }
-    SkRect rect() const {
-        return SkRect::MakeLTRB(-fRect[0], -fRect[1], fRect[2], fRect[3]);
-    }
-    SkIRect iRect() const {
-        return SkIRect::MakeLTRB(-fRect[0], -fRect[1], fRect[2], fRect[3]);
-    }
-    SkGlyphRect16 offset(int16_t x, int16_t y) const {
-        return SkGlyphRect16{fRect + Storage{SkTo<int16_t>(-x), SkTo<int16_t>(-y), x, y}};
-    }
-    skvx::Vec<2, int16_t> leftTop() const { return -this->negLeftTop(); }
-    skvx::Vec<2, int16_t> rightBottom() const { return {fRect[2], fRect[3]}; }
-    skvx::Vec<2, int16_t> widthHeight() const { return this->rightBottom() + negLeftTop(); }
-    friend SkGlyphRect16 skglyph::rect16_union(SkGlyphRect16, SkGlyphRect16);
-    friend SkGlyphRect16 skglyph::rect16_intersection(SkGlyphRect16, SkGlyphRect16);
-
-private:
-    skvx::Vec<2, int16_t> negLeftTop() const { return {fRect[0], fRect[1]}; }
-    using Storage = skvx::Vec<4, int16_t>;
-    SkGlyphRect16(Storage rect) : fRect{rect} { }
-    Storage fRect;
-};
-
-namespace skglyph {
-inline SkGlyphRect16 empty_rect16() {
-    constexpr int16_t max = std::numeric_limits<int16_t>::max();
-    return {max, max, -max, -max};
-}
-inline SkGlyphRect16 full_rect16() {
-    constexpr int16_t max = std::numeric_limits<int16_t>::max();
-    return {-max, -max, max, max};
-}
-inline SkGlyphRect16 rect16_union(SkGlyphRect16 a, SkGlyphRect16 b) {
-    return skvx::max(a.fRect, b.fRect);
-}
-inline SkGlyphRect16 rect16_intersection(SkGlyphRect16 a, SkGlyphRect16 b) {
-    return skvx::min(a.fRect, b.fRect);
-}
-}  // namespace skglyph
-
 class SkGlyphRect;
 namespace skglyph {
 SkGlyphRect rect_union(SkGlyphRect, SkGlyphRect);
