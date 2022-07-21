@@ -19,6 +19,7 @@
 #ifdef SK_GRAPHITE_ENABLED
 #include "include/gpu/graphite/Context.h"
 #include "src/gpu/graphite/ContextUtils.h"
+#include "src/gpu/graphite/Renderer.h"
 #endif
 
 #ifdef SK_ENABLE_PRECOMPILE
@@ -126,11 +127,19 @@ static void emit_preamble_for_entry(const SkShaderInfo& shaderInfo,
 //   - The result of the final code snippet is then copied into "sk_FragColor".
 //   Note: each entry's 'fStaticFunctionName' field is expected to match the name of a function
 //   in the Graphite pre-compiled module.
-std::string SkShaderInfo::toSkSL() const {
+std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step) const {
     std::string preamble = "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
 
+    if (step->numVaryings() > 0) {
+        preamble += skgpu::graphite::EmitVaryings(step, "in");
+    }
+
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
-    // TODO: replace hard-coded bufferID of 2 with the backend's paint uniform-buffer index.
+    // TODO: replace hard-coded bufferIDs with the backend's step and paint uniform-buffer indices.
+    if (step->numUniforms() > 0) {
+        preamble += skgpu::graphite::EmitRenderStepUniforms(/*bufferID=*/1, "Step",
+                                                            step->uniforms());
+    }
     preamble += skgpu::graphite::EmitPaintParamsUniforms(/*bufferID=*/2, "FS", fBlockReaders,
                                                          this->needsLocalCoords());
     int binding = 0;

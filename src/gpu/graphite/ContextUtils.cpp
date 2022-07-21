@@ -271,14 +271,7 @@ std::string GetSkSLFS(SkShaderCodeDictionary* dict,
     *blendInfo = shaderInfo.blendInfo();
 
     std::string sksl;
-    const RenderStep* step = desc.renderStep();
-
-    // Varyings needed by RenderStep
-     if (step->numVaryings() > 0) {
-         sksl += EmitVaryings(step, "in");
-     }
-
-    sksl += shaderInfo.toSkSL();
+    sksl += shaderInfo.toSkSL(desc.renderStep());
 
     return sksl;
 }

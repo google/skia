@@ -25,6 +25,12 @@ namespace SkSL {
 struct ShaderCaps;
 }
 
+#ifdef SK_GRAPHITE_ENABLED
+namespace skgpu::graphite {
+class RenderStep;
+}
+#endif
+
 class SkBlenderID;
 class SkRuntimeEffect;
 class SkRuntimeEffectDictionary;
@@ -137,7 +143,7 @@ public:
 #endif
 
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
-    std::string toSkSL() const;
+    std::string toSkSL(const skgpu::graphite::RenderStep* step) const;
 #endif
 
 private:
