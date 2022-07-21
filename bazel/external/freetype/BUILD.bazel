@@ -330,6 +330,7 @@ cc_library(
     ],
     copts = [
         "-isystem external/freetype/include",
+        "-Wno-unused-function",
     ],
     defines = FREETYPE_PUBLIC_DEFINES,
     local_defines = FREETYPE_LOCAL_DEFINES,
