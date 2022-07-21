@@ -1,5 +1,118 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "bool_flag", "cc_library", "exports_files_legacy", "selects", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+PDF_FILES = [
+    "SkBitmapKey.h",
+    "SkClusterator.cpp",
+    "SkClusterator.h",
+    "SkDeflate.cpp",
+    "SkDeflate.h",
+    "SkJpegInfo.cpp",
+    "SkJpegInfo.h",
+    "SkKeyedImage.cpp",
+    "SkKeyedImage.h",
+    "SkPDFBitmap.cpp",
+    "SkPDFBitmap.h",
+    "SkPDFDevice.cpp",
+    "SkPDFDevice.h",
+    "SkPDFDocument.cpp",
+    "SkPDFDocumentPriv.h",
+    "SkPDFFont.cpp",
+    "SkPDFFont.h",
+    "SkPDFFormXObject.cpp",
+    "SkPDFFormXObject.h",
+    "SkPDFGlyphUse.h",
+    "SkPDFGradientShader.cpp",
+    "SkPDFGradientShader.h",
+    "SkPDFGraphicStackState.cpp",
+    "SkPDFGraphicStackState.h",
+    "SkPDFGraphicState.cpp",
+    "SkPDFGraphicState.h",
+    "SkPDFMakeCIDGlyphWidthsArray.cpp",
+    "SkPDFMakeCIDGlyphWidthsArray.h",
+    "SkPDFMakeToUnicodeCmap.cpp",
+    "SkPDFMakeToUnicodeCmap.h",
+    "SkPDFMetadata.cpp",
+    "SkPDFMetadata.h",
+    "SkPDFResourceDict.cpp",
+    "SkPDFResourceDict.h",
+    "SkPDFShader.cpp",
+    "SkPDFShader.h",
+    "SkPDFSubsetFont.cpp",
+    "SkPDFSubsetFont.h",
+    "SkPDFTag.cpp",
+    "SkPDFTag.h",
+    "SkPDFType1Font.cpp",
+    "SkPDFType1Font.h",
+    "SkPDFTypes.cpp",
+    "SkPDFTypes.h",
+    "SkPDFUnion.h",
+    "SkPDFUtils.cpp",
+    "SkPDFUtils.h",
+    "SkUUID.h",
+]
+
+split_srcs_and_hdrs(
+    name = "pdf",
+    files = PDF_FILES,
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":pdf_srcs",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        ":pdf_hdrs",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+bool_flag(
+    default = False,
+    flag_name = "enable_pdf_backend",
+)
+
+bool_flag(
+    default = True,  # This defaults it to be on if icu and harfbuzz are on
+    flag_name = "enable_pdf_subset_harfbuzz",
+)
+
+selects.config_setting_group(
+    name = "uses_jpeg",
+    match_any = [
+        "//bazel/common_config_settings:jpeg_encode_codec",
+        "//bazel/common_config_settings:jpeg_decode_codec",
+    ],
+)
+
+selects.config_setting_group(
+    name = "uses_harfbuzz",
+    match_all = [
+        "//bazel/common_config_settings:use_icu_true",
+        "//bazel/common_config_settings:use_harfbuzz_true",
+        ":enable_pdf_subset_harfbuzz_true",
+    ],
+)
+
+# TODO(kjlubick) sfntly support
+
+cc_library(
+    name = "deps",
+    visibility = ["//src:__pkg__"],
+    deps = ["@zlib_skia//:zlib"] + select({
+        ":uses_jpeg": ["@libjpeg_turbo"],
+        "//conditions:default": [],
+    }) + select({
+        ":uses_harfbuzz": ["@harfbuzz"],
+        "//conditions:default": [],
+    }),
+)

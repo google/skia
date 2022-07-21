@@ -8,6 +8,7 @@ cc_library(
     name = "skunicode",
     srcs = ["//modules/skunicode/src:srcs"],
     hdrs = ["//modules/skunicode/include:hdrs"],
+    defines = ["SK_UNICODE_AVAILABLE"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",

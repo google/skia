@@ -9,15 +9,18 @@ load("@py_deps//:requirements.bzl", _requirement = "requirement")
 load("@bazel_gazelle//:def.bzl", _gazelle = "gazelle")
 load("@emsdk//emscripten_toolchain:wasm_rules.bzl", _wasm_cc_binary = "wasm_cc_binary")
 load("@io_bazel_rules_go//go:def.bzl", _go_binary = "go_binary", _go_library = "go_library")
+load("//bazel/common_config_settings:defs.bzl", _bool_flag = "bool_flag", _string_flag_with_values = "string_flag_with_values")
 
 # re-export symbols that are commonly used or that are not supported in G3
 # (and thus we need to stub out)
+bool_flag = _bool_flag
 gazelle = _gazelle
 go_binary = _go_binary
 go_library = _go_library
 py_binary = _py_binary
 requirement = _requirement
 selects = _selects
+string_flag_with_values = _string_flag_with_values
 wasm_cc_binary = _wasm_cc_binary
 
 def select_multi(values_map, default):

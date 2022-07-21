@@ -10,9 +10,11 @@ _bool_flags = [
     "//bazel/common_config_settings:enable_sksl",
     "//bazel/common_config_settings:enable_sksl_tracing",
     "//bazel/common_config_settings:enable_skslc",
-    "//bazel/common_config_settings:enable_svg_canvas",
     "//bazel/common_config_settings:is_skia_dev_build",
+    "//bazel/common_config_settings:use_harfbuzz",
     "//bazel/common_config_settings:use_icu",
+    "//src/pdf:enable_pdf_backend",
+    "//src/svg:enable_svg_canvas",
 ]
 
 _string_flags = [
@@ -25,7 +27,6 @@ _string_list_flags = [
     "//bazel/common_config_settings:include_decoder",
     "//bazel/common_config_settings:include_encoder",
     "//bazel/common_config_settings:include_fontmgr",
-    "//bazel/common_config_settings:shaper_backend",
 ]
 
 # These are the flags that we support setting via set_flags

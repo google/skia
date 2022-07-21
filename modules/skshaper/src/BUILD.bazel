@@ -10,7 +10,7 @@ filegroup(
         "SkShaper.cpp",
         "SkShaper_primitive.cpp",
     ] + select({
-        "//bazel/common_config_settings:harfbuzz_shaper": ["SkShaper_harfbuzz.cpp"],
+        "//modules/skshaper:use_harfbuzz_shaper": ["SkShaper_harfbuzz.cpp"],
         # TODO(kjlubick, bungeman) Add support for SkShaper_coretext
         "//conditions:default": [],
     }),

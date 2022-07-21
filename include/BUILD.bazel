@@ -24,7 +24,7 @@ filegroup(
         "//bazel/common_config_settings:has_gpu_backend": ["//include/gpu:public_hdrs"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:enable_svg_canvas_true": ["//include/svg:public_hdrs"],
+        "//src/svg:enable_svg_canvas_true": ["//include/svg:public_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],

@@ -30,9 +30,14 @@ filegroup(
         "//bazel/common_config_settings:needs_sksl": ["//src/sksl:srcs"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:enable_svg_canvas_true": [
+        "//src/svg:enable_svg_canvas_true": [
             "//src/svg:srcs",
             "//src/xml:srcs",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        "//src/pdf:enable_pdf_backend_true": [
+            "//src/pdf:srcs",
         ],
         "//conditions:default": [],
     }),
@@ -64,9 +69,14 @@ filegroup(
         "//bazel/common_config_settings:needs_sksl": ["//src/sksl:private_hdrs"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:enable_svg_canvas_true": [
+        "//src/svg:enable_svg_canvas_true": [
             "//src/svg:private_hdrs",
             "//src/xml:private_hdrs",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        "//src/pdf:enable_pdf_backend_true": [
+            "//src/pdf:private_hdrs",
         ],
         "//conditions:default": [],
     }),
@@ -88,8 +98,13 @@ cc_library(
         "//bazel/common_config_settings:needs_sksl": ["//src/sksl:deps"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:enable_svg_canvas_true": [
+        "//src/svg:enable_svg_canvas_true": [
             "//src/xml:deps",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        "//src/pdf:enable_pdf_backend_true": [
+            "//src/pdf:deps",
         ],
         "//conditions:default": [],
     }),

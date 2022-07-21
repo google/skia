@@ -30,7 +30,7 @@ which uses aliases defined in .bazelrc to be the same as
 
     bazel build //:skia_public --//bazel/common_config_settings:include_encoder=jpeg_decode_codec \
         --//bazel/common_config_settings:include_encoder=png_decode_codec \
-        --//bazel/common_config_settings:enable_svg_canvas
+        --//src/svg:enable_svg_canvas
 
 Having the options be defined in the BUILD.bazel target is much more convenient.
 

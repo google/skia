@@ -1,18 +1,32 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "selects")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+selects.config_setting_group(
+    name = "use_harfbuzz_shaper",
+    match_all = [
+        "//bazel/common_config_settings:use_icu_true",
+        "//bazel/common_config_settings:use_harfbuzz_true",
+    ],
+)
+
+# TODO(kjlubick,bungeman) coretext shaper
+
 cc_library(
     name = "skshaper",
     srcs = ["//modules/skshaper/src:srcs"],
     hdrs = ["//modules/skshaper/include:hdrs"],
+    defines = ["SKSHAPER_IMPLEMENTATION=1"] + select({
+        ":use_harfbuzz_shaper": ["SK_SHAPER_HARFBUZZ_AVAILABLE"],
+        "//conditions:default": [],
+    }),
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",
     ] + select({
-        "//bazel/common_config_settings:harfbuzz_shaper": [
+        ":use_harfbuzz_shaper": [
             "@harfbuzz",
             "//modules/skunicode",
         ],

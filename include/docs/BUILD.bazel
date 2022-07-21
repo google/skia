@@ -6,9 +6,9 @@ exports_files_legacy()
 
 filegroup(
     name = "public_hdrs",
-    srcs = [
-        "SkPDFDocument.h",
-        "SkXPSDocument.h",
-    ],
+    srcs = select({
+        "//src/pdf:enable_pdf_backend_true": ["SkPDFDocument.h"],
+        "//conditions:default": [],
+    }),  # TODO(kjlubick) XPSDocument
     visibility = ["//include:__pkg__"],
 )
