@@ -649,7 +649,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
     EXPECT_EQUAL(f22 * 2, "(f22 * 2.0)");
     EXPECT_EQUAL(f22 == Float2x2(1), "(f22 == float2x2(1.0))");
     EXPECT_EQUAL(h42[0][1], "h42[0].y");
-    EXPECT_EQUAL(f43 * Float4(0), "(f43 * float4(0.0))");
+    EXPECT_EQUAL(f43 * Float4(0), "float3(0.0)");
     EXPECT_EQUAL(h23 * 2, "(h23 * 2.0)");
     EXPECT_EQUAL(Inverse(f44), "inverse(f44)");
 

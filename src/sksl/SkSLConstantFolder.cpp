@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
@@ -280,6 +281,23 @@ static std::unique_ptr<Expression> cast_expression(const Context& context,
                                   : expr.clone(pos);
 }
 
+static std::unique_ptr<Expression> zero_expression(const Context& context,
+                                                   Position pos,
+                                                   const Type& type) {
+    std::unique_ptr<Expression> zero = Literal::Make(pos, 0.0, &type.componentType());
+    if (type.isScalar()) {
+        return zero;
+    }
+    if (type.isVector()) {
+        return ConstructorSplat::Make(context, pos, type, std::move(zero));
+    }
+    if (type.isMatrix()) {
+        return ConstructorDiagonalMatrix::Make(context, pos, type, std::move(zero));
+    }
+    SkDEBUGFAILF("unsupported type %s", type.description().c_str());
+    return nullptr;
+}
+
 static std::unique_ptr<Expression> negate_expression(const Context& context,
                                                      Position pos,
                                                      const Expression& expr,
@@ -318,7 +336,8 @@ static bool contains_constant_zero(const Expression& expr) {
     return false;
 }
 
-static bool is_constant_value(const Expression& expr, double value) {
+// Returns true if the expression contains `value` in every slot.
+static bool is_constant_splat(const Expression& expr, double value) {
     int numSlots = expr.type().slotCount();
     for (int index = 0; index < numSlots; ++index) {
         std::optional<double> slotVal = expr.getConstantValue(index);
@@ -327,6 +346,33 @@ static bool is_constant_value(const Expression& expr, double value) {
         }
     }
     return true;
+}
+
+// Returns true if the expression is a square diagonal matrix containing `value`.
+static bool is_constant_diagonal(const Expression& expr, double value) {
+    SkASSERT(expr.type().isMatrix());
+    int columns = expr.type().columns();
+    int rows = expr.type().rows();
+    if (columns != rows) {
+        return false;
+    }
+    int slotIdx = 0;
+    for (int c = 0; c < columns; ++c) {
+        for (int r = 0; r < rows; ++r) {
+            double expectation = (c == r) ? value : 0;
+            std::optional<double> slotVal = expr.getConstantValue(slotIdx++);
+            if (!slotVal.has_value() || *slotVal != expectation) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// Returns true if the expression is a scalar, vector, or diagonal matrix containing `value`.
+static bool is_constant_value(const Expression& expr, double value) {
+    return expr.type().isMatrix() ? is_constant_diagonal(expr, value)
+                                  : is_constant_splat(expr, value);
 }
 
 static bool error_on_divide_by_zero(const Context& context, Position pos, Operator op,
@@ -389,10 +435,10 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
                                                              const Type& resultType) {
     switch (op.kind()) {
         case Operator::Kind::PLUS:
-            if (is_constant_value(right, 0.0)) {  // x + 0
+            if (is_constant_splat(right, 0.0)) {  // x + 0
                 return cast_expression(context, pos, left, resultType);
             }
-            if (is_constant_value(left, 0.0)) {   // 0 + x
+            if (is_constant_splat(left, 0.0)) {   // 0 + x
                 return cast_expression(context, pos, right, resultType);
             }
             break;
@@ -405,10 +451,10 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
                 return cast_expression(context, pos, right, resultType);
             }
             if (is_constant_value(right, 0.0) && !left.hasSideEffects()) {  // x * 0
-                return cast_expression(context, pos, right, resultType);
+                return zero_expression(context, pos, resultType);
             }
             if (is_constant_value(left, 0.0) && !right.hasSideEffects()) {  // 0 * x
-                return cast_expression(context, pos, left, resultType);
+                return zero_expression(context, pos, resultType);
             }
             if (is_constant_value(right, -1.0)) {  // x * -1 (to `-x`)
                 return negate_expression(context, pos, left, resultType);
@@ -419,25 +465,25 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
             break;
 
         case Operator::Kind::MINUS:
-            if (is_constant_value(right, 0.0)) {  // x - 0
+            if (is_constant_splat(right, 0.0)) {  // x - 0
                 return cast_expression(context, pos, left, resultType);
             }
-            if (is_constant_value(left, 0.0)) {   // 0 - x (to `-x`)
+            if (is_constant_splat(left, 0.0)) {   // 0 - x (to `-x`)
                 return negate_expression(context, pos, right, resultType);
             }
             break;
 
         case Operator::Kind::SLASH:
-            if (is_constant_value(right, 1.0)) {  // x / 1
+            if (is_constant_splat(right, 1.0)) {  // x / 1
                 return cast_expression(context, pos, left, resultType);
             }
             break;
 
         case Operator::Kind::PLUSEQ:
         case Operator::Kind::MINUSEQ:
-            if (is_constant_value(right, 0.0)) {  // x += 0, x -= 0
+            if (is_constant_splat(right, 0.0)) {  // x += 0, x -= 0
                 if (std::unique_ptr<Expression> var = cast_expression(context, pos, left,
-                        resultType)) {
+                                                                      resultType)) {
                     Analysis::UpdateVariableRefKind(var.get(), VariableRefKind::kRead);
                     return var;
                 }
@@ -445,10 +491,19 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
             break;
 
         case Operator::Kind::STAREQ:
-        case Operator::Kind::SLASHEQ:
-            if (is_constant_value(right, 1.0)) {  // x *= 1, x /= 1
+            if (is_constant_value(right, 1.0)) {  // x *= 1
                 if (std::unique_ptr<Expression> var = cast_expression(context, pos, left,
-                        resultType)) {
+                                                                      resultType)) {
+                    Analysis::UpdateVariableRefKind(var.get(), VariableRefKind::kRead);
+                    return var;
+                }
+            }
+            break;
+
+        case Operator::Kind::SLASHEQ:
+            if (is_constant_splat(right, 1.0)) {  // x /= 1
+                if (std::unique_ptr<Expression> var = cast_expression(context, pos, left,
+                                                                      resultType)) {
                     Analysis::UpdateVariableRefKind(var.get(), VariableRefKind::kRead);
                     return var;
                 }
@@ -561,9 +616,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // Optimize away no-op arithmetic like `x * 1`, `x *= 1`, `x + 0`, `x * 0`, `0 / x`, etc.
     const Type& leftType = left->type();
     const Type& rightType = right->type();
-    if (context.fConfig->fSettings.fOptimize &&
-        (leftType.isScalar() || leftType.isVector()) &&
-        (rightType.isScalar() || rightType.isVector())) {
+    if (context.fConfig->fSettings.fOptimize) {
         if (std::unique_ptr<Expression> expr = simplify_no_op_arithmetic(context, pos, *left, op,
                                                                          *right, resultType)) {
             return expr;
