@@ -106,6 +106,7 @@ TEST_BUILDERS = [
   ('Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ASAN_Vulkan',
+  'Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All',
 ]
 
 # Default properties used for TEST_BUILDERS.
