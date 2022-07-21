@@ -861,6 +861,9 @@ void GenerateTableColorFilterPreamble(const SkShaderInfo& shaderInfo,
 }
 
 //--------------------------------------------------------------------------------------------------
+static constexpr char kGaussianColorFilterName[] = "sk_gaussian_colorfilter";
+
+//--------------------------------------------------------------------------------------------------
 static constexpr char kErrorName[] = "sk_error";
 
 //--------------------------------------------------------------------------------------------------
@@ -1315,6 +1318,17 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kTableColorFilterName,
             GenerateTableColorFilterExpression,
             GenerateTableColorFilterPreamble,
+            kNoChildren,
+            { }      // no data payload
+    };
+    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kGaussianColorFilter] = {
+            "GaussianColorFilter",
+            { },     // no uniforms
+            SnippetRequirementFlags::kPriorStageOutput,
+            { },     // no samplers
+            kGaussianColorFilterName,
+            GenerateDefaultExpression,
+            GenerateDefaultPreamble,
             kNoChildren,
             { }      // no data payload
     };

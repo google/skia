@@ -17,6 +17,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkTableColorFilter.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkColorFilterPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -122,7 +123,9 @@ void draw_gradient_tile(SkCanvas* canvas, SkRect clipRect) {
 }
 
 void draw_colorfilter_swatches(SkCanvas* canvas, SkRect clipRect) {
-    SkSize tileSize = { clipRect.width() / 2.0f, clipRect.height() / 2.0f };
+    static constexpr int kNumTilesPerSide = 3;
+
+    SkSize tileSize = { clipRect.width() / kNumTilesPerSide, clipRect.height() / kNumTilesPerSide };
 
     // Quantize to four colors
     uint8_t table1[256];
@@ -143,7 +146,20 @@ void draw_colorfilter_swatches(SkCanvas* canvas, SkRect clipRect) {
         }
     }
 
-    sk_sp<SkColorFilter> colorFilters[4];
+    constexpr SkColor SK_ColorGREY = SkColorSetARGB(0xFF, 0x80, 0x80, 0x80);
+
+    sk_sp<SkColorFilter> colorFilters[kNumTilesPerSide*kNumTilesPerSide];
+    static const std::array<SkColor, 3> kGradientColors[kNumTilesPerSide*kNumTilesPerSide] = {
+            { SK_ColorBLACK, SK_ColorGREY, SK_ColorWHITE },
+            { SK_ColorBLACK, SK_ColorGREY, SK_ColorWHITE },
+            { SK_ColorBLACK, SK_ColorGREY, SK_ColorWHITE },
+            { SK_ColorBLACK, SK_ColorGREY, SK_ColorWHITE },
+            { 0x00000000,    0x80000000,   0xFF000000    },  // the Gaussian CF uses alpha only
+            { SK_ColorBLACK, SK_ColorGREY, SK_ColorWHITE },
+            { SK_ColorBLACK, SK_ColorGREY, SK_ColorWHITE },
+            { SK_ColorBLACK, SK_ColorGREY, SK_ColorWHITE },
+            { SK_ColorBLACK, SK_ColorGREY, SK_ColorWHITE },
+    };
 
     colorFilters[0] = SkColorMatrixFilter::MakeLightingFilter(SK_ColorLTGRAY, 0xFF440000);
     colorFilters[1] = SkTableColorFilter::Make(table1);
@@ -152,6 +168,7 @@ void draw_colorfilter_swatches(SkCanvas* canvas, SkRect clipRect) {
                                               SkTableColorFilter::MakeARGB(nullptr, table2,
                                                                            table2, table2));
     colorFilters[3] = SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kMultiply);
+    colorFilters[4] = SkColorFilterPriv::MakeGaussian();
 
     SkPaint p;
 
@@ -159,15 +176,16 @@ void draw_colorfilter_swatches(SkCanvas* canvas, SkRect clipRect) {
         canvas->clipRect(clipRect);
         canvas->translate(clipRect.fLeft, clipRect.fTop);
 
-        for (int y = 0; y < 2; ++y) {
-            for (int x = 0; x < 2; ++x) {
+        for (int y = 0; y < kNumTilesPerSide; ++y) {
+            for (int x = 0; x < kNumTilesPerSide; ++x) {
                 SkRect r = SkRect::MakeXYWH(x * tileSize.width(), y * tileSize.height(),
                                             tileSize.width(), tileSize.height()).makeInset(1.0f,
                                                                                            1.0f);
+                int colorFilterIndex = x*kNumTilesPerSide+y;
                 p.setShader(create_gradient_shader(r,
-                                                   { SK_ColorBLACK, SK_ColorGRAY, SK_ColorWHITE },
+                                                   kGradientColors[colorFilterIndex],
                                                    { 0.0f, 0.5f, 1.0f }));
-                p.setColorFilter(colorFilters[x*2+y]);
+                p.setColorFilter(colorFilters[colorFilterIndex]);
                 canvas->drawRect(r, p);
             }
         }

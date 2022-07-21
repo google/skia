@@ -587,3 +587,9 @@ half4 sk_blend_shader(int blendMode, half4 child0, half4 child1) {
 half4 sk_blend_colorfilter(half4 dstColor, int blendMode, float4 srcColor) {
     return sk_blend(blendMode, half4(srcColor), dstColor);
 }
+
+half4 sk_gaussian_colorfilter(half4 inColor) {
+    half factor = 1 - inColor.a;
+    factor = exp(-factor * factor * 4) - 0.018;
+    return half4(factor);
+}

@@ -865,6 +865,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	// skia:6189
 	badSerializeGMs = append(badSerializeGMs, "shadow_utils")
+	badSerializeGMs = append(badSerializeGMs, "graphitestart")
 
 	// skia:7938
 	badSerializeGMs = append(badSerializeGMs, "persp_images")
