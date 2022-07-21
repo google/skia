@@ -296,12 +296,6 @@ using ToA8 = decltype(bw_to_a8);
 
 using fp88 = skvx::Vec<8, uint16_t>; // 8-wide fixed point 8.8
 
-static fp88 mulhi(const fp88& a, const fp88& b) {
-    // On NEON, this is optimal; with SSE, clang appears to detect the pattern and convert it to the
-    // optimal single instruction, _mm_mulhi_epu16.
-    return skvx::cast<uint16_t>(mull(a, b) >> 16);
-}
-
 static fp88 load(const uint8_t* from, int width, ToA8* toA8) {
     // Our fast path is a full 8-byte load of A8.
     // So we'll conditionally handle the two slow paths using tmp:

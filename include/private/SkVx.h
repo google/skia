@@ -807,61 +807,54 @@ private:
     const uint32_t fHalf;
 };
 
-#if SKVX_USE_SIMD && defined(__ARM_NEON)
-// With NEON we can do eight u8*u8 -> u16 in one instruction, vmull_u8 (read, mul-long).
-SI Vec<8,uint16_t> mull(const Vec<8,uint8_t>& x,
-                        const Vec<8,uint8_t>& y) {
-    return to_vec<8,uint16_t>(vmull_u8(to_vext(x),
-                                       to_vext(y)));
-}
 
-SIN std::enable_if_t<(N < 8), Vec<N,uint16_t>> mull(const Vec<N,uint8_t>& x,
-                                                    const Vec<N,uint8_t>& y) {
-    // N < 8 --> double up data until N == 8, returning the part we need.
-    return mull(join(x,x),
-                join(y,y)).lo;
-}
-
-SIN std::enable_if_t<(N > 8), Vec<N,uint16_t>> mull(const Vec<N,uint8_t>& x,
-                                                    const Vec<N,uint8_t>& y) {
-    // N > 8 --> usual join(lo,hi) strategy to recurse down to N == 8.
-    return join(mull(x.lo, y.lo),
-                mull(x.hi, y.hi));
-}
-
-// Or do four u16*u16 -> u32 in one instruction, vmull_u16
-SI Vec<4,uint32_t> mull(const Vec<4,uint16_t>& x,
-                        const Vec<4,uint16_t>& y) {
-    return to_vec<4,uint32_t>(vmull_u16(to_vext(x),
-                                        to_vext(y)));
-}
-
-SIN std::enable_if_t<(N < 4), Vec<N,uint32_t>> mull(const Vec<N,uint16_t>& x,
-                                                    const Vec<N,uint16_t>& y) {
-    // N < 4 --> double up data until N == 4, returning the part we need.
-    return mull(join(x,x),
-                join(y,y)).lo;
-}
-
-SIN std::enable_if_t<(N > 4), Vec<N,uint32_t>> mull(const Vec<N,uint16_t>& x,
-                                                    const Vec<N,uint16_t>& y) {
-    // N > 4 --> usual join(lo,hi) strategy to recurse down to N == 4.
-    return join(mull(x.lo, y.lo),
-                mull(x.hi, y.hi));
-}
-
-#else
-
-// Nothing special when we don't have NEON... just cast up and multiply.
 SIN Vec<N,uint16_t> mull(const Vec<N,uint8_t>& x,
                          const Vec<N,uint8_t>& y) {
+#if SKVX_USE_SIMD && defined(__ARM_NEON)
+    // With NEON we can do eight u8*u8 -> u16 in one instruction, vmull_u8 (read, mul-long).
+    if constexpr (N == 8) {
+        return to_vec<8,uint16_t>(vmull_u8(to_vext(x), to_vext(y)));
+    } else if constexpr (N < 8) {
+        return mull(join(x,x), join(y,y)).lo;
+    } else { // N > 8
+        return join(mull(x.lo, y.lo), mull(x.hi, y.hi));
+    }
+#else
     return cast<uint16_t>(x) * cast<uint16_t>(y);
+#endif
 }
+
 SIN Vec<N,uint32_t> mull(const Vec<N,uint16_t>& x,
                          const Vec<N,uint16_t>& y) {
+#if SKVX_USE_SIMD && defined(__ARM_NEON)
+    // NEON can do four u16*u16 -> u32 in one instruction, vmull_u16
+    if constexpr (N == 4) {
+        return to_vec<4,uint32_t>(vmull_u16(to_vext(x), to_vext(y)));
+    } else if constexpr (N < 4) {
+        return mull(join(x,x), join(y,y)).lo;
+    } else { // N > 4
+        return join(mull(x.lo, y.lo), mull(x.hi, y.hi));
+    }
+#else
     return cast<uint32_t>(x) * cast<uint32_t>(y);
-}
 #endif
+}
+
+SIN Vec<N,uint16_t> mulhi(const Vec<N,uint16_t>& x,
+                          const Vec<N,uint16_t>& y) {
+#if SKVX_USE_SIMD && defined(__SSE__)
+    // Use _mm_mulhi_epu16 for 8xuint16_t and join or split to get there.
+    if constexpr (N == 8) {
+        return bit_pun<Vec<8,uint16_t>>(_mm_mulhi_epu16(bit_pun<__m128i>(x), bit_pun<__m128i>(y)));
+    } else if constexpr (N < 8) {
+        return mulhi(join(x,x), join(y,y)).lo;
+    } else { // N > 8
+        return join(mulhi(x.lo, y.lo), mulhi(x.hi, y.hi));
+    }
+#else
+    return skvx::cast<uint16_t>(mull(x, y) >> 16);
+#endif
+}
 
 SINT T dot(const Vec<N, T>& a, const Vec<N, T>& b) {
     auto ab = a*b;
