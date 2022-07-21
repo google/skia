@@ -1027,6 +1027,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if (b.matchGpu("Adreno3") || b.matchGpu("Mali400")) && !b.extraConfig("Vulkan") {
 		skip(ALL, "tests", ALL, "SkSLMatrices") // skia:12456
+		skip(ALL, "tests", ALL, "SkSLMatrixNoOpFolding_GPU")
 	}
 
 	if b.gpu("QuadroP400") {
@@ -1082,6 +1083,18 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_GPU")  // skia:13035
 			skip(ALL, "tests", ALL, "SkSLStructFieldNoFolding_GPU") // skia:13395
 		}
+	}
+
+	if b.model("MacMini9.1") || b.model("Pixel4a") {
+		skip(ALL, "tests", ALL, "SkSLMatrixNoOpFolding_CPU") // skia:13552
+	}
+
+	if b.model("MacBookAir7.2") && b.extraConfig("ANGLE") {
+		skip(ALL, "tests", ALL, "SkSLMatrixNoOpFolding_GPU") // https://anglebug.com/7514
+	}
+
+	if b.matchOs("Win10") && b.matchGpu("Radeon(R9|HD)") && !b.extraConfig("Vulkan") {
+		skip(ALL, "tests", ALL, "SkSLMatrixNoOpFolding_GPU") // skia:13556
 	}
 
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") {

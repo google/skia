@@ -1,0 +1,163 @@
+uniform float2x2 testMatrix2x2;
+uniform float3x3 testMatrix3x3;
+uniform float4 testInputs;
+uniform half4 colorRed, colorGreen;
+uniform half unknownInput;
+
+bool test_mat2_mat2() {
+    float2x2 m, mm;
+    const float2x2 i = float2x2(1.0);
+    const float2x2 z = float2x2(0.0);
+    const float2x2 s = float2x2(float4(1.0));
+
+    m = testMatrix2x2 * i;
+    m = i * testMatrix2x2;
+
+    m = m * i;
+    m = i * m;
+    m *= i;
+
+    m = m / s;
+    m /= s;
+
+    m = m + z;
+    m = z + m;
+    m += z;
+
+    m = m - z;
+    m = z - m;  // negates
+    m -= z;
+
+    mm = m * z;
+    mm = z * m;
+
+    return m == -testMatrix2x2 && mm == z;
+}
+
+bool test_mat3_mat3() {
+    float3x3 m, mm;
+    const float3x3 i = float3x3(1.0);
+    const float3x3 z = float3x3(0.0);
+    const float3x3 s = float3x3(float3(1.0), float3(1.0), float3(1.0));
+
+    m = testMatrix3x3 * i;
+    m = i * testMatrix3x3;
+
+    m = m * i;
+    m = i * m;
+    m *= i;
+
+    m = m / s;
+    m /= s;
+
+    m = m + z;
+    m = z + m;
+    m += z;
+
+    m = m - z;
+    m = z - m;  // negates
+    m -= z;
+
+    mm = m * z;
+    mm = z * m;
+
+    return m == -testMatrix3x3 && mm == z;
+}
+
+bool test_mat4_mat4() {
+    float4x4 testMatrix4x4 = float4x4(testInputs, testInputs, testInputs, testInputs);
+
+    float4x4 m, mm;
+    const float4x4 i = float4x4(1.0);
+    const float4x4 z = float4x4(0.0);
+    const float4x4 s = float4x4(float4(1.0), float4(1.0), float4(1.0), float4(1.0));
+
+    m = testMatrix4x4 * i;
+    m = i * testMatrix4x4;
+
+    m = m * i;
+    m = i * m;
+    m *= i;
+
+    m = m / s;
+    m /= s;
+
+    m = m + z;
+    m = z + m;
+    m += z;
+
+    m = m - z;
+    m = z - m;  // negates
+    m -= z;
+
+    mm = m * z;
+    mm = z * m;
+
+    return m == -testMatrix4x4 && mm == z;
+}
+
+bool test_mat2_vec2() {
+    float2x2 m;
+    const float2x2 i = float2x2(1.0);
+    const float2x2 z = float2x2(0.0);
+
+    float2 v, vv;
+    v = testInputs.xy * i;
+    v = i * testInputs.xy;
+
+    v = v * i;
+    v = i * v;
+    v *= i;
+
+    vv = v * z;
+    vv = z * v;
+
+    return v == testInputs.xy && vv == z[0];
+}
+
+bool test_mat3_vec3() {
+    float3x3 m;
+    const float3x3 i = float3x3(1.0);
+    const float3x3 z = float3x3(0.0);
+
+    float3 v, vv;
+    v = testInputs.xyz * i;
+    v = i * testInputs.xyz;
+
+    v = v * i;
+    v = i * v;
+    v *= i;
+
+    vv = v * z;
+    vv = z * v;
+
+    return v == testInputs.xyz && vv == z[0];
+}
+
+bool test_mat4_vec4() {
+    float4x4 m;
+    const float4x4 i = float4x4(1.0);
+    const float4x4 z = float4x4(0.0);
+
+    float4 v, vv;
+    v = testInputs * i;
+    v = i * testInputs;
+
+    v = v * i;
+    v = i * v;
+    v *= i;
+
+    vv = v * z;
+    vv = z * v;
+
+    return v == testInputs && vv == z[0];
+}
+
+half4 main(float2 coords) {
+    return test_mat2_mat2() &&
+           test_mat3_mat3() &&
+           test_mat4_mat4() &&
+           test_mat2_vec2() &&
+           test_mat3_vec3() &&
+           test_mat4_vec4() ? colorGreen : colorRed;
+}
