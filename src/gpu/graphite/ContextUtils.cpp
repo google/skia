@@ -164,8 +164,8 @@ std::string EmitTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockRea
         for (int j = 0; j < (int) texturesAndSamplers.size(); ++j) {
             const SkTextureAndSampler& t = texturesAndSamplers[j];
             SkSL::String::appendf(&result,
-                                  "layout(binding=%d) uniform sampler2D %s_%d_%d;\n",
-                                  *binding, t.name(), i, j);
+                                  "layout(binding=%d) uniform sampler2D %s_%d;\n",
+                                  *binding, t.name(), i);
             (*binding)++;
         }
     }
