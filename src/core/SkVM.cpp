@@ -4433,6 +4433,17 @@ namespace skvm {
             exit();
         }
 
+        // On ARM64, we use immediate offsets to adjust the stack pointer, and those are limited to
+        // 12 bits. If our function is going to require more than 4k of stack, just fail. We could
+        // tweak the code that adjusts `sp`, but then we risk exceeding the (larger) immediate limit
+        // on our sp-relative load and store opcodes.
+    #if defined(__aarch64__)
+        const int stack_bytes = (*stack_hint) * K * 4;
+        if (stack_bytes > mask(12)) {
+            return false;
+        }
+    #endif
+
         // Except for explicit aligned load and store instructions, AVX allows
         // memory operands to be unaligned.  So even though we're creating 16
         // byte patterns on ARM or 32-byte patterns on x86, we only need to

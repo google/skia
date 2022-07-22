@@ -1103,10 +1103,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
-	if b.model("MacMini9.1") || b.model("Pixel4a") {
-		skip(ALL, "tests", ALL, "SkSLMatrixNoOpFolding_CPU") // skia:13552
-	}
-
 	if b.model("MacBookAir7.2") && b.extraConfig("ANGLE") {
 		skip(ALL, "tests", ALL, "SkSLMatrixNoOpFolding_GPU") // https://anglebug.com/7514
 	}
