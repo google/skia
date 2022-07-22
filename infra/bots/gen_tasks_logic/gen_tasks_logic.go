@@ -942,7 +942,8 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"IntelIris640":  "8086:5926",
 					"QuadroP400":    "10de:1cb3-510.60.02",
 					"RTX3060":       "10de:2489-460.91.03",
-					"IntelIrisXe":   "8086:9a49-22.0.5",
+					"IntelIrisXe":   "8086:9a49",
+					"RadeonVega6":   "1002:1636",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Ubuntu GPU mapping.", b.parts["cpu_or_gpu_value"])
@@ -959,6 +960,11 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					// The Intel Iris Xe devices are Debian 11.3.
 					d["os"] = "Debian-bookworm/sid"
 				}
+				if b.parts["cpu_or_gpu_value"] == "RadeonVega6" {
+					// The RadeonVega6 devices are Debian 11.4.
+					d["os"] = "Debian-11.4"
+				}
+
 			} else if b.matchOs("Mac") {
 				gpu, ok := map[string]string{
 					"AppleM1":       "AppleM1",
@@ -1007,8 +1013,8 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		}
 	} else {
 		if d["os"] == DEBIAN_11_OS {
-			// The Debain11 compile machines in the skolo have GPUs, but we
-			// still use them for compiles also.
+			// The Debain11 compile machines in the skolo have
+			// GPUs, but we still use them for compiles also.
 		} else {
 			d["gpu"] = "none"
 		}
