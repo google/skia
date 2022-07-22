@@ -3349,7 +3349,9 @@
         "--workdir=.",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
+        "--bazel_arg=--remote_download_minimal",
+        "--bazel_arg=--nobuild_runfile_manifests",
+        "--bazel_arg=--nobuild_runfile_links"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3391,7 +3393,9 @@
         "--workdir=.",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
+        "--bazel_arg=--remote_download_minimal",
+        "--bazel_arg=--nobuild_runfile_manifests",
+        "--bazel_arg=--nobuild_runfile_links"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3433,7 +3437,9 @@
         "--workdir=.",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
+        "--bazel_arg=--remote_download_minimal",
+        "--bazel_arg=--nobuild_runfile_manifests",
+        "--bazel_arg=--nobuild_runfile_links"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3475,7 +3481,9 @@
         "--workdir=.",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
+        "--bazel_arg=--remote_download_minimal",
+        "--bazel_arg=--nobuild_runfile_manifests",
+        "--bazel_arg=--nobuild_runfile_links"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3517,7 +3525,9 @@
         "--workdir=.",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
+        "--bazel_arg=--remote_download_minimal",
+        "--bazel_arg=--nobuild_runfile_manifests",
+        "--bazel_arg=--nobuild_runfile_links"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3559,7 +3569,9 @@
         "--workdir=.",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
         "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
+        "--bazel_arg=--remote_download_minimal",
+        "--bazel_arg=--nobuild_runfile_manifests",
+        "--bazel_arg=--nobuild_runfile_links"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
