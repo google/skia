@@ -41,24 +41,7 @@ rbe_known_good_builds:
 
 iwyu_rbe:
 	bazelisk build //:skia_public --config=for_linux_x64_with_rbe --config=enforce_iwyu \
-	 	--keep_going --remote_download_minimal
-	bazelisk build //example:hello_world_gl --config=for_linux_x64_with_rbe --config=enforce_iwyu \
-	 	--keep_going --remote_download_minimal
-	bazelisk build //example:hello_world_vulkan --config=for_linux_x64_with_rbe --config=enforce_iwyu \
-	 	--keep_going --remote_download_minimal
-	bazelisk build //example:hello_world_dawn --config=for_linux_x64_with_rbe --config=enforce_iwyu \
-	 	--keep_going --remote_download_minimal
-	bazelisk build //example:vulkan_basic --config=for_linux_x64_with_rbe --config=enforce_iwyu \
-	 	--keep_going --remote_download_minimal
+	 	--remote_download_minimal --nobuild_runfile_manifests
 
 iwyu:
-	bazelisk build //:skia_public --config=enforce_iwyu \
-	 	--keep_going
-	bazelisk build //example:hello_world_gl --config=enforce_iwyu \
-	 	--keep_going
-	bazelisk build //example:hello_world_vulkan --config=enforce_iwyu \
-	 	--keep_going
-	bazelisk build //example:hello_world_dawn --config=enforce_iwyu \
-	 	--keep_going
-	bazelisk build //example:vulkan_basic --config=enforce_iwyu \
-	 	--keep_going
+	bazelisk build //:skia_public --config=enforce_iwyu --nobuild_runfile_manifests

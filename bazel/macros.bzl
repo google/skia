@@ -23,7 +23,7 @@ selects = _selects
 string_flag_with_values = _string_flag_with_values
 wasm_cc_binary = _wasm_cc_binary
 
-def select_multi(values_map, default):
+def select_multi(values_map):
     """select() but allowing multiple matches of the keys.
 
     select_multi works around a restriction in native select() that prevents multiple
@@ -33,13 +33,12 @@ def select_multi(values_map, default):
 
     select_multi takes a given map and turns it into several distinct select statements
     that have the effect of using any values associated with any active keys.
-    For example, if the following parameters are passed in:
+    For example, if the following parameter is passed in:
         values_map = {
             ":alpha": ["apple", "apricot"],
             ":beta": ["banana"],
             ":gamma": ["grapefruit"],
-        },
-        default = []
+        }
     it will be unrolled into the following select statements
         [] + select({
             ":apple": ["apple", "apricot"],
@@ -54,19 +53,17 @@ def select_multi(values_map, default):
 
     Args:
         values_map: dictionary of labels to a list of labels, just like select()
-        default: list of labels, the value that should be used if any of the options do not match.
-            This is typically an empty list
 
     Returns:
         A list of values that is filled in by the generated select statements.
     """
     if len(values_map) == 0:
-        return default
+        return []
     rv = []
     for key, value in values_map.items():
         rv += select({
             key: value,
-            "//conditions:default": default,
+            "//conditions:default": [],
         })
     return rv
 

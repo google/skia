@@ -170,7 +170,6 @@ filegroup(
             "//bazel/common_config_settings:raw_decode_codec": [":decode_raw_srcs"],
             "//bazel/common_config_settings:webp_decode_codec": [":decode_webp_srcs"],
         },
-        default = [],
     ),
     visibility = ["//src:__pkg__"],
 )
@@ -195,7 +194,6 @@ filegroup(
             "//bazel/common_config_settings:raw_decode_codec": [":decode_raw_hdrs"],
             "//bazel/common_config_settings:webp_decode_codec": [":decode_webp_hdrs"],
         },
-        default = [],
     ),
     visibility = ["//src:__pkg__"],
 )
@@ -214,6 +212,5 @@ cc_library(
             ],
             "//bazel/common_config_settings:webp_decode_codec": ["@libwebp"],
         },
-        default = [],
     ),
 )

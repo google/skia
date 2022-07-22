@@ -53,7 +53,7 @@ GENERAL_DEFINES = [
     "//conditions:default": [],
 })
 
-GPU_DEFINES = select({
+GPU_DEFINES = select_multi({
     "//src/gpu:gl_backend": [
         "SK_GL",
         "SK_SUPPORT_GPU=1",
@@ -67,6 +67,8 @@ GPU_DEFINES = select({
         "SK_SUPPORT_GPU=1",
         "VK_USE_PLATFORM_XCB_KHR",  # TODO(kjlubick) support dawn's dawn_enable_vulkan etc
     ],
+}) + select({
+    "//src/gpu:has_gpu_backend": [],
     "//conditions:default": [
         "SK_SUPPORT_GPU=0",
     ],
@@ -103,7 +105,6 @@ CODEC_DEFINES = select_multi(
         "//bazel/common_config_settings:webp_decode_codec": ["SK_CODEC_DECODES_WEBP"],
         "//bazel/common_config_settings:webp_encode_codec": ["SK_ENCODE_WEBP"],
     },
-    default = [],
 )
 
 PLATFORM_DEFINES = select({

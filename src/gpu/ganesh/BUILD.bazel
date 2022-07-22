@@ -253,7 +253,6 @@ filegroup(
             "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:srcs"],
             # TODO(kjlubick) mtl and d3d backend
         },
-        default = [],
     ),
     visibility = ["//src/gpu:__pkg__"],
 )
@@ -278,7 +277,6 @@ filegroup(
             "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:private_hdrs"],
             # TODO(kjlubick) mtl and d3d backend
         },
-        default = [],
     ),
     visibility = ["//src/gpu:__pkg__"],
 )
@@ -293,6 +291,5 @@ cc_library(
             "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:deps"],
             # TODO(kjlubick) mtl and d3d backend
         },
-        default = [],
     ),
 )

@@ -1,14 +1,9 @@
 [
   {"name": "BazelBuild-modules_canvaskit_webgl-webgl2_debug-linux_x64"},
-  {"name": "BazelBuild-example_hello_world_dawn-enforce_iwyu-linux_x64"},
   {"name": "BazelBuild-example_hello_world_dawn-release-linux_x64",
    "cq_config": {}
    },
-  {"name": "BazelBuild-example_hello_world_gl-enforce_iwyu-linux_x64",
-    "cq_config": {}
-  },
   {"name": "BazelBuild-example_hello_world_gl-release-linux_x64"},
-  {"name": "BazelBuild-example_hello_world_vulkan-enforce_iwyu-linux_x64"},
   {"name": "BazelBuild-example_hello_world_vulkan-release-linux_x64"},
   {"name": "BazelBuild-skia_public-enforce_iwyu-linux_x64",
     "cq_config": {}

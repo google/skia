@@ -32,7 +32,6 @@ filegroup(
             "//src/gpu:vulkan_backend": ["//include/gpu/vk:public_hdrs"],
             # TODO(kjlubick) mtl and d3d backend
         },
-        default = [],
     ),
     visibility = ["//include:__pkg__"],
 )

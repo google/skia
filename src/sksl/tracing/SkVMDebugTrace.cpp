@@ -17,7 +17,8 @@
 #include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"
 
-#include <stdio.h>
+#include <cstddef>
+#include <cstdio>
 #include <sstream>
 #include <string>
 #include <string_view>

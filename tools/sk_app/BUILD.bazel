@@ -58,7 +58,6 @@ cc_library(
                 "VulkanWindowContext.cpp",
             ],
         },
-        default = [],
     ) + select({
         "@platforms//os:linux": ["//tools/sk_app/unix:srcs"],
         "//conditions:default": [],
@@ -96,7 +95,6 @@ objc_library(
             ],
             #TODO dawn and metal backend
         },
-        default = [],
     ) + select({
         "@platforms//os:macos": ["//tools/sk_app/mac:srcs"],
         "//conditions:default": [],

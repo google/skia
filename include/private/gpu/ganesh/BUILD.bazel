@@ -18,7 +18,6 @@ filegroup(
             "//src/gpu:vulkan_backend": ["GrVkTypesPriv.h"],
             # TODO(kjlubick) Direct3D and Metal Backends
         },
-        default = [],
     ),
     visibility = ["//include/private/gpu:__pkg__"],
 )

@@ -17,7 +17,6 @@ filegroup(
             "//bazel/common_config_settings:png_encode_codec": ["SkPngEncoder.cpp"],
             "//bazel/common_config_settings:webp_encode_codec": ["SkWebpEncoder.cpp"],
         },
-        default = [],
     ),
     visibility = ["//src:__pkg__"],
 )
@@ -43,6 +42,5 @@ cc_library(
             "//bazel/common_config_settings:png_encode_codec": ["@libpng"],
             "//bazel/common_config_settings:webp_encode_codec": ["@libwebp"],
         },
-        default = [],
     ),
 )

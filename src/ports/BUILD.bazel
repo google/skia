@@ -44,7 +44,6 @@ filegroup(
             "//bazel/common_config_settings:custom_empty_fontmgr": [":fontmgr_custom_empty"],
             "//bazel/common_config_settings:fontconfig_fontmgr": [":fontmgr_fontconfig"],
         },
-        default = [],
     ),
 )
 

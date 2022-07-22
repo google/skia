@@ -15,6 +15,8 @@
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkClipStackDevice.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 
 namespace sktext {
