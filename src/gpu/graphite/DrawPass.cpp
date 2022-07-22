@@ -51,6 +51,34 @@ struct Bitfield {
     static uint64_t set(uint32_t v) { return (v & kMask) << kOffset; }
 };
 
+struct TextureBindingBlock {
+    TextureDataCache::Index fPaintTextureIndex;
+    TextureDataCache::Index fStepTextureIndex;
+
+    static std::unique_ptr<TextureBindingBlock> Make(const TextureBindingBlock& other,
+                                                     SkArenaAlloc*) {
+        return std::make_unique<TextureBindingBlock>(other);
+    }
+
+    bool operator==(const TextureBindingBlock& other) const {
+        return fPaintTextureIndex == other.fPaintTextureIndex &&
+               fStepTextureIndex == other.fStepTextureIndex;
+    }
+    bool operator!=(const TextureBindingBlock& other) const { return !(*this == other);  }
+
+    uint32_t hash() const {
+        uint32_t hash = 0;
+        uint32_t index = fPaintTextureIndex.asUInt();
+        hash = SkOpts::hash_fn(&index, sizeof(index), hash);
+        index = fStepTextureIndex.asUInt();
+        hash = SkOpts::hash_fn(&index, sizeof(index), hash);
+
+        return hash;
+    }
+};
+using TextureBindingCache =
+        PipelineDataCache<std::unique_ptr<TextureBindingBlock>, TextureBindingBlock>;
+
 /**
  * Each Draw in a DrawList might be processed by multiple RenderSteps (determined by the Draw's
  * Renderer), which can be sorted independently. Each (step, draw) pair produces its own SortKey.
@@ -81,14 +109,14 @@ public:
             uint32_t pipelineIndex,
             UniformDataCache::Index geomUniformIndex,
             UniformDataCache::Index shadingUniformIndex,
-            TextureDataCache::Index textureDataIndex)
+            TextureBindingCache::Index textureBindingIndex)
         : fPipelineKey(ColorDepthOrderField::set(draw->fDrawParams.order().paintOrder().bits()) |
                        StencilIndexField::set(draw->fDrawParams.order().stencilIndex().bits())  |
                        RenderStepField::set(static_cast<uint32_t>(renderStep))                  |
                        PipelineField::set(pipelineIndex))
         , fUniformKey(GeometryUniformField::set(geomUniformIndex.asUInt())   |
                       ShadingUniformField::set(shadingUniformIndex.asUInt()) |
-                      TextureBindingsField::set(textureDataIndex.asUInt()))
+                      TextureBindingsField::set(textureBindingIndex.asUInt()))
         , fDraw(draw) {
         SkASSERT(renderStep <= draw->fRenderer.numRenderSteps());
     }
@@ -111,8 +139,8 @@ public:
     UniformDataCache::Index shadingUniforms() const {
         return UniformDataCache::Index(ShadingUniformField::get(fUniformKey));
     }
-    TextureDataCache::Index textureBindings() const {
-        return TextureDataCache::Index(TextureBindingsField::get(fUniformKey));
+    TextureBindingCache::Index textureBindings() const {
+        return TextureBindingCache::Index(TextureBindingsField::get(fUniformKey));
     }
 
 private:
@@ -308,9 +336,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     UniformBindingCache geometryUniformBindings(bufferMgr, &geometryUniformDataCache);
     UniformBindingCache shadingUniformBindings(bufferMgr, recorder->priv().uniformDataCache());
     TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
-    std::vector<std::pair<TextureDataCache::Index, TextureDataCache::Index>> textureBindingIndices;
-    textureBindingIndices.push_back(std::make_pair(TextureDataCache::Index(),
-                                                   TextureDataCache::Index()));
+    TextureBindingCache textureBindingIndices;
 
     std::unordered_map<const GraphicsPipelineDesc*, uint32_t, Hash, Eq> pipelineDescToIndex;
 
@@ -360,19 +386,13 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
             SkUniquePaintParamsID stepShaderID;
             UniformDataCache::Index stepShadingUniformIndex;
-            TextureDataCache::Index stepTextureBindingIndex;
+            TextureBindingCache::Index stepTextureBindingIndex;
             if (performsShading) {
                 stepShaderID = shaderID;
                 stepShadingUniformIndex = shadingUniformIndex;
                 if (paintTextureDataIndex.isValid() || stepTextureDataIndex.isValid()) {
-                    // TODO: this will not capture duplicates. In particular, we'll get
-                    // duplicate pairs for a draw with multiple steps and no step textures.
-                    // We can also get duplicates when two Draws share the same textures.
-                    textureBindingIndices.push_back(std::make_pair(paintTextureDataIndex,
-                                                                   stepTextureDataIndex));
-                    stepTextureBindingIndex =
-                           TextureDataCache::Index(textureBindingIndices.size()-1);
-
+                    stepTextureBindingIndex = textureBindingIndices.insert({paintTextureDataIndex,
+                                                                            stepTextureDataIndex});
                     int numTextures = 0;
                     if (paintTextureDataIndex.isValid()) {
                         auto textureDataBlock = textureDataCache->lookup(paintTextureDataIndex);
@@ -427,7 +447,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // Setting to # render steps ensures the very first time through the loop will bind a pipeline.
     uint32_t lastPipeline = draws->renderStepCount();
     UniformDataCache::Index lastShadingUniforms;
-    TextureDataCache::Index lastTextureBindings;
+    TextureBindingCache::Index lastTextureBindings;
     UniformDataCache::Index lastGeometryUniforms;
     SkIRect lastScissor = SkIRect::MakeSize(drawPass->fTarget->dimensions());
     // We will reuse these vectors for all the draws as they are just meant for temporary storage
@@ -484,9 +504,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 lastShadingUniforms = key.shadingUniforms();
             }
             if (textureBindingsChange) {
-                unsigned int vectorIndex = key.textureBindings().asUInt();
-                auto [paintTextureIndex, stepTextureIndex] =
-                        textureBindingIndices[vectorIndex];
+                auto textureIndexBlock = textureBindingIndices.lookup(key.textureBindings());
 
                 auto collect_textures = [](TextureDataCache* cache,
                                            TextureDataCache::Index cacheIndex,
@@ -509,10 +527,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 };
 
                 int numTextures = 0;
-                collect_textures(textureDataCache, paintTextureIndex, drawPass.get(), &numTextures,
-                                 &textureIndices, &samplerIndices);
-                collect_textures(textureDataCache, stepTextureIndex, drawPass.get(), &numTextures,
-                                 &textureIndices, &samplerIndices);
+                collect_textures(textureDataCache, textureIndexBlock->fPaintTextureIndex,
+                                 drawPass.get(), &numTextures, &textureIndices, &samplerIndices);
+                collect_textures(textureDataCache, textureIndexBlock->fStepTextureIndex,
+                                 drawPass.get(), &numTextures, &textureIndices, &samplerIndices);
                 SkASSERT(numTextures <= maxTexturesInSingleDraw);
                 drawPass->fCommandList.bindTexturesAndSamplers(numTextures,
                                                                textureIndices.data(),

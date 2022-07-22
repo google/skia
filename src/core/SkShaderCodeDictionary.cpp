@@ -136,6 +136,8 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step) const 
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     // TODO: replace hard-coded bufferIDs with the backend's step and paint uniform-buffer indices.
+    // TODO: The use of these indices is Metal-specific. We should replace these functions with
+    // API-independent ones.
     if (step->numUniforms() > 0) {
         preamble += skgpu::graphite::EmitRenderStepUniforms(/*bufferID=*/1, "Step",
                                                             step->uniforms());
