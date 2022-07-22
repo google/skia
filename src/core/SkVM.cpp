@@ -4506,6 +4506,9 @@ namespace skvm {
                     "echo '.global _skvm_jit\n_skvm_jit: .incbin \"%s\"'"
                     " | clang -x assembler -shared - -o %s",
                     path.c_str(), path.c_str());
+        #if defined(__aarch64__)
+            cmd.append(" -arch arm64");
+        #endif
             system(cmd.c_str());
 
             // Load that dynamic library and look up skvm_jit().
@@ -4542,6 +4545,9 @@ namespace skvm {
                 "echo '.global _skvm_jit\n_skvm_jit: .incbin \"%s\"'"
                 " | clang -x assembler -shared - -o %s",
                 path, path);
+        #if defined(__aarch64__)
+            cmd.append(" -arch arm64");
+        #endif
         system(cmd.c_str());
 
         // Now objdump to disassemble our function:
