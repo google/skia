@@ -1320,7 +1320,7 @@ SubRunOwner DirectMaskSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatr
     if (!buffer.validateCanReadN<SkPoint>(glyphCount)) { return nullptr; }
     SkPoint* positionsData = alloc->makePODArray<SkPoint>(glyphCount);
     for (int i = 0; i < glyphCount; ++i) {
-        pun_read(buffer, &positionsData[i]);
+        positionsData[i] = buffer.readPoint();
     }
     SkSpan<SkPoint> positions(positionsData, glyphCount);
 
@@ -1339,7 +1339,7 @@ void DirectMaskSubRun::doFlatten(SkWriteBuffer& buffer) const {
     int glyphCount = SkTo<int>(fLeftTopDevicePos.size());
     buffer.writeInt(glyphCount);
     for (auto pos : fLeftTopDevicePos) {
-        pun_write(buffer, pos);
+        buffer.writePoint(pos);
     }
     fGlyphs.flatten(buffer);
 }
