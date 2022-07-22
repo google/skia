@@ -7,7 +7,7 @@ exports_files_legacy()
 selects.config_setting_group(
     name = "dawn_unix",
     match_all = [
-        "//bazel/common_config_settings:dawn_backend",
+        "//src/gpu:dawn_backend",
         "@platforms//os:linux",
     ],
 )
@@ -15,7 +15,7 @@ selects.config_setting_group(
 selects.config_setting_group(
     name = "gl_unix",
     match_all = [
-        "//bazel/common_config_settings:gl_backend",
+        "//src/gpu:gl_backend",
         "@platforms//os:linux",
     ],
 )
@@ -23,7 +23,7 @@ selects.config_setting_group(
 selects.config_setting_group(
     name = "gl_mac",
     match_all = [
-        "//bazel/common_config_settings:gl_backend",
+        "//src/gpu:gl_backend",
         "@platforms//os:macos",
     ],
 )
@@ -31,7 +31,7 @@ selects.config_setting_group(
 selects.config_setting_group(
     name = "vulkan_unix",
     match_all = [
-        "//bazel/common_config_settings:vulkan_backend",
+        "//src/gpu:vulkan_backend",
         "@platforms//os:linux",
     ],
 )
@@ -45,15 +45,15 @@ cc_library(
         "RasterWindowContext.h",
     ] + select_multi(
         {
-            "//bazel/common_config_settings:dawn_backend": [
+            "//src/gpu:dawn_backend": [
                 "DawnWindowContext.h",
                 "DawnWindowContext.cpp",
             ],
-            "//bazel/common_config_settings:gl_backend": [
+            "//src/gpu:gl_backend": [
                 "GLWindowContext.cpp",
                 "GLWindowContext.h",
             ],
-            "//bazel/common_config_settings:vulkan_backend": [
+            "//src/gpu:vulkan_backend": [
                 "VulkanWindowContext.h",
                 "VulkanWindowContext.cpp",
             ],
@@ -90,7 +90,7 @@ objc_library(
         "RasterWindowContext.h",
     ] + select_multi(
         {
-            "//bazel/common_config_settings:gl_backend": [
+            "//src/gpu:gl_backend": [
                 "GLWindowContext.cpp",
                 "GLWindowContext.h",
             ],

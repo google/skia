@@ -42,7 +42,7 @@ split_srcs_and_hdrs(
 filegroup(
     name = "srcs",
     srcs = [":core_srcs"] + select({
-        "//bazel/common_config_settings:has_gpu_backend": [":gpu_srcs"],
+        "//src/gpu:has_gpu_backend": [":gpu_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
@@ -51,7 +51,7 @@ filegroup(
 filegroup(
     name = "private_hdrs",
     srcs = [":core_hdrs"] + select({
-        "//bazel/common_config_settings:has_gpu_backend": [":gpu_hdrs"],
+        "//src/gpu:has_gpu_backend": [":gpu_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],

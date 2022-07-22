@@ -425,7 +425,7 @@ split_srcs_and_hdrs(
 filegroup(
     name = "srcs",
     srcs = [":core_srcs"] + select({
-        "//bazel/common_config_settings:needs_sksl": [
+        "//src/sksl:needs_sksl": [
             ":sksl_srcs",
         ],
         "//conditions:default": [],
@@ -436,7 +436,7 @@ filegroup(
 filegroup(
     name = "private_hdrs",
     srcs = [":core_hdrs"] + select({
-        "//bazel/common_config_settings:needs_sksl": [
+        "//src/sksl:needs_sksl": [
             ":sksl_hdrs",
         ],
         "//conditions:default": [],

@@ -1,28 +1,23 @@
-load("//bazel:macros.bzl", "cc_binary", "exports_files_legacy", "go_binary", "go_library")
-load("//bazel:cc_library_with_flags.bzl", "cc_library_with_flags")
+load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+load("//bazel:macros.bzl", "exports_files_legacy", "go_binary", "go_library")
 load("@rules_python//python:defs.bzl", "py_binary")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-cc_binary(
+cc_binary_with_flags(
     name = "bazel_test_exe",
     srcs = [
         "bazel_test.cpp",
     ],
-    deps = [
-        ":skia_with_svg",
-        "@libpng",
-    ],
-)
-
-cc_library_with_flags(
-    name = "skia_with_svg",
     set_flags = {
         "enable_svg_canvas": ["True"],
     },
-    target = "//:skia_public",
+    deps = [
+        "//:skia_public",
+        "@libpng",
+    ],
 )
 
 go_binary(

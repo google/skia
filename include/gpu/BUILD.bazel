@@ -28,8 +28,8 @@ filegroup(
         "//include/gpu/gl:public_hdrs",
     ] + select_multi(
         {
-            "//bazel/common_config_settings:dawn_backend": ["//include/gpu/dawn:public_hdrs"],
-            "//bazel/common_config_settings:vulkan_backend": ["//include/gpu/vk:public_hdrs"],
+            "//src/gpu:dawn_backend": ["//include/gpu/dawn:public_hdrs"],
+            "//src/gpu:vulkan_backend": ["//include/gpu/vk:public_hdrs"],
             # TODO(kjlubick) mtl and d3d backend
         },
         default = [],

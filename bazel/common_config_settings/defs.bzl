@@ -85,6 +85,7 @@ def string_flag_with_values(flag_name, values, default = "", multiple = False):
             flag_values = {
                 ":" + flag_name: v,
             },
+            visibility = ["//:__subpackages__"],
         )
 
 # buildifier: disable=unnamed-macro

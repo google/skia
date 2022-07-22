@@ -248,9 +248,9 @@ filegroup(
         "//src/gpu/ganesh/v1:srcs",
     ] + select_multi(
         {
-            "//bazel/common_config_settings:dawn_backend": ["//src/gpu/ganesh/dawn:srcs"],
-            "//bazel/common_config_settings:gl_backend": ["//src/gpu/ganesh/gl:srcs"],
-            "//bazel/common_config_settings:vulkan_backend": ["//src/gpu/ganesh/vk:srcs"],
+            "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:srcs"],
+            "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:srcs"],
+            "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:srcs"],
             # TODO(kjlubick) mtl and d3d backend
         },
         default = [],
@@ -273,9 +273,9 @@ filegroup(
         "//src/gpu/ganesh/v1:private_hdrs",
     ] + select_multi(
         {
-            "//bazel/common_config_settings:dawn_backend": ["//src/gpu/ganesh/dawn:private_hdrs"],
-            "//bazel/common_config_settings:gl_backend": ["//src/gpu/ganesh/gl:private_hdrs"],
-            "//bazel/common_config_settings:vulkan_backend": ["//src/gpu/ganesh/vk:private_hdrs"],
+            "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:private_hdrs"],
+            "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:private_hdrs"],
+            "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:private_hdrs"],
             # TODO(kjlubick) mtl and d3d backend
         },
         default = [],
@@ -288,9 +288,9 @@ cc_library(
     visibility = ["//src/gpu:__pkg__"],
     deps = select_multi(
         {
-            "//bazel/common_config_settings:dawn_backend": ["//src/gpu/ganesh/dawn:deps"],
-            "//bazel/common_config_settings:gl_backend": ["//src/gpu/ganesh/gl:deps"],
-            "//bazel/common_config_settings:vulkan_backend": ["//src/gpu/ganesh/vk:deps"],
+            "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:deps"],
+            "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:deps"],
+            "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:deps"],
             # TODO(kjlubick) mtl and d3d backend
         },
         default = [],

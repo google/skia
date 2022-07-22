@@ -18,10 +18,10 @@ filegroup(
         "//include/ports:public_hdrs",
         "//include/utils:public_hdrs",
     ] + select({
-        "//bazel/common_config_settings:needs_sksl": ["//include/sksl:public_hdrs"],
+        "//src/sksl:needs_sksl": ["//include/sksl:public_hdrs"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:has_gpu_backend": ["//include/gpu:public_hdrs"],
+        "//src/gpu:has_gpu_backend": ["//include/gpu:public_hdrs"],
         "//conditions:default": [],
     }) + select({
         "//src/svg:enable_svg_canvas_true": ["//include/svg:public_hdrs"],

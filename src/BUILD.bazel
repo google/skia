@@ -21,13 +21,13 @@ filegroup(
         "//src/text:srcs",
         "//src/utils:srcs",
     ] + select({
-        "//bazel/common_config_settings:has_gpu_backend": [
+        "//src/gpu:has_gpu_backend": [
             "//src/gpu:srcs",
             "//src/text/gpu:srcs",
         ],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:needs_sksl": ["//src/sksl:srcs"],
+        "//src/sksl:needs_sksl": ["//src/sksl:srcs"],
         "//conditions:default": [],
     }) + select({
         "//src/svg:enable_svg_canvas_true": [
@@ -60,13 +60,13 @@ filegroup(
         "//src/text:private_hdrs",
         "//src/utils:private_hdrs",
     ] + select({
-        "//bazel/common_config_settings:has_gpu_backend": [
+        "//src/gpu:has_gpu_backend": [
             "//src/gpu:private_hdrs",
             "//src/text/gpu:private_hdrs",
         ],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:needs_sksl": ["//src/sksl:private_hdrs"],
+        "//src/sksl:needs_sksl": ["//src/sksl:private_hdrs"],
         "//conditions:default": [],
     }) + select({
         "//src/svg:enable_svg_canvas_true": [
@@ -92,10 +92,10 @@ cc_library(
         "//src/ports:deps",
         "//modules/skcms:skcms",
     ] + select({
-        "//bazel/common_config_settings:has_gpu_backend": ["//src/gpu:deps"],
+        "//src/gpu:has_gpu_backend": ["//src/gpu:deps"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:needs_sksl": ["//src/sksl:deps"],
+        "//src/sksl:needs_sksl": ["//src/sksl:deps"],
         "//conditions:default": [],
     }) + select({
         "//src/svg:enable_svg_canvas_true": [

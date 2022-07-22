@@ -7,9 +7,9 @@ It is based off of https://github.com/bazelbuild/examples/tree/main/rules/starla
 """
 
 _bool_flags = [
-    "//bazel/common_config_settings:enable_sksl",
-    "//bazel/common_config_settings:enable_sksl_tracing",
-    "//bazel/common_config_settings:enable_skslc",
+    "//src/sksl:enable_sksl",
+    "//src/sksl:enable_sksl_tracing",
+    "//src/sksl:enable_skslc",
     "//bazel/common_config_settings:is_skia_dev_build",
     "//bazel/common_config_settings:use_harfbuzz",
     "//bazel/common_config_settings:use_icu",
@@ -19,11 +19,11 @@ _bool_flags = [
 
 _string_flags = [
     "//bazel/common_config_settings:fontmgr_factory",
-    "//bazel/common_config_settings:with_gl_standard",
+    "//src/gpu:with_gl_standard",
 ]
 
 _string_list_flags = [
-    "//bazel/common_config_settings:gpu_backend",
+    "//src/gpu:gpu_backend",
     "//bazel/common_config_settings:include_decoder",
     "//bazel/common_config_settings:include_encoder",
     "//bazel/common_config_settings:include_fontmgr",

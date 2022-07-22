@@ -39,11 +39,11 @@ build:for_mac_intel --config=for_mac_x64
 # Alias to build configurations below. This makes configuring things from
 # the command line easier.
 build --flag_alias=fontmgr_factory=//bazel/common_config_settings:fontmgr_factory
-build --flag_alias=gpu_backend=//bazel/common_config_settings:gpu_backend
+build --flag_alias=gpu_backend=//src/gpu:gpu_backend
 build --flag_alias=include_decoder=//bazel/common_config_settings:include_decoder
 build --flag_alias=include_encoder=//bazel/common_config_settings:include_encoder
 build --flag_alias=include_fontmgr=//bazel/common_config_settings:include_fontmgr
-build --flag_alias=with_gl_standard=//bazel/common_config_settings:with_gl_standard
+build --flag_alias=with_gl_standard=//src/gpu:with_gl_standard
 
 build --flag_alias=disable_effect_serialization=no//bazel/common_config_settings:enable_effect_serialization
 build --flag_alias=enable_effect_serialization=//bazel/common_config_settings:enable_effect_serialization
@@ -51,16 +51,16 @@ build --flag_alias=disable_pdf_backend=no//src/pdf:enable_pdf_backend
 build --flag_alias=enable_pdf_backend=//src/pdf:enable_pdf_backend
 build --flag_alias=disable_sksl=no//bazel/common_config_settings:enable_sksl
 build --flag_alias=enable_sksl=//bazel/common_config_settings:enable_sksl
-build --flag_alias=disable_skslc=no//bazel/common_config_settings:enable_skslc
-build --flag_alias=enable_skslc=//bazel/common_config_settings:enable_skslc
-build --flag_alias=disable_sksl_tracing=no//bazel/common_config_settings:enable_sksl_tracing
-build --flag_alias=enable_sksl_tracing=//bazel/common_config_settings:enable_sksl_tracing
+build --flag_alias=disable_skslc=no//src/sksl:enable_skslc
+build --flag_alias=enable_skslc=//src/sksl:enable_skslc
+build --flag_alias=disable_sksl_tracing=no//src/sksl:enable_sksl_tracing
+build --flag_alias=enable_sksl_tracing=//src/sksl:enable_sksl_tracing
 build --flag_alias=disable_svg_canvas=no//src/svg:enable_svg_canvas
 build --flag_alias=enable_svg_canvas=//src/svg:enable_svg_canvas
 build --flag_alias=disable_tracing=no//bazel/common_config_settings:enable_tracing
 build --flag_alias=enable_tracing=//bazel/common_config_settings:enable_tracing
-build --flag_alias=disable_vma=no//bazel/common_config_settings:use_vulkan_memory_allocator
-build --flag_alias=enable_vma=//bazel/common_config_settings:use_vulkan_memory_allocator
+build --flag_alias=disable_vma=no//src/gpu:use_vulkan_memory_allocator
+build --flag_alias=enable_vma=//src/gpu:use_vulkan_memory_allocator
 build --flag_alias=with_harfbuzz=//bazel/common_config_settings:use_harfbuzz
 build --flag_alias=with_no_harfbuzz=no//bazel/common_config_settings:use_harfbuzz
 build --flag_alias=with_icu=//bazel/common_config_settings:use_icu

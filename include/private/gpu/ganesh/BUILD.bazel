@@ -13,9 +13,9 @@ filegroup(
         "GrTypesPriv.h",
     ] + select_multi(
         {
-            "//bazel/common_config_settings:dawn_backend": ["GrDawnTypesPriv.h"],
-            "//bazel/common_config_settings:gl_backend": ["GrGLTypesPriv.h"],
-            "//bazel/common_config_settings:vulkan_backend": ["GrVkTypesPriv.h"],
+            "//src/gpu:dawn_backend": ["GrDawnTypesPriv.h"],
+            "//src/gpu:gl_backend": ["GrGLTypesPriv.h"],
+            "//src/gpu:vulkan_backend": ["GrVkTypesPriv.h"],
             # TODO(kjlubick) Direct3D and Metal Backends
         },
         default = [],

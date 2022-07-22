@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "selects", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "bool_flag", "cc_library", "exports_files_legacy", "selects", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -77,11 +77,36 @@ split_srcs_and_hdrs(
 )
 
 selects.config_setting_group(
+    name = "needs_sksl",
+    match_any = [
+        "//src/gpu:has_gpu_backend",
+        ":enable_sksl_true",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+selects.config_setting_group(
     name = "use_sksl_gpu_srcs",
     match_any = [
-        "//bazel/common_config_settings:has_gpu_backend",
-        "//bazel/common_config_settings:enable_skslc_true",
+        "//src/gpu:has_gpu_backend",
+        ":enable_skslc_true",
     ],
+    visibility = ["//:__subpackages__"],
+)
+
+bool_flag(
+    default = False,
+    flag_name = "enable_sksl",
+)
+
+bool_flag(
+    default = False,
+    flag_name = "enable_skslc",
+)
+
+bool_flag(
+    default = False,
+    flag_name = "enable_sksl_tracing",
 )
 
 filegroup(
@@ -126,7 +151,7 @@ cc_library(
     deps = [
         "//src/sksl/codegen:deps",
     ] + select({
-        "//bazel/common_config_settings:enable_skslc_true": [
+        "//src/sksl:enable_skslc_true": [
             "@spirv_tools",
             "@dawn//:tint",
         ],

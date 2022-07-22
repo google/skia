@@ -15,7 +15,7 @@ filegroup(
         "main_mac.mm",
     ] + select({
         #TODO Metal and Dawn
-        "//bazel/common_config_settings:gl_backend": ["GLWindowContext_mac.mm"],
+        "//src/gpu:gl_backend": ["GLWindowContext_mac.mm"],
         "//conditions:default": [],
     }),
     visibility = ["//tools/sk_app:__pkg__"],

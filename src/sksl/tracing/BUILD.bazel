@@ -9,8 +9,8 @@ filegroup(
     srcs = [
         "SkVMDebugTrace.cpp",
     ] + select({
-        "//bazel/common_config_settings:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.cpp"],
-        "//bazel/common_config_settings:enable_sksl_tracing_false": [],
+        "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.cpp"],
+        "//src/sksl:enable_sksl_tracing_false": [],
     }),
     visibility = ["//src/sksl:__pkg__"],
 )
@@ -20,8 +20,8 @@ filegroup(
     srcs = [
         "SkVMDebugTrace.h",
     ] + select({
-        "//bazel/common_config_settings:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.h"],
-        "//bazel/common_config_settings:enable_sksl_tracing_false": [],
+        "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.h"],
+        "//src/sksl:enable_sksl_tracing_false": [],
     }),
     visibility = ["//src/sksl:__pkg__"],
 )

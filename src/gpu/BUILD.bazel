@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "bool_flag", "cc_library", "exports_files_legacy", "selects", "split_srcs_and_hdrs", "string_flag_with_values")
 
 licenses(["notice"])
 
@@ -31,6 +31,50 @@ split_srcs_and_hdrs(
     files = CORE_FILES,
 )
 
+string_flag_with_values(
+    flag_name = "gpu_backend",
+    multiple = True,
+    values = [
+        "gl_backend",
+        "vulkan_backend",
+        "dawn_backend",
+    ],
+)
+
+string_flag_with_values(
+    flag_name = "with_gl_standard",
+    values = [
+        "gles_standard",
+        "gl_standard",
+        "webgl_standard",
+    ],
+)
+
+selects.config_setting_group(
+    name = "has_gpu_backend",
+    match_any = [
+        ":gl_backend",
+        ":dawn_backend",
+        ":vulkan_backend",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+selects.config_setting_group(
+    name = "vulkan_with_vma",
+    match_all = [
+        ":vulkan_backend",
+        ":use_vulkan_memory_allocator_true",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+bool_flag(
+    default = True,
+    flag_name = "use_vulkan_memory_allocator",
+    public = False,  # Users should use :vulkan_with_vma
+)
+
 filegroup(
     name = "srcs",
     srcs = [
@@ -48,7 +92,7 @@ filegroup(
         "//src/gpu/ganesh:private_hdrs",
         "//src/gpu/tessellate:private_hdrs",
     ] + select({
-        "//bazel/common_config_settings:vulkan_backend": ["//src/gpu/vk:private_hdrs"],
+        "//src/gpu:vulkan_backend": ["//src/gpu/vk:private_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
