@@ -1,6 +1,14 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
+
+struct sampler2D {
+    texture2d<half> tex;
+    sampler smp;
+};
+half4 sample(sampler2D i, float2 p) { return i.tex.sample(i.smp, p); }
+half4 sample(sampler2D i, float3 p) { return i.tex.sample(i.smp, p.xy / p.z); }
+
 struct Inputs {
     float2 vLocalCoord_Stage0  [[user(locn0)]];
 };
@@ -21,8 +29,7 @@ struct uniformBuffer {
 };
 struct Globals {
     constant uniformBuffer* _anonInterface0;
-    texture2d<half> uTextureSampler_0_Stage1;
-    sampler uTextureSampler_0_Stage1Smplr;
+    sampler2D uTextureSampler_0_Stage1;
 };
 half4 MatrixEffect_Stage1_c0_c0_h4h4f2(thread Globals& _globals, half4 _input, float2 _coords) {
     float2 _1_inCoord = (_globals._anonInterface0->umatrix_Stage1_c0_c0 * float3(_coords, 1.0)).xy;
@@ -32,15 +39,15 @@ half4 MatrixEffect_Stage1_c0_c0_h4h4f2(thread Globals& _globals, half4 _input, f
     _2_subsetCoord.y = _1_inCoord.y;
     float2 _3_clampedCoord;
     _3_clampedCoord = _2_subsetCoord;
-    half4 _4_textureColor = _globals.uTextureSampler_0_Stage1.sample(_globals.uTextureSampler_0_Stage1Smplr, _3_clampedCoord * _globals._anonInterface0->unorm_Stage1_c0_c0_c0.zw);
+    half4 _4_textureColor = sample(_globals.uTextureSampler_0_Stage1, _3_clampedCoord * _globals._anonInterface0->unorm_Stage1_c0_c0_c0.zw);
     float _5_snappedX = floor(_1_inCoord.x + 0.0010000000474974513) + 0.5;
     if (_5_snappedX < _globals._anonInterface0->usubset_Stage1_c0_c0_c0.x || _5_snappedX > _globals._anonInterface0->usubset_Stage1_c0_c0_c0.z) {
         _4_textureColor = _globals._anonInterface0->uborder_Stage1_c0_c0_c0;
     }
     return _4_textureColor;
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> uTextureSampler_0_Stage1[[texture(0)]], sampler uTextureSampler_0_Stage1Smplr[[sampler(0)]], constant uniformBuffer& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals _globals{&_anonInterface0, uTextureSampler_0_Stage1, uTextureSampler_0_Stage1Smplr};
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> uTextureSampler_0_Stage1_Tex [[texture(0)]], sampler uTextureSampler_0_Stage1_Smplr [[sampler(0)]], constant uniformBuffer& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+    Globals _globals{&_anonInterface0, {uTextureSampler_0_Stage1_Tex, uTextureSampler_0_Stage1_Smplr}};
     (void)_globals;
     Outputs _out;
     (void)_out;

@@ -143,7 +143,11 @@ std::string MetalCodeGenerator::typeName(const Type& type) {
                                   std::to_string(type.rows());
 
         case Type::TypeKind::kSampler:
-            return "texture2d<half>"; // FIXME - support other texture types
+            if (type.dimensions() != SpvDim2D) {
+                // Not yet implemented--Skia currently only uses 2D textures.
+                fContext.fErrors->error(Position(), "Unsupported texture dimensions");
+            }
+            return "sampler2D";
 
         default:
             return std::string(type.name());
@@ -165,7 +169,7 @@ std::string MetalCodeGenerator::textureTypeName(const Type& type, const Modifier
         result += ">";
         return result;
     } else {
-        return this->typeName(type);
+        return "texture2d<half>";
     }
 }
 
@@ -606,26 +610,6 @@ void MetalCodeGenerator::writeArgumentList(const ExpressionArray& arguments) {
 bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind) {
     const ExpressionArray& arguments = c.arguments();
     switch (kind) {
-        case k_sample_IntrinsicKind: {
-            this->writeExpression(*arguments[0], Precedence::kSequence);
-            this->write(".sample(");
-            this->writeExpression(*arguments[0], Precedence::kSequence);
-            this->write(SAMPLER_SUFFIX);
-            this->write(", ");
-            const Type& arg1Type = arguments[1]->type();
-            if (arg1Type.columns() == 3) {
-                // have to store the vector in a temp variable to avoid double evaluating it
-                std::string tmpVar = this->getTempVariable(arg1Type);
-                this->write("(" + tmpVar + " = ");
-                this->writeExpression(*arguments[1], Precedence::kSequence);
-                this->write(", " + tmpVar + ".xy / " + tmpVar + ".z))");
-            } else {
-                SkASSERT(arg1Type.columns() == 2);
-                this->writeExpression(*arguments[1], Precedence::kSequence);
-                this->write(")");
-            }
-            return true;
-        }
         case k_read_IntrinsicKind: {
             this->writeExpression(*arguments[0], Precedence::kTopLevel);
             this->write(".read(");
@@ -2043,28 +2027,32 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         for (const ProgramElement* e : fProgram.elements()) {
             if (e->is<GlobalVarDeclaration>()) {
                 const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-                const VarDeclaration& var = decls.declaration()->as<VarDeclaration>();
-                if (var.var().type().typeKind() == Type::TypeKind::kSampler ||
-                    var.var().type().typeKind() == Type::TypeKind::kTexture) {
-                    if (var.var().type().dimensions() != SpvDim2D) {
+                const VarDeclaration& decl = decls.declaration()->as<VarDeclaration>();
+                const Variable& var = decl.var();
+                const SkSL::Type::TypeKind varKind = var.type().typeKind();
+
+                if (varKind == Type::TypeKind::kSampler || varKind == Type::TypeKind::kTexture) {
+                    if (var.type().dimensions() != SpvDim2D) {
                         // Not yet implemented--Skia currently only uses 2D textures.
                         fContext.fErrors->error(decls.fPosition, "Unsupported texture dimensions");
                         return false;
                     }
-                    int binding = getUniformBinding(var.var().modifiers());
+
+                    int binding = getUniformBinding(var.modifiers());
                     this->write(separator);
                     separator = ", ";
-                    this->writeTextureType(var.var().type(), var.var().modifiers());
+                    this->writeTextureType(var.type(), var.modifiers());
                     this->write(" ");
-                    this->writeName(var.var().name());
-                    this->write("[[texture(");
+                    this->writeName(var.name());
+                    this->write(varKind == Type::TypeKind::kSampler ? kTextureSuffix : "");
+                    this->write(" [[texture(");
                     this->write(std::to_string(binding));
                     this->write(")]]");
-                    if (var.var().type().typeKind() == Type::TypeKind::kSampler) {
+                    if (varKind == Type::TypeKind::kSampler) {
                         this->write(", sampler ");
-                        this->writeName(var.var().name());
-                        this->write(SAMPLER_SUFFIX);
-                        this->write("[[sampler(");
+                        this->writeName(var.name());
+                        this->write(kSamplerSuffix);
+                        this->write(" [[sampler(");
                         this->write(std::to_string(binding));
                         this->write(")]]");
                     }
@@ -2548,6 +2536,42 @@ void MetalCodeGenerator::writeHeader() {
     this->write("using namespace metal;\n");
 }
 
+void MetalCodeGenerator::writeSampler2DPolyfill() {
+    class : public GlobalStructVisitor {
+    public:
+        void visitInterfaceBlock(const InterfaceBlock& block,
+                                 std::string_view blockName) override {}
+
+        void visitTexture(const Type& type,
+                          const Modifiers& modifiers,
+                          std::string_view name) override {}
+
+        void visitSampler(const Type&, std::string_view) override {
+            if (fWrotePolyfill) {
+                return;
+            }
+            fWrotePolyfill = true;
+            fCodeGen->write(R"(
+struct sampler2D {
+    texture2d<half> tex;
+    sampler smp;
+};
+half4 sample(sampler2D i, float2 p) { return i.tex.sample(i.smp, p); }
+half4 sample(sampler2D i, float3 p) { return i.tex.sample(i.smp, p.xy / p.z); }
+
+)");
+        }
+
+        void visitVariable(const Variable& var, const Expression* value) override {}
+
+        MetalCodeGenerator* fCodeGen = nullptr;
+        bool fWrotePolyfill = false;
+    } visitor;
+
+    visitor.fCodeGen = this;
+    this->visitGlobalStruct(&visitor);
+}
+
 void MetalCodeGenerator::writeUniformStruct() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
@@ -2701,9 +2725,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
         const Variable& var = decl.var();
         if (var.type().typeKind() == Type::TypeKind::kSampler) {
-            // Samplers are represented as a "texture/sampler" duo in the global struct.
-            visitor->visitTexture(var.type(), var.modifiers(), var.name());
-            visitor->visitSampler(var.type(), std::string(var.name()) + SAMPLER_SUFFIX);
+            visitor->visitSampler(var.type(), var.name());
             continue;
         }
         if (var.type().typeKind() == Type::TypeKind::kTexture) {
@@ -2741,7 +2763,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
         }
         void visitSampler(const Type&, std::string_view name) override {
             this->addElement();
-            fCodeGen->write("    sampler ");
+            fCodeGen->write("    sampler2D ");
             fCodeGen->writeName(name);
             fCodeGen->write(";\n");
         }
@@ -2791,7 +2813,13 @@ void MetalCodeGenerator::writeGlobalInit() {
         }
         void visitSampler(const Type&, std::string_view name) override {
             this->addElement();
+            fCodeGen->write("{");
             fCodeGen->writeName(name);
+            fCodeGen->write(kTextureSuffix);
+            fCodeGen->write(", ");
+            fCodeGen->writeName(name);
+            fCodeGen->write(kSamplerSuffix);
+            fCodeGen->write("}");
         }
         void visitVariable(const Variable& var, const Expression* value) override {
             this->addElement();
@@ -3092,6 +3120,7 @@ bool MetalCodeGenerator::generateCode() {
     {
         AutoOutputStream outputToHeader(this, &header, &fIndentation);
         this->writeHeader();
+        this->writeSampler2DPolyfill();
         this->writeStructDefinitions();
         this->writeUniformStruct();
         this->writeInputStruct();

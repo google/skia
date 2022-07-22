@@ -9,7 +9,7 @@ struct Outputs {
 struct Globals {
     texture2d<half, access::write> dest;
 };
-kernel void computeMain(texture2d<half, access::write> dest[[texture(0)]], uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
+kernel void computeMain(texture2d<half, access::write> dest [[texture(0)]], uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
     Globals _globals{dest};
     (void)_globals;
     Inputs _in = { sk_ThreadPosition };

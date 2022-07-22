@@ -1,22 +1,28 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
+
+struct sampler2D {
+    texture2d<half> tex;
+    sampler smp;
+};
+half4 sample(sampler2D i, float2 p) { return i.tex.sample(i.smp, p); }
+half4 sample(sampler2D i, float3 p) { return i.tex.sample(i.smp, p.xy / p.z); }
+
 struct Inputs {
 };
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
 struct Globals {
-    texture2d<half> texA;
-    sampler texASmplr;
-    texture2d<half> texB;
-    sampler texBSmplr;
+    sampler2D texA;
+    sampler2D texB;
 };
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> texA[[texture(1)]], sampler texASmplr[[sampler(1)]], texture2d<half> texB[[texture(0)]], sampler texBSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals _globals{texA, texASmplr, texB, texBSmplr};
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> texA_Tex [[texture(1)]], sampler texA_Smplr [[sampler(1)]], texture2d<half> texB_Tex [[texture(0)]], sampler texB_Smplr [[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+    Globals _globals{{texA_Tex, texA_Smplr}, {texB_Tex, texB_Smplr}};
     (void)_globals;
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = _globals.texA.sample(_globals.texASmplr, float2(0.0)) * _globals.texB.sample(_globals.texBSmplr, float2(0.0));
+    _out.sk_FragColor = sample(_globals.texA, float2(0.0)) * sample(_globals.texB, float2(0.0));
     return _out;
 }
