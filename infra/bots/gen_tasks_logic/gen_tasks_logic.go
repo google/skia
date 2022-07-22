@@ -2156,7 +2156,10 @@ func (b *jobBuilder) bazelTest() {
 				"--git_commit="+specs.PLACEHOLDER_REVISION,
 				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
 				"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
-				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
+				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
+				 // It is unclear why this is needed, but it helps resolve issues like
+				 // Middleman ...tests-runfiles failed: missing input file 'external/npm/node_modules/karma-chrome-launcher/...'
+				"--expunge_cache")
 			b.cipd(CIPD_PKGS_GOLDCTL)
 			break
 		}
