@@ -82,7 +82,7 @@ const char* TessellateStrokesRenderStep::vertexSkSL() const {
         if ((sk_VertexID & 1) != 0) {
             edgeID = -edgeID;
         }
-        float2x2 affine = float2x2(affineMatrix);
+        float2x2 affine = float2x2(affineMatrix.xy, affineMatrix.zw);
         float4 devPosition = float4(
                 tessellate_stroked_curve(edgeID, 16383, affine, translate,
                                          maxScale, p01, p23, prevPoint, stroke),

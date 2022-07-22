@@ -95,7 +95,7 @@ private:
 
         if (shader.fUsesLocalCoords) {
             args.fVertBuilder->codeAppendf(R"(
-            float2x2 M = float2x2(affineMatrix);
+            float2x2 M = float2x2(affineMatrix.xy, affineMatrix.zw);
             float2 localCoord = inverse(M) * (devCoord - translate);)");
             gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localCoord");
         }

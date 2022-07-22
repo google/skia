@@ -248,7 +248,8 @@ void GrStrokeTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpAr
     fTranslateUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
                                                          SkSLType::kFloat2, "translate",
                                                          &translateName);
-    args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
+    args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s.xy, %s.zw);\n",
+                                   affineMatrixName, affineMatrixName);
     args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;\n", translateName);
 
     if (shader.hasExplicitCurveType()) {

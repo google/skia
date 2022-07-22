@@ -78,12 +78,12 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> BoundingBoxShader::makeProgram
             }
             args.fVertBuilder->codeAppend(R"(
             // Bloat the bounding box by 1/4px to be certain we will reset every stencil value.
-            float2x2 M_ = inverse(float2x2(matrix2d));
+            float2x2 M_ = inverse(float2x2(matrix2d.xy, matrix2d.zw));
             float2 bloat = float2(abs(M_[0]) + abs(M_[1])) * .25;
 
             // Find the vertex position.
             float2 localcoord = mix(pathBounds.xy - bloat, pathBounds.zw + bloat, unitCoord);
-            float2 vertexpos = float2x2(matrix2d) * localcoord + translate;)");
+            float2 vertexpos = float2x2(matrix2d.xy, matrix2d.zw) * localcoord + translate;)");
             gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
             gpArgs->fPositionVar.set(SkSLType::kFloat2, "vertexpos");
 

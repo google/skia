@@ -309,7 +309,8 @@ void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
                                                             &affineMatrix);
     fTranslateUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
                                                          SkSLType::kFloat2, "translate", &translate);
-    args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);", affineMatrix);
+    args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s.xy, %s.zw);",
+                                   affineMatrix, affineMatrix);
     args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;", translate);
     this->emitVertexCode(*args.fShaderCaps,
                          shader,
