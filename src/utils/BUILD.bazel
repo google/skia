@@ -27,6 +27,7 @@ CORE_FILES = [
     "SkFloatToDecimal.cpp",
     "SkFloatToDecimal.h",
     "SkFloatUtils.h",
+    "SkGaussianColorFilter.cpp",
     "SkJSON.h",
     "SkJSONWriter.h",
     "SkMatrix22.cpp",

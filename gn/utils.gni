@@ -51,6 +51,7 @@ skia_utils_sources = [
   "$_src/utils/SkFloatToDecimal.cpp",
   "$_src/utils/SkFloatToDecimal.h",
   "$_src/utils/SkFloatUtils.h",
+  "$_src/utils/SkGaussianColorFilter.cpp",
   "$_src/utils/SkJSON.cpp",
   "$_src/utils/SkJSON.h",
   "$_src/utils/SkJSONWriter.cpp",

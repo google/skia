@@ -1674,6 +1674,7 @@ BASE_SRCS_ALL = [
     "src/utils/SkEventTracer.cpp",
     "src/utils/SkFloatToDecimal.cpp",
     "src/utils/SkFloatToDecimal.h",
+    "src/utils/SkGaussianColorFilter.cpp",
     "src/utils/SkFloatUtils.h",
     "src/utils/SkJSON.cpp",
     "src/utils/SkJSON.h",
