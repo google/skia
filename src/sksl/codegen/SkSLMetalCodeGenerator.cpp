@@ -2551,24 +2551,35 @@ void MetalCodeGenerator::writeSampler2DPolyfill() {
                 return;
             }
             fWrotePolyfill = true;
-            fCodeGen->write(R"(
+
+            std::string bias;
+            if (fTextureBias != 0.0f) {
+                bias = SkSL::String::printf(", bias(%g)", fTextureBias);
+            }
+            std::string polyfill = SkSL::String::printf(R"(
 struct sampler2D {
     texture2d<half> tex;
     sampler smp;
 };
-half4 sample(sampler2D i, float2 p) { return i.tex.sample(i.smp, p); }
-half4 sample(sampler2D i, float3 p) { return i.tex.sample(i.smp, p.xy / p.z); }
+half4 sample(sampler2D i, float2 p) { return i.tex.sample(i.smp, p%s); }
+half4 sample(sampler2D i, float3 p) { return i.tex.sample(i.smp, p.xy / p.z%s); }
 
-)");
+)",
+                                                        bias.c_str(),
+                                                        bias.c_str());
+            fCodeGen->write(polyfill.c_str());
         }
 
         void visitVariable(const Variable& var, const Expression* value) override {}
 
         MetalCodeGenerator* fCodeGen = nullptr;
+        float fTextureBias = 0.0f;
         bool fWrotePolyfill = false;
     } visitor;
 
     visitor.fCodeGen = this;
+    visitor.fTextureBias = fProgram.fConfig->fSettings.fSharpenTextures ? kSharpenTexturesBias
+                                                                        : 0.0f;
     this->visitGlobalStruct(&visitor);
 }
 
