@@ -116,8 +116,6 @@ build:remote --google_default_credentials=true
 
 # Use the RBE instance on the skia-rbe GCP project.
 build:remote --remote_instance_name projects/skia-rbe/instances/default_instance
-# https://bazel.build/docs/user-manual#build-runfile-manifests
-build:remote --nobuild_runfile_manifests --nobuild_runfile_links
 
 # The linxu_rbe config will build on RBE and default to compiling for linux_x64 using
 # the hermetic toolchain.
