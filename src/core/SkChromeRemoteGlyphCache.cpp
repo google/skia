@@ -209,25 +209,6 @@ private:
     void commonMaskLoop(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected, Rejector&& reject);
 
-    // Same thing as MaskSummary, but for paths.
-    struct PathSummary {
-        constexpr static uint16_t kIsPath = 0;
-        SkPackedGlyphID packedID;
-        // If drawing glyphID can be done with a path, this is 0, otherwise it is the max
-        // dimension of the glyph.
-        uint16_t maxDimensionOrPath;
-    };
-
-    struct PathSummaryTraits {
-        static SkPackedGlyphID GetKey(PathSummary summary) {
-            return summary.packedID;
-        }
-
-        static uint32_t Hash(SkPackedGlyphID packedID) {
-            return SkChecksum::CheapMix(packedID.value());
-        }
-    };
-
     // Same thing as MaskSummary, but for drawables.
     struct DrawableSummary {
         constexpr static uint16_t kIsDrawable = 0;
@@ -242,8 +223,8 @@ private:
             return summary.glyphID;
         }
 
-        static uint32_t Hash(SkGlyphID packedID) {
-            return SkChecksum::CheapMix(packedID);
+        static uint32_t Hash(SkGlyphID glyphID) {
+            return SkGoodHash()(glyphID);
         }
     };
 
@@ -268,7 +249,7 @@ private:
 
     // The masks and paths that currently reside in the GPU process.
     SkTHashMap<SkPackedGlyphID, SkGlyphDigest, SkPackedGlyphID::Hash> fSentGlyphs;
-    SkTHashTable<PathSummary, SkPackedGlyphID, PathSummaryTraits> fSentPaths;
+    SkTHashMap<SkGlyphID, bool> fSentPaths;
     SkTHashTable<DrawableSummary, SkGlyphID, DrawableSummaryTraits> fSentDrawables;
 
     // The Masks, SDFT Mask, and Paths that need to be sent to the GPU task for the processed
@@ -374,6 +355,11 @@ void RemoteStrike::setStrikeSpec(const SkStrikeSpec& strikeSpec) {
 }
 
 void RemoteStrike::writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const {
+    if (glyph.isEmpty()) {
+        serializer->write<uint64_t>(0u);
+        return;
+    }
+
     const SkPath* path = glyph.path();
 
     if (path == nullptr) {
@@ -469,25 +455,20 @@ void RemoteStrike::prepareForPathDrawing(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
     accepted->forEachInput(
             [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
-                PathSummary* summary = fSentPaths.find(packedID);
-                if (summary == nullptr) {
-
+                bool* hasPath = fSentPaths.find(packedID.glyphID());
+                if (hasPath == nullptr) {
                     // Put the new SkGlyph in the glyphs to send.
                     this->ensureScalerContext();
                     fPathsToSend.emplace_back(fContext->makeGlyph(packedID, &fAlloc));
                     SkGlyph* glyph = &fPathsToSend.back();
 
-                    uint16_t maxDimensionOrPath = glyph->maxDimension();
                     glyph->setPath(&fAlloc, fContext.get());
-                    if (glyph->path() != nullptr) {
-                        maxDimensionOrPath = PathSummary::kIsPath;
-                    }
-
-                    PathSummary newSummary = {packedID, maxDimensionOrPath};
-                    summary = fSentPaths.set(newSummary);
+                    // If the glyph is empty, count it as having a path so that it is not rejected.
+                    bool markAsPath = glyph->isEmpty() || glyph->path() != nullptr;
+                    hasPath = fSentPaths.set(packedID.glyphID(), markAsPath);
                 }
 
-                if (summary->maxDimensionOrPath != PathSummary::kIsPath) {
+                if (!(*hasPath)) {
                     rejected->reject(i);
                 }
             });
