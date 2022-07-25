@@ -6,8 +6,8 @@ struct sampler2D {
     texture2d<half> tex;
     sampler smp;
 };
-half4 sample(sampler2D i, float2 p) { return i.tex.sample(i.smp, p); }
-half4 sample(sampler2D i, float3 p) { return i.tex.sample(i.smp, p.xy / p.z); }
+half4 sample(sampler2D i, float2 p, float b=0) { return i.tex.sample(i.smp, p, bias(b)); }
+half4 sample(sampler2D i, float3 p, float b=0) { return i.tex.sample(i.smp, p.xy / p.z, bias(b)); }
 
 struct Uniforms {
     float4x4 colorXform;

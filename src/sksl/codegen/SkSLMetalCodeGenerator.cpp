@@ -2552,21 +2552,17 @@ void MetalCodeGenerator::writeSampler2DPolyfill() {
             }
             fWrotePolyfill = true;
 
-            std::string bias;
-            if (fTextureBias != 0.0f) {
-                bias = SkSL::String::printf(", bias(%g)", fTextureBias);
-            }
             std::string polyfill = SkSL::String::printf(R"(
 struct sampler2D {
     texture2d<half> tex;
     sampler smp;
 };
-half4 sample(sampler2D i, float2 p) { return i.tex.sample(i.smp, p%s); }
-half4 sample(sampler2D i, float3 p) { return i.tex.sample(i.smp, p.xy / p.z%s); }
+half4 sample(sampler2D i, float2 p, float b=%g) { return i.tex.sample(i.smp, p, bias(b)); }
+half4 sample(sampler2D i, float3 p, float b=%g) { return i.tex.sample(i.smp, p.xy / p.z, bias(b)); }
 
 )",
-                                                        bias.c_str(),
-                                                        bias.c_str());
+                                                        fTextureBias,
+                                                        fTextureBias);
             fCodeGen->write(polyfill.c_str());
         }
 
