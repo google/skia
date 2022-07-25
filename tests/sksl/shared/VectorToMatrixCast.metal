@@ -49,6 +49,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ok = ok && half2x2_from_half4(_uniforms.colorGreen) == half2x2(half2(0.0h, 1.0h), half2(0.0h, 1.0h));
     ok = ok && half2x2_from_half4(_uniforms.colorGreen) == half2x2(half2(0.0h, 1.0h), half2(0.0h, 1.0h));
     ok = ok && half2x2_from_half4(half4(bool4(_uniforms.colorGreen))) == half2x2(half2(0.0h, 1.0h), half2(0.0h, 1.0h));
+    ok = ok && half2x2_from_half4(_uniforms.colorGreen - _uniforms.colorRed) == half2x2(half2(-1.0h, 1.0h), half2(0.0h, 0.0h));
+    ok = ok && half2x2_from_half4(_uniforms.colorGreen + 5.0h) == half2x2(half2(5.0h, 6.0h), half2(5.0h, 6.0h));
     _out.sk_FragColor = ok ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

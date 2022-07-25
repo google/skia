@@ -32,5 +32,8 @@ half4 main(float2 coords) {
     ok = ok && half2x2(true, false, false, true) == half2x2(bool4(true, false, false, true));
     ok = ok && half2x2(true, true, true, true)   == half2x2(bool4(true));
 
+    ok = ok && half2x2(colorGreen - colorRed)    == half2x2(-1, 1, 0, 0);
+    ok = ok && half2x2(colorGreen + 5)           == half2x2(5, 6, 5, 6);
+
     return ok ? colorGreen : colorRed;
 }

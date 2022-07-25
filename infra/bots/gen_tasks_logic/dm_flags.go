@@ -1056,9 +1056,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarMath") // skia:12681
 	}
 
-	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
+	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && b.extraConfig("ANGLE") {
 		skip(ALL, "tests", ALL, "SkSLVectorToMatrixCast_GPU")             // skia:12179, vec4(mat2) crash
 		skip(ALL, "tests", ALL, "SkSLTrivialArgumentsInlineDirectly_GPU") // skia:12179 again
+	}
+
+	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
 		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU")               // skia:11919
 		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU")               // skia:11919
 	}

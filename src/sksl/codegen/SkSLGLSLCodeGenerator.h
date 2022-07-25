@@ -22,6 +22,7 @@ namespace SkSL {
 class AnyConstructor;
 class BinaryExpression;
 class Block;
+class ConstructorCompound;
 class ConstructorDiagonalMatrix;
 class DoStatement;
 class Expression;
@@ -130,6 +131,8 @@ protected:
     void writeMatrixComparisonWorkaround(const BinaryExpression& x);
 
     virtual void writeFunctionCall(const FunctionCall& c);
+
+    void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
 
     void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
                                         Precedence parentPrecedence);

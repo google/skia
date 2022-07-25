@@ -52,7 +52,7 @@ vec4 main() {
     mat = mat2(unknownInput) * mat2(unknownInput)[0].x;
     vec4 _0_h4 = vec4(testMatrix2x2);
     var = _0_h4 * _0_h4;
-    mat2 _1_m = mat2(colorGreen);
+    mat2 _1_m = mat2(colorGreen.xy, colorGreen.zw);
     mat = _1_m * _1_m[0].x;
     mat2 _2_m = mat2(mat3(unknownInput));
     mat = _2_m * _2_m[0].x;

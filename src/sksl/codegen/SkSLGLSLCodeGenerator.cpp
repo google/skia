@@ -18,6 +18,7 @@
 #include "include/private/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLGLSL.h"
@@ -28,6 +29,7 @@
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -205,8 +207,10 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
         case Expression::Kind::kConstructorArrayCast:
             this->writeExpression(*expr.as<ConstructorArrayCast>().argument(), parentPrecedence);
             break;
-        case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorCompound:
+            this->writeConstructorCompound(expr.as<ConstructorCompound>(), parentPrecedence);
+            break;
+        case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorSplat:
         case Expression::Kind::kConstructorStruct:
@@ -728,6 +732,43 @@ void GLSLCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonal
         this->writeExpression(*c.argument(), Precedence::kMultiplicative);
         this->write(")");
         return;
+    }
+    this->writeAnyConstructor(c, parentPrecedence);
+}
+
+void GLSLCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
+                                                 Precedence parentPrecedence) {
+    // If this is a 2x2 matrix constructor containing a single argument...
+    if (c.type().isMatrix() && c.arguments().size() == 1) {
+        // ... and that argument is a vec4...
+        const Expression& expr = *c.arguments().front();
+        if (expr.type().isVector() && expr.type().columns() == 4) {
+            // ... let's rewrite the cast to dodge issues on very old GPUs. (skia:13559)
+            if (Analysis::IsTrivialExpression(expr)) {
+                this->writeType(c.type());
+                this->write("(");
+                this->writeExpression(expr, Precedence::kPostfix);
+                this->write(".xy, ");
+                this->writeExpression(expr, Precedence::kPostfix);
+                this->write(".zw)");
+            } else {
+                std::string tempVec = "_tempVec" + std::to_string(fVarCount++);
+                this->fFunctionHeader += std::string("    ") + this->getTypePrecision(expr.type()) +
+                                         this->getTypeName(expr.type()) + " " + tempVec + ";\n";
+                this->write("((");
+                this->write(tempVec);
+                this->write(" = ");
+                this->writeExpression(expr, Precedence::kAssignment);
+                this->write("), ");
+                this->writeType(c.type());
+                this->write("(");
+                this->write(tempVec);
+                this->write(".xy, ");
+                this->write(tempVec);
+                this->write(".zw))");
+            }
+            return;
+        }
     }
     this->writeAnyConstructor(c, parentPrecedence);
 }
