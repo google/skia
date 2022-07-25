@@ -80,6 +80,15 @@ public:
     // and then including the function bodies returned here.
     virtual const char* vertexSkSL() const = 0;
 
+    // Emits code to set up textures and samplers. Should only be defined if hasTextures is true.
+    virtual std::string texturesAndSamplersSkSL(int startBinding) const { return R"()"; }
+
+    // Emits code to set up coverage value. Should only be defined if overridesCoverage is true.
+    // When implemented the returned SkSL fragment should write its coverage into a
+    // 'half4 outputCoverage' variable (defined in the calling code) with the actual
+    // coverage splatted out into all four channels.
+    virtual const char* fragmentCoverageSkSL() const { return R"()"; }
+
     // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
     // and variant is a unique term describing instance's specific configuration.
     const char* name() const { return fName.c_str(); }

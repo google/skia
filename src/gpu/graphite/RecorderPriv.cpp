@@ -68,7 +68,7 @@ sktext::gpu::SDFTControl RecorderPriv::getSDFTControl(bool useSDFTForSmallText) 
             useSDFTForSmallText,
             this->caps()->minDistanceFieldFontSize(),
             this->caps()->glyphsAsPathsFontSize(),
-            true /*forcePaths*/};
+            false /*forcePaths*/};
 }
 
 void RecorderPriv::add(sk_sp<Task> task) {

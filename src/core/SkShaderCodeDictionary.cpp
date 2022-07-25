@@ -146,6 +146,9 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step) const 
                                                          this->needsLocalCoords());
     int binding = 0;
     preamble += skgpu::graphite::EmitTexturesAndSamplers(fBlockReaders, &binding);
+    if (step->hasTextures()) {
+        preamble += step->texturesAndSamplersSkSL(binding);
+    }
 
     std::string mainBody = SkSL::String::printf("void main() {\n"
                                                 "    float4 coords = %s sk_FragCoord;\n",
@@ -165,7 +168,14 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step) const 
         emit_preamble_for_entry(*this, &entryIndex, &preamble);
     }
 
-    SkSL::String::appendf(&mainBody, "    sk_FragColor = %s;\n", lastOutputVar.c_str());
+    if (step->emitsCoverage()) {
+        mainBody += "half4 outputCoverage;";
+        mainBody += step->fragmentCoverageSkSL();
+        SkSL::String::appendf(&mainBody, "    sk_FragColor = %s*outputCoverage;\n",
+                              lastOutputVar.c_str());
+    } else {
+        SkSL::String::appendf(&mainBody, "    sk_FragColor = %s;\n", lastOutputVar.c_str());
+    }
     mainBody += "}\n";
 
     return preamble + "\n" + mainBody;
