@@ -418,6 +418,7 @@ def _make_target_specific_flags(ctx):
     m1_mac_target = flag_set(
         actions = [
             ACTION_NAMES.assemble,
+            ACTION_NAMES.preprocess_assemble,
             ACTION_NAMES.c_compile,
             ACTION_NAMES.cpp_compile,
             ACTION_NAMES.objc_compile,
@@ -436,6 +437,7 @@ def _make_target_specific_flags(ctx):
     intel_mac_target = flag_set(
         actions = [
             ACTION_NAMES.assemble,
+            ACTION_NAMES.preprocess_assemble,
             ACTION_NAMES.c_compile,
             ACTION_NAMES.cpp_compile,
             ACTION_NAMES.objc_compile,
