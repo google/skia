@@ -72,7 +72,7 @@ std::string TextDirectRenderStep::texturesAndSamplersSkSL(int binding) const {
 
     for (unsigned int i = 0; i < kNumTextAtlasTextures; ++i) {
         SkSL::String::appendf(&result,
-                              "layout(binding=%d) uniform sampler2D atlas_%d;\n", binding, i);
+                              "layout(binding=%d) uniform sampler2D text_atlas_%d;\n", binding, i);
         binding++;
     }
 
@@ -84,15 +84,15 @@ const char* TextDirectRenderStep::fragmentCoverageSkSL() const {
     return R"(
         half4 texColor;
         if (texIndex == 0) {
-           texColor = sample(atlas_0, textureCoords).rrrr;
+           texColor = sample(text_atlas_0, textureCoords).rrrr;
         } else if (texIndex == 1) {
-           texColor = sample(atlas_1, textureCoords).rrrr;
+           texColor = sample(text_atlas_1, textureCoords).rrrr;
         } else if (texIndex == 2) {
-           texColor = sample(atlas_2, textureCoords).rrrr;
+           texColor = sample(text_atlas_2, textureCoords).rrrr;
         } else if (texIndex == 3) {
-           texColor = sample(atlas_3, textureCoords).rrrr;
+           texColor = sample(text_atlas_3, textureCoords).rrrr;
         } else {
-           texColor = sample(atlas_0, textureCoords).rrrr;
+           texColor = sample(text_atlas_0, textureCoords).rrrr;
         }
         outputCoverage = texColor;
     )";
