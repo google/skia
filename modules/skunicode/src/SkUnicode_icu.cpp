@@ -4,17 +4,24 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
+#include "modules/skunicode/src/SkUnicode_icu.h"
+
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTHash.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "modules/skunicode/src/SkUnicode_icu.h"
 #include "src/utils/SkUTF.h"
-#include <vector>
+
 #include <functional>
+#include <string>
+#include <unicode/umachine.h>
+#include <utility>
+#include <vector>
 
 #if defined(SK_USING_THIRD_PARTY_ICU)
 #include "SkLoadICU.h"

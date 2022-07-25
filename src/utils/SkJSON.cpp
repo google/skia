@@ -16,9 +16,10 @@
 #include "include/utils/SkParse.h"
 #include "src/utils/SkUTF.h"
 
-#include <stdlib.h>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <limits>
 #include <new>
 #include <tuple>

@@ -76,6 +76,7 @@
 
   { include: ["<__hash_table>", "private", "<unordered_map>", "public"] },
 
+  { include: ["<__utility/declval.h>", "private", "<utility>", "public"] },
   { include: ["<__utility/forward.h>", "private", "<utility>", "public"] },
   { include: ["<__utility/move.h>", "private", "<utility>", "public"] },
   { include: ["<__utility/swap.h>", "private", "<utility>", "public"] },
@@ -123,6 +124,9 @@
   { symbol: ["std::char_traits", "private", "<string>", "public"] },
   { symbol: ["std::char_traits", "private", "<ostream>", "public"] },
   { symbol: ["std::char_traits", "private", "<istream>", "public"] },
+
+  { symbol: ["std::time_t", "private", "<ctime>", "public"] },
+  { symbol: ["time_t", "private", "<ctime>", "public"] },
 
   # We are pretty forgiving with iostream headers. If we specify
   # any of them, that is generally sufficient.

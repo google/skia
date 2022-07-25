@@ -19,6 +19,8 @@ WEBP_SRCS = [
     "sharpyuv/sharpyuv_dsp.h",
     "sharpyuv/sharpyuv_gamma.c",
     "sharpyuv/sharpyuv_gamma.h",
+    "sharpyuv/sharpyuv_neon.c",
+    "sharpyuv/sharpyuv_sse2.c",
     "src/dec/alpha_dec.c",
     "src/dec/alphai_dec.h",
     "src/dec/buffer_dec.c",

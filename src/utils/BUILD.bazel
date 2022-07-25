@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "selects", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -66,17 +66,34 @@ split_srcs_and_hdrs(
 )
 
 filegroup(
-    name = "json_srcs",
+    name = "json_hdrs",
     srcs = [
-        "SkJSON.cpp",
         "SkJSON.h",
-        "SkJSONWriter.cpp",
         "SkJSONWriter.h",
-        "SkShaperJSONWriter.cpp",
-        "SkShaperJSONWriter.h",
+        # TODO(kjlubick): This is only used in one place, a test. Can we move it to skparagraph?
+        #"SkShaperJSONWriter.h",
     ],
     visibility = [
         "//modules/skottie:__pkg__",
+    ],
+)
+
+filegroup(
+    name = "json_srcs",
+    srcs = [
+        "SkJSON.cpp",
+        "SkJSONWriter.cpp",
+        #"SkShaperJSONWriter.cpp",
+    ],
+    visibility = [
+        "//modules/skottie:__pkg__",
+    ],
+)
+
+selects.config_setting_group(
+    name = "needs_json",
+    match_any = [
+        "//src/sksl:enable_sksl_tracing_true",
     ],
 )
 
@@ -86,6 +103,9 @@ filegroup(
         ":core_srcs",
     ] + select({
         "//src/sksl:needs_sksl": ["SkShaderUtils.cpp"],
+        "//conditions:default": [],
+    }) + select({
+        ":needs_json": [":json_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
@@ -97,6 +117,9 @@ filegroup(
         ":core_hdrs",
     ] + select({
         "//src/sksl:needs_sksl": ["SkShaderUtils.h"],
+        "//conditions:default": [],
+    }) + select({
+        ":needs_json": [":json_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],

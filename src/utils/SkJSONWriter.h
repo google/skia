@@ -15,7 +15,10 @@
 #include "include/private/SkTArray.h"
 #include "src/utils/SkUTF.h"
 
-#include <string.h>
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <type_traits>
 
 /**
  *  Lightweight class for writing properly structured JSON data. No random-access, everything must

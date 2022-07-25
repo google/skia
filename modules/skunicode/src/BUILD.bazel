@@ -7,6 +7,7 @@ exports_files_legacy()
 filegroup(
     name = "srcs",
     srcs = [
+        "SkUnicode.cpp",
         "SkUnicode_icu.cpp",
         "SkUnicode_icu.h",
         "SkUnicode_icu_builtin.cpp",

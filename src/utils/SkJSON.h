@@ -12,6 +12,7 @@
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkArenaAlloc.h"
 
+#include <cstdint>
 #include <cstring>
 #include <string_view>
 

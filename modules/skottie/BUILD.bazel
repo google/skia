@@ -8,6 +8,7 @@ cc_library(
     name = "skottie",
     srcs = [
         "//modules/skottie/src:srcs",
+        "//src/utils:json_hdrs",
         "//src/utils:json_srcs",
     ],
     hdrs = ["//modules/skottie/include:hdrs"],

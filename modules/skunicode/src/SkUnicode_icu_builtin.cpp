@@ -7,6 +7,11 @@
 
 #include "modules/skunicode/src/SkUnicode_icu.h"
 
+#include <memory>
+#include <unicode/ubrk.h>
+#include <unicode/utypes.h>
+#include <utility>
+
 #define SKICU_FUNC(funcname) funcname,
 
 // ubrk_clone added as draft in ICU69 and Android API 31 (first ICU NDK).
