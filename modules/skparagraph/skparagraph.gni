@@ -3,6 +3,7 @@
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("src", "abspath")
 _include = get_path_info("include", "abspath")
+_tests = get_path_info("tests", "abspath")
 _utils = get_path_info("utils", "abspath")
 
 skparagraph_public = [
@@ -48,4 +49,11 @@ skparagraph_sources = [
 skparagraph_utils = [
   "$_utils/TestFontCollection.h",
   "$_utils/TestFontCollection.cpp",
+]
+
+skparagraph_tests = [
+  "$_tests/SkParagraphTest.cpp",
+  "$_tests/SkShaperJSONWriter.cpp",
+  "$_tests/SkShaperJSONWriter.h",
+  "$_tests/SkShaperJSONWriterTest.cpp",
 ]

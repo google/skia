@@ -39,7 +39,6 @@
 #include "modules/skparagraph/utils/TestFontCollection.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
-#include "src/utils/SkShaperJSONWriter.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 

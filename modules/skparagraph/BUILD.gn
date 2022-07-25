@@ -37,8 +37,8 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
   }
 
   if (defined(is_skia_standalone) && skia_enable_tools) {
+    import("skparagraph.gni")
     skia_source_set("utils") {
-      import("skparagraph.gni")
       public_configs = [ ":utils_config" ]
       configs = [ "../../:skia_private" ]
       sources = skparagraph_utils
@@ -66,7 +66,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
     skia_source_set("tests") {
       if (paragraph_tests_enabled) {
         testonly = true
-        sources = [ "tests/SkParagraphTest.cpp" ]
+        sources = skparagraph_tests
         deps = [
           ":skparagraph",
           "../..:skia",

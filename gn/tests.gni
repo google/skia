@@ -255,7 +255,6 @@ tests_sources = [
   "$_tests/SkSLTest.cpp",
   "$_tests/SkSLTypeTest.cpp",
   "$_tests/SkScalerCacheTest.cpp",
-  "$_tests/SkShaperJSONWriterTest.cpp",
   "$_tests/SkSharedMutexTest.cpp",
   "$_tests/SkSpanTest.cpp",
   "$_tests/SkStrikeCacheTest.cpp",

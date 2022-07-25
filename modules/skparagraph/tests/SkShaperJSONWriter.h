@@ -34,13 +34,13 @@ public:
 
     void commitLine() override {}
 
-    using BreakupCluastersCallback =
+    using BreakupClustersCallback =
             std::function<void(size_t, size_t, uint32_t, uint32_t)>;
 
     // Break up cluster into a set of ranges for the UTF8, and the glyphIDs.
     static void BreakupClusters(size_t utf8Begin, size_t utf8End,
                                 SkSpan<const uint32_t> clusters,
-                                const BreakupCluastersCallback& processMToN);
+                                const BreakupClustersCallback& processMToN);
 
 
     using VisualizeClustersCallback =

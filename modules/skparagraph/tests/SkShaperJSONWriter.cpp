@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/utils/SkShaperJSONWriter.h"
+#include "modules/skparagraph/tests/SkShaperJSONWriter.h"
 
 #include "include/core/SkFont.h"
 #include "include/core/SkSpan.h"
@@ -136,7 +136,7 @@ void SkShaperJSONWriter::commitRunBuffer(const SkShaper::RunHandler::RunInfo& in
 
 void SkShaperJSONWriter::BreakupClusters(size_t utf8Begin, size_t utf8End,
                                          SkSpan<const uint32_t> clusters,
-                                         const BreakupCluastersCallback& processMToN) {
+                                         const BreakupClustersCallback& processMToN) {
 
     if (clusters.front() <= clusters.back()) {
         // Handle left-to-right text direction

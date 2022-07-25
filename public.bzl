@@ -1703,8 +1703,6 @@ BASE_SRCS_ALL = [
     "src/utils/SkShadowTessellator.cpp",
     "src/utils/SkShadowTessellator.h",
     "src/utils/SkShadowUtils.cpp",
-    "src/utils/SkShaperJSONWriter.cpp",
-    "src/utils/SkShaperJSONWriter.h",
     "src/utils/SkTestCanvas.h",
     "src/utils/SkTextUtils.cpp",
     "src/utils/SkThreadUtils_pthread.cpp",
