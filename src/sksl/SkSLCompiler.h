@@ -245,9 +245,8 @@ private:
     const ParsedModule& loadPublicModule();
     const ParsedModule& loadPrivateRTShaderModule();
 
-    std::shared_ptr<SymbolTable> makeRootSymbolTable() const;
-    std::shared_ptr<SymbolTable> makeGLSLRootSymbolTable() const;
-    std::shared_ptr<SymbolTable> makePrivateSymbolTable(std::shared_ptr<SymbolTable> parent);
+    std::shared_ptr<SymbolTable> makeRootSymbolTable();
+    std::shared_ptr<SymbolTable> makeRootSymbolTableWithPublicTypes();
 
     /** Optimize every function in the program. */
     bool optimize(Program& program);

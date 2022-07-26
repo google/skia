@@ -98,10 +98,13 @@ private:
     std::shared_ptr<SymbolTable> fOldSymbols;
 };
 
+Rehydrator::Rehydrator(Compiler& compiler, const uint8_t* src, size_t length)
+        : Rehydrator(compiler, src, length, compiler.makeRootSymbolTableWithPublicTypes()) {}
+
 Rehydrator::Rehydrator(Compiler& compiler, const uint8_t* src, size_t length,
-        std::shared_ptr<SymbolTable> symbols)
+                       std::shared_ptr<SymbolTable> symbols)
     : fCompiler(compiler)
-    , fSymbolTable(symbols ? std::move(symbols) : compiler.makeGLSLRootSymbolTable())
+    , fSymbolTable(std::move(symbols))
     SkDEBUGCODE(, fEnd(src + length)) {
     SkASSERT(fSymbolTable);
     SkASSERT(fSymbolTable->isBuiltin());

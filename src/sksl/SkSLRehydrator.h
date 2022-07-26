@@ -107,8 +107,10 @@ public:
     };
 
     // src must remain in memory as long as the objects created from it do
+    Rehydrator(Compiler& compiler, const uint8_t* src, size_t length);
+
     Rehydrator(Compiler& compiler, const uint8_t* src, size_t length,
-            std::shared_ptr<SymbolTable> base = nullptr);
+               std::shared_ptr<SymbolTable> base);
 
 #ifdef SK_DEBUG
     ~Rehydrator();

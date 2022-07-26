@@ -155,7 +155,6 @@ Compiler::Compiler(const ShaderCaps* caps)
         , fInliner(fContext.get()) {
     SkASSERT(caps);
     fRootModule.fSymbols = this->makeRootSymbolTable();
-    fPrivateModule.fSymbols = this->makePrivateSymbolTable(fRootModule.fSymbols);
 }
 
 Compiler::~Compiler() {}
@@ -216,38 +215,32 @@ inline static constexpr BuiltinTypePtr kPrivateTypes[] = {
 
 #undef TYPE
 
-std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTable() const {
+std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTable() {
     auto rootSymbolTable = std::make_shared<SymbolTable>(*fContext, /*builtin=*/true);
 
     for (BuiltinTypePtr rootType : kRootTypes) {
         rootSymbolTable->addWithoutOwnership((fContext->fTypes.*rootType).get());
     }
 
-    return rootSymbolTable;
-}
-
-std::shared_ptr<SymbolTable> Compiler::makePrivateSymbolTable(std::shared_ptr<SymbolTable> parent) {
-    auto privateSymbolTable = std::make_shared<SymbolTable>(parent, /*builtin=*/true);
-
     for (BuiltinTypePtr privateType : kPrivateTypes) {
-        privateSymbolTable->addWithoutOwnership((fContext->fTypes.*privateType).get());
+        rootSymbolTable->addWithoutOwnership((fContext->fTypes.*privateType).get());
     }
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
-    privateSymbolTable->add(std::make_unique<Variable>(/*pos=*/Position(),
-                                                       /*modifiersPosition=*/Position(),
-                                                       fCoreModifiers.add(Modifiers{}),
-                                                       "sk_Caps",
-                                                       fContext->fTypes.fSkCaps.get(),
-                                                       /*builtin=*/false,
-                                                       Variable::Storage::kGlobal));
-    return privateSymbolTable;
+    rootSymbolTable->add(std::make_unique<Variable>(/*pos=*/Position(),
+                                                    /*modifiersPosition=*/Position(),
+                                                    fCoreModifiers.add(Modifiers{}),
+                                                    "sk_Caps",
+                                                    fContext->fTypes.fSkCaps.get(),
+                                                    /*builtin=*/false,
+                                                    Variable::Storage::kGlobal));
+    return rootSymbolTable;
 }
 
 const ParsedModule& Compiler::loadGPUModule() {
     if (!fGPUModule.fSymbols) {
-        fGPUModule = this->parseModule(ProgramKind::kFragment, MODULE_DATA(gpu), fPrivateModule);
+        fGPUModule = this->parseModule(ProgramKind::kFragment, MODULE_DATA(gpu), fRootModule);
     }
     return fGPUModule;
 }
@@ -302,7 +295,7 @@ const ParsedModule& Compiler::loadGraphiteVertexModule() {
 #endif
 }
 
-static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
+static void add_public_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
     // Add some aliases to the runtime effect modules so that it's friendlier, and more like GLSL.
     symbols->addWithoutOwnership(types.fVec2.get());
     symbols->addWithoutOwnership(types.fVec3.get());
@@ -330,23 +323,24 @@ static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Builti
     symbols->addWithoutOwnership(types.fMat4x3.get());
     symbols->addWithoutOwnership(types.fMat4x4.get());
 
-    // Alias every private type to "invalid". This will prevent code from using built-in names like
-    // `sampler2D` as variable names.
+    // Hide all the private symbols by aliasing them all to "invalid". This will prevent code from
+    // using built-in names like `sampler2D` as variable names.
     for (BuiltinTypePtr privateType : kPrivateTypes) {
         symbols->add(Type::MakeAliasType((types.*privateType)->name(), *types.fInvalid));
     }
+    symbols->add(Type::MakeAliasType("sk_Caps", *types.fInvalid));
 }
 
-std::shared_ptr<SymbolTable> Compiler::makeGLSLRootSymbolTable() const {
+std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTableWithPublicTypes() {
     auto result = this->makeRootSymbolTable();
-    add_glsl_type_aliases(result.get(), fContext->fTypes);
+    add_public_type_aliases(result.get(), fContext->fTypes);
     return result;
 }
 
 const ParsedModule& Compiler::loadPublicModule() {
     if (!fPublicModule.fSymbols) {
         fPublicModule = this->parseModule(ProgramKind::kGeneric, MODULE_DATA(public), fRootModule);
-        add_glsl_type_aliases(fPublicModule.fSymbols.get(), fContext->fTypes);
+        add_public_type_aliases(fPublicModule.fSymbols.get(), fContext->fTypes);
     }
     return fPublicModule;
 }
@@ -382,13 +376,11 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
                                   std::shared_ptr<SymbolTable> base,
                                   bool dehydrate) {
     if (dehydrate) {
-        // NOTE: This is a workaround. When dehydrating includes, skslc doesn't know which module
-        // it's preparing, nor what the correct base module is. We can't use 'Root', because many
-        // GPU intrinsics reference private types, like samplers or textures. Today, 'Private' does
-        // contain the union of all known types, so this is safe. If we ever have types that only
-        // exist in 'Public' (for example), this logic needs to be smarter (by choosing the correct
-        // base for the module we're compiling).
-        base = fPrivateModule.fSymbols;
+        // sksl-precompile passes `true` when dehydrating the lowest-level module to indicate that
+        // we should use the root module. Child modules that depend on the earlier module will pass
+        // `false` and pass the lower-level module's symbol table in `base`.
+        SkASSERT(base == nullptr);
+        base = fRootModule.fSymbols;
     }
     SkASSERT(base);
 

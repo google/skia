@@ -66,7 +66,7 @@ DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
     test_invalid_effect(
             r,
             "half4 main(float2 p) { return sk_Caps.floatIs32Bits ? half4(1) : half4(0); }",
-            "unknown identifier 'sk_Caps'");
+            "type '<INVALID>' does not have a field named 'floatIs32Bits'");
 }
 
 DEF_TEST(SkRuntimeEffect_DeadCodeEliminationStackOverflow, r) {

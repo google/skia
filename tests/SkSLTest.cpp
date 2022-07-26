@@ -353,8 +353,9 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flag
     SkSL::StringStream stream;
     dehydrator.finish(stream);
 
-    SkSL::Rehydrator rehydrator(compiler, (const uint8_t*) stream.str().data(),
-            stream.str().length());
+    SkSL::Rehydrator rehydrator(compiler,
+                                reinterpret_cast<const uint8_t*>(stream.str().data()),
+                                stream.str().length());
     std::unique_ptr<SkSL::Program> rehydrated = rehydrator.program();
     REPORTER_ASSERT(r, rehydrated->description() == program->description(),
             "Mismatch between original and dehydrated/rehydrated:\n-- Original:\n%s\n"
