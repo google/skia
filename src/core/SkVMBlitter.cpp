@@ -228,6 +228,11 @@ SkVMBlitter::Params SkVMBlitter::EffectiveParams(const SkPixmap& device,
     sk_sp<SkShader> shader = paint.refShader();
     if (!shader) {
         shader = SkShaders::Color(paint.getColor4f(), nullptr);
+        if (!shader) {
+            // If the paint color is non-finite (possible after RemoveColorFilter), we might not
+            // have a shader. (oss-fuzz:49391)
+            shader = SkShaders::Color(SK_ColorTRANSPARENT);
+        }
     } else if (paint.getAlphaf() < 1.0f) {
         shader = sk_make_sp<SkColorFilterShader>(std::move(shader),
                                                  paint.getAlphaf(),
