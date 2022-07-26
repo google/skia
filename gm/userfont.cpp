@@ -10,11 +10,27 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/utils/SkCustomTypeface.h"
 #include "tools/Resources.h"
+
+static sk_sp<SkDrawable> make_drawable(const SkPath& path) {
+    const auto bounds = path.computeTightBounds();
+
+    SkPictureRecorder recorder;
+    auto* canvas = recorder.beginRecording(bounds);
+
+    SkPaint paint;
+    paint.setColor(0xff008000);
+    paint.setAntiAlias(true);
+
+    canvas->drawPath(path, paint);
+
+    return recorder.finishRecordingAsDrawable();
+}
 
 static sk_sp<SkTypeface> make_tf() {
     SkCustomTypefaceBuilder builder;
@@ -43,9 +59,14 @@ static sk_sp<SkTypeface> make_tf() {
         font.getWidths(&glyph, 1, &width);
         SkPath path;
         font.getPath(glyph, &path);
+        path.transform(scale);
 
         // we use the charcode to be our glyph index, since we have no cmap table
-        builder.setGlyph(index, width/upem, path.makeTransform(scale));
+        if (index % 2) {
+            builder.setGlyph(index, width/upem, make_drawable(path), path.computeTightBounds());
+        } else {
+            builder.setGlyph(index, width/upem, path);
+        }
     }
 
     return builder.detach();

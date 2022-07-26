@@ -7,15 +7,18 @@
 
 #include "include/utils/SkCustomTypeface.h"
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontParameters.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -24,13 +27,12 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkFixed.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h" // IWYU pragma: keep
-#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkPathPriv.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkScalerContext.h"
 
 #include <cstddef>
@@ -43,6 +45,10 @@
 class SkArenaAlloc;
 class SkDescriptor;
 class SkFontDescriptor;
+
+namespace {
+static inline const constexpr bool kSkShowTextBlitCoverage = false;
+}
 
 static SkFontMetrics scale_fontmetrics(const SkFontMetrics& src, float sx, float sy) {
     SkFontMetrics dst = src;
@@ -78,11 +84,15 @@ private:
     friend class SkCustomTypefaceBuilder;
     friend class SkUserScalerContext;
 
-    explicit SkUserTypeface(SkFontStyle style) : SkTypeface(style) {}
+    explicit SkUserTypeface(SkFontStyle style, const SkFontMetrics& metrics,
+                            std::vector<SkCustomTypefaceBuilder::GlyphRec>&& recs)
+        : SkTypeface(style)
+        , fGlyphRecs(std::move(recs))
+        , fMetrics(metrics)
+    {}
 
-    std::vector<SkPath> fPaths;
-    std::vector<float>  fAdvances;
-    SkFontMetrics       fMetrics;
+    const std::vector<SkCustomTypefaceBuilder::GlyphRec> fGlyphRecs;
+    const SkFontMetrics                                  fMetrics;
 
     std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
                                                            const SkDescriptor* desc) const override;
@@ -124,8 +134,7 @@ private:
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override { return 0; }
 
     int glyphCount() const {
-        SkASSERT(fPaths.size() == fAdvances.size());
-        return SkToInt(fPaths.size());
+        return SkToInt(fGlyphRecs.size());
     }
 };
 
@@ -141,39 +150,48 @@ void SkCustomTypefaceBuilder::setFontStyle(SkFontStyle style) {
     fStyle = style;
 }
 
-void SkCustomTypefaceBuilder::setGlyph(SkGlyphID index, float advance, const SkPath& path) {
-    SkASSERT(fPaths.size() == fAdvances.size());
-    if (index >= fPaths.size()) {
-           fPaths.resize(SkToSizeT(index) + 1);
-        fAdvances.resize(SkToSizeT(index) + 1);
+SkCustomTypefaceBuilder::GlyphRec& SkCustomTypefaceBuilder::ensureStorage(SkGlyphID index) {
+    if (index >= fGlyphRecs.size()) {
+           fGlyphRecs.resize(SkToSizeT(index) + 1);
     }
-    fAdvances[index] = advance;
-    fPaths[index]    = path;
+
+    return fGlyphRecs[index];
+}
+
+void SkCustomTypefaceBuilder::setGlyph(SkGlyphID index, float advance, const SkPath& path) {
+    auto& rec = this->ensureStorage(index);
+    rec.fAdvance  = advance;
+    rec.fPath     = path;
+    rec.fDrawable = nullptr;
+}
+
+void SkCustomTypefaceBuilder::setGlyph(SkGlyphID index, float advance,
+                                       sk_sp<SkDrawable> drawable, const SkRect& bounds) {
+    auto& rec = this->ensureStorage(index);
+    rec.fAdvance  = advance;
+    rec.fDrawable = std::move(drawable);
+    rec.fBounds   = bounds;
+    rec.fPath.reset();
 }
 
 sk_sp<SkTypeface> SkCustomTypefaceBuilder::detach() {
-    SkASSERT(fPaths.size() == fAdvances.size());
-    if (fPaths.empty()) return nullptr;
-
-    sk_sp<SkUserTypeface> tf(new SkUserTypeface(fStyle));
-    tf->fAdvances = std::move(fAdvances);
-    tf->fPaths    = std::move(fPaths);
-    tf->fMetrics  = fMetrics;
+    if (fGlyphRecs.empty()) return nullptr;
 
     // initially inverted, so that any "union" will overwrite the first time
     SkRect bounds = {SK_ScalarMax, SK_ScalarMax, -SK_ScalarMax, -SK_ScalarMax};
 
-    for (const auto& path : tf->fPaths) {
-        if (!path.isEmpty()) {
-            bounds.join(path.getBounds());
-        }
+    for (const auto& rec : fGlyphRecs) {
+        bounds.join(rec.isDrawable()
+                        ? rec.fBounds
+                        : rec.fPath.getBounds());
     }
-    tf->fMetrics.fTop    = bounds.top();
-    tf->fMetrics.fBottom = bounds.bottom();
-    tf->fMetrics.fXMin   = bounds.left();
-    tf->fMetrics.fXMax   = bounds.right();
 
-    return std::move(tf);
+    fMetrics.fTop    = bounds.top();
+    fMetrics.fBottom = bounds.bottom();
+    fMetrics.fXMin   = bounds.left();
+    fMetrics.fXMax   = bounds.right();
+
+    return sk_sp<SkUserTypeface>(new SkUserTypeface(fStyle, fMetrics, std::move(fGlyphRecs)));
 }
 
 /////////////
@@ -233,24 +251,101 @@ public:
 protected:
     bool generateAdvance(SkGlyph* glyph) override {
         const SkUserTypeface* tf = this->userTF();
-        auto advance = fMatrix.mapXY(tf->fAdvances[glyph->getGlyphID()], 0);
+        auto advance = fMatrix.mapXY(tf->fGlyphRecs[glyph->getGlyphID()].fAdvance, 0);
 
         glyph->fAdvanceX = advance.fX;
         glyph->fAdvanceY = advance.fY;
         return true;
     }
 
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) override {
         glyph->zeroMetrics();
         this->generateAdvance(glyph);
-        // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
+
+        const auto& rec = this->userTF()->fGlyphRecs[glyph->getGlyphID()];
+        if (rec.isDrawable()) {
+            glyph->fMaskFormat = SkMask::kARGB32_Format;
+
+            SkRect bounds = fMatrix.mapRect(rec.fBounds);
+            bounds.offset(SkFixedToScalar(glyph->getSubXFixed()),
+                          SkFixedToScalar(glyph->getSubYFixed()));
+
+            SkIRect ibounds;
+            bounds.roundOut(&ibounds);
+            glyph->fLeft   = ibounds.fLeft;
+            glyph->fTop    = ibounds.fTop;
+            glyph->fWidth  = ibounds.width();
+            glyph->fHeight = ibounds.height();
+
+            // These do not have an outline path.
+            glyph->setPath(alloc, nullptr, false);
+        }
     }
 
-    void generateImage(const SkGlyph&) override { SK_ABORT("Should have generated from path."); }
+    void generateImage(const SkGlyph& glyph) override {
+        const auto& rec = this->userTF()->fGlyphRecs[glyph.getGlyphID()];
+        SkASSERTF(rec.isDrawable(), "Only drawable-backed glyphs should reach generateImage.");
+
+        auto canvas = SkCanvas::MakeRasterDirectN32(glyph.fWidth, glyph.fHeight,
+                                                    static_cast<SkPMColor*>(glyph.fImage),
+                                                    glyph.rowBytes());
+        if constexpr (kSkShowTextBlitCoverage) {
+            canvas->clear(0x33FF0000);
+        } else {
+            canvas->clear(SK_ColorTRANSPARENT);
+        }
+
+        canvas->translate(-glyph.fLeft, -glyph.fTop);
+        canvas->translate(SkFixedToScalar(glyph.getSubXFixed()),
+                          SkFixedToScalar(glyph.getSubYFixed()));
+        canvas->drawDrawable(rec.fDrawable.get(), &fMatrix);
+    }
 
     bool generatePath(const SkGlyph& glyph, SkPath* path) override {
-        this->userTF()->fPaths[glyph.getGlyphID()].transform(fMatrix, path);
+        const auto& rec = this->userTF()->fGlyphRecs[glyph.getGlyphID()];
+
+        SkASSERT(!rec.isDrawable());
+
+        rec.fPath.transform(fMatrix, path);
+
         return true;
+    }
+
+    sk_sp<SkDrawable> generateDrawable(const SkGlyph& glyph) override {
+        class DrawableMatrixWrapper final : public SkDrawable {
+        public:
+            DrawableMatrixWrapper(sk_sp<SkDrawable> drawable, const SkMatrix& m)
+                : fDrawable(std::move(drawable))
+                , fMatrix(m)
+            {}
+
+            SkRect onGetBounds() override {
+                return fMatrix.mapRect(fDrawable->getBounds());
+            }
+
+            size_t onApproximateBytesUsed() override {
+                return fDrawable->approximateBytesUsed() + sizeof(DrawableMatrixWrapper);
+            }
+
+            void onDraw(SkCanvas* canvas) override {
+                if constexpr (kSkShowTextBlitCoverage) {
+                    SkPaint paint;
+                    paint.setColor(0x3300FF00);
+                    paint.setStyle(SkPaint::kFill_Style);
+                    canvas->drawRect(this->onGetBounds(), paint);
+                }
+                canvas->drawDrawable(fDrawable.get(), &fMatrix);
+            }
+        private:
+            const sk_sp<SkDrawable> fDrawable;
+            const SkMatrix          fMatrix;
+        };
+
+        const auto& rec = this->userTF()->fGlyphRecs[glyph.getGlyphID()];
+
+        return rec.fDrawable
+            ? sk_make_sp<DrawableMatrixWrapper>(rec.fDrawable, fMatrix)
+            : nullptr;
     }
 
     void generateFontMetrics(SkFontMetrics* metrics) override {
@@ -271,74 +366,12 @@ std::unique_ptr<SkScalerContext> SkUserTypeface::onCreateScalerContext(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void write_scaled_float_to_16(SkWStream* stream, float x, float scale) {
-    stream->write16(SkToS16(sk_float_round2int(x * scale)) & 0xFFFF);
-}
-
-enum PVerb {
-    kMove,
-    kLine,
-    kCurve,
-    kClose,
-};
-
-static void compress_write(SkWStream* stream, const SkPath& path, int upem) {
-    int pCount = 0;
-    std::vector<PVerb> verbs;
-    for (auto [v, p, w] : SkPathPriv::Iterate(path)) {
-        switch (v) {
-            default: break;
-            case SkPathVerb::kMove: verbs.push_back(kMove); pCount += 1; break;
-            case SkPathVerb::kQuad: verbs.push_back(kCurve); pCount += 2; break;
-            case SkPathVerb::kLine: verbs.push_back(kLine); pCount += 1; break;
-            case SkPathVerb::kClose: verbs.push_back(kClose); break;
-        }
-    }
-
-    int vCount = verbs.size();
-
-    stream->write16(upem);      // share w/ other paths?
-    stream->write16(vCount);
-    stream->write16(pCount);
-    for (int i = 0; i < (vCount & ~3); i += 4) {
-        stream->write8((verbs[i+0]<<6) | (verbs[i+1]<<4) | (verbs[i+2]<<2) | verbs[i+3]);
-    }
-    if (vCount & 3) {
-        uint8_t b = 0;
-        int shift = 6;
-        for (int i = vCount & ~3; i < vCount; ++i) {
-            b |= verbs[i] << shift;
-            shift >>= 2;
-        }
-        stream->write8(b);
-    }
-    if (vCount & 1) {
-        stream->write8(0);
-    }
-
-    const float scale = (float)upem;
-    auto write_pts = [&](const SkPoint pts[], int count) {
-        for (int i = 0; i < count; ++i) {
-            write_scaled_float_to_16(stream, pts[i].fX, scale);
-            write_scaled_float_to_16(stream, pts[i].fY, scale);
-        }
-    };
-
-    for (auto [v, p, w] : SkPathPriv::Iterate(path)) {
-        switch (v) {
-            default: break;
-            case SkPathVerb::kMove: write_pts(&p[0], 1); break;
-            case SkPathVerb::kQuad: write_pts(&p[1], 2); break;
-            case SkPathVerb::kLine: write_pts(&p[1], 1); break;
-            case SkPathVerb::kClose:                     break;
-        }
-    }
-}
-
 static constexpr int kMaxGlyphCount = 65536;
 static constexpr size_t kHeaderSize = 16;
 static const char gHeaderString[] = "SkUserTypeface01";
 static_assert(sizeof(gHeaderString) == 1 + kHeaderSize, "need header to be 16 bytes");
+
+enum GlyphType : uint32_t { kPath, kDrawable };
 
 std::unique_ptr<SkStreamAsset> SkUserTypeface::onOpenStream(int* ttcIndex) const {
     SkDynamicMemoryWStream wstream;
@@ -350,29 +383,25 @@ std::unique_ptr<SkStreamAsset> SkUserTypeface::onOpenStream(int* ttcIndex) const
     SkFontStyle style = this->fontStyle();
     wstream.write(&style, sizeof(style));
 
-    // just hacking around -- this makes the serialized font 1/2 size
-    const bool use_compression = false;
-
     wstream.write32(this->glyphCount());
 
-    if (use_compression) {
-        for (float a : fAdvances) {
-            write_scaled_float_to_16(&wstream, a, 2048);
-        }
-    } else {
-        wstream.write(fAdvances.data(), this->glyphCount() * sizeof(float));
+    for (const auto& rec : fGlyphRecs) {
+        wstream.write32(rec.isDrawable() ? GlyphType::kDrawable : GlyphType::kPath);
+
+        wstream.writeScalar(rec.fAdvance);
+
+        wstream.write(&rec.fBounds, sizeof(rec.fBounds));
+
+        auto data = rec.isDrawable()
+                ? rec.fDrawable->serialize()
+                : rec.fPath.serialize();
+
+        const size_t sz = data->size();
+        SkASSERT(SkIsAlign4(sz));
+        wstream.write(&sz, sizeof(sz));
+        wstream.write(data->data(), sz);
     }
 
-    for (const auto& p : fPaths) {
-        if (use_compression) {
-            compress_write(&wstream, p, 2048);
-        } else {
-            auto data = p.serialize();
-            SkASSERT(SkIsAlign4(data->size()));
-            wstream.write(data->data(), data->size());
-        }
-    }
-//    SkDebugf("%d glyphs, %d bytes\n", fGlyphCount, wstream.bytesWritten());
     *ttcIndex = 0;
     return wstream.detachAsStream();
 }
@@ -425,35 +454,52 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
     builder.setMetrics(metrics);
     builder.setFontStyle(style);
 
-    std::vector<float> advances(glyphCount);
-    if (stream->read(advances.data(), glyphCount * sizeof(float)) != glyphCount * sizeof(float)) {
-        return nullptr;
-    }
-
-    // SkPath can read from a stream, so we have to page the rest into ram
-    const size_t offset = stream->getPosition();
-    const size_t length = stream->getLength() - offset;
-    SkAutoMalloc ram(length);
-    char* buffer = (char*)ram.get();
-
-    if (stream->read(buffer, length) != length) {
-        return nullptr;
-    }
-
-    size_t totalUsed = 0;
     for (int i = 0; i < glyphCount; ++i) {
-        SkPath path;
-        size_t used = path.readFromMemory(buffer + totalUsed, length - totalUsed);
-        if (used == 0) {
+        uint32_t gtype;
+        if (!stream->readU32(&gtype)) {
             return nullptr;
         }
-        builder.setGlyph(i, advances[i], path);
-        totalUsed += used;
-        SkASSERT(length >= totalUsed);
-    }
 
-    // all done, update the stream to only reflect the bytes we needed
-    stream->seek(offset + totalUsed);
+        float advance;
+        if (!stream->readScalar(&advance)) {
+            return nullptr;
+        }
+
+        SkRect bounds;
+        if (stream->read(&bounds, sizeof(bounds)) != sizeof(bounds)) {
+            return nullptr;
+        }
+
+        // SkPath and SkDrawable cannot read from a stream, so we have to page them into ram
+        size_t sz;
+        if (stream->read(&sz, sizeof(sz)) != sizeof(sz)) {
+            return nullptr;
+        }
+        auto data = SkData::MakeUninitialized(sz);
+        if (stream->read(data->writable_data(), sz) != sz) {
+            return nullptr;
+        }
+
+        switch (gtype) {
+        case GlyphType::kDrawable: {
+            auto drawable = SkDrawable::Deserialize(data->data(), data->size());
+            if (!drawable) {
+                return nullptr;
+            }
+            builder.setGlyph(i, advance, std::move(drawable), bounds);
+        } break;
+        case GlyphType::kPath: {
+            SkPath path;
+            if (path.readFromMemory(data->data(), data->size()) != data->size()) {
+                return nullptr;
+            }
+
+            builder.setGlyph(i, advance, path);
+        } break;
+        default:
+            return nullptr;
+        }
+    }
 
     arp.markDone();
     return builder.detach();
