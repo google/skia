@@ -1,0 +1,194 @@
+uniform float2x2 testMatrix2x2;
+uniform float3x3 testMatrix3x3;
+uniform float4 testInputs;
+uniform half4 colorRed, colorGreen;
+uniform half unknownInput;
+
+bool test_no_op_scalar_X_mat2() {
+    float2x2 m, mm;
+    const float2x2 z = float2x2(0.0);
+
+    // Test meaningful matrix X no-op scalar.
+    m = testMatrix2x2 * 1;
+    m = 1 * testMatrix2x2;
+    m *= 1;
+    if (m != testMatrix2x2) return false;
+
+    m = m / 1;
+    m /= 1;
+    if (m != testMatrix2x2) return false;
+
+    m = m + 0;
+    m = 0 + m;
+    m += 0;
+    if (m != testMatrix2x2) return false;
+
+    m = m - 0;
+    m = 0 - m;  // negates
+    m -= 0;
+    if (m != -testMatrix2x2) return false;
+
+    mm = m * 0;
+    mm = 0 * m;
+    return mm == z;
+}
+
+bool test_no_op_scalar_X_mat3() {
+    float3x3 m, mm;
+    const float3x3 z = float3x3(0.0);
+
+    // Test meaningful matrix X no-op scalar.
+    m = testMatrix3x3 * 1;
+    m = 1 * testMatrix3x3;
+    m *= 1;
+    if (m != testMatrix3x3) return false;
+
+    m = m / 1;
+    m /= 1;
+    if (m != testMatrix3x3) return false;
+
+    m = m + 0;
+    m = 0 + m;
+    m += 0;
+    if (m != testMatrix3x3) return false;
+
+    m = m - 0;
+    m = 0 - m;  // negates
+    m -= 0;
+    if (m != -testMatrix3x3) return false;
+
+    mm = m * 0;
+    mm = 0 * m;
+    return mm == z;
+}
+
+bool test_no_op_scalar_X_mat4() {
+    float4x4 testMatrix4x4 = float4x4(testInputs, testInputs, testInputs, testInputs);
+    float4x4 m, mm;
+    const float4x4 z = float4x4(0.0);
+
+    // Test meaningful matrix X no-op scalar.
+    m = testMatrix4x4 * 1;
+    m = 1 * testMatrix4x4;
+    m *= 1;
+    if (m != testMatrix4x4) return false;
+
+    m = m / 1;
+    m /= 1;
+    if (m != testMatrix4x4) return false;
+
+    m = m + 0;
+    m = 0 + m;
+    m += 0;
+    if (m != testMatrix4x4) return false;
+
+    m = m - 0;
+    m = 0 - m;  // negates
+    m -= 0;
+    if (m != -testMatrix4x4) return false;
+
+    mm = m * 0;
+    mm = 0 * m;
+    return mm == z;
+}
+
+bool test_no_op_mat2_X_scalar() {
+    float2x2 m, mm;
+    const float2x2 i = float2x2(1.0);
+    const float2x2 z = float2x2(0.0);
+    const float2x2 s = float2x2(float4(1.0));
+    float scalar = testInputs.x;
+
+    // These operations can be optimized, because multiplying a scalar across an identity matrix
+    // is conceptually the same as passing a scalar into the diagonal-matrix constructor.
+    m = scalar * i;
+    m = i * scalar;
+    if (m != float2x2(scalar)) return false;
+
+    // These operations are left alone, as they splat the scalar across the matrix.
+    m = scalar / s;
+    if (m != float2x2(scalar, scalar, scalar, scalar)) return false;
+
+    m = scalar + z;
+    m = z + scalar;
+    if (m != float2x2(scalar, scalar, scalar, scalar)) return false;
+
+    m = scalar - z;
+    m = z - scalar;  // splats `-scalar` across the matrix
+    if (m != -float2x2(scalar, scalar, scalar, scalar)) return false;
+
+    mm = scalar * z;
+    mm = z * scalar;
+    return mm == z;
+}
+
+bool test_no_op_mat3_X_scalar() {
+    float3x3 m, mm;
+    const float3x3 i = float3x3(1.0);
+    const float3x3 z = float3x3(0.0);
+    const float3x3 s = float3x3(float3(1.0), float3(1.0), float3(1.0));
+    float scalar = testInputs.x;
+    float3 scalar3 = scalar.xxx;
+
+    // These operations can be optimized, because multiplying a scalar across an identity matrix
+    // is conceptually the same as passing a scalar into the diagonal-matrix constructor.
+    m = scalar * i;
+    m = i * scalar;
+    if (m != float3x3(scalar)) return false;
+
+    // These operations are left alone, as they splat the scalar across the matrix.
+    m = scalar / s;
+    if (m != float3x3(scalar3, scalar3, scalar3)) return false;
+
+    m = scalar + z;
+    m = z + scalar;
+    if (m != float3x3(scalar3, scalar3, scalar3)) return false;
+
+    m = scalar - z;
+    m = z - scalar;  // splats `-scalar` across the matrix
+    if (m != -float3x3(scalar3, scalar3, scalar3)) return false;
+
+    mm = scalar * z;
+    mm = z * scalar;
+    return mm == z;
+}
+
+bool test_no_op_mat4_X_scalar() {
+    float4x4 m, mm;
+    const float4x4 i = float4x4(1.0);
+    const float4x4 z = float4x4(0.0);
+    const float4x4 s = float4x4(float4(1.0), float4(1.0), float4(1.0), float4(1.0));
+    float scalar = testInputs.x;
+    float4 scalar4 = scalar.xxxx;
+
+    // These operations can be optimized, because multiplying a scalar across an identity matrix
+    // is conceptually the same as passing a scalar into the diagonal-matrix constructor.
+    m = scalar * i;
+    m = i * scalar;
+    if (m != float4x4(scalar)) return false;
+
+    // These operations are left alone, as they splat the scalar across the matrix.
+    m = scalar / s;
+    if (m != float4x4(scalar4, scalar4, scalar4, scalar4)) return false;
+
+    m = scalar + z;
+    m = z + scalar;
+    if (m != float4x4(scalar4, scalar4, scalar4, scalar4)) return false;
+
+    m = scalar - z;
+    m = z - scalar;  // splats `-scalar` across the matrix
+    if (m != -float4x4(scalar4, scalar4, scalar4, scalar4)) return false;
+
+    mm = scalar * z;
+    mm = z * scalar;
+    return mm == z;
+}
+
+half4 main(float2 coords) {
+    return test_no_op_scalar_X_mat2() &&
+           test_no_op_scalar_X_mat3() &&
+           test_no_op_scalar_X_mat4() &&
+           test_no_op_mat2_X_scalar() &&
+           test_no_op_mat3_X_scalar() &&
+           test_no_op_mat4_X_scalar() ? colorGreen : colorRed;
+}

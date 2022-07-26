@@ -598,6 +598,8 @@ sksl_folding_tests = [
   "/sksl/folding/MatrixFoldingES2.sksl",
   "/sksl/folding/MatrixFoldingES3.sksl",
   "/sksl/folding/MatrixNoOpFolding.sksl",
+  "/sksl/folding/MatrixScalarNoOpFolding.sksl",
+  "/sksl/folding/MatrixVectorNoOpFolding.sksl",
   "/sksl/folding/Negation.sksl",
   "/sksl/folding/PreserveSideEffects.sksl",
   "/sksl/folding/SelfAssignment.sksl",

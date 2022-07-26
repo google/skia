@@ -1,0 +1,65 @@
+uniform float2x2 testMatrix2x2;
+uniform float3x3 testMatrix3x3;
+uniform float4 testInputs;
+uniform half4 colorRed, colorGreen;
+uniform half unknownInput;
+
+bool test_mat2_vec2() {
+    const float2x2 i = float2x2(1.0);
+    const float2x2 z = float2x2(0.0);
+
+    float2 v, vv;
+    v = testInputs.xy * i;
+    v = i * testInputs.xy;
+
+    v = v * i;
+    v = i * v;
+    v *= i;
+
+    vv = v * z;
+    vv = z * v;
+
+    return v == testInputs.xy && vv == z[0];
+}
+
+bool test_mat3_vec3() {
+    const float3x3 i = float3x3(1.0);
+    const float3x3 z = float3x3(0.0);
+
+    float3 v, vv;
+    v = testInputs.xyz * i;
+    v = i * testInputs.xyz;
+
+    v = v * i;
+    v = i * v;
+    v *= i;
+
+    vv = v * z;
+    vv = z * v;
+
+    return v == testInputs.xyz && vv == z[0];
+}
+
+bool test_mat4_vec4() {
+    const float4x4 i = float4x4(1.0);
+    const float4x4 z = float4x4(0.0);
+
+    float4 v, vv;
+    v = testInputs * i;
+    v = i * testInputs;
+
+    v = v * i;
+    v = i * v;
+    v *= i;
+
+    vv = v * z;
+    vv = z * v;
+
+    return v == testInputs && vv == z[0];
+}
+
+half4 main(float2 coords) {
+    return test_mat2_vec2() &&
+           test_mat3_vec3() &&
+           test_mat4_vec4() ? colorGreen : colorRed;
+}

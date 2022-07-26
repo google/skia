@@ -29,33 +29,6 @@ bool test_mat4_mat4_b() {
     mm = mat4(0.0);
     return m == -testMatrix4x4 && mm == z;
 }
-bool test_mat2_vec2_b() {
-    vec2 v;
-    vec2 vv;
-    v = testInputs.xy;
-    v = testInputs.xy;
-    vv = vec2(0.0);
-    vv = vec2(0.0);
-    return v == testInputs.xy && vv == vec2(0.0, 0.0);
-}
-bool test_mat3_vec3_b() {
-    vec3 v;
-    vec3 vv;
-    v = testInputs.xyz;
-    v = testInputs.xyz;
-    vv = vec3(0.0);
-    vv = vec3(0.0);
-    return v == testInputs.xyz && vv == vec3(0.0, 0.0, 0.0);
-}
-bool test_mat4_vec4_b() {
-    vec4 v;
-    vec4 vv;
-    v = testInputs;
-    v = testInputs;
-    vv = vec4(0.0);
-    vv = vec4(0.0);
-    return v == testInputs && vv == vec4(0.0, 0.0, 0.0, 0.0);
-}
 vec4 main() {
     mat2 _0_m;
     mat2 _1_mm;
@@ -65,5 +38,5 @@ vec4 main() {
     _0_m = -_0_m;
     _1_mm = mat2(0.0);
     _1_mm = mat2(0.0);
-    return (((((_0_m == -testMatrix2x2 && _1_mm == _3_z) && test_mat3_mat3_b()) && test_mat4_mat4_b()) && test_mat2_vec2_b()) && test_mat3_vec3_b()) && test_mat4_vec4_b() ? colorGreen : colorRed;
+    return ((_0_m == -testMatrix2x2 && _1_mm == _3_z) && test_mat3_mat3_b()) && test_mat4_mat4_b() ? colorGreen : colorRed;
 }
