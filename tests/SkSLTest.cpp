@@ -559,6 +559,7 @@ SKSL_TEST(CPU + GPU + SkQP, Switch,                          "shared/Switch.sksl
 SKSL_TEST(CPU + GPU + SkQP, SwitchDefaultOnly,               "shared/SwitchDefaultOnly.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SwitchWithFallthrough,           "shared/SwitchWithFallthrough.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SwitchWithLoops,                 "shared/SwitchWithLoops.sksl")
+SKSL_TEST(GPU_ES3,          SwitchWithLoopsES3,              "shared/SwitchWithLoopsES3.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
 SKSL_TEST(GPU_ES3,          SwizzleByIndex,                  "shared/SwizzleByIndex.sksl")

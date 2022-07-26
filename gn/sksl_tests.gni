@@ -695,6 +695,7 @@ sksl_settings_tests = [
   "/sksl/shared/SwitchDefaultOnly.sksl",
   "/sksl/shared/SwitchWithFallthrough.sksl",
   "/sksl/shared/SwitchWithLoops.sksl",
+  "/sksl/shared/SwitchWithLoopsES3.sksl",
   "/sksl/workarounds/AbsInt.sksl",
   "/sksl/workarounds/BlendGuardedDivide.sksl",
   "/sksl/workarounds/FractNegative.sksl",

@@ -1,0 +1,81 @@
+/*#pragma settings RewriteSwitchStatements*/
+
+uniform half4 colorGreen, colorRed;
+
+bool switch_with_break_in_while_loop(int x) {
+    int val = 0;
+    int i = 0;
+    switch (x) {
+        case 1:  while (i < 10) { ++i; ++val; break; ++val; }
+        default: ++val;
+    }
+    return val == 2;
+}
+
+bool switch_with_continue_in_while_loop(int x) {
+    int val = 0;
+    int i = 0;
+    switch (x) {
+        case 1:  while (i < 10) { ++i; ++val; continue; ++val; }
+        default: ++val;
+    }
+    return val == 11;
+}
+
+bool while_loop_with_break_in_switch(int x) {
+    int val = 0;
+    int i = 0;
+    while (i < 10) {
+        ++i;
+        switch (x) {
+            case 1:  ++val; break;
+            default: return false;
+        }
+        ++val;
+    }
+    return val == 20;
+}
+
+bool switch_with_break_in_do_while_loop(int x) {
+    int val = 0;
+    int i = 0;
+    switch (x) {
+        case 1:  do { ++i; ++val; break; ++val; } while (i < 10);
+        default: ++val;
+    }
+    return val == 2;
+}
+
+bool switch_with_continue_in_do_while_loop(int x) {
+    int val = 0;
+    int i = 0;
+    switch (x) {
+        case 1:  do { ++i; ++val; continue; ++val; } while (i < 10);
+        default: ++val;
+    }
+    return val == 11;
+}
+
+bool do_while_loop_with_break_in_switch(int x) {
+    int val = 0;
+    int i = 0;
+    do {
+        ++i;
+        switch (x) {
+            case 1:  ++val; break;
+            default: return false;
+        }
+        ++val;
+    } while (i < 10);
+    return val == 20;
+}
+
+half4 main(float2 coords) {
+    int x = int(colorGreen.g);
+    return (switch_with_break_in_while_loop(x) &&
+            switch_with_continue_in_while_loop(x) &&
+            while_loop_with_break_in_switch(x) &&
+            switch_with_break_in_do_while_loop(x) &&
+            switch_with_continue_in_do_while_loop(x) &&
+            do_while_loop_with_break_in_switch(x)) ? colorGreen : colorRed;
+}
