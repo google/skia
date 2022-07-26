@@ -1108,6 +1108,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if !b.extraConfig("Vulkan") && (b.gpu("RTX3060") ||
 									b.gpu("QuadroP400") ||
+									b.matchGpu("GTX[6-9]60") ||
 									b.matchGpu("Radeon(R9|HD)")) {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_GPU")  // skia:13556
 	}
