@@ -23,8 +23,5 @@ flutter_defines = [
 ]
 
 if (!is_fuchsia) {
-  flutter_defines += [
-    "SK_GL",
-    "SK_DISABLE_EFFECT_DESERIALIZATION",
-  ]
+  flutter_defines += [ "SK_DISABLE_EFFECT_DESERIALIZATION" ]
 }
