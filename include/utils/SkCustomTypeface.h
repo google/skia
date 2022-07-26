@@ -21,7 +21,7 @@
 class SkStream;
 class SkTypeface;
 
-SK_API class SkCustomTypefaceBuilder {
+class SK_API SkCustomTypefaceBuilder {
 public:
     SkCustomTypefaceBuilder();
 
