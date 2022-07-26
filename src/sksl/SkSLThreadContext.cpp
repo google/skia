@@ -75,11 +75,13 @@ void ThreadContext::setupSymbolTable() {
     SkSL::Context& context = *fCompiler->fContext;
     SymbolTable::Push(&fCompiler->fSymbolTable, context.fConfig->fIsBuiltinCode);
 
+    SkSL::SymbolTable& symbolTable = *fCompiler->fSymbolTable;
+    symbolTable.markModuleBoundary();
+
     if (fSettings.fExternalFunctions) {
         // Add any external values to the new symbol table, so they're only visible to this Program.
-        SkSL::SymbolTable& symbols = *fCompiler->fSymbolTable;
         for (const std::unique_ptr<ExternalFunction>& ef : *fSettings.fExternalFunctions) {
-            symbols.addWithoutOwnership(ef.get());
+            symbolTable.addWithoutOwnership(ef.get());
         }
     }
 }

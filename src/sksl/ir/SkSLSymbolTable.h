@@ -134,6 +134,13 @@ public:
 
     const std::string* takeOwnershipOfString(std::string n);
 
+    /**
+     * Indicates that this symbol table's parent is in a different module than this one.
+     */
+    void markModuleBoundary() {
+        fAtModuleBoundary = true;
+    }
+
     std::shared_ptr<SymbolTable> fParent;
 
     std::vector<std::unique_ptr<const Symbol>> fOwnedSymbols;
@@ -154,14 +161,18 @@ private:
         return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
     }
 
-    const Symbol* lookup(SymbolTable* writableSymbolTable, const SymbolKey& key);
+    const Symbol* lookup(SymbolTable* writableSymbolTable,
+                         bool encounteredModuleBoundary,
+                         const SymbolKey& key);
 
     const Symbol* buildOverloadSet(SymbolTable* writableSymbolTable,
+                                   bool encounteredModuleBoundary,
                                    const SymbolKey& key,
                                    const Symbol* symbol,
                                    SkSpan<const FunctionDeclaration* const> overloadSet);
 
     bool fBuiltin = false;
+    bool fAtModuleBoundary = false;
     std::forward_list<std::string> fOwnedStrings;
     SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
     const Context& fContext;
