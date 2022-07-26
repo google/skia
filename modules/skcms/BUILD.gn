@@ -5,13 +5,10 @@
 
 import("skcms.gni")
 
-target("static_library", "skcms") {
+static_library("skcms") {
   cflags = []
   if (!is_win || is_clang) {
-    cflags += [
-      "-w",
-      "-std=c11",
-    ]
+    cflags += [ "-std=c11" ]
   }
 
   public = skcms_public_headers
