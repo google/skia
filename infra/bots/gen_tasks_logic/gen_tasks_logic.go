@@ -76,10 +76,11 @@ const (
 	MACHINE_TYPE_LARGE = "n1-highcpu-64"
 
 	// Swarming output dirs.
-	OUTPUT_NONE  = "output_ignored" // This will result in outputs not being isolated.
-	OUTPUT_BUILD = "build"
-	OUTPUT_TEST  = "test"
-	OUTPUT_PERF  = "perf"
+	OUTPUT_NONE          = "output_ignored" // This will result in outputs not being isolated.
+	OUTPUT_BUILD         = "build"
+	OUTPUT_BUILD_NOPATCH = "build_nopatch"
+	OUTPUT_TEST          = "test"
+	OUTPUT_PERF          = "perf"
 
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
@@ -1220,7 +1221,7 @@ func (b *jobBuilder) compile() string {
 		b.addTask(name, func(b *taskBuilder) {
 			recipe := "compile"
 			casSpec := CAS_COMPILE
-			if b.extraConfig("NoDEPS", "CMake", "Flutter") {
+			if b.extraConfig("NoDEPS", "CMake", "Flutter", "NoPatch") {
 				recipe = "sync_and_compile"
 				casSpec = CAS_RUN_RECIPE
 				b.recipeProps(EXTRA_PROPS)
@@ -1231,7 +1232,11 @@ func (b *jobBuilder) compile() string {
 			} else {
 				b.idempotent()
 			}
-			b.kitchenTask(recipe, OUTPUT_BUILD)
+			if b.extraConfig("NoPatch") {
+				b.kitchenTask(recipe, OUTPUT_BUILD_NOPATCH)
+			} else {
+				b.kitchenTask(recipe, OUTPUT_BUILD)
+			}
 			b.cas(casSpec)
 			b.serviceAccount(b.cfg.ServiceAccountCompile)
 			b.swarmDimensions()
@@ -1480,6 +1485,7 @@ func (b *jobBuilder) codesize() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.cas(CAS_EMPTY)
 		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskName)
+		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskName+"-NoPatch")
 		b.cmd("./codesize",
 			"--local=false",
 			"--project_id", "skia-swarming-bots",

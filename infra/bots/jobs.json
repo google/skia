@@ -71,6 +71,7 @@
    "cq_config": {"location_regexes": ["DEPS", "src/codec/SkWuffs.*"]}
    },
   {"name": "Build-Debian10-Clang-x86_64-OptimizeForSize"},
+  {"name": "Build-Debian10-Clang-x86_64-OptimizeForSize-NoPatch"},
   {"name": "Build-Debian10-Clang-x86_64-Release"},
   {"name": "Build-Debian10-Clang-x86_64-Release-ANGLE"},
   {"name": "Build-Debian10-Clang-x86_64-Release-ASAN"},

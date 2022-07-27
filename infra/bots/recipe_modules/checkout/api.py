@@ -47,7 +47,8 @@ if 'cipd_bin_packages' not in git:
 
   def bot_update(self, checkout_root, gclient_cache=None,
                  checkout_flutter=False,
-                 flutter_android=False):
+                 flutter_android=False,
+                 ignore_trybot=False):
     """Run the steps to obtain a checkout using bot_update.
 
     Args:
@@ -56,6 +57,7 @@ if 'cipd_bin_packages' not in git:
       checkout_flutter: If True, will checkout flutter in addition to the
           primary repo.
       flutter_android: Indicates that we're checking out flutter for Android.
+      ignore_trybot: Ignore changelist/patchset when syncing the Skia repo.
     """
     self.assert_git_is_from_cipd()
     if not gclient_cache:
@@ -129,7 +131,7 @@ if 'cipd_bin_packages' not in git:
     # Run bot_update.
     patch_refs = None
     patch_ref = self.m.properties.get('patch_ref')
-    if patch_ref:
+    if patch_ref and not ignore_trybot:
       patch_refs = ['%s@%s:%s' % (self.m.properties['patch_repo'],
                                   self.m.properties['revision'],
                                   patch_ref)]

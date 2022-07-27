@@ -27,6 +27,7 @@ import (
 	"go.skia.org/infra/go/mockhttpclient"
 	"go.skia.org/infra/go/now"
 	"go.skia.org/infra/go/testutils"
+	"go.skia.org/infra/go/util"
 	"go.skia.org/infra/task_driver/go/td"
 	"go.skia.org/infra/task_scheduler/go/types"
 )
@@ -70,7 +71,7 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
   "subject": "Fake commit subject"
 }`
 
-	test(t, inputPatch, expectedBloatyFileGCSPath, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents)
+	test(t, inputPatch, expectedBloatyFileGCSPath, "" /* =expectedBloatyDiffFileGCSPath */, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents)
 }
 
 func TestRunSteps_Tryjob_Success(t *testing.T) {
@@ -83,6 +84,7 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 
 	const (
 		expectedBloatyFileGCSPath       = "2022/01/31/01/tryjob/12345/3/CkPp9ElAaEXyYWNHpXHU/Build-Debian10-Clang-x86_64-Release/dm.tsv"
+		expectedBloatyDiffFileGCSPath   = "2022/01/31/01/tryjob/12345/3/CkPp9ElAaEXyYWNHpXHU/Build-Debian10-Clang-x86_64-Release/dm.diff.txt"
 		expectedJSONMetadataFileGCSPath = "2022/01/31/01/tryjob/12345/3/CkPp9ElAaEXyYWNHpXHU/Build-Debian10-Clang-x86_64-Release/dm.json"
 	)
 
@@ -105,6 +107,11 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
     "0",
     "--tsv"
   ],
+  "bloaty_diff_args": [
+    "build/dm",
+    "--",
+    "build_nopatch/dm"
+  ],
   "patch_issue": "12345",
   "patch_server": "https://skia-review.googlesource.com",
   "patch_set": "3",
@@ -115,11 +122,16 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
   "subject": "Fake commit subject"
 }`
 
-	test(t, inputPatch, expectedBloatyFileGCSPath, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents)
+	test(t, inputPatch, expectedBloatyFileGCSPath, expectedBloatyDiffFileGCSPath, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents)
 }
 
-func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents string) {
+// test assumes a post-submit task when expectedBloatyDiffFileGCSPath is empty, or a tryjob when
+// set.
+func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedBloatyDiffFileGCSPath, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents string) {
+	isTryjob := expectedBloatyDiffFileGCSPath != ""
+
 	const expectedBloatyFileContents = "I'm a fake Bloaty output!"
+	const expectedBloatyDiffFileContents = "Fake Bloaty diff output over here!"
 
 	// Make sure we use UTC instead of the system timezone.
 	fakeNow := time.Date(2022, time.January, 31, 2, 2, 3, 0, time.FixedZone("UTC+1", 60*60))
@@ -179,7 +191,13 @@ func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedJS
 	commandCollector := exec.CommandCollector{}
 	commandCollector.SetDelegateRun(func(ctx context.Context, cmd *exec.Command) error {
 		if filepath.Base(cmd.Name) == "bloaty" {
-			cmd.CombinedOutput.Write([]byte(expectedBloatyFileContents))
+			// This argument indicates it's a binary diff invocation, see
+			// https://github.com/google/bloaty/blob/f01ea59bdda11708d74a3826c23d6e2db6c996f0/doc/using.md#size-diffs.
+			if util.In("--", cmd.Args) {
+				cmd.CombinedOutput.Write([]byte(expectedBloatyDiffFileContents))
+			} else {
+				cmd.CombinedOutput.Write([]byte(expectedBloatyFileContents))
+			}
 			return nil
 		}
 		// "ls" and any other commands directly executed by the task driver produce no mock outputs.
@@ -200,6 +218,20 @@ func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedJS
 		fileContents := string(args.Get(3).([]byte))
 		assert.Equal(t, expectedBloatyFileContents, fileContents)
 	}).Return(nil)
+
+	if isTryjob {
+		// Mock the GCS client call to upload the Bloaty diff output.
+		mockGCSClient.On(
+			"SetFileContents",
+			testutils.AnyContext,
+			expectedBloatyDiffFileGCSPath,
+			gcs.FILE_WRITE_OPTS_TEXT,
+			mock.Anything,
+		).Run(func(args mock.Arguments) {
+			fileContents := string(args.Get(3).([]byte))
+			assert.Equal(t, expectedBloatyDiffFileContents, fileContents)
+		}).Return(nil)
+	}
 
 	// Mock the GCS client call to upload the JSON metadata file.
 	mockGCSClient.On(
@@ -246,8 +278,13 @@ func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedJS
 		}
 	}
 
-	// We expect one "ls" command and one "bloaty" command.
-	require.Len(t, commands, 2)
+	if isTryjob {
+		// We expect the following sequence of commands: "ls", "bloaty", "ls", "bloaty".
+		require.Len(t, commands, 4)
+	} else {
+		// We expect the following sequence of commands: "ls", "bloaty".
+		require.Len(t, commands, 2)
+	}
 
 	// Assert that "ls build" was executed to list the contents of the directory with the binaries
 	// built by the compile task, for debugging purposes.
@@ -260,6 +297,24 @@ func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedJS
 	assert.Equal(t, "bloaty/bloaty", bloatyCmd.Name)
 	assert.Equal(t, []string{"build/dm", "-d", "compileunits,symbols", "-n", "0", "--tsv"}, bloatyCmd.Args)
 
-	// Assert that two files were uploaded to GCS.
-	mockGCSClient.AssertNumberOfCalls(t, "SetFileContents", 2)
+	if isTryjob {
+		// Assert that "ls build_nopatch" was executed to list the contents of the directory with the
+		// binaries built by the compile task at tip-of-tree, for debugging purposes.
+		lsCmd = commands[2]
+		assert.Equal(t, "ls", lsCmd.Name)
+		assert.Equal(t, []string{"build_nopatch"}, lsCmd.Args)
+
+		// Assert that Bloaty was invoked with the expected arguments.
+		bloatyCmd = commands[3]
+		assert.Equal(t, "bloaty/bloaty", bloatyCmd.Name)
+		assert.Equal(t, []string{"build/dm", "--", "build_nopatch/dm"}, bloatyCmd.Args)
+	}
+
+	if isTryjob {
+		// Assert that the .json, .tsv and .diff.txt files were uploaded to GCS.
+		mockGCSClient.AssertNumberOfCalls(t, "SetFileContents", 3)
+	} else {
+		// Assert that the .json and .tsv files were uploaded to GCS.
+		mockGCSClient.AssertNumberOfCalls(t, "SetFileContents", 2)
+	}
 }

@@ -89,7 +89,7 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 
 Fail if git is not obtained from CIPD.
 
-&mdash; **def [bot\_update](/infra/bots/recipe_modules/checkout/api.py#48)(self, checkout_root, gclient_cache=None, checkout_flutter=False, flutter_android=False):**
+&mdash; **def [bot\_update](/infra/bots/recipe_modules/checkout/api.py#48)(self, checkout_root, gclient_cache=None, checkout_flutter=False, flutter_android=False, ignore_trybot=False):**
 
 Run the steps to obtain a checkout using bot_update.
 
@@ -99,6 +99,7 @@ Args:
   checkout_flutter: If True, will checkout flutter in addition to the
       primary repo.
   flutter_android: Indicates that we're checking out flutter for Android.
+  ignore_trybot: Ignore changelist/patchset when syncing the Skia repo.
 
 &emsp; **@property**<br>&mdash; **def [default\_checkout\_root](/infra/bots/recipe_modules/checkout/api.py#15)(self):**
 

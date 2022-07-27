@@ -5,6 +5,16 @@
 // This task driver takes a binary (e.g. "dm") built by a Build-* task (e.g.
 // "Build-Debian10-Clang-x86_64-Release"), runs Bloaty against the binary, and uploads the resulting
 // code size statistics to the GCS bucket belonging to the https://codesize.skia.org service.
+//
+// When running as a tryjob, this task driver performs a size diff of said binary built at the
+// tryjob's changelist/patchset vs. built at tip-of-tree. The binary built at tip-of-tree is
+// produced by a *-NoPatch task (e.g. "Build-Debian10-Clang-x86_64-Release-NoPatch"), whereas the
+// binary built at the tryjob's changelist/patchset is produced by a task of the same name except
+// without the "-NoPatch" suffix (e.g. "Build-Debian10-Clang-x86_64-Release"). The size diff is
+// calculated using Bloaty, see
+// https://github.com/google/bloaty/blob/f01ea59bdda11708d74a3826c23d6e2db6c996f0/doc/using.md#size-diffs.
+// The resulting diff is uploaded to the GCS bucket belonging to the https://codesize.skia.org
+// service.
 package main
 
 import (
@@ -54,6 +64,8 @@ type BloatyOutputMetadata struct {
 
 	BloatyCipdVersion string   `json:"bloaty_cipd_version"`
 	BloatyArgs        []string `json:"bloaty_args"`
+	// BloatyDiffArgs should only be set for tryjobs.
+	BloatyDiffArgs []string `json:"bloaty_diff_args,omitempty"`
 
 	PatchIssue  string `json:"patch_issue"`
 	PatchServer string `json:"patch_server"`
@@ -214,12 +226,18 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 		Subject:           subject,
 	}
 
+	var bloatyDiffOutput string
+	if args.repoState.IsTryJob() {
+		// Diff the binary built at the current changelist/patchset vs. at tip-of-tree.
+		bloatyDiffOutput, metadata.BloatyDiffArgs, err = runBloatyDiff(ctx, args.binaryName)
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+	}
+
 	gcsDir := computeTargetGCSDirectory(ctx, args.repoState, args.taskID, args.compileTaskName)
 
-	// Upload pretty-printed JSON metadata file to GCS. It is important to upload the JSON file
-	// first because we index the .tsv file and assume the .json file already has been uploaded.
-	// Pub/Sub notifications are pretty quick, so to avoid a race condition, we should upload
-	// the .json file first (which is ignored) and then the .tsv file (which indexes the .json file)
+	// Upload pretty-printed JSON metadata file to GCS.
 	jsonMetadata, err := json.MarshalIndent(metadata, "", "  ")
 	if err != nil {
 		return skerr.Wrap(err)
@@ -228,17 +246,31 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 		return skerr.Wrap(err)
 	}
 
-	// Upload Bloaty output TSV file to GCS.
+	// Upload the .diff.txt file with binary size diff statistics, if applicable.
+	if args.repoState.IsTryJob() {
+		// Upload Bloaty diff output plain-text file to GCS.
+		if err = uploadFileToGCS(ctx, args.gcsClient, fmt.Sprintf("%s/%s.diff.txt", gcsDir, args.binaryName), []byte(bloatyDiffOutput)); err != nil {
+			return skerr.Wrap(err)
+		}
+	}
+
+	// Upload Bloaty output .tsv file to GCS.
+	//
+	// It is important that we upload the .tsv file last because the codesizeserver binary will
+	// only start processing the .json and .diff.txt files once it receives the Pub/Sub
+	// notification that a .tsv file has been uploaded. Pub/Sub notifications are pretty quick, so
+	// by uploading files in this order we avoid a race condition.
 	if err = uploadFileToGCS(ctx, args.gcsClient, fmt.Sprintf("%s/%s.tsv", gcsDir, args.binaryName), []byte(bloatyOutput)); err != nil {
 		return skerr.Wrap(err)
 	}
+
 	return nil
 }
 
 // runBloaty runs Bloaty against the given binary and returns the Bloaty output in TSV format and
 // the Bloaty command-line arguments used.
 func runBloaty(ctx context.Context, binaryName string) (string, []string, error) {
-	err := td.Do(ctx, td.Props("List files under $PWD/build (for debugging purposes)"), func(ctx context.Context) error {
+	err := td.Do(ctx, td.Props("List files under $PWD/build"), func(ctx context.Context) error {
 		runCmd := &exec.Command{
 			Name:       "ls",
 			Args:       []string{"build"},
@@ -271,6 +303,49 @@ func runBloaty(ctx context.Context, binaryName string) (string, []string, error)
 	var bloatyOutput string
 
 	if err := td.Do(ctx, td.Props(fmt.Sprintf("Run Bloaty against binary %q", binaryName)), func(ctx context.Context) error {
+		bloatyOutput, err = exec.RunCommand(ctx, runCmd)
+		return err
+	}); err != nil {
+		return "", []string{}, skerr.Wrap(err)
+	}
+
+	return bloatyOutput, runCmd.Args, nil
+}
+
+// runBloatyDiff invokes Bloaty to diff the given binary built at the current changelist/patchset
+// vs. at tip of tree, and returns the plain-text Bloaty output and the command-line arguments
+// used.
+func runBloatyDiff(ctx context.Context, binaryName string) (string, []string, error) {
+	err := td.Do(ctx, td.Props("List files under $PWD/build_nopatch"), func(ctx context.Context) error {
+		runCmd := &exec.Command{
+			Name:       "ls",
+			Args:       []string{"build_nopatch"},
+			InheritEnv: true,
+			LogStdout:  true,
+			LogStderr:  true,
+		}
+		_, err := exec.RunCommand(ctx, runCmd)
+		return err
+	})
+	if err != nil {
+		return "", []string{}, skerr.Wrap(err)
+	}
+
+	runCmd := &exec.Command{
+		Name: "bloaty/bloaty",
+		Args: []string{
+			"build/" + binaryName,
+			"--",
+			"build_nopatch/" + binaryName,
+		},
+		InheritEnv: true,
+		LogStdout:  true,
+		LogStderr:  true,
+	}
+
+	var bloatyOutput string
+
+	if err := td.Do(ctx, td.Props(fmt.Sprintf("Run Bloaty diff against binary %q", binaryName)), func(ctx context.Context) error {
 		bloatyOutput, err = exec.RunCommand(ctx, runCmd)
 		return err
 	}); err != nil {
