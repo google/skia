@@ -182,7 +182,5 @@ cc_library(
     ],
     copts = ZLIB_COPTS,
     local_defines = ZLIB_DEFINES,
-    # This allows users of zlib to just do #include "zlib.h"
-    strip_include_prefix = "",
     visibility = ["//visibility:public"],
 )

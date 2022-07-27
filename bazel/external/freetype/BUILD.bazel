@@ -34,10 +34,6 @@ FREETYPE_LOCAL_DEFINES = ["FT2_BUILD_LIBRARY"]
 # easily accessed by how we set FT_CONFIG_MODULES_H. Because these files don't exist in
 # the original Freetype checkout, we have to put them in a separate workspace (we cannot
 # refer to them from the Skia workspace or that would be a circular dependency).
-# Note: If we put freetype2/include/android/ftmodule.h et al directly in the
-# hdrs part of the cc_library, that is an error because the headers don't start with the
-# strip_include_prefix of include/. By copying them into the same
-# subfolder, we don't get that error.
 genrule(
     name = "copy_android_freetype_config",
     srcs = [
@@ -45,13 +41,13 @@ genrule(
         "@freetype_config//:android/ftoption.h",
     ],
     outs = [
-        "include/skia/android/ftmodule.h",
-        "include/skia/android/ftoption.h",
+        "builds/skia/android/ftmodule.h",
+        "builds/skia/android/ftoption.h",
     ],
     # SRCS is a space seperated list of files.
     # RULEDIR is the directory containing this BUILD.bazel file (the root of the freetype directory)
     # but only in the "genfiles tree", which does not persist after compilation.
-    cmd = "cp $(SRCS) $(RULEDIR)/include/skia/android/",
+    cmd = "cp $(SRCS) $(RULEDIR)/builds/skia/android/",
 )
 
 # It is easiest to have multiple copy rules, one per output directory.
@@ -62,13 +58,13 @@ genrule(
         "@freetype_config//:no-type1/ftoption.h",
     ],
     outs = [
-        "include/skia/no-type1/ftmodule.h",
-        "include/skia/no-type1/ftoption.h",
+        "builds/skia/no-type1/ftmodule.h",
+        "builds/skia/no-type1/ftoption.h",
     ],
     # SRCS is a space seperated list of files.
     # RULEDIR is the directory containing this BUILD.bazel file (the root of the freetype directory)
     # but only in the "genfiles tree", which does not persist after compilation.
-    cmd = "cp $(SRCS) $(RULEDIR)/include/skia/no-type1/",
+    cmd = "cp $(SRCS) $(RULEDIR)/builds/skia/no-type1/",
 )
 
 cc_library(
@@ -323,18 +319,20 @@ cc_library(
         "include/freetype/tttags.h",
         "include/ft2build.h",
         # These are copied in by some genrules
-        "include/skia/android/ftmodule.h",
-        "include/skia/android/ftoption.h",
-        "include/skia/no-type1/ftmodule.h",
-        "include/skia/no-type1/ftoption.h",
+        "builds/skia/android/ftmodule.h",
+        "builds/skia/android/ftoption.h",
+        "builds/skia/no-type1/ftmodule.h",
+        "builds/skia/no-type1/ftoption.h",
     ],
     copts = [
-        "-isystem external/freetype/include",
         "-Wno-unused-function",
     ],
     defines = FREETYPE_PUBLIC_DEFINES,
+    includes = [
+        "builds",
+        "include",
+    ],
     local_defines = FREETYPE_LOCAL_DEFINES,
-    strip_include_prefix = "include/",
     # Freetype includes a lot of .c files. We need to make those available for inclusion explicitly.
     textual_hdrs = [
         "src/autofit/afblue.c",

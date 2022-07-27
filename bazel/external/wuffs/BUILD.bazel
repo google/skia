@@ -8,6 +8,7 @@ cc_library(
     srcs = ["release/c/wuffs-v0.3.c"],
     # Thankfully, Bazel doesn't mind a .c file being declared as a public "header".
     hdrs = ["release/c/wuffs-v0.3.c"],
+    includes = ["release/c"],
     local_defines = [
         # Copy/pasting from "release/c/wuffs-*.c":
         #
@@ -44,6 +45,5 @@ cc_library(
         "WUFFS_CONFIG__MODULE__GIF",
         "WUFFS_CONFIG__MODULE__LZW",
     ],
-    strip_include_prefix = "release/c/",
     visibility = ["//visibility:public"],
 )

@@ -164,6 +164,7 @@ cc_library(
         ],
         "//conditions:default": [],
     }),
+    includes = ["source"],
     local_defines = [
         "qDNGReportErrors=0",
         "qDNGThreadSafe=1",
@@ -173,7 +174,6 @@ cc_library(
         "qDNGValidateTarget=1",
         "UNIX_ENV=1",
     ],
-    strip_include_prefix = "source/",
     visibility = ["//visibility:public"],
     deps = [
         "@libjpeg_turbo",

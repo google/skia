@@ -62,7 +62,6 @@ cc_library(
         "expat/lib",
         "include",
     ],
-    # strip_include_prefix = "expat/lib",
     textual_hdrs = TEXTUAL_HDRS,
     visibility = ["//visibility:public"],
 )
