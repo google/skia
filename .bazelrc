@@ -21,20 +21,6 @@ build --extra_toolchains=//toolchain:clang_linux_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_arm64_toolchain
 
-# --platforms refers to the target for which we are compiling. By setting the target to be a
-# platform which has our own custom constraint_setting and constraint_value
-# (skia_hermetic_toolchain=use_hermetic_toolchain), this causes Bazel to resolve the toolchain
-# to be our hermetic one because our hermetic toolchains have that same constraint set in their
-# target_compatible_with list.
-build:for_linux_x64 --platforms=//bazel/platform:linux_x64_hermetic
-build:for_linux_x64_with_rbe --config=linux_rbe --platforms=//bazel/platform:linux_x64_hermetic
-
-build:for_mac_arm64 --platforms=//bazel/platform:mac_arm64_hermetic
-build:for_mac_x64 --platforms=//bazel/platform:mac_x64_hermetic
-# some aliases using more common lingo
-build:for_mac_m1 --config=for_mac_arm64
-build:for_mac_intel --config=for_mac_x64
-
 # =============================================================================
 # Alias to build configurations below. This makes configuring things from
 # the command line easier.

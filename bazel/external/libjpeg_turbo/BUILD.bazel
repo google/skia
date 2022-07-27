@@ -2,6 +2,22 @@
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 load("@bazel_skylib//lib:selects.bzl", "selects")
 
+config_setting(
+    name = "mac_arm64",
+    constraint_values = [
+        "@platforms//cpu:arm64",
+        "@platforms//os:macos",
+    ],
+)
+
+selects.config_setting_group(
+    name = "arm_or_arm64",
+    match_any = [
+        "@platforms//cpu:arm",
+        "@platforms//cpu:arm64",
+    ],
+)
+
 JPEGTURBO_SRCS = [
     "jaricom.c",
     "jcapimin.c",
@@ -66,10 +82,11 @@ JPEGTURBO_SRCS = [
     "jsimddct.h",
     "jutils.c",
     "jversion.h",
-] + selects.with_or({
-    ("@platforms//cpu:arm", "@platforms//cpu:arm64"): [
+] + select({
+    ":arm_or_arm64": [
         "simd/arm/jccolor-neon.c",
         "simd/arm/jcgray-neon.c",
+        "simd/arm/jchuff.h",
         "simd/arm/jcphuff-neon.c",
         "simd/arm/jcsample-neon.c",
         "simd/arm/jdcolor-neon.c",
@@ -81,6 +98,8 @@ JPEGTURBO_SRCS = [
         "simd/arm/jidctint-neon.c",
         "simd/arm/jidctred-neon.c",
         "simd/arm/jquanti-neon.c",
+        "simd/arm/neon-compat.h",
+        "simd/jsimd.h",
     ],
     "//conditions:default": ["jsimd_none.c"],
 }) + select({
@@ -91,6 +110,31 @@ JPEGTURBO_SRCS = [
     "@platforms//cpu:arm64": [
         "simd/arm/aarch64/jchuff-neon.c",
         "simd/arm/aarch64/jsimd.c",
+        "simd/arm/align.h",
+    ],
+    "//conditions:default": [],
+})
+
+JPEGTURBO_TEXT_HDRS = [
+    "jccolext.c",
+    "jdmrgext.c",
+    "jdcolext.c",
+    "jdcol565.c",
+    "jdmrg565.c",
+    "jstdhuff.c",
+] + select({
+    ":arm_or_arm64": [
+        "simd/arm/jdmrgext-neon.c",
+        "simd/arm/jcgryext-neon.c",
+        "simd/arm/jdcolext-neon.c",
+    ],
+    "//conditions:default": [],
+}) + select({
+    "@platforms//cpu:arm": [
+        "simd/arm/aarch32/jccolext-neon.c",
+    ],
+    "@platforms//cpu:arm64": [
+        "simd/arm/aarch64/jccolext-neon.c",
     ],
     "//conditions:default": [],
 })
@@ -101,12 +145,14 @@ JPEGTURBO_DEFINES = [
     # support by major browsers.
     "C_ARITH_CODING_SUPPORTED=1",
     "D_ARITH_CODING_SUPPORTED=1",
-] + selects.with_or({
-    ("@platforms//cpu:arm", "@platforms//cpu:arm64"): ["NEON_INTRINSICS"],
+] + select({
+    ":arm_or_arm64": ["NEON_INTRINSICS"],
     "//conditions:default": [],
 }) + select({
+    # Cuts a 64K table.
+    "//conditions:default": ["USE_CLZ_INTRINSIC"],
+    ":mac_arm64": [],  # disabled on M1 macs already
     "@platforms//os:windows": [],
-    "//conditions:default": ["USE_CLZ_INTRINSIC"],  # Cuts a 64K table.
 })
 
 cc_library(
@@ -119,14 +165,11 @@ cc_library(
         "jpeglib.h",
         "jpeglibmangler.h",
     ],
-    local_defines = JPEGTURBO_DEFINES,
-    textual_hdrs = [
-        "jccolext.c",
-        "jdmrgext.c",
-        "jdcolext.c",
-        "jdcol565.c",
-        "jdmrg565.c",
-        "jstdhuff.c",
+    copts = [
+        # There are some #include "neon-compat.h" etc that need this search path
+        "-Iexternal/libjpeg_turbo/simd/arm/",
     ],
+    local_defines = JPEGTURBO_DEFINES,
+    textual_hdrs = JPEGTURBO_TEXT_HDRS,
     visibility = ["//visibility:public"],
 )

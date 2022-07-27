@@ -22,6 +22,28 @@
 # [4] https://github.com/bazelbuild/bazel/blob/e0e589658463beb9605030b4820dcc97e6a36f48/src/main/java/com/google/devtools/build/lib/analysis/config/OutputDirectories.java#L198-L236
 # [5] https://clang.llvm.org/docs/ClangCommandLineReference.html#dependency-file-generation
 
+# =============================================================================
+# Targets (what to build for)
+# =============================================================================
+
+# --platforms refers to the target for which we are compiling. By setting the target to be a
+# platform which has our own custom constraint_setting and constraint_value
+# (skia_hermetic_toolchain=use_hermetic_toolchain), this causes Bazel to resolve the toolchain
+# to be our hermetic one because our hermetic toolchains have that same constraint set in their
+# target_compatible_with list.
+build:for_linux_x64 --platforms=//bazel/platform:linux_x64_hermetic --cc_output_directory_tag=linux_x64
+build:for_linux_x64_with_rbe --config=for_linux_x64 --config=linux_rbe
+
+build:for_mac_arm64 --platforms=//bazel/platform:mac_arm64_hermetic --cc_output_directory_tag=mac_arm64
+build:for_mac_x64 --platforms=//bazel/platform:mac_x64_hermetic --cc_output_directory_tag=mac_x64
+# some aliases using more common lingo
+build:for_mac_m1 --config=for_mac_arm64
+build:for_mac_intel --config=for_mac_x64
+
+
+# =============================================================================
+# Configurations (what features we want on)
+# =============================================================================
 # These are examples of the syntax to create build configurations. As of May 2022, our
 # Bazel configurations are still being made.
 build:release --compilation_mode=opt
