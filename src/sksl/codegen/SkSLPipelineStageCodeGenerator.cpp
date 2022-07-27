@@ -358,6 +358,11 @@ std::string PipelineStageCodeGenerator::functionName(const FunctionDeclaration& 
 }
 
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    if (f.declaration().isBuiltin()) {
+        // Don't re-emit builtin functions.
+        return;
+    }
+
     AutoOutputBuffer body(this);
 
     // We allow public SkSL's main() to return half4 -or- float4 (ie vec4). When we emit
@@ -407,7 +412,7 @@ std::string PipelineStageCodeGenerator::functionDeclaration(const FunctionDeclar
 }
 
 void PipelineStageCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl) {
-    if (!decl.isMain()) {
+    if (!decl.isMain() && !decl.isBuiltin()) {
         fCallbacks->declareFunction(this->functionDeclaration(decl).c_str());
     }
 }
