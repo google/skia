@@ -1480,18 +1480,20 @@ func (b *jobBuilder) buildstats() {
 // statistics to the GCS bucket belonging to the codesize.skia.org service.
 func (b *jobBuilder) codesize() {
 	compileTaskName := b.compile()
+	compileTaskNameNoPatch := compileTaskName + "-NoPatch"
 	bloatyCipdPkg := b.MustGetCipdPackageFromAsset("bloaty")
 
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.cas(CAS_EMPTY)
 		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskName)
-		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskName+"-NoPatch")
+		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskNameNoPatch)
 		b.cmd("./codesize",
 			"--local=false",
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
 			"--task_name", b.Name,
 			"--compile_task_name", compileTaskName,
+			"--compile_task_name_no_patch", compileTaskNameNoPatch,
 			// Note: the binary name cannot contain dashes, otherwise the naming
 			// schema logic will partition it into multiple parts.
 			//

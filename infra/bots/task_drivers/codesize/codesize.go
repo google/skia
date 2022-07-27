@@ -60,7 +60,9 @@ type BloatyOutputMetadata struct {
 	TaskID          string `json:"task_id"`
 	TaskName        string `json:"task_name"`
 	CompileTaskName string `json:"compile_task_name"`
-	BinaryName      string `json:"binary_name"`
+	// CompileTaskNameNoPatch should only be set for tryjobs.
+	CompileTaskNameNoPatch string `json:"compile_task_name_no_patch,omitempty"`
+	BinaryName             string `json:"binary_name"`
 
 	BloatyCipdVersion string   `json:"bloaty_cipd_version"`
 	BloatyArgs        []string `json:"bloaty_args"`
@@ -80,14 +82,15 @@ type BloatyOutputMetadata struct {
 
 func main() {
 	var (
-		projectID         = flag.String("project_id", "", "ID of the Google Cloud project.")
-		taskID            = flag.String("task_id", "", "ID of this task.")
-		taskName          = flag.String("task_name", "", "Name of the task.")
-		compileTaskName   = flag.String("compile_task_name", "", "Name of the compile task that produced the binary to analyze.")
-		binaryName        = flag.String("binary_name", "", "Name of the binary to analyze (e.g. \"dm\").")
-		bloatyCIPDVersion = flag.String("bloaty_cipd_version", "", "Version of the \"bloaty\" CIPD package used.")
-		output            = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
-		local             = flag.Bool("local", true, "True if running locally (as opposed to on the bots).")
+		projectID              = flag.String("project_id", "", "ID of the Google Cloud project.")
+		taskID                 = flag.String("task_id", "", "ID of this task.")
+		taskName               = flag.String("task_name", "", "Name of the task.")
+		compileTaskName        = flag.String("compile_task_name", "", "Name of the compile task that produced the binary to analyze.")
+		compileTaskNameNoPatch = flag.String("compile_task_name_no_patch", "", "Name of the *-NoPatch compile task that produced the binary to diff against (ignored when the task is not a tryjob).")
+		binaryName             = flag.String("binary_name", "", "Name of the binary to analyze (e.g. \"dm\").")
+		bloatyCIPDVersion      = flag.String("bloaty_cipd_version", "", "Version of the \"bloaty\" CIPD package used.")
+		output                 = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
+		local                  = flag.Bool("local", true, "True if running locally (as opposed to on the bots).")
 
 		checkoutFlags = checkout.SetupFlags(nil)
 	)
@@ -123,17 +126,18 @@ func main() {
 	gitilesRepo := gitiles.NewRepo(repoState.Repo, httpClient)
 
 	args := runStepsArgs{
-		repoState:         repoState,
-		gerrit:            gerrit,
-		gitilesRepo:       gitilesRepo,
-		gcsClient:         gcsClient,
-		swarmingTaskID:    os.Getenv("SWARMING_TASK_ID"),
-		swarmingServer:    os.Getenv("SWARMING_SERVER"),
-		taskID:            *taskID,
-		taskName:          *taskName,
-		compileTaskName:   *compileTaskName,
-		binaryName:        *binaryName,
-		bloatyCIPDVersion: *bloatyCIPDVersion,
+		repoState:              repoState,
+		gerrit:                 gerrit,
+		gitilesRepo:            gitilesRepo,
+		gcsClient:              gcsClient,
+		swarmingTaskID:         os.Getenv("SWARMING_TASK_ID"),
+		swarmingServer:         os.Getenv("SWARMING_SERVER"),
+		taskID:                 *taskID,
+		taskName:               *taskName,
+		compileTaskName:        *compileTaskName,
+		compileTaskNameNoPatch: *compileTaskNameNoPatch,
+		binaryName:             *binaryName,
+		bloatyCIPDVersion:      *bloatyCIPDVersion,
 	}
 
 	if err := runSteps(ctx, args); err != nil {
@@ -143,17 +147,18 @@ func main() {
 
 // runStepsArgs contains the input arguments to the runSteps function.
 type runStepsArgs struct {
-	repoState         types.RepoState
-	gerrit            *gerrit.Gerrit
-	gitilesRepo       gitiles.GitilesRepo
-	gcsClient         gcs.GCSClient
-	swarmingTaskID    string
-	swarmingServer    string
-	taskID            string
-	taskName          string
-	compileTaskName   string
-	binaryName        string
-	bloatyCIPDVersion string
+	repoState              types.RepoState
+	gerrit                 *gerrit.Gerrit
+	gitilesRepo            gitiles.GitilesRepo
+	gcsClient              gcs.GCSClient
+	swarmingTaskID         string
+	swarmingServer         string
+	taskID                 string
+	taskName               string
+	compileTaskName        string
+	compileTaskNameNoPatch string
+	binaryName             string
+	bloatyCIPDVersion      string
 }
 
 // runSteps runs the main steps of this task driver.
@@ -233,6 +238,7 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 		if err != nil {
 			return skerr.Wrap(err)
 		}
+		metadata.CompileTaskNameNoPatch = args.compileTaskNameNoPatch
 	}
 
 	gcsDir := computeTargetGCSDirectory(ctx, args.repoState, args.taskID, args.compileTaskName)

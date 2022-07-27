@@ -97,6 +97,7 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
   "task_id": "CkPp9ElAaEXyYWNHpXHU",
   "task_name": "CodeSize-dm-Debian10-Clang-x86_64-Release",
   "compile_task_name": "Build-Debian10-Clang-x86_64-Release",
+  "compile_task_name_no_patch": "Build-Debian10-Clang-x86_64-Release-NoPatch",
   "binary_name": "dm",
   "bloaty_cipd_version": "1",
   "bloaty_args": [
@@ -247,17 +248,18 @@ func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedBl
 
 	// Realistic but arbitrary arguments.
 	args := runStepsArgs{
-		repoState:         repoState,
-		gerrit:            mockGerrit.Gerrit,
-		gitilesRepo:       mockGitiles,
-		gcsClient:         mockGCSClient,
-		swarmingTaskID:    "58dccb0d6a3f0411",
-		swarmingServer:    "https://chromium-swarm.appspot.com",
-		taskID:            "CkPp9ElAaEXyYWNHpXHU",
-		taskName:          "CodeSize-dm-Debian10-Clang-x86_64-Release",
-		compileTaskName:   "Build-Debian10-Clang-x86_64-Release",
-		binaryName:        "dm",
-		bloatyCIPDVersion: "1",
+		repoState:              repoState,
+		gerrit:                 mockGerrit.Gerrit,
+		gitilesRepo:            mockGitiles,
+		gcsClient:              mockGCSClient,
+		swarmingTaskID:         "58dccb0d6a3f0411",
+		swarmingServer:         "https://chromium-swarm.appspot.com",
+		taskID:                 "CkPp9ElAaEXyYWNHpXHU",
+		taskName:               "CodeSize-dm-Debian10-Clang-x86_64-Release",
+		compileTaskName:        "Build-Debian10-Clang-x86_64-Release",
+		compileTaskNameNoPatch: "Build-Debian10-Clang-x86_64-Release-NoPatch",
+		binaryName:             "dm",
+		bloatyCIPDVersion:      "1",
 	}
 
 	res := td.RunTestSteps(t, false, func(ctx context.Context) error {
