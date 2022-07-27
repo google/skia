@@ -35,6 +35,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 
@@ -326,7 +327,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeFromSource(SkString sksl,
         // calling the Make overload at the end, which creates its own (non-reentrant)
         // SharedCompiler instance
         SkSL::SharedCompiler compiler;
-        SkSL::Program::Settings settings = MakeSettings(options);
+        SkSL::ProgramSettings settings = MakeSettings(options);
         program = compiler->convertProgram(kind, std::string(sksl.c_str(), sksl.size()), settings);
 
         if (!program) {
@@ -479,7 +480,7 @@ sk_sp<SkRuntimeEffect> SkRuntimeEffect::makeUnoptimizedClone() {
         // calling MakeInternal at the end, which creates its own (non-reentrant) SharedCompiler
         // instance.
         SkSL::SharedCompiler compiler;
-        SkSL::Program::Settings settings = MakeSettings(options);
+        SkSL::ProgramSettings settings = MakeSettings(options);
         program = compiler->convertProgram(kind, *fBaseProgram->fSource, settings);
 
         if (!program) {

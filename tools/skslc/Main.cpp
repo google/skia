@@ -19,6 +19,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
@@ -88,7 +89,7 @@ static bool consume_suffix(std::string* str, const char suffix[]) {
 //    /*#pragma settings Default Sharpen*/
 // The passed-in Settings object will be updated accordingly. Any number of options can be provided.
 static bool detect_shader_settings(const std::string& text,
-                                   SkSL::Program::Settings* settings,
+                                   SkSL::ProgramSettings* settings,
                                    const SkSL::ShaderCaps** caps,
                                    std::unique_ptr<SkSL::SkVMDebugTrace>* debugTrace) {
     using Factory = SkSL::ShaderCapsFactory;
@@ -321,7 +322,7 @@ ResultCode processCommand(const std::vector<std::string>& args) {
         return ResultCode::kInputError;
     }
 
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     auto standaloneCaps = SkSL::ShaderCapsFactory::Standalone();
     const SkSL::ShaderCaps* caps = standaloneCaps.get();
     std::unique_ptr<SkSL::SkVMDebugTrace> debugTrace;

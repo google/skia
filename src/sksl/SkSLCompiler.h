@@ -19,7 +19,6 @@
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLParsedModule.h"
-#include "src/sksl/ir/SkSLProgram.h"
 
 #include <array>
 #include <cstddef>
@@ -57,6 +56,9 @@ class Context;
 class Expression;
 class IRNode;
 class OutputStream;
+struct Program;
+struct ProgramSettings;
+class ProgramUsage;
 class SymbolTable;
 class Variable;
 
@@ -149,10 +151,9 @@ public:
      * table of the Program, but ownership is *not* transferred. It is up to the caller to keep them
      * alive.
      */
-    std::unique_ptr<Program> convertProgram(
-            ProgramKind kind,
-            std::string text,
-            Program::Settings settings);
+    std::unique_ptr<Program> convertProgram(ProgramKind kind,
+                                            std::string text,
+                                            ProgramSettings settings);
 
     std::unique_ptr<Expression> convertIdentifier(Position pos, std::string_view name);
 

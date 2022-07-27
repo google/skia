@@ -13,7 +13,6 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLProgram.h"
 
 #include <memory>
 #include <vector>
@@ -25,6 +24,7 @@ class FunctionDeclaration;
 class FunctionDefinition;
 class Position;
 class ProgramElement;
+class ProgramUsage;
 class Statement;
 class SymbolTable;
 class Variable;
@@ -57,7 +57,7 @@ private:
         kEarlyReturns,
     };
 
-    const Program::Settings& settings() const { return fContext->fConfig->fSettings; }
+    const ProgramSettings& settings() const { return fContext->fConfig->fSettings; }
 
     void buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
                             std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,

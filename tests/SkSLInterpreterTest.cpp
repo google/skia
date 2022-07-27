@@ -42,7 +42,7 @@ namespace SkSL { class Type; }
 struct ProgramBuilder {
     ProgramBuilder(skiatest::Reporter* r, const char* src)
             : fCompiler(&fCaps) {
-        SkSL::Program::Settings settings;
+        SkSL::ProgramSettings settings;
         // The SkSL inliner is well tested in other contexts. Here, we disable inlining entirely,
         // to stress-test the VM generator's handling of function calls with varying signatures.
         settings.fInlineThreshold = 0;
@@ -649,7 +649,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
 static void expect_failure(skiatest::Reporter* r, const char* src) {
     SkSL::ShaderCaps caps;
     SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
                                            std::string(src), settings);
     REPORTER_ASSERT(r, !program);
@@ -917,7 +917,7 @@ private:
 DEF_TEST(SkSLInterpreterExternalFunction, r) {
     SkSL::ShaderCaps caps;
     SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     const char* src = "float main() { return externalSqrt(25); }";
     std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalFunctions;
     externalFunctions.push_back(std::make_unique<ExternalSqrt>("externalSqrt", compiler));
@@ -971,7 +971,7 @@ private:
 DEF_TEST(SkSLInterpreterExternalTable, r) {
     SkSL::ShaderCaps caps;
     SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     const char* src =
             "float4 main() { return float4(table(2), table(-1), table(0.4), table(0.6)); }";
     std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalFunctions;
@@ -1001,7 +1001,7 @@ DEF_TEST(SkSLInterpreterExternalTable, r) {
 DEF_TEST(SkSLInterpreterTrace, r) {
     SkSL::ShaderCaps caps;
     SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     settings.fOptimize = false;
 
     constexpr const char kSrc[] =

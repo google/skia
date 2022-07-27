@@ -20,6 +20,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 // Cached state for a single program (either all Effect code, or all Particle code)
 struct SkParticleProgram {
@@ -157,7 +158,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
             }
         }
 
-        SkSL::Program::Settings settings;
+        SkSL::ProgramSettings settings;
         settings.fExternalFunctions = &externalFns;
 
         auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric, code, settings);

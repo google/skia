@@ -13,7 +13,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/ganesh/mtl/GrMtlUniformHandler.h"
 #include "src/gpu/ganesh/mtl/GrMtlVaryingHandler.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 #import <Metal/Metal.h>
 
@@ -23,6 +23,8 @@ class GrMtlCaps;
 class GrMtlGpu;
 class GrMtlPipelineState;
 class SkReadBuffer;
+
+namespace SkSL { class Compiler; }
 
 struct GrMtlPrecompiledLibraries {
     // TODO: wrap these in sk_cfp<> or unique_ptr<> when we remove ARC
@@ -66,7 +68,7 @@ private:
                                            SkSL::Program::Inputs inputs,
                                            GrContextOptions::ShaderErrorHandler* errorHandler);
     void storeShadersInCache(const std::string shaders[], const SkSL::Program::Inputs inputs[],
-                             SkSL::Program::Settings*, sk_sp<SkData>, bool isSkSL);
+                             SkSL::ProgramSettings*, sk_sp<SkData>, bool isSkSL);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }

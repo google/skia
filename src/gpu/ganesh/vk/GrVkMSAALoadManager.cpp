@@ -53,7 +53,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
             "sk_FragColor = subpassLoad(uInput);"
             "}");
 
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     std::string spirv;
     SkSL::Program::Inputs inputs;
     if (!GrCompileVkShaderModule(gpu, vertShaderText, VK_SHADER_STAGE_VERTEX_BIT,

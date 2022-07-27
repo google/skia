@@ -63,8 +63,6 @@ public:
  * Represents a fully-digested program, ready for code generation.
  */
 struct Program {
-    using Settings = ProgramSettings;
-
     struct Inputs {
         bool fUseFlipRTUniform = false;
         bool operator==(const Inputs& that) const {

@@ -13,6 +13,7 @@
 #include "src/gpu/ganesh/dawn/GrDawnGpu.h"
 #include "src/gpu/ganesh/dawn/GrDawnTexture.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/utils/SkShaderUtils.h"
 
 static wgpu::BlendFactor to_dawn_blend_factor(skgpu::BlendCoeff coeff) {

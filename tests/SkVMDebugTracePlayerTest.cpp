@@ -9,6 +9,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/sksl/tracing/SkVMDebugTracePlayer.h"
 
@@ -19,7 +20,7 @@ using LineNumberMap = SkSL::SkVMDebugTracePlayer::LineNumberMap;
 static sk_sp<SkSL::SkVMDebugTrace> make_trace(skiatest::Reporter* r, std::string src) {
     SkSL::ShaderCaps caps;
     SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     settings.fOptimize = false;
 
     skvm::Builder b;

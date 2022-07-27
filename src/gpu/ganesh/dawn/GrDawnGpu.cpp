@@ -993,7 +993,7 @@ std::string GrDawnGpu::SkSLToSPIRV(const char* shaderString,
                                    uint32_t rtFlipOffset,
                                    SkSL::Program::Inputs* inputs) {
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     settings.fRTFlipOffset = rtFlipOffset;
     settings.fRTFlipBinding = 0;
     settings.fRTFlipSet = 0;

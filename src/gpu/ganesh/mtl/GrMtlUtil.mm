@@ -60,7 +60,7 @@ static const bool gPrintMSL = false;
 bool GrSkSLToMSL(const GrMtlGpu* gpu,
                  const std::string& sksl,
                  SkSL::ProgramKind programKind,
-                 const SkSL::Program::Settings& settings,
+                 const SkSL::ProgramSettings& settings,
                  std::string* msl,
                  SkSL::Program::Inputs* outInputs,
                  GrContextOptions::ShaderErrorHandler* errorHandler) {

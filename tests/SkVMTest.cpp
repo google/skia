@@ -14,6 +14,7 @@
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkVMVisualizer.h"
 #include "tests/Test.h"
@@ -2852,7 +2853,7 @@ DEF_TEST(SkVM_Visualizer, r) {
             "}";
     GrShaderCaps caps;
     SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
                                            std::string(src), settings);
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");

@@ -11,13 +11,15 @@
 #include "src/gpu/ganesh/GrSPIRVUniformHandler.h"
 #include "src/gpu/ganesh/GrSPIRVVaryingHandler.h"
 #include "src/gpu/ganesh/dawn/GrDawnProgramDataManager.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "webgpu/webgpu_cpp.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 
 #include <vector>
 
 class GrPipeline;
+
+namespace SkSL { class Compiler; }
 
 struct GrDawnProgram : public SkRefCnt {
     struct RenderTargetState {

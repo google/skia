@@ -20,7 +20,7 @@ class SkReadBuffer;
 namespace GrPersistentCacheUtils {
 
 struct ShaderMetadata {
-    SkSL::Program::Settings* fSettings = nullptr;
+    SkSL::ProgramSettings* fSettings = nullptr;
     SkTArray<std::string> fAttributeNames;
     bool fHasCustomColorOutput = false;
     bool fHasSecondaryColorOutput = false;

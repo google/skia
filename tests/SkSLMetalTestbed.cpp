@@ -20,7 +20,7 @@ static void test(skiatest::Reporter* r,
                  const char* src,
                  SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment) {
     SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::string(src),
                                                                      settings);
     if (!program) {

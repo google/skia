@@ -156,7 +156,7 @@ static constexpr SkFourByteTag kGLPB_Tag = SkSetFourByteTag('G', 'L', 'P', 'B');
 
 void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
                                             const std::string shaders[], bool isSkSL,
-                                            SkSL::Program::Settings* settings) {
+                                            SkSL::ProgramSettings* settings) {
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
         return;
     }
@@ -229,7 +229,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     // compile shaders and bind attributes / uniforms
     auto errorHandler = this->gpu()->getContext()->priv().getShaderErrorHandler();
     const GrGeometryProcessor& geomProc = this->geometryProcessor();
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     settings.fSharpenTextures = true;
     settings.fFragColorIsInOut = this->fragColorIsInOut();
 
@@ -490,7 +490,7 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
     const GrGLInterface* gl = glGpu->glInterface();
     auto errorHandler = dContext->priv().getShaderErrorHandler();
 
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     settings.fSharpenTextures = true;
     GrPersistentCacheUtils::ShaderMetadata meta;
     meta.fSettings = &settings;

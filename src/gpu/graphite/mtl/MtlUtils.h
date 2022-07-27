@@ -34,7 +34,7 @@ MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
 bool SkSLToMSL(const MtlGpu* gpu,
                const std::string& sksl,
                SkSL::ProgramKind kind,
-               const SkSL::Program::Settings& settings,
+               const SkSL::ProgramSettings& settings,
                std::string* msl,
                SkSL::Program::Inputs* outInputs,
                ShaderErrorHandler* errorHandler);

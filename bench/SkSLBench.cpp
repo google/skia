@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 #include <regex>
 
@@ -150,7 +151,7 @@ private:
     std::string fSrc;
     GrMockCaps fCaps;
     SkSL::Compiler fCompiler;
-    SkSL::Program::Settings fSettings;
+    SkSL::ProgramSettings fSettings;
     Output fOutput;
 
     using INHERITED = Benchmark;

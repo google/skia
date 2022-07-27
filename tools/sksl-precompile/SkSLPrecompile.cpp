@@ -65,7 +65,7 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
         return ResultCode::kInputError;
     }
 
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     auto standaloneCaps = SkSL::ShaderCapsFactory::Standalone();
     const SkSL::ShaderCaps* caps = standaloneCaps.get();
 

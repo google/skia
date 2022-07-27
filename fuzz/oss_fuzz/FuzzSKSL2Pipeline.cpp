@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
@@ -16,7 +17,7 @@
 bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
     std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     SkSL::Compiler compiler(caps.get());
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                     SkSL::ProgramKind::kRuntimeShader,
                                                     std::string((const char*) bytes->data(),

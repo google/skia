@@ -7,13 +7,14 @@
 
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 #include "fuzz/Fuzz.h"
 
 bool FuzzSKSL2SPIRV(sk_sp<SkData> bytes) {
     std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     SkSL::Compiler compiler(caps.get());
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
 
     // This tells the compiler where the rt-flip uniform will live should it be required. For
     // fuzzing purposes we don't care where that is, but the compiler will report an error if we

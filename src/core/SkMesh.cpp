@@ -329,7 +329,7 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
     size_t offset = 0;
 
     SkSL::SharedCompiler compiler;
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     // TODO(skia:11209): Add SkCapabilities to the API, check against required version.
     std::unique_ptr<SkSL::Program> vsProgram = compiler->convertProgram(
             SkSL::ProgramKind::kMeshVertex,

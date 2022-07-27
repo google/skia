@@ -17,7 +17,7 @@
 std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLGpu* gpu,
                                             SkSL::ProgramKind programKind,
                                             const std::string& sksl,
-                                            const SkSL::Program::Settings& settings,
+                                            const SkSL::ProgramSettings& settings,
                                             std::string* glsl,
                                             GrContextOptions::ShaderErrorHandler* errorHandler);
 

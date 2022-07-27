@@ -7,13 +7,14 @@
 
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 #include "fuzz/Fuzz.h"
 
 bool FuzzSKSL2GLSL(sk_sp<SkData> bytes) {
     std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     SkSL::Compiler compiler(caps.get());
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                     SkSL::ProgramKind::kFragment,
                                                     std::string((const char*) bytes->data(),

@@ -280,7 +280,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
 
     std::string msl[kShaderTypeCount];
     SkSL::Program::Inputs inputs[kShaderTypeCount];
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
 
     settings.fForceNoRTFlip = true;
 

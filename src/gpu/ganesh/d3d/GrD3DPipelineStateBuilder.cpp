@@ -136,7 +136,7 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
 gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
         SkSL::ProgramKind kind,
         const std::string& sksl,
-        const SkSL::Program::Settings& settings,
+        const SkSL::ProgramSettings& settings,
         SkSL::Program::Inputs* outInputs,
         std::string* outHLSL) {
 #ifdef SK_DEBUG
@@ -555,7 +555,7 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
 
     this->finalizeShaders();
 
-    SkSL::Program::Settings settings;
+    SkSL::ProgramSettings settings;
     settings.fSharpenTextures = true;
     settings.fRTFlipOffset = fUniformHandler.getRTFlipOffset();
     settings.fRTFlipBinding = 0;

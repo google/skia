@@ -40,6 +40,7 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
@@ -399,7 +400,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     AutoModifiersPool autoPool(fContext, &fCoreModifiers);
 
     // Built-in modules always use default program settings.
-    Program::Settings settings;
+    ProgramSettings settings;
     settings.fReplaceSettings = !dehydrate;
 
 #if REHYDRATE
@@ -484,7 +485,7 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
 
 std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
                                                   std::string text,
-                                                  Program::Settings settings) {
+                                                  ProgramSettings settings) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
 
     SkASSERT(!settings.fExternalFunctions || (kind == ProgramKind::kGeneric));
