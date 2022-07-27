@@ -36,7 +36,8 @@ enum class VariableStorage : int8_t {
     kGlobal,
     kInterfaceBlock,
     kLocal,
-    kParameter
+    kParameter,
+    kEliminated
 };
 
 /**
@@ -101,7 +102,7 @@ public:
     }
 
     Storage storage() const {
-        return (Storage) fStorage;
+        return fStorage;
     }
 
     const Expression* initialValue() const;
@@ -120,6 +121,13 @@ public:
     std::string description() const override {
         return this->modifiers().description() + this->type().displayName() + " " +
                std::string(this->name());
+    }
+
+    void markEliminated() {
+        // We mark eliminated variables by changing their storage type.
+        // We can drop eliminated variables during dehydration to save a little space.
+        SkASSERT(!fDeclaration);
+        fStorage = Storage::kEliminated;
     }
 
 private:

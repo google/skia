@@ -240,26 +240,46 @@ void Dehydrator::write(const Symbol& s) {
     }
 }
 
+static bool symbol_is_referenced(const Symbol& s) {
+    if (s.is<Variable>()) {
+        return s.as<Variable>().storage() != VariableStorage::kEliminated;
+    }
+    return true;
+}
+
 void Dehydrator::write(const SymbolTable& symbols) {
     this->writeCommand(Rehydrator::kSymbolTable_Command);
     this->writeU8(symbols.isBuiltin());
-    this->writeU16(symbols.fOwnedSymbols.size());
 
-    // write owned symbols
+    // Make a list of all the owned symbols which are referenced.
+    std::vector<const Symbol*> ownedSymbols;
+    std::vector<const Symbol*> discardedSymbols;
     for (const std::unique_ptr<const Symbol>& s : symbols.fOwnedSymbols) {
+        if (symbol_is_referenced(*s)) {
+            ownedSymbols.push_back(s.get());
+        }
+    }
+
+    // Write the owned symbols.
+    this->writeU16(ownedSymbols.size());
+    for (const Symbol* s : ownedSymbols) {
         this->write(*s);
     }
 
-    // write symbols
-    this->writeU16(symbols.fSymbols.count());
+    // Make an ordered list of every referenced symbol in the symbol-table, owned or not.
     std::map<std::string_view, const Symbol*> ordered;
     symbols.foreach([&](std::string_view name, const Symbol* symbol) {
-        ordered.insert({name, symbol});
+        if (symbol_is_referenced(*symbol)) {
+            ordered.insert({name, symbol});
+        }
     });
-    for (std::pair<std::string_view, const Symbol*> p : ordered) {
+
+    // List the symbols in named order.
+    this->writeU16(ordered.size());
+    for (const auto& [name, symbol] : ordered) {
         bool found = false;
-        for (size_t i = 0; i < symbols.fOwnedSymbols.size(); ++i) {
-            if (symbols.fOwnedSymbols[i].get() == p.second) {
+        for (size_t i = 0; i < ownedSymbols.size(); ++i) {
+            if (ownedSymbols[i] == symbol) {
                 fCommandBreaks.add(fBody.bytesWritten());
                 this->writeU16(i);
                 found = true;
@@ -268,13 +288,12 @@ void Dehydrator::write(const SymbolTable& symbols) {
         }
         if (!found) {
             // we should only fail to find builtin types
-            SkASSERT(p.second->is<Type>() && p.second->as<Type>().isInBuiltinTypes());
+            SkASSERT(symbol->is<Type>() && symbol->as<Type>().isInBuiltinTypes());
             this->writeU16(Rehydrator::kBuiltin_Symbol);
-            this->write(p.second->name());
+            this->write(symbol->name());
         }
     }
 }
-
 
 void Dehydrator::writeExpressionSpan(const SkSpan<const std::unique_ptr<Expression>>& span) {
     this->writeU8(span.size());

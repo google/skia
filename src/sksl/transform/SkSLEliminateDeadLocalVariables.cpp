@@ -65,6 +65,8 @@ static bool eliminate_dead_local_variables(const Context& context,
                         fUsage->remove(stmt.get());
                         stmt = Nop::Make();
                     }
+                    // The variable is no longer referenced anywhere so it should be safe to change.
+                    const_cast<Variable*>(var)->markEliminated();
                     fMadeChanges = true;
                 }
                 return false;
