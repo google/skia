@@ -33,6 +33,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLSharedCompiler.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLProgram.h"

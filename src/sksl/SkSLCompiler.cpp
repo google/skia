@@ -99,6 +99,8 @@
 
 namespace SkSL {
 
+class ProgramUsage;
+
 // These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
 Compiler::OverrideFlag Compiler::sOptimizer = OverrideFlag::kDefault;
 Compiler::OverrideFlag Compiler::sInliner = OverrideFlag::kDefault;

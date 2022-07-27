@@ -15,6 +15,7 @@ ANALYSIS_FILES = [
     "SkSLIsTrivialExpression.cpp",
     "SkSLNoOpErrorReporter.h",
     "SkSLProgramUsage.cpp",
+    "SkSLProgramUsage.h",
     "SkSLProgramVisitor.h",
     "SkSLSwitchCaseContainsExit.cpp",
 ]

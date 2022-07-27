@@ -59,10 +59,9 @@ class OutputStream;
 struct Program;
 struct ProgramSettings;
 class ProgramUsage;
+struct ShaderCaps;
 class SymbolTable;
 class Variable;
-
-struct ShaderCaps;
 
 struct LoadedModule {
     ProgramKind                                  fKind;

@@ -8,8 +8,8 @@
 #include "include/private/SkSLModifiers.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLModifiersPool.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/transform/SkSLTransform.h"
 

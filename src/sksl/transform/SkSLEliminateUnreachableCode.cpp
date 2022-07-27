@@ -12,6 +12,7 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTArray.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLNop.h"

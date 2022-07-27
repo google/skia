@@ -17,6 +17,7 @@
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -32,32 +33,6 @@ namespace SkSL {
 
 class Context;
 class Pool;
-
-/**
- * Side-car class holding mutable information about a Program's IR
- */
-class ProgramUsage {
-public:
-    struct VariableCounts {
-        int fDeclared = 0;
-        int fRead = 0;
-        int fWrite = 0;
-    };
-    VariableCounts get(const Variable&) const;
-    bool isDead(const Variable&) const;
-
-    int get(const FunctionDeclaration&) const;
-
-    void add(const Expression* expr);
-    void add(const Statement* stmt);
-    void add(const ProgramElement& element);
-    void remove(const Expression* expr);
-    void remove(const Statement* stmt);
-    void remove(const ProgramElement& element);
-
-    SkTHashMap<const Variable*, VariableCounts> fVariableCounts;
-    SkTHashMap<const FunctionDeclaration*, int> fCallCounts;
-};
 
 /**
  * Represents a fully-digested program, ready for code generation.

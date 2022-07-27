@@ -14,13 +14,13 @@
 #include "src/sksl/SkSLBuiltinMap.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLParsedModule.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -32,6 +32,9 @@
 #include <vector>
 
 namespace SkSL {
+
+struct Program;
+
 namespace {
 
 class ProgramUsageVisitor : public ProgramVisitor {

@@ -1493,6 +1493,7 @@ BASE_SRCS_ALL = [
     "src/sksl/analysis/SkSLIsTrivialExpression.cpp",
     "src/sksl/analysis/SkSLNoOpErrorReporter.h",
     "src/sksl/analysis/SkSLProgramUsage.cpp",
+    "src/sksl/analysis/SkSLProgramUsage.h",
     "src/sksl/analysis/SkSLProgramVisitor.h",
     "src/sksl/analysis/SkSLSwitchCaseContainsExit.cpp",
     "src/sksl/codegen/SkSLCodeGenerator.h",

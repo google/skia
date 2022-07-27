@@ -93,6 +93,7 @@ skia_sksl_sources = [
   "$_src/sksl/analysis/SkSLIsTrivialExpression.cpp",
   "$_src/sksl/analysis/SkSLNoOpErrorReporter.h",
   "$_src/sksl/analysis/SkSLProgramUsage.cpp",
+  "$_src/sksl/analysis/SkSLProgramUsage.h",
   "$_src/sksl/analysis/SkSLProgramVisitor.h",
   "$_src/sksl/analysis/SkSLSwitchCaseContainsExit.cpp",
   "$_src/sksl/codegen/SkSLVMCodeGenerator.cpp",
