@@ -14,6 +14,7 @@ filegroup(
         "generated/sksl_graphite_vert.dehydrated.sksl",
         "generated/sksl_public.dehydrated.sksl",
         "generated/sksl_rt_shader.dehydrated.sksl",
+        "generated/sksl_shared.dehydrated.sksl",
         "generated/sksl_vert.dehydrated.sksl",
     ],
     visibility = ["//:__subpackages__"],

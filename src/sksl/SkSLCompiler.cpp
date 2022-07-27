@@ -73,6 +73,7 @@
 #if REHYDRATE
 
 // At runtime, we load the dehydrated sksl data files. The data is a (pointer, size) pair.
+#include "src/sksl/generated/sksl_shared.dehydrated.sksl"
 #include "src/sksl/generated/sksl_compute.dehydrated.sksl"
 #include "src/sksl/generated/sksl_frag.dehydrated.sksl"
 #include "src/sksl/generated/sksl_gpu.dehydrated.sksl"
@@ -238,9 +239,18 @@ std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTable() {
     return rootSymbolTable;
 }
 
+const ParsedModule& Compiler::loadSharedModule() {
+    if (!fSharedModule.fSymbols) {
+        fSharedModule = this->parseModule(ProgramKind::kFragment, MODULE_DATA(shared),
+                                          fRootModule);
+    }
+    return fSharedModule;
+}
+
 const ParsedModule& Compiler::loadGPUModule() {
     if (!fGPUModule.fSymbols) {
-        fGPUModule = this->parseModule(ProgramKind::kFragment, MODULE_DATA(gpu), fRootModule);
+        fGPUModule = this->parseModule(ProgramKind::kFragment, MODULE_DATA(gpu),
+                                       this->loadSharedModule());
     }
     return fGPUModule;
 }
@@ -339,7 +349,8 @@ std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTableWithPublicTypes() {
 
 const ParsedModule& Compiler::loadPublicModule() {
     if (!fPublicModule.fSymbols) {
-        fPublicModule = this->parseModule(ProgramKind::kGeneric, MODULE_DATA(public), fRootModule);
+        fPublicModule = this->parseModule(ProgramKind::kGeneric, MODULE_DATA(public),
+                                          this->loadSharedModule());
         add_public_type_aliases(fPublicModule.fSymbols.get(), fContext->fTypes);
     }
     return fPublicModule;
