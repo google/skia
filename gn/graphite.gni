@@ -143,6 +143,8 @@ skia_graphite_sources = [
   "$_src/render/TextRenderer.cpp",
   "$_src/render/TextSDFRenderStep.cpp",
   "$_src/render/TextSDFRenderStep.h",
+  "$_src/render/VerticesRenderStep.cpp",
+  "$_src/render/VerticesRenderStep.h",
   "$_src/text/AtlasManager.cpp",
   "$_src/text/AtlasManager.h",
 ]

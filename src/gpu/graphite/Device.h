@@ -147,7 +147,7 @@ private:
                    const SkPaint&) override {}
 
     void drawDrawable(SkCanvas*, SkDrawable*, const SkMatrix*) override {}
-    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override {}
+    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override {}
 
@@ -163,12 +163,12 @@ private:
     enum class DrawFlags : unsigned {
         kNone             = 0b000,
 
-        // Any SkMaskFilter on the SkPaint passed into drawShape() is ignored.
+        // Any SkMaskFilter on the SkPaint passed into drawGeometry() is ignored.
         // - drawPaint, drawVertices, drawAtlas
         // - drawShape after it's applied the mask filter.
         kIgnoreMaskFilter = 0b001,
 
-        // Any SkPathEffect on the SkPaint passed into drawShape() is ignored.
+        // Any SkPathEffect on the SkPaint passed into drawGeometry() is ignored.
         // - drawPaint, drawImageLattice, drawImageRect, drawEdgeAAImageSet, drawVertices, drawAtlas
         // - drawShape after it's applied the path effect.
         kIgnorePathEffect = 0b010,

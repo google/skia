@@ -16,6 +16,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
 #include "src/core/SkUniform.h"
 
 #include <array>
@@ -235,8 +236,11 @@ public:
 
     static const Renderer& TextSDF(bool useLCDText);
 
-    // TODO: Add renderers for primitives (rect, rrect, etc.), special draws (atlas)
-    // and support inverse filled strokes.
+    static const Renderer& Vertices(SkVertices::VertexMode, bool hasColors, bool hasTexCoords);
+
+
+    // TODO: Add renderers for primitives (rect, rrect, etc.) and atlas draws; add support for
+    // inverse filled strokes.
 
     // The maximum number of render steps that any Renderer is allowed to have.
     static constexpr int kMaxRenderSteps = 4;

@@ -35,6 +35,7 @@
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkVerticesPriv.h"
 
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMatrixPriv.h"
@@ -450,6 +451,18 @@ void Device::drawRect(const SkRect& r, const SkPaint& paint) {
                        paint, SkStrokeRec(paint));
 }
 
+void Device::drawVertices(const SkVertices* vertices, sk_sp<SkBlender> blender,
+                          const SkPaint& paint, bool skipColorXform)  {
+  // TODO - Handle the skipColorXform bool. Create a wrapper around SkVertices to store that bool
+  // so VerticesRenderStep can set a uniform to tell the GPU whether to skip color transformations.
+  // TODO - Add blender to PaintParams.
+  this->drawGeometry(this->localToDeviceTransform(),
+                     Geometry(sk_ref_sp(vertices)),
+                     paint,
+                     kFillStyle,
+                     DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
+}
+
 void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
     // TODO: This has wasted effort from the SkCanvas level since it instead converts rrects that
     // happen to be ovals into this, only for us to go right back to rrect.
@@ -799,6 +812,9 @@ const Renderer* Device::ChooseRenderer(const Geometry& geometry,
 
     if (geometry.isSubRun()) {
         return geometry.subRunData().subRun()->renderer();
+    } else if (geometry.isVertices()) {
+        SkVerticesPriv info(geometry.vertices()->priv());
+        return &Renderer::Vertices(info.mode(), info.hasColors(), info.hasTexCoords());
     }
 
     if (!geometry.isShape()) {
