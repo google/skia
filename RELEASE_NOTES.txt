@@ -2,6 +2,12 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 106
+-------------
+  * sk_sp is marked with the [[clang::trivial_abi]] attribute where supported.
+
+* * *
+
 Milestone 104
 -------------
   * New functions SkBitmap::getColor4f and SkPixmap::getColor4f return float colors.
