@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "select_multi", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -281,7 +281,7 @@ filegroup(
     visibility = ["//src/gpu:__pkg__"],
 )
 
-cc_library(
+skia_cc_deps(
     name = "deps",
     visibility = ["//src/gpu:__pkg__"],
     deps = select_multi(

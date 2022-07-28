@@ -261,7 +261,7 @@ Float32Array TextBoxesToFloat32Array(std::vector<para::TextBox> boxes) {
         return emscripten::val::null();
     }
     SimpleTextBox* rects = new SimpleTextBox[boxes.size()];
-    for (int i = 0; i < boxes.size(); i++) {
+    for (size_t i = 0; i < boxes.size(); i++) {
         rects[i].rect = boxes[i].rect;
         if (boxes[i].direction == para::TextDirection::kRtl) {
             rects[i].direction = 0;
@@ -325,9 +325,9 @@ JSArray GetShapedLines(para::Paragraph& self) {
         // not really accumulated, but definitely set
         float       baseline    = 0;
 
-        void reset(int lineNumber) {
+        void reset(int newLineNum) {
             new (this) LineAccumulate;
-            this->lineNumber = lineNumber;
+            this->lineNumber = newLineNum;
         }
     };
 

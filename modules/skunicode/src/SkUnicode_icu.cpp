@@ -354,10 +354,10 @@ class SkUnicode_icu : public SkUnicode {
         auto iter = iterator.get();
         int32_t pos = sk_ubrk_first(iter);
         while (pos != UBRK_DONE) {
-            auto status = type == SkUnicode::BreakType::kLines
-                              ? UBRK_LINE_SOFT
-                              : sk_ubrk_getRuleStatus(iter);
-            setBreak(pos, status);
+            int s = type == SkUnicode::BreakType::kLines
+                        ? UBRK_LINE_SOFT
+                        : sk_ubrk_getRuleStatus(iter);
+            setBreak(pos, s);
             pos = sk_ubrk_next(iter);
         }
 

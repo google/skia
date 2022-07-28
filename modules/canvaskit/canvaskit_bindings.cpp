@@ -168,7 +168,7 @@ struct ColorSettings {
             colorType = kRGBA_F16_SkColorType;
             pixFormat = GR_GL_RGBA16F;
         }
-    };
+    }
     SkColorType colorType;
     GrGLenum pixFormat;
 };
@@ -527,33 +527,33 @@ SkPathOrNull MakePathFromCmds(WASMPointerF32 cptr, int numCmds) {
     for(int i = 0; i < numCmds;){
          switch (sk_float_floor2int(cmds[i++])) {
             case MOVE:
-                CHECK_NUM_ARGS(2);
-                x1 = cmds[i++], y1 = cmds[i++];
+                CHECK_NUM_ARGS(2)
+                x1 = cmds[i++]; y1 = cmds[i++];
                 path.moveTo(x1, y1);
                 break;
             case LINE:
-                CHECK_NUM_ARGS(2);
-                x1 = cmds[i++], y1 = cmds[i++];
+                CHECK_NUM_ARGS(2)
+                x1 = cmds[i++]; y1 = cmds[i++];
                 path.lineTo(x1, y1);
                 break;
             case QUAD:
-                CHECK_NUM_ARGS(4);
-                x1 = cmds[i++], y1 = cmds[i++];
-                x2 = cmds[i++], y2 = cmds[i++];
+                CHECK_NUM_ARGS(4)
+                x1 = cmds[i++]; y1 = cmds[i++];
+                x2 = cmds[i++]; y2 = cmds[i++];
                 path.quadTo(x1, y1, x2, y2);
                 break;
             case CONIC:
-                CHECK_NUM_ARGS(5);
-                x1 = cmds[i++], y1 = cmds[i++];
-                x2 = cmds[i++], y2 = cmds[i++];
+                CHECK_NUM_ARGS(5)
+                x1 = cmds[i++]; y1 = cmds[i++];
+                x2 = cmds[i++]; y2 = cmds[i++];
                 x3 = cmds[i++]; // weight
                 path.conicTo(x1, y1, x2, y2, x3);
                 break;
             case CUBIC:
-                CHECK_NUM_ARGS(6);
-                x1 = cmds[i++], y1 = cmds[i++];
-                x2 = cmds[i++], y2 = cmds[i++];
-                x3 = cmds[i++], y3 = cmds[i++];
+                CHECK_NUM_ARGS(6)
+                x1 = cmds[i++]; y1 = cmds[i++];
+                x2 = cmds[i++]; y2 = cmds[i++];
+                x3 = cmds[i++]; y3 = cmds[i++];
                 path.cubicTo(x1, y1, x2, y2, x3, y3);
                 break;
             case CLOSE:
@@ -594,30 +594,30 @@ void PathAddVerbsPointsWeights(SkPath& path, WASMPointerU8 verbsPtr, int numVerb
     for (int v = 0; v < numVerbs; ++v) {
          switch (verbs[v]) {
               case MOVE:
-                  CHECK_NUM_POINTS(2);
+                  CHECK_NUM_POINTS(2)
                   path.moveTo(pts[ptIdx], pts[ptIdx+1]);
                   ptIdx += 2;
                   break;
               case LINE:
-                  CHECK_NUM_POINTS(2);
+                  CHECK_NUM_POINTS(2)
                   path.lineTo(pts[ptIdx], pts[ptIdx+1]);
                   ptIdx += 2;
                   break;
               case QUAD:
-                  CHECK_NUM_POINTS(4);
+                  CHECK_NUM_POINTS(4)
                   path.quadTo(pts[ptIdx], pts[ptIdx+1], pts[ptIdx+2], pts[ptIdx+3]);
                   ptIdx += 4;
                   break;
               case CONIC:
-                  CHECK_NUM_POINTS(4);
-                  CHECK_NUM_WEIGHTS(1);
+                  CHECK_NUM_POINTS(4)
+                  CHECK_NUM_WEIGHTS(1)
                   path.conicTo(pts[ptIdx], pts[ptIdx+1], pts[ptIdx+2], pts[ptIdx+3],
                                weights[wtIdx]);
                   ptIdx += 4;
                   wtIdx++;
                   break;
               case CUBIC:
-                  CHECK_NUM_POINTS(6);
+                  CHECK_NUM_POINTS(6)
                   path.cubicTo(pts[ptIdx  ], pts[ptIdx+1],
                                pts[ptIdx+2], pts[ptIdx+3],
                                pts[ptIdx+4], pts[ptIdx+5]);
@@ -838,7 +838,7 @@ public:
             SkImageGenerator(ii),
             fCallback(callbackObj) {}
 
-    ~WebGLTextureImageGenerator() {
+    ~WebGLTextureImageGenerator() override {
         // This cleans up the associated TextureSource that is used to make the texture
         // (i.e. "makeTexture" below). We expect this destructor to be called when the
         // SkImage that this Generator belongs to is destroyed.
@@ -850,7 +850,7 @@ protected:
                                          const SkImageInfo& info,
                                          const SkIPoint& origin,
                                          GrMipmapped mipmapped,
-                                         GrImageTexGenPolicy texGenPolicy) {
+                                         GrImageTexGenPolicy texGenPolicy) override {
         if (ctx->backend() != GrBackendApi::kOpenGL) {
             return {};
         }

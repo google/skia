@@ -1,11 +1,11 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "gazelle")
+load("//bazel:macros.bzl", "exports_files_legacy", "gazelle", "skia_cc_library")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 # This target exposes the Skia public API. It is what external clients should use.
-cc_library(
+skia_cc_library(
     name = "skia_public",
     srcs = [
         "//include:private_hdrs",
@@ -22,7 +22,7 @@ cc_library(
 
 # This target exposes headers beyond the public, supported API. It is intended to be
 # used by Skia's tests and tooling.
-cc_library(
+skia_cc_library(
     name = "skia_internal",
     srcs = [
         "//src:srcs",

@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "select_multi")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps")
 
 licenses(["notice"])
 
@@ -33,7 +33,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-cc_library(
+skia_cc_deps(
     name = "deps",
     visibility = ["//src:__pkg__"],
     deps = select_multi(

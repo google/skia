@@ -2,6 +2,7 @@ load("//bazel:macros.bzl", "exports_files_legacy", "wasm_cc_binary")
 load("//bazel/common_config_settings:defs.bzl", "bool_flag")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 load("//bazel:karma_test.bzl", "karma_test")
+load("//bazel:copts.bzl", "DEFAULT_COPTS")
 
 licenses(["notice"])
 
@@ -65,6 +66,7 @@ genrule(
 # Any defines that need to effect the entire Skia build should go in //bazel/BUILD.bazel
 CK_DEFINES = [
     "CK_INCLUDE_PATHOPS",
+    "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",  # Allows us to compile with -fno-rtti
 ] + select({
     ":enable_fonts_true": ["CK_INCLUDE_PARAGRAPH"],
     ":enable_fonts_false": ["CK_NO_FONTS"],
@@ -85,7 +87,7 @@ CK_RELEASE_OPTS = [
     "--closure-args=--externs=$(location externs.js)",
 ]
 
-CK_OPTS = BASE_LINKOPTS + [
+CK_LINKOPTS = BASE_LINKOPTS + [
     "-sEXPORT_NAME=CanvasKitInit",
     "-sINITIAL_MEMORY=128MB",
     # The order of these --pre-js flags matters! The preamble is a partially open scope and the
@@ -197,7 +199,7 @@ CK_OPTS = BASE_LINKOPTS + [
 })
 
 # All JS files that could possibly be included via --pre-js or --post-js.
-# Whether they actually will be or not will be controlled above in the construction of CK_OPTS.
+# Whether they actually will be or not will be controlled above in the construction of CK_LINKOPTS.
 JS_INTERFACE_FILES = [
     "color.js",
     "cpu.js",
@@ -254,13 +256,16 @@ CK_SRCS = [
     ":enable_particles_false": [],
 })
 
+CK_COPTS = [
+    "-Wno-header-hygiene",
+]
+
 cc_binary_with_flags(
     name = "canvaskit.webgl",
     srcs = CK_SRCS,
     additional_linker_inputs = JS_INTERFACE_FILES + ["externs.js"],
-    # wasm_cc_binary makes the canvaskit.js/canvaskit.wasm based on the actual name
-    # of the executable.
-    linkopts = CK_OPTS,
+    copts = DEFAULT_COPTS + CK_COPTS,
+    linkopts = CK_LINKOPTS,
     local_defines = CK_DEFINES,
     set_flags = {
         "disable_tracing": ["True"],

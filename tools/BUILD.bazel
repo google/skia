@@ -1,10 +1,10 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "py_binary")
+load("//bazel:macros.bzl", "exports_files_legacy", "py_binary", "skia_cc_library")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-cc_library(
+skia_cc_library(
     name = "tool_utils",
     testonly = True,
     srcs = [

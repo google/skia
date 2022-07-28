@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps")
 
 licenses(["notice"])
 
@@ -83,7 +83,7 @@ filegroup(
     visibility = ["//:__pkg__"],
 )
 
-cc_library(
+skia_cc_deps(
     name = "deps",
     visibility = ["//:__pkg__"],
     deps = [

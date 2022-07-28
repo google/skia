@@ -1,9 +1,9 @@
 load(
     "//bazel:macros.bzl",
-    "cc_library",
     "exports_files_legacy",
     "select_multi",
     "selects",
+    "skia_cc_deps",
     "split_srcs_and_hdrs",
 )
 
@@ -198,7 +198,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-cc_library(
+skia_cc_deps(
     name = "deps",
     visibility = ["//src:__pkg__"],
     deps = select_multi(

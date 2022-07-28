@@ -1,4 +1,5 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "objc_library", "select_multi", "selects")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "selects", "skia_cc_deps", "skia_cc_library", "skia_objc_library")
+load("//bazel:copts.bzl", "DEFAULT_OBJC_COPTS")
 
 licenses(["notice"])
 
@@ -36,7 +37,7 @@ selects.config_setting_group(
     ],
 )
 
-cc_library(
+skia_cc_library(
     name = "sk_app",
     testonly = True,
     srcs = [
@@ -80,7 +81,7 @@ cc_library(
     }),
 )
 
-objc_library(
+skia_objc_library(
     name = "sk_app_objc",
     testonly = True,
     srcs = [
@@ -106,7 +107,7 @@ objc_library(
         "Window.h",
         "WindowContext.h",
     ],
-    copts = [
+    copts = DEFAULT_OBJC_COPTS + [
         "-Wno-deprecated-declarations",
         "-DGL_SILENCE_DEPRECATION",
     ],
@@ -124,9 +125,10 @@ objc_library(
     ],
 )
 
-objc_library(
+skia_cc_deps(
     name = "platform_deps",
     testonly = True,
+    visibility = ["//visibility:private"],
     deps = select({
         "@platforms//os:macos": ["//tools/sk_app/mac:deps"],
         "//conditions:default": [],

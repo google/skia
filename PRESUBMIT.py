@@ -283,11 +283,11 @@ def _CheckBazelBUILDFiles(input_api, output_api):
             ('%s needs to have\nlicenses(["notice"])\nimmediately after ' +
              'the load() calls to comply with G3 policies.') % affected_file_path
           ))
-        if 'cc_library(' in contents and '"cc_library"' not in contents:
+        if 'cc_library(' in contents and '"skia_cc_library"' not in contents:
           results.append(output_api.PresubmitError(
-            ('%s needs load cc_library from macros.bzl instead of using the ' +
+            ('%s needs to load skia_cc_library from macros.bzl instead of using the ' +
              'native one. This allows us to build differently for G3.\n' +
-             'Add "cc_library" to load("//bazel:macros.bzl", ...)')
+             'Add "skia_cc_library" to load("//bazel:macros.bzl", ...)')
             % affected_file_path
           ))
   return results

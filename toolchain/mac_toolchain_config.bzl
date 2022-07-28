@@ -246,7 +246,14 @@ def _make_action_configs():
 # will use the default toolchain if not specified here.
 # https://docs.bazel.build/versions/3.3.0/be/objective-c.html#objc_library
 def _make_default_flags():
-    """Here we define the flags for certain actions that are always applied."""
+    """Here we define the flags for certain actions that are always applied.
+
+    For any flag that might be conditionally applied, it should be defined in //bazel/copts.bzl.
+
+    Flags that are set here will be unconditionally applied to everything we compile with
+    this toolchain, even third_party deps.
+
+    """
     cxx_compile_includes = flag_set(
         actions = [
             ACTION_NAMES.c_compile,
@@ -282,7 +289,7 @@ def _make_default_flags():
         ],
     )
 
-    cpp_compile_includes = flag_set(
+    cpp_compile_flags = flag_set(
         actions = [
             ACTION_NAMES.cpp_compile,
             ACTION_NAMES.objc_compile,
@@ -292,7 +299,6 @@ def _make_default_flags():
             flag_group(
                 flags = [
                     "-std=c++17",
-                    "-Wno-psabi",  # noisy
                 ],
             ),
         ],
@@ -345,8 +351,8 @@ def _make_default_flags():
         "default_flags",
         enabled = True,
         flag_sets = [
+            cpp_compile_flags,
             cxx_compile_includes,
-            cpp_compile_includes,
             link_exe_flags,
             objc_compile_flags,
         ],

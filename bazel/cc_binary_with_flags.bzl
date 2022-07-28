@@ -6,6 +6,8 @@ It is based off of https://github.com/bazelbuild/examples/tree/main/rules/starla
 
 """
 
+load("//bazel:copts.bzl", "DEFAULT_COPTS")
+
 _bool_flags = [
     "//src/sksl:enable_sksl",
     "//src/sksl:enable_sksl_tracing",
@@ -119,7 +121,7 @@ transition_rule = rule(
     executable = True,
 )
 
-def cc_binary_with_flags(name, set_flags = {}, **kwargs):
+def cc_binary_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
     """Builds a cc_binary as if set_flags were set on the CLI.
 
     Args:
@@ -127,6 +129,8 @@ def cc_binary_with_flags(name, set_flags = {}, **kwargs):
             a transition. Any dependents should use this name.
         set_flags: dictionary of string to list of strings. The keys should be the name of the
             flag, and the values should be the desired valid settings for that flag.
+        copts: a list of strings or select statements that control the compiler flags.
+            It has a sensible list of defaults.
         **kwargs: Any flags that a cc_binary normally takes.
     """
     cc_binary_name = name + "_native_binary"
@@ -141,5 +145,6 @@ def cc_binary_with_flags(name, set_flags = {}, **kwargs):
     kwargs["tags"] = tags
     native.cc_binary(
         name = cc_binary_name,
+        copts = copts,
         **kwargs
     )

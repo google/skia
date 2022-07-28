@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "cc_library", "exports_files_legacy", "selects")
+load("//bazel:macros.bzl", "exports_files_legacy", "selects", "skia_cc_deps")
 
 licenses(["notice"])
 
@@ -32,7 +32,7 @@ selects.config_setting_group(
     ],
 )
 
-cc_library(
+skia_cc_deps(
     name = "deps",
     testonly = True,
     linkopts = [
