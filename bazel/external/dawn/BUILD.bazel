@@ -653,6 +653,7 @@ TINT_HDRS = [
 ]
 
 TINT_SRCS = [
+    "include/tint/override_id.h",
     # From dawn/src/tint/BUILD.gn:libtint_core_all_src
     "src/tint/ast/access.cc",
     "src/tint/ast/access.h",
@@ -681,10 +682,10 @@ TINT_SRCS = [
     "src/tint/ast/bool_literal_expression.h",
     "src/tint/ast/break_statement.cc",
     "src/tint/ast/break_statement.h",
-    "src/tint/ast/builtin.cc",
-    "src/tint/ast/builtin.h",
     "src/tint/ast/builtin_attribute.cc",
     "src/tint/ast/builtin_attribute.h",
+    "src/tint/ast/builtin_value.cc",
+    "src/tint/ast/builtin_value.h",
     "src/tint/ast/call_expression.cc",
     "src/tint/ast/call_expression.h",
     "src/tint/ast/call_statement.cc",
@@ -804,6 +805,8 @@ TINT_SRCS = [
     "src/tint/ast/struct_member_size_attribute.h",
     "src/tint/ast/switch_statement.cc",
     "src/tint/ast/switch_statement.h",
+    "src/tint/ast/texel_format.cc",
+    "src/tint/ast/texel_format.h",
     "src/tint/ast/texture.cc",
     "src/tint/ast/texture.h",
     "src/tint/ast/traverse_expressions.h",
