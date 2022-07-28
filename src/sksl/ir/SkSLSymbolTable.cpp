@@ -36,6 +36,27 @@ const Symbol* SymbolTable::operator[](std::string_view name) {
     return this->lookup(this, /*encounteredModuleBoundary=*/false, MakeSymbolKey(name));
 }
 
+bool SymbolTable::isType(const SymbolKey& key) const {
+    const Symbol** symbolPPtr = fSymbols.find(key);
+    if (!symbolPPtr) {
+        // The symbol wasn't found; recurse into the parent symbol table.
+        return fParent && fParent->isType(key);
+    }
+    // We found a symbol with the given name; was it a type?
+    return (*symbolPPtr)->is<Type>();
+}
+
+bool SymbolTable::isType(std::string_view name) const {
+    return this->isType(MakeSymbolKey(name));
+}
+
+bool SymbolTable::isBuiltinType(std::string_view name) const {
+    if (!this->isBuiltin()) {
+        return fParent && fParent->isBuiltinType(name);
+    }
+    return this->isType(name);
+}
+
 const Symbol* SymbolTable::lookup(SymbolTable* writableSymbolTable,
                                   bool encounteredModuleBoundary,
                                   const SymbolKey& key) {

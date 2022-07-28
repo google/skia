@@ -226,7 +226,7 @@ bool DSLParser::expectIdentifier(Token* result) {
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", result)) {
         return false;
     }
-    if (IsBuiltinType(this->text(*result))) {
+    if (CurrentSymbolTable()->isBuiltinType(this->text(*result))) {
         this->error(*result, "expected an identifier, but found type '" +
                              std::string(this->text(*result)) + "'");
         this->fEncounteredFatalError = true;
@@ -239,7 +239,7 @@ bool DSLParser::checkIdentifier(Token* result) {
     if (!this->checkNext(Token::Kind::TK_IDENTIFIER, result)) {
         return false;
     }
-    if (IsBuiltinType(this->text(*result))) {
+    if (CurrentSymbolTable()->isBuiltinType(this->text(*result))) {
         this->pushback(std::move(*result));
         return false;
     }
@@ -409,7 +409,8 @@ bool DSLParser::declaration() {
     }
     DSLModifiers modifiers = this->modifiers();
     Token lookahead = this->peek();
-    if (lookahead.fKind == Token::Kind::TK_IDENTIFIER && !IsType(this->text(lookahead))) {
+    if (lookahead.fKind == Token::Kind::TK_IDENTIFIER &&
+        !CurrentSymbolTable()->isType(this->text(lookahead))) {
         // we have an identifier that's not a type, could be the start of an interface block
         return this->interfaceBlock(modifiers);
     }
@@ -647,7 +648,7 @@ DSLStatement DSLParser::varDeclarationsOrExpressionStatement() {
     if (nextToken.fKind == Token::Kind::TK_HIGHP ||
         nextToken.fKind == Token::Kind::TK_MEDIUMP ||
         nextToken.fKind == Token::Kind::TK_LOWP ||
-        IsType(this->text(nextToken))) {
+        CurrentSymbolTable()->isType(this->text(nextToken))) {
         // Statements that begin with a typename are most often variable declarations, but
         // occasionally the type is part of a constructor, and these are actually expression-
         // statements in disguise. First, attempt the common case: parse it as a vardecl.
@@ -1005,7 +1006,7 @@ DSLType DSLParser::type(DSLModifiers* modifiers) {
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "a type", &type)) {
         return DSLType(nullptr);
     }
-    if (!IsType(this->text(type))) {
+    if (!CurrentSymbolTable()->isType(this->text(type))) {
         this->error(type, "no type named '" + std::string(this->text(type)) + "'");
         return DSLType(nullptr);
     }

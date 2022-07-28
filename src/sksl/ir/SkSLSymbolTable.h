@@ -84,6 +84,20 @@ public:
      */
     const Symbol* operator[](std::string_view name);
 
+    /**
+     * Returns true if the name refers to a type (user or built-in) in the current symbol table.
+     */
+    bool isType(std::string_view name) const;
+
+    /**
+     * Returns true if the name refers to a builtin type.
+     */
+    bool isBuiltinType(std::string_view name) const;
+
+    /**
+     * Adds a symbol to this symbol table, without conferring ownership. The caller is responsible
+     * for keeping the Symbol alive throughout the lifetime of the program/module.
+     */
     void addWithoutOwnership(const Symbol* symbol);
 
     template <typename T>
@@ -124,14 +138,6 @@ public:
         return fBuiltin;
     }
 
-    /**
-     * Returns the built-in symbol table that this SymbolTable rests upon.
-     * If this symbol table is already a built-in, it will be returned as-is.
-     */
-    SkSL::SymbolTable* builtinParent() {
-        return this->isBuiltin() ? this : fParent->builtinParent();
-    }
-
     const std::string* takeOwnershipOfString(std::string n);
 
     /**
@@ -170,6 +176,8 @@ private:
                                    const SymbolKey& key,
                                    const Symbol* symbol,
                                    SkSpan<const FunctionDeclaration* const> overloadSet);
+
+    bool isType(const SymbolKey& key) const;
 
     bool fBuiltin = false;
     bool fAtModuleBoundary = false;

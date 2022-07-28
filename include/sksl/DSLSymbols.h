@@ -50,16 +50,6 @@ std::shared_ptr<SymbolTable> CurrentSymbolTable();
 DSLExpression Symbol(std::string_view name, Position pos = {});
 
 /**
- * Returns true if the name refers to a type (user or built-in) in the current symbol table.
- */
-bool IsType(std::string_view name);
-
-/**
- * Returns true if the name refers to a builtin type.
- */
-bool IsBuiltinType(std::string_view name);
-
-/**
  * Adds a variable to the current symbol table.
  */
 void AddToSymbolTable(DSLVarBase& var, Position pos = {});
