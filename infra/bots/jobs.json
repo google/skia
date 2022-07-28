@@ -572,7 +572,6 @@
   {"name": "Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All-Vulkan"},
   {"name": "Test-Debian11-Clang-RUBYR5-GPU-RadeonVega6-x86_64-Release-All-Vulkan"},
   {"name": "Test-Debian11-Clang-RUBYR5-GPU-RadeonVega6-x86_64-Debug-All-Vulkan"},
-  {"name": "Test-Mac10.12-Clang-MacMini7.1-CPU-AVX2-x86_64-Debug-All-NativeFonts"},
   {"name": "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All"},
   {"name": "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All"},
   {"name": "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts"},
