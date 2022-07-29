@@ -665,16 +665,16 @@ bool Compiler::optimize(Program& program) {
         this->runInliner(program.fOwnedElements, program.fSymbols, usage);
 
         // Unreachable code can confuse some drivers, so it's worth removing. (skia:12012)
-        Transform::EliminateUnreachableCode(program, usage);
+        Transform::EliminateUnreachableCode(program);
 
-        while (Transform::EliminateDeadFunctions(program, usage)) {
+        while (Transform::EliminateDeadFunctions(program)) {
             // Removing dead functions may cause more functions to become unreferenced. Try again.
         }
-        while (Transform::EliminateDeadLocalVariables(program, usage)) {
+        while (Transform::EliminateDeadLocalVariables(program)) {
             // Removing dead variables may cause more variables to become unreferenced. Try again.
         }
 
-        Transform::EliminateDeadGlobalVariables(program, usage);
+        Transform::EliminateDeadGlobalVariables(program);
     }
 
     return this->errorCount() == 0;

@@ -19,7 +19,8 @@
 
 namespace SkSL {
 
-bool Transform::EliminateDeadFunctions(Program& program, ProgramUsage* usage) {
+bool Transform::EliminateDeadFunctions(Program& program) {
+    ProgramUsage* usage = program.fUsage.get();
     bool madeChanges = false;
 
     if (program.fConfig->fSettings.fRemoveDeadFunctions) {

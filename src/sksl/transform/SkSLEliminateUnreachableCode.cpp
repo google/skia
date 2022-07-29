@@ -205,8 +205,8 @@ void Transform::EliminateUnreachableCode(LoadedModule& module, ProgramUsage* usa
     return eliminate_unreachable_code(SkSpan(module.fElements), usage);
 }
 
-void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) {
-    return eliminate_unreachable_code(SkSpan(program.fOwnedElements), usage);
+void Transform::EliminateUnreachableCode(Program& program) {
+    return eliminate_unreachable_code(SkSpan(program.fOwnedElements), program.fUsage.get());
 }
 
 }  // namespace SkSL

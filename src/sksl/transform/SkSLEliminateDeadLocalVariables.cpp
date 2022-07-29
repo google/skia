@@ -118,11 +118,11 @@ bool Transform::EliminateDeadLocalVariables(const Context& context,
     return eliminate_dead_local_variables(context, SkSpan(module.fElements), usage);
 }
 
-bool Transform::EliminateDeadLocalVariables(Program& program, ProgramUsage* usage) {
+bool Transform::EliminateDeadLocalVariables(Program& program) {
     return program.fConfig->fSettings.fRemoveDeadVariables
                    ? eliminate_dead_local_variables(*program.fContext,
                                                     SkSpan(program.fOwnedElements),
-                                                    usage)
+                                                    program.fUsage.get())
                    : false;
 }
 
