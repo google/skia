@@ -1048,3 +1048,22 @@ DEF_TEST(Matrix_LookAt, r) {
     const auto m = SkM44::LookAt({0,0,0}, {0,0,0}, {0,0,0});
     REPORTER_ASSERT(r, m == SkM44());
 }
+
+DEF_TEST(Matrix_SetRotateSnap, r) {
+    SkMatrix m;
+
+    // We need to snap sin & cos when we call setRotate, or rotations by multiples of 90 degrees
+    // will end up with slight drift (and we won't consider them to satisfy rectStaysRect, which
+    // is an important performance constraint). We test up to +-1080 degrees.
+    for (float deg = 90.0f; deg <= 1080.0f; deg += 90.0f) {
+        m.setRotate(deg);
+        REPORTER_ASSERT(r, m.rectStaysRect());
+        m.setRotate(-deg);
+        REPORTER_ASSERT(r, m.rectStaysRect());
+    }
+
+    // But: we don't want to be too lenient with snapping. That prevents small rotations from being
+    // registered at all. Ensure that .01 degrees produces an actual rotation. (crbug.com/1345038)
+    m.setRotate(0.01f);
+    REPORTER_ASSERT(r, !m.rectStaysRect());
+}
