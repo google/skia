@@ -94,7 +94,7 @@ public:
         // Variables defined in the pre-includes need their declaring elements added to the program
         if (!instance.fConfig->fIsBuiltinCode && context.fBuiltins) {
             Transform::FindAndDeclareBuiltinVariables(context, instance.fConfig->fKind,
-                    instance.fSharedElements);
+                                                      instance.fSharedElements);
         }
         Pool* pool = instance.fPool.get();
         auto result = std::make_unique<SkSL::Program>(std::move(source),
