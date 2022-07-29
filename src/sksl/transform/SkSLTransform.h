@@ -38,6 +38,12 @@ const Modifiers* AddConstToVarModifiers(const Context& context,
                                         const ProgramUsage* usage);
 
 /**
+ * Copies built-in functions from modules into the program. Relies on ProgramUsage to determine
+ * which functions are necessary.
+ */
+void FindAndDeclareBuiltinFunctions(Program& program);
+
+/**
  * Scans the finished program for built-in variables like `sk_FragColor` and adds them to the
  * program's shared elements.
  */

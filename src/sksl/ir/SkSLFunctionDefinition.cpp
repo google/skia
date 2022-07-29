@@ -37,9 +37,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <forward_list>
-#include <string_view>
-#include <unordered_map>
-#include <vector>
 
 namespace SkSL {
 
@@ -96,46 +93,13 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                                                                 bool builtin) {
     class Finalizer : public ProgramWriter {
     public:
-        Finalizer(const Context& context, const FunctionDeclaration& function,
-                  FunctionSet* referencedBuiltinFunctions)
+        Finalizer(const Context& context, const FunctionDeclaration& function)
             : fContext(context)
-            , fFunction(function)
-            , fReferencedBuiltinFunctions(referencedBuiltinFunctions) {}
+            , fFunction(function) {}
 
         ~Finalizer() override {
             SkASSERT(fBreakableLevel == 0);
             SkASSERT(fContinuableLevel == std::forward_list<int>{0});
-        }
-
-        void copyBuiltinFunctionIfNeeded(const FunctionDeclaration& function) {
-            if (const ProgramElement* found =
-                        fContext.fBuiltins->findAndInclude(function.description())) {
-                const FunctionDefinition& original = found->as<FunctionDefinition>();
-
-                // Sort the referenced builtin functions into a consistent order; otherwise our
-                // output will become non-deterministic.
-                std::vector<const FunctionDeclaration*> builtinFunctions(
-                        original.referencedBuiltinFunctions().begin(),
-                        original.referencedBuiltinFunctions().end());
-                std::sort(builtinFunctions.begin(), builtinFunctions.end(),
-                          [](const FunctionDeclaration* a, const FunctionDeclaration* b) {
-                              if (a->isBuiltin() != b->isBuiltin()) {
-                                  return a->isBuiltin() < b->isBuiltin();
-                              }
-                              if (a->fPosition != b->fPosition) {
-                                  return a->fPosition < b->fPosition;
-                              }
-                              if (a->name() != b->name()) {
-                                  return a->name() < b->name();
-                              }
-                              return a->description() < b->description();
-                          });
-                for (const FunctionDeclaration* f : builtinFunctions) {
-                    this->copyBuiltinFunctionIfNeeded(*f);
-                }
-
-                ThreadContext::SharedElements().push_back(found);
-            }
         }
 
         bool functionReturnsValue() const {
@@ -149,12 +113,6 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     if (func.intrinsicKind() == k_dFdy_IntrinsicKind) {
                         ThreadContext::Inputs().fUseFlipRTUniform =
                                 !fContext.fConfig->fSettings.fForceNoRTFlip;
-                    }
-                    if (func.definition()) {
-                        fReferencedBuiltinFunctions->insert(&func);
-                    }
-                    if (!fContext.fConfig->fIsBuiltinCode && fContext.fBuiltins) {
-                        this->copyBuiltinFunctionIfNeeded(func);
                     }
                 }
             }
@@ -259,8 +217,6 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
     private:
         const Context& fContext;
         const FunctionDeclaration& fFunction;
-        // which builtin functions have we encountered in this function
-        FunctionSet* fReferencedBuiltinFunctions;
         // how deeply nested we are in breakable constructs (for, do, switch).
         int fBreakableLevel = 0;
         // number of slots consumed by all variables declared in the function
@@ -272,21 +228,19 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
         using INHERITED = ProgramWriter;
     };
 
-    FunctionSet referencedBuiltinFunctions;
-    Finalizer(context, function, &referencedBuiltinFunctions).visitStatement(*body);
+    Finalizer(context, function).visitStatement(*body);
     if (function.isMain() && ProgramConfig::IsVertex(context.fConfig->fKind)) {
         append_rtadjust_fixup_to_vertex_main(context, function, body->as<Block>());
     }
 
     if (Analysis::CanExitWithoutReturningValue(function, *body)) {
         context.fErrors->error(body->fPosition, "function '" + std::string(function.name()) +
-                "' can exit without returning a value");
+                                                "' can exit without returning a value");
     }
 
     SkASSERTF(!function.isIntrinsic(), "Intrinsic %s should not have a definition",
-            std::string(function.name()).c_str());
-    return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body),
-            std::move(referencedBuiltinFunctions));
+              std::string(function.name()).c_str());
+    return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body));
 }
 
 }  // namespace SkSL

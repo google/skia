@@ -12,6 +12,7 @@ TRANSFORM_FILES = [
     "SkSLEliminateDeadLocalVariables.cpp",
     "SkSLEliminateEmptyStatements.cpp",
     "SkSLEliminateUnreachableCode.cpp",
+    "SkSLFindAndDeclareBuiltinFunctions.cpp",
     "SkSLProgramWriter.h",
     "SkSLTransform.h",
 ]

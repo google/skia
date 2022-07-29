@@ -2,6 +2,16 @@
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
+float color_burn_component_Qhh2h2(vec2 s, vec2 d) {
+    if (d.y == d.x) {
+        return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
+    } else if (s.x == 0.0) {
+        return d.x * (1.0 - s.y);
+    } else {
+        float delta = max(0.0, d.y - ((d.y - d.x) * s.y) / (s.x + 9.9999999392252903e-09));
+        return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
+    }
+}
 float color_dodge_component_Qhh2h2(vec2 s, vec2 d) {
     if (d.x == 0.0) {
         return s.x * (1.0 - d.y);
@@ -13,16 +23,6 @@ float color_dodge_component_Qhh2h2(vec2 s, vec2 d) {
             delta = min(d.y, (d.x * s.y) / (delta + 9.9999999392252903e-09));
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
-    }
-}
-float color_burn_component_Qhh2h2(vec2 s, vec2 d) {
-    if (d.y == d.x) {
-        return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
-    } else if (s.x == 0.0) {
-        return d.x * (1.0 - s.y);
-    } else {
-        float delta = max(0.0, d.y - ((d.y - d.x) * s.y) / (s.x + 9.9999999392252903e-09));
-        return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }
 float soft_light_component_Qhh2h2(vec2 s, vec2 d) {
