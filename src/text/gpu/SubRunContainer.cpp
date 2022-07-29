@@ -396,7 +396,7 @@ void TransformedMaskVertexFiller::fillVertexData(DrawWriter* dw,
     }
 
     DrawWriter::Vertices verts{*dw};
-    verts.reserve(count);
+    verts.reserve(6*count);
     for (auto [glyph, leftTop]: quadData()) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         SkPoint widthHeight = SkPoint::Make(glyph->fAtlasLocator.width() * fStrikeToSourceScale,
@@ -1634,7 +1634,7 @@ void direct_dw(DrawWriter* dw,
                SkZip<const Glyph*, const VertexData> quadData,
                SkScalar depth) {
     DrawWriter::Vertices verts{*dw};
-    verts.reserve(quadData.size());
+    verts.reserve(6*quadData.size());
     for (auto [glyph, leftTop]: quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         SkScalar dl = leftTop.x(),
@@ -1657,7 +1657,7 @@ void transformed_direct_dw(DrawWriter* dw,
                            SkZip<const Glyph*, const VertexData> quadData,
                            SkScalar depth, const Transform& transform) {
     DrawWriter::Vertices verts{*dw};
-    verts.reserve(quadData.size());
+    verts.reserve(6*quadData.size());
     for (auto [glyph, leftTop]: quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         SkScalar dl = leftTop.x(),
