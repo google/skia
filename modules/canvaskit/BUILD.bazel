@@ -11,6 +11,7 @@ exports_files_legacy()
 BASE_LINKOPTS = [
     #"-flto",  # https://github.com/emscripten-core/emsdk/issues/807
     "--bind",  # Compiles the source code using the Embind bindings to connect C/C++ and JavaScript
+    "-fno-rtti",
     "--no-entry",
     "-sALLOW_MEMORY_GROWTH",
     "-sUSE_PTHREADS=0",  # Disable pthreads
