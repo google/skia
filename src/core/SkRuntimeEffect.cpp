@@ -1200,13 +1200,16 @@ public:
                 args.fDstColorInfo->colorSpace());
         SkASSERT(uniforms);
 
+        // We handle the pre-local matrix at this level so strip it out.
+        GrFPArgs fpArgs = args;
+        fpArgs.fPreLocalMatrix = nullptr;
         auto [success, fp] = make_effect_fp(fEffect,
                                             "runtime_shader",
                                             std::move(uniforms),
                                             /*inputFP=*/nullptr,
                                             /*destColorFP=*/nullptr,
                                             SkSpan(fChildren),
-                                            args);
+                                            fpArgs);
         if (!success) {
             return nullptr;
         }
