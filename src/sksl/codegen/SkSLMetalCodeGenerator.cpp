@@ -1437,7 +1437,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
     // names. We never want to prepend "_in." or "_globals." when writing these variables since
     // we're actually targeting the clones.
     if (fIgnoreVariableReferenceModifiers) {
-        this->writeName(ref.variable()->name());
+        this->writeName(ref.variable()->mangledName());
         return;
     }
 
@@ -1479,7 +1479,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
                     this->write("_globals.");
                 }
             }
-            this->writeName(var.name());
+            this->writeName(var.mangledName());
     }
 }
 
@@ -1987,7 +1987,7 @@ bool MetalCodeGenerator::writeComputeShaderMainParams() {
             this->write("&");
         }
         this->write(" ");
-        this->writeName(var->name());
+        this->writeName(var->mangledName());
     }
     return !args.empty();
 }
@@ -2043,14 +2043,14 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                     separator = ", ";
                     this->writeTextureType(var.type(), var.modifiers());
                     this->write(" ");
-                    this->writeName(var.name());
+                    this->writeName(var.mangledName());
                     this->write(varKind == Type::TypeKind::kSampler ? kTextureSuffix : "");
                     this->write(" [[texture(");
                     this->write(std::to_string(binding));
                     this->write(")]]");
                     if (varKind == Type::TypeKind::kSampler) {
                         this->write(", sampler ");
-                        this->writeName(var.name());
+                        this->writeName(var.mangledName());
                         this->write(kSamplerSuffix);
                         this->write(" [[sampler(");
                         this->write(std::to_string(binding));
@@ -2112,7 +2112,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             this->write("&");
         }
         this->write(" ");
-        this->writeName(param->name());
+        this->writeName(param->mangledName());
     }
     this->write(")");
     return true;
@@ -2158,7 +2158,7 @@ void MetalCodeGenerator::writeComputeMainInputsAndOutputs() {
             if (is_input(var)) {
                 this->write(separator);
                 separator = ", ";
-                this->writeName(var.name());
+                this->writeName(var.mangledName());
             }
         }
     }
@@ -2173,7 +2173,7 @@ void MetalCodeGenerator::writeComputeMainInputsAndOutputs() {
             if (is_output(var)) {
                 this->write(separator);
                 separator = ", ";
-                this->writeName(var.name());
+                this->writeName(var.mangledName());
             }
         }
     }
@@ -2341,7 +2341,7 @@ void MetalCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
     this->writeModifiers(varDecl.var().modifiers());
     this->writeType(varDecl.var().type());
     this->write(" ");
-    this->writeName(varDecl.var().name());
+    this->writeName(varDecl.var().mangledName());
     if (varDecl.value()) {
         this->write(" = ");
         this->writeVarInitializer(varDecl.var(), *varDecl.value());
@@ -2600,7 +2600,7 @@ void MetalCodeGenerator::writeUniformStruct() {
                 this->write("    ");
                 this->writeType(var.type());
                 this->write(" ");
-                this->writeName(var.name());
+                this->writeName(var.mangledName());
                 this->write(";\n");
             }
         }
@@ -2628,7 +2628,7 @@ void MetalCodeGenerator::writeInputStruct() {
                     this->write("&");
                 }
                 this->write(" ");
-                this->writeName(var.name());
+                this->writeName(var.mangledName());
                 if (-1 != var.modifiers().fLayout.fLocation) {
                     if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
                         this->write("  [[attribute(" +
@@ -2669,7 +2669,7 @@ void MetalCodeGenerator::writeOutputStruct() {
                     this->write("&");
                 }
                 this->write(" ");
-                this->writeName(var.name());
+                this->writeName(var.mangledName());
 
                 int location = var.modifiers().fLayout.fLocation;
                 if (!ProgramConfig::IsCompute(fProgram.fConfig->fKind) && location < 0 &&
@@ -2732,11 +2732,11 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
         const Variable& var = decl.var();
         if (var.type().typeKind() == Type::TypeKind::kSampler) {
-            visitor->visitSampler(var.type(), var.name());
+            visitor->visitSampler(var.type(), var.mangledName());
             continue;
         }
         if (var.type().typeKind() == Type::TypeKind::kTexture) {
-            visitor->visitTexture(var.type(), var.modifiers(), var.name());
+            visitor->visitTexture(var.type(), var.modifiers(), var.mangledName());
             continue;
         }
         if (!(var.modifiers().fFlags & ~Modifiers::kConst_Flag) &&
@@ -2780,7 +2780,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->writeModifiers(var.modifiers());
             fCodeGen->writeType(var.type());
             fCodeGen->write(" ");
-            fCodeGen->writeName(var.name());
+            fCodeGen->writeName(var.mangledName());
             fCodeGen->write(";\n");
         }
         void addElement() {
@@ -2883,7 +2883,7 @@ void MetalCodeGenerator::writeThreadgroupStruct() {
             fCodeGen->writeModifiers(var.modifiers());
             fCodeGen->writeType(var.type());
             fCodeGen->write(" ");
-            fCodeGen->writeName(var.name());
+            fCodeGen->writeName(var.mangledName());
             fCodeGen->write(";\n");
         }
         void addElement() {

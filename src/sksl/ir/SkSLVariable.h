@@ -123,6 +123,8 @@ public:
                std::string(this->name());
     }
 
+    std::string mangledName() const;
+
     void markEliminated() {
         // We mark eliminated variables by changing their storage type.
         // We can drop eliminated variables during dehydration to save a little space.

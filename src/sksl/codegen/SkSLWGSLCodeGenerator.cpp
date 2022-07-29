@@ -568,7 +568,7 @@ void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     for (const Variable* param : f.parameters()) {
         this->write(separator);
         separator = ", ";
-        this->writeName(param->name());
+        this->writeName(param->mangledName());
         this->write(": ");
 
         // Declare an "out" function parameter as a pointer.
@@ -735,7 +735,7 @@ void WGSLCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
     } else {
         this->write("var ");
     }
-    this->writeName(varDecl.var().name());
+    this->writeName(varDecl.var().mangledName());
     this->write(": ");
     this->write(to_wgsl_type(varDecl.var().type()));
 
@@ -880,7 +880,7 @@ void WGSLCodeGenerator::writeVariableReference(const VariableReference& r) {
         }
     }
 
-    this->writeName(v.name());
+    this->writeName(v.mangledName());
 
     if (conversion.has_value()) {
         this->write(")");
@@ -978,7 +978,7 @@ void WGSLCodeGenerator::writeStageInputStruct() {
                     e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var();
             if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
                 this->writePipelineIODeclaration(
-                        v.modifiers(), v.type(), v.name(), Delimiter::kComma);
+                        v.modifiers(), v.type(), v.mangledName(), Delimiter::kComma);
                 if (v.modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                     declaredFragCoordsBuiltin = true;
                 }
@@ -1033,7 +1033,7 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
                     e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var();
             if (v.modifiers().fFlags & Modifiers::kOut_Flag) {
                 this->writePipelineIODeclaration(
-                        v.modifiers(), v.type(), v.name(), Delimiter::kComma);
+                        v.modifiers(), v.type(), v.mangledName(), Delimiter::kComma);
             }
         } else if (e->is<InterfaceBlock>()) {
             const Variable& v = e->as<InterfaceBlock>().variable();

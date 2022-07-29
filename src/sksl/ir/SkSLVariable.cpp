@@ -36,6 +36,18 @@ const Expression* Variable::initialValue() const {
     return fDeclaration ? fDeclaration->value().get() : nullptr;
 }
 
+std::string Variable::mangledName() const {
+    // Only private variables need to use name mangling.
+    std::string_view name = this->name();
+    if (!skstd::starts_with(name, '$')) {
+        return std::string(name);
+    }
+
+    // The $ prefix will fail to compile in GLSL, so replace it with `sk_Priv`.
+    name.remove_prefix(1);
+    return "sk_Priv" + std::string(name);
+}
+
 std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos,
         Position modifiersPos, const Modifiers& modifiers, const Type* baseType, Position namePos,
         std::string_view name, bool isArray, std::unique_ptr<Expression> arraySize,

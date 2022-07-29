@@ -880,7 +880,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             }
             break;
         default:
-            this->write(ref.variable()->name());
+            this->write(ref.variable()->mangledName());
             break;
     }
 }
@@ -1104,7 +1104,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         }
         this->writeTypePrecision(*type);
         this->writeType(*type);
-        this->write(" " + std::string(param->name()));
+        this->write(" " + std::string(param->mangledName()));
         for (int s : sizes) {
             this->write("[" + std::to_string(s) + "]");
         }
@@ -1261,7 +1261,7 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glob
     this->writeTypePrecision(var.baseType());
     this->writeType(var.baseType());
     this->write(" ");
-    this->write(var.var().name());
+    this->write(var.var().mangledName());
     if (var.arraySize() > 0) {
         this->write("[");
         this->write(std::to_string(var.arraySize()));
