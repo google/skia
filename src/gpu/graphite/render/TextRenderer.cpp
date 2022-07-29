@@ -13,12 +13,19 @@
 
 namespace skgpu::graphite {
 
-const Renderer& Renderer::TextDirect() {
-    static const TextDirectRenderStep kDirect;
+const Renderer& Renderer::TextDirect(bool isA8) {
+    static const TextDirectRenderStep kDirectA8{true};
+    static const TextDirectRenderStep kDirectColor{false};
 
-    static const Renderer kTextDirectRenderer{"TextDirectRenderer",
-                                              &kDirect};
-    return kTextDirectRenderer;
+    static const Renderer kTextDirectA8Renderer{"TextDirectA8Renderer",
+                                                &kDirectA8};
+    static const Renderer kTextDirectColorRenderer{"TextDirectColorRenderer",
+                                                   &kDirectColor};
+    if (isA8) {
+        return kTextDirectA8Renderer;
+    } else {
+        return kTextDirectColorRenderer;
+    }
 }
 
 const Renderer& Renderer::TextSDF(bool useLCDText) {

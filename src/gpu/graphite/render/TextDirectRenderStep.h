@@ -14,7 +14,7 @@ namespace skgpu::graphite {
 
 class TextDirectRenderStep final : public RenderStep {
 public:
-    TextDirectRenderStep();
+    TextDirectRenderStep(bool isA8);
 
     ~TextDirectRenderStep() override;
 
@@ -24,6 +24,9 @@ public:
 
     void writeVertices(DrawWriter*, const DrawParams&) const override;
     void writeUniformsAndTextures(const DrawParams&, SkPipelineDataGatherer*) const override;
+
+private:
+    bool fIsA8;
 };
 
 }  // namespace skgpu::graphite

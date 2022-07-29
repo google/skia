@@ -232,7 +232,7 @@ public:
 
     static const Renderer& TessellatedStrokes();
 
-    static const Renderer& TextDirect();
+    static const Renderer& TextDirect(bool isA8);
 
     static const Renderer& TextSDF(bool useLCDText);
 

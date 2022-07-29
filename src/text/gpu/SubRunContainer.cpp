@@ -1233,7 +1233,9 @@ public:
     std::tuple<Rect, Transform> boundsAndDeviceMatrix(const Transform&,
                                                       SkPoint drawOrigin) const override;
 
-    const Renderer* renderer() const override { return &Renderer::TextDirect(); }
+    const Renderer* renderer() const override {
+        return &Renderer::TextDirect(fMaskFormat == skgpu::MaskFormat::kA8);
+    }
 
     void fillVertexData(DrawWriter*,
                         int offset, int count,
@@ -1794,7 +1796,7 @@ public:
                                                       SkPoint drawOrigin) const override;
 
     const Renderer* renderer() const override {
-        return &Renderer::TextDirect();
+        return &Renderer::TextDirect(fVertexFiller.grMaskType() == skgpu::MaskFormat::kA8);
     }
 
     void fillVertexData(DrawWriter*,

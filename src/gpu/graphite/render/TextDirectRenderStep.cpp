@@ -36,7 +36,7 @@ static constexpr DepthStencilSettings kDirectShadingPass = {
 constexpr int kNumTextAtlasTextures = 4;
 }  // namespace
 
-TextDirectRenderStep::TextDirectRenderStep()
+TextDirectRenderStep::TextDirectRenderStep(bool isA8)
         : RenderStep("TextDirectRenderStep",
                      "",
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
@@ -50,7 +50,8 @@ TextDirectRenderStep::TextDirectRenderStep()
                      /*instanceAttrs=*/{},
                      /*varyings=*/
                      {{"textureCoords", SkSLType::kFloat2},
-                      {"texIndex", SkSLType::kFloat}}){}
+                      {"texIndex", SkSLType::kFloat}})
+        , fIsA8(isA8) {}
 
 TextDirectRenderStep::~TextDirectRenderStep() {}
 
@@ -80,22 +81,39 @@ std::string TextDirectRenderStep::texturesAndSamplersSkSL(int binding) const {
 }
 
 const char* TextDirectRenderStep::fragmentCoverageSkSL() const {
-    // TODO: handle color textures
-    return R"(
-        half4 texColor;
-        if (texIndex == 0) {
-           texColor = sample(text_atlas_0, textureCoords).rrrr;
-        } else if (texIndex == 1) {
-           texColor = sample(text_atlas_1, textureCoords).rrrr;
-        } else if (texIndex == 2) {
-           texColor = sample(text_atlas_2, textureCoords).rrrr;
-        } else if (texIndex == 3) {
-           texColor = sample(text_atlas_3, textureCoords).rrrr;
-        } else {
-           texColor = sample(text_atlas_0, textureCoords).rrrr;
-        }
-        outputCoverage = texColor;
-    )";
+    if (fIsA8) {
+        return R"(
+            half4 texColor;
+            if (texIndex == 0) {
+               texColor = sample(text_atlas_0, textureCoords).rrrr;
+            } else if (texIndex == 1) {
+               texColor = sample(text_atlas_1, textureCoords).rrrr;
+            } else if (texIndex == 2) {
+               texColor = sample(text_atlas_2, textureCoords).rrrr;
+            } else if (texIndex == 3) {
+               texColor = sample(text_atlas_3, textureCoords).rrrr;
+            } else {
+               texColor = sample(text_atlas_0, textureCoords).rrrr;
+            }
+            outputCoverage = texColor;
+        )";
+    } else {
+        return R"(
+            half4 texColor;
+            if (texIndex == 0) {
+               texColor = sample(text_atlas_0, textureCoords);
+            } else if (texIndex == 1) {
+               texColor = sample(text_atlas_1, textureCoords);
+            } else if (texIndex == 2) {
+               texColor = sample(text_atlas_2, textureCoords);
+            } else if (texIndex == 3) {
+               texColor = sample(text_atlas_3, textureCoords);
+            } else {
+               texColor = sample(text_atlas_0, textureCoords);
+            }
+            outputCoverage = texColor;
+        )";
+    }
 }
 
 void TextDirectRenderStep::writeVertices(DrawWriter* dw, const DrawParams& params) const {
