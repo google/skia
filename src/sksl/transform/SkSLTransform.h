@@ -47,8 +47,7 @@ void FindAndDeclareBuiltinFunctions(Program& program);
  * Scans the finished program for built-in variables like `sk_FragColor` and adds them to the
  * program's shared elements.
  */
-void FindAndDeclareBuiltinVariables(const Context& context, ProgramKind programKind,
-                                    std::vector<const ProgramElement*>& sharedElements);
+void FindAndDeclareBuiltinVariables(Program& program);
 
 /**
  * Eliminates statements in a block which cannot be reached; for example, a statement

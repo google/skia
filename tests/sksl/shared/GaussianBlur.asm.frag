@@ -1,7 +1,7 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise %vLocalCoord_Stage0
+OpEntryPoint Fragment %main "main" %sk_Clockwise %sk_FragColor %vLocalCoord_Stage0
 OpExecutionMode %main OriginUpperLeft
 OpName %uniformBuffer "uniformBuffer"
 OpMemberName %uniformBuffer 0 "sk_RTAdjust"
@@ -11,8 +11,8 @@ OpMemberName %uniformBuffer 3 "umatrix_Stage1_c0_c0"
 OpMemberName %uniformBuffer 4 "uborder_Stage1_c0_c0_c0"
 OpMemberName %uniformBuffer 5 "usubset_Stage1_c0_c0_c0"
 OpMemberName %uniformBuffer 6 "unorm_Stage1_c0_c0_c0"
-OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
+OpName %sk_FragColor "sk_FragColor"
 OpName %uTextureSampler_0_Stage1 "uTextureSampler_0_Stage1"
 OpName %vLocalCoord_Stage0 "vLocalCoord_Stage0"
 OpName %MatrixEffect_Stage1_c0_c0_h4h4f2 "MatrixEffect_Stage1_c0_c0_h4h4f2"
@@ -44,10 +44,10 @@ OpMemberDecorate %uniformBuffer 6 Offset 224
 OpDecorate %uniformBuffer Block
 OpDecorate %4 Binding 0
 OpDecorate %4 DescriptorSet 0
+OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %uTextureSampler_0_Stage1 RelaxedPrecision
 OpDecorate %uTextureSampler_0_Stage1 Binding 0
 OpDecorate %uTextureSampler_0_Stage1 DescriptorSet 0
@@ -200,11 +200,11 @@ OpDecorate %392 RelaxedPrecision
 %uniformBuffer = OpTypeStruct %v4float %v2float %_arr_v4float_int_7 %mat3v3float %v4float %v4float %v4float
 %_ptr_Uniform_uniformBuffer = OpTypePointer Uniform %uniformBuffer
 %4 = OpVariable %_ptr_Uniform_uniformBuffer Uniform
-%_ptr_Output_v4float = OpTypePointer Output %v4float
-%sk_FragColor = OpVariable %_ptr_Output_v4float Output
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%sk_FragColor = OpVariable %_ptr_Output_v4float Output
 %21 = OpTypeImage %float 2D 0 0 0 1 Unknown
 %22 = OpTypeSampledImage %21
 %_ptr_UniformConstant_22 = OpTypePointer UniformConstant %22

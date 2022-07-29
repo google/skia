@@ -61,7 +61,6 @@ struct ProgramSettings;
 class ProgramUsage;
 struct ShaderCaps;
 class SymbolTable;
-class Variable;
 
 struct LoadedModule {
     ProgramKind                                  fKind;
@@ -155,9 +154,6 @@ public:
                                             ProgramSettings settings);
 
     std::unique_ptr<Expression> convertIdentifier(Position pos, std::string_view name);
-
-    /** Updates the Program's Inputs when a builtin variable is referenced. */
-    void updateInputsForBuiltinVariable(const Variable& var);
 
     bool toSPIRV(Program& program, OutputStream& out);
 

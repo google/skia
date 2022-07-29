@@ -1,6 +1,6 @@
 struct VSIn {
-    @builtin(vertex_index) sk_VertexID: u32,
     @builtin(instance_index) sk_InstanceID: u32,
+    @builtin(vertex_index) sk_VertexID: u32,
 };
 struct VSOut {
     @builtin(position) sk_Position: vec4<f32>,

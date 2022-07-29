@@ -7,7 +7,6 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
-#include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
@@ -24,8 +23,6 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/SkSLStringStream.h"
-#include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
@@ -539,21 +536,6 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     return DSLParser(this, settings, kind, std::move(text)).program();
 }
 
-void Compiler::updateInputsForBuiltinVariable(const Variable& var) {
-    switch (var.modifiers().fLayout.fBuiltin) {
-        case SK_FRAGCOORD_BUILTIN:
-            if (fContext->fCaps.fCanUseFragCoord) {
-                ThreadContext::Inputs().fUseFlipRTUniform =
-                        !fContext->fConfig->fSettings.fForceNoRTFlip;
-            }
-            break;
-        case SK_CLOCKWISE_BUILTIN:
-            ThreadContext::Inputs().fUseFlipRTUniform =
-                    !fContext->fConfig->fSettings.fForceNoRTFlip;
-            break;
-    }
-}
-
 std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::string_view name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
@@ -703,6 +685,9 @@ bool Compiler::runInliner(const std::vector<std::unique_ptr<ProgramElement>>& el
 bool Compiler::finalize(Program& program) {
     // Copy all referenced built-in functions into the Program.
     Transform::FindAndDeclareBuiltinFunctions(program);
+
+    // Variables defined in the pre-includes need their declaring elements added to the program.
+    Transform::FindAndDeclareBuiltinVariables(program);
 
     // Do one last correctness-check pass. This looks for @if/@switch statements that didn't
     // optimize away, or dangling FunctionReference or TypeReference expressions, and reports them

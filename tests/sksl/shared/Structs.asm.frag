@@ -1,10 +1,10 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise
+OpEntryPoint Fragment %main "main" %sk_Clockwise %sk_FragColor
 OpExecutionMode %main OriginUpperLeft
-OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
+OpName %sk_FragColor "sk_FragColor"
 OpName %A "A"
 OpMemberName %A 0 "x"
 OpMemberName %A 1 "y"
@@ -15,10 +15,10 @@ OpMemberName %B 1 "y"
 OpMemberName %B 2 "z"
 OpName %b1 "b1"
 OpName %main "main"
+OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %A 0 Offset 0
 OpMemberDecorate %A 1 Offset 4
 OpDecorate %_arr_float_int_2 ArrayStride 16
@@ -28,13 +28,13 @@ OpMemberDecorate %B 2 Offset 48
 OpMemberDecorate %B 2 RelaxedPrecision
 OpDecorate %30 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
+%bool = OpTypeBool
+%_ptr_Input_bool = OpTypePointer Input %bool
+%sk_Clockwise = OpVariable %_ptr_Input_bool Input
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
-%bool = OpTypeBool
-%_ptr_Input_bool = OpTypePointer Input %bool
-%sk_Clockwise = OpVariable %_ptr_Input_bool Input
 %int = OpTypeInt 32 1
 %A = OpTypeStruct %int %int
 %_ptr_Private_A = OpTypePointer Private %A

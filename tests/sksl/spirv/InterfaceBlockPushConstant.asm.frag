@@ -1,13 +1,13 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise
+OpEntryPoint Fragment %main "main" %sk_Clockwise %sk_FragColor
 OpExecutionMode %main OriginUpperLeft
 OpName %testBlock "testBlock"
 OpMemberName %testBlock 0 "m1"
 OpMemberName %testBlock 1 "m2"
-OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
+OpName %sk_FragColor "sk_FragColor"
 OpName %main "main"
 OpMemberDecorate %testBlock 0 Offset 16
 OpMemberDecorate %testBlock 0 ColMajor
@@ -18,10 +18,10 @@ OpMemberDecorate %testBlock 1 ColMajor
 OpMemberDecorate %testBlock 1 MatrixStride 8
 OpMemberDecorate %testBlock 1 RelaxedPrecision
 OpDecorate %testBlock Block
+OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %22 RelaxedPrecision
 OpDecorate %23 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
@@ -37,12 +37,12 @@ OpDecorate %34 RelaxedPrecision
 %testBlock = OpTypeStruct %mat2v2float %mat2v2float
 %_ptr_PushConstant_testBlock = OpTypePointer PushConstant %testBlock
 %3 = OpVariable %_ptr_PushConstant_testBlock PushConstant
-%v4float = OpTypeVector %float 4
-%_ptr_Output_v4float = OpTypePointer Output %v4float
-%sk_FragColor = OpVariable %_ptr_Output_v4float Output
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
+%v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%sk_FragColor = OpVariable %_ptr_Output_v4float Output
 %void = OpTypeVoid
 %16 = OpTypeFunction %void
 %int = OpTypeInt 32 1

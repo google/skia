@@ -6,13 +6,13 @@ exports_files_legacy()
 
 TRANSFORM_FILES = [
     "SkSLAddConstToVarModifiers.cpp",
-    "SkSLBuiltinVariableScanner.cpp",
     "SkSLEliminateDeadFunctions.cpp",
     "SkSLEliminateDeadGlobalVariables.cpp",
     "SkSLEliminateDeadLocalVariables.cpp",
     "SkSLEliminateEmptyStatements.cpp",
     "SkSLEliminateUnreachableCode.cpp",
     "SkSLFindAndDeclareBuiltinFunctions.cpp",
+    "SkSLFindAndDeclareBuiltinVariables.cpp",
     "SkSLProgramWriter.h",
     "SkSLTransform.h",
 ]

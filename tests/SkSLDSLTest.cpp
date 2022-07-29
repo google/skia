@@ -2052,12 +2052,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
     const char* source = "source test";
     std::unique_ptr<SkSL::Program> program = ReleaseProgram(std::make_unique<std::string>(source));
     EXPECT_EQUAL(*program,
+                 "layout(builtin = 17) in bool sk_Clockwise;"
                  "layout(location = 0, index = 0, builtin = 10001) out half4 sk_FragColor;"
-                 "layout(builtin = 17)in bool sk_Clockwise;"
                  "void main() {"
                  ";"
                  ";"
-                 "(sk_FragColor = (4.0 , half4(half(9.0))));"
+                 "(sk_FragColor = (4.0, half4(half(9.0))));"
                  "}");
     REPORTER_ASSERT(r, *program->fSource == source);
 }
