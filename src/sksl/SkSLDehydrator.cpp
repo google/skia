@@ -169,7 +169,7 @@ void Dehydrator::write(const Symbol& s) {
             this->write(f.name());
             this->writeU8(f.parameters().size());
             for (const Variable* p : f.parameters()) {
-                this->writeU16(this->symbolId(p));
+                this->write(*p);
             }
             this->write(f.returnType());
             break;

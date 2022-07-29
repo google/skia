@@ -3,6 +3,7 @@
   { include: ["<__algorithm/any_of.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/copy.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/copy_n.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/count.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/equal_range.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/lower_bound.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/max.h>", "private", "<algorithm>", "public"] },

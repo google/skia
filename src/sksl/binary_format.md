@@ -302,7 +302,7 @@ its own ID; references to a Field are compiled in terms of the owner’s ID.
 | `Modifiers`                | modifiers      |
 | `String`                   | name           |
 | `uint8`                    | parameterCount |
-| `SymbolId[parameterCount]` | parameters     |
+| `Symbol[parameterCount]`   | parameters     |
 | `Type`                     | returnType     |
 
 ---

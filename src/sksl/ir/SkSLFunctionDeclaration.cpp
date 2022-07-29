@@ -28,6 +28,7 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <initializer_list>
 #include <utility>
@@ -404,7 +405,10 @@ FunctionDeclaration::FunctionDeclaration(Position pos,
         , fReturnType(returnType)
         , fBuiltin(builtin)
         , fIsMain(name == "main")
-        , fIntrinsicKind(builtin ? identify_intrinsic(name) : kNotIntrinsic) {}
+        , fIntrinsicKind(builtin ? identify_intrinsic(name) : kNotIntrinsic) {
+    // None of the parameters are allowed to be be null.
+    SkASSERT(std::count(fParameters.begin(), fParameters.end(), nullptr) == 0);
+}
 
 const FunctionDeclaration* FunctionDeclaration::Convert(
         const Context& context,

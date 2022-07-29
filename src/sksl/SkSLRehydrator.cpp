@@ -197,7 +197,7 @@ const Symbol* Rehydrator::symbol() {
             std::vector<const Variable*> parameters;
             parameters.reserve(parameterCount);
             for (int i = 0; i < parameterCount; ++i) {
-                parameters.push_back(this->symbolRef<Variable>());
+                parameters.push_back(&this->symbol()->as<Variable>());
             }
             const Type* returnType = this->type();
             const FunctionDeclaration* result =
