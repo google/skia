@@ -701,9 +701,6 @@ bool Compiler::runInliner(const std::vector<std::unique_ptr<ProgramElement>>& el
 }
 
 bool Compiler::finalize(Program& program) {
-    // Copy all referenced built-in functions into the Program.
-    Transform::FindAndDeclareBuiltinFunctions(program);
-
     // Do one last correctness-check pass. This looks for @if/@switch statements that didn't
     // optimize away, or dangling FunctionReference or TypeReference expressions, and reports them
     // as errors.

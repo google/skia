@@ -12,10 +12,10 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-float cross_length_2d_ff2f2(float2 a, float2 b) {
+half cross_length_2d_hh2h2(half2 a, half2 b) {
     return a.x * b.y - a.y * b.x;
 }
-half cross_length_2d_hh2h2(half2 a, half2 b) {
+float cross_length_2d_ff2f2(float2 a, float2 b) {
     return a.x * b.y - a.y * b.x;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {

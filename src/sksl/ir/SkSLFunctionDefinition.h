@@ -15,6 +15,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_set>
 #include <utility>
 
 namespace SkSL {
@@ -28,12 +29,15 @@ class FunctionDefinition final : public ProgramElement {
 public:
     inline static constexpr Kind kProgramElementKind = Kind::kFunction;
 
+    using FunctionSet = std::unordered_set<const FunctionDeclaration*>;
+
     FunctionDefinition(Position pos, const FunctionDeclaration* declaration, bool builtin,
-                       std::unique_ptr<Statement> body)
+                       std::unique_ptr<Statement> body, FunctionSet referencedBuiltinFunctions)
         : INHERITED(pos, kProgramElementKind)
         , fDeclaration(declaration)
         , fBuiltin(builtin)
-        , fBody(std::move(body)) {}
+        , fBody(std::move(body))
+        , fReferencedBuiltinFunctions(std::move(referencedBuiltinFunctions)) {}
 
     /**
      * Coerces `return` statements to the return type of the function, and reports errors in the
@@ -68,9 +72,14 @@ public:
         return fBody;
     }
 
+    const FunctionSet& referencedBuiltinFunctions() const {
+        return fReferencedBuiltinFunctions;
+    }
+
     std::unique_ptr<ProgramElement> clone() const override {
         return std::make_unique<FunctionDefinition>(fPosition, &this->declaration(),
-                                                    /*builtin=*/false, this->body()->clone());
+                                                    /*builtin=*/false, this->body()->clone(),
+                                                    this->referencedBuiltinFunctions());
     }
 
     std::string description() const override {
@@ -81,6 +90,9 @@ private:
     const FunctionDeclaration* fDeclaration;
     bool fBuiltin;
     std::unique_ptr<Statement> fBody;
+    // We track the builtin functions we reference so that we can ensure that all of them end up
+    // copied into the final output.
+    FunctionSet fReferencedBuiltinFunctions;
 
     using INHERITED = ProgramElement;
 };

@@ -1,6 +1,12 @@
 
 out vec4 sk_FragColor;
 uniform vec4 color;
+vec4 blend_src_in_h4h4h4(vec4 src, vec4 dst) {
+    return src * dst.w;
+}
+vec4 blend_dst_in_h4h4h4(vec4 src, vec4 dst) {
+    return dst * src.w;
+}
 float blend_color_saturation_Qhh3(vec3 color) {
     return max(max(color.x, color.y), color.z) - min(min(color.x, color.y), color.z);
 }
@@ -28,14 +34,8 @@ vec4 blend_hslc_h4h4h4h2(vec4 src, vec4 dst, vec2 flipSat) {
     }
     return vec4((((_5_result + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }
-vec4 blend_dst_in_h4h4h4(vec4 src, vec4 dst) {
-    return dst * src.w;
-}
 vec4 blend_hue_h4h4h4(vec4 src, vec4 dst) {
     return blend_hslc_h4h4h4h2(src, dst, vec2(0.0, 1.0));
-}
-vec4 blend_src_in_h4h4h4(vec4 src, vec4 dst) {
-    return src * dst.w;
 }
 float singleuse_h() {
     return 1.25;
