@@ -24,9 +24,7 @@
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -107,16 +105,8 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
         }
 
         bool visitExpression(Expression& expr) override {
-            if (expr.is<FunctionCall>()) {
-                const FunctionDeclaration& func = expr.as<FunctionCall>().function();
-                if (func.isBuiltin()) {
-                    if (func.intrinsicKind() == k_dFdy_IntrinsicKind) {
-                        ThreadContext::Inputs().fUseFlipRTUniform =
-                                !fContext.fConfig->fSettings.fForceNoRTFlip;
-                    }
-                }
-            }
-            return INHERITED::visitExpression(expr);
+            // We don't need to scan expressions.
+            return false;
         }
 
         bool visitStatement(Statement& stmt) override {

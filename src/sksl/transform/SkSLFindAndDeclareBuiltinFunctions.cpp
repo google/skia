@@ -10,6 +10,7 @@
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
@@ -37,6 +38,10 @@ void Transform::FindAndDeclareBuiltinFunctions(Program& program) {
             if (!fn->isBuiltin() || count == 0) {
                 // Not a built-in; skip it.
                 continue;
+            }
+            if (fn->intrinsicKind() == k_dFdy_IntrinsicKind) {
+                // Programs that invoke the `dFdy` intrinsic will need the RTFlip input.
+                program.fInputs.fUseFlipRTUniform = !context.fConfig->fSettings.fForceNoRTFlip;
             }
             const ProgramElement* added = context.fBuiltins->findAndInclude(fn->description());
             if (!added) {
