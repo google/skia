@@ -889,3 +889,50 @@ DEF_SIMPLE_GM(lit_shader_linear_rt, canvas, 512, 256) {
     // Now draw the offscreen surface back to our original canvas:
     canvas->drawImage(surface->makeImageSnapshot(), 0, 0);
 }
+
+// skbug.com/13598 GPU was double applying the local matrix.
+DEF_SIMPLE_GM(local_matrix_shader_rt, canvas, 256, 256) {
+    SkString passthrough(R"(
+        uniform shader s;
+        half4 main(float2 p) { return s.eval(p); }
+    )");
+    auto [rte, error] = SkRuntimeEffect::MakeForShader(passthrough, {});
+    if (!rte) {
+        SkDebugf("%s\n", error.c_str());
+        return;
+    }
+
+    auto image     = GetResourceAsImage("images/mandrill_128.png");
+    auto imgShader = image->makeShader(SkSamplingOptions{});
+
+    auto r = SkRect::MakeWH(image->width(), image->height());
+
+    auto lm = SkMatrix::RotateDeg(90.f, {image->width()/2.f, image->height()/2.f});
+
+    SkPaint paint;
+
+    // image
+    paint.setShader(imgShader);
+    canvas->drawRect(r, paint);
+
+    // passthrough(image)
+    canvas->save();
+    canvas->translate(image->width(), 0);
+    paint.setShader(rte->makeShader(nullptr, &imgShader, 1));
+    canvas->drawRect(r, paint);
+    canvas->restore();
+
+    // localmatrix(image)
+    canvas->save();
+    canvas->translate(0, image->height());
+    paint.setShader(imgShader->makeWithLocalMatrix(lm));
+    canvas->drawRect(r, paint);
+    canvas->restore();
+
+    // localmatrix(passthrough(image)) This was the bug.
+    canvas->save();
+    canvas->translate(image->width(), image->height());
+    paint.setShader(rte->makeShader(nullptr, &imgShader, 1)->makeWithLocalMatrix(lm));
+    canvas->drawRect(r, paint);
+    canvas->restore();
+}
