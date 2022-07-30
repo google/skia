@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/mtl/MtlBuffer.h"
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
+#include "src/gpu/graphite/mtl/MtlComputePipeline.h"
 #include "src/gpu/graphite/mtl/MtlGpu.h"
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
 #include "src/gpu/graphite/mtl/MtlSampler.h"
@@ -42,6 +43,11 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::onCreateGraphicsPipeline(
                                      this->mtlGpu(),
                                      pipelineDesc,
                                      renderPassDesc);
+}
+
+sk_sp<ComputePipeline> MtlResourceProvider::onCreateComputePipeline(
+        const ComputePipelineDesc& pipelineDesc) {
+    return MtlComputePipeline::Make(this, this->mtlGpu(), pipelineDesc);
 }
 
 sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,

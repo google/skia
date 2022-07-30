@@ -14,7 +14,6 @@
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
 struct SkSamplingOptions;
@@ -29,9 +28,12 @@ namespace skgpu::graphite {
 class BackendTexture;
 class Buffer;
 class Caps;
+class ComputePipeline;
+class ComputePipelineDesc;
 class GlobalCache;
 class Gpu;
 class GraphicsPipeline;
+class GraphicsPipelineDesc;
 class GraphiteResourceKey;
 class ResourceCache;
 class Sampler;
@@ -46,6 +48,8 @@ public:
 
     sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(const GraphicsPipelineDesc&,
                                                          const RenderPassDesc&);
+
+    sk_sp<ComputePipeline> findOrCreateComputePipeline(const ComputePipelineDesc&);
 
     sk_sp<Texture> findOrCreateScratchTexture(SkISize, const TextureInfo&, SkBudgeted);
     virtual sk_sp<Texture> createWrappedTexture(const BackendTexture&) = 0;
@@ -81,6 +85,7 @@ protected:
 private:
     virtual sk_sp<GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&,
                                                              const RenderPassDesc&) = 0;
+    virtual sk_sp<ComputePipeline> onCreateComputePipeline(const ComputePipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&, SkBudgeted) = 0;
     virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) = 0;
 
@@ -115,12 +120,31 @@ private:
         ResourceProvider* fResourceProvider;
     };
 
+    class ComputePipelineCache {
+    public:
+        ComputePipelineCache(ResourceProvider* resourceProvider);
+        ~ComputePipelineCache();
+
+        void release();
+        sk_sp<ComputePipeline> refPipeline(const Caps* caps, const ComputePipelineDesc&);
+
+    private:
+        struct Entry;
+        struct KeyHash {
+            uint32_t operator()(const UniqueKey& key) const { return key.hash(); }
+        };
+        SkLRUCache<UniqueKey, std::unique_ptr<Entry>, KeyHash> fMap;
+
+        ResourceProvider* fResourceProvider;
+    };
+
     sk_sp<ResourceCache> fResourceCache;
     sk_sp<GlobalCache> fGlobalCache;
 
     // Cache of GraphicsPipelines
-    // TODO: Move this onto GlobalCache
+    // TODO: Move these onto GlobalCache
     std::unique_ptr<GraphicsPipelineCache> fGraphicsPipelineCache;
+    std::unique_ptr<ComputePipelineCache> fComputePipelineCache;
 
     SkRuntimeEffectDictionary fRuntimeEffectDictionary;
 };

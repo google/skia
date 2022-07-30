@@ -23,6 +23,7 @@ namespace skgpu { class ShaderErrorHandler; }
 namespace skgpu::graphite {
 
 struct ContextOptions;
+class ComputePipelineDesc;
 class GraphicsPipelineDesc;
 class GraphiteResourceKey;
 struct RenderPassDesc;
@@ -47,6 +48,7 @@ public:
 
     virtual UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                               const RenderPassDesc&) const = 0;
+    virtual UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const = 0;
 
     bool areColorTypeAndTextureInfoCompatible(SkColorType, const TextureInfo&) const;
 

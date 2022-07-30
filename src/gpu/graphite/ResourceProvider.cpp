@@ -10,10 +10,12 @@
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/Gpu.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"
@@ -28,17 +30,23 @@ ResourceProvider::ResourceProvider(const Gpu* gpu,
         , fGlobalCache(std::move(globalCache)) {
     SkASSERT(fResourceCache);
     fGraphicsPipelineCache.reset(new GraphicsPipelineCache(this));
+    fComputePipelineCache.reset(new ComputePipelineCache(this));
 }
 
 ResourceProvider::~ResourceProvider() {
     fGraphicsPipelineCache.release();
+    fComputePipelineCache.release();
     fResourceCache->shutdown();
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
-        const GraphicsPipelineDesc& pipelineDesc,
-        const RenderPassDesc& renderPassDesc) {
+        const GraphicsPipelineDesc& pipelineDesc, const RenderPassDesc& renderPassDesc) {
     return fGraphicsPipelineCache->refPipeline(fGpu->caps(), pipelineDesc, renderPassDesc);
+}
+
+sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(
+        const ComputePipelineDesc& pipelineDesc) {
+    return fComputePipelineCache->refPipeline(fGpu->caps(), pipelineDesc);
 }
 
 SkShaderCodeDictionary* ResourceProvider::shaderCodeDictionary() const {
@@ -54,8 +62,8 @@ struct ResourceProvider::GraphicsPipelineCache::Entry {
 };
 
 ResourceProvider::GraphicsPipelineCache::GraphicsPipelineCache(ResourceProvider* resourceProvider)
-    : fMap(16) // TODO: find a good value for this
-    , fResourceProvider(resourceProvider) {}
+        : fMap(16)  // TODO: find a good value for this
+        , fResourceProvider(resourceProvider) {}
 
 ResourceProvider::GraphicsPipelineCache::~GraphicsPipelineCache() {
     SkASSERT(0 == fMap.count());
@@ -71,10 +79,40 @@ sk_sp<GraphicsPipeline> ResourceProvider::GraphicsPipelineCache::refPipeline(
         const RenderPassDesc& renderPassDesc) {
     UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc, renderPassDesc);
 
-	std::unique_ptr<Entry>* entry = fMap.find(pipelineKey);
+    std::unique_ptr<Entry>* entry = fMap.find(pipelineKey);
 
     if (!entry) {
         auto pipeline = fResourceProvider->onCreateGraphicsPipeline(pipelineDesc, renderPassDesc);
+        if (!pipeline) {
+            return nullptr;
+        }
+        entry = fMap.insert(pipelineKey, std::unique_ptr<Entry>(new Entry(std::move(pipeline))));
+    }
+    return (*entry)->fPipeline;
+}
+
+struct ResourceProvider::ComputePipelineCache::Entry {
+    Entry(sk_sp<ComputePipeline> pipeline) : fPipeline(std::move(pipeline)) {}
+
+    sk_sp<ComputePipeline> fPipeline;
+};
+
+ResourceProvider::ComputePipelineCache::ComputePipelineCache(ResourceProvider* resourceProvider)
+        : fMap(16)  // TODO: find a good value for this
+        , fResourceProvider(resourceProvider) {}
+
+ResourceProvider::ComputePipelineCache::~ComputePipelineCache() { SkASSERT(0 == fMap.count()); }
+
+void ResourceProvider::ComputePipelineCache::release() { fMap.reset(); }
+
+sk_sp<ComputePipeline> ResourceProvider::ComputePipelineCache::refPipeline(
+        const Caps* caps, const ComputePipelineDesc& pipelineDesc) {
+    UniqueKey pipelineKey = caps->makeComputePipelineKey(pipelineDesc);
+
+    std::unique_ptr<Entry>* entry = fMap.find(pipelineKey);
+
+    if (!entry) {
+        auto pipeline = fResourceProvider->onCreateComputePipeline(pipelineDesc);
         if (!pipeline) {
             return nullptr;
         }
@@ -201,4 +239,4 @@ void ResourceProvider::resetAfterSnap() {
     fRuntimeEffectDictionary.reset();
 }
 
-} // namespace skgpu::graphite
+}  // namespace skgpu::graphite

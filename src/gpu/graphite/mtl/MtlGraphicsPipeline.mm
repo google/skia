@@ -357,7 +357,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
             [gpu->device() newRenderPipelineStateWithDescriptor:psoDescriptor.get()
                                                           error:&error]);
     if (!pso) {
-        SKGPU_LOG_E("Pipeline creation failure:\n%s", error.debugDescription.UTF8String);
+        SKGPU_LOG_E("Render pipeline creation failure:\n%s", error.debugDescription.UTF8String);
         return nullptr;
     }
 
