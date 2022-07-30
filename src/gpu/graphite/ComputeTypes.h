@@ -40,6 +40,38 @@ struct WorkgroupSize {
     uint32_t fDepth = 1;
 };
 
+struct ComputePassDesc {
+    WorkgroupSize fGlobalDispatchSize;
+
+    // TODO(b/240615224): On OpenGL D3D, and Vulkan 1.0, the local work group size is expressed with
+    // literals in the shading language and is tied to the pipeline state. On those platforms, we
+    // could either:
+    //
+    //     1. Defer pipeline creation until `fLocalDispatchSize` is known for a particular compute
+    //     pass and build the shader text using this value, or
+    //     2. Hard-code reasonable defaults within GPU capabilities and disregard
+    //     `fLocalDispatchSize`.
+    //
+    // The local size is a function of both the number of supported hardware threads AND how the
+    // problem is divided between the global and local sizes. Which approach is more optimal depends
+    // on the problem.
+    WorkgroupSize fLocalDispatchSize;
+};
+
+// TODO(armansito): These types aren't specific to compute and could share definitions with render
+// pipeline stack.
+using BindingIndex = uint32_t;
+
+struct BufferBinding {
+    sk_sp<Buffer> fBuffer;
+    size_t fOffset;
+};
+
+struct ResourceBinding {
+    BindingIndex fIndex;
+    BufferBinding fResource;
+};
+
 }  // namespace skgpu::graphite
 
 #endif  // skgpu_graphite_ComputeTypes_DEFINED

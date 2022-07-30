@@ -23,11 +23,13 @@ namespace skgpu::graphite {
 class MtlComputeCommandEncoder : public Resource {
 public:
     static sk_sp<MtlComputeCommandEncoder> Make(const Gpu* gpu,
-                                                id<MTLCommandBuffer> commandBuffer,
-                                                MTLDispatchType dispatchType) {
+                                                id<MTLCommandBuffer> commandBuffer) {
         // Adding a retain here to keep our own ref separate from the autorelease pool
         sk_cfp<id<MTLComputeCommandEncoder>> encoder =
-                sk_ret_cfp([commandBuffer computeCommandEncoderWithDispatchType:dispatchType]);
+                sk_ret_cfp([commandBuffer computeCommandEncoder]);
+
+        // TODO(armansito): Support concurrent dispatch of compute passes using
+        // MTLDispatchTypeConcurrent on macOS 10.14+ and iOS 12.0+.
         return sk_sp<MtlComputeCommandEncoder>(
                 new MtlComputeCommandEncoder(gpu, std::move(encoder)));
     }

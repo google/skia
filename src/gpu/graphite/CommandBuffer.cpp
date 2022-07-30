@@ -10,6 +10,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"
@@ -71,6 +72,24 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
     // We just assume if you are adding a render pass that the render pass will actually do work. In
     // theory we could have a discard load that doesn't submit any draws, clears, etc. But hopefully
     // something so trivial would be caught before getting here.
+    SkDEBUGCODE(fHasWork = true;)
+
+    return true;
+}
+
+bool CommandBuffer::addComputePass(const ComputePassDesc& computePassDesc,
+                                   sk_sp<ComputePipeline> pipeline,
+                                   const std::vector<ResourceBinding>& bindings) {
+    if (!this->onAddComputePass(computePassDesc, pipeline.get(), bindings)) {
+        return false;
+    }
+
+    this->trackResource(std::move(pipeline));
+
+    for (const auto& binding : bindings) {
+        this->trackResource(binding.fResource.fBuffer);
+    }
+
     SkDEBUGCODE(fHasWork = true;)
 
     return true;

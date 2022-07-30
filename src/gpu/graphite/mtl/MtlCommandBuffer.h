@@ -23,6 +23,7 @@
 namespace skgpu::graphite {
 class MtlBlitCommandEncoder;
 class MtlGpu;
+class MtlComputeCommandEncoder;
 class MtlRenderCommandEncoder;
 
 class MtlCommandBuffer final : public CommandBuffer {
@@ -57,7 +58,11 @@ private:
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
                          const std::vector<std::unique_ptr<DrawPass>>& drawPasses) override;
+    bool onAddComputePass(const ComputePassDesc&,
+                          const ComputePipeline*,
+                          const std::vector<ResourceBinding>& bindings) override;
 
+    // Methods for populating a MTLRenderCommandEncoder:
     bool beginRenderPass(const RenderPassDesc&,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
@@ -94,6 +99,14 @@ private:
                               unsigned int indexCount, unsigned int baseVertex,
                               unsigned int baseInstance, unsigned int instanceCount);
 
+    // Methods for populating a MTLComputeCommandEncoder:
+    void beginComputePass();
+    void bindComputePipeline(const ComputePipeline*);
+    void bindBuffer(const Buffer* buffer, unsigned int offset, unsigned int index);
+    void dispatchThreadgroups(const WorkgroupSize& globalSize, const WorkgroupSize& localSize);
+    void endComputePass();
+
+    // Methods for populating a MTLBlitCommandEncoder:
     bool onCopyTextureToBuffer(const Texture*,
                                SkIRect srcRect,
                                const Buffer*,
@@ -109,6 +122,7 @@ private:
 
     sk_cfp<id<MTLCommandBuffer>> fCommandBuffer;
     sk_sp<MtlRenderCommandEncoder> fActiveRenderCommandEncoder;
+    sk_sp<MtlComputeCommandEncoder> fActiveComputeCommandEncoder;
     sk_sp<MtlBlitCommandEncoder> fActiveBlitCommandEncoder;
 
     size_t fCurrentVertexStride = 0;

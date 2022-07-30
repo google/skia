@@ -12,6 +12,8 @@
 #include "src/gpu/graphite/mtl/MtlBlitCommandEncoder.h"
 #include "src/gpu/graphite/mtl/MtlBuffer.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
+#include "src/gpu/graphite/mtl/MtlComputeCommandEncoder.h"
+#include "src/gpu/graphite/mtl/MtlComputePipeline.h"
 #include "src/gpu/graphite/mtl/MtlGpu.h"
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
 #include "src/gpu/graphite/mtl/MtlRenderCommandEncoder.h"
@@ -54,6 +56,7 @@ MtlCommandBuffer::~MtlCommandBuffer() {}
 
 bool MtlCommandBuffer::commit() {
     SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
     this->endBlitCommandEncoder();
 #ifdef SK_BUILD_FOR_IOS
     if (MtlIsAppInBackground()) {
@@ -89,11 +92,27 @@ bool MtlCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
     return true;
 }
 
+bool MtlCommandBuffer::onAddComputePass(const ComputePassDesc& computePassDesc,
+                                        const ComputePipeline* pipeline,
+                                        const std::vector<ResourceBinding>& bindings) {
+    this->beginComputePass();
+    this->bindComputePipeline(pipeline);
+    for (const ResourceBinding& binding : bindings) {
+        this->bindBuffer(
+                binding.fResource.fBuffer.get(), binding.fResource.fOffset, binding.fIndex);
+    }
+    this->dispatchThreadgroups(computePassDesc.fGlobalDispatchSize,
+                               computePassDesc.fLocalDispatchSize);
+    this->endComputePass();
+    return true;
+}
+
 bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
                                        const Texture* colorTexture,
                                        const Texture* resolveTexture,
                                        const Texture* depthStencilTexture) {
     SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
     this->endBlitCommandEncoder();
 #ifdef SK_BUILD_FOR_IOS
     if (MtlIsAppInBackground()) {
@@ -501,6 +520,39 @@ void MtlCommandBuffer::drawIndexedInstanced(PrimitiveType type,
     }
 }
 
+void MtlCommandBuffer::beginComputePass() {
+    SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
+    this->endBlitCommandEncoder();
+    fActiveComputeCommandEncoder = MtlComputeCommandEncoder::Make(fGpu, fCommandBuffer.get());
+}
+
+void MtlCommandBuffer::bindComputePipeline(const ComputePipeline* computePipeline) {
+    SkASSERT(fActiveComputeCommandEncoder);
+
+    auto mtlPipeline = static_cast<const MtlComputePipeline*>(computePipeline);
+    fActiveComputeCommandEncoder->setComputePipelineState(mtlPipeline->mtlPipelineState());
+}
+
+void MtlCommandBuffer::bindBuffer(const Buffer* buffer, unsigned int offset, unsigned int index) {
+    SkASSERT(fActiveComputeCommandEncoder);
+
+    id<MTLBuffer> mtlBuffer = buffer ? static_cast<const MtlBuffer*>(buffer)->mtlBuffer() : nullptr;
+    fActiveComputeCommandEncoder->setBuffer(mtlBuffer, offset, index);
+}
+
+void MtlCommandBuffer::dispatchThreadgroups(const WorkgroupSize& globalSize,
+                                            const WorkgroupSize& localSize) {
+    SkASSERT(fActiveComputeCommandEncoder);
+    fActiveComputeCommandEncoder->dispatchThreadgroups(globalSize, localSize);
+}
+
+void MtlCommandBuffer::endComputePass() {
+    SkASSERT(fActiveComputeCommandEncoder);
+    fActiveComputeCommandEncoder->endEncoding();
+    fActiveComputeCommandEncoder.reset();
+}
+
 static bool check_max_blit_width(int widthInPixels) {
     if (widthInPixels > 32767) {
         SkASSERT(false); // surfaces should not be this wide anyway
@@ -515,6 +567,7 @@ bool MtlCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
                                              size_t bufferOffset,
                                              size_t bufferRowBytes) {
     SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
 
     if (!check_max_blit_width(srcRect.width())) {
         return false;
@@ -550,6 +603,7 @@ bool MtlCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
                                              const BufferTextureCopyData* copyData,
                                              int count) {
     SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
 
     id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(buffer)->mtlBuffer();
     id<MTLTexture> mtlTexture = static_cast<const MtlTexture*>(texture)->mtlTexture();

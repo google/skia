@@ -14,6 +14,7 @@
 #include "include/private/SkTArray.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/CommandTypes.h"
+#include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
 
@@ -22,7 +23,9 @@ class RefCntedCallback;
 }
 
 namespace skgpu::graphite {
+
 class Buffer;
+class ComputePipeline;
 class DrawPass;
 class Gpu;
 class GraphicsPipeline;
@@ -30,7 +33,6 @@ class Resource;
 class Sampler;
 class Texture;
 class TextureProxy;
-
 
 class CommandBuffer : public SkRefCnt {
 public:
@@ -52,6 +54,10 @@ public:
                        sk_sp<Texture> resolveTexture,
                        sk_sp<Texture> depthStencilTexture,
                        const std::vector<std::unique_ptr<DrawPass>>& drawPasses);
+
+    bool addComputePass(const ComputePassDesc&,
+                        sk_sp<ComputePipeline> pipeline,
+                        const std::vector<ResourceBinding>& bindings);
 
     //---------------------------------------------------------------
     // Can only be used outside renderpasses
@@ -75,6 +81,10 @@ private:
                                  const Texture* resolveTexture,
                                  const Texture* depthStencilTexture,
                                  const std::vector<std::unique_ptr<DrawPass>>& drawPasses) = 0;
+
+    virtual bool onAddComputePass(const ComputePassDesc&,
+                                  const ComputePipeline*,
+                                  const std::vector<ResourceBinding>& bindings) = 0;
 
     virtual bool onCopyTextureToBuffer(const Texture*,
                                        SkIRect srcRect,
