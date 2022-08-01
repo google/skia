@@ -285,8 +285,11 @@ static std::unique_ptr<Expression> cast_expression(const Context& context,
             return ConstructorSplat::Make(context, pos, type, expr.clone());
         }
     }
-    SkASSERT(type.matches(expr.type()));
-    return expr.clone(pos);
+    if (type.matches(expr.type())) {
+        return expr.clone(pos);
+    }
+    // We can't cast matrices into vectors or vice-versa.
+    return nullptr;
 }
 
 static std::unique_ptr<Expression> zero_expression(const Context& context,
@@ -452,19 +455,31 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
     switch (op.kind()) {
         case Operator::Kind::PLUS:
             if (!is_scalar_op_matrix(left, right) && is_constant_splat(right, 0.0)) {  // x + 0
-                return cast_expression(context, pos, left, resultType);
+                if (std::unique_ptr<Expression> expr = cast_expression(context, pos, left,
+                                                                       resultType)) {
+                    return expr;
+                }
             }
             if (!is_matrix_op_scalar(left, right) && is_constant_splat(left, 0.0)) {   // 0 + x
-                return cast_expression(context, pos, right, resultType);
+                if (std::unique_ptr<Expression> expr = cast_expression(context, pos, right,
+                                                                       resultType)) {
+                    return expr;
+                }
             }
             break;
 
         case Operator::Kind::STAR:
             if (is_constant_value(right, 1.0)) {  // x * 1
-                return cast_expression(context, pos, left, resultType);
+                if (std::unique_ptr<Expression> expr = cast_expression(context, pos, left,
+                                                                       resultType)) {
+                    return expr;
+                }
             }
             if (is_constant_value(left, 1.0)) {   // 1 * x
-                return cast_expression(context, pos, right, resultType);
+                if (std::unique_ptr<Expression> expr = cast_expression(context, pos, right,
+                                                                       resultType)) {
+                    return expr;
+                }
             }
             if (is_constant_value(right, 0.0) && !left.hasSideEffects()) {  // x * 0
                 return zero_expression(context, pos, resultType);
@@ -473,25 +488,40 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
                 return zero_expression(context, pos, resultType);
             }
             if (is_constant_value(right, -1.0)) {  // x * -1 (to `-x`)
-                return negate_expression(context, pos, left, resultType);
+                if (std::unique_ptr<Expression> expr = negate_expression(context, pos, left,
+                                                                         resultType)) {
+                    return expr;
+                }
             }
             if (is_constant_value(left, -1.0)) {   // -1 * x (to `-x`)
-                return negate_expression(context, pos, right, resultType);
+                if (std::unique_ptr<Expression> expr = negate_expression(context, pos, right,
+                                                                         resultType)) {
+                    return expr;
+                }
             }
             break;
 
         case Operator::Kind::MINUS:
             if (!is_scalar_op_matrix(left, right) && is_constant_splat(right, 0.0)) {  // x - 0
-                return cast_expression(context, pos, left, resultType);
+                if (std::unique_ptr<Expression> expr = cast_expression(context, pos, left,
+                                                                       resultType)) {
+                    return expr;
+                }
             }
             if (!is_matrix_op_scalar(left, right) && is_constant_splat(left, 0.0)) {   // 0 - x
-                return negate_expression(context, pos, right, resultType);             // (to `-x`)
+                if (std::unique_ptr<Expression> expr = negate_expression(context, pos, right,
+                                                                         resultType)) {
+                    return expr;
+                }
             }
             break;
 
         case Operator::Kind::SLASH:
             if (!is_scalar_op_matrix(left, right) && is_constant_splat(right, 1.0)) {  // x / 1
-                return cast_expression(context, pos, left, resultType);
+                if (std::unique_ptr<Expression> expr = cast_expression(context, pos, left,
+                                                                       resultType)) {
+                    return expr;
+                }
             }
             break;
 
