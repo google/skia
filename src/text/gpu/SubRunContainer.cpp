@@ -1162,7 +1162,8 @@ public:
                      SkSpan<const SkPoint> devicePositions,
                      GlyphVector&& glyphs);
 
-    static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    static SubRunOwner Make(SkRect runBounds,
+                            const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkMatrix& initialPositionMatrix,
                             sk_sp<SkStrike>&& strike,
                             MaskFormat format,
@@ -1272,7 +1273,8 @@ DirectMaskSubRun::DirectMaskSubRun(MaskFormat format,
         , fLeftTopDevicePos{devicePositions}
         , fGlyphs{std::move(glyphs)} {}
 
-SubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+SubRunOwner DirectMaskSubRun::Make(SkRect runBounds,
+                                   const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    const SkMatrix& initialPositionMatrix,
                                    sk_sp<SkStrike>&& strike,
                                    MaskFormat format,
@@ -1280,18 +1282,15 @@ SubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepte
     auto glyphLeftTop = alloc->makePODArray<SkPoint>(accepted.size());
     auto glyphIDs = alloc->makePODArray<GlyphVector::Variant>(accepted.size());
 
-    SkGlyphRect runBounds = skglyph::empty_rect();
     for (auto [i, variant, pos] : SkMakeEnumerate(accepted)) {
         const SkGlyph* const skGlyph = variant;
-        const SkGlyphRect deviceBounds = skGlyph->glyphRect().offset(pos.x(), pos.y());
-        runBounds = skglyph::rect_union(runBounds, deviceBounds);
-        glyphLeftTop[i] = deviceBounds.leftTop();
+        glyphLeftTop[i] = SkPoint::Make(skGlyph->left(), skGlyph->top()) + pos;
         glyphIDs[i].packedGlyphID = skGlyph->getPackedID();
     }
 
     SkSpan<const SkPoint> leftTop{glyphLeftTop, accepted.size()};
     return alloc->makeUnique<DirectMaskSubRun>(
-            format, initialPositionMatrix, runBounds.rect(), leftTop,
+            format, initialPositionMatrix, runBounds, leftTop,
             GlyphVector{std::move(strike), {glyphIDs, accepted.size()}});
 }
 
@@ -2581,7 +2580,10 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 if constexpr (kTrace) {
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-                strike->prepareForMaskDrawing(accepted, rejected);
+                // The strikeToSourceScale is 1 because the entire CTM is used to generate the
+                // glyphs. No prescaling is needed.
+                SkRect bounds = strike->prepareForMaskDrawing(
+                        1 /* strikeToSourceScale */, accepted, rejected);
                 rejected->flipRejectsToSource();
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
@@ -2590,7 +2592,8 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                                 MaskFormat format,
                                 sk_sp<SkStrike>&& runStrike) {
                                 SubRunOwner subRun =
-                                        DirectMaskSubRun::Make(acceptedGlyphsAndLocations,
+                                        DirectMaskSubRun::Make(bounds,
+                                                               acceptedGlyphsAndLocations,
                                                                container->initialPosition(),
                                                                std::move(runStrike),
                                                                format,
@@ -2761,7 +2764,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 if constexpr (kTrace) {
                     msg.appendf("glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-                strike->prepareForMaskDrawing(accepted, rejected);
+                strike->prepareForMaskDrawing(strikeToSourceScale, accepted, rejected);
                 rejected->flipRejectsToSource();
                 SkASSERT(rejected->source().empty());
 

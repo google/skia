@@ -78,8 +78,10 @@ public:
         return fRoundingSpec;
     }
 
-    size_t prepareForMaskDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) SK_EXCLUDES(fMu);
+    std::tuple<SkRect, size_t> prepareForMaskDrawing(
+            SkScalar strikeToSourceScale,
+            SkDrawableGlyphBuffer* accepted,
+            SkSourceGlyphBuffer* rejected) SK_EXCLUDES(fMu);
 
     size_t prepareForSDFTDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) SK_EXCLUDES(fMu);

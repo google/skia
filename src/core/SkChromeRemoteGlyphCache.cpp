@@ -178,8 +178,10 @@ public:
         return fRoundingSpec;
     }
 
-    void prepareForMaskDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override;
+    SkRect prepareForMaskDrawing(
+            SkScalar strikeToSourceScale,
+            SkDrawableGlyphBuffer* accepted,
+            SkSourceGlyphBuffer* rejected) override;
 
     void prepareForSDFTDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override;
@@ -411,19 +413,26 @@ void RemoteStrike::commonMaskLoop(
             });
 }
 
-void RemoteStrike::prepareForMaskDrawing(
-        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
-    for (auto [i, variant, _] : SkMakeEnumerate(accepted->input())) {
+SkRect RemoteStrike::prepareForMaskDrawing(
+        SkScalar strikeToSourceScale,
+        SkDrawableGlyphBuffer* accepted,
+        SkSourceGlyphBuffer* rejected) {
+    SkGlyphRect boundingRect = skglyph::empty_rect();
+    for (auto [i, variant, pos] : SkMakeEnumerate(accepted->input())) {
         SkPackedGlyphID packedID = variant.packedID();
-
         SkGlyphDigest digest = this->digest(packedID);
-
-        // Reject things that are too big.
-        // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
-        if (!digest.canDrawAsMask()) {
+        if (digest.canDrawAsMask()) {
+            if (!digest.isEmpty()) {
+                boundingRect = skglyph::rect_union(
+                        boundingRect, digest.bounds().scaleAndOffset(strikeToSourceScale, pos));
+            }
+        } else {
+            // Reject things that are too big.
+            // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
             rejected->reject(i);
         }
     }
+    return boundingRect.rect();
 }
 
 void RemoteStrike::prepareForSDFTDrawing(

@@ -36,8 +36,13 @@ public:
     virtual ~StrikeForGPU() = default;
     virtual const SkDescriptor& getDescriptor() const = 0;
 
-    virtual void prepareForMaskDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) = 0;
+    // Returns the bounding rectangle of the accepted glyphs. Remember for device masks this
+    // rectangle will be in device space, and for transformed masks this rectangle will be in
+    // source space.
+    virtual SkRect prepareForMaskDrawing(
+                SkScalar strikeToSourceScale,
+                SkDrawableGlyphBuffer* accepted,
+                SkSourceGlyphBuffer* rejected) = 0;
 
     virtual void prepareForSDFTDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) = 0;

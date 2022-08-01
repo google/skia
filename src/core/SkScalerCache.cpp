@@ -262,20 +262,26 @@ size_t SkScalerCache::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted)
 }
 
 // Note: this does not actually fill out the image. That happens at atlas building time.
-size_t SkScalerCache::prepareForMaskDrawing(
-        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
+std::tuple<SkRect, size_t> SkScalerCache::prepareForMaskDrawing(
+        SkScalar strikeToSourceScale,
+        SkDrawableGlyphBuffer* accepted,
+        SkSourceGlyphBuffer* rejected) {
     SkAutoMutexExclusive lock{fMu};
+    SkGlyphRect boundingRect = skglyph::empty_rect();
     size_t delta = this->commonFilterLoop(accepted,
         [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
             // N.B. this must have the same behavior as RemoteStrike::prepareForMaskDrawing.
             if (digest.canDrawAsMask()) {
+                // Remember that commonFilterLoop eliminates all empty glyphs.
+                boundingRect = skglyph::rect_union(
+                        boundingRect, digest.bounds().scaleAndOffset(strikeToSourceScale, pos));
                 accepted->accept(fGlyphForIndex[digest.index()], i);
             } else {
                 rejected->reject(i);
             }
         });
 
-    return delta;
+    return {boundingRect.rect(), delta};
 }
 
 size_t SkScalerCache::prepareForSDFTDrawing(
