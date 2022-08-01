@@ -209,25 +209,6 @@ private:
     void commonMaskLoop(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected, Rejector&& reject);
 
-    // Same thing as MaskSummary, but for drawables.
-    struct DrawableSummary {
-        constexpr static uint16_t kIsDrawable = 0;
-        SkGlyphID glyphID;
-        // If drawing glyphID can be done with a drawable, this is 0, otherwise it is the max
-        // dimension of the glyph.
-        uint16_t maxDimensionOrDrawable;
-    };
-
-    struct DrawableSummaryTraits {
-        static SkGlyphID GetKey(DrawableSummary summary) {
-            return summary.glyphID;
-        }
-
-        static uint32_t Hash(SkGlyphID glyphID) {
-            return SkGoodHash()(glyphID);
-        }
-    };
-
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void writeGlyphDrawable(const SkGlyph& glyph, Serializer* serializer) const;
     void ensureScalerContext();
@@ -250,7 +231,7 @@ private:
     // The masks and paths that currently reside in the GPU process.
     SkTHashMap<SkPackedGlyphID, SkGlyphDigest, SkPackedGlyphID::Hash> fSentGlyphs;
     SkTHashMap<SkGlyphID, bool> fSentPaths;
-    SkTHashTable<DrawableSummary, SkGlyphID, DrawableSummaryTraits> fSentDrawables;
+    SkTHashMap<SkGlyphID, bool> fSentDrawables;
 
     // The Masks, SDFT Mask, and Paths that need to be sent to the GPU task for the processed
     // TextBlobs. Cleared after diffs are serialized.
@@ -479,25 +460,22 @@ void RemoteStrike::prepareForDrawableDrawing(
     accepted->forEachInput(
             [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
                 SkGlyphID glyphID = packedID.glyphID();
-                DrawableSummary* summary = fSentDrawables.find(glyphID);
-                if (summary == nullptr) {
+                bool* hasDrawable = fSentDrawables.find(glyphID);
+                if (hasDrawable == nullptr) {
 
                     // Put the new SkGlyph in the glyphs to send.
                     this->ensureScalerContext();
                     fDrawablesToSend.emplace_back(fContext->makeGlyph(packedID, &fAlloc));
                     SkGlyph* glyph = &fDrawablesToSend.back();
 
-                    uint16_t maxDimensionOrDrawable = glyph->maxDimension();
                     glyph->setDrawable(&fAlloc, fContext.get());
-                    if (glyph->drawable() != nullptr) {
-                        maxDimensionOrDrawable = DrawableSummary::kIsDrawable;
-                    }
-
-                    DrawableSummary newSummary = {glyph->getGlyphID(), maxDimensionOrDrawable};
-                    summary = fSentDrawables.set(newSummary);
+                    // If the glyph is empty, count it as having a drawable so that it is not
+                    // rejected.
+                    bool makeAsDrawable = glyph->isEmpty() || glyph->drawable() != nullptr;
+                    hasDrawable = fSentDrawables.set(glyphID, makeAsDrawable);
                 }
 
-                if (summary->maxDimensionOrDrawable != DrawableSummary::kIsDrawable) {
+                if (!(*hasDrawable)) {
                     rejected->reject(i);
                 }
             });
