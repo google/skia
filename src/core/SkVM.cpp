@@ -22,26 +22,9 @@
 #include <atomic>
 #include <queue>
 
-#if defined(SKVM_LLVM)
-    #include <future>
-    #include <llvm/Bitcode/BitcodeWriter.h>
-    #include <llvm/ExecutionEngine/ExecutionEngine.h>
-    #include <llvm/IR/IRBuilder.h>
-    #include <llvm/IR/Verifier.h>
-    #include <llvm/Support/TargetSelect.h>
-    #include <llvm/Support/Host.h>
-
-    // Platform-specific intrinsics got their own files in LLVM 10.
-    #if __has_include(<llvm/IR/IntrinsicsX86.h>)
-        #include <llvm/IR/IntrinsicsX86.h>
-    #endif
-#endif
-
 #if !defined(SK_BUILD_FOR_WIN)
 #include <unistd.h>
 #endif
-
-// #define SKVM_LLVM_WAIT_FOR_COMPILATION
 
 bool gSkVMAllowJIT{false};
 bool gSkVMJITViaDylib{false};
@@ -59,14 +42,12 @@ bool gSkVMJITViaDylib{false};
             VirtualProtect(ptr, len, PAGE_EXECUTE_READ, &old);
             SkASSERT(old == PAGE_READWRITE);
         }
-        #if !defined(SKVM_LLVM)
         static void unmap_jit_buffer(void* ptr, size_t len) {
             VirtualFree(ptr, 0, MEM_RELEASE);
         }
         static void close_dylib(void* dylib) {
             SkASSERT(false);  // TODO?  For now just assert we never make one.
         }
-        #endif
     #else
         #include <dlfcn.h>
         #include <sys/mman.h>
@@ -83,14 +64,12 @@ bool gSkVMJITViaDylib{false};
             __builtin___clear_cache((char*)ptr,
                                     (char*)ptr + len);
         }
-        #if !defined(SKVM_LLVM)
         static void unmap_jit_buffer(void* ptr, size_t len) {
             munmap(ptr, len);
         }
         static void close_dylib(void* dylib) {
             dlclose(dylib);
         }
-        #endif
     #endif
 
     #if defined(SKVM_JIT_VTUNE)
@@ -171,12 +150,6 @@ namespace skvm {
         std::atomic<void*> jit_entry{nullptr};   // TODO: minimal std::memory_orders
         size_t jit_size = 0;
         void*  dylib    = nullptr;
-
-    #if defined(SKVM_LLVM)
-        std::unique_ptr<llvm::LLVMContext>     llvm_ctx;
-        std::unique_ptr<llvm::ExecutionEngine> llvm_ee;
-        std::future<void>                      llvm_compiling;
-    #endif
     };
 
     // Debugging tools, mostly for printing various data structures out to a stream.
@@ -2641,8 +2614,7 @@ namespace skvm {
 
     #if !defined(SKVM_JIT_BUT_IGNORE_IT)
         const void* jit_entry = fImpl->jit_entry.load();
-        // jit_entry may be null either simply because we can't JIT, or when using LLVM
-        // if the work represented by fImpl->llvm_compiling hasn't finished yet.
+        // jit_entry may be null if we can't JIT
         //
         // Ordinarily we'd never find ourselves with non-null jit_entry and !gSkVMAllowJIT, but it
         // can happen during interactive programs like Viewer that toggle gSkVMAllowJIT on and off,
@@ -2678,450 +2650,17 @@ namespace skvm {
                                this->nargs(), n, args);
     }
 
-    #if defined(SKVM_LLVM)
-    // -- SKVM_LLVM --------------------------------------------------------------------------------
-    void Program::setupLLVM(const std::vector<OptimizedInstruction>& instructions,
-                            const char* debug_name) {
-        auto ctx = std::make_unique<llvm::LLVMContext>();
-
-        auto mod = std::make_unique<llvm::Module>("", *ctx);
-        // All the scary bare pointers from here on are owned by ctx or mod, I think.
-
-        // Everything I've tested runs faster at K=8 (using ymm) than K=16 (zmm) on SKX machines.
-        const int K = (true && SkCpu::Supports(SkCpu::HSW)) ? 8 : 4;
-
-        llvm::Type *ptr = llvm::Type::getInt8Ty(*ctx)->getPointerTo(),
-                   *i32 = llvm::Type::getInt32Ty(*ctx);
-
-        std::vector<llvm::Type*> arg_types = { i32 };
-        for (size_t i = 0; i < fImpl->strides.size(); i++) {
-            arg_types.push_back(ptr);
-        }
-
-        llvm::FunctionType* fn_type = llvm::FunctionType::get(llvm::Type::getVoidTy(*ctx),
-                                                              arg_types, /*vararg?=*/false);
-        llvm::Function* fn
-            = llvm::Function::Create(fn_type, llvm::GlobalValue::ExternalLinkage, debug_name, *mod);
-        for (size_t i = 0; i < fImpl->strides.size(); i++) {
-            fn->addParamAttr(i+1, llvm::Attribute::NoAlias);
-        }
-
-        llvm::BasicBlock *enter  = llvm::BasicBlock::Create(*ctx, "enter" , fn),
-                         *hoistK = llvm::BasicBlock::Create(*ctx, "hoistK", fn),
-                         *testK  = llvm::BasicBlock::Create(*ctx, "testK" , fn),
-                         *loopK  = llvm::BasicBlock::Create(*ctx, "loopK" , fn),
-                         *hoist1 = llvm::BasicBlock::Create(*ctx, "hoist1", fn),
-                         *test1  = llvm::BasicBlock::Create(*ctx, "test1" , fn),
-                         *loop1  = llvm::BasicBlock::Create(*ctx, "loop1" , fn),
-                         *leave  = llvm::BasicBlock::Create(*ctx, "leave" , fn);
-
-        using IRBuilder = llvm::IRBuilder<>;
-
-        llvm::PHINode*                 n;
-        std::vector<llvm::PHINode*> args;
-        std::vector<llvm::Value*> vals(instructions.size());
-
-        auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
-            auto [op, x,y,z,w, immA,immB,immC, death,can_hoist] = instructions[i];
-
-            llvm::Type *i1    = llvm::Type::getInt1Ty (*ctx),
-                       *i8    = llvm::Type::getInt8Ty (*ctx),
-                       *i16   = llvm::Type::getInt16Ty(*ctx),
-                       *f32   = llvm::Type::getFloatTy(*ctx),
-                       *I1    = scalar ? i1    : llvm::VectorType::get(i1 , K, false  ),
-                       *I8    = scalar ? i8    : llvm::VectorType::get(i8 , K, false  ),
-                       *I16   = scalar ? i16   : llvm::VectorType::get(i16, K, false  ),
-                       *I32   = scalar ? i32   : llvm::VectorType::get(i32, K, false  ),
-                       *F32   = scalar ? f32   : llvm::VectorType::get(f32, K, false  );
-
-            auto I  = [&](llvm::Value* v) { return b->CreateBitCast(v, I32  ); };
-            auto F  = [&](llvm::Value* v) { return b->CreateBitCast(v, F32  ); };
-
-            auto S = [&](llvm::Type* dst, llvm::Value* v) { return b->CreateSExt(v, dst); };
-
-            llvm::Type* vt = nullptr;
-            switch (llvm::Type* t = nullptr; op) {
-                default:
-                    SkDebugf("can't llvm %s (%d)\n", name(op), op);
-                    return false;
-
-                case Op::assert_true: /*TODO*/ break;
-
-                case Op::trace_line:
-                case Op::trace_var:
-                case Op::trace_enter:
-                case Op::trace_exit:
-                case Op::trace_scope:
-                    /* Force this program to run in the interpreter. */
-                    return false;
-
-                case Op::index:
-                    if (I32->isVectorTy()) {
-                        std::vector<llvm::Constant*> iota(K);
-                        for (int j = 0; j < K; j++) {
-                            iota[j] = b->getInt32(j);
-                        }
-                        vals[i] = b->CreateSub(b->CreateVectorSplat(K, n),
-                                               llvm::ConstantVector::get(iota));
-                    } else {
-                        vals[i] = n;
-                    } break;
-
-                case Op::load8:  t = I8 ; goto load;
-                case Op::load16: t = I16; goto load;
-                case Op::load32: t = I32; goto load;
-                load: {
-                    llvm::Value* ptr = b->CreateBitCast(args[immA], t->getPointerTo());
-                    vals[i] = b->CreateZExt(
-                            b->CreateAlignedLoad(t, ptr, llvm::MaybeAlign{1}), I32);
-                } break;
-
-
-                case Op::splat: vals[i] = llvm::ConstantInt::get(I32, immA); break;
-
-                case Op::uniform32: {
-                    llvm::Value* ptr = b->CreateBitCast(
-                            b->CreateConstInBoundsGEP1_32(i8, args[immA], immB),
-                            i32->getPointerTo());
-                    llvm::Value* val = b->CreateZExt(
-                            b->CreateAlignedLoad(i32, ptr, llvm::MaybeAlign{1}), i32);
-                    vals[i] = I32->isVectorTy() ? b->CreateVectorSplat(K, val)
-                                                : val;
-                } break;
-
-                case Op::gather8:  t = i8 ; vt = I8; goto gather;
-                case Op::gather16: t = i16; vt = I16; goto gather;
-                case Op::gather32: t = i32; vt = I32; goto gather;
-                gather: {
-                    // Our gather base pointer is immB bytes off of uniform immA.
-                    llvm::Value* base =
-                        b->CreateLoad(b->CreateBitCast(
-                                b->CreateConstInBoundsGEP1_32(i8, args[immA],immB),
-                                t->getPointerTo()->getPointerTo()));
-
-                    llvm::Value* ptr = b->CreateInBoundsGEP(t, base, vals[x]);
-                    llvm::Value* gathered;
-                    if (ptr->getType()->isVectorTy()) {
-                        gathered = b->CreateMaskedGather(
-                                vt,
-                                ptr,
-                                llvm::Align{1});
-                    } else {
-                        gathered = b->CreateAlignedLoad(vt, ptr, llvm::MaybeAlign{1});
-                    }
-                    vals[i] = b->CreateZExt(gathered, I32);
-                } break;
-
-                case Op::store8:  t = I8 ; goto store;
-                case Op::store16: t = I16; goto store;
-                case Op::store32: t = I32; goto store;
-                store: {
-                    llvm::Value* val = b->CreateTrunc(vals[x], t);
-                    llvm::Value* ptr = b->CreateBitCast(args[immA],
-                                                        val->getType()->getPointerTo());
-                    vals[i] = b->CreateAlignedStore(val, ptr, llvm::MaybeAlign{1});
-                } break;
-
-                case Op::bit_and:   vals[i] = b->CreateAnd(vals[x], vals[y]); break;
-                case Op::bit_or :   vals[i] = b->CreateOr (vals[x], vals[y]); break;
-                case Op::bit_xor:   vals[i] = b->CreateXor(vals[x], vals[y]); break;
-                case Op::bit_clear: vals[i] = b->CreateAnd(vals[x], b->CreateNot(vals[y])); break;
-
-                case Op::select:
-                    vals[i] = b->CreateSelect(b->CreateTrunc(vals[x], I1), vals[y], vals[z]);
-                    break;
-
-                case Op::add_i32: vals[i] = b->CreateAdd(vals[x], vals[y]); break;
-                case Op::sub_i32: vals[i] = b->CreateSub(vals[x], vals[y]); break;
-                case Op::mul_i32: vals[i] = b->CreateMul(vals[x], vals[y]); break;
-
-                case Op::shl_i32: vals[i] = b->CreateShl (vals[x], immA); break;
-                case Op::sra_i32: vals[i] = b->CreateAShr(vals[x], immA); break;
-                case Op::shr_i32: vals[i] = b->CreateLShr(vals[x], immA); break;
-
-                case Op:: eq_i32: vals[i] = S(I32, b->CreateICmpEQ (vals[x], vals[y])); break;
-                case Op:: gt_i32: vals[i] = S(I32, b->CreateICmpSGT(vals[x], vals[y])); break;
-
-                case Op::add_f32: vals[i] = I(b->CreateFAdd(F(vals[x]), F(vals[y]))); break;
-                case Op::sub_f32: vals[i] = I(b->CreateFSub(F(vals[x]), F(vals[y]))); break;
-                case Op::mul_f32: vals[i] = I(b->CreateFMul(F(vals[x]), F(vals[y]))); break;
-                case Op::div_f32: vals[i] = I(b->CreateFDiv(F(vals[x]), F(vals[y]))); break;
-
-                case Op:: eq_f32: vals[i] = S(I32, b->CreateFCmpOEQ(F(vals[x]), F(vals[y]))); break;
-                case Op::neq_f32: vals[i] = S(I32, b->CreateFCmpUNE(F(vals[x]), F(vals[y]))); break;
-                case Op:: gt_f32: vals[i] = S(I32, b->CreateFCmpOGT(F(vals[x]), F(vals[y]))); break;
-                case Op::gte_f32: vals[i] = S(I32, b->CreateFCmpOGE(F(vals[x]), F(vals[y]))); break;
-
-                case Op::fma_f32:
-                    vals[i] = I(b->CreateIntrinsic(llvm::Intrinsic::fma, {F32},
-                                                   {F(vals[x]), F(vals[y]), F(vals[z])}));
-                    break;
-
-                case Op::fms_f32:
-                    vals[i] = I(b->CreateIntrinsic(llvm::Intrinsic::fma, {F32},
-                                                   {F(vals[x]), F(vals[y]),
-                                                    b->CreateFNeg(F(vals[z]))}));
-                    break;
-
-                case Op::fnma_f32:
-                    vals[i] = I(b->CreateIntrinsic(llvm::Intrinsic::fma, {F32},
-                                                   {b->CreateFNeg(F(vals[x])), F(vals[y]),
-                                                    F(vals[z])}));
-                    break;
-
-                case Op::ceil:
-                    vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::ceil, F(vals[x])));
-                    break;
-                case Op::floor:
-                    vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor, F(vals[x])));
-                    break;
-
-                case Op::max_f32:
-                    vals[i] = I(b->CreateSelect(b->CreateFCmpOLT(F(vals[x]), F(vals[y])),
-                                                F(vals[y]), F(vals[x])));
-                    break;
-                case Op::min_f32:
-                    vals[i] = I(b->CreateSelect(b->CreateFCmpOLT(F(vals[y]), F(vals[x])),
-                                                F(vals[y]), F(vals[x])));
-                    break;
-
-                case Op::sqrt_f32:
-                    vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::sqrt, F(vals[x])));
-                    break;
-
-                case Op::to_f32: vals[i] = I(b->CreateSIToFP(  vals[x] , F32)); break;
-                case Op::trunc : vals[i] =   b->CreateFPToSI(F(vals[x]), I32) ; break;
-                case Op::round : {
-                    // Basic impl when we can't use cvtps2dq and co.
-                    auto round = b->CreateUnaryIntrinsic(llvm::Intrinsic::rint, F(vals[x]));
-                    vals[i] = b->CreateFPToSI(round, I32);
-
-                #if 1 && defined(SK_CPU_X86)
-                    // Using b->CreateIntrinsic(..., {}, {...}) to avoid name mangling.
-                    if (scalar) {
-                        // cvtss2si is float x4 -> int, ignoring input lanes 1,2,3.  ¯\_(ツ)_/¯
-                        llvm::Value* v = llvm::UndefValue::get(
-                                llvm::VectorType::get(f32, 4, false));
-                        v = b->CreateInsertElement(v, F(vals[x]), (uint64_t)0);
-                        vals[i] = b->CreateIntrinsic(llvm::Intrinsic::x86_sse_cvtss2si, {}, {v});
-                    } else {
-                        SkASSERT(K == 4  || K == 8);
-                        auto intr = K == 4 ?   llvm::Intrinsic::x86_sse2_cvtps2dq :
-                                 /* K == 8 ?*/ llvm::Intrinsic::x86_avx_cvt_ps2dq_256;
-                        vals[i] = b->CreateIntrinsic(intr, {}, {F(vals[x])});
-                    }
-                #endif
-                } break;
-
-            }
-            return true;
-        };
-
-        {
-            IRBuilder b(enter);
-            b.CreateBr(hoistK);
-        }
-
-        // hoistK: emit each hoistable vector instruction; goto testK;
-        // LLVM can do this sort of thing itself, but we've got the information cheap,
-        // and pointer aliasing makes it easier to manually hoist than teach LLVM it's safe.
-        {
-            IRBuilder b(hoistK);
-
-            // Hoisted instructions will need args (think, uniforms), so set that up now.
-            // These phi nodes are degenerate... they'll always be the passed-in args from enter.
-            // Later on when we start looping the phi nodes will start looking useful.
-            llvm::Argument* arg = fn->arg_begin();
-            (void)arg++;  // Leave n as nullptr... it'd be a bug to use n in a hoisted instruction.
-            for (size_t i = 0; i < fImpl->strides.size(); i++) {
-                args.push_back(b.CreatePHI(arg->getType(), 1));
-                args.back()->addIncoming(arg++, enter);
-            }
-
-            for (size_t i = 0; i < instructions.size(); i++) {
-                if (instructions[i].can_hoist && !emit(i, false, &b)) {
-                    return;
-                }
-            }
-
-            b.CreateBr(testK);
-        }
-
-        // testK:  if (N >= K) goto loopK; else goto hoist1;
-        {
-            IRBuilder b(testK);
-
-            // New phi nodes for `n` and each pointer argument from hoistK; later we'll add loopK.
-            // These also start as the initial function arguments; hoistK can't have changed them.
-            llvm::Argument* arg = fn->arg_begin();
-
-            n = b.CreatePHI(arg->getType(), 2);
-            n->addIncoming(arg++, hoistK);
-
-            for (size_t i = 0; i < fImpl->strides.size(); i++) {
-                args[i] = b.CreatePHI(arg->getType(), 2);
-                args[i]->addIncoming(arg++, hoistK);
-            }
-
-            b.CreateCondBr(b.CreateICmpSGE(n, b.getInt32(K)), loopK, hoist1);
-        }
-
-        // loopK:  ... insts on K x T vectors; N -= K, args += K*stride; goto testK;
-        {
-            IRBuilder b(loopK);
-            for (size_t i = 0; i < instructions.size(); i++) {
-                if (!instructions[i].can_hoist && !emit(i, false, &b)) {
-                    return;
-                }
-            }
-
-            // n -= K
-            llvm::Value* n_next = b.CreateSub(n, b.getInt32(K));
-            n->addIncoming(n_next, loopK);
-
-            // Each arg ptr += K
-            for (size_t i = 0; i < fImpl->strides.size(); i++) {
-                llvm::Value* arg_next
-                    = b.CreateConstInBoundsGEP1_32(
-                            llvm::Type::getInt8Ty (*ctx),
-                            args[i],
-                            K*fImpl->strides[i]);
-                args[i]->addIncoming(arg_next, loopK);
-            }
-            b.CreateBr(testK);
-        }
-
-        // hoist1: emit each hoistable scalar instruction; goto test1;
-        {
-            IRBuilder b(hoist1);
-            for (size_t i = 0; i < instructions.size(); i++) {
-                if (instructions[i].can_hoist && !emit(i, true, &b)) {
-                    return;
-                }
-            }
-            b.CreateBr(test1);
-        }
-
-        // test1:  if (N >= 1) goto loop1; else goto leave;
-        {
-            IRBuilder b(test1);
-
-            // Set up new phi nodes for `n` and each pointer argument, now from hoist1 and loop1.
-            llvm::PHINode* n_new = b.CreatePHI(n->getType(), 2);
-            n_new->addIncoming(n, hoist1);
-            n = n_new;
-
-            for (size_t i = 0; i < fImpl->strides.size(); i++) {
-                llvm::PHINode* arg_new = b.CreatePHI(args[i]->getType(), 2);
-                arg_new->addIncoming(args[i], hoist1);
-                args[i] = arg_new;
-            }
-
-            b.CreateCondBr(b.CreateICmpSGE(n, b.getInt32(1)), loop1, leave);
-        }
-
-        // loop1:  ... insts on scalars; N -= 1, args += stride; goto test1;
-        {
-            IRBuilder b(loop1);
-            for (size_t i = 0; i < instructions.size(); i++) {
-                if (!instructions[i].can_hoist && !emit(i, true, &b)) {
-                    return;
-                }
-            }
-
-            // n -= 1
-            llvm::Value* n_next = b.CreateSub(n, b.getInt32(1));
-            n->addIncoming(n_next, loop1);
-
-            // Each arg ptr += 1
-            for (size_t i = 0; i < fImpl->strides.size(); i++) {
-                llvm::Value* arg_next
-                    = b.CreateConstInBoundsGEP1_32(
-                            llvm::Type::getInt8Ty (*ctx), args[i], fImpl->strides[i]);
-                args[i]->addIncoming(arg_next, loop1);
-            }
-            b.CreateBr(test1);
-        }
-
-        // leave:  ret
-        {
-            IRBuilder b(leave);
-            b.CreateRetVoid();
-        }
-
-        SkASSERT(false == llvm::verifyModule(*mod, &llvm::outs()));
-
-        if (true) {
-            SkString path = SkStringPrintf("/tmp/%s.bc", debug_name);
-            std::error_code err;
-            llvm::raw_fd_ostream os(path.c_str(), err);
-            if (err) {
-                return;
-            }
-            llvm::WriteBitcodeToFile(*mod, os);
-        }
-
-        static SkOnce once;
-        once([]{
-            SkAssertResult(false == llvm::InitializeNativeTarget());
-            SkAssertResult(false == llvm::InitializeNativeTargetAsmPrinter());
-        });
-
-        if (llvm::ExecutionEngine* ee = llvm::EngineBuilder(std::move(mod))
-                                            .setEngineKind(llvm::EngineKind::JIT)
-                                            .setMCPU(llvm::sys::getHostCPUName())
-                                            .create()) {
-            fImpl->llvm_ctx = std::move(ctx);
-            fImpl->llvm_ee.reset(ee);
-
-            #if defined(SKVM_LLVM_WAIT_FOR_COMPILATION)
-            // Wait for llvm to compile
-            void* function = (void*)ee->getFunctionAddress(debug_name);
-            fImpl->jit_entry.store(function);
-            // We have to be careful here about what we close over and how, in case fImpl moves.
-            // fImpl itself may change, but its pointee fields won't, so close over them by value.
-            // Also, debug_name will almost certainly leave scope, so copy it.
-            #else
-            fImpl->llvm_compiling = std::async(std::launch::async, [dst  = &fImpl->jit_entry,
-                                                                    ee   =  fImpl->llvm_ee.get(),
-                                                                    name = std::string(debug_name)]{
-                // std::atomic<void*>*    dst;
-                // llvm::ExecutionEngine* ee;
-                // std::string            name;
-                dst->store( (void*)ee->getFunctionAddress(name.c_str()) );
-            });
-            #endif
-        }
-    }
-    #endif  // SKVM_LLVM
-
-    void Program::waitForLLVM() const {
-    #if defined(SKVM_LLVM) && !defined(SKVM_LLVM_WAIT_FOR_COMPILATION)
-        if (fImpl->llvm_compiling.valid()) {
-            fImpl->llvm_compiling.wait();
-        }
-    #endif
-    }
-
     bool Program::hasTraceHooks() const {
         // Identifies a program which has been instrumented for debugging.
         return !fImpl->traceHooks.empty();
     }
 
     bool Program::hasJIT() const {
-        // Program::hasJIT() is really just a debugging / test aid,
-        // so we don't mind adding a sync point here to wait for compilation.
-        this->waitForLLVM();
-
         return fImpl->jit_entry.load() != nullptr;
     }
 
     void Program::dropJIT() {
-    #if defined(SKVM_LLVM)
-        this->waitForLLVM();
-        fImpl->llvm_ee .reset(nullptr);
-        fImpl->llvm_ctx.reset(nullptr);
-    #elif defined(SKVM_JIT)
+    #if defined(SKVM_JIT)
         if (fImpl->dylib) {
             close_dylib(fImpl->dylib);
         } else if (auto jit_entry = fImpl->jit_entry.load()) {
@@ -3161,14 +2700,11 @@ namespace skvm {
         fImpl->strides = strides;
         fImpl->traceHooks = traceHooks;
         if (gSkVMAllowJIT && allow_jit) {
-        #if 1 && defined(SKVM_LLVM)
-            this->setupLLVM(instructions, debug_name);
-        #elif 1 && defined(SKVM_JIT)
+        #if defined(SKVM_JIT)
             this->setupJIT(instructions, debug_name);
         #endif
         }
 
-        // Might as well do this after setupLLVM() to get a little more time to compile.
         this->setupInterpreter(instructions);
     }
 
