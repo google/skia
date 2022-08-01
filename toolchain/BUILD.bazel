@@ -1,5 +1,5 @@
 load("//bazel:macros.bzl", "exports_files_legacy")
-load("@rules_cc//cc:defs.bzl", "cc_toolchain", "cc_toolchain_suite")
+load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load(":linux_amd64_toolchain_config.bzl", "provide_linux_amd64_toolchain_config")
 load(":mac_toolchain_config.bzl", "provide_mac_toolchain_config")
 
@@ -67,7 +67,6 @@ toolchain(
     toolchain_type = "@rules_cc//cc:toolchain_type",
 )
 
-
 filegroup(name = "not_implemented")
 
 filegroup(
@@ -97,12 +96,26 @@ filegroup(
 )
 
 filegroup(
-    name = "all_mac_files",
+    name = "archive_mac_files",
     srcs = [
         "mac_trampolines/ar_trampoline_mac.sh",
+        "@clang_mac//:archive_files",
+    ],
+)
+
+filegroup(
+    name = "compile_mac_files",
+    srcs = [
         "mac_trampolines/clang_trampoline_mac.sh",
-        "mac_trampolines/lld_trampoline_mac.sh",
-        "@clang_mac//:all_files",
+        "@clang_mac//:compile_files",
+    ],
+)
+
+filegroup(
+    name = "link_mac_files",
+    srcs = [
+        "mac_trampolines/clang_trampoline_mac.sh",
+        "@clang_mac//:link_files",
     ],
 )
 
@@ -130,11 +143,11 @@ cc_toolchain(
 
 cc_toolchain(
     name = "mac_host",
-    all_files = ":all_mac_files",
-    ar_files = ":all_mac_files",
-    compiler_files = ":all_mac_files",
+    all_files = ":compile_mac_files",  # Apparently also used to compile objc code
+    ar_files = ":archive_mac_files",
+    compiler_files = ":compile_mac_files",
     dwp_files = ":not_implemented",
-    linker_files = ":all_mac_files",
+    linker_files = ":link_mac_files",
     objcopy_files = ":not_implemented",
     strip_files = ":not_implemented",
     supports_param_files = False,

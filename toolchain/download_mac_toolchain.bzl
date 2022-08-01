@@ -48,28 +48,83 @@ def _download_mac_toolchain_impl(ctx):
         # to =
         "./symlinks/xcode/MacSDK/usr",
     )
+    ctx.symlink(
+        # from =
+        res.stdout.rstrip() + "/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+        # to =
+        "./symlinks/xcode/MacSDK/Frameworks",
+    )
 
-    # Create a BUILD.bazel file that makes all the files in this subfolder
-    # except for those in the share directory. They are not necessary for building
-    # and create a symlink looping error when resolving the filegroup.
-    # available for use in rules, i.e. in the toolchain declaration.
+    # Create a BUILD.bazel file that makes the files necessary for compiling,
+    # linking and creating archive files visible to Bazel.
+    # The smaller the globs are, the more performant the sandboxed builds will be.
+    # Additionally, globs that are too wide can pick up infinite symlink loops,
+    # and be difficult to quash: https://github.com/bazelbuild/bazel/issues/13950
     # https://bazel.build/rules/lib/repository_ctx#file
-    # TODO(kjlubick, jmbetancourt): Let's have compile-specific and link-specific rules, similar
-    #  to https://skia-review.googlesource.com/c/skia/+/547822 and
-    #  https://github.com/emscripten-core/emsdk/commit/93f21c9ef30bab52de24f9d4ea3f2f377cf6326a
+    #
     ctx.file(
         "BUILD.bazel",
         content = """
 # DO NOT EDIT THIS BAZEL FILE DIRECTLY
 # Generated from ctx.file action in download_mac_toolchain.bzl
 filegroup(
-    name = "all_files",
-    srcs = glob(
-                ["**"],
-                exclude = [
-                    "symlinks/xcode/MacSDK/usr/share/**"
-                ]),
-    visibility = ["//visibility:public"]
+    name = "archive_files",
+    srcs = [
+        "bin/llvm-ar",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "compile_files",
+    srcs = [
+        "bin/clang",
+    ] + glob(
+        include = [
+            "include/c++/v1/**",
+            "lib/clang/13.0.0/**",
+            "symlinks/xcode/MacSDK/Frameworks/AppKit.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/ApplicationServices.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/Carbon.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CFNetwork.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CloudKit.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/Cocoa.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/ColorSync.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CoreData.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CoreFoundation.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CoreGraphics.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CoreImage.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CoreLocation.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CoreServices.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CoreText.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/CoreVideo.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/DiskArbitration.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/Foundation.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/ImageIO.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/IOKit.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/IOSurface.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/Metal.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/OpenGL.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/QuartzCore.Framework/**",
+            "symlinks/xcode/MacSDK/Frameworks/Security.Framework/**",
+            "symlinks/xcode/MacSDK/usr/include/**",
+        ],
+        allow_empty = False,
+    ),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "link_files",
+    srcs = [
+        "bin/clang",
+        "bin/ld.lld",
+        "bin/lld",
+        "lib/libc++.a",
+        "lib/libc++abi.a",
+        "lib/libunwind.a",
+    ],
+    visibility = ["//visibility:public"],
 )
 """,
         executable = False,

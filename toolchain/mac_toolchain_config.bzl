@@ -28,9 +28,8 @@ load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 # The location of the created clang toolchain.
 EXTERNAL_TOOLCHAIN = "external/clang_mac"
 
-# Symlink location.
-# Must be the same as where the symlink points to in download_mac_toolchain.bzl
-XCODE_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK/usr"
+# Root of our symlinks. These symlinks are created in download_mac_toolchain.bzl
+XCODE_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK"
 
 _platform_constraints_to_import = {
     "@platforms//cpu:arm64": "_arm64_cpu",
@@ -44,23 +43,27 @@ def _mac_toolchain_info(ctx):
     features += _make_diagnostic_flags()
     features += _make_target_specific_flags(ctx)
 
-    # https://docs.bazel.build/versions/main/skylark/lib/cc_common.html#create_cc_toolchain_config_info
+    # https://bazel.build/rules/lib/cc_common#create_cc_toolchain_config_info
     # Note, this rule is defined in Java code, not Starlark
     # https://cs.opensource.google/bazel/bazel/+/master:src/main/java/com/google/devtools/build/lib/starlarkbuildapi/cpp/CcModuleApi.java
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
         features = features,
-        abi_libc_version = "unknown",
-        abi_version = "unknown",
         action_configs = action_configs,
         builtin_sysroot = EXTERNAL_TOOLCHAIN,
-        compiler = "clang",
-        host_system_name = "local",
-        target_cpu = "m1",
-        target_system_name = "local",
-        # does this matter?
-        target_libc = "glibc-2.31",
-        toolchain_identifier = "clang-toolchain",
+        cxx_builtin_include_directories = [
+            # https://stackoverflow.com/a/61419490
+            # "If the compiler has --sysroot support, then these paths should use %sysroot%
+            #  rather than the include path"
+            # https://bazel.build/rules/lib/cc_common#create_cc_toolchain_config_info.cxx_builtin_include_directories
+            "%sysroot%/symlinks/xcode/MacSDK/Frameworks/",
+        ],
+        # These are required, but do nothing
+        compiler = "",
+        target_cpu = "",
+        target_libc = "",
+        target_system_name = "",
+        toolchain_identifier = "",
     )
 
 def _import_platform_constraints():
@@ -271,16 +274,15 @@ def _make_default_flags():
                     "-isystem",
                     EXTERNAL_TOOLCHAIN + "/include/c++/v1",
                     "-isystem",
-                    XCODE_SYMLINK + "/include",
+                    XCODE_SYMLINK + "/usr/include",
                     "-isystem",
                     EXTERNAL_TOOLCHAIN + "/lib/clang/13.0.0/include",
-                    # Set the framework path to the Mac SDK framework directory. We can't include it
-                    # through XCODE_SYMLINK because of infinite symlink recursion introduced in the
-                    # framework folder.
-                    # TODO(jmbetancourt): feed this path similarly to how we used xcode-select
-                    # idea: set this in the trampoline script
-                    "-F",
-                    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+                    # Set the framework path to the Mac SDK framework directory. This has
+                    # subfolders like OpenGL.framework
+                    # We want -iframework so Clang hides diagnostic warnings from those header
+                    # files we include. -F does not hide those.
+                    "-iframework",
+                    XCODE_SYMLINK + "/Frameworks",
                     # We do not want clang to search in absolute paths for files. This makes
                     # Bazel think we are using an outside resource and fail the compile.
                     "-no-canonical-prefixes",
@@ -338,9 +340,6 @@ def _make_default_flags():
                     # included in the clang binary
                     "--rtlib=compiler-rt",
                     "-std=c++17",
-                    # Tell the linker where to look for libraries.
-                    "-L",
-                    XCODE_SYMLINK + "/lib",
                     "-lstdc++",
                 ],
             ),
