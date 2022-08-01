@@ -69,6 +69,10 @@ struct SimpleTextStyle {
     int fontFeatureLen;
     WASMPointerF32 fontFeatureNamesPtr;
     WASMPointerF32 fontFeatureValuesPtr;
+
+    int fontVariationLen;
+    WASMPointerF32 fontVariationAxesPtr;
+    WASMPointerF32 fontVariationValuesPtr;
 };
 
 struct SimpleStrutStyle {
@@ -202,6 +206,28 @@ para::TextStyle toTextStyle(const SimpleTextStyle& s) {
             SkString name(fontFeatureNames[i], 4);
             ts.addFontFeature(name, fontFeatureValues[i]);
         }
+    }
+
+    if (s.fontVariationLen > 0) {
+        const char** fontVariationAxes = reinterpret_cast<const char**>(s.fontVariationAxesPtr);
+        const float* fontVariationValues = reinterpret_cast<const float*>(s.fontVariationValuesPtr);
+        std::vector<SkFontArguments::VariationPosition::Coordinate> coordinates;
+        for (int i = 0; i < s.fontVariationLen; i++) {
+            // Font variation axis tags are 4-character simple strings.
+            SkString axis(fontVariationAxes[i]);
+            if (axis.size() != 4) {
+                continue;
+            }
+            coordinates.push_back({
+                SkSetFourByteTag(axis[0], axis[1], axis[2], axis[3]),
+                fontVariationValues[i]
+            });
+        }
+        SkFontArguments::VariationPosition position = {
+            coordinates.data(),
+            static_cast<int>(coordinates.size())
+        };
+        ts.setFontArguments(SkFontArguments().setVariationDesignPosition(position));
     }
 
     return ts;
@@ -622,7 +648,10 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("_shadowBlurRadiiPtr",   &SimpleTextStyle::shadowBlurRadiiPtr)
         .field("_fontFeatureLen",       &SimpleTextStyle::fontFeatureLen)
         .field("_fontFeatureNamesPtr",  &SimpleTextStyle::fontFeatureNamesPtr)
-        .field("_fontFeatureValuesPtr", &SimpleTextStyle::fontFeatureValuesPtr);
+        .field("_fontFeatureValuesPtr", &SimpleTextStyle::fontFeatureValuesPtr)
+        .field("_fontVariationLen",     &SimpleTextStyle::fontVariationLen)
+        .field("_fontVariationAxesPtr", &SimpleTextStyle::fontVariationAxesPtr)
+        .field("_fontVariationValuesPtr", &SimpleTextStyle::fontVariationValuesPtr);
 
     // The U stands for unsigned - we can't bind a generic/template object, so we have to specify it
     // with the type we are using.

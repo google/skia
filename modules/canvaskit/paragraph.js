@@ -246,6 +246,19 @@
         textStyle['_fontFeatureNamesPtr'] = nullptr;
         textStyle['_fontFeatureValuesPtr'] = nullptr;
       }
+
+      if (Array.isArray(textStyle['fontVariations']) && textStyle['fontVariations'].length) {
+        var fontVariations = textStyle['fontVariations'];
+        var fontVariationAxes = fontVariations.map(function (s) { return s['axis']; });
+        var fontVariationValues = fontVariations.map(function (s) { return s['value']; });
+        textStyle['_fontVariationLen'] = fontVariations.length;
+        textStyle['_fontVariationAxesPtr'] = naiveCopyStrArray(fontVariationAxes);
+        textStyle['_fontVariationValuesPtr'] = copy1dArray(fontVariationValues, 'HEAPF32');
+      } else {
+        textStyle['_fontVariationLen'] = 0;
+        textStyle['_fontVariationAxesPtr'] = nullptr;
+        textStyle['_fontVariationValuesPtr'] = nullptr;
+      }
     }
 
     function freeArrays(textStyle) {

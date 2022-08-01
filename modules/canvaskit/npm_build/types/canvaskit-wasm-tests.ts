@@ -588,6 +588,7 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) 
         decorationThickness: 1.5, // multiplier based on font size
         fontSize: 24,
         fontFeatures: [{name: 'smcp', value: 1}],
+        fontVariations: [{axis: 'wght', value: 100}],
         shadows: [{color: CK.BLACK, blurRadius: 15},
                   {color: CK.RED, blurRadius: 5, offset: [10, 10]}],
     });

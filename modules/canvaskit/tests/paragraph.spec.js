@@ -30,6 +30,13 @@ describe('Paragraph Behavior', function() {
             robotoFontBuffer = buffer;
         });
 
+    let robotoVariableFontBuffer = null;
+    const robotoVariableFontLoaded = fetch('/assets/RobotoSlab-VariableFont_wght.ttf').then(
+        (response) => response.arrayBuffer()).then(
+        (buffer) => {
+            robotoVariableFontBuffer = buffer;
+        });
+
     beforeEach(async () => {
         await LoadCanvasKit;
         await notoSerifFontLoaded;
@@ -360,6 +367,47 @@ describe('Paragraph Behavior', function() {
         });
         const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
         builder.addText('This Text Should Be In Small Caps');
+        const paragraph = builder.build();
+        paragraph.layout(300);
+
+        canvas.clear(CanvasKit.WHITE);
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        fontMgr.delete();
+        paragraph.delete();
+        builder.delete();
+    });
+
+    gm('paragraph_font_variations', (canvas) => {
+        const fontMgr = CanvasKit.FontMgr.FromData(robotoVariableFontBuffer);
+        expect(fontMgr.countFamilies()).toEqual(1);
+        expect(fontMgr.getFamilyName(0)).toEqual('Roboto Slab');
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                color: CanvasKit.BLACK,
+                fontFamilies: ['Roboto Slab'],
+                fontSize: 30,
+            },
+            textAlign: CanvasKit.TextAlign.Center,
+        });
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText('Normal\n');
+        builder.pushStyle(new CanvasKit.TextStyle({
+            fontFamilies: ['Roboto Slab'],
+            fontSize: 30,
+            fontVariations: [{axis: 'wght', value: 900}]
+        }));
+        builder.addText('Heavy Weight\n');
+        builder.pushStyle(new CanvasKit.TextStyle({
+            fontFamilies: ['Roboto Slab'],
+            fontSize: 30,
+            fontVariations: [{axis: 'wght', value: 100}]
+        }));
+        builder.addText('Light Weight\n');
+        builder.pop();
+        builder.pop();
+
         const paragraph = builder.build();
         paragraph.layout(300);
 

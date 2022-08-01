@@ -2937,6 +2937,11 @@ export interface TextFontFeatures {
     value: number;
 }
 
+export interface TextFontVariations {
+    axis: string;
+    value: number;
+}
+
 export interface TextShadow {
     color?: InputColor;
     /**
@@ -2957,6 +2962,7 @@ export interface TextStyle {
     fontFeatures?: TextFontFeatures[];
     fontSize?: number;
     fontStyle?: FontStyle;
+    fontVariations?: TextFontVariations[];
     foregroundColor?: InputColor;
     heightMultiplier?: number;
     halfLeading?: boolean;
