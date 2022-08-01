@@ -108,20 +108,14 @@ public:
     const std::unique_ptr<Type> fMat4x3;
     const std::unique_ptr<Type> fMat4x4;
 
-    const std::unique_ptr<Type> fTexture1D;
     const std::unique_ptr<Type> fTexture2D;
-    const std::unique_ptr<Type> fTexture3D;
     const std::unique_ptr<Type> fTextureExternalOES;
     const std::unique_ptr<Type> fTexture2DRect;
-    const std::unique_ptr<Type> fITexture2D;
 
-    const std::unique_ptr<Type> fSampler1D;
     const std::unique_ptr<Type> fSampler2D;
-    const std::unique_ptr<Type> fSampler3D;
     const std::unique_ptr<Type> fSamplerExternalOES;
     const std::unique_ptr<Type> fSampler2DRect;
 
-    const std::unique_ptr<Type> fISampler2D;
     const std::unique_ptr<Type> fSampler;
 
     const std::unique_ptr<Type> fSubpassInput;

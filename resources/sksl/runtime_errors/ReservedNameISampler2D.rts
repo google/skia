@@ -1,5 +1,0 @@
-int isampler2D;
-
-/*%%*
-expected an identifier, but found type 'isampler2D'
-*%%*/

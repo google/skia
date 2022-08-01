@@ -1,5 +1,5 @@
 int sampler1D;
 
 /*%%*
-expected an identifier, but found type 'sampler1D'
+'sampler1D' is a reserved word
 *%%*/

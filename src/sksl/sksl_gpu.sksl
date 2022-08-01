@@ -45,12 +45,8 @@ $genIType findMSB($genIType value);
 $genIType findMSB($genUType value);
 
 sampler2D makeSampler2D(texture2D texture, sampler s);
-int2 textureSize(sampler2DRect s);
 
-half4 sample(sampler1D s, float P);
-half4 sample(sampler1D s, float P, float bias);
 half4 sample(sampler2D s, float2 P);
-int4 sample(isampler2D s, float2 P);
 half4 sample(samplerExternalOES s, float2 P, float bias);
 half4 sample(samplerExternalOES s, float2 P);
 
@@ -62,19 +58,8 @@ half4 sample(sampler2DRect s, float3 P);
 half4 subpassLoad(subpassInput subpass);
 half4 subpassLoad(subpassInputMS subpass, int sample);
 
-half4 sample(sampler1D s, float2 P);
-half4 sample(sampler1D s, float2 P, float bias);
 half4 sample(sampler2D s, float3 P);
 half4 sample(sampler2D s, float3 P, float bias);
-
-float interpolateAtSample(float interpolant, int sample);
-float2 interpolateAtSample(float2 interpolant, int sample);
-float3 interpolateAtSample(float3 interpolant, int sample);
-float4 interpolateAtSample(float4 interpolant, int sample);
-float interpolateAtOffset(float interpolant, float2 offset);
-float2 interpolateAtOffset(float2 interpolant, float2 offset);
-float3 interpolateAtOffset(float3 interpolant, float2 offset);
-float4 interpolateAtOffset(float4 interpolant, float2 offset);
 
 // Definitions of functions implementing all of the SkBlendMode blends.
 

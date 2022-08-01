@@ -95,20 +95,8 @@ BuiltinTypes::BuiltinTypes()
         , fMat4x2(Type::MakeAliasType("mat4x2", *fFloat4x2))
         , fMat4x3(Type::MakeAliasType("mat4x3", *fFloat4x3))
         , fMat4x4(Type::MakeAliasType("mat4x4", *fFloat4x4))
-        , fTexture1D(Type::MakeTextureType("texture1D",
-                                           SpvDim1D,
-                                           /*isDepth=*/false,
-                                           /*isArrayedTexture=*/false,
-                                           /*isMultisampled=*/false,
-                                           /*isSampled=*/true))
         , fTexture2D(Type::MakeTextureType("texture2D",
                                            SpvDim2D,
-                                           /*isDepth=*/false,
-                                           /*isArrayedTexture=*/false,
-                                           /*isMultisampled=*/false,
-                                           /*isSampled=*/true))
-        , fTexture3D(Type::MakeTextureType("texture3D",
-                                           SpvDim3D,
                                            /*isDepth=*/false,
                                            /*isArrayedTexture=*/false,
                                            /*isMultisampled=*/false,
@@ -125,19 +113,9 @@ BuiltinTypes::BuiltinTypes()
                                                /*isArrayedTexture=*/false,
                                                /*isMultisampled=*/false,
                                                /*isSampled=*/true))
-        , fITexture2D(Type::MakeTextureType("itexture2D",
-                                            SpvDim2D,
-                                            /*isDepth=*/false,
-                                            /*isArrayedTexture=*/false,
-                                            /*isMultisampled=*/false,
-                                            /*isSampled=*/true))
-        , fSampler1D(Type::MakeSamplerType("sampler1D", *fTexture1D))
         , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D))
-        , fSampler3D(Type::MakeSamplerType("sampler3D", *fTexture3D))
         , fSamplerExternalOES(Type::MakeSamplerType("samplerExternalOES", *fTextureExternalOES))
         , fSampler2DRect(Type::MakeSamplerType("sampler2DRect", *fTexture2DRect))
-
-        , fISampler2D(Type::MakeSamplerType("isampler2D", *fITexture2D))
 
         , fSampler(Type::MakeSpecialType("sampler", "ss", Type::TypeKind::kSeparateSampler))
 

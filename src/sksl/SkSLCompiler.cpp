@@ -203,11 +203,8 @@ inline static constexpr BuiltinTypePtr kRootTypes[] = {
 };
 
 inline static constexpr BuiltinTypePtr kPrivateTypes[] = {
-    TYPE(Sampler1D), TYPE(Sampler2D), TYPE(Sampler3D),
-    TYPE(SamplerExternalOES),
-    TYPE(Sampler2DRect),
+    TYPE(Sampler2D), TYPE(SamplerExternalOES), TYPE(Sampler2DRect),
 
-    TYPE(ISampler2D),
     TYPE(SubpassInput), TYPE(SubpassInputMS),
 
     TYPE(Sampler),

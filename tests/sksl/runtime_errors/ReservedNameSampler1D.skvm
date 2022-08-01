@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found type 'sampler1D'
+error: 1: 'sampler1D' is a reserved word
 int sampler1D;
     ^^^^^^^^^
 1 error
