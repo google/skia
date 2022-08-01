@@ -71,23 +71,6 @@ bool gSkVMJITViaDylib{false};
             dlclose(dylib);
         }
     #endif
-
-    #if defined(SKVM_JIT_VTUNE)
-        #include <jitprofiling.h>
-        static void notify_vtune(const char* name, void* addr, size_t len) {
-            if (iJIT_IsProfilingActive() == iJIT_SAMPLING_ON) {
-                iJIT_Method_Load event;
-                memset(&event, 0, sizeof(event));
-                event.method_id           = iJIT_GetNewMethodID();
-                event.method_name         = const_cast<char*>(name);
-                event.method_load_address = addr;
-                event.method_size         = len;
-                iJIT_NotifyEvent(iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED, &event);
-            }
-        }
-    #else
-        static void notify_vtune(const char* name, void* addr, size_t len) {}
-    #endif
 #endif
 
 // JIT code isn't MSAN-instrumented, so we won't see when it uses
@@ -4033,8 +4016,6 @@ namespace skvm {
 
         // Remap as executable, and flush caches on platforms that need that.
         remap_as_executable(jit_entry, fImpl->jit_size);
-
-        notify_vtune(debug_name, jit_entry, fImpl->jit_size);
 
     #if !defined(SK_BUILD_FOR_WIN)
         // For profiling and debugging, it's helpful to have this code loaded

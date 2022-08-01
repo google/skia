@@ -74,8 +74,6 @@ declare_args() {
   skia_enable_graphite = false
   skia_use_zlib = true
 
-  skia_vtune_path = ""
-
   if (is_ios) {
     skia_ios_identity = ".*Google.*"
     skia_ios_profile = "Google Development"
