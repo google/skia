@@ -45,15 +45,14 @@ void initializeEventTracingForTools(const char* traceFlag) {
         eventTracer = new SkATrace();
     } else if (0 == strcmp(traceFlag, "debugf")) {
         eventTracer = new SkDebugfTracer();
-    }
-    else if (0 == strcmp(traceFlag, "perfetto")) {
+    } else if (0 == strcmp(traceFlag, "perfetto")) {
       #if defined(SK_USE_PERFETTO)
-        eventTracer = new SkPerfettoTrace();
+          eventTracer = new SkPerfettoTrace();
       #else
-        SkDebugf("Perfetto is not enabled (SK_USE_PERFETTO is false). "
-          "Perfetto tracing will not be performed.\n"
-          "Tracing with Perfetto is only enabled for Linux, Android, and Mac.");
-        return;
+          SkDebugf("Perfetto is not enabled (SK_USE_PERFETTO is false). Perfetto tracing will not"
+                   "be performed.\nTracing with Perfetto is only enabled for Linux, Android, and"
+                   "Mac.\n");
+          return;
       #endif
     }
     else {

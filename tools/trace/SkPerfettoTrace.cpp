@@ -19,11 +19,11 @@ static DEFINE_string(perfettoOutputDir, "./",
                      "Output directory for perfetto trace file(s).\n"
                      "Note: not the name of the file itself.\n"
                      "Will only have an effect if perfetto tracing is enabled. See --trace.");
-/* TODO: Expand the below explanation to include the naming convention for different tracing
- * sessions once support for splitting tracing sections is implemented. */
 static DEFINE_string(perfettoOutputFileName, "trace",
                      "Output file name (excluding path and file extension) for the perfetto trace"
-                     "file.\n"
+                     "file.\nNote: When splitting trace files by benchmark (see "
+                     "--splitPerfettoTracesByBenchmark), file name will be determined by the "
+                     "benchmark name.\n"
                      "Will only have an effect if perfetto tracing is enabled. See --trace.");
 static DEFINE_string(perfettoOutputFileExtension, ".perfetto-trace",
                      "Output file extension for perfetto trace file(s).\n"
@@ -344,4 +344,11 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag,
             break;
         }
     }
+}
+
+void SkPerfettoTrace::newTracingSection(const char* name) {
+    if (perfetto::Tracing::IsInitialized()) {
+        this->closeTracingSession();
+    }
+    this->openNewTracingSession(name);
 }

@@ -46,6 +46,9 @@ public:
         return fCategories.getCategoryGroupName(categoryEnabledFlag);
     }
 
+    // The Chrome tracer does not yet support splitting up trace output into sections.
+    void newTracingSection(const char* name) override {}
+
 private:
     void flush();
 

@@ -83,3 +83,7 @@ void SkDebugfTracer::updateTraceEventDuration(const uint8_t* categoryEnabledFlag
     fIndent.resize(fIndent.size() - 1);
     SkDebugf("[% 2d]%s } %s\n", (int)fIndent.size(), fIndent.c_str(), name);
 }
+
+void SkDebugfTracer::newTracingSection(const char* name) {
+    SkDebugf("\n\n- - - New tracing section: %s - - -\n", name);
+}

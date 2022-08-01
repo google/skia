@@ -78,6 +78,8 @@ public:
                                  const char* name,
                                  SkEventTracer::Handle handle) = 0;
 
+    virtual void newTracingSection(const char* name) = 0;
+
 protected:
     SkEventTracer() = default;
     SkEventTracer(const SkEventTracer&) = delete;

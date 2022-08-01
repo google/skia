@@ -26,6 +26,8 @@ Milestone 104
   * New functions SkCanvas::getBaseProps and SkCanvas::getTopProps; SkCanvas::getBaseProps is a
     direct replacement for the (now deprecated) SkCanvas::getProps function, while getTopProps is
     a variant that returns the SkSurfaceProps that are active in the current layer.
+  * New function SkEventTracer::newTracingSection(const char* name) enables splitting traces up
+    into different sections for a selection of backend tracing frameworks (Perfetto, SkDebugf).
 
 * * *
 

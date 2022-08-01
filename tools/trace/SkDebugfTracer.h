@@ -41,6 +41,8 @@ public:
         return fCategories.getCategoryGroupName(categoryEnabledFlag);
     }
 
+    void newTracingSection(const char* name) override;
+
 private:
     SkString fIndent;
     int fCnt = 0;

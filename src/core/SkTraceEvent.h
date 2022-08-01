@@ -70,6 +70,12 @@
 #define TRACE_EVENT_API_UPDATE_TRACE_EVENT_DURATION \
     SkEventTracer::GetInstance()->updateTraceEventDuration
 
+// Start writing to a new trace output section (file, etc.).
+// Accepts a label for the new section.
+// void TRACE_EVENT_API_NEW_TRACE_SECTION(const char* name)
+#define TRACE_EVENT_API_NEW_TRACE_SECTION \
+    SkEventTracer::GetInstance()->newTracingSection
+
 // Defines visibility for classes in trace_event.h
 #define TRACE_EVENT_API_CLASS_EXPORT SK_API
 

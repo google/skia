@@ -38,6 +38,9 @@ class SkDefaultEventTracer : public SkEventTracer {
         static const char* stub = "stub";
         return stub;
     }
+
+    // The default tracer does not yet support splitting up trace output into sections.
+    void newTracingSection(const char* name) override {}
 };
 
 // We prefer gUserTracer if it's been set, otherwise we fall back on a default tracer;

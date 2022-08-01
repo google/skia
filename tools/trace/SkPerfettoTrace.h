@@ -41,6 +41,8 @@ public:
 
     const char* getCategoryGroupName(const uint8_t* categoryEnabledFlag) override;
 
+    void newTracingSection(const char* name) override;
+
 private:
     SkPerfettoTrace(const SkPerfettoTrace&) = delete;
     SkPerfettoTrace& operator=(const SkPerfettoTrace&) = delete;
