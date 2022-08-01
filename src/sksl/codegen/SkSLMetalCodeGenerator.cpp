@@ -154,10 +154,10 @@ std::string MetalCodeGenerator::typeName(const Type& type) {
     }
 }
 
-std::string MetalCodeGenerator::textureTypeName(const Type& type, const Modifiers& modifiers) {
-    if (type.typeKind() == Type::TypeKind::kTexture) {
+std::string MetalCodeGenerator::textureTypeName(const Type& type, const Modifiers* modifiers) {
+    if (type.typeKind() == Type::TypeKind::kTexture && modifiers) {
         std::string result = "texture2d<half, access::"; // FIXME - support other texture types
-        int flags = modifiers.fFlags;
+        int flags = modifiers->fFlags;
         if ((flags & Modifiers::kIn_Flag) || !(flags & Modifiers::kOut_Flag)) {
             result += "read";
             if (flags & Modifiers::kOut_Flag) {
@@ -187,7 +187,17 @@ void MetalCodeGenerator::writeType(const Type& type) {
 }
 
 void MetalCodeGenerator::writeTextureType(const Type& type, const Modifiers& modifiers) {
-    this->write(this->textureTypeName(type, modifiers));
+    this->write(this->textureTypeName(type, &modifiers));
+}
+
+void MetalCodeGenerator::writeParameterType(const Type& type) {
+    if (type.typeKind() == Type::TypeKind::kTexture) {
+        // TODO(skia:13609): we will need a mechanism in SkSL to specify texture-access type on
+        // parameters. The default value (`access::sample`) is probably not what we will want.
+        this->write(this->textureTypeName(type, /*modifiers=*/nullptr));
+    } else {
+        this->writeType(type);
+    }
 }
 
 void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence parentPrecedence) {
@@ -305,7 +315,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         this->writeModifiers(param->modifiers());
 
         const Type* type = outVars[index] ? &outVars[index]->type() : &arguments[index]->type();
-        this->writeType(*type);
+        this->writeParameterType(*type);
 
         if (pass_by_reference(param->modifiers(), param->type())) {
             this->write("&");
@@ -2107,7 +2117,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         separator = ", ";
         this->writeModifiers(param->modifiers());
         const Type* type = &param->type();
-        this->writeType(*type);
+        this->writeParameterType(*type);
         if (pass_by_reference(param->modifiers(), param->type())) {
             this->write("&");
         }
