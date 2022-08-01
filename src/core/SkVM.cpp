@@ -326,9 +326,9 @@ namespace skvm {
         }
     }
 
-    void Program::visualize(SkWStream* output, const char* code) const {
+    void Program::visualize(SkWStream* output) const {
         if (fImpl->visualizer) {
-            fImpl->visualizer->dump(output, code);
+            fImpl->visualizer->dump(output);
         }
     }
 
@@ -3870,12 +3870,8 @@ namespace skvm {
                 // Make sure trace commands stay on JIT for visualizer
                 continue;
             }
-            auto start = a->size();
             if (instructions[id].can_hoist && !emit(id, /*scalar=*/false)) {
                 return false;
-            }
-            if (fImpl->visualizer && instructions[id].can_hoist) {
-                fImpl->visualizer->addMachineCommands(id, start, a->size());
             }
         }
 
@@ -3906,12 +3902,8 @@ namespace skvm {
                     // Make sure trace commands stay on JIT for visualizer
                     continue;
                 }
-                auto start = a->size();
                 if (!instructions[id].can_hoist && !emit(id, /*scalar=*/false)) {
                     return false;
-                }
-                if (fImpl->visualizer && !instructions[id].can_hoist) {
-                    fImpl->visualizer->addMachineCommands(id, start, a->size());
                 }
             }
             restore_incoming_regs();

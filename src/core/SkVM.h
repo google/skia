@@ -1075,7 +1075,7 @@ namespace skvm {
         bool hasJIT() const;         // Has this Program been JITted?
         bool hasTraceHooks() const;  // Is this program instrumented for debugging?
 
-        void visualize(SkWStream* output, const char* code) const;
+        void visualize(SkWStream* output) const;
         void dump(SkWStream* = nullptr) const;
         void disassemble(SkWStream* = nullptr) const;
         viz::Visualizer* visualizer();

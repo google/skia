@@ -28,18 +28,8 @@ namespace skvm::viz {
         kDead = 0x02,
     };
 
-    struct MachineCommand {
-        size_t address;
-        SkString label;
-        SkString command;
-        SkString extra;
-    };
-
     struct Instruction {
         InstructionFlags kind = InstructionFlags::kNormal;
-        // Machine commands range (for disassembling):
-        size_t startCode = 0;
-        size_t endCode = 0;
         int instructionIndex; // index in the actual instructions list
         int duplicates = 0;   // number of duplicates;
                               // -1 means it's a duplicate itself; 0 - it does not have dups
@@ -56,7 +46,7 @@ namespace skvm::viz {
     public:
         explicit Visualizer(SkSL::SkVMDebugTrace* debugInfo);
         ~Visualizer() = default;
-        void dump(SkWStream* output, const char* code);
+        void dump(SkWStream* output);
         void markAsDeadCode(std::vector<bool>& live, const std::vector<int>& newIds);
         void finalize(const std::vector<skvm::Instruction>& all,
                       const std::vector<skvm::OptimizedInstruction>& optimized);
@@ -65,10 +55,8 @@ namespace skvm::viz {
             ++fInstructions[origin].duplicates;
         }
         void addInstruction(Instruction skvm);
-        void addMachineCommands(int id, size_t start, size_t end);
         SkString V(int reg) const;
     private:
-        void parseDisassembler(SkWStream* output, const char* code);
         void dumpInstruction(int id) const;
         void dumpHead() const;
         void dumpTail() const;
@@ -95,10 +83,6 @@ namespace skvm::viz {
         SkTArray<Instruction> fInstructions;
         SkWStream* fOutput;
         SkTHashMap<int, size_t> fToDisassembler;
-        SkTArray<MachineCommand> fAsm;
-        mutable size_t fAsmLine = 0;
-        size_t fAsmStart = 0;
-        size_t fAsmEnd = 0;
     };
 } // namespace skvm::viz
 

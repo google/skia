@@ -14,23 +14,9 @@
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #endif
 
-#include <algorithm>
 #include <cstdarg>
-#include <sstream>
 #include <string>
 #include <utility>
-
-namespace {
-
-size_t get_addr(const char* str) {
-    size_t addr;
-    std::istringstream ss(str);
-    ss >> std::hex >> addr;
-    SkASSERT(!ss.fail());
-    return addr;
-}
-
-}
 
 namespace skvm::viz {
 
@@ -42,8 +28,6 @@ Visualizer::Visualizer(SkSL::SkVMDebugTrace* debugInfo) : fOutput(nullptr) {}
 
 bool Instruction::operator == (const Instruction& o) const {
     return this->kind == o.kind &&
-           this->startCode == o.startCode &&
-           this->endCode == o.endCode &&
            this->instructionIndex == o.instructionIndex &&
            this->instruction == o.instruction &&
            this->duplicates == o.duplicates;
@@ -64,75 +48,9 @@ uint32_t InstructionHash::operator()(const Instruction& i) const {
     return hash;
 }
 
-void Visualizer::parseDisassembler(SkWStream* output, const char* code) {
-    if (code == nullptr) {
-        fAsmLine = 0;
-        return;
-    }
-    // Read the disassembled code from <_skvm_jit> until
-    // the last command that is attached to the byte code
-    // We skip all the prelude (main loop organizing and such)
-    // generate the main loop running on vector values (keeping hoisted commands in place)
-    // and skip the tail loop (which is the same as the main, only on scalar values)
-    // We stop after the last byte code.
-    SkTArray<SkString> commands;
-    SkStrSplit(code, "\n", kStrict_SkStrSplitMode, &commands);
-    for (const SkString& line : commands) {
-        ++fAsmLine;
-        if (line.find("<_skvm_jit>") >= 0) {
-            break;
-        }
-    }
-
-    if (fAsmLine < commands.size()) {
-        const SkString& line = commands[fAsmLine];
-        SkTArray<SkString> tokens;
-        SkStrSplit(line.c_str(), "\t", kStrict_SkStrSplitMode, &tokens);
-        if (tokens.size() >= 2 && tokens[0].size() > 1) {
-            fAsmStart = get_addr(tokens[0].c_str());
-        }
-    }
-
-    fAsmEnd += fAsmStart;
-    for (size_t i = fAsmLine; i < commands.size(); ++i) {
-        const SkString& line = commands[i];
-        SkTArray<SkString> tokens;
-        SkStrSplit(line.c_str(), "\t", kStrict_SkStrSplitMode, &tokens);
-        size_t addr = 0;
-        if (tokens.size() >= 2 && tokens[0].size() > 1) {
-            addr = get_addr(tokens[0].c_str());
-        }
-        if (addr > fAsmEnd) {
-            break;
-        }
-        addr -= fAsmStart;
-        if (!fAsm.empty()) {
-            MachineCommand& prev = fAsm.back();
-            if (prev.command.isEmpty()) {
-                int len = addr - prev.address;
-                prev.command.printf("{ align %d bytes }", len);
-            }
-        }
-        SkString command;
-        for (size_t t = 2; t < tokens.size(); ++t) {
-            command += tokens[t];
-        }
-        fAsm.push_back({addr, tokens[0], command, tokens[1]});
-    }
-    if (!fAsm.empty()) {
-        MachineCommand& prev = fAsm.back();
-        if (prev.command.isEmpty()) {
-            int len = fInstructions.back().endCode - prev.address;
-            prev.command.printf("{ align %d bytes }", len);
-        }
-    }
-    fAsmLine = 0;
-}
-
-void Visualizer::dump(SkWStream* output, const char* code) {
+void Visualizer::dump(SkWStream* output) {
     SkDebugfStream stream;
     fOutput = output ? output : &stream;
-    this->parseDisassembler(output, code);
     this->dumpHead();
     for (size_t id = 0ul; id < fInstructions.size(); ++id) {
         this->dumpInstruction(id);
@@ -170,13 +88,7 @@ void Visualizer::addInstructions(std::vector<skvm::Instruction>& program) {
             this->markAsDuplicate(instr.immA, id);
             instr = program[instr.immA];
         }
-        this->addInstruction({
-            viz::InstructionFlags::kNormal,
-            /*startCode=*/0, /*endCode=0*/0,
-            id,
-            isDuplicate ? -1 : 0,
-            instr
-        });
+        this->addInstruction({viz::InstructionFlags::kNormal, id, isDuplicate ? -1 : 0, instr});
     }
 }
 
@@ -203,14 +115,6 @@ void Visualizer::finalize(const std::vector<skvm::Instruction>& all,
                     static_cast<InstructionFlags>(instruction.kind | InstructionFlags::kHoisted);
         }
     }
-}
-
-void Visualizer::addMachineCommands(int id, size_t start, size_t end) {
-    size_t found = fToDisassembler[id];
-    Instruction& instruction = fInstructions[found];
-    instruction.startCode = start;
-    instruction.endCode = end;
-    fAsmEnd = std::max(fAsmEnd, end);
 }
 
 SkString Visualizer::V(int reg) const {
@@ -394,25 +298,6 @@ void Visualizer::dumpInstruction(int id0) const {
         case skvm::Op::round:         formatA_V(id, "round", x);                      break;
         default: SkASSERT(false);
     }
-    // Generation
-    if ((instruction.kind & InstructionFlags::kDead) == 0) {
-        struct Compare
-        {
-            bool operator() (const MachineCommand& c, std::pair<size_t, size_t> p) const
-                            { return c.address < p.first; }
-            bool operator() (std::pair<size_t, size_t> p, const MachineCommand& c) const
-                            { return p.second <= c.address; }
-        };
-
-        std::pair<size_t, size_t> range(instruction.startCode, instruction.endCode);
-        auto commands = std::equal_range(fAsm.begin(), fAsm.end(), range, Compare{ });
-        for (const MachineCommand* line = commands.first; line != commands.second; ++line) {
-            this->writeText("</td></tr>\n<tr class='machine'><td>%s</td><td colspan='2'>%s",
-                            line->label.c_str(),
-                            line->command.c_str());
-        }
-        fAsmLine = commands.second - fAsm.begin();
-    }
     this->writeText("</td></tr>\n");
 }
 
@@ -431,7 +316,6 @@ void Visualizer::dumpHead() const {
     "   .source, .source1 { color: darkblue; }\n"
     "   .mask, .mask1 { color: green; }\n"
     "   .comments, .comments1 { }\n"
-    "   .machine, .machine1 { color: lightblue; }\n"
     "   </style>\n"
     "    <script>\n"
     "    function initializeButton(className) {\n"
@@ -448,7 +332,6 @@ void Visualizer::dumpHead() const {
     "      initializeButton('normal');\n"
     "      initializeButton('source');\n"
     "      initializeButton('dead');\n"
-    "      initializeButton('machine');\n"
     "    };\n"
     "  </script>\n"
     "</head>\n"
@@ -503,9 +386,6 @@ void Visualizer::dumpHead() const {
     "      <tr class='dead1'><td></td><td>{dead code} = mul_f32 v1, v18</td>"
             "<td><button id='dead' onclick=\"toggle(this, 'dead')\">Hide</button></td>"
             "<td>An eliminated \"dead code\" SkVM command</td></tr>\n"
-    "      <tr class='machine1'><td>{address}</td><td>vmovups (%rsi),%ymm0</td>"
-            "<td><button id='machine' onclick=\"toggle(this, 'machine')\">Hide</button></td>"
-            "<td>A disassembled machine command generated by SkVM command</td></tr>\n"
     "    </table>\n"
     "    <table border = \"0\"style='font-family:\"monospace\"; font-size: 10px;'>\n"
     "     <caption style='font-family:Roboto;font-size:15px;text-align:left;'>SkVM Code</caption>\n"

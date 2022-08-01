@@ -34,8 +34,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-extern bool gSkVMAllowJIT;
-
 void SkDebugf(const char format[], ...) {
     va_list args;
     va_start(args, format);
@@ -520,7 +518,6 @@ ResultCode processCommand(const std::vector<std::string>& args) {
         settings.fAllowTraceVarInSkVMDebugTrace = false;
 
         SkCpu::CacheRuntimeFeatures();
-        gSkVMAllowJIT = true;
         return compileProgramForSkVM(
             [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                 if (!debugTrace) {
@@ -535,16 +532,8 @@ ResultCode processCommand(const std::vector<std::string>& args) {
 
                 std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
                 skvm::Program p = builder.done(
-                        /*debug_name=*/nullptr, /*allow_jit=*/true, std::move(visualizer));
-#if defined(SKVM_JIT)
-                SkDynamicMemoryWStream asmFile;
-                p.disassemble(&asmFile);
-                auto dumpData = asmFile.detachAsData();
-                std::string dumpString(static_cast<const char*>(dumpData->data()),dumpData->size());
-                p.visualize(redirect.get(), dumpString.c_str());
-#else
-                p.visualize(redirect.get(), nullptr);
-#endif
+                        /*debug_name=*/nullptr, /*allow_jit=*/false, std::move(visualizer));
+                p.visualize(redirect.get());
                 return true;
             });
     } else {
