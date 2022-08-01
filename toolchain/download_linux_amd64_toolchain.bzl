@@ -131,14 +131,19 @@ debs_to_install = [
     },
     {
         # This is a requirement of libllvm13
-        # https://packages.debian.org/sid/libz3-4
+        # https://packages.debian.org/sid/libz3-4/download
         "sha256": "b415b863678625dee3f3c75bd48b1b9e3b6e11279ebec337904d7f09630d107f",
         "url": "https://ftp.debian.org/debian/pool/main/z/z3/libz3-4_4.8.12-1+b1_amd64.deb",
     },
     {
-        # https://packages.debian.org/bullseye/libfontconfig-dev
+        # https://packages.debian.org/bullseye/libfontconfig-dev/download
         "sha256": "7655d4238ee7e6ced13501006d20986cbf9ff08454a4e502d5aa399f83e28876",
         "url": "https://ftp.debian.org/debian/pool/main/f/fontconfig/libfontconfig-dev_2.13.1-4.2_amd64.deb",
+    },
+    {
+        # https://packages.debian.org/bullseye/libglu1-mesa-dev/download
+        "sha256": "5df6abeedb1f6986cec4b17810ef1a2773a5cd3291544abacc2bf602a9520893",
+        "url": "https://ftp.debian.org/debian/pool/main/libg/libglu/libglu1-mesa-dev_9.0.1-1_amd64.deb",
     },
 ]
 

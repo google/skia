@@ -33,6 +33,8 @@ build --flag_alias=with_gl_standard=//src/gpu:with_gl_standard
 
 build --flag_alias=disable_effect_serialization=no//bazel/common_config_settings:enable_effect_serialization
 build --flag_alias=enable_effect_serialization=//bazel/common_config_settings:enable_effect_serialization
+build --flag_alias=disable_gpu_test_utils=no//src/gpu:enable_gpu_test_utils
+build --flag_alias=enable_gpu_test_utils=//src/gpu:enable_gpu_test_utils
 build --flag_alias=disable_pdf_backend=no//src/pdf:enable_pdf_backend
 build --flag_alias=enable_pdf_backend=//src/pdf:enable_pdf_backend
 build --flag_alias=disable_sksl=no//bazel/common_config_settings:enable_sksl

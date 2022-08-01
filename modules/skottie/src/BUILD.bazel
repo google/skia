@@ -31,3 +31,11 @@ filegroup(
     ],
     visibility = ["//modules/skottie:__pkg__"],
 )
+
+filegroup(
+    name = "skottie_tool",
+    srcs = [
+        "SkottieTool.cpp",
+    ],
+    visibility = ["//modules/skottie:__pkg__"],
+)

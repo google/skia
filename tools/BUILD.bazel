@@ -12,7 +12,7 @@ skia_cc_library(
         "ToolUtils.cpp",
         "ResourceFactory.h",
         "Resources.h",
-        "//tools/flags:core_srcs",
+        "//tools/flags",
         # TODO(kjlubick, bungeman): We should split out the font stuff into its own set of files
         "//tools/fonts:test_font_manager_srcs",
         "SkMetaData.h",

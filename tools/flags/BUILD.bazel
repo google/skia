@@ -5,11 +5,14 @@ licenses(["notice"])
 exports_files_legacy()
 
 filegroup(
-    name = "core_srcs",
+    name = "flags",
     testonly = True,
     srcs = [
         "CommandLineFlags.cpp",
         "CommandLineFlags.h",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = [
+        "//modules/skottie:__pkg__",
+        "//tools:__subpackages__",
+    ],
 )

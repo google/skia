@@ -1,0 +1,22 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "CreatePlatformGLTestContext_mac.cpp",
+    ],
+    visibility = ["//tools/gpu/gl:__pkg__"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    linkopts = [
+        "-framework",
+        "OpenGL",
+    ],
+    visibility = ["//tools/gpu/gl:__pkg__"],
+)

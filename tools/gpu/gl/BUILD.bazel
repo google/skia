@@ -1,0 +1,42 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "GLTestContext.h",
+    ],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "GLTestContext.cpp",
+    ] + select({
+        "//bazel/common_config_settings:linux_x64": ["//tools/gpu/gl/glx:srcs"],
+        "@platforms//os:android": ["//tools/gpu/gl/egl:srcs"],
+        "@platforms//os:ios": ["//tools/gpu/gl/iOS:srcs"],
+        "@platforms//os:macos": ["//tools/gpu/gl/mac:srcs"],
+        "@platforms//os:windows": ["//tools/gpu/gl/win:srcs"],
+        "//conditions:default": ["//tools/gpu/gl/none:srcs"],
+    }),
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    visibility = ["//tools/gpu:__pkg__"],
+    deps = select({
+        "//bazel/common_config_settings:linux_x64": ["//tools/gpu/gl/glx:deps"],
+        "@platforms//os:android": ["//tools/gpu/gl/egl:deps"],
+        "@platforms//os:macos": ["//tools/gpu/gl/mac:deps"],
+        "@platforms//os:windows": ["//tools/gpu/gl/win:deps"],
+        "//conditions:default": [],
+    }),
+)
+
+# TODO(kjlubick) skia_objc_deps for iOS support

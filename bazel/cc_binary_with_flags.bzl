@@ -9,13 +9,13 @@ It is based off of https://github.com/bazelbuild/examples/tree/main/rules/starla
 load("//bazel:copts.bzl", "DEFAULT_COPTS")
 
 _bool_flags = [
+    "//bazel/common_config_settings:use_harfbuzz",
+    "//bazel/common_config_settings:use_icu",
+    "//src/gpu:enable_gpu_test_utils",
+    "//src/pdf:enable_pdf_backend",
     "//src/sksl:enable_sksl",
     "//src/sksl:enable_sksl_tracing",
     "//src/sksl:enable_skslc",
-    "//bazel/common_config_settings:is_skia_dev_build",
-    "//bazel/common_config_settings:use_harfbuzz",
-    "//bazel/common_config_settings:use_icu",
-    "//src/pdf:enable_pdf_backend",
     "//src/svg:enable_svg_canvas",
 ]
 

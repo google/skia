@@ -75,6 +75,11 @@ bool_flag(
     public = False,  # Users should use :vulkan_with_vma
 )
 
+bool_flag(
+    default = False,
+    flag_name = "enable_gpu_test_utils",
+)
+
 filegroup(
     name = "srcs",
     srcs = [

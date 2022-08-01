@@ -1,0 +1,22 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "CreatePlatformGLTestContext_win.cpp",
+    ],
+    visibility = ["//tools/gpu/gl:__pkg__"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    linkopts = [
+        "-lGdi32",
+        "-lOpenGL32",  # TODO(kjlubick) This will not work compiling for Windows on arm64
+    ],
+    visibility = ["//tools/gpu/gl:__pkg__"],
+)

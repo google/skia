@@ -1,0 +1,51 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "utils",
+    testonly = True,
+    srcs = [
+        "BackendSurfaceFactory.cpp",
+        "BackendSurfaceFactory.h",
+        "BackendTextureImageFactory.cpp",
+        "BackendTextureImageFactory.h",
+        "FenceSync.h",
+        "FlushFinishTracker.cpp",
+        "FlushFinishTracker.h",
+        "GrContextFactory.cpp",
+        "GrTest.cpp",
+        "ManagedBackendTexture.cpp",
+        "ManagedBackendTexture.h",
+        "MemoryCache.cpp",
+        "MemoryCache.h",
+        "GpuTimer.h",
+        "ProxyUtils.cpp",
+        "ProxyUtils.h",
+        "TestContext.cpp",
+        "TestContext.h",
+        "TestOps.cpp",
+        "TestOps.h",
+        "YUVUtils.cpp",
+        "YUVUtils.h",
+        "//tools/gpu/mock:private_hdrs",
+        "//tools/gpu/mock:srcs",
+    ] + select_multi({
+        "//src/gpu:gl_backend": [
+            "//tools/gpu/gl:private_hdrs",
+            "//tools/gpu/gl:srcs",
+        ],
+        # TODO(kjlubick) Handle other backends
+    }),
+    hdrs = [
+        "GrContextFactory.h",
+    ],
+    visibility = ["//modules/skottie:__pkg__"],
+    deps = ["//:skia_internal"] + select_multi({
+        "//src/gpu:gl_backend": [
+            "//tools/gpu/gl:deps",
+        ],
+    }),
+)

@@ -11,7 +11,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/gpu/GrContextOptions.h"
 #include "include/private/SkTPin.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
@@ -20,13 +19,17 @@
 #include "src/core/SkTaskGroup.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/gpu/GrContextFactory.h"
 
 #include <algorithm>
 #include <chrono>
 #include <future>
 #include <numeric>
 #include <vector>
+
+#if !defined(CPU_ONLY)
+#include "include/gpu/GrContextOptions.h"
+#include "tools/gpu/GrContextFactory.h"
+#endif
 
 #if defined(HAVE_VIDEO_ENCODER)
     #include "experimental/ffmpeg/SkVideoEncoder.h"
