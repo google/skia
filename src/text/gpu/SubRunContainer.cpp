@@ -1318,18 +1318,22 @@ SubRunOwner DirectMaskSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatr
     SkGlyphRect runBounds;
     pun_read(buffer, &runBounds);
 
-    int glyphCount = buffer.readInt();
-    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return nullptr; }
-    if (!buffer.validateCanReadN<SkPoint>(glyphCount)) { return nullptr; }
+    uint32_t glyphCount = buffer.getArrayCount();
+
+    // Zero indicates a problem with serialization.
+    if (!buffer.validate(glyphCount != 0)) { return nullptr; }
+
+    // The arena can only handle kGlyphCountMax number of points.
+    static constexpr uint32_t kGlyphCountMax = INT_MAX / sizeof(SkPoint);
+    if (!buffer.validate(glyphCount < kGlyphCountMax)) { return nullptr; }
+
     SkPoint* positionsData = alloc->makePODArray<SkPoint>(glyphCount);
-    for (int i = 0; i < glyphCount; ++i) {
-        positionsData[i] = buffer.readPoint();
-    }
+    if (!buffer.readPointArray(positionsData, glyphCount)) { return nullptr; }
     SkSpan<SkPoint> positions(positionsData, glyphCount);
 
     auto glyphVector = GlyphVector::MakeFromBuffer(buffer, client, alloc);
     if (!buffer.validate(glyphVector.has_value())) { return nullptr; }
-    if (!buffer.validate(SkCount(glyphVector->glyphs()) == glyphCount)) { return nullptr; }
+    if (!buffer.validate(SkCount(glyphVector->glyphs()) == SkToInt(glyphCount))) { return nullptr; }
     SkASSERT(buffer.isValid());
     return alloc->makeUnique<DirectMaskSubRun>(
             maskType, initialPositionMatrix, runBounds, positions,
@@ -1339,11 +1343,7 @@ SubRunOwner DirectMaskSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatr
 void DirectMaskSubRun::doFlatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(static_cast<int>(fMaskFormat));
     pun_write(buffer, fGlyphDeviceBounds);
-    int glyphCount = SkTo<int>(fLeftTopDevicePos.size());
-    buffer.writeInt(glyphCount);
-    for (auto pos : fLeftTopDevicePos) {
-        buffer.writePoint(pos);
-    }
+    buffer.writePointArray(fLeftTopDevicePos.data(), SkCount(fLeftTopDevicePos));
     fGlyphs.flatten(buffer);
 }
 
