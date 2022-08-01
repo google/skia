@@ -87,6 +87,44 @@ For simple situations, all tracing events can be directed to the console with `-
 ...
 ~~~
 
+Tracing with Perfetto
+--------------
+Running any tool with `--trace perfetto` will cause the application to forward
+tracing information to [Perfetto](https://perfetto.dev/docs/instrumentation/track-events).
+Perfetto only supports Linux, Mac, and Android and will not run on other platforms.
+
+By default, Perfetto tracing within Skia has been configured to handle relatively short
+(~10 seconds or less) trace events and sessions (for example, a subset of tests rather than the
+entire testing suite). For any tracing sessions longer than ~10 seconds, it is recommended to use the `--longPerfettoTrace` runtime option which will change Skia's Perfetto configuration to accommodate
+the longer trace. Long traces conducted without this runtime option run the risk of overwriting
+events, leading to a loss of data.
+
+The trace output file path can be changed with runtime arguments. `--perfettoOutputDir` sets the
+output directory, `--perfettoOutputFileName` sets the output file name (without file extension),
+and `--perfettoOutputFileExtension` sets the output file extension. By default, the trace file will
+be placed in the build output directory as `trace.perfetto-trace`.
+
+You can also elect to generate different trace files for each nanobench benchmark. To do so, use
+the
+`--splitPerfettoTracesByBenchmark` option. Note that this will lead to the output files being
+named after the different benchmarks.
+
+These trace files can be visualized using
+[Perfetto's web visualization tool](https://ui.perfetto.dev/). To visualize larger trace files
+(anything greater than around 2 GB), see
+[these instructions](https://perfetto.dev/docs/visualization/large-traces).
+
+Should you run into any issues or unexpected results, Perfetto has some resources which may help.
+To identify potential root causes, check the "Info and stats" page on the web visualization tool, or
+by running SQL queries on the trace file (online, or by using
+[the trace processor application](https://perfetto.dev/docs/analysis/trace-processor)).
+To diagnose these issues, see
+[this section](https://perfetto.dev/docs/concepts/buffers#debugging-data-losses)
+on debugging data losses and
+[this section](https://perfetto.dev/docs/concepts/buffers#flushes-and-windowed-trace-importing)
+on out-of-order events which may appear unexpectedly long.
+
+
 Adding More Trace Events
 ------------------------
 
