@@ -242,6 +242,10 @@ public:
     SkGlyphRect offset(SkScalar x, SkScalar y) const {
         return SkGlyphRect{fRect + Storage{-x, -y, x, y}};
     }
+    SkGlyphRect scaleAndOffset(SkScalar scale, SkPoint offset) const {
+        auto [x, y] = offset;
+        return fRect * scale + Storage{-x, -y, x, y};
+    }
     SkPoint leftTop() const { return -this->negLeftTop(); }
     SkPoint rightBottom() const { return {fRect[2], fRect[3]}; }
     SkPoint widthHeight() const { return this->rightBottom() + negLeftTop(); }
@@ -294,6 +298,10 @@ public:
     bool canDrawAsSDFT() const { return fCanDrawAsSDFT; }
     uint16_t maxDimension()  const {
         return std::max(fWidth, fHeight);
+    }
+
+    SkGlyphRect bounds() const {
+        return SkGlyphRect(fLeft, fTop, (SkScalar)fLeft + fWidth, (SkScalar)fTop + fHeight);
     }
 
     // Common categories for glyph types used by GPU.
