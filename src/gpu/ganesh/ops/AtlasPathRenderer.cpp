@@ -107,6 +107,13 @@ bool AtlasPathRenderer::IsSupported(GrRecordingContext* rContext) {
         return false;
     }
 #endif
+#ifdef SK_BUILD_FOR_WIN
+    // http://skbug.com/13519 There is a bug with the atlas path renderer on Direct3D, running on
+    // Radeon hardware and possibly others. Disable until we can investigate.
+    if (rContext->backend() == GrBackendApi::kDirect3D) {
+        return false;
+    }
+#endif
     const GrCaps& caps = *rContext->priv().caps();
     auto atlasFormat = caps.getDefaultBackendFormat(kAtlasAlpha8Type, GrRenderable::kYes);
     return rContext->asDirectContext() &&  // The atlas doesn't support DDL yet.
