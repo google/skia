@@ -248,6 +248,8 @@ def _make_action_configs():
 # and objcpp action flags as well. We build .m and .mm files with the objc_library rule, which
 # will use the default toolchain if not specified here.
 # https://docs.bazel.build/versions/3.3.0/be/objective-c.html#objc_library
+#
+# Note: These values must be kept in sync with those defined in cmake_exporter.go.
 def _make_default_flags():
     """Here we define the flags for certain actions that are always applied.
 

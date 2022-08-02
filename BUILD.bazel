@@ -46,3 +46,13 @@ skia_cc_library(
 
 # gazelle:prefix go.skia.org/skia
 gazelle(name = "gazelle")
+
+###########
+# Mockery #
+###########
+
+alias(
+    name = "mockery",
+    actual = "@com_github_vektra_mockery_v2//:v2",
+    visibility = ["//visibility:public"],
+)

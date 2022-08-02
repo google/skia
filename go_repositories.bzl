@@ -2923,6 +2923,12 @@ def go_repositories():
         version = "v1.1.2",
     )
     go_repository(
+        name = "com_github_vektra_mockery_v2",
+        importpath = "github.com/vektra/mockery/v2",
+        sum = "h1:9NkC3urGvJS9B0ve5aTbFjksbO9f/u5cZFgCTVJ30jg=",
+        version = "v2.11.0",
+    )
+    go_repository(
         name = "com_github_vividcortex_godaemon",
         importpath = "github.com/VividCortex/godaemon",
         sum = "h1:CGNNnJTXn6efEPOEHlxqRrvg9AP0Hsumy9vbXk8aU/k=",

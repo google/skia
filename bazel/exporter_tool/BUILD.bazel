@@ -1,0 +1,24 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+go_library(
+    name = "exporter_tool_lib",
+    srcs = ["main.go"],
+    importpath = "go.skia.org/bazel/exporter_tool",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//bazel/exporter",
+        "@org_skia_go_infra//go/common",
+        "@org_skia_go_infra//go/skerr",
+    ],
+)
+
+go_binary(
+    name = "exporter_tool",
+    embed = [":exporter_tool_lib"],
+    visibility = ["//visibility:public"],
+)

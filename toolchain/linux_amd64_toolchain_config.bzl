@@ -199,8 +199,9 @@ def _make_default_flags():
 
     Flags that are set here will be unconditionally applied to everything we compile with
     this toolchain, even third_party deps.
-
     """
+
+    # Note: These values must be kept in sync with those defined in cmake_exporter.go.
     cxx_compile_includes = flag_set(
         actions = [
             ACTION_NAMES.c_compile,
