@@ -1312,9 +1312,9 @@ SubRunOwner DirectMaskSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatr
     // Zero indicates a problem with serialization.
     if (!buffer.validate(glyphCount != 0)) { return nullptr; }
 
-    // The arena can only handle kGlyphCountMax number of points.
-    static constexpr uint32_t kGlyphCountMax = INT_MAX / sizeof(SkPoint);
-    if (!buffer.validate(glyphCount < kGlyphCountMax)) { return nullptr; }
+    // Check that the count will not overflow the arena.
+    if (!buffer.validate(glyphCount <= INT_MAX &&
+                         BagOfBytes::WillCountFit<SkPoint>(glyphCount))) { return nullptr; }
 
     SkPoint* positionsData = alloc->makePODArray<SkPoint>(glyphCount);
     if (!buffer.readPointArray(positionsData, glyphCount)) { return nullptr; }

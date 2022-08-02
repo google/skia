@@ -88,12 +88,18 @@ public:
     template <int size>
     using Storage = std::array<char, PlatformMinimumSizeWithOverhead(size, 1)>;
 
+    // Returns true if n * sizeof(T) will fit in an allocation block.
+    template <typename T>
+    static bool WillCountFit(int n) {
+        constexpr int kMaxN = kMaxByteSize / sizeof(T);
+        return 0 <= n && n < kMaxN;
+    }
+
     // Returns a pointer to memory suitable for holding n Ts.
     template <typename T> char* allocateBytesFor(int n = 1) {
         static_assert(alignof(T) <= kMaxAlignment, "Alignment is too big for arena");
         static_assert(sizeof(T) < kMaxByteSize, "Size is too big for arena");
-        constexpr int kMaxN = kMaxByteSize / sizeof(T);
-        SkASSERT_RELEASE(0 <= n && n < kMaxN);
+        SkASSERT_RELEASE(WillCountFit<T>(n));
 
         int size = n ? n * sizeof(T) : 1;
         return this->allocateBytes(size, alignof(T));
