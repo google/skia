@@ -90,7 +90,8 @@ public:
                                 SkRect sourceBounds,
                                 SkSpan<const SkPoint> leftTop);
 
-    static TransformedMaskVertexFiller Make(MaskFormat maskType,
+    static TransformedMaskVertexFiller Make(SkRect sourceBounds,
+                                            MaskFormat maskType,
                                             int strikePadding,
                                             SkScalar strikeToSourceScale,
                                             const SkZip<SkGlyphVariant, SkPoint>& accepted,
@@ -197,32 +198,20 @@ TransformedMaskVertexFiller::TransformedMaskVertexFiller(
         , fLeftTop{leftTop} {}
 
 TransformedMaskVertexFiller TransformedMaskVertexFiller::Make(
+        SkRect sourceBounds,
         MaskFormat maskType,
         int strikePadding,
         SkScalar strikeToSourceScale,
         const SkZip<SkGlyphVariant, SkPoint>& accepted,
         SubRunAllocator* alloc) {
-    SkRect sourceBounds = SkRectPriv::MakeLargestInverted();
+    const SkPoint paddingInset = SkPoint::Make(strikePadding, strikePadding);
     SkSpan<SkPoint> leftTop = alloc->makePODArray<SkPoint>(
             accepted,
             [&](auto e) -> SkPoint {
                 auto [variant, pos] = e;
                 const SkGlyph* skGlyph = variant;
-
-                // Make the glyphBounds and inset by any padding which may be included in the
-                // strike mask.
-                SkRect glyphBounds = skGlyph->rect();
-                glyphBounds.inset(strikePadding, strikePadding);
-
-                // Scale and position the glyph in source space.
-                SkRect sourceGlyphBounds = SkRect::MakeXYWH(
-                        glyphBounds.left()   * strikeToSourceScale + pos.x(),
-                        glyphBounds.top()    * strikeToSourceScale + pos.y(),
-                        glyphBounds.width()  * strikeToSourceScale,
-                        glyphBounds.height() * strikeToSourceScale);
-
-                sourceBounds.joinPossiblyEmptyRect(sourceGlyphBounds);
-                return {sourceGlyphBounds.left(), sourceGlyphBounds.top()};
+                SkPoint leftTop = SkPoint::Make(skGlyph->left(), skGlyph->top());
+                return (leftTop + paddingInset) * strikeToSourceScale + pos;
             });
     return TransformedMaskVertexFiller{maskType, strikeToSourceScale, sourceBounds, leftTop};
 }
@@ -1724,6 +1713,7 @@ public:
     static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkMatrix& initialPositionMatrix,
                             sk_sp<SkStrike>&& strike,
+                            SkRect sourceBounds,
                             SkScalar strikeToSourceScale,
                             MaskFormat maskType,
                             SubRunAllocator* alloc);
@@ -1823,11 +1813,12 @@ TransformedMaskSubRun::TransformedMaskSubRun(const SkMatrix& initialPositionMatr
 SubRunOwner TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         const SkMatrix& initialPositionMatrix,
                                         sk_sp<SkStrike>&& strike,
+                                        SkRect sourceBounds,
                                         SkScalar strikeToSourceScale,
                                         MaskFormat maskType,
                                         SubRunAllocator* alloc) {
     auto vertexFiller = TransformedMaskVertexFiller::Make(
-            maskType, 0, strikeToSourceScale, accepted, alloc);
+            sourceBounds, maskType, 0, strikeToSourceScale, accepted, alloc);
 
     auto glyphVector = GlyphVector::Make(std::move(strike), accepted.get<0>(), alloc);
 
@@ -2005,6 +1996,7 @@ public:
     static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkFont& runFont,
                             sk_sp<SkStrike>&& strike,
+                            SkRect sourceBounds,
                             SkScalar strikeToSourceScale,
                             const SDFTMatrixRange& matrixRange,
                             SubRunAllocator* alloc);
@@ -2114,10 +2106,12 @@ bool has_some_antialiasing(const SkFont& font ) {
 SubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                              const SkFont& runFont,
                              sk_sp<SkStrike>&& strike,
+                             SkRect sourceBounds,
                              SkScalar strikeToSourceScale,
                              const SDFTMatrixRange& matrixRange,
                              SubRunAllocator* alloc) {
     auto vertexFiller = TransformedMaskVertexFiller::Make(
+            sourceBounds,
             MaskFormat::kA8,
             SK_DistanceFieldInset,
             strikeToSourceScale,
@@ -2547,7 +2541,8 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                     if constexpr (kTrace) {
                         msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                     }
-                    strike->prepareForSDFTDrawing(strikeToSourceScale, accepted, rejected);
+                    SkRect sourceBounds = strike->prepareForSDFTDrawing(
+                            strikeToSourceScale, accepted, rejected);
                     rejected->flipRejectsToSource();
 
                     if (creationBehavior == kAddSubRuns && !accepted->empty()) {
@@ -2555,6 +2550,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                                 accepted->accepted(),
                                 runFont,
                                 strike->getUnderlyingStrike(),
+                                sourceBounds,
                                 strikeToSourceScale,
                                 matrixRange, alloc));
                     }
@@ -2764,7 +2760,8 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 if constexpr (kTrace) {
                     msg.appendf("glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-                strike->prepareForMaskDrawing(strikeToSourceScale, accepted, rejected);
+                SkRect sourceBounds = strike->prepareForMaskDrawing(
+                        strikeToSourceScale, accepted, rejected);
                 rejected->flipRejectsToSource();
                 SkASSERT(rejected->source().empty());
 
@@ -2777,6 +2774,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                                         TransformedMaskSubRun::Make(acceptedGlyphsAndLocations,
                                                                     container->initialPosition(),
                                                                     std::move(runStrike),
+                                                                    sourceBounds,
                                                                     strikeToSourceScale,
                                                                     format,
                                                                     alloc);
