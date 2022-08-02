@@ -40,6 +40,7 @@ go_test(
     embed = [":codesize_lib"],
     deps = [
         "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//mock",
         "@com_github_stretchr_testify//require",
         "@org_skia_go_infra//go/exec",
         "@org_skia_go_infra//go/gcs",
@@ -53,6 +54,7 @@ go_test(
         "@org_skia_go_infra//go/mockhttpclient",
         "@org_skia_go_infra//go/now",
         "@org_skia_go_infra//go/testutils",
+        "@org_skia_go_infra//go/util",
         "@org_skia_go_infra//task_driver/go/td",
         "@org_skia_go_infra//task_scheduler/go/types",
     ],
