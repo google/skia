@@ -7,7 +7,6 @@
 
 #include "include/core/SkBBHFactory.h"
 #include "src/core/SkBigPicture.h"
-#include "src/core/SkPictureCommon.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkTraceEvent.h"

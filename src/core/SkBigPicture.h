@@ -20,6 +20,8 @@ class SkMatrix;
 class SkRecord;
 
 // An implementation of SkPicture supporting an arbitrary number of drawing commands.
+// This is called "big" because there used to be a "mini" that only supported a subset of the
+// calls as an optimization.
 class SkBigPicture final : public SkPicture {
 public:
     // An array of refcounted const SkPicture pointers.

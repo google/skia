@@ -17,15 +17,18 @@ SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
     if (kUnknown_SkColorType == info.colorType()) {
+        SkDebugf("ig-alpha\n");
         return false;
     }
     if (nullptr == pixels) {
+         SkDebugf("ig-beta\n");
         return false;
     }
     if (rowBytes < info.minRowBytes()) {
+         SkDebugf("ig-gamma\n");
         return false;
     }
-
+    SkDebugf("ig-delta\n");
     Options defaultOpts;
     return this->onGetPixels(info, pixels, rowBytes, defaultOpts);
 }
