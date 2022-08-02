@@ -21,6 +21,7 @@
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkDevice.h"
+#include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyph.h"
@@ -183,8 +184,10 @@ public:
             SkDrawableGlyphBuffer* accepted,
             SkSourceGlyphBuffer* rejected) override;
 
-    void prepareForSDFTDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override;
+    SkRect prepareForSDFTDrawing(
+            SkScalar strikeToSourceScale,
+            SkDrawableGlyphBuffer* accepted,
+            SkSourceGlyphBuffer* rejected) override;
 
     void prepareForPathDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override;
@@ -206,10 +209,6 @@ public:
 
 private:
     SkGlyphDigest digest(SkPackedGlyphID);
-
-    template <typename Rejector>
-    void commonMaskLoop(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected, Rejector&& reject);
 
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void writeGlyphDrawable(const SkGlyph& glyph, Serializer* serializer) const;
@@ -400,19 +399,6 @@ SkScalar RemoteStrike::findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs)
     return maxDimension;
 }
 
-template <typename Rejector>
-void RemoteStrike::commonMaskLoop(
-        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected, Rejector&& reject) {
-    accepted->forEachInput(
-            [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
-                SkGlyphDigest digest = this->digest(packedID);
-                // Reject things that are too big.
-                if (reject(digest)) {
-                    rejected->reject(i);
-                }
-            });
-}
-
 SkRect RemoteStrike::prepareForMaskDrawing(
         SkScalar strikeToSourceScale,
         SkDrawableGlyphBuffer* accepted,
@@ -435,10 +421,29 @@ SkRect RemoteStrike::prepareForMaskDrawing(
     return boundingRect.rect();
 }
 
-void RemoteStrike::prepareForSDFTDrawing(
-        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
-    this->commonMaskLoop(accepted, rejected,
-                         [](SkGlyphDigest digest){return !digest.canDrawAsSDFT();});
+SkRect RemoteStrike::prepareForSDFTDrawing(SkScalar strikeToSourceScale,
+                                           SkDrawableGlyphBuffer* accepted,
+                                           SkSourceGlyphBuffer* rejected) {
+    SkGlyphRect boundingRect = skglyph::empty_rect();
+    for (auto [i, variant, pos] : SkMakeEnumerate(accepted->input())) {
+        SkPackedGlyphID packedID = variant.packedID();
+        SkGlyphDigest digest = this->digest(packedID);
+        if (digest.canDrawAsSDFT()) {
+            if (!digest.isEmpty()) {
+                // The SDFT glyphs have 2-pixel wide padding that should not be used in
+                // calculating the source rectangle.
+                SkGlyphRect glyphRect =
+                        digest.bounds().inset(SK_DistanceFieldInset, SK_DistanceFieldInset);
+                boundingRect = skglyph::rect_union(
+                        boundingRect, glyphRect.scaleAndOffset(strikeToSourceScale, pos));
+            }
+        } else {
+            // Reject things that are too big.
+            // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
+            rejected->reject(i);
+        }
+    }
+    return boundingRect.rect();
 }
 
 void RemoteStrike::prepareForPathDrawing(

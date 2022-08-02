@@ -246,6 +246,9 @@ public:
         auto [x, y] = offset;
         return fRect * scale + Storage{-x, -y, x, y};
     }
+    SkGlyphRect inset(SkScalar dx, SkScalar dy) const {
+        return fRect - Storage{dx, dy, dx, dy};
+    }
     SkPoint leftTop() const { return -this->negLeftTop(); }
     SkPoint rightBottom() const { return {fRect[2], fRect[3]}; }
     SkPoint widthHeight() const { return this->rightBottom() + negLeftTop(); }

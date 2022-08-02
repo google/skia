@@ -44,8 +44,10 @@ public:
                 SkDrawableGlyphBuffer* accepted,
                 SkSourceGlyphBuffer* rejected) = 0;
 
-    virtual void prepareForSDFTDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) = 0;
+    virtual SkRect prepareForSDFTDrawing(
+                SkScalar strikeToSourceScale,
+                SkDrawableGlyphBuffer* accepted,
+                SkSourceGlyphBuffer* rejected) = 0;
 
     virtual void prepareForPathDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) = 0;

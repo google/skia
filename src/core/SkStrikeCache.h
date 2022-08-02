@@ -139,20 +139,22 @@ public:
             sktext::gpu::StrikeCache* gpuStrikeCache) const;
 #endif
 
-    SkRect prepareForMaskDrawing(
-            SkScalar strikeToSourceScale,
-            SkDrawableGlyphBuffer* accepted,
-            SkSourceGlyphBuffer* rejected) override {
+    SkRect prepareForMaskDrawing(SkScalar strikeToSourceScale,
+                                 SkDrawableGlyphBuffer* accepted,
+                                 SkSourceGlyphBuffer* rejected) override {
         auto [rect, increase] = fScalerCache.prepareForMaskDrawing(
-                strikeToSourceScale,accepted, rejected);
+                strikeToSourceScale, accepted, rejected);
         this->updateDelta(increase);
         return rect;
     }
 
-    void prepareForSDFTDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override {
-        size_t increase = fScalerCache.prepareForSDFTDrawing(accepted, rejected);
+    SkRect prepareForSDFTDrawing(SkScalar strikeToSourceScale,
+                                 SkDrawableGlyphBuffer* accepted,
+                                 SkSourceGlyphBuffer* rejected) override {
+        auto [rect, increase] = fScalerCache.prepareForSDFTDrawing(
+                strikeToSourceScale, accepted, rejected);
         this->updateDelta(increase);
+        return rect;
     }
 
     void prepareForPathDrawing(
