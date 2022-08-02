@@ -588,7 +588,6 @@
   {"name": "Test-Mac10.14-Clang-MacMini7.1-CPU-AVX2-x86_64-Debug-All-NativeFonts"},
   {"name": "Test-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts"},
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All"},
-  {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-ANGLE"},
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-ASAN_Metal"},
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-DDL1_Metal"},
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-DDL3_Metal"},
