@@ -15,13 +15,13 @@ half mul(half a, half b) {
     return a * b;
 }
 
-half fma(half a, half b, half c) {
+half fused_multiply_add(half a, half b, half c) {
     return add(mul(a, b), c);
 }
 
 void main() {
     // Functions used multiple times:
-    sk_FragColor = fma(color.x, color.y, color.z).xxxx;
+    sk_FragColor = fused_multiply_add(color.x, color.y, color.z).xxxx;
     // Functions used only once:
     sk_FragColor *= singleuse();
     // Intrinsic functions:

@@ -13,13 +13,13 @@ noinline half mul(half a, half b) {
     return a * b;
 }
 
-noinline half fma(half a, half b, half c) {
+noinline half fused_multiply_add(half a, half b, half c) {
     return add(mul(a, b), c);
 }
 
 half4 main(float2 coords) {
     // Functions used multiple times:
-    half4 result = fma(colorGreen.a, colorGreen.g, colorGreen.r).0x0x;
+    half4 result = fused_multiply_add(colorGreen.a, colorGreen.g, colorGreen.r).0x0x;
     // Functions used only once:
     result = multiplyByAlpha(result);
 

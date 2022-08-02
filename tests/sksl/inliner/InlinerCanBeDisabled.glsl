@@ -47,11 +47,11 @@ float add_hhh(float a, float b) {
 float mul_hhh(float a, float b) {
     return a * b;
 }
-float fma_hhhh(float a, float b, float c) {
+float fused_multiply_add_hhhh(float a, float b, float c) {
     return add_hhh(mul_hhh(a, b), c);
 }
 void main() {
-    sk_FragColor = vec4(fma_hhhh(color.x, color.y, color.z));
+    sk_FragColor = vec4(fused_multiply_add_hhhh(color.x, color.y, color.z));
     sk_FragColor *= singleuse_h();
     sk_FragColor *= blend_src_in_h4h4h4(color.xxyy, color.zzww);
     sk_FragColor *= blend_dst_in_h4h4h4(color.xxyy, color.zzww);
