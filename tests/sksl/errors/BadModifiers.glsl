@@ -63,6 +63,9 @@ const in out uniform flat noperspective sk_has_side_effects inline noinline read
 error: 7: 'in uniform' variables not permitted
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
+error: 7: 'readonly writeonly' variables not permitted
+const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
 error: 7: 'inline' is not permitted here
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -78,4 +81,4 @@ const in out uniform flat noperspective sk_has_side_effects inline noinline read
 error: 7: 'const' variables must be initialized
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
-26 errors
+27 errors

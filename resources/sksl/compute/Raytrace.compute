@@ -1,4 +1,4 @@
-layout(binding=0) out texture2D dest;
+layout(binding=0) writeonly texture2D dest;
 
 void main () {
     half4 pixel = half4(0.0, 0.0, 0.0, 1.0);

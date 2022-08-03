@@ -144,7 +144,6 @@ std::string MetalCodeGenerator::typeName(const Type& type) {
 
         case Type::TypeKind::kSampler:
             if (type.dimensions() != SpvDim2D) {
-                // Not yet implemented--Skia currently only uses 2D textures.
                 fContext.fErrors->error(Position(), "Unsupported texture dimensions");
             }
             return "sampler2D";
@@ -156,17 +155,19 @@ std::string MetalCodeGenerator::typeName(const Type& type) {
 
 std::string MetalCodeGenerator::textureTypeName(const Type& type, const Modifiers* modifiers) {
     if (type.typeKind() == Type::TypeKind::kTexture && modifiers) {
-        std::string result = "texture2d<half, access::"; // FIXME - support other texture types
-        int flags = modifiers->fFlags;
-        if ((flags & Modifiers::kIn_Flag) || !(flags & Modifiers::kOut_Flag)) {
-            result += "read";
-            if (flags & Modifiers::kOut_Flag) {
-                result += "_write";
-            }
-        } else if (flags & Modifiers::kOut_Flag) {
-            result += "write";
+        std::string result = "texture2d<half, access::";
+        switch (modifiers->fFlags & (Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag)) {
+            case 0:
+                result += "read_write>";
+                break;
+            case Modifiers::kWriteOnly_Flag:
+                result += "write>";
+                break;
+            case Modifiers::kReadOnly_Flag:
+            default:
+                result += "read>";
+                break;
         }
-        result += ">";
         return result;
     } else {
         return "texture2d<half>";

@@ -1,4 +1,4 @@
-layout(binding=0) inout texture2D tex;
+layout(binding=0) texture2D tex;
 
 half4 desaturate(half4 color) {
     color.rgb = half3(dot(color.rgb, half3(0.22, 0.67, 0.11)));

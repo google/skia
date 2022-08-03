@@ -1,5 +1,5 @@
-layout(binding=0) in texture2D src;
-layout(binding=1) out texture2D dest;
+layout(binding=0) readonly texture2D src;
+layout(binding=1) writeonly texture2D dest;
 
 // TODO(skia:13609): we need a mechanism for access levels on src and dst.
 noinline void desaturate(texture2D src, texture2D dest, half4 color) {

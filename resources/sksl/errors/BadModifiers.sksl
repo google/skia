@@ -29,6 +29,7 @@ functions cannot be both 'inline' and 'noinline'
 'writeonly' is not permitted here
 'sk_has_side_effects' is not permitted here
 'in uniform' variables not permitted
+'readonly writeonly' variables not permitted
 'inline' is not permitted here
 'noinline' is not permitted here
 'readonly' is not permitted here

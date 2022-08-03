@@ -1,5 +1,5 @@
-layout(binding=0) in texture2D src;
-layout(binding=1) out texture2D dest;
+layout(binding=0) readonly texture2D src;
+layout(binding=1) writeonly texture2D dest;
 
 half4 desaturate(half4 color) {
     color.rgb = half3(dot(color.rgb, half3(0.22, 0.67, 0.11)));
