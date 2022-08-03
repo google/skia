@@ -8,6 +8,7 @@
 #ifndef skgpu_tessellate_WangsFormula_DEFINED
 #define skgpu_tessellate_WangsFormula_DEFINED
 
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkString.h"
@@ -63,54 +64,33 @@ AI int nextlog16(float x) {
 //
 class VectorXform {
 public:
-    AI VectorXform() : fType(Type::kIdentity) {}
+    AI VectorXform() : fC0{1.0f, 0.f}, fC1{0.f, 1.f} {}
     AI explicit VectorXform(const SkMatrix& m) { *this = m; }
+    AI explicit VectorXform(const SkM44& m) { *this = m; }
+
     AI VectorXform& operator=(const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());
-        if (m.getType() & SkMatrix::kAffine_Mask) {
-            fType = Type::kAffine;
-            fScaleXSkewY = {m.getScaleX(), m.getSkewY()};
-            fSkewXScaleY = {m.getSkewX(), m.getScaleY()};
-            fScaleXYXY = {m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY()};
-            fSkewXYXY = {m.getSkewX(), m.getSkewY(), m.getSkewX(), m.getSkewY()};
-        } else if (m.getType() & SkMatrix::kScale_Mask) {
-            fType = Type::kScale;
-            fScaleXY = {m.getScaleX(), m.getScaleY()};
-            fScaleXYXY = {m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY()};
-        } else {
-            SkASSERT(!(m.getType() & ~SkMatrix::kTranslate_Mask));
-            fType = Type::kIdentity;
-        }
+        fC0 = {m.rc(0,0), m.rc(1,0)};
+        fC1 = {m.rc(0,1), m.rc(1,1)};
+        return *this;
+    }
+    AI VectorXform& operator=(const SkM44& m) {
+        SkASSERT(m.rc(3,0) == 0.f && m.rc(3,1) == 0.f && m.rc(3,2) == 0.f && m.rc(3,3) == 1.f);
+        fC0 = {m.rc(0,0), m.rc(1,0)};
+        fC1 = {m.rc(0,1), m.rc(1,1)};
         return *this;
     }
     AI skvx::float2 operator()(skvx::float2 vector) const {
-        switch (fType) {
-            case Type::kIdentity:
-                return vector;
-            case Type::kScale:
-                return fScaleXY * vector;
-            case Type::kAffine:
-                return fScaleXSkewY * skvx::float2(vector[0]) + fSkewXScaleY * vector[1];
-        }
-        SkUNREACHABLE;
+        return fC0 * vector.x() + fC1 * vector.y();
     }
     AI skvx::float4 operator()(skvx::float4 vectors) const {
-        switch (fType) {
-            case Type::kIdentity:
-                return vectors;
-            case Type::kScale:
-                return vectors * fScaleXYXY;
-            case Type::kAffine:
-                return fScaleXYXY * vectors + fSkewXYXY * vectors.yxwz();
-        }
-        SkUNREACHABLE;
+        return join(fC0 * vectors.x() + fC1 * vectors.y(),
+                    fC0 * vectors.z() + fC1 * vectors.w());
     }
 private:
-    enum class Type { kIdentity, kScale, kAffine } fType;
-    union { skvx::float2 fScaleXY, fScaleXSkewY; };
-    skvx::float2 fSkewXScaleY;
-    skvx::float4 fScaleXYXY;
-    skvx::float4 fSkewXYXY;
+    // First and second columns of 2x2 matrix
+    skvx::float2 fC0;
+    skvx::float2 fC1;
 };
 
 // Returns Wang's formula, raised to the 4th power, specialized for a quadratic curve.

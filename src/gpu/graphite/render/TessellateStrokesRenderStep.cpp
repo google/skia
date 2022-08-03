@@ -105,7 +105,7 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw, const DrawParams
     // more accurately compute how many *parametric* segments are needed.
     // getMaxScale() returns -1 if it can't compute a scale factor (e.g. perspective), taking the
     // absolute value automatically converts that to an identity scale factor for our purposes.
-    writer.setShaderTransform(wangs_formula::VectorXform{params.transform()},
+    writer.setShaderTransform(wangs_formula::VectorXform{params.transform().matrix()},
                               params.transform().maxScaleFactor());
 
     SkASSERT(params.isStroke());
