@@ -169,7 +169,10 @@ private:
     friend class ::GrOp;
 };
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     if (!ctxInfo.directContext()->priv().caps()->transferFromBufferToBufferSupport()) {
         return;
     }
@@ -298,7 +301,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferUpdateDataTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrGpuBufferUpdateDataTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     GrDirectContext* dc = ctxInfo.directContext();
 
     GrGpu* gpu = ctxInfo.directContext()->priv().getGpu();

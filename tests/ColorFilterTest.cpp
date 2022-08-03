@@ -148,7 +148,10 @@ struct FailureColorFilter : public SkColorFilterBase {
     const char* getTypeName() const override { return "FailureColorFilter"; }
 };
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision, r, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision,
+                             r,
+                             ctxInfo,
+                             CtsEnforcement::kApiLevel_T) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8, 8);
     auto surface = SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info);
     SkPaint paint;

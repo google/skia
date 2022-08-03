@@ -143,7 +143,7 @@ private:
 };
 }  // namespace
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
 
@@ -525,7 +525,10 @@ static bool legal_modulation(const GrColor inGr[3], const GrColor outGr[3]) {
     return isLegalColorModulation || isLegalAlphaModulation;
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest,
+                                      reporter,
+                                      ctxInfo,
+                                      CtsEnforcement::kNever) {
     GrDirectContext* context = ctxInfo.directContext();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
     using FPFactory = GrFragmentProcessorTestFactory;
@@ -887,7 +890,10 @@ static void log_clone_failure(skiatest::Reporter* reporter, int renderSize,
 
 // Tests that a fragment processor returned by GrFragmentProcessor::clone() is equivalent to its
 // progenitor.
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest,
+                                      reporter,
+                                      ctxInfo,
+                                      CtsEnforcement::kApiLevel_T) {
     GrDirectContext* context = ctxInfo.directContext();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 

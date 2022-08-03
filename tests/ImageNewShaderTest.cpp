@@ -122,7 +122,10 @@ static void raster_to_gpu(skiatest::Reporter* reporter, GrRecordingContext* rCon
     run_shader_test(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageNewShader_GPU, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageNewShader_GPU,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     //  GPU -> GPU

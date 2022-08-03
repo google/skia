@@ -317,7 +317,9 @@ static sk_sp<SkImage> makeAHardwareBufferTestImage(
 // images are copied so .close() can still access them.
 // Confirm deserialized file contains images with correct data.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkMultiPictureDocument_AHardwarebuffer,
-                                   reporter, ctx_info) {
+                                   reporter,
+                                   ctx_info,
+                                   CtsEnforcement::kApiLevel_T) {
     auto context = ctx_info.directContext();
     if (!context->priv().caps()->supportsAHardwareBufferImages()) {
         return;

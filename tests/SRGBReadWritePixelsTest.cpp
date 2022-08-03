@@ -236,7 +236,10 @@ static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, En
 
 // Test all combinations of writePixels/readPixels where the surface context/write source/read dst
 // are sRGB, linear, or untagged RGBA_8888.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     if (!context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888_SRGB,
                                                          GrRenderable::kNo).isValid()) {

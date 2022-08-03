@@ -75,7 +75,10 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
 static const int HALF_ALPHA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 1 /*alpha-only*/;
 static const SkHalf kMaxIntegerRepresentableInHalfFloatingPoint = 0x6800;  // 2 ^ 11
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
 
     runFPTest<SkHalf>(reporter, direct, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
@@ -85,7 +88,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxInfo)
 
 static const int HALF_RGBA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4 /*RGBA*/;
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
 
     runFPTest<SkHalf>(reporter, direct, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,

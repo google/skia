@@ -35,7 +35,6 @@
 #include <regex>
 
 static constexpr char kUnitTestReportPath[] = "unit_tests.txt";
-static constexpr char kUnitTestsPath[]   = "skqp/unittests.txt";
 
 // Kind of like Python's readlines(), but without any allocation.
 // Calls `lineFn` on each line.
@@ -53,75 +52,46 @@ static void read_lines(const void* data,
     }
 }
 
-namespace {
-
-// Parses the contents of the `skqp/unittests.txt` file.
-// Each line in the exclusion list is a regular expression that matches against test names.
-// Matches indicate tests that should be excluded. Lines may start with # to indicate a comment.
-class ExclusionList {
-public:
-    ExclusionList() {}
-
-    void initialize(SkQPAssetManager* assetManager, sk_sp<SkData> dat, int enforcedAndroidAPILevel);
-
-    bool isExcluded(const std::string& name) const {
-#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_BUILD_FOR_SKQP)
-        // Exclude all unit tests from enforcement if ALL the following conditions are true:
-        //  1) We are building the CTS variant of SkQP (guarded by the SK_BUILD_FOR_SKQP define).
-        //  2) The enforced Android API level is older than when this test suite was introduced
-        //     into CTS in Android T (API level 33).
-        if (fEnforcedAndroidAPILevel < 33) {
-            return true;
-        }
-#endif
-        for (const auto& entry : fEntries) {
-            if (std::regex_match(name, entry.regexPattern)) {
-                return fEnforcedAndroidAPILevel < entry.excludeUntilAndroidAPILevel;
-            }
-        }
-        return false;
-    }
-
-private:
-    int fEnforcedAndroidAPILevel;
-
-    struct ExclusionEntry {
-        std::regex regexPattern;
-        int excludeUntilAndroidAPILevel;
-    };
-
-    std::vector<ExclusionEntry> fEntries;
-};
-}
-
 // Returns a list of every unit test to be run.
-static std::vector<SkQP::UnitTest> get_unit_tests(const ExclusionList& exclusionList) {
+static std::vector<SkQP::UnitTest> get_unit_tests(int enforcedAndroidAPILevel) {
     std::vector<SkQP::UnitTest> unitTests;
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
-        if (!test.fNeedsGpu) {
-            continue;
+        const auto ctsMode = test.fCTSEnforcement.eval(enforcedAndroidAPILevel);
+        if (ctsMode != CtsEnforcement::RunMode::kSkip) {
+            SkASSERTF(test.fNeedsGpu, "Non-GPU test was included in SkQP: %s\n", test.fName);
+            unitTests.push_back(&test);
         }
-        if (exclusionList.isExcluded(test.fName)) {
-            continue;
-        }
-        unitTests.push_back(&test);
     }
     auto lt = [](SkQP::UnitTest u, SkQP::UnitTest v) { return strcmp(u->fName, v->fName) < 0; };
     std::sort(unitTests.begin(), unitTests.end(), lt);
     return unitTests;
 }
 
+/**
+ * SkSL error tests are used by CTS to verify that Android's RuntimeShader API fails when certain
+ * shader programs are compiled.  Unlike unit tests these error tests are defined in resource files
+ * not source code.  As such, we are unable to mark each test with a CtsEnforcement value.  This
+ * list of exclusion rules excludes tests based on their file name so that we can have some form of
+ * control for which Android version an SkSL error test is expected to run.
+ */
+static const std::pair<std::regex, CtsEnforcement> sExclusionRulesForSkSLTests[] = {
+        // disable all ES3 tests until AGSL supports it.
+        {std::regex(".*ES3.*"), CtsEnforcement::kNever}};
+
 // Returns a list of every SkSL error test to be run.
 static std::vector<SkQP::SkSLErrorTest> get_sksl_error_tests(SkQPAssetManager* assetManager,
-                                                             const ExclusionList& exclusionList) {
+                                                             int enforcedAndroidAPILevel) {
     std::vector<SkQP::SkSLErrorTest> skslErrorTests;
-
     auto iterateFn = [&](const char* directory, const char* extension) {
         std::vector<std::string> paths = assetManager->iterateDir(directory, extension);
         for (const std::string& path : paths) {
             SkString name = SkOSPath::Basename(path.c_str());
-            if (exclusionList.isExcluded(name.c_str())) {
-                continue;
+            for (auto& exclusionEntry : sExclusionRulesForSkSLTests) {
+                if (std::regex_match(name.c_str(), exclusionEntry.first) &&
+                    exclusionEntry.second.eval(enforcedAndroidAPILevel) ==
+                            CtsEnforcement::RunMode::kSkip) {
+                    continue;
+                }
             }
             sk_sp<SkData> shaderText = GetResourceAsData(path.c_str());
             if (!shaderText) {
@@ -143,67 +113,6 @@ static std::vector<SkQP::SkSLErrorTest> get_sksl_error_tests(SkQPAssetManager* a
     };
     std::sort(skslErrorTests.begin(), skslErrorTests.end(), lt);
     return skslErrorTests;
-}
-
-void ExclusionList::initialize(SkQPAssetManager* assetManager,
-                               sk_sp<SkData> dat,
-                               int enforcedAndroidAPILevel) {
-    fEnforcedAndroidAPILevel = enforcedAndroidAPILevel;
-    fEntries = {};
-
-    //TODO: explore refactoring this code to collect the test lists only once in SkQP::init
-    ExclusionList noExclusions;
-    const std::vector<SkQP::UnitTest> unitTestList = get_unit_tests(noExclusions);
-    const std::vector<SkQP::SkSLErrorTest> skslTestList = get_sksl_error_tests(assetManager,
-                                                                               noExclusions);
-
-    // function to check whether or not the provided regex matches an existing test
-    auto testExists = [&unitTestList, &skslTestList](const std::regex& exclusionRegex) {
-        for (const auto& test : unitTestList) {
-            if (std::regex_match(std::string(test->fName), exclusionRegex)) {
-                return true;
-            }
-        }
-        for (const auto& test : skslTestList) {
-            if (std::regex_match(test.name, exclusionRegex)) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    read_lines(dat->data(), dat->size(), [this, &testExists](std::string_view line) {
-        if (!line.empty() && line.back() == '\n') {
-            // Strip line endings.
-            line.remove_suffix(1);
-        }
-        // Only add non-empty strings, and ignore comments.
-        if (line.empty() || line.front() == '#') {
-            return;
-        }
-
-        std::string_view testName = line;
-        int excludeUntilAndroidAPILevel = fEnforcedAndroidAPILevel + 1;
-
-        // Check to see if the test has a min Android API level defined
-        auto commaLocation = line.find_first_of(',');
-        if (commaLocation != std::string::npos) {
-            testName = line.substr(0, commaLocation);
-            std::string apiString(line.substr(commaLocation + 1));
-            excludeUntilAndroidAPILevel = std::stoi(apiString);
-        }
-
-        const std::string exclusionString(testName);
-        const std::regex exclusionRegex(exclusionString);
-
-        // Throw an error if there are no unit or sksl tests that match the exclusion
-        if (!testExists(exclusionRegex)) {
-            SK_ABORT("Exclusion list contains tests not found in the test registry: %s",
-                     exclusionString.c_str());
-        }
-
-      fEntries.push_back({exclusionRegex, excludeUntilAndroidAPILevel});
-    });
 }
 
 static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
@@ -302,9 +211,6 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     SkGraphics::Init();
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
 
-    // Defaults to zero since most checks care if it is greater than a specific value. So this will
-    // just default to it being less.
-    int minAndroidAPILevel = 0;
 #ifdef SK_BUILD_FOR_ANDROID
     // ro.vendor.api_level contains the minAPI level based on the order defined in
     // docs.partner.android.com/gms/building/integrating/extending-os-upgrade-support-windows
@@ -315,19 +221,12 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     char minAPIVersionStr[PROP_VALUE_MAX];
     int strLength = __system_property_get("ro.vendor.api_level", minAPIVersionStr);
     if (strLength != 0) {
-        minAndroidAPILevel = atoi(minAPIVersionStr);
+        fEnforcedAndroidAPILevel = atoi(minAPIVersionStr);
     }
 #endif
 
-    // Load the exclusion list `skqp/unittests.txt`, if it exists.
-    // The list is checked in at platform_tools/android/apps/skqp/src/main/assets/skqp/unittests.txt
-    ExclusionList exclusionList;
-    if (sk_sp<SkData> dat = assetManager->open(kUnitTestsPath)) {
-        exclusionList.initialize(assetManager, dat, minAndroidAPILevel);
-    }
-
-    fUnitTests = get_unit_tests(exclusionList);
-    fSkSLErrorTests = get_sksl_error_tests(assetManager, exclusionList);
+    fUnitTests = get_unit_tests(fEnforcedAndroidAPILevel);
+    fSkSLErrorTests = get_sksl_error_tests(assetManager, fEnforcedAndroidAPILevel);
     fSupportedBackends = get_backends();
 
     print_backend_info((fReportDirectory + "/grdump.txt").c_str(), fSupportedBackends);
@@ -342,7 +241,10 @@ std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {
         }
     } r;
     GrContextOptions options;
-    options.fDisableDriverCorrectnessWorkarounds = true;
+    if (test->fCTSEnforcement.eval(fEnforcedAndroidAPILevel) ==
+        CtsEnforcement::RunMode::kRunStrict) {
+        options.fDisableDriverCorrectnessWorkarounds = true;
+    }
     if (test->fContextOptionsProc) {
         test->fContextOptionsProc(&options);
     }

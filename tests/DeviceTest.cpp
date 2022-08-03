@@ -75,8 +75,10 @@ DEF_TEST(SpecialImage_BitmapDevice, reporter) {
 }
 #endif
 
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     static const int kWidth = 100;

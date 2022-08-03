@@ -275,7 +275,8 @@ static sk_sp<SkTextBlob> make_large_blob() {
     return builder.make();
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobIntegerOverflowTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobIntegerOverflowTest, reporter, ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
@@ -298,7 +299,10 @@ void write_png(const std::string& filename, const SkBitmap& bitmap) {
     w.fsync();
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
@@ -354,7 +358,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph, reporter, ctxInfo) {
 #endif
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobSmoothScroll, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobSmoothScroll,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);

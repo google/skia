@@ -49,7 +49,7 @@ static void destroy_instance(GrVkGetProc getProc, VkInstance inst) {
 // If the extension VK_EXT_GLOBAL_PRIORITY is supported, this test just tries to create a VkDevice
 // using the various global priorities. The test passes if no errors are reported or the test
 // doesn't crash.
-DEF_GPUTEST(VulkanPriorityExtension, reporter, options) {
+DEF_GPUTEST(VulkanPriorityExtension, reporter, options, CtsEnforcement::kApiLevel_T) {
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
         return;

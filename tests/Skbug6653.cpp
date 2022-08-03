@@ -96,8 +96,7 @@ static void test_bug_6653(GrDirectContext* dContext,
 
 // Tests that readPixels returns up-to-date results. This has failed on several GPUs,
 // from multiple vendors, in MSAA mode.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto ctx = ctxInfo.directContext();
     test_bug_6653(ctx, reporter, "Default");
 }
-

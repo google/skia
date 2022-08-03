@@ -187,7 +187,10 @@ private:
 };
 }  // anonymous namespace
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     GrResourceProvider* rp = dContext->priv().resourceProvider();
 

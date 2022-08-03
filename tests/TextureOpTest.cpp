@@ -74,8 +74,7 @@ static GrOp::Owner create_op(GrDirectContext* dContext, SkRect rect,
 }
 
 // This unit test exercises the crbug.com/1112259 case.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo) {
-
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo, CtsEnforcement::kNever) {
     GrDirectContext* dContext = ctxInfo.directContext();
     const GrCaps* caps = dContext->priv().caps();
     SkArenaAlloc arena{nullptr, 0, 1024};

@@ -15,7 +15,7 @@
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SrcSrcOverBatchTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SrcSrcOverBatchTest, reporter, ctxInfo, CtsEnforcement::kNever) {
     auto ctx = ctxInfo.directContext();
 
     static const int kSize = 8;

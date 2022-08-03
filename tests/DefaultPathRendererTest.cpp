@@ -132,7 +132,10 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
 
 DEF_GPUTEST_FOR_CONTEXTS(DefaultPathRendererTest,
                          sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         reporter, ctxInfo, only_allow_default) {
+                         reporter,
+                         ctxInfo,
+                         only_allow_default,
+                         CtsEnforcement::kApiLevel_T) {
     auto ctx = ctxInfo.directContext();
 
     run_test(ctx, reporter);

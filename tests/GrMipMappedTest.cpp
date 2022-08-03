@@ -40,7 +40,10 @@ static constexpr int kSize = 8;
 
 // Test that the correct mip map states are on the GrTextures when wrapping GrBackendTextures in
 // SkImages and SkSurfaces
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     if (!dContext->priv().caps()->mipmapSupport()) {
         return;
@@ -121,7 +124,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
 
 // Test that we correctly copy or don't copy GrBackendTextures in the GrBackendTextureImageGenerator
 // based on if we will use mips in the draw and the mip status of the GrBackendTexture.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     if (!dContext->priv().caps()->mipmapSupport()) {
         return;
@@ -282,7 +288,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
 
 // Test that when we call makeImageSnapshot on an SkSurface we retains the same mip status as the
 // resource we took the snapshot of.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     if (!dContext->priv().caps()->mipmapSupport()) {
         return;
@@ -335,7 +344,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
 
 // Test that we don't create a mip mapped texture if the size is 1x1 even if the filter mode is set
 // to use mips. This test passes by not crashing or hitting asserts in code.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     if (!dContext->priv().caps()->mipmapSupport()) {
         return;
@@ -410,7 +422,7 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> draw_mipmap_into_new_rende
 }
 
 // Test that two opsTasks using the same mipmaps both depend on the same GrTextureResolveRenderTask.
-DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
+DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */, CtsEnforcement::kApiLevel_T) {
     using Enable = GrContextOptions::Enable;
     using MipmapMode = GrSamplerState::MipmapMode;
 

@@ -26,20 +26,23 @@ DEF_CONDITIONAL_TEST(TestFalseCondition, reporter, 1 == 0) {
 }
 
 // This is an example of a GPU test that uses GrContextOptions to do the test.
-DEF_GPUTEST(TestGpuFactory, reporter, factory) {
+DEF_GPUTEST(TestGpuFactory, reporter, factory, CtsEnforcement::kNever) {
     REPORTER_ASSERT(reporter, reporter);
 }
 
 // This is an example of a GPU test that tests a property that should work for all GPU contexts.
 // Note: Some of the contexts might not produce a rendering output.
-DEF_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContexts, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContexts, reporter, ctxInfo, CtsEnforcement::kNever) {
     REPORTER_ASSERT(reporter, reporter);
     REPORTER_ASSERT(reporter, ctxInfo.directContext());
 }
 
 // This is an example of a GPU test that tests a property that should work for all GPU contexts that
 // produce a rendering output.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kNever) {
     REPORTER_ASSERT(reporter, reporter);
     REPORTER_ASSERT(reporter, ctxInfo.directContext());
 }
@@ -52,25 +55,57 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(TestMockContext, reporter, ctxInfo) {
 }
 
 // Conditional GPU tests will only execute if the provided condition parameter is true.
-DEF_CONDITIONAL_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContextsWithTrueCondition,
-                                         reporter, ctxInfo, true) {
+DEF_CONDITIONAL_GPUTEST_FOR_ALL_CONTEXTS(
+        TestGpuAllContextsWithTrueCondition, reporter, ctxInfo, true, CtsEnforcement::kNever) {
     REPORTER_ASSERT(reporter, reporter);
     REPORTER_ASSERT(reporter, ctxInfo.directContext());
 }
 
-DEF_CONDITIONAL_GPUTEST_FOR_ALL_CONTEXTS(TestGpuAllContextsWithFalseCondition,
-                                         reporter, ctxInfo, false) {
+DEF_CONDITIONAL_GPUTEST_FOR_ALL_CONTEXTS(
+        TestGpuAllContextsWithFalseCondition, reporter, ctxInfo, false, CtsEnforcement::kNever) {
     ERRORF(reporter, "DEF_CONDITIONAL_GPUTEST_FOR_ALL_CONTEXTS ran with a false condition");
 }
 
 DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContextsWithTrueCondition,
-                                               reporter, ctxInfo, true) {
+                                               reporter,
+                                               ctxInfo,
+                                               true,
+                                               CtsEnforcement::kNever) {
     REPORTER_ASSERT(reporter, reporter);
     REPORTER_ASSERT(reporter, ctxInfo.directContext());
 }
 
 DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContextsWithFalseCondition,
-                                               reporter, ctxInfo, false) {
+                                               reporter,
+                                               ctxInfo,
+                                               false,
+                                               CtsEnforcement::kNever) {
     ERRORF(reporter, "DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS ran with a false condition");
 }
 
+DEF_TEST(TestCtsEnforcement, reporter) {
+    auto verifyRunMode = [&](CtsEnforcement e, int apiLevel, CtsEnforcement::RunMode runMode) {
+        REPORTER_ASSERT(reporter, e.eval(apiLevel) == runMode);
+    };
+
+    CtsEnforcement e1 = CtsEnforcement::kNever;
+    verifyRunMode(e1, 0, CtsEnforcement::RunMode::kSkip);
+    verifyRunMode(e1, CtsEnforcement::kApiLevel_T, CtsEnforcement::RunMode::kSkip);
+    verifyRunMode(e1, CtsEnforcement::kNextRelease, CtsEnforcement::RunMode::kSkip);
+
+    CtsEnforcement e2 = CtsEnforcement::kApiLevel_T;
+    verifyRunMode(e2, 0, CtsEnforcement::RunMode::kSkip);
+    verifyRunMode(e2, CtsEnforcement::kApiLevel_T, CtsEnforcement::RunMode::kRunStrict);
+    verifyRunMode(e2, CtsEnforcement::kNextRelease, CtsEnforcement::RunMode::kRunStrict);
+
+    CtsEnforcement e3 = CtsEnforcement::kNextRelease;
+    verifyRunMode(e3, 0, CtsEnforcement::RunMode::kSkip);
+    verifyRunMode(e3, CtsEnforcement::kApiLevel_T, CtsEnforcement::RunMode::kSkip);
+    verifyRunMode(e3, CtsEnforcement::kNextRelease, CtsEnforcement::RunMode::kRunStrict);
+
+    CtsEnforcement e4 = CtsEnforcement(CtsEnforcement::kNextRelease)
+                                .withWorkarounds(CtsEnforcement::kApiLevel_T);
+    verifyRunMode(e4, 0, CtsEnforcement::RunMode::kSkip);
+    verifyRunMode(e4, CtsEnforcement::kApiLevel_T, CtsEnforcement::RunMode::kRunWithWorkarounds);
+    verifyRunMode(e4, CtsEnforcement::kNextRelease, CtsEnforcement::RunMode::kRunStrict);
+}

@@ -304,7 +304,10 @@ DEF_TEST(ExtendedSkColorTypeTests_raster, reporter) {
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ExtendedSkColorTypeTests_gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ExtendedSkColorTypeTests_gpu,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
 
     for (size_t i = 0; i < std::size(gTests); ++i) {

@@ -444,11 +444,17 @@ static void test_write_pixels(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     test_write_pixels(reporter, ctxInfo.directContext(), 1);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     test_write_pixels(reporter, ctxInfo.directContext(), 1);
 }
 
@@ -474,11 +480,17 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     test_write_pixels_non_texture(reporter, ctxInfo.directContext(), 1);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTextureMSAA_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTextureMSAA_Gpu,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     test_write_pixels_non_texture(reporter, ctxInfo.directContext(), 4);
 }
 
@@ -508,7 +520,10 @@ static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
 // The unit test fails on Nexus 6P/Android M with driver 129.0 without the
 // "DisallowTexSubImageForUnormConfigTexturesEverBoundToFBO" workaround enabled.
 // skbug.com/11834
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     const GrCaps* caps = context->priv().caps();

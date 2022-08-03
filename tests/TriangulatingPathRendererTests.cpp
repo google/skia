@@ -823,7 +823,10 @@ static void test_path(GrRecordingContext* rContext,
     pr.drawPath(args);
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests,
+                             reporter,
+                             ctxInfo,
+                             CtsEnforcement::kNever) {
     auto ctx = ctxInfo.directContext();
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800},

@@ -44,7 +44,7 @@ static void run_test(skiatest::Reporter*, GrDirectContext*,
 
 // This is a GPU test that ensures the SkSL 2d cross() intrinsic returns the correct sign (negative,
 // positive, or zero).
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkSLCross, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkSLCross, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     GrDirectContext* dContext = ctxInfo.directContext();
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
                                                    SkBackingFit::kExact, {1, 1}, SkSurfaceProps(),

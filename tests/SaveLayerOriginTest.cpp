@@ -95,7 +95,10 @@ static void run_test(skiatest::Reporter* reporter,
     context->deleteBackendTexture(beTexture);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SaveLayerOrigin, reporter, context_info) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SaveLayerOrigin,
+                                   reporter,
+                                   context_info,
+                                   CtsEnforcement::kApiLevel_T) {
     GrDirectContext* context = context_info.directContext();
     run_test(reporter, context, kBottomLeft_GrSurfaceOrigin);
     run_test(reporter, context, kTopLeft_GrSurfaceOrigin);

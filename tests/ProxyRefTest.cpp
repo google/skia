@@ -41,7 +41,7 @@ static sk_sp<GrTextureProxy> make_wrapped(GrRecordingContext* rContext) {
             SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     GrResourceProvider* resourceProvider = dContext->priv().resourceProvider();
 

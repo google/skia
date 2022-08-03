@@ -132,7 +132,10 @@ static bool fill_plot(GrDrawOpAtlas* atlas,
 
 // This is a basic DrawOpAtlas test. It simply verifies that multitexture atlases correctly
 // add and remove pages. Note that this is simulating flush-time behavior.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     auto proxyProvider = context->priv().proxyProvider();
     auto resourceProvider = context->priv().resourceProvider();
@@ -196,8 +199,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
 
 // This test verifies that the AtlasTextOp::onPrepare method correctly handles a failure
 // when allocating an atlas page.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) {
-
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     auto gpu = dContext->priv().getGpu();
@@ -261,7 +266,7 @@ void test_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, size_t 
     REPORTER_ASSERT(reporter, config.plotDimensions(maskFormat) == expectedPlotDimensions);
 }
 
-DEF_GPUTEST(GrDrawOpAtlasConfig_Basic, reporter, options) {
+DEF_GPUTEST(GrDrawOpAtlasConfig_Basic, reporter, options, CtsEnforcement::kApiLevel_T) {
     // 1/4 MB
     test_atlas_config(reporter, 65536, 256 * 1024, MaskFormat::kARGB,
                       { 256, 256 }, { 256, 256 });

@@ -171,7 +171,7 @@ private:
  * adding the ops in all possible orders and verifies that the chained executions don't violate
  * painter's order.
  */
-DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
+DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/, CtsEnforcement::kApiLevel_T) {
     sk_sp<GrDirectContext> dContext = GrDirectContext::MakeMock(nullptr);
     SkASSERT(dContext);
     const GrCaps* caps = dContext->priv().caps();

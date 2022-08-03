@@ -11,7 +11,7 @@
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrSlug_empty, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrSlug_empty, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     auto surface(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info));
@@ -43,4 +43,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrSlug_empty, reporter, ctxInfo) {
     sk_sp<sktext::gpu::Slug> slug = sktext::gpu::Slug::ConvertBlob(canvas, *blob, {10, 10}, p);
     REPORTER_ASSERT(reporter, slug == nullptr);
 }
-

@@ -16,7 +16,10 @@
 
 #ifdef SK_GL
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
+                                      reporter,
+                                      ctxInfo,
+                                      CtsEnforcement::kApiLevel_T) {
 #define GL(F) GR_GL_CALL(ctxInfo.glContext()->gl(), F)
 
     auto dContext = ctxInfo.directContext();

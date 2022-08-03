@@ -210,7 +210,10 @@ static GrSurfaceProxyView create_proxy_view(GrRecordingContext* rContext) {
     return std::get<0>(GrMakeUncachedBitmapProxyView(rContext, srcBM));
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kNever) {
     auto dContext = ctxInfo.directContext();
 
     GrSurfaceProxyView srcView = create_proxy_view(dContext);
@@ -251,7 +254,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     test_image_backed(reporter, dContext, srcImage);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kNever) {
     auto dContext = ctxInfo.directContext();
 
     GrSurfaceProxyView srcView = create_proxy_view(dContext);

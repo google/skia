@@ -2081,6 +2081,7 @@ if (skia_enable_tools) {
 
   test_lib("test") {
     sources = [
+      "tests/CtsEnforcement.cpp",
       "tests/Test.cpp",
       "tests/Test.h",
       "tests/TestHarness.cpp",

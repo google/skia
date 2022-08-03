@@ -27,7 +27,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps);
 
-DEF_GPUTEST(GrPorterDuff, reporter, /*ctxInfo*/) {
+DEF_GPUTEST(GrPorterDuff, reporter, /*ctxInfo*/, CtsEnforcement::kApiLevel_T) {
     GrMockOptions mockOptions;
     mockOptions.fDualSourceBlendingSupport = true;
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(&mockOptions, GrContextOptions());
@@ -1058,7 +1058,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     TEST_ASSERT(blendInfo.fWritesColor);
 }
 
-DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
+DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options, CtsEnforcement::kApiLevel_T) {
     GrContextOptions opts = options;
     opts.fSuppressDualSourceBlending = true;
     sk_gpu_test::GrContextFactory mockFactory(opts);

@@ -101,7 +101,10 @@ DEF_TEST(PremulAlphaRoundTrip, reporter) {
 
     test_premul_alpha_roundtrip(reporter, surf.get());
 }
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
 
     sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.directContext(),

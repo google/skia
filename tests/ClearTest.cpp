@@ -293,7 +293,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     // Regular clear
     clear_op_test(reporter, ctxInfo.directContext());
 
@@ -359,7 +359,10 @@ void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrRecordingC
     REPORTER_ASSERT(reporter, isCorrect);
 }
 // From crbug.com/768134
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     // Regular clear
     fullscreen_clear_with_layer_test(reporter, ctxInfo.directContext());
 

@@ -186,7 +186,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
 }
 
 #ifdef SK_GL
-DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
+DEF_GPUTEST(SurfaceSemaphores, reporter, options, CtsEnforcement::kApiLevel_T) {
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
     static constexpr auto kNativeGLType = sk_gpu_test::GrContextFactory::kGL_ContextType;
 #else
@@ -228,7 +228,10 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
 }
 #endif
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto ctx = ctxInfo.directContext();
     if (!ctx->priv().caps()->semaphoreSupport()) {
         return;
