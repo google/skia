@@ -14,6 +14,7 @@ targetDir = sys.argv[2]
 modules = sys.argv[3:]
 
 dependencies = {
+    'sksl_compute': ['sksl_gpu', 'sksl_shared'],
     'sksl_gpu': ['sksl_shared'],
     'sksl_frag': ['sksl_gpu', 'sksl_shared'],
     'sksl_vert': ['sksl_gpu', 'sksl_shared'],
@@ -21,6 +22,7 @@ dependencies = {
     'sksl_graphite_vert': ['sksl_vert', 'sksl_gpu', 'sksl_shared'],
     'sksl_public': ['sksl_shared'],
     'sksl_rt_shader': ['sksl_public', 'sksl_shared'],
+    'sksl_shared': [],
 }
 
 for module in modules:
@@ -30,9 +32,11 @@ for module in modules:
             os.mkdir(targetDir)
         target = os.path.join(targetDir, moduleName)
         args = [sksl_precompile, target + ".dehydrated.sksl", module]
-        if moduleName in dependencies:
-            for dependent in dependencies[moduleName]:
-                args.append(os.path.join(moduleDir, dependent) + ".sksl")
+        if moduleName not in dependencies:
+            print("### Error compiling " + moduleName + ": dependency list must be specified")
+            exit(1)
+        for dependent in dependencies[moduleName]:
+            args.append(os.path.join(moduleDir, dependent) + ".sksl")
         subprocess.check_output(args).decode('utf-8')
     except subprocess.CalledProcessError as err:
         print("### Error compiling " + module + ":")
