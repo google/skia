@@ -794,6 +794,8 @@ TINT_SRCS = [
     "src/tint/ast/stage_attribute.h",
     "src/tint/ast/statement.cc",
     "src/tint/ast/statement.h",
+    "src/tint/ast/static_assert.cc",
+    "src/tint/ast/static_assert.h",
     "src/tint/ast/storage_class.cc",
     "src/tint/ast/storage_class.h",
     "src/tint/ast/storage_texture.cc",
