@@ -389,17 +389,19 @@ private:
 };
 ```
 
-Constructor initializers should be one per line, indented, with punctuation
-placed before the initializer.
+Constructor initializers should be placed on the same line as the constructor,
+if they fit. Otherwise, each initializer should be on its own line, indented,
+with punctuation placed before the initializer.
 
 <!--?prettify?-->
 
 ```
-GrDillPickle::GrDillPickle()
-    : GrPickle()
-    , fSize(kDefaultPickleSize) {
-    ...
-}
+GrDillPickle::GrDillPickle() : GrPickle(), fSize(kDefaultPickleSize) {}
+
+GrDillPickle::GrDillPickle(float size, float crunchiness, const PickleOptions* options)
+        : GrPickle(options)
+        , fSize(size)
+        , fCrunchiness(crunchiness) {}
 ```
 
 Constructors that take one argument should almost always be explicit, with
