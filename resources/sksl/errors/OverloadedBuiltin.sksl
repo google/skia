@@ -1,0 +1,26 @@
+uniform half4 color;
+
+half fma(half a, half b) { return 0; /* allowed */ }
+half fma(half a, half b, half c) { return 0; /* error: overloads a builtin */ }
+half fma(half a, half b, half c, half d) { return 0; /* allowed */ }
+
+half2 sin(half2 a) { return half2(0); /* error: overloads a builtin */ }
+float3 sin(float3 a) { return float3(0); /* error: overloads a builtin */ }
+half2x2 sin(half2x2 a) { return half2x2(0); /* allowed */ }
+float3x3 sin(float3x3 a) { return float3x3(0); /* allowed */ }
+
+half cos(half2 a) { return 0; /* error: overloads a builtin (despite return type mismatch) */ }
+float2 cos(half2 a) { return 0; /* error: overloads a builtin (despite return type mismatch) */ }
+
+float pow(float x, float y) { return 0; /* error: overloads a builtin */ }
+float pow(float2 x, float y) { return 0; /* allowed */ }
+float pow(half x, float y) { return 0; /* allowed */ }
+
+/*%%*
+duplicate definition of $genHType fma($genHType a, $genHType b, $genHType c)
+duplicate definition of $genHType sin($genHType angle)
+duplicate definition of $genType sin($genType angle)
+duplicate definition of $genHType cos($genHType angle)
+functions 'float2 cos(half2 a)' and '$genHType cos($genHType angle)' differ only in return type
+duplicate definition of $genType pow($genType x, $genType y)
+*%%*/

@@ -1483,15 +1483,15 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
         DSLWriter::Reset();
         DSLParameter x(kFloat2_Type, "x");
         DSLParameter y(kFloat2_Type, "y");
-        DSLFunction dot(kFloat2_Type, "dot", x, y);
+        DSLFunction dot(kFloat2_Type, "Dot", x, y);
         dot.define(
             Return(x * x + y * y)
         );
         EXPECT_EQUAL(dot(Float2(1.0f, 2.0f), Float2(3.0f, 4.0f)),
-                     "dot(float2(1.0, 2.0), float2(3.0, 4.0))");
+                     "Dot(float2(1.0, 2.0), float2(3.0, 4.0))");
         REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
         EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                "float2 dot(float2 x, float2 y) { return ((x * x) + (y * y)); }");
+                "float2 Dot(float2 x, float2 y) { return ((x * x) + (y * y)); }");
     }
 
     {

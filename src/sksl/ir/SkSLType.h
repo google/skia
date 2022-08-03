@@ -436,6 +436,10 @@ public:
         return fTypeKind == TypeKind::kVoid;
     }
 
+    bool isGeneric() const {
+        return fTypeKind == TypeKind::kGeneric;
+    }
+
     virtual bool isScalar() const {
         return false;
     }

@@ -172,6 +172,7 @@ sksl_error_tests = [
   "/sksl/errors/OverflowParamArraySize.rts",
   "/sksl/errors/OverflowShortLiteral.sksl",
   "/sksl/errors/OverflowUintLiteral.sksl",
+  "/sksl/errors/OverloadedBuiltin.sksl",
   "/sksl/errors/PrecisionQualifiersDisallowed.sksl",
   "/sksl/errors/PrivateTypes.rts",
   "/sksl/errors/PrivateVariables.rts",

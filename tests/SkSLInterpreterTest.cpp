@@ -716,10 +716,10 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
         "float main(float x) { return sub(sqr(x), x); }\n"
 
         // Different signatures
-        "float dot(float2 a, float2 b) { return a.x*b.x + a.y*b.y; }\n"
-        "float dot(float3 a, float3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }\n"
-        "float dot3_test(float x) { return dot(float3(x, x + 1, x + 2), float3(1, -1, 2)); }\n"
-        "float dot2_test(float x) { return dot(float2(x, x + 1), float2(1, -1)); }\n";
+        "float Dot(float2 a, float2 b) { return a.x*b.x + a.y*b.y; }\n"
+        "float Dot(float3 a, float3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }\n"
+        "float Dot3_test(float x) { return dot(float3(x, x + 1, x + 2), float3(1, -1, 2)); }\n"
+        "float Dot2_test(float x) { return dot(float2(x, x + 1), float2(1, -1)); }\n";
 
     ProgramBuilder program(r, src);
 
@@ -727,8 +727,8 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
     auto sqr  = SkSL::Program_GetFunction(*program, "sqr");
     auto main = SkSL::Program_GetFunction(*program, "main");
     auto tan  = SkSL::Program_GetFunction(*program, "tan");
-    auto dot3 = SkSL::Program_GetFunction(*program, "dot3_test");
-    auto dot2 = SkSL::Program_GetFunction(*program, "dot2_test");
+    auto dot3 = SkSL::Program_GetFunction(*program, "Dot3_test");
+    auto dot2 = SkSL::Program_GetFunction(*program, "Dot2_test");
 
     REPORTER_ASSERT(r, sub);
     REPORTER_ASSERT(r, sqr);
