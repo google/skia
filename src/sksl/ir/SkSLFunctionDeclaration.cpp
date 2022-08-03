@@ -102,6 +102,9 @@ static bool check_parameters(const Context& context,
         if (!type.isOpaque()) {
             permittedFlags |= Modifiers::kOut_Flag;
         }
+        if (type.typeKind() == Type::TypeKind::kTexture) {
+            permittedFlags |= Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag;
+        }
         param->modifiers().checkPermitted(context,
                                           param->modifiersPosition(),
                                           permittedFlags,
@@ -111,7 +114,7 @@ static bool check_parameters(const Context& context,
         // specific to "child" objects.
         if (type.isEffectChild() && !context.fConfig->fIsBuiltinCode) {
             context.fErrors->error(param->fPosition, "parameters of type '" + type.displayName() +
-                    "' not allowed");
+                                                     "' not allowed");
             return false;
         }
 

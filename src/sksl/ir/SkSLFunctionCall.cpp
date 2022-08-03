@@ -1005,6 +1005,8 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
                 return nullptr;
             }
         }
+        // TODO(skia:13609): Make sure that we don't pass writeonly objects to readonly parameters,
+        // or vice-versa.
     }
 
     if (function.isMain()) {

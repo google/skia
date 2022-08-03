@@ -191,11 +191,9 @@ void MetalCodeGenerator::writeTextureType(const Type& type, const Modifiers& mod
     this->write(this->textureTypeName(type, &modifiers));
 }
 
-void MetalCodeGenerator::writeParameterType(const Type& type) {
+void MetalCodeGenerator::writeParameterType(const Type& type, const Modifiers& modifiers) {
     if (type.typeKind() == Type::TypeKind::kTexture) {
-        // TODO(skia:13609): we will need a mechanism in SkSL to specify texture-access type on
-        // parameters. The default value (`access::sample`) is probably not what we will want.
-        this->write(this->textureTypeName(type, /*modifiers=*/nullptr));
+        this->writeTextureType(type, modifiers);
     } else {
         this->writeType(type);
     }
@@ -265,18 +263,18 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
 }
 
 // returns true if we should pass by reference instead of by value
-static bool pass_by_reference(const Modifiers& modifiers, const Type& type) {
+static bool pass_by_reference(const Type& type, const Modifiers& modifiers) {
     return (modifiers.fFlags & Modifiers::kOut_Flag) && !type.isUnsizedArray();
 }
 
 // returns true if we need to specify an address space modifier
-static bool needs_address_space(const Modifiers& modifiers, const Type& type) {
-    return type.isUnsizedArray() || pass_by_reference(modifiers, type);
+static bool needs_address_space(const Type& type, const Modifiers& modifiers) {
+    return type.isUnsizedArray() || pass_by_reference(type, modifiers);
 }
 
 std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
-                                             const ExpressionArray& arguments,
-                                             const SkTArray<VariableReference*>& outVars) {
+                                                  const ExpressionArray& arguments,
+                                                  const SkTArray<VariableReference*>& outVars) {
     AutoOutputStream outputToExtraFunctions(this, &fExtraFunctions, &fIndentation);
     const FunctionDeclaration& function = call.function();
 
@@ -316,9 +314,9 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         this->writeModifiers(param->modifiers());
 
         const Type* type = outVars[index] ? &outVars[index]->type() : &arguments[index]->type();
-        this->writeParameterType(*type);
+        this->writeParameterType(*type, param->modifiers());
 
-        if (pass_by_reference(param->modifiers(), param->type())) {
+        if (pass_by_reference(param->type(), param->modifiers())) {
             this->write("&");
         }
         if (outVars[index]) {
@@ -2110,16 +2108,15 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         this->write("(");
         this->writeFunctionRequirementParams(f, separator);
     }
-    for (const auto& param : f.parameters()) {
+    for (const Variable* param : f.parameters()) {
         if (f.isMain() && param->modifiers().fLayout.fBuiltin != -1) {
             continue;
         }
         this->write(separator);
         separator = ", ";
         this->writeModifiers(param->modifiers());
-        const Type* type = &param->type();
-        this->writeParameterType(*type);
-        if (pass_by_reference(param->modifiers(), param->type())) {
+        this->writeParameterType(param->type(), param->modifiers());
+        if (pass_by_reference(param->type(), param->modifiers())) {
             this->write("&");
         }
         this->write(" ");
@@ -2630,12 +2627,12 @@ void MetalCodeGenerator::writeInputStruct() {
             if (is_input(var)) {
                 this->write("    ");
                 if (ProgramConfig::IsCompute(fProgram.fConfig->fKind) &&
-                        needs_address_space(var.modifiers(), var.type())) {
-                    // TODO(ethannicholas): address space support
+                    needs_address_space(var.type(), var.modifiers())) {
+                    // TODO: address space support
                     this->write("device ");
                 }
                 this->writeType(var.type());
-                if (pass_by_reference(var.modifiers(), var.type())) {
+                if (pass_by_reference(var.type(), var.modifiers())) {
                     this->write("&");
                 }
                 this->write(" ");
@@ -2670,13 +2667,13 @@ void MetalCodeGenerator::writeOutputStruct() {
             if (is_output(var)) {
                 this->write("    ");
                 if (ProgramConfig::IsCompute(fProgram.fConfig->fKind) &&
-                        needs_address_space(var.modifiers(), var.type())) {
-                    // TODO(ethannicholas): address space support
+                    needs_address_space(var.type(), var.modifiers())) {
+                    // TODO: address space support
                     this->write("device ");
                 }
                 this->writeType(var.type());
                 if (ProgramConfig::IsCompute(fProgram.fConfig->fKind) &&
-                        pass_by_reference(var.modifiers(), var.type())) {
+                    pass_by_reference(var.type(), var.modifiers())) {
                     this->write("&");
                 }
                 this->write(" ");

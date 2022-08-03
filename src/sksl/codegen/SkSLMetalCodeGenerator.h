@@ -143,7 +143,7 @@ protected:
 
     void writeTextureType(const Type& type, const Modifiers& modifiers);
 
-    void writeParameterType(const Type& type);
+    void writeParameterType(const Type& type, const Modifiers& modifiers);
 
     void writeExtension(const Extension& ext);
 
@@ -179,8 +179,8 @@ protected:
     void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
 
     std::string getOutParamHelper(const FunctionCall& c,
-                             const ExpressionArray& arguments,
-                             const SkTArray<VariableReference*>& outVars);
+                                  const ExpressionArray& arguments,
+                                  const SkTArray<VariableReference*>& outVars);
 
     std::string getInversePolyfill(const ExpressionArray& arguments);
 

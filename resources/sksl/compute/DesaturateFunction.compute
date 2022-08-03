@@ -1,14 +1,14 @@
 layout(binding=0) readonly texture2D src;
 layout(binding=1) writeonly texture2D dest;
 
-// TODO(skia:13609): we need a mechanism for access levels on src and dst.
-noinline void desaturate(texture2D src, texture2D dest, half4 color) {
+noinline void desaturate(readonly texture2D src, writeonly texture2D dest) {
+    half4 color = read(src, sk_ThreadPosition.xy);
     color.rgb = half3(dot(color.rgb, half3(0.22, 0.67, 0.11)));
-    write(dest, sk_ThreadPosition.xy, read(src, sk_ThreadPosition.xy));
+    write(dest, sk_ThreadPosition.xy, color);
 }
 
 void main() {
     if (sk_ThreadPosition.x < width(src) && sk_ThreadPosition.y < height(src)) {
-        desaturate(src, dest, read(src, sk_ThreadPosition.xy));
+        desaturate(src, dest);
     }
 }
