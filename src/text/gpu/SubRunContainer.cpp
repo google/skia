@@ -231,16 +231,27 @@ std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFrom
     if (!buffer.validate(0 < strikeToSourceScale)) { return std::nullopt; }
     SkRect sourceBounds = buffer.readRect();
 
-    int glyphCount = buffer.readInt();
-    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return std::nullopt; }
-    SkPoint* leftTopStorage =
-            alloc->makePODArray<SkPoint>(glyphCount);
-    for (int i = 0; i < glyphCount; ++i) {
-        leftTopStorage[i] = buffer.readPoint();
-    }
-    SkSpan<SkPoint> topLeft(leftTopStorage, glyphCount);
+    uint32_t glyphCount = buffer.getArrayCount();
 
+    // Zero indicates a problem with serialization.
+    if (!buffer.validate(glyphCount != 0)) { return std::nullopt; }
+
+    // Check that the count will not overflow the arena.
+    if (!buffer.validate(glyphCount <= INT_MAX &&
+                         BagOfBytes::WillCountFit<SkPoint>(glyphCount))) { return std::nullopt; }
+
+    SkPoint* leftTopStorage = alloc->makePODArray<SkPoint>(glyphCount);
+    if (!buffer.readPointArray(leftTopStorage, glyphCount)) { return std::nullopt; }
+    SkSpan<SkPoint> topLeft(leftTopStorage, glyphCount);
+    SkASSERT(buffer.isValid());
     return {TransformedMaskVertexFiller{maskType, strikeToSourceScale, sourceBounds, topLeft}};
+}
+
+void TransformedMaskVertexFiller::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeInt(static_cast<int>(fMaskType));
+    buffer.writeScalar(fStrikeToSourceScale);
+    buffer.writeRect(fSourceBounds);
+    buffer.writePointArray(fLeftTop.data(), SkCount(fLeftTop));
 }
 
 SkRect TransformedMaskVertexFiller::deviceRect(
@@ -252,16 +263,6 @@ SkRect TransformedMaskVertexFiller::deviceRect(
 
 int TransformedMaskVertexFiller::unflattenSize() const {
     return fLeftTop.size_bytes();
-}
-
-void TransformedMaskVertexFiller::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeInt(static_cast<int>(fMaskType));
-    buffer.writeScalar(fStrikeToSourceScale);
-    buffer.writeRect(fSourceBounds);
-    buffer.writeInt(SkCount(fLeftTop));
-    for (SkPoint leftTop : fLeftTop) {
-        buffer.writePoint(leftTop);
-    }
 }
 
 #if SK_SUPPORT_GPU
