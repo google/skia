@@ -97,10 +97,15 @@ static bool check_parameters(const Context& context,
 
     // Check modifiers on each function parameter.
     for (auto& param : parameters) {
-        param->modifiers().checkPermitted(context, param->modifiersPosition(),
-                Modifiers::kConst_Flag | Modifiers::kIn_Flag | Modifiers::kOut_Flag,
-                /*permittedLayoutFlags=*/0);
         const Type& type = param->type();
+        int permittedFlags = Modifiers::kConst_Flag | Modifiers::kIn_Flag;
+        if (!type.isOpaque()) {
+            permittedFlags |= Modifiers::kOut_Flag;
+        }
+        param->modifiers().checkPermitted(context,
+                                          param->modifiersPosition(),
+                                          permittedFlags,
+                                          /*permittedLayoutFlags=*/0);
         // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
         // parameters. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.

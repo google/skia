@@ -125,6 +125,7 @@ sksl_error_tests = [
   "/sksl/errors/OpaqueTypeInArray.sksl",
   "/sksl/errors/OpaqueTypeInInterfaceBlock.sksl",
   "/sksl/errors/OpaqueTypeInStruct.sksl",
+  "/sksl/errors/OpaqueTypeOutParam.sksl",
   "/sksl/errors/OpenArray.rts",
   "/sksl/errors/Ossfuzz26700.sksl",
   "/sksl/errors/Ossfuzz27614.sksl",

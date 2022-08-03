@@ -1,0 +1,8 @@
+void func1(in sampler2D s)    { /*allowed*/ }
+void func2(out sampler2D s)   { /*error*/ }
+void func3(inout sampler2D s) { /*error*/ }
+
+/*%%*
+'out' is not permitted here
+'out' is not permitted here
+*%%*/
