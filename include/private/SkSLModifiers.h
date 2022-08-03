@@ -46,13 +46,15 @@ struct Modifiers {
         kHighp_Flag          = 1 <<  6,
         kMediump_Flag        = 1 <<  7,
         kLowp_Flag           = 1 <<  8,
+        kReadOnly_Flag       = 1 <<  9,
+        kWriteOnly_Flag      = 1 << 10,
         // We use the Metal name for this one (corresponds to the GLSL 'shared' modifier)
-        kThreadgroup_Flag    = 1 <<  9,
+        kThreadgroup_Flag    = 1 << 11,
         // SkSL extensions, not present in GLSL
-        kES3_Flag            = 1 << 10,
-        kHasSideEffects_Flag = 1 << 11,
-        kInline_Flag         = 1 << 12,
-        kNoInline_Flag       = 1 << 13,
+        kES3_Flag            = 1 << 12,
+        kHasSideEffects_Flag = 1 << 13,
+        kInline_Flag         = 1 << 14,
+        kNoInline_Flag       = 1 << 15,
     };
 
     Modifiers()
@@ -106,6 +108,12 @@ struct Modifiers {
         if (fFlags & kLowp_Flag) {
             result += "lowp ";
         }
+        if (fFlags & kReadOnly_Flag) {
+            result += "readonly ";
+        }
+        if (fFlags & kWriteOnly_Flag) {
+            result += "writeonly ";
+        }
 
         // We're using a non-GLSL name for this one; the GLSL equivalent is "shared"
         if (fFlags & kThreadgroup_Flag) {
@@ -127,8 +135,10 @@ struct Modifiers {
      * Verifies that only permitted modifiers and layout flags are included. Reports errors and
      * returns false in the event of a violation.
      */
-    bool checkPermitted(const Context& context, Position pos, int permittedModifierFlags,
-            int permittedLayoutFlags) const;
+    bool checkPermitted(const Context& context,
+                        Position pos,
+                        int permittedModifierFlags,
+                        int permittedLayoutFlags) const;
 
     Layout fLayout;
     int fFlags;

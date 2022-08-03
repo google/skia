@@ -27,25 +27,37 @@ inline              float _inline;
 error: 9: 'noinline' is not permitted here
 noinline            float _noinline;
 ^^^^^^^^
-error: 11: 'flat' is not permitted here
+error: 10: 'readonly' is not permitted here
+readonly            float _readonly;
+^^^^^^^^
+error: 11: 'writeonly' is not permitted here
+writeonly           float _writeonly;
+^^^^^^^^^
+error: 13: 'flat' is not permitted here
 flat                void flat_fn() {}
 ^^^^
-error: 12: 'noperspective' is not permitted here
+error: 14: 'noperspective' is not permitted here
 noperspective       void noperspective_fn() {}
 ^^^^^^^^^^^^^
-error: 13: 'in' is not permitted here
+error: 15: 'in' is not permitted here
 in                  void in_fn() {}
 ^^
-error: 14: 'out' is not permitted here
+error: 16: 'out' is not permitted here
 out                 void out_fn() {}
 ^^^
-error: 15: 'threadgroup' is not permitted here
+error: 17: 'threadgroup' is not permitted here
 threadgroup         void threadgroup_fn() {}
 ^^^^^^^^^^^
-error: 16: '$es3' is not permitted here
+error: 18: '$es3' is not permitted here
 $es3                void es3_fn() {}
 ^^^^
-error: 17: 'sk_has_side_effects' is not permitted here
+error: 19: 'sk_has_side_effects' is not permitted here
 sk_has_side_effects void sk_has_side_effect_fn() {}
 ^^^^^^^^^^^^^^^^^^^
-16 errors
+error: 20: 'readonly' is not permitted here
+readonly            void readonly_fn() {}
+^^^^^^^^
+error: 21: 'writeonly' is not permitted here
+writeonly           void writeonly_fn() {}
+^^^^^^^^^
+20 errors

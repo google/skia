@@ -1184,6 +1184,12 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
         }
     }
 
+    if (modifiers.fFlags & Modifiers::kReadOnly_Flag) {
+        this->write("readonly ");
+    }
+    if (modifiers.fFlags & Modifiers::kWriteOnly_Flag) {
+        this->write("writeonly ");
+    }
 }
 
 void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {

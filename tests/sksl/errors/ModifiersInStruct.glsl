@@ -15,4 +15,10 @@ error: 5: modifier 'noperspective' is not permitted on a struct field
 error: 6: modifier 'inout' is not permitted on a struct field
     inout bool e;
     ^^^^^
-5 errors
+error: 7: modifier 'readonly' is not permitted on a struct field
+    readonly bool f;
+    ^^^^^^^^
+error: 8: modifier 'writeonly' is not permitted on a struct field
+    writeonly bool g;
+    ^^^^^^^^^
+7 errors

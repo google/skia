@@ -1,9 +1,11 @@
-const in out uniform flat noperspective sk_has_side_effects inline noinline void func1() {}
+const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
+void func1() {}
 
 void func2(const in out uniform flat noperspective sk_has_side_effects
-           inline noinline float test) {}
+           inline noinline readonly writeonly float test) {}
 
-const in out uniform flat noperspective sk_has_side_effects inline noinline float var;
+const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
+float var;
 
 /*%%*
 'sk_has_side_effects' is not permitted here
@@ -13,6 +15,8 @@ const in out uniform flat noperspective sk_has_side_effects inline noinline floa
 'uniform' is not permitted here
 'flat' is not permitted here
 'noperspective' is not permitted here
+'readonly' is not permitted here
+'writeonly' is not permitted here
 functions cannot be both 'inline' and 'noinline'
 'sk_has_side_effects' is not permitted here
 'uniform' is not permitted here
@@ -21,9 +25,13 @@ functions cannot be both 'inline' and 'noinline'
 'sk_has_side_effects' is not permitted here
 'inline' is not permitted here
 'noinline' is not permitted here
+'readonly' is not permitted here
+'writeonly' is not permitted here
 'sk_has_side_effects' is not permitted here
 'in uniform' variables not permitted
 'inline' is not permitted here
 'noinline' is not permitted here
+'readonly' is not permitted here
+'writeonly' is not permitted here
 'const' variables must be initialized
 *%%*/

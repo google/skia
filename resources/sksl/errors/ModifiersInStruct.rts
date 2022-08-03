@@ -4,6 +4,8 @@ struct S {
     flat half4 c;
     noperspective float4 d;
     inout bool e;
+    readonly bool f;
+    writeonly bool g;
 };
 
 /*%%*
@@ -12,4 +14,6 @@ modifier 'uniform' is not permitted on a struct field
 modifier 'flat' is not permitted on a struct field
 modifier 'noperspective' is not permitted on a struct field
 modifier 'inout' is not permitted on a struct field
+modifier 'readonly' is not permitted on a struct field
+modifier 'writeonly' is not permitted on a struct field
 *%%*/

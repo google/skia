@@ -62,6 +62,8 @@ static int parse_modifier_token(Token::Kind token) {
         case Token::Kind::TK_LOWP:           return Modifiers::kLowp_Flag;
         case Token::Kind::TK_ES3:            return Modifiers::kES3_Flag;
         case Token::Kind::TK_THREADGROUP:    return Modifiers::kThreadgroup_Flag;
+        case Token::Kind::TK_READONLY:       return Modifiers::kReadOnly_Flag;
+        case Token::Kind::TK_WRITEONLY:      return Modifiers::kWriteOnly_Flag;
         default:                             return 0;
     }
 }
@@ -925,7 +927,7 @@ DSLLayout DSLParser::layout() {
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
-            VARYING | INLINE | THREADGROUP)* */
+            VARYING | INLINE | THREADGROUP | READONLY | WRITEONLY)* */
 DSLModifiers DSLParser::modifiers() {
     int start = this->peek().fOffset;
     DSLLayout layout = this->layout();
@@ -936,7 +938,7 @@ DSLModifiers DSLParser::modifiers() {
     }
     int flags = 0;
     for (;;) {
-        // TODO(ethannicholas): handle duplicate / incompatible flags
+        // TODO: handle duplicate flags
         int tokenFlag = parse_modifier_token(peek().fKind);
         if (!tokenFlag) {
             break;
