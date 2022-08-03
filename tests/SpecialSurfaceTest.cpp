@@ -76,7 +76,10 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
     // TODO: check that the clear didn't escape the active region
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     for (auto colorType : { kRGBA_8888_SkColorType, kRGBA_1010102_SkColorType }) {

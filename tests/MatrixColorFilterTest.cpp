@@ -15,7 +15,10 @@
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(MatrixColorFilter_TransparentBlack, reporter, info) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(MatrixColorFilter_TransparentBlack,
+                                   reporter,
+                                   info,
+                                   CtsEnforcement::kApiLevel_T) {
     auto context = info.directContext();
     // Make a transparent black image rather than use a paint color to avoid an optimization that
     // applies the color filter on the CPU to paint colors.

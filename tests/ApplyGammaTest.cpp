@@ -93,7 +93,7 @@ bool check_gamma(uint32_t src, uint32_t dst, bool toSRGB, float error,
     return result;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
     static constexpr SkISize kBaseSize{256, 256};
     static const size_t kRowBytes = sizeof(uint32_t) * kBaseSize.fWidth;

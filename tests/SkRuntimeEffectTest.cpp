@@ -545,7 +545,10 @@ DEF_TEST(SkRuntimeEffectSimple, r) {
     test_RuntimeEffect_Shaders(r, nullptr);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU, r, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU,
+                                   r,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     test_RuntimeEffect_Shaders(r, ctxInfo.directContext());
 }
 
@@ -828,7 +831,10 @@ DEF_TEST(SkRuntimeEffect_Blender_CPU, r) {
     test_RuntimeEffect_Blenders(r, /*rContext=*/nullptr);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_Blender_GPU, r, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_Blender_GPU,
+                                   r,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     test_RuntimeEffect_Blenders(r, ctxInfo.directContext());
 }
 
@@ -972,7 +978,10 @@ DEF_TEST(SkRuntimeStructNameReuse, r) {
     test_RuntimeEffectStructNameReuse(r, nullptr);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeStructNameReuse_GPU, r, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeStructNameReuse_GPU,
+                                   r,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     test_RuntimeEffectStructNameReuse(r, ctxInfo.directContext());
 }
 
@@ -1133,7 +1142,7 @@ DEF_TEST(SkRuntimeShaderIsOpaque, r) {
     test("return cOnes.eval(xy);", false);
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo, CtsEnforcement::kApiLevel_T) {
     struct FpAndKey {
         std::unique_ptr<GrFragmentProcessor> fp;
         SkTArray<uint32_t, true>             key;
@@ -1169,7 +1178,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo) {
     SkASSERT(sRed.key != sGreen.key);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrSkSLFP_UniformArray, r, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrSkSLFP_UniformArray, r, ctxInfo, CtsEnforcement::kApiLevel_T) {
     // Make a fill-context to draw into.
     GrDirectContext* directContext = ctxInfo.directContext();
     SkImageInfo info = SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType);

@@ -106,7 +106,7 @@ static bool IsContextTypeForOutputPNGs(skiatest::GrContextFactoryContextType typ
 }
 DEF_GPUTEST_FOR_CONTEXTS(GrMeshTest, IsContextTypeForOutputPNGs, reporter, ctxInfo, nullptr) {
 #else
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
 #endif
     auto dContext = ctxInfo.directContext();
 

@@ -480,7 +480,10 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     using Surface = std::unique_ptr<skgpu::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Surface>>(
@@ -519,7 +522,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
     }
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(ReadPixels_InvalidRowBytes_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(ReadPixels_InvalidRowBytes_Gpu,
+                             reporter,
+                             ctxInfo,
+                             CtsEnforcement::kApiLevel_T) {
     auto srcII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     auto surf = SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kYes, srcII);
     for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
@@ -535,7 +541,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ReadPixels_InvalidRowBytes_Gpu, reporter, ctxInfo) 
     }
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(WritePixels_InvalidRowBytes_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(WritePixels_InvalidRowBytes_Gpu,
+                             reporter,
+                             ctxInfo,
+                             CtsEnforcement::kApiLevel_T) {
     auto dstII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     auto surf = SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kYes, dstII);
     for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
@@ -570,7 +579,10 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
     context->fCalled = true;
 };
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     using Surface = sk_sp<SkSurface>;
     auto reader = std::function<GpuReadSrcFn<Surface>>(
             [](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {
@@ -639,7 +651,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     using Image = sk_sp<SkImage>;
     auto context = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Image>>([context](const Image& image,
@@ -689,7 +704,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
+DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcement::kApiLevel_T) {
     const auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                       SkColorSpace::MakeSRGB());
     enum class ShutdownSequence {
@@ -1059,7 +1074,10 @@ static void gpu_write_pixels_test_driver(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     using Surface = std::unique_ptr<skgpu::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto writer = std::function<GpuWriteDstFn<Surface>>(
@@ -1101,7 +1119,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels, reporter, ctxInfo)
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     if (!direct->priv().caps()->mipmapSupport()) {
         return;
@@ -1248,7 +1269,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
 // Tests a bug found in OOP-R canvas2d in Chrome. The GPU backend would incorrectly not bind
 // buffer 0 to GL_PIXEL_PACK_BUFFER before a glReadPixels() that was supposed to read into
 // client memory if a GrDirectContext::resetContext() occurred.
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(GLReadPixelsUnbindPBO, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(GLReadPixelsUnbindPBO,
+                                      reporter,
+                                      ctxInfo,
+                                      CtsEnforcement::kApiLevel_T) {
     // Start with a async read so that we bind to GL_PIXEL_PACK_BUFFER.
     auto info = SkImageInfo::Make(16, 16, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkAutoPixmapStorage pmap = make_ref_data(info, /*forceOpaque=*/false);

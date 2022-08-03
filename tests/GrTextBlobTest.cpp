@@ -42,7 +42,10 @@ bool check_for_black(const SkBitmap& bm) {
     return false;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobScaleAnimation, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobScaleAnimation,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto tf = ToolUtils::create_portable_typeface("Mono", SkFontStyle());
     SkFont font{tf};
     font.setHinting(SkFontHinting::kNormal);
@@ -70,7 +73,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobScaleAnimation, reporter, ctxInfo) 
 }
 
 // Test extreme positions for all combinations of positions, origins, and translation matrices.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobMoveAround, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobMoveAround,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto tf = ToolUtils::create_portable_typeface("Mono", SkFontStyle());
     SkFont font{tf};
     font.setHinting(SkFontHinting::kNormal);

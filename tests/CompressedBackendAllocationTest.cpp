@@ -276,7 +276,10 @@ static void test_compressed_data_init(GrDirectContext* dContext,
     dContext->deleteBackendTexture(backendTex);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     const GrCaps* caps = dContext->priv().caps();
 

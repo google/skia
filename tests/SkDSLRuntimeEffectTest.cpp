@@ -279,6 +279,7 @@ DEF_TEST(DSLRuntimeEffectSimple, r) {
     test_RuntimeEffect_Shaders(r, nullptr);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DSLRuntimeEffectSimple_GPU, r, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DSLRuntimeEffectSimple_GPU, r, ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     test_RuntimeEffect_Shaders(r, ctxInfo.directContext());
 }

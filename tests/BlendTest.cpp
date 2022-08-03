@@ -81,7 +81,10 @@ DEF_TEST(Blend_byte_multiply, r) {
 }
 
 // Tests blending to a surface with no texture available.
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture,
+                                      reporter,
+                                      ctxInfo,
+                                      CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     static constexpr SkISize kDimensions{10, 10};
     const SkColorType kColorType = kRGBA_8888_SkColorType;

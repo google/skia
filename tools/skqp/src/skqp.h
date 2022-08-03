@@ -94,6 +94,10 @@ private:
     std::vector<UnitTest> fUnitTests;
     std::vector<SkSLErrorTest> fSkSLErrorTests;
 
+    // Defaults to zero since most checks care if it is greater than a specific value. So this will
+    // just default to it being less.
+    int fEnforcedAndroidAPILevel = 0;
+
     SkQP(const SkQP&) = delete;
     SkQP& operator=(const SkQP&) = delete;
 };

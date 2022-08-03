@@ -13,7 +13,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "tests/Test.h"
 
-DEF_GPUTEST(GrContext_oomed, reporter, originalOptions) {
+DEF_GPUTEST(GrContext_oomed, reporter, originalOptions, CtsEnforcement::kApiLevel_T) {
     GrContextOptions options = originalOptions;
     options.fRandomGLOOM = true;
     options.fSkipGLErrorChecks = GrContextOptions::Enable::kNo;
