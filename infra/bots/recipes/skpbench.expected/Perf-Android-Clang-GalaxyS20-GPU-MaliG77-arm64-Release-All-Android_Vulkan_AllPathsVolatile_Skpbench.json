@@ -240,6 +240,7 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
+      "--sync",
       "[START_DIR]/skp/bar.jpg",
       "[START_DIR]/skp/foo.png",
       "/sdcard/revenge_of_the_skiabot/skps"

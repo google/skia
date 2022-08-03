@@ -563,7 +563,7 @@ time.sleep(60)
     contents = self.m.file.glob_paths('ls %s/*' % host,
                                       host, '*',
                                       test_data=['foo.png', 'bar.jpg'])
-    args = contents + [device]
+    args = ['--sync'] + contents + [device]
     self._adb('push --sync %s/* %s' % (host, device), 'push', *args)
 
   def copy_directory_contents_to_host(self, device, host):

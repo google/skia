@@ -516,6 +516,7 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
+      "--sync",
       "[START_DIR]/skia/resources/bar.jpg",
       "[START_DIR]/skia/resources/foo.png",
       "/sdcard/revenge_of_the_skiabot/resources"
@@ -709,6 +710,7 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
+      "--sync",
       "[START_DIR]/skp/bar.jpg",
       "[START_DIR]/skp/foo.png",
       "/sdcard/revenge_of_the_skiabot/skps"
@@ -918,6 +920,7 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
+      "--sync",
       "[START_DIR]/skimage/bar.jpg",
       "[START_DIR]/skimage/foo.png",
       "/sdcard/revenge_of_the_skiabot/images"
@@ -1127,6 +1130,7 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
+      "--sync",
       "[START_DIR]/svg/bar.jpg",
       "[START_DIR]/svg/foo.png",
       "/sdcard/revenge_of_the_skiabot/svgs"

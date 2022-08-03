@@ -223,6 +223,7 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
+      "--sync",
       "[START_DIR]/mskp/bar.jpg",
       "[START_DIR]/mskp/foo.png",
       "/sdcard/revenge_of_the_skiabot/mskp"

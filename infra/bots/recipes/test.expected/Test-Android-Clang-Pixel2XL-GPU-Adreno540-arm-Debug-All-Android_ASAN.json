@@ -455,6 +455,7 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
+      "--sync",
       "[START_DIR]/skia/resources/bar.jpg",
       "[START_DIR]/skia/resources/foo.png",
       "/sdcard/revenge_of_the_skiabot/resources"
@@ -648,6 +649,7 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
+      "--sync",
       "[START_DIR]/skp/bar.jpg",
       "[START_DIR]/skp/foo.png",
       "/sdcard/revenge_of_the_skiabot/skps"
@@ -857,6 +859,7 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
+      "--sync",
       "[START_DIR]/skimage/bar.jpg",
       "[START_DIR]/skimage/foo.png",
       "/sdcard/revenge_of_the_skiabot/images"
@@ -1066,6 +1069,7 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
+      "--sync",
       "[START_DIR]/svg/bar.jpg",
       "[START_DIR]/svg/foo.png",
       "/sdcard/revenge_of_the_skiabot/svgs"
