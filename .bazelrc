@@ -57,6 +57,20 @@ build --flag_alias=with_no_icu=no//bazel/common_config_settings:use_icu
 # CanvasKit flags
 build --flag_alias=ck_enable_fonts=//modules/canvaskit:enable_fonts
 build --flag_alias=ck_disable_fonts=no//modules/canvaskit:enable_fonts
+build --flag_alias=ck_enable_canvas_polyfill=//modules/canvaskit:enable_canvas_polyfill
+build --flag_alias=ck_disable_canvas_polyfill=no//modules/canvaskit:enable_canvas_polyfill
+build --flag_alias=ck_enable_embedded_font=//modules/canvaskit:include_embedded_font
+build --flag_alias=ck_disable_embedded_font=no//modules/canvaskit:include_embedded_font
+build --flag_alias=ck_enable_matrix_js=//modules/canvaskit:include_matrix_js
+build --flag_alias=ck_disable_matrix_js=no//modules/canvaskit:include_matrix_js
+build --flag_alias=ck_enable_skottie=//modules/canvaskit:enable_skottie
+build --flag_alias=ck_disable_skottie=no//modules/canvaskit:enable_skottie
+build --flag_alias=ck_enable_skp_serialization=//modules/canvaskit:enable_skp_serialization
+build --flag_alias=ck_disable_skp_serialization=no//modules/canvaskit:enable_skp_serialization
+build --flag_alias=ck_enable_particles=//modules/canvaskit:enable_particles
+build --flag_alias=ck_disable_particles=no//modules/canvaskit:enable_particles
+build --flag_alias=ck_enable_runtime_effect=//modules/canvaskit:enable_runtime_effect
+build --flag_alias=ck_disable_runtime_effect=no//modules/canvaskit:enable_runtime_effect
 
 # =============================================================================
 # REMOTE BUILD EXECUTION

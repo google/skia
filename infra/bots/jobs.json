@@ -1,5 +1,5 @@
 [
-  {"name": "BazelBuild-modules_canvaskit_webgl-webgl2_debug-linux_x64"},
+  {"name": "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64"},
   {"name": "BazelBuild-example_hello_world_dawn-release-linux_x64",
    "cq_config": {}
    },
@@ -9,7 +9,9 @@
     "cq_config": {}
   },
   {"name": "BazelBuild-skia_public-release-linux_x64"},
-  {"name": "BazelTest-canvaskit_gold-webgl2_release_chrome-linux_x64"},
+  {"name": "BazelTest-canvaskit_gold-ck_full_webgl2_release_chrome-linux_x64",
+    "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
+  },
   {"name": "Build-Debian9-Clang-arm-Release-Flutter_Android_Docker"},
   {"name": "Build-Debian10-GCC-x86-Debug-Docker"},
   {"name": "Build-Debian10-GCC-x86-Release-Docker"},

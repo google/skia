@@ -6,7 +6,7 @@ let CanvasKit = null;
 const _LoadCanvasKit = new Promise((resolve, reject) => {
     console.log('canvaskit loading', new Date());
     CanvasKitInit({
-        locateFile: (file) => '/static/skia/modules/canvaskit/canvaskit_webgl/'+file,
+        locateFile: (file) => '/static/skia/modules/canvaskit/canvaskit/'+file,
     }).then((loaded) => {
         console.log('canvaskit loaded', new Date());
         CanvasKit = loaded;

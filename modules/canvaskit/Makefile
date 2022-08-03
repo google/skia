@@ -136,14 +136,14 @@ typecheck:
 	cd npm_build && npm run dtslint
 
 bazel_canvaskit_debug:
-	bazelisk build :canvaskit_webgl --config=webgl2_debug
+	bazelisk build :canvaskit --config=ck_full_webgl2_debug
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.js build/canvaskit.js
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.wasm build/canvaskit.wasm
 
 bazel_canvaskit_release:
-	bazelisk build :canvaskit_webgl --config=webgl2_release
+	bazelisk build :canvaskit --config=ck_full_webgl2_release
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.js build/canvaskit.js
@@ -151,7 +151,7 @@ bazel_canvaskit_release:
 	ls -l build
 
 bazel_test_canvaskit:
-	bazelisk test :canvaskit_js_tests --config=webgl2_release_chrome --test_output=streamed
+	bazelisk test :canvaskit_js_tests --config=ck_full_webgl2_release_chrome --test_output=streamed
 	echo "test output in //bazel-testlogs/modules/canvaskit/canvaskit_js_tests/test.outputs/"
 	cd ../../bazel-testlogs/modules/canvaskit/canvaskit_js_tests/test.outputs/ && unzip -qo outputs.zip && ls
 
