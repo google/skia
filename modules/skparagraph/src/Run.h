@@ -433,6 +433,15 @@ public:
         fRawLeading = 0;
     }
 
+    bool isClean() {
+        return (fAscent == SK_ScalarMax &&
+                fDescent == SK_ScalarMin &&
+                fLeading == 0 &&
+                fRawAscent == SK_ScalarMax &&
+                fRawDescent == SK_ScalarMin &&
+                fRawLeading == 0);
+    }
+
     SkScalar delta() const { return height() - ideographicBaseline(); }
 
     void updateLineMetrics(InternalLineMetrics& metrics) {
