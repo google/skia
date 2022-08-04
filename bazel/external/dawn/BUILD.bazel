@@ -414,6 +414,7 @@ DAWN_SRCS = [
     "src/dawn/native/UsageValidationMode.h",
     "src/dawn/native/VertexFormat.cpp",
     "src/dawn/native/VertexFormat.h",
+    "src/dawn/native/VisitableMembers.h",
     "src/dawn/native/dawn_platform.h",
     "src/dawn/native/stream/BlobSource.cpp",
     "src/dawn/native/stream/BlobSource.h",
