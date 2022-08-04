@@ -20,7 +20,7 @@ go_library(
         "//bazel/exporter/build_proto/analysis_v2",
         "//bazel/exporter/build_proto/build",
         "//bazel/exporter/interfaces",
-        "@org_golang_google_protobuf//proto:go_default_library",
+        "@org_golang_google_protobuf//proto",
         "@org_skia_go_infra//go/skerr",
         "@org_skia_go_infra//go/util",
     ],
@@ -36,12 +36,14 @@ go_test(
     ],
     embed = [":exporter"],
     deps = [
+        "//bazel/exporter/build_proto/analysis_v2",
         "//bazel/exporter/build_proto/build",
         "//bazel/exporter/interfaces/mocks",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//mock",
         "@com_github_stretchr_testify//require",
         "@org_golang_google_protobuf//encoding/prototext",
+        "@org_golang_google_protobuf//proto",
         "@org_skia_go_infra//go/skerr",
     ],
 )
