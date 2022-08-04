@@ -111,7 +111,13 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
   "bloaty_diff_args": [
     "build/dm",
     "--",
-    "build_nopatch/dm"
+    "build_nopatch/dm",
+    "-d",
+    "compileunits,symbols",
+    "-n",
+    "0",
+    "-s",
+    "file"
   ],
   "patch_issue": "12345",
   "patch_server": "https://skia-review.googlesource.com",
@@ -309,7 +315,8 @@ func test(t *testing.T, patch types.Patch, expectedBloatyFileGCSPath, expectedBl
 		// Assert that Bloaty was invoked with the expected arguments.
 		bloatyCmd = commands[3]
 		assert.Equal(t, "bloaty/bloaty", bloatyCmd.Name)
-		assert.Equal(t, []string{"build/dm", "--", "build_nopatch/dm"}, bloatyCmd.Args)
+		assert.Equal(t, []string{"build/dm", "--", "build_nopatch/dm",
+			"-d", "compileunits,symbols", "-n", "0", "-s", "file"}, bloatyCmd.Args)
 	}
 
 	if isTryjob {

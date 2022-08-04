@@ -343,6 +343,7 @@ func runBloatyDiff(ctx context.Context, binaryName string) (string, []string, er
 			"build/" + binaryName,
 			"--",
 			"build_nopatch/" + binaryName,
+			"-d", "compileunits,symbols", "-n", "0", "-s", "file",
 		},
 		InheritEnv: true,
 		LogStdout:  true,
@@ -350,7 +351,6 @@ func runBloatyDiff(ctx context.Context, binaryName string) (string, []string, er
 	}
 
 	var bloatyOutput string
-
 	if err := td.Do(ctx, td.Props(fmt.Sprintf("Run Bloaty diff against binary %q", binaryName)), func(ctx context.Context) error {
 		bloatyOutput, err = exec.RunCommand(ctx, runCmd)
 		return err
