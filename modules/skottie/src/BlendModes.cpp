@@ -15,6 +15,26 @@ namespace skottie::internal {
 
 namespace {
 
+enum CustomBlenders {
+    HARDMIX = 17,
+};
+
+static sk_sp<SkBlender> hardMix() {
+    static SkRuntimeEffect* hardMixEffect = []{
+        const char hardMix[] = R"(
+            half4 main(half4 src, half4 dst) {
+                src.rgb = unpremul(src).rgb + unpremul(dst).rgb;
+                src.rgb = min(floor(src.rgb), 1) * src.a;
+
+                return src + (1 - src.a)*dst;
+            }
+        )";
+        auto result = SkRuntimeEffect::MakeForBlender(SkString(hardMix));
+        return result.effect.release();
+    }();
+    return hardMixEffect->makeBlender(nullptr);
+}
+
 static sk_sp<SkBlender> get_blender(const skjson::ObjectValue& jobject,
                                     const AnimationBuilder* abuilder) {
     static constexpr SkBlendMode kBlendModeMap[] = {
@@ -51,7 +71,13 @@ static sk_sp<SkBlender> get_blender(const skjson::ObjectValue& jobject,
     }
 
     // Modes that require custom blenders.
-    // TODO: add custom blenders
+    switch (mode)
+    {
+    case HARDMIX:
+        return hardMix();
+    default:
+        break;
+    }
 
     abuilder->log(Logger::Level::kWarning, &jobject, "Unsupported blend mode %zu\n", mode);
     return nullptr;
