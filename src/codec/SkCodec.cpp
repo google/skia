@@ -23,6 +23,10 @@
 #include "include/codec/SkAndroidCodec.h"
 #endif
 
+#ifdef SK_CODEC_DECODES_AVIF
+#include "src/codec/SkAvifCodec.h"
+#endif
+
 #ifdef SK_HAS_HEIF_LIBRARY
 #include "src/codec/SkHeifCodec.h"
 #endif
@@ -77,6 +81,9 @@ static std::vector<DecoderProc>* decoders() {
     #endif
         { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
         { SkWbmpCodec::IsWbmp, SkWbmpCodec::MakeFromStream },
+    #ifdef SK_CODEC_DECODES_AVIF
+        { SkAvifCodec::IsAvif, SkAvifCodec::MakeFromStream },
+    #endif
     #ifdef SK_CODEC_DECODES_JPEGXL
         { SkJpegxlCodec::IsJpegxl, SkJpegxlCodec::MakeFromStream },
     #endif

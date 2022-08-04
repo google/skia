@@ -1,0 +1,71 @@
+# Copyright 2022 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+third_party("libyuv") {
+  public_include_dirs = [
+    ".",
+    "../externals/libyuv/include",
+  ]
+
+  include_dirs = [ "../externals/libyuv" ]
+
+  sources = [
+    "../externals/libyuv/source/compare.cc",
+    "../externals/libyuv/source/compare_common.cc",
+    "../externals/libyuv/source/compare_gcc.cc",
+    "../externals/libyuv/source/compare_mmi.cc",
+    "../externals/libyuv/source/compare_msa.cc",
+    "../externals/libyuv/source/compare_neon.cc",
+    "../externals/libyuv/source/compare_neon64.cc",
+    "../externals/libyuv/source/compare_win.cc",
+    "../externals/libyuv/source/convert.cc",
+    "../externals/libyuv/source/convert_argb.cc",
+    "../externals/libyuv/source/convert_from.cc",
+    "../externals/libyuv/source/convert_from_argb.cc",
+    "../externals/libyuv/source/convert_jpeg.cc",
+    "../externals/libyuv/source/convert_to_argb.cc",
+    "../externals/libyuv/source/convert_to_i420.cc",
+    "../externals/libyuv/source/cpu_id.cc",
+    "../externals/libyuv/source/mjpeg_decoder.cc",
+    "../externals/libyuv/source/mjpeg_validate.cc",
+    "../externals/libyuv/source/planar_functions.cc",
+    "../externals/libyuv/source/rotate.cc",
+    "../externals/libyuv/source/rotate_any.cc",
+    "../externals/libyuv/source/rotate_argb.cc",
+    "../externals/libyuv/source/rotate_common.cc",
+    "../externals/libyuv/source/rotate_gcc.cc",
+    "../externals/libyuv/source/rotate_lsx.cc",
+    "../externals/libyuv/source/rotate_mmi.cc",
+    "../externals/libyuv/source/rotate_msa.cc",
+    "../externals/libyuv/source/rotate_neon.cc",
+    "../externals/libyuv/source/rotate_neon64.cc",
+    "../externals/libyuv/source/rotate_win.cc",
+    "../externals/libyuv/source/row_any.cc",
+    "../externals/libyuv/source/row_common.cc",
+    "../externals/libyuv/source/row_gcc.cc",
+    "../externals/libyuv/source/row_lasx.cc",
+    "../externals/libyuv/source/row_lsx.cc",
+    "../externals/libyuv/source/row_mmi.cc",
+    "../externals/libyuv/source/row_msa.cc",
+    "../externals/libyuv/source/row_neon.cc",
+    "../externals/libyuv/source/row_neon64.cc",
+    "../externals/libyuv/source/row_win.cc",
+    "../externals/libyuv/source/scale.cc",
+    "../externals/libyuv/source/scale_any.cc",
+    "../externals/libyuv/source/scale_argb.cc",
+    "../externals/libyuv/source/scale_common.cc",
+    "../externals/libyuv/source/scale_gcc.cc",
+    "../externals/libyuv/source/scale_lsx.cc",
+    "../externals/libyuv/source/scale_mmi.cc",
+    "../externals/libyuv/source/scale_msa.cc",
+    "../externals/libyuv/source/scale_neon.cc",
+    "../externals/libyuv/source/scale_neon64.cc",
+    "../externals/libyuv/source/scale_rgb.cc",
+    "../externals/libyuv/source/scale_uv.cc",
+    "../externals/libyuv/source/scale_win.cc",
+    "../externals/libyuv/source/video_common.cc",
+  ]
+}

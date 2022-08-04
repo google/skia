@@ -1078,6 +1078,15 @@ optional("heif") {
   sources = [ "src/codec/SkHeifCodec.cpp" ]
 }
 
+optional("avif") {
+  enabled = skia_use_libavif
+  public_defines = [ "SK_CODEC_DECODES_AVIF" ]
+
+  deps = [ "//third_party/libavif" ]
+
+  sources = [ "src/codec/SkAvifCodec.cpp" ]
+}
+
 optional("jpeg_decode") {
   enabled = skia_use_libjpeg_turbo_decode
   public_defines = [ "SK_CODEC_DECODES_JPEG" ]
@@ -1312,6 +1321,7 @@ skia_component("skia") {
     ":android_utils",
     ":arm64",
     ":armv7",
+    ":avif",
     ":avx",
     ":crc32",
     ":fontmgr_factory",
