@@ -35,6 +35,7 @@ functions cannot be both 'inline' and 'noinline'
 'sk_has_side_effects' is not permitted here
 'in uniform' variables not permitted
 'readonly writeonly' variables not permitted
+'uniform buffer' variables not permitted
 'inline' is not permitted here
 'noinline' is not permitted here
 'readonly' is not permitted here
@@ -44,10 +45,10 @@ functions cannot be both 'inline' and 'noinline'
 'sk_has_side_effects' is not permitted here
 'in uniform' variables not permitted
 'readonly writeonly' variables not permitted
+'uniform buffer' variables not permitted
 'inline' is not permitted here
 'noinline' is not permitted here
 'readonly' is not permitted here
 'writeonly' is not permitted here
-'buffer' is not permitted here
 'const' variables must be initialized
 *%%*/

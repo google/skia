@@ -72,6 +72,9 @@ const in out uniform flat noperspective sk_has_side_effects inline noinline read
 error: 7: 'readonly writeonly' variables not permitted
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
+error: 7: 'uniform buffer' variables not permitted
+const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
 error: 7: 'inline' is not permitted here
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
@@ -99,6 +102,9 @@ buffer MyInterfaceBlock { float var; };
 error: 11: 'readonly writeonly' variables not permitted
 buffer MyInterfaceBlock { float var; };
        ^^^^^^^^^^^^^^^^
+error: 11: 'uniform buffer' variables not permitted
+buffer MyInterfaceBlock { float var; };
+       ^^^^^^^^^^^^^^^^
 error: 10: 'inline' is not permitted here
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
@@ -111,10 +117,7 @@ const in out uniform flat noperspective sk_has_side_effects inline noinline read
 error: 10: 'writeonly' is not permitted here
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
-error: 10: 'buffer' is not permitted here
-const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
 error: 11: 'const' variables must be initialized
 buffer MyInterfaceBlock { float var; };
        ^^^^^^^^^^^^^^^^
-39 errors
+40 errors

@@ -272,6 +272,11 @@ static bool needs_address_space(const Type& type, const Modifiers& modifiers) {
     return type.isUnsizedArray() || pass_by_reference(type, modifiers);
 }
 
+// returns true if the InterfaceBlock has the `buffer` modifier
+static bool is_buffer(const InterfaceBlock& block) {
+    return block.variable().modifiers().fFlags & Modifiers::kBuffer_Flag;
+}
+
 std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
                                                   const ExpressionArray& arguments,
                                                   const SkTArray<VariableReference*>& outVars) {
@@ -2071,7 +2076,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 if (intf.typeName() == "sk_PerVertex") {
                     continue;
                 }
-                this->write(", constant ");
+                this->write(is_buffer(intf) ? ", device " : ", constant ");
                 this->writeType(intf.variable().type());
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
@@ -2761,7 +2766,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
         void visitInterfaceBlock(const InterfaceBlock& block,
                                  std::string_view blockName) override {
             this->addElement();
-            fCodeGen->write("    constant ");
+            fCodeGen->write(is_buffer(block) ? "    device " : "    constant ");
             fCodeGen->write(block.typeName());
             fCodeGen->write("* ");
             fCodeGen->writeName(blockName);

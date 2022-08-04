@@ -1,0 +1,7 @@
+layout(binding=456) buffer testBlock {
+    float x;
+} test;
+
+void main() {
+    sk_FragColor = half4(half(test.x));
+}
