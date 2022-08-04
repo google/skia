@@ -401,9 +401,9 @@ void SkGlyph::ensureIntercepts(const SkScalar* bounds, SkScalar scale, SkScalar 
 SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
         : fIndex{SkTo<uint32_t>(index)}
         , fIsEmpty(glyph.isEmpty())
-        , fIsColor(glyph.isColor())
         , fCanDrawAsMask{CanDrawAsMask(glyph)}
         , fCanDrawAsSDFT{CanDrawAsSDFT(glyph)}
+        , fFormat(glyph.maskFormat())
         , fLeft{SkTo<int16_t>(glyph.left())}
         , fTop{SkTo<int16_t>(glyph.top())}
         , fWidth{SkTo<uint16_t>(glyph.width())}

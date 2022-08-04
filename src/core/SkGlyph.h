@@ -294,11 +294,12 @@ public:
     // Default ctor is only needed for the hash table.
     SkGlyphDigest() = default;
     SkGlyphDigest(size_t index, const SkGlyph& glyph);
-    int index()          const { return fIndex;         }
-    bool isEmpty()       const { return fIsEmpty;       }
-    bool isColor()       const { return fIsColor;       }
+    int index()          const { return fIndex; }
+    bool isEmpty()       const { return fIsEmpty; }
+    bool isColor()       const { return fFormat == SkMask::kARGB32_Format; }
     bool canDrawAsMask() const { return fCanDrawAsMask; }
     bool canDrawAsSDFT() const { return fCanDrawAsSDFT; }
+    SkMask::Format maskFormat() const { return static_cast<SkMask::Format>(fFormat); }
     uint16_t maxDimension()  const {
         return std::max(fWidth, fHeight);
     }
@@ -315,12 +316,13 @@ public:
 
 private:
     static_assert(SkPackedGlyphID::kEndData == 20);
+    static_assert(SkMask::kCountMaskFormats <= 8);
     struct {
         uint32_t fIndex         : SkPackedGlyphID::kEndData;
         uint32_t fIsEmpty       : 1;
-        uint32_t fIsColor       : 1;
         uint32_t fCanDrawAsMask : 1;
         uint32_t fCanDrawAsSDFT : 1;
+        uint32_t fFormat        : 3;
     };
     int16_t fLeft, fTop;
     uint16_t fWidth, fHeight;
