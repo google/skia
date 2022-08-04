@@ -87,6 +87,8 @@ private:
 
     GrMtlGpu* getMtlGpu() const;
 
+    void onSetLabel() override;
+
     id<MTLTexture> fTexture;
 };
 

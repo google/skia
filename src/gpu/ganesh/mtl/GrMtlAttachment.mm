@@ -178,4 +178,11 @@ GrMtlGpu* GrMtlAttachment::getMtlGpu() const {
     return static_cast<GrMtlGpu*>(this->getGpu());
 }
 
+void GrMtlAttachment::onSetLabel() {
+    SkASSERT(fTexture);
+    if (!this->getLabel().empty()) {
+        NSString* labelStr = @(this->getLabel().c_str());
+        fTexture.label = [@"_Skia_" stringByAppendingString:labelStr];
+    }
+}
 GR_NORETAIN_END
