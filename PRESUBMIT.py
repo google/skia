@@ -219,24 +219,6 @@ class _WarningsAsErrors():
     self.output_api.PresubmitPromptWarning = self.old_warning
 
 
-def _CheckDEPSValid(input_api, output_api):
-  """Ensure that DEPS contains valid entries."""
-  results = []
-  script = os.path.join('infra', 'bots', 'check_deps.py')
-  relevant_files = ('DEPS', script)
-  for f in input_api.AffectedFiles():
-    if f.LocalPath() in relevant_files:
-      break
-  else:
-    return results
-  cmd = ['python3', script]
-  try:
-    subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-  except subprocess.CalledProcessError as e:
-    results.append(output_api.PresubmitError(e.output))
-  return results
-
-
 def _RegenerateAllExamplesCPP(input_api, output_api):
   """Regenerates all_examples.cpp if an example was added or deleted."""
   if not any(f.LocalPath().startswith('docs/examples/')
@@ -401,7 +383,6 @@ def _CommonChecks(input_api, output_api):
   results.extend(_IfDefChecks(input_api, output_api))
   results.extend(_CopyrightChecks(input_api, output_api,
                                   source_file_filter=sources))
-  results.extend(_CheckDEPSValid(input_api, output_api))
   results.extend(_CheckIncludesFormatted(input_api, output_api))
   results.extend(_CheckGNFormatted(input_api, output_api))
   results.extend(_CheckGitConflictMarkers(input_api, output_api))
