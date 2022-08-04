@@ -204,14 +204,11 @@ TransformedMaskVertexFiller TransformedMaskVertexFiller::Make(
         SkScalar strikeToSourceScale,
         const SkZip<SkGlyphVariant, SkPoint>& accepted,
         SubRunAllocator* alloc) {
-    const SkPoint paddingInset = SkPoint::Make(strikePadding, strikePadding);
     SkSpan<SkPoint> leftTop = alloc->makePODArray<SkPoint>(
             accepted,
             [&](auto e) -> SkPoint {
                 auto [variant, pos] = e;
-                const SkGlyph* skGlyph = variant;
-                SkPoint leftTop = SkPoint::Make(skGlyph->left(), skGlyph->top());
-                return (leftTop + paddingInset) * strikeToSourceScale + pos;
+                return pos;
             });
     return TransformedMaskVertexFiller{maskType, strikeToSourceScale, sourceBounds, leftTop};
 }
@@ -1271,9 +1268,8 @@ SubRunOwner DirectMaskSubRun::Make(SkRect runBounds,
     auto glyphIDs = alloc->makePODArray<GlyphVector::Variant>(accepted.size());
 
     for (auto [i, variant, pos] : SkMakeEnumerate(accepted)) {
-        const SkGlyph* const skGlyph = variant;
-        glyphLeftTop[i] = SkPoint::Make(skGlyph->left(), skGlyph->top()) + pos;
-        glyphIDs[i].packedGlyphID = skGlyph->getPackedID();
+        glyphLeftTop[i] = pos;
+        glyphIDs[i].packedGlyphID = variant.packedID();
     }
 
     SkSpan<const SkPoint> leftTop{glyphLeftTop, accepted.size()};

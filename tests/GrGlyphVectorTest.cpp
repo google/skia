@@ -48,11 +48,10 @@ DEF_TEST(GlyphVector_Serialization, r) {
 
     SubRunAllocator alloc;
 
-    SkBulkGlyphMetricsAndImages glyphFinder{strikeSpec};
     const int N = 10;
     SkGlyphVariant* glyphs = alloc.makePODArray<SkGlyphVariant>(N);
     for (int i = 0; i < N; i++) {
-        glyphs[i] = glyphFinder.glyph(SkPackedGlyphID(SkTo<SkGlyphID>(i + 1)));
+        glyphs[i] = SkPackedGlyphID(SkGlyphID(i));
     }
 
     GlyphVector src = GlyphVector::Make(

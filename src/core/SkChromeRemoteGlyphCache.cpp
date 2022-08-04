@@ -412,6 +412,7 @@ SkRect RemoteStrike::prepareForMaskDrawing(
                 const SkGlyphRect glyphBounds =
                         digest.bounds().scaleAndOffset(strikeToSourceScale, pos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
             }
         } else {
             // Reject things that are too big.
@@ -437,6 +438,7 @@ SkRect RemoteStrike::prepareForSDFTDrawing(SkScalar strikeToSourceScale,
                                 .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
                                 .scaleAndOffset(strikeToSourceScale, pos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
             }
         } else {
             // Reject things that are too big.

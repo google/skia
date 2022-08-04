@@ -30,7 +30,7 @@ GlyphVector::Variant*
 GlyphVector::MakeGlyphs(SkSpan<SkGlyphVariant> glyphs, sktext::gpu::SubRunAllocator* alloc) {
     Variant* variants = alloc->makePODArray<Variant>(glyphs.size());
     for (auto [i, gv] : SkMakeEnumerate(glyphs)) {
-        variants[i] = gv.glyph()->getPackedID();
+        variants[i] = gv.packedID();
     }
     return variants;
 }

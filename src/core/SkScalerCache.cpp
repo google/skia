@@ -282,7 +282,7 @@ std::tuple<SkRect, size_t> SkScalerCache::prepareForMaskDrawing(
                     const SkGlyphRect glyphBounds =
                             digest.bounds().scaleAndOffset(strikeToSourceScale, pos);
                     boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                    accepted->accept(fGlyphForIndex[digest.index()], i);
+                    accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
                 } else {
                     rejected->reject(i);
                 }
@@ -315,7 +315,7 @@ std::tuple<SkRect, size_t> SkScalerCache::prepareForSDFTDrawing(
                                     .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
                                     .scaleAndOffset(strikeToSourceScale, pos);
                     boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                    accepted->accept(fGlyphForIndex[digest.index()], i);
+                    accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
                 } else {
                     // Assume whatever follows SDF doesn't care about the maximum rejected size.
                     rejected->reject(i);
