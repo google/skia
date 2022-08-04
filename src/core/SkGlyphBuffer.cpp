@@ -18,6 +18,7 @@ void SkDrawableGlyphBuffer::ensureSize(size_t size) {
     if (size > fMaxSize) {
         fMultiBuffer.reset(size);
         fPositions.reset(size);
+        fFormats.reset(size);
         fMaxSize = size;
     }
 
@@ -86,6 +87,7 @@ void SkDrawableGlyphBuffer::reset() {
     if (fMaxSize > 200) {
         fMultiBuffer.reset();
         fPositions.reset();
+        fFormats.reset();
         fMaxSize = 0;
     }
     fInputSize = 0;

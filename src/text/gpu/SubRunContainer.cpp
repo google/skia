@@ -2332,26 +2332,27 @@ const AtlasSubRun* SDFTSubRun::testingOnly_atlasSubRun() const {
 template<typename AddSingleMaskFormat>
 void add_multi_mask_format(
         AddSingleMaskFormat addSingleMaskFormat,
-        const SkZip<SkGlyphVariant, SkPoint>& accepted,
+        const SkZip<SkGlyphVariant, SkPoint, SkMask::Format>& accepted,
         sk_sp<SkStrike>&& strike) {
     if (accepted.empty()) { return; }
 
-    auto glyphSpan = accepted.get<0>();
-    const SkGlyph* glyph = glyphSpan[0];
-    MaskFormat format = Glyph::FormatFromSkGlyph(glyph->maskFormat());
+    auto maskSpan = accepted.get<2>();
+    MaskFormat format = Glyph::FormatFromSkGlyph(maskSpan[0]);
     size_t startIndex = 0;
     for (size_t i = 1; i < accepted.size(); i++) {
-        glyph = glyphSpan[i];
-        MaskFormat nextFormat = Glyph::FormatFromSkGlyph(glyph->maskFormat());
+        MaskFormat nextFormat = Glyph::FormatFromSkGlyph(maskSpan[i]);
         if (format != nextFormat) {
-            auto glyphsWithSameFormat = accepted.subspan(startIndex, i - startIndex);
+            auto interval = accepted.subspan(startIndex, i - startIndex);
+            // Only pass the packed glyph ids and positions.
+            auto glyphsWithSameFormat = SkMakeZip(interval.get<0>(), interval.get<1>());
             // Take a ref on the strike. This should rarely happen.
             addSingleMaskFormat(glyphsWithSameFormat, format, sk_sp<SkStrike>(strike));
             format = nextFormat;
             startIndex = i;
         }
     }
-    auto glyphsWithSameFormat = accepted.last(accepted.size() - startIndex);
+    auto interval = accepted.last(accepted.size() - startIndex);
+    auto glyphsWithSameFormat = SkMakeZip(interval.get<0>(), interval.get<1>());
     addSingleMaskFormat(glyphsWithSameFormat, format, std::move(strike));
 }
 }  // namespace
@@ -2601,7 +2602,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                                 }
                             };
                     add_multi_mask_format(addGlyphsWithSameFormat,
-                                          accepted->accepted(),
+                                          accepted->acceptedWithMaskFormat(),
                                           strike->getUnderlyingStrike());
                 }
             }
@@ -2785,7 +2786,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                                 }
                             };
                     add_multi_mask_format(addGlyphsWithSameFormat,
-                                          accepted->accepted(),
+                                          accepted->acceptedWithMaskFormat(),
                                           strike->getUnderlyingStrike());
                 }
             }
