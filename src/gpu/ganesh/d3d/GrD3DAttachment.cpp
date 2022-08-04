@@ -90,3 +90,11 @@ GrD3DGpu* GrD3DAttachment::getD3DGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrD3DGpu*>(this->getGpu());
 }
+
+void GrD3DAttachment::onSetLabel() {
+    SkASSERT(this->d3dResource());
+    if (!this->getLabel().empty()) {
+        const std::string label = "_Skia_" + this->getLabel();
+        this->d3dResource()->SetName((LPCWSTR)label.c_str());
+    }
+}

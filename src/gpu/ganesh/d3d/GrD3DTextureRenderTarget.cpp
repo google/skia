@@ -244,3 +244,8 @@ size_t GrD3DTextureRenderTarget::onGpuMemorySize() const {
                                   numColorSamples,  // TODO: this still correct?
                                   this->mipmapped());
 }
+
+void GrD3DTextureRenderTarget::onSetLabel() {
+    GrD3DRenderTarget::onSetLabel();
+}
+

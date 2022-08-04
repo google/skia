@@ -47,7 +47,11 @@ private:
     void* internalMap(MapType, size_t offset, size_t size);
     void internalUnmap(MapType, size_t offset, size_t size);
 
+#ifdef SK_DEBUG
     void validate() const;
+#endif
+
+    void onSetLabel() override;
 
     GrD3DGpu* getD3DGpu() const {
         SkASSERT(!this->wasDestroyed());

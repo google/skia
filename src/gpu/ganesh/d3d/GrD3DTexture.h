@@ -63,6 +63,8 @@ protected:
         return false;
     }
 
+    void onSetLabel() override;
+
 private:
     GrD3DTexture(GrD3DGpu*, SkBudgeted, SkISize dimensions, const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>,
@@ -83,8 +85,6 @@ private:
         // Forward the release proc on to GrSurfaceResource
         this->setResourceRelease(std::move(releaseHelper));
     }
-
-    void onSetLabel() override{}
 
     struct SamplerHash {
         uint32_t operator()(GrSamplerState state) const {

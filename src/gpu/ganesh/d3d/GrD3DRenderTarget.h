@@ -87,6 +87,8 @@ protected:
                                       numColorSamples, GrMipmapped::kNo);
     }
 
+    void onSetLabel() override;
+
 private:
     // Extra param to disambiguate from constructor used by subclasses.
     enum Wrapped { kWrapped };
@@ -110,8 +112,6 @@ private:
                       std::string_view label);
 
     GrD3DGpu* getD3DGpu() const;
-
-    void onSetLabel() override{}
 
     bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) override {
         SkASSERT(useMSAASurface == (this->numSamples() > 1));

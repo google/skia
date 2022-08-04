@@ -235,6 +235,14 @@ void GrD3DBuffer::internalUnmap(MapType type, size_t offset, size_t size) {
     VALIDATE();
 }
 
+void GrD3DBuffer::onSetLabel() {
+    SkASSERT(fD3DResource);
+    if (!this->getLabel().empty()) {
+        const std::string label = "_Skia_" + this->getLabel();
+        fD3DResource->SetName((LPCWSTR)label.c_str());
+    }
+}
+
 #ifdef SK_DEBUG
 void GrD3DBuffer::validate() const {
     SkASSERT(this->intendedType() == GrGpuBufferType::kVertex ||

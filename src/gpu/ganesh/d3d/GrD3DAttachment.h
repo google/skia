@@ -46,6 +46,8 @@ private:
 
     GrD3DGpu* getD3DGpu() const;
 
+    void onSetLabel() override;
+
     GrD3DDescriptorHeap::CPUHandle fView;
     DXGI_FORMAT fFormat;
 };

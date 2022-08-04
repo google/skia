@@ -208,3 +208,19 @@ void GrD3DRenderTarget::genKey(skgpu::KeyBuilder* b) const {
 #endif
     b->add32(this->sampleQualityPattern());
 }
+
+void GrD3DRenderTarget::onSetLabel() {
+    SkASSERT(this->d3dResource());
+    if (!this->getLabel().empty()) {
+        if (fMSAATextureResource) {
+            SkASSERT(fMSAATextureResource->d3dResource());
+            const std::string msaaLabel = "_Skia_MSAA_" + this->getLabel();
+            fMSAATextureResource->d3dResource()->SetName((LPCWSTR)msaaLabel.c_str());
+            const std::string resolveLabel = "_Skia_Resolve_" + this->getLabel();
+            this->d3dResource()->SetName((LPCWSTR)resolveLabel.c_str());
+        } else {
+            const std::string label = "_Skia_" + this->getLabel();
+            this->d3dResource()->SetName((LPCWSTR)label.c_str());
+        }
+    }
+}
