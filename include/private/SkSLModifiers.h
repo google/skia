@@ -48,13 +48,14 @@ struct Modifiers {
         kLowp_Flag           = 1 <<  8,
         kReadOnly_Flag       = 1 <<  9,
         kWriteOnly_Flag      = 1 << 10,
+        kBuffer_Flag         = 1 << 11,
         // We use the Metal name for this one (corresponds to the GLSL 'shared' modifier)
-        kThreadgroup_Flag    = 1 << 11,
+        kThreadgroup_Flag    = 1 << 12,
         // SkSL extensions, not present in GLSL
-        kES3_Flag            = 1 << 12,
-        kHasSideEffects_Flag = 1 << 13,
-        kInline_Flag         = 1 << 14,
-        kNoInline_Flag       = 1 << 15,
+        kES3_Flag            = 1 << 13,
+        kHasSideEffects_Flag = 1 << 14,
+        kInline_Flag         = 1 << 15,
+        kNoInline_Flag       = 1 << 16,
     };
 
     Modifiers()
@@ -113,6 +114,9 @@ struct Modifiers {
         }
         if (fFlags & kWriteOnly_Flag) {
             result += "writeonly ";
+        }
+        if (fFlags & kBuffer_Flag) {
+            result += "buffer ";
         }
 
         // We're using a non-GLSL name for this one; the GLSL equivalent is "shared"

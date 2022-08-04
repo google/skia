@@ -21,4 +21,7 @@ error: 7: modifier 'readonly' is not permitted on a struct field
 error: 8: modifier 'writeonly' is not permitted on a struct field
     writeonly bool g;
     ^^^^^^^^^
-7 errors
+error: 9: modifier 'buffer' is not permitted on a struct field
+    buffer int h;
+    ^^^^^^
+8 errors

@@ -35,6 +35,7 @@ bool Modifiers::checkPermitted(const Context& context,
         { Modifiers::kThreadgroup_Flag,    "threadgroup" },
         { Modifiers::kReadOnly_Flag,       "readonly" },
         { Modifiers::kWriteOnly_Flag,      "writeonly" },
+        { Modifiers::kBuffer_Flag,         "buffer" },
     };
 
     bool success = true;

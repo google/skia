@@ -60,4 +60,7 @@ readonly            void readonly_fn() {}
 error: 21: 'writeonly' is not permitted here
 writeonly           void writeonly_fn() {}
 ^^^^^^^^^
-20 errors
+error: 22: 'buffer' is not permitted here
+buffer              void buffer_fn() {}
+^^^^^^
+21 errors

@@ -47,6 +47,7 @@ struct Token {
         TK_HASSIDEEFFECTS,
         TK_READONLY,
         TK_WRITEONLY,
+        TK_BUFFER,
         TK_STRUCT,
         TK_LAYOUT,
         TK_HIGHP,

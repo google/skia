@@ -1,11 +1,14 @@
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
-void func1() {}
+buffer void func1() {}
 
 void func2(const in out uniform flat noperspective sk_has_side_effects
-           inline noinline readonly writeonly float test) {}
+           inline noinline readonly writeonly buffer float test) {}
 
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
-float var;
+buffer float var;
+
+const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
+buffer MyInterfaceBlock { float var; };
 
 /*%%*
 'sk_has_side_effects' is not permitted here
@@ -17,6 +20,7 @@ float var;
 'noperspective' is not permitted here
 'readonly' is not permitted here
 'writeonly' is not permitted here
+'buffer' is not permitted here
 functions cannot be both 'inline' and 'noinline'
 'sk_has_side_effects' is not permitted here
 'uniform' is not permitted here
@@ -27,6 +31,7 @@ functions cannot be both 'inline' and 'noinline'
 'noinline' is not permitted here
 'readonly' is not permitted here
 'writeonly' is not permitted here
+'buffer' is not permitted here
 'sk_has_side_effects' is not permitted here
 'in uniform' variables not permitted
 'readonly writeonly' variables not permitted
@@ -34,5 +39,15 @@ functions cannot be both 'inline' and 'noinline'
 'noinline' is not permitted here
 'readonly' is not permitted here
 'writeonly' is not permitted here
+'buffer' is not permitted here
+'const' variables must be initialized
+'sk_has_side_effects' is not permitted here
+'in uniform' variables not permitted
+'readonly writeonly' variables not permitted
+'inline' is not permitted here
+'noinline' is not permitted here
+'readonly' is not permitted here
+'writeonly' is not permitted here
+'buffer' is not permitted here
 'const' variables must be initialized
 *%%*/

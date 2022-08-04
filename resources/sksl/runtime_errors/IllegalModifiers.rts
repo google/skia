@@ -19,6 +19,7 @@ $es3                void es3_fn() {}
 sk_has_side_effects void sk_has_side_effect_fn() {}
 readonly            void readonly_fn() {}
 writeonly           void writeonly_fn() {}
+buffer              void buffer_fn() {}
 
 float4 main(float2 xy) {
     return float4(1);
@@ -45,4 +46,5 @@ float4 main(float2 xy) {
 'sk_has_side_effects' is not permitted here
 'readonly' is not permitted here
 'writeonly' is not permitted here
+'buffer' is not permitted here
 *%%*/

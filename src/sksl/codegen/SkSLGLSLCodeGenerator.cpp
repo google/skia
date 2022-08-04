@@ -1190,6 +1190,9 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.fFlags & Modifiers::kWriteOnly_Flag) {
         this->write("writeonly ");
     }
+    if (modifiers.fFlags & Modifiers::kBuffer_Flag) {
+        this->write("buffer ");
+    }
 }
 
 void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
