@@ -103,6 +103,17 @@ public:
                                           SkIPoint dstPoint,
                                           GrSurfaceOrigin);
 
+    // Adds a render task that copies the range [srcOffset, srcOffset + size] from src to
+    // [dstOffset, dstOffset + size] in dst. The src buffer must have type kXferCpuToGpu and the
+    // dst must NOT have type kXferCpuToGpu. Neither buffer may be mapped.
+    // Currently, this task type has no dependencies and can be arbitrarily reordered with respect
+    // to other tasks. You probably shouldn't use it.
+    void newBufferTransferTask(sk_sp<GrGpuBuffer> src,
+                               size_t srcOffset,
+                               sk_sp<GrGpuBuffer> dst,
+                               size_t dstOffset,
+                               size_t size);
+
     // Adds a task that writes the data from the passed GrMipLevels to dst. The lifetime of the
     // pixel data in the levels should be tied to the passed SkData or the caller must flush the
     // context before the data may become invalid. srcColorType is the color type of the

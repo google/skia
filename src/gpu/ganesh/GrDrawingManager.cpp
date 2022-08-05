@@ -16,6 +16,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTInternalLList.h"
+#include "src/gpu/ganesh/GrBufferTransferRenderTask.h"
 #include "src/gpu/ganesh/GrClientMappedBufferManager.h"
 #include "src/gpu/ganesh/GrCopyRenderTask.h"
 #include "src/gpu/ganesh/GrDDLTask.h"
@@ -814,6 +815,41 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     // don't need to make sure the whole mip map chain is valid.
     task->addDependency(this, srcProxy.get(), GrMipmapped::kNo,
                         GrTextureResolveManager(this), caps);
+    task->makeClosed(fContext);
+
+    // We have closed the previous active oplist but since a new oplist isn't being added there
+    // shouldn't be an active one.
+    SkASSERT(!fActiveOpsTask);
+    SkDEBUGCODE(this->validate());
+}
+
+void GrDrawingManager::newBufferTransferTask(sk_sp<GrGpuBuffer> src,
+                                             size_t srcOffset,
+                                             sk_sp<GrGpuBuffer> dst,
+                                             size_t dstOffset,
+                                             size_t size) {
+    SkASSERT(src);
+    SkASSERT(dst);
+    SkASSERT(srcOffset + size <= src->size());
+    SkASSERT(dstOffset + size <= dst->size());
+    SkASSERT(src->intendedType() == GrGpuBufferType::kXferCpuToGpu);
+    SkASSERT(dst->intendedType() != GrGpuBufferType::kXferCpuToGpu);
+    SkASSERT(!src->isMapped());
+    SkASSERT(!dst->isMapped());
+
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+
+    this->closeActiveOpsTask();
+
+    sk_sp<GrRenderTask> task = GrBufferTransferRenderTask::Make(std::move(src),
+                                                                srcOffset,
+                                                                std::move(dst),
+                                                                dstOffset,
+                                                                size);
+    SkASSERT(task);
+
+    this->appendTask(task);
     task->makeClosed(fContext);
 
     // We have closed the previous active oplist but since a new oplist isn't being added there
