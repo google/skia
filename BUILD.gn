@@ -2538,9 +2538,9 @@ if (skia_enable_tools) {
       testonly = true
       public_configs = [ ":skia_private" ]
       sources = [
-        "dm/DMGpuTestProcs.cpp",
         "tools/skqp/src/skqp.cpp",
         "tools/skqp/src/skqp.h",
+        "tools/skqp/src/skqp_GpuTestProcs.cpp",
       ]
       deps = [
         ":gm",
