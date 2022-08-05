@@ -335,36 +335,11 @@ const {
     ContextRec localRec = rec;
     localRec.fLocalMatrix = lm->isIdentity() ? nullptr : lm.get();
 
-    PictureShaderContext* ctx =
-        alloc->make<PictureShaderContext>(*this, localRec, std::move(bitmapShader), alloc);
-    if (nullptr == ctx->fBitmapShaderContext) {
-        ctx = nullptr;
-    }
-    return ctx;
+    return as_SB(bitmapShader)->makeContext(localRec, alloc);
 }
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
-
-SkPictureShader::PictureShaderContext::PictureShaderContext(
-        const SkPictureShader& shader, const ContextRec& rec, sk_sp<SkShader> bitmapShader,
-        SkArenaAlloc* alloc)
-    : INHERITED(shader, rec)
-    , fBitmapShader(std::move(bitmapShader))
-{
-    fBitmapShaderContext = as_SB(fBitmapShader)->makeContext(rec, alloc);
-    //if fBitmapShaderContext is null, we are invalid
-}
-
-uint32_t SkPictureShader::PictureShaderContext::getFlags() const {
-    SkASSERT(fBitmapShaderContext);
-    return fBitmapShaderContext->getFlags();
-}
-
-void SkPictureShader::PictureShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
-    SkASSERT(fBitmapShaderContext);
-    fBitmapShaderContext->shadeSpan(x, y, dstC, count);
-}
 
 #if SK_SUPPORT_GPU
 

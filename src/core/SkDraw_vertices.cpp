@@ -82,11 +82,6 @@ public:
                 int index0, int index1, int index2);
 
 protected:
-#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
-        return nullptr;
-    }
-#endif
     bool onAppendStages(const SkStageRec& rec) const override {
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
         if (fUsePersp) {

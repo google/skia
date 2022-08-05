@@ -156,10 +156,6 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override { SkASSERT(false); }
 
-#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override { return nullptr; }
-#endif
-
     bool onAppendStages(const SkStageRec& rec) const override {
         SkOverrideDeviceMatrixProvider matrixProvider(fCTM);
         SkStageRec newRec = {

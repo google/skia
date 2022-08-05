@@ -19,12 +19,6 @@ public:
     SkEmptyShader() {}
 
 protected:
-#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override {
-        return nullptr;
-    }
-#endif
-
     void flatten(SkWriteBuffer& buffer) const override {
         // Do nothing.
         // We just don't want to fall through to SkShader::flatten(),
