@@ -409,8 +409,9 @@ SkRect RemoteStrike::prepareForMaskDrawing(
         SkGlyphDigest digest = this->digest(packedID);
         if (digest.canDrawAsMask()) {
             if (!digest.isEmpty()) {
-                boundingRect = skglyph::rect_union(
-                        boundingRect, digest.bounds().scaleAndOffset(strikeToSourceScale, pos));
+                const SkGlyphRect glyphBounds =
+                        digest.bounds().scaleAndOffset(strikeToSourceScale, pos);
+                boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
             }
         } else {
             // Reject things that are too big.
@@ -432,10 +433,10 @@ SkRect RemoteStrike::prepareForSDFTDrawing(SkScalar strikeToSourceScale,
             if (!digest.isEmpty()) {
                 // The SDFT glyphs have 2-pixel wide padding that should not be used in
                 // calculating the source rectangle.
-                SkGlyphRect glyphRect =
-                        digest.bounds().inset(SK_DistanceFieldInset, SK_DistanceFieldInset);
-                boundingRect = skglyph::rect_union(
-                        boundingRect, glyphRect.scaleAndOffset(strikeToSourceScale, pos));
+                const SkGlyphRect glyphBounds = digest.bounds()
+                                .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
+                                .scaleAndOffset(strikeToSourceScale, pos);
+                boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
             }
         } else {
             // Reject things that are too big.

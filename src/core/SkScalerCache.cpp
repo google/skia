@@ -268,21 +268,29 @@ std::tuple<SkRect, size_t> SkScalerCache::prepareForMaskDrawing(
         SkDrawableGlyphBuffer* accepted,
         SkSourceGlyphBuffer* rejected) {
     SkAutoMutexExclusive lock{fMu};
-    SkGlyphRect boundingRect = skglyph::empty_rect();
-    size_t delta = this->commonFilterLoop(accepted,
-        [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
-            // N.B. this must have the same behavior as RemoteStrike::prepareForMaskDrawing.
-            if (digest.canDrawAsMask()) {
-                // Remember that commonFilterLoop eliminates all empty glyphs.
-                boundingRect = skglyph::rect_union(
-                        boundingRect, digest.bounds().scaleAndOffset(strikeToSourceScale, pos));
-                accepted->accept(fGlyphForIndex[digest.index()], i);
-            } else {
-                rejected->reject(i);
-            }
-        });
 
-    return {boundingRect.rect(), delta};
+    SkGlyphRect boundingRect = skglyph::empty_rect();
+    size_t increase = 0;
+
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            auto [digest, glyphIncrease] = this->digest(packedID);
+            increase += glyphIncrease;
+            if (!digest.isEmpty()) {
+                // N.B. this must have the same behavior as RemoteStrike::prepareForMaskDrawing.
+                if (digest.canDrawAsMask()) {
+                    const SkGlyphRect glyphBounds =
+                            digest.bounds().scaleAndOffset(strikeToSourceScale, pos);
+                    boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                    accepted->accept(fGlyphForIndex[digest.index()], i);
+                } else {
+                    rejected->reject(i);
+                }
+            }
+        }
+    }
+
+    return {boundingRect.rect(), increase};
 }
 
 std::tuple<SkRect, size_t> SkScalerCache::prepareForSDFTDrawing(
@@ -290,25 +298,33 @@ std::tuple<SkRect, size_t> SkScalerCache::prepareForSDFTDrawing(
         SkDrawableGlyphBuffer* accepted,
         SkSourceGlyphBuffer* rejected) {
     SkAutoMutexExclusive lock{fMu};
-    SkGlyphRect boundingRect = skglyph::empty_rect();
-    size_t delta = this->commonFilterLoop(accepted,
-        [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
-            if (digest.canDrawAsSDFT()) {
-                // Remember that commonFilterLoop eliminates all empty glyphs.
-                // The SDFT glyphs have 2-pixel wide padding that should not be used in
-                // calculating the source rectangle.
-                SkGlyphRect glyphRect =
-                        digest.bounds().inset(SK_DistanceFieldInset, SK_DistanceFieldInset);
-                boundingRect = skglyph::rect_union(
-                        boundingRect, glyphRect.scaleAndOffset(strikeToSourceScale, pos));
-                accepted->accept(fGlyphForIndex[digest.index()], i);
-            } else {
-                // Assume whatever follows SDF doesn't care about the maximum rejected size.
-                rejected->reject(i);
-            }
-        });
 
-    return {boundingRect.rect(), delta};
+    SkGlyphRect boundingRect = skglyph::empty_rect();
+    size_t increase = 0;
+
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            auto [digest, glyphIncrease] = this->digest(packedID);
+            increase += glyphIncrease;
+            if (!digest.isEmpty()) {
+                if (digest.canDrawAsSDFT()) {
+                    // The SDFT glyphs have 2-pixel wide padding that should not be used in
+                    // calculating the source rectangle.
+                    const SkGlyphRect glyphBounds =
+                            digest.bounds()
+                                    .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
+                                    .scaleAndOffset(strikeToSourceScale, pos);
+                    boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                    accepted->accept(fGlyphForIndex[digest.index()], i);
+                } else {
+                    // Assume whatever follows SDF doesn't care about the maximum rejected size.
+                    rejected->reject(i);
+                }
+            }
+        }
+    }
+
+    return {boundingRect.rect(), increase};
 }
 
 size_t SkScalerCache::prepareForPathDrawing(
