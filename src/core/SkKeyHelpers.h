@@ -10,6 +10,7 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "include/gpu/graphite/Context.h"
+#include "src/gpu/graphite/TextureProxy.h"
 #endif
 
 #include "include/core/SkBlendMode.h"
@@ -27,8 +28,6 @@ class SkPipelineDataGatherer;
 class SkRuntimeEffect;
 class SkUniquePaintParamsID;
 class SkKeyContext;
-
-namespace skgpu::graphite { class TextureProxy; }
 
 // The KeyHelpers can be used to manually construct an SkPaintParamsKey
 
