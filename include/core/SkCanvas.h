@@ -1981,7 +1981,7 @@ public:
     */
     void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
 
-#if defined(SK_ENABLE_EXPERIMENTAL_CUSTOM_MESH) && defined(SK_ENABLE_SKSL)
+#if defined(SK_ENABLE_SKSL)
     /**
         Experimental, under active development, and subject to change without notice.
 
@@ -2222,11 +2222,6 @@ protected:
     virtual void didSetM44(const SkM44&) {}
     virtual void didTranslate(SkScalar, SkScalar) {}
     virtual void didScale(SkScalar, SkScalar) {}
-
-#ifndef SK_ENABLE_EXPERIMENTAL_CUSTOM_MESH
-    // Define this in protected so we can still access internally for testing.
-    void drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint);
-#endif
 
     // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
     // SkCanvasVirtualEnforcer (in SkCanvasVirtualEnforcer.h). This ensures that subclasses using

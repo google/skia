@@ -195,7 +195,7 @@ protected:
                 paint.setShader(shader ? fShader : nullptr);
                 paint.setAlpha(alpha);
 
-                SkCanvasPriv::DrawMesh(canvas, mesh, blender, paint);
+                canvas->drawMesh(mesh, blender, paint);
 
                 canvas->translate(0, 150);
                 ++i;
@@ -438,7 +438,7 @@ protected:
                 SkPaint paint;
                 paint.setShader(useShader ? fShader : nullptr);
                 SkBlendMode mode = useShader ? SkBlendMode::kModulate : SkBlendMode::kDst;
-                SkCanvasPriv::DrawMesh(c, mesh, SkBlender::Mode(mode), paint);
+                canvas->drawMesh(mesh, SkBlender::Mode(mode), paint);
 
                 c->translate(0, kRect.height() + 10);
             }
@@ -585,7 +585,7 @@ protected:
 
             SkPaint paint;
             paint.setShader(fShader);
-            SkCanvasPriv::DrawMesh(canvas, mesh, SkBlender::Mode(SkBlendMode::kModulate), paint);
+            canvas->drawMesh(mesh, SkBlender::Mode(SkBlendMode::kModulate), paint);
 
             canvas->translate(0, kRect.height() + 10);
         }

@@ -5,6 +5,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 106
 -------------
   * sk_sp is marked with the [[clang::trivial_abi]] attribute where supported.
+  * SkMesh API: Allows a user to draw a vertex mesh with custom attributes and
+    varyings using SkSL. Mesh data (vertex and index) can be created on a
+    GrDirectContext to avoid re-uploading data per draw. Currently does not
+    work with SkPicture or any backend but GPU.
 
 * * *
 
