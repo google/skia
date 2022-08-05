@@ -1043,6 +1043,13 @@ optional("gpu") {
   }
 }
 
+optional("piet") {
+  enabled = skia_use_piet
+  public_defines = [ "SK_ENABLE_PIET_GPU" ]
+  public_deps = [ "//third_party/piet-gpu" ]
+  sources = skia_piet_gpu_sources
+}
+
 optional("gif") {
   enabled = !skia_use_wuffs && skia_use_libgifcodec
   _libgifcodec_gni_path = "third_party/externals/libgifcodec/libgifcodec.gni"
@@ -1135,7 +1142,10 @@ optional("graphite") {
   frameworks = []
 
   enabled = skia_enable_graphite
-  deps = [ ":gpu_shared" ]
+  deps = [
+    ":gpu_shared",
+    ":piet",
+  ]
   public_defines = [ "SK_GRAPHITE_ENABLED" ]
   public = skia_graphite_public
   sources = skia_graphite_sources
@@ -1333,6 +1343,7 @@ skia_component("skia") {
     ":jpegxl_decode",
     ":ndk_images",
     ":none",
+    ":piet",
     ":png_decode",
     ":png_encode",
     ":raw",

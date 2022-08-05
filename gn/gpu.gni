@@ -835,3 +835,11 @@ skia_shared_gpu_sources = [
 ]
 
 skia_shared_vk_sources = []
+
+skia_piet_gpu_sources = [
+  "$_src/gpu/piet/PietTypes.h",
+  "$_src/gpu/piet/Render.cpp",
+  "$_src/gpu/piet/Render.h",
+  "$_src/gpu/piet/Scene.cpp",
+  "$_src/gpu/piet/Scene.h",
+]

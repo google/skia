@@ -1,0 +1,26 @@
+# Copyright 2022 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+third_party("headers") {
+  public_include_dirs = [ "../externals/piet-gpu/pgpu-render" ]
+}
+
+config("library_config") {
+  # TODO(b/241583094): This dylib dependency will only work on macOS. This is OK since we support
+  # piet only with Metal for now but we should find a better approach for building and linking
+  # against pgpu-render.
+  if (is_debug) {
+    libs = [ "./out/debug/libpgpu_render.dylib" ]
+  } else {
+    libs = [ "./out/release/libpgpu_render.dylib" ]
+  }
+}
+
+group("piet-gpu") {
+  public_configs = [ ":library_config" ]
+  public_deps = [ ":headers" ]
+}
