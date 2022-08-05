@@ -91,7 +91,8 @@ skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
 
 GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                   GrRecordingContext*,
-                                                  const GrColorInfo& dstColorInfo) const {
+                                                  const GrColorInfo& dstColorInfo,
+                                                  const SkSurfaceProps& props) const {
     if (fMode == SkBlendMode::kDst) {
         // If the blend mode is "dest," the blend color won't factor into it at all.
         // We can return the input FP as-is.

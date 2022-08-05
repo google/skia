@@ -38,6 +38,7 @@ class SkMatrixProvider;
 class SkPaint;
 class SkPixelRef;
 class SkPixmap;
+class SkSurfaceProps;
 struct SkIRect;
 
 namespace skgpu {
@@ -92,6 +93,7 @@ bool SkPaintToGrPaint(GrRecordingContext*,
                       const GrColorInfo& dstColorInfo,
                       const SkPaint& skPaint,
                       const SkMatrixProvider& matrixProvider,
+                      const SkSurfaceProps& surfaceProps,
                       GrPaint* grPaint);
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor, if not null.
@@ -102,6 +104,7 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
                                    const SkPaint& skPaint,
                                    const SkMatrixProvider& matrixProvider,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
+                                   const SkSurfaceProps& surfaceProps,
                                    GrPaint* grPaint);
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
@@ -111,6 +114,7 @@ bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
                                const SkPaint& skPaint,
                                const SkMatrixProvider& matrixProvider,
                                SkBlender* primColorBlender,
+                               const SkSurfaceProps& surfaceProps,
                                GrPaint* grPaint);
 
 ////////////////////////////////////////////////////////////////////////////////

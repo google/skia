@@ -113,7 +113,8 @@ protected:
                 std::unique_ptr<GrFragmentProcessor> baseFP;
                 if (paintType >= std::size(kPaintColors)) {
                     GrColorInfo colorInfo;
-                    GrFPArgs args(rContext, SkMatrixProvider(SkMatrix::I()), &colorInfo);
+                    SkSurfaceProps props;
+                    GrFPArgs args(rContext, SkMatrixProvider(SkMatrix::I()), &colorInfo, props);
                     baseFP = as_SB(fShader)->asFragmentProcessor(args);
                 } else {
                     baseFP = GrFragmentProcessor::MakeColor(

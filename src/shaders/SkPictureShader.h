@@ -50,7 +50,8 @@ private:
                     const SkMatrix*, const SkRect*);
 
     sk_sp<SkShader> rasterShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
-                                 SkColorType dstColorType, SkColorSpace* dstColorSpace) const;
+                                 SkColorType dstColorType, SkColorSpace* dstColorSpace,
+                                 const SkSurfaceProps& props) const;
 
     sk_sp<SkPicture>    fPicture;
     SkRect              fTile;

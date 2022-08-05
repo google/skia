@@ -12,6 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkMask.h"
@@ -74,11 +75,12 @@ public:
      */
     struct ContextRec {
         ContextRec(const SkPaint& paint, const SkMatrix& matrix, const SkMatrix* localM,
-                   SkColorType dstColorType, SkColorSpace* dstColorSpace)
+                   SkColorType dstColorType, SkColorSpace* dstColorSpace, SkSurfaceProps props)
             : fMatrix(&matrix)
             , fLocalMatrix(localM)
             , fDstColorType(dstColorType)
-            , fDstColorSpace(dstColorSpace) {
+            , fDstColorSpace(dstColorSpace)
+            , fProps(props) {
                 fPaintAlpha = paint.getAlpha();
                 fPaintDither = paint.isDither();
             }
@@ -87,6 +89,7 @@ public:
         const SkMatrix* fLocalMatrix;      // optional local matrix
         SkColorType     fDstColorType;     // the color type of the dest surface
         SkColorSpace*   fDstColorSpace;    // the color space of the dest surface (if any)
+        SkSurfaceProps  fProps;            // props of the dest surface
         SkAlpha         fPaintAlpha;
         bool            fPaintDither;
 

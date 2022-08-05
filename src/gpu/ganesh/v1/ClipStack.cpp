@@ -1291,7 +1291,7 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
     if (cs.shader()) {
         static const GrColorInfo kCoverageColorInfo{GrColorType::kUnknown, kPremul_SkAlphaType,
                                                     nullptr};
-        GrFPArgs args(rContext, *fMatrixProvider, &kCoverageColorInfo);
+        GrFPArgs args(rContext, *fMatrixProvider, &kCoverageColorInfo, sdc->surfaceProps());
         clipFP = as_SB(cs.shader())->asFragmentProcessor(args);
         if (clipFP) {
             // The initial input is the coverage from the geometry processor, so this ensures it

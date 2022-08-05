@@ -42,7 +42,8 @@ public:
 
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                   GrRecordingContext*, const GrColorInfo&) const override;
+                                   GrRecordingContext*, const GrColorInfo&,
+                                   const SkSurfaceProps&) const override;
 #endif
 
 #ifdef SK_ENABLE_SKSL
@@ -233,9 +234,11 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
         (flags & (1 << 3)) ? luts[3] : nullptr
     ));
     sk_sp<SkColorSpace> colorSpace = GrTest::TestColorSpace(d->fRandom);
+    SkSurfaceProps props; // default props for testing
     auto [success, fp] = as_CFB(filter)->asFragmentProcessor(
             d->inputFP(), d->context(),
-            GrColorInfo(GrColorType::kRGBA_8888, kUnknown_SkAlphaType, std::move(colorSpace)));
+            GrColorInfo(GrColorType::kRGBA_8888, kUnknown_SkAlphaType, std::move(colorSpace)),
+            props);
     SkASSERT(success);
     return std::move(fp);
 }
@@ -243,7 +246,8 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
 
 GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                     GrRecordingContext* context,
-                                                    const GrColorInfo&) const {
+                                                    const GrColorInfo&,
+                                                    const SkSurfaceProps&) const {
     auto cte = ColorTableEffect::Make(std::move(inputFP), context, fBitmap);
     return cte ? GrFPSuccess(std::move(cte)) : GrFPFailure(nullptr);
 }

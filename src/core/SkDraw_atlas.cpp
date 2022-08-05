@@ -106,13 +106,15 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
 
     auto rpblit = [&]() {
         SkRasterPipeline pipeline(&alloc);
+        SkSurfaceProps props = SkSurfacePropsCopyOrDefault(fProps);
         SkStageRec rec = {&pipeline,
                           &alloc,
                           fDst.colorType(),
                           fDst.colorSpace(),
                           p,
                           nullptr,
-                          *fMatrixProvider};
+                          *fMatrixProvider,
+                          props};
 
         SkStageUpdater* updator = as_SB(atlasShader.get())->appendUpdatableStages(rec);
         if (!updator) {

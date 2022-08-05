@@ -13,6 +13,7 @@
 #include "src/core/SkBlitter.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
+#include "src/core/SkSurfacePriv.h"
 
 class SkMatrix;
 class SkPaint;
@@ -36,7 +37,8 @@ public:
             matrixProvider = draw.fMatrixProvider;
         }
         fBlitter = SkBlitter::Choose(draw.fDst, *matrixProvider, paint, &fAlloc, drawCoverage,
-                                     draw.fRC->clipShader());
+                                     draw.fRC->clipShader(),
+                                     SkSurfacePropsCopyOrDefault(draw.fProps));
         return fBlitter;
     }
 

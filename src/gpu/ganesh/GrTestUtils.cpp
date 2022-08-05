@@ -348,7 +348,8 @@ TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
                   GrColorType::kRGBA_8888, kPremul_SkAlphaType, TestColorSpace(d->fRandom)))
         , fArgs(d->context(),
                 fMatrixProvider,
-                fColorInfoStorage.get()) {}
+                fColorInfoStorage.get(),
+                fSurfaceProps) {}
 
 TestAsFPArgs::~TestAsFPArgs() {}
 

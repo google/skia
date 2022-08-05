@@ -306,7 +306,8 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
                                              foreground->alphaType(), ctx.colorSpace(),
                                              kPremul_SkAlphaType);
 
-        GrFPArgs args(rContext, SkMatrixProvider(SkMatrix::I()), &info.colorInfo());
+        SkSurfaceProps props{}; // default OK; blend-image filters don't render text
+        GrFPArgs args(rContext, SkMatrixProvider(SkMatrix::I()), &info.colorInfo(), props);
 
         fp = as_BB(fBlender)->asFragmentProcessor(std::move(fgFP), std::move(fp), args);
     }

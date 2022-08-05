@@ -578,7 +578,8 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* rContext,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(rContext, sdc->colorInfo(), paint, matrixProvider, &grPaint)) {
+    if (!SkPaintToGrPaint(rContext, sdc->colorInfo(), paint, matrixProvider, sdc->surfaceProps(),
+                          &grPaint)) {
         return;
     }
 

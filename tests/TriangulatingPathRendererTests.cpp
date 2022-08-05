@@ -789,7 +789,8 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(
         pts, colors, nullptr, std::size(colors), SkTileMode::kClamp);
     GrColorInfo colorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
     SkMatrixProvider matrixProvider(SkMatrix::I());
-    return as_SB(shader)->asFragmentProcessor({rContext, matrixProvider, &colorInfo});
+    SkSurfaceProps props; // default props for testing
+    return as_SB(shader)->asFragmentProcessor({rContext, matrixProvider, &colorInfo, props});
 }
 
 static void test_path(GrRecordingContext* rContext,

@@ -153,7 +153,8 @@ static std::unique_ptr<GrFragmentProcessor> hsl_to_rgb(std::unique_ptr<GrFragmen
 
 GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp,
                                                      GrRecordingContext*,
-                                                     const GrColorInfo&) const {
+                                                     const GrColorInfo&,
+                                                     const SkSurfaceProps&) const {
     switch (fDomain) {
         case Domain::kRGBA:
             fp = GrFragmentProcessor::ColorMatrix(std::move(fp), fMatrix,

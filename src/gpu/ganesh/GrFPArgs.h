@@ -13,21 +13,24 @@
 class GrColorInfo;
 class GrRecordingContext;
 class SkMatrixProvider;
+class SkSurfaceProps;
 
 struct GrFPArgs {
     GrFPArgs(GrRecordingContext* context,
              const SkMatrixProvider& matrixProvider,
-             const GrColorInfo* dstColorInfo)
+             const GrColorInfo* dstColorInfo,
+             const SkSurfaceProps& surfaceProps)
             : fContext(context)
             , fMatrixProvider(matrixProvider)
-            , fDstColorInfo(dstColorInfo) {
+            , fDstColorInfo(dstColorInfo)
+            , fSurfaceProps(surfaceProps) {
         SkASSERT(fContext);
     }
 
     class WithPreLocalMatrix;
 
     GrFPArgs withNewMatrixProvider(const SkMatrixProvider& provider) const {
-        GrFPArgs newArgs(fContext, provider, fDstColorInfo);
+        GrFPArgs newArgs(fContext, provider, fDstColorInfo, fSurfaceProps);
         newArgs.fPreLocalMatrix = fPreLocalMatrix;
         return newArgs;
     }
@@ -38,6 +41,8 @@ struct GrFPArgs {
     const SkMatrix* fPreLocalMatrix  = nullptr;
 
     const GrColorInfo* fDstColorInfo;
+
+    const SkSurfaceProps& fSurfaceProps;
 };
 
 class GrFPArgs::WithPreLocalMatrix final : public GrFPArgs {

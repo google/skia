@@ -16,6 +16,7 @@ class SkColorSpace;
 class SkMatrixProvider;
 class SkPaint;
 class SkRasterPipeline;
+class SkSurfaceProps;
 
 // Passed to effects that will add stages to rasterpipeline
 struct SkStageRec {
@@ -26,6 +27,7 @@ struct SkStageRec {
     const SkPaint&          fPaint;
     const SkMatrix*         fLocalM;        // may be nullptr
     const SkMatrixProvider& fMatrixProvider;
+    const SkSurfaceProps&   fSurfaceProps;
 };
 
 #endif // SkEffectPriv_DEFINED

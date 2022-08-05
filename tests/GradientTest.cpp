@@ -394,10 +394,11 @@ static void test_unsorted_degenerate(skiatest::Reporter* r) {
     SkMatrixProvider provider(SkMatrix::I());
     GrColorInfo dstColorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType,
                              SkColorSpace::MakeSRGB());
+    SkSurfaceProps props;
     GrMockOptions options;
     auto context = GrDirectContext::MakeMock(&options);
 
-    GrFPArgs args(context.get(), provider, &dstColorInfo);
+    GrFPArgs args(context.get(), provider, &dstColorInfo, props);
     as_SB(gradient)->asFragmentProcessor(args);
 }
 

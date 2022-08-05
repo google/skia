@@ -21,6 +21,7 @@ class SkMatrix;
 class SkMatrixProvider;
 class SkPaint;
 class SkPixmap;
+class SkSurfaceProps;
 struct SkMask;
 
 /** SkBlitter and its subclasses are responsible for actually writing pixels
@@ -147,7 +148,8 @@ public:
                              const SkPaint& paint,
                              SkArenaAlloc*,
                              bool drawCoverage,
-                             sk_sp<SkShader> clipShader);
+                             sk_sp<SkShader> clipShader,
+                             const SkSurfaceProps& props);
 
     static SkBlitter* ChooseSprite(const SkPixmap& dst,
                                    const SkPaint&,

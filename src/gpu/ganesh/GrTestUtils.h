@@ -13,6 +13,7 @@
 #if GR_TEST_UTILS
 
 #include "include/core/SkStrokeRec.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
@@ -65,6 +66,7 @@ public:
 private:
     SkMatrixProvider fMatrixProvider;
     std::unique_ptr<GrColorInfo> fColorInfoStorage;
+    SkSurfaceProps fSurfaceProps;
     GrFPArgs fArgs;
 };
 

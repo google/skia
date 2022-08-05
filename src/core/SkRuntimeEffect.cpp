@@ -889,7 +889,8 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
             auto [success, childFP] = as_CFB(child.colorFilter())
                                               ->asFragmentProcessor(/*inputFP=*/nullptr,
                                                                     childArgs.fContext,
-                                                                    *childArgs.fDstColorInfo);
+                                                                    *childArgs.fDstColorInfo,
+                                                                    childArgs.fSurfaceProps);
             if (!success) {
                 return GrFPFailure(std::move(inputFP));
             }
@@ -1021,7 +1022,8 @@ public:
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
-                                   const GrColorInfo& colorInfo) const override {
+                                   const GrColorInfo& colorInfo,
+                                   const SkSurfaceProps& props) const override {
         sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
                 fEffect->uniforms(),
                 fUniforms,
@@ -1029,7 +1031,7 @@ public:
         SkASSERT(uniforms);
 
         SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
-        GrFPArgs childArgs(context, matrixProvider, &colorInfo);
+        GrFPArgs childArgs(context, matrixProvider, &colorInfo, props);
         return make_effect_fp(fEffect,
                               "runtime_color_filter",
                               std::move(uniforms),
@@ -1497,7 +1499,8 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
 
         SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
         GrColorInfo colorInfo(resultInfo.colorInfo());
-        GrFPArgs args(rContext, matrixProvider, &colorInfo);
+        SkSurfaceProps props{}; // the images this function creates always use the defaults
+        GrFPArgs args(rContext, matrixProvider, &colorInfo, props);
         SkSTArray<8, std::unique_ptr<GrFragmentProcessor>> childFPs;
         for (size_t i = 0; i < children.size(); ++i) {
             // TODO: add support for other types of child effects

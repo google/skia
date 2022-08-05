@@ -118,6 +118,8 @@ public:
             fDraw.fRC = &dev->fRCStack.rc();
             fOrigin.set(0, 0);
         }
+
+        fDraw.fProps = &fDevice->surfaceProps();
     }
 
     bool needsTiling() const { return fNeedsTiling; }

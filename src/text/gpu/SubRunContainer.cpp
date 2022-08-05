@@ -443,15 +443,16 @@ SkPMColor4f calculate_colors(skgpu::SurfaceContext* sc,
                              const SkPaint& paint,
                              const SkMatrixProvider& matrix,
                              MaskFormat maskFormat,
+                             const SkSurfaceProps& props,
                              GrPaint* grPaint) {
     GrRecordingContext* rContext = sc->recordingContext();
     const GrColorInfo& colorInfo = sc->colorInfo();
     if (maskFormat == MaskFormat::kARGB) {
-        SkPaintToGrPaintReplaceShader(rContext, colorInfo, paint, matrix, nullptr, grPaint);
+        SkPaintToGrPaintReplaceShader(rContext, colorInfo, paint, matrix, nullptr, props, grPaint);
         float a = grPaint->getColor4f().fA;
         return {a, a, a, a};
     }
-    SkPaintToGrPaint(rContext, colorInfo, paint, matrix, grPaint);
+    SkPaintToGrPaint(rContext, colorInfo, paint, matrix, props, grPaint);
     return grPaint->getColor4f();
 }
 
@@ -1408,7 +1409,7 @@ std::tuple<const GrClip*, GrOp::Owner> DirectMaskSubRun::makeAtlasTextOp(
 
     GrPaint grPaint;
     const SkPMColor4f drawingColor =
-            calculate_colors(sdc, paint, viewMatrix, fMaskFormat, &grPaint);
+            calculate_colors(sdc, paint, viewMatrix, fMaskFormat, sdc->surfaceProps(), &grPaint);
 
     auto geometry = AtlasTextOp::Geometry::Make(*this,
                                                 drawMatrix,
@@ -1874,7 +1875,7 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
 
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(
-            sdc, paint, viewMatrix, fVertexFiller.grMaskType(), &grPaint);
+            sdc, paint, viewMatrix, fVertexFiller.grMaskType(), sdc->surfaceProps(), &grPaint);
 
     auto geometry = AtlasTextOp::Geometry::Make(*this,
                                                 drawMatrix,
@@ -2212,7 +2213,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
 
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(sdc, paint, viewMatrix, MaskFormat::kA8,
-                                                &grPaint);
+                                                sdc->surfaceProps(), &grPaint);
 
     auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
             calculate_sdf_parameters(*sdc, drawMatrix, fUseLCDText, fAntiAliased);
