@@ -8,7 +8,7 @@
 #include "src/text/gpu/SubRunContainer.h"
 
 #include "include/core/SkScalar.h"
-#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkDistanceFieldGen.h"
@@ -540,6 +540,7 @@ private:
 
     // If fStrikeRef.getStrikeAndSetToNullptr() is nullptr, then fIDsOrPaths holds SkPaths.
     mutable StrikeRef fStrikeRef;
+    mutable SkOnce fConvertIDsToPaths;
 };
 
 int PathOpSubmitter::unflattenSize() const {
@@ -645,16 +646,13 @@ PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoint>& acc
 void PathOpSubmitter::submitDraws(SkCanvas* canvas,
                                   SkPoint drawOrigin,
                                   const SkPaint& paint) const {
-    {
-        // Add a mutex to get trough DDL testing. If this ends up being a problem we can change
-        // over to using atomic pointers on the object.
-        static SkMutex mu;
-        SkAutoMutexExclusive lock{mu};
-        // Convert all the SkGlyphIDs to SkPaths
+
+    // Convert the glyph IDs to paths if it hasn't been done yet. This is thread safe.
+    fConvertIDsToPaths([&]() {
         if (sk_sp<SkStrike> strike = fStrikeRef.getStrikeAndSetToNullptr()) {
             strike->glyphIDsToPaths(fIDsOrPaths);
         }
-    }
+    });
 
     SkPaint runPaint{paint};
     runPaint.setAntiAlias(fIsAntiAliased);
