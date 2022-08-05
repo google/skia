@@ -26,7 +26,7 @@
 #ifdef SK_ENABLE_SKSL
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/gpu/graphite/Image_Graphite.h"
+#include "src/gpu/graphite/ImageUtils.h"
 #endif
 
 #include "src/core/SkKeyContext.h"
@@ -386,12 +386,17 @@ void SkImageShader::addToKey(const SkKeyContext& keyContext,
                                         this->getLocalMatrix());
 
 #ifdef SK_GRAPHITE_ENABLED
-    if (as_IB(fImage)->isGraphiteBacked()) {
-        skgpu::graphite::Image* grImage = static_cast<skgpu::graphite::Image*>(fImage.get());
+    auto [ imageToDraw, newSampling ] = skgpu::graphite::GetGraphiteBacked(keyContext.recorder(),
+                                                                           fImage.get(),
+                                                                           fSampling);
 
-        auto mipmapped = (fSampling.mipmap != SkMipmapMode::kNone) ?
-                skgpu::graphite::Mipmapped::kYes : skgpu::graphite::Mipmapped::kNo;
-        auto[view, ct] = grImage->asView(keyContext.recorder(), mipmapped);
+    if (imageToDraw) {
+        imgData.fSampling = newSampling;
+        skgpu::graphite::Mipmapped mipmapped = (newSampling.mipmap != SkMipmapMode::kNone)
+                                                   ? skgpu::graphite::Mipmapped::kYes
+                                                   : skgpu::graphite::Mipmapped::kNo;
+
+        auto [view, _] = as_IB(imageToDraw)->asView(keyContext.recorder(), mipmapped);
         imgData.fTextureProxy = view.refProxy();
     }
 #endif

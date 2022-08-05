@@ -410,8 +410,6 @@ void ImageShaderBlock::BeginBlock(const SkKeyContext& keyContext,
     if (builder->backend() == SkBackend::kGraphite) {
         // TODO: allow through lazy proxies
         if (gatherer && !imgData.fTextureProxy) {
-            // We're dropping the ImageShader here. This could be an instance of trying to draw
-            // a raster-backed image w/ a Graphite-backed canvas.
             // TODO: At some point the pre-compile path should also be creating a texture
             // proxy (i.e., we can remove the 'pipelineData' in the above test).
             SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);

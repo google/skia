@@ -323,6 +323,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "gm", ALL, "localmatriximageshader")
 			skip(ALL, "gm", ALL, "savelayer_f16")
 			skip(ALL, "gm", ALL, "anisomips")
+			skip(ALL, "gm", ALL, "path_huge_aa")
+			skip(ALL, "gm", ALL, "hugebitmapshader")
 
 			// TODO: re-enable - currently fail bc surface to image conversion isn't implemented
 			skip(ALL, "gm", ALL, "xfermodes3")

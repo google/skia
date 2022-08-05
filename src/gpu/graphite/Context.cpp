@@ -75,10 +75,10 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
 }
 #endif
 
-std::unique_ptr<Recorder> Context::makeRecorder() {
+std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) {
     ASSERT_SINGLE_OWNER
 
-    return std::unique_ptr<Recorder>(new Recorder(fGpu, fGlobalCache));
+    return std::unique_ptr<Recorder>(new Recorder(fGpu, fGlobalCache, options));
 }
 
 void Context::insertRecording(const InsertRecordingInfo& info) {

@@ -65,13 +65,14 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
     }
 
     // setup MipLevels
+    sk_sp<SkMipmap> mipmaps;
     std::vector<MipLevel> texels;
     if (mipLevelCount == 1) {
         texels.resize(mipLevelCount);
         texels[0].fPixels = bmpToUpload.getPixels();
         texels[0].fRowBytes = bmpToUpload.rowBytes();
     } else {
-        sk_sp<SkMipmap> mipmaps(SkMipmap::Build(bmpToUpload.pixmap(), nullptr));
+        mipmaps.reset(SkMipmap::Build(bmpToUpload.pixmap(), nullptr));
         if (!mipmaps) {
             return {};
         }

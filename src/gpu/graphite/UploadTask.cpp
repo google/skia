@@ -45,7 +45,6 @@ size_t compute_combined_buffer_size(int mipLevelCount,
 
         size_t trimmedSize = levelDimensions.area() * bytesPerPixel;
         combinedBufferSize = SkAlignTo(combinedBufferSize, minTransferBufferAlignment);
-        SkASSERT((0 == combinedBufferSize % 4) && (0 == combinedBufferSize % bytesPerPixel));
 
         individualMipOffsets->push_back(combinedBufferSize);
         combinedBufferSize += trimmedSize;

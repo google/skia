@@ -34,6 +34,7 @@ class Device;
 class DrawBufferManager;
 class GlobalCache;
 class Gpu;
+class ImageProvider;
 class RecorderPriv;
 class Recording;
 class ResourceProvider;
@@ -45,7 +46,14 @@ template<typename StorageT, typename BaseT> class PipelineDataCache;
 using UniformDataCache = PipelineDataCache<SkUniformDataBlockPassThrough, SkUniformDataBlock>;
 using TextureDataCache = PipelineDataCache<std::unique_ptr<SkTextureDataBlock>, SkTextureDataBlock>;
 
-class Recorder final {
+struct SK_API RecorderOptions final {
+    RecorderOptions() = default;
+    ~RecorderOptions();
+
+    sk_sp<ImageProvider> fImageProvider;
+};
+
+class SK_API Recorder final {
 public:
     Recorder(const Recorder&) = delete;
     Recorder(Recorder&&) = delete;
@@ -55,6 +63,10 @@ public:
     ~Recorder();
 
     std::unique_ptr<Recording> snap();
+
+    ImageProvider* clientImageProvider() const {
+        return fClientImageProvider.get();
+    }
 
     // Provides access to functions that aren't part of the public API.
     RecorderPriv priv();
@@ -69,7 +81,7 @@ private:
     friend class Device; // For registering and deregistering Devices;
     friend class RecorderPriv; // for ctor and hidden methods
 
-    Recorder(sk_sp<Gpu>, sk_sp<GlobalCache>);
+    Recorder(sk_sp<Gpu>, sk_sp<GlobalCache>, const RecorderOptions&);
 
     SingleOwner* singleOwner() const { return &fSingleOwner; }
 
@@ -108,6 +120,7 @@ private:
     std::unique_ptr<TokenTracker> fTokenTracker;
     std::unique_ptr<sktext::gpu::StrikeCache> fStrikeCache;
     std::unique_ptr<sktext::gpu::TextBlobRedrawCoordinator> fTextBlobCache;
+    sk_sp<ImageProvider> fClientImageProvider;
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the ResourceCache.

@@ -53,7 +53,7 @@ enum class BackendApi : unsigned {
 /**
  * Is the texture mipmapped or not
  */
-enum class Mipmapped: bool {
+enum class Mipmapped : bool {
     kNo = false,
     kYes = true,
 };

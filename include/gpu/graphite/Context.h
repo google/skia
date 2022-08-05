@@ -12,6 +12,7 @@
 #include "include/core/SkShader.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/Recorder.h"
 #include "include/private/SingleOwner.h"
 
 #include <memory>
@@ -29,12 +30,11 @@ class GlobalCache;
 class Gpu;
 struct MtlBackendContext;
 class QueueManager;
-class Recorder;
 class Recording;
 class ResourceProvider;
 class TextureInfo;
 
-class Context final {
+class SK_API Context final {
 public:
     Context(const Context&) = delete;
     Context(Context&&) = delete;
@@ -49,7 +49,7 @@ public:
 
     BackendApi backend() const { return fBackend; }
 
-    std::unique_ptr<Recorder> makeRecorder();
+    std::unique_ptr<Recorder> makeRecorder(const RecorderOptions& = {});
 
     void insertRecording(const InsertRecordingInfo&);
     void submit(SyncToCpu = SyncToCpu::kNo);
