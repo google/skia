@@ -551,10 +551,7 @@ void PathOpSubmitter::flatten(SkWriteBuffer& buffer) const {
 
     buffer.writeInt(fIsAntiAliased);
     buffer.writeScalar(fStrikeToSourceScale);
-    buffer.writeInt(SkCount(fPositions));
-    for (auto pos : fPositions) {
-        buffer.writePoint(pos);
-    }
+    buffer.writePointArray(fPositions.data(), SkCount(fPositions));
     for (IDOrPath& idOrPath : fIDsOrPaths) {
         buffer.writeInt(idOrPath.fGlyphID);
     }
@@ -571,13 +568,18 @@ std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buf
     bool isAntiAlias = buffer.readInt();
     SkScalar strikeToSourceScale = buffer.readScalar();
 
-    int glyphCount = buffer.readInt();
-    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return std::nullopt; }
-    if (!buffer.validateCanReadN<SkPoint>(glyphCount)) { return std::nullopt; }
-    SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
-    for (int i = 0; i < glyphCount; ++i) {
-        positions[i] = buffer.readPoint();
-    }
+    uint32_t glyphCount = buffer.getArrayCount();
+
+    // Zero indicates a problem with serialization.
+    if (!buffer.validate(glyphCount != 0)) { return std::nullopt; }
+
+    // Check that the count will not overflow the arena.
+    if (!buffer.validate(glyphCount <= INT_MAX &&
+                         BagOfBytes::WillCountFit<SkPoint>(glyphCount))) { return std::nullopt; }
+
+    SkPoint* positionsData = alloc->makePODArray<SkPoint>(glyphCount);
+    if (!buffer.readPointArray(positionsData, glyphCount)) { return std::nullopt; }
+    SkSpan<SkPoint> positions(positionsData, glyphCount);
 
     // Remember, we stored an int for glyph id.
     if (!buffer.validateCanReadN<int>(glyphCount)) { return std::nullopt; }
@@ -586,13 +588,11 @@ std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buf
         idOrPath.fGlyphID = SkTo<SkGlyphID>(buffer.readInt());
     }
 
-    if (!buffer.isValid()) {
-        return std::nullopt;
-    }
+    if (!buffer.isValid()) { return std::nullopt; }
 
     return PathOpSubmitter{isAntiAlias,
                            strikeToSourceScale,
-                           SkSpan(positions, glyphCount),
+                           positions,
                            idsOrPaths,
                            std::move(strikeRef.value())};
 }
