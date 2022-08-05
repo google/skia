@@ -23,11 +23,6 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/SkSLStringStream.h"
-#include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
-#include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
-#include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
-#include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
-#include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
@@ -52,6 +47,14 @@
 #include <memory>
 #include <stdio.h>
 #include <utility>
+
+#if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
+#include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
+#include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
+#include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
+#endif
 
 #ifdef SK_ENABLE_SPIRV_VALIDATION
 #include "spirv-tools/libspirv.hpp"

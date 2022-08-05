@@ -65,12 +65,18 @@ build:canvaskit_full --noincompatible_enable_cc_toolchain_resolution \
                      --ck_enable_canvas_polyfill --ck_enable_skp_serialization --ck_enable_skottie \
                      --ck_enable_particles --ck_enable_runtime_effect --ck_enable_matrix_js
 
-build:ck_webgl2 --with_gl_standard=webgl_standard --gpu_backend=gl_backend
+build:ck_webgl2 --with_gl_standard=webgl_standard --gpu_backend=gl_backend \
+                --disable_legacy_shader_context
+# CPU build needs legacy shader context otherwise SkPerlinNoiseShader does not render
+build:ck_cpu --enable_sksl --enable_legacy_shader_context
 
 build:ck_full_webgl2_release --config=canvaskit_full --config=ck_webgl2 --config=release
 build:ck_full_webgl2_debug --config=canvaskit_full --config=ck_webgl2 --config=debug
+build:ck_full_cpu_release --config=canvaskit_full --config=ck_cpu --config=release
+build:ck_full_cpu_debug --config=canvaskit_full --config=ck_cpu --config=debug
 # TODO(kjlubick) We should be able to configure testing on Chrome or Firefox with this.
 build:ck_full_webgl2_release_chrome --config=ck_full_webgl2_release
+build:ck_full_cpu_release_chrome --config=ck_full_cpu_release
 
 # We only want to enforce IWYU on debug builds because we have some things that are only
 # necessary to include in debug mode (e.g. SkDEBUGCODE), but very rarely something that is

@@ -2,6 +2,8 @@
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 600;
 
+const SHOULD_SKIP = 'should_skip';
+
 const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) => {
     if (name.includes(' ')) {
         throw name + " cannot contain spaces";
@@ -35,7 +37,8 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
         Promise.all(fetchPromises).then((values) => {
             try {
                 // If callback returns a promise, the chained .then
-                // will wait for it.
+                // will wait for it. Otherwise, we'll pass the return value on,
+                // which could indicate to skip this test and not report it to Gold.
                 surface.getCanvas().clear(CanvasKit.WHITE);
                 return callback(surface.getCanvas(), values, surface);
             } catch (e) {
@@ -44,8 +47,14 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
                 debugger;
                 done();
             }
-        }).then(() => {
+        }).then((shouldSkip) => {
             surface.flush();
+            if (shouldSkip === SHOULD_SKIP) {
+                surface.delete();
+                done();
+                console.log(`skipped gm ${name}`);
+                return;
+            }
             if (pause) {
                 reportSurface(surface, name, null);
                 console.error('pausing due to pause_gm being invoked');

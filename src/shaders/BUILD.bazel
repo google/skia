@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -28,6 +28,11 @@ SHADER_FILES = [
 split_srcs_and_hdrs(
     name = "shader",
     files = SHADER_FILES,
+)
+
+bool_flag(
+    default = True,
+    flag_name = "legacy_shader_context",
 )
 
 filegroup(

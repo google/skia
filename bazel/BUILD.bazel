@@ -52,6 +52,9 @@ GENERAL_DEFINES = [
 }) + select({
     "//src/pdf:enable_pdf_backend_true": ["SK_SUPPORT_PDF"],
     "//conditions:default": [],
+}) + select({
+    "//src/shaders:legacy_shader_context_true": [],  # This is the default in SkTypes.h
+    "//src/shaders:legacy_shader_context_false": ["SK_DISABLE_LEGACY_SHADERCONTEXT"],
 })
 
 GPU_DEFINES = select_multi({
@@ -112,7 +115,6 @@ PLATFORM_DEFINES = select({
     "//bazel/common_config_settings:cpu_wasm": [
         # working around https://github.com/emscripten-core/emscripten/issues/10072
         "SK_FORCE_8_BYTE_ALIGNMENT",
-        "SK_DISABLE_LEGACY_SHADERCONTEXT",
         "SK_DISABLE_AAA",  # This saves about 57KB of code size, uncompressed
     ],
     "//conditions:default": [],

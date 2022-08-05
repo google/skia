@@ -1230,9 +1230,6 @@ describe('Core canvas behavior', () => {
                 new DOMMatrix().translate(-10, 100),
             );
             expect(shader).toBeTruthy('Could not make shader');
-            if (!shader) {
-                return;
-            }
 
             paint.setShader(shader);
             canvas.drawPaint(paint);
@@ -1340,7 +1337,7 @@ describe('Core canvas behavior', () => {
 
     gm('makeImageFromTextureSource_TypedArray', (canvas, _, surface) => {
         if (!CanvasKit.gpu) {
-            return;
+            return SHOULD_SKIP;
         }
         // This creates and draws an Unpremul Image that is 1 pixel wide, 4 pixels tall with
         // the colors listed below.
@@ -1374,7 +1371,7 @@ describe('Core canvas behavior', () => {
 
     gm('makeImageFromTextureSource_PremulTypedArray', (canvas, _, surface) => {
         if (!CanvasKit.gpu) {
-            return;
+            return SHOULD_SKIP;
         }
         // This creates and draws an Unpremul Image that is 1 pixel wide, 4 pixels tall with
         // the colors listed below.
@@ -1404,7 +1401,7 @@ describe('Core canvas behavior', () => {
 
     gm('makeImageFromTextureSource_imgElement', (canvas, _, surface) => {
         if (!CanvasKit.gpu) {
-            return;
+            return SHOULD_SKIP;
         }
         // This makes an offscreen <img> with the provided source.
         const imageEle = new Image();
@@ -1433,7 +1430,7 @@ describe('Core canvas behavior', () => {
 
     gm('MakeLazyImageFromTextureSource_imgElement', (canvas) => {
         if (!CanvasKit.gpu) {
-            return;
+            return SHOULD_SKIP;
         }
         // This makes an offscreen <img> with the provided source.
         const imageEle = new Image();
@@ -1458,7 +1455,7 @@ describe('Core canvas behavior', () => {
 
     gm('MakeLazyImageFromTextureSource_imageInfo', (canvas) => {
         if (!CanvasKit.gpu) {
-            return;
+            return SHOULD_SKIP;
         }
         // This makes an offscreen <img> with the provided source.
         // flutter_106433.png has transparent pixels, which is required to test the Premul

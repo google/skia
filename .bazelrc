@@ -35,10 +35,12 @@ build --flag_alias=disable_effect_serialization=no//bazel/common_config_settings
 build --flag_alias=enable_effect_serialization=//bazel/common_config_settings:enable_effect_serialization
 build --flag_alias=disable_gpu_test_utils=no//src/gpu:enable_gpu_test_utils
 build --flag_alias=enable_gpu_test_utils=//src/gpu:enable_gpu_test_utils
+build --flag_alias=disable_legacy_shader_context=no//src/shaders:legacy_shader_context
+build --flag_alias=enable_legacy_shader_context=//src/shaders:legacy_shader_context
 build --flag_alias=disable_pdf_backend=no//src/pdf:enable_pdf_backend
 build --flag_alias=enable_pdf_backend=//src/pdf:enable_pdf_backend
-build --flag_alias=disable_sksl=no//bazel/common_config_settings:enable_sksl
-build --flag_alias=enable_sksl=//bazel/common_config_settings:enable_sksl
+build --flag_alias=disable_sksl=no//src/sksl:enable_sksl
+build --flag_alias=enable_sksl=//src/sksl:enable_sksl
 build --flag_alias=disable_skslc=no//src/sksl:enable_skslc
 build --flag_alias=enable_skslc=//src/sksl:enable_skslc
 build --flag_alias=disable_sksl_tracing=no//src/sksl:enable_sksl_tracing

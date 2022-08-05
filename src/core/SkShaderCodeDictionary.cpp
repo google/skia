@@ -13,13 +13,13 @@
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/sksl/SkSLUtil.h"
-#include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "include/gpu/graphite/Context.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #endif
 
 #ifdef SK_ENABLE_PRECOMPILE

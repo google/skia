@@ -2161,7 +2161,6 @@ func (b *jobBuilder) bazelTest() {
 
 		switch taskdriverName {
 		case "canvaskit_gold":
-			// TODO(kjlubick) pass in appropriate keys (e.g. webgl vs webgpu vs cpu)
 			cmd = append(cmd,
 				"--goldctl_path=./cipd_bin_packages/goldctl",
 				"--git_commit="+specs.PLACEHOLDER_REVISION,
@@ -2172,7 +2171,18 @@ func (b *jobBuilder) bazelTest() {
 				// Middleman ...tests-runfiles failed: missing input file 'external/npm/node_modules/karma-chrome-launcher/...'
 				"--expunge_cache")
 			b.cipd(CIPD_PKGS_GOLDCTL)
-			break
+			switch config {
+			case "ck_full_cpu_release_chrome":
+				cmd = append(cmd, "--cpu_or_gpu=CPU", "--cpu_or_gpu_value=CPU",
+					"--compilation_mode=Release", "--browser=Chrome")
+			case "ck_full_webgl2_release_chrome":
+				cmd = append(cmd, "--cpu_or_gpu=GPU", "--cpu_or_gpu_value=WebGL2",
+					"--compilation_mode=Release", "--browser=Chrome")
+			default:
+				panic("Gold keys not specified for config " + config)
+			}
+		default:
+			panic("Unsupported Bazel taskdriver " + taskdriverName)
 		}
 
 		if cross != "" {
