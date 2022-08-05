@@ -8,7 +8,6 @@ filegroup(
     name = "core_srcs",
     srcs = [
         "SkSLVMCodeGenerator.cpp",
-        "SkSLVMCodeGenerator.h",
     ],
 )
 
