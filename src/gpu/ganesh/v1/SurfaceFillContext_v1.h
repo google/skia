@@ -20,7 +20,6 @@
 
 class GrFragmentProcessor;
 class GrImageContext;
-class GrOp;
 class GrBackendFormat;
 class GrRecordingContext;
 class GrSurfaceProxyView;

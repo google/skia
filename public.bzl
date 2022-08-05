@@ -799,8 +799,6 @@ BASE_SRCS_ALL = [
     "src/gpu/Swizzle.cpp",
     "src/gpu/Swizzle.h",
     # We include the ganesh files, but leave out any specific backend (e.g. GL, Vulkan)
-    "src/gpu/ganesh/BaseDevice.cpp",
-    "src/gpu/ganesh/BaseDevice.h",
     "src/gpu/ganesh/GrAHardwareBufferImageGenerator.cpp",
     "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h",
     "src/gpu/ganesh/GrAHardwareBufferUtils.cpp",

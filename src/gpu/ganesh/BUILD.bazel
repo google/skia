@@ -5,8 +5,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 CORE_FILES = [
-    "BaseDevice.cpp",
-    "BaseDevice.h",
     "GrAHardwareBufferImageGenerator.cpp",
     "GrAHardwareBufferImageGenerator.h",
     "GrAHardwareBufferUtils.cpp",

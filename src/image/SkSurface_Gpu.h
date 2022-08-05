@@ -14,11 +14,11 @@
 #if SK_SUPPORT_GPU
 
 class GrBackendFormat;
-namespace skgpu { class BaseDevice; }
+namespace skgpu::v1 { class Device; }
 
 class SkSurface_Gpu : public SkSurface_Base {
 public:
-    SkSurface_Gpu(sk_sp<skgpu::BaseDevice>);
+    SkSurface_Gpu(sk_sp<skgpu::v1::Device>);
     ~SkSurface_Gpu() override;
 
     GrRecordingContext* onGetRecordingContext() override;
@@ -58,10 +58,10 @@ public:
     bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
     sk_sp<const SkCapabilities> onCapabilities() override;
-    skgpu::BaseDevice* getDevice();
+    skgpu::v1::Device* getDevice();
 
 private:
-    sk_sp<skgpu::BaseDevice> fDevice;
+    sk_sp<skgpu::v1::Device> fDevice;
 
     using INHERITED = SkSurface_Base;
 };

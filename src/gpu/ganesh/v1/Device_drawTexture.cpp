@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/v1/Device_v1.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTPin.h"

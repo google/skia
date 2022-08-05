@@ -11,8 +11,8 @@
 #include "include/core/SkPaint.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/RefCntedCallback.h"
-#include "src/gpu/ganesh/BaseDevice.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
+#include "src/gpu/ganesh/v1/Device_v1.h"
 #include "src/text/gpu/SDFTControl.h"
 
 class GrImageInfo;
@@ -115,13 +115,13 @@ public:
      */
     static sk_sp<GrRecordingContext> MakeDDL(sk_sp<GrContextThreadSafeProxy>);
 
-    sk_sp<skgpu::BaseDevice> createDevice(GrColorType,
+    sk_sp<skgpu::v1::Device> createDevice(GrColorType,
                                           sk_sp<GrSurfaceProxy>,
                                           sk_sp<SkColorSpace>,
                                           GrSurfaceOrigin,
                                           const SkSurfaceProps&,
-                                          skgpu::BaseDevice::InitContents);
-    sk_sp<skgpu::BaseDevice> createDevice(SkBudgeted,
+                                          skgpu::v1::Device::InitContents);
+    sk_sp<skgpu::v1::Device> createDevice(SkBudgeted,
                                           const SkImageInfo&,
                                           SkBackingFit,
                                           int sampleCount,
@@ -129,7 +129,7 @@ public:
                                           GrProtected,
                                           GrSurfaceOrigin,
                                           const SkSurfaceProps&,
-                                          skgpu::BaseDevice::InitContents);
+                                          skgpu::v1::Device::InitContents);
 
     // If the passed in GrSurfaceProxy is renderable this will return a SurfaceDrawContext,
     // otherwise it will return a SurfaceContext.

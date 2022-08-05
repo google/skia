@@ -20,7 +20,6 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkUtils.h"
-#include "src/gpu/ganesh/BaseDevice.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"

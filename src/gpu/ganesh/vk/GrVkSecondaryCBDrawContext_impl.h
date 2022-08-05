@@ -15,7 +15,7 @@
 class GrBackendSemaphore;
 class GrRecordingContext;
 struct GrVkDrawableInfo;
-namespace skgpu { class BaseDevice; }
+namespace skgpu::v1 { class Device; }
 class SkCanvas;
 class SkDeferredDisplayList;
 struct SkImageInfo;
@@ -114,9 +114,9 @@ public:
     bool isCompatible(const SkSurfaceCharacterization& characterization) const;
 
 private:
-    explicit GrVkSecondaryCBDrawContext(sk_sp<skgpu::BaseDevice>, const SkSurfaceProps*);
+    explicit GrVkSecondaryCBDrawContext(sk_sp<skgpu::v1::Device>, const SkSurfaceProps*);
 
-    sk_sp<skgpu::BaseDevice>  fDevice;
+    sk_sp<skgpu::v1::Device>  fDevice;
     std::unique_ptr<SkCanvas> fCachedCanvas;
     const SkSurfaceProps      fProps;
 

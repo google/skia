@@ -37,8 +37,8 @@ class SkRasterHandleAllocator;
 class SkSpecialImage;
 
 namespace skif { class Mapping; }
-namespace skgpu {
-class BaseDevice;
+namespace skgpu::v1 {
+class Device;
 }
 namespace skgpu::graphite {
 class Device;
@@ -214,7 +214,7 @@ public:
 
     virtual bool android_utils_clipWithStencil() { return false; }
 
-    virtual skgpu::BaseDevice* asGaneshDevice() { return nullptr; }
+    virtual skgpu::v1::Device* asGaneshDevice() { return nullptr; }
     virtual skgpu::graphite::Device* asGraphiteDevice() { return nullptr; }
 
     // Ensure that non-RSXForm runs are passed to onDrawGlyphRunList.

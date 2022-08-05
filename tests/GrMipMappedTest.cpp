@@ -15,7 +15,6 @@
 #ifdef SK_DIRECT3D
 #include "include/gpu/d3d/GrD3DTypes.h"
 #endif
-#include "src/gpu/ganesh/BaseDevice.h"
 #include "src/gpu/ganesh/GrBackendTextureImageGenerator.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"

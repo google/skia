@@ -54,7 +54,6 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/ganesh/BaseDevice.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/utils/SkTestCanvas.h"
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)

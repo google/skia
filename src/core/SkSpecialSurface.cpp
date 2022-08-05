@@ -124,7 +124,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Gpu(sk_sp<skgpu::BaseDevice> device, SkIRect subset)
+    SkSpecialSurface_Gpu(sk_sp<skgpu::v1::Device> device, SkIRect subset)
             : INHERITED(subset, device->surfaceProps())
             , fReadView(device->readSurfaceView()) {
 
@@ -167,7 +167,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* r
     auto device = rContext->priv().createDevice(SkBudgeted::kYes, ii, SkBackingFit::kApprox, 1,
                                                 GrMipmapped::kNo, GrProtected::kNo,
                                                 surfaceOrigin, props,
-                                                skgpu::BaseDevice::InitContents::kUninit);
+                                                skgpu::v1::Device::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }

@@ -363,8 +363,6 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/mock/GrMockTypes.cpp",
 
   # Sk files
-  "$_src/gpu/ganesh/BaseDevice.cpp",
-  "$_src/gpu/ganesh/BaseDevice.h",
   "$_src/gpu/ganesh/SkGr.cpp",
   "$_src/gpu/ganesh/SkGr.h",
   "$_src/image/SkImage_Gpu.cpp",

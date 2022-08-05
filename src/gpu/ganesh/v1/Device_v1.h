@@ -5,57 +5,72 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkGpuDevice_DEFINED
-#define SkGpuDevice_DEFINED
+#ifndef skgpu_v1_Device_DEFINED
+#define skgpu_v1_Device_DEFINED
 
-#include "include/core/SkBitmap.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
-#include "src/gpu/ganesh/BaseDevice.h"
+#include "src/core/SkDevice.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/v1/ClipStack.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/text/gpu/SDFTControl.h"
 
+class SkBitmap;
+class SkLatticeIter;
+class SkRegion;
 class SkSpecialImage;
 class SkSurface;
 class SkSurface_Gpu;
 class SkVertices;
 
+namespace skgpu {
+class SurfaceContext;
+class SurfaceFillContext;
+}
+
 namespace skgpu::v1 {
 
 /**
- *  Subclass of BaseDevice, which directs all drawing to the GrGpu owned by the canvas.
+ *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the canvas.
  */
-class Device final : public BaseDevice  {
+class Device final : public SkBaseDevice  {
 public:
+    enum class InitContents {
+        kClear,
+        kUninit
+    };
+
+    GrSurfaceProxyView readSurfaceView();
+    GrRenderTargetProxy* targetProxy();
+
+    GrRecordingContext* recordingContext() const { return fContext.get(); }
+
     bool wait(int numSemaphores,
               const GrBackendSemaphore* waitSemaphores,
-              bool deleteSemaphoresAfterWait) override;
+              bool deleteSemaphoresAfterWait);
 
-    void discard() override {
-        fSurfaceDrawContext->discard();
-    }
-
-    void resolveMSAA() override {
-        fSurfaceDrawContext->resolveMSAA();
-    }
+    void discard();
+    void resolveMSAA();
 
     bool replaceBackingProxy(SkSurface::ContentChangeMode,
                              sk_sp<GrRenderTargetProxy>,
                              GrColorType,
                              sk_sp<SkColorSpace>,
                              GrSurfaceOrigin,
-                             const SkSurfaceProps&) override;
-    using BaseDevice::replaceBackingProxy;
+                             const SkSurfaceProps&);
+    bool replaceBackingProxy(SkSurface::ContentChangeMode);
+
+    using RescaleGamma       = SkImage::RescaleGamma;
+    using RescaleMode        = SkImage::RescaleMode;
+    using ReadPixelsCallback = SkImage::ReadPixelsCallback;
+    using ReadPixelsContext  = SkImage::ReadPixelsContext;
 
     void asyncRescaleAndReadPixels(const SkImageInfo& info,
                                    const SkIRect& srcRect,
                                    RescaleGamma rescaleGamma,
                                    RescaleMode rescaleMode,
                                    ReadPixelsCallback callback,
-                                   ReadPixelsContext context) override;
+                                   ReadPixelsContext context);
 
     void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                          sk_sp<SkColorSpace> dstColorSpace,
@@ -64,19 +79,19 @@ public:
                                          RescaleGamma rescaleGamma,
                                          RescaleMode,
                                          ReadPixelsCallback callback,
-                                         ReadPixelsContext context) override;
+                                         ReadPixelsContext context);
 
     /**
      * This factory uses the color space, origin, surface properties, and initialization
      * method along with the provided proxy to create the gpu device.
      */
-    static sk_sp<BaseDevice> Make(GrRecordingContext*,
-                                  GrColorType,
-                                  sk_sp<GrSurfaceProxy>,
-                                  sk_sp<SkColorSpace>,
-                                  GrSurfaceOrigin,
-                                  const SkSurfaceProps&,
-                                  InitContents);
+    static sk_sp<Device> Make(GrRecordingContext*,
+                              GrColorType,
+                              sk_sp<GrSurfaceProxy>,
+                              sk_sp<SkColorSpace>,
+                              GrSurfaceOrigin,
+                              const SkSurfaceProps&,
+                              InitContents);
 
     /**
      * This factory uses the budgeted, imageInfo, fit, sampleCount, mipmapped, and isProtected
@@ -84,22 +99,22 @@ public:
      * origin, surface properties, and initialization method are then used (with the created proxy)
      * to create the device.
      */
-    static sk_sp<BaseDevice> Make(GrRecordingContext*,
-                                  SkBudgeted,
-                                  const SkImageInfo&,
-                                  SkBackingFit,
-                                  int sampleCount,
-                                  GrMipmapped,
-                                  GrProtected,
-                                  GrSurfaceOrigin,
-                                  const SkSurfaceProps&,
-                                  InitContents);
+    static sk_sp<Device> Make(GrRecordingContext*,
+                              SkBudgeted,
+                              const SkImageInfo&,
+                              SkBackingFit,
+                              int sampleCount,
+                              GrMipmapped,
+                              GrProtected,
+                              GrSurfaceOrigin,
+                              const SkSurfaceProps&,
+                              InitContents);
 
-    ~Device() override {}
+    ~Device() override;
 
-    SurfaceDrawContext* surfaceDrawContext() override;
+    SurfaceDrawContext* surfaceDrawContext();
     const SurfaceDrawContext* surfaceDrawContext() const;
-    skgpu::SurfaceFillContext* surfaceFillContext() override;
+    skgpu::SurfaceFillContext* surfaceFillContext();
 
     SkStrikeDeviceInfo strikeDeviceInfo() const override;
 
@@ -150,6 +165,8 @@ public:
 
     bool android_utils_clipWithStencil() override;
 
+    Device* asGaneshDevice() override { return this; }
+
 protected:
     bool onReadPixels(const SkPixmap&, int, int) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
@@ -197,15 +214,28 @@ protected:
     SkIRect onDevClipBounds() const override { return fClip.getConservativeBounds(); }
 
 private:
+    enum class DeviceFlags {
+        kNone      = 0,
+        kNeedClear = 1 << 0,  //!< Surface requires an initial clear
+        kIsOpaque  = 1 << 1,  //!< Hint from client that rendering to this device will be
+        //   opaque even if the config supports alpha.
+    };
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(DeviceFlags);
+
+    static SkImageInfo MakeInfo(SurfaceContext*,  DeviceFlags);
+    static bool CheckAlphaTypeAndGetFlags(SkAlphaType, InitContents, DeviceFlags*);
+
+    sk_sp<GrRecordingContext> fContext;
+
     const sktext::gpu::SDFTControl fSDFTControl;
 
     std::unique_ptr<SurfaceDrawContext> fSurfaceDrawContext;
 
     ClipStack fClip;
 
-    static sk_sp<BaseDevice> Make(std::unique_ptr<SurfaceDrawContext>,
-                                  SkAlphaType,
-                                  InitContents);
+    static sk_sp<Device> Make(std::unique_ptr<SurfaceDrawContext>,
+                              SkAlphaType,
+                              InitContents);
 
     Device(std::unique_ptr<SurfaceDrawContext>, DeviceFlags);
 
@@ -257,11 +287,10 @@ private:
                          const SkPaint&);
 
     friend class ::SkSurface_Gpu;      // for access to surfaceProps
-    using INHERITED = BaseDevice;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(Device::DeviceFlags)
 
 } // namespace skgpu::v1
 
-#undef GR_CLIP_STACK
-
-#endif
+#endif // skgpu_v1_Device_DEFINED

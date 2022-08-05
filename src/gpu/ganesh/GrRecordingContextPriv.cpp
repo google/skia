@@ -24,12 +24,12 @@ void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* o
     this->context()->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(GrColorType colorType,
+sk_sp<skgpu::v1::Device> GrRecordingContextPriv::createDevice(GrColorType colorType,
                                                               sk_sp<GrSurfaceProxy> proxy,
                                                               sk_sp<SkColorSpace> colorSpace,
                                                               GrSurfaceOrigin origin,
                                                               const SkSurfaceProps& props,
-                                                              skgpu::BaseDevice::InitContents init) {
+                                                              skgpu::v1::Device::InitContents init) {
 #if SK_GPU_V1
     return skgpu::v1::Device::Make(this->context(), colorType, std::move(proxy),
                                    std::move(colorSpace), origin, props, init);
@@ -38,7 +38,7 @@ sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(GrColorType colorT
 #endif
 }
 
-sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgeted,
+sk_sp<skgpu::v1::Device> GrRecordingContextPriv::createDevice(SkBudgeted budgeted,
                                                               const SkImageInfo& ii,
                                                               SkBackingFit fit,
                                                               int sampleCount,
@@ -46,7 +46,7 @@ sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgete
                                                               GrProtected isProtected,
                                                               GrSurfaceOrigin origin,
                                                               const SkSurfaceProps& props,
-                                                              skgpu::BaseDevice::InitContents init) {
+                                                              skgpu::v1::Device::InitContents init) {
 #if SK_GPU_V1
     return skgpu::v1::Device::Make(this->context(), budgeted, ii, fit, sampleCount,
                                    mipmapped, isProtected, origin, props, init);
