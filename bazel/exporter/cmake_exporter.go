@@ -169,7 +169,7 @@ func (e *CMakeExporter) writeItems(r *cmakeRule, projectDir string, items []stri
 			absPath := filepath.Join(projectDir, target)
 			fmt.Fprintf(buffer, "    %q\n", e.absToWorkspaceRelativePath(absPath))
 		} else {
-			cmakeName, err := getRuleCMakeName(item)
+			cmakeName, err := getRuleSimpleName(item)
 			if err != nil {
 				return skerr.Wrap(err)
 			}
@@ -225,7 +225,7 @@ func (e *CMakeExporter) writeCompileFlags(r *build.Rule, buffer *bytes.Buffer) e
 		return nil
 	}
 	str := strings.Join(copts, " ")
-	cmakeName, err := getRuleCMakeName(r.GetName())
+	cmakeName, err := getRuleSimpleName(r.GetName())
 	if err != nil {
 		return skerr.Wrap(err)
 	}
@@ -245,7 +245,7 @@ func (e *CMakeExporter) writeCompileDefinitions(r *build.Rule, qr *analysis_v2.C
 		return nil
 	}
 	str := strings.Join(defines, ";")
-	cmakeName, err := getRuleCMakeName(r.GetName())
+	cmakeName, err := getRuleSimpleName(r.GetName())
 	if err != nil {
 		return skerr.Wrap(err)
 	}
@@ -264,7 +264,7 @@ func (e *CMakeExporter) writeIncludeDirectories(r *build.Rule, qr *analysis_v2.C
 		includes[i] = e.absToWorkspaceRelativePath(path)
 	}
 	str := strings.Join(includes, ";")
-	cmakeName, err := getRuleCMakeName(r.GetName())
+	cmakeName, err := getRuleSimpleName(r.GetName())
 	if err != nil {
 		return skerr.Wrap(err)
 	}
@@ -283,7 +283,7 @@ func (e *CMakeExporter) writeLinkFlags(r *build.Rule, buffer *bytes.Buffer) erro
 		return nil
 	}
 	str := strings.Join(defines, " ")
-	cmakeName, err := getRuleCMakeName(r.GetName())
+	cmakeName, err := getRuleSimpleName(r.GetName())
 	if err != nil {
 		return skerr.Wrap(err)
 	}
@@ -320,7 +320,7 @@ func (e *CMakeExporter) convertFilegroupRule(r *build.Rule) error {
 	var contents bytes.Buffer
 
 	targetName := r.GetName()
-	variableName, err := getRuleCMakeName(r.GetName())
+	variableName, err := getRuleSimpleName(r.GetName())
 	if err != nil {
 		return skerr.Wrap(err)
 	}
@@ -345,7 +345,7 @@ func (e *CMakeExporter) convertCCBinaryRule(r *build.Rule, qr *analysis_v2.Cquer
 	targetName := r.GetName()
 	var contents bytes.Buffer
 	fmt.Fprintf(&contents, "# %s\n", targetName)
-	cmakeName, err := getRuleCMakeName(r.GetName())
+	cmakeName, err := getRuleSimpleName(r.GetName())
 	if err != nil {
 		return skerr.Wrap(err)
 	}
@@ -374,7 +374,7 @@ func (e *CMakeExporter) convertCCLibraryRule(r *build.Rule, qr *analysis_v2.Cque
 	rule := e.workspace.createRule(r)
 
 	targetName := r.GetName()
-	cmakeName, err := getRuleCMakeName(r.GetName())
+	cmakeName, err := getRuleSimpleName(r.GetName())
 	if err != nil {
 		return skerr.Wrap(err)
 	}

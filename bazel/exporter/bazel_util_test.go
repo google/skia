@@ -77,10 +77,10 @@ func TestGetLocationDir_ValidInput_Success(t *testing.T) {
 	assert.Equal(t, "/path/to", path)
 }
 
-func TestGetRuleCMakeName_ValidInput_Success(t *testing.T) {
+func TestGetRuleSimpleName_ValidInput_Success(t *testing.T) {
 	test := func(name, rule, expectedName string) {
 		t.Run(name, func(t *testing.T) {
-			cmakeName, err := getRuleCMakeName(rule)
+			cmakeName, err := getRuleSimpleName(rule)
 			require.NoError(t, err)
 			assert.Equal(t, expectedName, cmakeName)
 		})
