@@ -18,6 +18,10 @@
 #include "include/core/SkTypes.h"
 #include "include/ports/SkCFObject.h"
 
+#ifdef SK_ENABLE_PIET_GPU
+#include "src/gpu/piet/Render.h"
+#endif
+
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
@@ -49,6 +53,10 @@ public:
         }
     }
     bool commit();
+
+#ifdef SK_ENABLE_PIET_GPU
+    void setPietRenderer(const skgpu::piet::MtlRenderer* renderer) { fPietRenderer = renderer; }
+#endif
 
 private:
     MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const MtlSharedContext* sharedContext);
@@ -117,6 +125,10 @@ private:
                                const BufferTextureCopyData* copyData,
                                int count) override;
 
+#ifdef SK_ENABLE_PIET_GPU
+    void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) override;
+#endif
+
     MtlBlitCommandEncoder* getBlitCommandEncoder();
     void endBlitCommandEncoder();
 
@@ -131,6 +143,10 @@ private:
     size_t fCurrentIndexBufferOffset = 0;
 
     const MtlSharedContext* fSharedContext;
+
+#ifdef SK_ENABLE_PIET_GPU
+    const skgpu::piet::MtlRenderer* fPietRenderer = nullptr;  // owned by MtlQueueManager
+#endif
 };
 
 } // namespace skgpu::graphite

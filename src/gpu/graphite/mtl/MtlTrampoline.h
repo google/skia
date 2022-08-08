@@ -36,7 +36,6 @@ public:
     static std::unique_ptr<ResourceProvider> MakeResourceProvider(const SharedContext*,
                                                                   sk_sp<GlobalCache>,
                                                                   SingleOwner*);
-
 };
 
 } // namespace skgpu::graphite

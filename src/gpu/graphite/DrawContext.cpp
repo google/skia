@@ -28,6 +28,10 @@
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 
+#ifdef SK_ENABLE_PIET_GPU
+#include "src/gpu/graphite/PietRenderTask.h"
+#endif
+
 namespace skgpu::graphite {
 
 sk_sp<DrawContext> DrawContext::Make(sk_sp<TextureProxy> target,
@@ -96,6 +100,15 @@ bool DrawContext::recordUpload(Recorder* recorder,
                                          levels,
                                          dstRect);
 }
+
+#ifdef SK_ENABLE_PIET_GPU
+bool DrawContext::recordPietSceneRender(Recorder*,
+                                        sk_sp<TextureProxy> targetProxy,
+                                        sk_sp<const skgpu::piet::Scene> scene) {
+    fPendingPietRenders.push_back(PietRenderInstance(std::move(scene), std::move(targetProxy)));
+    return true;
+}
+#endif
 
 void DrawContext::snapDrawPass(Recorder* recorder) {
     if (fPendingDraws->drawCount() == 0) {
@@ -183,5 +196,14 @@ sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
 
     return uploadTask;
 }
+
+#ifdef SK_ENABLE_PIET_GPU
+sk_sp<Task> DrawContext::snapPietRenderTask(Recorder* recorder) {
+    if (fPendingPietRenders.empty()) {
+        return nullptr;
+    }
+    return sk_sp<Task>(new PietRenderTask(std::move(fPendingPietRenders)));
+}
+#endif
 
 } // namespace skgpu::graphite

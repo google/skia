@@ -15,14 +15,25 @@ namespace skgpu::graphite {
 MtlQueueManager::MtlQueueManager(sk_cfp<id<MTLCommandQueue>> queue,
                                  const SharedContext* sharedContext)
         : QueueManager(sharedContext)
-        , fQueue(std::move(queue)) {}
+        , fQueue(std::move(queue))
+#ifdef SK_ENABLE_PIET_GPU
+        , fPietRenderer(this->mtlSharedContext()->device(), fQueue.get())
+#endif
+{
+}
 
 const MtlSharedContext* MtlQueueManager::mtlSharedContext() const {
     return static_cast<const MtlSharedContext*>(fSharedContext);
 }
 
 sk_sp<CommandBuffer> MtlQueueManager::getNewCommandBuffer() {
-    return MtlCommandBuffer::Make(fQueue.get(), this->mtlSharedContext());
+    auto cmdBuffer = MtlCommandBuffer::Make(fQueue.get(), this->mtlSharedContext());
+
+#ifdef SK_ENABLE_PIET_GPU
+    cmdBuffer->setPietRenderer(&fPietRenderer);
+#endif
+
+    return std::move(cmdBuffer);
 }
 
 class WorkSubmission final : public GpuWorkSubmission {

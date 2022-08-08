@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 
 namespace skgpu::graphite {
+
 sk_sp<SharedContext> MtlTrampoline::MakeSharedContext(const MtlBackendContext& backendContext,
                                                       const ContextOptions& options) {
     return MtlSharedContext::Make(backendContext, options);

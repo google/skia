@@ -188,3 +188,8 @@ skia_graphite_mtl_sources = [
   "$_src/mtl/MtlUtils.h",
   "$_src/mtl/MtlUtils.mm",
 ]
+
+skia_graphite_piet_sources = [
+  "$_src/PietRenderTask.cpp",
+  "$_src/PietRenderTask.h",
+]

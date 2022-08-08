@@ -1153,6 +1153,11 @@ optional("graphite") {
   public_defines = [ "SK_GRAPHITE_ENABLED" ]
   public = skia_graphite_public
   sources = skia_graphite_sources
+
+  if (skia_use_piet) {
+    sources += skia_graphite_piet_sources
+  }
+
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
     sources += skia_graphite_mtl_sources

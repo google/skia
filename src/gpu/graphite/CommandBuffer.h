@@ -22,6 +22,12 @@ namespace skgpu {
 class RefCntedCallback;
 }
 
+#ifdef SK_ENABLE_PIET_GPU
+namespace skgpu::piet {
+class Scene;
+}
+#endif
+
 namespace skgpu::graphite {
 
 class Buffer;
@@ -72,6 +78,10 @@ public:
                              const BufferTextureCopyData*,
                              int count);
 
+#ifdef SK_ENABLE_PIET_GPU
+    void renderPietScene(const skgpu::piet::Scene& scene, sk_sp<Texture> target);
+#endif
+
 protected:
     CommandBuffer();
 
@@ -95,6 +105,10 @@ private:
                                        const Texture*,
                                        const BufferTextureCopyData*,
                                        int count) = 0;
+
+#ifdef SK_ENABLE_PIET_GPU
+    virtual void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) = 0;
+#endif
 
 #ifdef SK_DEBUG
     bool fHasWork = false;
