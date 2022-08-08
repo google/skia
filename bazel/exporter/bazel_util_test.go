@@ -116,3 +116,15 @@ func TestIsExternalRule_IsExternal_ExpectTrue(t *testing.T) {
 func TestIsExternalRule_IsInternal_ExpectFalse(t *testing.T) {
 	assert.False(t, isExternalRule("//:skia_public"))
 }
+
+func TestIsFileRule_InvalidRule_ReturnsFalse(t *testing.T) {
+	assert.False(t, isFileTarget(""))
+}
+
+func TestIsFileRule_ValidFileRule_ReturnsTrue(t *testing.T) {
+	assert.True(t, isFileTarget("//dir/path:hello.c"))
+}
+
+func TestIsFileRule_ValidNonFileRule_ReturnsFalse(t *testing.T) {
+	assert.False(t, isFileTarget("//dir/path:hello"))
+}

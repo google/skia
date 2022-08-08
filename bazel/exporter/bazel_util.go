@@ -96,6 +96,19 @@ func makeCanonicalRuleName(bazelRuleName string) (string, error) {
 	return fmt.Sprintf("%s/%s:%s", repo, path, target), nil
 }
 
+// Determine if a target refers to a file, or a rule. target is of
+// the form:
+//
+// file: //include/private:SingleOwner.h
+// rule: //bazel/common_config_settings:has_gpu_backend
+func isFileTarget(target string) bool {
+	_, _, target, err := parseRule(target)
+	if err != nil {
+		return false
+	}
+	return strings.Contains(target, ".")
+}
+
 // Create a string that uniquely identifies the rule and can be used
 // in the exported CMake file as a valid name.
 func getRuleCMakeName(bazelRuleName string) (string, error) {

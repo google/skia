@@ -249,18 +249,6 @@ set_target_properties(src_apps_hello PROPERTIES INCLUDE_DIRECTORIES
 	assert.Equal(t, expected, contents.String())
 }
 
-func TestIsFileRule_InvalidRule_ReturnsFalse(t *testing.T) {
-	assert.False(t, isFileTarget(""))
-}
-
-func TestIsFileRule_ValidFileRule_ReturnsTrue(t *testing.T) {
-	assert.True(t, isFileTarget("//dir/path:hello.c"))
-}
-
-func TestIsFileRule_ValidNonFileRule_ReturnsFalse(t *testing.T) {
-	assert.False(t, isFileTarget("//dir/path:hello"))
-}
-
 func TestFindRule_RuleExists_Success(t *testing.T) {
 	qr := analysis_v2.CqueryResult{}
 	err := prototext.Unmarshal([]byte(textProto), &qr)

@@ -32,19 +32,6 @@ func NewCMakeExporter(workspaceDir string) *CMakeExporter {
 	}
 }
 
-// Determine if a target refers to a file, or a rule. target is of
-// the form:
-//
-// file: //include/private:SingleOwner.h
-// rule: //bazel/common_config_settings:has_gpu_backend
-func isFileTarget(target string) bool {
-	_, _, target, err := parseRule(target)
-	if err != nil {
-		return false
-	}
-	return strings.Contains(target, ".")
-}
-
 // Given a Bazel rule name find that rule from within the
 // query results.
 func findRule(qr *analysis_v2.CqueryResult, name string) (*build.Rule, error) {
