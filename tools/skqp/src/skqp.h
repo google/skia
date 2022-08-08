@@ -41,11 +41,6 @@ private:
 
 class SkQP {
 public:
-    enum class SkiaBackend {
-        kGL,
-        kGLES,
-        kVulkan,
-    };
     using UnitTest = const skiatest::Test*;
 
     struct SkSLErrorTest {
@@ -89,7 +84,6 @@ private:
         std::vector<std::string> errors;
     };
     std::vector<TestResult> fTestResults;
-    std::vector<SkiaBackend> fSupportedBackends;
     std::string fReportDirectory;
     std::vector<UnitTest> fUnitTests;
     std::vector<SkSLErrorTest> fSkSLErrorTests;
@@ -100,6 +94,7 @@ private:
 
     SkQP(const SkQP&) = delete;
     SkQP& operator=(const SkQP&) = delete;
+    void printBackendInfo(const char* dstPath);
 };
 #endif  // skqp_DEFINED
 

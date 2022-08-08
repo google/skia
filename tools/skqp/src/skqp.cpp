@@ -115,81 +115,6 @@ static std::vector<SkQP::SkSLErrorTest> get_sksl_error_tests(SkQPAssetManager* a
     return skslErrorTests;
 }
 
-static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
-    using U = std::unique_ptr<sk_gpu_test::TestContext>;
-    switch (backend) {
-// TODO(halcanary): Fuchsia will have SK_SUPPORT_GPU and SK_VULKAN, but *not* SK_GL.
-#ifdef SK_GL
-        case SkQP::SkiaBackend::kGL:
-            return U(sk_gpu_test::CreatePlatformGLTestContext(kGL_GrGLStandard, nullptr));
-        case SkQP::SkiaBackend::kGLES:
-            return U(sk_gpu_test::CreatePlatformGLTestContext(kGLES_GrGLStandard, nullptr));
-#endif
-#ifdef SK_VULKAN
-        case SkQP::SkiaBackend::kVulkan:
-            return U(sk_gpu_test::CreatePlatformVkTestContext(nullptr));
-#endif
-        default:
-            return nullptr;
-    }
-}
-
-static GrContextOptions context_options(skiagm::GM* gm = nullptr) {
-    GrContextOptions grContextOptions;
-    grContextOptions.fAllowPathMaskCaching = true;
-    grContextOptions.fDisableDriverCorrectnessWorkarounds = true;
-    if (gm) {
-        gm->modifyGrContextOptions(&grContextOptions);
-    }
-    return grContextOptions;
-}
-
-static std::vector<SkQP::SkiaBackend> get_backends() {
-    std::vector<SkQP::SkiaBackend> result;
-    SkQP::SkiaBackend backends[] = {
-        #ifdef SK_GL
-        #ifndef SK_BUILD_FOR_ANDROID
-        SkQP::SkiaBackend::kGL,  // Used for testing on desktop machines.
-        #endif
-        SkQP::SkiaBackend::kGLES,
-        #endif  // SK_GL
-        #ifdef SK_VULKAN
-        SkQP::SkiaBackend::kVulkan,
-        #endif
-    };
-    for (SkQP::SkiaBackend backend : backends) {
-        std::unique_ptr<sk_gpu_test::TestContext> testCtx = make_test_context(backend);
-        if (testCtx) {
-            testCtx->makeCurrent();
-            if (nullptr != testCtx->makeContext(context_options())) {
-                result.push_back(backend);
-            }
-        }
-    }
-    SkASSERT_RELEASE(result.size() > 0);
-    return result;
-}
-
-static void print_backend_info(const char* dstPath,
-                               const std::vector<SkQP::SkiaBackend>& backends) {
-#ifdef SK_ENABLE_DUMP_GPU
-    SkFILEWStream out(dstPath);
-    out.writeText("[\n");
-    for (SkQP::SkiaBackend backend : backends) {
-        if (std::unique_ptr<sk_gpu_test::TestContext> testCtx = make_test_context(backend)) {
-            testCtx->makeCurrent();
-            if (sk_sp<GrDirectContext> ctx = testCtx->makeContext(context_options())) {
-                SkString info = ctx->dump();
-                // remove null
-                out.write(info.c_str(), info.size());
-                out.writeText(",\n");
-            }
-        }
-    }
-    out.writeText("]\n");
-#endif
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 TestHarness CurrentTestHarness() {
@@ -227,9 +152,8 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
 
     fUnitTests = get_unit_tests(fEnforcedAndroidAPILevel);
     fSkSLErrorTests = get_sksl_error_tests(assetManager, fEnforcedAndroidAPILevel);
-    fSupportedBackends = get_backends();
 
-    print_backend_info((fReportDirectory + "/grdump.txt").c_str(), fSupportedBackends);
+    printBackendInfo((fReportDirectory + "/grdump.txt").c_str());
 }
 
 std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {

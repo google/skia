@@ -133,3 +133,47 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test, Reporter* reporter) { SK_
 #endif  // SK_GRAPHITE_ENABLED
 
 }  // namespace skiatest
+
+void SkQP::printBackendInfo(const char* dstPath) {
+#ifdef SK_ENABLE_DUMP_GPU
+    SkFILEWStream out(dstPath);
+    out.writeText("[\n");
+
+    GrContextFactory::ContextType contextsToDump[] = {skiatest::kNativeGLType,
+                                                      GrContextFactory::kVulkan_ContextType};
+
+    for (auto contextType : contextsToDump) {
+        std::unique_ptr<TestContext> testCtx;
+        switch (contextType) {
+#ifdef SK_GL
+            case GrContextFactory::kGL_ContextType:
+                testCtx.reset(sk_gpu_test::CreatePlatformGLTestContext(kGL_GrGLStandard, nullptr));
+                break;
+            case GrContextFactory::kGLES_ContextType:
+                testCtx.reset(
+                        sk_gpu_test::CreatePlatformGLTestContext(kGLES_GrGLStandard, nullptr));
+                break;
+#endif
+#ifdef SK_VULKAN
+            case GrContextFactory::kVulkan_ContextType:
+                testCtx.reset(sk_gpu_test::CreatePlatformVkTestContext(nullptr));
+                break;
+#endif
+            default: {
+            }
+        }
+
+        if (testCtx) {
+            GrContextOptions options;
+            testCtx->makeCurrent();
+            if (sk_sp<GrDirectContext> ctx = testCtx->makeContext(options)) {
+                SkString info = ctx->dump();
+                // remove null
+                out.write(info.c_str(), info.size());
+                out.writeText(",\n");
+            }
+        }
+    }
+    out.writeText("]\n");
+#endif
+}
