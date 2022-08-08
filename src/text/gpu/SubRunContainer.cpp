@@ -2506,7 +2506,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
         packedGlyphIDs.resize(positions.size());
 
         for (auto [packedGlyphID, variant] : SkMakeZip(packedGlyphIDs, good.get<0>())) {
-            packedGlyphID = variant.glyph()->getPackedID();
+            packedGlyphID = variant.packedID();
         }
         return SkMakeZip(packedGlyphIDs, positions);
     };

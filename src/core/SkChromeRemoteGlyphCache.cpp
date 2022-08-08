@@ -466,7 +466,9 @@ void RemoteStrike::prepareForPathDrawing(
                     hasPath = fSentPaths.set(packedID.glyphID(), markAsPath);
                 }
 
-                if (!(*hasPath)) {
+                if (*hasPath) {
+                    accepted->accept(packedID, position);
+                } else {
                     rejected->reject(i);
                 }
             });
@@ -492,7 +494,9 @@ void RemoteStrike::prepareForDrawableDrawing(
                     hasDrawable = fSentDrawables.set(glyphID, makeAsDrawable);
                 }
 
-                if (!(*hasDrawable)) {
+                if (*hasDrawable) {
+                    accepted->accept(packedID, position);
+                } else {
                     rejected->reject(i);
                 }
             });

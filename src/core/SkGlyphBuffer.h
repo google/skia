@@ -179,6 +179,13 @@ public:
         fAcceptedSize++;
     }
 
+    void accept(SkPackedGlyphID glyphID, SkPoint position) {
+        SkASSERT(fPhase == kProcess);
+        fPositions[fAcceptedSize] = position;
+        fMultiBuffer[fAcceptedSize] = glyphID;
+        fAcceptedSize++;
+    }
+
     // The result after a series of `accept` of accepted SkGlyph* or SkPath*.
     SkZip<SkGlyphVariant, SkPoint> accepted() {
         SkASSERT(fPhase == kProcess);

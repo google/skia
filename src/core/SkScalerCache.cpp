@@ -342,43 +342,50 @@ std::tuple<SkRect, size_t> SkScalerCache::prepareForSDFTDrawing(
 size_t SkScalerCache::prepareForPathDrawing(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
     SkAutoMutexExclusive lock{fMu};
-    size_t pathDelta = 0;
-    size_t delta = this->commonFilterLoop(accepted,
-        [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
-            SkGlyph* glyph = fGlyphForIndex[digest.index()];
-            auto pathSize = this->preparePath(glyph);
-            pathDelta += pathSize;
-            if (glyph->path() != nullptr) {
-                // Save off the path to draw later.
-                accepted->accept(glyph, i);
-            } else {
-                // Glyph does not have a path.
-                rejected->reject(i);
+    size_t increase = 0;
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            auto [digest, glyphIncrease] = this->digest(packedID);
+            increase += glyphIncrease;
+            if (!digest.isEmpty()) {
+                SkGlyph* glyph = fGlyphForIndex[digest.index()];
+                increase += this->preparePath(glyph);
+                if (glyph->path() != nullptr) {
+                    // Save off the path to draw later.
+                    accepted->accept(packedID, pos);
+                } else {
+                    // Glyph does not have a path.
+                    rejected->reject(i);
+                }
             }
-        });
-
-    return delta + pathDelta;
+        }
+    }
+    return increase;
 }
 
 size_t SkScalerCache::prepareForDrawableDrawing(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
     SkAutoMutexExclusive lock{fMu};
-    size_t drawableDelta = 0;
-    size_t delta = this->commonFilterLoop(accepted,
-        [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
-            SkGlyph* glyph = fGlyphForIndex[digest.index()];
-            size_t drawableSize = this->prepareDrawable(glyph);
-            drawableDelta += drawableSize;
-            if (glyph->drawable() != nullptr) {
-                // Save off the drawable to draw later.
-                accepted->accept(glyph, i);
-            } else {
-                // Glyph does not have a drawable.
-                rejected->reject(i);
+    size_t increase = 0;
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            auto [digest, glyphIncrease] = this->digest(packedID);
+            increase += glyphIncrease;
+            if (!digest.isEmpty()) {
+                SkGlyph* glyph = fGlyphForIndex[digest.index()];
+                increase += this->prepareDrawable(glyph);
+                if (glyph->drawable() != nullptr) {
+                    // Save off the drawable to draw later.
+                    accepted->accept(packedID, pos);
+                } else {
+                    // Glyph does not have a drawable.
+                    rejected->reject(i);
+                }
             }
-        });
+        }
+    }
 
-    return delta + drawableDelta;
+    return increase;
 }
 
 void SkScalerCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
