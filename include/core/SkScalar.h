@@ -145,11 +145,7 @@ static inline bool SkScalarNearlyEqual(SkScalar x, SkScalar y,
     return SkScalarAbs(x-y) <= tolerance;
 }
 
-#if defined(SK_LEGACY_SET_ROTATE_SNAP)
-#define SK_ScalarSinCosNearlyZero   SK_ScalarNearlyZero
-#else
 #define SK_ScalarSinCosNearlyZero   (SK_Scalar1 / (1 << 16))
-#endif
 
 static inline float SkScalarSinSnapToZero(SkScalar radians) {
     float v = SkScalarSin(radians);
