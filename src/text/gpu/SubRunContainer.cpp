@@ -213,10 +213,6 @@ TransformedMaskVertexFiller TransformedMaskVertexFiller::Make(
     return TransformedMaskVertexFiller{maskType, strikeToSourceScale, sourceBounds, leftTop};
 }
 
-static bool check_glyph_count(SkReadBuffer& buffer, int glyphCount) {
-    return 0 < glyphCount && static_cast<size_t>(glyphCount) < (buffer.available() / 4);
-}
-
 std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFromBuffer(
         SkReadBuffer& buffer, SubRunAllocator* alloc) {
     int checkingMaskType = buffer.readInt();
@@ -823,10 +819,7 @@ int DrawableOpSubmitter::unflattenSize() const {
 
 void DrawableOpSubmitter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fStrikeToSourceScale);
-    buffer.writeInt(SkCount(fPositions));
-    for (auto pos : fPositions) {
-        buffer.writePoint(pos);
-    }
+    buffer.writePointArray(fPositions.data(), SkCount(fPositions));
     for (SkGlyphID glyphID : fGlyphIDs) {
         buffer.writeInt(glyphID);
     }
@@ -837,18 +830,22 @@ std::optional<DrawableOpSubmitter> DrawableOpSubmitter::MakeFromBuffer(
         SkReadBuffer& buffer, SubRunAllocator* alloc, const SkStrikeClient* client) {
     SkScalar strikeToSourceScale = buffer.readScalar();
 
-    int glyphCount = buffer.readInt();
-    if (!buffer.validate(check_glyph_count(buffer, glyphCount))) { return std::nullopt; }
-    if (!buffer.validateCanReadN<SkPoint>(glyphCount)) { return std::nullopt; }
+    uint32_t glyphCount = buffer.getArrayCount();
+
+    // Zero indicates a problem with serialization.
+    if (!buffer.validate(glyphCount != 0)) { return std::nullopt; }
+
+    // Check that the count will not overflow the arena.
+    if (!buffer.validate(glyphCount <= INT_MAX &&
+                         BagOfBytes::WillCountFit<SkPoint>(glyphCount))) { return std::nullopt; }
+
     SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
-    for (int i = 0; i < glyphCount; ++i) {
-        positions[i] = buffer.readPoint();
-    }
+    if (!buffer.readPointArray(positions, glyphCount)) { return std::nullopt; }
 
     // Remember, we stored an int for glyph id.
     if (!buffer.validateCanReadN<int>(glyphCount)) { return std::nullopt; }
     SkGlyphID* glyphIDs = alloc->makePODArray<SkGlyphID>(glyphCount);
-    for (int i = 0; i < glyphCount; ++i) {
+    for (int i = 0; i < SkToInt(glyphCount); ++i) {
         glyphIDs[i] = SkTo<SkGlyphID>(buffer.readInt());
     }
 
