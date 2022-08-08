@@ -40,13 +40,16 @@ TextSDFRenderStep::TextSDFRenderStep(bool isA8)
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
                      /*uniforms=*/{{"atlasSizeInv", SkSLType::kFloat2},
                                    {"distanceAdjust", SkSLType::kFloat}},
-                     PrimitiveType::kTriangles,
+                     PrimitiveType::kTriangleStrip,
                      kDirectShadingPass,
-                     /*vertexAttrs=*/
-                     {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                      {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"texCoords", VertexAttribType::kUShort2, SkSLType::kUShort2}},
-                     /*instanceAttrs=*/{},
+                     /*vertexAttrs=*/ {},
+                     /*instanceAttrs=*/
+                     {{"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
+                      {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
+                      {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3},
+                      {"uvScale", VertexAttribType::kUShort2, SkSLType::kUShort2},
+                      {"uvPos", VertexAttribType::kUShort2, SkSLType::kUShort2},
+                      {"depth", VertexAttribType::kUShort_norm, SkSLType::kFloat}},
                      /*varyings=*/
                      {{"unormTexCoords", SkSLType::kFloat2},
                       {"textureCoords", SkSLType::kFloat2},
@@ -58,15 +61,18 @@ TextSDFRenderStep::~TextSDFRenderStep() {}
 
 const char* TextSDFRenderStep::vertexSkSL() const {
     return R"(
-        int2 coords = int2(texCoords.x, texCoords.y);
-        int texIdx = coords.x >> 13;
+        float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));
+        baseCoords *= float2(uvScale);
+        float3 position = baseCoords.x*mat0 + baseCoords.y*mat1 + mat2;
 
-        unormTexCoords = float2(coords.x & 0x1FFF, coords.y);
+        int texIdx = (int)(uvPos.x >> 13);
+        unormTexCoords = baseCoords + float2(uvPos.x & 0x1fff, uvPos.y);
+
         textureCoords = unormTexCoords * atlasSizeInv;
         texIndex = float(texIdx);
 
-        float4 devPosition = float4(position, depth, 1);
-        )";
+        float4 devPosition = float4(position.xy, depth, position.z);
+    )";
 }
 
 std::string TextSDFRenderStep::texturesAndSamplersSkSL(int binding) const {
@@ -141,8 +147,9 @@ const char* TextSDFRenderStep::fragmentCoverageSkSL() const {
 
 void TextSDFRenderStep::writeVertices(DrawWriter* dw, const DrawParams& params) const {
     const SubRunData& subRunData = params.geometry().subRunData();
-    subRunData.subRun()->fillVertexData(dw, subRunData.startGlyphIndex(), subRunData.glyphCount(),
-                                        params.order().depthAsFloat(), params.transform());
+    uint16_t unormDepth = params.order().depth().bits();
+    subRunData.subRun()->fillInstanceData(dw, subRunData.startGlyphIndex(), subRunData.glyphCount(),
+                                          unormDepth, params.transform());
 }
 
 void TextSDFRenderStep::writeUniformsAndTextures(const DrawParams& params,
