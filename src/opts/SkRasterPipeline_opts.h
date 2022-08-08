@@ -48,21 +48,19 @@ SI void* load_and_inc(void**& program) {
 #endif
 }
 
-// Lazily resolved on first cast.  Does nothing if cast to Ctx::None.
 struct Ctx {
     struct None {};
 
-    void*   ptr;
     void**& program;
-
-    explicit Ctx(void**& p) : ptr(nullptr), program(p) {}
 
     template <typename T>
     operator T*() {
-        if (!ptr) { ptr = load_and_inc(program); }
-        return (T*)ptr;
+        return (T*)load_and_inc(program);
     }
-    operator None() { return None{}; }
+    operator None() {
+        load_and_inc(program);
+        return None{};
+    }
 };
 
 

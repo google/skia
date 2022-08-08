@@ -21,9 +21,8 @@ SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
     this->reset();
 }
 void SkRasterPipeline::reset() {
-    fStages      = nullptr;
-    fNumStages   = 0;
-    fSlotsNeeded = 1;  // We always need one extra slot for just_return().
+    fStages    = nullptr;
+    fNumStages = 0;
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
@@ -41,8 +40,7 @@ void SkRasterPipeline::append(StockStage stage, void* ctx) {
 }
 void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
     fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx} );
-    fNumStages   += 1;
-    fSlotsNeeded += ctx ? 2 : 1;
+    fNumStages += 1;
 }
 void SkRasterPipeline::append(StockStage stage, uintptr_t ctx) {
     void* ptrCtx;
@@ -67,8 +65,7 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     stages[0].prev = fStages;
 
     fStages = &stages[src.fNumStages - 1];
-    fNumStages   += src.fNumStages;
-    fSlotsNeeded += src.fSlotsNeeded - 1;  // Don't double count just_returns().
+    fNumStages += src.fNumStages;
 }
 
 void SkRasterPipeline::dump() const {
@@ -374,9 +371,7 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
         *--ip = (void*)SkOpts::just_return_lowp;
         for (const StageList* st = fStages; st; st = st->prev) {
             if (auto fn = SkOpts::stages_lowp[st->stage]) {
-                if (st->ctx) {
-                    *--ip = st->ctx;
-                }
+                *--ip = st->ctx;
                 *--ip = (void*)fn;
             } else {
                 ip = reset_point;
@@ -390,9 +385,7 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
 
     *--ip = (void*)SkOpts::just_return_highp;
     for (const StageList* st = fStages; st; st = st->prev) {
-        if (st->ctx) {
-            *--ip = st->ctx;
-        }
+        *--ip = st->ctx;
         *--ip = (void*)SkOpts::stages_highp[st->stage];
     }
     return SkOpts::start_pipeline_highp;
@@ -403,10 +396,12 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
         return;
     }
 
-    // Best to not use fAlloc here... we can't bound how often run() will be called.
-    SkAutoSTMalloc<64, void*> program(fSlotsNeeded);
+    int slotsNeeded = 2 * fNumStages + 1;  // just_returns have no context
 
-    auto start_pipeline = this->build_pipeline(program.get() + fSlotsNeeded);
+    // Best to not use fAlloc here... we can't bound how often run() will be called.
+    SkAutoSTMalloc<64, void*> program(slotsNeeded);
+
+    auto start_pipeline = this->build_pipeline(program.get() + slotsNeeded);
     start_pipeline(x,y,x+w,y+h, program.get());
 }
 
@@ -415,9 +410,11 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
         return [](size_t, size_t, size_t, size_t) {};
     }
 
-    void** program = fAlloc->makeArray<void*>(fSlotsNeeded);
+    int slotsNeeded = 2 * fNumStages + 1;  // just_returns have no context
 
-    auto start_pipeline = this->build_pipeline(program + fSlotsNeeded);
+    void** program = fAlloc->makeArray<void*>(slotsNeeded);
+
+    auto start_pipeline = this->build_pipeline(program + slotsNeeded);
     return [=](size_t x, size_t y, size_t w, size_t h) {
         start_pipeline(x,y,x+w,y+h, program);
     };

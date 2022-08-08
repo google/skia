@@ -272,11 +272,9 @@ private:
 
     void unchecked_append(StockStage, void*);
 
-    // Used by old single-program void** style execution.
     SkArenaAlloc* fAlloc;
     StageList*    fStages;
     int           fNumStages;
-    int           fSlotsNeeded;
 };
 
 template <size_t bytes>
