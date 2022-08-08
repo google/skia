@@ -22,6 +22,33 @@ type BazelQueryCommand struct {
 	workspace string
 }
 
+// A list of all Skia Bazel build flags which enable the building and/or
+// exposure of all source files.
+var allSkiaFlags = []string{
+	"--ck_enable_canvas_polyfill",
+	"--ck_enable_embedded_font",
+	"--ck_enable_fonts",
+	"--ck_enable_matrix_js",
+	"--ck_enable_particles",
+	"--ck_enable_runtime_effect",
+	"--ck_enable_skottie",
+	"--ck_enable_skp_serialization",
+	"--enable_effect_serialization",
+	"--enable_gpu_test_utils",
+	"--enable_pdf_backend",
+	"--enable_sksl_tracing",
+	"--enable_sksl",
+	// "--enable_skslc", // external dependency on spirv-tools/libspirv.hpp
+	"--enable_svg_canvas",
+	"--enable_tracing",
+	"--enable_vma",
+	// "--fontmgr_factory=custom_embedded_fontmgr_factory", // external dependency on ft2build.h
+	"--gpu_backend=gl_backend",
+	// "--include_decoder=*",  // All decoders have external dependencies.
+	// "--include_encoder",    // All encoders have external dependencies.
+	// "--include_fontmgr=custom_embedded_fontmgr", // external dependency on ft2build.h
+}
+
 // NewBazelQueryCommand will create a new BazelQueryCommand instance which will,
 // when Read() is called, invoke the bazel executable to execute a cquery
 // command in the provided workspace for the supplied rules.
@@ -66,6 +93,7 @@ func (c *BazelQueryCommand) Read() ([]byte, error) {
 	}
 	ruleArg = ruleArg + ")"
 	args := []string{"cquery", "--noimplicit_deps", ruleArg, "--output", "proto"}
+	args = append(args, allSkiaFlags...)
 	cmd := exec.Command("bazel", args...)
 	_ = os.Chdir(pwd)
 	data, err := cmd.Output()

@@ -19,7 +19,7 @@ import (
 
 const (
 	ruleOnlyRepoPattern = `^(@\w+)$`
-	rulePattern         = `^(?P<repo>@[^/]+)?/(?P<path>[^:]+)(?P<target>:[\w-\.]+)?$`
+	rulePattern         = `^(?P<repo>@[^/]+)?/(?P<path>[^:]+)(?P<target>:[^:]+)?$`
 	locationPattern     = `^(?P<path>[^:]+):(?P<line>[^:]+):(?P<pos>[^:]+)$`
 )
 
@@ -28,6 +28,11 @@ var (
 	ruleRegex         = regexp.MustCompile(rulePattern)
 	locRegex          = regexp.MustCompile(locationPattern)
 )
+
+// Return true if the given rule name represents an external repository.
+func isExternalRule(name string) bool {
+	return name[0] == '@'
+}
 
 // Parse a rule into its constituent parts.
 // https://docs.bazel.build/versions/main/guide.html#specifying-targets-to-build

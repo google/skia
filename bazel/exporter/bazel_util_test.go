@@ -58,6 +58,7 @@ func TestParseRule_ValidRules_Success(t *testing.T) {
 	test("PathWithFile", "@abseil_cpp//absl/algorithm:algorithm.h", "@abseil_cpp", "/absl/algorithm", "algorithm.h")
 	test("DirDefaultTarget", "//tools/flags", "", "/tools/flags", "flags")
 	test("RepoDefaultTarget", "@libpng", "@libpng", "/", "libpng")
+	test("TargetWithPath", "//src/sksl:generated/sksl_compute.dehydrated.sksl", "", "/src/sksl", "generated/sksl_compute.dehydrated.sksl")
 }
 
 func TestParseLocation_ValidInput_Success(t *testing.T) {
@@ -106,4 +107,12 @@ func TestAppendUnique_NotPresent_Appended(t *testing.T) {
 func TestAppendUnique_Present_NotAppended(t *testing.T) {
 	slice := appendUnique([]string{"one", "two"}, "two")
 	assert.Equal(t, []string{"one", "two"}, slice)
+}
+
+func TestIsExternalRule_IsExternal_ExpectTrue(t *testing.T) {
+	assert.True(t, isExternalRule("@abseil_cpp//absl/algorithm:algorithm.h"))
+}
+
+func TestIsExternalRule_IsInternal_ExpectFalse(t *testing.T) {
+	assert.False(t, isExternalRule("//:skia_public"))
 }

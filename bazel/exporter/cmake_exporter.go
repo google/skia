@@ -124,6 +124,9 @@ func getRuleIncludes(r *build.Rule, qr *analysis_v2.CqueryResult) ([]string, err
 		return nil, skerr.Wrap(err)
 	}
 	ruleDir, err := getLocationDir(r.GetLocation())
+	if err != nil {
+		return nil, skerr.Wrap(err)
+	}
 	for idx, inc := range includes {
 		if inc == "." {
 			includes[idx] = ruleDir
@@ -133,6 +136,9 @@ func getRuleIncludes(r *build.Rule, qr *analysis_v2.CqueryResult) ([]string, err
 		dr, err := findRule(qr, d)
 		if err != nil {
 			return nil, skerr.Wrap(err)
+		}
+		if isExternalRule(dr.GetName()) {
+			continue
 		}
 		incs, err := getRuleIncludes(dr, qr)
 		if err != nil {
@@ -444,6 +450,9 @@ func (e *CMakeExporter) Export(qcmd interfaces.QueryCommand, writer interfaces.W
 	for _, result := range qr.GetResults() {
 		t := result.GetTarget()
 		r := t.GetRule()
+		if isExternalRule(r.GetName()) {
+			continue
+		}
 		var err error = nil
 		switch {
 		case r.GetRuleClass() == "cc_binary":
