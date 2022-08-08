@@ -22,6 +22,7 @@
 class SkScalerContext;
 namespace sktext {
 union IDOrPath;
+union IDOrDrawable;
 }  // namespace sktext
 
 // This class represents a strike: a specific combination of typeface, size, matrix, etc., and
@@ -96,6 +97,9 @@ public:
 
     // Convert all the IDs into SkPaths in the span.
     size_t glyphIDsToPaths(SkSpan<sktext::IDOrPath> idsOrPaths) SK_EXCLUDES(fMu);
+
+    // Convert all the IDs into SkDrawables in the span.
+    size_t glyphIDsToDrawables(SkSpan<sktext::IDOrDrawable> idsOrDrawables) SK_EXCLUDES(fMu);
 
     std::tuple<SkScalar, size_t>
             findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) SK_EXCLUDES(fMu);

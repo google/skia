@@ -86,6 +86,12 @@ union IDOrPath {
     SkPath fPath;
 };
 
+// prepareForDrawableDrawing uses this union to convert glyph ids to drawables.
+union IDOrDrawable {
+    SkGlyphID fGlyphID;
+    SkDrawable* fDrawable;
+};
+
 // -- StrikeRef ------------------------------------------------------------------------------------
 // Hold a ref to either a RemoteStrike or an SkStrike. Use either to flatten a descriptor, but
 // when MakeFromBuffer runs look up the SkStrike associated with the descriptor.

@@ -1,9 +1,9 @@
 /*
-* Copyright 2022 Google LLC
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+ * Copyright 2022 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #include "src/text/gpu/SubRunContainer.h"
 
@@ -811,17 +811,29 @@ SubRunOwner PathSubRun::MakeFromBuffer(const SkMatrix& initialPositionMatrix,
 // Shared code for submitting GPU ops for drawing glyphs as drawables.
 class DrawableOpSubmitter {
 public:
+    DrawableOpSubmitter() = delete;
+    DrawableOpSubmitter(const DrawableOpSubmitter&) = delete;
+    const DrawableOpSubmitter& operator=(const DrawableOpSubmitter&) = delete;
+    DrawableOpSubmitter(DrawableOpSubmitter&& that)
+        : fStrikeToSourceScale{that.fStrikeToSourceScale}
+        , fPositions{that.fPositions}
+        , fIDsOrDrawables{that.fIDsOrDrawables}
+        , fStrikeRef{std::move(that.fStrikeRef)}
+            // Transfer ownership of the strike.
+        , fStrike{std::move(that.fStrike)} {}
+    DrawableOpSubmitter& operator=(DrawableOpSubmitter&& that) {
+        this->~DrawableOpSubmitter();
+        new (this) DrawableOpSubmitter{std::move(that)};
+        return *this;
+    }
     DrawableOpSubmitter(SkScalar strikeToSourceScale,
                         SkSpan<SkPoint> positions,
-                        SkSpan<SkGlyphID> glyphIDs,
-                        SkSpan<SkDrawable*> drawableData,
-                        sk_sp<SkStrike>&& strike,
-                        const SkDescriptor& descriptor);
+                        SkSpan<IDOrDrawable> idsOrDrawables,
+                        StrikeRef&& strikeRef);
 
-    static DrawableOpSubmitter Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                    sk_sp<SkStrike>&& strike,
+    static DrawableOpSubmitter Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                                     SkScalar strikeToSourceScale,
-                                    const SkDescriptor& descriptor,
+                                    StrikeRef&& strikeRef,
                                     SubRunAllocator* alloc);
 
     int unflattenSize() const;
@@ -841,107 +853,81 @@ public:
 private:
     const SkScalar fStrikeToSourceScale;
     const SkSpan<SkPoint> fPositions;
-    const SkSpan<SkGlyphID> fGlyphIDs;
-    const SkSpan<SkDrawable*> fDrawables;
-    sk_sp<SkStrike> fStrike;  // Owns the fDrawables.
-    const SkAutoDescriptor fDescriptor;
+    const SkSpan<IDOrDrawable> fIDsOrDrawables;
+    mutable StrikeRef fStrikeRef;
+    mutable SkOnce fConvertIDsToDrawables;
+    mutable sk_sp<SkStrike> fStrike = nullptr;  // Owns the drawables in fIDsOrDrawables.
 };
 
 int DrawableOpSubmitter::unflattenSize() const {
-    return fPositions.size_bytes() +
-           fGlyphIDs.size_bytes() +
-           SkCount(fPositions) * sizeof(sk_sp<SkDrawable>);
+    return fPositions.size_bytes() + fIDsOrDrawables.size_bytes();
 }
 
 void DrawableOpSubmitter::flatten(SkWriteBuffer& buffer) const {
+    fStrikeRef.flatten(buffer);
+
     buffer.writeScalar(fStrikeToSourceScale);
     buffer.writePointArray(fPositions.data(), SkCount(fPositions));
-    for (SkGlyphID glyphID : fGlyphIDs) {
-        buffer.writeInt(glyphID);
+    for (IDOrDrawable idOrDrawable : fIDsOrDrawables) {
+        buffer.writeInt(idOrDrawable.fGlyphID);
     }
-    fDescriptor.getDesc()->flatten(buffer);
 }
 
 std::optional<DrawableOpSubmitter> DrawableOpSubmitter::MakeFromBuffer(
         SkReadBuffer& buffer, SubRunAllocator* alloc, const SkStrikeClient* client) {
+    std::optional<StrikeRef> strikeRef = StrikeRef::MakeFromBuffer(buffer, client);
+    if (!buffer.validate(strikeRef.has_value())) {
+        return std::nullopt;
+    }
+
     SkScalar strikeToSourceScale = buffer.readScalar();
 
     SkSpan<SkPoint> positions = make_points_from_buffer(buffer, alloc);
     if (positions.empty()) { return std::nullopt; }
     const int glyphCount = SkCount(positions);
 
-    // Remember, we stored an int for glyph id.
     if (!buffer.validateCanReadN<int>(glyphCount)) { return std::nullopt; }
-    SkGlyphID* glyphIDs = alloc->makePODArray<SkGlyphID>(glyphCount);
+    auto idsOrDrawables = alloc->makePODArray<IDOrDrawable>(glyphCount);
     for (int i = 0; i < SkToInt(glyphCount); ++i) {
-        glyphIDs[i] = SkTo<SkGlyphID>(buffer.readInt());
-    }
-
-    auto descriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
-    if (!buffer.validate(descriptor.has_value())) { return std::nullopt; }
-
-    // Translate the TypefaceID if this was transferred from the GPU process.
-    if (client != nullptr) {
-        if (!client->translateTypefaceID(&descriptor.value())) { return std::nullopt; }
-    }
-
-    auto strike = SkStrikeCache::GlobalStrikeCache()->findStrike(*descriptor->getDesc());
-    if (!buffer.validate(strike != nullptr)) { return std::nullopt; }
-
-    auto drawables = alloc->makePODArray<SkDrawable*>(glyphCount);
-    SkBulkGlyphMetricsAndDrawables drawableGetter(sk_sp<SkStrike>{strike});
-    auto glyphs = drawableGetter.glyphs(SkSpan(glyphIDs, glyphCount));
-
-    for (auto [i, glyph] : SkMakeEnumerate(glyphs)) {
-        drawables[i] = glyph->drawable();
+        // Remember, we stored an int for glyph id.
+        idsOrDrawables[i].fGlyphID = SkTo<SkGlyphID>(buffer.readInt());
     }
 
     SkASSERT(buffer.isValid());
-    return {DrawableOpSubmitter{strikeToSourceScale,
-                                positions,
-                                SkSpan(glyphIDs, glyphCount),
-                                SkSpan(drawables, glyphCount),
-                                std::move(strike),
-                                *descriptor->getDesc()}};
+    return DrawableOpSubmitter{strikeToSourceScale,
+                               positions,
+                               SkSpan(idsOrDrawables, glyphCount),
+                               std::move(strikeRef.value())};
 }
 
 DrawableOpSubmitter::DrawableOpSubmitter(
         SkScalar strikeToSourceScale,
         SkSpan<SkPoint> positions,
-        SkSpan<SkGlyphID> glyphIDs,
-        SkSpan<SkDrawable*> drawables,
-        sk_sp<SkStrike>&& strike,
-        const SkDescriptor& descriptor)
+        SkSpan<IDOrDrawable> idsOrDrawables,
+        StrikeRef&& strikeRef)
         : fStrikeToSourceScale{strikeToSourceScale}
         , fPositions{positions}
-        , fGlyphIDs{glyphIDs}
-        , fDrawables{std::move(drawables)}
-        , fStrike(std::move(strike))
-        , fDescriptor{descriptor} {
+        , fIDsOrDrawables{idsOrDrawables}
+        , fStrikeRef(std::move(strikeRef)) {
     SkASSERT(!fPositions.empty());
 }
 
-DrawableOpSubmitter DrawableOpSubmitter::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                              sk_sp<SkStrike>&& strike,
+DrawableOpSubmitter DrawableOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                                               SkScalar strikeToSourceScale,
-                                              const SkDescriptor& descriptor,
+                                              StrikeRef&& strikeRef,
                                               SubRunAllocator* alloc) {
     int glyphCount = SkCount(accepted);
     SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
-    SkGlyphID* glyphIDs = alloc->makePODArray<SkGlyphID>(glyphCount);
-    SkDrawable** drawables = alloc->makePODArray<SkDrawable*>(glyphCount);
+    IDOrDrawable* idsOrDrawables = alloc->makePODArray<IDOrDrawable>(glyphCount);
     for (auto [i, variant, pos] : SkMakeEnumerate(accepted)) {
         positions[i] = pos;
-        glyphIDs[i] = variant.glyph()->getGlyphID();
-        drawables[i] = variant.glyph()->drawable();
+        idsOrDrawables[i].fGlyphID = variant.glyphID();
     }
 
     return DrawableOpSubmitter{strikeToSourceScale,
                                SkSpan(positions, glyphCount),
-                               SkSpan(glyphIDs, glyphCount),
-                               SkSpan(drawables, glyphCount),
-                               std::move(strike),
-                               descriptor};
+                               SkSpan(idsOrDrawables, glyphCount),
+                               std::move(strikeRef)};
 }
 
 #if SK_SUPPORT_GPU
@@ -951,6 +937,18 @@ void DrawableOpSubmitter::submitOps(SkCanvas* canvas,
                                     SkPoint drawOrigin,
                                     const SkPaint& paint,
                                     skgpu::v1::SurfaceDrawContext* sdc) const {
+    // Convert glyph IDs to Drawables if it hasn't been done yet.
+    fConvertIDsToDrawables([&]() {
+        if (sk_sp<SkStrike> strike = fStrikeRef.getStrikeAndSetToNullptr()) {
+            strike->glyphIDsToDrawables(fIDsOrDrawables);
+            // Must hold the strike to keep the pointers to the drawable alive.
+            // TODO: it would be better if the strike held sk_sp<SkDrawable>s instead of the data
+            // itself. That way we could ref the SkDrawable in IDOrDrawable and not have to
+            // keep the strike alive.
+            fStrike = std::move(strike);
+        }
+    });
+
     // Calculate the matrix that maps the path glyphs from their size in the strike to
     // the graphics source space.
     SkMatrix strikeToSource = SkMatrix::Scale(fStrikeToSourceScale, fStrikeToSourceScale);
@@ -959,7 +957,7 @@ void DrawableOpSubmitter::submitOps(SkCanvas* canvas,
     // Transform the path to device because the deviceMatrix must be unchanged to
     // draw effect, filter or shader paths.
     for (auto [i, position] : SkMakeEnumerate(fPositions)) {
-        SkDrawable* drawable = fDrawables[i];
+        SkDrawable* drawable = fIDsOrDrawables[i].fDrawable;
         // Transform the glyph to source space.
         SkMatrix pathMatrix = strikeToSource;
         pathMatrix.postTranslate(position.x(), position.y());
@@ -974,14 +972,12 @@ void DrawableOpSubmitter::submitOps(SkCanvas* canvas,
 #endif  // SK_SUPPORT_GPU
 
 template <typename SubRunT>
-SubRunOwner make_drawable_sub_run(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                  sk_sp<SkStrike>&& strike,
+SubRunOwner make_drawable_sub_run(const SkZip<SkPackedGlyphID, SkPoint>& drawables,
                                   SkScalar strikeToSourceScale,
-                                  const SkDescriptor& descriptor,
+                                  StrikeRef&& strikeRef,
                                   SubRunAllocator* alloc) {
     return alloc->makeUnique<SubRunT>(
-            DrawableOpSubmitter::Make(drawables, std::move(strike),
-                                      strikeToSourceScale, descriptor, alloc));
+            DrawableOpSubmitter::Make(drawables, strikeToSourceScale, std::move(strikeRef), alloc));
 }
 
 // -- DrawableSubRun -------------------------------------------------------------------------------
@@ -2692,22 +2688,22 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
             }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
+                StrikeRef strikeRef = strikeCache->findOrCreateStrikeRef(strikeSpec);
                 ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-                strike->prepareForDrawableDrawing(accepted, rejected);
+                strikeRef.asStrikeForGPU()->prepareForDrawableDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
 
                 if (container && !accepted->empty()) {
-                    container->fSubRuns.append(
-                            make_drawable_sub_run<DrawableSubRun>(accepted->accepted(),
-                                                                  strike->getUnderlyingStrike(),
-                                                                  strikeToSourceScale,
-                                                                  strikeSpec.descriptor(),
-                                                                  alloc));
+                    container->fSubRuns.append(make_drawable_sub_run<DrawableSubRun>(
+                            convertToGlyphIDs(accepted->accepted()),
+                            strikeToSourceScale,
+                            std::move(strikeRef),
+                            alloc));
                 }
             }
         }

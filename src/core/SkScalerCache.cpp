@@ -217,6 +217,18 @@ std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::prepareDrawables(
     return {{results, glyphIDs.size()}, delta};
 }
 
+size_t SkScalerCache::glyphIDsToDrawables(SkSpan<sktext::IDOrDrawable> idsOrDrawables) {
+    size_t increase = 0;
+    SkAutoMutexExclusive lock{fMu};
+    for (sktext::IDOrDrawable& idOrDrawable : idsOrDrawables) {
+        auto [glyph, size] = this->glyph(SkPackedGlyphID{idOrDrawable.fGlyphID});
+        increase += size;
+        increase += this->prepareDrawable(glyph);
+        idOrDrawable.fDrawable = glyph->drawable();
+    }
+    return increase;
+}
+
 std::tuple<SkScalar, size_t> SkScalerCache::findMaximumGlyphDimension(
         SkSpan<const SkGlyphID> glyphs) {
     size_t totalIncrease = 0;
