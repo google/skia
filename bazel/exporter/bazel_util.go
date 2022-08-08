@@ -14,6 +14,7 @@ import (
 
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/go/util"
+	"go.skia.org/skia/bazel/exporter/build_proto/analysis_v2"
 	"go.skia.org/skia/bazel/exporter/build_proto/build"
 )
 
@@ -32,6 +33,18 @@ var (
 // Return true if the given rule name represents an external repository.
 func isExternalRule(name string) bool {
 	return name[0] == '@'
+}
+
+// Given a Bazel rule name find that rule from within the
+// query results.
+func findRule(qr *analysis_v2.CqueryResult, name string) (*build.Rule, error) {
+	for _, result := range qr.GetResults() {
+		r := result.GetTarget().GetRule()
+		if r.GetName() == name {
+			return r, nil
+		}
+	}
+	return nil, skerr.Fmt(`cannot find rule %q`, name)
 }
 
 // Parse a rule into its constituent parts.

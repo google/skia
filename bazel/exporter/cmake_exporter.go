@@ -32,18 +32,6 @@ func NewCMakeExporter(workspaceDir string) *CMakeExporter {
 	}
 }
 
-// Given a Bazel rule name find that rule from within the
-// query results.
-func findRule(qr *analysis_v2.CqueryResult, name string) (*build.Rule, error) {
-	for _, result := range qr.GetResults() {
-		r := result.GetTarget().GetRule()
-		if r.GetName() == name {
-			return r, nil
-		}
-	}
-	return nil, skerr.Fmt(`cannot find rule %q`, name)
-}
-
 // Return the default copts (COMPILE_FLAGS in CMake) for the macOS toolchain.
 func getMacPlatformRuleCopts() []string {
 	// TODO(crbug.com/skia/13586): Retrieve these values from Bazel.
