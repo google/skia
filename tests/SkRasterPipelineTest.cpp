@@ -568,3 +568,45 @@ DEF_TEST(SkRasterPipeline_lowp_clamp01, r) {
     p.append(SkRasterPipeline::store_8888, &ptr);
     p.run(0,0,1,1);
 }
+
+DEF_TEST(SkRasterPipeline_tail_call, r) {
+    // This test ensures that raster pipeline is ALWAYS performing tail call optimization on stages.
+    // That's important to prevent stack overflows, particularly when generating long and complex
+    // pipelines (eg, from SkSL).
+    //
+    // Note that this test only verifies this behavior in the highp pipeline (callback has no lowp
+    // implemention). SkSL is never going to target the lowp pipeline, so the risk there is minimal.
+
+    struct StackCheckerCtx : SkRasterPipeline_CallbackCtx {
+        std::vector<void*> stack_addrs;
+    };
+    StackCheckerCtx cb;
+    cb.fn = [](SkRasterPipeline_CallbackCtx* self, int active_pixels) {
+        auto ctx = (StackCheckerCtx*)self;
+        ctx->stack_addrs.push_back(&active_pixels);
+    };
+
+    uint32_t rgba = 0xff00ff00;
+    SkRasterPipeline_MemoryCtx ptr = { &rgba, 0 };
+
+    // Our pipeline records the address of the same local variable at numerous points.
+    // If tail call optimization is working, all of those addresses should be the same.
+    // We insert other miscellaneous work, just to be sure.
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::callback, &cb);
+    p.append(SkRasterPipeline::load_8888,  &ptr);
+    p.append(SkRasterPipeline::callback, &cb);
+    p.append(SkRasterPipeline::swap_rb);
+    p.append(SkRasterPipeline::callback, &cb);
+    p.append(SkRasterPipeline::store_8888, &ptr);
+    p.run(0,0,1,1);
+
+    REPORTER_ASSERT(r, cb.stack_addrs.size() == 3);
+    if (cb.stack_addrs[0] != cb.stack_addrs[1] || cb.stack_addrs[0] != cb.stack_addrs[2]) {
+        REPORT_FAILURE(
+                r,
+                "stack growth",
+                SkStringPrintf(
+                        "%p : %p : %p", cb.stack_addrs[0], cb.stack_addrs[1], cb.stack_addrs[2]));
+    }
+}
