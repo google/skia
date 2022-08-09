@@ -47,6 +47,7 @@ cc_binary_with_flags(
             "jpeg_decode_codec",
             "png_decode_codec",
         ],
+        "enable_sksl": ["True"],
         "use_harfbuzz": ["True"],
         "use_icu": ["True"],
     },
