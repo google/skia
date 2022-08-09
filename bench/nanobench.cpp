@@ -45,6 +45,7 @@
 #include "tools/MSKPPlayer.h"
 #include "tools/ProcStats.h"
 #include "tools/Stats.h"
+#include "tools/ToolUtils.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/ios_utils.h"
@@ -355,7 +356,7 @@ struct GraphiteTarget : public Target {
         this->testContext = testCtx;
         this->context = ctx;
 
-        this->recorder = this->context->makeRecorder();
+        this->recorder = this->context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
         if (!this->recorder) {
             return false;
         }

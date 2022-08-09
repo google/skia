@@ -17,6 +17,7 @@
 #include "include/gpu/graphite/SkStuff.h"
 #include "include/gpu/graphite/mtl/MtlBackendContext.h"
 #include "include/gpu/graphite/mtl/MtlTypes.h"
+#include "tools/ToolUtils.h"
 
 using sk_app::DisplayParams;
 using sk_app::GraphiteMetalWindowContext;
@@ -56,7 +57,7 @@ void GraphiteMetalWindowContext::initializeContext() {
     backendContext.fQueue.retain((skgpu::graphite::MtlHandle)fQueue.get());
     fGraphiteContext = skgpu::graphite::Context::MakeMetal(backendContext,
                                                            skgpu::graphite::ContextOptions());
-    fGraphiteRecorder = fGraphiteContext->makeRecorder();
+    fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
     // TODO
 //    if (!fGraphiteContext && fDisplayParams.fMSAASampleCount > 1) {
 //        fDisplayParams.fMSAASampleCount /= 2;

@@ -31,6 +31,10 @@
 #include "src/core/SkTInternalLList.h"
 #include "tools/SkMetaData.h"
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "include/gpu/graphite/Recorder.h"
+#endif
+
 class SkBitmap;
 class SkCanvas;
 class SkFontStyle;
@@ -336,6 +340,10 @@ private:
     std::unique_ptr<SkFontArguments::VariationPosition::Coordinate[]> fCoords;
     static constexpr size_t kAxisVarsSize = 3;
 };
+
+#ifdef SK_GRAPHITE_ENABLED
+skgpu::graphite::RecorderOptions CreateTestingRecorderOptions();
+#endif
 
 }  // namespace ToolUtils
 
