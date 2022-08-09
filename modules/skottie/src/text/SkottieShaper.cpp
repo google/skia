@@ -7,15 +7,15 @@
 
 #include "modules/skottie/src/text/SkottieShaper.h"
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
-#include "include/core/SkTextBlob.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skunicode/include/SkUnicode.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkTLazy.h"
-#include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 
 #include <algorithm>
@@ -25,29 +25,6 @@
 namespace skottie {
 namespace {
 
-SkRect ComputeBlobBounds(const sk_sp<SkTextBlob>& blob) {
-    auto bounds = SkRect::MakeEmpty();
-
-    if (!blob) {
-        return bounds;
-    }
-
-    SkAutoSTArray<16, SkRect> glyphBounds;
-
-    for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
-        glyphBounds.reset(SkToInt(it.glyphCount()));
-        it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
-
-        SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
-        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
-            bounds.join(glyphBounds[i].makeOffset(it.pos()[i * 2    ],
-                                                  it.pos()[i * 2 + 1]));
-        }
-    }
-
-    return bounds;
-}
-
 static bool is_whitespace(char c) {
     // TODO: we've been getting away with this simple heuristic,
     // but ideally we should use SkUicode::isWhiteSpace().
@@ -56,9 +33,9 @@ static bool is_whitespace(char c) {
 
 // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
 // per-line position adjustments (for external line breaking, horizontal alignment, etc).
-class BlobMaker final : public SkShaper::RunHandler {
+class ResultBuilder final : public SkShaper::RunHandler {
 public:
-    BlobMaker(const Shaper::TextDesc& desc, const SkRect& box, const sk_sp<SkFontMgr>& fontmgr)
+    ResultBuilder(const Shaper::TextDesc& desc, const SkRect& box, const sk_sp<SkFontMgr>& fontmgr)
         : fDesc(desc)
         , fBox(box)
         , fHAlignFactor(HAlignFactor(fDesc.fHAlign))
@@ -139,7 +116,7 @@ public:
             // Technically, trailing whitespace could span multiple runs, but realistically,
             // SkShaper has no reason to split it.  Hence we're only checking the last run.
             size_t ws_count = 0;
-            for (size_t i = 0; i < fLineRuns.back().fGlyphCount; ++i) {
+            for (size_t i = 0; i < fLineRuns.back().fSize; ++i) {
                 if (is_whitespace(fUTF8[fLineClusters[SkToInt(fLineGlyphCount - i - 1)]])) {
                     ++ws_count;
                 } else {
@@ -174,8 +151,8 @@ public:
         adjust_trailing_whitespace();
 
         const auto commit_proc = (fDesc.fFlags & Shaper::Flags::kFragmentGlyphs)
-            ? &BlobMaker::commitFragementedRun
-            : &BlobMaker::commitConsolidatedRun;
+            ? &ResultBuilder::commitFragementedRun
+            : &ResultBuilder::commitConsolidatedRun;
 
         size_t run_offset = 0;
         for (const auto& rec : fLineRuns) {
@@ -185,7 +162,7 @@ public:
                         fLinePos.get()      + run_offset,
                         fLineClusters.get() + run_offset,
                         fLineCount);
-            run_offset += rec.fGlyphCount;
+            run_offset += rec.fSize;
         }
 
         fLineCount++;
@@ -193,10 +170,8 @@ public:
 
     Shaper::Result finalize(SkSize* shaped_size) {
         if (!(fDesc.fFlags & Shaper::Flags::kFragmentGlyphs)) {
-            // All glyphs are pending in a single blob.
-            SkASSERT(fResult.fFragments.empty());
-            fResult.fFragments.reserve(1);
-            fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}, 0, 0, 0, false});
+            // All glyphs (if any) are pending in a single fragment.
+            SkASSERT(fResult.fFragments.size() <= 1);
         }
 
         const auto ascent = this->ascent();
@@ -262,9 +237,32 @@ public:
 
         if (v_offset) {
             for (auto& fragment : fResult.fFragments) {
-                fragment.fPos.fY += v_offset;
+                fragment.fOrigin.fY += v_offset;
             }
         }
+
+#if defined(ENABLE_DEPRECATED_SKOTTIESHAPER_APIS)
+        // Set deprecated fields, pending client migration.
+        for (auto& frag : fResult.fFragments) {
+            frag.fPos = frag.fOrigin;
+
+            SkTextBlobBuilder blob_builder;
+            size_t offset = 0;
+            for (const auto& run : frag.fGlyphs.fRuns) {
+                auto& buffer = blob_builder.allocRunPos(run.fFont, SkToInt(run.fSize));
+                std::copy(frag.fGlyphs.fGlyphIDs.data() + offset,
+                          frag.fGlyphs.fGlyphIDs.data() + offset + run.fSize,
+                          buffer.glyphs);
+                std::copy(frag.fGlyphs.fGlyphPos.data() + offset,
+                          frag.fGlyphs.fGlyphPos.data() + offset + run.fSize,
+                          buffer.points());
+
+                offset += run.fSize;
+            }
+
+            frag.fBlob = blob_builder.make();
+        }
+#endif // ENABLE_DEPRECATED_SKOTTIESHAPER_APIS
 
         return std::move(fResult);
     }
@@ -303,12 +301,7 @@ public:
     }
 
 private:
-    struct RunRec {
-        SkFont fFont;
-        size_t fGlyphCount;
-    };
-
-    void commitFragementedRun(const RunRec& rec,
+    void commitFragementedRun(const skottie::Shaper::RunRec& run,
                               const SkGlyphID* glyphs,
                               const SkPoint* pos,
                               const uint32_t* clusters,
@@ -317,53 +310,69 @@ private:
 
         if (fDesc.fFlags & Shaper::Flags::kTrackFragmentAdvanceAscent) {
             SkFontMetrics metrics;
-            rec.fFont.getMetrics(&metrics);
+            run.fFont.getMetrics(&metrics);
             ascent = metrics.fAscent;
 
             // Note: we use per-glyph advances for anchoring, but it's unclear whether this
             // is exactly the same as AE.  E.g. are 'acute' glyphs anchored separately for fonts
             // in which they're distinct?
-            fAdvanceBuffer.resize(rec.fGlyphCount);
-            fFont.getWidths(glyphs, SkToInt(rec.fGlyphCount), fAdvanceBuffer.data());
+            fAdvanceBuffer.resize(run.fSize);
+            fFont.getWidths(glyphs, SkToInt(run.fSize), fAdvanceBuffer.data());
         }
 
         // In fragmented mode we immediately push the glyphs to fResult,
-        // one fragment (blob) per glyph.  Glyph positioning is externalized
+        // one fragment per glyph.  Glyph positioning is externalized
         // (positions returned in Fragment::fPos).
-        for (size_t i = 0; i < rec.fGlyphCount; ++i) {
-            const auto& blob_buffer = fBuilder.allocRunPos(rec.fFont, 1);
-            blob_buffer.glyphs[0] = glyphs[i];
-            blob_buffer.pos[0] = blob_buffer.pos[1] = 0;
-
+        for (size_t i = 0; i < run.fSize; ++i) {
             const auto advance = (fDesc.fFlags & Shaper::Flags::kTrackFragmentAdvanceAscent)
                     ? fAdvanceBuffer[SkToInt(i)]
                     : 0.0f;
 
+            fResult.fFragments.push_back({
+                {
+                    { {run.fFont, 1} },
+                    { glyphs[i] },
+                    { {0,0} },
+                },
+                { fBox.x() + pos[i].fX, fBox.y() + pos[i].fY },
+                advance, ascent,
+                line_index, is_whitespace(fUTF8[clusters[i]])
+#if defined(ENABLE_DEPRECATED_SKOTTIESHAPER_APIS)
+                , nullptr, {0,0}
+#endif
+            });
+
             // Note: we only check the first code point in the cluster for whitespace.
             // It's unclear whether thers's a saner approach.
-            fResult.fFragments.push_back({fBuilder.make(),
-                                          { fBox.x() + pos[i].fX, fBox.y() + pos[i].fY },
-                                          advance, ascent,
-                                          line_index, is_whitespace(fUTF8[clusters[i]])
-                                         });
             fResult.fMissingGlyphCount += (glyphs[i] == kMissingGlyphID);
         }
     }
 
-    void commitConsolidatedRun(const RunRec& rec,
+    void commitConsolidatedRun(const skottie::Shaper::RunRec& run,
                                const SkGlyphID* glyphs,
                                const SkPoint* pos,
                                const uint32_t*,
                                uint32_t) {
-        // In consolidated mode we just accumulate glyphs to the blob builder, then push
-        // to fResult as a single blob in finalize().  Glyph positions are baked in the
-        // blob (Fragment::fPos only reflects the box origin).
-        const auto& blob_buffer = fBuilder.allocRunPos(rec.fFont, rec.fGlyphCount);
-        for (size_t i = 0; i < rec.fGlyphCount; ++i) {
-            blob_buffer.glyphs[i] = glyphs[i];
+        // In consolidated mode we just accumulate glyphs to a single fragment in ResultBuilder.
+        // Glyph positions are baked in the fragment runs (Fragment::fPos only reflects the
+        // box origin).
+
+        if (fResult.fFragments.empty()) {
+            fResult.fFragments.push_back({{{}, {}, {}}, {fBox.x(), fBox.y()}, 0, 0, 0, false
+#if defined(ENABLE_DEPRECATED_SKOTTIESHAPER_APIS)
+                , nullptr, {0,0}
+#endif
+            });
+        }
+
+        auto& current_glyphs = fResult.fFragments.back().fGlyphs;
+        current_glyphs.fRuns.push_back(run);
+        current_glyphs.fGlyphIDs.insert(current_glyphs.fGlyphIDs.end(), glyphs, glyphs + run.fSize);
+        current_glyphs.fGlyphPos.insert(current_glyphs.fGlyphPos.end(), pos   , pos    + run.fSize);
+
+        for (size_t i = 0; i < run.fSize; ++i) {
             fResult.fMissingGlyphCount += (glyphs[i] == kMissingGlyphID);
         }
-        sk_careful_memcpy(blob_buffer.pos, pos, rec.fGlyphCount * sizeof(SkPoint));
     }
 
     static float HAlignFactor(SkTextUtils::Align align) {
@@ -388,16 +397,15 @@ private:
     const float               fHAlignFactor;
 
     SkFont                    fFont;
-    SkTextBlobBuilder         fBuilder;
     std::unique_ptr<SkShaper> fShaper;
 
-    SkAutoSTMalloc<64, SkGlyphID> fLineGlyphs;
-    SkAutoSTMalloc<64, SkPoint>   fLinePos;
-    SkAutoSTMalloc<64, uint32_t>  fLineClusters;
-    SkSTArray<16, RunRec>         fLineRuns;
-    size_t                        fLineGlyphCount = 0;
+    SkAutoSTMalloc<64, SkGlyphID>          fLineGlyphs;
+    SkAutoSTMalloc<64, SkPoint>            fLinePos;
+    SkAutoSTMalloc<64, uint32_t>           fLineClusters;
+    SkSTArray<16, skottie::Shaper::RunRec> fLineRuns;
+    size_t                                 fLineGlyphCount = 0;
 
-    SkSTArray<64, float, true>    fAdvanceBuffer;
+    SkSTArray<64, float, true>             fAdvanceBuffer;
 
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };
@@ -423,16 +431,16 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
     const char* line_start = ptr;
     const char* end        = ptr + txt.size();
 
-    BlobMaker blobMaker(desc, box, fontmgr);
+    ResultBuilder rbuilder(desc, box, fontmgr);
     while (ptr < end) {
         if (is_line_break(SkUTF::NextUTF8(&ptr, end))) {
-            blobMaker.shapeLine(line_start, ptr - 1);
+            rbuilder.shapeLine(line_start, ptr - 1);
             line_start = ptr;
         }
     }
-    blobMaker.shapeLine(line_start, ptr);
+    rbuilder.shapeLine(line_start, ptr);
 
-    return blobMaker.finalize(shaped_size);
+    return rbuilder.finalize(shaped_size);
 }
 
 bool result_fits(const Shaper::Result& res, const SkSize& res_size,
@@ -573,12 +581,69 @@ Shaper::Result Shaper::Shape(const SkString& orig_txt, const TextDesc& desc, con
     SkUNREACHABLE;
 }
 
+SkRect Shaper::ShapedGlyphs::computeBounds() const {
+    auto bounds = SkRect::MakeEmpty();
+
+    SkAutoSTArray<16, SkRect> glyphBounds;
+
+    size_t offset = 0;
+    for (const auto& run : fRuns) {
+        glyphBounds.reset(SkToInt(run.fSize));
+        run.fFont.getBounds(fGlyphIDs.data() + offset,
+                            SkToInt(run.fSize), glyphBounds.data(), nullptr);
+
+        for (size_t i = 0; i < run.fSize; ++i) {
+            bounds.join(glyphBounds[SkToInt(i)].makeOffset(fGlyphPos[offset + i]));
+        }
+
+        offset += run.fSize;
+    }
+
+    return bounds;
+}
+
+SkRect Shaper::ShapedGlyphs::computeConservativeBounds() const {
+    SkRect bounds = SkRect::MakeEmpty();
+
+    size_t offset = 0;
+    for (const auto& run : fRuns) {
+        SkRect run_bounds;
+        run_bounds.setBounds(fGlyphPos.data() + offset, SkToInt(run.fSize));
+
+        const SkRect font_bounds = SkFontPriv::GetFontBounds(run.fFont);
+        run_bounds.fLeft   += font_bounds.left();
+        run_bounds.fTop    += font_bounds.top();
+        run_bounds.fRight  += font_bounds.right();
+        run_bounds.fBottom += font_bounds.bottom();
+
+        bounds.join(run_bounds);
+
+        offset += run.fSize;
+    }
+
+    return bounds;
+}
+
+void Shaper::ShapedGlyphs::draw(SkCanvas* canvas,
+                                const SkPoint& origin,
+                                const SkPaint& paint) const {
+    size_t offset = 0;
+    for (const auto& run : fRuns) {
+        canvas->drawGlyphs(SkToInt(run.fSize),
+                           fGlyphIDs.data() + offset,
+                           fGlyphPos.data() + offset,
+                           origin,
+                           run.fFont,
+                           paint);
+        offset += run.fSize;
+    }
+}
+
 SkRect Shaper::Result::computeVisualBounds() const {
     auto bounds = SkRect::MakeEmpty();
 
-    for (const auto& fragment : fFragments) {
-        bounds.join(ComputeBlobBounds(fragment.fBlob).makeOffset(fragment.fPos.x(),
-                                                                 fragment.fPos.y()));
+    for (const auto& frag: fFragments) {
+        bounds.join(frag.fGlyphs.computeBounds().makeOffset(frag.fOrigin));
     }
 
     return bounds;

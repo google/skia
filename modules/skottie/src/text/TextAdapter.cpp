@@ -7,6 +7,7 @@
 
 #include "modules/skottie/src/text/TextAdapter.h"
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkM44.h"
@@ -15,18 +16,50 @@
 #include "modules/skottie/src/text/RangeSelector.h"
 #include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/sksg/include/SkSGDraw.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGRect.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
-#include "modules/sksg/include/SkSGText.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
 // Enable for text layout debugging.
 #define SHOW_LAYOUT_BOXES 0
 
 namespace skottie::internal {
+
+class GlyphTextNode final : public sksg::GeometryNode {
+public:
+    explicit GlyphTextNode(skottie::Shaper::ShapedGlyphs&& glyphs) : fGlyphs(std::move(glyphs)) {}
+
+    ~GlyphTextNode() override = default;
+
+protected:
+    SkRect onRevalidate(sksg::InvalidationController*, const SkMatrix&) override {
+        return fGlyphs.computeConservativeBounds();
+    }
+
+    void onDraw(SkCanvas* canvas, const SkPaint& paint) const override {
+        fGlyphs.draw(canvas, {0,0}, paint);
+    }
+
+    void onClip(SkCanvas* canvas, bool antiAlias) const override {
+        canvas->clipPath(this->asPath(), antiAlias);
+    }
+
+    bool onContains(const SkPoint& p) const override {
+        return this->asPath().contains(p.x(), p.y());
+    }
+
+    SkPath onAsPath() const override {
+        // TODO
+        return SkPath();
+    }
+
+private:
+    const skottie::Shaper::ShapedGlyphs fGlyphs;
+};
 
 static float align_factor(SkTextUtils::Align a) {
     switch (a) {
@@ -300,7 +333,7 @@ TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger, AnchorP
 
 TextAdapter::~TextAdapter() = default;
 
-void TextAdapter::addFragment(const Shaper::Fragment& frag) {
+void TextAdapter::addFragment(Shaper::Fragment& frag) {
     // For a given shaped fragment, build a corresponding SG fragment:
     //
     //   [TransformEffect] -> [Transform]
@@ -310,13 +343,14 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
     //
     // * where the blob node is shared
 
-    auto blob_node = sksg::TextBlob::Make(frag.fBlob);
+    auto text_node = sk_make_sp<GlyphTextNode>(std::move(frag.fGlyphs));
 
     FragmentRec rec;
-    rec.fOrigin     = frag.fPos;
+    rec.fOrigin     = frag.fOrigin;
     rec.fAdvance    = frag.fAdvance;
     rec.fAscent     = frag.fAscent;
-    rec.fMatrixNode = sksg::Matrix<SkM44>::Make(SkM44::Translate(frag.fPos.x(), frag.fPos.y()));
+    rec.fMatrixNode = sksg::Matrix<SkM44>::Make(SkM44::Translate(frag.fOrigin.x(),
+                                                                 frag.fOrigin.y()));
 
     std::vector<sk_sp<sksg::RenderNode>> draws;
     draws.reserve(static_cast<size_t>(fText->fHasFill) + static_cast<size_t>(fText->fHasStroke));
@@ -327,7 +361,7 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
         if (fText->fHasFill) {
             rec.fFillColorNode = sksg::Color::Make(fText->fFillColor);
             rec.fFillColorNode->setAntiAlias(true);
-            draws.push_back(sksg::Draw::Make(blob_node, rec.fFillColorNode));
+            draws.push_back(sksg::Draw::Make(text_node, rec.fFillColorNode));
         }
     };
     auto add_stroke = [&] {
@@ -337,7 +371,7 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
             rec.fStrokeColorNode->setStyle(SkPaint::kStroke_Style);
             rec.fStrokeColorNode->setStrokeWidth(fText->fStrokeWidth * fTextShapingScale);
             rec.fStrokeColorNode->setStrokeJoin(fText->fStrokeJoin);
-            draws.push_back(sksg::Draw::Make(blob_node, rec.fStrokeColorNode));
+            draws.push_back(sksg::Draw::Make(text_node, rec.fStrokeColorNode));
         }
     };
 
@@ -476,7 +510,7 @@ void TextAdapter::reshape() {
         fText->fMaxLines,
         this->shaperFlags(),
     };
-    const auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
+    auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
 
     if (fLogger) {
         if (shape_result.fFragments.empty() && fText->fText.size() > 0) {
@@ -507,15 +541,6 @@ void TextAdapter::reshape() {
     fRoot->clear();
     fFragments.clear();
 
-    for (const auto& frag : shape_result.fFragments) {
-        this->addFragment(frag);
-    }
-
-    if (!fAnimators.empty() || fPathInfo) {
-        // Range selectors and text paths require fragment domain maps.
-        this->buildDomainMaps(shape_result);
-    }
-
     if (SHOW_LAYOUT_BOXES) {
         auto box_color = sksg::Color::Make(0xffff0000);
         box_color->setStyle(SkPaint::kStroke_Style);
@@ -542,6 +567,17 @@ void TextAdapter::reshape() {
                         sksg::Draw::Make(sksg::Path::Make(static_cast<SkPath>(fPathInfo->fPath)),
                                          std::move(path_color)));
         }
+    }
+
+    // N.B. addFragment moves shaped glyph data out of the fragment, so only the fragment
+    // metrics are valid after this block.
+    for (auto& frag : shape_result.fFragments) {
+        this->addFragment(frag);
+    }
+
+    if (!fAnimators.empty() || fPathInfo) {
+        // Range selectors and text paths require fragment domain maps.
+        this->buildDomainMaps(shape_result);
     }
 }
 

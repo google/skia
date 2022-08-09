@@ -8,13 +8,11 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkStream.h"
-#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/text/SkottieShaper.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkTextBlobPriv.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
@@ -404,40 +402,6 @@ DEF_TEST(Skottie_Annotations, reporter) {
     REPORTER_ASSERT(reporter, std::get<2>(observer->fMarkers[1]) == 0.75f);
 }
 
-static SkRect ComputeBlobBounds(const sk_sp<SkTextBlob>& blob) {
-    auto bounds = SkRect::MakeEmpty();
-
-    if (!blob) {
-        return bounds;
-    }
-
-    SkAutoSTArray<16, SkRect> glyphBounds;
-
-    for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
-        glyphBounds.reset(SkToInt(it.glyphCount()));
-        it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
-
-        SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
-        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
-            bounds.join(glyphBounds[i].makeOffset(it.pos()[i * 2    ],
-                                                  it.pos()[i * 2 + 1]));
-        }
-    }
-
-    return bounds;
-}
-
-static SkRect ComputeShapeResultBounds(const skottie::Shaper::Result& res) {
-    auto bounds = SkRect::MakeEmpty();
-
-    for (const auto& fragment : res.fFragments) {
-        bounds.join(ComputeBlobBounds(fragment.fBlob).makeOffset(fragment.fPos.x(),
-                                                                 fragment.fPos.y()));
-    }
-
-    return bounds;
-}
-
 DEF_TEST(Skottie_Shaper_HAlign, reporter) {
     auto typeface = SkTypeface::MakeDefault();
     REPORTER_ASSERT(reporter, typeface);
@@ -487,9 +451,9 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
             const auto shape_result = Shaper::Shape(text, desc, text_point,
                                                     SkFontMgr::RefDefault());
             REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
-            REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
+            REPORTER_ASSERT(reporter, !shape_result.fFragments[0].fGlyphs.fRuns.empty());
 
-            const auto shape_bounds = ComputeShapeResultBounds(shape_result);
+            const auto shape_bounds = shape_result.computeVisualBounds();
             REPORTER_ASSERT(reporter, !shape_bounds.isEmpty());
 
             const auto expected_l = text_point.x() - shape_bounds.width() * talign.l_selector;
@@ -556,9 +520,9 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
 
             const auto shape_result = Shaper::Shape(text, desc, text_box, SkFontMgr::RefDefault());
             REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
-            REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
+            REPORTER_ASSERT(reporter, !shape_result.fFragments[0].fGlyphs.fRuns.empty());
 
-            const auto shape_bounds = ComputeShapeResultBounds(shape_result);
+            const auto shape_bounds = shape_result.computeVisualBounds();
             REPORTER_ASSERT(reporter, !shape_bounds.isEmpty());
 
             const auto v_diff = text_box.height() - shape_bounds.height();
@@ -601,7 +565,7 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
         const auto shape_result = Shaper::Shape(text, desc, text_box, SkFontMgr::RefDefault());
         // Default/consolidated mode => single blob result.
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
-        REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
+        REPORTER_ASSERT(reporter, !shape_result.fFragments[0].fGlyphs.fRuns.empty());
     }
 
     {
@@ -612,7 +576,7 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
         const size_t expectedSize = text.size();
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == expectedSize);
         for (size_t i = 0; i < expectedSize; ++i) {
-            REPORTER_ASSERT(reporter, shape_result.fFragments[i].fBlob);
+            REPORTER_ASSERT(reporter, !shape_result.fFragments[i].fGlyphs.fRuns.empty());
         }
     }
 }
@@ -692,7 +656,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
         const auto shape_result = Shaper::Shape(SkString("foo bar"), desc, text_box, fontmgr);
 
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
-        REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
+        REPORTER_ASSERT(reporter, !shape_result.fFragments[0].fGlyphs.fRuns.empty());
         REPORTER_ASSERT(reporter, fontmgr->fallbackCount() == 0ul);
         REPORTER_ASSERT(reporter, shape_result.fMissingGlyphCount == 0);
     }
@@ -703,7 +667,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
                                                          desc, text_box, fontmgr);
 
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
-        REPORTER_ASSERT(reporter, shape_result.fFragments[0].fBlob);
+        REPORTER_ASSERT(reporter, !shape_result.fFragments[0].fGlyphs.fRuns.empty());
         REPORTER_ASSERT(reporter, fontmgr->fallbackCount() == 1ul);
         REPORTER_ASSERT(reporter, shape_result.fMissingGlyphCount == 1ul);
     }
