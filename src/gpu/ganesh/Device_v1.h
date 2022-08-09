@@ -11,8 +11,8 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkDevice.h"
+#include "src/gpu/ganesh/ClipStack.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/v1/ClipStack.h"
 #include "src/text/gpu/SDFTControl.h"
 
 class SkBitmap;

@@ -11,7 +11,7 @@
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/text/gpu/SDFTControl.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 #endif // SK_SUPPORT_GPU

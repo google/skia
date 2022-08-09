@@ -18,7 +18,7 @@
 #include "include/core/SkRect.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 static sk_sp<SkShader> make_shader() {
     static const SkPoint kPts[] = {{0, 0}, {10, 10}};

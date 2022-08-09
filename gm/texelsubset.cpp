@@ -22,8 +22,8 @@
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tools/Resources.h"
 #include "tools/gpu/TestOps.h"
 

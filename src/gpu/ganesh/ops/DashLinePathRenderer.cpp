@@ -9,10 +9,10 @@
 
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/DashOp.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 namespace skgpu::v1 {
 

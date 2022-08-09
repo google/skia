@@ -28,7 +28,7 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>

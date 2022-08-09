@@ -23,8 +23,8 @@
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/ClearOp.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

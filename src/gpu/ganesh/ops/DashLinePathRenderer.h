@@ -8,7 +8,7 @@
 #ifndef DashLinePathRenderer_DEFINED
 #define DashLinePathRenderer_DEFINED
 
-#include "src/gpu/ganesh/v1/PathRenderer.h"
+#include "src/gpu/ganesh/PathRenderer.h"
 
 class GrGpu;
 

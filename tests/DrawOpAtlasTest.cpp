@@ -195,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas,
 }
 
 #if SK_GPU_V1
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 // This test verifies that the AtlasTextOp::onPrepare method correctly handles a failure
 // when allocating an atlas page.

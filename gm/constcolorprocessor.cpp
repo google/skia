@@ -34,8 +34,8 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/TestOps.h"
 

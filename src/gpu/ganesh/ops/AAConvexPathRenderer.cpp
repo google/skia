@@ -21,6 +21,7 @@
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -30,7 +31,6 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 namespace skgpu::v1 {
 

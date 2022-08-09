@@ -22,11 +22,11 @@
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 #include <array>
 #include <memory>

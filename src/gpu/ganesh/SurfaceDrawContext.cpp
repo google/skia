@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkDrawable.h"
@@ -47,6 +47,7 @@
 #include "src/gpu/ganesh/GrStencilSettings.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/GrTracing.h"
+#include "src/gpu/ganesh/PathRenderer.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
@@ -70,7 +71,6 @@
 #include "src/gpu/ganesh/ops/ShadowRRectOp.h"
 #include "src/gpu/ganesh/ops/StrokeRectOp.h"
 #include "src/gpu/ganesh/ops/TextureOp.h"
-#include "src/gpu/ganesh/v1/PathRenderer.h"
 #include "src/text/gpu/SDFTControl.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 

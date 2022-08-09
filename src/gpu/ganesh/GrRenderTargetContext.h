@@ -12,7 +12,7 @@
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 // Android Framework is relying on this header existing and the old name
 // of skgpu::v1::SurfaceDrawContext.

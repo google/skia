@@ -16,11 +16,11 @@
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/SoftwarePathRenderer.h"
 #include "src/gpu/ganesh/ops/TriangulatingPathRenderer.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 static SkPath create_concave_path() {
     SkPath path;

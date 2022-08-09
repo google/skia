@@ -25,10 +25,10 @@
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

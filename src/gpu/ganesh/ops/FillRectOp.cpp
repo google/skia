@@ -15,6 +15,7 @@
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 #include "src/gpu/ganesh/geometry/GrQuadBuffer.h"
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
@@ -23,7 +24,6 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/v1/StencilMaskHelper.h"
+#include "src/gpu/ganesh/StencilMaskHelper.h"
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrDisableColorXP.h"
 #include "src/gpu/ganesh/geometry/GrShape.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 

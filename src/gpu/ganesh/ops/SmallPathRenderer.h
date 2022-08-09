@@ -8,7 +8,7 @@
 #ifndef SmallPathRenderer_DEFINED
 #define SmallPathRenderer_DEFINED
 
-#include "src/gpu/ganesh/v1/PathRenderer.h"
+#include "src/gpu/ganesh/PathRenderer.h"
 
 class GrStyledShape;
 

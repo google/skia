@@ -8,7 +8,7 @@
 #ifndef StencilMaskHelper_DEFINED
 #define StencilMaskHelper_DEFINED
 
-#include "src/gpu/ganesh/v1/StencilClip.h"
+#include "src/gpu/ganesh/StencilClip.h"
 
 class GrShape;
 class GrRecordingContext;

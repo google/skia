@@ -222,10 +222,26 @@ CORE_FILES = [
     "GrYUVATextureProxies.h",
     "SkGr.cpp",
     "SkGr.h",
+    "ClipStack.cpp",
+    "ClipStack.h",
+    "Device.cpp",
+    "Device_drawTexture.cpp",
+    "Device_v1.h",
+    "PathRenderer.cpp",
+    "PathRenderer.h",
+    "PathRendererChain.cpp",
+    "PathRendererChain.h",
+    "StencilClip.h",
+    "StencilMaskHelper.cpp",
+    "StencilMaskHelper.h",
     "SurfaceContext.cpp",
     "SurfaceContext.h",
+    "SurfaceDrawContext.cpp",
+    "SurfaceDrawContext.h",
     "SurfaceFillContext.cpp",
     "SurfaceFillContext.h",
+    "SurfaceFillContext_v1.cpp",
+    "SurfaceFillContext_v1.h",
 ]
 
 split_srcs_and_hdrs(
@@ -245,7 +261,6 @@ filegroup(
         "//src/gpu/ganesh/tessellate:srcs",
         "//src/gpu/ganesh/ops:srcs",
         "//src/gpu/ganesh/text:srcs",
-        "//src/gpu/ganesh/v1:srcs",
     ] + select_multi(
         {
             "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:srcs"],
@@ -269,7 +284,6 @@ filegroup(
         "//src/gpu/ganesh/tessellate:private_hdrs",
         "//src/gpu/ganesh/ops:private_hdrs",
         "//src/gpu/ganesh/text:private_hdrs",
-        "//src/gpu/ganesh/v1:private_hdrs",
     ] + select_multi(
         {
             "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:private_hdrs"],

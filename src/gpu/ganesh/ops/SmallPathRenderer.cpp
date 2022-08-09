@@ -22,6 +22,7 @@
 #include "src/gpu/ganesh/GrDistanceFieldGenFromVector.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBitmapTextGeoProc.h"
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
@@ -30,7 +31,6 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
 #include "src/gpu/ganesh/ops/SmallPathShapeData.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 using MaskFormat = skgpu::MaskFormat;
 

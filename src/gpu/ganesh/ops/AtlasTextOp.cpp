@@ -20,11 +20,11 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBitmapTextGeoProc.h"
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "src/text/GlyphRun.h"
 #include "src/text/gpu/DistanceFieldAdjustTable.h"
 

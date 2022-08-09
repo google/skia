@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/v1/PathRenderer.h"
+#include "src/gpu/ganesh/PathRenderer.h"
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDrawProcs.h"
@@ -15,7 +15,7 @@
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #ifdef SK_DEBUG
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif
 
 namespace skgpu::v1 {

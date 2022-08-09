@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "tools/ToolUtils.h"
 
 namespace skiagm {

@@ -23,8 +23,8 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 #include <memory>
 #include <utility>

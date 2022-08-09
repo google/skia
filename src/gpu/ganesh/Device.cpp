@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/v1/Device_v1.h"
+#include "src/gpu/ganesh/Device_v1.h"
 
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMaskFilter.h"
@@ -44,10 +44,10 @@
 #include "src/gpu/ganesh/GrTracing.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrDisableColorXP.h"
 #include "src/gpu/ganesh/effects/GrRRectEffect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkReadPixelsRec.h"
 #include "src/image/SkSurface_Gpu.h"

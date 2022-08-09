@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/v1/Device_v1.h"
+#include "src/gpu/ganesh/Device_v1.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/gpu/GrDirectContext.h"
@@ -23,12 +23,12 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/geometry/GrRect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 

@@ -17,8 +17,8 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

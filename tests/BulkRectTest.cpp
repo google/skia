@@ -12,9 +12,9 @@
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/FillRectOp.h"
 #include "src/gpu/ganesh/ops/TextureOp.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 
 static std::unique_ptr<skgpu::v1::SurfaceDrawContext> new_SDC(GrRecordingContext* rContext) {

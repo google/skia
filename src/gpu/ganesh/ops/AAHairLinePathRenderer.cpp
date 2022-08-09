@@ -25,12 +25,12 @@
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/GrUtil.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBezierEffect.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 #define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
 
@@ -1347,4 +1347,3 @@ bool AAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 }
 
 } // namespace skgpu::v1
-

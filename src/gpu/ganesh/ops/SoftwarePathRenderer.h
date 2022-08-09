@@ -9,7 +9,7 @@
 #define SoftwarePathRenderer_DEFINED
 
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/v1/PathRenderer.h"
+#include "src/gpu/ganesh/PathRenderer.h"
 
 class GrProxyProvider;
 

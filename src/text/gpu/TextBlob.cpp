@@ -36,9 +36,9 @@
 #include "src/text/gpu/SubRunContainer.h"
 
 #if SK_SUPPORT_GPU  // Ganesh Support
+#include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrClip.h"
-#include "src/gpu/ganesh/v1/Device_v1.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif
 
 using namespace sktext::gpu;

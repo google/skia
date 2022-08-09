@@ -14,7 +14,7 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 namespace {
 

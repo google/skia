@@ -22,12 +22,12 @@
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

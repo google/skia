@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 static const int kSize = 64;
 

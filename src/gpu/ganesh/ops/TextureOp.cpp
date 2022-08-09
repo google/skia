@@ -30,6 +30,7 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
@@ -42,7 +43,6 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
 #include "src/gpu/ganesh/ops/TextureOp.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/v1/ClipStack.h"
+#include "src/gpu/ganesh/ClipStack.h"
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
@@ -21,6 +21,8 @@
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSWMaskHelper.h"
+#include "src/gpu/ganesh/StencilMaskHelper.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrConvexPolyEffect.h"
 #include "src/gpu/ganesh/effects/GrRRectEffect.h"
@@ -28,8 +30,6 @@
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
 #include "src/gpu/ganesh/ops/AtlasPathRenderer.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
-#include "src/gpu/ganesh/v1/StencilMaskHelper.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 

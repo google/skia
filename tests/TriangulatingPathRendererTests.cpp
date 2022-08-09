@@ -488,8 +488,8 @@ CreatePathFn kNonEdgeAAPaths[] = {
 };
 
 #if SK_GPU_V1
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/TriangulatingPathRenderer.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 // A simple concave path. Test this with a non-invertible matrix.
 static SkPath create_path_17() {

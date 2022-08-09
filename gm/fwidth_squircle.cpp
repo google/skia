@@ -33,6 +33,7 @@
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
@@ -40,7 +41,6 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tools/gpu/ProxyUtils.h"
 
 #include <memory>

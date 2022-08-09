@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/GrDynamicAtlas.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
-#include "src/gpu/ganesh/v1/PathRenderer.h"
+#include "src/gpu/ganesh/PathRenderer.h"
 
 class GrOp;
 class GrRecordingContext;

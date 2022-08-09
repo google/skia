@@ -28,7 +28,7 @@
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrStyle.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

@@ -15,9 +15,9 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 #if SK_GPU_V1
-#include "src/gpu/ganesh/v1/Device_v1.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
-#include "src/gpu/ganesh/v1/SurfaceFillContext_v1.h"
+#include "src/gpu/ganesh/Device_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
+#include "src/gpu/ganesh/SurfaceFillContext_v1.h"
 #endif
 
 void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {

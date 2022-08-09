@@ -11,8 +11,8 @@
 #include "include/core/SkPaint.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
-#include "src/gpu/ganesh/v1/Device_v1.h"
 #include "src/text/gpu/SDFTControl.h"
 
 class GrImageInfo;

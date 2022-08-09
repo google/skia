@@ -8,7 +8,7 @@
 #ifndef PathRendererChain_DEFINED
 #define PathRendererChain_DEFINED
 
-#include "src/gpu/ganesh/v1/PathRenderer.h"
+#include "src/gpu/ganesh/PathRenderer.h"
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"

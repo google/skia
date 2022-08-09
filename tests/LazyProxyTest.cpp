@@ -22,10 +22,10 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrTextureProxyPriv.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/mock/GrMockGpu.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 // This test verifies that lazy proxy callbacks get invoked during flush, after onFlush callbacks,
 // but before Ops are executed. It also ensures that lazy proxy callbacks are invoked both for

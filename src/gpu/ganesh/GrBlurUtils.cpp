@@ -29,9 +29,9 @@
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/GrUtil.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& rect) {
     return clipBounds.isEmpty() || rect.isEmpty() || !SkIRect::Intersects(clipBounds, rect);

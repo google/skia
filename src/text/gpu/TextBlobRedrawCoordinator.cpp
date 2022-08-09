@@ -10,7 +10,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/text/GlyphRun.h"
 #if SK_SUPPORT_GPU
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif
 
 // This needs to be outside the namespace so we can declare SkMessageBus properly

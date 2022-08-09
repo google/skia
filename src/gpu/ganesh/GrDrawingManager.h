@@ -19,8 +19,8 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 
 #if SK_GPU_V1
-#include "src/gpu/ganesh/v1/PathRenderer.h"
-#include "src/gpu/ganesh/v1/PathRendererChain.h"
+#include "src/gpu/ganesh/PathRenderer.h"
+#include "src/gpu/ganesh/PathRendererChain.h"
 #endif
 
 // Enabling this will print out which path renderers are being chosen

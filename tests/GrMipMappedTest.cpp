@@ -25,7 +25,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"

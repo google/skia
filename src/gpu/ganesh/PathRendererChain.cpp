@@ -6,7 +6,7 @@
  */
 
 
-#include "src/gpu/ganesh/v1/PathRendererChain.h"
+#include "src/gpu/ganesh/PathRendererChain.h"
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"

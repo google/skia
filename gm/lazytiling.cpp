@@ -20,8 +20,8 @@
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 #include "tools/gpu/ProxyUtils.h"
 
 static GrSurfaceProxyView create_view(GrDirectContext* dContext,

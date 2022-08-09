@@ -11,13 +11,13 @@
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrModulateAtlasCoverageEffect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/AtlasRenderTask.h"
 #include "src/gpu/ganesh/ops/DrawAtlasPathOp.h"
 #include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 

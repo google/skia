@@ -8,7 +8,7 @@
 #ifndef AAConvexPathRenderer_DEFINED
 #define AAConvexPathRenderer_DEFINED
 
-#include "src/gpu/ganesh/v1/PathRenderer.h"
+#include "src/gpu/ganesh/PathRenderer.h"
 
 namespace skgpu::v1 {
 

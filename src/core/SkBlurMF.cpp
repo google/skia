@@ -40,7 +40,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #if SK_GPU_V1
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif // SK_GPU_V1
 #endif // SK_SUPPORT_GPU
 

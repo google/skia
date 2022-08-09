@@ -24,7 +24,7 @@
 #include "src/gpu/ganesh/GrSemaphore.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/v1/SurfaceDrawContext_v1.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
