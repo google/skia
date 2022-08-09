@@ -89,8 +89,8 @@ bool_flag(
 selects.config_setting_group(
     name = "uses_jpeg",
     match_any = [
-        "//bazel/common_config_settings:jpeg_encode_codec",
-        "//bazel/common_config_settings:jpeg_decode_codec",
+        "//src/images:jpeg_encode_codec",
+        "//src/codec:jpeg_decode_codec",
     ],
 )
 

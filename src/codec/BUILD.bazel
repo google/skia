@@ -5,6 +5,7 @@ load(
     "selects",
     "skia_cc_deps",
     "split_srcs_and_hdrs",
+    "string_flag_with_values",
 )
 
 licenses(["notice"])
@@ -132,11 +133,23 @@ split_srcs_and_hdrs(
     files = DECODE_WEBP_FILES,
 )
 
+string_flag_with_values(
+    flag_name = "include_decoder",
+    multiple = True,
+    values = [
+        "gif_decode_codec",
+        "jpeg_decode_codec",
+        "png_decode_codec",
+        "raw_decode_codec",
+        "webp_decode_codec",
+    ],
+)
+
 selects.config_setting_group(
     name = "needs_jpeg",
     match_any = [
-        "//bazel/common_config_settings:jpeg_decode_codec",
-        "//bazel/common_config_settings:raw_decode_codec",
+        ":jpeg_decode_codec",
+        ":raw_decode_codec",
     ],
 )
 
@@ -144,15 +157,15 @@ selects.config_setting_group(
     name = "needs_jpeg_priv",
     match_any = [
         ":needs_jpeg",
-        "//bazel/common_config_settings:jpeg_encode_codec",
+        "//src/images:jpeg_encode_codec",
     ],
 )
 
 selects.config_setting_group(
     name = "needs_png_priv",
     match_any = [
-        "//bazel/common_config_settings:png_decode_codec",
-        "//bazel/common_config_settings:png_encode_codec",
+        ":png_decode_codec",
+        "//src/images:png_encode_codec",
     ],
 )
 
@@ -164,11 +177,11 @@ filegroup(
         ":core_srcs",
     ] + select_multi(
         {
-            "//bazel/common_config_settings:gif_decode_codec": [":decode_gif_srcs"],
+            ":gif_decode_codec": [":decode_gif_srcs"],
             ":needs_jpeg": [":decode_jpeg_srcs"],
-            "//bazel/common_config_settings:png_decode_codec": [":decode_png_srcs"],
-            "//bazel/common_config_settings:raw_decode_codec": [":decode_raw_srcs"],
-            "//bazel/common_config_settings:webp_decode_codec": [":decode_webp_srcs"],
+            ":png_decode_codec": [":decode_png_srcs"],
+            ":raw_decode_codec": [":decode_raw_srcs"],
+            ":webp_decode_codec": [":decode_webp_srcs"],
         },
     ),
     visibility = ["//src:__pkg__"],
@@ -188,11 +201,11 @@ filegroup(
         "//conditions:default": [],
     }) + select_multi(
         {
-            "//bazel/common_config_settings:gif_decode_codec": [":decode_gif_hdrs"],
+            ":gif_decode_codec": [":decode_gif_hdrs"],
             ":needs_jpeg": [":decode_jpeg_hdrs"],
-            "//bazel/common_config_settings:png_decode_codec": [":decode_png_hdrs"],
-            "//bazel/common_config_settings:raw_decode_codec": [":decode_raw_hdrs"],
-            "//bazel/common_config_settings:webp_decode_codec": [":decode_webp_hdrs"],
+            ":png_decode_codec": [":decode_png_hdrs"],
+            ":raw_decode_codec": [":decode_raw_hdrs"],
+            ":webp_decode_codec": [":decode_webp_hdrs"],
         },
     ),
     visibility = ["//src:__pkg__"],
@@ -203,14 +216,14 @@ skia_cc_deps(
     visibility = ["//src:__pkg__"],
     deps = select_multi(
         {
-            "//bazel/common_config_settings:gif_decode_codec": ["@wuffs"],
+            ":gif_decode_codec": ["@wuffs"],
             ":needs_jpeg": ["@libjpeg_turbo"],
-            "//bazel/common_config_settings:png_decode_codec": ["@libpng"],
-            "//bazel/common_config_settings:raw_decode_codec": [
+            ":png_decode_codec": ["@libpng"],
+            ":raw_decode_codec": [
                 "@dng_sdk",
                 "@piex",
             ],
-            "//bazel/common_config_settings:webp_decode_codec": ["@libwebp"],
+            ":webp_decode_codec": ["@libwebp"],
         },
     ),
 )
