@@ -1037,6 +1037,27 @@ SI U16 to_half(F f) {
 #endif
 }
 
+// In debug builds, we can't rely on the compiler to do tail call optimization. To prevent runaway
+// stack growth, we don't do tail calls - instead we change the signatures so each stage returns
+// the next stage pointer, and start_pipeline iterates until we reach the end.
+// This pessimizes everything (it requires bundling all parameters in a struct, so they can be
+// mutated by stages), but we're already in a debug build, so we accept that.
+//
+// Additionally, MSVC ends up consuming stack space, even with optimizations enabled, so we always
+// use our alternate implementation there. This is unfortunate, but if you're using MSVC, you're
+// already getting scalar RP, so performance is going to be terrible regardless.
+//
+// TSAN also injects numerous calls to external functions, and inhibits tail call optimization.
+#if !defined(__has_feature)
+    #define  __has_feature(x) 0
+#endif
+
+#if defined(SK_DEBUG) || defined(_MSC_VER) || __has_feature(thread_sanitizer)
+    #define JUMPER_TAIL_CALL 0
+#else
+    #define JUMPER_TAIL_CALL 1
+#endif
+
 // Our fundamental vector depth is our pixel stride.
 static const size_t N = sizeof(F) / sizeof(float);
 
@@ -1068,7 +1089,14 @@ static const size_t N = sizeof(F) / sizeof(float);
     #define JUMPER_NARROW_STAGES 1
 #endif
 
-#if JUMPER_NARROW_STAGES
+#if !JUMPER_TAIL_CALL
+    struct Params {
+        size_t dx, dy, tail;
+        F r,g,b,a, dr,dg,db,da;
+        void** program;
+    };
+    using Stage = void*(ABI*)(Params*);
+#elif JUMPER_NARROW_STAGES
     struct Params {
         size_t dx, dy, tail;
         F dr,dg,db,da;
@@ -1084,7 +1112,25 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
     auto start = (Stage)load_and_inc(program);
     const size_t x0 = dx;
     for (; dy < ylimit; dy++) {
-    #if JUMPER_NARROW_STAGES
+    #if !JUMPER_TAIL_CALL
+        Params params = { x0,dy,0, 0,0,0,0, 0,0,0,0, nullptr };
+        while (params.dx + N <= xlimit) {
+            params.program = program;
+            Stage fn = start;
+            while (fn) {
+                fn = (Stage)fn(&params);
+            }
+            params.dx += N;
+        }
+        if (size_t tail = xlimit - params.dx) {
+            params.program = program;
+            params.tail = tail;
+            Stage fn = start;
+            while (fn) {
+                fn = (Stage)fn(&params);
+            }
+        }
+    #elif JUMPER_NARROW_STAGES
         Params params = { x0,dy,0, 0,0,0,0 };
         while (params.dx + N <= xlimit) {
             start(&params,program, 0,0,0,0);
@@ -1107,7 +1153,20 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
     }
 }
 
-#if JUMPER_NARROW_STAGES
+#if !JUMPER_TAIL_CALL
+    #define STAGE(name, ...)                                                    \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,        \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);   \
+        static void* ABI name(Params* params) {                                 \
+            name##_k(Ctx{params->program},params->dx,params->dy,params->tail,   \
+                     params->r,params->g,params->b,params->a,                   \
+                     params->dr, params->dg, params->db, params->da);           \
+            void* next = load_and_inc(params->program);                         \
+            return next;                                                        \
+        }                                                                       \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,        \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#elif JUMPER_NARROW_STAGES
     #define STAGE(name, ...)                                                    \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,        \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);   \
@@ -1137,7 +1196,9 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
 
 // just_return() is a simple no-op stage that only exists to end the chain,
 // returning back up to start_pipeline(), and from there to the caller.
-#if JUMPER_NARROW_STAGES
+#if !JUMPER_TAIL_CALL
+    static void* ABI just_return(Params*) { return nullptr; }
+#elif JUMPER_NARROW_STAGES
     static void ABI just_return(Params*, void**, F,F,F,F) {}
 #else
     static void ABI just_return(size_t, void**, size_t,size_t, F,F,F,F, F,F,F,F) {}
