@@ -26,7 +26,14 @@ sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
         NSLog(@"GrMtlCommandBuffer: WARNING: Creating MTLCommandBuffer while in background.");
     }
 #endif
-    id<MTLCommandBuffer> mtlCommandBuffer = [queue commandBuffer];
+    id<MTLCommandBuffer> mtlCommandBuffer;
+    if (@available(macOS 11.0, iOS 14.0, *)) {
+        MTLCommandBufferDescriptor* desc = [[MTLCommandBufferDescriptor alloc] init];
+        desc.errorOptions = MTLCommandBufferErrorOptionEncoderExecutionStatus;
+        mtlCommandBuffer = [queue commandBufferWithDescriptor:desc];
+    } else {
+        mtlCommandBuffer = [queue commandBuffer];
+    }
     if (nil == mtlCommandBuffer) {
         return nullptr;
     }
@@ -187,7 +194,7 @@ GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
 
 bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
     this->endAllEncoding();
-    if (fCmdBuffer.status != MTLCommandBufferStatusNotEnqueued) {
+    if ([fCmdBuffer status] != MTLCommandBufferStatusNotEnqueued) {
         NSLog(@"GrMtlCommandBuffer: Tried to commit command buffer while in invalid state.\n");
         return false;
     }
@@ -202,17 +209,14 @@ bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
         this->waitUntilCompleted();
     }
 
-    if (fCmdBuffer.status == MTLCommandBufferStatusError) {
-#ifdef SK_DEBUG
-        NSString* description = [[fCmdBuffer error] localizedDescription];
-        const char* errorString = [description UTF8String];
-        SkDebugf("Error submitting command buffer: %s\n", errorString);
-#else
-        SkDebugf("Error submitting command buffer\n");
-#endif
+    if ([fCmdBuffer status] == MTLCommandBufferStatusError) {
+        SkDebugf("Error submitting command buffer.\n");
+        if (NSError* error = [fCmdBuffer error]) {
+            NSLog(@"%@", error);
+        }
     }
 
-    return (fCmdBuffer.status != MTLCommandBufferStatusError);
+    return ([fCmdBuffer status] != MTLCommandBufferStatusError);
 }
 
 void GrMtlCommandBuffer::endAllEncoding() {
