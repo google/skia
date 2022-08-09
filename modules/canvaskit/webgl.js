@@ -148,7 +148,7 @@
 
         // Note that canvas.width/height here is used because it gives the size of the buffer we're
         // rendering into. This may not be the same size the element is displayed on the page, which
-        // constrolled by css, and available in canvas.clientWidth/height.
+        // controlled by css, and available in canvas.clientWidth/height.
         var surface = this.MakeOnScreenGLSurface(grcontext, canvas.width, canvas.height, colorSpace);
         if (!surface) {
           Debug('falling back from GPU implementation to a SW based one');
