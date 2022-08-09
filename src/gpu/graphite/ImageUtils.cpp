@@ -18,7 +18,7 @@ namespace {
 // The bit depth of the individual channels can change (e.g., 4444 -> 8888 is allowed).
 bool valid_client_provided_image(const SkImage* clientProvided,
                                  const SkImage* original,
-                                 skgpu::graphite::Mipmapped mipmapped) {
+                                 SkImage::RequiredImageProperties requiredProps) {
     if (!clientProvided ||
         !as_IB(clientProvided)->isGraphiteBacked() ||
         original->dimensions() != clientProvided->dimensions() ||
@@ -32,7 +32,8 @@ bool valid_client_provided_image(const SkImage* clientProvided,
         return false;
     }
 
-    return mipmapped == skgpu::graphite::Mipmapped::kNo || clientProvided->hasMipmaps();
+    return requiredProps.fMipmapped == skgpu::graphite::Mipmapped::kNo ||
+           clientProvided->hasMipmaps();
 }
 
 } // anonymous namespace
@@ -46,6 +47,11 @@ std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder* recorde
                                                ? skgpu::graphite::Mipmapped::kYes
                                                : skgpu::graphite::Mipmapped::kNo;
 
+    if (imageIn->dimensions().area() <= 1 && mipmapped == skgpu::graphite::Mipmapped::kYes) {
+        mipmapped = skgpu::graphite::Mipmapped::kNo;
+        sampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
+    }
+
     sk_sp<SkImage> result;
     if (as_IB(imageIn)->isGraphiteBacked()) {
         result = sk_ref_sp(imageIn);
@@ -58,9 +64,9 @@ std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder* recorde
         }
     } else {
         auto clientImageProvider = recorder->clientImageProvider();
-        result = clientImageProvider->findOrCreate(recorder, imageIn, mipmapped);
+        result = clientImageProvider->findOrCreate(recorder, imageIn, { mipmapped });
 
-        if (!valid_client_provided_image(result.get(), imageIn, mipmapped)) {
+        if (!valid_client_provided_image(result.get(), imageIn, { mipmapped })) {
             // The client did not fulfill the ImageProvider contract so drop the image.
             result = nullptr;
         }

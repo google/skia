@@ -642,8 +642,8 @@ public:
 
     sk_sp<SkImage> findOrCreate(skgpu::graphite::Recorder* recorder,
                                 const SkImage* image,
-                                skgpu::graphite::Mipmapped mipmapped) override {
-        if (mipmapped == skgpu::graphite::Mipmapped::kNo) {
+                                SkImage::RequiredImageProperties requiredProps) override {
+        if (requiredProps.fMipmapped == skgpu::graphite::Mipmapped::kNo) {
             // If no mipmaps are required, check to see if we have a mipmapped version anyway -
             // since it can be used in that case.
             // TODO: we could get fancy and, if ever a mipmapped key eclipsed a non-mipmapped
@@ -656,14 +656,14 @@ public:
         }
 
         uint64_t key = ((uint64_t)image->uniqueID() << 32) |
-                       (mipmapped == skgpu::graphite::Mipmapped::kYes ? 0x1 : 0x0);
+                       (requiredProps.fMipmapped == skgpu::graphite::Mipmapped::kYes ? 0x1 : 0x0);
 
         auto result = fCache.find(key);
         if (result != fCache.end()) {
             return result->second;
         }
 
-        sk_sp<SkImage> newImage = image->makeTextureImage(recorder, mipmapped);
+        sk_sp<SkImage> newImage = image->makeTextureImage(recorder, requiredProps);
         if (!newImage) {
             return nullptr;
         }

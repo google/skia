@@ -1145,29 +1145,35 @@ public:
                                     GrMipmapped = GrMipmapped::kNo,
                                     SkBudgeted = SkBudgeted::kYes) const;
 #endif
+
 #ifdef SK_GRAPHITE_ENABLED
+    struct RequiredImageProperties {
+        skgpu::graphite::Mipmapped fMipmapped;
+    };
+
     /** Graphite version of makeTextureImage.
 
-        Returns SkImage backed by GPU texture, using Recorder for creation and uploads if necessary.
-        The returned SkImage respects mipmapped setting for non-GPU SkImages; if mipmapped
-        equals GrMipmapped::kYes, the backing texture allocates mip map levels.
+        Returns an SkImage backed by a Graphite texture, using the provided Recorder for creation
+        and uploads if necessary. The returned SkImage respects the required image properties'
+        mipmap setting for non-Graphite SkImages; i.e., if mipmapping is required, the backing
+        Graphite texture will have allocated mip map levels.
 
         It is assumed that MIP maps are always supported by the GPU.
 
-        Returns original SkImage if the image is already texture-backed, the recorder matches, and
-        mipmapped is compatible with the backing GPU texture. If mipmapped is not compatible,
-        it will return nullptr.
+        Returns original SkImage if the image is already Graphite-backed and the required mipmapping
+        is compatible with the backing Graphite texture. If the required mipmapping is not
+        compatible, nullptr will be returned.
 
-        Returns nullptr if recorder is nullptr, or if SkImage was created with another
+        Returns nullptr if no Recorder is provided, or if SkImage was created with another
         Recorder and work on that Recorder has not been submitted.
 
-        @param Recorder        the Recorder to use for storing commands
-        @param Mipmapped       whether created SkImage texture must allocate mip map levels
-        @return                created SkImage, or nullptr
+        @param Recorder                 the Recorder to use for storing commands
+        @param RequiredImageProperties  properties the returned SkImage must possess (e.g.,
+                                        mipmaps)
+        @return                         created SkImage, or nullptr
     */
-    sk_sp<SkImage> makeTextureImage(
-            skgpu::graphite::Recorder*,
-            skgpu::graphite::Mipmapped = skgpu::graphite::Mipmapped::kNo) const;
+    sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
+                                    RequiredImageProperties = {}) const;
 #endif
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into

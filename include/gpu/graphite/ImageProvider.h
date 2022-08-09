@@ -8,9 +8,8 @@
 #ifndef skgpu_graphite_ImageProvider_DEFINED
 #define skgpu_graphite_ImageProvider_DEFINED
 
+#include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
-
-class SkImage;
 
 namespace skgpu::graphite {
 
@@ -21,8 +20,8 @@ class Recorder;
  * This class provides a centralized location for clients to perform any caching of images
  * they desire. Whenever Graphite encounters an SkImage which is not Graphite-backed
  * it will call ImageProvider::findOrCreate. The client's derived version of this class should
- * return a Graphite-backed version of the provided SkImage that meets the mipmapping
- * requirements. If the mipmapping requirements are not met by the returned image, Graphite
+ * return a Graphite-backed version of the provided SkImage that meets the specified
+ * requirements. If the requirements are not met by the returned image, Graphite
  * will draw opaque red.
  *
  * Note: by default, Graphite will not perform any caching of images
@@ -42,12 +41,12 @@ class Recorder;
 class SK_API ImageProvider : public SkRefCnt {
 public:
     // If the client's derived class already has a Graphite-backed image that has the same
-    // contents as 'image' and meets the 'mipmapped' requirements, then it can be returned.
+    // contents as 'image' and meets the requirements, then it can be returned.
     // makeTextureImage can always be called to create an acceptable Graphite-backed image
     // which could then be cached.
     virtual sk_sp<SkImage> findOrCreate(Recorder* recorder,
                                         const SkImage* image,
-                                        Mipmapped mipmapped) = 0;
+                                        SkImage::RequiredImageProperties) = 0;
 };
 
 } // namespace skgpu::graphite

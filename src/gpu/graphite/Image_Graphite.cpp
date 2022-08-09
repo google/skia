@@ -58,26 +58,26 @@ std::tuple<TextureProxyView, SkColorType> Image::onAsView(Recorder*,
 } // namespace skgpu::graphite
 
 sk_sp<SkImage> SkImage::makeTextureImage(skgpu::graphite::Recorder* recorder,
-                                         skgpu::graphite::Mipmapped mipmapped) const {
+                                         RequiredImageProperties requiredProps) const {
     if (!recorder) {
         return nullptr;
     }
     if (this->dimensions().area() <= 1) {
-        mipmapped = skgpu::graphite::Mipmapped::kNo;
+        requiredProps.fMipmapped = skgpu::graphite::Mipmapped::kNo;
     }
 
     if (as_IB(this)->isGraphiteBacked()) {
-        if (mipmapped == skgpu::graphite::Mipmapped::kNo || this->hasMipmaps()) {
+        if (requiredProps.fMipmapped == skgpu::graphite::Mipmapped::kNo || this->hasMipmaps()) {
             const SkImage* image = this;
             return sk_ref_sp(const_cast<SkImage*>(image));
         }
     }
-    auto [view, ct] = as_IB(this)->asView(recorder, mipmapped);
+    auto [view, ct] = as_IB(this)->asView(recorder, requiredProps.fMipmapped);
     if (!view) {
         return nullptr;
     }
     SkASSERT(view.proxy());
-    SkASSERT(mipmapped == skgpu::graphite::Mipmapped::kNo ||
+    SkASSERT(requiredProps.fMipmapped == skgpu::graphite::Mipmapped::kNo ||
              view.proxy()->mipmapped() == skgpu::graphite::Mipmapped::kYes);
     SkColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
     return sk_make_sp<skgpu::graphite::Image>(std::move(view),
