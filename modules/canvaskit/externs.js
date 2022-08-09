@@ -38,7 +38,8 @@ var CanvasKit = {
   GetWebGLContext: function() {},
   MakeCanvas: function() {},
   MakeCanvasSurface: function() {},
-  MakeGrContext: function() {},
+  MakeGrContext: function() {}, // deprecated
+  MakeWebGLContext: function() {},
   /** @return {CanvasKit.AnimatedImage} */
   MakeAnimatedImageFromEncoded: function() {},
   /** @return {CanvasKit.Image} */

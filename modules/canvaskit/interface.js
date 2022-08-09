@@ -396,7 +396,7 @@ CanvasKit.onRuntimeInitialized = function() {
     return this._makeShaderOptions(xTileMode, yTileMode, filterMode, mipmapMode, localMatrixPtr);
   };
 
-  function readPixels(source, srcX, srcY, imageInfo, destMallocObj, bytesPerRow) {
+  function readPixels(source, srcX, srcY, imageInfo, destMallocObj, bytesPerRow, grCtx) {
     if (!bytesPerRow) {
       bytesPerRow = 4 * imageInfo['width'];
       if (imageInfo['colorType'] === CanvasKit.ColorType.RGBA_F16) {
@@ -414,7 +414,13 @@ CanvasKit.onRuntimeInitialized = function() {
       pPtr = CanvasKit._malloc(pBytes);
     }
 
-    if (!source._readPixels(imageInfo, pPtr, bytesPerRow, srcX, srcY)) {
+    var rv;
+    if (grCtx) {
+      rv = source._readPixels(imageInfo, pPtr, bytesPerRow, srcX, srcY, grCtx);
+    } else {
+      rv = source._readPixels(imageInfo, pPtr, bytesPerRow, srcX, srcY);
+    }
+    if (!rv) {
       Debug('Could not read pixels with the given inputs');
       if (!destMallocObj) {
         CanvasKit._free(pPtr);
@@ -450,7 +456,8 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.Image.prototype.readPixels = function(srcX, srcY, imageInfo, destMallocObj,
                                                   bytesPerRow) {
-    return readPixels(this, srcX, srcY, imageInfo, destMallocObj, bytesPerRow);
+    var grCtx = CanvasKit.getCurrentGrDirectContext();
+    return readPixels(this, srcX, srcY, imageInfo, destMallocObj, bytesPerRow, grCtx);
   };
 
   // Accepts an array of four numbers in the range of 0-1 representing a 4f color

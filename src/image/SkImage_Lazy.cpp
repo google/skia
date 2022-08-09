@@ -24,6 +24,7 @@
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
@@ -128,7 +129,7 @@ SkImage_Lazy::SkImage_Lazy(Validator* validator)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImage_Lazy::getROPixels(GrDirectContext*, SkBitmap* bitmap,
+bool SkImage_Lazy::getROPixels(GrDirectContext* ctx, SkBitmap* bitmap,
                                SkImage::CachingHint chint) const {
     auto check_output_bitmap = [bitmap]() {
         SkASSERT(bitmap->isImmutable());
@@ -145,21 +146,59 @@ bool SkImage_Lazy::getROPixels(GrDirectContext*, SkBitmap* bitmap,
     if (SkImage::kAllow_CachingHint == chint) {
         SkPixmap pmap;
         SkBitmapCache::RecPtr cacheRec = SkBitmapCache::Alloc(desc, this->imageInfo(), &pmap);
-        if (!cacheRec || !ScopedGenerator(fSharedGenerator)->getPixels(pmap)) {
+        if (!cacheRec) {
+            return false;
+        }
+        bool success = false;
+        {   // make sure ScopedGenerator goes out of scope before we try readPixelsProxy
+            success = ScopedGenerator(fSharedGenerator)->getPixels(pmap);
+        }
+        if (!success && !this->readPixelsProxy(ctx, pmap)) {
             return false;
         }
         SkBitmapCache::Add(std::move(cacheRec), bitmap);
         this->notifyAddedToRasterCache();
     } else {
-        if (!bitmap->tryAllocPixels(this->imageInfo()) ||
-            !ScopedGenerator(fSharedGenerator)->getPixels(bitmap->pixmap())) {
+        if (!bitmap->tryAllocPixels(this->imageInfo())) {
+            return false;
+        }
+        bool success = false;
+        {   // make sure ScopedGenerator goes out of scope before we try readPixelsProxy
+            success = ScopedGenerator(fSharedGenerator)->getPixels(bitmap->pixmap());
+        }
+        if (!success && !this->readPixelsProxy(ctx, bitmap->pixmap())) {
             return false;
         }
         bitmap->setImmutable();
     }
-
     check_output_bitmap();
     return true;
+}
+
+bool SkImage_Lazy::readPixelsProxy(GrDirectContext* ctx, const SkPixmap& pixmap) const {
+#if SK_SUPPORT_GPU
+    if (!ctx) {
+        return false;
+    }
+    GrSurfaceProxyView view = this->lockTextureProxyView(ctx,
+                                                         GrImageTexGenPolicy::kDraw,
+                                                         GrMipmapped::kNo);
+
+    if (!view) {
+        return false;
+    }
+
+    GrColorType ct = this->colorTypeOfLockTextureProxy(ctx->priv().caps());
+    GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
+    auto sContext = ctx->priv().makeSC(std::move(view), colorInfo);
+    if (!sContext) {
+        return false;
+    }
+    size_t rowBytes = this->imageInfo().minRowBytes();
+    return sContext->readPixels(ctx, {this->imageInfo(), pixmap.writable_addr(), rowBytes}, {0, 0});
+#else
+    return false;
+#endif // SK_SUPPORT_GPU
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

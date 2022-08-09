@@ -67,6 +67,7 @@ public:
 
 private:
     void addUniqueIDListener(sk_sp<SkIDChangeListener>) const;
+    bool readPixelsProxy(GrDirectContext*, const SkPixmap&) const;
 #if SK_SUPPORT_GPU
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                          GrMipmapped,

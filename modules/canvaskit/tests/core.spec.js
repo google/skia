@@ -1501,6 +1501,48 @@ describe('Core canvas behavior', () => {
         });
     });
 
+    gm('MakeLazyImageFromTextureSource_readPixels', (canvas) => {
+        if (!CanvasKit.gpu) {
+            return;
+        }
+
+        // This makes an offscreen <img> with the provided source.
+        const imageEle = new Image();
+        imageEle.src = '/assets/mandrill_512.png';
+
+        // We need to wait until the image is loaded before the texture can use it. For good
+        // measure, we also wait for it to be decoded.
+        return imageEle.decode().then(() => {
+            const img = CanvasKit.MakeLazyImageFromTextureSource(imageEle);
+            const imgInfo = {
+              'width': 512,
+              'height': 512,
+              'alphaType': CanvasKit.AlphaType.Unpremul,
+              'colorType': CanvasKit.ColorType.RGBA_8888,
+              'colorSpace': CanvasKit.ColorSpace.SRGB
+            };
+            const src = CanvasKit.XYWHRect(0, 0, 512, 512);
+            const pixels = img.readPixels(0, 0, imgInfo);
+            expect(pixels).toBeTruthy();
+            // Make a new image from reading the pixels of the texture-backed image,
+            // then draw that new image to a canvas and verify it works.
+            const newImg = CanvasKit.MakeImage(imgInfo, pixels, 512 * 4);
+            canvas.drawImageRectCubic(newImg, src, CanvasKit.XYWHRect(256, 0, 256, 256), 1/3, 1/3);
+            canvas.drawImageRectCubic(img, src, CanvasKit.XYWHRect(0, 0, 256, 256), 1/3, 1/3);
+
+            const font = new CanvasKit.Font(null, 20);
+            const paint = new CanvasKit.Paint();
+            paint.setColor(CanvasKit.BLACK);
+            canvas.drawText('original', 100, 280, paint, font);
+            canvas.drawText('readPixels', 356, 280, paint, font);
+
+            img.delete();
+            newImg.delete();
+            font.delete();
+            paint.delete();
+        });
+    })
+
     it('encodes images in three different ways', () => {
         // This creates and draws an Image that is 1 pixel wide, 4 pixels tall with
         // the colors listed below.

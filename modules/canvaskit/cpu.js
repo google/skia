@@ -104,5 +104,10 @@
     CanvasKit.setCurrentContext = CanvasKit.setCurrentContext || function() {
        // no op if this is a cpu-only build.
     };
+
+    CanvasKit.getCurrentGrDirectContext = CanvasKit.getCurrentGrDirectContext || function() {
+      // No GrDirectContexts without a GPU backend.
+      return null;
+    };
   });
 }(Module)); // When this file is loaded in, the high level object is "Module";

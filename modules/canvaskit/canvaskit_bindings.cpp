@@ -1284,7 +1284,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo dstInfo = toSkImageInfo(di);
 
             return self.readPixels(dstInfo, pixels, dstRowBytes, srcX, srcY);
-        }))
+        }), allow_raw_pointers())
         .function("restore", &SkCanvas::restore)
         .function("restoreToCount", &SkCanvas::restoreToCount)
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
@@ -1516,17 +1516,22 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                  WASMPointerF32 mPtr)->sk_sp<SkShader> {
             return self->makeShader(tx, ty, {filter, mipmap}, OptionalMatrix(mPtr));
         }), allow_raw_pointers())
+#if defined(ENABLE_GPU)
+        .function("_readPixels", optional_override([](sk_sp<SkImage> self,
+                                 SimpleImageInfo sii, WASMPointerU8 pPtr,
+                                 size_t dstRowBytes, int srcX, int srcY,
+                                 GrDirectContext* dContext)->bool {
+            uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
+            SkImageInfo ii = toSkImageInfo(sii);
+            return self->readPixels(dContext, ii, pixels, dstRowBytes, srcX, srcY);
+        }), allow_raw_pointers())
+#endif
         .function("_readPixels", optional_override([](sk_sp<SkImage> self,
                                  SimpleImageInfo sii, WASMPointerU8 pPtr,
                                  size_t dstRowBytes, int srcX, int srcY)->bool {
             uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
             SkImageInfo ii = toSkImageInfo(sii);
-            // TODO(adlai) Migrate CanvasKit API to require DirectContext arg here.
-            GrDirectContext* dContext = nullptr;
-#ifdef ENABLE_GPU
-            dContext = GrAsDirectContext(as_IB(self.get())->context());
-#endif
-            return self->readPixels(dContext, ii, pixels, dstRowBytes, srcX, srcY);
+            return self->readPixels(nullptr, ii, pixels, dstRowBytes, srcX, srcY);
         }), allow_raw_pointers())
         .function("width", &SkImage::width);
 

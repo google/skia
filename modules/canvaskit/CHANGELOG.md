@@ -8,13 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - The following path methods: `addCircle`, `Path::CanInterpolate`, and `Path::MakeFromPathInterpolation`.
- - The following ImageFilter factory methods: `MakeBlend`, `MakeDilate`, `MakeDisplacementMap`, 
+ - The following ImageFilter factory methods: `MakeBlend`, `MakeDilate`, `MakeDisplacementMap`,
    `MakeDropShadow`, `MakeDropShadowOnly`, `MakeErode`, `MakeImage`, `MakeOffset`, and `MakeShader`.
  - The `MakeLuma` ColorFilter factory method.
  - The `fontVariations` TextStyle property.
 
 ### Changed
  - Updated `dtslint`, `typescript`, and `@webgpu/types` versions, used for testing index.d.ts types.
+
+### Fixed
+ - `Image.readPixels` should work on `Image`s created with `MakeLazyImageFromTextureSource`
+   (https://github.com/flutter/flutter/issues/103803)
 
 ### Known Issues
  - `ImageFilter.MakeDisplacementMap` is not behaving as expected in certain circumstances.
