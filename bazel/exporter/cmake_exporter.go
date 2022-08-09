@@ -108,9 +108,9 @@ func getRuleIncludes(r *build.Rule, qr *analysis_v2.CqueryResult) ([]string, err
 		}
 	}
 	for _, d := range deps {
-		dr, err := findRule(qr, d)
-		if err != nil {
-			return nil, skerr.Wrap(err)
+		dr := findRule(qr, d)
+		if dr == nil {
+			return nil, skerr.Fmt("cannot find rule %s", d)
 		}
 		if isExternalRule(dr.GetName()) {
 			continue
@@ -136,9 +136,9 @@ func getRuleDefines(r *build.Rule, qr *analysis_v2.CqueryResult) ([]string, erro
 		return nil, skerr.Wrap(err)
 	}
 	for _, d := range deps {
-		dr, err := findRule(qr, d)
-		if err != nil {
-			return nil, skerr.Wrap(err)
+		dr := findRule(qr, d)
+		if dr == nil {
+			return nil, skerr.Fmt("cannot find rule %s", d)
 		}
 		defs, err := getRuleDefines(dr, qr)
 		if err != nil {

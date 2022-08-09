@@ -152,8 +152,7 @@ func TestGetName_MatchingValue(t *testing.T) {
 	err := prototext.Unmarshal([]byte(ruleTestTextProto), &qr)
 	require.NoError(t, err)
 
-	r, err := findRule(&qr, "//src/apps:hello")
-	require.NoError(t, err)
+	r := findRule(&qr, "//src/apps:hello")
 	require.NotNil(t, r)
 	assert.Equal(t, "//src/apps:hello", r.GetName())
 
@@ -166,8 +165,7 @@ func TestHasSrcs_SourcesExist_ReturnsTrue(t *testing.T) {
 	err := prototext.Unmarshal([]byte(ruleTestTextProto), &qr)
 	require.NoError(t, err)
 
-	r, err := findRule(&qr, "//src/libs:sum")
-	require.NoError(t, err)
+	r := findRule(&qr, "//src/libs:sum")
 	require.NotNil(t, r)
 	assert.Equal(t, "//src/libs:sum", r.GetName())
 
@@ -180,8 +178,7 @@ func TestHasSrcs_NoSources_ReturnsFalse(t *testing.T) {
 	err := prototext.Unmarshal([]byte(ruleTestTextProto), &qr)
 	require.NoError(t, err)
 
-	r, err := findRule(&qr, "//src/apps:hello")
-	require.NoError(t, err)
+	r := findRule(&qr, "//src/apps:hello")
 	require.NotNil(t, r)
 	assert.Equal(t, "//src/apps:hello", r.GetName())
 
@@ -194,8 +191,7 @@ func TestHasDependency_DependencyExist_ReturnsTrue(t *testing.T) {
 	err := prototext.Unmarshal([]byte(ruleTestTextProto), &qr)
 	require.NoError(t, err)
 
-	r, err := findRule(&qr, "//src/apps:hello")
-	require.NoError(t, err)
+	r := findRule(&qr, "//src/apps:hello")
 	require.NotNil(t, r)
 	assert.Equal(t, "//src/apps:hello", r.GetName())
 
@@ -209,8 +205,7 @@ func TestHasDependency_NoDependency_ReturnsFalse(t *testing.T) {
 	err := prototext.Unmarshal([]byte(ruleTestTextProto), &qr)
 	require.NoError(t, err)
 
-	r, err := findRule(&qr, "//src/apps:hello")
-	require.NoError(t, err)
+	r := findRule(&qr, "//src/apps:hello")
 	require.NotNil(t, r)
 	assert.Equal(t, "//src/apps:hello", r.GetName())
 

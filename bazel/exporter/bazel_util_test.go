@@ -136,28 +136,23 @@ func TestFindRule_RuleExists_Success(t *testing.T) {
 	err := prototext.Unmarshal([]byte(textProto), &qr)
 	require.NoError(t, err)
 
-	r, err := findRule(&qr, "//src/apps:hello")
-	require.NoError(t, err)
+	r := findRule(&qr, "//src/apps:hello")
 	require.NotNil(t, r)
 	assert.Equal(t, "//src/apps:hello", r.GetName())
 }
 
-func TestFindRule_RuleDoesntExists_ReturnsError(t *testing.T) {
+func TestFindRule_RuleDoesntExists_ReturnsNil(t *testing.T) {
 	qr := analysis_v2.CqueryResult{}
 	err := prototext.Unmarshal([]byte(textProto), &qr)
 	require.NoError(t, err)
 
-	r, err := findRule(&qr, "//path/to:nonexistent_rule")
-	assert.Error(t, err)
-	assert.Nil(t, r)
+	assert.Nil(t, findRule(&qr, "//path/to:nonexistent_rule"))
 }
 
-func TestFindRule_InvalidRule_ReturnsError(t *testing.T) {
+func TestFindRule_InvalidRule_ReturnsNil(t *testing.T) {
 	qr := analysis_v2.CqueryResult{}
 	err := prototext.Unmarshal([]byte(textProto), &qr)
 	require.NoError(t, err)
 
-	r, err := findRule(&qr, "")
-	assert.Error(t, err)
-	assert.Nil(t, r)
+	assert.Nil(t, findRule(&qr, ""))
 }

@@ -254,8 +254,7 @@ func TestGetRuleCopts_CoptsExists_Success(t *testing.T) {
 	err := prototext.Unmarshal([]byte(textProto), &qr)
 	require.NoError(t, err)
 
-	r, err := findRule(&qr, "//src/apps:hello")
-	require.NoError(t, err)
+	r := findRule(&qr, "//src/apps:hello")
 	require.NotNil(t, r)
 
 	copts, err := getRuleCopts(r)
