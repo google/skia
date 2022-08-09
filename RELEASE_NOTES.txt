@@ -9,6 +9,8 @@ Milestone 106
     varyings using SkSL. Mesh data (vertex and index) can be created on a
     GrDirectContext to avoid re-uploading data per draw. Currently does not
     work with SkPicture or any backend but GPU.
+  * Added SkColorFilters::Blend(const SkColor4f&, sk_sp<SkColorSpace>, SkBlendMode) to
+    complement the existing SkColorFilters::Blend(SkColor, SkBlendMode) factory.
 
 * * *
 

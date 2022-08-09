@@ -127,3 +127,40 @@ DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
         canvas->translate(0, r.height() * 6 / 5);
     }
 }
+
+DEF_SIMPLE_GM(color4blendcf, canvas, 360, 480) {
+    canvas->translate(10, 10);
+
+    auto srgb = SkColorSpace::MakeSRGB();
+    auto spin = srgb->makeColorSpin(); // RGB -> GBR
+
+    const SkColor4f colors[] {
+        { 1, 0, 0, 1 },
+        { 0, 1, 0, 1 },
+        { 0, 0, 1, 1 },
+        { 0.5, 0.5, 0.5, 1 },
+    };
+
+    SkPaint paint;
+    paint.setColor(SK_ColorWHITE);
+    SkRect r = SkRect::MakeWH(100, 100);
+
+    for (const auto& c4 : colors) {
+        sk_sp<SkColorFilter> filters[] {
+            // Use kModulate and a paint color of white so the final drawn color is color-space
+            // managed 'c4'.
+            SkColorFilters::Blend(c4, nullptr, SkBlendMode::kModulate),
+            SkColorFilters::Blend(c4, srgb, SkBlendMode::kModulate),
+            SkColorFilters::Blend(c4, spin, SkBlendMode::kModulate),
+        };
+
+        canvas->save();
+        for (const auto& f : filters) {
+            paint.setColorFilter(f);
+            canvas->drawRect(r, paint);
+            canvas->translate(r.width() * 6 / 5, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, r.height() * 6 / 5);
+    }
+}

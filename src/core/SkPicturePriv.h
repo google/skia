@@ -117,6 +117,7 @@ public:
         kBackdropScaleFactor                = 90,
         kRawImageShaders                    = 91,
         kAnisotropicFilter                  = 92,
+        kBlend4fColorFilter                 = 93,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -142,7 +143,7 @@ public:
         // Contact the Infra Gardener (or directly ping rmistry@) if the above steps do not work
         // for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kAnisotropicFilter
+        kCurrent_Version = kBlend4fColorFilter
     };
 };
 

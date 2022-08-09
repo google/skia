@@ -71,7 +71,12 @@ public:
     static sk_sp<SkColorFilter> Compose(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner) {
         return outer ? outer->makeComposed(inner) : inner;
     }
+
+    // Blends between the constant color (src) and input color (dst) based on the SkBlendMode.
+    // If the color space is null, the constant color is assumed to be defined in sRGB.
+    static sk_sp<SkColorFilter> Blend(const SkColor4f& c, sk_sp<SkColorSpace>, SkBlendMode mode);
     static sk_sp<SkColorFilter> Blend(SkColor c, SkBlendMode mode);
+
     static sk_sp<SkColorFilter> Matrix(const SkColorMatrix&);
     static sk_sp<SkColorFilter> Matrix(const float rowMajor[20]);
 
