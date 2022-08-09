@@ -75,8 +75,8 @@ sk_sp<Buffer> MtlResourceProvider::createBuffer(size_t size,
 }
 
 sk_sp<Sampler> MtlResourceProvider::createSampler(const SkSamplingOptions& samplingOptions,
-                                                         SkTileMode xTileMode,
-                                                         SkTileMode yTileMode) {
+                                                  SkTileMode xTileMode,
+                                                  SkTileMode yTileMode) {
     return MtlSampler::Make(this->mtlGpu(), samplingOptions, xTileMode, yTileMode);
 }
 
