@@ -2698,7 +2698,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                 strikeRef.asStrikeForGPU()->prepareForDrawableDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
 
-                if (container && !accepted->empty()) {
+                if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     container->fSubRuns.append(make_drawable_sub_run<DrawableSubRun>(
                             convertToGlyphIDs(accepted->accepted()),
                             strikeToSourceScale,
