@@ -23,6 +23,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -89,6 +90,8 @@ func main() {
 		compileTaskNameNoPatch = flag.String("compile_task_name_no_patch", "", "Name of the *-NoPatch compile task that produced the binary to diff against (ignored when the task is not a tryjob).")
 		binaryName             = flag.String("binary_name", "", "Name of the binary to analyze (e.g. \"dm\").")
 		bloatyCIPDVersion      = flag.String("bloaty_cipd_version", "", "Version of the \"bloaty\" CIPD package used.")
+		bloatyBinary           = flag.String("bloaty_binary", "", "Path to the bloaty binary.")
+		stripBinary            = flag.String("strip_binary", "", "Path to the strip binary (part of binutils).")
 		output                 = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
 		local                  = flag.Bool("local", true, "True if running locally (as opposed to on the bots).")
 
@@ -96,6 +99,10 @@ func main() {
 	)
 	ctx := td.StartRun(projectID, taskID, taskName, output, local)
 	defer td.EndRun(ctx)
+
+	if *bloatyBinary == "" || *stripBinary == "" {
+		td.Fatal(ctx, skerr.Fmt("Must specify --bloaty_binary and --strip_binary"))
+	}
 
 	// The repository state contains the commit hash and patch/patchset if available.
 	repoState, err := checkout.GetRepoState(checkoutFlags)
@@ -117,7 +124,7 @@ func main() {
 	gcsClient := gcsclient.New(store, gcsBucketName)
 
 	// Make a Gerrit client.
-	gerrit, err := gerrit.NewGerrit(repoState.Server, httpClient)
+	gerritClient, err := gerrit.NewGerrit(repoState.Server, httpClient)
 	if err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
@@ -127,7 +134,7 @@ func main() {
 
 	args := runStepsArgs{
 		repoState:              repoState,
-		gerrit:                 gerrit,
+		gerrit:                 gerritClient,
 		gitilesRepo:            gitilesRepo,
 		gcsClient:              gcsClient,
 		swarmingTaskID:         os.Getenv("SWARMING_TASK_ID"),
@@ -137,7 +144,9 @@ func main() {
 		compileTaskName:        *compileTaskName,
 		compileTaskNameNoPatch: *compileTaskNameNoPatch,
 		binaryName:             *binaryName,
+		bloatyPath:             *bloatyBinary,
 		bloatyCIPDVersion:      *bloatyCIPDVersion,
+		stripPath:              *stripBinary,
 	}
 
 	if err := runSteps(ctx, args); err != nil {
@@ -159,6 +168,8 @@ type runStepsArgs struct {
 	compileTaskNameNoPatch string
 	binaryName             string
 	bloatyCIPDVersion      string
+	bloatyPath             string
+	stripPath              string
 }
 
 // runSteps runs the main steps of this task driver.
@@ -204,7 +215,7 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	}
 
 	// Run Bloaty and capture its output.
-	bloatyOutput, bloatyArgs, err := runBloaty(ctx, args.binaryName)
+	bloatyOutput, bloatyArgs, err := runBloaty(ctx, args.stripPath, args.bloatyPath, args.binaryName)
 	if err != nil {
 		return skerr.Wrap(err)
 	}
@@ -234,7 +245,7 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	var bloatyDiffOutput string
 	if args.repoState.IsTryJob() {
 		// Diff the binary built at the current changelist/patchset vs. at tip-of-tree.
-		bloatyDiffOutput, metadata.BloatyDiffArgs, err = runBloatyDiff(ctx, args.binaryName)
+		bloatyDiffOutput, metadata.BloatyDiffArgs, err = runBloatyDiff(ctx, args.stripPath, args.bloatyPath, args.binaryName)
 		if err != nil {
 			return skerr.Wrap(err)
 		}
@@ -274,32 +285,62 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 }
 
 // runBloaty runs Bloaty against the given binary and returns the Bloaty output in TSV format and
-// the Bloaty command-line arguments used.
-func runBloaty(ctx context.Context, binaryName string) (string, []string, error) {
-	err := td.Do(ctx, td.Props("List files under $PWD/build"), func(ctx context.Context) error {
+// the Bloaty command-line arguments used. It uses the strip command to strip out debug symbols,
+// so they do not inflate the file size numbers.
+func runBloaty(ctx context.Context, stripPath, bloatyPath, binaryName string) (string, []string, error) {
+	binaryWithSymbols := filepath.Join("build", binaryName)
+	binaryNoSymbols := filepath.Join("build", binaryName+"_stripped")
+	err := td.Do(ctx, td.Props("Create stripped version of binary"), func(ctx context.Context) error {
 		runCmd := &exec.Command{
-			Name:       "ls",
-			Args:       []string{"build"},
+			Name:       "cp",
+			Args:       []string{binaryWithSymbols, binaryNoSymbols},
 			InheritEnv: true,
 			LogStdout:  true,
 			LogStderr:  true,
 		}
 		_, err := exec.RunCommand(ctx, runCmd)
-		return err
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+		runCmd = &exec.Command{
+			Name:       stripPath,
+			Args:       []string{binaryNoSymbols},
+			InheritEnv: true,
+			LogStdout:  true,
+			LogStderr:  true,
+		}
+		_, err = exec.RunCommand(ctx, runCmd)
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+		runCmd = &exec.Command{
+			Name:       "ls",
+			Args:       []string{"-al", "build"},
+			InheritEnv: true,
+			LogStdout:  true,
+			LogStderr:  true,
+		}
+		_, err = exec.RunCommand(ctx, runCmd)
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+
+		return nil
 	})
 	if err != nil {
-		return "", []string{}, skerr.Wrap(err)
+		return "", nil, skerr.Wrap(err)
 	}
 
 	runCmd := &exec.Command{
-		Name: "bloaty/bloaty",
+		Name: bloatyPath,
 		Args: []string{
-			"build/" + binaryName,
+			binaryNoSymbols,
 			"-d",
 			"compileunits,symbols",
 			"-n",
 			"0",
 			"--tsv",
+			"--debug-file=" + binaryWithSymbols,
 		},
 		InheritEnv: true,
 		LogStdout:  true,
@@ -312,7 +353,7 @@ func runBloaty(ctx context.Context, binaryName string) (string, []string, error)
 		bloatyOutput, err = exec.RunCommand(ctx, runCmd)
 		return err
 	}); err != nil {
-		return "", []string{}, skerr.Wrap(err)
+		return "", nil, skerr.Wrap(err)
 	}
 
 	return bloatyOutput, runCmd.Args, nil
@@ -320,30 +361,60 @@ func runBloaty(ctx context.Context, binaryName string) (string, []string, error)
 
 // runBloatyDiff invokes Bloaty to diff the given binary built at the current changelist/patchset
 // vs. at tip of tree, and returns the plain-text Bloaty output and the command-line arguments
-// used.
-func runBloatyDiff(ctx context.Context, binaryName string) (string, []string, error) {
-	err := td.Do(ctx, td.Props("List files under $PWD/build_nopatch"), func(ctx context.Context) error {
+// used. Like before, it strips the debug symbols out before computing that diff.
+func runBloatyDiff(ctx context.Context, stripPath, bloatyPath, binaryName string) (string, []string, error) {
+	// These were created from the runBloaty step
+	binaryWithPatchWithSymbols := filepath.Join("build", binaryName)
+	binaryWithPatchWithNoSymbols := filepath.Join("build", binaryName+"_stripped")
+	// These will be created next
+	binaryWithNoPatchWithSymbols := filepath.Join("build_nopatch", binaryName)
+	binaryWithNoPatchWithNoSymbols := filepath.Join("build_nopatch", binaryName+"_stripped")
+	err := td.Do(ctx, td.Props("Create stripped version of no_patch binary"), func(ctx context.Context) error {
 		runCmd := &exec.Command{
-			Name:       "ls",
-			Args:       []string{"build_nopatch"},
+			Name:       "cp",
+			Args:       []string{binaryWithNoPatchWithSymbols, binaryWithNoPatchWithNoSymbols},
 			InheritEnv: true,
 			LogStdout:  true,
 			LogStderr:  true,
 		}
 		_, err := exec.RunCommand(ctx, runCmd)
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+		runCmd = &exec.Command{
+			Name:       stripPath,
+			Args:       []string{binaryWithNoPatchWithNoSymbols},
+			InheritEnv: true,
+			LogStdout:  true,
+			LogStderr:  true,
+		}
+		_, err = exec.RunCommand(ctx, runCmd)
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+		runCmd = &exec.Command{
+			Name:       "ls",
+			Args:       []string{"-al", "build_nopatch"},
+			InheritEnv: true,
+			LogStdout:  true,
+			LogStderr:  true,
+		}
+		_, err = exec.RunCommand(ctx, runCmd)
 		return err
 	})
 	if err != nil {
-		return "", []string{}, skerr.Wrap(err)
+		return "", nil, skerr.Wrap(err)
 	}
 
 	runCmd := &exec.Command{
-		Name: "bloaty/bloaty",
+		Name: bloatyPath,
 		Args: []string{
-			"build/" + binaryName,
-			"--",
-			"build_nopatch/" + binaryName,
+			binaryWithPatchWithNoSymbols,
+			"--debug-file=" + binaryWithPatchWithSymbols,
 			"-d", "compileunits,symbols", "-n", "0", "-s", "file",
+			"--",
+			binaryWithNoPatchWithNoSymbols,
+			"--debug-file=" + binaryWithNoPatchWithSymbols,
 		},
 		InheritEnv: true,
 		LogStdout:  true,
@@ -355,7 +426,7 @@ func runBloatyDiff(ctx context.Context, binaryName string) (string, []string, er
 		bloatyOutput, err = exec.RunCommand(ctx, runCmd)
 		return err
 	}); err != nil {
-		return "", []string{}, skerr.Wrap(err)
+		return "", nil, skerr.Wrap(err)
 	}
 
 	return bloatyOutput, runCmd.Args, nil

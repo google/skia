@@ -1505,6 +1505,8 @@ func (b *jobBuilder) codesize() {
 			// in this function; no changes to the task driver would be necessary.
 			"--binary_name", b.parts["binary_name"],
 			"--bloaty_cipd_version", bloatyCipdPkg.Version,
+			"--bloaty_binary", "bloaty/bloaty",
+			"--strip_binary", "binutils_linux_x64/strip",
 			"--repo", specs.PLACEHOLDER_REPO,
 			"--revision", specs.PLACEHOLDER_REVISION,
 			"--patch_issue", specs.PLACEHOLDER_ISSUE,
@@ -1515,6 +1517,7 @@ func (b *jobBuilder) codesize() {
 		b.cache(CACHES_WORKDIR...)
 		b.cipd(CIPD_PKG_LUCI_AUTH)
 		b.asset("bloaty")
+		b.asset("binutils_linux_x64")
 		b.serviceAccount("skia-external-codesize@skia-swarming-bots.iam.gserviceaccount.com")
 		b.timeout(20 * time.Minute)
 		b.attempts(1)
