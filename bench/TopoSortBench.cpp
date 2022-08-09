@@ -49,9 +49,9 @@ protected:
                 fGraph[j]->reset();
             }
 
-            ToolUtils::TopoTestNode::Shuffle(&fGraph, &fRand);
+            ToolUtils::TopoTestNode::Shuffle(fGraph, &fRand);
 
-            SkDEBUGCODE(bool actualResult =) GrTTopoSort<ToolUtils::TopoTestNode>(&fGraph);
+            SkDEBUGCODE(bool actualResult =) GrTTopoSort<ToolUtils::TopoTestNode>(fGraph);
             SkASSERT(actualResult);
 
 #ifdef SK_DEBUG

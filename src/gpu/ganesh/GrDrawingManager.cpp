@@ -317,7 +317,7 @@ void GrDrawingManager::removeRenderTasks() {
 }
 
 void GrDrawingManager::sortTasks() {
-    if (!GrTTopoSort<GrRenderTask, GrRenderTask::TopoSortTraits>(&fDAG)) {
+    if (!GrTTopoSort<GrRenderTask, GrRenderTask::TopoSortTraits>(fDAG)) {
         SkDEBUGFAIL("Render task topo sort failed.");
         return;
     }

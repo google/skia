@@ -31,24 +31,28 @@ static void create_graph0(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph) {
     (*graph)[2]->dependsOn((*graph)[3].get());
 }
 
+static void create_simple_chain(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph, int n) {
+    ToolUtils::TopoTestNode::AllocNodes(graph, n);
+
+    for (int i = 0; i < n - 1; ++i) {
+        (*graph)[i+1]->dependsOn((*graph)[i].get());
+    }
+}
+
 /* Simple chain
- *     3
- *     ^
- *     |
- *     2
+ *     0
  *     ^
  *     |
  *     1
  *     ^
  *     |
- *     0
+ *     2
+ *     ^
+ *     |
+ *     3
  */
 static void create_graph1(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph) {
-    ToolUtils::TopoTestNode::AllocNodes(graph, 4);
-
-    (*graph)[0]->dependsOn((*graph)[1].get());
-    (*graph)[1]->dependsOn((*graph)[2].get());
-    (*graph)[2]->dependsOn((*graph)[3].get());
+    create_simple_chain(graph, 4);
 }
 
 /* Simple Loop
@@ -182,9 +186,9 @@ DEF_TEST(TopoSort, reporter) {
 
         const int numNodes = graph.count();
 
-        ToolUtils::TopoTestNode::Shuffle(&graph, &rand);
+        ToolUtils::TopoTestNode::Shuffle(graph, &rand);
 
-        bool actualResult = GrTTopoSort<ToolUtils::TopoTestNode>(&graph);
+        bool actualResult = GrTTopoSort<ToolUtils::TopoTestNode>(graph);
         REPORTER_ASSERT(reporter, actualResult == tests[i].fExpectedResult);
         REPORTER_ASSERT(reporter, numNodes == graph.count());
 
@@ -205,5 +209,35 @@ DEF_TEST(TopoSort, reporter) {
         }
 
         //SkDEBUGCODE(print(graph);)
+    }
+
+    // Some additional tests that do multiple partial sorts of graphs where we know nothing in an
+    // earlier partion depends on anything in a later partition.
+    for (int n = 2; n < 6; ++n) {
+        for (int split = 1; split < n; ++split) {
+            SkTArray<sk_sp<ToolUtils::TopoTestNode>> graph;
+            create_simple_chain(&graph, n);
+            SkSpan spanA = SkSpan(graph.begin(), split);
+            SkSpan spanB = SkSpan(graph.begin() + split, n - split);
+            ToolUtils::TopoTestNode::Shuffle(spanA, &rand);
+            ToolUtils::TopoTestNode::Shuffle(spanB, &rand);
+            bool result = GrTTopoSort(spanA);
+            if (!result) {
+                ERRORF(reporter, "Topo sort on partial chain failed.");
+                return;
+            }
+            // Nothing outside of the processed span should have been output.
+            for (const auto& node : spanB) {
+                REPORTER_ASSERT(reporter, !ToolUtils::TopoTestNode::WasOutput(node.get()));
+            }
+            result = GrTTopoSort(spanB, split);
+            if (!result) {
+                ERRORF(reporter, "Topo sort on partial chain failed.");
+                return;
+            }
+            for (const auto& node : graph) {
+                REPORTER_ASSERT(reporter, node->check());
+            }
+        }
     }
 }
