@@ -2474,17 +2474,24 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         info.fDefaultColorType = GrColorType::kRGB_888x;
 
-        bool supportsRGBXTexStorage = false;
-
-        if (GR_IS_GR_GL_ES(standard) && ctxInfo.hasExtension("GL_ANGLE_rgbx_internal_format")) {
-            info.fFlags =
-                    FormatInfo::kTexturable_Flag | FormatInfo::kTransfers_Flag | msaaRenderFlags;
-            supportsRGBXTexStorage = true;
+        bool supportsSizedRGBX = false;
+        // The GL_ANGLE_rgbx_internal_format extension only adds the sized GL_RGBX8 type and does
+        // not have a way to create a texture of that format with texImage using an unsized type. So
+        // we require that we either have texture storage support or that tex image supports sized
+        // formats to say that this format is supported.
+        if (GR_IS_GR_GL_ES(standard) && ctxInfo.hasExtension("GL_ANGLE_rgbx_internal_format") &&
+            (texStorageSupported || texImageSupportsSizedInternalFormat)) {
+            supportsSizedRGBX = true;
         }
 
-        if (texStorageSupported && supportsRGBXTexStorage) {
-            info.fFlags |= FormatInfo::kUseTexStorage_Flag;
+        if (supportsSizedRGBX) {
             info.fInternalFormatForTexImageOrStorage = GR_GL_RGBX8;
+            info.fFlags = FormatInfo::kTexturable_Flag |
+                          FormatInfo::kTransfers_Flag |
+                          msaaRenderFlags;
+            if (texStorageSupported) {
+                info.fFlags |= FormatInfo::kUseTexStorage_Flag;
+            }
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
@@ -2505,7 +2512,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
                     ioFormat.fColorType = GrColorType::kRGB_888x;
                     ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
-                    ioFormat.fExternalTexImageFormat = GR_GL_RGB;
+                    ioFormat.fExternalTexImageFormat = GR_GL_RGBA;
                     ioFormat.fExternalReadFormat = 0;
                 }
 
