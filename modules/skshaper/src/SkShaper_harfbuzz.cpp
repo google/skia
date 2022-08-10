@@ -564,7 +564,7 @@ void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::RunInfo& 
     handler->commitRunBuffer(runInfo);
 }
 
-void emit(const ShapedLine& line, SkShaper::RunHandler* handler) {
+void emit(SkUnicode* unicode, const ShapedLine& line, SkShaper::RunHandler* handler) {
     // Reorder the runs and glyphs per line and write them out.
     handler->beginLine();
 
@@ -574,7 +574,7 @@ void emit(const ShapedLine& line, SkShaper::RunHandler* handler) {
         runLevels[i] = line.runs[i].fLevel;
     }
     SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
-    SkBidiIterator::ReorderVisual(runLevels, numRuns, logicalFromVisual);
+    unicode->reorderVisual(runLevels, numRuns, logicalFromVisual);
 
     for (int i = 0; i < numRuns; ++i) {
         int logicalIndex = logicalFromVisual[i];
@@ -977,7 +977,7 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
 
             // If nothing fit (best score is negative) and the line is not empty
             if (width < line.fAdvance.fX + best.fAdvance.fX && !line.runs.empty()) {
-                emit(line, handler);
+                emit(fUnicode.get(), line, handler);
                 line.runs.reset();
                 line.fAdvance = {0, 0};
             } else {
@@ -997,14 +997,14 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
 
                 // If item broken, emit line (prevent remainder from accidentally fitting)
                 if (utf8Start != utf8End) {
-                    emit(line, handler);
+                    emit(fUnicode.get(), line, handler);
                     line.runs.reset();
                     line.fAdvance = {0, 0};
                 }
             }
         }
     }
-    emit(line, handler);
+    emit(fUnicode.get(), line, handler);
 }
 
 void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
@@ -1163,7 +1163,7 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
             runLevels[i] = runs[previousBreak.fRunIndex + i].fLevel;
         }
         SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
-        SkBidiIterator::ReorderVisual(runLevels, numRuns, logicalFromVisual);
+        fUnicode->reorderVisual(runLevels, numRuns, logicalFromVisual);
 
         // step through the runs in reverse visual order and the glyphs in reverse logical order
         // until a visible glyph is found and force them to the end of the visual line.

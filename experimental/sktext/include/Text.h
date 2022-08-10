@@ -40,14 +40,14 @@ public:
     UnicodeText(std::unique_ptr<SkUnicode> unicode, const SkString& utf8);
     ~UnicodeText() = default;
 
-    bool hasProperty(TextIndex index, CodeUnitFlags flag) const {
+    bool hasProperty(TextIndex index, SkUnicode::CodeUnitFlags flag) const {
         return (fCodeUnitProperties[index] & flag) == flag;
     }
     bool isHardLineBreak(TextIndex index) const {
-        return this->hasProperty(index, CodeUnitFlags::kHardLineBreakBefore);
+        return this->hasProperty(index, SkUnicode::CodeUnitFlags::kHardLineBreakBefore);
     }
     bool isSoftLineBreak(TextIndex index) const {
-        return index != 0 && this->hasProperty(index, CodeUnitFlags::kSoftLineBreakBefore);
+        return index != 0 && this->hasProperty(index, SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
     }
     bool isWhitespaces(TextRange range) const;
 
@@ -58,13 +58,13 @@ public:
     void forEachGrapheme(TextRange textRange, Callback&& callback) {
         TextRange grapheme(textRange.fStart, textRange.fStart);
         for (size_t i = textRange.fStart; i < textRange.fEnd; ++i) {
-            if (this->hasProperty(i, CodeUnitFlags::kGraphemeStart)) {
+            if (this->hasProperty(i, SkUnicode::CodeUnitFlags::kGraphemeStart)) {
                 grapheme.fEnd = i;
                 if (grapheme.width() > 0) {
                     callback(grapheme);
                 }
                 grapheme.fStart = grapheme.fEnd;
-            }  else if (this->hasProperty(i, CodeUnitFlags::kHardLineBreakBefore)) {
+            }  else if (this->hasProperty(i, SkUnicode::CodeUnitFlags::kHardLineBreakBefore)) {
                 grapheme.fEnd = i;
                 callback(grapheme);
                 // TODO: We assume here that the line break takes only one codepoint
@@ -81,7 +81,7 @@ public:
 private:
     void initialize(SkSpan<uint16_t> utf16);
 
-    SkTArray<CodeUnitFlags, true> fCodeUnitProperties;
+    SkTArray<SkUnicode::CodeUnitFlags, true> fCodeUnitProperties;
     std::u16string fText16;
     std::unique_ptr<SkUnicode> fUnicode;
 };

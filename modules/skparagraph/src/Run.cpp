@@ -316,11 +316,12 @@ SkFont Cluster::font() const {
 }
 
 bool Cluster::isSoftBreak() const {
-    return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kSoftLineBreakBefore);
+    return fOwner->codeUnitHasProperty(fTextRange.end,
+                                       SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
 }
 
 bool Cluster::isGraphemeBreak() const {
-    return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kGraphemeStart);
+    return fOwner->codeUnitHasProperty(fTextRange.end, SkUnicode::CodeUnitFlags::kGraphemeStart);
 }
 }  // namespace textlayout
 }  // namespace skia

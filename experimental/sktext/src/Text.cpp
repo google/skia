@@ -20,7 +20,7 @@ UnicodeText::UnicodeText(std::unique_ptr<SkUnicode> unicode, const SkString& utf
 
 bool UnicodeText::isWhitespaces(TextRange range) const {
     for (auto i = range.fStart; i < range.fEnd; ++i) {
-        if (!this->hasProperty(i, CodeUnitFlags::kPartOfWhiteSpace)) {
+        if (!this->hasProperty(i, SkUnicode::CodeUnitFlags::kPartOfWhiteSpaceBreak)) {
             return false;
         }
     }
@@ -32,32 +32,11 @@ void UnicodeText::initialize(SkSpan<uint16_t> utf16) {
         SkASSERT(fUnicode);
         return;
     }
-    // Get white spaces
-    fCodeUnitProperties.push_back_n(utf16.size() + 1, CodeUnitFlags::kNoCodeUnitFlag);
-    this->fUnicode->forEachCodepoint((char16_t*)utf16.data(), utf16.size(),
-       [this](SkUnichar unichar, int32_t start, int32_t end) {
-            if (this->fUnicode->isWhitespace(unichar)) {
-                for (auto i = start; i < end; ++i) {
-                    fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfWhiteSpace;
-                }
-            }
-       });
-    // Get graphemes
-    this->fUnicode->forEachBreak((char16_t*)utf16.data(), utf16.size(), SkUnicode::BreakType::kGraphemes,
-                           [this](SkBreakIterator::Position pos, SkBreakIterator::Status) {
-                                fCodeUnitProperties[pos]|= CodeUnitFlags::kGraphemeStart;
-                            });
-    // Get line breaks
-    this->fUnicode->forEachBreak((char16_t*)utf16.data(), utf16.size(), SkUnicode::BreakType::kLines,
-                           [this](SkBreakIterator::Position pos, SkBreakIterator::Status status) {
-                                if (status == (SkBreakIterator::Status)SkUnicode::LineBreakType::kHardLineBreak) {
-                                    // Hard line breaks clears off all the other flags
-                                    // TODO: Treat \n as a formatting mark and do not pass it to SkShaper
-                                    fCodeUnitProperties[pos - 1] = CodeUnitFlags::kHardLineBreakBefore;
-                                } else {
-                                    fCodeUnitProperties[pos] |= CodeUnitFlags::kSoftLineBreakBefore;
-                                }
-                            });
+
+    if (!fUnicode->computeCodeUnitFlags(
+                (char16_t*)utf16.data(), utf16.size(), false, &fCodeUnitProperties)) {
+        return;
+    }
 }
 
 std::unique_ptr<FontResolvedText> UnicodeText::resolveFonts(SkSpan<FontBlock> blocks) {
@@ -77,7 +56,8 @@ std::unique_ptr<FontResolvedText> UnicodeText::resolveFonts(SkSpan<FontBlock> bl
         }
 
         // Move the end of the block to the right until it's on the grapheme edge
-        while (adjustedBlock.fEnd < this->fText16.size() &&  !this->hasProperty(adjustedBlock.fEnd, CodeUnitFlags::kGraphemeStart)) {
+        while (adjustedBlock.fEnd < this->fText16.size() &&
+               !this->hasProperty(adjustedBlock.fEnd, SkUnicode::CodeUnitFlags::kGraphemeStart)) {
             ++adjustedBlock.fEnd;
         }
         SkASSERT(block.type == BlockType::kFontChain);
@@ -614,7 +594,8 @@ GlyphRange WrappedText::textToGlyphs(UnicodeText* unicodeText, PositionType posi
     GlyphRange glyphRange(0, run.size());
     for (GlyphIndex glyph = 0; glyph < run.size(); ++glyph) {
         auto textIndex = run.fClusters[glyph];
-        if (positionType == PositionType::kGraphemeCluster && unicodeText->hasProperty(textIndex, CodeUnitFlags::kGraphemeStart)) {
+        if (positionType == PositionType::kGraphemeCluster &&
+            unicodeText->hasProperty(textIndex, SkUnicode::CodeUnitFlags::kGraphemeStart)) {
             if (dirTextRange.after(textIndex)) {
                 glyphRange.fStart = glyph;
             } else if (dirTextRange.before(textIndex)) {
@@ -633,13 +614,13 @@ std::unique_ptr<SelectableText> WrappedText::prepareToEdit(UnicodeText* unicodeT
     this->visit(selectableText.get());
     selectableText->fGlyphUnitProperties.push_back_n(unicodeText->getText16().size() + 1, GlyphUnitFlags::kNoGlyphUnitFlag);
     for (auto index = 0; index < unicodeText->getText16().size(); ++index) {
-        if (unicodeText->hasProperty(index, CodeUnitFlags::kHardLineBreakBefore)) {
+        if (unicodeText->hasProperty(index, SkUnicode::CodeUnitFlags::kHardLineBreakBefore)) {
             selectableText->fGlyphUnitProperties[index] = GlyphUnitFlags::kGraphemeClusterStart;
         }
     }
     for (const auto& run : fVisualRuns) {
         for (auto& cluster : run.fClusters) {
-            if (unicodeText->hasProperty(cluster, CodeUnitFlags::kGraphemeStart)) {
+            if (unicodeText->hasProperty(cluster, SkUnicode::CodeUnitFlags::kGraphemeStart)) {
                 selectableText->fGlyphUnitProperties[cluster] = GlyphUnitFlags::kGraphemeClusterStart;
             }
         }

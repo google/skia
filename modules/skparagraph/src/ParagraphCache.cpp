@@ -86,7 +86,7 @@ public:
     SkTArray<Cluster, true> fClusters;
     SkTArray<size_t, true> fClustersIndexFromCodeUnit;
     // ICU results
-    SkTArray<CodeUnitFlags> fCodeUnitProperties;
+    SkTArray<SkUnicode::CodeUnitFlags, true> fCodeUnitProperties;
     std::vector<size_t> fWords;
     std::vector<SkUnicode::BidiRegion> fBidiRegions;
     SkTArray<TextIndex, true> fUTF8IndexForUTF16Index;

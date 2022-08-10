@@ -144,7 +144,7 @@ TextLine::TextLine(ParagraphImpl* owner,
     SkAutoSTArray<kPreallocCount, int32_t> logicalOrder(numRuns);
 
     // TODO: hide all these logic in SkUnicode?
-  fOwner->getUnicode()->reorderVisual(runLevels.data(), numRuns, logicalOrder.data());
+    fOwner->getUnicode()->reorderVisual(runLevels.data(), numRuns, logicalOrder.data());
     auto firstRunIndex = start.runIndex();
     for (auto index : logicalOrder) {
         fRunsInVisualOrder.push_back(firstRunIndex + index);

@@ -46,15 +46,6 @@ enum class LogicalRunType {
     kLineBreak
 };
 
-enum class CodeUnitFlags : uint8_t {
-    kNoCodeUnitFlag = (1 << 0),
-    kPartOfWhiteSpace = (1 << 1),
-    kGraphemeStart = (1 << 2),
-    kSoftLineBreakBefore = (1 << 3),
-    kHardLineBreakBefore = (1 << 4),
-    kAllCodeUnitFlags = ((1 << 5) - 1),
-};
-
 enum class GlyphUnitFlags : uint8_t {
     kNoGlyphUnitFlag = (1 << 0),
     //kPartOfWhiteSpace = (1 << 1),
@@ -223,7 +214,6 @@ struct ResolvedFontBlock {
 }  // namespace skia
 
 namespace sknonstd {
-template <> struct is_bitmask_enum<skia::text::CodeUnitFlags> : std::true_type {};
 template <> struct is_bitmask_enum<skia::text::GlyphUnitFlags> : std::true_type {};
 }
 

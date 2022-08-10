@@ -56,33 +56,82 @@ UNIX_ONLY_TEST(SkText_UnicodeText_Flags, reporter) {
     //                       01234567890  1234567890
     std::u16string utf16(u"Hello word\nHello world");
     SkString utf8("Hello word\nHello world");
-    UnicodeText unicodeText16(SkUnicode::Make(), SkSpan<uint16_t>((uint16_t*)utf16.data(), utf16.size()));
+    UnicodeText unicodeText16(SkUnicode::Make(),
+                              SkSpan<uint16_t>((uint16_t*)utf16.data(), utf16.size()));
     UnicodeText unicodeText8(SkUnicode::Make(), utf8);
 
-    REPORTER_ASSERT(reporter, unicodeText16.getText16() == unicodeText8.getText16(), "UTF16 and UTF8 texts should be the same\n");
+    REPORTER_ASSERT(reporter,
+                    unicodeText16.getText16() == unicodeText8.getText16(),
+                    "UTF16 and UTF8 texts should be the same\n");
     auto lineBreak = utf16.find_first_of(u"\n");
     for (size_t i = 0; i < unicodeText16.getText16().size(); ++i) {
         if (i == lineBreak) {
-            REPORTER_ASSERT(reporter, unicodeText16.hasProperty(i, CodeUnitFlags::kHardLineBreakBefore), "Pos16 %zu should point to hard line break\n", lineBreak);
-            REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(i, CodeUnitFlags::kHardLineBreakBefore), "Pos8 %zu should point to hard line break\n", lineBreak);
+            REPORTER_ASSERT(
+                    reporter,
+                    unicodeText16.hasProperty(i, SkUnicode::CodeUnitFlags::kHardLineBreakBefore),
+                    "Pos16 %zu should point to hard line break\n",
+                    lineBreak);
+            REPORTER_ASSERT(
+                    reporter,
+                    unicodeText8.hasProperty(i, SkUnicode::CodeUnitFlags::kHardLineBreakBefore),
+                    "Pos8 %zu should point to hard line break\n",
+                    lineBreak);
         } else {
-            REPORTER_ASSERT(reporter, unicodeText16.hasProperty(i, CodeUnitFlags::kGraphemeStart), "Pos16 %zu should be a grapheme start\n", i);
-            REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(i, CodeUnitFlags::kGraphemeStart), "Pos8 %zu should be a grapheme start\n", i);
+            REPORTER_ASSERT(reporter,
+                            unicodeText16.hasProperty(i, SkUnicode::CodeUnitFlags::kGraphemeStart),
+                            "Pos16 %zu should be a grapheme start\n",
+                            i);
+            REPORTER_ASSERT(reporter,
+                            unicodeText8.hasProperty(i, SkUnicode::CodeUnitFlags::kGraphemeStart),
+                            "Pos8 %zu should be a grapheme start\n",
+                            i);
         }
     }
 
     auto space1 = utf16.find_first_of(u" ");
     auto space2 = utf16.find_last_of(u" ");
 
-    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space1, CodeUnitFlags::kPartOfWhiteSpace), "Pos16 %zu should be a part of whitespaces\n", space1);
-    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space1 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos16 %zu should have soft line break before\n", space1 + 1);
-    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space2, CodeUnitFlags::kPartOfWhiteSpace), "Pos16 %zu should be a part of whitespaces\n", space2);
-    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space2 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos16 %zu should have soft line break before\n", space2 + 1);
+    REPORTER_ASSERT(
+            reporter,
+            unicodeText16.hasProperty(space1, SkUnicode::CodeUnitFlags::kPartOfWhiteSpaceBreak),
+            "Pos16 %zu should be a part of whitespaces\n",
+            space1);
+    REPORTER_ASSERT(
+            reporter,
+            unicodeText16.hasProperty(space1 + 1, SkUnicode::CodeUnitFlags::kSoftLineBreakBefore),
+            "Pos16 %zu should have soft line break before\n",
+            space1 + 1);
+    REPORTER_ASSERT(
+            reporter,
+            unicodeText16.hasProperty(space2, SkUnicode::CodeUnitFlags::kPartOfWhiteSpaceBreak),
+            "Pos16 %zu should be a part of whitespaces\n",
+            space2);
+    REPORTER_ASSERT(
+            reporter,
+            unicodeText16.hasProperty(space2 + 1, SkUnicode::CodeUnitFlags::kSoftLineBreakBefore),
+            "Pos16 %zu should have soft line break before\n",
+            space2 + 1);
 
-    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space1, CodeUnitFlags::kPartOfWhiteSpace), "Pos8 %zu should be a part of whitespaces\n", space1);
-    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space1 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos8 %zu should have soft line break before\n", space1 + 1);
-    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space2, CodeUnitFlags::kPartOfWhiteSpace), "Pos8 %zu should be a part of whitespaces\n", space2);
-    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space2 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos8 %zu should have soft line break before\n", space2 + 1);
+    REPORTER_ASSERT(
+            reporter,
+            unicodeText8.hasProperty(space1, SkUnicode::CodeUnitFlags::kPartOfWhiteSpaceBreak),
+            "Pos8 %zu should be a part of whitespaces\n",
+            space1);
+    REPORTER_ASSERT(
+            reporter,
+            unicodeText8.hasProperty(space1 + 1, SkUnicode::CodeUnitFlags::kSoftLineBreakBefore),
+            "Pos8 %zu should have soft line break before\n",
+            space1 + 1);
+    REPORTER_ASSERT(
+            reporter,
+            unicodeText8.hasProperty(space2, SkUnicode::CodeUnitFlags::kPartOfWhiteSpaceBreak),
+            "Pos8 %zu should be a part of whitespaces\n",
+            space2);
+    REPORTER_ASSERT(
+            reporter,
+            unicodeText8.hasProperty(space2 + 1, SkUnicode::CodeUnitFlags::kSoftLineBreakBefore),
+            "Pos8 %zu should have soft line break before\n",
+            space2 + 1);
 }
 
 // TODO: Test RTL text

@@ -132,27 +132,16 @@ public:
     }
 };
 
-void SkBidiIterator::ReorderVisual(const Level runLevels[], int levelsCount,
-                                   int32_t logicalFromVisual[]) {
-    sk_ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
-}
-
 class SkBreakIterator_icu : public SkBreakIterator {
     ICUBreakIterator fBreakIterator;
     Position fLastResult;
  public:
     explicit SkBreakIterator_icu(ICUBreakIterator iter)
-        : fBreakIterator(std::move(iter)), fLastResult(0) {}
-    Position first() override
-      { return fLastResult = sk_ubrk_first(fBreakIterator.get()); }
-    Position current() override
-      { return fLastResult = sk_ubrk_current(fBreakIterator.get()); }
-    Position next() override
-      { return fLastResult = sk_ubrk_next(fBreakIterator.get()); }
-    Position preceding(Position offset) override
-        { return fLastResult = sk_ubrk_preceding(fBreakIterator.get(), offset); }
-    Position following(Position offset) override
-        { return fLastResult = sk_ubrk_following(fBreakIterator.get(), offset);}
+            : fBreakIterator(std::move(iter))
+            , fLastResult(0) {}
+    Position first() override { return fLastResult = sk_ubrk_first(fBreakIterator.get()); }
+    Position current() override { return fLastResult = sk_ubrk_current(fBreakIterator.get()); }
+    Position next() override { return fLastResult = sk_ubrk_next(fBreakIterator.get()); }
     Status status() override { return sk_ubrk_getRuleStatus(fBreakIterator.get()); }
     bool isDone() override { return fLastResult == UBRK_DONE; }
 
@@ -378,6 +367,27 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
+    static bool isControl(SkUnichar utf8) {
+        return sk_u_iscntrl(utf8);
+    }
+
+    static bool isWhitespace(SkUnichar utf8) {
+        return sk_u_isWhitespace(utf8);
+    }
+
+    static bool isSpace(SkUnichar utf8) {
+        return sk_u_isspace(utf8);
+    }
+
+    static bool isTabulation(SkUnichar utf8) {
+        return utf8 == '\t';
+    }
+
+    static bool isHardBreak(SkUnichar utf8) {
+        auto property = sk_u_getIntPropertyValue(utf8, UCHAR_LINE_BREAK);
+        return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;
+    }
+
 public:
     ~SkUnicode_icu() override { }
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[], int count,
@@ -409,23 +419,6 @@ public:
         return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;
     }
 
-    // TODO: Use ICU data file to detect controls and whitespaces
-    bool isControl(SkUnichar utf8) override {
-        return sk_u_iscntrl(utf8);
-    }
-
-    bool isWhitespace(SkUnichar utf8) override {
-        return sk_u_isWhitespace(utf8);
-    }
-
-    bool isSpace(SkUnichar utf8) override {
-        return sk_u_isspace(utf8);
-    }
-
-    bool isHardBreak(SkUnichar utf8) override {
-        return SkUnicode_icu::isHardLineBreak(utf8);
-    }
-
     SkString toUpper(const SkString& str) override {
         // Convert to UTF16 since that's what ICU wants.
         auto str16 = convertUtf8ToUtf16(str.c_str(), str.size());
@@ -452,33 +445,115 @@ public:
                         int utf8Units,
                         TextDirection dir,
                         std::vector<BidiRegion>* results) override {
-        return extractBidi(utf8, utf8Units, dir, results);
-    }
-
-    bool getLineBreaks(const char utf8[],
-                       int utf8Units,
-                       std::vector<LineBreakBefore>* results) override {
-
-        return extractPositions(utf8, utf8Units, BreakType::kLines,
-            [results](int pos, int status) {
-                    results->emplace_back(pos, status == UBRK_LINE_HARD
-                                                        ? LineBreakType::kHardLineBreak
-                                                        : LineBreakType::kSoftLineBreak);
-        });
+        return SkUnicode_icu::extractBidi(utf8, utf8Units, dir, results);
     }
 
     bool getWords(const char utf8[], int utf8Units, std::vector<Position>* results) override {
 
         // Convert to UTF16 since we want the results in utf16
         auto utf16 = convertUtf8ToUtf16(utf8, utf8Units);
-        return extractWords((uint16_t*)utf16.c_str(), utf16.size(), results);
+        return SkUnicode_icu::extractWords((uint16_t*)utf16.c_str(), utf16.size(), results);
     }
 
-    bool getGraphemes(const char utf8[], int utf8Units, std::vector<Position>* results) override {
+    bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
+                          SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
+        results->reset();
+        results->push_back_n(utf8Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
 
-        return extractPositions(utf8, utf8Units, BreakType::kGraphemes,
-            [results](int pos, int status) { results->emplace_back(pos);
+        SkUnicode_icu::extractPositions(utf8, utf8Units, BreakType::kLines, [&](int pos,
+                                                                       int status) {
+            (*results)[pos] |= status == UBRK_LINE_HARD
+                                    ? CodeUnitFlags::kHardLineBreakBefore
+                                    : CodeUnitFlags::kSoftLineBreakBefore;
         });
+
+        SkUnicode_icu::extractPositions(utf8, utf8Units, BreakType::kGraphemes, [&](int pos,
+                                                                       int status) {
+            (*results)[pos] |= CodeUnitFlags::kGraphemeStart;
+        });
+
+        const char* current = utf8;
+        const char* end = utf8 + utf8Units;
+        while (current < end) {
+            auto before = current - utf8;
+            SkUnichar unichar = SkUTF::NextUTF8(&current, end);
+            if (unichar < 0) unichar = 0xFFFD;
+            auto after = current - utf8;
+            if (replaceTabs && SkUnicode_icu::isTabulation(unichar)) {
+                results->at(before) |= SkUnicode::kTabulation;
+                if (replaceTabs) {
+                    unichar = ' ';
+                    utf8[before] = ' ';
+                }
+            }
+            for (auto i = before; i < after; ++i) {
+                if (SkUnicode_icu::isSpace(unichar)) {
+                    results->at(i) |= SkUnicode::kPartOfIntraWordBreak;
+                }
+                if (SkUnicode_icu::isWhitespace(unichar)) {
+                    results->at(i) |= SkUnicode::kPartOfWhiteSpaceBreak;
+                }
+                if (SkUnicode_icu::isControl(unichar)) {
+                    results->at(i) |= SkUnicode::kControl;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    bool computeCodeUnitFlags(char16_t utf16[], int utf16Units, bool replaceTabs,
+                          SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
+        results->reset();
+        results->push_back_n(utf16Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
+
+        // Get white spaces
+        this->forEachCodepoint((char16_t*)&utf16[0], utf16Units,
+           [results, replaceTabs, &utf16](SkUnichar unichar, int32_t start, int32_t end) {
+                CodeUnitFlags flags = CodeUnitFlags::kNoCodeUnitFlag;
+                for (auto i = start; i < end; ++i) {
+                    if (replaceTabs && SkUnicode_icu::isTabulation(unichar)) {
+                        results->at(i) |= SkUnicode::kTabulation;
+                    if (replaceTabs) {
+                            unichar = ' ';
+                            utf16[start] = ' ';
+                        }
+                    }
+                    if (SkUnicode_icu::isSpace(unichar)) {
+                        results->at(i) |= SkUnicode::kPartOfIntraWordBreak;
+                    }
+                    if (SkUnicode_icu::isWhitespace(unichar)) {
+                        results->at(i) |= SkUnicode::kPartOfWhiteSpaceBreak;
+                    }
+                    if (SkUnicode_icu::isControl(unichar)) {
+                        results->at(i) |= SkUnicode::kControl;
+                    }
+                }
+           });
+        // Get graphemes
+        this->forEachBreak((char16_t*)&utf16[0],
+                           utf16Units,
+                           SkUnicode::BreakType::kGraphemes,
+                           [results](SkBreakIterator::Position pos, SkBreakIterator::Status) {
+                               (*results)[pos] |= CodeUnitFlags::kGraphemeStart;
+                           });
+        // Get line breaks
+        this->forEachBreak(
+                (char16_t*)&utf16[0],
+                utf16Units,
+                SkUnicode::BreakType::kLines,
+                [results](SkBreakIterator::Position pos, SkBreakIterator::Status status) {
+                    if (status ==
+                        (SkBreakIterator::Status)SkUnicode::LineBreakType::kHardLineBreak) {
+                        // Hard line breaks clears off all the other flags
+                        // TODO: Treat \n as a formatting mark and do not pass it to SkShaper
+                        (*results)[pos-1] = CodeUnitFlags::kHardLineBreakBefore;
+                    } else {
+                        (*results)[pos] |= CodeUnitFlags::kSoftLineBreakBefore;
+                    }
+                });
+
+        return true;
     }
 
     void reorderVisual(const BidiLevel runLevels[],

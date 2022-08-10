@@ -7,8 +7,6 @@
 
 #include "modules/skunicode/include/SkUnicode.h"
 
-#include "include/private/SkTemplates.h"
-
 SkString SkUnicode::convertUtf16ToUtf8(const char16_t* utf16, int utf16Units) {
 
     int utf8Units = SkUTF::UTF16ToUTF8(nullptr, 0, (uint16_t*)utf16, utf16Units);
@@ -44,4 +42,20 @@ std::u16string SkUnicode::convertUtf8ToUtf16(const char* utf8, int utf8Units) {
 
 std::u16string SkUnicode::convertUtf8ToUtf16(const SkString& utf8) {
     return convertUtf8ToUtf16(utf8.c_str(), utf8.size());
+}
+
+bool SkUnicode::isTabulation(SkUnicode::CodeUnitFlags flags) {
+    return (flags & SkUnicode::kTabulation) == SkUnicode::kTabulation;
+}
+
+bool SkUnicode::isHardLineBreak(SkUnicode::CodeUnitFlags flags) {
+    return (flags & SkUnicode::kHardLineBreakBefore) == SkUnicode::kHardLineBreakBefore;
+}
+
+bool SkUnicode::isControl(SkUnicode::CodeUnitFlags flags) {
+    return (flags & SkUnicode::kControl) == SkUnicode::kControl;
+}
+
+bool SkUnicode::isPartOfWhiteSpaceBreak(SkUnicode::CodeUnitFlags flags) {
+    return (flags & SkUnicode::kPartOfWhiteSpaceBreak) == SkUnicode::kPartOfWhiteSpaceBreak;
 }
