@@ -227,6 +227,7 @@ function colorFilterTests(CK: CanvasKit) {
     const filterThree = cf.MakeSRGBToLinearGamma(); // $ExpectType ColorFilter
     const filterFour = cf.MakeCompose(filterOne, filterTwo); // $ExpectType ColorFilter
     const filterFive = cf.MakeLerp(0.7, filterThree, filterFour); // $ExpectType ColorFilter
+    const filterSeven = cf.MakeBlend(CK.MAGENTA, CK.BlendMode.SrcOut, CK.ColorSpace.DISPLAY_P3); // $ExpectType ColorFilter
 
     const r = CK.ColorMatrix.rotated(0, .707, -.707);  // $ExpectType Float32Array
     const b = CK.ColorMatrix.rotated(2, .5, .866);
@@ -236,7 +237,7 @@ function colorFilterTests(CK: CanvasKit) {
     CK.ColorMatrix.postTranslate(cm, 20, 0, -10, 0);
 
     const filterSix = CK.ColorFilter.MakeMatrix(cm); // $ExpectType ColorFilter
-    const luma = CK.ColorFilter.MakeLumaColorFilter(); // $ExpectType ColorFilter
+    const luma = CK.ColorFilter.MakeLuma(); // $ExpectType ColorFilter
 }
 
 function contourMeasureTests(CK: CanvasKit, path?: Path) {

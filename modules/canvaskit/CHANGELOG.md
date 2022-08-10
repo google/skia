@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
- - The following path methods: `addCircle`, `Path::CanInterpolate`, and `Path::MakeFromPathInterpolation`.
+ - The following path methods: `addCircle`, `CanInterpolate`, and `MakeFromPathInterpolation`.
  - The following ImageFilter factory methods: `MakeBlend`, `MakeDilate`, `MakeDisplacementMap`,
    `MakeDropShadow`, `MakeDropShadowOnly`, `MakeErode`, `MakeImage`, `MakeOffset`, and `MakeShader`.
  - The `MakeLuma` ColorFilter factory method.
  - The `fontVariations` TextStyle property.
+ - `ColorFilter.MakeBlend` supports float colors under the hood and takes an optional colorspace.
 
 ### Changed
  - Updated `dtslint`, `typescript`, and `@webgpu/types` versions, used for testing index.d.ts types.

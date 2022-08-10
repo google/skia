@@ -1311,8 +1311,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkColorFilter>("ColorFilter")
         .smart_ptr<sk_sp<SkColorFilter>>("sk_sp<ColorFilter>>")
-        .class_function("_MakeBlend", optional_override([](WASMPointerF32 cPtr, SkBlendMode mode)->sk_sp<SkColorFilter> {
-            return SkColorFilters::Blend(ptrToSkColor4f(cPtr).toSkColor(), mode);
+        .class_function("_MakeBlend", optional_override([](WASMPointerF32 cPtr, SkBlendMode mode,
+                                                           sk_sp<SkColorSpace> colorSpace)->sk_sp<SkColorFilter> {
+            return SkColorFilters::Blend(ptrToSkColor4f(cPtr), colorSpace, mode);
         }))
         .class_function("MakeCompose", &SkColorFilters::Compose)
         .class_function("MakeLerp", &SkColorFilters::Lerp)
