@@ -52,6 +52,7 @@ public:
         }
     }
     GrGLANGLEBackend angleBackend() const { return fDriverInfo.fANGLEBackend; }
+    GrGLDriver angleDriver() const { return fDriverInfo.fANGLEDriver; }
     GrGLVendor angleVendor() const { return fDriverInfo.fANGLEVendor; }
     GrGLRenderer angleRenderer() const { return fDriverInfo.fANGLERenderer; }
     /** What driver is running our GL implementation? This is not necessarily related to the vendor.

@@ -1975,7 +1975,15 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 // We are confident that Angle does it as we expect. Our non-angle test bots do seem
                 // to pass and draw correctly so we could consider enabling this more broadly in the
                 // future.
-                if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown) {
+                // In addition, we also need to disable BGRA MSAA on Mesa. When a client attempts
+                // to wrap a GPU-backed texture into an SkSurface with MSAA, Ganesh will create
+                // a MSAA renderbuffer to first render to before resolving to the single-sampled
+                // texture. Mesa claims to support EXT_texture_format_BGRA8888, and according to
+                // the spec, this should imply support for both BGRA textures and renderbuffers.
+                // In practice, however, Mesa only supports BGRA textures and will error on
+                // glRenderbufferStorage* if the internalformat is BGRA.
+                if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown &&
+                    ctxInfo.angleDriver() != GrGLDriver::kMesa) {
                     // Angle incorrectly requires GL_BGRA8_EXT for the interalFormat for both ES2
                     // and ES3 even though this extension does not define that value. The extension
                     // only defines GL_BGRA_EXT as an internal format.
