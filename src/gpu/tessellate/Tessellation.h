@@ -78,6 +78,8 @@ enum class PatchAttribs {
     kColor = 1 << 3,  // [ubyte4 or float4] Used when patches have different colors.
     kPaintDepth = 1 << 4, // [float] Used in Graphite to specify depth attachment value for draw.
     kExplicitCurveType = 1 << 5,  // [float] Used when GPU can't infer curve type based on infinity.
+    kSsboIndex = 1 << 7,  // [int] Used to index into a shared storage buffer for this patch's
+                          //       uniform values.
 
     // Extra flags.
     kWideColorIfEnabled = 1 << 6,  // If kColor is set, specifies it to be float4 wide color.
@@ -101,7 +103,8 @@ constexpr size_t PatchAttribsStride(PatchAttribs attribs) {
                     ? (attribs & PatchAttribs::kWideColorIfEnabled ? sizeof(float)
                                                                    : sizeof(uint8_t)) * 4 : 0) +
            (attribs & PatchAttribs::kPaintDepth ? sizeof(float) : 0) +
-           (attribs & PatchAttribs::kExplicitCurveType ? sizeof(float) : 0);
+           (attribs & PatchAttribs::kExplicitCurveType ? sizeof(float) : 0) +
+           (attribs & PatchAttribs::kSsboIndex ? (sizeof(int)) : 0);
 }
 constexpr size_t PatchStride(PatchAttribs attribs) {
     return 4*sizeof(SkPoint) + PatchAttribsStride(attribs);

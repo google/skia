@@ -46,7 +46,8 @@ TextDirectRenderStep::TextDirectRenderStep(bool isA8)
                      /*vertexAttrs=*/
                      {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"texCoords", VertexAttribType::kUShort2, SkSLType::kUShort2}},
+                      {"texCoords", VertexAttribType::kUShort2, SkSLType::kUShort2},
+                      {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}},
                      /*instanceAttrs=*/{},
                      /*varyings=*/
                      {{"textureCoords", SkSLType::kFloat2},
@@ -116,10 +117,13 @@ const char* TextDirectRenderStep::fragmentCoverageSkSL() const {
     }
 }
 
-void TextDirectRenderStep::writeVertices(DrawWriter* dw, const DrawParams& params) const {
+void TextDirectRenderStep::writeVertices(DrawWriter* dw,
+                                         const DrawParams& params,
+                                         int ssboIndex) const {
     const SubRunData& subRunData = params.geometry().subRunData();
     // TODO: pass through the color from the SkPaint via the SubRunData
     subRunData.subRun()->fillVertexData(dw, subRunData.startGlyphIndex(), subRunData.glyphCount(),
+                                        ssboIndex,
                                         params.order().depthAsFloat(),
                                         params.transform());
 }

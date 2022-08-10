@@ -543,7 +543,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             }
         }
 
-        renderStep.writeVertices(&drawWriter, draw.fDrawParams);
+        // TODO(b/238623626): Pass in an actual SSBO index, if using storage buffers.
+        renderStep.writeVertices(&drawWriter, draw.fDrawParams, 0);
     }
     // Finish recording draw calls for any collected data at the end of the loop
     drawWriter.flush();

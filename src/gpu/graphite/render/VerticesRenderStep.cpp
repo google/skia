@@ -29,12 +29,15 @@ static constexpr DepthStencilSettings kDirectShadingPass = {
 
 static constexpr Attribute positionAttribute = {"position", VertexAttribType::kFloat2,
                                                 SkSLType::kFloat2};
+static constexpr Attribute ssboIndexAttribute = {"ssboIndex", VertexAttribType::kInt,
+                                                 SkSLType::kInt};
 // TODO: Create other vertex attributes for color and texture.
 // static constexpr Attribute textureAttribute = {"texCoords", VertexAttribType::kUShort2,
 //                                                SkSLType::kUShort2};
 // static constexpr Attribute colorAttribute = {"color", VertexAttribType::kFloat4, SkSLType::kFloat4};
 
-static constexpr std::initializer_list<Attribute> positionOnly = {positionAttribute};
+static constexpr std::initializer_list<Attribute> positionOnly = {positionAttribute,
+                                                                  ssboIndexAttribute};
 // static constexpr std::initializer_list<Attribute> withColor = {positionAttribute, colorAttribute};
 // static constexpr std::initializer_list<Attribute> withTexture = {positionAttribute,
 //                                                                  textureAttribute};
@@ -90,7 +93,9 @@ const char* VerticesRenderStep::vertexSkSL() const {
     return "float4 devPosition = float4(position, depth, 1.0);\n";
 }
 
-void VerticesRenderStep::writeVertices(DrawWriter* writer, const DrawParams& params) const {
+void VerticesRenderStep::writeVertices(DrawWriter* writer,
+                                       const DrawParams& params,
+                                       int ssboIndex) const {
     SkVerticesPriv info(params.geometry().vertices()->priv());
 
     const int vertexCount = info.vertexCount();
@@ -109,9 +114,9 @@ void VerticesRenderStep::writeVertices(DrawWriter* writer, const DrawParams& par
         SkV4 devPoints[3];
         params.transform().mapPoints(p, devPoints, 3);
 
-        verts.append(3) << devPoints[0].x << devPoints[0].y
-                        << devPoints[1].x << devPoints[1].y
-                        << devPoints[2].x << devPoints[2].y;
+        verts.append(3) << devPoints[0].x << devPoints[0].y << ssboIndex
+                        << devPoints[1].x << devPoints[1].y << ssboIndex
+                        << devPoints[2].x << devPoints[2].y << ssboIndex;
 
       // TODO: Record color &/or texture information.
       // TODO: Assert fHasColors == info.hasColors() and fHasTexture == info.hasTexCoords().

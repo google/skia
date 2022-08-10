@@ -20,7 +20,7 @@ public:
     ~VerticesRenderStep() override;
 
     const char* vertexSkSL() const override;
-    void writeVertices(DrawWriter*, const DrawParams&) const override;
+    void writeVertices(DrawWriter* writer, const DrawParams& params, int ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, SkPipelineDataGatherer*) const override;
 
 private:

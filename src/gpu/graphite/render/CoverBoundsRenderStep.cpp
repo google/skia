@@ -22,7 +22,10 @@ CoverBoundsRenderStep::CoverBoundsRenderStep(bool inverseFill)
                      inverseFill ? kInverseCoverPass : kRegularCoverPass,
                      /*vertexAttrs=*/{{"position",
                                        VertexAttribType::kFloat4,
-                                       SkSLType::kFloat4}},
+                                       SkSLType::kFloat4},
+                                      {"ssboIndex",
+                                       VertexAttribType::kInt,
+                                       SkSLType::kInt}},
                      /*instanceAttrs=*/{})
         , fInverseFill(inverseFill) {}
 
@@ -32,7 +35,9 @@ const char* CoverBoundsRenderStep::vertexSkSL() const {
     return "     float4 devPosition = position;\n";
 }
 
-void CoverBoundsRenderStep::writeVertices(DrawWriter* writer, const DrawParams& params) const {
+void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
+                                          const DrawParams& params,
+                                          int ssboIndex) const {
     SkV4 devPoints[4]; // ordered TL, TR, BR, BL
 
     if (fInverseFill) {
@@ -48,12 +53,18 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer, const DrawParams& 
 
     float depth = params.order().depthAsFloat();
     DrawWriter::Vertices verts{*writer};
-    verts.append(6) << devPoints[0].x << devPoints[0].y << depth << devPoints[0].w // TL
-                    << devPoints[3].x << devPoints[3].y << depth << devPoints[3].w // BL
-                    << devPoints[1].x << devPoints[1].y << depth << devPoints[1].w // TR
-                    << devPoints[1].x << devPoints[1].y << depth << devPoints[1].w // TR
-                    << devPoints[3].x << devPoints[3].y << depth << devPoints[3].w // BL
-                    << devPoints[2].x << devPoints[2].y << depth << devPoints[2].w;// BR
+    verts.append(6) << devPoints[0].x << devPoints[0].y << depth << devPoints[0].w  // TL
+                    << ssboIndex
+                    << devPoints[3].x << devPoints[3].y << depth << devPoints[3].w  // BL
+                    << ssboIndex
+                    << devPoints[1].x << devPoints[1].y << depth << devPoints[1].w  // TR
+                    << ssboIndex
+                    << devPoints[1].x << devPoints[1].y << depth << devPoints[1].w  // TR
+                    << ssboIndex
+                    << devPoints[3].x << devPoints[3].y << depth << devPoints[3].w  // BL
+                    << ssboIndex
+                    << devPoints[2].x << devPoints[2].y << depth << devPoints[2].w  // BR
+                    << ssboIndex;
 }
 
 void CoverBoundsRenderStep::writeUniformsAndTextures(const DrawParams&,
