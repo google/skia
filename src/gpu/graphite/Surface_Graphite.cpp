@@ -60,7 +60,7 @@ bool Surface::onReadPixels(Context* context,
 }
 
 sk_sp<const SkCapabilities> Surface::onCapabilities() {
-    return fDevice->recorder()->priv().refCaps();
+    return fDevice->recorder()->priv().caps()->capabilities();
 }
 
 #if GRAPHITE_TEST_UTILS && SK_SUPPORT_GPU

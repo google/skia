@@ -15,6 +15,10 @@
 namespace SkSL { struct ShaderCaps; }
 #endif
 
+#if defined(SK_GRAPHITE_ENABLED)
+namespace skgpu::graphite { class Caps; }
+#endif
+
 class SK_API SkCapabilities : public SkRefCnt {
 public:
     static sk_sp<const SkCapabilities> RasterBackend();
@@ -24,6 +28,10 @@ public:
 #endif
 
 protected:
+#if defined(SK_GRAPHITE_ENABLED)
+    friend class skgpu::graphite::Caps; // for ctor
+#endif
+
     SkCapabilities() = default;
 
 #ifdef SK_ENABLE_SKSL

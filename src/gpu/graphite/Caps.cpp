@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/Caps.h"
 
+#include "include/core/SkCapabilities.h"
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
@@ -14,11 +15,14 @@
 
 namespace skgpu::graphite {
 
-Caps::Caps() : fShaderCaps(std::make_unique<SkSL::ShaderCaps>()) {}
+Caps::Caps()
+        : fShaderCaps(std::make_unique<SkSL::ShaderCaps>())
+        , fCapabilities(new SkCapabilities()) {}
+
 Caps::~Caps() {}
 
 void Caps::finishInitialization(const ContextOptions& options) {
-    this->initSkCaps(fShaderCaps.get());
+    fCapabilities->initSkCaps(fShaderCaps.get());
 
     if (options.fShaderErrorHandler) {
         fShaderErrorHandler = options.fShaderErrorHandler;
@@ -35,6 +39,8 @@ void Caps::finishInitialization(const ContextOptions& options) {
     fAllowMultipleGlyphCacheTextures = options.fAllowMultipleGlyphCacheTextures;
     fSupportBilerpFromGlyphAtlas = options.fSupportBilerpFromGlyphAtlas;
 }
+
+sk_sp<SkCapabilities> Caps::capabilities() const { return fCapabilities; }
 
 bool Caps::isTexturable(const TextureInfo& info) const {
     if (info.numSamples() > 1) {

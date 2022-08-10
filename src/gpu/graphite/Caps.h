@@ -8,13 +8,14 @@
 #ifndef skgpu_graphite_Caps_DEFINED
 #define skgpu_graphite_Caps_DEFINED
 
-#include "include/core/SkCapabilities.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkEnumBitMask.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+
+class SkCapabilities;
 
 namespace SkSL { struct ShaderCaps; }
 
@@ -29,11 +30,13 @@ class GraphiteResourceKey;
 struct RenderPassDesc;
 class TextureInfo;
 
-class Caps : public SkCapabilities {
+class Caps : public SkRefCnt {
 public:
     ~Caps() override;
 
     const SkSL::ShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
+
+    sk_sp<SkCapabilities> capabilities() const;
 
     virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                                      uint32_t levelCount,
@@ -147,6 +150,8 @@ protected:
 private:
     virtual bool onIsTexturable(const TextureInfo&) const = 0;
     virtual const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const = 0;
+
+    sk_sp<SkCapabilities> fCapabilities;
 };
 
 } // namespace skgpu::graphite
