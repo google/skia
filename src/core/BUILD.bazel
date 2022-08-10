@@ -132,6 +132,7 @@ CORE_FILES = [
     "SkFontDescriptor.cpp",
     "SkFontDescriptor.h",
     "SkFontMgr.cpp",
+    "SkFontMgrPriv.h",
     "SkFontPriv.h",
     "SkFontStream.cpp",
     "SkFontStream.h",
