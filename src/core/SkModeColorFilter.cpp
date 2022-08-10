@@ -5,15 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkModeColorFilter.h"
-
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkString.h"
 #include "include/private/SkColorData.h"
-#include "include/utils/SkRandom.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlitRow.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
@@ -30,6 +27,39 @@ static SkColor4f map_color(const SkColor4f& c, SkColorSpace* src, SkColorSpace* 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkModeColorFilter final : public SkColorFilterBase {
+public:
+    SkModeColorFilter(const SkColor4f& color, SkBlendMode mode);
+
+    bool onIsAlphaUnchanged() const override;
+
+#if SK_SUPPORT_GPU
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext*,
+                                   const GrColorInfo&,
+                                   const SkSurfaceProps&) const override;
+#endif
+#ifdef SK_ENABLE_SKSL
+    void addToKey(const SkKeyContext&,
+                  SkPaintParamsKeyBuilder*,
+                  SkPipelineDataGatherer*) const override;
+#endif
+
+private:
+    friend void ::SkRegisterModeColorFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkModeColorFilter)
+
+    void flatten(SkWriteBuffer&) const override;
+    bool onAsAColorMode(SkColor*, SkBlendMode*) const override;
+
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    skvm::Color onProgram(skvm::Builder*, skvm::Color,
+                          const SkColorInfo&, skvm::Uniforms*, SkArenaAlloc*) const override;
+
+    SkColor4f   fColor; // always stored in sRGB
+    SkBlendMode fMode;
+};
 
 SkModeColorFilter::SkModeColorFilter(const SkColor4f& color,
                                      SkBlendMode mode)
@@ -199,4 +229,8 @@ sk_sp<SkColorFilter> SkColorFilters::Blend(const SkColor4f& color,
 
 sk_sp<SkColorFilter> SkColorFilters::Blend(SkColor color, SkBlendMode mode) {
     return Blend(SkColor4f::FromColor(color), /*sRGB*/nullptr, mode);
+}
+
+void SkRegisterModeColorFilterFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkModeColorFilter);
 }

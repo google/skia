@@ -527,11 +527,11 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "src/core/SkModeColorFilter.h"
-
+// TODO: once all these are converted to the new style of registration, move them all to
+// SkFlattenable::PrivateInitializer::InitEffects
 void SkColorFilterBase::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkComposeColorFilter);
-    SK_REGISTER_FLATTENABLE(SkModeColorFilter);
+    SkRegisterModeColorFilterFlattenable();
     SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter);
     SK_REGISTER_FLATTENABLE(SkWorkingFormatColorFilter);
 }

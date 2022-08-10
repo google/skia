@@ -209,7 +209,6 @@ CORE_FILES = [
     "SkMipmapAccessor.h",
     "SkMipmapBuilder.h",
     "SkModeColorFilter.cpp",
-    "SkModeColorFilter.h",
     "SkNextID.h",
     "SkOSFile.h",
     "SkOpts.cpp",
