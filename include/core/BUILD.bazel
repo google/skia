@@ -4,6 +4,15 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# Mapped to skia_precompile_public variable in //gn/core.gni.
+filegroup(
+    name = "precompile_public_hdrs",
+    srcs = [
+        "SkCombinationBuilder.h",
+    ],
+    visibility = ["//include:__pkg__"],
+)
+
 filegroup(
     name = "public_hdrs",
     srcs = [
