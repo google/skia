@@ -71,7 +71,7 @@ enum class VertexAttribType : uint8_t {
     kInt,
     kUInt,
 
-    kUShort_norm,  // unsigned short, e.g. depth, 0 -> 0.0f, 65535 -> 1.0f.
+    kUShort_norm,
 
     kUShort4_norm, // vector of 4 unsigned shorts. 0 -> 0.0f, 65535 -> 1.0f.
 
