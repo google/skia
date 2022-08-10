@@ -13,6 +13,17 @@ filegroup(
     visibility = ["//include:__pkg__"],
 )
 
+# Maintain SkPicture files in separate filegroup so that the legacy
+# skia_skpicture_public GNI file list can be created.
+filegroup(
+    name = "skpicture_public_hdrs",
+    srcs = [
+        "SkPicture.h",
+        "SkPictureRecorder.h",
+    ],
+    visibility = ["//include:__pkg__"],
+)
+
 filegroup(
     name = "public_hdrs",
     srcs = [
@@ -74,8 +85,6 @@ filegroup(
         "SkPathEffect.h",
         "SkPathMeasure.h",
         "SkPathTypes.h",
-        "SkPicture.h",
-        "SkPictureRecorder.h",
         "SkPixelRef.h",
         "SkPixmap.h",
         "SkPngChunkReader.h",
@@ -111,6 +120,7 @@ filegroup(
         "SkVertices.h",
         "SkYUVAInfo.h",
         "SkYUVAPixmaps.h",
+        ":skpicture_public_hdrs",
     ],
     visibility = ["//include:__pkg__"],
 )

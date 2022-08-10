@@ -17,8 +17,6 @@ SHADER_FILES = [
     "SkLocalMatrixShader.cpp",
     "SkLocalMatrixShader.h",
     "SkPerlinNoiseShader.cpp",
-    "SkPictureShader.cpp",
-    "SkPictureShader.h",
     "SkShader.cpp",
     "SkShaderBase.h",
     "SkTransformShader.cpp",
@@ -30,6 +28,18 @@ split_srcs_and_hdrs(
     files = SHADER_FILES,
 )
 
+# Maintain SkPicture files in separate filegroups so that the legacy
+# skia_skpicture_sources GNI file list can be created.
+SKPICTURE_FILES = [
+    "SkPictureShader.cpp",
+    "SkPictureShader.h",
+]
+
+split_srcs_and_hdrs(
+    name = "skpicture",
+    files = SKPICTURE_FILES,
+)
+
 bool_flag(
     default = True,
     flag_name = "legacy_shader_context",
@@ -39,6 +49,7 @@ filegroup(
     name = "srcs",
     srcs = [
         ":shader_srcs",
+        ":skpicture_srcs",
         "//src/shaders/gradients:srcs",
     ],
     visibility = ["//src:__pkg__"],
@@ -48,6 +59,7 @@ filegroup(
     name = "private_hdrs",
     srcs = [
         ":shader_hdrs",
+        ":skpicture_hdrs",
         "//src/shaders/gradients:private_hdrs",
     ],
     visibility = ["//src:__pkg__"],
