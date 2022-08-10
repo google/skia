@@ -243,7 +243,6 @@ CORE_FILES = [
     "SkPictureRecord.cpp",
     "SkPictureRecord.h",
     "SkPictureRecorder.cpp",
-    "SkPipelineData.h",
     "SkPixelRef.cpp",
     "SkPixelRefPriv.h",
     "SkPixmap.cpp",
@@ -401,11 +400,14 @@ split_srcs_and_hdrs(
 
 # These files are only needed if SkSL is enabled (GPU backend or SkVM).
 SKSL_FILES = [
+    "SkKeyContext.cpp",
     "SkKeyContext.h",
     "SkKeyHelpers.cpp",
     "SkKeyHelpers.h",
     "SkPaintParamsKey.cpp",
     "SkPaintParamsKey.h",
+    "SkPipelineData.cpp",
+    "SkPipelineData.h",
     "SkRuntimeEffect.cpp",
     "SkSLTypeShared.cpp",
     "SkSLTypeShared.h",
