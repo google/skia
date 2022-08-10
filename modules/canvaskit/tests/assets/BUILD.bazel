@@ -26,9 +26,9 @@ filegroup(
         "mandrill_512.png",
         "mandrill_h1v1.jpg",
         "map-shield.json",
-        "more_samples-glyf_colr_1.ttf",
         "red_line.skp",
         "test.ttc",
+        "test_glyphs-glyf_colr_1.ttf",
     ],
     visibility = ["//:__subpackages__"],
 )

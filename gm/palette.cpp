@@ -25,8 +25,13 @@
 
 namespace skiagm {
 
+// Copied from https://github.com/googlefonts/color-fonts#colrv1-test-font glyph descriptions markdown file.
+namespace ColrV1TestDefinitions {
+const uint32_t color_circles_palette[] = {0xf0e00, 0xf0e01};
+};
+
 namespace {
-const char kColrCpalTestFontPath[] = "fonts/more_samples-glyf_colr_1.ttf";
+const char kColrCpalTestFontPath[] = "fonts/test_glyphs-glyf_colr_1.ttf";
 
 constexpr SkFontArguments::Palette::Override kColorOverridesAll[] = {
         // A gradient of dark to light purple for the circle palette test glyph.
@@ -61,8 +66,6 @@ constexpr SkFontArguments::Palette kOnePaletteOverride{
         0, kColorOverridesOne, std::size(kColorOverridesOne)};
 constexpr SkFontArguments::Palette kAllPaletteOverride{
         0, kColorOverridesAll, std::size(kColorOverridesAll)};
-
-constexpr uint16_t kTestGlyphs[] = {56, 57};
 
 }  // namespace
 
@@ -121,21 +124,23 @@ protected:
             // Set a recognizable foreground color which is not to be overriden.
             paint.setColor(SK_ColorGRAY);
             // Draw the default palette on the left, for COLRv0 and COLRv1.
-            canvas->drawSimpleText(kTestGlyphs,
-                                   std::size(kTestGlyphs) * sizeof(uint16_t),
-                                   SkTextEncoding::kGlyphID,
-                                   0,
-                                   y,
-                                   defaultFont,
-                                   paint);
+            canvas->drawSimpleText(
+                    ColrV1TestDefinitions::color_circles_palette,
+                    std::size(ColrV1TestDefinitions::color_circles_palette) * sizeof(uint32_t),
+                    SkTextEncoding::kUTF32,
+                    0,
+                    y,
+                    defaultFont,
+                    paint);
             // Draw the overriden palette on the right.
-            canvas->drawSimpleText(kTestGlyphs,
-                                   std::size(kTestGlyphs) * sizeof(uint16_t),
-                                   SkTextEncoding::kGlyphID,
-                                   440,
-                                   y,
-                                   paletteFont,
-                                   paint);
+            canvas->drawSimpleText(
+                    ColrV1TestDefinitions::color_circles_palette,
+                    std::size(ColrV1TestDefinitions::color_circles_palette) * sizeof(uint32_t),
+                    SkTextEncoding::kUTF32,
+                    440,
+                    y,
+                    paletteFont,
+                    paint);
             y += metrics.fDescent + metrics.fLeading;
         }
         return DrawResult::kOk;
