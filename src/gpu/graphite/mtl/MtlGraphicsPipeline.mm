@@ -284,8 +284,9 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
 
     settings.fForceNoRTFlip = true;
 
+    auto skslCompiler = resourceProvider->skslCompiler();
     ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
-    if (!SkSLToMSL(sharedContext,
+    if (!SkSLToMSL(skslCompiler,
                    GetSkSLVS(pipelineDesc),
                    SkSL::ProgramKind::kGraphiteVertex,
                    settings,
@@ -297,7 +298,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
 
     BlendInfo blendInfo;
     auto dict = resourceProvider->shaderCodeDictionary();
-    if (!SkSLToMSL(sharedContext,
+    if (!SkSLToMSL(skslCompiler,
                    GetSkSLFS(dict, resourceProvider->runtimeEffectDictionary(),
                              pipelineDesc, &blendInfo),
                    SkSL::ProgramKind::kGraphiteFragment,

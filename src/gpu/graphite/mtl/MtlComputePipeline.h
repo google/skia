@@ -17,12 +17,12 @@
 namespace skgpu::graphite {
 
 class ComputePipelineDesc;
-class MtlResourceProvider;
+class ResourceProvider;
 class MtlSharedContext;
 
 class MtlComputePipeline final : public ComputePipeline {
 public:
-    static sk_sp<MtlComputePipeline> Make(MtlResourceProvider*,
+    static sk_sp<MtlComputePipeline> Make(ResourceProvider*,
                                           const MtlSharedContext*,
                                           const ComputePipelineDesc&);
     ~MtlComputePipeline() override = default;

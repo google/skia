@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::graphite {
 
@@ -34,6 +35,7 @@ ResourceProvider::ResourceProvider(const SharedContext* sharedContext,
     SkASSERT(fResourceCache);
     fGraphicsPipelineCache.reset(new GraphicsPipelineCache(this));
     fComputePipelineCache.reset(new ComputePipelineCache(this));
+    fCompiler = std::make_unique<SkSL::Compiler>(fSharedContext->caps()->shaderCaps());
 }
 
 ResourceProvider::~ResourceProvider() {

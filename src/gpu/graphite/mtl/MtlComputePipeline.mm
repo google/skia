@@ -10,13 +10,14 @@
 #include "include/gpu/ShaderErrorHandler.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
 
 namespace skgpu::graphite {
 
 // static
-sk_sp<MtlComputePipeline> MtlComputePipeline::Make(MtlResourceProvider* resourceProvider,
+sk_sp<MtlComputePipeline> MtlComputePipeline::Make(ResourceProvider* resourceProvider,
                                                    const MtlSharedContext* sharedContext,
                                                    const ComputePipelineDesc& pipelineDesc) {
     sk_cfp<MTLComputePipelineDescriptor*> psoDescriptor([MTLComputePipelineDescriptor new]);
@@ -25,8 +26,9 @@ sk_sp<MtlComputePipeline> MtlComputePipeline::Make(MtlResourceProvider* resource
     SkSL::Program::Inputs inputs;
     SkSL::ProgramSettings settings;
 
+    auto skslCompiler = resourceProvider->skslCompiler();
     ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
-    if (!SkSLToMSL(sharedContext,
+    if (!SkSLToMSL(skslCompiler,
                    pipelineDesc.sksl(),
                    SkSL::ProgramKind::kCompute,
                    settings,

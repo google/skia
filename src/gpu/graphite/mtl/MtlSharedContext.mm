@@ -49,7 +49,6 @@ MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
     : skgpu::graphite::SharedContext(std::move(caps))
     , fDevice(std::move(device))
     , fQueue(std::move(queue)) {
-    this->initCompiler();
 }
 
 MtlSharedContext::~MtlSharedContext() {

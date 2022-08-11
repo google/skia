@@ -14,7 +14,6 @@
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceProvider.h"
-#include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::graphite {
 
@@ -26,10 +25,6 @@ SharedContext::~SharedContext() {
     // TODO: add disconnect?
 
     // TODO: destroyResources instead?
-}
-
-void SharedContext::initCompiler() {
-    fCompiler = std::make_unique<SkSL::Compiler>(fCaps->shaderCaps());
 }
 
 sk_sp<const Caps> SharedContext::refCaps() const {
