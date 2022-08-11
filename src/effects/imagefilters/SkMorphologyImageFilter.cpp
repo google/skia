@@ -359,7 +359,7 @@ std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorT
 }
 #endif
 
-static void apply_morphology_rect(skgpu::SurfaceFillContext* sfc,
+static void apply_morphology_rect(skgpu::v1::SurfaceFillContext* sfc,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -378,7 +378,7 @@ static void apply_morphology_rect(skgpu::SurfaceFillContext* sfc,
     sfc->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
 }
 
-static void apply_morphology_rect_no_bounds(skgpu::SurfaceFillContext* sfc,
+static void apply_morphology_rect_no_bounds(skgpu::v1::SurfaceFillContext* sfc,
                                             GrSurfaceProxyView view,
                                             SkAlphaType srcAlphaType,
                                             const SkIRect& srcRect,
@@ -391,7 +391,7 @@ static void apply_morphology_rect_no_bounds(skgpu::SurfaceFillContext* sfc,
     sfc->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
 }
 
-static void apply_morphology_pass(skgpu::SurfaceFillContext* sfc,
+static void apply_morphology_pass(skgpu::v1::SurfaceFillContext* sfc,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,

@@ -778,7 +778,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
         return nullptr;
     }
 
-    skgpu::SurfaceContext surfaceContext(
+    skgpu::v1::SurfaceContext surfaceContext(
             dContext, std::move(framebufferView),image->imageInfo().colorInfo());
 
     surfaceContext.writePixels(dContext, pixmap, {0, 0});

@@ -66,7 +66,7 @@ static void fill_in_2D_gaussian_kernel(
  * Draws 'dstRect' into 'surfaceFillContext' evaluating a 1D Gaussian over 'srcView'. The src rect
  * is 'dstRect' offset by 'dstToSrcOffset'. 'mode' and 'bounds' are applied to the src coords.
  */
-static void convolve_gaussian_1d(skgpu::SurfaceFillContext* sfc,
+static void convolve_gaussian_1d(skgpu::v1::SurfaceFillContext* sfc,
                                  GrSurfaceProxyView srcView,
                                  const SkIRect srcSubset,
                                  SkIVector dstToSrcOffset,
@@ -349,7 +349,7 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> convolve_gaussian(
 // image, so there's no need to account for a proxy offset from the original input.
 static std::unique_ptr<skgpu::v1::SurfaceDrawContext> reexpand(
         GrRecordingContext* rContext,
-        std::unique_ptr<skgpu::SurfaceContext> src,
+        std::unique_ptr<skgpu::v1::SurfaceContext> src,
         const SkRect& srcBounds,
         SkISize dstSize,
         sk_sp<SkColorSpace> colorSpace,

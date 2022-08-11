@@ -484,7 +484,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels,
                                    reporter,
                                    ctxInfo,
                                    CtsEnforcement::kApiLevel_T) {
-    using Surface = std::unique_ptr<skgpu::SurfaceContext>;
+    using Surface = std::unique_ptr<skgpu::v1::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Surface>>(
             [direct](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {
@@ -1078,7 +1078,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels,
                                    reporter,
                                    ctxInfo,
                                    CtsEnforcement::kApiLevel_T) {
-    using Surface = std::unique_ptr<skgpu::SurfaceContext>;
+    using Surface = std::unique_ptr<skgpu::v1::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto writer = std::function<GpuWriteDstFn<Surface>>(
             [direct](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {

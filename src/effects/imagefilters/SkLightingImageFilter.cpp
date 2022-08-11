@@ -439,7 +439,7 @@ protected:
 
 private:
 #if SK_SUPPORT_GPU
-    void drawRect(skgpu::SurfaceFillContext*,
+    void drawRect(skgpu::v1::SurfaceFillContext*,
                   GrSurfaceProxyView srcView,
                   const SkMatrix& matrix,
                   const SkIRect& dstRect,
@@ -456,7 +456,7 @@ private:
 }  // anonymous namespace
 
 #if SK_SUPPORT_GPU
-void SkLightingImageFilterInternal::drawRect(skgpu::SurfaceFillContext* sfc,
+void SkLightingImageFilterInternal::drawRect(skgpu::v1::SurfaceFillContext* sfc,
                                              GrSurfaceProxyView srcView,
                                              const SkMatrix& matrix,
                                              const SkIRect& dstRect,

@@ -23,12 +23,10 @@ class SkSurface;
 class SkSurface_Gpu;
 class SkVertices;
 
-namespace skgpu {
+namespace skgpu::v1 {
+
 class SurfaceContext;
 class SurfaceFillContext;
-}
-
-namespace skgpu::v1 {
 
 /**
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the canvas.
@@ -114,7 +112,7 @@ public:
 
     SurfaceDrawContext* surfaceDrawContext();
     const SurfaceDrawContext* surfaceDrawContext() const;
-    skgpu::SurfaceFillContext* surfaceFillContext();
+    SurfaceFillContext* surfaceFillContext();
 
     SkStrikeDeviceInfo strikeDeviceInfo() const override;
 

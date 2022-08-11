@@ -240,8 +240,6 @@ CORE_FILES = [
     "SurfaceDrawContext.h",
     "SurfaceFillContext.cpp",
     "SurfaceFillContext.h",
-    "SurfaceFillContext_v1.cpp",
-    "SurfaceFillContext_v1.h",
 ]
 
 split_srcs_and_hdrs(

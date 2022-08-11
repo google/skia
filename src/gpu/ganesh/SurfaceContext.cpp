@@ -35,7 +35,7 @@
 #define RETURN_FALSE_IF_ABANDONED   if (this->fContext->abandoned()) { return false;   }
 #define RETURN_NULLPTR_IF_ABANDONED if (this->fContext->abandoned()) { return nullptr; }
 
-namespace skgpu {
+namespace skgpu::v1 {
 
 SurfaceContext::SurfaceContext(GrRecordingContext* context,
                                GrSurfaceProxyView readView,
@@ -599,7 +599,7 @@ void SurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
         return;
     }
 
-    std::unique_ptr<skgpu::SurfaceFillContext> tempFC;
+    std::unique_ptr<SurfaceFillContext> tempFC;
     int x = srcRect.fLeft;
     int y = srcRect.fTop;
     if (needsRescale) {
@@ -1066,11 +1066,11 @@ sk_sp<GrRenderTask> SurfaceContext::copy(sk_sp<GrSurfaceProxy> src,
                                                      this->origin());
 }
 
-std::unique_ptr<skgpu::SurfaceFillContext> SurfaceContext::rescale(const GrImageInfo& info,
-                                                                   GrSurfaceOrigin origin,
-                                                                   SkIRect srcRect,
-                                                                   RescaleGamma rescaleGamma,
-                                                                   RescaleMode rescaleMode) {
+std::unique_ptr<SurfaceFillContext> SurfaceContext::rescale(const GrImageInfo& info,
+                                                            GrSurfaceOrigin origin,
+                                                            SkIRect srcRect,
+                                                            RescaleGamma rescaleGamma,
+                                                            RescaleMode rescaleMode) {
     auto sfc = fContext->priv().makeSFCWithFallback(info,
                                                     SkBackingFit::kExact,
                                                     1,
@@ -1087,7 +1087,7 @@ std::unique_ptr<skgpu::SurfaceFillContext> SurfaceContext::rescale(const GrImage
     return sfc;
 }
 
-bool SurfaceContext::rescaleInto(skgpu::SurfaceFillContext* dst,
+bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
                                  SkIRect dstRect,
                                  SkIRect srcRect,
                                  RescaleGamma rescaleGamma,
@@ -1129,8 +1129,8 @@ bool SurfaceContext::rescaleInto(skgpu::SurfaceFillContext* dst,
 
     // Within a rescaling pass A is the input (if not null) and B is the output. At the end of the
     // pass B is moved to A. If 'this' is the input on the first pass then tempA is null.
-    std::unique_ptr<skgpu::SurfaceFillContext> tempA;
-    std::unique_ptr<skgpu::SurfaceFillContext> tempB;
+    std::unique_ptr<SurfaceFillContext> tempA;
+    std::unique_ptr<SurfaceFillContext> tempB;
 
     // Assume we should ignore the rescale linear request if the surface has no color space since
     // it's unclear how we'd linearize from an unknown color space.
@@ -1182,7 +1182,7 @@ bool SurfaceContext::rescaleInto(skgpu::SurfaceFillContext* dst,
         }
         auto input = tempA ? tempA.get() : this;
         sk_sp<GrColorSpaceXform> xform;
-        skgpu::SurfaceFillContext* stepDst;
+        SurfaceFillContext* stepDst;
         SkIRect stepDstRect;
         if (nextDims == finalSize) {
             stepDst = dst;
@@ -1316,4 +1316,4 @@ void SurfaceContext::validate() const {
 }
 #endif
 
-} // namespace skgpu
+} // namespace skgpu::v1

@@ -114,9 +114,8 @@ skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanva
 
     return nullptr;
 }
-#endif // SK_GPU_V1
 
-skgpu::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
+skgpu::v1::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
     if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
         return gpuDevice->surfaceFillContext();
     }
@@ -124,17 +123,19 @@ skgpu::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* c
     return nullptr;
 }
 
+#endif // SK_GPU_V1
+
 #else // SK_SUPPORT_GPU
 
 #if SK_GPU_V1
 skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
     return nullptr;
 }
-#endif // SK_GPU_V1
 
-skgpu::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
+skgpu::v1::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
     return nullptr;
 }
+#endif // SK_GPU_V1
 
 #endif // SK_SUPPORT_GPU
 

@@ -40,7 +40,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrDirectContext
 }
 
 static void test_clear(skiatest::Reporter* reporter, GrDirectContext* dContext,
-                       skgpu::SurfaceContext* rectContext) {
+                       skgpu::v1::SurfaceContext* rectContext) {
     if (auto sfc = rectContext->asFillContext()) {
         // Clear the whole thing.
         GrColor color0 = GrColorPackRGBA(0xA, 0xB, 0xC, 0xD);
@@ -86,7 +86,7 @@ static void test_clear(skiatest::Reporter* reporter, GrDirectContext* dContext,
 
 static void test_copy_to_surface(skiatest::Reporter* reporter,
                                  GrDirectContext* dContext,
-                                 skgpu::SurfaceContext* dstContext,
+                                 skgpu::v1::SurfaceContext* dstContext,
                                  const char* testName) {
 
     int pixelCnt = dstContext->width() * dstContext->height();

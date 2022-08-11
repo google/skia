@@ -262,8 +262,6 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/SurfaceDrawContext.h",
   "$_src/gpu/ganesh/SurfaceFillContext.cpp",
   "$_src/gpu/ganesh/SurfaceFillContext.h",
-  "$_src/gpu/ganesh/SurfaceFillContext_v1.cpp",
-  "$_src/gpu/ganesh/SurfaceFillContext_v1.h",
 
   # Ops
   "$_src/gpu/ganesh/effects/GrAtlasedShaderHelpers.h",

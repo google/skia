@@ -794,7 +794,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_render_target(GrDirectContext
 
 static void test_surface_context_clear(skiatest::Reporter* reporter,
                                        GrDirectContext* dContext,
-                                       skgpu::SurfaceContext* surfaceContext,
+                                       skgpu::v1::SurfaceContext* surfaceContext,
                                        uint32_t expectedValue) {
     int w = surfaceContext->width();
     int h = surfaceContext->height();
