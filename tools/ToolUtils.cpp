@@ -559,7 +559,8 @@ sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig) {
 }
 #endif
 
-VariationSliders::VariationSliders(SkTypeface* typeface) {
+VariationSliders::VariationSliders(SkTypeface* typeface,
+                                   SkFontArguments::VariationPosition variationPosition) {
     if (!typeface) {
         return;
     }
@@ -577,13 +578,25 @@ VariationSliders::VariationSliders(SkTypeface* typeface) {
         return;
     }
 
+    auto argVariationPositionOrDefault = [&variationPosition](SkFourByteTag tag,
+                                                              SkScalar defaultValue) -> SkScalar {
+        for (int i = 0; i < variationPosition.coordinateCount; ++i) {
+            if (variationPosition.coordinates[i].axis == tag) {
+                return variationPosition.coordinates[i].value;
+            }
+        }
+        return defaultValue;
+    };
+
     fAxisSliders.resize(numAxes);
+    fCoords = std::make_unique<SkFontArguments::VariationPosition::Coordinate[]>(numAxes);
     for (int i = 0; i < numAxes; ++i) {
         fAxisSliders[i].axis = copiedAxes[i];
-        fAxisSliders[i].current = copiedAxes[i].def;
+        fAxisSliders[i].current =
+                argVariationPositionOrDefault(copiedAxes[i].tag, copiedAxes[i].def);
         fAxisSliders[i].name = tagToString(fAxisSliders[i].axis.tag);
+        fCoords[i] = { fAxisSliders[i].axis.tag, fAxisSliders[i].current };
     }
-    fCoords = std::make_unique<SkFontArguments::VariationPosition::Coordinate[]>(numAxes);
 }
 
 /* static */

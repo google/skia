@@ -27,7 +27,8 @@ namespace skiagm {
 
 namespace {
 const SkScalar kTextSizes[] = {12, 18, 30, 120};
-const char testFontName[] = "fonts/test_glyphs-glyf_colr_1.ttf";
+const char kTestFontName[] = "fonts/test_glyphs-glyf_colr_1.ttf";
+const char kTestFontNameVariable[] = "fonts/test_glyphs-glyf_colr_1_variable.ttf";
 const SkScalar xWidth = 1200;
 const SkScalar xTranslate = 200;
 }
@@ -36,17 +37,32 @@ class ColrV1GM : public GM {
 public:
     ColrV1GM(const char* testName,
              SkSpan<const uint32_t> codepoints,
-             SkScalar skewX = 0.f,
-             SkScalar rotateDeg = 0.f)
+             SkScalar skewX,
+             SkScalar rotateDeg,
+             std::initializer_list<SkFontArguments::VariationPosition::Coordinate>
+                     specifiedVariations)
             : fTestName(testName)
             , fCodepoints(codepoints)
             , fSkewX(skewX)
-            , fRotateDeg(rotateDeg) {}
+            , fRotateDeg(rotateDeg) {
+        fVariationPosition.coordinateCount = specifiedVariations.size();
+        fCoordinates = std::make_unique<SkFontArguments::VariationPosition::Coordinate[]>(
+                specifiedVariations.size());
+        for (size_t i = 0; i < specifiedVariations.size(); ++i) {
+            fCoordinates[i] = std::data(specifiedVariations)[i];
+        }
+
+        fVariationPosition.coordinates = fCoordinates.get();
+    }
 
 protected:
     void onOnceBeforeDraw() override {
-        fTypeface = MakeResourceAsTypeface(testFontName);
-        fVariationSliders = ToolUtils::VariationSliders(fTypeface.get());
+        if (fVariationPosition.coordinateCount) {
+            fTypeface = MakeResourceAsTypeface(kTestFontNameVariable);
+        } else {
+            fTypeface = MakeResourceAsTypeface(kTestFontName);
+        }
+        fVariationSliders = ToolUtils::VariationSliders(fTypeface.get(), fVariationPosition);
     }
 
     SkString onShortName() override {
@@ -59,6 +75,13 @@ protected:
 
         if (fRotateDeg) {
             gm_name.append(SkStringPrintf("_rotate_%.2f", fRotateDeg));
+        }
+
+        for (int i = 0; i < fVariationPosition.coordinateCount; ++i) {
+            SkString tagName = ToolUtils::VariationSliders::tagToString(
+                    fVariationPosition.coordinates[i].axis);
+            gm_name.append(SkStringPrintf(
+                    "_%s_%.2f", tagName.c_str(), fVariationPosition.coordinates[i].value));
         }
 
         return gm_name;
@@ -148,6 +171,8 @@ private:
     SkSpan<const uint32_t> fCodepoints;
     SkScalar fSkewX;
     SkScalar fRotateDeg;
+    std::unique_ptr<SkFontArguments::VariationPosition::Coordinate[]> fCoordinates;
+    SkFontArguments::VariationPosition fVariationPosition;
     ToolUtils::VariationSliders fVariationSliders;
 };
 
@@ -177,36 +202,48 @@ const uint32_t gradient_p2_skewed[] = {0xf0d00};
 const uint32_t variable_alpha[] = {0xf1000};
 };  // namespace ColrV1TestDefinitions
 
-#define DEF_COLRV1_GM_SKEW_ROTATE(TEST_CATEGORY, SKEW, ROTATE) \
-    DEF_GM(return new ColrV1GM(#TEST_CATEGORY, ColrV1TestDefinitions::TEST_CATEGORY, SKEW, ROTATE));
+namespace {
+std::unique_ptr<ColrV1GM> F(
+    const char* name,
+    SkSpan<const uint32_t> codepoints,
+    SkScalar skewX,
+    SkScalar rotateDeg,
+    std::initializer_list<SkFontArguments::VariationPosition::Coordinate> variations)
+{
+    return std::make_unique<ColrV1GM>(name, codepoints, skewX, rotateDeg, variations);
+}
 
-#define DEF_COLRV1_GM(TEST_CATEGORY) DEF_COLRV1_GM_SKEW_ROTATE(TEST_CATEGORY, 0.f, 0.f);
-
-
-DEF_COLRV1_GM(clipbox);
-DEF_COLRV1_GM(composite_mode);
-DEF_COLRV1_GM_SKEW_ROTATE(composite_mode, -0.5f, 0.f);
-DEF_COLRV1_GM_SKEW_ROTATE(composite_mode, -0.5f, 20.f);
-DEF_COLRV1_GM_SKEW_ROTATE(composite_mode, 0.f, 20.f);
-DEF_COLRV1_GM(extend_mode);
-DEF_COLRV1_GM_SKEW_ROTATE(extend_mode, -0.5f, 0.f);
-DEF_COLRV1_GM_SKEW_ROTATE(extend_mode, -0.5f, 20.f);
-DEF_COLRV1_GM_SKEW_ROTATE(extend_mode, 0.f, 20.f);
-DEF_COLRV1_GM(foreground_color);
-DEF_COLRV1_GM(gradient_p2_skewed);
-DEF_COLRV1_GM(gradient_stops_repeat);
-DEF_COLRV1_GM_SKEW_ROTATE(gradient_stops_repeat, -0.5f, 0.f);
-DEF_COLRV1_GM_SKEW_ROTATE(gradient_stops_repeat, -0.5f, 20.f);
-DEF_COLRV1_GM_SKEW_ROTATE(gradient_stops_repeat, 0.f, 20.f);
-DEF_COLRV1_GM(paint_rotate);
-DEF_COLRV1_GM(paint_scale);
-DEF_COLRV1_GM(paint_skew);
-DEF_COLRV1_GM(paint_transform);
-DEF_COLRV1_GM(paint_translate);
-DEF_COLRV1_GM(sweep_varsweep);
-DEF_COLRV1_GM_SKEW_ROTATE(sweep_varsweep, -0.5f, 0.f);
-DEF_COLRV1_GM_SKEW_ROTATE(sweep_varsweep, -0.5f, 20.f);
-DEF_COLRV1_GM_SKEW_ROTATE(sweep_varsweep, 0.f, 20.f);
-DEF_COLRV1_GM(variable_alpha);
+SkFourByteTag constexpr operator "" _t(const char* tagName, size_t size) {
+    SkASSERT(size == 4);
+    return SkSetFourByteTag(tagName[0], tagName[1], tagName[2], tagName[3]);
+}
+}
+#define C(TEST_CATEGORY) #TEST_CATEGORY, ColrV1TestDefinitions::TEST_CATEGORY
+DEF_GM(return F(C(clipbox),                0.0f,  0.0f, {}))
+DEF_GM(return F(C(clipbox),                0.0f,  0.0f, {{"CLIO"_t, 200}}))
+DEF_GM(return F(C(composite_mode),         0.0f,  0.0f, {}))
+DEF_GM(return F(C(composite_mode),        -0.5f,  0.0f, {}))
+DEF_GM(return F(C(composite_mode),        -0.5f, 20.0f, {}))
+DEF_GM(return F(C(composite_mode),         0.0f, 20.0f, {}))
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {}))
+DEF_GM(return F(C(extend_mode),           -0.5f,  0.0f, {}))
+DEF_GM(return F(C(extend_mode),           -0.5f, 20.0f, {}))
+DEF_GM(return F(C(extend_mode),            0.0f, 20.0f, {}))
+DEF_GM(return F(C(foreground_color),       0.0f,  0.0f, {}))
+DEF_GM(return F(C(gradient_p2_skewed),     0.0f,  0.0f, {}))
+DEF_GM(return F(C(gradient_stops_repeat),  0.0f,  0.0f, {}))
+DEF_GM(return F(C(gradient_stops_repeat), -0.5f,  0.0f, {}))
+DEF_GM(return F(C(gradient_stops_repeat), -0.5f, 20.0f, {}))
+DEF_GM(return F(C(gradient_stops_repeat),  0.0f, 20.0f, {}))
+DEF_GM(return F(C(paint_rotate),           0.0f,  0.0f, {}))
+DEF_GM(return F(C(paint_scale),            0.0f,  0.0f, {}))
+DEF_GM(return F(C(paint_skew),             0.0f,  0.0f, {}))
+DEF_GM(return F(C(paint_transform),        0.0f,  0.0f, {}))
+DEF_GM(return F(C(paint_translate),        0.0f,  0.0f, {}))
+DEF_GM(return F(C(sweep_varsweep),         0.0f,  0.0f, {}))
+DEF_GM(return F(C(sweep_varsweep),        -0.5f,  0.0f, {}))
+DEF_GM(return F(C(sweep_varsweep),        -0.5f, 20.0f, {}))
+DEF_GM(return F(C(sweep_varsweep),         0.0f, 20.0f, {}))
+DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {}))
 
 }  // namespace skiagm

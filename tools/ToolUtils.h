@@ -317,7 +317,8 @@ class VariationSliders {
 public:
     VariationSliders() {}
 
-    VariationSliders(SkTypeface*);
+    VariationSliders(SkTypeface*,
+                     SkFontArguments::VariationPosition variationPosition = {nullptr, 0});
 
     bool writeControls(SkMetaData* controls);
 
@@ -327,9 +328,9 @@ public:
 
     SkSpan<const SkFontArguments::VariationPosition::Coordinate> getCoordinates();
 
-private:
     static SkString tagToString(SkFourByteTag tag);
 
+private:
     struct AxisSlider {
         SkScalar current;
         SkFontParameters::Variation::Axis axis;
