@@ -86,35 +86,4 @@ void Text::onClip(SkCanvas* canvas, bool antiAlias) const {
     canvas->clipPath(this->asPath(), antiAlias);
 }
 
-sk_sp<TextBlob> TextBlob::Make(sk_sp<SkTextBlob> blob) {
-    return sk_sp<TextBlob>(new TextBlob(std::move(blob)));
-}
-
-TextBlob::TextBlob(sk_sp<SkTextBlob> blob)
-    : fBlob(std::move(blob)) {}
-
-TextBlob::~TextBlob() = default;
-
-SkRect TextBlob::onRevalidate(InvalidationController*, const SkMatrix&) {
-    return fBlob ? fBlob->bounds().makeOffset(fPosition.x(), fPosition.y())
-                 : SkRect::MakeEmpty();
-}
-
-void TextBlob::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
-    canvas->drawTextBlob(fBlob, fPosition.x(), fPosition.y(), paint);
-}
-
-bool TextBlob::onContains(const SkPoint& p) const {
-    return this->asPath().contains(p.x(), p.y());
-}
-
-SkPath TextBlob::onAsPath() const {
-    // TODO
-    return SkPath();
-}
-
-void TextBlob::onClip(SkCanvas* canvas, bool antiAlias) const {
-    canvas->clipPath(this->asPath(), antiAlias);
-}
-
 } // namespace sksg

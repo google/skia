@@ -65,7 +65,7 @@ private:
     };
 
     void reshape();
-    void addFragment(const Shaper::Fragment&);
+    void addFragment(Shaper::Fragment&);
     void buildDomainMaps(const Shaper::Result&);
 
     void pushPropsToFragment(const TextAnimator::ResolvedProps&, const FragmentRec&,
