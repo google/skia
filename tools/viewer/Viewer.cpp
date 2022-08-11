@@ -332,6 +332,8 @@ extern bool gUseSkVMBlitter;
 extern bool gSkVMAllowJIT;
 extern bool gSkVMJITViaDylib;
 
+static bool ColrV1VariationsEnabledForTest() { return true; }
+
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentSlide(-1)
     , fRefresh(false)
@@ -365,6 +367,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #if defined(SK_ENABLE_SVG)
     SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
 #endif
+    SkGraphics::SetVariableColrV1EnabledFunc(ColrV1VariationsEnabledForTest);
 
     gPathRendererNames[GpuPathRenderers::kDefault] = "Default Path Renderers";
     gPathRendererNames[GpuPathRenderers::kAtlas] = "Atlas (tessellation)";
