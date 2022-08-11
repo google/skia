@@ -1,11 +1,30 @@
 layout(set=0, binding=0) in int x;
 layout(set=0, binding=1) out float4 y;
 layout(set=0, binding=2) in int[5] z;
+layout(set=0, binding=3) inout float w;
+layout(set=0, binding=4) out int[] a;
+layout(set=0, binding=5) in int[] b;
+layout(set=0, binding=6) in blockOne {
+    int c;
+};
+layout(set=0, binding=5) out blockTwo {
+    int d;
+};
 
 void main() {
 }
 
 /*%%*
-unsupported compute shader in / out type
-compute shader in / out arrays must be unsized
+pipeline inputs not permitted in compute shaders
+pipeline outputs not permitted in compute shaders
+pipeline inputs not permitted in compute shaders
+pipeline inputs not permitted in compute shaders
+unsized arrays are not permitted here
+pipeline outputs not permitted in compute shaders
+'out' variables may not have unsized array type
+unsized arrays are not permitted here
+pipeline inputs not permitted in compute shaders
+'in' variables may not have unsized array type
+pipeline inputs not permitted in compute shaders
+pipeline outputs not permitted in compute shaders
 *%%*/

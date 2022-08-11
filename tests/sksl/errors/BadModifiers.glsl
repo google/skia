@@ -111,13 +111,7 @@ const in out uniform flat noperspective sk_has_side_effects inline noinline read
 error: 10: 'noinline' is not permitted here
 const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
-error: 10: 'readonly' is not permitted here
-const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
-error: 10: 'writeonly' is not permitted here
-const in out uniform flat noperspective sk_has_side_effects inline noinline readonly writeonly
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
 error: 11: 'const' variables must be initialized
 buffer MyInterfaceBlock { float var; };
        ^^^^^^^^^^^^^^^^
-40 errors
+38 errors

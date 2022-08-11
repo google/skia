@@ -1,0 +1,30 @@
+in int[] a;
+
+uniform blockOne {
+    int[] b;
+};
+
+buffer blockTwo {
+    int[] c;
+    int d;
+};
+
+buffer blockThree {
+    int[] e;
+    int f[];  // valid
+};
+
+void main() {
+    int[] g;
+}
+
+/*%%*
+unsized arrays are not permitted here
+pipeline inputs not permitted in compute shaders
+'in' variables may not have unsized array type
+unsized array must be the last member of a storage block
+unsized array must be the last member of a storage block
+unsized array must be the last member of a storage block
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+*%%*/

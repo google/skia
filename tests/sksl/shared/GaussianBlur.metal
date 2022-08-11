@@ -28,8 +28,8 @@ struct uniformBuffer {
     float4 unorm_Stage1_c0_c0_c0;
 };
 struct Globals {
-    constant uniformBuffer* _anonInterface0;
     sampler2D uTextureSampler_0_Stage1;
+    constant uniformBuffer* _anonInterface0;
 };
 half4 MatrixEffect_Stage1_c0_c0_h4h4f2(thread Globals& _globals, half4 _input, float2 _coords) {
     float2 _1_inCoord = (_globals._anonInterface0->umatrix_Stage1_c0_c0 * float3(_coords, 1.0)).xy;
@@ -47,7 +47,7 @@ half4 MatrixEffect_Stage1_c0_c0_h4h4f2(thread Globals& _globals, half4 _input, f
     return _4_textureColor;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> uTextureSampler_0_Stage1_Tex [[texture(0)]], sampler uTextureSampler_0_Stage1_Smplr [[sampler(0)]], constant uniformBuffer& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals _globals{&_anonInterface0, {uTextureSampler_0_Stage1_Tex, uTextureSampler_0_Stage1_Smplr}};
+    Globals _globals{{uTextureSampler_0_Stage1_Tex, uTextureSampler_0_Stage1_Smplr}, &_anonInterface0};
     (void)_globals;
     Outputs _out;
     (void)_out;

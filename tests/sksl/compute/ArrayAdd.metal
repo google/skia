@@ -3,15 +3,22 @@
 using namespace metal;
 struct Inputs {
     uint3 sk_ThreadPosition;
-    device int* src1;
-    device int* src2;
 };
-struct Outputs {
-    device int* dest;
+struct inputBlock {
+    uint offset;
+    int src[1];
 };
-kernel void computeMain(device int* src1, device int* src2, device int* dest, uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
-    Inputs _in = { sk_ThreadPosition, src1, src2 };
-    Outputs _out = { dest };
-    _out.dest[_in.sk_ThreadPosition.x] = _in.src1[_in.sk_ThreadPosition.x] + _in.src2[_in.sk_ThreadPosition.x];
+struct outputBlock {
+    int dest[1];
+};
+struct Globals {
+    const device inputBlock* _anonInterface0;
+    device outputBlock* _anonInterface1;
+};
+kernel void computeMain(const device inputBlock& _anonInterface0 [[buffer(0)]], device outputBlock& _anonInterface1 [[buffer(1)]], uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
+    Globals _globals{&_anonInterface0, &_anonInterface1};
+    (void)_globals;
+    Inputs _in = { sk_ThreadPosition };
+    _globals._anonInterface1->dest[_in.sk_ThreadPosition.x] = _globals._anonInterface0->src[_in.sk_ThreadPosition.x] + _globals._anonInterface0->src[_in.sk_ThreadPosition.x + _globals._anonInterface0->offset];
     return;
 }

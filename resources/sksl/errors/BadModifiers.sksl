@@ -48,7 +48,5 @@ functions cannot be both 'inline' and 'noinline'
 'uniform buffer' variables not permitted
 'inline' is not permitted here
 'noinline' is not permitted here
-'readonly' is not permitted here
-'writeonly' is not permitted here
 'const' variables must be initialized
 *%%*/

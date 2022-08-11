@@ -2,8 +2,12 @@
 
 const int SIZE = 512;
 
-layout(set=0, binding=0) in float[] in_data;
-layout(set=0, binding=1) out float[] out_data;
+layout(set=0, binding=0) readonly buffer inputs {
+    float[] in_data;
+};
+layout(set=0, binding=1) writeonly buffer outputs {
+    float[] out_data;
+};
 
 threadgroup float[SIZE * 2] shared_data;
 

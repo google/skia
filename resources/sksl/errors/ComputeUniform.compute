@@ -1,8 +1,0 @@
-uniform int x;
-
-void main() {
-}
-
-/*%%*
-'uniform' is not permitted here
-*%%*/

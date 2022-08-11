@@ -3,25 +3,38 @@
 using namespace metal;
 struct Inputs {
     uint3 sk_ThreadPosition;
-    device int2* sizes;
-    device float* data1;
-    device float* data2;
 };
-struct Outputs {
-    device float* resultData;
+struct sizes {
+    int2 sizes[1];
 };
-kernel void computeMain(device int2* sizes, device float* data1, device float* data2, device float* resultData, uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
-    Inputs _in = { sk_ThreadPosition, sizes, data1, data2 };
-    Outputs _out = { resultData };
-    _in.sizes[2] = int2(_in.sizes[0].x, _in.sizes[1].y);
+struct inputs1 {
+    float data1[1];
+};
+struct inputs2 {
+    float data2[1];
+};
+struct result {
+    float resultData[1];
+};
+struct Globals {
+    device sizes* _anonInterface0;
+    const device inputs1* _anonInterface1;
+    const device inputs2* _anonInterface2;
+    device result* _anonInterface3;
+};
+kernel void computeMain(device sizes& _anonInterface0 [[buffer(0)]], const device inputs1& _anonInterface1 [[buffer(1)]], const device inputs2& _anonInterface2 [[buffer(2)]], device result& _anonInterface3 [[buffer(3)]], uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
+    Globals _globals{&_anonInterface0, &_anonInterface1, &_anonInterface2, &_anonInterface3};
+    (void)_globals;
+    Inputs _in = { sk_ThreadPosition };
+    _globals._anonInterface0->sizes[2] = int2(_globals._anonInterface0->sizes[0].x, _globals._anonInterface0->sizes[1].y);
     int2 resultCell = int2(int(_in.sk_ThreadPosition.x), int(_in.sk_ThreadPosition.y));
     float result = 0.0;
-    for (int i = 0;i < _in.sizes[0].y; ++i) {
-        int a = i + resultCell.x * _in.sizes[0].y;
-        int b = resultCell.y + i * _in.sizes[1].y;
-        result += _in.data1[a] * _in.data2[b];
+    for (int i = 0;i < _globals._anonInterface0->sizes[0].y; ++i) {
+        int a = i + resultCell.x * _globals._anonInterface0->sizes[0].y;
+        int b = resultCell.y + i * _globals._anonInterface0->sizes[1].y;
+        result += _globals._anonInterface1->data1[a] * _globals._anonInterface2->data2[b];
     }
-    int index = resultCell.y + resultCell.x * _in.sizes[1].y;
-    _out.resultData[index] = result;
+    int index = resultCell.y + resultCell.x * _globals._anonInterface0->sizes[1].y;
+    _globals._anonInterface3->resultData[index] = result;
     return;
 }

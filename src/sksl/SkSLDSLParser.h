@@ -171,7 +171,7 @@ private:
                                                      const dsl::DSLModifiers& modifiers);
 
     bool allowUnsizedArrays() {
-        return ProgramConfig::IsCompute(fKind);
+        return ProgramConfig::IsCompute(fKind) || ProgramConfig::IsFragment(fKind);
     }
 
     bool parseArrayDimensions(Position pos, dsl::DSLType* type);

@@ -287,12 +287,9 @@ protected:
 
     Requirements requirements(const Statement* s);
 
-    // Returns true if it wrote anything
-    bool writeComputeShaderMainParams();
-
     // For compute shader main functions, writes and initializes the _in and _out structs (the
     // instances, not the types themselves)
-    void writeComputeMainInputsAndOutputs();
+    void writeComputeMainInputs();
 
     int getUniformBinding(const Modifiers& m);
 

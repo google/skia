@@ -129,9 +129,7 @@ std::string MetalCodeGenerator::typeName(const Type& type) {
     SkASSERT(type.typeKind() != Type::TypeKind::kTexture);
     switch (type.typeKind()) {
         case Type::TypeKind::kArray:
-            if (type.columns() == Type::kUnsizedArray) {
-                return this->typeName(type.componentType()) + "*";
-            }
+            SkASSERT(!type.isUnsizedArray());
             SkASSERTF(type.columns() > 0, "invalid array size: %s", type.description().c_str());
             return String::printf("array<%s, %d>",
                                   this->typeName(type.componentType()).c_str(), type.columns());
@@ -276,6 +274,11 @@ static bool needs_address_space(const Type& type, const Modifiers& modifiers) {
 // returns true if the InterfaceBlock has the `buffer` modifier
 static bool is_buffer(const InterfaceBlock& block) {
     return block.variable().modifiers().fFlags & Modifiers::kBuffer_Flag;
+}
+
+// returns true if the InterfaceBlock has the `readonly` modifier
+static bool is_readonly(const InterfaceBlock& block) {
+    return block.variable().modifiers().fFlags & Modifiers::kReadOnly_Flag;
 }
 
 std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
@@ -1988,25 +1991,6 @@ int MetalCodeGenerator::getUniformSet(const Modifiers& m) {
                                  : fProgram.fConfig->fSettings.fDefaultUniformSet;
 }
 
-bool MetalCodeGenerator::writeComputeShaderMainParams() {
-    SkTArray<const SkSL::Variable*> args = Analysis::GetComputeShaderMainParams(fContext, fProgram);
-    const char* separator = "";
-    for (const SkSL::Variable* var : args) {
-        SkASSERT(var);
-        this->write(separator);
-        separator = ", ";
-        this->writeModifiers(var->modifiers());
-        const Type* type = &var->type();
-        this->writeType(*type);
-        if (!var->type().isArray()) {
-            this->write("&");
-        }
-        this->write(" ");
-        this->writeName(var->mangledName());
-    }
-    return !args.empty();
-}
-
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     fRTFlipName = fProgram.fInputs.fUseFlipRTUniform
                           ? "_globals._anonInterface0->" SKSL_RTFLIP_NAME
@@ -2024,12 +2008,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             return false;
         }
         this->write("(");
-        if (ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
-            bool wroteSomething = this->writeComputeShaderMainParams();
-            if (wroteSomething) {
-                separator = ", ";
-            }
-        } else {
+        if (!ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
             this->write("Inputs _in [[stage_in]]");
             separator = ", ";
         }
@@ -2077,7 +2056,11 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 if (intf.typeName() == "sk_PerVertex") {
                     continue;
                 }
-                this->write(is_buffer(intf) ? ", device " : ", constant ");
+                this->write(separator);
+                if (is_readonly(intf)) {
+                    this->write("const ");
+                }
+                this->write(is_buffer(intf) ? "device " : "constant ");
                 this->writeType(intf.variable().type());
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
@@ -2158,33 +2141,17 @@ static bool is_block_ending_with_return(const Statement* stmt) {
     return false;
 }
 
-void MetalCodeGenerator::writeComputeMainInputsAndOutputs() {
-    // Compute shaders have their parameters structured differently than other types of shaders,
-    // receiving individual parameters rather than entire input / output structs. We collect those
-    // parameters into structs here, since the rest of the code expects the normal _in / _out
-    // pattern.
-    this->write("    Inputs _in = { ");
+void MetalCodeGenerator::writeComputeMainInputs() {
+    // Compute shaders only have input variables (e.g. sk_ThreadPosition) and access program
+    // inputs/outputs via the Globals and Uniforms structs. We collect the allowed "in" parameters
+    // into an Input struct here, since the rest of the code expects the normal _in / _out pattern.
+    this->write("Inputs _in = { ");
     const char* separator = "";
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
             const Variable& var = decls.declaration()->as<VarDeclaration>().var();
             if (is_input(var)) {
-                this->write(separator);
-                separator = ", ";
-                this->writeName(var.mangledName());
-            }
-        }
-    }
-    this->write(" };\n");
-
-    separator = "";
-    this->write("    Outputs _out = { ");
-    for (const ProgramElement* e : fProgram.elements()) {
-        if (e->is<GlobalVarDeclaration>()) {
-            const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-            const Variable& var = decls.declaration()->as<VarDeclaration>().var();
-            if (is_output(var)) {
                 this->write(separator);
                 separator = ", ";
                 this->writeName(var.mangledName());
@@ -2207,15 +2174,17 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     this->writeLine(" {");
 
     if (f.declaration().isMain()) {
+        fIndentation++;
         this->writeGlobalInit();
         if (ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
             this->writeThreadgroupInit();
-            this->writeComputeMainInputsAndOutputs();
+            this->writeComputeMainInputs();
         }
         else {
-            this->writeLine("    Outputs _out;");
-            this->writeLine("    (void)_out;");
+            this->writeLine("Outputs _out;");
+            this->writeLine("(void)_out;");
         }
+        fIndentation--;
     }
 
     fFunctionHeader.clear();
@@ -2323,16 +2292,31 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, Pos
                 return;
             }
         }
-        size_t fieldSize = memoryLayout.size(*fieldType);
-        if (fieldSize > static_cast<size_t>(std::numeric_limits<int>::max() - currentOffset)) {
-            fContext.fErrors->error(parentPos, "field offset overflow");
-            return;
+        if (fieldType->isUnsizedArray()) {
+            // An unsized array always appears as the last member of a storage block. We declare
+            // it as a one-element array and allow dereferencing past the capacity.
+            // TODO(armansito): This is because C++ does not support flexible array members like C99
+            // does. This generally works but it can lead to UB as compilers are free to insert
+            // padding past the first element of the array. An alternative approach is to declare
+            // the struct without the unsized array member and replace variable references with a
+            // buffer offset calculation based on sizeof().
+            this->writeModifiers(field.fModifiers);
+            this->writeType(fieldType->componentType());
+            this->write(" ");
+            this->writeName(field.fName);
+            this->write("[1]");
+        } else {
+            size_t fieldSize = memoryLayout.size(*fieldType);
+            if (fieldSize > static_cast<size_t>(std::numeric_limits<int>::max() - currentOffset)) {
+                fContext.fErrors->error(parentPos, "field offset overflow");
+                return;
+            }
+            currentOffset += fieldSize;
+            this->writeModifiers(field.fModifiers);
+            this->writeType(*fieldType);
+            this->write(" ");
+            this->writeName(field.fName);
         }
-        currentOffset += fieldSize;
-        this->writeModifiers(field.fModifiers);
-        this->writeType(*fieldType);
-        this->write(" ");
-        this->writeName(field.fName);
         this->writeLine(";");
         if (parentIntf) {
             fInterfaceBlockMap.set(&field, parentIntf);
@@ -2734,11 +2718,14 @@ void MetalCodeGenerator::writeStructDefinitions() {
 }
 
 void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
-    // Visit the interface blocks.
-    for (const auto& [interfaceType, interfaceName] : fInterfaceBlockNameMap) {
-        visitor->visitInterfaceBlock(*interfaceType, interfaceName);
-    }
     for (const ProgramElement* element : fProgram.elements()) {
+        if (element->is<InterfaceBlock>()) {
+            const auto* ib = &element->as<InterfaceBlock>();
+            if (ib->typeName() != "sk_PerVertex") {
+                visitor->visitInterfaceBlock(*ib, fInterfaceBlockNameMap[ib]);
+            }
+            continue;
+        }
         if (!element->is<GlobalVarDeclaration>()) {
             continue;
         }
@@ -2767,7 +2754,11 @@ void MetalCodeGenerator::writeGlobalStruct() {
         void visitInterfaceBlock(const InterfaceBlock& block,
                                  std::string_view blockName) override {
             this->addElement();
-            fCodeGen->write(is_buffer(block) ? "    device " : "    constant ");
+            fCodeGen->write("    ");
+            if (is_readonly(block)) {
+                fCodeGen->write("const ");
+            }
+            fCodeGen->write(is_buffer(block) ? "device " : "constant ");
             fCodeGen->write(block.typeName());
             fCodeGen->write("* ");
             fCodeGen->writeName(blockName);
@@ -2852,7 +2843,7 @@ void MetalCodeGenerator::writeGlobalInit() {
         }
         void addElement() {
             if (fFirst) {
-                fCodeGen->write("    Globals _globals{");
+                fCodeGen->write("Globals _globals{");
                 fFirst = false;
             } else {
                 fCodeGen->write(", ");
@@ -2861,7 +2852,7 @@ void MetalCodeGenerator::writeGlobalInit() {
         void finish() {
             if (!fFirst) {
                 fCodeGen->writeLine("};");
-                fCodeGen->writeLine("    (void)_globals;");
+                fCodeGen->writeLine("(void)_globals;");
             }
         }
         MetalCodeGenerator* fCodeGen = nullptr;
@@ -2931,7 +2922,7 @@ void MetalCodeGenerator::writeThreadgroupInit() {
         }
         void addElement() {
             if (fFirst) {
-                fCodeGen->write("    threadgroup Threadgroups _threadgroups{");
+                fCodeGen->write("threadgroup Threadgroups _threadgroups{");
                 fFirst = false;
             } else {
                 fCodeGen->write(", ");
@@ -2940,7 +2931,7 @@ void MetalCodeGenerator::writeThreadgroupInit() {
         void finish() {
             if (!fFirst) {
                 fCodeGen->writeLine("};");
-                fCodeGen->writeLine("    (void)_threadgroups;");
+                fCodeGen->writeLine("(void)_threadgroups;");
             }
         }
         MetalCodeGenerator* fCodeGen = nullptr;
@@ -3071,7 +3062,9 @@ bool MetalCodeGenerator::generateCode() {
         this->writeStructDefinitions();
         this->writeUniformStruct();
         this->writeInputStruct();
-        this->writeOutputStruct();
+        if (!ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
+            this->writeOutputStruct();
+        }
         this->writeInterfaceBlocks();
         this->writeGlobalStruct();
         this->writeThreadgroupStruct();

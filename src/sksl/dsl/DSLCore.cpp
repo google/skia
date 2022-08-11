@@ -453,8 +453,8 @@ DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typ
                             SkTArray<DSLField> fields, std::string_view varName, int arraySize,
                             Position pos) {
     SkSL::ProgramKind kind = ThreadContext::GetProgramConfig()->fKind;
-    if (!ProgramConfig::IsFragment(kind) &&
-        !ProgramConfig::IsVertex(kind)) {
+    if (!ProgramConfig::IsFragment(kind) && !ProgramConfig::IsVertex(kind) &&
+        !ProgramConfig::IsCompute(kind)) {
         ThreadContext::ReportError("interface blocks are not allowed in this kind of program", pos);
         return DSLGlobalVar();
     }

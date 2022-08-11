@@ -1,5 +1,12 @@
-layout(set=0, binding=0) in threadgroup float x[];
-layout(set=0, binding=1) out threadgroup float y[];
+layout(set=0, binding=0) threadgroup float x;
+
+layout(set=0, binding=1) threadgroup buffer myBuffer {
+   float foo;
+};
+
+layout(set=0, binding=2) buffer myOtherBuffer {
+   threadgroup float bar;
+};
 
 threadgroup texture2D tex;
 
@@ -12,7 +19,9 @@ void c() {
 }
 
 /*%%*
-in / out variables may not be declared threadgroup
+'threadgroup' is not permitted here
+'threadgroup' is not permitted here
+'threadgroup' is not permitted here
 'threadgroup' is not permitted here
 expected expression, but found 'threadgroup'
 *%%*/

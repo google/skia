@@ -117,6 +117,11 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     // (i.e., RelaxedPrecision math doesn't mean your variable takes less space.)
                     // We also don't attempt to reclaim slots at the end of a Block.
                     size_t prevSlotsUsed = fSlotsUsed;
+                    if (stmt.as<VarDeclaration>().var().type().isUnsizedArray()) {
+                        fContext.fErrors->error(stmt.fPosition,
+                                                "unsized arrays are not permitted here");
+                        break;
+                    }
                     fSlotsUsed = SkSafeMath::Add(
                             fSlotsUsed, stmt.as<VarDeclaration>().var().type().slotCount());
                     // To avoid overzealous error reporting, only trigger the error at the first

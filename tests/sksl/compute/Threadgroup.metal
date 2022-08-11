@@ -3,10 +3,16 @@
 using namespace metal;
 struct Inputs {
     uint3 sk_ThreadPosition;
-    device float* in_data;
 };
-struct Outputs {
-    device float* out_data;
+struct inputs {
+    float in_data[1];
+};
+struct outputs {
+    float out_data[1];
+};
+struct Globals {
+    const device inputs* _anonInterface0;
+    device outputs* _anonInterface1;
 };
 struct Threadgroups {
     array<float, 1024> shared_data;
@@ -14,17 +20,18 @@ struct Threadgroups {
 void store_vIf(threadgroup Threadgroups& _threadgroups, uint i, float value) {
     _threadgroups.shared_data[i] = value;
 }
-kernel void computeMain(device float* in_data, device float* out_data, uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
+kernel void computeMain(const device inputs& _anonInterface0 [[buffer(0)]], device outputs& _anonInterface1 [[buffer(1)]], uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
+    Globals _globals{&_anonInterface0, &_anonInterface1};
+    (void)_globals;
     threadgroup Threadgroups _threadgroups{{}};
     (void)_threadgroups;
-    Inputs _in = { sk_ThreadPosition, in_data };
-    Outputs _out = { out_data };
+    Inputs _in = { sk_ThreadPosition };
     uint id = _in.sk_ThreadPosition.x;
     uint rd_id;
     uint wr_id;
     uint mask;
-    _threadgroups.shared_data[id * 2u] = _in.in_data[id * 2u];
-    _threadgroups.shared_data[id * 2u + 1u] = _in.in_data[id * 2u + 1u];
+    _threadgroups.shared_data[id * 2u] = _globals._anonInterface0->in_data[id * 2u];
+    _threadgroups.shared_data[id * 2u + 1u] = _globals._anonInterface0->in_data[id * 2u + 1u];
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup | mem_flags::mem_texture);
     const uint steps = 10u;
     for (uint step = 0u;step < steps; step++) {
@@ -34,7 +41,7 @@ kernel void computeMain(device float* in_data, device float* out_data, uint3 sk_
         store_vIf(_threadgroups, wr_id, _threadgroups.shared_data[wr_id] + _threadgroups.shared_data[rd_id]);
         threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup | mem_flags::mem_texture);
     }
-    _out.out_data[id * 2u] = _threadgroups.shared_data[id * 2u];
-    _out.out_data[id * 2u + 1u] = _threadgroups.shared_data[id * 2u + 1u];
+    _globals._anonInterface1->out_data[id * 2u] = _threadgroups.shared_data[id * 2u];
+    _globals._anonInterface1->out_data[id * 2u + 1u] = _threadgroups.shared_data[id * 2u + 1u];
     return;
 }

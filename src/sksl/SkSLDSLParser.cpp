@@ -1073,6 +1073,8 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
                         return false;
                     }
                     actualType = Array(std::move(actualType), size, this->position(typeName));
+                } else if (this->allowUnsizedArrays()) {
+                    actualType = UnsizedArray(std::move(actualType), this->position(typeName));
                 } else {
                     this->error(sizeToken, "unsized arrays are not permitted here");
                 }
