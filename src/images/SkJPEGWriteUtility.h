@@ -9,15 +9,18 @@
 #ifndef SkJpegUtility_DEFINED
 #define SkJpegUtility_DEFINED
 
-#include "include/core/SkStream.h"
-#include "src/codec/SkJpegPriv.h"
+#include "include/core/SkTypes.h"
+
+#include <cstdint>
 
 extern "C" {
+    // We need to include stdio.h before jpeg because jpeg does not include it, but uses FILE
+    // See https://github.com/libjpeg-turbo/libjpeg-turbo/issues/17
+    #include <stdio.h> // IWYU pragma: keep
     #include "jpeglib.h"
-    #include "jerror.h"
 }
 
-#include <setjmp.h>
+class SkWStream;
 
 void skjpeg_error_exit(j_common_ptr cinfo);
 

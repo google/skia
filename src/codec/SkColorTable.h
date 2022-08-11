@@ -10,6 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 
 /** \class SkColorTable
 

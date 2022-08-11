@@ -5,11 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "src/codec/SkSampledCodec.h"
+
 #include "include/codec/SkCodec.h"
-#include "include/core/SkMath.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkSampledCodec.h"
 #include "src/codec/SkSampler.h"
 #include "src/core/SkMathPriv.h"
 

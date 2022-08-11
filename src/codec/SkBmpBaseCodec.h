@@ -7,8 +7,15 @@
 #ifndef SkBmpBaseCodec_DEFINED
 #define SkBmpBaseCodec_DEFINED
 
+#include "include/codec/SkCodec.h"
 #include "include/private/SkTemplates.h"
 #include "src/codec/SkBmpCodec.h"
+
+#include <cstdint>
+#include <memory>
+
+class SkStream;
+struct SkEncodedInfo;
 
 /*
  * Common base class for SkBmpStandardCodec and SkBmpMaskCodec.

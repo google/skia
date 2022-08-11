@@ -9,15 +9,24 @@
 #define SkWebpCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkEncodedInfo.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkScalingCodec.h"
 
+#include <cstddef>
+#include <memory>
 #include <vector>
 
 class SkStream;
+struct SkIRect;
+struct SkImageInfo;
+
 extern "C" {
     struct WebPDemuxer;
     void WebPDemuxDelete(WebPDemuxer* dmux);

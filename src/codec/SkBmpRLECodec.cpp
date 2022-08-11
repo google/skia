@@ -7,11 +7,22 @@
 
 #include "src/codec/SkBmpRLECodec.h"
 
-#include <memory>
-
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkEncodedInfo.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkCodecPriv.h"
+
+#include <algorithm>
+#include <cstring>
+#include <memory>
+#include <utility>
 
 /*
  * Creates an instance of the decoder

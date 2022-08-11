@@ -5,8 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/codec/SkEncodedOrigin.h"
+
 #include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
 #include "src/codec/SkCodecPriv.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
 
 static bool parse_encoded_origin(const uint8_t* exifData, size_t data_length, uint64_t offset,
                                  bool littleEndian, bool is_root, SkEncodedOrigin* orientation) {

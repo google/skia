@@ -9,12 +9,16 @@
 #define SkRawCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkColorSpace.h"
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
+
+#include <cstddef>
+#include <memory>
 
 class SkDngImage;
 class SkStream;
+struct SkImageInfo;
 
 /*
  *

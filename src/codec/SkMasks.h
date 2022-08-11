@@ -9,6 +9,8 @@
 
 #include "include/core/SkTypes.h"
 
+#include <cstdint>
+
 // Contains useful mask routines for SkMaskSwizzler
 class SkMasks {
 public:

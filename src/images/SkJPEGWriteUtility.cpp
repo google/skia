@@ -8,6 +8,18 @@
 
 #include "src/images/SkJPEGWriteUtility.h"
 
+#include "include/core/SkStream.h"
+#include "include/private/SkTArray.h"
+#include "src/codec/SkJpegPriv.h"
+
+#include <csetjmp>
+#include <cstddef>
+
+extern "C" {
+    #include "jerror.h"
+    #include "jmorecfg.h"
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void sk_init_destination(j_compress_ptr cinfo) {

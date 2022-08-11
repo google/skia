@@ -5,19 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "src/images/SkImageEncoderPriv.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_ENCODE_WEBP
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
-#include "include/core/SkUnPreMultiply.h"
 #include "include/encode/SkWebpEncoder.h"
-#include "include/private/SkColorData.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkTemplates.h"
 #include "src/images/SkImageEncoderFns.h"
-#include "src/utils/SkUTF.h"
+#include "src/images/SkImageEncoderPriv.h"
+
+#include <cstddef>
+#include <cstdint>
 
 // A WebP encoder only, on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:
@@ -25,12 +32,12 @@
 //   http://www.webmproject.org/code/#libwebp_webp_image_decoder_library
 //   http://review.webmproject.org/gitweb?p=libwebp.git
 
-#include <stdio.h>
 extern "C" {
 // If moving libwebp out of skia source tree, path for webp headers must be
 // updated accordingly. Here, we enforce using local copy in webp sub-directory.
 #include "webp/encode.h"
 #include "webp/mux.h"
+#include "webp/mux_types.h"
 }
 
 static int stream_writer(const uint8_t* data, size_t data_size,

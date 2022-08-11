@@ -9,8 +9,19 @@
 #define SkCodec_wbmp_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkSwizzler.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
+class SkSampler;
+class SkStream;
+struct SkEncodedInfo;
+struct SkImageInfo;
 
 class SkWbmpCodec final : public SkCodec {
 public:

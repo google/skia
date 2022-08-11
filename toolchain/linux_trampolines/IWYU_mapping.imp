@@ -85,6 +85,8 @@
 
   { symbol: ["std::__bit_reference", "public", "<vector>", "public"] },
 
+  { include: ["<scripts/pnglibconf.h.prebuilt>", "private", "<pngconf.h>", "public"] },
+
   # Without these, IWYU won't accept the C++ wrappers and throws
   # a mysterious "cyclical import" error.
   # https://github.com/include-what-you-use/include-what-you-use/blob/4c0f39615982c57a9cb313c971c6f45fca1cc1fe/iwyu_include_picker.cc#L573

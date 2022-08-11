@@ -6,18 +6,26 @@
  */
 
 #include "include/codec/SkCodec.h"
+
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
-#include "include/core/SkImage.h"
+#include "include/core/SkImage.h" // IWYU pragma: keep
+#include "include/core/SkMatrix.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkHalf.h"
+#include "include/private/SkTemplates.h"
+#include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
+#include "src/codec/SkSampler.h"
 
 // We always include and compile in these BMP codecs
 #include "src/codec/SkBmpCodec.h"
 #include "src/codec/SkWbmpCodec.h"
+
+#include <utility>
 
 #ifdef SK_HAS_ANDROID_CODEC
 #include "include/codec/SkAndroidCodec.h"

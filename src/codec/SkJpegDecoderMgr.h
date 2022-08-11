@@ -9,13 +9,16 @@
 #define SkJpegDecoderMgr_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "src/codec/SkCodecPriv.h"
-#include <stdio.h>
+#include "include/private/SkEncodedInfo.h"
+#include "include/private/SkNoncopyable.h"
+#include "src/codec/SkJpegPriv.h"
 #include "src/codec/SkJpegUtility.h"
 
 extern "C" {
     #include "jpeglib.h"
 }
+
+class SkStream;
 
 class JpegDecoderMgr : SkNoncopyable {
 public:

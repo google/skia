@@ -7,6 +7,7 @@
 
 #include "gm/gm.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkStream.h"
 #include "include/utils/SkAnimCodecPlayer.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"

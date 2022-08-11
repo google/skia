@@ -4,8 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/private/SkMalloc.h"
 #include "src/codec/SkBmpBaseCodec.h"
+
+#include "include/core/SkStream.h"
+#include "include/private/SkEncodedInfo.h"
+#include "include/private/SkMalloc.h"
+
+#include <utility>
 
 SkBmpBaseCodec::~SkBmpBaseCodec() {}
 

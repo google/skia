@@ -5,21 +5,39 @@
  * found in the LICENSE file.
  */
 
-#include "src/images/SkImageEncoderPriv.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_ENCODE_PNG
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDataTable.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/encode/SkEncoder.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/private/SkImageInfoPriv.h"
-#include "src/codec/SkColorTable.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkPngPriv.h"
 #include "src/core/SkMSAN.h"
 #include "src/images/SkImageEncoderFns.h"
+#include "src/images/SkImageEncoderPriv.h"
+
+#include <algorithm>
+#include <csetjmp>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include <png.h>
+#include <pngconf.h>
 
 static_assert(PNG_FILTER_NONE  == (int)SkPngEncoder::FilterFlag::kNone,  "Skia libpng filter err.");
 static_assert(PNG_FILTER_SUB   == (int)SkPngEncoder::FilterFlag::kSub,   "Skia libpng filter err.");

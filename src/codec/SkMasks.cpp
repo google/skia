@@ -4,10 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "include/core/SkTypes.h"
-#include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkMasks.h"
+
+#include "src/codec/SkCodecPriv.h"
 
 /*
  *

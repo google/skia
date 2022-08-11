@@ -8,12 +8,16 @@
 #include "src/codec/SkWbmpCodec.h"
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkData.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkColorData.h"
+#include "include/private/SkEncodedInfo.h"
 #include "include/private/SkTo.h"
+#include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkColorTable.h"
+
+#include <utility>
 
 // Each bit represents a pixel, so width is actually a number of bits.
 // A row will always be stored in bytes, so we round width up to the

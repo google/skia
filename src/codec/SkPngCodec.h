@@ -9,13 +9,20 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/core/SkEncodedImageFormat.h"
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkPngChunkReader.h"
 #include "include/core/SkRefCnt.h"
-#include "src/codec/SkColorTable.h"
-#include "src/codec/SkSwizzler.h"
+#include "include/private/SkTemplates.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
+class SkColorTable;
+class SkPngChunkReader;
+class SkSampler;
 class SkStream;
+class SkSwizzler;
+struct SkEncodedInfo;
+struct SkImageInfo;
 
 class SkPngCodec : public SkCodec {
 public:

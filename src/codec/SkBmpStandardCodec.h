@@ -7,11 +7,23 @@
 #ifndef SkBmpStandardCodec_DEFINED
 #define SkBmpStandardCodec_DEFINED
 
-#include "include/core/SkImageInfo.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkEncodedInfo.h"
 #include "src/codec/SkBmpBaseCodec.h"
 #include "src/codec/SkColorTable.h"
 #include "src/codec/SkSwizzler.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
+class SkSampler;
+class SkStream;
+struct SkImageInfo;
 
 /*
  * This class implements the decoding for bmp images that use "standard" modes,

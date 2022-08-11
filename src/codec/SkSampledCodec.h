@@ -9,6 +9,12 @@
 
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
+#include "include/core/SkSize.h"
+
+#include <cstddef>
+
+struct SkIRect;
+struct SkImageInfo;
 
 /**
  *  This class implements the functionality of SkAndroidCodec.  Scaling will

@@ -7,14 +7,20 @@
 
 #include "src/codec/SkBmpCodec.h"
 
-#include <memory>
-
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkColorData.h"
+#include "include/private/SkEncodedInfo.h"
 #include "src/codec/SkBmpMaskCodec.h"
 #include "src/codec/SkBmpRLECodec.h"
 #include "src/codec/SkBmpStandardCodec.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkMasks.h"
+
+#include <cstring>
+#include <memory>
+#include <type_traits>
+#include <utility>
 
 /*
  * Defines the version and type of the second bitmap header

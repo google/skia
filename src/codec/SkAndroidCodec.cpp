@@ -7,10 +7,21 @@
 
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
-#include "include/core/SkPixmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "modules/skcms/skcms.h"
 #include "src/codec/SkAndroidCodecAdapter.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkSampledCodec.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <utility>
+
+class SkPngChunkReader;
 
 static bool is_valid_sample_size(int sampleSize) {
     // FIXME: As Leon has mentioned elsewhere, surely there is also a maximum sampleSize?

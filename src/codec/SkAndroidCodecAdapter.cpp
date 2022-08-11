@@ -8,6 +8,9 @@
 #include "src/codec/SkAndroidCodecAdapter.h"
 #include "src/codec/SkCodecPriv.h"
 
+struct SkIRect;
+struct SkImageInfo;
+
 SkAndroidCodecAdapter::SkAndroidCodecAdapter(SkCodec* codec)
     : INHERITED(codec)
 {}

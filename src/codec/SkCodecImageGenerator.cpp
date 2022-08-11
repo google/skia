@@ -7,7 +7,14 @@
 
 #include "src/codec/SkCodecImageGenerator.h"
 
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkPixmapPriv.h"
+
+#include <utility>
+
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(
         sk_sp<SkData> data, std::optional<SkAlphaType> at) {

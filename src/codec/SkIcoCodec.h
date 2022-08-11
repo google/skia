@@ -8,10 +8,18 @@
 #define SkIcoCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
+
+#include <cstddef>
+#include <memory>
+
+class SkSampler;
+class SkStream;
+struct SkEncodedInfo;
+struct SkImageInfo;
 
 /*
  * This class implements the decoding for bmp images

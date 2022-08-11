@@ -5,11 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkStream.h"
-#include "include/private/SkColorData.h"
 #include "src/codec/SkBmpStandardCodec.h"
+
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTemplates.h"
+#include "src/codec/SkBmpCodec.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkMathPriv.h"
+
+#include <algorithm>
+#include <utility>
 
 /*
  * Creates an instance of the decoder

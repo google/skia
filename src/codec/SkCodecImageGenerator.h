@@ -8,10 +8,18 @@
 #define SkCodecImageGenerator_DEFINED
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageGenerator.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkYUVAPixmaps.h"
 
+#include <cstddef>
+#include <memory>
 #include <optional>
+
+struct SkImageInfo;
 
 class SkCodecImageGenerator : public SkImageGenerator {
 public:

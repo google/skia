@@ -4,14 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/codec/SkJpegDecoderMgr.h"
 
+#include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegUtility.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     #include "include/android/SkAndroidFrameworkUtils.h"
 #endif
+
+class SkStream;
 
 /*
  * Print information, warning, and error messages

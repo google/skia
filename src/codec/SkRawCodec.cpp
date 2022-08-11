@@ -5,41 +5,61 @@
  * found in the LICENSE file.
  */
 
+#include "src/codec/SkRawCodec.h"
+
 #include "include/codec/SkCodec.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
+#include "include/private/SkEncodedInfo.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
+#include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegCodec.h"
-#include "src/codec/SkRawCodec.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/core/SkTaskGroup.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <functional>
+#include <limits>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #include "dng_area_task.h"
 #include "dng_color_space.h"
 #include "dng_errors.h"
 #include "dng_exceptions.h"
 #include "dng_host.h"
+#include "dng_image.h"
 #include "dng_info.h"
 #include "dng_memory.h"
+#include "dng_mosaic_info.h"
+#include "dng_negative.h"
+#include "dng_pixel_buffer.h"
+#include "dng_point.h"
+#include "dng_rational.h"
+#include "dng_rect.h"
 #include "dng_render.h"
+#include "dng_sdk_limits.h"
 #include "dng_stream.h"
+#include "dng_tag_types.h"
+#include "dng_types.h"
+#include "dng_utils.h"
 
 #include "src/piex.h"
-
-#include <cmath>  // for std::round,floor,ceil
-#include <limits>
-#include <memory>
+#include "src/piex_types.h"
 
 namespace {
 
-// Caluclates the number of tiles of tile_size that fit into the area in vertical and horizontal
+// Calculates the number of tiles of tile_size that fit into the area in vertical and horizontal
 // directions.
 dng_point num_tiles_in_area(const dng_point &areaSize,
                             const dng_point_real64 &tileSize) {

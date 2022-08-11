@@ -6,6 +6,7 @@
  */
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkStream.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
