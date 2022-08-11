@@ -48,6 +48,8 @@ public:
     virtual bool init(skiatest::Reporter* reporter) = 0;
 
     virtual void cleanup() = 0;
+    // This is used to release a surface back to the external queue in vulkan
+    virtual void releaseSurfaceToExternal(SkSurface*) = 0;
     virtual void releaseImage() = 0;
 
     virtual sk_sp<SkImage> importHardwareBufferForRead(skiatest::Reporter* reporter,
@@ -93,6 +95,8 @@ public:
             fTexID = 0;
         }
     }
+
+    void releaseSurfaceToExternal(SkSurface*) override {}
 
     void cleanup() override {
         this->releaseImage();
@@ -406,6 +410,12 @@ public:
             fMemory = VK_NULL_HANDLE;
         }
     }
+
+    void releaseSurfaceToExternal(SkSurface* surface) override {
+        GrBackendSurfaceMutableState newState(VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_EXTERNAL);
+        surface->flush({}, &newState);
+    }
+
     void cleanup() override {
         fDirectContext.reset();
         this->releaseImage();
@@ -822,7 +832,7 @@ sk_sp<SkImage> VulkanTestHelper::importHardwareBufferForRead(skiatest::Reporter*
 
 bool VulkanTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter,
                                                       sk_sp<SkSurface> surface) {
-    surface->flushAndSubmit();
+    this->releaseSurfaceToExternal(surface.get());
     surface.reset();
     GrBackendSemaphore semaphore;
     if (!this->setupSemaphoreForSignaling(reporter, &semaphore)) {
@@ -1224,8 +1234,9 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
                 return;
             }
         } else {
-            surface.reset();
+            srcHelper->releaseSurfaceToExternal(surface.get());
             srcHelper->doClientSync();
+            surface.reset();
             srcHelper->releaseImage();
         }
     }
