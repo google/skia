@@ -7,6 +7,23 @@ exports_files_legacy(
     visibility = ["//tools/skui:__pkg__"],
 )
 
+# In own filegroup for mapping to the //gn/sksl.gni file.
+filegroup(
+    name = "sksl_private_hdrs",
+    srcs = [
+        "SkSLDefines.h",
+        "SkSLIRNode.h",
+        "SkSLLayout.h",
+        "SkSLModifiers.h",
+        "SkSLProgramElement.h",
+        "SkSLProgramKind.h",
+        "SkSLSampleUsage.h",
+        "SkSLStatement.h",
+        "SkSLString.h",
+        "SkSLSymbol.h",
+    ],
+)
+
 filegroup(
     name = "private_hdrs",
     srcs = [
@@ -29,16 +46,6 @@ filegroup(
         "SkOnce.h",
         "SkOpts_spi.h",
         "SkPathRef.h",
-        "SkSLDefines.h",
-        "SkSLIRNode.h",
-        "SkSLLayout.h",
-        "SkSLModifiers.h",
-        "SkSLProgramElement.h",
-        "SkSLProgramKind.h",
-        "SkSLSampleUsage.h",
-        "SkSLStatement.h",
-        "SkSLString.h",
-        "SkSLSymbol.h",
         "SkSafe32.h",
         "SkSafe_math.h",
         "SkSemaphore.h",
@@ -58,6 +65,7 @@ filegroup(
         "SkUniquePaintParamsID.h",
         "SkVx.h",
         "SkWeakRefCnt.h",
+        ":sksl_private_hdrs",
         "//include/private/chromium:private_hdrs",
     ] + select({
         "//src/gpu:has_gpu_backend": [
