@@ -11,6 +11,7 @@ Milestone 106
     work with SkPicture or any backend but GPU.
   * Added SkColorFilters::Blend(const SkColor4f&, sk_sp<SkColorSpace>, SkBlendMode) to
     complement the existing SkColorFilters::Blend(SkColor, SkBlendMode) factory.
+  * The experimental C API was removed.
 
 * * *
 

@@ -1613,7 +1613,6 @@ if (skia_enable_tools) {
   skia_public_includes = [
     "client_utils/android",
     "include/android",
-    "include/c",
     "include/codec",
     "include/config",
     "include/core",
@@ -3382,10 +3381,4 @@ if (is_ios && skia_enable_skottie && !skia_enable_flutter_defines) {
   group("skottie_ios") {
     deps = [ "tools/skottie_ios_app" ]
   }
-}
-
-skia_executable("skia_c_api_example") {
-  sources = [ "experimental/c-api-example/skia-c-example.c" ]
-  include_dirs = [ "." ]
-  deps = [ ":skia" ]
 }

@@ -98,10 +98,6 @@ skia_core_public = [
 ]
 
 skia_core_sources = [
-  "$_src/c/sk_imageinfo.cpp",
-  "$_src/c/sk_paint.cpp",
-  "$_src/c/sk_surface.cpp",
-  "$_src/c/sk_types_priv.h",
   "$_src/core/Sk4px.h",
   "$_src/core/SkAAClip.cpp",
   "$_src/core/SkASAN.h",

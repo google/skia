@@ -30,7 +30,6 @@ skia_effects_public = [
 ]
 
 skia_effects_sources = [
-  "$_src/c/sk_effects.cpp",
   "$_src/effects/Sk1DPathEffect.cpp",
   "$_src/effects/Sk2DPathEffect.cpp",
   "$_src/effects/SkBlenders.cpp",
