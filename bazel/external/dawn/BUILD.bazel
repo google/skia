@@ -256,6 +256,8 @@ DAWN_SRCS = [
     "src/dawn/native/DawnNative.cpp",
     "src/dawn/native/Adapter.cpp",
     "src/dawn/native/Adapter.h",
+    "src/dawn/native/ApplyClearColorValueWithDrawHelper.cpp",
+    "src/dawn/native/ApplyClearColorValueWithDrawHelper.h",
     "src/dawn/native/AsyncTask.cpp",
     "src/dawn/native/AsyncTask.h",
     "src/dawn/native/AttachmentState.cpp",
