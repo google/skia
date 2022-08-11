@@ -10,7 +10,7 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Device.h"
-#include "src/gpu/graphite/Gpu.h"
+#include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/TaskGraph.h"
 #include "src/sksl/SkSLUtil.h"
 
@@ -31,11 +31,11 @@ TextureDataCache* RecorderPriv::textureDataCache() const {
 }
 
 const Caps* RecorderPriv::caps() const {
-    return fRecorder->fGpu->caps();
+    return fRecorder->fSharedContext->caps();
 }
 
 sk_sp<const Caps> RecorderPriv::refCaps() const {
-    return fRecorder->fGpu->refCaps();
+    return fRecorder->fSharedContext->refCaps();
 }
 
 DrawBufferManager* RecorderPriv::drawBufferManager() const {

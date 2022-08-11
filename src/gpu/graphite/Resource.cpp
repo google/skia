@@ -11,8 +11,8 @@
 
 namespace skgpu::graphite {
 
-Resource::Resource(const Gpu* gpu, Ownership ownership, SkBudgeted budgeted)
-        : fGpu(gpu)
+Resource::Resource(const SharedContext* sharedContext, Ownership ownership, SkBudgeted budgeted)
+        : fSharedContext(sharedContext)
         , fUsageRefCnt(1)
         , fCommandBufferRefCnt(0)
         , fCacheRefCnt(0)
@@ -57,9 +57,9 @@ bool Resource::notifyARefIsZero(LastRemovedRef removedRef) const {
 }
 
 void Resource::internalDispose() {
-    SkASSERT(fGpu);
+    SkASSERT(fSharedContext);
     this->freeGpuData();
-    fGpu = nullptr;
+    fSharedContext = nullptr;
     // TODO: If we ever support freeing all the backend objects without deleting the object, we'll
     // need to add a hasAnyRefs() check here.
     delete this;

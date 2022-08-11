@@ -16,19 +16,19 @@
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
-#include "src/gpu/graphite/Gpu.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/Sampler.h"
+#include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"
 
 namespace skgpu::graphite {
 
-ResourceProvider::ResourceProvider(const Gpu* gpu,
+ResourceProvider::ResourceProvider(const SharedContext* sharedContext,
                                    sk_sp<GlobalCache> globalCache,
                                    SingleOwner* singleOwner)
-        : fGpu(gpu)
+        : fSharedContext(sharedContext)
         , fResourceCache(ResourceCache::Make(singleOwner))
         , fGlobalCache(std::move(globalCache)) {
     SkASSERT(fResourceCache);
@@ -44,12 +44,14 @@ ResourceProvider::~ResourceProvider() {
 
 sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
         const GraphicsPipelineDesc& pipelineDesc, const RenderPassDesc& renderPassDesc) {
-    return fGraphicsPipelineCache->refPipeline(fGpu->caps(), pipelineDesc, renderPassDesc);
+    return fGraphicsPipelineCache->refPipeline(fSharedContext->caps(),
+                                               pipelineDesc,
+                                               renderPassDesc);
 }
 
 sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(
         const ComputePipelineDesc& pipelineDesc) {
-    return fComputePipelineCache->refPipeline(fGpu->caps(), pipelineDesc);
+    return fComputePipelineCache->refPipeline(fSharedContext->caps(), pipelineDesc);
 }
 
 SkShaderCodeDictionary* ResourceProvider::shaderCodeDictionary() const {
@@ -133,7 +135,7 @@ sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
 
     GraphiteResourceKey key;
     // Scratch textures are not shareable
-    fGpu->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kNo, &key);
+    fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kNo, &key);
 
     return this->findOrCreateTextureWithKey(dimensions, info, key, budgeted);
 }
@@ -148,7 +150,7 @@ sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dime
     // We always make depth and stencil attachments shareable. Between any render pass the values
     // are reset. Thus it is safe to be used by multiple different render passes without worry of
     // stomping on each other's data.
-    fGpu->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
+    fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
     return this->findOrCreateTextureWithKey(dimensions, info, key, SkBudgeted::kYes);
 }
@@ -164,7 +166,7 @@ sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize d
     // the values of the MSAA texture. Thus it is safe to be used by multiple different render
     // passes without worry of stomping on each other's data. It is the callings code responsiblity
     // to populate the discardable MSAA texture with data at the start of the render pass.
-    fGpu->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
+    fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
     return this->findOrCreateTextureWithKey(dimensions, info, key, SkBudgeted::kYes);
 }

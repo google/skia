@@ -17,11 +17,11 @@
 namespace skgpu::graphite {
 
 class CommandBuffer;
-class MtlGpu;
+class MtlSharedContext;
 
 class MtlResourceProvider final : public ResourceProvider {
 public:
-    MtlResourceProvider(const Gpu* gpu, sk_sp<GlobalCache>, SingleOwner*);
+    MtlResourceProvider(const SharedContext* sharedContext, sk_sp<GlobalCache>, SingleOwner*);
     ~MtlResourceProvider() override {}
 
     sk_sp<Texture> createWrappedTexture(const BackendTexture&) override;
@@ -31,7 +31,7 @@ public:
             const DepthStencilSettings&);
 
 private:
-    const MtlGpu* mtlGpu();
+    const MtlSharedContext* mtlSharedContext();
 
     sk_sp<CommandBuffer> createCommandBuffer() override;
     sk_sp<GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&,

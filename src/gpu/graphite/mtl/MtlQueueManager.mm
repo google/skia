@@ -8,18 +8,19 @@
 #include "src/gpu/graphite/mtl/MtlQueueManager.h"
 
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
-#include "src/gpu/graphite/mtl/MtlGpu.h"
+#include "src/gpu/graphite/mtl/MtlSharedContext.h"
 
 namespace skgpu::graphite {
 
-MtlQueueManager::MtlQueueManager(Gpu* gpu) : QueueManager(gpu) {}
+MtlQueueManager::MtlQueueManager(const SharedContext* sharedContext)
+        : QueueManager(sharedContext) {}
 
-MtlGpu* MtlQueueManager::mtlGpu() const {
-    return static_cast<MtlGpu*>(fGpu);
+const MtlSharedContext* MtlQueueManager::mtlSharedContext() const {
+    return static_cast<const MtlSharedContext*>(fSharedContext);
 }
 
 sk_sp<CommandBuffer> MtlQueueManager::getNewCommandBuffer() {
-    return MtlCommandBuffer::Make(this->mtlGpu());
+    return MtlCommandBuffer::Make(this->mtlSharedContext());
 }
 
 class WorkSubmission final : public GpuWorkSubmission {
@@ -31,7 +32,7 @@ public:
     bool isFinished() override {
         return static_cast<MtlCommandBuffer*>(this->commandBuffer())->isFinished();
     }
-    void waitUntilFinished(const Gpu*) override {
+    void waitUntilFinished(const SharedContext*) override {
         return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
     }
 };

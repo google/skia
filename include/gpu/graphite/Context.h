@@ -27,11 +27,11 @@ class BackendTexture;
 class Context;
 class ContextPriv;
 class GlobalCache;
-class Gpu;
 struct MtlBackendContext;
 class QueueManager;
 class Recording;
 class ResourceProvider;
+class SharedContext;
 class TextureInfo;
 
 class SK_API Context final {
@@ -93,14 +93,14 @@ public:
     const ContextPriv priv() const;  // NOLINT(readability-const-return-type)
 
 protected:
-    Context(sk_sp<Gpu>, std::unique_ptr<QueueManager>, BackendApi);
+    Context(sk_sp<SharedContext>, std::unique_ptr<QueueManager>, BackendApi);
 
 private:
     friend class ContextPriv;
 
     SingleOwner* singleOwner() const { return &fSingleOwner; }
 
-    sk_sp<Gpu> fGpu;
+    sk_sp<SharedContext> fSharedContext;
     std::unique_ptr<ResourceProvider> fResourceProvider;
     std::unique_ptr<QueueManager> fQueueManager;
     sk_sp<GlobalCache> fGlobalCache;

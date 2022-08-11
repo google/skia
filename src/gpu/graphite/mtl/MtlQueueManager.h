@@ -12,16 +12,16 @@
 
 namespace skgpu::graphite {
 
-class Gpu;
-class MtlGpu;
+class MtlSharedContext;
+class SharedContext;
 
 class MtlQueueManager : public QueueManager {
 public:
-    MtlQueueManager(Gpu*);
+    MtlQueueManager(const SharedContext*);
     ~MtlQueueManager() override {}
 
 private:
-    MtlGpu* mtlGpu() const;
+    const MtlSharedContext* mtlSharedContext() const;
 
     sk_sp<CommandBuffer> getNewCommandBuffer() override;
     OutstandingSubmission onSubmitToGpu() override;

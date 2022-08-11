@@ -13,7 +13,6 @@
 #include "include/gpu/graphite/SkStuff.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
-#include "src/gpu/graphite/Gpu.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #include "include/core/SkColorSpace.h"

@@ -10,7 +10,7 @@
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/graphite/mtl/MtlGpu.h"
+#include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/utils/SkShaderUtils.h"
 
@@ -71,7 +71,7 @@ MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags> mas
 static const bool gPrintSKSL = false;
 static const bool gPrintMSL = false;
 
-bool SkSLToMSL(const MtlGpu* gpu,
+bool SkSLToMSL(const MtlSharedContext* sharedContext,
                const std::string& sksl,
                SkSL::ProgramKind programKind,
                const SkSL::ProgramSettings& settings,
@@ -83,11 +83,11 @@ bool SkSLToMSL(const MtlGpu* gpu,
 #else
     const std::string& src = sksl;
 #endif
-    SkSL::Compiler* compiler = gpu->shaderCompiler();
+    SkSL::Compiler* compiler = sharedContext->shaderCompiler();
     std::unique_ptr<SkSL::Program> program =
-            gpu->shaderCompiler()->convertProgram(programKind,
-                                                  src,
-                                                  settings);
+            sharedContext->shaderCompiler()->convertProgram(programKind,
+                                                            src,
+                                                            settings);
     if (!program || !compiler->toMetal(*program, msl)) {
         errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
         return false;
@@ -109,7 +109,7 @@ bool SkSLToMSL(const MtlGpu* gpu,
     return true;
 }
 
-sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlGpu* gpu,
+sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
                                                const std::string& msl,
                                                ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
@@ -130,9 +130,9 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlGpu* gpu,
 
     NSError* error = nil;
     // TODO: do we need a version with a timeout?
-    sk_cfp<id<MTLLibrary>> compiledLibrary([gpu->device() newLibraryWithSource:nsSource
-                                                                       options:options
-                                                                         error:&error]);
+    sk_cfp<id<MTLLibrary>> compiledLibrary([sharedContext->device() newLibraryWithSource:nsSource
+                                                                                 options:options
+                                                                                   error:&error]);
     if (!compiledLibrary) {
         errorHandler->compileError(msl.c_str(), error.debugDescription.UTF8String);
         return nil;

@@ -12,14 +12,14 @@
 
 namespace skgpu::graphite {
 class CommandBuffer;
-class Gpu;
+class SharedContext;
 
 class GpuWorkSubmission {
 public:
     virtual ~GpuWorkSubmission();
 
     virtual bool isFinished() = 0;
-    virtual void waitUntilFinished(const Gpu*) = 0;
+    virtual void waitUntilFinished(const SharedContext*) = 0;
 
 protected:
     CommandBuffer* commandBuffer() { return fCommandBuffer.get(); }

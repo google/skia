@@ -15,10 +15,10 @@
 namespace skgpu::graphite {
 
 class CommandBuffer;
-class Gpu;
 class GpuWorkSubmission;
 struct InsertRecordingInfo;
 class ResourceProvider;
+class SharedContext;
 
 class QueueManager {
 public:
@@ -31,11 +31,11 @@ public:
     void checkForFinishedWork(SyncToCpu);
 
 protected:
-    QueueManager(Gpu* gpu);
+    QueueManager(const SharedContext* sharedContext);
 
     using OutstandingSubmission = std::unique_ptr<GpuWorkSubmission>;
 
-    Gpu* fGpu;
+    const SharedContext* fSharedContext;
     sk_sp<CommandBuffer> fCurrentCommandBuffer;
 
 private:

@@ -14,18 +14,18 @@
 #include "src/gpu/graphite/mtl/MtlCaps.h"
 #include "src/gpu/graphite/mtl/MtlComputeCommandEncoder.h"
 #include "src/gpu/graphite/mtl/MtlComputePipeline.h"
-#include "src/gpu/graphite/mtl/MtlGpu.h"
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
 #include "src/gpu/graphite/mtl/MtlRenderCommandEncoder.h"
 #include "src/gpu/graphite/mtl/MtlSampler.h"
+#include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
 
 namespace skgpu::graphite {
 
-sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(const MtlGpu* gpu) {
+sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(const MtlSharedContext* sharedContext) {
     sk_cfp<id<MTLCommandBuffer>> cmdBuffer;
-    id<MTLCommandQueue> queue = gpu->queue();
+    id<MTLCommandQueue> queue = sharedContext->queue();
     if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         sk_cfp<MTLCommandBufferDescriptor*> desc([[MTLCommandBufferDescriptor alloc] init]);
         (*desc).retainedReferences = NO;
@@ -46,11 +46,12 @@ sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(const MtlGpu* gpu) {
      (*cmdBuffer).label = @"MtlCommandBuffer::Make";
 #endif
 
-    return sk_sp<MtlCommandBuffer>(new MtlCommandBuffer(std::move(cmdBuffer), gpu));
+    return sk_sp<MtlCommandBuffer>(new MtlCommandBuffer(std::move(cmdBuffer), sharedContext));
 }
 
-MtlCommandBuffer::MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const MtlGpu* gpu)
-    : fCommandBuffer(std::move(cmdBuffer)), fGpu(gpu) {}
+MtlCommandBuffer::MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer,
+                                   const MtlSharedContext* sharedContext)
+    : fCommandBuffer(std::move(cmdBuffer)), fSharedContext(sharedContext) {}
 
 MtlCommandBuffer::~MtlCommandBuffer() {}
 
@@ -196,7 +197,7 @@ bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         SkASSERT(!depthStencilInfo.fTextureInfo.isValid());
     }
 
-    fActiveRenderCommandEncoder = MtlRenderCommandEncoder::Make(fGpu,
+    fActiveRenderCommandEncoder = MtlRenderCommandEncoder::Make(fSharedContext,
                                                                 fCommandBuffer.get(),
                                                                 descriptor.get());
 
@@ -308,7 +309,7 @@ MtlBlitCommandEncoder* MtlCommandBuffer::getBlitCommandEncoder() {
     }
 #endif
 
-    fActiveBlitCommandEncoder = MtlBlitCommandEncoder::Make(fGpu, fCommandBuffer.get());
+    fActiveBlitCommandEncoder = MtlBlitCommandEncoder::Make(fSharedContext, fCommandBuffer.get());
 
     if (!fActiveBlitCommandEncoder) {
         return nullptr;
@@ -524,7 +525,8 @@ void MtlCommandBuffer::beginComputePass() {
     SkASSERT(!fActiveRenderCommandEncoder);
     SkASSERT(!fActiveComputeCommandEncoder);
     this->endBlitCommandEncoder();
-    fActiveComputeCommandEncoder = MtlComputeCommandEncoder::Make(fGpu, fCommandBuffer.get());
+    fActiveComputeCommandEncoder = MtlComputeCommandEncoder::Make(fSharedContext,
+                                                                  fCommandBuffer.get());
 }
 
 void MtlCommandBuffer::bindComputePipeline(const ComputePipeline* computePipeline) {
@@ -586,7 +588,7 @@ bool MtlCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
 #endif
     blitCmdEncoder->copyFromTexture(mtlTexture, srcRect, mtlBuffer, bufferOffset, bufferRowBytes);
 
-    if (fGpu->mtlCaps().isMac()) {
+    if (fSharedContext->mtlCaps().isMac()) {
 #ifdef SK_BUILD_FOR_MAC
         // Sync GPU data back to the CPU
         blitCmdEncoder->synchronizeResource(mtlBuffer);

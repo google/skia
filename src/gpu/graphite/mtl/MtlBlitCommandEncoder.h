@@ -22,12 +22,13 @@ namespace skgpu::graphite {
  */
 class MtlBlitCommandEncoder : public Resource {
 public:
-    static sk_sp<MtlBlitCommandEncoder> Make(const skgpu::graphite::Gpu* gpu,
+    static sk_sp<MtlBlitCommandEncoder> Make(const SharedContext* sharedContext,
                                              id<MTLCommandBuffer> commandBuffer) {
         // Adding a retain here to keep our own ref separate from the autorelease pool
         sk_cfp<id<MTLBlitCommandEncoder>> encoder =
                 sk_ret_cfp<id<MTLBlitCommandEncoder>>([commandBuffer blitCommandEncoder]);
-        return sk_sp<MtlBlitCommandEncoder>(new MtlBlitCommandEncoder(gpu, std::move(encoder)));
+        return sk_sp<MtlBlitCommandEncoder>(new MtlBlitCommandEncoder(sharedContext,
+                                                                      std::move(encoder)));
     }
 
     void pushDebugGroup(NSString* string) {
@@ -80,9 +81,9 @@ public:
     }
 
 private:
-    MtlBlitCommandEncoder(const skgpu::graphite::Gpu* gpu,
+    MtlBlitCommandEncoder(const SharedContext* sharedContext,
                           sk_cfp<id<MTLBlitCommandEncoder>> encoder)
-        : Resource(gpu, Ownership::kOwned, SkBudgeted::kYes)
+        : Resource(sharedContext, Ownership::kOwned, SkBudgeted::kYes)
         , fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override {

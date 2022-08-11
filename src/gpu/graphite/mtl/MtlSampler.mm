@@ -9,13 +9,13 @@
 
 #include "include/core/SkSamplingOptions.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
-#include "src/gpu/graphite/mtl/MtlGpu.h"
+#include "src/gpu/graphite/mtl/MtlSharedContext.h"
 
 namespace skgpu::graphite {
 
-MtlSampler::MtlSampler(const MtlGpu* gpu,
+MtlSampler::MtlSampler(const MtlSharedContext* sharedContext,
                        sk_cfp<id<MTLSamplerState>> samplerState)
-        : Sampler(gpu)
+        : Sampler(sharedContext)
         , fSamplerState(std::move(samplerState)) {}
 
 static inline MTLSamplerAddressMode tile_mode_to_mtl_sampler_address(SkTileMode tileMode,
@@ -44,7 +44,7 @@ static inline MTLSamplerAddressMode tile_mode_to_mtl_sampler_address(SkTileMode 
     SkUNREACHABLE;
 }
 
-sk_sp<MtlSampler> MtlSampler::Make(const MtlGpu* gpu,
+sk_sp<MtlSampler> MtlSampler::Make(const MtlSharedContext* sharedContext,
                                    const SkSamplingOptions& samplingOptions,
                                    SkTileMode xTileMode,
                                    SkTileMode yTileMode) {
@@ -68,8 +68,8 @@ sk_sp<MtlSampler> MtlSampler::Make(const MtlGpu* gpu,
     }();
 
     (*desc).rAddressMode = MTLSamplerAddressModeClampToEdge;
-    (*desc).sAddressMode = tile_mode_to_mtl_sampler_address(xTileMode, gpu->mtlCaps());
-    (*desc).tAddressMode = tile_mode_to_mtl_sampler_address(yTileMode, gpu->mtlCaps());
+    (*desc).sAddressMode = tile_mode_to_mtl_sampler_address(xTileMode, sharedContext->mtlCaps());
+    (*desc).tAddressMode = tile_mode_to_mtl_sampler_address(yTileMode, sharedContext->mtlCaps());
     (*desc).magFilter = minMagFilter;
     (*desc).minFilter = minMagFilter;
     (*desc).mipFilter = mipFilter;
@@ -104,11 +104,12 @@ sk_sp<MtlSampler> MtlSampler::Make(const MtlGpu* gpu,
                                                mipFilterLabels[(int)samplingOptions.mipmap]];
 #endif
 
-    sk_cfp<id<MTLSamplerState>> sampler([gpu->device() newSamplerStateWithDescriptor:desc.get()]);
+    sk_cfp<id<MTLSamplerState>> sampler(
+            [sharedContext->device() newSamplerStateWithDescriptor:desc.get()]);
     if (!sampler) {
         return nullptr;
     }
-    return sk_sp<MtlSampler>(new MtlSampler(gpu, std::move(sampler)));
+    return sk_sp<MtlSampler>(new MtlSampler(sharedContext, std::move(sampler)));
 }
 
 void MtlSampler::freeGpuData() {

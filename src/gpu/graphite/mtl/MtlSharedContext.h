@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_MtlGpu_DEFINED
-#define skgpu_graphite_MtlGpu_DEFINED
+#ifndef skgpu_graphite_MtlSharedContext_DEFINED
+#define skgpu_graphite_MtlSharedContext_DEFINED
 
-#include "src/gpu/graphite/Gpu.h"
+#include "src/gpu/graphite/SharedContext.h"
 
 #include "include/ports/SkCFObject.h"
 
@@ -20,10 +20,10 @@
 namespace skgpu::graphite {
 struct ContextOptions;
 
-class MtlGpu final : public Gpu {
+class MtlSharedContext final : public SharedContext {
 public:
-    static sk_sp<Gpu> Make(const MtlBackendContext&, const ContextOptions&);
-    ~MtlGpu() override;
+    static sk_sp<SharedContext> Make(const MtlBackendContext&, const ContextOptions&);
+    ~MtlSharedContext() override;
 
     id<MTLDevice> device() const { return fDevice.get(); }
     id<MTLCommandQueue> queue() const { return fQueue.get(); }
@@ -34,7 +34,7 @@ public:
             sk_sp<GlobalCache>, SingleOwner*) const override;
 
 private:
-    MtlGpu(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const MtlCaps>);
+    MtlSharedContext(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const MtlCaps>);
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
     void onDeleteBackendTexture(BackendTexture&) override;
@@ -50,4 +50,4 @@ private:
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_MtlGpu_DEFINED
+#endif // skgpu_graphite_MtlSharedContext_DEFINED

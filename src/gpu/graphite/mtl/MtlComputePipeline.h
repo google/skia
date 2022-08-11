@@ -17,21 +17,21 @@
 namespace skgpu::graphite {
 
 class ComputePipelineDesc;
-class MtlGpu;
 class MtlResourceProvider;
+class MtlSharedContext;
 
 class MtlComputePipeline final : public ComputePipeline {
 public:
     static sk_sp<MtlComputePipeline> Make(MtlResourceProvider*,
-                                          const MtlGpu*,
+                                          const MtlSharedContext*,
                                           const ComputePipelineDesc&);
     ~MtlComputePipeline() override = default;
 
     id<MTLComputePipelineState> mtlPipelineState() const { return fPipelineState.get(); }
 
 private:
-    MtlComputePipeline(const Gpu* gpu, sk_cfp<id<MTLComputePipelineState>> pso)
-            : ComputePipeline(gpu)
+    MtlComputePipeline(const SharedContext* sharedContext, sk_cfp<id<MTLComputePipelineState>> pso)
+            : ComputePipeline(sharedContext)
             , fPipelineState(std::move(pso)) {}
 
     void freeGpuData() override;

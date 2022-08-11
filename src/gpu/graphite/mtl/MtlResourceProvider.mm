@@ -13,47 +13,47 @@
 #include "src/gpu/graphite/mtl/MtlBuffer.h"
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
 #include "src/gpu/graphite/mtl/MtlComputePipeline.h"
-#include "src/gpu/graphite/mtl/MtlGpu.h"
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
 #include "src/gpu/graphite/mtl/MtlSampler.h"
+#include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
 
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
 
-MtlResourceProvider::MtlResourceProvider(const Gpu* gpu,
+MtlResourceProvider::MtlResourceProvider(const SharedContext* sharedContext,
                                          sk_sp<GlobalCache> globalCache,
                                          SingleOwner* singleOwner)
-    : ResourceProvider(gpu, std::move(globalCache), singleOwner) {
+    : ResourceProvider(sharedContext, std::move(globalCache), singleOwner) {
 }
 
-const MtlGpu* MtlResourceProvider::mtlGpu() {
-    return static_cast<const MtlGpu*>(fGpu);
+const MtlSharedContext* MtlResourceProvider::mtlSharedContext() {
+    return static_cast<const MtlSharedContext*>(fSharedContext);
 }
 
 sk_sp<CommandBuffer> MtlResourceProvider::createCommandBuffer() {
-    return MtlCommandBuffer::Make(this->mtlGpu());
+    return MtlCommandBuffer::Make(this->mtlSharedContext());
 }
 
 sk_sp<GraphicsPipeline> MtlResourceProvider::onCreateGraphicsPipeline(
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
     return MtlGraphicsPipeline::Make(this,
-                                     this->mtlGpu(),
+                                     this->mtlSharedContext(),
                                      pipelineDesc,
                                      renderPassDesc);
 }
 
 sk_sp<ComputePipeline> MtlResourceProvider::onCreateComputePipeline(
         const ComputePipelineDesc& pipelineDesc) {
-    return MtlComputePipeline::Make(this, this->mtlGpu(), pipelineDesc);
+    return MtlComputePipeline::Make(this, this->mtlSharedContext(), pipelineDesc);
 }
 
 sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,
                                                   const TextureInfo& info,
                                                   SkBudgeted budgeted) {
-    return MtlTexture::Make(this->mtlGpu(), dimensions, info, budgeted);
+    return MtlTexture::Make(this->mtlSharedContext(), dimensions, info, budgeted);
 }
 
 sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& texture) {
@@ -62,7 +62,7 @@ sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& t
         return nullptr;
     }
     sk_cfp<id<MTLTexture>> mtlTexture = sk_ret_cfp((id<MTLTexture>)mtlHandleTexture);
-    return MtlTexture::MakeWrapped(this->mtlGpu(),
+    return MtlTexture::MakeWrapped(this->mtlSharedContext(),
                                    texture.dimensions(),
                                    texture.info(),
                                    std::move(mtlTexture));
@@ -71,13 +71,13 @@ sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& t
 sk_sp<Buffer> MtlResourceProvider::createBuffer(size_t size,
                                                 BufferType type,
                                                 PrioritizeGpuReads prioritizeGpuReads) {
-    return MtlBuffer::Make(this->mtlGpu(), size, type, prioritizeGpuReads);
+    return MtlBuffer::Make(this->mtlSharedContext(), size, type, prioritizeGpuReads);
 }
 
 sk_sp<Sampler> MtlResourceProvider::createSampler(const SkSamplingOptions& samplingOptions,
                                                   SkTileMode xTileMode,
                                                   SkTileMode yTileMode) {
-    return MtlSampler::Make(this->mtlGpu(), samplingOptions, xTileMode, yTileMode);
+    return MtlSampler::Make(this->mtlSharedContext(), samplingOptions, xTileMode, yTileMode);
 }
 
 namespace {
@@ -152,7 +152,7 @@ sk_cfp<id<MTLDepthStencilState>> MtlResourceProvider::findOrCreateCompatibleDept
         }
 
         sk_cfp<id<MTLDepthStencilState>> dss(
-                [this->mtlGpu()->device() newDepthStencilStateWithDescriptor: desc]);
+                [this->mtlSharedContext()->device() newDepthStencilStateWithDescriptor: desc]);
         depthStencilState = fDepthStencilStates.set(depthStencilSettings, std::move(dss));
     }
 

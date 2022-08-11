@@ -20,11 +20,11 @@ struct SkSamplingOptions;
 
 namespace skgpu::graphite {
 
-class MtlGpu;
+class MtlSharedContext;
 
 class MtlSampler : public Sampler {
 public:
-    static sk_sp<MtlSampler> Make(const MtlGpu*,
+    static sk_sp<MtlSampler> Make(const MtlSharedContext*,
                                   const SkSamplingOptions& samplingOptions,
                                   SkTileMode xTileMode,
                                   SkTileMode yTileMode);
@@ -34,7 +34,7 @@ public:
     id<MTLSamplerState> mtlSamplerState() const { return fSamplerState.get(); }
 
 private:
-    MtlSampler(const MtlGpu* gpu,
+    MtlSampler(const MtlSharedContext* sharedContext,
                sk_cfp<id<MTLSamplerState>>);
 
     void freeGpuData() override;

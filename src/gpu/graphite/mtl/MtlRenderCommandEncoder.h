@@ -21,13 +21,14 @@ namespace skgpu::graphite {
  */
 class MtlRenderCommandEncoder : public Resource {
 public:
-    static sk_sp<MtlRenderCommandEncoder> Make(const Gpu* gpu,
+    static sk_sp<MtlRenderCommandEncoder> Make(const SharedContext* sharedContext,
                                                id<MTLCommandBuffer> commandBuffer,
                                                MTLRenderPassDescriptor* descriptor) {
         // Adding a retain here to keep our own ref separate from the autorelease pool
         sk_cfp<id<MTLRenderCommandEncoder>> encoder =
                  sk_ret_cfp([commandBuffer renderCommandEncoderWithDescriptor:descriptor]);
-        return sk_sp<MtlRenderCommandEncoder>(new MtlRenderCommandEncoder(gpu, std::move(encoder)));
+        return sk_sp<MtlRenderCommandEncoder>(new MtlRenderCommandEncoder(sharedContext,
+                                                                          std::move(encoder)));
     }
 
     void setLabel(NSString* label) {
@@ -247,8 +248,9 @@ private:
     inline static constexpr int kMaxExpectedBuffers = 5;
     inline static constexpr int kMaxExpectedTextures = 16;
 
-    MtlRenderCommandEncoder(const Gpu* gpu, sk_cfp<id<MTLRenderCommandEncoder>> encoder)
-            : Resource(gpu, Ownership::kOwned, SkBudgeted::kYes)
+    MtlRenderCommandEncoder(const SharedContext* sharedContext,
+                            sk_cfp<id<MTLRenderCommandEncoder>> encoder)
+            : Resource(sharedContext, Ownership::kOwned, SkBudgeted::kYes)
             , fCommandEncoder(std::move(encoder)) {
         for (int i = 0; i < kMaxExpectedBuffers; i++) {
             fCurrentVertexBuffer[i] = nil;

@@ -15,16 +15,22 @@
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
-class MtlGpu;
+class MtlSharedContext;
 
 class MtlBuffer : public Buffer {
 public:
-    static sk_sp<Buffer> Make(const MtlGpu*, size_t size, BufferType type, PrioritizeGpuReads);
+    static sk_sp<Buffer> Make(const MtlSharedContext*,
+                              size_t size,
+                              BufferType type,
+                              PrioritizeGpuReads);
 
     id<MTLBuffer> mtlBuffer() const { return fBuffer.get(); }
 
 private:
-    MtlBuffer(const MtlGpu*, size_t size, BufferType type, PrioritizeGpuReads,
+    MtlBuffer(const MtlSharedContext*,
+              size_t size,
+              BufferType type,
+              PrioritizeGpuReads,
               sk_cfp<id<MTLBuffer>>);
 
     void onMap() override;

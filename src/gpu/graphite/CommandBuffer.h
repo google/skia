@@ -27,7 +27,7 @@ namespace skgpu::graphite {
 class Buffer;
 class ComputePipeline;
 class DrawPass;
-class Gpu;
+class SharedContext;
 class GraphicsPipeline;
 class Resource;
 class Sampler;

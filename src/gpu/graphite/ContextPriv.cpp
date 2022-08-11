@@ -8,13 +8,13 @@
 #include "src/gpu/graphite/ContextPriv.h"
 
 #include "src/gpu/graphite/GlobalCache.h"
-#include "src/gpu/graphite/Gpu.h"
+#include "src/gpu/graphite/SharedContext.h"
 
 namespace skgpu::graphite {
 
 #if GRAPHITE_TEST_UTILS
 const Caps* ContextPriv::caps() const {
-    return fContext->fGpu->caps();
+    return fContext->fSharedContext->caps();
 }
 #endif
 

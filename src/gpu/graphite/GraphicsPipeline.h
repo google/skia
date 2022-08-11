@@ -27,7 +27,7 @@ public:
     ~GraphicsPipeline() override;
 
 protected:
-    GraphicsPipeline(const Gpu*);
+    GraphicsPipeline(const SharedContext*);
 
 private:
 };

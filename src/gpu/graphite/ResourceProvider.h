@@ -31,12 +31,12 @@ class Caps;
 class ComputePipeline;
 class ComputePipelineDesc;
 class GlobalCache;
-class Gpu;
 class GraphicsPipeline;
 class GraphicsPipelineDesc;
 class GraphiteResourceKey;
 class ResourceCache;
 class Sampler;
+class SharedContext;
 class Texture;
 class TextureInfo;
 
@@ -74,13 +74,15 @@ public:
 
 #if GRAPHITE_TEST_UTILS
     ResourceCache* resourceCache() { return fResourceCache.get(); }
-    const Gpu* gpu() { return fGpu; }
+    const SharedContext* sharedContext() { return fSharedContext; }
 #endif
 
 protected:
-    ResourceProvider(const Gpu* gpu, sk_sp<GlobalCache>, SingleOwner* singleOwner);
+    ResourceProvider(const SharedContext* sharedContext,
+                     sk_sp<GlobalCache>,
+                     SingleOwner* singleOwner);
 
-    const Gpu* fGpu;
+    const SharedContext* fSharedContext;
 
 private:
     virtual sk_sp<GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&,

@@ -14,20 +14,20 @@
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
-class MtlGpu;
+class MtlSharedContext;
 
 class MtlTexture : public Texture {
 public:
-    static sk_cfp<id<MTLTexture>> MakeMtlTexture(const MtlGpu*,
+    static sk_cfp<id<MTLTexture>> MakeMtlTexture(const MtlSharedContext*,
                                                  SkISize dimensions,
                                                  const TextureInfo&);
 
-    static sk_sp<Texture> Make(const MtlGpu*,
+    static sk_sp<Texture> Make(const MtlSharedContext*,
                                SkISize dimensions,
                                const TextureInfo&,
                                SkBudgeted);
 
-    static sk_sp<Texture> MakeWrapped(const MtlGpu*,
+    static sk_sp<Texture> MakeWrapped(const MtlSharedContext*,
                                       SkISize dimensions,
                                       const TextureInfo&,
                                       sk_cfp<id<MTLTexture>>);
@@ -37,7 +37,7 @@ public:
     id<MTLTexture> mtlTexture() const { return fTexture.get(); }
 
 private:
-    MtlTexture(const MtlGpu* gpu,
+    MtlTexture(const MtlSharedContext* sharedContext,
                SkISize dimensions,
                const TextureInfo& info,
                sk_cfp<id<MTLTexture>>,

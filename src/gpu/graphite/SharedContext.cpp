@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/Gpu.h"
+#include "src/gpu/graphite/SharedContext.h"
 
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/TextureInfo.h"
@@ -18,25 +18,25 @@
 
 namespace skgpu::graphite {
 
-Gpu::Gpu(sk_sp<const Caps> caps)
+SharedContext::SharedContext(sk_sp<const Caps> caps)
     : fCaps(std::move(caps)) {
 }
 
-Gpu::~Gpu() {
+SharedContext::~SharedContext() {
     // TODO: add disconnect?
 
     // TODO: destroyResources instead?
 }
 
-void Gpu::initCompiler() {
+void SharedContext::initCompiler() {
     fCompiler = std::make_unique<SkSL::Compiler>(fCaps->shaderCaps());
 }
 
-sk_sp<const Caps> Gpu::refCaps() const {
+sk_sp<const Caps> SharedContext::refCaps() const {
     return fCaps;
 }
 
-BackendTexture Gpu::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
+BackendTexture SharedContext::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
     if (dimensions.isEmpty() || dimensions.width()  > this->caps()->maxTextureSize() ||
                                 dimensions.height() > this->caps()->maxTextureSize()) {
         return {};
@@ -45,7 +45,7 @@ BackendTexture Gpu::createBackendTexture(SkISize dimensions, const TextureInfo& 
     return this->onCreateBackendTexture(dimensions, info);
 }
 
-void Gpu::deleteBackendTexture(BackendTexture& texture) {
+void SharedContext::deleteBackendTexture(BackendTexture& texture) {
     this->onDeleteBackendTexture(texture);
     // Invalidate the texture;
     texture = BackendTexture();

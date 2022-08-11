@@ -9,7 +9,8 @@
 
 namespace skgpu::graphite {
 
-Sampler::Sampler(const Gpu* gpu) : Resource(gpu, Ownership::kOwned, SkBudgeted::kYes) {}
+Sampler::Sampler(const SharedContext* sharedContext)
+        : Resource(sharedContext, Ownership::kOwned, SkBudgeted::kYes) {}
 
 Sampler::~Sampler() {}
 

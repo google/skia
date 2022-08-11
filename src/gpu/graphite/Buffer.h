@@ -23,8 +23,11 @@ public:
     bool isMapped() const { return fMapPtr; }
 
 protected:
-    Buffer(const Gpu* gpu, size_t size, BufferType type, PrioritizeGpuReads prioritizeGpuReads)
-        : Resource(gpu, Ownership::kOwned, SkBudgeted::kYes)
+    Buffer(const SharedContext* sharedContext,
+           size_t size,
+           BufferType type,
+           PrioritizeGpuReads prioritizeGpuReads)
+        : Resource(sharedContext, Ownership::kOwned, SkBudgeted::kYes)
         , fSize(size)
         , fType(type)
         , fPrioritizeGpuReads(prioritizeGpuReads) {}

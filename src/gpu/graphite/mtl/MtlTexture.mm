@@ -10,15 +10,15 @@
 #include "include/gpu/graphite/mtl/MtlTypes.h"
 #include "include/private/gpu/graphite/MtlTypesPriv.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
-#include "src/gpu/graphite/mtl/MtlGpu.h"
+#include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
 
 namespace skgpu::graphite {
 
-sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlGpu* gpu,
+sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlSharedContext* sharedContext,
                                                   SkISize dimensions,
                                                   const TextureInfo& info) {
-    const skgpu::graphite::Caps* caps = gpu->caps();
+    const Caps* caps = sharedContext->caps();
     if (dimensions.width() > caps->maxTextureSize() ||
         dimensions.height() > caps->maxTextureSize()) {
         return nullptr;
@@ -48,7 +48,7 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlGpu* gpu,
     (*desc).usage = mtlSpec.fUsage;
     (*desc).storageMode = (MTLStorageMode)mtlSpec.fStorageMode;
 
-    sk_cfp<id<MTLTexture>> texture([gpu->device() newTextureWithDescriptor:desc.get()]);
+    sk_cfp<id<MTLTexture>> texture([sharedContext->device() newTextureWithDescriptor:desc.get()]);
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     if (mtlSpec.fUsage & MTLTextureUsageRenderTarget) {
         if (MtlFormatIsDepthOrStencil((MTLPixelFormat)mtlSpec.fFormat)) {
@@ -77,24 +77,24 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlGpu* gpu,
     return texture;
 }
 
-MtlTexture::MtlTexture(const MtlGpu* gpu,
+MtlTexture::MtlTexture(const MtlSharedContext* sharedContext,
                        SkISize dimensions,
                        const TextureInfo& info,
                        sk_cfp<id<MTLTexture>> texture,
                        Ownership ownership,
                        SkBudgeted budgeted)
-        : Texture(gpu, dimensions, info, ownership, budgeted)
+        : Texture(sharedContext, dimensions, info, ownership, budgeted)
         , fTexture(std::move(texture)) {}
 
-sk_sp<Texture> MtlTexture::Make(const MtlGpu* gpu,
+sk_sp<Texture> MtlTexture::Make(const MtlSharedContext* sharedContext,
                                 SkISize dimensions,
                                 const TextureInfo& info,
                                 SkBudgeted budgeted) {
-    sk_cfp<id<MTLTexture>> texture = MakeMtlTexture(gpu, dimensions, info);
+    sk_cfp<id<MTLTexture>> texture = MakeMtlTexture(sharedContext, dimensions, info);
     if (!texture) {
         return nullptr;
     }
-    return sk_sp<Texture>(new MtlTexture(gpu,
+    return sk_sp<Texture>(new MtlTexture(sharedContext,
                                          dimensions,
                                          info,
                                          std::move(texture),
@@ -102,11 +102,11 @@ sk_sp<Texture> MtlTexture::Make(const MtlGpu* gpu,
                                          budgeted));
 }
 
-sk_sp<Texture> MtlTexture::MakeWrapped(const MtlGpu* gpu,
+sk_sp<Texture> MtlTexture::MakeWrapped(const MtlSharedContext* sharedContext,
                                        SkISize dimensions,
                                        const TextureInfo& info,
                                        sk_cfp<id<MTLTexture>> texture) {
-    return sk_sp<Texture>(new MtlTexture(gpu,
+    return sk_sp<Texture>(new MtlTexture(sharedContext,
                                          dimensions,
                                          info,
                                          std::move(texture),

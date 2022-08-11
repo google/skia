@@ -33,11 +33,11 @@ class Caps;
 class Device;
 class DrawBufferManager;
 class GlobalCache;
-class Gpu;
 class ImageProvider;
 class RecorderPriv;
 class Recording;
 class ResourceProvider;
+class SharedContext;
 class Task;
 class TaskGraph;
 class UploadBufferManager;
@@ -82,7 +82,7 @@ private:
     friend class Device; // For registering and deregistering Devices;
     friend class RecorderPriv; // for ctor and hidden methods
 
-    Recorder(sk_sp<Gpu>, sk_sp<GlobalCache>, const RecorderOptions&);
+    Recorder(sk_sp<SharedContext>, sk_sp<GlobalCache>, const RecorderOptions&);
 
     SingleOwner* singleOwner() const { return &fSingleOwner; }
 
@@ -106,7 +106,7 @@ private:
     void registerDevice(Device*);
     void deregisterDevice(const Device*);
 
-    sk_sp<Gpu> fGpu;
+    sk_sp<SharedContext> fSharedContext;
     std::unique_ptr<ResourceProvider> fResourceProvider;
 
     std::unique_ptr<TaskGraph> fGraph;

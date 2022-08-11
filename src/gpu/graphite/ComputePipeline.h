@@ -12,7 +12,7 @@
 
 namespace skgpu::graphite {
 
-class Gpu;
+class SharedContext;
 
 /**
  * ComputePipeline corresponds to a backend specific pipeline used for compute (vs rendering),
@@ -30,7 +30,7 @@ public:
     // them via specialization constants).
 
 protected:
-    explicit ComputePipeline(const Gpu*);
+    explicit ComputePipeline(const SharedContext*);
 };
 
 }  // namespace skgpu::graphite

@@ -22,13 +22,13 @@
 
 namespace skgpu::graphite {
 class MtlBlitCommandEncoder;
-class MtlGpu;
 class MtlComputeCommandEncoder;
 class MtlRenderCommandEncoder;
+class MtlSharedContext;
 
 class MtlCommandBuffer final : public CommandBuffer {
 public:
-    static sk_sp<MtlCommandBuffer> Make(const MtlGpu*);
+    static sk_sp<MtlCommandBuffer> Make(const MtlSharedContext*);
     ~MtlCommandBuffer() override;
 
     bool isFinished() {
@@ -51,7 +51,7 @@ public:
     bool commit();
 
 private:
-    MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const MtlGpu* gpu);
+    MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const MtlSharedContext* sharedContext);
 
     bool onAddRenderPass(const RenderPassDesc&,
                          const Texture* colorTexture,
@@ -130,7 +130,7 @@ private:
     id<MTLBuffer> fCurrentIndexBuffer;
     size_t fCurrentIndexBufferOffset = 0;
 
-    const MtlGpu* fGpu;
+    const MtlSharedContext* fSharedContext;
 };
 
 } // namespace skgpu::graphite

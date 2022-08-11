@@ -17,7 +17,7 @@ public:
     ~Sampler() override;
 
 protected:
-    Sampler(const Gpu*);
+    Sampler(const SharedContext*);
 
 private:
 };

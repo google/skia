@@ -22,7 +22,7 @@ namespace skgpu::graphite {
  */
 class MtlComputeCommandEncoder : public Resource {
 public:
-    static sk_sp<MtlComputeCommandEncoder> Make(const Gpu* gpu,
+    static sk_sp<MtlComputeCommandEncoder> Make(const SharedContext* sharedContext,
                                                 id<MTLCommandBuffer> commandBuffer) {
         // Adding a retain here to keep our own ref separate from the autorelease pool
         sk_cfp<id<MTLComputeCommandEncoder>> encoder =
@@ -31,7 +31,7 @@ public:
         // TODO(armansito): Support concurrent dispatch of compute passes using
         // MTLDispatchTypeConcurrent on macOS 10.14+ and iOS 12.0+.
         return sk_sp<MtlComputeCommandEncoder>(
-                new MtlComputeCommandEncoder(gpu, std::move(encoder)));
+                new MtlComputeCommandEncoder(sharedContext, std::move(encoder)));
     }
 
     void setLabel(NSString* label) { [(*fCommandEncoder) setLabel:label]; }
@@ -79,8 +79,9 @@ public:
     void endEncoding() { [(*fCommandEncoder) endEncoding]; }
 
 private:
-    MtlComputeCommandEncoder(const Gpu* gpu, sk_cfp<id<MTLComputeCommandEncoder>> encoder)
-            : Resource(gpu, Ownership::kOwned, SkBudgeted::kYes)
+    MtlComputeCommandEncoder(const SharedContext* sharedContext,
+                             sk_cfp<id<MTLComputeCommandEncoder>> encoder)
+            : Resource(sharedContext, Ownership::kOwned, SkBudgeted::kYes)
             , fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override { fCommandEncoder.reset(); }

@@ -26,7 +26,10 @@ public:
     const TextureInfo& textureInfo() const { return fInfo; }
 
 protected:
-    Texture(const Gpu*, SkISize dimensions, const TextureInfo& info, Ownership, SkBudgeted);
+    Texture(const SharedContext*,
+            SkISize dimensions,
+            const TextureInfo& info,
+            Ownership, SkBudgeted);
 
 private:
     SkISize fDimensions;

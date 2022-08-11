@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/mtl/MtlGpu.h"
+#include "src/gpu/graphite/mtl/MtlSharedContext.h"
 
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/TextureInfo.h"
@@ -18,8 +18,8 @@
 
 namespace skgpu::graphite {
 
-sk_sp<skgpu::graphite::Gpu> MtlGpu::Make(const MtlBackendContext& context,
-                                         const ContextOptions& options) {
+sk_sp<skgpu::graphite::SharedContext> MtlSharedContext::Make(const MtlBackendContext& context,
+                                                             const ContextOptions& options) {
     // TODO: This was taken from GrMtlGpu.mm's Make, does graphite deserve a higher version?
     if (@available(macOS 10.14, iOS 11.0, *)) {
         // no warning needed
@@ -38,31 +38,32 @@ sk_sp<skgpu::graphite::Gpu> MtlGpu::Make(const MtlBackendContext& context,
 
     sk_sp<const MtlCaps> caps(new MtlCaps(device.get(), options));
 
-    return sk_sp<skgpu::graphite::Gpu>(new MtlGpu(std::move(device),
-                                                  std::move(queue),
-                                                  std::move(caps)));
+    return sk_sp<skgpu::graphite::SharedContext>(new MtlSharedContext(std::move(device),
+                                                                      std::move(queue),
+                                                                      std::move(caps)));
 }
 
-MtlGpu::MtlGpu(sk_cfp<id<MTLDevice>> device,
-               sk_cfp<id<MTLCommandQueue>> queue,
-               sk_sp<const MtlCaps> caps)
-    : skgpu::graphite::Gpu(std::move(caps))
+MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
+                                   sk_cfp<id<MTLCommandQueue>> queue,
+                                   sk_sp<const MtlCaps> caps)
+    : skgpu::graphite::SharedContext(std::move(caps))
     , fDevice(std::move(device))
     , fQueue(std::move(queue)) {
     this->initCompiler();
 }
 
-MtlGpu::~MtlGpu() {
+MtlSharedContext::~MtlSharedContext() {
 }
 
-std::unique_ptr<ResourceProvider> MtlGpu::makeResourceProvider(
+std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(
         sk_sp<GlobalCache> globalCache, SingleOwner* singleOwner) const {
     return std::unique_ptr<ResourceProvider>(new MtlResourceProvider(this,
                                                                      std::move(globalCache),
                                                                      singleOwner));
 }
 
-BackendTexture MtlGpu::onCreateBackendTexture(SkISize dimensions, const TextureInfo& info) {
+BackendTexture MtlSharedContext::onCreateBackendTexture(SkISize dimensions,
+                                                        const TextureInfo& info) {
     sk_cfp<id<MTLTexture>> texture = MtlTexture::MakeMtlTexture(this, dimensions, info);
     if (!texture) {
         return {};
@@ -70,14 +71,14 @@ BackendTexture MtlGpu::onCreateBackendTexture(SkISize dimensions, const TextureI
     return BackendTexture(dimensions, (Handle)texture.release());
 }
 
-void MtlGpu::onDeleteBackendTexture(BackendTexture& texture) {
+void MtlSharedContext::onDeleteBackendTexture(BackendTexture& texture) {
     SkASSERT(texture.backend() == BackendApi::kMetal);
     MtlHandle texHandle = texture.getMtlTexture();
     SkCFSafeRelease(texHandle);
 }
 
 #if GRAPHITE_TEST_UTILS
-void MtlGpu::testingOnly_startCapture() {
+void MtlSharedContext::testingOnly_startCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         // TODO: add newer Metal interface as well
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
@@ -99,7 +100,7 @@ void MtlGpu::testingOnly_startCapture() {
      }
 }
 
-void MtlGpu::testingOnly_endCapture() {
+void MtlSharedContext::testingOnly_endCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
         if (captureManager.isCapturing) {

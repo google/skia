@@ -17,11 +17,11 @@
 #include "include/gpu/graphite/SkStuff.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/graphite/Device.h"
-#include "src/gpu/graphite/Gpu.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/image/SkImage_Base.h"
@@ -30,11 +30,11 @@ namespace skgpu::graphite {
 
 class TestResource : public Resource {
 public:
-    static sk_sp<TestResource> Make(const Gpu* gpu,
+    static sk_sp<TestResource> Make(const SharedContext* sharedContext,
                                     Ownership owned,
                                     SkBudgeted budgeted,
                                     Shareable shareable) {
-        auto resource = sk_sp<TestResource>(new TestResource(gpu, owned, budgeted));
+        auto resource = sk_sp<TestResource>(new TestResource(sharedContext, owned, budgeted));
         if (!resource) {
             return nullptr;
         }
@@ -57,8 +57,8 @@ public:
     }
 
 private:
-    TestResource(const Gpu* gpu, Ownership owned, SkBudgeted budgeted)
-            : Resource(gpu, owned, budgeted) {}
+    TestResource(const SharedContext* sharedContext, Ownership owned, SkBudgeted budgeted)
+            : Resource(sharedContext, owned, budgeted) {}
 
     void freeGpuData() override {}
 };
@@ -79,13 +79,16 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, context)
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
     ResourceCache* resourceCache = resourceProvider->resourceCache();
-    const Gpu* gpu = resourceProvider->gpu();
+    const SharedContext* sharedContext = resourceProvider->sharedContext();
 
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 0);
 
     // Test making a non budgeted, non shareable resource.
-    auto resource = TestResource::Make(gpu, Ownership::kOwned, SkBudgeted::kNo, Shareable::kNo);
+    auto resource = TestResource::Make(sharedContext,
+                                       Ownership::kOwned,
+                                       SkBudgeted::kNo,
+                                       Shareable::kNo);
     if (!resource) {
         ERRORF(reporter, "Failed to make TestResource");
         return;
@@ -122,7 +125,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, context)
     resourceCache->forceProcessReturnedResources();
 
     // Test making a non budgeted, non shareable resource.
-    resource = TestResource::Make(gpu, Ownership::kOwned, SkBudgeted::kYes, Shareable::kYes);
+    resource = TestResource::Make(sharedContext,
+                                  Ownership::kOwned,
+                                  SkBudgeted::kYes,
+                                  Shareable::kYes);
     if (!resource) {
         ERRORF(reporter, "Failed to make TestResource");
         return;

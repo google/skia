@@ -18,8 +18,8 @@ class SkMutex;
 
 namespace skgpu::graphite {
 
-class Gpu;
 class ResourceCache;
+class SharedContext;
 
 /**
  * Base class for objects that can be kept in the ResourceCache.
@@ -92,7 +92,7 @@ public:
     // deleting this object. However, I want to implement all the purging logic first to make sure
     // we don't have a use case for calling internalDispose but not wanting to delete the actual
     // object yet.
-    bool wasDestroyed() const { return fGpu == nullptr; }
+    bool wasDestroyed() const { return fSharedContext == nullptr; }
 
     const GraphiteResourceKey& key() const { return fKey; }
     // This should only ever be called by the ResourceProvider
@@ -102,7 +102,7 @@ public:
     }
 
 protected:
-    Resource(const Gpu*, Ownership, SkBudgeted);
+    Resource(const SharedContext*, Ownership, SkBudgeted);
     virtual ~Resource();
 
     // Overridden to free GPU resources in the backend API.
@@ -219,7 +219,7 @@ private:
 
     // This is not ref'ed but internalDispose() will be called before the Gpu object is destroyed.
     // That call will set this to nullptr.
-    const Gpu* fGpu;
+    const SharedContext* fSharedContext;
 
     mutable std::atomic<int32_t> fUsageRefCnt;
     mutable std::atomic<int32_t> fCommandBufferRefCnt;

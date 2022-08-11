@@ -10,14 +10,14 @@
 #include "include/gpu/ShaderErrorHandler.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/mtl/MtlGpu.h"
+#include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
 
 namespace skgpu::graphite {
 
 // static
 sk_sp<MtlComputePipeline> MtlComputePipeline::Make(MtlResourceProvider* resourceProvider,
-                                                   const MtlGpu* gpu,
+                                                   const MtlSharedContext* sharedContext,
                                                    const ComputePipelineDesc& pipelineDesc) {
     sk_cfp<MTLComputePipelineDescriptor*> psoDescriptor([MTLComputePipelineDescriptor new]);
 
@@ -25,8 +25,8 @@ sk_sp<MtlComputePipeline> MtlComputePipeline::Make(MtlResourceProvider* resource
     SkSL::Program::Inputs inputs;
     SkSL::ProgramSettings settings;
 
-    ShaderErrorHandler* errorHandler = gpu->caps()->shaderErrorHandler();
-    if (!SkSLToMSL(gpu,
+    ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
+    if (!SkSLToMSL(sharedContext,
                    pipelineDesc.sksl(),
                    SkSL::ProgramKind::kCompute,
                    settings,
@@ -36,7 +36,9 @@ sk_sp<MtlComputePipeline> MtlComputePipeline::Make(MtlResourceProvider* resource
         return nullptr;
     }
 
-    sk_cfp<id<MTLLibrary>> shaderLibrary = MtlCompileShaderLibrary(gpu, msl, errorHandler);
+    sk_cfp<id<MTLLibrary>> shaderLibrary = MtlCompileShaderLibrary(sharedContext,
+                                                                   msl,
+                                                                   errorHandler);
     if (!shaderLibrary) {
         return nullptr;
     }
@@ -57,7 +59,7 @@ sk_sp<MtlComputePipeline> MtlComputePipeline::Make(MtlResourceProvider* resource
     // `threadExecutionWidth` property of the pipeline state object (otherwise this will cause UB).
 
     NSError* error;
-    sk_cfp<id<MTLComputePipelineState>> pso([gpu->device()
+    sk_cfp<id<MTLComputePipelineState>> pso([sharedContext->device()
             newComputePipelineStateWithDescriptor:psoDescriptor.get()
                                           options:MTLPipelineOptionNone
                                        reflection:NULL
@@ -67,7 +69,7 @@ sk_sp<MtlComputePipeline> MtlComputePipeline::Make(MtlResourceProvider* resource
         return nullptr;
     }
 
-    return sk_sp<MtlComputePipeline>(new MtlComputePipeline(gpu, std::move(pso)));
+    return sk_sp<MtlComputePipeline>(new MtlComputePipeline(sharedContext, std::move(pso)));
 }
 
 void MtlComputePipeline::freeGpuData() { fPipelineState.reset(); }
