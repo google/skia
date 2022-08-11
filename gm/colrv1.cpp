@@ -26,8 +26,6 @@
 namespace skiagm {
 
 namespace {
-bool ColrV1VariationsEnabledForTest() { return true; }
-
 const SkScalar kTextSizes[] = {12, 18, 30, 120};
 const char testFontName[] = "fonts/test_glyphs-glyf_colr_1.ttf";
 const SkScalar xWidth = 1200;
@@ -43,12 +41,7 @@ public:
             : fTestName(testName)
             , fCodepoints(codepoints)
             , fSkewX(skewX)
-            , fRotateDeg(rotateDeg) {
-        fPreviousFlagFunc =
-                SkGraphics::SetVariableColrV1EnabledFunc(ColrV1VariationsEnabledForTest);
-    }
-
-    ~ColrV1GM() override { SkGraphics::SetVariableColrV1EnabledFunc(fPreviousFlagFunc); }
+            , fRotateDeg(rotateDeg) {}
 
 protected:
     void onOnceBeforeDraw() override {
@@ -156,7 +149,6 @@ private:
     SkScalar fSkewX;
     SkScalar fRotateDeg;
     ToolUtils::VariationSliders fVariationSliders;
-    SkGraphics::VariableColrV1EnabledFunc fPreviousFlagFunc;
 };
 
 // Generated using test glyphs generator script from https://github.com/googlefonts/color-fonts:
