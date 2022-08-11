@@ -300,7 +300,6 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
 
 // Glue whitespaces to the next/prev unresolved blocks
 // (so we don't have chinese text with english whitespaces broken into millions of tiny runs)
-#ifndef SK_PARAGRAPH_GRAPHEME_EDGES
 void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
 
     auto text = fCurrentRun->fOwner->text();
@@ -357,70 +356,6 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
         sortOutUnresolvedBLock(block);
     }
 }
-#else
-void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
-
-    auto text = fCurrentRun->fOwner->text();
-    size_t unresolvedGlyphs = 0;
-
-    TextIndex whitespacesStart = EMPTY_INDEX;
-    GlyphRange block = EMPTY_RANGE;
-    for (size_t i = 0; i < fCurrentRun->size(); ++i) {
-
-        const char* cluster = text.begin() + clusterIndex(i);
-        SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
-        bool isControl8 = fParagraph->getUnicode()->isControl(codepoint);
-        // TODO: This is a temp change to match space handiling in LibTxt
-        // (all spaces are resolved with the main font)
-#ifdef SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION
-        bool isWhitespace8 = false; // fParagraph->getUnicode()->isWhitespace(codepoint);
-#else
-        bool isWhitespace8 = fParagraph->getUnicode()->isWhitespace(codepoint);
-#endif
-        // Inspect the glyph
-        auto glyph = fCurrentRun->fGlyphs[i];
-        if (glyph == 0 && !isControl8) { // Unresolved glyph and not control codepoint
-            ++unresolvedGlyphs;
-            if (block.start == EMPTY_INDEX) {
-                // Start new unresolved block
-                // (all leading whitespaces glued to the resolved part if it's not empty)
-                block.start = whitespacesStart == 0 ? 0 : i;
-                block.end = EMPTY_INDEX;
-            } else {
-                // Keep skipping unresolved block
-            }
-        } else { // Resolved glyph or control codepoint
-            if (block.start == EMPTY_INDEX) {
-                // Keep skipping resolved code points
-            } else if (isWhitespace8) {
-                // Glue whitespaces after to the unresolved block
-                ++unresolvedGlyphs;
-            } else {
-                // This is the end of unresolved block (all trailing whitespaces glued to the resolved part)
-                block.end = whitespacesStart == EMPTY_INDEX ? i : whitespacesStart;
-                sortOutUnresolvedBLock(block);
-                block = EMPTY_RANGE;
-                whitespacesStart = EMPTY_INDEX;
-            }
-        }
-
-        // Keep updated the start of the latest whitespaces patch
-        if (isWhitespace8) {
-            if (whitespacesStart == EMPTY_INDEX) {
-                whitespacesStart = i;
-            }
-        } else {
-            whitespacesStart = EMPTY_INDEX;
-        }
-    }
-
-    // One last block could have been left
-    if (block.start != EMPTY_INDEX) {
-        block.end = fCurrentRun->size();
-        sortOutUnresolvedBLock(block);
-    }
-}
-#endif
 
 void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
                                              SkSpan<Block> styleSpan,
