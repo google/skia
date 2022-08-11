@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/render/TextDirectRenderStep.h"
+#include "src/gpu/graphite/render/BitmapTextRenderStep.h"
 
 #include "src/core/SkPipelineData.h"
 
@@ -36,8 +36,8 @@ static constexpr DepthStencilSettings kDirectShadingPass = {
 constexpr int kNumTextAtlasTextures = 4;
 }  // namespace
 
-TextDirectRenderStep::TextDirectRenderStep(bool isA8)
-        : RenderStep("TextDirectRenderStep",
+BitmapTextRenderStep::BitmapTextRenderStep(bool isA8)
+        : RenderStep("BitmapTextRenderStep",
                      "",
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
                      /*uniforms=*/{{"atlasSizeInv", SkSLType::kFloat2}},
@@ -54,9 +54,9 @@ TextDirectRenderStep::TextDirectRenderStep(bool isA8)
                       {"texIndex", SkSLType::kFloat}})
         , fIsA8(isA8) {}
 
-TextDirectRenderStep::~TextDirectRenderStep() {}
+BitmapTextRenderStep::~BitmapTextRenderStep() {}
 
-const char* TextDirectRenderStep::vertexSkSL() const {
+const char* BitmapTextRenderStep::vertexSkSL() const {
     return R"(
         int2 coords = int2(texCoords.x, texCoords.y);
         int texIdx = coords.x >> 13;
@@ -69,7 +69,7 @@ const char* TextDirectRenderStep::vertexSkSL() const {
     )";
 }
 
-std::string TextDirectRenderStep::texturesAndSamplersSkSL(int binding) const {
+std::string BitmapTextRenderStep::texturesAndSamplersSkSL(int binding) const {
     std::string result;
 
     for (unsigned int i = 0; i < kNumTextAtlasTextures; ++i) {
@@ -81,7 +81,7 @@ std::string TextDirectRenderStep::texturesAndSamplersSkSL(int binding) const {
     return result;
 }
 
-const char* TextDirectRenderStep::fragmentCoverageSkSL() const {
+const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
     if (fIsA8) {
         return R"(
             half4 texColor;
@@ -117,7 +117,7 @@ const char* TextDirectRenderStep::fragmentCoverageSkSL() const {
     }
 }
 
-void TextDirectRenderStep::writeVertices(DrawWriter* dw,
+void BitmapTextRenderStep::writeVertices(DrawWriter* dw,
                                          const DrawParams& params,
                                          int ssboIndex) const {
     const SubRunData& subRunData = params.geometry().subRunData();
@@ -128,7 +128,7 @@ void TextDirectRenderStep::writeVertices(DrawWriter* dw,
                                         params.transform());
 }
 
-void TextDirectRenderStep::writeUniformsAndTextures(const DrawParams& params,
+void BitmapTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                     SkPipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 

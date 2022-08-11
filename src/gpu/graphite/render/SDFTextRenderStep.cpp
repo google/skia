@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/render/TextSDFRenderStep.h"
+#include "src/gpu/graphite/render/SDFTextRenderStep.h"
 
 #include "src/core/SkPipelineData.h"
 
@@ -34,8 +34,8 @@ static constexpr DepthStencilSettings kDirectShadingPass = {
 constexpr int kNumSDFAtlasTextures = 4;
 }  // namespace
 
-TextSDFRenderStep::TextSDFRenderStep(bool isA8)
-        : RenderStep("TextSDFRenderStep",
+SDFTextRenderStep::SDFTextRenderStep(bool isA8)
+        : RenderStep("SDFTextRenderStep",
                      isA8 ? "A8" : "565",
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
                      /*uniforms=*/{{"atlasSizeInv", SkSLType::kFloat2},
@@ -55,9 +55,9 @@ TextSDFRenderStep::TextSDFRenderStep(bool isA8)
     // TODO: store if it's A8 and adjust shader
 }
 
-TextSDFRenderStep::~TextSDFRenderStep() {}
+SDFTextRenderStep::~SDFTextRenderStep() {}
 
-const char* TextSDFRenderStep::vertexSkSL() const {
+const char* SDFTextRenderStep::vertexSkSL() const {
     return R"(
         int2 coords = int2(texCoords.x, texCoords.y);
         int texIdx = coords.x >> 13;
@@ -70,7 +70,7 @@ const char* TextSDFRenderStep::vertexSkSL() const {
         )";
 }
 
-std::string TextSDFRenderStep::texturesAndSamplersSkSL(int binding) const {
+std::string SDFTextRenderStep::texturesAndSamplersSkSL(int binding) const {
     std::string result;
 
     for (unsigned int i = 0; i < kNumSDFAtlasTextures; ++i) {
@@ -82,7 +82,7 @@ std::string TextSDFRenderStep::texturesAndSamplersSkSL(int binding) const {
     return result;
 }
 
-const char* TextSDFRenderStep::fragmentCoverageSkSL() const {
+const char* SDFTextRenderStep::fragmentCoverageSkSL() const {
     // TODO: To minimize the number of shaders generated this is the full affine shader.
     // For best performance it may be worth creating the uniform scale shader as well,
     // as that's the most common case.
@@ -140,7 +140,7 @@ const char* TextSDFRenderStep::fragmentCoverageSkSL() const {
     )";
 }
 
-void TextSDFRenderStep::writeVertices(DrawWriter* dw,
+void SDFTextRenderStep::writeVertices(DrawWriter* dw,
                                       const DrawParams& params,
                                       int ssboIndex) const {
     const SubRunData& subRunData = params.geometry().subRunData();
@@ -150,7 +150,7 @@ void TextSDFRenderStep::writeVertices(DrawWriter* dw,
                                         params.transform());
 }
 
-void TextSDFRenderStep::writeUniformsAndTextures(const DrawParams& params,
+void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                  SkPipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 

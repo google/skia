@@ -8,14 +8,14 @@
 #include "src/gpu/graphite/Renderer.h"
 
 #include "src/gpu/AtlasTypes.h"
-#include "src/gpu/graphite/render/TextDirectRenderStep.h"
-#include "src/gpu/graphite/render/TextSDFRenderStep.h"
+#include "src/gpu/graphite/render/BitmapTextRenderStep.h"
+#include "src/gpu/graphite/render/SDFTextRenderStep.h"
 
 namespace skgpu::graphite {
 
 const Renderer& Renderer::TextDirect(bool isA8) {
-    static const TextDirectRenderStep kDirectA8{true};
-    static const TextDirectRenderStep kDirectColor{false};
+    static const BitmapTextRenderStep kDirectA8{true};
+    static const BitmapTextRenderStep kDirectColor{false};
 
     static const Renderer kTextDirectA8Renderer{"TextDirectA8Renderer",
                                                 &kDirectA8};
@@ -29,8 +29,8 @@ const Renderer& Renderer::TextDirect(bool isA8) {
 }
 
 const Renderer& Renderer::TextSDF(bool useLCDText) {
-    static const TextSDFRenderStep kA8{false};
-    static const TextSDFRenderStep kLCD{true};
+    static const SDFTextRenderStep kA8{false};
+    static const SDFTextRenderStep kLCD{true};
 
     static const Renderer kTextSDFA8Renderer{"TextSDFA8Renderer",
                                              &kA8};

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_render_TextDirectRenderStep_DEFINED
-#define skgpu_graphite_render_TextDirectRenderStep_DEFINED
+#ifndef skgpu_graphite_render_BitmapTextRenderStep_DEFINED
+#define skgpu_graphite_render_BitmapTextRenderStep_DEFINED
 
 #include "src/gpu/graphite/Renderer.h"
 
 namespace skgpu::graphite {
 
-class TextDirectRenderStep final : public RenderStep {
+class BitmapTextRenderStep final : public RenderStep {
 public:
-    TextDirectRenderStep(bool isA8);
+    BitmapTextRenderStep(bool isA8);
 
-    ~TextDirectRenderStep() override;
+    ~BitmapTextRenderStep() override;
 
     const char* vertexSkSL() const override;
     std::string texturesAndSamplersSkSL(int startBinding) const override;
@@ -31,4 +31,4 @@ private:
 
 }  // namespace skgpu::graphite
 
-#endif // skgpu_graphite_render_TextDirectRenderStep_DEFINED
+#endif // skgpu_graphite_render_BitmapTextRenderStep_DEFINED

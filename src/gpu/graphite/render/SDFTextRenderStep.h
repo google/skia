@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_render_TextSDFRenderStep_DEFINED
-#define skgpu_graphite_render_TextSDFRenderStep_DEFINED
+#ifndef skgpu_graphite_render_SDFTextRenderStep_DEFINED
+#define skgpu_graphite_render_SDFTextRenderStep_DEFINED
 
 #include "src/gpu/graphite/Renderer.h"
 
@@ -14,11 +14,11 @@ namespace skgpu { enum class MaskFormat; }
 
 namespace skgpu::graphite {
 
-class TextSDFRenderStep final : public RenderStep {
+class SDFTextRenderStep final : public RenderStep {
 public:
-    TextSDFRenderStep(bool isA8);
+    SDFTextRenderStep(bool isA8);
 
-    ~TextSDFRenderStep() override;
+    ~SDFTextRenderStep() override;
 
     const char* vertexSkSL() const override;
     std::string texturesAndSamplersSkSL(int startBinding) const override;
@@ -30,4 +30,4 @@ public:
 
 }  // namespace skgpu::graphite
 
-#endif // skgpu_graphite_render_TextSDFRenderStep_DEFINED
+#endif // skgpu_graphite_render_SDFTextRenderStep_DEFINED
