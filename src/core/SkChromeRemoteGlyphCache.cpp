@@ -538,7 +538,6 @@ public:
     void writeStrikeData(std::vector<uint8_t>* memory);
 
     sktext::ScopedStrikeForGPU findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) override;
-    sktext::StrikeRef findOrCreateStrikeRef(const SkStrikeSpec& strikeSpec) override;
 
     // Methods for testing
     void setMaxEntriesInDescriptorMapForTesting(size_t count);
@@ -654,10 +653,6 @@ void SkStrikeServerImpl::writeStrikeData(std::vector<uint8_t>* memory) {
 sktext::ScopedStrikeForGPU SkStrikeServerImpl::findOrCreateScopedStrike(
         const SkStrikeSpec& strikeSpec) {
     return sktext::ScopedStrikeForGPU{this->getOrCreateCache(strikeSpec)};
-}
-
-sktext::StrikeRef SkStrikeServerImpl::findOrCreateStrikeRef(const SkStrikeSpec& strikeSpec) {
-    return sktext::StrikeRef{this->getOrCreateCache(strikeSpec)};
 }
 
 void SkStrikeServerImpl::checkForDeletedEntries() {

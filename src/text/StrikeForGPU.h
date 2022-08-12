@@ -134,48 +134,11 @@ union IDOrDrawable {
     SkDrawable* fDrawable;
 };
 
-// -- StrikeRef ------------------------------------------------------------------------------------
-// Hold a ref to either a RemoteStrike or an SkStrike. Use either to flatten a descriptor, but
-// when MakeFromBuffer runs look up the SkStrike associated with the descriptor.
-class StrikeRef {
-public:
-    StrikeRef() = delete;
-    StrikeRef(sk_sp<SkStrike>&& strike);
-    StrikeRef(StrikeForGPU* strike);
-    StrikeRef(const StrikeRef&) = delete;
-    const StrikeRef& operator=(const StrikeRef&) = delete;
-    StrikeRef(StrikeRef&&);
-    StrikeRef& operator=(StrikeRef&&);
-
-    // Flatten a descriptor into the buffer.
-    void flatten(SkWriteBuffer& buffer) const;
-
-    // Unflatten a descriptor, and create a StrikeRef holding an sk_sp<SkStrike>. The client is
-    // used to do SkTypeFace id translation if passed in.
-    static std::optional<StrikeRef> MakeFromBuffer(SkReadBuffer& buffer,
-                                                   const SkStrikeClient* client);
-
-    // getStrikeAndSetToNullptr can only be used when holding an SkStrike. This will only return
-    // the SkStrike the first time, and will return nullptr on all future calls. Once this is
-    // called, flatten can not be called.
-    sk_sp<SkStrike> getStrikeAndSetToNullptr();
-
-    StrikeForGPU* asStrikeForGPU();
-
-private:
-    friend class StrikeRefTestingPeer;
-    // A StrikeRef can hold a pointer from a RemoteStrike which is of type SkStrikeForGPU,
-    // or it can hold an actual ref to an actual SkStrike.
-    std::variant<std::monostate, StrikeForGPU*, sk_sp<SkStrike>> fStrike;
-};
-
-
 // -- StrikeForGPUCacheInterface -------------------------------------------------------------------
 class StrikeForGPUCacheInterface {
 public:
     virtual ~StrikeForGPUCacheInterface() = default;
     virtual ScopedStrikeForGPU findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) = 0;
-    virtual StrikeRef findOrCreateStrikeRef(const SkStrikeSpec& strikeSpec) = 0;
 };
 }  // namespace sktext
 #endif  // sktext_StrikeForGPU_DEFINED

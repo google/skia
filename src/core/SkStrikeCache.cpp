@@ -46,10 +46,6 @@ sktext::ScopedStrikeForGPU SkStrikeCache::findOrCreateScopedStrike(const SkStrik
     return sktext::ScopedStrikeForGPU{this->findOrCreateStrike(strikeSpec).release()};
 }
 
-sktext::StrikeRef SkStrikeCache::findOrCreateStrikeRef(const SkStrikeSpec& strikeSpec) {
-    return sktext::StrikeRef{this->findOrCreateStrike(strikeSpec)};
-}
-
 void SkStrikeCache::PurgeAll() {
     GlobalStrikeCache()->purgeAll();
 }
