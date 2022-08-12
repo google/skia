@@ -184,7 +184,9 @@ private:
                       const Geometry&,
                       const SkPaint&,
                       const SkStrokeRec&,
-                      SkEnumBitMask<DrawFlags> = DrawFlags::kNone);
+                      SkEnumBitMask<DrawFlags> = DrawFlags::kNone,
+                      sk_sp<SkBlender> primitiveBlender = nullptr,
+                      bool skipColorXform = false);
 
     // Like drawGeometry() but is Shape-only, depth-only, fill-only, and lets the ClipStack define
     // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).
