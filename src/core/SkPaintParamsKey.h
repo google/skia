@@ -122,7 +122,7 @@ public:
     }
     void dump(const SkShaderCodeDictionary*) const;
 #endif
-    void toShaderInfo(SkShaderCodeDictionary*, SkShaderInfo*) const;
+    void toShaderInfo(const SkShaderCodeDictionary*, SkShaderInfo*) const;
 
     SkSpan<const uint8_t> asSpan() const { return fData; }
     const uint8_t* data() const { return fData.data(); }
@@ -148,7 +148,7 @@ private:
     // is in the dictionary). In this case the dictionary will own the memory backing the span.
     SkPaintParamsKey(SkSpan<const uint8_t> rawData);
 
-    static void AddBlockToShaderInfo(SkShaderCodeDictionary*,
+    static void AddBlockToShaderInfo(const SkShaderCodeDictionary*,
                                      const SkPaintParamsKey::BlockReader&,
                                      SkShaderInfo*);
 

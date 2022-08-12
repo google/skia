@@ -34,7 +34,7 @@ using DataPayloadType = SkPaintParamsKey::DataPayloadType;
 
 namespace {
 
-#if defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
+#if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
 std::string get_mangled_name(const std::string& baseName, int manglingSuffix) {
     return baseName + "_" + std::to_string(manglingSuffix);
 }
@@ -55,9 +55,7 @@ std::string SkShaderSnippet::getMangledSamplerName(int samplerIdx, int mangleId)
     return result;
 }
 
-// TODO: SkShaderInfo::toSkSL needs to work outside of both just graphite and metal. To do
-// so we'll need to switch over to using SkSL's uniform capabilities.
-#if defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
+#if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
 
 // Returns an expression to invoke this entry, passing along an updated pre-local matrix.
 static std::string emit_expression_for_entry(const SkShaderInfo& shaderInfo,
@@ -275,7 +273,8 @@ const SkShaderSnippet* SkShaderCodeDictionary::getEntry(int codeSnippetID) const
     return nullptr;
 }
 
-void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkShaderInfo* info) {
+void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID,
+                                           SkShaderInfo* info) const {
     auto entry = this->lookup(uniqueID);
 
     entry->paintParamsKey().toShaderInfo(this, info);

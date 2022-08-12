@@ -149,7 +149,7 @@ public:
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 #endif
 
-#if defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
+#if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
     std::string toSkSL(const skgpu::graphite::RenderStep* step) const;
 #endif
 
@@ -228,7 +228,7 @@ public:
         return this->getEntry(SkTo<int>(codeSnippetID));
     }
 
-    void getShaderInfo(SkUniquePaintParamsID, SkShaderInfo*);
+    void getShaderInfo(SkUniquePaintParamsID, SkShaderInfo*) const;
 
     int findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect);
 

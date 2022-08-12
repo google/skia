@@ -267,7 +267,7 @@ void SkPaintParamsKey::dump(const SkShaderCodeDictionary* dict) const {
 }
 #endif // SK_DEBUG
 
-void SkPaintParamsKey::AddBlockToShaderInfo(SkShaderCodeDictionary* dict,
+void SkPaintParamsKey::AddBlockToShaderInfo(const SkShaderCodeDictionary* dict,
                                             const SkPaintParamsKey::BlockReader& reader,
                                             SkShaderInfo* result) {
 
@@ -285,7 +285,8 @@ void SkPaintParamsKey::AddBlockToShaderInfo(SkShaderCodeDictionary* dict,
     }
 }
 
-void SkPaintParamsKey::toShaderInfo(SkShaderCodeDictionary* dict, SkShaderInfo* result) const {
+void SkPaintParamsKey::toShaderInfo(const SkShaderCodeDictionary* dict,
+                                    SkShaderInfo* result) const {
 
     int curHeaderOffset = 0;
     while (curHeaderOffset < this->sizeInBytes()) {
