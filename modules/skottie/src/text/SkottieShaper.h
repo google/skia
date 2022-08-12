@@ -57,12 +57,6 @@ public:
         uint32_t     fLineIndex;    // 0-based index for the line this fragment belongs to.
         bool         fIsWhitespace; // True if the first code point in the corresponding
                                     // cluster is whitespace.
-
-#if defined(ENABLE_DEPRECATED_SKOTTIESHAPER_APIS)
-        // Deprecated fields, to be removed.
-        sk_sp<SkTextBlob> fBlob;
-        SkPoint           fPos;
-#endif
     };
 
     struct Result {

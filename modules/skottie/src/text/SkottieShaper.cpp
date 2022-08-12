@@ -241,29 +241,6 @@ public:
             }
         }
 
-#if defined(ENABLE_DEPRECATED_SKOTTIESHAPER_APIS)
-        // Set deprecated fields, pending client migration.
-        for (auto& frag : fResult.fFragments) {
-            frag.fPos = frag.fOrigin;
-
-            SkTextBlobBuilder blob_builder;
-            size_t offset = 0;
-            for (const auto& run : frag.fGlyphs.fRuns) {
-                auto& buffer = blob_builder.allocRunPos(run.fFont, SkToInt(run.fSize));
-                std::copy(frag.fGlyphs.fGlyphIDs.data() + offset,
-                          frag.fGlyphs.fGlyphIDs.data() + offset + run.fSize,
-                          buffer.glyphs);
-                std::copy(frag.fGlyphs.fGlyphPos.data() + offset,
-                          frag.fGlyphs.fGlyphPos.data() + offset + run.fSize,
-                          buffer.points());
-
-                offset += run.fSize;
-            }
-
-            frag.fBlob = blob_builder.make();
-        }
-#endif // ENABLE_DEPRECATED_SKOTTIESHAPER_APIS
-
         return std::move(fResult);
     }
 
@@ -337,9 +314,6 @@ private:
                 { fBox.x() + pos[i].fX, fBox.y() + pos[i].fY },
                 advance, ascent,
                 line_index, is_whitespace(fUTF8[clusters[i]])
-#if defined(ENABLE_DEPRECATED_SKOTTIESHAPER_APIS)
-                , nullptr, {0,0}
-#endif
             });
 
             // Note: we only check the first code point in the cluster for whitespace.
@@ -358,11 +332,7 @@ private:
         // box origin).
 
         if (fResult.fFragments.empty()) {
-            fResult.fFragments.push_back({{{}, {}, {}}, {fBox.x(), fBox.y()}, 0, 0, 0, false
-#if defined(ENABLE_DEPRECATED_SKOTTIESHAPER_APIS)
-                , nullptr, {0,0}
-#endif
-            });
+            fResult.fFragments.push_back({{{}, {}, {}}, {fBox.x(), fBox.y()}, 0, 0, 0, false});
         }
 
         auto& current_glyphs = fResult.fFragments.back().fGlyphs;
