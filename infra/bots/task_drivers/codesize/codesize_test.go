@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -37,6 +38,8 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
 	const (
 		expectedBloatyFileGCSPath       = "2022/01/31/01/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/dm.tsv"
 		expectedJSONMetadataFileGCSPath = "2022/01/31/01/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/dm.json"
+
+		expectedPerfFileGCSPath = "nano-json-v1/2022/01/31/01/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/codesize.json"
 	)
 
 	// The revision and author are assigned deterministically by the GitBuilder in test().
@@ -68,6 +71,26 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
   "author": "test (test@google.com)",
   "subject": "Fake commit subject"
 }`
+	const expectedPerfContents = `{
+  "version": 1,
+  "git_hash": "693abc06538769c662ca1871d347323b133a5d3c",
+  "key": {
+    "binary": "dm",
+    "compile_task_name": "Build-Debian10-Clang-x86_64-Release"
+  },
+  "results": [
+    {
+      "key": {
+        "measurement": "stripped_binary_bytes"
+      },
+      "measurement": 17
+    }
+  ],
+  "links": {
+    "full_data": "https://task-driver.skia.org/td/CkPp9ElAaEXyYWNHpXHU"
+  }
+}`
+
 	const expectedBloatyFileContents = "I'm a fake Bloaty output!"
 
 	// Make sure we use UTC instead of the system timezone.
@@ -89,16 +112,20 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
 		return nil
 	})
 
-	mockGCSClient := test_gcsclient.NewMockClient()
-	expectUpload(t, mockGCSClient, expectedBloatyFileGCSPath, expectedBloatyFileContents)
-	expectUpload(t, mockGCSClient, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents)
+	mockCodeSizeGCS := mockGCSClient(codesizeGCSBucketName)
+	expectUpload(t, mockCodeSizeGCS, expectedBloatyFileGCSPath, expectedBloatyFileContents)
+	expectUpload(t, mockCodeSizeGCS, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents)
+
+	mockPerfGCS := mockGCSClient(perfGCSBucketName)
+	expectUpload(t, mockPerfGCS, expectedPerfFileGCSPath, expectedPerfContents)
 
 	// Realistic but arbitrary arguments.
 	args := runStepsArgs{
 		repoState:              repoState,
 		gerrit:                 mockGerrit.Gerrit,
 		gitilesRepo:            mockGitiles,
-		gcsClient:              mockGCSClient,
+		codesizeGCS:            mockCodeSizeGCS,
+		perfGCS:                mockPerfGCS,
 		swarmingTaskID:         "58dccb0d6a3f0411",
 		swarmingServer:         "https://chromium-swarm.appspot.com",
 		taskID:                 "CkPp9ElAaEXyYWNHpXHU",
@@ -114,6 +141,10 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
 	res := td.RunTestSteps(t, false, func(ctx context.Context) error {
 		ctx = now.TimeTravelingContext(fakeNow).WithContext(ctx)
 		ctx = td.WithExecRunFn(ctx, commandCollector.Run)
+		// Be in a temporary directory
+		require.NoError(t, os.Chdir(t.TempDir()))
+		// Create a file to simulate the result of copying and stripping the binary
+		createTestFile(t, filepath.Join("build", "dm_stripped"), "This has 17 bytes")
 
 		err := runSteps(ctx, args)
 		assert.NoError(t, err)
@@ -143,7 +174,12 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
 		"build/dm_stripped", "-d", "compileunits,symbols", "-n", "0", "--tsv", "--debug-file=build/dm")
 
 	// Assert that the .json and .tsv files were uploaded to GCS.
-	mockGCSClient.AssertExpectations(t)
+	mockCodeSizeGCS.AssertExpectations(t)
+}
+
+func createTestFile(t *testing.T, path, contents string) {
+	require.NoError(t, os.MkdirAll(filepath.Dir(path), 0755))
+	require.NoError(t, os.WriteFile(path, []byte(contents), 0644))
 }
 
 func TestRunSteps_Tryjob_Success(t *testing.T) {
@@ -230,17 +266,17 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 		return nil
 	})
 
-	mockGCSClient := test_gcsclient.NewMockClient()
-	expectUpload(t, mockGCSClient, expectedBloatyFileGCSPath, expectedBloatyFileContents)
-	expectUpload(t, mockGCSClient, expectedBloatyDiffFileGCSPath, expectedBloatyDiffFileContents)
-	expectUpload(t, mockGCSClient, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents)
+	mockCodeSizeGCS := mockGCSClient(codesizeGCSBucketName)
+	expectUpload(t, mockCodeSizeGCS, expectedBloatyFileGCSPath, expectedBloatyFileContents)
+	expectUpload(t, mockCodeSizeGCS, expectedBloatyDiffFileGCSPath, expectedBloatyDiffFileContents)
+	expectUpload(t, mockCodeSizeGCS, expectedJSONMetadataFileGCSPath, expectedJSONMetadataFileContents)
 
 	// Realistic but arbitrary arguments.
 	args := runStepsArgs{
 		repoState:              repoState,
 		gerrit:                 mockGerrit.Gerrit,
 		gitilesRepo:            mockGitiles,
-		gcsClient:              mockGCSClient,
+		codesizeGCS:            mockCodeSizeGCS,
 		swarmingTaskID:         "58dccb0d6a3f0411",
 		swarmingServer:         "https://chromium-swarm.appspot.com",
 		taskID:                 "CkPp9ElAaEXyYWNHpXHU",
@@ -298,7 +334,13 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 		"--", "build_nopatch/dm_stripped", "--debug-file=build_nopatch/dm")
 
 	// Assert that the .json, .tsv and .diff.txt files were uploaded to GCS.
-	mockGCSClient.AssertExpectations(t)
+	mockCodeSizeGCS.AssertExpectations(t)
+}
+
+func mockGCSClient(name string) *test_gcsclient.GCSClient {
+	m := test_gcsclient.NewMockClient()
+	m.On("Bucket").Return(name).Maybe()
+	return m
 }
 
 func expectUpload(t *testing.T, client *test_gcsclient.GCSClient, path, contents string) {

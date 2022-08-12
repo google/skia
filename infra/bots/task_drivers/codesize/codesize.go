@@ -38,13 +38,19 @@ import (
 	"go.skia.org/infra/go/gitiles"
 	"go.skia.org/infra/go/now"
 	"go.skia.org/infra/go/skerr"
+	"go.skia.org/infra/perf/go/ingest/format"
 	"go.skia.org/infra/task_driver/go/lib/auth_steps"
 	"go.skia.org/infra/task_driver/go/lib/checkout"
+	"go.skia.org/infra/task_driver/go/lib/os_steps"
 	"go.skia.org/infra/task_driver/go/td"
 	"go.skia.org/infra/task_scheduler/go/types"
 )
 
-const gcsBucketName = "skia-codesize"
+const (
+	codesizeGCSBucketName = "skia-codesize"
+	perfGCSBucketName     = "skia-perf"
+	taskdriverURL         = "https://task-driver.skia.org/td/"
+)
 
 // BloatyOutputMetadata contains the Bloaty version and command-line arguments used, and metadata
 // about the task where Bloaty was invoked. This struct is serialized into a JSON file that is
@@ -121,7 +127,8 @@ func main() {
 	if err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
-	gcsClient := gcsclient.New(store, gcsBucketName)
+	codesizeGCS := gcsclient.New(store, codesizeGCSBucketName)
+	perfGCS := gcsclient.New(store, perfGCSBucketName)
 
 	// Make a Gerrit client.
 	gerritClient, err := gerrit.NewGerrit(repoState.Server, httpClient)
@@ -136,7 +143,8 @@ func main() {
 		repoState:              repoState,
 		gerrit:                 gerritClient,
 		gitilesRepo:            gitilesRepo,
-		gcsClient:              gcsClient,
+		codesizeGCS:            codesizeGCS,
+		perfGCS:                perfGCS,
 		swarmingTaskID:         os.Getenv("SWARMING_TASK_ID"),
 		swarmingServer:         os.Getenv("SWARMING_SERVER"),
 		taskID:                 *taskID,
@@ -159,7 +167,8 @@ type runStepsArgs struct {
 	repoState              types.RepoState
 	gerrit                 *gerrit.Gerrit
 	gitilesRepo            gitiles.GitilesRepo
-	gcsClient              gcs.GCSClient
+	codesizeGCS            gcs.GCSClient
+	perfGCS                gcs.GCSClient
 	swarmingTaskID         string
 	swarmingServer         string
 	taskID                 string
@@ -259,14 +268,14 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	if err != nil {
 		return skerr.Wrap(err)
 	}
-	if err = uploadFileToGCS(ctx, args.gcsClient, fmt.Sprintf("%s/%s.json", gcsDir, args.binaryName), jsonMetadata); err != nil {
+	if err = uploadFileToGCS(ctx, args.codesizeGCS, fmt.Sprintf("%s/%s.json", gcsDir, args.binaryName), jsonMetadata); err != nil {
 		return skerr.Wrap(err)
 	}
 
 	// Upload the .diff.txt file with binary size diff statistics, if applicable.
 	if args.repoState.IsTryJob() {
 		// Upload Bloaty diff output plain-text file to GCS.
-		if err = uploadFileToGCS(ctx, args.gcsClient, fmt.Sprintf("%s/%s.diff.txt", gcsDir, args.binaryName), []byte(bloatyDiffOutput)); err != nil {
+		if err = uploadFileToGCS(ctx, args.codesizeGCS, fmt.Sprintf("%s/%s.diff.txt", gcsDir, args.binaryName), []byte(bloatyDiffOutput)); err != nil {
 			return skerr.Wrap(err)
 		}
 	}
@@ -277,8 +286,25 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	// only start processing the .json and .diff.txt files once it receives the Pub/Sub
 	// notification that a .tsv file has been uploaded. Pub/Sub notifications are pretty quick, so
 	// by uploading files in this order we avoid a race condition.
-	if err = uploadFileToGCS(ctx, args.gcsClient, fmt.Sprintf("%s/%s.tsv", gcsDir, args.binaryName), []byte(bloatyOutput)); err != nil {
+	if err = uploadFileToGCS(ctx, args.codesizeGCS, fmt.Sprintf("%s/%s.tsv", gcsDir, args.binaryName), []byte(bloatyOutput)); err != nil {
 		return skerr.Wrap(err)
+	}
+
+	if !args.repoState.IsTryJob() {
+		perfData := format.Format{
+			Version: 1,
+			GitHash: args.repoState.Revision,
+			Key: map[string]string{
+				"binary":            args.binaryName,
+				"compile_task_name": args.compileTaskName,
+			},
+			Links: map[string]string{
+				"full_data": taskdriverURL + args.taskID,
+			},
+		}
+		if err = uploadPerfData(ctx, args.perfGCS, gcsDir, args.binaryName, perfData); err != nil {
+			return skerr.Wrap(err)
+		}
 	}
 
 	return nil
@@ -432,7 +458,7 @@ func runBloatyDiff(ctx context.Context, stripPath, bloatyPath, binaryName string
 	return bloatyOutput, runCmd.Args, nil
 }
 
-// computeTargetGCSDirectory computs the target GCS directory where to upload the Bloaty output file
+// computeTargetGCSDirectory computes the target GCS directory where to upload the Bloaty output file
 // and JSON metadata file.
 func computeTargetGCSDirectory(ctx context.Context, repoState types.RepoState, taskID, compileTaskName string) string {
 	timePrefix := now.Now(ctx).UTC().Format("2006/01/02/15") // YYYY/MM/DD/HH.
@@ -445,12 +471,41 @@ func computeTargetGCSDirectory(ctx context.Context, repoState types.RepoState, t
 	}
 }
 
-// uploadFileToGCS uploads a file to the codesize.skia.org GCS bucket.
+// uploadPerfData gets the file size of the stripped binary (i.e. without debug symbols), formats
+// the JSON how Perf expects it, and uploads it to Perf's GCS bucket.
+func uploadPerfData(ctx context.Context, perfGCS gcs.GCSClient, gcsPathPrefix, binaryName string, perfData format.Format) error {
+	gcsPath := "nano-json-v1/" + gcsPathPrefix + "/codesize.json"
+
+	err := td.Do(ctx, td.Props("Upload total stripped binary size to Perf"), func(ctx context.Context) error {
+		s, err := os_steps.Stat(ctx, filepath.Join("build", binaryName+"_stripped"))
+		if err != nil {
+			return err
+		}
+
+		totalBytes := s.Size()
+		perfData.Results = []format.Result{{
+			Key:         map[string]string{"measurement": "stripped_binary_bytes"},
+			Measurement: float32(totalBytes),
+		}}
+
+		perfJSON, err := json.MarshalIndent(perfData, "", "  ")
+		if err != nil {
+			return err
+		}
+		return uploadFileToGCS(ctx, perfGCS, gcsPath, perfJSON)
+	})
+	if err != nil {
+		return skerr.Wrap(err)
+	}
+	return nil
+}
+
+// uploadFileToGCS uploads a file to the given GCS bucket.
 func uploadFileToGCS(ctx context.Context, gcsClient gcs.GCSClient, path string, contents []byte) error {
-	gcsURL := fmt.Sprintf("gs://%s/%s", gcsBucketName, path)
+	gcsURL := fmt.Sprintf("gs://%s/%s", gcsClient.Bucket(), path)
 	return td.Do(ctx, td.Props(fmt.Sprintf("Upload %s", gcsURL)), func(ctx context.Context) error {
 		if err := gcsClient.SetFileContents(ctx, path, gcs.FILE_WRITE_OPTS_TEXT, contents); err != nil {
-			return fmt.Errorf("Could not write task to %s: %s", gcsURL, err)
+			return skerr.Wrapf(err, "Could not write task to %s", gcsURL)
 		}
 		return nil
 	})
