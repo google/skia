@@ -1,4 +1,6 @@
 """
+THIS IS THE EXTERNAL-ONLY VERSION OF THIS FILE. G3 HAS ITS OWN.
+
 This file contains a way to set flags from BUILD.bazel instead of requiring users to set them from
 the CLI.
 

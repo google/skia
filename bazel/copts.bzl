@@ -1,4 +1,6 @@
 """
+THIS IS THE EXTERNAL-ONLY VERSION OF THIS FILE. G3 HAS ITS OWN.
+
 This file contains flags for the C++ compiler, referred to by Bazel as copts.
 
 The copts in a cc_library to not flow to the children (dependencies) nor the parents

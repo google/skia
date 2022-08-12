@@ -1,4 +1,6 @@
 """
+THIS IS THE EXTERNAL-ONLY VERSION OF THIS FILE. G3 HAS ITS OWN.
+
 This file contains general helper macros that make our BUILD.bazel files easier to read.
 """
 

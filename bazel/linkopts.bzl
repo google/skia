@@ -1,4 +1,6 @@
 """
+THIS IS THE EXTERNAL-ONLY VERSION OF THIS FILE. G3 HAS ITS OWN.
+
 This file contains flags for the C++ linker, referred to by Bazel as linkopts.
 
 For similar reasons as //bazel/copts.bzl, we define "global" flags we want to pass to the linker

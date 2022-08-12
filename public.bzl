@@ -1999,165 +1999,102 @@ VULKAN_SRCS = [
 ]
 
 ################################################################################
-## COPTS
-################################################################################
-
-def base_copts(os_conditions):
-    return ["-Wno-implicit-fallthrough"] + skia_select(
-        os_conditions,
-        [
-            # UNIX
-            [
-                # Internal use of deprecated methods. :(
-                "-Wno-deprecated-declarations",
-                # TODO(kjlubick)
-                "-Wno-self-assign",  # Spurious warning in tests/PathOpsDVectorTest.cpp?
-            ],
-            # ANDROID
-            [
-                # 'GrResourceCache' declared with greater visibility than the
-                # type of its field 'GrResourceCache::fPurgeableQueue'... bogus.
-                "-Wno-error=attributes",
-            ],
-            [],  # iOS
-            [],  # wasm
-            [],  # Fuchsia
-            [],  # macOS
-        ],
-    )
-
-################################################################################
 ## DEFINES
 ################################################################################
 
+BASE_DEFINES = [
+    # Chrome DEFINES.
+    "SK_USE_FREETYPE_EMBOLDEN",
+    # Turn on a few Google3-specific build fixes.
+    "SK_BUILD_FOR_GOOGLE3",
+    # Required for building dm.
+    "GR_TEST_UTILS",
+    # Should remove after we update golden images
+    "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
+    # Experiment to diagnose image diffs in Google3
+    "SK_DISABLE_LOWP_RASTER_PIPELINE",
+    # JPEG is in codec_limited and is included in all
+    # builds except the no_codec android build
+]
+UNIX_DEFINES = [
+    "PNG_SKIP_SETJMP_CHECK",
+    "SK_BUILD_FOR_UNIX",
+    "SK_CODEC_DECODES_PNG",
+    "SK_CODEC_DECODES_WEBP",
+    "SK_ENCODE_PNG",
+    "SK_ENCODE_WEBP",
+    "SK_R32_SHIFT=16",
+    "SK_GL",
+    "SK_CODEC_DECODES_JPEG",
+    "SK_ENCODE_JPEG",
+    "SK_HAS_ANDROID_CODEC",
+]
+ANDROID_DEFINES = [
+    "SK_BUILD_FOR_ANDROID",
+    "SK_CODEC_DECODES_PNG",
+    "SK_CODEC_DECODES_WEBP",
+    "SK_ENCODE_PNG",
+    "SK_ENCODE_WEBP",
+    "SK_GL",
+    "SK_CODEC_DECODES_JPEG",
+    "SK_ENCODE_JPEG",
+    "SK_HAS_ANDROID_CODEC",
+]
+IOS_DEFINES = [
+    "SK_BUILD_FOR_IOS",
+    "SK_GL",
+    "SK_CODEC_DECODES_JPEG",
+    "SK_ENCODE_JPEG",
+    "SK_HAS_ANDROID_CODEC",
+]
+WASM_DEFINES = [
+    "SK_DISABLE_LEGACY_SHADERCONTEXT",
+    "SK_DISABLE_TRACING",
+    "SK_GL",
+    "SK_SUPPORT_GPU=1",
+    "SK_DISABLE_AAA",
+    "SK_DISABLE_EFFECT_DESERIALIZATION",
+    "SK_FORCE_8_BYTE_ALIGNMENT",
+    "SKNX_NO_SIMD",
+    "SK_CODEC_DECODES_JPEG",
+    "SK_ENCODE_JPEG",
+    "SK_HAS_ANDROID_CODEC",
+]
+FUCHSIA_DEFINES = [
+    "SK_BUILD_FOR_UNIX",
+    "SK_CODEC_DECODES_PNG",
+    "SK_CODEC_DECODES_WEBP",
+    "SK_ENCODE_PNG",
+    "SK_ENCODE_WEBP",
+    "SK_R32_SHIFT=16",
+    "SK_VULKAN",
+    "SK_CODEC_DECODES_JPEG",
+    "SK_ENCODE_JPEG",
+    "SK_HAS_ANDROID_CODEC",
+]
+MACOS_DEFINES = [
+    "SK_BUILD_FOR_MAC",
+    "SK_GL",
+    "SK_CODEC_DECODES_JPEG",
+    "SK_ENCODE_JPEG",
+    "SK_HAS_ANDROID_CODEC",
+]
+ANDROID_NO_CODECS_DEFINES = [
+    "SK_BUILD_FOR_ANDROID",
+    "SK_GL",
+]
+
 def base_defines(os_conditions):
-    return [
-        # Chrome DEFINES.
-        "SK_USE_FREETYPE_EMBOLDEN",
-        # Turn on a few Google3-specific build fixes.
-        "SK_BUILD_FOR_GOOGLE3",
-        # Required for building dm.
-        "GR_TEST_UTILS",
-        # Should remove after we update golden images
-        "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
-        # Experiment to diagnose image diffs in Google3
-        "SK_DISABLE_LOWP_RASTER_PIPELINE",
-        # JPEG is in codec_limited and is included in all
-        # builds except the no_codec android build
-    ] + skia_select(
+    return LEGACY_BASE_DEFINES + skia_select(
         os_conditions,
         [
-            # UNIX
-            [
-                "PNG_SKIP_SETJMP_CHECK",
-                "SK_BUILD_FOR_UNIX",
-                "SK_CODEC_DECODES_PNG",
-                "SK_CODEC_DECODES_WEBP",
-                "SK_ENCODE_PNG",
-                "SK_ENCODE_WEBP",
-                "SK_R32_SHIFT=16",
-                "SK_GL",
-                "SK_CODEC_DECODES_JPEG",
-                "SK_ENCODE_JPEG",
-                "SK_HAS_ANDROID_CODEC",
-            ],
-            # ANDROID
-            [
-                "SK_BUILD_FOR_ANDROID",
-                "SK_CODEC_DECODES_PNG",
-                "SK_CODEC_DECODES_WEBP",
-                "SK_ENCODE_PNG",
-                "SK_ENCODE_WEBP",
-                "SK_GL",
-                "SK_CODEC_DECODES_JPEG",
-                "SK_ENCODE_JPEG",
-                "SK_HAS_ANDROID_CODEC",
-            ],
-            # IOS
-            [
-                "SK_BUILD_FOR_IOS",
-                "SK_GL",
-                "SK_CODEC_DECODES_JPEG",
-                "SK_ENCODE_JPEG",
-                "SK_HAS_ANDROID_CODEC",
-            ],
-            # WASM
-            [
-                "SK_DISABLE_LEGACY_SHADERCONTEXT",
-                "SK_DISABLE_TRACING",
-                "SK_GL",
-                "SK_SUPPORT_GPU=1",
-                "SK_DISABLE_AAA",
-                "SK_DISABLE_EFFECT_DESERIALIZATION",
-                "SK_FORCE_8_BYTE_ALIGNMENT",
-                "SKNX_NO_SIMD",
-                "SK_CODEC_DECODES_JPEG",
-                "SK_ENCODE_JPEG",
-                "SK_HAS_ANDROID_CODEC",
-            ],
-            # FUCHSIA
-            [
-                "SK_BUILD_FOR_UNIX",
-                "SK_CODEC_DECODES_PNG",
-                "SK_CODEC_DECODES_WEBP",
-                "SK_ENCODE_PNG",
-                "SK_ENCODE_WEBP",
-                "SK_R32_SHIFT=16",
-                "SK_VULKAN",
-                "SK_CODEC_DECODES_JPEG",
-                "SK_ENCODE_JPEG",
-                "SK_HAS_ANDROID_CODEC",
-            ],
-            # MACOS
-            [
-                "SK_BUILD_FOR_MAC",
-                "SK_GL",
-                "SK_CODEC_DECODES_JPEG",
-                "SK_ENCODE_JPEG",
-                "SK_HAS_ANDROID_CODEC",
-            ],
-            # ANDROID W/ NO CODECS
-            [
-                "SK_BUILD_FOR_ANDROID",
-                "SK_GL",
-            ],
-        ],
-    )
-
-################################################################################
-## LINKOPTS
-################################################################################
-
-def base_linkopts(os_conditions):
-    return [
-        "-ldl",
-    ] + skia_select(
-        os_conditions,
-        [
-            [],  # Unix
-            # ANDROID
-            [
-                "-lEGL",
-                "-lGLESv2",
-            ],
-            # IOS
-            [
-                "-framework CoreFoundation",
-                "-framework CoreGraphics",
-                "-framework CoreText",
-                "-framework ImageIO",
-                "-framework MobileCoreServices",
-            ],
-            [],  # wasm
-            [],  # Fuchsia
-            # MACOS
-            [
-                "-framework CoreFoundation",
-                "-framework CoreGraphics",
-                "-framework CoreText",
-                "-framework ImageIO",
-                "-framework ApplicationServices",
-            ],
+            UNIX_DEFINES,
+            ANDROID_DEFINES,
+            IOS_DEFINES,
+            WASM_DEFINES,
+            FUCHSIA_DEFINES,
+            MACOS_DEFINES,
+            ANDROID_NO_CODECS_DEFINES,
         ],
     )
 

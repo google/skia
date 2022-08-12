@@ -1,4 +1,9 @@
-"""This module defines rules for running JS tests in a browser."""
+"""
+THIS IS THE EXTERNAL-ONLY VERSION OF THIS FILE. G3 DOES NOT HAVE ONE AT ALL.
+
+This module defines rules for running JS tests in a browser.
+
+"""
 
 load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "node_modules_aspect")
 

@@ -1,13 +1,11 @@
 load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_defines")
+load("//bazel:defines.bzl", "EXTRA_DEFINES")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 GENERAL_DEFINES = [
-    # The following comment is load-bearing. It will be replace via regex when we build for Google3
-    # Do not remove it or we won't be able to properly define SK_BUILD_FOR_GOOGLE3
-    # REPLACE_WHEN_BUILDING_IN_GOOGLE3
     "SK_HAS_ANDROID_CODEC",
     "SKIA_IMPLEMENTATION=1",
     "SK_GAMMA_APPLY_TO_A8",
@@ -122,6 +120,7 @@ PLATFORM_DEFINES = select({
 
 skia_defines(
     name = "defines_from_flags",
-    defines = GENERAL_DEFINES + GPU_DEFINES + CODEC_DEFINES + PLATFORM_DEFINES,
+    defines = GENERAL_DEFINES + GPU_DEFINES + CODEC_DEFINES + PLATFORM_DEFINES +
+              EXTRA_DEFINES,
     visibility = ["//:__subpackages__"],
 )
