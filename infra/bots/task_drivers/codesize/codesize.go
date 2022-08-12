@@ -302,7 +302,7 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 				"full_data": taskdriverURL + args.taskID,
 			},
 		}
-		if err = uploadPerfData(ctx, args.perfGCS, gcsDir, args.binaryName, perfData); err != nil {
+		if err = uploadPerfData(ctx, args.perfGCS, gcsDir, args.binaryName, args.taskID, perfData); err != nil {
 			return skerr.Wrap(err)
 		}
 	}
@@ -473,8 +473,9 @@ func computeTargetGCSDirectory(ctx context.Context, repoState types.RepoState, t
 
 // uploadPerfData gets the file size of the stripped binary (i.e. without debug symbols), formats
 // the JSON how Perf expects it, and uploads it to Perf's GCS bucket.
-func uploadPerfData(ctx context.Context, perfGCS gcs.GCSClient, gcsPathPrefix, binaryName string, perfData format.Format) error {
-	gcsPath := "nano-json-v1/" + gcsPathPrefix + "/codesize.json"
+func uploadPerfData(ctx context.Context, perfGCS gcs.GCSClient, gcsPathPrefix, binaryName, taskID string, perfData format.Format) error {
+	// Use the taskID to guarantee unique file ids
+	gcsPath := "nano-json-v1/" + gcsPathPrefix + "/codesize_" + taskID + ".json"
 
 	err := td.Do(ctx, td.Props("Upload total stripped binary size to Perf"), func(ctx context.Context) error {
 		s, err := os_steps.Stat(ctx, filepath.Join("build", binaryName+"_stripped"))

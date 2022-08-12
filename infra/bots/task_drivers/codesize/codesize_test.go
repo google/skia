@@ -39,7 +39,7 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
 		expectedBloatyFileGCSPath       = "2022/01/31/01/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/dm.tsv"
 		expectedJSONMetadataFileGCSPath = "2022/01/31/01/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/dm.json"
 
-		expectedPerfFileGCSPath = "nano-json-v1/2022/01/31/01/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/codesize.json"
+		expectedPerfFileGCSPath = "nano-json-v1/2022/01/31/01/693abc06538769c662ca1871d347323b133a5d3c/Build-Debian10-Clang-x86_64-Release/codesize_CkPp9ElAaEXyYWNHpXHU.json"
 	)
 
 	// The revision and author are assigned deterministically by the GitBuilder in test().
