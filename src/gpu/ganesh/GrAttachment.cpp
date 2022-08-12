@@ -93,7 +93,16 @@ void GrAttachment::ComputeScratchKey(const GrCaps& caps,
 }
 
 void GrAttachment::computeScratchKey(skgpu::ScratchKey* key) const {
-    if (!SkToBool(fSupportedUsages & UsageFlags::kStencilAttachment)) {
+    // We do don't cache GrAttachments as scratch resources when used for stencils or textures. For
+    // stencils we share/cache them with unique keys so that they can be shared. Textures are in a
+    // weird place on the Vulkan backend. Currently, GrVkTexture contains a GrAttachment (GrVkImage)
+    // that actually holds the VkImage. The GrVkTexture is cached as a scratch resource and is
+    // responsible for tracking the gpuMemorySize. Thus we set the size of the texture GrVkImage,
+    // above in onGpuMemorySize, to be zero. Therefore, we can't have the GrVkImage getting cached
+    // separately on its own in the GrResourceCache or we may grow forever adding them thinking they
+    // contatin a memory that's size 0 and never freeing the actual VkImages.
+    if (!SkToBool(fSupportedUsages & UsageFlags::kStencilAttachment) &&
+        !SkToBool(fSupportedUsages & UsageFlags::kTexture)) {
         auto isProtected = this->isProtected() ? GrProtected::kYes : GrProtected::kNo;
         ComputeScratchKey(*this->getGpu()->caps(),
                           this->backendFormat(),
