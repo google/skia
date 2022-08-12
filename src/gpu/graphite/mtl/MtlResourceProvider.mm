@@ -36,7 +36,7 @@ sk_sp<CommandBuffer> MtlResourceProvider::createCommandBuffer() {
     return MtlCommandBuffer::Make(this->mtlSharedContext());
 }
 
-sk_sp<GraphicsPipeline> MtlResourceProvider::onCreateGraphicsPipeline(
+sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
     return MtlGraphicsPipeline::Make(this,
@@ -45,7 +45,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::onCreateGraphicsPipeline(
                                      renderPassDesc);
 }
 
-sk_sp<ComputePipeline> MtlResourceProvider::onCreateComputePipeline(
+sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(
         const ComputePipelineDesc& pipelineDesc) {
     return MtlComputePipeline::Make(this, this->mtlSharedContext(), pipelineDesc);
 }

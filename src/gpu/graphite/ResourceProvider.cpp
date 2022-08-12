@@ -33,27 +33,45 @@ ResourceProvider::ResourceProvider(const SharedContext* sharedContext,
         , fResourceCache(ResourceCache::Make(singleOwner))
         , fGlobalCache(std::move(globalCache)) {
     SkASSERT(fResourceCache);
-    fGraphicsPipelineCache.reset(new GraphicsPipelineCache(this));
-    fComputePipelineCache.reset(new ComputePipelineCache(this));
     fCompiler = std::make_unique<SkSL::Compiler>(fSharedContext->caps()->shaderCaps());
 }
 
 ResourceProvider::~ResourceProvider() {
-    fGraphicsPipelineCache.release();
-    fComputePipelineCache.release();
     fResourceCache->shutdown();
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
         const GraphicsPipelineDesc& pipelineDesc, const RenderPassDesc& renderPassDesc) {
-    return fGraphicsPipelineCache->refPipeline(fSharedContext->caps(),
-                                               pipelineDesc,
-                                               renderPassDesc);
+    UniqueKey pipelineKey = fSharedContext->caps()->makeGraphicsPipelineKey(pipelineDesc,
+                                                                            renderPassDesc);
+    sk_sp<GraphicsPipeline> pipeline = fGlobalCache->findGraphicsPipeline(pipelineKey);
+    if (!pipeline) {
+        // Haven't encountered this pipeline, so create a new one. Since pipelines are shared
+        // across Recorders, we could theoretically create equivalent pipelines on different
+        // threads. If this happens, GlobalCache returns the first-through-gate pipeline and we
+        // discard the redundant pipeline. While this is wasted effort in the rare event of a race,
+        // it allows pipeline creation to be performed without locking the global cache.
+        pipeline = this->createGraphicsPipeline(pipelineDesc, renderPassDesc);
+        if (pipeline) {
+            // TODO: Should we store a null pipeline if we failed to create one so that subsequent
+            // usage immediately sees that the pipeline cannot be created, vs. retrying every time?
+            pipeline = fGlobalCache->addGraphicsPipeline(pipelineKey, std::move(pipeline));
+        }
+    }
+    return pipeline;
 }
 
 sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(
         const ComputePipelineDesc& pipelineDesc) {
-    return fComputePipelineCache->refPipeline(fSharedContext->caps(), pipelineDesc);
+    UniqueKey pipelineKey = fSharedContext->caps()->makeComputePipelineKey(pipelineDesc);
+    sk_sp<ComputePipeline> pipeline = fGlobalCache->findComputePipeline(pipelineKey);
+    if (!pipeline) {
+        pipeline = this->createComputePipeline(pipelineDesc);
+        if (pipeline) {
+            pipeline = fGlobalCache->addComputePipeline(pipelineKey, std::move(pipeline));
+        }
+    }
+    return pipeline;
 }
 
 SkShaderCodeDictionary* ResourceProvider::shaderCodeDictionary() const {
@@ -61,72 +79,6 @@ SkShaderCodeDictionary* ResourceProvider::shaderCodeDictionary() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct ResourceProvider::GraphicsPipelineCache::Entry {
-    Entry(sk_sp<GraphicsPipeline> pipeline) : fPipeline(std::move(pipeline)) {}
-
-    sk_sp<GraphicsPipeline> fPipeline;
-};
-
-ResourceProvider::GraphicsPipelineCache::GraphicsPipelineCache(ResourceProvider* resourceProvider)
-        : fMap(16)  // TODO: find a good value for this
-        , fResourceProvider(resourceProvider) {}
-
-ResourceProvider::GraphicsPipelineCache::~GraphicsPipelineCache() {
-    SkASSERT(0 == fMap.count());
-}
-
-void ResourceProvider::GraphicsPipelineCache::release() {
-    fMap.reset();
-}
-
-sk_sp<GraphicsPipeline> ResourceProvider::GraphicsPipelineCache::refPipeline(
-        const Caps* caps,
-        const GraphicsPipelineDesc& pipelineDesc,
-        const RenderPassDesc& renderPassDesc) {
-    UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc, renderPassDesc);
-
-    std::unique_ptr<Entry>* entry = fMap.find(pipelineKey);
-
-    if (!entry) {
-        auto pipeline = fResourceProvider->onCreateGraphicsPipeline(pipelineDesc, renderPassDesc);
-        if (!pipeline) {
-            return nullptr;
-        }
-        entry = fMap.insert(pipelineKey, std::unique_ptr<Entry>(new Entry(std::move(pipeline))));
-    }
-    return (*entry)->fPipeline;
-}
-
-struct ResourceProvider::ComputePipelineCache::Entry {
-    Entry(sk_sp<ComputePipeline> pipeline) : fPipeline(std::move(pipeline)) {}
-
-    sk_sp<ComputePipeline> fPipeline;
-};
-
-ResourceProvider::ComputePipelineCache::ComputePipelineCache(ResourceProvider* resourceProvider)
-        : fMap(16)  // TODO: find a good value for this
-        , fResourceProvider(resourceProvider) {}
-
-ResourceProvider::ComputePipelineCache::~ComputePipelineCache() { SkASSERT(0 == fMap.count()); }
-
-void ResourceProvider::ComputePipelineCache::release() { fMap.reset(); }
-
-sk_sp<ComputePipeline> ResourceProvider::ComputePipelineCache::refPipeline(
-        const Caps* caps, const ComputePipelineDesc& pipelineDesc) {
-    UniqueKey pipelineKey = caps->makeComputePipelineKey(pipelineDesc);
-
-    std::unique_ptr<Entry>* entry = fMap.find(pipelineKey);
-
-    if (!entry) {
-        auto pipeline = fResourceProvider->onCreateComputePipeline(pipelineDesc);
-        if (!pipeline) {
-            return nullptr;
-        }
-        entry = fMap.insert(pipelineKey, std::unique_ptr<Entry>(new Entry(std::move(pipeline))));
-    }
-    return (*entry)->fPipeline;
-}
 
 sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
                                                             const TextureInfo& info,

@@ -91,9 +91,9 @@ protected:
     const SharedContext* fSharedContext;
 
 private:
-    virtual sk_sp<GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&,
-                                                             const RenderPassDesc&) = 0;
-    virtual sk_sp<ComputePipeline> onCreateComputePipeline(const ComputePipelineDesc&) = 0;
+    virtual sk_sp<GraphicsPipeline> createGraphicsPipeline(const GraphicsPipelineDesc&,
+                                                           const RenderPassDesc&) = 0;
+    virtual sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&, SkBudgeted) = 0;
     virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) = 0;
 
@@ -106,54 +106,10 @@ private:
                                               const GraphiteResourceKey& key,
                                               SkBudgeted);
 
-    class GraphicsPipelineCache {
-    public:
-        GraphicsPipelineCache(ResourceProvider* resourceProvider);
-        ~GraphicsPipelineCache();
-
-        void release();
-        sk_sp<GraphicsPipeline> refPipeline(const Caps* caps,
-                                            const GraphicsPipelineDesc&,
-                                            const RenderPassDesc&);
-
-    private:
-        struct Entry;
-        struct KeyHash {
-            uint32_t operator()(const UniqueKey& key) const {
-                return key.hash();
-            }
-        };
-        SkLRUCache<UniqueKey, std::unique_ptr<Entry>, KeyHash> fMap;
-
-        ResourceProvider* fResourceProvider;
-    };
-
-    class ComputePipelineCache {
-    public:
-        ComputePipelineCache(ResourceProvider* resourceProvider);
-        ~ComputePipelineCache();
-
-        void release();
-        sk_sp<ComputePipeline> refPipeline(const Caps* caps, const ComputePipelineDesc&);
-
-    private:
-        struct Entry;
-        struct KeyHash {
-            uint32_t operator()(const UniqueKey& key) const { return key.hash(); }
-        };
-        SkLRUCache<UniqueKey, std::unique_ptr<Entry>, KeyHash> fMap;
-
-        ResourceProvider* fResourceProvider;
-    };
-
     sk_sp<ResourceCache> fResourceCache;
-    sk_sp<GlobalCache> fGlobalCache;
+    sk_sp<GlobalCache>   fGlobalCache;
 
-    // Cache of GraphicsPipelines
-    // TODO: Move these onto GlobalCache
-    std::unique_ptr<GraphicsPipelineCache> fGraphicsPipelineCache;
-    std::unique_ptr<ComputePipelineCache> fComputePipelineCache;
-
+    // TODO: To be moved to Recorder
     SkRuntimeEffectDictionary fRuntimeEffectDictionary;
     // Compiler used for compiling SkSL into backend shader code. We only want to create the
     // compiler once, as there is significant overhead to the first compile.
