@@ -203,14 +203,14 @@ sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
     const SkMatrix positionMatrix =
             position_matrix(viewMatrix.localToDevice(), glyphRunList.origin());
 
-    auto [__, subRuns] = SubRunContainer::MakeInAlloc(glyphRunList,
-                                                      positionMatrix,
-                                                      drawingPaint,
-                                                      strikeDeviceInfo,
-                                                      strikeCache,
-                                                      &alloc,
-                                                      SubRunContainer::kAddSubRuns,
-                                                      "Make Slug");
+    auto subRuns = SubRunContainer::MakeInAlloc(glyphRunList,
+                                                positionMatrix,
+                                                drawingPaint,
+                                                strikeDeviceInfo,
+                                                strikeCache,
+                                                &alloc,
+                                                SubRunContainer::kAddSubRuns,
+                                                "Make Slug");
 
     sk_sp<SlugImpl> slug = sk_sp<SlugImpl>(initializer.initialize(
             std::move(alloc),
@@ -350,7 +350,7 @@ sk_sp<TextBlob> TextBlob::Make(const GlyphRunList& glyphRunList,
     auto [initializer, totalMemoryAllocated, alloc] =
             SubRunAllocator::AllocateClassMemoryAndArena<TextBlob>(subRunSizeHint);
 
-    auto [someGlyphExcluded, container] = SubRunContainer::MakeInAlloc(
+    auto container = SubRunContainer::MakeInAlloc(
             glyphRunList, positionMatrix, paint,
             strikeDeviceInfo, strikeCache, &alloc, SubRunContainer::kAddSubRuns, "TextBlob");
 
@@ -359,10 +359,6 @@ sk_sp<TextBlob> TextBlob::Make(const GlyphRunList& glyphRunList,
                                                                   std::move(container),
                                                                   totalMemoryAllocated,
                                                                   initialLuminance));
-
-    // Be sure to pass the ref to the matrix that the SubRuns will capture.
-    blob->fSomeGlyphsExcluded = someGlyphExcluded;
-
     return blob;
 }
 
@@ -376,10 +372,11 @@ bool TextBlob::hasPerspective() const {
 
 bool TextBlob::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
     // A singular matrix will create a TextBlob with no SubRuns, but unknown glyphs can
-    // also cause empty runs. If there are no subRuns or some glyphs were excluded or perspective,
-    // then regenerate when the matrices don't match.
-    if ((fSubRuns->isEmpty() || fSomeGlyphsExcluded || hasPerspective()) &&
-        fSubRuns->initialPosition() != positionMatrix) {
+    // also cause empty runs. If there are no subRuns or perspective, then regenerate when the
+    // matrices don't match.
+    if ((fSubRuns->isEmpty() || this->hasPerspective()) &&
+        fSubRuns->initialPosition() != positionMatrix)
+    {
         return false;
     }
 

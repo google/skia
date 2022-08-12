@@ -2456,7 +2456,7 @@ size_t SubRunContainer::EstimateAllocSize(const GlyphRunList& glyphRunList) {
            + sizeof(SubRunContainer);
 }
 
-std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
+SubRunContainerOwner SubRunContainer::MakeInAlloc(
         const GlyphRunList& glyphRunList,
         const SkMatrix& positionMatrix,
         const SkPaint& runPaint,
@@ -2484,9 +2484,9 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
 
     SubRunContainerOwner container = alloc->makeUnique<SubRunContainer>(positionMatrix);
     SkASSERT(strikeDeviceInfo.fSDFTControl != nullptr);
+    // If there is no SDFT description ignore all SubRuns.
     if (strikeDeviceInfo.fSDFTControl == nullptr) {
-        // Return empty container.
-        return {true, std::move(container)};
+        return container;
     }
 
     const SkSurfaceProps deviceProps = strikeDeviceInfo.fSurfaceProps;
@@ -2495,7 +2495,6 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
 
     auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
-    bool someGlyphExcluded = false;
     std::vector<SkPackedGlyphID> packedGlyphIDs;
     SkSpan<SkPoint> positions;
     // This rearranging of arrays is temporary until the updated buffer system is
@@ -2583,18 +2582,13 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                             [&](const SkZip<SkGlyphVariant, SkPoint>& acceptedGlyphsAndLocations,
                                 MaskFormat format,
                                 sk_sp<SkStrike>&& runStrike) {
-                                SubRunOwner subRun =
+                                container->fSubRuns.append(
                                         DirectMaskSubRun::Make(bounds,
                                                                acceptedGlyphsAndLocations,
                                                                container->initialPosition(),
                                                                std::move(runStrike),
                                                                format,
-                                                               alloc);
-                                if (subRun != nullptr) {
-                                    container->fSubRuns.append(std::move(subRun));
-                                } else {
-                                    someGlyphExcluded |= true;
-                                }
+                                                               alloc));
                             };
                     add_multi_mask_format(addGlyphsWithSameFormat,
                                           accepted->acceptedWithMaskFormat(),
@@ -2766,19 +2760,14 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
                             [&](const SkZip<SkGlyphVariant, SkPoint>& acceptedGlyphsAndLocations,
                                 MaskFormat format,
                                 sk_sp<SkStrike>&& runStrike) {
-                                SubRunOwner subRun =
+                                container->fSubRuns.append(
                                         TransformedMaskSubRun::Make(acceptedGlyphsAndLocations,
                                                                     container->initialPosition(),
                                                                     std::move(runStrike),
                                                                     sourceBounds,
                                                                     strikeToSourceScale,
                                                                     format,
-                                                                    alloc);
-                                if (subRun != nullptr) {
-                                    container->fSubRuns.append(std::move(subRun));
-                                } else {
-                                    someGlyphExcluded |= true;
-                                }
+                                                                    alloc));
                             };
                     add_multi_mask_format(addGlyphsWithSameFormat,
                                           accepted->acceptedWithMaskFormat(),
@@ -2798,7 +2787,7 @@ std::tuple<bool, SubRunContainerOwner> SubRunContainer::MakeInAlloc(
         }
         SkDebugf("%s\n", msg.c_str());
     }
-    return {someGlyphExcluded, std::move(container)};
+    return container;
 }
 
 #if SK_SUPPORT_GPU

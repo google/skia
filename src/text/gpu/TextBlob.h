@@ -148,8 +148,6 @@ private:
     const SkColor fInitialLuminance;
 
     Key fKey;
-
-    bool fSomeGlyphsExcluded{false};
 };
 
 }  // namespace sktext::gpu
