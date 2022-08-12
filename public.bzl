@@ -2085,7 +2085,7 @@ ANDROID_NO_CODECS_DEFINES = [
 ]
 
 def base_defines(os_conditions):
-    return LEGACY_BASE_DEFINES + skia_select(
+    return BASE_DEFINES + skia_select(
         os_conditions,
         [
             UNIX_DEFINES,
