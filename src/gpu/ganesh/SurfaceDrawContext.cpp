@@ -1442,6 +1442,10 @@ void SurfaceDrawContext::drawImageLattice(const GrClip* clip,
 
 void SurfaceDrawContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
                                       const SkRect& bounds) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceDrawContext", "drawDrawable", fContext);
     GrOp::Owner op(DrawableOp::Make(fContext, std::move(drawable), bounds));
     SkASSERT(op);
     this->addOp(std::move(op));
