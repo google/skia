@@ -37,6 +37,7 @@ struct skcms_TransferFunction;
 
 #define SK_RASTER_PIPELINE_STAGES(M)                               \
     M(callback)                                                    \
+    M(stack_checkpoint) M(stack_rewind)                            \
     M(move_src_dst) M(move_dst_src) M(swap_src_dst)                \
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_gamut)                \
     M(unpremul) M(premul) M(premul_dst)                            \
@@ -169,6 +170,19 @@ struct SkRasterPipeline_CallbackCtx {
     float* read_from = rgba;
 };
 
+// state shared by stack_checkpoint and stack_rewind
+struct SkRasterPipeline_RewindCtx {
+    float  r[SkRasterPipeline_kMaxStride_highp];
+    float  g[SkRasterPipeline_kMaxStride_highp];
+    float  b[SkRasterPipeline_kMaxStride_highp];
+    float  a[SkRasterPipeline_kMaxStride_highp];
+    float dr[SkRasterPipeline_kMaxStride_highp];
+    float dg[SkRasterPipeline_kMaxStride_highp];
+    float db[SkRasterPipeline_kMaxStride_highp];
+    float da[SkRasterPipeline_kMaxStride_highp];
+    void** program;
+};
+
 struct SkRasterPipeline_GradientCtx {
     size_t stopCount;
     float* fs[4];
@@ -198,6 +212,12 @@ struct SkRasterPipeline_EmbossCtx {
     SkRasterPipeline_MemoryCtx mul,
                                add;
 };
+
+#if __has_cpp_attribute(clang::musttail) && !defined(__EMSCRIPTEN__) && !defined(SK_CPU_ARM32)
+    #define SK_HAS_MUSTTAIL 1
+#else
+    #define SK_HAS_MUSTTAIL 0
+#endif
 
 class SkRasterPipeline {
 public:
@@ -258,6 +278,8 @@ public:
 
     void append_transfer_function(const skcms_TransferFunction&);
 
+    void append_stack_rewind();
+
     bool empty() const { return fStages == nullptr; }
 
 private:
@@ -271,10 +293,12 @@ private:
     StartPipelineFn build_pipeline(void**) const;
 
     void unchecked_append(StockStage, void*);
+    int slots_needed() const;
 
-    SkArenaAlloc* fAlloc;
-    StageList*    fStages;
-    int           fNumStages;
+    SkArenaAlloc*               fAlloc;
+    SkRasterPipeline_RewindCtx* fRewindCtx;
+    StageList*                  fStages;
+    int                         fNumStages;
 };
 
 template <size_t bytes>

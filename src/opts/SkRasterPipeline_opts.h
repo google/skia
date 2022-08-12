@@ -1107,7 +1107,7 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
     }
 }
 
-#if __has_cpp_attribute(clang::musttail) && !defined(__EMSCRIPTEN__) && !defined(SK_CPU_ARM32)
+#if SK_HAS_MUSTTAIL
     #define JUMPER_MUSTTAIL [[clang::musttail]]
 #else
     #define JUMPER_MUSTTAIL
@@ -1147,6 +1147,103 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
     static void ABI just_return(Params*, void**, F,F,F,F) {}
 #else
     static void ABI just_return(size_t, void**, size_t,size_t, F,F,F,F, F,F,F,F) {}
+#endif
+
+// Note that in release builds, most stages consume no stack (thanks to tail call optimization).
+// However: certain builds (especially with non-clang compilers) may fail to optimize tail
+// calls, resulting in actual stack frames being generated.
+//
+// stack_checkpoint() and stack_rewind() are special stages that can be used to manage stack growth.
+// If a pipeline contains a stack_checkpoint, followed by any number of stack_rewind (at any point),
+// the C++ stack will be reset to the state it was at when the stack_checkpoint was initially hit.
+//
+// All instances of stack_rewind (as well as the one instance of stack_checkpoint near the start of
+// a pipeline) share a single context (of type SkRasterPipeline_RewindCtx). That context holds the
+// full state of the mutable registers that are normally passed to the next stage in the program.
+//
+// stack_rewind is the only stage other than just_return that actually returns (rather than jumping
+// to the next stage in the program). Before it does so, it stashes all of the registers in the
+// context. This includes the updated `program` pointer. Unlike stages that tail call exactly once,
+// stack_checkpoint calls the next stage in the program repeatedly, as long as the `program` in the
+// context is overwritten (i.e., as long as a stack_rewind was the reason the pipeline returned,
+// rather than a just_return).
+//
+// Normally, just_return is the only stage that returns, and no other stage does anything after a
+// subsequent (called) stage returns, so the stack just unwinds all the way to start_pipeline.
+// With stack_checkpoint on the stack, any stack_rewind stages will return all the way up to the
+// stack_checkpoint. That grabs the values that would have been passed to the next stage (from the
+// context), and continues the linear execution of stages, but has reclaimed all of the stack frames
+// pushed before the stack_rewind before doing so.
+#if JUMPER_NARROW_STAGES
+    static void ABI stack_checkpoint(Params* params, void** program, F r, F g, F b, F a) {
+        SkRasterPipeline_RewindCtx* ctx = Ctx{program};
+        while (program) {
+            auto next = (Stage)load_and_inc(program);
+
+            ctx->program = nullptr;
+            next(params, program, r, g, b, a);
+            program = ctx->program;
+
+            if (program) {
+                r          = sk_unaligned_load<F>(ctx->r );
+                g          = sk_unaligned_load<F>(ctx->g );
+                b          = sk_unaligned_load<F>(ctx->b );
+                a          = sk_unaligned_load<F>(ctx->a );
+                params->dr = sk_unaligned_load<F>(ctx->dr);
+                params->dg = sk_unaligned_load<F>(ctx->dg);
+                params->db = sk_unaligned_load<F>(ctx->db);
+                params->da = sk_unaligned_load<F>(ctx->da);
+            }
+        }
+    }
+    static void ABI stack_rewind(Params* params, void** program, F r, F g, F b, F a) {
+        SkRasterPipeline_RewindCtx* ctx = Ctx{program};
+        sk_unaligned_store(ctx->r , r );
+        sk_unaligned_store(ctx->g , g );
+        sk_unaligned_store(ctx->b , b );
+        sk_unaligned_store(ctx->a , a );
+        sk_unaligned_store(ctx->dr, params->dr);
+        sk_unaligned_store(ctx->dg, params->dg);
+        sk_unaligned_store(ctx->db, params->db);
+        sk_unaligned_store(ctx->da, params->da);
+        ctx->program = program;
+    }
+#else
+    static void ABI stack_checkpoint(size_t tail, void** program, size_t dx, size_t dy,
+                                     F r, F g, F b, F a, F dr, F dg, F db, F da) {
+        SkRasterPipeline_RewindCtx* ctx = Ctx{program};
+        while (program) {
+            auto next = (Stage)load_and_inc(program);
+
+            ctx->program = nullptr;
+            next(tail, program, dx, dy, r, g, b, a, dr, dg, db, da);
+            program = ctx->program;
+
+            if (program) {
+                r  = sk_unaligned_load<F>(ctx->r );
+                g  = sk_unaligned_load<F>(ctx->g );
+                b  = sk_unaligned_load<F>(ctx->b );
+                a  = sk_unaligned_load<F>(ctx->a );
+                dr = sk_unaligned_load<F>(ctx->dr);
+                dg = sk_unaligned_load<F>(ctx->dg);
+                db = sk_unaligned_load<F>(ctx->db);
+                da = sk_unaligned_load<F>(ctx->da);
+            }
+        }
+    }
+    static void ABI stack_rewind(size_t tail, void** program, size_t dx, size_t dy,
+                                 F r, F g, F b, F a, F dr, F dg, F db, F da) {
+        SkRasterPipeline_RewindCtx* ctx = Ctx{program};
+        sk_unaligned_store(ctx->r , r );
+        sk_unaligned_store(ctx->g , g );
+        sk_unaligned_store(ctx->b , b );
+        sk_unaligned_store(ctx->a , a );
+        sk_unaligned_store(ctx->dr, dr);
+        sk_unaligned_store(ctx->dg, dg);
+        sk_unaligned_store(ctx->db, db);
+        sk_unaligned_store(ctx->da, da);
+        ctx->program = program;
+    }
 #endif
 
 
@@ -4209,6 +4306,8 @@ STAGE_PP(swizzle, void* ctx) {
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 #define NOT_IMPLEMENTED(st) static void (*st)(void) = nullptr;
     NOT_IMPLEMENTED(callback)
+    NOT_IMPLEMENTED(stack_checkpoint)
+    NOT_IMPLEMENTED(stack_rewind)
     NOT_IMPLEMENTED(unbounded_set_rgb)
     NOT_IMPLEMENTED(unbounded_uniform_color)
     NOT_IMPLEMENTED(unpremul)
