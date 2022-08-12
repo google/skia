@@ -312,6 +312,8 @@ sk_sp<SkSurface> EGLTestHelper::importHardwareBufferForWrite(skiatest::Reporter*
 
 bool EGLTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter,
                                                       sk_sp<SkSurface> surface) {
+    surface->flushAndSubmit();
+
     EGLDisplay eglDisplay = eglGetCurrentDisplay();
     EGLSyncKHR eglsync = fEGLCreateSyncKHR(eglDisplay, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
     if (EGL_NO_SYNC_KHR == eglsync) {
@@ -319,7 +321,6 @@ bool EGLTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter,
         return false;
     }
 
-    surface->flushAndSubmit();
     GR_GL_CALL(fGLCtx->gl(), Flush());
     fFdHandle = fEGLDupNativeFenceFDANDROID(eglDisplay, eglsync);
 
