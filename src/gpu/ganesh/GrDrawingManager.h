@@ -105,9 +105,9 @@ public:
 
     // Adds a render task that copies the range [srcOffset, srcOffset + size] from src to
     // [dstOffset, dstOffset + size] in dst. The src buffer must have type kXferCpuToGpu and the
-    // dst must NOT have type kXferCpuToGpu. Neither buffer may be mapped.
-    // Currently, this task type has no dependencies and can be arbitrarily reordered with respect
-    // to other tasks. You probably shouldn't use it.
+    // dst must NOT have type kXferCpuToGpu. Neither buffer may be mapped. Because this is used to
+    // insert transfers to vertex/index buffers between draws and we don't track dependencies with
+    // buffers, this task is a hard boundary for task reordering.
     void newBufferTransferTask(sk_sp<GrGpuBuffer> src,
                                size_t srcOffset,
                                sk_sp<GrGpuBuffer> dst,
@@ -232,6 +232,7 @@ private:
     sk_sp<GrBufferAllocPool::CpuBufferCache> fCpuBufferCache;
 
     SkTArray<sk_sp<GrRenderTask>>            fDAG;
+    std::vector<int>                         fReorderBlockerTaskIndices;
     skgpu::v1::OpsTask*                      fActiveOpsTask = nullptr;
 
 #if SK_GPU_V1

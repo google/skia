@@ -143,6 +143,13 @@ DEF_TEST(GrRenderTaskCluster, reporter) {
 
         if (expectedOutput.empty()) {
             REPORTER_ASSERT(reporter, !actualResult);
+            size_t newCount = 0;
+            for (const GrRenderTask* t : llist) {
+                REPORTER_ASSERT(reporter, newCount < graphSpan.size() &&
+                                          t == graph[newCount].get());
+                ++newCount;
+            }
+            REPORTER_ASSERT(reporter, newCount == graphSpan.size());
         } else {
             REPORTER_ASSERT(reporter, actualResult);
             // SkTInternalLList::countEntries is debug-only and these tests run in release.
