@@ -508,7 +508,7 @@ public:
             , fPositions{that.fPositions}
             , fStrikeToSourceScale{that.fStrikeToSourceScale}
             , fIsAntiAliased{that.fIsAntiAliased}
-            , fStrikeRef{std::move(that.fStrikeRef)} {}
+            , fStrikePromise{std::move(that.fStrikePromise)} {}
     PathOpSubmitter& operator=(PathOpSubmitter&& that) {
         this->~PathOpSubmitter();
         new (this) PathOpSubmitter{std::move(that)};
@@ -518,14 +518,14 @@ public:
                     SkScalar strikeToSourceScale,
                     SkSpan<SkPoint> positions,
                     SkSpan<IDOrPath> idsOrPaths,
-                    StrikeRef&& strikeRef);
+                    SkStrikePromise&& strikePromise);
 
     ~PathOpSubmitter();
 
     static PathOpSubmitter Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                                 bool isAntiAliased,
                                 SkScalar strikeToSourceScale,
-                                StrikeRef&& strikeRef,
+                                SkStrikePromise&& strikePromise,
                                 SubRunAllocator* alloc);
 
     int unflattenSize() const;
@@ -548,8 +548,7 @@ private:
     const SkScalar fStrikeToSourceScale;
     const bool fIsAntiAliased;
 
-    // If fStrikeRef.getStrikeAndSetToNullptr() is nullptr, then fIDsOrPaths holds SkPaths.
-    mutable StrikeRef fStrikeRef;
+    mutable SkStrikePromise fStrikePromise;
     mutable SkOnce fConvertIDsToPaths;
 };
 
@@ -558,7 +557,7 @@ int PathOpSubmitter::unflattenSize() const {
 }
 
 void PathOpSubmitter::flatten(SkWriteBuffer& buffer) const {
-    fStrikeRef.flatten(buffer);
+    fStrikePromise.flatten(buffer);
 
     buffer.writeInt(fIsAntiAliased);
     buffer.writeScalar(fStrikeToSourceScale);
@@ -571,8 +570,9 @@ void PathOpSubmitter::flatten(SkWriteBuffer& buffer) const {
 std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buffer,
                                                                SubRunAllocator* alloc,
                                                                const SkStrikeClient* client) {
-    std::optional<StrikeRef> strikeRef = StrikeRef::MakeFromBuffer(buffer, client);
-    if (!buffer.validate(strikeRef.has_value())) {
+    std::optional<SkStrikePromise> strikePromise =
+            SkStrikePromise::MakeFromBuffer(buffer, client, SkStrikeCache::GlobalStrikeCache());
+    if (!buffer.validate(strikePromise.has_value())) {
         return std::nullopt;
     }
 
@@ -596,7 +596,7 @@ std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buf
                            strikeToSourceScale,
                            positions,
                            idsOrPaths,
-                           std::move(strikeRef.value())};
+                           std::move(strikePromise.value())};
 }
 
 PathOpSubmitter::PathOpSubmitter(
@@ -604,18 +604,18 @@ PathOpSubmitter::PathOpSubmitter(
         SkScalar strikeToSourceScale,
         SkSpan<SkPoint> positions,
         SkSpan<IDOrPath> idsOrPaths,
-        StrikeRef&& strikeRef)
+        SkStrikePromise&& strikePromise)
         : fIDsOrPaths{idsOrPaths}
         , fPositions{positions}
         , fStrikeToSourceScale{strikeToSourceScale}
         , fIsAntiAliased{isAntiAliased}
-        , fStrikeRef{std::move(strikeRef)} {
+        , fStrikePromise{std::move(strikePromise)} {
     SkASSERT(!fPositions.empty());
 }
 
 PathOpSubmitter::~PathOpSubmitter() {
     // If we have converted glyph IDs to paths, then clean up the SkPaths.
-    if (fStrikeRef.getStrikeAndSetToNullptr() == nullptr) {
+    if (fStrikePromise.strike() == nullptr) {
         for (auto& idOrPath : fIDsOrPaths) {
             idOrPath.fPath.~SkPath();
         }
@@ -625,7 +625,7 @@ PathOpSubmitter::~PathOpSubmitter() {
 PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                                       bool isAntiAliased,
                                       SkScalar strikeToSourceScale,
-                                      StrikeRef&& strikeRef,
+                                      SkStrikePromise&& strikePromise,
                                       SubRunAllocator* alloc) {
     int glyphCount = SkCount(accepted);
     SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
@@ -641,7 +641,7 @@ PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoint>& acc
                            strikeToSourceScale,
                            SkSpan(positions, glyphCount),
                            SkSpan(idsOrPaths, glyphCount),
-                           std::move(strikeRef)};
+                           std::move(strikePromise)};
 }
 
 void PathOpSubmitter::submitDraws(SkCanvas* canvas,
@@ -650,8 +650,9 @@ void PathOpSubmitter::submitDraws(SkCanvas* canvas,
 
     // Convert the glyph IDs to paths if it hasn't been done yet. This is thread safe.
     fConvertIDsToPaths([&]() {
-        if (sk_sp<SkStrike> strike = fStrikeRef.getStrikeAndSetToNullptr()) {
+        if (SkStrike* strike = fStrikePromise.strike()) {
             strike->glyphIDsToPaths(fIDsOrPaths);
+            fStrikePromise.resetStrike();
         }
     });
 
@@ -714,11 +715,11 @@ public:
     static SubRunOwner Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                             bool isAntiAliased,
                             SkScalar strikeToSourceScale,
-                            StrikeRef&& strikeRef,
+                            SkStrikePromise&& strikePromise,
                             SubRunAllocator* alloc) {
         return alloc->makeUnique<PathSubRun>(
-                PathOpSubmitter::Make(
-                        accepted, isAntiAliased, strikeToSourceScale, std::move(strikeRef), alloc));
+            PathOpSubmitter::Make(
+                    accepted, isAntiAliased, strikeToSourceScale, std::move(strikePromise), alloc));
     }
 
 #if SK_SUPPORT_GPU
@@ -789,9 +790,7 @@ public:
         : fStrikeToSourceScale{that.fStrikeToSourceScale}
         , fPositions{that.fPositions}
         , fIDsOrDrawables{that.fIDsOrDrawables}
-        , fStrikeRef{std::move(that.fStrikeRef)}
-            // Transfer ownership of the strike.
-        , fStrike{std::move(that.fStrike)} {}
+        , fStrikePromise{std::move(that.fStrikePromise)} {}
     DrawableOpSubmitter& operator=(DrawableOpSubmitter&& that) {
         this->~DrawableOpSubmitter();
         new (this) DrawableOpSubmitter{std::move(that)};
@@ -800,11 +799,11 @@ public:
     DrawableOpSubmitter(SkScalar strikeToSourceScale,
                         SkSpan<SkPoint> positions,
                         SkSpan<IDOrDrawable> idsOrDrawables,
-                        StrikeRef&& strikeRef);
+                        SkStrikePromise&& strikePromise);
 
     static DrawableOpSubmitter Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                                     SkScalar strikeToSourceScale,
-                                    StrikeRef&& strikeRef,
+                                    SkStrikePromise&& strikePromise,
                                     SubRunAllocator* alloc);
 
     int unflattenSize() const;
@@ -825,9 +824,10 @@ private:
     const SkScalar fStrikeToSourceScale;
     const SkSpan<SkPoint> fPositions;
     const SkSpan<IDOrDrawable> fIDsOrDrawables;
-    mutable StrikeRef fStrikeRef;
+    // When the promise is converted to a strike it acts as the ref on the strike to keep the
+    // SkDrawable data alive.
+    mutable SkStrikePromise fStrikePromise;
     mutable SkOnce fConvertIDsToDrawables;
-    mutable sk_sp<SkStrike> fStrike = nullptr;  // Owns the drawables in fIDsOrDrawables.
 };
 
 int DrawableOpSubmitter::unflattenSize() const {
@@ -835,7 +835,7 @@ int DrawableOpSubmitter::unflattenSize() const {
 }
 
 void DrawableOpSubmitter::flatten(SkWriteBuffer& buffer) const {
-    fStrikeRef.flatten(buffer);
+    fStrikePromise.flatten(buffer);
 
     buffer.writeScalar(fStrikeToSourceScale);
     buffer.writePointArray(fPositions.data(), SkCount(fPositions));
@@ -846,8 +846,9 @@ void DrawableOpSubmitter::flatten(SkWriteBuffer& buffer) const {
 
 std::optional<DrawableOpSubmitter> DrawableOpSubmitter::MakeFromBuffer(
         SkReadBuffer& buffer, SubRunAllocator* alloc, const SkStrikeClient* client) {
-    std::optional<StrikeRef> strikeRef = StrikeRef::MakeFromBuffer(buffer, client);
-    if (!buffer.validate(strikeRef.has_value())) {
+    std::optional<SkStrikePromise> strikePromise =
+            SkStrikePromise::MakeFromBuffer(buffer, client, SkStrikeCache::GlobalStrikeCache());
+    if (!buffer.validate(strikePromise.has_value())) {
         return std::nullopt;
     }
 
@@ -868,24 +869,24 @@ std::optional<DrawableOpSubmitter> DrawableOpSubmitter::MakeFromBuffer(
     return DrawableOpSubmitter{strikeToSourceScale,
                                positions,
                                SkSpan(idsOrDrawables, glyphCount),
-                               std::move(strikeRef.value())};
+                               std::move(strikePromise.value())};
 }
 
 DrawableOpSubmitter::DrawableOpSubmitter(
         SkScalar strikeToSourceScale,
         SkSpan<SkPoint> positions,
         SkSpan<IDOrDrawable> idsOrDrawables,
-        StrikeRef&& strikeRef)
+        SkStrikePromise&& strikePromise)
         : fStrikeToSourceScale{strikeToSourceScale}
         , fPositions{positions}
         , fIDsOrDrawables{idsOrDrawables}
-        , fStrikeRef(std::move(strikeRef)) {
+        , fStrikePromise(std::move(strikePromise)) {
     SkASSERT(!fPositions.empty());
 }
 
 DrawableOpSubmitter DrawableOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                                               SkScalar strikeToSourceScale,
-                                              StrikeRef&& strikeRef,
+                                              SkStrikePromise&& strikePromise,
                                               SubRunAllocator* alloc) {
     int glyphCount = SkCount(accepted);
     SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
@@ -898,7 +899,7 @@ DrawableOpSubmitter DrawableOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoi
     return DrawableOpSubmitter{strikeToSourceScale,
                                SkSpan(positions, glyphCount),
                                SkSpan(idsOrDrawables, glyphCount),
-                               std::move(strikeRef)};
+                               std::move(strikePromise)};
 }
 
 #if SK_SUPPORT_GPU
@@ -910,14 +911,7 @@ void DrawableOpSubmitter::submitOps(SkCanvas* canvas,
                                     skgpu::v1::SurfaceDrawContext* sdc) const {
     // Convert glyph IDs to Drawables if it hasn't been done yet.
     fConvertIDsToDrawables([&]() {
-        if (sk_sp<SkStrike> strike = fStrikeRef.getStrikeAndSetToNullptr()) {
-            strike->glyphIDsToDrawables(fIDsOrDrawables);
-            // Must hold the strike to keep the pointers to the drawable alive.
-            // TODO: it would be better if the strike held sk_sp<SkDrawable>s instead of the data
-            // itself. That way we could ref the SkDrawable in IDOrDrawable and not have to
-            // keep the strike alive.
-            fStrike = std::move(strike);
-        }
+        fStrikePromise.strike()->glyphIDsToDrawables(fIDsOrDrawables);
     });
 
     // Calculate the matrix that maps the path glyphs from their size in the strike to
@@ -945,10 +939,10 @@ void DrawableOpSubmitter::submitOps(SkCanvas* canvas,
 template <typename SubRunT>
 SubRunOwner make_drawable_sub_run(const SkZip<SkPackedGlyphID, SkPoint>& drawables,
                                   SkScalar strikeToSourceScale,
-                                  StrikeRef&& strikeRef,
+                                  SkStrikePromise&& strikePromise,
                                   SubRunAllocator* alloc) {
     return alloc->makeUnique<SubRunT>(
-            DrawableOpSubmitter::Make(drawables, strikeToSourceScale, std::move(strikeRef), alloc));
+        DrawableOpSubmitter::Make(drawables, strikeToSourceScale, std::move(strikePromise), alloc));
 }
 
 // -- DrawableSubRun -------------------------------------------------------------------------------
@@ -1143,7 +1137,7 @@ public:
     static SubRunOwner Make(SkRect runBounds,
                             const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkMatrix& initialPositionMatrix,
-                            sk_sp<SkStrike>&& strike,
+                            SkStrikePromise&& strikePromise,
                             MaskFormat format,
                             SubRunAllocator* alloc);
 
@@ -1255,7 +1249,7 @@ DirectMaskSubRun::DirectMaskSubRun(MaskFormat format,
 SubRunOwner DirectMaskSubRun::Make(SkRect runBounds,
                                    const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    const SkMatrix& initialPositionMatrix,
-                                   sk_sp<SkStrike>&& strike,
+                                   SkStrikePromise&& strikePromise,
                                    MaskFormat format,
                                    SubRunAllocator* alloc) {
     auto glyphLeftTop = alloc->makePODArray<SkPoint>(accepted.size());
@@ -1269,7 +1263,7 @@ SubRunOwner DirectMaskSubRun::Make(SkRect runBounds,
     SkSpan<const SkPoint> leftTop{glyphLeftTop, accepted.size()};
     return alloc->makeUnique<DirectMaskSubRun>(
             format, initialPositionMatrix, runBounds, leftTop,
-            GlyphVector{std::move(strike), {glyphIDs, accepted.size()}});
+            GlyphVector{std::move(strikePromise), {glyphIDs, accepted.size()}});
 }
 
 bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
@@ -1701,7 +1695,7 @@ public:
 
     static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkMatrix& initialPositionMatrix,
-                            sk_sp<SkStrike>&& strike,
+                            SkStrikePromise&& strikePromise,
                             SkRect sourceBounds,
                             SkScalar strikeToSourceScale,
                             MaskFormat maskType,
@@ -1802,7 +1796,7 @@ TransformedMaskSubRun::TransformedMaskSubRun(const SkMatrix& initialPositionMatr
 
 SubRunOwner TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         const SkMatrix& initialPositionMatrix,
-                                        sk_sp<SkStrike>&& strike,
+                                        SkStrikePromise&& strikePromise,
                                         SkRect sourceBounds,
                                         SkScalar strikeToSourceScale,
                                         MaskFormat maskType,
@@ -1810,7 +1804,7 @@ SubRunOwner TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& ac
     auto vertexFiller = TransformedMaskVertexFiller::Make(
             sourceBounds, maskType, 0, strikeToSourceScale, accepted, alloc);
 
-    auto glyphVector = GlyphVector::Make(std::move(strike), accepted.get<0>(), alloc);
+    auto glyphVector = GlyphVector::Make(std::move(strikePromise), accepted.get<0>(), alloc);
 
     return alloc->makeUnique<TransformedMaskSubRun>(
             initialPositionMatrix, std::move(vertexFiller), std::move(glyphVector));
@@ -1987,7 +1981,7 @@ public:
 
     static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkFont& runFont,
-                            sk_sp<SkStrike>&& strike,
+                            SkStrikePromise&& strikePromise,
                             SkRect sourceBounds,
                             SkScalar strikeToSourceScale,
                             const SDFTMatrixRange& matrixRange,
@@ -2098,7 +2092,7 @@ bool has_some_antialiasing(const SkFont& font ) {
 
 SubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                              const SkFont& runFont,
-                             sk_sp<SkStrike>&& strike,
+                             SkStrikePromise&& strikePromise,
                              SkRect sourceBounds,
                              SkScalar strikeToSourceScale,
                              const SDFTMatrixRange& matrixRange,
@@ -2111,7 +2105,7 @@ SubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
             accepted,
             alloc);
 
-    auto glyphVector = GlyphVector::Make(std::move(strike), accepted.get<0>(), alloc);
+    auto glyphVector = GlyphVector::Make(std::move(strikePromise), accepted.get<0>(), alloc);
 
     return alloc->makeUnique<SDFTSubRun>(
             runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
@@ -2544,7 +2538,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                         container->fSubRuns.append(SDFTSubRun::Make(
                                 accepted->accepted(),
                                 runFont,
-                                strike->getUnderlyingStrike(),
+                                strike->strikePromise(),
                                 sourceBounds,
                                 strikeToSourceScale,
                                 matrixRange, alloc));
@@ -2586,7 +2580,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                                         DirectMaskSubRun::Make(bounds,
                                                                acceptedGlyphsAndLocations,
                                                                container->initialPosition(),
-                                                               std::move(runStrike),
+                                                               strike->strikePromise(),
                                                                format,
                                                                alloc));
                             };
@@ -2607,21 +2601,20 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                StrikeRef strikeRef = strikeCache->findOrCreateStrikeRef(strikeSpec);
                 ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-                strikeRef.asStrikeForGPU()->prepareForDrawableDrawing(accepted, rejected);
+                strike->prepareForDrawableDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     container->fSubRuns.append(make_drawable_sub_run<DrawableSubRun>(
                             convertToGlyphIDs(accepted->accepted()),
                             strikeToSourceScale,
-                            std::move(strikeRef),
+                            strike->strikePromise(),
                             alloc));
                 }
             }
@@ -2636,14 +2629,14 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                StrikeRef strikeRef = strikeCache->findOrCreateStrikeRef(strikeSpec);
+                ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
 
-                strikeRef.asStrikeForGPU()->prepareForPathDrawing(accepted, rejected);
+                strike->prepareForPathDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
@@ -2651,7 +2644,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                             PathSubRun::Make(convertToGlyphIDs(accepted->accepted()),
                                              has_some_antialiasing(runFont),
                                              strikeToSourceScale,
-                                             std::move(strikeRef),
+                                             strike->strikePromise(),
                                              alloc));
                 }
             }
@@ -2763,7 +2756,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                                 container->fSubRuns.append(
                                         TransformedMaskSubRun::Make(acceptedGlyphsAndLocations,
                                                                     container->initialPosition(),
-                                                                    std::move(runStrike),
+                                                                    strike->strikePromise(),
                                                                     sourceBounds,
                                                                     strikeToSourceScale,
                                                                     format,

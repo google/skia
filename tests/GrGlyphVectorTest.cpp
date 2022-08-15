@@ -22,20 +22,11 @@
 using GlyphVector = sktext::gpu::GlyphVector;
 using SubRunAllocator = sktext::gpu::SubRunAllocator;
 
-namespace sktext {
-class StrikeRefTestingPeer {
-public:
-    static const SkDescriptor& GetDescriptor(const StrikeRef& strikeRef) {
-        return std::get<sk_sp<SkStrike>>(strikeRef.fStrike)->getDescriptor();
-    }
-};
-}  // namespace sktext;
-
 namespace sktext::gpu {
 class GlyphVectorTestingPeer {
 public:
     static const SkDescriptor& GetDescriptor(const GlyphVector& v) {
-        return StrikeRefTestingPeer::GetDescriptor(v.fStrikeRef);
+        return v.fStrikePromise.descriptor();
     }
     static SkSpan<GlyphVector::Variant> GetGlyphs(const GlyphVector& v) {
         return v.fGlyphs;
@@ -54,8 +45,9 @@ DEF_TEST(GlyphVector_Serialization, r) {
         glyphs[i] = SkPackedGlyphID(SkGlyphID(i));
     }
 
-    GlyphVector src = GlyphVector::Make(
-            strikeSpec.findOrCreateStrike(), SkSpan(glyphs, N), &alloc);
+    SkStrikePromise promise{strikeSpec.findOrCreateStrike()};
+
+    GlyphVector src = GlyphVector::Make(std::move(promise), SkSpan(glyphs, N), &alloc);
 
     SkBinaryWriteBuffer wBuffer;
     src.flatten(wBuffer);
