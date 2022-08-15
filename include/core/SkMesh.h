@@ -234,11 +234,35 @@ public:
     class IndexBuffer  : public SkRefCnt {
     public:
         virtual size_t size() const = 0;
+
+        /**
+         * Modifies the data in the IndexBuffer by copying size bytes from data into the buffer
+         * at offset. Fails if offset + size > this->size() or if either offset or size is not
+         * aligned to 4 bytes. The GrDirectContext* must match that used to create the buffer. We
+         * take it as a parameter to emphasize that the context must be used to update the data and
+         * thus the context must be valid for the current thread.
+         */
+        bool update(GrDirectContext*, const void* data, size_t offset, size_t size);
+
+    private:
+        virtual bool onUpdate(GrDirectContext*, const void* data, size_t offset, size_t size) = 0;
     };
 
     class VertexBuffer : public SkRefCnt {
     public:
         virtual size_t size() const = 0;
+
+        /**
+         * Modifies the data in the IndexBuffer by copying size bytes from data into the buffer
+         * at offset. Fails if offset + size > this->size() or if either offset or size is not
+         * aligned to 4 bytes. The GrDirectContext* must match that used to create the buffer. We
+         * take it as a parameter to emphasize that the context must be used to update the data and
+         * thus the context must be valid for the current thread.
+         */
+        bool update(GrDirectContext*, const void* data, size_t offset, size_t size);
+
+    private:
+        virtual bool onUpdate(GrDirectContext*, const void* data, size_t offset, size_t size) = 0;
     };
 
     SkMesh();
@@ -258,7 +282,8 @@ public:
      *                           uploaded to the GPU and a GPU-backed buffer is returned. It may
      *                           only be used to draw into SkSurfaces that are backed by the passed
      *                           GrDirectContext.
-     * @param  data              required. The data used to populate the buffer.
+     * @param  data              The data used to populate the buffer, or nullptr to create an
+     *                           uninitialized buffer.
      * @param  size              Both the size of the data in 'data' and the size of the resulting
      *                           buffer.
      */
@@ -275,7 +300,8 @@ public:
      *                           uploaded to the GPU and a GPU-backed buffer is returned. It may
      *                           only be used to draw into SkSurfaces that are backed by the passed
      *                           GrDirectContext.
-     * @param  data              required. The data used to populate the buffer.
+     * @param  data              The data used to populate the buffer, or nullptr to create an
+     *                           uninitialized buffer.
      * @param  size              Both the size of the data in 'data' and the size of the resulting
      *                           buffer.
      */

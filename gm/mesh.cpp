@@ -637,4 +637,206 @@ private:
 
 DEF_GM(return new MeshUniformsGM())
 
+class MeshUpdateGM : public skiagm::GM {
+public:
+    MeshUpdateGM() = default;
+
+protected:
+    using Attribute = SkMeshSpecification::Attribute;
+    using Varying = SkMeshSpecification::Varying;
+
+    SkISize onISize() override { return {270, 490}; }
+
+    void onOnceBeforeDraw() override {
+        static const Attribute kAttributes[]{
+                {Attribute::Type::kFloat2, 0, SkString{"pos"}},
+                {Attribute::Type::kFloat2, 8, SkString{"coords"}},
+        };
+        static const Varying kVaryings[]{
+                {Varying::Type::kFloat2, SkString{"coords"}},
+        };
+        static constexpr char kVS[] = R"(
+                float2 main(in Attributes attributes, out Varyings varyings) {
+                    varyings.coords = attributes.coords;
+                    return attributes.pos;
+                }
+        )";
+        static constexpr char kFS[] = R"(
+                float2 main(Varyings varyings) { return varyings.coords; }
+        )";
+        auto [spec, error] = SkMeshSpecification::Make(kAttributes,
+                                                       sizeof(Vertex),
+                                                       kVaryings,
+                                                       SkString(kVS),
+                                                       SkString(kFS),
+                                                       SkColorSpace::MakeSRGB(),
+                                                       kPremul_SkAlphaType);
+        if (!spec) {
+            SkDebugf("%s\n", error.c_str());
+        }
+        fSpec = std::move(spec);
+
+        uint32_t colors[] = {SK_ColorYELLOW, SK_ColorMAGENTA, SK_ColorCYAN, SK_ColorWHITE};
+        SkPixmap pixmap(SkImageInfo::Make({2, 2}, kBGRA_8888_SkColorType, kPremul_SkAlphaType),
+                        colors,
+                        /*rowBytes=*/8);
+        fShader = SkImage::MakeRasterCopy(pixmap)->makeShader(
+                SkTileMode::kClamp, SkTileMode::kClamp, SkSamplingOptions{SkFilterMode::kLinear});
+    }
+
+    SkString onShortName() override { return SkString("mesh_updates"); }
+
+    DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
+        canvas->clear(SK_ColorBLACK);
+
+        GrRecordingContext* rc = canvas->recordingContext();
+        GrDirectContext* dc = GrAsDirectContext(rc);
+        if (rc && !dc) {
+            // On GPU this relies on using the DC to update the GPU backed vertex/index buffers.
+            return DrawResult::kSkip;
+        }
+
+        if (dc && dc->abandoned()) {
+            return DrawResult::kSkip;
+        }
+
+        // TODO: Remove this once we implement support for APIs without transfer buffers.
+        if (dc && !dc->priv().caps()->transferFromBufferToBufferSupport()) {
+            return DrawResult::kSkip;
+        }
+
+        SkPaint paint;
+        paint.setShader(fShader);
+
+        SkRect r = SkRect::MakeXYWH(10.f, 10.f, 50.f, 50.f);
+
+        // We test updating CPU and GPU buffers.
+        for (bool gpuBuffer : {false, true}) {
+            auto ctx = gpuBuffer ? dc : nullptr;
+
+            // How many rects worth of storage is in the vertex buffer?
+            static constexpr int kVBRects = 2;
+
+            // How many times do we update the vertex buffer? Wraps to start of buffer if
+            // > kVBRects.
+            static constexpr int kUpdatesRects = 3;
+
+            auto vb =
+                    SkMesh::MakeVertexBuffer(ctx, /*data=*/nullptr, kVBRects*6*sizeof(Vertex));
+
+            SkRect bounds;
+            for (int i = 0; i < kUpdatesRects; ++i) {
+                auto p = r.makeOffset(100.f*i, 0.f);
+                if (i) {
+                    bounds.join(p);
+                } else {
+                    bounds = p;
+                }
+
+                SkPoint t[4];
+                SkRect::MakeWH(2.f, 2.f).toQuad(t);
+                SkMatrix::RotateDeg(90.f*i, {1.f, 1.f}).mapPoints(t, std::size(t));
+
+                Vertex vertices[6];
+                vertices[0] = {{p.left(), p.top()}, t[0]};
+                vertices[1] = {{p.left(), p.bottom()}, t[3]};
+                vertices[2] = {{p.right(), p.top()}, t[1]};
+                vertices[3] = vertices[2];
+                vertices[4] = vertices[1];
+                vertices[5] = {{p.right(), p.bottom()}, t[2]};
+
+                size_t offset = 6*(i % kVBRects)*sizeof(Vertex);
+                SkAssertResult(vb->update(ctx, vertices, offset, 6*sizeof(Vertex)));
+                // Make there aren't accidentally deferred reads of the client data.
+                std::memset(vertices, 0, sizeof(vertices));
+
+                int rectCount = std::min(i + 1, kVBRects);
+                auto mesh = SkMesh::Make(fSpec,
+                                         SkMesh::Mode::kTriangles,
+                                         vb,
+                                         /*vertexCount=*/6*rectCount,
+                                         /*vertexOffset=*/0,
+                                         nullptr,
+                                         bounds);
+
+                canvas->drawMesh(mesh, SkBlender::Mode(SkBlendMode::kDst), paint);
+
+                canvas->translate(0, r.height() + 10);
+            }
+
+            // Now test updating an IB.
+
+            // How many rects worth of storage is in the index buffer?
+            static constexpr int kIBRects = 2;
+
+            // How many times do we update the index buffer? Wraps to start of buffer if > kIBRects.
+            static constexpr int kNumIBUpdates = 3;
+
+            // Make the vertex buffer large enough to hold all the rects and populate.
+            vb = SkMesh::MakeVertexBuffer(
+                    ctx, /*data=*/nullptr, kNumIBUpdates*4*sizeof(Vertex));
+            for (int i = 0; i < kNumIBUpdates; ++i) {
+                SkPoint p[4];
+                auto rect = r.makeOffset(100*i, 0);
+                rect.toQuad(p);
+                if (i) {
+                    bounds.join(rect);
+                } else {
+                    bounds = rect;
+                }
+
+                SkPoint t[4];
+                SkRect::MakeWH(2.f, 2.f).toQuad(t);
+                SkMatrix::RotateDeg(90.f*i, {1.f, 1.f}).mapPoints(t, std::size(t));
+                Vertex vertices[4]{{p[0], t[0]}, {p[1], t[1]}, {p[2], t[2]}, {p[3], t[3]}};
+                SkAssertResult(
+                        vb->update(ctx, vertices, i*4*sizeof(Vertex), 4*sizeof(Vertex)));
+            }
+
+            auto ib =
+                    SkMesh::MakeIndexBuffer(ctx, /*data=*/nullptr, kIBRects*6*sizeof(uint16_t));
+
+            for (int i = 0; i < kNumIBUpdates; ++i) {
+                uint16_t indices[6] = {SkToU16(0 + 4*i),
+                                       SkToU16(3 + 4*i),
+                                       SkToU16(1 + 4*i),
+                                       SkToU16(1 + 4*i),
+                                       SkToU16(3 + 4*i),
+                                       SkToU16(2 + 4*i)};
+                size_t offset = 6*(i % kIBRects)*sizeof(uint16_t);
+                SkAssertResult(ib->update(ctx, indices, offset, 6*sizeof(uint16_t)));
+                std::memset(indices, 0, 6*sizeof(uint16_t));
+
+                auto mesh = SkMesh::MakeIndexed(fSpec,
+                                                SkMesh::Mode::kTriangles,
+                                                vb,
+                                                /*vertexCount= */ 4*kNumIBUpdates,
+                                                /*vertexOffset=*/0,
+                                                ib,
+                                                /*indexCount= */ 6,
+                                                /*indexOffset=*/offset,
+                                                /*uniforms=   */ nullptr,
+                                                bounds);
+
+                canvas->drawMesh(mesh, SkBlender::Mode(SkBlendMode::kDst), paint);
+            }
+            canvas->translate(0, r.height() + 10);
+        }
+
+        return DrawResult::kOk;
+    }
+
+private:
+    struct Vertex {
+        SkPoint pos;
+        SkPoint tex;
+    };
+
+    sk_sp<SkMeshSpecification> fSpec;
+
+    sk_sp<SkShader> fShader;
+};
+
+DEF_GM(return new MeshUpdateGM())
+
 }  // namespace skiagm

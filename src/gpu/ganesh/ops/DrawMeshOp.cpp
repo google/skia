@@ -463,7 +463,7 @@ private:
     class Mesh {
     public:
         Mesh() = delete;
-        Mesh(const SkMesh& mesh);
+        explicit Mesh(const SkMesh& mesh);
         Mesh(sk_sp<SkVertices>, const SkMatrix& viewMatrix);
         Mesh(const Mesh&) = delete;
         Mesh(Mesh&& m);
@@ -562,6 +562,21 @@ MeshOp::Mesh::Mesh(const SkMesh& mesh) {
     fMeshData.voffset = mesh.vertexOffset();
     fMeshData.icount  = mesh.indexCount();
     fMeshData.ioffset = mesh.indexOffset();
+
+    // The caller could modify CPU buffers after the draw so we must copy the data.
+    if (fMeshData.vb->peek()) {
+        auto data = SkTAddOffset<const void>(fMeshData.vb->peek(), fMeshData.voffset);
+        size_t size = fMeshData.vcount*mesh.spec()->stride();
+        fMeshData.vb = SkMeshPriv::CpuVertexBuffer::Make(data, size);
+        fMeshData.voffset = 0;
+    }
+
+    if (fMeshData.ib && fMeshData.ib->peek()) {
+        auto data = SkTAddOffset<const void>(fMeshData.ib->peek(), fMeshData.ioffset);
+        size_t size = fMeshData.icount*sizeof(uint16_t);
+        fMeshData.ib = SkMeshPriv::CpuIndexBuffer::Make(data, size);
+        fMeshData.ioffset = 0;
+    }
 }
 
 MeshOp::Mesh::Mesh(sk_sp<SkVertices> vertices, const SkMatrix& viewMatrix)
@@ -904,6 +919,9 @@ void MeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
 
 GrOp::CombineResult MeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
     auto that = t->cast<MeshOp>();
+    if (!fMeshes[0].isFromVertices() || !that->fMeshes[0].isFromVertices()) {
+        return GrOp::CombineResult::kCannotCombine;
+    }
 
     // Check for a combinable primitive type.
     if (!(fPrimitiveType == GrPrimitiveType::kTriangles ||
