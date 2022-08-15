@@ -96,6 +96,10 @@ protected:
     }
 
     SkISize onISize() override {
+        // Sweep tests get a slightly wider canvas so that glyphs from one group fit in one row.
+        if (fTestName.equals("sweep_varsweep")) {
+            return SkISize::Make(xWidth + 500, xWidth);
+        }
         return SkISize::Make(xWidth, xWidth);
     }
 
@@ -151,7 +155,7 @@ protected:
                                        paint);
                 SkScalar glyphAdvance = font.measureText(
                         &fCodepoints[i], sizeof(uint32_t), SkTextEncoding::kUTF32, nullptr);
-                if (x + glyphAdvance < xWidth - xTranslate) {
+                if (x + glyphAdvance < onISize().width() - xTranslate) {
                     x += glyphAdvance + glyphAdvance * 0.05f;
                 } else {
                     y += y_shift;
@@ -181,10 +185,15 @@ private:
 // Regenerate descriptions and paste the generated arrays here when updating the test font.
 namespace ColrV1TestDefinitions {
 const uint32_t gradient_stops_repeat[] = {0xf0100, 0xf0101, 0xf0102, 0xf0103};
-const uint32_t sweep_varsweep[] = {0xf0200, 0xf0201, 0xf0202, 0xf0203, 0xf0204, 0xf0205,
-                                   0xf0206, 0xf0207, 0xf0208, 0xf0209, 0xf020a, 0xf020b,
-                                   0xf020c, 0xf020d, 0xf020e, 0xf020f, 0xf0210, 0xf0211,
-                                   0xf0212, 0xf0213, 0xf0214, 0xf0215, 0xf0216, 0xf0217};
+const uint32_t sweep_varsweep[] = {
+        0xf0200, 0xf0201, 0xf0202, 0xf0203, 0xf0204, 0xf0205, 0xf0206, 0xf0207, 0xf0208,
+        0xf0209, 0xf020a, 0xf020b, 0xf020c, 0xf020d, 0xf020e, 0xf020f, 0xf0210, 0xf0211,
+        0xf0212, 0xf0213, 0xf0214, 0xf0215, 0xf0216, 0xf0217, 0xf0218, 0xf0219, 0xf021a,
+        0xf021b, 0xf021c, 0xf021d, 0xf021e, 0xf021f, 0xf0220, 0xf0221, 0xf0222, 0xf0223,
+        0xf0224, 0xf0225, 0xf0226, 0xf0227, 0xf0228, 0xf0229, 0xf022a, 0xf022b, 0xf022c,
+        0xf022d, 0xf022e, 0xf022f, 0xf0230, 0xf0231, 0xf0232, 0xf0233, 0xf0234, 0xf0235,
+        0xf0236, 0xf0237, 0xf0238, 0xf0239, 0xf023a, 0xf023b, 0xf023c, 0xf023d, 0xf023e,
+        0xf023f, 0xf0240, 0xf0241, 0xf0242, 0xf0243, 0xf0244, 0xf0245, 0xf0246, 0xf0247};
 const uint32_t paint_scale[] = {0xf0300, 0xf0301, 0xf0302, 0xf0303, 0xf0304, 0xf0305};
 const uint32_t extend_mode[] = {0xf0500, 0xf0501, 0xf0502, 0xf0503, 0xf0504, 0xf0505};
 const uint32_t paint_rotate[] = {0xf0600, 0xf0601, 0xf0602, 0xf0603};
@@ -257,6 +266,18 @@ DEF_GM(return F(C(sweep_varsweep),         0.0f,  0.0f, {}))
 DEF_GM(return F(C(sweep_varsweep),        -0.5f,  0.0f, {}))
 DEF_GM(return F(C(sweep_varsweep),        -0.5f, 20.0f, {}))
 DEF_GM(return F(C(sweep_varsweep),         0.0f, 20.0f, {}))
+DEF_GM(return F(C(sweep_varsweep),         0.0f,  0.0f, {{"SWPS"_t, 0.f}}))
+DEF_GM(return F(C(sweep_varsweep),         0.0f,  0.0f, {{"SWPS"_t, 90.f}}))
+DEF_GM(return F(C(sweep_varsweep),         0.0f,  0.0f, {{"SWPE"_t, -90.f}}))
+DEF_GM(return F(C(sweep_varsweep),         0.0f,  0.0f, {{"SWPE"_t, -45.f}}))
+DEF_GM(return F(C(sweep_varsweep),         0.0f,  0.0f, {{"SWPS"_t, -45.f},{"SWPE"_t, 45.f}}))
+DEF_GM(return F(C(sweep_varsweep),
+                0.0f,
+                0.0f,
+                {{"SWC1"_t, -0.25f},
+                 {"SWC2"_t, 0.083333333f},
+                 {"SWC3"_t, 0.083333333f},
+                 {"SWC4"_t, +0.25f}}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH1"_t, -0.7f}}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH2"_t, -0.7f}, {"APH3"_t, -0.2f}}))
