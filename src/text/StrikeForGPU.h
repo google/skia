@@ -102,6 +102,9 @@ public:
     // Return underlying SkStrike for building SubRuns while processing glyph runs.
     virtual sk_sp<SkStrike> getUnderlyingStrike() const = 0;
 
+    // Return a strike promise.
+    virtual SkStrikePromise strikePromise() = 0;
+
     // Return the maximum dimension of a span of glyphs.
     virtual SkScalar findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) = 0;
 

@@ -179,6 +179,10 @@ public:
         this->updateDelta(increase);
     }
 
+    sktext::SkStrikePromise strikePromise() override {
+        return sktext::SkStrikePromise(sk_ref_sp<SkStrike>(this));
+    }
+
     SkScalar findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) override {
         auto [maxDimension, increase] = fScalerCache.findMaximumGlyphDimension(glyphs);
         this->updateDelta(increase);

@@ -195,6 +195,8 @@ public:
     void prepareForDrawableDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override;
 
+    sktext::SkStrikePromise strikePromise() override;
+
     SkScalar findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) override;
 
     void onAboutToExitScope() override {}
@@ -500,6 +502,10 @@ void RemoteStrike::prepareForDrawableDrawing(
                     rejected->reject(i);
                 }
             });
+}
+
+sktext::SkStrikePromise RemoteStrike::strikePromise() {
+    return sktext::SkStrikePromise{*this->fStrikeSpec};
 }
 
 // -- WireTypeface ---------------------------------------------------------------------------------
