@@ -19,6 +19,7 @@
 
 #if defined(HAVE_VIDEO_DECODER)
     #include "experimental/ffmpeg/SkVideoDecoder.h"
+    #include "include/core/SkStream.h"
 #endif
 
 namespace skresources {
