@@ -22,20 +22,11 @@
 using GlyphVector = sktext::gpu::GlyphVector;
 using SubRunAllocator = sktext::gpu::SubRunAllocator;
 
-namespace sktext {
-class StrikeRefTestingPeer {
-public:
-    static const SkDescriptor& GetDescriptor(const StrikeRef& strikeRef) {
-        return std::get<sk_sp<SkStrike>>(strikeRef.fStrike)->getDescriptor();
-    }
-};
-}  // namespace sktext;
-
 namespace sktext::gpu {
 class GlyphVectorTestingPeer {
 public:
     static const SkDescriptor& GetDescriptor(const GlyphVector& v) {
-        return StrikeRefTestingPeer::GetDescriptor(v.fStrikeRef);
+        return v.fStrikePromise.descriptor();
     }
     static SkSpan<GlyphVector::Variant> GetGlyphs(const GlyphVector& v) {
         return v.fGlyphs;
@@ -54,8 +45,9 @@ DEF_TEST(GlyphVector_Serialization, r) {
         glyphs[i] = SkPackedGlyphID(SkGlyphID(i));
     }
 
-    GlyphVector src = GlyphVector::Make(
-            strikeSpec.findOrCreateStrike(), SkSpan(glyphs, N), &alloc);
+    SkStrikePromise promise{strikeSpec.findOrCreateStrike()};
+
+    GlyphVector src = GlyphVector::Make(std::move(promise), SkSpan(glyphs, N), &alloc);
 
     SkBinaryWriteBuffer wBuffer;
     src.flatten(wBuffer);
@@ -76,13 +68,18 @@ DEF_TEST(GlyphVector_Serialization, r) {
 }
 
 DEF_TEST(GlyphVector_BadLengths, r) {
-    {
-        SkFont font;
-        auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(font);
+    auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(SkFont());
 
+    // Strike to keep in the strike cache.
+    auto strike = strikeSpec.findOrCreateStrike();
+
+    // Be sure to keep the strike alive. The promise to serialize as the first part of the
+    // GlyphVector.
+    SkStrikePromise promise{sk_sp<SkStrike>(strike)};
+    {
         // Make broken stream by hand - zero length
         SkBinaryWriteBuffer wBuffer;
-        strikeSpec.descriptor().flatten(wBuffer);
+        promise.flatten(wBuffer);
         wBuffer.write32(0);  // length
         auto data = wBuffer.snapshotAsData();
         SkReadBuffer rBuffer{data->data(), data->size()};
@@ -92,12 +89,10 @@ DEF_TEST(GlyphVector_BadLengths, r) {
     }
 
     {
-        SkFont font;
-        auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(font);
-
-        // Make broken stream by hand - stream is too short
+        // Make broken stream by hand - zero length
         SkBinaryWriteBuffer wBuffer;
-        strikeSpec.descriptor().flatten(wBuffer);
+        promise.flatten(wBuffer);
+        // Make broken stream by hand - stream is too short
         wBuffer.write32(5);  // length
         wBuffer.writeUInt(12);  // random data
         wBuffer.writeUInt(12);  // random data
@@ -110,12 +105,9 @@ DEF_TEST(GlyphVector_BadLengths, r) {
     }
 
     {
-        SkFont font;
-        auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(font);
-
         // Make broken stream by hand - length out of range of safe calculations
         SkBinaryWriteBuffer wBuffer;
-        strikeSpec.descriptor().flatten(wBuffer);
+        promise.flatten(wBuffer);
         wBuffer.write32(INT_MAX - 10);  // length
         wBuffer.writeUInt(12);  // random data
         wBuffer.writeUInt(12);  // random data
