@@ -23,6 +23,7 @@ class SkDrawableGlyphBuffer;
 class SkReadBuffer;
 class SkSourceGlyphBuffer;
 class SkStrike;
+class SkStrikeCache;
 class SkStrikeClient;
 class SkStrikeSpec;
 class SkWriteBuffer;
@@ -30,6 +31,44 @@ struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
 
 namespace sktext {
+// -- SkStrikePromise ------------------------------------------------------------------------------
+// SkStrikePromise produces an SkStrike when needed by GPU glyph rendering. In ordinary
+// operation, it just wraps an SkStrike. When used for remote glyph cache operation, the promise is
+// serialized to an SkDescriptor. When SkStrikePromise is deserialized, it uses the descriptor to
+// look up the SkStrike.
+//
+// When deserializing some care must be taken; if the needed SkStrike is removed from the cache,
+// then looking up using the descriptor will fail resulting in a deserialization failure. The
+// Renderer/GPU system solves this problem by pinning all the strikes needed into the cache.
+class SkStrikePromise {
+public:
+    SkStrikePromise() = delete;
+    SkStrikePromise(const SkStrikePromise&) = delete;
+    SkStrikePromise& operator=(const SkStrikePromise&) = delete;
+    SkStrikePromise(SkStrikePromise&&);
+    SkStrikePromise& operator=(SkStrikePromise&&);
+
+    explicit SkStrikePromise(sk_sp<SkStrike>&& strike);
+    explicit SkStrikePromise(const SkStrikeSpec& spec);
+
+    static std::optional<SkStrikePromise> MakeFromBuffer(SkReadBuffer& buffer,
+                                                         const SkStrikeClient* client,
+                                                         SkStrikeCache* strikeCache);
+    void flatten(SkWriteBuffer& buffer) const;
+
+    // Do what is needed to return a strike.
+    SkStrike* strike();
+
+    // Reset the sk_sp<SkStrike> to nullptr.
+    void resetStrike();
+
+    // Return a descriptor used to look up the SkStrike.
+    const SkDescriptor& descriptor() const;
+
+private:
+    std::variant<sk_sp<SkStrike>, std::unique_ptr<SkStrikeSpec>> fStrikeOrSpec;
+};
+
 // -- StrikeForGPU ---------------------------------------------------------------------------------
 class StrikeForGPU {
 public:
