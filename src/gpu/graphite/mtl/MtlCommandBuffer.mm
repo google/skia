@@ -23,9 +23,9 @@
 
 namespace skgpu::graphite {
 
-sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(const MtlSharedContext* sharedContext) {
+sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(id<MTLCommandQueue> queue,
+                                               const MtlSharedContext* sharedContext) {
     sk_cfp<id<MTLCommandBuffer>> cmdBuffer;
-    id<MTLCommandQueue> queue = sharedContext->queue();
     if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         sk_cfp<MTLCommandBufferDescriptor*> desc([[MTLCommandBufferDescriptor alloc] init]);
         (*desc).retainedReferences = NO;

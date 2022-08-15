@@ -28,7 +28,7 @@ class MtlSharedContext;
 
 class MtlCommandBuffer final : public CommandBuffer {
 public:
-    static sk_sp<MtlCommandBuffer> Make(const MtlSharedContext*);
+    static sk_sp<MtlCommandBuffer> Make(id<MTLCommandQueue>, const MtlSharedContext*);
     ~MtlCommandBuffer() override;
 
     bool isFinished() {
@@ -36,7 +36,7 @@ public:
                (*fCommandBuffer).status == MTLCommandBufferStatusError;
 
     }
-    void waitUntilFinished() {
+    void waitUntilFinished(const SharedContext*) {
         // TODO: it's not clear what do to if status is Enqueued. Commit and then wait?
         if ((*fCommandBuffer).status == MTLCommandBufferStatusScheduled ||
             (*fCommandBuffer).status == MTLCommandBufferStatusCommitted) {

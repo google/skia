@@ -31,7 +31,8 @@ class SharedContext;
 class MtlTrampoline {
 public:
     static sk_sp<SharedContext> MakeSharedContext(const MtlBackendContext&, const ContextOptions&);
-    static std::unique_ptr<QueueManager> MakeQueueManager(const SharedContext*);
+    static std::unique_ptr<QueueManager> MakeQueueManager(const MtlBackendContext&,
+                                                          const SharedContext*);
     static std::unique_ptr<ResourceProvider> MakeResourceProvider(const SharedContext*,
                                                                   sk_sp<GlobalCache>,
                                                                   SingleOwner*);

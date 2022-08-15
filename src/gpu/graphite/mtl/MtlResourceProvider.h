@@ -33,10 +33,10 @@ public:
 private:
     const MtlSharedContext* mtlSharedContext();
 
-    sk_sp<CommandBuffer> createCommandBuffer() override;
     sk_sp<GraphicsPipeline> createGraphicsPipeline(const GraphicsPipelineDesc&,
                                                    const RenderPassDesc&) override;
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
+
     sk_sp<Texture> createTexture(SkISize, const TextureInfo&, SkBudgeted) override;
     sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
 

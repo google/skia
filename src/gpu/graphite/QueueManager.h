@@ -30,6 +30,11 @@ public:
     bool submitToGpu();
     void checkForFinishedWork(SyncToCpu);
 
+#if GRAPHITE_TEST_UTILS
+    virtual void testingOnly_startCapture() {}
+    virtual void testingOnly_endCapture() {}
+#endif
+
 protected:
     QueueManager(const SharedContext* sharedContext);
 

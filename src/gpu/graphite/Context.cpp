@@ -54,7 +54,7 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
         return nullptr;
     }
 
-    auto queueManager = MtlTrampoline::MakeQueueManager(sharedContext.get());
+    auto queueManager = MtlTrampoline::MakeQueueManager(backendContext, sharedContext.get());
     if (!queueManager) {
         return nullptr;
     }

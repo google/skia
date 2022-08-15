@@ -18,8 +18,12 @@ sk_sp<SharedContext> MtlTrampoline::MakeSharedContext(const MtlBackendContext& b
     return MtlSharedContext::Make(backendContext, options);
 }
 
-std::unique_ptr<QueueManager> MtlTrampoline::MakeQueueManager(const SharedContext* sharedContext) {
-    return std::make_unique<MtlQueueManager>(sharedContext);
+std::unique_ptr<QueueManager> MtlTrampoline::MakeQueueManager(
+        const MtlBackendContext& backendContext, const SharedContext* sharedContext) {
+
+    sk_cfp<id<MTLCommandQueue>> queue =
+            sk_ret_cfp((id<MTLCommandQueue>)(backendContext.fQueue.get()));
+    return std::make_unique<MtlQueueManager>(std::move(queue), sharedContext);
 }
 
 std::unique_ptr<ResourceProvider> MtlTrampoline::MakeResourceProvider(

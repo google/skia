@@ -48,8 +48,6 @@ class ResourceProvider {
 public:
     virtual ~ResourceProvider();
 
-    virtual sk_sp<CommandBuffer> createCommandBuffer() = 0;
-
     sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(const GraphicsPipelineDesc&,
                                                          const RenderPassDesc&);
 

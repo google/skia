@@ -34,21 +34,17 @@ sk_sp<skgpu::graphite::SharedContext> MtlSharedContext::Make(const MtlBackendCon
     }
 
     sk_cfp<id<MTLDevice>> device = sk_ret_cfp((id<MTLDevice>)(context.fDevice.get()));
-    sk_cfp<id<MTLCommandQueue>> queue = sk_ret_cfp((id<MTLCommandQueue>)(context.fQueue.get()));
 
     sk_sp<const MtlCaps> caps(new MtlCaps(device.get(), options));
 
     return sk_sp<skgpu::graphite::SharedContext>(new MtlSharedContext(std::move(device),
-                                                                      std::move(queue),
                                                                       std::move(caps)));
 }
 
 MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
-                                   sk_cfp<id<MTLCommandQueue>> queue,
                                    sk_sp<const MtlCaps> caps)
     : skgpu::graphite::SharedContext(std::move(caps))
-    , fDevice(std::move(device))
-    , fQueue(std::move(queue)) {
+    , fDevice(std::move(device)) {
 }
 
 MtlSharedContext::~MtlSharedContext() {
@@ -75,38 +71,5 @@ void MtlSharedContext::onDeleteBackendTexture(BackendTexture& texture) {
     MtlHandle texHandle = texture.getMtlTexture();
     SkCFSafeRelease(texHandle);
 }
-
-#if GRAPHITE_TEST_UTILS
-void MtlSharedContext::testingOnly_startCapture() {
-    if (@available(macOS 10.13, iOS 11.0, *)) {
-        // TODO: add newer Metal interface as well
-        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-        if (captureManager.isCapturing) {
-            return;
-        }
-        if (@available(macOS 10.15, iOS 13.0, *)) {
-            MTLCaptureDescriptor* captureDescriptor = [[MTLCaptureDescriptor alloc] init];
-            captureDescriptor.captureObject = fQueue.get();
-
-            NSError *error;
-            if (![captureManager startCaptureWithDescriptor: captureDescriptor error:&error])
-            {
-                NSLog(@"Failed to start capture, error %@", error);
-            }
-        } else {
-            [captureManager startCaptureWithCommandQueue: fQueue.get()];
-        }
-     }
-}
-
-void MtlSharedContext::testingOnly_endCapture() {
-    if (@available(macOS 10.13, iOS 11.0, *)) {
-        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-        if (captureManager.isCapturing) {
-            [captureManager stopCapture];
-        }
-    }
-}
-#endif
 
 } // namespace skgpu::graphite

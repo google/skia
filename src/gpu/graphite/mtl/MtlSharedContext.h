@@ -26,7 +26,6 @@ public:
     ~MtlSharedContext() override;
 
     id<MTLDevice> device() const { return fDevice.get(); }
-    id<MTLCommandQueue> queue() const { return fQueue.get(); }
 
     const MtlCaps& mtlCaps() const { return static_cast<const MtlCaps&>(*this->caps()); }
 
@@ -34,18 +33,12 @@ public:
             sk_sp<GlobalCache>, SingleOwner*) const override;
 
 private:
-    MtlSharedContext(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const MtlCaps>);
+    MtlSharedContext(sk_cfp<id<MTLDevice>>, sk_sp<const MtlCaps>);
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
     void onDeleteBackendTexture(BackendTexture&) override;
 
-#if GRAPHITE_TEST_UTILS
-    void testingOnly_startCapture() override;
-    void testingOnly_endCapture() override;
-#endif
-
     sk_cfp<id<MTLDevice>> fDevice;
-    sk_cfp<id<MTLCommandQueue>> fQueue;
 };
 
 } // namespace skgpu::graphite

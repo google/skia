@@ -42,11 +42,6 @@ public:
     BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);
     void deleteBackendTexture(BackendTexture&);
 
-#if GRAPHITE_TEST_UTILS
-    virtual void testingOnly_startCapture() {}
-    virtual void testingOnly_endCapture() {}
-#endif
-
 protected:
     SharedContext(sk_sp<const Caps>);
 

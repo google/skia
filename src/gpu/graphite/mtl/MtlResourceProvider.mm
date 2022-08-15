@@ -32,10 +32,6 @@ const MtlSharedContext* MtlResourceProvider::mtlSharedContext() {
     return static_cast<const MtlSharedContext*>(fSharedContext);
 }
 
-sk_sp<CommandBuffer> MtlResourceProvider::createCommandBuffer() {
-    return MtlCommandBuffer::Make(this->mtlSharedContext());
-}
-
 sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
