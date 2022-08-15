@@ -510,7 +510,6 @@ public:
         // Get white spaces
         this->forEachCodepoint((char16_t*)&utf16[0], utf16Units,
            [results, replaceTabs, &utf16](SkUnichar unichar, int32_t start, int32_t end) {
-                CodeUnitFlags flags = CodeUnitFlags::kNoCodeUnitFlag;
                 for (auto i = start; i < end; ++i) {
                     if (replaceTabs && SkUnicode_icu::isTabulation(unichar)) {
                         results->at(i) |= SkUnicode::kTabulation;
