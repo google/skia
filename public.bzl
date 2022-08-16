@@ -1,28 +1,5 @@
-################################################################################
-# Starlark macros
-################################################################################
-
-def skia_select(conditions, results):
-    """select() for conditions provided externally.
-
-    Instead of {"conditionA": resultA, "conditionB": resultB},
-    this takes two arrays, ["conditionA", "conditionB"] and [resultA, resultB].
-
-    This allows the exact targets of the conditions to be provided externally while
-    the results can live here, hiding the structure of those conditions in Google3.
-
-    Maybe this is too much paranoia?
-
-    Args:
-      conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS, CONDITION_WASM, ...]
-      results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS, RESULT_WASM, ....]
-    Returns:
-      The result matching the active condition.
-    """
-    selector = {}
-    for i in range(len(conditions)):
-        selector[conditions[i]] = results[i]
-    return select(selector)
+# This file contains lists of files and defines used in the legacy G3 build, that is, the G3 build
+# that is not derived from our Bazel rules.
 
 SKIA_PUBLIC_HDRS = [
     "include/android/SkAndroidFrameworkUtils.h",
@@ -2084,20 +2061,6 @@ ANDROID_NO_CODECS_DEFINES = [
     "SK_GL",
 ]
 
-def base_defines(os_conditions):
-    return BASE_DEFINES + skia_select(
-        os_conditions,
-        [
-            UNIX_DEFINES,
-            ANDROID_DEFINES,
-            IOS_DEFINES,
-            WASM_DEFINES,
-            FUCHSIA_DEFINES,
-            MACOS_DEFINES,
-            ANDROID_NO_CODECS_DEFINES,
-        ],
-    )
-
 ################################################################################
 ## sksg_lib
 ################################################################################
@@ -2324,19 +2287,6 @@ SKOTTIE_SHAPER_HDRS = [
 
 SKOTTIE_SHAPER_SRCS = [
     "modules/skottie/src/text/SkottieShaper.cpp",
-]
-
-################################################################################
-## skottie_tool
-################################################################################
-
-SKOTTIE_TOOL_SRCS = [
-    "modules/skottie/src/SkottieTool.cpp",
-    "modules/skresources/src/SkResources.cpp",
-    "modules/skresources/include/SkResources.h",
-    # TODO(benjaminwagner): Add "flags" target.
-    "tools/flags/CommandLineFlags.cpp",
-    "tools/flags/CommandLineFlags.h",
 ]
 
 ################################################################################
