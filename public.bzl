@@ -358,7 +358,6 @@ BASE_SRCS_ALL = [
     "src/core/SkColorFilterBase.h",
     "src/core/SkColorFilterPriv.h",
     "src/core/SkColorFilter_Matrix.cpp",
-    "src/core/SkColorFilter_Matrix.h",
     "src/core/SkColorSpace.cpp",
     "src/core/SkColorSpacePriv.h",
     "src/core/SkColorSpaceXformSteps.cpp",

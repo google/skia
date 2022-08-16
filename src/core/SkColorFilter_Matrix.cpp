@@ -5,14 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkColorFilter_Matrix.h"
-
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
@@ -35,9 +33,46 @@ static bool is_alpha_unchanged(const float matrix[20]) {
         && SkScalarNearlyZero (srcA[4]);
 }
 
+class SkColorFilter_Matrix : public SkColorFilterBase {
+public:
+    enum class Domain : uint8_t { kRGBA, kHSLA };
+
+    explicit SkColorFilter_Matrix(const float array[20], Domain);
+
+    bool onIsAlphaUnchanged() const override { return fAlphaIsUnchanged; }
+
+#if SK_SUPPORT_GPU
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext*,
+                                   const GrColorInfo&,
+                                   const SkSurfaceProps&) const override;
+#endif
+#ifdef SK_ENABLE_SKSL
+    void addToKey(const SkKeyContext&,
+                  SkPaintParamsKeyBuilder*,
+                  SkPipelineDataGatherer*) const override;
+#endif
+
+private:
+    friend void ::SkRegisterMatrixColorFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkColorFilter_Matrix)
+
+    void flatten(SkWriteBuffer&) const override;
+    bool onAsAColorMatrix(float matrix[20]) const override;
+
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    skvm::Color onProgram(skvm::Builder*, skvm::Color,
+                          const SkColorInfo& dst,
+                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
+
+    float  fMatrix[20];
+    bool   fAlphaIsUnchanged;
+    Domain fDomain;
+};
+
 SkColorFilter_Matrix::SkColorFilter_Matrix(const float array[20], Domain domain)
-    : fAlphaIsUnchanged(is_alpha_unchanged(array))
-    , fDomain(domain) {
+        : fAlphaIsUnchanged(is_alpha_unchanged(array))
+        , fDomain(domain) {
     memcpy(fMatrix, array, 20 * sizeof(float));
 }
 
@@ -216,6 +251,6 @@ sk_sp<SkColorFilter> SkColorFilters::HSLAMatrix(const SkColorMatrix& cm) {
     return MakeMatrix(cm.fMat.data(), SkColorFilter_Matrix::Domain::kHSLA);
 }
 
-void SkColorFilter_Matrix::RegisterFlattenables() {
+void SkRegisterMatrixColorFilterFlattenable() {
     SK_REGISTER_FLATTENABLE(SkColorFilter_Matrix);
 }

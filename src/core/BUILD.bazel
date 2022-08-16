@@ -72,7 +72,6 @@ CORE_FILES = [
     "SkColorFilterBase.h",
     "SkColorFilterPriv.h",
     "SkColorFilter_Matrix.cpp",
-    "SkColorFilter_Matrix.h",
     "SkColorSpace.cpp",
     "SkColorSpacePriv.h",
     "SkColorSpaceXformSteps.cpp",
