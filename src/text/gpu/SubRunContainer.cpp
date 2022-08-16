@@ -652,6 +652,8 @@ void PathOpSubmitter::submitDraws(SkCanvas* canvas,
     fConvertIDsToPaths([&]() {
         if (SkStrike* strike = fStrikePromise.strike()) {
             strike->glyphIDsToPaths(fIDsOrPaths);
+
+            // Drop ref to strike so that it can be purged from the cache if needed.
             fStrikePromise.resetStrike();
         }
     });
@@ -912,6 +914,8 @@ void DrawableOpSubmitter::submitOps(SkCanvas* canvas,
     // Convert glyph IDs to Drawables if it hasn't been done yet.
     fConvertIDsToDrawables([&]() {
         fStrikePromise.strike()->glyphIDsToDrawables(fIDsOrDrawables);
+        // Do not call resetStrike() because the strike must remain owned to ensure the Drawable
+        // data is not freed.
     });
 
     // Calculate the matrix that maps the path glyphs from their size in the strike to
