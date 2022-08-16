@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.36.0] - 2022-08-16
+
 ### Added
  - The following path methods: `addCircle`, `CanInterpolate`, and `MakeFromPathInterpolation`.
  - The following ImageFilter factory methods: `MakeBlend`, `MakeDilate`, `MakeDisplacementMap`,
